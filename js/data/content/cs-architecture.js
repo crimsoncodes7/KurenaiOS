@@ -784,99 +784,85 @@ C["compsci:4.6.1.4"] = {
 
 C["compsci:4.6.3.1"] = {
   "notes": [
+    { "h": "Types of Program Translators" },
     {
-      "h": "Types of Program Translators"
+      "callout": {
+        "t": "def",
+        "h": "Assembler",
+        "body": "Translates **assembly language** (mnemonics like `MOV`, `ADD`) into **machine code** (binary). Almost a 1-to-1 mapping. Platform-specific — assembly for one CPU architecture won't work on another."
+      }
     },
     {
       "callout": {
         "t": "def",
-        "h": "Translator Types",
-        "body": [
-          {
-            "kv": [
-              [
-                "Assembler",
-                "Translates assembly language into machine code (1-to-1)."
-              ],
-              [
-                "Compiler",
-                "Translates high-level code all at once into an executable."
-              ],
-              [
-                "Interpreter",
-                "Translates and executes high-level code line-by-line."
-              ],
-              [
-                "Bytecode",
-                "Intermediate instruction set for platform independence."
-              ]
-            ]
-          }
-        ]
+        "h": "Compiler",
+        "body": "Translates the **entire** high-level source code into machine code **before** execution. Produces a standalone executable. The source code is not needed on the target machine at runtime."
       }
     },
     {
-      "h": "Compiler vs Interpreter"
+      "callout": {
+        "t": "def",
+        "h": "Interpreter",
+        "body": "Translates and executes high-level code **one statement at a time**. No executable is produced. The source code and interpreter must be present on the target machine every time the program is run."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Bytecode / Virtual Machine",
+        "body": "Some compilers (e.g. Java) produce **intermediate bytecode** rather than machine code. A **Virtual Machine (JVM)** then interprets the bytecode at runtime. Advantage: **platform independence** — the same bytecode runs on any machine with the VM installed."
+      }
     },
     {
       "table": {
-        "head": [
-          "Feature",
-          "Compiler",
-          "Interpreter"
-        ],
+        "head": ["Feature", "Compiler", "Interpreter"],
         "rows": [
-          [
-            "Output",
-            "Standalone executable (.exe)",
-            "No output file"
-          ],
-          [
-            "Execution Speed",
-            "Fast (pre-translated)",
-            "Slow (translated during run)"
-          ],
-          [
-            "Source Code",
-            "Not needed on target machine",
-            "Must be present on target"
-          ],
-          [
-            "Errors",
-            "Reports all errors at the end",
-            "Stops at the first error"
-          ]
+          ["Output", "Standalone executable (.exe)", "No output file produced"],
+          ["Execution speed", "Fast — code already translated", "Slow — translates each line at runtime"],
+          ["Source code needed to run?", "No — just the executable", "Yes — must be present every time"],
+          ["Error reporting", "Reports all errors after full translation", "Stops at the first error encountered"],
+          ["Debugging", "Harder — errors shown after full compile", "Easier — see exactly which line failed"],
+          ["Distribution", "Easy — share the .exe", "Must share source code (or encrypt it)"]
         ]
       }
     },
     {
-      "h": "The Compilation Process"
+      "callout": {
+        "t": "tip",
+        "h": "Which to Use?",
+        "body": "**Interpreter**: better for development/debugging. **Compiler**: better for distribution and performance. Java uses both: compiles to bytecode (portability), then JVM interprets bytecode (platform independence)."
+      }
     },
+    { "h": "The Compilation Process (Stages)" },
     {
       "steps": [
         {
           "h": "Lexical Analysis",
-          "n": "Code is broken into tokens (keywords, variables)."
+          "m": "Source code is scanned and broken into **tokens** (keywords, identifiers, operators, literals). Whitespace and comments are removed. Output: a flat list of tokens.",
+          "n": "A token for `x = x + 1` might be: `[IDENTIFIER:x] [ASSIGN] [IDENTIFIER:x] [PLUS] [NUMBER:1]`."
         },
         {
-          "h": "Syntax Analysis",
-          "n": "Tokens checked against grammar rules; parse tree created."
+          "h": "Syntax Analysis (Parsing)",
+          "m": "Tokens are checked against the language's **grammar rules**. A **parse tree** (or abstract syntax tree) is produced. Reports syntax errors if the structure violates the grammar.",
+          "n": "E.g. `x = + 1` would fail syntax analysis — missing left operand."
         },
         {
           "h": "Semantic Analysis",
-          "n": "Check for logical errors (e.g., using a variable before defining)."
+          "m": "Checks for **logical errors** that are syntactically valid but meaningless — e.g. using an undeclared variable, type mismatches, or calling a function with wrong arguments.",
+          "n": "E.g. `int x = \"hello\"` passes syntax but fails semantic analysis."
         },
         {
-          "h": "Code Generation",
-          "n": "Machine code is produced and optimized."
+          "h": "Code Generation & Optimisation",
+          "m": "The compiler generates **machine code** from the AST. The optimiser removes redundant instructions, reorganises for speed, and reduces memory use.",
+          "n": "Output is the object code / executable binary."
         }
       ]
     },
     {
       "code": {
         "lang": "pseudo",
-        "cap": "High-level vs Assembly vs Machine Code",
-        "src": "HL: x = x + 1\nASM: ADD R0, R0, #1\nBIN: 01011100 00000001"
+        "cap": "Same operation at three levels: high-level → assembly → binary.",
+        "src": "HL:  x = x + 1\nASM: ADD R0, R0, #1\nBIN: 01011100 00000001"
       }
     }
   ],
@@ -962,109 +948,81 @@ C["compsci:4.6.3.1"] = {
 
 C["compsci:4.6.4.1"] = {
   "notes": [
-    {
-      "h": "Logic Gates"
-    },
+    { "h": "Logic Gates" },
     {
       "callout": {
         "t": "def",
-        "h": "Core Gates",
+        "h": "Gate Definitions & Boolean Notation",
         "body": [
-          {
-            "kv": [
-              [
-                "AND (•)",
-                "Output is 1 only if ALL inputs are 1."
-              ],
-              [
-                "OR (+)",
-                "Output is 1 if ANY input is 1."
-              ],
-              [
-                "NOT (¬)",
-                "Inverts the input (Inverter)."
-              ],
-              [
-                "XOR (⊕)",
-                "Output is 1 if inputs are DIFFERENT."
-              ],
-              [
-                "NAND / NOR",
-                "Universal gates used to build any circuit."
-              ]
-            ]
-          }
+          {"kv": [
+            ["AND (A · B)", "Output is 1 **only if ALL inputs are 1**. Symbol: · or ∧."],
+            ["OR (A + B)", "Output is 1 **if ANY input is 1**. Symbol: + or ∨."],
+            ["NOT (¬A)", "**Inverts** the input. 0→1, 1→0. Also written Ā (A-bar)."],
+            ["XOR (A ⊕ B)", "Output is 1 **only if inputs are DIFFERENT**. (Exclusive OR)"],
+            ["NAND (¬(A·B))", "AND then inverted. Universal gate — can build any circuit."],
+            ["NOR (¬(A+B))", "OR then inverted. Also universal."]
+          ]}
         ]
       }
     },
     {
-      "h": "Standard Truth Table"
+      "callout": {
+        "t": "memorise",
+        "h": "NAND and NOR are Universal Gates",
+        "body": "Any logic circuit (AND, OR, NOT, XOR...) can be **built entirely from NAND gates** (or entirely from NOR gates). This is why processors use NAND gates extensively — they're cheaper to fabricate in silicon."
+      }
     },
+    { "h": "Standard Truth Table" },
     {
       "table": {
-        "head": [
-          "Input A",
-          "Input B",
-          "A AND B",
-          "A OR B",
-          "A XOR B"
-        ],
+        "head": ["A", "B", "A AND B", "A OR B", "A XOR B", "A NAND B", "NOT A"],
         "rows": [
-          [
-            "0",
-            "0",
-            "0",
-            "0",
-            "0"
-          ],
-          [
-            "0",
-            "1",
-            "0",
-            "1",
-            "1"
-          ],
-          [
-            "1",
-            "0",
-            "0",
-            "1",
-            "1"
-          ],
-          [
-            "1",
-            "1",
-            "1",
-            "1",
-            "0"
-          ]
+          ["0", "0", "0", "0", "0", "1", "1"],
+          ["0", "1", "0", "1", "1", "1", "1"],
+          ["1", "0", "0", "1", "1", "1", "0"],
+          ["1", "1", "1", "1", "0", "0", "0"]
         ]
       }
     },
     {
-      "h": "Solving Boolean Circuits"
+      "callout": {
+        "t": "tip",
+        "h": "XOR Key Pattern",
+        "body": "XOR = 1 when inputs **differ**. The only row XOR = 0 is 0,0 and 1,1. Remember: XOR is used in encryption (one-time pad), half-adder circuits, and parity checking."
+      }
     },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Building Truth Tables — Row Count",
+        "body": "For $n$ inputs, there are $2^n$ rows in the truth table. 2 inputs → 4 rows. 3 inputs → 8 rows. 4 inputs → 16 rows. Always list inputs in binary counting order: 00, 01, 10, 11."
+      }
+    },
+    { "h": "Evaluating Boolean Circuits" },
     {
       "steps": [
         {
-          "h": "Label",
-          "n": "Identify and label every intermediate gate output."
+          "h": "Label intermediate outputs",
+          "m": "Assign letters (P, Q, R...) to every gate output in the circuit. Work left-to-right from the inputs.",
+          "n": "Never try to evaluate the whole circuit at once — label each gate."
         },
         {
-          "h": "Calculate",
-          "n": "Evaluate the logic for each gate starting from the inputs."
+          "h": "Fill in the truth table row by row",
+          "m": "For each input combination, evaluate each gate in order, using the labelled intermediate values.",
+          "n": "Check: does each intermediate column make sense before moving to the next?"
         },
         {
-          "h": "Combine",
-          "n": "The final gate provides the result of the entire expression."
+          "h": "Write the Boolean expression",
+          "m": "Combine gate outputs using Boolean notation. E.g. if P = A · B and the final gate is P + C, write Q = (A · B) + C.",
+          "n": "Brackets matter — use them liberally to avoid ambiguity."
         }
       ]
     },
     {
       "code": {
         "lang": "pseudo",
-        "cap": "Boolean Expression Example",
-        "src": "Output = (A AND B) OR (NOT C)\n# Boolean Notation:\nQ = (A . B) + ¬C"
+        "cap": "Boolean expression from a circuit with two gates.",
+        "src": "# Input: A, B, C\nP = A AND B        # P = A . B\nQ = P OR (NOT C)   # Q = (A . B) + ¬C\n\n# Truth table: enumerate all 8 combinations of A,B,C"
       }
     }
   ],
@@ -1150,36 +1108,36 @@ C["compsci:4.6.4.1"] = {
 
 C["compsci:4.7.1.1"] = {
   "notes": [
+    { "h": "Internal Hardware Components" },
     {
-      "h": "Internal Hardware Components"
+      "callout": {
+        "t": "def",
+        "h": "Address Bus",
+        "body": "Carries **memory addresses** from the CPU to RAM/I/O devices. **Unidirectional** (CPU → Memory only). Width determines the maximum addressable memory: a 32-bit address bus can address $2^{32}$ = 4 GB."
+      }
     },
     {
       "callout": {
         "t": "def",
-        "h": "System Buses",
-        "body": [
-          {
-            "kv": [
-              [
-                "Address Bus",
-                "Sends memory addresses to RAM (Unidirectional)."
-              ],
-              [
-                "Data Bus",
-                "Moves data and instructions between CPU and memory (Bi-directional)."
-              ],
-              [
-                "Control Bus",
-                "Sends signals like Read/Write and Clock (Bi-directional)."
-              ]
-            ]
-          }
-        ]
+        "h": "Data Bus",
+        "body": "Carries **data and instructions** between the CPU, memory, and I/O devices. **Bidirectional** (reads and writes). Width (e.g. 64-bit) determines how much data can be transferred per cycle."
       }
     },
     {
-      "h": "Bus Comparison"
+      "callout": {
+        "t": "def",
+        "h": "Control Bus",
+        "body": "Carries **control signals** to coordinate the system: clock pulses, read/write signals, interrupt requests, memory enable. **Bidirectional** — signals go both to and from the CPU."
+      }
     },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Bus Width Affects Performance",
+        "body": "Wider buses = more data transferred per cycle = faster system. A 64-bit data bus transfers twice as much per cycle as a 32-bit bus. Similarly, a wider address bus = access to more RAM."
+      }
+    },
+    { "h": "Bus Comparison" },
     {
       "table": {
         "head": [
@@ -1207,27 +1165,18 @@ C["compsci:4.7.1.1"] = {
       }
     },
     {
-      "h": "The Stored Program Concept"
+      "callout": {
+        "t": "def",
+        "h": "The Stored Program Concept",
+        "body": "Machine code instructions and data are stored together in the **same memory (RAM)**. The CPU fetches instructions one at a time and executes them serially. A new program can be loaded into the same memory space to give the computer new behaviour — no hardware rewiring needed."
+      }
     },
     {
-      "steps": [
-        {
-          "h": "Store",
-          "n": "Machine code instructions are loaded into Main Memory (RAM)."
-        },
-        {
-          "h": "Fetch",
-          "n": "CPU fetches one instruction at a time from memory."
-        },
-        {
-          "h": "Execute",
-          "n": "CPU executes the instructions serially."
-        },
-        {
-          "h": "Swap",
-          "n": "New programs can be loaded into the same memory to change computer function."
-        }
-      ]
+      "callout": {
+        "t": "warn",
+        "h": "The Von Neumann Bottleneck",
+        "body": "Because instructions and data share the **same bus**, the CPU must alternate between fetching instructions and fetching data — it cannot do both simultaneously. This limits throughput. Harvard architecture solves this with separate buses."
+      }
     },
     {
       "code": {
@@ -2089,83 +2038,71 @@ C["compsci:4.7.3.6"] = {
 
 C["compsci:4.7.3.3"] = {
   "notes": [
+    { "h": "Instruction Set" },
     {
-      "h": "Instruction Set"
+      "callout": {
+        "t": "def",
+        "h": "Machine Code Instruction Format",
+        "body": "Each instruction has two parts: the **opcode** (what to do) and the **operand** (what to do it to). E.g. `ADD R0, #5` — opcode `ADD`, operands `R0` and `#5`."
+      }
     },
     {
       "callout": {
         "t": "def",
-        "h": "Key Concepts",
+        "h": "Addressing Modes",
         "body": [
-          {
-            "kv": [
-              [
-                "Opcode",
-                "The action to be performed."
-              ],
-              [
-                "Operand",
-                "The data or address to act upon."
-              ],
-              [
-                "Addressing Mode",
-                "Defines how the operand is interpreted."
-              ]
-            ]
-          }
+          {"kv": [
+            ["Immediate", "The operand **is** the actual data value. E.g. `ADD R0, #10` — adds literal 10. Fast, but value is fixed."],
+            ["Direct", "The operand is the **memory address** of the data. E.g. `ADD R0, 100` — reads value at address 100."],
+            ["Indirect", "The operand is the address of an **address** that holds the data. Adds one extra memory lookup. Used for pointers."],
+            ["Indexed", "The effective address = operand (base address) + value in **index register**. Used to iterate through arrays."]
+          ]}
         ]
       }
     },
     {
-      "h": "Addressing Modes Comparison"
+      "callout": {
+        "t": "tip",
+        "h": "Why Different Addressing Modes?",
+        "body": "**Immediate** = fastest (value in instruction, no memory lookup). **Direct** = one lookup. **Indirect** = two lookups (slower, but flexible for pointers). **Indexed** = enables array access by incrementing the index register."
+      }
     },
+    { "h": "Addressing Modes Comparison" },
     {
       "table": {
-        "head": [
-          "Mode",
-          "Operand Meaning",
-          "Effective Address"
-        ],
+        "head": ["Mode", "Operand Meaning", "Effective Address", "Use Case"],
         "rows": [
-          [
-            "Immediate",
-            "The actual data value",
-            "None (Value is in instruction)"
-          ],
-          [
-            "Direct",
-            "Address of the data",
-            "Operand itself"
-          ],
-          [
-            "Indirect",
-            "Address of the address of the data",
-            "[Operand]"
-          ],
-          [
-            "Indexed",
-            "Base address",
-            "Operand + Index Register"
-          ]
+          ["Immediate", "The actual data value", "None (value is in the instruction)", "Constants, quick arithmetic"],
+          ["Direct", "Address of the data", "Operand itself", "Single variable access"],
+          ["Indirect", "Address of the address of the data", "[Operand] (pointer dereference)", "Pointers, dynamic data"],
+          ["Indexed", "Base address", "Operand + Index Register value", "Array/table access"]
         ]
       }
     },
     {
-      "h": "Calculating an Indexed Address"
+      "callout": {
+        "t": "warn",
+        "h": "Instruction Set Architecture (ISA)",
+        "body": "The **instruction set** is the complete set of machine code instructions a CPU can execute. Different processor families (x86, ARM, RISC-V) have different ISAs — assembly code is NOT portable between them."
+      }
     },
+    { "h": "Calculating an Indexed Address" },
     {
       "steps": [
         {
           "h": "Read Base",
-          "n": "Read the base address from the instruction operand."
+          "m": "The instruction's operand contains the base address (e.g. 200).",
+          "n": "This is the starting address of an array or table in memory."
         },
         {
           "h": "Read Offset",
-          "n": "Fetch the value from the Index Register (IR)."
+          "m": "Fetch the current value from the Index Register (e.g. IX = 3).",
+          "n": "The index register is incremented each loop iteration to move through the array."
         },
         {
           "h": "Add",
-          "n": "Sum the base and offset to find the final target address."
+          "m": "Effective address = base + offset = 200 + 3 = 203. Read/write memory at address 203.",
+          "n": "This accesses element 3 of an array starting at address 200."
         }
       ]
     },
@@ -2812,82 +2749,68 @@ C["compsci:4.7.3.7"] = {
 
 C["compsci:4.7.4.1"] = {
   "notes": [
+    { "h": "Input/Output and Storage" },
     {
-      "h": "Input/Output and Storage"
+      "callout": {
+        "t": "def",
+        "h": "Magnetic Storage (HDD)",
+        "body": "Uses **spinning magnetic platters** and a read/write head. Stores bits as magnetic polarity. **Benefit**: very high capacity, low cost per GB. **Limitation**: slow (mechanical movement), fragile (moving parts), noisy."
+      }
     },
     {
       "callout": {
         "t": "def",
-        "h": "Hardware Categories",
-        "body": [
-          {
-            "kv": [
-              [
-                "I/O Device",
-                "Hardware for data entry/output (Keyboard, Monitor)."
-              ],
-              [
-                "Secondary Storage",
-                "Non-volatile long-term storage (SSD, HDD)."
-              ]
-            ]
-          }
-        ]
+        "h": "Optical Storage (CD/DVD/Blu-ray)",
+        "body": "Uses a **laser** to read/write **pits and lands** on a reflective disc surface. **Benefit**: portable, cheap to replicate, durable if not scratched. **Limitation**: very slow, low capacity, easily scratched, needs a drive."
       }
     },
     {
-      "h": "Storage Comparison"
+      "callout": {
+        "t": "def",
+        "h": "Solid-State Storage (SSD/Flash)",
+        "body": "Uses **NAND flash memory** — electrons trapped in **floating-gate transistors**. No moving parts. **Benefit**: very fast, durable, silent, low power. **Limitation**: more expensive per GB than HDD, limited write cycles."
+      }
     },
+    { "h": "Storage Comparison" },
     {
       "table": {
-        "head": [
-          "Medium",
-          "Mechanism",
-          "Durability",
-          "Speed"
-        ],
+        "head": ["Medium", "Mechanism", "Speed", "Durability", "Capacity/Cost", "Use Case"],
         "rows": [
-          [
-            "Magnetic",
-            "Magnetic platters",
-            "Low (moving parts)",
-            "Medium"
-          ],
-          [
-            "Optical",
-            "Laser pits/lands",
-            "Medium",
-            "Slow"
-          ],
-          [
-            "Solid State",
-            "Floating gates",
-            "High (no moving parts)",
-            "Very Fast"
-          ]
+          ["Magnetic (HDD)", "Spinning platters + read/write head", "Medium", "Low (moving parts)", "Highest capacity, cheapest per GB", "Bulk data storage, servers"],
+          ["Optical (CD/DVD)", "Laser reading pits and lands", "Slow", "Medium (scratch-sensitive)", "Low capacity", "Distribution, archiving"],
+          ["Solid State (SSD)", "Floating-gate NAND flash cells", "Very fast", "High (no moving parts)", "Moderate — getting cheaper", "OS drives, mobile devices"]
         ]
       }
     },
     {
-      "h": "Reading from an SSD"
+      "callout": {
+        "t": "tip",
+        "h": "Primary vs Secondary vs Cache Memory",
+        "body": "**Cache**: fastest, smallest, most expensive — sits inside/near CPU. **Primary (RAM)**: fast, volatile, holds running programs. **Secondary (HDD/SSD)**: slow, non-volatile, permanent storage. The memory hierarchy trades speed for cost and capacity."
+      }
     },
+    { "h": "Reading from an SSD (Flash Memory)" },
     {
       "steps": [
         {
           "h": "Address",
-          "n": "CPU sends target address to the SSD controller."
+          "m": "The CPU sends the target memory address to the SSD controller via the address bus.",
+          "n": "The controller maps this logical address to a physical flash block/page."
         },
         {
           "h": "Activate",
-          "n": "Controller sends voltage to the relevant row and column of flash cells."
+          "m": "The controller applies voltage to the relevant row (word line) and column (bit line) of flash cells.",
+          "n": "NAND cells are organised in pages within blocks — the smallest readable unit is a page."
         },
         {
           "h": "Read",
-          "n": "Sensors detect whether electrons are trapped in the floating gates (0 or 1)."
+          "m": "Sensors measure the charge on each floating-gate transistor: trapped electrons = 0, no charge = 1 (or multi-bit for MLC/TLC NAND).",
+          "n": "SSDs read entire pages at once — typically 4KB or 8KB per read operation."
         },
         {
           "h": "Transmit",
-          "n": "Data is sent back to the CPU via the data bus."
+          "m": "The data is loaded into a buffer and sent back to the CPU via the data bus.",
+          "n": "Modern SSDs use NVMe (PCIe) instead of SATA for much higher bandwidth."
         }
       ]
     },

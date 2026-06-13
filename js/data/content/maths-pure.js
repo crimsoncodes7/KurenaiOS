@@ -967,17 +967,50 @@ C["maths:3.2"] = {
     {
       "callout": {
         "t": "formula",
-        "h": "Circle Equation",
-        "body": "$$(x-a)^2 + (y-b)^2 = r^2$$",
-        "footer": "Center $(a, b)$, radius $r$."
+        "h": "Standard Circle Equation",
+        "body": "$$(x-a)^2 + (y-b)^2 = r^2$$ Centre $(a, b)$, radius $r$. For a circle centred at the origin: $x^2 + y^2 = r^2$."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Circle Theorems Used at A-Level",
+        "body": [
+          {"kv": [
+            ["Angle in semicircle", "Always 90°. If $AB$ is a diameter, $\\angle APB = 90°$ for any point $P$ on the circle."],
+            ["Tangent ⊥ radius", "The tangent at any point is perpendicular to the radius at that point."],
+            ["Perpendicular bisector", "The perpendicular bisector of any chord passes through the centre."]
+          ]}
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Complete the Square to Find Centre and Radius",
+        "body": "The expanded form $x^2 + y^2 + 2gx + 2fy + c = 0$ hides the centre. Complete the square on $x$ and $y$ separately to get standard form. Remember: $(x+g)^2 = x^2 + 2gx + g^2$, so subtract $g^2$."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Tangent From External Point",
+        "body": "If a line $y = mx + c$ is tangent to $(x-a)^2 + (y-b)^2 = r^2$, substitute the line into the circle equation and set discriminant $= 0$. Or use the geometric fact: perpendicular distance from centre to line $= r$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Sign of the Centre — Read it Carefully",
+        "body": "$(x-3)^2 + (y+2)^2 = 25$ has centre $(3, -2)$, NOT $(−3, 2)$. The centre is the values that make each bracket zero: $x-3=0 \\implies x=3$; $y+2=0 \\implies y=-2$."
       }
     },
     {
       "steps": [
         {
-          "h": "Finding Center and Radius",
-          "m": "Given $x^2 + y^2 - 4x + 6y - 3 = 0$.\n1. Group $x$ and $y$ terms: $(x^2-4x) + (y^2+6y) = 3$.\n2. Complete square: $(x-2)^2 - 4 + (y+3)^2 - 9 = 3$.\n3. Simplify: $(x-2)^2 + (y+3)^2 = 16$.",
-          "n": "Center $(2, -3)$, Radius $4$."
+          "h": "Convert $x^2 + y^2 - 4x + 6y - 3 = 0$ to standard form",
+          "m": "Group: $(x^2 - 4x) + (y^2 + 6y) = 3$.\nComplete square: $(x-2)^2 - 4 + (y+3)^2 - 9 = 3$.\nSimplify: $(x-2)^2 + (y+3)^2 = 16$.",
+          "n": "Centre $(2, -3)$, radius $4$. Always check: $-4 - 9 + 3 = -10$? No — RHS = $3+4+9=16$. ✓"
         }
       ]
     }
@@ -1016,16 +1049,60 @@ C["maths:3.3"] = {
     { "h": "Parametric Equations" },
     {
       "callout": {
-        "t": "info",
-        "body": "Expressing $x$ and $y$ separately in terms of a third variable, the parameter $t$ or $\\theta$."
+        "t": "def",
+        "h": "Parametric Equations",
+        "body": "Expressing $x$ and $y$ **separately** as functions of a third variable called the **parameter** (usually $t$ or $\\theta$). Each value of the parameter gives a point on the curve."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Eliminating the Parameter",
+        "body": [
+          "**Algebraic $t$**: Rearrange the simpler equation for $t$, substitute into the other.",
+          "**Trig $\\theta$**: Use the identity $\\cos^2 \\theta + \\sin^2 \\theta = 1$. Express $\\cos\\theta$ and $\\sin\\theta$ in terms of $x$ and $y$, then substitute into the identity.",
+          "**Exponential $t$**: If $x = e^t$, note $t = \\ln x$, then substitute."
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Standard Trig Parametric Forms",
+        "body": [
+          {"kv": [
+            ["$x = r\\cos\\theta,\\ y = r\\sin\\theta$", "Circle $x^2 + y^2 = r^2$"],
+            ["$x = a\\cos\\theta,\\ y = b\\sin\\theta$", "Ellipse $\\dfrac{x^2}{a^2} + \\dfrac{y^2}{b^2} = 1$"],
+            ["$x = at^2,\\ y = 2at$", "Parabola $y^2 = 4ax$"]
+          ]}
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Domain of $x$ After Eliminating Parameter",
+        "body": "The Cartesian equation captures the **shape** but not necessarily the restricted **domain**. Always state the domain of $x$ (derived from the range of $t$). E.g. if $t \\ge 0$, then $x = t + 1 \\ge 1$, so $x \\ge 1$."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Finding Coordinates on the Curve",
+        "body": "To find where a parametric curve crosses an axis or passes through a point, substitute the coordinate value into the appropriate parametric equation to find $t$, then find the other coordinate."
       }
     },
     {
       "steps": [
         {
-          "h": "Converting to Cartesian",
-          "m": "Given $x = t+1, y = t^2$.\n1. Rearrange for $t$: $t = x-1$.\n2. Substitute into $y$: $y = (x-1)^2$.",
-          "n": "Identify the domain of $x$ based on the range of $t$."
+          "h": "Eliminate $t$ from $x = t+1,\\ y = t^2$",
+          "m": "From $x = t+1$: $t = x - 1$.\nSubstitute: $y = (x-1)^2$.",
+          "n": "If $t \\ge 0$, then $x \\ge 1$. Write the domain restriction."
+        },
+        {
+          "h": "Eliminate $\\theta$ from $x = 3\\cos\\theta,\\ y = 3\\sin\\theta$",
+          "m": "$\\cos\\theta = x/3$, $\\sin\\theta = y/3$.\nUsing $\\cos^2\\theta + \\sin^2\\theta = 1$: $(x/3)^2 + (y/3)^2 = 1 \\implies x^2 + y^2 = 9$.",
+          "n": "This is a full circle radius 3. If $\\theta$ is restricted, the curve is only an arc."
         }
       ]
     }
@@ -1185,16 +1262,44 @@ C["maths:4.2"] = {
     { "h": "Sequences & Recurrence" },
     {
       "callout": {
-        "t": "info",
-        "body": "A sequence where each term is defined in relation to previous terms. $u_{n+1} = f(u_n)$."
+        "t": "def",
+        "h": "Recurrence Relation",
+        "body": "A rule that defines each term using **previous terms**. Written as $u_{n+1} = f(u_n)$. Requires an initial value $u_1$ (or $u_0$) to generate the sequence."
       }
     },
     {
-      "kv": [
-        ["Convergent", "Sequence approaches a limit $L$."],
-        ["Divergent", "Sequence grows without bound or oscillates."],
-        ["Periodic", "Terms repeat in a cycle: $u_{n+k} = u_n$."]
-      ]
+      "callout": {
+        "t": "def",
+        "h": "Types of Sequence",
+        "body": [
+          {"kv": [
+            ["Convergent", "Terms approach a fixed limit $L$ as $n \\to \\infty$. E.g. $u_{n+1} = 0.5u_n + 1$ converges to $L = 2$."],
+            ["Divergent", "Terms grow without bound OR oscillate without settling. E.g. $u_{n+1} = 2u_n$."],
+            ["Periodic", "Terms repeat in a cycle: $u_{n+k} = u_n$ for some period $k$. E.g. $+1, -1, +1, -1$ has period 2."]
+          ]}
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Finding the Limit of a Convergent Sequence",
+        "body": "If $u_{n+1} = f(u_n)$ converges to limit $L$, then at the limit $u_{n+1} = u_n = L$. So solve: $$L = f(L)$$ Example: $u_{n+1} = 0.5u_n + 4 \\implies L = 0.5L + 4 \\implies 0.5L = 4 \\implies L = 8$."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Sequences Can Oscillate and Still Diverge",
+        "body": "$u_{n+1} = -u_n$ with $u_1 = 3$ gives $3, -3, 3, -3, \\ldots$ — this is periodic and divergent (no limit). Not every oscillating sequence is periodic with a limit."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Generating Terms — Be Methodical",
+        "body": "Always write out the first 4–5 terms to identify the pattern before answering questions. Write each step clearly: $u_1 = ?, u_2 = f(u_1) = ?, \\ldots$ Slipping up on a single substitution costs marks."
+      }
     }
   ],
   "flashcards": [
