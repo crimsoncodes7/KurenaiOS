@@ -174,6 +174,10 @@ a { color: var(--kurenai-2); }
 #topbar {
   display: flex; align-items: center; gap: 18px;
   padding: 0 20px;
+  /* topbar uses backdrop-filter, which creates a stacking context; raise it
+     above #cols so the dropdown (#search-results) it contains paints over the
+     main pane instead of being covered by it. */
+  position: relative; z-index: 30;
   background: linear-gradient(180deg, var(--glass-top), var(--glass));
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
