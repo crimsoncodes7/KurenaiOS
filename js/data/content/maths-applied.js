@@ -1097,25 +1097,51 @@ C["maths:S7.1"] = {
 
 C["maths:S7.2"] = {
   "notes": [
+    { "h": "Kinematics Graphs" },
     {
-      "h": "Kinematics Graphs"
+      "callout": {
+        "t": "formula",
+        "h": "Gradient = Rate of Change",
+        "body": "$s$-$t$ graph: gradient = velocity. $v$-$t$ graph: gradient = acceleration. $a$-$t$ graph: gradient = rate of change of acceleration. Area under graph = integral of that quantity."
+      }
     },
     {
       "table": {
-        "head": ["Graph", "Gradient", "Area"],
+        "head": ["Graph", "Gradient gives", "Area gives"],
         "rows": [
-          ["$s-t$", "Velocity ($v$)", "N/A"],
-          ["$v-t$", "Acceleration ($a$)", "Displacement ($s$)"],
-          ["$a-t$", "Rate of change of $a$", "Change in $v$"]
+          ["$s$-$t$", "Velocity $v$", "N/A"],
+          ["$v$-$t$", "Acceleration $a$", "Displacement $s$"],
+          ["$a$-$t$", "Rate of change of $a$", "Change in velocity $\\Delta v$"]
         ]
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Distance ≠ Displacement from $v$-$t$ Graph",
+        "body": "**Displacement** = net area (regions below the axis count negative). **Distance** = total area, all positive. If a particle reverses, distance > |displacement|."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Curved $v$-$t$ Graph",
+        "body": "If the $v$-$t$ graph is curved, the gradient at a point (instantaneous acceleration) requires differentiation. Area under a curved $v$-$t$ graph requires integration — you cannot use simple trapezium rules exactly."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Reading the Graph — Key Signs",
+        "body": "Positive velocity = moving in positive direction. Zero velocity = stationary (turning point or rest). Negative velocity = moving in opposite direction. Horizontal $v$-$t$ segment = constant velocity (zero acceleration)."
       }
     },
     {
       "steps": [
         {
-          "h": "Distance from $v-t$ graph",
-          "m": "Sum absolute areas of triangles/trapeziums.",
-          "n": "Displacement is net area (Above - Below)."
+          "h": "Find distance from $v$-$t$ graph with sign change",
+          "m": "Split at $v = 0$ (where direction reverses). Compute each area separately, then sum the absolute values.",
+          "n": "Displacement = algebraic sum; distance = sum of absolute areas."
         }
       ]
     }

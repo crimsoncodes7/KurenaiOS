@@ -4,14 +4,12 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 
 C["compsci:4.8.1"] = {
   "notes": [
-    {
-      "h": "Consequences of Uses of Computing"
-    },
+    { "h": "Consequences of Uses of Computing" },
     {
       "callout": {
-        "t": "def",
+        "t": "info",
         "h": "Impact Categories",
-        "body": "Computing has far-reaching economic, social, legal, ethical, and cultural implications."
+        "body": "Computing has far-reaching consequences across five areas: **economic**, **social**, **legal**, **ethical**, and **cultural**. Exam questions often ask you to evaluate an impact across two or more of these dimensions."
       }
     },
     {
@@ -21,38 +19,55 @@ C["compsci:4.8.1"] = {
         "body": [
           {
             "kv": [
-              [
-                "Data Protection Act",
-                "Regulates how personal data is stored and used by organisations."
-              ],
-              [
-                "Computer Misuse Act",
-                "Criminalises unauthorised access to computer systems and data."
-              ],
-              [
-                "Copyright Designs & Patents Act",
-                "Protects intellectual property including software and media."
-              ],
-              [
-                "Regulation of Investigatory Powers Act (RIPA)",
-                "Governs the interception of communications by public authorities."
-              ]
+              ["Data Protection Act (2018 / GDPR)", "Regulates how personal data is collected, stored, and processed. Data must be fair, lawful, accurate, limited, secure, and not kept longer than needed."],
+              ["Computer Misuse Act (1990)", "Criminalises: (1) unauthorised access, (2) unauthorised access with intent to commit further offences, (3) unauthorised modification of data."],
+              ["Copyright Designs & Patents Act (1988)", "Protects intellectual property — software, music, literature. Copying without a licence is an offence."],
+              ["Regulation of Investigatory Powers Act (RIPA, 2000)", "Governs interception of communications by public authorities (police, intelligence). Controls lawful surveillance."]
             ]
           }
         ]
       }
     },
     {
+      "callout": {
+        "t": "warn",
+        "h": "Economic Impact — Both Sides",
+        "body": "Computing **creates** jobs (software development, data analytics, cybersecurity) but **destroys** others through automation (assembly lines, customer service bots, self-checkouts). Exam questions expect you to discuss both."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Digital Divide",
+        "body": "The gap between those **with** and **without** access to technology and the Internet. Causes: income inequality, rural infrastructure, age, disability. Perpetuates social inequality — those without access are excluded from services, education, and employment."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Ethical Issues in Computing",
+        "body": [
+          {"kv": [
+            ["Privacy", "Mass surveillance, data collection by tech giants, CCTV, cookies."],
+            ["AI bias", "ML models trained on biased data perpetuate discrimination (e.g. facial recognition, hiring algorithms)."],
+            ["Environmental", "Data centres consume vast energy; e-waste from disposed devices."],
+            ["Accessibility", "Software must be usable by people with disabilities (e.g. screen readers, colour contrast)."]
+          ]}
+        ]
+      }
+    },
+    {
       "code": {
         "lang": "csharp",
-        "cap": "Conceptual C# check for data handling compliance.",
-        "src": "public class DataPolicy\n{\n    public bool IsCompliant(UserRecord record)\n    {\n        // DPA: Data must be kept for no longer than necessary\n        if (record.AgeInYears > 7) return false;\n        \n        // DPA: Data must be kept secure (e.g. encrypted)\n        if (!record.IsEncrypted) return false;\n        \n        return true;\n    }\n}"
+        "cap": "DPA compliance check — data not kept longer than needed and must be encrypted.",
+        "src": "public class DataPolicy\n{\n    public bool IsCompliant(UserRecord record)\n    {\n        // DPA principle: kept no longer than necessary\n        if (record.AgeInYears > 7) return false;\n\n        // DPA principle: appropriate security (encrypted)\n        if (!record.IsEncrypted) return false;\n\n        return true;\n    }\n}"
       }
     },
     {
       "callout": {
         "t": "tip",
-        "body": "Always refer to specific acts or scenarios when evaluating ethical issues."
+        "h": "Exam Technique",
+        "body": "Always name the **specific act** and **specific principle** breached. Don't just write 'illegal' — write 'this breaches the Computer Misuse Act 1990, specifically the offence of unauthorised modification of data'."
       }
     }
   ],
@@ -138,55 +153,58 @@ C["compsci:4.8.1"] = {
 
 C["compsci:4.9.1.1"] = {
   "notes": [
+    { "h": "Communication Methods" },
     {
-      "h": "Communication Methods"
+      "callout": {
+        "t": "def",
+        "h": "Serial Transmission",
+        "body": "Bits are sent **one at a time** over a single wire (or channel), in sequence. Used for long-distance communication — e.g. USB, SATA, internet connections."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Parallel Transmission",
+        "body": "Multiple bits are sent **simultaneously** over multiple wires. Higher throughput over short distances, but suffers from **skew** and **crosstalk** over longer distances. Used internally (e.g. data buses inside a computer)."
+      }
     },
     {
       "table": {
-        "head": [
-          "Method",
-          "Description",
-          "Pros/Cons"
-        ],
+        "head": ["Feature", "Serial", "Parallel"],
         "rows": [
-          [
-            "Serial",
-            "Bits sent sequentially over one wire.",
-            "Better for long distances; prevents skew and crosstalk."
-          ],
-          [
-            "Parallel",
-            "Multiple bits sent simultaneously over multiple wires.",
-            "High speed over short distances (internal buses); prone to skew/crosstalk."
-          ]
+          ["Wires", "1 (data wire)", "Multiple (one per bit)"],
+          ["Distance", "Long-distance (less degradation)", "Short-distance only"],
+          ["Skew risk", "None", "High — bits may arrive at different times"],
+          ["Crosstalk risk", "Minimal", "High — adjacent wires interfere"],
+          ["Speed", "Lower per cycle", "Higher per cycle (but limited by skew)"],
+          ["Examples", "USB, SATA, serial port", "Internal CPU bus, old IDE drives"]
         ]
       }
     },
     {
       "callout": {
         "t": "def",
-        "h": "Synchronicity",
+        "h": "Synchronous vs Asynchronous",
         "body": [
-          {
-            "kv": [
-              [
-                "Synchronous",
-                "Data sent in time with a shared clock signal."
-              ],
-              [
-                "Asynchronous",
-                "Data sent with start and stop bits; no shared clock."
-              ]
-            ]
-          }
+          {"kv": [
+            ["Synchronous", "Sender and receiver share a **clock signal**. Data is sent in timed bursts. More efficient but requires synchronisation hardware. Used in high-speed networks."],
+            ["Asynchronous", "No shared clock. Each byte is framed by a **start bit** and one or two **stop bits**. Simpler and flexible, but overhead from framing bits. Used in serial ports, UART."]
+          ]}
         ]
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Data Skew — Why Parallel Fails at Distance",
+        "body": "In parallel transmission, each wire has slightly different resistance/capacitance. At long distances, bits from the same byte arrive at different times (skew), causing data corruption. Serial avoids this entirely."
       }
     },
     {
       "code": {
         "lang": "csharp",
-        "cap": "Configuring a Serial Port in C#.",
-        "src": "using System.IO.Ports;\n\nSerialPort port = new SerialPort(\"COM3\", 9600, Parity.None, 8, StopBits.One);\nport.Open();\nport.WriteLine(\"Data sent bit-by-bit over one wire\");\nport.Close();"
+        "cap": "Asynchronous serial port config — 8 data bits, 1 stop bit, no parity.",
+        "src": "using System.IO.Ports;\n\nSerialPort port = new SerialPort(\"COM3\", 9600, Parity.None, 8, StopBits.One);\nport.Open();\nport.WriteLine(\"Bits sent one at a time, framed by start/stop bits\");\nport.Close();"
       }
     }
   ],
@@ -311,7 +329,21 @@ C["compsci:4.9.1.2"] = {
       "callout": {
         "t": "formula",
         "h": "Bit Rate Calculation",
-        "body": "Bit rate = Baud rate \times bits per signal change"
+        "body": "$\\text{Bit rate (bps)} = \\text{Baud rate} \\times \\text{bits per signal change}$"
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Baud Rate vs Bit Rate",
+        "body": "If each signal change encodes only 1 bit, baud rate = bit rate. But modern systems encode multiple bits per signal (e.g. 4 bits → bit rate = 4 × baud rate). Confusing them is a common exam mistake."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Bandwidth Ambiguity",
+        "body": "In networking, **bandwidth** can mean: (1) the range of frequencies a medium supports (Hz), or (2) the maximum data transfer rate (bps). In exam questions, context determines which meaning applies."
       }
     },
     {
@@ -333,7 +365,7 @@ C["compsci:4.9.1.2"] = {
     ],
     [
       "How do you calculate bit rate from baud rate?",
-      "Bit rate = Baud rate \times bits per signal change."
+      "Bit rate = Baud rate × bits per signal change."
     ],
     [
       "What is latency?",
@@ -397,7 +429,7 @@ C["compsci:4.9.1.2"] = {
       "ms": [
         "Baud rate is the number of signal changes per second (1).",
         "Bit rate is the number of bits transmitted per second (1).",
-        "Bit rate = Baud rate \times number of bits represented by each signal change (1)."
+        "Bit rate = Baud rate × number of bits represented by each signal change (1)."
       ]
     }
   ]
@@ -405,35 +437,49 @@ C["compsci:4.9.1.2"] = {
 
 C["compsci:4.9.2.1"] = {
   "notes": [
+    { "h": "Network Topology" },
     {
-      "h": "Network Topology"
+      "callout": {
+        "t": "def",
+        "h": "Star Topology",
+        "body": "All devices connect to a **central switch or hub**. Each device has its own dedicated cable to the switch. Used in most modern LANs."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Bus Topology",
+        "body": "All devices share a **single backbone cable** (terminated at both ends). Data travels in both directions and is broadcast to all nodes."
+      }
     },
     {
       "table": {
-        "head": [
-          "Topology",
-          "Description",
-          "Pros/Cons"
-        ],
+        "head": ["Topology", "Benefits", "Limitations"],
         "rows": [
-          [
-            "Star",
-            "Devices connect to a central switch/hub.",
-            "High performance, secure; if one cable fails, others are unaffected."
-          ],
-          [
-            "Bus",
-            "Devices share a single backbone cable.",
-            "Cheap to install; cable failure brings down the whole network; collisions common."
-          ]
+          ["Star", "Fault tolerant — one cable failure only affects that device. Easy to add new devices. Better performance (no collisions via switch).", "More expensive — requires a central switch and more cabling. If the switch fails, the whole network fails."],
+          ["Bus", "Cheap — less cabling, no central device needed. Easy to set up for small networks.", "Single point of failure — backbone failure kills the whole network. Collisions increase with load. Difficult to troubleshoot."]
         ]
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Single Point of Failure",
+        "body": "In a **Star** topology, the switch is a single point of failure — if it breaks, all devices lose connectivity. In a **Bus** topology, the backbone cable is that point — and it's harder to diagnose."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Which to Choose?",
+        "body": "Star is used in almost all modern networks for reliability and performance. Bus is largely obsolete but appears in exam questions — know its weaknesses."
       }
     },
     {
       "code": {
         "lang": "csharp",
-        "cap": "Conceptual representation of a Star Network Node.",
-        "src": "public class NetworkNode\n{\n    public string DeviceID { get; set; }\n    public bool IsConnected { get; set; } = true;\n    \n    // In a Star topology, if one node's connection fails, others are unaffected.\n    public void SendData(string data) { /* Sent to central switch */ }\n}"
+        "cap": "Star topology: one cable failure doesn't affect other nodes.",
+        "src": "public class NetworkNode\n{\n    public string DeviceID { get; set; }\n    public bool IsConnected { get; set; } = true;\n\n    // In a Star topology, only this node goes offline if its cable breaks.\n    public void SendData(string data) { /* Routed via central switch */ }\n}"
       }
     }
   ],
@@ -519,28 +565,46 @@ C["compsci:4.9.2.1"] = {
 
 C["compsci:4.9.2.2"] = {
   "notes": [
+    { "h": "Peer-to-Peer vs Client-Server" },
     {
-      "h": "Peer-to-Peer vs Client-Server"
+      "callout": {
+        "t": "def",
+        "h": "Client-Server Model",
+        "body": "A **dedicated server** manages resources, files, and security for multiple client machines. Clients request services; the server provides them. Used in businesses, schools, and the Internet."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Peer-to-Peer (P2P) Model",
+        "body": "All nodes have **equal status** — each can be both a client and a server. Resources are shared directly between peers. No central controlling machine."
+      }
     },
     {
       "table": {
-        "head": [
-          "Model",
-          "Description",
-          "Comparison"
-        ],
+        "head": ["Feature", "Client-Server", "Peer-to-Peer"],
         "rows": [
-          [
-            "Client-Server",
-            "Centralised server manages resources and security.",
-            "Better for large networks; central backups/management."
-          ],
-          [
-            "Peer-to-Peer",
-            "Nodes are equal, sharing resources directly.",
-            "Cheaper setup; no central server; harder to manage/backup."
-          ]
+          ["Cost", "High — needs server hardware", "Low — no dedicated server"],
+          ["Security", "Centralised, easier to manage", "Hard to control — each node manages itself"],
+          ["Backups", "Centralised backups — easy", "Each user responsible for own backups"],
+          ["Scalability", "Scales well to large networks", "Degrades with more peers"],
+          ["Performance", "Server can become bottleneck", "Distributed — no bottleneck"],
+          ["Use case", "Schools, businesses, internet services", "Small home networks, file-sharing apps"]
         ]
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "P2P Security Risk",
+        "body": "In P2P, each device manages its own security. There is no central administrator to enforce policies, patch devices, or revoke access — making P2P networks much more vulnerable."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Exam Technique — 'Justify Your Choice'",
+        "body": "If asked which model to use for a school/business, always pick **client-server** and explain: centralised backups, centralised security management, and better scalability. P2P suits only small/home setups."
       }
     }
   ],
@@ -772,47 +836,73 @@ C["compsci:4.9.2.3"] = {
 
 C["compsci:4.9.3.1"] = {
   "notes": [
+    { "h": "Internet & Packet Switching" },
     {
-      "h": "Internet & Packet Switching"
+      "callout": {
+        "t": "def",
+        "h": "The Internet",
+        "body": "A global network of interconnected networks using the TCP/IP protocol suite. Distinct from the World Wide Web (which is a service running on top of the Internet)."
+      }
     },
     {
-      "kv": [
-        [
-          "Internet",
-          "A global network of interconnected networks."
-        ],
-        [
-          "Router",
-          "Connects networks; forwards packets based on IP addresses."
-        ],
-        [
-          "DNS",
-          "Domain Name System; translates domain names to IP addresses."
-        ]
-      ]
+      "callout": {
+        "t": "def",
+        "h": "Router",
+        "body": "A device that **connects networks** and forwards data packets between them using IP addresses. Routers use routing tables to determine the best path for each packet."
+      }
     },
     {
-      "h": "Packet Switching Process"
+      "callout": {
+        "t": "def",
+        "h": "DNS — Domain Name System",
+        "body": "Translates **human-readable domain names** (e.g. `bbc.co.uk`) into **IP addresses** (e.g. `151.101.0.81`). Works hierarchically: local cache → ISP DNS → root servers."
+      }
     },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Packet Switching",
+        "body": "Data is broken into **packets**, each with a header (source IP, destination IP, sequence number, checksum). Packets travel independently across the network and are reassembled at the destination."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Benefits of Packet Switching",
+        "body": "Efficient use of network bandwidth (no dedicated line needed). Fault tolerant — if one route is blocked, packets re-route automatically. Packets from different sources can share the same links."
+      }
+    },
+    { "h": "Packet Switching Process" },
     {
       "steps": [
         {
           "h": "Splitting",
-          "n": "Data is split into small chunks called packets."
+          "m": "Data is broken into small, fixed-size chunks called packets.",
+          "n": "Smaller packets are easier to re-route and retransmit on error."
         },
         {
           "h": "Addressing",
-          "n": "Each packet gets a header with source/dest IP and sequence number."
+          "m": "Each packet is given a header: source IP, destination IP, sequence number, checksum.",
+          "n": "The sequence number allows reassembly in the correct order."
         },
         {
           "h": "Routing",
-          "n": "Packets travel independently across the network."
+          "m": "Routers forward each packet independently using its destination IP. Different packets may take different routes.",
+          "n": "The path chosen depends on current network traffic — dynamic routing."
         },
         {
-          "h": "Assembly",
-          "n": "Packets are reordered and reassembled at the destination."
+          "h": "Reassembly",
+          "m": "At the destination, packets are reordered by sequence number and reassembled into the original data.",
+          "n": "If a packet is missing or corrupt (checksum mismatch), it is requested again."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Internet ≠ World Wide Web",
+        "body": "The **Internet** is the underlying network infrastructure (physical cables, routers, etc.). The **WWW** is a service that runs on the Internet, consisting of web pages accessed via HTTP/HTTPS. Email, FTP, and DNS are also Internet services — not part of the WWW."
+      }
     }
   ],
   "flashcards": [
@@ -897,41 +987,71 @@ C["compsci:4.9.3.1"] = {
 
 C["compsci:4.9.3.2"] = {
   "notes": [
+    { "h": "Internet Security" },
     {
-      "h": "Internet Security"
+      "callout": {
+        "t": "def",
+        "h": "Firewall",
+        "body": "Hardware or software that **monitors and filters** incoming and outgoing network traffic based on a set of security rules. Can block ports, IP ranges, or specific protocols."
+      }
     },
     {
-      "kv": [
-        [
-          "Firewall",
-          "Blocks unauthorised traffic based on security rules."
-        ],
-        [
-          "Digital Certificates",
-          "Verify sender identity using a Certificate Authority."
-        ],
-        [
-          "Malware",
-          "Includes viruses, worms, trojans, and ransomware."
-        ]
-      ]
+      "callout": {
+        "t": "def",
+        "h": "Encryption",
+        "body": "The process of converting plaintext into ciphertext so only authorised parties can read it. Two main types: **symmetric** (one shared key) and **asymmetric** (public/private key pair)."
+      }
     },
     {
       "table": {
-        "head": [
-          "Encryption",
-          "Description"
-        ],
+        "head": ["Encryption Type", "Key Structure", "Use Case", "Speed"],
         "rows": [
-          [
-            "Symmetric",
-            "Uses a single shared key for encryption and decryption."
-          ],
-          [
-            "Asymmetric",
-            "Uses a public key for encryption and a private key for decryption."
-          ]
+          ["Symmetric", "Same key encrypts and decrypts", "Bulk data (e.g. AES for files)", "Fast"],
+          ["Asymmetric", "Public key encrypts; private key decrypts", "Key exchange, digital signatures, HTTPS", "Slower"]
         ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Digital Certificate",
+        "body": "An electronic document that binds a **public key** to an organisation/website, issued by a trusted **Certificate Authority (CA)**. Used in HTTPS to verify you're connecting to the genuine server."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Malware Types",
+        "body": [
+          {"kv": [
+            ["Virus", "Attaches to files; spreads when the file is run. Requires user action to propagate."],
+            ["Worm", "Self-replicates across a network without user action. No host file needed."],
+            ["Trojan", "Disguised as legitimate software. Does not self-replicate but creates a backdoor."],
+            ["Ransomware", "Encrypts victim's files and demands payment for the decryption key."],
+            ["Spyware", "Secretly monitors user activity and sends data to an attacker."]
+          ]}
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Symmetric vs Asymmetric — Exam Trick",
+        "body": "In HTTPS, **asymmetric encryption** is used first to securely exchange a **symmetric session key**, then **symmetric encryption** handles the bulk of the data transfer (much faster). This is called a 'hybrid' approach."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Worm vs Virus",
+        "body": "A **worm** spreads independently across a network — no user interaction needed. A **virus** needs a host file and user action (opening the file) to spread. This distinction is commonly examined."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Firewall ≠ Antivirus",
+        "body": "A firewall controls **network traffic** (blocks/allows connections). Antivirus software detects **malware already on the device**. They are complementary, not the same thing. A firewall does not scan files."
       }
     }
   ],

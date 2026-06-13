@@ -52,6 +52,7 @@
           "<div>" + KOS.content.inline(c[0]) + "</div>" +
           '<span class="fc-hint">click to flip</span>';
         back.innerHTML = '<span class="fc-kind">A</span><div>' + KOS.content.inline(c[1]) + "</div>";
+        KOS.content.typeset(stage);
         rateRow.style.visibility = "hidden";
         meter.innerHTML = "";
         for (var i = 0; i < cards.length; i++) {
@@ -78,6 +79,7 @@
           "<div>" + sessionRight + " / " + cards.length + " known" +
           (sessionRight === cards.length ? " — clean sweep ★" : "") + "</div>" +
           '<span class="fc-hint">restart or shuffle to go again</span>';
+        KOS.content.typeset(stage);
         stage.onclick = null;
         meter.querySelectorAll(".fc-pip").forEach(function (p) { p.classList.add("done"); });
       }

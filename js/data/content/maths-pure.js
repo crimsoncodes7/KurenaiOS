@@ -7,28 +7,70 @@ C["maths:1.1"] = {
     { "h": "Methods of Proof" },
     {
       "callout": {
-        "t": "info",
-        "h": "Logical Rigour",
-        "body": "A mathematical proof is a logical argument that shows a statement is always true. It must cover all possible cases within the specified domain."
+        "t": "def",
+        "h": "Proof by Deduction",
+        "body": "Starting from **known facts/axioms**, use logical algebraic steps to reach the conclusion. Every step must follow logically from the previous. The most common proof type in A-Level."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Proof by Exhaustion",
+        "body": "Test **every single possible case** in a finite set to show the statement holds for all of them. Only valid when there are a limited number of cases to check."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Proof by Contradiction",
+        "body": "Assume the **negation** of the statement is true, then derive a logical contradiction. Since the assumption leads to an impossibility, the original statement must be true. Classic example: $\\sqrt{2}$ is irrational."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Disproof by Counter-Example",
+        "body": "To disprove a statement 'for all $n$, $P(n)$ is true', you only need to find **one specific value** of $n$ for which $P(n)$ is false. One counter-example is sufficient."
       }
     },
     {
       "table": {
         "head": ["Method", "Process", "Example Use Case"],
         "rows": [
-          ["Deduction", "Start from known facts and use logical steps to reach a conclusion.", "Algebraic identities like $(a+b)^2$."],
-          ["Exhaustion", "Test every single case in a finite set of possibilities.", "Proving properties for $n \\in \\{1, 2, 3, 4, 5\\}$."],
-          ["Counter-example", "Find one specific case where the statement is false.", "Disproving 'all odd numbers are prime'."],
-          ["Contradiction", "Assume the statement is false and show this leads to a logical impossibility.", "Proving $\\sqrt{2}$ is irrational."]
+          ["Deduction", "Known facts → logical steps → conclusion.", "$(a+b)^2 = a^2 + 2ab + b^2$ for all $a, b$."],
+          ["Exhaustion", "Test every case in a finite set.", "Proving a property holds for $n \\in \\{1,2,3,4,5\\}$."],
+          ["Counter-example", "Find one case where the statement fails.", "Disproving 'all odd numbers are prime' (e.g. $9 = 3\\times3$)."],
+          ["Contradiction", "Assume false → derive impossibility.", "Proving $\\sqrt{2}$ is irrational."]
         ]
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Key Algebraic Definitions — Use These in Proofs",
+        "body": "Even integer: $2n$ (where $n \\in \\mathbb{Z}$). Odd integer: $2n+1$. Consecutive integers: $n, n+1, n+2$. Consecutive even: $2n, 2n+2$. Consecutive odd: $2n+1, 2n+3$."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "One Counter-Example is Enough to Disprove",
+        "body": "A universal statement ('for all $n$...') is disproved by a **single** counter-example. You do NOT need to show it fails in multiple cases. Conversely, showing it works for many values does NOT prove it — you need a proof."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Checking Cases is NOT a Proof",
+        "body": "Testing $n = 1, 2, 3, 4, 5$ and finding the result holds does NOT prove it holds for all $n$. This is only valid as 'proof by exhaustion' if you've checked **every** possible case (only works for finite domains)."
       }
     },
     {
       "steps": [
         {
-          "h": "Proof by Deduction: Odd numbers",
-          "m": "Prove that the square of any odd number is also odd.\n1. Let the odd number be $2n+1$, where $n \\in \\mathbb{Z}$.\n2. $(2n+1)^2 = 4n^2 + 4n + 1$.\n3. Factor out 2: $2(2n^2 + 2n) + 1$.",
-          "n": "Since $2n^2 + 2n$ is an integer, the result is in the form $2k+1$, which is odd."
+          "h": "Proof by Deduction: Odd × Odd = Odd",
+          "m": "Let the two odd numbers be $2m+1$ and $2n+1$ (where $m, n \\in \\mathbb{Z}$).\n$(2m+1)(2n+1) = 4mn + 2m + 2n + 1 = 2(2mn+m+n) + 1$.",
+          "n": "Since $2mn+m+n$ is an integer, the product has the form $2k+1$ — which is odd. QED."
         }
       ]
     }
@@ -68,7 +110,8 @@ C["maths:2.1"] = {
     {
       "callout": {
         "t": "info",
-        "body": "Indices (or exponents) represent repeated multiplication. Mastery of these laws is essential for algebraic manipulation and calculus."
+        "h": "Why These Matter",
+        "body": "Index laws appear throughout A-Level — in surds, differentiation, integration, exponentials, and logarithms. You need them fluent. These are NOT given in the formula booklet."
       }
     },
     {
@@ -79,10 +122,38 @@ C["maths:2.1"] = {
           ["Division", "$a^m \\div a^n = a^{m-n}$", "Subtract indices when dividing same base."],
           ["Power of Power", "$(a^m)^n = a^{mn}$", "Multiply indices when raising a power to a power."],
           ["Zero Index", "$a^0 = 1$", "Any non-zero base raised to power 0 is 1."],
-          ["Negative Index", "$a^{-n} = \\frac{1}{a^n}$", "A negative index represents a reciprocal."],
+          ["Negative Index", "$a^{-n} = \\dfrac{1}{a^n}$", "A negative index represents a reciprocal."],
           ["Fractional Index", "$a^{\\frac{1}{n}} = \\sqrt[n]{a}$", "The denominator of the index is the root."],
           ["Rational Index", "$a^{\\frac{m}{n}} = (\\sqrt[n]{a})^m$", "Numerator is power, denominator is root."]
         ]
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Fractional/Rational Index — Key Formula",
+        "body": "$$a^{m/n} = \\left(\\sqrt[n]{a}\\right)^m = \\sqrt[n]{a^m}$$ Rule: **root is the denominator, power is the numerator**. Example: $8^{2/3} = (\\sqrt[3]{8})^2 = 2^2 = 4$."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "$a^0 = 1$ Only When $a \\neq 0$",
+        "body": "$0^0$ is undefined. Also: index laws only apply when **bases are equal**. You cannot simplify $2^3 \\times 3^3$ by adding the indices — only $2^3 \\times 2^3 = 2^6$ works."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common Mistakes",
+        "body": "$a^m + a^n \\neq a^{m+n}$ — you can only add indices for **multiplication**, not addition. $(a+b)^n \\neq a^n + b^n$ — you must expand the bracket. $\\sqrt{a+b} \\neq \\sqrt{a} + \\sqrt{b}$."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Powers to Know Instantly",
+        "body": "$2^0=1, 2^{1/2}=\\sqrt{2}\\approx1.41, 2^{10}=1024$. $4^{1/2}=2, 8^{1/3}=2, 16^{1/4}=2, 27^{1/3}=3, 125^{1/3}=5$. Key squares: $1,4,9,16,25,36,49,64,81,100,121,144$."
       }
     }
   ],
@@ -119,25 +190,55 @@ C["maths:2.2"] = {
     { "h": "Surds" },
     {
       "callout": {
-        "t": "info",
-        "body": "Surds are irrational numbers expressed as roots. We keep them in exact form to avoid rounding errors."
+        "t": "def",
+        "h": "Surd",
+        "body": "A **surd** is an irrational root that cannot be simplified to a rational number. E.g. $\\sqrt{2}, \\sqrt{3}, \\sqrt{5}$ are surds, but $\\sqrt{4} = 2$ is not. We keep surds in exact form to avoid rounding errors."
       }
     },
     {
-      "kv": [
-        ["$\\sqrt{ab}$", "$\\sqrt{a} \\times \\sqrt{b}$"],
-        ["$\\sqrt{\\frac{a}{b}}$", "$\\frac{\\sqrt{a}}{\\sqrt{b}}$"],
-        ["$\\sqrt{a} + \\sqrt{a}$", "$2\\sqrt{a}$"],
-        ["Rationalising $\\frac{k}{\\sqrt{a}}$", "Multiply by $\\frac{\\sqrt{a}}{\\sqrt{a}}$"],
-        ["Rationalising $\\frac{k}{a+\\sqrt{b}}$", "Multiply by $\\frac{a-\\sqrt{b}}{a-\\sqrt{b}}$ (the conjugate)"]
-      ]
+      "callout": {
+        "t": "formula",
+        "h": "Surd Rules",
+        "body": "$\\sqrt{ab} = \\sqrt{a} \\times \\sqrt{b}$ ·  $\\sqrt{\\dfrac{a}{b}} = \\dfrac{\\sqrt{a}}{\\sqrt{b}}$ · $\\sqrt{a} + \\sqrt{a} = 2\\sqrt{a}$ (only like surds can be combined) · $(\\sqrt{a})^2 = a$"
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Rationalising the Denominator",
+        "body": [
+          "**Type 1** — $\\dfrac{k}{\\sqrt{a}}$: Multiply by $\\dfrac{\\sqrt{a}}{\\sqrt{a}}$ → denominator becomes $a$.",
+          "**Type 2** — $\\dfrac{k}{a + \\sqrt{b}}$: Multiply by the **conjugate** $\\dfrac{a - \\sqrt{b}}{a - \\sqrt{b}}$ → denominator becomes $a^2 - b$ (difference of two squares)."
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Difference of Two Squares with Surds",
+        "body": "$(a + \\sqrt{b})(a - \\sqrt{b}) = a^2 - b$. This is why the conjugate rationalises — the surd terms cancel. The result is always rational."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\sqrt{a+b} \\neq \\sqrt{a} + \\sqrt{b}$",
+        "body": "$\\sqrt{9+16} = \\sqrt{25} = 5$, but $\\sqrt{9} + \\sqrt{16} = 3 + 4 = 7 \\neq 5$. You cannot split a surd over addition or subtraction."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Simplifying — Find the Highest Square Factor",
+        "body": "For $\\sqrt{72}$: factors of 72 include $36$ (the highest square). So $\\sqrt{72} = \\sqrt{36 \\times 2} = 6\\sqrt{2}$. Don't go $\\sqrt{4 \\times 18} = 2\\sqrt{18}$ — you'd then need another step."
+      }
     },
     {
       "steps": [
         {
-          "h": "Simplifying Surds",
-          "m": "Simplify $\\sqrt{72}$.\n1. Find largest square factor: $36$.\n2. $\\sqrt{36 \\times 2} = \\sqrt{36} \\times \\sqrt{2}$.\n3. Result: $6\\sqrt{2}$.",
-          "n": "Always look for the highest square number that divides the radicand."
+          "h": "Rationalise $\\dfrac{5}{3 - \\sqrt{2}}$",
+          "m": "Multiply by conjugate: $\\dfrac{5}{3-\\sqrt{2}} \\times \\dfrac{3+\\sqrt{2}}{3+\\sqrt{2}} = \\dfrac{5(3+\\sqrt{2})}{9-2} = \\dfrac{15+5\\sqrt{2}}{7}$",
+          "n": "Denominator: $(3)^2 - (\\sqrt{2})^2 = 9 - 2 = 7$. Always rational after multiplying by conjugate."
         }
       ]
     }
@@ -239,16 +340,43 @@ C["maths:2.4"] = {
     { "h": "Simultaneous Equations" },
     {
       "callout": {
+        "t": "def",
+        "h": "Simultaneous Equations",
+        "body": "Two or more equations that must **all be satisfied at the same time**. The solution is the set of values that makes every equation true simultaneously. Geometrically, this is the **intersection** of the curves."
+      }
+    },
+    {
+      "callout": {
         "t": "info",
-        "body": "Solving multiple equations that share the same variables. Geometrically, this finds the intersection points of curves."
+        "h": "Methods",
+        "body": [
+          {"kv": [
+            ["Elimination", "Used for two linear equations — multiply to match coefficients, then add/subtract to eliminate one variable."],
+            ["Substitution", "Used for one linear + one non-linear — rearrange the linear for one variable, substitute into the other equation."]
+          ]}
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "When the Discriminant = 0, the Line is a Tangent",
+        "body": "If substitution produces a quadratic with $b^2 - 4ac = 0$, the line **touches** the curve at exactly one point — it's a tangent. If $b^2 - 4ac < 0$, there's no intersection."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Always Get Full Coordinate Pairs",
+        "body": "After finding $x$ values, substitute back into the **simpler equation** to find $y$. Write your answers as coordinate pairs $(x, y)$. Don't pair the wrong $x$ and $y$ values together."
       }
     },
     {
       "steps": [
         {
-          "h": "Solving Linear and Quadratic",
-          "m": "Solve $y = x+1$ and $x^2 + y^2 = 5$.\n1. Substitute $y$: $x^2 + (x+1)^2 = 5$.\n2. Expand: $x^2 + x^2 + 2x + 1 = 5 \\implies 2x^2 + 2x - 4 = 0$.\n3. Simplify: $x^2 + x - 2 = 0 \\implies (x+2)(x-1) = 0$.\n4. $x = -2 \\implies y = -1$; $x = 1 \\implies y = 2$.",
-          "n": "Always check your solutions by substituting back into BOTH original equations."
+          "h": "Linear + Quadratic: $y = x+1$ and $x^2 + y^2 = 5$",
+          "m": "1. Substitute $y = x+1$ into circle: $x^2 + (x+1)^2 = 5$.\n2. Expand: $2x^2 + 2x + 1 = 5 \\implies 2x^2 + 2x - 4 = 0 \\implies x^2 + x - 2 = 0$.\n3. Factorise: $(x+2)(x-1) = 0 \\implies x = -2, x = 1$.\n4. Find $y$: $x=-2 \\implies y=-1$; $x=1 \\implies y=2$.",
+          "n": "Solutions: $(-2, -1)$ and $(1, 2)$. Check both pairs in the original circle equation."
         }
       ]
     }
@@ -289,16 +417,44 @@ C["maths:2.5"] = {
     {
       "callout": {
         "t": "warn",
-        "h": "The Golden Rule",
-        "body": "When multiplying or dividing an inequality by a negative number, you MUST reverse the inequality sign."
+        "h": "The Golden Rule — Flip the Sign",
+        "body": "When multiplying or dividing an inequality by a **negative number**, you MUST reverse the inequality sign. E.g.: $-2x < 6 \\implies x > -3$."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Linear Inequality",
+        "body": "Solved by rearranging like an equation, with one exception: dividing/multiplying by a negative reverses the sign. Solutions can be written as $x > a$, $x \\le b$, or in set notation $\\{x : x > a\\}$."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Quadratic Inequality — Method",
+        "body": "1. Rearrange to $ax^2 + bx + c > 0$ (or $< 0$). 2. Find critical values by solving $ax^2 + bx + c = 0$. 3. Sketch the parabola. 4. Read off the correct region: $< 0$ = **inside** (between) roots; $> 0$ = **outside** (beyond) roots."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Inside vs Outside Critical Values",
+        "body": "For $a > 0$ (U-parabola): **$f(x) < 0$ → inside the roots** ($a < x < b$). **$f(x) > 0$ → outside the roots** ($x < a$ or $x > b$). Draw the sketch every time — don't try to remember the rule without visualising it."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$x^2 > 9$ Does NOT Mean $x > 3$",
+        "body": "$x^2 > 9$ means $(x-3)(x+3) > 0$, giving $x < -3$ or $x > 3$. Students who write only $x > 3$ miss the negative solution. Always find critical values $\\pm\\sqrt{k}$ for $x^2 > k$."
       }
     },
     {
       "steps": [
         {
-          "h": "Solving Quadratic Inequalities",
-          "m": "Solve $x^2 - 5x + 4 < 0$.\n1. Find critical values: $(x-1)(x-4)=0 \\implies x=1, 4$.\n2. Sketch the parabola $y = x^2 - 5x + 4$.\n3. Identify the region where the graph is below the $x$-axis.",
-          "n": "The solution is $1 < x < 4$."
+          "h": "Solve $x^2 - 5x + 4 < 0$",
+          "m": "1. Critical values: $(x-1)(x-4) = 0 \\implies x = 1, 4$.\n2. U-parabola: below x-axis between the roots.\n3. Solution: $1 < x < 4$.",
+          "n": "Always sketch the parabola — it makes the region selection visual and reliable."
         }
       ]
     }
@@ -394,16 +550,51 @@ C["maths:2.7"] = {
   "notes": [
     { "h": "Graphs of Functions" },
     {
+      "callout": {
+        "t": "info",
+        "h": "What You Need",
+        "body": "Recognise and sketch: linear, quadratic, cubic, reciprocal ($1/x$ and $1/x^2$), and exponential graphs. Know the shape, asymptotes, intercepts, and how transformations change each."
+      }
+    },
+    {
       "table": {
         "head": ["Function Type", "Equation Form", "Key Features"],
         "rows": [
-          ["Linear", "$y = mx + c$", "Straight line, gradient $m$."],
-          ["Quadratic", "$y = ax^2 + bx + c$", "U or n shaped parabola."],
-          ["Cubic", "$y = ax^3 + bx^2 + cx + d$", "S-shape, up to 2 turning points."],
-          ["Reciprocal", "$y = k/x$", "Hyperbola, asymptotes at $x=0, y=0$."],
-          ["Reciprocal Squared", "$y = k/x^2$", "Volcano shape, always positive ($k>0$)."],
-          ["Exponential", "$y = a^x$", "Grows or decays, asymptote at $y=0$."]
+          ["Linear", "$y = mx + c$", "Straight line, gradient $m$, $y$-intercept $c$."],
+          ["Quadratic", "$y = ax^2 + bx + c$", "Parabola. Positive $a$: U-shape; negative $a$: n-shape."],
+          ["Cubic", "$y = ax^3 + bx^2 + cx + d$", "S-shape, up to 2 turning points. Positive $a$: bottom-left to top-right."],
+          ["Reciprocal", "$y = k/x$", "Hyperbola. Asymptotes $x=0, y=0$. Quadrants 1 & 3 (if $k>0$)."],
+          ["Reciprocal Squared", "$y = k/x^2$", "Always above $x$-axis (if $k>0$). Asymptotes $x=0, y=0$."],
+          ["Exponential", "$y = a^x$", "Always positive. Asymptote $y=0$. Passes through $(0,1)$."]
         ]
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Negative Coefficient = Reflection in $x$-axis",
+        "body": "Multiplying by $-1$ reflects the graph in the $x$-axis. So $y = -x^2$ opens downwards, $y = -1/x$ is in the 2nd and 4th quadrants, and $y = -a^x$ is always below the $x$-axis."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Asymptote Checklist — NOT Given",
+        "body": "$y = k/x$: asymptotes $x=0, y=0$. $y = k/x^2$: same asymptotes, both branches above $x$-axis ($k>0$). $y = a^x$: asymptote $y=0$, always positive. These are never given — learn them."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Repeated Root = Graph Touches, Doesn't Cross",
+        "body": "If $(x-a)^2$ is a factor, the graph touches the $x$-axis at $x=a$ and bounces back. A single factor $(x-a)$ means the graph crosses. For cubics: a repeated root + single root = shape with a 'bounce'."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Exponential Does Not Hit $y = 0$",
+        "body": "$y = a^x$ has a horizontal asymptote at $y=0$ but never reaches it. Students sometimes draw the curve touching the axis — this is wrong. It approaches but never meets."
       }
     }
   ],
@@ -558,15 +749,46 @@ C["maths:2.10"] = {
     { "h": "Partial Fractions" },
     {
       "callout": {
-        "t": "info",
-        "body": "Decomposing a complex rational expression into a sum of simpler fractions. Essential for integration."
+        "t": "def",
+        "h": "Partial Fractions",
+        "body": "Decomposing a rational expression into a **sum of simpler fractions** with linear (or repeated) denominators. Essential for integration of rational functions and binomial expansion."
       }
     },
     {
-      "kv": [
-        ["Distinct Linear Factors", "$\\frac{1}{(x-a)(x-b)} = \\frac{A}{x-a} + \\frac{B}{x-b}$"],
-        ["Repeated Linear Factors", "$\\frac{1}{(x-a)^2(x-b)} = \\frac{A}{x-a} + \\frac{B}{(x-a)^2} + \\frac{C}{x-b}$"],
-        ["Improper Fractions", "Use long division first if degree of numerator $\\ge$ degree of denominator."]
+      "callout": {
+        "t": "formula",
+        "h": "Type 1: Distinct Linear Factors",
+        "body": "$$\\frac{f(x)}{(x-a)(x-b)} = \\frac{A}{x-a} + \\frac{B}{x-b}$$ Find $A$ and $B$ by either: (1) substituting $x=a$ then $x=b$ into the numerator equation, or (2) equating coefficients."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Type 2: Repeated Linear Factor",
+        "body": "$$\\frac{f(x)}{(x-a)^2(x-b)} = \\frac{A}{x-a} + \\frac{B}{(x-a)^2} + \\frac{C}{x-b}$$ Each power of the repeated factor needs its own numerator constant."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Improper Fractions — Do Long Division First",
+        "body": "If the degree of the **numerator** $\\ge$ degree of the **denominator**, the fraction is **improper**. Perform polynomial long division first to get: $\\text{quotient} + \\dfrac{\\text{remainder}}{\\text{denominator}}$, then decompose the remainder."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Cover-Up Method for Finding Constants",
+        "body": "For $\\dfrac{f(x)}{(x-a)(x-b)} = \\dfrac{A}{x-a} + \\dfrac{B}{x-b}$: to find $A$, substitute $x=a$ into $\\dfrac{f(x)}{x-b}$ (covering $(x-a)$). To find $B$, substitute $x=b$ into $\\dfrac{f(x)}{x-a}$."
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Express $\\frac{x+7}{(x-1)(x+3)}$ in partial fractions",
+          "m": "Let $\\frac{A}{x-1} + \\frac{B}{x+3}$. Multiply through: $x+7 = A(x+3) + B(x-1)$.\nSubstitute $x=1$: $8 = 4A \\implies A = 2$.\nSubstitute $x=-3$: $4 = -4B \\implies B = -1$.",
+          "n": "Answer: $\\dfrac{2}{x-1} - \\dfrac{1}{x+3}$. Check by recombining over a common denominator."
+        }
       ]
     }
   ],
@@ -604,16 +826,52 @@ C["maths:2.11"] = {
     { "h": "Functions in Modelling" },
     {
       "callout": {
+        "t": "def",
+        "h": "Mathematical Modelling",
+        "body": "Using mathematical functions to represent real-world scenarios. Key steps: (1) set up the model, (2) solve/analyse mathematically, (3) interpret the result in context, (4) check validity."
+      }
+    },
+    {
+      "callout": {
         "t": "info",
-        "body": "Using mathematical functions to represent real-world scenarios. Common models include population growth, radioactive decay, and cooling."
+        "h": "Common Model Types",
+        "body": [
+          {"kv": [
+            ["Quadratic", "Projectile motion, profit/revenue. $h(t) = -at^2 + bt + c$. Maximum at vertex."],
+            ["Exponential growth", "$P = Ae^{kt}$ ($k>0$). E.g. population growth, compound interest."],
+            ["Exponential decay", "$N = N_0 e^{-kt}$ ($k>0$). E.g. radioactive decay, Newton's cooling."],
+            ["Reciprocal", "$y = k/x$. E.g. pressure-volume relationship ($PV = k$)."]
+          ]}
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Exponential Model Key Parameters",
+        "body": "For $y = Ae^{kt}$: **$A$** = initial value (at $t=0$, since $e^0=1$). **$k$** = rate constant (positive = growth, negative = decay). **Doubling time** (growth): $t = \\dfrac{\\ln 2}{k}$. **Half-life** (decay): $t_{1/2} = \\dfrac{\\ln 2}{k}$."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Domain Restrictions in Models",
+        "body": "Real-world models always have domain restrictions that must be stated. Time is usually $t \\ge 0$. Height can't be negative. Population must be $\\ge 0$. Always check your answer makes physical sense — e.g. negative time or height is meaningless."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Interpreting the $y$-intercept",
+        "body": "For models of the form $f(t)$, the $y$-intercept ($t=0$) is always the **initial value**. In $T = 20 + 80e^{-0.1t}$, the initial temperature is $T(0) = 100$. As $t \\to \\infty$, $e^{-0.1t} \\to 0$ so $T \\to 20$ (room temperature)."
       }
     },
     {
       "steps": [
         {
-          "h": "Modelling with Quadratics",
-          "m": "A ball is thrown: $h(t) = -5t^2 + 10t + 2$.\n1. Max height: Complete square or use $t = -b/2a = 1s$.\n2. $h(1) = 7m$.\n3. Initial height: $h(0) = 2m$.",
-          "n": "Interpret the parameters in context (e.g., $t$ is time, $h$ is height)."
+          "h": "Quadratic Model: Ball thrown, $h(t) = -5t^2 + 10t + 2$",
+          "m": "Max height: $t = -b/2a = -10/(2 \\times -5) = 1\\text{ s}$. Then $h(1) = -5+10+2 = 7\\text{ m}$.\nInitial height: $h(0) = 2\\text{ m}$. Lands when $h=0$: $-5t^2+10t+2=0$.",
+          "n": "The domain is $0 \\le t \\le$ (time when ball lands). Negative $h$ values are outside the model's validity."
         }
       ]
     }
@@ -3635,19 +3893,60 @@ C["maths:10.3"] = {
   "notes": [
     { "h": "Vector Addition & Scalar Multiplication" },
     {
-      "kv": [
-        ["Addition", "Add corresponding components."],
-        ["Subtraction", "Subtract corresponding components. $\\mathbf{a}-\\mathbf{b}$ is vector from $B$ to $A$."],
-        ["Scalar Multiplication", "Multiply every component by the scalar. Changes magnitude, keeps/reverses direction."],
-        ["Parallel Vectors", "$\\mathbf{a} = \\lambda \\mathbf{b}$ for some scalar $\\lambda$."]
-      ]
+      "callout": {
+        "t": "formula",
+        "h": "Vector Addition",
+        "body": "Add corresponding components: $\\mathbf{a} + \\mathbf{b} = \\begin{pmatrix} a_1 + b_1 \\\\ a_2 + b_2 \\end{pmatrix}$. Geometrically, place vectors end-to-end (triangle law)."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Vector Subtraction",
+        "body": "$\\mathbf{a} - \\mathbf{b} = \\begin{pmatrix} a_1 - b_1 \\\\ a_2 - b_2 \\end{pmatrix}$. Note: $\\vec{AB} = \\mathbf{b} - \\mathbf{a}$ (destination minus start). Students often get the sign wrong."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Scalar Multiplication",
+        "body": "$\\lambda\\mathbf{a} = \\begin{pmatrix} \\lambda a_1 \\\\ \\lambda a_2 \\end{pmatrix}$. Scales the magnitude by $|\\lambda|$. If $\\lambda < 0$, direction reverses. $\\lambda = 0$ gives the zero vector."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Parallel Vectors",
+        "body": "Two non-zero vectors $\\mathbf{a}$ and $\\mathbf{b}$ are **parallel** if $\\mathbf{a} = \\lambda\\mathbf{b}$ for some scalar $\\lambda \\neq 0$. If $\\lambda > 0$ they point the same way; if $\\lambda < 0$ they point opposite ways."
+      }
     },
     {
       "callout": {
         "t": "tip",
         "h": "Triangle Law",
-        "body": "$\\vec{AB} + \\vec{BC} = \\vec{AC}$. The resultant vector is the shortcut from start to finish."
+        "body": "$\\vec{AB} + \\vec{BC} = \\vec{AC}$. The resultant is the shortcut from start to finish. Think: what's the net displacement if you travel $AB$ then $BC$?"
       }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Direction of $\\vec{AB}$ — Common Mistake",
+        "body": "$\\vec{AB} = \\mathbf{b} - \\mathbf{a}$ (NOT $\\mathbf{a} - \\mathbf{b}$). The arrow points from $A$ to $B$, so you subtract the starting position from the ending position."
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Find $\\vec{PQ}$ given $P(1, 2)$ and $Q(4, 6)$",
+          "m": "$\\vec{PQ} = \\begin{pmatrix} 4-1 \\\\ 6-2 \\end{pmatrix} = \\begin{pmatrix} 3 \\\\ 4 \\end{pmatrix}$",
+          "n": "Destination minus start: $\\mathbf{q} - \\mathbf{p}$."
+        },
+        {
+          "h": "Check if $\\begin{pmatrix} 6 \\\\ -4 \\end{pmatrix}$ and $\\begin{pmatrix} -3 \\\\ 2 \\end{pmatrix}$ are parallel",
+          "m": "$\\begin{pmatrix} 6 \\\\ -4 \\end{pmatrix} = -2 \\begin{pmatrix} -3 \\\\ 2 \\end{pmatrix}$ ✓",
+          "n": "One is a scalar multiple of the other, so they are parallel."
+        }
+      ]
     }
   ],
   "flashcards": [

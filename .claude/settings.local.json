@@ -14,7 +14,27 @@
       "Bash(node --check js/data/content/maths-pure.js)",
       "Bash(node --check js/core/content.js)",
       "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --hide-scrollbars --force-color-profile=srgb --window-size=1440,960 --virtual-time-budget=3000 --default-background-color=00000000 --screenshot=/tmp/kos_home.png --allow-file-access-from-files file:///Users/fj/Downloads/KurenaiOS%202/index.html)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(git fetch *)",
+      "Bash(gh pr *)",
+      "Bash(git --no-pager diff main..origin/claude/refine-local-plan-spc86t -- index.html js/modules/hub.js js/core/content.js)",
+      "Bash(git --no-pager diff main..origin/claude/refine-local-plan-spc86t -- css/main.css)",
+      "Bash(git checkout *)",
+      "Bash(git merge *)",
+      "Bash(git push *)",
+      "Bash(git --no-pager log --oneline -4)",
+      "Bash(git branch *)",
+      "Bash(git --no-pager diff --stat a29a716..HEAD)",
+      "Bash(git ls-remote *)",
+      "Bash(awk '{print $2}')",
+      "Bash(python3)",
+      "Bash(node -e \"var t = require\\('fs'\\).readFileSync\\('/Users/fj/Downloads/KurenaiOS 2/js/data/content/it-f201.js', 'utf8'\\); eval\\(t\\)\")",
+      "Bash(node -e \"var t = require\\('fs'\\).readFileSync\\('/Users/fj/Downloads/KurenaiOS 2/js/data/content/it-f201.js', 'utf8'\\); eval\\(t\\); console.log\\('OK'\\)\")",
+      "Bash(node -e \"var window = {}; var t = require\\('fs'\\).readFileSync\\('/Users/fj/Downloads/KurenaiOS 2/js/data/content/it-f201.js', 'utf8'\\); eval\\(t\\); console.log\\('OK'\\)\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(grep -rn '\\\\\\\\\\\\\\\\times\\\\|\"[^$]*\\\\\\\\\\\\\\\\times[^$]*\"' \"/Users/fj/Downloads/KurenaiOS 2/js/data/content/cs-networking-ethics.js\")",
+      "Bash(xxd)"
     ]
   }
 }

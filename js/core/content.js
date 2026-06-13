@@ -126,7 +126,8 @@
         html += '<div class="n-steps">' + COPY_BTN + b.steps.map(function (s, i) {
           if (typeof s === "string") return '<div class="step revealed"><div class="sh">Step ' + (i + 1) + '</div><div class="sn">' + inline(s) + "</div></div>";
           return '<div class="step revealed"><div class="sh">Step ' + (i + 1) +
-            (s.h ? " — " + inline(s.h) : "") + '</div><div class="sm">' + esc(s.m) + "</div>" +
+            (s.h ? " — " + inline(s.h) : "") + '</div>' +
+            (s.m != null ? '<div class="sm">' + esc(s.m) + "</div>" : "") +
             (s.n ? '<div class="sn">' + inline(s.n) + "</div>" : "") + "</div>";
         }).join("") + "</div>"; return;
       }

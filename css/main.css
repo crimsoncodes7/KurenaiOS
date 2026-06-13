@@ -431,10 +431,7 @@ a { color: var(--kurenai-2); }
 .ctl-row {
   display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 18px 0 22px;
   padding: 13px 16px; border: 1px solid var(--line-soft); border-radius: var(--r3);
-  position: sticky; top: 8px; z-index: 6;
-  background: var(--glass); backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  box-shadow: var(--sh-2);
+  background: var(--raise); box-shadow: var(--sh-1);
 }
 .ctl-row label.chk { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--mute); cursor: pointer;
   transition: color var(--t-fast); }
@@ -758,11 +755,12 @@ a { color: var(--kurenai-2); }
 
 .n-code { margin: 12px 0 20px; position: relative; }
 .n-code pre {
-  margin: 0; background: linear-gradient(180deg, #0c0911, #0a0810); border: 1px solid var(--line-soft);
-  border-radius: var(--r3); padding: 16px 18px; overflow-x: auto; box-shadow: var(--sh-1);
+  margin: 0; background: linear-gradient(180deg, #110d1c, #08060d); border: 1px solid var(--line);
+  border-top: 2px solid color-mix(in srgb, var(--accent, var(--kurenai)) 65%, transparent);
+  border-radius: var(--r2); padding: 36px 18px 16px; overflow-x: auto; box-shadow: var(--sh-2);
 }
-.n-lang { position: absolute; top: 10px; right: 70px; font-family: var(--mono); font-size: 9.5px;
-  letter-spacing: .12em; text-transform: uppercase; color: var(--faint); pointer-events: none; }
+.n-lang { position: absolute; top: 10px; left: 18px; font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--accent, var(--kurenai)); opacity: .8; pointer-events: none; }
 .n-copy {
   position: absolute; top: 8px; right: 8px; z-index: 2;
   background: var(--raise2); border: 1px solid var(--line); color: var(--mute);
@@ -793,8 +791,8 @@ a { color: var(--kurenai-2); }
 .n-call-def      { border-color: rgba(236,193,90,.35); background: linear-gradient(180deg, rgba(236,193,90,.08), rgba(236,193,90,.02)); }
 .n-call-def .n-call-h { color: var(--gold); }
 .n-call-def .n-call-b { font-family: var(--serif); font-size: 15px; color: var(--text-2); }
-.n-call-tip      { border-color: rgba(69,214,168,.45); background: linear-gradient(180deg, rgba(69,214,168,.09), rgba(69,214,168,.02)); }
-.n-call-tip .n-call-h { color: var(--ok); }
+.n-call-tip      { border-color: rgba(170,145,255,.4); background: linear-gradient(180deg, rgba(170,145,255,.07), rgba(170,145,255,.01)); }
+.n-call-tip .n-call-h { color: #b09af0; }
 .n-call-info     { border-color: rgba(123,158,248,.45); background: linear-gradient(180deg, rgba(123,158,248,.1), rgba(123,158,248,.02)); }
 .n-call-info .n-call-h { color: var(--c-maths); }
 .n-call-warn     { border-color: rgba(239,73,101,.4); background: linear-gradient(180deg, rgba(239,73,101,.09), rgba(239,73,101,.02)); }

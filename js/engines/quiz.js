@@ -42,8 +42,10 @@
             btn.classList.add(ok ? "right" : "wrong");
             opts.children[item.ans].classList.add("right");
             opts.querySelectorAll(".qz-opt").forEach(function (b) { b.disabled = true; });
-            card.appendChild(el("div", { class: "qz-why " + (ok ? "ok" : "no"),
-              html: (ok ? "✓ Correct. " : "✕ Not quite. ") + KOS.content.inline(item.why || "") }));
+            var why = el("div", { class: "qz-why " + (ok ? "ok" : "no"),
+              html: (ok ? "✓ Correct. " : "✕ Not quite. ") + KOS.content.inline(item.why || "") });
+            card.appendChild(why);
+            KOS.content.typeset(why);
             if (answered === items.length) finish();
           }});
           opts.appendChild(btn);
@@ -52,6 +54,7 @@
         list.appendChild(card);
       });
       holder.appendChild(list);
+      KOS.content.typeset(list);
 
       var result = el("div", { class: "qz-result", style: "display:none" });
       holder.appendChild(result);
@@ -90,6 +93,7 @@
               return "<li>" + KOS.content.inline(m) + "</li>"; }).join("") + "</ul>";
             msWrap.style.display = "";
             selfRow.style.display = "";
+            KOS.content.typeset(msWrap);
           }})
         ]));
         card.appendChild(msWrap);
@@ -104,6 +108,7 @@
         }}));
         card.appendChild(selfRow);
         holder.appendChild(card);
+        KOS.content.typeset(card);
       });
     }
   };
