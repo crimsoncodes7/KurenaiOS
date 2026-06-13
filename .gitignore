@@ -1,0 +1,11 @@
+# dependencies
+node_modules/
+
+# editor / OS cruft
+.DS_Store
+.idea/
+*.swp
+
+# generated screenshots / scratch
+/tmp/
+*.local

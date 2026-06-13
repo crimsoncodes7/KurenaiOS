@@ -1,0 +1,3050 @@
+/* Kurenai OS content */
+window.KOS_CONTENT = window.KOS_CONTENT || {};
+(function (C) {
+
+C["compsci:4.8.1"] = {
+  "notes": [
+    {
+      "h": "Consequences of Uses of Computing"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Impact Categories",
+        "body": "Computing has far-reaching economic, social, legal, ethical, and cultural implications."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Key Legislation",
+        "body": [
+          {
+            "kv": [
+              [
+                "Data Protection Act",
+                "Regulates how personal data is stored and used by organisations."
+              ],
+              [
+                "Computer Misuse Act",
+                "Criminalises unauthorised access to computer systems and data."
+              ],
+              [
+                "Copyright Designs & Patents Act",
+                "Protects intellectual property including software and media."
+              ],
+              [
+                "Regulation of Investigatory Powers Act (RIPA)",
+                "Governs the interception of communications by public authorities."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "csharp",
+        "cap": "Conceptual C# check for data handling compliance.",
+        "src": "public class DataPolicy\n{\n    public bool IsCompliant(UserRecord record)\n    {\n        // DPA: Data must be kept for no longer than necessary\n        if (record.AgeInYears > 7) return false;\n        \n        // DPA: Data must be kept secure (e.g. encrypted)\n        if (!record.IsEncrypted) return false;\n        \n        return true;\n    }\n}"
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "body": "Always refer to specific acts or scenarios when evaluating ethical issues."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What does the Data Protection Act ensure?",
+      "Personal data must be kept secure and used fairly."
+    ],
+    [
+      "What does the Computer Misuse Act cover?",
+      "Unauthorised access to computer systems and data."
+    ],
+    [
+      "What is a cultural issue in computing?",
+      "The digital divide, where some groups have less access to technology."
+    ],
+    [
+      "What does the Copyright Designs and Patents Act protect?",
+      "Intellectual property such as software, music, and literature."
+    ],
+    [
+      "What is the RIPA?",
+      "Regulation of Investigatory Powers Act, covering interception of communications."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which act criminalises unauthorised access to computer material?",
+      "opts": [
+        "Data Protection Act",
+        "Computer Misuse Act",
+        "Copyright Act",
+        "RIPA"
+      ],
+      "ans": 1,
+      "why": "CMA covers unauthorised access."
+    },
+    {
+      "q": "What refers to the gap between those with and without access to technology?",
+      "opts": [
+        "Digital Divide",
+        "Net Neutrality",
+        "Open Source",
+        "Cultural Lag"
+      ],
+      "ans": 0,
+      "why": "Digital divide is the socioeconomic gap in technology access."
+    },
+    {
+      "q": "Which act governs the interception of digital communications by authorities?",
+      "opts": [
+        "DPA",
+        "CMA",
+        "RIPA",
+        "CDPA"
+      ],
+      "ans": 2,
+      "why": "RIPA allows authorities to monitor communications."
+    },
+    {
+      "q": "If a company sells user data without permission, which act is breached?",
+      "opts": [
+        "Data Protection Act",
+        "Computer Misuse Act",
+        "Copyright Act",
+        "Freedom of Information Act"
+      ],
+      "ans": 0,
+      "why": "DPA requires fair and lawful processing of data."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Discuss two legal issues a company must consider when storing customer data online. (4 marks)",
+      "marks": 4,
+      "ms": [
+        "Must comply with the Data Protection Act (1), ensuring data is secure and kept only as long as necessary (1).",
+        "Must protect against unauthorised access under the Computer Misuse Act (1), e.g., by implementing firewalls and encryption (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.1.1"] = {
+  "notes": [
+    {
+      "h": "Communication Methods"
+    },
+    {
+      "table": {
+        "head": [
+          "Method",
+          "Description",
+          "Pros/Cons"
+        ],
+        "rows": [
+          [
+            "Serial",
+            "Bits sent sequentially over one wire.",
+            "Better for long distances; prevents skew and crosstalk."
+          ],
+          [
+            "Parallel",
+            "Multiple bits sent simultaneously over multiple wires.",
+            "High speed over short distances (internal buses); prone to skew/crosstalk."
+          ]
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Synchronicity",
+        "body": [
+          {
+            "kv": [
+              [
+                "Synchronous",
+                "Data sent in time with a shared clock signal."
+              ],
+              [
+                "Asynchronous",
+                "Data sent with start and stop bits; no shared clock."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "csharp",
+        "cap": "Configuring a Serial Port in C#.",
+        "src": "using System.IO.Ports;\n\nSerialPort port = new SerialPort(\"COM3\", 9600, Parity.None, 8, StopBits.One);\nport.Open();\nport.WriteLine(\"Data sent bit-by-bit over one wire\");\nport.Close();"
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What is serial transmission?",
+      "Data is sent one bit at a time over a single wire."
+    ],
+    [
+      "What is parallel transmission?",
+      "Multiple bits are sent simultaneously over multiple wires."
+    ],
+    [
+      "Why is serial preferred for long distances?",
+      "It avoids data skew and crosstalk that occurs in parallel wires."
+    ],
+    [
+      "What is synchronous transmission?",
+      "Data transmission is synchronised by a shared clock signal."
+    ],
+    [
+      "What is asynchronous transmission?",
+      "Data is sent with start and stop bits to indicate the beginning and end of a byte, without a shared clock."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which transmission type uses a single wire to send bits one after another?",
+      "opts": [
+        "Serial",
+        "Parallel",
+        "Synchronous",
+        "Asynchronous"
+      ],
+      "ans": 0,
+      "why": "Serial sends bits sequentially on one line."
+    },
+    {
+      "q": "What is data skew?",
+      "opts": [
+        "Bits arriving out of order in parallel transmission",
+        "Interference between wires",
+        "Data loss over distance",
+        "Incorrect start bits"
+      ],
+      "ans": 0,
+      "why": "Skew happens when parallel signals travel at slightly different speeds."
+    },
+    {
+      "q": "Which transmission type relies on start and stop bits?",
+      "opts": [
+        "Synchronous",
+        "Asynchronous",
+        "Parallel",
+        "Serial"
+      ],
+      "ans": 1,
+      "why": "Asynchronous uses start/stop bits instead of a clock."
+    },
+    {
+      "q": "What causes crosstalk?",
+      "opts": [
+        "Electromagnetic interference between adjacent wires",
+        "Bits arriving at different times",
+        "Clock desynchronisation",
+        "Using too few wires"
+      ],
+      "ans": 0,
+      "why": "Crosstalk is interference between parallel wires."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Explain why serial transmission is generally preferred over parallel transmission for long-distance communication. (3 marks)",
+      "marks": 3,
+      "ms": [
+        "Parallel transmission is susceptible to data skew (1) and crosstalk (1) over long distances.",
+        "Serial transmission uses a single wire, eliminating skew and reducing crosstalk, making it more reliable (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.1.2"] = {
+  "notes": [
+    {
+      "h": "Communication Basics"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Key Metrics",
+        "body": [
+          {
+            "kv": [
+              [
+                "Baud rate",
+                "Number of signal changes per second."
+              ],
+              [
+                "Bit rate",
+                "Number of bits transmitted per second."
+              ],
+              [
+                "Bandwidth",
+                "Range of frequencies a transmission medium can carry."
+              ],
+              [
+                "Latency",
+                "Time delay between a transmission starting and being received."
+              ],
+              [
+                "Protocol",
+                "A set of rules governing the exchange of data."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Bit Rate Calculation",
+        "body": "Bit rate = Baud rate \times bits per signal change"
+      }
+    },
+    {
+      "code": {
+        "lang": "csharp",
+        "cap": "Calculating Bit Rate in C#.",
+        "src": "int baudRate = 2400;\nint bitsPerSignal = 4;\nint bitRate = baudRate * bitsPerSignal; // 9600 bps"
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What is baud rate?",
+      "The number of signal changes per second."
+    ],
+    [
+      "What is bit rate?",
+      "The number of bits transmitted per second."
+    ],
+    [
+      "How do you calculate bit rate from baud rate?",
+      "Bit rate = Baud rate \times bits per signal change."
+    ],
+    [
+      "What is latency?",
+      "The time delay before data is received."
+    ],
+    [
+      "What is a protocol?",
+      "A set of rules governing data exchange."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "If a system has a baud rate of 1000 and 4 bits per signal change, what is the bit rate?",
+      "opts": [
+        "1000 bps",
+        "4000 bps",
+        "250 bps",
+        "8000 bps"
+      ],
+      "ans": 1,
+      "why": "1000 * 4 = 4000."
+    },
+    {
+      "q": "Which term describes the number of signal state changes per second?",
+      "opts": [
+        "Bit rate",
+        "Baud rate",
+        "Bandwidth",
+        "Latency"
+      ],
+      "ans": 1,
+      "why": "Baud rate is signal changes per second."
+    },
+    {
+      "q": "What is defined as the set of rules for communication?",
+      "opts": [
+        "Protocol",
+        "Bandwidth",
+        "Latency",
+        "Topology"
+      ],
+      "ans": 0,
+      "why": "A protocol defines the rules."
+    },
+    {
+      "q": "Which factor does NOT directly affect the speed of file download?",
+      "opts": [
+        "Bandwidth",
+        "Latency",
+        "Bit rate",
+        "Storage format of the file on disk"
+      ],
+      "ans": 3,
+      "why": "Storage format doesn't affect network transfer speed."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Define Baud rate and Bit rate, and explain the relationship between them. (3 marks)",
+      "marks": 3,
+      "ms": [
+        "Baud rate is the number of signal changes per second (1).",
+        "Bit rate is the number of bits transmitted per second (1).",
+        "Bit rate = Baud rate \times number of bits represented by each signal change (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.2.1"] = {
+  "notes": [
+    {
+      "h": "Network Topology"
+    },
+    {
+      "table": {
+        "head": [
+          "Topology",
+          "Description",
+          "Pros/Cons"
+        ],
+        "rows": [
+          [
+            "Star",
+            "Devices connect to a central switch/hub.",
+            "High performance, secure; if one cable fails, others are unaffected."
+          ],
+          [
+            "Bus",
+            "Devices share a single backbone cable.",
+            "Cheap to install; cable failure brings down the whole network; collisions common."
+          ]
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "csharp",
+        "cap": "Conceptual representation of a Star Network Node.",
+        "src": "public class NetworkNode\n{\n    public string DeviceID { get; set; }\n    public bool IsConnected { get; set; } = true;\n    \n    // In a Star topology, if one node's connection fails, others are unaffected.\n    public void SendData(string data) { /* Sent to central switch */ }\n}"
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What is a star topology?",
+      "All nodes are connected to a central switch or hub."
+    ],
+    [
+      "What is an advantage of a star topology?",
+      "If one cable fails, other devices are unaffected."
+    ],
+    [
+      "What is a bus topology?",
+      "All nodes are connected to a single central backbone cable."
+    ],
+    [
+      "What is a disadvantage of a bus topology?",
+      "If the main cable fails, the entire network goes down."
+    ],
+    [
+      "Which topology suffers more from data collisions?",
+      "Bus topology."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which topology relies on a central switch?",
+      "opts": [
+        "Star",
+        "Bus",
+        "Ring",
+        "Mesh"
+      ],
+      "ans": 0,
+      "why": "Star topology uses a central node."
+    },
+    {
+      "q": "In a bus topology, what happens if the main cable breaks?",
+      "opts": [
+        "Only one node goes down",
+        "The whole network fails",
+        "Performance slightly degrades",
+        "Data is rerouted"
+      ],
+      "ans": 1,
+      "why": "The backbone cable is a single point of failure."
+    },
+    {
+      "q": "Which is generally more expensive to cable?",
+      "opts": [
+        "Star",
+        "Bus",
+        "Peer-to-peer",
+        "Client-server"
+      ],
+      "ans": 0,
+      "why": "Star requires a dedicated cable for every device back to the switch."
+    },
+    {
+      "q": "Which topology is most susceptible to collisions as network traffic increases?",
+      "opts": [
+        "Star",
+        "Bus",
+        "Mesh",
+        "Ring"
+      ],
+      "ans": 1,
+      "why": "Bus shares a single medium, leading to more collisions."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Compare Star and Bus topologies in terms of reliability and cost. (4 marks)",
+      "marks": 4,
+      "ms": [
+        "Star is more reliable because one cable failure only affects one node (1), whereas in Bus, a backbone failure brings down the whole network (1).",
+        "Bus is cheaper to install as it requires less cabling (1), whereas Star requires more cabling and a central switch, making it more expensive (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.2.2"] = {
+  "notes": [
+    {
+      "h": "Peer-to-Peer vs Client-Server"
+    },
+    {
+      "table": {
+        "head": [
+          "Model",
+          "Description",
+          "Comparison"
+        ],
+        "rows": [
+          [
+            "Client-Server",
+            "Centralised server manages resources and security.",
+            "Better for large networks; central backups/management."
+          ],
+          [
+            "Peer-to-Peer",
+            "Nodes are equal, sharing resources directly.",
+            "Cheaper setup; no central server; harder to manage/backup."
+          ]
+        ]
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What is a client-server network?",
+      "A network where clients request resources from a central server."
+    ],
+    [
+      "What is a peer-to-peer network?",
+      "A network where all nodes have equal status and share resources directly."
+    ],
+    [
+      "Which network model is easier to back up centrally?",
+      "Client-server."
+    ],
+    [
+      "Which network model is cheaper to set up?",
+      "Peer-to-peer, as it requires no expensive server hardware."
+    ],
+    [
+      "In which model are security and access rights managed centrally?",
+      "Client-server."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which model uses a central computer to store files and manage access?",
+      "opts": [
+        "Client-Server",
+        "Peer-to-Peer",
+        "Bus",
+        "Star"
+      ],
+      "ans": 0,
+      "why": "Client-server centralises management."
+    },
+    {
+      "q": "What is a main advantage of Peer-to-Peer?",
+      "opts": [
+        "Centralised backups",
+        "High security",
+        "No expensive server needed",
+        "Better performance under high load"
+      ],
+      "ans": 2,
+      "why": "P2P avoids server costs."
+    },
+    {
+      "q": "In which network do all computers have equal status?",
+      "opts": [
+        "Client-Server",
+        "Peer-to-Peer",
+        "Domain",
+        "Active Directory"
+      ],
+      "ans": 1,
+      "why": "P2P nodes are equals."
+    },
+    {
+      "q": "Which model is most suitable for a large corporation?",
+      "opts": [
+        "Peer-to-Peer",
+        "Client-Server",
+        "Ad-hoc",
+        "Bus"
+      ],
+      "ans": 1,
+      "why": "Client-server scales better for management and security."
+    }
+  ],
+  "exam": [
+    {
+      "q": "State two advantages of using a client-server network over a peer-to-peer network for a school. (2 marks)",
+      "marks": 2,
+      "ms": [
+        "Centralised backups are easier to manage (1).",
+        "Security and user permissions can be centrally controlled (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.2.3"] = {
+  "notes": [
+    {
+      "h": "Wireless Networking"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Key Wireless Terms",
+        "body": [
+          {
+            "kv": [
+              [
+                "Wi-Fi",
+                "Uses radio waves to transmit data."
+              ],
+              [
+                "SSID",
+                "Service Set Identifier; the network name."
+              ],
+              [
+                "Security",
+                "Includes WPA2/WPA3 encryption and MAC address filtering."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "csharp",
+        "cap": "Checking for a hidden SSID in C#.",
+        "src": "bool IsNetworkVisible(string ssid)\n{\n    var visibleNetworks = GetAvailableNetworks();\n    return visibleNetworks.Contains(ssid);\n    // If hidden, SSID broadcast is disabled.\n}"
+      }
+    },
+    {
+      "h": "CSMA/CA Process"
+    },
+    {
+      "steps": [
+        {
+          "h": "Sense",
+          "n": "Device listens to the channel to see if it is idle."
+        },
+        {
+          "h": "Wait",
+          "n": "If busy, wait a random amount of time and try again."
+        },
+        {
+          "h": "Request",
+          "n": "If idle, send a 'Request to Send' (RTS) to the access point."
+        },
+        {
+          "h": "Confirm",
+          "n": "Wait for 'Clear to Send' (CTS) before transmitting data."
+        },
+        {
+          "h": "ACK",
+          "n": "Receiver sends an ACK; if not received, assume collision."
+        }
+      ]
+    }
+  ],
+  "flashcards": [
+    [
+      "What does CSMA/CA stand for?",
+      "Carrier Sense Multiple Access with Collision Avoidance."
+    ],
+    [
+      "What is the purpose of CSMA/CA?",
+      "To reduce the chance of data collisions on a wireless network."
+    ],
+    [
+      "What is an SSID?",
+      "Service Set Identifier, the name of a wireless network."
+    ],
+    [
+      "How can you secure a wireless network?",
+      "Using WPA2/WPA3 encryption, MAC filtering, or hiding the SSID."
+    ],
+    [
+      "What medium does Wi-Fi use to transmit data?",
+      "Radio waves."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which protocol is used in Wi-Fi to avoid collisions?",
+      "opts": [
+        "CSMA/CD",
+        "CSMA/CA",
+        "TCP",
+        "UDP"
+      ],
+      "ans": 1,
+      "why": "CA (Collision Avoidance) is used in wireless."
+    },
+    {
+      "q": "What does an SSID identify?",
+      "opts": [
+        "A specific device's hardware address",
+        "The wireless network's name",
+        "The encryption key",
+        "The router's IP address"
+      ],
+      "ans": 1,
+      "why": "SSID is the network name."
+    },
+    {
+      "q": "Why is CSMA/CA used instead of CSMA/CD in wireless networks?",
+      "opts": [
+        "Wireless devices cannot transmit and receive simultaneously to detect collisions",
+        "It is faster",
+        "It uses less power",
+        "It encrypts data"
+      ],
+      "ans": 0,
+      "why": "Wireless radios usually can't listen while transmitting, so they must avoid collisions rather than detect them."
+    },
+    {
+      "q": "Which of the following secures a wireless network?",
+      "opts": [
+        "CSMA/CA",
+        "WPA3",
+        "SSID broadcast",
+        "DHCP"
+      ],
+      "ans": 1,
+      "why": "WPA3 is a security protocol."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Explain how CSMA/CA operates to transmit data on a wireless network. (4 marks)",
+      "marks": 4,
+      "ms": [
+        "Device listens to the channel to see if it's idle (1).",
+        "If busy, it waits a random amount of time (1).",
+        "If idle, it transmits an RTS (Request to Send) or begins transmission (1).",
+        "Waits for an ACK (Acknowledgement); if none received, assumes collision and retries (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.3.1"] = {
+  "notes": [
+    {
+      "h": "Internet & Packet Switching"
+    },
+    {
+      "kv": [
+        [
+          "Internet",
+          "A global network of interconnected networks."
+        ],
+        [
+          "Router",
+          "Connects networks; forwards packets based on IP addresses."
+        ],
+        [
+          "DNS",
+          "Domain Name System; translates domain names to IP addresses."
+        ]
+      ]
+    },
+    {
+      "h": "Packet Switching Process"
+    },
+    {
+      "steps": [
+        {
+          "h": "Splitting",
+          "n": "Data is split into small chunks called packets."
+        },
+        {
+          "h": "Addressing",
+          "n": "Each packet gets a header with source/dest IP and sequence number."
+        },
+        {
+          "h": "Routing",
+          "n": "Packets travel independently across the network."
+        },
+        {
+          "h": "Assembly",
+          "n": "Packets are reordered and reassembled at the destination."
+        }
+      ]
+    }
+  ],
+  "flashcards": [
+    [
+      "What is packet switching?",
+      "Breaking data into packets which take independent routes to their destination."
+    ],
+    [
+      "What is the role of a router?",
+      "To connect networks and forward data packets to their destination using IP addresses."
+    ],
+    [
+      "What does DNS stand for?",
+      "Domain Name System."
+    ],
+    [
+      "What is the function of DNS?",
+      "To translate domain names into IP addresses."
+    ],
+    [
+      "What information is typically in a packet header?",
+      "Source IP, destination IP, sequence number, and checksum."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "What translates a URL into an IP address?",
+      "opts": [
+        "DHCP",
+        "DNS",
+        "NAT",
+        "Router"
+      ],
+      "ans": 1,
+      "why": "DNS handles name resolution."
+    },
+    {
+      "q": "In packet switching, do packets always take the same route?",
+      "opts": [
+        "Yes",
+        "No"
+      ],
+      "ans": 1,
+      "why": "Packets can take different routes based on network traffic."
+    },
+    {
+      "q": "Which device is primarily responsible for routing packets between different networks?",
+      "opts": [
+        "Switch",
+        "Hub",
+        "Router",
+        "Modem"
+      ],
+      "ans": 2,
+      "why": "Routers forward packets between networks."
+    },
+    {
+      "q": "Which part of a packet ensures it can be put back in order?",
+      "opts": [
+        "Payload",
+        "Checksum",
+        "Sequence number",
+        "Source IP"
+      ],
+      "ans": 2,
+      "why": "Sequence numbers allow reassembly in the correct order."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Describe the process of packet switching. (4 marks)",
+      "marks": 4,
+      "ms": [
+        "Data is broken down into smaller packets (1).",
+        "Each packet is given a header with sequence number and IP addresses (1).",
+        "Packets travel independently across the network taking the best available route (1).",
+        "Packets are reassembled in the correct order at the destination (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.3.2"] = {
+  "notes": [
+    {
+      "h": "Internet Security"
+    },
+    {
+      "kv": [
+        [
+          "Firewall",
+          "Blocks unauthorised traffic based on security rules."
+        ],
+        [
+          "Digital Certificates",
+          "Verify sender identity using a Certificate Authority."
+        ],
+        [
+          "Malware",
+          "Includes viruses, worms, trojans, and ransomware."
+        ]
+      ]
+    },
+    {
+      "table": {
+        "head": [
+          "Encryption",
+          "Description"
+        ],
+        "rows": [
+          [
+            "Symmetric",
+            "Uses a single shared key for encryption and decryption."
+          ],
+          [
+            "Asymmetric",
+            "Uses a public key for encryption and a private key for decryption."
+          ]
+        ]
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What is a firewall?",
+      "Hardware or software that monitors and controls incoming and outgoing network traffic based on security rules."
+    ],
+    [
+      "What is symmetric encryption?",
+      "Encryption where the same key is used to encrypt and decrypt data."
+    ],
+    [
+      "What is asymmetric encryption?",
+      "Encryption using a public key to encrypt and a private key to decrypt."
+    ],
+    [
+      "What is a digital certificate?",
+      "An electronic document used to prove the ownership of a public key, issued by a CA."
+    ],
+    [
+      "Name three types of malware.",
+      "Viruses, worms, trojans (or ransomware, spyware)."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which encryption type uses a public and a private key pair?",
+      "opts": [
+        "Symmetric",
+        "Asymmetric",
+        "Hashing",
+        "Caesar Cipher"
+      ],
+      "ans": 1,
+      "why": "Asymmetric uses two different keys."
+    },
+    {
+      "q": "What does a firewall primarily do?",
+      "opts": [
+        "Encrypts data",
+        "Blocks unauthorised network traffic",
+        "Detects viruses on the hard drive",
+        "Translates IP addresses"
+      ],
+      "ans": 1,
+      "why": "Firewalls filter traffic based on rules."
+    },
+    {
+      "q": "Who issues a digital certificate?",
+      "opts": [
+        "ISP",
+        "Router",
+        "Certificate Authority (CA)",
+        "DNS server"
+      ],
+      "ans": 2,
+      "why": "CAs issue digital certificates."
+    },
+    {
+      "q": "Which malware self-replicates across networks without user action?",
+      "opts": [
+        "Virus",
+        "Trojan",
+        "Worm",
+        "Spyware"
+      ],
+      "ans": 2,
+      "why": "Worms replicate independently across networks."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Explain how asymmetric encryption works when sending a secure message. (3 marks)",
+      "marks": 3,
+      "ms": [
+        "The sender uses the receiver's public key to encrypt the message (1).",
+        "The ciphertext is transmitted over the network (1).",
+        "The receiver uses their own private key to decrypt the message (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.4.1"] = {
+  "notes": [
+    {
+      "h": "The TCP/IP Protocol Stack"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Architectural Overview",
+        "body": [
+          {
+            "kv": [
+              [
+                "Definition",
+                "A set of networking protocols that allow computers to communicate across networks."
+              ],
+              [
+                "Layering",
+                "The stack is divided into four conceptual layers, each providing services to the layer above it."
+              ],
+              [
+                "Encapsulation",
+                "The process of adding headers (and sometimes footers) to data as it moves down the stack."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "The Four Layers",
+        "body": [
+          {
+            "table": {
+              "head": [
+                "Layer",
+                "Role",
+                "Typical Protocols"
+              ],
+              "rows": [
+                [
+                  "Application",
+                  "Interfaces with software applications; formats data.",
+                  "HTTP, HTTPS, FTP, SMTP, SSH"
+                ],
+                [
+                  "Transport",
+                  "Handles end-to-end communication, reliability, and flow control. Splits data into segments.",
+                  "TCP, UDP"
+                ],
+                [
+                  "Network",
+                  "Routes packets across different networks using logical addresses.",
+                  "IP, ICMP"
+                ],
+                [
+                  "Link",
+                  "Handles physical transmission of data frames across a local medium.",
+                  "Ethernet, Wi-Fi (802.11)"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Sockets",
+        "body": [
+          {
+            "kv": [
+              [
+                "Definition",
+                "An endpoint of a two-way communication link between two programs running on the network."
+              ],
+              [
+                "Composition",
+                "Socket = IP Address + Port Number (e.g., 192.168.1.1:80)."
+              ],
+              [
+                "Function",
+                "Ensures that data arriving at a machine is directed to the correct application process."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "csharp",
+        "cap": "Conceptual C# Socket Connection.",
+        "src": "using System.Net;\nusing System.Net.Sockets;\n\n// Create a socket endpoint\nIPAddress ip = IPAddress.Parse(\"192.168.1.10\");\nIPEndPoint remoteEP = new IPEndPoint(ip, 80);\n\n// Create a TCP/IP socket\nSocket sender = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);\n\ntry {\n    sender.Connect(remoteEP);\n    byte[] msg = System.Text.Encoding.ASCII.GetBytes(\"GET / HTTP/1.1\\r\\n\\r\\n\");\n    int bytesSent = sender.Send(msg);\n} finally {\n    sender.Shutdown(SocketShutdown.Both);\n    sender.Close();\n}"
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Data Units by Layer",
+        "body": [
+          {
+            "kv": [
+              [
+                "Application",
+                "Data / Message"
+              ],
+              [
+                "Transport",
+                "Segment (TCP) / Datagram (UDP)"
+              ],
+              [
+                "Network",
+                "Packet"
+              ],
+              [
+                "Link",
+                "Frame"
+              ]
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "Name the 4 layers of the TCP/IP stack in order (top-down).",
+      "Application, Transport, Network, Link."
+    ],
+    [
+      "What is encapsulation in the TCP/IP stack?",
+      "Adding protocol headers to data as it passes down through the layers."
+    ],
+    [
+      "What constitutes a network socket?",
+      "An IP address combined with a port number."
+    ],
+    [
+      "What is the primary role of the Network layer?",
+      "Routing packets across different networks using IP addresses."
+    ],
+    [
+      "Which layer is responsible for flow control and error checking?",
+      "Transport layer (specifically TCP)."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which layer of the TCP/IP stack is responsible for adding MAC addresses?",
+      "opts": [
+        "Application",
+        "Transport",
+        "Network",
+        "Link"
+      ],
+      "ans": 3,
+      "why": "The Link layer handles physical addressing via MAC addresses."
+    },
+    {
+      "q": "What is the result of IP Address + Port Number?",
+      "opts": [
+        "Packet",
+        "Frame",
+        "Socket",
+        "Segment"
+      ],
+      "ans": 2,
+      "why": "A socket is the combination of an IP and a port."
+    },
+    {
+      "q": "At which layer do HTTP and SMTP operate?",
+      "opts": [
+        "Application",
+        "Transport",
+        "Network",
+        "Link"
+      ],
+      "ans": 0,
+      "why": "They are high-level protocols interfacing with software."
+    },
+    {
+      "q": "Which process describes removing headers as data moves up the stack?",
+      "opts": [
+        "Encapsulation",
+        "Decapsulation",
+        "Routing",
+        "Switching"
+      ],
+      "ans": 1,
+      "why": "Decapsulation is the reverse of encapsulation."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Explain the role of the Transport layer when a file is being sent over a network. (4 marks)",
+      "marks": 4,
+      "ms": [
+        "Receives data from the application layer and splits it into segments (1).",
+        "Adds port numbers to specify the source and destination applications (1).",
+        "Assigns sequence numbers to segments to ensure they can be reassembled in order (1).",
+        "Manages error checking/retransmission to ensure reliable delivery (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.4.2"] = {
+  "notes": [
+    {
+      "h": "Standard Application Layer Protocols"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Web Protocols",
+        "body": [
+          {
+            "kv": [
+              [
+                "HTTP (80)",
+                "Hypertext Transfer Protocol. Used for transmitting web pages and media over the internet. Stateless and unencrypted."
+              ],
+              [
+                "HTTPS (443)",
+                "HTTP Secure. Encrypts HTTP traffic using TLS/SSL to ensure privacy and data integrity."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "File & Remote Access",
+        "body": [
+          {
+            "kv": [
+              [
+                "FTP (20/21)",
+                "File Transfer Protocol. Used for transferring files between a client and server. Port 21 is for commands; Port 20 is for data."
+              ],
+              [
+                "SSH (22)",
+                "Secure Shell. Provides a secure, encrypted channel for remote command-line access and file transfers."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Email Protocols",
+        "body": [
+          {
+            "kv": [
+              [
+                "SMTP (25)",
+                "Simple Mail Transfer Protocol. Used for sending emails from a client to a server, or between servers."
+              ],
+              [
+                "POP3 (110)",
+                "Post Office Protocol v3. Used to retrieve emails from a server. Downloads and typically deletes them from the server."
+              ],
+              [
+                "IMAP (143)",
+                "Internet Message Access Protocol. Syncs email between client and server (not explicitly requested but vital context)."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "bash",
+        "cap": "Common CLI commands using these protocols.",
+        "src": "# SSH into a remote server\nssh username@192.168.1.50\n\n# Securely copy a file (SCP uses SSH)\nscp backup.zip admin@fileserver:/var/backups/\n\n# Check if a web server is responding (HTTP)\ncurl -I http://example.com"
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Protocol Comparison Table",
+        "body": [
+          {
+            "table": {
+              "head": [
+                "Protocol",
+                "Port",
+                "Full Name",
+                "Core Purpose"
+              ],
+              "rows": [
+                [
+                  "HTTP",
+                  "80",
+                  "Hypertext Transfer Protocol",
+                  "Web page delivery (unsecured)"
+                ],
+                [
+                  "HTTPS",
+                  "443",
+                  "HTTP Secure",
+                  "Secure web page delivery (TLS/SSL)"
+                ],
+                [
+                  "FTP",
+                  "20, 21",
+                  "File Transfer Protocol",
+                  "Moving files across networks"
+                ],
+                [
+                  "SSH",
+                  "22",
+                  "Secure Shell",
+                  "Encrypted remote access"
+                ],
+                [
+                  "SMTP",
+                  "25",
+                  "Simple Mail Transfer Protocol",
+                  "Sending emails"
+                ],
+                [
+                  "POP3",
+                  "110",
+                  "Post Office Protocol v3",
+                  "Retrieving emails (download/delete)"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "Which port does HTTPS use?",
+      "443"
+    ],
+    [
+      "What is the difference between POP3 and SMTP?",
+      "SMTP is for sending mail; POP3 is for retrieving it."
+    ],
+    [
+      "Why is SSH preferred over Telnet?",
+      "SSH is encrypted; Telnet is sent in plain text."
+    ],
+    [
+      "Which protocol uses port 22?",
+      "SSH (Secure Shell)."
+    ],
+    [
+      "Name two ports used by FTP.",
+      "20 (Data) and 21 (Commands/Control)."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which protocol is used to send an email from your client to the mail server?",
+      "opts": [
+        "POP3",
+        "SMTP",
+        "HTTP",
+        "FTP"
+      ],
+      "ans": 1,
+      "why": "SMTP sends mail."
+    },
+    {
+      "q": "If you want to securely access a command line on a Linux server, which protocol do you use?",
+      "opts": [
+        "FTP",
+        "HTTPS",
+        "SSH",
+        "SMTP"
+      ],
+      "ans": 2,
+      "why": "SSH provides secure remote CLI access."
+    },
+    {
+      "q": "What is the default port for unencrypted web traffic?",
+      "opts": [
+        "443",
+        "80",
+        "22",
+        "21"
+      ],
+      "ans": 1,
+      "why": "HTTP uses port 80."
+    },
+    {
+      "q": "Which protocol downloads emails to a local device and usually removes them from the server?",
+      "opts": [
+        "IMAP",
+        "SMTP",
+        "POP3",
+        "FTP"
+      ],
+      "ans": 2,
+      "why": "POP3 is 'download and delete'."
+    }
+  ],
+  "exam": [
+    {
+      "q": "A user is browsing a banking website. Explain which protocol is used and why it is essential in this scenario. (3 marks)",
+      "marks": 3,
+      "ms": [
+        "HTTPS is used (1).",
+        "It encrypts the communication between the user's browser and the server (1).",
+        "This protects sensitive data (like passwords/bank details) from being intercepted by attackers (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.4.3"] = {
+  "notes": [
+    {
+      "h": "IP Address Structure & Addressing"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Core Components",
+        "body": [
+          {
+            "kv": [
+              [
+                "IP Address",
+                "A logical numeric identifier assigned to every device on a network using the Internet Protocol."
+              ],
+              [
+                "Dotted-Decimal",
+                "IPv4 addresses are 32-bit values often written as four 8-bit octets (0-255) separated by dots."
+              ],
+              [
+                "Network ID",
+                "The portion of the address that identifies the specific network (subnet) the device belongs to."
+              ],
+              [
+                "Host ID",
+                "The portion of the address that identifies the specific device within that network."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Address Breakdown Example",
+        "body": [
+          {
+            "table": {
+              "head": [
+                "Address",
+                "Binary Representation",
+                "Classification"
+              ],
+              "rows": [
+                [
+                  "192.168.1.50",
+                  "11000000.10101000.00000001.00110010",
+                  "Class C (Private)"
+                ],
+                [
+                  "10.0.0.1",
+                  "00001010.00000000.00000000.00000001",
+                  "Class A (Private)"
+                ],
+                [
+                  "8.8.8.8",
+                  "00001000.00001000.00001000.00001000",
+                  "Public (Google DNS)"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "csharp",
+        "cap": "Parsing and analyzing an IP address.",
+        "src": "using System.Net;\n\nIPAddress ip = IPAddress.Parse(\"192.168.1.50\");\nbyte[] bytes = ip.GetAddressBytes();\n\n// Display octets\nforeach (byte b in bytes) {\n    Console.WriteLine($\"Octet: {b} (Binary: {Convert.ToString(b, 2).PadLeft(8, '0')})\");\n}\n\n// Check if it's on a Class C private range\nif (bytes[0] == 192 && bytes[1] == 168) {\n    Console.WriteLine(\"Private Network detected.\");\n}"
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Hierarchical Routing",
+        "body": "Routers use the Network ID to get packets to the correct LAN, and only then is the Host ID used to find the specific machine. This prevents routers from needing to know every single device's location on earth."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What are the two logical parts of an IPv4 address?",
+      "The Network Identifier and the Host Identifier."
+    ],
+    [
+      "How many bits are in a single octet of an IPv4 address?",
+      "8 bits (values range from 0 to 255)."
+    ],
+    [
+      "What is the total size of an IPv4 address?",
+      "32 bits (4 octets)."
+    ],
+    [
+      "Why is hierarchical addressing used (Network ID vs Host ID)?",
+      "To simplify routing; routers only need to know the path to a network, not every individual host."
+    ],
+    [
+      "What notation is commonly used to represent IPv4 addresses?",
+      "Dotted-decimal notation."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "If a network uses the first 24 bits for the Network ID, how many octets are used for the Host ID?",
+      "opts": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "ans": 0,
+      "why": "24 bits = 3 octets for Network, leaving 8 bits = 1 octet for Host."
+    },
+    {
+      "q": "Which part of the IP address does a router look at first?",
+      "opts": [
+        "MAC Address",
+        "Host ID",
+        "Network ID",
+        "Port Number"
+      ],
+      "ans": 2,
+      "why": "Routers route based on the Network ID."
+    },
+    {
+      "q": "What is the maximum value of a single octet in an IPv4 address?",
+      "opts": [
+        "128",
+        "255",
+        "256",
+        "1024"
+      ],
+      "ans": 1,
+      "why": "An 8-bit number maxes out at 2^8 - 1 = 255."
+    },
+    {
+      "q": "Which of these is a valid IPv4 address?",
+      "opts": [
+        "192.168.1",
+        "192.168.1.256",
+        "172.16.254.1",
+        "G1.22.33.44"
+      ],
+      "ans": 2,
+      "why": "Octets must be 0-255 and there must be four of them."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Explain why an IP address is split into a network identifier and a host identifier. (2 marks)",
+      "marks": 2,
+      "ms": [
+        "The network ID allows routers to direct data to the correct subnet across the internet (1).",
+        "The host ID identifies the specific device within that subnet, reducing the complexity of global routing tables (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.4.4"] = {
+  "notes": [
+    {
+      "h": "Subnet Masking & Local Routing"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "The Subnet Mask",
+        "body": [
+          {
+            "kv": [
+              [
+                "Definition",
+                "A 32-bit value that distinguishes the network part of an IP address from the host part."
+              ],
+              [
+                "Mechanism",
+                "A '1' in the mask indicates the corresponding bit in the IP is part of the Network ID; a '0' indicates it is part of the Host ID."
+              ],
+              [
+                "Common Mask",
+                "255.255.255.0 (Binary: 24 ones followed by 8 zeros) defines a network with 254 usable hosts."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "The Bitwise AND Operation",
+        "body": [
+          {
+            "steps": [
+              {
+                "h": "Step 1",
+                "n": "The host performs a bitwise AND between its own IP and its subnet mask to find its Network ID."
+              },
+              {
+                "h": "Step 2",
+                "n": "The host performs a bitwise AND between the destination IP and its own subnet mask."
+              },
+              {
+                "h": "Step 3",
+                "n": "If the results match, the destination is on the same local network. If they differ, the packet is sent to the Default Gateway (router)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Calculation Example",
+        "body": [
+          {
+            "table": {
+              "head": [
+                "Item",
+                "Decimal",
+                "Binary"
+              ],
+              "rows": [
+                [
+                  "IP Address",
+                  "192.168.1.50",
+                  "11000000.10101000.00000001.00110010"
+                ],
+                [
+                  "Subnet Mask",
+                  "255.255.255.0",
+                  "11111111.11111111.11111111.00000000"
+                ],
+                [
+                  "Network ID",
+                  "192.168.1.0",
+                  "11000000.10101000.00000001.00000000"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "csharp",
+        "cap": "Simulating Subnet Mask logic in C#.",
+        "src": "uint ip = 0xC0A80132;   // 192.168.1.50\nuint mask = 0xFFFFFF00; // 255.255.255.0\nuint dest = 0xC0A80140; // 192.168.1.64\n\nuint networkID = ip & mask;\nuint destNetworkID = dest & mask;\n\nif (networkID == destNetworkID) {\n    Console.WriteLine(\"Destination is local. Send via Link Layer (ARP).\");\n} else {\n    Console.WriteLine(\"Destination is remote. Forward to Router.\");\n}"
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Usable Hosts",
+        "body": "In a subnet, two addresses are reserved: the Network Address (all host bits 0) and the Broadcast Address (all host bits 1). For a /24 mask, there are 2^8 - 2 = 254 usable host addresses."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What bitwise operation is used with a subnet mask?",
+      "Bitwise AND."
+    ],
+    [
+      "What does a '1' in a subnet mask represent?",
+      "That the corresponding bit in the IP address is part of the Network ID."
+    ],
+    [
+      "How does a computer know if a destination is on its local network?",
+      "It compares the Network ID of its own IP and the destination IP (using its mask)."
+    ],
+    [
+      "What is the purpose of the 'Default Gateway'?",
+      "It is the router's IP address where packets are sent if the destination is not local."
+    ],
+    [
+      "How many usable hosts are in a subnet with mask 255.255.255.0?",
+      "254 (256 minus network and broadcast addresses)."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "What is the Network ID for 10.5.50.100 with mask 255.255.0.0?",
+      "opts": [
+        "10.5.50.0",
+        "10.5.0.0",
+        "10.0.0.0",
+        "10.5.50.100"
+      ],
+      "ans": 1,
+      "why": "255.255.0.0 keeps the first two octets and zeros the rest."
+    },
+    {
+      "q": "Which address is reserved for broadcasting to all hosts on a 192.168.1.0/24 subnet?",
+      "opts": [
+        "192.168.1.0",
+        "192.168.1.1",
+        "192.168.1.254",
+        "192.168.1.255"
+      ],
+      "ans": 3,
+      "why": "Broadcast address has all 1s in the host portion."
+    },
+    {
+      "q": "If the AND results for the local IP and destination IP do NOT match, where is the packet sent?",
+      "opts": [
+        "DNS Server",
+        "DHCP Server",
+        "Default Gateway",
+        "Switch"
+      ],
+      "ans": 2,
+      "why": "Packets for other networks go to the gateway (router)."
+    },
+    {
+      "q": "What is 192 AND 255?",
+      "opts": [
+        "0",
+        "192",
+        "255",
+        "1"
+      ],
+      "ans": 1,
+      "why": "Anything ANDed with 255 (all 1s) remains itself."
+    }
+  ],
+  "exam": [
+    {
+      "q": "A computer with IP 192.168.1.15 and mask 255.255.255.0 wants to send data to 192.168.2.20. Show the calculation it performs and state where the packet is sent. (4 marks)",
+      "marks": 4,
+      "ms": [
+        "Performs bitwise AND on its own IP: 192.168.1.15 AND 255.255.255.0 = 192.168.1.0 (1).",
+        "Performs bitwise AND on dest IP: 192.168.2.20 AND 255.255.255.0 = 192.168.2.0 (1).",
+        "Compares the two: 192.168.1.0 != 192.168.2.0 (1).",
+        "Since they differ, the packet is sent to the default gateway / router (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.4.5"] = {
+  "notes": [
+    {
+      "h": "IP Versions: IPv4 vs IPv6"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Evolution of Addressing",
+        "body": [
+          {
+            "kv": [
+              [
+                "IPv4",
+                "The legacy standard using 32-bit addresses. Provides ~4.3 billion unique addresses."
+              ],
+              [
+                "IPv6",
+                "The modern standard using 128-bit addresses. Provides ~340 undecillion addresses."
+              ],
+              [
+                "The Problem",
+                "IPv4 address exhaustion due to the explosion of internet-connected devices (IoT)."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Technical Comparison",
+        "body": [
+          {
+            "table": {
+              "head": [
+                "Feature",
+                "IPv4",
+                "IPv6"
+              ],
+              "rows": [
+                [
+                  "Address Size",
+                  "32-bit",
+                  "128-bit"
+                ],
+                [
+                  "Representation",
+                  "Dotted-decimal (192.168.1.1)",
+                  "Hexadecimal (2001:0db8::8a2e:0370:7334)"
+                ],
+                [
+                  "Header Complexity",
+                  "Complex, variable length (20-60 bytes)",
+                  "Fixed length (40 bytes), simplified for faster routing"
+                ],
+                [
+                  "Security",
+                  "IPsec is optional",
+                  "IPsec support is mandatory/built-in"
+                ],
+                [
+                  "Configuration",
+                  "Manual or DHCP",
+                  "Stateless Address Autoconfiguration (SLAAC)"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "IPv6 Compression Rules",
+        "body": [
+          {
+            "steps": [
+              {
+                "h": "Rule 1",
+                "n": "Leading zeros in a group can be omitted (e.g., :0db8: becomes :db8:)."
+              },
+              {
+                "h": "Rule 2",
+                "n": "Consecutive groups of zeros can be replaced with '::' (once per address)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "json",
+        "cap": "Conceptual representation of IP objects.",
+        "src": "{\n  \"ipv4\": {\n    \"address\": \"172.16.254.1\",\n    \"bits\": 32,\n    \"octets\": 4\n  },\n  \"ipv6\": {\n    \"full\": \"2001:0db8:0000:0000:0000:8a2e:0370:7334\",\n    \"compressed\": \"2001:db8::8a2e:370:7334\",\n    \"bits\": 128,\n    \"hextets\": 8\n  }\n}"
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "The Transition",
+        "body": "Because IPv4 and IPv6 are not directly compatible, technologies like Dual Stack (running both), Tunneling (encapsulating IPv6 in IPv4), and Translation (NAT64) are used during the transition phase."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "How many bits are in an IPv6 address?",
+      "128 bits."
+    ],
+    [
+      "Why is IPv6 needed?",
+      "To overcome IPv4 address exhaustion."
+    ],
+    [
+      "How is an IPv6 address represented?",
+      "As 8 groups of 4 hexadecimal digits, separated by colons."
+    ],
+    [
+      "What does '::' represent in an IPv6 address?",
+      "One or more consecutive groups of zero value."
+    ],
+    [
+      "Which IP version has a fixed-length header?",
+      "IPv6 (40 bytes)."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "What is the total number of bits in an IPv4 address?",
+      "opts": [
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "ans": 0,
+      "why": "IPv4 uses 32 bits (4 octets)."
+    },
+    {
+      "q": "Which of these is a valid IPv6 address?",
+      "opts": [
+        "192.168.1.1",
+        "2001:db8::1",
+        "FE80:G001::1",
+        "127.0.0.1"
+      ],
+      "ans": 1,
+      "why": "IPv6 uses hex and colons; '::' is valid compression."
+    },
+    {
+      "q": "How many hexadecimal characters are in a full IPv6 address?",
+      "opts": [
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "ans": 2,
+      "why": "128 bits / 4 bits per hex digit = 32 digits."
+    },
+    {
+      "q": "What is the primary reason for switching to IPv6?",
+      "opts": [
+        "Faster routing",
+        "Better encryption",
+        "Address exhaustion",
+        "Smaller packets"
+      ],
+      "ans": 2,
+      "why": "We ran out of IPv4 addresses."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Explain two reasons why the internet is migrating from IPv4 to IPv6. (4 marks)",
+      "marks": 4,
+      "ms": [
+        "IPv4 only supports ~4.3 billion addresses (1), which have been exhausted due to the increase in internet-connected devices (1).",
+        "IPv6 uses 128-bit addresses, providing a near-infinite supply of addresses (1), and includes built-in features for better security and simplified routing (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.4.6"] = {
+  "notes": [
+    {
+      "h": "Public vs Private IP Addressing"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Public IP Addresses",
+        "body": [
+          {
+            "kv": [
+              [
+                "Definition",
+                "Globally unique addresses assigned by ICANN/ISPs. Reachable from anywhere on the internet."
+              ],
+              [
+                "Requirement",
+                "Essential for any device that needs to host a service accessible from the outside world."
+              ],
+              [
+                "Cost",
+                "Often limited and sometimes come with a subscription cost from ISPs."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Private IP Addresses",
+        "body": [
+          {
+            "kv": [
+              [
+                "Definition",
+                "Non-routable addresses used within a Local Area Network (LAN)."
+              ],
+              [
+                "Advantage",
+                "Allows billions of devices to share a single Public IP (via NAT) and provides basic security by 'hiding' the device from the internet."
+              ],
+              [
+                "Conflict",
+                "Private IPs only need to be unique within their own local network."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Reserved Private Ranges (RFC 1918)",
+        "body": [
+          {
+            "table": {
+              "head": [
+                "Class",
+                "Range Start",
+                "Range End",
+                "Total Addresses"
+              ],
+              "rows": [
+                [
+                  "Class A",
+                  "10.0.0.0",
+                  "10.255.255.255",
+                  "16.7 Million"
+                ],
+                [
+                  "Class B",
+                  "172.16.0.0",
+                  "172.31.255.255",
+                  "1 Million"
+                ],
+                [
+                  "Class C",
+                  "192.168.0.0",
+                  "192.168.255.255",
+                  "65,536"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "bash",
+        "cap": "Checking local (private) and external (public) IPs.",
+        "src": "# Get internal/private IP (Linux/macOS)\nhostname -I\n# or\nip addr show | grep 'inet '\n\n# Get external/public IP\ncurl ifconfig.me\n# or\ncurl icanhazip.com"
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Loopback Address",
+        "body": "The IP 127.0.0.1 is a special reserved address called 'localhost'. It is used by a computer to send data to itself for testing and internal communication."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What is a public IP address?",
+      "A globally unique IP address routable on the public internet."
+    ],
+    [
+      "What is a private IP address?",
+      "An IP address used only within a local network, not routable on the internet."
+    ],
+    [
+      "Name one common private IP range.",
+      "192.168.x.x (Class C) or 10.x.x.x (Class A)."
+    ],
+    [
+      "Can two different LANs use the same private IP addresses?",
+      "Yes, because they are not visible to each other over the internet."
+    ],
+    [
+      "What special IP is used for the loopback interface?",
+      "127.0.0.1 (localhost)."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which of these is a valid private IP address?",
+      "opts": [
+        "8.8.8.8",
+        "192.168.1.50",
+        "216.58.213.174",
+        "1.1.1.1"
+      ],
+      "ans": 1,
+      "why": "192.168.x.x is a reserved private range."
+    },
+    {
+      "q": "What happens if a packet with a private source IP is sent onto the public internet?",
+      "opts": [
+        "It is delivered normally",
+        "It is encrypted",
+        "It is dropped by the first router it hits",
+        "It is converted to IPv6"
+      ],
+      "ans": 2,
+      "why": "Private IPs are non-routable on the public internet."
+    },
+    {
+      "q": "Who assigns public IP addresses to home networks?",
+      "opts": [
+        "The user",
+        "The router",
+        "The Internet Service Provider (ISP)",
+        "Microsoft/Apple"
+      ],
+      "ans": 2,
+      "why": "ISPs manage the pool of public IPs for their customers."
+    },
+    {
+      "q": "What is the primary benefit of using private IP addresses?",
+      "opts": [
+        "Faster speeds",
+        "Encryption",
+        "Conservation of public IP addresses",
+        "Easier hardware setup"
+      ],
+      "ans": 2,
+      "why": "Private IPs allow many devices to share one public IP."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Explain why a company would use private IP addresses for its internal workstations. (3 marks)",
+      "marks": 3,
+      "ms": [
+        "Conserves public IP addresses as many workstations can share a single public IP (1).",
+        "Increases security as internal machines are not directly addressable from the public internet (1).",
+        "Reduces costs as the company doesn't need to purchase a public IP for every device (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.4.7"] = {
+  "notes": [
+    {
+      "h": "DHCP: Dynamic Host Configuration Protocol"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "The Purpose of DHCP",
+        "body": [
+          {
+            "kv": [
+              [
+                "Automation",
+                "Eliminates the need for manual IP configuration on every device."
+              ],
+              [
+                "Centralisation",
+                "A DHCP server manages a pool of IP addresses (a scope) and leases them to clients."
+              ],
+              [
+                "Configuration",
+                "Besides an IP, DHCP provides the Subnet Mask, Default Gateway, and DNS Server addresses."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "The DORA Process",
+        "body": [
+          {
+            "steps": [
+              {
+                "h": "Discovery",
+                "n": "The client broadcasts a DHCPDISCOVER message to find a DHCP server on the local network."
+              },
+              {
+                "h": "Offer",
+                "n": "The server responds with a DHCPOFFER message containing an available IP and configuration."
+              },
+              {
+                "h": "Request",
+                "n": "The client sends a DHCPREQUEST message to accept the offered IP address."
+              },
+              {
+                "h": "Acknowledgement",
+                "n": "The server sends a DHCPACK message to confirm the lease and finalise the settings."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "bash",
+        "cap": "Renewing a DHCP lease via CLI.",
+        "src": "# On Windows\nipconfig /release\nipconfig /renew\n\n# On Linux\nsudo dhclient -r  # Release\nsudo dhclient     # Request new lease"
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Lease Time",
+        "body": "IP addresses are not assigned forever; they are leased for a specific period (e.g., 24 hours). Clients must request a renewal halfway through the lease to keep the same address."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What does DORA stand for in DHCP?",
+      "Discovery, Offer, Request, Acknowledgement."
+    ],
+    [
+      "What is the main benefit of DHCP?",
+      "Automatic assignment of IP addresses, reducing administrative overhead and errors."
+    ],
+    [
+      "What four things does a DHCP server typically provide?",
+      "IP Address, Subnet Mask, Default Gateway, and DNS Server addresses."
+    ],
+    [
+      "What happens when a DHCP lease expires?",
+      "The device loses its IP address and must request a new one (unless renewed)."
+    ],
+    [
+      "What is a 'Static IP' in the context of DHCP?",
+      "A reserved IP address in the DHCP pool that is always assigned to the same MAC address."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which message is sent by the client to find a DHCP server?",
+      "opts": [
+        "DHCPREQUEST",
+        "DHCPDISCOVER",
+        "DHCPOFFER",
+        "DHCPACK"
+      ],
+      "ans": 1,
+      "why": "Discovery is the first step."
+    },
+    {
+      "q": "What does the 'A' in DORA stand for?",
+      "opts": [
+        "Address",
+        "Allocation",
+        "Acknowledgement",
+        "Assignment"
+      ],
+      "ans": 2,
+      "why": "Acknowledgement confirms the lease."
+    },
+    {
+      "q": "Why is a lease time used in DHCP?",
+      "opts": [
+        "To save electricity",
+        "To ensure IP addresses are returned to the pool if a device leaves",
+        "To encrypt the connection",
+        "To speed up the network"
+      ],
+      "ans": 1,
+      "why": "Leases prevent the pool from being exhausted by inactive devices."
+    },
+    {
+      "q": "Which of these is NOT provided by DHCP?",
+      "opts": [
+        "Subnet Mask",
+        "Default Gateway",
+        "MAC Address",
+        "DNS Server"
+      ],
+      "ans": 2,
+      "why": "MAC address is fixed on the hardware NIC."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Explain the four steps of the DHCP process when a new laptop joins a school Wi-Fi network. (4 marks)",
+      "marks": 4,
+      "ms": [
+        "Discovery: Laptop broadcasts a message to find a DHCP server (1).",
+        "Offer: Server responds with an available IP address and settings (1).",
+        "Request: Laptop sends a message back to the server to accept the specific IP offered (1).",
+        "Acknowledgement: Server confirms the lease and the laptop applies the settings (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.4.8"] = {
+  "notes": [
+    {
+      "h": "NAT: Network Address Translation"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "The Core Concept",
+        "body": [
+          {
+            "kv": [
+              [
+                "Definition",
+                "A method of remapping one IP address space into another by modifying network address information in the IP header of packets."
+              ],
+              [
+                "Primary Use",
+                "Allows a whole LAN of devices with Private IPs to share a single Public IP assigned to the router."
+              ],
+              [
+                "Conservation",
+                "Critical for delaying the exhaustion of IPv4 addresses."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "PAT (Port Address Translation)",
+        "body": [
+          {
+            "kv": [
+              [
+                "Mechanism",
+                "The router uses a translation table to track which internal Private IP and Port is associated with which external session."
+              ],
+              [
+                "Identification",
+                "Outgoing packets have their source IP replaced with the router's Public IP and their source port replaced with a unique tracking port."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "NAT Translation Table Example",
+        "body": [
+          {
+            "table": {
+              "head": [
+                "Internal IP:Port",
+                "External IP:Port (Router)",
+                "Destination IP:Port"
+              ],
+              "rows": [
+                [
+                  "192.168.1.10:5001",
+                  "82.10.20.30:10001",
+                  "172.217.16.14:443 (Google)"
+                ],
+                [
+                  "192.168.1.12:5001",
+                  "82.10.20.30:10002",
+                  "31.13.72.36:443 (Facebook)"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "csharp",
+        "cap": "Conceptual logic of a NAT mapping.",
+        "src": "public class NatEntry {\n    public string InternalIP { get; set; }\n    public int InternalPort { get; set; }\n    public int ExternalPort { get; set; } // Tracking port\n}\n\n// When a packet returns on ExternalPort 10001, \n// the router looks up the entry and forwards to 192.168.1.10:5001."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Security Benefit",
+        "body": "NAT provides a basic level of security because external hosts cannot initiate a connection to an internal machine; the router only allows incoming traffic if it matches an entry in its translation table."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What is the main purpose of NAT?",
+      "To allow multiple devices on a private network to share a single public IP address."
+    ],
+    [
+      "What is PAT (Port Address Translation)?",
+      "A form of NAT that uses port numbers to distinguish between different internal hosts."
+    ],
+    [
+      "Where does NAT usually occur?",
+      "On the perimeter router of a network."
+    ],
+    [
+      "How does a router know where to send returning data in NAT?",
+      "It looks up the destination port in its NAT translation table."
+    ],
+    [
+      "Does NAT work with IPv6?",
+      "While possible (NAT64), IPv6 is designed so every device can have its own global public IP, making NAT largely unnecessary."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "What does NAT stand for?",
+      "opts": [
+        "Network Access Table",
+        "Network Address Translation",
+        "Network Allocation Type",
+        "Node Address Timing"
+      ],
+      "ans": 1,
+      "why": "Network Address Translation."
+    },
+    {
+      "q": "How does NAT help solve IPv4 address exhaustion?",
+      "opts": [
+        "It makes IPs longer",
+        "It allows multiple devices to share one public IP",
+        "It encrypts data",
+        "It switches to IPv6 automatically"
+      ],
+      "ans": 1,
+      "why": "One public IP can serve hundreds of internal devices."
+    },
+    {
+      "q": "What is used in PAT to differentiate between internal connections?",
+      "opts": [
+        "MAC Addresses",
+        "Hostnames",
+        "Port Numbers",
+        "Subnet Masks"
+      ],
+      "ans": 2,
+      "why": "Port numbers create unique mappings."
+    },
+    {
+      "q": "If an external attacker tries to send a packet to a private IP behind a NAT router, what happens?",
+      "opts": [
+        "It is delivered normally",
+        "The router drops it (as there is no entry in the table)",
+        "The router forwards it to everyone",
+        "The router converts it to a public IP"
+      ],
+      "ans": 1,
+      "why": "Unsolicited incoming traffic is dropped by NAT."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Explain how a router uses a translation table to manage NAT for multiple devices. (4 marks)",
+      "marks": 4,
+      "ms": [
+        "When a device sends data, the router replaces the private source IP with its own public IP (1).",
+        "The router assigns a unique port number to the connection and records this in the translation table alongside the device's private IP (1).",
+        "When data returns from the internet, the router looks at the destination port (1).",
+        "It finds the matching entry in the table and forwards the data to the correct internal private IP (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.4.9"] = {
+  "notes": [
+    {
+      "h": "Port Forwarding"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Overcoming NAT Limitations",
+        "body": [
+          {
+            "kv": [
+              [
+                "The Problem",
+                "NAT blocks all unsolicited incoming traffic. If an external user tries to connect to a web server inside your LAN, the router doesn't know which internal IP to send the request to."
+              ],
+              [
+                "The Solution",
+                "Port Forwarding tells the router: 'Any traffic arriving on Port X should be sent directly to Internal IP Y on Port Z.'"
+              ],
+              [
+                "Static IP",
+                "The target internal device must have a static private IP so the rule always points to the correct machine."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Port Forwarding Configuration",
+        "body": [
+          {
+            "table": {
+              "head": [
+                "Service",
+                "External Port",
+                "Internal IP",
+                "Internal Port",
+                "Protocol"
+              ],
+              "rows": [
+                [
+                  "Web Server",
+                  "80",
+                  "192.168.1.100",
+                  "80",
+                  "TCP"
+                ],
+                [
+                  "Game Server",
+                  "25565",
+                  "192.168.1.101",
+                  "25565",
+                  "TCP/UDP"
+                ],
+                [
+                  "SSH Access",
+                  "2222",
+                  "192.168.1.10",
+                  "22",
+                  "TCP"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "json",
+        "cap": "Conceptual router config for port forwarding.",
+        "src": "{\n  \"port_forwarding_rules\": [\n    {\n      \"name\": \"Minecraft Server\",\n      \"external_port\": 25565,\n      \"internal_ip\": \"192.168.1.101\",\n      \"internal_port\": 25565,\n      \"protocol\": \"BOTH\"\n    },\n    {\n      \"name\": \"Web UI\",\n      \"external_port\": 8080,\n      \"internal_ip\": \"192.168.1.50\",\n      \"internal_port\": 80,\n      \"protocol\": \"TCP\"\n    }\n  ]\n}"
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Security Risks",
+        "body": "Opening ports via port forwarding bypasses the NAT firewall. Any vulnerability in the internal application (e.g., the web server) can now be exploited by anyone on the public internet. Use with caution!"
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What is port forwarding?",
+      "Instructing a router to send all traffic on a specific port to a specific internal IP address."
+    ],
+    [
+      "Why is port forwarding necessary for hosting a server at home?",
+      "Because NAT usually blocks unsolicited incoming connections from the internet."
+    ],
+    [
+      "What must be true about the internal device's IP for port forwarding to work reliably?",
+      "It must be a Static Private IP (manually set or DHCP reservation)."
+    ],
+    [
+      "Which port would you forward for a standard web server?",
+      "Port 80 (HTTP) or 443 (HTTPS)."
+    ],
+    [
+      "What is a major downside of port forwarding?",
+      "It reduces security by opening a direct path into the local network."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "A user wants to host a game server. Which technique allows friends to join via the user's public IP?",
+      "opts": [
+        "Subnetting",
+        "Port Forwarding",
+        "DHCP",
+        "DNS"
+      ],
+      "ans": 1,
+      "why": "Port forwarding maps the public port to the internal server."
+    },
+    {
+      "q": "Why is a static IP important for the internal server?",
+      "opts": [
+        "It makes the server faster",
+        "To ensure the router's rule always points to the right machine",
+        "To encrypt the traffic",
+        "To bypass the ISP's limits"
+      ],
+      "ans": 1,
+      "why": "If the IP changes via DHCP, the forwarding rule will break."
+    },
+    {
+      "q": "Does port forwarding increase or decrease network security?",
+      "opts": [
+        "Increase",
+        "Decrease",
+        "No effect",
+        "Depends on the ISP"
+      ],
+      "ans": 1,
+      "why": "It opens a hole in the firewall."
+    },
+    {
+      "q": "What does the router do with an incoming packet on port 80 if no port forwarding rule exists?",
+      "opts": [
+        "Broadcasts it to everyone",
+        "Forwards it to the first device it finds",
+        "Drops it",
+        "Sends it to the ISP"
+      ],
+      "ans": 2,
+      "why": "NAT drops unsolicited traffic by default."
+    }
+  ],
+  "exam": [
+    {
+      "q": "A homeowner has a security camera with an internal IP of 192.168.1.50. Explain the steps they must take to view this camera while away from home. (4 marks)",
+      "marks": 4,
+      "ms": [
+        "Assign the camera a static private IP address (1).",
+        "Access the router's configuration page (1).",
+        "Create a port forwarding rule mapping a specific external port to 192.168.1.50 (1).",
+        "The user then connects to their home's public IP address and the specified port (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.4.10"] = {
+  "notes": [
+    {
+      "h": "Modern Web APIs & Data Exchange"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "API Architectures",
+        "body": [
+          {
+            "table": {
+              "head": [
+                "Architecture",
+                "Communication Model",
+                "State",
+                "Use Case"
+              ],
+              "rows": [
+                [
+                  "REST",
+                  "Request-Response (HTTP)",
+                  "Stateless (each request is independent)",
+                  "Standard CRUD operations, mobile app backends"
+                ],
+                [
+                  "WebSocket",
+                  "Full-Duplex (Persistent)",
+                  "Stateful (connection remains open)",
+                  "Real-time chat, live sports updates, trading platforms"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Data Interchange Formats",
+        "body": [
+          {
+            "kv": [
+              [
+                "JSON",
+                "JavaScript Object Notation. Lightweight, easy for humans to read/write, and easy for machines to parse. Native to JavaScript."
+              ],
+              [
+                "XML",
+                "eXtensible Markup Language. Verbose, using tags like HTML. Highly structured and supports complex schemas but slower to parse."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Comparison: JSON vs XML",
+        "body": [
+          {
+            "table": {
+              "head": [
+                "Feature",
+                "JSON",
+                "XML"
+              ],
+              "rows": [
+                [
+                  "Verbosity",
+                  "Low (Compact)",
+                  "High (Verbose)"
+                ],
+                [
+                  "Parsing Speed",
+                  "Fast",
+                  "Slower"
+                ],
+                [
+                  "Readability",
+                  "Very High",
+                  "Moderate"
+                ],
+                [
+                  "Data Types",
+                  "Supports arrays, numbers, booleans",
+                  "Everything is a string"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "javascript",
+        "cap": "Comparing JSON and XML representations.",
+        "src": "// JSON Representation\nconst jsonUser = {\n  \"name\": \"Alice\",\n  \"roles\": [\"admin\", \"user\"],\n  \"active\": true\n};\n\n/* XML Representation\n<user active=\"true\">\n  <name>Alice</name>\n  <roles>\n    <role>admin</role>\n    <role>user</role>\n  </roles>\n</user>\n*/"
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "RESTful Principles",
+        "body": "REST (Representational State Transfer) uses standard HTTP methods: GET (Retrieve), POST (Create), PUT (Update), and DELETE (Remove). It treats everything as a 'Resource' identified by a URL."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What does REST stand for?",
+      "Representational State Transfer."
+    ],
+    [
+      "Which protocol provides a persistent full-duplex connection?",
+      "WebSocket."
+    ],
+    [
+      "Why is JSON preferred over XML for web APIs?",
+      "It is less verbose, faster to parse, and easier to read."
+    ],
+    [
+      "What HTTP method is used to create a new resource in REST?",
+      "POST."
+    ],
+    [
+      "What does it mean that REST is 'stateless'?",
+      "Each request from a client to a server must contain all the information needed to understand and process the request."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which of these is a full-duplex protocol?",
+      "opts": [
+        "HTTP",
+        "REST",
+        "WebSocket",
+        "JSON"
+      ],
+      "ans": 2,
+      "why": "WebSockets allow simultaneous two-way communication."
+    },
+    {
+      "q": "Which data format is most compact?",
+      "opts": [
+        "XML",
+        "HTML",
+        "JSON",
+        "CSV"
+      ],
+      "ans": 2,
+      "why": "JSON has less overhead than XML or HTML."
+    },
+    {
+      "q": "In a REST API, what would 'DELETE /users/1' likely do?",
+      "opts": [
+        "Create user 1",
+        "Update user 1",
+        "Remove user 1",
+        "Fetch user 1"
+      ],
+      "ans": 2,
+      "why": "DELETE is the standard method for removal."
+    },
+    {
+      "q": "Which format uses tags similar to HTML?",
+      "opts": [
+        "JSON",
+        "YAML",
+        "XML",
+        "Markdown"
+      ],
+      "ans": 2,
+      "why": "XML (eXtensible Markup Language) uses tags."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Discuss the advantages of using WebSockets instead of a RESTful API for a real-time stock trading application. (4 marks)",
+      "marks": 4,
+      "ms": [
+        "WebSockets provide a persistent connection, avoiding the overhead of repeated HTTP handshakes (1).",
+        "They support full-duplex communication, allowing the server to push updates to the client instantly (1).",
+        "This reduces latency, which is critical for trading where prices change millisecond-to-millisecond (1).",
+        "REST would require 'polling' (repeatedly asking for updates), which is inefficient and creates high network traffic (1)."
+      ]
+    }
+  ]
+};
+
+C["compsci:4.9.4.11"] = {
+  "notes": [
+    {
+      "h": "Thin vs Thick Client Architectures"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Thick (Rich) Clients",
+        "body": [
+          {
+            "kv": [
+              [
+                "Definition",
+                "A client that performs the majority of its data processing locally on the device."
+              ],
+              [
+                "Advantage",
+                "Can work offline or with intermittent connectivity; provides high performance for complex tasks (e.g., IDEs, Video Editors)."
+              ],
+              [
+                "Disadvantage",
+                "Higher hardware costs per user; complex to manage and update across multiple machines."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Thin Clients",
+        "body": [
+          {
+            "kv": [
+              [
+                "Definition",
+                "A client that relies heavily on a central server for processing and storage."
+              ],
+              [
+                "Advantage",
+                "Centralised management (one update on server affects all); cheaper, lower-spec local hardware; better security as data stays on the server."
+              ],
+              [
+                "Disadvantage",
+                "Useless without a stable high-bandwidth network connection; server failure brings down all clients."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Comparison Table",
+        "body": [
+          {
+            "table": {
+              "head": [
+                "Feature",
+                "Thin Client",
+                "Thick Client"
+              ],
+              "rows": [
+                [
+                  "Processing",
+                  "Mostly on Server",
+                  "Mostly on Client"
+                ],
+                [
+                  "Storage",
+                  "Centralised (Server)",
+                  "Local (Disk)"
+                ],
+                [
+                  "Network Load",
+                  "Constant/High",
+                  "Low (Synchronisation only)"
+                ],
+                [
+                  "Initial Cost",
+                  "Low (Dumb Terminals)",
+                  "High (Powerful PCs)"
+                ],
+                [
+                  "Management",
+                  "Easy (Centralised)",
+                  "Hard (Individual)"
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "lang": "csharp",
+        "cap": "Conceptual logic: Thick vs Thin data handling.",
+        "src": "// Thick Client: Process locally then save\nvoid SaveDataLocally(Data d) {\n    var result = ComplexLocalAlgorithm(d);\n    Disk.Write(\"cache.dat\", result);\n}\n\n// Thin Client: Send everything to server\nasync Task SaveDataToServer(Data d) {\n    await Api.PostAsync(\"/process\", d);\n    // UI just waits for server result\n}"
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Cloud Computing",
+        "body": "Modern web applications (like Google Docs) are often a hybrid. They use the browser (Thin) but perform complex JavaScript processing locally (Thick-like) while storing everything in the cloud."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What is a thin client?",
+      "A device that relies on a central server for processing and storage."
+    ],
+    [
+      "What is a thick client?",
+      "A device that performs most of its processing and storage locally."
+    ],
+    [
+      "Give one advantage of a thin client setup.",
+      "Centralised management and lower hardware costs per workstation."
+    ],
+    [
+      "Give one disadvantage of a thick client setup.",
+      "Harder to maintain and update individually; higher hardware costs."
+    ],
+    [
+      "Which client type is best for video editing?",
+      "Thick client (needs high local processing power)."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "Which client type requires a constant, high-speed connection to function?",
+      "opts": [
+        "Thick Client",
+        "Thin Client",
+        "Dumb Terminal",
+        "Mobile Client"
+      ],
+      "ans": 1,
+      "why": "Thin clients rely on the server for almost everything."
+    },
+    {
+      "q": "Where is data typically stored in a thick client architecture?",
+      "opts": [
+        "Central Server",
+        "Cloud Storage",
+        "Local Hard Drive",
+        "RAM only"
+      ],
+      "ans": 2,
+      "why": "Thick clients handle their own storage."
+    },
+    {
+      "q": "In which architecture is security and backup easiest to manage?",
+      "opts": [
+        "Thick Client",
+        "Thin Client",
+        "Peer-to-Peer",
+        "Hybrid"
+      ],
+      "ans": 1,
+      "why": "Centralised storage on the server makes backups simpler."
+    },
+    {
+      "q": "What is a major risk of a thin client setup?",
+      "opts": [
+        "High power consumption",
+        "Server being a single point of failure",
+        "Hard to install software",
+        "Expensive local CPUs"
+      ],
+      "ans": 1,
+      "why": "If the server goes down, no one can work."
+    }
+  ],
+  "exam": [
+    {
+      "q": "A large company is deciding between a thin client or a thick client infrastructure for its 500 office workers. Evaluate both options. (6 marks)",
+      "marks": 6,
+      "ms": [
+        "Thin clients would reduce hardware costs and simplify maintenance as software only needs updating on the server (1).",
+        "They also improve security by keeping data off local devices (1).",
+        "However, they require a very reliable network; a server or network failure would stop all 500 workers (1).",
+        "Thick clients allow for offline work and provide better performance for demanding applications (1).",
+        "But they are more expensive to purchase for 500 workers (1).",
+        "And they require more administrative effort to secure and update each individual machine (1)."
+      ]
+    }
+  ]
+};
+
+})(window.KOS_CONTENT);

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>紅 Kurenai OS — Revision Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Shippori+Mincho:wght@600;700&display=swap">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+<div class="bg-flora" aria-hidden="true">
+  <span class="petal p1"></span><span class="petal p2"></span><span class="petal p3"></span>
+  <span class="petal p4"></span><span class="petal p5"></span><span class="petal p6"></span>
+</div>
+<div id="app">
+  <header id="topbar">
+    <div class="brand">
+      <span class="kanji" aria-hidden="true">紅</span>
+      <span class="name">Kurenai OS</span>
+      <span class="sub">Revision Hub · Build 2.0</span>
+    </div>
+    <div id="searchbox">
+      <span class="glyph" aria-hidden="true">⌕</span>
+      <input id="search" type="search" placeholder="Search spec points &amp; flashcards…  press / to search"
+             autocomplete="off" aria-label="Search the specification database">
+      <div id="search-results" role="listbox"></div>
+    </div>
+    <div class="save-wrap" title="Every change autosaves to this browser">
+      <span id="save-dot"></span><span>AUTOSAVE</span>
+    </div>
+  </header>
+
+  <div id="cols">
+    <nav id="rail" aria-label="Primary">
+      <button id="rail-toggle" aria-label="Collapse sidebar" title="Collapse / expand sidebar">‹</button>
+      <div class="rail-h">System</div>
+      <button class="rail-item" data-view="home">
+        <span class="dot" style="--accent:#e8425a"></span><span class="lbl">Overview</span>
+      </button>
+
+      <div class="rail-h">Subjects</div>
+      <button class="rail-item" data-view="subject" data-subject="compsci" style="--accent:var(--c-compsci)">
+        <span class="dot"></span><span class="lbl">Computer Science</span><span class="pc" id="pc-compsci"></span>
+      </button>
+      <button class="rail-item" data-view="subject" data-subject="maths" style="--accent:var(--c-maths)">
+        <span class="dot"></span><span class="lbl">Mathematics</span><span class="pc" id="pc-maths"></span>
+      </button>
+      <button class="rail-item" data-view="subject" data-subject="it" style="--accent:var(--c-it)">
+        <span class="dot"></span><span class="lbl">IT · Data Analytics</span><span class="pc" id="pc-it"></span>
+      </button>
+
+      <div class="rail-h">Data</div>
+      <button class="rail-item" data-view="data">
+        <span class="dot" style="--accent:#6f6488"></span><span class="lbl">Backup &amp; Restore</span>
+      </button>
+
+      <div class="rail-foot">
+        AQA 7517 · Edexcel 9MA0<br>OCR AAQ H019/H119<br>
+        <span id="node-count"></span> spec points indexed
+      </div>
+    </nav>
+
+    <aside id="tree" class="hidden" aria-label="Topic tree"></aside>
+
+    <main id="main" tabindex="-1"></main>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!-- data (generated from the official specification PDFs) -->
+<script src="js/data/compsci.js"></script>
+<script src="js/data/maths.js"></script>
+<script src="js/data/it.js"></script>
+<script src="js/data/intel.js"></script>
+<!-- core -->
+<script src="js/core/store.js"></script>
+<script src="js/core/ui.js"></script>
+<script src="js/core/content.js"></script>
+<!-- deep revision content (wave 1) -->
+<script src="js/data/content/cs-programming.js"></script>
+<script src="js/data/content/cs-theory-computation.js"></script>
+<script src="js/data/content/cs-theory-computation-2.js"></script>
+<script src="js/data/content/cs-data-rep.js"></script>
+<script src="js/data/content/cs-data-rep-2.js"></script>
+<script src="js/data/content/cs-architecture.js"></script>
+<script src="js/data/content/cs-networking-ethics.js"></script>
+<script src="js/data/content/cs-advanced.js"></script>
+<script src="js/data/content/cs-databases-sys.js"></script>
+<script src="js/data/content/cs-datastructures.js"></script>
+<script src="js/data/content/cs-algorithms.js"></script>
+<script src="js/data/content/cs-algorithms-2.js"></script>
+<script src="js/data/content/cs-theory.js"></script>
+<script src="js/data/content/maths-pure.js"></script>
+<script src="js/data/content/maths-applied.js"></script>
+<script src="js/data/content/it-core.js"></script>
+<script src="js/data/content/it-f201.js"></script>
+<!-- engines -->
+<script src="js/engines/flashcards.js"></script>
+<script src="js/engines/quiz.js"></script>
+<!-- modules -->
+<script src="js/modules/hub.js"></script>
+<script src="js/labs/worked.js"></script>
+<script src="js/labs/trace.js"></script>
+<script src="js/labs/oop.js"></script>
+<script src="js/labs/sims.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AS Applied Maths — Mock Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Spline+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0f17; --bg2:#0f1521; --surf:#141b29; --surf2:#1a2335;
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+  --ink:#e8edf6; --ink-dim:#9aa7bd; --ink-faint:#6b7890;
+  --gold:#ffce5c; --gold-deep:#f0b429; --teal:#4ecdc4; --teal-deep:#2bb6ac;
+  --green:#6ee7a0; --danger:#ff6b6b; --violet:#a78bfa;
+  --glow-gold:rgba(255,206,92,.16); --glow-teal:rgba(78,205,196,.14);
+  --r:16px; --r-sm:10px;
+  --serif:"Fraunces",Georgia,serif; --sans:"Spline Sans",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans); background:var(--bg); color:var(--ink);
+  line-height:1.55; -webkit-font-smoothing:antialiased; min-height:100vh;
+  background-image:
+    radial-gradient(900px 500px at 85% -10%, rgba(255,206,92,.10), transparent 60%),
+    radial-gradient(700px 500px at -5% 5%, rgba(78,205,196,.08), transparent 55%);
+  background-attachment:fixed;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 18px 90px}
+
+/* ---------- HEADER ---------- */
+header.top{padding:30px 0 14px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:18px;justify-content:space-between}
+.brand h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4.4vw,40px);line-height:1.04;letter-spacing:-.01em}
+.brand h1 .em{color:var(--gold);font-style:italic}
+.brand .sub{color:var(--ink-dim);font-size:14px;margin-top:6px;letter-spacing:.02em}
+.countdown{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--surf2),var(--surf));
+  border:1px solid var(--line2);border-radius:var(--r);padding:12px 18px;box-shadow:0 0 34px var(--glow-gold) inset, 0 8px 24px rgba(0,0,0,.4)}
+.countdown .num{font-family:var(--serif);font-size:38px;font-weight:700;color:var(--gold);line-height:1}
+.countdown .lbl{font-size:11.5px;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.14em}
+.countdown .lbl b{display:block;color:var(--ink);font-size:13px;letter-spacing:.02em;text-transform:none;margin-top:2px}
+
+/* ---------- NAV ---------- */
+nav.tabs{position:sticky;top:0;z-index:30;display:flex;gap:6px;overflow-x:auto;padding:12px 0;margin:6px -18px 22px;
+  padding-left:18px;padding-right:18px;background:linear-gradient(var(--bg) 70%,transparent);
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1px solid var(--line);background:var(--surf);color:var(--ink-dim);
+  padding:9px 15px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;
+  transition:.18s ease;display:flex;align-items:center;gap:7px}
+.tab .dot{width:7px;height:7px;border-radius:50%;background:var(--ink-faint);transition:.2s}
+.tab:hover{color:var(--ink);border-color:var(--line2);transform:translateY(-1px)}
+.tab.active{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;border-color:transparent;box-shadow:0 4px 18px var(--glow-gold)}
+.tab.active .dot{background:#1a1205}
+.tab.done .dot{background:var(--green)}
+
+/* ---------- PANELS ---------- */
+.panel{display:none;animation:fade .35s ease}
+.panel.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.phead{display:flex;align-items:center;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.phead .ico{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-family:var(--serif);
+  font-weight:700;font-size:22px;background:linear-gradient(135deg,var(--surf2),var(--surf));border:1px solid var(--line2);color:var(--gold)}
+.phead h2{font-family:var(--serif);font-weight:600;font-size:clamp(22px,3.4vw,30px);letter-spacing:-.01em}
+.phead .sec-badge{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);
+  border:1px solid var(--teal);border-radius:999px;padding:3px 10px}
+.intro{color:var(--ink-dim);max-width:70ch;margin-bottom:18px;font-size:15px}
+
+/* sub-tabs within a topic */
+.subtabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.stab{border:none;background:transparent;color:var(--ink-faint);font-family:var(--sans);font-size:13.5px;font-weight:600;
+  padding:7px 13px;border-radius:9px;cursor:pointer;transition:.16s}
+.stab:hover{color:var(--ink);background:var(--surf)}
+.stab.active{color:var(--gold);background:var(--surf2)}
+
+.subpanel{display:none}
+.subpanel.show{display:block;animation:fade .3s ease}
+
+/* ---------- CARDS / CONTENT ---------- */
+.card{background:linear-gradient(170deg,var(--surf2),var(--surf));border:1px solid var(--line);border-radius:var(--r);
+  padding:18px 20px;margin-bottom:16px;box-shadow:0 6px 22px rgba(0,0,0,.28)}
+.card h3{font-family:var(--serif);font-weight:600;font-size:18px;margin-bottom:10px;color:var(--ink)}
+.kp{list-style:none}
+.kp li{position:relative;padding:7px 0 7px 26px;border-bottom:1px dashed var(--line);font-size:14.5px;color:var(--ink)}
+.kp li:last-child{border-bottom:none}
+.kp li::before{content:"";position:absolute;left:4px;top:14px;width:8px;height:8px;border-radius:2px;
+  background:var(--gold);transform:rotate(45deg)}
+.kp li b{color:var(--gold)}
+.kp li .teal{color:var(--teal)}
+
+.flag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.08em;
+  color:var(--danger);border:1px solid var(--danger);border-radius:6px;padding:2px 7px;text-transform:uppercase;vertical-align:middle}
+.mk{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--danger);background:rgba(255,107,107,.1);
+  border-radius:5px;padding:1px 6px;margin-left:4px}
+
+/* formulae */
+.formula{font-family:var(--mono);font-size:15px;background:var(--bg2);border:1px solid var(--line2);border-left:3px solid var(--teal);
+  border-radius:var(--r-sm);padding:12px 16px;margin:10px 0;color:var(--ink);overflow-x:auto}
+.formula .nm{display:block;font-family:var(--sans);font-size:12px;color:var(--ink-dim);margin-bottom:5px;font-weight:600}
+.formula.gold{border-left-color:var(--gold)}
+.note{font-size:13px;color:var(--ink-dim);margin-top:4px}
+
+/* mnemonic */
+.mnem{background:linear-gradient(135deg,rgba(255,206,92,.1),rgba(255,206,92,.03));border:1px solid rgba(255,206,92,.3);
+  border-radius:var(--r);padding:14px 18px;margin:14px 0}
+.mnem .tag{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep)}
+.mnem .word{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--gold);margin:4px 0 8px;letter-spacing:.04em}
+.mnem ul{list-style:none;font-size:14px}
+.mnem li{padding:3px 0}.mnem li b{color:var(--gold);font-family:var(--mono)}
+
+/* worked examples — step reveal */
+.ex{background:var(--surf);border:1px solid var(--line);border-radius:var(--r);margin-bottom:16px;overflow:hidden}
+.ex .q{padding:15px 18px;background:var(--surf2);border-bottom:1px solid var(--line)}
+.ex .q .lab{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:5px;
+  display:flex;justify-content:space-between;align-items:center}
+.ex .q .marks{color:var(--ink-faint);font-family:var(--mono)}
+.ex .q p{font-size:14.5px;font-style:italic;color:var(--ink)}
+.ex .steps{padding:6px 18px 16px}
+.step{padding:11px 0;border-bottom:1px dashed var(--line);display:none}
+.step.show{display:block;animation:fade .3s}
+.step:last-child{border-bottom:none}
+.step .do{font-family:var(--mono);font-size:13.5px;color:var(--ink)}
+.step .why{font-size:12.5px;color:var(--ink-dim);margin-top:3px}
+.ex .ctrl{display:flex;gap:10px;padding:14px 18px;background:var(--bg2);border-top:1px solid var(--line);flex-wrap:wrap}
+
+/* buttons */
+.btn{font-family:var(--sans);font-weight:600;font-size:13.5px;border-radius:10px;padding:9px 16px;cursor:pointer;
+  border:1px solid var(--line2);background:var(--surf2);color:var(--ink);transition:.16s;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1205;border-color:transparent}
+.btn.primary:hover{color:#1a1205;box-shadow:0 6px 20px var(--glow-gold)}
+.btn.teal{background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#05201e;border-color:transparent}
+.btn.teal:hover{color:#05201e;box-shadow:0 6px 20px var(--glow-teal)}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* flashcards */
+.fc-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.fc-prog{font-size:13px;color:var(--ink-dim)}
+.fc-prog b{color:var(--gold)}
+.flashcard{perspective:1400px;height:260px;margin-bottom:16px;cursor:pointer}
+.fc-inner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+.flashcard.flip .fc-inner{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r);padding:26px;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px solid var(--line2)}
+.fc-front{background:linear-gradient(160deg,var(--surf2),var(--surf));box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.fc-back{background:linear-gradient(160deg,#1d2740,#161d2c);transform:rotateY(180deg);box-shadow:0 0 30px var(--glow-teal) inset}
+.fc-face .tiny{position:absolute;top:14px;left:18px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.fc-face .txt{font-size:17px;line-height:1.5}.fc-front .txt{font-family:var(--serif);font-weight:600;font-size:20px}
+.fc-back .txt{color:var(--ink)}.fc-back .txt b,.fc-back .txt .formula{color:var(--teal)}
+.fc-hint{position:absolute;bottom:14px;font-size:11px;color:var(--ink-faint)}
+.fc-actions{display:flex;gap:10px;justify-content:center}
+
+/* quiz */
+.quiz .qz{background:var(--surf);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.quiz .qz .stem{font-size:15px;margin-bottom:14px;font-weight:500}
+.quiz .qz .stem .n{color:var(--gold);font-family:var(--mono);font-weight:700;margin-right:8px}
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--line2);background:var(--bg2);color:var(--ink);
+  border-radius:10px;padding:11px 15px;margin-bottom:9px;cursor:pointer;font-size:14px;font-family:var(--sans);transition:.14s}
+.opt:hover{border-color:var(--teal);background:var(--surf2)}
+.opt.correct{border-color:var(--green);background:rgba(110,231,160,.12);color:var(--green)}
+.opt.wrong{border-color:var(--danger);background:rgba(255,107,107,.1);color:var(--danger)}
+.opt.dim{opacity:.5}
+.explain{display:none;font-size:13px;color:var(--ink-dim);margin-top:8px;padding:10px 14px;border-left:3px solid var(--teal);
+  background:var(--bg2);border-radius:0 8px 8px 0}
+.explain.show{display:block;animation:fade .3s}
+.quiz-score{font-family:var(--serif);font-size:18px;text-align:center;padding:16px;color:var(--gold)}
+
+/* tools */
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12.5px;color:var(--ink-dim);margin-bottom:5px;font-weight:600}
+.field input,.field select{width:100%;background:var(--bg2);border:1px solid var(--line2);color:var(--ink);
+  border-radius:9px;padding:10px 12px;font-family:var(--mono);font-size:14px}
+.field input:focus,.field select:focus{outline:none;border-color:var(--teal)}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.result{margin-top:14px;background:var(--bg2);border:1px solid var(--line2);border-left:3px solid var(--gold);
+  border-radius:0 10px 10px 0;padding:14px;font-family:var(--mono);font-size:14px;min-height:46px;white-space:pre-wrap}
+.result .hl{color:var(--gold);font-weight:700}
+
+/* svg diagram holder */
+.diagram{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:14px 0;overflow-x:auto}
+.diagram svg{display:block;max-width:100%;height:auto;margin:0 auto}
+
+/* home/overview cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:6px}
+.tile{background:linear-gradient(160deg,var(--surf2),var(--surf));border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;cursor:pointer;transition:.18s;position:relative;overflow:hidden}
+.tile:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.tile .t-ix{font-family:var(--serif);font-size:13px;color:var(--gold);font-weight:700}
+.tile h4{font-family:var(--serif);font-weight:600;font-size:17px;margin:6px 0 8px}
+.tile p{font-size:12.5px;color:var(--ink-dim)}
+.tile .bar{height:5px;border-radius:3px;background:var(--line);margin-top:12px;overflow:hidden}
+.tile .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--green));width:0;transition:width .6s}
+.section-divider{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);
+  margin:24px 0 4px;display:flex;align-items:center;gap:12px}
+.section-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.callout{border-radius:var(--r);padding:16px 18px;margin:16px 0;border:1px solid}
+.callout.gold{background:linear-gradient(135deg,rgba(255,206,92,.08),transparent);border-color:rgba(255,206,92,.3)}
+.callout.red{background:linear-gradient(135deg,rgba(255,107,107,.08),transparent);border-color:rgba(255,107,107,.3)}
+.callout h4{font-family:var(--serif);margin-bottom:8px;color:var(--gold)}
+.callout.red h4{color:var(--danger)}
+.callout ul{list-style:none;font-size:14px}.callout li{padding:4px 0 4px 20px;position:relative}
+.callout li::before{content:"›";position:absolute;left:4px;color:var(--gold);font-weight:700}
+.callout.red li::before{color:var(--danger)}
+
+footer{text-align:center;color:var(--ink-faint);font-size:12px;margin-top:40px;padding-top:20px;border-top:1px solid var(--line)}
+footer b{color:var(--ink-dim)}
+
+@media(max-width:560px){
+  .phead .ico{width:38px;height:38px;font-size:18px}
+  .row3{grid-template-columns:1fr}
+  .countdown{padding:10px 14px}.countdown .num{font-size:30px}
+  .flashcard{height:230px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <h1>AS Applied Maths <span class="em">Trainer</span></h1>
+      <div class="sub">Edexcel Paper 3 · Statistics &amp; Mechanics · active-recall companion to your revision guide</div>
+    </div>
+    <div class="countdown" id="countdown">
+      <div class="num" id="cd-num">–</div>
+      <div class="lbl">days until<b id="cd-date">your mock</b></div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="nav"></nav>
+
+  <main id="main"></main>
+
+  <footer>
+    Built for <b>Crimson</b> · AS-level Edexcel mock revision · all content is <b>AS-only</b> — items marked
+    <span class="flag" style="font-size:10px">A2</span> are flagged as out of scope.<br>
+    Calculator sequences are for the <b>Casio fx-991CW</b>. Pair this trainer with the printable revision guide.
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   DATA — all 8 AS topics + tools
+   ============================================================ */
+const MOCK_DATE = "2026-06-09"; // ← edit to your exact mock date
+
+const TOPICS = [
+  {
+    id:"home", nav:"Overview", icon:"★", isHome:true
+  },
+
+  /* ---------------- STATS ---------------- */
+  {
+    id:"t1", nav:"1 · Sampling", section:"Statistics", icon:"1", title:"Statistical Sampling",
+    intro:"Choosing who or what to study, and judging whether a method is fair. Most marks here are for naming a method AND justifying it with a feature of the context.",
+    keyPoints:[
+      "A <b>population</b> is every member of a group; a <b>census</b> measures the whole population; a <b>sample</b> measures a part of it.",
+      "A <b>sampling frame</b> is a list of all sampling units (e.g. a register); a <b>sampling unit</b> is one individual to be sampled.",
+      "Census: <span class='teal'>accurate, no bias</span>, but expensive, slow, and may destroy items tested.",
+      "Sample: <span class='teal'>cheap and quick</span>, but may not represent the population and can introduce bias.",
+      "<b>Random</b> methods: simple random, systematic, stratified — every unit has a known chance of selection.",
+      "<b>Non-random</b> methods: quota and opportunity (convenience) — selection is not by chance, so bias is likely.",
+      "Stratified sample from a stratum = (stratum size ÷ population size) × sample size — must round to whole people."
+    ],
+    formulae:[
+      {nm:"Stratified — number from each group", ex:"n_group = (group size ÷ total) × sample size", gold:true},
+      {nm:"Systematic — sampling interval", ex:"k = population size ÷ sample size, then random start 1…k"}
+    ],
+    mnem:{tag:"Sampling methods", word:"\"Students Study Quietly, Observing Sir\"", items:[
+      ["S","<b>S</b>imple random — names/numbers drawn, every selection equally likely"],
+      ["S","<b>S</b>ystematic — every kth unit from a random start"],
+      ["S","<b>S</b>tratified — split into groups, sample each in proportion"],
+      ["Q","<b>Q</b>uota — interviewer fills set numbers per group (non-random)"],
+      ["O","<b>O</b>pportunity — whoever is available (non-random, biased)"]
+    ]},
+    examples:[
+      {lab:"State a method", marks:"1", q:"A head teacher selects every 20th student from an alphabetical register of 1200 students. State the sampling method used.",
+       steps:[["Systematic sampling.","One word — 'state' needs no working.","B1"]]},
+      {lab:"Stratified calculation", marks:"4", q:"A company has 360 staff: 180 Production, 120 Sales, 60 Admin. A stratified sample of 30 is taken. Find how many from each department and describe the selection.",
+       steps:[
+        ["Sampling fraction = 30 ÷ 360 = 1/12.","Find the overall proportion to apply to each stratum.","M1"],
+        ["Production 180×1/12 = 15;  Sales 120×1/12 = 10;  Admin 60×1/12 = 5.","Apply the fraction to each group.","A1"],
+        ["Within each department, number the staff and use simple random sampling.","'Describe' wants the mechanism, in context.","B1"],
+        ["Check: 15+10+5 = 30 ✓","Always confirm the totals match the sample size.","A1"]
+       ]},
+      {lab:"Criticise & suggest", marks:"3", q:"A researcher stands outside one supermarket on a Monday morning and asks shoppers about their habits. Give one reason this may be biased and suggest a refinement.",
+       steps:[
+        ["It is an opportunity sample — only people present at that time/place can be chosen.","Identify the method and its weakness.","B1"],
+        ["Monday-morning shoppers may not represent all shoppers (e.g. workers are excluded).","Link the weakness to the context.","B1"],
+        ["Refinement: sample across several days and times, or use a stratified sample of customers.","A criticism question always wants a specific fix.","B1"]
+       ]}
+    ],
+    flashcards:[
+      ["What is a sampling frame?","A list of all the sampling units in the population — e.g. a school register or membership list."],
+      ["Give one advantage and one disadvantage of a census.","<b>Advantage:</b> completely accurate / unbiased. <b>Disadvantage:</b> expensive, time-consuming, sometimes impossible (e.g. destructive testing)."],
+      ["How do you take a simple random sample of 50 from 1200?","Number every unit 1–1200, use a random number generator/table, ignore repeats and numbers > 1200 until 50 distinct numbers are found."],
+      ["Systematic sampling of 40 from 800 — what is the interval and start?","Interval k = 800 ÷ 40 = 20. Choose a random start between 1 and 20, then take every 20th unit."],
+      ["Why is quota sampling non-random?","The interviewer chooses who fills each quota, so not every member has a known, non-zero chance of selection → potential bias."],
+      ["Stratified sample of 60 from 900, where one stratum has 150 — how many from it?","150 ÷ 900 × 60 = 10."]
+    ],
+    quiz:[
+      {q:"Which method splits the population into groups and samples each in proportion to its size?",o:["Systematic","Stratified","Opportunity","Quota"],a:1,e:"Stratified sampling uses proportional numbers from each stratum."},
+      {q:"Selecting every 10th item from a production line is an example of:",o:["Simple random","Stratified","Systematic","Quota"],a:2,e:"A fixed interval from a random start = systematic sampling."},
+      {q:"Which is a non-random sampling method?",o:["Simple random","Systematic","Stratified","Opportunity"],a:3,e:"Opportunity (convenience) sampling is non-random, as is quota."},
+      {q:"A stratified sample of 25 is taken from 500 people. One stratum has 200. How many are sampled from it?",o:["8","10","12","20"],a:1,e:"200 ÷ 500 × 25 = 10."},
+      {q:"The main disadvantage of a census compared with a sample is that it is:",o:["Biased","Inaccurate","Costly and slow","Too small"],a:2,e:"A census is accurate but expensive and time-consuming."}
+    ]
+  },
+
+  {
+    id:"t2", nav:"2 · Data", section:"Statistics", icon:"2", title:"Data Presentation & Interpretation",
+    intro:"Averages, spread, graphs and the Large Data Set. Keep full accuracy in your calculator and watch the class boundaries.",
+    keyPoints:[
+      "<b>Location:</b> mean = Σx/n (or Σfx/Σf); median = middle value; mode = most frequent.",
+      "<b>Linear interpolation</b> finds the median/quartiles inside a grouped class using the running cumulative frequency and the correct class boundaries.",
+      "<b>Spread:</b> range, IQR = Q₃−Q₁, interpercentile range (e.g. P₉₀−P₁₀).",
+      "Variance = Sₓₓ/n and standard deviation σ = <b>√</b>(Sₓₓ/n) — <span class='teal'>don't forget the square root</span>.",
+      "<b>Coding</b> y = (x−a)/b: adding a shifts the mean but <b>not</b> the sd; the scale factor b affects <b>both</b>.",
+      "<b>Outliers:</b> the rule is always given — usually 1.5×IQR beyond a quartile, or 2 sd from the mean.",
+      "<b>Histograms:</b> frequency density = frequency ÷ class width; <b>area</b> is proportional to frequency.",
+      "<b>Cumulative frequency:</b> plot at the <b>upper</b> class boundary.",
+      "You can describe correlation and <b>interpret</b> a given regression line (gradient = rate of change). <span class='flag'>A2</span> calculating the equation or PMCC is Year-2."
+    ],
+    formulae:[
+      {nm:"Sum of squares", ex:"Sₓₓ = Σx² − (Σx)²/n", gold:true},
+      {nm:"Standard deviation", ex:"σ = √( Sₓₓ / n )  =  √( Σx²/n − x̄² )", gold:true},
+      {nm:"Linear interpolation (median)", ex:"median = L + ( (n/2 − F) / f ) × w"},
+      {nm:"Histogram", ex:"frequency density = frequency ÷ class width"}
+    ],
+    mnem:{tag:"Coding", word:"\"Add → Mean only; Times → Both\"", items:[
+      ["+","Adding/subtracting a constant changes the <b>mean</b> by that amount; standard deviation is <b>unchanged</b>."],
+      ["×","Multiplying/dividing scales <b>both</b> the mean and the standard deviation by the same factor."]
+    ]},
+    examples:[
+      {lab:"Standard deviation", marks:"3", q:"For 8 values, Σx = 120 and Σx² = 1992. Find the mean and standard deviation.",
+       steps:[
+        ["x̄ = 120 ÷ 8 = 15","Mean first.","M1"],
+        ["Sₓₓ = 1992 − 120²/8 = 1992 − 1800 = 192","Use Sₓₓ = Σx² − (Σx)²/n.","M1"],
+        ["σ = √(192 ÷ 8) = √24 = 4.90 (3 s.f.)","Divide by n then take the root.","A1"]
+       ]},
+      {lab:"Coding", marks:"3", q:"Using y = (x − 100)/10, the coded values give ȳ = 4.2 and σ_y = 1.5. Find the mean and sd of x.",
+       steps:[
+        ["x̄ = 10ȳ + 100 = 10(4.2)+100 = 142","Reverse the coding for the mean (×10 then +100).","M1 A1"],
+        ["σ_x = 10 × σ_y = 10 × 1.5 = 15","sd is only affected by the ×10 scale factor, not the +100.","A1"]
+       ]},
+      {lab:"Linear interpolation", marks:"3", q:"Times (s) are grouped: 0–10 (cf 8), 10–20 (cf 20), 20–30 (cf 35), 30–40 (cf 40). Estimate the median.",
+       steps:[
+        ["n = 40, so median position = 20th value → lies in the 10–20 class.","n/2 = 20; cumulative freq reaches 20 at the end of 10–20.","M1"],
+        ["median = 10 + ((20 − 8)/12) × 10","L=10, F=8 before the class, f=12 in it, width=10.","M1"],
+        ["= 10 + 10 = 20 s","Compute carefully with the right boundaries.","A1"]
+       ]}
+    ],
+    flashcards:[
+      ["Formula for Sₓₓ?","Sₓₓ = Σx² − (Σx)²/n"],
+      ["How do you get standard deviation from Sₓₓ?","σ = √(Sₓₓ / n) — divide by n, then take the square root."],
+      ["Coding y = x + 20 — what happens to the mean and sd?","Mean increases by 20; standard deviation is unchanged (adding shifts location only)."],
+      ["Coding y = x/5 — what happens to the sd?","sd is divided by 5 (a scale factor affects spread)."],
+      ["On a histogram, what is plotted on the vertical axis and what represents frequency?","Frequency density (= freq ÷ class width); the <b>area</b> of each bar is proportional to frequency."],
+      ["On a cumulative frequency graph, at what x-value do you plot each point?","At the <b>upper</b> class boundary."],
+      ["A common outlier rule is values beyond Q₁ − 1.5×IQR or Q₃ + 1.5×IQR. Where do you get the rule in the exam?","It is always given in the question — read and quote it."]
+    ],
+    quiz:[
+      {q:"Σx² = 500, Σx = 60, n = 10. What is Sₓₓ?",o:["140","440","500","860"],a:0,e:"Sₓₓ = 500 − 60²/10 = 500 − 360 = 140."},
+      {q:"With the data above, the standard deviation is:",o:["3.74","14","1.18","140"],a:0,e:"σ = √(140/10) = √14 = 3.74 (3 s.f.)."},
+      {q:"Using coding y = x − 50, the mean of y is 12. What is the mean of x?",o:["12","38","62","600"],a:2,e:"Reverse: x̄ = ȳ + 50 = 62."},
+      {q:"A histogram bar covers 20–30 (width 10) with frequency 45. Its frequency density is:",o:["4.5","45","450","2.2"],a:0,e:"45 ÷ 10 = 4.5."},
+      {q:"Adding 5 to every data value changes the standard deviation how?",o:["+5","×5","No change","√5"],a:2,e:"Adding a constant does not change spread."}
+    ]
+  },
+
+  {
+    id:"lds", nav:"2b · Large Data Set", section:"Statistics", icon:"❖", title:"The Large Data Set",
+    intro:"Met Office weather data. You won't have the data in the exam, but you must know its structure, units and traps so unfamiliar contexts don't catch you out.",
+    keyPoints:[
+      "<b>5 UK stations:</b> Camborne, Heathrow, Hurn, Leeming, Leuchars. <b>3 overseas:</b> Beijing, Jacksonville, Perth.",
+      "Two periods: <b>May–Oct 1987</b> and <b>May–Oct 2015</b> — so you can only comment on summer/autumn, never a whole year.",
+      "<b>Perth is in the Southern Hemisphere</b> (its summer is our winter). Jacksonville is typically warmest; Heathrow the driest UK site; Camborne the wettest UK site.",
+      "<b>Rainfall:</b> 'tr' = trace (< 0.05 mm) — this is <b>non-numeric</b>, so it can't be averaged directly.",
+      "<b>Cloud cover</b> is in oktas (0–8) and <b>discrete</b>. <b>Daily Mean Windspeed</b> is in knots (1 kn ≈ 1.15 mph) with a discrete Beaufort conversion.",
+      "Missing data shows as 'n/a' or a dash — a systematic sample can therefore land on a gap and return fewer usable values.",
+      "Pressure in hPa (1 hPa = 1 mb); visibility in metres; humidity in %, where > 95% suggests mist/fog."
+    ],
+    formulae:[
+      {nm:"Speed conversion (knots → mph)", ex:"mph ≈ knots × 1.15"},
+      {nm:"Watch for non-numeric entries", ex:"'tr' (trace) and 'n/a' cannot be used as numbers", gold:true}
+    ],
+    mnem:{tag:"LDS traps", word:"\"SUMMER\"", items:[
+      ["S","<b>S</b>outhern Perth — opposite seasons"],
+      ["U","<b>U</b>nits matter — knots, oktas, hPa, °C"],
+      ["M","<b>M</b>issing/'n/a' & <b>tr</b>ace are non-numeric"],
+      ["M","<b>M</b>ay–Oct only — no whole-year claims"],
+      ["E","<b>E</b>ight stations, two years (1987 &amp; 2015)"],
+      ["R","<b>R</b>ainfall trace < 0.05 mm"]
+    ]},
+    examples:[
+      {lab:"Why fewer values?", marks:"2", q:"A student takes a systematic sample of the Daily Rainfall column but ends up with fewer numbers than expected. Explain why.",
+       steps:[
+        ["Some entries are recorded as 'tr' (trace) or 'n/a'.","These are non-numeric.","B1"],
+        ["When the systematic sample lands on those rows, there is no number to record, so fewer usable values result.","Link directly to the column's data type.","B1"]
+       ]},
+      {lab:"Interpreting context", marks:"2", q:"Explain why it would be wrong to use the LDS to conclude that 'Perth is warmer than Leeming all year round'.",
+       steps:[
+        ["The LDS only covers May–October, not the whole year.","No whole-year conclusions are valid.","B1"],
+        ["Also Perth is in the Southern Hemisphere, so its seasons are reversed — May–Oct is its cooler half.","Use the location knowledge.","B1"]
+       ]}
+    ],
+    flashcards:[
+      ["Which overseas LDS station is in the Southern Hemisphere?","Perth, Australia — its seasons are the reverse of the UK's."],
+      ["What does 'tr' mean in the rainfall column, and why is it a problem?","Trace rainfall (< 0.05 mm). It is non-numeric, so it cannot be averaged or used as a value directly."],
+      ["What two time periods does the LDS cover?","May–October 1987 and May–October 2015."],
+      ["What unit is cloud cover measured in, and is it discrete or continuous?","Oktas (0–8) — discrete."],
+      ["Name the 5 UK stations.","Camborne, Heathrow, Hurn, Leeming, Leuchars."],
+      ["Why might a systematic sample of a column give fewer values than expected?","It can land on 'n/a' or 'tr' entries, which are non-numeric/missing."]
+    ],
+    quiz:[
+      {q:"Which LDS station is in the Southern Hemisphere?",o:["Beijing","Jacksonville","Perth","Leuchars"],a:2,e:"Perth, Australia — reversed seasons."},
+      {q:"'tr' in the rainfall column means:",o:["A typing error","Trace (< 0.05 mm)","Total rainfall","Tropical rain"],a:1,e:"Trace = less than 0.05 mm, and is non-numeric."},
+      {q:"The LDS covers which months?",o:["Jan–Dec","May–Oct","Jun–Aug","All year"],a:1,e:"May–October only, in 1987 and 2015."},
+      {q:"Cloud cover in the LDS is measured in:",o:["Percent","Metres","Oktas","Knots"],a:2,e:"Oktas, 0–8, a discrete scale."}
+    ]
+  },
+
+  {
+    id:"t3", nav:"3 · Probability", section:"Statistics", icon:"3", title:"Probability",
+    intro:"Venn diagrams, tree diagrams, two-way tables and the laws. Read carefully whether events are mutually exclusive or independent.",
+    keyPoints:[
+      "<b>Mutually exclusive:</b> can't both happen → P(A∩B) = 0, so P(A∪B) = P(A) + P(B).",
+      "<b>Independent:</b> one doesn't affect the other → P(A∩B) = P(A) × P(B).",
+      "<b>Addition law (always true):</b> P(A∪B) = P(A) + P(B) − P(A∩B).",
+      "<b>Complement:</b> P(A′) = 1 − P(A).",
+      "Use <b>Venn diagrams</b>, <b>tree diagrams</b> and <b>two-way tables</b> to organise; probabilities on each pair of branches sum to 1.",
+      "<b>Test for independence:</b> check whether P(A∩B) = P(A)×P(B). If equal → independent.",
+      "<span class='flag'>A2</span> The conditional formula P(A|B) = P(A∩B)/P(B) is Year-2 — not on this mock."
+    ],
+    formulae:[
+      {nm:"Addition law", ex:"P(A∪B) = P(A) + P(B) − P(A∩B)", gold:true},
+      {nm:"Independent events", ex:"P(A∩B) = P(A) × P(B)", gold:true},
+      {nm:"Complement", ex:"P(A′) = 1 − P(A)"}
+    ],
+    mnem:{tag:"Which law?", word:"\"OR adds, AND multiplies\"", items:[
+      ["OR","'A or B' → add (subtract the overlap with the addition law)"],
+      ["AND","'A and B' (independent) → multiply"],
+      ["✗","Mutually exclusive: overlap is 0 → just add"]
+    ]},
+    examples:[
+      {lab:"Addition law", marks:"3", q:"P(A) = 0.5, P(B) = 0.4, P(A∩B) = 0.2. Find P(A∪B) and state whether A and B are independent.",
+       steps:[
+        ["P(A∪B) = 0.5 + 0.4 − 0.2 = 0.7","Apply the addition law.","M1 A1"],
+        ["P(A)×P(B) = 0.5×0.4 = 0.20 = P(A∩B) → independent.","Compare the product with the given intersection.","A1"]
+       ]},
+      {lab:"Tree diagram", marks:"3", q:"A bag has 4 red and 6 blue counters. Two are drawn without replacement. Find P(both red).",
+       steps:[
+        ["First red: 4/10.","Set up the first branch.","M1"],
+        ["Second red (one fewer red, one fewer total): 3/9.","Without replacement changes the second probability.","M1"],
+        ["P(both red) = 4/10 × 3/9 = 12/90 = 2/15.","Multiply along the branches.","A1"]
+       ]}
+    ],
+    flashcards:[
+      ["What does mutually exclusive mean for P(A∩B)?","P(A∩B) = 0 — the events cannot both occur."],
+      ["State the addition law.","P(A∪B) = P(A) + P(B) − P(A∩B)."],
+      ["How do you test whether A and B are independent?","Check if P(A∩B) = P(A) × P(B). If they're equal, the events are independent."],
+      ["P(A) = 0.3 and A, B independent with P(B) = 0.5. Find P(A∩B).","0.3 × 0.5 = 0.15."],
+      ["What is P(A′)?","1 − P(A) (the complement)."],
+      ["On any pair of branches in a tree diagram, what must the probabilities do?","Sum to 1."]
+    ],
+    quiz:[
+      {q:"If A and B are mutually exclusive, P(A∩B) =",o:["P(A)P(B)","1","0","P(A)+P(B)"],a:2,e:"Mutually exclusive events cannot overlap."},
+      {q:"P(A)=0.6, P(B)=0.3, independent. P(A∩B) =",o:["0.9","0.18","0.3","0"],a:1,e:"0.6 × 0.3 = 0.18."},
+      {q:"P(A)=0.4, P(B)=0.5, P(A∩B)=0.2. P(A∪B) =",o:["0.9","0.7","1.1","0.5"],a:1,e:"0.4 + 0.5 − 0.2 = 0.7."},
+      {q:"P(A) = 0.35. P(A′) =",o:["0.35","0.65","1.35","0"],a:1,e:"1 − 0.35 = 0.65."},
+      {q:"Two counters drawn WITHOUT replacement from 3 red, 2 blue. P(both red) =",o:["9/25","3/10","6/20","3/5"],a:1,e:"3/5 × 2/4 = 6/20 = 3/10."}
+    ]
+  },
+
+  {
+    id:"t4", nav:"4 · Binomial", section:"Statistics", icon:"4", title:"The Binomial Distribution",
+    intro:"Modelling a fixed number of independent trials. Always define X ~ B(n, p) and use the calculator's distribution menu.",
+    keyPoints:[
+      "X ~ B(n, p) models the number of 'successes' in n independent trials.",
+      "<b>Conditions (FITS):</b> Fixed number of trials, Independent trials, Two outcomes, Same probability p each time.",
+      "P(X = x) = ⁿCₓ pˣ(1−p)ⁿ⁻ˣ — given in the formula book.",
+      "Mean = np;  Variance = np(1−p) — given in the formula book.",
+      "Calculator gives <b>cumulative</b> P(X ≤ x). Convert: P(X ≥ r) = 1 − P(X ≤ r−1);  P(X > r) = 1 − P(X ≤ r);  P(a ≤ X ≤ b) = P(X ≤ b) − P(X ≤ a−1).",
+      "<span class='flag'>A2</span> The Normal approximation to the binomial is Year-2."
+    ],
+    formulae:[
+      {nm:"Probability (in formula book)", ex:"P(X = x) = ⁿCₓ · pˣ · (1−p)ⁿ⁻ˣ"},
+      {nm:"Mean and variance (in formula book)", ex:"E(X) = np      Var(X) = np(1−p)", gold:true},
+      {nm:"Greater-than conversions (memorise)", ex:"P(X ≥ r) = 1 − P(X ≤ r−1)", gold:true}
+    ],
+    mnem:{tag:"Binomial conditions", word:"\"FITS\"", items:[
+      ["F","<b>F</b>ixed number of trials, n"],
+      ["I","<b>I</b>ndependent trials"],
+      ["T","<b>T</b>wo outcomes (success / failure)"],
+      ["S","<b>S</b>ame probability p on every trial"]
+    ]},
+    examples:[
+      {lab:"P(X = x)", marks:"2", q:"X ~ B(10, 0.3). Find P(X = 4) to 3 s.f.",
+       steps:[
+        ["Calculator: Distribution → Binomial PD, x = 4, N = 10, p = 0.3.","Use the PD (point) option.","M1"],
+        ["P(X = 4) = 0.200 (3 s.f.)","Read off and round.","A1"]
+       ]},
+      {lab:"P(X ≥ r)", marks:"3", q:"X ~ B(20, 0.15). Find P(X ≥ 5).",
+       steps:[
+        ["P(X ≥ 5) = 1 − P(X ≤ 4).","Convert the ≥ into a cumulative.","M1"],
+        ["Calculator: Binomial CD, x = 4, N = 20, p = 0.15 → P(X ≤ 4) = 0.6477.","CD always gives P(X ≤ x).","M1"],
+        ["P(X ≥ 5) = 1 − 0.6477 = 0.352 (3 s.f.)","Subtract from 1.","A1"]
+       ]},
+      {lab:"Mean & variance", marks:"2", q:"X ~ B(50, 0.2). Find the mean and variance.",
+       steps:[
+        ["Mean = np = 50 × 0.2 = 10.","Apply E(X) = np.","B1"],
+        ["Variance = np(1−p) = 50 × 0.2 × 0.8 = 8.","Apply Var(X) = np(1−p).","B1"]
+       ]}
+    ],
+    flashcards:[
+      ["State the four binomial conditions (FITS).","Fixed number of trials; Independent trials; Two outcomes; Same probability each trial."],
+      ["What are the mean and variance of X ~ B(n, p)?","Mean = np; Variance = np(1−p)."],
+      ["The calculator's cumulative gives P(X ≤ x). How do you find P(X ≥ r)?","P(X ≥ r) = 1 − P(X ≤ r−1)."],
+      ["How do you find P(a ≤ X ≤ b)?","P(X ≤ b) − P(X ≤ a−1)."],
+      ["X ~ B(40, 0.25). Find the mean.","np = 40 × 0.25 = 10."],
+      ["When should a binomial model be questioned?","If trials aren't independent, p isn't constant, or there aren't exactly two outcomes."]
+    ],
+    quiz:[
+      {q:"Which is NOT a binomial condition?",o:["Fixed n","Independent trials","Continuous outcome","Constant p"],a:2,e:"Outcomes must be two categories (success/failure), not continuous."},
+      {q:"X ~ B(30, 0.4). The mean is:",o:["12","7.2","30","0.4"],a:0,e:"np = 30 × 0.4 = 12."},
+      {q:"X ~ B(30, 0.4). The variance is:",o:["12","7.2","18","4.8"],a:1,e:"np(1−p) = 30 × 0.4 × 0.6 = 7.2."},
+      {q:"To find P(X ≥ 3) on the calculator you compute:",o:["P(X ≤ 3)","1 − P(X ≤ 2)","1 − P(X ≤ 3)","P(X ≤ 2)"],a:1,e:"P(X ≥ 3) = 1 − P(X ≤ 2)."},
+      {q:"P(X = x) = ⁿCₓ pˣ(1−p)ⁿ⁻ˣ. The (1−p) term represents:",o:["Success","Failure","The mean","The trials"],a:1,e:"(1−p) is the probability of failure on a trial."}
+    ]
+  },
+
+  {
+    id:"t5", nav:"5 · Hypothesis Test", section:"Statistics", icon:"5", title:"Hypothesis Testing (Binomial)",
+    intro:"Testing a claim about a binomial proportion p. Structure marks heavily reward setting out H₀, H₁ and a conclusion in context.",
+    keyPoints:[
+      "Test a population proportion p only (binomial). Write <b>H₀: p = …</b> and <b>H₁: p ≠ / > / < …</b>",
+      "<b>One-tailed</b> test: H₁ uses &lt; or &gt;. <b>Two-tailed</b>: H₁ uses ≠, and the significance level is <b>split in half</b> between the two tails.",
+      "The <b>significance level</b> is the probability of incorrectly rejecting a true H₀.",
+      "<b>p-value method:</b> find P(X ≥ observed) or P(X ≤ observed) and compare with the significance level.",
+      "<b>Critical region method:</b> find the region where you'd reject H₀; if the observed value is inside it, reject H₀.",
+      "<b>Always</b> conclude in context: reject/do not reject H₀, then say what that means about the original claim.",
+      "<span class='flag'>A2</span> Hypothesis tests for a Normal mean or correlation are Year-2."
+    ],
+    formulae:[
+      {nm:"Under H₀", ex:"X ~ B(n, p₀)  — model the test statistic", gold:true},
+      {nm:"Two-tailed", ex:"compare each tail probability with (significance level ÷ 2)", gold:true},
+      {nm:"Decision (p-value)", ex:"if P(tail) < significance level → reject H₀"}
+    ],
+    mnem:{tag:"Test structure", word:"\"HHC: H-nought, H-one, Compare, Conclude\"", items:[
+      ["H₀","State the null hypothesis: p = p₀"],
+      ["H₁","State the alternative (one- or two-tailed)"],
+      ["C","Calculate the tail probability under H₀ (or find the critical region)"],
+      ["C","Compare with the significance level, then Conclude IN CONTEXT"]
+    ]},
+    examples:[
+      {lab:"One-tailed (p-value)", marks:"5", q:"A coin is claimed fair. In 20 flips it lands heads 15 times. Test at 5% whether it is biased towards heads.",
+       steps:[
+        ["H₀: p = 0.5,  H₁: p > 0.5 (one-tailed).","Bias 'towards heads' → one-tailed, >.","B1"],
+        ["Under H₀, X ~ B(20, 0.5). Find P(X ≥ 15) = 1 − P(X ≤ 14).","Model and convert the ≥.","M1"],
+        ["= 1 − 0.9793 = 0.0207.","Calculator CD, x=14, N=20, p=0.5.","A1"],
+        ["0.0207 < 0.05 → reject H₀.","Compare with the significance level.","M1"],
+        ["There is evidence at the 5% level that the coin is biased towards heads.","Conclusion in context.","A1"]
+       ]},
+      {lab:"Two-tailed", marks:"5", q:"A machine should make 20% defective at most. In a sample of 25, 9 are defective. Test at 5% whether the defect rate has changed.",
+       steps:[
+        ["H₀: p = 0.2,  H₁: p ≠ 0.2 (two-tailed).","'Changed' → two-tailed.","B1"],
+        ["Each tail uses 2.5%. Observed 9 is high, so test the upper tail: P(X ≥ 9) = 1 − P(X ≤ 8).","Split 5% into 2.5% per tail.","M1"],
+        ["Under H₀, X ~ B(25, 0.2): P(X ≤ 8) = 0.9532, so P(X ≥ 9) = 0.0468.","Calculator CD.","A1"],
+        ["0.0468 > 0.025 → do not reject H₀.","Compare with 2.5%, not 5%.","M1"],
+        ["Insufficient evidence at the 5% level that the defect rate has changed.","Conclusion in context.","A1"]
+       ]}
+    ],
+    flashcards:[
+      ["What does the significance level represent?","The probability of incorrectly rejecting a true null hypothesis H₀."],
+      ["For a two-tailed test at 5%, what level do you compare each tail with?","2.5% (the 5% is split into two tails)."],
+      ["Write the hypotheses for testing if a proportion has increased above 0.3.","H₀: p = 0.3, H₁: p > 0.3 (one-tailed)."],
+      ["What must every hypothesis-test conclusion include?","A decision (reject / do not reject H₀) AND an interpretation in the context of the question."],
+      ["Under H₀ for a binomial test, what is the distribution of the test statistic?","X ~ B(n, p₀), where p₀ is the value in H₀."],
+      ["Observed value high → which tail do you test?","The upper tail: P(X ≥ observed) = 1 − P(X ≤ observed − 1)."]
+    ],
+    quiz:[
+      {q:"In a two-tailed test at the 10% level, each tail is compared with:",o:["10%","5%","2.5%","1%"],a:1,e:"10% ÷ 2 = 5% per tail."},
+      {q:"The significance level is the probability of:",o:["H₀ being true","Rejecting a true H₀","Accepting a false H₀","A type II error"],a:1,e:"It's P(incorrectly rejecting a true H₀)."},
+      {q:"Testing whether p has DECREASED below 0.4, H₁ is:",o:["p ≠ 0.4","p > 0.4","p < 0.4","p = 0.4"],a:2,e:"'Decreased' → one-tailed, p < 0.4."},
+      {q:"If the p-value (0.03) is less than the significance level (0.05), you:",o:["Do not reject H₀","Reject H₀","Accept H₁ is false","Cannot decide"],a:1,e:"p-value < significance level → reject H₀."},
+      {q:"A conclusion that just says 'reject H₀' without context would lose which mark?",o:["The method mark","The final accuracy/context mark","B1 for hypotheses","Nothing"],a:1,e:"The final A1 needs an interpretation in context."}
+    ]
+  },
+
+  /* ---------------- MECHANICS ---------------- */
+  {
+    id:"t6", nav:"6 · Units", section:"Mechanics", icon:"6", title:"Quantities & Units · Modelling",
+    intro:"The language of mechanics: SI units, conversions and the assumptions that let us model the real world simply.",
+    keyPoints:[
+      "<b>Base SI units:</b> metre (m), kilogram (kg), second (s). Time always in seconds for suvat.",
+      "<b>Derived units:</b> velocity m s⁻¹, acceleration m s⁻², force newton (N) = kg m s⁻².",
+      "<b>Convert km/h → m/s by dividing by 3.6</b> (and m/s → km/h by multiplying by 3.6).",
+      "<b>Scalars</b> have size only (distance, speed, mass, time); <b>vectors</b> have size and direction (displacement, velocity, acceleration, force).",
+      "<b>Modelling assumptions</b> simplify problems: 'particle' (ignore size), 'light' (ignore mass), 'smooth' (ignore friction), 'inextensible' (string doesn't stretch), 'rigid' (doesn't bend).",
+      "Take g = 9.8 m s⁻² unless told otherwise."
+    ],
+    formulae:[
+      {nm:"Speed conversion", ex:"m/s = (km/h) ÷ 3.6", gold:true},
+      {nm:"Newton", ex:"1 N = 1 kg·m·s⁻²"},
+      {nm:"Weight", ex:"W = mg   (g = 9.8 m s⁻²)", gold:true}
+    ],
+    mnem:{tag:"Common assumptions", word:"\"Particles Love Smooth Inextensible Rides\"", items:[
+      ["P","<b>P</b>article — object has no size, mass acts at a point"],
+      ["L","<b>L</b>ight — string/rod/pulley has no mass"],
+      ["S","<b>S</b>mooth — no friction (so no friction force)"],
+      ["I","<b>I</b>nextensible — string doesn't stretch (same accel both ends)"],
+      ["R","<b>R</b>igid — rod/bar doesn't bend"]
+    ]},
+    examples:[
+      {lab:"Conversion", marks:"1", q:"A car travels at 72 km/h. Express this in m/s.",
+       steps:[
+        ["72 ÷ 3.6 = 20 m/s.","Divide km/h by 3.6.","B1"]
+       ]},
+      {lab:"Why model as light & inextensible?", marks:"2", q:"Two particles are connected by a string over a pulley. State what 'light' and 'inextensible' let you assume.",
+       steps:[
+        ["'Light' → the string has no mass, so the tension is the same throughout.","Mass-less string ⇒ uniform tension.","B1"],
+        ["'Inextensible' → the string doesn't stretch, so both particles have the same acceleration.","No stretch ⇒ equal accelerations.","B1"]
+       ]}
+    ],
+    flashcards:[
+      ["Convert 90 km/h to m/s.","90 ÷ 3.6 = 25 m/s."],
+      ["What value of g should you use unless told otherwise?","9.8 m s⁻²."],
+      ["Is velocity a scalar or a vector?","A vector — it has both magnitude and direction."],
+      ["What does modelling a string as 'inextensible' allow?","Both ends (and connected particles) share the same acceleration."],
+      ["What does 'smooth' mean in a mechanics model?","There is no friction, so no frictional force acts."],
+      ["1 newton equals what in base units?","1 kg·m·s⁻²."]
+    ],
+    quiz:[
+      {q:"54 km/h in m/s is:",o:["15","18.9","150","194"],a:0,e:"54 ÷ 3.6 = 15 m/s."},
+      {q:"Which is a vector quantity?",o:["Speed","Mass","Displacement","Time"],a:2,e:"Displacement has direction; the others are scalars."},
+      {q:"Modelling an object as a 'particle' means we ignore its:",o:["Mass","Size","Velocity","Weight"],a:1,e:"A particle has mass but no size."},
+      {q:"The SI unit of force, the newton, equals:",o:["kg·m·s⁻¹","kg·m·s⁻²","kg·m²·s⁻²","kg·s⁻²"],a:1,e:"1 N = 1 kg·m·s⁻²."},
+      {q:"On a light string over a smooth pulley, the tension is:",o:["Greater on the heavy side","The same throughout","Zero","Equal to the weight"],a:1,e:"A light string has uniform tension."}
+    ]
+  },
+
+  {
+    id:"t7", nav:"7 · Kinematics", section:"Mechanics", icon:"7", title:"Kinematics (Motion)",
+    intro:"Describing motion with graphs, the five suvat equations (constant acceleration) and calculus (variable acceleration).",
+    keyPoints:[
+      "<b>Displacement–time graph:</b> gradient = velocity.",
+      "<b>Velocity–time graph:</b> gradient = acceleration; <b>area under</b> the graph = displacement.",
+      "The five <b>suvat</b> equations apply only when acceleration is <b>constant</b>.",
+      "List s, u, v, a, t; write what you know and want; choose the equation that omits the unwanted variable.",
+      "<b>Vertical motion under gravity:</b> use a = ±9.8; at greatest height v = 0; choose a positive direction and stick to it.",
+      "<b>Variable acceleration (1-D):</b> v = ds/dt, a = dv/dt; integrate a → v → s (remember + C, found from initial conditions).",
+      "<span class='flag'>A2</span> Projectiles and 2-D (i, j) vector motion are Year-2."
+    ],
+    formulae:[
+      {nm:"The five suvat (MEMORISE — not in formula book)", ex:"v = u + at\ns = ut + ½at²\ns = vt − ½at²\nv² = u² + 2as\ns = ½(u + v)t", gold:true},
+      {nm:"Variable acceleration (calculus)", ex:"v = ds/dt    a = dv/dt    s = ∫v dt    v = ∫a dt"}
+    ],
+    mnem:{tag:"Choosing a suvat equation", word:"\"List, Lose, Lock-in\"", items:[
+      ["L","<b>L</b>ist the five: s u v a t"],
+      ["L","<b>L</b>ose the variable you don't know and don't want"],
+      ["L","<b>L</b>ock in the one equation that doesn't contain it"]
+    ]},
+    examples:[
+      {lab:"Simple suvat", marks:"3", q:"A car accelerates from 8 m/s at 2 m/s² over a distance of 100 m. Find its final velocity.",
+       steps:[
+        ["Known: u = 8, a = 2, s = 100, v = ? (t not involved) → use v² = u² + 2as.","Pick the equation that omits t.","M1"],
+        ["v² = 8² + 2×2×100 = 64 + 400 = 464.","Substitute and evaluate.","M1"],
+        ["v = √464 = 21.5 m/s (3 s.f.).","Square-root and round.","A1"]
+       ]},
+      {lab:"Vertical motion", marks:"4", q:"A ball is thrown up at 21 m/s from a point 1.5 m above ground (g = 9.8). Find the greatest height above the throw point.",
+       steps:[
+        ["Take up as positive: u = 21, a = −9.8, v = 0 at the top.","Choose a direction; at the top v = 0.","B1"],
+        ["v² = u² + 2as → 0 = 21² − 2×9.8×s.","Use v² = u² + 2as.","M1"],
+        ["s = 441 ÷ 19.6 = 22.5 m above the throw point.","Solve for s.","A1 A1"]
+       ]},
+      {lab:"Calculus", marks:"4", q:"A particle moves with v = 3t² − 12t + 9 (t ≥ 0). Find the acceleration at t = 1 and the times when it is instantaneously at rest.",
+       steps:[
+        ["a = dv/dt = 6t − 12; at t = 1, a = 6 − 12 = −6 m/s².","Differentiate v to get a.","M1 A1"],
+        ["At rest: v = 0 → 3t² − 12t + 9 = 0 → t² − 4t + 3 = 0 → (t−1)(t−3) = 0.","Set v = 0 and solve.","M1"],
+        ["t = 1 s and t = 3 s.","Both roots are valid (t ≥ 0).","A1"]
+       ]}
+    ],
+    flashcards:[
+      ["On a velocity–time graph, what does the area under the line represent?","Displacement (distance travelled)."],
+      ["On a velocity–time graph, what does the gradient represent?","Acceleration."],
+      ["State v² = u² + 2as in words.","Final velocity squared equals initial velocity squared plus 2 × acceleration × displacement."],
+      ["When can you use the suvat equations?","Only when acceleration is constant."],
+      ["For variable acceleration, how do you get acceleration from velocity?","Differentiate: a = dv/dt."],
+      ["How do you find displacement from velocity in variable acceleration?","Integrate: s = ∫v dt (and find + C from initial conditions)."],
+      ["At the greatest height of vertical motion, what is the velocity?","Zero."]
+    ],
+    quiz:[
+      {q:"u = 0, a = 4, t = 5. Using v = u + at, v =",o:["9","20","4","0.8"],a:1,e:"v = 0 + 4×5 = 20 m/s."},
+      {q:"On a v–t graph the area under the line gives:",o:["Acceleration","Velocity","Displacement","Speed"],a:2,e:"Area under a velocity–time graph = displacement."},
+      {q:"Which suvat equation has NO 'v'?",o:["v = u + at","s = ut + ½at²","v² = u² + 2as","s = ½(u+v)t"],a:1,e:"s = ut + ½at² contains s,u,a,t but not v."},
+      {q:"v = 2t² − 4t. The acceleration is:",o:["4t − 4","2t − 4","4t","t² − 2t"],a:0,e:"a = dv/dt = 4t − 4."},
+      {q:"A stone is dropped (u=0, g=9.8). Its speed after 2 s is:",o:["4.9","9.8","19.6","39.2"],a:2,e:"v = u + at = 0 + 9.8×2 = 19.6 m/s."}
+    ]
+  },
+
+  {
+    id:"t8", nav:"8 · Forces", section:"Mechanics", icon:"8", title:"Forces & Newton's Laws",
+    intro:"Why things accelerate. Draw the diagram, pick a positive direction, and apply F = ma along it.",
+    keyPoints:[
+      "<b>Newton's 1st law:</b> an object stays at rest or moves at constant velocity unless a resultant force acts.",
+      "<b>Newton's 2nd law:</b> F = ma (resultant force = mass × acceleration), in a single direction.",
+      "<b>Newton's 3rd law:</b> every action has an equal and opposite reaction.",
+      "<b>Weight:</b> W = mg, acting vertically downwards.",
+      "<b>Connected particles:</b> a light inextensible string over a smooth pulley has the same tension throughout and the same acceleration each side.",
+      "<b>Method:</b> draw forces → choose positive direction → resultant = ma for each object → solve simultaneously.",
+      "<span class='flag'>A2</span> Friction (F ≤ μR), inclined planes and resolving at an angle are Year-2 — at AS, forces are parallel or perpendicular only."
+    ],
+    formulae:[
+      {nm:"Newton's 2nd law (MEMORISE)", ex:"F = ma   (F is the resultant force)", gold:true},
+      {nm:"Weight (MEMORISE)", ex:"W = mg", gold:true},
+      {nm:"Lift / accelerating frame", ex:"R − mg = ma  (taking up as positive)"}
+    ],
+    mnem:{tag:"Solving a force problem", word:"\"Draw, Direct, Do F=ma\"", items:[
+      ["D","<b>D</b>raw a clear force diagram for each object"],
+      ["D","<b>D</b>irect — choose and label a positive direction"],
+      ["F","Apply <b>F = ma</b> along that direction, then solve"]
+    ]},
+    examples:[
+      {lab:"Horizontal F = ma", marks:"3", q:"A 5 kg box is pulled along a smooth floor by a horizontal force of 20 N. Find its acceleration.",
+       steps:[
+        ["Floor is smooth → no friction; resultant horizontal force = 20 N.","Identify the resultant force.","M1"],
+        ["F = ma → 20 = 5a.","Apply Newton's 2nd law.","M1"],
+        ["a = 4 m/s².","Solve.","A1"]
+       ]},
+      {lab:"Lift problem", marks:"4", q:"A 60 kg person stands in a lift accelerating upwards at 2 m/s² (g = 9.8). Find the normal reaction R from the floor.",
+       steps:[
+        ["Forces: R up, weight mg = 60×9.8 = 588 N down. Take up as positive.","Set up the diagram and direction.","M1"],
+        ["R − mg = ma → R − 588 = 60×2.","Apply F = ma upwards.","M1"],
+        ["R = 588 + 120 = 708 N.","Solve for R.","A1 A1"]
+       ]},
+      {lab:"Connected particles (pulley)", marks:"5", q:"Masses 3 kg and 5 kg hang over a smooth pulley on a light inextensible string (g = 9.8). Find the acceleration and the tension.",
+       steps:[
+        ["Heavier mass (5 kg) accelerates down, 3 kg up, with shared acceleration a and tension T.","Light inextensible ⇒ same a and T.","B1"],
+        ["5 kg: 5g − T = 5a.   3 kg: T − 3g = 3a.","Write F = ma for each.","M1 M1"],
+        ["Add: 5g − 3g = 8a → 2×9.8 = 8a → a = 2.45 m/s².","Eliminate T by adding.","A1"],
+        ["T = 3g + 3a = 3×9.8 + 3×2.45 = 36.75 N.","Back-substitute for T.","A1"]
+       ]}
+    ],
+    flashcards:[
+      ["State Newton's second law.","Resultant force = mass × acceleration (F = ma)."],
+      ["How do you calculate weight from mass?","W = mg, with g = 9.8 m s⁻²."],
+      ["For a light inextensible string over a smooth pulley, what is true about tension and acceleration?","Tension is the same throughout; both particles have the same magnitude of acceleration."],
+      ["First step in any force problem?","Draw a force diagram and choose a positive direction."],
+      ["A lift accelerates up at a. Write the equation for the reaction R on a person of mass m.","R − mg = ma, so R = m(g + a)."],
+      ["What does Newton's third law state?","Every action has an equal and opposite reaction."],
+      ["At AS, forces are only resolved in which directions?","Parallel and perpendicular (no angled resolving — that's A2)."]
+    ],
+    quiz:[
+      {q:"A resultant force of 12 N acts on a 4 kg mass. Its acceleration is:",o:["3 m/s²","48 m/s²","0.33 m/s²","8 m/s²"],a:0,e:"a = F/m = 12/4 = 3 m/s²."},
+      {q:"The weight of a 10 kg object (g = 9.8) is:",o:["10 N","98 N","9.8 N","980 N"],a:1,e:"W = mg = 10 × 9.8 = 98 N."},
+      {q:"A lift accelerates UP at 1 m/s². The reaction on a 50 kg person (g=9.8) is:",o:["490 N","540 N","440 N","500 N"],a:1,e:"R = m(g+a) = 50(9.8+1) = 540 N."},
+      {q:"Newton's third law is about:",o:["F = ma","Equal and opposite forces","Constant velocity","Weight"],a:1,e:"Action–reaction pairs are equal and opposite."},
+      {q:"On a smooth floor, a 2 kg block under a 10 N horizontal pull has acceleration:",o:["5 m/s²","20 m/s²","0.2 m/s²","8 m/s²"],a:0,e:"a = 10/2 = 5 m/s² (no friction)."}
+    ]
+  }
+];
+
+/* ============================================================
+   STATE + PERSISTENCE (safe — degrades to in-memory)
+   ============================================================ */
+const store = {
+  read(){ try{ return JSON.parse(localStorage.getItem("asmaths")||"{}"); }catch(e){ return mem; } },
+  write(o){ try{ localStorage.setItem("asmaths",JSON.stringify(o)); }catch(e){ mem=o; } }
+};
+let mem = {};
+let progress = store.read(); // { topicId: {known:[], quizDone:bool} }
+function saveProgress(){ store.write(progress); }
+function topicDone(id){ const p=progress[id]; return p && p.complete; }
+
+/* ============================================================
+   SVG DIAGRAMS
+   ============================================================ */
+const G="#ffce5c",T="#4ecdc4",L="rgba(255,255,255,.18)",TX="#9aa7bd",IN="#e8edf6";
+function svgVT(){return `<svg viewBox="0 0 460 240">
+  <line x1="50" y1="200" x2="430" y2="200" stroke="${L}"/><line x1="50" y1="200" x2="50" y2="20" stroke="${L}"/>
+  <polyline points="50,200 150,80 300,80 410,160" fill="none" stroke="${T}" stroke-width="3"/>
+  <polygon points="50,200 150,80 300,80 410,160 410,200 50,200" fill="rgba(78,205,196,.12)"/>
+  <text x="240" y="230" fill="${TX}" font-size="13" text-anchor="middle">time (s)</text>
+  <text x="20" y="110" fill="${TX}" font-size="13" transform="rotate(-90 20 110)">velocity (m/s)</text>
+  <text x="100" y="150" fill="${G}" font-size="12">accel = gradient</text>
+  <text x="225" y="150" fill="${IN}" font-size="12">area = displacement</text>
+</svg>`;}
+function svgPulley(){return `<svg viewBox="0 0 320 240">
+  <circle cx="160" cy="50" r="22" fill="none" stroke="${TX}" stroke-width="3"/><circle cx="160" cy="50" r="4" fill="${TX}"/>
+  <line x1="138" y1="50" x2="138" y2="150" stroke="${T}" stroke-width="2"/>
+  <line x1="182" y1="50" x2="182" y2="120" stroke="${T}" stroke-width="2"/>
+  <rect x="118" y="150" width="40" height="34" rx="5" fill="rgba(255,206,92,.18)" stroke="${G}"/>
+  <text x="138" y="172" fill="${IN}" font-size="13" text-anchor="middle">3kg</text>
+  <rect x="160" y="120" width="44" height="40" rx="5" fill="rgba(255,107,107,.18)" stroke="#ff6b6b"/>
+  <text x="182" y="145" fill="${IN}" font-size="13" text-anchor="middle">5kg</text>
+  <text x="100" y="125" fill="${T}" font-size="12">T</text><text x="210" y="100" fill="${T}" font-size="12">T</text>
+  <text x="138" y="205" fill="${TX}" font-size="11" text-anchor="middle">↑ a</text>
+  <text x="182" y="180" fill="${TX}" font-size="11" text-anchor="middle">↓ a</text>
+</svg>`;}
+function svgVenn(){return `<svg viewBox="0 0 360 220">
+  <rect x="20" y="20" width="320" height="180" fill="none" stroke="${L}"/>
+  <text x="30" y="40" fill="${TX}" font-size="12">S</text>
+  <circle cx="150" cy="115" r="75" fill="rgba(255,206,92,.14)" stroke="${G}" stroke-width="2"/>
+  <circle cx="225" cy="115" r="75" fill="rgba(78,205,196,.14)" stroke="${T}" stroke-width="2"/>
+  <text x="110" y="120" fill="${G}" font-size="14" text-anchor="middle">A</text>
+  <text x="265" y="120" fill="${T}" font-size="14" text-anchor="middle">B</text>
+  <text x="188" y="120" fill="${IN}" font-size="12" text-anchor="middle">A∩B</text>
+</svg>`;}
+function svgTree(){return `<svg viewBox="0 0 380 220">
+  <line x1="40" y1="110" x2="160" y2="55" stroke="${G}" stroke-width="2"/>
+  <line x1="40" y1="110" x2="160" y2="165" stroke="${T}" stroke-width="2"/>
+  <text x="90" y="70" fill="${G}" font-size="12">p</text><text x="90" y="155" fill="${T}" font-size="12">1−p</text>
+  <line x1="180" y1="55" x2="300" y2="30" stroke="${G}" stroke-width="2"/>
+  <line x1="180" y1="55" x2="300" y2="80" stroke="${G}" stroke-width="2"/>
+  <line x1="180" y1="165" x2="300" y2="140" stroke="${T}" stroke-width="2"/>
+  <line x1="180" y1="165" x2="300" y2="190" stroke="${T}" stroke-width="2"/>
+  <text x="318" y="34" fill="${IN}" font-size="12">A∩A</text><text x="318" y="84" fill="${IN}" font-size="12">A∩A′</text>
+  <text x="318" y="144" fill="${IN}" font-size="12">A′∩A</text><text x="318" y="194" fill="${IN}" font-size="12">A′∩A′</text>
+</svg>`;}
+function svgHist(){return `<svg viewBox="0 0 400 220">
+  <line x1="40" y1="180" x2="380" y2="180" stroke="${L}"/><line x1="40" y1="180" x2="40" y2="20" stroke="${L}"/>
+  <rect x="40" y="120" width="60" height="60" fill="rgba(255,206,92,.25)" stroke="${G}"/>
+  <rect x="100" y="60" width="40" height="120" fill="rgba(255,206,92,.35)" stroke="${G}"/>
+  <rect x="140" y="100" width="80" height="80" fill="rgba(78,205,196,.25)" stroke="${T}"/>
+  <rect x="220" y="140" width="120" height="40" fill="rgba(78,205,196,.2)" stroke="${T}"/>
+  <text x="200" y="208" fill="${TX}" font-size="12" text-anchor="middle">variable (unequal widths)</text>
+  <text x="14" y="100" fill="${TX}" font-size="11" transform="rotate(-90 14 100)">freq density</text>
+</svg>`;}
+function svgBinom(){
+  let bars="";const data=[0.06,0.16,0.25,0.25,0.16,0.08,0.03,0.01];
+  data.forEach((v,i)=>{const h=v*520;bars+=`<rect x="${40+i*42}" y="${180-h}" width="32" height="${h}" fill="rgba(255,206,92,.3)" stroke="${G}"/><text x="${56+i*42}" y="196" fill="${TX}" font-size="11" text-anchor="middle">${i}</text>`;});
+  return `<svg viewBox="0 0 400 210"><line x1="35" y1="180" x2="390" y2="180" stroke="${L}"/>${bars}<text x="210" y="14" fill="${TX}" font-size="12" text-anchor="middle">B(7, 0.4): P(X = x)</text></svg>`;
+}
+const DIAs = {
+  t3:[["Venn diagram — A ∩ B is the overlap",svgVenn],["Tree diagram — multiply along branches",svgTree]],
+  t4:[["Binomial bar chart — probability of each outcome",svgBinom]],
+  t2:[["Histogram — area (not height) shows frequency",svgHist]],
+  t7:[["Velocity–time graph — gradient & area",svgVT]],
+  t8:[["Connected particles over a smooth pulley",svgPulley]]
+};
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const nav=document.getElementById("nav"), main=document.getElementById("main");
+let active="home";
+
+function buildNav(){
+  nav.innerHTML="";
+  TOPICS.forEach(t=>{
+    const b=document.createElement("button");
+    b.className="tab"+(t.id===active?" active":"")+(topicDone(t.id)?" done":"");
+    b.innerHTML=`<span class="dot"></span>${t.nav}`;
+    b.onclick=()=>{active=t.id;render();window.scrollTo({top:0,behavior:"smooth"});};
+    nav.appendChild(b);
+  });
+}
+
+function render(){
+  buildNav();
+  main.innerHTML="";
+  const t=TOPICS.find(x=>x.id===active);
+  if(t.isHome){ main.appendChild(renderHome()); return; }
+  const panel=document.createElement("section");
+  panel.className="panel show";
+
+  // header
+  const ph=document.createElement("div"); ph.className="phead";
+  ph.innerHTML=`<div class="ico">${t.icon}</div><h2>${t.title}</h2><span class="sec-badge">${t.section}</span>`;
+  panel.appendChild(ph);
+  const intro=document.createElement("p"); intro.className="intro"; intro.textContent=t.intro; panel.appendChild(intro);
+
+  // subtabs
+  const tabs=[["key","Key Points"],["form","Formulae & Mnemonics"]];
+  if(DIAS_has(t.id)) tabs.push(["dia","Diagrams"]);
+  tabs.push(["ex","Worked Examples"],["fc","Flashcards"],["qz","Quiz"]);
+  const stb=document.createElement("div"); stb.className="subtabs";
+  const panes={};
+  tabs.forEach(([k,label],i)=>{
+    const sb=document.createElement("button"); sb.className="stab"+(i===0?" active":""); sb.textContent=label;
+    sb.onclick=()=>{stb.querySelectorAll(".stab").forEach(x=>x.classList.remove("active"));sb.classList.add("active");
+      Object.values(panes).forEach(p=>p.classList.remove("show"));panes[k].classList.add("show");};
+    stb.appendChild(sb);
+  });
+  panel.appendChild(stb);
+
+  panes.key=secKey(t); panes.form=secForm(t);
+  if(DIAS_has(t.id)) panes.dia=secDia(t);
+  panes.ex=secEx(t); panes.fc=secFc(t); panes.qz=secQz(t);
+  tabs.forEach(([k],i)=>{panes[k].classList.add("subpanel");if(i===0)panes[k].classList.add("show");panel.appendChild(panes[k]);});
+
+  main.appendChild(panel);
+}
+function DIAS_has(id){return !!DIAs[id];}
+
+function renderHome(){
+  const p=document.createElement("section"); p.className="panel show";
+  const stats=document.createElement("div"); stats.className="card";
+  stats.innerHTML=`<h3>Welcome back, Crimson 👋</h3>
+    <p style="color:var(--ink-dim);font-size:14px">This trainer covers the full <b>AS Applied</b> mock scope — Statistics &amp; Mechanics for Edexcel Paper 3.
+    Tap a topic to drill it: read the key points, learn the formulae, reveal worked solutions step-by-step, flip flashcards, and test yourself.
+    Your flashcard and quiz progress is saved on this device.</p>`;
+  p.appendChild(stats);
+
+  ["Statistics","Mechanics"].forEach(sec=>{
+    const d=document.createElement("div"); d.className="section-divider"; d.textContent=sec+" — Section "+(sec==="Statistics"?"A":"B");
+    p.appendChild(d);
+    const grid=document.createElement("div"); grid.className="grid";
+    TOPICS.filter(t=>t.section===sec).forEach(t=>{
+      const tile=document.createElement("div"); tile.className="tile";
+      const pr=progress[t.id]||{}; const known=(pr.known||[]).length; const total=(t.flashcards||[]).length;
+      const pct=total?Math.round(known/total*100):0;
+      tile.innerHTML=`<div class="t-ix">${t.nav.split(" · ")[0]}</div><h4>${t.title}</h4>
+        <p>${(t.flashcards||[]).length} cards · ${(t.quiz||[]).length} questions${pr.quizScore!=null?` · best ${pr.quizScore}/${t.quiz.length}`:""}</p>
+        <div class="bar"><i style="width:${pct}%"></i></div>`;
+      tile.onclick=()=>{active=t.id;render();window.scrollTo({top:0,behavior:"smooth"});};
+      grid.appendChild(tile);
+    });
+    p.appendChild(grid);
+  });
+
+  // tools row
+  const dt=document.createElement("div"); dt.className="section-divider"; dt.textContent="Calculators & Tools"; p.appendChild(dt);
+  const tg=document.createElement("div"); tg.className="tool-grid";
+  tg.appendChild(toolBinomial()); tg.appendChild(toolSuvat());
+  p.appendChild(tg);
+
+  // memorise callout
+  const c=document.createElement("div"); c.className="callout red";
+  c.innerHTML=`<h4>⚠ Must-memorise (NOT in the formula book)</h4><ul>
+    <li>All five suvat equations</li><li>W = mg and F = ma</li>
+    <li>Standard deviation needs the square root: σ = √(Sₓₓ/n)</li>
+    <li>Coding rules (+ shifts mean only; × scales both)</li>
+    <li>The four binomial conditions (FITS)</li><li>The hypothesis-test conclusion structure</li></ul>`;
+  p.appendChild(c);
+  const c2=document.createElement("div"); c2.className="callout gold";
+  c2.innerHTML=`<h4>✓ Given in the formula book</h4><ul>
+    <li>Binomial P(X = x), mean np, variance np(1−p)</li>
+    <li>Sₓₓ = Σx² − (Σx)²/n and the variance/sd forms</li>
+    <li>Regression &amp; correlation formulae (you only interpret at AS)</li></ul>`;
+  p.appendChild(c2);
+  return p;
+}
+
+/* ---- sub-section builders ---- */
+function secKey(t){
+  const w=document.createElement("div");
+  const card=document.createElement("div"); card.className="card"; card.innerHTML=`<h3>Key points</h3>`;
+  const ul=document.createElement("ul"); ul.className="kp";
+  t.keyPoints.forEach(k=>{const li=document.createElement("li");li.innerHTML=k;ul.appendChild(li);});
+  card.appendChild(ul); w.appendChild(card); return w;
+}
+function secForm(t){
+  const w=document.createElement("div");
+  const card=document.createElement("div"); card.className="card"; card.innerHTML=`<h3>Key formulae</h3>`;
+  (t.formulae||[]).forEach(f=>{const d=document.createElement("div");d.className="formula"+(f.gold?" gold":"");
+    d.innerHTML=`<span class="nm">${f.nm}</span>${f.ex.replace(/\n/g,"<br>")}`;card.appendChild(d);});
+  w.appendChild(card);
+  if(t.mnem){const m=document.createElement("div");m.className="mnem";
+    let li=t.mnem.items.map(it=>`<li><b>${it[0]}</b> — ${it[1]}</li>`).join("");
+    m.innerHTML=`<div class="tag">Mnemonic · ${t.mnem.tag}</div><div class="word">${t.mnem.word}</div><ul>${li}</ul>`;
+    w.appendChild(m);}
+  return w;
+}
+function secDia(t){
+  const w=document.createElement("div");
+  DIAs[t.id].forEach(([cap,fn])=>{const c=document.createElement("div");c.className="diagram";
+    c.innerHTML=fn()+`<div class="note" style="text-align:center;margin-top:8px">${cap}</div>`;w.appendChild(c);});
+  return w;
+}
+function secEx(t){
+  const w=document.createElement("div");
+  (t.examples||[]).forEach((ex,ei)=>{
+    const card=document.createElement("div"); card.className="ex";
+    const steps=ex.steps.map((s,i)=>`<div class="step" data-i="${i}">
+        <div class="do">${s[0]}${s[2]?`<span class="mk">${s[2]}</span>`:""}</div>
+        <div class="why">${s[1]}</div></div>`).join("");
+    card.innerHTML=`<div class="q"><div class="lab"><span>${ex.lab}</span><span class="marks">[${ex.marks} marks]</span></div><p>${ex.q}</p></div>
+      <div class="steps">${steps}</div>
+      <div class="ctrl">
+        <button class="btn teal next">Reveal step</button>
+        <button class="btn ghost all">Show full solution</button>
+        <button class="btn ghost reset">Reset</button>
+      </div>`;
+    const stepEls=card.querySelectorAll(".step"); let shown=0;
+    const next=card.querySelector(".next");
+    next.onclick=()=>{if(shown<stepEls.length){stepEls[shown].classList.add("show");shown++;}
+      if(shown>=stepEls.length){next.disabled=true;next.textContent="Solution complete ✓";}};
+    card.querySelector(".all").onclick=()=>{stepEls.forEach(s=>s.classList.add("show"));shown=stepEls.length;next.disabled=true;next.textContent="Solution complete ✓";};
+    card.querySelector(".reset").onclick=()=>{stepEls.forEach(s=>s.classList.remove("show"));shown=0;next.disabled=false;next.textContent="Reveal step";};
+    w.appendChild(card);
+  });
+  return w;
+}
+function secFc(t){
+  const w=document.createElement("div");
+  const cards=t.flashcards||[]; let idx=0;
+  const pr=progress[t.id]||(progress[t.id]={}); pr.known=pr.known||[];
+  const bar=document.createElement("div"); bar.className="fc-bar";
+  const prog=document.createElement("div"); prog.className="fc-prog";
+  bar.appendChild(prog);
+  const resetK=document.createElement("button"); resetK.className="btn ghost"; resetK.textContent="Reset progress";
+  bar.appendChild(resetK); w.appendChild(bar);
+
+  const fc=document.createElement("div"); fc.className="flashcard";
+  fc.innerHTML=`<div class="fc-inner">
+     <div class="fc-face fc-front"><div class="tiny">Question</div><div class="txt"></div><div class="fc-hint">tap to flip</div></div>
+     <div class="fc-face fc-back"><div class="tiny">Answer</div><div class="txt"></div><div class="fc-hint">tap to flip</div></div></div>`;
+  w.appendChild(fc);
+  const acts=document.createElement("div"); acts.className="fc-actions";
+  acts.innerHTML=`<button class="btn ghost prev">‹ Prev</button>
+     <button class="btn teal know">I knew it ✓</button>
+     <button class="btn ghost rev">Review again</button>
+     <button class="btn ghost nxt">Next ›</button>`;
+  w.appendChild(acts);
+
+  function paint(){
+    const c=cards[idx]; fc.classList.remove("flip");
+    fc.querySelector(".fc-front .txt").innerHTML=c[0];
+    fc.querySelector(".fc-back .txt").innerHTML=c[1];
+    prog.innerHTML=`Card <b>${idx+1}</b> / ${cards.length} · known <b>${pr.known.length}</b>/${cards.length}`;
+    updateDone();
+  }
+  function updateDone(){ pr.complete=(pr.known.length===cards.length)&&(pr.quizScore!=null); saveProgress(); buildNav(); }
+  fc.onclick=()=>fc.classList.toggle("flip");
+  acts.querySelector(".prev").onclick=()=>{idx=(idx-1+cards.length)%cards.length;paint();};
+  acts.querySelector(".nxt").onclick=()=>{idx=(idx+1)%cards.length;paint();};
+  acts.querySelector(".know").onclick=()=>{if(!pr.known.includes(idx))pr.known.push(idx);saveProgress();
+    if(idx<cards.length-1){idx++;}paint();};
+  acts.querySelector(".rev").onclick=()=>{pr.known=pr.known.filter(i=>i!==idx);saveProgress();if(idx<cards.length-1){idx++;}paint();};
+  resetK.onclick=()=>{pr.known=[];saveProgress();idx=0;paint();};
+  paint();
+  return w;
+}
+function secQz(t){
+  const w=document.createElement("div");
+  const quiz=t.quiz||[]; let answered=0,correct=0;
+  const pr=progress[t.id]||(progress[t.id]={});
+  quiz.forEach((qz,qi)=>{
+    const card=document.createElement("div"); card.className="qz";
+    const opts=qz.o.map((o,oi)=>`<button class="opt" data-oi="${oi}">${String.fromCharCode(65+oi)}. ${o}</button>`).join("");
+    card.innerHTML=`<div class="stem"><span class="n">Q${qi+1}</span>${qz.q}</div>${opts}
+       <div class="explain">${qz.e}</div>`;
+    const optEls=card.querySelectorAll(".opt"); let locked=false;
+    optEls.forEach(op=>op.onclick=()=>{
+      if(locked)return; locked=true; const oi=+op.dataset.oi;
+      optEls.forEach((e,i)=>{e.classList.add(i===qz.a?"correct":(i===oi?"wrong":"dim"));});
+      card.querySelector(".explain").classList.add("show");
+      answered++; if(oi===qz.a)correct++;
+      if(answered===quiz.length){
+        const sc=document.createElement("div"); sc.className="quiz-score";
+        sc.innerHTML=`You scored ${correct} / ${quiz.length} ${correct===quiz.length?"— perfect! ★":correct>=quiz.length*0.6?"— solid work":"— worth another pass"}`;
+        w.appendChild(sc);
+        if(pr.quizScore==null||correct>pr.quizScore){pr.quizScore=correct;}
+        pr.complete=((pr.known||[]).length===(t.flashcards||[]).length)&&(pr.quizScore!=null);
+        saveProgress(); buildNav();
+      }
+    });
+    w.appendChild(card);
+  });
+  return w;
+}
+
+/* ---- TOOLS ---- */
+function toolBinomial(){
+  const c=document.createElement("div"); c.className="card";
+  c.innerHTML=`<h3>🎲 Binomial calculator</h3>
+    <p class="note" style="margin-bottom:12px">X ~ B(n, p). Computes P(X=x), the cumulatives, mean and variance.</p>
+    <div class="row3">
+      <div class="field"><label>n (trials)</label><input id="bn" type="number" value="20" min="1"></div>
+      <div class="field"><label>p (success)</label><input id="bp" type="number" value="0.3" step="0.01" min="0" max="1"></div>
+      <div class="field"><label>x</label><input id="bx" type="number" value="5" min="0"></div>
+    </div>
+    <button class="btn primary" id="bgo">Calculate</button>
+    <div class="result" id="bres">Enter values and press Calculate.</div>`;
+  c.querySelector("#bgo").onclick=()=>{
+    const n=+c.querySelector("#bn").value,p=+c.querySelector("#bp").value,x=+c.querySelector("#bx").value;
+    const res=c.querySelector("#bres");
+    if(n<1||p<0||p>1||x<0||x>n){res.textContent="Check: need n≥1, 0≤p≤1, 0≤x≤n.";return;}
+    const C=(n,r)=>{r=Math.min(r,n-r);let v=1;for(let i=0;i<r;i++)v=v*(n-i)/(i+1);return v;};
+    const pmf=k=>C(n,k)*Math.pow(p,k)*Math.pow(1-p,n-k);
+    let cdf=0;for(let k=0;k<=x;k++)cdf+=pmf(k);
+    const f=(v)=>v.toPrecision(4);
+    res.innerHTML=`<span class="hl">P(X = ${x})</span> = ${f(pmf(x))}
+P(X ≤ ${x}) = ${f(cdf)}
+P(X < ${x}) = ${f(cdf-pmf(x))}
+P(X ≥ ${x}) = ${f(1-cdf+pmf(x))}
+P(X > ${x}) = ${f(1-cdf)}
+<span class="hl">Mean</span> = np = ${f(n*p)}
+<span class="hl">Variance</span> = np(1−p) = ${f(n*p*(1-p))}
+sd = ${f(Math.sqrt(n*p*(1-p)))}`;
+  };
+  return c;
+}
+function toolSuvat(){
+  const c=document.createElement("div"); c.className="card";
+  c.innerHTML=`<h3>🚀 suvat solver</h3>
+    <p class="note" style="margin-bottom:12px">Enter any <b>three</b> of s, u, v, a, t — leave the rest blank. Solves the other two (constant acceleration).</p>
+    <div class="row3">
+      <div class="field"><label>s (m)</label><input id="ss" type="number" placeholder="?"></div>
+      <div class="field"><label>u (m/s)</label><input id="su" type="number" placeholder="?"></div>
+      <div class="field"><label>v (m/s)</label><input id="sv" type="number" placeholder="?"></div>
+      <div class="field"><label>a (m/s²)</label><input id="sa" type="number" placeholder="?"></div>
+      <div class="field"><label>t (s)</label><input id="st" type="number" placeholder="?"></div>
+    </div>
+    <button class="btn primary" id="sgo">Solve</button>
+    <div class="result" id="sres">Fill in three values, then Solve.</div>`;
+  c.querySelector("#sgo").onclick=()=>{
+    const get=id=>{const el=c.querySelector(id);return el.value===""?null:+el.value;};
+    let s=get("#ss"),u=get("#su"),v=get("#sv"),a=get("#sa"),t=get("#st");
+    const known=[s,u,v,a,t].filter(x=>x!==null).length;
+    const res=c.querySelector("#sres");
+    if(known<3){res.textContent="Please enter at least three values.";return;}
+    const f=x=>Math.abs(x)<1e-9?0:+(x.toPrecision(4));
+    try{
+      for(let iter=0;iter<6;iter++){
+        if(v===null&&u!==null&&a!==null&&t!==null)v=u+a*t;
+        if(u===null&&v!==null&&a!==null&&t!==null)u=v-a*t;
+        if(a===null&&v!==null&&u!==null&&t!==null&&t!==0)a=(v-u)/t;
+        if(t===null&&v!==null&&u!==null&&a!==null&&a!==0)t=(v-u)/a;
+        if(s===null&&u!==null&&v!==null&&t!==null)s=0.5*(u+v)*t;
+        if(s===null&&u!==null&&a!==null&&t!==null)s=u*t+0.5*a*t*t;
+        if(s===null&&v!==null&&a!==null&&t!==null)s=v*t-0.5*a*t*t;
+        if(v===null&&u!==null&&a!==null&&s!==null){const v2=u*u+2*a*s;if(v2>=0)v=Math.sqrt(v2);}
+        if(u===null&&v!==null&&a!==null&&s!==null){const u2=v*v-2*a*s;if(u2>=0)u=Math.sqrt(u2);}
+        if(t===null&&s!==null&&u!==null&&v!==null&&(u+v)!==0)t=2*s/(u+v);
+      }
+      if([s,u,v,a,t].some(x=>x===null)){
+        res.textContent="Couldn't solve uniquely from those three — try a different combination (some need v²=u²+2as).";return;}
+      res.innerHTML=`<span class="hl">s</span> = ${f(s)} m
+<span class="hl">u</span> = ${f(u)} m/s
+<span class="hl">v</span> = ${f(v)} m/s
+<span class="hl">a</span> = ${f(a)} m/s²
+<span class="hl">t</span> = ${f(t)} s`;
+    }catch(e){res.textContent="Couldn't solve — check your values.";}
+  };
+  return c;
+}
+
+/* ============================================================
+   COUNTDOWN
+   ============================================================ */
+(function(){
+  const target=new Date(MOCK_DATE+"T09:00:00");
+  const now=new Date();
+  const days=Math.max(0,Math.ceil((target-now)/(1000*60*60*24)));
+  document.getElementById("cd-num").textContent=days;
+  const opts={weekday:"short",day:"numeric",month:"short"};
+  document.getElementById("cd-date").textContent=target.toLocaleDateString("en-GB",opts);
+})();
+
+render();
+</script>
+</body>
+</html>

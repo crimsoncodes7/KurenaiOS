@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0e0e1a">
+<title>Data Structures · Revision Hub</title>
+<style>
+  :root{
+    --bg:#0c0c16; --bg2:#13131f; --bg3:#1a1a2b; --card:#16162400;
+    --surface:#15151f; --surface2:#1c1c2c; --line:#2a2a3d; --line2:#34344a;
+    --txt:#e8e8f0; --txt2:#a0a0b8; --txt3:#6c6c84;
+    --purple:#8b80ff; --purple-dim:#6a5fd0; --purple-bg:#1f1b38;
+    --teal:#3dd6a8; --teal-bg:#10342a; --teal-dim:#1d9e75;
+    --amber:#f0b656; --amber-bg:#352a12; --amber-dim:#ba7517;
+    --red:#ff6b6b; --red-bg:#3a1818;
+    --blue:#5fb4ff;
+    --radius:14px; --radius-sm:9px;
+    --mono:'SF Mono',ui-monospace,'Cascadia Code',Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:var(--sans);background:var(--bg);color:var(--txt);
+    font-size:15px;line-height:1.55;overflow-x:hidden;
+    background-image:radial-gradient(circle at 20% 0%,#16142a 0%,transparent 45%),radial-gradient(circle at 85% 100%,#0f1f2a 0%,transparent 40%);
+    background-attachment:fixed;
+  }
+  /* ---- top bar ---- */
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(12,12,22,.82);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);padding:11px 16px;display:flex;align-items:center;gap:12px}
+  .logo{font-weight:700;font-size:16px;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+  .logo .dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--teal));box-shadow:0 0 12px var(--purple)}
+  .logo span{color:var(--txt3);font-weight:500;font-size:13px}
+  .countdown{margin-left:auto;font-size:12px;color:var(--txt2);background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:4px 12px;white-space:nowrap}
+  .countdown b{color:var(--amber)}
+  /* ---- tab nav ---- */
+  .tabnav{position:sticky;top:54px;z-index:40;background:rgba(12,12,22,.82);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);display:flex;gap:2px;padding:8px 10px;overflow-x:auto;scrollbar-width:none}
+  .tabnav::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--txt3);
+    cursor:pointer;border:1px solid transparent;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+  .tab:hover{color:var(--txt2);background:var(--surface)}
+  .tab.active{color:var(--txt);background:var(--purple-bg);border-color:var(--purple-dim)}
+  .tab .ico{font-size:14px}
+  /* ---- main ---- */
+  main{max-width:760px;margin:0 auto;padding:18px 16px 80px}
+  .view{display:none;animation:fade .25s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  h1.vtitle{font-size:23px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+  .vsub{color:var(--txt2);font-size:13.5px;margin-bottom:18px}
+  /* ---- cards ---- */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 17px;margin-bottom:14px}
+  .card h2{font-size:16px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:14px;font-weight:600;color:var(--teal);margin:14px 0 7px}
+  .card p{color:var(--txt2);font-size:14px;margin-bottom:9px}
+  .card p strong,.card li strong{color:var(--txt);font-weight:600}
+  .pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-dim)}
+  /* formula box */
+  .formula{background:var(--purple-bg);border:1px solid var(--purple-dim);border-radius:var(--radius-sm);
+    padding:12px 14px;text-align:center;font-weight:600;color:#c4bcff;margin:11px 0;font-size:14px;line-height:1.45}
+  .formula .mono{font-family:var(--mono);font-size:13px}
+  /* callouts */
+  .callout{border-radius:var(--radius-sm);padding:11px 14px;margin:11px 0;border:1px solid;font-size:13.5px}
+  .callout .ct{font-weight:700;display:block;margin-bottom:4px;font-size:13px}
+  .callout.tip{background:var(--teal-bg);border-color:var(--teal-dim)}
+  .callout.tip .ct{color:var(--teal)}
+  .callout.warn{background:var(--amber-bg);border-color:var(--amber-dim)}
+  .callout.warn .ct{color:var(--amber)}
+  .callout.tip p,.callout.warn p{color:var(--txt);margin:0}
+  /* code */
+  pre{background:#0a0a12;border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;
+    overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:#cdd3e0;margin:10px 0}
+  code{font-family:var(--mono);background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:.88em;color:#c4bcff}
+  pre code{background:none;padding:0;color:inherit}
+  .kw{color:var(--purple)} .str{color:var(--teal)} .cm{color:var(--txt3)} .num{color:var(--amber)}
+  /* tables */
+  .tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0;overflow:hidden;border-radius:var(--radius-sm);border:1px solid var(--line)}
+  .tbl th{background:var(--purple-bg);color:#c4bcff;font-weight:600;text-align:left;padding:8px 10px;font-size:11.5px;border-bottom:1px solid var(--line)}
+  .tbl td{padding:7px 10px;border-bottom:1px solid var(--line);color:var(--txt2);vertical-align:top}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl tr:nth-child(even) td{background:rgba(255,255,255,.012)}
+  .tbl .m{font-family:var(--mono);font-size:11.5px;color:var(--teal)}
+  ul.clean{list-style:none;padding:0}
+  ul.clean li{padding:6px 0 6px 22px;position:relative;color:var(--txt2);font-size:14px;border-bottom:1px solid var(--line)}
+  ul.clean li:last-child{border-bottom:none}
+  ul.clean li:before{content:'▸';position:absolute;left:4px;color:var(--purple)}
+  /* buttons */
+  .btn{padding:8px 16px;border-radius:10px;border:1px solid var(--line2);background:var(--surface2);
+    color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+  .btn:hover{background:var(--bg3);border-color:var(--purple-dim)}
+  .btn:active{transform:scale(.97)}
+  .btn.primary{background:var(--purple-bg);border-color:var(--purple-dim);color:#c4bcff}
+  .btn.primary:hover{background:#2a2350}
+  .btn.teal{background:var(--teal-bg);border-color:var(--teal-dim);color:var(--teal)}
+  .btn.amber{background:var(--amber-bg);border-color:var(--amber-dim);color:var(--amber)}
+  .btn.sm{padding:5px 11px;font-size:12px}
+  .btn.ghost{background:transparent}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  input.txt{flex:1;min-width:0;padding:8px 12px;border-radius:10px;border:1px solid var(--line2);
+    background:var(--bg);color:var(--txt);font-size:14px;font-family:inherit;outline:none}
+  input.txt:focus{border-color:var(--purple-dim)}
+  /* ===== home dashboard ===== */
+  .hero{background:linear-gradient(135deg,var(--purple-bg),var(--teal-bg));border:1px solid var(--line2);
+    border-radius:var(--radius);padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+  .hero h1{font-size:24px;font-weight:800;letter-spacing:-.03em;margin-bottom:6px}
+  .hero p{color:var(--txt2);font-size:14px;max-width:90%}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .navcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+  .navcard:hover{border-color:var(--purple-dim);transform:translateY(-2px)}
+  .navcard:active{transform:scale(.98)}
+  .navcard .nico{font-size:22px;margin-bottom:8px;display:block}
+  .navcard h3{font-size:15px;font-weight:700;margin-bottom:3px;color:var(--txt)}
+  .navcard p{font-size:12px;color:var(--txt3);margin:0}
+  .navcard .glow{position:absolute;top:-30px;right:-30px;width:80px;height:80px;border-radius:50%;background:var(--purple);opacity:.07;filter:blur(20px)}
+  /* progress chips */
+  .modchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .modchip{font-size:11px;padding:4px 10px;border-radius:20px;background:var(--surface);border:1px solid var(--line);color:var(--txt3);cursor:pointer}
+  .modchip.done{background:var(--teal-bg);border-color:var(--teal-dim);color:var(--teal)}
+  /* ===== simulators ===== */
+  .simwrap{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+  .simtabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+  .simtab{padding:6px 13px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--txt3);cursor:pointer;border:1px solid var(--line);background:var(--bg)}
+  .simtab.active{background:var(--purple-bg);color:#c4bcff;border-color:var(--purple-dim)}
+  .stackvis{display:flex;flex-direction:column-reverse;gap:4px;min-height:60px;margin:10px 0}
+  .slot{height:36px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;
+    border:1px solid var(--line);background:var(--bg);color:var(--txt3);font-size:13px;transition:all .25s}
+  .slot.filled{background:var(--purple-bg);border-color:var(--purple-dim);color:#c4bcff}
+  .slot.top{background:var(--teal-bg);border-color:var(--teal-dim);color:var(--teal)}
+  .slot.flash{background:var(--red-bg)!important;border-color:var(--red)!important;animation:shake .4s}
+  .slot .si{font-size:10px;opacity:.6}
+  .slot .sv{font-weight:700;font-size:14px}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+  @keyframes popin{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+  .slot.new{animation:popin .3s}
+  .ptrbar{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}
+  .ptr{font-size:11.5px;font-weight:700;padding:3px 11px;border-radius:20px;border:1px solid}
+  .ptr.f{background:var(--teal-bg);border-color:var(--teal-dim);color:var(--teal)}
+  .ptr.r{background:var(--purple-bg);border-color:var(--purple-dim);color:var(--purple)}
+  .ptr.s{background:var(--amber-bg);border-color:var(--amber-dim);color:var(--amber)}
+  .simresult{margin-top:11px;padding:9px 12px;border-radius:9px;font-size:13px;border:1px solid var(--line);background:var(--bg);color:var(--txt2);min-height:42px;line-height:1.5}
+  .simresult.ok{background:var(--teal-bg);border-color:var(--teal-dim);color:#bdf0dd}
+  .simresult.err{background:var(--red-bg);border-color:var(--red);color:#ffc9c9}
+  .simresult.info{background:var(--purple-bg);border-color:var(--purple-dim);color:#d4ccff}
+  .simresult b{color:#fff}
+  .codeside{background:#0a0a12;border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-top:11px;font-family:var(--mono);font-size:11px;line-height:1.75;overflow-x:auto}
+  .cl{padding:0 5px;border-radius:3px;white-space:pre;color:#5a5a70}
+  .cl.exec{background:var(--teal-bg);color:var(--teal);font-weight:700}
+  .cl.chk{background:var(--amber-bg);color:var(--amber);font-weight:700}
+  .cl.errl{background:var(--red-bg);color:#ffb0b0;font-weight:700}
+  /* ring for circular */
+  .ringbox{display:flex;justify-content:center;padding:6px 0}
+  /* trace table mini */
+  .ttbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+  .ttbl th{background:var(--purple-bg);color:#c4bcff;padding:5px 4px;font-size:10px;text-align:center;border:1px solid var(--line)}
+  .ttbl td{padding:4px;text-align:center;border:1px solid var(--line);font-family:var(--mono);font-size:10.5px;color:var(--txt3)}
+  .ttbl td.chg{background:var(--purple-bg);color:#d4ccff;font-weight:700}
+  .ttbl td.desc{text-align:left;font-family:var(--sans);font-size:10px;color:var(--txt2)}
+  /* ===== flashcards ===== */
+  .fcdeck{perspective:1400px;margin:8px 0 14px}
+  .fcard{position:relative;width:100%;min-height:230px;cursor:pointer;transition:transform .55s;transform-style:preserve-3d}
+  .fcard.flip{transform:rotateY(180deg)}
+  .fcface{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius);padding:24px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px solid var(--line)}
+  .fcfront{background:linear-gradient(160deg,var(--surface2),var(--surface));color:var(--txt)}
+  .fcback{background:linear-gradient(160deg,var(--purple-bg),var(--surface));transform:rotateY(180deg);color:var(--txt)}
+  .fcface .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--txt3);margin-bottom:12px}
+  .fcface .q{font-size:17px;font-weight:600;line-height:1.4}
+  .fcface .a{font-size:14px;color:var(--txt2);line-height:1.5}
+  .fcface .a strong{color:var(--teal)}
+  .fcface .tap{position:absolute;bottom:12px;font-size:11px;color:var(--txt3)}
+  .fcmeta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .fccount{font-size:13px;color:var(--txt2)}
+  .fccat{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--surface);border:1px solid var(--line);color:var(--txt2)}
+  .fcbtns{display:flex;gap:8px}
+  .fcprog{height:4px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-bottom:14px}
+  .fcprog>div{height:100%;background:linear-gradient(90deg,var(--purple),var(--teal));transition:width .3s}
+  .catpick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  /* ===== MCQ ===== */
+  .mcq-q{font-size:16px;font-weight:600;margin-bottom:16px;line-height:1.45}
+  .opt{display:block;width:100%;text-align:left;padding:12px 14px;border-radius:11px;border:1px solid var(--line);
+    background:var(--surface2);color:var(--txt);font-size:14px;cursor:pointer;margin-bottom:9px;transition:all .15s;font-family:inherit}
+  .opt:hover{border-color:var(--purple-dim);background:var(--bg3)}
+  .opt.correct{background:var(--teal-bg);border-color:var(--teal-dim);color:#bdf0dd}
+  .opt.wrong{background:var(--red-bg);border-color:var(--red);color:#ffc9c9}
+  .opt.disabled{pointer-events:none;opacity:.55}
+  .opt .ol{font-weight:700;color:var(--purple);margin-right:8px}
+  .mcq-exp{background:var(--purple-bg);border:1px solid var(--purple-dim);border-radius:11px;padding:12px 14px;margin-top:8px;font-size:13.5px;color:#d4ccff;display:none}
+  .mcq-exp.show{display:block;animation:fade .3s}
+  .mcq-exp b{color:#fff}
+  .scorebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .scorepill{font-size:13px;color:var(--txt2);background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:5px 14px}
+  .scorepill b{color:var(--teal)}
+  /* exam technique accordion */
+  .acc{border:1px solid var(--line);border-radius:var(--radius-sm);margin-bottom:8px;overflow:hidden}
+  .acc-h{padding:13px 15px;font-size:14px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--surface)}
+  .acc-h:hover{background:var(--surface2)}
+  .acc-h .ar{transition:transform .2s;color:var(--txt3)}
+  .acc.open .acc-h .ar{transform:rotate(90deg)}
+  .acc-b{max-height:0;overflow:hidden;transition:max-height .3s ease;background:var(--bg)}
+  .acc.open .acc-b{max-height:900px}
+  .acc-b-in{padding:4px 15px 14px}
+  /* misc */
+  .divlbl{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--txt3);margin:18px 0 8px;font-weight:700}
+  .emptynote{text-align:center;color:var(--txt3);font-size:13px;padding:30px 0}
+  .footer{text-align:center;color:var(--txt3);font-size:12px;padding:20px 0 0}
+  @media(max-width:480px){
+    main{padding:14px 12px 80px}
+    .grid2{grid-template-columns:1fr}
+    .hero{padding:16px}
+    .hero h1{font-size:21px}
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><span class="dot"></span>Data Structures<span>· AQA 7517</span></div>
+  <div class="countdown" id="countdown">Loading…</div>
+</div>
+<div class="tabnav" id="tabnav">
+  <div class="tab active" data-view="home"><span class="ico">⌂</span>Home</div>
+  <div class="tab" data-view="learn"><span class="ico">📖</span>Notes</div>
+  <div class="tab" data-view="sim"><span class="ico">▦</span>Simulators</div>
+  <div class="tab" data-view="trace"><span class="ico">⊞</span>Trace</div>
+  <div class="tab" data-view="cards"><span class="ico">🂠</span>Flashcards</div>
+  <div class="tab" data-view="quiz"><span class="ico">✓</span>Quiz</div>
+  <div class="tab" data-view="exam"><span class="ico">★</span>Exam Tech</div>
+</div>
+<main id="main"></main>
+<script>
+/* ============================================================
+   APP SHELL + DATA  (logic in next script block)
+   ============================================================ */
+</script>
+<script>
+/* ============ DATA ============ */
+const TEST_DATE = new Date('2026-06-01T09:00:00');
+
+// ---- Notes content (module reference) ----
+const NOTES = [
+  { id:'m1', title:'1 · Dynamic vs Static', spec:'4.2.1.4', html:`
+    <div class="formula">Static = fixed memory at compile-time; size cannot change during execution</div>
+    <div class="formula">Dynamic = memory allocation size can change throughout execution</div>
+    <p>These are the exact AQA definition-box answers — reproduce them verbatim for "define" / "what is meant by" questions.</p>
+    <h3>Memory allocation</h3>
+    <p><strong>Static</strong> reserves a fixed contiguous block before the program runs. Address = base + (index × element size) → O(1) access.</p>
+    <p><strong>Dynamic</strong> requests memory from the heap at runtime; nodes are scattered and linked by pointers.</p>
+    <div class="formula mono">Static full → Overflow error  |  Dynamic full → new heap memory</div>
+    <table class="tbl"><tr><th>Criterion</th><th>Static</th><th>Dynamic</th></tr>
+    <tr><td>Allocation</td><td>Compile-time</td><td>Runtime (heap)</td></tr>
+    <tr><td>Location</td><td>Contiguous</td><td>Non-contiguous</td></tr>
+    <tr><td>Size</td><td>Fixed</td><td>Flexible</td></tr>
+    <tr><td>When full</td><td>Overflow</td><td>Grows</td></tr>
+    <tr><td>Access</td><td>O(1)</td><td>O(n)</td></tr>
+    <tr><td>Overhead</td><td>None</td><td>Pointer per node</td></tr>
+    <tr><td>Examples</td><td>Arrays</td><td>Linked lists, dynamic stacks/queues</td></tr></table>
+    <div class="callout tip"><span class="ct">Memory aid — FACE</span><p><b>F</b>ixed/Flexible · <b>A</b>rray/Any size · <b>C</b>ompile-time/Changes · <b>E</b>rror on overflow/Expands</p></div>
+    <div class="callout warn"><span class="ct">"Discuss" = both sides</span><p>A discuss question needs ≥2 advantages AND ≥2 disadvantages. Every point = claim + reason.</p></div>` },
+  { id:'m2', title:'2 · Linked Lists vs Arrays', spec:'4.2.1.2', html:`
+    <div class="formula mono">Address of element[i] = Base + (i × element size)</div>
+    <p><strong>Array:</strong> contiguous, fixed-size, O(1) index access. <strong>Linked list:</strong> nodes = data + pointer, dynamic, O(n) access but O(1) insert/delete.</p>
+    <table class="tbl"><tr><th>Operation</th><th>Array</th><th>Linked List</th></tr>
+    <tr><td>Access by index</td><td class="m">O(1)</td><td class="m">O(n)</td></tr>
+    <tr><td>Insert (middle)</td><td class="m">O(n) shift</td><td class="m">O(1) pointer</td></tr>
+    <tr><td>Delete (middle)</td><td class="m">O(n) shift</td><td class="m">O(1) pointer</td></tr>
+    <tr><td>Traversal</td><td class="m">O(n)</td><td class="m">O(n)</td></tr>
+    <tr><td>Search</td><td class="m">O(n)</td><td class="m">O(n)</td></tr></table>
+    <div class="callout tip"><span class="ct">Memory aid — ACID</span><p><b>A</b>ccess: Array wins · <b>C</b>hange: List wins · <b>I</b>nfinite size: List only · <b>D</b>ata overhead: List costs a pointer</p></div>
+    <div class="callout warn"><span class="ct">The O(1) caveat</span><p>List insertion is O(1) for the pointer swap only — FINDING the position is O(n).</p></div>` },
+  { id:'m3', title:'3 · Trace Tables', spec:'practical', html:`
+    <div class="formula">1 · One row per assignment or condition</div>
+    <div class="formula">2 · Fill a cell only when the value changes</div>
+    <div class="formula">3 · Blank cell = same as the row above</div>
+    <div class="callout warn"><span class="ct">Critical detail</span><p>A popped/dequeued value stays physically in the array — only the pointer changes. The value is unreachable, not erased.</p></div>
+    <h3>Common errors</h3>
+    <ul class="clean">
+    <li>Off-by-one: stack push increments tp to 0 <em>before</em> writing to arr[0]</li>
+    <li>Forgetting to update <code>size</code> in queue operations (most common)</li>
+    <li>Skipping condition rows — they decide which branch runs</li>
+    <li>Continuing past overflow/underflow — stop at the OUTPUT line</li></ul>
+    <p>Practise the live tracer in the <b>Trace</b> tab — it includes the June 2024 7-mark question.</p>` },
+  { id:'m4', title:'4 · Stacks', spec:'4.2.3.1', html:`
+    <div class="formula">Stack = Last In, First Out (LIFO)</div>
+    <div class="formula mono">Empty: tp = −1   |   Full: tp = maxSize − 1</div>
+    <p>One pointer only (topPointer). No front/rear/size.</p>
+    <h3>Push [4 marks]</h3>
+    <pre><span class="kw">PROCEDURE</span> Push(item)
+   <span class="kw">IF</span> topPointer = maxSize - <span class="num">1</span> <span class="kw">THEN</span>
+      <span class="kw">OUTPUT</span> <span class="str">"Stack overflow"</span>
+   <span class="kw">ELSE</span>
+      topPointer <span class="kw">&lt;-</span> topPointer + <span class="num">1</span>
+      stackArray[topPointer] <span class="kw">&lt;-</span> item
+   <span class="kw">ENDIF</span>
+<span class="kw">ENDPROCEDURE</span></pre>
+    <h3>Pop [4 marks]</h3>
+    <pre><span class="kw">FUNCTION</span> Pop()
+   <span class="kw">IF</span> topPointer = -<span class="num">1</span> <span class="kw">THEN</span>
+      <span class="kw">OUTPUT</span> <span class="str">"Stack underflow"</span>
+   <span class="kw">ELSE</span>
+      item <span class="kw">&lt;-</span> stackArray[topPointer]
+      topPointer <span class="kw">&lt;-</span> topPointer - <span class="num">1</span>
+      <span class="kw">RETURN</span> item
+   <span class="kw">ENDIF</span>
+<span class="kw">ENDFUNCTION</span></pre>
+    <div class="callout warn"><span class="ct">#1 Push error</span><p>Increment topPointer <b>before</b> writing. Writing first puts the item at the wrong index — loses 2 marks.</p></div>
+    <h3>Uses (justify with LIFO)</h3>
+    <ul class="clean"><li>Call stack — most recent call resolves first</li><li>Undo — last action undone first</li><li>Bracket matching — correct nesting</li><li>Reverse a string</li></ul>` },
+  { id:'m5', title:'5 · Queues', spec:'4.2.2.1', html:`
+    <div class="formula">Queue = First In, First Out (FIFO)</div>
+    <p>Three variables: front, rear, size. Linear queues waste space (front only moves right). Circular queues wrap with MOD.</p>
+    <div class="formula mono">rear ← (rear + 1) MOD maxSize</div>
+    <div class="formula mono">isEmpty: size = 0  |  isFull: size = maxSize</div>
+    <h3>Circular Enqueue [4 marks]</h3>
+    <pre><span class="kw">PROCEDURE</span> Enqueue(item)
+   <span class="kw">IF</span> size = maxSize <span class="kw">THEN</span>
+      <span class="kw">OUTPUT</span> <span class="str">"Queue overflow"</span>
+   <span class="kw">ELSE</span>
+      queue[rear] <span class="kw">&lt;-</span> item
+      rear <span class="kw">&lt;-</span> (rear + <span class="num">1</span>) <span class="kw">MOD</span> maxSize
+      size <span class="kw">&lt;-</span> size + <span class="num">1</span>
+   <span class="kw">ENDIF</span>
+<span class="kw">ENDPROCEDURE</span></pre>
+    <h3>Circular Dequeue [4 marks]</h3>
+    <pre><span class="kw">FUNCTION</span> Dequeue()
+   <span class="kw">IF</span> size = <span class="num">0</span> <span class="kw">THEN</span>
+      <span class="kw">OUTPUT</span> <span class="str">"Queue underflow"</span>
+   <span class="kw">ELSE</span>
+      item <span class="kw">&lt;-</span> queue[front]
+      front <span class="kw">&lt;-</span> (front + <span class="num">1</span>) <span class="kw">MOD</span> maxSize
+      size <span class="kw">&lt;-</span> size - <span class="num">1</span>
+      <span class="kw">RETURN</span> item
+   <span class="kw">ENDIF</span>
+<span class="kw">ENDFUNCTION</span></pre>
+    <div class="callout warn"><span class="ct">Enqueue vs Push trap</span><p>Push: increment pointer FIRST. Enqueue: write the item FIRST. Reversing them loses marks.</p></div>
+    <div class="callout tip"><span class="ct">Why size, not pointers?</span><p>In a circular queue front=rear can mean empty OR full. The size counter removes the ambiguity — AQA expects it.</p></div>` }
+];
+
+// ---- Flashcards ----
+const CARDS = [
+  {cat:'Defs',q:'Define a static data structure',a:'A structure allocated a <strong>fixed</strong> amount of memory at <strong>compile-time</strong> which cannot change during execution.'},
+  {cat:'Defs',q:'Define a dynamic data structure',a:'A structure whose <strong>memory allocation size can change</strong> throughout the execution of the program.'},
+  {cat:'Defs',q:'What does LIFO stand for, and which structure?',a:'<strong>Last In, First Out</strong> — a <strong>stack</strong>.'},
+  {cat:'Defs',q:'What does FIFO stand for, and which structure?',a:'<strong>First In, First Out</strong> — a <strong>queue</strong>.'},
+  {cat:'Defs',q:'What is a stack overflow?',a:'Attempting to <strong>push</strong> to a <strong>full</strong> stack (topPointer = maxSize − 1).'},
+  {cat:'Defs',q:'What is a stack underflow?',a:'Attempting to <strong>pop or peek</strong> from an <strong>empty</strong> stack (topPointer = −1).'},
+  {cat:'Defs',q:'What is a priority queue?',a:'A queue where items are dequeued by <strong>priority</strong> first; equal priorities follow <strong>FIFO</strong> order.'},
+  {cat:'Stack',q:'Push: what order do the two key steps go in?',a:'<strong>Increment</strong> topPointer FIRST, then <strong>write</strong> the item to stackArray[topPointer].'},
+  {cat:'Stack',q:'Pop: what order do the two key steps go in?',a:'<strong>Read</strong> the item first, then <strong>decrement</strong> topPointer.'},
+  {cat:'Stack',q:'How does Peek differ from Pop?',a:'Peek returns the top value but does <strong>NOT change topPointer</strong> — the stack is unmodified.'},
+  {cat:'Stack',q:'isEmpty check for a stack?',a:'<strong>topPointer = −1</strong>'},
+  {cat:'Stack',q:'isFull check for a stack?',a:'<strong>topPointer = maxSize − 1</strong>'},
+  {cat:'Queue',q:'Circular queue wrap-around formula?',a:'<strong>rear ← (rear + 1) MOD maxSize</strong> (and the same for front)'},
+  {cat:'Queue',q:'Why is a circular queue better than a linear one?',a:'It reuses slots freed by dequeuing via the MOD wrap, avoiding the <strong>wasted space</strong> of a linear queue.'},
+  {cat:'Queue',q:'isEmpty / isFull checks for a circular queue?',a:'isEmpty: <strong>size = 0</strong> · isFull: <strong>size = maxSize</strong>'},
+  {cat:'Queue',q:'Enqueue: which step comes first?',a:'<strong>Write the item</strong> to queue[rear] FIRST, then advance rear.'},
+  {cat:'Queue',q:'On dequeue, which pointer moves?',a:'<strong>front</strong> advances (rear moves on enqueue).'},
+  {cat:'List',q:'What two things does a linked list node store?',a:'The <strong>data value</strong> and a <strong>pointer</strong> to the next node\'s address.'},
+  {cat:'List',q:'Array vs linked list — access by index?',a:'Array <strong>O(1)</strong> (direct calc) · linked list <strong>O(n)</strong> (traverse from head).'},
+  {cat:'List',q:'Array vs linked list — insert in middle?',a:'Array <strong>O(n)</strong> (shift elements) · linked list <strong>O(1)</strong> (pointer update).'},
+  {cat:'List',q:'What marks the end of a linked list?',a:'The last node\'s pointer is set to <strong>NULL</strong>.'},
+  {cat:'Trace',q:'Trace tables: when do you fill a cell?',a:'Only when that variable\'s value <strong>changes</strong>. A blank cell = same as the row above.'},
+  {cat:'Trace',q:'Does a popped value get erased from the array?',a:'<strong>No</strong> — it stays physically present; only the pointer changes, making it unreachable.'},
+  {cat:'Uses',q:'Name a real-world use of a stack',a:'Call stack, undo function, bracket matching, reversing a string, browser back button.'},
+  {cat:'Uses',q:'Name a real-world use of a queue',a:'Print queue, keyboard buffer, CPU scheduling, breadth-first search.'},
+  {cat:'Uses',q:'Which data structure does BFS use?',a:'A <strong>queue</strong> — FIFO explores nodes level by level.'},
+];
+
+// ---- MCQs ----
+const MCQS = [
+  {q:'Which is a property of a dynamic data structure?',o:['Fixed size at compile-time','Memory allocated from the heap at runtime','Always stored contiguously','Cannot grow during execution'],c:1,e:'Dynamic structures allocate memory at runtime from the heap, allowing them to change size.'},
+  {q:'What error occurs when pushing to a full stack?',o:['Underflow','Stack underflow','Overflow','Null pointer'],c:2,e:'Pushing to a full stack (topPointer = maxSize − 1) causes a stack overflow.'},
+  {q:'In a stack Push, which happens first?',o:['Write item to array','Increment topPointer','Return the item','Decrement topPointer'],c:1,e:'topPointer must be incremented BEFORE writing, so the item goes to the correct new index.'},
+  {q:'Time complexity of accessing an array element by index?',o:['O(n)','O(log n)','O(1)','O(n²)'],c:2,e:'Arrays calculate the address directly: base + (index × size) → constant time O(1).'},
+  {q:'Why is inserting into the middle of a linked list O(1)?',o:['Elements are shifted quickly','Only pointers are updated, no data moves','The list is sorted','Memory is contiguous'],c:1,e:'Insertion just re-routes two pointers — no elements are physically moved (the pointer swap itself is O(1)).'},
+  {q:'The circular queue wrap-around uses which operator?',o:['DIV','MOD','XOR','NOT'],c:1,e:'rear ← (rear + 1) MOD maxSize — MOD gives the remainder, wrapping the pointer back to 0.'},
+  {q:'In a circular queue, isFull is correctly checked by:',o:['rear = maxSize','front = rear','size = maxSize','topPointer = −1'],c:2,e:'Use size = maxSize. front = rear is ambiguous (could mean empty or full) in a circular queue.'},
+  {q:'Which operation reads the top of a stack WITHOUT removing it?',o:['Pop','Push','Peek','Dequeue'],c:2,e:'Peek (or Top) returns the top value without modifying topPointer.'},
+  {q:'A linear queue reports overflow despite free slots at the start. Why?',o:['size is wrong','The front pointer only moves right, never reusing slots','MOD is missing','The array is too small'],c:1,e:'In a linear queue, front never returns to reuse vacated early slots — this is the wasted-space problem.'},
+  {q:'What does the last node of a linked list point to?',o:['The head','Itself','NULL','The previous node'],c:2,e:'The final node\'s pointer is NULL, marking the end of the list.'},
+  {q:'Which structure does a breadth-first search use?',o:['Stack','Queue','Binary tree','Hash table'],c:1,e:'BFS uses a queue — FIFO ensures nodes are explored level by level.'},
+  {q:'After popping "C" from a stack, where is "C"?',o:['Erased completely','Still physically in the array but unreachable','Moved to the front','Copied to the heap'],c:1,e:'Only topPointer decrements. "C" remains in the array slot but can no longer be reached.'},
+  {q:'On a queue Dequeue, which pointer changes?',o:['rear','front','top','base'],c:1,e:'front advances on dequeue; rear advances on enqueue.'},
+  {q:'Which is the correct stack underflow condition?',o:['topPointer = maxSize','topPointer = 0','topPointer = −1','size = maxSize'],c:2,e:'An empty stack has topPointer = −1; popping then causes underflow.'},
+  {q:'A static structure that becomes full will:',o:['Request more memory','Cause an overflow error','Wrap around','Shrink automatically'],c:1,e:'Static structures have fixed allocation — exceeding it causes overflow.'},
+  {q:'Which command word requires BOTH advantages and disadvantages?',o:['State','Describe','Discuss','Define'],c:2,e:'"Discuss" requires both sides; "Evaluate" additionally needs a justified conclusion.'},
+];
+
+// ---- Exam technique accordions ----
+const EXAM = [
+  {h:'Command words — what each demands',b:`<table class="tbl"><tr><th>Word</th><th>Requires</th></tr>
+   <tr><td>State</td><td>One precise sentence</td></tr>
+   <tr><td>Describe</td><td>What happens, step by step</td></tr>
+   <tr><td>Explain</td><td>What happens AND why</td></tr>
+   <tr><td>Discuss</td><td>Both sides — pros AND cons</td></tr>
+   <tr><td>Evaluate</td><td>Both sides + justified conclusion</td></tr>
+   <tr><td>Compare</td><td>Both sides stated together</td></tr></table>`},
+  {h:'Pseudocode questions (the guaranteed 4-markers)',b:`<p>Push / Pop / Enqueue / Dequeue appear in almost every series. The four marks come from:</p>
+   <ul class="clean"><li>The overflow/underflow check (correct condition)</li><li>Correct order of pointer update vs array access</li><li>Correct array index used</li><li>RETURN present (for functions)</li></ul>
+   <div class="callout warn"><span class="ct">Order rules</span><p>Push: increment THEN write. Pop: read THEN decrement. Enqueue: write THEN advance. Dequeue: read THEN advance.</p></div>`},
+  {h:'Scenario "choose a structure" questions',b:`<p>Always address three things for full marks:</p>
+   <ul class="clean"><li>Name the structure</li><li>The specific property matching the scenario need</li><li>Why the alternative would be worse</li></ul>
+   <p>Unpredictable size → dynamic / linked list / circular queue. Frequent insert-delete → linked list. Priority levels → priority queue.</p>`},
+  {h:'Two advanced mark-scheme patterns',b:`<h3>Reverse a queue with one stack [2 marks]</h3>
+   <p>Dequeue every item and push onto a stack; then pop every item and enqueue it back. LIFO reverses the order.</p>
+   <h3>Queue from two stacks</h3>
+   <p>Stack 1 for enqueue (push). For dequeue: if stack 2 is empty, pop all of stack 1 into stack 2 (reversing order), then pop from stack 2 → FIFO behaviour.</p>`},
+  {h:'Big O quick reference',b:`<table class="tbl"><tr><th>Op</th><th>Array</th><th>List</th><th>Stack</th><th>Queue</th></tr>
+   <tr><td>Access</td><td class="m">O(1)</td><td class="m">O(n)</td><td>—</td><td>—</td></tr>
+   <tr><td>Insert</td><td class="m">O(n)</td><td class="m">O(1)*</td><td class="m">O(1)</td><td class="m">O(1)</td></tr>
+   <tr><td>Delete</td><td class="m">O(n)</td><td class="m">O(1)*</td><td class="m">O(1)</td><td class="m">O(1)</td></tr>
+   <tr><td>Search</td><td class="m">O(n)</td><td class="m">O(n)</td><td class="m">O(n)</td><td class="m">O(n)</td></tr></table>
+   <p style="font-size:12px;color:var(--txt3)">* pointer update only; finding the position is O(n)</p>`},
+  {h:'Final pre-exam checklist',b:`<ul class="clean">
+   <li>Write Push & Pop from memory with error handling</li>
+   <li>Write circular Enqueue & Dequeue with MOD on both pointers</li>
+   <li>Complete the June 2024 binary-tree trace (7 marks) cold</li>
+   <li>State all four definitions verbatim: static, dynamic, LIFO, FIFO</li>
+   <li>Explain why circular beats linear (wasted space + MOD wrap)</li>
+   <li>LIFO/FIFO justification for every real-world use</li>
+   <li>Push increments first; Enqueue writes first</li></ul>`}
+];
+/* ============ STATE ============ */
+const store = {
+  get(k,d){try{return JSON.parse(localStorage.getItem('dsr_'+k))??d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem('dsr_'+k,JSON.stringify(v))}catch(e){}}
+};
+let modDone = store.get('modDone',{});
+
+/* ============ COUNTDOWN ============ */
+function updCountdown(){
+  const now=new Date(), diff=TEST_DATE-now;
+  const el=document.getElementById('countdown');
+  if(diff<=0){el.innerHTML='Exam day — <b>good luck!</b>';return;}
+  const d=Math.floor(diff/864e5), h=Math.floor(diff%864e5/36e5);
+  el.innerHTML=`Test in <b>${d}d ${h}h</b>`;
+}
+updCountdown(); setInterval(updCountdown,60000);
+
+/* ============ ROUTER ============ */
+const main=document.getElementById('main');
+function go(view){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===view));
+  RENDER[view]();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>go(t.dataset.view)));
+
+const RENDER={};
+
+/* ============ HOME ============ */
+RENDER.home=function(){
+  const total=NOTES.length;
+  const done=Object.values(modDone).filter(Boolean).length;
+  main.innerHTML=`
+  <div class="hero">
+    <div class="glow"></div>
+    <h1>Your Revision Hub</h1>
+    <p>Everything for the AQA Data Structures test in one place — notes, live simulators, a trace-table trainer, flashcards and quizzes. Built from the spec and real past papers.</p>
+    <div class="modchips" id="homechips"></div>
+  </div>
+  <div class="grid2">
+    ${navCard('learn','📖','Notes','All 5 modules, condensed')}
+    ${navCard('sim','▦','Simulators','Stack · Queue · List, live')}
+    ${navCard('trace','⊞','Trace Trainer','Step through real questions')}
+    ${navCard('cards','🂠','Flashcards','26 spaced-recall cards')}
+    ${navCard('quiz','✓','Quiz','16 exam-style MCQs')}
+    ${navCard('exam','★','Exam Technique','Command words & patterns')}
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h2>⚡ Rapid recall — the 6 things that win marks</h2>
+    <ul class="clean">
+      <li><strong>Push:</strong> increment topPointer FIRST, then write</li>
+      <li><strong>Pop:</strong> read FIRST, then decrement</li>
+      <li><strong>Enqueue:</strong> write FIRST, then advance rear</li>
+      <li><strong>Circular wrap:</strong> rear ← (rear + 1) MOD maxSize</li>
+      <li><strong>Empty/Full (circular):</strong> size = 0 / size = maxSize</li>
+      <li><strong>"Discuss"</strong> always needs both advantages AND disadvantages</li>
+    </ul>
+  </div>
+  <div class="footer">Tap any module chip to mark it revised · progress saves automatically</div>`;
+  renderHomeChips();
+  document.querySelectorAll('.navcard').forEach(c=>c.addEventListener('click',()=>go(c.dataset.go)));
+};
+function navCard(go,ico,h,p){return `<div class="navcard" data-go="${go}"><div class="glow"></div><span class="nico">${ico}</span><h3>${h}</h3><p>${p}</p></div>`;}
+function renderHomeChips(){
+  const c=document.getElementById('homechips');
+  c.innerHTML=NOTES.map(m=>`<div class="modchip ${modDone[m.id]?'done':''}" data-m="${m.id}">${modDone[m.id]?'✓ ':''}${m.title.split('·')[1].trim()}</div>`).join('');
+  c.querySelectorAll('.modchip').forEach(ch=>ch.addEventListener('click',()=>{
+    const id=ch.dataset.m; modDone[id]=!modDone[id]; store.set('modDone',modDone); renderHomeChips();
+  }));
+}
+
+/* ============ NOTES ============ */
+RENDER.learn=function(){
+  main.innerHTML=`<h1 class="vtitle">Notes</h1><p class="vsub">Condensed reference for all five modules. Tap a header to expand.</p>`+
+   NOTES.map((m,i)=>`<div class="acc ${i===0?'open':''}"><div class="acc-h">${m.title} <span class="pill">${m.spec}</span><span class="ar">▸</span></div><div class="acc-b"><div class="acc-b-in card" style="border:none;margin:0;background:transparent;padding:8px 4px">${m.html}</div></div></div>`).join('');
+  main.querySelectorAll('.acc-h').forEach(h=>h.addEventListener('click',()=>h.parentElement.classList.toggle('open')));
+};
+
+/* ============ EXAM TECHNIQUE ============ */
+RENDER.exam=function(){
+  main.innerHTML=`<h1 class="vtitle">Exam Technique</h1><p class="vsub">What the mark scheme actually rewards.</p>`+
+   EXAM.map((e,i)=>`<div class="acc ${i===0?'open':''}"><div class="acc-h">${e.h}<span class="ar">▸</span></div><div class="acc-b"><div class="acc-b-in">${e.b}</div></div></div>`).join('');
+  main.querySelectorAll('.acc-h').forEach(h=>h.addEventListener('click',()=>h.parentElement.classList.toggle('open')));
+};
+
+/* ============ FLASHCARDS ============ */
+let fcState={cards:[],idx:0,flipped:false,cat:'All'};
+RENDER.cards=function(){
+  const cats=['All',...new Set(CARDS.map(c=>c.cat))];
+  main.innerHTML=`<h1 class="vtitle">Flashcards</h1><p class="vsub">Tap the card to flip. Shuffle and filter by topic.</p>
+   <div class="catpick" id="catpick">${cats.map(c=>`<div class="simtab ${c===fcState.cat?'active':''}" data-c="${c}">${c}</div>`).join('')}</div>
+   <div class="fcprog"><div id="fcprog"></div></div>
+   <div class="fcmeta"><span class="fccount" id="fccount"></span><span class="fccat" id="fccatlbl"></span></div>
+   <div class="fcdeck"><div class="fcard" id="fcard"></div></div>
+   <div class="btnrow" style="justify-content:space-between">
+     <button class="btn sm" id="fcprev">‹ Prev</button>
+     <button class="btn sm primary" id="fcshuffle">⤨ Shuffle</button>
+     <button class="btn sm" id="fcnext">Next ›</button>
+   </div>`;
+  document.getElementById('catpick').querySelectorAll('.simtab').forEach(t=>t.addEventListener('click',()=>{fcState.cat=t.dataset.c;loadFC();}));
+  document.getElementById('fcprev').onclick=()=>{fcState.idx=(fcState.idx-1+fcState.cards.length)%fcState.cards.length;fcState.flipped=false;drawFC();};
+  document.getElementById('fcnext').onclick=()=>{fcState.idx=(fcState.idx+1)%fcState.cards.length;fcState.flipped=false;drawFC();};
+  document.getElementById('fcshuffle').onclick=()=>{fcState.cards.sort(()=>Math.random()-.5);fcState.idx=0;fcState.flipped=false;drawFC();};
+  loadFC();
+};
+function loadFC(){
+  fcState.cards=fcState.cat==='All'?[...CARDS]:CARDS.filter(c=>c.cat===fcState.cat);
+  fcState.idx=0;fcState.flipped=false;
+  document.querySelectorAll('#catpick .simtab').forEach(t=>t.classList.toggle('active',t.dataset.c===fcState.cat));
+  drawFC();
+}
+function drawFC(){
+  const c=fcState.cards[fcState.idx];
+  const el=document.getElementById('fcard');
+  el.className='fcard'+(fcState.flipped?' flip':'');
+  el.innerHTML=`<div class="fcface fcfront"><span class="lbl">Question · ${c.cat}</span><div class="q">${c.q}</div><span class="tap">tap to reveal</span></div>
+   <div class="fcface fcback"><span class="lbl">Answer</span><div class="a">${c.a}</div><span class="tap">tap to flip back</span></div>`;
+  el.onclick=()=>{fcState.flipped=!fcState.flipped;el.classList.toggle('flip');};
+  document.getElementById('fccount').textContent=`Card ${fcState.idx+1} of ${fcState.cards.length}`;
+  document.getElementById('fccatlbl').textContent=fcState.cat;
+  document.getElementById('fcprog').style.width=((fcState.idx+1)/fcState.cards.length*100)+'%';
+}
+
+/* ============ QUIZ ============ */
+let quizState={order:[],idx:0,score:0,answered:false};
+RENDER.quiz=function(){
+  main.innerHTML=`<h1 class="vtitle">Quiz</h1><p class="vsub">Exam-style multiple choice. Instant feedback with explanations.</p>
+   <div class="scorebar"><span class="scorepill">Question <b id="qnum">1</b> / ${MCQS.length}</span><span class="scorepill">Score <b id="qscore">0</b></span></div>
+   <div class="card"><div class="mcq-q" id="mcqq"></div><div id="mcqopts"></div><div class="mcq-exp" id="mcqexp"></div></div>
+   <div class="btnrow" style="justify-content:flex-end"><button class="btn primary" id="qnext">Next ›</button></div>`;
+  quizState={order:[...Array(MCQS.length).keys()].sort(()=>Math.random()-.5),idx:0,score:0,answered:false};
+  document.getElementById('qnext').onclick=()=>{
+    if(!quizState.answered)return;
+    quizState.idx++;
+    if(quizState.idx>=MCQS.length){quizDone();return;}
+    quizState.answered=false;drawQ();
+  };
+  drawQ();
+};
+function drawQ(){
+  const q=MCQS[quizState.order[quizState.idx]];
+  document.getElementById('qnum').textContent=quizState.idx+1;
+  document.getElementById('mcqq').textContent=q.q;
+  const labels=['A','B','C','D'];
+  const opts=document.getElementById('mcqopts');
+  opts.innerHTML=q.o.map((o,i)=>`<button class="opt" data-i="${i}"><span class="ol">${labels[i]}</span>${o}</button>`).join('');
+  const exp=document.getElementById('mcqexp');exp.className='mcq-exp';exp.innerHTML='';
+  opts.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    if(quizState.answered)return;
+    quizState.answered=true;
+    const chosen=+b.dataset.i;
+    opts.querySelectorAll('.opt').forEach((bb,i)=>{
+      bb.classList.add('disabled');
+      if(i===q.c)bb.classList.add('correct');
+      else if(i===chosen)bb.classList.add('wrong');
+    });
+    if(chosen===q.c){quizState.score++;document.getElementById('qscore').textContent=quizState.score;}
+    exp.innerHTML=`<b>${chosen===q.c?'✓ Correct.':'✗ Not quite.'}</b> ${q.e}`;
+    exp.classList.add('show');
+  }));
+  document.getElementById('qnext').textContent=quizState.idx===MCQS.length-1?'Finish':'Next ›';
+}
+function quizDone(){
+  const pct=Math.round(quizState.score/MCQS.length*100);
+  let msg=pct>=85?'Outstanding — exam ready.':pct>=65?'Solid. Review the misses and go again.':'Keep drilling — revisit the Notes tab.';
+  main.innerHTML=`<h1 class="vtitle">Quiz Complete</h1>
+   <div class="card" style="text-align:center;padding:30px">
+     <div style="font-size:46px;font-weight:800;background:linear-gradient(135deg,var(--purple),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent">${quizState.score}/${MCQS.length}</div>
+     <p style="font-size:15px;margin-top:8px">${pct}% · ${msg}</p>
+     <div class="btnrow" style="justify-content:center;margin-top:16px"><button class="btn primary" onclick="RENDER.quiz()">↻ Try Again</button><button class="btn" onclick="go('cards')">Flashcards →</button></div>
+   </div>`;
+}
+/* ============ SIMULATORS ============ */
+let simMode='stack';
+RENDER.sim=function(){
+  main.innerHTML=`<h1 class="vtitle">Simulators</h1><p class="vsub">Run real operations and watch the pseudocode execute line by line.</p>
+   <div class="simtabs">
+     <div class="simtab ${simMode==='stack'?'active':''}" data-s="stack">Stack (LIFO)</div>
+     <div class="simtab ${simMode==='linear'?'active':''}" data-s="linear">Linear Queue</div>
+     <div class="simtab ${simMode==='circular'?'active':''}" data-s="circular">Circular Queue</div>
+   </div>
+   <div id="simbody"></div>`;
+  main.querySelectorAll('.simtab').forEach(t=>t.addEventListener('click',()=>{simMode=t.dataset.s;RENDER.sim();}));
+  if(simMode==='stack')stackSim();
+  else if(simMode==='linear')queueSim(false);
+  else queueSim(true);
+};
+
+/* ---- STACK SIM ---- */
+const SMAX=5;
+let sArr=[],sTp=-1;
+const PUSH_CODE=['PROCEDURE Push(item)','  IF tp = maxSize-1 THEN','    OUTPUT "Overflow"','  ELSE','    tp <- tp + 1','    arr[tp] <- item','  ENDIF','ENDPROCEDURE'];
+const POP_CODE=['FUNCTION Pop()','  IF tp = -1 THEN','    OUTPUT "Underflow"','  ELSE','    item <- arr[tp]','    tp <- tp - 1','    RETURN item','  ENDIF','ENDFUNCTION'];
+function stackSim(){
+  document.getElementById('simbody').innerHTML=`
+   <div class="simwrap">
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+       <strong style="font-size:14px">Stack</strong><span class="ptr s">topPointer = <span id="s-tp">${sTp}</span></span></div>
+     <div class="stackvis" id="s-vis"></div>
+     <div class="btnrow" style="margin-top:8px">
+       <input class="txt" id="s-in" placeholder="value to push" maxlength="5">
+       <button class="btn primary sm" id="s-push">Push</button>
+       <button class="btn teal sm" id="s-pop">Pop</button>
+       <button class="btn sm" id="s-peek">Peek</button>
+       <button class="btn ghost sm" id="s-reset">Reset</button>
+     </div>
+     <div class="simresult" id="s-res">Push values to fill the stack. Try filling it then pushing once more to see an overflow.</div>
+     <div class="codeside" id="s-code"></div>
+   </div>`;
+  document.getElementById('s-push').onclick=sPush;
+  document.getElementById('s-pop').onclick=sPop;
+  document.getElementById('s-peek').onclick=sPeek;
+  document.getElementById('s-reset').onclick=()=>{sArr=[];sTp=-1;sDraw();sCode([]);sRes('Reset. topPointer = −1 (empty).','');};
+  document.getElementById('s-in').addEventListener('keydown',e=>{if(e.key==='Enter')sPush();});
+  sDraw();sCode([]);
+}
+function sDraw(newIdx=-1){
+  const v=document.getElementById('s-vis');
+  v.innerHTML='';
+  for(let i=0;i<SMAX;i++){
+    const has=i<=sTp&&sArr[i]!==undefined;
+    const isTop=i===sTp&&has;
+    const d=document.createElement('div');
+    d.className='slot'+(isTop?' top':has?' filled':'')+(i===newIdx?' new':'');
+    d.innerHTML=`<span class="si">[${i}]</span><span class="sv">${has?sArr[i]:'—'}</span>`;
+    v.appendChild(d);
+  }
+  document.getElementById('s-tp').textContent=sTp;
+}
+function sCode(which,hl){
+  const lines=which==='pop'?POP_CODE:which==='push'?PUSH_CODE:[];
+  const el=document.getElementById('s-code');
+  if(!lines.length){el.innerHTML='<div class="cl">Run an operation to see the algorithm.</div>';return;}
+  el.innerHTML=lines.map((l,i)=>{let c='cl';if(hl.err&&hl.err.includes(i))c+=' errl';else if(hl.exec&&hl.exec.includes(i))c+=' exec';else if(hl.chk&&hl.chk.includes(i))c+=' chk';return`<div class="${c}">${esc(l)}</div>`;}).join('');
+}
+function sRes(m,t){const e=document.getElementById('s-res');e.className='simresult'+(t?' '+t:'');e.innerHTML=m;}
+function sPush(){
+  const inp=document.getElementById('s-in');const val=inp.value.trim();
+  if(!val){sRes('Enter a value first.','');return;}
+  if(sTp===SMAX-1){sCode('push',{chk:[1],err:[2]});sRes('<b>Stack overflow</b> — topPointer ('+sTp+') = maxSize−1. Cannot push.','err');
+    document.querySelectorAll('#s-vis .slot').forEach(s=>{s.classList.add('flash');setTimeout(()=>s.classList.remove('flash'),420);});return;}
+  sTp++;sArr[sTp]=val;sDraw(sTp);sCode('push',{chk:[1],exec:[4,5]});
+  sRes(`<b>"${val}"</b> pushed. topPointer incremented to <b>${sTp}</b>, then stored at arr[${sTp}].`,'ok');inp.value='';
+}
+function sPop(){
+  if(sTp===-1){sCode('pop',{chk:[1],err:[2]});sRes('<b>Stack underflow</b> — topPointer = −1. Stack is empty.','err');return;}
+  const val=sArr[sTp];sCode('pop',{chk:[1],exec:[4,5,6]});sTp--;sDraw();
+  sRes(`<b>"${val}"</b> popped & returned. topPointer now <b>${sTp}</b>. ("${val}" still physically in the array — just unreachable.)`,'ok');
+}
+function sPeek(){
+  if(sTp===-1){sCode([]);sRes('Stack empty — nothing to peek.','err');return;}
+  sCode([]);sRes(`Peek returns <b>"${sArr[sTp]}"</b> from arr[${sTp}]. topPointer unchanged — stack not modified.`,'info');
+}
+
+/* ---- QUEUE SIM (linear + circular) ---- */
+const QMAX=6;
+let qArr=Array(QMAX).fill(null),qFront=0,qRear=0,qSize=0;
+function qReset(){qArr=Array(QMAX).fill(null);qFront=0;qRear=0;qSize=0;}
+function queueSim(circular){
+  qReset();
+  const title=circular?'Circular Queue':'Linear Queue';
+  document.getElementById('simbody').innerHTML=`
+   <div class="simwrap">
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong style="font-size:14px">${title}</strong></div>
+     ${circular?'<div class="ringbox"><svg id="q-ring" width="220" height="220" viewBox="-110 -110 220 220"></svg></div>':'<div class="stackvis" id="q-vis" style="flex-direction:row;flex-wrap:wrap"></div>'}
+     <div class="ptrbar"><span class="ptr f">front = <span id="q-f">0</span></span><span class="ptr r">rear = <span id="q-r">0</span></span><span class="ptr s">size = <span id="q-s">0</span></span></div>
+     <div class="btnrow" style="margin-top:6px">
+       <input class="txt" id="q-in" placeholder="value to enqueue" maxlength="5">
+       <button class="btn primary sm" id="q-enq">Enqueue</button>
+       <button class="btn teal sm" id="q-deq">Dequeue</button>
+       <button class="btn ghost sm" id="q-reset">Reset</button>
+     </div>
+     <div class="simresult" id="q-res">${circular?'Fill the queue, dequeue a few, then enqueue again — watch rear wrap around with MOD.':'Dequeue items then keep enqueuing — eventually it overflows despite free slots at the start (the wasted-space problem).'}</div>
+     <div class="codeside" id="q-code"></div>
+   </div>`;
+  document.getElementById('q-enq').onclick=()=>qEnq(circular);
+  document.getElementById('q-deq').onclick=()=>qDeq(circular);
+  document.getElementById('q-reset').onclick=()=>{qReset();qDraw(circular);qCode(circular,[]);qRes('Reset. front=0, rear=0, size=0.','');};
+  document.getElementById('q-in').addEventListener('keydown',e=>{if(e.key==='Enter')qEnq(circular);});
+  qDraw(circular);qCode(circular,[]);
+}
+function ENQ_CODE(circ){return['PROCEDURE Enqueue(item)','  IF '+(circ?'size = maxSize':'rear = maxSize')+' THEN','    OUTPUT "Overflow"','  ELSE','    queue[rear] <- item','    rear <- '+(circ?'(rear+1) MOD maxSize':'rear + 1'),'    size <- size + 1','  ENDIF','ENDPROCEDURE'];}
+function DEQ_CODE(circ){return['FUNCTION Dequeue()','  IF size = 0 THEN','    OUTPUT "Underflow"','  ELSE','    item <- queue[front]','    front <- '+(circ?'(front+1) MOD maxSize':'front + 1'),'    size <- size - 1','    RETURN item','  ENDIF','ENDFUNCTION'];}
+function qDraw(circ){
+  document.getElementById('q-f').textContent=qFront;
+  document.getElementById('q-r').textContent=qRear;
+  document.getElementById('q-s').textContent=qSize;
+  if(circ){
+    const svg=document.getElementById('q-ring');if(!svg)return;svg.innerHTML='';
+    const R=78,r=27;
+    for(let i=0;i<QMAX;i++){
+      const ang=2*Math.PI*i/QMAX-Math.PI/2,cx=R*Math.cos(ang),cy=R*Math.sin(ang);
+      const filled=qArr[i]!==null,isF=i===qFront&&qSize>0,isR=i===qRear,both=isF&&isR;
+      let fill='#13131f',stroke='#2a2a3d',tcol='#6c6c84';
+      if(filled){fill='#1f1b38';stroke='#6a5fd0';tcol='#c4bcff';}
+      if(isF&&!both){fill='#10342a';stroke='#1d9e75';tcol='#3dd6a8';}
+      if(both){fill='#352a12';stroke='#ba7517';tcol='#f0b656';}
+      svg.innerHTML+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
+        <text x="${cx}" y="${cy-9}" text-anchor="middle" font-size="9" fill="#6c6c84">[${i}]</text>
+        <text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="12" font-weight="700" fill="${tcol}">${qArr[i]||'—'}</text>
+        <text x="${cx}" y="${cy+18}" text-anchor="middle" font-size="8" font-weight="700" fill="${both?'#f0b656':isF?'#3dd6a8':isR?'#8b80ff':'transparent'}">${both?'F+R':isF?'F':isR?'R':''}</text>`;
+    }
+  }else{
+    const v=document.getElementById('q-vis');if(!v)return;v.innerHTML='';
+    for(let i=0;i<QMAX;i++){
+      const has=qArr[i]!==null,isF=i===qFront&&qSize>0;
+      const d=document.createElement('div');d.style.flex='1';d.style.minWidth='44px';
+      d.className='slot'+(isF?' top':has?' filled':'');
+      d.innerHTML=`<span class="si">[${i}]</span><span class="sv">${has?qArr[i]:'—'}</span>`;
+      v.appendChild(d);
+    }
+  }
+}
+function qCode(circ,which,hl){
+  const lines=which==='enq'?ENQ_CODE(circ):which==='deq'?DEQ_CODE(circ):[];
+  const el=document.getElementById('q-code');
+  if(!lines.length){el.innerHTML='<div class="cl">Run an operation to see the algorithm.</div>';return;}
+  el.innerHTML=lines.map((l,i)=>{let c='cl';if(hl.err&&hl.err.includes(i))c+=' errl';else if(hl.exec&&hl.exec.includes(i))c+=' exec';else if(hl.chk&&hl.chk.includes(i))c+=' chk';return`<div class="${c}">${esc(l)}</div>`;}).join('');
+}
+function qRes(m,t){const e=document.getElementById('q-res');e.className='simresult'+(t?' '+t:'');e.innerHTML=m;}
+function qEnq(circ){
+  const inp=document.getElementById('q-in');const val=inp.value.trim();
+  if(!val){qRes('Enter a value first.','');return;}
+  const full=circ?qSize===QMAX:qRear===QMAX;
+  if(full){qCode(circ,'enq',{chk:[1],err:[2]});
+    qRes(circ?`<b>Overflow</b> — size (${qSize}) = maxSize.`:`<b>Overflow</b> — rear (${qRear}) = maxSize. ${qSize<QMAX?'Note: '+(QMAX-qSize)+' slot(s) wasted at the start — the linear queue limitation!':''}`,'err');return;}
+  const oldRear=qRear;qArr[qRear]=val;
+  qRear=circ?(qRear+1)%QMAX:qRear+1;qSize++;
+  qCode(circ,'enq',{chk:[1],exec:[4,5,6]});qDraw(circ);
+  qRes(`<b>"${val}"</b> written to queue[${oldRear}]. rear → <b>${qRear}</b>${circ?` via (${oldRear}+1) MOD ${QMAX}`:''}. size = ${qSize}.`,'ok');inp.value='';
+}
+function qDeq(circ){
+  if(qSize===0){qCode(circ,'deq',{chk:[1],err:[2]});qRes('<b>Underflow</b> — size = 0. Queue is empty.','err');return;}
+  const val=qArr[qFront];const oldF=qFront;qArr[qFront]=null;
+  qFront=circ?(qFront+1)%QMAX:qFront+1;qSize--;
+  qCode(circ,'deq',{chk:[1],exec:[4,5,6,7]});qDraw(circ);
+  qRes(`<b>"${val}"</b> dequeued from queue[${oldF}]. front → <b>${qFront}</b>${circ?` via (${oldF}+1) MOD ${QMAX}`:''}. size = ${qSize}.`,'ok');
+}
+
+/* ============ TRACE TRAINER ============ */
+const TRACES={
+  stack:{
+    name:'Stack: Push A,B,C then Pop',
+    cols:['topPtr','arr[0]','arr[1]','arr[2]','item','OUT'],
+    rows:[
+      {d:'Initial state',v:['-1','','','','','']},
+      {d:'tp ← 0',v:['0','','','','','']},
+      {d:'arr[0] ← A',v:['','A','','','','']},
+      {d:'tp ← 1',v:['1','','','','','']},
+      {d:'arr[1] ← B',v:['','','B','','','']},
+      {d:'tp ← 2',v:['2','','','','','']},
+      {d:'arr[2] ← C',v:['','','','C','','']},
+      {d:'item ← arr[2]',v:['','','','','C','']},
+      {d:'tp ← 1',v:['1','','','','','']},
+      {d:'RETURN item',v:['','','','','','C']},
+    ]
+  },
+  queue:{
+    name:'Linear Queue: Enq P,Q then Dequeue',
+    cols:['front','rear','size','q[0]','q[1]','item','OUT'],
+    rows:[
+      {d:'Initial state',v:['0','0','0','','','','']},
+      {d:'q[0] ← P',v:['','','','P','','','']},
+      {d:'rear ← 1',v:['','1','','','','','']},
+      {d:'size ← 1',v:['','','1','','','','']},
+      {d:'q[1] ← Q',v:['','','','','Q','','']},
+      {d:'rear ← 2',v:['','2','','','','','']},
+      {d:'size ← 2',v:['','','2','','','','']},
+      {d:'item ← q[0]',v:['','','','','','P','']},
+      {d:'front ← 1',v:['1','','','','','','']},
+      {d:'size ← 1',v:['','','1','','','','']},
+      {d:'RETURN item',v:['','','','','','','P']},
+    ]
+  },
+  tree:{
+    name:'June 2024 binary-tree trace [7 marks]',
+    cols:['Done','Pos','T[0]','T[1]','T[2]','Curr','OUT'],
+    rows:[
+      {d:'Initialise',v:['False','-1','','','','0','']},
+      {d:'Pos←0, T[0]←0',v:['','0','0','','','','']},
+      {d:'Pos←1, T[1]←1, Curr←Dir1',v:['','1','','1','','','']},
+      {d:'Pos←2, T[2]←2, Curr←-1',v:['','2','','','2','-1','']},
+      {d:'OUT Data[T[2]]=Y',v:['','','','','','','Y']},
+      {d:'Curr←Dir2[2]=-1',v:['','','','','','-1','']},
+      {d:'Pos←1',v:['','1','','','','','']},
+      {d:'OUT Data[T[1]]=K',v:['','','','','','','K']},
+      {d:'Curr←Dir2[1]=3',v:['','','','','','3','']},
+      {d:'Pos←0',v:['','0','','','','','']},
+      {d:'Pos←1, T[1]←3, Curr←-1',v:['','1','','3','','-1','']},
+      {d:'OUT Data[T[1]]=H',v:['','','','','','','H']},
+      {d:'Curr←Dir2[3]=-1',v:['','','','','','-1','']},
+      {d:'Pos←0',v:['','0','','','','','']},
+      {d:'OUT Data[T[0]]=U',v:['','','','','','','U']},
+      {d:'Curr←Dir2[0]=4',v:['','','','','','4','']},
+      {d:'Pos←-1',v:['','-1','','','','','']},
+      {d:'Pos←0, T[0]←4, Curr←-1',v:['','0','4','','','-1','']},
+      {d:'OUT Data[T[0]]=M',v:['','','','','','','M']},
+      {d:'Curr←Dir2[4]=-1',v:['','','','','','-1','']},
+      {d:'Pos←-1, Done←True',v:['True','-1','','','','','']},
+    ]
+  }
+};
+let trKey='stack',trStep=0;
+RENDER.trace=function(){
+  main.innerHTML=`<h1 class="vtitle">Trace Trainer</h1><p class="vsub">Reveal a trace one row at a time, or all at once. Purple = value changed this step.</p>
+   <div class="simtabs">
+     <div class="simtab ${trKey==='stack'?'active':''}" data-t="stack">Stack</div>
+     <div class="simtab ${trKey==='queue'?'active':''}" data-t="queue">Queue</div>
+     <div class="simtab ${trKey==='tree'?'active':''}" data-t="tree">2024 Tree ★</div>
+   </div>
+   <div class="card"><strong style="font-size:14px" id="tr-name"></strong>
+     <div style="overflow-x:auto"><table class="ttbl" id="tr-tbl"></table></div>
+     <div class="btnrow" style="margin-top:12px;justify-content:space-between">
+       <button class="btn sm" id="tr-back">‹ Back</button>
+       <button class="btn primary sm" id="tr-step">Reveal next ›</button>
+       <button class="btn teal sm" id="tr-all">Show all</button>
+       <button class="btn ghost sm" id="tr-reset">Reset</button>
+     </div>
+     <div class="simresult info" id="tr-hint" style="margin-top:10px"></div>
+   </div>`;
+  main.querySelectorAll('.simtab').forEach(t=>t.addEventListener('click',()=>{trKey=t.dataset.t;trStep=0;RENDER.trace();}));
+  document.getElementById('tr-step').onclick=()=>{const t=TRACES[trKey];if(trStep<t.rows.length)trStep++;trDraw();};
+  document.getElementById('tr-back').onclick=()=>{if(trStep>0)trStep--;trDraw();};
+  document.getElementById('tr-all').onclick=()=>{trStep=TRACES[trKey].rows.length;trDraw();};
+  document.getElementById('tr-reset').onclick=()=>{trStep=0;trDraw();};
+  trDraw();
+};
+function trDraw(){
+  const t=TRACES[trKey];
+  document.getElementById('tr-name').textContent=t.name;
+  const tbl=document.getElementById('tr-tbl');
+  let html='<tr><th style="text-align:left">Step</th>'+t.cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+  for(let r=0;r<trStep;r++){
+    const row=t.rows[r];const prev=r>0?t.rows[r-1]:null;
+    html+='<tr><td class="desc">'+row.d+'</td>'+row.v.map((cell,ci)=>{
+      const changed=cell!==''&&(!prev||true); // value present this row = changed
+      return `<td class="${cell!==''?'chg':''}">${cell}</td>`;
+    }).join('')+'</tr>';
+  }
+  tbl.innerHTML=html;
+  const hint=document.getElementById('tr-hint');
+  if(trStep===0)hint.innerHTML='Press <b>Reveal next</b> to step through. Watch which single cell changes each row.';
+  else if(trStep>=t.rows.length){
+    const out=t.rows.filter(r=>r.v[r.v.length-1]!=='').map(r=>r.v[r.v.length-1]).join(', ');
+    hint.innerHTML=`<b>Complete.</b> Output sequence: <b>${out}</b>`;
+  }
+  else hint.innerHTML=`Step ${trStep} of ${t.rows.length} — <b>${t.rows[trStep-1].d}</b>`;
+}
+
+/* ============ UTIL ============ */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ============ INIT ============ */
+RENDER.home();
+</script>
+</body>
+</html>
