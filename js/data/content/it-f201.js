@@ -68,16 +68,18 @@ C["it:F201.1.2"] = {
     { h: "The Evolution of Big Data" },
     { callout: { t: "info", h: "Technological Drivers", body: [
       { kv: [
-        ["Database Management Systems ($DBMS$)", "Transition from flat files to $RDBMS$ and then to $NoSQL$ for horizontal scaling."],
-        ["Internet of Everything ($IoE$)", "The connection of people, processes, data, and things."],
-        ["Device Proliferation", "The explosion of smartphones and $IoT$ sensors."],
-        ["Search Engines", "Required massive indexing and fast retrieval of unstructured web data."],
-        ["Web-based Storage", "Cloud computing provided the affordable scale needed for big data."]
+        ["Database Management Systems ($DBMS$)", "Transition from flat files to $RDBMS$ and then to $NoSQL$ for horizontal scaling — enabling the storage of high-variety data at scale."],
+        ["Internet of Everything ($IoE$)", "The connection of people, processes, data, and things — billions of devices now generate continuous data streams."],
+        ["Device Proliferation", "The explosion of smartphones and $IoT$ sensors — each device is a data source producing location, usage, and health signals."],
+        ["Search Engines", "Required massive indexing and fast retrieval of unstructured web data — drove early innovation in distributed storage and retrieval."],
+        ["Web-based Storage", "Cloud computing ($AWS$, $Azure$, $GCP$) provided affordable, elastic scale — lowering the cost barrier for organisations to store petabytes."]
       ] }
     ] } },
-    { table: { head: ["Development", "Impact"], rows: [
-      ["$IoE$", "Creates trillions of new data points daily."],
-      ["Cloud Storage", "Removes the hardware cost barrier for $SMEs$."]
+    { table: { head: ["Development", "Benefit", "Limitation"], rows: [
+      ["$DBMS$ → $NoSQL$", "Flexible schemas; handles $Variety$.", "Weaker ACID guarantees; consistency trade-offs."],
+      ["$IoE$ / Device Proliferation", "Massive increase in data $Volume$ and $Velocity$.", "Security risks; heterogeneous data formats."],
+      ["Search Engines", "Drove scalable distributed indexing.", "Needed proprietary, non-portable solutions."],
+      ["Web-based / Cloud Storage", "Pay-as-you-go scale for all organisations.", "Data sovereignty and vendor lock-in concerns."]
     ] } }
   ],
   flashcards: [
@@ -121,16 +123,21 @@ C["it:F201.1.3"] = {
         ["Transactional records", "Point-of-sale logs and online banking history."]
       ] }
     ] } },
-    { table: { head: ["Capture Method", "Common Data Type"], rows: [
-      ["Sensors", "Structured (Numeric)"],
-      ["Social Media", "Unstructured (Text/Image)"],
-      ["Surveys", "Semi-structured ($JSON$/$XML$)"]
+    { table: { head: ["Capture Method", "Data Type", "Benefit", "Limitation"], rows: [
+      ["Sensors / $IoE$ devices", "Structured (numeric)", "Continuous, real-time, high velocity", "Sensor failure; calibration drift."],
+      ["Social Media", "Unstructured (text/image)", "Rich, real-time consumer sentiment", "Low veracity; fake accounts; bias."],
+      ["$GPS$ signals", "Structured (coordinates)", "Precise real-time location at scale", "Privacy concerns; battery drain."],
+      ["Satellites", "Unstructured (imagery)", "Global coverage; no physical access needed", "Expensive; cloud cover can block data."],
+      ["Online Surveys", "Semi-structured ($JSON$/$XML$)", "Targeted questions; direct consumer input", "Self-selection bias; low response rates."],
+      ["Transactional records", "Structured (relational)", "Accurate financial audit trail", "Slow batch upload; format standardisation needed."],
+      ["Natural Language", "Unstructured (text/audio)", "Captures nuanced human intent", "Requires $NLP$/$AI$ to process; dialect variation."]
     ] } }
   ],
   flashcards: [
-    ["Name a source of unstructured data.", "Social media or digital video."],
+    ["Name a source of unstructured data.", "Social media, digital video, or natural language audio."],
     ["What data type does $GPS$ generate?", "Structured (Coordinates and Timestamps)."],
-    ["How are transactional records usually stored?", "In structured databases."]
+    ["How are transactional records usually stored?", "In structured relational databases."],
+    ["Limitation of survey data?", "Self-selection bias — respondents may not represent the full population."]
   ],
   quiz: [
     {
@@ -159,18 +166,25 @@ C["it:F201.1.4"] = {
     { h: "Purpose and Use of Big Data Analytics" },
     { callout: { t: "info", h: "Areas of Application", body: [
       { kv: [
-        ["Banking", "Fraud detection and risk assessment."],
-        ["Education", "Personalised learning paths and tracking student progress."],
-        ["Energy and utilities", "Smart grid management and predictive maintenance."],
-        ["Government", "Public health monitoring and urban planning."],
-        ["Healthcare", "Disease outbreak prediction and drug discovery."],
-        ["Insurance", "Customised premiums based on telematics data."],
-        ["Manufacturing", "Supply chain optimisation and robotics control."],
-        ["Retail", "Targeted marketing and inventory forecasting."]
+        ["Banking", "Fraud detection, credit risk assessment, and algorithmic trading."],
+        ["Communications, Media and Entertainment", "Recommendation engines ($Netflix$), personalised ads, and real-time content delivery."],
+        ["Education", "Personalised learning paths, early-intervention alerts, and progress tracking."],
+        ["Energy and utilities", "Smart grid management, demand forecasting, and predictive maintenance."],
+        ["Government", "Public health monitoring, tax fraud detection, and urban planning."],
+        ["Healthcare", "Disease outbreak prediction, drug discovery, and personalised medicine."],
+        ["Insurance", "Customised premiums based on telematics data and risk modelling."],
+        ["Manufacturing", "Supply chain optimisation, robotics control, and defect detection."],
+        ["Retail", "Targeted marketing, inventory forecasting, and anticipatory shipping."]
       ] }
     ] } },
+    { table: { head: ["Sector", "Benefit", "Limitation"], rows: [
+      ["Banking", "Near-instant fraud detection saves millions.", "False positives block legitimate transactions."],
+      ["Healthcare", "Earlier diagnosis, better outcomes.", "Data breaches risk patient privacy ($GDPR$)."],
+      ["Retail", "Higher sales through personalisation.", "Customer distrust over data collection."],
+      ["Government", "Evidence-based policy; faster emergency response.", "Mass surveillance concerns."]
+    ] } },
     { callout: { t: "tip", h: "Strategic Goal", body: [
-      { n: "The primary purpose is to move from reactive to **proactive** decision-making based on statistical evidence." }
+      "The primary purpose is to move from **reactive** to **proactive** decision-making based on statistical evidence."
     ] } }
   ],
   flashcards: [
@@ -262,16 +276,18 @@ C["it:F201.2.2"] = {
   notes: [
     { h: "Data Preparation and Cleaning" },
     { callout: { t: "info", h: "Data Wrangling", body: [
-      { n: "The process of mapping 'raw' data into a usable format for mining." }
+      "The process of mapping 'raw' data into a usable format for mining."
     ] } },
     { h: "Cleaning Techniques" },
     { steps: [
       { h: "Removing Duplicates", m: "De-duplication", n: "Ensuring every record is unique to avoid skewing results." },
-      { h: "Fixing Missing Data", m: "Imputation", n: "Filling gaps using averages or removing incomplete rows." },
-      { h: "Removing Irrelevant Data", m: "Filtering", n: "Deleting noise that does not help the analysis." },
-      { h: "Converting Data Types", m: "Casting", n: "Ensuring numbers are treated as integers, not text." },
-      { h: "Fixing Structural Errors", m: "Mapping", n: "Splitting 'Full Name' into 'First' and 'Last' for better sorting." },
-      { h: "Validating Data", m: "Checking", n: "Ensuring values fall within logical ranges (e.g., Age < $120$)." }
+      { h: "Fixing Missing Data", m: "Imputation", n: "Filling gaps using averages, mode values, or removing incomplete rows entirely." },
+      { h: "Removing Irrelevant Data", m: "Filtering", n: "Deleting noise columns/rows that do not contribute to the analysis goal." },
+      { h: "Converting Data Types", m: "Casting", n: "Ensuring numbers are treated as integers (not text), and dates as date objects." },
+      { h: "Clear Formatting", m: "Standardisation", n: "Aligning inconsistent formats: e.g. '30/12/24' and 'Dec 30 2024' → one format." },
+      { h: "Fixing Structural Errors", m: "Mapping", n: "Splitting 'Full Name' into 'First' and 'Last'; combining 'Street' + 'City' into 'Address'." },
+      { h: "Language Translation", m: "Normalisation", n: "Converting text data from multiple languages into a single language for uniform analysis." },
+      { h: "Validating Data", m: "Checking", n: "Ensuring values fall within logical ranges — e.g. Age must be 0–120, Price must be > 0." }
     ] }
   ],
   flashcards: [
@@ -402,28 +418,62 @@ C["it:F201.2.4"] = {
 C["it:F201.2.5"] = {
   notes: [
     { h: "Data Science and Data Analytics" },
-    { callout: { t: "info", h: "Key Differences", body: [
-      { kv: [
-        ["Data Science", "Focused on the future; creates models, prototypes, and algorithms; uses $ML$."],
-        ["Data Analytics", "Focused on the past/present; answers specific business questions; uses $SQL$/BI tools."]
-      ] }
+    { callout: { t: "def", h: "Data Science", body: [
+      "An interdisciplinary field that uses statistics, programming, and domain knowledge to **discover new insights** and build **predictive models** from large datasets. It is forward-looking."
     ] } },
-    { table: { head: ["Task", "More likely..."], rows: [
-      ["Building an image recognition algorithm", "Data Science"],
-      ["Creating a monthly sales report", "Data Analytics"],
-      ["Developing a predictive model for churn", "Data Science"]
+    { callout: { t: "def", h: "Data Analytics", body: [
+      "The process of **examining existing datasets** to answer specific business questions, identify trends, and support decision-making. It is primarily backward/present-looking."
+    ] } },
+    { table: { head: ["Dimension", "Data Science", "Data Analytics"], rows: [
+      ["Focus", "Future — building new models", "Past/present — analysing what happened"],
+      ["Tools", "$Python$, $R$, $ML$ libraries", "$SQL$, $Excel$, $BI$ dashboards ($Tableau$)"],
+      ["Output", "Algorithms, prototypes, new knowledge", "Reports, dashboards, trend summaries"],
+      ["Question type", "Open: 'What could we predict?'", "Closed: 'What were last month's sales?'"],
+      ["Role", "Data Scientist — research-oriented", "Data Analyst — business-oriented"]
+    ] } },
+    { h: "Application to Sectors" },
+    { table: { head: ["Sector", "Data Analytics Use", "Data Science Use"], rows: [
+      ["Retail", "Sales dashboard / stock-level reports", "Demand-forecasting model / churn predictor"],
+      ["Healthcare", "Patient admission trend analysis", "$ML$ model for early cancer detection"],
+      ["Banking", "Monthly fraud transaction reports", "Real-time fraud detection algorithm"]
+    ] } },
+    { callout: { t: "warn", h: "Misconception", body: [
+      "Data Science is NOT just 'more advanced' analytics. It uses a different scientific method — forming hypotheses, experimenting with models, and discovering new patterns the business didn't know existed."
     ] } }
   ],
   flashcards: [
-    ["Goal of Data Science?", "Discovering new questions and building predictive models."],
-    ["Goal of Data Analytics?", "Finding answers to existing business questions and trends."]
+    ["Goal of Data Science?", "Discovering new questions and building predictive models from data."],
+    ["Goal of Data Analytics?", "Finding answers to existing business questions and understanding trends."],
+    ["Tool used in Data Science?", "Python / R / machine learning libraries."],
+    ["Tool used in Data Analytics?", "SQL, Excel, Tableau or other BI dashboard software."],
+    ["Which is more forward-looking?", "Data Science — it predicts the future."]
   ],
   quiz: [
     {
       q: "Which field is more future-focused?",
       opts: ["Data Analytics", "Data Science", "Data Cleaning", "Data Storage"],
       ans: 1,
-      why: "Science builds the models that predict the future."
+      why: "Data Science builds predictive models to forecast future outcomes."
+    },
+    {
+      q: "A company asks 'what were our top-selling products last quarter?' — which field answers this?",
+      opts: ["Data Science", "Data Analytics", "Machine Learning", "Data Wrangling"],
+      ans: 1,
+      why: "Data Analytics answers specific historical business questions using existing data."
+    }
+  ],
+  exam: [
+    {
+      q: "Explain the difference between Data Science and Data Analytics, using an example from the Healthcare sector for each.",
+      marks: 6,
+      ms: [
+        "Data Analytics is backward/present-looking; answers defined questions (1).",
+        "Healthcare Analytics example: analysing which hospital wards have the longest waiting times to schedule more staff (1).",
+        "Data Science is forward-looking; discovers new patterns and builds models (1).",
+        "Healthcare Science example: building an $ML$ model to predict which patients are at risk of readmission (1).",
+        "Key difference: Analytics uses existing data to report; Science creates new algorithms to predict (1).",
+        "Data Science relies heavily on big data as training input for its models (1)."
+      ]
     }
   ]
 };
@@ -490,7 +540,7 @@ C["it:F201.3.1"] = {
       { h: "K-Means", m: "Unsupervised", n: "Grouping data into $k$ clusters based on distance/similarity." }
     ] },
     { callout: { t: "info", h: "Big Data Interaction", body: [
-      { n: "Big data provides the massive training sets ($Volume$ and $Variety$) required for $ML$ models to become accurate." }
+      "Big data provides the massive training sets ($Volume$ and $Variety$) required for $ML$ models to become accurate."
     ] } }
   ],
   flashcards: [
@@ -542,7 +592,7 @@ C["it:F201.4.1"] = {
       ] }
     ] } },
     { callout: { t: "tip", h: "ICO", body: [
-      { n: "The Information Commissioner's Office ($ICO$) is the UK body that enforces these laws." }
+      "The Information Commissioner's Office ($ICO$) is the UK body that enforces these laws."
     ] } }
   ],
   flashcards: [
@@ -584,23 +634,61 @@ C["it:F201.4.2"] = {
         ["Protecting Identity", "The difficulty of maintaining privacy in massive datasets."]
       ] }
     ] } },
+    { h: "Automated Decision Making and UK GDPR" },
+    { callout: { t: "warn", h: "UK GDPR — Automated Decisions", body: [
+      "Article 22 of UK GDPR gives individuals the **right not to be subject to solely automated decisions** that produce a significant legal or similarly significant effect. Organisations must provide human oversight or the ability to contest the decision."
+    ] } },
+    { table: { head: ["Impact on Individuals", "Example"], rows: [
+      ["Discrimination risk", "Loan refusal algorithm trained on biased historical data."],
+      ["Lack of transparency", "Cannot explain why a job application was auto-rejected."],
+      ["Erosion of appeal rights", "Automated benefit denials with no human review process."]
+    ] } },
+    { h: "Data Ownership and Sharing" },
+    { callout: { t: "info", h: "The Ownership Debate", body: [
+      { kv: [
+        ["Who Creates?", "Individuals — through their online behaviour, purchases, and location data."],
+        ["Who Profits?", "Organisations — who mine, package, and sell the analysed data."],
+        ["Who Controls?", "Under UK GDPR — individuals have Rights of Access, Erasure, and Portability."]
+      ] }
+    ] } },
     { h: "Ethical Frameworks" },
     { steps: [
-      { h: "Data Ethics Framework", m: "UK Gov", n: "Guides for using data in a way that is clear and public-focused." },
-      { h: "Inclusive Data Principles", m: "Fairness", n: "Ensuring all population groups are fairly represented in data." }
+      { h: "Data Ethics Framework", m: "UK Gov", n: "A government guide for using data in a transparent, accountable, and public-focused way — covering transparency, participation, and accountability." },
+      { h: "Inclusive Data Principles", m: "Fairness", n: "Ensuring all population groups are represented in datasets — guarding against the underrepresentation that leads to biased models." }
     ] }
   ],
   flashcards: [
-    ["What is algorithmic bias?", "Unfair outcomes caused by prejudiced training data."],
-    ["Ethical risk of data sharing?", "Erosion of privacy and potential for re-identification."],
-    ["Why is ownership a big data issue?", "Users create the data, but companies profit from the analysis."]
+    ["What is algorithmic bias?", "Unfair outcomes caused by prejudiced or unrepresentative training data."],
+    ["Ethical risk of data sharing?", "Erosion of privacy and potential for re-identification from 'anonymous' data."],
+    ["Why is ownership a big data issue?", "Users create the data but companies profit — UK GDPR gives individuals rights to access and erasure."],
+    ["GDPR rule on automated decisions?", "Article 22: individuals have the right not to be subject to solely automated decisions with significant effects."]
   ],
   quiz: [
     {
       q: "Which issue refers to $AI$ inheriting human prejudices?",
       opts: ["Data Ownership", "Algorithmic Bias", "Automated Decisions", "GDPR"],
       ans: 1,
-      why: "Bias occurs when the training data is not representative or fair."
+      why: "Bias occurs when the training data is not representative or reflects historical discrimination."
+    },
+    {
+      q: "Under UK GDPR, which right protects individuals from solely automated job rejections?",
+      opts: ["Right to Erasure", "Right to Rectification", "Right not to be subject to automated decisions", "Right to Access"],
+      ans: 2,
+      why: "Article 22 gives individuals the right to human review of significant automated decisions."
+    }
+  ],
+  exam: [
+    {
+      q: "Discuss the ethical implications of a bank using an automated decision-making system to approve or reject loan applications.",
+      marks: 6,
+      ms: [
+        "Risk of algorithmic bias: if the training data reflects historical lending discrimination, the model perpetuates it (1).",
+        "Lack of transparency: applicants may not understand why they were rejected ('black box' problem) (1).",
+        "UK GDPR Article 22: individuals have the right to human review of significant automated decisions (1).",
+        "Data ownership issue: personal financial data used to train the model — did users consent? (1).",
+        "Benefit: faster decisions, consistent application of criteria (1).",
+        "Conclusion: must have human oversight and an appeal process to be ethically compliant (1)."
+      ]
     }
   ]
 };
@@ -618,20 +706,42 @@ C["it:F201.5.1"] = {
       ] }
     ] } },
     { callout: { t: "info", h: "The Downside", body: [
-      { n: "Data centres consume massive amounts of energy for cooling and processing, and server upgrades produce significant e-waste." }
+      "Data centres consume massive amounts of energy for cooling and processing, and server upgrades produce significant e-waste."
+    ] } },
+    { table: { head: ["Area", "Benefit", "Limitation"], rows: [
+      ["Weather Forecasting", "Saves lives; reduces economic loss from extreme events.", "Models can still fail for unprecedented events."],
+      ["Natural Disaster Mgmt", "Early-warning systems give populations time to evacuate.", "False alarms erode public trust."],
+      ["Energy Efficiency", "Smart grids reduce carbon emissions and energy waste.", "Requires expensive sensor/network infrastructure."],
+      ["Environmental Mgmt", "Satellite tracking gives objective, global deforestation data.", "High energy cost of satellite operation."],
+      ["Climate Platforms", "Enables international collaboration on climate modelling.", "Data centres themselves produce significant $CO_2$."]
     ] } }
   ],
   flashcards: [
-    ["How does big data help Energy Efficiency?", "Through Smart Grids that optimise distribution."],
-    ["Environmental cost of big data?", "High electricity use by data centres and cooling systems."],
-    ["How can satellites help the environment?", "Monitoring deforestation and ocean health in real-time."]
+    ["How does big data help Energy Efficiency?", "Through Smart Grids that balance supply and demand in real-time."],
+    ["Environmental cost of big data?", "High electricity use for data centres and cooling; server upgrades produce e-waste."],
+    ["How can satellites help the environment?", "Monitoring deforestation, ocean health, and ice melt via real-time imagery."],
+    ["Limitation of big data for climate?", "Data centres themselves consume large amounts of energy and produce carbon emissions."]
   ],
   quiz: [
     {
       q: "Which technology uses big data to balance electricity supply and demand?",
       opts: ["Data Lake", "Smart Grid", "Blockchain", "NoSQL"],
       ans: 1,
-      why: "Smart grids are the primary data-driven tool for energy efficiency."
+      why: "Smart grids use real-time sensor data to optimise electricity distribution."
+    }
+  ],
+  exam: [
+    {
+      q: "Evaluate the use of big data in managing natural disasters. Include both benefits and limitations.",
+      marks: 6,
+      ms: [
+        "Benefit: Predictive models using weather and seismic data can give early warnings (1).",
+        "Benefit: Authorities can pre-position resources and evacuate populations ahead of time (1).",
+        "Benefit: Post-disaster, satellite imagery helps target rescue efforts efficiently (1).",
+        "Limitation: False alarms cause unnecessary evacuations — economic and social cost (1).",
+        "Limitation: Requires reliable infrastructure to collect and transmit data — may fail in the disaster itself (1).",
+        "Conclusion: The benefits of saving lives outweigh the limitations, but false alarm protocols must be managed (1)."
+      ]
     }
   ]
 };
@@ -701,7 +811,7 @@ C["it:F201.5.3"] = {
       ] }
     ] } },
     { callout: { t: "tip", h: "Exam Tip", body: [
-      { n: "When discussing case studies, always link the **Technology** ($ML$/$Big Data$) to a **Real-world Outcome** (Efficiency/Profit/Safety)." }
+      "When discussing case studies, always link the **Technology** ($ML$/$Big Data$) to a **Real-world Outcome** (Efficiency/Profit/Safety)."
     ] } }
   ],
   flashcards: [

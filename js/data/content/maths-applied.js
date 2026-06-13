@@ -990,9 +990,9 @@ C["maths:S6.1"] = {
         "body": [
           {
             "kv": [
-              ["Mass", "Kilogram ($\text{kg}$)"],
-              ["Length", "Metre ($\text{m}$)"],
-              ["Time", "Second ($\text{s}$)"]
+              ["Mass", "Kilogram ($\\text{kg}$)"],
+              ["Length", "Metre ($\\text{m}$)"],
+              ["Time", "Second ($\\text{s}$)"]
             ]
           }
         ]
@@ -1002,10 +1002,10 @@ C["maths:S6.1"] = {
       "table": {
         "head": ["Quantity", "Standard Unit", "Base Units"],
         "rows": [
-          ["Velocity ($v$)", "$\text{m s}^{-1}$", "$\text{m/s}$"],
-          ["Acceleration ($a$)", "$\text{m s}^{-2}$", "$\text{m/s}^2$"],
-          ["Force ($F$)", "Newton ($\text{N}$)", "$\text{kg m s}^{-2}$"],
-          ["Energy ($E$)", "Joule ($\text{J}$)", "$\text{kg m}^2 \text{s}^{-2}$"]
+          ["Velocity ($v$)", "$\\text{m s}^{-1}$", "$\\text{m/s}$"],
+          ["Acceleration ($a$)", "$\\text{m s}^{-2}$", "$\\text{m/s}^2$"],
+          ["Force ($F$)", "Newton ($\\text{N}$)", "$\\text{kg m s}^{-2}$"],
+          ["Energy ($E$)", "Joule ($\\text{J}$)", "$\\text{kg m}^2 \\text{s}^{-2}$"]
         ]
       }
     },
@@ -1020,12 +1020,12 @@ C["maths:S6.1"] = {
     }
   ],
   "flashcards": [
-    ["Base units of Newton?", "$\text{kg m s}^{-2}$."],
+    ["Base units of Newton?", "$\\text{kg m s}^{-2}$."],
     ["Why is kg special?", "Only base unit with a prefix."]
   ],
   "quiz": [
     {
-      "q": "Convert $90\\text{ km/h}$ to $\text{m/s}$.",
+      "q": "Convert $90\\text{ km/h}$ to $\\text{m/s}$.",
       "opts": ["$25$", "$32.4$", "$900$"],
       "ans": 0,
       "why": "$90,000 / 3,600 = 25$."
@@ -1037,8 +1037,8 @@ C["maths:S6.1"] = {
       "marks": 3,
       "ms": [
         "$G = F r^2 / (m_1 m_2)$ (1)",
-        "Units: $(\text{kg m s}^{-2})(\text{m}^2) / (\text{kg}^2)$ (1)",
-        "$= \text{kg}^{-1} \text{m}^3 \text{s}^{-2}$ (1)"
+        "Units: $(\\text{kg m s}^{-2})(\\text{m}^2) / (\\text{kg}^2)$ (1)",
+        "$= \\text{kg}^{-1} \\text{m}^3 \\text{s}^{-2}$ (1)"
       ]
     }
   ]

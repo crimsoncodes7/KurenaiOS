@@ -142,7 +142,7 @@ C["compsci:4.5.1.1"] = {
     ],
     [
       "Give two examples of irrational numbers.",
-      "$\pi$ and $√()$ (or any other non-repeating, infinite decimals)."
+      "$\\pi$ and $√()$ (or any other non-repeating, infinite decimals)."
     ],
     [
       "What is an ordinal number?",
@@ -295,7 +295,7 @@ C["compsci:4.5.1.3"] = {
               ],
               [
                 "Format",
-                "$p/q$ where $p, q \\in \\mathbb{Z}$ and $q \neq 0$."
+                "$p/q$ where $p, q \\in \\mathbb{Z}$ and $q \\neq 0$."
               ]
             ]
           }
@@ -356,7 +356,7 @@ C["compsci:4.5.1.4"] = {
             "kv": [
               [
                 "Mathematical Constants",
-                "$\pi$, $e$"
+                "$\\pi$, $e$"
               ],
               [
                 "Surds",
@@ -448,7 +448,7 @@ C["compsci:4.5.1.5"] = {
   ],
   "quiz": [
     {
-      "q": "Which set contains $\pi$?",
+      "q": "Which set contains $\\pi$?",
       "opts": [
         "$\\mathbb{N}$",
         "$\\mathbb{Z}$",
@@ -1025,7 +1025,7 @@ C["compsci:4.5.3.2"] = {
         },
         {
           "h": "Apply Math",
-          "n": "Example: 2 MiB = $2 \times 1024$ KiB = 2048 KiB."
+          "n": "Example: 2 MiB = $2 \\times 1024$ KiB = 2048 KiB."
         }
       ]
     },

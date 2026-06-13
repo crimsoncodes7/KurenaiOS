@@ -12,7 +12,7 @@ C["compsci:4.5.4.5"] = {
       "callout": {
         "t": "formula",
         "h": "Value Calculation",
-        "body": "Value = $Mantissa \times 2^{Exponent}$. Both parts are usually stored in Two's Complement."
+        "body": "Value = $Mantissa \\times 2^{Exponent}$. Both parts are usually stored in Two's Complement."
       }
     },
     {
@@ -1322,7 +1322,7 @@ C["compsci:4.5.6.7"] = {
               ],
               [
                 "Nyquist Theorem",
-                "Sample rate must be $2 \times$ highest signal frequency."
+                "Sample rate must be $2 \\times$ highest signal frequency."
               ],
               [
                 "MIDI",
@@ -1437,7 +1437,7 @@ C["compsci:4.5.6.7"] = {
         "44,100 Hz"
       ],
       "ans": 2,
-      "why": "Nyquist dictates $2 \times$ highest frequency, so $2 \times 20,000 = 40,000$ Hz."
+      "why": "Nyquist dictates $2 \\times$ highest frequency, so $2 \\times 20,000 = 40,000$ Hz."
     },
     {
       "q": "A 10-second mono audio track is recorded at 1000 Hz with an 8-bit resolution. What is the uncompressed file size?",
@@ -1766,7 +1766,7 @@ C["compsci:4.5.6.10"] = {
           [
             "Key Length",
             "Short (128-4096 bits)",
-            "Must be $\ge$ Message length"
+            "Must be $\\ge$ Message length"
           ],
           [
             "Key Randomness",
