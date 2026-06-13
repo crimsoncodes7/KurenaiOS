@@ -92,10 +92,15 @@ window.KOS_CONTENT["subject:ref"] = {
 
 Badges, tabs, coverage stats, and search pick up the entry automatically.
 
-### Design system (Build 2.0 "Higanbana")
+### Design system (Build 2.0 "Higanbana" + 2.1 "Liquid Glass")
 
 `css/main.css` is a token-driven dark theme. Work through the `:root` variables
 rather than hard-coding values:
+- **Liquid Glass (2.1)**: glass tokens `--glass-fill`/`--glass-edge`/`--glass-hi`
+  (specular top highlight)/`--glass-sheen`/`--glass-blur` and `--focus-glass`, applied
+  in *balance* to chrome, controls, cards, search and modals. Dense reading surfaces
+  (notes paragraphs, `.n-code`, `.n-table` cells) keep solid dark backgrounds — only
+  their frames get the glass edge.
 - **Surfaces**: `--bg` (near-pure black) → `--panel`/`--raise`/`--raise2`; glass
   layers `--glass`/`--glass-top` (used with `backdrop-filter`).
 - **Brand/status**: `--kurenai` (crimson chrome) + `--gold`; `--ok/--warn/--paused/--bad`.

@@ -1,136 +1,171 @@
-# 紅 Kurenai OS — Build 1.5: The Revision Hub, Deep
+# 紅 Kurenai OS — Build 2.1 "Liquid Glass": the Unified HQ
 
-Open `index.html` in any modern browser — no server, no build step.
+A fully offline, file-system-local revision operating system for A-level Computer
+Science, Mathematics and IT. Open `index.html` in any modern browser — **no server,
+no build step, no dependencies**. Everything (progress, notes, sandbox layouts) lives
+in one autosaved JSON object in `localStorage`.
 
-## New in Build 1.5
+```sh
+# just open it
+open index.html        # macOS
+xdg-open index.html    # Linux
+```
 
-- **Deep revision content system** — 49 subtopics now carry full revision-guide
-  depth: structured notes (definitions, comparison tables, C#/SQL/pseudocode
-  with syntax highlighting, mnemonics, must-memorise vs formula-book callouts,
-  misconceptions, inline walkthroughs), 5–8 flashcards, an MCQ quiz with
-  explanations, exam-style questions with mark schemes, plus linked worked-example
-  generators and simulations. Tabs appear per-topic: Specification · Notes ·
-  Flashcards · Quiz · Exam Qs · Worked · Simulate.
-- **Engines** — flashcards (flip / shuffle / self-rate, lifetime stats) and
+## What's inside
+
+- **The full specification database** — every topic, subtopic and spec point of
+  AQA 7517 Computer Science (**151** leaves), Edexcel 9MA0 Mathematics (**89**), and
+  OCR AAQ IT: Data Analytics H019/H119 (**110**) — **350 spec points** in total,
+  extracted verbatim from the official PDFs.
+- **Deep revision content** on top of the spec spine: structured notes (definitions,
+  comparison tables, C#/SQL/pseudocode with syntax highlighting, mnemonics,
+  must-memorise vs formula-book callouts, misconceptions, inline walkthroughs),
+  flashcards, MCQ quizzes with explanations, and exam-style questions with mark
+  schemes. Coverage today: **all of Computer Science and all of Mathematics are deep**,
+  plus IT unit **F201** (Big Data) — ~255 enriched topics. Tabs appear per topic:
+  Specification · Notes · Flashcards · Quiz · Exam Qs · Worked · Simulate.
+- **Split-screen reference view** — exam-board wording on the left, the board's own
+  guidance on the right, plus an examiner-intel layer (rewarded definitions,
+  mark-winning tips, pitfall warnings) on high-value spec points.
+- **Engines** — flashcards (3D flip / shuffle / self-rate, lifetime stats) and
   quizzes (instant feedback, best scores; exam Qs with reveal-the-mark-scheme
-  self-marking). All stats persist, ready for the SM-2 Governor in Build 2.
-- **Four new simulations** — Boolean Logic Lab (expression parser → live truth
-  table), Sorting Visualiser (bubble vs merge with comparison counters),
-  FSM Lab (three acceptor machines, tape stepping), Graph Transformation
-  Explorer (y = a·f(bx + c) + d with exam-language descriptions).
-- **Worked Example Engine regrouped** by paper (Pure / Stats & Mech / CS) with
-  three new generators: binomial expansion, definite integrals, normal distribution.
-- **Tree fixes** — parser row-clustering bug fixed (recovered 9 lost AQA leaves
-  incl. the whole of 4.10 SQL; 4.9.4 now nests properly); subsections are
-  collapsible; ◆ badges mark deep-content topics.
-- **UI pass** — tabbed study pages, redesigned home with progress rings and
-  coverage stats, callout system, flashcard 3D flip, cleaner everything.
+  self-marking). Stats persist, ready for the SM-2 Governor.
+- **Labs** — Data Structure Trace Lab (animated stack / queue / linked list / BST
+  traversals with trace tables), C# OOP Sandbox (draggable class cards, inheritance
+  arrows, live C# transpile), the Worked Example Engine (parameterised generators
+  grouped by paper), and simulations (Boolean Logic Lab, Sorting Visualiser, FSM Lab,
+  Graph Transformation Explorer).
+- **Progress tracking** — per-point status (Not started / Started / Paused / Completed)
+  and a four-stage checklist (Covered in class · Studied it · Done exam Qs · Fully
+  understood), shown as spine strips in the tree, a completion bar on each subject
+  card, and donut + per-section bars on the dashboards.
+- **Global search** (press `/`) across all 350 spec points and the flashcard text.
+- **Copy-to-clipboard** on every content box — code, tables, definition lists,
+  callouts and step walkthroughs (hover to reveal the Copy button).
+- **Backup & Restore** — export / import / reset the whole state object, plus a
+  printable revision summary (Data → Backup & Restore).
+
+## Design system — Build 2.1 "Liquid Glass"
+
+`css/main.css` is a token-driven dark theme (Build 2.0 "Higanbana"), refined in 2.1
+with an Apple-style **Liquid Glass** treatment applied in *balance*: chrome, controls,
+cards, search and modals get layered translucent fills, a specular top-edge highlight
+(`--glass-hi`), a thin light border (`--glass-edge`) and a stronger
+`backdrop-filter` (`--glass-blur`), while dense reading surfaces (notes, code, table
+cells) keep solid dark backgrounds for legibility. Work through the `:root` variables
+rather than hard-coding values.
+
+- **Surfaces**: `--bg` → `--panel`/`--raise`; glass tokens `--glass`/`--glass-top` and
+  the 2.1 set `--glass-fill`/`--glass-edge`/`--glass-hi`/`--glass-sheen`/`--glass-blur`.
+- **Brand/status**: `--kurenai` (crimson) + `--gold`; `--ok/--warn/--paused/--bad`.
+- **Subject hues stay distinct**: `--c-compsci` jade, `--c-maths` azure, `--c-it`
+  violet. Views set `--accent` on a container to tint borders/glows for the subject.
+- **Type**: `--disp` (Space Grotesk), `--body` (Inter), `--mono` (JetBrains Mono),
+  `--serif`/`--kanji` (Shippori Mincho — the 紅 mark and verbatim spec wording).
+- Ambient spider-lily petals (`.bg-flora`); all motion is gated behind
+  `prefers-reduced-motion`.
+
+## Folder structure
+
+```
+KurenaiOS/
+├── index.html                entry point — just open it (script tags, strict load order)
+├── README.md
+├── CLAUDE.md / AGENTS.md      contributor + agent guidance
+├── PROGRESS.md               build log / changelog
+├── css/
+│   └── main.css              all tokens, layout, components, the Liquid Glass system
+├── js/
+│   ├── main.js               boot: wires the rail, restores last view
+│   ├── core/
+│   │   ├── store.js          state object, autosave, export/import
+│   │   ├── ui.js             el() builder, toast, view registry (KOS.show)
+│   │   └── content.js        deep-content registry + rich block renderer (renderBlocks)
+│   ├── data/                 GENERATED tree data — don't hand-edit, regenerate
+│   │   ├── compsci.js        AQA 7517 tree   → window.KOS_DATA.compsci
+│   │   ├── maths.js          Edexcel 9MA0    → window.KOS_DATA.maths
+│   │   ├── it.js             OCR AAQ         → window.KOS_DATA.it
+│   │   ├── intel.js          examiner tips/pitfalls — hand-edited, key "subject:ref"
+│   │   └── content/          deep revision content → window.KOS_CONTENT["subject:ref"]
+│   ├── engines/
+│   │   ├── flashcards.js      flip / shuffle / self-rate engine
+│   │   └── quiz.js            MCQ + exam-question engines
+│   ├── modules/
+│   │   └── hub.js            tree, dashboards, reference view, search
+│   └── labs/
+│       ├── worked.js         worked-example generators + step UI
+│       ├── trace.js          canvas data structures + animation clock
+│       ├── oop.js            sandbox + C# transpiler
+│       └── sims.js           interactive simulations
+└── tools/                    the data pipeline (Python 3 + pdfplumber) + tests
+    ├── parse_aqa.py          spec PDF → aqa.json
+    ├── parse_maths.py        spec PDF → maths.json
+    ├── parse_it.py           spec PDF → it.json
+    ├── gen_data.py           *.json → js/data/*.js
+    ├── smoke.test.js         core-engine jsdom test suite
+    └── smoke2.test.js        deep-content + engines jsdom test suite
+```
 
 ## Authoring more deep content
 
-Add entries to any file in `js/data/content/` (or a new file + script tag):
+Add entries to any file in `js/data/content/` (or a new file + a `<script>` tag in
+`index.html`):
 
 ```js
 window.KOS_CONTENT["maths:8.7"] = {
-  notes: [ "...blocks...", {h:"…"}, {table:{head:[],rows:[]}},
-           {code:{lang:"csharp",src:"…"}}, {callout:{t:"mnemonic",body:"…"}} ],
+  notes: [ "…paragraph…", {h:"Heading"}, {ul:[…]}, {kv:[["Term","Def"]]},
+           {table:{head:[],rows:[]}}, {code:{lang:"csharp",src:"…"}},
+           {callout:{t:"mnemonic",body:"…"}}, {steps:[{h,m,n}]} ],
   flashcards: [["Q","A"]],
   quiz: [{q:"…", opts:["a","b"], ans:0, why:"…"}],
   exam: [{q:"…", marks:4, ms:["point (1)"]}],
   gens: ["defint"], sims: ["fn-transform"]
 };
 ```
-Badges, tabs, coverage stats and search all pick it up automatically.
-Current coverage: CS data structures & algorithms clusters complete, CS theory
-core, 16 Pure topics, 6 Stats/Mech topics, IT unit F201 (big data) complete.
 
----
+Badges, tabs, coverage stats, search and the per-box copy buttons all pick it up
+automatically. Every `{callout:{…}}` must close with **two** braces — validate with
+`node --check FILENAME`.
 
-## Build 1 foundations
+## How to extend it
 
-A fully offline, file-system-local revision operating system. Open `index.html`
-in any modern browser — no server, no build step, no dependencies.
-
-## What's in Build 1
-
-- **Full specification database** — every topic, subtopic and spec point of
-  AQA 7517 Computer Science (142 leaves), Edexcel 9MA0 Mathematics (89), and
-  OCR AAQ IT: Data Analytics (110), extracted verbatim from the official PDFs.
-- **Split-screen reference view** — exam-board wording on the left, the board's
-  own guidance on the right, plus an examiner-intel layer (rewarded definitions,
-  mark-winning tips, pitfall warnings) on ~60 high-value spec points.
-- **Progress tracking** — per-point status (Not started / Started / Paused /
-  Completed) and the four-stage checklist (Covered in class · Studied it ·
-  Done exam Qs · Fully understood), visualised as spine "obi" strips in the
-  tree, donut + per-section bars on each subject dashboard.
-- **Global search** ( press `/` ) across all 341 spec points.
-- **Worked Example Engine** — 7 parameterised generators (quadratics, calculus,
-  trig equations, logs, binary/two's complement, floating point, suvat) with
-  step-by-step reveal and mark-scheme-style structure lines.
-- **Data Structure Trace Lab** — animated canvas stack, linear/circular queue
-  (with MOD pointer arithmetic), linked list, and BST with all three traversals,
-  each logging into a trace table.
-- **C# OOP Sandbox** — draggable class cards, access modifiers, virtual /
-  override / abstract, inheritance arrows (cycle-safe), live C# transpile
-  with copy-to-clipboard.
-- **Persistence** — one JSON state object, autosaved to localStorage on every
-  change; export/import/reset under *Data → Backup & Restore*.
-
-## Folder structure
-
-```
-KurenaiOS/
-├── index.html                entry point — just open it
-├── README.md
-├── css/
-│   └── main.css              all tokens, layout, components
-├── js/
-│   ├── main.js               boot: wires the rail, restores last view
-│   ├── core/
-│   │   ├── store.js          state object, autosave, export/import
-│   │   └── ui.js             el() builder, toast, view registry (KOS.show)
-│   ├── data/                 GENERATED — don't hand-edit, regenerate
-│   │   ├── compsci.js        AQA 7517 tree   → window.KOS_DATA.compsci
-│   │   ├── maths.js          Edexcel 9MA0    → window.KOS_DATA.maths
-│   │   ├── it.js             OCR AAQ         → window.KOS_DATA.it
-│   │   └── intel.js          examiner tips/pitfalls — THIS one is hand-edited
-│   ├── modules/
-│   │   └── hub.js            tree, dashboards, reference view, search
-│   └── labs/
-│       ├── worked.js         generator definitions + step UI
-│       ├── trace.js          canvas structures + animation clock
-│       └── oop.js            sandbox + C# transpiler
-└── tools/                    the data pipeline (Python 3 + pdfplumber)
-    ├── parse_aqa.py          spec PDF → aqa.json
-    ├── parse_maths.py        spec PDF → maths.json
-    ├── parse_it.py           spec PDF → it.json
-    ├── gen_data.py           *.json → js/data/*.js
-    └── smoke.test.js         jsdom test suite (npm i jsdom; node smoke.test.js)
-```
-
-## How to extend it (the bits you'll want to touch)
-
-| Want to…                          | Edit                                        |
-|-----------------------------------|---------------------------------------------|
-| Add examiner tips to a spec point | `js/data/intel.js` — key is `"subject:ref"` |
-| Add a worked-example generator    | push an object into `GENS` in `worked.js`   |
-| Add a new lab tab                 | `TABS` array in `trace.js`                  |
-| Add a whole new module/view       | register `KOS.views.yourView = fn(main)` and add a rail button in `index.html` |
-| Re-extract after a spec update    | run the three parsers then `gen_data.py`    |
+| Want to…                          | Edit                                                       |
+|-----------------------------------|------------------------------------------------------------|
+| Add examiner tips to a spec point | `js/data/intel.js` — key is `"subject:ref"`                |
+| Add deep revision content         | a file in `js/data/content/`                               |
+| Add a worked-example generator    | push into `GENS` in `js/labs/worked.js`                    |
+| Add a simulation                  | `js/labs/sims.js`                                          |
+| Add a trace-lab tab               | `js/labs/trace.js`                                         |
+| Add a whole new module/view       | `KOS.views.yourView = fn(main)` + a rail button in `index.html` |
+| Re-extract after a spec update    | run the three parsers, then `gen_data.py`                  |
 
 Architecture notes: classic `<script>` tags (no ES modules) so `file://` works
-everywhere; one global namespace `KOS`; every view is a function that receives
-the cleared `#main` node; all mutation flows through `KOS.store` so autosave
-is automatic.
+everywhere; one global namespace `KOS`; every view is a function that receives the
+cleared `#main` node; all mutation flows through `KOS.store` so autosave is automatic.
 
-## Roadmap (agreed build order)
+## Tests
 
-- **Build 2 — Behavioural Governor**: avatar HP/XP/Gold, focus timer with
-  full-screen lock, gold-gated module access, SM-2 flashcard engine
-  (hooks: `store.state` already reserves space; add `js/modules/governor.js`).
-- **Build 3 — Kurenai Collection Matrix**: physical vault CRUD, analytics
-  canvas, budget planner, AniList XML/JSON import (your `scrape_anilistanime.xml`
-  parses with `DOMParser` — zero dependencies).
+Smoke tests require Node.js + jsdom:
+
+```sh
+npm install jsdom          # one-time
+node tools/smoke.test.js   # core engine tests
+node tools/smoke2.test.js  # deep content + engines tests
+```
+
+Both must print **ALL SMOKE TESTS PASSED**.
+
+## Roadmap
+
+- **Build 2 — Behavioural Governor**: avatar HP/XP/Gold, focus timer with full-screen
+  lock, gold-gated module access, SM-2 flashcard engine.
+- **Build 3 — Kurenai Collection Matrix**: physical vault CRUD, analytics, budget
+  planner, AniList import.
 - **Build 4 — Competitions, Music & the Ollama bridge** at
-  `http://localhost:11434/api/generate` (note: pages opened via `file://`
-  can call localhost Ollama if you launch it with `OLLAMA_ORIGINS="*"`).
+  `http://localhost:11434/api/generate` (pages opened via `file://` can call localhost
+  Ollama if launched with `OLLAMA_ORIGINS="*"`).
+
+(Build numbers above are feature milestones; "Build 2.0/2.1" name design-system
+iterations of the current Revision Hub.)
+
+> Detailed per-build history lives in `PROGRESS.md`.

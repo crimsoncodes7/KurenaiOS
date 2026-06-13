@@ -52,6 +52,32 @@ DOM structure the views/engines/tests rely on was preserved.
 - KaTeX `<script>`s now use `defer` (faster paint; also stops smoke2's naive
   `<script src>` regex from trying to read the CDN URLs as local files).
 
+## Build 2.1 — "Liquid Glass" polish pass (Claude Code, 2026-06-13)
+Aesthetic + defect pass on top of 2.0. No engine/data behaviour changed; all class
+names and DOM the views/engines/tests rely on preserved. Both smoke suites pass.
+- **Subject-card progress bar**: replaced the per-section sparkline row (which painted
+  every section red at 0%) with one slim liquid-glass `.subj-track`/`.subj-fill` bar
+  driven by `st.pct` (overall subject completion). No red anywhere. (`js/modules/hub.js`)
+- **Copy on every content box**: the `.n-copy` affordance now appears on callouts,
+  tables, definition lists and step walkthroughs, not just `{code}`. The delegated
+  handler clones the box, drops the button, and copies its visible text.
+  (`js/core/content.js`)
+- **Liquid Glass design system** (balanced): new `:root` tokens `--glass-fill`,
+  `--glass-edge`, `--glass-hi`, `--glass-sheen`, `--glass-blur`, `--focus-glass`,
+  applied to topbar/rail/tree, buttons, search, cards (subject/stat/sec/practice/
+  colcard), modal, toast, flashcard faces, quiz/lab/sim panels and the home stats bar.
+  Dense reading surfaces (notes, code, table cells) keep solid dark backgrounds.
+- **Search fix**: `#search-results` is now near-opaque (`rgba(13,10,18,.97)` + heavier
+  blur) so page content no longer bleeds through; the crimson `#search:focus` ring was
+  replaced with a soft neutral glass glow (no longer reads as an error).
+- **Branding**: header sub → "Unified HQ · Build 2.1"; `<title>` → "紅 Kurenai OS —
+  Unified HQ"; rail footer drops the exam-board codes for a styled `紅 Unified HQ`
+  brand line above the (preserved) `#node-count` spec-points count.
+- **Docs**: `README.md` rewritten from the stale Build 1.5 state to 2.1 — corrected
+  coverage (350 spec leaves: CS 151 / Maths 89 / IT 110; deep content for all CS + all
+  Maths + IT F201), the Liquid Glass system, copy-on-all-boxes, and a corrected folder
+  map (`js/data/content/`, `js/engines/`, `js/core/content.js`, `js/labs/sims.js`).
+
 ## Fixes applied this turn (were breaking load / smoke2)
 - **Syntax**: 6 callouts across `cs-theory-computation.js` /
   `cs-theory-computation-2.js` were missing their closing `}` (`body: "…"` then a

@@ -38,6 +38,10 @@
     formula:  { icon: "ƒ",  label: "Formula" }
   };
 
+  /* shared copy affordance — injected into every content box; the delegated
+     handler below copies the box's text minus this button. */
+  var COPY_BTN = '<button class="n-copy" type="button" aria-label="Copy to clipboard">Copy</button>';
+
   function esc(s) {
     return String(s).replace(/[&<>"]/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
@@ -83,12 +87,12 @@
       if (b.ul) { html += "<ul>" + b.ul.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ul>"; return; }
       if (b.ol) { html += "<ol>" + b.ol.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ol>"; return; }
       if (b.kv) {
-        html += '<dl class="n-kv">' + b.kv.map(function (p) {
+        html += '<dl class="n-kv">' + COPY_BTN + b.kv.map(function (p) {
           return "<dt>" + inline(p[0]) + "</dt><dd>" + inline(p[1]) + "</dd>";
         }).join("") + "</dl>"; return;
       }
       if (b.table) {
-        html += '<div class="n-tablewrap"><table class="n-table"><thead><tr>' +
+        html += '<div class="n-tablewrap">' + COPY_BTN + '<table class="n-table"><thead><tr>' +
           b.table.head.map(function (h) { return "<th>" + inline(h) + "</th>"; }).join("") +
           "</tr></thead><tbody>" +
           b.table.rows.map(function (r) {
@@ -105,7 +109,7 @@
       }
       if (b.callout) {
         var m = CALLOUT_META[b.callout.t] || CALLOUT_META.tip;
-        html += '<aside class="n-call n-call-' + b.callout.t + '">' +
+        html += '<aside class="n-call n-call-' + b.callout.t + '">' + COPY_BTN +
           '<div class="n-call-h"><span class="n-call-i">' + m.icon + "</span>" +
           inline(b.callout.h || m.label) + "</div>" +
           '<div class="n-call-b">' + renderBlocks(
@@ -119,7 +123,7 @@
           "</span></button>"; return;
       }
       if (b.steps) {
-        html += '<div class="n-steps">' + b.steps.map(function (s, i) {
+        html += '<div class="n-steps">' + COPY_BTN + b.steps.map(function (s, i) {
           if (typeof s === "string") return '<div class="step revealed"><div class="sh">Step ' + (i + 1) + '</div><div class="sn">' + inline(s) + "</div></div>";
           return '<div class="step revealed"><div class="sh">Step ' + (i + 1) +
             (s.h ? " — " + inline(s.h) : "") + '</div><div class="sm">' + esc(s.m) + "</div>" +
@@ -154,10 +158,13 @@
   document.addEventListener("click", function (e) {
     var cp = e.target && e.target.closest ? e.target.closest(".n-copy") : null;
     if (!cp) return;
-    var fig = cp.closest(".n-code");
-    var code = fig && fig.querySelector("code");
-    if (!code) return;
-    var text = code.textContent;
+    var box = cp.closest(".n-code,.n-call,.n-tablewrap,.n-kv,.n-steps");
+    if (!box) return;
+    /* clone, drop the copy button, then read the visible text so the "Copy"
+       label is excluded — works for tables/lists, not just <code>. */
+    var clone = box.cloneNode(true);
+    var b = clone.querySelector(".n-copy"); if (b) b.remove();
+    var text = (clone.innerText || clone.textContent || "").trim();
     function done() {
       cp.classList.add("copied");
       cp.textContent = "Copied";

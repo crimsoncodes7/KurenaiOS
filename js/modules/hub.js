@@ -244,7 +244,7 @@
       hstat(stk.count + (stk.count === 1 ? " day" : " days"), "Current streak")
     ]));
 
-    /* MIDDLE — subject cards with per-section sparklines */
+    /* MIDDLE — subject cards with a slim completion progress bar */
     var cards = el("div", { class: "home-cards" });
     SUBJECTS.forEach(function (sid) {
       var d = KOS_DATA[sid], st = subjectStats(sid);
@@ -266,19 +266,11 @@
         el("div", { class: "m", text: st.done + "/" + st.total + " completed · " + cov + " deep-content topics" })
       ]);
 
-      /* sparkline: one column per section, the most-behind section flagged */
-      var secs = d.sections.map(function (sec) {
-        return { sec: sec, st: sectionStats(sid, sec) };
-      }).filter(function (x) { return x.st.total > 0; });
-      var minPct = Math.min.apply(null, secs.map(function (x) { return x.st.pct; }));
-      var spark = el("div", { class: "spark-row", "aria-label": "Per-section completion" });
-      secs.forEach(function (x) {
-        spark.appendChild(el("span", {
-          class: "spark" + (x.st.pct === minPct ? " lag" : ""),
-          title: x.sec.ref + " " + x.sec.title + " — " + x.st.done + "/" + x.st.total + " (" + x.st.pct + "%)"
-        }, [el("i", { style: "height:" + Math.max(6, x.st.pct) + "%" })]));
-      });
-      card.appendChild(spark);
+      /* slim liquid-glass progress track — overall subject completion */
+      card.appendChild(el("div", {
+        class: "subj-track", "aria-label": st.pct + "% complete",
+        title: st.done + "/" + st.total + " spec points completed"
+      }, [el("span", { class: "subj-fill", style: "width:" + st.pct + "%" })]));
 
       var last = store.state.ui.lastRef[sid];
       if (last && BYREF[sid][last]) {
