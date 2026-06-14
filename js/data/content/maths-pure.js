@@ -302,6 +302,20 @@ C["maths:2.3"] = {
           "$D < 0$: No real roots (doesn't touch x-axis)."
         ]
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Discriminant Quick Reference",
+        "body": "$D = b^2 - 4ac$. $D > 0$: two distinct roots. $D = 0$: one repeated root (tangent to $x$-axis). $D < 0$: no real roots. Exam use: for a line to be tangent to a curve, substitute the line into the curve, collect to $ax^2 + bx + c = 0$ form, then set $D = 0$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Completing the Square Gives the Roots",
+        "body": "Completing the square gives the **vertex** form $(x+p)^2 + q$, from which you read the vertex $(-p, q)$. To find roots, you must still set the expression to zero and solve. Students sometimes write $(-p, q)$ as the roots — these are the coordinates of the turning point, not the $x$-intercepts."
+      }
     }
   ],
   "flashcards": [
@@ -379,6 +393,20 @@ C["maths:2.4"] = {
           "n": "Solutions: $(-2, -1)$ and $(1, 2)$. Check both pairs in the original circle equation."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Solving Linear + Quadratic — Standard Method",
+        "body": "1. Rearrange the **linear** equation for one variable. 2. Substitute into the quadratic/circle. 3. Expand and collect to $ax^2+bx+c=0$. 4. Solve (factorise or quadratic formula). 5. Substitute each $x$ back into the linear to find matching $y$. 6. Write answers as coordinate pairs $(x, y)$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Pairing the Wrong $x$ and $y$ Values",
+        "body": "When the quadratic gives $x = 1$ and $x = -2$, each $x$ value must be substituted back **separately** into the simpler equation to find its matching $y$. Students sometimes swap pairs — e.g. matching $x=1$ with the $y$ from $x=-2$. Always substitute each $x$ individually and label pairs clearly."
+      }
     }
   ],
   "flashcards": [
@@ -513,6 +541,20 @@ C["maths:2.6"] = {
           "n": "Always start by testing small integer values like $\\pm 1, \\pm 2$."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Factor Theorem — Method Summary",
+        "body": "If $f(a) = 0$ then $(x-a)$ is a factor. Steps for a cubic: (1) Test integer values $\\pm 1, \\pm 2, \\pm 3$ until $f(a) = 0$. (2) Divide $f(x)$ by $(x-a)$ (long division or inspection). (3) Factorise the resulting quadratic. Remember: $(2x-1)$ is a factor if $f(1/2) = 0$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Factor Theorem vs Remainder Theorem",
+        "body": "The **Remainder Theorem** says: dividing $f(x)$ by $(x-a)$ gives remainder $f(a)$. The **Factor Theorem** is just a special case: if the remainder $f(a) = 0$, then $(x-a)$ IS a factor. Finding a non-zero remainder for one value of $a$ doesn't mean there are no factors — other values may still give zero."
+      }
     }
   ],
   "flashcards": [
@@ -653,6 +695,20 @@ C["maths:2.8"] = {
         ["Range of $f^{-1}$", "Domain of $f$"],
         ["Graph of $f^{-1}$", "Reflection of $f$ in the line $y=x$"]
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Composite & Inverse — Key Facts",
+        "body": "$fg(x)$: apply $g$ FIRST, then $f$. To find $f^{-1}$: swap $x$ and $y$, rearrange for $y$. Domain of $f^{-1}$ = Range of $f$. Range of $f^{-1}$ = Domain of $f$. Graph of $f^{-1}$: reflect $f$ in $y=x$. $f^{-1}(x)$ exists only if $f$ is one-to-one."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$fg(x) = gf(x)$",
+        "body": "Composition is **NOT** commutative. $fg(x)$ applies $g$ first, then $f$. $gf(x)$ applies $f$ first, then $g$ — generally a different function. Example: $f(x)=x^2$, $g(x)=x+1$. $fg(x)=(x+1)^2$ but $gf(x)=x^2+1$. These are different — check which order the question asks for."
+      }
     }
   ],
   "flashcards": [
@@ -713,6 +769,20 @@ C["maths:2.9"] = {
         "t": "tip",
         "h": "Order of Combined Transformations",
         "body": "For $y = af(x+b) + c$: apply in this order — (1) Horizontal shift by $-b$, (2) Horizontal stretch by $1/a$, (3) Vertical stretch by $a$, (4) Vertical shift by $c$. Each individual part acts on the result of the previous."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Transformation Rules — Inside vs Outside",
+        "body": "**INSIDE the bracket** → HORIZONTAL, does the OPPOSITE: $f(x+a)$ → left $a$; $f(ax)$ → compress by $1/a$; $f(-x)$ → reflect in $y$-axis. **OUTSIDE the bracket** → VERTICAL, does WHAT IT SAYS: $f(x)+a$ → up $a$; $af(x)$ → stretch by $a$; $-f(x)$ → reflect in $x$-axis."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$f(x+2)$ Shifts the Graph Right by 2",
+        "body": "WRONG. $f(x+2)$ shifts the graph **LEFT** by 2 (the OPPOSITE direction). Inside the bracket, horizontal transformations go the opposite way. Think of it this way: to keep $f(0)$ the same value, you need $x+2=0$, i.e. $x=-2$ — confirming a shift LEFT. Always verify with a key point."
       }
     }
   ],
@@ -790,6 +860,20 @@ C["maths:2.10"] = {
           "n": "Answer: $\\dfrac{2}{x-1} - \\dfrac{1}{x+3}$. Check by recombining over a common denominator."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Three Partial Fraction Types",
+        "body": "**(1) Distinct linear**: $\\dfrac{A}{x-a} + \\dfrac{B}{x-b}$. **(2) Repeated linear**: $\\dfrac{A}{x-a} + \\dfrac{B}{(x-a)^2} + \\dfrac{C}{x-b}$ (one term per power). **(3) Improper fraction** (degree numerator $\\ge$ degree denominator): **do long division first** to extract a polynomial quotient, then decompose the remainder."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Improper Fractions Can Be Decomposed Directly",
+        "body": "If the numerator's degree $\\ge$ denominator's degree, the fraction is **improper** and MUST be divided first via polynomial long division. Skipping this step produces incorrect constants. E.g. $\\dfrac{x^2+1}{x-1}$ cannot be written as $\\dfrac{A}{x-1}$ — first divide to get $x+1 + \\dfrac{2}{x-1}$."
+      }
     }
   ],
   "flashcards": [
@@ -874,6 +958,20 @@ C["maths:2.11"] = {
           "n": "The domain is $0 \\le t \\le$ (time when ball lands). Negative $h$ values are outside the model's validity."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Reading Exponential Models",
+        "body": "For $y = Ae^{kt}$: **$A$** = initial value (at $t=0$, since $e^0 = 1$). **$k > 0$** = growth. **$k < 0$** = decay. As $t \\to \\infty$: $e^{kt} \\to 0$ (if $k<0$). For $y = A + Be^{-kt}$: asymptote is $y = A$ (NOT zero). Find $A$ from the starting value; find $k$ using a second data point via $\\ln$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "The Asymptote of $T = a + be^{-kt}$ Is Zero",
+        "body": "WRONG. If there is a constant term $a$, the asymptote is $T = a$, NOT $T = 0$. Example: $T = 20 + 80e^{-0.1t}$ has asymptote $T = 20$ (room temperature). The $+20$ shifts the entire curve upward by 20. Only models of the form $y = be^{-kt}$ (no added constant) tend to zero."
+      }
     }
   ],
   "flashcards": [
@@ -927,6 +1025,20 @@ C["maths:3.1"] = {
           "Parallel lines: $m_1 = m_2$.",
           "Perpendicular lines: $m_1 \\times m_2 = -1$."
         ]
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Six Straight Line Formulae",
+        "body": "Gradient: $m = \\dfrac{y_2-y_1}{x_2-x_1}$. Line through a point: $y - y_1 = m(x-x_1)$. Parallel: same $m$. Perpendicular: $m_1 m_2 = -1$ (negative reciprocal). Midpoint: $\\left(\\dfrac{x_1+x_2}{2}, \\dfrac{y_1+y_2}{2}\\right)$. Distance: $\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Perpendicular Gradient Is Just $-m$",
+        "body": "WRONG. The perpendicular gradient is $-\\dfrac{1}{m}$ (the **negative reciprocal**). If a line has gradient $3$, the perpendicular has gradient $-\\frac{1}{3}$, NOT $-3$. Negating without reciprocating is a very common error. Check: $3 \\times (-1/3) = -1$ ✓."
       }
     }
   ],
@@ -1013,7 +1125,8 @@ C["maths:3.2"] = {
           "n": "Centre $(2, -3)$, radius $4$. Always check: $-4 - 9 + 3 = -10$? No — RHS = $3+4+9=16$. ✓"
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Circles — Four Key Facts", "body": "Standard form: $(x-a)^2+(y-b)^2=r^2$, centre $(a,b)$, radius $r$. To convert from $x^2+y^2+2gx+2fy+c=0$: complete the square on both $x$ and $y$. Theorems: angle in semicircle $=90°$; tangent $\\perp$ radius; perpendicular bisector of chord → centre." } }
   ],
   "flashcards": [
     ["Standard equation of a circle?", "$(x-a)^2 + (y-b)^2 = r^2$."],
@@ -1105,6 +1218,13 @@ C["maths:3.3"] = {
           "n": "This is a full circle radius 3. If $\\theta$ is restricted, the curve is only an arc."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Eliminating the Parameter Gives the Full Curve",
+        "body": "The Cartesian equation captures the SHAPE but may include more than the parametric curve if $t$ is restricted. Always state the domain of $x$ from the range of $t$. E.g. $x = t^2 + 1, t \\ge 0$ gives $x \\ge 1$; the Cartesian parabola alone doesn't show this restriction."
+      }
     }
   ],
   "flashcards": [
@@ -1178,6 +1298,20 @@ C["maths:3.4"] = {
         "h": "Domain Restriction",
         "body": "When converting to Cartesian, check the **domain of $x$** imposed by the parameter range. E.g. if $0 \\leq t \\leq 4$, $x=15t$ gives $0 \\leq x \\leq 60$. The Cartesian equation alone doesn't capture this."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Projectile Parametric Quick Reference",
+        "body": "Projectile: $x = ut$, $y = vt - \\frac{1}{2}gt^2$. Initial position: set $t=0$. When it lands: set $y=0$, take positive solution. Maximum height: differentiate $y$ w.r.t. $t$, set to zero. Cartesian path: express $t$ from $x$, substitute into $y$. Domain: $t \\ge 0$ (time cannot be negative)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "The Cartesian Equation Captures the Full Motion",
+        "body": "The Cartesian form gives the **shape** of the path only — NOT the time-dependent behaviour or direction of travel. Domain restrictions from the parameter range (e.g. $t \\ge 0$) must be stated separately alongside the Cartesian equation. Without these, the model is incomplete."
+      }
     }
   ],
   "flashcards": [
@@ -1225,6 +1359,20 @@ C["maths:4.1"] = {
         "t": "warn",
         "h": "Important Requirement",
         "body": "The first term in the bracket MUST be 1. If you have $(a+bx)^n$, you must factor out $a^n$ first: $a^n(1 + \\frac{b}{a}x)^n$."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Binomial Expansion (Rational $n$) — Method",
+        "body": "$(1+x)^n = 1 + nx + \\dfrac{n(n-1)}{2!}x^2 + \\dfrac{n(n-1)(n-2)}{3!}x^3 + \\cdots$ Valid for $|x| < 1$. For $(a+bx)^n$: factor out $a^n$ first → $a^n(1 + \\frac{b}{a}x)^n$. Validity condition applies to $|\\frac{b}{a}x| < 1$, giving $|x| < \\frac{a}{b}$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "The Expansion Works for All Values of $x$",
+        "body": "The infinite binomial expansion for non-integer $n$ is ONLY valid for $|x| < 1$. For $|x| \\ge 1$ the series diverges (terms grow). Always state the validity range. Also: for integer $n \\ge 0$, the expansion terminates (finite sum) and is valid for all $x$ — this is a different situation."
       }
     }
   ],
@@ -1300,6 +1448,20 @@ C["maths:4.2"] = {
         "h": "Generating Terms — Be Methodical",
         "body": "Always write out the first 4–5 terms to identify the pattern before answering questions. Write each step clearly: $u_1 = ?, u_2 = f(u_1) = ?, \\ldots$ Slipping up on a single substitution costs marks."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Finding the Limit of a Convergent Sequence",
+        "body": "If $u_{n+1} = f(u_n)$ converges to limit $L$, at the limit $u_{n+1} = u_n = L$. So solve $L = f(L)$. Types: **Convergent** — approaches a fixed value. **Divergent** — grows without bound or oscillates without settling. **Periodic** — repeats in a cycle ($u_{n+k} = u_n$)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "All Oscillating Sequences Are Periodic",
+        "body": "A sequence can oscillate (alternate signs/directions) without being periodic. $u_{n+1} = -2u_n$ from $u_1 = 1$ gives $1, -2, 4, -8, \\ldots$ — it oscillates AND diverges with no repeating cycle. Periodic requires the same values to repeat exactly. Check by looking for a fixed period $k$ where $u_{n+k} = u_n$."
+      }
     }
   ],
   "flashcards": [
@@ -1347,6 +1509,20 @@ C["maths:4.3"] = {
         "t": "tip",
         "body": "The number of terms in the sum is $(n - k + 1)$."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Sigma Notation — Key Properties",
+        "body": "$\\sum_{r=k}^n f(r)$: number of terms $= n - k + 1$. $\\sum_{r=1}^n c = nc$ (constant $c$ summed $n$ times). $\\sum(ar + b) = a\\sum r + nb$. You can factor constants OUT and SPLIT sums by addition, but NOT split across the index variable."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\sum r^2 = (\\sum r)^2$",
+        "body": "WRONG. The sum of squares does NOT equal the square of the sum. $\\sum_{r=1}^n r^2 = \\frac{n(n+1)(2n+1)}{6}$, while $(\\sum_{r=1}^n r)^2 = \\left[\\frac{n(n+1)}{2}\\right]^2$. These are completely different values. Always apply the correct formula for each."
+      }
     }
   ],
   "flashcards": [
@@ -1391,7 +1567,9 @@ C["maths:4.4"] = {
           "Alternative Sum: $S_n = \\frac{n}{2}(a + l)$ where $l$ is the last term."
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "AP — Formulae & Strategy", "body": "$u_n = a + (n-1)d$ — index starts at 1, so subtract 1 before multiplying by $d$. Sum: $S_n = \\frac{n}{2}(2a+(n-1)d)$ or $\\frac{n}{2}(a+l)$ when last term $l$ is known. If two terms are given, set up simultaneous equations and subtract to find $d$, then back-substitute for $a$." } },
+    { "callout": { "t": "miscon", "h": "$u_n = a + nd$ — Off-by-One Error", "body": "The correct formula is $u_n = a + (n-1)d$. Using $a + nd$ shifts every term one place forward: it gives $u_1 = a + d$ (the second term). Check: $u_1$ must equal $a$, so when $n=1$ you need $(n-1)d = 0d = 0$." } }
   ],
   "flashcards": [
     ["Formula for the $n$th term of an AP?", "$a + (n-1)d$."],
@@ -1437,7 +1615,9 @@ C["maths:4.5"] = {
           "Sum to infinity: $S_{\\infty} = \\frac{a}{1-r}$ (if $|r| < 1$)"
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "GP — Formulae & Convergence", "body": "$u_n = ar^{n-1}$. Sum $n$ terms: $S_n = \\frac{a(1-r^n)}{1-r}$ (use when $|r|<1$) or $\\frac{a(r^n-1)}{r-1}$ (cleaner when $r>1$). Sum to infinity: $S_\\infty = \\frac{a}{1-r}$ — **only valid when $|r|<1$**. If $|r|\\ge 1$, no sum to infinity exists." } },
+    { "callout": { "t": "miscon", "h": "$S_\\infty$ Exists for Any GP", "body": "WRONG. $S_\\infty = \\frac{a}{1-r}$ only works when $|r| < 1$ (the series converges). If $r = 2$, each term doubles — the sum blows up to infinity. If $r = -2$, terms oscillate and grow — also divergent. Always state $|r|<1$ before using $S_\\infty$." } }
   ],
   "flashcards": [
     ["Formula for the $n$th term of a GP?", "$ar^{n-1}$."],
@@ -1487,7 +1667,9 @@ C["maths:4.6"] = {
           ["Salary Increase (fixed amount)", "Arithmetic", "$d$ = increase amount."]
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Modelling — AP vs GP Quick Guide", "body": "**AP** (fixed added amount): simple interest ($d$ = fixed interest), fixed salary increment. **GP** (fixed multiplied ratio): compound interest ($r = 1 + \\text{rate}$), depreciation ($r = 1 - \\text{rate}$), population growth. Decide by asking: *is the change added or multiplied each period?*" } },
+    { "callout": { "t": "miscon", "h": "Compound Interest Uses an AP", "body": "WRONG. Compound interest is geometric because each year's interest is a **percentage of the current total** (which grows). That ratio stays constant: $r = 1 + i$. Simple interest is arithmetic — the same fixed amount is added every year regardless of the total." } }
   ],
   "flashcards": [
     ["Type of series for compound interest?", "Geometric."],
@@ -1539,7 +1721,9 @@ C["maths:5.1"] = {
           ["Sector Area", "$\\frac{\\theta}{360} \\times \\pi r^2$", "$\\frac{1}{2}r^2\\theta$"]
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Radians — Conversions & Formulae", "body": "Multiply degrees by $\\frac{\\pi}{180}$ to convert to radians. Key values: $30°=\\frac{\\pi}{6}$, $45°=\\frac{\\pi}{4}$, $60°=\\frac{\\pi}{3}$, $90°=\\frac{\\pi}{2}$, $180°=\\pi$, $360°=2\\pi$. Arc length $s=r\\theta$, sector area $A=\\frac{1}{2}r^2\\theta$ — **both only work in radians**." } },
+    { "callout": { "t": "miscon", "h": "Using Degrees in Arc/Sector Formulae", "body": "The clean formulae $s=r\\theta$ and $A=\\frac{1}{2}r^2\\theta$ ONLY work when $\\theta$ is in radians. In degrees you must use $s = \\frac{\\theta}{360} \\times 2\\pi r$ — much uglier. If the question doesn't specify, always convert to radians first." } }
   ],
   "flashcards": [
     ["Convert $180^\\circ$ to radians.", "$\\pi$."],
@@ -1585,7 +1769,9 @@ C["maths:5.2"] = {
           "$\\cos \\theta \\approx 1 - \\frac{\\theta^2}{2}$"
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Small Angle Approximations", "body": "Valid when $\\theta$ is **small and in radians**. $\\sin\\theta \\approx \\theta$, $\\tan\\theta \\approx \\theta$ (both linear). $\\cos\\theta \\approx 1 - \\frac{\\theta^2}{2}$ (quadratic — doesn't drop to zero). Use these to simplify fractions: $\\frac{\\sin 3\\theta}{\\theta} \\approx 3$." } },
+    { "callout": { "t": "miscon", "h": "$\\cos\\theta \\approx \\theta$ for Small $\\theta$", "body": "WRONG. Only $\\sin$ and $\\tan$ approximate to $\\theta$. Cosine is symmetric about $\\theta=0$, so it cannot be linear — its approximation is $1-\\frac{\\theta^2}{2}$ (an even function). At $\\theta=0$, $\\cos 0 = 1$, not $0$." } }
   ],
   "flashcards": [
     ["$\\sin \\theta \\approx$ ?", "$\\theta$."],
@@ -1639,7 +1825,9 @@ C["maths:5.3"] = {
           ["$\\cot x$", "$\\tan x = 0$ or undefined", "All real $y$"]
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Reciprocal Trig — Identity & Range", "body": "$\\sec x = \\frac{1}{\\cos x}$, $\\csc x = \\frac{1}{\\sin x}$, $\\cot x = \\frac{\\cos x}{\\sin x}$. Pythagorean link: $1+\\tan^2 x = \\sec^2 x$; $1+\\cot^2 x = \\csc^2 x$. Range of $\\sec$ and $\\csc$: never between $-1$ and $1$." } },
+    { "callout": { "t": "miscon", "h": "$\\cot x = \\sin x / \\cos x$", "body": "WRONG. $\\cot x = \\cos x / \\sin x$ — the ratio is flipped compared with $\\tan$. Remember: $\\cot$ is the reciprocal of $\\tan = \\sin/\\cos$, so $\\cot = \\cos/\\sin$." } }
   ],
   "flashcards": [
     ["$\\sec x$ is reciprocal of...?", "$\\cos x$."],
@@ -1688,7 +1876,9 @@ C["maths:5.4"] = {
           ["$\\arctan x$", "All real numbers", "$(-\\pi/2, \\pi/2)$"]
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Inverse Trig — Domains & Ranges", "body": "$\\arcsin$: domain $[-1,1]$, range $[-\\frac{\\pi}{2},\\frac{\\pi}{2}]$. $\\arccos$: domain $[-1,1]$, range $[0,\\pi]$. $\\arctan$: domain $\\mathbb{R}$, range $(-\\frac{\\pi}{2},\\frac{\\pi}{2})$. Note $\\arctan$ has **open** endpoints (asymptotes, never reached)." } },
+    { "callout": { "t": "miscon", "h": "$\\sin^{-1} x$ Means $\\frac{1}{\\sin x}$", "body": "WRONG. The notation $\\sin^{-1} x$ means $\\arcsin x$ (inverse function), NOT $\\frac{1}{\\sin x}$ (which is $\\csc x$). The exponent $-1$ on a function name denotes the inverse, not a reciprocal." } }
   ],
   "flashcards": [
     ["Domain of $\\arcsin x$?", "$[-1, 1]$."],
@@ -1754,7 +1944,9 @@ C["maths:5.5"] = {
         "h": "Common Proof Mistake",
         "body": "Never manipulate both sides simultaneously in a proof. Start from one side (usually the more complex side) and show it equals the other. Use $\\sin^2 x + \\cos^2 x = 1$ as a substitution tool at every step."
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Trig Identities — One to Rule Them All", "body": "Memorise $\\sin^2 x + \\cos^2 x = 1$. Divide by $\\cos^2 x$: $\\tan^2 x + 1 = \\sec^2 x$. Divide by $\\sin^2 x$: $1 + \\cot^2 x = \\csc^2 x$. In proofs, spot $1 - \\sin^2 x = \\cos^2 x$ (or vice versa) as the key substitution." } },
+    { "callout": { "t": "miscon", "h": "Working Both Sides of a Proof Simultaneously", "body": "Never manipulate LHS and RHS at the same time to meet in the middle — examiners want a one-directional chain. Start from the more complex side and reduce to the simpler side. Writing 'LHS = ... = ... = RHS' in a straight column is the correct format." } }
   ],
   "flashcards": [
     ["$\\sin^2 x + \\cos^2 x =$ ?", "1."],
@@ -1809,7 +2001,9 @@ C["maths:5.6"] = {
           "$\\tan 2A = \\frac{2\\tan A}{1 - \\tan^2 A}$"
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Double Angle — Choose the Right $\\cos 2A$ Form", "body": "$\\sin 2A = 2\\sin A\\cos A$. Three $\\cos 2A$ forms: $\\cos^2 A - \\sin^2 A$ (general), $2\\cos^2 A - 1$ (use when you want $\\cos^2 A = \\frac{1+\\cos 2A}{2}$), $1 - 2\\sin^2 A$ (use when integrating $\\sin^2 x$). Pick the form that eliminates the function you don't want." } },
+    { "callout": { "t": "miscon", "h": "$\\cos 2A = \\cos^2 A + \\sin^2 A$", "body": "WRONG sign. $\\cos(A+A)$ expands using the addition formula as $\\cos A\\cos A - \\sin A\\sin A = \\cos^2 A - \\sin^2 A$ (minus, not plus). The plus version just equals 1 by the Pythagorean identity — a guaranteed wrong answer." } }
   ],
   "flashcards": [
     ["$\\sin 2x =$ ?", "$2\\sin x \\cos x$."],
@@ -1858,7 +2052,9 @@ C["maths:5.7"] = {
           "n": "This form is used to find max/min values of the expression."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "R-Form — Procedure", "body": "To write $a\\sin x + b\\cos x$ as $R\\sin(x+\\alpha)$: expand $R\\sin(x+\\alpha) = R\\cos\\alpha\\sin x + R\\sin\\alpha\\cos x$. Match: $R\\cos\\alpha = a$, $R\\sin\\alpha = b$. Then $R=\\sqrt{a^2+b^2}$, $\\tan\\alpha = b/a$. Maximum = $R$ (when inner = $90°$), minimum = $-R$." } },
+    { "callout": { "t": "miscon", "h": "Always Using $\\tan\\alpha = b/a$ Regardless of Form", "body": "The formula for $\\alpha$ depends on which harmonic form you target. For $R\\sin(x+\\alpha)$: $\\tan\\alpha = b/a$ (sin coefficient is $a$, cos coefficient is $b$). For $R\\cos(x-\\alpha)$: $\\tan\\alpha = a/b$ (the fractions flip). Expand the target form and match coefficients every time." } }
   ],
   "flashcards": [
     ["Formula for $R$ in harmonic form?", "$\\sqrt{a^2 + b^2}$."],
@@ -1908,7 +2104,9 @@ C["maths:5.8"] = {
           "n": "Don't forget to expand the interval for the transformed variable."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Trig Equations — CAST + Interval Trick", "body": "CAST (All, Sin, Tan, Cos positive in 4th→1st→2nd→3rd quadrants, going anticlockwise). Second solution: $\\sin$: $180°-\\theta$; $\\cos$: $360°-\\theta$; $\\tan$: $\\theta+180°$. For $\\sin(2x)$: expand interval to $[0°, 720°)$ before solving." } },
+    { "callout": { "t": "miscon", "h": "Forgetting to Expand the Interval for $\\sin(2x)=k$", "body": "If $0 \\le x < 180°$, then $0 \\le 2x < 360°$ — you MUST double the interval before listing solutions for $2x$. Students who keep the original interval miss half the solutions. After solving for $2x$, divide all answers by 2 to get $x$." } }
   ],
   "flashcards": [
     ["First step in solving $\\sin x = 0.5$?", "Find the principal value $\\arcsin(0.5) = 30^\\circ$."],
@@ -1956,7 +2154,9 @@ C["maths:5.9"] = {
         "body": "$$y = A\\sin(B(x-C)) + D$$",
         "footer": "A: Amplitude, B: Freq factor ($360/Period$), C: Phase shift, D: Vertical shift."
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Trig Modelling — $y = A\\sin(B(x-C))+D$", "body": "$A$ = amplitude (half the range). $D$ = vertical shift (mean level). $B$ = frequency factor; Period $= 360°/B$ (degrees) or $2\\pi/B$ (radians). $C$ = phase shift (horizontal). Max = $A+D$, Min = $D-A$." } },
+    { "callout": { "t": "miscon", "h": "Amplitude = Maximum Value", "body": "Amplitude is NOT the maximum value — it is the **half-range**. Maximum value = $A + D$ (amplitude plus the vertical shift). For $h = 4 + 3\\sin\\theta$: amplitude is $3$, max is $7$, min is $1$." } }
   ],
   "flashcards": [
     ["What does amplitude represent in a tide model?", "Half the distance between high and low tide."],
@@ -2016,7 +2216,9 @@ C["maths:6.1"] = {
         ["$y = a^{x-c}$", "Translation right by $c$ units."],
         ["$y = a^x + d$", "Translation up by $d$ units. Asymptote becomes $y = d$."]
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Exponential Functions — Key Features", "body": "$y = a^x$ ($a>0$): $y$-intercept always $(0,1)$, asymptote $y=0$, domain all reals, range $y>0$. Growth if $a>1$; decay if $0<a<1$. Shifts: $y=a^x+d$ moves asymptote to $y=d$; $y=ka^x$ multiplies $y$-intercept by $k$." } },
+    { "callout": { "t": "miscon", "h": "$y = a^x$ Can Be Negative", "body": "WRONG. Exponential functions are always positive ($y > 0$) because a positive number raised to any real power is positive. The graph approaches but never reaches or crosses $y = 0$. Even $y = -3^x$ is always negative (not zero) — here the minus sign is outside." } }
   ],
   "flashcards": [
     ["What is the $y$-intercept of $y = a^x$?", "$(0, 1)$."],
@@ -2091,7 +2293,9 @@ C["maths:6.2"] = {
           "n": "The log value is the power to which the base must be raised."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Logarithms — Definition & Key Values", "body": "$\\log_a y = x \\iff a^x = y$ (convert freely between forms). $\\log_a 1 = 0$ (since $a^0=1$). $\\log_a a = 1$ (since $a^1=a$). Inverse: $a^{\\log_a x} = x$. Domain of $\\log_a x$: $x > 0$ only." } },
+    { "callout": { "t": "miscon", "h": "$\\log(x + y) = \\log x + \\log y$", "body": "WRONG. The multiplication law says $\\log(xy) = \\log x + \\log y$ — inputs multiplied, logs added. There is no law for $\\log(x+y)$; it cannot be simplified further. This is one of the most common log errors in exams." } }
   ],
   "flashcards": [
     ["Inverse of $y = 10^x$?", "$y = \\log_{10} x$."],
@@ -2160,7 +2364,9 @@ C["maths:6.3"] = {
         "body": "$$\\log_a x = \\frac{\\log_b x}{\\log_b a}$$",
         "footer": "Useful for calculating logs with any base on a calculator."
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Log Laws — 3 Rules", "body": "**Multiply → Add**: $\\log(xy) = \\log x + \\log y$. **Divide → Subtract**: $\\log(x/y) = \\log x - \\log y$. **Power → Multiply**: $\\log(x^k) = k\\log x$. Change of base: $\\log_a x = \\frac{\\ln x}{\\ln a}$." } },
+    { "callout": { "t": "miscon", "h": "$\\log(x^2) = (\\log x)^2$", "body": "WRONG. The power law brings the exponent in FRONT: $\\log(x^2) = 2\\log x$. Writing $(\\log x)^2$ squares the logarithm itself — a completely different expression. Same mistake with $\\log(\\sqrt{x}) = \\frac{1}{2}\\log x$, not $(\\log x)^{1/2}$." } }
   ],
   "flashcards": [
     ["Expand $\\log(ab)$.", "$\\log a + \\log b$."],
@@ -2227,7 +2433,9 @@ C["maths:6.4"] = {
         ["Key Value", "$\\ln e = 1$ and $\\ln 1 = 0$"],
         ["Derivative", "$\\frac{d}{dx}(e^x) = e^x$ (unique property)"]
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "$e$ and $\\ln$ — Cancel Pair", "body": "$e^{\\ln x} = x$ and $\\ln(e^x) = x$ (they cancel). $\\ln 1 = 0$, $\\ln e = 1$. To solve $e^x = k$: take $\\ln$ both sides to get $x = \\ln k$. To solve $\\ln x = k$: exponentiate to get $x = e^k$. Simplify $e^{n\\ln x} = x^n$." } },
+    { "callout": { "t": "miscon", "h": "$\\ln(e^{2x}) = 2e^x$", "body": "WRONG. $\\ln$ and $e$ cancel completely: $\\ln(e^{2x}) = 2x$ (the exponent comes down unchanged). The error applies the $\\ln$ only to $e$, leaving the $2x$ outside. The ln undoes the entire exponent at once." } }
   ],
   "flashcards": [
     ["What is the base of natural logs?", "$e$."],
@@ -2300,7 +2508,9 @@ C["maths:6.5"] = {
         "h": "Quadratic Equations in $e^x$",
         "body": "Equations like $e^{2x} - 5e^x + 6 = 0$ can be solved by substituting $u = e^x$. This gives $u^2 - 5u + 6 = 0$."
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Solving $a^x = b$ and Quadratic $e^x$", "body": "For $a^x = b$: take logs both sides → $x = \\frac{\\log b}{\\log a} = \\frac{\\ln b}{\\ln a}$. For equations like $e^{2x} - 5e^x + 6 = 0$: substitute $u = e^x$ to get $u^2 - 5u + 6 = 0$, factorise, then solve $e^x = \\text{root}$ (reject any negative root)." } },
+    { "callout": { "t": "miscon", "h": "$\\log(a^x) = a \\cdot \\log x$", "body": "WRONG. The power law moves the exponent (which contains the unknown) in front: $\\log(a^x) = x \\log a$. The base $a$ moves inside the coefficient, not outside. Writing $a \\cdot \\log x$ treats $a$ as the power, but $a$ is the base." } }
   ],
   "flashcards": [
     ["How to solve $2^x = 10$?", "Take logs: $x\\log 2 = \\log 10 \\implies x = \\log 10 / \\log 2$."],
@@ -2367,7 +2577,9 @@ C["maths:6.6"] = {
         ["$k < 0$", "Exponential Decay (e.g., radioactivity)"],
         ["Half-life", "Time taken for $N$ to reach $N_0/2$."]
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Growth & Decay — Reading the Model", "body": "$N = N_0 e^{kt}$: $N_0$ = initial value (at $t=0$), $k>0$ = growth, $k<0$ = decay. For $T = a + be^{-kt}$: asymptote is $y = a$ (not zero). Half-life: set $N = N_0/2$, solve $e^{kt} = 0.5$ → $t = -\\ln 2 / k$." } },
+    { "callout": { "t": "miscon", "h": "$N_0$ Is the Value at $t = 1$", "body": "WRONG. $N_0$ is the initial value at $t = 0$, because $e^{k \\times 0} = e^0 = 1$, so $N = N_0 \\times 1 = N_0$. At $t=1$ the value is $N_0 e^k$. To find $N_0$: substitute $t = 0$ into the model, not $t = 1$." } }
   ],
   "flashcards": [
     ["Formula for exponential growth?", "$N = N_0 e^{kt}$."],
@@ -2443,7 +2655,9 @@ C["maths:6.7"] = {
           "n": "Always check which axes are being used ($\\log x$ vs $x$)."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Linearising — Two Models", "body": "**$y = ax^n$**: take $\\log$ → $\\log y = n\\log x + \\log a$. Plot $\\log y$ vs $\\log x$; gradient $= n$, intercept $= \\log a$. **$y = ab^x$**: take $\\log$ → $\\log y = (\\log b)x + \\log a$. Plot $\\log y$ vs $x$; gradient $= \\log b$, intercept $= \\log a$. Key: identify the x-axis to distinguish the two." } },
+    { "callout": { "t": "miscon", "h": "Confusing the Two Linearising Models", "body": "If the x-axis is $\\log x$, the model is $y = ax^n$ (power). If the x-axis is just $x$, the model is $y = ab^x$ (exponential). Students mix these up when reading graphs. Always check the axis label before writing the model type." } }
   ],
   "flashcards": [
     ["How to linearise $y = ax^n$?", "Plot $\\log y$ against $\\log x$."],
@@ -2514,7 +2728,9 @@ C["maths:7.1"] = {
         "h": "First Principles",
         "body": "$$f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}$$"
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Differentiation Quick Reference", "body": "Power rule: $\\frac{d}{dx}(x^n) = nx^{n-1}$ — multiply by the power, then reduce the power by 1. $\\frac{d}{dx}(e^{ax}) = ae^{ax}$. $\\frac{d}{dx}(\\ln x) = \\frac{1}{x}$. Always rewrite first: $\\frac{1}{x^2} = x^{-2}$, $\\sqrt[3]{x} = x^{1/3}$ before applying the power rule." } },
+    { "callout": { "t": "miscon", "h": "$\\frac{d}{dx}(x^n) = x^{n-1}$ — Forgetting to Multiply", "body": "The correct power rule is $nx^{n-1}$, NOT $x^{n-1}$. You must multiply by the original exponent $n$ before reducing it. Example: $\\frac{d}{dx}(x^5) = 5x^4$, not $x^4$." } }
   ],
   "flashcards": [
     ["Derivative of $x^5$?", "$5x^4$."],
@@ -2583,7 +2799,9 @@ C["maths:7.2"] = {
           "n": "Simplified: $30x(3x^2 + 1)^4$."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Chain Rule — Outer × Inner", "body": "Differentiate the outer function (leaving the inner unchanged), then multiply by the derivative of the inner. Key patterns: $\\frac{d}{dx}[f(g)]^n = n[f]^{n-1} \\cdot f'$; $\\frac{d}{dx}\\ln(f) = f'/f$; $\\frac{d}{dx}e^{f} = f'e^{f}$." } },
+    { "callout": { "t": "miscon", "h": "Forgetting the Inner Derivative", "body": "Differentiating $y = (3x^2+1)^5$ and writing $5(3x^2+1)^4$ omits the chain rule factor. The complete answer is $5(3x^2+1)^4 \\times 6x = 30x(3x^2+1)^4$. Always ask: 'what is inside, and what is its derivative?'" } }
   ],
   "flashcards": [
     ["When to use the Chain Rule?", "For functions within functions (composite)."],
@@ -2652,7 +2870,9 @@ C["maths:7.3"] = {
           "n": "Factorised: $x e^x (x + 2)$."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Product Rule — $uv' + vu'$", "body": "For $y = uv$: $\\frac{dy}{dx} = u\\frac{dv}{dx} + v\\frac{du}{dx}$. Pick $u$ and $v$, differentiate both separately, then combine. Common candidates: polynomial × exponential, polynomial × ln, trig × trig. Factorise the answer to find stationary points." } },
+    { "callout": { "t": "miscon", "h": "$(uv)' = u'v'$", "body": "WRONG. You cannot just multiply the two derivatives together. $(uv)' = uv' + vu'$ — each function is differentiated in turn while the other stays fixed. For example, $(xe^x)' = x \\cdot e^x + e^x \\cdot 1 = e^x(x+1)$, not $e^x$." } }
   ],
   "flashcards": [
     ["When to use the Product Rule?", "When two functions of $x$ are multiplied together."],
@@ -2720,7 +2940,9 @@ C["maths:7.4"] = {
         "h": "Order Matters",
         "body": "In the numerator, you MUST start with $v \\frac{du}{dx}$. Reversing the order will lead to the wrong sign."
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Quotient Rule — $\\frac{vu' - uv'}{v^2}$", "body": "For $y = u/v$: numerator is $v\\frac{du}{dx} - u\\frac{dv}{dx}$, denominator is $v^2$. Mnemonic: **'v dee-u minus u dee-v, over v squared'**. Denominator is always the bottom function squared — never differentiated." } },
+    { "callout": { "t": "miscon", "h": "Writing $uv' - vu'$ Instead of $vu' - uv'$", "body": "The numerator must be $vu' - uv'$, not $uv' - vu'$. The function on the bottom ($v$) differentiates the one on top ($u$) first. Reversing the order gives the wrong sign on the whole answer — a very common exam error." } }
   ],
   "flashcards": [
     ["When to use the Quotient Rule?", "When functions of $x$ are in a fraction."],
@@ -2795,7 +3017,9 @@ C["maths:7.5"] = {
           "$\\frac{d}{dx}(\\tan ax) = a\\sec^2 ax$"
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Trig Derivatives — Minus Signs on Co-functions", "body": "$\\frac{d}{dx}\\sin x = \\cos x$. $\\frac{d}{dx}\\cos x = -\\sin x$. $\\frac{d}{dx}\\tan x = \\sec^2 x$. The **co-** functions all pick up a minus: $\\frac{d}{dx}\\csc x = -\\csc x\\cot x$, $\\frac{d}{dx}\\cot x = -\\csc^2 x$. $\\frac{d}{dx}\\sec x = \\sec x\\tan x$ (no minus)." } },
+    { "callout": { "t": "miscon", "h": "$\\frac{d}{dx}(\\cos x) = \\sin x$", "body": "WRONG. $\\frac{d}{dx}(\\cos x) = -\\sin x$ — note the minus sign. This is one of the most common sign errors. The cycle is: $\\sin \\to \\cos \\to -\\sin \\to -\\cos \\to \\sin \\to \\dots$, alternating signs as you differentiate." } }
   ],
   "flashcards": [
     ["Derivative of $\\sin x$?", "$\\cos x$."],
@@ -2871,7 +3095,9 @@ C["maths:7.6"] = {
         ["Concave Down", "$f''(x) \\le 0$"],
         ["Point of Inflection", "A point where concavity changes ($f''(x)=0$ and changes sign)"]
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Stationary Points — Test Order", "body": "1. Set $f'(x) = 0$, solve for $x$. 2. Substitute $x$ to find $y$-coordinates. 3. Find $f''(x)$. 4. $f''(x) > 0$: minimum. $f''(x) < 0$: maximum. $f''(x) = 0$: check gradient on each side." } },
+    { "callout": { "t": "miscon", "h": "$f''(x) = 0$ Means a Point of Inflection", "body": "NOT necessarily. $f''(x) = 0$ is inconclusive — it could still be a max, min, or inflection. You must check whether $f''$ **changes sign** either side of the point. Example: $f(x) = x^4$ has $f''(0) = 0$ but $(0,0)$ is a minimum." } }
   ],
   "flashcards": [
     ["How to find stationary points?", "Set $f'(x) = 0$."],
@@ -2943,7 +3169,9 @@ C["maths:8.1"] = {
         "h": "The Constant of Integration",
         "body": "NEVER forget the $+ C$ for indefinite integrals. It represents an unknown vertical translation."
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Integration Power Rule — Add, Divide, +C", "body": "$\\int x^n dx = \\frac{x^{n+1}}{n+1} + C$ (add 1 to power, divide by new power). Works for all $n \\ne -1$. Before integrating: rewrite $\\frac{1}{x^2}$ as $x^{-2}$, $\\sqrt{x}$ as $x^{1/2}$. $\\int x^{-1} dx = \\ln|x| + C$ (the exception)." } },
+    { "callout": { "t": "miscon", "h": "Forgetting to Divide by $(n+1)$", "body": "After adding 1 to the power, you must also divide by the new power. $\\int x^3 dx = \\frac{x^4}{4}$, not $x^4$. A quick check: differentiate your answer — if you don't get back the original function, the division was missing." } }
   ],
   "flashcards": [
     ["Integral of $x^3$?", "$x^4/4 + C$."],
@@ -3017,7 +3245,9 @@ C["maths:8.2"] = {
           "To integrate $\\cos^2 x$, use $\\frac{1}{2}(1 + \\cos 2x)$."
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Trig Integration — Minus Sign for Sine", "body": "$\\int \\sin(ax) dx = -\\frac{1}{a}\\cos(ax) + C$ (note the **minus**). $\\int \\cos(ax) dx = \\frac{1}{a}\\sin(ax) + C$. $\\int \\sec^2(ax) dx = \\frac{1}{a}\\tan(ax) + C$. For $\\sin^2 x$ or $\\cos^2 x$: use double angle identity before integrating." } },
+    { "callout": { "t": "miscon", "h": "$\\int \\sin x dx = \\cos x + C$", "body": "WRONG sign. $\\int \\sin x dx = -\\cos x + C$. Remember: differentiation goes $\\cos \\to -\\sin$ (gains a minus), so integration reverses this: $\\sin \\to -\\cos$. Verify by differentiating: $\\frac{d}{dx}(-\\cos x) = +\\sin x$. ✓" } }
   ],
   "flashcards": [
     ["Integral of $\\sin x$?", "$-\\cos x + C$."],
@@ -3084,7 +3314,9 @@ C["maths:8.3"] = {
           "n": "For definite integrals, don't forget to change the limits of integration."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Substitution — Full Method", "body": "1. Choose $u$ (usually the inner function). 2. Find $\\frac{du}{dx}$, rearrange to express $dx = \\frac{du}{u'}$. 3. Substitute $u$ and $dx$ — all $x$ should disappear. 4. Integrate in $u$. 5. Back-substitute to get answer in $x$. For definite integrals: convert limits $a, b$ using $u = g(x)$ and skip step 5." } },
+    { "callout": { "t": "miscon", "h": "Forgetting to Change Limits in Definite Integrals", "body": "If you use substitution for $\\int_a^b f dx$ and keep the original limits $a$ and $b$, you must back-substitute. But if you change limits to $u(a)$ and $u(b)$ during the substitution, you must NOT back-substitute — back-substituting after already using new limits gives a double conversion error." } }
   ],
   "flashcards": [
     ["When to use substitution?", "When one part of the integral is (roughly) the derivative of another part."],
@@ -3158,7 +3390,9 @@ C["maths:8.4"] = {
           "E: Exponential ($e^x$)"
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Integration by Parts — LIATE", "body": "$\\int u\\,dv = uv - \\int v\\,du$. Choose $u$ as the LIATE-first function (Log → Inverse trig → Algebraic → Trig → Exponential). To integrate $\\ln x$ alone: set $u = \\ln x$, $dv = 1\\,dx$. Apply twice for $\\int x^2 e^x dx$." } },
+    { "callout": { "t": "miscon", "h": "Choosing $dv$ as $\\ln x$", "body": "Never let $dv = \\ln x\\,dx$ — you would need to integrate $\\ln x$ to find $v$, which is itself a parts integral (circular). Always set $\\ln x$ as $u$ (since it's L in LIATE). Then $du = 1/x\\,dx$ and $v$ comes from integrating whatever remains." } }
   ],
   "flashcards": [
     ["Integration by parts formula?", "$uv - \\int v du$."],
@@ -3226,7 +3460,9 @@ C["maths:8.5"] = {
           "n": "Result: $-\\ln|x-1| + \\ln|x-2| + C = \\ln|\\frac{x-2}{x-1}| + C$."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Partial Fractions → Logs", "body": "Each $\\frac{A}{x-a}$ term integrates to $A\\ln|x-a|$. Repeated factor: $\\frac{A}{x-a} + \\frac{B}{(x-a)^2}$ — the second term gives $-B(x-a)^{-1}$. Always check: if the numerator degree $\\ge$ denominator degree, do polynomial long division first." } },
+    { "callout": { "t": "miscon", "h": "Skipping Long Division for Improper Rational Functions", "body": "If the numerator degree $\\ge$ the denominator degree (e.g., $\\frac{x^2+1}{x+1}$), the fraction is improper and CANNOT be decomposed directly into partial fractions. Divide first to get a polynomial plus a proper remainder, then decompose the remainder." } }
   ],
   "flashcards": [
     ["When to use partial fractions for integration?", "When the denominator is a factorable polynomial."],
@@ -3299,7 +3535,9 @@ C["maths:8.6"] = {
         ["Area between two curves", "$\\int_a^b (y_{top} - y_{bottom}) dx$"],
         ["Area between curve and Y-axis", "$\\int_c^d x dy$"]
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Areas — Sign Rules", "body": "Area below the $x$-axis integrates to a **negative** value — you must negate it (or take the absolute value) to get the physical area. If the curve crosses the $x$-axis, split the integral at the crossing point and handle each region separately. Area between two curves: $\\int_a^b (y_{\\text{top}} - y_{\\text{bottom}}) dx$." } },
+    { "callout": { "t": "miscon", "h": "$\\int_{-1}^{1} x^3 dx$ Gives the Total Area", "body": "WRONG. For an odd function on a symmetric interval $[-a, a]$, the positive and negative areas cancel: $\\int_{-1}^1 x^3 dx = 0$. The total enclosed area is $2\\int_0^1 x^3 dx = 2 \\times \\frac{1}{4} = \\frac{1}{2}$. Always check for cancellation before computing area." } }
   ],
   "flashcards": [
     ["Geometric interpretation of $\\int_a^b f(x) dx$?", "Net signed area between curve and $x$-axis."],
@@ -3365,7 +3603,9 @@ C["maths:8.7"] = {
         ["$\\int_a^a f(x) dx = 0$", "Area of zero width is zero."],
         ["$\\int_a^c f(x) dx = \\int_a^b f(x) dx + \\int_b^c f(x) dx$", "Interval addition property."]
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Definite Integrals — Key Properties", "body": "$\\int_a^b f(x) dx = F(b) - F(a)$ — evaluate antiderivative at top limit then subtract bottom limit. No $+C$ needed (it cancels). Odd function on $[-a,a]$: integral = 0. Reversing limits: $\\int_b^a = -\\int_a^b$." } },
+    { "callout": { "t": "miscon", "h": "Writing $+C$ in a Definite Integral Answer", "body": "Definite integrals give a pure number — no $+C$. The constant cancels: $F(b) + C - (F(a) + C) = F(b) - F(a)$. Writing $+C$ in the final answer loses marks. Only indefinite integrals have $+C$." } }
   ],
   "flashcards": [
     ["What is a definite integral?", "An integral with specific upper and lower limits, resulting in a number."],
@@ -3437,7 +3677,9 @@ C["maths:8.8"] = {
         ["General Solution", "Contains $+C$. Represents a family of curves."],
         ["Particular Solution", "Found by using 'boundary conditions' (a specific point) to find $C$."]
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Differential Equations — Separation of Variables", "body": "1. Rearrange to $\\frac{1}{g(y)} dy = f(x) dx$. 2. Integrate both sides (include $+C$ on one side only). 3. If initial condition $(x_0, y_0)$ given, substitute and solve for $C$. General solution of $\\frac{dy}{dx} = ky$: $y = Ae^{kx}$." } },
+    { "callout": { "t": "miscon", "h": "Omitting $+C$ When Integrating", "body": "Every indefinite integration step in a DE solution must include $+C$ — omitting it removes the family of curves and makes the boundary condition step meaningless. The constant $C$ is what the boundary condition determines; without it, you have only one specific solution and can't apply the given condition." } }
   ],
   "flashcards": [
     ["What is a first-order differential equation?", "One involving $dy/dx$ but no higher derivatives."],
@@ -3507,7 +3749,9 @@ C["maths:9.1"] = {
           "2. A sign change can happen without a root if there is a discontinuity (e.g., $1/x$)."
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Sign Change — Exam Phrasing", "body": "Full response requires: 1. Define $f(x)$. 2. Calculate $f(a)$ and $f(b)$. 3. State: sign change (one negative, one positive) AND $f$ is continuous on $[a,b]$, therefore a root exists in $(a,b)$. Missing 'continuous' or the sign change statement loses marks." } },
+    { "callout": { "t": "miscon", "h": "One Sign Change = Exactly One Root", "body": "WRONG. A sign change in $[a,b]$ guarantees AT LEAST ONE root, not exactly one. There could be 3 (or any odd number of) roots. Also, no sign change does NOT mean no root — an even number of roots cancels out (e.g., $(x-2)^2$)." } }
   ],
   "flashcards": [
     ["How to show a root exists in $[1, 2]$?", "Show $f(1)$ and $f(2)$ have different signs."],
@@ -3580,7 +3824,9 @@ C["maths:9.2"] = {
         ["Cobweb Diagram", "Formed when $g(x)$ is monotonic."],
         ["Staircase Diagram", "Formed when $g(x)$ is not monotonic (oscillates)."]
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Fixed-Point Iteration — When It Works", "body": "$x_{n+1} = g(x_n)$. Converges if $|g'(\\alpha)| < 1$ at the root $\\alpha$. If $|g'(\\alpha)| > 1$, the iteration diverges — try a different rearrangement. Staircase diagram: $g$ increasing. Cobweb diagram: $g$ decreasing (alternates above/below the root)." } },
+    { "callout": { "t": "miscon", "h": "Any Rearrangement of $f(x)=0$ Will Converge", "body": "WRONG. Only rearrangements where $|g'(\\text{root})| < 1$ converge. For example, $x = x^2 - 3$ from $x^2 - x - 3 = 0$ has $|g'| > 1$ near the root and will diverge. Always check or verify convergence from the cobweb/staircase — if values diverge, try a different rearrangement." } }
   ],
   "flashcards": [
     ["What is an iterative formula?", "A rule where each term depends on the previous one, $x_{n+1} = g(x_n)$."],
@@ -3660,7 +3906,9 @@ C["maths:9.3"] = {
           "n": "The formula is derived from $y - f(x_n) = f'(x_n)(x - x_n)$ by setting $y=0$."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Newton-Raphson — Formula & Failure Conditions", "body": "$x_{n+1} = x_n - \\frac{f(x_n)}{f'(x_n)}$. Requires $f$ to be differentiable and $f'(x_n) \\ne 0$. Generally converges much faster than fixed-point iteration. Geometric interpretation: draw tangent at $(x_n, f(x_n))$, find where it crosses the $x$-axis." } },
+    { "callout": { "t": "miscon", "h": "Newton-Raphson Always Converges to the Nearest Root", "body": "WRONG. NR can diverge (if $f'(x_0) \\approx 0$) or converge to a different root if $x_0$ is poorly chosen. It may also cycle or diverge near inflection points. Always verify which root you are converging to by checking $f(x_n) \\to 0$." } }
   ],
   "flashcards": [
     ["Newton-Raphson formula?", "$x_{n+1} = x_n - f(x_n)/f'(x_n)$."],
@@ -3741,7 +3989,9 @@ C["maths:9.4"] = {
           "If the curve is concave (concave down, $y'' < 0$), the rule UNDER-estimates."
         ]
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Trapezium Rule — Structure", "body": "$\\approx \\frac{1}{2}h[(y_0 + y_n) + 2(y_1 + y_2 + \\cdots + y_{n-1})]$ where $h = \\frac{b-a}{n}$. $n$ strips give $n+1$ $y$-values. First and last ordinate each added once; middle ordinates added twice. Convex ($y'' > 0$): overestimate. Concave ($y'' < 0$): underestimate." } },
+    { "callout": { "t": "miscon", "h": "$n$ Strips Needs $n$ Ordinates", "body": "WRONG. $n$ strips require $n+1$ ordinates (one at each boundary: $x_0, x_1, \\ldots, x_n$). Forgetting the extra ordinate is a very common exam error. For 4 strips from $x=1$ to $x=5$: ordinates at $x = 1, 2, 3, 4, 5$ (that's 5 values)." } }
   ],
   "flashcards": [
     ["Trapezium rule formula?", "$0.5h [ends + 2(middles)]$."],
@@ -3806,7 +4056,9 @@ C["maths:9.5"] = {
         ["$x + \\sin x = 3$", "Impossible to solve for $x$ exactly. Must use iteration/NR."],
         ["Experimental Data", "No equation given, only points. Trapezium rule is the only option."]
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Choosing a Numerical Method", "body": "**Root location**: sign change. **Root refinement**: NR (fastest, needs $f'$) or fixed-point iteration (simpler, needs $|g'|<1$). **Area when antiderivative exists**: exact integration. **Area when antiderivative is not expressible in closed form** (e.g., $e^{-x^2}$) or only data points given: trapezium rule." } },
+    { "callout": { "t": "miscon", "h": "Numerical Methods Give Exact Answers", "body": "WRONG. They are approximations. The trapezium rule gives an estimate with an error that decreases as $n$ increases. Newton-Raphson gives an approximate root to whatever precision you specify. An exact answer requires an analytical method." } }
   ],
   "flashcards": [
     ["Why use numerical integration?", "When the antiderivative cannot be expressed in standard functions."],
@@ -3872,7 +4124,9 @@ C["maths:10.1"] = {
         ["$\\mathbf{k}$", "Unit vector in the positive $z$ direction (3D only)."],
         ["$\\begin{pmatrix} a \\\\ b \\\\ c \\end{pmatrix}$", "Column vector notation."]
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Vectors vs Scalars — Key Distinction", "body": "**Scalar**: magnitude only (speed, temperature, distance). **Vector**: magnitude AND direction (velocity, displacement, force). In column vector form $\\begin{pmatrix} a \\\\ b \\end{pmatrix}$ and $a\\mathbf{i}+b\\mathbf{j}$ are equivalent — both are vectors, not scalars." } },
+    { "callout": { "t": "miscon", "h": "Distance Is a Vector", "body": "WRONG. Distance is a scalar (no direction). Displacement is the vector — it records both how far and which way. Speed is scalar; velocity is vector. When a question asks for 'distance $AB$', give $|\\vec{AB}|$ (a positive number), not the vector $\\vec{AB}$." } }
   ],
   "flashcards": [
     ["What is a vector?", "A quantity with magnitude and direction."],
@@ -3945,7 +4199,9 @@ C["maths:10.2"] = {
         "h": "Unit Vector in direction of $\\mathbf{v}$",
         "body": "$\\hat{\\mathbf{v}} = \\frac{\\mathbf{v}}{|\\mathbf{v}|}$"
       }
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Magnitude & Unit Vectors", "body": "$|\\mathbf{v}| = \\sqrt{a^2+b^2+c^2}$. Unit vector: $\\hat{\\mathbf{v}} = \\frac{\\mathbf{v}}{|\\mathbf{v}|}$ (always magnitude 1). To get a vector of magnitude $k$ in direction $\\mathbf{v}$: $k \\cdot \\hat{\\mathbf{v}} = \\frac{k\\mathbf{v}}{|\\mathbf{v}|}$. Magnitude is always $\\ge 0$." } },
+    { "callout": { "t": "miscon", "h": "$|{-2\\mathbf{a}}| = -2|\\mathbf{a}|$", "body": "WRONG. Magnitude is always non-negative. $|\\lambda\\mathbf{a}| = |\\lambda| \\cdot |\\mathbf{a}|$ — you take the absolute value of the scalar. So $|-2\\mathbf{a}| = 2|\\mathbf{a}|$, not $-2|\\mathbf{a}|$." } }
   ],
   "flashcards": [
     ["Formula for magnitude of $x\\mathbf{i} + y\\mathbf{j}$?", "$\\sqrt{x^2 + y^2}$."],
@@ -4052,7 +4308,9 @@ C["maths:10.3"] = {
           "n": "One is a scalar multiple of the other, so they are parallel."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Vector Operations — Key Rules", "body": "Add/subtract component-wise. $\\vec{AB} = \\mathbf{b} - \\mathbf{a}$ (destination minus source). Triangle law: $\\vec{AB} + \\vec{BC} = \\vec{AC}$. Parallel: $\\mathbf{a} = \\lambda\\mathbf{b}$ for some scalar $\\lambda$. Negative of a vector reverses direction, keeps same magnitude." } },
+    { "callout": { "t": "miscon", "h": "$\\vec{AB} = \\mathbf{a} - \\mathbf{b}$", "body": "WRONG direction. $\\vec{AB}$ means 'travel from $A$ to $B$', so you subtract the start ($A$) from the destination ($B$): $\\vec{AB} = \\mathbf{b} - \\mathbf{a}$. Reversing gives $\\vec{BA} = \\mathbf{a} - \\mathbf{b}$. A useful check: $\\vec{AB} + \\vec{BA} = \\mathbf{0}$." } }
   ],
   "flashcards": [
     ["How to add two vectors?", "Add their $x, y, z$ components separately."],
@@ -4126,7 +4384,9 @@ C["maths:10.4"] = {
           "n": "For the midpoint, ratio is $1:1$, so $\\vec{OM} = 0.5(\\mathbf{a} + \\mathbf{b})$."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Position Vectors — Key Formulae", "body": "Position vector of $P(x,y,z)$: $\\vec{OP} = x\\mathbf{i}+y\\mathbf{j}+z\\mathbf{k}$. Distance $|AB| = |\\mathbf{b}-\\mathbf{a}|$. Midpoint: $\\frac{1}{2}(\\mathbf{a}+\\mathbf{b})$. Division $m:n$: $\\mathbf{a} + \\frac{m}{m+n}(\\mathbf{b}-\\mathbf{a})$." } },
+    { "callout": { "t": "miscon", "h": "Midpoint = $\\frac{1}{2}(\\mathbf{a} - \\mathbf{b})$", "body": "WRONG. The midpoint of $AB$ is $\\frac{1}{2}(\\mathbf{a} + \\mathbf{b})$ — the average (sum and halve, not difference and halve). $\\frac{1}{2}(\\mathbf{a}-\\mathbf{b})$ is half of $\\vec{BA}$, which is a different vector altogether." } }
   ],
   "flashcards": [
     ["What is $\\vec{AB}$ in terms of position vectors?", "$\\mathbf{b} - \\mathbf{a}$."],
@@ -4200,7 +4460,9 @@ C["maths:10.5"] = {
           "n": "Both the parallel property and the common point are necessary for the proof."
         }
       ]
-    }
+    },
+    { "callout": { "t": "memorise", "h": "Collinearity & Parallelogram Proofs", "body": "**Collinear**: show $\\vec{AB} = \\lambda\\vec{BC}$ (or any two of the three) AND state they share a common point (e.g., $B$). **Parallelogram**: show $\\vec{AB} = \\vec{DC}$ (opposite sides equal and parallel — note $DC$ not $CD$). **Midpoint**: use $\\frac{1}{2}(\\mathbf{a}+\\mathbf{b})$ for any two vertices." } },
+    { "callout": { "t": "miscon", "h": "Parallel Vectors Are Sufficient to Prove Collinearity", "body": "WRONG. You must ALSO state that the vectors share a common point. Without this, two vectors could be parallel but on completely separate parallel lines. Example: $\\vec{AB} \\parallel \\vec{CD}$ doesn't mean $A, B, C, D$ are collinear — they could be sides of a parallelogram." } }
   ],
   "flashcards": [
     ["How to show 3 points are collinear?", "Show vectors between them are parallel and share a common point."],

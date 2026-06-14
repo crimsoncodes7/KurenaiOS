@@ -35,7 +35,9 @@ C["compsci:4.1.1.1"] = {
         ["Reference", "An alias for a memory location; in C#, classes are handled via references."],
         ["Utility", "Essential for dynamic memory allocation and creating complex data structures like linked lists."]
       ]}
-    ]}}
+    ]}},
+    { callout: { t: "memorise", h: "7 Primitive Types", body: "Integer (whole numbers), Real/Float (fractional), Boolean (True/False), Character (single symbol), String (sequence of chars), Date/Time, Pointer/Reference (stores a memory address). Know all seven for the exam." }},
+    { callout: { t: "miscon", h: "'Number' Is Not a Data Type", body: "Never write 'Number' as a data type in an exam. AQA requires the specific term: Integer or Real. Also: Integer CANNOT store a decimal — if the value might be fractional (e.g. height, price), always use Real." }}
   ],
   flashcards: [
     ["Define 'Data Type'.", "Determines the kind of data a variable can store and the operations that can be performed on it."],
@@ -81,7 +83,9 @@ C["compsci:4.1.1.2"] = {
       ]}
     ]}},
     { code: { lang: "csharp", cap: "Selection and Iteration in C#.", src:
-"// Selection\nif (score > 50) {\n    Console.WriteLine(\"Pass\");\n} else {\n    Console.WriteLine(\"Fail\");\n}\n\n// Definite Iteration\nfor (int i = 0; i < 10; i++) {\n    Console.WriteLine(i);\n}\n\n// Indefinite Iteration (Test at start)\nwhile (energy > 0) {\n    energy -= 1;\n}\n\n// Indefinite Iteration (Test at end)\ndo {\n    Process();\n} while (keepGoing);" }}
+"// Selection\nif (score > 50) {\n    Console.WriteLine(\"Pass\");\n} else {\n    Console.WriteLine(\"Fail\");\n}\n\n// Definite Iteration\nfor (int i = 0; i < 10; i++) {\n    Console.WriteLine(i);\n}\n\n// Indefinite Iteration (Test at start)\nwhile (energy > 0) {\n    energy -= 1;\n}\n\n// Indefinite Iteration (Test at end)\ndo {\n    Process();\n} while (keepGoing);" }},
+    { callout: { t: "memorise", h: "3 Constructs + Loop Types", body: "Sequence, Selection, Iteration. For iteration — Definite (FOR): count known before loop starts. Indefinite: WHILE (pre-test, may run 0 times) vs DO-WHILE/REPEAT-UNTIL (post-test, runs at least once)." }},
+    { callout: { t: "miscon", h: "WHILE ≠ DO-WHILE", body: "WHILE and DO-WHILE are NOT interchangeable. A WHILE loop may never execute if the condition starts as False. A DO-WHILE always executes at least once. Choosing the wrong one causes a logic error." }}
   ],
   flashcards: [
     ["Name the three basic programming constructs.", "Sequence, Selection, and Iteration."],
@@ -123,7 +127,9 @@ C["compsci:4.1.1.3"] = {
     ]},
     { callout: { t: "tip", h: "MOD in the Real World", body: "MOD is incredibly useful for: checking if a number is even (`x MOD 2 == 0`), wrapping indices in a circular queue, or converting total minutes into hours and minutes." }},
     { code: { lang: "csharp", cap: "Arithmetic in C#. Note that `/` between two integers performs DIV.", src:
-"int a = 17;\nint b = 3;\n\nint quotient = a / b;      // Result: 5 (Integer Division)\nint remainder = a % b;     // Result: 2 (Modulo)\n\ndouble realDiv = 17.0 / 3; // Result: 5.666... (Real Division)" }}
+"int a = 17;\nint b = 3;\n\nint quotient = a / b;      // Result: 5 (Integer Division)\nint remainder = a % b;     // Result: 2 (Modulo)\n\ndouble realDiv = 17.0 / 3; // Result: 5.666... (Real Division)" }},
+    { callout: { t: "memorise", h: "DIV, MOD and the Formula", body: "DIV = whole-number quotient (remainder discarded). MOD = remainder. Formula: A = (A DIV B) × B + (A MOD B). Common uses: MOD 2 for even/odd check; DIV 60 + MOD 60 to split minutes from total seconds." }},
+    { callout: { t: "miscon", h: "Integer Division in C#", body: "In C#, `/` between two integers performs INTEGER division — `10 / 3` gives 3, NOT 3.333. To force real division, at least one operand must be a Real: `10.0 / 3` gives 3.333. This surprises many students." }}
   ],
   flashcards: [
     ["What does DIV (Integer Division) do?", "Returns the whole number part of a division, discarding the remainder."],
@@ -159,7 +165,9 @@ C["compsci:4.1.1.4"] = {
     ]}},
     { callout: { t: "warn", body: "In many languages (like C#), assignment is `=` and comparison is `==`. In the AQA pseudocode spec, `=` is used for both comparison and assignment depending on context, though `←` is preferred for assignment." }},
     { code: { lang: "csharp", cap: "Relational operators in C#.", src:
-"int x = 10;\nint y = 20;\n\nbool result1 = (x == y);   // False\nbool result2 = (x != y);   // True\nbool result3 = (x < y);    // True\nbool result4 = (x >= 10);  // True" }}
+"int x = 10;\nint y = 20;\n\nbool result1 = (x == y);   // False\nbool result2 = (x != y);   // True\nbool result3 = (x < y);    // True\nbool result4 = (x >= 10);  // True" }},
+    { callout: { t: "memorise", h: "6 Relational Operators", body: "= (equal), <> or != (not equal), < (less than), > (greater than), <= (less or equal), >= (greater or equal). All return a Boolean. In AQA pseudocode, not-equal is <>. In C#, it is !=." }},
+    { callout: { t: "miscon", h: "= vs == in C#", body: "In AQA pseudocode, `=` is used for comparison. In C#, `=` is ASSIGNMENT and `==` is comparison. Writing `if (x = 5)` in C# does not compare — it assigns 5 to x. Always use `==` for comparison in C#." }}
   ],
   flashcards: [
     ["What does a relational operator return?", "A Boolean value (True or False)."],
@@ -200,7 +208,9 @@ C["compsci:4.1.1.5"] = {
     ]}},
     { callout: { t: "tip", h: "The XOR Secret", body: "Think of XOR as 'Strictly one or the other'. If they are the same (both 0 or both 1), the result is 0." }},
     { code: { lang: "csharp", cap: "Boolean logic in C#.", src:
-"bool a = true;\nbool b = false;\n\nbool resNot = !a;       // False\nbool resAnd = a && b;   // False\nbool resOr  = a || b;   // True\nbool resXor = a ^ b;    // True" }}
+"bool a = true;\nbool b = false;\n\nbool resNot = !a;       // False\nbool resAnd = a && b;   // False\nbool resOr  = a || b;   // True\nbool resXor = a ^ b;    // True" }},
+    { callout: { t: "memorise", h: "AND / OR / XOR / NOT", body: "AND = True only if BOTH inputs are 1. OR = True if AT LEAST ONE is 1. XOR = True if EXACTLY ONE is 1 — same inputs (both 0 or both 1) gives 0. NOT = inverts the single input." }},
+    { callout: { t: "miscon", h: "XOR ≠ OR", body: "XOR is NOT the same as OR. OR(1,1) = 1, but XOR(1,1) = 0. XOR means 'one or the other but NOT both'. This is a common exam trap — always check: are both inputs the same?" }}
   ],
   flashcards: [
     ["When is an AND operation True?", "Only when both inputs are True."],
@@ -241,7 +251,9 @@ C["compsci:4.1.1.6"] = {
     ]}},
     { callout: { t: "tip", h: "Naming Convention", body: "It is standard practice to use ALL_CAPS for constants to distinguish them from variables at a glance." }},
     { code: { lang: "csharp", cap: "Constants and variables in C#.", src:
-"const double PI = 3.14159;\nconst int MAX_USERS = 100;\n\nint currentUsers = 0; // Variable\ncurrentUsers++;      // Can change\n\n// PI = 3.14;        // Error: cannot assign to a constant" }}
+"const double PI = 3.14159;\nconst int MAX_USERS = 100;\n\nint currentUsers = 0; // Variable\ncurrentUsers++;      // Can change\n\n// PI = 3.14;        // Error: cannot assign to a constant" }},
+    { callout: { t: "memorise", h: "Variable vs Constant", body: "Variable = named memory location whose value CAN change during execution. Constant = named memory location whose value CANNOT change once set. Constant naming convention: ALL_CAPS (e.g. MAX_SPEED, TAX_RATE, PI)." }},
+    { callout: { t: "miscon", h: "Constants Aren't Only for Maths", body: "Constants are NOT just for mathematical values like Pi. Any fixed value (MAX_RETRIES, SCREEN_WIDTH, FILE_PATH) should be a constant for safety and maintainability. 'Magic numbers' like 0.2 scattered in code are a bad practice — name them." }}
   ],
   flashcards: [
     ["Define a 'Variable'.", "A named memory location that stores a value which can change during execution."],
@@ -281,7 +293,9 @@ C["compsci:4.1.1.7"] = {
     ]}},
     { callout: { t: "warn", h: "Zero-based vs One-based", body: "Most languages (C#, Python) are 0-indexed. Some pseudocode in exams might use 1-based indexing. **Always check the question's indexing rule.**" }},
     { code: { lang: "csharp", cap: "String manipulation in C#.", src:
-"string s = \"KurenaiOS\";\nint len = s.Length;                // 9\nchar first = s[0];                 // 'K'\nstring sub = s.Substring(0, 3);    // \"Kur\" (start, length)\nint pos = s.IndexOf('O');          // 7\nstring combined = s + \" 2.0\";      // Concatenation\n\nint code = (int)'A';               // 65 (CHAR_TO_CODE)\nchar c = (char)66;                 // 'B' (CODE_TO_CHAR)" }}
+"string s = \"KurenaiOS\";\nint len = s.Length;                // 9\nchar first = s[0];                 // 'K'\nstring sub = s.Substring(0, 3);    // \"Kur\" (start, length)\nint pos = s.IndexOf('O');          // 7\nstring combined = s + \" 2.0\";      // Concatenation\n\nint code = (int)'A';               // 65 (CHAR_TO_CODE)\nchar c = (char)66;                 // 'B' (CODE_TO_CHAR)" }},
+    { callout: { t: "memorise", h: "String Operations", body: "LEN(s) = number of characters. SUBSTRING(i, j, s) = extract characters. POSITION(s, c) = find character index. s1 + s2 = concatenate. CHAR_TO_CODE('A') = 65. CODE_TO_CHAR(66) = 'B'. Always check: 0-based or 1-based indexing!" }},
+    { callout: { t: "miscon", h: "\"12\" + \"34\" = \"1234\", Not 46", body: "When operands are STRINGS, + means concatenation — not arithmetic. \"12\" + \"34\" = \"1234\". Only when both operands are numeric types does + perform addition. A very common beginner mistake." }}
   ],
   flashcards: [
     ["What does LEN(\"Hello\") return?", "5."],
@@ -314,7 +328,9 @@ C["compsci:4.1.1.8"] = {
     ]}},
     { callout: { t: "tip", h: "Real Randomness", body: "For true randomness (e.g., for high-security encryption), computers use physical entropy like atmospheric noise or radioactive decay." }},
     { code: { lang: "csharp", cap: "Generating random numbers in C#.", src:
-"Random rng = new Random();\n\nint dieRoll = rng.Next(1, 7);     // 1 to 6 (7 is exclusive upper bound)\ndouble probability = rng.NextDouble(); // 0.0 to 1.0" }}
+"Random rng = new Random();\n\nint dieRoll = rng.Next(1, 7);     // 1 to 6 (7 is exclusive upper bound)\ndouble probability = rng.NextDouble(); // 0.0 to 1.0" }},
+    { callout: { t: "memorise", h: "Pseudo-Random vs True Random", body: "Pseudo-random = deterministic algorithm that appears random but eventually repeats. Seed = starting value; same seed → same sequence (useful for debugging). True randomness needs physical entropy: atmospheric noise, radioactive decay, etc." }},
+    { callout: { t: "miscon", h: "Multiple new Random() = Same Sequence", body: "In C#, creating `new Random()` many times quickly gives the SAME sequence because all instances use the system clock as seed — and the clock hasn't changed yet. Create ONE Random instance and reuse it." }}
   ],
   flashcards: [
     ["Why are computer-generated random numbers called 'pseudo-random'?", "They are generated by a deterministic algorithm and will eventually repeat."],
@@ -349,7 +365,9 @@ C["compsci:4.1.1.9"] = {
     ]}},
     { callout: { t: "warn", h: "Exception vs Bug", body: "A syntax error is caught by the compiler. An exception is a **runtime** event often caused by external factors like missing files or invalid user input." }},
     { code: { lang: "csharp", cap: "Try-Catch-Finally in C#.", src:
-"try {\n    int a = 10;\n    int b = 0;\n    int result = a / b; // Throws DivideByZeroException\n} catch (DivideByZeroException ex) {\n    Console.WriteLine(\"Cannot divide by zero!\");\n} catch (Exception ex) {\n    Console.WriteLine(\"A different error occurred.\");\n} finally {\n    Console.WriteLine(\"Cleanup complete.\");\n}" }}
+"try {\n    int a = 10;\n    int b = 0;\n    int result = a / b; // Throws DivideByZeroException\n} catch (DivideByZeroException ex) {\n    Console.WriteLine(\"Cannot divide by zero!\");\n} catch (Exception ex) {\n    Console.WriteLine(\"A different error occurred.\");\n} finally {\n    Console.WriteLine(\"Cleanup complete.\");\n}" }},
+    { callout: { t: "memorise", h: "Try → Catch → Finally", body: "Try: monitor for errors. Catch: handle error if thrown. Finally: ALWAYS runs (cleanup, close files). Multiple Catch blocks handle different exception types. Throw: manually signal an error condition." }},
+    { callout: { t: "miscon", h: "Try-Catch Doesn't Fix All Errors", body: "Exception handling only handles RUNTIME errors gracefully. It cannot catch LOGIC errors (wrong algorithm) or SYNTAX errors (caught at compile time). It is not a substitute for writing correct code — just a safety net." }}
   ],
   flashcards: [
     ["Define an 'Exception'.", "A runtime error that disrupts the normal execution of a program."],
@@ -391,7 +409,9 @@ C["compsci:4.1.1.10"] = {
     ]}},
     { code: { lang: "csharp", cap: "A Procedure vs a Function in C#.", src:
 "// Procedure (void return type)\npublic void Greet(string name) {\n    Console.WriteLine($\"Hello, {name}!\");\n}\n\n// Function (int return type)\npublic int Square(int number) {\n    return number * number;\n}\n\n// Calling them\nGreet(\"Kurenai\");\nint result = Square(5); // result is 25" }},
-    { callout: { t: "tip", h: "Structured Programming", body: "Subroutines are the heart of **structured programming**. Using them allows for top-down design, where a large problem is broken down into sub-problems." }}
+    { callout: { t: "tip", h: "Structured Programming", body: "Subroutines are the heart of **structured programming**. Using them allows for top-down design, where a large problem is broken down into sub-problems." }},
+    { callout: { t: "memorise", h: "Procedure vs Function", body: "Procedure = subroutine that performs a task, NO return value (void in C#). Function = subroutine that performs a task AND returns a value to the caller. Both reduce code duplication and improve structure." }},
+    { callout: { t: "miscon", h: "Subroutines Don't Make Code Faster", body: "Subroutines do NOT improve runtime speed — each call has a small overhead (stack frame push/pop). Their benefit is SOFTWARE QUALITY: readability, maintainability, reuse, and testability. Performance is a separate concern." }}
   ],
   flashcards: [
     ["Define a 'Subroutine'.", "A named, self-contained block of code that performs a specific task and can be called by name."],
@@ -426,7 +446,9 @@ C["compsci:4.1.1.11"] = {
     ]}},
     { callout: { t: "warn", h: "Pass by Value vs Reference", body: "In AQA pseudocode, you must specify `ByVal` or `ByRef`. In C#, basic types (int, bool) are passed by value by default, while objects are passed by reference." }},
     { code: { lang: "csharp", cap: "Passing data in C#.", src:
-"// Pass by Value (Default for int)\nvoid IncrementVal(int x) {\n    x += 1;\n}\n\n// Pass by Reference (using 'ref' keyword)\nvoid IncrementRef(ref int x) {\n    x += 1;\n}\n\nint a = 10;\nIncrementVal(a); // a is still 10\nIncrementRef(ref a); // a is now 11" }}
+"// Pass by Value (Default for int)\nvoid IncrementVal(int x) {\n    x += 1;\n}\n\n// Pass by Reference (using 'ref' keyword)\nvoid IncrementRef(ref int x) {\n    x += 1;\n}\n\nint a = 10;\nIncrementVal(a); // a is still 10\nIncrementRef(ref a); // a is now 11" }},
+    { callout: { t: "memorise", h: "Value vs Reference Passing", body: "Parameter = placeholder in the definition. Argument = actual value in the call. Pass by VALUE = copy is made, original unchanged (default for primitives in C#). Pass by REFERENCE = address passed, original IS modified (use `ref` in C#)." }},
+    { callout: { t: "miscon", h: "Pass by Reference Isn't Always Better", body: "Pass by reference is NOT always preferable. Pass by value PROTECTS the original from accidental modification (safer). Only use pass by reference when you deliberately want the subroutine to change the caller's variable." }}
   ],
   flashcards: [
     ["Difference between a parameter and an argument?", "Parameter is the definition (placeholder); Argument is the actual value passed in."],
@@ -458,7 +480,9 @@ C["compsci:4.1.1.12"] = {
     ]}},
     { callout: { t: "tip", body: "A function can return simple types (int, string) or complex types (Arrays, Objects). In some languages, you can return multiple values using Tuples or Records." }},
     { code: { lang: "csharp", cap: "Returning data from functions.", src:
-"public string GetGrade(int score) {\n    if (score >= 80) return \"A\";\n    if (score >= 70) return \"B\";\n    return \"U\"; // Final return if no others hit\n}\n\nstring myGrade = GetGrade(85); // \"A\"" }}
+"public string GetGrade(int score) {\n    if (score >= 80) return \"A\";\n    if (score >= 70) return \"B\";\n    return \"U\"; // Final return if no others hit\n}\n\nstring myGrade = GetGrade(85); // \"A\"" }},
+    { callout: { t: "memorise", h: "return: Value + Immediate Exit", body: "return sends a value to the caller AND immediately exits the function. A function can have multiple return statements (one per branch) but exactly ONE executes per call. In C#, all code paths in a non-void function MUST have a return." }},
+    { callout: { t: "miscon", h: "Multiple Returns ≠ Multiple Values", body: "Multiple return statements do NOT mean multiple values are sent back simultaneously — exactly one executes per call. Also: return does not restart the function. It exits completely, passing control back to the caller." }}
   ],
   flashcards: [
     ["What keyword is used to send data back from a function?", "return"],
@@ -497,7 +521,9 @@ C["compsci:4.1.1.13"] = {
       ]}
     ]}},
     { code: { lang: "csharp", cap: "Demonstrating local scope in C#.", src:
-"void Calculate() {\n    int tempResult = 100; // Local variable\n    Console.WriteLine(tempResult);\n}\n\n// tempResult is NOT accessible here.\n// It only exists while Calculate() is running." }}
+"void Calculate() {\n    int tempResult = 100; // Local variable\n    Console.WriteLine(tempResult);\n}\n\n// tempResult is NOT accessible here.\n// It only exists while Calculate() is running." }},
+    { callout: { t: "memorise", h: "Local: Private to the Subroutine", body: "Local variable: declared inside a subroutine, accessible ONLY within that block, lifetime = duration of one call, stored on the call stack (freed when the subroutine exits). Two subroutines CAN share the same local variable name — no conflict." }},
+    { callout: { t: "miscon", h: "Local Variables Don't Persist Between Calls", body: "A local variable is NOT the same as a private class field. Local variables are created fresh on every call and destroyed on exit — their value does NOT persist between calls. Each invocation gets its own independent copy." }}
   ],
   flashcards: [
     ["Define 'Local Variable'.", "A variable declared inside a subroutine, accessible only within that subroutine."],
@@ -535,7 +561,9 @@ C["compsci:4.1.1.14"] = {
       ["Access", "Safe/Encapsulated", "Risk of side effects"]
     ]}},
     { code: { lang: "csharp", cap: "Local vs Global scope.", src:
-"int globalCount = 0; // Global\n\nvoid Task() {\n    int localCount = 5; // Local\n    globalCount += localCount;\n}\n\n// localCount is not accessible here\n// globalCount IS accessible here" }}
+"int globalCount = 0; // Global\n\nvoid Task() {\n    int localCount = 5; // Local\n    globalCount += localCount;\n}\n\n// localCount is not accessible here\n// globalCount IS accessible here" }},
+    { callout: { t: "memorise", h: "Global: Everywhere, Always", body: "Global variable: declared OUTSIDE all subroutines, accessible from ANYWHERE in the program, lifetime = entire program run, stored in static/data segment (not the call stack). Avoid in large systems — side-effect risk is high." }},
+    { callout: { t: "miscon", h: "Global ≠ Safer Because Shared", body: "Global variables are NOT safer because they are accessible everywhere — they are LESS safe. Any subroutine can accidentally overwrite the value, making bugs very hard to trace. Always prefer local variables + parameters." }}
   ],
   flashcards: [
     ["Define 'Global Variable'.", "A variable declared outside any subroutine, accessible from any part of the program."],
@@ -576,7 +604,9 @@ C["compsci:4.1.1.15"] = {
     { code: { lang: "csharp", cap: "Implicitly using the call stack via nested calls.", src:
 "void Main() {\n    A();\n}\n\nvoid A() {\n    B(); // Pushes frame for B onto the stack\n}\n\nvoid B() {\n    // Stack currently contains: [Main, A, B]\n    Console.WriteLine(\"Executing B\");\n}" }},
     { callout: { t: "warn", h: "Stack Overflow", body: "If you call too many subroutines (usually via infinite recursion), the stack runs out of memory. This is a **Stack Overflow** error." }},
-    { callout: { t: "tip", h: "LIFO in Action", body: "The call stack is a Last-In, First-Out (LIFO) structure. The most recently called subroutine is always at the top." }}
+    { callout: { t: "tip", h: "LIFO in Action", body: "The call stack is a Last-In, First-Out (LIFO) structure. The most recently called subroutine is always at the top." }},
+    { callout: { t: "memorise", h: "Stack Frame Contents + LIFO", body: "Stack frame holds: (1) return address, (2) parameters, (3) local variables. LIFO: pushed when subroutine is called, popped when it returns. Stack overflow = too many nested calls exhaust stack memory, usually from infinite recursion." }},
+    { callout: { t: "miscon", h: "Stack Overflow ≠ Disk Full", body: "Stack overflow is NOT running out of hard drive space. It is RAM (call stack memory) exhaustion from too many nested subroutine calls. Each recursive call that never terminates adds a frame until the stack is full." }}
   ],
   flashcards: [
     ["What is a 'Stack Frame'?", "A collection of data (return address, params, locals) pushed onto the stack for a subroutine call."],
@@ -622,7 +652,9 @@ C["compsci:4.1.2.3"] = {
     ]}},
     { callout: { t: "mnemonic", h: "Composition vs Aggregation", body: "In **Composition** (black diamond), the 'child' cannot exist without the 'parent' (e.g. a Heart in a Human). In **Aggregation** (white diamond), the 'child' can exist independently (e.g. a Player in a Team)." }},
     { code: { lang: "csharp", cap: "OOP in action with C#.", src:
-"public abstract class Animal {\n    public string Name { get; set; }\n    public virtual void MakeSound() => Console.WriteLine(\"...\");\n}\n\npublic class Dog : Animal { // Inheritance\n    public override void MakeSound() => Console.WriteLine(\"Woof!\"); // Overriding\n}\n\n// Instantiation\nAnimal myDog = new Dog { Name = \"Rex\" };\nmyDog.MakeSound(); // Polymorphism: calls Dog's version" }}
+"public abstract class Animal {\n    public string Name { get; set; }\n    public virtual void MakeSound() => Console.WriteLine(\"...\");\n}\n\npublic class Dog : Animal { // Inheritance\n    public override void MakeSound() => Console.WriteLine(\"Woof!\"); // Overriding\n}\n\n// Instantiation\nAnimal myDog = new Dog { Name = \"Rex\" };\nmyDog.MakeSound(); // Polymorphism: calls Dog's version" }},
+    { callout: { t: "memorise", h: "OOP Core Terms", body: "Class = blueprint. Object = instance. Encapsulation = hide state behind methods. Inheritance = subclass IS-A superclass (acquires attributes + methods). Polymorphism = same method name, different behaviour per class. Override = subclass replaces parent method." }},
+    { callout: { t: "miscon", h: "Inheritance ≠ Composition", body: "Inheritance (is-a): Dog IS AN Animal — subclass extends superclass. Composition (has-a): Car HAS AN Engine — object contains another. OOP best practice favours composition over deep inheritance hierarchies for flexibility and easier change." }}
   ],
   flashcards: [
     ["Define 'Encapsulation'.", "Hiding an object's internal data and only allowing access through public methods."],
@@ -658,7 +690,9 @@ C["compsci:4.2.1.3"] = {
     ]}},
     { callout: { t: "warn", h: "Always Close!", body: "Failure to close a file can lead to data loss (unflushed buffers) or the file remaining 'locked', preventing other applications from accessing it." }},
     { code: { lang: "csharp", cap: "Reading and Writing text files in C#.", src:
-"using System.IO;\n\n// Writing\nFile.WriteAllText(\"save.txt\", \"KurenaiOS v2.0\");\n\n// Reading line by line\nusing (StreamReader reader = new StreamReader(\"data.txt\")) {\n    while (!reader.EndOfStream) {\n        string line = reader.ReadLine();\n        Console.WriteLine(line);\n    }\n}\n// 'using' block automatically CLOSES the file." }}
+"using System.IO;\n\n// Writing\nFile.WriteAllText(\"save.txt\", \"KurenaiOS v2.0\");\n\n// Reading line by line\nusing (StreamReader reader = new StreamReader(\"data.txt\")) {\n    while (!reader.EndOfStream) {\n        string line = reader.ReadLine();\n        Console.WriteLine(line);\n    }\n}\n// 'using' block automatically CLOSES the file." }},
+    { callout: { t: "memorise", h: "4 File Operations", body: "Open (connect to file) → Read (retrieve data into variables) → Write (persist data from variables) → Close (flush buffer + release lock). Text files store character codes. Binary files store raw bytes (more compact for numbers/images)." }},
+    { callout: { t: "miscon", h: "Closing a File Is NOT Optional", body: "Failing to close a file can corrupt data (write buffer not flushed to disk) or leave the file locked, blocking all other processes from accessing it. The `using` block in C# auto-closes the file via the IDisposable pattern." }}
   ],
   flashcards: [
     ["Difference between a text file and a binary file?", "Text files store characters (ASCII/UTF-8); Binary files store raw bytes (like images or compiled code)."],

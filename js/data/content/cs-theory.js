@@ -104,7 +104,14 @@ C["compsci:4.5.4.4"] = {
     {
       "callout": {
         "t": "tip",
-        "body": "Rounding/representation errors: some values (0.1!) cannot be represented exactly in binary, causing rounding error; subtracting nearly-equal values causes cancellation error. “Absolute error” = |actual − stored|; “relative error” = absolute ÷ actual. Each definition is a sentence worth a mark."
+        "body": "Rounding/representation errors: some values (0.1!) cannot be represented exactly in binary, causing rounding error; subtracting nearly-equal values causes cancellation error. \"Absolute error\" = |actual − stored|; \"relative error\" = absolute ÷ actual. Each definition is a sentence worth a mark."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "More Exponent Bits = More Precision",
+        "body": "More exponent bits increases RANGE (how large or small numbers can be), NOT precision. More MANTISSA bits increase precision (significant figures). Spending bits on the exponent costs precision — it's a fixed-sum trade-off. Also: normalised negative mantissa starts 10, NOT 11."
       }
     }
   ],
@@ -263,7 +270,7 @@ C["compsci:4.6.2.1"] = {
     {
       "callout": {
         "t": "mnemonic",
-        "body": "**De Morgan's = “break the bar, change the sign”**: split the negation over each term AND flip the operator between them. Apply it twice and you're back where you started — a free self-check."
+        "body": "**De Morgan's = \"break the bar, change the sign\"**: split the negation over each term AND flip the operator between them. Apply it twice and you're back where you started — a free self-check."
       }
     },
     {
@@ -300,6 +307,13 @@ C["compsci:4.6.2.1"] = {
       "callout": {
         "t": "tip",
         "body": "Stuck mid-simplification? Hunt for: (1) a common factor to pull out, (2) any P + P̄ or P·P̄ pair, (3) an absorption shape X + X·Y. Those three patterns finish nearly every AQA expression."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Boolean Laws Cheat Sheet",
+        "body": "De Morgan's: ¬(X·Y) = X̄+Ȳ; ¬(X+Y) = X̄·Ȳ (break bar, flip op). Absorption: X+X·Y = X; X·(X+Y) = X. Complement: X·X̄ = 0; X+X̄ = 1. Idempotent: X·X = X; X+X = X. Null: X·0 = 0; X+1 = 1. Identity: X·1 = X; X+0 = X. Quote the law name at every step."
       }
     }
   ],
@@ -440,7 +454,7 @@ C["compsci:4.4.2.1"] = {
       }
     },
     {
-      "h": "“What does this FSM accept?” — the method"
+      "h": "\"What does this FSM accept?\" — the method"
     },
     {
       "steps": [
@@ -450,25 +464,32 @@ C["compsci:4.4.2.1"] = {
         },
         {
           "h": "Name the states",
-          "m": "Ask what each state REMEMBERS.\nE.g. S0 = “seen an even number of 1s so far”, S1 = “odd so far”",
+          "m": "Ask what each state REMEMBERS.\nE.g. S0 = \"seen an even number of 1s so far\", S1 = \"odd so far\"",
           "n": "Once states have meanings, the language usually announces itself."
         },
         {
           "h": "State the pattern, not examples",
-          "m": "“The FSM accepts strings containing an even number of 1s” — a general description, in a sentence."
+          "m": "\"The FSM accepts strings containing an even number of 1s\" — a general description, in a sentence."
         }
       ]
     },
     {
       "callout": {
         "t": "miscon",
-        "body": "An FSM has **no memory beyond its current state** — it cannot count unboundedly. That's exactly why no FSM accepts “equal numbers of 0s and 1s”, and why BNF/context-free grammars (4.4.3) exist for what FSMs can't do."
+        "body": "An FSM has **no memory beyond its current state** — it cannot count unboundedly. That's exactly why no FSM accepts \"equal numbers of 0s and 1s\", and why BNF/context-free grammars (4.4.3) exist for what FSMs can't do."
       }
     },
     {
       "callout": {
         "t": "tip",
         "body": "Construction questions: draw a transition for EVERY symbol from EVERY state (determinism), mark the start arrow and double-circle the accepts before tracing anything. Missing transitions are the classic dropped mark."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "FSM Essentials",
+        "body": "Five components: finite set of STATES, INPUT ALPHABET, TRANSITION FUNCTION (state × input → next state), START STATE, ACCEPTING STATES. Deterministic: exactly one transition per (state, input) pair. Mealy: output on each transition (input/output label). A string is accepted when ALL input is consumed AND the machine is in an accepting state."
       }
     }
   ],
@@ -507,7 +528,7 @@ C["compsci:4.4.2.1"] = {
       "why": "Both conditions: input exhausted AND current state accepting."
     },
     {
-      "q": "Edge label “1/0” on a state diagram indicates…",
+      "q": "Edge label \"1/0\" on a state diagram indicates…",
       "opts": [
         "a syntax error",
         "a Mealy machine: input 1 produces output 0",
@@ -518,7 +539,7 @@ C["compsci:4.4.2.1"] = {
       "why": "Input/output transition labels are the Mealy signature."
     },
     {
-      "q": "An FSM for “binary strings divisible by 3” needs how many states?",
+      "q": "An FSM for \"binary strings divisible by 3\" needs how many states?",
       "opts": [
         "1",
         "2",
@@ -562,28 +583,36 @@ C["compsci:4.1.2.3"] = {
       "h": "The four pillars of OOP — with the wording that scores"
     },
     {
-      "kv": [
-        [
-          "Class",
-          "A blueprint defining the attributes and methods of a type of object."
-        ],
-        [
-          "Object",
-          "An instance of a class — instantiation is the act of creating one."
-        ],
-        [
-          "Encapsulation",
-          "Bundling data and the methods that operate on it into one unit, hiding the data from direct external access."
-        ],
-        [
-          "Inheritance",
-          "A subclass derives the attributes and methods of a superclass, adding to or overriding them."
-        ],
-        [
-          "Polymorphism",
-          "Objects of different classes respond to the SAME method call with behaviour appropriate to their own class."
+      "callout": {
+        "t": "def",
+        "h": "Core OOP Definitions",
+        "body": [
+          {
+            "kv": [
+              [
+                "Class",
+                "A blueprint/template defining the attributes (data) and methods (behaviour) of a type of object."
+              ],
+              [
+                "Object",
+                "An instance of a class. Instantiation is the act of creating an object from a class."
+              ],
+              [
+                "Encapsulation",
+                "Bundling data and the methods that operate on it into one unit, hiding internal data from direct external access (private fields, public methods)."
+              ],
+              [
+                "Inheritance",
+                "A subclass derives the attributes and methods of a superclass, and can add to or override them — models an 'is-a' relationship."
+              ],
+              [
+                "Polymorphism",
+                "Objects of different classes respond to the SAME method call with behaviour appropriate to their own class — achieved via method overriding."
+              ]
+            ]
+          }
         ]
-      ]
+      }
     },
     {
       "code": {
@@ -636,7 +665,8 @@ C["compsci:4.1.2.3"] = {
     {
       "callout": {
         "t": "miscon",
-        "body": "“Polymorphism = many forms” scores nothing alone. The creditable idea is: the SAME method name invoked on different classes produces class-appropriate behaviour (usually via overriding)."
+        "h": "'Polymorphism = many forms' is not enough",
+        "body": "The phrase 'many forms' by itself scores zero. Examiners want the mechanism: **the same method call is made on objects of different classes**, and each class executes its own **overriding** version. Without naming the method call and the class-specific response, you're just quoting the etymology."
       }
     },
     {
@@ -696,7 +726,7 @@ C["compsci:4.1.2.3"] = {
       "why": "The same call resolves to the subclass's behaviour at run time."
     },
     {
-      "q": "“A Library has Books which continue to exist if the Library closes” models…",
+      "q": "\"A Library has Books which continue to exist if the Library closes\" models…",
       "opts": [
         "composition",
         "aggregation",
@@ -777,7 +807,7 @@ C["compsci:4.10.3"] = {
     {
       "callout": {
         "t": "memorise",
-        "body": "The 3NF sentence examiners reward verbatim: **“every non-key attribute depends on the key, the whole key and nothing but the key.”** (…so help me Codd.)"
+        "body": "The 3NF sentence examiners reward verbatim: **\"every non-key attribute depends on the key, the whole key and nothing but the key.\"** (…so help me Codd.)"
       }
     },
     {
@@ -815,7 +845,7 @@ C["compsci:4.10.3"] = {
     {
       "callout": {
         "t": "miscon",
-        "body": "Normalisation is not “splitting tables until it feels tidy”. Each step targets ONE specific dependency type — name which (repeating group / partial / transitive) you are removing as you do it."
+        "body": "Normalisation is not \"splitting tables until it feels tidy\". Each step targets ONE specific dependency type — name which (repeating group / partial / transitive) you are removing as you do it."
       }
     }
   ],
@@ -843,7 +873,7 @@ C["compsci:4.10.3"] = {
   ],
   "quiz": [
     {
-      "q": "A table stores “Subjects: Maths, CS, IT” in one cell. Which form does it fail?",
+      "q": "A table stores \"Subjects: Maths, CS, IT\" in one cell. Which form does it fail?",
       "opts": [
         "1NF",
         "2NF",
@@ -948,7 +978,14 @@ C["compsci:4.10.4"] = {
     {
       "callout": {
         "t": "mnemonic",
-        "body": "**SFWO** — “**S**ome **F**ields **W**ant **O**rdering”: SELECT, FROM, WHERE, ORDER BY. Clause order is fixed and itself mark-bearing."
+        "body": "**SFWO** — \"**S**ome **F**ields **W**ant **O**rdering\": SELECT, FROM, WHERE, ORDER BY. Clause order is fixed and itself mark-bearing."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "SQL Key Rules",
+        "body": "SELECT fields FROM table WHERE condition ORDER BY field ASC/DESC. Strings in WHERE need 'single quotes'. JOIN requires an ON condition linking keys. UPDATE/DELETE without WHERE affects EVERY row. INNER JOIN … ON PK = FK syntax. * selects all fields."
       }
     }
   ],
@@ -1089,7 +1126,7 @@ C["compsci:4.9.4.2"] = {
     {
       "callout": {
         "t": "miscon",
-        "body": "SMTP vs POP3 is a direction question: SMTP **pushes mail toward** its destination server; POP3 **pulls it down** to the client. “SMTP receives email” is the classic wrong answer."
+        "body": "SMTP vs POP3 is a direction question: SMTP **pushes mail toward** its destination server; POP3 **pulls it down** to the client. \"SMTP receives email\" is the classic wrong answer."
       }
     },
     {
@@ -1107,7 +1144,14 @@ C["compsci:4.9.4.2"] = {
     {
       "callout": {
         "t": "tip",
-        "body": "Describing HTTPS: say it encrypts requests and responses (via TLS), protecting the data from interception and tampering — “HTTP but safe” is not creditworthy. SSH earns its mark with “encrypted” + “remote login/management” together."
+        "body": "Describing HTTPS: say it encrypts requests and responses (via TLS), protecting the data from interception and tampering — \"HTTP but safe\" is not creditworthy. SSH earns its mark with \"encrypted\" + \"remote login/management\" together."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Port Numbers — The Six to Know",
+        "body": "FTP 20 (data) / 21 (control). SSH 22. SMTP 25. HTTP 80. POP3 110. HTTPS 443. SMTP SENDS mail to server; POP3 PULLS mail to client. Socket = IP address + port number."
       }
     }
   ],

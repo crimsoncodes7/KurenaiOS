@@ -87,7 +87,8 @@ C["compsci:4.2.2.1"] = {
         ["OS Scheduling", "Process scheduling — priority queues of ready processes."],
         ["Simulations", "Modeling real-world lines (supermarkets, network packets)."]
       ]}
-    ]}}
+    ]}},
+    { callout: { t: "memorise", h: "Queue: FIFO, FERL", body: "FIFO — first in, first out. Enqueue at REAR, dequeue from FRONT (FERL: Front Exits, Rear Loads). Circular: rear = (rear + 1) MOD maxSize. Always test FULL before enqueue (overflow) and EMPTY before dequeue (underflow) — each test earns a mark." }}
   ],
   flashcards: [
     ["Define a queue.", "A FIFO abstract data type: items are added at the rear and removed from the front."],
@@ -143,7 +144,9 @@ C["compsci:4.2.3.1"] = {
     { code: { lang: "csharp", cap: "C#'s built-in Stack<T> — note TryPop avoids the underflow exception.", src:
 "Stack<string> history = new Stack<string>();\nhistory.Push(\"typed 'hello'\");\nhistory.Push(\"deleted word\");\n\nstring last = history.Peek();   // \"deleted word\" — still on the stack\nif (history.TryPop(out string undone))\n{\n    Console.WriteLine($\"Undoing: {undone}\");  // LIFO: most recent first\n}" }},
     { callout: { t: "mnemonic", body: "**Stack of plates**: you can only take the top plate, and the last plate washed is the first one used. If a trace answer would require lifting a middle plate, it's wrong." }},
-    { callout: { t: "warn", body: "Stack **overflow** = push onto a full stack (infinite recursion is the classic cause). Stack **underflow** = pop from an empty one. Written algorithms must test for both — each test is typically one mark." }}
+    { callout: { t: "warn", body: "Stack **overflow** = push onto a full stack (infinite recursion is the classic cause). Stack **underflow** = pop from an empty one. Written algorithms must test for both — each test is typically one mark." }},
+    { callout: { t: "memorise", h: "Stack: LIFO + 4 Uses", body: "LIFO — last in, first out. Push/pop at the SAME end (top). SP increments on push, decrements on pop. 4 canonical uses: subroutine call frames, reversing a sequence, undo operations, RPN expression evaluation." }},
+    { callout: { t: "miscon", h: "peek() ≠ pop()", body: "peek() returns the top value WITHOUT removing it. pop() returns AND removes it. Always include the phrase 'without removing' when describing peek — examiners often award one whole mark specifically for those two words." }}
   ],
   flashcards: [
     ["Define a stack.", "A LIFO abstract data type: items are added (pushed) and removed (popped) at the same end — the top."],
@@ -204,7 +207,8 @@ C["compsci:4.2.4.1"] = {
         ["The World Wide Web", "A directed graph where vertices are pages and edges are hyperlinks."],
         ["Resource Dependencies", "Project tasks (PERT charts), compiler dependency graphs, or electrical circuit layouts."]
       ]}
-    ]}}
+    ]}},
+    { callout: { t: "memorise", h: "Matrix vs List Trade-offs", body: "Adjacency matrix: O(1) edge lookup, O(V²) memory — best for dense graphs. Adjacency list: O(degree) edge lookup, O(V+E) memory — best for sparse graphs (most real networks). State the graph density to justify your choice in exam answers." }}
   ],
   flashcards: [
     ["Define a weighted graph.", "A graph in which each edge has an associated value such as distance, cost or time."],
@@ -263,7 +267,9 @@ C["compsci:4.2.5.1"] = {
         ["Decision Trees", "Used in AI and machine learning to map decisions to possible outcomes."],
         ["Compression", "Huffman coding trees are used to compress data based on character frequency."]
       ]}
-    ]}}
+    ]}},
+    { callout: { t: "memorise", h: "BST Rule + Traversal", body: "BST ordering: left subtree < node value < right subtree. Insert in the ORDER GIVEN — compare at each node, go left if smaller, right if larger. In-order traversal = sorted ascending output. Balanced → O(log n); degenerate (sorted insertion) → O(n)." }},
+    { callout: { t: "miscon", h: "Binary ≠ Balanced", body: "A binary tree does NOT have to be balanced. 'Binary' means each node has AT MOST two children — nothing about height balance. A balanced binary tree (AVL, red-black) adds a further constraint on top. An unbalanced BST is still a valid BST." }}
   ],
   flashcards: [
     ["Define a tree (graph-theoretically).", "A connected, undirected graph with no cycles."],
@@ -321,7 +327,8 @@ C["compsci:4.2.6.1"] = {
         ["Caches", "Storing web pages or resources by their URL for rapid access."],
         ["Symbol Tables", "Compilers use hash tables to store identifiers and their associated metadata."]
       ]}
-    ]}}
+    ]}},
+    { callout: { t: "memorise", h: "Hashing: Function + Collision Resolution", body: "Hash function maps key → index (classic: key MOD tableSize). Collisions are UNAVOIDABLE (pigeonhole principle — more keys than slots). Resolution: linear probing (step (i+1) MOD size) or chaining (linked list per slot). Searching retraces the SAME probe path used during insertion." }}
   ],
   flashcards: [
     ["Define a collision.", "Two different keys producing the same hash value / location."],
@@ -372,7 +379,9 @@ C["compsci:4.2.7.1"] = {
         ["Performance", "Average O(1) time for insert, lookup, and delete operations via hashing."],
         ["Flexibility", "Unlike arrays, keys can be any hashable type (strings, objects, tuples), not just contiguous integers."]
       ]}
-    ]}}
+    ]}},
+    { callout: { t: "memorise", h: "Dictionary vs Array", body: "Dictionary = abstract data type of key-value pairs; keys are unique, values may repeat. Usually implemented as a hash table → O(1) average lookup. Array uses integer indices 0..n-1; dictionary uses arbitrary hashable keys (strings, tuples, etc.)." }},
+    { callout: { t: "miscon", h: "Dictionary (ADT) ≠ Hash Table (Implementation)", body: "The dictionary is the INTERFACE (what operations exist). The hash table is one IMPLEMENTATION (how those operations are made fast). Keeping this distinction is the §4.4.1 abstraction principle in action. Never conflate the two." }}
   ],
   flashcards: [
     ["Define a dictionary.", "An abstract data type of key–value pairs where values are accessed via their unique keys."],
@@ -431,7 +440,8 @@ C["compsci:4.2.8.1"] = {
       "**Note:** \u201CDot product zero ⇔ perpendicular\u201D is the most-asked fact in this subtopic."
     ]}},
     { callout: { t: "miscon", body: "The dot product is a **scalar**. Writing it as a vector ([8, −5] instead of 3) is the most common error — the products are SUMMED." }},
-    { callout: { t: "tip", body: "This dovetails with Maths 10.1–10.5: same objects, different dress. AQA additionally wants the dictionary representation — be ready to write a vector as {0: x, 1: y}." }}
+    { callout: { t: "tip", body: "This dovetails with Maths 10.1–10.5: same objects, different dress. AQA additionally wants the dictionary representation — be ready to write a vector as {0: x, 1: y}." }},
+    { callout: { t: "memorise", h: "Dot Product + Convex Combination", body: "Dot product u·v = Σ(uᵢ × vᵢ) — result is a SCALAR. u·v = 0 → vectors are perpendicular. Convex combination: αu + βv where α + β = 1 and both ≥ 0 → points on the line segment BETWEEN u and v. Scalar multiple k·v: stretches by |k|; k < 0 reverses direction." }}
   ],
   flashcards: [
     ["Three representations of a vector AQA expects?", "List of numbers; function/dictionary mapping index → value; geometric arrow (magnitude + direction)."],

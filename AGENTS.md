@@ -30,8 +30,9 @@ Validate syntax after every file: node --check FILENAME
   inner `}` closes the callout object, the outer `}` closes the block. Writing
   `{ callout: { … body:"…"\n},` (one brace) is a SyntaxError that stops the whole
   app loading. This bit us 6× in the §4.4 theory files.
-- **Only key content to LEAF refs** — a ref that has its own `content[]` in the
-  generated spec (compsci/maths/it.js). Content keyed to a section/group header
-  (e.g. F201.5.3 "NEA Units") is unreachable in the UI and fails smoke2's
-  "every content key maps to a spec leaf" check.
+- **Only key content to LEAF refs** — a ref that has its own non-empty `content[]`
+  in the generated spec (compsci/maths/it.js). A node with `content:[]` is invisible
+  in the UI tree and fails smoke2's "every content key maps to a spec leaf" check.
+  (Was a real problem: `it:F201.5.3` "NEA Units" had `content:[]`; its case-study
+  block was re-keyed to `it:F201.1.4` in June 2026.)
 - `{code}` blocks now auto-render a copy button + language tag; author them normally.

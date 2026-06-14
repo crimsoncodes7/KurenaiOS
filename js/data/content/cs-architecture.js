@@ -86,14 +86,17 @@ C["compsci:4.6.1.1"] = {
       "steps": [
         {
           "h": "Identify Purpose",
-          "n": "Does it help the hardware run better?"
+          "m": "Ask whether the program manages hardware resources or provides a platform for other software to run on.",
+          "n": "Does it help the hardware run better, or does it enable application software to work?"
         },
         {
           "h": "Check Scope",
+          "m": "If it performs general resource management (scheduling, memory allocation, device control), classify it as System software.",
           "n": "If it's for general resource management, it's System software."
         },
         {
           "h": "Check Task",
+          "m": "If it performs a specific task directly for the end-user (writing a letter, editing photos, playing a game), classify it as Application software.",
           "n": "If it's for a specific user goal (e.g., writing a letter), it's Application software."
         }
       ]
@@ -103,6 +106,20 @@ C["compsci:4.6.1.1"] = {
         "lang": "csharp",
         "cap": "Using a System Library (DLL) in Application code",
         "src": "using System.IO; // System software library\n\n// Application code\nFile.WriteAllText(\"test.txt\", \"Hello World\");"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Software Classification",
+        "body": "**System software** manages hardware resources and provides a platform for applications — 4 types: OS (resource management), Utilities (maintenance: defrag/antivirus/backup), Libraries (shared reusable code), Translators (compiler/interpreter). **Application software** performs specific end-user tasks (word processor, web browser, game)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Software Classification Misconceptions",
+        "body": "**A web browser is system software** — No; browsers are application software (they perform a specific user task: accessing the web). System software manages the computer itself, not user tasks. **Antivirus software is application software** — No; antivirus is a utility program (system software) that maintains and protects the computer system."
       }
     }
   ],
@@ -291,6 +308,20 @@ C["compsci:4.6.1.2"] = {
         "lang": "pseudo",
         "cap": "Logic for Software Classification",
         "src": "IF software.purpose == 'Manage Hardware' THEN\n    classification = 'System'\nELSE IF software.purpose == 'Maintenance' THEN\n    classification = 'System (Utility)'\nELSE IF software.purpose == 'User Task' THEN\n    classification = 'Application'\nENDIF"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "System Software — 4 Categories",
+        "body": "System software sits between hardware and applications. 4 types: **OS** (manages processor/memory/I-O/files), **Utilities** (maintenance: defrag, antivirus, backup, compression), **Libraries** (pre-written shared code for common tasks), **Translators** (convert source code to machine code: assembler/compiler/interpreter). Application software sits on top and performs specific user tasks."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "System vs Application Confusion",
+        "body": "**A device driver is application software** — No; device drivers are system software that allow the OS to communicate with hardware peripherals. **Spreadsheet software is system software** — No; it performs a specific user task (numerical analysis) so it is application software. The test: does it manage the computer (system) or do something FOR the user (application)?"
       }
     }
   ],
@@ -493,14 +524,17 @@ C["compsci:4.6.1.3"] = {
       "steps": [
         {
           "h": "Assemblers",
+          "m": "Convert assembly language mnemonics (e.g. `MOV R0, #5`) to binary machine code, almost one-to-one per instruction. Output is platform-specific.",
           "n": "Translate Assembly (Mnemonic) code into machine code."
         },
         {
           "h": "Compilers",
+          "m": "Translate the entire high-level source program in one pass, producing a standalone executable. The source code and compiler are not needed on the target machine at runtime.",
           "n": "Translate high-level code all at once into an executable file."
         },
         {
           "h": "Interpreters",
+          "m": "Translate and immediately execute each source statement one at a time. No output file is produced; the interpreter must be present every time the program is run.",
           "n": "Translate and execute high-level code line-by-line."
         }
       ]
@@ -510,6 +544,20 @@ C["compsci:4.6.1.3"] = {
         "lang": "python",
         "cap": "Using a System Library in Python",
         "src": "import os  # Importing a system software library\nimport shutil # Utility library\n\n# Using OS library to get current directory\npath = os.getcwd()\nprint(f\"Current working directory: {path}\")\n\n# Using utility library to copy a file\nshutil.copy('source.txt', 'dest.txt')"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Translators — Key Distinctions",
+        "body": "**Assembler**: assembly mnemonics → machine code, near 1:1, platform-specific. **Compiler**: entire high-level source → standalone executable before runtime; source not needed on target machine; reports all errors after full translation. **Interpreter**: translates one statement at a time, no output file produced, source + interpreter needed every run; stops at first error. Java uses both: compiles to bytecode → JVM interprets."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Translator Misconceptions",
+        "body": "**An interpreter creates an executable file** — No; interpreters produce no output file. The source code and interpreter must be present every time the program runs. **An assembler is a type of compiler** — No; an assembler converts assembly mnemonics (low-level, near machine code) almost 1:1; a compiler converts high-level language code. They are distinct translator types."
       }
     }
   ],
@@ -677,18 +725,22 @@ C["compsci:4.6.1.4"] = {
       "steps": [
         {
           "h": "Detect",
+          "m": "At the end of the current F-E cycle, the CPU checks the interrupt line on the control bus for any pending interrupt signal.",
           "n": "CPU checks for interrupt line signal at the end of each cycle."
         },
         {
           "h": "Save State",
+          "m": "The CPU performs a context switch: contents of all registers including the PC are pushed onto the system stack, preserving the current program's state.",
           "n": "CPU pushes current PC and registers onto the stack."
         },
         {
           "h": "Execute ISR",
+          "m": "The PC is loaded with the start address of the appropriate Interrupt Service Routine, found via the Interrupt Vector Table; execution transfers to the ISR.",
           "n": "CPU loads the address of the Interrupt Service Routine (ISR) into the PC."
         },
         {
           "h": "Restore",
+          "m": "Once the ISR finishes, the saved register values are popped from the stack back into the CPU and the PC is restored, resuming the original program.",
           "n": "Once finished, the saved values are popped from the stack to resume."
         }
       ]
@@ -698,6 +750,20 @@ C["compsci:4.6.1.4"] = {
         "lang": "pseudo",
         "cap": "Operating System System Call",
         "src": "# Application requesting a resource\nCALL open_file(\"data.csv\")\n# OS takes control, validates permissions, and accesses hardware"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "OS Functions — 4 Management Areas",
+        "body": "An OS acts as a **virtual machine** hiding hardware complexity. It manages: **Processor** (scheduling — allocates CPU time to processes), **Memory** (allocates RAM, manages virtual memory/paging), **I/O** (device drivers handle communication with peripherals), **Files** (directory structure, access permissions, physical location tracking)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "OS Misconceptions",
+        "body": "**The OS compiles programs** — No; compilation is done by a translator (compiler). The OS provides the execution environment but does not translate code. **A GUI is always faster to use than a CLI** — For expert users, a CLI is often faster (direct commands, no navigation); GUIs use significantly more CPU and memory than a CLI for the same task."
       }
     }
   ],
@@ -831,6 +897,27 @@ C["compsci:4.6.3.1"] = {
         "t": "tip",
         "h": "Which to Use?",
         "body": "**Interpreter**: better for development/debugging. **Compiler**: better for distribution and performance. Java uses both: compiles to bytecode (portability), then JVM interprets bytecode (platform independence)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common Misconceptions About Translators",
+        "body": "An **interpreter does not produce an executable** — writing 'the interpreter outputs machine code' is wrong. Also, an assembler is **not** a compiler; it translates assembly (near machine-level), not a high-level language. Bytecode is **not** machine code — it still needs the JVM to run."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Compiler vs Interpreter — Key Comparison",
+        "body": [{"table": {"head": ["Feature", "Compiler", "Interpreter"], "rows": [
+          ["Translation", "Whole program at once", "Line by line"],
+          ["Output", "Standalone executable", "No output file"],
+          ["Source needed at runtime?", "No", "Yes"],
+          ["Speed of execution", "Fast", "Slower"],
+          ["Error reporting", "All errors after full translation", "Stops at first error"],
+          ["Debugging", "Harder", "Easier"]
+        ]}}]
       }
     },
     { "h": "The Compilation Process (Stages)" },
@@ -1024,6 +1111,13 @@ C["compsci:4.6.4.1"] = {
         "cap": "Boolean expression from a circuit with two gates.",
         "src": "# Input: A, B, C\nP = A AND B        # P = A . B\nQ = P OR (NOT C)   # Q = (A . B) + ¬C\n\n# Truth table: enumerate all 8 combinations of A,B,C"
       }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Logic Gate Misconceptions",
+        "body": "**XOR is the same as OR** — No: XOR outputs 0 when BOTH inputs are 1 (it is exclusive — exactly one input must be 1). OR outputs 1 whenever ANY input is 1. For inputs 1,1: OR = 1, XOR = 0. **NAND and NOR cannot do anything AND/OR/NOT cannot** — NAND and NOR are actually more powerful: they are universal gates, meaning any logic circuit can be built entirely from NAND (or entirely from NOR) gates alone."
+      }
     }
   ],
   "flashcards": [
@@ -1213,6 +1307,20 @@ C["compsci:4.7.1.1"] = {
           ]
         ]
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "The Three Buses",
+        "body": "**Address bus**: unidirectional (CPU→memory only), carries memory addresses; wider = more addressable RAM. **Data bus**: bidirectional, carries data and instructions; wider = more data per cycle. **Control bus**: bidirectional, carries control signals (clock, read/write, interrupt request). Von Neumann **bottleneck**: instructions and data share the same bus, so they cannot be fetched simultaneously."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Bus Misconceptions",
+        "body": "**The address bus and data bus carry the same information** — No: the address bus carries memory locations (where to look) and is unidirectional; the data bus carries actual data/instructions (what was found) and is bidirectional. **A wider address bus increases data transfer speed** — No, it increases how much RAM can be addressed; data transfer speed depends on the data bus width and clock speed."
+      }
     }
   ],
   "flashcards": [
@@ -1351,14 +1459,17 @@ C["compsci:4.7.2.1"] = {
       "steps": [
         {
           "h": "Loading",
+          "m": "The operating system copies the program's machine code and data from secondary storage (HDD/SSD) into RAM, where the CPU can access it at speed.",
           "n": "The program (set of instructions) is loaded from secondary storage into RAM."
         },
         {
           "h": "Pointing",
+          "m": "The OS sets the Program Counter to hold the memory address of the first instruction of the loaded program.",
           "n": "The Program Counter (PC) is set to the address of the first instruction."
         },
         {
           "h": "Cycling",
+          "m": "The CPU repeatedly fetches the instruction at the address in the PC, decodes it, and executes it — incrementing the PC each cycle — until a halt or end condition is reached.",
           "n": "The CPU begins the Fetch-Execute cycle, repeating it until the program ends."
         }
       ]
@@ -1368,6 +1479,20 @@ C["compsci:4.7.2.1"] = {
         "lang": "asm",
         "cap": "Data and Instructions in Memory",
         "src": "; Address | Content | Interpretation\n; 0001    | 011010 | Instruction (LDR R0, 10)\n; 0002    | 011111 | Instruction (ADD R0, #5)\n; ...     | ...    | ...\n; 0010    | 000011 | Data (The value 3)"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Stored Program Concept",
+        "body": "Machine code **instructions and data are stored together in the same RAM**. The CPU fetches and executes instructions **serially** (one at a time) via the fetch-execute cycle. The **Program Counter (PC)** holds the address of the next instruction. Von Neumann **bottleneck**: instructions and data share the same bus, so they cannot be fetched simultaneously — Harvard architecture solves this with separate buses."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Stored Program Misconceptions",
+        "body": "**The CPU can tell the difference between data and instructions by looking at the bits** — In Von Neumann architecture the CPU cannot distinguish; it treats whatever the PC points to as an instruction. **Instructions are stored in ROM** — User program instructions are loaded into RAM; ROM holds firmware/BIOS. The stored program concept specifically requires RAM (which is rewritable, so any program can be loaded)."
       }
     }
   ],
@@ -1556,14 +1681,17 @@ C["compsci:4.7.3.1"] = {
       "steps": [
         {
           "h": "Fetch",
+          "m": "The PC's address is copied to the MAR; the instruction at that memory location travels via the data bus into the MBR, then into the CIR. The PC is incremented to point to the next instruction.",
           "n": "Copy PC to MAR. Fetch instruction via MBR. Load into CIR. Increment PC."
         },
         {
           "h": "Decode",
+          "m": "The Control Unit interprets the instruction in the CIR, identifying the opcode (the operation to perform) and the operand (the data or memory address to use).",
           "n": "Control Unit splits CIR content into Opcode and Operand."
         },
         {
           "h": "Execute",
+          "m": "The ALU performs the arithmetic or logic operation, or data is transferred between registers, or the PC is set to a new address for a branch/jump instruction.",
           "n": "ALU performs operation or data is moved as requested."
         }
       ]
@@ -1573,6 +1701,33 @@ C["compsci:4.7.3.1"] = {
         "lang": "pseudo",
         "cap": "Fetch Step Register Notation",
         "src": "MAR <- [PC]\nMBR <- [Memory]MAR\nCIR <- [MBR]\nPC  <- [PC] + 1"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Register Roles — One-Line Each",
+        "body": [{"kv": [
+          ["PC", "Address of the **next** instruction to fetch."],
+          ["MAR", "Address placed on the **address bus** for the current memory access."],
+          ["MBR/MDR", "Data travelling **to or from** RAM via the data bus."],
+          ["CIR", "The instruction currently being **decoded and executed**."],
+          ["Status Reg", "Flags (Zero, Carry, Overflow) set by the **ALU** after each operation."]
+        ]}]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common Misconceptions",
+        "body": "The PC does **not** hold the current instruction — that is the CIR. The PC always holds the address of the **next** instruction. Also: PC increments **during** Fetch (before Execute), not after."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Exam Technique: Register Transfer Questions",
+        "body": "Always name the **source**, the **bus used**, and the **destination**. E.g. 'Contents of PC copied to MAR; address placed on address bus; instruction fetched via data bus into MBR; MBR copied to CIR; PC incremented.' Each of these sub-steps is a separate mark point."
       }
     }
   ],
@@ -1604,6 +1759,14 @@ C["compsci:4.7.3.1"] = {
     [
       "What is the purpose of the system clock?",
       "To generate regular electrical pulses that synchronize the components of the computer."
+    ],
+    [
+      "What is the difference between the MAR and the MBR?",
+      "MAR holds a memory address (goes on the address bus); MBR holds actual data or instructions (goes on the data bus)."
+    ],
+    [
+      "When exactly does the PC increment during the F-E cycle?",
+      "During the Fetch stage, immediately after the instruction address is copied to the MAR — before Execute."
     ]
   ],
   "quiz": [
@@ -1745,26 +1908,32 @@ C["compsci:4.7.3.2"] = {
       "steps": [
         {
           "h": "MAR <- [PC]",
+          "m": "The address currently held in the Program Counter is copied into the Memory Address Register, targeting the correct memory location to fetch from.",
           "n": "The address of the next instruction is copied from the Program Counter to the Memory Address Register."
         },
         {
           "h": "PC <- [PC] + 1",
+          "m": "The Program Counter is immediately incremented so it already points to the next sequential instruction — ready for the following cycle.",
           "n": "The Program Counter is incremented to point to the address of the next sequential instruction."
         },
         {
           "h": "MBR <- [Memory]MAR",
+          "m": "The address in MAR is placed on the address bus; a read signal is sent on the control bus; the instruction at that RAM location travels via the data bus into the MBR.",
           "n": "The instruction at the address in MAR is fetched from RAM and placed in the Memory Buffer Register."
         },
         {
           "h": "CIR <- [MBR]",
+          "m": "The instruction is copied from the MBR into the Current Instruction Register, freeing the MBR for any data operands that follow.",
           "n": "The instruction is copied from the MBR to the Current Instruction Register for decoding."
         },
         {
           "h": "Decode",
+          "m": "The Control Unit examines the opcode portion of the CIR to determine what operation is required and whether a further memory access is needed for the operand.",
           "n": "The Control Unit splits the instruction in CIR into Opcode and Operand."
         },
         {
           "h": "Execute",
+          "m": "The instruction is carried out: the ALU computes a result, a value is moved between registers or memory, or the PC is overwritten with a branch target address.",
           "n": "The CPU performs the operation (e.g., ALU calculation, data move, or branch)."
         }
       ]
@@ -1777,6 +1946,20 @@ C["compsci:4.7.3.2"] = {
         "lang": "pseudo",
         "cap": "Register Transfer Notation (RTN)",
         "src": "FETCH:\n  MAR ← [PC]\n  PC ← [PC] + 1\n  MBR ← [Memory]addr\n  CIR ← [MBR]\n\nDECODE:\n  CU ← [CIR] (Opcode)\n\nEXECUTE:\n  IF Opcode == 'ADD' THEN ALU ← [Reg] + [Operand]"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Fetch-Execute Steps in Order",
+        "body": "**Fetch**: (1) MAR ← [PC]; (2) PC ← PC+1; (3) MBR ← Memory[MAR] via address bus + data bus; (4) CIR ← [MBR]. **Decode**: Control Unit extracts opcode + operand from CIR. **Execute**: ALU performs operation, data is moved, or PC is overwritten for a branch. The PC increments during Fetch (step 2) — NOT at the end of Execute."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "F-E Cycle Misconceptions",
+        "body": "**The PC is incremented at the end of the Execute stage** — No; the PC is incremented immediately after MAR is loaded (step 2 of Fetch), before decoding or executing. **The MBR holds the address of the instruction** — No; the MAR holds the address (it goes on the address bus); the MBR holds the actual instruction (or data) fetched from that address (it travels on the data bus)."
       }
     }
   ],
@@ -1896,18 +2079,22 @@ C["compsci:4.7.3.6"] = {
       "steps": [
         {
           "h": "Save State",
+          "m": "The CPU performs a context switch, pushing the current values of the PC and all general-purpose registers onto the system stack to preserve the interrupted program's exact state.",
           "n": "The current values of the Program Counter and all registers are pushed onto the System Stack."
         },
         {
           "h": "Identify",
+          "m": "The CPU determines which device or event raised the interrupt, then consults the Interrupt Vector Table to find the starting memory address of the appropriate ISR.",
           "n": "The CPU determines the source of the interrupt and looks up the address of the appropriate ISR in the Interrupt Vector Table."
         },
         {
           "h": "Execute ISR",
+          "m": "The PC is loaded with the ISR's start address; execution transfers to the ISR which handles the event (e.g. reading a keyboard buffer, saving data, recovering from an error).",
           "n": "The PC is loaded with the ISR address, and the CPU runs the service code."
         },
         {
           "h": "Restore State",
+          "m": "The IRET instruction signals the end of the ISR; the saved registers and PC are popped back from the stack and execution resumes in the original program exactly where it was interrupted.",
           "n": "Once the ISR finishes, the saved register values are popped from the stack back into the CPU, and the PC is restored."
         }
       ]
@@ -1952,6 +2139,27 @@ C["compsci:4.7.3.6"] = {
         "cap": "Generic ISR Structure",
         "src": "ISR_KEYBOARD:\n  PUSH ALL_REGISTERS  # Save context\n  READ_KEY_BUFFER     # Process event\n  CLEAR_INTERRUPT_FLAG\n  POP ALL_REGISTERS   # Restore context\n  IRET                # Interrupt Return"
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Interrupt Handling — 4-Step Checklist",
+        "body": "**1. Check** — CPU checks interrupt line at end of F-E cycle. **2. Save** — all registers + PC pushed to system stack (context switch). **3. Service** — PC set to ISR address via Interrupt Vector Table; ISR runs. **4. Restore** — registers and PC popped back; program resumes. Exam answers that miss 'save to stack' lose a mark."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "The CPU Does NOT Stop Mid-Instruction",
+        "body": "Interrupts are checked **between** F-E cycles, not in the middle of one. The current instruction always completes before any interrupt is serviced. Writing 'the CPU stops immediately' is incorrect."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Interrupt Priority",
+        "body": "If multiple interrupts arrive simultaneously, the CPU services the **highest priority** one first. Lower-priority interrupts remain pending. A higher-priority interrupt arriving during an ISR can itself interrupt the ISR — called **nested interrupts**."
+      }
     }
   ],
   "flashcards": [
@@ -1974,6 +2182,14 @@ C["compsci:4.7.3.6"] = {
     [
       "What is the Interrupt Vector Table?",
       "A table in memory containing the starting addresses of all ISRs."
+    ],
+    [
+      "Why must the PC be saved to the stack before running an ISR?",
+      "So that execution can resume at the correct instruction in the original program after the ISR finishes."
+    ],
+    [
+      "What is a context switch?",
+      "Saving all CPU registers (including the PC) to the stack so a different routine can run, then restoring them afterwards."
     ]
   ],
   "quiz": [
@@ -2111,6 +2327,20 @@ C["compsci:4.7.3.3"] = {
         "lang": "pseudo",
         "cap": "Immediate vs Direct vs Indexed",
         "src": "ADD R0, #10   # Immediate (literal 10)\nADD R0, 100   # Direct (value at RAM 100)\nADD R0, [100, R1] # Indexed (RAM 100 + R1)"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Instruction Format & Addressing Modes",
+        "body": "Every instruction = **opcode** (operation) + **operand** (data or address). 4 modes ranked fastest→slowest: **Immediate** = data IS the operand, 0 memory lookups, for constants. **Direct** = operand IS the data's address, 1 lookup. **Indirect** = operand points to address of address, 2 lookups, for pointers. **Indexed** = effective address = operand + index register, 1 lookup + add, for arrays."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Addressing Mode Misconceptions",
+        "body": "**Immediate addressing requires a memory lookup to get the data** — No; immediate is the FASTEST mode precisely because the data is embedded in the instruction itself — zero memory lookups required. **Indexed addressing is used for single variables** — Indexed is designed for arrays and loop iteration; you increment the index register each iteration to access the next element. Direct addressing is more natural for simple variables."
       }
     }
   ],
@@ -2291,6 +2521,20 @@ C["compsci:4.7.3.4"] = {
         "lang": "asm",
         "cap": "Addressing Modes in Assembly",
         "src": "MOV R0, #42     ; Immediate (R0 = 42)\nMOV R1, 100     ; Direct (R1 = value at RAM 100)\nMOV R2, [100]   ; Indirect (R2 = value at address stored in 100)\nMOV R3, (100,R4); Indexed (R3 = value at RAM 100 + R4)"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Addressing Mode Summary",
+        "body": "**Immediate**: data IS the operand (0 lookups) — fastest, for constants. **Direct**: operand is the data's address (1 lookup) — for single variables. **Indirect**: operand is address of another address (2 lookups) — for pointers, slowest. **Indexed**: effective address = operand + index register value (1 lookup + addition) — for iterating through arrays."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Addressing Mode Confusion",
+        "body": "**Indirect and direct addressing are the same thing** — No: direct uses the operand as the data's address (one memory lookup); indirect uses the operand as the address OF another address (two lookups — like dereferencing a pointer). **Indexed addressing only works with large arrays** — Indexed works with any contiguous block of data; the index register simply holds an offset added to the base address."
       }
     }
   ],
@@ -2478,6 +2722,20 @@ C["compsci:4.7.3.5"] = {
         "cap": "Sample Assembly Program: Totaling an Array",
         "src": "      MOV R1, #0      ; R1 = Total\n      MOV R2, #0      ; R2 = Index\nLOOP: LDR R3, (ARR, R2); Load ARR[Index] into R3\n      ADD R1, R1, R3  ; Total = Total + R3\n      ADD R2, R2, #1  ; Index = Index + 1\n      CMP R2, #10     ; Compare Index with 10\n      BNE LOOP        ; If Index != 10, jump to LOOP\n      STR R1, RESULT  ; Store final total in memory"
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Key Assembly Mnemonics",
+        "body": "**Data**: LDR = memory→register; STR = register→memory; MOV = register→register. **Arithmetic**: ADD, SUB. **Logic**: AND, OR, XOR (bitwise). **Shifts**: LSL #n = ×2ⁿ; LSR #n = ÷2ⁿ. **Control flow**: CMP (subtract and set flags, no result stored); B (unconditional branch); BEQ/BNE (branch if zero/not-zero flag); BL (branch with link = subroutine call)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Assembly Misconceptions",
+        "body": "**LSL #2 multiplies by 2** — No; LSL #n multiplies by 2ⁿ. LSL #1 = ×2, LSL #2 = ×4, LSL #3 = ×8. Each bit shifted left doubles the value. **CMP stores the subtraction result in a register** — No; CMP sets the status flags (Zero, Negative, Carry) but discards the numeric result. The flags are then read by a conditional branch instruction (BEQ, BNE, etc.)."
+      }
     }
   ],
   "flashcards": [
@@ -2640,14 +2898,17 @@ C["compsci:4.7.3.7"] = {
       "steps": [
         {
           "h": "Cycle 1",
+          "m": "During the first clock cycle, the CPU fetches Instruction A from memory — only one stage of the pipeline is active.",
           "n": "Fetch Instruction A."
         },
         {
           "h": "Cycle 2",
+          "m": "Instruction A moves to the Decode stage while the CPU simultaneously fetches Instruction B — two instructions are now in flight at once.",
           "n": "Decode A; Fetch B."
         },
         {
           "h": "Cycle 3",
+          "m": "Instruction A executes, B decodes, and C is fetched simultaneously — the pipeline is now running at full throughput, completing one instruction per clock cycle.",
           "n": "Execute A; Decode B; Fetch C."
         }
       ]
@@ -2664,6 +2925,25 @@ C["compsci:4.7.3.7"] = {
         "t": "warn",
         "h": "Pipeline Hazards",
         "body": "Pipelining can be disrupted by branches (jumps) in the code, requiring the pipeline to be flushed."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Four Ways to Improve Processor Performance",
+        "body": [{"kv": [
+          ["Clock speed", "More cycles per second — directly speeds up each F-E cycle."],
+          ["Core count", "Multiple cores can execute different threads in parallel."],
+          ["Cache size", "Larger cache reduces RAM accesses (cache hits serve data faster)."],
+          ["Pipelining", "Overlaps Fetch/Decode/Execute of different instructions simultaneously."]
+        ]}]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "More Cores ≠ Always Faster",
+        "body": "If a program is **single-threaded** (not written for parallelism), adding cores gives no benefit — only one core runs at a time. Similarly, doubling clock speed is not possible without limit; heat and power dissipation constrain it. The exam expects you to acknowledge these limitations."
       }
     }
   ],
@@ -2687,6 +2967,14 @@ C["compsci:4.7.3.7"] = {
     [
       "What is a pipeline hazard (flush)?",
       "When a branch instruction alters the flow of control, making the pre-fetched instructions in the pipeline invalid, so they must be discarded."
+    ],
+    [
+      "Name four factors that influence processor performance.",
+      "Clock speed, number of cores, cache size, and pipelining."
+    ],
+    [
+      "Why does a larger cache improve performance?",
+      "More data can be served from fast on-chip cache instead of slower main memory, reducing wait cycles."
     ]
   ],
   "quiz": [
@@ -2819,6 +3107,20 @@ C["compsci:4.7.4.1"] = {
         "lang": "pseudo",
         "cap": "Storage selection logic",
         "src": "IF mobility_required == TRUE OR durability_required == TRUE THEN\n  USE Solid_State_Drive\nELSE IF capacity_required == MASSIVE THEN\n  USE Magnetic_HDD\nENDIF"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Storage Technologies — Quick Comparison",
+        "body": "**Magnetic (HDD)**: spinning platters + read/write head; cheapest per GB, highest capacity; slow, fragile, moving parts. **Optical (CD/DVD/Blu-ray)**: laser + pits/lands on reflective disc; portable, cheap to distribute; very slow, low capacity, scratch-prone. **SSD**: NAND floating-gate transistors, no moving parts; very fast, durable, silent; most expensive per GB, finite write cycles. Memory hierarchy: Registers → Cache → RAM (primary) → SSD/HDD (secondary)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Storage Misconceptions",
+        "body": "**SSDs work like HDDs but faster** — No; completely different mechanisms: HDDs use spinning magnetic platters with a mechanical read/write head; SSDs use NAND flash memory (floating-gate transistors) with no moving parts at all. **RAM is secondary storage** — RAM is primary storage (volatile, fast, directly addressable by the CPU); secondary storage (HDD/SSD) is non-volatile and retains data when powered off."
       }
     }
   ],
@@ -3061,6 +3363,20 @@ C["compsci:4.7.4.2"] = {
         "lang": "pseudo",
         "cap": "Storage selection algorithm",
         "src": "PROCEDURE ChooseStorage(size, speed_needed, portable):\n  IF speed_needed == HIGH THEN RETURN 'SSD'\n  ELSE IF portable == TRUE AND size < 50GB THEN RETURN 'Optical'\n  ELSE IF size > 2TB THEN RETURN 'HDD'\n  ELSE RETURN 'SSD'\nENDPROCEDURE"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Secondary Storage — Key Facts",
+        "body": "**HDD**: magnetic polarity on spinning platters, mechanical read/write head; largest capacity, lowest cost per GB; slow, fragile. **Optical (CD/DVD/Blu-ray)**: laser reads pits (dips) and lands (flat areas); very cheap to replicate, portable; but low capacity (700 MB–50 GB) and scratch-prone. **SSD**: electrons trapped in floating-gate NAND flash transistors; no seek time, durable, silent; expensive per GB, finite write cycles — wear-levelling extends lifespan."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Storage Technology Misconceptions",
+        "body": "**Optical storage is immune to all forms of damage** — Optical discs are immune to magnetic fields but are easily scratched and cracked; they are not indestructible. **SSD cells can be written to indefinitely** — NAND flash cells have a finite number of program/erase cycles before they wear out; SSDs use wear-levelling algorithms to spread writes evenly across all cells and extend lifespan."
       }
     }
   ],

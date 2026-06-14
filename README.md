@@ -15,14 +15,14 @@ xdg-open index.html    # Linux
 
 - **The full specification database** — every topic, subtopic and spec point of
   AQA 7517 Computer Science (**151** leaves), Edexcel 9MA0 Mathematics (**89**), and
-  OCR AAQ IT: Data Analytics H019/H119 (**110**) — **350 spec points** in total,
+  OCR AAQ IT: Data Analytics H019/H119 (**115**) — **355 spec points** in total,
   extracted verbatim from the official PDFs.
 - **Deep revision content** on top of the spec spine: structured notes (definitions,
   comparison tables, C#/SQL/pseudocode with syntax highlighting, mnemonics,
   must-memorise vs formula-book callouts, misconceptions, inline walkthroughs),
   flashcards, MCQ quizzes with explanations, and exam-style questions with mark
   schemes. Coverage today: **all of Computer Science and all of Mathematics are deep**,
-  plus IT unit **F201** (Big Data) — ~255 enriched topics. Tabs appear per topic:
+  plus IT unit **F201** (Big Data) — ~260 enriched topics. Tabs appear per topic:
   Specification · Notes · Flashcards · Quiz · Exam Qs · Worked · Simulate.
 - **Split-screen reference view** — exam-board wording on the left, the board's own
   guidance on the right, plus an examiner-intel layer (rewarded definitions,

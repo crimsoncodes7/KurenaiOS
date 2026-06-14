@@ -69,6 +69,25 @@ C["compsci:4.8.1"] = {
         "h": "Exam Technique",
         "body": "Always name the **specific act** and **specific principle** breached. Don't just write 'illegal' — write 'this breaches the Computer Misuse Act 1990, specifically the offence of unauthorised modification of data'."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "UK Computing Legislation — Quick Reference",
+        "body": [{"kv": [
+          ["Data Protection Act 2018 (GDPR)", "Personal data must be **fair, lawful, accurate, minimal, secure, purposeful**, and not kept longer than needed."],
+          ["Computer Misuse Act 1990", "Three offences: (1) unauthorised access, (2) unauthorised access with intent to commit further offences, (3) unauthorised **modification** of data."],
+          ["Copyright, Designs & Patents Act 1988", "Protects **intellectual property** — copying software/music/literature without a licence is a criminal offence."],
+          ["RIPA 2000", "Regulates **lawful interception** of communications by authorities (police, GCHQ) — governs surveillance."]
+        ]}]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "CMA Offence 1 Does Not Require Intent to Harm",
+        "body": "The **first offence** under the CMA 1990 — 'unauthorised access' — does not require any intent to cause damage or commit further crime. Simply accessing a system or data without permission is sufficient for a prosecution. Students often think only 'hacking to steal data' qualifies — even nosing around someone else's files counts."
+      }
     }
   ],
   "flashcards": [
@@ -198,6 +217,25 @@ C["compsci:4.9.1.1"] = {
         "t": "warn",
         "h": "Data Skew — Why Parallel Fails at Distance",
         "body": "In parallel transmission, each wire has slightly different resistance/capacitance. At long distances, bits from the same byte arrive at different times (skew), causing data corruption. Serial avoids this entirely."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Serial vs Parallel — Key Distinctions",
+        "body": [{"kv": [
+          ["Serial", "One wire, **one bit at a time**. Used for long-distance (USB, SATA, internet). No skew or crosstalk."],
+          ["Parallel", "Multiple wires, **multiple bits simultaneously**. Short-distance only (internal buses). Suffers from **skew** (bits arrive at different times) and **crosstalk** (interference)."],
+          ["Synchronous", "Sender and receiver share a **clock signal** — timed, efficient, needs sync hardware."],
+          ["Asynchronous", "No shared clock — each byte framed by **start bit** and **stop bit**. Simpler but overhead from extra bits."]
+        ]}]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Parallel Is Not Always Faster Than Serial",
+        "body": "In practice, **serial is often faster** than parallel over long distances. Modern USB 3.0 and PCIe use serial at very high speeds. Parallel fails at speed over distance because of skew — bits arrive out of sync, causing errors. 'Parallel means faster' is a common misconception."
       }
     },
     {
@@ -347,6 +385,20 @@ C["compsci:4.9.1.2"] = {
       }
     },
     {
+      "callout": {
+        "t": "memorise",
+        "h": "Baud Rate vs Bit Rate — Key Formula",
+        "body": "**Bit rate (bps) = Baud rate × bits per signal change**. If each signal carries 1 bit: baud rate = bit rate. If each signal carries 4 bits: bit rate = 4 × baud rate. Baud rate is never higher than bit rate (when you're encoding ≥1 bit per symbol)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Baud Rate and Bit Rate Are NOT Always Equal",
+        "body": "Students often assume baud rate = bit rate. This is only true when each signal change represents exactly **1 bit**. Modern modems and Wi-Fi use multi-level encoding (e.g. QAM-256 encodes 8 bits per symbol), so bit rate >> baud rate. The exam may give you baud rate and bits per signal change and ask you to calculate bit rate."
+      }
+    },
+    {
       "code": {
         "lang": "csharp",
         "cap": "Calculating Bit Rate in C#.",
@@ -473,6 +525,26 @@ C["compsci:4.9.2.1"] = {
         "t": "tip",
         "h": "Which to Choose?",
         "body": "Star is used in almost all modern networks for reliability and performance. Bus is largely obsolete but appears in exam questions — know its weaknesses."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Star vs Bus — Quick Comparison",
+        "body": [{"kv": [
+          ["Star failure", "One cable fails → **one device** offline. Switch fails → **whole network** offline."],
+          ["Bus failure", "Backbone fails → **whole network** offline immediately."],
+          ["Star cost", "**More** expensive — dedicated cable per device + central switch."],
+          ["Bus cost", "**Cheaper** — one backbone cable, no central device."],
+          ["Collisions", "Star with **switch** = no collisions. Bus = collisions increase with load."]
+        ]}]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Star Topology Is Not Immune to Full Failure",
+        "body": "A common error is saying 'Star topology never goes fully down'. This is wrong — if the **central switch** fails, the **entire network loses connectivity**. Only individual device cable failures are isolated. The switch is the star's single point of failure."
       }
     },
     {
@@ -606,6 +678,27 @@ C["compsci:4.9.2.2"] = {
         "h": "Exam Technique — 'Justify Your Choice'",
         "body": "If asked which model to use for a school/business, always pick **client-server** and explain: centralised backups, centralised security management, and better scalability. P2P suits only small/home setups."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Client-Server vs P2P — Comparison",
+        "body": [{"kv": [
+          ["Client-Server cost", "**High** — needs dedicated server hardware."],
+          ["P2P cost", "**Low** — no dedicated server; peers share equally."],
+          ["Client-Server security", "**Centralised** — admin controls permissions and policies."],
+          ["P2P security", "**Decentralised** — each peer manages itself; harder to enforce."],
+          ["Client-Server backups", "**Centralised** — easy to automate."],
+          ["P2P backups", "**Each user** is responsible for their own."]
+        ]}]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "P2P Is Not Inherently Illegal",
+        "body": "Peer-to-peer networking is a legitimate architecture used in file-sharing, VoIP, and blockchain. It is only illegal when used to share **copyright-protected** material without permission. The architecture itself is neutral."
+      }
     }
   ],
   "flashcards": [
@@ -725,28 +818,51 @@ C["compsci:4.9.2.3"] = {
       }
     },
     {
+      "callout": {
+        "t": "memorise",
+        "h": "CSMA/CA vs CSMA/CD — Key Distinction",
+        "body": [{"kv": [
+          ["CSMA/CA", "**Collision Avoidance** — used in **Wi-Fi** (wireless). Devices request permission before transmitting (RTS/CTS). Cannot detect collisions while transmitting."],
+          ["CSMA/CD", "**Collision Detection** — used in **Ethernet** (wired). Devices detect a collision after it happens and back off for a random period before retrying."],
+          ["Why CA not CD?", "Wireless radios cannot transmit and listen simultaneously — so they avoid collisions rather than detect them."]
+        ]}]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "CSMA/CA Does Not Eliminate Collisions",
+        "body": "CSMA/CA **reduces** the probability of collisions — it does not prevent them entirely. Collisions can still occur (e.g. two devices both sense the channel as idle at the same moment). Writing 'CSMA/CA prevents all collisions' is wrong."
+      }
+    },
+    {
       "h": "CSMA/CA Process"
     },
     {
       "steps": [
         {
           "h": "Sense",
+          "m": "The device listens to the channel to determine whether the transmission medium is currently idle or busy (Carrier Sense).",
           "n": "Device listens to the channel to see if it is idle."
         },
         {
           "h": "Wait",
+          "m": "If the channel is busy, the device waits for a random backoff period before sensing again — randomness reduces simultaneous retries.",
           "n": "If busy, wait a random amount of time and try again."
         },
         {
           "h": "Request",
+          "m": "Once the channel appears idle, the device sends a Request to Send (RTS) control frame to the wireless access point to reserve the medium.",
           "n": "If idle, send a 'Request to Send' (RTS) to the access point."
         },
         {
           "h": "Confirm",
+          "m": "The access point responds with a Clear to Send (CTS) frame, granting exclusive permission to transmit and informing other devices to wait.",
           "n": "Wait for 'Clear to Send' (CTS) before transmitting data."
         },
         {
           "h": "ACK",
+          "m": "After the data frame is received successfully, the receiver sends an Acknowledgement (ACK) frame; if the sender receives no ACK, it assumes a collision and will retry after a random backoff.",
           "n": "Receiver sends an ACK; if not received, assume collision."
         }
       ]
@@ -903,6 +1019,20 @@ C["compsci:4.9.3.1"] = {
         "h": "Internet ≠ World Wide Web",
         "body": "The **Internet** is the underlying network infrastructure (physical cables, routers, etc.). The **WWW** is a service that runs on the Internet, consisting of web pages accessed via HTTP/HTTPS. Email, FTP, and DNS are also Internet services — not part of the WWW."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Packet Header Contents",
+        "body": "Every packet carries: **Source IP** (where it came from), **Destination IP** (where it is going), **Sequence number** (for reassembly order), **Checksum** (for error detection), and **TTL** (Time to Live — max hops before the packet is discarded to prevent infinite loops)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Packets Do NOT Always Arrive In Order",
+        "body": "Because each packet can take a different route, they often arrive **out of order** at the destination. The sequence number in the header is used to **reassemble them correctly**. Saying 'packet switching ensures packets arrive in order' is incorrect."
+      }
     }
   ],
   "flashcards": [
@@ -1052,6 +1182,19 @@ C["compsci:4.9.3.2"] = {
         "t": "miscon",
         "h": "Firewall ≠ Antivirus",
         "body": "A firewall controls **network traffic** (blocks/allows connections). Antivirus software detects **malware already on the device**. They are complementary, not the same thing. A firewall does not scan files."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Malware Quick Reference",
+        "body": [{"kv": [
+          ["Virus", "Attaches to a **host file**; spreads when that file is **run** by the user."],
+          ["Worm", "**Self-replicates** across a network with **no user action** needed. No host file."],
+          ["Trojan", "Disguised as legitimate software; creates a **backdoor** but does not self-replicate."],
+          ["Ransomware", "**Encrypts** victim files and demands a ransom for the decryption key."],
+          ["Spyware", "Secretly **monitors** activity and sends data to the attacker."]
+        ]}]
       }
     }
   ],
@@ -1262,6 +1405,25 @@ C["compsci:4.9.4.1"] = {
           }
         ]
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "TCP/IP Layers — Mnemonic: 'All Tigers Need Love'",
+        "body": [{"table": {"head": ["Layer (top→bottom)", "Mnemonic", "Protocols", "Data Unit"], "rows": [
+          ["Application", "**A**ll", "HTTP, HTTPS, FTP, SMTP, DNS", "Message"],
+          ["Transport", "**T**igers", "TCP (reliable), UDP (fast, unreliable)", "Segment / Datagram"],
+          ["Network", "**N**eed", "IP, ICMP", "Packet"],
+          ["Link", "**L**ove", "Ethernet, Wi-Fi (802.11)", "Frame"]
+        ]}}]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Encapsulation Adds Headers Going DOWN, Not Up",
+        "body": "Headers are **added** as data travels **down** the stack (encapsulation) and **stripped** as data travels **up** the stack at the receiving end (decapsulation). A common error is saying headers are added going up — this is backwards."
+      }
     }
   ],
   "flashcards": [
@@ -1424,6 +1586,20 @@ C["compsci:4.9.4.2"] = {
     },
     {
       "callout": {
+        "t": "memorise",
+        "h": "Protocol Port Numbers — Must Know",
+        "body": [{"kv": [
+          ["HTTP", "Port **80** — unencrypted web pages"],
+          ["HTTPS", "Port **443** — encrypted (TLS) web pages"],
+          ["FTP", "Port **20** (data), **21** (control) — file transfer"],
+          ["SSH", "Port **22** — encrypted remote access"],
+          ["SMTP", "Port **25** — sending email (client→server or server→server)"],
+          ["POP3", "Port **110** — retrieving email (downloads + deletes from server)"]
+        ]}]
+      }
+    },
+    {
+      "callout": {
         "t": "def",
         "h": "Protocol Comparison Table",
         "body": [
@@ -1477,12 +1653,23 @@ C["compsci:4.9.4.2"] = {
           }
         ]
       }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common Application Protocol Misconceptions",
+        "body": "**SMTP sends and receives email** — SMTP is outbound only (sending); receiving is handled by POP3 (download-and-delete) or IMAP (server-side storage). **FTP uses one port** — FTP needs two: port 21 for control commands and port 20 for the actual data transfer. **HTTPS is a completely different protocol from HTTP** — HTTPS is standard HTTP with TLS encryption layered on top; the application-level protocol is identical."
+      }
     }
   ],
   "flashcards": [
     [
       "Which port does HTTPS use?",
       "443"
+    ],
+    [
+      "What mnemonic helps remember protocol port numbers?",
+      "**H**ighway (HTTP 80), **H**eavy (HTTPS 443), **S**ecure (SSH 22), **F**iles (FTP 20/21), **S**end (SMTP 25), **P**ick (POP3 110)."
     ],
     [
       "What is the difference between POP3 and SMTP?",
@@ -1640,6 +1827,20 @@ C["compsci:4.9.4.3"] = {
         "h": "Hierarchical Routing",
         "body": "Routers use the Network ID to get packets to the correct LAN, and only then is the Host ID used to find the specific machine. This prevents routers from needing to know every single device's location on earth."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "IPv4 Address Structure",
+        "body": "IPv4 = **32 bits**, written as **4 octets** in dotted-decimal (each 0–255). Split into: **Network ID** (identifies the network) + **Host ID** (identifies the device within that network). Routers forward packets using the Network ID; only the final router on the destination LAN uses the Host ID to deliver to the specific machine."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common IP Addressing Mistakes",
+        "body": "**All four octets identify the device** — only the Host ID octets do; the Network ID octets identify the network, not individual machines. **The Network ID is always the first three octets** — the split depends on the class or CIDR prefix: Class A uses 8 bits for Network ID, Class B uses 16, Class C uses 24; CIDR allows any prefix length."
+      }
     }
   ],
   "flashcards": [
@@ -1760,14 +1961,17 @@ C["compsci:4.9.4.4"] = {
             "steps": [
               {
                 "h": "Step 1",
+                "m": "The host applies a bitwise AND operation between its own IP address and its subnet mask to calculate its Network ID.",
                 "n": "The host performs a bitwise AND between its own IP and its subnet mask to find its Network ID."
               },
               {
                 "h": "Step 2",
+                "m": "The host applies the same subnet mask AND operation to the destination IP address to find the destination's Network ID.",
                 "n": "The host performs a bitwise AND between the destination IP and its own subnet mask."
               },
               {
                 "h": "Step 3",
+                "m": "If both Network IDs match, the destination is on the same local subnet and can be reached directly. If they differ, the packet is forwarded to the Default Gateway (router) for onward routing.",
                 "n": "If the results match, the destination is on the same local network. If they differ, the packet is sent to the Default Gateway (router)."
               }
             ]
@@ -1821,6 +2025,20 @@ C["compsci:4.9.4.4"] = {
         "t": "tip",
         "h": "Usable Hosts",
         "body": "In a subnet, two addresses are reserved: the Network Address (all host bits 0) and the Broadcast Address (all host bits 1). For a /24 mask, there are 2^8 - 2 = 254 usable host addresses."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Subnet Masking — Three-Step Method",
+        "body": "1. **AND** your IP with the mask → your **Network ID**. 2. **AND** the destination IP with the mask → destination **Network ID**. 3. If they **match** → same subnet, deliver directly. If they **differ** → different subnet, send to **Default Gateway**. Common mask: `255.255.255.0` = 24 ones followed by 8 zeros = **/24**."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "The Subnet Mask Is NOT Part of the IP Address",
+        "body": "The subnet mask is a **separate** 32-bit value used alongside the IP address — it is not stored within the IP address itself. Also: the network address (all host bits = 0) and broadcast address (all host bits = 1) are **not usable** by hosts."
       }
     }
   ],
@@ -1988,10 +2206,12 @@ C["compsci:4.9.4.5"] = {
             "steps": [
               {
                 "h": "Rule 1",
+                "m": "Within each 16-bit hextet, leading zeros can be dropped — e.g. `:0db8:` becomes `:db8:`.",
                 "n": "Leading zeros in a group can be omitted (e.g., :0db8: becomes :db8:)."
               },
               {
                 "h": "Rule 2",
+                "m": "One or more consecutive all-zero hextets can be replaced with `::`, but this shorthand may only be used **once** per address to prevent ambiguity.",
                 "n": "Consecutive groups of zeros can be replaced with '::' (once per address)."
               }
             ]
@@ -2011,6 +2231,26 @@ C["compsci:4.9.4.5"] = {
         "t": "tip",
         "h": "The Transition",
         "body": "Because IPv4 and IPv6 are not directly compatible, technologies like Dual Stack (running both), Tunneling (encapsulating IPv6 in IPv4), and Translation (NAT64) are used during the transition phase."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "IPv4 vs IPv6 — Key Facts",
+        "body": [{"kv": [
+          ["IPv4 size", "**32 bits** — 4 dotted-decimal octets (e.g. 192.168.1.1). ~4.3 billion addresses."],
+          ["IPv6 size", "**128 bits** — 8 colon-separated hex hextets (e.g. 2001:db8::1). ~3.4×10³⁸ addresses."],
+          ["Why IPv6?", "IPv4 address **exhaustion** — not enough addresses for all internet-connected devices."],
+          ["IPv6 header", "**Fixed** 40 bytes — faster routing than IPv4's variable-length header."],
+          ["IPv6 security", "**Built-in IPsec** (mandatory) vs IPv4 where it is optional."]
+        ]}]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "IPv6 Does Not Make IPv4 Immediately Obsolete",
+        "body": "IPv4 and IPv6 coexist during the transition period. Dual Stack allows a device to run both simultaneously. `::` in an IPv6 address can only appear **once** — using it twice makes the address ambiguous and invalid."
       }
     }
   ],
@@ -2198,6 +2438,20 @@ C["compsci:4.9.4.6"] = {
         "h": "Loopback Address",
         "body": "The IP 127.0.0.1 is a special reserved address called 'localhost'. It is used by a computer to send data to itself for testing and internal communication."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Private IP Ranges — RFC 1918",
+        "body": "There are three reserved private ranges: **10.0.0.0 – 10.255.255.255** (Class A — 16.7 million hosts), **172.16.0.0 – 172.31.255.255** (Class B), **192.168.0.0 – 192.168.255.255** (Class C — most home routers use this). Private IPs are **not routable** on the public internet."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Private IPs Are Not Globally Unique",
+        "body": "Multiple different LANs worldwide can use the same private IP addresses (e.g. every home network can have a device at 192.168.1.1). This is fine because private IPs never appear on the public internet — **NAT** translates them at the router boundary."
+      }
     }
   ],
   "flashcards": [
@@ -2319,18 +2573,22 @@ C["compsci:4.9.4.7"] = {
             "steps": [
               {
                 "h": "Discovery",
+                "m": "The client has no IP address yet, so it broadcasts a DHCPDISCOVER message across the local network hoping a DHCP server hears it.",
                 "n": "The client broadcasts a DHCPDISCOVER message to find a DHCP server on the local network."
               },
               {
                 "h": "Offer",
+                "m": "One or more DHCP servers respond with a DHCPOFFER, proposing an available IP address and configuration (subnet mask, default gateway, DNS server, lease time).",
                 "n": "The server responds with a DHCPOFFER message containing an available IP and configuration."
               },
               {
                 "h": "Request",
+                "m": "The client selects one offer and broadcasts a DHCPREQUEST to formally request it, simultaneously informing other servers that their offers were declined.",
                 "n": "The client sends a DHCPREQUEST message to accept the offered IP address."
               },
               {
                 "h": "Acknowledgement",
+                "m": "The chosen server sends a DHCPACK confirming the IP lease; the client can now configure its network interface and begin using the address for the duration of the lease.",
                 "n": "The server sends a DHCPACK message to confirm the lease and finalise the settings."
               }
             ]
@@ -2350,6 +2608,20 @@ C["compsci:4.9.4.7"] = {
         "t": "tip",
         "h": "Lease Time",
         "body": "IP addresses are not assigned forever; they are leased for a specific period (e.g., 24 hours). Clients must request a renewal halfway through the lease to keep the same address."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "DHCP DORA — What Each Step Means",
+        "body": "**D**iscover — client broadcasts, no IP yet. **O**ffer — server proposes IP + config. **R**equest — client accepts (broadcast, politely declines others). **A**cknowledgement — server confirms the **lease**. DHCP provides: IP address, subnet mask, default gateway, DNS server address, lease duration."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "DHCP Does Not Assign Permanent Addresses",
+        "body": "IP addresses assigned by DHCP are **leased** for a limited time. When the lease expires, the device may get a **different** IP. Only **static** (manually configured) IPs are permanent. Servers and printers typically use static IPs for consistency."
       }
     }
   ],
@@ -2526,6 +2798,20 @@ C["compsci:4.9.4.8"] = {
         "h": "Security Benefit",
         "body": "NAT provides a basic level of security because external hosts cannot initiate a connection to an internal machine; the router only allows incoming traffic if it matches an entry in its translation table."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "How NAT Works — Step by Step",
+        "body": "**Outgoing:** device (192.168.1.10:5001) sends packet → router replaces source with its public IP + tracking port (82.x.x.x:10001) → logs this mapping in the NAT table → packet sent to internet. **Incoming:** response arrives at port 10001 → router looks up mapping → replaces destination with 192.168.1.10:5001 → delivers to correct device."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "NAT Is Not True Security — It Is Address Translation",
+        "body": "NAT provides **incidental** security (unsolicited inbound packets are dropped), but it is not a firewall. It does not inspect packet content, block malware, or filter by rule. A separate **firewall** is still needed for proper security. NAT's purpose is **address sharing**, not protection."
+      }
     }
   ],
   "flashcards": [
@@ -2693,6 +2979,20 @@ C["compsci:4.9.4.9"] = {
         "t": "warn",
         "h": "Security Risks",
         "body": "Opening ports via port forwarding bypasses the NAT firewall. Any vulnerability in the internal application (e.g., the web server) can now be exploited by anyone on the public internet. Use with caution!"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Port Forwarding — When and Why",
+        "body": "**Problem:** NAT drops all unsolicited incoming traffic — external users can't reach your internal server. **Solution:** Create a rule in the router: 'traffic arriving on external port X → forward to internal IP:port Y'. **Requirement:** The internal device must have a **static** (fixed) private IP, otherwise the rule breaks when DHCP reassigns addresses."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Port Forwarding Misconceptions",
+        "body": "**Port forwarding makes a server more secure** — it does the opposite: it punches a hole through the NAT firewall, directly exposing an internal machine to the public internet on that port. NAT normally drops all unsolicited traffic; forwarding removes that protection. **One external port can serve multiple internal devices** — each external port maps to exactly one internal IP:port; to run multiple services, different external ports must be used."
       }
     }
   ],
@@ -2887,6 +3187,20 @@ C["compsci:4.9.4.10"] = {
         "h": "RESTful Principles",
         "body": "REST (Representational State Transfer) uses standard HTTP methods: GET (Retrieve), POST (Create), PUT (Update), and DELETE (Remove). It treats everything as a 'Resource' identified by a URL."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "REST vs WebSocket & JSON vs XML",
+        "body": "**REST**: stateless HTTP request-response; methods = GET (read), POST (create), PUT (update), DELETE (remove); each request is self-contained. **WebSocket**: stateful, persistent full-duplex connection for real-time apps (live chat, scores, trading). **JSON**: lightweight key-value + array format, fast to parse, natively JavaScript. **XML**: verbose tag-based, everything stored as strings, slower but supports strict schemas."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common Web API Misconceptions",
+        "body": "**REST maintains session state on the server** — REST is stateless by design; every request must carry all needed information (credentials, parameters); the server stores nothing about past requests. **WebSocket is just an HTTP method like GET or POST** — WebSocket starts with an HTTP upgrade handshake, then becomes a completely separate persistent bidirectional protocol; it is not an HTTP method."
+      }
     }
   ],
   "flashcards": [
@@ -3080,6 +3394,20 @@ C["compsci:4.9.4.11"] = {
         "t": "tip",
         "h": "Cloud Computing",
         "body": "Modern web applications (like Google Docs) are often a hybrid. They use the browser (Thin) but perform complex JavaScript processing locally (Thick-like) while storing everything in the cloud."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Thin vs Thick — Decision Framework",
+        "body": "**Use thin client when:** many users, centralised control is important, hardware budget is low, network is reliable. **Use thick client when:** high processing power is needed (graphics, video, games), users work offline, or the network is unreliable. Thin = server does the work. Thick = client does the work."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Thin Clients Are Not 'Cheaper' to Run Overall",
+        "body": "While thin clients have lower per-device hardware costs, the **server** must be powerful enough to handle all users simultaneously — and server infrastructure is expensive. The cost saving is in **per-device** hardware, not total infrastructure."
       }
     }
   ],

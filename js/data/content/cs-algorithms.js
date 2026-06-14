@@ -85,11 +85,11 @@ C["compsci:4.3.1.1"] = {
         },
         {
           "h": "Iterate",
-          "m": "pop/dequeue \rightarrow mark visited \rightarrow push/enqueue unvisited neighbours (in stated order)"
+          "m": "pop/dequeue → mark visited → push/enqueue unvisited neighbours (in stated order)"
         },
         {
           "h": "Terminate",
-          "m": "frontier empty \rightarrow visited list IS the traversal order"
+          "m": "frontier empty → visited list IS the traversal order"
         }
       ]
     },
@@ -104,6 +104,20 @@ C["compsci:4.3.1.1"] = {
       "callout": {
         "t": "mnemonic",
         "body": "**DFS = Deep, Stack. BFS = Broad, Queue.** Alliteration carries the structural fact — and that fact alone is frequently a full mark."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "DFS vs BFS — Key Differences",
+        "body": "Same skeleton, different frontier. DFS: stack → plunges deep, backtracks. BFS: queue → expands level by level. BFS guarantees shortest path on UNWEIGHTED graphs. DFS is better for maze traversal and cycle detection. Visited set prevents revisiting."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "BFS Finds Shortest Paths on Any Graph",
+        "body": "BFS finds the shortest path by EDGE COUNT on unweighted graphs only. On weighted graphs, BFS ignores edge weights and may return a path with fewer edges but higher total cost. Use Dijkstra for weighted shortest paths."
       }
     }
   ],
@@ -168,7 +182,7 @@ C["compsci:4.3.1.1"] = {
         "Start vertex marked visited and enqueued (1)",
         "Repeatedly dequeue a vertex and enqueue its unvisited neighbours, marking them visited (1)",
         "Queue (FIFO) named as the supporting structure (1)",
-        "FIFO means vertices discovered earlier are explored earlier \rightarrow level-by-level / increasing distance order (1)"
+        "FIFO means vertices discovered earlier are explored earlier → level-by-level / increasing distance order (1)"
       ]
     }
   ],
@@ -192,15 +206,15 @@ C["compsci:4.3.2.1"] = {
             "kv": [
               [
                 "Pre-order",
-                "Node \rightarrow Left Subtree \rightarrow Right Subtree"
+                "Node → Left Subtree → Right Subtree"
               ],
               [
                 "In-order",
-                "Left Subtree \rightarrow Node \rightarrow Right Subtree"
+                "Left Subtree → Node → Right Subtree"
               ],
               [
                 "Post-order",
-                "Left Subtree \rightarrow Right Subtree \rightarrow Node"
+                "Left Subtree → Right Subtree → Node"
               ],
               [
                 "BST (Binary Search Tree)",
@@ -227,7 +241,7 @@ C["compsci:4.3.2.1"] = {
           [
             "In-order",
             "LNR",
-            "BST \rightarrow outputs values in ascending sorted order"
+            "BST → outputs values in ascending sorted order"
           ],
           [
             "Post-order",
@@ -262,6 +276,20 @@ C["compsci:4.3.2.1"] = {
       "callout": {
         "t": "tip",
         "body": "Syntax-tree questions: **post-order emits RPN**, pre-order emits prefix, in-order (with brackets) emits ordinary infix."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Three Traversal Orders — NLR / LNR / LRN",
+        "body": "Pre-order (NLR) — copy a tree, prefix notation. In-order (LNR) — BST outputs ascending sorted order. Post-order (LRN) — RPN from syntax trees, safe deletion (children before parent). Dot trick: left dot = pre, bottom dot = in, right dot = post."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "In-order on Any Tree Gives Sorted Output",
+        "body": "In-order traversal produces ascending order ONLY on a Binary Search Tree (BST) — where left < node < right is enforced. On an arbitrary binary tree, in-order output has no guaranteed order."
       }
     }
   ],
@@ -412,6 +440,20 @@ C["compsci:4.3.3.1"] = {
         "t": "warn",
         "body": "For − and ÷ the FIRST value popped is the RIGHT-hand operand: a b − means a − b."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Infix → RPN conversion (bracket method)",
+        "body": "1. Fully bracket the infix expression.\n2. Move each operator to just after its matching closing bracket.\n3. Remove all brackets.\n\nExample: (5 + 3) × (8 − 6) → 5 3 + 8 6 − ×"
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"RPN is just reversed infix\"",
+        "body": "Reversing infix gives prefix notation (Polish notation), not RPN. RPN is **postfix** — operators come after both operands."
+      }
     }
   ],
   "flashcards": [
@@ -426,27 +468,31 @@ C["compsci:4.3.3.1"] = {
     [
       "Link between trees and RPN?",
       "Post-order traversal of a syntax tree emits the RPN of the expression."
+    ],
+    [
+      "Why does RPN need no brackets?",
+      "Operator position encodes precedence — each operator applies to the two preceding values on the stack."
     ]
   ],
   "quiz": [
     {
-      "q": "RPN of (7 − 2) \times 3?",
+      "q": "RPN of (7 − 2) × 3?",
       "opts": [
-        "7 2 3 − \times",
-        "7 2 − 3 \times",
-        "\times − 7 2 3",
-        "7 − 2 \times 3"
+        "7 2 3 − ×",
+        "7 2 − 3 ×",
+        "× − 7 2 3",
+        "7 − 2 × 3"
       ],
       "ans": 1,
-      "why": "((7−2)\times3) \rightarrow operator after each closing bracket."
+      "why": "((7−2)×3) → operator after each closing bracket."
     }
   ],
   "exam": [
     {
-      "q": "Convert (5 + 3) \times (8 − 6) to RPN and evaluate using a stack.",
+      "q": "Convert (5 + 3) × (8 − 6) to RPN and evaluate using a stack.",
       "marks": 6,
       "ms": [
-        "RPN: 5 3 + 8 6 − \times (2)",
+        "RPN: 5 3 + 8 6 − × (2)",
         "Evaluation steps with stack contents shown (4)"
       ]
     }
@@ -546,7 +592,35 @@ C["compsci:4.3.4.2"] = {
     {
       "callout": {
         "t": "tip",
-        "body": "Each comparison halves the remaining search space, so k comparisons handle 2^k items."
+        "body": "Each comparison halves the remaining search space, so k comparisons handle $2^k$ items."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Maximum comparisons",
+        "body": "$\\lceil \\log_2(n+1) \\rceil$ — for 1024 items: $\\lceil \\log_2 1025 \\rceil = 10$"
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Integer overflow in mid calculation",
+        "body": "`(low + high) / 2` can overflow for very large arrays in low-level languages. Safer: `low + (high - low) / 2`."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"Binary search works on any list\"",
+        "body": "Binary search **requires sorted data**. Applying it to an unsorted list gives wrong results with no error — a particularly dangerous silent failure."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Binary Search — Key Facts",
+        "body": "Precondition: data must be SORTED. mid = (low + high) / 2. If target < arr[mid]: high = mid − 1. If target > arr[mid]: low = mid + 1. Terminate when found or low > high. Time: O(log n). Max comparisons for n items: ⌈log₂(n+1)⌉."
       }
     }
   ],
@@ -562,11 +636,15 @@ C["compsci:4.3.4.2"] = {
     [
       "Time complexities: linear vs binary?",
       "Linear O(n); binary O(log n)."
+    ],
+    [
+      "Why is binary search O(log n)?",
+      "Each step halves the search space — n items need at most log₂n comparisons."
     ]
   ],
   "quiz": [
     {
-      "q": "Worst-case comparisons for binary search on 1024 sorted items \approx",
+      "q": "Worst-case comparisons for binary search on 1024 sorted items ≈",
       "opts": [
         "1024",
         "512",
@@ -671,6 +749,37 @@ C["compsci:4.3.5.1"] = {
         "t": "mnemonic",
         "body": "**Bubbles rise**: the largest value bubbles to the end of each pass."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Complexity at a glance",
+        "body": [
+          {
+            "table": {
+              "head": ["Algorithm", "Best", "Average", "Worst", "Space"],
+              "rows": [
+                ["Bubble", "$O(n)$", "$O(n^2)$", "$O(n^2)$", "$O(1)$"],
+                ["Merge", "$O(n \\log n)$", "$O(n \\log n)$", "$O(n \\log n)$", "$O(n)$"]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Optimised bubble sort",
+        "body": "Track whether any swap occurred in a pass. If no swap: the list is already sorted — break early. Best case becomes $O(n)$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"Merge sort is always better\"",
+        "body": "Merge sort uses $O(n)$ extra memory. For tiny lists or memory-constrained systems, bubble sort's $O(1)$ space wins. Merge sort dominates for large $n$."
+      }
     }
   ],
   "flashcards": [
@@ -681,6 +790,14 @@ C["compsci:4.3.5.1"] = {
     [
       "Merge sort mechanism?",
       "Recursively halve to single items, then merge sorted sublists."
+    ],
+    [
+      "After one full bubble sort pass, what is guaranteed?",
+      "The largest element is in its final position at the end of the list."
+    ],
+    [
+      "Merge sort space complexity?",
+      "O(n) — it needs an auxiliary array to merge sublists."
     ]
   ],
   "quiz": [
@@ -693,6 +810,17 @@ C["compsci:4.3.5.1"] = {
         "no swaps occurred"
       ],
       "ans": 2
+    },
+    {
+      "q": "Merge sort's worst-case time complexity is…",
+      "opts": [
+        "$O(n^2)$",
+        "$O(n)$",
+        "$O(n \\log n)$",
+        "$O(\\log n)$"
+      ],
+      "ans": 2,
+      "why": "Merge sort always divides and merges in O(n log n) regardless of input order."
     }
   ],
   "exam": [
@@ -767,7 +895,7 @@ C["compsci:4.3.6.1"] = {
       "steps": [
         {
           "h": "Init",
-          "m": "Dist[start]=0, others=\infty. Previous=null.",
+          "m": "Dist[start]=0, others=∞. Previous=null.",
           "n": "All nodes in unvisited set."
         },
         {
@@ -794,6 +922,27 @@ C["compsci:4.3.6.1"] = {
         "t": "tip",
         "body": "Dijkstra is BFS upgraded for weights. It fails on graphs with negative weights."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Dijkstra table columns",
+        "body": "For each node track: **Dist** (tentative distance from start) | **Prev** (predecessor on best path) | **Visited** (✓ once permanently settled). Examiners award marks for each column maintained correctly."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Negative weights",
+        "body": "Dijkstra assumes once a node is visited its distance is final. A negative-weight edge could create a shorter path through an already-visited node — giving wrong results. Use Bellman-Ford for negative weights."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"Dijkstra finds the shortest path between two nodes\"",
+        "body": "Dijkstra computes shortest paths from the **start node to ALL nodes** simultaneously. You can stop early when the target is settled, but the algorithm is inherently single-source."
+      }
     }
   ],
   "flashcards": [
@@ -804,6 +953,14 @@ C["compsci:4.3.6.1"] = {
     [
       "The relaxation test?",
       "If distance[u] + weight(u,n) < distance[n], update distance[n]."
+    ],
+    [
+      "Why does Dijkstra fail with negative weights?",
+      "It assumes a settled node's distance is final, but a negative edge could improve it after settling."
+    ],
+    [
+      "What three columns does a Dijkstra table trace need?",
+      "Distance (tentative cost), Previous (predecessor node), Visited (permanently settled)."
     ]
   ],
   "quiz": [
@@ -811,11 +968,22 @@ C["compsci:4.3.6.1"] = {
       "q": "Initial tentative distances are…",
       "opts": [
         "all 0",
-        "start = 0, rest = \infty",
-        "all \infty",
-        "start = \infty, rest = 0"
+        "start = 0, rest = ∞",
+        "all ∞",
+        "start = ∞, rest = 0"
       ],
       "ans": 1
+    },
+    {
+      "q": "Dijkstra picks the next node to settle by choosing…",
+      "opts": [
+        "any unvisited node at random",
+        "the unvisited node with the smallest tentative distance",
+        "the node with the most neighbours",
+        "the node added to the graph first"
+      ],
+      "ans": 1,
+      "why": "The greedy choice — always expand the cheapest unvisited node — ensures optimality."
     }
   ],
   "exam": [
@@ -823,7 +991,11 @@ C["compsci:4.3.6.1"] = {
       "q": "Explain the steps Dijkstra's algorithm takes to find the shortest path.",
       "marks": 6,
       "ms": [
-        "Initialization (1), Smallest unvisited choice (1), Relaxation logic (2), Visited status (1), Path recovery (1)"
+        "Initialise: start node distance = 0, all others = ∞ (1)",
+        "Pick unvisited node with smallest tentative distance (1)",
+        "For each neighbour: if dist[curr] + edge weight < dist[neighbour], update it (relaxation) (2)",
+        "Mark current node as visited — its distance is now final (1)",
+        "Repeat until target settled; trace back via prev pointers to recover path (1)"
       ]
     }
   ]
@@ -922,7 +1094,35 @@ C["compsci:4.1.1.16"] = {
     {
       "callout": {
         "t": "warn",
-        "body": "No reachable base case \rightarrow frames pile up forever \rightarrow **stack overflow**."
+        "body": "No reachable base case → frames pile up forever → **stack overflow**."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Tracing recursion in exams",
+        "body": "Draw a column for each call level. Descend left, adding each call. When the base case hits, bubble results back up the right side. Examiners look for both directions — call order AND return values."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"Recursion and iteration can always be swapped freely\"",
+        "body": "They are equally powerful computationally, but recursive algorithms carry stack-frame overhead and risk overflow. For simple counters, iteration is safer and faster. For tree/graph traversal, recursion is more natural and often required by the spec."
+      }
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "What a stack frame stores",
+        "body": "Each recursive call pushes a frame containing: the **return address**, the **local variables**, and the **parameter values** for that call. Unwinding pops frames in reverse order (LIFO)."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Recursion Essentials",
+        "body": "Must have: (1) BASE CASE — stops recursion, no further call. (2) RECURSIVE CASE — calls itself with modified (smaller) input moving toward base case. Each call pushes a stack frame (return address + local vars + params). Missing base case → infinite recursion → stack overflow."
       }
     }
   ],
@@ -934,6 +1134,14 @@ C["compsci:4.1.1.16"] = {
     [
       "Cause of stack overflow in recursion?",
       "Missing or unreachable base case; too many recursive calls."
+    ],
+    [
+      "What does each stack frame store?",
+      "Return address, local variable values, and parameter values for that call."
+    ],
+    [
+      "Recursion vs iteration: which uses more memory?",
+      "Recursion — each active call occupies a stack frame; deep recursion can exhaust stack memory."
     ]
   ],
   "quiz": [
@@ -946,6 +1154,17 @@ C["compsci:4.1.1.16"] = {
         "pushes a frame"
       ],
       "ans": 1
+    },
+    {
+      "q": "When does the call stack start shrinking during recursion?",
+      "opts": [
+        "when the first call is made",
+        "when the base case is reached and frames begin returning",
+        "when memory runs out",
+        "after the first recursive call"
+      ],
+      "ans": 1,
+      "why": "The unwind phase starts at the base case — each returning frame pops off the stack."
     }
   ],
   "exam": [
@@ -953,7 +1172,10 @@ C["compsci:4.1.1.16"] = {
       "q": "Trace the call F(4) for F(n) = n + F(n-1) with F(1)=1.",
       "marks": 5,
       "ms": [
-        "Trace of calls (1), Base case result (1), Unwinding steps (2), Final result 10 (1)"
+        "F(4) calls F(3), F(3) calls F(2), F(2) calls F(1) — descent shown (1)",
+        "Base case: F(1) = 1 (1)",
+        "Unwind: F(2)=1+1=2, F(3)=2+2=4, F(4)=3+4=7 — each step shown (2)",
+        "Final result: F(4) = 10 (1)"
       ]
     }
   ]

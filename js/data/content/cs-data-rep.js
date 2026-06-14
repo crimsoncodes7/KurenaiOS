@@ -94,19 +94,23 @@ C["compsci:4.5.1.1"] = {
       "steps": [
         {
           "h": "Whole Number?",
-          "n": "If it's a whole number $\\ge 0$, it is Natural ($\\mathbb{N}$)."
+          "m": "Is it a positive whole number or zero?",
+          "n": "Yes → Natural ($\\mathbb{N}$). Remember: $\\mathbb{N}$ does NOT include negatives."
         },
         {
           "h": "Negative Whole?",
-          "n": "If it's a whole number but negative, it is an Integer ($\\mathbb{Z}$)."
+          "m": "Is it a whole number but below zero?",
+          "n": "Yes → Integer ($\\mathbb{Z}$). Integers include all whole numbers, positive and negative."
         },
         {
           "h": "Fractional?",
-          "n": "If it can be written as $\\frac{a}{b}$, it is Rational ($\\mathbb{Q}$)."
+          "m": "Can it be written exactly as $\\frac{a}{b}$ where $a, b \\in \\mathbb{Z}$ and $b \\neq 0$?",
+          "n": "Yes → Rational ($\\mathbb{Q}$). Includes terminating and recurring decimals."
         },
         {
           "h": "Non-repeating?",
-          "n": "If it's a non-ending, non-repeating decimal, it is Irrational (and part of Real $\\mathbb{R}$)."
+          "m": "Is it an infinite, non-repeating decimal that cannot be written as a fraction?",
+          "n": "Yes → Irrational — still part of Real ($\\mathbb{R}$) but outside $\\mathbb{Q}$."
         }
       ]
     },
@@ -129,6 +133,20 @@ C["compsci:4.5.1.1"] = {
         "t": "tip",
         "body": "Remember the symbols: $\\mathbb{N}$ (Natural), $\\mathbb{Z}$ (Integer), $\\mathbb{Q}$ (Rational), $\\mathbb{R}$ (Real)."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Number Set Hierarchy",
+        "body": "Sets nest inside each other: **ℕ** (natural: 0, 1, 2...) ⊂ **ℤ** (integers: ...-1, 0, 1...) ⊂ **ℚ** (rationals: p/q) ⊂ **ℝ** (reals: all). **Ordinals** express position (1st, 2nd). **Cardinals** express quantity (1, 2, 3). Every natural number is an integer; every integer is rational; every rational is real."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Number System Misconceptions",
+        "body": "**All numbers are integers** — No; 0.5, π, √2 are not integers. Integers are whole numbers only (positive, negative, zero). **Natural numbers include negative numbers** — No; natural numbers (ℕ) are {0, 1, 2, 3, ...} — all non-negative. Negative whole numbers require the integer set ℤ."
+      }
     }
   ],
   "flashcards": [
@@ -142,7 +160,7 @@ C["compsci:4.5.1.1"] = {
     ],
     [
       "Give two examples of irrational numbers.",
-      "$\\pi$ and $√()$ (or any other non-repeating, infinite decimals)."
+      "$\\pi$ and $\\sqrt{2}$ (non-repeating, infinite decimal expansions)."
     ],
     [
       "What is an ordinal number?",
@@ -166,7 +184,7 @@ C["compsci:4.5.1.1"] = {
       "why": "$\\mathbb{Q}$ stands for quotient, representing fractions of integers."
     },
     {
-      "q": "Which type of number is $-√()$?",
+      "q": "Which type of number is $-\\sqrt{2}$?",
       "opts": [
         "Rational",
         "Irrational",
@@ -216,21 +234,36 @@ C["compsci:4.5.1.2"] = {
     {
       "h": "Integer Numbers ($\\mathbb{Z}$)"
     },
-    "Integers include all positive and negative whole numbers, including zero. They are used when discrete values below zero are required.",
+    "Integers include all positive and negative whole numbers, including zero. They are used when discrete values below zero are required — such as temperatures, financial balances, or coordinates.",
     {
       "callout": {
         "t": "def",
         "h": "The Integer Set",
+        "body": "$\\mathbb{Z}$ (from the German 'Zahlen' meaning 'numbers') = $\\{\\ldots, -3, -2, -1, 0, 1, 2, 3, \\ldots\\}$. Every natural number is also an integer, but integers extend to negative values."
+      }
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "Integer Types in Practice",
         "body": [
           {
             "kv": [
               [
-                "Symbol",
-                "$\\mathbb{Z}$ (from the German word 'Zahlen')"
+                "int8 / byte",
+                "8-bit signed: −128 to 127"
               ],
               [
-                "Members",
-                "..., -3, -2, -1, 0, 1, 2, 3, ..."
+                "int16 / short",
+                "16-bit signed: −32,768 to 32,767"
+              ],
+              [
+                "int32 / int",
+                "32-bit signed: −2,147,483,648 to 2,147,483,647"
+              ],
+              [
+                "int64 / long",
+                "64-bit signed: approximately ±9.2 × 10¹⁸"
               ]
             ]
           }
@@ -238,30 +271,70 @@ C["compsci:4.5.1.2"] = {
       }
     },
     {
+      "callout": {
+        "t": "warn",
+        "h": "Integer Overflow",
+        "body": "In a computer, integers have a fixed number of bits. If the result of a calculation exceeds the maximum value, **overflow** occurs and the value wraps around (e.g., 127 + 1 = −128 in a signed 8-bit system)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Integers Have Unlimited Range?",
+        "body": "In mathematics $\\mathbb{Z}$ is unbounded, but in computing every integer type has a fixed bit width and a finite range. Choosing the wrong type for large values causes overflow bugs."
+      }
+    },
+    {
       "code": {
         "lang": "csharp",
         "cap": "Integer types in C#.",
-        "src": "int temperature = -5;\nint altitude = 10000;\nint netProfit = -1200;"
+        "src": "int temperature = -5;\nint altitude = 10000;\nint netProfit = -1200;\n\n// Overflow example:\nsbyte x = 127;\nx++;  // x is now -128 (wraps around)"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Integers (ℤ)",
+        "body": "ℤ = all whole numbers, positive AND negative AND zero: {..., -2, -1, 0, 1, 2, ...}. Symbol ℤ from German 'Zahlen' (numbers). ℕ ⊂ ℤ — all natural numbers are integers. In computing, integers are stored in fixed-width bits; 8-bit signed: -128 to 127 (two's complement)."
       }
     }
   ],
   "flashcards": [
     [
       "What is the symbol for the set of integers?",
-      "$\\mathbb{Z}$"
+      "$\\mathbb{Z}$ (from the German 'Zahlen')"
+    ],
+    [
+      "What is the range of an 8-bit signed integer?",
+      "−128 to 127"
+    ],
+    [
+      "What is integer overflow?",
+      "When the result of a calculation exceeds the maximum value for the integer type, causing the value to wrap around to the opposite extreme."
     ]
   ],
   "quiz": [
     {
       "q": "Which of these is NOT an integer?",
       "opts": [
-        "-1",
+        "−1",
         "0",
         "0.5",
         "100"
       ],
       "ans": 2,
-      "why": "Integers must be whole numbers."
+      "why": "Integers must be whole numbers; 0.5 is a fraction and therefore rational, not an integer."
+    },
+    {
+      "q": "In a signed 8-bit integer, what happens when you add 1 to the value 127?",
+      "opts": [
+        "128",
+        "−128",
+        "0",
+        "An overflow error is silently ignored"
+      ],
+      "ans": 1,
+      "why": "127 is 01111111 in binary. Adding 1 gives 10000000, which is −128 in two's complement — the value wraps around."
     }
   ],
   "exam": [
@@ -286,16 +359,27 @@ C["compsci:4.5.1.3"] = {
       "callout": {
         "t": "def",
         "h": "Rational Numbers",
+        "body": "A number $x$ is rational if $x = \\frac{p}{q}$ for some integers $p, q$ with $q \\neq 0$. Symbol: $\\mathbb{Q}$ (from 'Quotient')."
+      }
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "All These Are Rational",
         "body": [
           {
             "kv": [
               [
-                "Symbol",
-                "$\\mathbb{Q}$ (from 'Quotient')"
+                "Whole integers",
+                "$5 = \\frac{5}{1}$, $-3 = \\frac{-3}{1}$"
               ],
               [
-                "Format",
-                "$p/q$ where $p, q \\in \\mathbb{Z}$ and $q \\neq 0$."
+                "Terminating decimals",
+                "$0.75 = \\frac{3}{4}$, $1.5 = \\frac{3}{2}$"
+              ],
+              [
+                "Recurring decimals",
+                "$0.\\overline{3} = \\frac{1}{3}$, $0.\\overline{142857} = \\frac{1}{7}$"
               ]
             ]
           }
@@ -303,30 +387,70 @@ C["compsci:4.5.1.3"] = {
       }
     },
     {
+      "callout": {
+        "t": "miscon",
+        "h": "\"Integers Are Not Rational\"",
+        "body": "Every integer IS rational — it can always be written as itself over 1 (e.g., $7 = \\frac{7}{1}$). The number sets are nested: $\\mathbb{N} \\subset \\mathbb{Z} \\subset \\mathbb{Q} \\subset \\mathbb{R}$."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Recurring Decimals Are Always Rational",
+        "body": "If a decimal repeats a pattern forever (like $0.\\overline{6} = \\frac{2}{3}$), it IS rational. Only decimals that are infinite AND non-repeating are irrational."
+      }
+    },
+    {
       "code": {
         "lang": "pseudo",
-        "cap": "Representing a fraction.",
-        "src": "RECORD Rational\n    numerator: INTEGER\n    denominator: INTEGER\nENDRECORD\n\n# 0.75 as a rational\nval = Rational(3, 4)"
+        "cap": "Representing a fraction as a rational type.",
+        "src": "RECORD Rational\n    numerator: INTEGER\n    denominator: INTEGER\nENDRECORD\n\n# 0.75 stored exactly as 3/4\nval = Rational(3, 4)"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Rational Numbers (ℚ)",
+        "body": "ℚ = all numbers expressible as **p/q** where p, q ∈ ℤ and q ≠ 0. Includes all terminating decimals (0.25 = 1/4) and repeating decimals (0.333... = 1/3). ℤ ⊂ ℚ (every integer n = n/1 is rational). π and √2 are NOT rational — they cannot be expressed as p/q."
       }
     }
   ],
   "flashcards": [
     [
       "Define a rational number.",
-      "A number that can be written as a fraction $p/q$ where $p$ and $q$ are integers."
+      "A number that can be written as $\\frac{p}{q}$ where $p$ and $q$ are integers and $q \\neq 0$."
+    ],
+    [
+      "Is a recurring decimal rational?",
+      "Yes — any recurring decimal can be converted to a fraction, making it rational."
+    ],
+    [
+      "Why is every integer also rational?",
+      "Any integer $n$ can be written as $\\frac{n}{1}$, satisfying the definition of a rational number."
     ]
   ],
   "quiz": [
     {
       "q": "Is 5 a rational number?",
       "opts": [
-        "Yes, it's 5/1",
-        "No, it's an integer",
-        "Only if it's 5.0",
+        "Yes, it equals $5/1$",
+        "No, it is an integer",
+        "Only if it is written as 5.0",
         "Never"
       ],
       "ans": 0,
       "why": "All integers are rational because they can be written as themselves over 1."
+    },
+    {
+      "q": "Which of these is NOT a rational number?",
+      "opts": [
+        "$0.\\overline{3}$",
+        "$\\frac{7}{2}$",
+        "$\\sqrt{2}$",
+        "$-4$"
+      ],
+      "ans": 2,
+      "why": "$\\sqrt{2}$ is irrational — its decimal expansion never repeats. The others can all be expressed as fractions."
     }
   ],
   "exam": [
@@ -346,21 +470,32 @@ C["compsci:4.5.1.4"] = {
     {
       "h": "Irrational Numbers"
     },
-    "Irrational numbers cannot be expressed as a simple fraction. Their decimal expansion is infinite and non-repeating.",
+    "Irrational numbers cannot be expressed as a fraction of two integers. Their decimal expansion is infinite and non-repeating — the digits never settle into a repeating pattern.",
     {
       "callout": {
         "t": "def",
-        "h": "Irrational Examples",
+        "h": "Irrational Numbers",
+        "body": "A number that cannot be written as $\\frac{p}{q}$ for any integers $p$ and $q$. Its decimal expansion is infinite and non-repeating."
+      }
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "Common Examples",
         "body": [
           {
             "kv": [
               [
                 "Mathematical Constants",
-                "$\\pi$, $e$"
+                "$\\pi \\approx 3.14159\\ldots$, $e \\approx 2.71828\\ldots$"
               ],
               [
                 "Surds",
-                "$√()$, $√()$"
+                "$\\sqrt{2} \\approx 1.41421\\ldots$, $\\sqrt{3} \\approx 1.73205\\ldots$"
+              ],
+              [
+                "Not irrational",
+                "$\\sqrt{4} = 2$ (a perfect square — this IS rational/integer)"
               ]
             ]
           }
@@ -368,30 +503,70 @@ C["compsci:4.5.1.4"] = {
       }
     },
     {
+      "callout": {
+        "t": "miscon",
+        "h": "Common Misconception",
+        "body": "**Surds are always irrational** — but only when the square root of a non-perfect-square is taken. $\\sqrt{4} = 2$ is rational. $\\sqrt{9} = 3$ is rational. Test: if the result is a whole number, it is NOT irrational."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Computers Cannot Represent Irrationals Exactly",
+        "body": "Because memory is finite, any irrational number must be truncated or rounded. This introduces a small rounding error every time an irrational is stored or used in a calculation."
+      }
+    },
+    {
       "code": {
         "lang": "python",
-        "cap": "Calculating pi.",
-        "src": "import math\nprint(math.pi) # 3.141592653589793..."
+        "cap": "Approximating π — notice it is not exact.",
+        "src": "import math\nprint(math.pi)       # 3.141592653589793  (truncated)\nprint(math.sqrt(2))  # 1.4142135623730951 (truncated)"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Irrational Numbers",
+        "body": "Irrational numbers CANNOT be expressed as p/q; their decimal expansion is **infinite and non-repeating**. Examples: π ≈ 3.14159..., √2 ≈ 1.41421..., e ≈ 2.71828... Together, ℚ ∪ irrationals = ℝ. They fill the 'gaps' between rationals on the real number line."
       }
     }
   ],
   "flashcards": [
     [
       "What characterizes an irrational number's decimal expansion?",
-      "It is infinite and non-repeating."
+      "It is infinite and non-repeating — the digits never form a recurring pattern."
+    ],
+    [
+      "Is $\\sqrt{4}$ irrational?",
+      "No. $\\sqrt{4} = 2$, which is an integer and therefore rational."
+    ],
+    [
+      "Why can computers not store $\\pi$ exactly?",
+      "Memory is finite; irrational numbers have infinitely many non-repeating digits, so they must be truncated."
     ]
   ],
   "quiz": [
     {
       "q": "Which of these is irrational?",
       "opts": [
-        "22/7",
-        "sqrt(4)",
-        "sqrt(2)",
-        "1.5"
+        "$22/7$",
+        "$\\sqrt{4}$",
+        "$\\sqrt{2}$",
+        "$1.5$"
       ],
       "ans": 2,
-      "why": "sqrt(2) cannot be written as a fraction, whereas sqrt(4) is 2."
+      "why": "$\\sqrt{2} \\approx 1.41421\\ldots$ cannot be written as a fraction. $\\sqrt{4} = 2$ is an integer, and $22/7$ is a rational approximation of $\\pi$."
+    },
+    {
+      "q": "Which of these IS rational?",
+      "opts": [
+        "$\\pi$",
+        "$\\sqrt{3}$",
+        "$\\sqrt{9}$",
+        "$e$"
+      ],
+      "ans": 2,
+      "why": "$\\sqrt{9} = 3$, a whole number — therefore rational. The others are irrational."
     }
   ],
   "exam": [
@@ -400,7 +575,7 @@ C["compsci:4.5.1.4"] = {
       "marks": 2,
       "ms": [
         "They have infinite non-repeating decimal parts (1)",
-        "Computer memory is finite, so the value must be truncated or rounded (1)"
+        "Computer memory is finite, so the value must be truncated or rounded, introducing a rounding error (1)"
       ]
     }
   ]
@@ -437,6 +612,20 @@ C["compsci:4.5.1.5"] = {
         "lang": "csharp",
         "cap": "Floating point types for Real numbers.",
         "src": "double distance = 10.5;\nfloat piApprox = 3.14f;"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Real Numbers (ℝ)",
+        "body": "ℝ = ALL numbers on the continuous number line: rational + irrational. Hierarchy: ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ. Real numbers are used for **measurement** (length, weight, temperature) because measurements are continuous. Computers approximate reals using floating point (mantissa × 2^exponent)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Real Number Misconceptions",
+        "body": "**Computers can represent all real numbers** — No; computers use finite-precision floating point which can only approximate most reals. Numbers like π or √2 require infinite digits and are stored as approximations, causing rounding errors. **All decimals are irrational** — No; 0.5 (= 1/2) and 0.333... (= 1/3) are rational. Only non-terminating, non-repeating decimals are irrational."
       }
     }
   ],
@@ -503,6 +692,20 @@ C["compsci:4.5.1.6"] = {
         "cap": "Using ordinals in an array.",
         "src": "array = [\"A\", \"B\", \"C\"]\nOUTPUT array[0] # The 0th (first) element"
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Ordinal vs Cardinal Numbers",
+        "body": "**Ordinal**: describes position/rank in a sequence — 1st, 2nd, 3rd... (order matters). **Cardinal**: describes quantity — 1, 2, 3... (how many). In computing: array indices are ordinal (position 0, 1, 2...); counting elements is cardinal."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Ordinal Number Misconception",
+        "body": "**Ordinal and cardinal numbers are interchangeable** — No: cardinal numbers count quantity ('there are 3 items'); ordinal numbers indicate rank ('this is the 3rd item'). Confusing them leads to off-by-one errors — e.g., the 3rd element in a 0-indexed array is at index 2, not 3."
+      }
     }
   ],
   "flashcards": [
@@ -567,6 +770,20 @@ C["compsci:4.5.1.7"] = {
         "lang": "pseudo",
         "cap": "Discrete vs Continuous logic.",
         "src": "count = 5 # Discrete\nweight = 72.45 # Continuous"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Counting vs Measuring",
+        "body": "**Counting** uses natural/integer numbers (ℕ/ℤ) — discrete, exact. You cannot have 2.5 people. **Measuring** uses real numbers (ℝ) — continuous. Weight, height, temperature can take any value. In CS: discrete quantities → integer types; continuous quantities → floating point."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Integer Overflow Misconception",
+        "body": "**Integer types in programming can store any counting number** — No; integer types have a fixed maximum. 32-bit signed int max = 2,147,483,647. Exceed it and the value wraps around (overflow). Very large counts require 64-bit integers or big integer types. **Floating point is more precise than integers** — Integers are exact within their range; floating point introduces rounding errors."
       }
     }
   ],
@@ -671,19 +888,22 @@ C["compsci:4.5.2.1"] = {
       "steps": [
         {
           "h": "Group",
-          "n": "Split the binary string into groups of 4 bits (nibbles) starting from the right."
+          "m": "Split the binary string into groups of 4 bits (nibbles) from the right; pad with leading zeros if needed.",
+          "n": "e.g., 10110111 → 1011 | 0111"
         },
         {
           "h": "Assign Value",
-          "n": "Calculate the decimal value of each 4-bit nibble (0-15)."
+          "m": "Calculate the decimal value of each 4-bit nibble (0–15).",
+          "n": "1011 = 8+2+1 = 11, 0111 = 4+2+1 = 7"
         },
         {
           "h": "Convert",
-          "n": "Map values 10-15 to letters A-F."
+          "m": "Map values 10–15 to hex letters A–F (10=A, 11=B, 12=C, 13=D, 14=E, 15=F)."
         },
         {
           "h": "Combine",
-          "n": "Join the hex digits back together."
+          "m": "Join the hex digits left to right: the result is B7.",
+          "n": "Check: 0xB7 = 11×16 + 7 = 176 + 7 = 183 ✓"
         }
       ]
     },
@@ -699,6 +919,20 @@ C["compsci:4.5.2.1"] = {
         "lang": "csharp",
         "cap": "Literal syntax in code",
         "src": "int hexValue = 0x2F; // Base 16\nint binValue = 0b00101111; // Base 2\nint decValue = 47; // Base 10"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Number Bases",
+        "body": "**Binary (base 2)**: digits 0-1. **Octal (base 8)**: digits 0-7. **Decimal (base 10)**: digits 0-9. **Hexadecimal (base 16)**: digits 0-9, A-F. Hex in CS: 1 hex digit = 4 bits (nibble); 2 hex digits = 1 byte — compact shorthand for binary. 0xFF = 11111111 = 255."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Number Base Misconceptions",
+        "body": "**Hex is harder for computers to process than decimal** — Computers only understand binary (0/1). Hexadecimal is a HUMAN notation that maps cleanly to binary (4 bits per hex digit). Decimal is no more native to computers than hex. **A number changes value when converted between bases** — Only the representation changes; the actual value is identical. 255 in decimal = FF in hex = 11111111 in binary."
       }
     }
   ],
@@ -861,15 +1095,16 @@ C["compsci:4.5.3.1"] = {
       "steps": [
         {
           "h": "Identify Bits",
-          "n": "Determine the number of bits ($n$) available."
+          "m": "Determine the number of bits $n$ available for the representation."
         },
         {
           "h": "Apply Power",
-          "n": "Calculate $2^n$ to find total unique combinations."
+          "m": "Calculate $2^n$ to find total unique combinations/values."
         },
         {
           "h": "Subtract (if needed)",
-          "n": "For range calculations (e.g., unsigned), the max value is $2^n - 1$."
+          "m": "For the unsigned max value, subtract 1: max $= 2^n - 1$.",
+          "n": "e.g., 8-bit: $2^8 - 1 = 255$. The value 0 takes one slot."
         }
       ]
     },
@@ -878,6 +1113,20 @@ C["compsci:4.5.3.1"] = {
         "lang": "pseudo",
         "cap": "Units conversion logic",
         "src": "bits = 32\nbytes = bits / 8\nnibbles = bits / 4\nvalues = 2^bits"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Bits, Nibbles, Bytes",
+        "body": "**Bit**: 1 binary digit (0 or 1) — smallest unit. **Nibble**: 4 bits (1 hex digit). **Byte**: 8 bits — 2^8 = 256 possible values (0–255). n bits → 2^n different patterns. Data file sizes measured in bytes; larger units use powers of 2 (KiB, MiB, GiB)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Bits and Bytes Misconceptions",
+        "body": "**1 kilobyte = 1000 bytes** — In binary computing, 1 KiB (kibibyte) = 2^10 = 1,024 bytes. Hard drives use SI (KB = 1,000 bytes), which is why a '500 GB' drive appears as ~465 GiB in an OS. **Bits and bytes are the same** — A byte = 8 bits. Data rates (internet speeds) are usually in bits/second (Mbps); storage sizes are in bytes (GB)."
       }
     }
   ],
@@ -1017,15 +1266,16 @@ C["compsci:4.5.3.2"] = {
       "steps": [
         {
           "h": "Identify Target",
-          "n": "Decide if you are converting to a smaller unit (multiply) or larger unit (divide)."
+          "m": "Decide if you are converting to a smaller unit (multiply) or a larger unit (divide)."
         },
         {
           "h": "Select Factor",
-          "n": "Use 1,000 for kB/MB/GB or 1,024 for KiB/MiB/GiB."
+          "m": "Use 1,000 for decimal prefixes (kB/MB/GB) or 1,024 for binary prefixes (KiB/MiB/GiB)."
         },
         {
           "h": "Apply Math",
-          "n": "Example: 2 MiB = $2 \\times 1024$ KiB = 2048 KiB."
+          "m": "Multiply (or divide) by the factor for each prefix step.",
+          "n": "Example: 2 MiB to KiB → $2 \\times 1024 = 2048$ KiB."
         }
       ]
     },
@@ -1038,8 +1288,22 @@ C["compsci:4.5.3.2"] = {
     },
     {
       "callout": {
-        "t": "warning",
-        "body": "Pay close attention to 'kilo' vs 'kibi'. Storage manufacturers use SI (decimal), while OS usually display IEC (binary) equivalents, causing apparent discrepancies in drive size!"
+        "t": "warn",
+        "body": "Pay close attention to 'kilo' vs 'kibi'. Storage manufacturers use SI (decimal), while operating systems display IEC (binary) equivalents — a '500 GB' drive shows as ~465 GiB in Windows/macOS."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Storage Prefixes",
+        "body": "**Binary (IEC)**: KiB = 2^10 = 1,024 B; MiB = 2^20 ≈ 1.05 MB; GiB = 2^30 ≈ 1.07 GB. **SI (decimal)**: KB = 10^3 = 1,000 B; MB = 10^6; GB = 10^9. OS reports binary (GiB); drive manufacturers advertise decimal (GB) → apparent 'missing' storage. Data transfer rates use bits (Mbps, Gbps)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Prefix Misconceptions",
+        "body": "**1 megabyte = exactly 1 million bytes** — Only in SI. In binary computing, 1 MiB = 2^20 = 1,048,576 bytes. Hard drives use SI; OSes report binary, causing the apparent discrepancy. **KB and KiB mean the same thing** — KB (SI) = 1,000 bytes; KiB (binary) = 1,024 bytes. The difference matters for large storage: a 500 GB drive ≈ 465 GiB."
       }
     }
   ],
@@ -1188,15 +1452,16 @@ C["compsci:4.5.4.1"] = {
       "steps": [
         {
           "h": "Write Places",
-          "n": "Write the powers of 2 above the bits (128, 64, 32...)."
+          "m": "Above each bit, write the place value (power of 2): 128, 64, 32, 16, 8, 4, 2, 1."
         },
         {
           "h": "Filter",
-          "n": "Identify which bits are set to 1."
+          "m": "Identify which bit positions are set to 1."
         },
         {
           "h": "Sum",
-          "n": "Add the corresponding place values together."
+          "m": "Add the place values for all positions with a 1 to get the decimal result.",
+          "n": "e.g., 10010011 → 128 + 16 + 2 + 1 = 147"
         }
       ]
     },
@@ -1205,6 +1470,20 @@ C["compsci:4.5.4.1"] = {
         "lang": "pseudo",
         "cap": "Unsigned range algorithm",
         "src": "FUNCTION maxUnsigned(nBits)\n  RETURN (2^nBits) - 1\nENDFUNCTION"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Unsigned Binary",
+        "body": "n bits → values **0 to 2^n − 1**. 8 bits: 0–255. Column values right-to-left: 2^0=1, 2^1=2, 2^2=4, 2^3=8, 2^4=16, 2^5=32, 2^6=64, 2^7=128. To convert decimal→binary: repeatedly subtract the largest fitting power of 2. All n-bit combinations are valid; no sign bit."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Unsigned Binary Misconceptions",
+        "body": "**Unsigned binary can represent negative numbers** — No; unsigned binary only represents non-negative integers (0 and above). To represent negatives, use two's complement (signed). **An 8-bit unsigned number stores up to 256** — The maximum is 255 (2^8 − 1); 256 itself requires 9 bits. The range is 0–255 (256 different values)."
       }
     }
   ],
@@ -1365,19 +1644,20 @@ C["compsci:4.5.4.2"] = {
       "steps": [
         {
           "h": "Align",
-          "n": "Write the two binary numbers one above the other."
+          "m": "Write the two binary numbers vertically, aligning bit columns right-to-left."
         },
         {
           "h": "Right-to-Left",
-          "n": "Start from the Least Significant Bit (LSB)."
+          "m": "Start from the Least Significant Bit (LSB) and work left, column by column."
         },
         {
           "h": "Apply Rules",
-          "n": "Sum the bits and any carry from the previous column."
+          "m": "Sum each column including any carry from the right: 0+0=0, 0+1=1, 1+1=10 (sum 0 carry 1), 1+1+1=11 (sum 1 carry 1)."
         },
         {
           "h": "Check Overflow",
-          "n": "If a 1 is carried out of the Most Significant Bit, overflow has occurred."
+          "m": "If a 1 is carried out beyond the MSB, overflow has occurred — the result needs more bits than available.",
+          "n": "e.g., adding 11111111 + 00000001 in 8 bits produces carry beyond bit 7."
         }
       ]
     },
@@ -1393,6 +1673,20 @@ C["compsci:4.5.4.2"] = {
         "t": "warn",
         "h": "Overflow",
         "body": "Overflow occurs when the result of a calculation is too large to fit in the allocated number of bits (e.g. adding two 8-bit numbers that produce a 9-bit result)."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Binary Addition Rules",
+        "body": "0+0=0; 0+1=1; 1+0=1; **1+1=10** (sum 0, carry 1); **1+1+1=11** (sum 1, carry 1). Carry ripples left. Overflow: result requires more bits than available (carry out of the most significant bit). For subtraction: add the two's complement of the number being subtracted."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Binary Arithmetic Misconceptions",
+        "body": "**Binary addition works just like decimal addition** — The method (column-by-column, carry when sum ≥ base) is the same, but in binary the base is 2, so carrying happens immediately at 2. 1+1=2 in decimal, but 1+1=10 in binary. Not applying the correct base is the most common error. **A carry out of the MSB in signed addition means the result is correct** — In signed (two's complement) arithmetic, a carry out does NOT necessarily mean overflow; check if the sign bit of the result is wrong instead."
       }
     }
   ],
@@ -1537,15 +1831,16 @@ C["compsci:4.5.4.3"] = {
       "steps": [
         {
           "h": "Start",
-          "n": "Take the positive binary representation of the number."
+          "m": "Take the positive binary representation (magnitude) of the number."
         },
         {
           "h": "Invert",
-          "n": "Flip all bits (0 becomes 1, 1 becomes 0)."
+          "m": "Flip all bits (0 → 1, 1 → 0) to form the one's complement."
         },
         {
           "h": "Add One",
-          "n": "Add 1 to the result using binary addition."
+          "m": "Add binary 1 to the one's complement — the result is the two's complement.",
+          "n": "e.g., for -45: 00101101 → invert → 11010010 → +1 → 11010011"
         }
       ]
     },
@@ -1561,6 +1856,20 @@ C["compsci:4.5.4.3"] = {
         "t": "formula",
         "h": "Two's Complement Range",
         "body": "$-2^{n-1}$ to $2^{n-1} - 1$. (For 8 bits: -128 to 127)"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Two's Complement",
+        "body": "To negate: **flip all bits, then add 1**. Range for n bits: **-2^(n-1) to 2^(n-1) - 1**. 8-bit: -128 to 127. MSB has weight **-2^(n-1)** (negative). To decode: if MSB=1, subtract 2^n from unsigned value. Advantage: same hardware adder works for both positive and negative numbers."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Two's Complement Misconceptions",
+        "body": "**Two's complement just puts a minus sign in front of the binary** — No; it completely restructures the bit pattern. -1 in 8-bit two's complement is 11111111, not 10000001 (which is sign-magnitude). **The MSB is just a sign flag (0 or 1)** — The MSB in two's complement has a negative weight (-2^(n-1)); it contributes -128 to the value in 8-bit. It is NOT just a +/-  indicator."
       }
     }
   ],

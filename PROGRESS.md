@@ -92,11 +92,13 @@ names and DOM the views/engines/tests rely on preserved. Both smoke suites pass.
 
 Both `tools/smoke.test.js` and `tools/smoke2.test.js` now pass clean.
 
-## For Gemini — content follow-ups
-- Re-key the disabled `it:F201.5.3` case-study content onto an actual content leaf.
-- New `{code}` blocks automatically get a copy button + language tag — no action needed.
-- Reminder: every `{callout:{…}}` must close with **two** braces. Validate with
-  `node --check FILENAME` (catches the missing-brace error instantly).
+## Content enrichment push (Claude Code, 2026-06-14)
+Systematic deepening of all content files since Build 2.1. Both smoke suites pass (355 spec points, 260 deep entries).
+
+- **cs-nea.js** (new): full deep content for the AQA CS NEA section — wired into `index.html` and `compsci.js`.
+- **CS content pass**: deepened `cs-advanced`, `cs-algorithms`, `cs-algorithms-2`, `cs-architecture`, `cs-data-rep`, `cs-data-rep-2`, `cs-databases-sys`, `cs-datastructures`, `cs-networking-ethics`, `cs-programming`, `cs-theory`, `cs-theory-computation`, `cs-theory-computation-2` — added missing callouts, misconception boxes, comparison tables, code blocks, exam questions.
+- **Maths content pass**: major additions to `maths-pure.js` (+350 lines) and `maths-applied.js` (+371 lines) completing coverage of all statistics and mechanics sub-topics.
+- **IT F201.5.3 re-key**: the orphaned "Big Data Case Studies" block (Amazon anticipatory shipping, Uber surge pricing, Netflix series commissioning, AlphaFold protein prediction) was commented out because `it:F201.5.3` ("NEA Units") has `content:[]` in the generated spec and is therefore invisible to hub.js. Block merged into `it:F201.1.4` ("The purpose, importance and use of big data") where it belongs — added 2 new callouts, 3 flashcards, 1 quiz question. Smoke2 "orphan content key" check now clean.
 
 ## Claude Code backlog (app features)
 - Build 2 (gamification): Behavioural Governor (avatar, focus timer, SM-2 engine)

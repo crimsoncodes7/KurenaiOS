@@ -55,6 +55,20 @@ C["maths:S1.1"] = {
         "h": "Census vs Sample",
         "body": "A census surveys the ENTIRE population — perfectly accurate but expensive/slow/destructive. A sample is cheaper and faster but carries sampling error and risks bias."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "The Five Methods at a Glance",
+        "body": "SRS — equal chance every sample. Systematic — every $k$th + random start (random). Stratified — proportional random from strata (random). Quota — interviewer fills groups (NOT random). Opportunity — whoever available (NOT random)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Systematic is Fully Random",
+        "body": "Systematic sampling is NOT fully random — the start must be chosen randomly to qualify as probability sampling. Without it the sample is deterministic. Also: a periodic pattern in the list that matches interval $k$ biases the sample even with a random start."
+      }
     }
   ],
   "flashcards": [
@@ -150,6 +164,20 @@ C["maths:S2.1"] = {
         "t": "tip",
         "h": "Plotting Rule",
         "body": "For Cumulative Frequency, always plot at the **UPPER** class boundary and join with a smooth curve starting from the lower boundary of the first class at $y=0$."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Histogram Key Facts",
+        "body": "$\\text{FD} = \\text{Frequency} \\div \\text{Class Width}$. Area of bar $=$ frequency. CF plots at the UPPER class boundary. Start CF curve at zero on the lower boundary of the first class."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Bar Height = Frequency",
+        "body": "In a true histogram, bar HEIGHT is frequency density, NOT frequency. Two classes with the same frequency density but different widths represent different frequencies — always multiply height by width."
       }
     }
   ],
@@ -248,6 +276,20 @@ C["maths:S2.2"] = {
         "h": "Coding & PMCC",
         "body": "**Coding:** PMCC ($r$) is NOT affected by linear coding (e.g., $y = ax + b$). The correlation remains the same."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Correlation & Regression Rules",
+        "body": "$-1 \\le r \\le 1$. Only predict $y$ from $x$, not $x$ from $y$. Only interpolate (within data range). Gradient $b$ = change in $y$ per unit $x$. PMCC is unchanged by linear coding."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Correlation Implies Causation",
+        "body": "High $|r|$ does NOT mean one variable causes the other — a lurking third variable may drive both. Also: extrapolating (predicting outside data range) is unreliable regardless of how strong the correlation is."
+      }
     }
   ],
   "flashcards": [
@@ -336,6 +378,20 @@ C["maths:S2.3"] = {
         "h": "Coding Effects",
         "body": "If $y = \\frac{x - a}{b}$, then $\\bar{y} = \\frac{\\bar{x} - a}{b}$ and $\\sigma_y = \\frac{\\sigma_x}{b}$. Addition '$a$' does NOT affect spread."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Variance and Coding",
+        "body": "$\\sigma^2 = \\frac{\\sum x^2}{n} - \\bar{x}^2$. Adding constant $a$: mean shifts by $a$, $\\sigma$ unchanged. Dividing by $b$: $\\sigma_y = \\sigma_x / b$. Both together: $\\bar{y} = (\\bar{x}-a)/b$, $\\sigma_y = \\sigma_x/b$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Adding a Constant Changes SD",
+        "body": "Adding a constant to every data value shifts the MEAN but leaves the standard deviation and variance UNCHANGED — spread depends on differences between values, not their absolute size. Only scaling (multiplying/dividing) changes $\\sigma$."
+      }
     }
   ],
   "flashcards": [
@@ -402,6 +458,20 @@ C["maths:S2.4"] = {
           "n": "Any data point outside these limits is an outlier."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Outlier Rules",
+        "body": "IQR rule: outlier if $< Q_1 - 1.5\\text{IQR}$ or $> Q_3 + 1.5\\text{IQR}$. $2\\sigma$ rule: outlier if outside $\\bar{x} \\pm 2\\sigma$. Identified outliers must be INVESTIGATED before any action is taken."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Outliers Must Always Be Removed",
+        "body": "Outliers are NOT automatically removed. Investigate first: if it is a genuine extreme value (rare but real), KEEP it. Only remove if it results from a recording error, equipment fault, or corrupted data."
+      }
     }
   ],
   "flashcards": [
@@ -470,6 +540,20 @@ C["maths:S3.1"] = {
           "n": "If equal, events are independent."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "ME vs Independent — Formulae",
+        "body": "Mutually Exclusive: $P(A \\cap B) = 0$, so $P(A \\cup B) = P(A) + P(B)$. Independent: $P(A \\cap B) = P(A) \\times P(B)$, equivalently $P(A|B) = P(A)$. General union: $P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Mutually Exclusive Implies Independent",
+        "body": "ME and independence are OPPOSITES for non-trivial events. If $A$ and $B$ are ME, knowing $A$ happened means $B$ CANNOT happen — so they are dependent. Only if $P(A)=0$ or $P(B)=0$ can events be both ME and independent."
+      }
     }
   ],
   "flashcards": [
@@ -532,6 +616,20 @@ C["maths:S3.2"] = {
           "n": "The 'Universe' shrinks from $1$ to $P(B)$."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Conditional Probability Formula",
+        "body": "$P(A|B) = \\frac{P(A \\cap B)}{P(B)}$. Think: restrict the sample space to where $B$ occurred, then ask how much of that is $A$. Independence check: $P(A|B) = P(A)$ iff $A$ and $B$ independent."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$P(A|B) = P(B|A)$",
+        "body": "$P(A|B)$ and $P(B|A)$ are generally NOT equal. Confusing them is the 'prosecutor's fallacy'. Use $P(A|B) = P(A \\cap B)/P(B)$ and $P(B|A) = P(A \\cap B)/P(A)$ and check the denominators."
+      }
     }
   ],
   "flashcards": [
@@ -597,6 +695,20 @@ C["maths:S3.3"] = {
           "n": "Example: $P(\\text{Goal})$ isn't constant in football; depends on time, morale."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Model–Test–Refine Cycle",
+        "body": "1. State assumptions (fixed $p$, independence, etc.). 2. Predict using the model. 3. Compare with observed data. 4. If poor fit, identify which assumption fails and refine. Conclusions are always 'in context'."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Model is Wrong if Not Exact",
+        "body": "No probability model is a perfect description of reality — all rely on simplifying assumptions. A model is 'good' if it gives useful predictions, not if it matches exactly. A poor fit means refine the assumptions, not abandon modelling."
+      }
     }
   ],
   "flashcards": [
@@ -659,6 +771,20 @@ C["maths:S4.1"] = {
         "h": "Strictly Drop One",
         "body": "Any STRICT inequality ($<$ or $>$) shifts the boundary by $1$ for the calculator. $P(X < k) = P(X \\le k-1)$."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Binomial Conditions and Formula",
+        "body": "FTIC: Fixed $n$, Two outcomes, Independent trials, Constant $p$. Formula: $P(X=x) = \\binom{n}{x}p^x(1-p)^{n-x}$. Mean $= np$. Calculator: always use $P(X \\le k)$ form; strict inequality drops boundary by $1$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$P(X < 4) = P(X \\le 4)$",
+        "body": "For a discrete distribution, $P(X < 4) = P(X \\le 3)$, NOT $P(X \\le 4)$. 'Fewer than $4$' excludes $4$. Always translate strict inequalities before using tables or the calculator."
+      }
     }
   ],
   "flashcards": [
@@ -712,6 +838,20 @@ C["maths:S4.2"] = {
         "t": "warn",
         "h": "Continuity Correction",
         "body": "When approximating $B(n, p)$, $P(X \\le 30)$ becomes $P(Y < 30.5)$. Forgetting $\\pm 0.5$ is a standard error."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Normal Distribution Notation",
+        "body": "$X \\sim N(\\mu, \\sigma^2)$ — second parameter is VARIANCE, not SD. Standardise: $Z = (X - \\mu)/\\sigma$. Points of inflection at $\\mu \\pm \\sigma$. Symmetric: $P(X < \\mu) = 0.5$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$N(\\mu, \\sigma)$ — Second Parameter is SD",
+        "body": "In $N(\\mu, \\sigma^2)$ the second parameter is the VARIANCE $\\sigma^2$, not the standard deviation. $N(100, 25)$ has $\\sigma = 5$, not $\\sigma = 25$. Always square-root the second parameter to get $\\sigma$ before standardising."
       }
     }
   ],
@@ -768,6 +908,20 @@ C["maths:S4.3"] = {
           "n": "Crucial: Binomial is 'stairs', Normal is 'slope'. $0.5$ fills the gap."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "When to Use Each Distribution",
+        "body": "Binomial — discrete counting, fixed trials, constant $p$. Normal — continuous symmetric data. Normal approx to Binomial: need $n > 50$, $np > 5$, AND $nq > 5$; use $\\mu = np$, $\\sigma^2 = np(1-p)$, apply continuity correction $\\pm 0.5$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Large $n$ Alone Justifies Normal Approx",
+        "body": "Normal approximation to Binomial requires BOTH $np > 5$ AND $nq > 5$ — not just large $n$. If $p$ is very small (e.g. $0.01$), $np$ may be tiny even for large $n$, making the Normal a poor fit."
+      }
     }
   ],
   "flashcards": [
@@ -838,6 +992,20 @@ C["maths:S5.1"] = {
           "n": "Never use 'Prove'. Always 'evidence to suggest'."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Hypothesis Testing Language",
+        "body": "$H_0$ always uses $=$. $H_1$ uses $>$, $<$, or $\\neq$. $p$-value $< \\alpha$ → reject $H_0$. Conclude: 'There is sufficient evidence to suggest [in context].' Two-tailed: split $\\alpha$ across both tails."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "We Accept $H_0$",
+        "body": "We NEVER 'accept $H_0$' — we only 'fail to reject it'. The test only gathers evidence against $H_0$; failing to find it does not prove $H_0$ true. Also never use the word 'prove' in a conclusion."
+      }
     }
   ],
   "flashcards": [
@@ -893,6 +1061,20 @@ C["maths:S5.2"] = {
           "m": "Observed $x = 10$. $P(X \\ge 10) = 1 - P(X \\le 9) = 0.0480$."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "HEN CC Scaffold",
+        "body": "H — define $p$ in words, state $H_0$ (=) and $H_1$ ($>$/$<$/$\\neq$). E — model ($X \\sim B(n, p)$ under $H_0$). N — compute $p$-value or find CR. C — compare with $\\alpha$. C — conclude in context. Never say 'prove'."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Forgetting to Define $p$ in Words",
+        "body": "Stating '$H_0: p = 0.3$' without defining what $p$ represents loses the B1 context mark. Write 'Let $p$ be the probability that a randomly chosen [item] is [outcome]' before the hypotheses."
+      }
     }
   ],
   "flashcards": [
@@ -949,6 +1131,20 @@ C["maths:S5.3"] = {
           "n": "Always divide pop variance by $n$."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Sample Mean Distribution",
+        "body": "If $X \\sim N(\\mu, \\sigma^2)$, then $\\bar{X} \\sim N(\\mu, \\sigma^2/n)$. Standard Error $= \\sigma/\\sqrt{n}$. Test statistic: $Z = \\frac{\\bar{X} - \\mu_0}{\\sigma/\\sqrt{n}}$. Critical values: $\\pm 1.96$ (5% two-tail), $\\pm 1.6449$ (5% one-tail), $\\pm 2.3263$ (1% one-tail)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Using $\\sigma^2$ Instead of $\\sigma^2/n$",
+        "body": "The sample mean $\\bar{X}$ has variance $\\sigma^2/n$, NOT $\\sigma^2$. Using the population variance directly in the test statistic gives the wrong $Z$ value. Divide by $n$ inside the root: $\\sigma/\\sqrt{n}$, NOT $\\sigma/n$."
+      }
     }
   ],
   "flashcards": [
@@ -1017,6 +1213,20 @@ C["maths:S6.1"] = {
           "n": "Constants like $\\frac{1}{2}$ are dimensionless."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "SI Base Units in Mechanics",
+        "body": "Mass — kg. Length — m. Time — s. Velocity — $\\text{m s}^{-1}$. Acceleration — $\\text{m s}^{-2}$. Force — Newton ($\\text{N}$) $= \\text{kg m s}^{-2}$. Convert km/h: $\\div 3.6$ to get m/s."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Weight is Measured in kg",
+        "body": "Weight is a FORCE measured in Newtons ($W = mg$). Mass is measured in kg. Saying an object 'weighs $5\\text{ kg}$' is everyday language, but in mechanics weight must be in Newtons."
+      }
     }
   ],
   "flashcards": [
@@ -1068,6 +1278,20 @@ C["maths:S7.1"] = {
         "t": "info",
         "h": "Averages",
         "body": "Average Speed $= \\frac{\\text{Total Distance}}{\\text{Total Time}}$. Average Velocity $= \\frac{\\text{Total Displacement}}{\\text{Total Time}}$."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Scalar/Vector Pairs",
+        "body": "Scalar → vector: Distance → Displacement. Speed → Velocity. Mass → Weight (force). Average speed $=$ total distance $\\div$ total time. Average velocity $=$ total displacement $\\div$ total time. At rest: $v = 0$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Average Speed = Displacement / Time",
+        "body": "Average SPEED uses total DISTANCE (path length), not displacement. If you travel $50\\text{ m}$ and return $50\\text{ m}$, average speed $= 100/t$, but average velocity $= 0/t = 0$."
       }
     }
   ],
@@ -1144,6 +1368,13 @@ C["maths:S7.2"] = {
           "n": "Displacement = algebraic sum; distance = sum of absolute areas."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Area Under $v$-$t$ = Distance",
+        "body": "Area under a $v$-$t$ graph gives DISPLACEMENT (signed), NOT distance. Distance requires summing the absolute area of each section, treating regions below the axis as positive. If the particle never reverses, displacement $=$ distance."
+      }
     }
   ],
   "flashcards": [
@@ -1191,6 +1422,20 @@ C["maths:S7.3"] = {
           "n": "Gravity $a = -9.8\\text{ m s}^{-2}$ if up is positive."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "The Five suvat Equations",
+        "body": "$v = u + at$; $s = ut + \\tfrac{1}{2}at^2$; $s = \\tfrac{1}{2}(u+v)t$; $v^2 = u^2 + 2as$; $s = vt - \\tfrac{1}{2}at^2$. Valid ONLY for constant acceleration. List $s,u,v,a,t$ and pick the equation that uses 4 of the 5."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "suvat Works for Variable Acceleration",
+        "body": "suvat equations assume CONSTANT acceleration throughout. For variable acceleration you MUST use calculus ($v = ds/dt$, $a = dv/dt$). Using suvat with variable $a$ gives wrong answers."
+      }
     }
   ],
   "flashcards": [
@@ -1242,6 +1487,20 @@ C["maths:S7.4"] = {
         "h": "Distance Travelled",
         "body": "Integrate $|v(t)|$ or split integral at points where $v=0$ if particle changes direction."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Calculus Chain in Kinematics",
+        "body": "Differentiate: $s \\xrightarrow{d/dt} v \\xrightarrow{d/dt} a$. Integrate: $a \\xrightarrow{\\int} v \\xrightarrow{\\int} s$ (add $+c$ each time, use initial conditions). Integrating $v$ gives DISPLACEMENT; to get DISTANCE, split at $v=0$ and sum absolute areas."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Integrating $v$ Gives Distance",
+        "body": "Integrating $v(t)$ from $a$ to $b$ gives DISPLACEMENT (signed), not distance. If the particle changes direction, $\\int |v(t)| \\, dt$ gives distance. Missing this when the particle reverses gives an underestimate of distance."
+      }
     }
   ],
   "flashcards": [
@@ -1289,6 +1548,20 @@ C["maths:S7.5"] = {
           "n": "Time $t$ is the common link."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Projectile Motion Setup",
+        "body": "Resolve initial velocity: $u_x = u\\cos\\theta$, $u_y = u\\sin\\theta$. Horizontal: $a=0$, $x = (u\\cos\\theta)t$. Vertical: $a = -g$, use suvat. Time $t$ is the same for both components. At max height: $v_y = 0$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Horizontal Velocity Changes During Flight",
+        "body": "In standard projectile motion, horizontal velocity is CONSTANT (no air resistance, $a_x = 0$). Only vertical velocity changes due to gravity. Applying $F=ma$ horizontally gives zero net force, so $v_x = u\\cos\\theta$ throughout."
+      }
     }
   ],
   "flashcards": [
@@ -1336,6 +1609,20 @@ C["maths:S8.1"] = {
           "n": "Constant speed in straight line is equilibrium."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Newton's First Law",
+        "body": "An object remains at rest or at constant velocity UNLESS a resultant force acts. Equilibrium: $\\sum F_x = 0$ and $\\sum F_y = 0$. Constant speed in a straight line means zero resultant force — drives and resistances balance."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Constant Speed Requires a Driving Force",
+        "body": "A driving force is needed to maintain constant speed ONLY to balance resistances (friction, drag). If there were no resistances, zero net force would maintain constant speed by N1L. The driving force balances resistance, not speed."
+      }
     }
   ],
   "flashcards": [
@@ -1383,6 +1670,20 @@ C["maths:S8.2"] = {
         "h": "Sin Slides",
         "body": "On a slope, $mg\\sin\\theta$ slides it down; $mg\\cos\\theta$ presses it in."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "$F = ma$ Routine",
+        "body": "Draw diagram. Resolve forces. Apply $F_{\\text{net}} = ma$ along motion; $0$ perpendicular. On slope: $mg\\sin\\theta$ component along slope, $mg\\cos\\theta$ perpendicular (= normal reaction $R$ if smooth). Weight $= mg$ (Newtons)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Weight = Mass",
+        "body": "Weight is a FORCE: $W = mg$ in Newtons. Mass is in kg and measures inertia. Substituting mass (kg) for weight in $F = ma$ gives dimensionally wrong answers. Always convert mass to weight when needed."
+      }
     }
   ],
   "flashcards": [
@@ -1420,6 +1721,20 @@ C["maths:S8.3"] = {
         "t": "info",
         "h": "Gravity",
         "body": "$W = mg$. $g = 9.8\\text{ m/s}^2$. Acceleration under gravity alone is $a=-g$."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Weight and Gravity",
+        "body": "$W = mg$, unit: Newton. $g = 9.8\\text{ m s}^{-2}$ (use $10$ only if told). Free fall: $a = g$ downward regardless of mass. $g$ is the same for all objects (Galileo). Heavier objects do not fall faster."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Object in Free Fall Has No Weight",
+        "body": "Weight ($W = mg$) always acts on an object — it does not disappear in free fall. In free fall there is NO NORMAL REACTION, giving the sensation of weightlessness, but gravitational force ($mg$) still acts throughout."
       }
     }
   ],
@@ -1468,6 +1783,20 @@ C["maths:S8.4"] = {
           "n": "Consider whole system for $a$, single particle for $T$."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Newton's Third Law Pairs",
+        "body": "N3L pair: equal magnitude, opposite direction, same TYPE of force, act on DIFFERENT bodies. Examples: Earth pulls ball (gravity) ↔ ball pulls Earth (gravity). Connected particles: tension $T$ same throughout a light inextensible string over a smooth pulley."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Normal Reaction and Weight are N3L Pair",
+        "body": "Normal reaction ($R$) and weight ($W = mg$) are NOT a Newton's 3rd Law pair — they act on the SAME body. N3L partner of weight (Earth pulling object) is the object pulling Earth. N3L partner of $R$ is the object pushing down on the surface."
+      }
     }
   ],
   "flashcards": [
@@ -1504,6 +1833,20 @@ C["maths:S8.5"] = {
         "t": "tip",
         "h": "Vector Net",
         "body": "Net force is the vector sum of all individual forces."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Finding Resultant Force",
+        "body": "Resultant = vector sum of all forces. For two perpendicular forces: $|R| = \\sqrt{P^2 + Q^2}$, direction $\\theta = \\arctan(Q/P)$. Resolve into components, sum each axis separately, then combine."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Resultant = Sum of Magnitudes",
+        "body": "Resultant magnitude equals the sum of individual magnitudes ONLY if all forces point in the same direction. For forces at an angle, use vector addition (components or cosine rule). Two $5\\text{ N}$ forces at $90°$ give resultant $\\approx 7.07\\text{ N}$, not $10\\text{ N}$."
       }
     }
   ],
@@ -1550,6 +1893,20 @@ C["maths:S8.6"] = {
           "n": "Friction opposes motion."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Friction Model",
+        "body": "$F \\le \\mu R$. Limiting (about to slip or moving): $F = \\mu R$. Find $R$ from perpendicular equilibrium first. Friction OPPOSES motion (or tendency of motion). $\\mu$ has no units."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Friction Always Equals $\\mu R$",
+        "body": "Friction is $F = \\mu R$ ONLY at the limiting case (on the point of sliding, or already moving). When stationary and not at the limit, friction is whatever value is needed for equilibrium — which may be less than $\\mu R$."
+      }
     }
   ],
   "flashcards": [
@@ -1604,6 +1961,20 @@ C["maths:S9.1"] = {
           "n": "Weight of uniform beam acts at center."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Principle of Moments",
+        "body": "Moment $= F \\times d_{\\perp}$ (perpendicular distance), unit Nm. Equilibrium: CW moments $=$ ACW moments about ANY chosen point. Choose pivot at an unknown force to eliminate it from the equation. Weight of uniform rod acts at midpoint."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Can Only Take Moments About a Support",
+        "body": "You can take moments about ANY point on (or off) the beam — not just supports. Taking moments about a point where an unknown force acts eliminates that unknown, making it the strategic pivot choice. There is no restriction to supports or pivots."
+      }
     }
   ],
   "flashcards": [

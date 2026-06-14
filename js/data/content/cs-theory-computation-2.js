@@ -22,15 +22,15 @@ C["compsci:4.4.2.4"] = {
     { callout: { t: "tip", h: "State Transition Diagrams", body: "Transitions are typically labelled in the format `input / output`." }},
     { h: "Mealy Machine Design Process" },
     { steps: [
-      { h: "Define States", n: "Identify all possible internal states of the system." },
-      { h: "Identify Inputs", n: "Determine the alphabet of symbols the machine will receive." },
-      { h: "Map Transitions", n: "For every state-input pair, decide the next state and the output." },
-      { h: "Draw Diagram", n: "Represent states as circles and transitions as arrows with `in/out` labels." }
+      { h: "Define States", m: "Identify all possible internal states of the system (e.g., idle, processing, error)." },
+      { h: "Identify Inputs", m: "Determine the alphabet of symbols the machine will receive as input." },
+      { h: "Map Transitions", m: "For every (state, input) pair, define the next state AND the output to produce.", n: "Label each arrow: input / output" },
+      { h: "Draw Diagram", m: "Represent states as circles and transitions as labelled arrows with `input/output` format." }
     ]},
     { h: "Sets and Regular Expressions" },
     { callout: { t: "def", h: "Set and Regex Symbols", body: [
       { kv: [
-        ["Set", "An unordered collection of unique elements. Operations include union ($\$\cup$$), intersection ($\$\cap$$), difference ($\$\setminus$$), and subset ($\$\subset$$)."],
+        ["Set", "An unordered collection of unique elements. Operations include union ($\\cup$), intersection ($\\cap$), difference ($\\setminus$), and subset ($\\subset$)."],
         ["Regular Expressions (Regex)", "Define strings that belong to a regular language."],
         ["* (Asterisk)", "Zero or more occurrences of the preceding element."],
         ["+ (Plus)", "One or more occurrences of the preceding element."],
@@ -40,7 +40,9 @@ C["compsci:4.4.2.4"] = {
       ]}
     ]}},
     { code: { lang: "pseudo", cap: "Regex matching example", src:
-"# Pattern: a(b|c)+d\n# Matches: 'abd', 'acd', 'abbcd'\n# Fails: 'ad' (needs at least one b or c)" }}
+"# Pattern: a(b|c)+d\n# Matches: 'abd', 'acd', 'abbcd'\n# Fails: 'ad' (needs at least one b or c)" }},
+    { callout: { t: "memorise", h: "Mealy Machine — Key Rules", body: "Mealy machine = FSM that **produces output**. Output depends on BOTH the current state AND the current input (not just the state). Transitions labelled `input/output`. No accepting states — it is a **transducer** (transforms input to output), not a language recogniser. Used for data conversion and control systems." }},
+    { callout: { t: "miscon", h: "Mealy Machine Misconceptions", body: "**Mealy machines can recognise languages like FSAs** — No; Mealy machines are transducers that produce output strings. They have no accepting states and do not accept/reject input. FSAs without output are language recognisers. **The output of a Mealy machine depends only on the current state** — No; it depends on BOTH the current state and the current input. A machine that outputs based on state alone is called a Moore machine (not required by AQA)." }}
   ],
   flashcards: [
     ["What is a Mealy machine?", "An FSM where the output is determined by both the current state and the current input."],
@@ -65,49 +67,66 @@ C["compsci:4.4.2.4"] = {
 C["compsci:4.4.2.2"] = {
   notes: [
     { h: "State Transition Diagrams and Tables" },
-    "Finite State Machines (FSMs) are modeled using diagrams (circles for states, arrows for transitions) and tables (showing next state based on current state and input).",
     { callout: { t: "def", h: "FSM Components", body: [
       { kv: [
         ["State", "A condition or status of the system (represented as a circle)."],
-        ["Transition", "A change from one state to another (represented as an arrow)."],
-        ["Accept State", "A state indicating the input is valid (represented as a double circle)."]
+        ["Start State", "The state the machine begins in (marked with an incoming unattached arrow)."],
+        ["Accept State", "A state indicating the input is valid (represented as a double circle)."],
+        ["Transition", "A change from one state to another based on an input symbol (represented as a labelled arrow)."]
       ]}
     ]}},
-    { code: { lang: "pseudo", cap: "A transition table representation.", src:
-"# Current State | Input | Next State\n# S0            | 0     | S0\n# S0            | 1     | S1\n# S1            | 0     | S1\n# S1            | 1     | S0" }}
+    { callout: { t: "tip", h: "Diagram vs Table — both are examined", body: "State transition diagrams show the same information as transition tables, just visually. The table has rows for each state and columns for each input — each cell is the next state." }},
+    { code: { lang: "pseudo", cap: "Transition table for FSM accepting even number of 1s (input alphabet {0,1}).", src:
+"# Current State | Input 0 | Input 1\n# S0 (start, ✓) | S0      | S1\n# S1             | S1      | S0\n#\n# S0 = even count of 1s seen (accept)\n# S1 = odd count of 1s seen" }},
+    { callout: { t: "memorise", h: "Exam checklist for FSM diagrams", body: "1. Every state has a circle.\n2. Start state has an incoming arrow from nowhere.\n3. Accepting state(s) have double circles.\n4. Every (state, input) pair has exactly one arrow (determinism).\n5. All transitions are labelled." }},
+    { callout: { t: "miscon", h: "\"Accept state = final state reached\"", body: "A machine only accepts if it ends in an accepting state after ALL input is consumed. Passing through an accepting state mid-string does not count as acceptance." }}
   ],
   flashcards: [
-    ["How is an accept state represented in a state transition diagram?", "By a double circle."]
+    ["How is an accept state represented in a state transition diagram?", "By a double circle."],
+    ["How is the start state marked?", "By an incoming arrow that has no source state."],
+    ["When is a string accepted by an FSM?", "When ALL input is consumed and the machine is in an accepting state."],
+    ["What information does a transition table encode?", "For every (current state, input) pair, the next state the machine moves to."],
+    ["What does determinism mean for an FSM?", "Exactly one transition exists for every (state, input) pair — no ambiguity."]
   ],
   quiz: [
-    { q: "What does an arrow between two states represent?", opts: ["A data store", "A transition", "An accept condition", "A halt"], ans: 1, why: "Arrows show how the machine moves between states based on input." }
+    { q: "What does an arrow between two states represent?", opts: ["A data store", "A transition on a given input", "An accept condition", "A halt"], ans: 1, why: "Arrows show how the machine moves between states based on input." },
+    { q: "An FSM accepts input '101'. It must be in an accepting state…", opts: ["after reading '1'", "after reading '10'", "after reading '101' — when all input is consumed", "whenever it enters an accepting state"], ans: 2, why: "Acceptance requires ALL input consumed AND current state is accepting." },
+    { q: "A transition table with 3 states and alphabet {a, b} has how many cells (excluding headers)?", opts: ["3", "6", "9", "12"], ans: 1, why: "3 states × 2 input symbols = 6 (state, input) pairs." }
   ],
   exam: [
-    { q: "Draw a state transition table for an FSM that accepts strings with an even number of '1's.", marks: 4, ms: ["Correct states S0 (Even) and S1 (Odd) (1)", "Input 0 stays in current state (1)", "Input 1 toggles between S0 and S1 (1)", "S0 marked as start and accept state (1)"] }
+    { q: "Draw a state transition table for an FSM that accepts binary strings containing an even number of 1s.", marks: 4, ms: ["States S0 (even count, start, accept) and S1 (odd count) identified (1)", "Input 0 leaves both states unchanged: S0→S0, S1→S1 (1)", "Input 1 toggles: S0→S1, S1→S0 (1)", "S0 correctly marked as start and only accept state (1)"] }
   ]
 };
 
 C["compsci:4.4.2.3"] = {
   notes: [
-    { h: "Mealy Machines" },
-    "A Mealy machine is an FSM where the output is determined by both the current state and the current input. This makes them useful for mapping inputs to outputs.",
-    { callout: { t: "def", h: "Mealy Machine", body: [
+    { h: "Mealy Machines as Transducers" },
+    { callout: { t: "def", h: "Mealy Machine vs FSA", body: [
       { kv: [
-        ["Output", "Generated during the transition (represented as input/output on the arrow)."],
-        ["Use Case", "Controllers, encoders, and simple translators."]
+        ["FSA (acceptor)", "Reads input, ends in accept/reject. No output produced during computation."],
+        ["Mealy machine (transducer)", "Reads input AND produces an output string. Output on each transition, labelled input/output."],
+        ["Use cases", "Binary inverter, simple cipher, traffic light controller, protocol encoder."]
       ]}
     ]}},
-    { code: { lang: "pseudo", cap: "Mealy machine logic for a binary inverter.", src:
-"IF state == S0 AND input == '1' THEN\n    output = '0'\n    nextState = S0\nELSE IF state == S0 AND input == '0' THEN\n    output = '1'\n    nextState = S0\nENDIF" }}
+    { callout: { t: "tip", h: "Reading transition labels", body: "An arrow labelled `0/1` means: **if the current input is 0**, produce output **1** and move to the next state. The slash separates input from output." }},
+    { code: { lang: "pseudo", cap: "Mealy machine logic for a binary inverter (single state S0).", src:
+"# State S0 (only state)\n# Transition: 0/1  (input 0 → output 1)\n# Transition: 1/0  (input 1 → output 0)\n#\n# Input:  0 1 1 0 1\n# Output: 1 0 0 1 0" }},
+    { callout: { t: "memorise", h: "Mealy vs Moore (for context)", body: "AQA only requires Mealy machines. In a **Mealy** machine output depends on the transition (state + input). In a **Moore** machine output depends only on the state. Mealy machines typically need fewer states." }},
+    { callout: { t: "miscon", h: "\"Mealy machines accept/reject strings\"", body: "Mealy machines are **transducers**, not acceptors. They don't have accepting states — they simply produce an output symbol for every input symbol they read." }}
   ],
   flashcards: [
-    ["What defines the output of a Mealy machine?", "Both the current state and the current input."]
+    ["What defines the output of a Mealy machine?", "Both the current state and the current input (the transition)."],
+    ["How are Mealy machine transitions labelled?", "input/output — e.g. '0/1' means input 0, produce output 1."],
+    ["What is the key difference between a Mealy machine and an FSA?", "An FSA accepts or rejects; a Mealy machine produces an output string (it's a transducer, not an acceptor)."],
+    ["Give a real-world example of a Mealy machine.", "A binary inverter, a simple cipher, or a traffic light controller."]
   ],
   quiz: [
-    { q: "In a Mealy machine diagram, what does '0/1' on a transition arrow mean?", opts: ["Input 0 OR 1", "Input 0, Output 1", "State 0 to 1", "Divide 0 by 1"], ans: 1, why: "The format is 'input / output'." }
+    { q: "In a Mealy machine diagram, what does '0/1' on a transition arrow mean?", opts: ["Input 0 OR 1", "Input 0, Output 1", "State 0 to 1", "Divide 0 by 1"], ans: 1, why: "The format is 'input / output'." },
+    { q: "A Mealy machine processes input '110'. How many output symbols does it produce?", opts: ["0", "1", "3", "Depends on the number of states"], ans: 2, why: "One output per input symbol — 3 inputs → 3 outputs, regardless of state count." },
+    { q: "Which of these CANNOT be modelled by a Mealy machine?", opts: ["A binary inverter", "A toll gate controller", "Recognising if a string has equal 0s and 1s", "A traffic light sequence"], ans: 2, why: "Equal count requires unbounded memory — no finite state machine (Mealy or otherwise) can do this." }
   ],
   exam: [
-    { q: "Explain the difference between a Finite State Automaton and a Mealy Machine.", marks: 2, ms: ["FSA only accepts or rejects strings (1)", "Mealy Machine generates an output for every transition (1)"] }
+    { q: "Explain the difference between a Finite State Automaton and a Mealy Machine.", marks: 3, ms: ["An FSA (acceptor) reads input and ends in an accept or reject state (1)", "A Mealy machine (transducer) produces an output symbol for each input symbol consumed (1)", "Mealy transition labels show both input AND output (e.g. 0/1); FSA labels show only input (1)"] }
   ]
 };
 
@@ -130,10 +149,10 @@ C["compsci:4.4.4.1"] = {
     }},
     { h: "The Turing Machine Operation" },
     { steps: [
-      { h: "Read Symbol", n: "The head reads the symbol from the current cell on the tape." },
-      { h: "Check Rules", n: "The FSM looks up the current state and the read symbol in the transition table." },
-      { h: "Write & Move", n: "The machine writes a new symbol, moves the head (Left, Right, or Stay), and enters a new state." },
-      { h: "Halt", n: "The process repeats until the machine enters a defined 'Halt' state." }
+      { h: "Read Symbol", m: "The read/write head reads the symbol from the current cell on the tape." },
+      { h: "Check Rules", m: "The FSM looks up the (current state, read symbol) pair in the transition table to find the applicable rule." },
+      { h: "Write & Move", m: "The machine writes a new symbol to the current cell, moves the head Left or Right (or stays), and transitions to a new state.", n: "All three actions happen atomically in one step." },
+      { h: "Halt", m: "The machine repeats until it enters a defined Halt state — either accept or reject." }
     ]},
     { code: { lang: "pseudo", cap: "A transition rule entry: (Current State, Symbol) -> (New State, Write Symbol, Direction)", src:
 "(S0, '1') -> (S1, '0', R)\n# If in state S0 and see a '1', change to S1, write '0', move head Right." }},
@@ -146,7 +165,8 @@ C["compsci:4.4.4.1"] = {
         ["Intractable Problem", "A problem that has a theoretical solution, but takes an unreasonable (exponential or factorial) amount of time to solve for large inputs, e.g., $O(2^n)$ or $O(n!)$."],
         ["Heuristic", "An approach to problem-solving that uses a practical method to find a 'good enough' approximate solution in a reasonable time, often used for intractable problems."]
       ]}
-    ]}}
+    ]}},
+    { callout: { t: "miscon", h: "Turing Machine Misconceptions", body: "**A Turing machine can only READ its tape** — No; a Turing machine can READ, WRITE (overwrite symbols), and MOVE the head (left or right) on the tape. The write ability is what makes TMs more powerful than FSAs or PDAs. **A Turing machine must always halt** — No; TMs may loop forever. Whether a given TM halts on a given input is the Halting Problem — proved undecidable by Turing." }}
   ],
   flashcards: [
     ["What are the components of a Turing Machine?", "A finite state machine, an infinitely long tape divided into cells, and a read/write head."],
@@ -170,48 +190,72 @@ C["compsci:4.4.4.1"] = {
 C["compsci:4.4.4.2"] = {
   notes: [
     { h: "Universal Turing Machines (UTM)" },
-    "A UTM is a Turing machine that can simulate any other Turing machine. It reads the description of the machine to be simulated (the program) and the input data from its own tape.",
     { callout: { t: "def", h: "The UTM Concept", body: [
       { kv: [
-        ["Stored-Program Computer", "The UTM is the theoretical basis for modern computers where programs and data are stored in the same memory."],
-        ["Interpreter", "A UTM acts like an interpreter, executing the rules defined on its tape."]
+        ["UTM", "A Turing machine that can simulate any other Turing machine by reading its description (transition rules) and input data from its own tape."],
+        ["Stored-Program Computer", "The UTM is the theoretical basis for modern computers — both the program (rules) and data are stored in the same memory (the tape)."],
+        ["Interpreter analogy", "A UTM acts like an interpreter: it reads instructions (the encoded machine) and executes them step by step."]
       ]}
     ]}},
+    { callout: { t: "tip", h: "UTM and the stored-program concept", body: "Von Neumann architecture stores both program instructions and data in the same memory — exactly how a UTM's tape holds both the machine's transition table and the data it operates on. Turing's theoretical model predates the physical computer." }},
     { code: { lang: "pseudo", cap: "Conceptual UTM 'Fetch-Execute' loop.", src:
-"WHILE machine_not_halted:\n    rule = findRule(tape_program, current_state, tape_data_symbol)\n    execute(rule)\nENDWHILE" }}
+"WHILE machine_not_halted:\n    symbol = readDataSection(tape)\n    rule = findRule(tape_program, current_state, symbol)\n    writeToDataSection(tape, rule.write_symbol)\n    moveHead(rule.direction)\n    current_state = rule.next_state\nENDWHILE" }},
+    { callout: { t: "memorise", h: "What the UTM tape holds", body: "**Program section**: the encoded transition rules of the Turing machine being simulated.\n**Data section**: the actual input that the simulated machine would process.\n\nThe UTM reads a rule from the program section and applies it to the data section." }},
+    { callout: { t: "miscon", h: "\"A UTM is more powerful than other Turing machines\"", body: "A UTM is NOT computationally more powerful — it cannot solve problems that are uncomputable. Its significance is **universality**: one machine that can behave like any other, making general-purpose computing possible." }}
   ],
   flashcards: [
-    ["What is a Universal Turing Machine?", "A Turing machine that can simulate any other Turing machine given its description."]
+    ["What is a Universal Turing Machine?", "A Turing machine that can simulate any other Turing machine given its encoded description and input on its tape."],
+    ["What does a UTM's tape contain?", "The encoded transition rules of the machine to be simulated (program section) and the input data (data section)."],
+    ["Which modern concept does the UTM underpin?", "The stored-program computer — programs and data stored in the same memory."],
+    ["Is a UTM more computationally powerful than other Turing machines?", "No — it can simulate any TM, but cannot solve problems that are uncomputable. Power is in universality, not capability."]
   ],
   quiz: [
-    { q: "The UTM is the theoretical model for which modern concept?", opts: ["Object-oriented programming", "Stored-program computers", "Networking", "Artificial Intelligence"], ans: 1, why: "It treats programs as data on the tape." }
+    { q: "The UTM is the theoretical model for which modern concept?", opts: ["Object-oriented programming", "Stored-program computers", "Networking", "Artificial Intelligence"], ans: 1, why: "Programs and data on the same tape maps directly to programs and data in the same memory." },
+    { q: "A UTM simulates machine M by reading M's…", opts: ["output", "encoded transition rules and input data from its own tape", "RAM contents", "operating system"], ans: 1, why: "The UTM tape contains both M's description (rules) and M's data." },
+    { q: "Which statement about a UTM's power is correct?", opts: ["It can solve all problems, including the Halting problem", "It cannot solve problems that are uncomputable by any Turing machine", "It is slower than specific TMs", "It requires more tape than other TMs"], ans: 1, why: "Universality means 'simulate anything'; it does NOT mean 'compute everything'." }
   ],
   exam: [
-    { q: "Describe how a UTM simulates another Turing machine.", marks: 3, ms: ["The UTM tape contains the transition rules of the machine to be simulated (1)", "It also contains the initial data for that machine (1)", "The UTM reads a rule, performs the action on the data section of its tape, and updates its simulated state (1)"] }
+    { q: "Describe how a UTM simulates another Turing machine, and explain why this is significant for modern computing.", marks: 4, ms: ["The UTM tape contains the encoded transition rules (description) of the machine to be simulated (1)", "It also contains the initial input data for that machine (1)", "The UTM reads a rule from the description, applies it to the data section (write symbol, move head, change state) (1)", "Significance: models the stored-program concept — one physical computer can run any program by loading different instructions into memory (1)"] }
   ]
 };
 
 C["compsci:4.4.4.3"] = {
   notes: [
     { h: "The Halting Problem" },
-    "The Halting problem asks: 'Can we write a program that can determine, for any given program and input, whether it will eventually stop or run forever?' Alan Turing proved this is impossible.",
     { callout: { t: "def", h: "The Halting Problem", body: [
       { kv: [
-        ["Computability", "It defines the limits of what can be computed."],
-        ["Undecidable", "There is no algorithm that can solve the halting problem for all possible inputs."]
+        ["The question", "Can we write a program H(program, input) that correctly determines, for any program and input, whether it will eventually halt or loop forever?"],
+        ["Turing's answer (1936)", "No. The Halting Problem is **undecidable** — no such algorithm can exist for all possible (program, input) pairs."],
+        ["Significance", "Proves there are inherent limits to what any computer can compute, regardless of hardware or time."]
       ]}
     ]}},
-    { code: { lang: "python", cap: "The logic of the proof (Self-reference).", src:
-"def H(program, input): # Theoretical decider\n    pass \n\ndef Paradox(x):\n    if H(x, x) == 'halts':\n        while True: pass # Loop forever\n    else:\n        return # Halt" }}
+    { callout: { t: "tip", h: "The proof by contradiction", body: "Assume H exists. Build Paradox(x): if H says x(x) halts, Paradox loops; if H says x(x) loops, Paradox halts. Feed Paradox to itself — both outcomes are contradictions. So H cannot exist." }},
+    { code: { lang: "python", cap: "The self-referential paradox (illustrative — H cannot actually be written).", src:
+"def H(program, input): # Theoretical decider — assumed to exist\n    pass \n\ndef Paradox(x):\n    if H(x, x) == 'halts':\n        while True: pass  # Loop forever — contradiction!\n    else:\n        return           # Halt — contradiction!\n\n# Paradox(Paradox) creates an irresolvable self-reference" }},
+    { callout: { t: "memorise", h: "Key vocabulary", body: [
+      { kv: [
+        ["Decidable", "A problem is decidable if an algorithm always gives the correct yes/no answer in finite time."],
+        ["Undecidable", "A problem for which no such algorithm can exist — the Halting Problem is the classic example."],
+        ["Non-computable", "A problem that cannot be solved by any Turing machine / any computer ever."]
+      ]}
+    ]}},
+    { callout: { t: "warn", h: "Scope of the result", body: "The Halting Problem result does NOT say that we can't tell if some specific programs halt — we can. It says we can't build one algorithm that works correctly for ALL programs. Specific programs can be individually analysed." }},
+    { callout: { t: "miscon", h: "Halting Problem Misconceptions", body: "**We cannot tell if any specific program will halt** — We can and often do for specific programs by inspection. The undecidability result means we cannot build ONE algorithm that correctly determines halting for ALL programs. **The Halting Problem is just a difficult but solvable problem** — It is provably UNCOMPUTABLE (non-decidable) — no Turing machine (or computer program) can ever solve it in general, not merely difficult." }}
   ],
   flashcards: [
-    ["Is the Halting problem decidable?", "No, it is undecidable."]
+    ["Is the Halting problem decidable?", "No — it is undecidable. No algorithm can correctly decide for ALL (program, input) pairs."],
+    ["Who proved the Halting problem is undecidable, and when?", "Alan Turing, in 1936."],
+    ["What does the Halting Problem prove about computation?", "That there are inherent limits — some problems cannot be solved by any algorithm on any computer."],
+    ["What technique does Turing's proof use?", "Proof by contradiction — assuming the halting decider exists and constructing a program that paradoxically contradicts it."],
+    ["What is the difference between undecidable and intractable?", "Undecidable: no algorithm can ever exist. Intractable: an algorithm exists but is too slow to be practical."]
   ],
   quiz: [
-    { q: "Who proved the Halting problem is undecidable?", opts: ["Von Neumann", "Alan Turing", "Ada Lovelace", "Claude Shannon"], ans: 1, why: "Turing proved it in 1936 using the concept of a Turing Machine." }
+    { q: "Who proved the Halting problem is undecidable?", opts: ["Von Neumann", "Alan Turing", "Ada Lovelace", "Claude Shannon"], ans: 1, why: "Turing proved it in 1936 using self-referential paradox and Turing machine theory." },
+    { q: "The Halting problem is best described as…", opts: ["intractable — solvable but too slow", "undecidable — no algorithm can solve it for all inputs", "NP-complete — verifiable in polynomial time", "decidable with the right hardware"], ans: 1, why: "Undecidable means no algorithm exists at all, not just that it's slow." },
+    { q: "Turing's proof that H cannot exist relies on…", opts: ["measuring execution time", "a self-referential program that creates a logical paradox", "exhaustive testing of all programs", "quantum computing"], ans: 1, why: "Paradox(Paradox) creates a contradiction under either assumption about H's output." }
   ],
   exam: [
-    { q: "Explain the significance of the Halting problem in computer science.", marks: 2, ms: ["It proves that there are some problems that cannot be solved by any computer (1)", "It establishes a theoretical limit to computation (1)"] }
+    { q: "Explain the significance of the Halting problem in computer science.", marks: 3, ms: ["It proves there are problems that cannot be solved by any computer, regardless of speed or memory (1)", "It establishes a theoretical limit to computation — some questions are undecidable (1)", "Proved by Turing in 1936 using proof by contradiction: any hypothetical decider H leads to a self-referential paradox (1)"] }
   ]
 };
 
@@ -221,97 +265,137 @@ C["compsci:4.4.4.4"] = {
     "Algorithms are classified by how their resource usage (time or space) grows as the input size ($n$) increases.",
     { callout: { t: "def", h: "Complexity Classes", body: [
       { kv: [
-        ["Constant", "$$O(1)$$ - Time does not change with $n$."],
-        ["Logarithmic", "$O(\\log n)$ - Time increases slowly (e.g. Binary Search)."],
-        ["Polynomial", "$$O(n^k)$$ - Tractable (e.g. $$O(n^2)$$ Bubble Sort)."],
-        ["Exponential", "$O(k^n)$ - Intractable."]
+        ["Constant", "$O(1)$ — Time does not change with $n$."],
+        ["Logarithmic", "$O(\\log n)$ — Time increases slowly (e.g. Binary Search)."],
+        ["Polynomial", "$O(n^k)$ — Tractable (e.g. $O(n^2)$ Bubble Sort)."],
+        ["Exponential", "$O(k^n)$ — Intractable. Doubles with each step increase."]
       ]}
     ]}},
     { code: { lang: "pseudo", cap: "Growth rates comparison.", src:
-"# For n=100:\n# O(n)   = 100 operations\n# $O(n^2)$ = 10,000 operations\n# $O(2^n)$ = 1.26 x 10^30 operations (Impossible)" }}
+"# For n=100:\n# O(n)   = 100 operations\n# $O(n^2)$ = 10,000 operations\n# $O(2^n)$ = 1.26 x 10^30 operations (Impossible)" }},
+    { callout: { t: "memorise", h: "Big O Complexity Classes", body: "**O(1)** constant — same time regardless of n. **O(log n)** logarithmic — binary search. **O(n)** linear — linear search. **O(n²)** polynomial — bubble sort, insertion sort. **O(2^n)** exponential — brute-force subset enumeration. **Tractable**: O(n^k) polynomial (manageable). **Intractable**: O(2^n) or worse (impractical for large n)." }},
+    { callout: { t: "miscon", h: "Big O Misconceptions", body: "**Big O measures actual execution time** — No; Big O describes how the time SCALES with input size n, not the absolute duration. The same O(n²) algorithm runs in completely different actual times on different hardware. **O(n²) is always slower than O(n log n)** — For very small n, O(n²) may be faster due to lower constants. Big O describes asymptotic (large n) behaviour." }}
   ],
   flashcards: [
     ["What is the Big O complexity of a binary search?", "$O(\\log n)$"]
   ],
   quiz: [
-    { q: "Which of these is considered a 'tractable' complexity?", opts: ["$$O(2^n)$$", "$$O(n!)$$", "$$O(n^3)$$", "$O(n^n)$"], ans: 2, why: "Polynomial time algorithms are generally considered tractable." }
+    { q: "Which of these is considered a 'tractable' complexity?", opts: ["$O(2^n)$", "$O(n!)$", "$O(n^3)$", "$O(n^n)$"], ans: 2, why: "Polynomial time algorithms are generally considered tractable — they scale reasonably as $n$ grows." }
   ],
   exam: [
-    { q: "Explain why $$O(2^n)$$ is considered intractable.", marks: 2, ms: ["As $n$ increases, the time taken grows so rapidly that it becomes impossible to solve for even moderate $n$ (1)", "Adding one to $n$ doubles the time required (1)"] }
+    { q: "Explain why $O(2^n)$ is considered intractable.", marks: 2, ms: ["As $n$ increases, the time taken grows so rapidly that it becomes impossible to solve for even moderate $n$ (1)", "Adding one to $n$ doubles the time required (1)"] }
   ]
 };
 
 C["compsci:4.4.4.5"] = {
   notes: [
     { h: "Intractable Problems" },
-    "An intractable problem is one for which no polynomial-time algorithm exists to find an exact solution. They require exponential or factorial time.",
-    { callout: { t: "def", h: "Handling Intractability", body: [
+    { callout: { t: "def", h: "Key Definitions", body: [
       { kv: [
-        ["Heuristics", "Using 'rules of thumb' to find a 'good enough' solution quickly."],
-        ["Approximation", "Algorithms that find a solution within a certain range of the optimal."]
+        ["Intractable problem", "A problem for which an algorithm exists, but it runs in super-polynomial (exponential or factorial) time — impractical for large inputs."],
+        ["Heuristic", "A practical rule-of-thumb technique that finds a 'good enough' approximate solution in polynomial time, when an exact solution is too slow."],
+        ["Approximation algorithm", "Finds a solution provably within a known factor of the optimal answer (e.g., within 10%)."]
       ]}
     ]}},
-    { code: { lang: "pseudo", cap: "A heuristic for Traveling Salesman (Nearest Neighbor).", src:
-"currentCity = startCity\nWHILE unvisitedCities:\n    next = findClosest(currentCity)\n    moveTo(next)\nENDWHILE" }}
+    { callout: { t: "warn", h: "Intractable ≠ Impossible", body: "An intractable problem HAS an algorithm — it's just too slow for large $n$. A problem with NO algorithm at all (like the Halting Problem) is **uncomputable**, which is a strictly stronger statement." }},
+    { code: { lang: "pseudo", cap: "Nearest Neighbour heuristic for Travelling Salesman Problem.", src:
+"currentCity = startCity\nvisited = {startCity}\nWHILE unvisitedCities NOT empty:\n    next = nearestUnvisited(currentCity)\n    addToTour(next)\n    visited.add(next)\n    currentCity = next\nENDWHILE\nreturnToStart()\n# Runs in O(n^2) — fast, but NOT guaranteed optimal" }},
+    { callout: { t: "tip", h: "TSP — why it's intractable", body: "The Travelling Salesman Problem has $(n-1)!/2$ possible routes. For $n=20$: ~60 trillion routes. Even at $10^{10}$ checks/second that's over 6,000 seconds. Adding one city doubles-plus the problem." }},
+    { callout: { t: "miscon", h: "\"Heuristics always find a nearly-optimal solution\"", body: "A heuristic can sometimes find the optimal solution and sometimes produce a very poor one. Its advantage is **speed and predictability of time**, not guaranteed quality. It's 'good enough' in practice, not theoretically bounded like an approximation algorithm." }},
+    { callout: { t: "memorise", h: "Dealing with Intractable Problems", body: "Intractable problems have solutions but are impractical for large n (exponential or factorial time). Practical approaches: **Heuristics** — fast algorithms that find a good (not necessarily optimal) solution. **Probabilistic algorithms** — near-optimal with high probability. **Approximation algorithms** — guaranteed within a factor of optimal. Classic example: Travelling Salesman Problem (TSP) = O((n−1)!) brute force." }}
   ],
   flashcards: [
-    ["How do we solve intractable problems in practice?", "Using heuristics to find approximate solutions."]
+    ["How do we solve intractable problems in practice?", "Using heuristics that find approximate solutions in polynomial time."],
+    ["What is the key difference between intractable and uncomputable?", "Intractable: an algorithm exists but is too slow. Uncomputable: no algorithm can ever exist."],
+    ["Give an example of an intractable problem.", "The Travelling Salesman Problem (TSP) — exact solution is O((n-1)!/2)."],
+    ["What does a Nearest Neighbour heuristic for TSP do?", "At each step, moves to the closest unvisited city — fast but not guaranteed optimal."],
+    ["Why can't faster hardware solve intractable problems?", "Doubling speed only adds one extra city to what's feasible — the factorial/exponential growth overwhelms any hardware improvement."]
   ],
   quiz: [
-    { q: "Which problem is a classic example of intractability?", opts: ["Sorting a list", "Finding a name in a phone book", "The Traveling Salesman Problem", "Calculating average"], ans: 2, why: "TSP requires checking $(n-1)!/2$ paths for an exact solution." }
+    { q: "Which problem is a classic example of intractability?", opts: ["Sorting a list", "Finding a name in a phone book", "The Travelling Salesman Problem", "Calculating an average"], ans: 2, why: "TSP requires checking $(n-1)!/2$ paths for an exact solution — factorial time." },
+    { q: "An intractable problem differs from an uncomputable one because…", opts: ["intractable problems have no algorithm", "intractable problems have an algorithm but it is too slow for large n", "uncomputable problems are just slow", "they are the same"], ans: 1, why: "Intractable = algorithm exists, just impractical. Uncomputable = no algorithm possible at all." },
+    { q: "A heuristic approach to an intractable problem guarantees…", opts: ["the optimal solution", "a fast, approximately good solution", "a provably bounded approximation", "no solution in polynomial time"], ans: 1, why: "Heuristics trade optimality for speed — 'good enough, fast' not 'best, slow'." }
   ],
   exam: [
-    { q: "Explain the role of a heuristic in solving intractable problems.", marks: 2, ms: ["It provides a fast, approximate solution (1)", "Where an exact solution would take too long to compute (1)"] }
+    { q: "Explain the role of a heuristic in solving intractable problems. Use the Travelling Salesman Problem as an example.", marks: 4, ms: ["An intractable problem has a solution but it requires exponential/factorial time — not practical for large inputs (1)", "A heuristic provides a fast, approximate solution in polynomial time (1)", "Example: TSP — exact brute force is O((n-1)!/2), impractical for large n (1)", "Nearest Neighbour heuristic: always go to the closest unvisited city — runs in O(n²) but result may not be optimal (1)"] }
   ]
 };
 
 C["compsci:4.4.4.6"] = {
   notes: [
     { h: "P and NP Problems" },
-    "Problems are categorized based on the difficulty of finding vs. verifying a solution.",
     { callout: { t: "def", h: "P vs NP", body: [
       { kv: [
-        ["P", "Problems that can be **solved** in polynomial time."],
-        ["NP", "Problems whose solutions can be **verified** in polynomial time, even if finding them takes longer."]
+        ["P", "Class of problems that can be **solved** in polynomial time. E.g. sorting, searching, shortest path."],
+        ["NP", "Class of problems whose solutions can be **verified** in polynomial time, even if finding them may take exponential time. E.g. Travelling Salesman, Sudoku, factoring."],
+        ["NP-complete", "The hardest problems in NP — if ANY NP-complete problem has a polynomial solution, ALL of NP does."],
+        ["P = NP?", "The million-dollar open question. Most researchers believe P ≠ NP."]
       ]}
     ]}},
-    { code: { lang: "pseudo", cap: "Verification is easier than solving.", src:
-"# Finding factors of a huge number (Hard - NP)\n# Verifying if X * Y == Target (Easy - P)" }}
+    { callout: { t: "tip", h: "Solving vs Verifying", body: "For NP problems: **verifying** a given solution is easy (polynomial); **finding** a solution from scratch is hard (potentially exponential). Think Sudoku: checking a completed grid is fast; filling a blank grid is slow." }},
+    { code: { lang: "pseudo", cap: "Verification vs solving — RSA factoring example.", src:
+"# Solving: Find p, q such that p * q = N\n# (Hard for large N — NP difficulty)\n#\n# Verifying: Check if p * q == N\n# (Easy — one multiplication, O(1))\n#\n# This asymmetry is the basis of RSA encryption" }},
+    { callout: { t: "memorise", h: "P ⊆ NP", body: "Every problem in P is also in NP — if you can solve it in polynomial time, you can verify it in polynomial time too. P is a subset of NP. The question is whether NP contains problems outside P." }},
+    { callout: { t: "warn", h: "Cryptographic importance", body: "If P = NP were proved, most public-key encryption (RSA, ECC) would collapse overnight — the hardness of factoring and discrete logarithms would evaporate. This is why the question matters beyond pure theory." }},
+    { callout: { t: "miscon", h: "P vs NP Misconceptions", body: "**P and NP are known to be different classes** — No; P vs NP is one of the greatest unsolved problems in mathematics. It is not proven whether P = NP or P ≠ NP. Most computer scientists believe P ≠ NP. **NP stands for 'non-polynomial'** — No; NP stands for 'Nondeterministic Polynomial time' — problems where a PROPOSED SOLUTION can be verified in polynomial time, even if finding the solution may not be." }}
   ],
   flashcards: [
-    ["What does P stand for?", "Polynomial time."],
-    ["What does NP stand for?", "Nondeterministic Polynomial time."]
+    ["What does P stand for?", "Polynomial time — problems solvable in polynomial time."],
+    ["What does NP stand for?", "Nondeterministic Polynomial time — problems verifiable in polynomial time."],
+    ["Is P a subset of NP?", "Yes — every problem solvable in polynomial time can also be verified in polynomial time."],
+    ["What would P = NP imply?", "All NP problems (including currently hard ones) could be solved in polynomial time — encryption would break."],
+    ["Give an example that illustrates the P vs NP distinction.", "Sudoku: verifying a solution is fast; finding one from scratch is slow (NP-complete)."]
   ],
   quiz: [
-    { q: "If P = NP, what would that imply?", opts: ["Verification is hard", "Finding solutions is as easy as verifying them", "Computers are broken", "Encryption is safer"], ans: 1, why: "It would mean all NP problems have polynomial time solutions." }
+    { q: "If P = NP, what would that imply?", opts: ["Verification is hard", "Finding solutions is as easy as verifying them", "Computers are broken", "Encryption is safer"], ans: 1, why: "It would mean all NP problems have polynomial time solutions — a dramatic result." },
+    { q: "A problem is in NP if…", opts: ["it can be solved in polynomial time", "a solution can be verified in polynomial time", "it has no algorithm", "it requires exponential time to verify"], ans: 1, why: "NP = verifiable in polynomial time. NP doesn't say solving is hard — just that verifying is fast." },
+    { q: "RSA encryption relies on the fact that factoring large numbers is…", opts: ["in P", "believed to be NP but not in P", "uncomputable", "O(log n)"], ans: 1, why: "Factoring is believed to be hard to solve but easy to verify — a classic NP characteristic." }
   ],
   exam: [
-    { q: "Define the complexity class NP.", marks: 2, ms: ["The class of problems where a proposed solution (1)", "Can be verified in polynomial time (1)"] }
+    { q: "Define the complexity classes P and NP, and explain what the relationship P ⊆ NP means.", marks: 4, ms: ["P: problems solvable in polynomial time (1)", "NP: problems whose solutions can be verified in polynomial time (1)", "P ⊆ NP: every P problem is also NP — if you can solve in poly time, you can verify in poly time (1)", "The open question is whether NP contains problems that are NOT in P (i.e. whether P = NP) (1)"] }
   ]
 };
 
 C["compsci:4.4.4.7"] = {
   notes: [
     { h: "Limits of Computation and Regular Languages" },
-    "Not all problems can be solved by every model. This hierarchy shows the power of different computational machines.",
-    { callout: { t: "def", h: "Hierarchy of Power", body: [
+    { callout: { t: "def", h: "Hierarchy of computational power", body: [
       { kv: [
-        ["FSA", "Lowest power. Can only recognize regular languages (no memory)."],
-        ["PDA", "Adds a stack. Can recognize context-free languages."],
-        ["Turing Machine", "Most powerful. Can recognize any computable language."]
+        ["FSA (Finite State Automaton)", "Weakest — no memory beyond the current state. Recognises **regular languages** only (describable by regex)."],
+        ["PDA (Pushdown Automaton)", "FSA + a stack. Recognises **context-free languages** (e.g. matched parentheses, aⁿbⁿ)."],
+        ["Turing Machine", "Most powerful. Recognises any **computable language**. Theoretical model of universal computation."],
+        ["Regular ⊂ Context-free ⊂ Computable", "Each class strictly contains the previous — a proper hierarchy."]
       ]}
     ]}},
-    { code: { lang: "pseudo", cap: "Language recognition limits.", src:
-"# a^n b^n (e.g. aaabbb)\n# FSA cannot do this (needs to count n).\n# PDA can do this (pushes 'a's to stack, pops for 'b's)." }}
+    { callout: { t: "memorise", h: "What each machine CANNOT do", body: [
+      { table: {
+        head: ["Machine", "Cannot recognise"],
+        rows: [
+          ["FSA", "aⁿbⁿ (must count n — needs unbounded memory)"],
+          ["PDA", "aⁿbⁿcⁿ (needs two independent counters — one stack isn't enough)"],
+          ["Turing Machine", "Non-computable languages (e.g. the set of programs that halt)"]
+        ]
+      }}
+    ]}},
+    { code: { lang: "pseudo", cap: "Language recognition limits in practice.", src:
+"# REGULAR (FSA can do):\n#   'a', 'aa', 'aaa', ...  = a+\n#   binary strings with even 1s\n#\n# CONTEXT-FREE (needs PDA):\n#   a^n b^n  e.g. ab, aabb, aaabbb\n#   Matched parentheses: ((()))\n#\n# COMPUTABLE (needs TM, no FSA/PDA):\n#   a^n b^n c^n  e.g. abc, aabbcc\n#   Any program that halts on input X" }},
+    { callout: { t: "tip", h: "Why FSAs can't count", body: "An FSA has a fixed finite number of states — it cannot track an unbounded count. To match n 'a's against n 'b's, you'd need a different state for each possible n — requiring infinitely many states. That's not finite." }},
+    { callout: { t: "miscon", h: "\"More states = more power\"", body: "You can add as many states as you like to an FSA — it is still a finite automaton and can still only recognise regular languages. The class of FSAs is defined by the model (finite states, no stack, no tape), not the count of states." }}
   ],
   flashcards: [
-    ["Which machine is more powerful: an FSA or a Turing Machine?", "A Turing Machine."]
+    ["Which machine is more powerful: an FSA or a Turing Machine?", "A Turing Machine — it can recognise any computable language, while FSAs are limited to regular languages."],
+    ["What additional memory does a PDA have compared to an FSA?", "A stack — allowing it to recognise context-free languages like aⁿbⁿ."],
+    ["Why can't an FSA recognise aⁿbⁿ?", "Recognising aⁿbⁿ requires counting n — an FSA has finite states and no memory, so it can't count unboundedly."],
+    ["State the Chomsky hierarchy from weakest to strongest.", "Regular (FSA) → Context-free (PDA) → Computable (Turing Machine)."],
+    ["Can a PDA recognise aⁿbⁿcⁿ?", "No — matching three equal counts needs two independent counters; a single stack can't do both simultaneously."]
   ],
   quiz: [
-    { q: "Which machine can recognize a language requiring a stack?", opts: ["FSA", "Mealy Machine", "Pushdown Automaton", "Logic Gate"], ans: 2, why: "PDAs include a stack for memory." }
+    { q: "Which machine can recognise a language requiring a stack?", opts: ["FSA", "Mealy Machine", "Pushdown Automaton", "Logic Gate"], ans: 2, why: "PDAs include a stack for memory — essential for context-free languages like aⁿbⁿ." },
+    { q: "The language L = {aⁿbⁿ | n ≥ 0} belongs to which class?", opts: ["Regular", "Context-free", "Computable only", "Uncomputable"], ans: 1, why: "aⁿbⁿ requires counting — regular FSAs can't do it; PDAs can via the stack." },
+    { q: "Adding more states to an FSA…", opts: ["makes it recognise context-free languages", "makes it equivalent to a Turing Machine", "still leaves it recognising only regular languages", "eliminates the need for a stack"], ans: 2, why: "FSA power is defined by the model (no stack/tape), not the number of states." }
   ],
   exam: [
-    { q: "Explain why an FSA cannot recognize the language L = {a^n b^n | n >= 0}.", marks: 2, ms: ["An FSA has a finite number of states / no memory (1)", "It cannot count an arbitrary number of 'a's to match with 'b's (1)"] }
+    { q: "Explain why an FSA cannot recognise the language L = {aⁿbⁿ | n ≥ 0}, and name a machine that can.", marks: 3, ms: ["An FSA has a finite number of states and no memory beyond the current state (1)", "It cannot count an arbitrary n — recognising aⁿbⁿ requires comparing two unbounded counts (1)", "A Pushdown Automaton (PDA) can do it: push an 'a' for each 'a' read, pop one for each 'b' — the stack is empty iff the counts match (1)"] }
   ]
 };
 
@@ -341,13 +425,15 @@ C["compsci:4.4.5.1"] = {
     ]},
     { h: "Evaluation using a Stack" },
     { steps: [
-      { h: "Read Symbol", n: "Read the expression from left to right." },
-      { h: "Number Found", n: "If you see a number, Push it onto the stack." },
-      { h: "Operator Found", n: "If you see an operator, Pop the top two numbers, apply the operator, and Push the result back." },
-      { h: "Result", n: "The final remaining number on the stack is the result." }
+      { h: "Read Symbol", m: "Read the expression left to right, one token at a time." },
+      { h: "Number Found", m: "Push the number onto the stack.", n: "Stack grows with each operand." },
+      { h: "Operator Found", m: "Pop the top two numbers, apply the operator (second-popped OP first-popped), push the result.", n: "First popped = right operand. Second popped = left operand." },
+      { h: "Result", m: "When the expression is exhausted, the single remaining value on the stack is the answer." }
     ]},
     { code: { lang: "pseudo", cap: "Stack evaluation logic", src:
-"FOR EACH token IN expression\n  IF token IS number THEN\n    stack.PUSH(token)\n  ELSE IF token IS operator THEN\n    b = stack.POP()\n    a = stack.POP()\n    stack.PUSH(evaluate(a, token, b))\n  ENDIF\nENDFOR" }}
+"FOR EACH token IN expression\n  IF token IS number THEN\n    stack.PUSH(token)\n  ELSE IF token IS operator THEN\n    b = stack.POP()\n    a = stack.POP()\n    stack.PUSH(evaluate(a, token, b))\n  ENDIF\nENDFOR" }},
+    { callout: { t: "memorise", h: "RPN Evaluation", body: "RPN (Reverse Polish Notation) = operators AFTER operands. Also called **postfix notation**. Evaluation uses a **stack**: push operands; on operator, pop two operands, evaluate, push result. Example: `3 4 + 5 ×` = (3+4)×5 = 35. No brackets needed — operator position makes precedence explicit." }},
+    { callout: { t: "miscon", h: "RPN Misconceptions", body: "**RPN requires brackets like infix notation** — No; RPN is bracket-free by design. Operator position and the stack make precedence completely unambiguous. **RPN is harder to evaluate than infix** — For computers (and calculators), RPN is EASIER: a simple stack-based loop handles it without complex precedence rules or bracket parsing." }}
   ],
   flashcards: [
     ["What is another name for Reverse Polish Notation?", "Postfix notation."],

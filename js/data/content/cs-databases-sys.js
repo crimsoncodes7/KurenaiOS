@@ -105,6 +105,13 @@ C["compsci:4.1.2.1"] = {
         "h": "Scope Rules",
         "body": "AQA expects you to know that local variables overshadow global variables of the same name. Using parameters and local variables makes code 'reusable' and 'self-contained'."
       }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Scope Misconceptions",
+        "body": "**Local variables exist throughout the entire program** — No; local variables are created when a function is called and destroyed when it returns. They only exist within their declared scope. **Parameters are the same as arguments** — Parameters are the variables listed in a function definition; arguments are the actual values passed when calling the function. Related but distinct terms."
+      }
     }
   ],
   "flashcards": [
@@ -233,20 +240,58 @@ C["compsci:4.1.2.2"] = {
         "h": "Design Tip",
         "body": "Modules should have high cohesion (do one thing well) and low coupling (be independent of other modules)."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "High cohesion, low coupling",
+        "body": "**Cohesion** = how well a module's parts belong together. Aim HIGH — one job, one purpose.\n**Coupling** = how much modules depend on each other. Aim LOW — changes in one shouldn't break another.\n\nThink: **tight team, loose handshake.**"
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"More modules = better design\"",
+        "body": "Over-modularising creates excessive coupling through many small interconnected units. The goal is modules with a **single clear purpose** at the right level of granularity — not maximising module count."
+      }
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "Benefits of modular design",
+        "body": [
+          {
+            "kv": [
+              ["Parallel development", "Different programmers can work on different modules simultaneously"],
+              ["Easier debugging", "Faults are isolated to the module that fails its unit test"],
+              ["Reusability", "A well-designed module can be used in other projects without modification"],
+              ["Maintainability", "Changes are localised — fixing one module doesn't break others"]
+            ]
+          }
+        ]
+      }
     }
   ],
   "flashcards": [
     [
       "What is a benefit of modular design?",
-      "It makes code easier to test, maintain, and reuse."
+      "It makes code easier to test, maintain, and reuse — and allows parallel development."
     ],
     [
       "Define Cohesion.",
-      "A measure of how closely related the functions within a module are."
+      "A measure of how closely related the functions within a module are. High cohesion = one clear purpose."
     ],
     [
       "Define Coupling.",
-      "A measure of how dependent modules are on one another."
+      "A measure of how dependent modules are on one another. Low coupling = changes in one module don't cascade."
+    ],
+    [
+      "What is the ideal combination for well-designed modules?",
+      "High cohesion and low coupling."
+    ],
+    [
+      "How does modular design support testing?",
+      "Each module can be tested independently (unit testing) before integration."
     ]
   ],
   "quiz": [
@@ -260,6 +305,28 @@ C["compsci:4.1.2.2"] = {
       ],
       "ans": 1,
       "why": "Local variables are created and destroyed with the subroutine call."
+    },
+    {
+      "q": "A module that does one specific, well-defined job is said to have:",
+      "opts": [
+        "Low cohesion",
+        "High coupling",
+        "High cohesion",
+        "Weak encapsulation"
+      ],
+      "ans": 2,
+      "why": "High cohesion means all the code in a module serves a single clear purpose."
+    },
+    {
+      "q": "If changing Module A frequently requires changes to Module B, this indicates:",
+      "opts": [
+        "High cohesion",
+        "Low coupling",
+        "High coupling",
+        "Good abstraction"
+      ],
+      "ans": 2,
+      "why": "High coupling means modules are tightly interdependent — the opposite of what we want."
     }
   ],
   "exam": [
@@ -267,8 +334,8 @@ C["compsci:4.1.2.2"] = {
       "q": "Explain how using subroutines supports modularity in software development.",
       "marks": 3,
       "ms": [
-        "Allows complex problems to be broken into smaller tasks (1)",
-        "Tasks can be developed and tested independently (1)",
+        "Allows complex problems to be broken into smaller, manageable tasks (1)",
+        "Tasks can be developed and tested independently (unit testing) (1)",
         "Subroutines can be reused in other parts of the program or other projects (1)"
       ]
     }
@@ -369,6 +436,20 @@ C["compsci:4.2.1.2"] = {
         "t": "tip",
         "h": "AQA Exam Insight",
         "body": "You must be able to calculate the memory address of an element in a 2D array if given the base address and row/column counts. Remember: Rows first, then columns in Row-Major mapping."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Arrays — Key Facts",
+        "body": "**1D array**: ordered list of same-type elements under one name, accessed by index. **2D array**: grid/matrix accessed by [row][col]. Arrays are **fixed size** at declaration (in most languages). Indices are **zero-based** in most languages (Python, Java, C#, C++, JavaScript) — first element at index 0, not 1."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Array Misconceptions",
+        "body": "**Arrays can hold different data types** — In statically typed languages (Java, C#, C++), arrays are homogeneous — all elements must be the same type. **Array indices start at 1** — In most languages (Python, Java, C#, JavaScript), arrays are zero-indexed; the first element is at index 0. Index 1 is the second element. Forgetting this causes off-by-one errors."
       }
     }
   ],
@@ -526,6 +607,39 @@ C["compsci:4.2.1.4"] = {
         "h": "Exam Note",
         "body": "An ADT is NOT a physical thing in memory until it is implemented. The ADT is the conceptual model."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "ADT operations at a glance",
+        "body": [
+          {
+            "table": {
+              "head": ["ADT", "Behaviour", "Key Operations"],
+              "rows": [
+                ["Stack", "LIFO", "Push, Pop, Peek, isEmpty"],
+                ["Queue", "FIFO", "Enqueue, Dequeue, isEmpty"],
+                ["Graph", "Nodes + Edges", "AddVertex, AddEdge, GetNeighbours"],
+                ["Tree", "Hierarchical", "Insert, Delete, Traverse"]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"An ADT tells you how data is stored\"",
+        "body": "An ADT specifies **what** operations are available and **what** they do — not **how** they are implemented. A stack is always LIFO whether backed by an array or a linked list."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Why ADTs matter",
+        "body": "By programming to an ADT interface (e.g. just Push/Pop/Peek), you can swap the underlying implementation (array → linked list) without changing any code that uses the stack. This is the power of encapsulation."
+      }
     }
   ],
   "flashcards": [
@@ -535,11 +649,19 @@ C["compsci:4.2.1.4"] = {
     ],
     [
       "Stack behaviour?",
-      "LIFO (Last In First Out)."
+      "LIFO (Last In First Out) — Push adds, Pop removes from the same end."
     ],
     [
       "Queue behaviour?",
-      "FIFO (First In First Out)."
+      "FIFO (First In First Out) — Enqueue adds to rear, Dequeue removes from front."
+    ],
+    [
+      "Why can a stack be implemented as an array OR a linked list?",
+      "Because an ADT only defines behaviour (LIFO), not the physical storage structure."
+    ],
+    [
+      "What is encapsulation in the context of ADTs?",
+      "Hiding the internal implementation so users interact only through the defined operations."
     ]
   ],
   "quiz": [
@@ -553,16 +675,39 @@ C["compsci:4.2.1.4"] = {
       ],
       "ans": 1,
       "why": "Queues are First-In-First-Out."
+    },
+    {
+      "q": "An ADT describes…",
+      "opts": [
+        "how data is stored in memory",
+        "the operations available and what they do, not how",
+        "the programming language to be used",
+        "the exact size of the data structure"
+      ],
+      "ans": 1,
+      "why": "ADTs are logical models — they specify the interface, not the implementation."
+    },
+    {
+      "q": "Which ADT would you use to implement an 'Undo' feature in a text editor?",
+      "opts": [
+        "Queue",
+        "Graph",
+        "Stack",
+        "1D Array"
+      ],
+      "ans": 2,
+      "why": "Undo reverses the most recent action — LIFO makes Stack the natural choice."
     }
   ],
   "exam": [
     {
-      "q": "Explain the difference between an ADT and its implementation.",
-      "marks": 3,
+      "q": "Explain the difference between an ADT and its implementation, using a stack as an example.",
+      "marks": 4,
       "ms": [
-        "ADT defines logical properties and operations (1)",
-        "Implementation is physical storage/code (1)",
-        "e.g. Stack LIFO vs Array/Linked List storage (1)"
+        "ADT defines logical properties and operations (what it does) (1)",
+        "Implementation is the physical storage/code (how it does it) (1)",
+        "Stack ADT: LIFO behaviour with Push, Pop, Peek operations defined (1)",
+        "Can be implemented using an array or a linked list — either satisfies the ADT contract (1)"
       ]
     }
   ]
@@ -633,20 +778,65 @@ C["compsci:4.6.5.1"] = {
         "h": "Simplification",
         "body": "Always look for double negations to cancel out and absorption opportunities to remove redundant terms."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Boolean laws quick reference",
+        "body": [
+          {
+            "table": {
+              "head": ["Law", "AND form", "OR form"],
+              "rows": [
+                ["Identity", "A · 1 = A", "A + 0 = A"],
+                ["Annulment", "A · 0 = 0", "A + 1 = 1"],
+                ["Idempotent", "A · A = A", "A + A = A"],
+                ["Complement", "A · ¬A = 0", "A + ¬A = 1"],
+                ["Double Negation", "¬¬A = A", "—"],
+                ["De Morgan's", "¬(A · B) = ¬A + ¬B", "¬(A + B) = ¬A · ¬B"],
+                ["Absorption", "A · (A + B) = A", "A + (A · B) = A"],
+                ["Distribution", "A · (B + C) = (A·B) + (A·C)", "A + (B·C) = (A+B)·(A+C)"]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "mnemonic",
+        "h": "De Morgan's — Break and Change",
+        "body": "**Break** the bar (over one or both), **Change** the sign (· → + or + → ·).\n\n¬(A · B) → break bar, change · to + → ¬A + ¬B\n¬(A + B) → break bar, change + to · → ¬A · ¬B"
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"De Morgan's just flips the sign\"",
+        "body": "De Morgan's requires two steps: (1) distribute the NOT onto each variable, AND (2) swap the operator. Forgetting step 2 (changing · to + or vice versa) is the most common exam error."
+      }
     }
   ],
   "flashcards": [
     [
       "¬(A + B) simplifies to?",
-      "¬A · ¬B"
+      "¬A · ¬B (De Morgan's Rule 2)"
     ],
     [
       "¬(A · B) simplifies to?",
-      "¬A + ¬B"
+      "¬A + ¬B (De Morgan's Rule 1)"
     ],
     [
       "What is A + (A · B)?",
       "A (Absorption Law)"
+    ],
+    [
+      "What does the Complement Law state?",
+      "A · ¬A = 0 and A + ¬A = 1"
+    ],
+    [
+      "What is the mnemonic for De Morgan's Law?",
+      "Break the bar, change the sign."
     ]
   ],
   "quiz": [
@@ -659,17 +849,39 @@ C["compsci:4.6.5.1"] = {
         "X + Y"
       ],
       "ans": 2,
-      "why": "Break bar, change sign."
+      "why": "Break bar, change sign: NOT OR becomes NOT AND NOT."
+    },
+    {
+      "q": "Simplify: A · 1 + ¬A · 0",
+      "opts": [
+        "0",
+        "1",
+        "A",
+        "¬A"
+      ],
+      "ans": 2,
+      "why": "A · 1 = A; ¬A · 0 = 0; A + 0 = A (identity laws)."
+    },
+    {
+      "q": "Which law states that A + (A · B) = A?",
+      "opts": [
+        "Distribution",
+        "De Morgan's",
+        "Absorption",
+        "Complement"
+      ],
+      "ans": 2,
+      "why": "The Absorption Law — A absorbs the redundant A·B term."
     }
   ],
   "exam": [
     {
-      "q": "Simplify ¬(A + ¬B) · C.",
+      "q": "Simplify ¬(A + ¬B) · C, showing each step.",
       "marks": 3,
       "ms": [
-        "¬A · ¬¬B · C (1)",
-        "¬A · B · C (1)",
-        "Final simplified expression (1)"
+        "Apply De Morgan's to ¬(A + ¬B): → ¬A · ¬¬B (1)",
+        "Apply double negation: ¬¬B = B → ¬A · B (1)",
+        "Multiply out with C: ¬A · B · C (final answer) (1)"
       ]
     }
   ]
@@ -766,6 +978,20 @@ C["compsci:4.10.1"] = {
         "t": "warn",
         "h": "Drawing Conventions",
         "body": "In AQA exams, you may be asked to draw an ERD. Ensure you use rectangles for entities and label the lines with the relationship type. If using Crow's Foot, 'one' is a straight line and 'many' is a three-pronged fork."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "ER Diagram Essentials",
+        "body": "**Entities** (rectangles): real-world objects (Student, Course). **Attributes** (ovals/listed): properties of entities (Name, DOB). **Relationships** (diamonds/lines): how entities connect. **Cardinality**: 1:1 (one-to-one), 1:N (one-to-many), M:N (many-to-many). **M:N** must be decomposed into two 1:N relationships using a junction/link table in relational design."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "ER Modelling Misconceptions",
+        "body": "**A many-to-many relationship can be directly implemented in a relational database** — No; relational tables cannot directly represent M:N. You must create a junction/link table (intersection entity) with foreign keys to both entities, turning M:N into two 1:N relationships. **Every attribute must be in the ER diagram** — The ER diagram shows the conceptual model; derived attributes (Age calculated from DOB) and multi-valued attributes are handled differently in implementation."
       }
     }
   ],
@@ -926,7 +1152,42 @@ C["compsci:4.10.2"] = {
       "callout": {
         "t": "tip",
         "h": "Keys",
-        "body": "A composite key uses multiple attributes as a primary key. A secondary key is used for indexing and searching."
+        "body": "A composite key uses multiple attributes as a primary key. A secondary key is used for indexing and searching without being unique."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Relational terminology",
+        "body": [
+          {
+            "table": {
+              "head": ["Formal term", "Plain English", "Example"],
+              "rows": [
+                ["Relation", "Table", "Student"],
+                ["Tuple", "Row / Record", "One student's data"],
+                ["Attribute", "Column / Field", "StudentID, Name"],
+                ["Domain", "Allowed data type/values for an attribute", "Age must be integer 0–120"],
+                ["Primary Key", "Unique identifier for a tuple", "StudentID"],
+                ["Foreign Key", "Attribute referencing another table's PK", "CourseID in Enrolment"]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Primary key must be NOT NULL",
+        "body": "Entity integrity: a primary key can never be null, because null means 'unknown' — and you cannot uniquely identify a record by an unknown value."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"A foreign key must be unique\"",
+        "body": "Foreign keys do **not** need to be unique — a CustomerID can appear many times in an Orders table (one customer, many orders). The uniqueness constraint applies to the **primary key** in the referenced table, not the foreign key."
       }
     }
   ],
@@ -936,12 +1197,24 @@ C["compsci:4.10.2"] = {
       "A table in a relational database."
     ],
     [
+      "What is a tuple?",
+      "A row (record) in a relational database table."
+    ],
+    [
       "What is a primary key?",
-      "A unique identifier for a record."
+      "An attribute (or combination) that uniquely identifies each tuple in a relation."
     ],
     [
       "What is referential integrity?",
-      "Ensuring foreign keys point to valid primary keys."
+      "Ensuring every foreign key value matches an existing primary key in the referenced table."
+    ],
+    [
+      "What is entity integrity?",
+      "The rule that no primary key attribute may be null."
+    ],
+    [
+      "What is a composite key?",
+      "A primary key made of two or more attributes, needed when no single attribute is unique."
     ]
   ],
   "quiz": [
@@ -954,17 +1227,40 @@ C["compsci:4.10.2"] = {
         "Domain"
       ],
       "ans": 2,
-      "why": "Rows are called tuples."
+      "why": "Rows are called tuples in formal relational terminology."
+    },
+    {
+      "q": "Referential integrity is violated when…",
+      "opts": [
+        "a primary key is duplicated",
+        "a foreign key points to a non-existent primary key",
+        "an attribute contains null",
+        "two tables have the same name"
+      ],
+      "ans": 1,
+      "why": "A dangling foreign key (pointing to nothing) breaks the link between tables — this is a referential integrity violation."
+    },
+    {
+      "q": "Which key is used in a linking table to resolve a Many-to-Many relationship?",
+      "opts": [
+        "Secondary key",
+        "Candidate key",
+        "Composite primary key",
+        "Domain key"
+      ],
+      "ans": 2,
+      "why": "The linking table's PK is typically composed of the PKs of both related tables — a composite key."
     }
   ],
   "exam": [
     {
-      "q": "Explain why referential integrity is important.",
-      "marks": 3,
+      "q": "Explain why referential integrity is important in a relational database and give an example of it being violated.",
+      "marks": 4,
       "ms": [
-        "Prevents orphaned records (1)",
-        "Ensures consistency across tables (1)",
-        "Prevents deletion of data that is still in use (1)"
+        "Referential integrity ensures every foreign key value matches an existing primary key in the referenced table (1)",
+        "Prevents orphaned records — records that reference data which no longer exists (1)",
+        "Also prevents inconsistency across tables / incorrect join results (1)",
+        "Example: deleting a Customer whose CustomerID still appears as a FK in the Orders table — creates orphaned orders with no customer (1)"
       ]
     }
   ]
@@ -1061,6 +1357,20 @@ C["compsci:4.10.5"] = {
         "t": "warn",
         "h": "Deadlock Handling",
         "body": "Deadlocks are inevitable in high-concurrency systems. The DBMS handles this by 'Deadlock Detection' (identifying cycles in a Wait-For Graph) and then 'Victim Selection' (killing one of the transactions to free up the resource)."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Concurrency Control",
+        "body": "**Lost Update**: two transactions read the same record → both compute a new value based on original → last write overwrites first (first update lost). **Solution: record locking** — a transaction locks the record until it commits; other transactions must wait. ACID properties ensure correctness: **A**tomicity (all-or-nothing), **C**onsistency, **I**solation (transactions don't interfere), **D**urability."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Concurrency Misconceptions",
+        "body": "**Concurrent access always causes data loss** — Only without concurrency control. With proper locking or optimistic concurrency (timestamps), concurrent access is safe. **A record lock prevents other users from reading it** — A shared (read) lock allows concurrent reads; only an exclusive (write) lock blocks both reads and writes from others. Shared locks enable read concurrency."
       }
     }
   ],
@@ -1217,16 +1527,76 @@ C["compsci:4.13.1.1"] = {
         "h": "Analysis vs Design",
         "body": "Analysis is about WHAT the system should do. Design is about HOW it will do it."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Fact-finding methods: pros and cons",
+        "body": [
+          {
+            "table": {
+              "head": ["Method", "Strength", "Weakness"],
+              "rows": [
+                ["Interview", "Rich detail, open-ended follow-ups", "Time-consuming, one person at a time"],
+                ["Questionnaire", "Reaches many people, quantifiable", "Rigid — can't follow up, low response rate"],
+                ["Observation", "Reveals actual (not reported) behaviour", "Hawthorne effect, time-consuming"],
+                ["Document analysis", "Examines existing forms/reports directly", "May be outdated or incomplete"]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Hawthorne Effect",
+        "body": "People change their behaviour when they know they're being watched. This means observation may not capture typical working patterns — a key limitation examiners like to test."
+      }
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "Requirements Specification contents",
+        "body": [
+          {
+            "kv": [
+              ["Functional requirements", "What the system must DO (features, inputs, outputs, processes)"],
+              ["Non-functional requirements", "Constraints the system must satisfy (speed, security, usability, reliability)"],
+              ["Scope", "Boundaries — what is and is NOT included in the project"]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Analysis Stage Misconceptions",
+        "body": "**The Analysis stage is when programming begins** — No; Analysis is the first stage where requirements are gathered and the existing system is studied. Programming happens in Implementation. Analysis produces a requirements specification (what the system must do), not code. **Analysis and Design are the same stage** — Analysis defines WHAT the system must do; Design defines HOW it will be built (data models, algorithms, interfaces)."
+      }
     }
   ],
   "flashcards": [
     [
       "Main output of Analysis?",
-      "Requirements Specification."
+      "The Requirements Specification document."
     ],
     [
-      "Three fact-finding methods?",
-      "Interviews, Questionnaires, Observation."
+      "Four fact-finding methods?",
+      "Interviews, Questionnaires, Observation, Document Analysis."
+    ],
+    [
+      "What is the Hawthorne Effect?",
+      "People behave differently when being observed — weakens the objectivity of observation as a fact-finding method."
+    ],
+    [
+      "Difference between functional and non-functional requirements?",
+      "Functional: what the system must do. Non-functional: constraints on how it does it (speed, security, reliability)."
+    ],
+    [
+      "Why is Analysis the most critical lifecycle stage?",
+      "Errors here propagate through every subsequent stage — a missing requirement costs far more to fix after implementation."
     ]
   ],
   "quiz": [
@@ -1239,16 +1609,38 @@ C["compsci:4.13.1.1"] = {
         "Shadowing"
       ],
       "ans": 1,
-      "why": "Questionnaires scale best."
+      "why": "Questionnaires scale best — they can be distributed to thousands simultaneously."
+    },
+    {
+      "q": "A requirement that the system must respond in under 2 seconds is an example of…",
+      "opts": [
+        "A functional requirement",
+        "A non-functional requirement",
+        "A design specification",
+        "A test case"
+      ],
+      "ans": 1,
+      "why": "Performance constraints are non-functional requirements — they describe how the system should behave, not what it should do."
+    },
+    {
+      "q": "The Hawthorne Effect is most likely to affect which fact-finding method?",
+      "opts": [
+        "Questionnaires",
+        "Document analysis",
+        "Observation",
+        "Interviews"
+      ],
+      "ans": 2,
+      "why": "People change their behaviour when watched — making observation less representative of normal working patterns."
     }
   ],
   "exam": [
     {
-      "q": "Describe two fact-finding methods.",
-      "marks": 4,
+      "q": "Describe two fact-finding methods used during the Analysis phase, giving one advantage and one disadvantage of each.",
+      "marks": 6,
       "ms": [
-        "Interviews (1) - allows for open-ended questions and deep understanding (1).",
-        "Questionnaires (1) - allows for large-scale data collection (1)."
+        "Interview (1) — allows detailed open-ended questions / follow-ups (1) — time-consuming / only one person at a time (1)",
+        "Questionnaire (1) — can reach many users simultaneously / scalable (1) — rigid format, low response rate, can't follow up unclear answers (1)"
       ]
     }
   ]
@@ -1345,6 +1737,20 @@ C["compsci:4.13.1.2"] = {
         "t": "tip",
         "h": "Hierarchy Charts",
         "body": "In AQA exams, remember that hierarchy charts do NOT show the sequence of execution. They only show which modules are contained within others. Flowcharts or pseudo-code are used for sequence."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Design Stage Outputs",
+        "body": "Design produces: **data models** (ER diagrams, normalised tables, data dictionary), **algorithm design** (flowcharts, pseudocode, structure charts), **interface prototypes** (wireframes, screen layouts), **test plans** (what to test and expected outcomes). Must be detailed enough for implementation without further client consultation."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Design Stage Misconceptions",
+        "body": "**The Design stage is when you write the actual code** — No; Design produces specifications and blueprints (pseudocode, ER diagrams, interface sketches) for programmers to follow during Implementation. **A prototype in the Design stage is working software** — Prototypes at this stage are mock-ups (wireframes, paper prototypes) to agree on the interface — not functional programs."
       }
     }
   ],
@@ -1523,6 +1929,20 @@ C["compsci:4.13.1.3"] = {
         "h": "Agile vs Waterfall",
         "body": "Implementation in Waterfall happens in one big block after Design. In Agile, Implementation is a repeating loop that includes Analysis and Design for small chunks of the project."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Implementation Stage",
+        "body": "Implementation: code is written to design specifications, database tables are created, test data is prepared. **Unit testing** occurs alongside (test each module/function independently). **Integration testing**: modules combined and tested together. Documentation written: **technical** (for maintainers — code structure, API) and **user** (for end users — how to operate)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Implementation Misconceptions",
+        "body": "**Implementation only means writing code** — Implementation includes writing code, setting up databases, preparing test data, performing unit tests, and writing documentation. **Testing is only done after all code is written** — Unit testing is done during implementation, testing each module as it is built. Full system/integration testing happens after implementation."
+      }
     }
   ],
   "flashcards": [
@@ -1646,6 +2066,20 @@ C["compsci:4.13.1.4"] = {
         "cap": "A C# Unit Test example.",
         "src": "[Test]\npublic void TestScoreBoundary() {\n    Assert.IsTrue(System.Validate(100)); // Boundary\n    Assert.IsFalse(System.Validate(101)); // Erroneous\n}"
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Test Data Types",
+        "body": "Three categories: **Normal** (valid, typical data the system should accept), **Boundary** (data at the exact edge of valid range — just inside and just outside), **Erroneous** (clearly invalid data that must be rejected — wrong type, outside valid range entirely). Test plan specifies: input data, expected output, actual output, pass/fail."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Testing Misconceptions",
+        "body": "**Boundary data is the same as erroneous data** — No: boundary data is at the edge of the valid range (if max = 100, test 99, 100 = boundary; 101 = erroneous). **Testing proves a program is correct** — Testing can only reveal bugs; it cannot prove their absence (Dijkstra). Even after extensive testing, undiscovered bugs may exist in untested paths."
+      }
     }
   ],
   "flashcards": [
@@ -1766,6 +2200,20 @@ C["compsci:4.13.1.5"] = {
       "callout": {
         "t": "tip",
         "body": "Evaluation often leads back to a new cycle of Analysis if the requirements have changed or were not fully met."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Evaluation Criteria",
+        "body": "Evaluation assesses: **effectiveness** (does it meet requirements?), **efficiency** (performance), **maintainability** (how easy to update/fix), **usability** (user feedback, ease of use), **fitness for purpose** (comparison to original acceptance criteria). May lead to further development in an iterative lifecycle."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Evaluation Misconceptions",
+        "body": "**Evaluation means fixing remaining bugs** — No; bug fixing occurs in Testing/Maintenance. Evaluation judges how well the completed system meets its requirements specification and gathers user feedback. **Evaluation is the final stage — no more changes are made** — Evaluation may reveal the system falls short, leading to further iterations of the entire lifecycle (spiral/iterative model)."
       }
     }
   ],

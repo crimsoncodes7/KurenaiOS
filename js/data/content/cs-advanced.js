@@ -15,48 +15,54 @@ C["compsci:4.11.1"] = {
       }
     },
     {
-      "h": "The Three Vs"
-    },
-    {
-      "kv": [
-        [
-          "Volume",
-          "The sheer amount of data being stored or generated."
-        ],
-        [
-          "Velocity",
-          "The speed at which new data is generated and moves around."
-        ],
-        [
-          "Variety",
-          "The different types and formats of data (structured, unstructured, multimedia, etc.)."
+      "callout": {
+        "t": "memorise",
+        "h": "The Three Vs of Big Data",
+        "body": [
+          {
+            "kv": [
+              ["Volume", "The sheer amount of data being stored or generated — terabytes to petabytes."],
+              ["Velocity", "The speed at which new data is generated and must be processed."],
+              ["Variety", "The different types and formats: structured, unstructured, text, image, sensor, etc."]
+            ]
+          }
         ]
-      ]
+      }
     },
     {
-      "h": "Handling Big Data Concepts"
-    },
-    {
-      "kv": [
-        [
-          "Lack of Structure",
-          "Big data often lacks standard structure, rendering traditional tables ineffective. Machine learning and advanced analytics are frequently employed to discover hidden patterns."
-        ],
-        [
-          "Fact-Based Model",
-          "Instead of updating records in place, a fact-based model stores raw, immutable facts. Each fact represents a piece of information at a specific point in time and is never overwritten. Updates are added as new facts with newer timestamps."
-        ],
-        [
-          "Graph Schemas",
-          "Graph schemas are used to map relationships in big data. Nodes represent entities, and edges represent the connections between them."
+      "callout": {
+        "t": "info",
+        "h": "Handling Big Data: Key Approaches",
+        "body": [
+          {
+            "kv": [
+              ["Lack of Structure", "Big data often lacks standard structure, making traditional tables ineffective. Machine learning discovers hidden patterns instead."],
+              ["Fact-Based Model", "Stores raw, immutable facts with timestamps. Updates are appended as new facts — existing data is never overwritten."],
+              ["Graph Schemas", "Nodes represent entities; edges represent relationships. Ideal for social networks, recommendation engines, and fraud detection."]
+            ]
+          }
         ]
-      ]
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Why Traditional RDBMS Fails for Big Data",
+        "body": "Relational databases require a rigid schema, scale vertically (one powerful server), and use row-locking for writes. Big data requires flexible schemas, horizontal scaling across many cheap machines, and high write throughput."
+      }
     },
     {
       "callout": {
         "t": "tip",
         "h": "Distributed Storage",
-        "body": "Remember that Big Data is distributed across multiple machines; a single machine cannot hold or process it all in a reasonable time."
+        "body": "Big Data is distributed across many machines in parallel. No single machine can hold or process it all. Systems like Hadoop and Spark split data across a cluster."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Big Data Misconceptions",
+        "body": "**Big Data just means a very large database** — it's defined by all three Vs: not just Volume but also Velocity (speed of generation) and Variety (unstructured/mixed formats). **You can handle Big Data by upgrading to a more powerful server** — Big Data requires horizontal scaling across many cheap machines (distributed computing); adding resources to a single server (vertical scaling) does not scale far enough."
       }
     }
   ],
@@ -154,20 +160,47 @@ C["compsci:4.12.1.1"] = {
       }
     },
     {
-      "kv": [
-        [
-          "Domain",
-          "The set of all possible input values."
-        ],
-        [
-          "Co-domain",
-          "The set of all potential output values."
-        ],
-        [
-          "Function Type",
-          "Describes the types of arguments it takes and the type of the result it returns. E.g., f: Integer -> String means the domain is integers and co-domain is strings."
+      "callout": {
+        "t": "info",
+        "h": "Domain, Co-domain, and Type",
+        "body": [
+          {
+            "kv": [
+              ["Domain", "The set of all possible valid input values."],
+              ["Co-domain", "The set of all potential output values (may be larger than the actual range produced)."],
+              ["Function Type", "Written `f : A → B` — maps domain A to co-domain B. E.g., `f : Integer → String`."]
+            ]
+          }
         ]
-      ]
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Function Type Notation",
+        "body": "$f : A \\to B$ — a function $f$ that takes an element from set $A$ (domain) and maps it to exactly one element in set $B$ (co-domain)."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Co-domain ≠ Range",
+        "body": "The co-domain is the set of all **possible** output values. The range (image) is the set of values actually produced. The range is always a subset of the co-domain."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Functions — Key Facts",
+        "body": "A function maps **every** input in the domain to **exactly one** output. Type notation: `f : A → B` (A = domain, B = co-domain). **Co-domain** = declared set of all possible outputs; **Range/image** = outputs actually produced. Range is always a subset of the co-domain (they may differ)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common Function Misconceptions",
+        "body": "**The co-domain and range of a function are always the same** — the co-domain is the declared output type; the range (image) is only what is actually produced. For `f(x) = x²` over integers, the co-domain is all integers but the range is only non-negative integers. **A function can map one input to multiple outputs** — by definition a function maps each input to exactly one output; a relation with multiple outputs per input is not a function."
+      }
     }
   ],
   "flashcards": [
@@ -263,27 +296,34 @@ C["compsci:4.12.1.2"] = {
       }
     },
     {
-      "h": "Properties of First-Class Functions"
+      "callout": {
+        "t": "memorise",
+        "h": "Properties of First-Class Functions",
+        "body": [
+          {
+            "kv": [
+              ["Assigned", "Can be assigned to a variable: `let f = double`"],
+              ["Passed", "Can be passed as an argument to another function (higher-order functions)"],
+              ["Returned", "Can be returned as the result of another function"],
+              ["Stored", "Can be stored in data structures (arrays, dictionaries, lists)"]
+            ]
+          }
+        ]
+      }
     },
     {
-      "kv": [
-        [
-          "Assignment",
-          "Can be assigned to variables."
-        ],
-        [
-          "Argument",
-          "Can be passed as arguments to other functions (creating higher-order functions)."
-        ],
-        [
-          "Return Value",
-          "Can be returned as the result of other functions."
-        ],
-        [
-          "Storage",
-          "Can be stored in data structures like arrays or lists."
-        ]
-      ]
+      "callout": {
+        "t": "tip",
+        "h": "Higher-Order Functions",
+        "body": "A function that takes another function as an argument, or returns one, is called a **higher-order function**. `map`, `filter`, and `fold` are classic examples — they only exist because functions are first-class."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "First-Class Function Misconceptions",
+        "body": "**A higher-order function executes at higher priority or faster** — the term has nothing to do with performance. A higher-order function is one that takes another function as an argument or returns a function as its result. **First-class functions are unique to functional programming** — many languages (Python, JavaScript, C#) support first-class functions; the concept is a language feature, not exclusive to the functional paradigm."
+      }
     }
   ],
   "flashcards": [
@@ -405,6 +445,20 @@ C["compsci:4.12.1.3"] = {
       "code": {
         "lang": "pseudo",
         "src": "let result = myFunc(5, 10)"
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Function Application — Key Facts",
+        "body": "Function application = supplying arguments to a function to get a result. Mathematical style: `f(x)`. Haskell/functional style: `f x` (space, no parentheses). Applications can be chained: `f(g(x))` — inner first, then outer."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Function Application Misconception",
+        "body": "**Functional languages always require parentheses for function calls** — in Haskell, function application is denoted by a space: `f x` not `f(x)`. Parentheses are used for grouping, not for the call itself. `f(x)` is also valid in Haskell but only because the inner `(x)` evaluates to `x`."
       }
     }
   ],
@@ -534,6 +588,20 @@ C["compsci:4.12.1.4"] = {
         "lang": "pseudo",
         "src": "function add(x) {\n  return function(y) {\n    return x + y\n  }\n}\nlet addFive = add(5)\nlet result = addFive(10) // 15"
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Partial Application & Currying",
+        "body": "**Partial application**: supply fewer arguments than expected → returns a new function waiting for the rest (e.g., `addFive = add(5)` gives a function that adds 5 to any argument). **Currying**: transforming `f(x, y)` into a chain `f(x)(y)` where each call takes exactly one argument. Currying enables partial application; they are related but distinct."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Partial Application vs Currying",
+        "body": "**Partial application and currying are the same thing** — currying restructures a function into single-argument steps; partial application binds some arguments to produce a new function. You can partially apply without currying. **Partial application immediately produces the final answer** — it produces a new function that still needs the remaining arguments; only full application yields the final value."
+      }
     }
   ],
   "flashcards": [
@@ -657,6 +725,20 @@ C["compsci:4.12.1.5"] = {
           "n": "Evaluate the outer function. Yields the final combined output."
         }
       ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Function Composition Rules",
+        "body": "`(f ∘ g)(x) = f(g(x))` — **right to left**: g runs first, then f. For validity: the **co-domain of g must match the domain of f** (the output type of g must be acceptable input to f). Composition lets you chain simple reusable functions into complex behaviour without intermediate variables."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Composition Order Misconception",
+        "body": "**`f ∘ g` means f is applied first, then g** — it is the opposite: the rightmost function in composition notation runs first. `(f ∘ g)(x) = f(g(x))`, so g evaluates first and its result is passed to f. Think of it as reading right to left."
+      }
     }
   ],
   "flashcards": [
@@ -753,20 +835,40 @@ C["compsci:4.12.2.1"] = {
       }
     },
     {
-      "kv": [
-        [
-          "Map",
-          "Takes a function and a list. It applies the function to every element in the list, returning a new list."
-        ],
-        [
-          "Filter",
-          "Takes a predicate function (returns boolean) and a list. It returns a new list containing only the elements for which the predicate is true."
-        ],
-        [
-          "Fold / Reduce",
-          "Takes a combining function, an initial accumulator value, and a list. It reduces the list to a single value by applying the function successively to the accumulator and each element."
+      "callout": {
+        "t": "def",
+        "h": "Map",
+        "body": "Applies a function to **every element** of a list, returning a new list of the same length. `map(f, [a, b, c])` → `[f(a), f(b), f(c)]`."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Filter",
+        "body": "Takes a predicate (boolean function) and a list. Returns a new list containing only elements for which the predicate returns `true`. Result may be shorter than the original."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Fold / Reduce",
+        "body": "Takes a combining function, an initial accumulator, and a list. Processes elements one by one, updating the accumulator until the list is empty. Returns a single value."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Which Produces What?",
+        "body": [
+          {
+            "kv": [
+              ["map", "New list, same length — every element transformed"],
+              ["filter", "New list, same or shorter — elements kept or removed"],
+              ["fold", "Single value — list collapsed to one result"]
+            ]
+          }
         ]
-      ]
+      }
     },
     {
       "h": "Operation Examples"
@@ -791,6 +893,13 @@ C["compsci:4.12.2.1"] = {
             "fold(add, 0, [1, 2, 3]) // returns 6"
           ]
         ]
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "map / filter / fold Misconceptions",
+        "body": "**map changes the length of the list** — map always returns a list of the same length as the input; every element is transformed but nothing is added or removed. Only filter can shorten the list. **fold always produces a list** — fold (reduce) collapses a list down to a single value (a number, string, boolean, etc.), not a list."
       }
     }
   ],
@@ -889,38 +998,47 @@ C["compsci:4.12.3.1"] = {
       }
     },
     {
-      "h": "Anatomy of a List"
-    },
-    {
-      "kv": [
-        [
-          "Head",
-          "The first element of the list. Example: For `[1, 2, 3]`, Head is `1`."
-        ],
-        [
-          "Tail",
-          "The rest of the list (a list itself) containing all elements except the head. Example: For `[1, 2, 3]`, Tail is `[2, 3]`."
-        ],
-        [
-          "Empty List",
-          "An empty list `[]` has no head and no tail. It is used as the base case for recursive list processing functions."
+      "callout": {
+        "t": "memorise",
+        "h": "Anatomy of a List",
+        "body": [
+          {
+            "kv": [
+              ["Head", "The first element. `head([1, 2, 3])` → `1`"],
+              ["Tail", "Everything **after** the head — itself a list. `tail([1, 2, 3])` → `[2, 3]`"],
+              ["Empty list `[]`", "No head, no tail. Used as the **base case** in recursive list functions."]
+            ]
+          }
         ]
-      ]
+      }
     },
     {
-      "h": "Common Operations"
-    },
-    {
-      "kv": [
-        [
-          "Prepend",
-          "Adding an element to the front of a list (creating a new list). In Haskell, this is the `:` (cons) operator."
-        ],
-        [
-          "Append",
-          "Joining two lists together to form a new list."
+      "callout": {
+        "t": "info",
+        "h": "List Operations",
+        "body": [
+          {
+            "kv": [
+              ["Prepend (cons `:`)", "Adds an element to the front: `1 : [2, 3]` → `[1, 2, 3]`. Creates a new list."],
+              ["Append (`++`)", "Joins two lists: `[1] ++ [2, 3]` → `[1, 2, 3]`."]
+            ]
+          }
         ]
-      ]
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Recursive Pattern",
+        "body": "Most functional list algorithms follow the pattern: if list is empty → return base value. Otherwise, process head and recurse on tail. The empty list terminates the recursion."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "List Head/Tail Misconceptions",
+        "body": "**The tail of a list is the last element** — the tail is everything AFTER the head (first element) and is itself a list. `tail([1,2,3]) = [2,3]`, not `3`. **`tail` of a one-element list returns the element** — `tail([x])` returns the empty list `[]`, not `x`. The empty list is also the base case for recursive list algorithms."
+      }
     }
   ],
   "flashcards": [

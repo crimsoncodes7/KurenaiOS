@@ -70,7 +70,7 @@ C["compsci:4.3.4.1"] = {
       "steps": [
         {
           "h": "Initialize",
-          "m": "Distances to all nodes = \infty, Source = 0.",
+          "m": "Distances to all nodes = ∞, Source = 0.",
           "n": "Add all nodes to a priority queue."
         },
         {
@@ -98,6 +98,27 @@ C["compsci:4.3.4.1"] = {
         "h": "Negative Edge Weights",
         "body": "Dijkstra's algorithm fails if there are negative edge weights. It assumes that adding an edge will never make a path shorter."
       }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Exam trace technique",
+        "body": "Draw a table with one column per node. Each row shows the state after settling one node. Show: current tentative distances, which node is settled (mark ✓), and the prev pointer update. Examiners credit each correct relaxation."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Dijkstra's Algorithm — Key Facts",
+        "body": "1. Initialise: source = 0, all others = ∞. 2. Greedily pick unvisited node with min distance. 3. Relax all neighbours. 4. Mark visited (distance finalised). Non-negative weights only. Uses a priority queue. Time complexity: O((V + E) log V) with a binary heap."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"Dijkstra and BFS solve the same problem\"",
+        "body": "BFS finds shortest paths by **edge count** on unweighted graphs. Dijkstra finds shortest paths by **total weight** on weighted graphs. On an unweighted graph, Dijkstra reduces to BFS — but they are not interchangeable when weights differ."
+      }
     }
   ],
   "flashcards": [
@@ -111,11 +132,15 @@ C["compsci:4.3.4.1"] = {
     ],
     [
       "What is the initial distance value given to all other nodes?",
-      "Infinity (\infty)."
+      "Infinity (∞)."
     ],
     [
       "What happens during the 'relaxation' step?",
       "If a newly calculated path to a neighbor is shorter than its current known distance, the distance is updated."
+    ],
+    [
+      "Why does Dijkstra use a priority queue (not a regular queue)?",
+      "To efficiently extract the unvisited node with the smallest tentative distance at each step."
     ]
   ],
   "quiz": [
@@ -129,6 +154,17 @@ C["compsci:4.3.4.1"] = {
       ],
       "ans": 0,
       "why": "Dijkstra always greedily expands the frontier using the node with the lowest current distance."
+    },
+    {
+      "q": "After a node is marked visited in Dijkstra's algorithm, its distance…",
+      "opts": [
+        "can still decrease if a shorter path is found",
+        "is guaranteed to be the shortest possible and will not change",
+        "resets to ∞ for the next iteration",
+        "is shared with all its neighbours"
+      ],
+      "ans": 1,
+      "why": "Visiting a node finalises its distance — the greedy proof guarantees no shorter path exists."
     }
   ],
   "exam": [
@@ -138,7 +174,7 @@ C["compsci:4.3.4.1"] = {
       "ms": [
         "Sets the distance to the start node to 0 (1)",
         "Sets the distance to all other nodes to infinity (1)",
-        "Marks all nodes as unvisited (1)"
+        "Marks all nodes as unvisited / adds all to the priority queue (1)"
       ]
     }
   ]
@@ -240,12 +276,41 @@ C["compsci:4.3.4.3"] = {
         "h": "Heuristic Effectiveness",
         "body": "The closer $h(x)$ is to the actual cost, the fewer nodes A* explores. If $h(x)=0$, it is Dijkstra."
       }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "A* = Dijkstra + direction",
+        "body": "Dijkstra: $f = g$ (only actual cost).\nA\\*: $f = g + h$ (actual cost + heuristic estimate).\nBoth guarantee the shortest path — A\\* just explores far fewer nodes when $h$ is good."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"Any heuristic makes A* faster\"",
+        "body": "An **inadmissible** heuristic (one that overestimates) can cause A* to skip the true shortest path, returning a suboptimal result. Only admissible heuristics guarantee correctness."
+      }
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "Common heuristics for grids",
+        "body": [
+          {
+            "kv": [
+              ["Manhattan distance", "Sum of |Δx| + |Δy| — correct for 4-way grid movement"],
+              ["Euclidean distance", "Straight-line — admissible for any movement direction"],
+              ["Chebyshev distance", "max(|Δx|, |Δy|) — correct for 8-way grid movement"]
+            ]
+          }
+        ]
+      }
     }
   ],
   "flashcards": [
     [
       "What is the A* cost function?",
-      "f(x) = g(x) + h(x)"
+      "f(x) = g(x) + h(x) — actual cost from start + estimated cost to goal."
     ],
     [
       "In A*, what does g(x) represent?",
@@ -258,6 +323,10 @@ C["compsci:4.3.4.3"] = {
     [
       "What does it mean for a heuristic to be 'admissible'?",
       "It must never overestimate the actual cost to reach the goal."
+    ],
+    [
+      "What does A* reduce to when h(x) = 0 for all nodes?",
+      "Dijkstra's algorithm — it explores in all directions without any goal-directed bias."
     ]
   ],
   "quiz": [
@@ -270,14 +339,28 @@ C["compsci:4.3.4.3"] = {
         "It can handle negative edge weights safely"
       ],
       "ans": 0
+    },
+    {
+      "q": "An inadmissible heuristic (one that overestimates) causes A* to…",
+      "opts": [
+        "find the shortest path faster",
+        "potentially return a path that is NOT the shortest",
+        "reduce to BFS",
+        "crash with an infinite loop"
+      ],
+      "ans": 1,
+      "why": "Overestimating causes A* to prune nodes on the true shortest path, so the result may be suboptimal."
     }
   ],
   "exam": [
     {
-      "q": "Explain the roles of g(x) and h(x) in the A* algorithm.",
-      "marks": 3,
+      "q": "Explain the roles of g(x) and h(x) in the A* algorithm and state what admissibility requires.",
+      "marks": 4,
       "ms": [
-        "g(x) is actual cost (1), h(x) is estimate (1), admissibility requirement (1)"
+        "g(x): exact cost from start node to current node x (1)",
+        "h(x): heuristic estimate of remaining cost from x to goal (1)",
+        "f(x) = g(x) + h(x) used to prioritise which node to expand next (1)",
+        "Admissibility: h(x) must never overestimate the true remaining cost (1)"
       ]
     }
   ]
@@ -369,6 +452,27 @@ C["compsci:4.3.5.2"] = {
         "h": "Time Complexities",
         "body": "Tractable = Polynomial time (manageable). Intractable = Exponential/Factorial time (blows up quickly)."
       }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Intractable ≠ Impossible",
+        "body": "An intractable problem **has** an algorithm — it just runs too slowly for large inputs. This is different from an **uncomputable** problem (like the Halting Problem), for which no algorithm can ever exist."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "\"Faster hardware solves intractable problems\"",
+        "body": "Doubling CPU speed only adds one extra item to what an exponential algorithm can handle. Going from n=50 to n=100 doesn't help — the algorithm is still impractical. Heuristics are the only practical escape."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "The Travelling Salesman Problem (TSP)",
+        "body": "TSP is the canonical intractable problem: find the shortest route visiting $n$ cities exactly once. The brute-force solution checks all $(n-1)!$ permutations. For $n=20$, that's ~10^{17} routes — impossible even at 10^{10}$ ops/sec."
+      }
     }
   ],
   "flashcards": [
@@ -378,16 +482,24 @@ C["compsci:4.3.5.2"] = {
     ],
     [
       "Define an intractable problem.",
-      "A problem that has an algorithm, but takes an unreasonably long (exponential or factorial) time."
+      "A problem that has an algorithm, but takes an unreasonably long (exponential or factorial) time for large inputs."
     ],
     [
       "Give examples of polynomial time complexities.",
-      "O(n), O(n^2), O(n^3), O(log n), O(n log n)"
+      "$O(n)$, $O(n^2)$, $O(n^3)$, $O(\\log n)$, $O(n \\log n)$"
+    ],
+    [
+      "What is the key difference between intractable and uncomputable?",
+      "Intractable: an algorithm exists but is too slow. Uncomputable: no algorithm can ever exist (e.g., the Halting Problem)."
+    ],
+    [
+      "Why can't faster hardware solve intractable problems?",
+      "Doubling speed only adds one item to what an exponential algorithm can handle — the growth outpaces any hardware improvement."
     ]
   ],
   "quiz": [
     {
-      "q": "A problem with a time complexity of O(2^n) is considered...",
+      "q": "A problem with a time complexity of $O(2^n)$ is considered…",
       "opts": [
         "Intractable",
         "Tractable",
@@ -395,14 +507,29 @@ C["compsci:4.3.5.2"] = {
         "Constant time"
       ],
       "ans": 0
+    },
+    {
+      "q": "Which of these is an example of an intractable problem?",
+      "opts": [
+        "Searching a sorted list",
+        "Sorting n items with merge sort",
+        "Finding the shortest route visiting all cities exactly once (TSP)",
+        "Calculating the sum of n numbers"
+      ],
+      "ans": 2,
+      "why": "TSP is $O(n!)$ brute force — exponential/factorial time makes it intractable for large n."
     }
   ],
   "exam": [
     {
-      "q": "Explain the difference between a tractable and an intractable problem.",
-      "marks": 4,
+      "q": "Explain the difference between a tractable and an intractable problem, and describe how heuristics address intractable problems.",
+      "marks": 5,
       "ms": [
-        "Tractable = polynomial time (1), example $O(n^2)$ (1), Intractable = exponential/factorial (1), example $O(2^n)$ (1)"
+        "Tractable: solvable in polynomial time, e.g. $O(n^2)$ (1)",
+        "Intractable: algorithm exists but runs in exponential/factorial time, e.g. $O(2^n)$ (1)",
+        "Intractable ≠ unsolvable — an algorithm exists, it is just impractically slow for large n (1)",
+        "Heuristic: a technique that finds an approximate (good enough) solution in polynomial time (1)",
+        "Example: Nearest Neighbour for TSP gives a near-optimal tour quickly, not guaranteed optimal (1)"
       ]
     }
   ]
