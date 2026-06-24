@@ -636,13 +636,13 @@
         var split = el("div", { class: "split" });
         split.appendChild(el("div", { class: "colcard" }, [
           el("div", { class: "ch", text: d.labelL }),
-          el("div", { class: "cb speccontent", html: listify(leaf.content) })
+          el("div", { class: "cb speccontent", html: renderSpecContent(leaf.content) })
         ]));
         var right = el("div", {});
         if (leaf.info.length) {
           right.appendChild(el("div", { class: "colcard" }, [
             el("div", { class: "ch", text: d.labelR }),
-            el("div", { class: "cb guide", html: listify(leaf.info) })
+            el("div", { class: "cb guide", html: renderSpecInfo(leaf.info) })
           ]));
         }
         split.appendChild(right);
@@ -995,6 +995,76 @@
     });
     if (inUl) html += "</ul>";
     return html;
+  }
+
+  /* ---- specification cleanup ----
+     The generated spec data is clean for CS/Maths but PDF-parsing left the IT
+     unit littered with stray checkbox glyphs (□, lone "o"), empty lines, bled
+     "… To" / "Does" fragments and a single run-on `info` string. These display
+     helpers tidy it at render time — generated data is never hand-edited. */
+  function cleanGlyphs(raw) {
+    return String(raw)
+      .replace(/□/g, " ")
+      .replace(/\s+/g, " ")
+      .replace(/^[•◦▪‣]\s*/, "")     // leading bullet glyph
+      .replace(/^-\s+/, "")
+      .replace(/\s+o\s*$/, "")        // trailing checkbox "o"
+      .replace(/\bDoes\b/g, " ")      // 'Does not include' fragment noise
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  function renderSpecContent(lines) {
+    var out = "", buf = [];
+    function flush() { if (buf.length) { out += "<ul>" + buf.join("") + "</ul>"; buf = []; } }
+    (lines || []).forEach(function (raw) {
+      var wasBullet = /^\s*(•|◦|▪|□|‣|-\s|o\s)/.test(raw);
+      var s = cleanGlyphs(raw);
+      if (!s || s === "To") return;                        // noise / empties
+      if (/\bTo$/.test(s)) {                                // "X To" = bled 'To include' → header
+        flush();
+        out += '<p class="spec-h">' + esc(s.replace(/\s*To$/, "")) + "</p>";
+        return;
+      }
+      if (/\so\s/.test(s)) {                                // "A o B o" merge → split items
+        s.split(/\s+o\s+/).forEach(function (p) { p = p.trim(); if (p) buf.push("<li>" + esc(p) + "</li>"); });
+        return;
+      }
+      if (wasBullet) { buf.push("<li>" + esc(s) + "</li>"); }     // genuine sub-item
+      else { flush(); out += "<p>" + esc(s) + "</p>"; }           // intro/instruction line (CS/Maths)
+    });
+    flush();
+    return out || listify(lines);
+  }
+  function splitPoints(seg) {
+    /* break a run-on of spec points before strong sentence starters */
+    return seg.replace(/\s+(The|When|Know|Understand|How|Use|Be|Students|Why|Link)\b/g, "@@SP@@$1")
+      .split("@@SP@@").map(function (p) { return p.trim(); }).filter(Boolean);
+  }
+  function renderSpecInfo(lines) {
+    lines = lines || [];
+    if (lines.length !== 1) {                               // already a clean array (CS/Maths)
+      return lines.map(function (raw) {
+        var s = cleanGlyphs(raw); return s ? "<p>" + esc(s) + "</p>" : "";
+      }).join("");
+    }
+    var text = cleanGlyphs(lines[0]);                       // single run-on (IT)
+    if (!text) return "";
+    var re = /(not include:|include:)/gi, m, markers = [];
+    while ((m = re.exec(text)) !== null) {
+      markers.push({ idx: m.index, len: m[0].length, label: /not/i.test(m[0]) ? "Not included" : "To include" });
+    }
+    function ul(seg) { return "<ul>" + splitPoints(seg).map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("") + "</ul>"; }
+    if (!markers.length) {
+      var pts = splitPoints(text);
+      return pts.length > 1 ? ul(text) : "<p>" + esc(text) + "</p>";
+    }
+    var html = "";
+    for (var i = 0; i < markers.length; i++) {
+      var seg = text.slice(markers[i].idx + markers[i].len, i + 1 < markers.length ? markers[i + 1].idx : text.length).trim();
+      if (!seg) continue;
+      html += '<p class="spec-h">' + markers[i].label + "</p>" + ul(seg);
+    }
+    return html || "<p>" + esc(text) + "</p>";
   }
 
   function debounce(fn, ms) {
