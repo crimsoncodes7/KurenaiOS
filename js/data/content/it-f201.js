@@ -255,60 +255,126 @@ C["it:F201.1.4"] = {
 C["it:F201.2.1"] = {
   notes: [
     { h: "Types of Big Data" },
-    { callout: { t: "info", h: "Data Classifications", body: [
-      { kv: [
-        ["Structured", "Organised in rows and columns with a fixed schema (e.g., $SQL$ tables, $CSV$)."],
-        ["Unstructured", "No predefined format; very high volume (e.g., Video, Audio, $CCTV$)."],
-        ["Semi-structured", "No fixed schema but contains tags or metadata (e.g., $XML$, $JSON$, Email)."]
-      ] }
+    "Big data is classified by how organised it is into three types — **structured**, **unstructured** and **semi-structured**. The spec wants the **difference** between them, **how each is captured**, **its purpose**, **when it is used**, and the **benefits and limitations** of each. Structured numeric data is further split into **continuous** and **discrete**.",
+    { callout: { t: "memorise", h: "The three types in one line each", body: "**Structured** = fixed rows + columns / schema ($SQL$ tables, spreadsheets, transactions). **Unstructured** = no predefined format, very high volume (social media, video, weather imagery). **Semi-structured** = no rigid schema but self-describing tags/metadata ($XML$, $JSON$, emails, web pages)." }},
+
+    { page: "Structured data" },
+    { callout: { t: "def", h: "Structured data", body: "Data organised into a predefined model of rows and columns with a fixed schema, so it can be stored in a relational database and queried with $SQL$." }},
+    "**Examples:** relational database tables, spreadsheet files, transactional data (sales, payments). **Captured** through forms, point-of-sale tills, online transactions and database entry. **Subtypes (numeric):** *continuous* — any value in a range (temperature $22.51°$); *discrete* — separate countable values ($5$ customers).",
+    { callout: { t: "info", h: "Structured — benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Easy to store, search and query ($SQL$).", "Rigid schema — adding new fields is costly."],
+        ["Consistent and reliable for reporting.", "Can only represent data that fits the model."],
+        ["Mature, well-supported tools.", "Poor fit for varied, fast-changing big data."]
+      ] } }
     ] } },
-    { table: { head: ["Classification", "Examples"], rows: [
-      ["Structured", "Transactional records, $Continuous$ sensor data, $Discrete$ counts."],
-      ["Unstructured", "Social media posts, Weather satellite images."],
-      ["Semi-structured", "Zipped files, Web pages, $XML$ documents."]
+
+    { page: "Unstructured data" },
+    { callout: { t: "def", h: "Unstructured data", body: "Data with no predefined format or internal model — it cannot be held in simple rows and columns. It makes up the majority of big data by volume." }},
+    "**Examples:** social media and entertainment data, images, audio/video, weather/satellite imagery. **Captured** from sensors, cameras, social platforms, $IoT$ devices and uploads. **Purpose/use:** sentiment analysis, image recognition, recommendation engines — rich insight that structured data can't hold.",
+    { callout: { t: "info", h: "Unstructured — benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Captures rich, real-world variety (text, media).", "Hard to search, store and analyse directly."],
+        ["Huge volumes available cheaply.", "Needs advanced tools/AI to extract meaning."],
+        ["Often the most valuable, novel insight.", "Quality and relevance vary wildly."]
+      ] } }
     ] } },
-    { callout: { t: "info", h: "Numeric Data Subtypes", body: [
-      { kv: [
-        ["Continuous", "Data that can take any value in a range (e.g., temperature $22.51$)."],
-        ["Discrete", "Data that can only take specific, separate values (e.g., $5$ customers)."]
-      ] }
+
+    { page: "Semi-structured data" },
+    { callout: { t: "def", h: "Semi-structured data", body: "Data with no rigid schema, but which carries self-describing tags or metadata that give it some structure — sitting between structured and unstructured." }},
+    "**Examples:** emails, $XML$ and $JSON$, zipped files, web pages. **Captured** from web APIs, document exchanges and messaging. **Purpose/use:** flexible data exchange between systems and storage of varied records — common in $IoT$ and web apps.",
+    { callout: { t: "info", h: "Semi-structured — benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Flexible — new fields added without rebuilding a schema.", "Less efficient to query than fully structured data."],
+        ["Self-describing and portable between systems.", "Tags add overhead/size to each record."],
+        ["Good fit for varied, evolving big data.", "Can be inconsistent if tags aren't standardised."]
+      ] } }
     ] } },
-    { callout: { t: "memorise", h: "Data Types — One-Line Definitions", body:
-      "**Structured** = rows + columns, fixed schema ($CSV$, $SQL$). **Unstructured** = no format, high volume (video, audio, social media). **Semi-structured** = flexible tags/metadata ($JSON$, $XML$, email). **Continuous** = any value in a range (temperature). **Discrete** = only specific values (count of items)."
-    } },
-    { callout: { t: "miscon", h: "CSV Is Structured, Not Semi-Structured", body:
-      "Students often classify $CSV$ as semi-structured because it is a plain text file. In fact, $CSV$ has a **fixed, column-based schema** — making it **structured**. $JSON$ and $XML$ are semi-structured because they use tags/keys but have no rigid schema requirement."
-    } }
+
+    { page: "Comparison & exam technique" },
+    { table: { head: ["", "Structured", "Semi-structured", "Unstructured"], rows: [
+      ["Schema", "Fixed, rigid.", "Flexible tags/metadata.", "None."],
+      ["Store with", "Relational DB / $SQL$.", "$XML$/$JSON$ stores, NoSQL.", "Data lake, object store."],
+      ["Examples", "Tables, spreadsheets, transactions.", "Emails, $XML$, web pages.", "Video, audio, social media."],
+      ["Query/analysis", "Easy.", "Moderate.", "Hard (needs AI)."],
+      ["Share of big data", "Small.", "Some.", "Most (by volume)."]
+    ] } },
+    { callout: { t: "miscon", h: "CSV is structured, not semi-structured", body: "Students see a plain-text $CSV$ and call it semi-structured. But $CSV$ has a **fixed column schema**, so it is **structured**. $XML$/$JSON$ are semi-structured because they use tags but enforce no rigid schema." }},
+    { callout: { t: "tip", h: "Answering type questions", body: "Justify a classification by the schema: rigid columns → structured; tags but no rigid schema → semi-structured; no format at all → unstructured. For 'continuous vs discrete', ask: can it take any value in a range (continuous) or only separate counts (discrete)?" }}
   ],
   flashcards: [
-    ["Is $JSON$ structured or semi-structured?", "Semi-structured."],
-    ["Give an example of continuous data.", "Temperature or $GPS$ coordinates."],
-    ["Give an example of discrete data.", "Number of items in a shopping basket."],
-    ["What makes data 'unstructured'?", "The lack of a predefined internal model or schema."]
+    ["Define structured data.", "Data in a fixed schema of rows and columns, e.g. $SQL$ tables — easy to query."],
+    ["Define unstructured data.", "Data with no predefined format (video, audio, social media); the majority of big data by volume."],
+    ["Define semi-structured data.", "Data with no rigid schema but self-describing tags/metadata, e.g. $XML$, $JSON$, emails."],
+    ["How is unstructured data captured?", "From sensors, cameras, social platforms, $IoT$ devices and uploads."],
+    ["One benefit and limitation of structured data?", "Benefit: easy to query/report. Limitation: rigid schema, poor fit for varied big data."],
+    ["One benefit of semi-structured data?", "Flexible — new fields can be added without rebuilding a schema."],
+    ["Continuous vs discrete data?", "Continuous = any value in a range (temperature). Discrete = separate countable values (number of customers)."],
+    ["Is $JSON$ structured or semi-structured?", "Semi-structured — it uses tags/keys but enforces no rigid schema."]
   ],
   quiz: [
     {
-      q: "Which of these is semi-structured?",
-      opts: ["$SQL$ Database", "$XML$ file", "MP4 Video", "$CSV$ file"],
+      q: "Which is semi-structured?",
+      opts: ["$SQL$ database table", "$XML$ file", "MP4 video", "Spreadsheet"],
       ans: 1,
-      why: "$XML$ uses tags but is not strictly tabular."
+      why: "$XML$ uses self-describing tags but has no rigid tabular schema."
     },
     {
-      q: "A count of people entering a building is...",
+      q: "A count of people entering a building is…",
       opts: ["Continuous", "Discrete", "Unstructured", "Semi-structured"],
       ans: 1,
-      why: "You cannot have a fraction of a person."
+      why: "It can only take separate whole-number values — you can't have a fraction of a person."
+    },
+    {
+      q: "Which data type makes up the majority of big data by volume?",
+      opts: ["Structured", "Semi-structured", "Unstructured", "Relational"],
+      ans: 2,
+      why: "Unstructured data (media, social, sensor) dominates big data by volume."
+    },
+    {
+      q: "Which is a limitation of structured data for big data?",
+      opts: ["Hard to query", "Rigid schema unsuited to varied, fast-changing data", "Cannot be stored in databases", "No tools support it"],
+      ans: 1,
+      why: "Its fixed schema makes it a poor fit for the variety and velocity of big data."
+    },
+    {
+      q: "Temperature recorded to two decimal places is an example of…",
+      opts: ["Discrete data", "Continuous data", "Semi-structured data", "Unstructured data"],
+      ans: 1,
+      why: "Temperature can take any value in a range, so it is continuous."
     }
   ],
   exam: [
     {
-      q: "Explain why semi-structured data like $JSON$ is often preferred over structured $SQL$ for $IoT$ applications.",
+      q: "Explain the difference between structured and unstructured data, giving one example of each. [4]",
       marks: 4,
       ms: [
-        "$IoT$ sensors generate varying types of data (1).",
-        "$JSON$ is flexible and allows adding new fields without rebuilding a schema (1).",
-        "$SQL$ requires a rigid, predefined structure which is harder to update (1).",
-        "$JSON$ is more lightweight for transmission over networks (1)."
+        "Structured data has a fixed schema of rows and columns (1).",
+        "Example: a relational database / spreadsheet of transactions (1).",
+        "Unstructured data has no predefined format (1).",
+        "Example: social media posts / video / images (1)."
+      ]
+    },
+    {
+      q: "An IoT weather network collects readings from thousands of varied sensors whose formats change over time. Explain why semi-structured data is more suitable than fully structured data here. [4]",
+      marks: 4,
+      ms: [
+        "Sensors generate varied data whose fields change (1).",
+        "Semi-structured ($JSON$/$XML$) allows new fields without rebuilding a schema (1).",
+        "A rigid structured schema would be costly to update each change (1).",
+        "Semi-structured tags make records self-describing and portable between systems (1)."
+      ]
+    },
+    {
+      q: "Discuss the benefits and limitations of using unstructured data for a company analysing customer opinion. [6]",
+      marks: 6,
+      ms: [
+        "Benefit: captures rich real-world opinion (text, images, video) (1).",
+        "Benefit: huge volumes of social-media data available cheaply (1).",
+        "Benefit: can reveal sentiment structured data would miss (1).",
+        "Limitation: hard to store and analyse directly (1).",
+        "Limitation: needs advanced AI/NLP tools to extract meaning (1).",
+        "Conclusion: valuable for sentiment but only with the tools/skills to process it (1)."
       ]
     }
   ]
@@ -317,57 +383,110 @@ C["it:F201.2.1"] = {
 C["it:F201.2.2"] = {
   notes: [
     { h: "Data Preparation and Cleaning" },
-    { callout: { t: "info", h: "Data Wrangling", body: [
-      "The process of mapping 'raw' data into a usable format for mining."
-    ] } },
-    { h: "Cleaning Techniques" },
+    "Before big data can be mined it must be **prepared** and **cleaned** — raw data is messy, inconsistent and full of errors. The spec wants the **purpose** of preparing and cleaning data, what **data wrangling** is and how it's used, **when to use each cleaning technique**, and the **benefits and limitations** of each. Technical/coding detail is **out of scope**.",
+    { callout: { t: "tip", h: "Why it matters: garbage in, garbage out", body: "Analysis is only as good as the data fed in. Dirty data → wrong conclusions, so preparation and cleaning are essential, ongoing stages of every big-data pipeline." }},
+
+    { page: "Preparation & wrangling" },
+    { callout: { t: "def", h: "Data preparation", body: "Getting raw data into a usable state for analysis — handling **numeric** data (fixing types, units, ranges) and **textual** data (casing, encoding, tokenising) so it is consistent." }},
+    { callout: { t: "def", h: "Data wrangling", body: "The broader process of mapping and transforming raw data from its original form into a clean, structured format ready for mining — it includes cleaning, restructuring and enriching the data." }},
+    "**How wrangling is used:** combine multiple sources, reshape fields, derive new columns, and feed a consistent dataset into the mining stage. Preparation/wrangling typically consumes the majority of an analyst's time.",
+
+    { page: "Cleaning techniques" },
+    "Eight cleaning techniques the spec names — know what each does and **when** to use it.",
     { steps: [
-      { h: "Removing Duplicates", m: "De-duplication", n: "Ensuring every record is unique to avoid skewing results." },
-      { h: "Fixing Missing Data", m: "Imputation", n: "Filling gaps using averages, mode values, or removing incomplete rows entirely." },
-      { h: "Removing Irrelevant Data", m: "Filtering", n: "Deleting noise columns/rows that do not contribute to the analysis goal." },
-      { h: "Converting Data Types", m: "Casting", n: "Ensuring numbers are treated as integers (not text), and dates as date objects." },
-      { h: "Clear Formatting", m: "Standardisation", n: "Aligning inconsistent formats: e.g. '30/12/24' and 'Dec 30 2024' → one format." },
-      { h: "Fixing Structural Errors", m: "Mapping", n: "Splitting 'Full Name' into 'First' and 'Last'; combining 'Street' + 'City' into 'Address'." },
-      { h: "Language Translation", m: "Normalisation", n: "Converting text data from multiple languages into a single language for uniform analysis." },
-      { h: "Validating Data", m: "Checking", n: "Ensuring values fall within logical ranges — e.g. Age must be 0–120, Price must be > 0." }
+      { h: "Removing duplicates (de-duplication)", m: "When: the same record appears more than once.", n: "Keeps each entity unique so counts/averages aren't skewed." },
+      { h: "Removing irrelevant data (filtering)", m: "When: columns/rows don't serve the analysis goal.", n: "Cuts noise and reduces dataset size." },
+      { h: "Converting data type (casting)", m: "When: numbers stored as text, dates as strings.", n: "Lets values be calculated and sorted correctly." },
+      { h: "Clear formatting (standardisation)", m: "When: inconsistent formats ('30/12/24' vs 'Dec 30 2024').", n: "Aligns everything to one consistent format." },
+      { h: "Fix structural errors", m: "When: fields are mis-split or mislabelled.", n: "Splitting 'Full Name' into first/last; fixing typos in categories." },
+      { h: "Language translation", m: "When: text comes from multiple languages.", n: "Normalises to one language for uniform analysis." },
+      { h: "Fix missing data", m: "When: values are blank.", n: "Delete the row, or impute (fill with mean/median/mode)." },
+      { h: "Validate data", m: "When: values may be out of range.", n: "Range/format checks (Age 0–120, Price > 0) catch errors." }
     ] },
-    { callout: { t: "memorise", h: "8 Cleaning Steps", body: "De-duplication (unique records), Imputation (fill missing: mean/mode or delete), Filtering (remove irrelevant data), Casting (fix data types), Standardisation (format alignment), Mapping (restructure fields), Translation (single language), Validation (range checks). Collective term: data wrangling." }},
-    { callout: { t: "miscon", h: "Cleaning Is Not a One-Time Step", body: "In continuous big data pipelines, raw data keeps arriving and must be cleaned on an ongoing basis. A cleaned dataset becomes dirty again as source formats, business rules, or data definitions change. Cleaning is an iterative, continuous process — not a single stage." }}
+
+    { page: "When & trade-offs" },
+    { callout: { t: "info", h: "Benefits and limitations of cleaning", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["More accurate, trustworthy analysis (no skew from dirty data).", "Time-consuming and resource-intensive."],
+        ["Smaller, consistent datasets process faster.", "Imputing missing values can introduce bias if done poorly."],
+        ["Validation prevents impossible/erroneous values.", "Over-aggressive filtering can delete useful data."],
+        ["Standardised data integrates across sources.", "Must be repeated continuously as new data arrives."]
+      ] } }
+    ] } },
+    { callout: { t: "miscon", h: "Cleaning is not a one-time step", body: "In a continuous big-data pipeline raw data keeps arriving, and clean data goes stale as source formats and business rules change. Cleaning is an **iterative, ongoing** process — not a single stage done once." }},
+    { callout: { t: "memorise", h: "The 8 cleaning techniques", body: "De-duplication · remove irrelevant · convert type (cast) · clear formatting (standardise) · fix structural errors · language translation · fix missing (delete/impute) · validate (range checks). Umbrella term for transforming raw → usable = **data wrangling**." }}
   ],
   flashcards: [
-    ["What is data wrangling?", "Transforming raw data into a clean, analytical format."],
-    ["How can missing data be fixed?", "Via deletion or imputation (filling with mean/mode)."],
-    ["Why is language translation a cleaning step?", "To standardise unstructured text from global sources."],
-    ["What is 'de-duplication'?", "Removing duplicate records so each entry is unique — prevents results being skewed."],
-    ["What is data validation in cleaning?", "Checking that values fall within logical ranges (e.g. Age must be 0–120)."]
+    ["What is the purpose of data preparation?", "To get raw numeric and textual data into a consistent, usable state for analysis."],
+    ["What is data wrangling?", "Mapping/transforming raw data from its original form into a clean, structured format ready for mining."],
+    ["When do you use de-duplication?", "When the same record appears more than once, to stop counts/averages being skewed."],
+    ["Two ways to handle missing data?", "Delete the affected rows, or impute (fill with mean/median/mode)."],
+    ["What does standardisation (clear formatting) fix?", "Inconsistent formats, e.g. '30/12/24' and 'Dec 30 2024' aligned to one format."],
+    ["What does data validation check?", "That values fall within logical ranges/formats (e.g. Age 0–120, Price > 0)."],
+    ["One benefit and one limitation of cleaning?", "Benefit: more accurate analysis. Limitation: time-consuming and must be repeated continuously."],
+    ["Why is language translation a cleaning step?", "To normalise multilingual text into one language for uniform analysis."]
   ],
   quiz: [
     {
-      q: "Which technique fixes '30/12/24' and 'Dec 30 2024' being in the same column?",
-      opts: ["Removing duplicates", "Standardising formats", "Data mining", "Encryption"],
+      q: "Which technique fixes '30/12/24' and 'Dec 30 2024' appearing in one column?",
+      opts: ["Removing duplicates", "Standardising formats", "Data mining", "Validation"],
       ans: 1,
-      why: "Standardisation brings all data into one format."
+      why: "Standardisation (clear formatting) brings all values into one consistent format."
     },
     {
-      q: "A retailer's dataset contains the same customer 3 times under different spellings. Which cleaning step is needed?",
+      q: "A dataset lists the same customer three times under different spellings. Which step is needed?",
       opts: ["Imputation", "De-duplication", "Language translation", "Filtering"],
       ans: 1,
-      why: "De-duplication removes duplicate records to prevent skewed analytics."
+      why: "De-duplication removes duplicate records so analytics aren't skewed."
     },
     {
-      q: "Which cleaning term describes filling a missing value with the average of that column?",
-      opts: ["Standardisation", "Filtering", "Imputation", "Mapping"],
+      q: "Filling a missing value with the average of its column is called…",
+      opts: ["Standardisation", "Filtering", "Imputation", "Casting"],
       ans: 2,
-      why: "Imputation replaces missing values with a calculated substitute (mean, mode, or median)."
+      why: "Imputation replaces missing values with a calculated substitute (mean/median/mode)."
+    },
+    {
+      q: "Which is a limitation of data cleaning?",
+      opts: ["It improves accuracy", "It is time-consuming and must be repeated as new data arrives", "It removes duplicates", "It standardises formats"],
+      ans: 1,
+      why: "Cleaning is resource-intensive and ongoing, not a one-off task."
+    },
+    {
+      q: "Numbers stored as text need which technique before calculation?",
+      opts: ["Converting data type (casting)", "De-duplication", "Translation", "Filtering"],
+      ans: 0,
+      why: "Casting converts text to a numeric type so values can be calculated and sorted."
     }
   ],
   exam: [
     {
-      q: "A dataset has many missing values in the '$Age$' column. Describe TWO ways this can be handled.",
+      q: "The 'Age' column of a dataset has many missing values. Describe two ways this could be handled. [4]",
       marks: 4,
       ms: [
-        "Deletion (1): Removing the entire row if the age is missing (1).",
-        "Imputation (1): Filling the missing value with the average age of the dataset (1)."
+        "Deletion (1): remove the rows where age is missing (1).",
+        "Imputation (1): fill the gap with the mean/median age of the dataset (1)."
+      ]
+    },
+    {
+      q: "Explain why data cleaning is described as an ongoing process rather than a one-off task. [4]",
+      marks: 4,
+      ms: [
+        "New raw data arrives continuously in a big-data pipeline (1).",
+        "It must be cleaned each time before analysis (1).",
+        "Source formats/business rules change, making clean data stale (1).",
+        "So cleaning is iterative and repeated, not done once (1)."
+      ]
+    },
+    {
+      q: "A retailer is preparing a large, messy customer dataset for mining. Discuss the benefits and limitations of thoroughly cleaning the data first. [6]",
+      marks: 6,
+      ms: [
+        "Benefit: removes duplicates/errors so analysis is accurate (1).",
+        "Benefit: standardised, validated data integrates across sources (1).",
+        "Benefit: smaller consistent data processes faster (1).",
+        "Limitation: cleaning is time-consuming and resource-intensive (1).",
+        "Limitation: poor imputation or over-filtering can bias/lose data (1).",
+        "Conclusion: cleaning is essential for trustworthy results despite the cost (1)."
       ]
     }
   ]
@@ -376,61 +495,127 @@ C["it:F201.2.2"] = {
 C["it:F201.2.3"] = {
   notes: [
     { h: "Data Mining Techniques" },
-    { callout: { t: "info", h: "Core Methods", body: [
-      { kv: [
-        ["Descriptive", "Summarises what happened in the past (e.g., last month's sales total)."],
-        ["Diagnostic", "Investigates why something happened (e.g., drill-down into a sales drop)."],
-        ["Predictive", "Forecasts what is likely to happen (e.g., stock market trends)."],
-        ["Prescriptive", "Recommends actions to take (e.g., 'increase price by $10$ to maximise profit')."]
-      ] }
+    { callout: { t: "def", h: "Data mining", body: "The process of analysing large datasets to discover patterns, relationships and anomalies that turn raw big data into useful knowledge for decision-making." }},
+    "The spec wants you to know **what data mining is**, the **role** of mining techniques in analysing big data, the **characteristics** of each technique, **when** each is used, and the **benefits and limitations to organisations** of each. Coding detail is **out of scope**. The four techniques form a ladder of insight: **Descriptive → Diagnostic → Predictive → Prescriptive (DDPP)**.",
+    { callout: { t: "info", h: "Role of data mining", body: "Big data is too large to read manually. Mining techniques automatically surface the patterns inside it — letting organisations understand the past, explain it, predict the future and decide what to do." }},
+
+    { page: "Descriptive" },
+    { callout: { t: "def", h: "Descriptive — 'What happened?'", body: "Summarises historical data into an understandable form (totals, averages, dashboards) to describe past performance." }},
+    "**Characteristics:** backward-looking, aggregates data, the foundation other techniques build on. **When used:** routine reporting — last month's sales, website traffic, KPIs.",
+    { callout: { t: "info", h: "Benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Simple, fast, easy to understand.", "Only describes the past — no 'why' or 'what next'."],
+        ["Good basis for KPIs and dashboards.", "Limited decision-making value on its own."]
+      ] } }
     ] } },
-    { table: { head: ["Technique", "Business Goal"], rows: [
-      ["Predictive", "Forecast demand."],
-      ["Diagnostic", "Identify root cause of fraud."],
-      ["Prescriptive", "Optimise supply chain routes."]
+
+    { page: "Diagnostic" },
+    { callout: { t: "def", h: "Diagnostic — 'Why did it happen?'", body: "Investigates the causes behind what the descriptive stage found, by drilling down and correlating variables." }},
+    "**Characteristics:** explanatory, looks for relationships and root causes. **When used:** explaining a sales drop, identifying the cause of a spike in fraud.",
+    { callout: { t: "info", h: "Benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Explains root causes so problems can be fixed.", "Can mistake correlation for causation."],
+        ["Targets the right area for action.", "Needs richer data and more analysis than descriptive."]
+      ] } }
     ] } },
-    { callout: { t: "memorise", h: "4 Mining Types — DDPP Mnemonic", body:
-      "**D**escriptive — 'What happened?' (report sales totals). **D**iagnostic — 'Why did it happen?' (drill down into a sales drop). **P**redictive — 'What will happen?' (forecast demand). **P**rescriptive — 'What should we do?' (recommend an action). Order of insight: Descriptive → Diagnostic → Predictive → Prescriptive."
-    } },
-    { callout: { t: "miscon", h: "Predictive ≠ Prescriptive", body:
-      "A common error is conflating Predictive and Prescriptive. **Predictive** says 'sales will fall by 10%' — it forecasts. **Prescriptive** goes further and says 'therefore reduce price by £2 to counter the drop' — it recommends an action. Prescriptive always builds on a predictive output."
-    } }
+
+    { page: "Predictive" },
+    { callout: { t: "def", h: "Predictive — 'What will happen?'", body: "Uses historical patterns and models to forecast likely future outcomes." }},
+    "**Characteristics:** forward-looking, probabilistic, model-based. **When used:** forecasting demand, predicting customer churn or stock trends.",
+    { callout: { t: "info", h: "Benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Enables proactive, future-focused decisions.", "Only a probability — never certain."],
+        ["Spots risks/opportunities early.", "Accuracy depends on quality, unbiased data."]
+      ] } }
+    ] } },
+
+    { page: "Prescriptive" },
+    { callout: { t: "def", h: "Prescriptive — 'What should we do?'", body: "Goes beyond prediction to recommend the best action to take, often weighing several options." }},
+    "**Characteristics:** the most advanced; builds on a predictive output to suggest an action. **When used:** optimising delivery routes, recommending a price change to maximise profit.",
+    { callout: { t: "info", h: "Benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Directly guides the best decision/action.", "Complex and expensive to build."],
+        ["Can automate optimisation at scale.", "A wrong recommendation can be costly; needs trust."]
+      ] } }
+    ] } },
+
+    { page: "Compare & exam technique" },
+    { callout: { t: "memorise", h: "DDPP — the ladder of insight", body: "**D**escriptive — what happened (report). **D**iagnostic — why (drill down). **P**redictive — what will happen (forecast). **P**rescriptive — what to do (recommend). Each step adds value and complexity, building on the one before." }},
+    { callout: { t: "miscon", h: "Predictive ≠ Prescriptive", body: "Predictive says 'sales will fall 10%' — it forecasts. Prescriptive says 'so cut price by £2 to counter it' — it recommends an action. Prescriptive always builds on a predictive output." }},
+    { callout: { t: "tip", h: "Identifying the technique", body: "Match the verb in the question: report/summarise → descriptive; explain/why → diagnostic; forecast/predict → predictive; recommend/optimise/what-should → prescriptive." }}
   ],
   flashcards: [
-    ["Define Predictive Mining.", "Using historical data to forecast future outcomes."],
-    ["What is Descriptive Mining?", "Summarising historical data to understand past performance."],
-    ["Difference between Diagnostic and Descriptive?", "$Descriptive$ says 'what'; $Diagnostic$ says 'why'."],
-    ["What is Prescriptive Analytics?", "Recommending the best action to take based on predictive findings."],
-    ["Which mining type is the most advanced?", "Prescriptive — it not only predicts but actively recommends a course of action."]
+    ["What is data mining?", "Analysing large datasets to discover patterns, relationships and anomalies for decision-making."],
+    ["Role of data mining techniques?", "To automatically surface patterns in big data that are too large to read manually."],
+    ["Descriptive mining — question and example?", "'What happened?' — e.g. summarising last month's sales total."],
+    ["Diagnostic mining — question and example?", "'Why did it happen?' — e.g. drilling into the cause of a sales drop."],
+    ["Predictive mining — question and example?", "'What will happen?' — e.g. forecasting next quarter's demand."],
+    ["Prescriptive mining — question and example?", "'What should we do?' — e.g. recommending a price change to maximise profit."],
+    ["One limitation of predictive mining?", "It gives only a probability, not certainty, and depends on unbiased data."],
+    ["One benefit and limitation of prescriptive mining?", "Benefit: directly recommends the best action. Limitation: complex/expensive and a wrong recommendation is costly."]
   ],
   quiz: [
     {
-      q: "Which mining type recommends a specific action?",
+      q: "Which mining technique recommends a specific action?",
       opts: ["Descriptive", "Diagnostic", "Predictive", "Prescriptive"],
       ans: 3,
-      why: "$Prescriptive$ analytics provides 'the best next step'."
+      why: "Prescriptive recommends the best next step, building on a prediction."
     },
     {
-      q: "A supermarket wants to know 'why did sales of umbrellas spike in March?'. Which type is this?",
+      q: "'Why did umbrella sales spike in March?' is answered by which technique?",
       opts: ["Descriptive", "Diagnostic", "Predictive", "Prescriptive"],
       ans: 1,
-      why: "Diagnostic investigates the cause of a known event."
+      why: "Diagnostic mining investigates the causes of a known past event."
     },
     {
-      q: "Which analytics type outputs 'Stock up on umbrellas before the April forecast'?",
+      q: "'Stock up on umbrellas before April's forecast rain' is an output of…",
       opts: ["Descriptive", "Diagnostic", "Predictive", "Prescriptive"],
       ans: 3,
-      why: "Prescriptive recommends a specific action to take."
+      why: "Recommending an action is prescriptive."
+    },
+    {
+      q: "Which technique simply reports last month's total sales?",
+      opts: ["Descriptive", "Diagnostic", "Predictive", "Prescriptive"],
+      ans: 0,
+      why: "Summarising past performance is descriptive mining."
+    },
+    {
+      q: "A limitation common to predictive and prescriptive mining is…",
+      opts: ["They only describe the past", "They rely on data quality and are never certain", "They cannot forecast", "They require no data"],
+      ans: 1,
+      why: "Both are forward-looking and depend on unbiased, quality data; outcomes are probabilistic."
     }
   ],
   exam: [
     {
-      q: "A bank wants to know why loan defaults increased in Q3. Which mining technique is most appropriate and why?",
+      q: "A bank wants to know why loan defaults increased in Q3. Identify the most appropriate mining technique and justify your choice. [3]",
       marks: 3,
       ms: [
         "Diagnostic mining (1).",
-        "It focuses on investigating the causes of past events (1).",
-        "It allows the bank to drill down into variables like interest rates or employment (1)."
+        "It investigates the causes of past events (1).",
+        "It lets the bank drill into variables such as interest rates or employment (1)."
+      ]
+    },
+    {
+      q: "Explain the difference between predictive and prescriptive data mining, with an example of each. [4]",
+      marks: 4,
+      ms: [
+        "Predictive forecasts what is likely to happen (1).",
+        "Example: predicting next month's product demand (1).",
+        "Prescriptive recommends an action to take (1).",
+        "Example: recommending the stock level to order for that demand (1)."
+      ]
+    },
+    {
+      q: "Discuss the benefits and limitations to an organisation of using prescriptive data mining. [6]",
+      marks: 6,
+      ms: [
+        "Benefit: directly recommends the best action, guiding decisions (1).",
+        "Benefit: can automate optimisation at scale (e.g. routing, pricing) (1).",
+        "Benefit: builds on predictions for proactive advantage (1).",
+        "Limitation: complex and expensive to develop (1).",
+        "Limitation: a wrong recommendation can be costly; staff must trust it (1).",
+        "Conclusion: powerful for optimisation if the organisation can resource and validate it (1)."
       ]
     }
   ]
@@ -627,67 +812,147 @@ C["it:F201.2.4"] = {
 C["it:F201.2.5"] = {
   notes: [
     { h: "Data Science and Data Analytics" },
-    { callout: { t: "def", h: "Data Science", body: [
-      "An interdisciplinary field that uses statistics, programming, and domain knowledge to **discover new insights** and build **predictive models** from large datasets. It is forward-looking."
+    "Organisations use two overlapping but distinct disciplines to get value from big data. **Data analytics** examines data that already exists to answer defined questions and support decisions; **data science** builds new models and algorithms to discover patterns and predict what will happen next. The spec wants you to know the **purpose of each**, the **difference between them**, and **how each is used** in the application areas from Topic 1.4 (banking, retail, healthcare, government, etc.).",
+    { callout: { t: "tip", h: "The one distinction that earns the marks", body: "Analytics answers a question someone already asked ('what happened, and why?'). Science investigates a question no one has answered yet ('what will happen, and what should we do?') by building a model. Lead with that and you can't go wrong." }},
+
+    { page: "Data analytics" },
+    { callout: { t: "def", h: "Data analytics", body: "The process of examining existing datasets to find trends, answer specific business questions and support decision-making. It is mostly backward/present-looking and business-oriented." }},
+    "A data **analyst** takes data that has been collected and cleaned, then queries and visualises it to explain what has happened and why — feeding reports and dashboards to decision-makers. It typically works with **structured** data using $SQL$, $Excel$ and business-intelligence ($BI$) tools such as $Tableau$ or $PowerBI$.",
+    { callout: { t: "info", h: "The four types of analytics (increasing value & difficulty)", body: [
+      { kv: [
+        ["Descriptive", "What happened? — summaries, dashboards, KPIs (the most common)."],
+        ["Diagnostic", "Why did it happen? — drilling into causes and correlations."],
+        ["Predictive", "What is likely to happen? — uses models (overlaps with data science)."],
+        ["Prescriptive", "What should we do about it? — recommends actions."]
+      ] }
     ] } },
-    { callout: { t: "def", h: "Data Analytics", body: [
-      "The process of **examining existing datasets** to answer specific business questions, identify trends, and support decision-making. It is primarily backward/present-looking."
+    { callout: { t: "info", h: "Analytics — benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Answers concrete business questions quickly.", "Mostly explains the past — limited at predicting novel events."],
+        ["Accessible tools; less specialist skill than science.", "Quality depends entirely on clean, structured input data."],
+        ["Clear dashboards aid fast, evidence-based decisions.", "Can confirm what you ask about but miss unknown patterns."]
+      ] } }
     ] } },
-    { table: { head: ["Dimension", "Data Science", "Data Analytics"], rows: [
-      ["Focus", "Future — building new models", "Past/present — analysing what happened"],
-      ["Tools", "$Python$, $R$, $ML$ libraries", "$SQL$, $Excel$, $BI$ dashboards ($Tableau$)"],
-      ["Output", "Algorithms, prototypes, new knowledge", "Reports, dashboards, trend summaries"],
-      ["Question type", "Open: 'What could we predict?'", "Closed: 'What were last month's sales?'"],
-      ["Role", "Data Scientist — research-oriented", "Data Analyst — business-oriented"]
+
+    { page: "Data science" },
+    { callout: { t: "def", h: "Data science", body: "An interdisciplinary field combining statistics, programming and domain knowledge to discover new insights and build predictive/prescriptive models from large, often messy datasets. It is forward-looking and research-oriented." }},
+    "A data **scientist** forms a hypothesis, experiments with machine-learning models and works with **raw, unstructured and high-volume** data using $Python$, $R$ and $ML$ libraries. The output is an algorithm or model — new knowledge the business did not previously have — rather than a report.",
+    { callout: { t: "info", h: "Data science — benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Predicts future outcomes and uncovers unknown patterns.", "Needs scarce, expensive specialist skills (stats + programming)."],
+        ["Handles raw, unstructured, very large data.", "Models can be opaque ('black box') and hard to explain."],
+        ["Creates reusable models that automate decisions.", "Garbage-in/garbage-out: biased training data → biased predictions."]
+      ] } }
     ] } },
-    { h: "Application to Sectors" },
-    { table: { head: ["Sector", "Data Analytics Use", "Data Science Use"], rows: [
-      ["Retail", "Sales dashboard / stock-level reports", "Demand-forecasting model / churn predictor"],
-      ["Healthcare", "Patient admission trend analysis", "$ML$ model for early cancer detection"],
-      ["Banking", "Monthly fraud transaction reports", "Real-time fraud detection algorithm"]
+
+    { page: "Science vs analytics" },
+    "This comparison is the heart of the topic — the spec explicitly asks for *the difference between data science and data analytics*.",
+    { table: { head: ["Dimension", "Data analytics", "Data science"], rows: [
+      ["Question", "Closed — 'What were last month's sales?'", "Open — 'Which customers will churn, and why?'"],
+      ["Time focus", "Past / present (what happened).", "Future (what will happen, what to do)."],
+      ["Data", "Mostly structured, already cleaned.", "Raw, unstructured, high-volume."],
+      ["Tools", "$SQL$, $Excel$, $BI$ dashboards ($Tableau$).", "$Python$, $R$, $ML$ libraries."],
+      ["Output", "Reports, dashboards, trend summaries.", "Algorithms, predictive models, new knowledge."],
+      ["Role / skills", "Data analyst — business-oriented.", "Data scientist — research + programming."]
     ] } },
-    { callout: { t: "warn", h: "Misconception", body: [
-      "Data Science is NOT just 'more advanced' analytics. It uses a different scientific method — forming hypotheses, experimenting with models, and discovering new patterns the business didn't know existed."
+    { callout: { t: "miscon", h: "Data science is NOT just 'advanced analytics'", body: "Both use data, so students conflate them. The difference is the **method**: analytics answers a predefined question; science forms a hypothesis, builds an experiment and discovers knowledge that was never explicitly requested. Predictive/prescriptive analytics is where the two overlap — but classic analytics reports the past while science models the future." }},
+
+    { page: "Use across sectors" },
+    "The spec links this to the Topic 1.4 application areas — be ready to give an analytics use AND a science use for a named sector.",
+    { table: { head: ["Sector", "Data analytics use", "Data science use"], rows: [
+      ["Banking", "Monthly report of fraudulent transactions by type.", "Real-time ML model that flags fraud as it happens."],
+      ["Retail", "Dashboard of stock levels and best-sellers.", "Demand-forecasting / customer-churn prediction model."],
+      ["Healthcare", "Trend analysis of ward waiting times to plan staffing.", "ML model predicting which patients risk readmission."],
+      ["Government", "Reporting tax-collection figures by region.", "Modelling the spread of disease to plan responses."]
     ] } },
-    { callout: { t: "memorise", h: "Science vs Analytics — Decision Rule", body:
-      "**Analytics**: backward-looking, answers a *known* question, tools = $SQL$/$Excel$/$Tableau$, output = reports/dashboards. **Science**: forward-looking, asks a *new* question, tools = $Python$/$R$/$ML$, output = algorithms/models. Exam shortcut: if a defined question exists → Analytics. If someone is building a model to discover something previously unknown → Science."
-    } },
-    { callout: { t: "miscon", h: "Data Science Is Not Just 'Advanced Analytics'", body:
-      "Both use data, so students conflate them. The key distinction is the **method**: Analytics answers a predefined question (e.g. 'What were sales in Q3?'). Science forms a hypothesis, builds an experiment, and discovers new knowledge (e.g. 'Which customers will churn next month?'). The Science question was never asked — the model found it."
-    } }
+    { callout: { t: "memorise", h: "Science vs analytics — decision rule", body: "If a **defined** question exists and you are explaining the past/present from clean data → **analytics** ($SQL$/$Excel$/$Tableau$, reports). If someone is **building a model** to predict or discover something previously unknown from raw data → **science** ($Python$/$R$/$ML$, algorithms). Analytics looks back; science looks forward." }},
+
+    { page: "Exam technique" },
+    { callout: { t: "tip", h: "How to answer 'difference' and 'how used' questions", body: [
+      "**Difference (compare):** make linked points across both — question type, time focus, data, tools, output — never two separate lists.",
+      "**How used (apply):** name the sector from the question, then give one concrete analytics task and one concrete science task for it.",
+      "**Define/purpose:** analytics = answer known questions from existing data; science = discover new insight and build predictive models."
+    ] } }
   ],
   flashcards: [
-    ["Goal of Data Science?", "Discovering new questions and building predictive models from data."],
-    ["Goal of Data Analytics?", "Finding answers to existing business questions and understanding trends."],
-    ["Tool used in Data Science?", "Python / R / machine learning libraries."],
-    ["Tool used in Data Analytics?", "SQL, Excel, Tableau or other BI dashboard software."],
-    ["Which is more forward-looking?", "Data Science — it predicts the future."]
+    ["Purpose of data analytics?", "Examine existing data to answer defined business questions and support decisions (mostly backward-looking)."],
+    ["Purpose of data science?", "Discover new insights and build predictive models from large datasets (forward-looking)."],
+    ["The key difference between them?", "Analytics answers a known question about the past/present; science builds a model to predict/discover the unknown."],
+    ["Typical tools for data analytics?", "$SQL$, $Excel$, and $BI$ dashboards such as $Tableau$ or $PowerBI$."],
+    ["Typical tools for data science?", "$Python$, $R$ and machine-learning libraries."],
+    ["Name the four types of analytics.", "Descriptive (what happened), diagnostic (why), predictive (what will happen), prescriptive (what to do)."],
+    ["One limitation of data analytics?", "It mostly explains the past and depends on clean structured data; it can miss unknown patterns."],
+    ["One limitation of data science?", "Needs scarce specialist skills, and biased training data produces biased predictions; models can be hard to explain."],
+    ["Which works with raw, unstructured data?", "Data science; analytics usually works with already-structured, cleaned data."]
   ],
   quiz: [
     {
-      q: "Which field is more future-focused?",
-      opts: ["Data Analytics", "Data Science", "Data Cleaning", "Data Storage"],
+      q: "Which discipline is more future-focused?",
+      opts: ["Data analytics", "Data science", "Data cleaning", "Data storage"],
       ans: 1,
-      why: "Data Science builds predictive models to forecast future outcomes."
+      why: "Data science builds predictive models to forecast future outcomes."
     },
     {
-      q: "A company asks 'what were our top-selling products last quarter?' — which field answers this?",
-      opts: ["Data Science", "Data Analytics", "Machine Learning", "Data Wrangling"],
+      q: "A manager asks 'what were our top-selling products last quarter?' Which discipline answers this?",
+      opts: ["Data science", "Data analytics", "Machine learning", "Data wrangling"],
       ans: 1,
-      why: "Data Analytics answers specific historical business questions using existing data."
+      why: "Data analytics answers a specific historical question from existing data."
+    },
+    {
+      q: "Which analytics type answers 'why did sales fall?'",
+      opts: ["Descriptive", "Diagnostic", "Predictive", "Prescriptive"],
+      ans: 1,
+      why: "Diagnostic analytics drills into causes and correlations behind what happened."
+    },
+    {
+      q: "Which is a limitation specific to data science rather than analytics?",
+      opts: ["Depends on clean structured data", "Needs scarce specialist statistics + programming skills", "Only produces dashboards", "Cannot use SQL"],
+      ans: 1,
+      why: "Data science requires expensive specialist skills and can produce hard-to-explain 'black box' models."
+    },
+    {
+      q: "A retailer builds a model to predict which customers will stop shopping. This is best described as…",
+      opts: ["Descriptive analytics", "Data science", "Diagnostic analytics", "Data storage"],
+      ans: 1,
+      why: "Building a predictive churn model to discover unknown future behaviour is data science."
     }
   ],
   exam: [
     {
-      q: "Explain the difference between Data Science and Data Analytics, using an example from the Healthcare sector for each.",
+      q: "Explain the difference between data science and data analytics. [4]",
+      marks: 4,
+      ms: [
+        "Data analytics examines existing data to answer defined questions (1).",
+        "It is backward/present-looking and uses tools like $SQL$/$BI$ dashboards (1).",
+        "Data science builds models to discover new insight and predict the future (1).",
+        "It is forward-looking, works with raw data and outputs algorithms/models (1)."
+      ]
+    },
+    {
+      q: "A hospital wants to (a) report current ward waiting times and (b) predict which patients are likely to be readmitted. Identify which discipline suits each and justify your choice. [6]",
       marks: 6,
       ms: [
-        "Data Analytics is backward/present-looking; answers defined questions (1).",
-        "Healthcare Analytics example: analysing which hospital wards have the longest waiting times to schedule more staff (1).",
-        "Data Science is forward-looking; discovers new patterns and builds models (1).",
-        "Healthcare Science example: building an $ML$ model to predict which patients are at risk of readmission (1).",
-        "Key difference: Analytics uses existing data to report; Science creates new algorithms to predict (1).",
-        "Data Science relies heavily on big data as training input for its models (1)."
+        "(a) Data analytics (1).",
+        "Reporting current waiting times answers a defined question from existing data (1).",
+        "Likely descriptive analytics shown on a dashboard for staffing decisions (1).",
+        "(b) Data science (1).",
+        "Predicting readmission requires building a model on historical patient data (1).",
+        "It discovers an unknown future outcome rather than reporting the past (1)."
+      ]
+    },
+    {
+      q: "Evaluate the use of data science (rather than data analytics) for a bank that wants to reduce fraud. [9]",
+      marks: 9,
+      ms: [
+        "Data science defined: building predictive models from large datasets (1).",
+        "Benefit: a model can flag fraud in real time as transactions happen (1).",
+        "Benefit: it discovers new fraud patterns analytics reporting would miss (1).",
+        "Benefit: automates decisions at scale across millions of transactions (1).",
+        "Limitation: needs scarce, expensive data-science expertise (1).",
+        "Limitation: a 'black box' model is hard to explain to regulators (1).",
+        "Limitation: biased training data could unfairly flag legitimate customers (1).",
+        "Analytics contrast: cheaper and clearer but only reports past fraud (1).",
+        "Justified conclusion: science is worth it for real-time prevention if the bank can resource it and manage explainability (1)."
       ]
     }
   ]
@@ -696,64 +961,151 @@ C["it:F201.2.5"] = {
 C["it:F201.2.6"] = {
   notes: [
     { h: "Data Analytic Techniques" },
-    { callout: { t: "info", h: "Statistical Methods", body: [
+    "These are the specific statistical methods used to extract insight from big data. The spec names five — **regression, Monte Carlo simulation, cohort analysis, cluster analysis and time series analysis** — and for each you must know **what it is, its purpose, and its benefits and limitations**. You do **not** need the technical maths behind them.",
+    { callout: { t: "info", h: "The five techniques at a glance", body: [
       { kv: [
-        ["Regression Analysis", "Estimating the relationship between variables (e.g., how price affects demand)."],
-        ["Monte Carlo Simulation", "Using randomness to model the probability of different outcomes."],
-        ["Factor Analysis", "Reducing many variables into fewer 'factors' that explain variance."],
-        ["Cohort Analysis", "Grouping users by shared characteristics over time (e.g., sign-up date)."],
-        ["Cluster Analysis", "Grouping data points by similarity with NO predefined labels."],
-        ["Time Series Analysis", "Analysing data points at successive time intervals to find trends."]
+        ["Regression analysis", "Models the relationship between variables to predict one from others."],
+        ["Monte Carlo simulation", "Runs many random scenarios to model the probability of outcomes under uncertainty."],
+        ["Cohort analysis", "Groups people by a shared characteristic and tracks that group over time."],
+        ["Cluster analysis", "Groups data points by similarity, with no predefined labels."],
+        ["Time series analysis", "Studies data points taken at successive time intervals to find trends and seasonality."]
       ] }
     ] } },
-    { table: { head: ["Technique", "Use Case"], rows: [
-      ["Regression", "Predicting sales from temperature."],
-      ["Monte Carlo", "Assessing financial risk in uncertain markets."],
-      ["Cohort", "Checking if customers who joined in Jan are still loyal in Dec."]
+
+    { page: "Regression analysis" },
+    { callout: { t: "def", h: "Regression analysis", body: "A technique that models the relationship between a dependent variable and one or more independent variables, so the value of one can be predicted from the others (e.g. predicting ice-cream sales from temperature)." }},
+    { callout: { t: "info", h: "Benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Quantifies how strongly variables are related.", "Correlation is not causation — a relationship may be coincidental."],
+        ["Enables prediction of a numeric outcome.", "Poor at modelling complex, non-linear relationships."],
+        ["Simple and widely understood.", "Sensitive to outliers and to missing variables."]
+      ] } }
     ] } },
-    { callout: { t: "memorise", h: "6 Techniques — When to Use Each", body:
-      "**Regression**: relationship between variables (X predicts Y). **Monte Carlo**: uncertain outcomes — model probability via random sampling (financial risk). **Factor Analysis**: reduce many variables into fewer hidden factors. **Cohort**: track a group defined by a *known shared characteristic* over time (loyalty by sign-up month). **Cluster**: group data by *statistical similarity* with no predefined labels (customer segments). **Time Series**: data at successive intervals — spot trends, cycles, seasonality."
-    } },
-    { callout: { t: "miscon", h: "Cluster ≠ Cohort Analysis", body:
-      "**Cohort** groups users by a *predefined* characteristic (e.g. sign-up month) and tracks them over time — the groups are chosen before analysis. **Cluster** groups data purely by *statistical similarity* — the algorithm decides the groups with no prior definition. Exam tell: groups defined before analysis → Cohort. Groups discovered by the algorithm → Cluster."
-    } }
+
+    { page: "Monte Carlo simulation" },
+    { callout: { t: "def", h: "Monte Carlo simulation", body: "A technique that repeatedly runs a model with random inputs (often thousands of times) to produce a distribution of possible outcomes and their probabilities — used where there is uncertainty and risk." }},
+    { callout: { t: "info", h: "Benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Models risk and uncertainty other techniques can't.", "Computationally expensive — many runs needed."],
+        ["Gives a probability distribution, not a single guess.", "Output is only as good as the assumptions/inputs."],
+        ["Handles many interacting random variables.", "Results can give false confidence if misread."]
+      ] } }
+    ] } },
+    "Typical use: a bank running tens of thousands of simulated economic scenarios to estimate the probability of loan defaults.",
+
+    { page: "Cohort analysis" },
+    { callout: { t: "def", h: "Cohort analysis", body: "A technique that groups individuals who share a defined characteristic (e.g. the month they signed up) into a 'cohort', then tracks that cohort's behaviour over time." }},
+    { callout: { t: "info", h: "Benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Reveals how behaviour changes over a group's lifetime.", "Groups are chosen in advance — may miss better groupings."],
+        ["Great for retention, loyalty and churn questions.", "Needs data tracked per individual over time."],
+        ["Easy to compare cohorts side by side.", "Confounding events can affect one cohort, not another."]
+      ] } }
+    ] } },
+
+    { page: "Cluster analysis" },
+    { callout: { t: "def", h: "Cluster analysis", body: "A technique that automatically groups data points by similarity, with no predefined labels — the algorithm discovers the groups (e.g. segmenting customers by purchasing behaviour)." }},
+    { callout: { t: "info", h: "Benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Discovers structure you didn't know existed.", "Number/shape of clusters can be subjective to choose."],
+        ["No labelled training data required (unsupervised).", "Clusters can be hard to interpret or label meaningfully."],
+        ["Powerful for market/customer segmentation.", "Sensitive to the scale and choice of input features."]
+      ] } }
+    ] } },
+    { callout: { t: "miscon", h: "Cluster ≠ Cohort", body: "**Cohort** groups by a *predefined* trait (e.g. sign-up month) chosen before analysis. **Cluster** lets the *algorithm* find the groups from similarity, with no labels. Exam tell: groups defined beforehand → cohort; groups discovered automatically → cluster." }},
+
+    { page: "Time series analysis" },
+    { callout: { t: "def", h: "Time series analysis", body: "A technique that analyses data points recorded at successive, evenly spaced time intervals to identify trends, cycles and seasonality, and to forecast future values." }},
+    { callout: { t: "info", h: "Benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Reveals trends and repeating seasonal patterns.", "Assumes the past is a good guide to the future."],
+        ["Supports forecasting (e.g. next quarter's demand).", "Disrupted by one-off shocks (e.g. a pandemic)."],
+        ["Works on any regularly-sampled metric.", "Needs a long, consistent history to be reliable."]
+      ] } }
+    ] } },
+
+    { page: "Choosing & exam technique" },
+    { callout: { t: "memorise", h: "Pick the technique by the question", body: "**Predict a number from other variables** → regression. **Model risk/uncertain outcomes** → Monte Carlo. **Track a defined group over time** → cohort. **Discover unknown groups by similarity** → cluster. **Find trends/seasonality over time** → time series." }},
+    { callout: { t: "tip", h: "Answering 'identify the technique' questions", body: [
+      "State the technique, then justify with the giveaway in the scenario (e.g. 'groups customers automatically' → cluster).",
+      "If asked to evaluate, pair a benefit with a limitation for that technique.",
+      "Remember: technical/mathematical detail is explicitly out of scope — focus on what, why, benefits, limitations."
+    ] } }
   ],
   flashcards: [
-    ["Define Regression.", "Statistical method for finding relationships between variables."],
-    ["What does Monte Carlo use?", "Random sampling and probability modelling."],
-    ["Define Time Series Analysis.", "Analysing data over time to spot trends or seasonality."],
-    ["What does Cohort Analysis group users by?", "A shared characteristic — such as sign-up date or age group — and tracks them over time."],
-    ["Key difference: Cluster vs Cohort?", "Cohort groups are defined before analysis (by a known trait). Cluster groups are discovered by the algorithm based on similarity."]
+    ["Purpose of regression analysis?", "Model the relationship between variables so one can be predicted from others."],
+    ["One limitation of regression?", "Correlation is not causation, and it handles non-linear relationships poorly."],
+    ["What does Monte Carlo simulation do?", "Runs many random scenarios to model the probability of different outcomes under uncertainty."],
+    ["One limitation of Monte Carlo?", "Computationally expensive and only as good as its input assumptions."],
+    ["What does cohort analysis group by?", "A predefined shared characteristic (e.g. sign-up month), then tracks that group over time."],
+    ["What does cluster analysis group by?", "Statistical similarity, with no predefined labels — the algorithm finds the groups."],
+    ["Cluster vs cohort — the key difference?", "Cohort groups are defined beforehand; cluster groups are discovered automatically."],
+    ["Purpose of time series analysis?", "Analyse data over successive intervals to find trends/seasonality and forecast."],
+    ["One limitation of time series analysis?", "It assumes the past predicts the future and is disrupted by one-off shocks."]
   ],
   quiz: [
     {
       q: "Which technique is best for finding seasonal trends?",
-      opts: ["Factor Analysis", "Cluster Analysis", "Time Series Analysis", "Regression"],
+      opts: ["Cluster analysis", "Cohort analysis", "Time series analysis", "Regression"],
       ans: 2,
-      why: "Time series specifically looks at intervals over time."
+      why: "Time series analysis studies data over successive intervals to reveal trends and seasonality."
     },
     {
-      q: "A bank runs 10,000 simulated economic scenarios to assess loan default risk. Which technique is this?",
-      opts: ["Regression", "Monte Carlo", "Cohort Analysis", "Factor Analysis"],
+      q: "A bank runs 10,000 simulated economic scenarios to assess loan-default risk. Which technique is this?",
+      opts: ["Regression", "Monte Carlo simulation", "Cohort analysis", "Cluster analysis"],
       ans: 1,
-      why: "Monte Carlo uses random sampling to model the probability of different outcomes in uncertain situations."
+      why: "Monte Carlo uses repeated random sampling to model the probability of outcomes under uncertainty."
     },
     {
-      q: "An e-commerce site groups customers automatically by purchase behaviour, without predefined categories. Which technique?",
-      opts: ["Cohort Analysis", "Time Series", "Cluster Analysis", "Regression"],
+      q: "An e-commerce site groups customers automatically by purchase behaviour, with no predefined categories. Which technique?",
+      opts: ["Cohort analysis", "Time series", "Cluster analysis", "Regression"],
       ans: 2,
-      why: "Cluster analysis groups data by similarity without predefined labels — the algorithm finds the groups."
+      why: "Cluster analysis groups by similarity with no labels — the algorithm discovers the groups."
+    },
+    {
+      q: "Which technique would predict sales figures from advertising spend?",
+      opts: ["Regression analysis", "Cohort analysis", "Cluster analysis", "Monte Carlo"],
+      ans: 0,
+      why: "Regression models how one variable (sales) depends on another (ad spend) to predict it."
+    },
+    {
+      q: "Which is a limitation common to regression and time series?",
+      opts: ["They require labelled clusters", "They can wrongly assume a past relationship continues", "They cannot use numeric data", "They only work on images"],
+      ans: 1,
+      why: "Both extrapolate from historical relationships, which may not hold (correlation≠causation; past≠future)."
     }
   ],
   exam: [
     {
-      q: "A fashion retailer wants to see if customers who signed up during a winter sale spend more over the year than those who signed up in summer. Identify the technique and explain how it would be used.",
+      q: "A fashion retailer wants to see whether customers who signed up during a winter sale spend more over the year than those who signed up in summer. Identify the most suitable technique and explain how it would be used. [4]",
       marks: 4,
       ms: [
-        "Cohort Analysis (1).",
-        "Create two cohorts based on sign-up date (Winter vs Summer) (1).",
-        "Track the average lifetime value ($LTV$) of each group over $12$ months (1).",
-        "Compare results to determine marketing effectiveness (1)."
+        "Cohort analysis (1).",
+        "Create two cohorts based on sign-up period (winter vs summer) (1).",
+        "Track the average spend/lifetime value of each cohort over 12 months (1).",
+        "Compare the cohorts to judge which campaign attracted higher-value customers (1)."
+      ]
+    },
+    {
+      q: "Explain one benefit and one limitation of using Monte Carlo simulation to assess financial risk. [4]",
+      marks: 4,
+      ms: [
+        "Benefit: models uncertainty by producing a probability distribution of outcomes (1).",
+        "…rather than a single estimate, so risk is better understood (1).",
+        "Limitation: computationally expensive — many simulation runs are needed (1).",
+        "Limitation: results are only as reliable as the input assumptions (1) (max 1 limitation mark)."
+      ]
+    },
+    {
+      q: "A supermarket wants to (a) segment its customers into groups it has not predefined and (b) forecast next month's demand for ice cream. Recommend a technique for each and justify your choice. [6]",
+      marks: 6,
+      ms: [
+        "(a) Cluster analysis (1).",
+        "It groups customers by similarity with no predefined labels, discovering segments (1).",
+        "Useful for targeted marketing to the discovered groups (1).",
+        "(b) Time series analysis (or regression) (1).",
+        "It uses historical demand over successive intervals to spot seasonality (1).",
+        "…and forecast next month's demand, accepting it assumes past patterns continue (1)."
       ]
     }
   ]
