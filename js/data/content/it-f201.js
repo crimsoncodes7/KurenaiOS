@@ -961,11 +961,12 @@ C["it:F201.2.5"] = {
 C["it:F201.2.6"] = {
   notes: [
     { h: "Data Analytic Techniques" },
-    "These are the specific statistical methods used to extract insight from big data. The spec names five — **regression, Monte Carlo simulation, cohort analysis, cluster analysis and time series analysis** — and for each you must know **what it is, its purpose, and its benefits and limitations**. You do **not** need the technical maths behind them.",
-    { callout: { t: "info", h: "The five techniques at a glance", body: [
+    "These are the specific statistical methods used to extract insight from big data. The spec names **six** — **regression, Monte Carlo simulation, factor analysis, cohort analysis, cluster analysis and time series analysis** — and for each you must know **what it is, its purpose, when it can be used, and its benefits and limitations**. You do **not** need the technical maths behind them.",
+    { callout: { t: "info", h: "The six techniques at a glance", body: [
       { kv: [
         ["Regression analysis", "Models the relationship between variables to predict one from others."],
         ["Monte Carlo simulation", "Runs many random scenarios to model the probability of outcomes under uncertainty."],
+        ["Factor analysis", "Reduces many correlated variables into a few underlying 'factors'."],
         ["Cohort analysis", "Groups people by a shared characteristic and tracks that group over time."],
         ["Cluster analysis", "Groups data points by similarity, with no predefined labels."],
         ["Time series analysis", "Studies data points taken at successive time intervals to find trends and seasonality."]
@@ -992,6 +993,17 @@ C["it:F201.2.6"] = {
       ] } }
     ] } },
     "Typical use: a bank running tens of thousands of simulated economic scenarios to estimate the probability of loan defaults.",
+
+    { page: "Factor analysis" },
+    { callout: { t: "def", h: "Factor analysis", body: "A technique that reduces a large number of correlated variables into a smaller set of underlying 'factors' that explain most of the variation — simplifying complex data (e.g. condensing 30 survey questions into 'satisfaction', 'price sensitivity' and 'loyalty')." }},
+    { callout: { t: "info", h: "Benefits and limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Simplifies many variables into a few meaningful factors.", "The factors can be hard to interpret/name."],
+        ["Removes redundancy from correlated variables.", "Subjective choices (how many factors) affect results."],
+        ["Makes large survey/behaviour datasets manageable.", "Loses some detail in the reduction."]
+      ] } }
+    ] } },
+    "When used: simplifying questionnaires, market research and any dataset with many overlapping variables before further analysis.",
 
     { page: "Cohort analysis" },
     { callout: { t: "def", h: "Cohort analysis", body: "A technique that groups individuals who share a defined characteristic (e.g. the month they signed up) into a 'cohort', then tracks that cohort's behaviour over time." }},
@@ -1025,7 +1037,7 @@ C["it:F201.2.6"] = {
     ] } },
 
     { page: "Choosing & exam technique" },
-    { callout: { t: "memorise", h: "Pick the technique by the question", body: "**Predict a number from other variables** → regression. **Model risk/uncertain outcomes** → Monte Carlo. **Track a defined group over time** → cohort. **Discover unknown groups by similarity** → cluster. **Find trends/seasonality over time** → time series." }},
+    { callout: { t: "memorise", h: "Pick the technique by the question", body: "**Predict a number from other variables** → regression. **Model risk/uncertain outcomes** → Monte Carlo. **Reduce many variables to a few factors** → factor analysis. **Track a defined group over time** → cohort. **Discover unknown groups by similarity** → cluster. **Find trends/seasonality over time** → time series." }},
     { callout: { t: "tip", h: "Answering 'identify the technique' questions", body: [
       "State the technique, then justify with the giveaway in the scenario (e.g. 'groups customers automatically' → cluster).",
       "If asked to evaluate, pair a benefit with a limitation for that technique.",
@@ -1037,6 +1049,8 @@ C["it:F201.2.6"] = {
     ["One limitation of regression?", "Correlation is not causation, and it handles non-linear relationships poorly."],
     ["What does Monte Carlo simulation do?", "Runs many random scenarios to model the probability of different outcomes under uncertainty."],
     ["One limitation of Monte Carlo?", "Computationally expensive and only as good as its input assumptions."],
+    ["What does factor analysis do?", "Reduces many correlated variables into a few underlying 'factors' that explain most of the variation."],
+    ["One limitation of factor analysis?", "The resulting factors can be hard to interpret, and choices like how many factors are subjective."],
     ["What does cohort analysis group by?", "A predefined shared characteristic (e.g. sign-up month), then tracks that group over time."],
     ["What does cluster analysis group by?", "Statistical similarity, with no predefined labels — the algorithm finds the groups."],
     ["Cluster vs cohort — the key difference?", "Cohort groups are defined beforehand; cluster groups are discovered automatically."],
@@ -1067,6 +1081,12 @@ C["it:F201.2.6"] = {
       opts: ["Regression analysis", "Cohort analysis", "Cluster analysis", "Monte Carlo"],
       ans: 0,
       why: "Regression models how one variable (sales) depends on another (ad spend) to predict it."
+    },
+    {
+      q: "A researcher condenses 30 correlated survey questions into 3 underlying themes. Which technique?",
+      opts: ["Cluster analysis", "Factor analysis", "Time series", "Regression"],
+      ans: 1,
+      why: "Factor analysis reduces many correlated variables into a few underlying factors."
     },
     {
       q: "Which is a limitation common to regression and time series?",

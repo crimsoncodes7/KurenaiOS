@@ -29,8 +29,12 @@
       });
       function walk(node, path, section) {
         if (node.content && node.content.length) {
-          var leaf = { ref: node.ref, title: node.title, content: node.content,
-                       info: node.info || [], path: path.slice(0, -1), section: section };
+          /* clean hand-verified spec override (e.g. IT F201, whose generated
+             content/info were garbled by PDF parsing) replaces content+info */
+          var fix = window.KOS_SPEC_FIX && window.KOS_SPEC_FIX[sid + ":" + node.ref];
+          var leaf = { ref: node.ref, title: node.title,
+                       content: fix ? fix.content : node.content,
+                       info: fix ? fix.info : (node.info || []), path: path.slice(0, -1), section: section };
           leaf.idx = LEAVES[sid].length;
           LEAVES[sid].push(leaf);
           BYREF[sid][node.ref] = leaf;
@@ -1007,30 +1011,39 @@
       .replace(/□/g, " ")
       .replace(/\s+/g, " ")
       .replace(/^[•◦▪‣]\s*/, "")     // leading bullet glyph
+      .replace(/^o\s+/, "")          // leading sub-sub marker
       .replace(/^-\s+/, "")
       .replace(/\s+o\s*$/, "")        // trailing checkbox "o"
       .replace(/\bDoes\b/g, " ")      // 'Does not include' fragment noise
       .replace(/\s+/g, " ")
       .trim();
   }
+  /* classify a spec line by its leading glyph: □ main, • sub, "o " sub-sub */
+  function specLine(raw) {
+    var kind = /^\s*□/.test(raw) ? "box" : /^\s*o\s/.test(raw) ? "sub2"
+             : /^\s*[•◦▪‣]/.test(raw) ? "bullet" : "none";
+    return { kind: kind, text: cleanGlyphs(raw) };
+  }
   function renderSpecContent(lines) {
+    var items = (lines || []).map(specLine).filter(function (x) { return x.text && x.text !== "To"; });
     var out = "", buf = [];
     function flush() { if (buf.length) { out += "<ul>" + buf.join("") + "</ul>"; buf = []; } }
-    (lines || []).forEach(function (raw) {
-      var wasBullet = /^\s*(•|◦|▪|□|‣|-\s|o\s)/.test(raw);
-      var s = cleanGlyphs(raw);
-      if (!s || s === "To") return;                        // noise / empties
-      if (/\bTo$/.test(s)) {                                // "X To" = bled 'To include' → header
-        flush();
-        out += '<p class="spec-h">' + esc(s.replace(/\s*To$/, "")) + "</p>";
-        return;
+    items.forEach(function (it, idx) {
+      var s = it.text;
+      if (/\bTo$/.test(s)) {                                 // garbled "X To" fragment → header
+        flush(); out += '<p class="spec-h">' + esc(s.replace(/\s*To$/, "")) + "</p>"; return;
       }
-      if (/\so\s/.test(s)) {                                // "A o B o" merge → split items
-        s.split(/\s+o\s+/).forEach(function (p) { p = p.trim(); if (p) buf.push("<li>" + esc(p) + "</li>"); });
-        return;
+      if (it.kind === "box") {                               // a □ heading if a sub-item follows
+        var nx = items[idx + 1];
+        if (nx && (nx.kind === "bullet" || nx.kind === "sub2")) { flush(); out += '<p class="spec-h">' + esc(s) + "</p>"; return; }
+        buf.push("<li>" + esc(s) + "</li>"); return;
       }
-      if (wasBullet) { buf.push("<li>" + esc(s) + "</li>"); }     // genuine sub-item
-      else { flush(); out += "<p>" + esc(s) + "</p>"; }           // intro/instruction line (CS/Maths)
+      if (it.kind === "bullet") { buf.push("<li>" + esc(s) + "</li>"); return; }
+      if (it.kind === "sub2") { buf.push('<li class="spec-sub">' + esc(s) + "</li>"); return; }
+      if (/\so\s/.test(s)) {                                 // garbled "A o B" merge → split
+        s.split(/\s+o\s+/).forEach(function (p) { p = p.trim(); if (p) buf.push("<li>" + esc(p) + "</li>"); }); return;
+      }
+      flush(); out += "<p>" + esc(s) + "</p>";               // plain intro line (CS/Maths)
     });
     flush();
     return out || listify(lines);
@@ -1042,29 +1055,36 @@
   }
   function renderSpecInfo(lines) {
     lines = lines || [];
-    if (lines.length !== 1) {                               // already a clean array (CS/Maths)
-      return lines.map(function (raw) {
-        var s = cleanGlyphs(raw); return s ? "<p>" + esc(s) + "</p>" : "";
-      }).join("");
+    if (lines.length === 1) {                               // single run-on string (garbled IT fallback)
+      var text = cleanGlyphs(lines[0]);
+      if (!text) return "";
+      var re = /(not include:|include:)/gi, m, markers = [];
+      while ((m = re.exec(text)) !== null) {
+        markers.push({ idx: m.index, len: m[0].length, label: /not/i.test(m[0]) ? "Not included" : "To include" });
+      }
+      function ul(seg) { return "<ul>" + splitPoints(seg).map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("") + "</ul>"; }
+      if (!markers.length) { var pts = splitPoints(text); return pts.length > 1 ? ul(text) : "<p>" + esc(text) + "</p>"; }
+      var html = "";
+      for (var i = 0; i < markers.length; i++) {
+        var seg = text.slice(markers[i].idx + markers[i].len, i + 1 < markers.length ? markers[i + 1].idx : text.length).trim();
+        if (seg) html += '<p class="spec-h">' + markers[i].label + "</p>" + ul(seg);
+      }
+      return html || "<p>" + esc(text) + "</p>";
     }
-    var text = cleanGlyphs(lines[0]);                       // single run-on (IT)
-    if (!text) return "";
-    var re = /(not include:|include:)/gi, m, markers = [];
-    while ((m = re.exec(text)) !== null) {
-      markers.push({ idx: m.index, len: m[0].length, label: /not/i.test(m[0]) ? "Not included" : "To include" });
-    }
-    function ul(seg) { return "<ul>" + splitPoints(seg).map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("") + "</ul>"; }
-    if (!markers.length) {
-      var pts = splitPoints(text);
-      return pts.length > 1 ? ul(text) : "<p>" + esc(text) + "</p>";
-    }
-    var html = "";
-    for (var i = 0; i < markers.length; i++) {
-      var seg = text.slice(markers[i].idx + markers[i].len, i + 1 < markers.length ? markers[i + 1].idx : text.length).trim();
-      if (!seg) continue;
-      html += '<p class="spec-h">' + markers[i].label + "</p>" + ul(seg);
-    }
-    return html || "<p>" + esc(text) + "</p>";
+    /* multi-line array: clean override (IT F201) or already-clean CS/Maths */
+    var out = "", buf = [];
+    function flush() { if (buf.length) { out += "<ul>" + buf.join("") + "</ul>"; buf = []; } }
+    lines.forEach(function (raw) {
+      var t = String(raw).trim();
+      if (/^to include:?$/i.test(t)) { flush(); out += '<p class="spec-h">To include</p>'; return; }
+      if (/^does not include:?$/i.test(t)) { flush(); out += '<p class="spec-h">Not included</p>'; return; }
+      var it = specLine(raw);
+      if (!it.text) return;
+      if (it.kind === "none") { flush(); out += "<p>" + esc(it.text) + "</p>"; }
+      else buf.push((it.kind === "sub2" ? '<li class="spec-sub">' : "<li>") + esc(it.text) + "</li>");
+    });
+    flush();
+    return out;
   }
 
   function debounce(fn, ms) {
