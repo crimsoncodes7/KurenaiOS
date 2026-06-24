@@ -91,6 +91,30 @@ step("spec tab still shows split + personal notes", () => {
   if (!$(".speccontent")) throw new Error("spec content missing");
   if (!$(".note-area")) throw new Error("personal note area missing");
 });
+step("notes pager: splitPages + sectioned rendering", () => {
+  // pure function: no markers -> 1 page; markers -> N named pages
+  const flat = KOS.content.splitPages(["a", { h: "x" }]);
+  if (flat.length !== 1 || flat[0].title !== "Overview") throw new Error("flat split wrong");
+  const paged = KOS.content.splitPages(["intro", { page: "Detail" }, "d1", { page: "Exam" }, "e1"]);
+  if (paged.length !== 3) throw new Error("expected 3 pages, got " + paged.length);
+  if (paged[0].title !== "Overview" || paged[1].title !== "Detail" || paged[2].title !== "Exam")
+    throw new Error("page titles wrong: " + paged.map(p => p.title));
+  // hub rendering: inject a paged entry, render, assert pager appears, then restore
+  const KEY = "compsci:4.2.3.1", orig = window.KOS_CONTENT[KEY];
+  window.KOS_CONTENT[KEY] = Object.assign({}, orig, {
+    notes: ["lead", { page: "Types" }, { h: "Types" }, "t", { page: "Exam technique" }, "ex"]
+  });
+  try {
+    KOS.show("ref", { subject: "compsci", ref: "4.2.3.1" });
+    const pager = $(".note-pager");
+    if (!pager) throw new Error("note-pager not rendered");
+    const tabs = $$(".note-page-tab");
+    if (tabs.length !== 3) throw new Error("expected 3 page tabs, got " + tabs.length);
+    if (!$(".notes-article")) throw new Error("article missing");
+    click(tabs[2]); // jump to "Exam technique"
+    if (!tabs[2].classList.contains("active")) throw new Error("page tab did not activate");
+  } finally { window.KOS_CONTENT[KEY] = orig; }
+});
 step("plain ref (no content) shows spec only", () => {
   // F200.1.1 is a leaf with no deep KOS_CONTENT entry (the old fixture
   // it:F201.2.1 was later enriched by Gemini, so it now has study tabs).

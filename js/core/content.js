@@ -79,10 +79,26 @@
     return s.replace(/\u0001(\d+)\u0002/g, function (_, i) { return vault[+i]; });
   }
 
+  /* Split a notes block array into named pages at every {page:"Title"} marker.
+     Blocks before the first marker become an "Overview" page. With no markers,
+     returns a single page so legacy entries render unchanged. */
+  function splitPages(blocks) {
+    var pages = [], cur = { title: "Overview", blocks: [] }, started = false;
+    (blocks || []).forEach(function (b) {
+      if (b && b.page) {
+        if (cur.blocks.length || started) pages.push(cur);
+        cur = { title: b.page, blocks: [] }; started = true;
+      } else { cur.blocks.push(b); }
+    });
+    pages.push(cur);
+    return pages;
+  }
+
   function renderBlocks(blocks) {
     var html = "";
     (blocks || []).forEach(function (b) {
       if (typeof b === "string") { html += "<p>" + inline(b) + "</p>"; return; }
+      if (b.page) { return; } /* page divider — handled by splitPages, not rendered */
       if (b.h) { html += '<h4 class="n-h">' + inline(b.h) + "</h4>"; return; }
       if (b.ul) { html += "<ul>" + b.ul.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ul>"; return; }
       if (b.ol) { html += "<ol>" + b.ol.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ol>"; return; }
@@ -188,6 +204,7 @@
     get: function (sid, ref) { return window.KOS_CONTENT[sid + ":" + ref] || null; },
     has: function (sid, ref) { return !!window.KOS_CONTENT[sid + ":" + ref]; },
     renderBlocks: renderBlocks,
+    splitPages: splitPages,
     typeset: typeset,
     inline: inline,
     highlight: highlightCode,

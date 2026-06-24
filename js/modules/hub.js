@@ -660,10 +660,43 @@
         ]));
       }
       else if (curTab === "notes") {
-        var n = el("article", { class: "notes-article", html: KOS.content.renderBlocks(content.notes) });
-        panel.appendChild(n);
-        KOS.content.typeset(n);
-        renderIntel(panel);
+        var pages = KOS.content.splitPages(content.notes);
+        if (pages.length > 1) {
+          /* paginated notes: a pill row of section pages + prev/next, so a long
+             exhaustive topic reads as clean sections instead of one scroll */
+          var pager = el("div", { class: "note-pager", role: "tablist" });
+          var article = el("article", { class: "notes-article" });
+          var foot = el("div", { class: "note-pager-foot" });
+          var cur = 0;
+          var showPage = function (i) {
+            cur = Math.max(0, Math.min(pages.length - 1, i));
+            pager.querySelectorAll(".note-page-tab").forEach(function (b, j) {
+              b.classList.toggle("active", j === cur); });
+            article.innerHTML = KOS.content.renderBlocks(pages[cur].blocks);
+            KOS.content.typeset(article);
+            if (article.scrollIntoView) article.scrollIntoView({ block: "nearest" });
+            foot.innerHTML = "";
+            if (cur > 0) foot.appendChild(el("button", { class: "btn", text: "‹ " + pages[cur - 1].title,
+              onclick: function () { showPage(cur - 1); } }));
+            foot.appendChild(el("span", { class: "note-pager-count", text: (cur + 1) + " / " + pages.length }));
+            if (cur < pages.length - 1) foot.appendChild(el("button", { class: "btn", text: pages[cur + 1].title + " ›",
+              onclick: function () { showPage(cur + 1); } }));
+          };
+          pages.forEach(function (pg, i) {
+            pager.appendChild(el("button", { class: "note-page-tab", role: "tab", "data-i": i,
+              onclick: function () { showPage(i); } }, [(i + 1) + ". " + pg.title]));
+          });
+          panel.appendChild(pager);
+          panel.appendChild(article);
+          panel.appendChild(foot);
+          showPage(0);
+          renderIntel(panel);
+        } else {
+          var n = el("article", { class: "notes-article", html: KOS.content.renderBlocks(content.notes) });
+          panel.appendChild(n);
+          KOS.content.typeset(n);
+          renderIntel(panel);
+        }
       }
       else if (curTab === "cards") {
         var fcHolder = el("div", { class: "fc-wrap" });

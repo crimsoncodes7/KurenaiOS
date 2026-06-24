@@ -732,6 +732,28 @@ a { color: var(--kurenai-2); }
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent, var(--kurenai)) 12%, transparent), transparent); }
 .study-panel { padding-top: 22px; }
 
+/* ---- Notes sub-pager (sections within a topic's Notes) ---- */
+.note-pager {
+  display: flex; gap: 7px; flex-wrap: wrap; margin: 0 0 20px;
+  padding-bottom: 14px; border-bottom: 1px solid var(--line-soft);
+}
+.note-page-tab {
+  background: var(--glass-fill); border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-hi); color: var(--mute);
+  padding: 6px 13px; border-radius: var(--r-pill); font-size: 12.5px; font-weight: 500;
+  cursor: pointer; transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+.note-page-tab:hover { color: var(--text); border-color: var(--accent, var(--kurenai)); }
+.note-page-tab.active {
+  color: var(--text); border-color: var(--accent, var(--kurenai));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent, var(--kurenai)) 18%, transparent), transparent);
+}
+.note-pager-foot {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  max-width: 880px; margin: 26px 0 4px; padding-top: 16px; border-top: 1px solid var(--line-soft);
+}
+.note-pager-count { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-left: auto; }
+
 /* ============================================================
    Notes article
    ============================================================ */
