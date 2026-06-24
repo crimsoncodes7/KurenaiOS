@@ -45,28 +45,42 @@
   // ---- view registry: each module registers render functions ----
   KOS.views = {};
 
-  /* ---- navigation history so Back returns to the previous page ---- */
-  var navHist = [];   // stack of {viewId, arg} we can return to
+  /* ---- navigation history: Back/Forward like a browser ---- */
+  var navHist = [];   // pages behind the current one
+  var navFwd = [];    // pages we've stepped Back from (cleared on a fresh nav)
   var navCur = null;  // the view currently on screen
   function navKey(v) { return v.viewId + "::" + JSON.stringify(v.arg === undefined ? null : v.arg); }
-  function updateBackBtn() {
+  function updateNavBtns() {
     var b = document.getElementById("nav-back");
     if (b) b.disabled = navHist.length === 0;
+    var f = document.getElementById("nav-fwd");
+    if (f) f.disabled = navFwd.length === 0;
   }
   KOS.canBack = function () { return navHist.length > 0; };
+  KOS.canForward = function () { return navFwd.length > 0; };
   KOS.back = function () {
     if (!navHist.length) return;
+    navFwd.push(navCur);
     var prev = navHist.pop();
-    KOS.show(prev.viewId, prev.arg, { _fromBack: true });
+    KOS.show(prev.viewId, prev.arg, { _nav: true });
+  };
+  KOS.forward = function () {
+    if (!navFwd.length) return;
+    navHist.push(navCur);
+    var next = navFwd.pop();
+    KOS.show(next.viewId, next.arg, { _nav: true });
   };
 
   KOS.show = function (viewId, arg, opts) {
     opts = opts || {};
-    /* push where we are so Back can come back here (skip exact-duplicate
-       navigations and Back-driven navigations) */
-    if (navCur && !opts._fromBack && navKey(navCur) !== navKey({ viewId: viewId, arg: arg })) {
-      navHist.push(navCur);
-      if (navHist.length > 60) navHist.shift();
+    /* a fresh navigation (not Back/Forward) records history and abandons any
+       forward trail — exactly like a browser address bar */
+    if (navCur && !opts._nav) {
+      if (navKey(navCur) !== navKey({ viewId: viewId, arg: arg })) {
+        navHist.push(navCur);
+        if (navHist.length > 60) navHist.shift();
+      }
+      navFwd = [];
     }
     navCur = { viewId: viewId, arg: arg };
 
@@ -93,6 +107,6 @@
     KOS.store.state.ui.view = viewId;
     if (viewId === "subject") KOS.store.state.ui.subject = arg;
     KOS.store.save();
-    updateBackBtn();
+    updateNavBtns();
   };
 })();

@@ -139,10 +139,23 @@ coverage. Both smoke suites pass; all sims verified to mount inline without thro
   4.3.1.1 → dijkstra; stack frames 4.1.1.15 → recursion-viz. Result: every data
   structure (4.2.x) and every search/sort/graph algorithm (4.3.x) now has a Simulate tab.
 
+## Forward nav + dictionary/vector/logic-gate sims (Claude Code, 2026-06-24)
+Verified live in Chrome (served over `python3 -m http.server`; the extension can't
+load `file://`). Both smoke suites pass.
+
+- **Forward navigation**: `KOS.forward()` / `KOS.canForward()` complement Back, with a
+  forward stack that a fresh navigation clears (browser semantics). Topbar now has a
+  **‹ Back** + **Forward ›** pair (`.nav-arrows`) and Alt+→ is wired.
+- **3 new sims** (19 → 22): `dictionary` key→value store with set/get/delete (4.2.7.1),
+  `cs-vector` 2-D vector lab — add / scale / dot product / convex combination on a grid
+  (4.2.8.1), `logic-gates` interactive AND/OR/NOT/XOR/NAND/NOR with toggle inputs, a
+  drawn gate + output lamp, and a live-highlighted truth table (4.6.4.1).
+- Browser-verified: inline sims render on the topic page, Back/Forward step correctly,
+  and the logic-gates output lamp flips 0→1 when both inputs are set.
+
 ## Claude Code backlog (app features)
 - **Content**: fill quiz (≥3) and exam (≥1) gaps across maths + thin CS files, using
   PMT papers in `Context/` as source (see the plan: build-1 completion sprint).
 - More simulations (Karnaugh maps, BFS/DFS graph traversal, projectile motion).
-- More sandboxes (e.g. an array/pseudocode tracer to sit alongside the C# OOP sandbox).
 - Build 2 (gamification): Behavioural Governor (avatar, focus timer, SM-2 engine).
 - Build 3: Kurenai Collection Matrix.

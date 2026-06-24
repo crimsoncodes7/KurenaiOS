@@ -1545,6 +1545,198 @@
     }
   });
 
+  /* =================== 16. DICTIONARY (associative array) =================== */
+  KOS.sims.register({
+    id: "dictionary", title: "Dictionary — key → value store", subject: "compsci", ref: "4.2.7.1",
+    desc: "Set, look up and delete key/value pairs. Keys are unique; lookup by key is O(1) on average because a dictionary is backed by a hash table.",
+    mount: function (panel) {
+      var keyIn = el("input", { type: "text", placeholder: "key", maxlength: 10, style: "width:110px" });
+      var valIn = el("input", { type: "text", placeholder: "value", maxlength: 12, style: "width:120px" });
+      var msg = el("span", { class: "sim-msg" });
+      panel.appendChild(el("div", { class: "lab-controls" }, [
+        el("label", {}, ["key", keyIn]), el("label", {}, ["value", valIn]),
+        el("button", { class: "btn primary", text: "Set", onclick: set }),
+        el("button", { class: "btn", text: "Get", onclick: get }),
+        el("button", { class: "btn", text: "Delete", onclick: del }),
+        el("button", { class: "btn gold", text: "Reset", onclick: reset }),
+        msg
+      ]));
+      var holder = el("div", {}); panel.appendChild(holder);
+      var cv = dprCanvas(holder, 260);
+      var keys = [], map = {}, hot = null;
+
+      function seed() { keys = ["GBP", "USD", "JPY"]; map = { GBP: "1.00", USD: "1.27", JPY: "190" }; hot = null; }
+      function reset() { seed(); msg.textContent = "seeded with a sample dictionary"; draw(); }
+      function set() {
+        var k = keyIn.value.trim(), v = valIn.value.trim();
+        if (!k) { KOS.ui.toast("Type a key.", true); return; }
+        if (map.hasOwnProperty(k)) { map[k] = v; msg.textContent = "key “" + k + "” already existed → value UPDATED (keys stay unique)"; }
+        else { keys.push(k); map[k] = v; msg.textContent = "inserted “" + k + "” : “" + v + "”"; }
+        hot = k; keyIn.value = ""; valIn.value = ""; draw();
+      }
+      function get() {
+        var k = keyIn.value.trim();
+        if (!k) { KOS.ui.toast("Type a key to look up.", true); return; }
+        if (map.hasOwnProperty(k)) { hot = k; msg.textContent = "dict[“" + k + "”] = “" + map[k] + "”  (direct hash lookup, O(1) average)"; }
+        else { hot = null; msg.textContent = "key “" + k + "” not in the dictionary"; }
+        draw();
+      }
+      function del() {
+        var k = keyIn.value.trim();
+        if (!k) { KOS.ui.toast("Type a key to delete.", true); return; }
+        if (map.hasOwnProperty(k)) { delete map[k]; keys = keys.filter(function (x) { return x !== k; }); hot = null; msg.textContent = "deleted key “" + k + "”"; }
+        else msg.textContent = "key “" + k + "” not found";
+        keyIn.value = ""; draw();
+      }
+      function draw() {
+        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
+        ctx.clearRect(0, 0, cv.W, cv.H);
+        ctx.textAlign = "left"; ctx.font = "12px 'SF Mono',monospace"; ctx.fillStyle = COL.mute;
+        ctx.fillText("{ key : value }   pairs: " + keys.length, 20, 26);
+        var x = 20, y = 46, rh = 30, kw = 150, vw = 220;
+        ctx.font = "13px 'SF Mono',Consolas,monospace";
+        if (!keys.length) { ctx.fillStyle = COL.faint; ctx.fillText("empty dictionary", 20, y + 20); return; }
+        keys.forEach(function (k, i) {
+          var ry = y + i * (rh + 4), on = k === hot;
+          ctx.fillStyle = on ? "rgba(69,214,168,.16)" : COL.ink; ctx.fillRect(x, ry, kw, rh);
+          ctx.strokeStyle = on ? COL.jade : COL.line; ctx.strokeRect(x, ry, kw, rh);
+          ctx.fillStyle = on ? COL.ink : COL.line; ctx.fillRect(x + kw + 30, ry, vw, rh);
+          ctx.strokeStyle = on ? COL.jade : COL.line; ctx.strokeRect(x + kw + 30, ry, vw, rh);
+          ctx.fillStyle = COL.gold; ctx.fillText("→", x + kw + 8, ry + 20);
+          ctx.fillStyle = COL.text; ctx.fillText(k, x + 10, ry + 20);
+          ctx.fillStyle = COL.text; ctx.fillText(map[k], x + kw + 40, ry + 20);
+        });
+      }
+      seed(); draw();
+    }
+  });
+
+  /* =================== 17. VECTOR LAB (2D) =================== */
+  KOS.sims.register({
+    id: "cs-vector", title: "Vector Lab — add, scale, dot product", subject: "compsci", ref: "4.2.8.1",
+    desc: "Two 2-D vectors as arrows from the origin: see a + b (parallelogram rule), the scalar multiple k·a, the dot product a·b and a convex combination.",
+    mount: function (panel) {
+      function inp(v) { return el("input", { type: "number", value: v, step: "any", style: "width:62px" }); }
+      var ax = inp(3), ay = inp(1), bx = inp(1), by = inp(2), kk = inp(2), lam = el("input", { type: "range", min: 0, max: 100, value: 50, style: "width:120px" });
+      var msg = el("span", { class: "sim-msg" });
+      panel.appendChild(el("div", { class: "lab-controls" }, [
+        el("label", {}, ["a = (", ax, ay, ")"]), el("label", {}, ["b = (", bx, by, ")"]),
+        el("label", {}, ["k", kk]), el("label", {}, ["λ (convex)", lam])
+      ]));
+      var lbl = el("div", { class: "sub", style: "margin:8px 0;font-family:var(--mono);font-size:11.5px" });
+      panel.appendChild(lbl);
+      var holder = el("div", {}); panel.appendChild(holder);
+      var cv = dprCanvas(holder, 320);
+      [ax, ay, bx, by, kk].forEach(function (f) { f.oninput = draw; }); lam.oninput = draw;
+      function num(f, d) { var v = parseFloat(f.value); return isNaN(v) ? d : v; }
+      function draw() {
+        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
+        ctx.clearRect(0, 0, cv.W, cv.H);
+        var A = [num(ax, 0), num(ay, 0)], B = [num(bx, 0), num(by, 0)], k = num(kk, 1), L = +lam.value / 100;
+        var ox = cv.W / 2, oy = cv.H / 2, U = 34; // pixels per unit
+        function px(x) { return ox + x * U; } function py(y) { return oy - y * U; }
+        // grid + axes
+        ctx.strokeStyle = "rgba(58,45,82,.5)"; ctx.lineWidth = 1;
+        for (var gx = -12; gx <= 12; gx++) { ctx.beginPath(); ctx.moveTo(px(gx), 0); ctx.lineTo(px(gx), cv.H); ctx.stroke(); }
+        for (var gy = -6; gy <= 6; gy++) { ctx.beginPath(); ctx.moveTo(0, py(gy)); ctx.lineTo(cv.W, py(gy)); ctx.stroke(); }
+        ctx.strokeStyle = COL.faint; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(cv.W, oy); ctx.moveTo(ox, 0); ctx.lineTo(ox, cv.H); ctx.stroke();
+        function vec(v, col, lab) {
+          ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 2.4;
+          ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(px(v[0]), py(v[1])); ctx.stroke();
+          var ang = Math.atan2(-(py(v[1]) - oy), px(v[0]) - ox);
+          var hx = px(v[0]), hy = py(v[1]);
+          ctx.beginPath(); ctx.moveTo(hx, hy);
+          ctx.lineTo(hx - 10 * Math.cos(ang - 0.4), hy + 10 * Math.sin(ang - 0.4));
+          ctx.lineTo(hx - 10 * Math.cos(ang + 0.4), hy + 10 * Math.sin(ang + 0.4)); ctx.fill();
+          if (lab) { ctx.font = "11px 'SF Mono',monospace"; ctx.fillText(lab, hx + 6, hy - 4); }
+        }
+        var sum = [A[0] + B[0], A[1] + B[1]], ka = [k * A[0], k * A[1]], conv = [(1 - L) * A[0] + L * B[0], (1 - L) * A[1] + L * B[1]];
+        // parallelogram guide
+        ctx.strokeStyle = "rgba(123,158,248,.35)"; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(px(A[0]), py(A[1])); ctx.lineTo(px(sum[0]), py(sum[1])); ctx.lineTo(px(B[0]), py(B[1])); ctx.stroke();
+        ctx.setLineDash([]);
+        vec(ka, "rgba(226,178,63,.6)", "k·a");
+        vec(A, COL.jade, "a"); vec(B, COL.blue, "b"); vec(sum, COL.crim, "a+b");
+        ctx.fillStyle = COL.vio; ctx.beginPath(); ctx.arc(px(conv[0]), py(conv[1]), 4, 0, 7); ctx.fill();
+        var dot = A[0] * B[0] + A[1] * B[1], magA = Math.sqrt(A[0]*A[0]+A[1]*A[1]), magB = Math.sqrt(B[0]*B[0]+B[1]*B[1]);
+        var cosT = (magA && magB) ? dot / (magA * magB) : 0;
+        lbl.innerHTML = "a + b = (" + sum[0] + ", " + sum[1] + ") &nbsp; " + k + "·a = (" + ka[0] + ", " + ka[1] + ") &nbsp; " +
+          "<b style='color:var(--gold)'>a·b = " + dot.toFixed(2) + "</b> &nbsp; |a| = " + magA.toFixed(2) + " &nbsp; angle = " + (Math.acos(Math.max(-1, Math.min(1, cosT))) * 180 / Math.PI).toFixed(1) + "° &nbsp; convex λ=" + L.toFixed(2) + " → (" + conv[0].toFixed(2) + ", " + conv[1].toFixed(2) + ")";
+      }
+      draw();
+    }
+  });
+
+  /* =================== 18. LOGIC GATES =================== */
+  KOS.sims.register({
+    id: "logic-gates", title: "Logic Gates — interactive", subject: "compsci", ref: "4.6.4.1",
+    desc: "Pick a gate, flip inputs A and B, and watch the output and the highlighted truth-table row update live. Covers AND, OR, NOT, XOR, NAND and NOR.",
+    mount: function (panel) {
+      var GATES = {
+        AND:  { f: function (a, b) { return a & b; }, sym: "A · B", unary: false },
+        OR:   { f: function (a, b) { return a | b; }, sym: "A + B", unary: false },
+        NOT:  { f: function (a) { return a ? 0 : 1; }, sym: "¬A", unary: true },
+        XOR:  { f: function (a, b) { return a ^ b; }, sym: "A ⊕ B", unary: false },
+        NAND: { f: function (a, b) { return (a & b) ? 0 : 1; }, sym: "¬(A · B)", unary: false },
+        NOR:  { f: function (a, b) { return (a | b) ? 0 : 1; }, sym: "¬(A + B)", unary: false }
+      };
+      var sel = el("select", {}, Object.keys(GATES).map(function (g) { return el("option", { value: g, text: g }); }));
+      var aBtn = el("button", { class: "btn", onclick: function () { A ^= 1; draw(); } });
+      var bBtn = el("button", { class: "btn", onclick: function () { B ^= 1; draw(); } });
+      panel.appendChild(el("div", { class: "lab-controls" }, [
+        el("label", {}, ["gate", sel]),
+        el("span", {}, ["input A "]), aBtn, el("span", {}, ["input B "]), bBtn
+      ]));
+      sel.onchange = draw;
+      var holder = el("div", {}); panel.appendChild(holder);
+      var cv = dprCanvas(holder, 250);
+      var tbl = el("div", { style: "margin-top:10px" }); panel.appendChild(tbl);
+      var A = 0, B = 0;
+      function lvl(on) { return on ? COL.jade : COL.faint; }
+      function draw() {
+        var g = GATES[sel.value], out = g.unary ? g.f(A) : g.f(A, B);
+        aBtn.textContent = "A = " + A; bBtn.textContent = "B = " + B;
+        bBtn.style.opacity = g.unary ? ".35" : "1"; bBtn.disabled = g.unary;
+        var ctx = cv.ctx;
+        if (ctx && ctx.clearRect) {
+          ctx.clearRect(0, 0, cv.W, cv.H);
+          var gx = cv.W / 2 - 60, gy = 70, gw = 120, gh = 90;
+          // input wires
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = lvl(A); ctx.beginPath(); ctx.moveTo(gx - 90, gy + 25); ctx.lineTo(gx, gy + 25); ctx.stroke();
+          if (!g.unary) { ctx.strokeStyle = lvl(B); ctx.beginPath(); ctx.moveTo(gx - 90, gy + gh - 25); ctx.lineTo(gx, gy + gh - 25); ctx.stroke(); }
+          // gate body
+          ctx.fillStyle = COL.ink; ctx.strokeStyle = COL.blue; ctx.lineWidth = 2;
+          ctx.fillRect(gx, gy, gw, gh); ctx.strokeRect(gx, gy, gw, gh);
+          ctx.fillStyle = COL.text; ctx.font = "600 20px 'SF Mono',monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText(sel.value, gx + gw / 2, gy + gh / 2 - 8);
+          ctx.fillStyle = COL.mute; ctx.font = "12px 'SF Mono',monospace"; ctx.fillText(g.sym, gx + gw / 2, gy + gh / 2 + 16);
+          // output wire + lamp
+          ctx.strokeStyle = lvl(out); ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(gx + gw, gy + gh / 2); ctx.lineTo(gx + gw + 90, gy + gh / 2); ctx.stroke();
+          ctx.fillStyle = out ? COL.jade : COL.ink; ctx.strokeStyle = lvl(out);
+          ctx.beginPath(); ctx.arc(gx + gw + 108, gy + gh / 2, 14, 0, 7); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = out ? COL.ink : COL.faint; ctx.font = "600 14px 'SF Mono',monospace"; ctx.fillText(String(out), gx + gw + 108, gy + gh / 2);
+          // labels
+          ctx.fillStyle = lvl(A); ctx.textAlign = "right"; ctx.font = "12px 'SF Mono',monospace"; ctx.fillText("A=" + A, gx - 96, gy + 25);
+          if (!g.unary) { ctx.fillStyle = lvl(B); ctx.fillText("B=" + B, gx - 96, gy + gh - 25); }
+        }
+        // truth table
+        var rows = g.unary ? [[0], [1]] : [[0,0],[0,1],[1,0],[1,1]];
+        var head = g.unary ? "<th>A</th><th>Q</th>" : "<th>A</th><th>B</th><th>Q</th>";
+        var body = rows.map(function (r) {
+          var q = g.unary ? g.f(r[0]) : g.f(r[0], r[1]);
+          var live = g.unary ? (r[0] === A) : (r[0] === A && r[1] === B);
+          var cells = r.map(function (c) { return "<td>" + c + "</td>"; }).join("") + "<td>" + q + "</td>";
+          return "<tr class='" + (live ? "live" : "") + "'>" + cells + "</tr>";
+        }).join("");
+        tbl.innerHTML = "<h4 class='n-h' style='margin:0 0 6px'>" + sel.value + " truth table</h4>" +
+          "<table class='n-table logic-tt'><thead><tr>" + head + "</tr></thead><tbody>" + body + "</tbody></table>";
+      }
+      draw();
+    }
+  });
+
   /* =================== Simulations view =================== */
   KOS.views.sims = function (main, openId) {
     document.getElementById("tree").classList.add("hidden");

@@ -44,9 +44,11 @@ you do NOT need to touch content files to wire a lab:
   `jump` redirect. The four Trace Lab structures mount inline via `KOS.traceLabs.mount`.
 
 ## Navigation
-`KOS.show(viewId, arg)` records a history stack; `KOS.back()` / `KOS.canBack()` drive
-the topbar **‹ Back** button (and Alt+← / Backspace). Don't replace `#main` directly —
-always route through `KOS.show` so history and rail state stay correct.
+`KOS.show(viewId, arg)` records a history stack; `KOS.back()`/`KOS.forward()` (and
+`KOS.canBack()`/`KOS.canForward()`) drive the topbar **‹ Back** / **Forward ›** buttons
+(and Alt+← / Alt+→ / Backspace). A fresh `KOS.show` clears the forward trail, like a
+browser. Don't replace `#main` directly — always route through `KOS.show` so history,
+forward trail and rail state stay correct.
 
 ## Common pitfalls (have actually broken the build)
 - **Callouts need TWO closing braces.** `{ callout: { t:"def", body:"…" } }` — the
