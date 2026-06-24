@@ -151,7 +151,9 @@
     return html;
   }
 
-  /* Trigger KaTeX for a rendered block */
+  /* Trigger KaTeX for a rendered block. KaTeX loads with `defer`, so on the very
+     first boot render (main.js runs before deferred scripts finish) it may not be
+     ready yet — in that case retry once the window finishes loading. */
   function typeset(container) {
     if (window.renderMathInElement) {
       window.renderMathInElement(container, {
@@ -161,6 +163,10 @@
         ],
         throwOnError: false
       });
+    } else if (document.readyState !== "complete") {
+      window.addEventListener("load", function () {
+        if (window.renderMathInElement) typeset(container);
+      }, { once: true });
     }
   }
 

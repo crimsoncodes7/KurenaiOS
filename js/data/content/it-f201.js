@@ -439,71 +439,186 @@ C["it:F201.2.3"] = {
 C["it:F201.2.4"] = {
   notes: [
     { h: "Big Data Infrastructure" },
-    { callout: { t: "info", h: "Configurations", body: [
+    "Big data infrastructure is the combination of **hardware, software and storage** an organisation puts in place to capture, store, process and analyse big data. The spec groups it into three decisions: the **server configuration** (where processing happens), the **software platform** (the tools used), and the **data storage area** (where data lives). For every option you must know its characteristics, when it is used, and — the part that earns the marks — its **benefits and limitations**.",
+    { callout: { t: "info", h: "The three infrastructure decisions", body: [
       { kv: [
-        ["Dedicated Servers", "Single high-performance machines for specific tasks."],
-        ["Distributed Cluster", "Groups of servers (e.g., $Hadoop$) processing data in parallel."],
-        ["Public Cloud", "Shared infrastructure ($AWS$, $Azure$) for scalability."],
-        ["Private Cloud", "Dedicated infrastructure for security/compliance."],
-        ["Data Lake", "Large-scale storage for raw, unstructured data."],
-        ["Data Warehouse", "Storage for structured, processed data used for reporting."]
+        ["Server configuration", "Dedicated servers vs a distributed cluster of servers — how the processing power is arranged."],
+        ["Software platform", "Open-source vs vendor-specific tools, plus visualisation, analytics, $NoSQL$ and integration software."],
+        ["Data storage area", "Public/private cloud, data lake, data warehouse and $SSDs$ — where the data is physically held."]
       ] }
     ] } },
-    { h: "Software and Platforms" },
-    { callout: { t: "info", h: "Platforms", body: [
+    { callout: { t: "tip", h: "What the exam actually wants", body: "Almost every question here is a compare/evaluate. For each option, hold a benefit AND a limitation in your head and be ready to recommend one for a given scenario using the 'factors influencing choice'." }},
+
+    { page: "Server configurations" },
+    { h: "Dedicated servers" },
+    "A **dedicated server** is a single physical machine (or a small fixed set) reserved for one organisation or task. All of its processing power and storage belong to that workload.",
+    { callout: { t: "info", h: "Dedicated servers — benefits vs limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Full control over hardware, software and security.", "Expensive to scale — you must buy and install more hardware (vertical scaling)."],
+        ["Predictable, consistent performance (no 'noisy neighbours').", "A single point of failure — if it goes down, processing stops."],
+        ["Better suited to sensitive data (physically isolated).", "Often under-utilised at low load, wasting capacity and money."],
+        ["Simpler to set up and reason about than a cluster.", "The organisation carries the full maintenance burden."]
+      ] } }
+    ] } },
+    { h: "Distributed cluster of servers" },
+    "A **distributed cluster** is many servers (nodes) working together, splitting a job and processing data **in parallel** — the model behind $Hadoop$ and $Spark$. Data is replicated across nodes for resilience.",
+    { callout: { t: "info", h: "Distributed cluster — benefits vs limitations", body: [
+      { table: { head: ["Benefits", "Limitations"], rows: [
+        ["Handles massive volume and velocity by processing in parallel.", "Complex to set up, configure and manage."],
+        ["Scales horizontally — add cheap commodity nodes as data grows.", "Network communication between nodes adds overhead."],
+        ["Fault-tolerant — replicated data means no single point of failure.", "Keeping data consistent across nodes is hard."],
+        ["Cost-effective at scale (commodity hardware, not one huge machine).", "Requires distributed-systems expertise to run well."]
+      ] } }
+    ] } },
+    { h: "Dedicated vs distributed — and how to choose" },
+    { table: { head: ["Factor", "Dedicated server", "Distributed cluster"], rows: [
+      ["Scaling", "Vertical — upgrade the machine (limited).", "Horizontal — add more nodes (elastic)."],
+      ["Fault tolerance", "Single point of failure.", "Replicated, resilient to node failure."],
+      ["Cost at scale", "High (specialist hardware).", "Lower (commodity hardware)."],
+      ["Complexity", "Lower — easier to manage.", "Higher — needs expertise."],
+      ["Best for", "Steady, predictable workloads; full control; sensitive data.", "Very large, parallelisable datasets that grow fast."]
+    ] } },
+    { callout: { t: "memorise", h: "Factors influencing the choice of server configuration", body: "**Data volume & growth** (how big, how fast). **Scalability needs** (steady vs spiky). **Budget** (upfront hardware vs commodity). **In-house expertise** (can staff run a cluster?). **Fault-tolerance requirement** (how costly is downtime?). **Security/control** (must data stay physically isolated?). Frame any 'recommend a configuration' answer around these." }},
+
+    { page: "Software platforms" },
+    "The software platform is the set of tools used to store, process, analyse and present big data. The first decision is **open-source vs vendor-specific**; the spec also names visualisation, analytics, $NoSQL$ and integration software.",
+    { callout: { t: "info", h: "Open-source vs vendor-specific", body: [
+      { table: { head: ["", "Open-source (e.g. $Hadoop$, $Spark$)", "Vendor-specific (e.g. $Oracle$, $SAP$)"], rows: [
+        ["Purpose", "Process/store/analyse big data with freely available, modifiable code.", "Managed, proprietary big-data tooling sold under licence."],
+        ["Benefits", "Free licensing; fully customisable; large community; no lock-in.", "Professional support + $SLAs$; polished, integrated tools; training; accountability."],
+        ["Limitations", "Needs in-house expertise; support is community-based (no guaranteed SLA).", "Licensing cost; vendor lock-in; less customisable."],
+        ["When used", "Org has technical staff and wants flexibility/low cost.", "Org wants reliable managed support and has fewer specialists."]
+      ] } }
+    ] } },
+    { callout: { t: "info", h: "The other platform types", body: [
       { kv: [
-        ["Open-source", "Free to modify, large community support (e.g., $Spark$, $Hadoop$)."],
-        ["Vendor-specific", "Managed support but risk of lock-in (e.g., $Oracle$, $SAP$)."],
-        ["$NoSQL$ Database", "Non-relational storage built for variety and volume."]
+        ["Data visualisation software", "Turns analysis into charts/dashboards (e.g. $Tableau$, $PowerBI$). Benefit: makes patterns accessible to non-technical stakeholders. Limitation: cost, and poor design can mislead."],
+        ["Data analytics software", "Performs statistics and modelling (e.g. $R$, $SAS$, $Python$ libraries). Benefit: extracts insight and builds predictive models. Limitation: needs analytical skill to use correctly."],
+        ["$NoSQL$ database", "Non-relational store for unstructured/semi-structured data (e.g. $MongoDB$). Benefit: flexible schema, scales horizontally, handles variety. Limitation: weaker $ACID$ guarantees than $SQL$."],
+        ["Data integration platforms", "Combine many sources into one unified view via $ETL$ pipelines. Benefit: consistency and automated pipelines. Limitation: setup complexity."]
       ] }
     ] } },
-    { h: "Emerging Technologies" },
+    { callout: { t: "miscon", h: "'Open-source means no cost'", body: "The licence is free, but running open-source big-data software needs skilled staff to set up, integrate and maintain it — a real cost. 'Free software' is not 'free to operate'." }},
+
+    { page: "Data storage areas" },
+    { callout: { t: "info", h: "Cloud: public vs private", body: [
+      { table: { head: ["", "Public cloud (e.g. $AWS$, $Azure$)", "Private cloud"], rows: [
+        ["Characteristics", "Shared third-party infrastructure, pay-as-you-go, elastic.", "Cloud infrastructure dedicated to one organisation."],
+        ["Benefits", "Scales on demand; no upfront hardware; accessible anywhere; provider-managed.", "More control; better for security/compliance; customisable."],
+        ["Limitations", "Less control; security/compliance concerns; ongoing cost; depends on provider + internet.", "Higher cost; the organisation must manage it."],
+        ["When used", "Variable workloads, startups, rapid scaling.", "Sensitive data, regulated industries."]
+      ] } }
+    ] } },
+    { h: "Data lake vs data warehouse" },
+    "Both store large volumes, but they sit at different points in the pipeline. Raw data lands in a **lake**; once cleaned and structured by an **$ETL$** (Extract → Transform → Load) process it moves into a **warehouse** for reporting.",
+    { table: { head: ["", "Data lake", "Data warehouse"], rows: [
+      ["Data held", "Raw, any format, unprocessed.", "Structured, cleaned, processed."],
+      ["Schema", "Schema-on-read (applied when queried).", "Schema-on-write (applied on entry)."],
+      ["Main users", "Data scientists, ML, exploration.", "Business analysts, $BI$/reporting."],
+      ["Cost per TB", "Lower (cheap bulk storage).", "Higher (optimised, structured)."],
+      ["Risk", "Becomes a 'data swamp' if ungoverned.", "Rigid schema; ETL overhead."]
+    ] } },
+    { callout: { t: "info", h: "Solid state drives ($SSDs$)", body: "Fast storage with no moving parts. **Benefit:** very low latency and high read/write speed, improving processing throughput; reliable (no mechanical parts). **Limitation:** higher cost per GB than traditional hard drives." }},
+    { callout: { t: "miscon", h: "Data lake ≠ data warehouse", body: "Running complex BI queries directly on a raw data lake is slow and unreliable — the data must be ETL-processed into a warehouse first. Lake = store raw at scale; warehouse = structured analytics and reporting." }},
+
+    { page: "Emerging storage technologies" },
+    "The spec names three emerging technologies — know one line on what each is and why it matters for big data.",
     { steps: [
-      { h: "Block chain", m: "Security", n: "Distributed ledgers for immutable transaction tracking." },
-      { h: "DNA Storage", m: "Longevity", n: "Storing data in biological molecules for extreme density." },
-      { h: "Quantum Server", m: "Speed", n: "Using quantum bits to solve complex big data simulations." }
+      { h: "Blockchain", m: "A distributed, immutable ledger.", n: "Records are chained and tamper-evident — useful for secure, auditable transaction tracking across parties." },
+      { h: "DNA storage", m: "Encoding data in synthetic DNA molecules.", n: "Extreme storage density and longevity (data lasts millennia). Still experimental: read/write is slow and expensive." },
+      { h: "Quantum server", m: "Computation using quantum bits (qubits).", n: "Can explore many states at once, promising huge speed-ups for complex big-data simulations and optimisation. Still emerging." }
     ] },
-    { callout: { t: "memorise", h: "Lake vs Warehouse + Open vs Vendor", body: "Data Lake = raw, any format, unprocessed (staging area, high volume). Data Warehouse = structured, processed, schema-applied, optimised for BI queries. Open-source: free, customisable, community support. Vendor-specific: managed support + SLAs, risk of lock-in. Distributed cluster (Hadoop) = parallel processing." }},
-    { callout: { t: "miscon", h: "Data Lake ≠ Data Warehouse", body: "Running complex BI queries directly on a Data Lake is very inefficient — raw data needs ETL (Extract, Transform, Load) into a Data Warehouse first. The Lake is for storing raw data at scale; the Warehouse is for structured analytics and reporting queries." }}
+    { callout: { t: "memorise", h: "Storage one-liners", body: "Public cloud = shared, elastic, pay-as-you-go. Private cloud = dedicated, controlled, compliant. Lake = raw + schema-on-read. Warehouse = structured + schema-on-write (after ETL). SSD = fast, low-latency, costlier per GB. Emerging: blockchain (immutable ledger), DNA (density/longevity), quantum (qubit speed)." }},
+
+    { page: "Exam technique" },
+    { callout: { t: "tip", h: "Command words", body: [
+      { kv: [
+        ["Describe / State", "Give the characteristics or features — no justification needed."],
+        ["Explain", "Make a point then give its consequence ('…which means…')."],
+        ["Compare", "Explicit X-vs-Y points that are linked, not two separate lists."],
+        ["Discuss / Evaluate", "Both benefits AND limitations, then a justified conclusion/recommendation."]
+      ] }
+    ] } },
+    "**Model structure for a 9-mark 'evaluate dedicated vs distributed' answer:** (1) define each configuration; (2) benefits of dedicated linked to a scenario; (3) limitations of dedicated; (4) benefits of distributed (scaling, fault tolerance); (5) limitations of distributed (complexity, expertise); (6) conclusion that recommends one **based on the organisation's data volume, growth, budget and expertise**.",
+    { callout: { t: "warn", h: "Don't include", body: "The spec explicitly excludes the *costs of implementation* and the *providers of data lakes/warehouses* — don't waste time pricing things up or naming vendors as the answer." }}
   ],
   flashcards: [
-    ["Data Lake vs Warehouse?", "$Lake$ = Raw; $Warehouse$ = Structured."],
-    ["Benefit of a Distributed Cluster?", "Parallel processing allows handling massive volumes ($Hadoop$)."],
-    ["What is $NoSQL$?", "Non-relational database for unstructured/semi-structured data."],
-    ["Open-source vs Vendor software?", "Open-source: free, customisable, community-supported. Vendor: paid, managed support, risk of lock-in."],
-    ["What is vendor lock-in?", "When an organisation becomes so dependent on a vendor's platform that switching becomes very costly."]
+    ["Two main server configurations for big data?", "Dedicated servers and a distributed cluster of servers."],
+    ["One benefit and one limitation of a dedicated server?", "Benefit: full control + predictable performance. Limitation: single point of failure, expensive to scale."],
+    ["Why does a distributed cluster scale well?", "It scales horizontally — add cheap commodity nodes to process more data in parallel ($Hadoop$)."],
+    ["Two limitations of a distributed cluster?", "Complex to set up/manage, and needs distributed-systems expertise (plus network overhead)."],
+    ["Open-source vs vendor-specific software?", "Open-source: free, customisable, community support, no lock-in but needs expertise. Vendor: managed support + $SLAs$ but licensing cost and lock-in."],
+    ["What is vendor lock-in?", "Becoming so dependent on a vendor's platform that switching away is very costly/difficult."],
+    ["Data lake vs data warehouse?", "Lake = raw, any format, schema-on-read. Warehouse = structured, processed, schema-on-write (after ETL), optimised for reporting."],
+    ["What does ETL stand for and do?", "Extract, Transform, Load — moves raw lake data into a structured warehouse."],
+    ["Public vs private cloud trade-off?", "Public: elastic + cheap to start but less control/compliance. Private: more control + compliance but higher cost to run."],
+    ["Benefit and limitation of an $SSD$?", "Benefit: fast, low-latency read/write. Limitation: higher cost per GB than a hard drive."],
+    ["Name the three emerging storage technologies.", "Blockchain (immutable ledger), DNA storage (density/longevity), quantum servers (qubit speed)."]
   ],
   quiz: [
     {
-      q: "Which storage is best for raw sensor data in any format?",
-      opts: ["Data Warehouse", "Data Lake", "$SQL$ Server", "$SSD$"],
+      q: "An organisation's data is growing rapidly and must tolerate hardware failures. Which configuration best fits?",
+      opts: ["A single dedicated server", "A distributed cluster of servers", "A faster $SSD$", "A private cloud only"],
       ans: 1,
-      why: "Data lakes store data in its original raw state."
+      why: "A distributed cluster scales horizontally and replicates data, so it handles growth and survives node failures."
     },
     {
-      q: "A company wants to run complex queries on processed, historical sales data. Which is most appropriate?",
-      opts: ["Data Lake", "Data Warehouse", "NoSQL cluster", "Blockchain"],
-      ans: 1,
-      why: "Data warehouses store structured, processed data optimised for reporting queries."
+      q: "Which is a limitation of a distributed cluster compared with a dedicated server?",
+      opts: ["Cannot scale", "Single point of failure", "More complex to set up and manage", "No parallel processing"],
+      ans: 2,
+      why: "Clusters add complexity and need distributed-systems expertise; dedicated servers are simpler to run."
     },
     {
-      q: "What is a key disadvantage of using vendor-specific big data software?",
-      opts: ["Higher initial setup cost", "Vendor lock-in", "No community support", "Slower processing"],
+      q: "Which storage area is best for raw sensor data in any format, kept for later analysis?",
+      opts: ["Data warehouse", "Data lake", "$SSD$ cache", "Private cloud"],
       ans: 1,
-      why: "Vendor lock-in makes it costly and complex to switch to a different platform later."
+      why: "A data lake stores raw, unprocessed data of any format (schema-on-read)."
+    },
+    {
+      q: "A business needs fast, reliable queries on cleaned historical sales data for dashboards. Best choice?",
+      opts: ["Data lake", "Data warehouse", "NoSQL only", "Blockchain"],
+      ans: 1,
+      why: "A data warehouse holds structured, processed data optimised for BI/reporting queries."
+    },
+    {
+      q: "What is a key disadvantage of vendor-specific big data software?",
+      opts: ["No professional support", "Vendor lock-in", "Cannot be licensed", "Always slower"],
+      ans: 1,
+      why: "Vendor lock-in makes switching platforms later costly and complex."
+    },
+    {
+      q: "Which is the strongest reason to choose open-source over vendor software?",
+      opts: ["Guaranteed SLAs", "No need for any technical staff", "Free licensing and full customisation", "Impossible to misconfigure"],
+      ans: 2,
+      why: "Open-source removes licensing cost and allows full customisation — at the cost of needing in-house expertise."
     }
   ],
   exam: [
     {
-      q: "Discuss the factors a company should consider when choosing between 'Open-source' and 'Vendor-specific' software platforms.",
+      q: "A data analytics company processes a rapidly growing volume of streaming data. Evaluate the use of a distributed cluster of servers rather than a single dedicated server for this workload.",
+      marks: 9,
+      ms: [
+        "Distributed cluster defined: many nodes processing data in parallel (1).",
+        "Benefit: scales horizontally — add commodity nodes as data volume grows (1).",
+        "Benefit: parallel processing handles high volume/velocity of streaming data (1).",
+        "Benefit: fault tolerance — replicated data means no single point of failure (1).",
+        "Limitation: complex to set up, configure and manage (1).",
+        "Limitation: requires distributed-systems expertise the company may lack (1).",
+        "Dedicated server contrast: simpler and more controllable but a single point of failure and costly to scale vertically (1).",
+        "Application: links a point to the growing/streaming workload in the scenario (1).",
+        "Justified conclusion recommending the cluster based on volume, growth and fault-tolerance needs (1)."
+      ]
+    },
+    {
+      q: "Discuss the factors a company should consider when choosing between open-source and vendor-specific software platforms.",
       marks: 6,
       ms: [
-        "Open-source factor: Lower initial licensing costs (1).",
-        "Open-source factor: Flexibility to customise code (1).",
-        "Open-source limitation: Requires internal experts for maintenance (1).",
-        "Vendor factor: Professional support and service-level agreements ($SLAs$) (1).",
-        "Vendor limitation: Higher recurring costs and vendor lock-in (1).",
-        "Conclusion: Choice depends on budget and internal technical capability (1)."
+        "Open-source: lower initial licensing cost (1).",
+        "Open-source: flexibility to customise the code (1).",
+        "Open-source limitation: requires internal experts; only community support (1).",
+        "Vendor: professional support and service-level agreements ($SLAs$) (1).",
+        "Vendor limitation: higher recurring cost and vendor lock-in (1).",
+        "Conclusion: choice depends on budget and in-house technical capability (1)."
       ]
     }
   ]
