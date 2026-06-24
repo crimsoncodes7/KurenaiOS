@@ -9,7 +9,13 @@
   /* sims wired straight onto spec refs — content files belong to Gemini,
      so the ref pages merge this map in at render time (KOS.sims.forRef) */
   var WIRE = {
+    "compsci:4.1.1.15": ["recursion-viz"],   /* stack frames in subroutine calls */
     "compsci:4.1.1.16": ["recursion-viz"],
+    "compsci:4.2.4.1": ["dijkstra"],          /* graphs — show a weighted graph */
+    "compsci:4.3.1.1": ["dijkstra"],          /* graph-traversal algorithms */
+    "compsci:4.3.2.1": ["tl-tree"],           /* tree-traversal algorithms */
+    "compsci:4.3.4.3": ["tl-tree"],           /* binary tree search */
+    "compsci:4.3.5.2": ["sort-viz"],          /* merge sort (sort-viz does both) */
     "compsci:4.5.4.2": ["binary-number"],
     "compsci:4.5.4.4": ["binary-number"],
     "compsci:4.7.3.1": ["cpu-fetch-execute"],
@@ -40,7 +46,8 @@
     }
   };
 
-  /* deep links into the trace lab */
+  /* the four Trace Lab structures, mounted INLINE on their topic's Simulate
+     tab (KOS.traceLabs lives in trace.js, which loads before this file) */
   [["tl-stack","Stack push / pop / peek","stack","compsci","4.2.3.1"],
    ["tl-queue","Linear & circular queue","queue","compsci","4.2.2.1"],
    ["tl-list","Linked list traversal","list","compsci","4.2.1.4"],
@@ -48,7 +55,7 @@
   ].forEach(function (t) {
     KOS.sims.register({ id: t[0], title: t[1], subject: t[3], ref: t[4],
       desc: "Animated canvas with pointer arithmetic and a live trace table.",
-      jump: function () { KOS.store.state.trace.tab = t[2]; KOS.store.save(); KOS.show("trace"); } });
+      mount: function (panel) { KOS.traceLabs.mount(t[2], panel); } });
   });
 
   function dprCanvas(holder, h) {
@@ -1339,6 +1346,202 @@
       }
       nIn.oninput = draw; pIn.oninput = draw; kIn.oninput = draw;
       draw();
+    }
+  });
+
+  /* =================== 13. LINEAR SEARCH VISUALISER =================== */
+  KOS.sims.register({
+    id: "linear-search", title: "Linear Search Visualiser", subject: "compsci", ref: "4.3.4.1",
+    desc: "Scan an UNsorted list left-to-right, comparing every element until the target is found or the end is reached — O(n).",
+    mount: function (panel) {
+      var targetIn = el("input", { type: "number", value: 7, style: "width:80px" });
+      var msg = el("span", { class: "sim-msg" });
+      panel.appendChild(el("div", { class: "lab-controls" }, [
+        el("button", { class: "btn gold", text: "⚄ New array", onclick: reset }),
+        el("label", {}, ["target", targetIn]),
+        el("button", { class: "btn primary", text: "Set target", onclick: start }),
+        el("button", { class: "btn", text: "Step ▸", onclick: step }),
+        msg
+      ]));
+      var holder = el("div", {}); panel.appendChild(holder);
+      var cv = dprCanvas(holder, 170);
+      var N = 12, arr = [], i = -1, target = 7, done = false, found = -1, comps = 0;
+
+      function reset() {
+        arr = []; for (var k = 0; k < N; k++) arr.push(Math.floor(Math.random() * 20) + 1);
+        target = arr[Math.floor(Math.random() * N)]; targetIn.value = target; start();
+      }
+      function start() { target = parseFloat(targetIn.value); i = -1; done = false; found = -1; comps = 0; msg.textContent = "press Step ▸"; draw(); }
+      function step() {
+        if (done) return;
+        i++;
+        if (i >= N) { done = true; i = -1; msg.textContent = "reached the end — not found (" + comps + " comparisons)"; draw(); return; }
+        comps++;
+        if (arr[i] === target) { found = i; done = true; msg.textContent = "found at index " + i + " after " + comps + " comparison(s) ✓"; }
+        else msg.textContent = "a[" + i + "] = " + arr[i] + " ≠ " + target + " → keep scanning";
+        draw();
+      }
+      function draw() {
+        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
+        ctx.clearRect(0, 0, cv.W, cv.H);
+        var cw = (cv.W - 40) / N, top = 60, ch = 46;
+        ctx.font = "13px 'SF Mono',Consolas,monospace"; ctx.textAlign = "center";
+        for (var k = 0; k < N; k++) {
+          var x = 20 + k * cw;
+          ctx.fillStyle = k === found ? COL.jade : k === i ? COL.crim : k < i ? COL.ink : COL.line;
+          ctx.fillRect(x + 2, top, cw - 4, ch);
+          ctx.strokeStyle = COL.faint; ctx.strokeRect(x + 2, top, cw - 4, ch);
+          ctx.fillStyle = (k === i || k === found) ? COL.text : (k < i ? COL.faint : COL.text);
+          ctx.fillText(String(arr[k]), x + cw / 2, top + 27);
+          ctx.fillStyle = COL.faint; ctx.font = "9px monospace"; ctx.fillText(String(k), x + cw / 2, top + ch + 12);
+          ctx.font = "13px 'SF Mono',Consolas,monospace";
+        }
+        if (i >= 0 && i < N) { var px = 20 + i * cw + cw / 2; ctx.fillStyle = COL.crim; ctx.font = "11px monospace"; ctx.fillText("i", px, top - 10); }
+        ctx.textAlign = "left"; ctx.fillStyle = COL.mute; ctx.font = "12px monospace";
+        ctx.fillText("target = " + target + "    comparisons = " + comps, 20, 26);
+      }
+      reset();
+    }
+  });
+
+  /* =================== 14. HASH TABLE (linear probing) =================== */
+  KOS.sims.register({
+    id: "hash-table", title: "Hash Table — insert & probe", subject: "compsci", ref: "4.2.6.1",
+    desc: "Insert integer keys with h(k) = k mod 11, then watch linear probing step past collisions to the next free slot — O(1) average lookup.",
+    mount: function (panel) {
+      var SIZE = 11;
+      var keyIn = el("input", { type: "number", value: 24, style: "width:90px" });
+      var msg = el("span", { class: "sim-msg" });
+      panel.appendChild(el("div", { class: "lab-controls" }, [
+        el("label", {}, ["insert key", keyIn]),
+        el("button", { class: "btn primary", text: "Insert", onclick: insert }),
+        el("button", { class: "btn", text: "Find", onclick: find }),
+        el("button", { class: "btn gold", text: "Reset", onclick: reset }),
+        msg
+      ]));
+      var holder = el("div", {}); panel.appendChild(holder);
+      var cv = dprCanvas(holder, 230);
+      var table = new Array(SIZE).fill(null), probe = [], hot = -1, count = 0;
+
+      function reset() { table = new Array(SIZE).fill(null); probe = []; hot = -1; count = 0; msg.textContent = ""; draw(); }
+      function insert() {
+        var k = parseInt(keyIn.value, 10);
+        if (isNaN(k)) { KOS.ui.toast("Enter an integer key.", true); return; }
+        if (count >= SIZE) { msg.textContent = "table full"; return; }
+        var h = ((k % SIZE) + SIZE) % SIZE, p = h; probe = [];
+        while (table[p] !== null) {
+          probe.push(p);
+          if (table[p] === k) { hot = p; msg.textContent = "key " + k + " already present at slot " + p; draw(); return; }
+          p = (p + 1) % SIZE;
+        }
+        probe.push(p); table[p] = k; hot = p; count++;
+        msg.textContent = "h(" + k + ") = " + k + " mod " + SIZE + " = " + h +
+          (probe.length > 1 ? "  →  collided, probed to slot " + p : "  →  slot " + p + " free");
+        draw();
+      }
+      function find() {
+        var k = parseInt(keyIn.value, 10);
+        if (isNaN(k)) { KOS.ui.toast("Enter an integer key.", true); return; }
+        var h = ((k % SIZE) + SIZE) % SIZE, p = h, steps = 0; probe = [];
+        while (steps < SIZE) {
+          probe.push(p);
+          if (table[p] === null) { hot = -1; msg.textContent = "key " + k + " not found (hit an empty slot after " + (steps + 1) + " probe(s))"; draw(); return; }
+          if (table[p] === k) { hot = p; msg.textContent = "found key " + k + " at slot " + p + " in " + (steps + 1) + " probe(s)"; draw(); return; }
+          p = (p + 1) % SIZE; steps++;
+        }
+        hot = -1; msg.textContent = "key " + k + " not found"; draw();
+      }
+      function draw() {
+        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
+        ctx.clearRect(0, 0, cv.W, cv.H);
+        var cw = Math.min(70, (cv.W - 40) / SIZE), x0 = (cv.W - cw * SIZE) / 2, y = 90, ch = 50;
+        ctx.font = "13px 'SF Mono',Consolas,monospace";
+        ctx.textAlign = "left"; ctx.fillStyle = COL.mute; ctx.fillText("h(k) = k mod " + SIZE + "    keys stored: " + count + "/" + SIZE, x0, 40);
+        for (var s = 0; s < SIZE; s++) {
+          var x = x0 + s * cw, probed = probe.indexOf(s) >= 0;
+          ctx.fillStyle = s === hot ? COL.jade : probed ? COL.crim : table[s] !== null ? COL.line : COL.ink;
+          ctx.fillRect(x + 1, y, cw - 2, ch);
+          ctx.strokeStyle = COL.faint; ctx.strokeRect(x + 1, y, cw - 2, ch);
+          ctx.textAlign = "center";
+          ctx.fillStyle = table[s] !== null ? COL.text : COL.faint;
+          ctx.fillText(table[s] !== null ? String(table[s]) : "·", x + cw / 2, y + 30);
+          ctx.fillStyle = COL.faint; ctx.font = "9px monospace"; ctx.fillText(String(s), x + cw / 2, y + ch + 13);
+          ctx.font = "13px 'SF Mono',Consolas,monospace";
+        }
+        if (probe.length) { ctx.textAlign = "left"; ctx.fillStyle = COL.crim; ctx.font = "11px monospace"; ctx.fillText("probe path: " + probe.join(" → "), x0, y + ch + 36); }
+      }
+      reset();
+    }
+  });
+
+  /* =================== 15. DIJKSTRA'S SHORTEST PATH =================== */
+  KOS.sims.register({
+    id: "dijkstra", title: "Dijkstra's Shortest Path", subject: "compsci", ref: "4.3.6.1",
+    desc: "Step through Dijkstra from A: each step settles the nearest unvisited node and relaxes its neighbours, with the distance table updating live.",
+    mount: function (panel) {
+      var NODES = [
+        { id: 0, l: "A", x: 90, y: 150 }, { id: 1, l: "B", x: 250, y: 60 }, { id: 2, l: "C", x: 250, y: 240 },
+        { id: 3, l: "D", x: 470, y: 60 }, { id: 4, l: "E", x: 470, y: 240 }, { id: 5, l: "F", x: 660, y: 150 }
+      ];
+      var EDGES = [
+        [0, 1, 4], [0, 2, 2], [1, 2, 1], [1, 3, 5], [2, 4, 8], [2, 3, 10], [3, 4, 2], [3, 5, 3], [4, 5, 6]
+      ];
+      var adj = NODES.map(function () { return []; });
+      EDGES.forEach(function (e) { adj[e[0]].push([e[1], e[2]]); adj[e[1]].push([e[0], e[2]]); });
+      var INF = Infinity, dist, prev, visited, current, finished;
+      var msg = el("span", { class: "sim-msg" });
+      panel.appendChild(el("div", { class: "lab-controls" }, [
+        el("button", { class: "btn primary", text: "Step ▸", onclick: step }),
+        el("button", { class: "btn gold", text: "Reset", onclick: reset }),
+        msg
+      ]));
+      var holder = el("div", {}); panel.appendChild(holder);
+      var cv = dprCanvas(holder, 320);
+
+      function reset() {
+        dist = NODES.map(function () { return INF; }); prev = NODES.map(function () { return -1; });
+        visited = NODES.map(function () { return false; }); dist[0] = 0; current = -1; finished = false;
+        msg.textContent = "start: dist[A] = 0, all others ∞ — press Step ▸"; draw();
+      }
+      function step() {
+        if (finished) return;
+        var u = -1, best = INF;
+        for (var k = 0; k < NODES.length; k++) if (!visited[k] && dist[k] < best) { best = dist[k]; u = k; }
+        if (u === -1) { finished = true; current = -1; msg.textContent = "done — every reachable node settled. Shortest A→F = " + dist[5]; draw(); return; }
+        visited[u] = true; current = u;
+        var relaxed = [];
+        adj[u].forEach(function (e) {
+          var v = e[0], w = e[1];
+          if (!visited[v] && dist[u] + w < dist[v]) { dist[v] = dist[u] + w; prev[v] = u; relaxed.push(NODES[v].l + "=" + dist[v]); }
+        });
+        msg.textContent = "settle " + NODES[u].l + " (dist " + dist[u] + ")" + (relaxed.length ? " → relax " + relaxed.join(", ") : " → no improvement");
+        draw();
+      }
+      function draw() {
+        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
+        ctx.clearRect(0, 0, cv.W, cv.H);
+        EDGES.forEach(function (e) {
+          var a = NODES[e[0]], b = NODES[e[1]];
+          ctx.strokeStyle = COL.line; ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          ctx.fillStyle = COL.gold; ctx.font = "11px 'SF Mono',monospace"; ctx.textAlign = "center";
+          ctx.fillText(String(e[2]), (a.x + b.x) / 2, (a.y + b.y) / 2 - 4);
+        });
+        NODES.forEach(function (n) {
+          ctx.beginPath(); ctx.arc(n.x, n.y, 22, 0, 7);
+          ctx.fillStyle = n.id === current ? COL.crim : visited[n.id] ? "rgba(69,214,168,.18)" : COL.ink;
+          ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = visited[n.id] ? COL.jade : COL.blue; ctx.stroke();
+          ctx.fillStyle = COL.text; ctx.font = "600 14px 'SF Mono',monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillText(n.l, n.x, n.y);
+          ctx.fillStyle = COL.mute; ctx.font = "10px monospace"; ctx.textBaseline = "alphabetic";
+          ctx.fillText(dist[n.id] === INF ? "∞" : String(dist[n.id]), n.x, n.y + 36);
+        });
+        // distance table strip
+        ctx.textAlign = "left"; ctx.font = "11px 'SF Mono',monospace"; ctx.textBaseline = "alphabetic";
+        var row = NODES.map(function (n) { return n.l + ":" + (dist[n.id] === INF ? "∞" : dist[n.id]) + (visited[n.id] ? "✓" : ""); }).join("   ");
+        ctx.fillStyle = COL.faint; ctx.fillText("dist  " + row, 16, cv.H - 12);
+      }
+      reset();
     }
   });
 

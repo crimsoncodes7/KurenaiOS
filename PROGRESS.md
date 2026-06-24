@@ -118,9 +118,31 @@ fuzz-tested (30+ randomised runs each) and all sims mount without throwing.
   project; added the "wiring labs to topics" reference. Stale Gemini queues removed
   from this file.
 
+## Inline labs + back navigation + CS sims (Claude Code, 2026-06-24)
+Made labs render inline on the topic page, added page history, and widened CS sim
+coverage. Both smoke suites pass; all sims verified to mount inline without throwing.
+
+- **Inline simulations**: the four Trace Lab structures (stack/queue/list/tree) used
+  to render as a button that *redirected* to the full Trace Lab view. They now mount
+  **inline** on the topic's Simulate tab. `trace.js` exposes `KOS.traceLabs.mount(tab,
+  panel)`; `sims.js` registers them with `mount` instead of `jump`. Every sim in the
+  registry now has a `mount`, so no topic sim is a redirect anymore.
+- **Back navigation**: `KOS.show` keeps a history stack; new `KOS.back()` / `KOS.canBack()`.
+  Added a glass **‹ Back** button in the topbar (`index.html` + `.nav-back` in
+  `main.css`) and Alt+← / Backspace shortcuts (ignored while typing in a field).
+  Fixes "can't navigate back to the previous page" on the local file build.
+- **3 new CS simulations** (16 → 19 total): `linear-search` (4.3.4.1), `hash-table`
+  with h(k)=k mod 11 + linear probing (4.2.6.1), `dijkstra` shortest-path step-through
+  on a fixed weighted graph (4.3.6.1, verified A→F = 11 via A→C→B→D→F).
+- **Wider sim wiring** (WIRE extra refs): merge sort 4.3.5.2 → sort-viz; tree traversal
+  4.3.2.1 and binary-tree search 4.3.4.3 → tl-tree; graphs 4.2.4.1 and graph traversal
+  4.3.1.1 → dijkstra; stack frames 4.1.1.15 → recursion-viz. Result: every data
+  structure (4.2.x) and every search/sort/graph algorithm (4.3.x) now has a Simulate tab.
+
 ## Claude Code backlog (app features)
 - **Content**: fill quiz (≥3) and exam (≥1) gaps across maths + thin CS files, using
   PMT papers in `Context/` as source (see the plan: build-1 completion sprint).
-- More simulations (Karnaugh maps, Dijkstra graph, hash-table collisions, projectile).
+- More simulations (Karnaugh maps, BFS/DFS graph traversal, projectile motion).
+- More sandboxes (e.g. an array/pseudocode tracer to sit alongside the C# OOP sandbox).
 - Build 2 (gamification): Behavioural Governor (avatar, focus timer, SM-2 engine).
 - Build 3: Kurenai Collection Matrix.

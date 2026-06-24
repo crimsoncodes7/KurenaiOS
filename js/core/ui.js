@@ -44,7 +44,32 @@
 
   // ---- view registry: each module registers render functions ----
   KOS.views = {};
-  KOS.show = function (viewId, arg) {
+
+  /* ---- navigation history so Back returns to the previous page ---- */
+  var navHist = [];   // stack of {viewId, arg} we can return to
+  var navCur = null;  // the view currently on screen
+  function navKey(v) { return v.viewId + "::" + JSON.stringify(v.arg === undefined ? null : v.arg); }
+  function updateBackBtn() {
+    var b = document.getElementById("nav-back");
+    if (b) b.disabled = navHist.length === 0;
+  }
+  KOS.canBack = function () { return navHist.length > 0; };
+  KOS.back = function () {
+    if (!navHist.length) return;
+    var prev = navHist.pop();
+    KOS.show(prev.viewId, prev.arg, { _fromBack: true });
+  };
+
+  KOS.show = function (viewId, arg, opts) {
+    opts = opts || {};
+    /* push where we are so Back can come back here (skip exact-duplicate
+       navigations and Back-driven navigations) */
+    if (navCur && !opts._fromBack && navKey(navCur) !== navKey({ viewId: viewId, arg: arg })) {
+      navHist.push(navCur);
+      if (navHist.length > 60) navHist.shift();
+    }
+    navCur = { viewId: viewId, arg: arg };
+
     var main = document.getElementById("main");
     main.innerHTML = "";
     main.scrollTop = 0;
@@ -68,5 +93,6 @@
     KOS.store.state.ui.view = viewId;
     if (viewId === "subject") KOS.store.state.ui.subject = arg;
     KOS.store.save();
+    updateBackBtn();
   };
 })();

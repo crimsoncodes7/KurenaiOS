@@ -616,4 +616,15 @@
     }
     open(TABS.find(function (t) { return t[0] === current; }) || TABS[0]);
   };
+
+  /* expose each structure so a topic's Simulate tab can mount it INLINE
+     (sims.js wires these) instead of redirecting to the full Trace Lab view */
+  var LABFN = { stack: stackLab, queue: queueLab, list: listLab, tree: treeLab };
+  KOS.traceLabs = {
+    has: function (tab) { return !!LABFN[tab]; },
+    mount: function (tab, panel) {
+      currentDraw = null; flashes = []; animItems = [];   // isolate from any prior canvas
+      if (LABFN[tab]) LABFN[tab](panel);
+    }
+  };
 })();

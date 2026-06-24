@@ -36,11 +36,14 @@ xdg-open index.html    # Linux
   grouped by paper — quadratics, sequences & series, binomial expansion, sine/cosine
   rule, vectors, differentiation, integration, Newton–Raphson, partial fractions,
   logs, kinematics, exponential models, binomial probability, hypothesis tests,
-  normal distribution, binary/float conversion), and 16 simulations (Boolean Logic
-  Lab, Sorting Visualiser, FSM Lab, Reverse Polish evaluator, Binary Search, Binomial
-  Distribution, Recursion, Binary Register, Fetch–Execute, Unit Circle, Graph
-  Transformer, Definite-Integral area, …). Every generator and sim auto-surfaces a
-  **Worked** / **Simulate** tab on the spec point it targets.
+  normal distribution, binary/float conversion), and 19 simulations (Stack / Queue /
+  Linked-list / BST trace labs, Boolean Logic Lab, Sorting Visualiser, FSM Lab,
+  Reverse Polish evaluator, Linear & Binary Search, Hash Table, Dijkstra's shortest
+  path, Binomial Distribution, Recursion, Binary Register, Fetch–Execute, Unit Circle,
+  Graph Transformer, Definite-Integral area). Every generator and sim auto-surfaces a
+  **Worked** / **Simulate** tab on the spec point it targets, and **renders inline on
+  the topic page** (no redirect). A **‹ Back** button (and Alt+← / Backspace) steps
+  through page history.
 - **Progress tracking** — per-point status (Not started / Started / Paused / Completed)
   and a four-stage checklist (Covered in class · Studied it · Done exam Qs · Fully
   understood), shown as spine strips in the tree, a completion bar on each subject

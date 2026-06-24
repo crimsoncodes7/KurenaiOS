@@ -8,6 +8,18 @@
     });
   });
 
+  /* back navigation — topbar button + Alt+← / Backspace (outside inputs) */
+  var backBtn = document.getElementById("nav-back");
+  if (backBtn) backBtn.addEventListener("click", function () { KOS.back(); });
+  document.addEventListener("keydown", function (e) {
+    var t = e.target, tag = t && t.tagName;
+    var typing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (t && t.isContentEditable);
+    if (typing) return;
+    if ((e.altKey && e.key === "ArrowLeft") || (!e.altKey && !e.metaKey && !e.ctrlKey && e.key === "Backspace")) {
+      if (KOS.canBack && KOS.canBack()) { e.preventDefault(); KOS.back(); }
+    }
+  });
+
   /* collapsible rail — persisted in ui.railOpen */
   var railBtn = document.getElementById("rail-toggle");
   function applyRail() {

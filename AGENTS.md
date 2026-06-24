@@ -40,6 +40,13 @@ you do NOT need to touch content files to wire a lab:
   exact `"subject:ref"`. Add an entry there when you add a generator.
 - A content entry may also list `sims:[...]` / `gens:[...]` directly; `hub.js` merges
   both sources and de-dupes by id.
+- **Sims render inline** on the Simulate tab — give every sim a `mount(panel)`, never a
+  `jump` redirect. The four Trace Lab structures mount inline via `KOS.traceLabs.mount`.
+
+## Navigation
+`KOS.show(viewId, arg)` records a history stack; `KOS.back()` / `KOS.canBack()` drive
+the topbar **‹ Back** button (and Alt+← / Backspace). Don't replace `#main` directly —
+always route through `KOS.show` so history and rail state stay correct.
 
 ## Common pitfalls (have actually broken the build)
 - **Callouts need TWO closing braces.** `{ callout: { t:"def", body:"…" } }` — the
