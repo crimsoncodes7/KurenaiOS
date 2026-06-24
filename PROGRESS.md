@@ -14,22 +14,16 @@ maths: 9.1, 9.2, 9.3, 9.4, 9.5
 maths: 10.1, 10.2, 10.3, 10.4, 10.5
 maths: S1.1, S2.x, S3.x, S4.x, S5.x, S6.x, S7.x, S8.x, S9.x
 
-## Notes for Gemini (content authoring)
-- **Massive Pure Maths Push Complete**: All Pure Mathematics topics (P1–P10) are now implemented with exhaustive, boxed content.
-- **Applied Maths Push Complete**: All Statistics (S1–S5) and Mechanics (S7–S8) topics are now implemented with exhaustive, boxed content.
-- **True Exhaustive Audit 100% Complete (CS)**: Removed all aliases and deepened every point.
-- **Spec Data Sanitized**: Fixed structural errors in `compsci.js` and `maths.js`.
-- **Diagrams Wired**: Multiple interactive simulations linked to relevant CS and Maths topics.
-
-## Queued — Maths (Gemini to write)
-(All Mathematics topics are complete)
-
-- **Maths Applied Complete**: Final pass complete, including fixing the S9.1 formula markdown.
-- **IT F201 100% Visual Audit**: Every sub-topic in F201 has been meticulously refactored to eliminate plain text lists. Everything is contained in high-impact callouts, steps, or tables.
-- **Enhanced IT Code**: Added JSON, XML, Hadoop, and ML logic blocks to F201.
-
-## Queued — IT (Final Note)
-(Gemini build for IT concluded with F201 as requested. No further IT units will be implemented.)
+## Content status (Claude Code now owns the whole project)
+The previous split with Gemini has ended — all of `js/data/content/` is maintained
+here. See `AGENTS.md` for the current ownership rules.
+- **Computer Science**: deep content complete across all sub-topics (notes, boxed
+  terminology, code, quizzes, exam Qs).
+- **Mathematics**: Pure (P1–P10) and Applied (S1–S9) topics implemented with boxed
+  content. Quiz/exam coverage is still thin in maths — next content push (uses PMT
+  papers in `Context/` as source) targets ≥3 quiz + ≥1 exam per topic.
+- **IT**: F201 (Big Data & ML) complete and visually audited. F200 is spec-only by
+  design. No further IT units planned.
 
 
 ## Build 2.0 — "Higanbana" UI/UX overhaul (Claude Code, 2026-06-13)
@@ -100,7 +94,33 @@ Systematic deepening of all content files since Build 2.1. Both smoke suites pas
 - **Maths content pass**: major additions to `maths-pure.js` (+350 lines) and `maths-applied.js` (+371 lines) completing coverage of all statistics and mechanics sub-topics.
 - **IT F201.5.3 re-key**: the orphaned "Big Data Case Studies" block (Amazon anticipatory shipping, Uber surge pricing, Netflix series commissioning, AlphaFold protein prediction) was commented out because `it:F201.5.3` ("NEA Units") has `content:[]` in the generated spec and is therefore invisible to hub.js. Block merged into `it:F201.1.4` ("The purpose, importance and use of big data") where it belongs — added 2 new callouts, 3 flashcards, 1 quiz question. Smoke2 "orphan content key" check now clean.
 
+## Labs wiring + new sims & generators (Claude Code, 2026-06-24)
+Made every interactive lab reachable from its topic page, then widened coverage with
+new generators and simulations. Both smoke suites pass; all `solve()` generators
+fuzz-tested (30+ randomised runs each) and all sims mount without throwing.
+
+- **Wiring — sims**: `KOS.sims.forRef` now auto-matches any sim by its declared
+  `subject:ref`, so all 13 sims (9 interactive + 4 trace-lab) surface a **Simulate**
+  tab on their spec page, and future sims wire themselves on `register`. The `WIRE`
+  map is kept only for extra refs (e.g. `binary-number` on 4.5.4.2 *and* 4.5.4.4).
+- **Wiring — generators**: added a parallel `GENWIRE` map + `KOS.worked.forRef`
+  (a generator's `ref` field is a display label like "7.2 / 7.3", so matching needs
+  an explicit map). `hub.js` merges it into the **Worked** tab, mirroring sims.
+- **7 new generators**: `arithseq` (4.4), `geomseq` (4.5), `sinecos` (5.1),
+  `vectors` (10.1/10.4), `newraph` (9.3), `binomprob` (S4.1), `hyptest` (S5.2).
+- **3 more generators**: `partialfrac` (2.10), `kinematics` (S7.4), `expmodel` (6.7).
+  → Worked Example Engine now has 20 generators (was 10).
+- **3 new simulations**: `rpn-eval` Reverse Polish evaluator with a live stack
+  (4.3.3.1), `binary-search` interval-halving visualiser (4.3.4.2), `binom-dist`
+  binomial distribution bar chart (S4.1, pairs with the `binomprob` generator).
+  → 16 sims total (was 13). S4.1 now shows both a Worked and a Simulate tab.
+- **Docs**: `AGENTS.md` rewritten — Gemini split ended, Claude Code owns the whole
+  project; added the "wiring labs to topics" reference. Stale Gemini queues removed
+  from this file.
+
 ## Claude Code backlog (app features)
-- Build 2 (gamification): Behavioural Governor (avatar, focus timer, SM-2 engine)
-- More simulations (Karnaugh maps, projectile motion)
-- Build 3: Kurenai Collection Matrix
+- **Content**: fill quiz (≥3) and exam (≥1) gaps across maths + thin CS files, using
+  PMT papers in `Context/` as source (see the plan: build-1 completion sprint).
+- More simulations (Karnaugh maps, Dijkstra graph, hash-table collisions, projectile).
+- Build 2 (gamification): Behavioural Governor (avatar, focus timer, SM-2 engine).
+- Build 3: Kurenai Collection Matrix.

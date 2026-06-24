@@ -21,7 +21,16 @@
     get: function (id) { return REG.find(function (s) { return s.id === id; }); },
     all: function () { return REG.slice(); },
     forRef: function (sid, ref) {
-      return (WIRE[sid + ":" + ref] || []).map(KOS.sims.get).filter(Boolean);
+      /* explicit overrides (handles sims wired to >1 ref, e.g. binary-number
+         on both 4.5.4.2 and 4.5.4.4) … */
+      var out = (WIRE[sid + ":" + ref] || []).map(KOS.sims.get).filter(Boolean);
+      /* … plus any sim that declares this exact subject:ref, so every sim is
+         reachable from its own topic page and new sims auto-wire on register */
+      REG.forEach(function (s) {
+        if (s.subject === sid && s.ref === ref &&
+            !out.some(function (x) { return x.id === s.id; })) out.push(s);
+      });
+      return out;
     },
     open: function (id) {
       var s = KOS.sims.get(id);
@@ -1137,6 +1146,199 @@
       polyIn.oninput = update; aIn.oninput = update; bIn.oninput = update;
       absChk.onchange = draw;
       update();
+    }
+  });
+
+  /* =================== 10. REVERSE POLISH EVALUATOR =================== */
+  KOS.sims.register({
+    id: "rpn-eval", title: "Reverse Polish (Postfix) Evaluator", subject: "compsci", ref: "4.3.3.1",
+    desc: "Step through a postfix expression token by token and watch the stack push operands and collapse two-at-a-time on each operator.",
+    mount: function (panel) {
+      var exprIn = el("input", { type: "text", value: "3 4 + 5 2 - *", style: "width:240px", "aria-label": "Postfix expression" });
+      var msg = el("span", { class: "sim-msg" });
+      panel.appendChild(el("div", { class: "lab-controls" }, [
+        el("label", {}, ["postfix (space-separated, + − × ÷)", exprIn]),
+        el("button", { class: "btn primary", text: "Load", onclick: load }),
+        el("button", { class: "btn", text: "Step ▸", onclick: step }),
+        el("button", { class: "btn gold", text: "Run all", onclick: runAll }),
+        msg
+      ]));
+      var holder = el("div", {});
+      panel.appendChild(holder);
+      var cv = dprCanvas(holder, 280);
+      var tokens = [], pos = 0, stack = [], action = "", err = "";
+
+      function norm(s) { return s.replace(/×/g, "*").replace(/÷/g, "/").replace(/−/g, "-"); }
+      function isOp(t) { return t === "+" || t === "-" || t === "*" || t === "/"; }
+      function load() {
+        tokens = norm(exprIn.value).trim().split(/\s+/).filter(Boolean);
+        pos = 0; stack = []; err = ""; action = "loaded — press Step ▸"; draw();
+      }
+      function step() {
+        if (err) return;
+        if (pos >= tokens.length) {
+          action = stack.length === 1 ? "finished ✓ result = " + stack[0]
+            : "finished — malformed: " + stack.length + " values left on the stack";
+          draw(); return;
+        }
+        var t = tokens[pos++];
+        if (isOp(t)) {
+          if (stack.length < 2) { err = "stack underflow at '" + t + "' — an operator needs two operands"; draw(); return; }
+          var b = stack.pop(), a = stack.pop(), r;
+          if (t === "+") r = a + b; else if (t === "-") r = a - b;
+          else if (t === "*") r = a * b; else r = b === 0 ? NaN : a / b;
+          r = Math.round(r * 1e6) / 1e6; stack.push(r);
+          action = "operator " + t + " → pop " + b + ", pop " + a + ", push (" + a + " " + t + " " + b + ") = " + r;
+        } else {
+          var n = parseFloat(t);
+          if (isNaN(n)) { err = "'" + t + "' is neither a number nor an operator"; draw(); return; }
+          stack.push(n); action = "operand " + n + " → push onto the stack";
+        }
+        draw();
+      }
+      function runAll() {
+        if (!tokens.length) load();
+        var guard = 0;
+        while (pos < tokens.length && !err && guard++ < 500) step();
+        if (!err) step();
+      }
+      function wrap(ctx, text, x, y, maxW, lh) {
+        var words = (text || "").split(" "), line = "", yy = y;
+        words.forEach(function (w) {
+          var test = line + w + " ";
+          if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, x, yy); line = w + " "; yy += lh; }
+          else line = test;
+        });
+        ctx.fillText(line, x, yy);
+      }
+      function draw() {
+        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
+        ctx.clearRect(0, 0, cv.W, cv.H);
+        ctx.font = "13px 'SF Mono',Consolas,monospace"; ctx.textAlign = "left";
+        ctx.fillStyle = COL.mute; ctx.fillText("tokens:", 16, 24);
+        var tx = 84;
+        tokens.forEach(function (t, i) {
+          ctx.fillStyle = i < pos ? COL.faint : (i === pos ? COL.gold : COL.text);
+          ctx.fillText(t, tx, 24); tx += ctx.measureText(t).width + 16;
+        });
+        var bx = 40, bw = 96, bh = 30, baseY = cv.H - 52;
+        ctx.fillStyle = COL.mute; ctx.fillText("stack (top on left)", 16, baseY + 34);
+        stack.forEach(function (v, i) {
+          var y = baseY - i * (bh + 6);
+          ctx.fillStyle = i === stack.length - 1 ? COL.crim : COL.line;
+          ctx.fillRect(bx, y, bw, bh);
+          ctx.fillStyle = COL.text; ctx.textAlign = "center"; ctx.fillText(String(v), bx + bw / 2, y + 20);
+          ctx.textAlign = "left";
+        });
+        ctx.fillStyle = err ? COL.crim : COL.jade;
+        ctx.font = "12px 'SF Mono',Consolas,monospace";
+        wrap(ctx, err || action, 160, baseY - 8, cv.W - 175, 16);
+      }
+      load();
+    }
+  });
+
+  /* =================== 11. BINARY SEARCH VISUALISER =================== */
+  KOS.sims.register({
+    id: "binary-search", title: "Binary Search Visualiser", subject: "compsci", ref: "4.3.4.2",
+    desc: "Watch the search interval halve each step as the low, mid and high pointers close in on the target — O(log n).",
+    mount: function (panel) {
+      var targetIn = el("input", { type: "number", value: 42, style: "width:80px" });
+      var msg = el("span", { class: "sim-msg" });
+      panel.appendChild(el("div", { class: "lab-controls" }, [
+        el("button", { class: "btn gold", text: "⚄ New sorted array", onclick: reset }),
+        el("label", {}, ["target", targetIn]),
+        el("button", { class: "btn primary", text: "Set target", onclick: start }),
+        el("button", { class: "btn", text: "Step ▸", onclick: step }),
+        msg
+      ]));
+      var holder = el("div", {}); panel.appendChild(holder);
+      var cv = dprCanvas(holder, 200);
+      var N = 15, arr = [], lo = 0, hi = 0, mid = -1, target = 42, done = false, found = -1, comps = 0;
+
+      function reset() {
+        arr = []; var v = Math.floor(Math.random() * 8) + 1;
+        for (var i = 0; i < N; i++) { arr.push(v); v += Math.floor(Math.random() * 7) + 2; }
+        target = arr[Math.floor(Math.random() * N)]; targetIn.value = target; start();
+      }
+      function start() {
+        target = parseFloat(targetIn.value); lo = 0; hi = N - 1; mid = -1;
+        done = false; found = -1; comps = 0; msg.textContent = "press Step ▸"; draw();
+      }
+      function step() {
+        if (done) return;
+        if (lo > hi) { done = true; mid = -1; msg.textContent = "not in the array — " + comps + " comparisons"; draw(); return; }
+        mid = (lo + hi) >> 1; comps++;
+        if (arr[mid] === target) { found = mid; done = true; msg.textContent = "found at index " + mid + " in " + comps + " comparison(s) ✓"; }
+        else if (arr[mid] < target) { msg.textContent = "a[" + mid + "]=" + arr[mid] + " < " + target + " → discard left half"; lo = mid + 1; }
+        else { msg.textContent = "a[" + mid + "]=" + arr[mid] + " > " + target + " → discard right half"; hi = mid - 1; }
+        draw();
+      }
+      function draw() {
+        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
+        ctx.clearRect(0, 0, cv.W, cv.H);
+        var cw = (cv.W - 40) / N, top = 74, ch = 44;
+        ctx.font = "13px 'SF Mono',Consolas,monospace"; ctx.textAlign = "center";
+        for (var i = 0; i < N; i++) {
+          var x = 20 + i * cw, inRange = i >= lo && i <= hi;
+          ctx.fillStyle = i === found ? COL.jade : i === mid ? COL.crim : inRange ? COL.line : COL.ink;
+          ctx.fillRect(x + 2, top, cw - 4, ch);
+          ctx.strokeStyle = COL.faint; ctx.strokeRect(x + 2, top, cw - 4, ch);
+          ctx.fillStyle = (inRange || i === found) ? COL.text : COL.faint;
+          ctx.fillText(String(arr[i]), x + cw / 2, top + 27);
+          ctx.fillStyle = COL.faint; ctx.font = "9px monospace"; ctx.fillText(String(i), x + cw / 2, top + ch + 12);
+          ctx.font = "13px 'SF Mono',Consolas,monospace";
+        }
+        function ptr(idx, label, col, dy) { if (idx < 0 || idx >= N) return; var x = 20 + idx * cw + cw / 2; ctx.fillStyle = col; ctx.fillText(label, x, top - 10 - dy); }
+        ctx.font = "11px monospace";
+        ptr(lo, "lo", COL.blue, 0); ptr(hi, "hi", COL.gold, 0); if (mid >= 0) ptr(mid, "mid", COL.crim, 15);
+        ctx.textAlign = "left"; ctx.fillStyle = COL.mute; ctx.font = "12px monospace";
+        ctx.fillText("target = " + target + "    comparisons = " + comps, 20, 26);
+      }
+      reset();
+    }
+  });
+
+  /* =================== 12. BINOMIAL DISTRIBUTION EXPLORER =================== */
+  KOS.sims.register({
+    id: "binom-dist", title: "Binomial Distribution Explorer", subject: "maths", ref: "S4.1",
+    desc: "Slide n and p to reshape X ~ B(n, p); read P(X = k), the cumulative probability, mean and variance straight off the bars.",
+    mount: function (panel) {
+      var nIn = el("input", { type: "range", min: 1, max: 30, value: 10, style: "width:150px" });
+      var pIn = el("input", { type: "range", min: 1, max: 99, value: 30, style: "width:150px" });
+      var kIn = el("input", { type: "range", min: 0, max: 30, value: 4, style: "width:150px" });
+      var msg = el("span", { class: "sim-msg" });
+      var lbl = el("div", { class: "sub", style: "margin:8px 0;font-family:var(--mono);font-size:11.5px" });
+      panel.appendChild(el("div", { class: "lab-controls" }, [
+        el("label", {}, ["n", nIn]), el("label", {}, ["p (%)", pIn]), el("label", {}, ["k", kIn]), msg
+      ]));
+      panel.appendChild(lbl);
+      var holder = el("div", {}); panel.appendChild(holder);
+      var cv = dprCanvas(holder, 280);
+      function nCr(n, r) { if (r < 0 || r > n) return 0; var x = 1; for (var i = 0; i < r; i++) x = x * (n - i) / (i + 1); return x; }
+      function pmf(n, p, k) { return nCr(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k); }
+      function draw() {
+        var n = +nIn.value, p = +pIn.value / 100;
+        kIn.max = n; var k = Math.min(+kIn.value, n);
+        var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
+        ctx.clearRect(0, 0, cv.W, cv.H);
+        var bars = [], maxP = 0, j;
+        for (j = 0; j <= n; j++) { var pr = pmf(n, p, j); bars.push(pr); if (pr > maxP) maxP = pr; }
+        var bw = (cv.W - 50) / (n + 1), base = cv.H - 34;
+        for (j = 0; j <= n; j++) {
+          var h = maxP > 0 ? (base - 26) * bars[j] / maxP : 0, x = 34 + j * bw, y = base - h;
+          ctx.fillStyle = j === k ? COL.crim : COL.blue; ctx.fillRect(x + 1, y, bw - 2, h);
+          if (n <= 22) { ctx.fillStyle = j === k ? COL.crim : COL.faint; ctx.font = "9px monospace"; ctx.textAlign = "center"; ctx.fillText(String(j), x + bw / 2, base + 13); }
+        }
+        ctx.strokeStyle = COL.line; ctx.beginPath(); ctx.moveTo(34, base); ctx.lineTo(cv.W - 10, base); ctx.stroke();
+        var mean = n * p, varr = n * p * (1 - p), cum = 0;
+        for (j = 0; j <= k; j++) cum += bars[j];
+        lbl.innerHTML = "X ~ B(" + n + ", " + p.toFixed(2) + ") &nbsp; <b style='color:var(--kurenai)'>P(X = " + k + ") = " + bars[k].toFixed(4) + "</b> &nbsp; P(X ≤ " + k + ") = " + cum.toFixed(4) +
+          " &nbsp; mean np = " + mean.toFixed(2) + " &nbsp; var np(1−p) = " + varr.toFixed(2);
+        msg.textContent = "n=" + n + "  p=" + p.toFixed(2) + "  k=" + k;
+      }
+      nIn.oninput = draw; pIn.oninput = draw; kIn.oninput = draw;
+      draw();
     }
   });
 

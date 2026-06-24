@@ -580,9 +580,13 @@
     main.appendChild(ctl);
 
     /* ---------- study tabs ---------- */
+    /* gens & sims: each is the content entry's own list merged with anything
+       wired to this ref in the labs (KOS.worked.forRef / KOS.sims.forRef), so
+       generators and sims reach topics the content files haven't enriched yet */
     var gens = content ? KOS.worked.byIds(content.gens) : [];
-    /* sims: content entry's list, merged with sims wired to this ref in
-       sims.js (KOS.sims.forRef) so labs reach topics Gemini hasn't enriched */
+    (KOS.worked.forRef ? KOS.worked.forRef(sid, ref) : []).forEach(function (g) {
+      if (!gens.some(function (x) { return x.id === g.id; })) gens.push(g);
+    });
     var sims = (content ? (content.sims || []) : [])
       .map(function (id) { return KOS.sims.get(id); }).filter(Boolean);
     (KOS.sims.forRef ? KOS.sims.forRef(sid, ref) : []).forEach(function (sm) {

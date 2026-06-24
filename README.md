@@ -32,9 +32,15 @@ xdg-open index.html    # Linux
   self-marking). Stats persist, ready for the SM-2 Governor.
 - **Labs** — Data Structure Trace Lab (animated stack / queue / linked list / BST
   traversals with trace tables), C# OOP Sandbox (draggable class cards, inheritance
-  arrows, live C# transpile), the Worked Example Engine (parameterised generators
-  grouped by paper), and simulations (Boolean Logic Lab, Sorting Visualiser, FSM Lab,
-  Graph Transformation Explorer).
+  arrows, live C# transpile), the Worked Example Engine (20 parameterised generators
+  grouped by paper — quadratics, sequences & series, binomial expansion, sine/cosine
+  rule, vectors, differentiation, integration, Newton–Raphson, partial fractions,
+  logs, kinematics, exponential models, binomial probability, hypothesis tests,
+  normal distribution, binary/float conversion), and 16 simulations (Boolean Logic
+  Lab, Sorting Visualiser, FSM Lab, Reverse Polish evaluator, Binary Search, Binomial
+  Distribution, Recursion, Binary Register, Fetch–Execute, Unit Circle, Graph
+  Transformer, Definite-Integral area, …). Every generator and sim auto-surfaces a
+  **Worked** / **Simulate** tab on the spec point it targets.
 - **Progress tracking** — per-point status (Not started / Started / Paused / Completed)
   and a four-stage checklist (Covered in class · Studied it · Done exam Qs · Fully
   understood), shown as spine strips in the tree, a completion bar on each subject

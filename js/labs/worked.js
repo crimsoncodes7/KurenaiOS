@@ -34,6 +34,13 @@
     while (s.length < bits) s = "0" + s;
     return s.slice(-bits);
   }
+  function nCr(n, r) { // exact binomial coefficient
+    if (r < 0 || r > n) return 0;
+    var x = 1; for (var i = 0; i < r; i++) x = x * (n - i) / (i + 1);
+    return Math.round(x);
+  }
+  function binPmf(n, p, k) { return nCr(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k); }
+  function binCdf(n, p, k) { var s = 0; for (var i = 0; i <= k; i++) s += binPmf(n, p, i); return s; }
 
   /* ---------- tiny polynomial parser: "3x^4 - 5x^2 + 2x - 7" ---------- */
   function parsePoly(src) {
@@ -476,6 +483,317 @@
           n: "Points of inflection sit at \u03BC \u00B1 \u03C3 = " + fmt(mu - sg) + " and " + fmt(mu + sg) + " \u2014 quotable fact." }
       ], answer: "Z = " + fmt(z, 4) + " ,  P(X < " + fmt(x) + ") = " + fmt(P, 4) };
     }
+  },
+  {
+    id: "arithseq", cat: "pure", subject: "maths", ref: "4.4",
+    title: "Arithmetic sequence: nth term & sum",
+    blurb: "Find uₙ = a + (n−1)d and the series sum Sₙ = n/2[2a + (n−1)d].",
+    inputs: [
+      { k: "a", label: "first term a", def: 3, type: "number", step: "any" },
+      { k: "d", label: "common diff d", def: 5, type: "number", step: "any" },
+      { k: "n", label: "term n", def: 12, type: "number" }
+    ],
+    random: function () { return { a: Math.floor(Math.random()*11)-3, d: Math.floor(Math.random()*9)-4 || 3, n: Math.floor(Math.random()*15)+6 }; },
+    validate: function (v) { if (!Number.isInteger(+v.n) || v.n < 1) return "n must be a positive whole number."; },
+    solve: function (v) {
+      var a = +v.a, d = +v.d, n = +v.n;
+      var un = a + (n - 1) * d;
+      var Sn = n / 2 * (2 * a + (n - 1) * d);
+      return { steps: [
+        { h: "Identify a and d", m: "a = " + fmt(a) + " ,  d = " + fmt(d) + "  (each term adds d)",
+          n: "d is term₂ − term₁. A negative d means the sequence decreases." },
+        { h: "nth term formula", m: "uₙ = a + (n − 1)d\nu_" + n + " = " + fmt(a) + " + (" + n + " − 1)(" + fmt(d) + ") = " + fmt(a) + " + " + fmt((n-1)*d) + " = " + fmt(un) },
+        { h: "Sum of the first n terms", m: "Sₙ = n/2 [2a + (n − 1)d]\nS_" + n + " = " + n + "/2 [2(" + fmt(a) + ") + (" + (n-1) + ")(" + fmt(d) + ")] = " + fmt(n/2) + " × " + fmt(2*a + (n-1)*d) + " = " + fmt(Sn),
+          n: "Equivalent form Sₙ = n/2 (a + L) where L = uₙ = " + fmt(un) + " is the last term." }
+      ], answer: "u_" + n + " = " + fmt(un) + " ,  S_" + n + " = " + fmt(Sn) };
+    }
+  },
+  {
+    id: "geomseq", cat: "pure", subject: "maths", ref: "4.5",
+    title: "Geometric sequence: nth term, sum & sum to infinity",
+    blurb: "uₙ = arⁿ⁻¹, Sₙ = a(1−rⁿ)/(1−r), and S∞ = a/(1−r) when |r| < 1.",
+    inputs: [
+      { k: "a", label: "first term a", def: 4, type: "number", step: "any" },
+      { k: "r", label: "ratio r", def: 0.5, type: "number", step: "any" },
+      { k: "n", label: "term n", def: 6, type: "number" }
+    ],
+    random: function () { var rs = [0.5, -0.5, 2, 3, 0.25, -2, 1.5]; return { a: Math.floor(Math.random()*8)+1, r: rs[Math.floor(Math.random()*rs.length)], n: Math.floor(Math.random()*6)+4 }; },
+    validate: function (v) {
+      if (!Number.isInteger(+v.n) || v.n < 1) return "n must be a positive whole number.";
+      if (+v.r === 1) return "r = 1 is not geometric (it is constant) — pick another ratio.";
+      if (+v.r === 0) return "r = 0 collapses the sequence — pick a non-zero ratio.";
+    },
+    solve: function (v) {
+      var a = +v.a, r = +v.r, n = +v.n;
+      var un = a * Math.pow(r, n - 1);
+      var Sn = a * (1 - Math.pow(r, n)) / (1 - r);
+      var steps = [
+        { h: "Identify a and r", m: "a = " + fmt(a) + " ,  r = " + fmt(r) + "  (each term multiplies by r)",
+          n: "r is term₂ ÷ term₁. Check the sign — a negative r makes terms alternate." },
+        { h: "nth term", m: "uₙ = a rⁿ⁻¹\nu_" + n + " = " + fmt(a) + " × (" + fmt(r) + ")^" + (n-1) + " = " + fmt(un, 4) },
+        { h: "Sum of first n terms", m: "Sₙ = a(1 − rⁿ)/(1 − r)\nS_" + n + " = " + fmt(a) + "(1 − (" + fmt(r) + ")^" + n + ")/(1 − " + fmt(r) + ") = " + fmt(Sn, 4) }
+      ];
+      if (Math.abs(r) < 1) {
+        var Sinf = a / (1 - r);
+        steps.push({ h: "Sum to infinity (|r| < 1 ✓)", m: "S∞ = a/(1 − r) = " + fmt(a) + "/(1 − " + fmt(r) + ") = " + fmt(Sinf, 4),
+          n: "Convergent because |r| = " + fmt(Math.abs(r)) + " < 1. Always state this condition for the method mark." });
+        return { steps: steps, answer: "u_" + n + " = " + fmt(un, 4) + " ,  S_" + n + " = " + fmt(Sn, 4) + " ,  S∞ = " + fmt(Sinf, 4) };
+      }
+      steps.push({ h: "Sum to infinity?", m: "|r| = " + fmt(Math.abs(r)) + " ≥ 1 → the series DIVERGES, so S∞ does not exist.",
+        n: "Sum to infinity only exists when −1 < r < 1." });
+      return { steps: steps, answer: "u_" + n + " = " + fmt(un, 4) + " ,  S_" + n + " = " + fmt(Sn, 4) + "  (diverges, no S∞)" };
+    }
+  },
+  {
+    id: "sinecos", cat: "pure", subject: "maths", ref: "5.1",
+    title: "Triangle: cosine rule side + sine rule angle",
+    blurb: "Two sides a, b and the included angle C → third side c, the area, then a remaining angle.",
+    inputs: [
+      { k: "a", label: "side a", def: 7, type: "number", step: "any" },
+      { k: "b", label: "side b", def: 9, type: "number", step: "any" },
+      { k: "C", label: "angle C°", def: 50, type: "number", step: "any" }
+    ],
+    random: function () { return { a: Math.floor(Math.random()*8)+4, b: Math.floor(Math.random()*8)+4, C: Math.floor(Math.random()*100)+30 }; },
+    validate: function (v) {
+      if (v.a <= 0 || v.b <= 0) return "Side lengths must be positive.";
+      if (v.C <= 0 || v.C >= 180) return "Angle C must be strictly between 0° and 180°.";
+    },
+    solve: function (v) {
+      var a = +v.a, b = +v.b, C = +v.C, rad = Math.PI / 180;
+      var c = Math.sqrt(a*a + b*b - 2*a*b*Math.cos(C*rad));
+      var area = 0.5 * a * b * Math.sin(C*rad);
+      var sinA = a * Math.sin(C*rad) / c;
+      var A = Math.asin(Math.min(1, Math.max(-1, sinA))) / rad;
+      return { steps: [
+        { h: "Cosine rule for the unknown side", m: "c² = a² + b² − 2ab cos C\nc² = " + fmt(a) + "² + " + fmt(b) + "² − 2(" + fmt(a) + ")(" + fmt(b) + ")cos " + fmt(C) + "° = " + fmt(a*a+b*b-2*a*b*Math.cos(C*rad), 4),
+          n: "Use the cosine rule when you have two sides and the angle BETWEEN them (SAS)." },
+        { h: "Take the square root", m: "c = " + fmt(c, 4),
+          n: "Keep full accuracy here — don’t round before the next step." },
+        { h: "Area of the triangle", m: "Area = ½ ab sin C = ½(" + fmt(a) + ")(" + fmt(b) + ")sin " + fmt(C) + "° = " + fmt(area, 4) },
+        { h: "Sine rule for angle A", m: "sin A / a = sin C / c\nsin A = a sin C / c = " + fmt(a) + " sin " + fmt(C) + "° / " + fmt(c, 4) + " = " + fmt(sinA, 4) + "\nA = " + fmt(A, 2) + "°",
+          n: "Angle B then follows from A + B + C = 180° → B = " + fmt(180 - C - A, 2) + "°." }
+      ], answer: "c = " + fmt(c, 3) + " ,  area = " + fmt(area, 3) + " ,  A = " + fmt(A, 1) + "°" };
+    }
+  },
+  {
+    id: "vectors", cat: "pure", subject: "maths", ref: "10.4",
+    title: "Vectors: displacement, magnitude & unit vector",
+    blurb: "From position vectors A and B → the vector AB, its magnitude (distance) and the unit vector.",
+    inputs: [
+      { k: "ax", label: "Aₓ", def: 1, type: "number", step: "any" },
+      { k: "ay", label: "Aᵧ", def: 2, type: "number", step: "any" },
+      { k: "bx", label: "Bₓ", def: 4, type: "number", step: "any" },
+      { k: "by", label: "Bᵧ", def: 6, type: "number", step: "any" }
+    ],
+    random: function () { function r(){return Math.floor(Math.random()*13)-6;} return { ax: r(), ay: r(), bx: r(), by: r() }; },
+    validate: function (v) { if (+v.ax === +v.bx && +v.ay === +v.by) return "A and B are the same point — AB would be the zero vector."; },
+    solve: function (v) {
+      var ax = +v.ax, ay = +v.ay, bx = +v.bx, by = +v.by;
+      var dx = bx - ax, dy = by - ay;
+      var mag = Math.sqrt(dx*dx + dy*dy);
+      var sr = surd(dx*dx + dy*dy);
+      var surdStr = sr[0] === 1 ? "√" + sr[1] : (sr[1] === 1 ? String(sr[0]) : fmt(sr[0]) + "√" + sr[1]);
+      return { steps: [
+        { h: "Subtract position vectors", m: "AB = b − a = (" + fmt(bx) + " − " + fmt(ax) + ", " + fmt(by) + " − " + fmt(ay) + ") = (" + fmt(dx) + ", " + fmt(dy) + ")",
+          n: "AB goes from A to B, so it is the destination minus the start: b − a (not a − b)." },
+        { h: "Magnitude (Pythagoras)", m: "|AB| = √(" + fmt(dx) + "² + " + fmt(dy) + "²) = √" + fmt(dx*dx + dy*dy) + " = " + surdStr + " ≈ " + fmt(mag, 4),
+          n: "This is also the distance between the two points." },
+        { h: "Unit vector in the direction of AB", m: "ÂB = AB / |AB| = (1/" + fmt(mag, 4) + ")(" + fmt(dx) + ", " + fmt(dy) + ") = (" + fmt(dx/mag, 4) + ", " + fmt(dy/mag, 4) + ")",
+          n: "A unit vector has magnitude 1 — check: " + fmt(dx/mag,3) + "² + " + fmt(dy/mag,3) + "² ≈ 1." }
+      ], answer: "AB = (" + fmt(dx) + ", " + fmt(dy) + ") ,  |AB| = " + surdStr + " ≈ " + fmt(mag, 3) };
+    }
+  },
+  {
+    id: "newraph", cat: "pure", subject: "maths", ref: "9.3",
+    title: "Newton–Raphson iteration",
+    blurb: "xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ) — three iterations from your starting value.",
+    inputs: [
+      { k: "poly", label: "f(x) =", def: "x^3 - 2x - 5", type: "text", w: 200 },
+      { k: "x0", label: "x₀", def: 2, type: "number", step: "any" }
+    ],
+    random: function () { var ps = ["x^3 - 2x - 5", "x^3 - x - 2", "x^2 - 3", "x^3 + x - 1", "x^3 - 6x + 2"]; return { poly: ps[Math.floor(Math.random()*ps.length)], x0: Math.floor(Math.random()*3)+1 }; },
+    validate: function (v) {
+      if (!parsePoly(v.poly)) return "Couldn’t read that polynomial — terms like x^3, -2x, 5.";
+    },
+    solve: function (v) {
+      var f = parsePoly(v.poly), x0 = +v.x0;
+      var fp = f.map(function (t) { return { c: t.c * t.p, p: t.p - 1 }; }).filter(function (t) { return t.c !== 0 && t.p >= 0; });
+      if (polyEval(fp, x0) === 0) throw new Error("f'(x0)=0");
+      var steps = [
+        { h: "Differentiate f(x)", m: "f(x) = " + polyStr(f) + "\nf′(x) = " + polyStr(fp),
+          n: "Newton–Raphson needs the gradient function f′(x)." },
+        { h: "State the iterative formula", m: "xₙ₊₁ = xₙ − f(xₙ) / f′(xₙ)" }
+      ];
+      var x = x0, rows = [];
+      for (var i = 0; i < 3; i++) {
+        var fx = polyEval(f, x), fpx = polyEval(fp, x);
+        if (fpx === 0) break;
+        var xn = x - fx / fpx;
+        rows.push("x_" + i + " = " + fmt(x, 6) + "  →  f = " + fmt(fx, 5) + " , f′ = " + fmt(fpx, 5) + "  →  x_" + (i+1) + " = " + fmt(xn, 6));
+        x = xn;
+      }
+      steps.push({ h: "Iterate three times from x₀ = " + fmt(x0), m: rows.join("\n"),
+        n: "Each row feeds its result into the next — keep every decimal place your calculator shows." });
+      steps.push({ h: "Root estimate", m: "x ≈ " + fmt(x, 5) + "  (f(" + fmt(x,5) + ") ≈ " + fmt(polyEval(f, x), 5) + ")",
+        n: "To justify accuracy to d.p., show a sign change of f across the rounding interval." });
+      return { steps: steps, answer: "x ≈ " + fmt(x, 5) };
+    }
+  },
+  {
+    id: "binomprob", cat: "applied", subject: "maths", ref: "S4.1",
+    title: "Binomial distribution: P(X = k) and P(X ≤ k)",
+    blurb: "X ~ B(n, p): exact, cumulative and tail probabilities, plus the mean and variance.",
+    inputs: [
+      { k: "n", label: "trials n", def: 10, type: "number" },
+      { k: "p", label: "p (success)", def: 0.3, type: "number", step: "any" },
+      { k: "k", label: "k", def: 4, type: "number" }
+    ],
+    random: function () { var ps=[0.2,0.25,0.3,0.4,0.5,0.6,0.7]; var n=Math.floor(Math.random()*12)+6; return { n: n, p: ps[Math.floor(Math.random()*ps.length)], k: Math.floor(Math.random()*(n-1))+1 }; },
+    validate: function (v) {
+      if (!Number.isInteger(+v.n) || v.n < 1) return "n must be a positive whole number.";
+      if (!Number.isInteger(+v.k) || v.k < 0 || v.k > v.n) return "k must be a whole number from 0 to n.";
+      if (v.p <= 0 || v.p >= 1) return "p must be strictly between 0 and 1.";
+    },
+    solve: function (v) {
+      var n = +v.n, p = +v.p, k = +v.k;
+      var pmf = binPmf(n, p, k), cdf = binCdf(n, p, k);
+      var ge = 1 - binCdf(n, p, k - 1);
+      return { steps: [
+        { h: "State the model", m: "X ~ B(" + n + ", " + fmt(p) + ")\nP(X = r) = ⁿCᵣ pʳ (1−p)ⁿ⁻ʳ",
+          n: "Binomial conditions: fixed n, two outcomes, constant p, independent trials." },
+        { h: "Exact probability P(X = " + k + ")", m: "= " + nCr(n, k) + " × " + fmt(p) + "^" + k + " × " + fmt(1-p) + "^" + (n-k) + " = " + fmt(pmf, 5),
+          n: "ⁿCᵣ = " + n + "C" + k + " = " + nCr(n, k) + "." },
+        { h: "Cumulative P(X ≤ " + k + ")", m: "= Σ P(X = 0 … " + k + ") = " + fmt(cdf, 5),
+          n: "On the exam use the calculator’s binomialCD — but write the probability statement first." },
+        { h: "Upper tail P(X ≥ " + k + ")", m: "= 1 − P(X ≤ " + (k-1) + ") = " + fmt(ge, 5),
+          n: "Watch the boundary: P(X ≥ k) = 1 − P(X ≤ k−1), NOT 1 − P(X ≤ k)." },
+        { h: "Mean and variance", m: "E(X) = np = " + fmt(n*p) + "\nVar(X) = np(1−p) = " + fmt(n*p*(1-p)) + "  (sd = " + fmt(Math.sqrt(n*p*(1-p)), 4) + ")" }
+      ], answer: "P(X = " + k + ") = " + fmt(pmf, 4) + " ,  P(X ≤ " + k + ") = " + fmt(cdf, 4) };
+    }
+  },
+  {
+    id: "hyptest", cat: "applied", subject: "maths", ref: "S5.2",
+    title: "Binomial hypothesis test (one-tailed)",
+    blurb: "Test a claim about a proportion p: state H₀/H₁, find the tail probability, compare with the significance level.",
+    inputs: [
+      { k: "n", label: "sample n", def: 20, type: "number" },
+      { k: "p0", label: "claimed p", def: 0.3, type: "number", step: "any" },
+      { k: "x", label: "observed x", def: 10, type: "number" },
+      { k: "tail", label: "tail", def: "upper", type: "select", opts: ["upper", "lower"] },
+      { k: "sig", label: "sig level %", def: 5, type: "number", step: "any" }
+    ],
+    random: function () { var ps=[0.2,0.25,0.3,0.4,0.5]; var n=Math.floor(Math.random()*16)+15; return { n: n, p0: ps[Math.floor(Math.random()*ps.length)], x: Math.floor(Math.random()*n), tail: Math.random()<0.5?"upper":"lower", sig: [5,10,1][Math.floor(Math.random()*3)] }; },
+    validate: function (v) {
+      if (!Number.isInteger(+v.n) || v.n < 1) return "n must be a positive whole number.";
+      if (!Number.isInteger(+v.x) || v.x < 0 || v.x > v.n) return "x must be a whole number from 0 to n.";
+      if (v.p0 <= 0 || v.p0 >= 1) return "The claimed p must be strictly between 0 and 1.";
+      if (v.sig <= 0 || v.sig >= 50) return "Significance level should be a small percentage (e.g. 5).";
+    },
+    solve: function (v) {
+      var n = +v.n, p0 = +v.p0, x = +v.x, tail = v.tail, sig = +v.sig / 100;
+      var upper = tail === "upper";
+      var prob = upper ? (1 - binCdf(n, p0, x - 1)) : binCdf(n, p0, x);
+      var reject = prob < sig;
+      return { steps: [
+        { h: "Define the parameter and hypotheses", m: "Let p = P(success). Under H₀ assume X ~ B(" + n + ", " + fmt(p0) + ").\nH₀: p = " + fmt(p0) + "\nH₁: p " + (upper ? ">" : "<") + " " + fmt(p0) + "   (" + (sig*100) + "% one-tailed)",
+          n: "H₁ sets the tail: '>' → upper tail, '<' → lower tail." },
+        { h: "Find the tail probability at x = " + x, m: (upper
+            ? "P(X ≥ " + x + ") = 1 − P(X ≤ " + (x-1) + ") = " + fmt(prob, 5)
+            : "P(X ≤ " + x + ") = " + fmt(prob, 5)),
+          n: "Use the side the alternative hypothesis points to." },
+        { h: "Compare with the significance level", m: fmt(prob, 5) + (reject ? " < " : " > ") + fmt(sig, 4) + "  →  the result is " + (reject ? "in" : "NOT in") + " the critical region",
+          n: "Reject H₀ only if the tail probability is LESS than the significance level." },
+        { h: "Conclusion (in context)", m: (reject
+            ? "Reject H₀. There is sufficient evidence at the " + (sig*100) + "% level that p " + (upper ? ">" : "<") + " " + fmt(p0) + "."
+            : "Do not reject H₀. Insufficient evidence at the " + (sig*100) + "% level to say p " + (upper ? ">" : "<") + " " + fmt(p0) + "."),
+          n: "Always write the conclusion in the words of the original claim — a pure 'reject/accept' loses the final mark." }
+      ], answer: (upper ? "P(X ≥ " + x + ") = " : "P(X ≤ " + x + ") = ") + fmt(prob, 4) + " → " + (reject ? "reject H₀" : "do not reject H₀") };
+    }
+  },
+  {
+    id: "partialfrac", cat: "pure", subject: "maths", ref: "2.10",
+    title: "Partial fractions (distinct linear factors)",
+    blurb: "Split (px + q) / ((x − a)(x − b)) into A/(x − a) + B/(x − b) by the cover-up rule.",
+    inputs: [
+      { k: "p", label: "numerator px + q : p", def: 3, type: "number", step: "any" },
+      { k: "q", label: "q", def: 1, type: "number", step: "any" },
+      { k: "a", label: "root a", def: 1, type: "number", step: "any" },
+      { k: "b", label: "root b", def: -2, type: "number", step: "any" }
+    ],
+    random: function () { function r(){return Math.floor(Math.random()*7)-3;} var a=r(),b=r(); while(b===a)b=r(); return { p: Math.floor(Math.random()*5)+1, q: r(), a: a, b: b }; },
+    validate: function (v) { if (+v.a === +v.b) return "The two roots must be different for distinct linear factors."; },
+    solve: function (v) {
+      var p = +v.p, q = +v.q, a = +v.a, b = +v.b;
+      var A = (p * a + q) / (a - b), B = (p * b + q) / (b - a);
+      function fac(r) { return r === 0 ? "x" : (r < 0 ? "(x + " + fmt(-r) + ")" : "(x − " + fmt(r) + ")"); }
+      function num() { return fmt(p) + "x" + (q < 0 ? " − " + fmt(-q) : q > 0 ? " + " + fmt(q) : ""); }
+      return { steps: [
+        { h: "Set up the identity", m: "(" + num() + ") / [" + fac(a) + fac(b) + "] ≡ A/" + fac(a) + " + B/" + fac(b) +
+            "\nMultiply through: " + num() + " ≡ A" + fac(b) + " + B" + fac(a),
+          n: "Same denominator on both sides, so the numerators are identically equal for all x." },
+        { h: "Cover-up for A: let x = " + fmt(a), m: "A = (" + fmt(p) + "·" + fmt(a) + " + " + fmt(q) + ") / (" + fmt(a) + " − " + fmt(b) + ") = " + fmt(p*a+q) + " / " + fmt(a-b) + " = " + fmt(A, 4),
+          n: "Substituting x = a kills the B term, leaving A directly." },
+        { h: "Cover-up for B: let x = " + fmt(b), m: "B = (" + fmt(p) + "·" + fmt(b) + " + " + fmt(q) + ") / (" + fmt(b) + " − " + fmt(a) + ") = " + fmt(p*b+q) + " / " + fmt(b-a) + " = " + fmt(B, 4) },
+        { h: "Write the partial fractions", m: "(" + num() + ") / [" + fac(a) + fac(b) + "] = " + fmt(A, 4) + "/" + fac(a) + " + " + fmt(B, 4) + "/" + fac(b),
+          n: "Check by substituting one easy value (e.g. x = 0) into both forms." }
+      ], answer: "A = " + fmt(A, 4) + " ,  B = " + fmt(B, 4) };
+    }
+  },
+  {
+    id: "kinematics", cat: "applied", subject: "maths", ref: "S7.4",
+    title: "Kinematics by calculus: s → v → a",
+    blurb: "Differentiate a displacement function to velocity then acceleration, and evaluate all three at a chosen time.",
+    inputs: [
+      { k: "poly", label: "s(t) =", def: "t^3 - 4t^2 + 2t", type: "text", w: 200 },
+      { k: "t", label: "at t =", def: 3, type: "number", step: "any" }
+    ],
+    random: function () { var ps = ["t^3 - 4t^2 + 2t", "2t^3 - 9t^2 + 12t", "t^3 - 6t^2 + 9t", "5t^2 - t^3", "t^3 - 3t"]; return { poly: ps[Math.floor(Math.random()*ps.length)], t: Math.floor(Math.random()*4)+1 }; },
+    validate: function (v) { if (!parsePoly((v.poly||"").replace(/t/g, "x"))) return "Couldn’t read s(t) — use terms like t^3, -4t^2, 2t."; },
+    solve: function (v) {
+      var s = parsePoly(v.poly.replace(/t/g, "x")), t = +v.t;
+      var vel = s.map(function (k) { return { c: k.c * k.p, p: k.p - 1 }; }).filter(function (k) { return k.c !== 0 && k.p >= 0; });
+      var acc = vel.map(function (k) { return { c: k.c * k.p, p: k.p - 1 }; }).filter(function (k) { return k.c !== 0 && k.p >= 0; });
+      function show(terms) { return polyStr(terms).replace(/x/g, "t"); }
+      var sv = polyEval(s, t), vv = polyEval(vel, t), av = polyEval(acc, t);
+      return { steps: [
+        { h: "Displacement", m: "s(t) = " + show(s) + "\ns(" + fmt(t) + ") = " + fmt(sv, 4),
+          n: "Velocity is the rate of change of displacement: v = ds/dt." },
+        { h: "Differentiate for velocity", m: "v(t) = ds/dt = " + show(vel) + "\nv(" + fmt(t) + ") = " + fmt(vv, 4),
+          n: "v = 0 marks the instant the object is momentarily at rest (turning point of s)." },
+        { h: "Differentiate again for acceleration", m: "a(t) = dv/dt = " + show(acc) + "\na(" + fmt(t) + ") = " + fmt(av, 4),
+          n: "a = 0 gives maximum/minimum velocity. Negative a with positive v means decelerating." }
+      ], answer: "s = " + fmt(sv, 3) + " ,  v = " + fmt(vv, 3) + " ,  a = " + fmt(av, 3) + "  (at t = " + fmt(t) + ")" };
+    }
+  },
+  {
+    id: "expmodel", cat: "pure", subject: "maths", ref: "6.7",
+    title: "Exponential growth & decay: A = A₀e^{kt}",
+    blurb: "Evaluate an exponential model at time t, and find the doubling time or half-life from the rate k.",
+    inputs: [
+      { k: "A0", label: "initial A₀", def: 500, type: "number", step: "any" },
+      { k: "k", label: "rate k", def: -0.08, type: "number", step: "any" },
+      { k: "t", label: "time t", def: 10, type: "number", step: "any" }
+    ],
+    random: function () { var k = (Math.floor(Math.random()*30)+3) / 100 * (Math.random()<0.5?-1:1); return { A0: (Math.floor(Math.random()*9)+1)*100, k: Math.round(k*100)/100, t: Math.floor(Math.random()*15)+3 }; },
+    validate: function (v) {
+      if (+v.A0 <= 0) return "Initial amount A₀ must be positive.";
+      if (+v.k === 0) return "k = 0 gives a constant — pick a non-zero rate.";
+    },
+    solve: function (v) {
+      var A0 = +v.A0, k = +v.k, t = +v.t;
+      var A = A0 * Math.exp(k * t);
+      var grow = k > 0;
+      var period = Math.log(2) / Math.abs(k);
+      return { steps: [
+        { h: "State the model", m: "A = A₀ e^{kt} = " + fmt(A0) + " e^{" + fmt(k) + "t}",
+          n: "k " + (grow ? "> 0 → growth (A increases)" : "< 0 → decay (A decreases towards 0)") + "." },
+        { h: "Substitute t = " + fmt(t), m: "A = " + fmt(A0) + " e^{" + fmt(k) + " × " + fmt(t) + "} = " + fmt(A0) + " e^{" + fmt(k*t, 4) + "} = " + fmt(A, 4),
+          n: "Keep the exponent exact until the final evaluation to avoid rounding error." },
+        { h: grow ? "Doubling time" : "Half-life", m: (grow ? "A = 2A₀ ⇒ e^{kt} = 2 ⇒ t = ln 2 / k" : "A = ½A₀ ⇒ e^{kt} = ½ ⇒ t = ln 2 / |k|") +
+            "\nt = ln 2 / " + fmt(Math.abs(k)) + " = " + fmt(period, 4),
+          n: "This " + (grow ? "doubling time" : "half-life") + " is constant — independent of the starting amount." }
+      ], answer: "A(" + fmt(t) + ") = " + fmt(A, 3) + " ,  " + (grow ? "doubling time" : "half-life") + " = " + fmt(period, 3) };
+    }
   }];
 
   /* ---------- shared mount so notes pages can embed a generator ---------- */
@@ -560,9 +878,38 @@
     run();
   }
 
+  /* generators wired straight onto spec refs — a generator's own `ref` field is
+     a human-readable label (e.g. "7.2 / 7.3"), so matching needs an explicit map.
+     Mirrors KOS.sims.forRef so the ref page surfaces a Worked tab automatically. */
+  var GENWIRE = {
+    "maths:2.3": ["quad"],
+    "maths:2.10": ["partialfrac"],
+    "maths:4.1": ["binom"],
+    "maths:4.4": ["arithseq"],
+    "maths:4.5": ["geomseq"],
+    "maths:5.1": ["sinecos"],
+    "maths:5.7": ["trig"],
+    "maths:6.5": ["logs"],
+    "maths:6.7": ["expmodel"],
+    "maths:7.2": ["diff"], "maths:7.3": ["diff"],
+    "maths:8.3": ["defint"],
+    "maths:9.3": ["newraph"],
+    "maths:10.1": ["vectors"], "maths:10.4": ["vectors"],
+    "maths:S4.1": ["binomprob"],
+    "maths:S4.2": ["normal"],
+    "maths:S5.2": ["hyptest"],
+    "maths:S7.3": ["suvat"], "maths:S7.4": ["kinematics"],
+    "compsci:4.5.4.2": ["bin"], "compsci:4.5.4.3": ["bin"],
+    "compsci:4.5.4.4": ["float"]
+  };
+
   KOS.worked = {
     byIds: function (ids) { return (ids || []).map(function (id) {
       return GENS.find(function (g) { return g.id === id; }); }).filter(Boolean); },
+    forRef: function (sid, ref) {
+      return (GENWIRE[sid + ":" + ref] || []).map(function (id) {
+        return GENS.find(function (g) { return g.id === id; }); }).filter(Boolean);
+    },
     mount: mountGenerator,
     all: function () { return GENS.slice(); },
     /* shared maths helpers (sims.js reuses these) */

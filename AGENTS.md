@@ -1,38 +1,60 @@
 # KurenaiOS — Agent Contract
 
-## CLAUDE CODE owns (can write)
-- js/core/
-- js/modules/
-- js/labs/
-- css/main.css
-- index.html
-- js/main.js
-- PROGRESS.md (shared updates)
+## Ownership
 
-## GEMINI owns (can write)
-- js/data/content/*.js
-- js/data/intel.js
-- PROGRESS.md (shared updates)
+**Claude Code owns the entire project.** There is no longer a split with any other
+agent — every file below is fair game to edit, subject only to the "generated files"
+rule. (Historical note: content authoring used to be delegated to Gemini; that
+arrangement has ended and all of `js/data/content/` is now maintained here.)
 
-## NEITHER touches (generated files — run tools/gen_data.py to regenerate)
-- js/data/compsci.js
-- js/data/maths.js
-- js/data/it.js
+Editable:
+- `js/core/`, `js/modules/`, `js/labs/`, `js/main.js`
+- `css/main.css`, `index.html`
+- `js/data/content/*.js` — deep revision content
+- `js/data/intel.js` — examiner tips/pitfalls, keyed `"subject:ref"`
+- `README.md`, `PROGRESS.md`, `CLAUDE.md`, this file
+
+## NEITHER touches (generated — run tools/gen_data.py to regenerate)
+- `js/data/compsci.js`
+- `js/data/maths.js`
+- `js/data/it.js`
+
+These are produced from the spec PDFs by the Python pipeline. To change spec wording
+or the tree, edit the parsers in `tools/` and re-run `gen_data.py` — never hand-edit.
 
 ## Content schema
-Every KOS_CONTENT entry must follow the schema in js/core/content.js.
-Use js/data/content/cs-datastructures.js as the depth reference.
-Validate syntax after every file: node --check FILENAME
-(or: node -e "new Function(require('fs').readFileSync('FILENAME','utf8'))")
+Every `KOS_CONTENT` entry must follow the schema in `js/core/content.js`.
+Use `js/data/content/cs-datastructures.js` as the depth reference.
+Validate syntax after every file: `node --check FILENAME`
+
+## Wiring labs to topics (sims, generators)
+The ref page auto-surfaces a **Simulate** tab and a **Worked** tab when a sim or
+generator targets that spec point. Two mechanisms, both in Claude-owned lab files —
+you do NOT need to touch content files to wire a lab:
+- **Sims** (`js/labs/sims.js`): `KOS.sims.forRef` auto-matches any sim whose own
+  `subject` + `ref` equals the page's. So a new sim wires itself just by declaring
+  the right `ref` on `register({...})`. The `WIRE` map is only for sims that attach
+  to *extra* refs beyond their own (e.g. `binary-number` on both 4.5.4.2 and 4.5.4.4).
+- **Generators** (`js/labs/worked.js`): a generator's `ref` field is a human-readable
+  label (e.g. `"7.2 / 7.3"`), so matching uses the explicit `GENWIRE` map keyed by
+  exact `"subject:ref"`. Add an entry there when you add a generator.
+- A content entry may also list `sims:[...]` / `gens:[...]` directly; `hub.js` merges
+  both sources and de-dupes by id.
 
 ## Common pitfalls (have actually broken the build)
 - **Callouts need TWO closing braces.** `{ callout: { t:"def", body:"…" } }` — the
-  inner `}` closes the callout object, the outer `}` closes the block. Writing
-  `{ callout: { … body:"…"\n},` (one brace) is a SyntaxError that stops the whole
-  app loading. This bit us 6× in the §4.4 theory files.
-- **Only key content to LEAF refs** — a ref that has its own non-empty `content[]`
-  in the generated spec (compsci/maths/it.js). A node with `content:[]` is invisible
-  in the UI tree and fails smoke2's "every content key maps to a spec leaf" check.
-  (Was a real problem: `it:F201.5.3` "NEA Units" had `content:[]`; its case-study
-  block was re-keyed to `it:F201.1.4` in June 2026.)
-- `{code}` blocks now auto-render a copy button + language tag; author them normally.
+  inner `}` closes the callout object, the outer `}` closes the block. Writing one
+  brace is a SyntaxError that stops the whole app loading. Bit us 6× in the §4.4 files.
+- **Only key content to LEAF refs** — a ref with a non-empty `content[]` in the
+  generated spec. A node with `content:[]` is invisible in the tree and fails smoke2's
+  "every content key maps to a spec leaf" check. (E.g. `it:F201.5.3` "NEA Units" had
+  `content:[]`; its case-study block was re-keyed to `it:F201.1.4`.)
+- **New generators must be fuzz-safe.** `solve()` runs on every `random()` output, so
+  guard against divide-by-zero, `f'(x₀)=0`, equal roots, etc. in `validate()`.
+- `{code}` blocks auto-render a copy button + language tag; author them normally.
+
+## Tests — both must print ALL SMOKE TESTS PASSED
+```sh
+node tools/smoke.test.js    # core engine
+node tools/smoke2.test.js   # deep content + engines
+```
