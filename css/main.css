@@ -976,6 +976,9 @@ canvas.labcanvas { width: 100%; background: linear-gradient(180deg, #0c0911, #09
 .logic-tt .q1 { color: var(--ok); font-weight: 700; }
 .logic-tt .q0 { color: var(--faint); }
 
+/* regex sandbox match highlight */
+.rx-hit { background: rgba(236,193,90,.28); color: var(--gold); border-radius: 3px; padding: 0 1px; }
+
 .fsm-tape { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
 .fsm-cell { width: 36px; height: 40px; display: flex; align-items: center; justify-content: center;
   font-family: var(--mono); font-size: 16px; border: 1px solid var(--line); border-radius: var(--r1); color: var(--mute);

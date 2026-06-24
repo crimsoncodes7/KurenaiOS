@@ -42,6 +42,10 @@ you do NOT need to touch content files to wire a lab:
   both sources and de-dupes by id.
 - **Sims render inline** on the Simulate tab — give every sim a `mount(panel)`, never a
   `jump` redirect. The four Trace Lab structures mount inline via `KOS.traceLabs.mount`.
+- **Sandboxes** (`js/labs/sandboxes.js`: SQL, regex, base converter, Little Man Computer)
+  are also registered as sims, so they mount inline and auto-wire by `subject:ref`.
+- **Textarea gotcha**: `el("textarea", {value})` sets the *attribute*, which a textarea
+  ignores. Create it, then assign `node.value = "…"` as a property.
 
 ## Navigation
 `KOS.show(viewId, arg)` records a history stack; `KOS.back()`/`KOS.forward()` (and

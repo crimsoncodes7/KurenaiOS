@@ -44,6 +44,11 @@ xdg-open index.html    # Linux
   generator and sim auto-surfaces a **Worked** / **Simulate** tab on the spec point it
   targets, and **renders inline on the topic page** (no redirect). **‹ Back** / **Forward ›**
   buttons (and Alt+← / Alt+→ / Backspace) step through page history.
+- **Sandboxes** — free-form playgrounds (`js/labs/sandboxes.js`), each inline on its
+  topic: a **SQL** query runner over a sample table (SELECT / WHERE / ORDER BY / LIMIT),
+  a **Regex** tester with live match highlighting, a **number-base converter** with
+  working shown, and a **Little Man Computer** assembler + fetch–execute machine
+  (single-step machine code with ACC / PC / memory). Plus the C# OOP class-designer.
 - **Progress tracking** — per-point status (Not started / Started / Paused / Completed)
   and a four-stage checklist (Covered in class · Studied it · Done exam Qs · Fully
   understood), shown as spine strips in the tree, a completion bar on each subject
@@ -104,8 +109,9 @@ KurenaiOS/
 │   └── labs/
 │       ├── worked.js         worked-example generators + step UI
 │       ├── trace.js          canvas data structures + animation clock
-│       ├── oop.js            sandbox + C# transpiler
-│       └── sims.js           interactive simulations
+│       ├── oop.js            C# OOP class-designer sandbox + transpiler
+│       ├── sims.js           interactive simulations (mount inline on topics)
+│       └── sandboxes.js      SQL / regex / base / Little Man Computer sandboxes
 └── tools/                    the data pipeline (Python 3 + pdfplumber) + tests
     ├── parse_aqa.py          spec PDF → aqa.json
     ├── parse_maths.py        spec PDF → maths.json

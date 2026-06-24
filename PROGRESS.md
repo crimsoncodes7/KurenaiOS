@@ -153,9 +153,30 @@ load `file://`). Both smoke suites pass.
 - Browser-verified: inline sims render on the topic page, Back/Forward step correctly,
   and the logic-gates output lamp flips 0→1 when both inputs are set.
 
+## Interactive sandboxes (Claude Code, 2026-06-24)
+New file `js/labs/sandboxes.js` — four free-form playgrounds, registered as sims so
+they mount **inline** on their topic's Simulate tab. All functionally tested (jsdom)
+and the LMC verified live in Chrome.
+
+- **SQL sandbox** (4.10.4): a real SELECT engine over a sample `Student` table —
+  WHERE with AND/OR, ORDER BY ASC/DESC, LIMIT, with friendly parse errors.
+- **Regex sandbox** (4.4.2.3): live regex matching with g/i flags; matches highlighted
+  in-place (`.rx-hit`) plus a match list. Zero-width-match guard.
+- **Base converter** (4.5.2.1): denary/binary/octal/hex — edit any field, the others
+  update, with repeated-division and place-value working shown.
+- **Little Man Computer** (4.7.3.5): a two-pass assembler (labels resolved) + a
+  fetch–execute machine for INP/OUT/LDA/STA/ADD/SUB/BRA/BRZ/BRP/HLT/DAT. Step or Run;
+  watch ACC, PC, INBOX, OUTBOX and the 3-digit machine-code memory grid update. Tested
+  with 8+5=13 and a label-based count-down loop (outputs 3 2 1 0).
+- Fixed a real bug surfaced here: `el("textarea", {value})` sets the *attribute*, which
+  a textarea ignores — must assign `.value` as a property (matches hub.js notes box).
+
+Total interactive tools: **22 simulations + 4 sandboxes**.
+
 ## Claude Code backlog (app features)
 - **Content**: fill quiz (≥3) and exam (≥1) gaps across maths + thin CS files, using
   PMT papers in `Context/` as source (see the plan: build-1 completion sprint).
 - More simulations (Karnaugh maps, BFS/DFS graph traversal, projectile motion).
+- More sandboxes (BNF validator 4.4.3.1, normalisation 4.10.3).
 - Build 2 (gamification): Behavioural Governor (avatar, focus timer, SM-2 engine).
 - Build 3: Kurenai Collection Matrix.
