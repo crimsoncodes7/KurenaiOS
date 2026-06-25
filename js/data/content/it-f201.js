@@ -4,70 +4,143 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 
 C["it:F201.1.1"] = {
   notes: [
-    { h: "The 6Vs of Big Data" },
-    { callout: { t: "info", h: "Key Characteristics", body: [
+    "This leaf has two halves the spec lists separately: the **six characteristics** that *define* what makes data \"big\" (the 6 V's), and the **six steps** used to *analyse* it. The spec wants, for each characteristic: what it is, how it helps to define big data, its purpose, and when it can be used — and for each step: what is involved, its role in managing big data, and when it can be used. Cover both halves fully; questions frequently mix them.",
+    { callout: { t: "def", h: "Big data", body: "Data sets so large, fast-moving or varied that traditional storage and processing tools (a single relational database on one server) cannot capture, store or analyse them within a useful timeframe. The 6 V's are the standard way of *characterising* why a data set qualifies as big data." }},
+
+    { page: "The six characteristics (6 V's)" },
+    { h: "What the 6 V's are and why they matter" },
+    "Each V is a *dimension* on which a data set can be \"big\". A data set usually qualifies as big data on several at once — but naming the **dominant** V for a given scenario is the most common exam skill. For each, know the definition, *how it helps define big data*, its *purpose* (why an analyst cares), and *when it applies*.",
+    { callout: { t: "def", h: "Volume", body: "The sheer **amount** of data generated and stored — measured in terabytes, petabytes or more. Defines big data because the quantity exceeds what a single machine can hold, forcing distributed storage. Purpose: drives the choice of storage infrastructure ($data$ $lakes$, distributed clusters). Applies when: an organisation accumulates huge historical or streamed datasets (e.g. years of transaction logs)." }},
+    { callout: { t: "def", h: "Variety", body: "The **range of formats and sources** — structured (tables), semi-structured ($XML$/$JSON$), and unstructured (video, text, audio). Defines big data because mixed formats can't fit one rigid schema. Purpose: dictates whether you need $NoSQL$/$data$ $lakes$ rather than a relational database. Applies when: combining e.g. sensor readings + social posts + images in one analysis." }},
+    { callout: { t: "def", h: "Velocity", body: "The **speed** at which data is generated and streamed, and the speed at which it must be processed to stay useful. Defines big data because real-time arrival outpaces batch tools. Purpose: drives the choice of streaming/real-time processing. Applies when: data loses value quickly — stock ticks, fraud checks, live sensor feeds." }},
+    { callout: { t: "def", h: "Value", body: "The **usefulness** of the data to the organisation's goals — whether acting on it produces a worthwhile return ($ROI$). Defines big data because volume alone is worthless if no insight can be extracted. Purpose: justifies the cost of collection and storage. Applies when: deciding which data is worth keeping vs discarding." }},
+    { callout: { t: "def", h: "Veracity", body: "The **accuracy, quality and trustworthiness** of the data — how complete, consistent and reliable it is. Defines big data because large, varied, fast data is often messy, biased or incomplete. Purpose: low veracity means insights cannot be trusted, so it drives the need for cleaning. Applies when: data comes from unverified sources (social media, crowd-sourced input)." }},
+    { callout: { t: "def", h: "Variability", body: "The **inconsistency** of the data — in its flow rate, its meaning, or its structure **over time**. Defines big data because patterns shift (seasonal peaks, a word's sentiment changing by context). Purpose: warns analysts that a model trained once may drift and need re-training. Applies when: demand or meaning fluctuates — retail seasons, trending slang, irregular sensor bursts." }},
+    { table: { head: ["V", "One-word handle", "What it drives in an analytics system"], rows: [
+      ["$Volume$", "Amount", "Storage scale — distributed clusters, data lakes."],
+      ["$Variety$", "Formats", "Schema choice — NoSQL / lake over relational."],
+      ["$Velocity$", "Speed", "Real-time streaming vs batch processing."],
+      ["$Value$", "Usefulness", "Whether the project is worth funding ($ROI$)."],
+      ["$Veracity$", "Trust", "How much cleaning/validation is needed."],
+      ["$Variability$", "Consistency", "Whether models must adapt to drift over time."]
+    ] } },
+    { callout: { t: "miscon", h: "Variety ≠ Variability; Velocity ≠ processing speed", body: "$Variety$ is about **how many different formats** you have; $Variability$ is about **inconsistency over time** in flow or meaning. They are different V's — don't conflate them. Likewise $Velocity$ measures how fast **data arrives**, not how fast the computer runs; the system must keep *pace* with velocity to avoid a bottleneck." }},
+
+    { page: "The six analysis steps" },
+    { h: "Six steps for analysing big data" },
+    "This is the pipeline a data set passes through. The spec wants what each step *involves*, its *role* in managing big data, and *when* it is used. The order matters — each step feeds the next.",
+    { steps: [
+      { h: "1 · Data collection", m: "Gather raw data from every source — sensors, $GPS$, social media, transactional records.", n: "Role: feeds the pipeline. Without broad, representative collection later steps work on gaps. Used at ingestion, continuously for streamed sources." },
+      { h: "2 · Data storing", m: "Persist the raw data in scalable systems — distributed clusters, $cloud$ storage, $data$ $lakes$.", n: "Role: makes high-volume data available for repeated processing. Used immediately after collection; choice driven by Volume and Variety." },
+      { h: "3 · Data cleaning", m: "Remove duplicates, fix errors, handle missing values and standardise formats.", n: "Role: raises Veracity so later analysis is trustworthy. Used before any mining — \"garbage in, garbage out\"." },
+      { h: "4 · Data mining", m: "Apply algorithms to discover hidden patterns, correlations and relationships.", n: "Role: turns clean data into candidate insights. Used once data is clean and stored; see techniques in 2.3." },
+      { h: "5 · Data analysis", m: "Interpret the mined patterns against the business question to produce meaning.", n: "Role: converts patterns into decisions/recommendations. Used after mining; distinguishes correlation from useful insight." },
+      { h: "6 · Data consumption", m: "Present findings via dashboards, reports and visualisations to decision-makers.", n: "Role: delivers Value — insight nobody sees earns nothing. Used at the end; closes the loop into action." }
+    ] },
+    { callout: { t: "info", h: "When each step is the focus", body: [
       { kv: [
-        ["Volume", "The sheer amount of data generated (e.g., Petabytes of $IoT$ streams)."],
-        ["Velocity", "The speed at which data is generated and must be processed (e.g., real-time stock ticks)."],
-        ["Variety", "The range of formats (Structured, Unstructured, Semi-structured)."],
-        ["Veracity", "The accuracy, quality, and trustworthiness of the data."],
-        ["Value", "The usefulness of the data to the organisation's goals ($ROI$)."],
-        ["Variability", "Inconsistency in the data flow or meaning over time (e.g., seasonal peaks or context shifts)."]
+        ["Collection / Storing", "Early in a project, or whenever a new data source is onboarded — dominated by Volume, Variety, Velocity."],
+        ["Cleaning", "Whenever Veracity is low — unverified or merged sources. The most time-consuming step in practice."],
+        ["Mining / Analysis", "Once a trustworthy dataset exists and a business question is defined."],
+        ["Consumption", "When results must reach non-technical stakeholders to drive a decision."]
       ] }
     ] } },
-    { table: { head: ["V", "Significance in Analytics"], rows: [
-      ["$Volume$", "Determines the storage infrastructure ($Data Lakes$)."],
-      ["$Velocity$", "Requires real-time streaming tools ($Spark$)."],
-      ["$Veracity$", "High veracity data reduces the risk of incorrect decisions."]
-    ] } },
-    { h: "Six Steps for Analysing Big Data" },
-    { steps: [
-      { h: "Data Collection", m: "Ingestion", n: "Gathering raw data from sources like $GPS$ and social media." },
-      { h: "Data Storing", m: "Persistence", n: "Placing data in scalable systems like $Hadoop$ or $Cloud$ storage." },
-      { h: "Data Cleaning", m: "Validation", n: "Removing duplicates and fixing errors to ensure $Veracity$." },
-      { h: "Data Mining", m: "Discovery", n: "Using algorithms to find hidden patterns and relationships." },
-      { h: "Data Analysis", m: "Insight", n: "Interpreting mined patterns to generate business value." },
-      { h: "Data Consumption", m: "Visualisation", n: "Presenting findings via dashboards for decision-making." }
-    ] },
-    { callout: { t: "memorise", h: "6Vs + Analysis Pipeline", body: "Volume (amount), Velocity (speed of generation), Variety (format types), Veracity (accuracy/quality), Value (ROI/usefulness), Variability (inconsistency over time). Pipeline: Collect → Store → Clean → Mine → Analyse → Consume." }},
-    { callout: { t: "miscon", h: "Velocity Is About Data Speed, Not Processing Speed", body: "Velocity measures how fast DATA is generated and arrives — not the speed of the system. The system must match or exceed data velocity to avoid bottlenecks. Also: Veracity is not just accuracy — it includes trustworthiness, consistency, and completeness." }}
+    { callout: { t: "memorise", h: "6 V's + the pipeline", body: "V's: **Volume** (amount), **Variety** (formats), **Velocity** (speed of arrival), **Value** (usefulness/ROI), **Veracity** (trust/accuracy), **Variability** (inconsistency over time). Pipeline: **Collect → Store → Clean → Mine → Analyse → Consume.** Mnemonic for steps: \"Can Stan Clean My Awful Computer?\"" }},
+
+    { page: "Exam technique" },
+    { callout: { t: "tip", h: "Naming the dominant V", body: "Scenario questions describe a situation and ask which characteristic is *most relevant*. Match the keyword: \"500,000 posts a minute\" → Velocity; \"mix of video, text and sensor logs\" → Variety; \"data may be fake/biased\" → Veracity; \"petabytes of history\" → Volume; \"seasonal peaks\" → Variability; \"is it worth the cost\" → Value. Always justify with the data feature, not just the label." }},
+    { callout: { t: "warn", h: "\"Describe\" vs \"Explain\"", body: "\"Describe a characteristic\" = state what it is. \"Explain how it helps define big data\" = link the feature to *why traditional tools fail* (e.g. Volume exceeds one server → needs distributed storage). The second verb earns the higher marks — don't just re-state the definition." }}
   ],
   flashcards: [
-    ["What are the $6Vs$?", "$Volume$, $Velocity$, $Variety$, $Veracity$, $Value$, $Variability$."],
-    ["Define Veracity.", "The accuracy and quality of the data being collected."],
-    ["What is the final step in big data analysis?", "Data Consumption."],
-    ["How does Variability differ from Variety?", "$Variety$ is about format types; $Variability$ is about inconsistencies in data flow/meaning."],
-    ["Which V is most critical in healthcare analytics?", "$Veracity$ — inaccurate medical data could directly harm patients."],
-    ["What does $Value$ mean in the context of big data?", "The usefulness of the data to the organisation — whether acting on it produces a positive return on investment ($ROI$)."]
+    ["List the $6Vs$ of big data.", "$Volume$ (amount), $Variety$ (formats), $Velocity$ (speed of arrival), $Value$ (usefulness/$ROI$), $Veracity$ (accuracy/trust), $Variability$ (inconsistency over time)."],
+    ["Define $Veracity$.", "The accuracy, quality and trustworthiness of the data — how complete, consistent and reliable it is."],
+    ["How does $Variability$ differ from $Variety$?", "$Variety$ = the number of different data formats/sources; $Variability$ = inconsistency in flow or meaning over time (e.g. seasonal peaks, shifting sentiment)."],
+    ["Why does $Velocity$ help define data as 'big'?", "Data arrives so fast that batch tools can't keep pace — it forces real-time/streaming processing to stay useful."],
+    ["What does $Value$ mean and why does it matter?", "The usefulness of the data to the organisation — whether acting on it yields a positive $ROI$. Volume is worthless without extractable insight."],
+    ["List the six steps for analysing big data in order.", "Data collection → storing → cleaning → mining → analysis → consumption."],
+    ["What is the role of the data cleaning step?", "To raise $Veracity$ — removing duplicates, fixing errors and missing values so later mining/analysis can be trusted."],
+    ["What happens in the data consumption step?", "Findings are presented via dashboards/reports/visualisations to decision-makers — delivering the data's $Value$ as action."],
+    ["Which step turns clean data into hidden patterns?", "Data mining — applying algorithms to discover correlations and relationships."],
+    ["Why must cleaning come before mining?", "\"Garbage in, garbage out\" — mining errors or duplicates produces unreliable, misleading patterns."]
   ],
   quiz: [
     {
-      q: "Which $V$ relates to the speed of data generation?",
-      opts: ["$Volume$", "$Velocity$", "$Variety$", "$Veracity$"],
+      q: "A logistics firm streams live $GPS$ from 50,000 vehicles that must be processed within seconds. Which characteristic is most relevant?",
+      opts: ["$Volume$", "$Velocity$", "$Variety$", "$Value$"],
       ans: 1,
-      why: "$Velocity$ is the rate at which data arrives."
+      why: "The defining feature is the speed of arrival and the need for near-instant processing — $Velocity$."
     },
     {
-      q: "Which step involves finding hidden relationships?",
-      opts: ["Storing", "Cleaning", "Mining", "Consumption"],
+      q: "A retailer notices its data flow and meaning change sharply between seasons. Which V describes this?",
+      opts: ["$Variety$", "$Veracity$", "$Variability$", "$Volume$"],
       ans: 2,
-      why: "Data mining uses algorithms to discover patterns."
+      why: "$Variability$ is inconsistency in flow or meaning over time — exactly seasonal fluctuation."
     },
     {
-      q: "A social media platform receives 500,000 posts per minute. Which characteristic is most relevant?",
-      opts: ["$Veracity$", "$Value$", "$Velocity$", "$Volume$"],
+      q: "Which step directly raises the $Veracity$ of a dataset?",
+      opts: ["Data storing", "Data cleaning", "Data mining", "Data consumption"],
+      ans: 1,
+      why: "Cleaning removes duplicates and fixes errors/missing values, improving accuracy and trustworthiness."
+    },
+    {
+      q: "Which ordering of the analysis pipeline is correct?",
+      opts: [
+        "Collect → Clean → Store → Analyse → Mine → Consume",
+        "Collect → Store → Clean → Mine → Analyse → Consume",
+        "Store → Collect → Mine → Clean → Consume → Analyse",
+        "Collect → Mine → Clean → Store → Analyse → Consume"
+      ],
+      ans: 1,
+      why: "Raw data is collected, stored, then cleaned before mining; analysis interprets mined patterns and consumption presents them."
+    },
+    {
+      q: "An analyst argues a dataset isn't worth keeping because no insight can be extracted from it. Which V is being questioned?",
+      opts: ["$Value$", "$Volume$", "$Velocity$", "$Veracity$"],
+      ans: 0,
+      why: "$Value$ is whether the data is useful enough to justify its cost — usefulness, not size."
+    },
+    {
+      q: "Which characteristic most directly forces an organisation to abandon a single relational database for a $data$ $lake$?",
+      opts: ["$Value$", "$Variability$", "$Variety$", "$Veracity$"],
       ans: 2,
-      why: "$Velocity$ describes the speed at which data arrives and must be processed."
+      why: "$Variety$ — mixed structured/semi/unstructured formats won't fit one rigid relational schema, so a flexible store is needed."
     }
   ],
   exam: [
     {
-      q: "Explain why 'Veracity' is a critical characteristic for a healthcare firm using big data.",
-      marks: 3,
+      q: "State three of the six 'V' characteristics of big data and, for each, give one example of data that demonstrates it.",
+      marks: 6,
       ms: [
-        "Veracity refers to the accuracy/trustworthiness of data (1).",
-        "In healthcare, inaccurate data could lead to wrong diagnoses or treatments (1).",
-        "Ensuring data quality is vital for patient safety and regulatory compliance (1)."
+        "Volume (1) — e.g. years of stored transaction logs / petabytes of CCTV (1).",
+        "Velocity (1) — e.g. live stock-market ticks / real-time GPS streams (1).",
+        "Variety (1) — e.g. mixing video, text and sensor readings (1).",
+        "Veracity (1) — e.g. unverified social-media posts of uncertain accuracy (1).",
+        "(Accept Value — usefulness/ROI — and Variability — seasonal flow/meaning shifts — with valid examples.)"
+      ]
+    },
+    {
+      q: "Describe the six steps an organisation follows to analyse big data.",
+      marks: 6,
+      ms: [
+        "Data collection — gather raw data from sources such as sensors/GPS/social media (1).",
+        "Data storing — persist it in scalable storage (cloud/distributed cluster/data lake) (1).",
+        "Data cleaning — remove duplicates and fix errors/missing values to raise veracity (1).",
+        "Data mining — apply algorithms to find hidden patterns and relationships (1).",
+        "Data analysis — interpret those patterns against the business question (1).",
+        "Data consumption — present findings via dashboards/reports for decision-making (1)."
+      ]
+    },
+    {
+      q: "A hospital is building a system to analyse patient-monitor streams, scan images and clinical notes. Discuss how the 6 V's of big data apply to this system and which is most critical.",
+      marks: 9,
+      ms: [
+        "Volume — continuous monitor and imaging data accumulates to very large datasets requiring scalable storage (1–2).",
+        "Velocity — patient-monitor streams arrive in real time and must be processed instantly to flag deterioration (1–2).",
+        "Variety — combines structured vitals, unstructured images and free-text notes, needing flexible storage (1–2).",
+        "Veracity — accuracy is paramount; corrupt or mislabelled data could cause misdiagnosis (1–2).",
+        "Value/Variability — insights must justify cost; patient patterns vary over time so models may drift (1).",
+        "Judgement: Veracity is most critical here because inaccurate data risks patient safety, outweighing the others (1–2).",
+        "Coherent evaluation with justified conclusion rather than a list (1)."
       ]
     }
   ]
@@ -75,45 +148,113 @@ C["it:F201.1.1"] = {
 
 C["it:F201.1.2"] = {
   notes: [
-    { h: "The Evolution of Big Data" },
-    { callout: { t: "info", h: "Technological Drivers", body: [
-      { kv: [
-        ["Database Management Systems ($DBMS$)", "Transition from flat files to $RDBMS$ and then to $NoSQL$ for horizontal scaling — enabling the storage of high-variety data at scale."],
-        ["Internet of Everything ($IoE$)", "The connection of people, processes, data, and things — billions of devices now generate continuous data streams."],
-        ["Device Proliferation", "The explosion of smartphones and $IoT$ sensors — each device is a data source producing location, usage, and health signals."],
-        ["Search Engines", "Required massive indexing and fast retrieval of unstructured web data — drove early innovation in distributed storage and retrieval."],
-        ["Web-based Storage", "Cloud computing ($AWS$, $Azure$, $GCP$) provided affordable, elastic scale — lowering the cost barrier for organisations to store petabytes."]
-      ] }
+    "Big data did not appear overnight — it is the result of five technological **developments** the spec names explicitly: **database management systems**, the **Internet of Everything (IoE)**, the **proliferation of devices** generating digital data, **search engines**, and **web-based storage**. For each you must explain *how it contributed* to the evolution of big data and give its *benefits and limitations* in that role.",
+    { callout: { t: "tip", h: "How to read \"evolution\"", body: "These developments stack: storage tech ($DBMS$ → web-based storage) made it *possible* to hold huge data; data-generating tech ($IoE$, device proliferation) *produced* the data; search engines forced the *processing* breakthroughs (distributed indexing) that made huge unstructured data usable. Strong answers link a development to *which V it boosted*." }},
+
+    { page: "The five developments" },
+    { callout: { t: "def", h: "Database management systems (DBMS)", body: "Software for storing, organising and querying data — evolving from flat files to relational databases ($RDBMS$, using $SQL$) and then to $NoSQL$ systems built for horizontal scaling. Contribution: gave organisations a structured way to *store and retrieve* growing datasets reliably, and $NoSQL$ later removed the rigid-schema limit so high-$Variety$ data could be stored at scale." }},
+    { callout: { t: "def", h: "Internet of Everything (IoE)", body: "The networked connection of **people, processes, data and things** — extending the Internet of Things to include human and process interactions. Contribution: turned everyday objects and interactions into continuous data sources, massively increasing the $Volume$ and $Velocity$ of data generated." }},
+    { callout: { t: "def", h: "Proliferation of devices generating digital data", body: "The explosion of smartphones, wearables, smart appliances and embedded sensors. Contribution: every device is a data producer — location, usage, biometric and environmental signals — so the *quantity and variety* of data sources grew exponentially, feeding the $IoE$." }},
+    { callout: { t: "def", h: "Search engines", body: "Systems ($Google$ and others) that crawl, index and rank the entire web. Contribution: the need to index billions of unstructured web pages fast drove the invention of **distributed storage and processing** (e.g. the $MapReduce$/$Hadoop$ lineage) — the core technology that later made *all* big data processing feasible." }},
+    { callout: { t: "def", h: "Web-based storage", body: "Online/$cloud$ storage where data is held on remote provider infrastructure ($AWS$, $Azure$, $GCP$) and accessed over the internet. Contribution: provided **affordable, elastic** capacity so organisations could store petabytes without buying their own data centres — removing the cost barrier to keeping big data." }},
+    { callout: { t: "miscon", h: "IoE is broader than IoT", body: "Candidates often equate the two. $IoT$ = the *things* (connected devices). $IoE$ = things **plus people, processes and data** — the wider networked ecosystem. Device proliferation is what *populates* the $IoT$ layer of the $IoE$." }},
+
+    { page: "Benefits & limitations" },
+    { table: { head: ["Development", "Benefit to big data", "Limitation"], rows: [
+      ["$DBMS$ → $NoSQL$", "Reliable structured storage/querying; NoSQL adds flexible schemas + horizontal scale for $Variety$.", "Relational schemas are rigid; NoSQL weakens $ACID$ consistency guarantees."],
+      ["$IoE$", "Huge rise in real-time data $Volume$ and $Velocity$ from connected entities.", "Security/privacy risk; heterogeneous formats are hard to integrate."],
+      ["Device proliferation", "Vast number and variety of data sources, cheaply.", "Data quality varies ($Veracity$); device sprawl raises attack surface."],
+      ["Search engines", "Forced invention of scalable distributed indexing/processing.", "Early solutions were proprietary and complex; relevance ranking can bias results."],
+      ["Web-based storage", "Elastic, pay-as-you-go capacity for any size organisation.", "Data sovereignty, ongoing cost and vendor lock-in concerns."]
     ] } },
-    { table: { head: ["Development", "Benefit", "Limitation"], rows: [
-      ["$DBMS$ → $NoSQL$", "Flexible schemas; handles $Variety$.", "Weaker ACID guarantees; consistency trade-offs."],
-      ["$IoE$ / Device Proliferation", "Massive increase in data $Volume$ and $Velocity$.", "Security risks; heterogeneous data formats."],
-      ["Search Engines", "Drove scalable distributed indexing.", "Needed proprietary, non-portable solutions."],
-      ["Web-based / Cloud Storage", "Pay-as-you-go scale for all organisations.", "Data sovereignty and vendor lock-in concerns."]
-    ] } },
-    { callout: { t: "memorise", h: "5 Key Drivers of Big Data", body: "(1) DBMS→NoSQL: flexible schemas for variety and horizontal scale. (2) IoE: billions of connected devices generating streams. (3) Device proliferation: smartphones and sensors everywhere. (4) Search engines: drove distributed unstructured indexing. (5) Cloud storage: elastic scale at low cost." }},
-    { callout: { t: "miscon", h: "NoSQL Didn't Make SQL Obsolete", body: "NoSQL handles unstructured, high-variety data with horizontal scaling. But relational databases remain the standard for structured, transactional data requiring ACID compliance (banking, ERP systems). NoSQL trades strict consistency for scalability and schema flexibility." }}
+    { callout: { t: "memorise", h: "Five drivers of the evolution", body: "**DBMS→NoSQL** (store at scale, flexible schemas) · **IoE** (connect people+process+data+things) · **device proliferation** (everything is a sensor) · **search engines** (forced distributed processing) · **web-based/cloud storage** (cheap elastic capacity). Generation tech makes the data; storage + processing tech make it usable." }},
+
+    { page: "Exam technique" },
+    { callout: { t: "tip", h: "Linking development → contribution", body: "A bare list of developments scores low. For each, write a *because* clause: \"Web-based storage contributed **because** it made petabyte-scale storage affordable, so organisations stopped discarding data and could keep it for analysis.\" Tie it to a V where you can." }},
+    { callout: { t: "warn", h: "Don't forget limitations", body: "\"Benefits **and** limitations\" is in the spec for each development. An answer that only praises a development is capped — always pair it with a drawback (cost, security, lock-in, consistency, quality)." }}
   ],
   flashcards: [
-    ["What is the $IoE$?", "The Internet of Everything (People, Process, Data, Things)."],
-    ["How did $DBMS$ evolve?", "From rigid relational systems to flexible $NoSQL$ architectures."],
-    ["Why did search engines drive big data?", "They had to process and index the entire web's unstructured content."]
+    ["Name the five developments behind big data's evolution.", "Database management systems, Internet of Everything ($IoE$), proliferation of devices, search engines, and web-based storage."],
+    ["What does the $IoE$ connect?", "People, processes, data and things — broader than the $IoT$, which is just the things."],
+    ["How did $DBMS$ evolution contribute to big data?", "From flat files → relational ($SQL$) → $NoSQL$; $NoSQL$ removed the rigid-schema limit, allowing high-$Variety$ data to be stored and scaled horizontally."],
+    ["How did search engines drive big data technology?", "Indexing the whole web forced the invention of distributed storage/processing (the $MapReduce$/$Hadoop$ lineage) that underpins all big data processing."],
+    ["How did web-based storage contribute?", "Cheap, elastic $cloud$ capacity removed the cost barrier, so organisations could store petabytes instead of discarding data."],
+    ["Give one benefit and one limitation of $IoE$ for big data.", "Benefit: huge rise in real-time $Volume$/$Velocity$. Limitation: security/privacy risk and hard-to-integrate heterogeneous formats."],
+    ["Why did 'device proliferation' increase $Variety$?", "Different device types (phones, wearables, sensors, appliances) each produce different data formats — location, biometric, environmental, usage."],
+    ["What is one limitation of relying on web-based (cloud) storage?", "Data sovereignty concerns, ongoing cost, and vendor lock-in."]
   ],
   quiz: [
     {
-      q: "Which development refers to the connection of people, data, and things?",
-      opts: ["$DBMS$", "$IoE$", "$SQL$", "$SSD$"],
+      q: "Which development is defined as the connection of people, processes, data and things?",
+      opts: ["$DBMS$", "$IoE$", "Search engines", "Web-based storage"],
       ans: 1,
-      why: "$IoE$ is the holistic connection of all four elements."
+      why: "$IoE$ (Internet of Everything) extends the $IoT$ to include people, processes and data, not just devices."
+    },
+    {
+      q: "The need to index the entire web most directly drove which big data breakthrough?",
+      opts: ["Relational databases", "Distributed storage and processing", "Solid state drives", "Online surveys"],
+      ans: 1,
+      why: "Search engines had to process billions of unstructured pages, forcing distributed/parallel processing techniques."
+    },
+    {
+      q: "Which development most directly removed the cost barrier to storing petabytes of data?",
+      opts: ["Web-based storage", "$IoE$", "Search engines", "Device proliferation"],
+      ans: 0,
+      why: "Cloud/web-based storage offers elastic pay-as-you-go capacity without buying physical data centres."
+    },
+    {
+      q: "Which is a genuine limitation of the move from relational databases to $NoSQL$?",
+      opts: [
+        "It cannot store any structured data",
+        "It weakens $ACID$ consistency guarantees",
+        "It only runs on a single server",
+        "It removed support for horizontal scaling"
+      ],
+      ans: 1,
+      why: "$NoSQL$ trades strict $ACID$ consistency for schema flexibility and horizontal scalability."
+    },
+    {
+      q: "Why is 'device proliferation' considered a driver of big data $Variety$?",
+      opts: [
+        "All devices output identical formats",
+        "Different device types generate different data formats and signals",
+        "Devices reduce the number of data sources",
+        "It only affects data $Volume$, never $Variety$"
+      ],
+      ans: 1,
+      why: "Phones, wearables, sensors and appliances each produce distinct formats — boosting $Variety$ as well as $Volume$."
     }
   ],
   exam: [
     {
-      q: "Identify TWO developments that contributed to big data and explain their impact.",
+      q: "Identify two developments that contributed to the evolution of big data and explain how each contributed.",
       marks: 4,
       ms: [
-        "Proliferation of devices (1): Billions of sensors now generate data streams (1).",
-        "Web-based storage (1): Allows for cheap, scalable storage of massive datasets (1)."
+        "Proliferation of devices (1) — billions of phones/sensors each generate continuous data streams, raising volume and variety (1).",
+        "Web-based storage (1) — affordable elastic cloud capacity let organisations store petabytes instead of discarding data (1).",
+        "(Accept DBMS→NoSQL, IoE, search engines with valid contribution.)"
+      ]
+    },
+    {
+      q: "Explain how the development of database management systems contributed to the evolution of big data, and give one limitation of relational databases for big data.",
+      marks: 4,
+      ms: [
+        "DBMS evolved from flat files to relational ($SQL$) systems giving reliable structured storage/querying (1).",
+        "Then to $NoSQL$, removing the rigid-schema constraint (1).",
+        "This allowed high-variety data to be stored and scaled horizontally across many servers (1).",
+        "Limitation: relational schemas are rigid / cannot easily handle unstructured high-variety data (1)."
+      ]
+    },
+    {
+      q: "Discuss the benefits and limitations of the developments that enabled big data, using at least three developments in your answer.",
+      marks: 9,
+      ms: [
+        "Web-based storage: benefit — cheap elastic scale; limitation — data sovereignty / lock-in (1–2).",
+        "IoE / device proliferation: benefit — massive real-time volume and variety; limitation — security/privacy and integration difficulty (1–2).",
+        "Search engines: benefit — drove distributed processing now central to big data; limitation — early proprietary/complex solutions (1–2).",
+        "DBMS→NoSQL: benefit — flexible schemas + horizontal scale; limitation — weaker consistency (1–2).",
+        "Judgement — e.g. storage + processing advances were the true enablers, generation tech merely supplied the raw material (1).",
+        "Balanced, linked discussion rather than a list, with a conclusion (1)."
       ]
     }
   ]
@@ -121,55 +262,133 @@ C["it:F201.1.2"] = {
 
 C["it:F201.1.3"] = {
   notes: [
-    { h: "Big Data Capture Methods" },
-    { callout: { t: "info", h: "Sources of Capture", body: [
+    "Data **capture** is the process of gathering raw data from a source into a system so it can be stored and analysed. The spec lists **nine** capture methods and, for each, wants: *how it is used to collect data*, *when it can be used*, the *types of data it generates*, and its *benefits and limitations*. Cover all nine — questions often name a scenario and ask which method fits.",
+    { callout: { t: "def", h: "Big data capture", body: "The methods and technologies used to **collect** raw data from real-world sources and bring it into a storage/processing system. It is the first step of the analysis pipeline (1.1); the *method* chosen determines the *type* and *quality* (Veracity) of data you end up with." }},
+
+    { page: "The nine capture methods" },
+    { callout: { t: "info", h: "What each method captures", body: [
       { kv: [
-        ["Digital images and videos", "$CCTV$, medical imaging, and satellite data."],
-        ["$GPS$ signals", "Continuous location tracking from mobile devices."],
-        ["$IoE$ connected devices", "Smart meters, wearables, and industrial sensors."],
-        ["Natural language", "Voice recordings, call centre transcripts, and social media text."],
-        ["Online surveys", "Direct consumer feedback and form submissions."],
-        ["Satellites", "Weather monitoring and Earth observation imagery."],
-        ["Sensors", "Hardware measuring temperature, motion, or pressure."],
-        ["Social media sites", "Posts, likes, shares, and user profiles."],
-        ["Transactional records", "Point-of-sale logs and online banking history."]
+        ["Digital images and videos", "Visual data from $CCTV$, cameras, medical scanners and dashcams. Used for surveillance, diagnostics, automated inspection. Type: **unstructured** (pixels/frames)."],
+        ["$GPS$ signals", "Location coordinates + timestamps from satellites to receivers in phones/vehicles. Used for navigation, logistics, asset tracking. Type: **structured** (lat/long, time)."],
+        ["$IoE$ connected devices", "Readings exchanged by connected smart devices — smart meters, wearables, industrial machines. Used for monitoring and automation. Type: usually **structured/semi-structured** streams."],
+        ["Natural language", "Human speech and text — voice notes, call-centre recordings, chat messages. Used for sentiment, voice assistants, transcription. Type: **unstructured** (needs $NLP$)."],
+        ["Online surveys", "Direct responses captured through web forms/questionnaires. Used for market research and feedback. Type: **semi-structured** (defined fields + free text)."],
+        ["Satellites", "Earth-observation and weather imagery/telemetry from orbit. Used for forecasting, mapping, environmental monitoring. Type: **unstructured** imagery + structured telemetry."],
+        ["Sensors", "Hardware measuring physical quantities — temperature, motion, pressure, light. Used in $IoT$, manufacturing, environment. Type: **structured** numeric, often high-$Velocity$."],
+        ["Social media sites", "Posts, likes, shares, profiles and interactions captured via platform feeds/$APIs$. Used for sentiment and trend analysis. Type: **unstructured/semi-structured**."],
+        ["Transactional records", "Logs of completed transactions — $POS$ sales, online banking, orders. Used for finance, retail analytics, audit. Type: **structured** (relational rows)."]
       ] }
     ] } },
-    { table: { head: ["Capture Method", "Data Type", "Benefit", "Limitation"], rows: [
-      ["Sensors / $IoE$ devices", "Structured (numeric)", "Continuous, real-time, high velocity", "Sensor failure; calibration drift."],
-      ["Social Media", "Unstructured (text/image)", "Rich, real-time consumer sentiment", "Low veracity; fake accounts; bias."],
-      ["$GPS$ signals", "Structured (coordinates)", "Precise real-time location at scale", "Privacy concerns; battery drain."],
-      ["Satellites", "Unstructured (imagery)", "Global coverage; no physical access needed", "Expensive; cloud cover can block data."],
-      ["Online Surveys", "Semi-structured ($JSON$/$XML$)", "Targeted questions; direct consumer input", "Self-selection bias; low response rates."],
-      ["Transactional records", "Structured (relational)", "Accurate financial audit trail", "Slow batch upload; format standardisation needed."],
-      ["Natural Language", "Unstructured (text/audio)", "Captures nuanced human intent", "Requires $NLP$/$AI$ to process; dialect variation."]
+    { callout: { t: "miscon", h: "Capture method ≠ data type one-to-one", body: "Some methods produce mixed types: satellites give *both* unstructured imagery and structured telemetry; $IoE$ devices and surveys are usually *semi*-structured. Don't blanket-label everything 'unstructured' — state what the *specific* method produces." }},
+
+    { page: "Benefits & limitations" },
+    { table: { head: ["Method", "Generates", "Benefit", "Limitation"], rows: [
+      ["Digital images/video", "Unstructured", "Rich detail; works where text can't (visual evidence).", "Huge $Volume$; needs $AI$/vision to interpret; privacy."],
+      ["$GPS$ signals", "Structured coords", "Precise real-time location at scale.", "Privacy concerns; weak indoors; battery drain."],
+      ["$IoE$ devices", "Structured/semi streams", "Continuous automated monitoring, real time.", "Security/attack surface; format heterogeneity."],
+      ["Natural language", "Unstructured", "Captures nuanced human intent/sentiment.", "Needs $NLP$; dialect/sarcasm/ambiguity errors."],
+      ["Online surveys", "Semi-structured", "Targeted, cheap, direct from the consumer.", "Self-selection bias; low response rates; honesty."],
+      ["Satellites", "Imagery + telemetry", "Global coverage without physical access.", "Expensive; cloud cover; latency."],
+      ["Sensors", "Structured numeric", "High-$Velocity$, objective, continuous readings.", "Calibration drift / sensor failure; maintenance."],
+      ["Social media", "Unstructured/semi", "Vast real-time sentiment and trends.", "Low $Veracity$ (bots/fakes); demographic bias."],
+      ["Transactional records", "Structured", "Accurate, complete audit trail of real events.", "Often batch (latency); needs format standardising."]
     ] } },
-    { callout: { t: "memorise", h: "Capture Types + Data Classes", body: "Sensors/IoT = structured, continuous, high velocity. Social media = unstructured, high volume, bias risk. GPS = structured coordinates (privacy risk). Satellites = unstructured imagery, global coverage. Transactional records = structured, high accuracy. Natural language = unstructured, needs NLP." }},
-    { callout: { t: "miscon", h: "Social Media Data Is Not Reliable Alone", body: "Social media suffers from low veracity (bots, fake accounts), demographic bias (not all groups are represented equally), and needs AI/NLP to process. Never list it as a benefit without also stating a limitation — exam answers listing only positives are capped." }}
+    { callout: { t: "memorise", h: "Capture → data class shortcut", body: "**Structured & high-velocity:** sensors, $GPS$, $IoE$, transactional records. **Unstructured (needs AI):** images/video, natural language, social media. **Semi-structured:** online surveys (and parts of social/$IoE$). **Imagery + telemetry mix:** satellites." }},
+
+    { page: "Exam technique" },
+    { callout: { t: "tip", h: "Matching method to scenario", body: "\"Track delivery vans in real time\" → $GPS$. \"Gauge opinion on a new product launch\" → social media or online surveys. \"Monitor a production line for faults\" → sensors / $IoE$. \"Forecast a storm\" → satellites. Justify with the data *type* and the *when* it suits." }},
+    { callout: { t: "warn", h: "Always pair benefit with limitation", body: "The spec demands benefits **and** limitations for each method. Social media's reach is worthless without flagging its low veracity and bias; sensor accuracy is undermined by calibration drift. Single-sided answers are capped." }}
   ],
   flashcards: [
-    ["Name a source of unstructured data.", "Social media, digital video, or natural language audio."],
-    ["What data type does $GPS$ generate?", "Structured (Coordinates and Timestamps)."],
-    ["How are transactional records usually stored?", "In structured relational databases."],
-    ["Limitation of survey data?", "Self-selection bias — respondents may not represent the full population."]
+    ["List the nine big data capture methods.", "Digital images/videos, $GPS$ signals, $IoE$ connected devices, natural language, online surveys, satellites, sensors, social media sites, transactional records."],
+    ["What is data capture?", "The process of collecting raw data from real-world sources into a system for storage and analysis — the first step of the pipeline."],
+    ["What data type do $GPS$ signals generate?", "Structured data — coordinates (latitude/longitude) plus timestamps."],
+    ["Give a benefit and a limitation of sensor capture.", "Benefit: high-$Velocity$, objective, continuous numeric readings. Limitation: calibration drift / sensor failure needing maintenance."],
+    ["Why is social media a low-$Veracity$ capture method?", "It contains bots, fake accounts and demographic bias, so the data may not be accurate or representative."],
+    ["Which methods typically produce unstructured data?", "Digital images/videos, natural language, and social media — all need $AI$/$NLP$ to interpret."],
+    ["What type of data do online surveys produce, and a key limitation?", "Semi-structured (defined fields + free text); limitation: self-selection bias and low response rates."],
+    ["When would satellites be the best capture method?", "When you need global coverage without physical access — e.g. weather forecasting or environmental/Earth monitoring."],
+    ["Why are transactional records high-$Veracity$?", "They log completed real-world events in structured relational form, giving an accurate, complete audit trail."],
+    ["Give one limitation of capturing digital images/video.", "Very high $Volume$/storage cost and the need for $AI$/computer vision to interpret them (plus privacy concerns)."]
   ],
   quiz: [
     {
-      q: "Which method is best for tracking logistics in real-time?",
+      q: "A logistics firm wants to track its delivery fleet's position in real time. Which capture method fits best?",
       opts: ["Online surveys", "$GPS$ signals", "Satellites", "Transactional records"],
       ans: 1,
-      why: "$GPS$ provides high-velocity location streams."
+      why: "$GPS$ provides precise, high-velocity location coordinates in real time."
+    },
+    {
+      q: "Which capture method generates structured numeric data with the highest $Velocity$?",
+      opts: ["Online surveys", "Social media", "Sensors", "Digital images"],
+      ans: 2,
+      why: "Sensors continuously emit objective numeric readings (temperature, pressure, motion) as structured streams."
+    },
+    {
+      q: "Which is a correct limitation of natural-language capture?",
+      opts: [
+        "It produces only structured data",
+        "Sarcasm, dialect and ambiguity cause processing errors",
+        "It cannot capture sentiment",
+        "It requires no software to interpret"
+      ],
+      ans: 1,
+      why: "Natural language is unstructured and needs $NLP$; ambiguity, dialect and sarcasm reduce accuracy."
+    },
+    {
+      q: "Which capture method produces both unstructured imagery and structured telemetry?",
+      opts: ["Transactional records", "Satellites", "Online surveys", "$GPS$ signals"],
+      ans: 1,
+      why: "Satellites return Earth-observation images plus structured positional/sensor telemetry."
+    },
+    {
+      q: "A market-research team needs targeted opinions on a specific new feature. Which method is most appropriate?",
+      opts: ["Sensors", "Online surveys", "Satellites", "$IoE$ devices"],
+      ans: 1,
+      why: "Online surveys capture targeted, direct consumer responses in a semi-structured form."
+    },
+    {
+      q: "Why might transactional records introduce latency despite high accuracy?",
+      opts: [
+        "They are unstructured and need AI",
+        "They are often uploaded in batches rather than streamed live",
+        "They contain many fake entries",
+        "They require satellite coverage"
+      ],
+      ans: 1,
+      why: "Transactional data is frequently processed in batch loads, so it is accurate but not always real time."
     }
   ],
   exam: [
     {
-      q: "Describe the benefits and limitations of using 'Social Media' as a data capture method.",
+      q: "Describe the benefits and limitations of using social media as a big data capture method.",
       marks: 4,
       ms: [
-        "Benefit: Large volume of real-time consumer sentiment (1).",
-        "Benefit: Rich insights from unstructured text/images (1).",
-        "Limitation: Low veracity due to fake accounts or bias (1).",
-        "Limitation: Hard to process without $AI$/$NLP$ (1)."
+        "Benefit: captures a large volume of real-time consumer sentiment/trends (1).",
+        "Benefit: rich, varied content (text, images, interactions) (1).",
+        "Limitation: low veracity — bots, fake accounts and bias (1).",
+        "Limitation: unstructured, so needs $AI$/$NLP$ to process (1)."
+      ]
+    },
+    {
+      q: "For each of sensors, $GPS$ signals and online surveys, state the type of data captured and one situation in which the method would be used.",
+      marks: 6,
+      ms: [
+        "Sensors — structured numeric (1); e.g. monitoring a production line / environment for faults (1).",
+        "GPS — structured coordinates + time (1); e.g. tracking a delivery fleet / navigation (1).",
+        "Online surveys — semi-structured (fields + free text) (1); e.g. market research on a new product (1)."
+      ]
+    },
+    {
+      q: "A national weather service is choosing how to capture data for forecasting. Evaluate the suitability of satellites, sensors and social media as capture methods for this purpose.",
+      marks: 9,
+      ms: [
+        "Satellites — global coverage and imagery/telemetry ideal for forecasting; but expensive and cloud cover can obstruct readings (1–2).",
+        "Sensors — ground stations give precise, high-velocity local readings (temp, pressure, rainfall); but limited to where sensors are placed and need maintenance/calibration (1–2).",
+        "Social media — could crowd-source live reports of conditions cheaply; but low veracity and bias make it unreliable for official forecasts (1–2).",
+        "Comparison of data types/veracity across the three (1).",
+        "Judgement: satellites + sensors as primary (high veracity, broad + precise coverage), social media only as a supplementary signal (1–2).",
+        "Coherent evaluation with a justified conclusion (1)."
       ]
     }
   ]
@@ -177,76 +396,155 @@ C["it:F201.1.3"] = {
 
 C["it:F201.1.4"] = {
   notes: [
-    { h: "Purpose and Use of Big Data Analytics" },
-    { callout: { t: "info", h: "Areas of Application", body: [
+    "The spec names **nine areas of application** for big data analytics and wants, for each: the *purpose* of using analytics there, and its *benefits and limitations*. The areas are: **banking; communications, media and entertainment; education; energy and utilities; government; healthcare; insurance; manufacturing; retail.** The overarching purpose across all of them is to move from **reactive** to **proactive, evidence-based** decision-making.",
+    { callout: { t: "def", h: "Big data analytics", body: "The process of examining large, varied datasets to uncover patterns, correlations and trends that support decision-making. Its purpose is to convert raw data ($Volume$/$Variety$/$Velocity$) into $Value$ — actionable insight — in a specific domain." }},
+
+    { page: "The nine application areas" },
+    { callout: { t: "info", h: "Purpose of analytics in each area", body: [
       { kv: [
-        ["Banking", "Fraud detection, credit risk assessment, and algorithmic trading."],
-        ["Communications, Media and Entertainment", "Recommendation engines ($Netflix$), personalised ads, and real-time content delivery."],
-        ["Education", "Personalised learning paths, early-intervention alerts, and progress tracking."],
-        ["Energy and utilities", "Smart grid management, demand forecasting, and predictive maintenance."],
-        ["Government", "Public health monitoring, tax fraud detection, and urban planning."],
-        ["Healthcare", "Disease outbreak prediction, drug discovery, and personalised medicine."],
-        ["Insurance", "Customised premiums based on telematics data and risk modelling."],
-        ["Manufacturing", "Supply chain optimisation, robotics control, and defect detection."],
-        ["Retail", "Targeted marketing, inventory forecasting, and anticipatory shipping."]
+        ["Banking", "Detect fraud in real time, assess credit risk, model markets and personalise products. Purpose: reduce losses and lend safely."],
+        ["Communications, media & entertainment", "Power recommendation engines, personalise ads, plan content and optimise delivery. Purpose: maximise engagement and retention."],
+        ["Education", "Personalise learning paths, flag at-risk students early, track progress and plan resources. Purpose: improve attainment and retention."],
+        ["Energy and utilities", "Manage smart grids, forecast demand, enable predictive maintenance of infrastructure. Purpose: balance supply/demand and cut outages."],
+        ["Government", "Monitor public health, detect tax fraud, plan services and respond to emergencies. Purpose: evidence-based policy and efficient public services."],
+        ["Healthcare", "Predict outbreaks, accelerate drug discovery, enable personalised medicine and manage resources. Purpose: better outcomes at lower cost."],
+        ["Insurance", "Price premiums from telematics/behaviour, model risk and detect fraudulent claims. Purpose: fair, accurate pricing and reduced fraud."],
+        ["Manufacturing", "Optimise supply chains, run predictive maintenance, detect defects and control robotics. Purpose: efficiency, quality and uptime."],
+        ["Retail", "Target marketing, forecast inventory, personalise offers and enable anticipatory shipping. Purpose: increase sales and cut waste."]
       ] }
     ] } },
-    { table: { head: ["Sector", "Benefit", "Limitation"], rows: [
-      ["Banking", "Near-instant fraud detection saves millions.", "False positives block legitimate transactions."],
-      ["Healthcare", "Earlier diagnosis, better outcomes.", "Data breaches risk patient privacy ($GDPR$)."],
-      ["Retail", "Higher sales through personalisation.", "Customer distrust over data collection."],
-      ["Government", "Evidence-based policy; faster emergency response.", "Mass surveillance concerns."]
+    { callout: { t: "tip", h: "The common thread", body: "In every area the purpose reduces to the same idea: replace guesswork with **statistical prediction** so the organisation acts *before* an event (fraud, machine failure, a stock-out, an epidemic) rather than reacting after it." }},
+
+    { page: "Benefits & limitations" },
+    { table: { head: ["Area", "Benefit of analytics", "Limitation"], rows: [
+      ["Banking", "Near-instant fraud detection; safer lending decisions.", "False positives block legitimate customers; bias in credit models."],
+      ["Comms/media/ent.", "Higher engagement via personalisation; data-driven commissioning.", "Filter bubbles; privacy concerns over tracking."],
+      ["Education", "Early intervention raises attainment.", "Risk of labelling students; data privacy of minors."],
+      ["Energy/utilities", "Efficient grids; fewer outages via prediction.", "High sensor/infra cost; security of critical infrastructure."],
+      ["Government", "Evidence-based policy; faster emergency response.", "Mass-surveillance concerns; siloed legacy systems."],
+      ["Healthcare", "Earlier diagnosis; personalised treatment.", "Breaches risk sensitive data ($GDPR$); bias harms patients."],
+      ["Insurance", "Fairer, accurate premiums; less fraud.", "Telematics feels intrusive; can penalise some groups."],
+      ["Manufacturing", "Predictive maintenance cuts downtime; fewer defects.", "Costly $IoT$ rollout; integration with legacy machinery."],
+      ["Retail", "More sales; less waste from better forecasting.", "Customer distrust over data use; over-personalisation."]
     ] } },
-    { callout: { t: "tip", h: "Strategic Goal", body: [
-      "The primary purpose is to move from **reactive** to **proactive** decision-making based on statistical evidence."
-    ] } },
-    { callout: { t: "memorise", h: "Key Sectors + Their Use Cases", body: "Banking: fraud detection, credit risk. Healthcare: disease prediction, drug discovery, personalised medicine. Retail: targeted marketing, inventory forecasting. Manufacturing: predictive maintenance, defect detection. Government: tax fraud, urban planning. Insurance: telematics pricing. Goal: reactive → proactive decisions." }},
-    { callout: { t: "info", h: "Case Studies: Big Data in Action", body: [
+    { callout: { t: "memorise", h: "Area → flagship use case", body: "Banking = fraud/credit. Media = recommendation engines. Education = at-risk alerts. Energy = smart grid/demand forecast. Government = policy + tax fraud. Healthcare = outbreak prediction + personalised medicine. Insurance = telematics pricing. Manufacturing = predictive maintenance. Retail = targeted marketing + anticipatory shipping." }},
+
+    { page: "Case studies" },
+    { callout: { t: "info", h: "Big data in action", body: [
       { kv: [
-        ["Retail ($Amazon$)", "Uses predictive analytics to recommend products and even 'anticipatory shipping' to stock local hubs before a customer even orders."],
-        ["Transport ($Uber$/$Lyft$)", "Uses real-time $GPS$ and historic traffic data to calculate dynamic pricing (surge) and optimal driver routing."],
-        ["Entertainment ($Netflix$)", "Anonymised viewing data is clustered to decide which original series to produce next, reducing the risk of failure."],
-        ["Healthcare ($AlphaFold$)", "$DeepMind$ used big data of protein structures to predict 3D shapes of proteins, accelerating drug discovery by years."]
+        ["Retail — anticipatory shipping", "Predictive analytics pre-positions likely orders in local hubs before customers buy, cutting delivery time."],
+        ["Transport — dynamic pricing", "Real-time $GPS$ + historic demand sets surge prices and optimal routing for ride-hailing fleets."],
+        ["Entertainment — content commissioning", "Clustering anonymised viewing data guides which original series to produce, reducing flop risk."],
+        ["Healthcare — protein folding", "Large protein-structure datasets trained models that predict 3-D shapes, accelerating drug discovery."]
       ] }
     ] } },
-    { callout: { t: "tip", h: "Exam Technique: Technology → Outcome", body: [
-      "When discussing case studies, always link the **Technology** ($ML$/$Big Data$) to a **Real-world Outcome** (Efficiency/Profit/Safety)."
-    ] } },
-    { callout: { t: "miscon", h: "Big Data Doesn't Guarantee Better Outcomes", body: "Benefits depend entirely on data veracity. Biased or poor-quality data produces wrong predictions. A fraud detection model trained on biased data will produce false positives, blocking legitimate transactions. Garbage in, garbage out — data quality is the foundation." }}
+    { callout: { t: "tip", h: "Technology → outcome", body: "In a case study always link the **technology** (big data / $ML$) to a concrete **outcome** (profit, efficiency, safety, lives saved). \"Used data\" earns nothing; \"used real-time transaction data to cut fraud losses by X\" earns the mark." }},
+
+    { page: "Exam technique" },
+    { callout: { t: "miscon", h: "Big data ≠ guaranteed better outcomes", body: "Every benefit depends on $Veracity$. Biased or poor-quality data produces wrong predictions — a fraud model trained on skewed data wrongly blocks genuine customers. \"Garbage in, garbage out.\" Always temper benefit claims with the data-quality and ethics limitation." }},
+    { callout: { t: "warn", h: "Answer the area asked", body: "Generic \"it improves efficiency\" answers are capped. Tie the purpose and the benefit/limitation to the *specific* area in the question — telematics for insurance, predictive maintenance for manufacturing, outbreak modelling for healthcare." }}
   ],
   flashcards: [
-    ["Big data use in Banking?", "Fraud detection and credit risk modelling."],
-    ["Big data use in Retail?", "Targeted marketing and stock management."],
-    ["Big data use in Healthcare?", "Predicting epidemics and personalised medicine."],
-    ["What is 'Anticipatory Shipping'?", "Shipping goods to local hubs before an order is placed, based on predictive analytics."],
-    ["How does dynamic pricing work?", "Using real-time supply and demand data to adjust costs instantly (e.g., ride-sharing)."],
-    ["Example of big data in entertainment?", "$Netflix$ using clusters to decide which shows to produce."]
+    ["List the nine areas of application for big data analytics.", "Banking; communications/media/entertainment; education; energy & utilities; government; healthcare; insurance; manufacturing; retail."],
+    ["What is the overarching purpose of big data analytics?", "To shift from reactive to proactive, evidence-based decision-making by turning data into actionable insight ($Value$)."],
+    ["Purpose of big data analytics in banking?", "Real-time fraud detection, credit-risk assessment and market modelling — to reduce losses and lend safely."],
+    ["Purpose in healthcare, with one benefit and one limitation?", "Predict outbreaks, personalise medicine, speed drug discovery. Benefit: earlier diagnosis/better outcomes. Limitation: breaches risk sensitive data ($GDPR$)."],
+    ["Flagship use of analytics in manufacturing?", "Predictive maintenance — predicting machine failure before it happens to cut downtime; plus defect detection."],
+    ["How does insurance use big data analytics?", "Telematics/behaviour data to price premiums accurately, model risk and detect fraudulent claims."],
+    ["What is 'anticipatory shipping'?", "Retail predictive analytics that pre-positions likely orders in local hubs before customers buy, cutting delivery time."],
+    ["Give a limitation of analytics in government.", "Mass-surveillance/privacy concerns, and integration difficulty across siloed legacy systems."],
+    ["Why is data $Veracity$ the foundation of every application area?", "Biased/poor-quality data yields wrong predictions (\"garbage in, garbage out\") — e.g. a skewed fraud model blocks legitimate customers."],
+    ["Purpose of analytics in energy & utilities?", "Smart-grid management, demand forecasting and predictive maintenance to balance supply/demand and reduce outages."]
   ],
   quiz: [
     {
-      q: "Predictive maintenance is a key application for which sector?",
-      opts: ["Banking", "Manufacturing", "Insurance", "Retail"],
+      q: "Predictive maintenance to reduce machine downtime is a flagship application for which area?",
+      opts: ["Banking", "Manufacturing", "Insurance", "Education"],
       ans: 1,
-      why: "Manufacturing uses data to predict when machines will fail."
+      why: "Manufacturing uses sensor/$IoT$ data to predict failures before they cause downtime."
     },
     {
-      q: "Which company uses data to ship products before they are even ordered?",
-      opts: ["$Uber$", "$Amazon$", "$Netflix$", "$DeepMind$"],
+      q: "Pricing premiums from telematics and driving-behaviour data is characteristic of which area?",
+      opts: ["Retail", "Insurance", "Government", "Energy"],
       ans: 1,
-      why: "$Amazon$'s anticipatory shipping is a famous predictive analytics case study."
+      why: "Insurance uses behavioural/telematics data to set accurate, individualised premiums."
+    },
+    {
+      q: "Which is the single best statement of the overarching purpose of big data analytics?",
+      opts: [
+        "To store as much data as possible",
+        "To replace reactive decisions with proactive, evidence-based ones",
+        "To reduce the variety of data formats",
+        "To remove the need for any human decision-making"
+      ],
+      ans: 1,
+      why: "Across all areas the purpose is proactive, statistically grounded decision-making."
+    },
+    {
+      q: "An education provider flags students likely to drop out so tutors can intervene early. Which limitation should it most guard against?",
+      opts: [
+        "Lack of any structured data",
+        "Mislabelling students and privacy of minors' data",
+        "Inability to store the data",
+        "That analytics cannot be applied to education at all"
+      ],
+      ans: 1,
+      why: "Predictive flags risk stigmatising students and involve sensitive data about minors."
+    },
+    {
+      q: "Which pairing of area and use case is INCORRECT?",
+      opts: [
+        "Retail — targeted marketing and inventory forecasting",
+        "Government — tax-fraud detection and policy planning",
+        "Banking — predictive maintenance of factory robots",
+        "Healthcare — outbreak prediction and personalised medicine"
+      ],
+      ans: 2,
+      why: "Predictive maintenance of robots belongs to manufacturing, not banking."
+    },
+    {
+      q: "Why can a fraud-detection model harm legitimate banking customers?",
+      opts: [
+        "It always processes data too slowly",
+        "Biased or poor-quality training data causes false positives that block genuine transactions",
+        "It cannot handle structured data",
+        "It removes the need for transactional records"
+      ],
+      ans: 1,
+      why: "Low-veracity/biased data produces false positives — \"garbage in, garbage out\"."
     }
   ],
   exam: [
     {
-      q: "Evaluate the benefits of big data analytics for a national government during a pandemic.",
+      q: "State the purpose of big data analytics in three different areas of application, naming each area.",
       marks: 6,
       ms: [
-        "Real-time tracking of infection rates to allocate resources (1).",
-        "Predictive modelling to identify future hotspots (1).",
-        "Monitoring public sentiment towards restrictions via social media (1).",
-        "Limitations: Data privacy concerns ($GDPR$) (1).",
-        "Limitations: Integration issues between different regional systems (1).",
-        "Conclusion: Vital for evidence-based policy making (1)."
+        "Banking (1) — detect fraud / assess credit risk in real time (1).",
+        "Healthcare (1) — predict outbreaks / personalise treatment / speed drug discovery (1).",
+        "Retail (1) — target marketing / forecast inventory / anticipatory shipping (1).",
+        "(Accept any three of the nine areas with a valid purpose.)"
+      ]
+    },
+    {
+      q: "Explain two benefits and two limitations of using big data analytics in healthcare.",
+      marks: 4,
+      ms: [
+        "Benefit: earlier diagnosis and better patient outcomes through prediction (1).",
+        "Benefit: personalised medicine / faster drug discovery (1).",
+        "Limitation: breaches risk highly sensitive personal data ($GDPR$) (1).",
+        "Limitation: biased/poor-quality data can harm patients via wrong predictions (1)."
+      ]
+    },
+    {
+      q: "Evaluate the benefits and limitations of a national government using big data analytics during a pandemic.",
+      marks: 9,
+      ms: [
+        "Benefit: real-time tracking of infection rates to allocate resources (1–2).",
+        "Benefit: predictive modelling to identify future hotspots and plan capacity (1–2).",
+        "Benefit: monitoring public sentiment toward restrictions to shape communication (1).",
+        "Limitation: privacy/surveillance concerns and $GDPR$ compliance (1–2).",
+        "Limitation: integration difficulty across siloed regional/legacy systems; data veracity (1–2).",
+        "Judgement: net vital for evidence-based policy provided privacy safeguards and data quality are maintained (1–2)."
       ]
     }
   ]
@@ -1133,61 +1431,146 @@ C["it:F201.2.6"] = {
 
 C["it:F201.3.1"] = {
   notes: [
-    { h: "Artificial Intelligence and Machine Learning" },
-    { callout: { t: "info", h: "Core Definitions", body: [
-      { kv: [
-        ["$AI$", "Systems that perform tasks requiring human-like intelligence (e.g., reasoning)."],
-        ["$ML$", "A subset of $AI$ where systems 'learn' patterns from data without explicit programming."]
-      ] }
+    "This leaf links big data to **artificial intelligence (AI)** and **machine learning (ML)** within **data science**. The spec wants: what AI is; how it is developed and used in data science (with benefits and limitations); what ML is; how ML algorithms are used and their purpose/characteristics; the benefits and limitations of each of the three named algorithms — **Decision Tree, Random Forest, K-Means** — and how each can be used for digital analysis; and finally **how big data, ML and AI interact**. It does *not* require the historical development of AI/ML.",
+    { callout: { t: "def", h: "Artificial Intelligence (AI)", body: "Computer systems that perform tasks normally requiring human intelligence — reasoning, recognising patterns, understanding language, making decisions. In data science, AI is the broad goal; $ML$ is the main technique used to achieve it from data." }},
+    { callout: { t: "def", h: "Machine Learning (ML)", body: "A subset of AI in which systems **learn patterns from data** and improve their predictions with experience, *without being explicitly programmed* with rules. The model is trained on data, then applied to new, unseen inputs." }},
+
+    { page: "AI in data science" },
+    { h: "How AI is developed and used" },
+    "AI in data science is *developed* by training models on large datasets: data is collected and cleaned (the pipeline in 1.1), features are selected, a model is trained, validated and then deployed. It is *used* to automate analysis — classifying records, predicting outcomes, clustering customers, flagging anomalies (fraud), recommending content and powering natural-language tools.",
+    { table: { head: ["AI in data science", "Benefit", "Limitation"], rows: [
+      ["Automation of analysis", "Processes volumes no human team could, fast and consistently.", "Expensive to build; needs skilled data scientists."],
+      ["Pattern/anomaly detection", "Spots subtle correlations and fraud humans miss.", "Correlation isn't causation — can mislead."],
+      ["Prediction", "Enables proactive decisions (1.4).", "Only as good as training-data $Veracity$ — bias in → bias out."],
+      ["Decision support", "Consistent application of criteria at scale.", "\"Black box\" models are hard to explain (ethics — 4.2)."]
     ] } },
-    { h: "Key Algorithms" },
+
+    { page: "The three ML algorithms" },
+    { callout: { t: "def", h: "Decision Tree (supervised)", body: "A tree of yes/no questions that splits data step-by-step to reach a classification or prediction at a leaf. Purpose: classify or predict from labelled data. Characteristics: easy to read and explain (white-box); used for digital analysis like credit-approval rules or medical triage." }},
+    { callout: { t: "def", h: "Random Forest (supervised)", body: "An **ensemble** of many decision trees whose votes are combined for a final prediction. Purpose: more accurate, robust classification/prediction than one tree. Characteristics: reduces overfitting and the effect of any single noisy tree; used for fraud scoring, risk modelling, demand prediction." }},
+    { callout: { t: "def", h: "K-Means (unsupervised)", body: "Groups unlabelled data into **$k$ clusters** by similarity/distance to cluster centres. Purpose: discover natural groupings without known labels. Characteristics: needs $k$ chosen in advance; sensitive to starting points; used for customer segmentation, anomaly detection, market grouping." }},
+    { table: { head: ["Algorithm", "Type", "Benefit", "Limitation"], rows: [
+      ["Decision Tree", "Supervised", "Transparent, easy to explain and visualise.", "Overfits; small data changes can flip the tree."],
+      ["Random Forest", "Supervised", "High accuracy; resists overfitting and noise.", "Slower; a \"black box\" — harder to interpret than one tree."],
+      ["K-Means", "Unsupervised", "Finds hidden groups without labels; simple, fast.", "Must pre-set $k$; struggles with non-spherical clusters/outliers."]
+    ] } },
+    { callout: { t: "miscon", h: "Supervised vs unsupervised", body: "Decision Tree and Random Forest are **supervised** — trained on *labelled* data with known correct answers (classification/prediction). $K$-Means is **unsupervised** — it finds structure in *unlabelled* data (clustering). Don't call $K$-Means a classifier: it groups, it doesn't predict a known label." }},
+
+    { page: "How big data, ML and AI interact" },
+    "These three are nested and mutually reinforcing. **Big data** supplies the huge, varied training sets; **ML** learns patterns from that data; **AI** is the resulting intelligent behaviour applied to a task. More high-quality data → better-trained ML models → more capable AI — and the AI's outputs often generate *more* data, feeding the loop.",
     { steps: [
-      { h: "Decision Tree", m: "Supervised", n: "A tree-like model of decisions and their possible consequences." },
-      { h: "Random Forest", m: "Supervised", n: "An ensemble of many decision trees for better accuracy." },
-      { h: "K-Means", m: "Unsupervised", n: "Grouping data into $k$ clusters based on distance/similarity." }
+      { h: "1 · Big data supplies fuel", m: "High $Volume$ + $Variety$ training data is captured and cleaned.", n: "Without enough representative data, models underfit or inherit bias." },
+      { h: "2 · ML learns the patterns", m: "Algorithms (tree/forest/K-Means) train on that data to model relationships.", n: "More data generally → better pattern recognition, lower variance." },
+      { h: "3 · AI applies the model", m: "The trained model drives an intelligent task — recommend, detect, predict, classify.", n: "This is the user-facing 'AI' in data science." },
+      { h: "4 · Feedback loop", m: "AI outputs and user responses become new data.", n: "The cycle repeats, continually refining accuracy." }
     ] },
-    { callout: { t: "info", h: "Big Data Interaction", body: [
-      "Big data provides the massive training sets ($Volume$ and $Variety$) required for $ML$ models to become accurate."
-    ] } },
-    { callout: { t: "memorise", h: "ML Types + Key Algorithms", body: "Supervised ML: labelled training data with known correct outputs (Decision Tree, Random Forest — classification/regression). Unsupervised ML: no labels, algorithm finds patterns (K-Means = clustering). Big data provides the large training sets ML needs — more data → better pattern recognition → lower prediction bias." }},
-    { callout: { t: "miscon", h: "ML Doesn't Understand Data Like Humans", body: "ML finds statistical correlations in training data — it does NOT understand context or meaning. If training data is biased or unrepresentative, the model reproduces those biases in its predictions without any awareness of doing so. This is the root cause of algorithmic bias." }}
+    { callout: { t: "memorise", h: "AI / ML / algorithms", body: "**AI** = machines doing intelligent tasks (the goal). **ML** = subset that *learns from data* (the method). **Algorithms** — **Decision Tree** (one explainable tree, supervised), **Random Forest** (ensemble of trees, more accurate, supervised), **K-Means** (clusters unlabelled data into $k$ groups, unsupervised). **Interaction:** big data → trains ML → powers AI → generates more data." }},
+
+    { page: "Exam technique" },
+    { callout: { t: "tip", h: "\"How interact\" questions", body: "Score them by writing the *chain*: big data is the **fuel**, ML is the **engine** that learns from it, AI is the **vehicle** that acts on the learning, and outputs feed back as new data. Name the role of each — a list of definitions alone won't reach the top band." }},
+    { callout: { t: "warn", h: "Veracity caveat", body: "When stating an AI/ML benefit, pair it with the data-quality limitation: ML only finds *statistical correlations*; biased or unrepresentative training data reproduces that bias unknowingly (root of algorithmic bias — see 4.2)." }}
   ],
   flashcards: [
-    ["Is $K-Means$ supervised?", "No, it is unsupervised (Clustering)."],
-    ["What is a Random Forest?", "An ensemble of multiple decision trees."],
-    ["Why does $ML$ need big data?", "To recognise patterns and reduce prediction errors through large training sets."],
-    ["Supervised vs Unsupervised ML?", "Supervised uses labelled training data (known correct answers). Unsupervised finds patterns in unlabelled data."],
-    ["What is Reinforcement Learning?", "A type of ML where an agent learns by receiving rewards/penalties for actions in an environment."]
+    ["Define AI and how ML relates to it.", "AI = machines performing tasks needing human-like intelligence. ML = a *subset* of AI that learns patterns from data without being explicitly programmed."],
+    ["Name the three ML algorithms in the spec and their type.", "Decision Tree (supervised), Random Forest (supervised), $K$-Means (unsupervised)."],
+    ["What is a Decision Tree and a key benefit/limitation?", "A tree of yes/no splits classifying data. Benefit: transparent/easy to explain. Limitation: overfits; unstable to small data changes."],
+    ["What is a Random Forest and why is it more accurate than one tree?", "An ensemble of many decision trees whose votes combine — averaging out individual trees' errors/noise, reducing overfitting."],
+    ["What does $K$-Means do and what must be set in advance?", "Groups unlabelled data into clusters by similarity; the number of clusters $k$ must be chosen beforehand."],
+    ["Is $K$-Means supervised? Why/why not?", "No — unsupervised. It works on *unlabelled* data, finding natural groupings rather than predicting a known label."],
+    ["How do big data, ML and AI interact?", "Big data fuels training → ML learns the patterns → AI applies them to a task → outputs become new data, refining the model (a loop)."],
+    ["Give one benefit and one limitation of using AI in data science.", "Benefit: automates analysis of volumes no human could handle. Limitation: only as good as training-data veracity — bias in, bias out / black-box opacity."],
+    ["Why does ML accuracy generally improve with more data?", "Larger, representative datasets expose more patterns and reduce the chance of learning from a skewed sample (lower bias/variance)."],
+    ["For what digital analysis is Random Forest well suited?", "Fraud scoring, credit-risk modelling and demand prediction — where accuracy matters more than full transparency."]
   ],
   quiz: [
     {
-      q: "Which algorithm is used for clustering?",
-      opts: ["Decision Tree", "Random Forest", "$K-Means$", "Regression"],
+      q: "Which algorithm groups unlabelled data into $k$ clusters by similarity?",
+      opts: ["Decision Tree", "Random Forest", "$K$-Means", "Linear regression"],
       ans: 2,
-      why: "$K-Means$ is the standard unsupervised clustering algorithm."
+      why: "$K$-Means is the unsupervised clustering algorithm; it needs $k$ set in advance."
     },
     {
-      q: "A spam filter is trained on thousands of emails labelled 'spam' or 'not spam'. Which type of ML is this?",
-      opts: ["Unsupervised", "Reinforcement", "Supervised", "Generative"],
-      ans: 2,
-      why: "Supervised learning uses labelled training data — the algorithm learns from known classifications."
-    },
-    {
-      q: "Why does $ML$ accuracy improve with more training data?",
-      opts: ["More data makes algorithms faster", "Larger datasets expose more patterns, reducing bias in the model", "Models store all data in memory", "Big data removes the need for cleaning"],
+      q: "A spam filter is trained on thousands of emails each labelled 'spam' or 'not spam'. This is an example of:",
+      opts: ["Unsupervised learning", "Supervised learning", "Clustering", "Data wrangling"],
       ans: 1,
-      why: "More data improves pattern recognition and reduces the risk of the model learning from a skewed sample."
+      why: "Labelled training data with known correct answers makes it supervised learning."
+    },
+    {
+      q: "Why is a Random Forest usually more accurate than a single decision tree?",
+      opts: [
+        "It uses unlabelled data",
+        "It combines many trees' votes, averaging out individual errors and reducing overfitting",
+        "It never needs training data",
+        "It always produces a simpler model"
+      ],
+      ans: 1,
+      why: "Ensembling many trees cancels out the noise/overfitting of any single tree."
+    },
+    {
+      q: "Which best describes how big data, ML and AI interact?",
+      opts: [
+        "They are three unrelated technologies",
+        "Big data fuels ML training, ML powers AI behaviour, and AI outputs create more data",
+        "AI replaces the need for big data",
+        "ML stores the data that AI deletes"
+      ],
+      ans: 1,
+      why: "Big data → trains ML → powers AI → generates new data, a reinforcing loop."
+    },
+    {
+      q: "A key limitation of a single Decision Tree is that it:",
+      opts: [
+        "Cannot be explained to humans",
+        "Tends to overfit and is unstable to small changes in the data",
+        "Only works on unlabelled data",
+        "Requires an ensemble to make any prediction"
+      ],
+      ans: 1,
+      why: "Single trees overfit and can change drastically with minor data changes — Random Forest mitigates this."
+    },
+    {
+      q: "Why must AI/ML benefits always be qualified by data quality?",
+      opts: [
+        "Because models understand context like humans",
+        "Because ML learns statistical correlations, so biased training data produces biased predictions",
+        "Because more data always slows the model",
+        "Because AI cannot use structured data"
+      ],
+      ans: 1,
+      why: "ML has no understanding of meaning; unrepresentative data is reproduced as algorithmic bias."
     }
   ],
   exam: [
     {
-      q: "Describe how $AI$ and Big Data interact in the field of autonomous vehicles.",
+      q: "Describe the purpose and one characteristic of each of the three machine learning algorithms named in the specification.",
+      marks: 6,
+      ms: [
+        "Decision Tree — purpose: classify/predict from labelled data (1); characteristic: transparent tree of yes/no splits, easy to explain (1).",
+        "Random Forest — purpose: more accurate classification/prediction (1); characteristic: ensemble of many trees, resists overfitting (1).",
+        "K-Means — purpose: cluster unlabelled data into groups (1); characteristic: unsupervised, requires $k$ set in advance (1)."
+      ]
+    },
+    {
+      q: "Explain how big data, machine learning and artificial intelligence interact in data science.",
       marks: 4,
       ms: [
-        "Vehicles capture massive volumes of sensor/image data (Big Data) (1).",
-        "This data is used to train $ML$ models to recognise obstacles/signs (1).",
-        "The $AI$ makes real-time decisions (braking/steering) based on processed data (1).",
-        "Continuous feedback loop improves the algorithm over time (Reinforcement Learning) (1)."
+        "Big data provides the large, varied training datasets (1).",
+        "ML algorithms learn patterns/relationships from that data (1).",
+        "AI applies the trained model to perform an intelligent task (predict/recommend/detect) (1).",
+        "Outputs and user responses generate new data, refining the model in a feedback loop (1)."
+      ]
+    },
+    {
+      q: "A bank wants to use machine learning on its big data to detect fraudulent transactions. Evaluate the use of AI/ML for this purpose, referring to suitable algorithms.",
+      marks: 9,
+      ms: [
+        "Big data supplies millions of labelled past transactions to train on (1).",
+        "Random Forest suits fraud scoring — high accuracy, resists overfitting (1–2).",
+        "K-Means could flag anomalies as transactions far from normal clusters (1–2).",
+        "Benefit: detects subtle patterns in real time at a scale no human team could (1–2).",
+        "Limitation: biased training data causes false positives that block genuine customers (1–2).",
+        "Limitation: black-box models are hard to explain — ethics/GDPR Article 22 concerns (1).",
+        "Judgement: valuable if data quality and human oversight are maintained (1–2)."
       ]
     }
   ]
@@ -1195,71 +1578,165 @@ C["it:F201.3.1"] = {
 
 C["it:F201.4.1"] = {
   notes: [
-    { h: "Legal Issues in Big Data" },
-    { callout: { t: "info", h: "UK GDPR Principles", body: [
-      { steps: [
-        { h: "Lawfulness/Fairness", m: "Legal", n: "Processing must be transparent and legal." },
-        { h: "Purpose Limitation", m: "Intent", n: "Data only used for the specified reason." },
-        { h: "Data Minimisation", m: "Scope", n: "Only collect what is absolutely necessary." },
-        { h: "Accuracy", m: "Veracity", n: "Data must be correct and up to date." },
-        { h: "Storage Limitation", m: "Time", n: "Don't keep data longer than needed." },
-        { h: "Integrity/Security", m: "Safety", n: "Data must be protected against theft." },
-        { h: "Accountability", m: "Proof", n: "Organisations must prove they comply." }
-      ] }
-    ] } },
-    { callout: { t: "info", h: "Rights of Data Subjects", body: [
+    "The spec's legal focus is **UK GDPR** — its *features*, *principles*, *rights of data subjects* and *marketing consent*. You must know the *latest version* of the regulation, its *main purpose(s)*, *how to comply*, *why compliance matters*, the *impacts of non-compliance* on organisations, and how *organisational policies* mitigate against non-compliance. You do **not** need the detailed legal content of the regulation itself.",
+    { callout: { t: "def", h: "UK GDPR (latest version)", body: "The **UK General Data Protection Regulation**, the UK's data-protection law that came into force alongside the Data Protection Act 2018 and was retained/amended after Brexit (the current UK version). Its main purpose: to protect individuals' personal data and give them control over how organisations collect, store and use it. Enforced by the **Information Commissioner's Office ($ICO$)**." }},
+
+    { page: "Features & principles" },
+    { h: "Features" },
+    { callout: { t: "info", h: "Key features of UK GDPR", body: [
       { kv: [
-        ["Right to Access", "Subjects can see what data is held about them."],
-        ["Right to Erasure", "Also known as the 'right to be forgotten'."],
-        ["Marketing Consent", "Users must 'opt-in' for their data to be used for ads."]
+        ["Scope", "Applies to any **personal data** — information that can identify a living person — held digitally *or* in a structured paper system."],
+        ["Controllers & processors", "Defines responsibilities for the organisation that decides *why/how* data is processed (controller) and any third party processing on its behalf."],
+        ["Lawful basis", "Processing needs a lawful basis (e.g. consent, contract, legal obligation, legitimate interest)."],
+        ["Breach notification", "Serious breaches must be reported to the $ICO$ within 72 hours."],
+        ["Enforcement", "The $ICO$ can audit, order changes and issue fines."]
       ] }
     ] } },
-    { callout: { t: "tip", h: "ICO", body: [
-      "The Information Commissioner's Office ($ICO$) is the UK body that enforces these laws."
+    { h: "The seven principles" },
+    { steps: [
+      { h: "1 · Lawfulness, fairness & transparency", m: "Process data legally and openly.", n: "Tell people what you do with their data." },
+      { h: "2 · Purpose limitation", m: "Only use data for the specified purpose.", n: "Can't repurpose delivery data for ad-selling." },
+      { h: "3 · Data minimisation", m: "Collect only what is necessary.", n: "Don't hoard fields you don't need." },
+      { h: "4 · Accuracy", m: "Keep data correct and up to date.", n: "Links to $Veracity$ — fix/erase errors." },
+      { h: "5 · Storage limitation", m: "Don't keep data longer than needed.", n: "Delete records once their purpose ends." },
+      { h: "6 · Integrity & confidentiality (security)", m: "Protect data from theft/loss.", n: "Encryption, access control, backups." },
+      { h: "7 · Accountability", m: "Be able to *prove* you comply.", n: "Records, policies, a $DPO$ where required." }
+    ] },
+    { callout: { t: "memorise", h: "7 principles — LP-DA-SIA", body: "**L**awful/fair/transparent · **P**urpose limitation · **D**ata minimisation · **A**ccuracy · **S**torage limitation · **I**ntegrity & security · **A**ccountability. Hook: *Lawful Purpose, Data Accurate, Stored Securely, I'm Accountable.*" }},
+
+    { page: "Rights & consent" },
+    { callout: { t: "info", h: "Rights of data subjects", body: [
+      { kv: [
+        ["Right to be informed", "Know what data is collected and why."],
+        ["Right of access", "See the data held about you (a Subject Access Request)."],
+        ["Right to rectification", "Have inaccurate data corrected."],
+        ["Right to erasure", "The 'right to be forgotten' — have data deleted."],
+        ["Right to restrict processing", "Limit how data is used."],
+        ["Right to data portability", "Receive/transfer your data in a usable format."],
+        ["Right to object", "Object to processing, including direct marketing."],
+        ["Rights re automated decisions", "Not be subject to solely automated decisions with significant effect (links to 4.2)."]
+      ] }
     ] } },
-    { callout: { t: "memorise", h: "7 GDPR Principles — Mnemonic: LP-DA-SIA", body:
-      "**L**awful — processing must be legal and transparent. **P**urpose Limitation — only use data for the stated reason. **D**ata Minimisation — collect only what is necessary. **A**ccuracy — data must be correct and up to date. **S**torage Limitation — delete data when no longer needed. **I**ntegrity/Security — protect data from theft/loss. **A**ccountability — prove you comply. Hook: **LP-DA-SIA** (Lawful Purpose, Data Accurate, Stored Securely, I'm Accountable)."
-    } },
-    { callout: { t: "miscon", h: "GDPR Is Only About Digital Data", body:
-      "UK GDPR applies to **any** personally identifiable information held in a structured way — including paper filing systems and physical records. A filing cabinet of patient names and addresses must comply just as a $SQL$ database must."
-    } }
+    { callout: { t: "def", h: "Marketing consent", body: "Using personal data for marketing requires **freely given, specific, informed, unambiguous opt-in** consent — a positive action (ticking a box), never pre-ticked boxes or assumed consent. Individuals can withdraw consent at any time as easily as they gave it." }},
+    { callout: { t: "miscon", h: "GDPR isn't only digital, and consent isn't the only basis", body: "Two common errors: (1) UK GDPR covers **structured paper records** too, not just databases — a filing cabinet of names/addresses must comply. (2) **Consent is one of six lawful bases**, not the only one; marketing specifically relies on opt-in consent, but other processing may use contract, legal obligation, etc." }},
+
+    { page: "Compliance & non-compliance" },
+    { h: "How to comply (and why)" },
+    { callout: { t: "info", h: "Compliance measures", body: [
+      { ul: [
+        "Identify a lawful basis for every processing activity; obtain valid opt-in consent for marketing.",
+        "Apply data minimisation and storage limits; delete data when its purpose ends.",
+        "Secure data — encryption, access controls, staff training, backups.",
+        "Honour data-subject rights promptly (access, erasure, rectification).",
+        "Keep records and appoint a Data Protection Officer ($DPO$) where required (accountability).",
+        "Report serious breaches to the $ICO$ within 72 hours."
+      ] }
+    ] } },
+    "Compliance matters because it protects individuals' privacy, **maintains customer trust**, avoids heavy penalties, and is a legal obligation. **Organisational policies** — a clear privacy/data-protection policy, staff training, access controls, retention schedules and breach-response plans — mitigate against non-compliance by making correct handling routine rather than ad hoc.",
+    { table: { head: ["Impact of non-compliance", "Detail"], rows: [
+      ["Financial", "Fines up to £17.5m or 4% of global annual turnover (higher tier); lower tier £8.7m/2%."],
+      ["Reputational", "Loss of customer trust and brand value after a publicised breach."],
+      ["Legal", "Compensation claims from affected data subjects; $ICO$ enforcement orders."],
+      ["Operational", "Forced deletion of unlawfully held datasets — losing analytical value; remediation costs."]
+    ] } },
+    { callout: { t: "memorise", h: "Non-compliance — 4 impacts", body: "**Financial** (up to £17.5m / 4% turnover) · **Reputational** (lost trust) · **Legal** (claims + $ICO$ orders) · **Operational** (forced data deletion + remediation). Mitigate with policies: lawful basis, minimisation, security, rights handling, training, breach plan." }},
+
+    { page: "Exam technique" },
+    { callout: { t: "tip", h: "Spot-the-breached-principle", body: "Scenario questions describe a misuse and ask which principle is broken: reselling delivery data → **purpose limitation**; keeping records for decades → **storage limitation**; a leaked unencrypted database → **integrity/security**; collecting needless fields → **data minimisation**; refusing a Subject Access Request → breaches the **right of access**." }},
+    { callout: { t: "warn", h: "Name the latest regulation correctly", body: "Say **UK GDPR** (with the Data Protection Act 2018), not just 'GDPR' or 'the EU GDPR' — the spec asks for the *latest UK* version. Quoting the £17.5m / 4% figure earns a precise mark in non-compliance questions." }}
   ],
   flashcards: [
-    ["What is the 'right to be forgotten'?", "The Right to Erasure under $GDPR$."],
-    ["Define Data Minimisation.", "Only collecting the minimum data needed for a task."],
-    ["Who enforces UK $GDPR$?", "The $ICO$ (Information Commissioner's Office)."],
-    ["Maximum fine for a serious UK GDPR breach?", "Up to £17.5 million or 4% of global annual turnover — whichever is higher."],
-    ["What are the two tiers of UK GDPR fines?", "Tier 1: up to £8.7m or 2% of turnover (less severe). Tier 2: up to £17.5m or 4% of turnover (most severe)."]
+    ["What is the latest UK data-protection regulation and who enforces it?", "UK GDPR (alongside the Data Protection Act 2018), enforced by the Information Commissioner's Office ($ICO$)."],
+    ["State the main purpose of UK GDPR.", "To protect individuals' personal data and give them control over how organisations collect, store and use it."],
+    ["List the seven GDPR principles (LP-DA-SIA).", "Lawfulness/fairness/transparency, purpose limitation, data minimisation, accuracy, storage limitation, integrity & security, accountability."],
+    ["What is the 'right to be forgotten'?", "The right to erasure — having personal data deleted when there's no lawful reason to keep it."],
+    ["What does valid marketing consent require?", "Freely given, specific, informed, unambiguous **opt-in** (a positive action) — no pre-ticked boxes; withdrawable any time."],
+    ["Does UK GDPR apply to paper records?", "Yes — to any personal data in a structured filing system, not just digital data."],
+    ["Give three ways an organisation complies with UK GDPR.", "Lawful basis + opt-in consent; data minimisation and retention limits; security (encryption/access control); honouring data-subject rights; breach reporting within 72h."],
+    ["State the maximum UK GDPR fine.", "Up to £17.5 million or 4% of global annual turnover, whichever is higher (higher tier)."],
+    ["Name the four impacts of non-compliance.", "Financial (fines), reputational (lost trust), legal (claims/$ICO$ orders), operational (forced data deletion + remediation)."],
+    ["How do organisational policies mitigate non-compliance?", "Privacy policy, staff training, access controls, retention schedules and breach-response plans make correct handling routine rather than ad hoc."]
   ],
   quiz: [
     {
-      q: "Which principle is breached if a delivery app sells your address to a gym without consent?",
-      opts: ["Accuracy", "Purpose Limitation", "Storage Limitation", "Security"],
+      q: "A delivery app sells customers' addresses to a gym without consent. Which principle is breached?",
+      opts: ["Accuracy", "Purpose limitation", "Storage limitation", "Accountability"],
       ans: 1,
-      why: "The data is being used for a different purpose than delivery."
+      why: "The data is reused for a purpose other than the one it was collected for."
     },
     {
-      q: "A hospital keeps patient records from 20 years ago that are no longer required. Which GDPR principle is breached?",
-      opts: ["Accuracy", "Data Minimisation", "Storage Limitation", "Accountability"],
+      q: "A hospital keeps patient records from 20 years ago that are no longer needed. Which principle is breached?",
+      opts: ["Accuracy", "Data minimisation", "Storage limitation", "Security"],
       ans: 2,
-      why: "Storage Limitation requires organisations to delete personal data once it is no longer needed."
+      why: "Storage limitation requires deletion once the data's purpose has ended."
     },
     {
-      q: "An individual asks a company to show them all data held about them. Which right is this?",
-      opts: ["Right to Erasure", "Right to Access", "Right to Portability", "Right to Rectification"],
+      q: "Which is a valid form of marketing consent under UK GDPR?",
+      opts: [
+        "A pre-ticked opt-in box",
+        "Assumed consent from a purchase",
+        "A box the user actively ticks to opt in",
+        "Consent buried in unread terms"
+      ],
+      ans: 2,
+      why: "Consent must be a freely given, unambiguous positive opt-in action."
+    },
+    {
+      q: "What is the higher-tier maximum fine for a serious UK GDPR breach?",
+      opts: [
+        "£8.7m or 2% of turnover",
+        "£17.5m or 4% of global annual turnover",
+        "£500,000 fixed",
+        "£1m or 10% of turnover"
+      ],
       ans: 1,
-      why: "The Right to Access (Subject Access Request) lets individuals see exactly what data a company holds about them."
+      why: "The higher tier is up to £17.5m or 4% of global annual turnover, whichever is greater."
+    },
+    {
+      q: "Which measure best demonstrates the 'accountability' principle?",
+      opts: [
+        "Encrypting the database",
+        "Keeping records/policies that prove compliance and appointing a $DPO$ where required",
+        "Collecting more data for analysis",
+        "Marketing only to opted-in users"
+      ],
+      ans: 1,
+      why: "Accountability is about being able to *demonstrate* compliance through records, policies and oversight."
     }
   ],
   exam: [
     {
-      q: "Discuss the impact of non-compliance with UK $GDPR$ on a big data company.",
+      q: "State four of the seven principles of UK GDPR.",
       marks: 4,
       ms: [
-        "Financial: Fines of up to £17.5m or 4% of global turnover (1).",
-        "Reputational: Loss of customer trust and brand value (1).",
-        "Legal: Lawsuits from data subjects (1).",
-        "Operational: Forced deletion of illegal datasets, losing insights (1)."
+        "Lawfulness, fairness and transparency (1).",
+        "Purpose limitation (1).",
+        "Data minimisation (1).",
+        "Accuracy / storage limitation / integrity & security / accountability (1 each, max remaining)."
+      ]
+    },
+    {
+      q: "Explain how an organisation can comply with UK GDPR and why compliance is important.",
+      marks: 6,
+      ms: [
+        "Establish a lawful basis and obtain opt-in consent for marketing (1).",
+        "Apply data minimisation and delete data when no longer needed (1).",
+        "Secure data with encryption/access controls and honour data-subject rights (1).",
+        "Keep records/appoint a DPO to demonstrate accountability; report breaches within 72h (1).",
+        "Important: protects individuals' privacy and maintains customer trust (1).",
+        "Important: avoids heavy fines and legal action — it is a legal obligation (1)."
+      ]
+    },
+    {
+      q: "Discuss the impacts of non-compliance with UK GDPR on a big data organisation, and how organisational policies can reduce the risk.",
+      marks: 9,
+      ms: [
+        "Financial: fines up to £17.5m or 4% of global turnover (1–2).",
+        "Reputational: loss of customer trust and brand damage after a publicised breach (1–2).",
+        "Legal: compensation claims from data subjects and $ICO$ enforcement orders (1–2).",
+        "Operational: forced deletion of unlawful datasets, losing analytical value; remediation cost (1–2).",
+        "Mitigation: clear privacy policy, staff training, access controls, retention schedules, breach-response plan (1–2).",
+        "Judgement: proactive policies make compliance routine and far cheaper than the cost of a breach (1–2)."
       ]
     }
   ]
@@ -1267,76 +1744,138 @@ C["it:F201.4.1"] = {
 
 C["it:F201.4.2"] = {
   notes: [
-    { h: "Ethical Issues" },
-    { callout: { t: "info", h: "Key Ethical Debates", body: [
+    "Beyond the *legal* minimum of UK GDPR (4.1), the spec covers the *ethical* use of data: **automated decision making**; the **collection, storage, ownership and sharing** of data; **emerging ethical debates**; and **frameworks for ethical data management** — the **Data Ethics Framework** and **Inclusive Data Principles**. For each you must explain the *risks/impacts on individuals* and *how organisations respond*.",
+    { callout: { t: "tip", h: "Legal vs ethical", body: "Something can be **legal but unethical**. UK GDPR sets the legal floor; ethics asks whether a practice is *fair, transparent and respectful* even where the law allows it. Top answers reference both — e.g. an automated decision may be GDPR-compliant yet still discriminatory." }},
+
+    { page: "Automated decision making" },
+    { callout: { t: "def", h: "Automated decision making (ADM)", body: "Making a decision about a person **solely by automated means** — an algorithm with no meaningful human involvement (e.g. auto-approving a loan, screening a CV, setting an insurance premium)." }},
+    "ADM creates risks of **discrimination and bias**: if the training data reflects historical prejudice, the model reproduces it — at scale and invisibly. It also reduces *transparency* (people can't tell why they were rejected — the 'black box') and *empathy* (no human judgement of special circumstances).",
+    { callout: { t: "warn", h: "How UK GDPR applies to ADM", body: "Individuals have the **right not to be subject to a solely automated decision** that has a legal or similarly significant effect. Organisations must offer human oversight, an explanation, and a route to **contest** the decision. ADM on special-category data needs extra safeguards." }},
+    { table: { head: ["Impact on individuals", "Example"], rows: [
+      ["Discrimination/bias", "A loan-scoring model trained on biased history rejects certain groups."],
+      ["Lack of transparency", "An applicant can't find out why a job application was auto-rejected."],
+      ["Loss of appeal/empathy", "Automated benefit denial with no human to review the circumstances."]
+    ] } },
+
+    { page: "Collection, storage, ownership & sharing" },
+    { callout: { t: "info", h: "The four data-handling concerns", body: [
       { kv: [
-        ["Automated Decision Making", "Risks of lack of transparency and human empathy."],
-        ["Algorithmic Bias", "Models reflecting prejudices in their training data (e.g., gender bias)."],
-        ["Data Ownership", "Debate over whether users or companies own the 'value' of data."],
-        ["Data Sharing", "Ethics of selling 'anonymous' data that could be re-identified."],
-        ["Protecting Identity", "The difficulty of maintaining privacy in massive datasets."]
+        ["Collection", "Is consent informed? Are people aware how much is gathered? Protecting identity at the point of capture."],
+        ["Storage", "Keeping data secure and only as long as needed; anonymisation/pseudonymisation to protect identity."],
+        ["Ownership", "Who owns the value — individuals *create* it through behaviour, but organisations *profit* by analysing it. UK GDPR gives individuals rights (access, erasure, portability) even where the company holds it."],
+        ["Sharing", "Selling/sharing datasets risks re-identification; third parties may use data in ways the subject never agreed to."]
       ] }
     ] } },
-    { h: "Automated Decision Making and UK GDPR" },
-    { callout: { t: "warn", h: "UK GDPR — Automated Decisions", body: [
-      "Article 22 of UK GDPR gives individuals the **right not to be subject to solely automated decisions** that produce a significant legal or similarly significant effect. Organisations must provide human oversight or the ability to contest the decision."
-    ] } },
-    { table: { head: ["Impact on Individuals", "Example"], rows: [
-      ["Discrimination risk", "Loan refusal algorithm trained on biased historical data."],
-      ["Lack of transparency", "Cannot explain why a job application was auto-rejected."],
-      ["Erosion of appeal rights", "Automated benefit denials with no human review process."]
-    ] } },
-    { h: "Data Ownership and Sharing" },
-    { callout: { t: "info", h: "The Ownership Debate", body: [
-      { kv: [
-        ["Who Creates?", "Individuals — through their online behaviour, purchases, and location data."],
-        ["Who Profits?", "Organisations — who mine, package, and sell the analysed data."],
-        ["Who Controls?", "Under UK GDPR — individuals have Rights of Access, Erasure, and Portability."]
+    { callout: { t: "miscon", h: "'Anonymised' ≠ safe to share freely", body: "Supposedly anonymous datasets can be **re-identified** by cross-referencing other public data — e.g. anonymous medical records + a public dataset can reveal individuals. This is why protecting identity is hard at big-data scale and why GDPR can still apply to 'anonymised' data sharing." }},
+    "**How organisations respond:** clear consent and privacy notices, pseudonymisation/anonymisation, strict access controls and retention limits, data-sharing agreements, and honouring data-subject rights — turning the ethical concerns into operational policy.",
+
+    { page: "Emerging debates & frameworks" },
+    { callout: { t: "info", h: "Emerging ethical debates", body: [
+      { ul: [
+        "**Surveillance & profiling** — pervasive tracking (smart cities, social media) erodes privacy and can chill behaviour.",
+        "**AI bias & fairness** — who is accountable when an algorithm discriminates?",
+        "**Consent fatigue** — endless cookie/consent prompts mean consent is rarely truly informed.",
+        "**Data and power** — a few large organisations control vast datasets, raising competition and democratic concerns.",
+        "**Re-identification & genetic data** — increasingly sensitive data types create new risks."
       ] }
     ] } },
-    { h: "Ethical Frameworks" },
-    { steps: [
-      { h: "Data Ethics Framework", m: "UK Gov", n: "A government guide for using data in a transparent, accountable, and public-focused way — covering transparency, participation, and accountability." },
-      { h: "Inclusive Data Principles", m: "Fairness", n: "Ensuring all population groups are represented in datasets — guarding against the underrepresentation that leads to biased models." }
-    ] },
-    { callout: { t: "memorise", h: "5 Ethical Issues — Quick Reference", body:
-      "**Automated Decision Making** — lack of human empathy/transparency (Article 22 gives right to human review). **Algorithmic Bias** — model prejudices inherited from biased training data. **Data Ownership** — users create it, companies profit — GDPR gives rights of Access, Erasure, Portability. **Data Sharing** — 'anonymous' data can be re-identified by combining datasets. **Protecting Identity** — very hard to maintain privacy in massive datasets. Exam tip: always link each issue to a specific impact on an individual."
-    } },
-    { callout: { t: "miscon", h: "Anonymised Data Is Completely Private", body:
-      "Students assume anonymisation makes data safe to share freely. In reality, supposedly anonymous datasets can be **re-identified** by cross-referencing with other publicly available data — e.g. combining anonymous medical records with a public census can reveal individual patients. This is why UK GDPR still applies to the sharing of datasets even after personal identifiers are removed."
-    } }
+    { callout: { t: "def", h: "Data Ethics Framework", body: "A UK government framework guiding the responsible use of data in the public sector — built around **transparency, accountability and fairness** (and public benefit). Organisations use it as a checklist to assess a data project's ethics, not just its legality." }},
+    { callout: { t: "def", h: "Inclusive Data Principles", body: "Principles ensuring datasets **represent all population groups** so analysis doesn't overlook or disadvantage under-represented people. They guard against the unrepresentative data that causes algorithmic bias — making fairness a design goal from the start." }},
+    "**How organisations use frameworks:** adopt them as policy, run ethics/impact assessments on data projects, build diverse and representative datasets, document decisions, and assign accountability — moving from reactive compliance to proactive responsible-data practice.",
+    { callout: { t: "memorise", h: "4.2 in one screen", body: "**ADM** — risk of bias/opacity; GDPR gives the right to human review/contest. **Collection/storage/ownership/sharing** — consent, security, who owns the value, re-identification risk. **Emerging debates** — surveillance, AI fairness, consent fatigue, data power. **Frameworks** — *Data Ethics Framework* (transparency/accountability/fairness) and *Inclusive Data Principles* (representation, anti-bias)." }},
+
+    { page: "Exam technique" },
+    { callout: { t: "tip", h: "Always reach the individual", body: "Ethics questions reward linking each issue to a concrete **impact on a person** — \"biased model → a qualified applicant is wrongly refused a mortgage.\" Then state the organisational response (human oversight, inclusive data, an ethics framework). Issue → impact → response is the full-mark shape." }},
+    { callout: { t: "warn", h: "Don't just re-state GDPR", body: "4.2 is *ethics*, not a repeat of 4.1's legal rules. Mention GDPR where relevant (especially ADM), but the marks here are for fairness, bias, transparency, ownership and the two named frameworks." }}
   ],
   flashcards: [
-    ["What is algorithmic bias?", "Unfair outcomes caused by prejudiced or unrepresentative training data."],
-    ["Ethical risk of data sharing?", "Erosion of privacy and potential for re-identification from 'anonymous' data."],
-    ["Why is ownership a big data issue?", "Users create the data but companies profit — UK GDPR gives individuals rights to access and erasure."],
-    ["GDPR rule on automated decisions?", "Article 22: individuals have the right not to be subject to solely automated decisions with significant effects."]
+    ["What is automated decision making (ADM)?", "Making a decision about a person solely by automated means, with no meaningful human involvement."],
+    ["What right does UK GDPR give over significant automated decisions?", "The right not to be subject to a solely automated decision with significant effect — requiring human oversight and a route to contest it."],
+    ["What is algorithmic bias and its cause?", "Unfair, discriminatory outputs caused by biased or unrepresentative training data being reproduced by the model at scale."],
+    ["Why is data ownership an ethical issue?", "Individuals create the data through their behaviour, but organisations profit from analysing it; GDPR gives individuals rights (access, erasure, portability) despite the company holding it."],
+    ["Why can 'anonymised' data still be a privacy risk?", "It can be re-identified by cross-referencing with other public datasets, revealing individuals."],
+    ["Name two emerging ethical debates around data.", "Pervasive surveillance/profiling, AI bias & accountability, consent fatigue, or concentration of data power (any two)."],
+    ["What is the Data Ethics Framework?", "A UK government framework for responsible data use built on transparency, accountability and fairness — used to assess a project's ethics, not just legality."],
+    ["What are the Inclusive Data Principles?", "Principles ensuring datasets represent all population groups, guarding against the unrepresentative data that causes algorithmic bias."],
+    ["How do organisations respond to ownership/sharing concerns?", "Clear consent notices, pseudonymisation/anonymisation, access controls, retention limits, data-sharing agreements and honouring data-subject rights."],
+    ["Legal vs ethical — what's the distinction?", "GDPR sets the legal floor; ethics asks whether a practice is fair/transparent/respectful even where the law permits it (legal can still be unethical)."]
   ],
   quiz: [
     {
-      q: "Which issue refers to $AI$ inheriting human prejudices?",
-      opts: ["Data Ownership", "Algorithmic Bias", "Automated Decisions", "GDPR"],
+      q: "Which term describes $AI$ reproducing human prejudice from its training data?",
+      opts: ["Data portability", "Algorithmic bias", "Data minimisation", "Pseudonymisation"],
       ans: 1,
-      why: "Bias occurs when the training data is not representative or reflects historical discrimination."
+      why: "Bias arises when training data is unrepresentative or reflects historical discrimination."
     },
     {
-      q: "Under UK GDPR, which right protects individuals from solely automated job rejections?",
-      opts: ["Right to Erasure", "Right to Rectification", "Right not to be subject to automated decisions", "Right to Access"],
-      ans: 2,
-      why: "Article 22 gives individuals the right to human review of significant automated decisions."
+      q: "Under UK GDPR, what must an organisation provide for significant solely-automated decisions?",
+      opts: [
+        "Nothing — they are exempt",
+        "Human oversight and a way to contest the decision",
+        "A faster algorithm",
+        "More training data only"
+      ],
+      ans: 1,
+      why: "Individuals can require human review and the ability to challenge the outcome."
+    },
+    {
+      q: "Why is sharing an 'anonymised' dataset still ethically risky?",
+      opts: [
+        "It is always illegal",
+        "It can be re-identified by combining it with other public data",
+        "Anonymised data cannot be analysed",
+        "It removes the need for consent forever"
+      ],
+      ans: 1,
+      why: "Re-identification through cross-referencing defeats naive anonymisation."
+    },
+    {
+      q: "Which framework specifically targets representation to reduce bias?",
+      opts: ["Data Ethics Framework", "Inclusive Data Principles", "UK GDPR Article 5", "ISO 9001"],
+      ans: 1,
+      why: "The Inclusive Data Principles ensure all population groups are represented in datasets."
+    },
+    {
+      q: "Which is the best example of a practice that is legal under GDPR but may still be unethical?",
+      opts: [
+        "Deleting data when its purpose ends",
+        "A consent-based but opaque automated scoring system that disadvantages a group",
+        "Encrypting stored personal data",
+        "Reporting a breach within 72 hours"
+      ],
+      ans: 1,
+      why: "It can satisfy a lawful basis yet be unfair/discriminatory and untransparent — an ethics failing."
     }
   ],
   exam: [
     {
-      q: "Discuss the ethical implications of a bank using an automated decision-making system to approve or reject loan applications.",
-      marks: 6,
+      q: "Explain two ways automated decision making can negatively impact individuals.",
+      marks: 4,
       ms: [
-        "Risk of algorithmic bias: if the training data reflects historical lending discrimination, the model perpetuates it (1).",
-        "Lack of transparency: applicants may not understand why they were rejected ('black box' problem) (1).",
-        "UK GDPR Article 22: individuals have the right to human review of significant automated decisions (1).",
-        "Data ownership issue: personal financial data used to train the model — did users consent? (1).",
-        "Benefit: faster decisions, consistent application of criteria (1).",
-        "Conclusion: must have human oversight and an appeal process to be ethically compliant (1)."
+        "Discrimination/bias — a model trained on biased data unfairly rejects certain groups (1) at scale and invisibly (1).",
+        "Lack of transparency — individuals can't find out why they were rejected ('black box') (1) and have no clear route to appeal (1).",
+        "(Accept loss of human empathy/judgement of special circumstances.)"
+      ]
+    },
+    {
+      q: "Describe how the Data Ethics Framework and the Inclusive Data Principles help an organisation manage data ethically.",
+      marks: 4,
+      ms: [
+        "Data Ethics Framework — guides responsible use via transparency, accountability and fairness (1); used to assess a project's ethics, not just legality (1).",
+        "Inclusive Data Principles — ensure datasets represent all population groups (1); reducing the unrepresentative data that causes algorithmic bias (1)."
+      ]
+    },
+    {
+      q: "A bank uses an automated decision-making system to approve or reject loan applications. Discuss the ethical implications and how the bank should respond.",
+      marks: 9,
+      ms: [
+        "Algorithmic bias — biased historical lending data perpetuates discrimination against groups (1–2).",
+        "Transparency — applicants can't understand a black-box rejection (1).",
+        "GDPR/ADM — individuals have the right to human review and to contest the decision (1–2).",
+        "Ownership/consent — personal financial data used to train the model; was consent informed? (1).",
+        "Benefit side — faster, consistent decisions free of individual human prejudice (1).",
+        "Response — human oversight, an appeal process, inclusive/representative data, an ethics framework (1–2).",
+        "Judgement: acceptable only with oversight, explainability and bias testing (1)."
       ]
     }
   ]
@@ -1344,65 +1883,124 @@ C["it:F201.4.2"] = {
 
 C["it:F201.5.1"] = {
   notes: [
-    { h: "Big Data and the Environment" },
-    { callout: { t: "info", h: "Environmental Impacts", body: [
+    "This leaf is about big data and the **environment**. The spec lists six areas: **accuracy of weather forecasting; natural disaster management; energy efficiency; environmental management; platforms to combat climate change; and emerging environmental developments** affected by big data. For each you must explain *how big data is used* and its *benefits and limitations*.",
+    { callout: { t: "tip", h: "The recurring trade-off", body: "Big data helps *understand and protect* the environment — but the data centres, sensors and satellites that power it **consume energy and produce e-waste**. Nearly every full-mark answer here ends by weighing the environmental *good* against this environmental *cost*." }},
+
+    { page: "The six environmental areas" },
+    { callout: { t: "info", h: "How big data is used in each", body: [
       { kv: [
-        ["Weather Forecasting", "Higher accuracy allows better preparation for extreme events."],
-        ["Natural Disaster Management", "Predicting floods and quakes saves lives and habitat."],
-        ["Energy Efficiency", "Smart grids use data to reduce electricity waste."],
-        ["Environmental Management", "Tracking deforestation and ice melt via satellites."],
-        ["Climate Change Platforms", "Global datasets used to combat rising temperatures."]
+        ["Accuracy of weather forecasting", "Huge volumes of satellite, sensor and historical data feed models that predict weather more accurately and further ahead."],
+        ["Natural disaster management", "Seismic, weather and satellite data power early-warning systems and post-event response (mapping damage, targeting rescue)."],
+        ["Energy efficiency", "Smart grids and smart meters use real-time data to match supply to demand and cut waste; analytics optimise building/industry energy use."],
+        ["Environmental management", "Satellite and sensor data track deforestation, ocean health, air quality and ice melt objectively at global scale."],
+        ["Platforms to combat climate change", "Shared global datasets and modelling platforms let scientists/governments collaborate on emissions and climate projections."],
+        ["Emerging environmental developments", "New uses — e.g. precision agriculture, carbon-tracking, biodiversity monitoring with AI/$IoT$ — continually expand what big data can do for the environment."]
       ] }
     ] } },
-    { callout: { t: "info", h: "The Downside", body: [
-      "Data centres consume massive amounts of energy for cooling and processing, and server upgrades produce significant e-waste."
-    ] } },
+
+    { page: "Benefits & limitations" },
     { table: { head: ["Area", "Benefit", "Limitation"], rows: [
-      ["Weather Forecasting", "Saves lives; reduces economic loss from extreme events.", "Models can still fail for unprecedented events."],
-      ["Natural Disaster Mgmt", "Early-warning systems give populations time to evacuate.", "False alarms erode public trust."],
-      ["Energy Efficiency", "Smart grids reduce carbon emissions and energy waste.", "Requires expensive sensor/network infrastructure."],
-      ["Environmental Mgmt", "Satellite tracking gives objective, global deforestation data.", "High energy cost of satellite operation."],
-      ["Climate Platforms", "Enables international collaboration on climate modelling.", "Data centres themselves produce significant $CO_2$."]
+      ["Weather forecasting", "More accurate, earlier warnings reduce loss of life/economic damage.", "Models can still fail for unprecedented events; needs costly compute."],
+      ["Natural disaster mgmt", "Early-warning systems give time to evacuate; faster targeted rescue.", "False alarms erode public trust; infrastructure may fail in the disaster."],
+      ["Energy efficiency", "Smart grids cut waste and emissions; lower bills.", "Expensive sensor/network rollout; cybersecurity of the grid."],
+      ["Environmental management", "Objective, global, continuous monitoring of ecosystems.", "High energy cost of satellites; data gaps from cloud cover."],
+      ["Climate platforms", "International collaboration accelerates climate science.", "The data centres themselves emit significant $CO_2$ and use water."],
+      ["Emerging developments", "Opens new frontiers (precision farming, carbon tracking).", "Unproven, costly, and may raise their own footprint."]
     ] } },
-    { callout: { t: "memorise", h: "Two Sides of Big Data and the Environment", body:
-      "**Benefits**: Weather forecasting (saves lives via early warnings). Natural disaster prediction (evacuation lead time). Energy efficiency via smart grids (reduces waste). Environmental monitoring via satellites (deforestation/ice melt). Climate change modelling (international collaboration). **Costs**: Data centres consume enormous electricity (majority still fossil-fuel powered). Server hardware upgrades produce e-waste. Satellite operation has ongoing energy and material costs."
-    } },
-    { callout: { t: "miscon", h: "Data Centres Run on Renewables So Big Data Is Green", body:
-      "While some tech companies ($Google$, $Microsoft$) have invested in renewable energy, the global majority of data centres still draw significant power from fossil fuel sources. Even renewable-powered centres use vast amounts of water for cooling and produce hardware e-waste at end of life."
-    } }
+    { callout: { t: "miscon", h: "Big data isn't automatically 'green'", body: "Some firms ($Google$, $Microsoft$) buy renewable energy, but the global majority of data centres still draw heavily on fossil fuels, use vast cooling water, and generate hardware **e-waste**. Big data is a *tool* for the environment whose own footprint must be managed — not an inherently clean technology." }},
+    { callout: { t: "memorise", h: "Environment — both sides", body: "**Helps:** accurate forecasting, disaster early-warning, smart-grid energy efficiency, satellite environmental monitoring, climate-modelling platforms, emerging green uses. **Costs:** data centres' electricity + cooling water + $CO_2$, sensor/satellite energy, and e-waste from hardware churn." }},
+
+    { page: "Exam technique" },
+    { callout: { t: "tip", h: "Use the named six", body: "Map your answer to the spec's six areas rather than vague 'big data helps the planet'. Name the data source (satellite/sensor/seismic), the use (forecast/early-warning/grid optimisation), then a benefit *and* a limitation." }},
+    { callout: { t: "warn", h: "Always include the footprint limitation", body: "An evaluation that praises big data's environmental benefits without acknowledging the energy/e-waste cost of the infrastructure is one-sided and capped. The footprint *is* the key limitation examiners look for." }}
   ],
   flashcards: [
-    ["How does big data help Energy Efficiency?", "Through Smart Grids that balance supply and demand in real-time."],
-    ["Environmental cost of big data?", "High electricity use for data centres and cooling; server upgrades produce e-waste."],
-    ["How can satellites help the environment?", "Monitoring deforestation, ocean health, and ice melt via real-time imagery."],
-    ["Limitation of big data for climate?", "Data centres themselves consume large amounts of energy and produce carbon emissions."],
-    ["Environmental paradox of big data?", "Big data helps combat climate change via modelling, yet data centres are themselves significant energy consumers and $CO_2$ producers."]
+    ["List the six environmental areas big data affects.", "Weather-forecast accuracy, natural disaster management, energy efficiency, environmental management, platforms to combat climate change, and emerging environmental developments."],
+    ["How does big data improve weather forecasting?", "Vast satellite/sensor/historical data feeds models that predict weather more accurately and further ahead."],
+    ["How is big data used in natural disaster management?", "Seismic/weather/satellite data powers early-warning systems and post-event response — mapping damage and targeting rescue."],
+    ["How do smart grids improve energy efficiency?", "They use real-time data to balance electricity supply and demand, cutting waste and emissions."],
+    ["How does big data support environmental management?", "Satellite/sensor data tracks deforestation, ocean health, air quality and ice melt objectively at global scale."],
+    ["What is the main environmental *cost* of big data?", "Data centres consume large amounts of electricity and cooling water and produce $CO_2$; hardware churn creates e-waste."],
+    ["Give a limitation of big-data disaster early-warning.", "False alarms erode public trust, and the data infrastructure itself may fail during the disaster."],
+    ["Why isn't big data automatically 'green'?", "Most data centres still rely heavily on fossil-fuel energy and water cooling, and generate e-waste — its footprint must be actively managed."],
+    ["Give an emerging environmental use of big data.", "Precision agriculture, carbon/emissions tracking, or AI/$IoT$ biodiversity monitoring."],
+    ["State the core environmental trade-off of big data.", "It helps understand and protect the environment, but the centres/sensors/satellites powering it consume energy and create e-waste."]
   ],
   quiz: [
     {
-      q: "Which technology uses big data to balance electricity supply and demand?",
-      opts: ["Data Lake", "Smart Grid", "Blockchain", "NoSQL"],
+      q: "Which technology uses big data to balance electricity supply and demand in real time?",
+      opts: ["Data lake", "Smart grid", "Blockchain", "$NoSQL$ database"],
       ans: 1,
-      why: "Smart grids use real-time sensor data to optimise electricity distribution."
+      why: "Smart grids use real-time sensor data to optimise electricity distribution and cut waste."
     },
     {
-      q: "A country builds five new data centres to store climate modelling data. What environmental trade-off arises?",
-      opts: ["Better weather forecasting", "Increased $CO_2$ emissions from power consumption", "Faster disaster warnings", "Cheaper satellite imagery"],
+      q: "A country builds five new data centres for climate modelling. What environmental trade-off arises?",
+      opts: ["Better forecasting", "Increased $CO_2$ from power consumption", "Faster rescue", "Cheaper satellites"],
       ans: 1,
-      why: "Data centres consume large amounts of electricity, often from non-renewable sources, producing significant carbon emissions."
+      why: "Data centres consume large amounts of (often non-renewable) electricity, producing significant emissions."
+    },
+    {
+      q: "Which is a genuine limitation of big-data natural-disaster early-warning systems?",
+      opts: [
+        "They cannot use satellite data",
+        "False alarms erode public trust and infrastructure may fail in the event",
+        "They make forecasting less accurate",
+        "They remove the need for any sensors"
+      ],
+      ans: 1,
+      why: "False positives undermine trust, and the data-collection infrastructure can be knocked out by the disaster."
+    },
+    {
+      q: "How does big data primarily support environmental management?",
+      opts: [
+        "By replacing all renewable energy",
+        "By using satellite/sensor data for objective global monitoring of ecosystems",
+        "By deleting climate records",
+        "By increasing deforestation"
+      ],
+      ans: 1,
+      why: "Satellite and sensor data give continuous, objective tracking of deforestation, oceans, air quality and ice."
+    },
+    {
+      q: "Why must an evaluation of big data and the environment mention its own footprint?",
+      opts: [
+        "Because big data has no environmental benefits",
+        "Because the energy, cooling water and e-waste of the infrastructure are the key limitation",
+        "Because data centres are always carbon-neutral",
+        "Because satellites use no energy"
+      ],
+      ans: 1,
+      why: "The infrastructure's energy/e-waste cost is the central limitation that balances the benefits."
     }
   ],
   exam: [
     {
-      q: "Evaluate the use of big data in managing natural disasters. Include both benefits and limitations.",
-      marks: 6,
+      q: "Describe two ways big data is used to benefit the environment.",
+      marks: 4,
       ms: [
-        "Benefit: Predictive models using weather and seismic data can give early warnings (1).",
-        "Benefit: Authorities can pre-position resources and evacuate populations ahead of time (1).",
-        "Benefit: Post-disaster, satellite imagery helps target rescue efforts efficiently (1).",
-        "Limitation: False alarms cause unnecessary evacuations — economic and social cost (1).",
-        "Limitation: Requires reliable infrastructure to collect and transmit data — may fail in the disaster itself (1).",
-        "Conclusion: The benefits of saving lives outweigh the limitations, but false alarm protocols must be managed (1)."
+        "Weather forecasting/disaster management — satellite & sensor data give earlier, more accurate warnings (1) so people can prepare/evacuate (1).",
+        "Energy efficiency — smart grids use real-time data to balance supply/demand (1), cutting waste and emissions (1).",
+        "(Accept environmental monitoring via satellites / climate-modelling platforms.)"
+      ]
+    },
+    {
+      q: "Explain one benefit and one limitation of using big data for energy efficiency.",
+      marks: 4,
+      ms: [
+        "Benefit: smart grids/meters match supply to demand, reducing waste and carbon emissions (1) and lowering bills (1).",
+        "Limitation: requires expensive sensor/network infrastructure (1) and introduces cybersecurity risk to critical energy systems (1)."
+      ]
+    },
+    {
+      q: "Evaluate the use of big data in managing natural disasters, considering both its benefits and its environmental and practical limitations.",
+      marks: 9,
+      ms: [
+        "Predictive models from weather/seismic data give early warnings (1–2).",
+        "Authorities can pre-position resources and evacuate ahead of time (1–2).",
+        "Post-disaster satellite imagery targets rescue and assesses damage (1).",
+        "Limitation: false alarms cause costly unnecessary evacuations and erode trust (1–2).",
+        "Limitation: data infrastructure may fail during the event; data centres carry their own energy/$CO_2$ footprint (1–2).",
+        "Judgement: life-saving benefits generally outweigh costs if false-alarm protocols and resilient infrastructure are in place (1–2)."
       ]
     }
   ]
@@ -1410,66 +2008,125 @@ C["it:F201.5.1"] = {
 
 C["it:F201.5.2"] = {
   notes: [
-    { h: "Big Data and Society" },
-    { callout: { t: "info", h: "Social Developments", body: [
+    "This leaf covers big data's impact on **society**. The spec has two parts: **big data and the development of smart cities**, and **emerging social developments driven by big data** — namely **personalised healthcare, smart homes, traffic management, and urban & community planning**. You must know the *purpose* of a smart city, *how data from many sources is exchanged to optimise city operations*, the *benefits and limitations* of a smart city, and *how individuals are affected* by the emerging developments.",
+
+    { page: "Smart cities" },
+    { callout: { t: "def", h: "Smart city", body: "An urban area that uses **big data and $IoT$** — sensors, cameras, connected infrastructure — to monitor and manage city services (traffic, waste, lighting, energy, transport) in real time. Purpose: make the city more **efficient, sustainable and liveable** by basing operations on live data rather than guesswork." }},
+    "A smart city works by **exchanging data from many sources** — traffic sensors, public-transport feeds, energy meters, environmental monitors, mobile/$GPS$ data and citizen apps — into a central platform that analyses it and triggers responses: re-timing traffic lights, rerouting buses, dimming unused street lighting, predicting maintenance. The value comes from *integration* — many feeds optimised together, not in isolation.",
+    { table: { head: ["Smart city", "Benefit", "Limitation"], rows: [
+      ["Traffic & transport", "Less congestion, lower emissions, smoother journeys.", "System failure/cyber-attack can paralyse the city."],
+      ["Energy & lighting", "Lower energy use and cost via demand-based control.", "Expensive sensor/network infrastructure to install."],
+      ["Waste & services", "Efficient, data-driven collection and cleaner streets.", "Mass surveillance — constant tracking of residents."],
+      ["Safety", "Faster emergency response from live data.", "Privacy erosion; residents often can't opt out."],
+      ["Inclusion", "Better-targeted public services.", "Digital exclusion — elderly/low-income may not benefit equally."]
+    ] } },
+    { callout: { t: "miscon", h: "Smart cities aren't purely beneficial", body: "Answers that list only benefits are capped. Smart cities also bring **mass surveillance** ($CCTV$/$IoT$ track all movement), **privacy erosion** (no real opt-out), **cyber-attack vulnerability** (interconnected systems = single points of failure), and **digital exclusion**. Always balance the efficiency gains against these." }},
+
+    { page: "Emerging social developments" },
+    { callout: { t: "info", h: "How individuals are affected", body: [
       { kv: [
-        ["Smart Cities", "Using $IoT$ to manage traffic, waste, and lighting."],
-        ["Personalised Healthcare", "Custom treatments based on genetic and lifestyle data."],
-        ["Smart Homes", "Energy-saving appliances and security systems."],
-        ["Traffic Management", "Reducing congestion via real-time $GPS$ routing."],
-        ["Urban Planning", "Using footfall data to design better parks and services."]
+        ["Personalised healthcare", "Genetic + lifestyle + monitoring data tailors treatment to the individual. **Effect:** earlier diagnosis, better outcomes — but highly sensitive data and risk of insurance/discrimination misuse."],
+        ["Smart homes", "Connected appliances, heating and security learn habits and automate the home. **Effect:** convenience and lower bills — but always-on devices collect intimate behavioural data and can be hacked."],
+        ["Traffic management", "Real-time $GPS$/sensor data reroutes and re-times traffic. **Effect:** shorter, safer commutes and less pollution — but location tracking and dependence on the system."],
+        ["Urban & community planning", "Footfall, movement and service-use data informs where to build parks, transport and services. **Effect:** better-designed communities — but planning driven by data may overlook under-represented residents."]
       ] }
     ] } },
-    { table: { head: ["Benefit", "Impact on Individuals"], rows: [
-      ["Personalised Health", "Improved life expectancy."],
-      ["Smart Homes", "Lower utility bills."],
-      ["Traffic Analysis", "Reduced commute times."]
-    ] } },
-    { callout: { t: "memorise", h: "5 Social Applications — Quick Reference", body:
-      "**Smart Cities** — $IoT$ manages traffic, waste, and lighting at city scale. **Personalised Healthcare** — genetic and lifestyle data creates custom treatment plans. **Smart Homes** — energy-saving appliances and connected security. **Traffic Management** — real-time $GPS$ routing reduces congestion. **Urban Planning** — footfall and movement data improves parks and public services. Exam anchor: 'Smart' in every example = sensors + data + automated response."
-    } },
-    { callout: { t: "miscon", h: "Smart Cities Are Purely Beneficial", body:
-      "Exam answers listing only benefits will be capped. Smart cities also raise serious concerns: **mass surveillance** ($CCTV$ and $IoT$ sensors track all movement), **privacy erosion** (citizens often cannot opt out of data collection), **cyber-attack vulnerability** (interconnected systems create single points of failure), and **digital exclusion** (elderly or low-income residents may not benefit equally). Always balance positives with negatives."
-    } }
+    { callout: { t: "memorise", h: "Society — smart city + 4 developments", body: "**Smart city:** $IoT$ + big data exchanged across sources → optimise traffic/energy/waste/safety. Benefits efficiency/sustainability; costs surveillance, privacy, cyber-risk, exclusion. **Emerging developments:** *personalised healthcare* (tailored treatment), *smart homes* (automation/convenience), *traffic management* (faster commutes), *urban & community planning* (data-led design)." }},
+
+    { page: "Exam technique" },
+    { callout: { t: "tip", h: "'How is data exchanged?'", body: "For smart-city questions, explicitly name *multiple sources* (traffic sensors, transport feeds, energy meters, $GPS$, citizen apps) feeding a *central platform* that analyses and *acts*. The mark is for the **integration** of many feeds, not one sensor in isolation." }},
+    { callout: { t: "warn", h: "Reach the individual", body: "For the emerging developments the spec asks *how individuals are affected* — so for each, give a concrete personal effect (better treatment, a lower bill, a shorter commute) **and** a personal risk (sensitive data exposure, surveillance, dependence). Pair benefit with impact every time." }}
   ],
   flashcards: [
-    ["Define a Smart City.", "An urban area that uses big data/$IoT$ to improve services and efficiency."],
-    ["How does big data help Urban Planning?", "By showing where people actually move and use services."],
-    ["Impact of smart homes?", "Greater convenience and lower energy consumption."],
-    ["Give one negative social impact of Smart Cities.", "Mass surveillance — citizens' movement is constantly tracked by $IoT$ sensors and $CCTV$ networks."],
-    ["How does personalised healthcare use big data?", "Genetic and lifestyle data is analysed to create tailored treatment plans for individual patients."]
+    ["What is a smart city and its purpose?", "An urban area using big data/$IoT$ to manage services (traffic, waste, energy, lighting) in real time — purpose: a more efficient, sustainable, liveable city."],
+    ["How does a smart city optimise operations?", "By exchanging data from many sources (traffic sensors, transport feeds, energy meters, $GPS$, citizen apps) into a central platform that analyses it and triggers responses."],
+    ["Give two benefits of a smart city.", "Reduced congestion/emissions; lower energy use/cost; faster emergency response; better-targeted services (any two)."],
+    ["Give two limitations of a smart city.", "Mass surveillance/privacy erosion; cyber-attack vulnerability; high infrastructure cost; digital exclusion (any two)."],
+    ["Name the four emerging social developments driven by big data.", "Personalised healthcare, smart homes, traffic management, and urban & community planning."],
+    ["How does personalised healthcare affect individuals?", "Genetic/lifestyle/monitoring data tailors treatment — earlier diagnosis and better outcomes, but very sensitive data and discrimination risk."],
+    ["How do smart homes affect individuals?", "Convenience and lower bills through automation, but always-on devices collect intimate behavioural data and can be hacked."],
+    ["How does data-driven urban planning affect communities?", "Footfall/movement data improves where parks, transport and services are placed — but may overlook under-represented residents."],
+    ["Why is digital exclusion a smart-city concern?", "Elderly or low-income residents may lack the devices/skills to benefit, so improvements aren't shared equally."],
+    ["What single word captures the value of a smart city's data?", "Integration — many feeds analysed *together* to optimise the whole city, not one sensor alone."]
   ],
   quiz: [
     {
-      q: "Which society application involves managing city infrastructure?",
-      opts: ["Personalised Health", "Smart Cities", "Blockchain", "GDPR"],
+      q: "Which best describes the purpose of a smart city?",
+      opts: [
+        "To remove all sensors from a city",
+        "To use big data/$IoT$ to manage services efficiently and sustainably in real time",
+        "To replace local government with a database",
+        "To stop collecting any personal data"
+      ],
       ans: 1,
-      why: "Smart cities focus on urban efficiency."
+      why: "Smart cities use integrated $IoT$/big data to optimise services and make the city more liveable."
     },
     {
-      q: "A hospital uses genetic sequencing data combined with lifestyle data to prescribe individualised drugs. Which application is this?",
-      opts: ["Smart Cities", "Urban Planning", "Personalised Healthcare", "Smart Homes"],
+      q: "A hospital combines genetic sequencing with lifestyle data to prescribe individualised drugs. Which development is this?",
+      opts: ["Smart homes", "Urban planning", "Personalised healthcare", "Traffic management"],
       ans: 2,
-      why: "Personalised Healthcare uses individual genetic and lifestyle data to create custom treatment plans."
+      why: "Tailoring treatment from individual genetic/lifestyle data is personalised healthcare."
     },
     {
-      q: "Which is a significant negative impact of Smart Cities on individuals?",
-      opts: ["Reduced commute times", "Mass surveillance of residents", "Lower utility bills", "Improved waste management"],
+      q: "Which is a significant negative impact of smart cities on individuals?",
+      opts: ["Reduced commute times", "Mass surveillance of residents", "Lower energy bills", "Cleaner streets"],
       ans: 1,
-      why: "Smart city $IoT$ sensors and cameras continuously track citizens' movements, raising serious privacy concerns."
+      why: "Pervasive $IoT$/$CCTV$ tracking of movement raises serious privacy/surveillance concerns."
+    },
+    {
+      q: "What gives a smart city's data its value?",
+      opts: [
+        "Keeping each sensor's data separate",
+        "Integrating many data sources into one platform that analyses and acts",
+        "Deleting data immediately",
+        "Using a single traffic camera"
+      ],
+      ans: 1,
+      why: "Optimising the whole city requires integrating many feeds together, not isolated sensors."
+    },
+    {
+      q: "Which is a genuine personal risk of smart-home technology?",
+      opts: [
+        "Devices cannot save energy",
+        "Always-on devices collect intimate behavioural data and can be hacked",
+        "They make bills higher by design",
+        "They cannot connect to the internet"
+      ],
+      ans: 1,
+      why: "Convenience comes with continuous data collection and a cyber-attack surface inside the home."
     }
   ],
   exam: [
     {
-      q: "Discuss the positive and negative impacts of 'Smart Cities' on society.",
-      marks: 6,
+      q: "Explain the purpose of a smart city and how it uses data to optimise city operations.",
+      marks: 4,
       ms: [
-        "Positive: Improved traffic flow reduces pollution and stress (1).",
-        "Positive: Automated waste management improves hygiene (1).",
-        "Positive: Better public safety through data-driven $CCTV$ (1).",
-        "Negative: Mass surveillance concerns and loss of privacy (1).",
-        "Negative: Vulnerability to cyber-attacks/system failure (1).",
-        "Conclusion: Benefits are significant but require strong ethical oversight (1)."
+        "Purpose: use big data/$IoT$ to make the city more efficient, sustainable and liveable (1).",
+        "Collects data from many sources — traffic sensors, transport feeds, energy meters, $GPS$ (1).",
+        "Integrates and analyses them on a central platform (1).",
+        "Triggers responses — re-timing lights, rerouting transport, demand-based lighting/energy (1)."
+      ]
+    },
+    {
+      q: "Describe how two emerging social developments driven by big data affect individuals.",
+      marks: 4,
+      ms: [
+        "Personalised healthcare — tailored treatment from genetic/lifestyle data (1) gives earlier diagnosis/better outcomes but exposes very sensitive data (1).",
+        "Smart homes/traffic management — automation gives convenience/shorter commutes (1) but involves continuous tracking/cyber-risk (1).",
+        "(Accept urban & community planning with valid individual effect.)"
+      ]
+    },
+    {
+      q: "Discuss the benefits and limitations of smart cities for the individuals who live in them.",
+      marks: 9,
+      ms: [
+        "Benefit: less congestion and pollution, smoother journeys via traffic optimisation (1–2).",
+        "Benefit: lower energy use/cost and cleaner, better-targeted public services (1–2).",
+        "Benefit: faster emergency response from live data (1).",
+        "Limitation: mass surveillance and privacy erosion with no real opt-out (1–2).",
+        "Limitation: cyber-attack vulnerability — interconnected systems are single points of failure (1–2).",
+        "Limitation: digital exclusion of elderly/low-income residents (1).",
+        "Judgement: net positive only with strong privacy safeguards, security and inclusive design (1–2)."
       ]
     }
   ]
