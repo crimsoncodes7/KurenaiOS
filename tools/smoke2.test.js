@@ -82,9 +82,18 @@ step("enriched ref defaults to Notes tab with rendered blocks", () => {
   const tabs = $$(".study-tab").map(t => t.textContent);
   if (tabs.length < 6) throw new Error("tabs: " + tabs.join(","));
   if (!$(".notes-article")) throw new Error("notes article not rendered");
-  if (!$(".n-table")) throw new Error("comparison table missing");
-  if (!$(".n-call-mnemonic")) throw new Error("mnemonic callout missing");
-  if (!$(".n-code .k")) throw new Error("code highlighting missing");
+  // notes may be paginated; gather block-type presence across every page
+  let sawTable = false, sawMnemonic = false, sawCode = false;
+  const scan = () => {
+    if ($(".n-table")) sawTable = true;
+    if ($(".n-call-mnemonic")) sawMnemonic = true;
+    if ($(".n-code .k")) sawCode = true;
+  };
+  scan();
+  $$(".note-page-tab").forEach(t => { click(t); scan(); });
+  if (!sawTable) throw new Error("comparison table missing");
+  if (!sawMnemonic) throw new Error("mnemonic callout missing");
+  if (!sawCode) throw new Error("code highlighting missing");
 });
 step("spec tab still shows split + personal notes", () => {
   click($$(".study-tab").find(t => t.dataset.tab === "spec"));

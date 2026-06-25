@@ -13,6 +13,7 @@ C["compsci:4.2.1.1"] = {
         ["Dynamic data structure", "Grows and shrinks at run time; memory allocated and freed from the heap as needed (e.g. a linked list)."]
       ]}
     ]}},
+    { page: "Choosing & comparison" },
     { h: "Process: Choosing the right structure" },
     { steps: [
       { h: "1. Predict Volume", m: "If the number of items is known and fixed, use a **static** structure to save on pointer overhead." },
@@ -29,6 +30,7 @@ C["compsci:4.2.1.1"] = {
     ]}},
     { callout: { t: "tip", h: "How comparison marks are awarded", body: "Give PAIRED points: one advantage tied to its mirror-image disadvantage. \u201CAn array gives O(1) access by index, whereas a linked list must be traversed from the head\u201D is one mark; two unconnected facts may not be." }},
     { callout: { t: "miscon", body: "\u201CStatic structures can't be changed.\u201D Wrong — the **size** is fixed, the **contents** are fully mutable. Equally, \u201Cdynamic\u201D doesn't mean stored on disk; it means heap allocation at run time." }},
+    { page: "C# view & exam" },
     { h: "C# view of the same idea" },
     { code: { lang: "csharp", cap: "Array = static; List<T> wraps a dynamic resizing strategy; LinkedList<T> is the true pointer-based dynamic structure.", src:
 "int[] scores = new int[8];          // static: size fixed at 8 forever\nList<int> flexible = new List<int>(); // resizes internally (doubling array)\nLinkedList<int> chain = new LinkedList<int>(); // node + pointer per element\n\nflexible.Add(42);                    // amortised O(1)\nchain.AddFirst(42);                  // true O(1), no shuffling ever" }},
@@ -40,17 +42,26 @@ C["compsci:4.2.1.1"] = {
     ["Why can an array access element i in O(1)?", "Contiguous memory: address = base + i × element size, computed directly with no traversal."],
     ["Two costs of dynamic structures?", "Memory overhead for pointers in every node, and sequential (not random) access."],
     ["What is the heap in this context?", "The pool of memory available to a program at run time from which dynamic structures allocate nodes."],
-    ["When does a static structure overflow?", "When you try to add more items than the fixed size allocated at compile time."]
+    ["When does a static structure overflow?", "When you try to add more items than the fixed size allocated at compile time."],
+    ["What does each node of a linked list contain?", "The data item plus a pointer holding the address of the next node (and a null pointer marks the tail)."],
+    ["Why is a static structure sometimes preferred despite being fixed?", "No per-node pointer overhead, contiguous layout (cache-friendly), and O(1) random access by index."],
+    ["What is meant by 'amortised O(1)' for a resizing list (List<T>)?", "Most appends are O(1); occasionally the backing array doubles (O(n)), but averaged over many adds the cost is constant."],
+    ["Give one structure that is static and one that is dynamic.", "Static: array. Dynamic: linked list (also stacks/queues/trees built from linked nodes)."]
   ],
   quiz: [
     { q: "Which is the defining property of a static data structure?", opts: ["Its contents cannot change", "Its size is fixed at compile time", "It is stored on secondary storage", "It can only hold integers"], ans: 1, why: "Static = fixed SIZE. Contents remain fully mutable." },
     { q: "A program must store an unpredictable number of customer records arriving all day. Best fit?", opts: ["A fixed-size array sized generously", "A dynamic structure such as a linked list", "A constant", "A 2D array"], ans: 1, why: "Unknown, changing volume is exactly the dynamic-structure use case — no overflow, no waste." },
     { q: "Why is inserting into the middle of an array O(n)?", opts: ["Arrays are read-only", "The index must be hashed", "Every later element must shuffle one place along", "Arrays are stored on disk"], ans: 2, why: "Contiguity is the price of O(1) access: making a gap means moving everything after it." },
-    { q: "Which is NOT an advantage of a linked list over an array?", opts: ["No fixed capacity", "O(1) insertion once positioned", "Direct access to the nth element", "Memory grows with actual need"], ans: 2, why: "Direct/random access is precisely what linked lists give up — they must traverse." }
+    { q: "Which is NOT an advantage of a linked list over an array?", opts: ["No fixed capacity", "O(1) insertion once positioned", "Direct access to the nth element", "Memory grows with actual need"], ans: 2, why: "Direct/random access is precisely what linked lists give up — they must traverse." },
+    { q: "What marks the end of a singly linked list?", opts: ["A zero-length data field", "A null (None) pointer in the last node", "An empty array slot", "The heap boundary"], ans: 1, why: "The tail node's next pointer is null, signalling no further nodes." }
   ],
   exam: [
     { q: "A developer must choose between an array and a linked list to hold a print queue whose length varies from 0 to thousands of jobs. Compare the two structures and justify a choice.", marks: 6,
-      ms: ["Array: fixed size set at compile time (1)", "→ risk of overflow if undersized / wasted memory if oversized (1)", "Linked list: dynamic, grows/shrinks with demand at run time (1)", "Linked list insertion/removal at known position is O(1) pointer re-linking vs O(n) shuffling (1)", "Cost: linked list stores a pointer per node and has no random access (1)", "Justified choice: linked list, because queue length is highly variable and access is only ever at front/rear (1)"] }
+      ms: ["Array: fixed size set at compile time (1)", "→ risk of overflow if undersized / wasted memory if oversized (1)", "Linked list: dynamic, grows/shrinks with demand at run time (1)", "Linked list insertion/removal at known position is O(1) pointer re-linking vs O(n) shuffling (1)", "Cost: linked list stores a pointer per node and has no random access (1)", "Justified choice: linked list, because queue length is highly variable and access is only ever at front/rear (1)"] },
+    { q: "State two differences between a static and a dynamic data structure.", marks: 2,
+      ms: ["Static size is fixed at compile time; dynamic grows/shrinks at run time (1)", "Static uses a contiguous block; dynamic allocates scattered nodes from the heap linked by pointers (1) (accept: static allows O(1) random access, dynamic does not)"] },
+    { q: "Explain why an array offers O(1) access to any element while a linked list does not.", marks: 3,
+      ms: ["An array is stored contiguously, so element i's address = base + i × element size (1)", "This address is computed directly, giving constant-time access (1)", "A linked list's nodes are scattered and joined by pointers, so it must be traversed from the head, taking O(n) (1)"] }
   ],
   sims: ["tl-list"]
 };
@@ -68,6 +79,7 @@ C["compsci:4.2.2.1"] = {
       ["Priority", "Items leave by priority, FIFO within equal priority", "OS schedulers, A&E triage, print queues with urgent jobs"],
       ["(Double-ended)", "Add/remove at both ends", "Not core AQA but useful context"]
     ]}},
+    { page: "Circular queue operations" },
     { h: "Process: Circular Queue Operations" },
     { steps: [
       { h: "Enqueue(item)", m: "1. Check if (size == maxSize). If true, overflow error.\n2. rear = (rear + 1) MOD maxSize.\n3. q[rear] = item.\n4. size = size + 1." },
@@ -79,6 +91,7 @@ C["compsci:4.2.2.1"] = {
     { callout: { t: "mnemonic", body: "**FERL** — **F**ront **E**xits, **R**ear **L**oads. Items always leave from the front and join at the rear; if you ever write the reverse in a trace, FERL catches it." }},
     { callout: { t: "miscon", body: "In a linear queue dequeue, do NOT shuffle every item forward. The standard model just advances the front pointer — shuffling is exactly the inefficiency the model avoids (and examiners mark the pointer move)." }},
     { callout: { t: "tip", h: "Trace-table technique", body: "Columns: operation, value, front, rear, size, then one column per cell. Update pointers BEFORE writing the value on enqueue. Show \u201C(rear + 1) MOD 8 = 0\u201D explicitly when wrapping — the MOD line is routinely a whole mark." }},
+    { page: "Applications & exam" },
     { h: "Where queues appear in real systems" },
     { callout: { t: "def", h: "Real-world Applications", body: [
       { kv: [
@@ -96,7 +109,9 @@ C["compsci:4.2.2.1"] = {
     ["Why does a circular queue exist?", "A linear queue reports full even when dequeued cells at the front are free; wrapping with MOD reuses them."],
     ["How does a priority queue dequeue?", "Highest-priority item leaves first; FIFO order applies between items of equal priority."],
     ["Which algorithm from §4.3 depends on a queue?", "Breadth-first search — the queue holds discovered-but-unvisited vertices."],
-    ["Tests required before enqueue and dequeue?", "Full test before enqueue, empty test before dequeue — each usually carries a mark."]
+    ["Tests required before enqueue and dequeue?", "Full test before enqueue, empty test before dequeue — each usually carries a mark."],
+    ["Why does MOD appear in circular-queue pointer updates?", "It wraps the pointer back to 0 after the last index, so freed front cells are reused: (rear + 1) MOD maxSize."],
+    ["How is 'queue full' detected when front and rear can wrap?", "Track a separate size counter and test size == maxSize (avoids the ambiguity of front == rear meaning empty or full)."]
   ],
   quiz: [
     { q: "A circular queue has maxSize 6, rear = 5. After one enqueue, rear = ?", opts: ["6", "0", "5", "1"], ans: 1, why: "(5 + 1) MOD 6 = 0 — the pointer wraps to reuse freed cells." },
@@ -109,7 +124,9 @@ C["compsci:4.2.2.1"] = {
     { q: "A circular queue stored in an array of size 5 currently has front = 3, rear = 1, size = 3. Show the pointer values after the operations: dequeue, enqueue(X), enqueue(Y). State any tests performed.", marks: 5,
       ms: ["Dequeue: empty test passes (size 3 ≠ 0) (1)", "front ← (3+1) MOD 5 = 4, size = 2 (1)", "Enqueue X: full test passes; rear ← (1+1) MOD 5 = 2, size = 3 (1)", "Enqueue Y: rear ← (2+1) MOD 5 = 3, size = 4 (1)", "Final state: front = 4, rear = 3, size = 4 (1)"] },
     { q: "Explain why an operating system's process scheduler might use a priority queue rather than a linear queue.", marks: 3,
-      ms: ["Some processes (e.g. interrupt handlers / interactive tasks) must run before background tasks (1)", "Priority queue releases highest-priority process first regardless of arrival order (1)", "FIFO within a priority level still guarantees fairness / prevents starvation among equals (1)"] }
+      ms: ["Some processes (e.g. interrupt handlers / interactive tasks) must run before background tasks (1)", "Priority queue releases highest-priority process first regardless of arrival order (1)", "FIFO within a priority level still guarantees fairness / prevents starvation among equals (1)"] },
+    { q: "Discuss why a circular queue is usually preferred over a simple linear queue for a fixed-size array implementation, and explain how its pointer arithmetic works.", marks: 6,
+      ms: ["A linear queue advances front and rear rightwards; dequeued front cells become dead space (1)", "It can report 'full' while most of the array is empty — wasted capacity (1)", "A circular queue wraps the rear/front pointers using MOD so freed cells are reused (1)", "Enqueue: rear ← (rear + 1) MOD maxSize, then store; Dequeue: front ← (front + 1) MOD maxSize (1)", "Full/empty are tracked with a size counter (full when size == maxSize) (1)", "Conclusion: same memory holds the same number of items without periodic shuffling/reset, improving efficiency (1)"] }
   ],
   sims: ["tl-queue"]
 };
@@ -132,6 +149,7 @@ C["compsci:4.2.3.1"] = {
       { h: "Pop()", m: "1. Check if stack is empty (SP == -1). If so, Stack Underflow.\n2. Copy item from stack[SP].\n3. Decrement Stack Pointer (SP).\n4. Return the item." }
     ]},
     { callout: { t: "def", h: "The phrase that earns the peek mark", body: "Peek \u201Creturns the value at the top of the stack **without removing it**\u201D. Omit the bold phrase and the mark frequently goes with it." }},
+    { page: "Applications & exam" },
     { h: "Why stacks matter: the four canonical uses" },
     { callout: { t: "def", h: "Key Applications", body: [
       { kv: [
@@ -154,17 +172,24 @@ C["compsci:4.2.3.1"] = {
     ["What is pushed in a stack frame?", "The return address, parameters and local variables of a subroutine call."],
     ["What causes stack overflow in practice?", "Pushing onto a full stack — classically, recursion with no reachable base case."],
     ["Four canonical stack uses?", "Subroutine call/return addresses, reversing, undo, RPN evaluation."],
-    ["Pop on SP = −1 is called…?", "Stack underflow — guard with an isEmpty test first."]
+    ["Pop on SP = −1 is called…?", "Stack underflow — guard with an isEmpty test first."],
+    ["What does the stack pointer (SP) hold?", "The index of the current top element; it increments on push and decrements on pop."],
+    ["How does a stack reverse a sequence?", "Push every item, then pop them all — the first pushed is popped last, reversing the order."]
   ],
   quiz: [
     { q: "Values 5, 3, 8 are pushed; then two pops. What is popped, in order?", opts: ["5 then 3", "8 then 3", "3 then 8", "8 then 5"], ans: 1, why: "LIFO: last in (8) leaves first, then 3." },
     { q: "Which is stored on the call stack when a subroutine is invoked?", opts: ["The compiled program", "Return address, parameters, locals", "The heap", "The instruction set"], ans: 1, why: "That bundle is the stack frame; the return address is how execution resumes." },
     { q: "peek() differs from pop() because peek…", opts: ["removes two items", "works on queues", "does not remove the item", "returns the bottom"], ans: 2, why: "\u201CWithout removing\u201D is the defining (and mark-bearing) phrase." },
-    { q: "Reversing a string with a stack works because…", opts: ["stacks sort alphabetically", "push then pop emits items in reverse order", "stacks are circular", "peek mutates state"], ans: 1, why: "First character pushed is last popped — exactly a reversal." }
+    { q: "Reversing a string with a stack works because…", opts: ["stacks sort alphabetically", "push then pop emits items in reverse order", "stacks are circular", "peek mutates state"], ans: 1, why: "First character pushed is last popped — exactly a reversal." },
+    { q: "A text editor's 'undo' feature is naturally implemented with a…", opts: ["queue", "stack", "priority queue", "binary search tree"], ans: 1, why: "The most recent action should be undone first — last-in, first-out." }
   ],
   exam: [
     { q: "Describe how a stack is used to handle subroutine calls, including what happens on call and on return. Refer to recursion in your answer.", marks: 6,
-      ms: ["On call, a stack frame is pushed (1)", "Frame contains return address + parameters + local variables (1)", "On return, top frame is popped (1)", "Return address from the popped frame tells the processor where to resume (1)", "Recursion pushes one frame per call, so frames nest LIFO (1)", "Unwinding pops frames in reverse call order; missing base case → frames accumulate → stack overflow (1)"] }
+      ms: ["On call, a stack frame is pushed (1)", "Frame contains return address + parameters + local variables (1)", "On return, top frame is popped (1)", "Return address from the popped frame tells the processor where to resume (1)", "Recursion pushes one frame per call, so frames nest LIFO (1)", "Unwinding pops frames in reverse call order; missing base case → frames accumulate → stack overflow (1)"] },
+    { q: "A stack stored in an array of size 4 has SP = 1 (indices 0–3, 0 = bottom). Show the SP after: push(P), push(Q), pop(), push(R), stating any guard tests.", marks: 4,
+      ms: ["push(P): full test passes; SP ← 2, store P (1)", "push(Q): SP ← 3, store Q (1)", "pop(): empty test passes; return Q, SP ← 2 (1)", "push(R): full test passes (SP 2 < 3); SP ← 3, store R — final SP = 3 (1)"] },
+    { q: "Explain the difference between the pop and peek operations, and state why each must guard against the empty-stack condition.", marks: 3,
+      ms: ["pop returns the top value AND removes it (decrements SP) (1)", "peek returns the top value WITHOUT removing it (1)", "Both must test isEmpty first — accessing the top of an empty stack (SP = −1) causes a stack underflow error (1)"] }
   ],
   sims: ["tl-stack"]
 };
@@ -186,6 +211,7 @@ C["compsci:4.2.4.1"] = {
       { h: "2. Consider Operations", m: "If frequently testing 'does edge (u,v) exist?', Matrix is O(1). If iterating over all neighbours, List is faster." },
       { h: "3. Monitor Memory", m: "Matrix uses O(V²) space regardless of edges. List uses O(V + E)." }
     ]},
+    { page: "Matrix vs list" },
     { h: "Adjacency matrix vs adjacency list — the eternal 4-marker" },
     { table: { head: ["Feature", "Adjacency matrix", "Adjacency list"], rows: [
       ["What it is", "2D array; cell (i, j) holds 1/weight if edge i→j exists", "Per vertex, a list of its neighbours"],
@@ -199,6 +225,7 @@ C["compsci:4.2.4.1"] = {
 "using System.Collections.Generic;\n\npublic class Graph<T>\n{\n    private Dictionary<T, List<T>> adjList = new Dictionary<T, List<T>>();\n\n    public void AddVertex(T vertex)\n    {\n        if (!adjList.ContainsKey(vertex)) adjList[vertex] = new List<T>();\n    }\n\n    public void AddEdge(T source, T destination, bool bidirectional = true)\n    {\n        AddVertex(source);\n        AddVertex(destination);\n        adjList[source].Add(destination);\n        if (bidirectional) adjList[destination].Add(source);\n    }\n}" }},
     { callout: { t: "tip", h: "How to pick in the exam", body: "Tie the choice to the graph **in the question**: \u201Ca road network where most towns connect to only a few others is sparse, so an adjacency list saves the n² memory of a mostly-zero matrix.\u201D Context = the second mark." }},
     { callout: { t: "miscon", body: "A tree is a graph, but a graph is not (usually) a tree. Graph = may contain cycles; tree = connected AND acyclic. If a question says \u201Cgraph\u201D, do not assume a root or a hierarchy exists." }},
+    { page: "Applications & exam" },
     { h: "Where graphs show up" },
     { callout: { t: "tip", h: "Real-world Graph Applications", body: [
       { kv: [
@@ -215,17 +242,25 @@ C["compsci:4.2.4.1"] = {
     ["Adjacency matrix cell (i, j) holds…?", "1 (or the weight) if an edge runs from vertex i to vertex j; 0/∞ otherwise."],
     ["When is an adjacency list preferred?", "Sparse graphs — memory grows with edges present rather than n², at the cost of slower edge lookup."],
     ["Property of an adjacency matrix for an UNDIRECTED graph?", "Symmetric about the leading diagonal — fill both (i,j) and (j,i)."],
-    ["Tree vs graph in one line?", "A tree is a connected graph with no cycles; general graphs may contain cycles."]
+    ["Tree vs graph in one line?", "A tree is a connected graph with no cycles; general graphs may contain cycles."],
+    ["Define the degree of a vertex.", "The number of edges incident to (touching) that vertex."],
+    ["Memory complexity: adjacency matrix vs list?", "Matrix uses O(V²) regardless of edges; list uses O(V + E), proportional to the edges present."],
+    ["When does a directed (di)graph need direction stored?", "When an edge A→B does not imply B→A — e.g. one-way streets or web hyperlinks; the matrix is then asymmetric."]
   ],
   quiz: [
     { q: "A graph has 100 vertices and 150 edges. Best representation for memory?", opts: ["Adjacency matrix", "Adjacency list", "2D array of strings", "Stack of edges"], ans: 1, why: "150 edges vs 10,000 matrix cells — sparse graphs want lists." },
     { q: "In a directed graph's matrix, row i shows…", opts: ["edges INTO vertex i", "edges OUT of vertex i", "the weight of vertex i", "nothing useful"], ans: 1, why: "Convention: (i, j) = edge from i to j, so row i lists i's outgoing edges." },
     { q: "Checking \u201Cis there an edge A–B?\u201D fastest in…", opts: ["Adjacency list", "Adjacency matrix", "Linked list of all edges", "Binary tree"], ans: 1, why: "One cell read: O(1). The list must scan A's neighbours." },
-    { q: "Which statement is true of every tree?", opts: ["It has a root", "It is connected and has no cycles", "Every vertex has two children", "It is directed"], ans: 1, why: "Connected + acyclic is the graph-theoretic definition; a ROOTED tree additionally designates a root." }
+    { q: "Which statement is true of every tree?", opts: ["It has a root", "It is connected and has no cycles", "Every vertex has two children", "It is directed"], ans: 1, why: "Connected + acyclic is the graph-theoretic definition; a ROOTED tree additionally designates a root." },
+    { q: "An adjacency matrix for an undirected graph is always…", opts: ["empty on the diagonal", "symmetric about the leading diagonal", "larger than the list", "directed"], ans: 1, why: "An undirected edge (i,j) implies (j,i), so the matrix mirrors across the diagonal." }
   ],
   exam: [
     { q: "A satnav company stores the UK road network (millions of junctions, each connecting to a handful of roads). Justify a representation and state one operation that would be slower in your choice.", marks: 4,
-      ms: ["Network is sparse: edges per vertex tiny compared with vertex count (1)", "Adjacency list: memory proportional to actual roads, matrix would need junctions² cells (1)", "Weights (distances/times) stored alongside each neighbour entry (1)", "Slower: testing whether a specific edge exists requires scanning that junction's list rather than one O(1) cell read (1)"] }
+      ms: ["Network is sparse: edges per vertex tiny compared with vertex count (1)", "Adjacency list: memory proportional to actual roads, matrix would need junctions² cells (1)", "Weights (distances/times) stored alongside each neighbour entry (1)", "Slower: testing whether a specific edge exists requires scanning that junction's list rather than one O(1) cell read (1)"] },
+    { q: "Define the terms 'directed graph' and 'weighted graph', giving a real-world example of each.", marks: 4,
+      ms: ["Directed graph: edges have direction, A→B does not imply B→A (1); e.g. web pages linked by one-way hyperlinks / one-way roads (1)", "Weighted graph: each edge carries a value such as cost/distance/time (1); e.g. a road network with distances, used by Dijkstra (1)"] },
+    { q: "Compare the adjacency matrix and adjacency list representations of a graph, and discuss which is more appropriate for a large sparse social network. Justify your answer.", marks: 6,
+      ms: ["Matrix: 2D array, cell (i,j) marks an edge; O(1) edge lookup but O(V²) memory (1–2)", "List: each vertex stores its neighbours; O(V+E) memory but O(degree) edge lookup (1)", "A social network is sparse — each person connects to relatively few others (1)", "A matrix would waste huge memory on mostly-zero cells (V² for millions of users) (1)", "Adjacency list chosen: memory scales with actual friendships, and iterating a user's friends is efficient (1)", "Trade-off acknowledged: testing whether two specific users are connected is slower than the matrix's O(1) (1)"] }
   ]
 };
 
@@ -247,6 +282,7 @@ C["compsci:4.2.5.1"] = {
       ["Hierarchy", "Fixed root (in rooted trees)", "No inherent root or hierarchy"],
       ["Edges", "N nodes ⇒ N-1 edges", "No fixed node-to-edge ratio"]
     ]}},
+    { page: "Building a BST" },
     { h: "Building a BST — order of insertion is everything" },
     { callout: { t: "tip", body: "Insert items **in the order given**, comparing at each node: smaller → go left, larger → go right, insert at the first empty position. Different input orders give differently-shaped trees holding the same data." }},
     { steps: [
@@ -277,17 +313,25 @@ C["compsci:4.2.5.1"] = {
     ["In-order traversal of a BST yields…?", "The values in ascending sorted order."],
     ["BST search complexity, balanced vs degenerate?", "O(log n) balanced; O(n) when the tree degenerates into a chain (e.g. sorted-order insertion)."],
     ["What is a leaf node?", "A node with no children."],
-    ["Two non-BST uses of trees?", "Syntax trees in compilers; file-system / organisational hierarchies (also: decision trees, Huffman trees)."]
+    ["Two non-BST uses of trees?", "Syntax trees in compilers; file-system / organisational hierarchies (also: decision trees, Huffman trees)."],
+    ["Why does a BST give O(log n) search when balanced?", "Each comparison discards one subtree (roughly half the remaining nodes), so the search depth grows logarithmically."],
+    ["Name the three depth-first traversals.", "Pre-order (Node, Left, Right), in-order (Left, Node, Right), post-order (Left, Right, Node)."],
+    ["What does a post-order traversal of an expression tree produce?", "Reverse Polish (postfix) notation — operands before their operator (links to §4.3.3)."]
   ],
   quiz: [
     { q: "Insert 40, 20, 60, 10, 30 into an empty BST. The root's left child is…", opts: ["10", "20", "30", "60"], ans: 1, why: "20 < 40 at the first comparison → left child of root 40." },
     { q: "Which traversal of a BST outputs sorted ascending order?", opts: ["Pre-order", "Post-order", "In-order", "Breadth-first"], ans: 2, why: "Left–Node–Right visits smaller values, then the node, then larger — sorted by construction." },
     { q: "Inserting 1, 2, 3, 4, 5 in that order produces…", opts: ["A perfectly balanced tree", "A right-leaning chain", "A left-leaning chain", "A cycle"], ans: 1, why: "Each value exceeds the last, so every insert goes right — the degenerate case." },
-    { q: "A binary tree differs from a general rooted tree because…", opts: ["it has no root", "nodes have at most two children", "it must be balanced", "it stores only numbers"], ans: 1, why: "\u201CAt most two children\u201D is the whole definition — balance is NOT required." }
+    { q: "A binary tree differs from a general rooted tree because…", opts: ["it has no root", "nodes have at most two children", "it must be balanced", "it stores only numbers"], ans: 1, why: "\u201CAt most two children\u201D is the whole definition — balance is NOT required." },
+    { q: "Which traversal of a binary search tree outputs its values in ascending sorted order?", opts: ["Pre-order", "In-order", "Post-order", "Level-order"], ans: 1, why: "In-order (Left, Node, Right) visits smaller values, the node, then larger — sorted by construction." }
   ],
   exam: [
     { q: "The values 45, 23, 67, 12, 34, 89 are inserted in that order into an empty binary search tree. Draw the tree and state the output of an in-order traversal.", marks: 4,
-      ms: ["Root 45 with 23 left, 67 right (1)", "12 left of 23; 34 right of 23 (1)", "89 right of 67 (1)", "In-order: 12, 23, 34, 45, 67, 89 — ascending (1)"] }
+      ms: ["Root 45 with 23 left, 67 right (1)", "12 left of 23; 34 right of 23 (1)", "89 right of 67 (1)", "In-order: 12, 23, 34, 45, 67, 89 — ascending (1)"] },
+    { q: "State the order in which nodes are visited for pre-order, in-order and post-order traversals, and give one use of each.", marks: 3,
+      ms: ["Pre-order: Node, Left, Right — e.g. copying/serialising a tree (1)", "In-order: Left, Node, Right — outputs a BST in sorted order (1)", "Post-order: Left, Right, Node — produces RPN / safely deletes a tree bottom-up (1)"] },
+    { q: "Explain why the order of insertion affects a binary search tree's performance, and discuss how this impacts its suitability compared with a balanced structure.", marks: 6,
+      ms: ["Inserting in random/balanced order keeps the tree shallow, giving search/insert O(log n) (1-2)", "Inserting already-sorted data sends every value the same way, forming a one-sided chain (1)", "The degenerate tree behaves like a linked list, so search collapses to O(n) (1-2)", "So an unbalanced BST gives no guarantee of efficiency (1)", "A self-balancing tree (AVL/red-black) restructures on insert to keep height ~log n, guaranteeing O(log n) at the cost of rebalancing work (1)"] }
   ],
   sims: ["tl-tree"]
 };
@@ -309,6 +353,7 @@ C["compsci:4.2.6.1"] = {
       { h: "Hash each key", m: "23 MOD 11 = 1\n45 MOD 11 = 1   ← COLLISION with 23\n34 MOD 11 = 1   ← COLLISION again\n56 MOD 11 = 1   ← and again (pathological on purpose)" },
       { h: "Resolve by linear probing", m: "45: slot 1 taken → try 2 → empty → store at 2\n34: 1 taken, 2 taken → store at 3\n56: 1,2,3 taken → store at 4", n: "Linear probing: step forward one slot at a time, wrapping with MOD." }
     ]},
+    { page: "Collision handling" },
     { h: "Collision-handling strategies" },
     { table: { head: ["Strategy", "How", "Trade-off"], rows: [
       ["Linear probing", "Try next slot, (i+1) MOD size, until free", "Simple; suffers clustering — full runs of occupied slots"],
@@ -336,17 +381,25 @@ C["compsci:4.2.6.1"] = {
     ["What is chaining?", "Each table slot holds a linked list; colliding entries append to the list at their hashed slot."],
     ["Why are collisions unavoidable?", "There are more possible keys than table slots, so some keys must share (pigeonhole principle)."],
     ["How does searching handle collisions?", "Retrace the probe sequence: hash, compare, step onward; an empty slot means the key is absent."],
-    ["Why might a table be rehashed to a larger size?", "High load factor causes frequent collisions/clustering, degrading O(1) towards O(n)."]
+    ["Why might a table be rehashed to a larger size?", "High load factor causes frequent collisions/clustering, degrading O(1) towards O(n)."],
+    ["Define the load factor of a hash table.", "items stored ÷ table size — a higher load factor means more collisions and slower operations."],
+    ["What is 'clustering' in linear probing?", "Long runs of occupied consecutive slots that lengthen probe sequences, hurting performance."],
+    ["What property should a good hash function have?", "It should spread keys uniformly across the table and be fast to compute, minimising collisions."]
   ],
   quiz: [
     { q: "hash(k) = k MOD 10, table slots 0–9. Where does 47 go (no collisions yet)?", opts: ["4", "7", "0", "9"], ans: 1, why: "47 MOD 10 = 7." },
     { q: "Slot 7 is occupied; linear probing tries…", opts: ["slot 0 always", "slot 8, then 9, then 0…", "a random slot", "slot 6"], ans: 1, why: "Step forward one at a time, wrapping with MOD at the end." },
     { q: "Chaining handles collisions by…", opts: ["rejecting the new key", "storing a linked list at each slot", "doubling the table instantly", "sorting the table"], ans: 1, why: "Colliding entries simply join the list at their slot." },
-    { q: "The main performance risk of linear probing is…", opts: ["clustering", "underflow", "cycles", "loss of FIFO order"], ans: 0, why: "Occupied runs grow and merge, lengthening probe sequences — clustering." }
+    { q: "The main performance risk of linear probing is…", opts: ["clustering", "underflow", "cycles", "loss of FIFO order"], ans: 0, why: "Occupied runs grow and merge, lengthening probe sequences — clustering." },
+    { q: "As a hash table's load factor approaches 1, its average operation time tends towards…", opts: ["O(1)", "O(log n)", "O(n)", "O(n²)"], ans: 2, why: "A nearly-full table causes long probe sequences/chains, degrading constant-time access to linear." }
   ],
   exam: [
     { q: "A hash table of size 7 uses hash(k) = k MOD 7 with linear probing. Show the table after inserting 15, 22, 8, 29 and explain each placement.", marks: 5,
-      ms: ["15 MOD 7 = 1 → slot 1 (1)", "22 MOD 7 = 1 → collision at 1 (1)", "probe → slot 2 free → 22 at 2 (1)", "8 MOD 7 = 1 → collision; probe 2 taken → slot 3 (1)", "29 MOD 7 = 1 → probe 2, 3 taken → slot 4 (1)"] }
+      ms: ["15 MOD 7 = 1 → slot 1 (1)", "22 MOD 7 = 1 → collision at 1 (1)", "probe → slot 2 free → 22 at 2 (1)", "8 MOD 7 = 1 → collision; probe 2 taken → slot 3 (1)", "29 MOD 7 = 1 → probe 2, 3 taken → slot 4 (1)"] },
+    { q: "Explain what a collision is and compare linear probing with chaining as strategies for resolving collisions.", marks: 4,
+      ms: ["A collision occurs when two different keys hash to the same slot (1)", "Linear probing: step to the next free slot (i+1) MOD size — simple but suffers clustering (1)", "Chaining: each slot holds a linked list of colliding entries — no clustering (1)", "Trade-off: chaining adds pointer overhead and lookup slows as chains grow (1)"] },
+    { q: "Discuss why a hash table offers near O(1) access, why collisions are unavoidable, and how the load factor affects performance.", marks: 6,
+      ms: ["A hash function computes a slot directly from the key, so access needs no search — O(1) average (1-2)", "Collisions are unavoidable because there are more possible keys than slots (pigeonhole principle) (1)", "Resolution (probing/chaining) means lookups may need extra steps along a probe path/chain (1)", "Load factor = items ÷ size; as it rises, collisions and probe lengths increase (1)", "Performance degrades from O(1) towards O(n) when the table is nearly full (1)", "Mitigation: keep load factor low / rehash into a larger table when it exceeds a threshold (1)"] }
   ]
 };
 
@@ -387,16 +440,26 @@ C["compsci:4.2.7.1"] = {
     ["Define a dictionary.", "An abstract data type of key–value pairs where values are accessed via their unique keys."],
     ["Usual implementation of a dictionary?", "A hash table — keys are hashed to locate their values in O(1) average time."],
     ["Can two entries share a key? A value?", "Keys must be unique; values may repeat freely."],
-    ["Dictionary vs array indexing?", "Array indices are integers 0…n−1; dictionary keys can be any hashable type (strings, tuples…)."]
+    ["Dictionary vs array indexing?", "Array indices are integers 0…n−1; dictionary keys can be any hashable type (strings, tuples…)."],
+    ["Why is a dictionary called an associative array?", "It associates each key with a value, indexing by meaning (the key) rather than by position."],
+    ["Distinguish the dictionary ADT from its hash-table implementation.", "The dictionary is the interface (what operations exist); the hash table is one way to make those operations fast."],
+    ["Give a use of a dictionary inside another algorithm.", "Dijkstra's algorithm keeps a vertex → best-known-distance dictionary; also memoisation caches input → result."],
+    ["What three core operations does a dictionary support, and their average cost?", "Insert, look up and delete by key — all O(1) average via hashing."]
   ],
   quiz: [
     { q: "A dictionary differs from an array primarily because…", opts: ["it is always sorted", "it is indexed by arbitrary keys, not integer positions", "it cannot be changed", "it stores only strings"], ans: 1, why: "Key-based access is the defining feature; the hash function turns keys into positions internally." },
     { q: "Average time to look up a value by key in a hash-backed dictionary?", opts: ["O(n)", "O(log n)", "O(1)", "O(n²)"], ans: 2, why: "Hash the key, read the slot — constant on average; collisions are the caveat." },
-    { q: "Which is a sensible dictionary use?", opts: ["Maintaining strict FIFO order", "Mapping student ID → student record", "Reversing a string", "Depth-first search frontier"], ans: 1, why: "Unique key to record is the textbook fit." }
+    { q: "Which is a sensible dictionary use?", opts: ["Maintaining strict FIFO order", "Mapping student ID → student record", "Reversing a string", "Depth-first search frontier"], ans: 1, why: "Unique key to record is the textbook fit." },
+    { q: "Inserting a value with an existing key into a dictionary usually…", opts: ["raises an error", "overwrites the previous value", "creates a duplicate key", "is ignored"], ans: 1, why: "Keys are unique, so assigning to an existing key replaces its value." },
+    { q: "The dictionary is an ADT; the hash table is its…", opts: ["interface", "implementation", "replacement", "key"], ans: 1, why: "The hash table is one concrete way to implement the dictionary interface efficiently." }
   ],
   exam: [
     { q: "State what is meant by a dictionary and explain why a hash table is a suitable implementation for one.", marks: 3,
-      ms: ["Dictionary: collection of key–value pairs, value retrieved via its unique key (1)", "Hash table computes a location directly from the key via a hash function (1)", "Giving O(1) average insertion and lookup rather than searching the whole collection (1)"] }
+      ms: ["Dictionary: collection of key–value pairs, value retrieved via its unique key (1)", "Hash table computes a location directly from the key via a hash function (1)", "Giving O(1) average insertion and lookup rather than searching the whole collection (1)"] },
+    { q: "Explain two differences between a dictionary and an array.", marks: 2,
+      ms: ["A dictionary is indexed by arbitrary unique keys (any hashable type); an array by sequential integer positions (1)", "A dictionary is typically unordered and backed by hashing; an array is ordered by index with direct positional access (1)"] },
+    { q: "A library system must look up a book record from its ISBN very quickly among millions of books. Discuss why a dictionary backed by a hash table is well suited, and one limitation to be aware of.", marks: 6,
+      ms: ["Each book has a unique ISBN — an ideal unique key (1)", "A dictionary maps ISBN → record, retrieving directly by key (1)", "Backed by a hash table, the ISBN is hashed to a slot giving O(1) average lookup regardless of collection size (1-2)", "Far faster than scanning millions of records linearly (1)", "Limitation: collisions can degrade performance if the load factor is high / hash function is poor (1)", "Mitigation noted: a good hash function and rehashing keep it near O(1) (1)"] }
   ]
 };
 
@@ -448,17 +511,25 @@ C["compsci:4.2.8.1"] = {
     ["Dot product of [2,5] and [4,−1]?", "(2)(4) + (5)(−1) = 3 — a scalar."],
     ["Geometric meaning of u·v = 0?", "u and v are perpendicular."],
     ["What is a convex combination of u and v?", "αu + βv with α, β ≥ 0, α + β = 1 — the points on the segment between u and v."],
-    ["Geometric effect of scalar multiplication?", "Scales the arrow's length by |k|; negative k also reverses its direction."]
+    ["Geometric effect of scalar multiplication?", "Scales the arrow's length by |k|; negative k also reverses its direction."],
+    ["How do you add two vectors?", "Component-wise: [a,b] + [c,d] = [a+c, b+d]; geometrically, place them tip-to-tail."],
+    ["Why is the dot product a scalar, not a vector?", "The component products are summed into a single number — it measures alignment, not a direction."],
+    ["What does u·v > 0 versus u·v < 0 tell you?", "Positive → the angle between them is less than 90°; negative → greater than 90° (zero → perpendicular)."]
   ],
   quiz: [
     { q: "[1, 2] + 3·[2, 0] = ?", opts: ["[7, 2]", "[3, 6]", "[6, 2]", "[7, 6]"], ans: 0, why: "3·[2,0] = [6,0]; add component-wise: [7, 2]." },
     { q: "u·v for u = [3, −2], v = [2, 3]?", opts: ["[6, −6]", "0", "12", "−6"], ans: 1, why: "6 + (−6) = 0 — these vectors are perpendicular." },
     { q: "A vector represented as {0: 5.0, 1: 1.5} is using which view?", opts: ["Geometric", "Function/dictionary", "Matrix", "Polar"], ans: 1, why: "Index → value mapping is the dictionary representation AQA names explicitly." },
-    { q: "0.5u + 0.5v is…", opts: ["the dot product", "the midpoint of the segment uv", "perpendicular to u", "twice u"], ans: 1, why: "A convex combination with equal weights lands exactly halfway between the two." }
+    { q: "0.5u + 0.5v is…", opts: ["the dot product", "the midpoint of the segment uv", "perpendicular to u", "twice u"], ans: 1, why: "A convex combination with equal weights lands exactly halfway between the two." },
+    { q: "Which result of a dot product means the vectors point in broadly opposite directions?", opts: ["u·v = 0", "u·v > 0", "u·v < 0", "u·v = 1"], ans: 2, why: "A negative dot product means the angle between them exceeds 90°." }
   ],
   exam: [
     { q: "Given u = [4, 1] and v = [−2, 8], calculate u·v and state what your result tells you about the two vectors.", marks: 3,
-      ms: ["u·v = (4)(−2) + (1)(8) (1)", "= −8 + 8 = 0 (1)", "Zero dot product ⇒ the vectors are perpendicular (1)"] }
+      ms: ["u·v = (4)(−2) + (1)(8) (1)", "= −8 + 8 = 0 (1)", "Zero dot product ⇒ the vectors are perpendicular (1)"] },
+    { q: "Given u = [3, 2] and v = [1, 4], calculate (a) u + v, (b) 2u, and (c) u·v.", marks: 3,
+      ms: ["(a) [4, 6] (1)", "(b) [6, 4] (1)", "(c) (3)(1) + (2)(4) = 11 (1)"] },
+    { q: "Explain the three representations of a vector required by the specification and discuss what the dot product reveals about two vectors, with a worked example.", marks: 6,
+      ms: ["List/numerical form, e.g. [3, 4] (1)", "Function/dictionary form mapping index to value, e.g. {0: 3, 1: 4} (1)", "Geometric form: an arrow with magnitude and direction (1)", "Dot product u·v = sum of component products, a scalar (1)", "Its sign/zero indicates the angle: 0 = perpendicular, >0 = acute, <0 = obtuse (1)", "Worked example, e.g. [2,5]·[4,-1] = 8 - 5 = 3 > 0, so the angle is less than 90 degrees (1)"] }
   ]
 };
 
