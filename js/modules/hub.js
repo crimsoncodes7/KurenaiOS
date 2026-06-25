@@ -694,12 +694,10 @@
           panel.appendChild(article);
           panel.appendChild(foot);
           showPage(0);
-          renderIntel(panel);
         } else {
           var n = el("article", { class: "notes-article", html: KOS.content.renderBlocks(content.notes) });
           panel.appendChild(n);
           KOS.content.typeset(n);
-          renderIntel(panel);
         }
       }
       else if (curTab === "cards") {

@@ -98,10 +98,10 @@ step("prev/next navigation", () => {
   click(next);
   if ($(".seal").textContent === "4.2.3.1") throw new Error("didn't navigate");
 });
-step("maths ref view (5.7) renders intel", () => {
+step("maths ref view (5.7) renders intel on the spec tab", () => {
   KOS.show("ref", { subject: "maths", ref: "5.7" });
-  if (!$(".intel-tips")) throw new Error("tips missing");
   click($$(".study-tab").find(t => t.dataset.tab === "spec"));
+  if (!$(".intel-tips")) throw new Error("tips missing");
   if (!$(".speccontent").textContent.toLowerCase().includes("trigonometric")) throw new Error("content wrong");
 });
 step("it ref view (F200.1.1)", () => {
