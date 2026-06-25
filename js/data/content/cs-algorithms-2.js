@@ -141,7 +141,11 @@ C["compsci:4.3.4.1"] = {
     [
       "Why does Dijkstra use a priority queue (not a regular queue)?",
       "To efficiently extract the unvisited node with the smallest tentative distance at each step."
-    ]
+    ],
+    ["What is stored in the 'previous' pointer for each node?", "The predecessor node on the current best path, used to reconstruct the route by tracing back from the target."],
+    ["Why does Dijkstra fail with negative edge weights?", "It finalises a node's distance when visited, assuming no later edge can shorten it — a negative edge could, breaking the guarantee."],
+    ["State the time complexity of Dijkstra with a binary-heap priority queue.", "O((V + E) log V)."],
+    ["On an unweighted graph, Dijkstra behaves like which algorithm?", "Breadth-first search — with equal weights, cheapest-first equals fewest-edges-first."]
   ],
   "quiz": [
     {
@@ -165,7 +169,10 @@ C["compsci:4.3.4.1"] = {
       ],
       "ans": 1,
       "why": "Visiting a node finalises its distance — the greedy proof guarantees no shorter path exists."
-    }
+    },
+    { "q": "Dijkstra differs from A* in that Dijkstra…", "opts": ["uses a heuristic estimate to the goal", "uses only the actual distance from the start", "cannot handle weighted edges", "is a depth-first search"], "ans": 1, "why": "Dijkstra ranks nodes purely by g (cost from start); A* adds a heuristic h toward the goal." },
+    { "q": "The relaxation condition updates dist[v] when…", "opts": ["dist[u] + weight(u,v) < dist[v]", "dist[v] < dist[u]", "v is the start node", "u has no neighbours"], "ans": 0, "why": "A cheaper route to v via u improves its tentative distance." },
+    { "q": "Dijkstra's algorithm is best described as…", "opts": ["divide and conquer", "greedy", "brute force", "dynamic programming only"], "ans": 1, "why": "It greedily settles the closest unvisited node at each step." }
   ],
   "exam": [
     {
@@ -176,7 +183,11 @@ C["compsci:4.3.4.1"] = {
         "Sets the distance to all other nodes to infinity (1)",
         "Marks all nodes as unvisited / adds all to the priority queue (1)"
       ]
-    }
+    },
+    { "q": "Explain what 'relaxation' means in Dijkstra's algorithm and why a priority queue is used.", "marks": 3,
+      "ms": ["Relaxation: if dist[u] + weight(u,v) < dist[v], update dist[v] (and prev[v]) to the cheaper route (1-2)", "A priority queue efficiently returns the unvisited node with the smallest tentative distance each step (1)"] },
+    { "q": "A network routing system needs least-cost paths from one router to all others, where links have positive latencies. Discuss why Dijkstra's algorithm is appropriate, how it guarantees correctness, and one limitation.", "marks": 6,
+      "ms": ["Links have positive weights (latency) and Dijkstra finds minimum-total-weight paths (1)", "It is single-source — computes shortest paths to all routers from the source (1-2)", "Greedily settling the closest unvisited node, with relaxation, guarantees each settled distance is final/optimal for non-negative weights (1-2)", "Priority queue makes node selection efficient (1)", "Limitation: fails if any weight is negative / does not adapt instantly to changing link costs (1)"] }
   ]
 };
 
@@ -327,7 +338,11 @@ C["compsci:4.3.4.3"] = {
     [
       "What does A* reduce to when h(x) = 0 for all nodes?",
       "Dijkstra's algorithm — it explores in all directions without any goal-directed bias."
-    ]
+    ],
+    ["Why does a better (closer) admissible heuristic make A* faster?", "The nearer h is to the true remaining cost, the more the search is steered toward the goal, so fewer nodes are expanded."],
+    ["Which heuristic suits 4-way grid movement, and which suits any-direction travel?", "Manhattan distance for 4-way grids; Euclidean (straight-line) distance for any-direction/physical travel."],
+    ["What are the 'open set' and 'closed set' in A*?", "Open set: discovered nodes still to be expanded (a priority queue on f). Closed set: nodes already expanded/finalised."],
+    ["Does an inadmissible heuristic still guarantee the shortest path?", "No — overestimating can prune the true optimal route, giving a suboptimal (though often faster) result."]
   ],
   "quiz": [
     {
@@ -350,7 +365,10 @@ C["compsci:4.3.4.3"] = {
       ],
       "ans": 1,
       "why": "Overestimating causes A* to prune nodes on the true shortest path, so the result may be suboptimal."
-    }
+    },
+    { "q": "In A*, a node is prioritised for expansion by the lowest value of…", "opts": ["g(x)", "h(x)", "f(x) = g(x) + h(x)", "the number of neighbours"], "ans": 2, "why": "f combines actual cost so far with the estimate to the goal." },
+    { "q": "Setting h(x) = 0 for every node turns A* into…", "opts": ["BFS", "DFS", "Dijkstra's algorithm", "binary search"], "ans": 2, "why": "With no heuristic, f = g, which is exactly Dijkstra." },
+    { "q": "Which heuristic is admissible for straight-line travel in any direction?", "opts": ["Manhattan distance", "Euclidean distance", "An overestimate of distance", "Random values"], "ans": 1, "why": "Straight-line (Euclidean) distance never exceeds the true path cost, so it is admissible." }
   ],
   "exam": [
     {
@@ -362,7 +380,11 @@ C["compsci:4.3.4.3"] = {
         "f(x) = g(x) + h(x) used to prioritise which node to expand next (1)",
         "Admissibility: h(x) must never overestimate the true remaining cost (1)"
       ]
-    }
+    },
+    { "q": "State one similarity and one difference between A* and Dijkstra's algorithm.", "marks": 2,
+      "ms": ["Similarity: both find the shortest path on non-negative weighted graphs / both expand the lowest-priority node from a priority queue (1)", "Difference: A* adds a heuristic estimate h(x) to direct the search toward the goal, whereas Dijkstra uses only g(x) (1)"] },
+    { "q": "A game studio uses A* for enemy pathfinding on a tile map. Discuss why A* is preferred over Dijkstra here, the role of the heuristic, and the consequence of choosing an inadmissible heuristic.", "marks": 6,
+      "ms": ["A* uses f = g + h to search directionally toward the goal, expanding far fewer tiles than Dijkstra's blind expansion (1-2)", "On a large map this is much faster, important for real-time games (1)", "A suitable admissible heuristic (e.g. Manhattan distance on a 4-way grid) estimates remaining cost without overestimating (1-2)", "An inadmissible (overestimating) heuristic can prune the true shortest path, giving a suboptimal route (1)", "Trade-off noted: a stronger heuristic speeds search but must stay admissible to guarantee optimality (1)"] }
   ]
 };
 
@@ -471,7 +493,7 @@ C["compsci:4.3.5.2"] = {
       "callout": {
         "t": "tip",
         "h": "The Travelling Salesman Problem (TSP)",
-        "body": "TSP is the canonical intractable problem: find the shortest route visiting $n$ cities exactly once. The brute-force solution checks all $(n-1)!$ permutations. For $n=20$, that's ~10^{17} routes — impossible even at 10^{10}$ ops/sec."
+        "body": "TSP is the canonical intractable problem: find the shortest route visiting $n$ cities exactly once. The brute-force solution checks all $(n-1)!$ permutations. For $n=20$, that's ~$10^{17}$ routes — impossible even at $10^{10}$ ops/sec."
       }
     }
   ],
@@ -495,7 +517,11 @@ C["compsci:4.3.5.2"] = {
     [
       "Why can't faster hardware solve intractable problems?",
       "Doubling speed only adds one item to what an exponential algorithm can handle — the growth outpaces any hardware improvement."
-    ]
+    ],
+    ["What is a heuristic, in the context of intractable problems?", "A technique that finds an approximate 'good enough' solution in reasonable (polynomial) time, trading guaranteed optimality for speed."],
+    ["Give the brute-force complexity of the Travelling Salesman Problem.", "O(n!) (checking (n-1)! permutations) — factorial, hence intractable for large n."],
+    ["Name a heuristic approach to TSP.", "Nearest Neighbour — repeatedly travel to the closest unvisited city; fast but not guaranteed optimal."],
+    ["Order these by growth for large n: O(n^2), O(2^n), O(n!).", "O(n^2) < O(2^n) < O(n!) — polynomial grows slowest, factorial fastest."]
   ],
   "quiz": [
     {
@@ -518,7 +544,9 @@ C["compsci:4.3.5.2"] = {
       ],
       "ans": 2,
       "why": "TSP is $O(n!)$ brute force — exponential/factorial time makes it intractable for large n."
-    }
+    },
+    { "q": "An intractable problem differs from an uncomputable one because the intractable problem…", "opts": ["has no algorithm at all", "has an algorithm that is just too slow for large inputs", "is solved instantly", "only affects sorting"], "ans": 1, "why": "Intractable = an algorithm exists but is impractically slow; uncomputable = no algorithm can ever exist." },
+    { "q": "Which complexity is tractable?", "opts": ["$O(2^n)$", "$O(n!)$", "$O(n \\log n)$", "$O(3^n)$"], "ans": 2, "why": "Polynomial/log-linear time is tractable; exponential and factorial are not." }
   ],
   "exam": [
     {
@@ -531,7 +559,11 @@ C["compsci:4.3.5.2"] = {
         "Heuristic: a technique that finds an approximate (good enough) solution in polynomial time (1)",
         "Example: Nearest Neighbour for TSP gives a near-optimal tour quickly, not guaranteed optimal (1)"
       ]
-    }
+    },
+    { "q": "Explain why simply using faster hardware does not make an intractable problem tractable.", "marks": 3,
+      "ms": ["Exponential/factorial growth means each extra input element multiplies the work (1)", "A hardware speed-up of a constant factor only adds a tiny constant to the input size that can be handled (1)", "The growth of the algorithm outpaces any realistic hardware improvement, so it stays impractical (1)"] },
+    { "q": "Discuss the limits of computation in terms of tractable, intractable and uncomputable problems, using the Travelling Salesman Problem and the Halting Problem as examples.", "marks": 6,
+      "ms": ["Tractable problems run in polynomial time and scale acceptably (1)", "Intractable problems have algorithms but exponential/factorial time, e.g. TSP brute force is O(n!) (1-2)", "Heuristics (e.g. Nearest Neighbour) give good-enough TSP solutions quickly without guaranteeing optimality (1)", "Uncomputable problems have NO possible algorithm, e.g. the Halting Problem (1-2)", "Clear distinction drawn: intractable = too slow, uncomputable = impossible in principle (1)"] }
   ]
 };
 
