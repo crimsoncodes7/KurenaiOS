@@ -546,7 +546,8 @@ C["compsci:4.3.5.2"] = {
       "why": "TSP is $O(n!)$ brute force — exponential/factorial time makes it intractable for large n."
     },
     { "q": "An intractable problem differs from an uncomputable one because the intractable problem…", "opts": ["has no algorithm at all", "has an algorithm that is just too slow for large inputs", "is solved instantly", "only affects sorting"], "ans": 1, "why": "Intractable = an algorithm exists but is impractically slow; uncomputable = no algorithm can ever exist." },
-    { "q": "Which complexity is tractable?", "opts": ["$O(2^n)$", "$O(n!)$", "$O(n \\log n)$", "$O(3^n)$"], "ans": 2, "why": "Polynomial/log-linear time is tractable; exponential and factorial are not." }
+    { "q": "Which complexity is tractable?", "opts": ["$O(2^n)$", "$O(n!)$", "$O(n \\log n)$", "$O(3^n)$"], "ans": 2, "why": "Polynomial/log-linear time is tractable; exponential and factorial are not." },
+    { "q": "A heuristic for an intractable problem trades…", "opts": ["correctness for memory", "guaranteed optimality for speed", "speed for accuracy", "nothing — it is always optimal"], "ans": 1, "why": "Heuristics return a good-enough answer quickly, giving up the guarantee of the exact optimum." }
   ],
   "exam": [
     {
