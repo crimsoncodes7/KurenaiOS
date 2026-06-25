@@ -47,11 +47,15 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
     });
   }
-  /* inline markup: `code`, **bold**, →  */
+  /* inline markup: `code`, **bold**, *italic*, →
+     Italic is matched conservatively so it can't capture arithmetic like
+     "6*3" or "p * q": the opening * must sit on a word boundary and hug a
+     non-space, the closing * must hug a non-space — a lone/spaced * never pairs. */
   function inline(s) {
     return esc(s)
       .replace(/`([^`]+)`/g, "<code>$1</code>")
-      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/(?<![A-Za-z0-9)*])\*(?!\s)([^*\n]+?)(?<!\s)\*(?![A-Za-z0-9(*])/g, "<em>$1</em>");
   }
 
   function highlightCode(src, lang) {
