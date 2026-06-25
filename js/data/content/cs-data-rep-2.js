@@ -76,6 +76,9 @@ C["compsci:4.5.4.5"] = {
       }
     },
     {
+      "page": "Normalisation & Errors"
+    },
+    {
       "h": "The Normalisation Process"
     },
     {
@@ -152,6 +155,14 @@ C["compsci:4.5.4.5"] = {
     [
       "Define 'underflow' in floating point calculations.",
       "When a number is too small (too close to zero) to be represented with the given number of bits."
+    ],
+    [
+      "What is stored in the mantissa and what in the exponent?",
+      "The mantissa stores the significant digits (precision); the exponent stores the power of 2 that positions the binary point (range)."
+    ],
+    [
+      "Why can 0.1 not be stored exactly in floating point?",
+      "In binary 0.1 is a recurring fraction ($0.0\\overline{0011}$), so it must be truncated to the available mantissa bits, leaving a rounding error."
     ]
   ],
   "quiz": [
@@ -198,6 +209,17 @@ C["compsci:4.5.4.5"] = {
       ],
       "ans": 0,
       "why": "Fractions like 1/10 have infinite repeating binary representations, so they are truncated/rounded, leading to floating point errors."
+    },
+    {
+      "q": "Keeping total bit-width fixed, increasing the number of mantissa bits will...?",
+      "opts": [
+        "increase range",
+        "increase precision",
+        "reduce both",
+        "have no effect"
+      ],
+      "ans": 1,
+      "why": "More mantissa bits give more significant digits (higher precision), but leave fewer exponent bits, so range falls."
     }
   ],
   "exam": [
@@ -207,6 +229,27 @@ C["compsci:4.5.4.5"] = {
       "ms": [
         "Increasing the number of bits for the mantissa increases precision but decreases range. (1)",
         "Increasing the number of bits for the exponent increases range but decreases precision. (1)"
+      ]
+    },
+    {
+      "q": "A recorded value is 9.8 but the actual value is 9.75. Calculate (a) the absolute error and (b) the relative error.",
+      "marks": 3,
+      "ms": [
+        "(a) Absolute error = |9.75 − 9.8| = 0.05. (1)",
+        "(b) Relative error = 0.05 / 9.75. (1)",
+        "≈ 0.00513 (≈ 0.51%). (1)"
+      ]
+    },
+    {
+      "q": "Discuss how floating point representation allows a wide range of values to be stored and the problems this introduces.",
+      "marks": 6,
+      "ms": [
+        "Value = mantissa × 2^exponent. (1)",
+        "The exponent gives a very wide range (very large and very small numbers). (1)",
+        "The mantissa gives precision (significant digits). (1)",
+        "In a fixed width, range and precision trade off against each other. (1)",
+        "Many values (e.g. 0.1) cannot be represented exactly, causing rounding errors. (1)",
+        "Errors accumulate over repeated calculations and equality comparisons become unreliable, so a tolerance is used. (1)"
       ]
     }
   ]
@@ -293,6 +336,26 @@ C["compsci:4.5.4.6"] = {
     [
       "In IEEE 754 single precision (32-bit), how many bits are used for the mantissa?",
       "23 bits (plus 1 sign bit + 8 exponent bits)."
+    ],
+    [
+      "In a fixed-width float, what is the cost of adding more exponent bits?",
+      "Range increases, but precision decreases because fewer bits remain for the mantissa."
+    ],
+    [
+      "Define precision in a floating point context.",
+      "The number of significant digits a value can be stored to — governed by the mantissa length."
+    ],
+    [
+      "Define range in a floating point context.",
+      "How large or small a value can be — governed by the number of exponent bits."
+    ],
+    [
+      "Why does a tiny mantissa cause large gaps between representable numbers?",
+      "Few significant digits mean values round to the nearest representable point, and those points are spaced further apart."
+    ],
+    [
+      "Memory aid for which part does what?",
+      "Exponent = Extent (how far it reaches / range); Mantissa = detail (how accurate / precision)."
     ]
   ],
   "quiz": [
@@ -317,6 +380,39 @@ C["compsci:4.5.4.6"] = {
       ],
       "ans": 1,
       "why": "More mantissa bits increase precision (more significant digits), which is what the programmer needs."
+    },
+    {
+      "q": "Which change increases the range of a fixed-width float?",
+      "opts": [
+        "more mantissa bits",
+        "more exponent bits",
+        "fewer total bits",
+        "normalising it"
+      ],
+      "ans": 1,
+      "why": "The exponent controls range; more exponent bits widen it (at the cost of precision)."
+    },
+    {
+      "q": "A 16-bit float with a 12-bit mantissa and 4-bit exponent, compared with an 8/8 split, has...?",
+      "opts": [
+        "more range, less precision",
+        "more precision, less range",
+        "both more",
+        "both less"
+      ],
+      "ans": 1,
+      "why": "More mantissa bits = more precision; fewer exponent bits = less range."
+    },
+    {
+      "q": "Precision in floating point is determined by...?",
+      "opts": [
+        "the exponent",
+        "the sign bit",
+        "the mantissa",
+        "the radix"
+      ],
+      "ans": 2,
+      "why": "The mantissa holds the significant digits, so its length sets the precision."
     }
   ],
   "exam": [
@@ -326,6 +422,27 @@ C["compsci:4.5.4.6"] = {
       "ms": [
         "The range of numbers that can be represented increases (1)",
         "The precision of the numbers decreases (1)"
+      ]
+    },
+    {
+      "q": "A custom 16-bit float uses 10 mantissa bits and 6 exponent bits. The designer moves 2 bits from the exponent to the mantissa. State the effect on (a) range (b) precision, and (c) one application this suits.",
+      "marks": 3,
+      "ms": [
+        "(a) Range decreases (fewer exponent bits). (1)",
+        "(b) Precision increases (more mantissa bits). (1)",
+        "(c) Suits an application needing accurate values over a small range, e.g. precise sensor measurements. (1)"
+      ]
+    },
+    {
+      "q": "Discuss the trade-off between range and precision in floating point representation and how a programmer should decide the bit allocation.",
+      "marks": 6,
+      "ms": [
+        "Total bit width is fixed, so mantissa and exponent bits compete. (1)",
+        "More mantissa bits give higher precision (more significant digits). (1)",
+        "More exponent bits give greater range (larger/smaller magnitudes). (1)",
+        "Increasing one necessarily reduces the other. (1)",
+        "Choice depends on the data: scientific work with huge/tiny values needs range; measurement/financial work needs precision. (1)",
+        "IEEE 754 single precision (8 exponent, 23 mantissa) is a general-purpose compromise; double precision raises both at higher memory cost. (1)"
       ]
     }
   ]
@@ -422,6 +539,26 @@ C["compsci:4.5.4.7"] = {
     [
       "When normalising by shifting left, what must happen to the exponent?",
       "It must be decremented by 1 for each left shift to preserve the number's value."
+    ],
+    [
+      "What is normalisation?",
+      "Shifting a floating point mantissa so its most significant bit holds the first meaningful digit, maximising precision and giving a unique representation."
+    ],
+    [
+      "How do you recognise a normalised positive mantissa?",
+      "It begins 0.1 (sign bit 0, next bit 1)."
+    ],
+    [
+      "How do you recognise a normalised negative mantissa?",
+      "It begins 1.0 (sign bit 1, next bit 0)."
+    ],
+    [
+      "Why does normalisation not change the value?",
+      "Each left shift of the mantissa is compensated by decrementing the exponent, so mantissa × 2^exponent stays the same."
+    ],
+    [
+      "What is wrong with a mantissa that starts 0.0 or 1.1?",
+      "It has a redundant leading bit that wastes precision — it is not normalised and should be shifted."
     ]
   ],
   "quiz": [
@@ -446,6 +583,39 @@ C["compsci:4.5.4.7"] = {
       ],
       "ans": 1,
       "why": "Negative normalised mantissa starts with 1.0. 1.1 is not normalised (redundant sign bit)."
+    },
+    {
+      "q": "To normalise the positive mantissa 0.0010110 until it starts 0.1, how many left shifts are needed and what happens to the exponent?",
+      "opts": [
+        "2 shifts, exponent −2",
+        "2 shifts, exponent +2",
+        "1 shift, exponent −1",
+        "3 shifts, exponent −3"
+      ],
+      "ans": 0,
+      "why": "0.0010110 → 0.0101100 → 0.1011000 takes 2 left shifts, so the exponent is decremented by 2."
+    },
+    {
+      "q": "Which mantissa is already normalised (positive)?",
+      "opts": [
+        "0.0110",
+        "0.1011",
+        "0.0011",
+        "1.1010"
+      ],
+      "ans": 1,
+      "why": "A normalised positive mantissa begins 0.1."
+    },
+    {
+      "q": "What is the main purpose of normalisation?",
+      "opts": [
+        "reduce file size",
+        "maximise precision",
+        "increase range",
+        "speed up addition"
+      ],
+      "ans": 1,
+      "why": "It uses all mantissa bits for meaningful digits, maximising precision."
     }
   ],
   "exam": [
@@ -456,6 +626,26 @@ C["compsci:4.5.4.7"] = {
         "Shift left 3 times to get 0.1011000 (1)",
         "Decrement exponent by 3 (1)",
         "Final result is normalised as it starts with 0.1 (1)"
+      ]
+    },
+    {
+      "q": "State the two-bit patterns that begin a correctly normalised mantissa for (a) a positive number (b) a negative number in two's complement.",
+      "marks": 2,
+      "ms": [
+        "(a) 0.1 (1)",
+        "(b) 1.0 (1)"
+      ]
+    },
+    {
+      "q": "Discuss why floating point numbers are normalised and how the process is carried out without changing the value represented.",
+      "marks": 6,
+      "ms": [
+        "Normalisation maximises precision by removing redundant leading bits. (1)",
+        "It gives each value a single, unique representation. (1)",
+        "A positive normalised mantissa starts 0.1; a negative one starts 1.0. (1)",
+        "The mantissa is shifted left until this pattern is reached. (1)",
+        "For each left shift the exponent is decremented by 1. (1)",
+        "Because mantissa × 2^exponent is unchanged by the simultaneous shift and exponent adjustment, the value stays the same. (1)"
       ]
     }
   ]
@@ -531,6 +721,26 @@ C["compsci:4.5.4.8"] = {
     [
       "What arithmetic typically causes underflow?",
       "Dividing a small number by a very large number, or multiplying two very small numbers."
+    ],
+    [
+      "Is floating point overflow about the mantissa or the exponent?",
+      "The exponent — overflow happens when the exponent needed exceeds the maximum the exponent field can store."
+    ],
+    [
+      "What value is typically produced by IEEE 754 overflow?",
+      "±∞ (infinity), or an error flag."
+    ],
+    [
+      "What happens to a value during underflow?",
+      "It collapses to 0 (or a denormalised value), losing all precision."
+    ],
+    [
+      "What arithmetic typically causes overflow?",
+      "Multiplying two very large numbers, or adding two large numbers."
+    ],
+    [
+      "Why is underflow described as 'too close to zero'?",
+      "The magnitude is so small that the required negative exponent is beyond the exponent field's range, so it cannot be represented."
     ]
   ],
   "quiz": [
@@ -555,6 +765,39 @@ C["compsci:4.5.4.8"] = {
       ],
       "ans": 2,
       "why": "IEEE 754 defines ±∞ as the result of overflow — the calculation continues rather than crashing."
+    },
+    {
+      "q": "Multiplying two very large floating point numbers most likely causes...?",
+      "opts": [
+        "underflow",
+        "overflow",
+        "a rounding error only",
+        "normalisation"
+      ],
+      "ans": 1,
+      "why": "The product's exponent exceeds the maximum, causing overflow."
+    },
+    {
+      "q": "Floating point overflow is caused by a limit on which field?",
+      "opts": [
+        "mantissa",
+        "sign bit",
+        "exponent",
+        "radix"
+      ],
+      "ans": 2,
+      "why": "Overflow is the exponent exceeding its maximum range."
+    },
+    {
+      "q": "Which statement is true?",
+      "opts": [
+        "Overflow rounds to the nearest value",
+        "Underflow produces ±∞",
+        "Underflow collapses a value to 0",
+        "Overflow only affects integers"
+      ],
+      "ans": 2,
+      "why": "Underflow makes a too-small value become 0 (or denormalised)."
     }
   ],
   "exam": [
@@ -564,6 +807,27 @@ C["compsci:4.5.4.8"] = {
       "ms": [
         "If two large positive numbers are added (1)",
         "The resulting exponent might exceed the maximum value that can be stored in the exponent field (1)"
+      ]
+    },
+    {
+      "q": "Explain the difference between floating point overflow and underflow, giving the typical result of each.",
+      "marks": 3,
+      "ms": [
+        "Overflow: value too large — the exponent exceeds the maximum positive range; result ±∞ / error flag. (1)",
+        "Underflow: value too small (near zero) — the exponent exceeds the maximum negative range. (1)",
+        "Result of underflow: the value collapses to 0 (or a denormalised value). (1)"
+      ]
+    },
+    {
+      "q": "Discuss the causes and consequences of overflow and underflow in floating point arithmetic, and how systems respond to them.",
+      "marks": 6,
+      "ms": [
+        "Both arise from the limited range of the exponent field. (1)",
+        "Overflow: magnitude too large (e.g. multiplying large numbers). (1)",
+        "Underflow: magnitude too small / too close to zero (e.g. dividing small by large). (1)",
+        "IEEE 754 represents overflow as ±∞ so computation can continue. (1)",
+        "Underflow collapses to 0 (or a denormalised number), losing precision. (1)",
+        "Consequences are incorrect results / loss of accuracy; systems may raise flags or use larger types (double) to reduce the risk. (1)"
       ]
     }
   ]
@@ -634,6 +898,22 @@ C["compsci:4.5.4.9"] = {
     [
       "Why should you avoid comparing floating point values with == in programming?",
       "Rounding errors mean two values that should be equal may differ by a tiny amount, causing the equality check to fail unexpectedly."
+    ],
+    [
+      "What causes rounding error in floating point?",
+      "Many decimal fractions are recurring in binary and must be truncated to the finite mantissa, leaving a small difference."
+    ],
+    [
+      "Which is more meaningful across different scales: absolute or relative error?",
+      "Relative error — it expresses the error as a proportion of the true value, so it is comparable across magnitudes."
+    ],
+    [
+      "What should you use instead of == to compare two floats?",
+      "A tolerance (epsilon): check that $|a - b|$ is less than a small threshold."
+    ],
+    [
+      "Give an example value that cannot be stored exactly in binary.",
+      "0.1 (also 0.2 or 1/3) — they are recurring binary fractions."
     ]
   ],
   "quiz": [
@@ -658,6 +938,39 @@ C["compsci:4.5.4.9"] = {
       ],
       "ans": 1,
       "why": "0.1 and 0.2 are both recurring fractions in binary, so tiny truncation errors accumulate in the sum."
+    },
+    {
+      "q": "Why is 0.5 stored exactly but 0.1 is not?",
+      "opts": [
+        "0.5 is smaller",
+        "0.5 = 1/2 is an exact power-of-two fraction; 0.1 is recurring in binary",
+        "0.1 is negative",
+        "floats cannot store 0.1 at all"
+      ],
+      "ans": 1,
+      "why": "1/2 is exactly representable as a binary fraction; 1/10 is recurring and must be truncated."
+    },
+    {
+      "q": "An actual value is 200 and it is stored as 200.5. The relative error is...?",
+      "opts": [
+        "0.5",
+        "0.0025",
+        "0.25",
+        "2.5"
+      ],
+      "ans": 1,
+      "why": "Absolute error 0.5 ÷ 200 = 0.0025 (0.25%)."
+    },
+    {
+      "q": "Why can repeated floating point additions drift from the expected result?",
+      "opts": [
+        "the CPU overheats",
+        "tiny rounding errors accumulate",
+        "integers overflow",
+        "the mantissa grows"
+      ],
+      "ans": 1,
+      "why": "Each truncation adds a small error that compounds over many operations."
     }
   ],
   "exam": [
@@ -675,6 +988,18 @@ C["compsci:4.5.4.9"] = {
       "ms": [
         "Floating point values have rounding errors due to limited binary precision (1)",
         "Two values that should mathematically be equal may differ slightly, causing == to return false (1)"
+      ]
+    },
+    {
+      "q": "Discuss why rounding errors occur in floating point arithmetic and the problems they can cause for programmers, with one way to manage them.",
+      "marks": 6,
+      "ms": [
+        "Floating point uses a finite mantissa. (1)",
+        "Many fractions (e.g. 0.1, 1/3) are recurring in binary and must be truncated. (1)",
+        "This leaves a small rounding error on storage. (1)",
+        "Errors accumulate over repeated calculations. (1)",
+        "Exact equality comparisons (==) can fail unexpectedly. (1)",
+        "Managed by comparing with a tolerance/epsilon, using higher precision (double), or rearranging calculations to reduce error growth. (1)"
       ]
     }
   ]
@@ -738,6 +1063,9 @@ C["compsci:4.5.5.2"] = {
           ]
         ]
       }
+    },
+    {
+      "page": "Error Detection"
     },
     {
       "h": "Error Detection & Correction"
@@ -837,6 +1165,18 @@ C["compsci:4.5.5.2"] = {
     [
       "What type of error is a check digit primarily designed to catch?",
       "Human data entry errors, such as mistyping a digit or transposing two digits in a barcode or ID number."
+    ],
+    [
+      "How many characters can 8-bit extended ASCII represent?",
+      "256 ($2^8$)."
+    ],
+    [
+      "What is a checksum?",
+      "A value calculated from a block of data and sent with it; the receiver recalculates and compares to detect errors."
+    ],
+    [
+      "Can a single parity bit correct an error?",
+      "No — it can only detect a single-bit (odd number of) error; it cannot identify which bit flipped."
     ]
   ],
   "quiz": [
@@ -883,6 +1223,17 @@ C["compsci:4.5.5.2"] = {
       ],
       "ans": 1,
       "why": "Character sets are sequential. B=66, C=67."
+    },
+    {
+      "q": "Using ODD parity, what parity bit is needed for the data 1100100 (three 1s)?",
+      "opts": [
+        "0",
+        "1",
+        "either",
+        "none"
+      ],
+      "ans": 0,
+      "why": "Three 1s is already odd, so the parity bit is 0 to keep the total odd."
     }
   ],
   "exam": [
@@ -893,6 +1244,26 @@ C["compsci:4.5.5.2"] = {
         "A calculation is performed on the data block before transmission to generate a value (the checksum). (1)",
         "The checksum is transmitted along with the data. (1)",
         "The receiver performs the same calculation on the received data and compares the result to the received checksum; if they differ, an error occurred. (1)"
+      ]
+    },
+    {
+      "q": "Explain one limitation of using a single parity bit for error detection.",
+      "marks": 2,
+      "ms": [
+        "It only detects an odd number of bit errors. (1)",
+        "If two bits flip the parity is unchanged, so the error goes undetected (and it cannot correct errors). (1)"
+      ]
+    },
+    {
+      "q": "Compare parity bits, checksums and majority voting as methods of handling transmission errors.",
+      "marks": 6,
+      "ms": [
+        "Parity bit: one extra bit making total 1s even/odd; detects a single-bit error only and cannot correct. (1)",
+        "Low overhead but weak. (1)",
+        "Checksum: a value computed from the whole data block, recalculated by the receiver. (1)",
+        "Detects many errors but some cancel out; still cannot correct. (1)",
+        "Majority voting: each bit sent multiple times; receiver takes the most common value. (1)",
+        "Can correct errors but greatly increases data volume / reduces throughput. (1)"
       ]
     }
   ]
@@ -972,6 +1343,22 @@ C["compsci:4.5.5.1"] = {
     [
       "What is one major limitation of ASCII?",
       "It can only represent English and basic Latin characters — no support for non-Latin alphabets, emoji, or most world languages."
+    ],
+    [
+      "What is the ASCII code for the digit character '0'?",
+      "48 — note this is not the number 0."
+    ],
+    [
+      "How do you convert an uppercase letter to lowercase using its ASCII code?",
+      "Add 32 (e.g. 'A' 65 → 'a' 97); equivalently, set bit 5."
+    ],
+    [
+      "What range of ASCII codes are the control characters?",
+      "0–31 (non-printing control codes)."
+    ],
+    [
+      "What does ASCII stand for?",
+      "American Standard Code for Information Interchange."
     ]
   ],
   "quiz": [
@@ -996,6 +1383,39 @@ C["compsci:4.5.5.1"] = {
       ],
       "ans": 2,
       "why": "A=65, B=66, C=67, D=68. Each letter increments by 1."
+    },
+    {
+      "q": "The ASCII code for 'a' is 97. What is the code for 'c'?",
+      "opts": [
+        "98",
+        "99",
+        "100",
+        "65"
+      ],
+      "ans": 1,
+      "why": "a=97, b=98, c=99."
+    },
+    {
+      "q": "The character '7' has which ASCII code?",
+      "opts": [
+        "7",
+        "48",
+        "55",
+        "63"
+      ],
+      "ans": 2,
+      "why": "'0' is 48, so '7' is 48 + 7 = 55."
+    },
+    {
+      "q": "Why does 'a' − 'A' = 32 in ASCII?",
+      "opts": [
+        "coincidence",
+        "lowercase letters are 32 codes above uppercase",
+        "ASCII is 32-bit",
+        "there are 32 letters"
+      ],
+      "ans": 1,
+      "why": "Lowercase codes are offset 32 above their uppercase equivalents (bit 5 differs)."
     }
   ],
   "exam": [
@@ -1004,6 +1424,26 @@ C["compsci:4.5.5.1"] = {
       "marks": 1,
       "ms": [
         "It cannot represent characters from non-Latin languages like Chinese or Arabic (1)"
+      ]
+    },
+    {
+      "q": "The ASCII code for 'A' is 65. State the ASCII codes for (a) 'E' (b) 'a'.",
+      "marks": 2,
+      "ms": [
+        "(a) 69 (65 + 4). (1)",
+        "(b) 97 (65 + 32). (1)"
+      ]
+    },
+    {
+      "q": "Discuss the advantages and limitations of ASCII and explain why Unicode was developed.",
+      "marks": 6,
+      "ms": [
+        "ASCII is compact — 7 bits, 128 characters, one byte per character. (1)",
+        "Sequential codes make character arithmetic (sorting, case conversion) easy. (1)",
+        "Limitation: only 128 characters, essentially English/Latin. (1)",
+        "Cannot represent non-Latin scripts (Arabic, Chinese) or emoji. (1)",
+        "Unicode assigns a unique code point to every character in every language. (1)",
+        "Encodings like UTF-8 stay backwards-compatible with ASCII while supporting over a million characters, at the cost of more bytes per character. (1)"
       ]
     }
   ]
@@ -1069,6 +1509,34 @@ C["compsci:4.5.5.3"] = {
     [
       "What is a major limitation of a simple parity bit?",
       "It can only detect an odd number of bit flips; if two bits flip, it fails."
+    ],
+    [
+      "What is a parity bit?",
+      "An extra bit added to a unit of data so the total number of 1s is even (even parity) or odd (odd parity), used to detect a single-bit error."
+    ],
+    [
+      "How does a checksum detect errors?",
+      "A value is computed from the data and sent with it; the receiver recomputes it and flags an error if the two differ."
+    ],
+    [
+      "What is a check digit and where is it used?",
+      "A digit derived from the others and appended to a number (e.g. ISBN, barcode) to catch human entry errors like mistyped or transposed digits."
+    ],
+    [
+      "How does majority voting correct errors?",
+      "Each bit is sent several times (e.g. 3×); the receiver assumes the most frequent value is correct."
+    ],
+    [
+      "What is one disadvantage of majority voting?",
+      "It greatly increases the amount of data transmitted, reducing effective throughput."
+    ],
+    [
+      "What can a Hamming code do that a parity bit cannot?",
+      "Detect and correct a single-bit error, by using multiple check bits to locate the flipped bit."
+    ],
+    [
+      "Why is CRC more reliable than a simple checksum?",
+      "It uses polynomial division, detecting burst errors that a simple sum might miss."
     ]
   ],
   "quiz": [
@@ -1082,6 +1550,50 @@ C["compsci:4.5.5.3"] = {
       ],
       "ans": 2,
       "why": "If you send 111 and receive 110, you assume the 0 was an error."
+    },
+    {
+      "q": "Which method is designed to catch human transcription errors?",
+      "opts": [
+        "parity bit",
+        "check digit",
+        "majority voting",
+        "CRC"
+      ],
+      "ans": 1,
+      "why": "Check digits (e.g. on ISBNs) catch mistyped or transposed digits entered by people."
+    },
+    {
+      "q": "A single parity bit can...?",
+      "opts": [
+        "correct one error",
+        "detect a single-bit error",
+        "detect any number of errors",
+        "encrypt data"
+      ],
+      "ans": 1,
+      "why": "It detects a single (odd number of) bit error but cannot correct it."
+    },
+    {
+      "q": "Which error-checking method can correct as well as detect?",
+      "opts": [
+        "checksum",
+        "parity bit",
+        "Hamming code",
+        "check digit"
+      ],
+      "ans": 2,
+      "why": "Hamming codes locate and correct a single-bit error."
+    },
+    {
+      "q": "Why might two bit-flips defeat a parity check?",
+      "opts": [
+        "they double the data",
+        "they cancel out, leaving parity unchanged",
+        "parity only works on text",
+        "they cause overflow"
+      ],
+      "ans": 1,
+      "why": "Two flips return the count of 1s to the original parity, so the error is undetected."
     }
   ],
   "exam": [
@@ -1092,6 +1604,26 @@ C["compsci:4.5.5.3"] = {
         "A value is calculated from the file data at the source (1)",
         "This value is sent along with the file (1)",
         "The receiver recalculates the value; if it doesn't match the sent checksum, an error is flagged (1)"
+      ]
+    },
+    {
+      "q": "State one advantage and one disadvantage of majority voting for error correction.",
+      "marks": 2,
+      "ms": [
+        "Advantage: it can correct errors without retransmission. (1)",
+        "Disadvantage: it multiplies the volume of data sent (e.g. 3×), reducing throughput. (1)"
+      ]
+    },
+    {
+      "q": "Discuss the methods available for detecting and correcting errors in data transmission, evaluating their relative strengths.",
+      "marks": 6,
+      "ms": [
+        "Parity bit: simple, low overhead; detects a single-bit error only, cannot correct. (1)",
+        "Checksum: computed over a block, recalculated by receiver; detects many errors but some cancel. (1)",
+        "Check digit: catches human entry errors (transposition/mistyping) in numbers like ISBNs. (1)",
+        "Majority voting: sends each bit multiple times and can correct errors, but at high bandwidth cost. (1)",
+        "Hamming codes / CRC: more sophisticated — Hamming corrects single-bit errors; CRC reliably detects burst errors. (1)",
+        "Choice trades off overhead, reliability and whether correction (not just detection) is needed. (1)"
       ]
     }
   ]
@@ -1161,6 +1693,9 @@ C["compsci:4.5.6.4"] = {
       }
     },
     {
+      "page": "ADC Process"
+    },
+    {
       "h": "The ADC (Analogue to Digital) Process"
     },
     {
@@ -1227,6 +1762,18 @@ C["compsci:4.5.6.4"] = {
     [
       "Why can't vector graphics be easily used for photographs?",
       "Photographs have complex, continuously varying color patterns that cannot be efficiently described by simple geometric math equations."
+    ],
+    [
+      "What does colour depth determine?",
+      "The number of bits per pixel, and therefore the number of colours available ($2^n$)."
+    ],
+    [
+      "What is image resolution?",
+      "The number of pixels in an image, given as width × height."
+    ],
+    [
+      "What is the difference between sampling and quantising in an ADC?",
+      "Sampling measures the signal's amplitude at regular time intervals; quantising maps each measured amplitude to the nearest discrete binary value."
     ]
   ],
   "quiz": [
@@ -1273,6 +1820,17 @@ C["compsci:4.5.6.4"] = {
       ],
       "ans": 2,
       "why": "$2^4 = 16$ colours."
+    },
+    {
+      "q": "Increasing the sample rate of an ADC primarily improves capture of...?",
+      "opts": [
+        "amplitude precision",
+        "high-frequency detail",
+        "colour depth",
+        "file metadata"
+      ],
+      "ans": 1,
+      "why": "More samples per second capture higher-frequency changes in the signal."
     }
   ],
   "exam": [
@@ -1282,6 +1840,27 @@ C["compsci:4.5.6.4"] = {
       "ms": [
         "Photographs contain continuously varying colors and tiny details that do not fit into simple geometric shapes. (1)",
         "Bitmapped graphics can store the exact color of every single pixel independently, allowing for photorealism. (1)"
+      ]
+    },
+    {
+      "q": "An image is 640 × 480 pixels with a colour depth of 8 bits. Calculate its uncompressed size in kibibytes (KiB).",
+      "marks": 3,
+      "ms": [
+        "640 × 480 × 8 = 2,457,600 bits. (1)",
+        "÷ 8 = 307,200 bytes. (1)",
+        "÷ 1024 = 300 KiB. (1)"
+      ]
+    },
+    {
+      "q": "Discuss the analogue-to-digital conversion process and the factors that affect the quality of the resulting digital file.",
+      "marks": 6,
+      "ms": [
+        "An analogue signal is continuous; the ADC samples its amplitude at regular intervals. (1)",
+        "Sample rate = number of samples per second. (1)",
+        "A higher sample rate captures higher-frequency detail (Nyquist: ≥ 2× the highest frequency). (1)",
+        "Each sample is quantised to the nearest binary value. (1)",
+        "Sample resolution (bit depth) sets the number of amplitude levels — more bits give smaller quantisation error. (1)",
+        "Both higher sample rate and higher resolution improve fidelity but increase file size. (1)"
       ]
     }
   ]
@@ -1364,6 +1943,26 @@ C["compsci:4.5.6.1"] = {
     [
       "Name two bitmapped image formats.",
       "Any two of: BMP, PNG, JPEG, GIF."
+    ],
+    [
+      "What is colour depth?",
+      "The number of bits used to store each pixel's colour; n bits gives $2^n$ colours."
+    ],
+    [
+      "Why are photographs stored as bitmaps?",
+      "They have continuously varying colour across millions of pixels, which a pixel grid captures naturally but geometry cannot."
+    ],
+    [
+      "What is stored in a bitmap file's header?",
+      "Metadata such as width, height and colour depth."
+    ],
+    [
+      "Give the formula for uncompressed bitmap file size.",
+      "Width × Height × Colour depth (in bits)."
+    ],
+    [
+      "Are bitmaps resolution-dependent or independent?",
+      "Resolution-dependent — enlarging them causes pixelation."
     ]
   ],
   "quiz": [
@@ -1388,6 +1987,39 @@ C["compsci:4.5.6.1"] = {
       ],
       "ans": 1,
       "why": "Bitmaps store discrete pixel colours, not equations. Enlarging simply stretches existing pixels, revealing the grid."
+    },
+    {
+      "q": "A bitmap is enlarged 4×. What happens?",
+      "opts": [
+        "it gains detail",
+        "it pixelates / looks blocky",
+        "the colour depth rises",
+        "the file shrinks"
+      ],
+      "ans": 1,
+      "why": "Existing pixels are stretched; no new detail exists, so the grid becomes visible."
+    },
+    {
+      "q": "Which is a lossy bitmap format?",
+      "opts": [
+        "BMP",
+        "PNG",
+        "JPEG",
+        "raw"
+      ],
+      "ans": 2,
+      "why": "JPEG permanently discards detail to shrink files; BMP/PNG/raw are not lossy."
+    },
+    {
+      "q": "What does each pixel store in a bitmap?",
+      "opts": [
+        "a geometric shape",
+        "a colour value as a binary number",
+        "an instruction",
+        "a vector"
+      ],
+      "ans": 1,
+      "why": "Each pixel holds a colour value encoded in colour-depth bits."
     }
   ],
   "exam": [
@@ -1397,6 +2029,27 @@ C["compsci:4.5.6.1"] = {
       "ms": [
         "Advantage: Can represent complex, photorealistic images with continuous colour variation (1)",
         "Disadvantage: Large file sizes / quality is lost (pixelation) when scaled up (1)"
+      ]
+    },
+    {
+      "q": "A 50 × 40 pixel bitmap uses 4-bit colour. Calculate its uncompressed size in bytes.",
+      "marks": 3,
+      "ms": [
+        "50 × 40 = 2000 pixels. (1)",
+        "2000 × 4 = 8000 bits. (1)",
+        "8000 ÷ 8 = 1000 bytes. (1)"
+      ]
+    },
+    {
+      "q": "Discuss the factors that determine the file size and image quality of a bitmapped image, and the consequences of changing them.",
+      "marks": 6,
+      "ms": [
+        "File size = width × height × colour depth (bits). (1)",
+        "Resolution (pixel count) affects detail: more pixels = more detail but larger file. (1)",
+        "Colour depth affects the number of colours / smoothness of gradients. (1)",
+        "Increasing either increases file size. (1)",
+        "Bitmaps are resolution-dependent: scaling up causes pixelation. (1)",
+        "A balance is needed — enough resolution and colour depth for quality without excessive file size; compression can reduce size further. (1)"
       ]
     }
   ]
@@ -1472,6 +2125,26 @@ C["compsci:4.5.6.2"] = {
     [
       "What is 'true colour' and how many bits does it use?",
       "24-bit colour — 8 bits each for red, green, and blue, giving ~16.7 million possible colours."
+    ],
+    [
+      "What is image resolution?",
+      "The number of pixels, expressed as width × height (e.g. 1920 × 1080)."
+    ],
+    [
+      "How many colours does a 1-bit colour depth give?",
+      "2 (monochrome — black and white)."
+    ],
+    [
+      "If colour depth increases, what happens to file size?",
+      "It increases — more bits per pixel means more data to store."
+    ],
+    [
+      "Give the formula linking file size to resolution and colour depth.",
+      "Size (bits) = Width × Height × Colour depth."
+    ],
+    [
+      "Does higher resolution alone guarantee a better-looking image?",
+      "No — colour depth matters too; a high-resolution 1-bit image can look worse than a lower-resolution 24-bit one."
     ]
   ],
   "quiz": [
@@ -1496,6 +2169,39 @@ C["compsci:4.5.6.2"] = {
       ],
       "ans": 1,
       "why": "200 × 100 × 4 = 80,000 bits. 80,000 ÷ 8 = 10,000 bytes."
+    },
+    {
+      "q": "How many colours does 16-bit colour depth provide?",
+      "opts": [
+        "256",
+        "1024",
+        "65,536",
+        "16.7 million"
+      ],
+      "ans": 2,
+      "why": "$2^{16} = 65,536$ colours."
+    },
+    {
+      "q": "Which gives a better-looking image: 4K at 1-bit colour or 1080p at 24-bit colour?",
+      "opts": [
+        "the 4K one",
+        "the 1080p one",
+        "identical",
+        "cannot tell"
+      ],
+      "ans": 1,
+      "why": "Colour depth matters: 1-bit is black/white regardless of resolution."
+    },
+    {
+      "q": "Doubling only the colour depth (bits per pixel) does what to file size?",
+      "opts": [
+        "halves it",
+        "doubles it",
+        "quadruples it",
+        "no change"
+      ],
+      "ans": 1,
+      "why": "File size is proportional to colour depth, so doubling it doubles the size."
     }
   ],
   "exam": [
@@ -1506,6 +2212,26 @@ C["compsci:4.5.6.2"] = {
         "$100 \\times 100 \\times 8 = 80{,}000$ bits (1)",
         "$80{,}000 \\div 8 = 10{,}000$ bytes (1)",
         "$10{,}000 \\div 1024 \\approx 9.77$ KiB (1)"
+      ]
+    },
+    {
+      "q": "Define resolution and colour depth.",
+      "marks": 2,
+      "ms": [
+        "Resolution: the number of pixels in the image (width × height). (1)",
+        "Colour depth: the number of bits used per pixel, determining how many colours are available. (1)"
+      ]
+    },
+    {
+      "q": "Discuss how resolution and colour depth each affect image quality and file size, and the trade-offs when storing images.",
+      "marks": 6,
+      "ms": [
+        "Resolution = pixel count; higher resolution captures more detail. (1)",
+        "Colour depth = bits per pixel; higher depth gives more colours / smoother gradients. (1)",
+        "They are independent factors. (1)",
+        "Both increase file size when raised (size = W × H × depth). (1)",
+        "Low colour depth or low resolution degrades quality even if the other is high. (1)",
+        "Trade-off: choose values high enough for acceptable quality while keeping file size/transmission manageable; compression helps. (1)"
       ]
     }
   ]
@@ -1588,6 +2314,26 @@ C["compsci:4.5.6.3"] = {
     [
       "Give one advantage and one disadvantage of vector graphics vs bitmaps.",
       "Advantage: infinitely scalable, no quality loss. Disadvantage: unsuitable for photographs (complex real-world scenes can't be described with simple geometry)."
+    ],
+    [
+      "How does a vector graphic store an image?",
+      "As mathematical descriptions of shapes — coordinates, dimensions, colours and properties — not a pixel grid."
+    ],
+    [
+      "Name two vector file formats.",
+      "Any two of SVG, EPS, PDF, AI."
+    ],
+    [
+      "What is stored to represent a circle in a vector image?",
+      "Centre coordinates $(x, y)$, radius, fill colour and stroke."
+    ],
+    [
+      "Does a vector graphic pixelate when enlarged?",
+      "No — shapes are recalculated mathematically at any size, so there is no quality loss."
+    ],
+    [
+      "When can a vector file be larger than a bitmap?",
+      "For complex photographic images, where describing thousands of shapes is more verbose than a compressed pixel grid."
     ]
   ],
   "quiz": [
@@ -1612,6 +2358,39 @@ C["compsci:4.5.6.3"] = {
       ],
       "ans": 1,
       "why": "Photographs contain millions of individually varying pixels — far more efficiently stored as a bitmap than as an enormous list of geometric instructions."
+    },
+    {
+      "q": "Vector graphics are ideal for...?",
+      "opts": [
+        "photographs",
+        "logos and diagrams",
+        "film footage",
+        "scanned documents"
+      ],
+      "ans": 1,
+      "why": "Geometric shapes (logos, icons, diagrams) are described compactly and scale perfectly."
+    },
+    {
+      "q": "What language does SVG use to describe images?",
+      "opts": [
+        "JSON",
+        "XML",
+        "CSV",
+        "binary pixels"
+      ],
+      "ans": 1,
+      "why": "SVG (Scalable Vector Graphics) is XML-based."
+    },
+    {
+      "q": "Why does a vector logo look sharp at any size?",
+      "opts": [
+        "it has very high resolution",
+        "shapes are recomputed mathematically at render time",
+        "it uses 24-bit colour",
+        "it is compressed"
+      ],
+      "ans": 1,
+      "why": "There are no fixed pixels to stretch; geometry is re-rendered for the target size."
     }
   ],
   "exam": [
@@ -1621,6 +2400,27 @@ C["compsci:4.5.6.3"] = {
       "ms": [
         "Vector would be smaller: only stores a few mathematical shape descriptions (1)",
         "Bitmap would be larger: must store a colour value for every individual pixel, even for flat colours (1)"
+      ]
+    },
+    {
+      "q": "Explain why a vector graphic is more suitable than a bitmap for a company logo that will be printed at many sizes.",
+      "marks": 3,
+      "ms": [
+        "A logo is made of simple geometric shapes describable mathematically. (1)",
+        "Vectors scale to any size without pixelation / quality loss. (1)",
+        "File size stays small and the same file serves all print sizes. (1)"
+      ]
+    },
+    {
+      "q": "Compare vector and bitmapped graphics, discussing when each is the appropriate choice.",
+      "marks": 6,
+      "ms": [
+        "Bitmaps store a grid of pixel colour values; vectors store mathematical shape descriptions. (1)",
+        "Bitmaps are resolution-dependent and pixelate when enlarged. (1)",
+        "Vectors scale to any size without quality loss. (1)",
+        "Bitmaps suit photographs / complex continuous-tone images. (1)",
+        "Vectors suit logos, icons, diagrams and text. (1)",
+        "File size: vectors are small for simple graphics but can exceed bitmaps for photographic complexity, so the content dictates the choice. (1)"
       ]
     }
   ]
@@ -1678,6 +2478,34 @@ C["compsci:4.5.6.5"] = {
     [
       "What does an ADC do?",
       "It converts a continuous analogue signal into discrete digital values."
+    ],
+    [
+      "What does a DAC do?",
+      "A Digital-to-Analogue Converter turns digital binary values back into a continuous analogue signal (e.g. for speakers)."
+    ],
+    [
+      "Which converter is used for recording sound?",
+      "An ADC (Analogue-to-Digital Converter)."
+    ],
+    [
+      "Which converter is used for playback through speakers?",
+      "A DAC (Digital-to-Analogue Converter)."
+    ],
+    [
+      "What is the sample rate?",
+      "The number of samples taken per second, measured in Hz."
+    ],
+    [
+      "What is sample resolution (bit depth)?",
+      "The number of bits used to store each sample's amplitude — more bits give more amplitude levels and less quantisation noise."
+    ],
+    [
+      "State the Nyquist theorem.",
+      "The sample rate must be at least twice the highest frequency in the signal to avoid aliasing."
+    ],
+    [
+      "What is quantisation?",
+      "Mapping each sampled amplitude to the nearest available discrete (binary) value."
     ]
   ],
   "quiz": [
@@ -1691,6 +2519,50 @@ C["compsci:4.5.6.5"] = {
       ],
       "ans": 1,
       "why": "Speakers need an analogue signal, so we convert the digital file using a DAC."
+    },
+    {
+      "q": "An ADC converts...?",
+      "opts": [
+        "digital to analogue",
+        "analogue to digital",
+        "binary to hex",
+        "text to binary"
+      ],
+      "ans": 1,
+      "why": "An Analogue-to-Digital Converter samples a continuous signal into binary values."
+    },
+    {
+      "q": "To capture audio up to 20 kHz, the minimum sample rate is...?",
+      "opts": [
+        "10 kHz",
+        "20 kHz",
+        "40 kHz",
+        "80 kHz"
+      ],
+      "ans": 2,
+      "why": "Nyquist: 2 × 20 kHz = 40 kHz."
+    },
+    {
+      "q": "Increasing sample resolution (bit depth) does what?",
+      "opts": [
+        "captures higher frequencies",
+        "reduces quantisation noise",
+        "reduces file size",
+        "changes the tempo"
+      ],
+      "ans": 1,
+      "why": "More bits per sample give more amplitude levels, reducing quantisation error/noise."
+    },
+    {
+      "q": "What happens if the sample rate is below the Nyquist limit?",
+      "opts": [
+        "the file is smaller and perfect",
+        "aliasing distortion occurs",
+        "nothing",
+        "the pitch rises"
+      ],
+      "ans": 1,
+      "why": "Under-sampling causes aliasing — frequencies are misrepresented."
     }
   ],
   "exam": [
@@ -1700,6 +2572,26 @@ C["compsci:4.5.6.5"] = {
       "ms": [
         "It takes the continuous electrical signal from the microphone (1)",
         "And samples it at regular intervals to create a sequence of binary numbers (1)"
+      ]
+    },
+    {
+      "q": "State the function of (a) an ADC and (b) a DAC.",
+      "marks": 2,
+      "ms": [
+        "(a) ADC converts a continuous analogue signal into discrete digital/binary values. (1)",
+        "(b) DAC converts digital values back into a continuous analogue signal. (1)"
+      ]
+    },
+    {
+      "q": "Discuss how an ADC converts an analogue sound wave into a digital file and the factors affecting the quality of the result.",
+      "marks": 6,
+      "ms": [
+        "The continuous analogue signal is sampled — its amplitude measured at regular intervals. (1)",
+        "Sample rate (Hz) = samples per second. (1)",
+        "By Nyquist, the rate must be ≥ 2× the highest frequency to avoid aliasing. (1)",
+        "Each sample is quantised to the nearest binary value. (1)",
+        "Sample resolution (bit depth) sets the number of amplitude levels — more bits reduce quantisation error. (1)",
+        "Higher sample rate and resolution improve fidelity but increase file size; a DAC reverses the process for playback. (1)"
       ]
     }
   ]
@@ -1757,6 +2649,34 @@ C["compsci:4.5.6.6"] = {
     [
       "What is the Nyquist Theorem?",
       "The sample rate must be at least twice the highest frequency in the signal."
+    ],
+    [
+      "What is the sample rate?",
+      "The number of amplitude samples taken per second, in Hz (e.g. 44,100 Hz for CD)."
+    ],
+    [
+      "What is sample resolution?",
+      "The number of bits per sample; more bits give greater dynamic range / amplitude precision."
+    ],
+    [
+      "Give the audio file size formula.",
+      "Size (bits) = sample rate × bit depth × duration × channels."
+    ],
+    [
+      "How does stereo affect file size compared to mono?",
+      "Stereo has 2 channels, doubling the size at the same sample rate and bit depth."
+    ],
+    [
+      "What are CD-quality audio settings?",
+      "44.1 kHz sample rate, 16-bit resolution, 2 channels (stereo)."
+    ],
+    [
+      "What does increasing the sample rate improve?",
+      "It captures higher frequencies (up to half the sample rate), improving accuracy of high-frequency sound."
+    ],
+    [
+      "What does increasing sample resolution improve?",
+      "Dynamic range / amplitude precision, reducing quantisation noise."
     ]
   ],
   "quiz": [
@@ -1770,6 +2690,50 @@ C["compsci:4.5.6.6"] = {
       ],
       "ans": 0,
       "why": "More bits per sample allow for more precise amplitude measurements."
+    },
+    {
+      "q": "A mono 16-bit track at 44,100 Hz lasting 1 second is how many bits?",
+      "opts": [
+        "44,100",
+        "705,600",
+        "1,411,200",
+        "16"
+      ],
+      "ans": 1,
+      "why": "44,100 × 16 × 1 × 1 = 705,600 bits."
+    },
+    {
+      "q": "Changing a recording from mono to stereo does what to file size?",
+      "opts": [
+        "halves it",
+        "no change",
+        "doubles it",
+        "quadruples it"
+      ],
+      "ans": 2,
+      "why": "File size is proportional to channel count, and stereo has 2 channels."
+    },
+    {
+      "q": "The Nyquist theorem requires sampling at...?",
+      "opts": [
+        "the highest frequency",
+        "half the highest frequency",
+        "twice the highest frequency",
+        "any rate"
+      ],
+      "ans": 2,
+      "why": "Sample rate ≥ 2× the highest frequency avoids aliasing."
+    },
+    {
+      "q": "Higher sample resolution mainly increases...?",
+      "opts": [
+        "frequency range",
+        "dynamic range / amplitude precision",
+        "tempo",
+        "number of channels"
+      ],
+      "ans": 1,
+      "why": "More bits per sample give finer amplitude steps (greater dynamic range)."
     }
   ],
   "exam": [
@@ -1780,6 +2744,26 @@ C["compsci:4.5.6.6"] = {
         "20,000 * 8 * 60 = 9,600,000 bits (1)",
         "9,600,000 / 8 = 1,200,000 bytes (1)",
         "1.2 MB (1)"
+      ]
+    },
+    {
+      "q": "State two factors that increase the file size of a digital audio recording.",
+      "marks": 2,
+      "ms": [
+        "Higher sample rate. (1)",
+        "Higher sample resolution (bit depth) / more channels / longer duration. (1)"
+      ]
+    },
+    {
+      "q": "Discuss how sample rate and sample resolution affect the quality and file size of digital audio, referring to the Nyquist theorem.",
+      "marks": 6,
+      "ms": [
+        "Sample rate = samples per second; a higher rate captures higher frequencies. (1)",
+        "Nyquist: the rate must be ≥ 2× the highest frequency to reproduce it without aliasing. (1)",
+        "Sample resolution = bits per sample; more bits give finer amplitude detail / dynamic range. (1)",
+        "More bits reduce quantisation noise. (1)",
+        "File size = rate × resolution × duration × channels, so raising quality raises size. (1)",
+        "A balance is chosen, e.g. CD quality 44.1 kHz / 16-bit, to give good fidelity at manageable size. (1)"
       ]
     }
   ]
@@ -1854,6 +2838,9 @@ C["compsci:4.5.6.7"] = {
       }
     },
     {
+      "page": "Audio Process & MIDI"
+    },
+    {
       "h": "The Digital Audio Process"
     },
     {
@@ -1926,6 +2913,18 @@ C["compsci:4.5.6.7"] = {
     [
       "What is an advantage of MIDI over sampled digital audio?",
       "Much smaller file size and absolute control to edit individual notes or change instruments after recording."
+    ],
+    [
+      "Name three parameters in a MIDI Note On event.",
+      "Pitch (note/key number), velocity (how hard/loud), and channel/timing."
+    ],
+    [
+      "Why is a MIDI file far smaller than the equivalent sampled audio?",
+      "It stores compact event instructions, not the digitised waveform samples."
+    ],
+    [
+      "What hardware actually produces sound from a MIDI file?",
+      "A synthesizer (in the sound card/device) that interprets the events."
     ]
   ],
   "quiz": [
@@ -1972,6 +2971,17 @@ C["compsci:4.5.6.7"] = {
       ],
       "ans": 1,
       "why": "MIDI only sends instructions. The computer's local synthesizer generates the actual sound based on its built-in instrument samples."
+    },
+    {
+      "q": "A MIDI file is best described as...?",
+      "opts": [
+        "a compressed waveform",
+        "a set of musical event instructions",
+        "a vector image",
+        "a lossless audio codec"
+      ],
+      "ans": 1,
+      "why": "MIDI stores events (which note, when, how hard) like sheet music, not audio."
     }
   ],
   "exam": [
@@ -1982,6 +2992,27 @@ C["compsci:4.5.6.7"] = {
         "Requires much less storage space. (1)",
         "Individual notes can be edited/changed easily without affecting the rest of the recording. (1)",
         "Instruments can be easily swapped out. (1)"
+      ]
+    },
+    {
+      "q": "Explain why the same MIDI file may sound different when played on two different devices.",
+      "marks": 3,
+      "ms": [
+        "MIDI stores only instructions, not audio. (1)",
+        "Each device uses its own synthesizer to generate the sound. (1)",
+        "Different synths produce different timbres / instrument samples from the same events. (1)"
+      ]
+    },
+    {
+      "q": "Compare MIDI with sampled digital audio, discussing the advantages and disadvantages of each.",
+      "marks": 6,
+      "ms": [
+        "Sampled audio stores the actual digitised waveform; MIDI stores musical event instructions. (1)",
+        "Sampled audio files are large; MIDI files are very small. (1)",
+        "Sampled audio reproduces exactly what was recorded; MIDI playback depends on the synthesizer. (1)",
+        "MIDI is easily edited — change a note, tempo or instrument; sampled audio is hard to edit. (1)",
+        "Sampled audio suits realistic recordings (vocals, live sound); MIDI suits composition and arrangement. (1)",
+        "MIDI may sound different across devices, whereas sampled audio is consistent. (1)"
       ]
     }
   ]
@@ -2039,6 +3070,34 @@ C["compsci:4.5.6.8"] = {
     [
       "Does a MIDI file contain audio data?",
       "No, it contains musical instructions."
+    ],
+    [
+      "What does MIDI stand for?",
+      "Musical Instrument Digital Interface."
+    ],
+    [
+      "Why might a MIDI file sound different on two devices?",
+      "Playback depends on each device's synthesizer, which generates the actual sound from the instructions."
+    ],
+    [
+      "Give two advantages of MIDI over sampled audio.",
+      "Much smaller file size, and easy editing of individual notes / instruments."
+    ],
+    [
+      "Give one disadvantage of MIDI compared with sampled audio.",
+      "Playback quality/timbre depends on the synthesizer, and it cannot capture real recorded sound such as vocals."
+    ],
+    [
+      "What information is in a MIDI Note On message?",
+      "The channel, the key/pitch (e.g. 60 = Middle C) and the velocity (how hard the note is played)."
+    ],
+    [
+      "Does sampled audio sound the same on all devices?",
+      "Yes — it stores the actual waveform, so it reproduces identically regardless of playback device."
+    ],
+    [
+      "Which is better for storing a live vocal recording: MIDI or sampled audio?",
+      "Sampled audio — MIDI cannot represent real recorded sound, only instrument events."
     ]
   ],
   "quiz": [
@@ -2052,6 +3111,50 @@ C["compsci:4.5.6.8"] = {
       ],
       "ans": 1,
       "why": "MIDI files are thousands of times smaller than MP3s."
+    },
+    {
+      "q": "Which statement about MIDI is true?",
+      "opts": [
+        "It stores a compressed recording of the audio",
+        "It stores instructions for playing notes",
+        "It always sounds identical on every device",
+        "It is a lossy waveform format"
+      ],
+      "ans": 1,
+      "why": "MIDI holds event instructions (note, timing, velocity), not audio data."
+    },
+    {
+      "q": "Which is hardest to edit at the level of a single note?",
+      "opts": [
+        "MIDI",
+        "sampled audio",
+        "both equally easy",
+        "neither can be edited"
+      ],
+      "ans": 1,
+      "why": "Sampled audio mixes everything into one waveform; MIDI lets you change individual note events."
+    },
+    {
+      "q": "Why is sampled audio more consistent across devices than MIDI?",
+      "opts": [
+        "it is smaller",
+        "it stores the actual waveform rather than relying on a synthesizer",
+        "it uses XML",
+        "it cannot be edited"
+      ],
+      "ans": 1,
+      "why": "The waveform is fixed at recording time, so playback does not depend on a synthesizer."
+    },
+    {
+      "q": "A composer wants to easily change the instrument of a whole piece later. Which format suits this?",
+      "opts": [
+        "sampled audio",
+        "MIDI",
+        "a JPEG",
+        "a checksum"
+      ],
+      "ans": 1,
+      "why": "MIDI events can be reassigned to a different synthesized instrument without re-recording."
     }
   ],
   "exam": [
@@ -2061,6 +3164,26 @@ C["compsci:4.5.6.8"] = {
       "ms": [
         "Significantly smaller file size (1)",
         "Easy to edit individual notes or change instruments (1)"
+      ]
+    },
+    {
+      "q": "State one situation where sampled audio is preferable to MIDI.",
+      "marks": 2,
+      "ms": [
+        "When recording real-world sound such as vocals or live instruments. (1)",
+        "Because MIDI can only store instrument events / cannot capture a real recorded waveform. (1)"
+      ]
+    },
+    {
+      "q": "Discuss the differences between MIDI and sampled audio and evaluate when each should be used.",
+      "marks": 6,
+      "ms": [
+        "MIDI stores musical event instructions; sampled audio stores the digitised waveform. (1)",
+        "MIDI files are tiny; sampled audio files are large. (1)",
+        "MIDI playback depends on the synthesizer, so it can sound different on different devices. (1)",
+        "Sampled audio reproduces exactly what was recorded, consistently. (1)",
+        "MIDI is easily edited (notes, tempo, instruments); sampled audio is hard to edit. (1)",
+        "Use MIDI for composition/arrangement and small files; use sampled audio for realistic recordings such as vocals. (1)"
       ]
     }
   ]
@@ -2127,6 +3250,9 @@ C["compsci:4.5.6.9"] = {
       }
     },
     {
+      "page": "RLE Process"
+    },
+    {
       "h": "The RLE Process"
     },
     {
@@ -2187,6 +3313,18 @@ C["compsci:4.5.6.9"] = {
     [
       "Why is lossy compression acceptable for video and audio?",
       "Human eyes and ears cannot detect minor details or frequencies that are discarded, so the quality drop is often imperceptible."
+    ],
+    [
+      "Why is lossless compression required for executables and text?",
+      "Any lost bit would corrupt the program or change the meaning, so the original must be restored exactly."
+    ],
+    [
+      "Give one lossy and one lossless image/audio format.",
+      "Lossy: JPEG or MP3. Lossless: PNG or FLAC (or ZIP for general files)."
+    ],
+    [
+      "What kind of data does RLE compress well?",
+      "Data with long runs of repeated values, e.g. images with large areas of uniform colour."
     ]
   ],
   "quiz": [
@@ -2233,6 +3371,17 @@ C["compsci:4.5.6.9"] = {
       ],
       "ans": 1,
       "why": "Dictionary coding assigns a short token to the word 'computer' and replaces all 50 instances with that token."
+    },
+    {
+      "q": "Applying lossless compression to a file twice...?",
+      "opts": [
+        "degrades it each time",
+        "preserves all data both times",
+        "makes it lossy",
+        "corrupts it"
+      ],
+      "ans": 1,
+      "why": "Lossless preserves all data on every cycle; only lossy compression degrades quality."
     }
   ],
   "exam": [
@@ -2243,6 +3392,26 @@ C["compsci:4.5.6.9"] = {
         "The algorithm scans the data for repeated patterns/strings. (1)",
         "It creates a dictionary mapping these strings to shorter reference tokens/indexes. (1)",
         "It replaces the original strings in the data with the shorter tokens, saving space. (1)"
+      ]
+    },
+    {
+      "q": "State one situation where lossy compression is acceptable and one where it is not.",
+      "marks": 2,
+      "ms": [
+        "Acceptable: photos/music/video where small detail loss is imperceptible. (1)",
+        "Not acceptable: text, code or executables where exact data must be preserved. (1)"
+      ]
+    },
+    {
+      "q": "Compare lossy and lossless compression, explaining how run-length encoding and dictionary coding work and when each is appropriate.",
+      "marks": 6,
+      "ms": [
+        "Lossy permanently discards data for smaller files; the original cannot be fully restored (JPEG, MP3). (1)",
+        "Lossless reduces size with no data loss; the original is restored exactly (PNG, ZIP). (1)",
+        "RLE replaces runs of repeated symbols with a (count, value) pair — lossless. (1)",
+        "RLE suits data with long uniform runs (simple images). (1)",
+        "Dictionary coding replaces repeated patterns/strings with short tokens from a dictionary — lossless. (1)",
+        "Lossy suits media where minor loss is imperceptible; lossless is required for text/code or where accuracy is essential. (1)"
       ]
     }
   ]
@@ -2316,6 +3485,9 @@ C["compsci:4.5.6.10"] = {
       }
     },
     {
+      "page": "Vernam Cipher"
+    },
+    {
       "h": "The Vernam Encryption Process"
     },
     {
@@ -2382,6 +3554,18 @@ C["compsci:4.5.6.10"] = {
     [
       "Why isn't the Vernam cipher used for everyday web traffic?",
       "Distributing and securely storing a truly random key that is as long as every piece of data you want to send is logistically impossible for normal internet use."
+    ],
+    [
+      "What is plaintext and what is ciphertext?",
+      "Plaintext is the original readable data; ciphertext is the encrypted, unreadable output."
+    ],
+    [
+      "Difference between computational and perfect security?",
+      "Computational security is breakable in principle but takes impractically long; perfect security (Vernam with a true one-time pad) is mathematically unbreakable."
+    ],
+    [
+      "Why is XOR ideal for the Vernam cipher?",
+      "It is perfectly reversible (ciphertext XOR key returns the plaintext), and with a truly random key the ciphertext looks like random noise."
     ]
   ],
   "quiz": [
@@ -2428,6 +3612,17 @@ C["compsci:4.5.6.10"] = {
       ],
       "ans": 2,
       "why": "The XOR operation is perfectly reversible with the same key. (Plaintext XOR Key = Cipher) and (Cipher XOR Key = Plaintext)."
+    },
+    {
+      "q": "Plaintext bit 0 XOR key bit 1 gives which ciphertext bit?",
+      "opts": [
+        "0",
+        "1",
+        "2",
+        "undefined"
+      ],
+      "ans": 1,
+      "why": "0 XOR 1 = 1."
     }
   ],
   "exam": [
@@ -2438,6 +3633,26 @@ C["compsci:4.5.6.10"] = {
         "The key must be completely/truly random. (1)",
         "The key must be at least as long as the plaintext message. (1)",
         "The key must be used only once / never reused (One-Time Pad). (1)"
+      ]
+    },
+    {
+      "q": "Distinguish between computational security and perfect security.",
+      "marks": 2,
+      "ms": [
+        "Computational security: breakable in theory but takes infeasibly long with current resources. (1)",
+        "Perfect security: mathematically unbreakable regardless of computing power (e.g. a Vernam one-time pad). (1)"
+      ]
+    },
+    {
+      "q": "Discuss why the Vernam cipher offers perfect security and why it is rarely used in practice.",
+      "marks": 6,
+      "ms": [
+        "The plaintext is XORed with a key to give the ciphertext. (1)",
+        "The key must be truly random. (1)",
+        "at least as long as the message. (1)",
+        "and used only once (one-time pad). (1)",
+        "Under these conditions every plaintext is equally likely, so the ciphertext reveals nothing — mathematically unbreakable. (1)",
+        "It is impractical because distributing and securely storing huge truly-random keys for all data is infeasible, so computationally-secure ciphers (AES/RSA) are used instead. (1)"
       ]
     }
   ]
