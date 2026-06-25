@@ -4,17 +4,16 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 
 C["compsci:4.1.1.1"] = {
   notes: [
-    { h: "Data Types" },
-    "A **data type** fixes three things about a variable: the **set of values** it may legally hold, the **operations** that may be performed on it, and **how it is stored** in memory. Choosing well trades off *precision/range*, *memory use*, *valid operations* and *readability/safety*.",
-    { callout: { t: "def", h: "What a data type determines", body: [
+    { callout: { t: "def", h: "Data type", body: [
+      "A **data type** fixes three things about a variable: the **set of values** it may legally hold, the **operations** allowed on it, and **how it is stored** in memory. Choosing well trades off *precision/range*, *memory use*, *valid operations* and *readability/safety*.",
       { kv: [
         ["Set of values", "Which values are legal — an integer cannot hold 3.5; a Boolean holds only true/false."],
         ["Valid operations", "Which operations make sense — arithmetic on numbers, concatenation on strings, AND/OR on Booleans."],
         ["Storage", "How many bits/bytes are used and how the pattern is interpreted (two's complement, mantissa/exponent…)."]
       ]}
     ]}},
-    "The spec requires you to **understand and use** each type below *and* choose the right one for given data — and to **define user-defined types built from the language-defined (built-in) types**.",
     { callout: { t: "info", h: "The data types the spec names", body: [
+      "The spec requires you to **understand and use** each type below *and* choose the right one for given data — and to **define user-defined types built from the language-defined (built-in) types**.",
       { kv: [
         ["Primitive", "integer, real/float, Boolean, character"],
         ["Built from primitives", "string (sequence of characters), date/time"],
@@ -25,11 +24,9 @@ C["compsci:4.1.1.1"] = {
     ]}},
 
     { page: "Numeric types" },
-    { h: "Integer" },
-    "An **integer** stores whole numbers only — positive, negative or zero — with no fractional part. Used for **counts, array indices, IDs and loop counters**. A fixed bit-width gives a finite range (32-bit signed ≈ ±2.1 billion); exceeding it causes *overflow* (see $4.5.4$).",
+    { callout: { t: "def", h: "Integer", body: "An **integer** stores whole numbers only — positive, negative or zero — with no fractional part. Used for **counts, array indices, IDs and loop counters**. A fixed bit-width gives a finite range (32-bit signed ≈ ±2.1 billion); exceeding it causes *overflow* (see $4.5.4$)." }},
     { callout: { t: "info", h: "Integer vs real division", body: "Integer division discards the fraction and can give a remainder: `17 DIV 5 = 3`, `17 MOD 5 = 2`. Real division keeps it: `17 / 5 = 3.4`. Confusing the two is a classic bug — see arithmetic operations ($4.1.1.3$)." }},
-    { h: "Real / Float" },
-    "A **real (float)** stores numbers with a fractional part. Internally it is a **mantissa × 2^exponent** (see floating point, $4.5.4.5$), so most reals are *approximations* — never test two reals for exact equality. Used for **measurements, averages, scientific values** — anything continuous.",
+    { callout: { t: "def", h: "Real / Float", body: "A **real (float)** stores numbers with a fractional part. Internally it is a **mantissa × 2^exponent** (see floating point, $4.5.4.5$), so most reals are *approximations* — never test two reals for exact equality. Used for **measurements, averages, scientific values** — anything continuous." }},
     { table: { head: ["Numeric type", "Stores", "Example", "Typical use"], rows: [
       ["Integer", "Whole numbers only", "`42`, `-7`", "Counts, indices, IDs"],
       ["Real / Float", "Fractional numbers", "`3.14`, `-0.5`", "Measurements, averages"]
@@ -37,34 +34,20 @@ C["compsci:4.1.1.1"] = {
     { callout: { t: "miscon", h: "'Number' is not a data type", body: "AQA wants the **precise** term — *integer* or *real* — never 'number'. And an integer **cannot** store a decimal: if a value may be fractional (height, price, average) it must be **real**, or the fractional part is lost to truncation." }},
 
     { page: "Text & logical types" },
-    { h: "Boolean" },
-    "A **Boolean** holds one of two logical values: **true** or **false** (conceptually 1 bit). Ideal for any two-state flag — `isLoggedIn`, `hasPaid` — and for the conditions that drive selection and iteration. Supports the logical operations AND, OR, NOT.",
-    { h: "Character" },
-    "A **character** is a single symbol — letter, digit, space or punctuation — stored as a numeric **character code** (ASCII or Unicode, see $4.5.5$). Codes are sequential, so `'A'`=65, `'B'`=66, and arithmetic on codes works (sorting, case conversion).",
-    { h: "String" },
-    "A **string** is a sequence of characters, e.g. `\"Kurenai\"`. It is *built from* the character type, not a primitive. Strings support operations a list of separate characters does not: length, concatenation, substring, search and comparison.",
-    { h: "Date/Time" },
-    "A **date/time** type stores calendar dates and clock times, usually as an offset (ticks/seconds) from a fixed **epoch**. This lets the computer **compare** times, **sort** chronologically and do **date arithmetic** (days between two dates) reliably — which storing a date as a plain string cannot.",
-    { callout: { t: "def", h: "Quick reference", body: [
-      { kv: [
-        ["Boolean", "true / false — flags and conditions"],
-        ["Character", "one symbol, stored as a code (ASCII/Unicode)"],
-        ["String", "sequence of characters, with text operations"],
-        ["Date/Time", "calendar + clock, stored as an offset for comparison/arithmetic"]
-      ]}
-    ]}},
+    { callout: { t: "def", h: "Boolean", body: "A **Boolean** holds one of two logical values: **true** or **false** (conceptually 1 bit). Ideal for any two-state flag — `isLoggedIn`, `hasPaid` — and for the conditions that drive selection and iteration. Supports the logical operations AND, OR, NOT." }},
+    { callout: { t: "def", h: "Character", body: "A **character** is a single symbol — letter, digit, space or punctuation — stored as a numeric **character code** (ASCII or Unicode, see $4.5.5$). Codes are sequential, so `'A'`=65, `'B'`=66, and arithmetic on codes works (sorting, case conversion)." }},
+    { callout: { t: "def", h: "String", body: "A **string** is a sequence of characters, e.g. `\"Kurenai\"`. It is *built from* the character type, not a primitive. Strings support operations a list of separate characters does not: length, concatenation, substring, search and comparison." }},
+    { callout: { t: "def", h: "Date/Time", body: "A **date/time** type stores calendar dates and clock times, usually as an offset (ticks/seconds) from a fixed **epoch**. This lets the computer **compare** times, **sort** chronologically and do **date arithmetic** (days between two dates) reliably — which storing a date as a plain string cannot." }},
 
     { page: "Pointers & references" },
-    { h: "Pointers and references" },
-    "A **pointer/reference** stores the **memory address** of a value or object, *not the value itself*. This is how programs use **dynamically allocated** memory — objects created at runtime — and how data structures like linked lists, trees and graphs link their nodes (see $4.2$).",
+    { callout: { t: "def", h: "Pointer / reference", body: "A **pointer/reference** stores the **memory address** of a value or object, *not the value itself*. This is how programs use **dynamically allocated** memory — objects created at runtime — and how data structures like linked lists, trees and graphs link their nodes (see $4.2$)." }},
     { callout: { t: "info", h: "What the spec stresses", body: "A pointer/reference variable is a **store for the memory address of an object created at runtime (dynamically)**. Not all languages expose explicit pointer types, but you must understand the concept. In C#/Java, class instances are handled by reference; in C you manipulate pointers directly." }},
     { code: { lang: "csharp", cap: "A reference holds an address, not the object.", src:
 "Customer c = new Customer();   // 'c' stores the ADDRESS of the new object\nCustomer d = c;                // d now refers to the SAME object\nd.Name = \"Sora\";              // c.Name is also \"Sora\" — one object, two references" }},
     { callout: { t: "miscon", h: "A reference is not the object", body: "Assigning one reference to another copies the **address**, not the data — both names then point at the *same* object. Expecting an independent copy is a frequent bug and a lost mark." }},
 
     { page: "Composite types" },
-    { h: "Records vs arrays" },
-    "Both group many values under one identifier, but they differ in *what* they group:",
+    { callout: { t: "info", h: "Records vs arrays", body: "Both group many values under one identifier, but they differ in *what* they group — a **record** has named fields of possibly different types; an **array** has indexed elements all of one type:" }},
     { table: { head: ["", "Record", "Array"], rows: [
       ["Elements", "Named **fields**", "Indexed elements"],
       ["Types", "**Heterogeneous** — fields may differ", "**Homogeneous** — all one type"],
@@ -77,9 +60,8 @@ C["compsci:4.1.1.1"] = {
     { callout: { t: "tip", h: "Choosing between them", body: "Use a **record** to model *one thing with several attributes of different types*; use an **array** to hold *many values of the same type* you will index or loop over. Combine them — an *array of records* — to model many entities." }},
 
     { page: "User-defined types" },
-    { h: "User-defined data types" },
-    "A **user-defined type** is a new type the programmer builds **from the language-defined (built-in) types**. It restricts a variable to valid, meaningful values and makes code self-documenting.",
-    { callout: { t: "def", h: "Common forms", body: [
+    { callout: { t: "def", h: "User-defined data types", body: [
+      "A **user-defined type** is a new type the programmer builds **from the language-defined (built-in) types**. It restricts a variable to valid, meaningful values and makes code self-documenting. Common forms:",
       { kv: [
         ["Enumerated (enum)", "A fixed set of named constants, e.g. `Day { Mon, Tue, … }` — the variable can only hold one of them."],
         ["Record / composite", "Groups named fields of built-in types into one structured type (as above)."],
@@ -97,7 +79,7 @@ C["compsci:4.1.1.1"] = {
         ["Justify / Explain", "Name the type AND the data feature that demands it ('real, because the value has a fractional part'). The reason earns the mark."]
       ]}
     ]}},
-    "**Model structure for a 6-mark 'discuss the factors when selecting data types' answer:** (1) precision/range — the type must hold the values without overflow or loss; (2) memory use — smaller types save space, important at scale; (3) valid operations — the type must support the operations needed; (4) readability/safety — Boolean/enum/record model intent and block invalid values; (5) a worked consequence of a wrong choice (integer truncation losing a decimal); (6) a linked conclusion rather than a list.",
+    { callout: { t: "tip", h: "Model answer — 6-mark 'discuss data-type factors'", body: "(1) precision/range — the type must hold the values without overflow or loss; (2) memory use — smaller types save space, important at scale; (3) valid operations — the type must support the operations needed; (4) readability/safety — Boolean/enum/record model intent and block invalid values; (5) a worked consequence of a wrong choice (integer truncation losing a decimal); (6) a linked conclusion rather than a list." }},
     { callout: { t: "memorise", h: "Every type the spec names", body: "Primitives: **integer, real/float, Boolean, character**. Built from these: **string, date/time**. Address type: **pointer/reference**. Composite: **record, array**. Plus **user-defined** types (e.g. enum) built from the above. Know each one's values, operations and best use." }},
     { callout: { t: "miscon", h: "Integer can't hold a decimal", body: "Storing a fractional value (price, average, height) in an integer silently **truncates** it — `7/2` becomes `3`, not `3.5`. If a value may be fractional, use real. And never answer 'number'." }}
   ],

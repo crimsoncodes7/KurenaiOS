@@ -1041,6 +1041,10 @@
       if (/\so\s/.test(s)) {                                 // garbled "A o B" merge → split
         s.split(/\s+o\s+/).forEach(function (p) { p = p.trim(); if (p) buf.push("<li>" + esc(p) + "</li>"); }); return;
       }
+      var nx2 = items[idx + 1];                              // ":"-lead-in introducing a list → highlighted
+      if (/:\s*$/.test(s) && nx2 && (nx2.kind === "bullet" || nx2.kind === "sub2")) {   // header (parity w/ IT spec tabs)
+        flush(); out += '<p class="spec-h">' + esc(s.replace(/:\s*$/, "")) + "</p>"; return;
+      }
       flush(); out += "<p>" + esc(s) + "</p>";               // plain intro line (CS/Maths)
     });
     flush();
