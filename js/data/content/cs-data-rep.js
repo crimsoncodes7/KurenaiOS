@@ -88,6 +88,9 @@ C["compsci:4.5.1.1"] = {
       }
     },
     {
+      "page": "Classifying Numbers"
+    },
+    {
       "h": "Classifying a Number"
     },
     {
@@ -169,6 +172,22 @@ C["compsci:4.5.1.1"] = {
     [
       "Which set of numbers is used for measuring continuous quantities like length or time?",
       "Real Numbers ($\\mathbb{R}$)"
+    ],
+    [
+      "Why is every natural number also an integer?",
+      "The integers $\\mathbb{Z}$ contain all whole numbers — positive, negative and zero — and the naturals are exactly the non-negative whole numbers, so $\\mathbb{N} \\subset \\mathbb{Z}$."
+    ],
+    [
+      "Put the sets $\\mathbb{N}, \\mathbb{Z}, \\mathbb{Q}, \\mathbb{R}$ in order of increasing inclusiveness.",
+      "$\\mathbb{N} \\subset \\mathbb{Z} \\subset \\mathbb{Q} \\subset \\mathbb{R}$"
+    ],
+    [
+      "Is the recurring decimal $0.\\overline{142857}$ rational or irrational?",
+      "Rational — it equals $\\frac{1}{7}$. Every recurring decimal can be written as a fraction."
+    ],
+    [
+      "Distinguish a cardinal number from an ordinal number.",
+      "A cardinal states quantity (how many: 3 items); an ordinal states position/rank (the 3rd item)."
     ]
   ],
   "quiz": [
@@ -215,6 +234,17 @@ C["compsci:4.5.1.1"] = {
       ],
       "ans": 0,
       "why": "The set of Reals encompasses Rationals, and Integers are Rationals with a denominator of 1."
+    },
+    {
+      "q": "Which statement about the number sets is correct?",
+      "opts": [
+        "Every real number is rational",
+        "Every integer is a natural number",
+        "Every natural number is a real number",
+        "No rational number is real"
+      ],
+      "ans": 2,
+      "why": "$\\mathbb{N} \\subset \\mathbb{Z} \\subset \\mathbb{Q} \\subset \\mathbb{R}$, so every natural number is also real. The converses fail (π is real but not rational; −3 is an integer but not natural)."
     }
   ],
   "exam": [
@@ -224,6 +254,27 @@ C["compsci:4.5.1.1"] = {
       "ms": [
         "A number that cannot be represented as a fraction/ratio of two integers. (1)",
         "Example: pi / e / square root of 2. (1)"
+      ]
+    },
+    {
+      "q": "State which number set each of the following belongs to, choosing the smallest set: (a) −7  (b) 2.5  (c) √5",
+      "marks": 3,
+      "ms": [
+        "(a) Integer (ℤ). (1)",
+        "(b) Rational (ℚ). (1)",
+        "(c) Irrational (Real but not rational). (1)"
+      ]
+    },
+    {
+      "q": "Discuss how the mathematical number sets (ℕ, ℤ, ℚ, ℝ) relate to the data types a programmer chooses, using examples.",
+      "marks": 6,
+      "ms": [
+        "ℕ/ℤ (whole numbers) map to integer data types used for counting and indexing. (1)",
+        "Example: loop counters, array indices and population counts use int. (1)",
+        "ℝ (continuous values) map to real / floating-point types. (1)",
+        "Example: measurements such as temperature, distance or currency use float/double. (1)",
+        "Computers cannot store irrationals exactly, so reals are approximated by finite-precision floating point. (1)",
+        "Choosing too small an integer type risks overflow; using float for exact counts risks rounding errors — the type must match the mathematical set. (1)"
       ]
     }
   ]
@@ -311,6 +362,26 @@ C["compsci:4.5.1.2"] = {
     [
       "What is integer overflow?",
       "When the result of a calculation exceeds the maximum value for the integer type, causing the value to wrap around to the opposite extreme."
+    ],
+    [
+      "Why is $\\mathbb{N} \\subset \\mathbb{Z}$?",
+      "Every natural number is a whole number ≥ 0, and ℤ contains all whole numbers including the non-negatives, so the naturals sit inside the integers."
+    ],
+    [
+      "What range does a 16-bit signed integer cover?",
+      "−32,768 to 32,767 (i.e. $-2^{15}$ to $2^{15}-1$)."
+    ],
+    [
+      "What is the maximum value of a 32-bit signed integer?",
+      "2,147,483,647 ($2^{31}-1$)."
+    ],
+    [
+      "Give two real-world quantities that need negative integers.",
+      "Temperatures below zero, bank overdraft balances, coordinates relative to an origin, or altitude below sea level."
+    ],
+    [
+      "What does the symbol ℤ come from?",
+      "The German word 'Zahlen', meaning 'numbers'."
     ]
   ],
   "quiz": [
@@ -335,6 +406,39 @@ C["compsci:4.5.1.2"] = {
       ],
       "ans": 1,
       "why": "127 is 01111111 in binary. Adding 1 gives 10000000, which is −128 in two's complement — the value wraps around."
+    },
+    {
+      "q": "What is the range of a signed 16-bit integer?",
+      "opts": [
+        "0 to 65535",
+        "−32768 to 32767",
+        "−65536 to 65535",
+        "−32767 to 32768"
+      ],
+      "ans": 1,
+      "why": "Signed 16-bit two's complement runs from $-2^{15}$ to $2^{15}-1$ = −32768 to 32767."
+    },
+    {
+      "q": "A program must store a count that may exceed 3 billion. Which type is safe?",
+      "opts": [
+        "8-bit signed",
+        "16-bit signed",
+        "32-bit signed",
+        "64-bit signed"
+      ],
+      "ans": 3,
+      "why": "32-bit signed max ≈ 2.1 billion, too small; a 64-bit integer comfortably holds billions."
+    },
+    {
+      "q": "Which of these is a valid member of ℤ but NOT of ℕ?",
+      "opts": [
+        "7",
+        "0",
+        "−4",
+        "3.5"
+      ],
+      "ans": 2,
+      "why": "−4 is a negative whole number: an integer but not a natural number. 3.5 is not an integer at all."
     }
   ],
   "exam": [
@@ -344,6 +448,27 @@ C["compsci:4.5.1.2"] = {
       "ms": [
         "Accounts can have negative balances (overdrafts) (1)",
         "Which cannot be represented using only natural numbers (1)"
+      ]
+    },
+    {
+      "q": "Explain what integer overflow is and describe one consequence in a real program.",
+      "marks": 3,
+      "ms": [
+        "Overflow is when a result exceeds the maximum value storable in the fixed number of bits. (1)",
+        "The value wraps around to the opposite extreme / becomes incorrect. (1)",
+        "Consequence, e.g. a counter resets to a large negative number, a loop misbehaves, or a financial/security bug occurs. (1)"
+      ]
+    },
+    {
+      "q": "Discuss the differences between how integers are defined in mathematics and how they are represented in a computer.",
+      "marks": 6,
+      "ms": [
+        "Mathematically ℤ is infinite / unbounded in both directions. (1)",
+        "In a computer integers use a fixed number of bits (e.g. 8/16/32/64). (1)",
+        "So they have a finite minimum and maximum range. (1)",
+        "Exceeding the range causes overflow / wrap-around, which has no mathematical equivalent. (1)",
+        "Signed integers commonly use two's complement to store negatives. (1)",
+        "Mathematical integers are always exact; computer integers are exact only within range, so a programmer must choose an appropriate width. (1)"
       ]
     }
   ]
@@ -427,6 +552,26 @@ C["compsci:4.5.1.3"] = {
     [
       "Why is every integer also rational?",
       "Any integer $n$ can be written as $\\frac{n}{1}$, satisfying the definition of a rational number."
+    ],
+    [
+      "Outline how to convert a recurring decimal to a fraction.",
+      "Let x equal the decimal, multiply by a power of 10 so the recurring part lines up, subtract to eliminate the recurring digits, then solve for x as a fraction."
+    ],
+    [
+      "Is 0 a rational number?",
+      "Yes — $0 = \\frac{0}{1}$, a ratio of integers with a non-zero denominator."
+    ],
+    [
+      "Why must the denominator $q$ be non-zero in $p/q$?",
+      "Division by zero is undefined, so $q \\neq 0$ is required for the fraction to represent a value."
+    ],
+    [
+      "Are terminating decimals rational?",
+      "Yes — e.g. $0.25 = \\frac{1}{4}$; any terminating decimal is a fraction over a power of 10."
+    ],
+    [
+      "Which symbol denotes the rationals and why?",
+      "$\\mathbb{Q}$, from 'quotient', because rationals are quotients (ratios) of integers."
     ]
   ],
   "quiz": [
@@ -451,6 +596,39 @@ C["compsci:4.5.1.3"] = {
       ],
       "ans": 2,
       "why": "$\\sqrt{2}$ is irrational — its decimal expansion never repeats. The others can all be expressed as fractions."
+    },
+    {
+      "q": "Which decimal is NOT rational?",
+      "opts": [
+        "0.5",
+        "0.333... (recurring)",
+        "0.101001000100001... (non-repeating)",
+        "0.75"
+      ],
+      "ans": 2,
+      "why": "A non-terminating, non-repeating decimal cannot be written as p/q, so it is irrational."
+    },
+    {
+      "q": "Express 0.2 as a fraction in its lowest terms.",
+      "opts": [
+        "$\\frac{1}{2}$",
+        "$\\frac{1}{5}$",
+        "$\\frac{2}{5}$",
+        "$\\frac{1}{4}$"
+      ],
+      "ans": 1,
+      "why": "0.2 = 2/10 = 1/5."
+    },
+    {
+      "q": "Which statement is true?",
+      "opts": [
+        "Every rational is an integer",
+        "Every integer is rational",
+        "No fraction is rational",
+        "π is rational"
+      ],
+      "ans": 1,
+      "why": "Every integer n = n/1 is rational, but not every rational is an integer (e.g. 1/2)."
     }
   ],
   "exam": [
@@ -460,6 +638,27 @@ C["compsci:4.5.1.3"] = {
       "ms": [
         "Yes (1)",
         "Because it can be written as the fraction 1/3 (1)"
+      ]
+    },
+    {
+      "q": "Show that the recurring decimal $0.\\overline{6}$ is rational.",
+      "marks": 3,
+      "ms": [
+        "Let x = 0.666... (1)",
+        "10x = 6.666..., so 10x − x = 6, giving 9x = 6 (1)",
+        "x = 6/9 = 2/3, a ratio of integers, hence rational (1)"
+      ]
+    },
+    {
+      "q": "Discuss why the distinction between rational and irrational numbers matters when storing numeric values in a computer.",
+      "marks": 6,
+      "ms": [
+        "Rationals can in principle be stored exactly, e.g. as a numerator/denominator pair or a terminating value. (1)",
+        "Irrationals have infinite, non-repeating expansions so cannot be stored exactly. (1)",
+        "Computers approximate reals with finite-precision floating point. (1)",
+        "This introduces rounding errors for irrationals and even some rationals (e.g. 1/3, or 0.1 in binary). (1)",
+        "Repeated calculation can accumulate these errors. (1)",
+        "Some systems use rational/fraction or arbitrary-precision types to keep exact rationals, trading off precision, speed and memory. (1)"
       ]
     }
   ]
@@ -543,6 +742,26 @@ C["compsci:4.5.1.4"] = {
     [
       "Why can computers not store $\\pi$ exactly?",
       "Memory is finite; irrational numbers have infinitely many non-repeating digits, so they must be truncated."
+    ],
+    [
+      "Define an irrational number.",
+      "A number that cannot be written as $\\frac{p}{q}$ for integers $p, q$; its decimal expansion is infinite and non-repeating."
+    ],
+    [
+      "Is $\\sqrt{9}$ irrational?",
+      "No — $\\sqrt{9} = 3$, a whole number, so it is rational."
+    ],
+    [
+      "Name three famous irrational numbers.",
+      "$\\pi$, $e$ and $\\sqrt{2}$."
+    ],
+    [
+      "Is the product of two irrational numbers always irrational?",
+      "No — for example $\\sqrt{2} \\times \\sqrt{2} = 2$, which is rational."
+    ],
+    [
+      "Why is $22/7$ not exactly $\\pi$?",
+      "$22/7$ is only a rational approximation of $\\pi$; $\\pi$ is irrational and cannot equal any fraction exactly."
     ]
   ],
   "quiz": [
@@ -567,6 +786,39 @@ C["compsci:4.5.1.4"] = {
       ],
       "ans": 2,
       "why": "$\\sqrt{9} = 3$, a whole number — therefore rational. The others are irrational."
+    },
+    {
+      "q": "Which of these is irrational?",
+      "opts": [
+        "$\\sqrt{16}$",
+        "$\\sqrt{5}$",
+        "$3.25$",
+        "$\\frac{9}{4}$"
+      ],
+      "ans": 1,
+      "why": "$\\sqrt{5}$ is the root of a non-perfect square — infinite and non-repeating; the others are rational."
+    },
+    {
+      "q": "The decimal expansion of an irrational number is...?",
+      "opts": [
+        "finite",
+        "infinite and repeating",
+        "infinite and non-repeating",
+        "always less than 1"
+      ],
+      "ans": 2,
+      "why": "Irrationals are infinite and non-repeating by definition."
+    },
+    {
+      "q": "Which operation can turn an irrational number into a rational one?",
+      "opts": [
+        "adding 1 to it",
+        "squaring $\\sqrt{2}$",
+        "dividing it by 2",
+        "multiplying it by $\\pi$"
+      ],
+      "ans": 1,
+      "why": "$(\\sqrt{2})^2 = 2$, which is rational."
     }
   ],
   "exam": [
@@ -576,6 +828,27 @@ C["compsci:4.5.1.4"] = {
       "ms": [
         "They have infinite non-repeating decimal parts (1)",
         "Computer memory is finite, so the value must be truncated or rounded, introducing a rounding error (1)"
+      ]
+    },
+    {
+      "q": "Explain, with an example, why taking a square root does not always produce an irrational number.",
+      "marks": 3,
+      "ms": [
+        "A square root is irrational only when the radicand is not a perfect square. (1)",
+        "If the radicand is a perfect square the result is a whole number. (1)",
+        "e.g. √16 = 4 is rational/integer, whereas √2 is irrational. (1)"
+      ]
+    },
+    {
+      "q": "Discuss the problems that irrational numbers cause for computer systems and how those problems are managed.",
+      "marks": 6,
+      "ms": [
+        "Irrational numbers have infinite, non-repeating digits. (1)",
+        "Finite memory means they must be truncated or rounded. (1)",
+        "They are stored as floating-point approximations. (1)",
+        "Rounding error is introduced on storage and on each calculation. (1)",
+        "Errors can accumulate over many operations, affecting accuracy. (1)",
+        "Managed by using sufficient precision (double/extended), symbolic computation, or tracking error bounds — important in scientific and financial computing. (1)"
       ]
     }
   ]
@@ -607,11 +880,18 @@ C["compsci:4.5.1.5"] = {
         ]
       }
     },
+    "Because real values are continuous, a computer cannot store every real exactly. Instead it uses **floating-point** representation — a mantissa multiplied by a base raised to an exponent — which trades a little precision for a very wide range of values.",
     {
       "code": {
         "lang": "csharp",
         "cap": "Floating point types for Real numbers.",
         "src": "double distance = 10.5;\nfloat piApprox = 3.14f;"
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "body": "Use a real (floating-point) type for any quantity that can take fractional values — measurements, averages, scientific results. Use integers when the value is always whole, to keep arithmetic exact."
       }
     },
     {
@@ -633,6 +913,34 @@ C["compsci:4.5.1.5"] = {
     [
       "What is the symbol for Real numbers?",
       "$\\mathbb{R}$"
+    ],
+    [
+      "What does $\\mathbb{R}$ contain?",
+      "All rational and irrational numbers — every point on the continuous number line."
+    ],
+    [
+      "Give the set hierarchy ending in $\\mathbb{R}$.",
+      "$\\mathbb{N} \\subset \\mathbb{Z} \\subset \\mathbb{Q} \\subset \\mathbb{R}$"
+    ],
+    [
+      "Are real numbers used for counting or measuring?",
+      "Measuring — continuous quantities such as length, mass and time."
+    ],
+    [
+      "How do computers represent real numbers?",
+      "Approximately, using floating point: a mantissa × base^exponent, with finite precision."
+    ],
+    [
+      "Is $\\pi$ a real number?",
+      "Yes — it is irrational, and all irrationals are real."
+    ],
+    [
+      "Why can't a computer store every real number exactly?",
+      "Memory is finite; many reals (e.g. π, 1/3) need infinitely many digits, so they are rounded."
+    ],
+    [
+      "Name a real number that is not rational.",
+      "$\\pi$, $e$ or $\\sqrt{2}$ (any irrational)."
     ]
   ],
   "quiz": [
@@ -646,6 +954,50 @@ C["compsci:4.5.1.5"] = {
       ],
       "ans": 3,
       "why": "$\\mathbb{R}$ includes both rational and irrational numbers."
+    },
+    {
+      "q": "Which quantity is best stored as a real (floating-point) value?",
+      "opts": [
+        "the number of students",
+        "a person's height in metres",
+        "an array index",
+        "the number of files"
+      ],
+      "ans": 1,
+      "why": "Height is continuous and can be fractional; the others are discrete counts best stored as integers."
+    },
+    {
+      "q": "Which statement about $\\mathbb{R}$ is FALSE?",
+      "opts": [
+        "$\\mathbb{R}$ includes irrationals",
+        "$\\mathbb{R}$ includes all integers",
+        "Computers store every real exactly",
+        "$\\mathbb{R}$ is used for measurement"
+      ],
+      "ans": 2,
+      "why": "Finite precision means most reals are only approximated by floating point."
+    },
+    {
+      "q": "0.5 belongs to which smallest set?",
+      "opts": [
+        "$\\mathbb{N}$",
+        "$\\mathbb{Z}$",
+        "$\\mathbb{Q}$",
+        "irrationals"
+      ],
+      "ans": 2,
+      "why": "0.5 = 1/2 is rational, so its smallest set is ℚ (which is inside ℝ)."
+    },
+    {
+      "q": "Floating-point representation stores a number as...?",
+      "opts": [
+        "a numerator and denominator",
+        "a mantissa and exponent",
+        "a sign bit only",
+        "two integers added together"
+      ],
+      "ans": 1,
+      "why": "Floating point = mantissa × base^exponent."
     }
   ],
   "exam": [
@@ -655,6 +1007,27 @@ C["compsci:4.5.1.5"] = {
       "ms": [
         "Measuring the height of a person (1)",
         "Calculating the precise area of a circle (1)"
+      ]
+    },
+    {
+      "q": "Explain why a real (floating-point) type is more appropriate than an integer type for storing the average of a set of exam marks.",
+      "marks": 3,
+      "ms": [
+        "An average can be fractional / non-whole. (1)",
+        "Integers can only store whole numbers, losing the fractional part. (1)",
+        "A real / floating-point type preserves the fractional precision. (1)"
+      ]
+    },
+    {
+      "q": "Discuss the trade-offs a programmer makes when choosing between integer and real (floating-point) data types.",
+      "marks": 6,
+      "ms": [
+        "Integers are exact within their range. (1)",
+        "Reals can represent fractional / continuous values. (1)",
+        "Reals have a far wider range via the exponent. (1)",
+        "but only approximate many values, introducing rounding error. (1)",
+        "Floating-point arithmetic can be slower and equality comparisons unreliable. (1)",
+        "Integers risk overflow but give exact counting/indexing; the choice depends on whether the quantity is discrete or continuous and on precision needs. (1)"
       ]
     }
   ]
@@ -686,6 +1059,7 @@ C["compsci:4.5.1.6"] = {
         ]
       }
     },
+    "In computing, ordinals appear most often as **array indices** and as **rankings** (search-result order, leaderboard position). Most languages count positions from 0, so the *first* element is the *0th* — a frequent source of off-by-one errors.",
     {
       "code": {
         "lang": "pseudo",
@@ -712,6 +1086,34 @@ C["compsci:4.5.1.6"] = {
     [
       "What is an ordinal number?",
       "A number that defines the position of an element in a set."
+    ],
+    [
+      "Contrast ordinal and cardinal numbers.",
+      "Ordinal = position/rank (1st, 2nd); cardinal = quantity (one, two, three)."
+    ],
+    [
+      "In a 0-indexed array, which index holds the 4th element?",
+      "Index 3 — counting from 0, the 4th element is at position 3."
+    ],
+    [
+      "Give a computing example of ordinal numbers.",
+      "Array indices, leaderboard rankings, or the order of search results."
+    ],
+    [
+      "Why do off-by-one errors relate to ordinals?",
+      "They come from confusing the count (cardinal) with the position (ordinal) — e.g. treating the 3rd item as index 3 in a 0-indexed array."
+    ],
+    [
+      "Is '3rd place' a cardinal or ordinal number?",
+      "Ordinal — it describes rank/position."
+    ],
+    [
+      "Does an ordinal number describe how many items there are?",
+      "No — that is a cardinal number; an ordinal describes which position an item occupies."
+    ],
+    [
+      "In a 1-indexed list, what position is the first element?",
+      "Position 1 (the 1st)."
     ]
   ],
   "quiz": [
@@ -725,6 +1127,50 @@ C["compsci:4.5.1.6"] = {
       ],
       "ans": 1,
       "why": "In 0-indexed systems, the second item is index 1."
+    },
+    {
+      "q": "Which is an ordinal use of numbers?",
+      "opts": [
+        "There are 5 runners",
+        "She finished 2nd",
+        "The bag holds 5 kg",
+        "Buy 3 apples"
+      ],
+      "ans": 1,
+      "why": "'2nd' indicates rank/position — ordinal. The rest are quantities (cardinal/measurement)."
+    },
+    {
+      "q": "In a 0-indexed array of length 10, the last element is at index...?",
+      "opts": [
+        "10",
+        "9",
+        "11",
+        "0"
+      ],
+      "ans": 1,
+      "why": "Indices run 0..9; the 10th (last) element is at index 9."
+    },
+    {
+      "q": "Cardinal numbers express...?",
+      "opts": [
+        "position",
+        "rank",
+        "quantity",
+        "order"
+      ],
+      "ans": 2,
+      "why": "Cardinals express how many (quantity)."
+    },
+    {
+      "q": "An off-by-one error often comes from...?",
+      "opts": [
+        "using too much memory",
+        "confusing ordinal position with cardinal count",
+        "dividing by zero",
+        "integer overflow"
+      ],
+      "ans": 1,
+      "why": "Mixing 0-indexed positions with counts of items causes off-by-one bugs."
     }
   ],
   "exam": [
@@ -734,6 +1180,27 @@ C["compsci:4.5.1.6"] = {
       "ms": [
         "Cardinal numbers represent quantity/size (how many) (1)",
         "Ordinal numbers represent position/rank (what order) (1)"
+      ]
+    },
+    {
+      "q": "A programmer accesses the 5th element of a 0-indexed array using index 5 and gets the wrong value. Explain the error and give the correct index.",
+      "marks": 3,
+      "ms": [
+        "The array is 0-indexed, so positions start at 0. (1)",
+        "The 5th element is at index 4, not 5. (1)",
+        "Using index 5 accesses the 6th element — an off-by-one error. (1)"
+      ]
+    },
+    {
+      "q": "Discuss how the distinction between ordinal and cardinal numbers is important when working with arrays and loops in programming.",
+      "marks": 6,
+      "ms": [
+        "Cardinal = number of elements (the length/count). (1)",
+        "Ordinal = position of an element (its index). (1)",
+        "Most languages index from 0, so positions run 0..n−1. (1)",
+        "A loop iterating over a count must map count to valid indices to avoid going out of bounds. (1)",
+        "Confusing the two causes off-by-one errors. (1)",
+        "Correct handling: last index = length − 1, and iterate while index < length. (1)"
       ]
     }
   ]
@@ -774,6 +1241,12 @@ C["compsci:4.5.1.7"] = {
     },
     {
       "callout": {
+        "t": "tip",
+        "body": "Quick test: if asking 'how many?' gives a whole-number answer that can never be fractional, it is **counting** (use integers). If asking 'how much?' can give any value in a range, it is **measuring** (use reals)."
+      }
+    },
+    {
+      "callout": {
         "t": "memorise",
         "h": "Counting vs Measuring",
         "body": "**Counting** uses natural/integer numbers (ℕ/ℤ) — discrete, exact. You cannot have 2.5 people. **Measuring** uses real numbers (ℝ) — continuous. Weight, height, temperature can take any value. In CS: discrete quantities → integer types; continuous quantities → floating point."
@@ -791,6 +1264,34 @@ C["compsci:4.5.1.7"] = {
     [
       "Which number set is best for measuring weight?",
       "Real numbers ($\\mathbb{R}$)"
+    ],
+    [
+      "What number set is used for counting discrete objects?",
+      "Natural numbers ($\\mathbb{N}$), or integers ($\\mathbb{Z}$) — discrete, whole values."
+    ],
+    [
+      "Why can't natural numbers measure temperature precisely?",
+      "Temperature is continuous and can be fractional (e.g. 21.5°C); naturals are whole only."
+    ],
+    [
+      "Give two examples of quantities you count.",
+      "Number of students, number of cars, number of files — discrete whole quantities."
+    ],
+    [
+      "Give two examples of quantities you measure.",
+      "Length, mass, time and temperature — continuous quantities."
+    ],
+    [
+      "Which data type suits a discrete count?",
+      "An integer type."
+    ],
+    [
+      "Which data type suits a continuous measurement?",
+      "A real / floating-point type."
+    ],
+    [
+      "Can a measured quantity take fractional values?",
+      "Yes — measurements are continuous, so values like 2.75 m are valid."
     ]
   ],
   "quiz": [
@@ -804,6 +1305,50 @@ C["compsci:4.5.1.7"] = {
       ],
       "ans": 1,
       "why": "Meters represent a continuous distance that is measured."
+    },
+    {
+      "q": "Which of these is a count (discrete)?",
+      "opts": [
+        "3.2 litres of milk",
+        "12 eggs",
+        "1.8 m tall",
+        "37.5°C"
+      ],
+      "ans": 1,
+      "why": "Eggs are counted as whole units; the others are continuous measurements."
+    },
+    {
+      "q": "Best type for storing the number of seats in a stadium?",
+      "opts": [
+        "float",
+        "double",
+        "integer",
+        "char"
+      ],
+      "ans": 2,
+      "why": "Seats are a discrete whole count → integer."
+    },
+    {
+      "q": "Best type for storing a runner's race time?",
+      "opts": [
+        "integer",
+        "boolean",
+        "real / float",
+        "char"
+      ],
+      "ans": 2,
+      "why": "Time is continuous and fractional → real."
+    },
+    {
+      "q": "Why might counting use integers but measuring use reals?",
+      "opts": [
+        "integers are slower",
+        "counts are discrete, measurements continuous",
+        "reals can't store negatives",
+        "integers store decimals"
+      ],
+      "ans": 1,
+      "why": "Discrete counts map to integers; continuous measurements need fractional (real) values."
     }
   ],
   "exam": [
@@ -814,6 +1359,26 @@ C["compsci:4.5.1.7"] = {
         "Counting involves discrete units (1)",
         "Length is a continuous quantity that can have fractional values (1)",
         "Natural numbers only include whole numbers, so they lack the precision needed for measurement (1)"
+      ]
+    },
+    {
+      "q": "State whether each of the following is counting or measuring: (a) the number of pages in a book  (b) the mass of the book.",
+      "marks": 2,
+      "ms": [
+        "(a) Counting (discrete / whole). (1)",
+        "(b) Measuring (continuous). (1)"
+      ]
+    },
+    {
+      "q": "Discuss how the difference between counting and measuring influences a programmer's choice of data type, using examples.",
+      "marks": 6,
+      "ms": [
+        "Counting yields discrete whole values. (1)",
+        "→ best stored in integer types (e.g. number of items). (1)",
+        "Measuring yields continuous values that may be fractional. (1)",
+        "→ best stored in real / floating-point types (e.g. height, time). (1)",
+        "Using an integer for a measurement loses fractional precision. (1)",
+        "Using a float for a count risks rounding/comparison errors and wastes exactness; correct choice improves accuracy and avoids bugs such as overflow. (1)"
       ]
     }
   ]
@@ -880,6 +1445,9 @@ C["compsci:4.5.2.1"] = {
           ]
         ]
       }
+    },
+    {
+      "page": "Conversion"
     },
     {
       "h": "The Binary-to-Hex Process"
@@ -956,6 +1524,18 @@ C["compsci:4.5.2.1"] = {
     [
       "Convert the hexadecimal number 1F to decimal.",
       "31 (16 * 1 + 15)"
+    ],
+    [
+      "How many bits does one hexadecimal digit represent?",
+      "4 bits (a nibble)."
+    ],
+    [
+      "Convert decimal 255 to hexadecimal.",
+      "FF ($15 \\times 16 + 15$)."
+    ],
+    [
+      "What is the binary literal 0b1010 in decimal?",
+      "10."
     ]
   ],
   "quiz": [
@@ -1002,6 +1582,17 @@ C["compsci:4.5.2.1"] = {
       ],
       "ans": 2,
       "why": "Two hex digits range from 00 to FF, which is 16^2 = 256 values."
+    },
+    {
+      "q": "Convert binary 11110000 to hexadecimal.",
+      "opts": [
+        "F0",
+        "0F",
+        "FF",
+        "E0"
+      ],
+      "ans": 0,
+      "why": "1111 = F and 0000 = 0, giving F0."
     }
   ],
   "exam": [
@@ -1011,6 +1602,27 @@ C["compsci:4.5.2.1"] = {
       "ms": [
         "Hex is shorter / more compact / easier to read for humans. (1)",
         "Therefore, it is less prone to transcription errors / easier to remember. (1)"
+      ]
+    },
+    {
+      "q": "Convert the binary number 10110110 to hexadecimal, showing your working.",
+      "marks": 3,
+      "ms": [
+        "Split into nibbles: 1011 | 0110. (1)",
+        "1011 = 11 = B, and 0110 = 6. (1)",
+        "Result: B6. (1)"
+      ]
+    },
+    {
+      "q": "Discuss why hexadecimal is widely used in computing rather than decimal or raw binary.",
+      "marks": 6,
+      "ms": [
+        "Computers ultimately work in binary. (1)",
+        "Binary strings are long and error-prone for humans to read and write. (1)",
+        "Hex is far more compact — one hex digit represents 4 bits. (1)",
+        "Conversion between hex and binary is trivial (nibble mapping). (1)",
+        "Decimal does not map cleanly to binary (no whole-power relationship). (1)",
+        "Hex is used for memory addresses, colour codes, MAC addresses and machine code, reducing transcription errors and aiding debugging. (1)"
       ]
     }
   ]
@@ -1089,6 +1701,9 @@ C["compsci:4.5.3.1"] = {
       }
     },
     {
+      "page": "Capacity"
+    },
+    {
       "h": "Calculating Capacity"
     },
     {
@@ -1150,6 +1765,18 @@ C["compsci:4.5.3.1"] = {
     [
       "What is a 'word' in computer architecture?",
       "The number of bits the CPU can process in a single operation, typically 32 or 64 bits."
+    ],
+    [
+      "How many distinct values can $n$ bits represent?",
+      "$2^n$."
+    ],
+    [
+      "How many bytes are in a 32-bit word?",
+      "4 bytes (32 / 8)."
+    ],
+    [
+      "What is the most significant bit (MSB)?",
+      "The leftmost bit, carrying the largest place value."
     ]
   ],
   "quiz": [
@@ -1196,6 +1823,17 @@ C["compsci:4.5.3.1"] = {
       ],
       "ans": 1,
       "why": "A nibble is 4 bits. $2^4 = 16$."
+    },
+    {
+      "q": "How many bits are in 4 bytes?",
+      "opts": [
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "ans": 2,
+      "why": "4 × 8 = 32 bits."
     }
   ],
   "exam": [
@@ -1204,6 +1842,26 @@ C["compsci:4.5.3.1"] = {
       "marks": 1,
       "ms": [
         "16777216 OR 2^24. (1)"
+      ]
+    },
+    {
+      "q": "State the number of distinct values that can be represented by (a) a nibble  (b) two bytes.",
+      "marks": 2,
+      "ms": [
+        "(a) 16 (2^4). (1)",
+        "(b) 65536 (2^16). (1)"
+      ]
+    },
+    {
+      "q": "Discuss why data is organised into bits, nibbles, bytes and words, and how these units relate to computer hardware.",
+      "marks": 6,
+      "ms": [
+        "A bit is the smallest unit — a single 0/1, matching a two-state switch / voltage level. (1)",
+        "Bits are grouped for convenience: a nibble = 4 bits = one hex digit. (1)",
+        "A byte = 8 bits, the smallest addressable unit / one character. (1)",
+        "n bits give 2^n combinations, setting the range of values. (1)",
+        "Word size = bits processed at once by the CPU (e.g. 64-bit). (1)",
+        "Word size affects registers, address bus width and memory capacity; standard units allow consistent measurement of storage and transfer. (1)"
       ]
     }
   ]
@@ -1258,6 +1916,9 @@ C["compsci:4.5.3.2"] = {
           }
         ]
       }
+    },
+    {
+      "page": "Converting"
     },
     {
       "h": "Converting Between Units"
@@ -1327,6 +1988,18 @@ C["compsci:4.5.3.2"] = {
     [
       "Why is there a difference between the advertised size of a hard drive and its size in Windows?",
       "Manufacturers use decimal prefixes (GB, TB) but Windows calculates sizes using binary prefixes (GiB, TiB)."
+    ],
+    [
+      "How many bytes are in a mebibyte (MiB)?",
+      "1,048,576 bytes ($2^{20}$)."
+    ],
+    [
+      "Which prefix system do operating systems typically use to report storage?",
+      "Binary (IEC): KiB, MiB, GiB — powers of 1024."
+    ],
+    [
+      "How many MiB are in a GiB?",
+      "1024 MiB."
     ]
   ],
   "quiz": [
@@ -1372,7 +2045,18 @@ C["compsci:4.5.3.2"] = {
         "4096"
       ],
       "ans": 0,
-      "why": "kilo (k) is SI decimal prefix for 1000. So 2 * 1000 = 2000 bytes."
+      "why": "kilo (k) is the SI decimal prefix for 1000. So 2 * 1000 = 2000 bytes."
+    },
+    {
+      "q": "How many bytes are in 3 KiB?",
+      "opts": [
+        "3000",
+        "3072",
+        "3024",
+        "1024"
+      ],
+      "ans": 1,
+      "why": "3 × 1024 = 3072 bytes."
     }
   ],
   "exam": [
@@ -1382,6 +2066,27 @@ C["compsci:4.5.3.2"] = {
       "ms": [
         "A kilobyte uses a base-10 prefix and represents 1000 bytes. (1)",
         "A kibibyte uses a base-2 prefix and represents 1024 (2^10) bytes. (1)"
+      ]
+    },
+    {
+      "q": "A file is 2 MiB. Calculate its size in (a) KiB  (b) bytes.",
+      "marks": 3,
+      "ms": [
+        "(a) 2 × 1024 = 2048 KiB. (1)",
+        "(b) 2048 × 1024 = 2,097,152 bytes. (1)",
+        "Correct use of the 1024 factor / working shown. (1)"
+      ]
+    },
+    {
+      "q": "Discuss why two systems of size prefixes (SI decimal and IEC binary) exist and the confusion they cause.",
+      "marks": 6,
+      "ms": [
+        "SI prefixes (kB, MB) use powers of 1000. (1)",
+        "IEC prefixes (KiB, MiB) use powers of 1024. (1)",
+        "Binary prefixes match the powers-of-two nature of memory addressing. (1)",
+        "Storage manufacturers advertise using SI (larger-looking numbers). (1)",
+        "Operating systems often report using binary values. (1)",
+        "→ a '500 GB' drive shows as ~465 GiB, appearing to lose capacity; IEC prefixes were introduced to remove this ambiguity. (1)"
       ]
     }
   ]
@@ -1446,6 +2151,9 @@ C["compsci:4.5.4.1"] = {
       }
     },
     {
+      "page": "Conversion"
+    },
+    {
       "h": "Binary to Decimal Conversion"
     },
     {
@@ -1507,6 +2215,18 @@ C["compsci:4.5.4.1"] = {
     [
       "Does an unsigned binary integer use a bit to represent its sign?",
       "No, all bits are used for magnitude, meaning it can only represent non-negative numbers."
+    ],
+    [
+      "How many values can an $n$-bit unsigned integer represent?",
+      "$2^n$ values, from 0 to $2^n - 1$."
+    ],
+    [
+      "What is the place value of the MSB in an 8-bit unsigned number?",
+      "128 ($2^7$)."
+    ],
+    [
+      "Convert the decimal 200 to 8-bit unsigned binary.",
+      "11001000 (128 + 64 + 8)."
     ]
   ],
   "quiz": [
@@ -1553,6 +2273,17 @@ C["compsci:4.5.4.1"] = {
       ],
       "ans": 1,
       "why": "In unsigned binary, all bits represent magnitude. The MSB in 8 bits is $2^7 = 128$."
+    },
+    {
+      "q": "What is the maximum value of a 12-bit unsigned integer?",
+      "opts": [
+        "2048",
+        "4095",
+        "4096",
+        "8191"
+      ],
+      "ans": 1,
+      "why": "$2^{12} - 1 = 4095$."
     }
   ],
   "exam": [
@@ -1562,6 +2293,27 @@ C["compsci:4.5.4.1"] = {
       "ms": [
         "Smallest value is 0. (1)",
         "Largest value is 1023 (or 2^10 - 1). (1)"
+      ]
+    },
+    {
+      "q": "Convert the unsigned binary 11001010 to decimal, showing the place values used.",
+      "marks": 3,
+      "ms": [
+        "Place values 128 64 32 16 8 4 2 1. (1)",
+        "Set bits contribute 128 + 64 + 8 + 2. (1)",
+        "= 202. (1)"
+      ]
+    },
+    {
+      "q": "Discuss the advantages and limitations of using unsigned binary representation for integers.",
+      "marks": 6,
+      "ms": [
+        "Advantage: all bit patterns represent non-negative values, doubling the positive range vs signed. (1)",
+        "e.g. 8-bit unsigned 0–255 vs signed −128..127. (1)",
+        "Simple to convert and to perform arithmetic on. (1)",
+        "Limitation: cannot represent negative numbers. (1)",
+        "→ unsuitable where negatives are needed (temperatures, balances). (1)",
+        "Limitation: fixed width → overflow when exceeding 2^n − 1; suited to data like memory addresses, pixel values and counts that are never negative. (1)"
       ]
     }
   ]
@@ -1638,6 +2390,9 @@ C["compsci:4.5.4.2"] = {
       }
     },
     {
+      "page": "Addition Process"
+    },
+    {
       "h": "The Addition Process"
     },
     {
@@ -1710,6 +2465,18 @@ C["compsci:4.5.4.2"] = {
     [
       "What happens in an 8-bit system if you add 11111111 and 00000001?",
       "The result is 100000000, causing an overflow error because it requires 9 bits."
+    ],
+    [
+      "When does overflow occur in unsigned binary addition?",
+      "When a 1 is carried out beyond the most significant bit — the result needs more bits than available."
+    ],
+    [
+      "Add 0110 + 0011 in binary.",
+      "1001 (6 + 3 = 9)."
+    ],
+    [
+      "How is subtraction performed in binary using addition?",
+      "Add the two's complement of the number being subtracted."
     ]
   ],
   "quiz": [
@@ -1756,6 +2523,17 @@ C["compsci:4.5.4.2"] = {
       ],
       "ans": 0,
       "why": "60 + 5 = 65, which is 64 + 1 = 01000001."
+    },
+    {
+      "q": "What is 1111 + 0001 in a 4-bit register?",
+      "opts": [
+        "0000 with overflow",
+        "1111",
+        "10000 with no overflow",
+        "0001"
+      ],
+      "ans": 0,
+      "why": "15 + 1 = 16 = 10000; the 5th bit is lost in 4 bits, giving 0000 with overflow."
     }
   ],
   "exam": [
@@ -1766,6 +2544,26 @@ C["compsci:4.5.4.2"] = {
         "Correct binary addition: 100000001. (1) Note: The final carry forms the 9th bit.",
         "Correctly retaining the 8-bit result: 00000001. (1)",
         "State that overflow HAS occurred because the 9th carry bit cannot be stored in 8 bits. (1)"
+      ]
+    },
+    {
+      "q": "Add the 4-bit unsigned numbers 0101 and 0100 and state the decimal result.",
+      "marks": 2,
+      "ms": [
+        "0101 + 0100 = 1001. (1)",
+        "= 9 in decimal. (1)"
+      ]
+    },
+    {
+      "q": "Discuss what overflow is in binary arithmetic, how it is detected, and how it can be avoided.",
+      "marks": 6,
+      "ms": [
+        "Overflow is when the result of an operation is too large for the fixed number of bits. (1)",
+        "In unsigned addition it is detected by a carry out of the MSB. (1)",
+        "The stored result wraps around / is incorrect. (1)",
+        "e.g. 8-bit 255 + 1 = 0 (carry lost). (1)",
+        "Avoided by using a larger word size / data type. (1)",
+        "or by checking for carry-out before relying on the result — important in safety-critical and financial systems where wrong values cause failures. (1)"
       ]
     }
   ]
@@ -1823,6 +2621,9 @@ C["compsci:4.5.4.3"] = {
           ]
         ]
       }
+    },
+    {
+      "page": "Negation & Subtraction"
     },
     {
       "h": "The Negation Process"
@@ -1893,6 +2694,18 @@ C["compsci:4.5.4.3"] = {
     [
       "How does a computer perform subtraction using Two's complement?",
       "It converts the subtrahend (number to subtract) to its negative Two's complement form and adds it to the minuend."
+    ],
+    [
+      "What is the place value (weight) of the MSB in 8-bit Two's complement?",
+      "−128 ($-2^7$)."
+    ],
+    [
+      "Convert −5 to 8-bit Two's complement.",
+      "11111011 (5 = 00000101 → invert 11111010 → +1 = 11111011)."
+    ],
+    [
+      "How do you decode a negative Two's complement number to decimal?",
+      "Either sum the place values with the MSB negative, or invert all bits and add 1 to get the magnitude, then negate it."
     ]
   ],
   "quiz": [
@@ -1939,6 +2752,17 @@ C["compsci:4.5.4.3"] = {
       ],
       "ans": 0,
       "why": "Two's complement provides a single zero and allows the same circuitry to be used for both addition and subtraction."
+    },
+    {
+      "q": "What decimal value is the 8-bit Two's complement number 11111111?",
+      "opts": [
+        "-1",
+        "1",
+        "255",
+        "-255"
+      ],
+      "ans": 0,
+      "why": "All ones in two's complement is -1 (invert → 00000000, add 1 → 00000001 = 1, then negate → -1)."
     }
   ],
   "exam": [
@@ -1950,6 +2774,27 @@ C["compsci:4.5.4.3"] = {
         "Represent 20 as an 8-bit binary number: 00010100. (1)",
         "Convert 20 to its Two's complement (invert and add 1): 11101011 + 1 = 11101100. (1)",
         "Add 15 and -20: 00001111 + 11101100 = 11111011 (which represents -5). (1)"
+      ]
+    },
+    {
+      "q": "Convert the decimal -20 into 8-bit Two's complement, showing each step.",
+      "marks": 3,
+      "ms": [
+        "20 = 00010100. (1)",
+        "Invert the bits: 11101011. (1)",
+        "Add 1: 11101100. (1)"
+      ]
+    },
+    {
+      "q": "Discuss why Two's complement is the preferred method for representing signed integers in computers, comparing it with sign-and-magnitude.",
+      "marks": 6,
+      "ms": [
+        "Two's complement has a single representation of zero. (1)",
+        "Sign-and-magnitude has two zeros (+0 and −0), wasting a pattern and complicating equality tests. (1)",
+        "Two's complement lets the same adder hardware perform addition and subtraction. (1)",
+        "Subtraction = add the two's complement, so no separate subtractor is needed. (1)",
+        "Sign-and-magnitude needs extra logic to handle signs during arithmetic. (1)",
+        "Two's complement uses all bit patterns (range −128..127 for 8-bit), giving simpler, cheaper hardware → the industry standard. (1)"
       ]
     }
   ]
