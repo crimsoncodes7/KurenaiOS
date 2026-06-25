@@ -139,7 +139,10 @@ C["compsci:4.5.4.4"] = {
     [
       "Absolute vs relative error?",
       "Absolute = |actual − stored|; relative = absolute ÷ actual (often as a percentage)."
-    ]
+    ],
+    ["Do more exponent bits improve precision?", "No — they increase RANGE. Precision (significant figures) comes from more MANTISSA bits; the bit budget is a trade-off."],
+    ["Why does normalisation give a unique representation?", "It fixes the leading bits (0.1 / 1.0), so each value has exactly one normalised mantissa-and-exponent form."],
+    ["What causes cancellation error?", "Subtracting two nearly-equal floating-point values: matching leading digits cancel, leaving few significant bits."]
   ],
   "quiz": [
     {
@@ -185,6 +188,12 @@ C["compsci:4.5.4.4"] = {
       ],
       "ans": 1,
       "why": "Leading matching digits cancel, leaving few significant bits — a hallmark exam point."
+    },
+    {
+      "q": "Spending more bits on the exponent (fewer on the mantissa) gives…",
+      "opts": ["finer precision", "a larger representable range", "faster arithmetic", "a unique representation"],
+      "ans": 1,
+      "why": "Exponent bits scale magnitude (range); mantissa bits carry precision."
     }
   ],
   "exam": [
@@ -197,6 +206,16 @@ C["compsci:4.5.4.4"] = {
         "Mantissa padded: 0.1101000 (1)",
         "Exponent 3 = 0011 (1)"
       ]
+    },
+    {
+      "q": "Explain the difference between fixed-point and floating-point representation, and state one advantage of each.",
+      "marks": 4,
+      "ms": ["Fixed point: the binary point is in a fixed, pre-agreed position (1); advantage: faster/simpler arithmetic and uniform precision (1)", "Floating point: the point's position is encoded by an exponent (mantissa × 2^exp) (1); advantage: much greater range for the same number of bits (1)"]
+    },
+    {
+      "q": "Discuss the trade-off between range and precision in a fixed-width floating-point format, and explain why some decimal values cannot be stored exactly.",
+      "marks": 6,
+      "ms": ["The total bits are split between mantissa and exponent (1)", "More mantissa bits → more precision (significant figures); more exponent bits → more range (1-2)", "With fixed total width, increasing one decreases the other — a direct trade-off (1)", "Some values (e.g. 0.1) have an infinite recurring binary expansion (1)", "A finite mantissa must truncate/round them, causing representation/rounding error (1)"]
     }
   ],
   "gens": [
@@ -337,7 +356,10 @@ C["compsci:4.6.2.1"] = {
     [
       "Why quote the law used on each line?",
       "Method marks attach to justified steps; a correct answer with unexplained jumps can still drop marks."
-    ]
+    ],
+    ["State the two distributive laws.", "X·(Y+Z) = X·Y + X·Z and X+(Y·Z) = (X+Y)·(X+Z)."],
+    ["What is the quick self-check for De Morgan's?", "Apply it twice — you should return to the original expression."],
+    ["Simplify X·X̄ and X+X̄.", "X·X̄ = 0 (complement); X+X̄ = 1 (complement)."]
   ],
   "quiz": [
     {
@@ -383,6 +405,12 @@ C["compsci:4.6.2.1"] = {
       ],
       "ans": 0,
       "why": "Both distributive forms hold in Boolean algebra — this one has no ordinary-algebra analogue, so it's the one examiners test."
+    },
+    {
+      "q": "Simplify A·(Ā + B).",
+      "opts": ["A", "B", "A·B", "Ā·B"],
+      "ans": 2,
+      "why": "A·Ā + A·B = 0 + A·B = A·B."
     }
   ],
   "exam": [
@@ -395,6 +423,16 @@ C["compsci:4.6.2.1"] = {
         "Distribute: Ā·B + B·B = Ā·B + B (1)",
         "Absorption: B + B·Ā = B (1)"
       ]
+    },
+    {
+      "q": "State De Morgan's two laws and use one to rewrite ¬(A·B).",
+      "marks": 3,
+      "ms": ["¬(X·Y) = X̄ + Ȳ (1)", "¬(X+Y) = X̄ · Ȳ (1)", "¬(A·B) = Ā + B̄ (1)"]
+    },
+    {
+      "q": "Simplify the expression A·B + A·B̄ + Ā·B to a single variable plus a term, quoting the law used at each step, and explain why quoting laws matters in the exam.",
+      "marks": 6,
+      "ms": ["A·B + A·B̄ = A·(B + B̄) [distributive] (1)", "= A·1 = A [complement] (1)", "Expression becomes A + Ā·B (1)", "A + Ā·B = A + B [absorption variant] (1)", "Final answer A + B (1)", "Method marks are awarded for justified steps; unexplained jumps can lose marks even if the answer is right (1)"]
     }
   ],
   "sims": [
@@ -513,7 +551,10 @@ C["compsci:4.4.2.1"] = {
     [
       "Why can't an FSM match brackets/count equal 0s and 1s?",
       "Finite states = bounded memory; unbounded counting needs more powerful models (e.g. grammars in BNF)."
-    ]
+    ],
+    ["List the five components of an FSM acceptor.", "A finite set of states, an input alphabet, a transition function, a start state, and a set of accepting states."],
+    ["How do you work out what an FSM accepts?", "Test short strings recording accept/reject, give each state a meaning (what it remembers), then state the general pattern in a sentence."],
+    ["In a deterministic FSM, how many transitions leave each state?", "Exactly one per input symbol — so states × alphabet-size transitions in total."]
   ],
   "quiz": [
     {
@@ -559,6 +600,12 @@ C["compsci:4.4.2.1"] = {
       ],
       "ans": 2,
       "why": "One per symbol per state: 4 × 2 = 8."
+    },
+    {
+      "q": "Why can no FSM accept the language of strings with equal numbers of 0s and 1s?",
+      "opts": ["it has too few states", "it has no memory to count unboundedly", "it is non-deterministic", "0s and 1s are not in its alphabet"],
+      "ans": 1,
+      "why": "Equal-count requires tracking an unbounded difference; finite states can't store an unbounded count."
     }
   ],
   "exam": [
@@ -570,6 +617,16 @@ C["compsci:4.4.2.1"] = {
         "Machine is in S0 exactly when an even number of 1s has been read (1)",
         "Accepts all binary strings containing an even number of 1s (including none) (1)"
       ]
+    },
+    {
+      "q": "State the five components of a finite state machine acceptor.",
+      "marks": 3,
+      "ms": ["Finite set of states; input alphabet (1)", "Transition function (state × input → next state); start state (1)", "Set of accepting (goal) states (1)"]
+    },
+    {
+      "q": "Design a deterministic FSM that accepts binary strings divisible by 3 (value mod 3). Describe the states and transitions, and explain why three states suffice.",
+      "marks": 6,
+      "ms": ["Three states for remainders 0, 1, 2; start and accept = remainder-0 state (1-2)", "Reading a bit b updates value to 2×value + b, so remainder r → (2r + b) mod 3 (1-2)", "Transitions: r0 on 0→r0, on 1→r1; r1 on 0→r2, on 1→r0; r2 on 0→r1, on 1→r2 (1)", "Three states suffice because only the remainder mod 3 (not the whole value) needs to be remembered (1)"]
     }
   ],
   "sims": [
@@ -700,7 +757,9 @@ C["compsci:4.1.2.3"] = {
     [
       "Override vs overload?",
       "Override: subclass replaces an inherited method (same signature). Overload: same name, different parameter lists, same class."
-    ]
+    ],
+    ["What is instantiation?", "Creating an object (instance) from a class, e.g. `new Player()`."],
+    ["Why can an abstract class not be instantiated?", "It is an incomplete blueprint (may have unimplemented abstract members) existing only to be subclassed."]
   ],
   "quiz": [
     {
@@ -746,6 +805,12 @@ C["compsci:4.1.2.3"] = {
       ],
       "ans": 1,
       "why": "It exists to be subclassed; abstract members force implementations."
+    },
+    {
+      "q": "Overriding differs from overloading because overriding…",
+      "opts": ["uses a different parameter list in one class", "replaces an inherited method with the same signature in a subclass", "is the same as instantiation", "only applies to private fields"],
+      "ans": 1,
+      "why": "Override = subclass redefines an inherited method (same signature); overload = same name, different parameters, one class."
     }
   ],
   "exam": [
@@ -760,6 +825,16 @@ C["compsci:4.1.2.3"] = {
         "Enemy overrides Move() with its own behaviour (1)",
         "Polymorphism named: same Move() call, class-appropriate behaviour at run time (1)"
       ]
+    },
+    {
+      "q": "Define encapsulation and explain one benefit it gives in object-oriented software.",
+      "marks": 3,
+      "ms": ["Encapsulation bundles data with the methods that operate on it, hiding internal data (private fields, public methods) (1)", "Benefit: prevents invalid external modification / protects data integrity (1)", "or: the implementation can change without affecting code that uses the object (1) (max 3)"]
+    },
+    {
+      "q": "Explain the difference between aggregation and composition, giving an example of each and stating how they are drawn in a UML class diagram.",
+      "marks": 4,
+      "ms": ["Aggregation: a has-a where the parts can exist independently of the whole (1); e.g. a Team has Players who survive the team — hollow diamond (1)", "Composition: a has-a where the parts are destroyed with the whole (1); e.g. a House has Rooms that cease to exist with it — filled diamond (1)"]
     }
   ],
   "sims": []
@@ -869,7 +944,10 @@ C["compsci:4.10.3"] = {
     [
       "Three anomaly types normalisation prevents?",
       "Update, insertion and deletion anomalies."
-    ]
+    ],
+    ["What is a partial dependency?", "A non-key attribute that depends on only PART of a composite primary key — removed at 2NF."],
+    ["What is a transitive dependency?", "A non-key attribute that depends on another non-key attribute — removed at 3NF."],
+    ["Give one benefit of normalising to 3NF.", "Eliminates redundant duplication, saving storage and preventing inconsistent copies / update anomalies (maintains data integrity)."]
   ],
   "quiz": [
     {
@@ -915,6 +993,12 @@ C["compsci:4.10.3"] = {
       ],
       "ans": 1,
       "why": "One copy to change — duplicates can't drift out of sync."
+    },
+    {
+      "q": "The phrase 'depends on the key, the whole key and nothing but the key' describes…",
+      "opts": ["1NF", "2NF", "3NF", "a foreign key"],
+      "ans": 2,
+      "why": "'whole key' rules out partial dependency (2NF) and 'nothing but the key' rules out transitive dependency, giving 3NF."
     }
   ],
   "exam": [
@@ -927,6 +1011,16 @@ C["compsci:4.10.3"] = {
         "Causes redundancy: DeptName repeated for every employee in that dept (1)",
         "Risk of update anomaly/inconsistency removed by extracting Dept(DeptCode, DeptName) (1)"
       ]
+    },
+    {
+      "q": "State the three rules that define first, second and third normal form.",
+      "marks": 3,
+      "ms": ["1NF: atomic values only, no repeating groups, rows uniquely identified (1)", "2NF: 1NF and no partial dependency on a composite key (1)", "3NF: 2NF and no transitive dependency between non-key attributes (1)"]
+    },
+    {
+      "q": "An Orders table repeats the customer's name and address on every order line. Discuss the problems this causes and how normalising to 3NF resolves them.",
+      "marks": 6,
+      "ms": ["Redundancy: the same customer details are duplicated across many rows, wasting storage (1)", "Update anomaly: changing an address means updating many rows, risking inconsistency (1)", "Insertion anomaly: can't store a customer without an order; deletion anomaly: removing the last order loses the customer (1)", "Normalise: extract Customer(CustID, Name, Address) and reference it by CustID foreign key (1-2)", "Result: each fact stored once — integrity maintained and anomalies removed (1)"]
     }
   ]
 };
@@ -1009,7 +1103,10 @@ C["compsci:4.10.4"] = {
     [
       "How is a foreign key declared in CREATE TABLE?",
       "FOREIGN KEY (field) REFERENCES OtherTable(field)."
-    ]
+    ],
+    ["Which keyword sorts results, and what is the default direction?", "ORDER BY; ascending (ASC) is the default, DESC for descending."],
+    ["What does SELECT * return?", "All columns (fields) of the matching rows."],
+    ["Write SQL to add a row to Manga(Title, Price).", "INSERT INTO Manga (Title, Price) VALUES ('...', 9.99);"]
   ],
   "quiz": [
     {
@@ -1055,6 +1152,12 @@ C["compsci:4.10.4"] = {
       ],
       "ans": 2,
       "why": "No filter = all rows. (DROP TABLE removes the table itself — different statement.)"
+    },
+    {
+      "q": "Two tables listed in FROM with no linking condition produce…",
+      "opts": ["a syntax error", "a cartesian product of every row pair", "only matching rows", "an empty result"],
+      "ans": 1,
+      "why": "Without a join/WHERE condition every row of one table pairs with every row of the other."
     }
   ],
   "exam": [
@@ -1067,6 +1170,16 @@ C["compsci:4.10.4"] = {
         "WHERE Author.Name = 'Yukimura' — quoted string (1)",
         "ORDER BY Book.Title (ASC) (1)"
       ]
+    },
+    {
+      "q": "Write an SQL statement to increase the Price of the book titled 'Berserk Vol 42' to 11.99.",
+      "marks": 3,
+      "ms": ["UPDATE Manga (1)", "SET Price = 11.99 (1)", "WHERE Title = 'Berserk Vol 42' — quoted string and present WHERE (1)"]
+    },
+    {
+      "q": "Explain, with reference to SQL clause order and the WHERE clause, how to safely retrieve and how to safely update specific rows, and why omitting WHERE on an UPDATE/DELETE is dangerous.",
+      "marks": 6,
+      "ms": ["Retrieval clause order: SELECT fields, FROM table, WHERE condition, ORDER BY field (1-2)", "WHERE filters to the intended rows; string literals need single quotes (1)", "UPDATE table SET field = value WHERE condition targets only matching rows (1)", "An UPDATE/DELETE with no WHERE applies to EVERY row in the table (1)", "This silently corrupts/erases all data — write the WHERE first (1)"]
     }
   ]
 };
@@ -1175,7 +1288,10 @@ C["compsci:4.9.4.2"] = {
     [
       "What does SSH provide?",
       "An encrypted channel for remote login and command execution (and secure tunnelling of other protocols)."
-    ]
+    ],
+    ["What does HTTPS add over HTTP?", "TLS encryption of requests and responses — confidentiality and integrity, protecting against interception/tampering."],
+    ["What does a port number identify?", "Which process/service on a host the network traffic is intended for (a 16-bit number)."],
+    ["Why does FTP use two ports?", "Port 21 carries control commands and port 20 carries the actual file data."]
   ],
   "quiz": [
     {
@@ -1221,6 +1337,12 @@ C["compsci:4.9.4.2"] = {
       ],
       "ans": 1,
       "why": "IP finds the host; the port finds the service on it."
+    },
+    {
+      "q": "Which two protocols (and ports) are used to retrieve and to send email respectively?",
+      "opts": ["SMTP 25 retrieve, POP3 110 send", "POP3 110 retrieve, SMTP 25 send", "HTTP 80 retrieve, FTP 21 send", "SSH 22 retrieve, HTTPS 443 send"],
+      "ans": 1,
+      "why": "POP3 (110) pulls mail to the client; SMTP (25) sends/relays it toward the destination server."
     }
   ],
   "exam": [
@@ -1233,6 +1355,16 @@ C["compsci:4.9.4.2"] = {
         "Bob's client retrieves the message using POP3 (1)",
         "POP3 uses port 110 / typically downloads (and removes) mail to the client (1)"
       ]
+    },
+    {
+      "q": "State the port numbers used by HTTP, HTTPS and SSH, and explain what HTTPS provides that HTTP does not.",
+      "marks": 4,
+      "ms": ["HTTP port 80 (1)", "HTTPS port 443; SSH port 22 (1)", "HTTPS encrypts requests and responses using TLS (1)", "giving confidentiality and integrity, protecting data from interception/tampering (1)"]
+    },
+    {
+      "q": "Explain what a socket is and discuss why port numbers are necessary for a host that runs several network services at once.",
+      "marks": 6,
+      "ms": ["A socket is a communication endpoint = IP address + port number (e.g. 192.168.1.10:443) (1-2)", "The IP address identifies the host on the network (1)", "A single host may run many services (web, mail, SSH) simultaneously (1)", "The port number identifies WHICH process/service incoming traffic is for (1)", "Without ports the host could not direct packets to the correct application (1)"]
     }
   ]
 };
