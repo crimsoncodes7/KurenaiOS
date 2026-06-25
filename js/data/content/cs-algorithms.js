@@ -137,7 +137,11 @@ C["compsci:4.3.1.1"] = {
     [
       "When does a traversal terminate?",
       "When the frontier (stack/queue) is empty — every reachable vertex has been visited."
-    ]
+    ],
+    ["Why must a traversal keep a 'visited' set?", "To avoid revisiting vertices and looping forever when the graph contains cycles."],
+    ["Time complexity of BFS/DFS on an adjacency list?", "O(V + E) — each vertex and each edge is processed once."],
+    ["Why can deep DFS cause a stack overflow?", "Recursive DFS pushes one call-stack frame per level; a very deep graph exhausts the stack."],
+    ["Which traversal would you use to find any path out of a maze, and why?", "DFS — it plunges down one route fully before backtracking, naturally following corridors to a dead end or exit."]
   ],
   "quiz": [
     {
@@ -172,7 +176,9 @@ C["compsci:4.3.1.1"] = {
       ],
       "ans": 1,
       "why": "Each level deeper is another frame on the call stack."
-    }
+    },
+    { "q": "A 'visited' set is essential in graph traversal mainly to…", "opts": ["sort the vertices", "prevent infinite loops on cyclic graphs", "speed up hashing", "store edge weights"], "ans": 1, "why": "Without it, cycles would cause the same vertices to be revisited endlessly." },
+    { "q": "BFS and DFS differ only in…", "opts": ["the graph they accept", "whether the frontier is a queue or a stack", "their time complexity", "the programming language"], "ans": 1, "why": "Same visit-record-explore skeleton; queue → BFS, stack → DFS." }
   ],
   "exam": [
     {
@@ -184,7 +190,11 @@ C["compsci:4.3.1.1"] = {
         "Queue (FIFO) named as the supporting structure (1)",
         "FIFO means vertices discovered earlier are explored earlier → level-by-level / increasing distance order (1)"
       ]
-    }
+    },
+    { "q": "State the data structure used by DFS and one application for which DFS is well suited.", "marks": 2,
+      "ms": ["A stack (or the recursion call stack) (1)", "Maze/path-exists checking or cycle detection (1)"] },
+    { "q": "Compare depth-first and breadth-first search. Discuss how each explores a graph, the structure each uses, and a scenario where one is clearly preferable to the other.", "marks": 6,
+      "ms": ["DFS plunges deep along one branch then backtracks, using a stack/recursion (1-2)", "BFS expands outward level by level, using a FIFO queue (1-2)", "BFS finds the fewest-edge (shortest) path on an unweighted graph; DFS does not guarantee this (1)", "DFS uses less memory on a wide shallow graph and suits maze/cycle problems (1)", "Justified scenario, e.g. BFS preferred for shortest unweighted route; DFS preferred for exhaustively exploring/path-existence (1)"] }
   ],
   "sims": [
     "tl-queue",
@@ -309,7 +319,11 @@ C["compsci:4.3.2.1"] = {
     [
       "Why is post-order right for deleting a tree?",
       "Children are processed before their parent, so nothing is orphaned mid-deletion."
-    ]
+    ],
+    ["Which traversal produces prefix (Polish) notation from an expression tree?", "Pre-order (Node-Left-Right) — the operator precedes its operands."],
+    ["Are these traversals usually implemented recursively or iteratively?", "Naturally recursively; an explicit stack can convert them to iterative form."],
+    ["What does in-order give on a NON-search binary tree?", "No guaranteed order — sorted output only holds when the BST property (left < node < right) is enforced."],
+    ["State the three traversals by their initials.", "Pre = NLR, In = LNR, Post = LRN (position of N = Node tells you which)."]
   ],
   "quiz": [
     {
@@ -333,7 +347,10 @@ C["compsci:4.3.2.1"] = {
       ],
       "ans": 2,
       "why": "Ascending order is the in-order fingerprint on a BST."
-    }
+    },
+    { "q": "Post-order traversal of a binary expression tree produces…", "opts": ["infix", "prefix (Polish)", "postfix (RPN)", "sorted order"], "ans": 2, "why": "Left, Right, then Node places operators after their operands — postfix/RPN." },
+    { "q": "Which traversal is used to make an exact copy of a tree?", "opts": ["Pre-order", "In-order", "Post-order", "Level-order"], "ans": 0, "why": "Visiting the node before its subtrees recreates each node before its children." },
+    { "q": "The recipe LNR refers to which traversal?", "opts": ["Pre-order", "In-order", "Post-order", "Breadth-first"], "ans": 1, "why": "Left, Node, Right is the in-order recipe." }
   ],
   "exam": [
     {
@@ -343,7 +360,11 @@ C["compsci:4.3.2.1"] = {
         "Pre-order: 8, 3, 1, 6, 10, 14 (2)",
         "Post-order: 1, 6, 3, 14, 10, 8 (2)"
       ]
-    }
+    },
+    { "q": "State the visiting order (in terms of Node, Left, Right) for pre-order, in-order and post-order traversals.", "marks": 3,
+      "ms": ["Pre-order: Node, Left, Right (1)", "In-order: Left, Node, Right (1)", "Post-order: Left, Right, Node (1)"] },
+    { "q": "Explain why in-order traversal of a binary search tree outputs sorted data, and describe one other traversal with a use that depends on its visiting order.", "marks": 6,
+      "ms": ["BST property: every left subtree value < node < every right subtree value (1)", "In-order visits the entire left subtree (smaller) before the node, then the right subtree (larger) (1-2)", "So values emerge in ascending order (1)", "Other traversal named with order, e.g. post-order = Left, Right, Node (1)", "Its order-dependent use, e.g. post-order yields RPN / safely deletes children before parent (1)"] }
   ],
   "sims": [
     "tl-tree"
@@ -472,7 +493,11 @@ C["compsci:4.3.3.1"] = {
     [
       "Why does RPN need no brackets?",
       "Operator position encodes precedence — each operator applies to the two preceding values on the stack."
-    ]
+    ],
+    ["For the operator in 'a b −', which popped value is the left operand?", "The SECOND value popped (a); the first popped (b) is the right operand, so it computes a − b."],
+    ["What notation does reversing infix actually give?", "Prefix (Polish) notation, not postfix — RPN is postfix."],
+    ["Why is RPN 'native to stack machines'?", "It evaluates in a single left-to-right pass with one stack and no parsing of precedence or brackets."],
+    ["Give the bracket method for infix → RPN in one line.", "Fully bracket, move each operator to just after its matching close bracket, then delete all brackets."]
   ],
   "quiz": [
     {
@@ -485,7 +510,11 @@ C["compsci:4.3.3.1"] = {
       ],
       "ans": 1,
       "why": "((7−2)×3) → operator after each closing bracket."
-    }
+    },
+    { "q": "Evaluating RPN '6 2 / 3 -' gives…", "opts": ["0", "9", "-2", "1"], "ans": 0, "why": "6/2 = 3, then 3 - 3 = 0 (first popped is the right operand)." },
+    { "q": "Which data structure evaluates an RPN expression?", "opts": ["queue", "stack", "binary tree", "hash table"], "ans": 1, "why": "Operands are pushed; an operator pops two and pushes the result." },
+    { "q": "The infix A + B × C in RPN is…", "opts": ["A B + C *", "A B C * +", "A B C + *", "+ A * B C"], "ans": 1, "why": "× binds tighter: B C * first, then A + that → A B C * +." },
+    { "q": "RPN removes the need for…", "opts": ["operands", "brackets and precedence rules", "a stack", "operators"], "ans": 1, "why": "Operator position encodes order of evaluation, so brackets/precedence are unnecessary." }
   ],
   "exam": [
     {
@@ -495,7 +524,11 @@ C["compsci:4.3.3.1"] = {
         "RPN: 5 3 + 8 6 − × (2)",
         "Evaluation steps with stack contents shown (4)"
       ]
-    }
+    },
+    { "q": "Explain two advantages of Reverse Polish Notation over infix notation for evaluation by a computer.", "marks": 2,
+      "ms": ["No brackets or precedence rules are needed — position determines order (1)", "It can be evaluated in a single left-to-right pass using one stack (no parsing to a tree) (1)"] },
+    { "q": "Convert the infix expression 4 + 5 * 2 to RPN, then show the stack contents at each step as it is evaluated.", "marks": 5,
+      "ms": ["RPN: 4 5 2 * + (1)", "Push 4 → [4]; push 5 → [4,5]; push 2 → [4,5,2] (1)", "'*' pops 2 and 5, pushes 10 → [4,10] (1)", "'+' pops 10 and 4, pushes 14 → [14] (1)", "Result 14, matching infix 4 + (5*2) (1)"] }
   ]
 };
 
@@ -640,7 +673,11 @@ C["compsci:4.3.4.2"] = {
     [
       "Why is binary search O(log n)?",
       "Each step halves the search space — n items need at most log₂n comparisons."
-    ]
+    ],
+    ["What does binary search return when low > high?", "The target is not present — the search space is empty, so it reports 'not found' (e.g. −1)."],
+    ["Why is `low + (high - low) / 2` preferred over `(low + high) / 2`?", "It avoids integer overflow when low and high are both very large."],
+    ["When is linear search the better choice despite being O(n)?", "When data is unsorted (and sorting just to search isn't worth it), or the list is very small."],
+    ["Binary search is an example of which algorithmic strategy?", "Divide and conquer — each step discards half the problem."]
   ],
   "quiz": [
     {
@@ -653,16 +690,24 @@ C["compsci:4.3.4.2"] = {
       ],
       "ans": 2,
       "why": "log_2 1024 = 10 halvings."
-    }
+    },
+    { "q": "Binary search requires the data to be…", "opts": ["unique", "sorted", "numeric", "in a linked list"], "ans": 1, "why": "It relies on discarding a half by comparison, which only works on ordered data." },
+    { "q": "After comparing arr[mid] and finding the target is larger, you set…", "opts": ["high = mid - 1", "low = mid + 1", "mid = mid + 1", "low = 0"], "ans": 1, "why": "The target must be in the upper half, so move low past mid." },
+    { "q": "Applying binary search to an UNSORTED list…", "opts": ["raises an error", "is slower but correct", "may return a wrong result silently", "always returns -1"], "ans": 2, "why": "The precondition is violated, so it can miss a present item without any error — a dangerous silent failure." },
+    { "q": "Compared with linear search, binary search's main cost is…", "opts": ["more memory", "the data must be kept sorted", "it cannot find the first item", "it needs recursion"], "ans": 1, "why": "Maintaining sorted order has overhead; that is the trade for O(log n) lookup." }
   ],
   "exam": [
     {
       "q": "Trace a binary search for 18 in [3, 7, 11, 18, 25, 30, 41, 55].",
       "marks": 4,
       "ms": [
-        "Detailed trace with low, high, mid updates (4)"
+        "low=0, high=7, mid=3 → arr[3]=18 found at index 3 (alternatively show full low/high/mid updates) (4)"
       ]
-    }
+    },
+    { "q": "State the precondition for binary search and explain why it is essential.", "marks": 2,
+      "ms": ["The data must be sorted (1)", "Each comparison discards one half on the assumption that all smaller/larger values lie on one side; unsorted data breaks this, giving wrong results (1)"] },
+    { "q": "Compare linear search and binary search in terms of preconditions and time complexity, and discuss when each is the more appropriate choice.", "marks": 6,
+      "ms": ["Linear search: no precondition, works on unsorted data, O(n) worst case (1-2)", "Binary search: requires sorted data, O(log n) worst case (1-2)", "Binary search far faster on large sorted datasets (each step halves the range) (1)", "Linear search preferred for small or unsorted lists, or when data changes constantly (sorting cost) (1)", "Justified conclusion tying choice to data size and whether it is/stays sorted (1)"] }
   ]
 };
 
@@ -798,7 +843,11 @@ C["compsci:4.3.5.1"] = {
     [
       "Merge sort space complexity?",
       "O(n) — it needs an auxiliary array to merge sublists."
-    ]
+    ],
+    ["Why is merge sort O(n log n)?", "It splits the list into log n levels of halving, and each level does O(n) work merging — n × log n."],
+    ["What optimisation gives bubble sort an O(n) best case?", "A swapped-flag: if a full pass makes no swaps, the list is already sorted, so stop early."],
+    ["Is merge sort stable? Is bubble sort in-place?", "Merge sort is stable; bubble sort is in-place (O(1) extra space) and also stable."],
+    ["Why does merge sort suit very large datasets but bubble sort does not?", "Bubble sort's O(n²) work explodes with size; merge sort's O(n log n) scales far better despite its O(n) extra memory."]
   ],
   "quiz": [
     {
@@ -821,7 +870,10 @@ C["compsci:4.3.5.1"] = {
       ],
       "ans": 2,
       "why": "Merge sort always divides and merges in O(n log n) regardless of input order."
-    }
+    },
+    { "q": "Which sort is in-place (O(1) extra memory)?", "opts": ["Merge sort", "Bubble sort", "Both", "Neither"], "ans": 1, "why": "Bubble sort swaps within the array; merge sort needs an O(n) auxiliary array." },
+    { "q": "Merge sort follows which algorithmic strategy?", "opts": ["Greedy", "Divide and conquer", "Brute force", "Backtracking"], "ans": 1, "why": "It recursively divides the list, sorts halves, and combines (conquers) them." },
+    { "q": "On an already-sorted list, optimised bubble sort runs in…", "opts": ["O(n^2)", "O(n log n)", "O(n)", "O(1)"], "ans": 2, "why": "One pass with no swaps triggers the early exit — linear time." }
   ],
   "exam": [
     {
@@ -830,7 +882,11 @@ C["compsci:4.3.5.1"] = {
       "ms": [
         "Full split shown (1), correct merges (2), complexities stated (2)"
       ]
-    }
+    },
+    { "q": "State the average-case time complexity and the space complexity of bubble sort and of merge sort.", "marks": 4,
+      "ms": ["Bubble: average O(n^2) (1); space O(1) (1)", "Merge: average O(n log n) (1); space O(n) (1)"] },
+    { "q": "Compare bubble sort and merge sort, and discuss which you would choose to sort a list of ten million records, justifying your answer.", "marks": 6,
+      "ms": ["Bubble sort repeatedly swaps adjacent out-of-order pairs; simple, in-place, O(1) space but O(n^2) time (1-2)", "Merge sort divides and conquers, merging sorted halves; O(n log n) time but O(n) extra space (1-2)", "For ten million records O(n^2) is far too slow (~10^14 operations) (1)", "Merge sort's O(n log n) is vastly faster and the O(n) memory is acceptable (1)", "Justified choice of merge sort, noting the memory trade-off (1)"] }
   ]
 };
 
@@ -961,7 +1017,11 @@ C["compsci:4.3.6.1"] = {
     [
       "What three columns does a Dijkstra table trace need?",
       "Distance (tentative cost), Previous (predecessor node), Visited (permanently settled)."
-    ]
+    ],
+    ["Is Dijkstra single-source or single-pair?", "Single-source — it finds shortest paths from one start vertex to ALL others (you may stop early once the target is settled)."],
+    ["Why is Dijkstra described as 'greedy'?", "At each step it permanently settles the unvisited node with the smallest tentative distance — a locally optimal choice that is provably globally optimal for non-negative weights."],
+    ["What data structure efficiently selects the next node to settle?", "A priority queue (min-heap) keyed on tentative distance."],
+    ["How do you recover the actual path after Dijkstra finishes?", "Follow the 'previous' pointers back from the target to the start, then reverse the sequence."]
   ],
   "quiz": [
     {
@@ -984,7 +1044,10 @@ C["compsci:4.3.6.1"] = {
       ],
       "ans": 1,
       "why": "The greedy choice — always expand the cheapest unvisited node — ensures optimality."
-    }
+    },
+    { "q": "Dijkstra gives wrong results on graphs with…", "opts": ["weighted edges", "negative-weight edges", "many vertices", "undirected edges"], "ans": 1, "why": "It assumes a settled node's distance is final, which a negative edge could later undercut." },
+    { "q": "'Relaxing' an edge (u, v) means…", "opts": ["removing it", "updating dist[v] if dist[u] + weight < dist[v]", "marking v visited", "halving its weight"], "ans": 1, "why": "Relaxation improves a neighbour's tentative distance when a cheaper route via u is found." },
+    { "q": "For an UNWEIGHTED shortest path, the simpler correct algorithm is…", "opts": ["Dijkstra", "BFS", "DFS", "bubble sort"], "ans": 1, "why": "With equal edge costs, BFS already finds the fewest-edge shortest path." }
   ],
   "exam": [
     {
@@ -997,7 +1060,11 @@ C["compsci:4.3.6.1"] = {
         "Mark current node as visited — its distance is now final (1)",
         "Repeat until target settled; trace back via prev pointers to recover path (1)"
       ]
-    }
+    },
+    { "q": "State why Dijkstra's algorithm cannot be used reliably on a graph containing negative-weight edges.", "marks": 2,
+      "ms": ["It permanently settles each node assuming its tentative distance is final (1)", "A negative edge could create a cheaper route to an already-settled node, which the algorithm never revisits, giving a wrong answer (1)"] },
+    { "q": "A delivery firm models its road network as a weighted graph and needs the cheapest route between two depots. Explain why Dijkstra's algorithm is suitable, how it uses a priority queue, and one limitation to be aware of.", "marks": 6,
+      "ms": ["Edges carry weights (distance/time/cost) and Dijkstra finds the minimum-total-weight path (1-2)", "It greedily settles the unvisited node with the smallest tentative distance, relaxing its neighbours (1-2)", "A priority queue efficiently returns that cheapest unvisited node each step (1)", "It computes shortest paths from the source to all nodes, so the target route is found en route (1)", "Limitation: it fails with negative edge weights / use Bellman-Ford in that case (1)"] }
   ]
 };
 
@@ -1142,7 +1209,11 @@ C["compsci:4.1.1.16"] = {
     [
       "Recursion vs iteration: which uses more memory?",
       "Recursion — each active call occupies a stack frame; deep recursion can exhaust stack memory."
-    ]
+    ],
+    ["What are the two phases of a recursive call?", "Descent (winding) — calls stack up toward the base case; unwind — frames return and combine results back to the caller."],
+    ["Why is the recursive case required to change its input?", "So the calls move steadily toward the base case; otherwise the recursion never terminates."],
+    ["Give one problem that is more naturally expressed recursively than iteratively.", "Tree/graph traversal, or factorial/Fibonacci and divide-and-conquer sorts like merge sort."],
+    ["Are recursion and iteration equally powerful?", "Yes — any recursive algorithm can be rewritten iteratively (often with an explicit stack) and vice versa; the choice is about clarity, memory and overflow risk."]
   ],
   "quiz": [
     {
@@ -1165,7 +1236,10 @@ C["compsci:4.1.1.16"] = {
       ],
       "ans": 1,
       "why": "The unwind phase starts at the base case — each returning frame pops off the stack."
-    }
+    },
+    { "q": "Which problem maps most naturally onto recursion?", "opts": ["Summing a fixed array with a counter", "Traversing a binary tree", "Incrementing a variable", "Reading one line of input"], "ans": 1, "why": "A tree's self-similar structure (subtrees are trees) is the classic fit for recursion." },
+    { "q": "Removing the base case from a recursive function causes…", "opts": ["a syntax error", "infinite recursion and stack overflow", "an immediate return", "an iterative loop"], "ans": 1, "why": "With nothing to stop it, frames pile up until the stack is exhausted." },
+    { "q": "Compared with the equivalent iteration, recursion typically uses…", "opts": ["less memory", "the same memory", "more memory (a stack frame per call)", "no memory"], "ans": 2, "why": "Each live call holds its own frame on the call stack." }
   ],
   "exam": [
     {
@@ -1174,10 +1248,14 @@ C["compsci:4.1.1.16"] = {
       "ms": [
         "F(4) calls F(3), F(3) calls F(2), F(2) calls F(1) — descent shown (1)",
         "Base case: F(1) = 1 (1)",
-        "Unwind: F(2)=1+1=2, F(3)=2+2=4, F(4)=3+4=7 — each step shown (2)",
+        "Unwind: F(2)=2+1=3, F(3)=3+3=6, F(4)=4+6=10 — each step shown (2)",
         "Final result: F(4) = 10 (1)"
       ]
-    }
+    },
+    { "q": "State the two essential components every recursive subroutine must have, and explain what each does.", "marks": 2,
+      "ms": ["Base case — a condition that returns without recursing, stopping the recursion (1)", "Recursive case — calls itself with input moved toward the base case (1)"] },
+    { "q": "Discuss the advantages and disadvantages of using recursion instead of iteration, referring to readability, memory and the risk of stack overflow.", "marks": 6,
+      "ms": ["Recursion can express self-similar problems (trees, divide-and-conquer) more clearly/concisely (1-2)", "State is held implicitly in the call stack rather than explicit variables (1)", "Disadvantage: each call pushes a stack frame, so it uses more memory than a loop (1)", "Deep/unbounded recursion risks stack overflow, which iteration avoids (1)", "Iteration is usually faster and safer for simple counting tasks (1)", "Balanced conclusion: choose recursion for naturally recursive structures, iteration for simple repetition (1)"] }
   ]
 };
 
