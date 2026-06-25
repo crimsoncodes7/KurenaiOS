@@ -8,9 +8,12 @@ window.KOS_DATA.intel = {
 
 /* ============ AQA Computer Science 7517 ============ */
 "compsci:4.1.1.1": {
-  defs: [["Data type", "Determines the kind of data a variable can store and the operations that can be performed on it."]],
-  tips: ["When asked to choose a data type, justify it against the data: 'real, because the value has a fractional part' earns the mark; naming the type alone often does not."],
-  pitfalls: ["Writing 'number' instead of integer/real — AQA wants the precise type.", "Forgetting pointer/reference stores a memory address, not the object itself."]
+  defs: [["Data type", "Determines the set of values a variable can store, the operations that can be performed on it, and how it is stored in memory."],
+         ["Record", "A composite type grouping related named fields that may be of different types under one identifier."],
+         ["User-defined type", "A new type the programmer builds from existing built-in types, e.g. an enumerated type."]],
+  tips: ["When asked to choose a data type, justify it against the data: 'real, because the value has a fractional part' earns the mark; naming the type alone often does not.",
+         "Records vs arrays: state record = heterogeneous named fields, array = homogeneous indexed elements — the explicit contrast is the marking point."],
+  pitfalls: ["Writing 'number' instead of integer/real — AQA wants the precise type.", "Forgetting pointer/reference stores a memory address, not the object itself.", "Treating a reference assignment as an independent copy — both names point at the same object."]
 },
 "compsci:4.1.1.10": {
   defs: [["Subroutine", "A named, self-contained block of code that performs a specific task and can be called from other parts of the program."],

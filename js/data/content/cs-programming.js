@@ -4,56 +4,116 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 
 C["compsci:4.1.1.1"] = {
   notes: [
-    { h: "Data Types: The Foundation of Memory" },
-    "A **data type** determines what kind of data a variable can store and which operations the computer can perform on it. Choosing the right type is about balancing precision, memory usage, and performance.",
-    { callout: { t: "def", h: "Fundamental Primitive Types", body: [
+    { h: "Data Types" },
+    "A **data type** fixes three things about a variable: the **set of values** it may legally hold, the **operations** that may be performed on it, and **how it is stored** in memory. Choosing well trades off *precision/range*, *memory use*, *valid operations* and *readability/safety*.",
+    { callout: { t: "def", h: "What a data type determines", body: [
       { kv: [
-        ["Integer", "Whole numbers only (positive, negative, or zero). No fractional part."],
-        ["Real / Float", "Numbers with a fractional part (stored using mantissa/exponent in binary)."],
-        ["Boolean", "Logical values: True or False."],
-        ["Character", "A single symbol (letter, digit, punctuation) — e.g. 'A', '5', '$'."],
-        ["String", "A sequence of characters — e.g. \"Kurenai\"."],
-        ["Date/Time", "Stores calendar dates and clock times."],
-        ["Pointer / Reference", "Stores the memory address of an object or value rather than the value itself."]
+        ["Set of values", "Which values are legal — an integer cannot hold 3.5; a Boolean holds only true/false."],
+        ["Valid operations", "Which operations make sense — arithmetic on numbers, concatenation on strings, AND/OR on Booleans."],
+        ["Storage", "How many bits/bytes are used and how the pattern is interpreted (two's complement, mantissa/exponent…)."]
       ]}
     ]}},
-    { page: "Composite & user-defined" },
-    { h: "Composite and User-Defined Types" },
-    { table: { head: ["Type", "Description", "C# Example"], rows: [
-      ["Record", "A fixed-size collection of related fields, often of different types.", "`struct` or `class`"],
-      ["Array", "An indexed collection of elements, all of the same data type.", "`int[] scores = new int[5];`"],
-      ["User-defined", "A new type created by the programmer (e.g. an Enum).", "`enum Color { Red, Blue }`"]
+    "The spec requires you to **understand and use** each type below *and* choose the right one for given data — and to **define user-defined types built from the language-defined (built-in) types**.",
+    { callout: { t: "info", h: "The data types the spec names", body: [
+      { kv: [
+        ["Primitive", "integer, real/float, Boolean, character"],
+        ["Built from primitives", "string (sequence of characters), date/time"],
+        ["Memory-address type", "pointer/reference"],
+        ["Composite", "record (or equivalent), array (or equivalent)"],
+        ["User-defined", "new types based on the built-in ones (e.g. enumerated types)"]
+      ]}
     ]}},
-    { code: { lang: "csharp", cap: "Defining a Record (struct) in C#.", src:
-"public struct Player {\n    public int ID;\n    public string Name;\n    public double Score;\n}\n\nPlayer p = new Player { ID = 1, Name = \"Sora\", Score = 99.5 };" }},
-    { callout: { t: "tip", h: "Winning the Data Type mark", body: "In exam questions, always justify your choice. Don't just say 'Real'; say 'Real, because the student's average mark will likely have a fractional part'." }},
-    { callout: { t: "warn", body: "Never write 'Number' as a data type. AQA wants the specific technical term: **Integer** or **Real**." }},
-    { code: { lang: "csharp", cap: "Primary C# types matching the AQA spec.", src:
-"int age = 17;                   // Integer\ndouble price = 19.99;          // Real (Float)\nbool isRunning = true;         // Boolean\nchar grade = 'A';              // Character\nstring name = \"Alice\";         // String\nDateTime now = DateTime.Now;   // Date/Time\n\n// Pointer/Reference (Classes are reference types in C#)\nCustomer c = new Customer();    // 'c' holds the memory address of the object" }},
+
+    { page: "Numeric types" },
+    { h: "Integer" },
+    "An **integer** stores whole numbers only — positive, negative or zero — with no fractional part. Used for **counts, array indices, IDs and loop counters**. A fixed bit-width gives a finite range (32-bit signed ≈ ±2.1 billion); exceeding it causes *overflow* (see $4.5.4$).",
+    { callout: { t: "info", h: "Integer vs real division", body: "Integer division discards the fraction and can give a remainder: `17 DIV 5 = 3`, `17 MOD 5 = 2`. Real division keeps it: `17 / 5 = 3.4`. Confusing the two is a classic bug — see arithmetic operations ($4.1.1.3$)." }},
+    { h: "Real / Float" },
+    "A **real (float)** stores numbers with a fractional part. Internally it is a **mantissa × 2^exponent** (see floating point, $4.5.4.5$), so most reals are *approximations* — never test two reals for exact equality. Used for **measurements, averages, scientific values** — anything continuous.",
+    { table: { head: ["Numeric type", "Stores", "Example", "Typical use"], rows: [
+      ["Integer", "Whole numbers only", "`42`, `-7`", "Counts, indices, IDs"],
+      ["Real / Float", "Fractional numbers", "`3.14`, `-0.5`", "Measurements, averages"]
+    ]}},
+    { callout: { t: "miscon", h: "'Number' is not a data type", body: "AQA wants the **precise** term — *integer* or *real* — never 'number'. And an integer **cannot** store a decimal: if a value may be fractional (height, price, average) it must be **real**, or the fractional part is lost to truncation." }},
+
+    { page: "Text & logical types" },
+    { h: "Boolean" },
+    "A **Boolean** holds one of two logical values: **true** or **false** (conceptually 1 bit). Ideal for any two-state flag — `isLoggedIn`, `hasPaid` — and for the conditions that drive selection and iteration. Supports the logical operations AND, OR, NOT.",
+    { h: "Character" },
+    "A **character** is a single symbol — letter, digit, space or punctuation — stored as a numeric **character code** (ASCII or Unicode, see $4.5.5$). Codes are sequential, so `'A'`=65, `'B'`=66, and arithmetic on codes works (sorting, case conversion).",
+    { h: "String" },
+    "A **string** is a sequence of characters, e.g. `\"Kurenai\"`. It is *built from* the character type, not a primitive. Strings support operations a list of separate characters does not: length, concatenation, substring, search and comparison.",
+    { h: "Date/Time" },
+    "A **date/time** type stores calendar dates and clock times, usually as an offset (ticks/seconds) from a fixed **epoch**. This lets the computer **compare** times, **sort** chronologically and do **date arithmetic** (days between two dates) reliably — which storing a date as a plain string cannot.",
+    { callout: { t: "def", h: "Quick reference", body: [
+      { kv: [
+        ["Boolean", "true / false — flags and conditions"],
+        ["Character", "one symbol, stored as a code (ASCII/Unicode)"],
+        ["String", "sequence of characters, with text operations"],
+        ["Date/Time", "calendar + clock, stored as an offset for comparison/arithmetic"]
+      ]}
+    ]}},
+
     { page: "Pointers & references" },
-    { callout: { t: "def", h: "Pointers and References", body: [
+    { h: "Pointers and references" },
+    "A **pointer/reference** stores the **memory address** of a value or object, *not the value itself*. This is how programs use **dynamically allocated** memory — objects created at runtime — and how data structures like linked lists, trees and graphs link their nodes (see $4.2$).",
+    { callout: { t: "info", h: "What the spec stresses", body: "A pointer/reference variable is a **store for the memory address of an object created at runtime (dynamically)**. Not all languages expose explicit pointer types, but you must understand the concept. In C#/Java, class instances are handled by reference; in C you manipulate pointers directly." }},
+    { code: { lang: "csharp", cap: "A reference holds an address, not the object.", src:
+"Customer c = new Customer();   // 'c' stores the ADDRESS of the new object\nCustomer d = c;                // d now refers to the SAME object\nd.Name = \"Sora\";              // c.Name is also \"Sora\" — one object, two references" }},
+    { callout: { t: "miscon", h: "A reference is not the object", body: "Assigning one reference to another copies the **address**, not the data — both names then point at the *same* object. Expecting an independent copy is a frequent bug and a lost mark." }},
+
+    { page: "Composite types" },
+    { h: "Records vs arrays" },
+    "Both group many values under one identifier, but they differ in *what* they group:",
+    { table: { head: ["", "Record", "Array"], rows: [
+      ["Elements", "Named **fields**", "Indexed elements"],
+      ["Types", "**Heterogeneous** — fields may differ", "**Homogeneous** — all one type"],
+      ["Access", "By field name (`player.score`)", "By index (`scores[3]`)"],
+      ["Models", "One entity with mixed attributes", "Many like values"],
+      ["Example", "A patient: ID, name, temperature", "30 exam marks"]
+    ]}},
+    { code: { lang: "csharp", cap: "A record groups mixed fields; an array groups like values.", src:
+"public struct Player {        // RECORD: heterogeneous, named fields\n    public int ID;\n    public string Name;\n    public double Score;\n}\nPlayer p = new Player { ID = 1, Name = \"Sora\", Score = 99.5 };\n\nint[] marks = new int[30];   // ARRAY: homogeneous, indexed\nmarks[0] = 72;" }},
+    { callout: { t: "tip", h: "Choosing between them", body: "Use a **record** to model *one thing with several attributes of different types*; use an **array** to hold *many values of the same type* you will index or loop over. Combine them — an *array of records* — to model many entities." }},
+
+    { page: "User-defined types" },
+    { h: "User-defined data types" },
+    "A **user-defined type** is a new type the programmer builds **from the language-defined (built-in) types**. It restricts a variable to valid, meaningful values and makes code self-documenting.",
+    { callout: { t: "def", h: "Common forms", body: [
       { kv: [
-        ["Pointer", "A variable that stores the memory address of another value or object."],
-        ["Reference", "An alias for a memory location; in C#, classes are handled via references."],
-        ["Utility", "Essential for dynamic memory allocation and creating complex data structures like linked lists."]
+        ["Enumerated (enum)", "A fixed set of named constants, e.g. `Day { Mon, Tue, … }` — the variable can only hold one of them."],
+        ["Record / composite", "Groups named fields of built-in types into one structured type (as above)."],
+        ["Subrange (where supported)", "Restricts a built-in type to a range, e.g. `1..31` for a day number."]
       ]}
     ]}},
-    { page: "Exam technique" },
-    { callout: { t: "memorise", h: "7 Primitive Types", body: "Integer (whole numbers), Real/Float (fractional), Boolean (True/False), Character (single symbol), String (sequence of chars), Date/Time, Pointer/Reference (stores a memory address). Know all seven for the exam." }},
-    { callout: { t: "tip", h: "Always justify a type choice", body: "Type-selection questions award the mark for the *reason*, not the label. Pair each type with the data feature that demands it: fractional value → Real; two-state flag → Boolean; mixed attributes of one entity → record; fixed list of options → enum." }},
-    { callout: { t: "miscon", h: "'Number' Is Not a Data Type", body: "Never write 'Number' as a data type in an exam. AQA requires the specific term: Integer or Real. Also: Integer CANNOT store a decimal — if the value might be fractional (e.g. height, price), always use Real." }}
+    { code: { lang: "csharp", cap: "An enumerated type built from the built-in integer type.", src:
+"enum Suit { Hearts, Diamonds, Clubs, Spades }\nSuit s = Suit.Hearts;   // can ONLY be one of the four — invalid values are impossible" }},
+    { callout: { t: "info", h: "Why bother?", body: "Benefits: only valid values can be stored (fewer bugs); code reads like the problem domain (`Suit.Spades` beats the 'magic number' 3); the compiler can check usage. Limitation: an over-engineered type for trivial data adds needless complexity." }},
+
+    { page: "Choosing a type — exam technique" },
+    { callout: { t: "tip", h: "Command words", body: [
+      { kv: [
+        ["State / Identify", "Give the precise type name (integer, real…) — no justification needed."],
+        ["Justify / Explain", "Name the type AND the data feature that demands it ('real, because the value has a fractional part'). The reason earns the mark."]
+      ]}
+    ]}},
+    "**Model structure for a 6-mark 'discuss the factors when selecting data types' answer:** (1) precision/range — the type must hold the values without overflow or loss; (2) memory use — smaller types save space, important at scale; (3) valid operations — the type must support the operations needed; (4) readability/safety — Boolean/enum/record model intent and block invalid values; (5) a worked consequence of a wrong choice (integer truncation losing a decimal); (6) a linked conclusion rather than a list.",
+    { callout: { t: "memorise", h: "Every type the spec names", body: "Primitives: **integer, real/float, Boolean, character**. Built from these: **string, date/time**. Address type: **pointer/reference**. Composite: **record, array**. Plus **user-defined** types (e.g. enum) built from the above. Know each one's values, operations and best use." }},
+    { callout: { t: "miscon", h: "Integer can't hold a decimal", body: "Storing a fractional value (price, average, height) in an integer silently **truncates** it — `7/2` becomes `3`, not `3.5`. If a value may be fractional, use real. And never answer 'number'." }}
   ],
   flashcards: [
-    ["Define 'Data Type'.", "Determines the kind of data a variable can store and the operations that can be performed on it."],
-    ["Difference between Integer and Real?", "Integers are whole numbers; Reals have a fractional part."],
-    ["What does a pointer/reference store?", "The memory address of an object or value in memory."],
-    ["What is a 'record'?", "A collection of related fields, which can be of different data types, stored under one identifier."],
-    ["What is a user-defined data type?", "A data type derived from existing types, created by the programmer to fit a specific need (e.g. an Enum)."],
-    ["Why use a String instead of multiple Characters?", "Strings allow for easier manipulation of text (searching, concatenation) as a single object."],
-    ["Difference between an Array and a Record?", "An array is *homogeneous* (all elements the same type, accessed by index); a record is *heterogeneous* (named fields of possibly different types)."],
-    ["Why does choosing a smaller data type matter?", "It saves memory and can improve performance — e.g. using a 1-byte type for a value 0–255 rather than a 4-byte integer."],
-    ["Give an example of when a Boolean is the ideal type.", "Any two-state flag — e.g. `isLoggedIn`, `hasPaid` — storing it as a Boolean is clearer and smaller than a string \"yes\"/\"no\"."],
-    ["What is an enumerated (enum) type and why use one?", "A user-defined type listing named constant values (e.g. `Day{Mon,Tue,…}`); it restricts a variable to valid options and is self-documenting."]
+    ["Define 'Data Type'.", "Determines the set of values a variable can store, the operations allowed on it, and how it is stored in memory."],
+    ["Difference between Integer and Real?", "Integers are whole numbers; Reals have a fractional part (stored as mantissa × 2^exponent)."],
+    ["What does a pointer/reference store?", "The memory address of an object or value, not the value itself."],
+    ["What is a 'record'?", "A composite type grouping related named fields, which may be of different data types, under one identifier."],
+    ["What is a user-defined data type?", "A new type the programmer builds from existing built-in types (e.g. an enumerated type)."],
+    ["Why use a String instead of separate Characters?", "A string is one object supporting text operations — length, concatenation, substring, search — that separate characters don't."],
+    ["Difference between an Array and a Record?", "An array is *homogeneous* (all elements one type, accessed by index); a record is *heterogeneous* (named fields of possibly different types)."],
+    ["Why does choosing a smaller data type matter?", "It saves memory and can improve performance — important at scale or on constrained devices."],
+    ["When is a Boolean the ideal type?", "For any two-state flag — `isLoggedIn`, `hasPaid` — clearer and smaller than a string \"yes\"/\"no\"."],
+    ["What is an enumerated (enum) type and why use one?", "A user-defined type listing named constants (e.g. `Day{Mon,Tue,…}`); it restricts a variable to valid options and is self-documenting."],
+    ["How is a date/time value stored, and why not as a string?", "As an offset from a fixed epoch, so the computer can compare, sort and do arithmetic on dates — a plain string can't be ordered chronologically."],
+    ["What is integer (DIV) division vs real division?", "Integer division discards the fraction (`17 DIV 5 = 3`, remainder 2 via MOD); real division keeps it (`17 / 5 = 3.4`)."]
   ],
   quiz: [
     { q: "Which data type is best for storing a person's height in metres?", opts: ["Integer", "Boolean", "Real", "Character"], ans: 2, why: "Height requires a fractional part (e.g. 1.75m), making Real the correct choice." },
@@ -61,7 +121,8 @@ C["compsci:4.1.1.1"] = {
     { q: "A data type created by the programmer is called…", opts: ["System type", "User-defined type", "Integer", "Global type"], ans: 1, why: "Programmers define their own types (like Records or Enums) to model complex data." },
     { q: "Which of these is a composite data type holding elements of the SAME type?", opts: ["Record", "Array", "Pointer", "Boolean"], ans: 1, why: "Arrays are homogeneous (all elements share one type); Records are usually heterogeneous (different types allowed)." },
     { q: "A program must store whether a payment has been made. The best data type is:", opts: ["String", "Integer", "Boolean", "Real"], ans: 2, why: "A two-state yes/no value is exactly a Boolean — smaller and clearer than a string." },
-    { q: "Why might a programmer choose a 1-byte integer type over a 4-byte one for a value known to be 0–200?", opts: ["It is more accurate", "It saves memory", "It allows decimals", "It runs the loop more times"], ans: 1, why: "Matching the type's size to the value's range saves memory, which matters at scale." }
+    { q: "Why might a programmer choose a 1-byte integer type over a 4-byte one for a value known to be 0–200?", opts: ["It is more accurate", "It saves memory", "It allows decimals", "It runs the loop more times"], ans: 1, why: "Matching the type's size to the value's range saves memory, which matters at scale." },
+    { q: "Why store a set of days as an enumerated type rather than the integers 0–6?", opts: ["It uses less memory", "Only valid named values can be stored and the code is self-documenting", "Enums run faster", "Integers cannot be stored"], ans: 1, why: "An enum restricts the variable to valid named constants and reads like the domain, preventing invalid values." }
   ],
   exam: [
     { q: "A hospital system stores the following data for patients: PatientID (e.g. 5021), Name (e.g. 'J. Smith'), and BodyTemperature (e.g. 37.2). State the most appropriate data type for each and justify your choice for BodyTemperature.", marks: 4,
