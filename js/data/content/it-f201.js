@@ -1103,6 +1103,14 @@ C["it:F201.2.4"] = {
         "Vendor limitation: higher recurring cost and vendor lock-in (1).",
         "Conclusion: choice depends on budget and in-house technical capability (1)."
       ]
+    },
+    {
+      q: "Explain the difference between a data lake and a data warehouse, and give one situation suited to each.",
+      marks: 4,
+      ms: [
+        "Data lake: stores raw, unstructured/varied data in its native format ('schema-on-read') (1); suited to exploratory data science where the questions aren't yet fixed (1).",
+        "Data warehouse: stores cleaned, structured data in a fixed schema ('schema-on-write') (1); suited to fast, repeated business-intelligence reporting on known queries (1)."
+      ]
     }
   ]
 };
