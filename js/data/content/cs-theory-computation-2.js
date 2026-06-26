@@ -306,7 +306,7 @@ C["compsci:4.4.4.3"] = {
 C["compsci:4.4.4.4"] = {
   notes: [
     { h: "Classification of Algorithmic Complexity" },
-    "Algorithms are classified by how their resource usage (time or space) grows as the input size ($n$) increases.",
+    { callout: { t: "info", body: "Algorithms are classified by how their resource usage (time or space) grows as the input size ($n$) increases." } },
     { callout: { t: "def", h: "Complexity Classes", body: [
       { kv: [
         ["Constant", "$O(1)$ — Time does not change with $n$."],

@@ -288,6 +288,64 @@ window.KOS_DATA.intel = {
          "A Mealy machine produces output on transitions — label edges input/output."],
   pitfalls: ["Leaving a state without a transition for every input symbol when constructing a deterministic FSM.", "Confusing accepting state (double circle) with start state (incoming arrow)."]
 },
+"compsci:4.4.2.4": {
+  defs: [["Regular language", "A language (set of strings) that can be described by a regular expression and recognised by a finite state machine."]],
+  tips: ["Tie the trio together: regular expression ⇔ FSM ⇔ regular language all describe the same class.", "If a language must count/match (equal 0s then 1s, balanced brackets) it is NOT regular — it needs BNF."],
+  pitfalls: ["Claiming every language is regular — recursive/nested structure is beyond regular languages.", "Confusing a regular language with a programming language."]
+},
+"compsci:4.4.2.2": {
+  defs: [["Set", "An unordered collection of distinct elements."],
+         ["Empty set", "The set with no elements, written {} or Ø."]],
+  tips: ["Read set-builder notation: A = {x | x ∈ ℕ ∧ x ≥ 1} is 'x such that x is a natural number and x ≥ 1'.", "Recognise compact forms like {0ⁿ1ⁿ | n ≥ 1} — strings of n zeros followed by n ones."],
+  pitfalls: ["Treating a set as ordered or allowing duplicates — elements are unique and unordered.", "Forgetting {} and Ø denote the same empty set."]
+},
+"compsci:4.4.2.3": {
+  defs: [["Regular expression", "A shorthand notation describing a set of strings (a language) for matching and searching."]],
+  tips: ["Know the operators: concatenation, | (alternation), * (zero or more), + (one or more), ? (optional).", "Be ready to convert between a regular expression and an equivalent FSM in BOTH directions."],
+  pitfalls: ["Confusing * (zero or more) with + (one or more).", "Trying to write a regex for a non-regular language such as balanced brackets."]
+},
+"compsci:4.4.4.1": {
+  defs: [["Time complexity", "How an algorithm's running time grows with the problem size n."],
+         ["Space complexity", "How an algorithm's memory use grows with the problem size n."]],
+  tips: ["Compare algorithms by how cost GROWS with n, not by absolute times on one machine.", "State whether you mean time or space efficiency — they can trade off against each other."],
+  pitfalls: ["Judging efficiency by raw timings rather than growth with input size.", "Ignoring the space/time trade-off."]
+},
+"compsci:4.4.4.2": {
+  defs: [["Function (mapping)", "A rule mapping each value of a domain to a value in a co-domain, e.g. ℕ → ℕ."]],
+  tips: ["Recognise the growth families: linear (2x), polynomial (2x²), exponential (2ˣ), logarithmic (log x).", "Exponential grows fastest, logarithmic slowest — this ranking underlies Big-O."],
+  pitfalls: ["Confusing a polynomial (x²) with an exponential (2ˣ) — variable in the base vs in the exponent.", "Mixing up the domain and co-domain of a mapping."]
+},
+"compsci:4.4.4.3": {
+  defs: [["Big-O notation", "An expression of the worst-case growth rate of an algorithm's time/space as the input size grows."]],
+  tips: ["Learn the order: O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ).", "Drop constants and lower-order terms: O(3n² + n) is O(n²)."],
+  pitfalls: ["Keeping constant factors or low-order terms in a Big-O answer.", "Quoting best-case when Big-O conventionally describes the worst case."]
+},
+"compsci:4.4.4.4": {
+  defs: [["Limits of computation", "Bounds on what can be computed, set by algorithmic complexity (intractable problems) and finite hardware (time/memory)."]],
+  tips: ["Separate the two limits: complexity (some problems take infeasibly long) vs hardware (finite speed/memory).", "Link to intractable and non-computable problems as concrete examples of limits."],
+  pitfalls: ["Assuming a faster computer removes the limit — intractable and non-computable problems remain beyond reach."]
+},
+"compsci:4.4.4.5": {
+  defs: [["Tractable problem", "A problem with a polynomial-time (or better) solution — feasible as n grows."],
+         ["Intractable problem", "A problem with no known polynomial-time solution — infeasible for large n, though still computable."]],
+  tips: ["Tractable = polynomial or less; intractable = worse than polynomial (e.g. exponential).", "Intractable ≠ non-computable — a solution exists, it is just too slow for large inputs."],
+  pitfalls: ["Confusing intractable (too slow) with non-computable (no algorithm exists).", "Calling a problem intractable for small n — it is about growth as n increases."]
+},
+"compsci:4.4.4.6": {
+  defs: [["Non-computable problem", "A problem for which no algorithm can exist that solves it for all inputs (e.g. the Halting problem)."]],
+  tips: ["Give the standard example — the Halting problem is non-computable.", "Distinguish non-computable (no algorithm possible) from intractable (algorithm exists but too slow)."],
+  pitfalls: ["Saying a non-computable problem just needs more computing power — no algorithm can ever solve it.", "Conflating non-computable with intractable."]
+},
+"compsci:4.4.4.7": {
+  defs: [["Halting problem", "The unsolvable problem of deciding, for any program and input, whether the program will eventually halt."]],
+  tips: ["State that it is provably unsolvable (no proof needed) and is an example of a non-computable problem.", "Its significance: there are well-defined problems no algorithm can ever solve."],
+  pitfalls: ["Claiming it can be solved by just running the program — an infinite run never confirms it will not halt.", "Saying no case can be decided — it is the GENERAL problem that is unsolvable."]
+},
+"compsci:4.4.5.1": {
+  defs: [["Turing machine", "A theoretical model of computation: a finite set of states, a finite alphabet, an infinite tape and a read-write head following a transition function."]],
+  tips: ["List the four components: states (transition diagram), alphabet, infinite tape, read-write head.", "It has a single fixed program; a universal Turing machine can simulate any other — the basis of computability."],
+  pitfalls: ["Forgetting that the tape is INFINITE.", "Describing it as a real/physical computer rather than an abstract model."]
+},
 "compsci:4.4.3.1": {
   defs: [["Backus-Naur Form", "A notation for defining the syntax of a language using production rules, where each rule defines a non-terminal in terms of terminals and non-terminals."]],
   tips: ["BNF can express recursion (a rule defined in terms of itself), which is exactly what regular expressions cannot do — that contrast is a classic question.",
