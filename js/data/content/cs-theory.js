@@ -53,6 +53,9 @@ C["compsci:4.5.4.4"] = {
       }
     },
     {
+      "page": "Decode & encode"
+    },
+    {
       "h": "Decode a floating point number — the safe routine"
     },
     {
@@ -293,6 +296,9 @@ C["compsci:4.6.2.1"] = {
       }
     },
     {
+      "page": "Simplification"
+    },
+    {
       "h": "Simplification — worked to mark-scheme standard"
     },
     {
@@ -492,6 +498,9 @@ C["compsci:4.4.2.1"] = {
       }
     },
     {
+      "page": "Tracing & method"
+    },
+    {
       "h": "\"What does this FSM accept?\" — the method"
     },
     {
@@ -677,6 +686,9 @@ C["compsci:4.1.2.3"] = {
         "cap": "All four pillars in twenty lines — keep this skeleton in your head for 9-markers.",
         "src": "public abstract class GameEntity              // abstraction: common contract\n{\n    private int health = 100;                  // encapsulated: no direct access\n    public void TakeDamage(int amount)         // controlled access via method\n    {\n        health -= amount;\n    }\n    public abstract string Describe();         // forces subclasses to implement\n}\n\npublic class Suspect : GameEntity              // inheritance: 'is-a'\n{\n    public override string Describe()          // polymorphism: same call,\n        => \"A nervous suspect.\";               // class-specific behaviour\n}\n\npublic class Detective : GameEntity\n{\n    public override string Describe() => \"Sharp-eyed and patient.\";\n}\n// foreach (GameEntity e in cast) Console.WriteLine(e.Describe());\n// one method call — each object answers as its own class: polymorphism."
       }
+    },
+    {
+      "page": "Class diagrams"
     },
     {
       "h": "Class diagram conventions"
@@ -886,6 +898,9 @@ C["compsci:4.10.3"] = {
       }
     },
     {
+      "page": "Worked decomposition"
+    },
+    {
       "h": "Worked decomposition"
     },
     {
@@ -1030,13 +1045,16 @@ C["compsci:4.10.4"] = {
     {
       "h": "SQL: the clauses, in marking order"
     },
-    "AQA marks SQL **clause by clause** — a right skeleton with one wrong condition still scores most of the marks. Build in this order, every time:",
+    { callout: { t: "tip", body: "AQA marks SQL **clause by clause** — a right skeleton with one wrong condition still scores most of the marks. Build in this order, every time:" } },
     {
       "code": {
         "lang": "sql",
         "cap": "The retrieval skeleton.",
         "src": "SELECT Title, Price              -- which fields\nFROM Manga                       -- which table(s)\nWHERE Price < 10                 -- which rows  (strings need 'quotes')\nORDER BY Price DESC;             -- presentation (ASC default)"
       }
+    },
+    {
+      "page": "Joins & data changes"
     },
     {
       "h": "Joins — linking tables on keys"
