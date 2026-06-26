@@ -416,6 +416,8 @@ C["compsci:4.2.7.1"] = {
       ["Lookup", "O(1) average (via Hashing)", "O(1) (via Index)"],
       ["Use Case", "Mapping IDs to Records", "Storing a simple list of items"]
     ]}},
+    { callout: { t: "info", h: "Application: information retrieval", body: "A classic use is counting word frequencies. The text 'The green, green grass grows' becomes the dictionary `{'the':1, 'green':2, 'grass':1, 'grows':1}` (ignoring case) — each unique word is a key and its count is the value." }},
+    { page: "Lookup & uses" },
     { h: "Process: Dictionary Lookup" },
     { steps: [
       { h: "1. Provide Key", m: "The user provides the unique key they wish to look up." },
@@ -433,6 +435,7 @@ C["compsci:4.2.7.1"] = {
         ["Flexibility", "Unlike arrays, keys can be any hashable type (strings, objects, tuples), not just contiguous integers."]
       ]}
     ]}},
+    { page: "Exam technique" },
     { callout: { t: "memorise", h: "Dictionary vs Array", body: "Dictionary = abstract data type of key-value pairs; keys are unique, values may repeat. Usually implemented as a hash table → O(1) average lookup. Array uses integer indices 0..n-1; dictionary uses arbitrary hashable keys (strings, tuples, etc.)." }},
     { callout: { t: "miscon", h: "Dictionary (ADT) ≠ Hash Table (Implementation)", body: "The dictionary is the INTERFACE (what operations exist). The hash table is one IMPLEMENTATION (how those operations are made fast). Keeping this distinction is the §4.4.1 abstraction principle in action. Never conflate the two." }}
   ],
@@ -479,6 +482,8 @@ C["compsci:4.2.8.1"] = {
       ["Functional", "{0: x, 1: y}", "Programming / Dictionary representation"],
       ["Geometric", "Line with arrow", "Physics / Graphical simulations"]
     ]}},
+    { callout: { t: "warn", h: "All entries from one field", body: "Every entry of a vector must be drawn from the **same field** (set of allowed values) — usually the reals, ℝ. A 4-vector over ℝ is written ℝ⁴ (`↦` means 'maps to'), and you cannot mix, say, reals and strings in one vector." }},
+    { page: "Operations" },
     { callout: { t: "def", h: "The four operations and what they mean geometrically", body: [
       { kv: [
         ["Addition u + v", "Add component-wise: [1,2] + [3,1] = [4,3]. Geometrically: translate along u then v (parallelogram)."],
@@ -489,6 +494,7 @@ C["compsci:4.2.8.1"] = {
     ]}},
     { code: { lang: "csharp", cap: "Vector class with Addition and Dot Product in C#.", src:
 "public class Vector2D\n{\n    public double X, Y;\n    public Vector2D(double x, double y) { X = x; Y = y; }\n\n    public static Vector2D Add(Vector2D u, Vector2D v)\n    {\n        return new Vector2D(u.X + v.X, u.Y + v.Y);\n    }\n\n    public static double DotProduct(Vector2D u, Vector2D v)\n    {\n        return (u.X * v.X) + (u.Y * v.Y);\n    }\n}" }},
+    { page: "Dot product & angle" },
     { h: "Process: Calculating the Dot Product" },
     { steps: [
       { h: "1. Multiply Components", m: "Multiply corresponding elements from both vectors (e.g., x₁*x₂ and y₁*y₂)." },

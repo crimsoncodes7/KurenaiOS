@@ -124,6 +124,19 @@ window.KOS_DATA.intel = {
          "When describing reading, mention detecting end-of-file and closing the file afterwards."],
   pitfalls: ["Opening a binary file as text (or vice versa) — it corrupts/garbles the data.", "Forgetting to handle a file-not-found exception when opening (links to 4.1.1.9)."]
 },
+"compsci:4.2.7.1": {
+  defs: [["Dictionary (associative array)", "An abstract data type of key-value pairs; a value is retrieved via its unique key."]],
+  tips: ["Distinguish the dictionary (the ADT / interface) from the hash table (its usual implementation) — a frequent abstraction mark.",
+         "Give a concrete use: mapping a unique ID/key to a record, or counting word frequencies."],
+  pitfalls: ["Conflating the dictionary ADT with the hash table that implements it.", "Saying keys may repeat — keys are unique; only values may repeat."]
+},
+"compsci:4.2.8.1": {
+  defs: [["Dot product", "u·v = Σ uᵢvᵢ — a single scalar; the result is zero exactly when the vectors are perpendicular."],
+         ["Convex combination", "αu + βv with α, β ≥ 0 and α + β = 1 — a point on the line segment between u and v."]],
+  tips: ["State that the dot product is a SCALAR and that u·v = 0 ⇔ perpendicular — the most-asked fact here.",
+         "Know all three representations: list of numbers, function/dictionary (index ↦ value) and geometric arrow."],
+  pitfalls: ["Writing the dot product as a vector instead of summing the products to one number.", "Forgetting that all entries must come from the same field (e.g. ℝ)."]
+},
 "compsci:4.2.1.1": {
   defs: [["Data structure", "A collection of data values, organised so they can be stored and operated on efficiently."],
          ["Static data structure", "Fixed size set at compile time; memory allocated once (e.g. array)."],
