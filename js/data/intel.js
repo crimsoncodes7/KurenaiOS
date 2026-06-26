@@ -571,6 +571,64 @@ window.KOS_DATA.intel = {
   tips: ["Half adder gates: sum = XOR, carry = AND. Be able to draw it from memory."],
   pitfalls: []
 },
+"compsci:4.7.1.1": {
+  defs: [["Address bus", "Unidirectional bus carrying the memory address the CPU wants to access; its width sets the maximum addressable memory."],
+         ["Data bus", "Bidirectional bus carrying data/instructions between CPU and memory."],
+         ["Control bus", "Carries control and timing signals (read/write, clock, interrupt)."]],
+  tips: ["Address-bus width → addressable memory (2^width locations); data-bus width → bytes moved at once.", "The address bus is one-way (CPU→memory); the data bus is two-way."],
+  pitfalls: ["Saying the data bus carries addresses.", "Confusing which bus is unidirectional vs bidirectional."]
+},
+"compsci:4.7.2.1": {
+  defs: [["Stored program concept", "Instructions (and data) are held in main memory and fetched, then executed serially by the processor."]],
+  tips: ["Say BOTH instructions and data live in memory, executed serially — that is the marking core.", "Link it to general-purpose computing: load different instructions to do a different job."],
+  pitfalls: ["Saying instructions run from disk — they are fetched from main memory.", "Forgetting 'serially / one at a time'."]
+},
+"compsci:4.7.3.2": {
+  defs: [["Fetch-Execute cycle", "The repeating fetch → decode → execute process by which a processor runs machine code."]],
+  tips: ["Know each register's job: PC (next address), MAR (address out), MBR/MDR (data in/out), CIR (current instruction).", "The PC increments in Fetch but a branch overwrites it in Execute."],
+  pitfalls: ["Mixing up MAR (address) and MBR (data).", "Forgetting the PC is incremented during Fetch."]
+},
+"compsci:4.7.3.6": {
+  defs: [["Interrupt", "A signal to the processor that an event needs attention, causing it to pause the current task."],
+         ["Interrupt service routine (ISR)", "The routine run to handle a specific interrupt."]],
+  tips: ["Interrupts are checked at the END of each Fetch-Execute cycle.", "'Save the volatile environment' = push registers + PC to the stack so the task can resume."],
+  pitfalls: ["Forgetting to mention saving/restoring the registers (volatile environment).", "Saying the interrupt is checked mid-instruction."]
+},
+"compsci:4.7.3.3": {
+  defs: [["Instruction set", "All the machine-code instructions a particular processor can execute; it is processor-specific."],
+         ["Opcode / operand", "Opcode = the operation; operand = the data it acts on (value, address or register)."]],
+  tips: ["Say the instruction set is processor-SPECIFIC — machine code is not portable across architectures.", "An instruction = opcode + one or more operands."],
+  pitfalls: ["Thinking machine code runs on any CPU.", "Forgetting an operand can be a value, an address OR a register."]
+},
+"compsci:4.7.3.4": {
+  defs: [["Immediate addressing", "The operand IS the data value to use."],
+         ["Direct addressing", "The operand is the memory address holding the data."]],
+  tips: ["Immediate is faster (value in the instruction); direct needs an extra memory fetch.", "# usually denotes an immediate/literal value."],
+  pitfalls: ["Swapping the two definitions.", "Thinking direct addressing uses the operand as the value (it is the address)."]
+},
+"compsci:4.7.3.5": {
+  defs: [["Branch (conditional/unconditional)", "An instruction that changes the PC; conditional branches do so only if a status-flag condition holds."],
+         ["Compare", "Subtracts operands to set status flags without storing the result."]],
+  tips: ["COMPARE sets flags; the following conditional branch acts on them — that pair implements IF/loops.", "Logical shift left ≈ ×2; logical shift right ≈ ÷2 (unsigned)."],
+  pitfalls: ["Saying COMPARE stores a result (it only sets flags).", "Confusing logical with arithmetic shift on signed values."]
+},
+"compsci:4.7.3.7": {
+  defs: [["Cache memory", "Small, fast memory close to the CPU holding frequently used data/instructions to cut memory-access time."]],
+  tips: ["Each factor: clock speed (cycles/sec), cores (parallelism), cache (fewer memory waits), bus widths/word length (data per transfer).", "More cores only help if the workload is parallelisable."],
+  pitfalls: ["Saying more cores always means proportionally faster — serial code does not benefit.", "Ignoring heat/power limits of raising clock speed."]
+},
+"compsci:4.7.4.1": {
+  defs: [["Input device", "Sends data into the computer (keyboard, scanner, sensor…)."],
+         ["Output device", "Presents data from the computer (monitor, printer, actuator…)."]],
+  tips: ["Justify a device choice by its characteristics/suitability for the task, not just by naming it.", "Sensors input physical measurements; actuators output physical actions."],
+  pitfalls: ["Calling a touchscreen input-only (it is both).", "Listing devices without justifying suitability."]
+},
+"compsci:4.7.4.2": {
+  defs: [["Secondary storage", "Non-volatile storage that retains data without power (HDD, SSD, optical), with large capacity."],
+         ["SSD", "Solid-state drive — flash memory, no moving parts; fast and robust but finite write cycles."]],
+  tips: ["Need for secondary storage = non-volatile + high capacity (RAM is volatile).", "Compare HDD vs SSD on speed, durability, capacity and cost per GB."],
+  pitfalls: ["Calling RAM secondary storage.", "Forgetting the SSD finite-write-cycle limitation."]
+},
 "compsci:4.7.3.1": {
   tips: ["Fetch–execute cycle: name the registers at each stage — PC→MAR, memory[MAR]→MBR, MBR→CIR, decode in CU, PC incremented. Register names ARE the marks.",
          "Factors affecting performance: clock speed, cores, cache, word length, bus widths — explain the mechanism, not just the factor."],

@@ -1574,6 +1574,18 @@ C["compsci:4.7.1.1"] = {
     [
       "What is a key feature of Harvard architecture?",
       "Data and instructions are stored in separate memory units with separate buses."
+    ],
+    [
+      "What is carried on the address bus, and in which direction?",
+      "The memory address the CPU wants to access; unidirectional (CPU → memory)."
+    ],
+    [
+      "What is carried on the data bus?",
+      "The actual data/instructions transferred between CPU and memory (bidirectional)."
+    ],
+    [
+      "What does the control bus carry?",
+      "Control and timing signals (read/write, clock, interrupt) that coordinate the components."
     ]
   ],
   "quiz": [
@@ -1620,6 +1632,12 @@ C["compsci:4.7.1.1"] = {
       ],
       "ans": 1,
       "why": "Programs reside in main memory alongside data and are fetched/executed sequentially."
+    },
+    {
+      "q": "Widening the address bus directly increases...?",
+      "opts": ["clock speed", "the amount of memory that can be addressed", "the data transfer width", "the cache size"],
+      "ans": 1,
+      "why": "More address lines means more unique addresses, so more memory can be addressed (2^width locations)."
     }
   ],
   "exam": [
@@ -1629,6 +1647,27 @@ C["compsci:4.7.1.1"] = {
       "ms": [
         "Harvard has separate memories for data and instructions, Von Neumann uses the same memory (1)",
         "Harvard has separate buses for data and instructions, Von Neumann uses the same buses (1)"
+      ]
+    },
+    {
+      "q": "State the function of the address bus, the data bus and the control bus.",
+      "marks": 3,
+      "ms": [
+        "Address bus: carries the address of the memory location to access (1)",
+        "Data bus: carries the data/instructions to and from memory (1)",
+        "Control bus: carries control and timing signals (read/write, clock, interrupt) (1)"
+      ]
+    },
+    {
+      "q": "Explain how the processor, main memory and the three buses work together to fetch and execute an instruction.",
+      "marks": 6,
+      "ms": [
+        "The processor places the required address on the ADDRESS bus (1)",
+        "A read signal on the CONTROL bus tells memory to fetch (1)",
+        "Main memory returns the instruction on the DATA bus to the processor (1)",
+        "The control unit decodes the instruction (1)",
+        "Any data operands are fetched the same way (address → control → data bus) (1)",
+        "The cycle repeats serially under the clock — the von Neumann stored-program model (1)"
       ]
     }
   ]
@@ -1747,6 +1786,18 @@ C["compsci:4.7.2.1"] = {
     [
       "How does the CPU distinguish between data and instructions?",
       "It doesn't inherently; it treats whatever the Program Counter points to as an instruction."
+    ],
+    [
+      "State the stored program concept.",
+      "Both program instructions AND data are held in main memory; the processor fetches and executes the instructions serially."
+    ],
+    [
+      "Why was the stored program concept revolutionary?",
+      "The same machine can run any program by loading different instructions into memory — no rewiring needed."
+    ],
+    [
+      "In what order are instructions executed by default?",
+      "Serially / sequentially, one at a time in memory order, unless a branch changes the flow."
     ]
   ],
   "quiz": [
@@ -1791,6 +1842,12 @@ C["compsci:4.7.2.1"] = {
       ],
       "ans": 1,
       "why": "Instructions are executed serially (one at a time)."
+    },
+    {
+      "q": "In the stored program concept, where are machine-code instructions held before execution?",
+      "opts": ["on the hard disk only", "in main memory (RAM)", "in the ALU", "on the data bus"],
+      "ans": 1,
+      "why": "Instructions are stored in main memory and fetched from there by the processor."
     }
   ],
   "exam": [
@@ -1801,6 +1858,27 @@ C["compsci:4.7.2.1"] = {
         "Instructions and data are stored in the same main memory (1)",
         "Instructions are fetched and executed serially (1)",
         "By the processor/CPU (1)"
+      ]
+    },
+    {
+      "q": "Describe the stored program concept.",
+      "marks": 3,
+      "ms": [
+        "Machine-code instructions are stored in main memory (1)",
+        "They are fetched and executed serially / one at a time by the processor (1)",
+        "The processor performs the arithmetic and logical operations they specify (1)"
+      ]
+    },
+    {
+      "q": "Discuss the significance of the stored program concept for the design and flexibility of modern computers.",
+      "marks": 6,
+      "ms": [
+        "Instructions and data are both held in main memory (1)",
+        "The processor fetches and executes instructions in sequence (1)",
+        "A computer can run ANY program simply by loading different instructions — no rewiring (1)",
+        "This makes general-purpose computers possible (1)",
+        "It underpins the fetch-execute cycle and the von Neumann architecture (1)",
+        "Limitation: the shared bus (von Neumann bottleneck) limits the rate of fetching (1)"
       ]
     }
   ]
@@ -2086,6 +2164,18 @@ C["compsci:4.7.3.1"] = {
         "The current volatile environment (registers/PC) is pushed onto the stack (1)",
         "So that the interrupted program can be resumed later after the ISR finishes (1)"
       ]
+    },
+    {
+      "q": "Explain the roles of the ALU, the control unit, the clock and the registers in the operation of a processor.",
+      "marks": 6,
+      "ms": [
+        "ALU: performs arithmetic and logical/bitwise operations (1)",
+        "Control unit: decodes instructions and coordinates/sequences the other components (1)",
+        "Clock: generates regular pulses that synchronise operations (1)",
+        "Program Counter holds the address of the next instruction (1)",
+        "Current Instruction Register holds the instruction being decoded/executed (1)",
+        "MAR/MBR hold the address/data for memory transfers (1)"
+      ]
     }
   ]
 };
@@ -2214,6 +2304,18 @@ C["compsci:4.7.3.2"] = {
     [
       "What does the Control Unit do during the Decode phase?",
       "It splits the instruction into its opcode (operation) and operand (data/address)."
+    ],
+    [
+      "What happens in the Fetch stage?",
+      "The PC's address is copied to the MAR; the instruction is read from memory via the data bus into the MBR/CIR; the PC is incremented."
+    ],
+    [
+      "What happens in the Decode stage?",
+      "The control unit splits the instruction in the CIR into its opcode and operand(s)."
+    ],
+    [
+      "What happens in the Execute stage?",
+      "The decoded instruction is carried out — an ALU operation, a memory transfer, or a branch that changes the PC."
     ]
   ],
   "quiz": [
@@ -2258,6 +2360,12 @@ C["compsci:4.7.3.2"] = {
       ],
       "ans": 1,
       "why": "It increments by 1 during Fetch, but a Jump or Branch instruction can change it to a completely different value during Execute."
+    },
+    {
+      "q": "During Fetch, the address of the next instruction is copied from the PC into which register?",
+      "opts": ["ALU", "MAR", "CIR", "Accumulator"],
+      "ans": 1,
+      "why": "The Memory Address Register receives the address so it can be placed on the address bus."
     }
   ],
   "exam": [
@@ -2269,6 +2377,27 @@ C["compsci:4.7.3.2"] = {
         "This address is copied from the PC to the MAR (1)",
         "PC is then incremented to point to the following instruction (1)",
         "MAR is used to place the address on the address bus to locate the instruction in RAM (1)"
+      ]
+    },
+    {
+      "q": "Describe the three stages of the Fetch-Execute cycle.",
+      "marks": 4,
+      "ms": [
+        "Fetch: the instruction at the PC's address is loaded from memory into the CIR; the PC is incremented (1-2)",
+        "Decode: the control unit splits the instruction into opcode and operand (1)",
+        "Execute: the instruction is performed (ALU operation, memory transfer or branch) (1)"
+      ]
+    },
+    {
+      "q": "Explain how the registers (PC, MAR, MBR/MDR, CIR) are used during one pass of the Fetch-Execute cycle.",
+      "marks": 6,
+      "ms": [
+        "PC holds the address of the next instruction (1)",
+        "Its value is copied to the MAR (1)",
+        "The address is placed on the address bus and the instruction returned via the data bus into the MBR (1)",
+        "The instruction is copied to the CIR and the PC is incremented (1)",
+        "The control unit decodes the CIR into opcode + operand (1)",
+        "Execute is carried out (ALU/memory/branch); a branch overwrites the PC (1)"
       ]
     }
   ]
@@ -2421,6 +2550,10 @@ C["compsci:4.7.3.6"] = {
     [
       "What is a context switch?",
       "Saving all CPU registers (including the PC) to the stack so a different routine can run, then restoring them afterwards."
+    ],
+    [
+      "What is an interrupt service routine (ISR)?",
+      "The block of code the processor runs to handle a specific interrupt before resuming the original task."
     ]
   ],
   "quiz": [
@@ -2467,6 +2600,12 @@ C["compsci:4.7.3.6"] = {
       ],
       "ans": 2,
       "why": "The CPU must restore the previous state to continue."
+    },
+    {
+      "q": "When does the processor check for pending interrupts?",
+      "opts": ["never", "at the end of each Fetch-Execute cycle", "only at startup", "during decode only"],
+      "ans": 1,
+      "why": "The processor checks the interrupt register/queue at the end of each Fetch-Execute cycle."
     }
   ],
   "exam": [
@@ -2478,6 +2617,27 @@ C["compsci:4.7.3.6"] = {
         "Saves current registers/PC to the stack (1)",
         "Loads the PC with the address of the ISR (1)",
         "After ISR, pops the saved values from the stack to resume original task (1)"
+      ]
+    },
+    {
+      "q": "Explain why the volatile environment must be saved when an interrupt is serviced.",
+      "marks": 3,
+      "ms": [
+        "The current register contents (including the PC) are needed to resume the interrupted program (1)",
+        "They are saved (pushed onto the stack) before the ISR runs (1)",
+        "and restored afterwards so execution continues correctly (1)"
+      ]
+    },
+    {
+      "q": "Describe how the processor handles an interrupt, from detection to resuming the original program.",
+      "marks": 6,
+      "ms": [
+        "At the end of a Fetch-Execute cycle the processor checks for interrupts (1)",
+        "If one is present (and higher priority), the current registers/PC are saved to the stack — the volatile environment (1)",
+        "The PC is set to the address of the appropriate ISR (1)",
+        "The ISR runs to service the interrupt (1)",
+        "On completion the saved registers/PC are popped from the stack (1)",
+        "Execution of the original program resumes where it left off (1)"
       ]
     }
   ]
@@ -2599,6 +2759,14 @@ C["compsci:4.7.3.3"] = {
     [
       "What does the assembly instruction CMP do?",
       "Compares two values, updating the status register flags."
+    ],
+    [
+      "What is a processor instruction set?",
+      "The complete set of machine-code instructions a particular processor can execute."
+    ],
+    [
+      "Why is an instruction set processor-specific?",
+      "Each processor design defines its own opcodes/encoding, so machine code for one will not run on a different architecture."
     ]
   ],
   "quiz": [
@@ -2645,6 +2813,12 @@ C["compsci:4.7.3.3"] = {
       ],
       "ans": 3,
       "why": "Indexed addressing allows the index register to be incremented to access consecutive array elements."
+    },
+    {
+      "q": "A machine-code instruction is made up of...?",
+      "opts": ["only an opcode", "an opcode and one or more operands", "two operands only", "a label and a comment"],
+      "ans": 1,
+      "why": "An instruction has an opcode (the operation) plus one or more operands (value, address or register)."
     }
   ],
   "exam": [
@@ -2654,6 +2828,27 @@ C["compsci:4.7.3.3"] = {
       "ms": [
         "Direct addressing: the operand is the memory address where the data is stored (1)",
         "Immediate addressing: the operand is the actual data value itself (1)"
+      ]
+    },
+    {
+      "q": "Explain what is meant by a processor instruction set and why machine code is not portable between different processors.",
+      "marks": 3,
+      "ms": [
+        "The instruction set is all the machine-code instructions a processor can execute (1)",
+        "It is processor-specific — opcodes/encoding differ between architectures (1)",
+        "so machine code written for one processor will not run on a different one (1)"
+      ]
+    },
+    {
+      "q": "Describe the structure of a machine-code instruction and explain the role of the opcode and operand(s), using an example.",
+      "marks": 6,
+      "ms": [
+        "An instruction consists of an opcode and one or more operands (1)",
+        "The opcode specifies the operation to perform (e.g. ADD, LOAD) (1)",
+        "The operand is the data the operation acts on: a value, a memory address or a register (1)",
+        "Example: ADD #5 — opcode ADD, immediate operand 5 (1)",
+        "The opcode is decoded by the control unit (1)",
+        "The addressing mode determines how the operand is interpreted (1)"
       ]
     }
   ]
@@ -2789,6 +2984,18 @@ C["compsci:4.7.3.4"] = {
     [
       "Why is indexed addressing useful for arrays?",
       "The base address stays the same while the Index Register is incremented to access each element."
+    ],
+    [
+      "What is immediate addressing?",
+      "The operand IS the actual data value to use (e.g. ADD #5 adds the literal 5)."
+    ],
+    [
+      "What is direct addressing?",
+      "The operand is the memory ADDRESS where the data is stored; the CPU fetches the value from there."
+    ],
+    [
+      "Which is faster, immediate or direct addressing, and why?",
+      "Immediate — the value is in the instruction itself, so no extra memory access is needed."
     ]
   ],
   "quiz": [
@@ -2835,6 +3042,12 @@ C["compsci:4.7.3.4"] = {
       ],
       "ans": 2,
       "why": "The hash (#) symbol usually indicates a literal value."
+    },
+    {
+      "q": "In `LDA 100` using direct addressing, what is loaded?",
+      "opts": ["the value 100", "the contents of memory location 100", "register 100", "100 added to the accumulator"],
+      "ans": 1,
+      "why": "Direct addressing treats the operand as the address, so the value AT location 100 is loaded."
     }
   ],
   "exam": [
@@ -2845,6 +3058,24 @@ C["compsci:4.7.3.4"] = {
         "Direct: operand is the address of the data (1)",
         "Indirect: operand is the address of the address of the data (1)",
         "Indirect allows for a larger range of addresses than direct (1)"
+      ]
+    },
+    {
+      "q": "Explain the difference between immediate and direct addressing, using an example.",
+      "marks": 3,
+      "ms": [
+        "Immediate: the operand is the actual data value (1); e.g. ADD #5 adds the literal 5 (1)",
+        "Direct: the operand is a memory address; the value stored there is used (1)"
+      ]
+    },
+    {
+      "q": "Compare immediate and direct addressing modes, discussing their effect on speed and on the range of values available.",
+      "marks": 6,
+      "ms": [
+        "Immediate: operand is the data itself (1); fastest — no extra memory fetch (1)",
+        "but the value size is limited by the operand field (1)",
+        "Direct: operand is a memory address (1); requires an extra memory access so slower (1)",
+        "but can access a full word of data at any addressable location (1)"
       ]
     }
   ]
@@ -2989,6 +3220,18 @@ C["compsci:4.7.3.5"] = {
     [
       "What does the CMP instruction actually do?",
       "It subtracts the second operand from the first and sets status flags (Zero, Negative, Carry) without saving the result."
+    ],
+    [
+      "What does a LOAD (LDA) instruction do?",
+      "Copies a value from memory (or an immediate value) into a register/accumulator."
+    ],
+    [
+      "Difference between an unconditional and a conditional branch?",
+      "Unconditional always jumps; conditional jumps only if a status flag condition is met (e.g. BNE on the Zero flag)."
+    ],
+    [
+      "What do logical shift left and shift right do?",
+      "Move all bits left/right by n places, filling with 0s — a left shift ×2ⁿ, a right shift ÷2ⁿ (for unsigned values)."
     ]
   ],
   "quiz": [
@@ -3035,6 +3278,12 @@ C["compsci:4.7.3.5"] = {
       ],
       "ans": 2,
       "why": "It is a conditional branch based on the Zero flag being 0."
+    },
+    {
+      "q": "Which operation sets the status flags by subtracting but does NOT store the result?",
+      "opts": ["ADD", "STORE", "COMPARE", "HALT"],
+      "ans": 2,
+      "why": "COMPARE subtracts the operands to set the flags (Zero/Negative/Carry) but discards the result."
     }
   ],
   "exam": [
@@ -3045,6 +3294,28 @@ C["compsci:4.7.3.5"] = {
         "CMP compares two values by subtracting them (1)",
         "It sets flags in the status register (1)",
         "BNE checks the zero flag and branches to a label if the values were not equal (1)"
+      ]
+    },
+    {
+      "q": "State what each of these machine operations does: LOAD, STORE, COMPARE, and an unconditional branch.",
+      "marks": 4,
+      "ms": [
+        "LOAD: copy a value into a register/accumulator (1)",
+        "STORE: copy a register's value into a memory location (1)",
+        "COMPARE: subtract operands to set status flags without saving the result (1)",
+        "Unconditional branch: always jump to the given address/label (1)"
+      ]
+    },
+    {
+      "q": "Explain how COMPARE together with conditional branching is used to implement an IF statement in machine code.",
+      "marks": 6,
+      "ms": [
+        "COMPARE subtracts the two values, setting the status flags (e.g. the Zero flag) (1)",
+        "A conditional branch tests a flag (e.g. branch if equal / not equal) (1)",
+        "If the condition is met, the PC is changed to the branch target (1)",
+        "otherwise execution falls through to the next instruction (1)",
+        "This realises the IF's two paths (true/false) (1)",
+        "Example: CMP A,B then BNE skip — skips the 'then' block when A ≠ B (1)"
       ]
     }
   ]
@@ -3206,6 +3477,10 @@ C["compsci:4.7.3.7"] = {
     [
       "Why does a larger cache improve performance?",
       "More data can be served from fast on-chip cache instead of slower main memory, reducing wait cycles."
+    ],
+    [
+      "How does a wider data bus improve performance?",
+      "More bits are transferred per memory access, so more data moves per cycle."
     ]
   ],
   "quiz": [
@@ -3252,6 +3527,12 @@ C["compsci:4.7.3.7"] = {
       ],
       "ans": 1,
       "why": "Cache hits save significant time compared to RAM access."
+    },
+    {
+      "q": "Doubling the clock speed (other factors equal) tends to...?",
+      "opts": ["halve instructions per second", "roughly double instructions per second", "reduce the cache size", "widen the address bus"],
+      "ans": 1,
+      "why": "More clock pulses per second means more fetch-execute cycles, hence more instructions per second."
     }
   ],
   "exam": [
@@ -3261,6 +3542,27 @@ C["compsci:4.7.3.7"] = {
       "ms": [
         "Allows different stages of the fetch-execute cycle for different instructions to overlap/occur simultaneously (1)",
         "This increases the overall throughput of instructions completed per clock cycle (1)"
+      ]
+    },
+    {
+      "q": "Explain how cache memory improves processor performance.",
+      "marks": 3,
+      "ms": [
+        "Cache is small, fast memory on or near the CPU (1)",
+        "Frequently used instructions/data are held there (1)",
+        "so the CPU avoids slower main-memory accesses — cache hits reduce wait time (1)"
+      ]
+    },
+    {
+      "q": "Discuss how clock speed, number of cores and cache memory each affect processor performance, and why simply increasing one may not help.",
+      "marks": 6,
+      "ms": [
+        "Clock speed: more cycles per second → more instructions per second (1)",
+        "but raises heat/power and has practical limits (1)",
+        "Multiple cores: execute several threads in parallel (1)",
+        "but only help if the software is parallelised; some tasks are inherently serial (1)",
+        "Cache: faster access to frequent data reduces memory-wait stalls (1)",
+        "Conclusion: performance depends on the balance of factors, not one alone (1)"
       ]
     }
   ]
@@ -3375,6 +3677,18 @@ C["compsci:4.7.4.1"] = {
     [
       "Give an example of an input device used in automated systems.",
       "A sensor (e.g., temperature, pressure, light sensor)."
+    ],
+    [
+      "What is an input device? Give an example.",
+      "A device that sends data INTO the computer — e.g. keyboard, mouse, scanner, sensor or microphone."
+    ],
+    [
+      "What is an output device? Give an example.",
+      "A device that presents data FROM the computer — e.g. monitor, printer, speaker or actuator."
+    ],
+    [
+      "What does an actuator do in a control system?",
+      "Outputs a physical action (e.g. opens a valve, turns a motor) based on the computer's decision."
     ]
   ],
   "quiz": [
@@ -3421,6 +3735,12 @@ C["compsci:4.7.4.1"] = {
       ],
       "ans": 3,
       "why": "ROM retains its data when power is lost."
+    },
+    {
+      "q": "Which of these is BOTH an input and an output device?",
+      "opts": ["keyboard", "printer", "touchscreen", "microphone"],
+      "ans": 2,
+      "why": "A touchscreen displays output AND accepts touch input."
     }
   ],
   "exam": [
@@ -3431,6 +3751,27 @@ C["compsci:4.7.4.1"] = {
         "Solid-state has no moving parts so is more durable for a portable device than magnetic (1)",
         "Solid-state has faster read/write speeds leading to quicker boot times (1)",
         "Magnetic storage generally offers higher capacity for a lower cost than solid state (1)"
+      ]
+    },
+    {
+      "q": "Explain how a sensor and an actuator are used together in an embedded control system.",
+      "marks": 3,
+      "ms": [
+        "A sensor inputs a physical quantity (e.g. temperature) as data (1)",
+        "The processor compares it with a target and decides an action (1)",
+        "An actuator outputs a physical action (e.g. opens a valve / turns a motor) (1)"
+      ]
+    },
+    {
+      "q": "Discuss how you would choose appropriate input and output devices for a self-service supermarket checkout, justifying each choice.",
+      "marks": 6,
+      "ms": [
+        "Barcode scanner: fast, accurate input of product codes (1)",
+        "Touchscreen: inputs selections AND outputs prompts (dual purpose) (1)",
+        "Weighing scale (sensor): verifies an item was placed in the bagging area (1)",
+        "Receipt printer: outputs a record for the customer (1)",
+        "Card reader: secure payment input (1)",
+        "Justification links each device's characteristics to its suitability for the task (1)"
       ]
     }
   ]
@@ -3631,6 +3972,18 @@ C["compsci:4.7.4.2"] = {
     [
       "Name one disadvantage of flash memory.",
       "It has a finite number of write cycles before the cells wear out."
+    ],
+    [
+      "Why is secondary storage needed?",
+      "It is non-volatile, so data/programs persist without power (unlike RAM), and it offers far greater capacity at lower cost per byte."
+    ],
+    [
+      "How does a hard disk drive (HDD) store data?",
+      "Magnetically, on spinning platters read/written by a moving head."
+    ],
+    [
+      "How does an SSD store data, and what is a key limitation?",
+      "In flash memory cells with no moving parts — fast and robust, but cells have a finite number of write cycles."
     ]
   ],
   "quiz": [
@@ -3677,6 +4030,12 @@ C["compsci:4.7.4.2"] = {
       ],
       "ans": 2,
       "why": "Magnetic HDDs currently offer the highest individual capacities for consumers (up to 20TB+)."
+    },
+    {
+      "q": "Which storage type has no moving parts and the fastest access?",
+      "opts": ["HDD", "optical disk", "SSD", "magnetic tape"],
+      "ans": 2,
+      "why": "An SSD uses flash memory with no mechanical parts, giving fast access."
     }
   ],
   "exam": [
@@ -3688,6 +4047,27 @@ C["compsci:4.7.4.2"] = {
         "SSD is more durable for travel (1)",
         "HDD is much cheaper for large amounts of data (1)",
         "HDD can offer larger total capacity for the same price (1)"
+      ]
+    },
+    {
+      "q": "Explain why a computer needs secondary storage in addition to main memory (RAM).",
+      "marks": 3,
+      "ms": [
+        "RAM is volatile — it loses its contents when power is off (1)",
+        "Secondary storage is non-volatile, so data and programs persist (1)",
+        "and it provides much greater capacity at a lower cost per byte (1)"
+      ]
+    },
+    {
+      "q": "Compare HDDs and SSDs for use in a laptop, discussing speed, durability, capacity and cost.",
+      "marks": 6,
+      "ms": [
+        "SSD: much faster read/write — no seek time (1)",
+        "SSD: more durable / shock-resistant (no moving parts) (1)",
+        "SSD: lower power and silent — good for laptops (1)",
+        "HDD: larger capacity for the same price (lower cost per GB) (1)",
+        "SSD limitation: finite write cycles / higher cost per GB (1)",
+        "Justified recommendation, e.g. SSD for speed/durability in a laptop; HDD where bulk cheap storage matters (1)"
       ]
     }
   ]
