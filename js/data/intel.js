@@ -688,6 +688,54 @@ window.KOS_DATA.intel = {
   tips: ["Down the stack = encapsulation (add headers); up = decapsulation.", "Transport adds ports (TCP reliable), Network adds IP, Link adds MAC."],
   pitfalls: ["Listing the OSI 7 layers instead of TCP/IP's 4.", "Confusing IP addresses (network layer) with MAC addresses (link layer)."]
 },
+"compsci:4.9.4.3": {
+  defs: [["Network/host identifier", "An IP address splits into a network part (which network) and a host part (which device)."]],
+  tips: ["The subnet mask defines where the network part ends and the host part begins.", "Routers forward on the network ID; the host ID matters only on the destination network."],
+  pitfalls: ["Thinking the whole IP identifies the device — the network part identifies the network.", "Forgetting octets are 0–255 (8 bits each)."]
+},
+"compsci:4.9.4.4": {
+  defs: [["Subnet mask", "A pattern whose 1-bits mark the network portion of an IP address; IP AND mask gives the network address."]],
+  tips: ["Network address = IP AND subnet mask.", "Compare your network address with the destination's to decide local vs send-to-gateway."],
+  pitfalls: ["ORing instead of ANDing IP with the mask.", "Forgetting the network and broadcast addresses aren't usable hosts."]
+},
+"compsci:4.9.4.5": {
+  defs: [["IPv4 / IPv6", "IPv4 = 32-bit addresses (dotted decimal); IPv6 = 128-bit addresses (hex, colon-separated)."]],
+  tips: ["IPv6's reason for being = IPv4 exhaustion; 128 bits vs 32 bits.", "Mention NAT as the IPv4 stop-gap that delayed exhaustion."],
+  pitfalls: ["Saying IPv6 is just 'IPv4 but newer' — note 128-bit and the address-exhaustion driver.", "Confusing the bit counts (32 vs 128)."]
+},
+"compsci:4.9.4.6": {
+  defs: [["Public (routable) IP", "A globally unique address routed on the Internet."],
+         ["Private (non-routable) IP", "Reused within local networks (10 / 172.16 / 192.168 ranges); not routed on the Internet."]],
+  tips: ["Private addresses + NAT let many devices share one public IP, conserving IPv4.", "Non-routable = Internet routers drop them; they work only locally."],
+  pitfalls: ["Thinking private addresses are unique globally.", "Forgetting NAT is what bridges private↔public."]
+},
+"compsci:4.9.4.7": {
+  defs: [["DHCP", "Dynamic Host Configuration Protocol — automatically assigns IP addresses and settings via DORA (Discover, Offer, Request, Acknowledge)."]],
+  tips: ["Know DORA in order; a lease is time-limited and renewed.", "Benefit = no manual config + no duplicate addresses + reuse."],
+  pitfalls: ["Getting the DORA order wrong.", "Saying DHCP assigns MAC addresses (those are fixed on the NIC)."]
+},
+"compsci:4.9.4.8": {
+  defs: [["NAT", "Network Address Translation — maps private internal addresses to one public address, tracked in a translation table."]],
+  tips: ["NAT conserves IPv4 (many private → one public) and hides internal hosts.", "It uses a table of internal IP:port ↔ public IP:port to route replies."],
+  pitfalls: ["Confusing NAT with DHCP (translation vs address assignment).", "Forgetting NAT needs port info to demultiplex replies."]
+},
+"compsci:4.9.4.9": {
+  defs: [["Port forwarding", "A NAT rule mapping a public port to a fixed internal IP:port so an inbound service is reachable."]],
+  tips: ["Needed because NAT drops unsolicited inbound traffic by default.", "Trade-off: external access vs an opened inbound attack path."],
+  pitfalls: ["Confusing port forwarding (an inbound rule) with NAT generally.", "Ignoring the security risk in a 'discuss' answer."]
+},
+"compsci:4.9.4.10": {
+  defs: [["WebSocket", "A persistent, full-duplex connection enabling real-time server↔client messaging without polling."],
+         ["REST", "A stateless request-response style using HTTP methods on resources; CRUD = Create/Read/Update/Delete."]],
+  tips: ["WebSocket for real-time push; REST for stateless request-response CRUD.", "REST stateless = every request is self-contained (no server session)."],
+  pitfalls: ["Thinking REST can push updates — it needs polling.", "Forgetting CRUD = Create, Read, Update, Delete."]
+},
+"compsci:4.9.4.11": {
+  defs: [["Thin client", "Relies on a central server for processing/storage; does minimal work locally."],
+         ["Thick (fat) client", "Does most processing/storage locally; little server reliance."]],
+  tips: ["Thin = cheap, central management, but server/network dependent; thick = powerful, works offline, costlier to manage.", "Frame trade-offs around cost, management, resilience and offline use."],
+  pitfalls: ["Saying thin clients are more powerful (they are minimal).", "Ignoring the server/network single-point-of-failure for thin clients."]
+},
 "compsci:4.9.4.2": {
   tips: ["Port numbers worth memorising: FTP 20/21, SSH 22, SMTP 25, HTTP 80, POP3 110, HTTPS 443.",
          "Know each protocol's one-line job: SMTP sends mail between servers; POP3 retrieves to a client; SSH gives encrypted remote login."],

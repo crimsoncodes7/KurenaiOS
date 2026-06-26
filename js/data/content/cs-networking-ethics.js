@@ -1972,6 +1972,18 @@ C["compsci:4.9.4.3"] = {
     [
       "What notation is commonly used to represent IPv4 addresses?",
       "Dotted-decimal notation."
+    ],
+    [
+      "What two parts make up an IP address?",
+      "A network identifier (which network) and a host identifier (which device on it)."
+    ],
+    [
+      "What is dotted-decimal notation?",
+      "An IPv4 address written as four decimal octets 0–255 separated by dots, e.g. 192.168.0.1."
+    ],
+    [
+      "What determines how many bits are the network part?",
+      "The subnet mask — its 1-bits mark the network portion of the address."
     ]
   ],
   "quiz": [
@@ -2018,6 +2030,12 @@ C["compsci:4.9.4.3"] = {
       ],
       "ans": 2,
       "why": "Octets must be 0-255 and there must be four of them."
+    },
+    {
+      "q": "In 192.168.1.1 with mask 255.255.255.0, which part is the host ID?",
+      "opts": ["192", "192.168", "the last octet (the final 1)", "all four octets"],
+      "ans": 2,
+      "why": "The mask's 0 octet marks the host portion — here the final octet."
     }
   ],
   "exam": [
@@ -2027,6 +2045,26 @@ C["compsci:4.9.4.3"] = {
       "ms": [
         "The network ID allows routers to direct data to the correct subnet across the internet (1).",
         "The host ID identifies the specific device within that subnet, reducing the complexity of global routing tables (1)."
+      ]
+    },
+    {
+      "q": "Explain why an IP address is split into a network part and a host part.",
+      "marks": 2,
+      "ms": [
+        "The network part identifies which network the device is on, so routers can forward to the right network (1)",
+        "The host part identifies the specific device within that network (1)"
+      ]
+    },
+    {
+      "q": "Explain the structure of an IPv4 address and how the split into network and host identifiers helps routing and network management.",
+      "marks": 6,
+      "ms": [
+        "An IPv4 address is 32 bits, written as four octets (0–255) in dotted decimal (1)",
+        "It is split into a network identifier and a host identifier (1)",
+        "The split is defined by the subnet mask (1)",
+        "Routers compare the network part to forward packets toward the correct network (1)",
+        "needing host detail only on the destination network (1)",
+        "This keeps routing tables smaller/efficient and lets networks be organised into subnets (1)"
       ]
     }
   ]
@@ -2171,6 +2209,18 @@ C["compsci:4.9.4.4"] = {
     [
       "How many usable hosts are in a subnet with mask 255.255.255.0?",
       "254 (256 minus network and broadcast addresses)."
+    ],
+    [
+      "What is a subnet mask used for?",
+      "To identify which part of an IP address is the network ID — its 1-bits mark the network portion."
+    ],
+    [
+      "How do you find the network address from an IP and mask?",
+      "Bitwise AND the IP address with the subnet mask."
+    ],
+    [
+      "How many usable hosts does a /24 (255.255.255.0) subnet provide?",
+      "254 — 256 addresses minus the network and broadcast addresses."
     ]
   ],
   "quiz": [
@@ -2217,6 +2267,12 @@ C["compsci:4.9.4.4"] = {
       ],
       "ans": 1,
       "why": "Anything ANDed with 255 (all 1s) remains itself."
+    },
+    {
+      "q": "IP 192.168.5.130 AND mask 255.255.255.0 gives which network address?",
+      "opts": ["192.168.5.130", "192.168.5.0", "192.168.0.0", "255.255.255.0"],
+      "ans": 1,
+      "why": "ANDing zeroes the host octet, leaving the network address 192.168.5.0."
     }
   ],
   "exam": [
@@ -2228,6 +2284,27 @@ C["compsci:4.9.4.4"] = {
         "Performs bitwise AND on dest IP: 192.168.2.20 AND 255.255.255.0 = 192.168.2.0 (1).",
         "Compares the two: 192.168.1.0 != 192.168.2.0 (1).",
         "Since they differ, the packet is sent to the default gateway / router (1)."
+      ]
+    },
+    {
+      "q": "Explain how a host uses a subnet mask to decide whether a destination is on its own network.",
+      "marks": 3,
+      "ms": [
+        "It ANDs its own IP with the mask to get its network address (1)",
+        "and ANDs the destination IP with the mask to get the destination network (1)",
+        "If they match, the destination is local; if not, it sends to the default gateway (1)"
+      ]
+    },
+    {
+      "q": "Explain what subnetting is and discuss why an organisation would divide its network into subnets.",
+      "marks": 6,
+      "ms": [
+        "Subnetting divides a network into smaller logical sub-networks (1)",
+        "The subnet mask marks which IP bits are the (sub)network ID (1)",
+        "found by a bitwise AND of the IP and the mask (1)",
+        "Benefit: reduces broadcast traffic / collision domains, improving performance (1)",
+        "Benefit: improves security/management by isolating departments (1)",
+        "Benefit: more efficient use of address space and easier routing (1)"
       ]
     }
   ]
@@ -2383,6 +2460,18 @@ C["compsci:4.9.4.5"] = {
     [
       "Which IP version has a fixed-length header?",
       "IPv6 (40 bytes)."
+    ],
+    [
+      "How many bits are an IPv4 vs an IPv6 address?",
+      "IPv4 = 32 bits; IPv6 = 128 bits."
+    ],
+    [
+      "Why was IPv6 introduced?",
+      "IPv4's ~4.3 billion addresses are exhausted; IPv6's 128-bit space provides a vastly larger supply."
+    ],
+    [
+      "How is an IPv6 address written?",
+      "As eight groups of four hexadecimal digits separated by colons, with :: allowed to compress consecutive zero groups."
     ]
   ],
   "quiz": [
@@ -2429,6 +2518,12 @@ C["compsci:4.9.4.5"] = {
       ],
       "ans": 2,
       "why": "We ran out of IPv4 addresses."
+    },
+    {
+      "q": "Roughly how many addresses does IPv6 provide compared with IPv4?",
+      "opts": ["double", "ten times", "a vastly larger (2^128) number", "the same"],
+      "ans": 2,
+      "why": "128 bits gives 2^128 addresses — astronomically more than IPv4's 2^32."
     }
   ],
   "exam": [
@@ -2438,6 +2533,26 @@ C["compsci:4.9.4.5"] = {
       "ms": [
         "IPv4 only supports ~4.3 billion addresses (1), which have been exhausted due to the increase in internet-connected devices (1).",
         "IPv6 uses 128-bit addresses, providing a near-infinite supply of addresses (1), and includes built-in features for better security and simplified routing (1)."
+      ]
+    },
+    {
+      "q": "State one reason IPv6 was needed and one feature it adds besides more addresses.",
+      "marks": 2,
+      "ms": [
+        "IPv4 address exhaustion (1)",
+        "IPv6 adds e.g. built-in security (IPsec) / simpler headers / auto-configuration (1)"
+      ]
+    },
+    {
+      "q": "Compare IPv4 and IPv6 and explain why the transition to IPv6 was necessary.",
+      "marks": 6,
+      "ms": [
+        "IPv4 is 32-bit (~4.3 billion addresses); IPv6 is 128-bit (2^128) (1-2)",
+        "IPv4 addresses have effectively run out due to Internet/IoT growth (1)",
+        "Stop-gaps (NAT, private addressing) extended IPv4 but don't fully solve it (1)",
+        "IPv6 provides a near-unlimited supply (1)",
+        "plus benefits like simpler headers, auto-config and built-in IPsec (1)",
+        "Transition is gradual (dual stack) because the two aren't directly interoperable (1)"
       ]
     }
   ]
@@ -2583,6 +2698,18 @@ C["compsci:4.9.4.6"] = {
     [
       "What special IP is used for the loopback interface?",
       "127.0.0.1 (localhost)."
+    ],
+    [
+      "Difference between a public and a private IP address?",
+      "Public (routable) addresses are unique on the Internet; private (non-routable) addresses are reused within local networks and not routed on the Internet."
+    ],
+    [
+      "Give a private IPv4 range.",
+      "10.0.0.0/8, 172.16.0.0/12 or 192.168.0.0/16."
+    ],
+    [
+      "How do many private-IP devices share one public IP?",
+      "Via NAT on the router, which translates between the private addresses and the single public address."
     ]
   ],
   "quiz": [
@@ -2629,6 +2756,12 @@ C["compsci:4.9.4.6"] = {
       ],
       "ans": 2,
       "why": "Private IPs allow many devices to share one public IP."
+    },
+    {
+      "q": "Which of these is a private (non-routable) address?",
+      "opts": ["8.8.8.8", "192.168.0.10", "203.0.113.5", "172.0.0.1"],
+      "ans": 1,
+      "why": "192.168.x.x is a reserved private range, not routed on the public Internet."
     }
   ],
   "exam": [
@@ -2639,6 +2772,26 @@ C["compsci:4.9.4.6"] = {
         "Conserves public IP addresses as many workstations can share a single public IP (1).",
         "Increases security as internal machines are not directly addressable from the public internet (1).",
         "Reduces costs as the company doesn't need to purchase a public IP for every device (1)."
+      ]
+    },
+    {
+      "q": "Explain why private IP addresses are described as non-routable.",
+      "marks": 2,
+      "ms": [
+        "They are not unique globally / are reused on many local networks (1)",
+        "so Internet routers do not forward them — they only work within a local network (1)"
+      ]
+    },
+    {
+      "q": "Explain the difference between public and private IP addresses and discuss how their use, together with NAT, helps conserve IPv4 addresses.",
+      "marks": 6,
+      "ms": [
+        "Public addresses are globally unique and routable on the Internet (1)",
+        "Private addresses are reused within local networks and non-routable (1)",
+        "Many devices on a LAN use private addresses (1)",
+        "A router with NAT maps them to one shared public address (1)",
+        "so a whole network needs only one (or a few) public IPs (1)",
+        "This conserves the limited IPv4 address space (1)"
       ]
     }
   ]
@@ -2754,6 +2907,18 @@ C["compsci:4.9.4.7"] = {
     [
       "What is a 'Static IP' in the context of DHCP?",
       "A reserved IP address in the DHCP pool that is always assigned to the same MAC address."
+    ],
+    [
+      "What is the purpose of DHCP?",
+      "To automatically assign IP addresses (and other settings) to devices joining a network, so they need no manual configuration."
+    ],
+    [
+      "Outline the DHCP process.",
+      "Discover (client) → Offer (server) → Request (client) → Acknowledge (server) — 'DORA'."
+    ],
+    [
+      "What is a DHCP lease?",
+      "A time-limited allocation of an IP address; the client must renew it before it expires."
     ]
   ],
   "quiz": [
@@ -2800,6 +2965,12 @@ C["compsci:4.9.4.7"] = {
       ],
       "ans": 2,
       "why": "MAC address is fixed on the hardware NIC."
+    },
+    {
+      "q": "DHCP saves administrators from having to...?",
+      "opts": ["install network cards", "manually configure each device's IP settings", "encrypt traffic", "forward ports"],
+      "ans": 1,
+      "why": "DHCP automates IP/config assignment, avoiding manual setup per device."
     }
   ],
   "exam": [
@@ -2811,6 +2982,26 @@ C["compsci:4.9.4.7"] = {
         "Offer: Server responds with an available IP address and settings (1).",
         "Request: Laptop sends a message back to the server to accept the specific IP offered (1).",
         "Acknowledgement: Server confirms the lease and the laptop applies the settings (1)."
+      ]
+    },
+    {
+      "q": "State two benefits of using DHCP on a large network.",
+      "marks": 2,
+      "ms": [
+        "No manual IP configuration — saves admin time and avoids errors (1)",
+        "Prevents duplicate-address conflicts / reuses addresses efficiently via leases (1)"
+      ]
+    },
+    {
+      "q": "Describe the steps by which a device obtains an IP address using DHCP, and explain the advantages over static configuration.",
+      "marks": 6,
+      "ms": [
+        "The client broadcasts a DHCP DISCOVER to find a server (1)",
+        "A DHCP server replies with an OFFER of an address (1)",
+        "The client sends a REQUEST for that address (1)",
+        "The server ACKNOWLEDGES, leasing the address; the client applies the settings (1)",
+        "Advantage: no manual configuration, fewer errors / no duplicate addresses (1)",
+        "Advantage: addresses are reused via leases — efficient on large/changing networks (1)"
       ]
     }
   ]
@@ -2943,6 +3134,18 @@ C["compsci:4.9.4.8"] = {
     [
       "Does NAT work with IPv6?",
       "While possible (NAT64), IPv6 is designed so every device can have its own global public IP, making NAT largely unnecessary."
+    ],
+    [
+      "What does NAT do?",
+      "Translates between private internal IP addresses and a public external IP address at the router."
+    ],
+    [
+      "Why is NAT used?",
+      "To let many private-IP devices share a single public IP (conserving IPv4) and to hide the internal network."
+    ],
+    [
+      "How does NAT route a reply back to the right device?",
+      "It keeps a translation table mapping internal IP:port to the public IP:port used, and reverses the lookup for incoming replies."
     ]
   ],
   "quiz": [
@@ -2989,6 +3192,12 @@ C["compsci:4.9.4.8"] = {
       ],
       "ans": 1,
       "why": "Unsolicited incoming traffic is dropped by NAT."
+    },
+    {
+      "q": "A side benefit of NAT for security is that...?",
+      "opts": ["it encrypts traffic", "unsolicited inbound traffic is dropped (no mapping exists)", "it speeds up the link", "it assigns IP addresses"],
+      "ans": 1,
+      "why": "Incoming traffic with no matching table entry is discarded, hiding internal hosts."
     }
   ],
   "exam": [
@@ -3000,6 +3209,26 @@ C["compsci:4.9.4.8"] = {
         "The router assigns a unique port number to the connection and records this in the translation table alongside the device's private IP (1).",
         "When data returns from the internet, the router looks at the destination port (1).",
         "It finds the matching entry in the table and forwards the data to the correct internal private IP (1)."
+      ]
+    },
+    {
+      "q": "State the main purpose of NAT.",
+      "marks": 2,
+      "ms": [
+        "To allow multiple devices with private IPs to share a single public IP address (1)",
+        "conserving public IPv4 addresses (1)"
+      ]
+    },
+    {
+      "q": "Explain how NAT allows a home network of several devices to access the Internet through one public IP address.",
+      "marks": 6,
+      "ms": [
+        "Each device has a private (non-routable) IP (1)",
+        "The router has one public IP from the ISP (1)",
+        "Outgoing packets have their source private IP:port replaced with the public IP:port (1)",
+        "The router records this mapping in a translation table (1)",
+        "Replies arrive at the public IP:port; the router looks up the table (1)",
+        "and forwards them to the correct internal device/port (1)"
       ]
     }
   ]
@@ -3125,6 +3354,18 @@ C["compsci:4.9.4.9"] = {
     [
       "What is a major downside of port forwarding?",
       "It reduces security by opening a direct path into the local network."
+    ],
+    [
+      "What is port forwarding?",
+      "A NAT rule that sends inbound traffic on a specific public port to a fixed internal device/port."
+    ],
+    [
+      "Why use port forwarding?",
+      "To make an internal service (game/web/remote-desktop server) reachable from the Internet despite NAT."
+    ],
+    [
+      "Where is port forwarding configured?",
+      "On the router/NAT, which maps an external port to an internal host:port."
     ]
   ],
   "quiz": [
@@ -3171,6 +3412,12 @@ C["compsci:4.9.4.9"] = {
       ],
       "ans": 2,
       "why": "NAT drops unsolicited traffic by default."
+    },
+    {
+      "q": "A security risk of port forwarding is that it...?",
+      "opts": ["encrypts the wrong data", "opens a permanent inbound path that could be exploited if the service is insecure", "blocks all outbound traffic", "disables NAT entirely"],
+      "ans": 1,
+      "why": "It bypasses NAT's default protection for that port, exposing the internal service to attack."
     }
   ],
   "exam": [
@@ -3182,6 +3429,26 @@ C["compsci:4.9.4.9"] = {
         "Access the router's configuration page (1).",
         "Create a port forwarding rule mapping a specific external port to 192.168.1.50 (1).",
         "The user then connects to their home's public IP address and the specified port (1)."
+      ]
+    },
+    {
+      "q": "Explain why port forwarding is needed to host a game server behind a home router.",
+      "marks": 2,
+      "ms": [
+        "By default NAT drops unsolicited inbound traffic (1)",
+        "Port forwarding maps the chosen public port to the server's internal IP:port so external players can connect (1)"
+      ]
+    },
+    {
+      "q": "Explain how port forwarding works and discuss its benefits and security risks.",
+      "marks": 6,
+      "ms": [
+        "A rule on the router maps a public port to a specific internal IP:port (1)",
+        "Inbound traffic to that port is forwarded to the internal device (1)",
+        "Benefit: makes an internal service reachable from the Internet despite NAT (1)",
+        "Users connect to the public IP and the forwarded port (1)",
+        "Risk: it opens a permanent inbound path bypassing NAT's default protection (1)",
+        "If the exposed service is vulnerable, attackers can exploit it — so it must be secured/limited (1)"
       ]
     }
   ]
@@ -3332,6 +3599,18 @@ C["compsci:4.9.4.10"] = {
     [
       "What does it mean that REST is 'stateless'?",
       "Each request from a client to a server must contain all the information needed to understand and process the request."
+    ],
+    [
+      "What is the WebSocket protocol and why is it used?",
+      "A protocol giving a persistent, two-way connection between client and server, used for real-time updates (chat, live data) without repeated polling."
+    ],
+    [
+      "What does CRUD stand for?",
+      "Create, Read, Update, Delete — the four basic operations on stored data."
+    ],
+    [
+      "What is a key principle of REST?",
+      "It is stateless — each request contains all the information needed; it uses HTTP methods on resources (often returning JSON/XML)."
     ]
   ],
   "quiz": [
@@ -3378,6 +3657,12 @@ C["compsci:4.9.4.10"] = {
       ],
       "ans": 2,
       "why": "XML (eXtensible Markup Language) uses tags."
+    },
+    {
+      "q": "Which is best for pushing live updates from server to client without polling?",
+      "opts": ["REST", "WebSocket", "CRUD", "DHCP"],
+      "ans": 1,
+      "why": "WebSocket keeps a persistent two-way channel, so the server can push updates instantly."
     }
   ],
   "exam": [
@@ -3389,6 +3674,27 @@ C["compsci:4.9.4.10"] = {
         "They support full-duplex communication, allowing the server to push updates to the client instantly (1).",
         "This reduces latency, which is critical for trading where prices change millisecond-to-millisecond (1).",
         "REST would require 'polling' (repeatedly asking for updates), which is inefficient and creates high network traffic (1)."
+      ]
+    },
+    {
+      "q": "Explain what is meant by REST being 'stateless' and give one consequence.",
+      "marks": 3,
+      "ms": [
+        "Each request must contain all the information needed to process it (1)",
+        "The server keeps no client session state between requests (1)",
+        "Consequence: it scales easily, but data such as authentication must be resent each time (1)"
+      ]
+    },
+    {
+      "q": "Compare a REST (request-response) approach with WebSockets for a live sports-score web app, recommending one.",
+      "marks": 6,
+      "ms": [
+        "REST: client sends HTTP requests; server responds; stateless (1)",
+        "To get updates the client must POLL repeatedly (1)",
+        "which is inefficient and adds latency/load (1)",
+        "WebSocket: a persistent two-way connection (1)",
+        "lets the server PUSH score updates instantly as they happen (1)",
+        "Recommend WebSocket for real-time scores; REST for ordinary CRUD requests (1)"
       ]
     }
   ]
@@ -3540,6 +3846,18 @@ C["compsci:4.9.4.11"] = {
     [
       "Which client type is best for video editing?",
       "Thick client (needs high local processing power)."
+    ],
+    [
+      "What is a thin client?",
+      "A device that relies on a powerful central server for processing and storage, doing minimal work locally."
+    ],
+    [
+      "What is a thick (fat) client?",
+      "A device that does most processing/storage locally and depends little on the server."
+    ],
+    [
+      "One advantage of thin clients for an organisation?",
+      "Cheaper, low-spec devices that are easier to manage, secure and update centrally."
     ]
   ],
   "quiz": [
@@ -3586,6 +3904,12 @@ C["compsci:4.9.4.11"] = {
       ],
       "ans": 1,
       "why": "If the server goes down, no one can work."
+    },
+    {
+      "q": "A key DISADVANTAGE of thin-client computing is that...?",
+      "opts": ["devices are expensive", "it depends heavily on the server and network (a single point of failure)", "software can't be updated centrally", "each device needs a powerful CPU"],
+      "ans": 1,
+      "why": "If the server or network fails, thin clients can't work — central dependence is the main weakness."
     }
   ],
   "exam": [
@@ -3599,6 +3923,23 @@ C["compsci:4.9.4.11"] = {
         "Thick clients allow for offline work and provide better performance for demanding applications (1).",
         "But they are more expensive to purchase for 500 workers (1).",
         "And they require more administrative effort to secure and update each individual machine (1)."
+      ]
+    },
+    {
+      "q": "State one advantage and one disadvantage of thin-client computing.",
+      "marks": 2,
+      "ms": [
+        "Advantage: cheaper, centrally managed/secured low-spec clients (1)",
+        "Disadvantage: heavy reliance on the server/network — a single point of failure (1)"
+      ]
+    },
+    {
+      "q": "Give three characteristics of a thick client compared with a thin client.",
+      "marks": 3,
+      "ms": [
+        "Performs most processing locally (1)",
+        "Stores data/applications locally and can work offline (1)",
+        "Needs more powerful hardware and per-device maintenance (1)"
       ]
     }
   ]
