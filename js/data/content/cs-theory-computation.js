@@ -5,7 +5,7 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 C["compsci:4.4.1.1"] = {
   notes: [
     { h: "The Computational Approach: Problem Solving" },
-    "Before code is written, a problem must be formally defined and a data model established. Computational thinking is the process of formulating problems so their solutions can be represented as computational steps.",
+    { callout: { t: "info", body: "Before code is written, a problem must be formally defined and a data model established. Computational thinking is the process of formulating problems so their solutions can be represented as computational steps." } },
     { callout: { t: "def", h: "Computational Thinking", body: "The process of formulating a problem and expressing its solution in a way that a computer can execute. It involves abstraction, decomposition, pattern recognition, and algorithm design." }},
     { callout: { t: "info", h: "Analysis Stage", body: [
       { kv: [
@@ -48,7 +48,7 @@ C["compsci:4.4.1.1"] = {
 C["compsci:4.4.1.2"] = {
   notes: [
     { h: "Following and Writing Algorithms" },
-    "An **algorithm** is a sequence of steps that can be followed to complete a task and that **always terminates**.",
+    { callout: { t: "info", body: "An **algorithm** is a sequence of steps that can be followed to complete a task and that **always terminates**." } },
     { callout: { t: "def", h: "Algorithm", body: "A sequence of unambiguous, executable steps that solves a problem and is guaranteed to terminate in a finite number of steps." }},
     { callout: { t: "memorise", h: "Four Standard Constructs", body: [
       { kv: [
@@ -91,7 +91,7 @@ C["compsci:4.4.1.2"] = {
 C["compsci:4.4.1.3"] = {
   notes: [
     { h: "Representational Abstraction" },
-    "Abstraction is the process of removing unnecessary detail to simplify a problem and focus on the essential features.",
+    { callout: { t: "info", body: "Abstraction is the process of removing unnecessary detail to simplify a problem and focus on the essential features." } },
     { callout: { t: "def", h: "Representational Abstraction", body: "Creating a simplified model of a system by removing details that are irrelevant to the problem being solved — keeping only what matters." }},
     { callout: { t: "def", h: "Abstraction by Generalisation", body: "Grouping entities that share common properties into a category, creating a hierarchy. A 'kind-of' relationship (e.g., Dog and Cat are both Animals)." }},
     { callout: { t: "info", h: "Classic Examples", body: [
@@ -134,7 +134,7 @@ C["compsci:4.4.1.3"] = {
 C["compsci:4.4.1.4"] = {
   notes: [
     { h: "Information Hiding" },
-    "Information hiding is the principle of shielding the internal details of an object from the outside world. Users only interact with a clean interface.",
+    { callout: { t: "info", body: "Information hiding is the principle of shielding the internal details of an object from the outside world. Users only interact with a clean interface." } },
     { callout: { t: "def", h: "Encapsulation", body: [
       { kv: [
         ["Hiding Detail", "Removing access to data that does not contribute to essential characteristics."],
@@ -173,7 +173,7 @@ C["compsci:4.4.1.4"] = {
 C["compsci:4.4.1.5"] = {
   notes: [
     { h: "Procedural Abstraction" },
-    "Procedural abstraction represents a computational method. It involves taking the logic of a specific task and making it a general procedure that can accept different inputs.",
+    { callout: { t: "info", body: "Procedural abstraction represents a computational method. It involves taking the logic of a specific task and making it a general procedure that can accept different inputs." } },
     { callout: { t: "def", h: "Abstraction of Values", body: "The result of abstracting away the actual values used in a calculation is a **procedure**." }},
     { code: { lang: "csharp", cap: "Procedural Abstraction in C#.", src: "// Specific: 5 + 5\n// Abstracted into a procedure:\npublic int Add(int a, int b) {\n    return a + b;\n}" }},
     { callout: { t: "memorise", h: "Procedure = Named Method with Parameters", body: "Procedural abstraction names a reusable method. Specific values are replaced by parameters. The procedure captures HOW a task is done; callers supply the WHAT (the actual values each time it is called)." }},
@@ -207,7 +207,7 @@ C["compsci:4.4.1.5"] = {
 C["compsci:4.4.1.6"] = {
   notes: [
     { h: "Functional Abstraction" },
-    "Functional abstraction takes procedural abstraction one step further by hiding the **computational method** entirely. You only care about the mapping between input and output.",
+    { callout: { t: "info", body: "Functional abstraction takes procedural abstraction one step further by hiding the **computational method** entirely. You only care about the mapping between input and output." } },
     { callout: { t: "def", h: "Black Box", body: "To get a function, we disregard the 'how' and focus only on the result. A function maps inputs to unique outputs." }},
     { code: { lang: "csharp", cap: "Treating a method as a black box (Functional).", src: "// We don't care IF it uses Math.Sqrt or an estimate\nint result = CalculateRoot(144);" }},
     { callout: { t: "memorise", h: "Functional = Black Box", body: "Functional abstraction treats a computation as a black box: only the input→output mapping matters. You don't need to know HOW `sqrt(x)` computes its answer — just that it takes a number and returns its square root." }},
@@ -241,7 +241,7 @@ C["compsci:4.4.1.6"] = {
 C["compsci:4.4.1.7"] = {
   notes: [
     { h: "Data Abstraction" },
-    "Data abstraction isolates **how** a compound data object is used from the details of **how it is constructed**.",
+    { callout: { t: "info", body: "Data abstraction isolates **how** a compound data object is used from the details of **how it is constructed**." } },
     { callout: { t: "def", h: "Abstract Data Types (ADTs)", body: [
       { kv: [
         ["Concept", "A collection of data and the operations that can be performed on it."],
@@ -280,7 +280,7 @@ C["compsci:4.4.1.7"] = {
 C["compsci:4.4.1.8"] = {
   notes: [
     { h: "Problem Abstraction (Reduction)" },
-    "Details are removed from a problem until it is represented in a way that is possible to solve, often because it reduces to a problem that has **already been solved**.",
+    { callout: { t: "info", body: "Details are removed from a problem until it is represented in a way that is possible to solve, often because it reduces to a problem that has **already been solved**." } },
     { callout: { t: "def", h: "Problem Reduction", body: "Recognising that a new, complex problem shares the same underlying structure as a known problem." }},
     { code: { lang: "pseudo", cap: "Reducing a maze to a graph problem.", src: "MAZE -> NODES and EDGES\nSOLVE -> BFS or Dijkstra" }},
     { callout: { t: "memorise", h: "Reduction Pattern", body: "Strip domain-specific detail until the problem matches a KNOWN solved problem, then reuse its algorithm. Example: Delivery route → ignore street names → nodes + weighted edges → Dijkstra's shortest path." }},
@@ -314,7 +314,7 @@ C["compsci:4.4.1.8"] = {
 C["compsci:4.4.1.9"] = {
   notes: [
     { h: "Decomposition" },
-    "Procedural decomposition means breaking a problem into a number of sub-problems, so that each sub-problem accomplishes an identifiable task, which might itself be further subdivided.",
+    { callout: { t: "info", body: "Procedural decomposition means breaking a problem into a number of sub-problems, so that each sub-problem accomplishes an identifiable task, which might itself be further subdivided." } },
     { callout: { t: "def", h: "Top-Down Design", body: "A technique where you start with the overall goal and decompose it into smaller and smaller levels of detail." }},
     { table: { head: ["Stage", "Goal"], rows: [
       ["Level 1", "Root problem (e.g. 'Run Game')"],
@@ -352,7 +352,7 @@ C["compsci:4.4.1.9"] = {
 C["compsci:4.4.1.10"] = {
   notes: [
     { h: "Composition" },
-    "Composition is the inverse of decomposition. It involves building a larger system by combining smaller, pre-existing procedures or data objects.",
+    { callout: { t: "info", body: "Composition is the inverse of decomposition. It involves building a larger system by combining smaller, pre-existing procedures or data objects." } },
     { callout: { t: "def", h: "Compound Structures", body: [
       { kv: [
         ["Procedure Composition", "Combining procedures to form compound procedures."],
@@ -391,7 +391,7 @@ C["compsci:4.4.1.10"] = {
 C["compsci:4.4.1.11"] = {
   notes: [
     { h: "Automation" },
-    "Automation is the process of putting models into action to solve problems. It is the culmination of all the abstraction techniques — you take a clean model and execute it.",
+    { callout: { t: "info", body: "Automation is the process of putting models into action to solve problems. It is the culmination of all the abstraction techniques — you take a clean model and execute it." } },
     { callout: { t: "def", h: "Automation", body: "Implementing an abstract model as working code so that the computer performs the task automatically, without manual human intervention at each step." }},
     { h: "The Four Steps of Automation" },
     { steps: [
@@ -433,7 +433,7 @@ C["compsci:4.4.1.11"] = {
 C["compsci:4.4.3.1"] = {
   notes: [
     { h: "Backus-Naur Form (BNF)" },
-    "BNF is a formal notation for expressing the syntax of a programming language. It is more powerful than regular expressions because it supports **recursion**, which allows it to describe nested structures like matching brackets.",
+    { callout: { t: "info", body: "BNF is a formal notation for expressing the syntax of a programming language. It is more powerful than regular expressions because it supports **recursion**, which allows it to describe nested structures like matching brackets." } },
     { callout: { t: "def", h: "BNF Key Concepts", body: [
       { kv: [
         ["Terminal", "An actual symbol in the language — cannot be broken down further (e.g., `0`, `IF`, `;`)."],

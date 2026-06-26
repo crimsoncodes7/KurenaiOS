@@ -226,11 +226,61 @@ window.KOS_DATA.intel = {
          "Relate it to breadth-first search when asked (it is a weighted generalisation)."],
   pitfalls: ["Updating a distance without checking it is actually smaller than the current tentative value.", "Forgetting to record the previous vertex, then being unable to state the path."]
 },
+"compsci:4.4.1.1": {
+  defs: [["Computational thinking", "Formulating a problem and expressing its solution as steps a computer can execute."]],
+  tips: ["Name the four pillars: abstraction, decomposition, pattern recognition, algorithm design.", "Errors caught at analysis are cheapest to fix — later stages build on it."],
+  pitfalls: ["Confusing analysis (defining WHAT) with implementation (writing code).", "Vague 'understand the problem' answers — cite requirements and a data model."]
+},
+"compsci:4.4.1.2": {
+  defs: [["Algorithm", "A finite sequence of unambiguous steps that solves a problem and always terminates."]],
+  tips: ["Stress that an algorithm must terminate — an infinite loop is not an algorithm.", "Use a trace table to show variable values step by step — examiners credit the working."],
+  pitfalls: ["Omitting the termination requirement from the definition.", "Conflating correctness with efficiency — a correct algorithm can still be slow."]
+},
 "compsci:4.4.1.3": {
   defs: [["Abstraction", "Omitting unnecessary detail / hiding detail so a problem can be represented in a way that is easier to solve."],
          ["Information hiding", "Hiding design details behind a standard interface."]],
   tips: ["AQA distinguishes representational abstraction (removing detail until the problem is solvable) from abstraction by generalisation (grouping by common characteristics — 'is a kind of')."],
   pitfalls: ["Defining abstraction as 'simplifying' alone — you must mention removing/hiding detail."]
+},
+"compsci:4.4.1.4": {
+  defs: [["Information hiding", "Concealing an object's internal details so it is used only through a clean public interface."]],
+  tips: ["Link it to encapsulation: the interface stays stable while the hidden implementation can change.", "State the benefit — reduces complexity and stops external code depending on internals."],
+  pitfalls: ["Confusing information hiding (hide internals behind an interface) with abstraction in general."]
+},
+"compsci:4.4.1.5": {
+  defs: [["Procedural abstraction", "Capturing a task's logic as a general, parameterised procedure — you know WHAT it does, not the specific values."]],
+  tips: ["Contrast with functional abstraction: procedural still exposes the method; functional hides it entirely.", "Parameters are what make the procedure general/reusable."],
+  pitfalls: ["Confusing procedural abstraction with functional abstraction (which also hides the method)."]
+},
+"compsci:4.4.1.6": {
+  defs: [["Functional abstraction", "Hiding the computational method entirely so only the input→output mapping matters (a black box)."]],
+  tips: ["Say it goes one step beyond procedural abstraction by hiding HOW the result is computed.", "Use the black-box framing — you care only about the mapping."],
+  pitfalls: ["Treating functional and procedural abstraction as identical — functional also hides the method."]
+},
+"compsci:4.4.1.7": {
+  defs: [["Data abstraction", "Separating how a compound data type is USED (its operations) from how it is implemented/constructed."]],
+  tips: ["Use an ADT example (stack/queue): you use push/pop without knowing the underlying array or list.", "Benefit: the implementation can change without affecting users of the type."],
+  pitfalls: ["Describing only the data and missing the use-vs-implementation separation that defines it."]
+},
+"compsci:4.4.1.8": {
+  defs: [["Problem abstraction/reduction", "Removing detail from a problem until it becomes one that is already solved (or solvable)."]],
+  tips: ["The key idea is reducing to a previously-solved problem — say that explicitly.", "Example: model a routing task as a known shortest-path graph problem."],
+  pitfalls: ["Confusing it with representational abstraction — this reduces the PROBLEM, not a data model."]
+},
+"compsci:4.4.1.9": {
+  defs: [["Decomposition", "Breaking a problem into smaller sub-problems, each an identifiable task that may be subdivided further."]],
+  tips: ["Pair it with composition (its inverse) when asked to contrast.", "Benefits: smaller parts are easier to design, test and divide among a team."],
+  pitfalls: ["Confusing decomposition (break down) with abstraction (remove detail) — different processes."]
+},
+"compsci:4.4.1.10": {
+  defs: [["Composition", "Building a larger system by combining smaller, existing procedures or data objects — the inverse of decomposition."]],
+  tips: ["Define it explicitly as the inverse of decomposition for the mark.", "Relate it to 'favour composition over inheritance' in OOP design."],
+  pitfalls: ["Mixing up composition (build up from parts) with decomposition (break down)."]
+},
+"compsci:4.4.1.11": {
+  defs: [["Automation", "Putting an abstracted model into action — implementing and executing it to solve the problem."]],
+  tips: ["Frame it as the culmination of abstraction + algorithm design — model, then execute.", "Example: a simulation model run as a program."],
+  pitfalls: ["Treating automation as merely 'using a computer' rather than executing a devised model."]
 },
 "compsci:4.4.2.1": {
   defs: [["Finite state machine", "A machine that consists of a finite set of states, an input alphabet, transitions between states, a start state and (for an acceptor) a set of accepting states."]],
