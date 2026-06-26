@@ -1,14 +1,25 @@
-"""Parse AQA 7517 A-level Computer Science spec (section 4) into a JSON tree.
+r"""Parse AQA 7517 A-level Computer Science spec (section 4) into a JSON tree.
 
 Strategy: pdfplumber per page; detect heading lines (^4(\.\d+)+ Title) spanning
 full width; body words are split into Content (left) / Additional information
 (right) columns using the x-position of the 'Additional' header on that page
 (falling back to the previous known boundary).
+
+2026-06-26: added running-header/page-footer skipping (page-number-prefixed
+"NN Visit ..." footers and the "AQA AS and A-level Computer Science ... Version
+X.Y <date>" header), which previously bled into content/info and reflow-merged
+with real text. PDF path points at ./Context/.
+
+⚠️ REGEN CAVEAT: under pdfplumber 0.11.x (this machine) some 4.1.1.x sub-headings
+(e.g. 4.1.1.12) are NOT detected, so their content shifts up into the previous
+ref. js/data/compsci.js currently holds CORRECT assignments (footer noise cleaned
+in place). Before shipping any regenerated output, DIFF it against the committed
+compsci.js per-ref — do not overwrite blindly.
 """
 import json, re, sys
 import pdfplumber
 
-PDF = "/mnt/user-data/uploads/AQA-7516-7517-SP-2015.PDF"
+PDF = "/Users/fj/Downloads/KurenaiOS 2/Context/AQA-7516-7517-SP-2015.PDF"
 HEAD_RE = re.compile(r"^(4(?:\.\d+){1,3})\s+(.+)$")
 
 def lines_from_words(words):
@@ -61,8 +72,17 @@ def main():
                 line_text = line_text.strip()
                 if not line_text:
                     continue
-                # skip furniture
-                if re.match(r"^(Visit|AS and A-level Computer Science|Content Additional information|Content$|Additional information$)", line_text):
+                # skip running header / page footer furniture. These otherwise bleed into
+                # content/info (page-number-prefixed "NN Visit …" footers, and the wrapped
+                # "AQA AS and A-level Computer Science … Version X.Y <date>" running header)
+                # and reflow-merge with real text. Match by content, not position.
+                if re.match(r"^(\d+\s+)?Visit\b", line_text):
+                    continue
+                if re.match(r"^(AQA )?AS and A-level Computer Science", line_text):
+                    continue
+                if re.match(r"^AQA AS and A-level", line_text):
+                    continue
+                if re.match(r"^(Content Additional information|Content$|Additional information$)", line_text):
                     continue
                 if re.match(r"^\d+\s*$", line_text):
                     continue
@@ -111,7 +131,7 @@ def main():
         n["content"] = reflow(n["content"])
         n["info"] = reflow(n["info"])
 
-    with open("/home/claude/extract/aqa.json", "w") as f:
+    with open("/Users/fj/Downloads/KurenaiOS 2/tools/aqa.json", "w") as f:
         json.dump(nodes, f, indent=1)
     print(f"{len(nodes)} nodes")
     refs = [n["ref"] for n in nodes]
