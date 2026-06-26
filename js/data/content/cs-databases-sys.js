@@ -134,6 +134,18 @@ C["compsci:4.1.2.1"] = {
     [
       "Why use constants instead of hard-coding values?",
       "Improves readability (e.g., VAT = 0.2) and safety (prevents accidental modification)."
+    ],
+    [
+      "What is a programming paradigm?",
+      "A style/approach to structuring programs — e.g. procedural (sequenced subroutines acting on data) or object-oriented (objects bundling data + methods)."
+    ],
+    [
+      "Key feature of the procedural paradigm?",
+      "Programs are built from procedures/subroutines executed in sequence, operating on separate data."
+    ],
+    [
+      "Key feature of the object-oriented paradigm?",
+      "Data and the methods that act on it are bundled into objects (encapsulation), supporting inheritance and polymorphism."
     ]
   ],
   "quiz": [
@@ -180,6 +192,12 @@ C["compsci:4.1.2.1"] = {
       ],
       "ans": 2,
       "why": "Procedural code executes line-by-line, grouping instructions into reusable subroutines."
+    },
+    {
+      "q": "Which paradigm bundles data and behaviour together into objects?",
+      "opts": ["procedural", "object-oriented", "declarative", "assembly"],
+      "ans": 1,
+      "why": "OOP encapsulates data with the methods that operate on it inside objects."
     }
   ],
   "exam": [
@@ -189,6 +207,27 @@ C["compsci:4.1.2.1"] = {
       "ms": [
         "Prevents unintended side-effects by other parts of the program (1) as the variable is only accessible within the subroutine (1).",
         "Allows for re-entrancy / subroutines can be reused in different contexts (1) without naming conflicts (1)."
+      ]
+    },
+    {
+      "q": "State two differences between the procedural and object-oriented paradigms.",
+      "marks": 3,
+      "ms": [
+        "Procedural separates data from the procedures that act on it; OOP bundles them in objects (1)",
+        "OOP supports inheritance and polymorphism; procedural does not (1)",
+        "OOP models real-world entities; procedural is task/sequence focused (1) (max 3)"
+      ]
+    },
+    {
+      "q": "Discuss the procedural and object-oriented paradigms, and recommend which suits a large team building a complex, evolving system.",
+      "marks": 6,
+      "ms": [
+        "Procedural: programs as sequences of subroutines acting on shared data (1)",
+        "Simple and efficient for small, well-defined tasks (1)",
+        "OOP: data + methods bundled into objects (encapsulation) (1)",
+        "Inheritance/polymorphism aid reuse and extension (1)",
+        "OOP's modularity/encapsulation suits large teams and changing requirements (1)",
+        "Recommend OOP for a large, evolving system; procedural for small scripts (1)"
       ]
     }
   ]
@@ -292,6 +331,18 @@ C["compsci:4.1.2.2"] = {
     [
       "How does modular design support testing?",
       "Each module can be tested independently (unit testing) before integration."
+    ],
+    [
+      "What is a hierarchy chart?",
+      "A top-down diagram breaking a problem into modules/subroutines, showing which calls which."
+    ],
+    [
+      "What does the 'structured approach' mean?",
+      "Designing top-down by decomposing a problem into modules using only sequence, selection and iteration."
+    ],
+    [
+      "Difference between coupling and cohesion?",
+      "Coupling = interdependence between modules (want LOW); cohesion = how focused a module is on one task (want HIGH)."
     ]
   ],
   "quiz": [
@@ -327,6 +378,18 @@ C["compsci:4.1.2.2"] = {
       ],
       "ans": 2,
       "why": "High coupling means modules are tightly interdependent — the opposite of what we want."
+    },
+    {
+      "q": "A hierarchy chart is read...?",
+      "opts": ["bottom-up", "top-down (general task down to detailed sub-tasks)", "left to right only", "in execution order"],
+      "ans": 1,
+      "why": "Hierarchy charts decompose the overall task downward into sub-tasks/modules."
+    },
+    {
+      "q": "Good modular design aims for...?",
+      "opts": ["high coupling, low cohesion", "low coupling, high cohesion", "high coupling, high cohesion", "low coupling, low cohesion"],
+      "ans": 1,
+      "why": "Modules should be independent (low coupling) and each focused on one task (high cohesion)."
     }
   ],
   "exam": [
@@ -337,6 +400,27 @@ C["compsci:4.1.2.2"] = {
         "Allows complex problems to be broken into smaller, manageable tasks (1)",
         "Tasks can be developed and tested independently (unit testing) (1)",
         "Subroutines can be reused in other parts of the program or other projects (1)"
+      ]
+    },
+    {
+      "q": "Explain two advantages of a modular, structured approach to program design.",
+      "marks": 3,
+      "ms": [
+        "Modules can be developed and tested independently (1)",
+        "Code is reusable across the program / other projects (1)",
+        "Easier to maintain and understand (decomposition) (1) (max 3)"
+      ]
+    },
+    {
+      "q": "Discuss how a structured, modular approach using hierarchy charts benefits the development of a large program.",
+      "marks": 6,
+      "ms": [
+        "A hierarchy chart decomposes the problem top-down into modules (1)",
+        "Each module performs one identifiable task (high cohesion) (1)",
+        "Modules can be assigned to different developers and built in parallel (1)",
+        "and tested independently before integration (1)",
+        "Reuse: common modules called from many places reduce duplication (1)",
+        "Maintenance: a change is localised to one module (low coupling) (1)"
       ]
     }
   ]
@@ -473,6 +557,18 @@ C["compsci:4.2.1.2"] = {
     [
       "What is the formula for the memory address of A[i,j] in Row-Major order?",
       "BaseAddress + (i * NumCols + j) * SizeOfElement."
+    ],
+    [
+      "What is a 1-D array?",
+      "An ordered, indexed collection of elements of the same type, accessed by a single index."
+    ],
+    [
+      "What is a 2-D array?",
+      "A table of elements accessed by two indices (row, column) — conceptually an array of arrays."
+    ],
+    [
+      "One advantage and one limitation of arrays?",
+      "Advantage: O(1) direct access by index. Limitation: fixed size and a single (homogeneous) element type."
     ]
   ],
   "quiz": [
@@ -519,6 +615,12 @@ C["compsci:4.2.1.2"] = {
       ],
       "ans": 2,
       "why": "3 * 4 * 2 = 24 elements."
+    },
+    {
+      "q": "A 5×3 array is stored row-major (1-byte elements). Where is element [2][1] relative to the base?",
+      "opts": ["+5", "+6", "+7", "+11"],
+      "ans": 2,
+      "why": "Offset = (row × cols + col) = (2 × 3 + 1) = 7, so base + 7."
     }
   ],
   "exam": [
@@ -529,6 +631,27 @@ C["compsci:4.2.1.2"] = {
         "Formula: Base + (RowIndex * NumCols + ColIndex) * Size (1)",
         "1000 + (3 * 5 + 2) * 4 (1)",
         "1000 + (17 * 4) = 1068 (1)"
+      ]
+    },
+    {
+      "q": "An array Temps[1..7] holds a week's temperatures. Write pseudocode to total them.",
+      "marks": 3,
+      "ms": [
+        "total ← 0 (1)",
+        "FOR i ← 1 TO 7: total ← total + Temps[i] (1)",
+        "ENDFOR; OUTPUT total (1)"
+      ]
+    },
+    {
+      "q": "Explain how a 2-D array represents a grid, how its elements are addressed, and give one advantage and one limitation of arrays.",
+      "marks": 6,
+      "ms": [
+        "A 2-D array is indexed by [row][column] (1)",
+        "Stored contiguously, e.g. row-major (1)",
+        "Element address = base + (row × cols + col) × elementSize (1)",
+        "Advantage: O(1) direct access by index (1)",
+        "Advantage: simple, predictable memory layout (1)",
+        "Limitation: fixed size / homogeneous type — can't grow or mix types (1)"
       ]
     }
   ]
@@ -662,6 +785,18 @@ C["compsci:4.2.1.4"] = {
     [
       "What is encapsulation in the context of ADTs?",
       "Hiding the internal implementation so users interact only through the defined operations."
+    ],
+    [
+      "What is an abstract data type (ADT)?",
+      "A logical description of data and the operations on it, independent of the underlying implementation."
+    ],
+    [
+      "Difference between a static and a dynamic data structure?",
+      "Static: fixed size set in advance (e.g. an array). Dynamic: grows/shrinks at runtime (e.g. a linked list)."
+    ],
+    [
+      "Which ADT is FIFO and which is LIFO?",
+      "A queue is FIFO (first in, first out); a stack is LIFO (last in, first out)."
     ]
   ],
   "quiz": [
@@ -697,6 +832,18 @@ C["compsci:4.2.1.4"] = {
       ],
       "ans": 2,
       "why": "Undo reverses the most recent action — LIFO makes Stack the natural choice."
+    },
+    {
+      "q": "A static data structure...?",
+      "opts": ["grows and shrinks at runtime", "has a fixed size set in advance", "always uses pointers", "cannot be an array"],
+      "ans": 1,
+      "why": "Static structures (e.g. arrays) have a fixed size; dynamic ones resize at runtime."
+    },
+    {
+      "q": "Which ADT best models a print queue?",
+      "opts": ["stack", "queue", "tree", "hash table"],
+      "ans": 1,
+      "why": "Print jobs are served first-come-first-served — FIFO, a queue."
     }
   ],
   "exam": [
@@ -708,6 +855,25 @@ C["compsci:4.2.1.4"] = {
         "Implementation is the physical storage/code (how it does it) (1)",
         "Stack ADT: LIFO behaviour with Push, Pop, Peek operations defined (1)",
         "Can be implemented using an array or a linked list — either satisfies the ADT contract (1)"
+      ]
+    },
+    {
+      "q": "Define 'abstract data type' and state one benefit of programming to an ADT rather than a concrete structure.",
+      "marks": 3,
+      "ms": [
+        "An ADT defines the data and its operations independently of implementation (1)",
+        "Benefit: the implementation (array vs linked list) can change without affecting code that uses it (1)",
+        "Benefit: simpler reasoning via a defined interface (1) (max 3)"
+      ]
+    },
+    {
+      "q": "Compare static and dynamic data structures, giving an example of each and discussing the memory and flexibility trade-offs.",
+      "marks": 6,
+      "ms": [
+        "Static: fixed size decided in advance (1); e.g. an array (1)",
+        "Dynamic: size changes at runtime (1); e.g. a linked list (1)",
+        "Static uses contiguous memory with fast indexed access but wastes/overflows if mis-sized (1)",
+        "Dynamic uses pointers — flexible but more memory per element and no O(1) indexing (1)"
       ]
     }
   ]
@@ -837,6 +1003,18 @@ C["compsci:4.6.5.1"] = {
     [
       "What is the mnemonic for De Morgan's Law?",
       "Break the bar, change the sign."
+    ],
+    [
+      "State De Morgan's two laws.",
+      "¬(A·B) = Ā + B̄ and ¬(A+B) = Ā · B̄."
+    ],
+    [
+      "State the absorption law.",
+      "A + A·B = A and A·(A+B) = A."
+    ],
+    [
+      "Why simplify a Boolean expression?",
+      "Fewer logic gates → cheaper, faster, lower-power circuits (and clearer logic)."
     ]
   ],
   "quiz": [
@@ -872,6 +1050,18 @@ C["compsci:4.6.5.1"] = {
       ],
       "ans": 2,
       "why": "The Absorption Law — A absorbs the redundant A·B term."
+    },
+    {
+      "q": "¬(A + B) simplifies to...?",
+      "opts": ["Ā + B̄", "Ā · B̄", "A·B", "¬A + B"],
+      "ans": 1,
+      "why": "De Morgan's: break the bar; OR becomes AND → Ā·B̄."
+    },
+    {
+      "q": "A·(Ā + B) simplifies to...?",
+      "opts": ["A", "B", "A·B", "Ā·B"],
+      "ans": 2,
+      "why": "A·Ā + A·B = 0 + A·B = A·B."
     }
   ],
   "exam": [
@@ -882,6 +1072,27 @@ C["compsci:4.6.5.1"] = {
         "Apply De Morgan's to ¬(A + ¬B): → ¬A · ¬¬B (1)",
         "Apply double negation: ¬¬B = B → ¬A · B (1)",
         "Multiply out with C: ¬A · B · C (final answer) (1)"
+      ]
+    },
+    {
+      "q": "Simplify A·B + Ā·B, quoting the identity used at each step.",
+      "marks": 3,
+      "ms": [
+        "Factor B: (A + Ā)·B [distributive] (1)",
+        "A + Ā = 1 [complement] (1)",
+        "= 1·B = B [identity] (1)"
+      ]
+    },
+    {
+      "q": "Simplify ¬(¬A · B) + B, quoting the law at each step, and explain why minimising logic matters.",
+      "marks": 6,
+      "ms": [
+        "De Morgan's: ¬(¬A·B) = A + B̄ (1)",
+        "Expression: (A + B̄) + B (1)",
+        "= A + (B̄ + B) (1)",
+        "= A + 1 = 1 [complement, then null law] (1)",
+        "So the whole expression is always TRUE (1)",
+        "Minimising logic reduces gate count → cheaper/faster/lower-power circuits (1)"
       ]
     }
   ]
@@ -1015,6 +1226,18 @@ C["compsci:4.10.1"] = {
     [
       "What is a Composite Key?",
       "A primary key that consists of more than one attribute to uniquely identify a record."
+    ],
+    [
+      "What is an entity in a data model?",
+      "A thing about which data is stored — typically becomes a table (e.g. Customer, Order)."
+    ],
+    [
+      "What does an ER diagram show?",
+      "Entities, their attributes, and the relationships (1:1, 1:many, many:many) between them."
+    ],
+    [
+      "How is a many-to-many relationship resolved?",
+      "By introducing a linking (junction) entity, giving two one-to-many relationships."
     ]
   ],
   "quiz": [
@@ -1061,6 +1284,12 @@ C["compsci:4.10.1"] = {
       ],
       "ans": 3,
       "why": "The Primary Key is the unique identifier for a record."
+    },
+    {
+      "q": "A many-to-many relationship between Student and Course is implemented using...?",
+      "opts": ["a composite attribute", "a linking/junction table", "a single foreign key", "no extra table"],
+      "ans": 1,
+      "why": "A junction table (e.g. Enrolment) splits M:N into two 1:M relationships."
     }
   ],
   "exam": [
@@ -1072,6 +1301,27 @@ C["compsci:4.10.1"] = {
         "Linking entity (e.g. Enrolment) created (1)",
         "Two 1:M relationships shown (1)",
         "One-to-many directions correctly pointing TO the linking entity (1)"
+      ]
+    },
+    {
+      "q": "Define entity, attribute and relationship in a data model.",
+      "marks": 3,
+      "ms": [
+        "Entity: a thing data is held about (becomes a table) (1)",
+        "Attribute: a property/field of an entity (1)",
+        "Relationship: an association between entities (1:1, 1:many, many:many) (1)"
+      ]
+    },
+    {
+      "q": "A library lends Books to Members. Produce a data model: identify the entities and a sensible relationship, and explain how you'd resolve it if it were many-to-many.",
+      "marks": 6,
+      "ms": [
+        "Entities: Book, Member (1)",
+        "A Member borrows many Books over time and a Book is borrowed by many Members → many-to-many (1)",
+        "Resolve with a Loan linking entity (1)",
+        "Loan has foreign keys to Book and Member (plus a date) (1)",
+        "giving Member 1:many Loan and Book 1:many Loan (1)",
+        "Each entity has a primary key; Loan may use a composite key (1)"
       ]
     }
   ]
@@ -1215,6 +1465,14 @@ C["compsci:4.10.2"] = {
     [
       "What is a composite key?",
       "A primary key made of two or more attributes, needed when no single attribute is unique."
+    ],
+    [
+      "What is a relational database?",
+      "Data organised into tables (relations) of records, linked by keys to avoid redundancy."
+    ],
+    [
+      "What is referential integrity?",
+      "The rule that every foreign key value must match an existing primary key — no orphan references."
     ]
   ],
   "quiz": [
@@ -1250,6 +1508,18 @@ C["compsci:4.10.2"] = {
       ],
       "ans": 2,
       "why": "The linking table's PK is typically composed of the PKs of both related tables — a composite key."
+    },
+    {
+      "q": "Which attribute links two tables together?",
+      "opts": ["a primary key", "a foreign key", "an index", "a composite attribute"],
+      "ans": 1,
+      "why": "A foreign key in one table references another table's primary key, forming the link."
+    },
+    {
+      "q": "A primary key must be...?",
+      "opts": ["text only", "unique and non-null for each record", "a single attribute only", "a foreign key"],
+      "ans": 1,
+      "why": "A primary key uniquely identifies each record and cannot be null."
     }
   ],
   "exam": [
@@ -1261,6 +1531,27 @@ C["compsci:4.10.2"] = {
         "Prevents orphaned records — records that reference data which no longer exists (1)",
         "Also prevents inconsistency across tables / incorrect join results (1)",
         "Example: deleting a Customer whose CustomerID still appears as a FK in the Orders table — creates orphaned orders with no customer (1)"
+      ]
+    },
+    {
+      "q": "Define primary key, foreign key and composite primary key.",
+      "marks": 3,
+      "ms": [
+        "Primary key: attribute(s) uniquely identifying each record (1)",
+        "Foreign key: attribute referencing another table's primary key (1)",
+        "Composite primary key: a primary key made of two or more attributes (1)"
+      ]
+    },
+    {
+      "q": "Explain the concept of a relational database and how primary and foreign keys maintain data integrity and avoid redundancy.",
+      "marks": 6,
+      "ms": [
+        "Data is split into related tables (relations) of records (1)",
+        "Each table has a primary key uniquely identifying its records (1)",
+        "Foreign keys link tables by referencing another's primary key (1)",
+        "This avoids duplicating data across tables (less redundancy) (1)",
+        "Referential integrity ensures every FK matches an existing PK (no orphans) (1)",
+        "so updates/deletes stay consistent across the database (1)"
       ]
     }
   ]
@@ -1394,6 +1685,18 @@ C["compsci:4.10.5"] = {
     [
       "What is Serialisation?",
       "The process of ensuring transactions occur in an order that maintains database consistency."
+    ],
+    [
+      "What does a client-server database provide?",
+      "Simultaneous access to one shared central database for multiple clients."
+    ],
+    [
+      "What problem does concurrent access cause?",
+      "Two transactions updating the same data at once can corrupt it (lost updates or inconsistent reads)."
+    ],
+    [
+      "What is record locking?",
+      "Preventing other transactions from changing a record while one transaction is using it, preserving consistency."
     ]
   ],
   "quiz": [
@@ -1440,6 +1743,12 @@ C["compsci:4.10.5"] = {
       ],
       "ans": 2,
       "why": "Timestamp ordering allows transactions to proceed but kills them if they violate the temporal rules."
+    },
+    {
+      "q": "Record locking is used to...?",
+      "opts": ["speed up queries", "prevent two transactions corrupting the same record at once", "compress the database", "assign primary keys"],
+      "ans": 1,
+      "why": "Locking serialises conflicting access so concurrent transactions don't corrupt data."
     }
   ],
   "exam": [
@@ -1451,6 +1760,27 @@ C["compsci:4.10.5"] = {
         "Neither can proceed (1)",
         "DBMS detects the deadlock (e.g. using a graph) (1)",
         "DBMS aborts/rolls back one of the transactions to release its locks (1)"
+      ]
+    },
+    {
+      "q": "Explain why concurrent access must be controlled in a multi-user database.",
+      "marks": 3,
+      "ms": [
+        "Multiple users may update the same data simultaneously (1)",
+        "Without control, one update can overwrite another (lost update) / reads can be inconsistent (1)",
+        "Control (e.g. locking) keeps the database consistent and correct (1)"
+      ]
+    },
+    {
+      "q": "Discuss how a client-server DBMS controls concurrent access to preserve integrity, and one drawback of the method.",
+      "marks": 6,
+      "ms": [
+        "Multiple clients access one shared database simultaneously (1)",
+        "The DBMS uses record/table locking during a transaction (1)",
+        "Other transactions must wait for the lock to be released (1)",
+        "This serialises conflicting access, preventing lost updates/inconsistency (1)",
+        "Drawback: deadlock — two transactions each wait for the other's lock (1)",
+        "Resolved by the DBMS aborting/rolling back one transaction (1)"
       ]
     }
   ]
@@ -1597,6 +1927,18 @@ C["compsci:4.13.1.1"] = {
     [
       "Why is Analysis the most critical lifecycle stage?",
       "Errors here propagate through every subsequent stage — a missing requirement costs far more to fix after implementation."
+    ],
+    [
+      "What is produced during the Analysis stage?",
+      "Defined requirements for the system and a data model of the problem."
+    ],
+    [
+      "Name two requirements-gathering techniques.",
+      "Interviews, questionnaires, observation, and examining existing documents."
+    ],
+    [
+      "Why is Analysis the most critical stage?",
+      "Errors here propagate to every later stage and cost the most to fix after deployment."
     ]
   ],
   "quiz": [
@@ -1632,6 +1974,18 @@ C["compsci:4.13.1.1"] = {
       ],
       "ans": 2,
       "why": "People change their behaviour when watched — making observation less representative of normal working patterns."
+    },
+    {
+      "q": "Which technique can gather requirements from many users quickly but with low response rates?",
+      "opts": ["interview", "questionnaire", "observation", "document analysis"],
+      "ans": 1,
+      "why": "Questionnaires scale to many users but suffer a rigid format and low response."
+    },
+    {
+      "q": "The main output of the Analysis stage is...?",
+      "opts": ["working code", "a set of agreed requirements + a data model", "test results", "a user manual"],
+      "ans": 1,
+      "why": "Analysis defines WHAT the system must do (requirements + data model), before design/code."
     }
   ],
   "exam": [
@@ -1641,6 +1995,23 @@ C["compsci:4.13.1.1"] = {
       "ms": [
         "Interview (1) — allows detailed open-ended questions / follow-ups (1) — time-consuming / only one person at a time (1)",
         "Questionnaire (1) — can reach many users simultaneously / scalable (1) — rigid format, low response rate, can't follow up unclear answers (1)"
+      ]
+    },
+    {
+      "q": "State two techniques for gathering requirements during the Analysis stage.",
+      "marks": 2,
+      "ms": [
+        "Interviews / questionnaires (1)",
+        "Observation / examining existing documents (1)"
+      ]
+    },
+    {
+      "q": "Explain why getting the Analysis stage right reduces overall project cost.",
+      "marks": 3,
+      "ms": [
+        "Later stages build on the requirements/data model (1)",
+        "An error here propagates into design, implementation and testing (1)",
+        "Fixing it after deployment is far more expensive than catching it early (1)"
       ]
     }
   ]
@@ -1774,6 +2145,18 @@ C["compsci:4.13.1.2"] = {
     [
       "Difference between Hierarchy Chart and Flowchart?",
       "Hierarchy chart shows structure; Flowchart shows logic/sequence of execution."
+    ],
+    [
+      "What happens during the Design stage?",
+      "Planning the data structures, algorithms, interfaces and test plan before any coding."
+    ],
+    [
+      "What does a hierarchy chart show vs a flowchart?",
+      "Hierarchy chart = the structure (modules and what calls what); flowchart = the logic/sequence of execution."
+    ],
+    [
+      "What is HCI in design?",
+      "Human-Computer Interaction — designing a usable, accessible interface for how people interact with the system."
     ]
   ],
   "quiz": [
@@ -1820,6 +2203,12 @@ C["compsci:4.13.1.2"] = {
       ],
       "ans": 1,
       "why": "HCI refers to the design of the user interface and how humans interact with the software."
+    },
+    {
+      "q": "Designing data structures, algorithms and the user interface happens in which stage?",
+      "opts": ["Analysis", "Design", "Implementation", "Evaluation"],
+      "ans": 1,
+      "why": "Design plans how the solution will work before any code is written."
     }
   ],
   "exam": [
@@ -1832,6 +2221,27 @@ C["compsci:4.13.1.2"] = {
         "User Interface designs / Wireframes (1)",
         "Test Plan / Strategy (1)",
         "Hierarchy charts (1)"
+      ]
+    },
+    {
+      "q": "State three artefacts produced during the Design stage.",
+      "marks": 3,
+      "ms": [
+        "Algorithm designs (pseudocode/flowcharts) (1)",
+        "Data structure / data model designs (1)",
+        "Interface (HCI) designs and/or a test plan (1)"
+      ]
+    },
+    {
+      "q": "Explain the importance of the Design stage and what it produces, before any code is written.",
+      "marks": 6,
+      "ms": [
+        "Design specifies HOW the solution will meet the requirements (1)",
+        "Algorithms are planned (pseudocode/flowcharts) (1)",
+        "Data structures / the data model are designed (1)",
+        "The user interface (HCI) is designed (1)",
+        "A test plan/strategy is prepared (1)",
+        "A clear design reduces costly rework during implementation (1)"
       ]
     }
   ]
@@ -1965,6 +2375,18 @@ C["compsci:4.13.1.3"] = {
     [
       "Explain 'Dry Run' testing.",
       "Mentally or on paper tracing the execution of an algorithm using a trace table."
+    ],
+    [
+      "What happens during the Implementation stage?",
+      "The design is turned into working code and data structures the computer can run."
+    ],
+    [
+      "What is a dry run / trace table used for?",
+      "Manually stepping through code, recording variable values, to check the logic without running it."
+    ],
+    [
+      "How does a debugger help implementation?",
+      "Breakpoints and step-by-step execution let you inspect variables and locate logic errors."
     ]
   ],
   "quiz": [
@@ -2011,6 +2433,12 @@ C["compsci:4.13.1.3"] = {
       ],
       "ans": 1,
       "why": "Agile focuses on rapid, iterative cycles and continuous feedback."
+    },
+    {
+      "q": "Agile development is characterised by...?",
+      "opts": ["one big upfront plan, no changes", "rapid iterative cycles with continuous feedback", "testing only at the end", "no user involvement"],
+      "ans": 1,
+      "why": "Agile delivers in short iterations with frequent feedback and adaptation."
     }
   ],
   "exam": [
@@ -2022,6 +2450,27 @@ C["compsci:4.13.1.3"] = {
         "Auto-completion/Intellisense (1) - speeds up coding and prevents typos (1)",
         "Debugger/Breakpoints (1) - allows step-by-step execution to find logical errors (1)"
       ]
+    },
+    {
+      "q": "Describe two tools or techniques a programmer uses to find errors during implementation.",
+      "marks": 3,
+      "ms": [
+        "Trace table / dry run to follow variable values (1)",
+        "A debugger with breakpoints for step-by-step execution (1)",
+        "IDE error messages / unit tests (1) (max 3)"
+      ]
+    },
+    {
+      "q": "Discuss how an iterative (agile) implementation approach can improve a software project compared with a single waterfall pass.",
+      "marks": 6,
+      "ms": [
+        "Agile builds the system in short iterations (1)",
+        "Each iteration produces working, testable software (1)",
+        "Continuous user feedback catches misunderstandings early (1)",
+        "Requirements can change between iterations (flexibility) (1)",
+        "Risk is reduced versus committing to one big upfront plan (1)",
+        "Trade-off: needs close user involvement / less fixed scope (1)"
+      ]
     }
   ]
 };
@@ -2031,7 +2480,7 @@ C["compsci:4.13.1.4"] = {
     {
       "h": "Testing"
     },
-    "The system must be tested to ensure it is robust, error-free, and efficient. Testing involves both manual tracing and automated execution with diverse data sets.",
+    { "callout": { "t": "info", "body": "The system must be tested to ensure it is robust, error-free, and efficient. Testing involves both manual tracing and automated execution with diverse data sets." } },
     {
       "callout": {
         "t": "def",
@@ -2059,7 +2508,7 @@ C["compsci:4.13.1.4"] = {
     {
       "h": "Efficiency Testing"
     },
-    "Efficiency is tested using logical reasoning and time/space complexity analysis. A program that works correctly but takes 10 minutes to process one item is considered inefficient.",
+    { "callout": { "t": "info", "body": "Efficiency is tested using logical reasoning and time/space complexity analysis. A program that works correctly but takes 10 minutes to process one item is considered inefficient." } },
     {
       "code": {
         "lang": "csharp",
@@ -2102,6 +2551,18 @@ C["compsci:4.13.1.4"] = {
     [
       "What is logic-based testing?",
       "Using reasoning to prove that the code will execute in a certain number of steps (Big O analysis)."
+    ],
+    [
+      "Name the three types of test data.",
+      "Normal (typical valid), boundary (edge of the valid range), and erroneous (invalid) data."
+    ],
+    [
+      "What is boundary test data?",
+      "Values at the edges of the acceptable range (e.g. for 1–100: 1 and 100, and just outside: 0 and 101)."
+    ],
+    [
+      "Difference between alpha and beta testing?",
+      "Alpha: testing in-house by developers/testers; Beta: testing by real users in the real environment before release."
     ]
   ],
   "quiz": [
@@ -2148,6 +2609,12 @@ C["compsci:4.13.1.4"] = {
       ],
       "ans": 1,
       "why": "User testing (Alpha/Beta) is vital for validation."
+    },
+    {
+      "q": "For an input that accepts integers 1–100, which is erroneous test data?",
+      "opts": ["50", "1", "100", "101"],
+      "ans": 3,
+      "why": "101 is outside the valid range — erroneous data that should be rejected."
     }
   ],
   "exam": [
@@ -2158,6 +2625,27 @@ C["compsci:4.13.1.4"] = {
         "Boundary: 50 or 100 (1)",
         "Erroneous: 49, 101, or any non-integer (1)"
       ]
+    },
+    {
+      "q": "State the three categories of test data and give an example of each for an input that accepts integers 1–50.",
+      "marks": 3,
+      "ms": [
+        "Normal: e.g. 25 (1)",
+        "Boundary: 1 or 50 (the limits) (1)",
+        "Erroneous: 0, 51 or a non-integer (1)"
+      ]
+    },
+    {
+      "q": "Explain why a solution is tested with normal, boundary and erroneous data, and how testing also considers efficiency.",
+      "marks": 6,
+      "ms": [
+        "Normal data checks the program works for typical valid input (1)",
+        "Boundary data checks the edges of the valid range, a common error site (1)",
+        "Erroneous data checks invalid input is rejected gracefully (1)",
+        "Together they give confidence the solution is robust (1)",
+        "Efficiency is assessed via time/space complexity (Big-O) reasoning (1)",
+        "A correct but very slow solution is still considered poor (1)"
+      ]
     }
   ]
 };
@@ -2167,7 +2655,7 @@ C["compsci:4.13.1.5"] = {
     {
       "h": "Evaluation"
     },
-    "Evaluation is the final stage where the solution is measured against the initial requirements identified in the Analysis phase.",
+    { "callout": { "t": "info", "body": "Evaluation is the final stage where the solution is measured against the initial requirements identified in the Analysis phase." } },
     {
       "callout": {
         "t": "def",
@@ -2237,6 +2725,18 @@ C["compsci:4.13.1.5"] = {
     [
       "Where do the evaluation criteria come from?",
       "The requirements documented during the Analysis phase."
+    ],
+    [
+      "What is the Evaluation stage?",
+      "Judging the finished solution against the original requirements set during Analysis."
+    ],
+    [
+      "What criteria is a solution evaluated against?",
+      "The requirements documented in Analysis, plus robustness, usability, maintainability and efficiency."
+    ],
+    [
+      "Why involve the end user in evaluation?",
+      "They judge whether the solution actually meets their needs in practice (validation)."
     ]
   ],
   "quiz": [
@@ -2283,6 +2783,12 @@ C["compsci:4.13.1.5"] = {
       ],
       "ans": 2,
       "why": "Evaluating the success of the project."
+    },
+    {
+      "q": "A solution is primarily evaluated against...?",
+      "opts": ["the programmer's opinion", "the requirements set during Analysis", "the number of lines of code", "the test data only"],
+      "ans": 1,
+      "why": "Evaluation measures success against the agreed Analysis requirements."
     }
   ],
   "exam": [
@@ -2294,6 +2800,26 @@ C["compsci:4.13.1.5"] = {
         "System efficiency/performance (1)",
         "Usability for the end user (1)",
         "Maintainability of the code (max 3)"
+      ]
+    },
+    {
+      "q": "State two criteria against which a finished solution should be evaluated.",
+      "marks": 2,
+      "ms": [
+        "Whether it meets the original (Analysis) requirements (1)",
+        "Usability / robustness / maintainability / efficiency (1)"
+      ]
+    },
+    {
+      "q": "Explain the purpose of the Evaluation stage and how feedback from it can improve future development.",
+      "marks": 6,
+      "ms": [
+        "Evaluation measures the solution against the initial requirements (1)",
+        "It identifies which requirements are fully / partly / not met (1)",
+        "Considers usability, robustness, maintainability and efficiency (1)",
+        "End-user feedback validates real-world fitness (1)",
+        "Shortcomings inform maintenance and future iterations (1)",
+        "so lessons feed back into a better next version (1)"
       ]
     }
   ]

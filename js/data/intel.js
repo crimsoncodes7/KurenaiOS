@@ -758,6 +758,72 @@ window.KOS_DATA.intel = {
   tips: ["Map applies a function to every element; filter keeps elements satisfying a predicate; fold/reduce combines elements into one value. Be able to give the result for a concrete list."],
   pitfalls: ["Confusing function application f x with composition f ∘ g — composition applies g first."]
 },
+"compsci:4.1.2.1": {
+  defs: [["Procedural paradigm", "Programs built from subroutines executed in sequence, operating on separate data."],
+         ["Object-oriented paradigm", "Data and methods bundled into objects, with encapsulation, inheritance and polymorphism."]],
+  tips: ["Procedural separates data from code; OOP bundles them — state that contrast.", "OOP's modularity suits large/evolving systems; procedural suits small tasks."],
+  pitfalls: ["Saying OOP and procedural can't coexist — many languages support both.", "Defining a paradigm by a language rather than by its structuring approach."]
+},
+"compsci:4.1.2.2": {
+  defs: [["Hierarchy chart", "A top-down diagram decomposing a problem into modules/subroutines."],
+         ["Coupling / cohesion", "Coupling = inter-module dependence (low is good); cohesion = single-task focus (high is good)."]],
+  tips: ["Aim for LOW coupling, HIGH cohesion.", "Hierarchy chart = structure (what calls what); flowchart = logic/flow."],
+  pitfalls: ["Confusing a hierarchy chart (structure) with a flowchart (logic).", "Wanting high coupling — it makes change harder."]
+},
+"compsci:4.2.1.2": {
+  defs: [["Multi-dimensional array", "An array indexed by two or more subscripts (e.g. [row][col]) — a table/grid."]],
+  tips: ["Element address (row-major) = base + (row × cols + col) × elementSize.", "Arrays give O(1) indexed access but are fixed-size and homogeneous."],
+  pitfalls: ["Off-by-one with array bounds (0-based vs 1-based).", "Mixing row/column order in the address formula."]
+},
+"compsci:4.2.1.4": {
+  defs: [["Abstract data type (ADT)", "A logical description of data + operations, independent of implementation."],
+         ["Static vs dynamic", "Static = fixed size (array); dynamic = grows/shrinks at runtime (linked list)."]],
+  tips: ["Queue = FIFO; stack = LIFO — match the ADT to the access pattern.", "ADT = interface; the array/linked-list is the implementation."],
+  pitfalls: ["Confusing an ADT with its implementation.", "Saying an array is dynamic — it is static (fixed size)."]
+},
+"compsci:4.6.5.1": {
+  defs: [["De Morgan's laws", "¬(A·B) = Ā+B̄; ¬(A+B) = Ā·B̄ — 'break the bar, change the sign'."]],
+  tips: ["Quote the law name at every simplification step — method marks.", "Look for a common factor, a P+P̄ / P·P̄ pair, or an absorption shape."],
+  pitfalls: ["Half-applying De Morgan's (forgetting to flip the operator).", "Skipping justification steps even when the answer is right."]
+},
+"compsci:4.10.1": {
+  defs: [["Entity", "A thing data is stored about (becomes a table)."],
+         ["ER diagram", "Shows entities, attributes and relationships (1:1, 1:many, many:many)."]],
+  tips: ["Resolve many-to-many with a linking/junction entity → two one-to-many relationships.", "Each entity needs a primary key."],
+  pitfalls: ["Leaving a many-to-many relationship unresolved.", "Confusing an entity (table) with an attribute (field)."]
+},
+"compsci:4.10.2": {
+  defs: [["Foreign key", "An attribute referencing another table's primary key, linking the two tables."],
+         ["Composite primary key", "A primary key made of two or more attributes."]],
+  tips: ["A FK references a PK — that link is how relations join.", "Referential integrity = every FK must match an existing PK."],
+  pitfalls: ["Confusing primary key (identifies) with foreign key (links).", "Forgetting a composite key is needed when no single attribute is unique."]
+},
+"compsci:4.10.5": {
+  defs: [["Concurrent access control", "Managing simultaneous transactions (e.g. by locking) so the database stays consistent."],
+         ["Deadlock", "Two transactions each waiting for a lock the other holds — neither proceeds."]],
+  tips: ["Locking prevents lost updates; the cost is waiting and possible deadlock.", "Deadlock is resolved by rolling back one transaction."],
+  pitfalls: ["Saying locking speeds things up — it serialises access (can slow it).", "Ignoring deadlock as a drawback in a 'discuss' answer."]
+},
+"compsci:4.13.1.2": {
+  defs: [["Design stage", "Planning data structures, algorithms, interfaces and tests before coding."]],
+  tips: ["Hierarchy chart = structure; flowchart = logic; both are design tools.", "Design covers data, algorithms, HCI and the test plan."],
+  pitfalls: ["Jumping to code without a design.", "Confusing design (the plan) with implementation (the code)."]
+},
+"compsci:4.13.1.3": {
+  defs: [["Implementation", "Turning the design into working code and data structures."]],
+  tips: ["Name debugging tools: trace tables/dry runs, breakpoints/debugger, unit tests.", "Agile = iterative + feedback; waterfall = sequential."],
+  pitfalls: ["Confusing implementation (coding) with design (planning).", "Saying agile has no planning — it plans per iteration."]
+},
+"compsci:4.13.1.4": {
+  defs: [["Test data types", "Normal (typical valid), boundary (range edges) and erroneous (invalid) data."]],
+  tips: ["Always cover all three: normal, boundary, erroneous.", "Boundary = the limits AND just outside them."],
+  pitfalls: ["Testing only normal data.", "Confusing boundary with erroneous data."]
+},
+"compsci:4.13.1.5": {
+  defs: [["Evaluation", "Judging the finished solution against the original (Analysis) requirements."]],
+  tips: ["Evaluate against the documented requirements, not opinion.", "Include usability, robustness, maintainability and efficiency."],
+  pitfalls: ["Evaluating against vague criteria instead of the requirements.", "Skipping end-user validation."]
+},
 "compsci:4.13.1.1": {
   tips: ["NEA-aligned: analysis = define the problem, establish requirements with users, model the data. In exam answers name the stakeholder interaction explicitly."],
   pitfalls: []
