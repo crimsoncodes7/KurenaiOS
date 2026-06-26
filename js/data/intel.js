@@ -427,6 +427,103 @@ window.KOS_DATA.intel = {
          "Show every step of conversions: sign, place values, exponent shift."],
   pitfalls: ["Normalising by moving the point the wrong way and forgetting to adjust the exponent in the opposite sense.", "Rounding errors: state that some values cannot be represented exactly, causing rounding/cancellation errors — wording matters."]
 },
+"compsci:4.5.4.5": {
+  defs: [["Mantissa", "The significant digits of a floating-point number; more mantissa bits = more precision."],
+         ["Exponent", "The power of 2 that positions the binary point; more exponent bits = greater range."]],
+  tips: ["Value = mantissa × 2^exponent (both two's complement at AQA).", "Normalised positive mantissa starts 0.1; negative starts 1.0."],
+  pitfalls: ["Swapping which part gives range vs precision.", "Thinking floating point stores all values exactly."]
+},
+"compsci:4.5.4.6": {
+  defs: [["Precision", "Number of significant figures, set by the mantissa length."],
+         ["Range", "How large or small a value can be, set by the exponent length."]],
+  tips: ["Fixed total bits → more mantissa = more precision but less range (and vice versa).", "More exponent bits widen RANGE, not precision."],
+  pitfalls: ["Saying more exponent bits improve accuracy.", "Confusing range with precision."]
+},
+"compsci:4.5.4.7": {
+  defs: [["Normalisation", "Shifting the mantissa to remove redundant leading bits, maximising precision and giving a unique representation."]],
+  tips: ["Positive normalised mantissa begins 0.1; negative begins 1.0.", "Each left shift decrements the exponent, so the value is unchanged."],
+  pitfalls: ["Thinking normalisation changes the value.", "Leaving 0.0 / 1.1 leading bits (not normalised)."]
+},
+"compsci:4.5.4.8": {
+  defs: [["Overflow", "Result too large — the exponent exceeds its maximum (→ ±∞)."],
+         ["Underflow", "Result too small / near zero — the exponent falls below its minimum (→ 0)."]],
+  tips: ["Both concern the EXPONENT's range, not the mantissa.", "Overflow from multiplying large values; underflow from dividing small by large."],
+  pitfalls: ["Saying overflow is about the mantissa.", "Confusing overflow (too big) with underflow (too small)."]
+},
+"compsci:4.5.4.9": {
+  defs: [["Absolute error", "|actual − stored value|."],
+         ["Relative error", "absolute error ÷ actual value."]],
+  tips: ["Some fractions (e.g. 0.1) are recurring in binary, so they are truncated → rounding error.", "Never compare floats with == — use a small tolerance."],
+  pitfalls: ["Assuming 0.1 + 0.2 == 0.3 in floating point.", "Confusing absolute with relative error."]
+},
+"compsci:4.5.5.2": {
+  defs: [["Parity bit", "An extra bit making the count of 1s even/odd; detects a single-bit error."],
+         ["Unicode", "A character set covering all world scripts (UTF-8/16), unlike 128-character ASCII."]],
+  tips: ["A parity bit only DETECTS one bit error — it cannot correct.", "Majority voting can correct but multiplies the data sent."],
+  pitfalls: ["Saying a parity bit corrects errors.", "Claiming ASCII covers all languages."]
+},
+"compsci:4.5.5.1": {
+  defs: [["ASCII", "A 7-bit character set (128 characters), mainly English/Latin."]],
+  tips: ["Key codes: '0' = 48, 'A' = 65, 'a' = 97; lowercase = uppercase + 32.", "Control codes occupy 0–31."],
+  pitfalls: ["Thinking '0' has code 0 (it is 48).", "Saying ASCII covers non-Latin scripts — that needs Unicode."]
+},
+"compsci:4.5.5.3": {
+  defs: [["Checksum", "A value computed from a data block, recalculated by the receiver to detect errors."],
+         ["Check digit", "A derived digit appended to a number to catch human entry errors (e.g. ISBN)."]],
+  tips: ["Parity detects a single bit; majority voting/Hamming can correct; CRC robustly detects bursts.", "Match the method to whether detection or correction is needed."],
+  pitfalls: ["Saying a checksum detects all errors (some cancel out).", "Confusing detection with correction."]
+},
+"compsci:4.5.6.4": {
+  defs: [["Colour depth", "Bits per pixel; n bits → 2^n available colours."],
+         ["Resolution", "The pixel dimensions (width × height) of an image."]],
+  tips: ["Image size (bits) = width × height × colour depth.", "An ADC samples (rate) then quantises (bit depth) an analogue signal."],
+  pitfalls: ["Treating resolution and colour depth as the same thing.", "Forgetting to ÷8 when converting bits to bytes."]
+},
+"compsci:4.5.6.1": {
+  defs: [["Bitmap", "An image stored as a grid of pixels, each holding a colour value."]],
+  tips: ["File size = width × height × colour depth (bits).", "Bitmaps are resolution-dependent, so they pixelate when enlarged."],
+  pitfalls: ["Thinking enlarging adds detail (it pixelates).", "Assuming a larger file is higher quality regardless of colour depth."]
+},
+"compsci:4.5.6.2": {
+  defs: [["Resolution", "The number of pixels (width × height)."],
+         ["Colour depth", "Bits per pixel — 2^n available colours."]],
+  tips: ["Both raise quality AND file size; they are independent factors.", "1-bit = 2 colours; 24-bit ≈ 16.7 million ('true colour')."],
+  pitfalls: ["Assuming resolution alone determines quality.", "Mixing up resolution and colour depth."]
+},
+"compsci:4.5.6.3": {
+  defs: [["Vector graphic", "An image stored as mathematical shape descriptions (coordinates, properties), not pixels."]],
+  tips: ["Vectors scale with no quality loss → ideal for logos/diagrams; SVG is XML-based.", "Bitmaps suit photographs; vectors suit geometric art."],
+  pitfalls: ["Saying vectors are always smaller — complex/photographic images can be larger.", "Using vectors for photographs."]
+},
+"compsci:4.5.6.5": {
+  defs: [["ADC", "Analogue-to-Digital Converter — samples then quantises a signal (recording)."],
+         ["DAC", "Digital-to-Analogue Converter — recreates the analogue signal (playback)."]],
+  tips: ["Sample rate = samples per second; sample resolution = bits per sample.", "Nyquist: sample rate ≥ 2× the highest frequency."],
+  pitfalls: ["Mixing up ADC (record) and DAC (playback).", "Sampling below the Nyquist rate, causing aliasing."]
+},
+"compsci:4.5.6.7": {
+  defs: [["Nyquist theorem", "Sample rate must be at least twice the highest frequency in the signal."],
+         ["MIDI", "Stores musical event instructions, not a recorded waveform."]],
+  tips: ["Audio file size = sample rate × bit depth × duration × channels.", "MIDI = tiny and editable; sampled audio = large, realistic, fixed at recording."],
+  pitfalls: ["Sampling at exactly (not twice) the highest frequency.", "Thinking MIDI contains recorded audio."]
+},
+"compsci:4.5.6.8": {
+  defs: [["MIDI", "Musical event instructions (note, velocity, timing) — no waveform data."]],
+  tips: ["MIDI is small and editable but sounds different per synthesizer; sampled audio is consistent.", "Use MIDI for composition; sampled audio for realistic recordings such as vocals."],
+  pitfalls: ["Calling MIDI a compressed audio file.", "Saying MIDI sounds identical on all devices."]
+},
+"compsci:4.5.6.9": {
+  defs: [["Lossy compression", "Permanently discards data for smaller files (JPEG, MP3); the original cannot be recovered."],
+         ["Lossless compression", "Reduces size with no data loss (PNG, ZIP); the original is fully recoverable."]],
+  tips: ["RLE stores (count, value) runs; dictionary coding stores tokens for repeated patterns — both lossless.", "Use lossless for text/code; lossy where small loss is imperceptible (media)."],
+  pitfalls: ["Saying lossless always beats lossy on size (lossy compresses far more).", "Using lossy for text or executables."]
+},
+"compsci:4.5.6.10": {
+  defs: [["Vernam cipher", "Plaintext XOR a truly-random one-time key at least as long as the message — perfectly secure."],
+         ["Computational security", "Breakable in theory but infeasibly slow to break (AES/RSA)."]],
+  tips: ["The Vernam key must be truly random, ≥ message length, and used only once.", "XOR is reversible: ciphertext XOR key = plaintext."],
+  pitfalls: ["Calling AES/RSA 'perfectly secure' — only the one-time pad is.", "Reusing the Vernam key or using a pseudorandom one."]
+},
 "compsci:4.5.6.6": {
   tips: ["Sound sample size questions: file size = sample rate × sample resolution × length. Show units throughout and convert bits→bytes at the end, not midway."],
   pitfalls: ["Mixing bits and bytes mid-calculation — the single most common lost mark in representation arithmetic."]

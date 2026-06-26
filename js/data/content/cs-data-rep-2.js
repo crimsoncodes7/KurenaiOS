@@ -7,7 +7,7 @@ C["compsci:4.5.4.5"] = {
     {
       "h": "Floating Point Representation & Errors"
     },
-    "Floating point allows representation of fractional values and a huge range of numbers. It is split into a **Mantissa** (fractional part) and an **Exponent** (power of 2).",
+    { "callout": { "t": "info", "body": "Floating point allows representation of fractional values and a huge range of numbers. It is split into a **Mantissa** (fractional part) and an **Exponent** (power of 2)." } },
     {
       "callout": {
         "t": "formula",
@@ -260,7 +260,7 @@ C["compsci:4.5.4.6"] = {
     {
       "h": "Range and Precision"
     },
-    "In floating point systems, the total number of bits is fixed. Allocating more bits to one part always reduces what the other part can contribute.",
+    { "callout": { "t": "info", "body": "In floating point systems, the total number of bits is fixed. Allocating more bits to one part always reduces what the other part can contribute." } },
     {
       "callout": {
         "t": "def",
@@ -453,7 +453,7 @@ C["compsci:4.5.4.7"] = {
     {
       "h": "Normalisation"
     },
-    "Normalisation is the process of adjusting a floating point number so the mantissa uses all its bits as efficiently as possible, removing redundant leading bits.",
+    { "callout": { "t": "info", "body": "Normalisation is the process of adjusting a floating point number so the mantissa uses all its bits as efficiently as possible, removing redundant leading bits." } },
     {
       "callout": {
         "t": "def",
@@ -656,7 +656,7 @@ C["compsci:4.5.4.8"] = {
     {
       "h": "Underflow and Overflow"
     },
-    "Both overflow and underflow are errors that occur when the exponent field cannot accommodate the required value.",
+    { "callout": { "t": "info", "body": "Both overflow and underflow are errors that occur when the exponent field cannot accommodate the required value." } },
     {
       "callout": {
         "t": "def",
@@ -838,7 +838,7 @@ C["compsci:4.5.4.9"] = {
     {
       "h": "Rounding Errors"
     },
-    "Rounding errors occur because many decimal fractions cannot be represented exactly in binary — the mantissa must be truncated to finite bits, leaving a tiny error.",
+    { "callout": { "t": "info", "body": "Rounding errors occur because many decimal fractions cannot be represented exactly in binary — the mantissa must be truncated to finite bits, leaving a tiny error." } },
     {
       "callout": {
         "t": "def",
@@ -1274,7 +1274,7 @@ C["compsci:4.5.5.1"] = {
     {
       "h": "Character Sets: ASCII"
     },
-    "ASCII (American Standard Code for Information Interchange) was the original standard for encoding characters as binary numbers.",
+    { "callout": { "t": "info", "body": "ASCII (American Standard Code for Information Interchange) was the original standard for encoding characters as binary numbers." } },
     {
       "callout": {
         "t": "def",
@@ -1454,7 +1454,7 @@ C["compsci:4.5.5.3"] = {
     {
       "h": "Error Checking and Correction"
     },
-    "Various methods are used to detect and sometimes correct errors that occur during data transmission.",
+    { "callout": { "t": "info", "body": "Various methods are used to detect and sometimes correct errors that occur during data transmission." } },
     {
       "callout": {
         "t": "def",
@@ -1871,7 +1871,7 @@ C["compsci:4.5.6.1"] = {
     {
       "h": "Bitmapped Graphics"
     },
-    "A bitmapped image is a grid of pixels, each storing its own colour value. The quality of the image depends on how many pixels there are and how many colours each can represent.",
+    { "callout": { "t": "info", "body": "A bitmapped image is a grid of pixels, each storing its own colour value. The quality of the image depends on how many pixels there are and how many colours each can represent." } },
     {
       "callout": {
         "t": "def",
@@ -2060,7 +2060,7 @@ C["compsci:4.5.6.2"] = {
     {
       "h": "Resolution and Colour Depth"
     },
-    "Two factors determine both the visual quality and the file size of a bitmapped image: resolution and colour depth.",
+    { "callout": { "t": "info", "body": "Two factors determine both the visual quality and the file size of a bitmapped image: resolution and colour depth." } },
     {
       "callout": {
         "t": "def",
@@ -2242,7 +2242,7 @@ C["compsci:4.5.6.3"] = {
     {
       "h": "Vector Graphics"
     },
-    "Vector graphics store images as mathematical descriptions of shapes — coordinates, colours, and properties — rather than a grid of pixel colours.",
+    { "callout": { "t": "info", "body": "Vector graphics store images as mathematical descriptions of shapes — coordinates, colours, and properties — rather than a grid of pixel colours." } },
     {
       "callout": {
         "t": "def",
@@ -2431,7 +2431,7 @@ C["compsci:4.5.6.5"] = {
     {
       "h": "ADC and DAC"
     },
-    "Audio must be converted between analogue waves and digital binary for computers to process it.",
+    { "callout": { "t": "info", "body": "Audio must be converted between analogue waves and digital binary for computers to process it." } },
     {
       "callout": {
         "t": "def",
@@ -2602,7 +2602,7 @@ C["compsci:4.5.6.6"] = {
     {
       "h": "Sound Sampling"
     },
-    "Digital sound is created by sampling the amplitude of an analogue wave at regular intervals.",
+    { "callout": { "t": "info", "body": "Digital sound is created by sampling the amplitude of an analogue wave at regular intervals." } },
     {
       "callout": {
         "t": "def",
@@ -2774,7 +2774,7 @@ C["compsci:4.5.6.7"] = {
     {
       "h": "Sound and MIDI"
     },
-    "Digital sound is recorded by sampling an analogue wave at set intervals.",
+    { "callout": { "t": "info", "body": "Digital sound is recorded by sampling an analogue wave at set intervals." } },
     {
       "callout": {
         "t": "def",
@@ -3023,7 +3023,7 @@ C["compsci:4.5.6.8"] = {
     {
       "h": "MIDI vs Sampled Audio"
     },
-    "MIDI (Musical Instrument Digital Interface) stores instructions for how to play music, not the sound itself.",
+    { "callout": { "t": "info", "body": "MIDI (Musical Instrument Digital Interface) stores instructions for how to play music, not the sound itself." } },
     {
       "callout": {
         "t": "def",
@@ -3194,7 +3194,7 @@ C["compsci:4.5.6.9"] = {
     {
       "h": "Data Compression"
     },
-    "Compression is used to reduce file sizes, saving storage space and reducing transmission time.",
+    { "callout": { "t": "info", "body": "Compression is used to reduce file sizes, saving storage space and reducing transmission time." } },
     {
       "h": "Comparing Compression Types"
     },
