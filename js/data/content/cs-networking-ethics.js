@@ -110,6 +110,18 @@ C["compsci:4.8.1"] = {
     [
       "What is the RIPA?",
       "Regulation of Investigatory Powers Act, covering interception of communications."
+    ],
+    [
+      "Name the four lenses AQA uses for issues of computing.",
+      "Moral (individual), ethical (social), legal and cultural."
+    ],
+    [
+      "What does the Data Protection Act / GDPR require?",
+      "Personal data must be processed fairly, lawfully and securely, kept accurate, and used only for stated purposes."
+    ],
+    [
+      "What does the Computer Misuse Act make illegal?",
+      "Unauthorised access to computer material, unauthorised access with intent, and unauthorised modification of data."
     ]
   ],
   "quiz": [
@@ -156,6 +168,12 @@ C["compsci:4.8.1"] = {
       ],
       "ans": 0,
       "why": "DPA requires fair and lawful processing of data."
+    },
+    {
+      "q": "Hacking into a system you have no permission to access breaches which law?",
+      "opts": ["Data Protection Act", "Computer Misuse Act", "Copyright, Designs and Patents Act", "Regulation of Investigatory Powers Act"],
+      "ans": 1,
+      "why": "Unauthorised access to computer material is the primary offence under the Computer Misuse Act."
     }
   ],
   "exam": [
@@ -165,6 +183,27 @@ C["compsci:4.8.1"] = {
       "ms": [
         "Must comply with the Data Protection Act (1), ensuring data is secure and kept only as long as necessary (1).",
         "Must protect against unauthorised access under the Computer Misuse Act (1), e.g., by implementing firewalls and encryption (1)."
+      ]
+    },
+    {
+      "q": "State three pieces of UK legislation relevant to computing and what each protects against.",
+      "marks": 3,
+      "ms": [
+        "Data Protection Act / GDPR — protects personal data / privacy (1)",
+        "Computer Misuse Act — unauthorised access/modification of computer material (1)",
+        "Copyright, Designs and Patents Act — protects intellectual property / unlicensed copying (1)"
+      ]
+    },
+    {
+      "q": "Discuss the social and ethical impacts — both opportunities and risks — of a new technology such as automation or AI.",
+      "marks": 6,
+      "ms": [
+        "Opportunity: increased efficiency/productivity and new services (1)",
+        "Opportunity: improved accessibility / quality of life (1)",
+        "Risk: job displacement / deskilling (1)",
+        "Risk: privacy, bias or surveillance concerns (1)",
+        "Cultural/legal dimension: digital divide, accountability, the need for regulation (1)",
+        "Balanced conclusion weighing benefits against risks (1)"
       ]
     }
   ]
@@ -266,6 +305,18 @@ C["compsci:4.9.1.1"] = {
     [
       "What is asynchronous transmission?",
       "Data is sent with start and stop bits to indicate the beginning and end of a byte, without a shared clock."
+    ],
+    [
+      "What is serial transmission?",
+      "Sending data one bit at a time down a single wire/channel."
+    ],
+    [
+      "Why is serial preferred over parallel for long distances?",
+      "It avoids skew between wires and reduces crosstalk, so it stays reliable at high speeds; parallel suffers skew over distance."
+    ],
+    [
+      "Difference between synchronous and asynchronous transmission?",
+      "Synchronous: sender and receiver share a clock and send a continuous stream; asynchronous: data is framed with start/stop bits and there is no shared clock."
     ]
   ],
   "quiz": [
@@ -312,6 +363,12 @@ C["compsci:4.9.1.1"] = {
       ],
       "ans": 0,
       "why": "Crosstalk is interference between parallel wires."
+    },
+    {
+      "q": "Skew (bits arriving at different times) is a problem with which method?",
+      "opts": ["serial transmission", "parallel transmission", "synchronous transmission", "asynchronous transmission"],
+      "ans": 1,
+      "why": "Parallel wires can differ slightly, so bits arrive out of step over distance — skew."
     }
   ],
   "exam": [
@@ -321,6 +378,27 @@ C["compsci:4.9.1.1"] = {
       "ms": [
         "Parallel transmission is susceptible to data skew (1) and crosstalk (1) over long distances.",
         "Serial transmission uses a single wire, eliminating skew and reducing crosstalk, making it more reliable (1)."
+      ]
+    },
+    {
+      "q": "Explain what start and stop bits are used for in asynchronous transmission.",
+      "marks": 3,
+      "ms": [
+        "Asynchronous transmission has no shared clock (1)",
+        "A start bit marks the beginning of a byte/frame and a stop bit marks the end (1)",
+        "so the receiver can correctly identify each unit of data (1)"
+      ]
+    },
+    {
+      "q": "Compare serial and parallel transmission, explaining why serial is now preferred even for high-speed links.",
+      "marks": 6,
+      "ms": [
+        "Serial sends one bit at a time on one channel; parallel sends multiple bits at once on many wires (1)",
+        "Parallel can be faster over very short distances (1)",
+        "but parallel suffers skew — bits arriving out of step over distance (1)",
+        "and crosstalk/interference between adjacent wires (1)",
+        "Serial avoids skew and crosstalk, so it can be clocked much higher and stays reliable (1)",
+        "Hence modern high-speed links (USB, SATA) are serial (1)"
       ]
     }
   ]
@@ -426,6 +504,18 @@ C["compsci:4.9.1.2"] = {
     [
       "What is a protocol?",
       "A set of rules governing data exchange."
+    ],
+    [
+      "Define bit rate.",
+      "The number of bits transmitted per second (bps)."
+    ],
+    [
+      "Difference between baud rate and bit rate?",
+      "Baud rate = signal changes per second; bit rate = bits per second. Bit rate = baud × bits per signal change."
+    ],
+    [
+      "Define latency.",
+      "The time delay between data being sent and it being received/acted upon."
     ]
   ],
   "quiz": [
@@ -472,6 +562,12 @@ C["compsci:4.9.1.2"] = {
       ],
       "ans": 3,
       "why": "Storage format doesn't affect network transfer speed."
+    },
+    {
+      "q": "If each signal change encodes 2 bits and the baud rate is 4000, the bit rate is...?",
+      "opts": ["2000 bps", "4000 bps", "8000 bps", "16000 bps"],
+      "ans": 2,
+      "why": "Bit rate = baud × bits per change = 4000 × 2 = 8000 bps."
     }
   ],
   "exam": [
@@ -482,6 +578,26 @@ C["compsci:4.9.1.2"] = {
         "Baud rate is the number of signal changes per second (1).",
         "Bit rate is the number of bits transmitted per second (1).",
         "Bit rate = Baud rate × number of bits represented by each signal change (1)."
+      ]
+    },
+    {
+      "q": "Define bandwidth and state its relationship to bit rate.",
+      "marks": 2,
+      "ms": [
+        "Bandwidth: the range of frequencies a channel can carry / its capacity (1)",
+        "Higher bandwidth allows a higher bit rate (they are proportional) (1)"
+      ]
+    },
+    {
+      "q": "Define baud rate, bit rate, bandwidth and latency, and explain how baud rate and bit rate are related.",
+      "marks": 6,
+      "ms": [
+        "Baud rate: number of signal changes per second (1)",
+        "Bit rate: number of bits per second (1)",
+        "Bandwidth: the capacity / frequency range of the channel (1)",
+        "Latency: the delay between sending and receiving data (1)",
+        "Bit rate = baud rate × bits per signal change (1)",
+        "so encoding multiple bits per change makes bit rate exceed baud rate (1)"
       ]
     }
   ]
@@ -575,6 +691,18 @@ C["compsci:4.9.2.1"] = {
     [
       "Which topology suffers more from data collisions?",
       "Bus topology."
+    ],
+    [
+      "Describe a physical star topology.",
+      "Every device connects to a central node (switch/hub) by its own dedicated cable."
+    ],
+    [
+      "Describe a logical bus.",
+      "All devices share a single communication channel; data is seen by all, and accepted only by the addressee."
+    ],
+    [
+      "Give one advantage of star over bus.",
+      "A single cable failure affects only one device; it is easier to add devices and there are fewer collisions."
     ]
   ],
   "quiz": [
@@ -621,6 +749,12 @@ C["compsci:4.9.2.1"] = {
       ],
       "ans": 1,
       "why": "Bus shares a single medium, leading to more collisions."
+    },
+    {
+      "q": "In a physical star, if one peripheral's cable breaks...?",
+      "opts": ["the whole network fails", "only that one device loses connection", "data collides for everyone", "the switch reboots"],
+      "ans": 1,
+      "why": "Each device has its own link to the central switch, so the others are unaffected."
     }
   ],
   "exam": [
@@ -630,6 +764,26 @@ C["compsci:4.9.2.1"] = {
       "ms": [
         "Star is more reliable because one cable failure only affects one node (1), whereas in Bus, a backbone failure brings down the whole network (1).",
         "Bus is cheaper to install as it requires less cabling (1), whereas Star requires more cabling and a central switch, making it more expensive (1)."
+      ]
+    },
+    {
+      "q": "State one advantage and one disadvantage of a physical star topology.",
+      "marks": 2,
+      "ms": [
+        "Advantage: a single device/cable failure doesn't bring down the network / easy to add devices (1)",
+        "Disadvantage: more cabling cost, and the central switch is a single point of failure (1)"
+      ]
+    },
+    {
+      "q": "Compare physical star and logical bus topologies, explaining their operation and the trade-offs of each.",
+      "marks": 6,
+      "ms": [
+        "Star: each device has its own cable to a central switch (1)",
+        "Bus: all devices share one channel/backbone (1)",
+        "Star is resilient — one cable fault affects only one device (1)",
+        "but needs more cabling and the central switch is a single point of failure (1)",
+        "Bus uses little cabling so is cheap (1)",
+        "but the shared medium causes collisions and one break can disrupt the network (1)"
       ]
     }
   ]
@@ -721,6 +875,18 @@ C["compsci:4.9.2.2"] = {
     [
       "In which model are security and access rights managed centrally?",
       "Client-server."
+    ],
+    [
+      "Describe peer-to-peer networking.",
+      "All hosts are equal — each can act as both client and server, sharing resources directly without a central server."
+    ],
+    [
+      "Describe client-server networking.",
+      "Clients request services/resources from one or more central servers that manage them."
+    ],
+    [
+      "When is peer-to-peer appropriate?",
+      "Small/home networks or simple file-sharing where central management isn't needed and cost must be low."
     ]
   ],
   "quiz": [
@@ -767,6 +933,12 @@ C["compsci:4.9.2.2"] = {
       ],
       "ans": 1,
       "why": "Client-server scales better for management and security."
+    },
+    {
+      "q": "Central control of security and backups is a strength of which model?",
+      "opts": ["peer-to-peer", "client-server", "bus topology", "NAT"],
+      "ans": 1,
+      "why": "A central server lets administrators manage security, accounts and backups centrally."
     }
   ],
   "exam": [
@@ -776,6 +948,26 @@ C["compsci:4.9.2.2"] = {
       "ms": [
         "Centralised backups are easier to manage (1).",
         "Security and user permissions can be centrally controlled (1)."
+      ]
+    },
+    {
+      "q": "State two advantages of client-server over peer-to-peer networking.",
+      "marks": 2,
+      "ms": [
+        "Centralised security / user accounts and permissions (1)",
+        "Centralised backup and data management (also accept: easier to maintain/scale) (1)"
+      ]
+    },
+    {
+      "q": "Compare peer-to-peer and client-server models, and recommend one for (a) a home of three PCs and (b) a 200-user company, justifying each.",
+      "marks": 6,
+      "ms": [
+        "P2P: all hosts equal, share directly, no central server (1)",
+        "Client-server: clients request from central servers (1)",
+        "P2P is cheaper/simpler but has no central security/backup and degrades at scale (1)",
+        "Client-server gives central security/backup but needs server hardware/admin (1)",
+        "(a) Home: P2P — cheap, few devices, no admin needed (1)",
+        "(b) Company: client-server — central management, security and scalability (1)"
       ]
     }
   ]
@@ -888,6 +1080,18 @@ C["compsci:4.9.2.3"] = {
     [
       "What medium does Wi-Fi use to transmit data?",
       "Radio waves."
+    ],
+    [
+      "What components are needed for a wireless network?",
+      "A wireless access point (WAP)/router and devices with wireless network interface cards (NICs)."
+    ],
+    [
+      "How are wireless networks secured?",
+      "WPA2/WPA3 encryption with a pre-shared key/password, optionally MAC-address filtering or a hidden SSID."
+    ],
+    [
+      "What does CSMA/CA do?",
+      "Carrier Sense Multiple Access with Collision Avoidance — a device checks the channel is free, and uses back-off and acknowledgements to avoid collisions."
     ]
   ],
   "quiz": [
@@ -934,6 +1138,12 @@ C["compsci:4.9.2.3"] = {
       ],
       "ans": 1,
       "why": "WPA3 is a security protocol."
+    },
+    {
+      "q": "Which protocol governs how wireless devices avoid transmitting at the same time?",
+      "opts": ["CSMA/CD", "CSMA/CA", "TCP", "DHCP"],
+      "ans": 1,
+      "why": "Wireless uses CSMA/CA (Collision Avoidance) because it can't reliably detect collisions like wired CSMA/CD."
     }
   ],
   "exam": [
@@ -945,6 +1155,27 @@ C["compsci:4.9.2.3"] = {
         "If busy, it waits a random amount of time (1).",
         "If idle, it transmits an RTS (Request to Send) or begins transmission (1).",
         "Waits for an ACK (Acknowledgement); if none received, assumes collision and retries (1)."
+      ]
+    },
+    {
+      "q": "Explain two ways a wireless network can be made secure.",
+      "marks": 3,
+      "ms": [
+        "Encryption (WPA2/WPA3) so intercepted traffic is unreadable (1)",
+        "A strong pre-shared key/password controls who can join (1)",
+        "MAC-address whitelisting / disabling SSID broadcast (1) (max 3)"
+      ]
+    },
+    {
+      "q": "Explain how CSMA/CA lets multiple wireless devices share a channel, and why CSMA/CD (used on wired networks) is unsuitable for wireless.",
+      "marks": 6,
+      "ms": [
+        "A device listens to check the channel is idle before transmitting (carrier sense) (1)",
+        "If busy, it waits a random back-off time then re-checks (1)",
+        "It may use RTS/CTS to reserve the channel (1)",
+        "The receiver returns an ACK; no ACK implies a collision, so the sender retries (1)",
+        "CSMA/CD detects collisions by sensing the wire, but wireless devices often can't hear each other (hidden node) (1)",
+        "so collisions can't be reliably detected — avoidance (CA) is used instead of detection (CD) (1)"
       ]
     }
   ]
@@ -1055,6 +1286,18 @@ C["compsci:4.9.3.1"] = {
     [
       "What information is typically in a packet header?",
       "Source IP, destination IP, sequence number, and checksum."
+    ],
+    [
+      "What is packet switching?",
+      "Data is split into packets that are routed independently across the network and reassembled at the destination."
+    ],
+    [
+      "What is a router's job?",
+      "To forward packets between networks toward their destination, using the destination IP and a routing table."
+    ],
+    [
+      "Difference between a router and a gateway?",
+      "A router connects networks using the same protocol; a gateway also translates between networks using different protocols."
     ]
   ],
   "quiz": [
@@ -1099,6 +1342,12 @@ C["compsci:4.9.3.1"] = {
       ],
       "ans": 2,
       "why": "Sequence numbers allow reassembly in the correct order."
+    },
+    {
+      "q": "Packets of one message may take different routes and arrive out of order. What lets them be reassembled correctly?",
+      "opts": ["the checksum", "the sequence number", "the TTL", "the MAC address"],
+      "ans": 1,
+      "why": "Sequence numbers record each packet's order so the destination can reassemble them."
     }
   ],
   "exam": [
@@ -1110,6 +1359,27 @@ C["compsci:4.9.3.1"] = {
         "Each packet is given a header with sequence number and IP addresses (1).",
         "Packets travel independently across the network taking the best available route (1).",
         "Packets are reassembled in the correct order at the destination (1)."
+      ]
+    },
+    {
+      "q": "State three components contained in a packet header.",
+      "marks": 3,
+      "ms": [
+        "Source IP address (1)",
+        "Destination IP address (1)",
+        "Sequence number / packet number (also accept TTL, checksum) (1)"
+      ]
+    },
+    {
+      "q": "Explain how packet switching delivers a message across the Internet, referring to packets, routers and reassembly.",
+      "marks": 6,
+      "ms": [
+        "The message is split into packets, each with a header (source/dest IP, sequence number) (1)",
+        "Each packet is routed independently across the network (1)",
+        "Routers forward packets toward the destination using routing tables (1)",
+        "Packets may take different routes and arrive out of order (1)",
+        "The TTL stops packets circulating forever / the checksum detects corruption (1)",
+        "At the destination, sequence numbers are used to reassemble the message in order (1)"
       ]
     }
   ]
@@ -1218,6 +1488,18 @@ C["compsci:4.9.3.2"] = {
     [
       "Name three types of malware.",
       "Viruses, worms, trojans (or ransomware, spyware)."
+    ],
+    [
+      "How does a packet-filtering firewall work?",
+      "It inspects each packet's headers (IP/port) against rules and allows or blocks the packet accordingly."
+    ],
+    [
+      "Difference between symmetric and asymmetric encryption?",
+      "Symmetric: one shared key for both encrypt and decrypt. Asymmetric: a public key encrypts and the matching private key decrypts (a key pair)."
+    ],
+    [
+      "What is a digital certificate?",
+      "A trusted-authority-signed document binding a public key to an identity, so you can verify who you're communicating with."
     ]
   ],
   "quiz": [
@@ -1264,6 +1546,12 @@ C["compsci:4.9.3.2"] = {
       ],
       "ans": 2,
       "why": "Worms replicate independently across networks."
+    },
+    {
+      "q": "In asymmetric encryption, a message encrypted with someone's PUBLIC key can be decrypted with...?",
+      "opts": ["the same public key", "their private key", "any private key", "a shared symmetric key"],
+      "ans": 1,
+      "why": "Only the matching private key can decrypt what its public key encrypted."
     }
   ],
   "exam": [
@@ -1274,6 +1562,27 @@ C["compsci:4.9.3.2"] = {
         "The sender uses the receiver's public key to encrypt the message (1).",
         "The ciphertext is transmitted over the network (1).",
         "The receiver uses their own private key to decrypt the message (1)."
+      ]
+    },
+    {
+      "q": "Describe how a firewall using stateful inspection protects a network.",
+      "marks": 3,
+      "ms": [
+        "It tracks the state of active connections (1)",
+        "and checks that incoming packets belong to a legitimate, established connection (1)",
+        "blocking unsolicited/unexpected packets that don't match a known connection (1)"
+      ]
+    },
+    {
+      "q": "Explain how asymmetric encryption and digital signatures together provide confidentiality and authentication for a message.",
+      "marks": 6,
+      "ms": [
+        "Asymmetric encryption uses a public/private key pair (1)",
+        "Confidentiality: the sender encrypts with the recipient's PUBLIC key (1)",
+        "so only the recipient's PRIVATE key can decrypt it (1)",
+        "Authentication: the sender signs a hash of the message with their OWN private key (1)",
+        "The recipient verifies the signature using the sender's public key (1)",
+        "confirming the sender's identity and that the message is unaltered (integrity) (1)"
       ]
     }
   ]
@@ -1446,6 +1755,18 @@ C["compsci:4.9.4.1"] = {
     [
       "Which layer is responsible for flow control and error checking?",
       "Transport layer (specifically TCP)."
+    ],
+    [
+      "Name the four TCP/IP layers.",
+      "Application, Transport, Network (Internet), and Link (Network access)."
+    ],
+    [
+      "What does the Transport layer (TCP) do?",
+      "Splits data into segments and manages reliable delivery — error checking, retransmission and ordering — using port numbers."
+    ],
+    [
+      "What is a socket?",
+      "A communication endpoint = an IP address combined with a port number."
     ]
   ],
   "quiz": [
@@ -1492,6 +1813,12 @@ C["compsci:4.9.4.1"] = {
       ],
       "ans": 1,
       "why": "Decapsulation is the reverse of encapsulation."
+    },
+    {
+      "q": "Adding headers as data passes DOWN the TCP/IP stack is called...?",
+      "opts": ["decapsulation", "encapsulation", "routing", "handshaking"],
+      "ans": 1,
+      "why": "Each layer wraps the data with its own header — encapsulation; the reverse on receipt is decapsulation."
     }
   ],
   "exam": [
@@ -1503,6 +1830,27 @@ C["compsci:4.9.4.1"] = {
         "Adds port numbers to specify the source and destination applications (1).",
         "Assigns sequence numbers to segments to ensure they can be reassembled in order (1).",
         "Manages error checking/retransmission to ensure reliable delivery (1)."
+      ]
+    },
+    {
+      "q": "State the role of the Network (Internet) layer and the Link layer in the TCP/IP stack.",
+      "marks": 3,
+      "ms": [
+        "Network layer: adds source/destination IP addresses and routes packets across networks (1)",
+        "Link layer: handles local/physical transmission, adding MAC addresses (1)",
+        "and putting frames onto the physical medium (1)"
+      ]
+    },
+    {
+      "q": "Describe how data is encapsulated as it passes down the four layers of the TCP/IP stack when sending a web request.",
+      "marks": 6,
+      "ms": [
+        "Application layer: forms the request using an application protocol (e.g. HTTP) (1)",
+        "Transport layer: splits it into segments and adds port numbers (TCP) for reliable delivery (1)",
+        "Network layer: adds source and destination IP addresses → packets (1)",
+        "Link layer: adds MAC addresses → frames for the local link (1)",
+        "Each layer adds its own header (encapsulation) (1)",
+        "The receiver reverses this (decapsulation) up the stack (1)"
       ]
     }
   ]

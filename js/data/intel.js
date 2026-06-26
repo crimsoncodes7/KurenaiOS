@@ -634,6 +634,60 @@ window.KOS_DATA.intel = {
          "Factors affecting performance: clock speed, cores, cache, word length, bus widths — explain the mechanism, not just the factor."],
   pitfalls: ["Saying the PC holds the current instruction — it holds the ADDRESS of the next instruction."]
 },
+"compsci:4.8.1": {
+  defs: [["Computer Misuse Act", "Makes unauthorised access, access-with-intent and unauthorised modification of computer material illegal."],
+         ["Data Protection Act / GDPR", "Requires personal data to be processed fairly, lawfully, securely and only for stated purposes."]],
+  tips: ["For impact questions, give BOTH opportunities and risks, then a conclusion.", "Name the right law for the scenario (hacking → Misuse Act; personal data → DPA; copying → Copyright Act)."],
+  pitfalls: ["Confusing the Data Protection Act with the Computer Misuse Act.", "Listing only risks (or only benefits) in a 'discuss' answer."]
+},
+"compsci:4.9.1.1": {
+  defs: [["Serial transmission", "Sending data one bit at a time over a single channel."],
+         ["Asynchronous transmission", "Data framed with start/stop bits, with no shared clock between sender and receiver."]],
+  tips: ["Serial beats parallel over distance because it avoids SKEW and crosstalk.", "Start/stop bits frame each byte in asynchronous transmission (no shared clock)."],
+  pitfalls: ["Saying parallel is always faster — skew/crosstalk limit it over distance.", "Confusing synchronous (shared clock) with asynchronous (start/stop bits)."]
+},
+"compsci:4.9.1.2": {
+  defs: [["Baud rate", "The number of signal changes per second."],
+         ["Bit rate", "The number of bits per second; = baud rate × bits per signal change."]],
+  tips: ["Bit rate = baud × bits-per-symbol — quote it to separate the two.", "Higher bandwidth → higher possible bit rate; latency is delay, not speed."],
+  pitfalls: ["Treating baud rate and bit rate as the same thing.", "Confusing bandwidth (capacity) with latency (delay)."]
+},
+"compsci:4.9.2.1": {
+  defs: [["Physical star", "Each device connects to a central switch/hub by its own cable."],
+         ["Logical bus", "Devices share a single communication channel; all see the data, the addressee accepts it."]],
+  tips: ["Star = resilient + more cabling + central single-point-of-failure; bus = cheap + collision-prone.", "'Physical' = the wiring layout; 'logical' = how data actually flows."],
+  pitfalls: ["Saying a star's central-switch failure affects only one device (it takes down all).", "Confusing physical topology with logical topology."]
+},
+"compsci:4.9.2.2": {
+  defs: [["Peer-to-peer", "All hosts are equal, acting as both client and server, sharing resources directly."],
+         ["Client-server", "Clients request services from central servers that manage resources, security and backups."]],
+  tips: ["Client-server = central security/backup/scalability; P2P = cheap/simple, no admin, poor at scale.", "Match the model to scale: P2P for small/home, client-server for organisations."],
+  pitfalls: ["Saying P2P has no server — every peer can act as one.", "Ignoring scale when recommending a model."]
+},
+"compsci:4.9.2.3": {
+  defs: [["CSMA/CA", "Carrier Sense Multiple Access with Collision Avoidance — wireless devices check the channel is free and use ACKs to avoid collisions."],
+         ["WAP", "Wireless access point — connects wireless devices to a network."]],
+  tips: ["Wireless uses CA (avoidance) not CD (detection) because of the hidden-node problem.", "Security = encryption (WPA2/3) + key, optionally MAC filtering / hidden SSID."],
+  pitfalls: ["Saying wireless uses CSMA/CD.", "Listing only a password for security with no encryption."]
+},
+"compsci:4.9.3.1": {
+  defs: [["Packet switching", "Splitting data into packets routed independently and reassembled at the destination."],
+         ["Router / gateway", "A router forwards packets between networks; a gateway also translates between different protocols."]],
+  tips: ["Sequence numbers reassemble; TTL stops infinite looping; checksum detects corruption.", "Distinguish router (same protocol) from gateway (protocol translation)."],
+  pitfalls: ["Saying packets always take the same route.", "Confusing a router with a gateway."]
+},
+"compsci:4.9.3.2": {
+  defs: [["Symmetric encryption", "One shared secret key used to both encrypt and decrypt."],
+         ["Asymmetric encryption", "A public/private key pair: the public key encrypts, the matching private key decrypts."]],
+  tips: ["Confidentiality: encrypt with the recipient's PUBLIC key. Signature: sign with the sender's PRIVATE key.", "Firewall types: packet filtering (headers), proxy (intermediary), stateful (tracks connections)."],
+  pitfalls: ["Mixing up which key encrypts vs decrypts in asymmetric encryption.", "Saying a firewall encrypts data — it filters traffic."]
+},
+"compsci:4.9.4.1": {
+  defs: [["TCP/IP stack", "Four layers — application, transport, network, link — each adding/removing its own header."],
+         ["Socket", "A communication endpoint = IP address + port number."]],
+  tips: ["Down the stack = encapsulation (add headers); up = decapsulation.", "Transport adds ports (TCP reliable), Network adds IP, Link adds MAC."],
+  pitfalls: ["Listing the OSI 7 layers instead of TCP/IP's 4.", "Confusing IP addresses (network layer) with MAC addresses (link layer)."]
+},
 "compsci:4.9.4.2": {
   tips: ["Port numbers worth memorising: FTP 20/21, SSH 22, SMTP 25, HTTP 80, POP3 110, HTTPS 443.",
          "Know each protocol's one-line job: SMTP sends mail between servers; POP3 retrieves to a client; SSH gives encrypted remote login."],
