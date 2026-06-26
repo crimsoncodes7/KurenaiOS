@@ -74,6 +74,9 @@ C["compsci:4.3.1.1"] = {
       }
     },
     {
+      "page": "Trace & code"
+    },
+    {
       "h": "Trace technique that earns method marks"
     },
     {

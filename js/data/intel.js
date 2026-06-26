@@ -198,6 +198,24 @@ window.KOS_DATA.intel = {
          "Time complexity: linear O(n), binary O(log n), binary tree search O(log n) average. Quote in Big-O."],
   pitfalls: ["Off-by-one when updating low/high pointers in a trace: mid found, then low := mid + 1 or high := mid − 1, never mid itself."]
 },
+"compsci:4.3.4.1": {
+  defs: [["Linear search", "Checking each element in turn from the start until the target is found or the list ends."]],
+  tips: ["Complexity: O(n) worst case (checks all n); best case O(1) when the target is first.",
+         "Linear search needs NO ordering — that is its advantage over binary search."],
+  pitfalls: ["Confusing linear search's O(n) with binary search's O(log n).", "Claiming the list must be sorted — it need not be for linear search."]
+},
+"compsci:4.3.4.3": {
+  defs: [["Binary search tree (BST)", "A binary tree where every left subtree holds smaller keys and every right subtree larger keys, enabling fast search."]],
+  tips: ["At each node go left if target < node, right if target > node — halving the search space each step.",
+         "Complexity is O(log n) for a balanced tree but O(n) if the tree degenerates into a list."],
+  pitfalls: ["Assuming BST search is always O(log n) — an unbalanced tree degrades to O(n).", "Confusing binary tree search (on a BST) with binary search (on a sorted array)."]
+},
+"compsci:4.3.5.2": {
+  defs: [["Merge sort", "A divide-and-conquer sort: recursively split the list in half, then merge the sorted halves back together."]],
+  tips: ["Complexity is O(n log n) in ALL cases — say it is consistent, unlike bubble sort's O(n²) worst case.",
+         "It is NOT in-place — it needs O(n) extra memory for merging; that trade-off earns marks."],
+  pitfalls: ["Saying merge sort is in-place — it requires O(n) extra space.", "Forgetting the base case: a list of length ≤ 1 is already sorted."]
+},
 "compsci:4.3.5.1": {
   tips: ["Bubble sort: after pass k, the last k items are in final position. Use that to shorten traces.",
          "Complexities: bubble O(n²) time, O(1) extra space; merge O(n log n) time, O(n) extra space. Trade-off sentences earn marks."],
