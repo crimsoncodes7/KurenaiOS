@@ -143,6 +143,18 @@ C["compsci:4.6.1.1"] = {
     [
       "Give an example of application software.",
       "Word processor, web browser, video game, etc."
+    ],
+    [
+      "Why can't software run without hardware?",
+      "Software is just instructions and data; it needs physical hardware (CPU, memory) to execute and store it."
+    ],
+    [
+      "Give an example of system software.",
+      "An operating system, device driver, utility program or translator."
+    ],
+    [
+      "Is firmware hardware or software?",
+      "Software — program code stored on a hardware chip (e.g. ROM); the chip itself is the hardware."
     ]
   ],
   "quiz": [
@@ -189,6 +201,12 @@ C["compsci:4.6.1.1"] = {
       ],
       "ans": 0,
       "why": "Hardware is physical."
+    },
+    {
+      "q": "Which statement is correct?",
+      "opts": ["Software is physical and hardware is logical", "Hardware executes the instructions that software provides", "Hardware cannot exist without software", "An operating system is hardware"],
+      "ans": 1,
+      "why": "Hardware is the physical machine that runs the instructions supplied by software."
     }
   ],
   "exam": [
@@ -198,6 +216,27 @@ C["compsci:4.6.1.1"] = {
       "ms": [
         "System software manages the computer hardware/resources (1)",
         "Application software performs specific tasks for the user (1)"
+      ]
+    },
+    {
+      "q": "Define the terms hardware and software, and explain how they depend on each other.",
+      "marks": 3,
+      "ms": [
+        "Hardware: the physical components of a computer system (1)",
+        "Software: the programs/instructions (and data) that run on the hardware (1)",
+        "Interdependent: hardware needs software to know what to do; software needs hardware to execute on (1)"
+      ]
+    },
+    {
+      "q": "Discuss the relationship between hardware and software in a modern computer system, referring to how the operating system and applications use the hardware.",
+      "marks": 6,
+      "ms": [
+        "Hardware = physical components (CPU, memory, I/O); software = the instructions that run on it (1)",
+        "Neither is useful alone — hardware without software does nothing; software needs hardware to execute (1)",
+        "The OS (system software) controls and abstracts the hardware, managing CPU, memory and I/O (1)",
+        "Applications run on top of the OS rather than accessing hardware directly (1)",
+        "This layering (hardware → OS → application) hides complexity from the user/programmer (1)",
+        "Example linking the layers, e.g. a game calls the OS which drives the GPU (1)"
       ]
     }
   ]
@@ -345,6 +384,18 @@ C["compsci:4.6.1.2"] = {
     [
       "Why is the distinction between System and Application software important?",
       "It helps in understanding the level of abstraction and the software's relationship with the hardware."
+    ],
+    [
+      "Define system software.",
+      "Software that manages/controls the hardware and provides a platform for applications (OS, utilities, drivers, translators)."
+    ],
+    [
+      "Give two attributes that distinguish system from application software.",
+      "System software runs in the background managing the machine; application software is user-facing and performs specific user tasks."
+    ],
+    [
+      "Is a compiler system or application software?",
+      "System software — it is a translator that supports developing and running other programs."
     ]
   ],
   "quiz": [
@@ -391,6 +442,12 @@ C["compsci:4.6.1.2"] = {
       ],
       "ans": 2,
       "why": "Applications run on top of the platform provided by the OS."
+    },
+    {
+      "q": "Which of these is application software?",
+      "opts": ["Device driver", "Disk defragmenter", "Spreadsheet program", "Operating system"],
+      "ans": 2,
+      "why": "A spreadsheet performs a specific task for the user; the others manage or maintain the system."
     }
   ],
   "exam": [
@@ -400,6 +457,26 @@ C["compsci:4.6.1.2"] = {
       "ms": [
         "Application software (1)",
         "Because it performs a specific task for the user (organizing music) (1)"
+      ]
+    },
+    {
+      "q": "Explain the difference between system software and application software, giving one example of each.",
+      "marks": 3,
+      "ms": [
+        "System software manages the hardware / provides a platform for other software (1); e.g. operating system / utility / driver (1)",
+        "Application software performs specific tasks for the end user (1); e.g. word processor / browser (accept any) (max 3)"
+      ]
+    },
+    {
+      "q": "Discuss the need for both system software and application software in a computer system.",
+      "marks": 6,
+      "ms": [
+        "Application software does the user's actual tasks (word processing, browsing, games) (1)",
+        "but cannot run without an underlying platform (1)",
+        "System software (the OS) manages hardware resources — CPU, memory, I/O (1)",
+        "and provides services/abstraction so applications need not control hardware directly (1)",
+        "Utilities/drivers maintain and extend the system (1)",
+        "Conclusion: the two layers are complementary — applications deliver function, system software makes them runnable (1)"
       ]
     }
   ]
@@ -581,6 +658,18 @@ C["compsci:4.6.1.3"] = {
     [
       "Explain why a compiler might be preferred over an interpreter.",
       "It produces a standalone executable that runs faster as it doesn't need translation at runtime."
+    ],
+    [
+      "What is the role of an operating system as system software?",
+      "To manage hardware resources and provide a platform/services for application software."
+    ],
+    [
+      "What is a library (library program)?",
+      "A collection of pre-written, tested, reusable code (functions/classes) that programs can call."
+    ],
+    [
+      "Name the three types of translator.",
+      "Compiler, assembler and interpreter."
     ]
   ],
   "quiz": [
@@ -627,6 +716,12 @@ C["compsci:4.6.1.3"] = {
       ],
       "ans": 1,
       "why": "Libraries save time by allowing the reuse of proven code."
+    },
+    {
+      "q": "Which of these is NOT system software?",
+      "opts": ["Operating system", "Compiler", "Photo-editing app", "Disk defragmenter"],
+      "ans": 2,
+      "why": "A photo editor is an application; the others manage or support the system."
     }
   ],
   "exam": [
@@ -636,6 +731,27 @@ C["compsci:4.6.1.3"] = {
       "ms": [
         "Software designed for maintenance/optimization/configuration of the system (1)",
         "Examples: Antivirus, Defragmenter, Compression, Backup (Any two: 1, 1)"
+      ]
+    },
+    {
+      "q": "Describe the functions of two different types of utility program.",
+      "marks": 4,
+      "ms": [
+        "Disk defragmenter: rearranges fragmented files into contiguous blocks to speed up access (1-2)",
+        "Compression utility: reduces file size to save storage / aid transfer (1-2)",
+        "(accept antivirus, backup, etc. — function must be described; max 4)"
+      ]
+    },
+    {
+      "q": "Discuss the need for the different categories of system software (operating systems, utilities, libraries, translators) on a typical computer.",
+      "marks": 6,
+      "ms": [
+        "OS: manages hardware resources and provides a platform for everything else (1)",
+        "Utilities: maintain/optimise the system — defragmenter, antivirus, backup (1)",
+        "Libraries: provide reusable, tested code so programmers don't re-implement common tasks (1)",
+        "Translators: convert source code into executable machine code (compiler/assembler/interpreter) (1)",
+        "Together they make the hardware usable and support developing/running applications (1)",
+        "Example tying a category to a need (1)"
       ]
     }
   ]
@@ -787,6 +903,18 @@ C["compsci:4.6.1.4"] = {
     [
       "What does the OS file management do?",
       "Organizes files in directories, manages access rights, and keeps track of where data is physically stored."
+    ],
+    [
+      "How does an OS hide the complexity of hardware?",
+      "It provides abstractions/services (files, processes, drivers) so programs and users don't deal with raw hardware."
+    ],
+    [
+      "Name three resources the OS manages.",
+      "Processor (CPU) time, memory, and I/O devices (also files/storage)."
+    ],
+    [
+      "What is a device driver?",
+      "Software that lets the OS communicate with and control a specific hardware device."
     ]
   ],
   "quiz": [
@@ -833,6 +961,12 @@ C["compsci:4.6.1.4"] = {
       ],
       "ans": 1,
       "why": "Scheduling shares CPU time among processes, giving the illusion of multitasking."
+    },
+    {
+      "q": "A key role of the operating system is to...?",
+      "opts": ["compile programs", "manage hardware resources among competing processes", "store the BIOS", "render web pages"],
+      "ans": 1,
+      "why": "Resource management — allocating CPU, memory and I/O among processes — is a core OS role."
     }
   ],
   "exam": [
@@ -843,6 +977,26 @@ C["compsci:4.6.1.4"] = {
         "Allocates memory (RAM) to programs when they load (1)",
         "Deallocates memory when programs close (1)",
         "Uses virtual memory (paging/segmentation) when RAM is full (1)"
+      ]
+    },
+    {
+      "q": "State three resources an operating system manages and give one reason management is needed.",
+      "marks": 3,
+      "ms": [
+        "Any three of: processor/CPU time, memory, I/O devices, files/storage (1 per resource, max 2)",
+        "Reason: multiple processes compete for limited resources, so the OS must allocate them fairly/efficiently (1)"
+      ]
+    },
+    {
+      "q": "Discuss how an operating system manages resources to allow several programs to run apparently at the same time.",
+      "marks": 6,
+      "ms": [
+        "The OS schedules CPU time, switching rapidly between processes (1)",
+        "giving the illusion of simultaneous execution (multitasking) (1)",
+        "It manages memory, allocating space to each process and using virtual memory when RAM is full (1)",
+        "It manages I/O devices via drivers, queuing/arbitrating access (1)",
+        "It isolates processes so one cannot corrupt another's memory (1)",
+        "Net effect: limited hardware is shared safely and efficiently among competing processes (1)"
       ]
     }
   ]
@@ -973,6 +1127,18 @@ C["compsci:4.6.3.1"] = {
     [
       "What is bytecode?",
       "An intermediate instruction set produced by some compilers, which is then executed by a virtual machine."
+    ],
+    [
+      "What does a compiler produce?",
+      "Machine code / an executable, after translating the whole program at once; it then runs without the source."
+    ],
+    [
+      "When is an interpreter most appropriate?",
+      "During development/debugging, or for scripting and cross-platform use — it runs source directly, line by line."
+    ],
+    [
+      "What does an assembler translate, and into what?",
+      "Assembly language (low-level mnemonics) into machine code."
     ]
   ],
   "quiz": [
@@ -1019,6 +1185,12 @@ C["compsci:4.6.3.1"] = {
       ],
       "ans": 1,
       "why": "Bytecode can run on any system that has the appropriate Virtual Machine."
+    },
+    {
+      "q": "Which translator converts assembly language into machine code?",
+      "opts": ["Compiler", "Interpreter", "Assembler", "Linker"],
+      "ans": 2,
+      "why": "An assembler translates low-level assembly mnemonics into machine code."
     }
   ],
   "exam": [
@@ -1028,6 +1200,26 @@ C["compsci:4.6.3.1"] = {
       "ms": [
         "Advantage: Easier to debug as it stops at the line of the error (1)",
         "Disadvantage: Slower execution as each line must be translated at runtime (1)"
+      ]
+    },
+    {
+      "q": "Compare compilation and interpretation, giving one situation where each is appropriate.",
+      "marks": 4,
+      "ms": [
+        "Compiler translates the whole program once into machine code → fast execution, standalone exe (1); appropriate for distributing finished software (1)",
+        "Interpreter translates and executes line by line → slower but no separate compile step (1); appropriate for development/debugging or scripting (1)"
+      ]
+    },
+    {
+      "q": "Discuss the roles of assemblers, compilers and interpreters, and explain why an intermediate language such as bytecode is used.",
+      "marks": 6,
+      "ms": [
+        "Assembler: translates assembly language into machine code (1)",
+        "Compiler: translates a whole high-level program into machine code before execution (1)",
+        "Interpreter: translates and runs high-level code line by line at runtime (1)",
+        "Compiled code is fast but platform-specific; interpreted code is portable but slower (1)",
+        "Bytecode is a platform-independent intermediate output run by a virtual machine (1)",
+        "so the same bytecode runs anywhere a VM exists (write once, run anywhere) (1)"
       ]
     }
   ]
@@ -1140,6 +1332,18 @@ C["compsci:4.6.4.1"] = {
     [
       "Why are NAND gates called universal gates?",
       "Because any logic circuit can be constructed entirely out of NAND gates."
+    ],
+    [
+      "When does an AND gate output 1?",
+      "Only when BOTH inputs are 1."
+    ],
+    [
+      "When does an OR gate output 1?",
+      "When AT LEAST ONE input is 1."
+    ],
+    [
+      "How many rows does a truth table with 3 inputs have?",
+      "2³ = 8 rows (one per input combination)."
     ]
   ],
   "quiz": [
@@ -1186,6 +1390,12 @@ C["compsci:4.6.4.1"] = {
       ],
       "ans": 2,
       "why": "The NOT gate (inverter) flips 0 to 1 and 1 to 0."
+    },
+    {
+      "q": "A gate outputs 1 only when its single input is 0. Which gate is it?",
+      "opts": ["AND", "OR", "NOT", "XOR"],
+      "ans": 2,
+      "why": "A NOT gate (inverter) outputs the opposite of its single input."
     }
   ],
   "exam": [
@@ -1195,6 +1405,27 @@ C["compsci:4.6.4.1"] = {
       "ms": [
         "Inputs 0,0 -> 0; 1,1 -> 0 (1)",
         "Inputs 0,1 -> 1; 1,0 -> 1 (1)"
+      ]
+    },
+    {
+      "q": "Complete the truth tables for a 2-input AND gate and a 2-input OR gate.",
+      "marks": 3,
+      "ms": [
+        "AND: 00→0, 01→0, 10→0, 11→1 (1)",
+        "OR: 00→0, 01→1, 10→1 (1)",
+        "OR: 11→1 (1)"
+      ]
+    },
+    {
+      "q": "Explain how NAND is a universal gate, and discuss why this is useful in hardware design.",
+      "marks": 6,
+      "ms": [
+        "A universal gate can build any other logic function (1)",
+        "NOT from NAND: tie both inputs together (1)",
+        "AND from NAND: a NAND followed by a NAND used as an inverter (1)",
+        "OR from NAND: invert both inputs then NAND them (De Morgan's) (1)",
+        "Useful: a chip can be built from one repeated gate type (1)",
+        "simplifying/cheapening manufacture and design consistency (1)"
       ]
     }
   ]

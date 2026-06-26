@@ -528,6 +528,37 @@ window.KOS_DATA.intel = {
   tips: ["Sound sample size questions: file size = sample rate × sample resolution × length. Show units throughout and convert bits→bytes at the end, not midway."],
   pitfalls: ["Mixing bits and bytes mid-calculation — the single most common lost mark in representation arithmetic."]
 },
+"compsci:4.6.1.1": {
+  defs: [["Hardware", "The physical components of a computer system."],
+         ["Software", "The programs and data (instructions) that run on the hardware."]],
+  tips: ["For 'relationship' marks, say hardware executes what software instructs — each is useless without the other.", "Name the layering: hardware → operating system → applications."],
+  pitfalls: ["Calling firmware 'hardware' — it is software stored on a chip.", "Vague 'software runs on hardware' with no interdependence explained."]
+},
+"compsci:4.6.1.2": {
+  defs: [["System software", "Software that controls the hardware and provides a platform for applications (OS, utilities, drivers, translators)."],
+         ["Application software", "Software that performs specific tasks for the end user."]],
+  tips: ["Classify by purpose: manages the machine = system; does a user task = application.", "Justify a classification by what the software DOES, not just by naming the category."],
+  pitfalls: ["Calling drivers or translators application software.", "Listing examples without stating the defining distinction."]
+},
+"compsci:4.6.1.3": {
+  defs: [["Utility program", "System software that maintains/optimises the computer (e.g. defragmenter, antivirus, backup, compression)."],
+         ["Library", "A collection of pre-written, tested, reusable code that programs can call."]],
+  tips: ["The four system-software categories: OS, utilities, libraries, translators — name them.", "Describe a utility by its FUNCTION (what it does), not just its name."],
+  pitfalls: ["Confusing a library (reusable code) with a utility (maintenance tool).", "Listing OS features when asked about utilities."]
+},
+"compsci:4.6.1.4": {
+  defs: [["Operating system", "System software that manages hardware resources and hides hardware complexity behind a consistent interface."],
+         ["Resource management", "Allocating the processor, memory and I/O devices among competing processes."]],
+  tips: ["List the resources managed: processor, memory, I/O (plus files).", "'Hides complexity' = provides abstraction so apps don't touch raw hardware."],
+  pitfalls: ["Saying the OS 'runs the programs' without mentioning resource allocation/scheduling.", "Confusing memory management with file management."]
+},
+"compsci:4.6.3.1": {
+  defs: [["Compiler", "Translates an entire high-level program into machine code before execution."],
+         ["Interpreter", "Translates and executes high-level code one statement at a time at runtime."],
+         ["Bytecode", "A platform-independent intermediate code executed by a virtual machine."]],
+  tips: ["Compiler = whole program, fast standalone exe; interpreter = line-by-line, portable, easy debugging.", "Bytecode's point is portability via a VM — 'write once, run anywhere'."],
+  pitfalls: ["Saying an interpreter produces an executable (it does not).", "Confusing an assembler (assembly→machine) with a compiler (high-level→machine)."]
+},
 "compsci:4.6.2.1": {
   tips: ["Boolean simplification: quote the identity used at every line (De Morgan's, distribution, absorption X + X·Y = X). Unjustified jumps lose method marks.",
          "Karnaugh-style spotting: A + NOT A = 1 and X·X = X collapse most exam expressions."],
