@@ -74,6 +74,30 @@ window.KOS_DATA.intel = {
   tips: ["Advantages of subroutines: easier to test/debug in isolation, code reuse, easier to maintain, supports team programming — give two distinct ones, not two wordings of the same one."],
   pitfalls: ["Saying 'makes the program shorter' without explaining reuse — too vague for the mark."]
 },
+"compsci:4.1.1.11": {
+  defs: [["Parameter", "The placeholder named in a subroutine's definition."],
+         ["Argument", "The actual value supplied to the subroutine when it is called."]],
+  tips: ["Distinguish pass by value (a copy; original unchanged) from pass by reference (the address; original IS changed) — state the effect on the original.",
+         "A swap, or returning several values, needs pass by reference."],
+  pitfalls: ["Swapping the terms parameter and argument.", "Assuming pass by reference is always better — pass by value is safer and the usual default."]
+},
+"compsci:4.1.1.12": {
+  defs: [["Return value", "The value a function sends back to the caller; reaching return also exits the function immediately."]],
+  tips: ["Say return does two things — passes a value AND exits the function immediately.", "To return several values, return a record/tuple/array."],
+  pitfalls: ["Thinking multiple return statements send back multiple values — exactly one executes per call.", "Forgetting that every path of a non-void function must return a value."]
+},
+"compsci:4.1.1.13": {
+  defs: [["Local variable", "A variable declared inside a subroutine; it exists only while the subroutine runs and is accessible only within it."]],
+  tips: ["Give BOTH properties for the mark: limited lifetime (only during execution) AND limited scope (only inside the subroutine).",
+         "'Why good practice' = avoids unintended side effects / name clashes, and supports reuse and isolated testing."],
+  pitfalls: ["Confusing scope (where it is accessible) with lifetime (when it exists).", "Saying local variables persist between calls — they are recreated each call."]
+},
+"compsci:4.1.1.14": {
+  defs: [["Global variable", "A variable declared outside all subroutines, accessible throughout the program for its whole run."]],
+  tips: ["Contrast on scope AND lifetime: global = whole program / whole run; local = one subroutine / its execution only.",
+         "For 'why prefer local', cite fewer side effects, easier debugging and reusability."],
+  pitfalls: ["Claiming globals are simply 'better because accessible everywhere' — wide scope causes hidden coupling and bugs.", "Saying a local variable can be read elsewhere — it cannot."]
+},
 "compsci:4.1.1.15": {
   defs: [["Stack frame", "A region of the call stack holding a subroutine call's return address, parameters and local variables."]],
   tips: ["Trace questions: each call pushes a frame; each return pops one. Show the return address being used to resume execution — that phrase is often a marking point."],
@@ -92,6 +116,13 @@ window.KOS_DATA.intel = {
   tips: ["Class diagram questions: arrow points FROM subclass TO superclass. 'is-a' = inheritance, 'has-a' = aggregation/composition.",
          "Learn the design principles by name: encapsulate what varies, favour composition over inheritance, program to interfaces, not implementation."],
   pitfalls: ["Defining polymorphism as 'many forms' with no reference to same method name, different behaviour — not creditworthy.", "Drawing aggregation diamonds at the wrong end (diamond sits on the container/whole)."]
+},
+"compsci:4.2.1.3": {
+  defs: [["Text file", "A file storing human-readable characters (encoded as ASCII/Unicode), read/written line by line."],
+         ["Binary file", "A file storing raw bytes in an internal format that is not human-readable as text."]],
+  tips: ["Match access to file type: text for human-readable records/logs; binary for images, executables and exact numeric data.",
+         "When describing reading, mention detecting end-of-file and closing the file afterwards."],
+  pitfalls: ["Opening a binary file as text (or vice versa) — it corrupts/garbles the data.", "Forgetting to handle a file-not-found exception when opening (links to 4.1.1.9)."]
 },
 "compsci:4.2.1.1": {
   defs: [["Data structure", "A collection of data values, organised so they can be stored and operated on efficiently."],

@@ -915,8 +915,26 @@ C["compsci:4.1.2.3"] = {
     { callout: { t: "mnemonic", h: "Composition vs Aggregation", body: "In **Composition** (black diamond), the 'child' cannot exist without the 'parent' (e.g. a Heart in a Human). In **Aggregation** (white diamond), the 'child' can exist independently (e.g. a Player in a Team)." }},
     { code: { lang: "csharp", cap: "OOP in action with C#.", src:
 "public abstract class Animal {\n    public string Name { get; set; }\n    public virtual void MakeSound() => Console.WriteLine(\"...\");\n}\n\npublic class Dog : Animal { // Inheritance\n    public override void MakeSound() => Console.WriteLine(\"Woof!\"); // Overriding\n}\n\n// Instantiation\nAnimal myDog = new Dog { Name = \"Rex\" };\nmyDog.MakeSound(); // Polymorphism: calls Dog's version" }},
+    { page: "Class diagrams & access" },
+    { callout: { t: "def", h: "UML class-diagram notation", body: [
+      "The spec requires you to **draw and interpret class diagrams** using:",
+      { kv: [
+        ["Visibility", "`+` public, `-` private, `#` protected — shown before each attribute/method."],
+        ["Single inheritance", "A line with a hollow triangle arrow pointing FROM the subclass TO the superclass."],
+        ["Composition", "A line with a FILLED (black) diamond at the whole/owner end — the part cannot exist without the whole."],
+        ["Aggregation", "A line with a HOLLOW (white) diamond at the whole end — the part can exist independently."]
+      ]}
+    ]}},
+    { callout: { t: "def", h: "Access specifiers & method types", body: [
+      { kv: [
+        ["public (+)", "Accessible from anywhere."],
+        ["private (-)", "Accessible only within the class — the basis of encapsulation."],
+        ["protected (#)", "Accessible within the class and its subclasses."],
+        ["abstract / virtual / static", "Abstract = declared with no body (must be overridden); virtual = has a body but may be overridden; static = belongs to the class itself, not an instance."]
+      ]}
+    ]}},
     { page: "Exam technique" },
-    { callout: { t: "memorise", h: "OOP Core Terms", body: "Class = blueprint. Object = instance. Encapsulation = hide state behind methods. Inheritance = subclass IS-A superclass (acquires attributes + methods). Polymorphism = same method name, different behaviour per class. Override = subclass replaces parent method." }},
+    { callout: { t: "memorise", h: "OOP Core Terms", body: "Class = blueprint. Object = instance. Encapsulation = hide state behind methods. Inheritance = subclass IS-A superclass (acquires attributes + methods). Polymorphism = same method name, different behaviour per class. Override = subclass replaces parent method. UML: +public −private #protected; ◆ composition, ◇ aggregation." }},
     { callout: { t: "tip", h: "is-a vs has-a", body: "Decide structure by the sentence test: \"a Dog IS-A Animal\" → inheritance; \"a Car HAS-A Engine\" → composition. Examiners reward identifying the relationship correctly before naming the mechanism." }},
     { callout: { t: "miscon", h: "Inheritance ≠ Composition", body: "Inheritance (is-a): Dog IS AN Animal — subclass extends superclass. Composition (has-a): Car HAS AN Engine — object contains another. OOP best practice favours composition over deep inheritance hierarchies for flexibility and easier change." }}
   ],
