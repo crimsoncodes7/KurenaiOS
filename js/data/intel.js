@@ -22,6 +22,52 @@ window.KOS_DATA.intel = {
          "Pre-condition (WHILE) may run 0 times; post-condition (REPEAT/DO-WHILE) runs at least once — stating the minimum-runs difference is the marking point."],
   pitfalls: ["Claiming WHILE and DO-WHILE are interchangeable — they differ on whether the body can run zero times.", "Defining definite/indefinite by FOR-vs-WHILE syntax rather than by whether the repeat count is known in advance."]
 },
+"compsci:4.1.1.3": {
+  defs: [["Integer division (DIV)", "The whole-number quotient of a division, discarding the remainder."],
+         ["Modulo (MOD)", "The remainder left after integer division."]],
+  tips: ["State the DIV/MOD identity A = (A DIV B)×B + (A MOD B) — it is a frequent marking point.",
+         "Rounding goes to the nearest whole number; truncation discards the fraction — name which the question wants."],
+  pitfalls: ["Assuming `/` always yields a real — in many languages `/` between two integers does integer division.", "Confusing truncation with rounding (3.7 truncates to 3, not 4)."]
+},
+"compsci:4.1.1.4": {
+  defs: [["Relational operator", "An operator that compares two values and returns a Boolean (=, <>, <, >, <=, >=)."]],
+  tips: ["Say the result of a relational comparison is a Boolean — that type statement often earns a mark.",
+         "AQA pseudocode uses <> for not-equal; C#/Java use != — match the convention in the question."],
+  pitfalls: ["Using = (assignment) where == (comparison) is meant in C#/Java.", "Forgetting that strings compare lexicographically, not by length."]
+},
+"compsci:4.1.1.5": {
+  defs: [["XOR", "Exclusive OR — True when exactly one input is True (the inputs differ); False when they are the same."]],
+  tips: ["A truth table with n inputs has 2^n rows — show every input combination for full marks.",
+         "Operator precedence: NOT before AND before OR; brackets override it."],
+  pitfalls: ["Treating XOR like OR — OR(1,1)=1 but XOR(1,1)=0.", "Dropping rows from a truth table or mis-ordering the input combinations."]
+},
+"compsci:4.1.1.6": {
+  defs: [["Constant", "A named value fixed at design time that cannot change during execution."],
+         ["Variable", "A named store whose value can change during execution."]],
+  tips: ["For 'advantages of named constants' give distinct benefits — maintainability, readability, safety — not three wordings of one.",
+         "Tie maintainability to a single-edit-updates-everywhere example, e.g. a VAT-rate change."],
+  pitfalls: ["Saying constants 'save memory' — that is not their purpose; the benefit is safety/readability/maintainability.", "Leaving unexplained 'magic numbers' instead of naming them as constants."]
+},
+"compsci:4.1.1.7": {
+  defs: [["Concatenation", "Joining two or more strings end-to-end to form a new string."],
+         ["Substring", "A contiguous section of characters extracted from a string."]],
+  tips: ["Check whether the question uses 0-based or 1-based indexing before answering POSITION/SUBSTRING.",
+         "Name the conversion direction precisely: 'string to integer' vs 'integer to string'."],
+  pitfalls: ["Thinking \"12\" + \"34\" = 46 — with string operands, + concatenates to \"1234\".", "Off-by-one errors from mixing 0-based and 1-based indexing."]
+},
+"compsci:4.1.1.8": {
+  defs: [["Pseudo-random", "Numbers from a deterministic algorithm that appear random but eventually repeat."],
+         ["Seed", "The starting value of a pseudo-random generator; the same seed reproduces the same sequence."]],
+  tips: ["Justify a fixed seed by reproducibility for testing/debugging — that is the rewarded reason.",
+         "For 'why unsuitable for encryption', say the sequence is predictable if the seed and algorithm are known."],
+  pitfalls: ["Calling pseudo-random output 'truly random' — it is deterministic and periodic.", "Saying it repeats immediately — it repeats only after its (long) period."]
+},
+"compsci:4.1.1.9": {
+  defs: [["Exception", "A runtime error that disrupts normal program flow (e.g. file not found, divide by zero)."]],
+  tips: ["Roles: Try monitors, Catch handles, Finally always runs (cleanup) — note Finally runs whether or not an exception occurred.",
+         "'Failing gracefully' = a clear message and safe recovery instead of a crash — use that phrase."],
+  pitfalls: ["Claiming try/catch fixes logic or syntax errors — it only handles runtime exceptions.", "Treating exception handling as a substitute for input validation."]
+},
 "compsci:4.1.1.10": {
   defs: [["Subroutine", "A named, self-contained block of code that performs a specific task and can be called from other parts of the program."],
          ["Function", "A subroutine that returns a value to the calling code."]],

@@ -242,6 +242,15 @@ C["compsci:4.1.1.3"] = {
       ]}
     ]}},
     { callout: { t: "formula", h: "The DIV/MOD relationship", body: "For any integers A and B: `A = (A DIV B) * B + (A MOD B)`" }},
+    { callout: { t: "def", h: "Exponentiation, rounding & truncation", body: [
+      "The spec also lists these three operations:",
+      { kv: [
+        ["Exponentiation (`^` or `**`)", "Raises a number to a power, e.g. `2 ^ 3 = 8`."],
+        ["Rounding", "Converts a real to the NEAREST whole number (or to n decimal places): 3.7 → 4, 3.2 → 3."],
+        ["Truncation", "Discards the fractional part with no rounding: 3.7 → 3, 3.99 → 3."]
+      ]}
+    ]}},
+    { callout: { t: "miscon", h: "Rounding ≠ truncation", body: "Rounding goes to the *nearest* value (3.7 → 4); truncation simply *chops off* the fraction (3.7 → 3). They differ whenever the fractional part is ≥ 0.5. Integer division (DIV) uses truncation, not rounding." }},
     { page: "Worked examples & uses" },
     { steps: [
       { h: "Calculating 17 DIV 3", m: "17 / 3 = 5.666...", n: "Discard the decimal: result is 5." },
@@ -286,8 +295,7 @@ C["compsci:4.1.1.3"] = {
 
 C["compsci:4.1.1.4"] = {
   notes: [
-    { h: "Relational Operations" },
-    "Relational operators compare two values and always return a **Boolean** (True or False).",
+    { callout: { t: "def", h: "Relational operations", body: "Relational (comparison) operators compare two values and **always return a Boolean** (True or False). They produce the conditions that drive selection and iteration." }},
     { table: { head: ["Operator", "Meaning", "Example (5 ? 3)"], rows: [
       ["=", "Equal to", "False"],
       ["<> or !=", "Not equal to", "True"],
@@ -438,8 +446,7 @@ C["compsci:4.1.1.6"] = {
 
 C["compsci:4.1.1.7"] = {
   notes: [
-    { h: "String-Handling Operations" },
-    "Strings are more than just text; they are objects or arrays of characters that we can manipulate.",
+    { callout: { t: "def", h: "String-handling operations", body: "A string is a sequence of characters the language can manipulate as a single object. The spec requires these core operations:" }},
     { table: { head: ["Operation", "AQA Pseudo", "Effect", "Example (\"KOS\")"], rows: [
       ["Length", "LEN(s)", "Returns number of characters", "3"],
       ["Position", "POSITION(s, c)", "Index of first char 'c' in 's'", "1 (if 0-indexed)"],
@@ -453,6 +460,16 @@ C["compsci:4.1.1.7"] = {
         ["CODE_TO_CHAR", "Returns the character for a given integer (e.g. 66 → 'B')."]
       ]}
     ]}},
+    { callout: { t: "def", h: "String conversion operations", body: [
+      "The spec also lists conversions between strings and other data types:",
+      { kv: [
+        ["string → integer / float", "Parse numeric text so it can be used in arithmetic, e.g. \"42\" → 42."],
+        ["integer / float → string", "Turn a number into text for display or concatenation, e.g. 42 → \"42\"."],
+        ["date/time → string", "Format a date/time value as readable text for output."],
+        ["string → date/time", "Parse text into a date/time value for comparison or arithmetic."]
+      ]}
+    ]}},
+    { callout: { t: "tip", h: "Why conversions matter", body: "Console/keyboard input arrives as a **string** — `\"42\"` is text, not the number 42. You must convert it to an integer/real before doing arithmetic, then convert back to a string to display the result." }},
     { callout: { t: "warn", h: "Zero-based vs One-based", body: "Most languages (C#, Python) are 0-indexed. Some pseudocode in exams might use 1-based indexing. **Always check the question's indexing rule.**" }},
     { code: { lang: "csharp", cap: "String manipulation in C#.", src:
 "string s = \"KurenaiOS\";\nint len = s.Length;                // 9\nchar first = s[0];                 // 'K'\nstring sub = s.Substring(0, 3);    // \"Kur\" (start, length)\nint pos = s.IndexOf('O');          // 7\nstring combined = s + \" 2.0\";      // Concatenation\n\nint code = (int)'A';               // 65 (CHAR_TO_CODE)\nchar c = (char)66;                 // 'B' (CODE_TO_CHAR)" }},
