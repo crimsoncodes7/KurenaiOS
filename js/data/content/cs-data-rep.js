@@ -285,7 +285,7 @@ C["compsci:4.5.1.2"] = {
     {
       "h": "Integer Numbers ($\\mathbb{Z}$)"
     },
-    "Integers include all positive and negative whole numbers, including zero. They are used when discrete values below zero are required — such as temperatures, financial balances, or coordinates.",
+    { "callout": { "t": "info", "body": "Integers include all positive and negative whole numbers, including zero. They are used when discrete values below zero are required — such as temperatures, financial balances, or coordinates." } },
     {
       "callout": {
         "t": "def",
@@ -479,7 +479,7 @@ C["compsci:4.5.1.3"] = {
     {
       "h": "Rational Numbers ($\\mathbb{Q}$)"
     },
-    "Rational numbers are those that can be expressed as a ratio (fraction) of two integers, where the denominator is not zero.",
+    { "callout": { "t": "info", "body": "Rational numbers are those that can be expressed as a ratio (fraction) of two integers, where the denominator is not zero." } },
     {
       "callout": {
         "t": "def",
@@ -669,7 +669,7 @@ C["compsci:4.5.1.4"] = {
     {
       "h": "Irrational Numbers"
     },
-    "Irrational numbers cannot be expressed as a fraction of two integers. Their decimal expansion is infinite and non-repeating — the digits never settle into a repeating pattern.",
+    { "callout": { "t": "info", "body": "Irrational numbers cannot be expressed as a fraction of two integers. Their decimal expansion is infinite and non-repeating — the digits never settle into a repeating pattern." } },
     {
       "callout": {
         "t": "def",
@@ -859,7 +859,7 @@ C["compsci:4.5.1.5"] = {
     {
       "h": "Real Numbers ($\\mathbb{R}$)"
     },
-    "The set of real numbers encompasses all rational and irrational numbers. It represents any value along a continuous number line.",
+    { "callout": { "t": "info", "body": "The set of real numbers encompasses all rational and irrational numbers. It represents any value along a continuous number line." } },
     {
       "callout": {
         "t": "def",
@@ -880,7 +880,7 @@ C["compsci:4.5.1.5"] = {
         ]
       }
     },
-    "Because real values are continuous, a computer cannot store every real exactly. Instead it uses **floating-point** representation — a mantissa multiplied by a base raised to an exponent — which trades a little precision for a very wide range of values.",
+    { "callout": { "t": "info", "body": "Because real values are continuous, a computer cannot store every real exactly. Instead it uses **floating-point** representation — a mantissa multiplied by a base raised to an exponent — which trades a little precision for a very wide range of values." } },
     {
       "code": {
         "lang": "csharp",
@@ -1038,7 +1038,7 @@ C["compsci:4.5.1.6"] = {
     {
       "h": "Ordinal Numbers"
     },
-    "Ordinal numbers are used to describe the numerical position of objects in a sequence (e.g., 1st, 2nd, 3rd).",
+    { "callout": { "t": "info", "body": "Ordinal numbers are used to describe the numerical position of objects in a sequence (e.g., 1st, 2nd, 3rd)." } },
     {
       "callout": {
         "t": "def",
@@ -1059,7 +1059,7 @@ C["compsci:4.5.1.6"] = {
         ]
       }
     },
-    "In computing, ordinals appear most often as **array indices** and as **rankings** (search-result order, leaderboard position). Most languages count positions from 0, so the *first* element is the *0th* — a frequent source of off-by-one errors.",
+    { "callout": { "t": "info", "body": "In computing, ordinals appear most often as **array indices** and as **rankings** (search-result order, leaderboard position). Most languages count positions from 0, so the *first* element is the *0th* — a frequent source of off-by-one errors." } },
     {
       "code": {
         "lang": "pseudo",
@@ -1211,7 +1211,7 @@ C["compsci:4.5.1.7"] = {
     {
       "h": "Counting vs Measuring"
     },
-    "Natural numbers ($\\mathbb{N}$) are used for counting discrete objects, while Real numbers ($\\mathbb{R}$) are used for measuring continuous quantities.",
+    { "callout": { "t": "info", "body": "Natural numbers ($\\mathbb{N}$) are used for counting discrete objects, while Real numbers ($\\mathbb{R}$) are used for measuring continuous quantities." } },
     {
       "callout": {
         "t": "def",
@@ -1872,7 +1872,7 @@ C["compsci:4.5.3.2"] = {
     {
       "h": "Quantities and Prefixes"
     },
-    "There are two systems of prefixes: Decimal (SI) and Binary (IEC).",
+    { "callout": { "t": "info", "body": "There are two systems of prefixes: Decimal (SI) and Binary (IEC)." } },
     {
       "table": {
         "head": [

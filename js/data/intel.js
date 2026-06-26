@@ -352,6 +352,75 @@ window.KOS_DATA.intel = {
          "Check a string against the rules by deriving it step by step; show each substitution."],
   pitfalls: ["Writing | inside angle brackets or forgetting ::= — syntax slips cost marks in 'write a rule' questions."]
 },
+"compsci:4.5.1.1": {
+  defs: [["Rational number", "A number expressible as p/q where p, q are integers and q ≠ 0."],
+         ["Irrational number", "A number that cannot be written as a fraction; its decimal expansion is infinite and non-repeating."]],
+  tips: ["Know the nesting ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ and which set an example sits in.", "Recurring decimals ARE rational (e.g. 0.333… = 1/3)."],
+  pitfalls: ["Calling every decimal irrational — terminating/recurring decimals are rational.", "Forgetting that natural numbers exclude negatives."]
+},
+"compsci:4.5.1.2": {
+  defs: [["Integer (ℤ)", "All whole numbers — positive, negative and zero."]],
+  tips: ["In computing, integers have a fixed bit width, hence a finite range (overflow beyond it).", "Use integers for discrete signed quantities (temperatures, balances)."],
+  pitfalls: ["Assuming integers are unbounded — a type has a max/min and can overflow.", "Storing a fractional value in an integer (it truncates)."]
+},
+"compsci:4.5.1.3": {
+  defs: [["Rational number (ℚ)", "A number expressible as p/q with integers p, q and q ≠ 0."]],
+  tips: ["Every integer is rational (n/1); recurring and terminating decimals are rational.", "To prove a value is rational, give the fraction."],
+  pitfalls: ["Saying integers are not rational.", "Treating a recurring decimal as irrational."]
+},
+"compsci:4.5.1.4": {
+  defs: [["Irrational number", "Cannot be written as p/q; an infinite, non-repeating decimal (e.g. π, √2, e)."]],
+  tips: ["√ of a non-perfect-square is irrational; √ of a perfect square is rational.", "Computers store irrationals only as finite approximations, causing rounding error."],
+  pitfalls: ["Calling √9 irrational (it is 3).", "Thinking 22/7 equals π — it is a rational approximation."]
+},
+"compsci:4.5.1.5": {
+  defs: [["Real number (ℝ)", "Every value on the continuous number line — rationals plus irrationals."]],
+  tips: ["Use reals (floating point) for continuous / measured quantities.", "Computers approximate reals (mantissa × base^exp); not all are exact."],
+  pitfalls: ["Assuming computers store all reals exactly.", "Comparing two floats with == instead of a tolerance."]
+},
+"compsci:4.5.1.6": {
+  defs: [["Ordinal number", "Describes position/rank in a sequence (1st, 2nd); a cardinal describes quantity."]],
+  tips: ["Array indices are ordinal and usually 0-based — the 1st element is index 0.", "Distinguish ordinal (position) from cardinal (count) explicitly."],
+  pitfalls: ["Off-by-one: the nth element is index n−1 in a 0-indexed array.", "Confusing ordinal with cardinal."]
+},
+"compsci:4.5.1.7": {
+  defs: [["Counting", "Discrete whole quantities → integer types."],
+         ["Measuring", "Continuous quantities → real (floating-point) types."]],
+  tips: ["Test: 'how many?' (whole → integer) vs 'how much?' (continuous → real).", "Pick the data type from whether the quantity is discrete or continuous."],
+  pitfalls: ["Storing a measurement in an integer (loses the fraction).", "Using a float for an exact count (rounding/comparison issues)."]
+},
+"compsci:4.5.2.1": {
+  defs: [["Hexadecimal", "Base-16 (digits 0-9, A-F); one hex digit = 4 bits (a nibble)."]],
+  tips: ["Convert binary↔hex in nibbles — 4 bits per hex digit; 0xFF = 255.", "A value's representation changes between bases, but the value itself does not."],
+  pitfalls: ["Saying hex is 'easier for computers' — computers use binary; hex is for humans.", "Mis-grouping nibbles (group from the right, pad on the left)."]
+},
+"compsci:4.5.3.1": {
+  defs: [["Byte", "8 bits — 2^8 = 256 possible values."],
+         ["Nibble", "4 bits (one hex digit)."]],
+  tips: ["n bits → 2^n distinct values; quote the power of two.", "Word size = the bits the CPU processes at once (e.g. 64-bit)."],
+  pitfalls: ["Confusing bit (b) and byte (B) — 1 byte = 8 bits.", "Saying n bits give 2^n − 1 values (that is the max unsigned VALUE, not the count)."]
+},
+"compsci:4.5.3.2": {
+  defs: [["Kibibyte (KiB)", "2^10 = 1024 bytes (binary / IEC)."],
+         ["Kilobyte (kB)", "10^3 = 1000 bytes (decimal / SI)."]],
+  tips: ["Binary prefixes (KiB/MiB/GiB) step by 1024; SI (kB/MB/GB) by 1000.", "Drive makers use SI; OSes report binary, hence the apparent 'missing' capacity."],
+  pitfalls: ["Treating kB and KiB as identical.", "Using 1000 where 1024 is required (or vice versa)."]
+},
+"compsci:4.5.4.1": {
+  defs: [["Unsigned binary", "Represents non-negative integers only; n bits give the range 0 to 2^n − 1."]],
+  tips: ["8-bit unsigned range is 0–255; column values are 128, 64, … , 1.", "Max value = 2^n − 1, not 2^n."],
+  pitfalls: ["Saying 8-bit unsigned reaches 256 (the max is 255).", "Trying to store a negative value in unsigned binary."]
+},
+"compsci:4.5.4.2": {
+  defs: [["Overflow", "A result needing more bits than available — a carry out of the most significant bit (unsigned)."]],
+  tips: ["Binary addition: 1+1 = 10 (carry); 1+1+1 = 11.", "Detect unsigned overflow by a carry out of the MSB."],
+  pitfalls: ["Carrying at 10 (decimal) instead of at 2 (binary).", "Ignoring the final carry / overflow."]
+},
+"compsci:4.5.4.3": {
+  defs: [["Two's complement", "The standard signed representation; negate by inverting all bits and adding 1."]],
+  tips: ["n-bit range is −2^(n-1) to 2^(n-1) − 1 (8-bit: −128 to 127); the MSB has weight −2^(n-1).", "Subtraction = add the two's complement of the subtrahend."],
+  pitfalls: ["Confusing two's complement with sign-and-magnitude (−1 is 11111111, not 10000001).", "Forgetting the +1 step when negating."]
+},
 "compsci:4.5.4.4": {
   tips: ["Fixed point: the point is in a fixed position; fast but limited range/precision. Floating point: mantissa + exponent, both two's complement in AQA's simplified form.",
          "Normalised form: mantissa begins 01... (positive) or 10... (negative) — quote this test verbatim.",
