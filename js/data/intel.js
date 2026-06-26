@@ -15,6 +15,13 @@ window.KOS_DATA.intel = {
          "Records vs arrays: state record = heterogeneous named fields, array = homogeneous indexed elements — the explicit contrast is the marking point."],
   pitfalls: ["Writing 'number' instead of integer/real — AQA wants the precise type.", "Forgetting pointer/reference stores a memory address, not the object itself.", "Treating a reference assignment as an independent copy — both names point at the same object."]
 },
+"compsci:4.1.1.2": {
+  defs: [["Definite iteration", "A loop whose number of repetitions is known before it starts (e.g. a FOR loop)."],
+         ["Indefinite iteration", "A loop that repeats until a condition is met; the repeat count is not known in advance (e.g. WHILE / REPEAT)."]],
+  tips: ["For a 'why meaningful identifiers' mark, give a consequence — easier to maintain/debug, fewer errors — not just 'it looks tidy'.",
+         "Pre-condition (WHILE) may run 0 times; post-condition (REPEAT/DO-WHILE) runs at least once — stating the minimum-runs difference is the marking point."],
+  pitfalls: ["Claiming WHILE and DO-WHILE are interchangeable — they differ on whether the body can run zero times.", "Defining definite/indefinite by FOR-vs-WHILE syntax rather than by whether the repeat count is known in advance."]
+},
 "compsci:4.1.1.10": {
   defs: [["Subroutine", "A named, self-contained block of code that performs a specific task and can be called from other parts of the program."],
          ["Function", "A subroutine that returns a value to the calling code."]],

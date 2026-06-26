@@ -118,33 +118,86 @@ C["compsci:4.1.1.1"] = {
 
 C["compsci:4.1.1.2"] = {
   notes: [
-    { h: "The Three Principles of Imperative Programming" },
-    "All imperative programs are built using three combining principles: **Sequence**, **Selection**, and **Iteration**.",
-    { callout: { t: "def", h: "Core Constructs", body: [
+    { callout: { t: "def", h: "The three combining principles", body: [
+      "Every imperative program is built by combining three principles — any algorithm, however large, reduces to these:",
       { kv: [
-        ["Sequence", "Executing instructions one after the other in the order they are written."],
-        ["Selection", "Choosing which path to follow based on a condition (IF/ELSE, SWITCH/CASE)."],
-        ["Iteration", "Repeating a block of code (Loops)."]
+        ["Sequence", "Instructions execute one after another, in the order written."],
+        ["Selection", "A Boolean condition chooses which path runs (IF/ELSE, SWITCH/CASE)."],
+        ["Iteration", "A block is repeated (a loop)."]
       ]}
     ]}},
-    { page: "Iteration & loops" },
-    { h: "Iteration: Definite vs Indefinite" },
-    { table: { head: ["Feature", "Definite (FOR)", "Indefinite (WHILE / REPEAT)"], rows: [
-      ["Knowledge of count", "Known before the loop starts", "Not known; depends on a condition"],
-      ["Condition test", "Built-in counter", "Start (while) or End (repeat/until)"],
-      ["Use Case", "Iterating through an array", "Reading a file until the end is reached"]
-    ]}},
-    { callout: { t: "tip", h: "Clean Code Practices", body: [
+    { callout: { t: "info", h: "What the spec requires", body: [
+      "You must use, understand and **combine** these statement types in programs:",
       { kv: [
-        ["Identifiers", "Meaningful names for variables and constants to make code self-documenting and readable."],
-        ["Subroutines", "Encapsulating logic into procedures and functions to allow for reuse and easier debugging."]
+        ["Variable declaration", "Create a named store whose value can change."],
+        ["Constant declaration", "Create a named value fixed at design time."],
+        ["Assignment", "Evaluate an expression and store the result in a variable."],
+        ["Selection", "Branch on a condition."],
+        ["Iteration", "Repeat a block (definite or indefinite)."],
+        ["Subroutine", "A named, reusable procedure or function."]
       ]}
     ]}},
-    { code: { lang: "csharp", cap: "Selection and Iteration in C#.", src:
-"// Selection\nif (score > 50) {\n    Console.WriteLine(\"Pass\");\n} else {\n    Console.WriteLine(\"Fail\");\n}\n\n// Definite Iteration\nfor (int i = 0; i < 10; i++) {\n    Console.WriteLine(i);\n}\n\n// Indefinite Iteration (Test at start)\nwhile (energy > 0) {\n    energy -= 1;\n}\n\n// Indefinite Iteration (Test at end)\ndo {\n    Process();\n} while (keepGoing);" }},
+
+    { page: "Statement types" },
+    { callout: { t: "def", h: "Declarations & assignment", body: [
+      { kv: [
+        ["Variable declaration", "Introduce a named store, e.g. `count`, whose value may change at runtime."],
+        ["Constant declaration", "Introduce a named value fixed at design time, e.g. `VAT = 0.2`; it cannot be reassigned while the program runs."],
+        ["Assignment", "`total ← total + price` — the right-hand side is *evaluated first*, then stored in the variable on the left."]
+      ]}
+    ]}},
+    { callout: { t: "tip", h: "Why use a constant?", body: "Naming a fixed value once (`PI`, `MAX_USERS`) makes intent clear and means a single edit updates every use — safer and more readable than 'magic numbers' scattered through the code, which the compiler also protects from accidental change." }},
+    { code: { lang: "pseudo", cap: "Declarations and assignment.", src:
+"CONSTANT VAT = 0.2          # constant declaration\nprice = 50                  # variable declaration + assignment\ntotal = price * (1 + VAT)   # assignment from an evaluated expression" }},
+
+    { page: "Selection & nesting" },
+    { callout: { t: "def", h: "Selection constructs", body: [
+      { kv: [
+        ["IF / ELSE", "Choose between two paths on a Boolean condition."],
+        ["ELSE IF chain", "Test several conditions in order; the first true branch runs."],
+        ["SWITCH / CASE", "Match one variable against many discrete constant values."]
+      ]}
+    ]}},
+    { callout: { t: "def", h: "Nested structures", body: "Placing one construct inside another. **Nested selection** (an IF inside an IF) combines conditions; **nested iteration** (a loop inside a loop) processes 2-D data such as a grid or table." }},
+    { code: { lang: "pseudo", cap: "Nested iteration with nested selection.", src:
+"FOR row = 0 TO 2            # outer loop\n  FOR col = 0 TO 2         # nested (inner) loop\n    IF grid[row][col] = 0 THEN   # nested selection\n      OUTPUT \"empty\"\n    ENDIF\n  ENDFOR\nENDFOR" }},
+    { callout: { t: "tip", h: "SWITCH/CASE vs a long IF chain", body: "When testing ONE variable against many fixed values, SWITCH/CASE is clearer and less error-prone than a long ELSE-IF chain. Use an IF chain when the conditions are unrelated or test ranges." }},
+
+    { page: "Iteration" },
+    { callout: { t: "def", h: "Definite vs indefinite iteration", body: [
+      "A loop repeats a block. The spec distinguishes two kinds by whether the repeat count is known in advance:",
+      { table: { head: ["", "Definite (FOR)", "Indefinite (WHILE / REPEAT)"], rows: [
+        ["Repeat count", "Known before the loop starts", "Unknown — depends on a condition"],
+        ["Driven by", "A built-in counter", "A Boolean condition"],
+        ["Typical use", "Iterating a fixed-size array", "Reading a file until EOF; validating input"]
+      ]}}
+    ]}},
+    { callout: { t: "def", h: "Condition at the start vs the end", body: [
+      "Indefinite loops test their condition at one end. The spec requires a *theoretical* understanding of BOTH, even if your language only offers one:",
+      { table: { head: ["", "Pre-condition (WHILE)", "Post-condition (REPEAT-UNTIL / DO-WHILE)"], rows: [
+        ["Test happens", "Before the body", "After the body"],
+        ["Minimum runs", "0 (may never execute)", "1 (always runs at least once)"],
+        ["Best when", "The body might not be needed at all", "The body must run before the first check"]
+      ]}}
+    ]}},
+    { code: { lang: "pseudo", cap: "Definite, pre-condition and post-condition loops.", src:
+"FOR i = 1 TO 10            # definite\n  OUTPUT i\nENDFOR\n\nWHILE energy > 0          # indefinite, pre-condition (0+ runs)\n  energy = energy - 1\nENDWHILE\n\nREPEAT                    # indefinite, post-condition (1+ runs)\n  input = USERINPUT\nUNTIL input = \"quit\"" }},
+    { callout: { t: "miscon", h: "WHILE ≠ DO-WHILE", body: "They are NOT interchangeable. A WHILE may execute **zero** times if its condition starts false; a DO-WHILE/REPEAT always runs **at least once**. Choosing the wrong one (e.g. a WHILE for input validation that must prompt once) is a logic error." }},
+
+    { page: "Identifiers & subroutines" },
+    { callout: { t: "def", h: "Meaningful identifiers", body: "Names for variables, constants and subroutines should describe their purpose — `totalScore`, not `x`; `isValid`, not `b`." }},
+    { callout: { t: "info", h: "Why meaningful names matter (spec asks this)", body: "The compiler ignores the name, but humans don't. Self-documenting names make code easier to **read, debug, maintain and hand over** to a team or your future self; cryptic names cause misunderstanding and bugs. This is *why* the spec explicitly rewards knowing the reason, not just the practice." }},
+    { callout: { t: "def", h: "Subroutines", body: "A **subroutine** is a named, self-contained, reusable block — a *procedure* (performs a task) or a *function* (returns a value). It is declared once and called from elsewhere; covered in depth at $4.1.1.10$." }},
+
     { page: "Exam technique" },
-    { callout: { t: "memorise", h: "3 Constructs + Loop Types", body: "Sequence, Selection, Iteration. For iteration — Definite (FOR): count known before loop starts. Indefinite: WHILE (pre-test, may run 0 times) vs DO-WHILE/REPEAT-UNTIL (post-test, runs at least once)." }},
-    { callout: { t: "miscon", h: "WHILE ≠ DO-WHILE", body: "WHILE and DO-WHILE are NOT interchangeable. A WHILE loop may never execute if the condition starts as False. A DO-WHILE always executes at least once. Choosing the wrong one causes a logic error." }}
+    { callout: { t: "tip", h: "Command words", body: [
+      { kv: [
+        ["State / Identify", "Name the construct or statement type — no justification needed."],
+        ["Explain / Discuss", "Tie each construct to what the task needs ('an indefinite loop, because the number of lines is unknown')."]
+      ]}
+    ]}},
+    { callout: { t: "tip", h: "Model answer — 6-mark 'which constructs and why'", body: "Name each construct AND link it to the scenario: **sequence** for the ordered steps; **selection** (IF) for the decision; **indefinite iteration** for an unknown-length loop (e.g. until EOF); **nesting** the IF inside the loop; then a justified conclusion tied to the task — not a list of definitions." }},
+    { callout: { t: "memorise", h: "Constructs & loop types", body: "Three principles: **Sequence, Selection, Iteration**. Statement types: variable/constant declaration, assignment, selection, iteration, subroutine. Iteration: **definite** (count known, FOR) vs **indefinite** — WHILE (pre-test, 0+ runs) vs REPEAT-UNTIL/DO-WHILE (post-test, 1+ runs)." }}
   ],
   flashcards: [
     ["Name the three basic programming constructs.", "Sequence, Selection, and Iteration."],
