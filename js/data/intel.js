@@ -915,6 +915,40 @@ window.KOS_DATA.intel = {
 },
 
 /* ============ Edexcel Mathematics 9MA0 — Pure ============ */
+"maths:2.1": {
+  defs: [["Index laws", "a^m x a^n = a^(m+n); a^m / a^n = a^(m-n); (a^m)^n = a^(mn)."],
+         ["Fractional index", "a^(m/n) = the n-th root of a^m: root is the denominator, power the numerator."]],
+  tips: ["Convert everything to a common base before equating indices.", "a^0 = 1 (for a not 0); a^(-n) is the reciprocal 1/a^n."],
+  pitfalls: ["Adding indices when terms are ADDED (only valid for multiplication).", "Writing (a+b)^n = a^n + b^n."]
+},
+"maths:2.2": {
+  defs: [["Surd", "An irrational root left in exact form, e.g. root 2."],
+         ["Rationalising", "Removing a surd from a denominator by multiplying by it (or its conjugate)."]],
+  tips: ["Simplify surds by extracting square factors, e.g. root 50 = 5 root 2.", "For a+root b in the denominator, multiply by the conjugate a-root b."],
+  pitfalls: ["Writing root(a+b) = root a + root b.", "Leaving a surd in the denominator when asked for exact form."]
+},
+"maths:2.4": {
+  defs: [["Simultaneous equations", "Two equations satisfied together; one linear + one quadratic is solved by substitution."]],
+  tips: ["Rearrange the linear equation and substitute into the quadratic.", "A tangent line gives a repeated root (discriminant 0)."],
+  pitfalls: ["Losing a solution by not finding both x-values.", "Forgetting to find the matching y for each x."]
+},
+"maths:2.7": {
+  defs: [["Asymptote", "A line the curve approaches but never meets, e.g. the axes for y=1/x."],
+         ["Direct proportion", "y proportional to x means y=kx, a line through the origin."]],
+  tips: ["Reciprocal/translated reciprocal: asymptotes are parallel to the axes.", "Intersection points solve the simultaneous equations of the two graphs."],
+  pitfalls: ["Mislabelling the asymptotes of a translated reciprocal.", "Forgetting the reflected branch of a modulus graph."]
+},
+"maths:2.8": {
+  defs: [["Composite function fg(x)", "Means f(g(x)) — do g first, then f."],
+         ["Inverse function", "f^-1 reverses f; its graph is the reflection of f in y=x."]],
+  tips: ["Only one-one functions have inverses; ff^-1(x)=x.", "Find an inverse by swapping x and y and solving."],
+  pitfalls: ["Doing f before g in fg(x).", "Forgetting the domain restriction of the inverse."]
+},
+"maths:2.11": {
+  defs: [["Mathematical model", "A function chosen to describe a real situation, with stated assumptions and limitations."]],
+  tips: ["Match the function to the behaviour: periodic -> trig, growth/decay -> exponential, inverse -> reciprocal.", "Always state a limitation and how the model could be refined for the marks."],
+  pitfalls: ["Ignoring the asked-for limitations/refinements.", "Reading parameters (amplitude, period, mean) incorrectly from the model."]
+},
 "maths:1.1": {
   tips: ["Proof by deduction must start from known facts/assumptions and reason to the result — never start from the result.",
          "Contradiction proofs: open with 'Assume, for contradiction, that …' and close with 'this contradicts …, so the assumption is false'. Both sentences carry marks.",

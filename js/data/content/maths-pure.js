@@ -4,7 +4,9 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 
 C["maths:1.1"] = {
   "notes": [
-    { "h": "Methods of Proof" },
+    {
+      "h": "Methods of Proof"
+    },
     {
       "callout": {
         "t": "def",
@@ -35,12 +37,32 @@ C["maths:1.1"] = {
     },
     {
       "table": {
-        "head": ["Method", "Process", "Example Use Case"],
+        "head": [
+          "Method",
+          "Process",
+          "Example Use Case"
+        ],
         "rows": [
-          ["Deduction", "Known facts → logical steps → conclusion.", "$(a+b)^2 = a^2 + 2ab + b^2$ for all $a, b$."],
-          ["Exhaustion", "Test every case in a finite set.", "Proving a property holds for $n \\in \\{1,2,3,4,5\\}$."],
-          ["Counter-example", "Find one case where the statement fails.", "Disproving 'all odd numbers are prime' (e.g. $9 = 3\\times3$)."],
-          ["Contradiction", "Assume false → derive impossibility.", "Proving $\\sqrt{2}$ is irrational."]
+          [
+            "Deduction",
+            "Known facts → logical steps → conclusion.",
+            "$(a+b)^2 = a^2 + 2ab + b^2$ for all $a, b$."
+          ],
+          [
+            "Exhaustion",
+            "Test every case in a finite set.",
+            "Proving a property holds for $n \\in \\{1,2,3,4,5\\}$."
+          ],
+          [
+            "Counter-example",
+            "Find one case where the statement fails.",
+            "Disproving 'all odd numbers are prime' (e.g. $9 = 3\\times3$)."
+          ],
+          [
+            "Contradiction",
+            "Assume false → derive impossibility.",
+            "Proving $\\sqrt{2}$ is irrational."
+          ]
         ]
       }
     },
@@ -76,19 +98,94 @@ C["maths:1.1"] = {
     }
   ],
   "flashcards": [
-    ["What is a mathematical proof?", "A rigorous logical argument establishing the truth of a statement."],
-    ["How do you disprove a universal statement?", "By providing a single counter-example."],
-    ["Definition of an even number in proof?", "$2n$, where $n \\in \\mathbb{Z}$."],
-    ["Definition of an odd number in proof?", "$2n+1$ or $2n-1$, where $n \\in \\mathbb{Z}$."],
-    ["What is proof by exhaustion?", "Checking every possible case separately to show the statement holds for all."],
-    ["What is proof by contradiction?", "Assuming the negation of the statement and finding a logical conflict."]
+    [
+      "What is a mathematical proof?",
+      "A rigorous logical argument establishing the truth of a statement."
+    ],
+    [
+      "How do you disprove a universal statement?",
+      "By providing a single counter-example."
+    ],
+    [
+      "Definition of an even number in proof?",
+      "$2n$, where $n \\in \\mathbb{Z}$."
+    ],
+    [
+      "Definition of an odd number in proof?",
+      "$2n+1$ or $2n-1$, where $n \\in \\mathbb{Z}$."
+    ],
+    [
+      "What is proof by exhaustion?",
+      "Checking every possible case separately to show the statement holds for all."
+    ],
+    [
+      "What is proof by contradiction?",
+      "Assuming the negation of the statement and finding a logical conflict."
+    ],
+    [
+      "What is proof by deduction?",
+      "Starting from known facts/axioms and using logical algebraic steps to reach the conclusion."
+    ],
+    [
+      "Name a classic result proved by contradiction.",
+      "$\\sqrt{2}$ is irrational (or that there are infinitely many primes)."
+    ]
   ],
   "quiz": [
     {
       "q": "To disprove 'All prime numbers are odd', which number is the best counter-example?",
-      "opts": ["1", "2", "3", "9"],
+      "opts": [
+        "1",
+        "2",
+        "3",
+        "9"
+      ],
       "ans": 1,
       "why": "2 is prime and even, thus disproving the statement."
+    },
+    {
+      "q": "Which method proves a statement by checking every case in a finite set?",
+      "opts": [
+        "Deduction",
+        "Exhaustion",
+        "Contradiction",
+        "Counter-example"
+      ],
+      "ans": 1,
+      "why": "Exhaustion tests all finitely many cases."
+    },
+    {
+      "q": "To prove $\\sqrt{2}$ is irrational you use...?",
+      "opts": [
+        "deduction",
+        "exhaustion",
+        "contradiction",
+        "a counter-example"
+      ],
+      "ans": 2,
+      "why": "Assume $\\sqrt2=a/b$ in lowest terms and derive a contradiction."
+    },
+    {
+      "q": "The claim '$n^2-n+1$ is prime for all $n$' is best disproved by...?",
+      "opts": [
+        "deduction",
+        "exhaustion",
+        "finding one $n$ where it is not prime",
+        "contradiction"
+      ],
+      "ans": 2,
+      "why": "One counter-example, e.g. $n=1$ gives $1$, which is not prime."
+    },
+    {
+      "q": "A valid algebraic form for an odd integer is...?",
+      "opts": [
+        "$2n$",
+        "$2n+1$",
+        "$n^2$",
+        "$n/2$"
+      ],
+      "ans": 1,
+      "why": "$2n+1$ is odd for integer $n$."
     }
   ],
   "exam": [
@@ -100,13 +197,37 @@ C["maths:1.1"] = {
         "$n^2-1 = (n-1)(n+1)$. Since $n > 2$, $n-1 > 1$ and $n+1 > 3$. (1)",
         "Since $n^2-1$ is a product of two integers both greater than 1, it cannot be prime. Contradiction. (1)"
       ]
+    },
+    {
+      "q": "Prove by exhaustion that for every prime $p$ with $3<p<25$, $(p-1)(p+1)$ is a multiple of $12$.",
+      "marks": 4,
+      "ms": [
+        "Primes in range: $5,7,11,13,17,19,23$. (1)",
+        "$(p-1)(p+1)=p^2-1$; e.g. $p=5\\to24$, $p=7\\to48$, $p=11\\to120$. (1)",
+        "Each value $24,48,120,168,288,360,528$ is divisible by $12$. (1)",
+        "All cases give a multiple of $12$, so the statement holds by exhaustion. (1)"
+      ]
+    },
+    {
+      "q": "Prove by contradiction that there is no greatest even integer.",
+      "marks": 6,
+      "ms": [
+        "Assume there is a greatest even integer $N=2k$. (1)",
+        "Consider $N+2=2k+2=2(k+1)$. (1)",
+        "$k+1$ is an integer, so $N+2$ is even. (1)",
+        "But $N+2>N$. (1)",
+        "This contradicts $N$ being the greatest even integer. (1)",
+        "Hence the assumption is false: there is no greatest even integer. (1)"
+      ]
     }
   ]
 };
 
 C["maths:2.1"] = {
   "notes": [
-    { "h": "Laws of Indices" },
+    {
+      "h": "Laws of Indices"
+    },
     {
       "callout": {
         "t": "info",
@@ -116,15 +237,47 @@ C["maths:2.1"] = {
     },
     {
       "table": {
-        "head": ["Rule", "Algebraic Form", "Description"],
+        "head": [
+          "Rule",
+          "Algebraic Form",
+          "Description"
+        ],
         "rows": [
-          ["Multiplication", "$a^m \\times a^n = a^{m+n}$", "Add indices when multiplying same base."],
-          ["Division", "$a^m \\div a^n = a^{m-n}$", "Subtract indices when dividing same base."],
-          ["Power of Power", "$(a^m)^n = a^{mn}$", "Multiply indices when raising a power to a power."],
-          ["Zero Index", "$a^0 = 1$", "Any non-zero base raised to power 0 is 1."],
-          ["Negative Index", "$a^{-n} = \\dfrac{1}{a^n}$", "A negative index represents a reciprocal."],
-          ["Fractional Index", "$a^{\\frac{1}{n}} = \\sqrt[n]{a}$", "The denominator of the index is the root."],
-          ["Rational Index", "$a^{\\frac{m}{n}} = (\\sqrt[n]{a})^m$", "Numerator is power, denominator is root."]
+          [
+            "Multiplication",
+            "$a^m \\times a^n = a^{m+n}$",
+            "Add indices when multiplying same base."
+          ],
+          [
+            "Division",
+            "$a^m \\div a^n = a^{m-n}$",
+            "Subtract indices when dividing same base."
+          ],
+          [
+            "Power of Power",
+            "$(a^m)^n = a^{mn}$",
+            "Multiply indices when raising a power to a power."
+          ],
+          [
+            "Zero Index",
+            "$a^0 = 1$",
+            "Any non-zero base raised to power 0 is 1."
+          ],
+          [
+            "Negative Index",
+            "$a^{-n} = \\dfrac{1}{a^n}$",
+            "A negative index represents a reciprocal."
+          ],
+          [
+            "Fractional Index",
+            "$a^{\\frac{1}{n}} = \\sqrt[n]{a}$",
+            "The denominator of the index is the root."
+          ],
+          [
+            "Rational Index",
+            "$a^{\\frac{m}{n}} = (\\sqrt[n]{a})^m$",
+            "Numerator is power, denominator is root."
+          ]
         ]
       }
     },
@@ -158,19 +311,94 @@ C["maths:2.1"] = {
     }
   ],
   "flashcards": [
-    ["Simplify $x^a \\times x^b$.", "$x^{a+b}$."],
-    ["Simplify $(x^a)^b$.", "$x^{ab}$."],
-    ["What is $x^{-3}$ in fraction form?", "$1/x^3$."],
-    ["What is $x^{1/2}$ in radical form?", "$\\sqrt{x}$."],
-    ["Simplify $x^5 \\div x^2$.", "$x^3$."],
-    ["Evaluate $16^{3/4}$.", "$(\\sqrt[4]{16})^3 = 2^3 = 8$."]
+    [
+      "Simplify $x^a \\times x^b$.",
+      "$x^{a+b}$."
+    ],
+    [
+      "Simplify $(x^a)^b$.",
+      "$x^{ab}$."
+    ],
+    [
+      "What is $x^{-3}$ in fraction form?",
+      "$1/x^3$."
+    ],
+    [
+      "What is $x^{1/2}$ in radical form?",
+      "$\\sqrt{x}$."
+    ],
+    [
+      "Simplify $x^5 \\div x^2$.",
+      "$x^3$."
+    ],
+    [
+      "Evaluate $16^{3/4}$.",
+      "$(\\sqrt[4]{16})^3 = 2^3 = 8$."
+    ],
+    [
+      "Evaluate $8^{2/3}$.",
+      "$(\\sqrt[3]{8})^2 = 2^2 = 4$."
+    ],
+    [
+      "What is $a^0$ (for $a\\neq0$)?",
+      "$1$."
+    ]
   ],
   "quiz": [
     {
       "q": "Simplify $(2x^3)^4$.",
-      "opts": ["$8x^{12}$", "$16x^7$", "$16x^{12}$", "$2x^{12}$"],
+      "opts": [
+        "$8x^{12}$",
+        "$16x^7$",
+        "$16x^{12}$",
+        "$2x^{12}$"
+      ],
       "ans": 2,
       "why": "$2^4 \\times (x^3)^4 = 16x^{12}$."
+    },
+    {
+      "q": "Simplify $x^7 \\div x^3$.",
+      "opts": [
+        "$x^4$",
+        "$x^{10}$",
+        "$x^{21}$",
+        "$x^{4/3}$"
+      ],
+      "ans": 0,
+      "why": "Subtract indices: $7-3=4$."
+    },
+    {
+      "q": "Evaluate $27^{-1/3}$.",
+      "opts": [
+        "$3$",
+        "$-3$",
+        "$1/3$",
+        "$-1/3$"
+      ],
+      "ans": 2,
+      "why": "$27^{1/3}=3$, and the negative index gives the reciprocal $1/3$."
+    },
+    {
+      "q": "Simplify $(3x^2)^3$.",
+      "opts": [
+        "$9x^6$",
+        "$27x^6$",
+        "$27x^5$",
+        "$3x^6$"
+      ],
+      "ans": 1,
+      "why": "$3^3\\times x^{6}=27x^6$."
+    },
+    {
+      "q": "Which is equal to $a^{m+n}$?",
+      "opts": [
+        "$a^m+a^n$",
+        "$a^m\\times a^n$",
+        "$a^m\\div a^n$",
+        "$(a^m)^n$"
+      ],
+      "ans": 1,
+      "why": "Adding indices corresponds to multiplying powers of the same base."
     }
   ],
   "exam": [
@@ -181,13 +409,35 @@ C["maths:2.1"] = {
         "$32 = 2^5$ and $\\sqrt{2} = 2^{1/2}$. (1)",
         "$2^5 \\times 2^{1/2} = 2^{5.5} \\implies k = 5.5$ or $11/2$. (1)"
       ]
+    },
+    {
+      "q": "Express $\\dfrac{\\sqrt{x^3}}{x}$ as a single power of $x$.",
+      "marks": 2,
+      "ms": [
+        "$\\sqrt{x^3}=x^{3/2}$. (1)",
+        "$x^{3/2}\\div x^{1}=x^{1/2}$. (1)"
+      ]
+    },
+    {
+      "q": "Given $4^x \\times 8 = 2^{11}$, find $x$.",
+      "marks": 6,
+      "ms": [
+        "Write all in base 2: $4^x=(2^2)^x=2^{2x}$. (1)",
+        "$8=2^3$. (1)",
+        "LHS $=2^{2x}\\times2^3=2^{2x+3}$. (1)",
+        "Set equal to $2^{11}$: $2x+3=11$. (1)",
+        "$2x=8$. (1)",
+        "$x=4$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:2.2"] = {
   "notes": [
-    { "h": "Surds" },
+    {
+      "h": "Surds"
+    },
     {
       "callout": {
         "t": "def",
@@ -244,19 +494,94 @@ C["maths:2.2"] = {
     }
   ],
   "flashcards": [
-    ["Simplify $\\sqrt{20}$.", "$2\\sqrt{5}$."],
-    ["Simplify $\\sqrt{3} \\times \\sqrt{6}$.", "$\\sqrt{18} = 3\\sqrt{2}$."],
-    ["Rationalise $1/\\sqrt{2}$.", "$\\sqrt{2}/2$."],
-    ["What is the conjugate of $2+\\sqrt{3}$?", "$2-\\sqrt{3}$."],
-    ["Expand $(1+\\sqrt{2})(1-\\sqrt{2})$.", "$1-2 = -1$."],
-    ["Simplify $\\sqrt{48} - \\sqrt{12}$.", "$4\\sqrt{3} - 2\\sqrt{3} = 2\\sqrt{3}$."]
+    [
+      "Simplify $\\sqrt{20}$.",
+      "$2\\sqrt{5}$."
+    ],
+    [
+      "Simplify $\\sqrt{3} \\times \\sqrt{6}$.",
+      "$\\sqrt{18} = 3\\sqrt{2}$."
+    ],
+    [
+      "Rationalise $1/\\sqrt{2}$.",
+      "$\\sqrt{2}/2$."
+    ],
+    [
+      "What is the conjugate of $2+\\sqrt{3}$?",
+      "$2-\\sqrt{3}$."
+    ],
+    [
+      "Expand $(1+\\sqrt{2})(1-\\sqrt{2})$.",
+      "$1-2 = -1$."
+    ],
+    [
+      "Simplify $\\sqrt{48} - \\sqrt{12}$.",
+      "$4\\sqrt{3} - 2\\sqrt{3} = 2\\sqrt{3}$."
+    ],
+    [
+      "Rationalise $\\dfrac{1}{\\sqrt{3}}$.",
+      "$\\dfrac{\\sqrt3}{3}$ (multiply top and bottom by $\\sqrt3$)."
+    ],
+    [
+      "Simplify $\\sqrt{50}$.",
+      "$\\sqrt{25\\times2}=5\\sqrt2$."
+    ]
   ],
   "quiz": [
     {
       "q": "Express $\\frac{1}{3-\\sqrt{2}}$ in the form $a+b\\sqrt{2}$.",
-      "opts": ["$\\frac{3+\\sqrt{2}}{7}$", "$\\frac{3-\\sqrt{2}}{7}$", "$\\frac{3+\\sqrt{2}}{11}$", "$3+\\sqrt{2}$"],
+      "opts": [
+        "$\\frac{3+\\sqrt{2}}{7}$",
+        "$\\frac{3-\\sqrt{2}}{7}$",
+        "$\\frac{3+\\sqrt{2}}{11}$",
+        "$3+\\sqrt{2}$"
+      ],
       "ans": 0,
       "why": "Multiply numerator and denominator by $3+\\sqrt{2}$. Denominator becomes $3^2 - 2 = 7$."
+    },
+    {
+      "q": "Simplify $\\sqrt{12}+\\sqrt{27}$.",
+      "opts": [
+        "$\\sqrt{39}$",
+        "$5\\sqrt3$",
+        "$6\\sqrt3$",
+        "$5\\sqrt6$"
+      ],
+      "ans": 1,
+      "why": "$2\\sqrt3+3\\sqrt3=5\\sqrt3$."
+    },
+    {
+      "q": "Rationalise $\\dfrac{1}{\\sqrt5}$.",
+      "opts": [
+        "$\\sqrt5$",
+        "$\\dfrac{\\sqrt5}{5}$",
+        "$\\dfrac{5}{\\sqrt5}$",
+        "$\\dfrac{1}{5}$"
+      ],
+      "ans": 1,
+      "why": "Multiply by $\\sqrt5/\\sqrt5$."
+    },
+    {
+      "q": "$(\\sqrt7)^2$ equals...?",
+      "opts": [
+        "$7$",
+        "$\\sqrt7$",
+        "$49$",
+        "$14$"
+      ],
+      "ans": 0,
+      "why": "Squaring a square root removes it."
+    },
+    {
+      "q": "To rationalise $\\dfrac{1}{3+\\sqrt2}$ multiply by...?",
+      "opts": [
+        "$3+\\sqrt2$",
+        "$3-\\sqrt2$",
+        "$\\sqrt2$",
+        "$\\dfrac{1}{\\sqrt2}$"
+      ],
+      "ans": 1,
+      "why": "Use the conjugate $3-\\sqrt2$ to make the denominator rational."
     }
   ],
   "exam": [
@@ -267,13 +592,35 @@ C["maths:2.2"] = {
         "$\\sqrt{75} = 5\\sqrt{3}$ and $\\sqrt{27} = 3\\sqrt{3}$. (1)",
         "$\\frac{5\\sqrt{3} - 3\\sqrt{3}}{\\sqrt{3}} = \\frac{2\\sqrt{3}}{\\sqrt{3}} = 2$. (1)"
       ]
+    },
+    {
+      "q": "Simplify $\\sqrt{75}-\\sqrt{12}$, giving your answer in the form $k\\sqrt3$.",
+      "marks": 2,
+      "ms": [
+        "$\\sqrt{75}=5\\sqrt3$, $\\sqrt{12}=2\\sqrt3$. (1)",
+        "$5\\sqrt3-2\\sqrt3=3\\sqrt3$. (1)"
+      ]
+    },
+    {
+      "q": "Express $\\dfrac{5}{\\sqrt3-1}$ in the form $a+b\\sqrt3$.",
+      "marks": 6,
+      "ms": [
+        "Multiply numerator and denominator by the conjugate $\\sqrt3+1$. (1)",
+        "Denominator: $(\\sqrt3-1)(\\sqrt3+1)=3-1=2$. (1)",
+        "Numerator: $5(\\sqrt3+1)=5\\sqrt3+5$. (1)",
+        "So the expression $=\\dfrac{5\\sqrt3+5}{2}$. (1)",
+        "$=\\dfrac52+\\dfrac52\\sqrt3$. (1)",
+        "Hence $a=\\tfrac52$, $b=\\tfrac52$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:2.3"] = {
   "notes": [
-    { "h": "Quadratic Functions & Discriminant" },
+    {
+      "h": "Quadratic Functions & Discriminant"
+    },
     {
       "callout": {
         "t": "info",
@@ -283,12 +630,32 @@ C["maths:2.3"] = {
     },
     {
       "table": {
-        "head": ["Method", "Purpose", "Formula/Process"],
+        "head": [
+          "Method",
+          "Purpose",
+          "Formula/Process"
+        ],
         "rows": [
-          ["Factorising", "Find roots quickly", "Find $p, q$ such that $(x-p)(x-q)=0$."],
-          ["Completing Square", "Find vertex/min/max", "$a(x+p)^2 + q$."],
-          ["Quadratic Formula", "Find roots for any quadratic", "$x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$."],
-          ["Discriminant", "Determine nature of roots", "$D = b^2 - 4ac$."]
+          [
+            "Factorising",
+            "Find roots quickly",
+            "Find $p, q$ such that $(x-p)(x-q)=0$."
+          ],
+          [
+            "Completing Square",
+            "Find vertex/min/max",
+            "$a(x+p)^2 + q$."
+          ],
+          [
+            "Quadratic Formula",
+            "Find roots for any quadratic",
+            "$x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$."
+          ],
+          [
+            "Discriminant",
+            "Determine nature of roots",
+            "$D = b^2 - 4ac$."
+          ]
         ]
       }
     },
@@ -319,19 +686,94 @@ C["maths:2.3"] = {
     }
   ],
   "flashcards": [
-    ["Formula for the discriminant?", "$b^2 - 4ac$."],
-    ["Condition for two distinct real roots?", "$b^2 - 4ac > 0$."],
-    ["Condition for a repeated root?", "$b^2 - 4ac = 0$."],
-    ["What does $b^2 - 4ac < 0$ imply about the graph?", "It never crosses or touches the $x$-axis."],
-    ["Vertex of $y = (x-3)^2 + 5$?", "$(3, 5)$."],
-    ["How to find the $y$-intercept of a quadratic?", "Set $x=0$ (it is the value of $c$ in $ax^2+bx+c$)."]
+    [
+      "Formula for the discriminant?",
+      "$b^2 - 4ac$."
+    ],
+    [
+      "Condition for two distinct real roots?",
+      "$b^2 - 4ac > 0$."
+    ],
+    [
+      "Condition for a repeated root?",
+      "$b^2 - 4ac = 0$."
+    ],
+    [
+      "What does $b^2 - 4ac < 0$ imply about the graph?",
+      "It never crosses or touches the $x$-axis."
+    ],
+    [
+      "Vertex of $y = (x-3)^2 + 5$?",
+      "$(3, 5)$."
+    ],
+    [
+      "How to find the $y$-intercept of a quadratic?",
+      "Set $x=0$ (it is the value of $c$ in $ax^2+bx+c$)."
+    ],
+    [
+      "What does the discriminant $b^2-4ac$ tell you?",
+      "The number of real roots: $>0$ two distinct, $=0$ one repeated, $<0$ none."
+    ],
+    [
+      "Complete the square for $x^2+6x+1$.",
+      "$(x+3)^2-8$."
+    ]
   ],
   "quiz": [
     {
       "q": "Find the discriminant of $2x^2 - 5x + 3 = 0$.",
-      "opts": ["1", "49", "-1", "25"],
+      "opts": [
+        "1",
+        "49",
+        "-1",
+        "25"
+      ],
       "ans": 0,
       "why": "$(-5)^2 - 4(2)(3) = 25 - 24 = 1$."
+    },
+    {
+      "q": "$x^2-4x+7=0$ has how many real roots?",
+      "opts": [
+        "2",
+        "1",
+        "0",
+        "infinite"
+      ],
+      "ans": 2,
+      "why": "$b^2-4ac=16-28=-12<0$, so no real roots."
+    },
+    {
+      "q": "For equal (repeated) roots, the discriminant must be...?",
+      "opts": [
+        "$>0$",
+        "$=0$",
+        "$<0$",
+        "$=1$"
+      ],
+      "ans": 1,
+      "why": "$b^2-4ac=0$ gives one repeated root."
+    },
+    {
+      "q": "Completing the square, $x^2-8x+3=$...?",
+      "opts": [
+        "$(x-4)^2-13$",
+        "$(x-4)^2+3$",
+        "$(x-8)^2-13$",
+        "$(x+4)^2-13$"
+      ],
+      "ans": 0,
+      "why": "$(x-4)^2-16+3=(x-4)^2-13$."
+    },
+    {
+      "q": "The minimum value of $(x-2)^2+5$ is...?",
+      "opts": [
+        "$2$",
+        "$5$",
+        "$-5$",
+        "$0$"
+      ],
+      "ans": 1,
+      "why": "The squared term is $\\ge0$, so the minimum is $5$ at $x=2$."
     }
   ],
   "exam": [
@@ -344,14 +786,39 @@ C["maths:2.3"] = {
         "Critical values: $(k-6)(k+2) = 0 \\implies k=6, k=-2$. (1)",
         "Solution: $k \\le -2$ or $k \\ge 6$. (1)"
       ]
+    },
+    {
+      "q": "Find the values of $k$ for which $x^2+kx+9=0$ has equal roots.",
+      "marks": 3,
+      "ms": [
+        "Equal roots: $b^2-4ac=0$. (1)",
+        "$k^2-36=0$. (1)",
+        "$k=\\pm6$. (1)"
+      ]
+    },
+    {
+      "q": "The equation $2x^2+(k+1)x+8=0$ has two distinct real roots. Find the range of values of $k$.",
+      "marks": 6,
+      "ms": [
+        "Two distinct roots: $b^2-4ac>0$. (1)",
+        "$(k+1)^2-4(2)(8)>0$. (1)",
+        "$(k+1)^2-64>0$. (1)",
+        "$(k+1)^2>64$. (1)",
+        "$k+1>8$ or $k+1<-8$. (1)",
+        "$k>7$ or $k<-9$. (1)"
+      ]
     }
   ],
-  "gens": ["quad"]
+  "gens": [
+    "quad"
+  ]
 };
 
 C["maths:2.4"] = {
   "notes": [
-    { "h": "Simultaneous Equations" },
+    {
+      "h": "Simultaneous Equations"
+    },
     {
       "callout": {
         "t": "def",
@@ -364,10 +831,18 @@ C["maths:2.4"] = {
         "t": "info",
         "h": "Methods",
         "body": [
-          {"kv": [
-            ["Elimination", "Used for two linear equations — multiply to match coefficients, then add/subtract to eliminate one variable."],
-            ["Substitution", "Used for one linear + one non-linear — rearrange the linear for one variable, substitute into the other equation."]
-          ]}
+          {
+            "kv": [
+              [
+                "Elimination",
+                "Used for two linear equations — multiply to match coefficients, then add/subtract to eliminate one variable."
+              ],
+              [
+                "Substitution",
+                "Used for one linear + one non-linear — rearrange the linear for one variable, substitute into the other equation."
+              ]
+            ]
+          }
         ]
       }
     },
@@ -410,19 +885,94 @@ C["maths:2.4"] = {
     }
   ],
   "flashcards": [
-    ["Most common method for linear + quadratic?", "Substitution."],
-    ["Geometric meaning of simultaneous solutions?", "Points of intersection between graphs."],
-    ["How many solutions can a line and a circle have?", "0, 1 (tangent), or 2."],
-    ["If substitution results in $b^2-4ac=0$, what is the line?", "A tangent to the curve."],
-    ["First step in solving $2x+y=5$ and $x^2+y^2=10$?", "Rearrange linear for one variable, e.g., $y=5-2x$."],
-    ["What if there are no real solutions to the resulting quadratic?", "The graphs do not intersect."]
+    [
+      "Most common method for linear + quadratic?",
+      "Substitution."
+    ],
+    [
+      "Geometric meaning of simultaneous solutions?",
+      "Points of intersection between graphs."
+    ],
+    [
+      "How many solutions can a line and a circle have?",
+      "0, 1 (tangent), or 2."
+    ],
+    [
+      "If substitution results in $b^2-4ac=0$, what is the line?",
+      "A tangent to the curve."
+    ],
+    [
+      "First step in solving $2x+y=5$ and $x^2+y^2=10$?",
+      "Rearrange linear for one variable, e.g., $y=5-2x$."
+    ],
+    [
+      "What if there are no real solutions to the resulting quadratic?",
+      "The graphs do not intersect."
+    ],
+    [
+      "Method for one linear + one quadratic simultaneous equation?",
+      "Rearrange the linear equation, substitute into the quadratic, then solve."
+    ],
+    [
+      "How many solution pairs can a line and a parabola have?",
+      "0, 1 (tangent) or 2."
+    ]
   ],
   "quiz": [
     {
       "q": "Solve $y=2x$ and $y=x^2-3$.",
-      "opts": ["$(3, 6), (-1, -2)$", "$(1, 2), (-3, -6)$", "$(3, 6)$ only", "$(-1, -2)$ only"],
+      "opts": [
+        "$(3, 6), (-1, -2)$",
+        "$(1, 2), (-3, -6)$",
+        "$(3, 6)$ only",
+        "$(-1, -2)$ only"
+      ],
       "ans": 0,
       "why": "$x^2-3=2x \\implies x^2-2x-3=0 \\implies (x-3)(x+1)=0$."
+    },
+    {
+      "q": "Solving $y=x+1$ and $y=x^2-1$ gives $x=$...?",
+      "opts": [
+        "$-1,2$",
+        "$1,-2$",
+        "$0,1$",
+        "$2,3$"
+      ],
+      "ans": 0,
+      "why": "$x+1=x^2-1\\Rightarrow x^2-x-2=0\\Rightarrow(x-2)(x+1)=0$."
+    },
+    {
+      "q": "Best first step for one linear and one quadratic equation?",
+      "opts": [
+        "add them",
+        "substitute the linear into the quadratic",
+        "square the linear",
+        "divide them"
+      ],
+      "ans": 1,
+      "why": "Substitution reduces it to a single quadratic."
+    },
+    {
+      "q": "If substitution gives a quadratic with no real roots, the graphs...?",
+      "opts": [
+        "touch once",
+        "intersect twice",
+        "do not intersect",
+        "are identical"
+      ],
+      "ans": 2,
+      "why": "No real solutions means no points of intersection."
+    },
+    {
+      "q": "A line meeting a curve exactly once (a tangent) corresponds to a discriminant of...?",
+      "opts": [
+        "$>0$",
+        "$=0$",
+        "$<0$",
+        "undefined"
+      ],
+      "ans": 1,
+      "why": "One repeated solution means $b^2-4ac=0$."
     }
   ],
   "exam": [
@@ -435,13 +985,37 @@ C["maths:2.4"] = {
         "$(-m)^2 - 4(1)(4) = 0 \\implies m^2 = 16$. (1)",
         "$m = 4$ or $m = -4$. (1)"
       ]
+    },
+    {
+      "q": "Solve simultaneously $y=2x-3$ and $x^2+y^2=5$.",
+      "marks": 4,
+      "ms": [
+        "Substitute: $x^2+(2x-3)^2=5$. (1)",
+        "$x^2+4x^2-12x+9=5\\Rightarrow5x^2-12x+4=0$. (1)",
+        "$(5x-2)(x-2)=0\\Rightarrow x=\\tfrac25$ or $x=2$. (1)",
+        "$y=-\\tfrac{11}{5}$ or $y=1$. (1)"
+      ]
+    },
+    {
+      "q": "The line $y=x+k$ is a tangent to the curve $y=x^2-3x+4$. Find $k$.",
+      "marks": 6,
+      "ms": [
+        "Set equal: $x+k=x^2-3x+4$. (1)",
+        "$x^2-4x+(4-k)=0$. (1)",
+        "Tangent means equal roots: $b^2-4ac=0$. (1)",
+        "$16-4(4-k)=0$. (1)",
+        "$16-16+4k=0$. (1)",
+        "$k=0$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:2.5"] = {
   "notes": [
-    { "h": "Linear & Quadratic Inequalities" },
+    {
+      "h": "Linear & Quadratic Inequalities"
+    },
     {
       "callout": {
         "t": "warn",
@@ -488,19 +1062,94 @@ C["maths:2.5"] = {
     }
   ],
   "flashcards": [
-    ["Solve $2x + 5 > 11$.", "$x > 3$."],
-    ["What happens if you multiply $-x < 3$ by $-1$?", "It becomes $x > -3$."],
-    ["First step in solving $x^2 - 9 \\ge 0$?", "Find critical values: $x=3, x=-3$."],
-    ["Solution format for 'inside' critical values $a, b$?", "$a < x < b$."],
-    ["Solution format for 'outside' critical values $a, b$ (where $a < b$)?", "$x < a$ or $x > b$."],
-    ["Set notation for $x > 5$?", "$\\{x : x > 5\\}$."]
+    [
+      "Solve $2x + 5 > 11$.",
+      "$x > 3$."
+    ],
+    [
+      "What happens if you multiply $-x < 3$ by $-1$?",
+      "It becomes $x > -3$."
+    ],
+    [
+      "First step in solving $x^2 - 9 \\ge 0$?",
+      "Find critical values: $x=3, x=-3$."
+    ],
+    [
+      "Solution format for 'inside' critical values $a, b$?",
+      "$a < x < b$."
+    ],
+    [
+      "Solution format for 'outside' critical values $a, b$ (where $a < b$)?",
+      "$x < a$ or $x > b$."
+    ],
+    [
+      "Set notation for $x > 5$?",
+      "$\\{x : x > 5\\}$."
+    ],
+    [
+      "When you multiply/divide an inequality by a negative, what happens?",
+      "The inequality sign reverses."
+    ],
+    [
+      "How do you solve a quadratic inequality $ax^2+bx+c>0$?",
+      "Find the roots, sketch the parabola, and read off where it is above/below the axis."
+    ]
   ],
   "quiz": [
     {
       "q": "Solve $x^2 > 9$.",
-      "opts": ["$x > 3$", "$-3 < x < 3$", "$x < -3$ or $x > 3$", "$x > \\pm 3$"],
+      "opts": [
+        "$x > 3$",
+        "$-3 < x < 3$",
+        "$x < -3$ or $x > 3$",
+        "$x > \\pm 3$"
+      ],
       "ans": 2,
       "why": "Critical values are $\\pm 3$. Graph is above $x$-axis for $x < -3$ or $x > 3$."
+    },
+    {
+      "q": "Solve $3x-2<7$.",
+      "opts": [
+        "$x<3$",
+        "$x>3$",
+        "$x<\\tfrac53$",
+        "$x>\\tfrac53$"
+      ],
+      "ans": 0,
+      "why": "$3x<9\\Rightarrow x<3$."
+    },
+    {
+      "q": "Solve $x^2-x-6<0$.",
+      "opts": [
+        "$x<-2$ or $x>3$",
+        "$-2<x<3$",
+        "$-3<x<2$",
+        "$x>3$"
+      ],
+      "ans": 1,
+      "why": "Roots $-2,3$; the parabola is below the axis between them."
+    },
+    {
+      "q": "Multiplying $-2x<6$ by $-1$ gives...?",
+      "opts": [
+        "$2x<-6$",
+        "$2x>-6$",
+        "$2x<6$",
+        "$x<-3$"
+      ],
+      "ans": 1,
+      "why": "Dividing by a negative reverses the sign: $2x>-6$, i.e. $x>-3$."
+    },
+    {
+      "q": "$x^2\\ge9$ has solution...?",
+      "opts": [
+        "$-3\\le x\\le3$",
+        "$x\\le-3$ or $x\\ge3$",
+        "$x\\ge3$ only",
+        "$x\\le9$"
+      ],
+      "ans": 1,
+      "why": "The parabola $x^2-9$ is $\\ge0$ outside the roots $\\pm3$."
     }
   ],
   "exam": [
@@ -512,13 +1161,36 @@ C["maths:2.5"] = {
         "Intersect with $x > 2$. (1)",
         "Final answer: $2 < x \\le 5$. (1)"
       ]
+    },
+    {
+      "q": "Solve the inequality $2x^2+5x-3\\le0$.",
+      "marks": 3,
+      "ms": [
+        "Factorise: $(2x-1)(x+3)\\le0$. (1)",
+        "Roots $x=\\tfrac12$ and $x=-3$. (1)",
+        "Parabola opens up, so $\\le0$ between the roots: $-3\\le x\\le\\tfrac12$. (1)"
+      ]
+    },
+    {
+      "q": "Find the set of values of $x$ for which both $3x-1>5$ and $x^2-7x+10<0$.",
+      "marks": 6,
+      "ms": [
+        "First: $3x>6\\Rightarrow x>2$. (1)",
+        "Second: factorise $(x-2)(x-5)<0$. (1)",
+        "Roots $2$ and $5$. (1)",
+        "Parabola below axis between roots: $2<x<5$. (1)",
+        "Combine with $x>2$. (1)",
+        "Solution: $2<x<5$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:2.6"] = {
   "notes": [
-    { "h": "Polynomials & Factor Theorem" },
+    {
+      "h": "Polynomials & Factor Theorem"
+    },
     {
       "callout": {
         "t": "info",
@@ -558,19 +1230,94 @@ C["maths:2.6"] = {
     }
   ],
   "flashcards": [
-    ["State the Factor Theorem.", "If $f(k)=0$, then $(x-k)$ is a factor."],
-    ["How to find the remainder of $f(x) \\div (x+2)$?", "Calculate $f(-2)$."],
-    ["If $(2x-1)$ is a factor of $f(x)$, what is $f(1/2)$?", "Zero."],
-    ["Degree of a cubic polynomial?", "Three."],
-    ["What is the maximum number of roots for a quartic?", "Four."],
-    ["Simplify $(x^3 - 1) \\div (x-1)$.", "$x^2 + x + 1$."]
+    [
+      "State the Factor Theorem.",
+      "If $f(k)=0$, then $(x-k)$ is a factor."
+    ],
+    [
+      "How to find the remainder of $f(x) \\div (x+2)$?",
+      "Calculate $f(-2)$."
+    ],
+    [
+      "If $(2x-1)$ is a factor of $f(x)$, what is $f(1/2)$?",
+      "Zero."
+    ],
+    [
+      "Degree of a cubic polynomial?",
+      "Three."
+    ],
+    [
+      "What is the maximum number of roots for a quartic?",
+      "Four."
+    ],
+    [
+      "Simplify $(x^3 - 1) \\div (x-1)$.",
+      "$x^2 + x + 1$."
+    ],
+    [
+      "State the factor theorem.",
+      "If $f(a)=0$ then $(x-a)$ is a factor of $f(x)$ (and conversely)."
+    ],
+    [
+      "How do you find a first factor of a cubic?",
+      "Try small values ($\\pm1,\\pm2,\\dots$) until $f(a)=0$, giving factor $(x-a)$."
+    ]
   ],
   "quiz": [
     {
       "q": "If $f(x) = x^3 + kx + 2$ and $(x-1)$ is a factor, find $k$.",
-      "opts": ["-3", "3", "1", "-1"],
+      "opts": [
+        "-3",
+        "3",
+        "1",
+        "-1"
+      ],
       "ans": 0,
       "why": "$f(1) = 1 + k + 2 = 0 \\implies k = -3$."
+    },
+    {
+      "q": "If $f(2)=0$, a factor of $f(x)$ is...?",
+      "opts": [
+        "$(x+2)$",
+        "$(x-2)$",
+        "$(2x)$",
+        "$(x^2)$"
+      ],
+      "ans": 1,
+      "why": "Factor theorem: root $2$ gives factor $(x-2)$."
+    },
+    {
+      "q": "$f(x)=x^3-7x+6$. Which is a factor?",
+      "opts": [
+        "$(x-1)$",
+        "$(x-2)$",
+        "$(x+3)$",
+        "all of these"
+      ],
+      "ans": 3,
+      "why": "$f(1)=0$, $f(2)=0$, $f(-3)=0$ — all are factors."
+    },
+    {
+      "q": "Dividing $x^3-1$ by $(x-1)$ gives...?",
+      "opts": [
+        "$x^2+x+1$",
+        "$x^2-x+1$",
+        "$x^2+1$",
+        "$x^2-1$"
+      ],
+      "ans": 0,
+      "why": "$x^3-1=(x-1)(x^2+x+1)$."
+    },
+    {
+      "q": "$\\dfrac{x^2-9}{x-3}$ simplifies to...?",
+      "opts": [
+        "$x-3$",
+        "$x+3$",
+        "$x^2-3$",
+        "$9$"
+      ],
+      "ans": 1,
+      "why": "$x^2-9=(x-3)(x+3)$, cancel $(x-3)$."
     }
   ],
   "exam": [
@@ -584,13 +1331,37 @@ C["maths:2.6"] = {
         "Substitute: $4 + b = -1 \\implies b = -5$. (1)",
         "Final values $a=4, b=-5$. (1)"
       ]
+    },
+    {
+      "q": "Show that $(x-1)$ is a factor of $f(x)=x^3+2x^2-5x+2$ and factorise fully.",
+      "marks": 4,
+      "ms": [
+        "$f(1)=1+2-5+2=0$, so $(x-1)$ is a factor. (1)",
+        "Divide: $f(x)=(x-1)(x^2+3x-2)$. (1)",
+        "$x^2+3x-2$ does not factorise over integers (discriminant $17$). (1)",
+        "$f(x)=(x-1)(x^2+3x-2)$ is the full factorisation. (1)"
+      ]
+    },
+    {
+      "q": "Given $f(x)=2x^3+x^2-13x+6$, fully factorise $f(x)$.",
+      "marks": 6,
+      "ms": [
+        "Try $x=2$: $16+4-26+6=0$, so $(x-2)$ is a factor. (1)",
+        "Divide by $(x-2)$: $2x^2+5x-3$. (1)",
+        "Factorise the quadratic: $(2x-1)(x+3)$. (1)",
+        "So $f(x)=(x-2)(2x-1)(x+3)$. (1)",
+        "Check by expanding or a second root, e.g. $f(-3)=0$. (1)",
+        "Final: $f(x)=(x-2)(2x-1)(x+3)$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:2.7"] = {
   "notes": [
-    { "h": "Graphs of Functions" },
+    {
+      "h": "Graphs of Functions"
+    },
     {
       "callout": {
         "t": "info",
@@ -600,14 +1371,42 @@ C["maths:2.7"] = {
     },
     {
       "table": {
-        "head": ["Function Type", "Equation Form", "Key Features"],
+        "head": [
+          "Function Type",
+          "Equation Form",
+          "Key Features"
+        ],
         "rows": [
-          ["Linear", "$y = mx + c$", "Straight line, gradient $m$, $y$-intercept $c$."],
-          ["Quadratic", "$y = ax^2 + bx + c$", "Parabola. Positive $a$: U-shape; negative $a$: n-shape."],
-          ["Cubic", "$y = ax^3 + bx^2 + cx + d$", "S-shape, up to 2 turning points. Positive $a$: bottom-left to top-right."],
-          ["Reciprocal", "$y = k/x$", "Hyperbola. Asymptotes $x=0, y=0$. Quadrants 1 & 3 (if $k>0$)."],
-          ["Reciprocal Squared", "$y = k/x^2$", "Always above $x$-axis (if $k>0$). Asymptotes $x=0, y=0$."],
-          ["Exponential", "$y = a^x$", "Always positive. Asymptote $y=0$. Passes through $(0,1)$."]
+          [
+            "Linear",
+            "$y = mx + c$",
+            "Straight line, gradient $m$, $y$-intercept $c$."
+          ],
+          [
+            "Quadratic",
+            "$y = ax^2 + bx + c$",
+            "Parabola. Positive $a$: U-shape; negative $a$: n-shape."
+          ],
+          [
+            "Cubic",
+            "$y = ax^3 + bx^2 + cx + d$",
+            "S-shape, up to 2 turning points. Positive $a$: bottom-left to top-right."
+          ],
+          [
+            "Reciprocal",
+            "$y = k/x$",
+            "Hyperbola. Asymptotes $x=0, y=0$. Quadrants 1 & 3 (if $k>0$)."
+          ],
+          [
+            "Reciprocal Squared",
+            "$y = k/x^2$",
+            "Always above $x$-axis (if $k>0$). Asymptotes $x=0, y=0$."
+          ],
+          [
+            "Exponential",
+            "$y = a^x$",
+            "Always positive. Asymptote $y=0$. Passes through $(0,1)$."
+          ]
         ]
       }
     },
@@ -641,19 +1440,94 @@ C["maths:2.7"] = {
     }
   ],
   "flashcards": [
-    ["Shape of a cubic with positive $x^3$ coefficient?", "Starts bottom-left, ends top-right."],
-    ["Asymptotes of $y = 1/x$?", "$x=0$ and $y=0$."],
-    ["How many turning points can a quartic have?", "Up to 3."],
-    ["What feature does $y=1/x^2$ have at $x=0$?", "A vertical asymptote."],
-    ["Where does $y=3^x$ cross the $y$-axis?", "At $(0, 1)$."],
-    ["Effect of a negative 'a' in $y=ax^2$?", "Reflects the parabola in the $x$-axis (opens downwards)."]
+    [
+      "Shape of a cubic with positive $x^3$ coefficient?",
+      "Starts bottom-left, ends top-right."
+    ],
+    [
+      "Asymptotes of $y = 1/x$?",
+      "$x=0$ and $y=0$."
+    ],
+    [
+      "How many turning points can a quartic have?",
+      "Up to 3."
+    ],
+    [
+      "What feature does $y=1/x^2$ have at $x=0$?",
+      "A vertical asymptote."
+    ],
+    [
+      "Where does $y=3^x$ cross the $y$-axis?",
+      "At $(0, 1)$."
+    ],
+    [
+      "Effect of a negative 'a' in $y=ax^2$?",
+      "Reflects the parabola in the $x$-axis (opens downwards)."
+    ],
+    [
+      "What does $y\\propto x$ mean and what is its graph?",
+      "$y=kx$ for constant $k$; a straight line through the origin with gradient $k$."
+    ],
+    [
+      "Where are the asymptotes of $y=\\dfrac{1}{x+a}+b$?",
+      "Vertical $x=-a$ and horizontal $y=b$."
+    ]
   ],
   "quiz": [
     {
       "q": "Which graph has asymptotes $x=0$ and $y=0$?",
-      "opts": ["$y=x^2$", "$y=e^x$", "$y=1/x$", "$y=\\sin x$"],
+      "opts": [
+        "$y=x^2$",
+        "$y=e^x$",
+        "$y=1/x$",
+        "$y=\\sin x$"
+      ],
       "ans": 2,
       "why": "The reciprocal function $y=k/x$ is undefined at $x=0$ and never reaches $y=0$."
+    },
+    {
+      "q": "The graph of $y=\\dfrac1x$ has asymptotes...?",
+      "opts": [
+        "$x=0,y=0$",
+        "$x=1,y=1$",
+        "none",
+        "$y=x$"
+      ],
+      "ans": 0,
+      "why": "The reciprocal curve approaches both axes."
+    },
+    {
+      "q": "If $y\\propto x^2$ and $y=12$ when $x=2$, then $k=$...?",
+      "opts": [
+        "$3$",
+        "$6$",
+        "$2$",
+        "$24$"
+      ],
+      "ans": 0,
+      "why": "$12=k(4)\\Rightarrow k=3$."
+    },
+    {
+      "q": "$y=|x|$ for $x<0$ is the line...?",
+      "opts": [
+        "$y=x$",
+        "$y=-x$",
+        "$y=0$",
+        "$y=|x|$"
+      ],
+      "ans": 1,
+      "why": "The modulus reflects the negative part, giving $y=-x$."
+    },
+    {
+      "q": "Intersection points of two graphs give...?",
+      "opts": [
+        "the gradients",
+        "solutions of the equation set equal",
+        "the asymptotes",
+        "the turning points"
+      ],
+      "ans": 1,
+      "why": "Where the curves meet, their $y$-values (and the equations) are equal."
     }
   ],
   "exam": [
@@ -665,13 +1539,36 @@ C["maths:2.7"] = {
         "Intercepts $x$-axis at $x=2$ (touches) and $x=-1$ (crosses). (1)",
         "Intercepts $y$-axis at $(0, 4)$. (1)"
       ]
+    },
+    {
+      "q": "$P$ is inversely proportional to $V$. When $V=4$, $P=15$. Find $P$ when $V=10$.",
+      "marks": 3,
+      "ms": [
+        "$P=k/V$. (1)",
+        "$15=k/4\\Rightarrow k=60$. (1)",
+        "$P=60/10=6$. (1)"
+      ]
+    },
+    {
+      "q": "Sketch ideas aside, solve $|2x-1|=x+3$ algebraically.",
+      "marks": 6,
+      "ms": [
+        "Case 1 (positive): $2x-1=x+3$. (1)",
+        "$x=4$. (1)",
+        "Case 2 (negative): $-(2x-1)=x+3$. (1)",
+        "$-2x+1=x+3\\Rightarrow-3x=2$. (1)",
+        "$x=-\\tfrac23$. (1)",
+        "Both satisfy the original equation, so $x=4$ or $x=-\\tfrac23$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:2.8"] = {
   "notes": [
-    { "h": "Composite & Inverse Functions" },
+    {
+      "h": "Composite & Inverse Functions"
+    },
     {
       "callout": {
         "t": "info",
@@ -691,9 +1588,18 @@ C["maths:2.8"] = {
     },
     {
       "kv": [
-        ["Domain of $f^{-1}$", "Range of $f$"],
-        ["Range of $f^{-1}$", "Domain of $f$"],
-        ["Graph of $f^{-1}$", "Reflection of $f$ in the line $y=x$"]
+        [
+          "Domain of $f^{-1}$",
+          "Range of $f$"
+        ],
+        [
+          "Range of $f^{-1}$",
+          "Domain of $f$"
+        ],
+        [
+          "Graph of $f^{-1}$",
+          "Reflection of $f$ in the line $y=x$"
+        ]
       ]
     },
     {
@@ -712,19 +1618,94 @@ C["maths:2.8"] = {
     }
   ],
   "flashcards": [
-    ["What does $gf(x)$ mean?", "Apply $f$ then apply $g$ to the result."],
-    ["How to find an inverse function algebraically?", "Swap $x$ and $y$ and rearrange for $y$."],
-    ["Geometric relationship between $f$ and $f^{-1}$?", "Reflection in the line $y=x$."],
-    ["Constraint for $f^{-1}(x)$ to exist?", "$f(x)$ must be one-to-one."],
-    ["Relationship between domains and ranges?", "$Dom(f^{-1}) = Ran(f)$ and vice versa."],
-    ["Evaluate $ff^{-1}(x)$.", "$x$."]
+    [
+      "What does $gf(x)$ mean?",
+      "Apply $f$ then apply $g$ to the result."
+    ],
+    [
+      "How to find an inverse function algebraically?",
+      "Swap $x$ and $y$ and rearrange for $y$."
+    ],
+    [
+      "Geometric relationship between $f$ and $f^{-1}$?",
+      "Reflection in the line $y=x$."
+    ],
+    [
+      "Constraint for $f^{-1}(x)$ to exist?",
+      "$f(x)$ must be one-to-one."
+    ],
+    [
+      "Relationship between domains and ranges?",
+      "$Dom(f^{-1}) = Ran(f)$ and vice versa."
+    ],
+    [
+      "Evaluate $ff^{-1}(x)$.",
+      "$x$."
+    ],
+    [
+      "What does $fg(x)$ mean?",
+      "Do $g$ first, then $f$: $f(g(x))$."
+    ],
+    [
+      "How is the graph of $y=f^{-1}(x)$ related to $y=f(x)$?",
+      "It is the reflection of $y=f(x)$ in the line $y=x$."
+    ]
   ],
   "quiz": [
     {
       "q": "If $f(x) = 2x+3$ and $g(x) = x^2$, find $fg(2)$.",
-      "opts": ["7", "11", "49", "25"],
+      "opts": [
+        "7",
+        "11",
+        "49",
+        "25"
+      ],
       "ans": 1,
       "why": "$g(2) = 4 \\implies f(4) = 2(4)+3 = 11$."
+    },
+    {
+      "q": "If $f(x)=x+1$ and $g(x)=x^2$, then $fg(x)=$...?",
+      "opts": [
+        "$x^2+1$",
+        "$(x+1)^2$",
+        "$x^2+2x+1$",
+        "$x^3$"
+      ],
+      "ans": 0,
+      "why": "Do $g$ first: $f(x^2)=x^2+1$."
+    },
+    {
+      "q": "For an inverse function to exist, the function must be...?",
+      "opts": [
+        "many-one",
+        "one-one",
+        "quadratic",
+        "increasing only"
+      ],
+      "ans": 1,
+      "why": "Only one-one functions have inverses (over their domain)."
+    },
+    {
+      "q": "If $f(x)=2x-3$, then $f^{-1}(x)=$...?",
+      "opts": [
+        "$\\tfrac{x+3}{2}$",
+        "$\\tfrac{x-3}{2}$",
+        "$2x+3$",
+        "$\\tfrac1{2x-3}$"
+      ],
+      "ans": 0,
+      "why": "Swap and solve: $y=2x-3\\Rightarrow x=\\tfrac{y+3}{2}$."
+    },
+    {
+      "q": "$ff^{-1}(x)$ equals...?",
+      "opts": [
+        "$0$",
+        "$1$",
+        "$x$",
+        "$f(x)$"
+      ],
+      "ans": 2,
+      "why": "A function and its inverse undo each other."
     }
   ],
   "exam": [
@@ -737,23 +1718,82 @@ C["maths:2.8"] = {
         "$f^{-1}(x) = \\frac{3x+1}{x-2}$. (1)",
         "Domain: $x \\ne 2$ (since range of $f$ is $y \\ne 2$). (1)"
       ]
+    },
+    {
+      "q": "$f(x)=3x+2$ and $g(x)=x^2$. Find $gf(x)$ and $f^{-1}(x)$.",
+      "marks": 4,
+      "ms": [
+        "$gf(x)=g(3x+2)=(3x+2)^2$. (1)",
+        "$=9x^2+12x+4$. (1)",
+        "For the inverse: $y=3x+2\\Rightarrow x=\\tfrac{y-2}{3}$. (1)",
+        "$f^{-1}(x)=\\tfrac{x-2}{3}$. (1)"
+      ]
+    },
+    {
+      "q": "The function $f$ is defined by $f(x)=\\dfrac{x+1}{x-2}$, $x\\neq2$. Find $f^{-1}(x)$ and state its domain restriction.",
+      "marks": 6,
+      "ms": [
+        "Let $y=\\dfrac{x+1}{x-2}$. (1)",
+        "$y(x-2)=x+1\\Rightarrow xy-2y=x+1$. (1)",
+        "$xy-x=2y+1\\Rightarrow x(y-1)=2y+1$. (1)",
+        "$x=\\dfrac{2y+1}{y-1}$. (1)",
+        "So $f^{-1}(x)=\\dfrac{2x+1}{x-1}$. (1)",
+        "Domain restriction: $x\\neq1$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:2.9"] = {
   "notes": [
-    { "h": "Graph Transformations" },
+    {
+      "h": "Graph Transformations"
+    },
     {
       "table": {
-        "head": ["Notation", "Transformation", "Direction", "Mnemonic"],
+        "head": [
+          "Notation",
+          "Transformation",
+          "Direction",
+          "Mnemonic"
+        ],
         "rows": [
-          ["$f(x) + a$", "Translate up $a$ units", "Vertical", "Outside = vertical"],
-          ["$f(x + a)$", "Translate left $a$ units ($a>0$)", "Horizontal", "Inside = horizontal, OPPOSITE direction"],
-          ["$a f(x)$", "Vertical stretch, scale factor $a$", "Vertical", "Multiply $y$-values by $a$"],
-          ["$f(ax)$", "Horizontal stretch, scale factor $1/a$", "Horizontal", "Divide $x$-values by $a$"],
-          ["$-f(x)$", "Reflection in the $x$-axis", "Vertical", "Negates all $y$-values"],
-          ["$f(-x)$", "Reflection in the $y$-axis", "Horizontal", "Negates all $x$-values"]
+          [
+            "$f(x) + a$",
+            "Translate up $a$ units",
+            "Vertical",
+            "Outside = vertical"
+          ],
+          [
+            "$f(x + a)$",
+            "Translate left $a$ units ($a>0$)",
+            "Horizontal",
+            "Inside = horizontal, OPPOSITE direction"
+          ],
+          [
+            "$a f(x)$",
+            "Vertical stretch, scale factor $a$",
+            "Vertical",
+            "Multiply $y$-values by $a$"
+          ],
+          [
+            "$f(ax)$",
+            "Horizontal stretch, scale factor $1/a$",
+            "Horizontal",
+            "Divide $x$-values by $a$"
+          ],
+          [
+            "$-f(x)$",
+            "Reflection in the $x$-axis",
+            "Vertical",
+            "Negates all $y$-values"
+          ],
+          [
+            "$f(-x)$",
+            "Reflection in the $y$-axis",
+            "Horizontal",
+            "Negates all $x$-values"
+          ]
         ]
       }
     },
@@ -787,19 +1827,94 @@ C["maths:2.9"] = {
     }
   ],
   "flashcards": [
-    ["Effect of $f(x-3)$?", "Translate right by 3 units."],
-    ["Effect of $2f(x)$?", "Vertical stretch scale factor 2."],
-    ["Effect of $f(2x)$?", "Horizontal stretch scale factor $1/2$."],
-    ["How to reflect a graph in the $x$-axis?", "Apply $-f(x)$."],
-    ["Transformation for $f(x)+5$?", "Translate up by 5 units."],
-    ["How to reflect in the $y$-axis?", "Apply $f(-x)$."]
+    [
+      "Effect of $f(x-3)$?",
+      "Translate right by 3 units."
+    ],
+    [
+      "Effect of $2f(x)$?",
+      "Vertical stretch scale factor 2."
+    ],
+    [
+      "Effect of $f(2x)$?",
+      "Horizontal stretch scale factor $1/2$."
+    ],
+    [
+      "How to reflect a graph in the $x$-axis?",
+      "Apply $-f(x)$."
+    ],
+    [
+      "Transformation for $f(x)+5$?",
+      "Translate up by 5 units."
+    ],
+    [
+      "How to reflect in the $y$-axis?",
+      "Apply $f(-x)$."
+    ],
+    [
+      "What does $y=f(x)+a$ do to the graph?",
+      "Translates it up by $a$ (vector $\\begin{pmatrix}0\\\\a\\end{pmatrix}$)."
+    ],
+    [
+      "What does $y=f(x+a)$ do?",
+      "Translates it left by $a$ (a horizontal shift in the opposite sign)."
+    ]
   ],
   "quiz": [
     {
       "q": "The graph of $y=x^2$ is translated by $\\begin{pmatrix} 2 \\\\ -1 \\end{pmatrix}$. What is the new equation?",
-      "opts": ["$y = (x+2)^2-1$", "$y = (x-2)^2-1$", "$y = (x-2)^2+1$", "$y = (x+2)^2+1$"],
+      "opts": [
+        "$y = (x+2)^2-1$",
+        "$y = (x-2)^2-1$",
+        "$y = (x-2)^2+1$",
+        "$y = (x+2)^2+1$"
+      ],
       "ans": 1,
       "why": "Horizontal translation $a=2 \\implies (x-2)$, Vertical $b=-1 \\implies -1$."
+    },
+    {
+      "q": "$y=f(x-3)$ translates $y=f(x)$...?",
+      "opts": [
+        "left 3",
+        "right 3",
+        "up 3",
+        "down 3"
+      ],
+      "ans": 1,
+      "why": "$f(x-a)$ shifts right by $a$."
+    },
+    {
+      "q": "$y=2f(x)$ is a...?",
+      "opts": [
+        "horizontal stretch",
+        "vertical stretch scale factor 2",
+        "translation",
+        "reflection"
+      ],
+      "ans": 1,
+      "why": "Multiplying the output stretches vertically by 2."
+    },
+    {
+      "q": "$y=f(-x)$ is a reflection in the...?",
+      "opts": [
+        "$x$-axis",
+        "$y$-axis",
+        "line $y=x$",
+        "origin"
+      ],
+      "ans": 1,
+      "why": "Negating the input reflects in the $y$-axis."
+    },
+    {
+      "q": "$y=f(2x)$ is a horizontal stretch of scale factor...?",
+      "opts": [
+        "$2$",
+        "$\\tfrac12$",
+        "$-2$",
+        "$0$"
+      ],
+      "ans": 1,
+      "why": "$f(ax)$ stretches horizontally by $1/a$."
     }
   ],
   "exam": [
@@ -810,13 +1925,35 @@ C["maths:2.9"] = {
         "Vertical stretch scale factor 3. (1)",
         "Horizontal stretch scale factor $1/2$. (1)"
       ]
+    },
+    {
+      "q": "Describe the single transformation mapping $y=x^2$ to $y=(x-4)^2+3$.",
+      "marks": 2,
+      "ms": [
+        "Translation. (1)",
+        "By vector $\\begin{pmatrix}4\\\\3\\end{pmatrix}$ (right 4, up 3). (1)"
+      ]
+    },
+    {
+      "q": "The graph of $y=f(x)$ has a maximum at $(2,5)$. State the coordinates of the maximum on $y=3f(x+1)-2$.",
+      "marks": 6,
+      "ms": [
+        "$f(x+1)$ shifts left 1: $x$-coordinate $2\\to1$. (1)",
+        "The $y$-coordinate is unchanged by the horizontal shift: still $5$. (1)",
+        "$3f(\\cdot)$ stretches vertically by 3: $y$-coordinate $5\\to15$. (1)",
+        "$-2$ shifts down 2: $y$-coordinate $15\\to13$. (1)",
+        "$x$-coordinate unaffected by vertical changes: $1$. (1)",
+        "Maximum at $(1,13)$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:2.10"] = {
   "notes": [
-    { "h": "Partial Fractions" },
+    {
+      "h": "Partial Fractions"
+    },
     {
       "callout": {
         "t": "def",
@@ -877,19 +2014,94 @@ C["maths:2.10"] = {
     }
   ],
   "flashcards": [
-    ["Form for $\\frac{1}{(x+1)(x-2)}$?", "$\\frac{A}{x+1} + \\frac{B}{x-2}$."],
-    ["Form for repeated factor $(x+3)^2$?", "$\\frac{A}{x+3} + \\frac{B}{(x+3)^2}$."],
-    ["When is a fraction 'improper'?", "Numerator degree $\\ge$ Denominator degree."],
-    ["How to find constants $A$ and $B$?", "Equate numerators and substitute values of $x$."],
-    ["Why use partial fractions?", "To simplify expressions for integration or binomial expansion."],
-    ["Expand $\\frac{x}{(x+1)(x+2)}$?", "$\\frac{-1}{x+1} + \\frac{2}{x+2}$."]
+    [
+      "Form for $\\frac{1}{(x+1)(x-2)}$?",
+      "$\\frac{A}{x+1} + \\frac{B}{x-2}$."
+    ],
+    [
+      "Form for repeated factor $(x+3)^2$?",
+      "$\\frac{A}{x+3} + \\frac{B}{(x+3)^2}$."
+    ],
+    [
+      "When is a fraction 'improper'?",
+      "Numerator degree $\\ge$ Denominator degree."
+    ],
+    [
+      "How to find constants $A$ and $B$?",
+      "Equate numerators and substitute values of $x$."
+    ],
+    [
+      "Why use partial fractions?",
+      "To simplify expressions for integration or binomial expansion."
+    ],
+    [
+      "Expand $\\frac{x}{(x+1)(x+2)}$?",
+      "$\\frac{-1}{x+1} + \\frac{2}{x+2}$."
+    ],
+    [
+      "Form of partial fractions for $\\dfrac{1}{(x+1)(x+2)}$?",
+      "$\\dfrac{A}{x+1}+\\dfrac{B}{x+2}$."
+    ],
+    [
+      "What extra term is needed for a repeated factor $(x+1)^2$?",
+      "$\\dfrac{A}{x+1}+\\dfrac{B}{(x+1)^2}$."
+    ]
   ],
   "quiz": [
     {
       "q": "Find the form of the partial fractions for $\\frac{5x}{(x-1)^2}$.",
-      "opts": ["$\\frac{A}{x-1} + \\frac{B}{x-1}$", "$\\frac{A}{x-1} + \\frac{B}{(x-1)^2}$", "$\\frac{A}{x-1}$", "$\\frac{Ax+B}{(x-1)^2}$"],
+      "opts": [
+        "$\\frac{A}{x-1} + \\frac{B}{x-1}$",
+        "$\\frac{A}{x-1} + \\frac{B}{(x-1)^2}$",
+        "$\\frac{A}{x-1}$",
+        "$\\frac{Ax+B}{(x-1)^2}$"
+      ],
       "ans": 1,
       "why": "Repeated factors require terms for each power up to the repetition count."
+    },
+    {
+      "q": "$\\dfrac{5}{(x-1)(x+4)}=\\dfrac{A}{x-1}+\\dfrac{B}{x+4}$. Find $A$.",
+      "opts": [
+        "$1$",
+        "$-1$",
+        "$5$",
+        "$\\tfrac15$"
+      ],
+      "ans": 0,
+      "why": "Cover-up at $x=1$: $A=\\dfrac{5}{1+4}=1$."
+    },
+    {
+      "q": "How many partial-fraction terms for $\\dfrac{x}{(x+2)^2(x-1)}$?",
+      "opts": [
+        "2",
+        "3",
+        "1",
+        "4"
+      ],
+      "ans": 1,
+      "why": "$\\dfrac{A}{x+2}+\\dfrac{B}{(x+2)^2}+\\dfrac{C}{x-1}$ = 3 terms."
+    },
+    {
+      "q": "The cover-up method finds a constant by substituting...?",
+      "opts": [
+        "$x=0$",
+        "the value making that factor zero",
+        "$x=1$ always",
+        "the largest root"
+      ],
+      "ans": 1,
+      "why": "Substitute the root of the factor you are isolating."
+    },
+    {
+      "q": "$\\dfrac{A}{x+2}+\\dfrac{B}{(x+2)^2}$ is the form for...?",
+      "opts": [
+        "distinct linear factors",
+        "a repeated linear factor",
+        "a quadratic factor",
+        "an improper fraction"
+      ],
+      "ans": 1,
+      "why": "Repeated factor needs both powers."
     }
   ],
   "exam": [
@@ -901,13 +2113,37 @@ C["maths:2.10"] = {
         "Let $x=1 \\implies 8 = 4A \\implies A=2$. (1)",
         "Let $x=-3 \\implies 4 = -4B \\implies B=-1$. Final: $\\frac{2}{x-1} - \\frac{1}{x+3}$. (1)"
       ]
+    },
+    {
+      "q": "Express $\\dfrac{7x-1}{(x-1)(x+2)}$ in partial fractions.",
+      "marks": 4,
+      "ms": [
+        "Let $\\dfrac{7x-1}{(x-1)(x+2)}=\\dfrac{A}{x-1}+\\dfrac{B}{x+2}$. (1)",
+        "$x=1$: $A=\\dfrac{6}{3}=2$. (1)",
+        "$x=-2$: $B=\\dfrac{-15}{-3}=5$. (1)",
+        "$\\dfrac{2}{x-1}+\\dfrac{5}{x+2}$. (1)"
+      ]
+    },
+    {
+      "q": "Express $\\dfrac{3x+5}{(x+1)^2(x-2)}$ in partial fractions.",
+      "marks": 6,
+      "ms": [
+        "Form: $\\dfrac{A}{x+1}+\\dfrac{B}{(x+1)^2}+\\dfrac{C}{x-2}$. (1)",
+        "Multiply through: $3x+5=A(x+1)(x-2)+B(x-2)+C(x+1)^2$. (1)",
+        "$x=-1$: $2=B(-3)\\Rightarrow B=-\\tfrac23$. (1)",
+        "$x=2$: $11=C(9)\\Rightarrow C=\\tfrac{11}{9}$. (1)",
+        "Compare $x^2$ coefficients: $0=A+C\\Rightarrow A=-\\tfrac{11}{9}$. (1)",
+        "$\\dfrac{-11/9}{x+1}+\\dfrac{-2/3}{(x+1)^2}+\\dfrac{11/9}{x-2}$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:2.11"] = {
   "notes": [
-    { "h": "Functions in Modelling" },
+    {
+      "h": "Functions in Modelling"
+    },
     {
       "callout": {
         "t": "def",
@@ -920,12 +2156,26 @@ C["maths:2.11"] = {
         "t": "info",
         "h": "Common Model Types",
         "body": [
-          {"kv": [
-            ["Quadratic", "Projectile motion, profit/revenue. $h(t) = -at^2 + bt + c$. Maximum at vertex."],
-            ["Exponential growth", "$P = Ae^{kt}$ ($k>0$). E.g. population growth, compound interest."],
-            ["Exponential decay", "$N = N_0 e^{-kt}$ ($k>0$). E.g. radioactive decay, Newton's cooling."],
-            ["Reciprocal", "$y = k/x$. E.g. pressure-volume relationship ($PV = k$)."]
-          ]}
+          {
+            "kv": [
+              [
+                "Quadratic",
+                "Projectile motion, profit/revenue. $h(t) = -at^2 + bt + c$. Maximum at vertex."
+              ],
+              [
+                "Exponential growth",
+                "$P = Ae^{kt}$ ($k>0$). E.g. population growth, compound interest."
+              ],
+              [
+                "Exponential decay",
+                "$N = N_0 e^{-kt}$ ($k>0$). E.g. radioactive decay, Newton's cooling."
+              ],
+              [
+                "Reciprocal",
+                "$y = k/x$. E.g. pressure-volume relationship ($PV = k$)."
+              ]
+            ]
+          }
         ]
       }
     },
@@ -975,19 +2225,94 @@ C["maths:2.11"] = {
     }
   ],
   "flashcards": [
-    ["What does the $y$-intercept usually represent?", "The initial value (at $t=0$)."],
-    ["In a growth model $P = Ae^{kt}$, what is $A$?", "Initial population."],
-    ["Constraint on time $t$ in most models?", "$t \\ge 0$."],
-    ["Meaning of 'asymptotic behavior' in modelling?", "A limit the system approaches but never reaches."],
-    ["How to find a maximum value of a function?", "Differentiate and set to 0, or complete the square."],
-    ["What does a negative gradient in a linear model imply?", "A constant rate of decrease."]
+    [
+      "What does the $y$-intercept usually represent?",
+      "The initial value (at $t=0$)."
+    ],
+    [
+      "In a growth model $P = Ae^{kt}$, what is $A$?",
+      "Initial population."
+    ],
+    [
+      "Constraint on time $t$ in most models?",
+      "$t \\ge 0$."
+    ],
+    [
+      "Meaning of 'asymptotic behavior' in modelling?",
+      "A limit the system approaches but never reaches."
+    ],
+    [
+      "How to find a maximum value of a function?",
+      "Differentiate and set to 0, or complete the square."
+    ],
+    [
+      "What does a negative gradient in a linear model imply?",
+      "A constant rate of decrease."
+    ],
+    [
+      "Why use a trigonometric function to model tides?",
+      "Tides rise and fall periodically, which $\\sin$/$\\cos$ capture well."
+    ],
+    [
+      "What is a 'limitation' of a model?",
+      "A way in which it fails to match reality (e.g. ignores friction, assumes constant rate), prompting refinement."
+    ]
   ],
   "quiz": [
     {
       "q": "Temperature $T = 20 + 80e^{-0.1t}$. What is the room temperature (as $t \\to \\infty$)?",
-      "opts": ["100", "80", "20", "0"],
+      "opts": [
+        "100",
+        "80",
+        "20",
+        "0"
+      ],
       "ans": 2,
       "why": "As $t \\to \\infty$, $e^{-0.1t} \\to 0$, so $T \\to 20$."
+    },
+    {
+      "q": "Exponential functions are used to model...?",
+      "opts": [
+        "tides",
+        "population growth/decay",
+        "projectile range",
+        "a straight road"
+      ],
+      "ans": 1,
+      "why": "Growth/decay at a rate proportional to amount is exponential."
+    },
+    {
+      "q": "A reciprocal function models...?",
+      "opts": [
+        "direct proportion",
+        "inverse proportion (e.g. pressure vs volume)",
+        "linear motion",
+        "periodic motion"
+      ],
+      "ans": 1,
+      "why": "$y=k/x$ describes inverse proportion."
+    },
+    {
+      "q": "Refining a model usually means...?",
+      "opts": [
+        "ignoring data",
+        "adding factors to better match reality",
+        "removing the variables",
+        "using fewer points"
+      ],
+      "ans": 1,
+      "why": "Refinement adds realism (e.g. including resistance)."
+    },
+    {
+      "q": "Daily sunlight hours over a year are best modelled by...?",
+      "opts": [
+        "a line",
+        "a sinusoidal function",
+        "an exponential",
+        "a reciprocal"
+      ],
+      "ans": 1,
+      "why": "They vary periodically with the seasons."
     }
   ],
   "exam": [
@@ -997,6 +2322,27 @@ C["maths:2.11"] = {
       "ms": [
         "Maximum profit is 100 (thousand). (1)",
         "Occurs when $(x-5)=0 \\implies x=5$ units. (1)"
+      ]
+    },
+    {
+      "q": "The temperature of a cooling drink is modelled by $T=20+50e^{-0.1t}$ ($t$ in minutes). State the initial temperature and the long-term temperature.",
+      "marks": 3,
+      "ms": [
+        "At $t=0$: $T=20+50=70^\\circ$C. (1)",
+        "As $t\\to\\infty$, $e^{-0.1t}\\to0$. (1)",
+        "So $T\\to20^\\circ$C (room temperature). (1)"
+      ]
+    },
+    {
+      "q": "The height of water in a harbour is modelled by $h=6+3\\sin(0.5t)$ metres, $t$ in hours. Discuss what the model predicts and one limitation.",
+      "marks": 6,
+      "ms": [
+        "Mean depth is $6$ m (the constant term). (1)",
+        "Amplitude $3$ m: depth ranges between $3$ m and $9$ m. (1)",
+        "Period $=2\\pi/0.5\\approx12.6$ hours between successive high tides. (1)",
+        "Maximum depth $9$ m when $\\sin=1$; minimum $3$ m when $\\sin=-1$. (1)",
+        "Limitation: it ignores weather/atmospheric pressure and assumes a perfectly regular tide. (1)",
+        "Refinement: add terms for secondary tidal effects or a longer-period variation. (1)"
       ]
     }
   ]
