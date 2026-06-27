@@ -4125,7 +4125,9 @@ C["maths:4.6"] = {
 
 C["maths:5.1"] = {
   "notes": [
-    { "h": "Radian Measure" },
+    {
+      "h": "Radian Measure"
+    },
     {
       "callout": {
         "t": "info",
@@ -4135,33 +4137,175 @@ C["maths:5.1"] = {
     },
     {
       "table": {
-        "head": ["Feature", "Degrees", "Radians"],
+        "head": [
+          "Feature",
+          "Degrees",
+          "Radians"
+        ],
         "rows": [
-          ["Full Circle", "$360^\\circ$", "$2\\pi$"],
-          ["Straight Line", "$180^\\circ$", "$\\pi$"],
-          ["Right Angle", "$90^\\circ$", "$\\pi/2$"],
-          ["Arc Length", "$\\frac{\\theta}{360} \\times 2\\pi r$", "$r\\theta$"],
-          ["Sector Area", "$\\frac{\\theta}{360} \\times \\pi r^2$", "$\\frac{1}{2}r^2\\theta$"]
+          [
+            "Full Circle",
+            "$360^\\circ$",
+            "$2\\pi$"
+          ],
+          [
+            "Straight Line",
+            "$180^\\circ$",
+            "$\\pi$"
+          ],
+          [
+            "Right Angle",
+            "$90^\\circ$",
+            "$\\pi/2$"
+          ],
+          [
+            "Arc Length",
+            "$\\frac{\\theta}{360} \\times 2\\pi r$",
+            "$r\\theta$"
+          ],
+          [
+            "Sector Area",
+            "$\\frac{\\theta}{360} \\times \\pi r^2$",
+            "$\\frac{1}{2}r^2\\theta$"
+          ]
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "Radians — Conversions & Formulae", "body": "Multiply degrees by $\\frac{\\pi}{180}$ to convert to radians. Key values: $30°=\\frac{\\pi}{6}$, $45°=\\frac{\\pi}{4}$, $60°=\\frac{\\pi}{3}$, $90°=\\frac{\\pi}{2}$, $180°=\\pi$, $360°=2\\pi$. Arc length $s=r\\theta$, sector area $A=\\frac{1}{2}r^2\\theta$ — **both only work in radians**." } },
-    { "callout": { "t": "miscon", "h": "Using Degrees in Arc/Sector Formulae", "body": "The clean formulae $s=r\\theta$ and $A=\\frac{1}{2}r^2\\theta$ ONLY work when $\\theta$ is in radians. In degrees you must use $s = \\frac{\\theta}{360} \\times 2\\pi r$ — much uglier. If the question doesn't specify, always convert to radians first." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Radians — Conversions & Formulae",
+        "body": "Multiply degrees by $\\frac{\\pi}{180}$ to convert to radians. Key values: $30°=\\frac{\\pi}{6}$, $45°=\\frac{\\pi}{4}$, $60°=\\frac{\\pi}{3}$, $90°=\\frac{\\pi}{2}$, $180°=\\pi$, $360°=2\\pi$. Arc length $s=r\\theta$, sector area $A=\\frac{1}{2}r^2\\theta$ — **both only work in radians**."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Using Degrees in Arc/Sector Formulae",
+        "body": "The clean formulae $s=r\\theta$ and $A=\\frac{1}{2}r^2\\theta$ ONLY work when $\\theta$ is in radians. In degrees you must use $s = \\frac{\\theta}{360} \\times 2\\pi r$ — much uglier. If the question doesn't specify, always convert to radians first."
+      }
+    },
+    {
+      "page": "Sine & Cosine Rules"
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Sine rule",
+        "body": "$\\dfrac{a}{\\sin A}=\\dfrac{b}{\\sin B}=\\dfrac{c}{\\sin C}$. Use when you have a side and its opposite angle (or to find an angle/side pair)."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Cosine rule",
+        "body": "$a^2=b^2+c^2-2bc\\cos A$ — use for SAS to find a side. Rearranged: $\\cos A=\\dfrac{b^2+c^2-a^2}{2bc}$ to find an angle from three sides (SSS)."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Area of a triangle",
+        "body": "$\\text{Area}=\\dfrac12 ab\\sin C$ — two sides and the included angle."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "The ambiguous case of the sine rule",
+        "body": "When finding an angle with the sine rule, there may be TWO possible angles ($\\theta$ and $180^\\circ-\\theta$) since $\\sin$ is positive in two quadrants. Always check whether the obtuse solution is valid for the triangle."
+      }
+    }
   ],
   "flashcards": [
-    ["Convert $180^\\circ$ to radians.", "$\\pi$."],
-    ["Formula for arc length in radians?", "$s = r\\theta$."],
-    ["Formula for sector area in radians?", "$A = \\frac{1}{2}r^2\\theta$."],
-    ["Convert $\\pi/3$ to degrees.", "$60^\\circ$."],
-    ["Approximate value of 1 radian in degrees?", "$\\approx 57.3^\\circ$."],
-    ["Length of arc for unit circle with angle $\\pi$?", "$\\pi$."]
+    [
+      "Convert $180^\\circ$ to radians.",
+      "$\\pi$."
+    ],
+    [
+      "Formula for arc length in radians?",
+      "$s = r\\theta$."
+    ],
+    [
+      "Formula for sector area in radians?",
+      "$A = \\frac{1}{2}r^2\\theta$."
+    ],
+    [
+      "Convert $\\pi/3$ to degrees.",
+      "$60^\\circ$."
+    ],
+    [
+      "Approximate value of 1 radian in degrees?",
+      "$\\approx 57.3^\\circ$."
+    ],
+    [
+      "Length of arc for unit circle with angle $\\pi$?",
+      "$\\pi$."
+    ],
+    [
+      "State the cosine rule.",
+      "$a^2=b^2+c^2-2bc\\cos A$."
+    ],
+    [
+      "What is the area of a triangle with sides $a,b$ and included angle $C$?",
+      "$\\dfrac12 ab\\sin C$."
+    ]
   ],
   "quiz": [
     {
       "q": "Find the area of a sector with $r=6$ and $\\theta=0.5$ rad.",
-      "opts": ["3", "9", "18", "1.5"],
+      "opts": [
+        "3",
+        "9",
+        "18",
+        "1.5"
+      ],
       "ans": 1,
       "why": "$0.5 \\times 6^2 \\times 0.5 = 0.5 \\times 36 \\times 0.5 = 9$."
+    },
+    {
+      "q": "Which rule finds the third side given two sides and the included angle (SAS)?",
+      "opts": [
+        "sine rule",
+        "cosine rule",
+        "Pythagoras",
+        "area formula"
+      ],
+      "ans": 1,
+      "why": "The cosine rule handles SAS."
+    },
+    {
+      "q": "A triangle has $a=7$, $b=5$, $C=60^\\circ$. The area is...?",
+      "opts": [
+        "$\\tfrac{35}{2}$",
+        "$\\tfrac{35\\sqrt3}{4}$",
+        "$17.5$",
+        "$35$"
+      ],
+      "ans": 1,
+      "why": "$\\tfrac12(7)(5)\\sin60^\\circ=\\tfrac{35}{2}\\cdot\\tfrac{\\sqrt3}{2}=\\tfrac{35\\sqrt3}{4}$."
+    },
+    {
+      "q": "Arc length for $r=10$, $\\theta=0.6$ rad?",
+      "opts": [
+        "$6$",
+        "$60$",
+        "$3$",
+        "$16.7$"
+      ],
+      "ans": 0,
+      "why": "$s=r\\theta=10(0.6)=6$."
+    },
+    {
+      "q": "Convert $135^\\circ$ to radians.",
+      "opts": [
+        "$\\tfrac{3\\pi}{4}$",
+        "$\\tfrac{\\pi}{4}$",
+        "$\\tfrac{2\\pi}{3}$",
+        "$\\tfrac{5\\pi}{6}$"
+      ],
+      "ans": 0,
+      "why": "$135\\times\\tfrac{\\pi}{180}=\\tfrac{3\\pi}{4}$."
     }
   ],
   "exam": [
@@ -4175,13 +4319,36 @@ C["maths:5.1"] = {
         "$10r - r^2 = 25 \\implies r^2 - 10r + 25 = 0$. (1)",
         "$(r-5)^2 = 0 \\implies r = 5$. (1)"
       ]
+    },
+    {
+      "q": "In triangle $ABC$, $a=8$, $b=5$ and $C=120^\\circ$. Find side $c$.",
+      "marks": 3,
+      "ms": [
+        "$c^2=8^2+5^2-2(8)(5)\\cos120^\\circ$. (1)",
+        "$=64+25-80(-0.5)=89+40=129$. (1)",
+        "$c=\\sqrt{129}\\approx11.4$. (1)"
+      ]
+    },
+    {
+      "q": "A sector has radius $r$ and angle $\\theta$ rad. Its perimeter is $16$ cm and area is $15$ cm$^2$. Find the possible values of $r$.",
+      "marks": 6,
+      "ms": [
+        "Perimeter: $2r+r\\theta=16\\Rightarrow\\theta=\\dfrac{16-2r}{r}$. (1)",
+        "Area: $\\tfrac12 r^2\\theta=15$. (1)",
+        "Substitute: $\\tfrac12 r^2\\cdot\\dfrac{16-2r}{r}=15$. (1)",
+        "$\\tfrac12 r(16-2r)=15\\Rightarrow 8r-r^2=15$. (1)",
+        "$r^2-8r+15=0\\Rightarrow(r-3)(r-5)=0$. (1)",
+        "$r=3$ or $r=5$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:5.2"] = {
   "notes": [
-    { "h": "Small Angle Approximations" },
+    {
+      "h": "Small Angle Approximations"
+    },
     {
       "callout": {
         "t": "formula",
@@ -4193,23 +4360,110 @@ C["maths:5.2"] = {
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "Small Angle Approximations", "body": "Valid when $\\theta$ is **small and in radians**. $\\sin\\theta \\approx \\theta$, $\\tan\\theta \\approx \\theta$ (both linear). $\\cos\\theta \\approx 1 - \\frac{\\theta^2}{2}$ (quadratic — doesn't drop to zero). Use these to simplify fractions: $\\frac{\\sin 3\\theta}{\\theta} \\approx 3$." } },
-    { "callout": { "t": "miscon", "h": "$\\cos\\theta \\approx \\theta$ for Small $\\theta$", "body": "WRONG. Only $\\sin$ and $\\tan$ approximate to $\\theta$. Cosine is symmetric about $\\theta=0$, so it cannot be linear — its approximation is $1-\\frac{\\theta^2}{2}$ (an even function). At $\\theta=0$, $\\cos 0 = 1$, not $0$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Small Angle Approximations",
+        "body": "Valid when $\\theta$ is **small and in radians**. $\\sin\\theta \\approx \\theta$, $\\tan\\theta \\approx \\theta$ (both linear). $\\cos\\theta \\approx 1 - \\frac{\\theta^2}{2}$ (quadratic — doesn't drop to zero). Use these to simplify fractions: $\\frac{\\sin 3\\theta}{\\theta} \\approx 3$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\cos\\theta \\approx \\theta$ for Small $\\theta$",
+        "body": "WRONG. Only $\\sin$ and $\\tan$ approximate to $\\theta$. Cosine is symmetric about $\\theta=0$, so it cannot be linear — its approximation is $1-\\frac{\\theta^2}{2}$ (an even function). At $\\theta=0$, $\\cos 0 = 1$, not $0$."
+      }
+    }
   ],
   "flashcards": [
-    ["$\\sin \\theta \\approx$ ?", "$\\theta$."],
-    ["$\\tan \\theta \\approx$ ?", "$\\theta$."],
-    ["$\\cos \\theta \\approx$ ?", "$1 - \\theta^2/2$."],
-    ["Condition for these approximations?", "$\\theta$ is small AND in radians."],
-    ["Approximate $\\sin(2\\theta)$?", "$2\\theta$."],
-    ["Approximate $1 - \\cos \\theta$?", "$\\theta^2/2$."]
+    [
+      "$\\sin \\theta \\approx$ ?",
+      "$\\theta$."
+    ],
+    [
+      "$\\tan \\theta \\approx$ ?",
+      "$\\theta$."
+    ],
+    [
+      "$\\cos \\theta \\approx$ ?",
+      "$1 - \\theta^2/2$."
+    ],
+    [
+      "Condition for these approximations?",
+      "$\\theta$ is small AND in radians."
+    ],
+    [
+      "Approximate $\\sin(2\\theta)$?",
+      "$2\\theta$."
+    ],
+    [
+      "Approximate $1 - \\cos \\theta$?",
+      "$\\theta^2/2$."
+    ],
+    [
+      "For which variable type are small-angle approximations valid?",
+      "Small angles measured in radians."
+    ],
+    [
+      "Approximate $\\dfrac{\\tan5\\theta}{\\theta}$ for small $\\theta$.",
+      "$5$."
+    ]
   ],
   "quiz": [
     {
       "q": "Approximate $\\frac{\\sin 3\\theta}{\\theta}$ for small $\\theta$.",
-      "opts": ["1", "3", "$\\theta$", "0"],
+      "opts": [
+        "1",
+        "3",
+        "$\\theta$",
+        "0"
+      ],
       "ans": 1,
       "why": "$\\sin 3\\theta \\approx 3\\theta \\implies 3\\theta / \\theta = 3$."
+    },
+    {
+      "q": "$\\sin\\theta\\approx$ for small $\\theta$?",
+      "opts": [
+        "$1$",
+        "$\\theta$",
+        "$\\theta^2$",
+        "$0$"
+      ],
+      "ans": 1,
+      "why": "Linear approximation."
+    },
+    {
+      "q": "$\\cos\\theta\\approx$ for small $\\theta$?",
+      "opts": [
+        "$\\theta$",
+        "$1-\\tfrac{\\theta^2}{2}$",
+        "$1+\\theta$",
+        "$0$"
+      ],
+      "ans": 1,
+      "why": "Quadratic, even function."
+    },
+    {
+      "q": "$\\dfrac{\\sin2\\theta}{\\theta}\\approx$?",
+      "opts": [
+        "$1$",
+        "$2$",
+        "$\\theta$",
+        "$\\tfrac12$"
+      ],
+      "ans": 1,
+      "why": "$\\sin2\\theta\\approx2\\theta$."
+    },
+    {
+      "q": "These approximations require the angle in...?",
+      "opts": [
+        "degrees",
+        "radians",
+        "either",
+        "gradians"
+      ],
+      "ans": 1,
+      "why": "Only valid in radians."
     }
   ],
   "exam": [
@@ -4221,13 +4475,36 @@ C["maths:5.2"] = {
         "$\\sin 2\\theta \\approx 2\\theta$. (1)",
         "$\\frac{1 - 8\\theta^2 - 1}{\\theta(2\\theta)} = \\frac{-8\\theta^2}{2\\theta^2} = -4$. (1)"
       ]
+    },
+    {
+      "q": "Use small-angle approximations to estimate $\\dfrac{1-\\cos2\\theta}{\\theta^2}$ for small $\\theta$.",
+      "marks": 3,
+      "ms": [
+        "$\\cos2\\theta\\approx1-\\tfrac{(2\\theta)^2}{2}=1-2\\theta^2$. (1)",
+        "$1-\\cos2\\theta\\approx2\\theta^2$. (1)",
+        "$\\dfrac{2\\theta^2}{\\theta^2}=2$. (1)"
+      ]
+    },
+    {
+      "q": "Show that for small $\\theta$, $\\dfrac{\\sin3\\theta-\\tan\\theta}{\\theta}\\approx2$.",
+      "marks": 6,
+      "ms": [
+        "$\\sin3\\theta\\approx3\\theta$. (1)",
+        "$\\tan\\theta\\approx\\theta$. (1)",
+        "Numerator $\\approx3\\theta-\\theta=2\\theta$. (1)",
+        "$\\dfrac{2\\theta}{\\theta}=2$. (1)",
+        "Valid because $\\theta$ small and in radians. (1)",
+        "Hence the limit is $2$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:5.3"] = {
   "notes": [
-    { "h": "Trig Functions (Sec, Cosec, Cot)" },
+    {
+      "h": "Trig Functions (Sec, Cosec, Cot)"
+    },
     {
       "callout": {
         "t": "info",
@@ -4241,31 +4518,134 @@ C["maths:5.3"] = {
     },
     {
       "table": {
-        "head": ["Function", "Asymptotes", "Range"],
+        "head": [
+          "Function",
+          "Asymptotes",
+          "Range"
+        ],
         "rows": [
-          ["$\\sec x$", "$\\cos x = 0$", "$y \\ge 1$ or $y \\le -1$"],
-          ["$\\csc x$", "$\\sin x = 0$", "$y \\ge 1$ or $y \\le -1$"],
-          ["$\\cot x$", "$\\tan x = 0$ or undefined", "All real $y$"]
+          [
+            "$\\sec x$",
+            "$\\cos x = 0$",
+            "$y \\ge 1$ or $y \\le -1$"
+          ],
+          [
+            "$\\csc x$",
+            "$\\sin x = 0$",
+            "$y \\ge 1$ or $y \\le -1$"
+          ],
+          [
+            "$\\cot x$",
+            "$\\tan x = 0$ or undefined",
+            "All real $y$"
+          ]
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "Reciprocal Trig — Identity & Range", "body": "$\\sec x = \\frac{1}{\\cos x}$, $\\csc x = \\frac{1}{\\sin x}$, $\\cot x = \\frac{\\cos x}{\\sin x}$. Pythagorean link: $1+\\tan^2 x = \\sec^2 x$; $1+\\cot^2 x = \\csc^2 x$. Range of $\\sec$ and $\\csc$: never between $-1$ and $1$." } },
-    { "callout": { "t": "miscon", "h": "$\\cot x = \\sin x / \\cos x$", "body": "WRONG. $\\cot x = \\cos x / \\sin x$ — the ratio is flipped compared with $\\tan$. Remember: $\\cot$ is the reciprocal of $\\tan = \\sin/\\cos$, so $\\cot = \\cos/\\sin$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Reciprocal Trig — Identity & Range",
+        "body": "$\\sec x = \\frac{1}{\\cos x}$, $\\csc x = \\frac{1}{\\sin x}$, $\\cot x = \\frac{\\cos x}{\\sin x}$. Pythagorean link: $1+\\tan^2 x = \\sec^2 x$; $1+\\cot^2 x = \\csc^2 x$. Range of $\\sec$ and $\\csc$: never between $-1$ and $1$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\cot x = \\sin x / \\cos x$",
+        "body": "WRONG. $\\cot x = \\cos x / \\sin x$ — the ratio is flipped compared with $\\tan$. Remember: $\\cot$ is the reciprocal of $\\tan = \\sin/\\cos$, so $\\cot = \\cos/\\sin$."
+      }
+    }
   ],
   "flashcards": [
-    ["$\\sec x$ is reciprocal of...?", "$\\cos x$."],
-    ["$\\csc x$ is reciprocal of...?", "$\\sin x$."],
-    ["$\\cot x$ is reciprocal of...?", "$\\tan x$."],
-    ["Value of $\\sec 0$?", "1."],
-    ["Where is $\\csc x$ undefined?", "Where $\\sin x = 0$ (e.g., $0, \\pi, 2\\pi$)."],
-    ["Range of $\\sec x$?", "$(-\\infty, -1] \\cup [1, \\infty)$."]
+    [
+      "$\\sec x$ is reciprocal of...?",
+      "$\\cos x$."
+    ],
+    [
+      "$\\csc x$ is reciprocal of...?",
+      "$\\sin x$."
+    ],
+    [
+      "$\\cot x$ is reciprocal of...?",
+      "$\\tan x$."
+    ],
+    [
+      "Value of $\\sec 0$?",
+      "1."
+    ],
+    [
+      "Where is $\\csc x$ undefined?",
+      "Where $\\sin x = 0$ (e.g., $0, \\pi, 2\\pi$)."
+    ],
+    [
+      "Range of $\\sec x$?",
+      "$(-\\infty, -1] \\cup [1, \\infty)$."
+    ],
+    [
+      "Define $\\sec x$.",
+      "$\\dfrac{1}{\\cos x}$."
+    ],
+    [
+      "Exact value of $\\cos30^\\circ$.",
+      "$\\dfrac{\\sqrt3}{2}$."
+    ]
   ],
   "quiz": [
     {
       "q": "Which function is undefined at $x = \\pi/2$?",
-      "opts": ["$\\csc x$", "$\\sec x$", "$\\cot x$", "All of them"],
+      "opts": [
+        "$\\csc x$",
+        "$\\sec x$",
+        "$\\cot x$",
+        "All of them"
+      ],
       "ans": 1,
       "why": "$\\cos(\\pi/2) = 0$, so $\\sec(\\pi/2)$ is undefined."
+    },
+    {
+      "q": "$\\csc x=$?",
+      "opts": [
+        "$1/\\cos x$",
+        "$1/\\sin x$",
+        "$1/\\tan x$",
+        "$\\cos x/\\sin x$"
+      ],
+      "ans": 1,
+      "why": "Cosecant is the reciprocal of sine."
+    },
+    {
+      "q": "$\\cot x=$?",
+      "opts": [
+        "$\\cos x/\\sin x$",
+        "$\\sin x/\\cos x$",
+        "$1/\\cos x$",
+        "$\\sec x$"
+      ],
+      "ans": 0,
+      "why": "Cotangent is $\\cos/\\sin$."
+    },
+    {
+      "q": "Exact $\\sin60^\\circ$?",
+      "opts": [
+        "$\\tfrac12$",
+        "$\\tfrac{\\sqrt3}{2}$",
+        "$\\tfrac{\\sqrt2}{2}$",
+        "$1$"
+      ],
+      "ans": 1,
+      "why": "Standard exact value."
+    },
+    {
+      "q": "$\\tan45^\\circ$ equals...?",
+      "opts": [
+        "$0$",
+        "$1$",
+        "$\\sqrt3$",
+        "undefined"
+      ],
+      "ans": 1,
+      "why": "$\\sin45/\\cos45=1$."
     }
   ],
   "exam": [
@@ -4277,13 +4657,36 @@ C["maths:5.3"] = {
         "Asymptotes at $x = \\pi/2$ and $x = 3\\pi/2$. (1)",
         "Intercepts at $(0, 1), (\\pi, -1), (2\\pi, 1)$. (1)"
       ]
+    },
+    {
+      "q": "State the exact values of $\\sin30^\\circ$, $\\cos45^\\circ$ and $\\tan60^\\circ$.",
+      "marks": 3,
+      "ms": [
+        "$\\sin30^\\circ=\\tfrac12$. (1)",
+        "$\\cos45^\\circ=\\tfrac{\\sqrt2}{2}$. (1)",
+        "$\\tan60^\\circ=\\sqrt3$. (1)"
+      ]
+    },
+    {
+      "q": "Given $\\sec x=\\tfrac{13}{5}$ and $x$ is acute, find $\\sin x$ and $\\tan x$.",
+      "marks": 6,
+      "ms": [
+        "$\\sec x=\\tfrac{13}{5}\\Rightarrow\\cos x=\\tfrac{5}{13}$. (1)",
+        "$\\sin^2x=1-\\cos^2x=1-\\tfrac{25}{169}$. (1)",
+        "$=\\tfrac{144}{169}$. (1)",
+        "$\\sin x=\\tfrac{12}{13}$ (acute, positive). (1)",
+        "$\\tan x=\\dfrac{\\sin x}{\\cos x}=\\dfrac{12/13}{5/13}$. (1)",
+        "$=\\tfrac{12}{5}$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:5.4"] = {
   "notes": [
-    { "h": "Inverse Trig Functions" },
+    {
+      "h": "Inverse Trig Functions"
+    },
     {
       "callout": {
         "t": "info",
@@ -4292,31 +4695,134 @@ C["maths:5.4"] = {
     },
     {
       "table": {
-        "head": ["Function", "Domain", "Range (Principal Value)"],
+        "head": [
+          "Function",
+          "Domain",
+          "Range (Principal Value)"
+        ],
         "rows": [
-          ["$\\arcsin x$", "$[-1, 1]$", "$[-\\pi/2, \\pi/2]$"],
-          ["$\\arccos x$", "$[-1, 1]$", "$[0, \\pi]$"],
-          ["$\\arctan x$", "All real numbers", "$(-\\pi/2, \\pi/2)$"]
+          [
+            "$\\arcsin x$",
+            "$[-1, 1]$",
+            "$[-\\pi/2, \\pi/2]$"
+          ],
+          [
+            "$\\arccos x$",
+            "$[-1, 1]$",
+            "$[0, \\pi]$"
+          ],
+          [
+            "$\\arctan x$",
+            "All real numbers",
+            "$(-\\pi/2, \\pi/2)$"
+          ]
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "Inverse Trig — Domains & Ranges", "body": "$\\arcsin$: domain $[-1,1]$, range $[-\\frac{\\pi}{2},\\frac{\\pi}{2}]$. $\\arccos$: domain $[-1,1]$, range $[0,\\pi]$. $\\arctan$: domain $\\mathbb{R}$, range $(-\\frac{\\pi}{2},\\frac{\\pi}{2})$. Note $\\arctan$ has **open** endpoints (asymptotes, never reached)." } },
-    { "callout": { "t": "miscon", "h": "$\\sin^{-1} x$ Means $\\frac{1}{\\sin x}$", "body": "WRONG. The notation $\\sin^{-1} x$ means $\\arcsin x$ (inverse function), NOT $\\frac{1}{\\sin x}$ (which is $\\csc x$). The exponent $-1$ on a function name denotes the inverse, not a reciprocal." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Inverse Trig — Domains & Ranges",
+        "body": "$\\arcsin$: domain $[-1,1]$, range $[-\\frac{\\pi}{2},\\frac{\\pi}{2}]$. $\\arccos$: domain $[-1,1]$, range $[0,\\pi]$. $\\arctan$: domain $\\mathbb{R}$, range $(-\\frac{\\pi}{2},\\frac{\\pi}{2})$. Note $\\arctan$ has **open** endpoints (asymptotes, never reached)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\sin^{-1} x$ Means $\\frac{1}{\\sin x}$",
+        "body": "WRONG. The notation $\\sin^{-1} x$ means $\\arcsin x$ (inverse function), NOT $\\frac{1}{\\sin x}$ (which is $\\csc x$). The exponent $-1$ on a function name denotes the inverse, not a reciprocal."
+      }
+    }
   ],
   "flashcards": [
-    ["Domain of $\\arcsin x$?", "$[-1, 1]$."],
-    ["Range of $\\arccos x$?", "$[0, \\pi]$."],
-    ["Alternative notation for $\\arcsin x$?", "$\\sin^{-1} x$."],
-    ["Value of $\\arctan 1$ in radians?", "$\\pi/4$."],
-    ["Value of $\\arccos 0$?", "$\\pi/2$."],
-    ["Is $\\arctan x$ bounded?", "Yes, between $\\pm \\pi/2$."]
+    [
+      "Domain of $\\arcsin x$?",
+      "$[-1, 1]$."
+    ],
+    [
+      "Range of $\\arccos x$?",
+      "$[0, \\pi]$."
+    ],
+    [
+      "Alternative notation for $\\arcsin x$?",
+      "$\\sin^{-1} x$."
+    ],
+    [
+      "Value of $\\arctan 1$ in radians?",
+      "$\\pi/4$."
+    ],
+    [
+      "Value of $\\arccos 0$?",
+      "$\\pi/2$."
+    ],
+    [
+      "Is $\\arctan x$ bounded?",
+      "Yes, between $\\pm \\pi/2$."
+    ],
+    [
+      "What is the range of $\\arcsin x$?",
+      "$[-\\tfrac{\\pi}{2},\\tfrac{\\pi}{2}]$."
+    ],
+    [
+      "What is the domain of $\\arccos x$?",
+      "$[-1,1]$."
+    ]
   ],
   "quiz": [
     {
       "q": "Find $\\arcsin(-0.5)$ in radians.",
-      "opts": ["$\\pi/6$", "$-\\pi/6$", "$5\\pi/6$", "$\\pi/3$"],
+      "opts": [
+        "$\\pi/6$",
+        "$-\\pi/6$",
+        "$5\\pi/6$",
+        "$\\pi/3$"
+      ],
       "ans": 1,
       "why": "Principal range for $\\arcsin$ is $[-\\pi/2, \\pi/2]$."
+    },
+    {
+      "q": "$\\arcsin(1)=$?",
+      "opts": [
+        "$0$",
+        "$\\tfrac{\\pi}{2}$",
+        "$\\pi$",
+        "$\\tfrac{\\pi}{4}$"
+      ],
+      "ans": 1,
+      "why": "$\\sin(\\pi/2)=1$."
+    },
+    {
+      "q": "Why must inverse trig functions have restricted domains?",
+      "opts": [
+        "to be faster",
+        "so they are one-one and invertible",
+        "to use radians",
+        "no reason"
+      ],
+      "ans": 1,
+      "why": "Trig functions are many-one; restricting makes them one-one."
+    },
+    {
+      "q": "$\\arccos(0)=$?",
+      "opts": [
+        "$0$",
+        "$\\tfrac{\\pi}{2}$",
+        "$\\pi$",
+        "$\\tfrac{\\pi}{4}$"
+      ],
+      "ans": 1,
+      "why": "$\\cos(\\pi/2)=0$."
+    },
+    {
+      "q": "Range of $\\arctan x$ is...?",
+      "opts": [
+        "$[0,\\pi]$",
+        "$(-\\tfrac{\\pi}{2},\\tfrac{\\pi}{2})$",
+        "$[-1,1]$",
+        "all reals"
+      ],
+      "ans": 1,
+      "why": "Arctan outputs angles strictly between $\\pm\\pi/2$."
     }
   ],
   "exam": [
@@ -4327,13 +4833,35 @@ C["maths:5.4"] = {
         "Correct S-shape passing through origin. (1)",
         "Horizontal asymptotes at $y = \\pi/2$ and $y = -\\pi/2$. (2)"
       ]
+    },
+    {
+      "q": "State the domain and range of $y=\\arccos x$.",
+      "marks": 2,
+      "ms": [
+        "Domain $-1\\le x\\le1$. (1)",
+        "Range $0\\le y\\le\\pi$. (1)"
+      ]
+    },
+    {
+      "q": "Solve $\\sec x=2$ for $0\\le x<2\\pi$.",
+      "marks": 6,
+      "ms": [
+        "$\\sec x=2\\Rightarrow\\cos x=\\tfrac12$. (1)",
+        "Principal value $x=\\tfrac{\\pi}{3}$. (1)",
+        "Cosine positive in quadrants 1 and 4. (1)",
+        "Second solution $x=2\\pi-\\tfrac{\\pi}{3}$. (1)",
+        "$=\\tfrac{5\\pi}{3}$. (1)",
+        "Solutions: $x=\\tfrac{\\pi}{3},\\tfrac{5\\pi}{3}$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:5.5"] = {
   "notes": [
-    { "h": "Trig Identities" },
+    {
+      "h": "Trig Identities"
+    },
     {
       "callout": {
         "t": "formula",
@@ -4352,13 +4880,27 @@ C["maths:5.5"] = {
         "body": "You only need to memorise $\\sin^2 x + \\cos^2 x = 1$. Divide every term by $\\cos^2 x$ to get $\\tan^2 x + 1 = \\sec^2 x$. Divide by $\\sin^2 x$ to get $1 + \\cot^2 x = \\csc^2 x$."
       }
     },
-    { "h": "Rearrangements to recognise" },
+    {
+      "h": "Rearrangements to recognise"
+    },
     {
       "kv": [
-        ["$\\sin^2 x = 1 - \\cos^2 x$", "Rearrangement 1 of master identity"],
-        ["$\\cos^2 x = 1 - \\sin^2 x$", "Rearrangement 2 of master identity"],
-        ["$\\tan^2 x = \\sec^2 x - 1$", "Rearrangement of second identity"],
-        ["$\\cot^2 x = \\csc^2 x - 1$", "Rearrangement of third identity"]
+        [
+          "$\\sin^2 x = 1 - \\cos^2 x$",
+          "Rearrangement 1 of master identity"
+        ],
+        [
+          "$\\cos^2 x = 1 - \\sin^2 x$",
+          "Rearrangement 2 of master identity"
+        ],
+        [
+          "$\\tan^2 x = \\sec^2 x - 1$",
+          "Rearrangement of second identity"
+        ],
+        [
+          "$\\cot^2 x = \\csc^2 x - 1$",
+          "Rearrangement of third identity"
+        ]
       ]
     },
     {
@@ -4368,23 +4910,110 @@ C["maths:5.5"] = {
         "body": "Never manipulate both sides simultaneously in a proof. Start from one side (usually the more complex side) and show it equals the other. Use $\\sin^2 x + \\cos^2 x = 1$ as a substitution tool at every step."
       }
     },
-    { "callout": { "t": "memorise", "h": "Trig Identities — One to Rule Them All", "body": "Memorise $\\sin^2 x + \\cos^2 x = 1$. Divide by $\\cos^2 x$: $\\tan^2 x + 1 = \\sec^2 x$. Divide by $\\sin^2 x$: $1 + \\cot^2 x = \\csc^2 x$. In proofs, spot $1 - \\sin^2 x = \\cos^2 x$ (or vice versa) as the key substitution." } },
-    { "callout": { "t": "miscon", "h": "Working Both Sides of a Proof Simultaneously", "body": "Never manipulate LHS and RHS at the same time to meet in the middle — examiners want a one-directional chain. Start from the more complex side and reduce to the simpler side. Writing 'LHS = ... = ... = RHS' in a straight column is the correct format." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Trig Identities — One to Rule Them All",
+        "body": "Memorise $\\sin^2 x + \\cos^2 x = 1$. Divide by $\\cos^2 x$: $\\tan^2 x + 1 = \\sec^2 x$. Divide by $\\sin^2 x$: $1 + \\cot^2 x = \\csc^2 x$. In proofs, spot $1 - \\sin^2 x = \\cos^2 x$ (or vice versa) as the key substitution."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Working Both Sides of a Proof Simultaneously",
+        "body": "Never manipulate LHS and RHS at the same time to meet in the middle — examiners want a one-directional chain. Start from the more complex side and reduce to the simpler side. Writing 'LHS = ... = ... = RHS' in a straight column is the correct format."
+      }
+    }
   ],
   "flashcards": [
-    ["$\\sin^2 x + \\cos^2 x =$ ?", "1."],
-    ["What does $1 + \\tan^2 x$ equal?", "$\\sec^2 x$."],
-    ["What does $1 + \\cot^2 x$ equal?", "$\\csc^2 x$."],
-    ["Express $\\tan x$ in terms of $\\sin$ and $\\cos$.", "$\\sin x / \\cos x$."],
-    ["Express $\\cot x$ in terms of $\\sin$ and $\\cos$.", "$\\cos x / \\sin x$."],
-    ["Simplify $(\\sec^2 x - 1) / \\tan x$.", "$\\tan x$."]
+    [
+      "$\\sin^2 x + \\cos^2 x =$ ?",
+      "1."
+    ],
+    [
+      "What does $1 + \\tan^2 x$ equal?",
+      "$\\sec^2 x$."
+    ],
+    [
+      "What does $1 + \\cot^2 x$ equal?",
+      "$\\csc^2 x$."
+    ],
+    [
+      "Express $\\tan x$ in terms of $\\sin$ and $\\cos$.",
+      "$\\sin x / \\cos x$."
+    ],
+    [
+      "Express $\\cot x$ in terms of $\\sin$ and $\\cos$.",
+      "$\\cos x / \\sin x$."
+    ],
+    [
+      "Simplify $(\\sec^2 x - 1) / \\tan x$.",
+      "$\\tan x$."
+    ],
+    [
+      "State $1+\\tan^2x=$.",
+      "$\\sec^2x$."
+    ],
+    [
+      "State $1+\\cot^2x=$.",
+      "$\\csc^2x$."
+    ]
   ],
   "quiz": [
     {
       "q": "Simplify $5\\sin^2 x + 5\\cos^2 x$.",
-      "opts": ["1", "5", "$5\\tan^2 x$", "$10$"],
+      "opts": [
+        "1",
+        "5",
+        "$5\\tan^2 x$",
+        "$10$"
+      ],
       "ans": 1,
       "why": "$5(\\sin^2 x + \\cos^2 x) = 5(1) = 5$."
+    },
+    {
+      "q": "$\\sin^2x+\\cos^2x=$?",
+      "opts": [
+        "$1$",
+        "$0$",
+        "$2$",
+        "$\\tan x$"
+      ],
+      "ans": 0,
+      "why": "The Pythagorean identity."
+    },
+    {
+      "q": "$\\sec^2x-\\tan^2x=$?",
+      "opts": [
+        "$0$",
+        "$1$",
+        "$2$",
+        "$\\sec x$"
+      ],
+      "ans": 1,
+      "why": "Rearrange $1+\\tan^2=\\sec^2$."
+    },
+    {
+      "q": "Dividing $\\sin^2+\\cos^2=1$ by $\\sin^2$ gives...?",
+      "opts": [
+        "$1+\\tan^2=\\sec^2$",
+        "$1+\\cot^2=\\csc^2$",
+        "$\\sec^2-1=\\tan^2$",
+        "nothing"
+      ],
+      "ans": 1,
+      "why": "Gives $1+\\cot^2x=\\csc^2x$."
+    },
+    {
+      "q": "$\\dfrac{\\sin x}{\\cos x}$ is...?",
+      "opts": [
+        "$\\cot x$",
+        "$\\tan x$",
+        "$\\sec x$",
+        "$\\csc x$"
+      ],
+      "ans": 1,
+      "why": "Definition of tangent."
     }
   ],
   "exam": [
@@ -4396,13 +5025,36 @@ C["maths:5.5"] = {
         "Combine: $\\frac{\\sin^2 x + \\cos^2 x}{\\sin x \\cos x} = \\frac{1}{\\sin x \\cos x}$. (1)",
         "Reciprocal: $1 \\div \\frac{1}{\\sin x \\cos x} = \\sin x \\cos x$. (1)"
       ]
+    },
+    {
+      "q": "Show that $(1+\\cot^2x)\\sin^2x=1$.",
+      "marks": 3,
+      "ms": [
+        "$1+\\cot^2x=\\csc^2x$. (1)",
+        "$\\csc^2x\\cdot\\sin^2x=\\dfrac{1}{\\sin^2x}\\cdot\\sin^2x$. (1)",
+        "$=1$. (1)"
+      ]
+    },
+    {
+      "q": "Given $\\sin x=\\tfrac35$ and $x$ is obtuse, find the exact values of $\\cos x$ and $\\tan x$.",
+      "marks": 6,
+      "ms": [
+        "$\\cos^2x=1-\\sin^2x=1-\\tfrac{9}{25}=\\tfrac{16}{25}$. (1)",
+        "$\\cos x=\\pm\\tfrac45$. (1)",
+        "$x$ obtuse $\\Rightarrow\\cos x<0$. (1)",
+        "$\\cos x=-\\tfrac45$. (1)",
+        "$\\tan x=\\dfrac{\\sin x}{\\cos x}=\\dfrac{3/5}{-4/5}$. (1)",
+        "$=-\\tfrac34$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:5.6"] = {
   "notes": [
-    { "h": "Addition & Double Angle Formulae" },
+    {
+      "h": "Addition & Double Angle Formulae"
+    },
     {
       "callout": {
         "t": "formula",
@@ -4425,42 +5077,26 @@ C["maths:5.6"] = {
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "Double Angle — Choose the Right $\\cos 2A$ Form", "body": "$\\sin 2A = 2\\sin A\\cos A$. Three $\\cos 2A$ forms: $\\cos^2 A - \\sin^2 A$ (general), $2\\cos^2 A - 1$ (use when you want $\\cos^2 A = \\frac{1+\\cos 2A}{2}$), $1 - 2\\sin^2 A$ (use when integrating $\\sin^2 x$). Pick the form that eliminates the function you don't want." } },
-    { "callout": { "t": "miscon", "h": "$\\cos 2A = \\cos^2 A + \\sin^2 A$", "body": "WRONG sign. $\\cos(A+A)$ expands using the addition formula as $\\cos A\\cos A - \\sin A\\sin A = \\cos^2 A - \\sin^2 A$ (minus, not plus). The plus version just equals 1 by the Pythagorean identity — a guaranteed wrong answer." } }
-  ],
-  "flashcards": [
-    ["$\\sin 2x =$ ?", "$2\\sin x \\cos x$."],
-    ["Three forms of $\\cos 2x$?", "$\\cos^2 x - \\sin^2 x$, $2\\cos^2 x - 1$, $1 - 2\\sin^2 x$."],
-    ["$\\tan 2x =$ ?", "$2\\tan x / (1 - \\tan^2 x)$."],
-    ["$\\sin(A+B) =$ ?", "$\\sin A \\cos B + \\cos A \\sin B$."],
-    ["$\\cos(A+B) =$ ?", "$\\cos A \\cos B - \\sin A \\sin B$."],
-    ["What is $\\cos^2 x$ in terms of $\\cos 2x$?", "$\\frac{1 + \\cos 2x}{2}$."]
-  ],
-  "quiz": [
     {
-      "q": "Simplify $2\\sin 15^\\circ \\cos 15^\\circ$.",
-      "opts": ["$\\sin 30^\\circ$", "$\\cos 30^\\circ$", "$\\sin 15^\\circ$", "1"],
-      "ans": 0,
-      "why": "Double angle formula for sine."
-    }
-  ],
-  "exam": [
+      "callout": {
+        "t": "memorise",
+        "h": "Double Angle — Choose the Right $\\cos 2A$ Form",
+        "body": "$\\sin 2A = 2\\sin A\\cos A$. Three $\\cos 2A$ forms: $\\cos^2 A - \\sin^2 A$ (general), $2\\cos^2 A - 1$ (use when you want $\\cos^2 A = \\frac{1+\\cos 2A}{2}$), $1 - 2\\sin^2 A$ (use when integrating $\\sin^2 x$). Pick the form that eliminates the function you don't want."
+      }
+    },
     {
-      "q": "Solve $\\sin 2x = \\cos x$ for $0 \\le x < 2\\pi$.",
-      "marks": 4,
-      "ms": [
-        "$2\\sin x \\cos x = \\cos x \\implies \\cos x(2\\sin x - 1) = 0$. (1)",
-        "$\\cos x = 0 \\implies x = \\pi/2, 3\\pi/2$. (1)",
-        "$2\\sin x = 1 \\implies \\sin x = 1/2 \\implies x = \\pi/6, 5\\pi/6$. (1)",
-        "All four solutions. (1)"
-      ]
-    }
-  ]
-};
-
-C["maths:5.7"] = {
-  "notes": [
-    { "h": "$R\\cos(x \\pm \\alpha)$ and $R\\sin(x \\pm \\alpha)$" },
+      "callout": {
+        "t": "miscon",
+        "h": "$\\cos 2A = \\cos^2 A + \\sin^2 A$",
+        "body": "WRONG sign. $\\cos(A+A)$ expands using the addition formula as $\\cos A\\cos A - \\sin A\\sin A = \\cos^2 A - \\sin^2 A$ (minus, not plus). The plus version just equals 1 by the Pythagorean identity — a guaranteed wrong answer."
+      }
+    },
+    {
+      "page": "Harmonic (R) Form"
+    },
+    {
+      "h": "$R\\cos(x \\pm \\alpha)$ and $R\\sin(x \\pm \\alpha)$"
+    },
     {
       "callout": {
         "t": "info",
@@ -4476,26 +5112,139 @@ C["maths:5.7"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "R-Form — Procedure", "body": "To write $a\\sin x + b\\cos x$ as $R\\sin(x+\\alpha)$: expand $R\\sin(x+\\alpha) = R\\cos\\alpha\\sin x + R\\sin\\alpha\\cos x$. Match: $R\\cos\\alpha = a$, $R\\sin\\alpha = b$. Then $R=\\sqrt{a^2+b^2}$, $\\tan\\alpha = b/a$. Maximum = $R$ (when inner = $90°$), minimum = $-R$." } },
-    { "callout": { "t": "miscon", "h": "Always Using $\\tan\\alpha = b/a$ Regardless of Form", "body": "The formula for $\\alpha$ depends on which harmonic form you target. For $R\\sin(x+\\alpha)$: $\\tan\\alpha = b/a$ (sin coefficient is $a$, cos coefficient is $b$). For $R\\cos(x-\\alpha)$: $\\tan\\alpha = a/b$ (the fractions flip). Expand the target form and match coefficients every time." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "R-Form — Procedure",
+        "body": "To write $a\\sin x + b\\cos x$ as $R\\sin(x+\\alpha)$: expand $R\\sin(x+\\alpha) = R\\cos\\alpha\\sin x + R\\sin\\alpha\\cos x$. Match: $R\\cos\\alpha = a$, $R\\sin\\alpha = b$. Then $R=\\sqrt{a^2+b^2}$, $\\tan\\alpha = b/a$. Maximum = $R$ (when inner = $90°$), minimum = $-R$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Always Using $\\tan\\alpha = b/a$ Regardless of Form",
+        "body": "The formula for $\\alpha$ depends on which harmonic form you target. For $R\\sin(x+\\alpha)$: $\\tan\\alpha = b/a$ (sin coefficient is $a$, cos coefficient is $b$). For $R\\cos(x-\\alpha)$: $\\tan\\alpha = a/b$ (the fractions flip). Expand the target form and match coefficients every time."
+      }
+    }
   ],
   "flashcards": [
-    ["Formula for $R$ in harmonic form?", "$\\sqrt{a^2 + b^2}$."],
-    ["Maximum value of $R\\sin(x+\\alpha)$?", "$R$."],
-    ["Minimum value of $R\\cos(x-\\alpha)$?", "$-R$."],
-    ["How to find $\\alpha$?", "Usually $\\tan \\alpha = b/a$ (match coefficients)."],
-    ["Solve $R\\sin(x+\\alpha) = k$.", "$\\sin(x+\\alpha) = k/R$ then use arcsin."],
-    ["When is $R\\cos(x-\\alpha)$ maximum?", "When $x-\\alpha = 0 \\implies x = \\alpha$."]
+    [
+      "$\\sin 2x =$ ?",
+      "$2\\sin x \\cos x$."
+    ],
+    [
+      "Three forms of $\\cos 2x$?",
+      "$\\cos^2 x - \\sin^2 x$, $2\\cos^2 x - 1$, $1 - 2\\sin^2 x$."
+    ],
+    [
+      "$\\tan 2x =$ ?",
+      "$2\\tan x / (1 - \\tan^2 x)$."
+    ],
+    [
+      "$\\sin(A+B) =$ ?",
+      "$\\sin A \\cos B + \\cos A \\sin B$."
+    ],
+    [
+      "$\\cos(A+B) =$ ?",
+      "$\\cos A \\cos B - \\sin A \\sin B$."
+    ],
+    [
+      "What is $\\cos^2 x$ in terms of $\\cos 2x$?",
+      "$\\frac{1 + \\cos 2x}{2}$."
+    ],
+    [
+      "Formula for $R$ in harmonic form?",
+      "$\\sqrt{a^2 + b^2}$."
+    ],
+    [
+      "Maximum value of $R\\sin(x+\\alpha)$?",
+      "$R$."
+    ],
+    [
+      "Minimum value of $R\\cos(x-\\alpha)$?",
+      "$-R$."
+    ],
+    [
+      "How to find $\\alpha$?",
+      "Usually $\\tan \\alpha = b/a$ (match coefficients)."
+    ],
+    [
+      "Solve $R\\sin(x+\\alpha) = k$.",
+      "$\\sin(x+\\alpha) = k/R$ then use arcsin."
+    ],
+    [
+      "When is $R\\cos(x-\\alpha)$ maximum?",
+      "When $x-\\alpha = 0 \\implies x = \\alpha$."
+    ]
   ],
   "quiz": [
     {
+      "q": "Simplify $2\\sin 15^\\circ \\cos 15^\\circ$.",
+      "opts": [
+        "$\\sin 30^\\circ$",
+        "$\\cos 30^\\circ$",
+        "$\\sin 15^\\circ$",
+        "1"
+      ],
+      "ans": 0,
+      "why": "Double angle formula for sine."
+    },
+    {
       "q": "Find the maximum value of $12\\cos x - 5\\sin x$.",
-      "opts": ["7", "17", "13", "144"],
+      "opts": [
+        "7",
+        "17",
+        "13",
+        "144"
+      ],
       "ans": 2,
       "why": "$R = \\sqrt{12^2 + 5^2} = \\sqrt{144+25} = 13$."
+    },
+    {
+      "q": "Three forms of $\\cos 2A$ include...?",
+      "opts": [
+        "$\\cos^2A+\\sin^2A$",
+        "$2\\cos^2A-1$",
+        "$2\\sin^2A-1$",
+        "$1+2\\sin^2A$"
+      ],
+      "ans": 1,
+      "why": "$\\cos2A=2\\cos^2A-1$ is one valid form."
+    },
+    {
+      "q": "$a\\sin x+b\\cos x$ has maximum value...?",
+      "opts": [
+        "$a+b$",
+        "$\\sqrt{a^2+b^2}$",
+        "$ab$",
+        "$a^2+b^2$"
+      ],
+      "ans": 1,
+      "why": "The amplitude is $R=\\sqrt{a^2+b^2}$."
+    },
+    {
+      "q": "$\\sin(A-B)=$...?",
+      "opts": [
+        "$\\sin A\\cos B+\\cos A\\sin B$",
+        "$\\sin A\\cos B-\\cos A\\sin B$",
+        "$\\cos A\\cos B-\\sin A\\sin B$",
+        "$2\\sin A\\cos B$"
+      ],
+      "ans": 1,
+      "why": "Subtraction formula for sine."
     }
   ],
   "exam": [
+    {
+      "q": "Solve $\\sin 2x = \\cos x$ for $0 \\le x < 2\\pi$.",
+      "marks": 4,
+      "ms": [
+        "$2\\sin x \\cos x = \\cos x \\implies \\cos x(2\\sin x - 1) = 0$. (1)",
+        "$\\cos x = 0 \\implies x = \\pi/2, 3\\pi/2$. (1)",
+        "$2\\sin x = 1 \\implies \\sin x = 1/2 \\implies x = \\pi/6, 5\\pi/6$. (1)",
+        "All four solutions. (1)"
+      ]
+    },
     {
       "q": "Express $2\\cos x + 5\\sin x$ in the form $R\\cos(x-\\alpha)$ where $R>0, 0<\\alpha<90^\\circ$. Hence solve $2\\cos x + 5\\sin x = 3$ for $0<x<360^\\circ$.",
       "marks": 6,
@@ -4506,13 +5255,26 @@ C["maths:5.7"] = {
         "$x-68.2 = 56.1$ or $x-68.2 = -56.1$ (or $303.9$). (1)",
         "$x = 124.3^\\circ, 12.1^\\circ$. (2)"
       ]
+    },
+    {
+      "q": "Solve $\\cos2x+3\\sin x=2$ for $0\\le x<360^\\circ$.",
+      "marks": 5,
+      "ms": [
+        "Use $\\cos2x=1-2\\sin^2x$: $1-2\\sin^2x+3\\sin x=2$. (1)",
+        "$2\\sin^2x-3\\sin x+1=0$. (1)",
+        "$(2\\sin x-1)(\\sin x-1)=0$. (1)",
+        "$\\sin x=1\\Rightarrow x=90^\\circ$. (1)",
+        "$\\sin x=\\tfrac12\\Rightarrow x=30^\\circ,150^\\circ$; solutions $30^\\circ,90^\\circ,150^\\circ$. (1)"
+      ]
     }
   ]
 };
 
-C["maths:5.8"] = {
+C["maths:5.7"] = {
   "notes": [
-    { "h": "Trig Equations" },
+    {
+      "h": "Trig Equations"
+    },
     {
       "callout": {
         "t": "info",
@@ -4528,23 +5290,110 @@ C["maths:5.8"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Trig Equations — CAST + Interval Trick", "body": "CAST (All, Sin, Tan, Cos positive in 4th→1st→2nd→3rd quadrants, going anticlockwise). Second solution: $\\sin$: $180°-\\theta$; $\\cos$: $360°-\\theta$; $\\tan$: $\\theta+180°$. For $\\sin(2x)$: expand interval to $[0°, 720°)$ before solving." } },
-    { "callout": { "t": "miscon", "h": "Forgetting to Expand the Interval for $\\sin(2x)=k$", "body": "If $0 \\le x < 180°$, then $0 \\le 2x < 360°$ — you MUST double the interval before listing solutions for $2x$. Students who keep the original interval miss half the solutions. After solving for $2x$, divide all answers by 2 to get $x$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Trig Equations — CAST + Interval Trick",
+        "body": "CAST (All, Sin, Tan, Cos positive in 4th→1st→2nd→3rd quadrants, going anticlockwise). Second solution: $\\sin$: $180°-\\theta$; $\\cos$: $360°-\\theta$; $\\tan$: $\\theta+180°$. For $\\sin(2x)$: expand interval to $[0°, 720°)$ before solving."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Forgetting to Expand the Interval for $\\sin(2x)=k$",
+        "body": "If $0 \\le x < 180°$, then $0 \\le 2x < 360°$ — you MUST double the interval before listing solutions for $2x$. Students who keep the original interval miss half the solutions. After solving for $2x$, divide all answers by 2 to get $x$."
+      }
+    }
   ],
   "flashcards": [
-    ["First step in solving $\\sin x = 0.5$?", "Find the principal value $\\arcsin(0.5) = 30^\\circ$."],
-    ["How to find other solutions for $\\sin$?", "$180 - \\theta$ and $\\pm 360$."],
-    ["How to find other solutions for $\\cos$?", "$360 - \\theta$ and $\\pm 360$."],
-    ["How to find other solutions for $\\tan$?", "$\\theta + 180$ and $\\pm 180$."],
-    ["Interval for $2x$ if $0 \\le x < 180$?", "$0 \\le 2x < 360$."],
-    ["General solution for $\\cos x = \\alpha$?", "$2n\\pi \\pm \\arccos \\alpha$."]
+    [
+      "First step in solving $\\sin x = 0.5$?",
+      "Find the principal value $\\arcsin(0.5) = 30^\\circ$."
+    ],
+    [
+      "How to find other solutions for $\\sin$?",
+      "$180 - \\theta$ and $\\pm 360$."
+    ],
+    [
+      "How to find other solutions for $\\cos$?",
+      "$360 - \\theta$ and $\\pm 360$."
+    ],
+    [
+      "How to find other solutions for $\\tan$?",
+      "$\\theta + 180$ and $\\pm 180$."
+    ],
+    [
+      "Interval for $2x$ if $0 \\le x < 180$?",
+      "$0 \\le 2x < 360$."
+    ],
+    [
+      "General solution for $\\cos x = \\alpha$?",
+      "$2n\\pi \\pm \\arccos \\alpha$."
+    ],
+    [
+      "General solution of $\\tan x=k$?",
+      "$x=\\arctan k+180^\\circ n$ (degrees)."
+    ],
+    [
+      "What identity turns $\\cos^2x$ into $\\sin x$ for a quadratic-in-sin equation?",
+      "$\\cos^2x=1-\\sin^2x$."
+    ]
   ],
   "quiz": [
     {
       "q": "How many solutions for $\\cos x = 0.1$ in $0 \\le x < 2\\pi$?",
-      "opts": ["1", "2", "0", "Infinite"],
+      "opts": [
+        "1",
+        "2",
+        "0",
+        "Infinite"
+      ],
       "ans": 1,
       "why": "Cosine crosses 0.1 twice in one period."
+    },
+    {
+      "q": "Solving $\\sin2x=k$ on $0\\le x<360^\\circ$ first needs the interval for $2x$ of...?",
+      "opts": [
+        "$[0,360)$",
+        "$[0,720)$",
+        "$[0,180)$",
+        "$[0,90)$"
+      ],
+      "ans": 1,
+      "why": "Double the interval before solving for $2x$."
+    },
+    {
+      "q": "The second solution of $\\cos x=k$ (after the principal value $\\theta$) on $[0,360^\\circ)$ is...?",
+      "opts": [
+        "$180-\\theta$",
+        "$360-\\theta$",
+        "$\\theta+180$",
+        "$90-\\theta$"
+      ],
+      "ans": 1,
+      "why": "Cosine is symmetric: $360^\\circ-\\theta$."
+    },
+    {
+      "q": "$\\tan x=1$ on $0\\le x<360^\\circ$ gives...?",
+      "opts": [
+        "$45^\\circ$ only",
+        "$45^\\circ,225^\\circ$",
+        "$45^\\circ,135^\\circ$",
+        "$135^\\circ,315^\\circ$"
+      ],
+      "ans": 1,
+      "why": "Add $180^\\circ$: $45^\\circ$ and $225^\\circ$."
+    },
+    {
+      "q": "Rewriting $2\\cos^2x+\\sin x-1=0$ uses...?",
+      "opts": [
+        "$\\sin^2=1-\\cos^2$",
+        "$\\cos^2=1-\\sin^2$",
+        "double angle",
+        "the R-form"
+      ],
+      "ans": 1,
+      "why": "Substitute to get a quadratic in $\\sin x$."
     }
   ],
   "exam": [
@@ -4558,13 +5407,207 @@ C["maths:5.8"] = {
         "$\\sin x = 1 \\implies x = 90^\\circ$. (1)",
         "$\\sin x = -0.5 \\implies x = 210^\\circ, 330^\\circ$. (1)"
       ]
+    },
+    {
+      "q": "Solve $\\tan x=\\sqrt3$ for $0\\le x<360^\\circ$.",
+      "marks": 2,
+      "ms": [
+        "Principal value $\\arctan\\sqrt3=60^\\circ$. (1)",
+        "Add $180^\\circ$: $x=60^\\circ,240^\\circ$. (1)"
+      ]
+    },
+    {
+      "q": "Solve $3\\sin^2x-\\sin x-2=0$ for $0\\le x<360^\\circ$.",
+      "marks": 6,
+      "ms": [
+        "Factorise as a quadratic: $(3\\sin x+2)(\\sin x-1)=0$. (1)",
+        "$\\sin x=1\\Rightarrow x=90^\\circ$. (1)",
+        "$\\sin x=-\\tfrac23$. (1)",
+        "Principal value $\\arcsin(-\\tfrac23)\\approx-41.8^\\circ$. (1)",
+        "In range: $x=180^\\circ+41.8^\\circ=221.8^\\circ$. (1)",
+        "and $x=360^\\circ-41.8^\\circ=318.2^\\circ$. (1)"
+      ]
+    }
+  ]
+};
+
+C["maths:5.8"] = {
+  "notes": [
+    {
+      "h": "Trigonometric Proofs"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "Proving a trig identity means transforming ONE side until it equals the other, using known identities. Start with the more complicated side."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Identities you will use",
+        "body": [
+          "$\\sin^2x+\\cos^2x=1$",
+          "$1+\\tan^2x=\\sec^2x$",
+          "$1+\\cot^2x=\\csc^2x$",
+          "Double angle: $\\sin2x=2\\sin x\\cos x$, $\\cos2x=1-2\\sin^2x$"
+        ]
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Worked proof: $\\dfrac{1-\\cos2x}{\\sin2x}\\equiv\\tan x$",
+          "m": "LHS $=\\dfrac{1-(1-2\\sin^2x)}{2\\sin x\\cos x}=\\dfrac{2\\sin^2x}{2\\sin x\\cos x}$.",
+          "n": "Cancel: $=\\dfrac{\\sin x}{\\cos x}=\\tan x=$ RHS. QED."
+        }
+      ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Strategy for proofs",
+        "body": "Start with the **messier side**. If stuck, **convert everything to $\\sin$ and $\\cos$**. Use the Pythagorean identities, double-angle formulae and factorising. Work down to the target side — never assume the result you are proving."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Do not work on both sides at once",
+        "body": "Manipulating both sides (or 'cross-multiplying') of an identity you are trying to prove ASSUMES the result. Transform ONE side only until it becomes the other."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What does proving an identity involve?",
+      "Transforming one side until it equals the other, using known identities."
+    ],
+    [
+      "Which side should you usually start from?",
+      "The more complicated side."
+    ],
+    [
+      "State the Pythagorean identity.",
+      "$\\sin^2x+\\cos^2x=1$."
+    ],
+    [
+      "State the identity linking $\\tan$ and $\\sec$.",
+      "$1+\\tan^2x=\\sec^2x$."
+    ],
+    [
+      "A good fallback when a proof is stuck?",
+      "Convert everything to $\\sin$ and $\\cos$."
+    ],
+    [
+      "Why must you not manipulate both sides of an identity?",
+      "It assumes the result you are trying to prove."
+    ],
+    [
+      "$\\dfrac{\\sin x}{\\cos x}=$ ?",
+      "$\\tan x$."
+    ],
+    [
+      "Which double-angle form of $\\cos2x$ helps prove identities involving $\\sin^2x$?",
+      "$\\cos2x=1-2\\sin^2x$."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "To prove an identity you should...?",
+      "opts": [
+        "work on both sides together",
+        "transform one side into the other",
+        "substitute numbers",
+        "differentiate"
+      ],
+      "ans": 1,
+      "why": "Manipulate a single side only."
+    },
+    {
+      "q": "$1+\\tan^2x$ simplifies to...?",
+      "opts": [
+        "$\\sec^2x$",
+        "$\\csc^2x$",
+        "$\\cot^2x$",
+        "$1$"
+      ],
+      "ans": 0,
+      "why": "Divide $\\sin^2+\\cos^2=1$ by $\\cos^2$."
+    },
+    {
+      "q": "Best first move when a proof looks stuck?",
+      "opts": [
+        "give up",
+        "convert to sin and cos",
+        "square both sides",
+        "use a calculator"
+      ],
+      "ans": 1,
+      "why": "Reducing to sin/cos exposes cancellations."
+    },
+    {
+      "q": "$\\dfrac{2\\sin^2x}{2\\sin x\\cos x}$ simplifies to...?",
+      "opts": [
+        "$\\cot x$",
+        "$\\tan x$",
+        "$\\sec x$",
+        "$1$"
+      ],
+      "ans": 1,
+      "why": "Cancel to $\\sin x/\\cos x=\\tan x$."
+    },
+    {
+      "q": "$\\cos2x$ written to involve only $\\sin x$ is...?",
+      "opts": [
+        "$2\\cos^2x-1$",
+        "$1-2\\sin^2x$",
+        "$\\cos^2x-\\sin^2x$",
+        "$2\\sin x\\cos x$"
+      ],
+      "ans": 1,
+      "why": "$1-2\\sin^2x$ uses only $\\sin$."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Prove that $\\sec^2x-1\\equiv\\tan^2x\\sec^0x$... i.e. show $\\sec^2x-1\\equiv\\tan^2x$.",
+      "marks": 2,
+      "ms": [
+        "$\\sec^2x=\\dfrac{1}{\\cos^2x}$, so $\\sec^2x-1=\\dfrac{1-\\cos^2x}{\\cos^2x}$. (1)",
+        "$=\\dfrac{\\sin^2x}{\\cos^2x}=\\tan^2x$. (1)"
+      ]
+    },
+    {
+      "q": "Prove that $\\dfrac{\\cos x}{1+\\sin x}+\\dfrac{1+\\sin x}{\\cos x}\\equiv 2\\sec x$.",
+      "marks": 4,
+      "ms": [
+        "Common denominator: $\\dfrac{\\cos^2x+(1+\\sin x)^2}{(1+\\sin x)\\cos x}$. (1)",
+        "Numerator $=\\cos^2x+1+2\\sin x+\\sin^2x=2+2\\sin x$. (1)",
+        "$=2(1+\\sin x)$, so expression $=\\dfrac{2(1+\\sin x)}{(1+\\sin x)\\cos x}$. (1)",
+        "$=\\dfrac{2}{\\cos x}=2\\sec x$. (1)"
+      ]
+    },
+    {
+      "q": "Prove that $\\dfrac{\\sin2x}{1+\\cos2x}\\equiv\\tan x$, and hence find the exact value of $\\tan15^\\circ$ given $\\sin30^\\circ=\\tfrac12$, $\\cos30^\\circ=\\tfrac{\\sqrt3}{2}$.",
+      "marks": 6,
+      "ms": [
+        "$\\sin2x=2\\sin x\\cos x$ and $1+\\cos2x=1+(2\\cos^2x-1)=2\\cos^2x$. (1)",
+        "So LHS $=\\dfrac{2\\sin x\\cos x}{2\\cos^2x}$. (1)",
+        "$=\\dfrac{\\sin x}{\\cos x}=\\tan x$. (1)",
+        "Put $x=15^\\circ$ so $2x=30^\\circ$: $\\tan15^\\circ=\\dfrac{\\sin30^\\circ}{1+\\cos30^\\circ}$. (1)",
+        "$=\\dfrac{1/2}{1+\\sqrt3/2}=\\dfrac{1}{2+\\sqrt3}$. (1)",
+        "Rationalise: $\\dfrac{1}{2+\\sqrt3}\\cdot\\dfrac{2-\\sqrt3}{2-\\sqrt3}=2-\\sqrt3$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:5.9"] = {
   "notes": [
-    { "h": "Trig Modelling" },
+    {
+      "h": "Trig Modelling"
+    },
     {
       "callout": {
         "t": "info",
@@ -4578,23 +5621,110 @@ C["maths:5.9"] = {
         "footer": "A: Amplitude, B: Freq factor ($360/Period$), C: Phase shift, D: Vertical shift."
       }
     },
-    { "callout": { "t": "memorise", "h": "Trig Modelling — $y = A\\sin(B(x-C))+D$", "body": "$A$ = amplitude (half the range). $D$ = vertical shift (mean level). $B$ = frequency factor; Period $= 360°/B$ (degrees) or $2\\pi/B$ (radians). $C$ = phase shift (horizontal). Max = $A+D$, Min = $D-A$." } },
-    { "callout": { "t": "miscon", "h": "Amplitude = Maximum Value", "body": "Amplitude is NOT the maximum value — it is the **half-range**. Maximum value = $A + D$ (amplitude plus the vertical shift). For $h = 4 + 3\\sin\\theta$: amplitude is $3$, max is $7$, min is $1$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Trig Modelling — $y = A\\sin(B(x-C))+D$",
+        "body": "$A$ = amplitude (half the range). $D$ = vertical shift (mean level). $B$ = frequency factor; Period $= 360°/B$ (degrees) or $2\\pi/B$ (radians). $C$ = phase shift (horizontal). Max = $A+D$, Min = $D-A$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Amplitude = Maximum Value",
+        "body": "Amplitude is NOT the maximum value — it is the **half-range**. Maximum value = $A + D$ (amplitude plus the vertical shift). For $h = 4 + 3\\sin\\theta$: amplitude is $3$, max is $7$, min is $1$."
+      }
+    }
   ],
   "flashcards": [
-    ["What does amplitude represent in a tide model?", "Half the distance between high and low tide."],
-    ["What does $D$ represent in $y = A\\sin x + D$?", "The mean (average) level."],
-    ["Formula for period in terms of $B$ (degrees)?", "$360/B$."],
-    ["How to find the first time a height is reached?", "Set equation to the height and solve for $t$."],
-    ["Typical function for a Ferris wheel height?", "Cosine (usually starting at max or min)."],
-    ["What is the frequency?", "$1/Period$."]
+    [
+      "What does amplitude represent in a tide model?",
+      "Half the distance between high and low tide."
+    ],
+    [
+      "What does $D$ represent in $y = A\\sin x + D$?",
+      "The mean (average) level."
+    ],
+    [
+      "Formula for period in terms of $B$ (degrees)?",
+      "$360/B$."
+    ],
+    [
+      "How to find the first time a height is reached?",
+      "Set equation to the height and solve for $t$."
+    ],
+    [
+      "Typical function for a Ferris wheel height?",
+      "Cosine (usually starting at max or min)."
+    ],
+    [
+      "What is the frequency?",
+      "$1/Period$."
+    ],
+    [
+      "What real-world situations suit a trig model?",
+      "Periodic phenomena: tides, daylight hours, oscillations, sound."
+    ],
+    [
+      "In $h=a+b\\sin(ct)$, what does $b$ represent?",
+      "The amplitude (half the range of the variation)."
+    ]
   ],
   "quiz": [
     {
       "q": "Tide height $h = 4 + 2\\sin(30t)$. What is the max height?",
-      "opts": ["4", "2", "6", "30"],
+      "opts": [
+        "4",
+        "2",
+        "6",
+        "30"
+      ],
       "ans": 2,
       "why": "Mean 4 + Amplitude 2 = 6."
+    },
+    {
+      "q": "Daylight hours over a year are modelled by a...?",
+      "opts": [
+        "linear",
+        "exponential",
+        "sinusoidal",
+        "reciprocal"
+      ],
+      "ans": 2,
+      "why": "They vary periodically."
+    },
+    {
+      "q": "In $h=6+3\\sin(0.5t)$, the maximum value of $h$ is...?",
+      "opts": [
+        "$3$",
+        "$6$",
+        "$9$",
+        "$0.5$"
+      ],
+      "ans": 2,
+      "why": "$6+3(1)=9$."
+    },
+    {
+      "q": "The period of $\\sin(0.5t)$ is...?",
+      "opts": [
+        "$0.5$",
+        "$\\pi$",
+        "$2\\pi$",
+        "$4\\pi$"
+      ],
+      "ans": 3,
+      "why": "Period $=2\\pi/0.5=4\\pi$."
+    },
+    {
+      "q": "The constant term in a trig model usually represents the...?",
+      "opts": [
+        "amplitude",
+        "mean/baseline value",
+        "period",
+        "phase"
+      ],
+      "ans": 1,
+      "why": "It shifts the wave up to its average level."
     }
   ],
   "exam": [
@@ -4606,7 +5736,28 @@ C["maths:5.9"] = {
         "$\\sin(30t) = -0.5$. (1)",
         "$30t = 210^\\circ \\implies t = 7$. (1)",
         "Answer: 7:00 AM. (1)"
-  ]
+      ]
+    },
+    {
+      "q": "The depth of water is $D=5+2\\sin(30t)^\\circ$ metres, $t$ in hours. State the maximum depth and the value of $t$ (first time) at which it occurs.",
+      "marks": 3,
+      "ms": [
+        "Maximum when $\\sin(30t)^\\circ=1$. (1)",
+        "Max depth $=5+2=7$ m. (1)",
+        "$30t=90\\Rightarrow t=3$ hours. (1)"
+      ]
+    },
+    {
+      "q": "A Ferris wheel's height is modelled by $h=10-9\\cos(12t)^\\circ$ metres, $t$ in seconds. Find the maximum height, the time of the first maximum, and one limitation of the model.",
+      "marks": 6,
+      "ms": [
+        "Max when $\\cos(12t)^\\circ=-1$. (1)",
+        "Max height $=10+9=19$ m. (1)",
+        "$12t=180\\Rightarrow t=15$ s. (1)",
+        "Minimum height $=10-9=1$ m (boarding level). (1)",
+        "Period $=360/12=30$ s per revolution. (1)",
+        "Limitation: assumes constant rotation speed and ignores loading stops / wind. (1)"
+      ]
     }
   ]
 };

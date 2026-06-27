@@ -915,6 +915,32 @@ window.KOS_DATA.intel = {
 },
 
 /* ============ Edexcel Mathematics 9MA0 — Pure ============ */
+"maths:5.1": {
+  defs: [["Radian", "Angle subtended by an arc equal in length to the radius; 180 deg = pi rad."],
+         ["Cosine rule", "a^2 = b^2 + c^2 - 2bc cos A (SAS for a side; SSS for an angle)."]],
+  tips: ["Arc length s = r theta and sector area = 1/2 r^2 theta need theta in RADIANS.", "Sine rule for a side+opposite-angle pair; cosine rule for SAS/SSS; area = 1/2 ab sinC."],
+  pitfalls: ["Using degrees in s = r theta / sector-area formulas.", "Missing the ambiguous (obtuse) case of the sine rule."]
+},
+"maths:5.2": {
+  defs: [["Small-angle approximations", "For small theta in radians: sin t ~ t, tan t ~ t, cos t ~ 1 - t^2/2."]],
+  tips: ["Only valid for small angles in radians.", "cos approximates to a quadratic, not theta."],
+  pitfalls: ["Writing cos t ~ t.", "Using degrees."]
+},
+"maths:5.4": {
+  defs: [["Inverse trig", "arcsin/arccos/arctan, defined on restricted ranges so they are one-one."]],
+  tips: ["arcsin range [-pi/2, pi/2]; arccos [0, pi]; arctan (-pi/2, pi/2).", "Reciprocal-trig equations: convert to the base function first (sec x = 2 -> cos x = 1/2)."],
+  pitfalls: ["Forgetting the restricted range of inverse functions.", "Giving only the principal value when more solutions exist."]
+},
+"maths:5.5": {
+  defs: [["Pythagorean identities", "sin^2+cos^2=1; 1+tan^2=sec^2; 1+cot^2=cosec^2."]],
+  tips: ["Derive the sec/cosec identities by dividing sin^2+cos^2=1 by cos^2 or sin^2.", "Quote the identity used at each step."],
+  pitfalls: ["Sign errors (sec^2 - tan^2 = 1).", "Using an identity in the wrong direction."]
+},
+"maths:5.9": {
+  defs: [["Trig model", "a + b sin/cos(ct): mean a, amplitude b, period 360/c (deg) or 2pi/c (rad)."]],
+  tips: ["Max = a+b, min = a-b; read amplitude, mean and period from the model.", "State a limitation (constant speed, ignores weather) for the marks."],
+  pitfalls: ["Misreading amplitude vs mean.", "Wrong period (use 2pi/c or 360/c)."]
+},
 "maths:3.1": {
   defs: [["Straight line", "y = mx + c; gradient m = (y2-y1)/(x2-x1)."],
          ["Perpendicular lines", "Gradients multiply to -1 (negative reciprocals)."]],
