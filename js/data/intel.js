@@ -915,6 +915,44 @@ window.KOS_DATA.intel = {
 },
 
 /* ============ Edexcel Mathematics 9MA0 — Pure ============ */
+"maths:S2.1": {
+  defs: [["Histogram", "Area is proportional to frequency; height is frequency density = frequency / class width."]],
+  tips: ["With unequal widths, always use frequency density.", "Box plots and cumulative frequency curves summarise spread and quartiles."],
+  pitfalls: ["Plotting frequency as height with unequal class widths.", "Reading the median off the y-axis instead of via the curve."]
+},
+"maths:S2.4": {
+  defs: [["Outlier", "A value beyond Q1-1.5IQR or Q3+1.5IQR, or > 2-3 s.d. from the mean."]],
+  tips: ["Compute the IQR boundaries before judging outliers.", "Remove an outlier only if it is a genuine error."],
+  pitfalls: ["Deleting valid extreme values.", "Arithmetic slips in the 1.5 x IQR boundaries."]
+},
+"maths:S3.1": {
+  defs: [["Mutually exclusive", "Cannot both occur: P(A and B)=0, so P(A or B)=P(A)+P(B)."],
+         ["Independent", "P(A and B)=P(A)P(B)."]],
+  tips: ["General rule: P(A or B)=P(A)+P(B)-P(A and B).", "Mutually exclusive (non-zero) events are NOT independent."],
+  pitfalls: ["Adding probabilities for non-exclusive events.", "Multiplying for dependent events."]
+},
+"maths:S3.3": {
+  defs: [["Probability model", "Assumptions assigning probabilities; can be critiqued and refined."]],
+  tips: ["State assumptions (equally likely, independent) explicitly.", "Refine the model by estimating probabilities from data."],
+  pitfalls: ["Not questioning the fairness/independence assumptions.", "Ignoring data that contradicts the model."]
+},
+"maths:S4.3": {
+  defs: [["Choosing a distribution", "Binomial for counts of successes; normal for continuous symmetric data."],
+         ["Normal approx to binomial", "n large, p near 0.5; use a +/-0.5 continuity correction."]],
+  tips: ["Justify the choice from the context (discrete count vs continuous).", "Apply the continuity correction when approximating."],
+  pitfalls: ["Approximating when p is far from 0.5.", "Forgetting the continuity correction."]
+},
+"maths:S5.1": {
+  defs: [["Hypotheses", "H0 = default; H1 = what you test for (one- or two-tailed)."],
+         ["Significance level", "P(reject H0 | H0 true); the critical region is where you reject."]],
+  tips: ["Define H0, H1 and the level first.", "Reject H0 if the result is in the critical region / p-value < level."],
+  pitfalls: ["Mixing up H0 and H1.", "Saying you 'accept H0' rather than 'insufficient evidence to reject'."]
+},
+"maths:S5.3": {
+  defs: [["Normal mean test", "Xbar ~ N(mu, sigma^2/n); Z=(xbar-mu0)/(sigma/sqrt n)."]],
+  tips: ["Standard error is sigma/sqrt(n).", "Critical z: 1.645 one-tailed, 1.96 two-tailed (5%)."],
+  pitfalls: ["Dividing by sigma instead of the standard error.", "Using the one-tailed critical value for a two-tailed test."]
+},
 "maths:9.1": {
   defs: [["Change-of-sign method", "If f(a), f(b) have opposite signs and f is continuous, a root lies between a and b."]],
   tips: ["Evaluate f at the endpoints and look for a sign change.", "A sign change shows AT LEAST one root in the interval."],

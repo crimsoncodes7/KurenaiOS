@@ -16,13 +16,37 @@ C["maths:S1.1"] = {
     },
     {
       "table": {
-        "head": ["Method", "Definition (the words that score)", "Random?"],
+        "head": [
+          "Method",
+          "Definition (the words that score)",
+          "Random?"
+        ],
         "rows": [
-          ["Simple random", "Every sample of size $n$ has an equal chance of selection (e.g. numbered list + random number generator)", "Yes"],
-          ["Systematic", "Every $k$th element taken from an ordered list, starting from a RANDOM start point", "Yes"],
-          ["Stratified", "Population divided into groups (strata); simple random sample taken from each IN PROPORTION to group size", "Yes"],
-          ["Quota", "Interviewer selects who they like until quotas per group are filled", "No"],
-          ["Opportunity (convenience)", "Sample taken from whoever is available and willing at the time", "No"]
+          [
+            "Simple random",
+            "Every sample of size $n$ has an equal chance of selection (e.g. numbered list + random number generator)",
+            "Yes"
+          ],
+          [
+            "Systematic",
+            "Every $k$th element taken from an ordered list, starting from a RANDOM start point",
+            "Yes"
+          ],
+          [
+            "Stratified",
+            "Population divided into groups (strata); simple random sample taken from each IN PROPORTION to group size",
+            "Yes"
+          ],
+          [
+            "Quota",
+            "Interviewer selects who they like until quotas per group are filled",
+            "No"
+          ],
+          [
+            "Opportunity (convenience)",
+            "Sample taken from whoever is available and willing at the time",
+            "No"
+          ]
         ]
       }
     },
@@ -72,30 +96,128 @@ C["maths:S1.1"] = {
     }
   ],
   "flashcards": [
-    ["Define simple random sampling.", "Every possible sample of size $n$ has an equal chance of being chosen — e.g. number the population and use a random number generator."],
-    ["Define systematic sampling.", "Take every $k$th element from an ordered list, starting from a randomly chosen start point."],
-    ["Define stratified sampling and its formula.", "Split the population into strata, sample each randomly in proportion: $(\\text{stratum} \\div \\text{population}) \\times \\text{sample size}$."],
-    ["Which named methods are NOT random?", "Quota and opportunity (convenience) sampling."],
-    ["One advantage and one drawback of a census?", "Completely accurate (whole population); but expensive, slow, and impossible if testing destroys items."]
+    [
+      "Define simple random sampling.",
+      "Every possible sample of size $n$ has an equal chance of being chosen — e.g. number the population and use a random number generator."
+    ],
+    [
+      "Define systematic sampling.",
+      "Take every $k$th element from an ordered list, starting from a randomly chosen start point."
+    ],
+    [
+      "Define stratified sampling and its formula.",
+      "Split the population into strata, sample each randomly in proportion: $(\\text{stratum} \\div \\text{population}) \\times \\text{sample size}$."
+    ],
+    [
+      "Which named methods are NOT random?",
+      "Quota and opportunity (convenience) sampling."
+    ],
+    [
+      "One advantage and one drawback of a census?",
+      "Completely accurate (whole population); but expensive, slow, and impossible if testing destroys items."
+    ],
+    [
+      "What is a census?",
+      "Data collected from every member of the population."
+    ],
+    [
+      "What is a simple random sample?",
+      "Every member has an equal chance of selection (e.g. numbered names drawn at random)."
+    ],
+    [
+      "What is stratified sampling?",
+      "The population is split into groups (strata) and sampled in proportion to each group's size."
+    ],
+    [
+      "What is systematic sampling?",
+      "Select every kth member from an ordered list after a random start."
+    ],
+    [
+      "One advantage of a sample over a census?",
+      "Cheaper and quicker, and feasible when testing is destructive."
+    ],
+    [
+      "One disadvantage of opportunity (convenience) sampling?",
+      "It is unlikely to be representative — prone to bias."
+    ]
   ],
   "quiz": [
     {
       "q": "Population $800$, sample $40$, stratum of $220$ students. Stratum sample = ?",
-      "opts": ["$22$", "$11$", "$40$", "$5.5$"],
+      "opts": [
+        "$22$",
+        "$11$",
+        "$40$",
+        "$5.5$"
+      ],
       "ans": 1,
       "why": "$\\frac{220}{800} \\times 40 = 11$."
     },
     {
       "q": "“Every $20$th caller, starting from a random number $1-20$” is…",
-      "opts": ["quota", "systematic", "stratified", "opportunity"],
+      "opts": [
+        "quota",
+        "systematic",
+        "stratified",
+        "opportunity"
+      ],
       "ans": 1,
       "why": "Fixed interval + random start = systematic."
     },
     {
       "q": "Crash-testing cars must use a sample because…",
-      "opts": ["censuses are illegal", "testing destroys the items", "samples are more accurate", "cars vary"],
+      "opts": [
+        "censuses are illegal",
+        "testing destroys the items",
+        "samples are more accurate",
+        "cars vary"
+      ],
       "ans": 1,
       "why": "A census would destroy the entire population — the classic justification."
+    },
+    {
+      "q": "A census surveys...?",
+      "opts": [
+        "a sample",
+        "the whole population",
+        "only volunteers",
+        "every kth person"
+      ],
+      "ans": 1,
+      "why": "Census = entire population."
+    },
+    {
+      "q": "Sampling in proportion to group sizes is called...?",
+      "opts": [
+        "systematic",
+        "stratified",
+        "quota",
+        "opportunity"
+      ],
+      "ans": 1,
+      "why": "Stratified sampling uses proportional strata."
+    },
+    {
+      "q": "Selecting every 10th name from a list (random start) is...?",
+      "opts": [
+        "simple random",
+        "systematic",
+        "stratified",
+        "quota"
+      ],
+      "ans": 1,
+      "why": "Fixed interval = systematic."
+    },
+    {
+      "q": "A drawback of a census is that it is...?",
+      "opts": [
+        "biased",
+        "expensive and time-consuming",
+        "too small",
+        "always wrong"
+      ],
+      "ans": 1,
+      "why": "Censuses are costly and slow."
     }
   ],
   "exam": [
@@ -107,6 +229,27 @@ C["maths:S1.1"] = {
         "Machinists $\\frac{350}{500} \\times 60 = 42$ (1)",
         "Supervisors $12$; managers $6$ (1)",
         "Within each stratum, members selected by simple random sampling (numbered + RNG) (1)"
+      ]
+    },
+    {
+      "q": "A school has 600 boys and 400 girls. A stratified sample of 50 students is taken. How many girls should be in the sample?",
+      "marks": 3,
+      "ms": [
+        "Total $=1000$; fraction sampled $=50/1000=0.05$. (1)",
+        "Girls in sample $=0.05\\times400$. (1)",
+        "$=20$ girls. (1)"
+      ]
+    },
+    {
+      "q": "Explain one advantage and one disadvantage of using a sample rather than a census, and describe how to take a simple random sample of 30 from 500 employees.",
+      "marks": 6,
+      "ms": [
+        "Advantage: a sample is cheaper and quicker than a census. (1)",
+        "Disadvantage: a sample may not be fully representative / introduces sampling error. (1)",
+        "Number all 500 employees $1$ to $500$. (1)",
+        "Use random numbers (calculator/table) to select. (1)",
+        "Ignore repeats and numbers over 500. (1)",
+        "Continue until 30 distinct employees are chosen. (1)"
       ]
     }
   ]
@@ -124,9 +267,18 @@ C["maths:S2.1"] = {
         "body": [
           {
             "kv": [
-              ["Frequency Density", "Frequency $\\div$ Class Width. The height of the bar in a histogram."],
-              ["Area", "In a histogram, $\\text{Area} = \\text{Frequency}$ (or $k \\times \\text{Frequency}$)."],
-              ["Cumulative Frequency", "A running total of frequencies, plotted at the UPPER class boundary."]
+              [
+                "Frequency Density",
+                "Frequency $\\div$ Class Width. The height of the bar in a histogram."
+              ],
+              [
+                "Area",
+                "In a histogram, $\\text{Area} = \\text{Frequency}$ (or $k \\times \\text{Frequency}$)."
+              ],
+              [
+                "Cumulative Frequency",
+                "A running total of frequencies, plotted at the UPPER class boundary."
+              ]
             ]
           }
         ]
@@ -141,12 +293,32 @@ C["maths:S2.1"] = {
     },
     {
       "table": {
-        "head": ["Feature", "Histogram", "Cumulative Frequency Graph"],
+        "head": [
+          "Feature",
+          "Histogram",
+          "Cumulative Frequency Graph"
+        ],
         "rows": [
-          ["Data Type", "Continuous Grouped", "Continuous Grouped"],
-          ["$y$-Axis", "Frequency Density", "Cumulative Frequency"],
-          ["$x$-Axis Plot Point", "Bar width = Class interval", "Upper class boundary"],
-          ["Interpretation", "Area = Frequency", "Reading percentiles/median"]
+          [
+            "Data Type",
+            "Continuous Grouped",
+            "Continuous Grouped"
+          ],
+          [
+            "$y$-Axis",
+            "Frequency Density",
+            "Cumulative Frequency"
+          ],
+          [
+            "$x$-Axis Plot Point",
+            "Bar width = Class interval",
+            "Upper class boundary"
+          ],
+          [
+            "Interpretation",
+            "Area = Frequency",
+            "Reading percentiles/median"
+          ]
         ]
       }
     },
@@ -182,23 +354,113 @@ C["maths:S2.1"] = {
     }
   ],
   "flashcards": [
-    ["Formula for Frequency Density?", "$\\text{Frequency Density} = \\frac{\\text{Frequency}}{\\text{Class Width}}$."],
-    ["What does the area of a histogram bar represent?", "The frequency of that class ($\\text{Area} = k \\times \\text{Frequency}$)."],
-    ["Where do you plot points for Cumulative Frequency?", "At the UPPER class boundary."],
-    ["How do you find the median from a CF graph?", "Find the value on the $x$-axis corresponding to $\\text{CF} = \\frac{n}{2}$ on the $y$-axis."]
+    [
+      "Formula for Frequency Density?",
+      "$\\text{Frequency Density} = \\frac{\\text{Frequency}}{\\text{Class Width}}$."
+    ],
+    [
+      "What does the area of a histogram bar represent?",
+      "The frequency of that class ($\\text{Area} = k \\times \\text{Frequency}$)."
+    ],
+    [
+      "Where do you plot points for Cumulative Frequency?",
+      "At the UPPER class boundary."
+    ],
+    [
+      "How do you find the median from a CF graph?",
+      "Find the value on the $x$-axis corresponding to $\\text{CF} = \\frac{n}{2}$ on the $y$-axis."
+    ],
+    [
+      "In a histogram, what does area represent?",
+      "Frequency (area is proportional to frequency)."
+    ],
+    [
+      "What is frequency density?",
+      "Frequency divided by class width."
+    ],
+    [
+      "What does a box plot show?",
+      "Minimum, lower quartile, median, upper quartile and maximum."
+    ],
+    [
+      "How do you read the median from a cumulative frequency graph?",
+      "Read across from half the total frequency to the curve, then down to the value."
+    ],
+    [
+      "Why use frequency density in a histogram with unequal class widths?",
+      "So that area (not height) represents frequency, avoiding distortion."
+    ],
+    [
+      "What does the interquartile range measure?",
+      "The spread of the middle 50% of the data ($Q_3-Q_1$)."
+    ]
   ],
   "quiz": [
     {
       "q": "Class $10-20$, frequency $15$. What is the Frequency Density?",
-      "opts": ["$1.5$", "$150$", "$0.67$", "$5$"],
+      "opts": [
+        "$1.5$",
+        "$150$",
+        "$0.67$",
+        "$5$"
+      ],
       "ans": 0,
       "why": "$\\text{FD} = \\frac{15}{20-10} = 1.5$."
     },
     {
       "q": "On a histogram, a bar of width $2$ and height $5$ represents frequency $20$. What is the scale factor $k$?",
-      "opts": ["$1$", "$2$", "$4$", "$10$"],
+      "opts": [
+        "$1$",
+        "$2$",
+        "$4$",
+        "$10$"
+      ],
       "ans": 1,
       "why": "$\\text{Area} = 2 \\times 5 = 10$. $\\text{Freq} = k \\times \\text{Area} \\Rightarrow 20 = k \\times 10 \\Rightarrow k = 2$."
+    },
+    {
+      "q": "In a histogram, frequency density $=$?",
+      "opts": [
+        "frequency $\\times$ width",
+        "frequency $\\div$ width",
+        "width $\\div$ frequency",
+        "frequency only"
+      ],
+      "ans": 1,
+      "why": "Density = frequency / class width."
+    },
+    {
+      "q": "A box plot's middle line shows the...?",
+      "opts": [
+        "mean",
+        "median",
+        "mode",
+        "range"
+      ],
+      "ans": 1,
+      "why": "The box's central line is the median."
+    },
+    {
+      "q": "Histogram area represents...?",
+      "opts": [
+        "height",
+        "frequency",
+        "class width",
+        "the mean"
+      ],
+      "ans": 1,
+      "why": "Area is proportional to frequency."
+    },
+    {
+      "q": "Cumulative frequency at the top of the curve equals...?",
+      "opts": [
+        "the median",
+        "the total frequency",
+        "the mode",
+        "Q1"
+      ],
+      "ans": 1,
+      "why": "It accumulates to the total."
     }
   ],
   "exam": [
@@ -209,6 +471,26 @@ C["maths:S2.1"] = {
         "Area of bar $= 2 \\times 5 = 10\\text{ cm}^2$ (1)",
         "Frequency per unit area $= \\frac{30}{10} = 3\\text{ plants/cm}^2$ (1)",
         "Total Area $= \\frac{100}{3} = 33.3\\text{ cm}^2$ (1)"
+      ]
+    },
+    {
+      "q": "A class of width 5 has frequency 20. Find its frequency density.",
+      "marks": 2,
+      "ms": [
+        "Frequency density $=$ frequency $\\div$ width $=20\\div5$. (1)",
+        "$=4$. (1)"
+      ]
+    },
+    {
+      "q": "The bars of a histogram have classes $0\\text{-}10$ (freq 30) and $10\\text{-}30$ (freq 40). (a) Find both frequency densities. (b) Explain why the second bar is shorter despite a larger frequency.",
+      "marks": 6,
+      "ms": [
+        "First: width 10, density $=30/10=3$. (1)",
+        "Second: width 20, density $=40/20=2$. (1)",
+        "Heights are 3 and 2. (1)",
+        "(b) Height represents frequency density, not frequency. (1)",
+        "The second class is twice as wide. (1)",
+        "So its frequency is spread over a wider interval, giving a lower density/height. (1)"
       ]
     }
   ]
@@ -226,10 +508,22 @@ C["maths:S2.2"] = {
         "body": [
           {
             "kv": [
-              ["Explanatory Variable", "The independent variable ($x$), usually on the horizontal axis."],
-              ["Response Variable", "The dependent variable ($y$), usually on the vertical axis."],
-              ["PMCC ($r$)", "Product Moment Correlation Coefficient. Measures the strength of LINEAR correlation."],
-              ["Regression Line", "The line of best fit ($y = a + bx$) that minimises the sum of squares of residuals."]
+              [
+                "Explanatory Variable",
+                "The independent variable ($x$), usually on the horizontal axis."
+              ],
+              [
+                "Response Variable",
+                "The dependent variable ($y$), usually on the vertical axis."
+              ],
+              [
+                "PMCC ($r$)",
+                "Product Moment Correlation Coefficient. Measures the strength of LINEAR correlation."
+              ],
+              [
+                "Regression Line",
+                "The line of best fit ($y = a + bx$) that minimises the sum of squares of residuals."
+              ]
             ]
           }
         ]
@@ -237,13 +531,31 @@ C["maths:S2.2"] = {
     },
     {
       "table": {
-        "head": ["$r$ value", "Interpretation"],
+        "head": [
+          "$r$ value",
+          "Interpretation"
+        ],
         "rows": [
-          ["$r = 1$", "Perfect positive linear correlation"],
-          ["$r \\approx 0.8$", "Strong positive linear correlation"],
-          ["$r \\approx 0$", "No linear correlation"],
-          ["$r \\approx -0.9$", "Strong negative linear correlation"],
-          ["$r = -1$", "Perfect negative linear correlation"]
+          [
+            "$r = 1$",
+            "Perfect positive linear correlation"
+          ],
+          [
+            "$r \\approx 0.8$",
+            "Strong positive linear correlation"
+          ],
+          [
+            "$r \\approx 0$",
+            "No linear correlation"
+          ],
+          [
+            "$r \\approx -0.9$",
+            "Strong negative linear correlation"
+          ],
+          [
+            "$r = -1$",
+            "Perfect negative linear correlation"
+          ]
         ]
       }
     },
@@ -293,23 +605,113 @@ C["maths:S2.2"] = {
     }
   ],
   "flashcards": [
-    ["What does PMCC ($r$) measure?", "The strength and direction of a LINEAR relationship between two variables."],
-    ["Range of values for PMCC?", "$-1$ to $+1$."],
-    ["What is interpolation?", "Predicting a value WITHIN the range of the data set — usually reliable."],
-    ["How does coding data affect PMCC?", "It doesn't. PMCC is invariant under linear transformation."]
+    [
+      "What does PMCC ($r$) measure?",
+      "The strength and direction of a LINEAR relationship between two variables."
+    ],
+    [
+      "Range of values for PMCC?",
+      "$-1$ to $+1$."
+    ],
+    [
+      "What is interpolation?",
+      "Predicting a value WITHIN the range of the data set — usually reliable."
+    ],
+    [
+      "How does coding data affect PMCC?",
+      "It doesn't. PMCC is invariant under linear transformation."
+    ],
+    [
+      "What does a scatter diagram show?",
+      "The relationship (correlation) between two variables."
+    ],
+    [
+      "What is positive correlation?",
+      "As one variable increases, the other tends to increase."
+    ],
+    [
+      "What is the regression line used for?",
+      "Predicting one variable from another (line of best fit)."
+    ],
+    [
+      "What is interpolation?",
+      "Estimating within the range of the data (more reliable)."
+    ],
+    [
+      "What is extrapolation and why is it risky?",
+      "Predicting outside the data range — the relationship may not continue, so it is unreliable."
+    ],
+    [
+      "Does correlation imply causation?",
+      "No — a correlation does not prove one variable causes the other."
+    ]
   ],
   "quiz": [
     {
       "q": "If $r = -0.95$, the relationship is…",
-      "opts": ["Weak positive", "Strong positive", "Strong negative", "Weak negative"],
+      "opts": [
+        "Weak positive",
+        "Strong positive",
+        "Strong negative",
+        "Weak negative"
+      ],
       "ans": 2,
       "why": "Close to $-1$ indicates strong negative linear correlation."
     },
     {
       "q": "The regression line is $y = 12 + 0.5x$. Interpretation of $0.5$?",
-      "opts": ["$y$ is $0.5$ when $x$ is $0$", "$y$ increases by $0.5$ for every $1$ unit increase in $x$", "$x$ increases by $0.5$ for every $1$ unit increase in $y$", "Correlation is $0.5$"],
+      "opts": [
+        "$y$ is $0.5$ when $x$ is $0$",
+        "$y$ increases by $0.5$ for every $1$ unit increase in $x$",
+        "$x$ increases by $0.5$ for every $1$ unit increase in $y$",
+        "Correlation is $0.5$"
+      ],
       "ans": 1,
       "why": "Gradient '$b$' represents the rate of change."
+    },
+    {
+      "q": "As $x$ increases, $y$ decreases. This is...?",
+      "opts": [
+        "positive correlation",
+        "negative correlation",
+        "no correlation",
+        "causation"
+      ],
+      "ans": 1,
+      "why": "Opposite directions = negative correlation."
+    },
+    {
+      "q": "Predicting within the data range is called...?",
+      "opts": [
+        "extrapolation",
+        "interpolation",
+        "regression",
+        "sampling"
+      ],
+      "ans": 1,
+      "why": "Interpolation is inside the range."
+    },
+    {
+      "q": "Extrapolation is unreliable because...?",
+      "opts": [
+        "the data is wrong",
+        "the pattern may not continue outside the range",
+        "it uses the mean",
+        "it needs more variables"
+      ],
+      "ans": 1,
+      "why": "Beyond the data the trend may break down."
+    },
+    {
+      "q": "A strong correlation between two variables...?",
+      "opts": [
+        "proves causation",
+        "does not prove causation",
+        "means they are equal",
+        "means no relationship"
+      ],
+      "ans": 1,
+      "why": "Correlation is not causation."
     }
   ],
   "exam": [
@@ -319,6 +721,26 @@ C["maths:S2.2"] = {
       "ms": [
         "$r$ is very close to zero (1)",
         "Suggests no linear correlation between age and hours spent sleeping (1)"
+      ]
+    },
+    {
+      "q": "State whether predicting a value outside the data range is reliable, and name the process.",
+      "marks": 2,
+      "ms": [
+        "It is unreliable. (1)",
+        "The process is extrapolation. (1)"
+      ]
+    },
+    {
+      "q": "Data on hours studied ($x$) and test score ($y$) gives the regression line $y=12+5x$. (a) Predict the score for 4 hours. (b) Comment on using the line to predict the score for 20 hours.",
+      "marks": 6,
+      "ms": [
+        "(a) $y=12+5(4)$. (1)",
+        "$=32$. (1)",
+        "This is interpolation (within range), so reasonably reliable. (1)",
+        "(b) 20 hours is far outside the data range. (1)",
+        "This is extrapolation. (1)",
+        "The linear trend may not hold (and a score cannot exceed 100), so the prediction is unreliable. (1)"
       ]
     }
   ]
@@ -336,10 +758,22 @@ C["maths:S2.3"] = {
         "body": [
           {
             "kv": [
-              ["Mean ($\\bar{x}$)", "$\\sum x / n$. The average value."],
-              ["Median", "The middle value when data is ordered."],
-              ["Variance ($\\sigma^2$)", "Mean of the squares minus square of the mean: $\\frac{\\sum x^2}{n} - (\\frac{\\sum x}{n})^2$."],
-              ["Standard Deviation ($\\sigma$)", "The square root of the variance."]
+              [
+                "Mean ($\\bar{x}$)",
+                "$\\sum x / n$. The average value."
+              ],
+              [
+                "Median",
+                "The middle value when data is ordered."
+              ],
+              [
+                "Variance ($\\sigma^2$)",
+                "Mean of the squares minus square of the mean: $\\frac{\\sum x^2}{n} - (\\frac{\\sum x}{n})^2$."
+              ],
+              [
+                "Standard Deviation ($\\sigma$)",
+                "The square root of the variance."
+              ]
             ]
           }
         ]
@@ -347,12 +781,32 @@ C["maths:S2.3"] = {
     },
     {
       "table": {
-        "head": ["Measure", "Formula / Method", "Sensitivity"],
+        "head": [
+          "Measure",
+          "Formula / Method",
+          "Sensitivity"
+        ],
         "rows": [
-          ["Mean", "$\\sum x / n$", "Affected by all values (and outliers)"],
-          ["Median", "$(n+1)/2$ position", "Robust to outliers"],
-          ["Mode", "Most frequent", "Used for qualitative data"],
-          ["Variance", "$\\frac{\\sum x^2}{n} - \\bar{x}^2$", "Measures spread about the mean"]
+          [
+            "Mean",
+            "$\\sum x / n$",
+            "Affected by all values (and outliers)"
+          ],
+          [
+            "Median",
+            "$(n+1)/2$ position",
+            "Robust to outliers"
+          ],
+          [
+            "Mode",
+            "Most frequent",
+            "Used for qualitative data"
+          ],
+          [
+            "Variance",
+            "$\\frac{\\sum x^2}{n} - \\bar{x}^2$",
+            "Measures spread about the mean"
+          ]
         ]
       }
     },
@@ -395,16 +849,98 @@ C["maths:S2.3"] = {
     }
   ],
   "flashcards": [
-    ["Formula for Variance?", "$\\frac{\\sum x^2}{n} - \\bar{x}^2$."],
-    ["How does adding $10$ to every point affect the Mean and SD?", "Mean increases by $10$; SD remains unchanged."],
-    ["When is the median preferred over the mean?", "When the data set contains extreme outliers (skewed data)."]
+    [
+      "Formula for Variance?",
+      "$\\frac{\\sum x^2}{n} - \\bar{x}^2$."
+    ],
+    [
+      "How does adding $10$ to every point affect the Mean and SD?",
+      "Mean increases by $10$; SD remains unchanged."
+    ],
+    [
+      "When is the median preferred over the mean?",
+      "When the data set contains extreme outliers (skewed data)."
+    ],
+    [
+      "How do you find the mean?",
+      "Sum of values divided by the number of values."
+    ],
+    [
+      "What is the median?",
+      "The middle value when the data is ordered."
+    ],
+    [
+      "What is the mode?",
+      "The most frequently occurring value."
+    ],
+    [
+      "What is the range?",
+      "Largest value minus smallest value."
+    ],
+    [
+      "What does standard deviation measure?",
+      "The typical spread of values about the mean."
+    ],
+    [
+      "When is the median preferred over the mean?",
+      "When the data has outliers or is skewed (the median is resistant)."
+    ]
   ],
   "quiz": [
     {
       "q": "$\\sum x = 100$, $\\sum x^2 = 2500$, $n = 10$. Find $\\sigma$.",
-      "opts": ["$15$", "$10$", "$12.2$", "$5$"],
+      "opts": [
+        "$15$",
+        "$10$",
+        "$12.2$",
+        "$5$"
+      ],
       "ans": 2,
       "why": "$\\text{Var} = \\frac{2500}{10} - 10^2 = 150$. $\\sigma = \\sqrt{150} \\approx 12.25$."
+    },
+    {
+      "q": "The mean of $2,4,9$ is...?",
+      "opts": [
+        "$4$",
+        "$5$",
+        "$6$",
+        "$15$"
+      ],
+      "ans": 1,
+      "why": "$(2+4+9)/3=5$."
+    },
+    {
+      "q": "The median of $3,7,1,9,5$ is...?",
+      "opts": [
+        "$3$",
+        "$5$",
+        "$7$",
+        "$9$"
+      ],
+      "ans": 1,
+      "why": "Ordered: $1,3,5,7,9$; middle is 5."
+    },
+    {
+      "q": "Which average is most affected by an outlier?",
+      "opts": [
+        "mode",
+        "median",
+        "mean",
+        "range"
+      ],
+      "ans": 2,
+      "why": "The mean uses every value, so outliers pull it."
+    },
+    {
+      "q": "Standard deviation is a measure of...?",
+      "opts": [
+        "central tendency",
+        "spread",
+        "correlation",
+        "frequency"
+      ],
+      "ans": 1,
+      "why": "It measures dispersion about the mean."
     }
   ],
   "exam": [
@@ -415,6 +951,27 @@ C["maths:S2.3"] = {
         "New $\\sum x = 400 + 30 = 430$ (1)",
         "New $n = 21$ (1)",
         "New mean $= 430 / 21 = 20.48$ (1)"
+      ]
+    },
+    {
+      "q": "Find the mean and range of $4,8,8,10,15$.",
+      "marks": 3,
+      "ms": [
+        "Mean $=(4+8+8+10+15)/5=45/5$. (1)",
+        "$=9$. (1)",
+        "Range $=15-4=11$. (1)"
+      ]
+    },
+    {
+      "q": "A data set has $\\sum x=200$, $\\sum x^2=4600$, $n=10$. Find the mean and the standard deviation.",
+      "marks": 6,
+      "ms": [
+        "Mean $\\bar x=\\sum x/n=200/10=20$. (1)",
+        "Variance $=\\dfrac{\\sum x^2}{n}-\\bar x^2$. (1)",
+        "$=\\dfrac{4600}{10}-20^2$. (1)",
+        "$=460-400=60$. (1)",
+        "Standard deviation $=\\sqrt{60}$. (1)",
+        "$\\approx7.75$. (1)"
       ]
     }
   ]
@@ -432,9 +989,18 @@ C["maths:S2.4"] = {
         "body": [
           {
             "kv": [
-              ["$1.5 \\times \\text{IQR}$ Rule", "Outliers are $< Q_1 - 1.5\\text{IQR}$ or $> Q_3 + 1.5\\text{IQR}$."],
-              ["$2\\sigma$ Rule", "Outliers are more than $2$ standard deviations from the mean ($\\bar{x} \\pm 2\\sigma$)."],
-              ["Cleaning Data", "The process of identifying and dealing with errors or anomalies."]
+              [
+                "$1.5 \\times \\text{IQR}$ Rule",
+                "Outliers are $< Q_1 - 1.5\\text{IQR}$ or $> Q_3 + 1.5\\text{IQR}$."
+              ],
+              [
+                "$2\\sigma$ Rule",
+                "Outliers are more than $2$ standard deviations from the mean ($\\bar{x} \\pm 2\\sigma$)."
+              ],
+              [
+                "Cleaning Data",
+                "The process of identifying and dealing with errors or anomalies."
+              ]
             ]
           }
         ]
@@ -442,11 +1008,27 @@ C["maths:S2.4"] = {
     },
     {
       "table": {
-        "head": ["Step", "Action", "Reason"],
+        "head": [
+          "Step",
+          "Action",
+          "Reason"
+        ],
         "rows": [
-          ["Identification", "Apply outlier rules", "Find suspicious data points"],
-          ["Investigation", "Check original source", "Determine if it's a genuine extreme or an error"],
-          ["Decision", "Keep, Correct, or Remove", "Error data is removed; genuine extremes are kept"]
+          [
+            "Identification",
+            "Apply outlier rules",
+            "Find suspicious data points"
+          ],
+          [
+            "Investigation",
+            "Check original source",
+            "Determine if it's a genuine extreme or an error"
+          ],
+          [
+            "Decision",
+            "Keep, Correct, or Remove",
+            "Error data is removed; genuine extremes are kept"
+          ]
         ]
       }
     },
@@ -475,15 +1057,94 @@ C["maths:S2.4"] = {
     }
   ],
   "flashcards": [
-    ["Standard outlier rule for quartiles?", "$V < Q_1 - 1.5\\text{IQR}$ or $V > Q_3 + 1.5\\text{IQR}$."],
-    ["Why might you keep an outlier?", "If it represents a genuine but rare occurrence in the population."]
+    [
+      "Standard outlier rule for quartiles?",
+      "$V < Q_1 - 1.5\\text{IQR}$ or $V > Q_3 + 1.5\\text{IQR}$."
+    ],
+    [
+      "Why might you keep an outlier?",
+      "If it represents a genuine but rare occurrence in the population."
+    ],
+    [
+      "What is an outlier?",
+      "A value that is unusually far from the rest of the data."
+    ],
+    [
+      "State the IQR outlier rule.",
+      "Below $Q_1-1.5\\times IQR$ or above $Q_3+1.5\\times IQR$."
+    ],
+    [
+      "State the mean/standard-deviation outlier rule.",
+      "More than 2 (or 3) standard deviations from the mean."
+    ],
+    [
+      "What is data cleaning?",
+      "Identifying and dealing with errors/outliers before analysis."
+    ],
+    [
+      "Should you always remove an outlier?",
+      "No — only if it is a genuine error; valid extreme values may be kept."
+    ],
+    [
+      "Why can an outlier distort the mean?",
+      "It is an extreme value and the mean uses all values."
+    ]
   ],
   "quiz": [
     {
       "q": "$Q_1 = 20$, $Q_3 = 30$. Which is an outlier?",
-      "opts": ["$4.9$", "$35$", "$5.1$", "$25$"],
+      "opts": [
+        "$4.9$",
+        "$35$",
+        "$5.1$",
+        "$25$"
+      ],
       "ans": 0,
       "why": "$\\text{IQR} = 10$. $\\text{Lower} = 20 - 15 = 5$. $4.9 < 5$."
+    },
+    {
+      "q": "An outlier is more than how many IQRs beyond a quartile (common rule)?",
+      "opts": [
+        "$0.5$",
+        "$1$",
+        "$1.5$",
+        "$5$"
+      ],
+      "ans": 2,
+      "why": "$1.5\\times IQR$ rule."
+    },
+    {
+      "q": "$Q_1=10$, $Q_3=20$. The upper outlier boundary is...?",
+      "opts": [
+        "$25$",
+        "$30$",
+        "$35$",
+        "$40$"
+      ],
+      "ans": 2,
+      "why": "IQR $=10$; $Q_3+1.5(10)=35$."
+    },
+    {
+      "q": "An outlier that is a genuine extreme value should be...?",
+      "opts": [
+        "always deleted",
+        "kept (not an error)",
+        "doubled",
+        "ignored"
+      ],
+      "ans": 1,
+      "why": "Only errors should be removed."
+    },
+    {
+      "q": "Which statistic is least affected by an outlier?",
+      "opts": [
+        "mean",
+        "range",
+        "median",
+        "standard deviation"
+      ],
+      "ans": 2,
+      "why": "The median is resistant to outliers."
     }
   ],
   "exam": [
@@ -495,6 +1156,27 @@ C["maths:S2.4"] = {
         "$\\sigma \\approx 0.45$ (1)",
         "Limit $= 1.15 + 2(0.45) = 2.05$ (1)",
         "$2.5 > 2.05$, so it is an outlier (1)"
+      ]
+    },
+    {
+      "q": "A data set has $Q_1=15$ and $Q_3=27$. Using the $1.5\\times IQR$ rule, find the outlier boundaries.",
+      "marks": 3,
+      "ms": [
+        "$IQR=27-15=12$. (1)",
+        "Lower $=15-1.5(12)=15-18=-3$. (1)",
+        "Upper $=27+1.5(12)=27+18=45$. (1)"
+      ]
+    },
+    {
+      "q": "The masses (g) of items are $50,52,53,55,90$. (a) Calculate the mean. (b) Identify any outlier using mean $\\pm2$ s.d. given the s.d. is $15.0$, and discuss whether to remove it.",
+      "marks": 6,
+      "ms": [
+        "(a) Mean $=(50+52+53+55+90)/5=300/5=60$. (1)",
+        "(b) Boundaries: $60\\pm2(15)=60\\pm30$, i.e. $30$ to $90$. (1)",
+        "$90$ is on the boundary; check the rest lie within. (1)",
+        "$90$ is far above the cluster $50\\text{-}55$, so it is a potential outlier. (1)",
+        "Investigate whether it is a recording error. (1)",
+        "Remove only if it is an error; otherwise keep it as a genuine value. (1)"
       ]
     }
   ]
@@ -512,10 +1194,22 @@ C["maths:S3.1"] = {
         "body": [
           {
             "kv": [
-              ["Mutually Exclusive", "Events that cannot happen at the same time: $P(A \\cap B) = 0$."],
-              ["Independent", "Occurrence of one does not affect the other: $P(A \\cap B) = P(A) \\times P(B)$."],
-              ["Intersection ($\\cap$)", "Both $A$ AND $B$ occur."],
-              ["Union ($\\cup$)", "$A$ OR $B$ (or both) occur."]
+              [
+                "Mutually Exclusive",
+                "Events that cannot happen at the same time: $P(A \\cap B) = 0$."
+              ],
+              [
+                "Independent",
+                "Occurrence of one does not affect the other: $P(A \\cap B) = P(A) \\times P(B)$."
+              ],
+              [
+                "Intersection ($\\cap$)",
+                "Both $A$ AND $B$ occur."
+              ],
+              [
+                "Union ($\\cup$)",
+                "$A$ OR $B$ (or both) occur."
+              ]
             ]
           }
         ]
@@ -523,12 +1217,27 @@ C["maths:S3.1"] = {
     },
     {
       "table": {
-        "head": ["Condition", "Formula / Rule"],
+        "head": [
+          "Condition",
+          "Formula / Rule"
+        ],
         "rows": [
-          ["General Union", "$P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$"],
-          ["Mutually Exclusive", "$P(A \\cup B) = P(A) + P(B)$"],
-          ["Independent", "$P(A \\cap B) = P(A) \\times P(B)$"],
-          ["Complement", "$P(A') = 1 - P(A)$"]
+          [
+            "General Union",
+            "$P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$"
+          ],
+          [
+            "Mutually Exclusive",
+            "$P(A \\cup B) = P(A) + P(B)$"
+          ],
+          [
+            "Independent",
+            "$P(A \\cap B) = P(A) \\times P(B)$"
+          ],
+          [
+            "Complement",
+            "$P(A') = 1 - P(A)$"
+          ]
         ]
       }
     },
@@ -557,15 +1266,94 @@ C["maths:S3.1"] = {
     }
   ],
   "flashcards": [
-    ["Definition of Mutually Exclusive?", "Events where $P(A \\cap B) = 0$."],
-    ["Definition of Independent?", "Events where $P(A \\cap B) = P(A)P(B)$."]
+    [
+      "Definition of Mutually Exclusive?",
+      "Events where $P(A \\cap B) = 0$."
+    ],
+    [
+      "Definition of Independent?",
+      "Events where $P(A \\cap B) = P(A)P(B)$."
+    ],
+    [
+      "What does 'mutually exclusive' mean?",
+      "The events cannot both happen; $P(A\\cap B)=0$."
+    ],
+    [
+      "Addition rule for mutually exclusive events?",
+      "$P(A\\cup B)=P(A)+P(B)$."
+    ],
+    [
+      "What does 'independent' mean?",
+      "One event does not affect the probability of the other."
+    ],
+    [
+      "Multiplication rule for independent events?",
+      "$P(A\\cap B)=P(A)\\times P(B)$."
+    ],
+    [
+      "General addition rule for any two events?",
+      "$P(A\\cup B)=P(A)+P(B)-P(A\\cap B)$."
+    ],
+    [
+      "Can two events be both mutually exclusive and independent (non-zero prob)?",
+      "No — mutual exclusivity forces dependence."
+    ]
   ],
   "quiz": [
     {
       "q": "$P(A)=0.5, P(B)=0.4$. If independent, $P(A \\cap B) = ?$",
-      "opts": ["$0.9$", "$0.1$", "$0.2$", "$0$"],
+      "opts": [
+        "$0.9$",
+        "$0.1$",
+        "$0.2$",
+        "$0$"
+      ],
       "ans": 2,
       "why": "$0.5 \\times 0.4 = 0.2$."
+    },
+    {
+      "q": "For mutually exclusive events, $P(A\\cap B)=$?",
+      "opts": [
+        "$P(A)P(B)$",
+        "$0$",
+        "$1$",
+        "$P(A)+P(B)$"
+      ],
+      "ans": 1,
+      "why": "They cannot occur together."
+    },
+    {
+      "q": "For independent events, $P(A\\cap B)=$?",
+      "opts": [
+        "$0$",
+        "$P(A)+P(B)$",
+        "$P(A)P(B)$",
+        "$1$"
+      ],
+      "ans": 2,
+      "why": "Multiply the probabilities."
+    },
+    {
+      "q": "$P(A)=0.4$, $P(B)=0.5$, mutually exclusive. $P(A\\cup B)=$?",
+      "opts": [
+        "$0.9$",
+        "$0.2$",
+        "$0.7$",
+        "$0.1$"
+      ],
+      "ans": 0,
+      "why": "$0.4+0.5=0.9$."
+    },
+    {
+      "q": "$P(A)=0.3$, $P(B)=0.5$, independent. $P(A\\cap B)=$?",
+      "opts": [
+        "$0.8$",
+        "$0.15$",
+        "$0$",
+        "$0.2$"
+      ],
+      "ans": 1,
+      "why": "$0.3\\times0.5=0.15$."
     }
   ],
   "exam": [
@@ -576,6 +1364,27 @@ C["maths:S3.1"] = {
         "$P(A \\cap B) = 0.5 + 0.3 - 0.6 = 0.2$ (1)",
         "$P(A)P(B) = 0.5 \\times 0.3 = 0.15$ (1)",
         "$0.2 \\neq 0.15$, so not independent (1)"
+      ]
+    },
+    {
+      "q": "$A$ and $B$ are mutually exclusive with $P(A)=0.35$, $P(B)=0.25$. Find $P(A\\cup B)$ and $P(A\\cap B)$.",
+      "marks": 3,
+      "ms": [
+        "$P(A\\cap B)=0$ (mutually exclusive). (1)",
+        "$P(A\\cup B)=P(A)+P(B)=0.35+0.25$. (1)",
+        "$=0.6$. (1)"
+      ]
+    },
+    {
+      "q": "Events $A$ and $B$ are independent with $P(A)=0.6$ and $P(B)=0.5$. Find (a) $P(A\\cap B)$ (b) $P(A\\cup B)$.",
+      "marks": 6,
+      "ms": [
+        "(a) Independent: $P(A\\cap B)=P(A)P(B)$. (1)",
+        "$=0.6\\times0.5=0.3$. (1)",
+        "(b) General rule: $P(A\\cup B)=P(A)+P(B)-P(A\\cap B)$. (1)",
+        "$=0.6+0.5-0.3$. (1)",
+        "$=0.8$. (1)",
+        "(Note: not mutually exclusive since $P(A\\cap B)\\neq0$.) (1)"
       ]
     }
   ]
@@ -593,9 +1402,18 @@ C["maths:S3.2"] = {
         "body": [
           {
             "kv": [
-              ["$P(A|B)$", "Probability of $A$ given that $B$ has already occurred."],
-              ["Tree Diagram", "Branches show conditional probabilities."],
-              ["Two-way Table", "Frequency distribution of two variables."]
+              [
+                "$P(A|B)$",
+                "Probability of $A$ given that $B$ has already occurred."
+              ],
+              [
+                "Tree Diagram",
+                "Branches show conditional probabilities."
+              ],
+              [
+                "Two-way Table",
+                "Frequency distribution of two variables."
+              ]
             ]
           }
         ]
@@ -633,15 +1451,94 @@ C["maths:S3.2"] = {
     }
   ],
   "flashcards": [
-    ["Formula for $P(B|A)$?", "$P(B \\cap A) / P(A)$."],
-    ["What if $P(A|B) = P(A)$?", "Events $A$ and $B$ are independent."]
+    [
+      "Formula for $P(B|A)$?",
+      "$P(B \\cap A) / P(A)$."
+    ],
+    [
+      "What if $P(A|B) = P(A)$?",
+      "Events $A$ and $B$ are independent."
+    ],
+    [
+      "Define conditional probability $P(A\\mid B)$.",
+      "$\\dfrac{P(A\\cap B)}{P(B)}$ — probability of $A$ given $B$ has occurred."
+    ],
+    [
+      "What does $P(A\\mid B)=P(A)$ imply?",
+      "$A$ and $B$ are independent."
+    ],
+    [
+      "What tool shows conditional probabilities of sequential events?",
+      "A tree diagram (branch probabilities are conditional)."
+    ],
+    [
+      "On a tree diagram, how do you find the probability of a path?",
+      "Multiply the probabilities along the branches."
+    ],
+    [
+      "How do you combine paths giving the same outcome?",
+      "Add the path probabilities."
+    ],
+    [
+      "Formula linking $P(A\\cap B)$ and conditional probability?",
+      "$P(A\\cap B)=P(B)\\times P(A\\mid B)$."
+    ]
   ],
   "quiz": [
     {
       "q": "$P(B)=0.4, P(A \\cap B)=0.1$. Find $P(A|B)$.",
-      "opts": ["$0.25$", "$4$", "$0.5$", "$0.04$"],
+      "opts": [
+        "$0.25$",
+        "$4$",
+        "$0.5$",
+        "$0.04$"
+      ],
       "ans": 0,
       "why": "$0.1 / 0.4 = 0.25$."
+    },
+    {
+      "q": "$P(A\\mid B)=$?",
+      "opts": [
+        "$P(A)P(B)$",
+        "$\\dfrac{P(A\\cap B)}{P(B)}$",
+        "$P(A)+P(B)$",
+        "$\\dfrac{P(B)}{P(A)}$"
+      ],
+      "ans": 1,
+      "why": "Definition of conditional probability."
+    },
+    {
+      "q": "On a tree diagram, the probability of one full path is found by...?",
+      "opts": [
+        "adding branches",
+        "multiplying along branches",
+        "subtracting",
+        "dividing"
+      ],
+      "ans": 1,
+      "why": "Multiply consecutive branch probabilities."
+    },
+    {
+      "q": "If $P(A\\mid B)=P(A)$, then $A$ and $B$ are...?",
+      "opts": [
+        "mutually exclusive",
+        "independent",
+        "equal",
+        "impossible"
+      ],
+      "ans": 1,
+      "why": "B doesn't change A's probability."
+    },
+    {
+      "q": "$P(A\\cap B)=0.2$, $P(B)=0.5$. $P(A\\mid B)=$?",
+      "opts": [
+        "$0.1$",
+        "$0.4$",
+        "$0.7$",
+        "$0.25$"
+      ],
+      "ans": 1,
+      "why": "$0.2/0.5=0.4$."
     }
   ],
   "exam": [
@@ -652,6 +1549,26 @@ C["maths:S3.2"] = {
         "$P(M) = 0.6, P(M \\cap P) = 0.2$ (1)",
         "$P(P|M) = 0.2 / 0.6$ (1)",
         "$= 1/3$ (1)"
+      ]
+    },
+    {
+      "q": "$P(A\\cap B)=0.12$ and $P(B)=0.3$. Find $P(A\\mid B)$.",
+      "marks": 2,
+      "ms": [
+        "$P(A\\mid B)=\\dfrac{P(A\\cap B)}{P(B)}=\\dfrac{0.12}{0.3}$. (1)",
+        "$=0.4$. (1)"
+      ]
+    },
+    {
+      "q": "A bag has 5 red and 3 blue counters. Two are drawn without replacement. Find the probability that both are red.",
+      "marks": 6,
+      "ms": [
+        "$P(\\text{1st red})=\\dfrac58$. (1)",
+        "After one red: 4 red of 7 left. (1)",
+        "$P(\\text{2nd red}\\mid\\text{1st red})=\\dfrac47$. (1)",
+        "$P(\\text{both red})=\\dfrac58\\times\\dfrac47$. (1)",
+        "$=\\dfrac{20}{56}$. (1)",
+        "$=\\dfrac{5}{14}$. (1)"
       ]
     }
   ]
@@ -669,9 +1586,18 @@ C["maths:S3.3"] = {
         "body": [
           {
             "kv": [
-              ["Assumption", "A simplifying rule made to create a model."],
-              ["Refinement", "Improving a model by making it more realistic."],
-              ["Validity", "How well predictions match real-world observations."]
+              [
+                "Assumption",
+                "A simplifying rule made to create a model."
+              ],
+              [
+                "Refinement",
+                "Improving a model by making it more realistic."
+              ],
+              [
+                "Validity",
+                "How well predictions match real-world observations."
+              ]
             ]
           }
         ]
@@ -679,11 +1605,23 @@ C["maths:S3.3"] = {
     },
     {
       "table": {
-        "head": ["Model", "Common Assumptions"],
+        "head": [
+          "Model",
+          "Common Assumptions"
+        ],
         "rows": [
-          ["Coin Tossing", "Fair coin ($P=0.5$), Independent tosses"],
-          ["Weather", "Independence (often false), Constant probability"],
-          ["Games", "Randomness, No cheating/bias"]
+          [
+            "Coin Tossing",
+            "Fair coin ($P=0.5$), Independent tosses"
+          ],
+          [
+            "Weather",
+            "Independence (often false), Constant probability"
+          ],
+          [
+            "Games",
+            "Randomness, No cheating/bias"
+          ]
         ]
       }
     },
@@ -712,15 +1650,94 @@ C["maths:S3.3"] = {
     }
   ],
   "flashcards": [
-    ["Why make assumptions?", "To simplify complex real-world situations into solvable math."],
-    ["How to test validity?", "Compare predicted outcomes with actual experimental data."]
+    [
+      "Why make assumptions?",
+      "To simplify complex real-world situations into solvable math."
+    ],
+    [
+      "How to test validity?",
+      "Compare predicted outcomes with actual experimental data."
+    ],
+    [
+      "What is a probability model?",
+      "A set of assumptions assigning probabilities to outcomes."
+    ],
+    [
+      "Give one assumption when modelling a coin as fair.",
+      "Each outcome (heads/tails) is equally likely and tosses are independent."
+    ],
+    [
+      "Why critique a probability model?",
+      "Real situations may break the assumptions (e.g. a biased coin), making predictions inaccurate."
+    ],
+    [
+      "What does 'equally likely outcomes' allow?",
+      "Computing probability as (favourable outcomes)/(total outcomes)."
+    ],
+    [
+      "How can a model be refined?",
+      "By adjusting probabilities to fit observed data (e.g. estimate $p$ from experiments)."
+    ],
+    [
+      "What is a uniform probability model?",
+      "One where all outcomes have equal probability."
+    ]
   ],
   "quiz": [
     {
       "q": "Which is a common assumption for binomial?",
-      "opts": ["Dependent trials", "Changing $p$", "Fixed $n$", "Infinite outcomes"],
+      "opts": [
+        "Dependent trials",
+        "Changing $p$",
+        "Fixed $n$",
+        "Infinite outcomes"
+      ],
       "ans": 2,
       "why": "Requires fixed $n$, constant $p$, independence."
+    },
+    {
+      "q": "Assuming a die is fair, $P(6)=$?",
+      "opts": [
+        "$\\tfrac16$",
+        "$\\tfrac12$",
+        "$\\tfrac13$",
+        "$1$"
+      ],
+      "ans": 0,
+      "why": "Six equally likely faces."
+    },
+    {
+      "q": "A modelling assumption for independent trials is that one trial...?",
+      "opts": [
+        "affects the next",
+        "does not affect the next",
+        "is impossible",
+        "is certain"
+      ],
+      "ans": 1,
+      "why": "Independence = no influence."
+    },
+    {
+      "q": "If observed data don't match a model, you should...?",
+      "opts": [
+        "ignore the data",
+        "refine the model",
+        "delete outcomes",
+        "double the probabilities"
+      ],
+      "ans": 1,
+      "why": "Refine assumptions to fit reality."
+    },
+    {
+      "q": "A uniform model assigns each outcome...?",
+      "opts": [
+        "different probabilities",
+        "equal probabilities",
+        "zero",
+        "probability 1"
+      ],
+      "ans": 1,
+      "why": "Uniform = equally likely."
     }
   ],
   "exam": [
@@ -730,6 +1747,26 @@ C["maths:S3.3"] = {
       "ms": [
         "Expected $6\\text{s} = 50 \\times (1/6) \\approx 8.3$ (1)",
         "Observed $20$ is significantly higher, suggesting bias (1)"
+      ]
+    },
+    {
+      "q": "A spinner is modelled as fair with 4 equal sections numbered 1-4. State $P(3)$ and one assumption of the model.",
+      "marks": 2,
+      "ms": [
+        "$P(3)=\\dfrac14$. (1)",
+        "Assumption: the four sections are equally likely (the spinner is unbiased). (1)"
+      ]
+    },
+    {
+      "q": "A coin is tossed 100 times and lands heads 62 times. (a) State the probability of heads under a fair-coin model. (b) Discuss whether the model seems appropriate and how it could be refined.",
+      "marks": 6,
+      "ms": [
+        "(a) Fair model: $P(H)=0.5$. (1)",
+        "(b) Expected heads $=50$. (1)",
+        "Observed 62 is noticeably higher. (1)",
+        "This suggests the coin may be biased. (1)",
+        "Refine by estimating $p$ from the data: $\\hat p=62/100=0.62$. (1)",
+        "A larger sample / hypothesis test would confirm whether the bias is significant. (1)"
       ]
     }
   ]
@@ -756,12 +1793,32 @@ C["maths:S4.1"] = {
     },
     {
       "table": {
-        "head": ["English", "Rewrite as", "Why"],
+        "head": [
+          "English",
+          "Rewrite as",
+          "Why"
+        ],
         "rows": [
-          ["at most $4$", "$P(X \\le 4)$", "direct"],
-          ["fewer than $4$", "$P(X \\le 3)$", "strict $<$ drops one"],
-          ["at least $4$", "$1 - P(X \\le 3)$", "complement"],
-          ["more than $4$", "$1 - P(X \\le 4)$", "complement of $\\le$"]
+          [
+            "at most $4$",
+            "$P(X \\le 4)$",
+            "direct"
+          ],
+          [
+            "fewer than $4$",
+            "$P(X \\le 3)$",
+            "strict $<$ drops one"
+          ],
+          [
+            "at least $4$",
+            "$1 - P(X \\le 3)$",
+            "complement"
+          ],
+          [
+            "more than $4$",
+            "$1 - P(X \\le 4)$",
+            "complement of $\\le$"
+          ]
         ]
       }
     },
@@ -788,15 +1845,94 @@ C["maths:S4.1"] = {
     }
   ],
   "flashcards": [
-    ["Mean of $B(n, p)$?", "$np$."],
-    ["$P(X > k)$ in calculator form?", "$1 - P(X \\le k)$."]
+    [
+      "Mean of $B(n, p)$?",
+      "$np$."
+    ],
+    [
+      "$P(X > k)$ in calculator form?",
+      "$1 - P(X \\le k)$."
+    ],
+    [
+      "What is a discrete random variable?",
+      "One that takes separate (countable) values, each with a probability summing to 1."
+    ],
+    [
+      "State the binomial probability formula.",
+      "$P(X=r)=\\binom{n}{r}p^r(1-p)^{n-r}$."
+    ],
+    [
+      "State the conditions for a binomial distribution.",
+      "Fixed number of trials $n$, two outcomes, constant $p$, independent trials."
+    ],
+    [
+      "What does $X\\sim B(n,p)$ mean?",
+      "$X$ is binomial with $n$ trials and success probability $p$."
+    ],
+    [
+      "Mean of $B(n,p)$?",
+      "$np$."
+    ],
+    [
+      "What must the probabilities of a discrete distribution sum to?",
+      "$1$."
+    ]
   ],
   "quiz": [
     {
       "q": "$X \\sim B(20, 0.3)$. 'Fewer than $5$ successes' = ?",
-      "opts": ["$P(X \\le 5)$", "$P(X \\le 4)$", "$1 - P(X \\le 5)$", "$P(X = 4)$"],
+      "opts": [
+        "$P(X \\le 5)$",
+        "$P(X \\le 4)$",
+        "$1 - P(X \\le 5)$",
+        "$P(X = 4)$"
+      ],
       "ans": 1,
       "why": "Strictly fewer than $5$ means at most $4$."
+    },
+    {
+      "q": "Which is a condition for a binomial model?",
+      "opts": [
+        "infinite trials",
+        "fixed $n$, constant $p$, independent trials",
+        "continuous outcomes",
+        "varying $p$"
+      ],
+      "ans": 1,
+      "why": "These are the binomial conditions."
+    },
+    {
+      "q": "$X\\sim B(10,0.3)$. The mean is...?",
+      "opts": [
+        "$3$",
+        "$0.3$",
+        "$10$",
+        "$7$"
+      ],
+      "ans": 0,
+      "why": "$np=10\\times0.3=3$."
+    },
+    {
+      "q": "For a discrete distribution, $\\sum P(X=x)=$?",
+      "opts": [
+        "$0$",
+        "$1$",
+        "$n$",
+        "$p$"
+      ],
+      "ans": 1,
+      "why": "Total probability is 1."
+    },
+    {
+      "q": "$P(X=r)$ in a binomial uses which coefficient?",
+      "opts": [
+        "$n!$",
+        "$\\binom{n}{r}$",
+        "$r^n$",
+        "$np$"
+      ],
+      "ans": 1,
+      "why": "The binomial coefficient $\\binom{n}{r}$."
     }
   ],
   "exam": [
@@ -807,6 +1943,27 @@ C["maths:S4.1"] = {
         "$X \\sim B(12, 0.25)$ (1)",
         "$P(X > 4) = 1 - P(X \\le 4)$ (1)",
         "$= 0.158$ (3 s.f.) (1)"
+      ]
+    },
+    {
+      "q": "$X\\sim B(6,0.5)$. Find $P(X=2)$.",
+      "marks": 3,
+      "ms": [
+        "$P(X=2)=\\binom{6}{2}(0.5)^2(0.5)^4$. (1)",
+        "$=15\\times(0.5)^6$. (1)",
+        "$=15/64\\approx0.234$. (1)"
+      ]
+    },
+    {
+      "q": "A biased coin has $P(\\text{head})=0.4$. It is tossed 8 times; $X$ is the number of heads. (a) State the distribution. (b) Find $P(X=3)$. (c) Find the mean number of heads.",
+      "marks": 6,
+      "ms": [
+        "(a) $X\\sim B(8,0.4)$. (1)",
+        "(b) $P(X=3)=\\binom{8}{3}(0.4)^3(0.6)^5$. (1)",
+        "$=56\\times0.064\\times0.07776$. (1)",
+        "$\\approx0.279$. (1)",
+        "(c) Mean $=np=8\\times0.4$. (1)",
+        "$=3.2$. (1)"
       ]
     }
   ]
@@ -856,15 +2013,94 @@ C["maths:S4.2"] = {
     }
   ],
   "flashcards": [
-    ["Standardisation formula?", "$Z = (X - \\mu)/\\sigma$."],
-    ["Where are points of inflection?", "At $\\mu \\pm \\sigma$."]
+    [
+      "Standardisation formula?",
+      "$Z = (X - \\mu)/\\sigma$."
+    ],
+    [
+      "Where are points of inflection?",
+      "At $\\mu \\pm \\sigma$."
+    ],
+    [
+      "What does $X\\sim N(\\mu,\\sigma^2)$ mean?",
+      "$X$ is normally distributed with mean $\\mu$ and variance $\\sigma^2$."
+    ],
+    [
+      "What is the standardising formula?",
+      "$Z=\\dfrac{X-\\mu}{\\sigma}$, giving the standard normal $N(0,1)$."
+    ],
+    [
+      "What proportion of data lies within 1 s.d. of the mean?",
+      "About 68%."
+    ],
+    [
+      "What is the shape of the normal distribution?",
+      "A symmetric bell curve centred on the mean."
+    ],
+    [
+      "Within 2 standard deviations of the mean lies about...?",
+      "95% of the data."
+    ],
+    [
+      "What does $P(Z<z)$ from tables give?",
+      "The cumulative probability up to $z$."
+    ]
   ],
   "quiz": [
     {
       "q": "$X \\sim N(100, 25)$. $P(X < 100) = ?$",
-      "opts": ["$0.25$", "$0.5$", "$0.95$", "depends"],
+      "opts": [
+        "$0.25$",
+        "$0.5$",
+        "$0.95$",
+        "depends"
+      ],
       "ans": 1,
       "why": "Symmetry about the mean."
+    },
+    {
+      "q": "Standardising uses $Z=$?",
+      "opts": [
+        "$\\dfrac{X-\\mu}{\\sigma}$",
+        "$\\dfrac{\\mu-X}{\\sigma}$",
+        "$X\\mu$",
+        "$\\dfrac{X}{\\sigma^2}$"
+      ],
+      "ans": 0,
+      "why": "Subtract mean, divide by s.d."
+    },
+    {
+      "q": "About what percentage lies within 2 s.d. of the mean?",
+      "opts": [
+        "68%",
+        "95%",
+        "99.7%",
+        "50%"
+      ],
+      "ans": 1,
+      "why": "The 95% rule."
+    },
+    {
+      "q": "The normal curve is...?",
+      "opts": [
+        "skewed left",
+        "symmetric (bell-shaped)",
+        "uniform",
+        "discrete"
+      ],
+      "ans": 1,
+      "why": "Symmetric about the mean."
+    },
+    {
+      "q": "$X\\sim N(50,16)$. The standard deviation is...?",
+      "opts": [
+        "$16$",
+        "$4$",
+        "$8$",
+        "$50$"
+      ],
+      "ans": 1,
+      "why": "$\\sigma=\\sqrt{16}=4$."
     }
   ],
   "exam": [
@@ -875,6 +2111,26 @@ C["maths:S4.2"] = {
         "Inverse normal: $z = -1.2816$ for lower $10\\%$ (1)",
         "$m = 160 + (-1.2816)(15)$ (1)",
         "$m = 141\\text{ g}$ (1)"
+      ]
+    },
+    {
+      "q": "$X\\sim N(100,25)$. Find the $z$-value corresponding to $X=110$.",
+      "marks": 2,
+      "ms": [
+        "$\\sigma=\\sqrt{25}=5$. (1)",
+        "$z=\\dfrac{110-100}{5}=2$. (1)"
+      ]
+    },
+    {
+      "q": "The lengths of bolts are $X\\sim N(20,4)$ cm. (a) Find the probability a bolt is longer than 22 cm. (b) Find the probability a bolt is between 18 and 22 cm. (Use $P(Z<1)=0.8413$.)",
+      "marks": 6,
+      "ms": [
+        "$\\sigma=2$. (1)",
+        "(a) $z=\\dfrac{22-20}{2}=1$. (1)",
+        "$P(X>22)=1-0.8413=0.1587$. (1)",
+        "(b) $z=\\dfrac{18-20}{2}=-1$ and $z=1$. (1)",
+        "$P(-1<Z<1)=2(0.8413)-1$. (1)",
+        "$=0.6826$. (1)"
       ]
     }
   ]
@@ -892,9 +2148,18 @@ C["maths:S4.3"] = {
         "body": [
           {
             "kv": [
-              ["Binomial $B(n, p)$", "Discrete counting. Fixed trials, independent, constant $p$."],
-              ["Normal $N(\\mu, \\sigma^2)$", "Continuous measurement. Symmetric clustering."],
-              ["Uniform $U(a, b)$", "Equal probability for all outcomes in a range."]
+              [
+                "Binomial $B(n, p)$",
+                "Discrete counting. Fixed trials, independent, constant $p$."
+              ],
+              [
+                "Normal $N(\\mu, \\sigma^2)$",
+                "Continuous measurement. Symmetric clustering."
+              ],
+              [
+                "Uniform $U(a, b)$",
+                "Equal probability for all outcomes in a range."
+              ]
             ]
           }
         ]
@@ -925,15 +2190,94 @@ C["maths:S4.3"] = {
     }
   ],
   "flashcards": [
-    ["Criteria for Normal approx to Binomial?", "$n$ large, $p \\approx 0.5$ (so $np > 5$ and $nq > 5$)."],
-    ["Mean and Variance of $B(n, p)$?", "Mean $= np$, Variance $= np(1-p)$."]
+    [
+      "Criteria for Normal approx to Binomial?",
+      "$n$ large, $p \\approx 0.5$ (so $np > 5$ and $nq > 5$)."
+    ],
+    [
+      "Mean and Variance of $B(n, p)$?",
+      "Mean $= np$, Variance $= np(1-p)$."
+    ],
+    [
+      "When is a binomial model appropriate?",
+      "Fixed trials, two outcomes, constant $p$, independent trials (discrete count)."
+    ],
+    [
+      "When is a normal model appropriate?",
+      "Continuous data, symmetric and bell-shaped about the mean."
+    ],
+    [
+      "State the conditions for the normal approximation to the binomial.",
+      "$n$ large and $p$ close to 0.5 (so $np$ and $n(1-p)$ both $>5$)."
+    ],
+    [
+      "What continuity correction is used (binomial to normal)?",
+      "Adjust by $\\pm0.5$ (e.g. $P(X\\le k)\\to P(X<k+0.5)$)."
+    ],
+    [
+      "Which distribution for the number of sixes in 20 die rolls?",
+      "Binomial $B(20,1/6)$ (discrete)."
+    ],
+    [
+      "Which distribution for adult heights?",
+      "Normal (continuous, bell-shaped)."
+    ]
   ],
   "quiz": [
     {
       "q": "Measuring heights of $1000$ trees. Model?",
-      "opts": ["Binomial", "Normal", "Uniform", "Discrete"],
+      "opts": [
+        "Binomial",
+        "Normal",
+        "Uniform",
+        "Discrete"
+      ],
       "ans": 1,
       "why": "Measurement data clusters symmetrically."
+    },
+    {
+      "q": "A count of successes in fixed independent trials is modelled by the...?",
+      "opts": [
+        "normal",
+        "binomial",
+        "uniform",
+        "exponential"
+      ],
+      "ans": 1,
+      "why": "Binomial models success counts."
+    },
+    {
+      "q": "Continuous, symmetric data is best modelled by the...?",
+      "opts": [
+        "binomial",
+        "normal",
+        "discrete uniform",
+        "Poisson"
+      ],
+      "ans": 1,
+      "why": "Normal distribution."
+    },
+    {
+      "q": "Normal approximation to binomial works best when $p$ is...?",
+      "opts": [
+        "near 0",
+        "near 0.5",
+        "near 1",
+        "exactly 1"
+      ],
+      "ans": 1,
+      "why": "Symmetry needs $p\\approx0.5$ and large $n$."
+    },
+    {
+      "q": "The continuity correction adjusts values by...?",
+      "opts": [
+        "$\\pm1$",
+        "$\\pm0.5$",
+        "$\\pm2$",
+        "$0$"
+      ],
+      "ans": 1,
+      "why": "Half-unit correction for a discrete-to-continuous switch."
     }
   ],
   "exam": [
@@ -945,6 +2289,26 @@ C["maths:S4.3"] = {
         "Continuity correction: $P(29.5 < Y < 40.5)$ (1)",
         "$Z$ values $-0.57$ and $1.94$ (1)",
         "Prob $= 0.6895$ (1)"
+      ]
+    },
+    {
+      "q": "State whether a binomial or normal model is appropriate for: (a) the number of defective items in a batch of 50; (b) the weights of apples.",
+      "marks": 2,
+      "ms": [
+        "(a) Binomial (a count of successes in fixed trials). (1)",
+        "(b) Normal (continuous, bell-shaped data). (1)"
+      ]
+    },
+    {
+      "q": "$X\\sim B(100,0.5)$. (a) Explain why a normal approximation is suitable. (b) State the approximating distribution. (c) Using a continuity correction, write the expression for $P(X\\le45)$.",
+      "marks": 6,
+      "ms": [
+        "(a) $n=100$ is large and $p=0.5$, so the binomial is roughly symmetric. (1)",
+        "$np=50$ and $n(1-p)=50$, both $>5$. (1)",
+        "(b) Mean $np=50$, variance $np(1-p)=25$. (1)",
+        "So $X\\approx N(50,25)$. (1)",
+        "(c) Continuity correction: $P(X\\le45)\\to P(Y<45.5)$. (1)",
+        "where $Y\\sim N(50,25)$. (1)"
       ]
     }
   ]
@@ -962,8 +2326,14 @@ C["maths:S5.1"] = {
         "body": [
           {
             "kv": [
-              ["Null ($H_0$)", "Status quo. Always uses '=' (e.g. $p = 0.5$)."],
-              ["Alternative ($H_1$)", "Claim. Uses $>$, $<$ or $\\neq$."]
+              [
+                "Null ($H_0$)",
+                "Status quo. Always uses '=' (e.g. $p = 0.5$)."
+              ],
+              [
+                "Alternative ($H_1$)",
+                "Claim. Uses $>$, $<$ or $\\neq$."
+              ]
             ]
           }
         ]
@@ -976,9 +2346,18 @@ C["maths:S5.1"] = {
         "body": [
           {
             "kv": [
-              ["Significance Level ($\\alpha$)", "Risk threshold (usually $5\\%$). Prob of rejecting $H_0$ if true."],
-              ["Critical Region (CR)", "Reject Zone. Enough evidence if result falls here."],
-              ["$p$-value", "Prob of result by luck. If $p < \\alpha$, reject $H_0$."]
+              [
+                "Significance Level ($\\alpha$)",
+                "Risk threshold (usually $5\\%$). Prob of rejecting $H_0$ if true."
+              ],
+              [
+                "Critical Region (CR)",
+                "Reject Zone. Enough evidence if result falls here."
+              ],
+              [
+                "$p$-value",
+                "Prob of result by luck. If $p < \\alpha$, reject $H_0$."
+              ]
             ]
           }
         ]
@@ -1009,15 +2388,93 @@ C["maths:S5.1"] = {
     }
   ],
   "flashcards": [
-    ["What is a 'Critical Region'?", "Set of values leading to rejection of $H_0$."],
-    ["Two-tailed test at $5\\%$: check each tail against?", "$0.025$ ($\\alpha / 2$)."]
+    [
+      "What is a 'Critical Region'?",
+      "Set of values leading to rejection of $H_0$."
+    ],
+    [
+      "Two-tailed test at $5\\%$: check each tail against?",
+      "$0.025$ ($\\alpha / 2$)."
+    ],
+    [
+      "What is the null hypothesis $H_0$?",
+      "The default assumption being tested (e.g. $p=0.5$)."
+    ],
+    [
+      "What is the alternative hypothesis $H_1$?",
+      "What you test for (e.g. $p>0.5$ or $p\\neq0.5$)."
+    ],
+    [
+      "What is the significance level?",
+      "The probability of rejecting $H_0$ when it is true (e.g. 5%)."
+    ],
+    [
+      "What is the critical region?",
+      "The set of values for which $H_0$ is rejected."
+    ],
+    [
+      "What is a p-value?",
+      "The probability of a result at least as extreme as observed, assuming $H_0$."
+    ],
+    [
+      "One-tailed vs two-tailed test?",
+      "One-tailed tests for a change in one direction; two-tailed tests for a change in either direction."
+    ]
   ],
   "quiz": [
     {
       "q": "$p$-value $0.042$, $\\alpha = 0.05$. Result?",
-      "opts": ["Reject $H_0$", "Fail to reject", "Accept $H_0$"],
+      "opts": [
+        "Reject $H_0$",
+        "Fail to reject",
+        "Accept $H_0$"
+      ],
       "ans": 0,
       "why": "$0.042 < 0.05$."
+    },
+    {
+      "q": "The null hypothesis is...?",
+      "opts": [
+        "what you hope to show",
+        "the default assumption tested",
+        "always false",
+        "the sample mean"
+      ],
+      "ans": 1,
+      "why": "$H_0$ is the status-quo claim."
+    },
+    {
+      "q": "A 5% significance level means...?",
+      "opts": [
+        "5% of data is wrong",
+        "5% chance of wrongly rejecting a true $H_0$",
+        "reject 5% of the time",
+        "p = 5 always"
+      ],
+      "ans": 1,
+      "why": "It is the false-rejection probability."
+    },
+    {
+      "q": "If the p-value is less than the significance level you...?",
+      "opts": [
+        "accept $H_0$",
+        "reject $H_0$",
+        "ignore it",
+        "increase $n$"
+      ],
+      "ans": 1,
+      "why": "A small p-value is significant evidence against $H_0$."
+    },
+    {
+      "q": "Testing for a change in either direction uses a...?",
+      "opts": [
+        "one-tailed test",
+        "two-tailed test",
+        "no test",
+        "census"
+      ],
+      "ans": 1,
+      "why": "Two-tailed covers both directions."
     }
   ],
   "exam": [
@@ -1028,6 +2485,26 @@ C["maths:S5.1"] = {
         "$X \\sim B(20, 0.5)$ under $H_0$ (1)",
         "$P(X \\ge 14) = 0.0577, P(X \\ge 15) = 0.0207$ (1)",
         "CR is $X \\ge 15$ (1)"
+      ]
+    },
+    {
+      "q": "A coin is suspected of bias towards heads. State suitable null and alternative hypotheses for $p=P(\\text{head})$.",
+      "marks": 2,
+      "ms": [
+        "$H_0: p=0.5$. (1)",
+        "$H_1: p>0.5$ (one-tailed). (1)"
+      ]
+    },
+    {
+      "q": "Explain the meaning of the significance level, critical region, and p-value in a hypothesis test, and how they lead to a conclusion.",
+      "marks": 6,
+      "ms": [
+        "The significance level is the probability of rejecting a true $H_0$ (e.g. 5%). (1)",
+        "The critical region is the set of outcomes leading to rejection of $H_0$. (1)",
+        "The p-value is the probability of a result at least as extreme as observed, assuming $H_0$. (1)",
+        "If the observed value is in the critical region (or p-value < significance level)... (1)",
+        "...reject $H_0$ in favour of $H_1$. (1)",
+        "Otherwise there is insufficient evidence to reject $H_0$. (1)"
       ]
     }
   ]
@@ -1078,15 +2555,93 @@ C["maths:S5.2"] = {
     }
   ],
   "flashcards": [
-    ["What does HEN CC stand for?", "Hypotheses, Expected model, Numbers, Compare, Conclude."],
-    ["Conclusion wording for significant result?", "'Significant evidence to suggest [context]'. No 'proof'."]
+    [
+      "What does HEN CC stand for?",
+      "Hypotheses, Expected model, Numbers, Compare, Conclude."
+    ],
+    [
+      "Conclusion wording for significant result?",
+      "'Significant evidence to suggest [context]'. No 'proof'."
+    ],
+    [
+      "What distribution underlies a binomial hypothesis test?",
+      "$X\\sim B(n,p)$ under $H_0$."
+    ],
+    [
+      "How do you find the critical region for a one-tailed binomial test?",
+      "Find values where the cumulative probability is below the significance level."
+    ],
+    [
+      "What is the actual significance level?",
+      "The true probability of the critical region (usually less than the nominal level)."
+    ],
+    [
+      "When do you reject $H_0$ in a binomial test?",
+      "When the observed value lies in the critical region (or its tail probability < significance level)."
+    ],
+    [
+      "For $H_1:p>p_0$, which tail is the critical region?",
+      "The upper tail (large values)."
+    ],
+    [
+      "What does a non-significant result mean?",
+      "Insufficient evidence to reject $H_0$ — not proof that $H_0$ is true."
+    ]
   ],
   "quiz": [
     {
       "q": "Testing bias TOWARD heads: $H_1$ is?",
-      "opts": ["$p \\neq 0.5$", "$p > 0.5$", "$p < 0.5$"],
+      "opts": [
+        "$p \\neq 0.5$",
+        "$p > 0.5$",
+        "$p < 0.5$"
+      ],
       "ans": 1,
       "why": "Direction stated."
+    },
+    {
+      "q": "Under $H_0$ a binomial test models $X$ as...?",
+      "opts": [
+        "$N(0,1)$",
+        "$B(n,p_0)$",
+        "uniform",
+        "$Poisson$"
+      ],
+      "ans": 1,
+      "why": "Binomial with the hypothesised $p_0$."
+    },
+    {
+      "q": "For $H_1:p>0.3$, the critical region is in the...?",
+      "opts": [
+        "lower tail",
+        "upper tail",
+        "both tails",
+        "centre"
+      ],
+      "ans": 1,
+      "why": "Evidence for an increase is large values."
+    },
+    {
+      "q": "The actual significance level is usually...?",
+      "opts": [
+        "exactly 5%",
+        "less than the nominal level",
+        "more than 50%",
+        "zero"
+      ],
+      "ans": 1,
+      "why": "Discreteness makes it below nominal."
+    },
+    {
+      "q": "You reject $H_0$ when the observed value...?",
+      "opts": [
+        "equals the mean",
+        "lies in the critical region",
+        "is the median",
+        "is positive"
+      ],
+      "ans": 1,
+      "why": "Critical region = rejection."
     }
   ],
   "exam": [
@@ -1099,6 +2654,26 @@ C["maths:S5.2"] = {
         "$P(X \\le 12) = 0.0321$ (1)",
         "$0.0321 < 0.05 \\Rightarrow$ Reject $H_0$ (1)",
         "Evidence to suggest rate is below $80\\%$ (2)"
+      ]
+    },
+    {
+      "q": "$X\\sim B(20,0.25)$ under $H_0$. State $H_0$, $H_1$ for testing whether $p$ has increased, and the expected value of $X$.",
+      "marks": 2,
+      "ms": [
+        "$H_0:p=0.25$, $H_1:p>0.25$. (1)",
+        "Expected $X=np=20\\times0.25=5$. (1)"
+      ]
+    },
+    {
+      "q": "A drug is claimed to cure 30% of patients. In a trial of 20 patients, 11 are cured. Test at the 5% level whether the cure rate exceeds 30%. (Given $P(X\\ge11)=0.0171$ for $X\\sim B(20,0.3)$.)",
+      "marks": 6,
+      "ms": [
+        "$H_0:p=0.3$, $H_1:p>0.3$ (one-tailed). (1)",
+        "Under $H_0$, $X\\sim B(20,0.3)$. (1)",
+        "Find $P(X\\ge11)=0.0171$. (1)",
+        "Compare with 5% = 0.05. (1)",
+        "$0.0171<0.05$, so the result is significant. (1)",
+        "Reject $H_0$: there is evidence the cure rate exceeds 30%. (1)"
       ]
     }
   ]
@@ -1148,15 +2723,94 @@ C["maths:S5.3"] = {
     }
   ],
   "flashcards": [
-    ["Define 'Standard Error'.", "Standard deviation of sample mean: $\\sigma / \\sqrt{n}$."],
-    ["$Z_{crit}$ for $5\\%$ two-tailed?", "$\\pm 1.96$."]
+    [
+      "Define 'Standard Error'.",
+      "Standard deviation of sample mean: $\\sigma / \\sqrt{n}$."
+    ],
+    [
+      "$Z_{crit}$ for $5\\%$ two-tailed?",
+      "$\\pm 1.96$."
+    ],
+    [
+      "What is the distribution of the sample mean for $X\\sim N(\\mu,\\sigma^2)$?",
+      "$\\bar X\\sim N\\left(\\mu,\\dfrac{\\sigma^2}{n}\\right)$."
+    ],
+    [
+      "Test statistic for a normal mean test?",
+      "$Z=\\dfrac{\\bar x-\\mu_0}{\\sigma/\\sqrt n}$."
+    ],
+    [
+      "Critical $z$ for a one-tailed 5% test?",
+      "$1.645$."
+    ],
+    [
+      "Critical $z$ for a two-tailed 5% test?",
+      "$\\pm1.96$."
+    ],
+    [
+      "When do you reject $H_0$ using the $z$-statistic?",
+      "When $|z|$ exceeds the critical value (in the critical region)."
+    ],
+    [
+      "What does $\\sigma/\\sqrt n$ represent?",
+      "The standard error of the sample mean."
+    ]
   ],
   "quiz": [
     {
       "q": "$X \\sim N(100, 64), n=16$. Standard Error?",
-      "opts": ["$8$", "$4$", "$2$", "$0.5$"],
+      "opts": [
+        "$8$",
+        "$4$",
+        "$2$",
+        "$0.5$"
+      ],
       "ans": 2,
       "why": "$\\sigma = 8$. $\\text{SE} = 8 / \\sqrt{16} = 2$."
+    },
+    {
+      "q": "The sample mean of $N(\\mu,\\sigma^2)$ has variance...?",
+      "opts": [
+        "$\\sigma^2$",
+        "$\\dfrac{\\sigma^2}{n}$",
+        "$n\\sigma^2$",
+        "$\\sigma$"
+      ],
+      "ans": 1,
+      "why": "Variance of the mean is $\\sigma^2/n$."
+    },
+    {
+      "q": "Critical value for a one-tailed test at 5% is...?",
+      "opts": [
+        "$1.96$",
+        "$1.645$",
+        "$2.576$",
+        "$0.5$"
+      ],
+      "ans": 1,
+      "why": "One-tailed 5% uses 1.645."
+    },
+    {
+      "q": "The test statistic $Z=$?",
+      "opts": [
+        "$\\dfrac{\\bar x-\\mu_0}{\\sigma/\\sqrt n}$",
+        "$\\dfrac{\\bar x-\\mu_0}{\\sigma}$",
+        "$\\dfrac{\\mu_0}{\\bar x}$",
+        "$\\bar x-\\mu_0$"
+      ],
+      "ans": 0,
+      "why": "Standardise using the standard error."
+    },
+    {
+      "q": "A two-tailed 5% test rejects $H_0$ when $|z|>$?",
+      "opts": [
+        "$1.645$",
+        "$1.96$",
+        "$2.33$",
+        "$1$"
+      ],
+      "ans": 1,
+      "why": "Two-tailed 5% critical value is 1.96."
     }
   ],
   "exam": [
@@ -1169,6 +2823,26 @@ C["maths:S5.3"] = {
         "Crit value $2.3263$ (1)",
         "$2.5 > 2.3263 \\Rightarrow$ Reject $H_0$ (1)",
         "Evidence to suggest mean increased (1)"
+      ]
+    },
+    {
+      "q": "$\\bar X$ is the mean of $n=25$ observations from $N(\\mu,100)$. State the distribution of $\\bar X$ and the standard error.",
+      "marks": 2,
+      "ms": [
+        "$\\bar X\\sim N\\left(\\mu,\\dfrac{100}{25}\\right)=N(\\mu,4)$. (1)",
+        "Standard error $=\\sqrt4=2$. (1)"
+      ]
+    },
+    {
+      "q": "A machine should fill bottles to a mean of 500 ml with s.d. 8 ml. A sample of 16 bottles has mean 495 ml. Test at the 5% level whether the mean has decreased.",
+      "marks": 6,
+      "ms": [
+        "$H_0:\\mu=500$, $H_1:\\mu<500$ (one-tailed). (1)",
+        "Standard error $=\\dfrac{8}{\\sqrt{16}}=2$. (1)",
+        "$z=\\dfrac{495-500}{2}=-2.5$. (1)",
+        "Critical value (one-tailed 5%) $=-1.645$. (1)",
+        "$-2.5<-1.645$, so in the critical region. (1)",
+        "Reject $H_0$: evidence the mean has decreased. (1)"
       ]
     }
   ]
