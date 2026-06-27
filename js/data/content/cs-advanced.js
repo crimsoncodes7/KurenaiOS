@@ -64,6 +64,35 @@ C["compsci:4.11.1"] = {
         "h": "Big Data Misconceptions",
         "body": "**Big Data just means a very large database** — it's defined by all three Vs: not just Volume but also Velocity (speed of generation) and Variety (unstructured/mixed formats). **You can handle Big Data by upgrading to a more powerful server** — Big Data requires horizontal scaling across many cheap machines (distributed computing); adding resources to a single server (vertical scaling) does not scale far enough."
       }
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "Why Functional Programming Suits Big Data",
+        "body": "When data is too big for one server, processing must be **distributed** across many machines. Functional programming makes distributed code easier to write *correctly* and *efficiently* because of three features:\n\n- **Immutable data structures** — data is never changed in place, so there are no race conditions when many machines read the same data in parallel.\n- **Statelessness** — a function's result depends only on its inputs, not on hidden shared state, so the same computation can be safely run on any machine (and re-run if a machine fails).\n- **Higher-order functions** — operations like `map` and `reduce` express *what* to compute independently of *where*, so the framework can split the work across the cluster automatically."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Graph Schema — Three Building Blocks",
+        "body": [
+          {
+            "kv": [
+              ["Nodes", "Represent the entities/objects in the dataset (e.g. a person, a product)."],
+              ["Edges", "Represent the relationships/connections between nodes (e.g. 'follows', 'bought')."],
+              ["Properties", "Key–value attributes attached to a node or an edge (e.g. a person node's name, an edge's date)."]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Fact-Based Model",
+        "body": "A way of representing data in which each **fact** captures a single, atomic piece of information, is **timestamped**, and is **immutable** (never overwritten). The full dataset is the ever-growing collection of facts, which preserves complete history and avoids the update anomalies of mutable storage."
+      }
     }
   ],
   "flashcards": [
@@ -77,15 +106,27 @@ C["compsci:4.11.1"] = {
     ],
     [
       "What is a 'fact-based model' in the context of Big Data?",
-      "A model where data is stored as immutable facts with timestamps; data is appended, never updated or deleted."
+      "A model where data is stored as immutable, timestamped facts; data is appended, never updated or deleted."
     ],
     [
       "What is the purpose of a graph schema?",
-      "To represent entities as nodes and relationships as edges, making it easier to analyze complex connections in data."
+      "To capture the structure of a dataset by representing entities as nodes and relationships as edges, making complex connections easy to analyse."
     ],
     [
       "What does 'Variety' refer to in Big Data?",
       "The different forms data can take, such as text, images, video, sensor data, often unstructured."
+    ],
+    [
+      "Name the three building blocks of a graph schema.",
+      "Nodes (entities), edges (relationships between nodes), and properties (key–value attributes on nodes or edges)."
+    ],
+    [
+      "Why is functional programming a good solution for Big Data?",
+      "Its immutability, statelessness and higher-order functions make it easier to write correct code that can be safely distributed across many servers."
+    ],
+    [
+      "Why are machine learning techniques needed for Big Data?",
+      "Because the data lacks structure, ML is used to discern patterns and extract useful information that could not be found with simple queries."
     ]
   ],
   "quiz": [
@@ -132,6 +173,17 @@ C["compsci:4.11.1"] = {
       ],
       "ans": 1,
       "why": "Velocity refers to the rapid rate at which new data is created and needs to be analyzed."
+    },
+    {
+      "q": "In a graph schema, what does an 'edge' represent?",
+      "opts": [
+        "An entity such as a person or product",
+        "A relationship or connection between two nodes",
+        "A key–value attribute of a node",
+        "The boundary of the dataset"
+      ],
+      "ans": 1,
+      "why": "Nodes are entities; edges are the relationships between nodes; properties are attributes attached to nodes or edges."
     }
   ],
   "exam": [
@@ -142,6 +194,27 @@ C["compsci:4.11.1"] = {
         "Relational databases require a strict schema/structured data (1) but Big Data often has a large variety/unstructured data (1).",
         "Relational databases scale vertically (adding more power to one server) (1) but Big Data volume requires horizontal scaling across distributed servers (1).",
         "Relational databases use locking which slows down writes (1) making them unsuitable for the high velocity of Big Data (1)."
+      ]
+    },
+    {
+      "q": "Describe the fact-based model for representing data, and state one advantage it has over overwriting data in place. (3 marks)",
+      "marks": 3,
+      "ms": [
+        "Each fact captures a single (atomic) piece of information (1).",
+        "Facts are timestamped and immutable — new information is appended rather than overwriting existing data (1).",
+        "Advantage: the full history of the data is preserved / no information is lost / avoids update anomalies / supports auditing (1)."
+      ]
+    },
+    {
+      "q": "Discuss why functional programming is well suited to processing Big Data across a distributed system. (6 marks)",
+      "marks": 6,
+      "ms": [
+        "When data is too large for a single server the processing must be distributed/parallelised across many machines (1).",
+        "Functional programming uses immutable data structures, so data is never changed in place (1), which avoids race conditions when many machines read the same data concurrently (1).",
+        "Functions are stateless — output depends only on inputs, not hidden shared state (1) — so a computation can be run on any machine and safely re-run if a machine fails (giving fault tolerance) (1).",
+        "Higher-order functions such as map and reduce express what to compute independently of where (1), letting the framework split the work across the cluster automatically (1).",
+        "Together these make distributed code easier to write correctly and efficiently than imperative code with shared mutable state (1).",
+        "Max 6. Award credit for a reasoned discussion linking specific functional features to correctness or distributability."
       ]
     }
   ]
@@ -223,6 +296,18 @@ C["compsci:4.12.1.1"] = {
     [
       "Can a function map one input to multiple outputs?",
       "No, a valid mathematical function maps each input to exactly one output."
+    ],
+    [
+      "Write the general form of a function type.",
+      "`f : A → B`, where A is the argument (domain) type and B is the result (co-domain) type."
+    ],
+    [
+      "What is meant by saying the domain and co-domain are 'subsets of objects in some data type'?",
+      "Both are drawn from the values of some underlying data type — e.g. a domain might be the positive integers, a subset of the integer data type."
+    ],
+    [
+      "For `f : {a..z} → {0..25}` mapping a→0, b→1, …, does every member of the co-domain get used?",
+      "In this case yes, but in general not every co-domain member need be an output — only the domain must be fully mapped."
     ]
   ],
   "quiz": [
@@ -269,6 +354,17 @@ C["compsci:4.12.1.1"] = {
       ],
       "ans": 2,
       "why": "The definition of a function requires that each element in the domain maps to one and only one element in the co-domain."
+    },
+    {
+      "q": "For the function type `f : A → B`, which set is the co-domain?",
+      "opts": [
+        "A",
+        "B",
+        "The range of f",
+        "A × B"
+      ],
+      "ans": 1,
+      "why": "In `f : A → B`, A is the argument type (domain) and B is the result type (co-domain)."
     }
   ],
   "exam": [
@@ -278,6 +374,28 @@ C["compsci:4.12.1.1"] = {
       "ms": [
         "Domain: The set of all valid input values for a function (1).",
         "Co-domain: The set of all possible return values/output types for a function (1)."
+      ]
+    },
+    {
+      "q": "A function is defined as `f : A → B`. Explain what A and B represent and state what is meant by the function type. (3 marks)",
+      "marks": 3,
+      "ms": [
+        "A is the argument type / domain — the set from which inputs are chosen (1).",
+        "B is the result type / co-domain — the set from which outputs are chosen (1).",
+        "The function type is `A → B`, describing the types of the input and output of the function (1)."
+      ]
+    },
+    {
+      "q": "Using a worked example, explain the terms domain, co-domain and range, and explain why the co-domain and range of a function are not always the same. (6 marks)",
+      "marks": 6,
+      "ms": [
+        "Domain = the set of input values the function is defined over (1).",
+        "Co-domain = the set from which outputs are chosen / the declared result type (1).",
+        "Range (image) = the set of outputs actually produced by the function (1).",
+        "The range is always a subset of the co-domain (1).",
+        "Worked example, e.g. `f : ℤ → ℤ, f(x) = x²`: domain = integers, co-domain = integers (1).",
+        "But the range is only the non-negative perfect squares {0,1,4,9,…}, so range ≠ co-domain — not every co-domain value is produced (1).",
+        "Max 6."
       ]
     }
   ]
@@ -346,6 +464,18 @@ C["compsci:4.12.1.2"] = {
     [
       "Why are first-class functions important in functional programming?",
       "They enable higher-order functions like map, filter, and fold, which are the building blocks of the paradigm."
+    ],
+    [
+      "List the four things a first-class object may do.",
+      "Appear in expressions, be assigned to a variable, be passed as an argument, and be returned from a function call."
+    ],
+    [
+      "Are first-class objects unique to functional languages?",
+      "No — imperative languages that support them (e.g. Python, C#) also treat functions as first-class objects."
+    ],
+    [
+      "Give three non-function examples of first-class objects in many languages.",
+      "Integers, floating-point values, characters and strings."
     ]
   ],
   "quiz": [
@@ -392,6 +522,17 @@ C["compsci:4.12.1.2"] = {
       ],
       "ans": 2,
       "why": "Assigning a function to a variable demonstrates that the function is a first-class object."
+    },
+    {
+      "q": "Which of these is true of first-class objects?",
+      "opts": [
+        "Only functions can be first-class objects",
+        "They may appear in expressions, be assigned to variables, and be returned from calls",
+        "They are exclusive to functional programming languages",
+        "They must be immutable"
+      ],
+      "ans": 1,
+      "why": "First-class objects may appear in expressions, be assigned, be passed as arguments, and be returned. Integers and strings are also first-class in many languages."
     }
   ],
   "exam": [
@@ -403,6 +544,25 @@ C["compsci:4.12.1.2"] = {
         "They can be passed as arguments to other functions (1).",
         "They can be returned as a result from another function (1).",
         "They can be assigned to variables (1)."
+      ]
+    },
+    {
+      "q": "State two properties, other than being passed as an argument, that an object must have to be considered a first-class object. (2 marks)",
+      "marks": 2,
+      "ms": [
+        "Can be assigned to a variable (1).",
+        "Can be returned as the result of a function call / can appear in expressions (1)."
+      ]
+    },
+    {
+      "q": "Explain how treating functions as first-class objects enables higher-order functions, and discuss why this is important for the functional paradigm. (6 marks)",
+      "marks": 6,
+      "ms": [
+        "A first-class function can be passed as an argument to another function (1) and returned as the result of a function call (1).",
+        "A higher-order function is one that takes a function as an argument and/or returns a function (1) — this is only possible because functions are first-class (1).",
+        "This enables reusable operations like map, filter and reduce that take behaviour as a parameter (1).",
+        "It supports composition and abstraction, letting general functions be specialised without rewriting them, which is central to the functional style (1).",
+        "Max 6."
       ]
     }
   ]
@@ -460,6 +620,13 @@ C["compsci:4.12.1.3"] = {
         "h": "Function Application Misconception",
         "body": "**Functional languages always require parentheses for function calls** — in Haskell, function application is denoted by a space: `f x` not `f(x)`. Parentheses are used for grouping, not for the call itself. `f(x)` is also valid in Haskell but only because the inner `(x)` evaluates to `x`."
       }
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "Two Arguments, or One Pair?",
+        "body": "Consider `add(3, 4)` — the application of `add` to arguments 3 and 4. Its type is written `f : integer × integer → integer`, where `integer × integer` is the **Cartesian product** of the integer set with itself (the set of all integer pairs). Strictly, although we *say* `add` takes two arguments, it really takes **one argument that is a pair** `(3, 4)`. This view becomes important when we look at partial application, where the multi-argument form is re-expressed as a chain of one-argument functions."
+      }
     }
   ],
   "flashcards": [
@@ -482,6 +649,18 @@ C["compsci:4.12.1.3"] = {
     [
       "Can function application be chained?",
       "Yes, the result of one application can be the argument to another, e.g., f(g(x))."
+    ],
+    [
+      "What does `integer × integer` mean in the type `f : integer × integer → integer`?",
+      "The Cartesian product of the integer set with itself — i.e. the set of all pairs of integers."
+    ],
+    [
+      "Strictly, how many arguments does `add(3, 4)` take?",
+      "One — a single argument that is the pair (3, 4)."
+    ],
+    [
+      "What is the application of the function `add` to 3 and 4 written as?",
+      "add(3, 4)."
     ]
   ],
   "quiz": [
@@ -528,6 +707,17 @@ C["compsci:4.12.1.3"] = {
       ],
       "ans": 2,
       "why": "First application: double 3 is 6. Second application: double 6 is 12."
+    },
+    {
+      "q": "In the type `f : integer × integer → integer`, what does the `×` denote?",
+      "opts": [
+        "Multiplication of the two arguments",
+        "The Cartesian product of integer with itself (the set of integer pairs)",
+        "That the function returns an integer",
+        "Composition of two functions"
+      ],
+      "ans": 1,
+      "why": "`integer × integer` is the Cartesian product — the set of all pairs of integers — so the function takes a single pair as its argument."
     }
   ],
   "exam": [
@@ -537,6 +727,28 @@ C["compsci:4.12.1.3"] = {
       "ms": [
         "Providing arguments/inputs to a function (1).",
         "Evaluating the function to produce an output/result (1)."
+      ]
+    },
+    {
+      "q": "The function `add` has type `add : integer × integer → integer`. Explain what `integer × integer` means and what it implies about the number of arguments `add` really takes. (3 marks)",
+      "marks": 3,
+      "ms": [
+        "`integer × integer` is the Cartesian product of the integer set with itself (1).",
+        "It is the set of all pairs of integers (1).",
+        "So although add appears to take two arguments, it really takes one argument which is a pair, e.g. (3, 4) (1)."
+      ]
+    },
+    {
+      "q": "Explain what is meant by function application. Discuss, with examples, how applications can be chained and how a two-argument application can be viewed as taking a single pair. (6 marks)",
+      "marks": 6,
+      "ms": [
+        "Function application means applying a function to its argument(s) to evaluate it (1).",
+        "Example: `add(3, 4)` applies add to the arguments 3 and 4, giving 7 (1).",
+        "The result of one application can be used as the argument to another, e.g. `f(g(x))` (1).",
+        "Here g is applied first and its result is then passed to f — the inner application is evaluated first (1).",
+        "A two-argument application such as add(3,4) has type integer × integer → integer, where × is the Cartesian product (set of integer pairs) (1).",
+        "So it can be viewed as taking a single argument that is the pair (3, 4) rather than two separate arguments (1).",
+        "Max 6."
       ]
     }
   ]
@@ -598,6 +810,13 @@ C["compsci:4.12.1.4"] = {
     },
     {
       "callout": {
+        "t": "formula",
+        "h": "AQA Partial Application Notation",
+        "body": "The two-argument `add` has type `add : integer → (integer → integer)`. Read this as: **`add 4` returns a function** which, when applied to another integer, adds 4 to it. Because the arrow `→` is right-associative, the brackets may be dropped:\n\n`add : integer → integer → integer`\n\n`add` is now viewed as taking **one argument after another**, finally returning a result of type integer. This step-by-step single-argument form is exactly what makes partial application possible."
+      }
+    },
+    {
+      "callout": {
         "t": "miscon",
         "h": "Partial Application vs Currying",
         "body": "**Partial application and currying are the same thing** — currying restructures a function into single-argument steps; partial application binds some arguments to produce a new function. You can partially apply without currying. **Partial application immediately produces the final answer** — it produces a new function that still needs the remaining arguments; only full application yields the final value."
@@ -624,6 +843,18 @@ C["compsci:4.12.1.4"] = {
     [
       "How many arguments does a fully curried function take at a time?",
       "Exactly one."
+    ],
+    [
+      "Write the curried type of a two-argument integer `add` function (brackets dropped).",
+      "`add : integer → integer → integer`."
+    ],
+    [
+      "In `add : integer → (integer → integer)`, what does `add 4` return?",
+      "A function that, when applied to an integer, adds 4 to it."
+    ],
+    [
+      "Why may the brackets be dropped in `integer → (integer → integer)`?",
+      "Because the function-type arrow `→` is right-associative, so the bracketing is implied."
     ]
   ],
   "quiz": [
@@ -670,6 +901,17 @@ C["compsci:4.12.1.4"] = {
       ],
       "ans": 0,
       "why": "Functions must be first-class so they can be returned as results from the partial application."
+    },
+    {
+      "q": "The type `add : integer → integer → integer` is equivalent to which fully-bracketed form?",
+      "opts": [
+        "add : (integer → integer) → integer",
+        "add : integer → (integer → integer)",
+        "add : (integer → integer → integer)",
+        "add : integer × integer → integer"
+      ],
+      "ans": 1,
+      "why": "The arrow is right-associative, so the brackets group from the right: integer → (integer → integer)."
     }
   ],
   "exam": [
@@ -680,6 +922,27 @@ C["compsci:4.12.1.4"] = {
         "Function application provides all arguments to evaluate and get a final result (1).",
         "Partial function application provides only some of the required arguments (1).",
         "This results in returning a new function that takes the remaining arguments (1)."
+      ]
+    },
+    {
+      "q": "A two-argument function `add` has type `add : integer → integer → integer`. Explain, with reference to the notation, what `add 4` produces. (3 marks)",
+      "marks": 3,
+      "ms": [
+        "`add 4` partially applies add, binding the first argument to 4 (1).",
+        "It returns a new function of type `integer → integer` (1).",
+        "When that function is applied to an integer it adds 4 to it, e.g. `(add 4) 10 = 14` (1)."
+      ]
+    },
+    {
+      "q": "Explain what is meant by partial function application and discuss why it is a useful technique, using a worked example. (6 marks)",
+      "marks": 6,
+      "ms": [
+        "Partial application supplies fewer arguments than the function expects (1).",
+        "It returns a new function awaiting the remaining argument(s) rather than a final value (1).",
+        "It relies on functions being first-class objects so the partial result can be returned/stored (1).",
+        "Worked example: from `add : integer → integer → integer`, `addFive = add 5` creates a specialised function (1); `addFive 10` then evaluates to 15 (1).",
+        "Usefulness: it lets specialised functions be built from general ones, reducing repetition and supporting reuse/composition (1).",
+        "Max 6."
       ]
     }
   ]
@@ -761,6 +1024,18 @@ C["compsci:4.12.1.5"] = {
     [
       "What is the advantage of function composition?",
       "It allows building complex behaviors by piping together simple, reusable functions."
+    ],
+    [
+      "For functions f: A → B and g: B → C, what are the domain and co-domain of g ∘ f?",
+      "Domain A and co-domain C."
+    ],
+    [
+      "If f(x) = x + 2 and g(y) = y³, what is g ∘ f as a formula?",
+      "(x + 2)³ — f is applied first, then g cubes the result."
+    ],
+    [
+      "Does function composition require any shared state between the two functions?",
+      "No — the only link is that the output of the first becomes the input of the second; this statelessness is why composition is so reusable."
     ]
   ],
   "quiz": [
@@ -807,6 +1082,17 @@ C["compsci:4.12.1.5"] = {
       ],
       "ans": 1,
       "why": "Because the result of g is passed to f, g's co-domain must match f's domain."
+    },
+    {
+      "q": "Given f : A → B and g : B → C, what is the type of the composition g ∘ f?",
+      "opts": [
+        "A → B",
+        "B → C",
+        "A → C",
+        "C → A"
+      ],
+      "ans": 2,
+      "why": "g ∘ f applies f (A → B) then g (B → C), so overall it maps A → C."
     }
   ],
   "exam": [
@@ -817,6 +1103,28 @@ C["compsci:4.12.1.5"] = {
         "Square composed with half: `square ∘ half` or `square(half(x))` (1).",
         "half(4) = 2 (1).",
         "square(2) = 4 (1)."
+      ]
+    },
+    {
+      "q": "Functions f and g have types f : A → B and g : B → C. State the type of g ∘ f and explain the condition that makes the composition valid. (3 marks)",
+      "marks": 3,
+      "ms": [
+        "g ∘ f has type A → C (domain A, co-domain C) (1).",
+        "For the composition to be valid the co-domain of the first-applied function f must match the domain of g (1).",
+        "i.e. the output type of f (B) must be acceptable as input to g (1)."
+      ]
+    },
+    {
+      "q": "Explain what is meant by composition of functions, making clear the order of evaluation, and discuss its benefit in functional programming using a worked example. (6 marks)",
+      "marks": 6,
+      "ms": [
+        "Composition combines two (or more) functions to produce a new function (1).",
+        "`(g ∘ f)(x) = g(f(x))` — the right-hand function f is applied first, then g to its result (right-to-left) (1).",
+        "For validity the co-domain of f must match the domain of g (1).",
+        "Worked example: f(x) = x + 2, g(y) = y³, so (g ∘ f)(x) = (x + 2)³; for x = 1 this gives 27 (1).",
+        "Benefit: simple, reusable functions are chained into complex behaviour without intermediate variables (1).",
+        "Because the functions are stateless/pure, composition is predictable and easy to reason about / test (1).",
+        "Max 6."
       ]
     }
   ]
@@ -897,6 +1205,20 @@ C["compsci:4.12.2.1"] = {
     },
     {
       "callout": {
+        "t": "info",
+        "h": "Functional Languages You Could Use",
+        "body": "**Purely/strongly functional languages:** Haskell, Standard ML, Scheme, Lisp.\n\n**Multi-paradigm languages with built-in functional support:** Python, F#, C#, Scala, Java 8+, Delphi (XE onwards), VB.NET (2008 onwards).\n\nThe spec only requires *experience constructing simple programs* in **one** functional language (or a language supporting the functional paradigm), using map, filter and reduce/fold."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Higher-Order Function",
+        "body": "A function is **higher-order** if it takes a function as an argument, returns a function as a result, or both. `map`, `filter` and `reduce`/`fold` are all higher-order because they take a function as one of their arguments."
+      }
+    },
+    {
+      "callout": {
         "t": "miscon",
         "h": "map / filter / fold Misconceptions",
         "body": "**map changes the length of the list** — map always returns a list of the same length as the input; every element is transformed but nothing is added or removed. Only filter can shorten the list. **fold always produces a list** — fold (reduce) collapses a list down to a single value (a number, string, boolean, etc.), not a list."
@@ -923,6 +1245,18 @@ C["compsci:4.12.2.1"] = {
     [
       "If you `map` a list of 5 elements, how many elements will the resulting list have?",
       "Exactly 5."
+    ],
+    [
+      "What makes map, filter and reduce 'higher-order' functions?",
+      "Each takes a function as one of its arguments (a transforming function, a predicate, or a combining function)."
+    ],
+    [
+      "Name two purely functional programming languages.",
+      "Any two of: Haskell, Standard ML, Scheme, Lisp."
+    ],
+    [
+      "Name two multi-paradigm languages that support functional programming.",
+      "Any two of: Python, F#, C#, Scala, Java 8+, Delphi, VB.NET."
     ]
   ],
   "quiz": [
@@ -969,6 +1303,17 @@ C["compsci:4.12.2.1"] = {
       ],
       "ans": 2,
       "why": "Filter removes items that fail the condition, so the list length either stays the same or decreases."
+    },
+    {
+      "q": "A function is described as 'higher-order'. What does this mean?",
+      "opts": [
+        "It runs at a higher priority than other functions",
+        "It takes a function as an argument and/or returns a function as a result",
+        "It can only be written in Haskell",
+        "It always returns a single value"
+      ],
+      "ans": 1,
+      "why": "A higher-order function takes a function as an argument, returns one, or both — e.g. map, filter and reduce."
     }
   ],
   "exam": [
@@ -980,6 +1325,25 @@ C["compsci:4.12.2.1"] = {
         "It applies the function to the accumulator and the first element: 0 + 2 = 2 (1).",
         "It carries the new accumulator forward to the next element: 2 + 4 = 6 (1).",
         "It repeats for the final element: 6 + 6 = 12, returning 12 as the final result (1)."
+      ]
+    },
+    {
+      "q": "Define a higher-order function and state, for each of map and filter, what it returns. (3 marks)",
+      "marks": 3,
+      "ms": [
+        "A higher-order function takes a function as an argument and/or returns a function (1).",
+        "map returns a new list of the same length, with the given function applied to every element (1).",
+        "filter returns a new list containing only the elements that satisfy the given predicate (1)."
+      ]
+    },
+    {
+      "q": "Compare the higher-order functions map, filter and reduce/fold, explaining what each takes as input and what it produces. Use the list [1, 2, 3, 4] in your examples. (6 marks)",
+      "marks": 6,
+      "ms": [
+        "map takes a transforming function and a list (1); it returns a new list of the same length, e.g. map(double, [1,2,3,4]) = [2,4,6,8] (1).",
+        "filter takes a predicate (boolean function) and a list (1); it returns a new list of the matching elements only, e.g. filter(isEven, [1,2,3,4]) = [2,4] (1).",
+        "reduce/fold takes a combining function, an initial accumulator and a list (1); it returns a single value, e.g. fold(add, 0, [1,2,3,4]) = 10 (1).",
+        "Max 6. Credit a clear contrast: map preserves length, filter may shorten, fold collapses to one value."
       ]
     }
   ]
@@ -1014,16 +1378,31 @@ C["compsci:4.12.3.1"] = {
     },
     {
       "callout": {
-        "t": "info",
-        "h": "List Operations",
+        "t": "memorise",
+        "h": "The Seven List Operations (AQA)",
         "body": [
           {
-            "kv": [
-              ["Prepend (cons `:`)", "Adds an element to the front: `1 : [2, 3]` → `[1, 2, 3]`. Creates a new list."],
-              ["Append (`++`)", "Joins two lists: `[1] ++ [2, 3]` → `[1, 2, 3]`."]
-            ]
+            "table": {
+              "head": ["Operation", "Meaning", "Example"],
+              "rows": [
+                ["Return head", "First element of the list", "head([4,3,5]) → 4"],
+                ["Return tail", "List of all elements after the head", "tail([4,3,5]) → [3,5]"],
+                ["Test for empty list", "Is the list []?", "isEmpty([]) → true"],
+                ["Return length", "Number of elements", "length([4,3,5]) → 3"],
+                ["Construct empty list", "Create a new empty list", "[]"],
+                ["Prepend an item", "Add to the front (cons)", "1 : [2,3] → [1,2,3]"],
+                ["Append an item", "Add to the end / join lists", "[1,2] ++ [3] → [1,2,3]"]
+              ]
+            }
           }
         ]
+      }
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "Head : Tail Notation",
+        "body": "In Haskell a list can be written as `head : tail`. For `[4, 3, 5]` this is `4 : [3, 5]` — `4` is the head and `[3, 5]` is the tail. The empty list is written `[]`. This `head : tail` decomposition is the basis of nearly every recursive list algorithm: handle the head, then recurse on the tail until you reach `[]`."
       }
     },
     {
@@ -1061,6 +1440,18 @@ C["compsci:4.12.3.1"] = {
     [
       "What is 'prepending' in list processing?",
       "Adding a single element to the beginning of a list to create a new list."
+    ],
+    [
+      "How is the list [4, 3, 5] written in head:tail form?",
+      "`4 : [3, 5]` — head 4, tail [3, 5]."
+    ],
+    [
+      "What is the difference between prepend and append?",
+      "Prepend (`:`) adds an item to the front of a list; append (`++`) adds to the end / joins lists."
+    ],
+    [
+      "What is the tail of a one-element list such as [7]?",
+      "The empty list [] (not 7)."
     ]
   ],
   "quiz": [
@@ -1107,6 +1498,17 @@ C["compsci:4.12.3.1"] = {
       ],
       "ans": 1,
       "why": "Recursive functions typically process the head and recurse on the tail until the list is empty."
+    },
+    {
+      "q": "Which operation would you use to add the value 0 to the front of the list [1, 2, 3]?",
+      "opts": [
+        "append",
+        "prepend (cons)",
+        "tail",
+        "fold"
+      ],
+      "ans": 1,
+      "why": "Prepend (cons, `:`) adds an element to the front: 0 : [1,2,3] → [0,1,2,3]. Append adds to the end."
     }
   ],
   "exam": [
@@ -1116,6 +1518,28 @@ C["compsci:4.12.3.1"] = {
       "ms": [
         "tail(L) evaluates to [20, 30] (1).",
         "head([20, 30]) evaluates to 20 (1)."
+      ]
+    },
+    {
+      "q": "Describe the result of each of the following on the list `L = [5, 6, 7]`: head(L), tail(L), isEmpty(L) and length(L). (4 marks)",
+      "marks": 4,
+      "ms": [
+        "head(L) = 5 (1).",
+        "tail(L) = [6, 7] (1).",
+        "isEmpty(L) = false (the list has elements) (1).",
+        "length(L) = 3 (1)."
+      ]
+    },
+    {
+      "q": "A list is represented as a concatenation of a head and a tail. Explain this representation and describe how it is used to write a recursive function that returns the length of a list. (6 marks)",
+      "marks": 6,
+      "ms": [
+        "The head is the first element of the list and the tail is a list of all the remaining elements (1).",
+        "A list can be empty, written [] (1); e.g. [4,3,5] = 4 : [3,5] (1).",
+        "Base case: if the list is empty, its length is 0 (1).",
+        "Recursive case: otherwise the length is 1 + length(tail) (1).",
+        "The recursion strips one head each call and recurses on the tail until it reaches [], then the additions unwind to give the total count (1).",
+        "Max 6. Credit equivalent pseudo-code, e.g. len(l) = if isEmpty(l) then 0 else 1 + len(tail(l))."
       ]
     }
   ]

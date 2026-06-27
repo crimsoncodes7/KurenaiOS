@@ -758,6 +758,59 @@ window.KOS_DATA.intel = {
   tips: ["Map applies a function to every element; filter keeps elements satisfying a predicate; fold/reduce combines elements into one value. Be able to give the result for a concrete list."],
   pitfalls: ["Confusing function application f x with composition f ∘ g — composition applies g first."]
 },
+"compsci:4.11.1": {
+  defs: [["Big Data", "A catch-all term for data too large/fast/varied for the usual containers (relational databases), described by volume, velocity and variety."],
+         ["Fact-based model", "A representation where each immutable, timestamped fact captures a single piece of information; data is appended, never overwritten."],
+         ["Graph schema", "A way to capture dataset structure using nodes (entities), edges (relationships) and properties (attributes)."]],
+  tips: ["Define Big Data through all three Vs — volume, velocity, variety — not just size.",
+         "Link functional programming to distribution: immutability, statelessness and higher-order functions make distributed code easier to write correctly.",
+         "For graph schema, name all three parts: nodes, edges AND properties."],
+  pitfalls: ["Claiming a more powerful single server solves Big Data — it requires horizontal scaling across many machines.",
+             "Saying the tail/edge stores data rather than identifying nodes=entities, edges=relationships."]
+},
+"compsci:4.12.1.1": {
+  defs: [["Function type", "Written f : A → B, where A is the argument type (domain) and B is the result type (co-domain)."],
+         ["Domain", "The set from which a function's input values are chosen."],
+         ["Co-domain", "The set from which a function's output values are chosen; not every member need be an output."]],
+  tips: ["Distinguish co-domain (all possible outputs) from range/image (outputs actually produced) — range ⊆ co-domain.",
+         "Use a worked example such as f(x)=x² to show range ≠ co-domain."],
+  pitfalls: ["Treating co-domain and range as identical.", "Saying a function may map one input to several outputs — by definition each input maps to exactly one output."]
+},
+"compsci:4.12.1.3": {
+  defs: [["Function application", "Applying a function to its arguments to evaluate it, e.g. add(3, 4)."],
+         ["Cartesian product", "integer × integer is the set of all pairs of integers; a two-argument function's argument type."]],
+  tips: ["Know that add(3,4) has type integer × integer → integer and can be viewed as taking a single pair (3,4).",
+         "When chaining f(g(x)), the inner application g(x) is evaluated first."],
+  pitfalls: ["Assuming functional languages always need parentheses — Haskell uses a space: f x."]
+},
+"compsci:4.12.1.4": {
+  defs: [["Partial function application", "Supplying fewer arguments than a function expects, returning a new function that takes the remaining argument(s)."],
+         ["Currying", "Re-expressing a multi-argument function as a chain of single-argument functions, e.g. add : integer → integer → integer."]],
+  tips: ["Know the AQA notation: add : integer → (integer → integer); brackets drop because → is right-associative.",
+         "addFive = add 5 returns a function; addFive 10 = 15."],
+  pitfalls: ["Saying partial application gives the final answer — it returns a new function awaiting the rest.", "Treating currying and partial application as identical."]
+},
+"compsci:4.12.1.5": {
+  defs: [["Function composition", "Combining functions g and f into g ∘ f, whose domain is f's domain and co-domain is g's co-domain; (g ∘ f)(x) = g(f(x))."]],
+  tips: ["Composition is right-to-left: the rightmost function runs first.",
+         "For g ∘ f to be valid, the co-domain of f must match the domain of g."],
+  pitfalls: ["Reading f ∘ g left-to-right — g is applied first.", "Forgetting the type-matching condition between the two functions."]
+},
+"compsci:4.12.2.1": {
+  defs: [["Higher-order function", "A function that takes a function as an argument and/or returns a function as its result."],
+         ["map / filter / reduce", "map transforms every element (same length); filter keeps elements matching a predicate; reduce/fold collapses a list to a single value."]],
+  tips: ["Quote concrete results: map(double,[1,2,3])=[2,4,6]; filter(isEven,[1,2,3,4])=[2,4]; fold(add,0,[1,2,3])=6.",
+         "Functional languages: Haskell, ML, Scheme, Lisp; multi-paradigm with functional support: Python, F#, C#, Scala, Java 8+."],
+  pitfalls: ["Saying map can change list length — only filter shortens it.", "Saying fold returns a list — it returns a single value."]
+},
+"compsci:4.12.3.1": {
+  defs: [["Head", "The first element of a list."],
+         ["Tail", "A list of all elements after the head (itself a list, possibly empty)."]],
+  tips: ["Know the head:tail notation: [4,3,5] = 4 : [3,5]; [] is the empty list.",
+         "Know all seven operations: head, tail, test empty, length, construct empty, prepend, append.",
+         "Recursive list functions: base case empty list, recursive case process head then recurse on tail."],
+  pitfalls: ["Saying the tail is the last element — it is everything after the head.", "Saying tail([x]) returns x — it returns the empty list []."]
+},
 "compsci:4.1.2.1": {
   defs: [["Procedural paradigm", "Programs built from subroutines executed in sequence, operating on separate data."],
          ["Object-oriented paradigm", "Data and methods bundled into objects, with encapsulation, inheritance and polymorphism."]],
