@@ -915,6 +915,41 @@ window.KOS_DATA.intel = {
 },
 
 /* ============ Edexcel Mathematics 9MA0 — Pure ============ */
+"maths:S6.1": {
+  defs: [["SI base units", "mass (kg), length (m), time (s); force (N) = kg m s^-2 is derived."]],
+  tips: ["Check formulas by comparing base units.", "Force, velocity, momentum are derived quantities."],
+  pitfalls: ["Treating force or velocity as a base quantity.", "Mismatched units in a calculation."]
+},
+"maths:S7.1": {
+  defs: [["Scalars vs vectors", "Distance/speed are scalars; displacement/velocity/acceleration are vectors."]],
+  tips: ["Displacement can be zero while distance is not.", "Negative velocity means motion in the negative direction."],
+  pitfalls: ["Confusing distance with displacement.", "Treating speed as a vector."]
+},
+"maths:S7.2": {
+  defs: [["Motion graphs", "x-t gradient = velocity; v-t gradient = acceleration; v-t area = displacement."]],
+  tips: ["Split v-t graphs into triangles/rectangles for area.", "A horizontal v-t line is constant velocity."],
+  pitfalls: ["Reading area as acceleration.", "Confusing the two graph types."]
+},
+"maths:S7.4": {
+  defs: [["Calculus kinematics", "v=ds/dt, a=dv/dt; s=integral v dt, v=integral a dt."]],
+  tips: ["Use calculus when acceleration varies with time.", "Use initial conditions to fix the constant of integration."],
+  pitfalls: ["Applying suvat to variable acceleration.", "Forgetting +c when integrating."]
+},
+"maths:S8.1": {
+  defs: [["Newton's first law", "No resultant force => rest or constant velocity (equilibrium)."]],
+  tips: ["Constant velocity means forces balance.", "Name the forces: weight, reaction, friction, tension, thrust."],
+  pitfalls: ["Assuming a moving object needs a net force.", "Forgetting equilibrium gives zero resultant."]
+},
+"maths:S8.3": {
+  defs: [["Weight", "W = mg, vertically downward; mass is constant, weight depends on g."]],
+  tips: ["A freely falling body accelerates at g.", "Distinguish kg (mass) from N (weight)."],
+  pitfalls: ["Confusing mass and weight.", "Using g where a different acceleration applies."]
+},
+"maths:S8.5": {
+  defs: [["Resultant force", "Vector sum of forces; equilibrium when it is zero."]],
+  tips: ["Resolve into perpendicular components, then combine with Pythagoras/trig.", "Equilibrium: components balance in each direction."],
+  pitfalls: ["Adding magnitudes instead of vectors.", "Forgetting one direction's balance."]
+},
 "maths:S2.1": {
   defs: [["Histogram", "Area is proportional to frequency; height is frequency density = frequency / class width."]],
   tips: ["With unequal widths, always use frequency density.", "Box plots and cumulative frequency curves summarise spread and quartiles."],
