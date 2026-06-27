@@ -915,6 +915,31 @@ window.KOS_DATA.intel = {
 },
 
 /* ============ Edexcel Mathematics 9MA0 — Pure ============ */
+"maths:6.1": {
+  defs: [["e", "The base of natural exponentials, approx 2.718; y=e^x has gradient equal to its value."]],
+  tips: ["a^x and e^x pass through (0,1); always positive with the x-axis as an asymptote.", "e^x is the natural growth function."],
+  pitfalls: ["Thinking a^x can be zero or negative.", "Confusing the graphs of a^x and log_a x (they are inverses)."]
+},
+"maths:6.2": {
+  defs: [["Gradient of e^kx", "d/dx e^kx = k e^kx; the rate is proportional to the value."]],
+  tips: ["Multiply by k and keep e^kx — do NOT use the power rule.", "dy/dx = ky has solution y = A e^kx, which is why exponentials model growth/decay."],
+  pitfalls: ["Applying the power rule to e^kx.", "Forgetting the factor k."]
+},
+"maths:6.3": {
+  defs: [["Logarithm", "log_a y = x means a^x = y; ln x = log_e x is the inverse of e^x."]],
+  tips: ["log_a 1 = 0, log_a a = 1; domain x > 0.", "ln and e^x undo each other: e^(ln x)=x, ln(e^x)=x."],
+  pitfalls: ["Writing log(x+y) = log x + log y (no such law).", "Taking logs of non-positive numbers."]
+},
+"maths:6.5": {
+  defs: [["Solving a^x=b", "Take logs: x = log b / log a."]],
+  tips: ["Take logs of both sides and use the power law to bring the exponent down.", "For variables in two exponents, collect x-terms after taking logs."],
+  pitfalls: ["Dividing instead of taking logs.", "Rounding too early in multi-step solutions."]
+},
+"maths:6.7": {
+  defs: [["Exponential model", "y = A e^(kt): A initial value, k>0 growth, k<0 decay."]],
+  tips: ["Doubling/half-life: solve e^(kt)=2 or 1/2 with natural logs.", "Always state a limitation/refinement (e.g. logistic for bounded growth)."],
+  pitfalls: ["Ignoring asked-for limitations.", "Sign error in the exponent for decay."]
+},
 "maths:5.1": {
   defs: [["Radian", "Angle subtended by an arc equal in length to the radius; 180 deg = pi rad."],
          ["Cosine rule", "a^2 = b^2 + c^2 - 2bc cos A (SAS for a side; SSS for an angle)."]],

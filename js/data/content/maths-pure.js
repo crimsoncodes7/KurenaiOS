@@ -5764,7 +5764,9 @@ C["maths:5.9"] = {
 
 C["maths:6.1"] = {
   "notes": [
-    { "h": "Exponential Functions" },
+    {
+      "h": "Exponential Functions"
+    },
     {
       "callout": {
         "t": "info",
@@ -5774,58 +5776,160 @@ C["maths:6.1"] = {
     },
     {
       "table": {
-        "head": ["Feature", "For $a > 1$", "For $0 < a < 1$"],
+        "head": [
+          "Feature",
+          "For $a > 1$",
+          "For $0 < a < 1$"
+        ],
         "rows": [
-          ["Trend", "Exponential Growth", "Exponential Decay"],
-          ["$y$-intercept", "$(0, 1)$", "$(0, 1)$"],
-          ["Asymptote", "$y = 0$ (negative $x$-axis)", "$y = 0$ (positive $x$-axis)"],
-          ["Domain", "All real $x$", "All real $x$"],
-          ["Range", "$y > 0$", "$y > 0$"]
+          [
+            "Trend",
+            "Exponential Growth",
+            "Exponential Decay"
+          ],
+          [
+            "$y$-intercept",
+            "$(0, 1)$",
+            "$(0, 1)$"
+          ],
+          [
+            "Asymptote",
+            "$y = 0$ (negative $x$-axis)",
+            "$y = 0$ (positive $x$-axis)"
+          ],
+          [
+            "Domain",
+            "All real $x$",
+            "All real $x$"
+          ],
+          [
+            "Range",
+            "$y > 0$",
+            "$y > 0$"
+          ]
         ]
       }
     },
     {
       "kv": [
-        ["$y = k a^x$", "Stretch vertically by scale factor $k$."],
-        ["$y = a^{x-c}$", "Translation right by $c$ units."],
-        ["$y = a^x + d$", "Translation up by $d$ units. Asymptote becomes $y = d$."]
+        [
+          "$y = k a^x$",
+          "Stretch vertically by scale factor $k$."
+        ],
+        [
+          "$y = a^{x-c}$",
+          "Translation right by $c$ units."
+        ],
+        [
+          "$y = a^x + d$",
+          "Translation up by $d$ units. Asymptote becomes $y = d$."
+        ]
       ]
     },
-    { "callout": { "t": "memorise", "h": "Exponential Functions — Key Features", "body": "$y = a^x$ ($a>0$): $y$-intercept always $(0,1)$, asymptote $y=0$, domain all reals, range $y>0$. Growth if $a>1$; decay if $0<a<1$. Shifts: $y=a^x+d$ moves asymptote to $y=d$; $y=ka^x$ multiplies $y$-intercept by $k$." } },
-    { "callout": { "t": "miscon", "h": "$y = a^x$ Can Be Negative", "body": "WRONG. Exponential functions are always positive ($y > 0$) because a positive number raised to any real power is positive. The graph approaches but never reaches or crosses $y = 0$. Even $y = -3^x$ is always negative (not zero) — here the minus sign is outside." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Exponential Functions — Key Features",
+        "body": "$y = a^x$ ($a>0$): $y$-intercept always $(0,1)$, asymptote $y=0$, domain all reals, range $y>0$. Growth if $a>1$; decay if $0<a<1$. Shifts: $y=a^x+d$ moves asymptote to $y=d$; $y=ka^x$ multiplies $y$-intercept by $k$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$y = a^x$ Can Be Negative",
+        "body": "WRONG. Exponential functions are always positive ($y > 0$) because a positive number raised to any real power is positive. The graph approaches but never reaches or crosses $y = 0$. Even $y = -3^x$ is always negative (not zero) — here the minus sign is outside."
+      }
+    }
   ],
   "flashcards": [
-    ["What is the $y$-intercept of $y = a^x$?", "$(0, 1)$."],
-    ["What is the horizontal asymptote of $y = 3^x$?", "$y = 0$."],
-    ["Does $y = a^x$ ever cross the $x$-axis?", "No, it is always positive ($y > 0$)."],
-    ["Shape of $y = 0.5^x$?", "Exponential decay (decreasing)."],
-    ["Effect of $k$ in $y = k a^x$?", "Vertical stretch scale factor $k$."],
-    ["Where is the asymptote of $y = 2^x - 5$?", "$y = -5$."]
+    [
+      "What is the $y$-intercept of $y = a^x$?",
+      "$(0, 1)$."
+    ],
+    [
+      "What is the horizontal asymptote of $y = 3^x$?",
+      "$y = 0$."
+    ],
+    [
+      "Does $y = a^x$ ever cross the $x$-axis?",
+      "No, it is always positive ($y > 0$)."
+    ],
+    [
+      "Shape of $y = 0.5^x$?",
+      "Exponential decay (decreasing)."
+    ],
+    [
+      "Effect of $k$ in $y = k a^x$?",
+      "Vertical stretch scale factor $k$."
+    ],
+    [
+      "Where is the asymptote of $y = 2^x - 5$?",
+      "$y = -5$."
+    ],
+    [
+      "What is special about the graph of $y=e^x$?",
+      "It passes through $(0,1)$ and its gradient equals its $y$-value everywhere."
+    ],
+    [
+      "Approximate value of $e$?",
+      "$\\approx2.718$."
+    ]
   ],
   "quiz": [
     {
       "q": "Which of these functions represents exponential decay?",
-      "opts": ["$y = 2^x$", "$y = 1.1^x$", "$y = (0.9)^x$", "$y = e^x$"],
+      "opts": [
+        "$y = 2^x$",
+        "$y = 1.1^x$",
+        "$y = (0.9)^x$",
+        "$y = e^x$"
+      ],
       "ans": 2,
       "why": "Base $0.9 < 1$ leads to decay."
     },
     {
       "q": "What is the $y$-intercept of $y = 3(2^x) + 4$?",
-      "opts": ["4", "3", "7", "1"],
+      "opts": [
+        "4",
+        "3",
+        "7",
+        "1"
+      ],
       "ans": 2,
       "why": "$3(2^0) + 4 = 3(1) + 4 = 7$."
     },
     {
       "q": "Find the asymptote of $y = 5 - e^{-x}$.",
-      "opts": ["$y = 0$", "$y = 5$", "$y = -e$", "$y = -5$"],
+      "opts": [
+        "$y = 0$",
+        "$y = 5$",
+        "$y = -e$",
+        "$y = -5$"
+      ],
       "ans": 1,
       "why": "As $x \\to \\infty, e^{-x} \\to 0$, so $y \\to 5$."
     },
     {
       "q": "The graph of $y = 2^x$ is translated by vector $(0, 3)$. New equation?",
-      "opts": ["$y = 2^{x+3}$", "$y = 2^x + 3$", "$y = 2^{x-3}$", "$y = 5^x$"],
+      "opts": [
+        "$y = 2^{x+3}$",
+        "$y = 2^x + 3$",
+        "$y = 2^{x-3}$",
+        "$y = 5^x$"
+      ],
       "ans": 1,
       "why": "Vertical translation adds to the function."
+    },
+    {
+      "q": "$y=a^x$ (with $a>1$) passes through which point?",
+      "opts": [
+        "$(0,0)$",
+        "$(0,1)$",
+        "$(1,0)$",
+        "$(1,1)$"
+      ],
+      "ans": 1,
+      "why": "$a^0=1$."
     }
   ],
   "exam": [
@@ -5837,13 +5941,35 @@ C["maths:6.1"] = {
         "$y$-intercept at $(0, -1)$ since $4^0 - 2 = -1$. (1)",
         "Horizontal asymptote at $y = -2$. (1)"
       ]
+    },
+    {
+      "q": "State two key features of the graph of $y=e^x$.",
+      "marks": 2,
+      "ms": [
+        "Passes through $(0,1)$. (1)",
+        "Always positive and increasing, with the $x$-axis as an asymptote as $x\\to-\\infty$. (1)"
+      ]
+    },
+    {
+      "q": "The number of bacteria is $N=200e^{0.5t}$ ($t$ hours). Find $N$ at $t=0$ and $t=4$, and the factor by which it grows each hour.",
+      "marks": 6,
+      "ms": [
+        "$t=0$: $N=200$. (1)",
+        "$t=4$: $N=200e^{2}$. (1)",
+        "$=200(7.389)\\approx1478$. (1)",
+        "Hourly factor $=e^{0.5}$. (1)",
+        "$\\approx1.649$. (1)",
+        "So it multiplies by about $1.65$ each hour. (1)"
+      ]
     }
   ]
 };
 
-C["maths:6.2"] = {
+C["maths:6.3"] = {
   "notes": [
-    { "h": "Logarithms" },
+    {
+      "h": "Logarithms"
+    },
     {
       "callout": {
         "t": "info",
@@ -5853,10 +5979,22 @@ C["maths:6.2"] = {
     },
     {
       "kv": [
-        ["$\\log_{10} x$", "Common logarithm, often written as $\\log x$."],
-        ["$\\log_e x$", "Natural logarithm, written as $\\ln x$."],
-        ["$\\log_a 1$", "Always $0$ (since $a^0 = 1$)."],
-        ["$\\log_a a$", "Always $1$ (since $a^1 = a$)."]
+        [
+          "$\\log_{10} x$",
+          "Common logarithm, often written as $\\log x$."
+        ],
+        [
+          "$\\log_e x$",
+          "Natural logarithm, written as $\\ln x$."
+        ],
+        [
+          "$\\log_a 1$",
+          "Always $0$ (since $a^0 = 1$)."
+        ],
+        [
+          "$\\log_a a$",
+          "Always $1$ (since $a^1 = a$)."
+        ]
       ]
     },
     {
@@ -5868,41 +6006,117 @@ C["maths:6.2"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Logarithms — Definition & Key Values", "body": "$\\log_a y = x \\iff a^x = y$ (convert freely between forms). $\\log_a 1 = 0$ (since $a^0=1$). $\\log_a a = 1$ (since $a^1=a$). Inverse: $a^{\\log_a x} = x$. Domain of $\\log_a x$: $x > 0$ only." } },
-    { "callout": { "t": "miscon", "h": "$\\log(x + y) = \\log x + \\log y$", "body": "WRONG. The multiplication law says $\\log(xy) = \\log x + \\log y$ — inputs multiplied, logs added. There is no law for $\\log(x+y)$; it cannot be simplified further. This is one of the most common log errors in exams." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Logarithms — Definition & Key Values",
+        "body": "$\\log_a y = x \\iff a^x = y$ (convert freely between forms). $\\log_a 1 = 0$ (since $a^0=1$). $\\log_a a = 1$ (since $a^1=a$). Inverse: $a^{\\log_a x} = x$. Domain of $\\log_a x$: $x > 0$ only."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\log(x + y) = \\log x + \\log y$",
+        "body": "WRONG. The multiplication law says $\\log(xy) = \\log x + \\log y$ — inputs multiplied, logs added. There is no law for $\\log(x+y)$; it cannot be simplified further. This is one of the most common log errors in exams."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "The natural logarithm $\\ln x$",
+        "body": "$\\ln x=\\log_e x$ is the inverse of $e^x$: $\\ln(e^x)=x$ and $e^{\\ln x}=x$ ($x>0$). Its graph passes through $(1,0)$, rises slowly, and has the $y$-axis as a vertical asymptote."
+      }
+    }
   ],
   "flashcards": [
-    ["Inverse of $y = 10^x$?", "$y = \\log_{10} x$."],
-    ["Evaluate $\\log_3 9$.", "2."],
-    ["Evaluate $\\log_5 125$.", "3."],
-    ["Evaluate $\\log_2 (1/4)$.", "-2."],
-    ["What is $\\log_a a$?", "1."],
-    ["What is $\\log_a 1$?", "0."]
+    [
+      "Inverse of $y = 10^x$?",
+      "$y = \\log_{10} x$."
+    ],
+    [
+      "Evaluate $\\log_3 9$.",
+      "2."
+    ],
+    [
+      "Evaluate $\\log_5 125$.",
+      "3."
+    ],
+    [
+      "Evaluate $\\log_2 (1/4)$.",
+      "-2."
+    ],
+    [
+      "What is $\\log_a a$?",
+      "1."
+    ],
+    [
+      "What is $\\log_a 1$?",
+      "0."
+    ],
+    [
+      "What is $\\ln x$?",
+      "The natural logarithm $\\log_e x$ — the inverse of $e^x$."
+    ],
+    [
+      "What does $e^{\\ln x}$ equal?",
+      "$x$ (for $x>0$)."
+    ]
   ],
   "quiz": [
     {
       "q": "Evaluate $\\log_4 2$.",
-      "opts": ["0.5", "2", "8", "-2"],
+      "opts": [
+        "0.5",
+        "2",
+        "8",
+        "-2"
+      ],
       "ans": 0,
       "why": "$4^{0.5} = \\sqrt{4} = 2$."
     },
     {
       "q": "Solve $\\log_x 64 = 3$.",
-      "opts": ["4", "8", "2", "21.3"],
+      "opts": [
+        "4",
+        "8",
+        "2",
+        "21.3"
+      ],
       "ans": 0,
       "why": "$x^3 = 64 \\implies x = 4$."
     },
     {
       "q": "What is the value of $\\log_{10} 0.01$?",
-      "opts": ["2", "-2", "0.1", "-1"],
+      "opts": [
+        "2",
+        "-2",
+        "0.1",
+        "-1"
+      ],
       "ans": 1,
       "why": "$10^{-2} = 1/100 = 0.01$."
     },
     {
       "q": "If $\\log_2 y = x$, express $y$ in terms of $x$.",
-      "opts": ["$y = x^2$", "$y = 2^x$", "$y = \\log x / \\log 2$", "$y = 2x$"],
+      "opts": [
+        "$y = x^2$",
+        "$y = 2^x$",
+        "$y = \\log x / \\log 2$",
+        "$y = 2x$"
+      ],
       "ans": 1,
       "why": "Definition of logarithm."
+    },
+    {
+      "q": "$\\ln(e^3)=$?",
+      "opts": [
+        "$3$",
+        "$e^3$",
+        "$\\ln3$",
+        "$1$"
+      ],
+      "ans": 0,
+      "why": "$\\ln$ and $e^x$ are inverses."
     }
   ],
   "exam": [
@@ -5913,13 +6127,36 @@ C["maths:6.2"] = {
         "$2x - 1 = 3^2 = 9$. (1)",
         "$2x = 10 \\implies x = 5$. (1)"
       ]
+    },
+    {
+      "q": "Solve $\\ln(2x+1)=2$, giving $x$ to 3 s.f.",
+      "marks": 3,
+      "ms": [
+        "$2x+1=e^2$. (1)",
+        "$2x=e^2-1\\approx6.389$. (1)",
+        "$x\\approx3.19$. (1)"
+      ]
+    },
+    {
+      "q": "Given $\\ln y=3\\ln x+\\ln2$, express $y$ in terms of $x$.",
+      "marks": 6,
+      "ms": [
+        "$3\\ln x=\\ln x^3$. (1)",
+        "$\\ln y=\\ln x^3+\\ln2$. (1)",
+        "$=\\ln(2x^3)$. (1)",
+        "$\\ln$ is one-one. (1)",
+        "$y=2x^3$. (1)",
+        "(valid for $x>0$). (1)"
+      ]
     }
   ]
 };
 
-C["maths:6.3"] = {
+C["maths:6.4"] = {
   "notes": [
-    { "h": "Laws of Logarithms" },
+    {
+      "h": "Laws of Logarithms"
+    },
     {
       "callout": {
         "t": "formula",
@@ -5939,41 +6176,110 @@ C["maths:6.3"] = {
         "footer": "Useful for calculating logs with any base on a calculator."
       }
     },
-    { "callout": { "t": "memorise", "h": "Log Laws — 3 Rules", "body": "**Multiply → Add**: $\\log(xy) = \\log x + \\log y$. **Divide → Subtract**: $\\log(x/y) = \\log x - \\log y$. **Power → Multiply**: $\\log(x^k) = k\\log x$. Change of base: $\\log_a x = \\frac{\\ln x}{\\ln a}$." } },
-    { "callout": { "t": "miscon", "h": "$\\log(x^2) = (\\log x)^2$", "body": "WRONG. The power law brings the exponent in FRONT: $\\log(x^2) = 2\\log x$. Writing $(\\log x)^2$ squares the logarithm itself — a completely different expression. Same mistake with $\\log(\\sqrt{x}) = \\frac{1}{2}\\log x$, not $(\\log x)^{1/2}$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Log Laws — 3 Rules",
+        "body": "**Multiply → Add**: $\\log(xy) = \\log x + \\log y$. **Divide → Subtract**: $\\log(x/y) = \\log x - \\log y$. **Power → Multiply**: $\\log(x^k) = k\\log x$. Change of base: $\\log_a x = \\frac{\\ln x}{\\ln a}$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\log(x^2) = (\\log x)^2$",
+        "body": "WRONG. The power law brings the exponent in FRONT: $\\log(x^2) = 2\\log x$. Writing $(\\log x)^2$ squares the logarithm itself — a completely different expression. Same mistake with $\\log(\\sqrt{x}) = \\frac{1}{2}\\log x$, not $(\\log x)^{1/2}$."
+      }
+    }
   ],
   "flashcards": [
-    ["Expand $\\log(ab)$.", "$\\log a + \\log b$."],
-    ["Expand $\\log(a/b)$.", "$\\log a - \\log b$."],
-    ["Expand $\\log(a^n)$.", "$n \\log a$."],
-    ["Simplify $\\log 2 + \\log 5$.", "$\\log(10)$."],
-    ["How to write $\\log_2 7$ using natural logs?", "$\\ln 7 / \\ln 2$."],
-    ["Simplify $2 \\log x - \\log y$.", "$\\log(x^2/y)$."]
+    [
+      "Expand $\\log(ab)$.",
+      "$\\log a + \\log b$."
+    ],
+    [
+      "Expand $\\log(a/b)$.",
+      "$\\log a - \\log b$."
+    ],
+    [
+      "Expand $\\log(a^n)$.",
+      "$n \\log a$."
+    ],
+    [
+      "Simplify $\\log 2 + \\log 5$.",
+      "$\\log(10)$."
+    ],
+    [
+      "How to write $\\log_2 7$ using natural logs?",
+      "$\\ln 7 / \\ln 2$."
+    ],
+    [
+      "Simplify $2 \\log x - \\log y$.",
+      "$\\log(x^2/y)$."
+    ],
+    [
+      "State the power law of logarithms.",
+      "$\\log(x^k)=k\\log x$."
+    ],
+    [
+      "Change of base: $\\log_a x=$?",
+      "$\\dfrac{\\ln x}{\\ln a}$."
+    ]
   ],
   "quiz": [
     {
       "q": "Simplify $\\log_a 12 - \\log_a 3$.",
-      "opts": ["$\\log_a 9$", "$\\log_a 4$", "$\\log_a 36$", "4"],
+      "opts": [
+        "$\\log_a 9$",
+        "$\\log_a 4$",
+        "$\\log_a 36$",
+        "4"
+      ],
       "ans": 1,
       "why": "Subtraction law: $\\log(12/3) = \\log 4$."
     },
     {
       "q": "Given $\\log p = A$ and $\\log q = B$, express $\\log(p^2 q)$ in terms of $A$ and $B$.",
-      "opts": ["$2A + B$", "$A^2 + B$", "$2AB$", "$A+B+2$"],
+      "opts": [
+        "$2A + B$",
+        "$A^2 + B$",
+        "$2AB$",
+        "$A+B+2$"
+      ],
       "ans": 0,
       "why": "$\\log p^2 + \\log q = 2\\log p + \\log q = 2A + B$."
     },
     {
       "q": "Which is equivalent to $\\log_2 10$?",
-      "opts": ["$\\log 10 / \\log 2$", "$\\log 2 / \\log 10$", "$5$", "$\\log 5$"],
+      "opts": [
+        "$\\log 10 / \\log 2$",
+        "$\\log 2 / \\log 10$",
+        "$5$",
+        "$\\log 5$"
+      ],
       "ans": 0,
       "why": "Change of base formula."
     },
     {
       "q": "Simplify $\\frac{1}{2} \\log 16$.",
-      "opts": ["$\\log 8$", "$\\log 4$", "$\\log 256$", "8"],
+      "opts": [
+        "$\\log 8$",
+        "$\\log 4$",
+        "$\\log 256$",
+        "8"
+      ],
       "ans": 1,
       "why": "$\\log(16^{0.5}) = \\log 4$."
+    },
+    {
+      "q": "$\\dfrac{\\log 8}{\\log 2}$ (base 10) equals...?",
+      "opts": [
+        "$3$",
+        "$4$",
+        "$\\log4$",
+        "$0.5$"
+      ],
+      "ans": 0,
+      "why": "$=\\log_2 8=3$ by change of base."
     }
   ],
   "exam": [
@@ -5986,73 +6292,198 @@ C["maths:6.3"] = {
         "$x^2 = 9x - 18 \\implies x^2 - 9x + 18 = 0$. (1)",
         "$(x-6)(x-3) = 0 \\implies x = 6$ or $x = 3$. (Both valid since $x>2$). (1)"
       ]
+    },
+    {
+      "q": "Write $2\\log_a 3+\\log_a 5-\\log_a 9$ as a single logarithm.",
+      "marks": 3,
+      "ms": [
+        "$2\\log_a3=\\log_a9$. (1)",
+        "$\\log_a9+\\log_a5=\\log_a45$. (1)",
+        "$\\log_a45-\\log_a9=\\log_a5$. (1)"
+      ]
+    },
+    {
+      "q": "Solve $\\log_2 x+\\log_2(x-2)=3$.",
+      "marks": 6,
+      "ms": [
+        "$\\log_2(x(x-2))=3$. (1)",
+        "$x(x-2)=8$. (1)",
+        "$x^2-2x-8=0$. (1)",
+        "$(x-4)(x+2)=0$. (1)",
+        "$x=4$ or $x=-2$. (1)",
+        "Reject $x=-2$ ($x>2$ needed); $x=4$. (1)"
+      ]
     }
   ]
 };
 
-C["maths:6.4"] = {
+C["maths:6.2"] = {
   "notes": [
-    { "h": "Natural Logs & $e$" },
+    {
+      "h": "Gradient of $e^{kx}$"
+    },
     {
       "callout": {
         "t": "info",
-        "h": "Euler's Number $e$",
-        "body": "$e \\approx 2.71828$. It is the unique base such that the gradient of $y=e^x$ at $(0,1)$ is exactly 1."
+        "body": "The exponential function is unique: differentiating $e^{kx}$ multiplies by $k$ but keeps the exponential. This self-similar gradient is why exponentials model so many natural processes."
       }
     },
     {
-      "kv": [
-        ["Definition", "$\\ln x = \\log_e x$"],
-        ["Inverse", "$e^{\\ln x} = x$ and $\\ln(e^x) = x$"],
-        ["Key Value", "$\\ln e = 1$ and $\\ln 1 = 0$"],
-        ["Derivative", "$\\frac{d}{dx}(e^x) = e^x$ (unique property)"]
+      "callout": {
+        "t": "formula",
+        "h": "Key result",
+        "body": "$\\dfrac{d}{dx}e^{kx}=ke^{kx}$. In particular $\\dfrac{d}{dx}e^{x}=e^{x}$ — the gradient equals the function value at every point."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Why exponentials model growth and decay",
+        "body": "If a quantity's rate of change is proportional to its current amount, $\\dfrac{dy}{dx}=ky$, the solution is $y=Ae^{kx}$. Populations, radioactive decay, cooling and continuous interest all behave this way — hence the exponential model."
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Worked example",
+          "m": "Find the gradient of $y=e^{3x}$ at $x=0$.",
+          "n": "$\\dfrac{dy}{dx}=3e^{3x}$; at $x=0$, gradient $=3e^0=3$."
+        }
       ]
     },
-    { "callout": { "t": "memorise", "h": "$e$ and $\\ln$ — Cancel Pair", "body": "$e^{\\ln x} = x$ and $\\ln(e^x) = x$ (they cancel). $\\ln 1 = 0$, $\\ln e = 1$. To solve $e^x = k$: take $\\ln$ both sides to get $x = \\ln k$. To solve $\\ln x = k$: exponentiate to get $x = e^k$. Simplify $e^{n\\ln x} = x^n$." } },
-    { "callout": { "t": "miscon", "h": "$\\ln(e^{2x}) = 2e^x$", "body": "WRONG. $\\ln$ and $e$ cancel completely: $\\ln(e^{2x}) = 2x$ (the exponent comes down unchanged). The error applies the $\\ln$ only to $e$, leaving the $2x$ outside. The ln undoes the entire exponent at once." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Gradient of $e^{kx}$",
+        "body": "$\\dfrac{d}{dx}e^{kx}=ke^{kx}$; the gradient of $e^x$ equals $e^x$. The constant $k$ is both the multiplier and the proportional rate — this property makes $e^{kx}$ the natural model for growth ($k>0$) and decay ($k<0$)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Do not use the power rule",
+        "body": "$\\dfrac{d}{dx}e^{kx}\\neq kxe^{kx-1}$. The variable is in the EXPONENT, not the base, so the power rule does not apply — you multiply by $k$ and keep $e^{kx}$."
+      }
+    }
   ],
   "flashcards": [
-    ["What is the base of natural logs?", "$e$."],
-    ["Approximate value of $e$?", "2.718."],
-    ["Evaluate $\\ln e$.", "1."],
-    ["Evaluate $\\ln 1$.", "0."],
-    ["What is the inverse of $f(x) = e^x$?", "$f^{-1}(x) = \\ln x$."],
-    ["Simplify $e^{3\\ln x}$.", "$x^3$."]
+    [
+      "What is $\\dfrac{d}{dx}e^{kx}$?",
+      "$ke^{kx}$."
+    ],
+    [
+      "What is $\\dfrac{d}{dx}e^{x}$?",
+      "$e^x$ — the gradient equals the function value."
+    ],
+    [
+      "Why is $e^{kx}$ a good model for growth/decay?",
+      "Its rate of change is proportional to its value ($\\frac{dy}{dx}=ky$), matching how such processes behave."
+    ],
+    [
+      "Gradient of $e^{2x}$ at $x=0$?",
+      "$2e^0=2$."
+    ],
+    [
+      "If $\\frac{dy}{dx}=ky$, what is $y$?",
+      "$y=Ae^{kx}$."
+    ],
+    [
+      "Does the power rule apply to $e^{kx}$?",
+      "No — the variable is in the exponent; differentiate to $ke^{kx}$."
+    ],
+    [
+      "For decay, what is the sign of $k$ in $e^{kx}$?",
+      "Negative ($k<0$)."
+    ],
+    [
+      "What does the constant $k$ represent physically?",
+      "The proportional rate of growth or decay."
+    ]
   ],
   "quiz": [
     {
-      "q": "Solve $e^x = 5$.",
-      "opts": ["$x = \\ln 5$", "$x = 5/e$", "$x = \\log 5$", "$x = e^5$"],
+      "q": "$\\dfrac{d}{dx}e^{5x}=$?",
+      "opts": [
+        "$5e^{5x}$",
+        "$e^{5x}$",
+        "$5xe^{5x-1}$",
+        "$e^{5}$"
+      ],
       "ans": 0,
-      "why": "Taking natural logs of both sides."
+      "why": "Multiply by $k=5$, keep $e^{5x}$."
     },
     {
-      "q": "Simplify $\\ln(e^{2x+1})$.",
-      "opts": ["$2x+1$", "$e$", "$2x$", "$\\ln(2x+1)$"],
-      "ans": 0,
-      "why": "$\\ln$ and $e$ are inverse functions."
+      "q": "The gradient of $y=e^x$ at any point equals...?",
+      "opts": [
+        "$1$",
+        "$x$",
+        "the $y$-value",
+        "$0$"
+      ],
+      "ans": 2,
+      "why": "$\\frac{d}{dx}e^x=e^x=y$."
     },
     {
-      "q": "If $\\ln x = 2$, what is $x$?",
-      "opts": ["$e^2$", "2", "100", "$\\log 2$"],
-      "ans": 0,
-      "why": "Convert to exponential form: $x = e^2$."
-    },
-    {
-      "q": "What is the gradient of $y = e^x$ at $x = 0$?",
-      "opts": ["0", "1", "$e$", "undefined"],
+      "q": "Which differential equation gives $y=Ae^{kx}$?",
+      "opts": [
+        "$\\frac{dy}{dx}=k$",
+        "$\\frac{dy}{dx}=ky$",
+        "$\\frac{dy}{dx}=kx$",
+        "$\\frac{dy}{dx}=y^2$"
+      ],
       "ans": 1,
-      "why": "The derivative is $e^x$, and $e^0 = 1$."
+      "why": "Proportional rate of change gives exponential solutions."
+    },
+    {
+      "q": "Gradient of $e^{-0.5x}$ at $x=0$?",
+      "opts": [
+        "$0.5$",
+        "$-0.5$",
+        "$1$",
+        "$-1$"
+      ],
+      "ans": 1,
+      "why": "$-0.5e^0=-0.5$."
+    },
+    {
+      "q": "$e^{kx}$ models decay when...?",
+      "opts": [
+        "$k>0$",
+        "$k=0$",
+        "$k<0$",
+        "$k=1$"
+      ],
+      "ans": 2,
+      "why": "A negative rate shrinks the quantity."
     }
   ],
   "exam": [
     {
-      "q": "Find the exact coordinates of the point of intersection of the curves $y = 3e^x$ and $y = 1 - e^x$.",
-      "marks": 3,
+      "q": "Find the gradient of the curve $y=e^{4x}$ at the point where $x=0$.",
+      "marks": 2,
       "ms": [
-        "$3e^x = 1 - e^x \\implies 4e^x = 1$. (1)",
-        "$e^x = 1/4 \\implies x = \\ln(1/4)$ or $-\\ln 4$. (1)",
-        "$y = 3(1/4) = 3/4$. Point is $(-\\ln 4, 0.75)$. (1)"
+        "$\\dfrac{dy}{dx}=4e^{4x}$. (1)",
+        "At $x=0$: gradient $=4$. (1)"
+      ]
+    },
+    {
+      "q": "Explain why the function $e^{kx}$ is suitable for modelling exponential growth.",
+      "marks": 2,
+      "ms": [
+        "Its derivative is $ke^{kx}$, i.e. proportional to the function itself. (1)",
+        "So the rate of change is proportional to the current amount, which is exactly how growth/decay processes behave. (1)"
+      ]
+    },
+    {
+      "q": "A quantity satisfies $\\dfrac{dy}{dt}=0.1y$ with $y=200$ when $t=0$. Find an expression for $y$, the value at $t=10$, and the rate of change at $t=10$.",
+      "marks": 6,
+      "ms": [
+        "$\\frac{dy}{dt}=ky$ gives $y=Ae^{0.1t}$. (1)",
+        "$t=0,y=200\\Rightarrow A=200$, so $y=200e^{0.1t}$. (1)",
+        "At $t=10$: $y=200e^{1}$. (1)",
+        "$=200(2.718)\\approx544$. (1)",
+        "Rate $=\\frac{dy}{dt}=0.1y=0.1(544)$. (1)",
+        "$\\approx54.4$ per unit time. (1)"
       ]
     }
   ]
@@ -6060,7 +6491,9 @@ C["maths:6.4"] = {
 
 C["maths:6.5"] = {
   "notes": [
-    { "h": "Solving Equations with Logs" },
+    {
+      "h": "Solving Equations with Logs"
+    },
     {
       "callout": {
         "t": "info",
@@ -6083,41 +6516,110 @@ C["maths:6.5"] = {
         "body": "Equations like $e^{2x} - 5e^x + 6 = 0$ can be solved by substituting $u = e^x$. This gives $u^2 - 5u + 6 = 0$."
       }
     },
-    { "callout": { "t": "memorise", "h": "Solving $a^x = b$ and Quadratic $e^x$", "body": "For $a^x = b$: take logs both sides → $x = \\frac{\\log b}{\\log a} = \\frac{\\ln b}{\\ln a}$. For equations like $e^{2x} - 5e^x + 6 = 0$: substitute $u = e^x$ to get $u^2 - 5u + 6 = 0$, factorise, then solve $e^x = \\text{root}$ (reject any negative root)." } },
-    { "callout": { "t": "miscon", "h": "$\\log(a^x) = a \\cdot \\log x$", "body": "WRONG. The power law moves the exponent (which contains the unknown) in front: $\\log(a^x) = x \\log a$. The base $a$ moves inside the coefficient, not outside. Writing $a \\cdot \\log x$ treats $a$ as the power, but $a$ is the base." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Solving $a^x = b$ and Quadratic $e^x$",
+        "body": "For $a^x = b$: take logs both sides → $x = \\frac{\\log b}{\\log a} = \\frac{\\ln b}{\\ln a}$. For equations like $e^{2x} - 5e^x + 6 = 0$: substitute $u = e^x$ to get $u^2 - 5u + 6 = 0$, factorise, then solve $e^x = \\text{root}$ (reject any negative root)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\log(a^x) = a \\cdot \\log x$",
+        "body": "WRONG. The power law moves the exponent (which contains the unknown) in front: $\\log(a^x) = x \\log a$. The base $a$ moves inside the coefficient, not outside. Writing $a \\cdot \\log x$ treats $a$ as the power, but $a$ is the base."
+      }
+    }
   ],
   "flashcards": [
-    ["How to solve $2^x = 10$?", "Take logs: $x\\log 2 = \\log 10 \\implies x = \\log 10 / \\log 2$."],
-    ["Substitution for $e^{2x} + 3e^x - 4 = 0$?", "$u = e^x$."],
-    ["Can you take the log of a negative number?", "No, the domain of $\\log(x)$ is $x > 0$."],
-    ["Solve $5^x = 0.2$.", "$x = -1$ (since $5^{-1} = 1/5 = 0.2$)."],
-    ["First step for $4^x = 7^{x+1}$?", "Take logs: $x \\log 4 = (x+1) \\log 7$."],
-    ["Result of taking $\\ln$ of $e^k$?", "$k$."]
+    [
+      "How to solve $2^x = 10$?",
+      "Take logs: $x\\log 2 = \\log 10 \\implies x = \\log 10 / \\log 2$."
+    ],
+    [
+      "Substitution for $e^{2x} + 3e^x - 4 = 0$?",
+      "$u = e^x$."
+    ],
+    [
+      "Can you take the log of a negative number?",
+      "No, the domain of $\\log(x)$ is $x > 0$."
+    ],
+    [
+      "Solve $5^x = 0.2$.",
+      "$x = -1$ (since $5^{-1} = 1/5 = 0.2$)."
+    ],
+    [
+      "First step for $4^x = 7^{x+1}$?",
+      "Take logs: $x \\log 4 = (x+1) \\log 7$."
+    ],
+    [
+      "Result of taking $\\ln$ of $e^k$?",
+      "$k$."
+    ],
+    [
+      "Method to solve $a^x=b$?",
+      "Take logs of both sides: $x\\log a=\\log b$, so $x=\\dfrac{\\log b}{\\log a}$."
+    ],
+    [
+      "Solve $2^x=10$ (give the form).",
+      "$x=\\dfrac{\\log10}{\\log2}=\\log_2 10\\approx3.32$."
+    ]
   ],
   "quiz": [
     {
       "q": "Solve $2^x = 32$.",
-      "opts": ["5", "4", "16", "6"],
+      "opts": [
+        "5",
+        "4",
+        "16",
+        "6"
+      ],
       "ans": 0,
       "why": "$2^5 = 32$."
     },
     {
       "q": "Solve $e^{2x} = 9$.",
-      "opts": ["$\\ln 3$", "$\\ln 9$", "$\\ln 4.5$", "3"],
+      "opts": [
+        "$\\ln 3$",
+        "$\\ln 9$",
+        "$\\ln 4.5$",
+        "3"
+      ],
       "ans": 0,
       "why": "$2x = \\ln 9 \\implies x = 0.5 \\ln 9 = \\ln(9^{0.5}) = \\ln 3$."
     },
     {
       "q": "Solve $10^{2x-1} = 100$.",
-      "opts": ["1.5", "1", "0.5", "2"],
+      "opts": [
+        "1.5",
+        "1",
+        "0.5",
+        "2"
+      ],
       "ans": 0,
       "why": "$2x-1 = 2 \\implies 2x = 3 \\implies x = 1.5$."
     },
     {
       "q": "How many solutions for $e^x = -2$?",
-      "opts": ["0", "1", "2", "infinite"],
+      "opts": [
+        "0",
+        "1",
+        "2",
+        "infinite"
+      ],
       "ans": 0,
       "why": "Exponential functions are always positive."
+    },
+    {
+      "q": "Solving $3^x=20$ gives $x=$...?",
+      "opts": [
+        "$\\dfrac{\\log20}{\\log3}$",
+        "$\\dfrac{20}{3}$",
+        "$\\log\\tfrac{20}{3}$",
+        "$\\tfrac{3}{20}$"
+      ],
+      "ans": 0,
+      "why": "Take logs of both sides."
     }
   ],
   "exam": [
@@ -6130,13 +6632,36 @@ C["maths:6.5"] = {
         "$3^x = 9 \\implies x = 2$. (1)",
         "$3^x = 1 \\implies x = 0$. (1)"
       ]
+    },
+    {
+      "q": "Solve $5^{x}=40$, giving $x$ to 3 s.f.",
+      "marks": 3,
+      "ms": [
+        "$x\\log5=\\log40$. (1)",
+        "$x=\\dfrac{\\log40}{\\log5}$. (1)",
+        "$\\approx2.29$. (1)"
+      ]
+    },
+    {
+      "q": "Solve $3^{2x+1}=7^{x}$, giving $x$ to 3 s.f.",
+      "marks": 6,
+      "ms": [
+        "Take logs: $(2x+1)\\log3=x\\log7$. (1)",
+        "$2x\\log3+\\log3=x\\log7$. (1)",
+        "$x(2\\log3-\\log7)=-\\log3$. (1)",
+        "$2\\log3-\\log7=\\log\\tfrac97$. (1)",
+        "$x=\\dfrac{-\\log3}{\\log(9/7)}$. (1)",
+        "$\\approx-4.37$. (1)"
+      ]
     }
   ]
 };
 
-C["maths:6.6"] = {
+C["maths:6.7"] = {
   "notes": [
-    { "h": "Exponential Growth & Decay" },
+    {
+      "h": "Exponential Growth & Decay"
+    },
     {
       "callout": {
         "t": "formula",
@@ -6147,46 +6672,124 @@ C["maths:6.6"] = {
     },
     {
       "kv": [
-        ["$k > 0$", "Exponential Growth (e.g., population)"],
-        ["$k < 0$", "Exponential Decay (e.g., radioactivity)"],
-        ["Half-life", "Time taken for $N$ to reach $N_0/2$."]
+        [
+          "$k > 0$",
+          "Exponential Growth (e.g., population)"
+        ],
+        [
+          "$k < 0$",
+          "Exponential Decay (e.g., radioactivity)"
+        ],
+        [
+          "Half-life",
+          "Time taken for $N$ to reach $N_0/2$."
+        ]
       ]
     },
-    { "callout": { "t": "memorise", "h": "Growth & Decay — Reading the Model", "body": "$N = N_0 e^{kt}$: $N_0$ = initial value (at $t=0$), $k>0$ = growth, $k<0$ = decay. For $T = a + be^{-kt}$: asymptote is $y = a$ (not zero). Half-life: set $N = N_0/2$, solve $e^{kt} = 0.5$ → $t = -\\ln 2 / k$." } },
-    { "callout": { "t": "miscon", "h": "$N_0$ Is the Value at $t = 1$", "body": "WRONG. $N_0$ is the initial value at $t = 0$, because $e^{k \\times 0} = e^0 = 1$, so $N = N_0 \\times 1 = N_0$. At $t=1$ the value is $N_0 e^k$. To find $N_0$: substitute $t = 0$ into the model, not $t = 1$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Growth & Decay — Reading the Model",
+        "body": "$N = N_0 e^{kt}$: $N_0$ = initial value (at $t=0$), $k>0$ = growth, $k<0$ = decay. For $T = a + be^{-kt}$: asymptote is $y = a$ (not zero). Half-life: set $N = N_0/2$, solve $e^{kt} = 0.5$ → $t = -\\ln 2 / k$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$N_0$ Is the Value at $t = 1$",
+        "body": "WRONG. $N_0$ is the initial value at $t = 0$, because $e^{k \\times 0} = e^0 = 1$, so $N = N_0 \\times 1 = N_0$. At $t=1$ the value is $N_0 e^k$. To find $N_0$: substitute $t = 0$ into the model, not $t = 1$."
+      }
+    }
   ],
   "flashcards": [
-    ["Formula for exponential growth?", "$N = N_0 e^{kt}$."],
-    ["What does $N_0$ represent?", "Initial amount at $t=0$."],
-    ["What sign is $k$ for radioactive decay?", "Negative."],
-    ["What happens as $t \\to \\infty$ in a decay model?", "$N \\to 0$."],
-    ["How to find doubling time?", "Set $N = 2N_0$ and solve for $t$."],
-    ["Meaning of $e^{0.05t}$?", "5% continuous growth rate."]
+    [
+      "Formula for exponential growth?",
+      "$N = N_0 e^{kt}$."
+    ],
+    [
+      "What does $N_0$ represent?",
+      "Initial amount at $t=0$."
+    ],
+    [
+      "What sign is $k$ for radioactive decay?",
+      "Negative."
+    ],
+    [
+      "What happens as $t \\to \\infty$ in a decay model?",
+      "$N \\to 0$."
+    ],
+    [
+      "How to find doubling time?",
+      "Set $N = 2N_0$ and solve for $t$."
+    ],
+    [
+      "Meaning of $e^{0.05t}$?",
+      "5% continuous growth rate."
+    ],
+    [
+      "General form of an exponential decay model?",
+      "$y=Ae^{-kt}$ with $k>0$."
+    ],
+    [
+      "What does $A$ represent in $y=Ae^{kt}$?",
+      "The initial value (at $t=0$)."
+    ]
   ],
   "quiz": [
     {
       "q": "Initial population 1000, growth rate $k=0.1$. Pop after 10 years?",
-      "opts": ["$1000e$", "$1000e^{0.1}$", "$2000$", "$1100$"],
+      "opts": [
+        "$1000e$",
+        "$1000e^{0.1}$",
+        "$2000$",
+        "$1100$"
+      ],
       "ans": 0,
       "why": "$1000 e^{(0.1 \\times 10)} = 1000e^1$."
     },
     {
       "q": "A substance decays: $M = 50e^{-0.2t}$. Initial mass?",
-      "opts": ["50", "0", "$50e$", "25"],
+      "opts": [
+        "50",
+        "0",
+        "$50e$",
+        "25"
+      ],
       "ans": 0,
       "why": "At $t=0$, $M = 50e^0 = 50$."
     },
     {
       "q": "Which $k$ represents the fastest decay?",
-      "opts": ["$k = -0.1$", "$k = -0.5$", "$k = 0.5$", "$k = 0$"],
+      "opts": [
+        "$k = -0.1$",
+        "$k = -0.5$",
+        "$k = 0.5$",
+        "$k = 0$"
+      ],
       "ans": 1,
       "why": "Larger magnitude negative value means faster decay."
     },
     {
       "q": "Find half-life if $k = -0.693$.",
-      "opts": ["1", "2", "0.5", "10"],
+      "opts": [
+        "1",
+        "2",
+        "0.5",
+        "10"
+      ],
       "ans": 0,
       "why": "$e^{-0.693t} = 0.5 \\implies -0.693t = \\ln 0.5 \\approx -0.693 \\implies t=1$."
+    },
+    {
+      "q": "In $N=N_0 e^{-0.2t}$, the quantity is...?",
+      "opts": [
+        "growing",
+        "decaying",
+        "constant",
+        "linear"
+      ],
+      "ans": 1,
+      "why": "A negative exponent means decay."
     }
   ],
   "exam": [
@@ -6199,13 +6802,36 @@ C["maths:6.6"] = {
         "$-0.05t = \\ln(1/3) = -\\ln 3$. (1)",
         "$t = \\ln 3 / 0.05 \\approx 1.0986 / 0.05 \\approx 22$ minutes. (1)"
       ]
+    },
+    {
+      "q": "A radioactive sample decays as $m=50e^{-0.03t}$ grams ($t$ days). Find the mass after 20 days.",
+      "marks": 3,
+      "ms": [
+        "$m=50e^{-0.6}$. (1)",
+        "$=50(0.5488)$. (1)",
+        "$\\approx27.4$ g. (1)"
+      ]
+    },
+    {
+      "q": "A population is modelled by $P=500e^{0.08t}$ ($t$ years). (a) Find the doubling time. (b) State one limitation of the model.",
+      "marks": 6,
+      "ms": [
+        "Double: $1000=500e^{0.08t}$. (1)",
+        "$e^{0.08t}=2$. (1)",
+        "$0.08t=\\ln2$. (1)",
+        "$t=\\dfrac{\\ln2}{0.08}\\approx8.66$ years. (1)",
+        "Limitation: unbounded growth is unrealistic — resources/space limit real populations. (1)",
+        "Refinement: use a logistic model with a carrying capacity. (1)"
+      ]
     }
   ]
 };
 
-C["maths:6.7"] = {
+C["maths:6.6"] = {
   "notes": [
-    { "h": "Linearising Data" },
+    {
+      "h": "Linearising Data"
+    },
     {
       "callout": {
         "t": "info",
@@ -6214,10 +6840,25 @@ C["maths:6.7"] = {
     },
     {
       "table": {
-        "head": ["Model", "Log Transformation", "Gradient ($m$)", "Intercept ($C$)"],
+        "head": [
+          "Model",
+          "Log Transformation",
+          "Gradient ($m$)",
+          "Intercept ($C$)"
+        ],
         "rows": [
-          ["$y = ax^n$", "$\\log y = n \\log x + \\log a$", "$n$", "$\\log a$"],
-          ["$y = ab^x$", "$\\log y = (\\log b)x + \\log a$", "$\\log b$", "$\\log a$"]
+          [
+            "$y = ax^n$",
+            "$\\log y = n \\log x + \\log a$",
+            "$n$",
+            "$\\log a$"
+          ],
+          [
+            "$y = ab^x$",
+            "$\\log y = (\\log b)x + \\log a$",
+            "$\\log b$",
+            "$\\log a$"
+          ]
         ]
       }
     },
@@ -6230,41 +6871,110 @@ C["maths:6.7"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Linearising — Two Models", "body": "**$y = ax^n$**: take $\\log$ → $\\log y = n\\log x + \\log a$. Plot $\\log y$ vs $\\log x$; gradient $= n$, intercept $= \\log a$. **$y = ab^x$**: take $\\log$ → $\\log y = (\\log b)x + \\log a$. Plot $\\log y$ vs $x$; gradient $= \\log b$, intercept $= \\log a$. Key: identify the x-axis to distinguish the two." } },
-    { "callout": { "t": "miscon", "h": "Confusing the Two Linearising Models", "body": "If the x-axis is $\\log x$, the model is $y = ax^n$ (power). If the x-axis is just $x$, the model is $y = ab^x$ (exponential). Students mix these up when reading graphs. Always check the axis label before writing the model type." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Linearising — Two Models",
+        "body": "**$y = ax^n$**: take $\\log$ → $\\log y = n\\log x + \\log a$. Plot $\\log y$ vs $\\log x$; gradient $= n$, intercept $= \\log a$. **$y = ab^x$**: take $\\log$ → $\\log y = (\\log b)x + \\log a$. Plot $\\log y$ vs $x$; gradient $= \\log b$, intercept $= \\log a$. Key: identify the x-axis to distinguish the two."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Confusing the Two Linearising Models",
+        "body": "If the x-axis is $\\log x$, the model is $y = ax^n$ (power). If the x-axis is just $x$, the model is $y = ab^x$ (exponential). Students mix these up when reading graphs. Always check the axis label before writing the model type."
+      }
+    }
   ],
   "flashcards": [
-    ["How to linearise $y = ax^n$?", "Plot $\\log y$ against $\\log x$."],
-    ["How to linearise $y = ab^x$?", "Plot $\\log y$ against $x$."],
-    ["Gradient of $\\log y$ vs $\\log x$ for $y = ax^n$?", "$n$."],
-    ["Intercept of $\\log y$ vs $x$ for $y = ab^x$?", "$\\log a$."],
-    ["If $\\log y$ vs $x$ is linear, what is the model?", "$y = ab^x$."],
-    ["Value of $a$ if $\\log_{10} a = 3$?", "1000."]
+    [
+      "How to linearise $y = ax^n$?",
+      "Plot $\\log y$ against $\\log x$."
+    ],
+    [
+      "How to linearise $y = ab^x$?",
+      "Plot $\\log y$ against $x$."
+    ],
+    [
+      "Gradient of $\\log y$ vs $\\log x$ for $y = ax^n$?",
+      "$n$."
+    ],
+    [
+      "Intercept of $\\log y$ vs $x$ for $y = ab^x$?",
+      "$\\log a$."
+    ],
+    [
+      "If $\\log y$ vs $x$ is linear, what is the model?",
+      "$y = ab^x$."
+    ],
+    [
+      "Value of $a$ if $\\log_{10} a = 3$?",
+      "1000."
+    ],
+    [
+      "To estimate $a,n$ in $y=ax^n$, what do you plot?",
+      "$\\log y$ against $\\log x$: a straight line, gradient $n$, intercept $\\log a$."
+    ],
+    [
+      "To estimate $k,b$ in $y=kb^x$, what do you plot?",
+      "$\\log y$ against $x$: gradient $\\log b$, intercept $\\log k$."
+    ]
   ],
   "quiz": [
     {
       "q": "For $y = 5x^2$, what is the gradient of the $\\log y$ against $\\log x$ graph?",
-      "opts": ["2", "5", "$\\log 5$", "$\\log 2$"],
+      "opts": [
+        "2",
+        "5",
+        "$\\log 5$",
+        "$\\log 2$"
+      ],
       "ans": 0,
       "why": "$n=2$ is the gradient."
     },
     {
       "q": "For $y = 3(2^x)$, what is plotted on the x-axis to get a straight line with $\\log y$?",
-      "opts": ["$x$", "$\\log x$", "$2^x$", "$3x$"],
+      "opts": [
+        "$x$",
+        "$\\log x$",
+        "$2^x$",
+        "$3x$"
+      ],
       "ans": 0,
       "why": "Exponential models require plotting against $x$."
     },
     {
       "q": "A line $\\ln y = 0.5x + 1.2$ represents which model?",
-      "opts": ["$y = e^{1.2} e^{0.5x}$", "$y = 1.2x^{0.5}$", "$y = 0.5 e^{1.2x}$", "$y = e^{0.5} x^{1.2}$"],
+      "opts": [
+        "$y = e^{1.2} e^{0.5x}$",
+        "$y = 1.2x^{0.5}$",
+        "$y = 0.5 e^{1.2x}$",
+        "$y = e^{0.5} x^{1.2}$"
+      ],
       "ans": 0,
       "why": "$\\ln y = mx + C \\implies y = e^{mx+C} = e^C e^{mx}$."
     },
     {
       "q": "In $y = ax^n$, if the gradient is $-1$, what is the relationship?",
-      "opts": ["Reciprocal ($y = a/x$)", "Negative linear", "Decay", "Constant"],
+      "opts": [
+        "Reciprocal ($y = a/x$)",
+        "Negative linear",
+        "Decay",
+        "Constant"
+      ],
       "ans": 0,
       "why": "$n=-1 \\implies y = ax^{-1} = a/x$."
+    },
+    {
+      "q": "For $y=ax^n$, $\\log y=\\log a+n\\log x$ is linear in...?",
+      "opts": [
+        "$x$ and $y$",
+        "$\\log x$ and $\\log y$",
+        "$x$ and $\\log y$",
+        "neither"
+      ],
+      "ans": 1,
+      "why": "Both axes are logarithmic."
     }
   ],
   "exam": [
@@ -6276,6 +6986,28 @@ C["maths:6.7"] = {
         "$\\ln a = 4.5 \\implies a = e^{4.5} \\approx 90.02$. (1)",
         "$\\text{Gradient} = \\ln b = (7.5 - 4.5)/10 = 0.3$. (1)",
         "$b = e^{0.3} \\approx 1.35$. (1)"
+      ]
+    },
+    {
+      "q": "Data fits $y=kb^x$. A plot of $\\log y$ against $x$ is a line with gradient $0.3$ and intercept $0.7$. Find $b$ and $k$.",
+      "marks": 4,
+      "ms": [
+        "$\\log y=\\log k+x\\log b$, so $\\log b=0.3$. (1)",
+        "$b=10^{0.3}\\approx2.00$. (1)",
+        "$\\log k=0.7$. (1)",
+        "$k=10^{0.7}\\approx5.01$. (1)"
+      ]
+    },
+    {
+      "q": "Variables satisfy $y=ax^n$. Plotting $\\log y$ against $\\log x$ gives a line through $(0,0.6)$ with gradient $1.5$. Find $a$ and $n$, and predict $y$ when $x=4$.",
+      "marks": 6,
+      "ms": [
+        "$\\log y=\\log a+n\\log x$. (1)",
+        "Gradient $=n=1.5$. (1)",
+        "Intercept $=\\log a=0.6\\Rightarrow a=10^{0.6}\\approx3.98$. (1)",
+        "$y=3.98x^{1.5}$. (1)",
+        "At $x=4$: $y=3.98(4^{1.5})=3.98(8)$. (1)",
+        "$\\approx31.8$. (1)"
       ]
     }
   ]
