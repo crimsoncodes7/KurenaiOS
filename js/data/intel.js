@@ -915,6 +915,26 @@ window.KOS_DATA.intel = {
 },
 
 /* ============ Edexcel Mathematics 9MA0 — Pure ============ */
+"maths:8.1": {
+  defs: [["Fundamental Theorem of Calculus", "Integration and differentiation are inverse: int_a^b f'(x) dx = f(b)-f(a)."]],
+  tips: ["Find an antiderivative F, then evaluate F(b)-F(a).", "The FTC turns a limiting sum into simple evaluation."],
+  pitfalls: ["Forgetting to substitute both limits.", "Sign errors evaluating F(b)-F(a)."]
+},
+"maths:8.4": {
+  defs: [["Limit of a sum", "int_a^b f(x) dx = lim_{dx->0} sum f(x) dx: thin rectangles under the curve."]],
+  tips: ["The integral sign is an elongated S for Sum; dx is the strip width.", "Thinner strips -> exact area in the limit."],
+  pitfalls: ["Reading dx as 'times x'.", "Thinking finite strips give the exact area."]
+},
+"maths:8.6": {
+  defs: [["Integrating with partial fractions", "Split the fraction, then integrate each term to a logarithm."]],
+  tips: ["int A/(x-a) dx = A ln|x-a|.", "Decompose first, integrate term by term, keep the modulus signs."],
+  pitfalls: ["Dropping the modulus in ln|...|.", "Forgetting the constant of integration."]
+},
+"maths:8.8": {
+  defs: [["Interpreting a DE solution", "Read initial value, growth/decay sign, and long-term limit; state model limitations."]],
+  tips: ["Use boundary conditions to find constants; consider t->infinity for long-term behaviour.", "Comment on limitations (unbounded growth) and refinements (logistic)."],
+  pitfalls: ["Ignoring the asked-for interpretation/limitation.", "Misreading the initial value or the limiting value."]
+},
 "maths:7.2": {
   defs: [["Standard derivatives", "x^n -> n x^(n-1); e^kx -> k e^kx; ln x -> 1/x; sin kx -> k cos kx; cos kx -> -k sin kx."]],
   tips: ["Bring the chain factor k out front for e^kx, sin kx, cos kx.", "Rewrite roots/reciprocals as powers before differentiating."],

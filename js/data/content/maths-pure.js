@@ -8412,17 +8412,42 @@ C["maths:7.3"] = {
   ]
 };
 
-C["maths:8.1"] = {
+C["maths:8.2"] = {
   "notes": [
-    { "h": "Basic Integration" },
+    {
+      "h": "Integrating Standard Functions"
+    },
+    {
+      "page": "Powers, exponentials & 1/x"
+    },
     {
       "table": {
-        "head": ["Function $f(x)$", "Integral $\\int f(x) dx$", "Rule Name"],
+        "head": [
+          "Function $f(x)$",
+          "Integral $\\int f(x) dx$",
+          "Rule Name"
+        ],
         "rows": [
-          ["$x^n$", "$\\frac{x^{n+1}}{n+1} + C$", "Power Rule ($n \\ne -1$)"],
-          ["$e^{ax}$", "$\\frac{1}{a}e^{ax} + C$", "Exponential Rule"],
-          ["$1/x$", "$\\ln|x| + C$", "Log Rule"],
-          ["$k$ (constant)", "$kx + C$", "Constant Rule"]
+          [
+            "$x^n$",
+            "$\\frac{x^{n+1}}{n+1} + C$",
+            "Power Rule ($n \\ne -1$)"
+          ],
+          [
+            "$e^{ax}$",
+            "$\\frac{1}{a}e^{ax} + C$",
+            "Exponential Rule"
+          ],
+          [
+            "$1/x$",
+            "$\\ln|x| + C$",
+            "Log Rule"
+          ],
+          [
+            "$k$ (constant)",
+            "$kx + C$",
+            "Constant Rule"
+          ]
         ]
       }
     },
@@ -8433,69 +8458,54 @@ C["maths:8.1"] = {
         "body": "NEVER forget the $+ C$ for indefinite integrals. It represents an unknown vertical translation."
       }
     },
-    { "callout": { "t": "memorise", "h": "Integration Power Rule — Add, Divide, +C", "body": "$\\int x^n dx = \\frac{x^{n+1}}{n+1} + C$ (add 1 to power, divide by new power). Works for all $n \\ne -1$. Before integrating: rewrite $\\frac{1}{x^2}$ as $x^{-2}$, $\\sqrt{x}$ as $x^{1/2}$. $\\int x^{-1} dx = \\ln|x| + C$ (the exception)." } },
-    { "callout": { "t": "miscon", "h": "Forgetting to Divide by $(n+1)$", "body": "After adding 1 to the power, you must also divide by the new power. $\\int x^3 dx = \\frac{x^4}{4}$, not $x^4$. A quick check: differentiate your answer — if you don't get back the original function, the division was missing." } }
-  ],
-  "flashcards": [
-    ["Integral of $x^3$?", "$x^4/4 + C$."],
-    ["Integral of $e^{2x}$?", "$0.5e^{2x} + C$."],
-    ["Integral of $1/x$?", "$\\ln|x| + C$."],
-    ["Integral of $1/x^2$?", "$-1/x + C$."],
-    ["What does $\\int$ represent?", "Anti-differentiation or the area under a curve."],
-    ["Integral of $\\sqrt{x}$?", "$\\frac{2}{3}x^{3/2} + C$."]
-  ],
-  "quiz": [
     {
-      "q": "Find $\\int (3x^2 - 4x + 5) dx$.",
-      "opts": ["$x^3 - 2x^2 + 5x + C$", "$3x^3 - 4x^2 + 5x + C$", "$x^3 - 2x^2 + 5 + C$", "$6x - 4 + C$"],
-      "ans": 0,
-      "why": "Apply power rule to each term."
+      "callout": {
+        "t": "memorise",
+        "h": "Integration Power Rule — Add, Divide, +C",
+        "body": "$\\int x^n dx = \\frac{x^{n+1}}{n+1} + C$ (add 1 to power, divide by new power). Works for all $n \\ne -1$. Before integrating: rewrite $\\frac{1}{x^2}$ as $x^{-2}$, $\\sqrt{x}$ as $x^{1/2}$. $\\int x^{-1} dx = \\ln|x| + C$ (the exception)."
+      }
     },
     {
-      "q": "Evaluate $\\int e^{-x} dx$.",
-      "opts": ["$-e^{-x} + C$", "$e^{-x} + C$", "$-e^x + C$", "$-1/e^x + C$"],
-      "ans": 0,
-      "why": "Divide by coefficient of $x$ (which is -1)."
+      "callout": {
+        "t": "miscon",
+        "h": "Forgetting to Divide by $(n+1)$",
+        "body": "After adding 1 to the power, you must also divide by the new power. $\\int x^3 dx = \\frac{x^4}{4}$, not $x^4$. A quick check: differentiate your answer — if you don't get back the original function, the division was missing."
+      }
     },
     {
-      "q": "Find $\\int \\frac{2}{x} dx$.",
-      "opts": ["$2\\ln|x| + C$", "$\\ln|2x| + C$", "$-2/x^2 + C$", "$2x + C$"],
-      "ans": 0,
-      "why": "Constant factor 2 stays outside."
+      "page": "Trigonometric Integrals"
     },
-    {
-      "q": "Find $\\int (x+1)^2 dx$.",
-      "opts": ["$\\frac{1}{3}(x+1)^3 + C$", "$x^2/2 + x + C$", "$(x+1)^3 + C$", "$\\frac{1}{2}(x+1)^2 + C$"],
-      "ans": 0,
-      "why": "Expand or use reverse chain rule since inner derivative is 1."
-    }
-  ],
-  "exam": [
-    {
-      "q": "Given that $dy/dx = 4x^3 - \\frac{1}{x^2}$ and the curve passes through $(1, 2)$, find the equation of the curve.",
-      "marks": 4,
-      "ms": [
-        "$y = \\int (4x^3 - x^{-2}) dx = x^4 + x^{-1} + C$. (2)",
-        "Substitute $(1, 2): 2 = 1^4 + 1^{-1} + C \\implies 2 = 1+1+C \\implies C=0$. (1)",
-        "Equation: $y = x^4 + 1/x$. (1)"
-      ]
-    }
-  ]
-};
-
-C["maths:8.2"] = {
-  "notes": [
-    { "h": "Trigonometric Integration" },
     {
       "table": {
-        "head": ["Function $f(x)$", "Integral $\\int f(x) dx$"],
+        "head": [
+          "Function $f(x)$",
+          "Integral $\\int f(x) dx$"
+        ],
         "rows": [
-          ["$\\sin ax$", "$-\\frac{1}{a}\\cos ax + C$"],
-          ["$\\cos ax$", "$\\frac{1}{a}\\sin ax + C$"],
-          ["$\\sec^2 ax$", "$\\frac{1}{a}\\tan ax + C$"],
-          ["$\\csc^2 ax$", "$-\\frac{1}{a}\\cot ax + C$"],
-          ["$\\sec ax \\tan ax$", "$\\frac{1}{a}\\sec ax + C$"],
-          ["$\\csc ax \\cot ax$", "$-\\frac{1}{a}\\csc ax + C$"]
+          [
+            "$\\sin ax$",
+            "$-\\frac{1}{a}\\cos ax + C$"
+          ],
+          [
+            "$\\cos ax$",
+            "$\\frac{1}{a}\\sin ax + C$"
+          ],
+          [
+            "$\\sec^2 ax$",
+            "$\\frac{1}{a}\\tan ax + C$"
+          ],
+          [
+            "$\\csc^2 ax$",
+            "$-\\frac{1}{a}\\cot ax + C$"
+          ],
+          [
+            "$\\sec ax \\tan ax$",
+            "$\\frac{1}{a}\\sec ax + C$"
+          ],
+          [
+            "$\\csc ax \\cot ax$",
+            "$-\\frac{1}{a}\\csc ax + C$"
+          ]
         ]
       }
     },
@@ -8509,44 +8519,171 @@ C["maths:8.2"] = {
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "Trig Integration — Minus Sign for Sine", "body": "$\\int \\sin(ax) dx = -\\frac{1}{a}\\cos(ax) + C$ (note the **minus**). $\\int \\cos(ax) dx = \\frac{1}{a}\\sin(ax) + C$. $\\int \\sec^2(ax) dx = \\frac{1}{a}\\tan(ax) + C$. For $\\sin^2 x$ or $\\cos^2 x$: use double angle identity before integrating." } },
-    { "callout": { "t": "miscon", "h": "$\\int \\sin x dx = \\cos x + C$", "body": "WRONG sign. $\\int \\sin x dx = -\\cos x + C$. Remember: differentiation goes $\\cos \\to -\\sin$ (gains a minus), so integration reverses this: $\\sin \\to -\\cos$. Verify by differentiating: $\\frac{d}{dx}(-\\cos x) = +\\sin x$. ✓" } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Trig Integration — Minus Sign for Sine",
+        "body": "$\\int \\sin(ax) dx = -\\frac{1}{a}\\cos(ax) + C$ (note the **minus**). $\\int \\cos(ax) dx = \\frac{1}{a}\\sin(ax) + C$. $\\int \\sec^2(ax) dx = \\frac{1}{a}\\tan(ax) + C$. For $\\sin^2 x$ or $\\cos^2 x$: use double angle identity before integrating."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\int \\sin x dx = \\cos x + C$",
+        "body": "WRONG sign. $\\int \\sin x dx = -\\cos x + C$. Remember: differentiation goes $\\cos \\to -\\sin$ (gains a minus), so integration reverses this: $\\sin \\to -\\cos$. Verify by differentiating: $\\frac{d}{dx}(-\\cos x) = +\\sin x$. ✓"
+      }
+    }
   ],
   "flashcards": [
-    ["Integral of $\\sin x$?", "$-\\cos x + C$."],
-    ["Integral of $\\cos x$?", "$\\sin x + C$."],
-    ["Integral of $\\sec^2 x$?", "$\\tan x + C$."],
-    ["Integral of $\\sin 2x$?", "$-0.5\\cos 2x + C$."],
-    ["How to integrate $\\sin^2 x$?", "Use the $\\cos 2x$ double angle identity."],
-    ["Integral of $\\cos(3x+1)$?", "$\\frac{1}{3}\\sin(3x+1) + C$."]
+    [
+      "Integral of $x^3$?",
+      "$x^4/4 + C$."
+    ],
+    [
+      "Integral of $e^{2x}$?",
+      "$0.5e^{2x} + C$."
+    ],
+    [
+      "Integral of $1/x$?",
+      "$\\ln|x| + C$."
+    ],
+    [
+      "Integral of $1/x^2$?",
+      "$-1/x + C$."
+    ],
+    [
+      "What does $\\int$ represent?",
+      "Anti-differentiation or the area under a curve."
+    ],
+    [
+      "Integral of $\\sqrt{x}$?",
+      "$\\frac{2}{3}x^{3/2} + C$."
+    ],
+    [
+      "Integral of $\\sin x$?",
+      "$-\\cos x + C$."
+    ],
+    [
+      "Integral of $\\cos x$?",
+      "$\\sin x + C$."
+    ],
+    [
+      "Integral of $\\sec^2 x$?",
+      "$\\tan x + C$."
+    ],
+    [
+      "Integral of $\\sin 2x$?",
+      "$-0.5\\cos 2x + C$."
+    ],
+    [
+      "How to integrate $\\sin^2 x$?",
+      "Use the $\\cos 2x$ double angle identity."
+    ],
+    [
+      "Integral of $\\cos(3x+1)$?",
+      "$\\frac{1}{3}\\sin(3x+1) + C$."
+    ]
   ],
   "quiz": [
     {
+      "q": "Find $\\int (3x^2 - 4x + 5) dx$.",
+      "opts": [
+        "$x^3 - 2x^2 + 5x + C$",
+        "$3x^3 - 4x^2 + 5x + C$",
+        "$x^3 - 2x^2 + 5 + C$",
+        "$6x - 4 + C$"
+      ],
+      "ans": 0,
+      "why": "Apply power rule to each term."
+    },
+    {
+      "q": "Evaluate $\\int e^{-x} dx$.",
+      "opts": [
+        "$-e^{-x} + C$",
+        "$e^{-x} + C$",
+        "$-e^x + C$",
+        "$-1/e^x + C$"
+      ],
+      "ans": 0,
+      "why": "Divide by coefficient of $x$ (which is -1)."
+    },
+    {
+      "q": "Find $\\int \\frac{2}{x} dx$.",
+      "opts": [
+        "$2\\ln|x| + C$",
+        "$\\ln|2x| + C$",
+        "$-2/x^2 + C$",
+        "$2x + C$"
+      ],
+      "ans": 0,
+      "why": "Constant factor 2 stays outside."
+    },
+    {
+      "q": "Find $\\int (x+1)^2 dx$.",
+      "opts": [
+        "$\\frac{1}{3}(x+1)^3 + C$",
+        "$x^2/2 + x + C$",
+        "$(x+1)^3 + C$",
+        "$\\frac{1}{2}(x+1)^2 + C$"
+      ],
+      "ans": 0,
+      "why": "Expand or use reverse chain rule since inner derivative is 1."
+    },
+    {
       "q": "Find $\\int \\cos(4x) dx$.",
-      "opts": ["$0.25\\sin 4x + C$", "$-0.25\\sin 4x + C$", "$4\\sin 4x + C$", "$\\sin 4x + C$"],
+      "opts": [
+        "$0.25\\sin 4x + C$",
+        "$-0.25\\sin 4x + C$",
+        "$4\\sin 4x + C$",
+        "$\\sin 4x + C$"
+      ],
       "ans": 0,
       "why": "Divide by the coefficient of $x$."
     },
     {
       "q": "Evaluate $\\int \\sec^2(0.5x) dx$.",
-      "opts": ["$2\\tan(0.5x) + C$", "$0.5\\tan(0.5x) + C$", "$-2\\tan(0.5x) + C$", "$\\tan x + C$"],
+      "opts": [
+        "$2\\tan(0.5x) + C$",
+        "$0.5\\tan(0.5x) + C$",
+        "$-2\\tan(0.5x) + C$",
+        "$\\tan x + C$"
+      ],
       "ans": 0,
       "why": "$1 \\div 0.5 = 2$."
     },
     {
       "q": "Find $\\int (\\sin x + \\cos x) dx$.",
-      "opts": ["$\\sin x - \\cos x + C$", "$\\cos x - \\sin x + C$", "$-\\cos x + \\sin x + C$", "$\\sin x + \\cos x + C$"],
+      "opts": [
+        "$\\sin x - \\cos x + C$",
+        "$\\cos x - \\sin x + C$",
+        "$-\\cos x + \\sin x + C$",
+        "$\\sin x + \\cos x + C$"
+      ],
       "ans": 2,
       "why": "Integrate terms individually."
     },
     {
       "q": "What identity is used for $\\int \\tan^2 x dx$?",
-      "opts": ["$\\sec^2 x - 1$", "$1 - \\sec^2 x$", "$\\sin^2 / \\cos^2$", "$\\cot^2$"],
+      "opts": [
+        "$\\sec^2 x - 1$",
+        "$1 - \\sec^2 x$",
+        "$\\sin^2 / \\cos^2$",
+        "$\\cot^2$"
+      ],
       "ans": 0,
       "why": "$\\tan^2 x + 1 = \\sec^2 x$."
     }
   ],
   "exam": [
+    {
+      "q": "Given that $dy/dx = 4x^3 - \\frac{1}{x^2}$ and the curve passes through $(1, 2)$, find the equation of the curve.",
+      "marks": 4,
+      "ms": [
+        "$y = \\int (4x^3 - x^{-2}) dx = x^4 + x^{-1} + C$. (2)",
+        "Substitute $(1, 2): 2 = 1^4 + 1^{-1} + C \\implies 2 = 1+1+C \\implies C=0$. (1)",
+        "Equation: $y = x^4 + 1/x$. (1)"
+      ]
+    },
     {
       "q": "Find the exact value of $\\int_0^{\\pi/2} \\sin^2 x dx$.",
       "marks": 4,
@@ -8556,13 +8693,194 @@ C["maths:8.2"] = {
         "At upper limit: $(\\pi/4 - 0.25\\sin \\pi) = \\pi/4$. (1)",
         "At lower limit: $(0 - 0) = 0$. Result: $\\pi/4$. (1)"
       ]
+    },
+    {
+      "q": "Find $\\displaystyle\\int\\left(3x^2+\\dfrac{2}{x}-\\sin2x\\right)dx$.",
+      "marks": 6,
+      "ms": [
+        "$\\int3x^2\\,dx=x^3$. (1)",
+        "$\\int\\dfrac{2}{x}\\,dx=2\\ln|x|$. (1)",
+        "$\\int-\\sin2x\\,dx=\\tfrac12\\cos2x$. (1)",
+        "Combine the three results. (1)",
+        "$=x^3+2\\ln|x|+\\tfrac12\\cos2x$. (1)",
+        "$+c$ (constant of integration). (1)"
+      ]
     }
   ]
 };
 
-C["maths:8.3"] = {
+C["maths:8.4"] = {
   "notes": [
-    { "h": "Integration by Substitution" },
+    {
+      "h": "Integration as the Limit of a Sum"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "The definite integral is DEFINED as the limit of a sum of thin rectangles under a curve — this is the foundation that links area and integration."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Limit of a sum",
+        "body": "$\\displaystyle\\int_a^b f(x)\\,dx=\\lim_{\\delta x\\to0}\\sum_{x=a}^{b} f(x)\\,\\delta x$. Each $f(x)\\,\\delta x$ is the area of one thin strip of width $\\delta x$ and height $f(x)$."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Why the limit gives the exact area",
+        "body": "Rectangles of width $\\delta x$ approximate the area under the curve. As the strips get thinner ($\\delta x\\to0$), the over/under-estimate vanishes and the sum tends to the exact area — the integral."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Notation links to the idea",
+        "body": "The integral sign $\\int$ is an elongated 'S' for 'Sum'; $dx$ is the limiting strip width; $f(x)$ is the strip height. So $\\int_a^b f(x)\\,dx$ literally means 'sum of $f(x)\\,dx$ strips from $a$ to $b$'."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconception",
+        "body": "$dx$ is not 'times $x$' — it denotes the variable of integration and the (infinitesimal) strip width. The sum becomes exact only in the limit $\\delta x\\to0$, not for finite strips."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "How is the definite integral defined?",
+      "As the limit of a sum of thin rectangles: $\\lim_{\\delta x\\to0}\\sum f(x)\\,\\delta x$."
+    ],
+    [
+      "What does each term $f(x)\\,\\delta x$ represent?",
+      "The area of one thin strip (height $f(x)$, width $\\delta x$)."
+    ],
+    [
+      "What happens as $\\delta x\\to0$?",
+      "The sum of rectangle areas tends to the exact area under the curve."
+    ],
+    [
+      "What does the $\\int$ symbol stand for?",
+      "An elongated 'S' for 'Sum'."
+    ],
+    [
+      "What does $dx$ represent in the limit-of-a-sum definition?",
+      "The limiting (infinitesimal) width of each strip."
+    ],
+    [
+      "Why are rectangles only an approximation for finite $\\delta x$?",
+      "They over- or under-estimate the curved area until the width tends to zero."
+    ],
+    [
+      "Which idea connects area and integration?",
+      "The definite integral as the limit of a sum."
+    ],
+    [
+      "For $\\int_a^b f\\,dx$, what are the strip heights based on?",
+      "The function value $f(x)$ at each strip."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "The definite integral is the limit of a sum of...?",
+      "opts": [
+        "triangles",
+        "thin rectangles (strips)",
+        "circles",
+        "tangents"
+      ],
+      "ans": 1,
+      "why": "Rectangles of width $\\delta x$ under the curve."
+    },
+    {
+      "q": "As $\\delta x\\to0$, the sum of strip areas tends to...?",
+      "opts": [
+        "zero",
+        "the exact area under the curve",
+        "infinity",
+        "the gradient"
+      ],
+      "ans": 1,
+      "why": "Thinner strips remove the approximation error."
+    },
+    {
+      "q": "Each strip's area is...?",
+      "opts": [
+        "$f(x)+\\delta x$",
+        "$f(x)\\,\\delta x$",
+        "$f(x)/\\delta x$",
+        "$\\delta x$"
+      ],
+      "ans": 1,
+      "why": "Height times width."
+    },
+    {
+      "q": "The integral sign $\\int$ is derived from the word...?",
+      "opts": [
+        "integer",
+        "sum (S)",
+        "infinity",
+        "interval"
+      ],
+      "ans": 1,
+      "why": "An elongated S for Sum."
+    },
+    {
+      "q": "In $\\int_a^b f(x)\\,dx$, the symbol $dx$ denotes...?",
+      "opts": [
+        "multiply by x",
+        "the limiting strip width / variable of integration",
+        "the derivative",
+        "the area"
+      ],
+      "ans": 1,
+      "why": "It marks the variable and infinitesimal width."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Explain what is meant by the definite integral $\\int_a^b f(x)\\,dx$ as the limit of a sum.",
+      "marks": 3,
+      "ms": [
+        "The area under the curve is split into thin rectangular strips of width $\\delta x$. (1)",
+        "Each strip has area approximately $f(x)\\,\\delta x$; these are summed. (1)",
+        "As $\\delta x\\to0$ the sum tends to the exact area, which is the definite integral. (1)"
+      ]
+    },
+    {
+      "q": "A region under $y=x^2$ from $x=0$ to $x=1$ is approximated by rectangles. Explain why the estimate improves as more, thinner strips are used.",
+      "marks": 2,
+      "ms": [
+        "Thinner strips follow the curve more closely, reducing the over/under-estimate. (1)",
+        "In the limit $\\delta x\\to0$ the total strip area equals the exact area under the curve. (1)"
+      ]
+    },
+    {
+      "q": "Using the limit-of-a-sum idea, explain how the definite integral connects to finding an area, and how the Fundamental Theorem of Calculus then makes it practical to evaluate.",
+      "marks": 6,
+      "ms": [
+        "The area under a curve is defined as $\\lim_{\\delta x\\to0}\\sum f(x)\\,\\delta x$. (1)",
+        "Each strip contributes $f(x)\\,\\delta x$. (1)",
+        "As strips become infinitely thin, the sum becomes the exact area. (1)",
+        "Evaluating this limit directly is hard. (1)",
+        "The FTC states $\\int_a^b f(x)\\,dx=F(b)-F(a)$ where $F'=f$. (1)",
+        "So antidifferentiation replaces the limiting sum, making areas easy to compute. (1)"
+      ]
+    }
+  ]
+};
+
+C["maths:8.5"] = {
+  "notes": [
+    {
+      "h": "Integration by Substitution & by Parts"
+    },
+    {
+      "page": "Substitution"
+    },
     {
       "callout": {
         "t": "info",
@@ -8578,60 +8896,23 @@ C["maths:8.3"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Substitution — Full Method", "body": "1. Choose $u$ (usually the inner function). 2. Find $\\frac{du}{dx}$, rearrange to express $dx = \\frac{du}{u'}$. 3. Substitute $u$ and $dx$ — all $x$ should disappear. 4. Integrate in $u$. 5. Back-substitute to get answer in $x$. For definite integrals: convert limits $a, b$ using $u = g(x)$ and skip step 5." } },
-    { "callout": { "t": "miscon", "h": "Forgetting to Change Limits in Definite Integrals", "body": "If you use substitution for $\\int_a^b f dx$ and keep the original limits $a$ and $b$, you must back-substitute. But if you change limits to $u(a)$ and $u(b)$ during the substitution, you must NOT back-substitute — back-substituting after already using new limits gives a double conversion error." } }
-  ],
-  "flashcards": [
-    ["When to use substitution?", "When one part of the integral is (roughly) the derivative of another part."],
-    ["First step in substitution?", "Choose $u$ and find $du/dx$."],
-    ["What to do with limits in $\\int_a^b$ when using $u$?", "Calculate new limits $u(a)$ and $u(b)$."],
-    ["Integral of $\\frac{f'(x)}{f(x)}$?", "$\\ln|f(x)| + C$."],
-    ["Integral of $f'(x) e^{f(x)}$?", "$e^{f(x)} + C$."],
-    ["Substitute for $\\int \\sin x \\cos^3 x dx$?", "$u = \\cos x$."]
-  ],
-  "quiz": [
     {
-      "q": "To integrate $\\int x \\sqrt{x-1} dx$, what is a good substitution?",
-      "opts": ["$u = x-1$", "$u = \\sqrt{x-1}$", "$u = x$", "A or B"],
-      "ans": 3,
-      "why": "Both $u=x-1$ or $u^2=x-1$ work well."
+      "callout": {
+        "t": "memorise",
+        "h": "Substitution — Full Method",
+        "body": "1. Choose $u$ (usually the inner function). 2. Find $\\frac{du}{dx}$, rearrange to express $dx = \\frac{du}{u'}$. 3. Substitute $u$ and $dx$ — all $x$ should disappear. 4. Integrate in $u$. 5. Back-substitute to get answer in $x$. For definite integrals: convert limits $a, b$ using $u = g(x)$ and skip step 5."
+      }
     },
     {
-      "q": "Evaluate $\\int \\frac{2x}{x^2+1} dx$.",
-      "opts": ["$\\ln(x^2+1) + C$", "$2\\ln(x^2+1) + C$", "$1/(x^2+1) + C$", "$x^2+1 + C$"],
-      "ans": 0,
-      "why": "Form $f'(x)/f(x)$."
+      "callout": {
+        "t": "miscon",
+        "h": "Forgetting to Change Limits in Definite Integrals",
+        "body": "If you use substitution for $\\int_a^b f dx$ and keep the original limits $a$ and $b$, you must back-substitute. But if you change limits to $u(a)$ and $u(b)$ during the substitution, you must NOT back-substitute — back-substituting after already using new limits gives a double conversion error."
+      }
     },
     {
-      "q": "Find $\\int e^{\\sin x} \\cos x dx$.",
-      "opts": ["$e^{\\sin x} + C$", "$e^{\\cos x} + C$", "$\\sin x e^{\\sin x} + C$", "$\\ln|\\sin x| + C$"],
-      "ans": 0,
-      "why": "$u = \\sin x$ makes it $\\int e^u du$."
+      "page": "By Parts"
     },
-    {
-      "q": "If $u = 3x+1$, what is $dx$ in terms of $du$?",
-      "opts": ["$du/3$", "$3 du$", "$du$", "$x du$"],
-      "ans": 0,
-      "why": "$du/dx = 3$."
-    }
-  ],
-  "exam": [
-    {
-      "q": "Using the substitution $u = 1 + \\sin x$, find the exact value of $\\int_0^{\\pi/2} \\cos x (1 + \\sin x)^3 dx$.",
-      "marks": 5,
-      "ms": [
-        "$u = 1 + \\sin x \\implies du = \\cos x dx$. (1)",
-        "Limits: $x=0 \\implies u=1; x=\\pi/2 \\implies u=2$. (1)",
-        "Integral becomes $\\int_1^2 u^3 du$. (1)",
-        "$[\\frac{1}{4}u^4]_1^2 = \\frac{1}{4}(16 - 1) = 3.75$. (2)"
-      ]
-    }
-  ]
-};
-
-C["maths:8.4"] = {
-  "notes": [
-    { "h": "Integration by Parts" },
     {
       "callout": {
         "t": "formula",
@@ -8654,44 +8935,172 @@ C["maths:8.4"] = {
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "Integration by Parts — LIATE", "body": "$\\int u\\,dv = uv - \\int v\\,du$. Choose $u$ as the LIATE-first function (Log → Inverse trig → Algebraic → Trig → Exponential). To integrate $\\ln x$ alone: set $u = \\ln x$, $dv = 1\\,dx$. Apply twice for $\\int x^2 e^x dx$." } },
-    { "callout": { "t": "miscon", "h": "Choosing $dv$ as $\\ln x$", "body": "Never let $dv = \\ln x\\,dx$ — you would need to integrate $\\ln x$ to find $v$, which is itself a parts integral (circular). Always set $\\ln x$ as $u$ (since it's L in LIATE). Then $du = 1/x\\,dx$ and $v$ comes from integrating whatever remains." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Integration by Parts — LIATE",
+        "body": "$\\int u\\,dv = uv - \\int v\\,du$. Choose $u$ as the LIATE-first function (Log → Inverse trig → Algebraic → Trig → Exponential). To integrate $\\ln x$ alone: set $u = \\ln x$, $dv = 1\\,dx$. Apply twice for $\\int x^2 e^x dx$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Choosing $dv$ as $\\ln x$",
+        "body": "Never let $dv = \\ln x\\,dx$ — you would need to integrate $\\ln x$ to find $v$, which is itself a parts integral (circular). Always set $\\ln x$ as $u$ (since it's L in LIATE). Then $du = 1/x\\,dx$ and $v$ comes from integrating whatever remains."
+      }
+    }
   ],
   "flashcards": [
-    ["Integration by parts formula?", "$uv - \\int v du$."],
-    ["When to use parts?", "For products of different types of functions (e.g., $x$ and $e^x$)."],
-    ["Best choice of $u$ for $\\int x \\ln x dx$?", "$\\ln x$ (Logs take priority)."],
-    ["Best choice of $u$ for $\\int x e^x dx$?", "$x$ (Algebraic over Exponential)."],
-    ["How to integrate $\\ln x$?", "Use parts with $u = \\ln x$ and $dv/dx = 1$."],
-    ["What happens in $\\int x^2 e^x dx$?", "You must apply parts twice."]
+    [
+      "When to use substitution?",
+      "When one part of the integral is (roughly) the derivative of another part."
+    ],
+    [
+      "First step in substitution?",
+      "Choose $u$ and find $du/dx$."
+    ],
+    [
+      "What to do with limits in $\\int_a^b$ when using $u$?",
+      "Calculate new limits $u(a)$ and $u(b)$."
+    ],
+    [
+      "Integral of $\\frac{f'(x)}{f(x)}$?",
+      "$\\ln|f(x)| + C$."
+    ],
+    [
+      "Integral of $f'(x) e^{f(x)}$?",
+      "$e^{f(x)} + C$."
+    ],
+    [
+      "Substitute for $\\int \\sin x \\cos^3 x dx$?",
+      "$u = \\cos x$."
+    ],
+    [
+      "Integration by parts formula?",
+      "$uv - \\int v du$."
+    ],
+    [
+      "When to use parts?",
+      "For products of different types of functions (e.g., $x$ and $e^x$)."
+    ],
+    [
+      "Best choice of $u$ for $\\int x \\ln x dx$?",
+      "$\\ln x$ (Logs take priority)."
+    ],
+    [
+      "Best choice of $u$ for $\\int x e^x dx$?",
+      "$x$ (Algebraic over Exponential)."
+    ],
+    [
+      "How to integrate $\\ln x$?",
+      "Use parts with $u = \\ln x$ and $dv/dx = 1$."
+    ],
+    [
+      "What happens in $\\int x^2 e^x dx$?",
+      "You must apply parts twice."
+    ]
   ],
   "quiz": [
     {
+      "q": "To integrate $\\int x \\sqrt{x-1} dx$, what is a good substitution?",
+      "opts": [
+        "$u = x-1$",
+        "$u = \\sqrt{x-1}$",
+        "$u = x$",
+        "A or B"
+      ],
+      "ans": 3,
+      "why": "Both $u=x-1$ or $u^2=x-1$ work well."
+    },
+    {
+      "q": "Evaluate $\\int \\frac{2x}{x^2+1} dx$.",
+      "opts": [
+        "$\\ln(x^2+1) + C$",
+        "$2\\ln(x^2+1) + C$",
+        "$1/(x^2+1) + C$",
+        "$x^2+1 + C$"
+      ],
+      "ans": 0,
+      "why": "Form $f'(x)/f(x)$."
+    },
+    {
+      "q": "Find $\\int e^{\\sin x} \\cos x dx$.",
+      "opts": [
+        "$e^{\\sin x} + C$",
+        "$e^{\\cos x} + C$",
+        "$\\sin x e^{\\sin x} + C$",
+        "$\\ln|\\sin x| + C$"
+      ],
+      "ans": 0,
+      "why": "$u = \\sin x$ makes it $\\int e^u du$."
+    },
+    {
+      "q": "If $u = 3x+1$, what is $dx$ in terms of $du$?",
+      "opts": [
+        "$du/3$",
+        "$3 du$",
+        "$du$",
+        "$x du$"
+      ],
+      "ans": 0,
+      "why": "$du/dx = 3$."
+    },
+    {
       "q": "Find $\\int x \\cos x dx$.",
-      "opts": ["$x \\sin x + \\cos x + C$", "$x \\sin x - \\cos x + C$", "$-x \\sin x + \\cos x + C$", "$x \\sin x + C$"],
+      "opts": [
+        "$x \\sin x + \\cos x + C$",
+        "$x \\sin x - \\cos x + C$",
+        "$-x \\sin x + \\cos x + C$",
+        "$x \\sin x + C$"
+      ],
       "ans": 0,
       "why": "$u=x, v'=\\cos x \\implies x \\sin x - \\int \\sin x = x \\sin x + \\cos x$."
     },
     {
       "q": "Evaluate $\\int \\ln x dx$.",
-      "opts": ["$x \\ln x - x + C$", "$1/x + C$", "$x \\ln x + C$", "$x^2/2 \\ln x + C$"],
+      "opts": [
+        "$x \\ln x - x + C$",
+        "$1/x + C$",
+        "$x \\ln x + C$",
+        "$x^2/2 \\ln x + C$"
+      ],
       "ans": 0,
       "why": "Standard result using parts."
     },
     {
       "q": "In $\\int x^2 \\ln x dx$, if $u = \\ln x$, what is $v$?",
-      "opts": ["$x^3/3$", "$2x$", "$1/x$", "$x^2$"],
+      "opts": [
+        "$x^3/3$",
+        "$2x$",
+        "$1/x$",
+        "$x^2$"
+      ],
       "ans": 0,
       "why": "$v$ is the integral of $x^2$."
     },
     {
       "q": "Which integral requires parts twice?",
-      "opts": ["$\\int x^2 e^x dx$", "$\\int x \\ln x dx$", "$\\int x^2 \\sin(x^3) dx$", "$\\int e^{2x} dx$"],
+      "opts": [
+        "$\\int x^2 e^x dx$",
+        "$\\int x \\ln x dx$",
+        "$\\int x^2 \\sin(x^3) dx$",
+        "$\\int e^{2x} dx$"
+      ],
       "ans": 0,
       "why": "Power of $x$ is 2 and not part of a chain rule."
     }
   ],
   "exam": [
+    {
+      "q": "Using the substitution $u = 1 + \\sin x$, find the exact value of $\\int_0^{\\pi/2} \\cos x (1 + \\sin x)^3 dx$.",
+      "marks": 5,
+      "ms": [
+        "$u = 1 + \\sin x \\implies du = \\cos x dx$. (1)",
+        "Limits: $x=0 \\implies u=1; x=\\pi/2 \\implies u=2$. (1)",
+        "Integral becomes $\\int_1^2 u^3 du$. (1)",
+        "$[\\frac{1}{4}u^4]_1^2 = \\frac{1}{4}(16 - 1) = 3.75$. (2)"
+      ]
+    },
     {
       "q": "Find $\\int x^2 e^{3x} dx$.",
       "marks": 6,
@@ -8702,13 +9111,218 @@ C["maths:8.4"] = {
         "$\\dots - [\\frac{2}{9}x e^{3x} - \\int \\frac{2}{9}e^{3x} dx]$. (1)",
         "$\\frac{1}{3}x^2 e^{3x} - \\frac{2}{9}x e^{3x} + \\frac{2}{27}e^{3x} + C$. (2)"
       ]
+    },
+    {
+      "q": "Find $\\displaystyle\\int 2x(x^2+1)^3\\,dx$ by substitution.",
+      "marks": 4,
+      "ms": [
+        "Let $u=x^2+1$, so $du=2x\\,dx$. (1)",
+        "Integral becomes $\\int u^3\\,du$. (1)",
+        "$=\\dfrac{u^4}{4}$. (1)",
+        "$=\\dfrac{(x^2+1)^4}{4}+c$. (1)"
+      ]
     }
   ]
 };
 
-C["maths:8.5"] = {
+C["maths:8.8"] = {
   "notes": [
-    { "h": "Integration using Partial Fractions" },
+    {
+      "h": "Interpreting Differential Equation Solutions"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "Solving a differential equation gives a function. Interpreting it means reading what it says about the real situation: initial values, long-term behaviour, and the model's limitations."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Reading the solution $y=Ae^{kt}$",
+        "body": [
+          {
+            "kv": [
+              [
+                "$A$",
+                "The initial value (at $t=0$)."
+              ],
+              [
+                "$k>0$",
+                "Growth — the quantity increases without bound."
+              ],
+              [
+                "$k<0$",
+                "Decay — the quantity tends to 0 as $t\\to\\infty$."
+              ],
+              [
+                "Limiting value",
+                "Read off the behaviour as $t\\to\\infty$ (e.g. cooling tends to room temperature)."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Using conditions and judging the model",
+        "body": "Use boundary/initial conditions to find constants. Then interpret: what is the value now, later, and in the long run? Always comment on LIMITATIONS — e.g. unbounded exponential growth is unrealistic, so a refined (logistic) model with a ceiling may be better."
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Example: Newton's cooling",
+          "m": "$\\theta=20+60e^{-0.1t}$ models a cooling drink ($\\theta$ in $^\\circ$C).",
+          "n": "Initial temp $80^\\circ$C ($t=0$); long-term temp $20^\\circ$C (room temperature) as $t\\to\\infty$."
+        }
+      ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Interpreting solutions",
+        "body": "Identify the **initial value**, the **rate/sign** (growth vs decay), and the **long-term limit** ($t\\to\\infty$). Use given conditions to fix constants. State a **limitation** of the model and a possible refinement."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconception",
+        "body": "An exponential growth solution predicts unlimited growth — real quantities are bounded by resources, so the model is only valid over a limited range; refine with a carrying capacity if needed."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "In $y=Ae^{kt}$, what does $A$ represent?",
+      "The initial value (at $t=0$)."
+    ],
+    [
+      "What does the sign of $k$ in $y=Ae^{kt}$ tell you?",
+      "$k>0$ growth, $k<0$ decay."
+    ],
+    [
+      "How do you find the long-term behaviour of a DE solution?",
+      "Consider the limit as $t\\to\\infty$."
+    ],
+    [
+      "In a cooling model $\\theta=\\theta_0+Be^{-kt}$, the long-term temperature is...?",
+      "$\\theta_0$ (room temperature) as $t\\to\\infty$."
+    ],
+    [
+      "How are the constants in a solution determined?",
+      "Using the boundary/initial conditions."
+    ],
+    [
+      "State one limitation of an exponential growth model.",
+      "It predicts unbounded growth, which is unrealistic (resources are finite)."
+    ],
+    [
+      "What refinement gives bounded growth?",
+      "A logistic model with a carrying capacity."
+    ],
+    [
+      "What three things should you read from a solution?",
+      "Initial value, growth/decay behaviour, and the long-term limit."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "In $P=500e^{0.04t}$, the initial population is...?",
+      "opts": [
+        "$0.04$",
+        "$500$",
+        "$e$",
+        "$540$"
+      ],
+      "ans": 1,
+      "why": "$A=500$ at $t=0$."
+    },
+    {
+      "q": "For $m=8e^{-0.2t}$, as $t\\to\\infty$, $m\\to$...?",
+      "opts": [
+        "$8$",
+        "$0$",
+        "$\\infty$",
+        "$0.2$"
+      ],
+      "ans": 1,
+      "why": "Decay: the exponential tends to 0."
+    },
+    {
+      "q": "A cooling model $\\theta=18+50e^{-kt}$ has long-term temperature...?",
+      "opts": [
+        "$68^\\circ$",
+        "$18^\\circ$",
+        "$50^\\circ$",
+        "$0^\\circ$"
+      ],
+      "ans": 1,
+      "why": "As $t\\to\\infty$, $e^{-kt}\\to0$, so $\\theta\\to18$."
+    },
+    {
+      "q": "A limitation of pure exponential growth models is...?",
+      "opts": [
+        "they decay too fast",
+        "they predict unbounded growth",
+        "they need no constants",
+        "they are linear"
+      ],
+      "ans": 1,
+      "why": "Real populations are limited by resources."
+    },
+    {
+      "q": "Constants in a particular solution are found using...?",
+      "opts": [
+        "differentiation",
+        "boundary/initial conditions",
+        "the quadratic formula",
+        "guessing"
+      ],
+      "ans": 1,
+      "why": "Conditions pin down the arbitrary constants."
+    }
+  ],
+  "exam": [
+    {
+      "q": "The mass of a substance is $m=40e^{-0.05t}$ grams. State the initial mass and the long-term mass.",
+      "marks": 2,
+      "ms": [
+        "Initial mass at $t=0$: $40$ g. (1)",
+        "As $t\\to\\infty$, $m\\to0$ g. (1)"
+      ]
+    },
+    {
+      "q": "A drink cools according to $\\theta=20+60e^{-0.1t}$ ($^\\circ$C, $t$ minutes). Find the initial temperature and the temperature it approaches.",
+      "marks": 2,
+      "ms": [
+        "At $t=0$: $\\theta=20+60=80^\\circ$C. (1)",
+        "As $t\\to\\infty$: $\\theta\\to20^\\circ$C (room temperature). (1)"
+      ]
+    },
+    {
+      "q": "A population is modelled by $P=200e^{0.1t}$ ($t$ years). (a) Interpret the constants. (b) Predict the population after 10 years. (c) Discuss a limitation and a refinement of the model.",
+      "marks": 6,
+      "ms": [
+        "(a) $200$ is the initial population; $0.1$ is the continuous growth rate (10% per year). (1)",
+        "(b) $P=200e^{1}$. (1)",
+        "$\\approx543$. (1)",
+        "(c) The model predicts unbounded exponential growth. (1)",
+        "Real populations are limited by food/space (a carrying capacity). (1)",
+        "Refine with a logistic model that levels off at a maximum population. (1)"
+      ]
+    }
+  ]
+};
+
+C["maths:8.6"] = {
+  "notes": [
+    {
+      "h": "Integration using Partial Fractions"
+    },
     {
       "callout": {
         "t": "info",
@@ -8724,41 +9338,110 @@ C["maths:8.5"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Partial Fractions → Logs", "body": "Each $\\frac{A}{x-a}$ term integrates to $A\\ln|x-a|$. Repeated factor: $\\frac{A}{x-a} + \\frac{B}{(x-a)^2}$ — the second term gives $-B(x-a)^{-1}$. Always check: if the numerator degree $\\ge$ denominator degree, do polynomial long division first." } },
-    { "callout": { "t": "miscon", "h": "Skipping Long Division for Improper Rational Functions", "body": "If the numerator degree $\\ge$ the denominator degree (e.g., $\\frac{x^2+1}{x+1}$), the fraction is improper and CANNOT be decomposed directly into partial fractions. Divide first to get a polynomial plus a proper remainder, then decompose the remainder." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Partial Fractions → Logs",
+        "body": "Each $\\frac{A}{x-a}$ term integrates to $A\\ln|x-a|$. Repeated factor: $\\frac{A}{x-a} + \\frac{B}{(x-a)^2}$ — the second term gives $-B(x-a)^{-1}$. Always check: if the numerator degree $\\ge$ denominator degree, do polynomial long division first."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Skipping Long Division for Improper Rational Functions",
+        "body": "If the numerator degree $\\ge$ the denominator degree (e.g., $\\frac{x^2+1}{x+1}$), the fraction is improper and CANNOT be decomposed directly into partial fractions. Divide first to get a polynomial plus a proper remainder, then decompose the remainder."
+      }
+    }
   ],
   "flashcards": [
-    ["When to use partial fractions for integration?", "When the denominator is a factorable polynomial."],
-    ["Integral of $\\frac{1}{x-a}$?", "$\\ln|x-a| + C$."],
-    ["Integral of $\\frac{k}{ax+b}$?", "$\\frac{k}{a}\\ln|ax+b| + C$."],
-    ["Form of partial fraction for $\\frac{1}{(x+1)^2}$?", "Not needed, use power rule: $(x+1)^{-2}$."],
-    ["What to do if numerator degree $\\ge$ denominator degree?", "Polynomial long division first."],
-    ["Simplify $\\ln A - \\ln B$.", "$\\ln(A/B)$."]
+    [
+      "When to use partial fractions for integration?",
+      "When the denominator is a factorable polynomial."
+    ],
+    [
+      "Integral of $\\frac{1}{x-a}$?",
+      "$\\ln|x-a| + C$."
+    ],
+    [
+      "Integral of $\\frac{k}{ax+b}$?",
+      "$\\frac{k}{a}\\ln|ax+b| + C$."
+    ],
+    [
+      "Form of partial fraction for $\\frac{1}{(x+1)^2}$?",
+      "Not needed, use power rule: $(x+1)^{-2}$."
+    ],
+    [
+      "What to do if numerator degree $\\ge$ denominator degree?",
+      "Polynomial long division first."
+    ],
+    [
+      "Simplify $\\ln A - \\ln B$.",
+      "$\\ln(A/B)$."
+    ],
+    [
+      "Why split into partial fractions before integrating?",
+      "Each simple fraction integrates to a log: $\\int\\dfrac{A}{x-a}\\,dx=A\\ln|x-a|$."
+    ],
+    [
+      "$\\int\\dfrac{1}{x-2}\\,dx=$?",
+      "$\\ln|x-2|+c$."
+    ]
   ],
   "quiz": [
     {
       "q": "Find $\\int \\frac{3}{2x+1} dx$.",
-      "opts": ["$1.5\\ln|2x+1| + C$", "$3\\ln|2x+1| + C$", "$\\ln|2x+1| + C$", "$-3/(2x+1)^2 + C$"],
+      "opts": [
+        "$1.5\\ln|2x+1| + C$",
+        "$3\\ln|2x+1| + C$",
+        "$\\ln|2x+1| + C$",
+        "$-3/(2x+1)^2 + C$"
+      ],
       "ans": 0,
       "why": "Divide by coefficient of $x$ (which is 2)."
     },
     {
       "q": "Integrate $\\int (\\frac{1}{x} + \\frac{1}{x+1}) dx$.",
-      "opts": ["$\\ln|x(x+1)| + C$", "$\\ln|x/(x+1)| + C$", "$\\ln|2x+1| + C$", "$2/x^2$"],
+      "opts": [
+        "$\\ln|x(x+1)| + C$",
+        "$\\ln|x/(x+1)| + C$",
+        "$\\ln|2x+1| + C$",
+        "$2/x^2$"
+      ],
       "ans": 0,
       "why": "$\\ln|x| + \\ln|x+1| = \\ln|x(x+1)|$."
     },
     {
       "q": "What is $\\int \\frac{1}{x^2-1} dx$ using partial fractions?",
-      "opts": ["$0.5\\ln|\\frac{x-1}{x+1}| + C$", "$\\ln|x^2-1| + C$", "$\\arctan x + C$", "$-1/x$"],
+      "opts": [
+        "$0.5\\ln|\\frac{x-1}{x+1}| + C$",
+        "$\\ln|x^2-1| + C$",
+        "$\\arctan x + C$",
+        "$-1/x$"
+      ],
       "ans": 0,
       "why": "$\\frac{1}{(x-1)(x+1)} = \\frac{0.5}{x-1} - \\frac{0.5}{x+1}$."
     },
     {
       "q": "Form of partial fractions for $\\frac{x+1}{x^2(x-1)}$?",
-      "opts": ["$\\frac{A}{x} + \\frac{B}{x^2} + \\frac{C}{x-1}$", "$\\frac{A}{x^2} + \\frac{B}{x-1}$", "$\\frac{Ax+B}{x^2} + \\frac{C}{x-1}$", "$\\frac{A}{x} + \\frac{B}{x-1}$"],
+      "opts": [
+        "$\\frac{A}{x} + \\frac{B}{x^2} + \\frac{C}{x-1}$",
+        "$\\frac{A}{x^2} + \\frac{B}{x-1}$",
+        "$\\frac{Ax+B}{x^2} + \\frac{C}{x-1}$",
+        "$\\frac{A}{x} + \\frac{B}{x-1}$"
+      ],
       "ans": 0,
       "why": "Repeated factor $x^2$ needs two terms."
+    },
+    {
+      "q": "$\\int\\dfrac{3}{x+1}\\,dx=$?",
+      "opts": [
+        "$3\\ln|x+1|+c$",
+        "$\\tfrac32(x+1)^2$",
+        "$\\ln3$",
+        "$3(x+1)$"
+      ],
+      "ans": 0,
+      "why": "Standard log integral."
     }
   ],
   "exam": [
@@ -8772,13 +9455,36 @@ C["maths:8.5"] = {
         "Evaluate: $(\\ln 2 + \\ln 3) - (\\ln 1 + \\ln 2)$. (2)",
         "Result: $\\ln 3$. (1)"
       ]
+    },
+    {
+      "q": "Express $\\dfrac{5}{(x-1)(x+4)}$ in partial fractions and hence find $\\displaystyle\\int\\dfrac{5}{(x-1)(x+4)}\\,dx$.",
+      "marks": 5,
+      "ms": [
+        "$\\dfrac{5}{(x-1)(x+4)}=\\dfrac{1}{x-1}-\\dfrac{1}{x+4}$ (cover-up). (1)",
+        "Check $A=1$, $B=-1$. (1)",
+        "$\\int\\dfrac{1}{x-1}\\,dx=\\ln|x-1|$. (1)",
+        "$\\int\\dfrac{-1}{x+4}\\,dx=-\\ln|x+4|$. (1)",
+        "Result $\\ln|x-1|-\\ln|x+4|+c$. (1)"
+      ]
+    },
+    {
+      "q": "Find $\\displaystyle\\int\\dfrac{4}{(x-1)(x+1)}\\,dx$.",
+      "marks": 4,
+      "ms": [
+        "$\\dfrac{4}{(x-1)(x+1)}=\\dfrac{2}{x-1}-\\dfrac{2}{x+1}$. (1)",
+        "$\\int\\dfrac{2}{x-1}\\,dx=2\\ln|x-1|$. (1)",
+        "$\\int\\dfrac{-2}{x+1}\\,dx=-2\\ln|x+1|$. (1)",
+        "$=2\\ln|x-1|-2\\ln|x+1|+c$. (1)"
+      ]
     }
   ]
 };
 
-C["maths:8.6"] = {
+C["maths:8.3"] = {
   "notes": [
-    { "h": "Areas under Curves" },
+    {
+      "h": "Areas under Curves"
+    },
     {
       "callout": {
         "t": "formula",
@@ -8795,45 +9501,120 @@ C["maths:8.6"] = {
     },
     {
       "kv": [
-        ["Area between two curves", "$\\int_a^b (y_{top} - y_{bottom}) dx$"],
-        ["Area between curve and Y-axis", "$\\int_c^d x dy$"]
+        [
+          "Area between two curves",
+          "$\\int_a^b (y_{top} - y_{bottom}) dx$"
+        ],
+        [
+          "Area between curve and Y-axis",
+          "$\\int_c^d x dy$"
+        ]
       ]
     },
-    { "callout": { "t": "memorise", "h": "Areas — Sign Rules", "body": "Area below the $x$-axis integrates to a **negative** value — you must negate it (or take the absolute value) to get the physical area. If the curve crosses the $x$-axis, split the integral at the crossing point and handle each region separately. Area between two curves: $\\int_a^b (y_{\\text{top}} - y_{\\text{bottom}}) dx$." } },
-    { "callout": { "t": "miscon", "h": "$\\int_{-1}^{1} x^3 dx$ Gives the Total Area", "body": "WRONG. For an odd function on a symmetric interval $[-a, a]$, the positive and negative areas cancel: $\\int_{-1}^1 x^3 dx = 0$. The total enclosed area is $2\\int_0^1 x^3 dx = 2 \\times \\frac{1}{4} = \\frac{1}{2}$. Always check for cancellation before computing area." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Areas — Sign Rules",
+        "body": "Area below the $x$-axis integrates to a **negative** value — you must negate it (or take the absolute value) to get the physical area. If the curve crosses the $x$-axis, split the integral at the crossing point and handle each region separately. Area between two curves: $\\int_a^b (y_{\\text{top}} - y_{\\text{bottom}}) dx$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\int_{-1}^{1} x^3 dx$ Gives the Total Area",
+        "body": "WRONG. For an odd function on a symmetric interval $[-a, a]$, the positive and negative areas cancel: $\\int_{-1}^1 x^3 dx = 0$. The total enclosed area is $2\\int_0^1 x^3 dx = 2 \\times \\frac{1}{4} = \\frac{1}{2}$. Always check for cancellation before computing area."
+      }
+    }
   ],
   "flashcards": [
-    ["Geometric interpretation of $\\int_a^b f(x) dx$?", "Net signed area between curve and $x$-axis."],
-    ["How to find area between $y=f(x)$ and $y=g(x)$?", "$\\int (f(x) - g(x)) dx$ between intersection points."],
-    ["What if the area is split above and below the $x$-axis?", "Integrate the regions separately and sum their magnitudes."],
-    ["Area of $y=x$ from 0 to 2?", "2 (Triangle base 2, height 2)."],
-    ["Does $\\int_{-1}^1 x^3 dx$ give the total area?", "No, it gives 0 (anti-symmetric). Need $2 \\int_0^1 x^3 dx$."],
-    ["Units of area in integration?", "Square units."]
+    [
+      "Geometric interpretation of $\\int_a^b f(x) dx$?",
+      "Net signed area between curve and $x$-axis."
+    ],
+    [
+      "How to find area between $y=f(x)$ and $y=g(x)$?",
+      "$\\int (f(x) - g(x)) dx$ between intersection points."
+    ],
+    [
+      "What if the area is split above and below the $x$-axis?",
+      "Integrate the regions separately and sum their magnitudes."
+    ],
+    [
+      "Area of $y=x$ from 0 to 2?",
+      "2 (Triangle base 2, height 2)."
+    ],
+    [
+      "Does $\\int_{-1}^1 x^3 dx$ give the total area?",
+      "No, it gives 0 (anti-symmetric). Need $2 \\int_0^1 x^3 dx$."
+    ],
+    [
+      "Units of area in integration?",
+      "Square units."
+    ],
+    [
+      "How do you find the area between two curves?",
+      "$\\int_a^b(\\text{top}-\\text{bottom})\\,dx$."
+    ],
+    [
+      "What does a negative definite integral indicate?",
+      "The region lies below the $x$-axis."
+    ]
   ],
   "quiz": [
     {
       "q": "Find the area under $y = x^2$ from $x=0$ to $x=3$.",
-      "opts": ["9", "3", "27", "1"],
+      "opts": [
+        "9",
+        "3",
+        "27",
+        "1"
+      ],
       "ans": 0,
       "why": "$[x^3/3]_0^3 = 27/3 = 9$."
     },
     {
       "q": "Area between $y=x$ and $y=x^2$ (intersections 0, 1).",
-      "opts": ["$1/6$", "$1/2$", "$1/3$", "$2/3$"],
+      "opts": [
+        "$1/6$",
+        "$1/2$",
+        "$1/3$",
+        "$2/3$"
+      ],
       "ans": 0,
       "why": "$\\int_0^1 (x - x^2) dx = [x^2/2 - x^3/3] = 1/2 - 1/3 = 1/6$."
     },
     {
       "q": "Area under $y = e^x$ from $x=0$ to $x=1$.",
-      "opts": ["$e-1$", "$e$", "1", "$e+1$"],
+      "opts": [
+        "$e-1$",
+        "$e$",
+        "1",
+        "$e+1$"
+      ],
       "ans": 0,
       "why": "$[e^x]_0^1 = e^1 - e^0 = e - 1$."
     },
     {
       "q": "What happens to the area calculation if you integrate from right to left ($b$ to $a$)?",
-      "opts": ["The sign is reversed", "It stays the same", "It becomes zero", "It's undefined"],
+      "opts": [
+        "The sign is reversed",
+        "It stays the same",
+        "It becomes zero",
+        "It's undefined"
+      ],
       "ans": 0,
       "why": "$\\int_a^b = -\\int_b^a$."
+    },
+    {
+      "q": "The area between $y=f(x)$ (top) and $y=g(x)$ (bottom) from $a$ to $b$ is...?",
+      "opts": [
+        "$\\int(f-g)\\,dx$",
+        "$\\int(g-f)\\,dx$",
+        "$\\int fg\\,dx$",
+        "$f-g$"
+      ],
+      "ans": 0,
+      "why": "Top minus bottom, integrated."
     }
   ],
   "exam": [
@@ -8846,13 +9627,36 @@ C["maths:8.6"] = {
         "Integral: $[x^3/3 - x^2]_0^2 = 8/3 - 4 = -4/3$. (1)",
         "Physical Area = $4/3$. (1)"
       ]
+    },
+    {
+      "q": "Find the area under $y=x^2$ between $x=0$ and $x=2$.",
+      "marks": 3,
+      "ms": [
+        "$\\int_0^2 x^2\\,dx=\\left[\\dfrac{x^3}{3}\\right]_0^2$. (1)",
+        "$=\\dfrac{8}{3}-0$. (1)",
+        "$=\\dfrac83$. (1)"
+      ]
+    },
+    {
+      "q": "Find the area enclosed between the curves $y=x$ and $y=x^2$.",
+      "marks": 6,
+      "ms": [
+        "Intersections: $x=x^2\\Rightarrow x(x-1)=0\\Rightarrow x=0,1$. (1)",
+        "On $[0,1]$ the top is $y=x$, bottom $y=x^2$. (1)",
+        "Area $=\\int_0^1(x-x^2)\\,dx$. (1)",
+        "$=\\left[\\dfrac{x^2}{2}-\\dfrac{x^3}{3}\\right]_0^1$. (1)",
+        "$=\\dfrac12-\\dfrac13$. (1)",
+        "$=\\dfrac16$. (1)"
+      ]
     }
   ]
 };
 
-C["maths:8.7"] = {
+C["maths:8.1"] = {
   "notes": [
-    { "h": "Definite Integrals & Fundamental Theorem" },
+    {
+      "h": "Definite Integrals & Fundamental Theorem"
+    },
     {
       "callout": {
         "t": "info",
@@ -8862,46 +9666,124 @@ C["maths:8.7"] = {
     },
     {
       "kv": [
-        ["$\\int_a^b f(x) dx = -\\int_b^a f(x) dx$", "Reversing limits changes sign."],
-        ["$\\int_a^a f(x) dx = 0$", "Area of zero width is zero."],
-        ["$\\int_a^c f(x) dx = \\int_a^b f(x) dx + \\int_b^c f(x) dx$", "Interval addition property."]
+        [
+          "$\\int_a^b f(x) dx = -\\int_b^a f(x) dx$",
+          "Reversing limits changes sign."
+        ],
+        [
+          "$\\int_a^a f(x) dx = 0$",
+          "Area of zero width is zero."
+        ],
+        [
+          "$\\int_a^c f(x) dx = \\int_a^b f(x) dx + \\int_b^c f(x) dx$",
+          "Interval addition property."
+        ]
       ]
     },
-    { "callout": { "t": "memorise", "h": "Definite Integrals — Key Properties", "body": "$\\int_a^b f(x) dx = F(b) - F(a)$ — evaluate antiderivative at top limit then subtract bottom limit. No $+C$ needed (it cancels). Odd function on $[-a,a]$: integral = 0. Reversing limits: $\\int_b^a = -\\int_a^b$." } },
-    { "callout": { "t": "miscon", "h": "Writing $+C$ in a Definite Integral Answer", "body": "Definite integrals give a pure number — no $+C$. The constant cancels: $F(b) + C - (F(a) + C) = F(b) - F(a)$. Writing $+C$ in the final answer loses marks. Only indefinite integrals have $+C$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Definite Integrals — Key Properties",
+        "body": "$\\int_a^b f(x) dx = F(b) - F(a)$ — evaluate antiderivative at top limit then subtract bottom limit. No $+C$ needed (it cancels). Odd function on $[-a,a]$: integral = 0. Reversing limits: $\\int_b^a = -\\int_a^b$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Writing $+C$ in a Definite Integral Answer",
+        "body": "Definite integrals give a pure number — no $+C$. The constant cancels: $F(b) + C - (F(a) + C) = F(b) - F(a)$. Writing $+C$ in the final answer loses marks. Only indefinite integrals have $+C$."
+      }
+    }
   ],
   "flashcards": [
-    ["What is a definite integral?", "An integral with specific upper and lower limits, resulting in a number."],
-    ["How to evaluate $\\int_a^b f(x) dx$?", "$F(b) - F(a)$."],
-    ["Is $+C$ needed for definite integrals?", "No, it cancels out during subtraction."],
-    ["Value of $\\int_2^2 e^x dx$?", "0."],
-    ["If $\\int_0^5 f(x) dx = 10$ and $\\int_0^2 f(x) dx = 3$, what is $\\int_2^5 f(x) dx$?", "7."],
-    ["Property for $\\int_a^b (f+g)$?", "$\\int_a^b f + \\int_a^b g$."]
+    [
+      "What is a definite integral?",
+      "An integral with specific upper and lower limits, resulting in a number."
+    ],
+    [
+      "How to evaluate $\\int_a^b f(x) dx$?",
+      "$F(b) - F(a)$."
+    ],
+    [
+      "Is $+C$ needed for definite integrals?",
+      "No, it cancels out during subtraction."
+    ],
+    [
+      "Value of $\\int_2^2 e^x dx$?",
+      "0."
+    ],
+    [
+      "If $\\int_0^5 f(x) dx = 10$ and $\\int_0^2 f(x) dx = 3$, what is $\\int_2^5 f(x) dx$?",
+      "7."
+    ],
+    [
+      "Property for $\\int_a^b (f+g)$?",
+      "$\\int_a^b f + \\int_a^b g$."
+    ],
+    [
+      "State the Fundamental Theorem of Calculus.",
+      "$\\int_a^b f'(x)\\,dx=f(b)-f(a)$ — integration and differentiation are inverse."
+    ],
+    [
+      "If $F'(x)=f(x)$, what is $\\int_a^b f(x)\\,dx$?",
+      "$F(b)-F(a)$."
+    ]
   ],
   "quiz": [
     {
       "q": "Evaluate $\\int_1^4 \\sqrt{x} dx$.",
-      "opts": ["14/3", "7/3", "12/3", "2/3"],
+      "opts": [
+        "14/3",
+        "7/3",
+        "12/3",
+        "2/3"
+      ],
       "ans": 0,
       "why": "$[2/3 x^{3/2}]_1^4 = 2/3(8 - 1) = 14/3$."
     },
     {
       "q": "Evaluate $\\int_0^{\\pi} \\sin x dx$.",
-      "opts": ["2", "0", "1", "-2"],
+      "opts": [
+        "2",
+        "0",
+        "1",
+        "-2"
+      ],
       "ans": 0,
       "why": "$[-\\cos x]_0^{\\pi} = -(-1) - (-1) = 1 + 1 = 2$."
     },
     {
       "q": "If $\\int_1^3 f(x) dx = 5$, find $\\int_1^3 2f(x) dx$.",
-      "opts": ["10", "5", "7", "2.5"],
+      "opts": [
+        "10",
+        "5",
+        "7",
+        "2.5"
+      ],
       "ans": 0,
       "why": "Constants can be pulled out of the integral."
     },
     {
       "q": "Evaluate $\\int_{-2}^2 x^5 dx$.",
-      "opts": ["0", "64", "32", "128"],
+      "opts": [
+        "0",
+        "64",
+        "32",
+        "128"
+      ],
       "ans": 0,
       "why": "Odd function over a symmetric interval is always zero."
+    },
+    {
+      "q": "The FTC links integration with...?",
+      "opts": [
+        "multiplication",
+        "differentiation (inverse operations)",
+        "logarithms",
+        "factorising"
+      ],
+      "ans": 1,
+      "why": "Integration and differentiation undo each other."
     }
   ],
   "exam": [
@@ -8913,13 +9795,35 @@ C["maths:8.7"] = {
         "$\\frac{1}{2}(e^{2\\ln 2} - e^0) = \\frac{1}{2}(e^{\\ln 4} - 1)$. (1)",
         "$\\frac{1}{2}(4 - 1) = 1.5$. (1)"
       ]
+    },
+    {
+      "q": "Evaluate $\\displaystyle\\int_1^3 2x\\,dx$ using the Fundamental Theorem of Calculus.",
+      "marks": 2,
+      "ms": [
+        "$\\int2x\\,dx=x^2$. (1)",
+        "$[x^2]_1^3=9-1=8$. (1)"
+      ]
+    },
+    {
+      "q": "Given $F'(x)=\\dfrac1x$ and $F(1)=0$, find $F(e)$ and hence evaluate $\\displaystyle\\int_1^e\\dfrac1x\\,dx$.",
+      "marks": 6,
+      "ms": [
+        "$F(x)=\\ln x+c$. (1)",
+        "$F(1)=0\\Rightarrow c=0$. (1)",
+        "$F(x)=\\ln x$. (1)",
+        "$F(e)=\\ln e=1$. (1)",
+        "By the FTC $\\int_1^e\\dfrac1x\\,dx=F(e)-F(1)$. (1)",
+        "$=1-0=1$. (1)"
+      ]
     }
   ]
 };
 
-C["maths:8.8"] = {
+C["maths:8.7"] = {
   "notes": [
-    { "h": "Differential Equations (Separable)" },
+    {
+      "h": "Differential Equations (Separable)"
+    },
     {
       "callout": {
         "t": "info",
@@ -8937,45 +9841,120 @@ C["maths:8.8"] = {
     },
     {
       "kv": [
-        ["General Solution", "Contains $+C$. Represents a family of curves."],
-        ["Particular Solution", "Found by using 'boundary conditions' (a specific point) to find $C$."]
+        [
+          "General Solution",
+          "Contains $+C$. Represents a family of curves."
+        ],
+        [
+          "Particular Solution",
+          "Found by using 'boundary conditions' (a specific point) to find $C$."
+        ]
       ]
     },
-    { "callout": { "t": "memorise", "h": "Differential Equations — Separation of Variables", "body": "1. Rearrange to $\\frac{1}{g(y)} dy = f(x) dx$. 2. Integrate both sides (include $+C$ on one side only). 3. If initial condition $(x_0, y_0)$ given, substitute and solve for $C$. General solution of $\\frac{dy}{dx} = ky$: $y = Ae^{kx}$." } },
-    { "callout": { "t": "miscon", "h": "Omitting $+C$ When Integrating", "body": "Every indefinite integration step in a DE solution must include $+C$ — omitting it removes the family of curves and makes the boundary condition step meaningless. The constant $C$ is what the boundary condition determines; without it, you have only one specific solution and can't apply the given condition." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Differential Equations — Separation of Variables",
+        "body": "1. Rearrange to $\\frac{1}{g(y)} dy = f(x) dx$. 2. Integrate both sides (include $+C$ on one side only). 3. If initial condition $(x_0, y_0)$ given, substitute and solve for $C$. General solution of $\\frac{dy}{dx} = ky$: $y = Ae^{kx}$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Omitting $+C$ When Integrating",
+        "body": "Every indefinite integration step in a DE solution must include $+C$ — omitting it removes the family of curves and makes the boundary condition step meaningless. The constant $C$ is what the boundary condition determines; without it, you have only one specific solution and can't apply the given condition."
+      }
+    }
   ],
   "flashcards": [
-    ["What is a first-order differential equation?", "One involving $dy/dx$ but no higher derivatives."],
-    ["How to solve $dy/dx = xy$?", "Separate: $1/y dy = x dx$ then integrate."],
-    ["General solution of $dy/dx = ky$?", "$y = Ae^{kx}$."],
-    ["What is a 'boundary condition'?", "A given point $(x, y)$ used to find the constant $C$."],
-    ["First step in solving $dy/dx = f(x)g(y)$?", "Divide by $g(y)$ and multiply by $dx$."],
-    ["Integral of $1/y$ in DEs?", "$\\ln|y|$ (often leads to exponential solutions)."]
+    [
+      "What is a first-order differential equation?",
+      "One involving $dy/dx$ but no higher derivatives."
+    ],
+    [
+      "How to solve $dy/dx = xy$?",
+      "Separate: $1/y dy = x dx$ then integrate."
+    ],
+    [
+      "General solution of $dy/dx = ky$?",
+      "$y = Ae^{kx}$."
+    ],
+    [
+      "What is a 'boundary condition'?",
+      "A given point $(x, y)$ used to find the constant $C$."
+    ],
+    [
+      "First step in solving $dy/dx = f(x)g(y)$?",
+      "Divide by $g(y)$ and multiply by $dx$."
+    ],
+    [
+      "Integral of $1/y$ in DEs?",
+      "$\\ln|y|$ (often leads to exponential solutions)."
+    ],
+    [
+      "First step to solve a separable DE $\\dfrac{dy}{dx}=f(x)g(y)$?",
+      "Separate: $\\dfrac{1}{g(y)}\\,dy=f(x)\\,dx$, then integrate both sides."
+    ],
+    [
+      "What do you need for a particular solution?",
+      "A boundary/initial condition to find the constant."
+    ]
   ],
   "quiz": [
     {
       "q": "Solve $dy/dx = 2y$.",
-      "opts": ["$y = Ae^{2x}$", "$y = x^2 + C$", "$y = 2x + C$", "$y = e^x + 2$"],
+      "opts": [
+        "$y = Ae^{2x}$",
+        "$y = x^2 + C$",
+        "$y = 2x + C$",
+        "$y = e^x + 2$"
+      ],
       "ans": 0,
       "why": "$\\int 1/y dy = \\int 2 dx \\implies \\ln y = 2x + C \\implies y = e^{2x+C} = Ae^{2x}$."
     },
     {
       "q": "What is the particular solution for $dy/dx = 1$ passing through $(1, 5)$?",
-      "opts": ["$y = x+4$", "$y = x+C$", "$y = 5x$", "$y = x+5$"],
+      "opts": [
+        "$y = x+4$",
+        "$y = x+C$",
+        "$y = 5x$",
+        "$y = x+5$"
+      ],
       "ans": 0,
       "why": "$y = x+C$. $5 = 1+C \\implies C=4$."
     },
     {
       "q": "Separate variables for $dy/dx = e^{x+y}$.",
-      "opts": ["$e^{-y} dy = e^x dx$", "$e^y dy = e^x dx$", "$dy/e^x = dx/e^y$", "$dy-dx = e^y$"],
+      "opts": [
+        "$e^{-y} dy = e^x dx$",
+        "$e^y dy = e^x dx$",
+        "$dy/e^x = dx/e^y$",
+        "$dy-dx = e^y$"
+      ],
       "ans": 0,
       "why": "$e^{x+y} = e^x e^y \\implies 1/e^y dy = e^x dx$."
     },
     {
       "q": "In a growth model $dP/dt = kP$, what is $k$?",
-      "opts": ["Growth constant", "Initial population", "Time", "Carrying capacity"],
+      "opts": [
+        "Growth constant",
+        "Initial population",
+        "Time",
+        "Carrying capacity"
+      ],
       "ans": 0,
       "why": "The rate of change is proportional to the current amount."
+    },
+    {
+      "q": "To solve $\\dfrac{dy}{dx}=ky$ you...?",
+      "opts": [
+        "differentiate",
+        "separate variables and integrate",
+        "factorise",
+        "use the quadratic formula"
+      ],
+      "ans": 1,
+      "why": "Separate to $\\dfrac1y\\,dy=k\\,dx$."
     }
   ],
   "exam": [
@@ -8988,6 +9967,27 @@ C["maths:8.8"] = {
         "Multiply by 3: $y^3 = x^3 + K$. (1)",
         "Condition: $2^3 = 0^3 + K \\implies K = 8$. (1)",
         "Solution: $y = \\sqrt[3]{x^3 + 8}$. (1)"
+      ]
+    },
+    {
+      "q": "Solve $\\dfrac{dy}{dx}=\\dfrac{x}{y}$.",
+      "marks": 3,
+      "ms": [
+        "Separate: $y\\,dy=x\\,dx$. (1)",
+        "Integrate: $\\dfrac{y^2}{2}=\\dfrac{x^2}{2}+c$. (1)",
+        "$y^2=x^2+C$. (1)"
+      ]
+    },
+    {
+      "q": "Solve $\\dfrac{dy}{dx}=2xy$ given $y=1$ when $x=0$.",
+      "marks": 6,
+      "ms": [
+        "Separate: $\\dfrac1y\\,dy=2x\\,dx$. (1)",
+        "Integrate: $\\ln|y|=x^2+c$. (1)",
+        "$y=Ae^{x^2}$. (1)",
+        "$x=0,y=1\\Rightarrow A=1$. (1)",
+        "$y=e^{x^2}$. (1)",
+        "(satisfies the original DE). (1)"
       ]
     }
   ]
