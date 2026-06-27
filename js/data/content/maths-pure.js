@@ -7015,16 +7015,42 @@ C["maths:6.6"] = {
 
 C["maths:7.1"] = {
   "notes": [
-    { "h": "Basic Differentiation" },
+    {
+      "h": "Basic Differentiation"
+    },
     {
       "table": {
-        "head": ["Function $f(x)$", "Derivative $f'(x)$", "Rule Name"],
+        "head": [
+          "Function $f(x)$",
+          "Derivative $f'(x)$",
+          "Rule Name"
+        ],
         "rows": [
-          ["$x^n$", "$nx^{n-1}$", "Power Rule"],
-          ["$e^{ax}$", "$ae^{ax}$", "Exponential Rule"],
-          ["$\\ln x$", "$1/x$", "Natural Log Rule"],
-          ["$k$ (constant)", "0", "Constant Rule"],
-          ["$af(x) + bg(x)$", "$af'(x) + bg'(x)$", "Linearity"]
+          [
+            "$x^n$",
+            "$nx^{n-1}$",
+            "Power Rule"
+          ],
+          [
+            "$e^{ax}$",
+            "$ae^{ax}$",
+            "Exponential Rule"
+          ],
+          [
+            "$\\ln x$",
+            "$1/x$",
+            "Natural Log Rule"
+          ],
+          [
+            "$k$ (constant)",
+            "0",
+            "Constant Rule"
+          ],
+          [
+            "$af(x) + bg(x)$",
+            "$af'(x) + bg'(x)$",
+            "Linearity"
+          ]
         ]
       }
     },
@@ -7035,41 +7061,147 @@ C["maths:7.1"] = {
         "body": "$$f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}$$"
       }
     },
-    { "callout": { "t": "memorise", "h": "Differentiation Quick Reference", "body": "Power rule: $\\frac{d}{dx}(x^n) = nx^{n-1}$ — multiply by the power, then reduce the power by 1. $\\frac{d}{dx}(e^{ax}) = ae^{ax}$. $\\frac{d}{dx}(\\ln x) = \\frac{1}{x}$. Always rewrite first: $\\frac{1}{x^2} = x^{-2}$, $\\sqrt[3]{x} = x^{1/3}$ before applying the power rule." } },
-    { "callout": { "t": "miscon", "h": "$\\frac{d}{dx}(x^n) = x^{n-1}$ — Forgetting to Multiply", "body": "The correct power rule is $nx^{n-1}$, NOT $x^{n-1}$. You must multiply by the original exponent $n$ before reducing it. Example: $\\frac{d}{dx}(x^5) = 5x^4$, not $x^4$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Differentiation Quick Reference",
+        "body": "Power rule: $\\frac{d}{dx}(x^n) = nx^{n-1}$ — multiply by the power, then reduce the power by 1. $\\frac{d}{dx}(e^{ax}) = ae^{ax}$. $\\frac{d}{dx}(\\ln x) = \\frac{1}{x}$. Always rewrite first: $\\frac{1}{x^2} = x^{-2}$, $\\sqrt[3]{x} = x^{1/3}$ before applying the power rule."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\frac{d}{dx}(x^n) = x^{n-1}$ — Forgetting to Multiply",
+        "body": "The correct power rule is $nx^{n-1}$, NOT $x^{n-1}$. You must multiply by the original exponent $n$ before reducing it. Example: $\\frac{d}{dx}(x^5) = 5x^4$, not $x^4$."
+      }
+    },
+    {
+      "page": "First Principles & Second Derivative"
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Differentiation from first principles",
+        "body": "$f'(x)=\\displaystyle\\lim_{h\\to0}\\dfrac{f(x+h)-f(x)}{h}$ — the gradient of the tangent as a limit."
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "First principles: differentiate $f(x)=x^2$",
+          "m": "$\\dfrac{(x+h)^2-x^2}{h}=\\dfrac{2xh+h^2}{h}=2x+h$.",
+          "n": "As $h\\to0$ this $\\to2x$, so $f'(x)=2x$."
+        }
+      ]
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Second derivative & concavity",
+        "body": "$f''(x)$ is the rate of change of the gradient. $f''(x)>0$: curve is **convex** (concave up); $f''(x)<0$: **concave** (concave down). A change of sign of $f''$ marks a **point of inflection**."
+      }
+    }
   ],
   "flashcards": [
-    ["Derivative of $x^5$?", "$5x^4$."],
-    ["Derivative of $e^{2x}$?", "$2e^{2x}$."],
-    ["Derivative of $\\ln x$?", "$1/x$."],
-    ["Derivative of $1/x$?", "$-1/x^2$."],
-    ["Derivative of $\\sqrt{x}$?", "$\\frac{1}{2\\sqrt{x}}$."],
-    ["What does $f'(x)$ represent?", "The gradient of the curve at point $x$."]
+    [
+      "Derivative of $x^5$?",
+      "$5x^4$."
+    ],
+    [
+      "Derivative of $e^{2x}$?",
+      "$2e^{2x}$."
+    ],
+    [
+      "Derivative of $\\ln x$?",
+      "$1/x$."
+    ],
+    [
+      "Derivative of $1/x$?",
+      "$-1/x^2$."
+    ],
+    [
+      "Derivative of $\\sqrt{x}$?",
+      "$\\frac{1}{2\\sqrt{x}}$."
+    ],
+    [
+      "What does $f'(x)$ represent?",
+      "The gradient of the curve at point $x$."
+    ],
+    [
+      "State the first-principles definition of $f'(x)$.",
+      "$\\lim_{h\\to0}\\dfrac{f(x+h)-f(x)}{h}$."
+    ],
+    [
+      "What does $f''(x)>0$ tell you about the curve?",
+      "It is convex (concave up) there."
+    ]
   ],
   "quiz": [
     {
       "q": "Find $dy/dx$ if $y = 3x^4 - 2x + 5$.",
-      "opts": ["$12x^3 - 2$", "$12x^3 - 2x$", "$7x^3 - 2$", "$12x^4 - 2$"],
+      "opts": [
+        "$12x^3 - 2$",
+        "$12x^3 - 2x$",
+        "$7x^3 - 2$",
+        "$12x^4 - 2$"
+      ],
       "ans": 0,
       "why": "Differentiate term by term."
     },
     {
       "q": "Find the gradient of $y = e^x$ at $x = \\ln 3$.",
-      "opts": ["3", "$e^3$", "$\\ln 3$", "1"],
+      "opts": [
+        "3",
+        "$e^3$",
+        "$\\ln 3$",
+        "1"
+      ],
       "ans": 0,
       "why": "$dy/dx = e^x$. At $x = \\ln 3$, $e^{\\ln 3} = 3$."
     },
     {
       "q": "Differentiate $y = \\ln(3x)$.",
-      "opts": ["$1/x$", "$3/x$", "$1/(3x)$", "3"],
+      "opts": [
+        "$1/x$",
+        "$3/x$",
+        "$1/(3x)$",
+        "3"
+      ],
       "ans": 0,
       "why": "$\\ln(3x) = \\ln 3 + \\ln x$. Derivative of constant $\\ln 3$ is 0."
     },
     {
       "q": "Derivative of $4/\\sqrt{x}$?",
-      "opts": ["$-2x^{-3/2}$", "$2x^{-1/2}$", "$-2x^{1/2}$", "$-4x^{-3/2}$"],
+      "opts": [
+        "$-2x^{-3/2}$",
+        "$2x^{-1/2}$",
+        "$-2x^{1/2}$",
+        "$-4x^{-3/2}$"
+      ],
       "ans": 0,
       "why": "$4x^{-1/2} \\to 4(-1/2)x^{-3/2} = -2x^{-3/2}$."
+    },
+    {
+      "q": "Differentiating $x^2$ from first principles gives the limit of...?",
+      "opts": [
+        "$2x+h$",
+        "$x+h$",
+        "$2x$",
+        "$h$"
+      ],
+      "ans": 0,
+      "why": "$\\frac{(x+h)^2-x^2}{h}=2x+h\\to2x$."
+    },
+    {
+      "q": "A point of inflection occurs where...?",
+      "opts": [
+        "$f'(x)=0$",
+        "$f''(x)$ changes sign",
+        "$f(x)=0$",
+        "the gradient is maximum"
+      ],
+      "ans": 1,
+      "why": "Concavity changes when $f''$ changes sign."
     }
   ],
   "exam": [
@@ -7082,13 +7214,414 @@ C["maths:7.1"] = {
         "Gradient at $x=1$ is $2(1) + 1/1 = 3$. (1)",
         "Equation: $y - 1 = 3(x - 1) \\implies y = 3x - 2$. (1)"
       ]
+    },
+    {
+      "q": "Differentiate $f(x)=x^2-3x$ from first principles.",
+      "marks": 4,
+      "ms": [
+        "$\\dfrac{f(x+h)-f(x)}{h}=\\dfrac{(x+h)^2-3(x+h)-(x^2-3x)}{h}$. (1)",
+        "$=\\dfrac{2xh+h^2-3h}{h}=2x+h-3$. (1)",
+        "As $h\\to0$. (1)",
+        "$f'(x)=2x-3$. (1)"
+      ]
+    },
+    {
+      "q": "A curve has $y=x^3-6x^2+5$. Find $\\dfrac{dy}{dx}$ and $\\dfrac{d^2y}{dx^2}$, and determine the range of $x$ for which the curve is concave.",
+      "marks": 6,
+      "ms": [
+        "$\\dfrac{dy}{dx}=3x^2-12x$. (1)",
+        "$\\dfrac{d^2y}{dx^2}=6x-12$. (1)",
+        "Concave where $f''(x)<0$. (1)",
+        "$6x-12<0$. (1)",
+        "$x<2$. (1)",
+        "So the curve is concave for $x<2$ (convex for $x>2$, inflection at $x=2$). (1)"
+      ]
     }
   ]
 };
 
-C["maths:7.2"] = {
+C["maths:7.5"] = {
   "notes": [
-    { "h": "The Chain Rule" },
+    {
+      "h": "Implicit & Parametric Differentiation"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "Not every relation is written $y=f(x)$. Implicit differentiation handles equations like $x^2+y^2=25$; parametric differentiation handles curves given through a parameter $t$."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Implicit differentiation",
+        "body": "Differentiate every term with respect to $x$, using $\\dfrac{d}{dx}(y^n)=ny^{n-1}\\dfrac{dy}{dx}$ (chain rule), then make $\\dfrac{dy}{dx}$ the subject."
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Implicit example: $x^2+y^2=25$",
+          "m": "$2x+2y\\dfrac{dy}{dx}=0$.",
+          "n": "$\\dfrac{dy}{dx}=-\\dfrac{x}{y}$."
+        }
+      ]
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Parametric differentiation",
+        "body": "If $x$ and $y$ are functions of $t$, then $\\dfrac{dy}{dx}=\\dfrac{dy/dt}{dx/dt}$."
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Parametric example: $x=t^2$, $y=t^3$",
+          "m": "$\\dfrac{dx}{dt}=2t$, $\\dfrac{dy}{dt}=3t^2$.",
+          "n": "$\\dfrac{dy}{dx}=\\dfrac{3t^2}{2t}=\\dfrac{3t}{2}$."
+        }
+      ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Key rules",
+        "body": "**Implicit**: differentiate term by term; each $y$-term gains a $\\dfrac{dy}{dx}$ factor. **Parametric**: $\\dfrac{dy}{dx}=\\dfrac{dy/dt}{dx/dt}$. Then substitute the point or $t$-value as required."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common mistake",
+        "body": "Forgetting the $\\dfrac{dy}{dx}$ factor when differentiating a $y$-term implicitly — $\\dfrac{d}{dx}(y^2)=2y\\dfrac{dy}{dx}$, not $2y$."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "How do you differentiate $y^2$ with respect to $x$?",
+      "$2y\\dfrac{dy}{dx}$ (chain rule)."
+    ],
+    [
+      "What is the parametric formula for $\\dfrac{dy}{dx}$?",
+      "$\\dfrac{dy/dt}{dx/dt}$."
+    ],
+    [
+      "Differentiate $x^2+y^2=r^2$ implicitly.",
+      "$2x+2y\\dfrac{dy}{dx}=0\\Rightarrow\\dfrac{dy}{dx}=-\\dfrac{x}{y}$."
+    ],
+    [
+      "For $x=t^2$, $y=t^3$, what is $\\dfrac{dy}{dx}$?",
+      "$\\dfrac{3t^2}{2t}=\\dfrac{3t}{2}$."
+    ],
+    [
+      "When is implicit differentiation needed?",
+      "When $y$ cannot easily be made the subject, e.g. $x^2+xy+y^2=4$."
+    ],
+    [
+      "What rule is used on each $y$-term in implicit differentiation?",
+      "The chain rule (multiply by $\\dfrac{dy}{dx}$)."
+    ],
+    [
+      "Differentiate $\\dfrac{d}{dx}(xy)$ implicitly.",
+      "$y+x\\dfrac{dy}{dx}$ (product rule)."
+    ],
+    [
+      "Parametric: if $\\dfrac{dx}{dt}=0$, the tangent is...?",
+      "Vertical (gradient undefined)."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "$\\dfrac{d}{dx}(y^3)=$?",
+      "opts": [
+        "$3y^2$",
+        "$3y^2\\dfrac{dy}{dx}$",
+        "$y^2$",
+        "$3y^3$"
+      ],
+      "ans": 1,
+      "why": "Chain rule adds the $\\frac{dy}{dx}$ factor."
+    },
+    {
+      "q": "For $x=t^2$, $y=4t$, $\\dfrac{dy}{dx}=$?",
+      "opts": [
+        "$\\dfrac{4}{2t}=\\dfrac{2}{t}$",
+        "$8t$",
+        "$\\dfrac{t}{2}$",
+        "$4t$"
+      ],
+      "ans": 0,
+      "why": "$\\dfrac{dy/dt}{dx/dt}=\\dfrac{4}{2t}$."
+    },
+    {
+      "q": "Implicit differentiation of $x^2+y^2=25$ gives $\\dfrac{dy}{dx}=$?",
+      "opts": [
+        "$-\\dfrac{x}{y}$",
+        "$\\dfrac{x}{y}$",
+        "$-\\dfrac{y}{x}$",
+        "$-x$"
+      ],
+      "ans": 0,
+      "why": "$2x+2y\\frac{dy}{dx}=0$."
+    },
+    {
+      "q": "$\\dfrac{d}{dx}(xy)$ (implicit) is...?",
+      "opts": [
+        "$y$",
+        "$x\\dfrac{dy}{dx}$",
+        "$y+x\\dfrac{dy}{dx}$",
+        "$1$"
+      ],
+      "ans": 2,
+      "why": "Product rule."
+    },
+    {
+      "q": "Parametric tangents are vertical when...?",
+      "opts": [
+        "$\\dfrac{dy}{dt}=0$",
+        "$\\dfrac{dx}{dt}=0$",
+        "$t=0$",
+        "$x=y$"
+      ],
+      "ans": 1,
+      "why": "Zero denominator means undefined (vertical) gradient."
+    }
+  ],
+  "exam": [
+    {
+      "q": "A curve is defined by $x^2+y^2=25$. Find $\\dfrac{dy}{dx}$ at the point $(3,4)$.",
+      "marks": 3,
+      "ms": [
+        "$2x+2y\\dfrac{dy}{dx}=0$. (1)",
+        "$\\dfrac{dy}{dx}=-\\dfrac{x}{y}$. (1)",
+        "At $(3,4)$: $-\\dfrac34$. (1)"
+      ]
+    },
+    {
+      "q": "A curve has parametric equations $x=t^2$, $y=2t^3$. Find $\\dfrac{dy}{dx}$ in terms of $t$ and the gradient at $t=1$.",
+      "marks": 3,
+      "ms": [
+        "$\\dfrac{dx}{dt}=2t$, $\\dfrac{dy}{dt}=6t^2$. (1)",
+        "$\\dfrac{dy}{dx}=\\dfrac{6t^2}{2t}=3t$. (1)",
+        "At $t=1$: gradient $=3$. (1)"
+      ]
+    },
+    {
+      "q": "The curve $x^2+xy+y^2=7$ passes through $(1,2)$. Find the gradient of the tangent there.",
+      "marks": 6,
+      "ms": [
+        "Differentiate implicitly: $2x+\\left(y+x\\dfrac{dy}{dx}\\right)+2y\\dfrac{dy}{dx}=0$. (1)",
+        "$2x+y+(x+2y)\\dfrac{dy}{dx}=0$. (1)",
+        "$\\dfrac{dy}{dx}=-\\dfrac{2x+y}{x+2y}$. (1)",
+        "At $(1,2)$: numerator $=2+2=4$. (1)",
+        "denominator $=1+4=5$. (1)",
+        "Gradient $=-\\dfrac45$. (1)"
+      ]
+    }
+  ]
+};
+
+C["maths:7.6"] = {
+  "notes": [
+    {
+      "h": "Constructing Differential Equations"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "A differential equation links a quantity to its rate of change. You translate a worded rate statement into an equation involving a derivative, always including a constant of proportionality."
+      }
+    },
+    {
+      "table": {
+        "head": [
+          "Worded statement",
+          "Differential equation"
+        ],
+        "rows": [
+          [
+            "Rate of growth proportional to the amount $N$",
+            "$\\dfrac{dN}{dt}=kN$"
+          ],
+          [
+            "Rate of decay proportional to the amount $m$",
+            "$\\dfrac{dm}{dt}=-km$"
+          ],
+          [
+            "Rate of cooling proportional to temp. difference",
+            "$\\dfrac{d\\theta}{dt}=-k(\\theta-\\theta_0)$"
+          ],
+          [
+            "Rate of filling proportional to depth $h$",
+            "$\\dfrac{dh}{dt}=kh$ (or $-k$ for draining)"
+          ]
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Translating the words",
+        "body": "'Rate of change of $y$' $=\\dfrac{dy}{dt}$. 'Proportional to' introduces a constant $k$. Use a NEGATIVE sign when the quantity DECREASES (decay, cooling, draining)."
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Example",
+          "m": "The rate of decrease of mass is proportional to the current mass.",
+          "n": "$\\dfrac{dm}{dt}=-km$ (negative because mass decreases)."
+        }
+      ]
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Building a DE",
+        "body": "Identify the rate ($\\dfrac{d\\,(\\text{quantity})}{dt}$), what it is proportional to, and the SIGN (negative for a decrease). Include the constant $k>0$. 'Proportional to the difference' gives $-k(\\theta-\\theta_0)$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common mistakes",
+        "body": "Omitting the constant of proportionality $k$, or using the wrong sign (a decreasing quantity needs a negative rate)."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "Translate 'rate of growth proportional to the amount $N$'.",
+      "$\\dfrac{dN}{dt}=kN$."
+    ],
+    [
+      "Translate 'rate of decay proportional to mass $m$'.",
+      "$\\dfrac{dm}{dt}=-km$."
+    ],
+    [
+      "What does Newton's law of cooling give as a DE?",
+      "$\\dfrac{d\\theta}{dt}=-k(\\theta-\\theta_0)$."
+    ],
+    [
+      "Why is there a negative sign in a decay DE?",
+      "The quantity decreases, so its rate of change is negative."
+    ],
+    [
+      "What must every 'proportional to' statement include?",
+      "A constant of proportionality $k$."
+    ],
+    [
+      "'Rate of change of $y$' means which symbol?",
+      "$\\dfrac{dy}{dt}$."
+    ],
+    [
+      "Translate 'population grows at 5% per year continuously'.",
+      "$\\dfrac{dP}{dt}=0.05P$."
+    ],
+    [
+      "A draining tank where rate of fall of depth is proportional to depth: DE?",
+      "$\\dfrac{dh}{dt}=-kh$."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "'The rate of increase of $y$ is proportional to $y$' is...?",
+      "opts": [
+        "$\\dfrac{dy}{dt}=k$",
+        "$\\dfrac{dy}{dt}=ky$",
+        "$y=kt$",
+        "$\\dfrac{dy}{dt}=-ky$"
+      ],
+      "ans": 1,
+      "why": "Proportional to $y$, increasing."
+    },
+    {
+      "q": "A cooling object's DE is...?",
+      "opts": [
+        "$\\dfrac{d\\theta}{dt}=k\\theta$",
+        "$\\dfrac{d\\theta}{dt}=-k(\\theta-\\theta_0)$",
+        "$\\theta=kt$",
+        "$\\dfrac{d\\theta}{dt}=k$"
+      ],
+      "ans": 1,
+      "why": "Proportional to the temperature difference, decreasing."
+    },
+    {
+      "q": "Which sign suits a decay process?",
+      "opts": [
+        "positive $k$",
+        "negative (so $-k$)",
+        "no constant",
+        "$k=0$"
+      ],
+      "ans": 1,
+      "why": "Decreasing quantity needs a negative rate."
+    },
+    {
+      "q": "'Rate of change of $N$ is proportional to $\\sqrt N$' is...?",
+      "opts": [
+        "$\\dfrac{dN}{dt}=kN$",
+        "$\\dfrac{dN}{dt}=k\\sqrt N$",
+        "$N=k\\sqrt t$",
+        "$\\dfrac{dN}{dt}=N^2$"
+      ],
+      "ans": 1,
+      "why": "Match the proportionality directly."
+    },
+    {
+      "q": "Every constructed DE from 'proportional to' must include...?",
+      "opts": [
+        "a square",
+        "a constant $k$",
+        "a logarithm",
+        "an integral"
+      ],
+      "ans": 1,
+      "why": "Proportionality always needs a constant."
+    }
+  ],
+  "exam": [
+    {
+      "q": "The rate of decrease of the mass $m$ of a substance is proportional to the mass present. Write down a differential equation for $m$.",
+      "marks": 2,
+      "ms": [
+        "Rate of change is $\\dfrac{dm}{dt}$, proportional to $m$. (1)",
+        "Decreasing, so $\\dfrac{dm}{dt}=-km$ ($k>0$). (1)"
+      ]
+    },
+    {
+      "q": "Water drains from a tank so that the rate of decrease of depth $h$ is proportional to $\\sqrt h$. Construct a differential equation.",
+      "marks": 2,
+      "ms": [
+        "$\\dfrac{dh}{dt}$ proportional to $\\sqrt h$. (1)",
+        "Decreasing: $\\dfrac{dh}{dt}=-k\\sqrt h$. (1)"
+      ]
+    },
+    {
+      "q": "A population $P$ grows at a rate proportional to $P$, but a disease removes individuals at a constant rate $r$. (a) Construct a differential equation. (b) State the condition on the parameters for the population to be momentarily steady.",
+      "marks": 6,
+      "ms": [
+        "Growth term: rate proportional to $P$ gives $kP$. (1)",
+        "Removal at constant rate $r$ subtracts $r$. (1)",
+        "$\\dfrac{dP}{dt}=kP-r$. (1)",
+        "(b) Steady when $\\dfrac{dP}{dt}=0$. (1)",
+        "$kP-r=0$. (1)",
+        "$P=\\dfrac{r}{k}$. (1)"
+      ]
+    }
+  ]
+};
+
+C["maths:7.4"] = {
+  "notes": [
+    {
+      "h": "Product, Quotient & Chain Rules"
+    },
+    {
+      "page": "Chain Rule"
+    },
     {
       "callout": {
         "t": "formula",
@@ -7106,60 +7639,23 @@ C["maths:7.2"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Chain Rule — Outer × Inner", "body": "Differentiate the outer function (leaving the inner unchanged), then multiply by the derivative of the inner. Key patterns: $\\frac{d}{dx}[f(g)]^n = n[f]^{n-1} \\cdot f'$; $\\frac{d}{dx}\\ln(f) = f'/f$; $\\frac{d}{dx}e^{f} = f'e^{f}$." } },
-    { "callout": { "t": "miscon", "h": "Forgetting the Inner Derivative", "body": "Differentiating $y = (3x^2+1)^5$ and writing $5(3x^2+1)^4$ omits the chain rule factor. The complete answer is $5(3x^2+1)^4 \\times 6x = 30x(3x^2+1)^4$. Always ask: 'what is inside, and what is its derivative?'" } }
-  ],
-  "flashcards": [
-    ["When to use the Chain Rule?", "For functions within functions (composite)."],
-    ["Derivative of $[f(x)]^n$?", "$n[f(x)]^{n-1} \\times f'(x)$."],
-    ["Derivative of $e^{f(x)}$?", "$f'(x) e^{f(x)}$."],
-    ["Derivative of $\\ln(f(x))$?", "$f'(x) / f(x)$."],
-    ["Derivative of $\\sqrt{x^2+1}$?", "$x/\\sqrt{x^2+1}$."],
-    ["Chain rule for $dy/dx$ using $u$?", "$(dy/du) \\times (du/dx)$."]
-  ],
-  "quiz": [
     {
-      "q": "Differentiate $y = \\ln(x^2 + 5)$.",
-      "opts": ["$2x / (x^2 + 5)$", "$1 / (x^2 + 5)$", "$2x \\ln(x^2 + 5)$", "$2 / x$"],
-      "ans": 0,
-      "why": "Using $\\ln(u)$ rule: $u' / u$."
+      "callout": {
+        "t": "memorise",
+        "h": "Chain Rule — Outer × Inner",
+        "body": "Differentiate the outer function (leaving the inner unchanged), then multiply by the derivative of the inner. Key patterns: $\\frac{d}{dx}[f(g)]^n = n[f]^{n-1} \\cdot f'$; $\\frac{d}{dx}\\ln(f) = f'/f$; $\\frac{d}{dx}e^{f} = f'e^{f}$."
+      }
     },
     {
-      "q": "Find $dy/dx$ for $y = e^{-x^2}$.",
-      "opts": ["$-2x e^{-x^2}$", "$e^{-x^2}$", "$-2x e^{x^2}$", "$e^{-2x}$"],
-      "ans": 0,
-      "why": "Derivative of exponent is $-2x$."
+      "callout": {
+        "t": "miscon",
+        "h": "Forgetting the Inner Derivative",
+        "body": "Differentiating $y = (3x^2+1)^5$ and writing $5(3x^2+1)^4$ omits the chain rule factor. The complete answer is $5(3x^2+1)^4 \\times 6x = 30x(3x^2+1)^4$. Always ask: 'what is inside, and what is its derivative?'"
+      }
     },
     {
-      "q": "Differentiate $y = (2x+3)^{10}$.",
-      "opts": ["$20(2x+3)^9$", "$10(2x+3)^9$", "$2(2x+3)^9$", "$20x^9$"],
-      "ans": 0,
-      "why": "$10(2x+3)^9 \\times 2 = 20(2x+3)^9$."
+      "page": "Product Rule"
     },
-    {
-      "q": "Given $x = \\sin t, y = t^2$. Find $dy/dx$.",
-      "opts": ["$2t / \\cos t$", "$2t \\cos t$", "$\\cos t / 2t$", "$2t$"],
-      "ans": 0,
-      "why": "$(dy/dt) / (dx/dt) = 2t / \\cos t$."
-    }
-  ],
-  "exam": [
-    {
-      "q": "The curve $C$ has equation $y = \\sqrt{4x+1}$. Find the gradient of the normal to $C$ at the point where $x=2$.",
-      "marks": 4,
-      "ms": [
-        "$y = (4x+1)^{1/2}$. $dy/dx = \\frac{1}{2}(4x+1)^{-1/2} \\times 4 = 2(4x+1)^{-1/2}$. (1)",
-        "At $x=2, dy/dx = 2(9)^{-1/2} = 2/3$. (1)",
-        "Gradient of tangent is $2/3$. (1)",
-        "Gradient of normal is $-3/2$. (1)"
-      ]
-    }
-  ]
-};
-
-C["maths:7.3"] = {
-  "notes": [
-    { "h": "The Product Rule" },
     {
       "callout": {
         "t": "formula",
@@ -7177,61 +7673,23 @@ C["maths:7.3"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Product Rule — $uv' + vu'$", "body": "For $y = uv$: $\\frac{dy}{dx} = u\\frac{dv}{dx} + v\\frac{du}{dx}$. Pick $u$ and $v$, differentiate both separately, then combine. Common candidates: polynomial × exponential, polynomial × ln, trig × trig. Factorise the answer to find stationary points." } },
-    { "callout": { "t": "miscon", "h": "$(uv)' = u'v'$", "body": "WRONG. You cannot just multiply the two derivatives together. $(uv)' = uv' + vu'$ — each function is differentiated in turn while the other stays fixed. For example, $(xe^x)' = x \\cdot e^x + e^x \\cdot 1 = e^x(x+1)$, not $e^x$." } }
-  ],
-  "flashcards": [
-    ["When to use the Product Rule?", "When two functions of $x$ are multiplied together."],
-    ["Product rule formula?", "$u v' + v u'$"],
-    ["Differentiate $x \\ln x$.", "$1 + \\ln x$."],
-    ["Differentiate $x^3 e^{2x}$.", "$3x^2 e^{2x} + 2x^3 e^{2x}$."],
-    ["Is the order of $u$ and $v$ important in Product Rule?", "No, because addition is commutative."],
-    ["Differentiate $e^x \\sin x$.", "$e^x(\\sin x + \\cos x)$."]
-  ],
-  "quiz": [
     {
-      "q": "Differentiate $y = x^2 \\ln x$.",
-      "opts": ["$x + 2x \\ln x$", "$2 + 2x \\ln x$", "$x \\ln x$", "$x^2/x + 2x$"],
-      "ans": 0,
-      "why": "$x^2(1/x) + (\\ln x)(2x) = x + 2x \\ln x$."
+      "callout": {
+        "t": "memorise",
+        "h": "Product Rule — $uv' + vu'$",
+        "body": "For $y = uv$: $\\frac{dy}{dx} = u\\frac{dv}{dx} + v\\frac{du}{dx}$. Pick $u$ and $v$, differentiate both separately, then combine. Common candidates: polynomial × exponential, polynomial × ln, trig × trig. Factorise the answer to find stationary points."
+      }
     },
     {
-      "q": "Find $dy/dx$ for $y = e^x \\cos x$.",
-      "opts": ["$e^x(\\cos x - \\sin x)$", "$e^x(\\cos x + \\sin x)$", "$-e^x \\sin x$", "$e^x \\cos x$"],
-      "ans": 0,
-      "why": "$u=e^x, v=\\cos x \\implies e^x(-\\sin x) + \\cos x(e^x)$."
+      "callout": {
+        "t": "miscon",
+        "h": "$(uv)' = u'v'$",
+        "body": "WRONG. You cannot just multiply the two derivatives together. $(uv)' = uv' + vu'$ — each function is differentiated in turn while the other stays fixed. For example, $(xe^x)' = x \\cdot e^x + e^x \\cdot 1 = e^x(x+1)$, not $e^x$."
+      }
     },
     {
-      "q": "Differentiate $y = x(x+1)^5$.",
-      "opts": ["$(x+1)^4(6x+1)$", "$(x+1)^5 + 5x(x+1)^4$", "$5(x+1)^4$", "$(x+1)^5$"],
-      "ans": 1,
-      "why": "Product of $x$ and $(x+1)^5$. Result is $1(x+1)^5 + x[5(x+1)^4]$."
+      "page": "Quotient Rule"
     },
-    {
-      "q": "Gradient of $y = x e^{-x}$ at $x = 0$.",
-      "opts": ["1", "0", "-1", "$e$"],
-      "ans": 0,
-      "why": "$dy/dx = e^{-x} - x e^{-x}$. At $x=0$, $e^0 - 0 = 1$."
-    }
-  ],
-  "exam": [
-    {
-      "q": "Find the stationary points of the curve $y = x^2 e^{-x}$.",
-      "marks": 5,
-      "ms": [
-        "$dy/dx = 2x e^{-x} - x^2 e^{-x}$. (1)",
-        "Set $dy/dx = 0 \\implies x e^{-x} (2 - x) = 0$. (1)",
-        "$e^{-x} \\ne 0$, so $x = 0$ or $x = 2$. (1)",
-        "At $x=0, y=0$. At $x=2, y=4/e^2 \\approx 0.54$. (1)",
-        "Stationary points: $(0, 0)$ and $(2, 4/e^2)$. (1)"
-      ]
-    }
-  ]
-};
-
-C["maths:7.4"] = {
-  "notes": [
-    { "h": "The Quotient Rule" },
     {
       "callout": {
         "t": "formula",
@@ -7247,44 +7705,251 @@ C["maths:7.4"] = {
         "body": "In the numerator, you MUST start with $v \\frac{du}{dx}$. Reversing the order will lead to the wrong sign."
       }
     },
-    { "callout": { "t": "memorise", "h": "Quotient Rule — $\\frac{vu' - uv'}{v^2}$", "body": "For $y = u/v$: numerator is $v\\frac{du}{dx} - u\\frac{dv}{dx}$, denominator is $v^2$. Mnemonic: **'v dee-u minus u dee-v, over v squared'**. Denominator is always the bottom function squared — never differentiated." } },
-    { "callout": { "t": "miscon", "h": "Writing $uv' - vu'$ Instead of $vu' - uv'$", "body": "The numerator must be $vu' - uv'$, not $uv' - vu'$. The function on the bottom ($v$) differentiates the one on top ($u$) first. Reversing the order gives the wrong sign on the whole answer — a very common exam error." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Quotient Rule — $\\frac{vu' - uv'}{v^2}$",
+        "body": "For $y = u/v$: numerator is $v\\frac{du}{dx} - u\\frac{dv}{dx}$, denominator is $v^2$. Mnemonic: **'v dee-u minus u dee-v, over v squared'**. Denominator is always the bottom function squared — never differentiated."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Writing $uv' - vu'$ Instead of $vu' - uv'$",
+        "body": "The numerator must be $vu' - uv'$, not $uv' - vu'$. The function on the bottom ($v$) differentiates the one on top ($u$) first. Reversing the order gives the wrong sign on the whole answer — a very common exam error."
+      }
+    }
   ],
   "flashcards": [
-    ["When to use the Quotient Rule?", "When functions of $x$ are in a fraction."],
-    ["Quotient rule formula?", "$(v u' - u v') / v^2$"],
-    ["Differentiate $\\frac{\\ln x}{x}$.", "$\\frac{1 - \\ln x}{x^2}$."],
-    ["Differentiate $\\frac{e^x}{x}$.", "$\\frac{e^x(x-1)}{x^2}$."],
-    ["What is $v^2$ in the derivative of $y = \\frac{3x+1}{x-2}$?", "$(x-2)^2$."],
-    ["Derivative of $\\tan x$ using quotient rule?", "$\\sec^2 x$ (since $\\tan = \\sin/\\cos$)."]
+    [
+      "When to use the Chain Rule?",
+      "For functions within functions (composite)."
+    ],
+    [
+      "Derivative of $[f(x)]^n$?",
+      "$n[f(x)]^{n-1} \\times f'(x)$."
+    ],
+    [
+      "Derivative of $e^{f(x)}$?",
+      "$f'(x) e^{f(x)}$."
+    ],
+    [
+      "Derivative of $\\ln(f(x))$?",
+      "$f'(x) / f(x)$."
+    ],
+    [
+      "Derivative of $\\sqrt{x^2+1}$?",
+      "$x/\\sqrt{x^2+1}$."
+    ],
+    [
+      "Chain rule for $dy/dx$ using $u$?",
+      "$(dy/du) \\times (du/dx)$."
+    ],
+    [
+      "When to use the Product Rule?",
+      "When two functions of $x$ are multiplied together."
+    ],
+    [
+      "Product rule formula?",
+      "$u v' + v u'$"
+    ],
+    [
+      "Differentiate $x \\ln x$.",
+      "$1 + \\ln x$."
+    ],
+    [
+      "Differentiate $x^3 e^{2x}$.",
+      "$3x^2 e^{2x} + 2x^3 e^{2x}$."
+    ],
+    [
+      "Is the order of $u$ and $v$ important in Product Rule?",
+      "No, because addition is commutative."
+    ],
+    [
+      "Differentiate $e^x \\sin x$.",
+      "$e^x(\\sin x + \\cos x)$."
+    ],
+    [
+      "When to use the Quotient Rule?",
+      "When functions of $x$ are in a fraction."
+    ],
+    [
+      "Quotient rule formula?",
+      "$(v u' - u v') / v^2$"
+    ],
+    [
+      "Differentiate $\\frac{\\ln x}{x}$.",
+      "$\\frac{1 - \\ln x}{x^2}$."
+    ],
+    [
+      "Differentiate $\\frac{e^x}{x}$.",
+      "$\\frac{e^x(x-1)}{x^2}$."
+    ],
+    [
+      "What is $v^2$ in the derivative of $y = \\frac{3x+1}{x-2}$?",
+      "$(x-2)^2$."
+    ],
+    [
+      "Derivative of $\\tan x$ using quotient rule?",
+      "$\\sec^2 x$ (since $\\tan = \\sin/\\cos$)."
+    ]
   ],
   "quiz": [
     {
+      "q": "Differentiate $y = \\ln(x^2 + 5)$.",
+      "opts": [
+        "$2x / (x^2 + 5)$",
+        "$1 / (x^2 + 5)$",
+        "$2x \\ln(x^2 + 5)$",
+        "$2 / x$"
+      ],
+      "ans": 0,
+      "why": "Using $\\ln(u)$ rule: $u' / u$."
+    },
+    {
+      "q": "Find $dy/dx$ for $y = e^{-x^2}$.",
+      "opts": [
+        "$-2x e^{-x^2}$",
+        "$e^{-x^2}$",
+        "$-2x e^{x^2}$",
+        "$e^{-2x}$"
+      ],
+      "ans": 0,
+      "why": "Derivative of exponent is $-2x$."
+    },
+    {
+      "q": "Differentiate $y = (2x+3)^{10}$.",
+      "opts": [
+        "$20(2x+3)^9$",
+        "$10(2x+3)^9$",
+        "$2(2x+3)^9$",
+        "$20x^9$"
+      ],
+      "ans": 0,
+      "why": "$10(2x+3)^9 \\times 2 = 20(2x+3)^9$."
+    },
+    {
+      "q": "Given $x = \\sin t, y = t^2$. Find $dy/dx$.",
+      "opts": [
+        "$2t / \\cos t$",
+        "$2t \\cos t$",
+        "$\\cos t / 2t$",
+        "$2t$"
+      ],
+      "ans": 0,
+      "why": "$(dy/dt) / (dx/dt) = 2t / \\cos t$."
+    },
+    {
+      "q": "Differentiate $y = x^2 \\ln x$.",
+      "opts": [
+        "$x + 2x \\ln x$",
+        "$2 + 2x \\ln x$",
+        "$x \\ln x$",
+        "$x^2/x + 2x$"
+      ],
+      "ans": 0,
+      "why": "$x^2(1/x) + (\\ln x)(2x) = x + 2x \\ln x$."
+    },
+    {
+      "q": "Find $dy/dx$ for $y = e^x \\cos x$.",
+      "opts": [
+        "$e^x(\\cos x - \\sin x)$",
+        "$e^x(\\cos x + \\sin x)$",
+        "$-e^x \\sin x$",
+        "$e^x \\cos x$"
+      ],
+      "ans": 0,
+      "why": "$u=e^x, v=\\cos x \\implies e^x(-\\sin x) + \\cos x(e^x)$."
+    },
+    {
+      "q": "Differentiate $y = x(x+1)^5$.",
+      "opts": [
+        "$(x+1)^4(6x+1)$",
+        "$(x+1)^5 + 5x(x+1)^4$",
+        "$5(x+1)^4$",
+        "$(x+1)^5$"
+      ],
+      "ans": 1,
+      "why": "Product of $x$ and $(x+1)^5$. Result is $1(x+1)^5 + x[5(x+1)^4]$."
+    },
+    {
+      "q": "Gradient of $y = x e^{-x}$ at $x = 0$.",
+      "opts": [
+        "1",
+        "0",
+        "-1",
+        "$e$"
+      ],
+      "ans": 0,
+      "why": "$dy/dx = e^{-x} - x e^{-x}$. At $x=0$, $e^0 - 0 = 1$."
+    },
+    {
       "q": "Differentiate $y = \\frac{x}{x+1}$.",
-      "opts": ["$1 / (x+1)^2$", "$(2x+1) / (x+1)^2$", "1", "$-1 / (x+1)^2$"],
+      "opts": [
+        "$1 / (x+1)^2$",
+        "$(2x+1) / (x+1)^2$",
+        "1",
+        "$-1 / (x+1)^2$"
+      ],
       "ans": 0,
       "why": "$\\frac{(x+1)(1) - x(1)}{(x+1)^2} = \\frac{1}{(x+1)^2}$."
     },
     {
       "q": "Find $dy/dx$ for $y = \\frac{e^{2x}}{x^2}$.",
-      "opts": ["$\\frac{2e^{2x}(x-1)}{x^3}$", "$\\frac{e^{2x}(2x-2)}{x^4}$", "$\\frac{2e^{2x}}{2x}$", "$\\frac{e^{2x}}{x^2}$"],
+      "opts": [
+        "$\\frac{2e^{2x}(x-1)}{x^3}$",
+        "$\\frac{e^{2x}(2x-2)}{x^4}$",
+        "$\\frac{2e^{2x}}{2x}$",
+        "$\\frac{e^{2x}}{x^2}$"
+      ],
       "ans": 0,
       "why": "$\\frac{x^2(2e^{2x}) - e^{2x}(2x)}{x^4} = \\frac{2x e^{2x}(x-1)}{x^4}$."
     },
     {
       "q": "Derivative of $\\frac{3x+2}{2x-3}$.",
-      "opts": ["$-13 / (2x-3)^2$", "$13 / (2x-3)^2$", "1.5", "$6 / 4$"],
+      "opts": [
+        "$-13 / (2x-3)^2$",
+        "$13 / (2x-3)^2$",
+        "1.5",
+        "$6 / 4$"
+      ],
       "ans": 0,
       "why": "$\\frac{(2x-3)(3) - (3x+2)(2)}{(2x-3)^2} = \\frac{6x-9-6x-4}{\\dots} = -13/\\dots$."
     },
     {
       "q": "Gradient of $y = \\frac{\\ln x}{x}$ at $x = e$.",
-      "opts": ["0", "$1/e^2$", "$1/e$", "1"],
+      "opts": [
+        "0",
+        "$1/e^2$",
+        "$1/e$",
+        "1"
+      ],
       "ans": 0,
       "why": "$(1 - \\ln x)/x^2$. At $x=e$, $1 - \\ln e = 0$."
     }
   ],
   "exam": [
+    {
+      "q": "The curve $C$ has equation $y = \\sqrt{4x+1}$. Find the gradient of the normal to $C$ at the point where $x=2$.",
+      "marks": 4,
+      "ms": [
+        "$y = (4x+1)^{1/2}$. $dy/dx = \\frac{1}{2}(4x+1)^{-1/2} \\times 4 = 2(4x+1)^{-1/2}$. (1)",
+        "At $x=2, dy/dx = 2(9)^{-1/2} = 2/3$. (1)",
+        "Gradient of tangent is $2/3$. (1)",
+        "Gradient of normal is $-3/2$. (1)"
+      ]
+    },
+    {
+      "q": "Find the stationary points of the curve $y = x^2 e^{-x}$.",
+      "marks": 5,
+      "ms": [
+        "$dy/dx = 2x e^{-x} - x^2 e^{-x}$. (1)",
+        "Set $dy/dx = 0 \\implies x e^{-x} (2 - x) = 0$. (1)",
+        "$e^{-x} \\ne 0$, so $x = 0$ or $x = 2$. (1)",
+        "At $x=0, y=0$. At $x=2, y=4/e^2 \\approx 0.54$. (1)",
+        "Stationary points: $(0, 0)$ and $(2, 4/e^2)$. (1)"
+      ]
+    },
     {
       "q": "Show that the derivative of $y = \\frac{\\cos x}{\\sin x}$ is $-\\csc^2 x$.",
       "marks": 3,
@@ -7293,23 +7958,74 @@ C["maths:7.4"] = {
         "$\\frac{dy}{dx} = \\frac{\\sin x(-\\sin x) - \\cos x(\\cos x)}{\\sin^2 x}$. (1)",
         "$= \\frac{-(\\sin^2 x + \\cos^2 x)}{\\sin^2 x} = \\frac{-1}{\\sin^2 x} = -\\csc^2 x$. (1)"
       ]
+    },
+    {
+      "q": "Differentiate $y=x^2 e^{3x}$ and find the $x$-coordinates of its stationary points.",
+      "marks": 6,
+      "ms": [
+        "Product rule: $\\dfrac{dy}{dx}=2xe^{3x}+x^2(3e^{3x})$. (1)",
+        "$=e^{3x}(2x+3x^2)$. (1)",
+        "$=xe^{3x}(2+3x)$. (1)",
+        "Stationary: $\\dfrac{dy}{dx}=0$; $e^{3x}\\neq0$. (1)",
+        "$x(2+3x)=0$. (1)",
+        "$x=0$ or $x=-\\tfrac23$. (1)"
+      ]
     }
   ]
 };
 
-C["maths:7.5"] = {
+C["maths:7.2"] = {
   "notes": [
-    { "h": "Trigonometric Differentiation" },
+    {
+      "h": "Differentiating Standard Functions"
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Standard derivatives",
+        "body": [
+          "$\\dfrac{d}{dx}x^n=nx^{n-1}$",
+          "$\\dfrac{d}{dx}e^{kx}=ke^{kx}$",
+          "$\\dfrac{d}{dx}\\ln x=\\dfrac1x$",
+          "$\\dfrac{d}{dx}\\sin kx=k\\cos kx$",
+          "$\\dfrac{d}{dx}\\cos kx=-k\\sin kx$"
+        ]
+      }
+    },
+    {
+      "h": "Trigonometric Differentiation"
+    },
     {
       "table": {
-        "head": ["Function $f(x)$", "Derivative $f'(x)$"],
+        "head": [
+          "Function $f(x)$",
+          "Derivative $f'(x)$"
+        ],
         "rows": [
-          ["$\\sin x$", "$\\cos x$"],
-          ["$\\cos x$", "$-\\sin x$"],
-          ["$\\tan x$", "$\\sec^2 x$"],
-          ["$\\sec x$", "$\\sec x \\tan x$"],
-          ["$\\csc x$", "$-\\csc x \\cot x$"],
-          ["$\\cot x$", "$-\\csc^2 x$"]
+          [
+            "$\\sin x$",
+            "$\\cos x$"
+          ],
+          [
+            "$\\cos x$",
+            "$-\\sin x$"
+          ],
+          [
+            "$\\tan x$",
+            "$\\sec^2 x$"
+          ],
+          [
+            "$\\sec x$",
+            "$\\sec x \\tan x$"
+          ],
+          [
+            "$\\csc x$",
+            "$-\\csc x \\cot x$"
+          ],
+          [
+            "$\\cot x$",
+            "$-\\csc^2 x$"
+          ]
         ]
       }
     },
@@ -7324,41 +8040,121 @@ C["maths:7.5"] = {
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "Trig Derivatives — Minus Signs on Co-functions", "body": "$\\frac{d}{dx}\\sin x = \\cos x$. $\\frac{d}{dx}\\cos x = -\\sin x$. $\\frac{d}{dx}\\tan x = \\sec^2 x$. The **co-** functions all pick up a minus: $\\frac{d}{dx}\\csc x = -\\csc x\\cot x$, $\\frac{d}{dx}\\cot x = -\\csc^2 x$. $\\frac{d}{dx}\\sec x = \\sec x\\tan x$ (no minus)." } },
-    { "callout": { "t": "miscon", "h": "$\\frac{d}{dx}(\\cos x) = \\sin x$", "body": "WRONG. $\\frac{d}{dx}(\\cos x) = -\\sin x$ — note the minus sign. This is one of the most common sign errors. The cycle is: $\\sin \\to \\cos \\to -\\sin \\to -\\cos \\to \\sin \\to \\dots$, alternating signs as you differentiate." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Trig Derivatives — Minus Signs on Co-functions",
+        "body": "$\\frac{d}{dx}\\sin x = \\cos x$. $\\frac{d}{dx}\\cos x = -\\sin x$. $\\frac{d}{dx}\\tan x = \\sec^2 x$. The **co-** functions all pick up a minus: $\\frac{d}{dx}\\csc x = -\\csc x\\cot x$, $\\frac{d}{dx}\\cot x = -\\csc^2 x$. $\\frac{d}{dx}\\sec x = \\sec x\\tan x$ (no minus)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\frac{d}{dx}(\\cos x) = \\sin x$",
+        "body": "WRONG. $\\frac{d}{dx}(\\cos x) = -\\sin x$ — note the minus sign. This is one of the most common sign errors. The cycle is: $\\sin \\to \\cos \\to -\\sin \\to -\\cos \\to \\sin \\to \\dots$, alternating signs as you differentiate."
+      }
+    }
   ],
   "flashcards": [
-    ["Derivative of $\\sin x$?", "$\\cos x$."],
-    ["Derivative of $\\cos x$?", "$-\\sin x$."],
-    ["Derivative of $\\tan x$?", "$\\sec^2 x$."],
-    ["Derivative of $\\sin(2x)$?", "$2\\cos(2x)$."],
-    ["Derivative of $\\cos(x^2)$?", "$-2x\\sin(x^2)$."],
-    ["Derivative of $\\sec x$?", "$\\sec x \\tan x$."]
+    [
+      "Derivative of $\\sin x$?",
+      "$\\cos x$."
+    ],
+    [
+      "Derivative of $\\cos x$?",
+      "$-\\sin x$."
+    ],
+    [
+      "Derivative of $\\tan x$?",
+      "$\\sec^2 x$."
+    ],
+    [
+      "Derivative of $\\sin(2x)$?",
+      "$2\\cos(2x)$."
+    ],
+    [
+      "Derivative of $\\cos(x^2)$?",
+      "$-2x\\sin(x^2)$."
+    ],
+    [
+      "Derivative of $\\sec x$?",
+      "$\\sec x \\tan x$."
+    ],
+    [
+      "$\\dfrac{d}{dx}\\sin kx=$?",
+      "$k\\cos kx$."
+    ],
+    [
+      "$\\dfrac{d}{dx}\\cos kx=$?",
+      "$-k\\sin kx$."
+    ]
   ],
   "quiz": [
     {
       "q": "Differentiate $y = \\sin^2 x$.",
-      "opts": ["$2\\sin x \\cos x$", "$\\cos^2 x$", "$\\sin 2x$", "A and C are correct"],
+      "opts": [
+        "$2\\sin x \\cos x$",
+        "$\\cos^2 x$",
+        "$\\sin 2x$",
+        "A and C are correct"
+      ],
       "ans": 3,
       "why": "Using chain rule $2\\sin x \\times \\cos x$, which equals $\\sin 2x$."
     },
     {
       "q": "Find $dy/dx$ for $y = \\tan(3x)$.",
-      "opts": ["$3\\sec^2(3x)$", "$\\sec^2(3x)$", "$3\\tan^2(3x)$", "$\\sec^2(x)$"],
+      "opts": [
+        "$3\\sec^2(3x)$",
+        "$\\sec^2(3x)$",
+        "$3\\tan^2(3x)$",
+        "$\\sec^2(x)$"
+      ],
       "ans": 0,
       "why": "Derivative of inner function (3) comes outside."
     },
     {
       "q": "Differentiate $y = e^x \\sin x$.",
-      "opts": ["$e^x(\\sin x + \\cos x)$", "$e^x \\cos x$", "$e^x \\sin x$", "$e^x(\\sin x - \\cos x)$"],
+      "opts": [
+        "$e^x(\\sin x + \\cos x)$",
+        "$e^x \\cos x$",
+        "$e^x \\sin x$",
+        "$e^x(\\sin x - \\cos x)$"
+      ],
       "ans": 0,
       "why": "Product rule: $e^x(\\cos x) + \\sin x(e^x)$."
     },
     {
       "q": "What is the derivative of $\\cot 2x$?",
-      "opts": ["$-2\\csc^2 2x$", "$-\\csc^2 2x$", "$2\\csc^2 2x$", "$-2\\sec^2 2x$"],
+      "opts": [
+        "$-2\\csc^2 2x$",
+        "$-\\csc^2 2x$",
+        "$2\\csc^2 2x$",
+        "$-2\\sec^2 2x$"
+      ],
       "ans": 0,
       "why": "Standard result for $\\cot ax$."
+    },
+    {
+      "q": "$\\dfrac{d}{dx}\\sin3x=$?",
+      "opts": [
+        "$3\\cos3x$",
+        "$\\cos3x$",
+        "$-3\\cos3x$",
+        "$3\\sin3x$"
+      ],
+      "ans": 0,
+      "why": "Chain factor $k=3$, derivative of sin is cos."
+    },
+    {
+      "q": "$\\dfrac{d}{dx}\\ln x=$?",
+      "opts": [
+        "$\\dfrac1x$",
+        "$x$",
+        "$\\ln x$",
+        "$-\\dfrac1{x^2}$"
+      ],
+      "ans": 0,
+      "why": "Standard derivative."
     }
   ],
   "exam": [
@@ -7371,13 +8167,36 @@ C["maths:7.5"] = {
         "$\\frac{\\cos x + 1}{(1+\\cos x)^2}$. (1)",
         "$\\frac{1}{1+\\cos x}$. (1)"
       ]
+    },
+    {
+      "q": "Differentiate $y=2\\sin3x-e^{4x}+\\ln x$.",
+      "marks": 3,
+      "ms": [
+        "$\\dfrac{d}{dx}2\\sin3x=6\\cos3x$. (1)",
+        "$\\dfrac{d}{dx}e^{4x}=4e^{4x}$. (1)",
+        "$\\dfrac{dy}{dx}=6\\cos3x-4e^{4x}+\\dfrac1x$. (1)"
+      ]
+    },
+    {
+      "q": "Find the gradient of $y=\\cos2x+\\ln(3x)$ at $x=\\dfrac{\\pi}{2}$ (give exact form where possible).",
+      "marks": 6,
+      "ms": [
+        "$\\dfrac{d}{dx}\\cos2x=-2\\sin2x$. (1)",
+        "$\\dfrac{d}{dx}\\ln(3x)=\\dfrac1x$. (1)",
+        "$\\dfrac{dy}{dx}=-2\\sin2x+\\dfrac1x$. (1)",
+        "At $x=\\dfrac{\\pi}{2}$: $\\sin2x=\\sin\\pi=0$. (1)",
+        "So $-2(0)=0$. (1)",
+        "Gradient $=\\dfrac{1}{\\pi/2}=\\dfrac{2}{\\pi}$. (1)"
+      ]
     }
   ]
 };
 
-C["maths:7.6"] = {
+C["maths:7.3"] = {
   "notes": [
-    { "h": "Stationary Points & Second Derivatives" },
+    {
+      "h": "Stationary Points & Second Derivatives"
+    },
     {
       "callout": {
         "t": "info",
@@ -7387,56 +8206,174 @@ C["maths:7.6"] = {
     },
     {
       "table": {
-        "head": ["Condition", "Nature of Stationary Point"],
+        "head": [
+          "Condition",
+          "Nature of Stationary Point"
+        ],
         "rows": [
-          ["$f''(x) > 0$", "Local Minimum (concave up)"],
-          ["$f''(x) < 0$", "Local Maximum (concave down)"],
-          ["$f''(x) = 0$", "Inconclusive (test gradient either side)"]
+          [
+            "$f''(x) > 0$",
+            "Local Minimum (concave up)"
+          ],
+          [
+            "$f''(x) < 0$",
+            "Local Maximum (concave down)"
+          ],
+          [
+            "$f''(x) = 0$",
+            "Inconclusive (test gradient either side)"
+          ]
         ]
       }
     },
     {
       "kv": [
-        ["Concave Up", "$f''(x) \\ge 0$"],
-        ["Concave Down", "$f''(x) \\le 0$"],
-        ["Point of Inflection", "A point where concavity changes ($f''(x)=0$ and changes sign)"]
+        [
+          "Concave Up",
+          "$f''(x) \\ge 0$"
+        ],
+        [
+          "Concave Down",
+          "$f''(x) \\le 0$"
+        ],
+        [
+          "Point of Inflection",
+          "A point where concavity changes ($f''(x)=0$ and changes sign)"
+        ]
       ]
     },
-    { "callout": { "t": "memorise", "h": "Stationary Points — Test Order", "body": "1. Set $f'(x) = 0$, solve for $x$. 2. Substitute $x$ to find $y$-coordinates. 3. Find $f''(x)$. 4. $f''(x) > 0$: minimum. $f''(x) < 0$: maximum. $f''(x) = 0$: check gradient on each side." } },
-    { "callout": { "t": "miscon", "h": "$f''(x) = 0$ Means a Point of Inflection", "body": "NOT necessarily. $f''(x) = 0$ is inconclusive — it could still be a max, min, or inflection. You must check whether $f''$ **changes sign** either side of the point. Example: $f(x) = x^4$ has $f''(0) = 0$ but $(0,0)$ is a minimum." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Stationary Points — Test Order",
+        "body": "1. Set $f'(x) = 0$, solve for $x$. 2. Substitute $x$ to find $y$-coordinates. 3. Find $f''(x)$. 4. $f''(x) > 0$: minimum. $f''(x) < 0$: maximum. $f''(x) = 0$: check gradient on each side."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$f''(x) = 0$ Means a Point of Inflection",
+        "body": "NOT necessarily. $f''(x) = 0$ is inconclusive — it could still be a max, min, or inflection. You must check whether $f''$ **changes sign** either side of the point. Example: $f(x) = x^4$ has $f''(0) = 0$ but $(0,0)$ is a minimum."
+      }
+    },
+    {
+      "page": "Tangents, Normals & Monotonicity"
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Tangent and normal",
+        "body": "At a point with gradient $m=f'(a)$: tangent $y-f(a)=m(x-a)$; normal gradient $=-\\dfrac1m$, so normal $y-f(a)=-\\dfrac1m(x-a)$."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Increasing / decreasing",
+        "body": "$f$ is increasing where $f'(x)>0$ and decreasing where $f'(x)<0$. Stationary points occur where $f'(x)=0$; classify with $f''$ (min if $f''>0$, max if $f''<0$)."
+      }
+    }
   ],
   "flashcards": [
-    ["How to find stationary points?", "Set $f'(x) = 0$."],
-    ["Nature of point if $f''(x) < 0$?", "Local maximum."],
-    ["Nature of point if $f''(x) > 0$?", "Local minimum."],
-    ["What if $f''(x) = 0$?", "Check gradient on both sides to distinguish inflection from max/min."],
-    ["Condition for a function to be concave down?", "$f''(x) \\le 0$."],
-    ["What is a point of inflection?", "Where the curve changes from concave up to concave down (or vice versa)."]
+    [
+      "How to find stationary points?",
+      "Set $f'(x) = 0$."
+    ],
+    [
+      "Nature of point if $f''(x) < 0$?",
+      "Local maximum."
+    ],
+    [
+      "Nature of point if $f''(x) > 0$?",
+      "Local minimum."
+    ],
+    [
+      "What if $f''(x) = 0$?",
+      "Check gradient on both sides to distinguish inflection from max/min."
+    ],
+    [
+      "Condition for a function to be concave down?",
+      "$f''(x) \\le 0$."
+    ],
+    [
+      "What is a point of inflection?",
+      "Where the curve changes from concave up to concave down (or vice versa)."
+    ],
+    [
+      "Gradient of the normal if the tangent gradient is $m$?",
+      "$-\\dfrac1m$."
+    ],
+    [
+      "How do you classify a stationary point with the second derivative?",
+      "$f''>0$ minimum, $f''<0$ maximum."
+    ]
   ],
   "quiz": [
     {
       "q": "Find the stationary point of $y = x^2 - 4x + 7$.",
-      "opts": ["$(2, 3)$", "$(2, 7)$", "$(4, 7)$", "$(0, 7)$"],
+      "opts": [
+        "$(2, 3)$",
+        "$(2, 7)$",
+        "$(4, 7)$",
+        "$(0, 7)$"
+      ],
       "ans": 0,
       "why": "$2x-4 = 0 \\implies x=2. y = 4-8+7=3$."
     },
     {
       "q": "If $f'(a)=0$ and $f''(a)=5$, what is at $x=a$?",
-      "opts": ["Minimum", "Maximum", "Inflection", "Intercept"],
+      "opts": [
+        "Minimum",
+        "Maximum",
+        "Inflection",
+        "Intercept"
+      ],
       "ans": 0,
       "why": "Positive second derivative means minimum."
     },
     {
       "q": "Find $f''(x)$ for $f(x) = x^3 - 5x$.",
-      "opts": ["$6x$", "$3x^2 - 5$", "$6$", "$0$"],
+      "opts": [
+        "$6x$",
+        "$3x^2 - 5$",
+        "$6$",
+        "$0$"
+      ],
       "ans": 0,
       "why": "$f'(x) = 3x^2 - 5 \\implies f''(x) = 6x$."
     },
     {
       "q": "At what $x$ value does $y = x^3 - 3x^2$ have a point of inflection?",
-      "opts": ["$x=1$", "$x=0$", "$x=2$", "$x=3$"],
+      "opts": [
+        "$x=1$",
+        "$x=0$",
+        "$x=2$",
+        "$x=3$"
+      ],
       "ans": 0,
       "why": "$y'' = 6x - 6 = 0 \\implies x=1$."
+    },
+    {
+      "q": "A function is increasing where...?",
+      "opts": [
+        "$f'(x)<0$",
+        "$f'(x)>0$",
+        "$f''(x)=0$",
+        "$f(x)=0$"
+      ],
+      "ans": 1,
+      "why": "Positive gradient means increasing."
+    },
+    {
+      "q": "If the tangent gradient is 2, the normal gradient is...?",
+      "opts": [
+        "$2$",
+        "$-2$",
+        "$\\tfrac12$",
+        "$-\\tfrac12$"
+      ],
+      "ans": 3,
+      "why": "Negative reciprocal."
     }
   ],
   "exam": [
@@ -7450,6 +8387,26 @@ C["maths:7.6"] = {
         "$f''(x) = 6x - 6$. (1)",
         "$f''(3) = 12 > 0 \\implies (3, -22)$ is a minimum. (1)",
         "$f''(-1) = -12 < 0 \\implies (-1, 10)$ is a maximum. (1)"
+      ]
+    },
+    {
+      "q": "Find the equation of the normal to $y=x^2-4x$ at the point $(1,-3)$.",
+      "marks": 4,
+      "ms": [
+        "$\\dfrac{dy}{dx}=2x-4$. (1)",
+        "At $x=1$: gradient $=-2$. (1)",
+        "Normal gradient $=\\tfrac12$. (1)",
+        "$y+3=\\tfrac12(x-1)$, i.e. $x-2y-7=0$. (1)"
+      ]
+    },
+    {
+      "q": "Find the equation of the tangent to $y=x^3-2x$ at the point $(2,4)$.",
+      "marks": 4,
+      "ms": [
+        "$\\dfrac{dy}{dx}=3x^2-2$. (1)",
+        "At $x=2$: gradient $=3(4)-2=10$. (1)",
+        "$y-4=10(x-2)$. (1)",
+        "$y=10x-16$. (1)"
       ]
     }
   ]

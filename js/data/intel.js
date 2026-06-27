@@ -915,6 +915,22 @@ window.KOS_DATA.intel = {
 },
 
 /* ============ Edexcel Mathematics 9MA0 — Pure ============ */
+"maths:7.2": {
+  defs: [["Standard derivatives", "x^n -> n x^(n-1); e^kx -> k e^kx; ln x -> 1/x; sin kx -> k cos kx; cos kx -> -k sin kx."]],
+  tips: ["Bring the chain factor k out front for e^kx, sin kx, cos kx.", "Rewrite roots/reciprocals as powers before differentiating."],
+  pitfalls: ["Forgetting the k factor on sin kx / e^kx.", "Sign error: d/dx cos = -sin."]
+},
+"maths:7.3": {
+  defs: [["Stationary point", "Where f'(x)=0; classify with f'' (min if +, max if -)."],
+         ["Normal", "Line perpendicular to the tangent; gradient -1/m."]],
+  tips: ["Increasing where f'>0, decreasing where f'<0.", "Tangent uses m=f'(a); normal uses -1/m."],
+  pitfalls: ["Using the tangent gradient for the normal.", "Not classifying stationary points."]
+},
+"maths:7.6": {
+  defs: [["Constructing a DE", "Translate a rate statement into dy/dt = k(...) with the correct sign."]],
+  tips: ["'Rate of change' = a derivative; 'proportional to' adds constant k.", "Use a negative sign for a decreasing quantity (decay, cooling, draining)."],
+  pitfalls: ["Omitting the constant of proportionality.", "Wrong sign for a decreasing quantity."]
+},
 "maths:6.1": {
   defs: [["e", "The base of natural exponentials, approx 2.718; y=e^x has gradient equal to its value."]],
   tips: ["a^x and e^x pass through (0,1); always positive with the x-axis as an asymptote.", "e^x is the natural growth function."],
