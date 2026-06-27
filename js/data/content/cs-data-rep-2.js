@@ -1629,41 +1629,57 @@ C["compsci:4.5.5.3"] = {
   ]
 };
 
-C["compsci:4.5.6.4"] = {
+C["compsci:4.5.6.6"] = {
   "notes": [
     {
-      "h": "Graphics and Data Conversion"
+      "h": "Vector versus Bitmapped Graphics"
     },
     {
-      "h": "Comparing Graphic Types"
+      "callout": {
+        "t": "info",
+        "body": "The two ways of storing a 2-D image — a grid of pixels (bitmap) or a list of geometric objects (vector) — have opposite strengths. The right choice depends on the kind of image and how it will be used."
+      }
+    },
+    {
+      "h": "Side-by-side comparison"
     },
     {
       "table": {
         "head": [
           "Feature",
-          "Bitmapped Graphics",
-          "Vector Graphics"
+          "Bitmapped",
+          "Vector"
         ],
         "rows": [
           [
-            "Composition",
-            "Grid of pixels",
-            "Geometric primitives (math)"
+            "Stored as",
+            "Grid of pixels, each a colour value",
+            "List of geometric objects (lines, curves, fills) with properties"
           ],
           [
             "Scaling",
-            "Pixelates / Loses quality",
-            "Perfect scaling (no loss)"
+            "Pixelates / loses quality when enlarged",
+            "Re-rendered at any size — no quality loss"
           ],
           [
-            "File Size",
-            "Large (depends on resolution)",
-            "Small (depends on complexity)"
+            "File size",
+            "Resolution × colour depth (large for big images)",
+            "Number of objects (small for simple art)"
           ],
           [
-            "Suitability",
-            "Photorealistic photos",
-            "Logos / Diagrams"
+            "Editing",
+            "Edit individual pixels",
+            "Move / edit whole objects independently"
+          ],
+          [
+            "Resolution",
+            "Resolution-dependent",
+            "Resolution-independent"
+          ],
+          [
+            "Best for",
+            "Photographs, continuous-tone images",
+            "Logos, icons, diagrams, fonts, technical drawings"
           ]
         ]
       }
@@ -1671,21 +1687,27 @@ C["compsci:4.5.6.4"] = {
     {
       "callout": {
         "t": "def",
-        "h": "Imaging Terms",
+        "h": "Key idea",
+        "body": "A bitmap is resolution-dependent — a fixed pixel grid. A vector is resolution-independent — a mathematical description re-rendered for the target device, so it is sharp at any size."
+      }
+    },
+    {
+      "page": "Advantages, disadvantages and uses"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "Advantages of each approach",
         "body": [
           {
             "kv": [
               [
-                "Resolution",
-                "Expressed as Width × Height in pixels (e.g., 1920 × 1080)."
+                "Bitmap",
+                "Represents photographic detail / continuous tone; easy to capture (camera, scanner); fast to display with no rendering step."
               ],
               [
-                "Colour Depth",
-                "Number of bits per pixel (e.g., 24-bit)."
-              ],
-              [
-                "Metadata",
-                "Data about data (e.g., image dimensions, date taken)."
+                "Vector",
+                "Scales without quality loss; small files for simple graphics; objects editable independently; resolution-independent."
               ]
             ]
           }
@@ -1693,190 +1715,198 @@ C["compsci:4.5.6.4"] = {
       }
     },
     {
-      "page": "ADC Process"
+      "callout": {
+        "t": "warn",
+        "h": "Disadvantages of each approach",
+        "body": [
+          {
+            "kv": [
+              [
+                "Bitmap",
+                "Pixelates when enlarged; large files at high resolution / colour depth; fixed resolution."
+              ],
+              [
+                "Vector",
+                "Poor for photographs / complex scenes; can be large and slow to render for very complex images; needs rendering software."
+              ]
+            ]
+          }
+        ]
+      }
     },
     {
-      "h": "The ADC (Analogue to Digital) Process"
-    },
-    {
-      "steps": [
-        {
-          "h": "Receive Signal",
-          "m": "An analogue sensor (e.g., microphone) detects continuous physical waves and produces a varying electrical signal."
-        },
-        {
-          "h": "Sample",
-          "m": "Measure the amplitude of the signal at regular time intervals (the sample rate).",
-          "n": "Higher sample rate → more samples per second → better reproduction of high-frequency detail."
-        },
-        {
-          "h": "Quantize",
-          "m": "Map each sampled amplitude to the nearest discrete binary value (limited by the sample resolution / bit depth).",
-          "n": "Higher resolution → smaller quantisation error per step."
-        },
-        {
-          "h": "Encode",
-          "m": "Store the sequence of binary values as a digital file."
-        }
-      ]
-    },
-    {
-      "code": {
-        "lang": "pseudo",
-        "cap": "Image size calculation",
-        "src": "pixels = width * height\nbits = pixels * colourDepth\nbytes = bits / 8"
+      "callout": {
+        "t": "tip",
+        "h": "Choosing the right approach",
+        "body": "Ask: is it a photograph or continuous-tone image? Use a **bitmap**. Is it line art — a logo, icon or diagram — that must scale cleanly? Use a **vector**."
       }
     },
     {
       "callout": {
         "t": "memorise",
-        "h": "Image File Size Formula",
-        "body": "**File size (bits) = Width × Height × Colour depth**. Colour depth (n bits) → 2ⁿ colours available. Resolution = pixel count (or pixels per inch). Metadata (dimensions, colour depth) is stored in the file header and is NOT part of the pixel data formula."
+        "h": "Vector vs Bitmap",
+        "body": "**Bitmap** = pixels, resolution-dependent, best for photos, size = W × H × depth. **Vector** = objects/maths, resolution-independent, best for logos & diagrams, size = number of objects. Vectors are usually smaller for simple art but can exceed bitmaps for photographic complexity."
       }
     },
     {
       "callout": {
         "t": "miscon",
-        "h": "Image Quality Misconceptions",
-        "body": "**Higher resolution always means a higher quality image** — Resolution determines pixel count; quality also depends on colour depth. A 1-bit (black/white) image at 4K resolution looks worse than a 24-bit colour image at lower resolution. **Colour depth and resolution are the same thing** — Resolution = how many pixels; colour depth = how many bits per pixel (colours available). They are independent."
+        "h": "Common misconception",
+        "body": "**Vectors are always smaller and always better** — only for geometric art. Photographs are far smaller as compressed bitmaps and cannot be represented well by vector geometry."
       }
     }
   ],
   "flashcards": [
     [
-      "What determines the number of colors available in a bitmapped image?",
-      "Colour depth (bits per pixel)."
+      "Why does a bitmap lose quality when enlarged but a vector does not?",
+      "A bitmap is a fixed grid of pixels that get stretched (pixelation); a vector is a mathematical description re-rendered at any size."
     ],
     [
-      "What is a major advantage of vector graphics over bitmapped graphics?",
-      "They can be scaled infinitely without losing quality or becoming pixelated, and often have a smaller file size for simple drawings."
+      "Which approach is best for photographs, and why?",
+      "Bitmapped — it stores the continuously varying colour of every pixel, which geometry cannot describe efficiently."
     ],
     [
-      "How do you calculate the estimated file size of a bitmapped image in bits?",
-      "Width × Height × Colour Depth (in bits)"
+      "Which approach is best for a logo printed at many sizes?",
+      "Vector — it scales to any size without quality loss and stays a small file."
     ],
     [
-      "What does an Analogue to Digital Converter (ADC) do?",
-      "It converts continuous analogue signals into discrete digital (binary) values by sampling at regular intervals."
+      "What does a vector file's size depend on?",
+      "The number and complexity of objects, not the display size."
     ],
     [
-      "Why can't vector graphics be easily used for photographs?",
-      "Photographs have complex, continuously varying color patterns that cannot be efficiently described by simple geometric math equations."
+      "What does a bitmap file's size depend on?",
+      "Resolution (width × height) and colour depth."
     ],
     [
-      "What does colour depth determine?",
-      "The number of bits per pixel, and therefore the number of colours available ($2^n$)."
+      "Give one disadvantage of vector graphics.",
+      "They cannot represent photographs / complex continuous-tone images well (and can be large or slow to render for very complex images)."
     ],
     [
-      "What is image resolution?",
-      "The number of pixels in an image, given as width × height."
+      "Give one disadvantage of bitmapped graphics.",
+      "They pixelate when scaled up and have large files at high resolution / colour depth."
     ],
     [
-      "What is the difference between sampling and quantising in an ADC?",
-      "Sampling measures the signal's amplitude at regular time intervals; quantising maps each measured amplitude to the nearest discrete binary value."
+      "Is a vector graphic resolution-dependent or independent?",
+      "Resolution-independent — it is re-rendered for the target device."
     ]
   ],
   "quiz": [
     {
-      "q": "A 100x100 pixel image has a colour depth of 8 bits. What is its uncompressed file size in bytes?",
+      "q": "Which is resolution-independent?",
       "opts": [
-        "10,000 bytes",
-        "80,000 bytes",
-        "1,250 bytes",
-        "800 bytes"
-      ],
-      "ans": 0,
-      "why": "100 * 100 = 10,000 pixels. 8 bits per pixel = 1 byte per pixel. So, 10,000 bytes."
-    },
-    {
-      "q": "Which of these is stored as a list of mathematical instructions rather than a grid of pixels?",
-      "opts": [
-        "JPEG",
-        "Bitmapped graphic",
-        "Vector graphic",
-        "GIF"
-      ],
-      "ans": 2,
-      "why": "Vector graphics store properties like shape, stroke, fill, and coordinates instead of pixel arrays."
-    },
-    {
-      "q": "What is the role of a DAC in audio playback?",
-      "opts": [
-        "To convert continuous sound waves into binary files",
-        "To convert binary audio data into varying electrical voltages for a speaker",
-        "To compress the audio file",
-        "To increase the sampling rate"
+        "Bitmap",
+        "Vector",
+        "Both",
+        "Neither"
       ],
       "ans": 1,
-      "why": "Digital-to-Analogue Converters turn digital data back into an analogue signal that physical speakers can output."
+      "why": "Vectors are recalculated for any resolution; bitmaps have a fixed pixel grid."
     },
     {
-      "q": "How many colours can be represented with a 4-bit colour depth?",
+      "q": "For a detailed photograph, which is more appropriate?",
       "opts": [
-        "4",
-        "8",
-        "16",
-        "256"
-      ],
-      "ans": 2,
-      "why": "$2^4 = 16$ colours."
-    },
-    {
-      "q": "Increasing the sample rate of an ADC primarily improves capture of...?",
-      "opts": [
-        "amplitude precision",
-        "high-frequency detail",
-        "colour depth",
-        "file metadata"
+        "Vector",
+        "Bitmap",
+        "Either is equally good",
+        "MIDI"
       ],
       "ans": 1,
-      "why": "More samples per second capture higher-frequency changes in the signal."
+      "why": "Photographs have continuous tone best captured by a pixel grid (bitmap)."
+    },
+    {
+      "q": "A simple two-colour company logo is most compactly stored as a...?",
+      "opts": [
+        "high-resolution bitmap",
+        "vector",
+        "lossy JPEG",
+        "raw image"
+      ],
+      "ans": 1,
+      "why": "A few geometric objects describe the logo compactly and scale perfectly."
+    },
+    {
+      "q": "Enlarging a bitmap to a billboard would...?",
+      "opts": [
+        "stay sharp",
+        "pixelate",
+        "become a vector",
+        "lose colour depth"
+      ],
+      "ans": 1,
+      "why": "The fixed pixels are stretched, revealing the grid (pixelation)."
+    },
+    {
+      "q": "When can a vector file be LARGER than a bitmap of the same image?",
+      "opts": [
+        "Never",
+        "For a flat two-colour logo",
+        "For a complex photographic image with thousands of shapes",
+        "For text"
+      ],
+      "ans": 2,
+      "why": "Describing photographic complexity needs huge numbers of objects, exceeding a compressed bitmap."
     }
   ],
   "exam": [
     {
-      "q": "Explain why bitmapped graphics are better suited for photographs than vector graphics.",
+      "q": "State one situation where a bitmap is the better choice and one where a vector is the better choice.",
       "marks": 2,
       "ms": [
-        "Photographs contain continuously varying colors and tiny details that do not fit into simple geometric shapes. (1)",
-        "Bitmapped graphics can store the exact color of every single pixel independently, allowing for photorealism. (1)"
+        "Bitmap: storing a photograph / continuous-tone image. (1)",
+        "Vector: a logo, icon or diagram that must scale to different sizes. (1)"
       ]
     },
     {
-      "q": "An image is 640 × 480 pixels with a colour depth of 8 bits. Calculate its uncompressed size in kibibytes (KiB).",
+      "q": "Explain why a vector graphic stays sharp when scaled but a bitmap does not.",
       "marks": 3,
       "ms": [
-        "640 × 480 × 8 = 2,457,600 bits. (1)",
-        "÷ 8 = 307,200 bytes. (1)",
-        "÷ 1024 = 300 KiB. (1)"
+        "A vector stores shapes as mathematical descriptions. (1)",
+        "These are re-rendered for the target size, so there are no fixed pixels to stretch. (1)",
+        "A bitmap is a fixed grid of pixels, which are stretched/duplicated when enlarged, causing pixelation. (1)"
       ]
     },
     {
-      "q": "Discuss the analogue-to-digital conversion process and the factors that affect the quality of the resulting digital file.",
+      "q": "Compare the vector and bitmapped approaches to representing images, and evaluate when each should be used.",
       "marks": 6,
       "ms": [
-        "An analogue signal is continuous; the ADC samples its amplitude at regular intervals. (1)",
-        "Sample rate = number of samples per second. (1)",
-        "A higher sample rate captures higher-frequency detail (Nyquist: ≥ 2× the highest frequency). (1)",
-        "Each sample is quantised to the nearest binary value. (1)",
-        "Sample resolution (bit depth) sets the number of amplitude levels — more bits give smaller quantisation error. (1)",
-        "Both higher sample rate and higher resolution improve fidelity but increase file size. (1)"
+        "Bitmaps store a grid of pixel colour values; vectors store mathematical descriptions of objects. (1)",
+        "Bitmaps are resolution-dependent and pixelate when enlarged; vectors are resolution-independent and scale without loss. (1)",
+        "Bitmap file size depends on resolution × colour depth; vector size depends on the number of objects. (1)",
+        "Bitmaps suit photographs and continuous-tone images; vectors suit logos, icons, diagrams and fonts. (1)",
+        "Vectors are editable per object and usually smaller for simple art, but poor for photographic detail and can be slow to render when complex. (1)",
+        "Therefore choose bitmap for photographic content and vector for scalable line art — the nature of the image and its use dictate the choice. (1)"
       ]
     }
   ]
 };
 
-C["compsci:4.5.6.1"] = {
+C["compsci:4.5.6.4"] = {
   "notes": [
     {
       "h": "Bitmapped Graphics"
     },
-    { "callout": { "t": "info", "body": "A bitmapped image is a grid of pixels, each storing its own colour value. The quality of the image depends on how many pixels there are and how many colours each can represent." } },
+    { "callout": { "t": "info", "body": "A bitmapped image is a grid of pixels, each storing its own colour value. The quality of the image depends on how many pixels there are (resolution) and how many colours each can represent (colour depth)." } },
     {
       "callout": {
         "t": "def",
         "h": "Pixel",
         "body": "The smallest addressable element in a digital image. Each pixel stores a colour value as a binary number with `colour depth` bits."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Resolution, Colour Depth and Metadata",
+        "body": [
+          {
+            "kv": [
+              ["Resolution", "Pixel dimensions, width × height (e.g. 1920 × 1080); also expressed as dots-per-inch (dpi) where a dot is a pixel."],
+              ["Size in pixels", "Width in pixels × height in pixels = total pixel count."],
+              ["Colour depth", "Number of bits stored per pixel; $n$ bits → $2^n$ available colours (1-bit = 2, 8-bit = 256, 24-bit ≈ 16.7M 'true colour')."],
+              ["Metadata", "Data about the image stored in the file header, e.g. width, height, colour depth, date taken — NOT part of the pixel-data size calculation."]
+            ]
+          }
+        ]
       }
     },
     {
@@ -2055,189 +2085,194 @@ C["compsci:4.5.6.1"] = {
   ]
 };
 
-C["compsci:4.5.6.2"] = {
+C["compsci:4.5.6.1"] = {
   "notes": [
     {
-      "h": "Resolution and Colour Depth"
+      "h": "Representing Data with Bit Patterns"
     },
-    { "callout": { "t": "info", "body": "Two factors determine both the visual quality and the file size of a bitmapped image: resolution and colour depth." } },
     {
       "callout": {
-        "t": "def",
-        "h": "Resolution",
-        "body": "The number of pixels in an image, expressed as Width × Height (e.g., 1920 × 1080). Higher resolution = more pixels = more detail = larger file."
+        "t": "info",
+        "body": "At the lowest level a computer stores everything — numbers, text, images, sound, video — as bit patterns (sequences of 0s and 1s). A bit pattern has no inherent meaning; its meaning comes entirely from how the software chooses to interpret it."
       }
     },
     {
       "callout": {
         "t": "def",
-        "h": "Colour Depth",
-        "body": "The number of bits used to represent each pixel's colour. More bits = more possible colours = smoother gradients = larger file."
+        "h": "Bit pattern",
+        "body": "A sequence of binary digits. The same pattern (e.g. 01000001) can represent the integer 65, the character 'A', a greyscale pixel value, or one audio sample — depending on the context in which it is used."
       }
     },
     {
       "callout": {
-        "t": "formula",
-        "h": "Image File Size",
-        "body": "$\\text{Size (bits)} = \\text{Width} \\times \\text{Height} \\times \\text{Colour Depth}$. Divide by 8 for bytes, by 8192 for KiB, by 8,388,608 for MiB."
-      }
-    },
-    {
-      "callout": {
-        "t": "memorise",
-        "h": "Colour Depth → Colour Count",
+        "t": "info",
+        "h": "How different data is encoded",
         "body": [
           {
             "kv": [
-              ["1-bit", "2 colours (monochrome)"],
-              ["8-bit", "256 colours"],
-              ["16-bit", "65,536 colours"],
-              ["24-bit", "16.7 million colours (\"true colour\")"]
+              [
+                "Numbers",
+                "Unsigned or two's-complement binary, or fixed/floating point for fractions."
+              ],
+              [
+                "Text",
+                "Each character is mapped to a code (ASCII, Unicode) — itself a binary number."
+              ],
+              [
+                "Images",
+                "A grid of pixels (bitmap), each pixel a binary colour value; or geometric objects (vector)."
+              ],
+              [
+                "Sound",
+                "Regular amplitude samples of an analogue wave, each quantised to a binary value."
+              ],
+              [
+                "Instructions",
+                "Machine-code op-codes and operands are themselves bit patterns held in memory."
+              ]
             ]
           }
         ]
       }
     },
     {
-      "code": {
-        "lang": "pseudo",
-        "cap": "Calculating image file size.",
-        "src": "# 1920x1080 image, 24-bit colour\nwidth = 1920\nheight = 1080\ncolourDepth = 24\n\nbits = width * height * colourDepth  # 49,766,400 bits\nbytes = bits / 8                     # 6,220,800 bytes\nMiB = bytes / (1024 * 1024)          # ≈ 5.93 MiB"
+      "callout": {
+        "t": "memorise",
+        "h": "Meaning comes from interpretation",
+        "body": "A bit pattern is just bits. Whether 01000001 is the number 65, the letter 'A', or a pixel depends on the data type / file format telling the program how to read it. That is why a file opened in the wrong program shows garbage — the bytes are interpreted with the wrong rules."
       }
     },
     {
       "callout": {
         "t": "miscon",
-        "h": "Resolution vs Colour Depth Confusion",
-        "body": "**Resolution and colour depth are the same thing** — No: resolution = the number of pixels (or pixels per unit length); colour depth = the number of bits per pixel, determining how many colours are available. Both independently affect image quality and file size. **More resolution always means better quality** — A 4K image with 1-bit colour (black/white) looks far worse than a 1080p image with 24-bit true colour."
+        "h": "Common misconception",
+        "body": "**A file 'contains' a picture or a song** — No; it contains bit patterns plus a format that tells software how to turn those bits back into pixels or samples. The same bits could be drawn, played, or printed as numbers."
       }
     }
   ],
   "flashcards": [
     [
-      "How many colours can an 8-bit colour depth represent?",
-      "256 ($2^8$)"
+      "What is stored at the lowest level for all data types?",
+      "Bit patterns — sequences of binary digits (0s and 1s)."
     ],
     [
-      "What does increasing colour depth do to file size?",
-      "Increases it — more bits per pixel means more data to store."
+      "Where does the meaning of a bit pattern come from?",
+      "From how the software / data type interprets it, not from the bits themselves."
     ],
     [
-      "What is 'true colour' and how many bits does it use?",
-      "24-bit colour — 8 bits each for red, green, and blue, giving ~16.7 million possible colours."
+      "How are images represented as bit patterns?",
+      "As a grid of pixels (bitmap), each pixel a binary colour value, or as geometric objects (vector)."
     ],
     [
-      "What is image resolution?",
-      "The number of pixels, expressed as width × height (e.g. 1920 × 1080)."
+      "How is sound represented as bit patterns?",
+      "As regular amplitude samples of an analogue wave, each quantised to a binary value."
     ],
     [
-      "How many colours does a 1-bit colour depth give?",
-      "2 (monochrome — black and white)."
+      "How is text represented as bit patterns?",
+      "Each character is mapped to a binary code using a character set such as ASCII or Unicode."
     ],
     [
-      "If colour depth increases, what happens to file size?",
-      "It increases — more bits per pixel means more data to store."
+      "Can the same bit pattern mean different things?",
+      "Yes — e.g. 01000001 could be the integer 65, the character 'A', or a pixel value, depending on context."
     ],
     [
-      "Give the formula linking file size to resolution and colour depth.",
-      "Size (bits) = Width × Height × Colour depth."
+      "Why does a file opened in the wrong program show garbage?",
+      "Its bytes are interpreted using the wrong format rules."
     ],
     [
-      "Does higher resolution alone guarantee a better-looking image?",
-      "No — colour depth matters too; a high-resolution 1-bit image can look worse than a lower-resolution 24-bit one."
+      "Name three kinds of data represented by bit patterns.",
+      "Any three of: numbers, text, images, sound, video, machine-code instructions."
     ]
   ],
   "quiz": [
     {
-      "q": "If resolution doubles in both dimensions, what happens to the number of pixels?",
+      "q": "What determines what a given bit pattern represents?",
       "opts": [
-        "Doubles",
-        "Triples",
-        "Quadruples",
-        "Stays the same"
+        "The pattern always means a number",
+        "The way the software interprets it (its data type / format)",
+        "The length of the pattern only",
+        "The colour of the pixels"
+      ],
+      "ans": 1,
+      "why": "Bits carry no inherent meaning; the interpretation rules give them meaning."
+    },
+    {
+      "q": "An image stored as a grid of pixels with binary colour values is a...?",
+      "opts": [
+        "vector graphic",
+        "bitmap",
+        "MIDI file",
+        "text file"
+      ],
+      "ans": 1,
+      "why": "A grid of pixels each holding a binary colour value is a bitmapped image."
+    },
+    {
+      "q": "Sound is represented digitally by...?",
+      "opts": [
+        "storing geometric shapes",
+        "sampling the amplitude of the wave at intervals",
+        "listing musical instructions only",
+        "storing one bit per second"
+      ],
+      "ans": 1,
+      "why": "Digital sound samples the analogue wave's amplitude at regular intervals and stores each as binary."
+    },
+    {
+      "q": "The pattern 01000001 could represent...?",
+      "opts": [
+        "only the number 65",
+        "only the letter A",
+        "the number 65, the letter A or a pixel value depending on context",
+        "nothing meaningful"
       ],
       "ans": 2,
-      "why": "Doubling width AND height: $2W \\times 2H = 4 \\times (W \\times H)$."
+      "why": "The same bits can be interpreted many ways depending on the data type / format."
     },
     {
-      "q": "An image is 200 × 100 pixels with a 4-bit colour depth. What is its uncompressed size in bytes?",
+      "q": "Which statement is TRUE?",
       "opts": [
-        "80,000 bytes",
-        "10,000 bytes",
-        "20,000 bytes",
-        "40,000 bytes"
-      ],
-      "ans": 1,
-      "why": "200 × 100 × 4 = 80,000 bits. 80,000 ÷ 8 = 10,000 bytes."
-    },
-    {
-      "q": "How many colours does 16-bit colour depth provide?",
-      "opts": [
-        "256",
-        "1024",
-        "65,536",
-        "16.7 million"
+        "Files store pictures directly",
+        "Bit patterns have a fixed meaning",
+        "Meaning depends on interpretation",
+        "Text cannot be stored in binary"
       ],
       "ans": 2,
-      "why": "$2^{16} = 65,536$ colours."
-    },
-    {
-      "q": "Which gives a better-looking image: 4K at 1-bit colour or 1080p at 24-bit colour?",
-      "opts": [
-        "the 4K one",
-        "the 1080p one",
-        "identical",
-        "cannot tell"
-      ],
-      "ans": 1,
-      "why": "Colour depth matters: 1-bit is black/white regardless of resolution."
-    },
-    {
-      "q": "Doubling only the colour depth (bits per pixel) does what to file size?",
-      "opts": [
-        "halves it",
-        "doubles it",
-        "quadruples it",
-        "no change"
-      ],
-      "ans": 1,
-      "why": "File size is proportional to colour depth, so doubling it doubles the size."
+      "why": "Meaning is assigned by the interpreting software / format."
     }
   ],
   "exam": [
     {
-      "q": "Calculate the file size in KiB of a 100×100 image with 8-bit colour depth.",
-      "marks": 3,
+      "q": "State what is meant by a 'bit pattern'.",
+      "marks": 1,
       "ms": [
-        "$100 \\times 100 \\times 8 = 80{,}000$ bits (1)",
-        "$80{,}000 \\div 8 = 10{,}000$ bytes (1)",
-        "$10{,}000 \\div 1024 \\approx 9.77$ KiB (1)"
+        "A sequence of binary digits (0s and 1s). (1)"
       ]
     },
     {
-      "q": "Define resolution and colour depth.",
+      "q": "Explain how the same bit pattern can represent different types of data.",
       "marks": 2,
       "ms": [
-        "Resolution: the number of pixels in the image (width × height). (1)",
-        "Colour depth: the number of bits used per pixel, determining how many colours are available. (1)"
+        "The bits themselves have no inherent meaning. (1)",
+        "The data type / file format tells the software how to interpret them, e.g. as a number, character or pixel. (1)"
       ]
     },
     {
-      "q": "Discuss how resolution and colour depth each affect image quality and file size, and the trade-offs when storing images.",
+      "q": "Describe how bit patterns can be used to represent (a) an image and (b) sound.",
       "marks": 6,
       "ms": [
-        "Resolution = pixel count; higher resolution captures more detail. (1)",
-        "Colour depth = bits per pixel; higher depth gives more colours / smoother gradients. (1)",
-        "They are independent factors. (1)",
-        "Both increase file size when raised (size = W × H × depth). (1)",
-        "Low colour depth or low resolution degrades quality even if the other is high. (1)",
-        "Trade-off: choose values high enough for acceptable quality while keeping file size/transmission manageable; compression helps. (1)"
+        "Image — a bitmap is a grid of pixels. (1)",
+        "Each pixel stores a binary colour value; colour depth = bits per pixel. (1)",
+        "Alternatively a vector image stores geometric objects as numbers. (1)",
+        "Sound — the analogue wave's amplitude is sampled at regular intervals. (1)",
+        "Each sample is quantised to the nearest binary value (sample resolution). (1)",
+        "The stored sequence of samples (or the pixel grid) is just bit patterns that software interprets to reproduce the image / sound. (1)"
       ]
     }
   ]
 };
 
-C["compsci:4.5.6.3"] = {
+C["compsci:4.5.6.5"] = {
   "notes": [
     {
       "h": "Vector Graphics"
@@ -2426,7 +2461,7 @@ C["compsci:4.5.6.3"] = {
   ]
 };
 
-C["compsci:4.5.6.5"] = {
+C["compsci:4.5.6.3"] = {
   "notes": [
     {
       "h": "ADC and DAC"
@@ -2597,7 +2632,7 @@ C["compsci:4.5.6.5"] = {
   ]
 };
 
-C["compsci:4.5.6.6"] = {
+C["compsci:4.5.6.7"] = {
   "notes": [
     {
       "h": "Sound Sampling"
@@ -2769,250 +2804,200 @@ C["compsci:4.5.6.6"] = {
   ]
 };
 
-C["compsci:4.5.6.7"] = {
+C["compsci:4.5.6.2"] = {
   "notes": [
     {
-      "h": "Sound and MIDI"
+      "h": "Analogue and Digital"
     },
-    { "callout": { "t": "info", "body": "Digital sound is recorded by sampling an analogue wave at set intervals." } },
     {
       "callout": {
-        "t": "def",
-        "h": "Acoustic Terms",
-        "body": [
-          {
-            "kv": [
-              [
-                "Sample Rate",
-                "Samples taken per second (Hz)."
-              ],
-              [
-                "Sample Resolution",
-                "Bits per sample (determines dynamic range)."
-              ],
-              [
-                "Nyquist Theorem",
-                "Sample rate must be $2 \\times$ highest signal frequency."
-              ],
-              [
-                "MIDI",
-                "Protocol for storing musical event instructions, not audio."
-              ]
-            ]
-          }
-        ]
+        "t": "info",
+        "body": "Real-world quantities such as sound, light and temperature are analogue; computers store and process data digitally. The difference applies to both data and signals, and explains why conversion (ADC/DAC) is needed."
       }
     },
     {
-      "h": "Comparing Audio Formats"
+      "callout": {
+        "t": "def",
+        "h": "Analogue",
+        "body": "Analogue data and signals are continuous — they can take any value within a range and vary smoothly over time (e.g. a sound wave's air pressure, the brightness from a dimmer switch)."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Digital",
+        "body": "Digital data and signals are discrete — they take only a finite set of distinct values, represented in binary (e.g. audio samples stored as whole numbers, a signal that is either high or low)."
+      }
+    },
+    {
+      "h": "Data versus signals"
     },
     {
       "table": {
         "head": [
-          "Feature",
-          "Sampled Digital Audio",
-          "MIDI"
+          "Term",
+          "Analogue",
+          "Digital"
         ],
         "rows": [
           [
-            "Storage",
-            "Actual sound pressure waves",
-            "Musical instructions (events)"
+            "Data",
+            "Continuous — any value in a range",
+            "Discrete — a fixed set of values, stored in binary"
           ],
           [
-            "File Size",
-            "Very Large",
-            "Very Small"
+            "Signal",
+            "A continuously varying physical quantity (e.g. a voltage mirroring a sound wave)",
+            "A signal switching between distinct levels (e.g. 0 V / 5 V for 0 and 1)"
           ],
           [
-            "Editing",
-            "Hard to isolate instruments",
-            "Easy to change notes/instruments"
-          ],
-          [
-            "Fidelity",
-            "Records exactly what was heard",
-            "Depends on playback device synth"
+            "Example",
+            "Vinyl record groove, mercury thermometer",
+            "Audio CD samples, digital thermometer display"
           ]
         ]
       }
     },
     {
-      "page": "Audio Process & MIDI"
-    },
-    {
-      "h": "The Digital Audio Process"
-    },
-    {
-      "steps": [
-        {
-          "h": "Sample",
-          "m": "Measure the amplitude of the analogue wave at the sample rate (e.g., 44,100 times per second).",
-          "n": "Nyquist: rate must be ≥ 2× the highest frequency to avoid aliasing."
-        },
-        {
-          "h": "Convert",
-          "m": "Pass each amplitude measurement through an ADC to produce a binary value."
-        },
-        {
-          "h": "Storage",
-          "m": "Store the resulting sequence of binary values as a digital audio file."
-        },
-        {
-          "h": "Output",
-          "m": "During playback, pass the binary data through a DAC and amplifier to drive the speaker."
-        }
-      ]
-    },
-    {
-      "code": {
-        "lang": "pseudo",
-        "cap": "Audio bit rate calculation",
-        "src": "bitRate = sampleRate * sampleResolution * channels\nfileSize = bitRate * seconds"
-      }
-    },
-    {
       "callout": {
-        "t": "tip",
-        "h": "Advantages of MIDI",
-        "body": "Very small file size, easily editable (you can change a single note's pitch without affecting others), easily change instruments."
+        "t": "info",
+        "h": "Why computers are digital",
+        "body": "Digital signals resist noise: small interference does not change which discrete level is read, so data can be copied and transmitted without degradation. Analogue signals accumulate noise and distortion with every copy or stage of transmission."
       }
     },
     {
       "callout": {
         "t": "memorise",
-        "h": "MIDI vs Sampled Audio",
-        "body": "**MIDI**: stores musical events (NoteOn, NoteOff, velocity, channel, timing) — NOT audio waveforms. Very small files. Easily editable (change pitch, tempo, instrument). Requires a synthesizer. **Sampled audio**: stores actual digitised waveform. Large files. Realistic playback. Hard to edit individual notes. Quality fixed at recording time."
+        "h": "Analogue vs Digital",
+        "body": "**Analogue = continuous** (any value, smooth). **Digital = discrete** (finite set, binary). The distinction applies to both data and signals. Computers use digital representation because it resists noise and can be processed and copied perfectly."
       }
     },
     {
       "callout": {
         "t": "miscon",
-        "h": "MIDI Misconceptions",
-        "body": "**A MIDI file contains recorded audio** — No; MIDI stores musical instructions (which notes, when, how hard) like sheet music — not waveform data. Playback depends on the synthesizer. **MIDI always sounds the same on all devices** — No; MIDI output quality depends on the synthesizer used; different synths produce different timbres from the same MIDI events."
+        "h": "Common misconception",
+        "body": "**Digital always means higher quality than analogue** — Not inherently; a digital recording only approximates the analogue original, limited by sample rate and resolution. Digital's real advantages are noise resistance and easy, lossless processing/copying — not infinite fidelity."
       }
     }
   ],
   "flashcards": [
     [
-      "What two factors primarily determine the quality and file size of digital audio?",
-      "Sample rate and sample resolution."
+      "What does 'analogue' mean?",
+      "Continuous — able to take any value within a range and vary smoothly over time."
     ],
     [
-      "What is the Nyquist Theorem?",
-      "The sample rate must be at least twice the highest frequency of the original signal to accurately reconstruct it."
+      "What does 'digital' mean?",
+      "Discrete — taking only a finite set of distinct values, represented in binary."
     ],
     [
-      "What does MIDI stand for?",
-      "Musical Instrument Digital Interface"
+      "Give an example of analogue data.",
+      "A sound wave, a vinyl groove, a mercury thermometer reading (any continuous quantity)."
     ],
     [
-      "Does a MIDI file contain actual digital audio waves?",
-      "No, it contains event messages/instructions (like sheet music) detailing how to play the sound."
+      "Give an example of digital data.",
+      "Audio CD samples, a digital thermometer reading (any discrete, binary-stored value)."
     ],
     [
-      "What is an advantage of MIDI over sampled digital audio?",
-      "Much smaller file size and absolute control to edit individual notes or change instruments after recording."
+      "What is an analogue signal?",
+      "A continuously varying physical quantity, e.g. a voltage that mirrors a sound wave."
     ],
     [
-      "Name three parameters in a MIDI Note On event.",
-      "Pitch (note/key number), velocity (how hard/loud), and channel/timing."
+      "What is a digital signal?",
+      "A signal that switches between distinct levels, e.g. 0 V / 5 V representing 0 and 1."
     ],
     [
-      "Why is a MIDI file far smaller than the equivalent sampled audio?",
-      "It stores compact event instructions, not the digitised waveform samples."
+      "Why do computers use digital rather than analogue representation?",
+      "Digital resists noise and can be processed and copied without degradation; analogue accumulates noise."
     ],
     [
-      "What hardware actually produces sound from a MIDI file?",
-      "A synthesizer (in the sound card/device) that interprets the events."
+      "Does digital guarantee higher fidelity than analogue?",
+      "No — it only approximates the original, limited by sample rate and resolution; its advantage is noise resistance and easy processing."
     ]
   ],
   "quiz": [
     {
-      "q": "If human hearing goes up to 20,000 Hz, what is the minimum sample rate required according to the Nyquist theorem?",
+      "q": "Which best describes an analogue signal?",
       "opts": [
-        "10,000 Hz",
-        "20,000 Hz",
-        "40,000 Hz",
-        "44,100 Hz"
-      ],
-      "ans": 2,
-      "why": "Nyquist dictates $2 \\times$ highest frequency, so $2 \\times 20,000 = 40,000$ Hz."
-    },
-    {
-      "q": "A 10-second mono audio track is recorded at 1000 Hz with an 8-bit resolution. What is the uncompressed file size?",
-      "opts": [
-        "80,000 bits",
-        "8,000 bits",
-        "10,000 bytes",
-        "Both A and C"
-      ],
-      "ans": 3,
-      "why": "1000 * 8 * 10 * 1 = 80,000 bits. 80,000 / 8 = 10,000 bytes. So both A and C are correct."
-    },
-    {
-      "q": "Which of the following is NOT typically a MIDI event parameter?",
-      "opts": [
-        "Velocity (Volume)",
-        "Pitch",
-        "Sample Rate",
-        "Note On / Note Off"
-      ],
-      "ans": 2,
-      "why": "Sample rate applies to digitized audio waveforms, not MIDI event instructions."
-    },
-    {
-      "q": "Why might a MIDI file sound different on two different computers?",
-      "opts": [
-        "Because MIDI files degrade over time",
-        "Because they use different hardware sound cards/synths to interpret the instructions",
-        "Because the sample rate conversion fails",
-        "Because MIDI files are lossy"
+        "Switches between two fixed levels",
+        "Varies continuously and can take any value",
+        "Always stored in binary",
+        "Has no noise"
       ],
       "ans": 1,
-      "why": "MIDI only sends instructions. The computer's local synthesizer generates the actual sound based on its built-in instrument samples."
+      "why": "Analogue signals are continuous and can take any value in a range."
     },
     {
-      "q": "A MIDI file is best described as...?",
+      "q": "A digital signal is best described as...?",
       "opts": [
-        "a compressed waveform",
-        "a set of musical event instructions",
-        "a vector image",
-        "a lossless audio codec"
+        "continuously varying",
+        "taking a finite set of discrete values",
+        "always analogue first",
+        "immune to all error"
       ],
       "ans": 1,
-      "why": "MIDI stores events (which note, when, how hard) like sheet music, not audio."
+      "why": "Digital signals are discrete, taking distinct values represented in binary."
+    },
+    {
+      "q": "Why is digital data more robust when copied many times?",
+      "opts": [
+        "It is smaller",
+        "Noise does not change which discrete level is read",
+        "It is analogue underneath",
+        "It uses more bits"
+      ],
+      "ans": 1,
+      "why": "Discrete levels mean small interference is ignored, so copies do not degrade."
+    },
+    {
+      "q": "Which is an example of an analogue quantity?",
+      "opts": [
+        "A CD audio sample",
+        "The air pressure of a sound wave",
+        "A pixel's binary colour value",
+        "An ASCII code"
+      ],
+      "ans": 1,
+      "why": "Air pressure varies continuously — it is analogue."
+    },
+    {
+      "q": "Converting analogue to digital is necessary because...?",
+      "opts": [
+        "computers process discrete binary values",
+        "analogue is always higher quality",
+        "digital cannot be copied",
+        "signals never have noise"
+      ],
+      "ans": 0,
+      "why": "Computers store and process discrete binary data, so analogue input must be digitised."
     }
   ],
   "exam": [
     {
-      "q": "State two advantages of using MIDI instead of sampled digital audio to store a piece of music.",
+      "q": "State the difference between analogue and digital data.",
       "marks": 2,
       "ms": [
-        "Requires much less storage space. (1)",
-        "Individual notes can be edited/changed easily without affecting the rest of the recording. (1)",
-        "Instruments can be easily swapped out. (1)"
+        "Analogue data is continuous — it can take any value in a range. (1)",
+        "Digital data is discrete — it takes only a finite set of values, stored in binary. (1)"
       ]
     },
     {
-      "q": "Explain why the same MIDI file may sound different when played on two different devices.",
-      "marks": 3,
+      "q": "Give one example each of an analogue signal and a digital signal.",
+      "marks": 2,
       "ms": [
-        "MIDI stores only instructions, not audio. (1)",
-        "Each device uses its own synthesizer to generate the sound. (1)",
-        "Different synths produce different timbres / instrument samples from the same events. (1)"
+        "Analogue: a continuously varying voltage representing a sound wave (or similar). (1)",
+        "Digital: a signal switching between two levels such as 0 V and 5 V representing 0 and 1 (or similar). (1)"
       ]
     },
     {
-      "q": "Compare MIDI with sampled digital audio, discussing the advantages and disadvantages of each.",
+      "q": "Discuss why computer systems represent data digitally rather than in analogue form, including any limitations of doing so.",
       "marks": 6,
       "ms": [
-        "Sampled audio stores the actual digitised waveform; MIDI stores musical event instructions. (1)",
-        "Sampled audio files are large; MIDI files are very small. (1)",
-        "Sampled audio reproduces exactly what was recorded; MIDI playback depends on the synthesizer. (1)",
-        "MIDI is easily edited — change a note, tempo or instrument; sampled audio is hard to edit. (1)",
-        "Sampled audio suits realistic recordings (vocals, live sound); MIDI suits composition and arrangement. (1)",
-        "MIDI may sound different across devices, whereas sampled audio is consistent. (1)"
+        "Computers store and process discrete binary values, so data must be digital. (1)",
+        "Digital signals are resistant to noise — small interference does not change the discrete level read. (1)",
+        "Digital data can be copied and transmitted without degradation/loss. (1)",
+        "It can be processed, compressed and error-checked easily. (1)",
+        "Limitation: digitising an analogue source only approximates it, limited by sample rate and resolution (quantisation error). (1)",
+        "Trade-off: higher sample rate/resolution improve fidelity but increase storage; so digital is chosen for robustness and processing despite not being a perfect copy. (1)"
       ]
     }
   ]

@@ -474,38 +474,38 @@ window.KOS_DATA.intel = {
   pitfalls: ["Saying a checksum detects all errors (some cancel out).", "Confusing detection with correction."]
 },
 "compsci:4.5.6.4": {
-  defs: [["Colour depth", "Bits per pixel; n bits → 2^n available colours."],
-         ["Resolution", "The pixel dimensions (width × height) of an image."]],
-  tips: ["Image size (bits) = width × height × colour depth.", "An ADC samples (rate) then quantises (bit depth) an analogue signal."],
-  pitfalls: ["Treating resolution and colour depth as the same thing.", "Forgetting to ÷8 when converting bits to bytes."]
+  defs: [["Resolution", "Pixel dimensions (width x height); also dots per inch."],
+         ["Colour depth", "Bits per pixel; n bits gives 2^n available colours."]],
+  tips: ["Image size (bits) = width x height x colour depth; divide by 8 for bytes.", "Metadata (width, height, colour depth) sits in the header and is excluded from the pixel-size calculation."],
+  pitfalls: ["Treating resolution and colour depth as the same thing.", "Forgetting to divide by 8 when converting bits to bytes."]
 },
 "compsci:4.5.6.1": {
-  defs: [["Bitmap", "An image stored as a grid of pixels, each holding a colour value."]],
-  tips: ["File size = width × height × colour depth (bits).", "Bitmaps are resolution-dependent, so they pixelate when enlarged."],
-  pitfalls: ["Thinking enlarging adds detail (it pixelates).", "Assuming a larger file is higher quality regardless of colour depth."]
+  defs: [["Bit pattern", "A sequence of binary digits whose meaning depends on how software interprets it."]],
+  tips: ["The same bits can be a number, character, pixel or sample — the data type/format decides.", "Images = pixel grids or vector objects; sound = amplitude samples; text = character codes."],
+  pitfalls: ["Saying a file 'contains' a picture rather than bit patterns plus a format.", "Assuming a bit pattern has one fixed meaning."]
 },
 "compsci:4.5.6.2": {
-  defs: [["Resolution", "The number of pixels (width × height)."],
-         ["Colour depth", "Bits per pixel — 2^n available colours."]],
-  tips: ["Both raise quality AND file size; they are independent factors.", "1-bit = 2 colours; 24-bit ≈ 16.7 million ('true colour')."],
-  pitfalls: ["Assuming resolution alone determines quality.", "Mixing up resolution and colour depth."]
+  defs: [["Analogue", "Continuous data/signal — any value in a range."],
+         ["Digital", "Discrete data/signal — a finite set of values, stored in binary."]],
+  tips: ["The distinction applies to both data and signals.", "Computers are digital because discrete levels resist noise and copy without loss."],
+  pitfalls: ["Claiming digital is always higher fidelity — it only approximates the analogue source.", "Confusing analogue/digital data with the signal that carries it."]
 },
 "compsci:4.5.6.3": {
-  defs: [["Vector graphic", "An image stored as mathematical shape descriptions (coordinates, properties), not pixels."]],
-  tips: ["Vectors scale with no quality loss → ideal for logos/diagrams; SVG is XML-based.", "Bitmaps suit photographs; vectors suit geometric art."],
-  pitfalls: ["Saying vectors are always smaller — complex/photographic images can be larger.", "Using vectors for photographs."]
-},
-"compsci:4.5.6.5": {
-  defs: [["ADC", "Analogue-to-Digital Converter — samples then quantises a signal (recording)."],
-         ["DAC", "Digital-to-Analogue Converter — recreates the analogue signal (playback)."]],
-  tips: ["Sample rate = samples per second; sample resolution = bits per sample.", "Nyquist: sample rate ≥ 2× the highest frequency."],
+  defs: [["ADC", "Analogue-to-Digital Converter — samples then quantises a signal (recording); used with analogue sensors."],
+         ["DAC", "Digital-to-Analogue Converter — recreates the analogue signal (playback); commonly for digital audio."]],
+  tips: ["Sample rate = samples per second; sample resolution = bits per sample.", "Nyquist: sample rate must be at least 2x the highest frequency to avoid aliasing."],
   pitfalls: ["Mixing up ADC (record) and DAC (playback).", "Sampling below the Nyquist rate, causing aliasing."]
 },
+"compsci:4.5.6.5": {
+  defs: [["Vector graphic", "An image stored as mathematical shape descriptions (coordinates, properties), not pixels."]],
+  tips: ["Vectors scale with no quality loss, ideal for logos/diagrams; SVG is XML-based.", "Each object's properties are stored as a list."],
+  pitfalls: ["Saying vectors are always smaller — complex/photographic images can be larger.", "Using vectors for photographs."]
+},
 "compsci:4.5.6.7": {
-  defs: [["Nyquist theorem", "Sample rate must be at least twice the highest frequency in the signal."],
-         ["MIDI", "Stores musical event instructions, not a recorded waveform."]],
-  tips: ["Audio file size = sample rate × bit depth × duration × channels.", "MIDI = tiny and editable; sampled audio = large, realistic, fixed at recording."],
-  pitfalls: ["Sampling at exactly (not twice) the highest frequency.", "Thinking MIDI contains recorded audio."]
+  defs: [["Sample rate", "Samples taken per second (Hz)."],
+         ["Sample resolution", "Bits per sample — sets amplitude precision/dynamic range."]],
+  tips: ["Sound sample size (bits) = sample rate x resolution x duration x channels.", "Nyquist: sample at 2x the highest frequency; convert bits to bytes only at the end."],
+  pitfalls: ["Mixing bits and bytes mid-calculation — the most common lost mark in representation arithmetic.", "Sampling at exactly (not twice) the highest frequency."]
 },
 "compsci:4.5.6.8": {
   defs: [["MIDI", "Musical event instructions (note, velocity, timing) — no waveform data."]],
@@ -525,8 +525,8 @@ window.KOS_DATA.intel = {
   pitfalls: ["Calling AES/RSA 'perfectly secure' — only the one-time pad is.", "Reusing the Vernam key or using a pseudorandom one."]
 },
 "compsci:4.5.6.6": {
-  tips: ["Sound sample size questions: file size = sample rate × sample resolution × length. Show units throughout and convert bits→bytes at the end, not midway."],
-  pitfalls: ["Mixing bits and bytes mid-calculation — the single most common lost mark in representation arithmetic."]
+  tips: ["Compare on storage (pixels vs objects), scaling (pixelates vs re-rendered), file size and best use (photos vs logos).", "Bitmap = resolution-dependent; vector = resolution-independent."],
+  pitfalls: ["Saying vectors are always smaller/better — only for geometric art.", "Forgetting to link each property to an appropriate USE for the marks."]
 },
 "compsci:4.6.1.1": {
   defs: [["Hardware", "The physical components of a computer system."],
