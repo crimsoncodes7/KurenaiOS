@@ -428,44 +428,43 @@ window.KOS_DATA.intel = {
   pitfalls: ["Normalising by moving the point the wrong way and forgetting to adjust the exponent in the opposite sense.", "Rounding errors: state that some values cannot be represented exactly, causing rounding/cancellation errors — wording matters."]
 },
 "compsci:4.5.4.5": {
-  defs: [["Mantissa", "The significant digits of a floating-point number; more mantissa bits = more precision."],
-         ["Exponent", "The power of 2 that positions the binary point; more exponent bits = greater range."]],
-  tips: ["Value = mantissa × 2^exponent (both two's complement at AQA).", "Normalised positive mantissa starts 0.1; negative starts 1.0."],
-  pitfalls: ["Swapping which part gives range vs precision.", "Thinking floating point stores all values exactly."]
+  defs: [["Rounding error", "The small difference left when a value that is not an exact binary fraction is truncated to the available bits."]],
+  tips: ["A value is exact only if it is a sum of power-of-two fractions (0.5, 0.25, 0.75 ...).", "Fractions like 0.1, 0.2 and 1/3 recur in binary and must be rounded — fixed AND floating point are affected."],
+  pitfalls: ["Assuming 0.1 + 0.2 == 0.3 in floating point.", "Thinking only floating point rounds — fixed point does too."]
 },
 "compsci:4.5.4.6": {
-  defs: [["Precision", "Number of significant figures, set by the mantissa length."],
-         ["Range", "How large or small a value can be, set by the exponent length."]],
-  tips: ["Fixed total bits → more mantissa = more precision but less range (and vice versa).", "More exponent bits widen RANGE, not precision."],
-  pitfalls: ["Saying more exponent bits improve accuracy.", "Confusing range with precision."]
+  defs: [["Absolute error", "|actual - stored value| — the raw size of the difference."],
+         ["Relative error", "absolute error / |actual value| — the error as a proportion of the true value."]],
+  tips: ["Relative error compares fairly across magnitudes; absolute error alone can mislead.", "For numbers near 1, absolute and relative error are almost equal."],
+  pitfalls: ["Assuming a small absolute error means an accurate result — check the relative error.", "Giving relative error units (it is a dimensionless ratio)."]
 },
 "compsci:4.5.4.7": {
+  defs: [["Precision", "Number of significant figures, set by the mantissa length."],
+         ["Range", "How large or small a value can be, set by the exponent length."]],
+  tips: ["Fixed total bits: more mantissa = more precision but less range (and vice versa).", "More exponent bits widen RANGE, not precision; fixed point is faster to process than floating point."],
+  pitfalls: ["Saying more exponent bits improve accuracy.", "Confusing range with precision."]
+},
+"compsci:4.5.4.8": {
   defs: [["Normalisation", "Shifting the mantissa to remove redundant leading bits, maximising precision and giving a unique representation."]],
   tips: ["Positive normalised mantissa begins 0.1; negative begins 1.0.", "Each left shift decrements the exponent, so the value is unchanged."],
   pitfalls: ["Thinking normalisation changes the value.", "Leaving 0.0 / 1.1 leading bits (not normalised)."]
 },
-"compsci:4.5.4.8": {
-  defs: [["Overflow", "Result too large — the exponent exceeds its maximum (→ ±∞)."],
-         ["Underflow", "Result too small / near zero — the exponent falls below its minimum (→ 0)."]],
-  tips: ["Both concern the EXPONENT's range, not the mantissa.", "Overflow from multiplying large values; underflow from dividing small by large."],
+"compsci:4.5.4.9": {
+  defs: [["Overflow", "Result too large — the exponent exceeds its maximum."],
+         ["Underflow", "Result too small / near zero — the exponent falls below its minimum."]],
+  tips: ["Both concern the EXPONENT's range, not the mantissa.", "Overflow from multiplying large values; underflow from dividing a small value by a large one."],
   pitfalls: ["Saying overflow is about the mantissa.", "Confusing overflow (too big) with underflow (too small)."]
 },
-"compsci:4.5.4.9": {
-  defs: [["Absolute error", "|actual − stored value|."],
-         ["Relative error", "absolute error ÷ actual value."]],
-  tips: ["Some fractions (e.g. 0.1) are recurring in binary, so they are truncated → rounding error.", "Never compare floats with == — use a small tolerance."],
-  pitfalls: ["Assuming 0.1 + 0.2 == 0.3 in floating point.", "Confusing absolute with relative error."]
-},
 "compsci:4.5.5.2": {
-  defs: [["Parity bit", "An extra bit making the count of 1s even/odd; detects a single-bit error."],
-         ["Unicode", "A character set covering all world scripts (UTF-8/16), unlike 128-character ASCII."]],
-  tips: ["A parity bit only DETECTS one bit error — it cannot correct.", "Majority voting can correct but multiplies the data sent."],
-  pitfalls: ["Saying a parity bit corrects errors.", "Claiming ASCII covers all languages."]
+  defs: [["ASCII", "A 7-bit character set (128 characters), mainly English/Latin."],
+         ["Unicode", "A character set covering all world scripts and emoji (UTF-8/16); UTF-8 is ASCII-compatible."]],
+  tips: ["Key codes: '0' = 48, 'A' = 65, 'a' = 97; lowercase = uppercase + 32.", "Unicode was introduced for global text ASCII cannot represent; UTF-8 uses 1 byte for ASCII characters."],
+  pitfalls: ["Claiming ASCII covers all languages.", "Saying Unicode always uses more space — UTF-8 matches ASCII for ASCII text."]
 },
 "compsci:4.5.5.1": {
-  defs: [["ASCII", "A 7-bit character set (128 characters), mainly English/Latin."]],
-  tips: ["Key codes: '0' = 48, 'A' = 65, 'a' = 97; lowercase = uppercase + 32.", "Control codes occupy 0–31."],
-  pitfalls: ["Thinking '0' has code 0 (it is 48).", "Saying ASCII covers non-Latin scripts — that needs Unicode."]
+  defs: [["Character code of a digit", "The character-set code for a digit symbol, e.g. '5' = ASCII 53 — different from the pure binary value 5 (00000101)."]],
+  tips: ["Digit character code = 48 + digit; recover the value with code - 48.", "Keyboard/text input arrives as characters, so convert before arithmetic."],
+  pitfalls: ["Thinking the character '0' is binary 0 (it is 48).", "Adding digit characters directly: '2' + '3' = 50 + 51 = 101, not 5."]
 },
 "compsci:4.5.5.3": {
   defs: [["Checksum", "A value computed from a data block, recalculated by the receiver to detect errors."],

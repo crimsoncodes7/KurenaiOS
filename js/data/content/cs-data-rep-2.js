@@ -5,70 +5,42 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 C["compsci:4.5.4.5"] = {
   "notes": [
     {
-      "h": "Floating Point Representation & Errors"
+      "h": "Rounding Errors"
     },
-    { "callout": { "t": "info", "body": "Floating point allows representation of fractional values and a huge range of numbers. It is split into a **Mantissa** (fractional part) and an **Exponent** (power of 2)." } },
     {
       "callout": {
-        "t": "formula",
-        "h": "Value Calculation",
-        "body": "Value = $Mantissa \\times 2^{Exponent}$. Both parts are usually stored in Two's Complement."
-      }
-    },
-    {
-      "h": "The Floating Point Components"
-    },
-    {
-      "table": {
-        "head": [
-          "Component",
-          "Function",
-          "Impact of More Bits"
-        ],
-        "rows": [
-          [
-            "Mantissa",
-            "Stores the significant digits of the number",
-            "Increases **Precision**"
-          ],
-          [
-            "Exponent",
-            "Stores the power of 2 (position of radix point)",
-            "Increases **Range**"
-          ]
-        ]
+        "t": "info",
+        "body": "A real number can be stored exactly only if it can be written as a binary fraction within the available bits. Most decimal fractions cannot, so both fixed point and floating point representations are approximations — the stored value is rounded, leaving a small error."
       }
     },
     {
       "callout": {
         "t": "def",
-        "h": "Key Floating Point Terms",
+        "h": "Binary fraction",
+        "body": "Bits after the binary point represent 1/2, 1/4, 1/8, 1/16, … A value is exact only if it is a sum of these. For example 0.5 (1/2) and 0.75 (1/2 + 1/4) are exact; 0.1 is not."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Why 0.1 cannot be stored exactly",
+        "body": "In binary, 0.1 is the recurring fraction 0.0001100110011… which never terminates. In a finite number of bits it must be truncated or rounded, so the stored value is slightly wrong. The classic result is that 0.1 + 0.2 gives 0.30000000000000004, not 0.3."
+      }
+    },
+    {
+      "callout": {
+        "t": "info",
+        "h": "Both representations suffer",
         "body": [
           {
             "kv": [
               [
-                "Normalisation",
-                "Adjusting the format to maximize precision. In two's complement, a positive normalised mantissa starts with `0.1` and a negative with `1.0`."
+                "Fixed point",
+                "Has a fixed number of fractional bits; any value needing finer fractional precision than those bits is rounded."
               ],
               [
-                "Rounding Errors",
-                "Some numbers (like 0.1) cannot be represented exactly in binary, leading to approximation errors."
-              ],
-              [
-                "Absolute Error",
-                "$|Actual Value - Recorded Value|$"
-              ],
-              [
-                "Relative Error",
-                "$\\frac{Absolute Error}{Actual Value}$"
-              ],
-              [
-                "Underflow",
-                "The value is too small (too close to zero) to be represented accurately."
-              ],
-              [
-                "Overflow",
-                "The value is too large to be represented with the available bits."
+                "Floating point",
+                "Has a finite mantissa; values whose binary fraction is longer than the mantissa are rounded."
               ]
             ]
           }
@@ -76,186 +48,151 @@ C["compsci:4.5.4.5"] = {
       }
     },
     {
-      "page": "Normalisation & Errors"
-    },
-    {
-      "h": "The Normalisation Process"
-    },
-    {
-      "steps": [
-        {
-          "h": "Check bits",
-          "m": "Examine the first two bits of the mantissa."
-        },
-        {
-          "h": "Shift",
-          "m": "If bits are 00 (positive) or 11 (negative), shift mantissa left by 1 and decrement the exponent by 1.",
-          "n": "This eliminates a redundant sign bit without changing the value."
-        },
-        {
-          "h": "Repeat",
-          "m": "Keep shifting until the first two bits are 01 (positive) or 10 (negative)."
-        },
-        {
-          "h": "Finalise",
-          "m": "The mantissa is now normalised: sign bit in position 0, most significant fractional bit in position 1."
-        }
-      ]
-    },
-    {
-      "code": {
-        "lang": "pseudo",
-        "cap": "Floating point error example",
-        "src": "x = 0.1 # In binary this is 0.00011001100... (infinite)\nIF (x + x + x) == 0.3 THEN\n  OUTPUT \"Exact match\"\nELSE\n  OUTPUT \"Rounding error detected\"\nENDIF"
-      }
-    },
-    {
       "callout": {
         "t": "tip",
-        "h": "Normalisation Rule",
-        "body": "Normalisation ensures maximum precision by eliminating leading redundant bits in the mantissa."
+        "h": "Consequences for programmers",
+        "body": "Rounding errors accumulate over repeated calculations, and two values that should be equal may differ slightly. Never test floating point values for exact equality — compare the difference against a small tolerance (epsilon)."
       }
     },
     {
       "callout": {
         "t": "memorise",
-        "h": "Floating Point Structure",
-        "body": "Value = **Mantissa × 2^Exponent** (both stored in two's complement). More mantissa bits = greater **precision** (more significant digits). More exponent bits = greater **range** (larger/smaller values). In a fixed bit-width, precision and range are traded off against each other."
+        "h": "Rounding Errors",
+        "body": "A value is exact only if it is a binary fraction representable in the given bits. Power-of-two fractions (0.5, 0.25, 0.75) are exact; 0.1, 0.2 and 1/3 are recurring in binary and must be rounded. **Both fixed and floating point round** — errors accumulate, so use a tolerance for equality."
       }
     },
     {
       "callout": {
         "t": "miscon",
-        "h": "Floating Point Misconceptions",
-        "body": "**More exponent bits improve precision** — No; more exponent bits extend the RANGE (how large/small the value can be); more mantissa bits improve PRECISION (significant digits). They trade off in a fixed total width. **Floating point can represent all real numbers exactly** — No; most fractional numbers are approximated due to the finite mantissa."
+        "h": "Common misconceptions",
+        "body": "**Only floating point has rounding errors** — No; fixed point rounds too whenever a value needs more fractional bits than are available. **The computer is just buggy/inaccurate** — No; the hardware is exact, but a finite binary representation simply cannot store every decimal fraction."
       }
     }
   ],
   "flashcards": [
     [
-      "What are the two parts of a floating point number?",
-      "Mantissa and Exponent"
+      "Why can many decimal fractions not be stored exactly in binary?",
+      "They are recurring binary fractions (never terminate), so they must be truncated/rounded to the available bits."
     ],
     [
-      "What is the purpose of normalising a floating point number?",
-      "To maximize precision by utilizing all available bits, and to provide a single, unique representation for any given number."
+      "Why is 0.5 stored exactly but 0.1 is not?",
+      "0.5 = 1/2 is an exact power-of-two binary fraction; 0.1 is recurring in binary and must be rounded."
     ],
     [
-      "How can you identify a normalised positive floating point number in Two's complement?",
-      "The mantissa starts with 0.1"
+      "Does rounding error affect fixed point, floating point, or both?",
+      "Both — any finite binary representation rounds values that need more fractional precision than it has."
     ],
     [
-      "What happens if you allocate more bits to the exponent instead of the mantissa?",
-      "The range of numbers increases, but the precision decreases."
+      "What does 0.1 + 0.2 evaluate to in most languages, and why?",
+      "About 0.30000000000000004 — 0.1 and 0.2 are recurring in binary, so tiny truncation errors remain."
     ],
     [
-      "What is the formula for relative error?",
-      "Relative Error = Absolute Error / Actual Value"
+      "Why should you not compare floats with == ?",
+      "Rounding errors mean values that should be equal can differ slightly, so the test may unexpectedly fail."
     ],
     [
-      "Define 'underflow' in floating point calculations.",
-      "When a number is too small (too close to zero) to be represented with the given number of bits."
+      "What should you use instead of == for floats?",
+      "A tolerance (epsilon): check that |a − b| is less than a small threshold."
     ],
     [
-      "What is stored in the mantissa and what in the exponent?",
-      "The mantissa stores the significant digits (precision); the exponent stores the power of 2 that positions the binary point (range)."
+      "What happens to rounding errors over many calculations?",
+      "They accumulate/compound, so the result can drift from the mathematically exact answer."
     ],
     [
-      "Why can 0.1 not be stored exactly in floating point?",
-      "In binary 0.1 is a recurring fraction ($0.0\\overline{0011}$), so it must be truncated to the available mantissa bits, leaving a rounding error."
+      "Give two values that cannot be stored exactly in binary.",
+      "Any two of 0.1, 0.2, 1/3 (recurring binary fractions)."
     ]
   ],
   "quiz": [
     {
-      "q": "Which part of a floating point number determines its precision?",
+      "q": "Why does 0.1 + 0.2 not exactly equal 0.3 in most languages?",
       "opts": [
-        "Exponent",
-        "Mantissa",
-        "Sign bit",
-        "Radix point"
+        "A bug in the language",
+        "0.1 and 0.2 are recurring binary fractions that get rounded",
+        "Addition is not commutative",
+        "0.3 is stored as an integer"
       ],
       "ans": 1,
-      "why": "The mantissa holds the significant digits, determining precision. The exponent determines the range."
+      "why": "Both 0.1 and 0.2 are recurring in binary, so truncation leaves a small error in the sum."
     },
     {
-      "q": "A positive normalised Two's complement floating point number always begins with which two bits?",
+      "q": "Which value is stored EXACTLY in binary?",
       "opts": [
-        "1.0",
-        "0.0",
         "0.1",
-        "1.1"
+        "0.2",
+        "0.75",
+        "0.3"
       ],
       "ans": 2,
-      "why": "It starts with 0.1. If it started with 0.0, the leading 0 would be wasting a bit of precision."
+      "why": "0.75 = 1/2 + 1/4 is an exact sum of power-of-two fractions; the others are recurring."
     },
     {
-      "q": "A recorded value is 10.5, but the actual value is 10.0. What is the absolute error?",
+      "q": "Rounding errors occur in...?",
       "opts": [
-        "0.05",
-        "0.5",
-        "1.05",
-        "5.0"
+        "only floating point",
+        "only fixed point",
+        "both fixed and floating point",
+        "neither"
+      ],
+      "ans": 2,
+      "why": "Any finite binary representation rounds values it cannot represent exactly."
+    },
+    {
+      "q": "Repeated floating point additions can drift from the expected total because...?",
+      "opts": [
+        "the CPU overheats",
+        "tiny rounding errors accumulate",
+        "integers overflow",
+        "the mantissa grows"
       ],
       "ans": 1,
-      "why": "Absolute error is the difference: |10.0 - 10.5| = 0.5."
+      "why": "Each truncation adds a small error that compounds."
     },
     {
-      "q": "Why might a loop that adds 0.1 ten times in a program not exactly equal 1.0?",
+      "q": "The safe way to compare two floats for equality is to...?",
       "opts": [
-        "Because 0.1 cannot be represented exactly in binary floating point.",
-        "Because adding floats causes an overflow.",
-        "Because of underflow in the mantissa.",
-        "Because the computer's CPU is faulty."
-      ],
-      "ans": 0,
-      "why": "Fractions like 1/10 have infinite repeating binary representations, so they are truncated/rounded, leading to floating point errors."
-    },
-    {
-      "q": "Keeping total bit-width fixed, increasing the number of mantissa bits will...?",
-      "opts": [
-        "increase range",
-        "increase precision",
-        "reduce both",
-        "have no effect"
+        "use ==",
+        "check |a − b| < a small tolerance",
+        "round both to integers",
+        "convert to strings"
       ],
       "ans": 1,
-      "why": "More mantissa bits give more significant digits (higher precision), but leave fewer exponent bits, so range falls."
+      "why": "A tolerance absorbs the tiny rounding differences."
     }
   ],
   "exam": [
     {
-      "q": "Explain the trade-off between range and precision when allocating bits between the mantissa and exponent of a floating point number.",
+      "q": "State why the number 0.1 cannot be stored exactly using floating point.",
       "marks": 2,
       "ms": [
-        "Increasing the number of bits for the mantissa increases precision but decreases range. (1)",
-        "Increasing the number of bits for the exponent increases range but decreases precision. (1)"
+        "0.1 is a recurring fraction in binary (it does not terminate). (1)",
+        "It must be truncated/rounded to the finite number of mantissa bits, so it is approximated. (1)"
       ]
     },
     {
-      "q": "A recorded value is 9.8 but the actual value is 9.75. Calculate (a) the absolute error and (b) the relative error.",
-      "marks": 3,
+      "q": "Explain why floating point values should not be tested for exact equality.",
+      "marks": 2,
       "ms": [
-        "(a) Absolute error = |9.75 − 9.8| = 0.05. (1)",
-        "(b) Relative error = 0.05 / 9.75. (1)",
-        "≈ 0.00513 (≈ 0.51%). (1)"
+        "Rounding errors mean values that should be equal can differ by a tiny amount. (1)",
+        "So == can return false unexpectedly; a tolerance should be used instead. (1)"
       ]
     },
     {
-      "q": "Discuss how floating point representation allows a wide range of values to be stored and the problems this introduces.",
+      "q": "Explain why both fixed point and floating point representations of decimal numbers may be inaccurate, and discuss the problems this can cause.",
       "marks": 6,
       "ms": [
-        "Value = mantissa × 2^exponent. (1)",
-        "The exponent gives a very wide range (very large and very small numbers). (1)",
-        "The mantissa gives precision (significant digits). (1)",
-        "In a fixed width, range and precision trade off against each other. (1)",
-        "Many values (e.g. 0.1) cannot be represented exactly, causing rounding errors. (1)",
-        "Errors accumulate over repeated calculations and equality comparisons become unreliable, so a tolerance is used. (1)"
+        "A value is only exact if it can be written as a binary fraction in the available bits. (1)",
+        "Many decimal fractions (e.g. 0.1) are recurring in binary and never terminate. (1)",
+        "With finite bits they must be truncated/rounded, leaving a small error. (1)",
+        "This applies to fixed point (limited fractional bits) and floating point (limited mantissa). (1)",
+        "Errors accumulate over repeated calculations, so results drift. (1)",
+        "Exact equality comparisons become unreliable, so programmers must use a tolerance / higher precision. (1)"
       ]
     }
   ]
 };
 
-C["compsci:4.5.4.6"] = {
+C["compsci:4.5.4.7"] = {
   "notes": [
     {
       "h": "Range and Precision"
@@ -448,7 +385,7 @@ C["compsci:4.5.4.6"] = {
   ]
 };
 
-C["compsci:4.5.4.7"] = {
+C["compsci:4.5.4.8"] = {
   "notes": [
     {
       "h": "Normalisation"
@@ -651,7 +588,7 @@ C["compsci:4.5.4.7"] = {
   ]
 };
 
-C["compsci:4.5.4.8"] = {
+C["compsci:4.5.4.9"] = {
   "notes": [
     {
       "h": "Underflow and Overflow"
@@ -833,125 +770,130 @@ C["compsci:4.5.4.8"] = {
   ]
 };
 
-C["compsci:4.5.4.9"] = {
+C["compsci:4.5.4.6"] = {
   "notes": [
     {
-      "h": "Rounding Errors"
+      "h": "Absolute and Relative Errors"
     },
-    { "callout": { "t": "info", "body": "Rounding errors occur because many decimal fractions cannot be represented exactly in binary — the mantissa must be truncated to finite bits, leaving a tiny error." } },
     {
       "callout": {
-        "t": "def",
-        "h": "Absolute Error",
-        "body": "$|\\text{Actual Value} - \\text{Recorded Value}|$ — the raw magnitude of the difference."
+        "t": "info",
+        "body": "When a value is stored or processed inexactly, the size of the error can be expressed two ways: in raw units (absolute error) or as a proportion of the true value (relative error)."
       }
     },
     {
       "callout": {
         "t": "def",
-        "h": "Relative Error",
-        "body": "$\\dfrac{\\text{Absolute Error}}{\\text{Actual Value}}$ — expresses the error as a proportion of the true value. More meaningful for comparing errors across different scales."
+        "h": "Absolute error",
+        "body": "|Actual value − Stored value| — the raw magnitude of the difference, in the same units as the value."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Relative error",
+        "body": "Absolute error ÷ |Actual value| — the error as a proportion (often given as a percentage) of the true value."
+      }
+    },
+    {
+      "h": "Comparing absolute and relative error"
+    },
+    {
+      "table": {
+        "head": [
+          "Situation",
+          "Absolute error",
+          "Relative error"
+        ],
+        "rows": [
+          [
+            "Large magnitude (1,000,000 stored as 1,000,000.5)",
+            "0.5 — sounds large",
+            "0.5 / 1,000,000 ≈ 0.00005% — negligible"
+          ],
+          [
+            "Small magnitude (0.002 stored as 0.0025)",
+            "0.0005 — sounds tiny",
+            "0.0005 / 0.002 = 25% — serious"
+          ],
+          [
+            "Numbers close to 1",
+            "absolute and relative are almost equal",
+            "dividing by about 1 barely changes the value"
+          ]
+        ]
       }
     },
     {
       "callout": {
         "t": "tip",
-        "h": "Absolute vs Relative — Which Matters?",
-        "body": "An absolute error of 0.001 is tiny when the value is 1,000,000 (relative error ≈ 0.000001%), but huge when the value is 0.001 (relative error = 100%). Always consider scale."
-      }
-    },
-    {
-      "callout": {
-        "t": "miscon",
-        "h": "\"0.1 + 0.2 = 0.3\"",
-        "body": "In binary floating point, 0.1 is a recurring fraction ($0.0\\overline{0011}$) and cannot be stored exactly. So $0.1 + 0.2 = 0.30000000000000004$ in most languages. **Never compare floating point for exact equality** — use a small tolerance instead."
-      }
-    },
-    {
-      "code": {
-        "lang": "javascript",
-        "cap": "The classic floating point equality trap.",
-        "src": "console.log(0.1 + 0.2);           // 0.30000000000000004\nconsole.log(0.1 + 0.2 === 0.3);   // false!\n\n// Correct approach: use an epsilon tolerance\nconst EPSILON = 1e-10;\nconsole.log(Math.abs((0.1 + 0.2) - 0.3) < EPSILON); // true"
+        "h": "Which one to use",
+        "body": "Absolute error tells you the raw size of the mistake; relative error tells you how significant that mistake is for the value involved. Relative error is fairer when comparing accuracy across very different magnitudes."
       }
     },
     {
       "callout": {
         "t": "memorise",
-        "h": "Rounding Errors",
-        "body": "Some fractions (e.g. 0.1, 1/3) cannot be represented exactly in binary — they become recurring binary fractions, truncated at the available mantissa bits, producing a rounding error. **Never compare floating point values for exact equality** — always use a tolerance (epsilon). Relative error = |actual − stored| / |actual|."
+        "h": "Formulas and behaviour",
+        "body": "**Absolute error = |actual − stored|**. **Relative error = absolute error / |actual|** (× 100 for a percentage). For numbers near 1 the two are almost equal; for large-magnitude numbers the relative error is far smaller than the absolute; for tiny numbers the relative error is far more significant."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconceptions",
+        "body": "**A small absolute error always means an accurate result** — No; 0.0005 is 25% of 0.002. Judge significance with relative error. **Relative error has units** — No; it is a dimensionless ratio, often expressed as a percentage."
       }
     }
   ],
   "flashcards": [
     [
-      "Why does 0.1 cause a rounding error in binary?",
-      "0.1 is a recurring (infinite) fraction in binary ($0.0\\overline{0011}\\ldots$), so it must be truncated, leaving a small error."
-    ],
-    [
       "What is the formula for absolute error?",
-      "$|\\text{Actual Value} - \\text{Recorded Value}|$"
+      "|Actual value − Stored value|."
     ],
     [
       "What is the formula for relative error?",
-      "$\\dfrac{\\text{Absolute Error}}{\\text{Actual Value}}$"
+      "Absolute error ÷ |Actual value| (× 100 for a percentage)."
     ],
     [
-      "Why should you avoid comparing floating point values with == in programming?",
-      "Rounding errors mean two values that should be equal may differ by a tiny amount, causing the equality check to fail unexpectedly."
+      "A value of 9.75 is stored as 9.8. What is the absolute error?",
+      "|9.75 − 9.8| = 0.05."
     ],
     [
-      "What causes rounding error in floating point?",
-      "Many decimal fractions are recurring in binary and must be truncated to the finite mantissa, leaving a small difference."
+      "A value of 9.75 is stored as 9.8. What is the relative error?",
+      "0.05 / 9.75 ≈ 0.0051 (about 0.51%)."
     ],
     [
-      "Which is more meaningful across different scales: absolute or relative error?",
-      "Relative error — it expresses the error as a proportion of the true value, so it is comparable across magnitudes."
+      "Why is relative error more useful across different scales?",
+      "It expresses the error as a proportion of the true value, so errors at very different magnitudes can be compared fairly."
     ],
     [
-      "What should you use instead of == to compare two floats?",
-      "A tolerance (epsilon): check that $|a - b|$ is less than a small threshold."
+      "When are absolute and relative error almost equal?",
+      "When the value is close to 1, because dividing by about 1 barely changes the figure."
     ],
     [
-      "Give an example value that cannot be stored exactly in binary.",
-      "0.1 (also 0.2 or 1/3) — they are recurring binary fractions."
+      "Can a small absolute error still be significant?",
+      "Yes — 0.0005 is 25% of 0.002, a large relative error."
+    ],
+    [
+      "Does relative error have units?",
+      "No — it is a dimensionless ratio, often shown as a percentage."
     ]
   ],
   "quiz": [
     {
-      "q": "Which error metric is more meaningful when comparing errors at very different scales?",
+      "q": "A recorded value is 10.5 but the actual value is 10.0. The absolute error is...?",
       "opts": [
-        "Absolute Error",
-        "Relative Error",
-        "Syntax Error",
-        "Underflow"
+        "0.05",
+        "0.5",
+        "1.05",
+        "5.0"
       ],
       "ans": 1,
-      "why": "Relative error expresses the error as a proportion of the actual value, making comparisons fair across different magnitudes."
+      "why": "|10.0 − 10.5| = 0.5."
     },
     {
-      "q": "Why does `0.1 + 0.2 != 0.3` in most programming languages?",
-      "opts": [
-        "It is a bug in the language",
-        "0.1 cannot be represented exactly in binary floating point",
-        "Addition is not commutative in binary",
-        "0.3 is stored as an integer"
-      ],
-      "ans": 1,
-      "why": "0.1 and 0.2 are both recurring fractions in binary, so tiny truncation errors accumulate in the sum."
-    },
-    {
-      "q": "Why is 0.5 stored exactly but 0.1 is not?",
-      "opts": [
-        "0.5 is smaller",
-        "0.5 = 1/2 is an exact power-of-two fraction; 0.1 is recurring in binary",
-        "0.1 is negative",
-        "floats cannot store 0.1 at all"
-      ],
-      "ans": 1,
-      "why": "1/2 is exactly representable as a binary fraction; 1/10 is recurring and must be truncated."
-    },
-    {
-      "q": "An actual value is 200 and it is stored as 200.5. The relative error is...?",
+      "q": "An actual value is 200, stored as 200.5. The relative error is...?",
       "opts": [
         "0.5",
         "0.0025",
@@ -959,311 +901,69 @@ C["compsci:4.5.4.9"] = {
         "2.5"
       ],
       "ans": 1,
-      "why": "Absolute error 0.5 ÷ 200 = 0.0025 (0.25%)."
+      "why": "0.5 / 200 = 0.0025 (0.25%)."
     },
     {
-      "q": "Why can repeated floating point additions drift from the expected result?",
+      "q": "Which error metric is fairer when comparing very different magnitudes?",
       "opts": [
-        "the CPU overheats",
-        "tiny rounding errors accumulate",
-        "integers overflow",
-        "the mantissa grows"
+        "Absolute error",
+        "Relative error",
+        "Syntax error",
+        "Underflow"
       ],
       "ans": 1,
-      "why": "Each truncation adds a small error that compounds over many operations."
+      "why": "Relative error scales the error by the true value."
+    },
+    {
+      "q": "An absolute error of 0.0005 on a value of 0.002 is...?",
+      "opts": [
+        "negligible",
+        "25% — significant",
+        "exactly 0.5%",
+        "impossible"
+      ],
+      "ans": 1,
+      "why": "0.0005 / 0.002 = 25%, a large relative error despite the tiny absolute size."
+    },
+    {
+      "q": "For a value close to 1, absolute and relative error are...?",
+      "opts": [
+        "very different",
+        "almost equal",
+        "always zero",
+        "undefined"
+      ],
+      "ans": 1,
+      "why": "Dividing by about 1 barely changes the value, so the two are similar."
     }
   ],
   "exam": [
     {
-      "q": "Calculate the absolute error if 12.5 is represented as 12.48.",
-      "marks": 2,
+      "q": "A value of 12.5 is stored as 12.48. Calculate the absolute error.",
+      "marks": 1,
       "ms": [
-        "$|12.5 - 12.48| = 0.02$ (1)",
-        "Absolute error is 0.02 (1)"
+        "|12.5 − 12.48| = 0.02. (1)"
       ]
     },
     {
-      "q": "Explain why floating point numbers should not be tested for exact equality in programs.",
-      "marks": 2,
-      "ms": [
-        "Floating point values have rounding errors due to limited binary precision (1)",
-        "Two values that should mathematically be equal may differ slightly, causing == to return false (1)"
-      ]
-    },
-    {
-      "q": "Discuss why rounding errors occur in floating point arithmetic and the problems they can cause for programmers, with one way to manage them.",
-      "marks": 6,
-      "ms": [
-        "Floating point uses a finite mantissa. (1)",
-        "Many fractions (e.g. 0.1, 1/3) are recurring in binary and must be truncated. (1)",
-        "This leaves a small rounding error on storage. (1)",
-        "Errors accumulate over repeated calculations. (1)",
-        "Exact equality comparisons (==) can fail unexpectedly. (1)",
-        "Managed by comparing with a tolerance/epsilon, using higher precision (double), or rearranging calculations to reduce error growth. (1)"
-      ]
-    }
-  ]
-};
-
-C["compsci:4.5.5.2"] = {
-  "notes": [
-    {
-      "h": "Characters and Error Checking"
-    },
-    {
-      "callout": {
-        "t": "def",
-        "h": "Character Standards",
-        "body": [
-          {
-            "kv": [
-              [
-                "ASCII",
-                "A 7-bit character set (128 characters) for English text."
-              ],
-              [
-                "Unicode",
-                "A modern standard (16-32 bit) representing all human languages and symbols."
-              ]
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "h": "Comparing Character Sets"
-    },
-    {
-      "table": {
-        "head": [
-          "Feature",
-          "ASCII",
-          "Unicode (UTF-8/16)"
-        ],
-        "rows": [
-          [
-            "Bit Width",
-            "7 or 8 bits",
-            "16 to 32 bits"
-          ],
-          [
-            "Character Count",
-            "128 or 256",
-            "Over 1.1 million"
-          ],
-          [
-            "Language Support",
-            "English/Western only",
-            "Global (incl. Emoji)"
-          ],
-          [
-            "Storage Cost",
-            "Low (1 byte)",
-            "Higher (2-4 bytes)"
-          ]
-        ]
-      }
-    },
-    {
-      "page": "Error Detection"
-    },
-    {
-      "h": "Error Detection & Correction"
-    },
-    {
-      "callout": {
-        "t": "def",
-        "h": "Detection Methods",
-        "body": [
-          {
-            "kv": [
-              [
-                "Parity Bit",
-                "An extra bit added to detect single-bit flips."
-              ],
-              [
-                "Majority Voting",
-                "Sending each bit multiple times to detect and correct errors."
-              ],
-              [
-                "Checksum",
-                "A mathematical value calculated from a data block."
-              ],
-              [
-                "Check Digit",
-                "A digit added to verify human data entry (e.g., ISBN)."
-              ]
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "h": "The Parity Check Process"
-    },
-    {
-      "steps": [
-        {
-          "h": "Count",
-          "m": "Count the number of 1-bits in the data byte."
-        },
-        {
-          "h": "Evaluate",
-          "m": "Set parity bit so total number of 1s (data + parity) matches the agreed parity (even or odd).",
-          "n": "Even parity: total 1s must be even. Odd parity: total must be odd."
-        },
-        {
-          "h": "Transmit",
-          "m": "Append the parity bit and send the data byte + parity bit together."
-        },
-        {
-          "h": "Verify",
-          "m": "Receiver counts 1s in the received data + parity bit; if total doesn't match the agreed parity, an error is flagged.",
-          "n": "Limitation: parity can only detect an odd number of bit flips — two simultaneous errors cancel out."
-        }
-      ]
-    },
-    {
-      "code": {
-        "lang": "pseudo",
-        "cap": "Simple parity generator",
-        "src": "count = countOnes(data)\nIF mode == EVEN THEN\n  parity = (count MOD 2 != 0)\nELSE\n  parity = (count MOD 2 == 0)\nENDIF"
-      }
-    },
-    {
-      "callout": {
-        "t": "memorise",
-        "h": "Character Encoding & Parity",
-        "body": "Characters are stored as binary using character sets. **7-bit ASCII**: 128 characters (English letters, digits, punctuation, control codes). **8-bit extended ASCII**: 256. **Unicode (UTF-8/UTF-16)**: millions of code points, covers all world languages. **Parity bit**: extra bit added so total 1s are even (even parity) or odd (odd parity) — allows detection of a single flipped bit."
-      }
-    },
-    {
-      "callout": {
-        "t": "miscon",
-        "h": "ASCII and Parity Misconceptions",
-        "body": "**ASCII can represent all characters used worldwide** — No; standard 7-bit ASCII covers only 128 characters (primarily English). Unicode (UTF-8) was created specifically to represent all world scripts. **A parity bit can correct errors** — A single parity bit can only DETECT a single-bit error (it tells you something is wrong) but cannot identify which bit flipped or correct it."
-      }
-    }
-  ],
-  "flashcards": [
-    [
-      "How many characters can standard 7-bit ASCII represent?",
-      "128 ($2^7$)"
-    ],
-    [
-      "Why is Unicode preferred over ASCII in modern systems?",
-      "It uses more bits, allowing it to represent characters from multiple languages and global symbols/emojis."
-    ],
-    [
-      "What is a parity bit?",
-      "An additional bit attached to binary data to make the total number of 1s either even or odd, used to detect single-bit errors."
-    ],
-    [
-      "How does majority voting correct errors?",
-      "Each bit is transmitted multiple times. If an error occurs, the receiver assumes the bit that appears most frequently in the block is the correct one."
-    ],
-    [
-      "What type of error is a check digit primarily designed to catch?",
-      "Human data entry errors, such as mistyping a digit or transposing two digits in a barcode or ID number."
-    ],
-    [
-      "How many characters can 8-bit extended ASCII represent?",
-      "256 ($2^8$)."
-    ],
-    [
-      "What is a checksum?",
-      "A value calculated from a block of data and sent with it; the receiver recalculates and compares to detect errors."
-    ],
-    [
-      "Can a single parity bit correct an error?",
-      "No — it can only detect a single-bit (odd number of) error; it cannot identify which bit flipped."
-    ]
-  ],
-  "quiz": [
-    {
-      "q": "If a system uses EVEN parity, what should the parity bit be for the data 1011001?",
-      "opts": [
-        "0",
-        "1",
-        "It could be either",
-        "None"
-      ],
-      "ans": 0,
-      "why": "There are four 1s in 1011001 (an even number). So, an even parity bit would be 0 to keep the total even."
-    },
-    {
-      "q": "Which error checking method can CORRECT an error without asking for a retransmission?",
-      "opts": [
-        "Parity Bit",
-        "Checksum",
-        "Majority Voting",
-        "Check Digit"
-      ],
-      "ans": 2,
-      "why": "Majority voting allows the receiver to deduce the original data if a minority of identical bits flip, effectively correcting the error locally."
-    },
-    {
-      "q": "What is a major disadvantage of majority voting (e.g., sending every bit 3 times)?",
-      "opts": [
-        "It cannot detect single bit errors",
-        "It increases the volume of data transmitted and slows down throughput",
-        "It requires complex mathematics to calculate",
-        "It is only compatible with ASCII"
-      ],
-      "ans": 1,
-      "why": "Sending each bit multiple times drastically increases bandwidth usage."
-    },
-    {
-      "q": "ASCII value for 'A' is 65. What is the value for 'C'?",
-      "opts": [
-        "66",
-        "67",
-        "68",
-        "97"
-      ],
-      "ans": 1,
-      "why": "Character sets are sequential. B=66, C=67."
-    },
-    {
-      "q": "Using ODD parity, what parity bit is needed for the data 1100100 (three 1s)?",
-      "opts": [
-        "0",
-        "1",
-        "either",
-        "none"
-      ],
-      "ans": 0,
-      "why": "Three 1s is already odd, so the parity bit is 0 to keep the total odd."
-    }
-  ],
-  "exam": [
-    {
-      "q": "Describe how a checksum works for error detection in data transmission.",
+      "q": "A recorded value is 9.8 but the actual value is 9.75. Calculate (a) the absolute error and (b) the relative error.",
       "marks": 3,
       "ms": [
-        "A calculation is performed on the data block before transmission to generate a value (the checksum). (1)",
-        "The checksum is transmitted along with the data. (1)",
-        "The receiver performs the same calculation on the received data and compares the result to the received checksum; if they differ, an error occurred. (1)"
+        "(a) Absolute error = |9.75 − 9.8| = 0.05. (1)",
+        "(b) Relative error = 0.05 / 9.75. (1)",
+        "≈ 0.0051 (≈ 0.51%). (1)"
       ]
     },
     {
-      "q": "Explain one limitation of using a single parity bit for error detection.",
-      "marks": 2,
-      "ms": [
-        "It only detects an odd number of bit errors. (1)",
-        "If two bits flip the parity is unchanged, so the error goes undetected (and it cannot correct errors). (1)"
-      ]
-    },
-    {
-      "q": "Compare parity bits, checksums and majority voting as methods of handling transmission errors.",
+      "q": "Explain the difference between absolute and relative error and discuss, with examples, why relative error is often more useful when comparing the accuracy of stored values of very different magnitudes.",
       "marks": 6,
       "ms": [
-        "Parity bit: one extra bit making total 1s even/odd; detects a single-bit error only and cannot correct. (1)",
-        "Low overhead but weak. (1)",
-        "Checksum: a value computed from the whole data block, recalculated by the receiver. (1)",
-        "Detects many errors but some cancel out; still cannot correct. (1)",
-        "Majority voting: each bit sent multiple times; receiver takes the most common value. (1)",
-        "Can correct errors but greatly increases data volume / reduces throughput. (1)"
+        "Absolute error = |actual − stored|, the raw size of the difference. (1)",
+        "Relative error = absolute error / |actual|, the error as a proportion of the true value. (1)",
+        "A large absolute error can be insignificant on a large value, e.g. 0.5 on 1,000,000 (≈ 0.00005%). (1)",
+        "A tiny absolute error can be serious on a small value, e.g. 0.0005 on 0.002 (= 25%). (1)",
+        "Relative error therefore reflects significance, not just raw size. (1)",
+        "So relative error allows fair comparison of accuracy across different magnitudes, whereas absolute error alone can mislead. (1)"
       ]
     }
   ]
@@ -1272,27 +972,247 @@ C["compsci:4.5.5.2"] = {
 C["compsci:4.5.5.1"] = {
   "notes": [
     {
-      "h": "Character Sets: ASCII"
+      "h": "Character Form of a Decimal Digit"
     },
-    { "callout": { "t": "info", "body": "ASCII (American Standard Code for Information Interchange) was the original standard for encoding characters as binary numbers." } },
+    {
+      "callout": {
+        "t": "info",
+        "body": "A decimal digit can be held two completely different ways: as a NUMBER (its pure binary value) or as a CHARACTER (the code for the printed symbol). Confusing the two is a classic mistake."
+      }
+    },
     {
       "callout": {
         "t": "def",
-        "h": "ASCII",
-        "body": "A 7-bit character encoding standard representing 128 characters: control codes (0–31), digits (48–57), uppercase letters (65–90), lowercase letters (97–122), and punctuation."
+        "h": "Pure binary representation",
+        "body": "The digit treated as an integer and converted directly to binary. The digit 5 becomes 0000 0101 (= 5)."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Character code representation",
+        "body": "The digit treated as a printable symbol and stored using its character-set code. The character '5' becomes ASCII 53 = 0011 0101."
+      }
+    },
+    {
+      "table": {
+        "head": [
+          "Digit",
+          "As pure binary (integer)",
+          "As ASCII character"
+        ],
+        "rows": [
+          [
+            "0",
+            "0000 0000  (0)",
+            "0011 0000  (48)"
+          ],
+          [
+            "5",
+            "0000 0101  (5)",
+            "0011 0101  (53)"
+          ],
+          [
+            "9",
+            "0000 1001  (9)",
+            "0011 1001  (57)"
+          ]
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "The +48 rule",
+        "body": "The ASCII code of a digit character is 48 + the digit. So the character for digit n has code 48 + n, and to recover the numeric value you subtract 48 (code − 48)."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Why the distinction matters",
+        "body": "Numbers typed at a keyboard or read from a text file arrive as CHARACTERS, not values. The string '25' is the two codes 50, 53 — not the number 25. You must convert (parse) before doing arithmetic, otherwise '2' + '3' as characters gives 50 + 51 = 101, not 5."
       }
     },
     {
       "callout": {
         "t": "memorise",
-        "h": "Key ASCII Values to Remember",
+        "h": "Digit: number vs character",
+        "body": "**Pure binary** = the digit's value (5 → 00000101). **Character code** = the symbol's code ('5' → ASCII 53 = 00110101). Digit character code = 48 + digit; reverse with code − 48. Keyboard / text input is characters, so convert to numbers before calculating."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconceptions",
+        "body": "**The character '0' is binary 0** — No; '0' is ASCII 48 (0011 0000). **You can add digit characters directly** — No; '2' + '3' as characters = 50 + 51 = 101; convert to integers first."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What is the pure binary representation of the digit 5?",
+      "0000 0101 — the integer value 5."
+    ],
+    [
+      "What is the character-code representation of the digit '5' in ASCII?",
+      "53 (0011 0101)."
+    ],
+    [
+      "What is the ASCII code for the character '0'?",
+      "48 — not the number 0."
+    ],
+    [
+      "How do you get the ASCII code of a digit character from the digit?",
+      "Add 48 (code = 48 + digit)."
+    ],
+    [
+      "How do you convert a digit character's code back to its numeric value?",
+      "Subtract 48 (value = code − 48)."
+    ],
+    [
+      "Why can't you do arithmetic directly on digit characters read from a keyboard?",
+      "They are character codes, not values; '2' + '3' would give 50 + 51 = 101, so you must convert to integers first."
+    ],
+    [
+      "What is the string '25' actually stored as?",
+      "Two character codes: '2' = 50 and '5' = 53 — not the number 25."
+    ],
+    [
+      "Differentiate the character '7' from the number 7 in binary.",
+      "Number 7 = 0000 0111; character '7' = ASCII 55 = 0011 0111."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "The character '5' is stored in ASCII as...?",
+      "opts": [
+        "0000 0101 (5)",
+        "0011 0101 (53)",
+        "0000 0000",
+        "0101 0101"
+      ],
+      "ans": 1,
+      "why": "Character '5' = ASCII 53 = 0011 0101; the integer 5 is 0000 0101."
+    },
+    {
+      "q": "The ASCII code for the digit character '0' is...?",
+      "opts": [
+        "0",
+        "30",
+        "48",
+        "57"
+      ],
+      "ans": 2,
+      "why": "'0' = 48; digit codes run 48–57."
+    },
+    {
+      "q": "To convert the character '8' to the number 8 you...?",
+      "opts": [
+        "add 48",
+        "subtract 48",
+        "multiply by 8",
+        "do nothing"
+      ],
+      "ans": 1,
+      "why": "value = code − 48 = 56 − 48 = 8."
+    },
+    {
+      "q": "Adding the characters '2' and '3' directly gives...?",
+      "opts": [
+        "5",
+        "'5'",
+        "101",
+        "23"
+      ],
+      "ans": 2,
+      "why": "Their codes 50 + 51 = 101 — you must convert to integers first."
+    },
+    {
+      "q": "Which best describes the difference between the number 9 and the character '9'?",
+      "opts": [
+        "They are identical in binary",
+        "9 = 00001001, '9' = ASCII 57 = 00111001",
+        "'9' is smaller",
+        "Only '9' can be stored"
+      ],
+      "ans": 1,
+      "why": "The integer 9 and the character code 57 are different bit patterns."
+    }
+  ],
+  "exam": [
+    {
+      "q": "State the difference between the pure binary and character-code representations of the digit 3.",
+      "marks": 2,
+      "ms": [
+        "Pure binary: the integer value, 0000 0011 (= 3). (1)",
+        "Character code: the ASCII code for '3', i.e. 51 = 0011 0011. (1)"
+      ]
+    },
+    {
+      "q": "A digit character has ASCII code 54. State the digit it represents and how you found it.",
+      "marks": 2,
+      "ms": [
+        "Digit = code − 48 = 54 − 48 = 6. (1)",
+        "So the character is '6'. (1)"
+      ]
+    },
+    {
+      "q": "Explain, with examples, why a program must distinguish between the character form and the pure binary form of decimal digits when processing user input.",
+      "marks": 6,
+      "ms": [
+        "Input typed at a keyboard / read from text arrives as character codes, not numeric values. (1)",
+        "The character '0' is ASCII 48, '5' is 53, etc. — code = 48 + digit. (1)",
+        "These bit patterns differ from the pure binary value (e.g. 5 = 00000101 vs '5' = 00110101). (1)",
+        "Doing arithmetic on the character codes gives wrong results, e.g. '2' + '3' = 50 + 51 = 101, not 5. (1)",
+        "So the program must convert each character to its value (subtract 48 / parse) before calculating. (1)",
+        "Equally, numeric results must be converted back to characters for display, otherwise the wrong symbol is shown. (1)"
+      ]
+    }
+  ]
+};
+
+C["compsci:4.5.5.2"] = {
+  "notes": [
+    {
+      "h": "ASCII and Unicode"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "Text is stored by mapping each character to a binary code defined by a character set. The two you must know are ASCII (the original, English-focused standard) and Unicode (the global standard)."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "ASCII",
+        "body": "American Standard Code for Information Interchange — a 7-bit code for 128 characters: control codes (0–31), digits (48–57), uppercase letters (65–90), lowercase letters (97–122) and punctuation. Extended 8-bit ASCII gives 256 characters."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Key ASCII values",
         "body": [
           {
             "kv": [
-              ["'0' (digit zero)", "48"],
-              ["'A' (uppercase)", "65"],
-              ["'a' (lowercase)", "97"],
-              ["Difference A→a", "+32 (just flip bit 5)"]
+              [
+                "'0' (digit zero)",
+                "48"
+              ],
+              [
+                "'A' (uppercase)",
+                "65"
+              ],
+              [
+                "'a' (lowercase)",
+                "97"
+              ],
+              [
+                "Difference A to a",
+                "+32 (bit 5 flips)"
+              ]
             ]
           }
         ]
@@ -1301,137 +1221,183 @@ C["compsci:4.5.5.1"] = {
     {
       "callout": {
         "t": "tip",
-        "h": "Arithmetic on Character Codes",
-        "body": "Because letters are sequential, 'B' = 66 = 'A' + 1, 'C' = 67, etc. Knowing 'A' = 65 and 'a' = 97 lets you work out any letter's code instantly."
+        "h": "Character arithmetic",
+        "body": "Codes are sequential: 'B' = 66 = 'A' + 1. Knowing 'A' = 65, 'a' = 97 and '0' = 48 lets you derive any code; sorting and case-conversion rely on this ordering."
+      }
+    },
+    {
+      "page": "Unicode and why it was introduced"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Unicode",
+        "body": "A character set that assigns a unique code point to every character in every writing system (over 1.1 million possible code points), including emoji. Encodings such as UTF-8 and UTF-16 store these code points; UTF-8 is backwards-compatible with ASCII."
       }
     },
     {
       "callout": {
-        "t": "warn",
-        "h": "ASCII's Limitation",
-        "body": "Standard 7-bit ASCII only covers English and basic punctuation. For any language outside the Latin alphabet (Arabic, Chinese, Japanese, emojis…) Unicode is required."
+        "t": "info",
+        "h": "Why Unicode was introduced",
+        "body": "ASCII's 128 characters cover essentially only English / Latin. Global computing needs Arabic, Chinese, Japanese and many other scripts, plus emoji — impossible in ASCII. Unicode was created so that any character from any language has one agreed code, avoiding clashes between incompatible national encodings."
       }
     },
     {
-      "code": {
-        "lang": "python",
-        "cap": "Working with ASCII codes.",
-        "src": "print(ord('A'))       # 65\nprint(chr(66))        # 'B'\nprint(ord('a') - ord('A'))  # 32 (case offset)\nprint(chr(ord('A') + 2))    # 'C'"
+      "table": {
+        "head": [
+          "Feature",
+          "ASCII",
+          "Unicode"
+        ],
+        "rows": [
+          [
+            "Bit width",
+            "7 or 8 bits",
+            "16 to 32 bits (per code point)"
+          ],
+          [
+            "Character count",
+            "128 or 256",
+            "Over 1.1 million code points"
+          ],
+          [
+            "Language support",
+            "English / Latin only",
+            "Global, all scripts (incl. emoji)"
+          ],
+          [
+            "Storage cost",
+            "Low (1 byte)",
+            "Higher (1–4 bytes; UTF-8 uses 1 for ASCII)"
+          ],
+          [
+            "Compatibility",
+            "The original standard",
+            "UTF-8 is backwards-compatible with ASCII"
+          ]
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "ASCII vs Unicode",
+        "body": "**ASCII**: 7-bit, 128 characters, English / Latin, 1 byte each. **Unicode**: up to 4 bytes, over a million code points, every language plus emoji; UTF-8 is backwards-compatible with ASCII. Unicode was introduced to represent global text that ASCII cannot."
       }
     },
     {
       "callout": {
         "t": "miscon",
-        "h": "ASCII Misconceptions",
-        "body": "**ASCII codes are the same as the digit they represent** — No; the character '0' has ASCII code 48, '1' = 49, etc. The digit 0 is not ASCII 0. **Uppercase and lowercase letters have the same ASCII code** — No; 'A' = 65 and 'a' = 97; lowercase letters have codes 32 higher than their uppercase counterparts (bit 5 is different)."
+        "h": "Common misconceptions",
+        "body": "**ASCII can represent any character** — No; only 128 (essentially English). **Unicode always wastes space** — No; UTF-8 uses just 1 byte for ASCII characters and more only when needed."
       }
     }
   ],
   "flashcards": [
     [
-      "How many characters can 7-bit ASCII represent?",
-      "128 ($2^7$)"
+      "How many characters can standard 7-bit ASCII represent?",
+      "128 ($2^7$)."
     ],
     [
-      "What is the ASCII code for uppercase 'A'?",
-      "65"
-    ],
-    [
-      "What is the ASCII code for lowercase 'a'?",
-      "97 — exactly 32 more than 'A' (65)."
-    ],
-    [
-      "What is one major limitation of ASCII?",
-      "It can only represent English and basic Latin characters — no support for non-Latin alphabets, emoji, or most world languages."
-    ],
-    [
-      "What is the ASCII code for the digit character '0'?",
-      "48 — note this is not the number 0."
-    ],
-    [
-      "How do you convert an uppercase letter to lowercase using its ASCII code?",
-      "Add 32 (e.g. 'A' 65 → 'a' 97); equivalently, set bit 5."
-    ],
-    [
-      "What range of ASCII codes are the control characters?",
-      "0–31 (non-printing control codes)."
+      "How many characters can 8-bit extended ASCII represent?",
+      "256 ($2^8$)."
     ],
     [
       "What does ASCII stand for?",
       "American Standard Code for Information Interchange."
+    ],
+    [
+      "What is one major limitation of ASCII?",
+      "It only covers English / Latin characters — no non-Latin scripts or emoji."
+    ],
+    [
+      "Why was Unicode introduced?",
+      "To give every character in every language (and emoji) a unique agreed code, which ASCII's 128 characters cannot."
+    ],
+    [
+      "What is the relationship between UTF-8 and ASCII?",
+      "UTF-8 is backwards-compatible: the first 128 code points are identical to ASCII and use a single byte."
+    ],
+    [
+      "Give one disadvantage of Unicode versus ASCII.",
+      "It can use more bytes per character (up to 4), increasing storage / bandwidth for non-ASCII text."
+    ],
+    [
+      "What range of ASCII codes are the control characters?",
+      "0–31 (non-printing control codes)."
     ]
   ],
   "quiz": [
     {
-      "q": "What is the ASCII value of 'A'?",
+      "q": "Why is Unicode preferred over ASCII for a global application?",
       "opts": [
-        "48",
-        "65",
+        "It is faster",
+        "It can represent characters from all world languages and emoji",
+        "It uses fewer bits",
+        "It needs no encoding"
+      ],
+      "ans": 1,
+      "why": "Unicode's huge code space covers every script, unlike ASCII's 128 characters."
+    },
+    {
+      "q": "How many characters does standard 7-bit ASCII define?",
+      "opts": [
+        "64",
+        "128",
+        "256",
+        "1,114,112"
+      ],
+      "ans": 1,
+      "why": "7 bits give 2^7 = 128 characters."
+    },
+    {
+      "q": "Which statement about UTF-8 is true?",
+      "opts": [
+        "It is incompatible with ASCII",
+        "It uses 1 byte for ASCII characters and more when needed",
+        "It always uses 4 bytes",
+        "It cannot store emoji"
+      ],
+      "ans": 1,
+      "why": "UTF-8 is variable-length and backwards-compatible with ASCII."
+    },
+    {
+      "q": "A key disadvantage of Unicode compared with ASCII is...?",
+      "opts": [
+        "fewer characters",
+        "more storage per character for non-ASCII text",
+        "no language support",
+        "it cannot be sorted"
+      ],
+      "ans": 1,
+      "why": "Representing the larger code space can take more bytes per character."
+    },
+    {
+      "q": "The ASCII code for 'A' is 65. What is the code for 'a'?",
+      "opts": [
+        "66",
+        "90",
         "97",
-        "127"
-      ],
-      "ans": 1,
-      "why": "Uppercase A is 65; lowercase a is 97. Digits start at 48 ('0')."
-    },
-    {
-      "q": "What is the ASCII code for the character 'D'?",
-      "opts": [
-        "65",
-        "67",
-        "68",
-        "70"
+        "32"
       ],
       "ans": 2,
-      "why": "A=65, B=66, C=67, D=68. Each letter increments by 1."
-    },
-    {
-      "q": "The ASCII code for 'a' is 97. What is the code for 'c'?",
-      "opts": [
-        "98",
-        "99",
-        "100",
-        "65"
-      ],
-      "ans": 1,
-      "why": "a=97, b=98, c=99."
-    },
-    {
-      "q": "The character '7' has which ASCII code?",
-      "opts": [
-        "7",
-        "48",
-        "55",
-        "63"
-      ],
-      "ans": 2,
-      "why": "'0' is 48, so '7' is 48 + 7 = 55."
-    },
-    {
-      "q": "Why does 'a' − 'A' = 32 in ASCII?",
-      "opts": [
-        "coincidence",
-        "lowercase letters are 32 codes above uppercase",
-        "ASCII is 32-bit",
-        "there are 32 letters"
-      ],
-      "ans": 1,
-      "why": "Lowercase codes are offset 32 above their uppercase equivalents (bit 5 differs)."
+      "why": "Lowercase letters are 32 above their uppercase equivalents: 65 + 32 = 97."
     }
   ],
   "exam": [
     {
-      "q": "State one disadvantage of using ASCII in a global software application.",
+      "q": "State one reason why ASCII is unsuitable for a multilingual website.",
       "marks": 1,
       "ms": [
-        "It cannot represent characters from non-Latin languages like Chinese or Arabic (1)"
+        "It can only represent 128 (mainly English) characters, so non-Latin scripts cannot be encoded. (1)"
       ]
     },
     {
-      "q": "The ASCII code for 'A' is 65. State the ASCII codes for (a) 'E' (b) 'a'.",
+      "q": "Describe how a character is represented in a computer using a character set.",
       "marks": 2,
       "ms": [
-        "(a) 69 (65 + 4). (1)",
-        "(b) 97 (65 + 32). (1)"
+        "Each character is assigned a unique numeric code by the character set. (1)",
+        "That code is stored as a binary number (e.g. 'A' = 65 = 1000001 in ASCII). (1)"
       ]
     },
     {
@@ -1439,9 +1405,9 @@ C["compsci:4.5.5.1"] = {
       "marks": 6,
       "ms": [
         "ASCII is compact — 7 bits, 128 characters, one byte per character. (1)",
-        "Sequential codes make character arithmetic (sorting, case conversion) easy. (1)",
-        "Limitation: only 128 characters, essentially English/Latin. (1)",
-        "Cannot represent non-Latin scripts (Arabic, Chinese) or emoji. (1)",
+        "Its sequential codes make character arithmetic (sorting, case conversion) easy. (1)",
+        "Limitation: only 128 characters, essentially English / Latin. (1)",
+        "It cannot represent non-Latin scripts (Arabic, Chinese) or emoji. (1)",
         "Unicode assigns a unique code point to every character in every language. (1)",
         "Encodings like UTF-8 stay backwards-compatible with ASCII while supporting over a million characters, at the cost of more bytes per character. (1)"
       ]
