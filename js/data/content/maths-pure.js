@@ -619,69 +619,391 @@ C["maths:2.2"] = {
 C["maths:2.3"] = {
   "notes": [
     {
-      "h": "Quadratic Functions & Discriminant"
+      "h": "Quadratic Functions & the Discriminant"
     },
     {
       "callout": {
         "t": "info",
-        "h": "General Form",
-        "body": "$f(x) = ax^2 + bx + c$. The shape is a parabola."
+        "body": "A quadratic has the form $ax^2+bx+c$ with $a\\neq0$. Its graph is a **parabola** — opening upward if $a>0$, downward if $a<0$. This leaf works through every method you need: the three ways to solve, completing the square, the discriminant, sketching, and 'hidden' quadratics."
+      }
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "The toolkit (learn these)",
+        "body": [
+          "Quadratic formula: $x=\\dfrac{-b\\pm\\sqrt{b^2-4ac}}{2a}$",
+          "Completed square: $a(x+p)^2+q$ where $p=\\dfrac{b}{2a}$",
+          "Discriminant: $\\Delta=b^2-4ac$",
+          "Roots / $x$-intercepts where $y=0$; $y$-intercept at $(0,c)$"
+        ]
       }
     },
     {
       "table": {
         "head": [
-          "Method",
-          "Purpose",
-          "Formula/Process"
+          "Feature",
+          "Where to find it"
         ],
         "rows": [
           [
-            "Factorising",
-            "Find roots quickly",
-            "Find $p, q$ such that $(x-p)(x-q)=0$."
+            "Shape",
+            "$a>0$ opens up (min); $a<0$ opens down (max)"
           ],
           [
-            "Completing Square",
-            "Find vertex/min/max",
-            "$a(x+p)^2 + q$."
+            "$y$-intercept",
+            "Put $x=0$: the point $(0,c)$"
           ],
           [
-            "Quadratic Formula",
-            "Find roots for any quadratic",
-            "$x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$."
+            "Roots ($x$-intercepts)",
+            "Solve $ax^2+bx+c=0$"
           ],
           [
-            "Discriminant",
-            "Determine nature of roots",
-            "$D = b^2 - 4ac$."
+            "Vertex (turning point)",
+            "From the completed square $a(x+p)^2+q$: vertex $(-p,q)$"
+          ],
+          [
+            "Line of symmetry",
+            "$x=-p=-\\dfrac{b}{2a}$"
           ]
         ]
       }
     },
     {
       "callout": {
-        "t": "warn",
-        "h": "The Discriminant $D$",
+        "t": "tip",
+        "h": "Which solving method?",
+        "body": "**Factorises easily?** use factorisation. **Asked for exact surd roots?** use the formula or completing the square. **Asked for the vertex / min / max?** complete the square. A calculator can solve too, but exams usually want the method shown."
+      }
+    },
+    {
+      "page": "Method 1 — Solving by Factorising"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "The idea",
+        "body": "If $A\\times B=0$ then $A=0$ or $B=0$. So factorise into two brackets, then set each to zero."
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Worked example: $x^2-5x+6=0$",
+          "m": "Find two numbers that multiply to $+6$ and add to $-5$: that is $-2$ and $-3$."
+        },
+        {
+          "h": "Factorise",
+          "m": "$x^2-5x+6=(x-2)(x-3)$."
+        },
+        {
+          "h": "Set each bracket to zero",
+          "m": "$x-2=0$ or $x-3=0$."
+        },
+        {
+          "h": "Solve",
+          "m": "$x=2$ or $x=3$.",
+          "n": "Always two brackets, so up to two roots."
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "h": "Variation with $a\\neq1$: $2x^2+5x-3=0$",
+          "m": "Multiply $a\\times c=2\\times(-3)=-6$; find two numbers multiplying to $-6$, adding to $+5$: $+6$ and $-1$."
+        },
+        {
+          "h": "Split the middle term",
+          "m": "$2x^2+6x-x-3=0$."
+        },
+        {
+          "h": "Factor in pairs",
+          "m": "$2x(x+3)-1(x+3)=0\\Rightarrow(2x-1)(x+3)=0$."
+        },
+        {
+          "h": "Solve",
+          "m": "$2x-1=0\\Rightarrow x=\\tfrac12$, or $x+3=0\\Rightarrow x=-3$."
+        }
+      ]
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Pitfall",
+        "body": "Don't 'cancel' an $x$ from $x^2-5x=0$ — you lose the root $x=0$. Factor instead: $x(x-5)=0\\Rightarrow x=0$ or $x=5$."
+      }
+    },
+    {
+      "page": "Method 2 — The Quadratic Formula"
+    },
+    {
+      "callout": {
+        "t": "formula",
+        "h": "Use when it won't factorise (or you need exact surds)",
+        "body": "$x=\\dfrac{-b\\pm\\sqrt{b^2-4ac}}{2a}$"
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Worked example: $3x^2-2x-4=0$",
+          "m": "Identify $a=3,\\ b=-2,\\ c=-4$."
+        },
+        {
+          "h": "Substitute carefully",
+          "m": "$x=\\dfrac{-(-2)\\pm\\sqrt{(-2)^2-4(3)(-4)}}{2(3)}$."
+        },
+        {
+          "h": "Simplify inside the root",
+          "m": "$=\\dfrac{2\\pm\\sqrt{4+48}}{6}=\\dfrac{2\\pm\\sqrt{52}}{6}$."
+        },
+        {
+          "h": "Simplify the surd",
+          "m": "$\\sqrt{52}=\\sqrt{4\\times13}=2\\sqrt{13}$, so $x=\\dfrac{2\\pm2\\sqrt{13}}{6}=\\dfrac{1\\pm\\sqrt{13}}{3}$."
+        },
+        {
+          "h": "Decimal form (if asked)",
+          "m": "$x\\approx1.54$ or $x\\approx-0.869$ (3 s.f.).",
+          "n": "Keep the exact surd form unless a decimal is requested."
+        }
+      ]
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Pitfalls",
+        "body": "Watch the **sign of $b$** ($-b$ flips it), and remember the whole numerator is over $2a$ — not just $-b$. The $\\pm$ gives the two roots; don't drop one."
+      }
+    },
+    {
+      "page": "Method 3 — Completing the Square"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Why bother",
+        "body": "Completing the square rewrites $ax^2+bx+c$ as $a(x+p)^2+q$. It instantly gives the **vertex** $(-p,q)$ and lets you solve for exact surd roots."
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Worked example ($a=1$): $x^2+6x+1$",
+          "m": "Halve the $x$-coefficient: $6\\div2=3$."
+        },
+        {
+          "h": "Write the bracket and subtract the square",
+          "m": "$x^2+6x+1=(x+3)^2-3^2+1$."
+        },
+        {
+          "h": "Simplify",
+          "m": "$=(x+3)^2-8$.",
+          "n": "Vertex at $(-3,-8)$; minimum value $-8$."
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "h": "Variation with $a\\neq1$: $2x^2-8x+3$",
+          "m": "Factor $a$ from the first two terms: $2(x^2-4x)+3$."
+        },
+        {
+          "h": "Complete the square inside",
+          "m": "$x^2-4x=(x-2)^2-4$, so $2[(x-2)^2-4]+3$."
+        },
+        {
+          "h": "Expand and simplify",
+          "m": "$=2(x-2)^2-8+3=2(x-2)^2-5$.",
+          "n": "Vertex $(2,-5)$."
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "h": "Using it to SOLVE: $x^2+6x+1=0$",
+          "m": "From above, $(x+3)^2-8=0$."
+        },
+        {
+          "h": "Rearrange",
+          "m": "$(x+3)^2=8$."
+        },
+        {
+          "h": "Square-root both sides ($\\pm$)",
+          "m": "$x+3=\\pm\\sqrt8=\\pm2\\sqrt2$."
+        },
+        {
+          "h": "Solve",
+          "m": "$x=-3\\pm2\\sqrt2$."
+        }
+      ]
+    },
+    {
+      "page": "The Discriminant — How Many Roots?"
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "$\\Delta=b^2-4ac$",
         "body": [
-          "$D > 0$: Two distinct real roots.",
-          "$D = 0$: One repeated real root (tangent to x-axis).",
-          "$D < 0$: No real roots (doesn't touch x-axis)."
+          "$\\Delta>0$: two distinct real roots (graph cuts the $x$-axis twice)",
+          "$\\Delta=0$: one repeated root (graph touches the $x$-axis)",
+          "$\\Delta<0$: no real roots (graph misses the $x$-axis)"
+        ]
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Type A — Classify the roots of $2x^2-4x+5=0$",
+          "m": "$a=2,b=-4,c=5$."
+        },
+        {
+          "h": "Compute",
+          "m": "$\\Delta=(-4)^2-4(2)(5)=16-40=-24$."
+        },
+        {
+          "h": "Interpret",
+          "m": "$\\Delta<0$, so there are **no real roots**."
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "h": "Type B — Find $k$ for EQUAL roots: $x^2+kx+9=0$",
+          "m": "Equal roots $\\Rightarrow\\Delta=0$."
+        },
+        {
+          "h": "Set up",
+          "m": "$k^2-4(1)(9)=0\\Rightarrow k^2-36=0$."
+        },
+        {
+          "h": "Solve",
+          "m": "$k^2=36\\Rightarrow k=\\pm6$."
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "h": "Type C — Find the RANGE of $k$ for two distinct roots: $x^2+(k+1)x+4=0$",
+          "m": "Two distinct real roots $\\Rightarrow\\Delta>0$."
+        },
+        {
+          "h": "Form the inequality",
+          "m": "$(k+1)^2-4(1)(4)>0\\Rightarrow(k+1)^2-16>0$."
+        },
+        {
+          "h": "Solve the quadratic inequality",
+          "m": "$(k+1)^2>16\\Rightarrow k+1>4$ or $k+1<-4$."
+        },
+        {
+          "h": "Answer",
+          "m": "$k>3$ or $k<-5$.",
+          "n": "For NO real roots you'd use $\\Delta<0$, giving $-5<k<3$."
+        }
+      ]
+    },
+    {
+      "page": "Sketching a Quadratic"
+    },
+    {
+      "steps": [
+        {
+          "h": "Sketch $y=x^2-2x-3$",
+          "m": "Shape: $a=1>0$, so a $\\cup$ parabola (minimum)."
+        },
+        {
+          "h": "$y$-intercept",
+          "m": "Put $x=0$: $y=-3$, so $(0,-3)$."
+        },
+        {
+          "h": "Roots ($x$-intercepts)",
+          "m": "$x^2-2x-3=(x-3)(x+1)=0\\Rightarrow x=3$ or $x=-1$."
+        },
+        {
+          "h": "Vertex",
+          "m": "Line of symmetry midway between roots: $x=1$; $y=1-2-3=-4$, so vertex $(1,-4)$."
+        },
+        {
+          "h": "Draw",
+          "m": "Smooth $\\cup$ through $(-1,0)$, $(3,0)$, $(0,-3)$, lowest point $(1,-4)$."
+        }
+      ]
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "If it has no real roots",
+        "body": "When $\\Delta<0$ the parabola does not cross the $x$-axis — sketch it entirely above (if $a>0$) or below (if $a<0$) the axis, using the vertex from the completed square."
+      }
+    },
+    {
+      "page": "Quadratics in Disguise"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "Many equations are quadratics in a *function* of $x$. Substitute to reveal the quadratic, solve, then undo the substitution."
+      }
+    },
+    {
+      "steps": [
+        {
+          "h": "Quadratic in $x^2$: $x^4-5x^2+4=0$",
+          "m": "Let $u=x^2$: $u^2-5u+4=0$."
+        },
+        {
+          "h": "Solve the quadratic",
+          "m": "$(u-1)(u-4)=0\\Rightarrow u=1$ or $u=4$."
+        },
+        {
+          "h": "Undo the substitution",
+          "m": "$x^2=1\\Rightarrow x=\\pm1$; $x^2=4\\Rightarrow x=\\pm2$.",
+          "n": "Four solutions."
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "h": "Quadratic in $e^x$: $e^{2x}-5e^{x}+6=0$",
+          "m": "Let $u=e^x$ (note $e^{2x}=(e^x)^2=u^2$): $u^2-5u+6=0$."
+        },
+        {
+          "h": "Solve",
+          "m": "$(u-2)(u-3)=0\\Rightarrow u=2$ or $u=3$."
+        },
+        {
+          "h": "Undo",
+          "m": "$e^x=2\\Rightarrow x=\\ln2$; $e^x=3\\Rightarrow x=\\ln3$.",
+          "n": "The same trick reduces many trig equations to quadratics in $\\sin x$ or $\\cos x$."
+        }
+      ]
+    },
+    {
+      "page": "Exam Technique"
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Marks checklist",
+        "body": [
+          "Pick the method the question steers you to (exact roots → formula/CTS; vertex → CTS; 'show that' → factorise).",
+          "Quote the discriminant condition explicitly: 'equal roots $\\Rightarrow b^2-4ac=0$'.",
+          "Give exact (surd) answers unless a decimal/accuracy is stated.",
+          "For 'range of values of $k$', set up the discriminant inequality and solve it like any quadratic inequality."
         ]
       }
     },
     {
       "callout": {
         "t": "memorise",
-        "h": "Discriminant Quick Reference",
-        "body": "$D = b^2 - 4ac$. $D > 0$: two distinct roots. $D = 0$: one repeated root (tangent to $x$-axis). $D < 0$: no real roots. Exam use: for a line to be tangent to a curve, substitute the line into the curve, collect to $ax^2 + bx + c = 0$ form, then set $D = 0$."
-      }
-    },
-    {
-      "callout": {
-        "t": "miscon",
-        "h": "Completing the Square Gives the Roots",
-        "body": "Completing the square gives the **vertex** form $(x+p)^2 + q$, from which you read the vertex $(-p, q)$. To find roots, you must still set the expression to zero and solve. Students sometimes write $(-p, q)$ as the roots — these are the coordinates of the turning point, not the $x$-intercepts."
+        "h": "Model structure for a 'find the range of $k$' question",
+        "body": "(1) State the condition (e.g. two distinct roots $\\Rightarrow\\Delta>0$). (2) Write $b^2-4ac$ in terms of $k$. (3) Form the inequality. (4) Solve the quadratic inequality (factorise / sketch). (5) State the solution set clearly with 'and'/'or'."
       }
     }
   ],
@@ -806,6 +1128,25 @@ C["maths:2.3"] = {
         "$(k+1)^2>64$. (1)",
         "$k+1>8$ or $k+1<-8$. (1)",
         "$k>7$ or $k<-9$. (1)"
+      ]
+    },
+    {
+      "q": "Solve $2x^2-7x+3=0$ by factorising.",
+      "marks": 3,
+      "ms": [
+        "$2x^2-7x+3=(2x-1)(x-3)$. (1)",
+        "$2x-1=0\\Rightarrow x=\\tfrac12$. (1)",
+        "$x-3=0\\Rightarrow x=3$. (1)"
+      ]
+    },
+    {
+      "q": "Express $x^2-8x+3$ in the form $(x+p)^2+q$, and hence state the minimum value and where it occurs.",
+      "marks": 4,
+      "ms": [
+        "Half of $-8$ is $-4$: $(x-4)^2$. (1)",
+        "$(x-4)^2-16+3=(x-4)^2-13$. (1)",
+        "Minimum value $-13$. (1)",
+        "occurring at $x=4$. (1)"
       ]
     }
   ],
