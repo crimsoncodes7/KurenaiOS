@@ -811,6 +811,37 @@ window.KOS_DATA.intel = {
          "Recursive list functions: base case empty list, recursive case process head then recurse on tail."],
   pitfalls: ["Saying the tail is the last element — it is everything after the head.", "Saying tail([x]) returns x — it returns the empty list []."]
 },
+"compsci:NEA.1": {
+  tips: ["Every objective must be measurable: verb + noun + testable condition (e.g. 'return results in under 2 seconds for 10,000 records').",
+         "Show real user research — interview/questionnaire evidence, not assumptions about 'users'.",
+         "Keep objectives traceable: each should reappear in Design, Testing and Evaluation."],
+  pitfalls: ["Vague objectives like 'be fast' or 'be easy to use' — they cannot be tested, so earn nothing.", "Treating quantity of objectives as quality — five precise objectives beat fifteen vague ones."]
+},
+"compsci:NEA.2": {
+  defs: [["Hierarchy chart", "Shows the module/function breakdown only — which modules exist and contain which."],
+         ["Structure chart", "A hierarchy chart plus labelled arrows showing the data passed between modules."]],
+  tips: ["Write the test plan in Design, before coding, covering normal, boundary AND erroneous data for every objective.",
+         "Justify every design decision against a specific Analysis requirement ('because the client needs…')."],
+  pitfalls: ["Producing a test plan after coding — all-pass plans look retrospective.", "Documenting only normal test cases and omitting boundary/erroneous data."]
+},
+"compsci:NEA.3": {
+  tips: ["Functionality first: a simpler working solution beats an ambitious broken one.",
+         "Raise complexity with file I/O, non-trivial SQL (JOIN/WHERE), meaningful OOP, real validation and error handling.",
+         "Provide an annotated screenshot for every objective, labelled with its number."],
+  pitfalls: ["Comments that narrate WHAT not WHY ('i += 1 # add one').", "Missing screenshot evidence — uncredited even when the code exists."]
+},
+"compsci:NEA.4": {
+  defs: [["Normal/boundary/erroneous data", "Typical valid input / input at the edge of validity / invalid input that must be rejected."]],
+  tips: ["Execute the Design test plan and record actual vs expected with pass/fail for every test.",
+         "Show iterative testing: unit, then integration, then end-to-end — and show bugs found, fixed and re-tested."],
+  pitfalls: ["An all-pass table looks under-tested or retrospective.", "Testing only normal data and forgetting erroneous/boundary cases."]
+},
+"compsci:NEA.5": {
+  tips: ["Evaluate objective-by-objective: met / partially met / not met, each backed by the relevant test number(s).",
+         "Identify real, specific limitations and pair each with a concrete technical improvement.",
+         "Quote genuine client/user feedback as external evidence of usability."],
+  pitfalls: ["Generic praise ('it works well') earns nothing — be specific and evidence-linked.", "Hiding limitations — honest critical analysis scores higher than claiming perfection."]
+},
 "compsci:4.1.2.1": {
   defs: [["Procedural paradigm", "Programs built from subroutines executed in sequence, operating on separate data."],
          ["Object-oriented paradigm", "Data and methods bundled into objects, with encapsulation, inheritance and polymorphism."]],
