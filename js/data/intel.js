@@ -559,9 +559,11 @@ window.KOS_DATA.intel = {
   pitfalls: ["Saying an interpreter produces an executable (it does not).", "Confusing an assembler (assembly→machine) with a compiler (high-level→machine)."]
 },
 "compsci:4.6.2.1": {
-  tips: ["Boolean simplification: quote the identity used at every line (De Morgan's, distribution, absorption X + X·Y = X). Unjustified jumps lose method marks.",
-         "Karnaugh-style spotting: A + NOT A = 1 and X·X = X collapse most exam expressions."],
-  pitfalls: ["Applying De Morgan's and forgetting to flip BOTH the operator and the negations of each term."]
+  defs: [["Machine code", "Binary instructions run directly by the CPU; processor-specific."],
+         ["Assembly language", "Low-level mnemonics (1:1 with machine instructions), assembled to machine code."],
+         ["Imperative high-level language", "A high-level language program is a sequence of state-changing commands (specifies HOW)."]],
+  tips: ["Low-level = machine code + assembly (fast, hardware control, not portable); high-level = portable, readable, needs a translator.", "For 'compare' marks, pair each low-level advantage (speed, control) with a high-level one (portability, productivity)."],
+  pitfalls: ["Calling assembly a high-level language — it is low-level.", "Saying high-level code runs directly on the CPU — it must be compiled/interpreted first."]
 },
 "compsci:4.6.4.1": {
   defs: [["D-type flip flop", "A clocked storage element that captures the value on its D input at a clock edge and holds it on output Q."],

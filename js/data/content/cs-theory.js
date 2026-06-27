@@ -233,216 +233,263 @@ C["compsci:4.5.4.4"] = {
 C["compsci:4.6.2.1"] = {
   "notes": [
     {
-      "h": "Boolean algebra: the identities, then the method"
+      "h": "Classification of Programming Languages"
     },
     {
-      "diagram": "logic-lab"
+      "callout": {
+        "t": "info",
+        "body": "Programming languages developed from low-level languages tied directly to the hardware towards high-level languages closer to human thought. They are classified into low-level and high-level languages."
+      }
+    },
+    {
+      "h": "Low-level languages"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Machine code",
+        "body": "Binary instructions executed directly by the CPU — the only language a processor truly understands. Each instruction is specific to that processor's instruction set."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Assembly language",
+        "body": "A human-readable form of machine code using mnemonics (e.g. LDA, ADD, STA), with one statement per machine instruction. It is translated to machine code by an assembler and is still processor-specific."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Characteristics of low-level languages",
+        "body": "Give precise, direct control of the hardware and run very fast in little memory, but are hard to write and debug, require detailed knowledge of the processor, and are not portable between different processors."
+      }
+    },
+    {
+      "h": "High-level languages"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "High-level language",
+        "body": "A language closer to natural language and mathematics and largely independent of the hardware (portable). One statement typically maps to many machine instructions, and the code is translated by a compiler or interpreter. Examples: Python, Java, C#."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Imperative high-level language",
+        "body": "A high-level language in which a program is a sequence of commands (statements) that change the program's state — specifying HOW to carry out a task step by step (e.g. Python, C, Java). Like assembly and machine code it gives an explicit ordered sequence of operations, but at a hardware-independent, abstracted level — which is its relationship to low-level languages."
+      }
+    },
+    {
+      "page": "Comparison and trade-offs"
     },
     {
       "table": {
         "head": [
-          "Law",
-          "AND form",
-          "OR form"
+          "Feature",
+          "Low-level (machine code / assembly)",
+          "High-level"
         ],
         "rows": [
           [
-            "Identity",
-            "X · 1 = X",
-            "X + 0 = X"
+            "Statement to instruction",
+            "1 : 1 with machine instructions",
+            "1 : many machine instructions"
           ],
           [
-            "Null/annihilation",
-            "X · 0 = 0",
-            "X + 1 = 1"
+            "Execution",
+            "Direct (machine code) / after assembling",
+            "Needs a compiler or interpreter"
           ],
           [
-            "Idempotent",
-            "X · X = X",
-            "X + X = X"
+            "Portability",
+            "Processor-specific",
+            "Portable across machines"
           ],
           [
-            "Complement",
-            "X · X̄ = 0",
-            "X + X̄ = 1"
+            "Ease of writing",
+            "Hard, error-prone",
+            "Easier, readable, maintainable"
           ],
           [
-            "Commutative",
-            "X·Y = Y·X",
-            "X+Y = Y+X"
+            "Hardware control",
+            "Full, precise",
+            "Limited / abstracted"
           ],
           [
-            "Distributive",
-            "X·(Y+Z) = X·Y + X·Z",
-            "X+(Y·Z) = (X+Y)·(X+Z)"
-          ],
-          [
-            "Absorption",
-            "X·(X+Y) = X",
-            "X + X·Y = X"
-          ],
-          [
-            "De Morgan's",
-            "¬(X·Y) = X̄ + Ȳ",
-            "¬(X+Y) = X̄ · Ȳ"
+            "Speed and size",
+            "Very fast, compact",
+            "Some translation overhead"
           ]
         ]
       }
     },
     {
       "callout": {
-        "t": "mnemonic",
-        "body": "**De Morgan's = \"break the bar, change the sign\"**: split the negation over each term AND flip the operator between them. Apply it twice and you're back where you started — a free self-check."
-      }
-    },
-    {
-      "page": "Simplification"
-    },
-    {
-      "h": "Simplification — worked to mark-scheme standard"
-    },
-    {
-      "steps": [
-        {
-          "h": "Simplify  A·B + A·B̄ + Ā·B",
-          "m": "A·B + A·B̄ = A·(B + B̄)          [distributive]"
-        },
-        {
-          "h": "Complement law",
-          "m": "= A·1 = A                        [B + B̄ = 1]"
-        },
-        {
-          "h": "Substitute back",
-          "m": "A + Ā·B"
-        },
-        {
-          "h": "Absorption variant",
-          "m": "A + Ā·B = A + B                  [since A + Ā·B = (A+Ā)·(A+B) = A + B]",
-          "n": "Quote the law at every line — unjustified jumps lose the method marks even when the destination is right."
-        }
-      ]
-    },
-    {
-      "callout": {
-        "t": "miscon",
-        "body": "De Morgan's does NOT mean ¬(X·Y) = X̄·Ȳ. The operator must flip: AND becomes OR under the broken bar. Half-applying it is the most common simplification error in scripts."
-      }
-    },
-    {
-      "callout": {
-        "t": "tip",
-        "body": "Stuck mid-simplification? Hunt for: (1) a common factor to pull out, (2) any P + P̄ or P·P̄ pair, (3) an absorption shape X + X·Y. Those three patterns finish nearly every AQA expression."
+        "t": "info",
+        "h": "Advantages and disadvantages",
+        "body": [
+          {
+            "kv": [
+              [
+                "Low-level advantages",
+                "Fast execution, memory-efficient, full control of hardware — suits device drivers and embedded systems."
+              ],
+              [
+                "Low-level disadvantages",
+                "Hard to write/debug, processor-specific (not portable), needs detailed hardware knowledge."
+              ],
+              [
+                "High-level advantages",
+                "Faster development, portable, easier to read, debug and maintain."
+              ],
+              [
+                "High-level disadvantages",
+                "Less direct hardware control and some performance overhead from translation."
+              ]
+            ]
+          }
+        ]
       }
     },
     {
       "callout": {
         "t": "memorise",
-        "h": "Boolean Laws Cheat Sheet",
-        "body": "De Morgan's: ¬(X·Y) = X̄+Ȳ; ¬(X+Y) = X̄·Ȳ (break bar, flip op). Absorption: X+X·Y = X; X·(X+Y) = X. Complement: X·X̄ = 0; X+X̄ = 1. Idempotent: X·X = X; X+X = X. Null: X·0 = 0; X+1 = 1. Identity: X·1 = X; X+0 = X. Quote the law name at every step."
+        "h": "Language classification",
+        "body": "**Low-level** = machine code (binary, runs directly on the CPU) + assembly (mnemonics, assembled, 1:1). Processor-specific, fast, hard to write. **High-level** = portable, readable, 1 statement → many instructions, needs a compiler/interpreter. **Imperative high-level** = a sequence of state-changing commands (specifies HOW), the abstracted relative of low-level languages."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconceptions",
+        "body": "**Assembly is a high-level language** — No; it is low-level: one mnemonic per machine instruction and processor-specific. **High-level code runs directly on the CPU** — No; it must be translated (compiled or interpreted) into machine code first."
       }
     }
   ],
   "flashcards": [
     [
-      "State De Morgan's laws.",
-      "¬(X·Y) = X̄ + Ȳ and ¬(X+Y) = X̄ · Ȳ — break the bar, change the sign."
+      "What are the two low-level languages?",
+      "Machine code and assembly language."
     ],
     [
-      "Absorption law (both forms)?",
-      "X + X·Y = X and X·(X + Y) = X."
+      "What is machine code?",
+      "Binary instructions executed directly by the CPU, specific to its instruction set."
     ],
     [
-      "X + X̄ and X·X̄ equal…?",
-      "1 and 0 respectively — the complement laws."
+      "What is assembly language?",
+      "A human-readable form of machine code using mnemonics, translated to machine code by an assembler; one statement per machine instruction."
     ],
     [
-      "Simplify A·(Ā + B).",
-      "A·Ā + A·B = 0 + A·B = A·B."
+      "What is a high-level language?",
+      "A hardware-independent, portable language closer to human language, where one statement maps to many machine instructions and needs a compiler/interpreter."
     ],
     [
-      "Why quote the law used on each line?",
-      "Method marks attach to justified steps; a correct answer with unexplained jumps can still drop marks."
+      "What is an imperative high-level language?",
+      "A high-level language where a program is a sequence of commands that change state, specifying HOW to do a task (e.g. Python, Java, C)."
     ],
-    ["State the two distributive laws.", "X·(Y+Z) = X·Y + X·Z and X+(Y·Z) = (X+Y)·(X+Z)."],
-    ["What is the quick self-check for De Morgan's?", "Apply it twice — you should return to the original expression."],
-    ["Simplify X·X̄ and X+X̄.", "X·X̄ = 0 (complement); X+X̄ = 1 (complement)."]
+    [
+      "Give one advantage of low-level over high-level programming.",
+      "Faster execution, smaller memory use, or precise/direct control of the hardware."
+    ],
+    [
+      "Give one advantage of high-level over low-level programming.",
+      "Faster development, portability, or easier reading/debugging/maintenance."
+    ],
+    [
+      "Why is assembly language not portable?",
+      "Its mnemonics map to a specific processor's instruction set, so it must be rewritten for a different processor."
+    ]
   ],
   "quiz": [
     {
-      "q": "¬(A + B) ≡",
+      "q": "Which is a low-level language?",
       "opts": [
-        "Ā + B̄",
-        "Ā · B̄",
-        "A · B",
-        "¬A + B"
+        "Python",
+        "Assembly language",
+        "Java",
+        "SQL"
       ],
       "ans": 1,
-      "why": "De Morgan's: bar breaks, OR flips to AND."
+      "why": "Assembly is low-level — mnemonics mapping 1:1 to machine instructions."
     },
     {
-      "q": "X + X·Y simplifies to…",
+      "q": "Machine code is...?",
       "opts": [
-        "X·Y",
-        "Y",
-        "X",
-        "X + Y"
+        "written in English keywords",
+        "binary instructions run directly by the CPU",
+        "always portable",
+        "translated by an interpreter"
       ],
-      "ans": 2,
-      "why": "Absorption — if X is true the whole thing is true; if X is false both terms die."
+      "ans": 1,
+      "why": "Machine code is the CPU's native binary instruction set."
     },
     {
-      "q": "A·B + A·B̄ = ?",
+      "q": "A key advantage of high-level languages is...?",
       "opts": [
-        "A",
-        "B",
-        "A·B",
-        "1"
+        "direct hardware control",
+        "portability across machines",
+        "no translation needed",
+        "1:1 mapping to instructions"
       ],
-      "ans": 0,
-      "why": "Factor A·(B + B̄) = A·1 = A."
+      "ans": 1,
+      "why": "High-level languages are hardware-independent and portable."
     },
     {
-      "q": "Which is the distributive law's OR-over-AND form?",
+      "q": "In a high-level language, one statement typically corresponds to...?",
       "opts": [
-        "X+(Y·Z) = (X+Y)·(X+Z)",
-        "X·(Y+Z) = X·Y + X·Z",
-        "X+X = X",
-        "X·1 = X"
+        "one machine instruction",
+        "many machine instructions",
+        "no instructions",
+        "one assembly mnemonic"
       ],
-      "ans": 0,
-      "why": "Both distributive forms hold in Boolean algebra — this one has no ordinary-algebra analogue, so it's the one examiners test."
+      "ans": 1,
+      "why": "High-level statements expand into many machine instructions."
     },
     {
-      "q": "Simplify A·(Ā + B).",
-      "opts": ["A", "B", "A·B", "Ā·B"],
-      "ans": 2,
-      "why": "A·Ā + A·B = 0 + A·B = A·B."
+      "q": "An imperative high-level language program is essentially...?",
+      "opts": [
+        "a set of facts",
+        "a sequence of commands that change state",
+        "a circuit diagram",
+        "binary only"
+      ],
+      "ans": 1,
+      "why": "Imperative programs specify an ordered sequence of state-changing commands (HOW)."
     }
   ],
   "exam": [
     {
-      "q": "Simplify ¬(A · ¬B) · B as far as possible, quoting the identity used at each step.",
-      "marks": 4,
+      "q": "State the two types of low-level language.",
+      "marks": 2,
       "ms": [
-        "De Morgan's: ¬(A·¬B) = Ā + B (1)",
-        "Expression becomes (Ā + B)·B (1)",
-        "Distribute: Ā·B + B·B = Ā·B + B (1)",
-        "Absorption: B + B·Ā = B (1)"
+        "Machine code. (1)",
+        "Assembly language. (1)"
       ]
     },
     {
-      "q": "State De Morgan's two laws and use one to rewrite ¬(A·B).",
+      "q": "Explain what is meant by an 'imperative high-level language' and its relationship to low-level languages.",
       "marks": 3,
-      "ms": ["¬(X·Y) = X̄ + Ȳ (1)", "¬(X+Y) = X̄ · Ȳ (1)", "¬(A·B) = Ā + B̄ (1)"]
+      "ms": [
+        "An imperative language expresses a program as a sequence of commands/statements that change the program's state. (1)",
+        "It specifies HOW a task is performed step by step (e.g. Python, Java, C). (1)",
+        "Like low-level languages it gives an explicit ordered sequence of operations, but at a hardware-independent, abstracted level. (1)"
+      ]
     },
     {
-      "q": "Simplify the expression A·B + A·B̄ + Ā·B to a single variable plus a term, quoting the law used at each step, and explain why quoting laws matters in the exam.",
+      "q": "Discuss the advantages and disadvantages of programming in machine code or assembly compared with a high-level language.",
       "marks": 6,
-      "ms": ["A·B + A·B̄ = A·(B + B̄) [distributive] (1)", "= A·1 = A [complement] (1)", "Expression becomes A + Ā·B (1)", "A + Ā·B = A + B [absorption variant] (1)", "Final answer A + B (1)", "Method marks are awarded for justified steps; unexplained jumps can lose marks even if the answer is right (1)"]
+      "ms": [
+        "Machine code/assembly run very fast and use little memory. (1)",
+        "They give full, precise control of the hardware (useful for drivers/embedded systems). (1)",
+        "But they are hard to write and debug and need detailed processor knowledge. (1)",
+        "They are processor-specific, so not portable. (1)",
+        "High-level languages are portable, faster to develop and easier to read/maintain. (1)",
+        "Their drawback is less direct hardware control and some performance overhead from translation, so the choice depends on whether control/speed or productivity/portability matters most. (1)"
+      ]
     }
-  ],
-  "sims": [
-    "logic-lab"
   ]
 };
 
