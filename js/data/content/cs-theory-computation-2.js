@@ -3,156 +3,670 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 (function (C) {
 
 C["compsci:4.4.2.4"] = {
-  notes: [
-    { h: "Mealy Machines" },
-    { callout: { t: "def", h: "Mealy Machine Concepts", body: [
-      { kv: [
-        ["Mealy Machine", "A type of Finite State Machine (FSM) that produces an output. Crucially, the output is determined by both the **current state** and the **current input**."]
-      ]}
-    ]}},
-    { h: "Comparing FSM Types" },
-    { table: {
-      head: ["Feature", "Finite State Automaton (FSA)", "Mealy Machine"],
-      rows: [
-        ["Output", "None (Accept/Reject only)", "Produces an output string"],
-        ["Transition", "Input only", "Input and Output (`in/out`)"],
-        ["Purpose", "Language recognition", "Data transformation / Control systems"]
+  "notes": [
+    {
+      "h": "Regular Languages"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "A regular language is the class of language that both regular expressions and finite state machines can handle — they are the simplest languages in the computational hierarchy."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Regular language",
+        "body": "A language is called regular if it can be represented by a regular expression. Equivalently, a regular language is any language that a finite state machine (FSM) will accept."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Two equivalent definitions",
+        "body": [
+          {
+            "kv": [
+              [
+                "By regex",
+                "If you can write a regular expression that exactly describes the set of valid strings, the language is regular."
+              ],
+              [
+                "By FSM",
+                "If you can build an FSM that accepts exactly the valid strings (and rejects the rest), the language is regular."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Limits of regular languages",
+        "body": "Some languages are NOT regular. For example {0ⁿ1ⁿ | n ≥ 1} (equal numbers of 0s then 1s) cannot be recognised by any FSM, because an FSM has only finite memory and cannot count an unbounded n. Such languages need a more powerful machine (e.g. a pushdown automaton)."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Regular language essentials",
+        "body": "A language is **regular** if a **regular expression** can describe it, equivalently if an **FSM** can accept it. Regex ↔ FSM equivalence defines the class. Languages that require counting (like 0ⁿ1ⁿ) are NOT regular."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconception",
+        "body": "**All languages are regular** — No; only those describable by a regex / acceptable by an FSM. Languages needing unbounded memory to count, such as matched-pair patterns, lie outside the regular class."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "When is a language called regular?",
+      "When it can be represented by a regular expression (equivalently, accepted by an FSM)."
+    ],
+    [
+      "Give the FSM-based definition of a regular language.",
+      "Any language that a finite state machine will accept."
+    ],
+    [
+      "Are regular expressions and FSMs equivalent for defining regular languages?",
+      "Yes — both define exactly the class of regular languages."
+    ],
+    [
+      "Give an example of a language that is NOT regular.",
+      "{0ⁿ1ⁿ | n ≥ 1} — equal numbers of 0s then 1s; an FSM cannot count n."
+    ],
+    [
+      "Why can't an FSM recognise 0ⁿ1ⁿ?",
+      "It has only finite memory (states) and cannot count an unbounded number of 0s to match against the 1s."
+    ],
+    [
+      "What kind of machine is needed for languages beyond regular?",
+      "A more powerful machine such as a pushdown automaton (an FSM plus a stack)."
+    ],
+    [
+      "If you can write a regex for a language, what does that tell you?",
+      "That the language is regular."
+    ],
+    [
+      "What is the simplest class of language in the hierarchy?",
+      "Regular languages (handled by regex and FSMs)."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "A language is regular if...?",
+      "opts": [
+        "it needs a Turing machine",
+        "it can be represented by a regular expression / accepted by an FSM",
+        "it contains only one string",
+        "it is infinite"
+      ],
+      "ans": 1,
+      "why": "Regular = describable by regex, equivalently acceptable by an FSM."
+    },
+    {
+      "q": "Which language is NOT regular?",
+      "opts": [
+        "a*",
+        "(a|b)+",
+        "{0ⁿ1ⁿ | n ≥ 1}",
+        "ab"
+      ],
+      "ans": 2,
+      "why": "Matching equal counts requires counting, which an FSM cannot do."
+    },
+    {
+      "q": "Regular expressions and FSMs, with respect to regular languages, are...?",
+      "opts": [
+        "different in power",
+        "equivalent",
+        "regex weaker",
+        "FSM weaker"
+      ],
+      "ans": 1,
+      "why": "They define exactly the same class of languages."
+    },
+    {
+      "q": "An FSM cannot recognise 0ⁿ1ⁿ because it...?",
+      "opts": [
+        "is too fast",
+        "has only finite memory and cannot count n",
+        "has no start state",
+        "uses a stack"
+      ],
+      "ans": 1,
+      "why": "Unbounded counting exceeds finite-state memory."
+    },
+    {
+      "q": "Being able to write an FSM that accepts exactly a language's strings shows the language is...?",
+      "opts": [
+        "context-free only",
+        "regular",
+        "non-computable",
+        "intractable"
+      ],
+      "ans": 1,
+      "why": "FSM-acceptable languages are exactly the regular languages."
+    }
+  ],
+  "exam": [
+    {
+      "q": "Define a regular language.",
+      "marks": 1,
+      "ms": [
+        "A language that can be represented by a regular expression (equivalently, accepted by a finite state machine). (1)"
       ]
-    }},
-    { callout: { t: "tip", h: "State Transition Diagrams", body: "Transitions are typically labelled in the format `input / output`." }},
-    { h: "Mealy Machine Design Process" },
-    { steps: [
-      { h: "Define States", m: "Identify all possible internal states of the system (e.g., idle, processing, error)." },
-      { h: "Identify Inputs", m: "Determine the alphabet of symbols the machine will receive as input." },
-      { h: "Map Transitions", m: "For every (state, input) pair, define the next state AND the output to produce.", n: "Label each arrow: input / output" },
-      { h: "Draw Diagram", m: "Represent states as circles and transitions as labelled arrows with `input/output` format." }
-    ]},
-    { h: "Sets and Regular Expressions" },
-    { callout: { t: "def", h: "Set and Regex Symbols", body: [
-      { kv: [
-        ["Set", "An unordered collection of unique elements. Operations include union ($\\cup$), intersection ($\\cap$), difference ($\\setminus$), and subset ($\\subset$)."],
-        ["Regular Expressions (Regex)", "Define strings that belong to a regular language."],
-        ["* (Asterisk)", "Zero or more occurrences of the preceding element."],
-        ["+ (Plus)", "One or more occurrences of the preceding element."],
-        ["? (Question mark)", "Zero or one occurrence of the preceding element."],
-        ["| (Pipe)", "OR (e.g., `a|b` matches 'a' or 'b')."],
-        ["( ) (Parentheses)", "Used for grouping elements together."]
-      ]}
-    ]}},
-    { code: { lang: "pseudo", cap: "Regex matching example", src:
-"# Pattern: a(b|c)+d\n# Matches: 'abd', 'acd', 'abbcd'\n# Fails: 'ad' (needs at least one b or c)" }},
-    { callout: { t: "memorise", h: "Mealy Machine — Key Rules", body: "Mealy machine = FSM that **produces output**. Output depends on BOTH the current state AND the current input (not just the state). Transitions labelled `input/output`. No accepting states — it is a **transducer** (transforms input to output), not a language recogniser. Used for data conversion and control systems." }},
-    { callout: { t: "miscon", h: "Mealy Machine Misconceptions", body: "**Mealy machines can recognise languages like FSAs** — No; Mealy machines are transducers that produce output strings. They have no accepting states and do not accept/reject input. FSAs without output are language recognisers. **The output of a Mealy machine depends only on the current state** — No; it depends on BOTH the current state and the current input. A machine that outputs based on state alone is called a Moore machine (not required by AQA)." }}
-  ],
-  flashcards: [
-    ["What is a Mealy machine?", "An FSM where the output is determined by both the current state and the current input."],
-    ["How are transitions typically labelled on a Mealy machine diagram?", "With the input and the corresponding output, separated by a slash (e.g., `0 / 1`)."],
-    ["What does the `*` symbol mean in a regular expression?", "Zero or more occurrences of the preceding element."],
-    ["What does the `+` symbol mean in a regular expression?", "One or more occurrences of the preceding element."],
-    ["What does the `?` symbol mean in a regular expression?", "Zero or one occurrence of the preceding element."],
-    ["What is the difference between a Mealy machine and an FSM without output?", "A Mealy machine produces an output string based on inputs and states, while an FSM without output only accepts or rejects an input string."],
-    ["What does `|` mean in a regular expression?", "OR — `a|b` matches 'a' or 'b'."],
-    ["Which regex symbol means 'zero or one' of the preceding element?", "? (question mark)."],
-    ["What does set difference (A \\ B) produce?", "The elements in A that are not in B."],
-    ["Why is a Mealy machine called a transducer, not an acceptor?", "It transforms input into an output string rather than accepting/rejecting; it has no accepting states."]
-  ],
-  quiz: [
-    { q: "In a Mealy machine, what determines the output?", opts: ["Current state only", "Current input only", "Current state and current input", "The final state"], ans: 2, why: "Outputs in a Mealy machine depend on the transition, meaning both the state you are in and the input you receive." },
-    { q: "Which regular expression matches 'ab', 'abb', 'abbb' but NOT 'a'?", opts: ["ab*", "ab+", "a+b", "ab?"], ans: 1, why: "The '+' means one or more 'b's must follow the 'a'." },
-    { q: "What is the set operation that contains elements in set A but not in set B?", opts: ["Union", "Intersection", "Difference", "Subset"], ans: 2, why: "Difference (A \\ B) removes any elements from A that are also found in B." },
-    { q: "If a regular expression is `a(b|c)*`, which string is invalid?", opts: ["a", "ab", "acbc", "bac"], ans: 3, why: "The string must start with 'a'. 'bac' starts with 'b', so it fails to match." },
-    { q: "The regex `a*` matches which of these?", opts: ["only 'a'", "the empty string and any number of a's", "exactly one a", "'b' only"], ans: 1, why: "* means zero or more, so it matches '', 'a', 'aa', ... ." }
-  ],
-  exam: [
-    { q: "Explain the difference between a Mealy machine and an FSM without output. Give an example of a use case for a Mealy machine.", marks: 3,
-      ms: ["A Mealy machine produces an output for each state transition (1)", "An FSM without output only accepts or rejects an input string by reaching an accepting state (1)", "Example use case: Simple cipher machine, traffic light controller, or parsing text (1)"] },
-    { q: "State what the regular expression symbols *, + and ? mean.", marks: 3, ms: ["* — zero or more occurrences of the preceding element (1)", "+ — one or more occurrences (1)", "? — zero or one occurrence (1)"] },
-    { q: "A Mealy machine inverts a binary input (output the opposite bit). Describe its transitions, and discuss how a Mealy machine differs from a finite state automaton used for language recognition.", marks: 6, ms: ["Single state with transitions 0/1 and 1/0 (input/output) (1-2)", "For each input bit it produces the inverted bit as output (1)", "A Mealy machine is a transducer — it produces an output string (1)", "An FSA is an acceptor — it has accepting states and only accepts/rejects input (1)", "Transition labels differ: Mealy uses input/output, FSA uses input only (1)"] }
+    },
+    {
+      "q": "Explain why {0ⁿ1ⁿ | n ≥ 1} is not a regular language.",
+      "marks": 2,
+      "ms": [
+        "Recognising it requires counting the 0s and matching the count of 1s. (1)",
+        "An FSM has only finite memory (states) and cannot count an unbounded n, so no FSM accepts it. (1)"
+      ]
+    },
+    {
+      "q": "Discuss what it means for a language to be regular and how regular expressions and finite state machines relate to this idea, with examples of regular and non-regular languages.",
+      "marks": 6,
+      "ms": [
+        "A language is regular if a regular expression can describe it. (1)",
+        "Equivalently, if an FSM can accept exactly its strings. (1)",
+        "Regular expressions and FSMs are equivalent in power. (1)",
+        "Example regular language: a(a|b)* (describable by regex and an FSM). (1)",
+        "Example non-regular language: 0ⁿ1ⁿ, which needs unbounded counting. (1)",
+        "Such languages require a more powerful model (e.g. a pushdown automaton), placing them outside the regular class. (1)"
+      ]
+    }
   ]
 };
 
 C["compsci:4.4.2.2"] = {
-  notes: [
-    { h: "State Transition Diagrams and Tables" },
-    { callout: { t: "def", h: "FSM Components", body: [
-      { kv: [
-        ["State", "A condition or status of the system (represented as a circle)."],
-        ["Start State", "The state the machine begins in (marked with an incoming unattached arrow)."],
-        ["Accept State", "A state indicating the input is valid (represented as a double circle)."],
-        ["Transition", "A change from one state to another based on an input symbol (represented as a labelled arrow)."]
-      ]}
-    ]}},
-    { callout: { t: "tip", h: "Diagram vs Table — both are examined", body: "State transition diagrams show the same information as transition tables, just visually. The table has rows for each state and columns for each input — each cell is the next state." }},
-    { code: { lang: "pseudo", cap: "Transition table for FSM accepting even number of 1s (input alphabet {0,1}).", src:
-"# Current State | Input 0 | Input 1\n# S0 (start, ✓) | S0      | S1\n# S1             | S1      | S0\n#\n# S0 = even count of 1s seen (accept)\n# S1 = odd count of 1s seen" }},
-    { callout: { t: "memorise", h: "Exam checklist for FSM diagrams", body: "1. Every state has a circle.\n2. Start state has an incoming arrow from nowhere.\n3. Accepting state(s) have double circles.\n4. Every (state, input) pair has exactly one arrow (determinism).\n5. All transitions are labelled." }},
-    { callout: { t: "miscon", h: "\"Accept state = final state reached\"", body: "A machine only accepts if it ends in an accepting state after ALL input is consumed. Passing through an accepting state mid-string does not count as acceptance." }}
+  "notes": [
+    {
+      "h": "Maths for Regular Expressions: Sets"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "Regular expressions describe sets of strings, so the underlying maths is set theory. A set is an unordered collection of values in which each value occurs at most once."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Specifying a set",
+        "body": [
+          {
+            "kv": [
+              [
+                "List (roster)",
+                "A = {1, 2, 3, 4, 5} — list the elements explicitly."
+              ],
+              [
+                "Set comprehension",
+                "A = {x | x ∈ ℕ ∧ x ≥ 1} — 'the set of x such that x is a natural number and x ≥ 1'. Here | means 'such that' and ∧ means AND."
+              ],
+              [
+                "Empty set",
+                "{} (also written Ø) is the set with no elements."
+              ],
+              [
+                "Compact form",
+                "{0ⁿ1ⁿ | n ≥ 1} is all strings of n zeros followed by n ones: {01, 0011, 000111, ...}."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "h": "Types and sizes of sets"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Finite, infinite, countable",
+        "body": [
+          {
+            "kv": [
+              [
+                "Finite set",
+                "Its elements can be counted off by the natural numbers up to a final number (e.g. a 20-element set)."
+              ],
+              [
+                "Infinite set",
+                "Has no final element, e.g. ℕ (naturals) or ℝ (reals)."
+              ],
+              [
+                "Countably infinite",
+                "An infinite set that can still be counted off by the natural numbers (e.g. ℕ). ℝ is NOT countable."
+              ],
+              [
+                "Countable set",
+                "A set with the same cardinality as some subset of the natural numbers."
+              ],
+              [
+                "Cardinality",
+                "The number of elements in a finite set."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Cartesian product",
+        "body": "The Cartesian product X × Y ('X cross Y') is the set of all ordered pairs (a, b) where a ∈ X and b ∈ Y. For example {1,2} × {3,4} = {(1,3),(1,4),(2,3),(2,4)}."
+      }
+    },
+    {
+      "page": "Subsets and set operations"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Subset and proper subset",
+        "body": [
+          {
+            "kv": [
+              [
+                "Subset ⊆",
+                "{0,1,2} ⊆ {0,1,2,3}: every element of the first is in the second; ⊆ also allows equality, so {0,1,2,3} ⊆ {0,1,2,3} is true."
+              ],
+              [
+                "Proper subset ⊂",
+                "{0,1,2} ⊂ ℕ: every element is in ℕ AND ℕ has at least one element not in {0,1,2} (so they are not equal)."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Set operations",
+        "body": [
+          {
+            "kv": [
+              [
+                "Membership ∈",
+                "x ∈ A means x is an element of A."
+              ],
+              [
+                "Union ∪",
+                "A ∪ B = everything in A or B (or both)."
+              ],
+              [
+                "Intersection ∩",
+                "A ∩ B = everything in both A and B."
+              ],
+              [
+                "Difference \\",
+                "A \\ B = {x | x ∈ A and x ∉ B} — elements of A that are not in B."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Set essentials",
+        "body": "A **set** is unordered with no duplicates. Specify by list or comprehension {x | condition}. **⊆** subset (allows equality), **⊂** proper subset (strict). Operations: **∈** membership, **∪** union, **∩** intersection, **\\** difference. **ℕ** is countably infinite; **ℝ** is uncountable. Cartesian product gives ordered pairs."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconceptions",
+        "body": "**A set can contain duplicates / is ordered** — No; sets are unordered and each value appears at most once. **All infinite sets are the same size** — No; ℕ is countably infinite but ℝ is uncountable (strictly larger)."
+      }
+    }
   ],
-  flashcards: [
-    ["How is an accept state represented in a state transition diagram?", "By a double circle."],
-    ["How is the start state marked?", "By an incoming arrow that has no source state."],
-    ["When is a string accepted by an FSM?", "When ALL input is consumed and the machine is in an accepting state."],
-    ["What information does a transition table encode?", "For every (current state, input) pair, the next state the machine moves to."],
-    ["What does determinism mean for an FSM?", "Exactly one transition exists for every (state, input) pair — no ambiguity."],
-    ["What does an FSM accept?", "A set of strings — the regular language it recognises."],
-    ["How many rows/cells does a transition table need?", "One cell per (state, input) pair — states × alphabet size."],
-    ["Why are diagrams and tables interchangeable?", "They encode identical information — states, inputs and resulting next states — in visual vs tabular form."]
+  "flashcards": [
+    [
+      "What is a set?",
+      "An unordered collection of values in which each value occurs at most once."
+    ],
+    [
+      "What does the set comprehension {x | x ∈ ℕ ∧ x ≥ 1} mean?",
+      "The set of all x such that x is a natural number and x ≥ 1."
+    ],
+    [
+      "What is the empty set and its alternative symbol?",
+      "The set with no elements, written {} or Ø."
+    ],
+    [
+      "What is the cardinality of a finite set?",
+      "The number of elements it contains."
+    ],
+    [
+      "What is a countably infinite set?",
+      "An infinite set that can be counted off by the natural numbers (e.g. ℕ); ℝ is not countable."
+    ],
+    [
+      "What is the Cartesian product X × Y?",
+      "The set of all ordered pairs (a, b) with a ∈ X and b ∈ Y."
+    ],
+    [
+      "What is the difference between ⊆ and ⊂?",
+      "⊆ (subset) allows the sets to be equal; ⊂ (proper subset) requires the larger set to have at least one extra element."
+    ],
+    [
+      "Define the set difference A \\ B.",
+      "{x | x ∈ A and x ∉ B} — the elements of A that are not in B."
+    ]
   ],
-  quiz: [
-    { q: "What does an arrow between two states represent?", opts: ["A data store", "A transition on a given input", "An accept condition", "A halt"], ans: 1, why: "Arrows show how the machine moves between states based on input." },
-    { q: "An FSM accepts input '101'. It must be in an accepting state…", opts: ["after reading '1'", "after reading '10'", "after reading '101' — when all input is consumed", "whenever it enters an accepting state"], ans: 2, why: "Acceptance requires ALL input consumed AND current state is accepting." },
-    { q: "A transition table with 3 states and alphabet {a, b} has how many cells (excluding headers)?", opts: ["3", "6", "9", "12"], ans: 1, why: "3 states × 2 input symbols = 6 (state, input) pairs." },
-    { q: "An accept state is drawn as a…", opts: ["single circle", "double circle", "square", "diamond"], ans: 1, why: "A double circle conventionally marks an accepting (final) state." },
-    { q: "The start state is indicated by…", opts: ["a double circle", "an incoming arrow from no source", "a filled square", "the letter S"], ans: 1, why: "An unattached incoming arrow marks where the machine begins." }
+  "quiz": [
+    {
+      "q": "Which is TRUE of a set?",
+      "opts": [
+        "It is ordered",
+        "It may contain duplicates",
+        "It is unordered with no duplicates",
+        "It must be finite"
+      ],
+      "ans": 2,
+      "why": "Sets are unordered collections with each value at most once."
+    },
+    {
+      "q": "{0,1,2} ⊂ ℕ means...?",
+      "opts": [
+        "they are equal",
+        "{0,1,2} is a proper subset of ℕ",
+        "ℕ is a subset of {0,1,2}",
+        "they are disjoint"
+      ],
+      "ans": 1,
+      "why": "⊂ means proper subset: ℕ contains all of {0,1,2} plus more."
+    },
+    {
+      "q": "A ∩ B is...?",
+      "opts": [
+        "everything in A or B",
+        "elements in both A and B",
+        "elements of A not in B",
+        "ordered pairs"
+      ],
+      "ans": 1,
+      "why": "Intersection keeps elements common to both sets."
+    },
+    {
+      "q": "Which set is uncountable?",
+      "opts": [
+        "ℕ (naturals)",
+        "ℝ (reals)",
+        "{0ⁿ1ⁿ | n ≥ 1}",
+        "a finite set"
+      ],
+      "ans": 1,
+      "why": "The reals cannot be counted off by the naturals."
+    },
+    {
+      "q": "{1,2} × {3} equals...?",
+      "opts": [
+        "{1,2,3}",
+        "{(1,3),(2,3)}",
+        "{3,3}",
+        "{}"
+      ],
+      "ans": 1,
+      "why": "The Cartesian product gives ordered pairs (a,b) with a in the first set, b in the second."
+    }
   ],
-  exam: [
-    { q: "Draw a state transition table for an FSM that accepts binary strings containing an even number of 1s.", marks: 4, ms: ["States S0 (even count, start, accept) and S1 (odd count) identified (1)", "Input 0 leaves both states unchanged: S0→S0, S1→S1 (1)", "Input 1 toggles: S0→S1, S1→S0 (1)", "S0 correctly marked as start and only accept state (1)"] },
-    { q: "State how the start state and an accept state are shown on a state transition diagram, and explain when an FSM is said to accept a string.", marks: 3, ms: ["Start state: an incoming arrow with no source state (1)", "Accept state: a double circle (1)", "A string is accepted when all input has been consumed and the machine is in an accepting state (1)"] },
-    { q: "Design an FSM that accepts binary strings ending in '01'. Describe the states and transitions, and explain how the diagram and a transition table represent the same information.", marks: 6, ms: ["States to track progress toward '01': e.g. S0 (start), S1 (last saw 0), S2 (saw 01, accept) (1-2)", "Transitions: from S0 on 0→S1, on 1→S0; from S1 on 1→S2, on 0→S1; from S2 on 1→S0, on 0→S1 (1-2)", "S2 marked as the accepting state (1)", "The transition table lists the same next-state for each (state, input) pair that the arrows show — diagram and table are equivalent (1)"] }
+  "exam": [
+    {
+      "q": "State what is meant by the cardinality of a set, and give the cardinality of {2, 4, 6, 8}.",
+      "marks": 2,
+      "ms": [
+        "Cardinality is the number of elements in a (finite) set. (1)",
+        "The cardinality of {2,4,6,8} is 4. (1)"
+      ]
+    },
+    {
+      "q": "Explain the difference between a subset (⊆) and a proper subset (⊂).",
+      "marks": 2,
+      "ms": [
+        "A ⊆ B means every element of A is in B, and A may equal B. (1)",
+        "A ⊂ B means every element of A is in B AND B has at least one element not in A (they are not equal). (1)"
+      ]
+    },
+    {
+      "q": "Describe the set notations and operations a student needs in order to understand regular expressions, giving an example of each operation.",
+      "marks": 6,
+      "ms": [
+        "A set can be given by listing, e.g. {1,2,3}, or by comprehension {x | condition}. (1)",
+        "Membership: x ∈ A means x is in A. (1)",
+        "Union A ∪ B contains elements in either set, e.g. {1,2} ∪ {2,3} = {1,2,3}. (1)",
+        "Intersection A ∩ B contains common elements, e.g. {1,2} ∩ {2,3} = {2}. (1)",
+        "Difference A \\ B = elements of A not in B, e.g. {1,2} \\ {2,3} = {1}. (1)",
+        "Subset/proper subset and the Cartesian product (ordered pairs) describe relationships between sets, e.g. {1} ⊂ {1,2}. (1)"
+      ]
+    }
   ]
 };
 
 C["compsci:4.4.2.3"] = {
-  notes: [
-    { h: "Mealy Machines as Transducers" },
-    { callout: { t: "def", h: "Mealy Machine vs FSA", body: [
-      { kv: [
-        ["FSA (acceptor)", "Reads input, ends in accept/reject. No output produced during computation."],
-        ["Mealy machine (transducer)", "Reads input AND produces an output string. Output on each transition, labelled input/output."],
-        ["Use cases", "Binary inverter, simple cipher, traffic light controller, protocol encoder."]
-      ]}
-    ]}},
-    { callout: { t: "tip", h: "Reading transition labels", body: "An arrow labelled `0/1` means: **if the current input is 0**, produce output **1** and move to the next state. The slash separates input from output." }},
-    { code: { lang: "pseudo", cap: "Mealy machine logic for a binary inverter (single state S0).", src:
-"# State S0 (only state)\n# Transition: 0/1  (input 0 → output 1)\n# Transition: 1/0  (input 1 → output 0)\n#\n# Input:  0 1 1 0 1\n# Output: 1 0 0 1 0" }},
-    { callout: { t: "memorise", h: "Mealy vs Moore (for context)", body: "AQA only requires Mealy machines. In a **Mealy** machine output depends on the transition (state + input). In a **Moore** machine output depends only on the state. Mealy machines typically need fewer states." }},
-    { callout: { t: "miscon", h: "\"Mealy machines accept/reject strings\"", body: "Mealy machines are **transducers**, not acceptors. They don't have accepting states — they simply produce an output symbol for every input symbol they read." }}
+  "notes": [
+    {
+      "h": "Regular Expressions"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "A regular expression (regex) is a shorthand notation for describing a set of strings (a language). It lets particular types of language be described compactly, and is equivalent in power to a finite state machine."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Metacharacters",
+        "body": [
+          {
+            "kv": [
+              [
+                "*",
+                "0 or more repetitions of the preceding item."
+              ],
+              [
+                "+",
+                "1 or more repetitions."
+              ],
+              [
+                "?",
+                "0 or 1 repetition (optional)."
+              ],
+              [
+                "|",
+                "Alternation — 'or' (a|b matches a or b)."
+              ],
+              [
+                "( )",
+                "Grouping of sub-expressions."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Worked examples",
+        "body": [
+          {
+            "kv": [
+              [
+                "a(a|b)*",
+                "Strings starting with a, then any sequence of a's and b's: {a, aa, ab, aaa, aab, aba, ...}."
+              ],
+              [
+                "ab+",
+                "An a followed by one or more b's: {ab, abb, abbb, ...}."
+              ],
+              [
+                "colou?r",
+                "Matches both 'color' and 'colour' (the u is optional)."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Regex and FSMs",
+        "body": "Regular expressions and finite state machines are equivalent: any language described by a regex can be recognised by an FSM, and any FSM's language can be written as a regex. You may be asked to convert a simple FSM to a regex or vice versa."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Regular expression essentials",
+        "body": "A regex describes a **set of strings**. Metacharacters: **\\*** (0+), **+** (1+), **?** (0 or 1), **|** (or), **( )** (group). Regex and FSMs are **equivalent** ways to define a regular language — each can be converted to the other."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconceptions",
+        "body": "**\\* means 'exactly one'** — No; * means zero or more. **+ allows zero matches** — No; + needs at least one. **Regex is more powerful than an FSM** — No; they describe exactly the same class (regular languages)."
+      }
+    }
   ],
-  flashcards: [
-    ["What defines the output of a Mealy machine?", "Both the current state and the current input (the transition)."],
-    ["How are Mealy machine transitions labelled?", "input/output — e.g. '0/1' means input 0, produce output 1."],
-    ["What is the key difference between a Mealy machine and an FSA?", "An FSA accepts or rejects; a Mealy machine produces an output string (it's a transducer, not an acceptor)."],
-    ["Give a real-world example of a Mealy machine.", "A binary inverter, a simple cipher, or a traffic light controller."],
-    ["How many output symbols does a Mealy machine produce for an n-symbol input?", "Exactly n — one output per transition, regardless of the number of states."],
-    ["Does a Mealy machine have accepting states?", "No — it is a transducer; it produces output for each input rather than accepting or rejecting."],
-    ["In a Mealy machine, on what does the output depend?", "The current state and the current input (the transition)."],
-    ["What is a Moore machine (context)?", "A machine where output depends only on the current state, not the input — not required by AQA, contrast with Mealy."]
+  "flashcards": [
+    [
+      "What is a regular expression?",
+      "A shorthand notation describing a set of strings (a language)."
+    ],
+    [
+      "What does * mean in a regular expression?",
+      "Zero or more repetitions of the preceding item."
+    ],
+    [
+      "What does + mean?",
+      "One or more repetitions."
+    ],
+    [
+      "What does ? mean?",
+      "Zero or one repetition (the item is optional)."
+    ],
+    [
+      "What does | mean?",
+      "Alternation — 'or' (matches either side)."
+    ],
+    [
+      "What set does a(a|b)* describe?",
+      "Strings starting with a followed by any sequence of a's and b's: {a, aa, ab, aaa, ...}."
+    ],
+    [
+      "What is the relationship between regular expressions and FSMs?",
+      "They are equivalent — each can be converted to the other and they define the same regular languages."
+    ],
+    [
+      "Write a regex matching one or more b's preceded by an a.",
+      "ab+"
+    ]
   ],
-  quiz: [
-    { q: "In a Mealy machine diagram, what does '0/1' on a transition arrow mean?", opts: ["Input 0 OR 1", "Input 0, Output 1", "State 0 to 1", "Divide 0 by 1"], ans: 1, why: "The format is 'input / output'." },
-    { q: "A Mealy machine processes input '110'. How many output symbols does it produce?", opts: ["0", "1", "3", "Depends on the number of states"], ans: 2, why: "One output per input symbol — 3 inputs → 3 outputs, regardless of state count." },
-    { q: "Which of these CANNOT be modelled by a Mealy machine?", opts: ["A binary inverter", "A toll gate controller", "Recognising if a string has equal 0s and 1s", "A traffic light sequence"], ans: 2, why: "Equal count requires unbounded memory — no finite state machine (Mealy or otherwise) can do this." },
-    { q: "A Mealy machine is best described as a…", opts: ["language acceptor", "transducer", "stack machine", "Turing machine"], ans: 1, why: "It transforms an input stream into an output stream." },
-    { q: "Compared with an FSA, a Mealy machine's transition arrows additionally show…", opts: ["a probability", "an output symbol", "a stack operation", "a timer"], ans: 1, why: "Labels are input/output, where the output is produced on that transition." }
+  "quiz": [
+    {
+      "q": "The regex a* matches...?",
+      "opts": [
+        "exactly one a",
+        "one or more a's",
+        "zero or more a's",
+        "no a's only"
+      ],
+      "ans": 2,
+      "why": "* means zero or more repetitions."
+    },
+    {
+      "q": "Which metacharacter means 'optional'?",
+      "opts": [
+        "*",
+        "+",
+        "?",
+        "|"
+      ],
+      "ans": 2,
+      "why": "? means zero or one occurrence."
+    },
+    {
+      "q": "The regex (a|b)+ matches...?",
+      "opts": [
+        "only 'ab'",
+        "one or more characters, each a or b",
+        "zero a's and b's",
+        "the literal text (a|b)"
+      ],
+      "ans": 1,
+      "why": "| chooses a or b; + requires at least one."
+    },
+    {
+      "q": "Regular expressions and FSMs are...?",
+      "opts": [
+        "unrelated",
+        "equivalent in power",
+        "regex is stronger",
+        "FSM is stronger"
+      ],
+      "ans": 1,
+      "why": "They describe exactly the same class of languages (regular)."
+    },
+    {
+      "q": "Which string does NOT match ab+?",
+      "opts": [
+        "ab",
+        "abb",
+        "a",
+        "abbb"
+      ],
+      "ans": 2,
+      "why": "+ needs at least one b, so 'a' alone fails."
+    }
   ],
-  exam: [
-    { q: "Explain the difference between a Finite State Automaton and a Mealy Machine.", marks: 3, ms: ["An FSA (acceptor) reads input and ends in an accept or reject state (1)", "A Mealy machine (transducer) produces an output symbol for each input symbol consumed (1)", "Mealy transition labels show both input AND output (e.g. 0/1); FSA labels show only input (1)"] },
-    { q: "A Mealy machine has a single state and transitions 0/1 and 1/0. State the output for the input sequence 0 1 1 0.", marks: 2, ms: ["Each bit is inverted (1)", "Output: 1 0 0 1 (1)"] },
-    { q: "Discuss why a Mealy machine is suitable for implementing a simple substitution cipher, and explain one limitation of finite state machines in general.", marks: 6, ms: ["A cipher maps each input symbol to an output symbol — exactly a transducer's job (1-2)", "States can track context (e.g. a shifting key position) and transitions emit the ciphered symbol (input/output) (1-2)", "It needs no accepting states — output is produced continuously (1)", "Limitation: with only finite states and no unbounded memory, an FSM cannot recognise/handle patterns needing counting (e.g. aⁿbⁿ) (1)"] }
+  "exam": [
+    {
+      "q": "State what the metacharacters * and + mean in a regular expression.",
+      "marks": 2,
+      "ms": [
+        "* means zero or more repetitions of the preceding item. (1)",
+        "+ means one or more repetitions. (1)"
+      ]
+    },
+    {
+      "q": "Write a regular expression for all strings of one or more digits, given that d represents a single digit, and give one matching string.",
+      "marks": 2,
+      "ms": [
+        "d+ (one or more digits). (1)",
+        "A matching string, e.g. '507'. (1)"
+      ]
+    },
+    {
+      "q": "Explain what a regular expression is and discuss its relationship with finite state machines, using an example.",
+      "marks": 6,
+      "ms": [
+        "A regular expression is a shorthand notation describing a set of strings (a language). (1)",
+        "It uses metacharacters such as * (0+), + (1+), ? (optional), | (or) and ( ) (grouping). (1)",
+        "Example: a(a|b)* describes strings starting with a followed by any a's and b's. (1)",
+        "Regular expressions and FSMs are equivalent in power. (1)",
+        "Any regex can be turned into an FSM that accepts the same language, and vice versa. (1)",
+        "Both define exactly the class of regular languages. (1)"
+      ]
+    }
   ]
 };
 
-C["compsci:4.4.4.1"] = {
+C["compsci:4.4.5.1"] = {
   notes: [
     { h: "Turing Machines" },
     { callout: { t: "def", h: "Turing Machine Components", body: [
@@ -217,46 +731,203 @@ C["compsci:4.4.4.1"] = {
 };
 
 C["compsci:4.4.4.2"] = {
-  notes: [
-    { h: "Universal Turing Machines (UTM)" },
-    { callout: { t: "def", h: "The UTM Concept", body: [
-      { kv: [
-        ["UTM", "A Turing machine that can simulate any other Turing machine by reading its description (transition rules) and input data from its own tape."],
-        ["Stored-Program Computer", "The UTM is the theoretical basis for modern computers — both the program (rules) and data are stored in the same memory (the tape)."],
-        ["Interpreter analogy", "A UTM acts like an interpreter: it reads instructions (the encoded machine) and executes them step by step."]
-      ]}
-    ]}},
-    { callout: { t: "tip", h: "UTM and the stored-program concept", body: "Von Neumann architecture stores both program instructions and data in the same memory — exactly how a UTM's tape holds both the machine's transition table and the data it operates on. Turing's theoretical model predates the physical computer." }},
-    { code: { lang: "pseudo", cap: "Conceptual UTM 'Fetch-Execute' loop.", src:
-"WHILE machine_not_halted:\n    symbol = readDataSection(tape)\n    rule = findRule(tape_program, current_state, symbol)\n    writeToDataSection(tape, rule.write_symbol)\n    moveHead(rule.direction)\n    current_state = rule.next_state\nENDWHILE" }},
-    { callout: { t: "memorise", h: "What the UTM tape holds", body: "**Program section**: the encoded transition rules of the Turing machine being simulated.\n**Data section**: the actual input that the simulated machine would process.\n\nThe UTM reads a rule from the program section and applies it to the data section." }},
-    { callout: { t: "miscon", h: "\"A UTM is more powerful than other Turing machines\"", body: "A UTM is NOT computationally more powerful — it cannot solve problems that are uncomputable. Its significance is **universality**: one machine that can behave like any other, making general-purpose computing possible." }}
+  "notes": [
+    {
+      "h": "Maths for Big-O Notation"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "Big-O describes how an algorithm's running time grows as a mathematical function of the problem size. To read and compare these, you need the idea of a function and the common growth shapes."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Function as a mapping",
+        "body": "A function maps each value from one set (the domain) to a value in another set (the co-domain), for example ℕ → ℕ. For an algorithm, the function maps the input size n to the number of operations performed."
+      }
+    },
+    {
+      "h": "Common function shapes"
+    },
+    {
+      "table": {
+        "head": [
+          "Type",
+          "Example",
+          "Growth as n rises"
+        ],
+        "rows": [
+          [
+            "Logarithmic",
+            "y = log x",
+            "Grows very slowly"
+          ],
+          [
+            "Linear",
+            "y = 2x",
+            "Grows in proportion to x"
+          ],
+          [
+            "Polynomial",
+            "y = 2x²",
+            "Grows with a fixed power of x"
+          ],
+          [
+            "Exponential",
+            "y = 2ˣ",
+            "Grows extremely fast"
+          ]
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Permutations and factorial",
+        "body": "A permutation is an arrangement of objects in order. The number of permutations of n distinct objects is n factorial: n! = n × (n−1) × ... × 2 × 1 (the product of all positive integers up to n). For example 4! = 24. Factorial growth appears in brute-force problems like the Travelling Salesman Problem."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Growth ranking",
+        "body": "From slowest- to fastest-growing: **logarithmic < linear < polynomial < exponential < factorial**. A function maps domain → co-domain; for algorithms, input size → operation count. **n!** = product of all integers up to n and grows faster than any exponential."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconceptions",
+        "body": "**A polynomial and an exponential are similar** — No; 2x² (polynomial, x is the base) grows far slower than 2ˣ (exponential, x is the exponent). **n! is the same as 2ⁿ** — No; factorial grows even faster than exponential."
+      }
+    }
   ],
-  flashcards: [
-    ["What is a Universal Turing Machine?", "A Turing machine that can simulate any other Turing machine given its encoded description and input on its tape."],
-    ["What does a UTM's tape contain?", "The encoded transition rules of the machine to be simulated (program section) and the input data (data section)."],
-    ["Which modern concept does the UTM underpin?", "The stored-program computer — programs and data stored in the same memory."],
-    ["Is a UTM more computationally powerful than other Turing machines?", "No — it can simulate any TM, but cannot solve problems that are uncomputable. Power is in universality, not capability."],
-    ["Which physical computer architecture mirrors the UTM?", "Von Neumann architecture — program instructions and data share the same memory."],
-    ["What two sections does a UTM's tape conceptually hold?", "A program section (encoded rules of the simulated machine) and a data section (its input)."],
-    ["What everyday software is analogous to a UTM?", "An interpreter — it reads encoded instructions and executes them step by step."],
-    ["Why does universality matter even though a UTM can't compute the uncomputable?", "It means one general-purpose machine can run any program, making the programmable computer possible."]
+  "flashcards": [
+    [
+      "What is a function, mathematically?",
+      "A mapping from each value in a domain to a value in a co-domain, e.g. ℕ → ℕ."
+    ],
+    [
+      "Give an example of a linear function.",
+      "y = 2x."
+    ],
+    [
+      "Give an example of a polynomial function.",
+      "y = 2x²."
+    ],
+    [
+      "Give an example of an exponential function.",
+      "y = 2ˣ."
+    ],
+    [
+      "Give an example of a logarithmic function.",
+      "y = log x."
+    ],
+    [
+      "What does n! (n factorial) mean?",
+      "The product of all positive integers up to n, e.g. 4! = 4×3×2×1 = 24."
+    ],
+    [
+      "How many permutations of n distinct objects are there?",
+      "n! (n factorial)."
+    ],
+    [
+      "Order log x, 2ˣ, 2x and 2x² by growth rate (slowest first).",
+      "log x < 2x < 2x² < 2ˣ."
+    ]
   ],
-  quiz: [
-    { q: "The UTM is the theoretical model for which modern concept?", opts: ["Object-oriented programming", "Stored-program computers", "Networking", "Artificial Intelligence"], ans: 1, why: "Programs and data on the same tape maps directly to programs and data in the same memory." },
-    { q: "A UTM simulates machine M by reading M's…", opts: ["output", "encoded transition rules and input data from its own tape", "RAM contents", "operating system"], ans: 1, why: "The UTM tape contains both M's description (rules) and M's data." },
-    { q: "Which statement about a UTM's power is correct?", opts: ["It can solve all problems, including the Halting problem", "It cannot solve problems that are uncomputable by any Turing machine", "It is slower than specific TMs", "It requires more tape than other TMs"], ans: 1, why: "Universality means 'simulate anything'; it does NOT mean 'compute everything'." },
-    { q: "Storing both program and data in the same memory is the basis of which architecture?", opts: ["Harvard", "Von Neumann", "RISC", "Client-server"], ans: 1, why: "Von Neumann architecture unifies instruction and data memory, mirroring the UTM tape." },
-    { q: "A software interpreter is a good analogy for a UTM because it…", opts: ["compiles to machine code", "reads encoded instructions and executes them step by step", "stores data on disk", "has no memory"], ans: 1, why: "Like a UTM reading a machine description from its tape, an interpreter reads and runs encoded instructions." }
+  "quiz": [
+    {
+      "q": "Which function grows fastest as x increases?",
+      "opts": [
+        "log x",
+        "2x",
+        "2x²",
+        "2ˣ"
+      ],
+      "ans": 3,
+      "why": "Exponential growth (variable in the exponent) outpaces logarithmic, linear and polynomial."
+    },
+    {
+      "q": "y = 2x is a...?",
+      "opts": [
+        "logarithmic function",
+        "linear function",
+        "polynomial of degree 2",
+        "exponential function"
+      ],
+      "ans": 1,
+      "why": "A constant times x is linear."
+    },
+    {
+      "q": "How many permutations of 4 distinct objects are there?",
+      "opts": [
+        "16",
+        "24",
+        "12",
+        "8"
+      ],
+      "ans": 1,
+      "why": "4! = 4×3×2×1 = 24."
+    },
+    {
+      "q": "A function maps values from the domain to the...?",
+      "opts": [
+        "range only",
+        "co-domain",
+        "exponent",
+        "stack"
+      ],
+      "ans": 1,
+      "why": "A function maps each domain value to a co-domain value."
+    },
+    {
+      "q": "Which grows slowest as n increases?",
+      "opts": [
+        "linear",
+        "logarithmic",
+        "polynomial",
+        "exponential"
+      ],
+      "ans": 1,
+      "why": "Logarithmic growth is the slowest of these."
+    }
   ],
-  exam: [
-    { q: "Describe how a UTM simulates another Turing machine, and explain why this is significant for modern computing.", marks: 4, ms: ["The UTM tape contains the encoded transition rules (description) of the machine to be simulated (1)", "It also contains the initial input data for that machine (1)", "The UTM reads a rule from the description, applies it to the data section (write symbol, move head, change state) (1)", "Significance: models the stored-program concept — one physical computer can run any program by loading different instructions into memory (1)"] },
-    { q: "Explain why a Universal Turing Machine is not considered more computationally powerful than an ordinary Turing machine.", marks: 2, ms: ["A UTM can simulate any TM, but only does what some TM could already do (1)", "It cannot solve problems that are uncomputable by any TM (e.g. the Halting Problem) — its significance is universality, not extra capability (1)"] },
-    { q: "Discuss how the Universal Turing Machine relates to the von Neumann stored-program computer, and why this idea was revolutionary.", marks: 6, ms: ["A UTM's tape holds both the encoded machine description (program) and the data (1-2)", "Von Neumann architecture similarly stores instructions and data in the same memory (1-2)", "So a single physical machine can run any program by loading different instructions (1)", "Revolutionary: removes the need to rebuild hardware per task — general-purpose, reprogrammable computing (1)"] }
+  "exam": [
+    {
+      "q": "State the number of permutations of n distinct objects and give the value for n = 5.",
+      "marks": 2,
+      "ms": [
+        "n! (n factorial). (1)",
+        "5! = 120. (1)"
+      ]
+    },
+    {
+      "q": "Identify the type of each function: (a) y = log x (b) y = 2ˣ.",
+      "marks": 2,
+      "ms": [
+        "(a) Logarithmic. (1)",
+        "(b) Exponential. (1)"
+      ]
+    },
+    {
+      "q": "Explain the mathematical ideas needed to understand Big-O notation, referring to functions and the common growth shapes.",
+      "marks": 6,
+      "ms": [
+        "A function maps each input value (domain) to an output (co-domain); for algorithms it maps input size n to the number of operations. (1)",
+        "Logarithmic functions (y = log x) grow very slowly. (1)",
+        "Linear functions (y = 2x) grow in proportion to n. (1)",
+        "Polynomial functions (y = 2x²) grow with a fixed power of n. (1)",
+        "Exponential functions (y = 2ˣ) grow extremely fast. (1)",
+        "Factorial growth (n! permutations) grows faster still and appears in brute-force problems. (1)"
+      ]
+    }
   ]
 };
 
-C["compsci:4.4.4.3"] = {
+C["compsci:4.4.4.7"] = {
   notes: [
     { h: "The Halting Problem" },
     { callout: { t: "def", h: "The Halting Problem", body: [
@@ -303,7 +974,7 @@ C["compsci:4.4.4.3"] = {
   ]
 };
 
-C["compsci:4.4.4.4"] = {
+C["compsci:4.4.4.3"] = {
   notes: [
     { h: "Classification of Algorithmic Complexity" },
     { callout: { t: "info", body: "Algorithms are classified by how their resource usage (time or space) grows as the input size ($n$) increases." } },
@@ -386,157 +1057,544 @@ C["compsci:4.4.4.5"] = {
   ]
 };
 
-C["compsci:4.4.4.6"] = {
-  notes: [
-    { h: "P and NP Problems" },
-    { callout: { t: "def", h: "P vs NP", body: [
-      { kv: [
-        ["P", "Class of problems that can be **solved** in polynomial time. E.g. sorting, searching, shortest path."],
-        ["NP", "Class of problems whose solutions can be **verified** in polynomial time, even if finding them may take exponential time. E.g. Travelling Salesman, Sudoku, factoring."],
-        ["NP-complete", "The hardest problems in NP — if ANY NP-complete problem has a polynomial solution, ALL of NP does."],
-        ["P = NP?", "The million-dollar open question. Most researchers believe P ≠ NP."]
-      ]}
-    ]}},
-    { callout: { t: "tip", h: "Solving vs Verifying", body: "For NP problems: **verifying** a given solution is easy (polynomial); **finding** a solution from scratch is hard (potentially exponential). Think Sudoku: checking a completed grid is fast; filling a blank grid is slow." }},
-    { code: { lang: "pseudo", cap: "Verification vs solving — RSA factoring example.", src:
-"# Solving: Find p, q such that p * q = N\n# (Hard for large N — NP difficulty)\n#\n# Verifying: Check if p * q == N\n# (Easy — one multiplication, O(1))\n#\n# This asymmetry is the basis of RSA encryption" }},
-    { callout: { t: "memorise", h: "P ⊆ NP", body: "Every problem in P is also in NP — if you can solve it in polynomial time, you can verify it in polynomial time too. P is a subset of NP. The question is whether NP contains problems outside P." }},
-    { callout: { t: "warn", h: "Cryptographic importance", body: "If P = NP were proved, most public-key encryption (RSA, ECC) would collapse overnight — the hardness of factoring and discrete logarithms would evaporate. This is why the question matters beyond pure theory." }},
-    { callout: { t: "miscon", h: "P vs NP Misconceptions", body: "**P and NP are known to be different classes** — No; P vs NP is one of the greatest unsolved problems in mathematics. It is not proven whether P = NP or P ≠ NP. Most computer scientists believe P ≠ NP. **NP stands for 'non-polynomial'** — No; NP stands for 'Nondeterministic Polynomial time' — problems where a PROPOSED SOLUTION can be verified in polynomial time, even if finding the solution may not be." }}
-  ],
-  flashcards: [
-    ["What does P stand for?", "Polynomial time — problems solvable in polynomial time."],
-    ["What does NP stand for?", "Nondeterministic Polynomial time — problems verifiable in polynomial time."],
-    ["Is P a subset of NP?", "Yes — every problem solvable in polynomial time can also be verified in polynomial time."],
-    ["What would P = NP imply?", "All NP problems (including currently hard ones) could be solved in polynomial time — encryption would break."],
-    ["Give an example that illustrates the P vs NP distinction.", "Sudoku: verifying a solution is fast; finding one from scratch is slow (NP-complete)."],
-    ["What does NP actually stand for?", "Nondeterministic Polynomial time — NOT 'non-polynomial'."],
-    ["What is an NP-complete problem?", "One of the hardest in NP: if any NP-complete problem had a polynomial solution, all NP problems would."],
-    ["Is P vs NP a settled question?", "No — it is a famous open problem; most researchers believe P ≠ NP but neither is proven."],
-    ["Why does P vs NP matter for cryptography?", "Public-key schemes (RSA) rely on problems being easy to verify but hard to solve; P = NP would break that hardness."]
-  ],
-  quiz: [
-    { q: "If P = NP, what would that imply?", opts: ["Verification is hard", "Finding solutions is as easy as verifying them", "Computers are broken", "Encryption is safer"], ans: 1, why: "It would mean all NP problems have polynomial time solutions — a dramatic result." },
-    { q: "A problem is in NP if…", opts: ["it can be solved in polynomial time", "a solution can be verified in polynomial time", "it has no algorithm", "it requires exponential time to verify"], ans: 1, why: "NP = verifiable in polynomial time. NP doesn't say solving is hard — just that verifying is fast." },
-    { q: "RSA encryption relies on the fact that factoring large numbers is…", opts: ["in P", "believed to be NP but not in P", "uncomputable", "O(log n)"], ans: 1, why: "Factoring is believed to be hard to solve but easy to verify — a classic NP characteristic." },
-    { q: "NP stands for…", opts: ["Non-Polynomial", "Nondeterministic Polynomial time", "Nearly Perfect", "Numeric Problem"], ans: 1, why: "It refers to problems verifiable in polynomial time, not 'non-polynomial'." },
-    { q: "The relationship between P and NP is…", opts: ["P and NP are disjoint", "P ⊆ NP, with P = NP unproven", "NP ⊆ P always", "they are unrelated"], ans: 1, why: "Every P problem is in NP; whether NP has problems outside P is the open question." }
-  ],
-  exam: [
-    { q: "Define the complexity classes P and NP, and explain what the relationship P ⊆ NP means.", marks: 4, ms: ["P: problems solvable in polynomial time (1)", "NP: problems whose solutions can be verified in polynomial time (1)", "P ⊆ NP: every P problem is also NP — if you can solve in poly time, you can verify in poly time (1)", "The open question is whether NP contains problems that are NOT in P (i.e. whether P = NP) (1)"] },
-    { q: "Explain the difference between solving and verifying a problem, using an example.", marks: 3, ms: ["Solving: finding a solution from scratch, which may be hard/slow (1)", "Verifying: checking a given candidate solution, which is fast for NP problems (1)", "Example: factoring N is hard to solve, but checking p × q = N is one fast multiplication (1)"] },
-    { q: "Discuss the P versus NP question and why a proof that P = NP would have major consequences for cryptography.", marks: 6, ms: ["P = problems solvable in polynomial time; NP = problems verifiable in polynomial time (1-2)", "P ⊆ NP; whether P = NP is unproven (most believe P ≠ NP) (1)", "Many NP problems (factoring, discrete log) are currently hard to solve but easy to verify (1)", "Public-key encryption (RSA/ECC) depends on that hardness (1)", "If P = NP, efficient solving algorithms would exist and such encryption would collapse (1)"] }
-  ]
-};
-
-C["compsci:4.4.4.7"] = {
-  notes: [
-    { h: "Limits of Computation and Regular Languages" },
-    { callout: { t: "def", h: "Hierarchy of computational power", body: [
-      { kv: [
-        ["FSA (Finite State Automaton)", "Weakest — no memory beyond the current state. Recognises **regular languages** only (describable by regex)."],
-        ["PDA (Pushdown Automaton)", "FSA + a stack. Recognises **context-free languages** (e.g. matched parentheses, aⁿbⁿ)."],
-        ["Turing Machine", "Most powerful. Recognises any **computable language**. Theoretical model of universal computation."],
-        ["Regular ⊂ Context-free ⊂ Computable", "Each class strictly contains the previous — a proper hierarchy."]
-      ]}
-    ]}},
-    { callout: { t: "memorise", h: "What each machine CANNOT do", body: [
-      { table: {
-        head: ["Machine", "Cannot recognise"],
-        rows: [
-          ["FSA", "aⁿbⁿ (must count n — needs unbounded memory)"],
-          ["PDA", "aⁿbⁿcⁿ (needs two independent counters — one stack isn't enough)"],
-          ["Turing Machine", "Non-computable languages (e.g. the set of programs that halt)"]
+C["compsci:4.4.4.1"] = {
+  "notes": [
+    {
+      "h": "Comparing Algorithms"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "Two algorithms that solve the same problem can differ enormously in efficiency. We compare them by expressing how their resource use grows as a function of the problem size, rather than by timing them on one machine."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Why complexity, not stopwatch",
+        "body": "Actual run time depends on the hardware, language and input. Expressing complexity as a function of the problem size n gives a hardware-independent comparison — the size of the problem is the key issue, because differences only matter as n grows large."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Two kinds of efficiency",
+        "body": [
+          {
+            "kv": [
+              [
+                "Time efficiency",
+                "How the number of operations grows with n (time complexity)."
+              ],
+              [
+                "Space efficiency",
+                "How the memory used grows with n (space complexity)."
+              ]
+            ]
+          }
         ]
-      }}
-    ]}},
-    { code: { lang: "pseudo", cap: "Language recognition limits in practice.", src:
-"# REGULAR (FSA can do):\n#   'a', 'aa', 'aaa', ...  = a+\n#   binary strings with even 1s\n#\n# CONTEXT-FREE (needs PDA):\n#   a^n b^n  e.g. ab, aabb, aaabbb\n#   Matched parentheses: ((()))\n#\n# COMPUTABLE (needs TM, no FSA/PDA):\n#   a^n b^n c^n  e.g. abc, aabbcc\n#   Any program that halts on input X" }},
-    { callout: { t: "tip", h: "Why FSAs can't count", body: "An FSA has a fixed finite number of states — it cannot track an unbounded count. To match n 'a's against n 'b's, you'd need a different state for each possible n — requiring infinitely many states. That's not finite." }},
-    { callout: { t: "miscon", h: "\"More states = more power\"", body: "You can add as many states as you like to an FSA — it is still a finite automaton and can still only recognise regular languages. The class of FSAs is defined by the model (finite states, no stack, no tape), not the count of states." }}
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Trade-offs",
+        "body": "An algorithm can be faster but use more memory, or slower but leaner — e.g. merge sort is O(n log n) time but needs O(n) extra space, while bubble sort is O(n²) time but O(1) space. The 'better' algorithm depends on which resource is scarce."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Comparing algorithms",
+        "body": "Compare algorithms by expressing **complexity as a function of problem size n** (hardware-independent). The **size of the problem** is the key issue. Two dimensions: **time** efficiency (operations) and **space** efficiency (memory). They often trade off against each other."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconceptions",
+        "body": "**The faster algorithm is the one that finished first on my PC** — No; absolute timing depends on hardware/input. Compare scaling with n. **Time is all that matters** — No; space (memory) efficiency can be the deciding factor on constrained systems."
+      }
+    }
   ],
-  flashcards: [
-    ["Which machine is more powerful: an FSA or a Turing Machine?", "A Turing Machine — it can recognise any computable language, while FSAs are limited to regular languages."],
-    ["What additional memory does a PDA have compared to an FSA?", "A stack — allowing it to recognise context-free languages like aⁿbⁿ."],
-    ["Why can't an FSA recognise aⁿbⁿ?", "Recognising aⁿbⁿ requires counting n — an FSA has finite states and no memory, so it can't count unboundedly."],
-    ["State the Chomsky hierarchy from weakest to strongest.", "Regular (FSA) → Context-free (PDA) → Computable (Turing Machine)."],
-    ["Can a PDA recognise aⁿbⁿcⁿ?", "No — matching three equal counts needs two independent counters; a single stack can't do both simultaneously."],
-    ["What memory does a Turing machine add over a PDA?", "An unbounded read/write tape, letting it recognise any computable language, not just context-free ones."],
-    ["Does adding states increase an FSA's language class?", "No — however many states, an FSA still recognises only regular languages; the model (no stack/tape) sets the limit."],
-    ["State the containment of the three language classes.", "Regular ⊂ Context-free ⊂ Computable — each strictly contains the previous."]
+  "flashcards": [
+    [
+      "How are algorithms compared independently of hardware?",
+      "By expressing their complexity as a function of the problem size (time/space complexity)."
+    ],
+    [
+      "Why is the size of the problem the key issue when comparing algorithms?",
+      "Differences in efficiency only become significant as the input size n grows large."
+    ],
+    [
+      "What are the two main kinds of algorithmic efficiency?",
+      "Time efficiency (operations) and space efficiency (memory)."
+    ],
+    [
+      "Give an example of a time/space trade-off.",
+      "Merge sort: O(n log n) time but O(n) space; bubble sort: O(n²) time but O(1) space."
+    ],
+    [
+      "Why not just time algorithms with a stopwatch?",
+      "Absolute time depends on hardware, language and input; complexity gives a fair, general comparison."
+    ],
+    [
+      "What does time complexity describe?",
+      "How the number of operations grows as the input size increases."
+    ],
+    [
+      "What does space complexity describe?",
+      "How the memory used grows as the input size increases."
+    ],
+    [
+      "When might a slower algorithm be preferred?",
+      "When it uses much less memory and memory is the limiting resource."
+    ]
   ],
-  quiz: [
-    { q: "Which machine can recognise a language requiring a stack?", opts: ["FSA", "Mealy Machine", "Pushdown Automaton", "Logic Gate"], ans: 2, why: "PDAs include a stack for memory — essential for context-free languages like aⁿbⁿ." },
-    { q: "The language L = {aⁿbⁿ | n ≥ 0} belongs to which class?", opts: ["Regular", "Context-free", "Computable only", "Uncomputable"], ans: 1, why: "aⁿbⁿ requires counting — regular FSAs can't do it; PDAs can via the stack." },
-    { q: "Adding more states to an FSA…", opts: ["makes it recognise context-free languages", "makes it equivalent to a Turing Machine", "still leaves it recognising only regular languages", "eliminates the need for a stack"], ans: 2, why: "FSA power is defined by the model (no stack/tape), not the number of states." },
-    { q: "Which is the most powerful in the hierarchy?", opts: ["FSA", "PDA", "Turing Machine", "they are equal"], ans: 2, why: "A Turing machine recognises any computable language, strictly more than a PDA or FSA." },
-    { q: "A PDA gains its extra power over an FSA from…", opts: ["more states", "a stack", "a faster clock", "an output tape"], ans: 1, why: "The stack provides memory for matching/nesting, enabling context-free languages." }
+  "quiz": [
+    {
+      "q": "Algorithms are best compared by...?",
+      "opts": [
+        "timing them once each",
+        "complexity as a function of problem size",
+        "counting their lines of code",
+        "the language used"
+      ],
+      "ans": 1,
+      "why": "Complexity gives a hardware-independent comparison that reflects scaling."
+    },
+    {
+      "q": "The 'size of the problem' matters because...?",
+      "opts": [
+        "small inputs reveal differences",
+        "efficiency differences grow significant as n grows",
+        "it sets the language",
+        "it fixes the hardware"
+      ],
+      "ans": 1,
+      "why": "Asymptotic differences dominate for large n."
+    },
+    {
+      "q": "Space efficiency refers to...?",
+      "opts": [
+        "operations performed",
+        "memory used as n grows",
+        "screen size",
+        "cache speed"
+      ],
+      "ans": 1,
+      "why": "Space complexity is about memory usage scaling."
+    },
+    {
+      "q": "Merge sort vs bubble sort illustrates...?",
+      "opts": [
+        "no difference",
+        "a time/space trade-off",
+        "that timing is enough",
+        "that both are O(1)"
+      ],
+      "ans": 1,
+      "why": "Merge sort trades extra memory for far better time."
+    },
+    {
+      "q": "Why is a stopwatch a poor way to compare two algorithms?",
+      "opts": [
+        "it is inaccurate",
+        "absolute time depends on hardware/input, not just the algorithm",
+        "it cannot measure seconds",
+        "algorithms have no time"
+      ],
+      "ans": 1,
+      "why": "Only complexity isolates the algorithm's scaling behaviour."
+    }
   ],
-  exam: [
-    { q: "Explain why an FSA cannot recognise the language L = {aⁿbⁿ | n ≥ 0}, and name a machine that can.", marks: 3, ms: ["An FSA has a finite number of states and no memory beyond the current state (1)", "It cannot count an arbitrary n — recognising aⁿbⁿ requires comparing two unbounded counts (1)", "A Pushdown Automaton (PDA) can do it: push an 'a' for each 'a' read, pop one for each 'b' — the stack is empty iff the counts match (1)"] },
-    { q: "Name the three classes of the language hierarchy and the machine that recognises each.", marks: 3, ms: ["Regular languages — Finite State Automaton (1)", "Context-free languages — Pushdown Automaton (FSA + stack) (1)", "Computable languages — Turing Machine (1)"] },
-    { q: "Discuss the hierarchy of computational power from FSA to Turing machine, explaining what each can and cannot recognise.", marks: 6, ms: ["FSA: finite states, no extra memory — recognises regular languages, cannot count (e.g. cannot do aⁿbⁿ) (1-2)", "PDA: FSA + a stack — recognises context-free languages (e.g. aⁿbⁿ, matched brackets) but not aⁿbⁿcⁿ (1-2)", "Turing machine: unbounded read/write tape — recognises any computable language (1)", "Strict hierarchy: Regular ⊂ Context-free ⊂ Computable; even a TM cannot recognise non-computable languages (1)"] }
+  "exam": [
+    {
+      "q": "State the two kinds of efficiency used to compare algorithms.",
+      "marks": 2,
+      "ms": [
+        "Time efficiency (time complexity). (1)",
+        "Space efficiency (space complexity). (1)"
+      ]
+    },
+    {
+      "q": "Explain why algorithm complexity is expressed as a function of the problem size rather than as a measured time.",
+      "marks": 2,
+      "ms": [
+        "Measured time depends on hardware, language and the particular input. (1)",
+        "Expressing complexity as a function of n gives a hardware-independent comparison of how the algorithm scales. (1)"
+      ]
+    },
+    {
+      "q": "Discuss how two algorithms that solve the same problem can be compared, including any trade-offs, with an example.",
+      "marks": 6,
+      "ms": [
+        "Compare by complexity expressed as a function of problem size n. (1)",
+        "The size of the problem is the key issue because differences matter as n grows. (1)",
+        "Time efficiency measures how operations grow with n. (1)",
+        "Space efficiency measures how memory grows with n. (1)",
+        "They can trade off, e.g. merge sort O(n log n) time but O(n) space vs bubble sort O(n²) time but O(1) space. (1)",
+        "The better choice depends on whether time or memory is the limiting resource. (1)"
+      ]
+    }
   ]
 };
 
-C["compsci:4.4.5.1"] = {
-  notes: [
-    { h: "Reverse Polish Notation (RPN)" },
-    { callout: { t: "def", h: "RPN Concepts", body: [
-      { kv: [
-        ["Reverse Polish Notation (RPN)", "Also known as postfix notation, it is a way of writing mathematical expressions where the operator follows its operands (e.g., `3 4 +` instead of `3 + 4`)."]
-      ]}
-    ]}},
-    { h: "Comparing Infix and RPN" },
-    { table: {
-      head: ["Infix (Standard)", "RPN (Postfix)"],
-      rows: [
-        ["`3 + 4`", "`3 4 +`"],
-        ["`5 * (2 + 1)`", "`5 2 1 + *`"],
-        ["Requires brackets", "No brackets needed"],
-        ["Requires precedence (BODMAS)", "Strictly linear execution"]
+C["compsci:4.4.4.6"] = {
+  "notes": [
+    {
+      "h": "Computable and Non-Computable Problems"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "A problem is computable if there is an algorithm (a Turing machine) that solves it. Crucially, some well-defined problems are non-computable: no algorithm can ever solve them."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Computable vs non-computable",
+        "body": [
+          {
+            "kv": [
+              [
+                "Computable problem",
+                "There exists an algorithm that produces the correct answer in a finite number of steps for every input (e.g. sorting, searching, addition)."
+              ],
+              [
+                "Non-computable problem",
+                "No algorithm can ever solve it for all inputs — it is impossible in principle, not merely slow."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "The Halting problem as the key example",
+        "body": "The Halting problem — deciding whether an arbitrary program will eventually stop on a given input — is provably non-computable. It shows that the existence of non-computable problems is a real, demonstrated fact, not just a theoretical worry."
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Non-computable is not the same as intractable",
+        "body": "An intractable problem HAS an algorithm but it is too slow. A non-computable problem has NO algorithm at all. Non-computability is the stronger, absolute limit."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Computability",
+        "body": "A problem is **computable** if some algorithm always solves it in finite steps. Some problems are **non-computable** — no algorithm can solve them, the **Halting problem** being the classic example. This is distinct from (and stronger than) intractability."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconceptions",
+        "body": "**Every well-defined problem can be solved with the right program** — No; some are provably non-computable. **Non-computable means we just haven't found the algorithm yet** — No; it is proven that no algorithm can exist."
+      }
+    }
+  ],
+  "flashcards": [
+    [
+      "What makes a problem computable?",
+      "There is an algorithm that gives the correct answer in finite steps for every input."
+    ],
+    [
+      "What is a non-computable problem?",
+      "A problem that no algorithm can ever solve for all inputs."
+    ],
+    [
+      "Give the classic example of a non-computable problem.",
+      "The Halting problem."
+    ],
+    [
+      "Is a non-computable problem just very slow to solve?",
+      "No — it cannot be solved by any algorithm at all; that is stronger than being slow."
+    ],
+    [
+      "Difference between non-computable and intractable?",
+      "Non-computable: no algorithm exists; intractable: an algorithm exists but is too slow."
+    ],
+    [
+      "Does non-computable mean 'not yet discovered'?",
+      "No — it is proven that no algorithm can exist, not that one is undiscovered."
+    ],
+    [
+      "Are most everyday problems computable?",
+      "Yes — sorting, searching, arithmetic and the like all have algorithms."
+    ],
+    [
+      "What field studies which problems can be solved by algorithms?",
+      "Computability (theory of computation)."
+    ]
+  ],
+  "quiz": [
+    {
+      "q": "A computable problem is one that...?",
+      "opts": [
+        "has no algorithm",
+        "some algorithm can solve in finite steps",
+        "is always fast",
+        "needs no input"
+      ],
+      "ans": 1,
+      "why": "Computable means an algorithm exists that always terminates with the answer."
+    },
+    {
+      "q": "A non-computable problem...?",
+      "opts": [
+        "is just slow",
+        "cannot be solved by any algorithm",
+        "needs more memory",
+        "is solved by faster hardware"
+      ],
+      "ans": 1,
+      "why": "No algorithm can solve it for all inputs."
+    },
+    {
+      "q": "The standard example of a non-computable problem is the...?",
+      "opts": [
+        "Travelling Salesman Problem",
+        "Halting problem",
+        "sorting problem",
+        "shortest path problem"
+      ],
+      "ans": 1,
+      "why": "The Halting problem is provably non-computable."
+    },
+    {
+      "q": "Non-computable differs from intractable because...?",
+      "opts": [
+        "both have no algorithm",
+        "non-computable has no algorithm; intractable has a slow one",
+        "intractable has no algorithm",
+        "they are identical"
+      ],
+      "ans": 1,
+      "why": "Intractable problems do have (slow) algorithms; non-computable ones do not."
+    },
+    {
+      "q": "'Non-computable' means...?",
+      "opts": [
+        "no algorithm has been found yet",
+        "no algorithm can ever exist",
+        "the computer is broken",
+        "it needs a quantum computer"
+      ],
+      "ans": 1,
+      "why": "It is proven that no algorithm can exist."
+    }
+  ],
+  "exam": [
+    {
+      "q": "State what is meant by a non-computable problem.",
+      "marks": 1,
+      "ms": [
+        "A problem that cannot be solved by any algorithm for all inputs. (1)"
       ]
-    }},
-    { h: "Advantages of RPN" },
-    { kv: [
-      ["No brackets", "RPN eliminates the need for parentheses to dictate the order of operations."],
-      ["No precedence rules", "Operators are executed strictly in the order they appear from left to right."],
-      ["Easy machine evaluation", "RPN is trivial to evaluate using a Stack data structure."]
-    ]},
-    { h: "Evaluation using a Stack" },
-    { steps: [
-      { h: "Read Symbol", m: "Read the expression left to right, one token at a time." },
-      { h: "Number Found", m: "Push the number onto the stack.", n: "Stack grows with each operand." },
-      { h: "Operator Found", m: "Pop the top two numbers, apply the operator (second-popped OP first-popped), push the result.", n: "First popped = right operand. Second popped = left operand." },
-      { h: "Result", m: "When the expression is exhausted, the single remaining value on the stack is the answer." }
-    ]},
-    { code: { lang: "pseudo", cap: "Stack evaluation logic", src:
-"FOR EACH token IN expression\n  IF token IS number THEN\n    stack.PUSH(token)\n  ELSE IF token IS operator THEN\n    b = stack.POP()\n    a = stack.POP()\n    stack.PUSH(evaluate(a, token, b))\n  ENDIF\nENDFOR" }},
-    { callout: { t: "memorise", h: "RPN Evaluation", body: "RPN (Reverse Polish Notation) = operators AFTER operands. Also called **postfix notation**. Evaluation uses a **stack**: push operands; on operator, pop two operands, evaluate, push result. Example: `3 4 + 5 ×` = (3+4)×5 = 35. No brackets needed — operator position makes precedence explicit." }},
-    { callout: { t: "miscon", h: "RPN Misconceptions", body: "**RPN requires brackets like infix notation** — No; RPN is bracket-free by design. Operator position and the stack make precedence completely unambiguous. **RPN is harder to evaluate than infix** — For computers (and calculators), RPN is EASIER: a simple stack-based loop handles it without complex precedence rules or bracket parsing." }}
+    },
+    {
+      "q": "Give an example of a non-computable problem and explain why it is significant.",
+      "marks": 2,
+      "ms": [
+        "The Halting problem. (1)",
+        "It proves that some well-defined problems cannot be solved by any computer, establishing a fundamental limit of computation. (1)"
+      ]
+    },
+    {
+      "q": "Explain the difference between computable, intractable and non-computable problems, with an example of each.",
+      "marks": 6,
+      "ms": [
+        "A computable problem has an algorithm that always finishes with the correct answer (e.g. sorting). (1)",
+        "An intractable problem has an algorithm, but it runs in exponential/factorial time (e.g. exact Travelling Salesman). (1)",
+        "So an intractable problem is computable but impractical for large inputs. (1)",
+        "A non-computable problem has no algorithm at all (e.g. the Halting problem). (1)",
+        "Non-computability is an absolute limit, stronger than intractability. (1)",
+        "Together these show some problems are merely slow while others are impossible in principle. (1)"
+      ]
+    }
+  ]
+};
+
+C["compsci:4.4.4.4"] = {
+  "notes": [
+    {
+      "h": "Limits of Computation"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "Not everything can be computed in practice, or even in principle. Two distinct kinds of limit apply: limits from algorithmic complexity, and limits from the hardware available."
+      }
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Two sources of limits",
+        "body": [
+          {
+            "kv": [
+              [
+                "Algorithmic complexity",
+                "Some problems have only intractable (exponential/factorial) algorithms, so they cannot be solved exactly for large inputs in any reasonable time."
+              ],
+              [
+                "Hardware limits",
+                "Real machines have finite memory and speed and finite time, so even tractable problems may exceed the resources actually available."
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "callout": {
+        "t": "warn",
+        "h": "Beyond practical limits: the non-computable",
+        "body": "Some problems cannot be solved by ANY algorithm at all, regardless of complexity or hardware — for example the Halting problem. This is a stronger limit than intractability: not 'too slow' but 'impossible'."
+      }
+    },
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Limits of computation",
+        "body": "Two practical limits: **algorithmic complexity** (intractable problems are too slow for large n) and **hardware** (finite memory, speed and time). A deeper limit also exists: some problems are **non-computable** — no algorithm can ever solve them (e.g. the Halting problem)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconceptions",
+        "body": "**A faster computer can solve any problem** — No; exponential growth defeats any hardware gain, and non-computable problems can never be solved. **Intractable and non-computable are the same** — No; intractable has a (too-slow) algorithm, non-computable has none at all."
+      }
+    }
   ],
-  flashcards: [
-    ["What is another name for Reverse Polish Notation?", "Postfix notation."],
-    ["Why is Reverse Polish Notation useful for computers?", "It removes the need for brackets and precedence rules, and can be evaluated linearly using a simple stack."],
-    ["How is the infix expression `A + B` written in RPN?", "`A B +`"],
-    ["What data structure is ideal for evaluating an RPN expression?", "A Stack."],
-    ["Convert the infix expression `A * (B + C)` to RPN.", "`A B C + *`"],
-    ["Convert the RPN expression `X Y + Z *` to infix.", "`(X + Y) * Z`"],
-    ["When evaluating RPN, which popped value is the right operand for - and /?", "The first value popped is the right operand (so `a b -` computes a - b)."],
-    ["How does post-order tree traversal relate to RPN?", "Post-order traversal of an expression tree outputs the expression in RPN (operands before their operator)."]
+  "flashcards": [
+    [
+      "What two practical things impose limits on what can be computed?",
+      "Algorithmic complexity (intractable problems) and hardware limits (finite memory, speed, time)."
+    ],
+    [
+      "How does algorithmic complexity limit computation?",
+      "Some problems only have exponential/factorial algorithms, so they cannot be solved for large inputs in reasonable time."
+    ],
+    [
+      "How does hardware limit computation?",
+      "Real machines have finite memory, speed and time, so some computations exceed available resources."
+    ],
+    [
+      "What is a stronger limit than intractability?",
+      "Non-computability — some problems cannot be solved by any algorithm at all (e.g. the Halting problem)."
+    ],
+    [
+      "Can a faster computer overcome an intractable problem?",
+      "Not really — exponential/factorial growth quickly overwhelms any speed increase."
+    ],
+    [
+      "Give an example of a non-computable problem.",
+      "The Halting problem."
+    ],
+    [
+      "Difference between intractable and non-computable?",
+      "Intractable: an algorithm exists but is too slow; non-computable: no algorithm can ever exist."
+    ],
+    [
+      "Are limits of computation only about speed?",
+      "No — they include memory/hardware limits and the deeper limit that some problems have no algorithm at all."
+    ]
   ],
-  quiz: [
-    { q: "Evaluate the RPN expression: `5 3 + 2 *`", opts: ["10", "16", "11", "25"], ans: 1, why: "5 + 3 = 8. Then 8 * 2 = 16." },
-    { q: "Convert `A + B * C` to RPN.", opts: ["A B C * +", "A B + C *", "+ A * B C", "A B C + *"], ans: 0, why: "Multiplication happens first (`B C *`), then addition to A (`A B C * +`)." },
-    { q: "Which data structure is primarily used to evaluate RPN?", opts: ["Queue", "Tree", "Stack", "Linked List"], ans: 2, why: "A stack is used because operations are performed on the most recently seen operands." },
-    { q: "What is a key advantage of RPN over infix notation?", opts: ["It uses fewer variables", "It doesn't require parentheses to define the order of operations", "It works with strings instead of numbers", "It is easier for humans to read"], ans: 1, why: "RPN is unambiguous and doesn't need brackets or complex BODMAS/PEMDAS logic." },
-    { q: "Evaluate the RPN `9 2 3 * -`.", opts: ["3", "21", "-3", "33"], ans: 0, why: "2 * 3 = 6, then 9 - 6 = 3." }
+  "quiz": [
+    {
+      "q": "Which imposes a limit on what can be computed?",
+      "opts": [
+        "only the language used",
+        "algorithmic complexity and hardware",
+        "the screen resolution",
+        "the number of variables"
+      ],
+      "ans": 1,
+      "why": "Both complexity (too slow) and hardware (finite resources) limit computation."
+    },
+    {
+      "q": "An intractable problem is limited because...?",
+      "opts": [
+        "it has no algorithm",
+        "its only algorithms take exponential/factorial time",
+        "it needs no memory",
+        "it is non-computable"
+      ],
+      "ans": 1,
+      "why": "It is solvable in principle but too slow for large inputs."
+    },
+    {
+      "q": "A stronger limit than intractability is...?",
+      "opts": [
+        "slow hardware",
+        "non-computability (no algorithm exists)",
+        "a small screen",
+        "high memory use"
+      ],
+      "ans": 1,
+      "why": "Non-computable problems cannot be solved by any algorithm."
+    },
+    {
+      "q": "Can buying a faster computer make an exponential-time problem tractable for large n?",
+      "opts": [
+        "yes, always",
+        "no — the growth outpaces any speed gain",
+        "only with more RAM",
+        "only on weekends"
+      ],
+      "ans": 1,
+      "why": "Exponential growth quickly dwarfs any constant speed-up."
+    },
+    {
+      "q": "Hardware limits on computation come from...?",
+      "opts": [
+        "finite memory, speed and time",
+        "the choice of editor",
+        "infinite resources",
+        "the operating system only"
+      ],
+      "ans": 0,
+      "why": "Real machines have bounded resources."
+    }
   ],
-  exam: [
-    { q: "Show the steps a stack would take to evaluate the RPN expression `8 4 2 / -`.", marks: 3,
-      ms: ["Push 8, Push 4, Push 2 (Stack is [8, 4, 2]) (1)", "Encounter '/', pop 2 and 4, calculate 4 / 2 = 2, push 2 (Stack is now [8, 2]) (1)", "Encounter '-', pop 2 and 8, calculate 8 - 2 = 6, push 6. Final result is 6 (1)"] },
-    { q: "Convert the infix expression (6 + 2) * 5 to RPN.", marks: 2, ms: ["Inner bracket: 6 2 + (1)", "Then multiply by 5: 6 2 + 5 * (1)"] },
-    { q: "Explain why Reverse Polish Notation is well suited to evaluation by a computer, and describe the stack-based algorithm used, with a worked example.", marks: 6, ms: ["RPN needs no brackets or precedence rules — operator position fixes the order (1-2)", "Algorithm: read left to right; push operands; on an operator pop two, apply (second-popped OP first-popped), push result (1-2)", "Single left-to-right pass with one stack — simple and efficient for machines (1)", "Worked example, e.g. 3 4 + 5 * → push 3,4 → '+' → 7 → push 5 → '*' → 35 (1)"] }
+  "exam": [
+    {
+      "q": "State two things that impose limits on what can be computed.",
+      "marks": 2,
+      "ms": [
+        "Algorithmic complexity (intractable problems). (1)",
+        "Hardware limits (finite memory, processing speed and time). (1)"
+      ]
+    },
+    {
+      "q": "Explain the difference between an intractable problem and a non-computable problem.",
+      "marks": 2,
+      "ms": [
+        "Intractable: an algorithm exists but takes exponential/factorial time, so it is impractical for large inputs. (1)",
+        "Non-computable: no algorithm can ever solve it, regardless of time or hardware (e.g. the Halting problem). (1)"
+      ]
+    },
+    {
+      "q": "Discuss the limits on what can be computed, distinguishing practical limits from absolute limits.",
+      "marks": 6,
+      "ms": [
+        "Algorithmic complexity limits computation: intractable problems have only exponential/factorial algorithms. (1)",
+        "These cannot be solved exactly for large inputs in reasonable time. (1)",
+        "Hardware imposes further practical limits: finite memory, speed and time. (1)",
+        "Faster hardware cannot overcome exponential growth. (1)",
+        "An absolute limit also exists: some problems are non-computable. (1)",
+        "No algorithm can solve a non-computable problem (e.g. the Halting problem), regardless of resources. (1)"
+      ]
+    }
   ]
 };
 
