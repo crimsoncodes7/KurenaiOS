@@ -5,566 +5,658 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 C["compsci:4.3.4.1"] = {
   "notes": [
     {
-      "h": "Dijkstra's Algorithm: Finding the Shortest Path"
+      "h": "Linear Search"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "Linear search (sequential search) checks each element in turn from the start until it finds the target or reaches the end. Its key advantage is that it works on ANY list — sorted or not."
+      }
     },
     {
       "callout": {
         "t": "def",
-        "h": "Algorithm Components",
-        "body": [
-          {
-            "kv": [
-              [
-                "Shortest Path",
-                "The path between two nodes such that the sum of the weights of its constituent edges is minimized."
-              ],
-              [
-                "Relaxation",
-                "The process of updating the shortest distance to a node when a better path is found."
-              ],
-              [
-                "Priority Queue",
-                "Data structure used to efficiently find the node with the smallest tentative distance."
-              ],
-              [
-                "Visited Set",
-                "A collection of nodes for which the shortest path from the source has been finalized."
-              ]
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "table": {
-        "head": [
-          "Comparison",
-          "Dijkstra's Algorithm",
-          "A* Search"
-        ],
-        "rows": [
-          [
-            "Information Used",
-            "Actual distance from start (g)",
-            "Distance from start (g) + Estimate to goal (h)"
-          ],
-          [
-            "Efficiency",
-            "Explores in all directions (blind)",
-            "Directed towards goal (informed)"
-          ],
-          [
-            "Optimality",
-            "Guarantees shortest path",
-            "Guarantees shortest path if h is admissible"
-          ],
-          [
-            "Weights",
-            "Non-negative only",
-            "Non-negative only"
-          ]
-        ]
+        "h": "How it works",
+        "body": "Start at the first element and compare it with the target. If they match, return the position. Otherwise move to the next element. If the end is reached with no match, the item is not present."
       }
     },
     {
       "steps": [
         {
-          "h": "Initialize",
-          "m": "Distances to all nodes = ∞, Source = 0.",
-          "n": "Add all nodes to a priority queue."
+          "h": "Start",
+          "m": "Begin at the first element (index 0)."
         },
         {
-          "h": "Select & Explore",
-          "m": "Extract node $u$ with min distance.",
-          "n": "For each neighbor $v$, calculate tentative distance: $dist[u] + weight(u, v)$."
+          "h": "Compare",
+          "m": "Is the current element equal to the target?",
+          "n": "If yes, return its index — found."
         },
         {
-          "h": "Relax",
-          "m": "If new distance < $dist[v]$, update $dist[v]$ and $prev[v]$.",
-          "n": "Mark $u$ as visited when all neighbors are checked."
+          "h": "Advance",
+          "m": "If not, move to the next element."
+        },
+        {
+          "h": "Stop",
+          "m": "If you pass the last element without a match, report 'not found'."
         }
       ]
     },
     {
       "code": {
-        "lang": "csharp",
-        "cap": "Dijkstra's Algorithm implementation using PriorityQueue.",
-        "src": "public void Dijkstra(Graph g, Node start) {\n    var dist = new Dictionary<Node, int>();\n    var pq = new PriorityQueue<Node, int>();\n    foreach (var node in g.Nodes) dist[node] = int.MaxValue;\n    \n    dist[start] = 0;\n    pq.Enqueue(start, 0);\n\n    while (pq.Count > 0) {\n        var u = pq.Dequeue();\n        foreach (var edge in u.Edges) {\n            int alt = dist[u] + edge.Weight;\n            if (alt < dist[edge.Target]) {\n                dist[edge.Target] = alt;\n                pq.Enqueue(edge.Target, alt);\n            }\n        }\n    }\n}"
+        "lang": "pseudo",
+        "cap": "Linear search",
+        "src": "FUNCTION linearSearch(list, target)\n  FOR i = 0 TO length(list) - 1\n    IF list[i] = target THEN\n      RETURN i        # found at position i\n    ENDIF\n  ENDFOR\n  RETURN -1           # not found\nENDFUNCTION"
       }
     },
     {
-      "callout": {
-        "t": "warn",
-        "h": "Negative Edge Weights",
-        "body": "Dijkstra's algorithm fails if there are negative edge weights. It assumes that adding an edge will never make a path shorter."
-      }
+      "h": "Complexity"
     },
     {
-      "callout": {
-        "t": "tip",
-        "h": "Exam trace technique",
-        "body": "Draw a table with one column per node. Each row shows the state after settling one node. Show: current tentative distances, which node is settled (mark ✓), and the prev pointer update. Examiners credit each correct relaxation."
+      "table": {
+        "head": [
+          "Case",
+          "Comparisons",
+          "Time complexity"
+        ],
+        "rows": [
+          [
+            "Best",
+            "1 (target is first)",
+            "$O(1)$"
+          ],
+          [
+            "Average",
+            "about n/2",
+            "$O(n)$"
+          ],
+          [
+            "Worst",
+            "n (target last or absent)",
+            "$O(n)$"
+          ]
+        ]
       }
     },
     {
       "callout": {
         "t": "memorise",
-        "h": "Dijkstra's Algorithm — Key Facts",
-        "body": "1. Initialise: source = 0, all others = ∞. 2. Greedily pick unvisited node with min distance. 3. Relax all neighbours. 4. Mark visited (distance finalised). Non-negative weights only. Uses a priority queue. Time complexity: O((V + E) log V) with a binary heap."
+        "h": "Linear search",
+        "body": "Check each item in order until found or end. **Best O(1)** (first item), **average and worst O(n)**. Works on **unsorted** data and needs no ordering. Simple, but slow for large lists."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "When to choose it",
+        "body": "Use linear search for small lists, unsorted data, or linked structures where you cannot jump to the middle. For large sorted arrays, binary search is far faster."
       }
     },
     {
       "callout": {
         "t": "miscon",
-        "h": "\"Dijkstra and BFS solve the same problem\"",
-        "body": "BFS finds shortest paths by **edge count** on unweighted graphs. Dijkstra finds shortest paths by **total weight** on weighted graphs. On an unweighted graph, Dijkstra reduces to BFS — but they are not interchangeable when weights differ."
+        "h": "Common misconception",
+        "body": "**Linear search needs a sorted list** — No; that is binary search. Linear search works on any order — which is exactly the situation where you would choose it."
       }
     }
   ],
   "flashcards": [
     [
-      "What does Dijkstra's algorithm find?",
-      "The shortest path from a starting node to all other reachable nodes in a graph."
+      "How does linear search work?",
+      "It compares each element in turn from the start until the target is found or the list ends."
     ],
     [
-      "What is the initial distance value given to the start node?",
-      "0."
+      "What is the best-case complexity of linear search?",
+      "O(1) — the target is the first element."
     ],
     [
-      "What is the initial distance value given to all other nodes?",
-      "Infinity (∞)."
+      "What is the worst-case complexity of linear search?",
+      "O(n) — the target is last or not present, so all n elements are checked."
     ],
     [
-      "What happens during the 'relaxation' step?",
-      "If a newly calculated path to a neighbor is shorter than its current known distance, the distance is updated."
+      "What is the average number of comparisons for linear search?",
+      "About n/2."
     ],
     [
-      "Why does Dijkstra use a priority queue (not a regular queue)?",
-      "To efficiently extract the unvisited node with the smallest tentative distance at each step."
+      "Does linear search require a sorted list?",
+      "No — it works on data in any order."
     ],
-    ["What is stored in the 'previous' pointer for each node?", "The predecessor node on the current best path, used to reconstruct the route by tracing back from the target."],
-    ["Why does Dijkstra fail with negative edge weights?", "It finalises a node's distance when visited, assuming no later edge can shorten it — a negative edge could, breaking the guarantee."],
-    ["State the time complexity of Dijkstra with a binary-heap priority queue.", "O((V + E) log V)."],
-    ["On an unweighted graph, Dijkstra behaves like which algorithm?", "Breadth-first search — with equal weights, cheapest-first equals fewest-edges-first."]
+    [
+      "When is linear search a better choice than binary search?",
+      "For small or unsorted lists, or linked structures where you cannot access the middle directly."
+    ],
+    [
+      "What does linear search return when the item is absent?",
+      "A 'not found' result (e.g. -1) after checking every element."
+    ],
+    [
+      "Why is linear search slow for large lists?",
+      "Its O(n) work grows linearly with size — a million items can need a million comparisons."
+    ]
   ],
   "quiz": [
     {
-      "q": "In Dijkstra's algorithm, which node is selected to process next?",
+      "q": "Linear search has a worst-case time complexity of...?",
       "opts": [
-        "The unvisited node with the smallest tentative distance",
-        "The last visited node",
-        "A random unvisited neighbor",
-        "The destination node"
+        "O(1)",
+        "O(log n)",
+        "O(n)",
+        "O(n^2)"
       ],
-      "ans": 0,
-      "why": "Dijkstra always greedily expands the frontier using the node with the lowest current distance."
+      "ans": 2,
+      "why": "In the worst case every one of the n elements is checked."
     },
     {
-      "q": "After a node is marked visited in Dijkstra's algorithm, its distance…",
+      "q": "Which is TRUE of linear search?",
       "opts": [
-        "can still decrease if a shorter path is found",
-        "is guaranteed to be the shortest possible and will not change",
-        "resets to ∞ for the next iteration",
-        "is shared with all its neighbours"
+        "It needs sorted data",
+        "It works on unsorted data",
+        "It is always faster than binary search",
+        "It uses recursion"
       ],
       "ans": 1,
-      "why": "Visiting a node finalises its distance — the greedy proof guarantees no shorter path exists."
+      "why": "Linear search makes no ordering assumption."
     },
-    { "q": "Dijkstra differs from A* in that Dijkstra…", "opts": ["uses a heuristic estimate to the goal", "uses only the actual distance from the start", "cannot handle weighted edges", "is a depth-first search"], "ans": 1, "why": "Dijkstra ranks nodes purely by g (cost from start); A* adds a heuristic h toward the goal." },
-    { "q": "The relaxation condition updates dist[v] when…", "opts": ["dist[u] + weight(u,v) < dist[v]", "dist[v] < dist[u]", "v is the start node", "u has no neighbours"], "ans": 0, "why": "A cheaper route to v via u improves its tentative distance." },
-    { "q": "Dijkstra's algorithm is best described as…", "opts": ["divide and conquer", "greedy", "brute force", "dynamic programming only"], "ans": 1, "why": "It greedily settles the closest unvisited node at each step." }
+    {
+      "q": "The best case of linear search occurs when...?",
+      "opts": [
+        "the list is empty",
+        "the target is the first element",
+        "the target is in the middle",
+        "the target is last"
+      ],
+      "ans": 1,
+      "why": "Finding it first means a single comparison, O(1)."
+    },
+    {
+      "q": "On average, linear search on n items performs about...?",
+      "opts": [
+        "n comparisons",
+        "n/2 comparisons",
+        "log n comparisons",
+        "1 comparison"
+      ],
+      "ans": 1,
+      "why": "On average the target is found halfway through."
+    },
+    {
+      "q": "For a large SORTED array, which is the better search?",
+      "opts": [
+        "Linear search",
+        "Binary search",
+        "They are identical",
+        "Neither works"
+      ],
+      "ans": 1,
+      "why": "Binary search is O(log n) versus linear's O(n)."
+    }
   ],
   "exam": [
     {
-      "q": "Describe how Dijkstra's algorithm initializes its data structures before processing the first node.",
-      "marks": 3,
+      "q": "State one advantage of linear search over binary search.",
+      "marks": 1,
       "ms": [
-        "Sets the distance to the start node to 0 (1)",
-        "Sets the distance to all other nodes to infinity (1)",
-        "Marks all nodes as unvisited / adds all to the priority queue (1)"
+        "It works on unsorted data (the list does not need to be ordered first). (1)"
       ]
     },
-    { "q": "Explain what 'relaxation' means in Dijkstra's algorithm and why a priority queue is used.", "marks": 3,
-      "ms": ["Relaxation: if dist[u] + weight(u,v) < dist[v], update dist[v] (and prev[v]) to the cheaper route (1-2)", "A priority queue efficiently returns the unvisited node with the smallest tentative distance each step (1)"] },
-    { "q": "A network routing system needs least-cost paths from one router to all others, where links have positive latencies. Discuss why Dijkstra's algorithm is appropriate, how it guarantees correctness, and one limitation.", "marks": 6,
-      "ms": ["Links have positive weights (latency) and Dijkstra finds minimum-total-weight paths (1)", "It is single-source — computes shortest paths to all routers from the source (1-2)", "Greedily settling the closest unvisited node, with relaxation, guarantees each settled distance is final/optimal for non-negative weights (1-2)", "Priority queue makes node selection efficient (1)", "Limitation: fails if any weight is negative / does not adapt instantly to changing link costs (1)"] }
+    {
+      "q": "A list has 50 items. State the maximum number of comparisons a linear search could make, and explain when this occurs.",
+      "marks": 2,
+      "ms": [
+        "Maximum 50 comparisons. (1)",
+        "When the target is the last element, or is not in the list at all. (1)"
+      ]
+    },
+    {
+      "q": "Describe how the linear search algorithm works and analyse its time complexity for the best, average and worst cases.",
+      "marks": 6,
+      "ms": [
+        "The algorithm examines each element in turn starting from the first. (1)",
+        "It compares each element with the target and stops when a match is found. (1)",
+        "If the end is reached with no match, it reports the item is absent. (1)",
+        "Best case O(1) — the target is the first element. (1)",
+        "Average case O(n) — about n/2 comparisons. (1)",
+        "Worst case O(n) — the target is last or absent, so all n elements are checked. (1)"
+      ]
+    }
   ]
 };
 
 C["compsci:4.3.4.3"] = {
   "notes": [
     {
-      "h": "A* Algorithm: Directed Search with Heuristics"
+      "h": "Binary Tree Search"
+    },
+    {
+      "callout": {
+        "t": "info",
+        "body": "Binary tree search finds a value in a binary search tree (BST) by exploiting its ordering: at each node, go left if the target is smaller, right if it is larger. Each step discards one subtree."
+      }
     },
     {
       "callout": {
         "t": "def",
-        "h": "A* Terminology",
-        "body": [
-          {
-            "kv": [
-              [
-                "Heuristic (h)",
-                "An estimate of the cost from the current node to the goal."
-              ],
-              [
-                "Actual Cost (g)",
-                "The exact cost from the start node to the current node."
-              ],
-              [
-                "Total Cost (f)",
-                "The sum of g and h: $f(n) = g(n) + h(n)$."
-              ],
-              [
-                "Admissibility",
-                "The property that a heuristic never overestimates the true cost."
-              ]
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "table": {
-        "head": [
-          "Heuristic Type",
-          "Description",
-          "Admissibility"
-        ],
-        "rows": [
-          [
-            "Manhattan",
-            "Sum of absolute differences of coordinates",
-            "Admissible for grid movement (4-way)"
-          ],
-          [
-            "Euclidean",
-            "Straight-line distance",
-            "Always admissible for physical distance"
-          ],
-          [
-            "Zero (h=0)",
-            "No heuristic used",
-            "Trivial; reduces A* to Dijkstra"
-          ],
-          [
-            "Overestimating",
-            "Estimated cost > Actual cost",
-            "Not admissible; may miss shortest path"
-          ]
-        ]
+        "h": "Binary search tree property",
+        "body": "For every node, all values in its left subtree are smaller and all values in its right subtree are larger. This ordering lets the search eliminate half the remaining tree at each node."
       }
     },
     {
       "steps": [
         {
-          "h": "Calculate F-Score",
-          "m": "$f(n) = g(n) + h(n)$",
-          "n": "Determine the priority of the node."
+          "h": "Start at the root",
+          "m": "Set the current node to the root of the tree."
         },
         {
-          "h": "Expand Node",
-          "m": "Pick node with lowest $f(n)$ from the open set.",
-          "n": "Move it to the closed set after checking neighbors."
+          "h": "Compare",
+          "m": "If the current node equals the target, it is found."
         },
         {
-          "h": "Pathfinding",
-          "m": "Continue until the goal node is the lowest $f(n)$ node.",
-          "n": "Reconstruct path using parent pointers."
+          "h": "Go left or right",
+          "m": "If the target is smaller, move to the left child; if larger, move to the right child.",
+          "n": "Each move discards the other subtree."
+        },
+        {
+          "h": "Stop",
+          "m": "If you reach an empty child (null), the value is not in the tree."
         }
       ]
     },
     {
       "code": {
-        "lang": "csharp",
-        "cap": "A* Search Algorithm Core Logic.",
-        "src": "public void AStar(Node start, Node goal) {\n    var openSet = new PriorityQueue<Node, int>();\n    var gScore = new Dictionary<Node, int>();\n    var fScore = new Dictionary<Node, int>();\n\n    gScore[start] = 0;\n    fScore[start] = Heuristic(start, goal);\n    openSet.Enqueue(start, fScore[start]);\n\n    while (openSet.Count > 0) {\n        var current = openSet.Dequeue();\n        if (current == goal) return; // Path found\n\n        foreach (var neighbor in current.Neighbors) {\n            int tentativeG = gScore[current] + Weight(current, neighbor);\n            if (tentativeG < gScore.GetValueOrDefault(neighbor, int.MaxValue)) {\n                gScore[neighbor] = tentativeG;\n                fScore[neighbor] = tentativeG + Heuristic(neighbor, goal);\n                openSet.Enqueue(neighbor, fScore[neighbor]);\n            }\n        }\n    }\n}"
+        "lang": "pseudo",
+        "cap": "Recursive binary tree search",
+        "src": "FUNCTION search(node, target)\n  IF node = null THEN\n    RETURN false          # not found\n  ELSE IF target = node.value THEN\n    RETURN true           # found\n  ELSE IF target < node.value THEN\n    RETURN search(node.left, target)\n  ELSE\n    RETURN search(node.right, target)\n  ENDIF\nENDFUNCTION"
       }
     },
     {
-      "callout": {
-        "t": "tip",
-        "h": "Heuristic Effectiveness",
-        "body": "The closer $h(x)$ is to the actual cost, the fewer nodes A* explores. If $h(x)=0$, it is Dijkstra."
+      "h": "Complexity"
+    },
+    {
+      "table": {
+        "head": [
+          "Tree shape",
+          "Height",
+          "Time complexity"
+        ],
+        "rows": [
+          [
+            "Balanced",
+            "about log n",
+            "$O(\\log n)$"
+          ],
+          [
+            "Unbalanced / degenerate",
+            "up to n (a chain)",
+            "$O(n)$"
+          ]
+        ]
       }
     },
     {
       "callout": {
         "t": "memorise",
-        "h": "A* = Dijkstra + direction",
-        "body": "Dijkstra: $f = g$ (only actual cost).\nA\\*: $f = g + h$ (actual cost + heuristic estimate).\nBoth guarantee the shortest path — A\\* just explores far fewer nodes when $h$ is good."
+        "h": "Binary tree search",
+        "body": "Use the BST ordering: smaller goes **left**, larger goes **right**. Time complexity equals the **height** of the tree: a **balanced** BST gives **O(log n)**; a **degenerate** (unbalanced) tree gives **O(n)**."
+      }
+    },
+    {
+      "callout": {
+        "t": "tip",
+        "h": "Why depth matters",
+        "body": "The number of comparisons equals the path length from root to the node, i.e. the tree's height. A balanced tree has height about log n; inserting already-sorted data builds a chain of height n, destroying the speed advantage."
       }
     },
     {
       "callout": {
         "t": "miscon",
-        "h": "\"Any heuristic makes A* faster\"",
-        "body": "An **inadmissible** heuristic (one that overestimates) can cause A* to skip the true shortest path, returning a suboptimal result. Only admissible heuristics guarantee correctness."
-      }
-    },
-    {
-      "callout": {
-        "t": "info",
-        "h": "Common heuristics for grids",
-        "body": [
-          {
-            "kv": [
-              ["Manhattan distance", "Sum of |Δx| + |Δy| — correct for 4-way grid movement"],
-              ["Euclidean distance", "Straight-line — admissible for any movement direction"],
-              ["Chebyshev distance", "max(|Δx|, |Δy|) — correct for 8-way grid movement"]
-            ]
-          }
-        ]
+        "h": "Common misconception",
+        "body": "**Binary tree search is always O(log n)** — only if the tree is balanced. An unbalanced BST (e.g. built from sorted input) degenerates into a list and search becomes O(n). It is also distinct from binary search, which works on a sorted array."
       }
     }
   ],
   "flashcards": [
     [
-      "What is the A* cost function?",
-      "f(x) = g(x) + h(x) — actual cost from start + estimated cost to goal."
+      "What ordering property does a binary search tree have?",
+      "Every node's left subtree holds smaller values and its right subtree holds larger values."
     ],
     [
-      "In A*, what does g(x) represent?",
-      "The exact known cost from the start node to the current node x."
+      "How do you decide which way to go at each node in a binary tree search?",
+      "Go left if the target is smaller than the node, right if it is larger."
     ],
     [
-      "In A*, what does h(x) represent?",
-      "The heuristic estimate of the cost from node x to the goal."
+      "What is the time complexity of binary tree search on a balanced tree?",
+      "O(log n) — the height is about log n."
     ],
     [
-      "What does it mean for a heuristic to be 'admissible'?",
-      "It must never overestimate the actual cost to reach the goal."
+      "What is the worst-case complexity of binary tree search?",
+      "O(n) — for an unbalanced/degenerate tree that forms a chain."
     ],
     [
-      "What does A* reduce to when h(x) = 0 for all nodes?",
-      "Dijkstra's algorithm — it explores in all directions without any goal-directed bias."
+      "What determines the number of comparisons in binary tree search?",
+      "The height of the tree (the path length from the root to the target)."
     ],
-    ["Why does a better (closer) admissible heuristic make A* faster?", "The nearer h is to the true remaining cost, the more the search is steered toward the goal, so fewer nodes are expanded."],
-    ["Which heuristic suits 4-way grid movement, and which suits any-direction travel?", "Manhattan distance for 4-way grids; Euclidean (straight-line) distance for any-direction/physical travel."],
-    ["What are the 'open set' and 'closed set' in A*?", "Open set: discovered nodes still to be expanded (a priority queue on f). Closed set: nodes already expanded/finalised."],
-    ["Does an inadmissible heuristic still guarantee the shortest path?", "No — overestimating can prune the true optimal route, giving a suboptimal (though often faster) result."]
+    [
+      "Why can a BST degenerate to O(n)?",
+      "Inserting values in sorted order builds a one-sided chain of height n instead of a balanced tree."
+    ],
+    [
+      "How is binary tree search different from binary search?",
+      "Binary search works on a sorted array; binary tree search traverses a binary search tree's nodes."
+    ],
+    [
+      "When is the target found in binary tree search?",
+      "When the current node's value equals the target; if an empty child is reached, it is absent."
+    ]
   ],
   "quiz": [
     {
-      "q": "Why is A* often preferred over Dijkstra for game pathfinding?",
+      "q": "In a binary search tree, a value smaller than the current node is found by going...?",
       "opts": [
-        "It uses heuristics to search directionally towards the goal",
-        "It ignores edge weights completely",
-        "It is a depth-first search",
-        "It can handle negative edge weights safely"
-      ],
-      "ans": 0
-    },
-    {
-      "q": "An inadmissible heuristic (one that overestimates) causes A* to…",
-      "opts": [
-        "find the shortest path faster",
-        "potentially return a path that is NOT the shortest",
-        "reduce to BFS",
-        "crash with an infinite loop"
+        "right",
+        "left",
+        "up",
+        "to the root"
       ],
       "ans": 1,
-      "why": "Overestimating causes A* to prune nodes on the true shortest path, so the result may be suboptimal."
+      "why": "Smaller values are in the left subtree."
     },
-    { "q": "In A*, a node is prioritised for expansion by the lowest value of…", "opts": ["g(x)", "h(x)", "f(x) = g(x) + h(x)", "the number of neighbours"], "ans": 2, "why": "f combines actual cost so far with the estimate to the goal." },
-    { "q": "Setting h(x) = 0 for every node turns A* into…", "opts": ["BFS", "DFS", "Dijkstra's algorithm", "binary search"], "ans": 2, "why": "With no heuristic, f = g, which is exactly Dijkstra." },
-    { "q": "Which heuristic is admissible for straight-line travel in any direction?", "opts": ["Manhattan distance", "Euclidean distance", "An overestimate of distance", "Random values"], "ans": 1, "why": "Straight-line (Euclidean) distance never exceeds the true path cost, so it is admissible." }
+    {
+      "q": "Binary tree search on a balanced tree is...?",
+      "opts": [
+        "O(1)",
+        "O(log n)",
+        "O(n)",
+        "O(n^2)"
+      ],
+      "ans": 1,
+      "why": "A balanced tree has height about log n."
+    },
+    {
+      "q": "What causes binary tree search to degrade to O(n)?",
+      "opts": [
+        "a balanced tree",
+        "an unbalanced/degenerate tree",
+        "too many leaves",
+        "duplicate values"
+      ],
+      "ans": 1,
+      "why": "A degenerate tree forms a chain of height n."
+    },
+    {
+      "q": "The number of comparisons in binary tree search equals...?",
+      "opts": [
+        "the number of nodes",
+        "the height of the tree (path length)",
+        "n/2",
+        "the number of leaves"
+      ],
+      "ans": 1,
+      "why": "Search follows one root-to-node path, whose length is the height."
+    },
+    {
+      "q": "Inserting data in sorted order into a BST tends to produce...?",
+      "opts": [
+        "a perfectly balanced tree",
+        "a degenerate chain (O(n) search)",
+        "a full tree",
+        "no tree"
+      ],
+      "ans": 1,
+      "why": "Each new value attaches to one side, building a list-like chain."
+    }
   ],
   "exam": [
     {
-      "q": "Explain the roles of g(x) and h(x) in the A* algorithm and state what admissibility requires.",
-      "marks": 4,
+      "q": "State the binary search tree property.",
+      "marks": 1,
       "ms": [
-        "g(x): exact cost from start node to current node x (1)",
-        "h(x): heuristic estimate of remaining cost from x to goal (1)",
-        "f(x) = g(x) + h(x) used to prioritise which node to expand next (1)",
-        "Admissibility: h(x) must never overestimate the true remaining cost (1)"
+        "For every node, all values in the left subtree are smaller and all in the right subtree are larger. (1)"
       ]
     },
-    { "q": "State one similarity and one difference between A* and Dijkstra's algorithm.", "marks": 2,
-      "ms": ["Similarity: both find the shortest path on non-negative weighted graphs / both expand the lowest-priority node from a priority queue (1)", "Difference: A* adds a heuristic estimate h(x) to direct the search toward the goal, whereas Dijkstra uses only g(x) (1)"] },
-    { "q": "A game studio uses A* for enemy pathfinding on a tile map. Discuss why A* is preferred over Dijkstra here, the role of the heuristic, and the consequence of choosing an inadmissible heuristic.", "marks": 6,
-      "ms": ["A* uses f = g + h to search directionally toward the goal, expanding far fewer tiles than Dijkstra's blind expansion (1-2)", "On a large map this is much faster, important for real-time games (1)", "A suitable admissible heuristic (e.g. Manhattan distance on a 4-way grid) estimates remaining cost without overestimating (1-2)", "An inadmissible (overestimating) heuristic can prune the true shortest path, giving a suboptimal route (1)", "Trade-off noted: a stronger heuristic speeds search but must stay admissible to guarantee optimality (1)"] }
+    {
+      "q": "Explain why the time complexity of binary tree search depends on the shape of the tree.",
+      "marks": 2,
+      "ms": [
+        "Search follows a path from the root down to the target, so the work equals the tree's height. (1)",
+        "A balanced tree has height about log n (O(log n)), but a degenerate tree has height up to n (O(n)). (1)"
+      ]
+    },
+    {
+      "q": "Describe how the binary tree search algorithm works and analyse its time complexity for balanced and unbalanced trees.",
+      "marks": 6,
+      "ms": [
+        "Start at the root and compare the target with the node's value. (1)",
+        "If equal, the value is found. (1)",
+        "If the target is smaller go to the left child, otherwise the right child. (1)",
+        "Repeat until found or an empty child (null) is reached, meaning absent. (1)",
+        "On a balanced tree the height is about log n, giving O(log n). (1)",
+        "On an unbalanced/degenerate tree the height can be n, giving O(n). (1)"
+      ]
+    }
   ]
 };
 
 C["compsci:4.3.5.2"] = {
   "notes": [
     {
-      "h": "Limits of Computation and Tractability"
+      "h": "Merge Sort"
     },
     {
       "callout": {
-        "t": "def",
-        "h": "Complexity Concepts",
-        "body": [
-          {
-            "kv": [
-              [
-                "Tractable",
-                "Problems solvable in polynomial time (e.g., $O(n^2)$)."
-              ],
-              [
-                "Intractable",
-                "Problems that take exponential or factorial time (e.g., $O(2^n)$)."
-              ],
-              [
-                "Heuristic",
-                "A technique designed for solving a problem more quickly when classic methods are too slow."
-              ],
-              [
-                "TSP",
-                "Travelling Salesman Problem: Find the shortest route visiting all cities once."
-              ]
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "table": {
-        "head": [
-          "Complexity Class",
-          "Time Complexity",
-          "Scalability"
-        ],
-        "rows": [
-          [
-            "Polynomial (Tractable)",
-            "$O(n)$, $O(n log n)$, $O(n^2)$",
-            "High - scales with Moore's Law"
-          ],
-          [
-            "Exponential (Intractable)",
-            "$O(2^n)$",
-            "Very Low - small increases in $n$ crash systems"
-          ],
-          [
-            "Factorial (Intractable)",
-            "$O(n!)$",
-            "Extremely Low - unusable for $n > 20$"
-          ]
-        ]
+        "t": "info",
+        "body": "Merge sort is a divide-and-conquer algorithm: recursively split the list in half until each part holds one element, then merge the parts back together in order."
       }
     },
     {
       "steps": [
         {
-          "h": "Classifying Problems",
-          "m": "Identify the worst-case Big-O complexity.",
-          "n": "Polynomial = Tractable; else = Intractable."
+          "h": "Divide",
+          "m": "Split the list into two halves."
         },
         {
-          "h": "Applying Heuristics",
-          "m": "For $O(2^n)$ problems, use a heuristic (e.g., Nearest Neighbor for TSP).",
-          "n": "Trade accuracy for a 'good enough' solution in polynomial time."
+          "h": "Recurse",
+          "m": "Recursively merge-sort each half until sublists have length 1 (a single item is already sorted)."
+        },
+        {
+          "h": "Merge",
+          "m": "Combine two sorted sublists into one sorted list by repeatedly taking the smaller front element.",
+          "n": "This is the 'conquer' step."
+        },
+        {
+          "h": "Combine",
+          "m": "Work back up the recursion until the whole list is merged and sorted."
         }
       ]
     },
     {
       "code": {
-        "lang": "csharp",
-        "cap": "Simple Heuristic for TSP (Nearest Neighbor).",
-        "src": "public List<City> NearestNeighborTSP(List<City> cities) {\n    var tour = new List<City>();\n    var current = cities[0];\n    cities.RemoveAt(0);\n    tour.Add(current);\n\n    while (cities.Count > 0) {\n        var next = cities.OrderBy(c => Distance(current, c)).First();\n        tour.Add(next);\n        cities.Remove(next);\n        current = next;\n    }\n    return tour;\n}"
+        "lang": "pseudo",
+        "cap": "Merge sort",
+        "src": "FUNCTION mergeSort(list)\n  IF length(list) <= 1 THEN\n    RETURN list\n  ENDIF\n  mid   = length(list) DIV 2\n  left  = mergeSort(list[0 .. mid-1])\n  right = mergeSort(list[mid .. end])\n  RETURN merge(left, right)\nENDFUNCTION"
+      }
+    },
+    {
+      "h": "The merge step"
+    },
+    {
+      "callout": {
+        "t": "def",
+        "h": "Merging two sorted lists",
+        "body": "Keep a pointer at the front of each sorted sublist. Compare the two front elements, copy the smaller into the output, and advance that pointer. When one list empties, append the rest of the other. The result is one sorted list."
+      }
+    },
+    {
+      "h": "Complexity"
+    },
+    {
+      "table": {
+        "head": [
+          "Case",
+          "Time complexity",
+          "Space"
+        ],
+        "rows": [
+          [
+            "Best",
+            "$O(n \\log n)$",
+            "$O(n)$"
+          ],
+          [
+            "Average",
+            "$O(n \\log n)$",
+            "$O(n)$"
+          ],
+          [
+            "Worst",
+            "$O(n \\log n)$",
+            "$O(n)$"
+          ]
+        ]
       }
     },
     {
       "callout": {
         "t": "memorise",
-        "h": "Time Complexities",
-        "body": "Tractable = Polynomial time (manageable). Intractable = Exponential/Factorial time (blows up quickly)."
-      }
-    },
-    {
-      "callout": {
-        "t": "warn",
-        "h": "Intractable ≠ Impossible",
-        "body": "An intractable problem **has** an algorithm — it just runs too slowly for large inputs. This is different from an **uncomputable** problem (like the Halting Problem), for which no algorithm can ever exist."
-      }
-    },
-    {
-      "callout": {
-        "t": "miscon",
-        "h": "\"Faster hardware solves intractable problems\"",
-        "body": "Doubling CPU speed only adds one extra item to what an exponential algorithm can handle. Going from n=50 to n=100 doesn't help — the algorithm is still impractical. Heuristics are the only practical escape."
+        "h": "Merge sort",
+        "body": "Divide into halves (**log n** levels) and merge each level in **O(n)** work, giving **O(n log n) in ALL cases**. It is **stable** but needs **O(n) extra memory** for merging. Excellent for large lists."
       }
     },
     {
       "callout": {
         "t": "tip",
-        "h": "The Travelling Salesman Problem (TSP)",
-        "body": "TSP is the canonical intractable problem: find the shortest route visiting $n$ cities exactly once. The brute-force solution checks all $(n-1)!$ permutations. For $n=20$, that's ~$10^{17}$ routes — impossible even at $10^{10}$ ops/sec."
+        "h": "Why O(n log n)",
+        "body": "There are log n levels of halving, and merging at each level touches all n elements once — so n × log n total work, regardless of the input order."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Common misconception",
+        "body": "**Merge sort sorts in place** — No; it needs an O(n) auxiliary array to merge. Bubble sort is in-place (O(1) space) but far slower at O(n^2) for large lists."
       }
     }
   ],
   "flashcards": [
     [
-      "Define a tractable problem.",
-      "A problem that can be solved in a reasonable (polynomial) amount of time."
+      "What strategy does merge sort use?",
+      "Divide and conquer — recursively split the list, sort the halves, then merge them."
     ],
     [
-      "Define an intractable problem.",
-      "A problem that has an algorithm, but takes an unreasonably long (exponential or factorial) time for large inputs."
+      "What is the time complexity of merge sort in all cases?",
+      "O(n log n) — best, average and worst."
     ],
     [
-      "Give examples of polynomial time complexities.",
-      "$O(n)$, $O(n^2)$, $O(n^3)$, $O(\\log n)$, $O(n \\log n)$"
+      "What is the space complexity of merge sort?",
+      "O(n) — it needs an auxiliary array to merge sublists."
     ],
     [
-      "What is the key difference between intractable and uncomputable?",
-      "Intractable: an algorithm exists but is too slow. Uncomputable: no algorithm can ever exist (e.g., the Halting Problem)."
+      "Why is merge sort O(n log n)?",
+      "There are log n levels of halving and each level does O(n) merging work."
     ],
     [
-      "Why can't faster hardware solve intractable problems?",
-      "Doubling speed only adds one item to what an exponential algorithm can handle — the growth outpaces any hardware improvement."
+      "How are two sorted sublists merged?",
+      "Compare their front elements, copy the smaller to the output and advance; append the remainder when one empties."
     ],
-    ["What is a heuristic, in the context of intractable problems?", "A technique that finds an approximate 'good enough' solution in reasonable (polynomial) time, trading guaranteed optimality for speed."],
-    ["Give the brute-force complexity of the Travelling Salesman Problem.", "O(n!) (checking (n-1)! permutations) — factorial, hence intractable for large n."],
-    ["Name a heuristic approach to TSP.", "Nearest Neighbour — repeatedly travel to the closest unvisited city; fast but not guaranteed optimal."],
-    ["Order these by growth for large n: O(n^2), O(2^n), O(n!).", "O(n^2) < O(2^n) < O(n!) — polynomial grows slowest, factorial fastest."]
+    [
+      "Is merge sort stable? Is it in place?",
+      "It is stable but NOT in place (it uses O(n) extra memory)."
+    ],
+    [
+      "When does the recursion in merge sort stop?",
+      "When a sublist has length 1 (or 0), which is already sorted."
+    ],
+    [
+      "Why does merge sort suit very large datasets?",
+      "Its O(n log n) time scales far better than O(n^2) sorts, and the O(n) memory cost is usually acceptable."
+    ]
   ],
   "quiz": [
     {
-      "q": "A problem with a time complexity of $O(2^n)$ is considered…",
+      "q": "Merge sort's worst-case time complexity is...?",
       "opts": [
-        "Intractable",
-        "Tractable",
-        "Uncomputable",
-        "Constant time"
-      ],
-      "ans": 0
-    },
-    {
-      "q": "Which of these is an example of an intractable problem?",
-      "opts": [
-        "Searching a sorted list",
-        "Sorting n items with merge sort",
-        "Finding the shortest route visiting all cities exactly once (TSP)",
-        "Calculating the sum of n numbers"
+        "O(n^2)",
+        "O(n)",
+        "O(n log n)",
+        "O(log n)"
       ],
       "ans": 2,
-      "why": "TSP is $O(n!)$ brute force — exponential/factorial time makes it intractable for large n."
+      "why": "Merge sort always divides and merges in O(n log n), regardless of input."
     },
-    { "q": "An intractable problem differs from an uncomputable one because the intractable problem…", "opts": ["has no algorithm at all", "has an algorithm that is just too slow for large inputs", "is solved instantly", "only affects sorting"], "ans": 1, "why": "Intractable = an algorithm exists but is impractically slow; uncomputable = no algorithm can ever exist." },
-    { "q": "Which complexity is tractable?", "opts": ["$O(2^n)$", "$O(n!)$", "$O(n \\log n)$", "$O(3^n)$"], "ans": 2, "why": "Polynomial/log-linear time is tractable; exponential and factorial are not." },
-    { "q": "A heuristic for an intractable problem trades…", "opts": ["correctness for memory", "guaranteed optimality for speed", "speed for accuracy", "nothing — it is always optimal"], "ans": 1, "why": "Heuristics return a good-enough answer quickly, giving up the guarantee of the exact optimum." }
+    {
+      "q": "Merge sort follows which strategy?",
+      "opts": [
+        "Greedy",
+        "Divide and conquer",
+        "Brute force",
+        "Backtracking"
+      ],
+      "ans": 1,
+      "why": "It recursively divides the list, sorts halves and merges them."
+    },
+    {
+      "q": "Merge sort's space complexity is...?",
+      "opts": [
+        "O(1)",
+        "O(log n)",
+        "O(n)",
+        "O(n^2)"
+      ],
+      "ans": 2,
+      "why": "It needs an O(n) auxiliary array to merge."
+    },
+    {
+      "q": "Why is merge sort O(n log n)?",
+      "opts": [
+        "n passes of n work",
+        "log n levels each doing O(n) merging",
+        "it is random",
+        "one pass only"
+      ],
+      "ans": 1,
+      "why": "log n halving levels × O(n) merge work each."
+    },
+    {
+      "q": "When does merge sort's recursion stop?",
+      "opts": [
+        "at length 1",
+        "at length n",
+        "never",
+        "at length n/2"
+      ],
+      "ans": 0,
+      "why": "A single-element sublist is already sorted, ending the recursion."
+    }
   ],
   "exam": [
     {
-      "q": "Explain the difference between a tractable and an intractable problem, and describe how heuristics address intractable problems.",
-      "marks": 5,
+      "q": "State the time complexity and space complexity of merge sort.",
+      "marks": 2,
       "ms": [
-        "Tractable: solvable in polynomial time, e.g. $O(n^2)$ (1)",
-        "Intractable: algorithm exists but runs in exponential/factorial time, e.g. $O(2^n)$ (1)",
-        "Intractable ≠ unsolvable — an algorithm exists, it is just impractically slow for large n (1)",
-        "Heuristic: a technique that finds an approximate (good enough) solution in polynomial time (1)",
-        "Example: Nearest Neighbour for TSP gives a near-optimal tour quickly, not guaranteed optimal (1)"
+        "Time complexity O(n log n) (in all cases). (1)",
+        "Space complexity O(n) (extra memory for merging). (1)"
       ]
     },
-    { "q": "Explain why simply using faster hardware does not make an intractable problem tractable.", "marks": 3,
-      "ms": ["Exponential/factorial growth means each extra input element multiplies the work (1)", "A hardware speed-up of a constant factor only adds a tiny constant to the input size that can be handled (1)", "The growth of the algorithm outpaces any realistic hardware improvement, so it stays impractical (1)"] },
-    { "q": "Discuss the limits of computation in terms of tractable, intractable and uncomputable problems, using the Travelling Salesman Problem and the Halting Problem as examples.", "marks": 6,
-      "ms": ["Tractable problems run in polynomial time and scale acceptably (1)", "Intractable problems have algorithms but exponential/factorial time, e.g. TSP brute force is O(n!) (1-2)", "Heuristics (e.g. Nearest Neighbour) give good-enough TSP solutions quickly without guaranteeing optimality (1)", "Uncomputable problems have NO possible algorithm, e.g. the Halting Problem (1-2)", "Clear distinction drawn: intractable = too slow, uncomputable = impossible in principle (1)"] }
+    {
+      "q": "Show the stages of a merge sort on the list [8, 3, 5, 1].",
+      "marks": 4,
+      "ms": [
+        "Split: [8, 3, 5, 1] -> [8, 3] and [5, 1] -> [8],[3],[5],[1]. (1)",
+        "Merge pairs: [3, 8] and [1, 5]. (1)",
+        "Merge halves by comparing fronts: [1, 3, 5, 8]. (1)",
+        "Correct final sorted list. (1)"
+      ]
+    },
+    {
+      "q": "Explain how merge sort works and discuss why it is preferred over bubble sort for very large lists, noting any drawback.",
+      "marks": 6,
+      "ms": [
+        "Merge sort recursively divides the list into halves until single elements remain. (1)",
+        "Sorted sublists are merged by repeatedly taking the smaller front element. (1)",
+        "There are log n levels and each merges in O(n), giving O(n log n). (1)",
+        "Bubble sort is O(n^2), which is far too slow for very large lists. (1)",
+        "Merge sort's O(n log n) scales much better. (1)",
+        "Drawback: merge sort needs O(n) extra memory, whereas bubble sort is in-place. (1)"
+      ]
+    }
   ]
 };
 

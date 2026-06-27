@@ -717,79 +717,40 @@ C["compsci:4.3.4.2"] = {
 C["compsci:4.3.5.1"] = {
   "notes": [
     {
-      "h": "Sorting: Bubble and Merge"
+      "h": "Bubble Sort"
     },
     {
       "callout": {
-        "t": "def",
-        "h": "Sorting Features",
-        "body": [
-          {
-            "kv": [
-              [
-                "Bubble Sort",
-                "Comparison-based sort swapping adjacent elements."
-              ],
-              [
-                "Merge Sort",
-                "Divide and conquer sort using recursion and merging."
-              ],
-              [
-                "Stable Sort",
-                "Maintains relative order of equal elements."
-              ],
-              [
-                "In-place",
-                "Uses minimal extra memory (Bubble: Yes, Merge: No)."
-              ]
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "table": {
-        "head": [
-          "Algorithm",
-          "Avg Complexity",
-          "Worst Complexity",
-          "Space"
-        ],
-        "rows": [
-          [
-            "Bubble",
-            "O(n^2)",
-            "O(n^2)",
-            "O(1)"
-          ],
-          [
-            "Merge",
-            "O(n log n)",
-            "O(n log n)",
-            "O(n)"
-          ]
-        ]
+        "t": "info",
+        "body": "Bubble sort repeatedly steps through the list comparing adjacent pairs and swapping them if they are in the wrong order. After each full pass the largest remaining value 'bubbles' up to its correct position at the end."
       }
     },
     {
       "steps": [
         {
-          "h": "Bubble Pass",
-          "m": "Compare arr[i] and arr[i+1].",
-          "n": "Swap if arr[i] > arr[i+1]."
+          "h": "Compare adjacent",
+          "m": "Compare list[j] with list[j+1]."
         },
         {
-          "h": "Merge Split",
-          "m": "Divide list into halves until size 1.",
-          "n": "Recursively merge sorted sublists."
+          "h": "Swap if needed",
+          "m": "If list[j] > list[j+1], swap them."
+        },
+        {
+          "h": "Repeat the pass",
+          "m": "Continue to the end of the list — one pass places the largest unsorted value at the end."
+        },
+        {
+          "h": "Optimise",
+          "m": "Repeat passes until a pass makes no swaps, which means the list is sorted.",
+          "n": "The swapped-flag optimisation gives an O(n) best case."
         }
       ]
     },
     {
       "code": {
-        "lang": "csharp",
-        "cap": "Bubble and Merge Sort in C#.",
-        "src": "public void BubbleSort(int[] arr) {\n    int n = arr.Length;\n    for (int i = 0; i < n - 1; i++) {\n        bool swapped = false;\n        for (int j = 0; j < n - i - 1; j++) {\n            if (arr[j] > arr[j + 1]) {\n                (arr[j], arr[j+1]) = (arr[j+1], arr[j]);\n                swapped = true;\n            }\n        }\n        if (!swapped) break;\n    }\n}\n\npublic int[] MergeSort(int[] arr) {\n    if (arr.Length <= 1) return arr;\n    int mid = arr.Length / 2;\n    int[] left = MergeSort(arr.Take(mid).ToArray());\n    int[] right = MergeSort(arr.Skip(mid).ToArray());\n    return Merge(left, right);\n}"
+        "lang": "pseudo",
+        "cap": "Optimised bubble sort",
+        "src": "FUNCTION bubbleSort(list)\n  n = length(list)\n  REPEAT\n    swapped = false\n    FOR j = 0 TO n - 2\n      IF list[j] > list[j+1] THEN\n        swap(list[j], list[j+1])\n        swapped = true\n      ENDIF\n    ENDFOR\n    n = n - 1\n  UNTIL swapped = false\nENDFUNCTION"
       }
     },
     {
@@ -799,97 +760,176 @@ C["compsci:4.3.5.1"] = {
       }
     },
     {
-      "callout": {
-        "t": "memorise",
-        "h": "Complexity at a glance",
-        "body": [
-          {
-            "table": {
-              "head": ["Algorithm", "Best", "Average", "Worst", "Space"],
-              "rows": [
-                ["Bubble", "$O(n)$", "$O(n^2)$", "$O(n^2)$", "$O(1)$"],
-                ["Merge", "$O(n \\log n)$", "$O(n \\log n)$", "$O(n \\log n)$", "$O(n)$"]
-              ]
-            }
-          }
+      "h": "Complexity"
+    },
+    {
+      "table": {
+        "head": [
+          "Case",
+          "Time complexity",
+          "Space"
+        ],
+        "rows": [
+          [
+            "Best (already sorted, optimised)",
+            "$O(n)$",
+            "$O(1)$"
+          ],
+          [
+            "Average",
+            "$O(n^2)$",
+            "$O(1)$"
+          ],
+          [
+            "Worst (reverse sorted)",
+            "$O(n^2)$",
+            "$O(1)$"
+          ]
         ]
       }
     },
     {
       "callout": {
+        "t": "memorise",
+        "h": "Bubble sort",
+        "body": "Repeatedly swap adjacent out-of-order pairs; the largest 'bubbles' to the end each pass. **Average and worst O(n^2)**, **best O(n)** with the swapped-flag optimisation. **In place** (O(1) space) and **stable**. Simple but slow for large lists."
+      }
+    },
+    {
+      "callout": {
         "t": "tip",
-        "h": "Optimised bubble sort",
-        "body": "Track whether any swap occurred in a pass. If no swap: the list is already sorted — break early. Best case becomes $O(n)$."
+        "h": "Early-exit optimisation",
+        "body": "Track whether any swap occurred during a pass. If a full pass makes no swaps, the list is already sorted, so stop — giving an O(n) best case."
       }
     },
     {
       "callout": {
         "t": "miscon",
-        "h": "\"Merge sort is always better\"",
-        "body": "Merge sort uses $O(n)$ extra memory. For tiny lists or memory-constrained systems, bubble sort's $O(1)$ space wins. Merge sort dominates for large $n$."
+        "h": "Common misconception",
+        "body": "**Bubble sort is useless** — for tiny or nearly-sorted lists its simplicity and O(1) memory are fine, and the optimised version is O(n) on sorted data. It is only its O(n^2) scaling on large lists that rules it out there — where merge sort (O(n log n)) wins."
       }
     }
   ],
   "flashcards": [
     [
-      "Bubble sort mechanism?",
-      "Repeated passes swapping adjacent out-of-order pairs."
+      "How does bubble sort work?",
+      "It repeatedly passes through the list swapping adjacent out-of-order pairs until no swaps are needed."
     ],
     [
-      "Merge sort mechanism?",
-      "Recursively halve to single items, then merge sorted sublists."
+      "What is guaranteed after one full pass of bubble sort?",
+      "The largest unsorted element is in its final position at the end of the list."
     ],
     [
-      "After one full bubble sort pass, what is guaranteed?",
-      "The largest element is in its final position at the end of the list."
+      "What is the average-case complexity of bubble sort?",
+      "O(n^2)."
     ],
     [
-      "Merge sort space complexity?",
-      "O(n) — it needs an auxiliary array to merge sublists."
+      "What is the space complexity of bubble sort?",
+      "O(1) — it sorts in place by swapping within the array."
     ],
-    ["Why is merge sort O(n log n)?", "It splits the list into log n levels of halving, and each level does O(n) work merging — n × log n."],
-    ["What optimisation gives bubble sort an O(n) best case?", "A swapped-flag: if a full pass makes no swaps, the list is already sorted, so stop early."],
-    ["Is merge sort stable? Is bubble sort in-place?", "Merge sort is stable; bubble sort is in-place (O(1) extra space) and also stable."],
-    ["Why does merge sort suit very large datasets but bubble sort does not?", "Bubble sort's O(n²) work explodes with size; merge sort's O(n log n) scales far better despite its O(n) extra memory."]
+    [
+      "What optimisation gives bubble sort an O(n) best case?",
+      "A swapped-flag: if a full pass makes no swaps, the list is sorted, so stop early."
+    ],
+    [
+      "When does bubble sort hit its worst case?",
+      "When the list is in reverse order, requiring the maximum number of swaps — O(n^2)."
+    ],
+    [
+      "Is bubble sort stable and in place?",
+      "Yes to both — equal elements keep their order and it uses O(1) extra memory."
+    ],
+    [
+      "Why is bubble sort unsuitable for very large lists?",
+      "Its O(n^2) work grows far too quickly; merge sort's O(n log n) is needed instead."
+    ]
   ],
   "quiz": [
     {
-      "q": "After bubble sort's first full pass, you are guaranteed…",
+      "q": "After bubble sort's first full pass you are guaranteed...?",
       "opts": [
         "the list is sorted",
         "the smallest is first",
         "the largest is last",
         "no swaps occurred"
       ],
-      "ans": 2
+      "ans": 2,
+      "why": "Each pass bubbles the largest remaining value to the end."
     },
     {
-      "q": "Merge sort's worst-case time complexity is…",
+      "q": "Bubble sort's average-case time complexity is...?",
       "opts": [
-        "$O(n^2)$",
-        "$O(n)$",
-        "$O(n \\log n)$",
-        "$O(\\log n)$"
+        "O(n)",
+        "O(n log n)",
+        "O(n^2)",
+        "O(log n)"
       ],
       "ans": 2,
-      "why": "Merge sort always divides and merges in O(n log n) regardless of input order."
+      "why": "It performs about n passes of n comparisons."
     },
-    { "q": "Which sort is in-place (O(1) extra memory)?", "opts": ["Merge sort", "Bubble sort", "Both", "Neither"], "ans": 1, "why": "Bubble sort swaps within the array; merge sort needs an O(n) auxiliary array." },
-    { "q": "Merge sort follows which algorithmic strategy?", "opts": ["Greedy", "Divide and conquer", "Brute force", "Backtracking"], "ans": 1, "why": "It recursively divides the list, sorts halves, and combines (conquers) them." },
-    { "q": "On an already-sorted list, optimised bubble sort runs in…", "opts": ["O(n^2)", "O(n log n)", "O(n)", "O(1)"], "ans": 2, "why": "One pass with no swaps triggers the early exit — linear time." }
+    {
+      "q": "Which sort is in place (O(1) extra memory)?",
+      "opts": [
+        "Merge sort",
+        "Bubble sort",
+        "Neither",
+        "Both equally"
+      ],
+      "ans": 1,
+      "why": "Bubble sort swaps within the array; merge sort needs O(n) extra space."
+    },
+    {
+      "q": "On an already-sorted list, optimised bubble sort runs in...?",
+      "opts": [
+        "O(n^2)",
+        "O(n log n)",
+        "O(n)",
+        "O(1)"
+      ],
+      "ans": 2,
+      "why": "One pass with no swaps triggers the early exit — linear time."
+    },
+    {
+      "q": "Bubble sort's worst case occurs when the list is...?",
+      "opts": [
+        "already sorted",
+        "reverse sorted",
+        "all equal",
+        "empty"
+      ],
+      "ans": 1,
+      "why": "Reverse order forces the maximum swaps every pass."
+    }
   ],
   "exam": [
     {
-      "q": "Show the stages of a merge sort on [8, 3, 5, 1].",
-      "marks": 5,
+      "q": "State the best-case and worst-case time complexity of optimised bubble sort.",
+      "marks": 2,
       "ms": [
-        "Full split shown (1), correct merges (2), complexities stated (2)"
+        "Best case O(n) — a single pass with no swaps on a sorted list. (1)",
+        "Worst case O(n^2) — reverse-ordered input. (1)"
       ]
     },
-    { "q": "State the average-case time complexity and the space complexity of bubble sort and of merge sort.", "marks": 4,
-      "ms": ["Bubble: average O(n^2) (1); space O(1) (1)", "Merge: average O(n log n) (1); space O(n) (1)"] },
-    { "q": "Compare bubble sort and merge sort, and discuss which you would choose to sort a list of ten million records, justifying your answer.", "marks": 6,
-      "ms": ["Bubble sort repeatedly swaps adjacent out-of-order pairs; simple, in-place, O(1) space but O(n^2) time (1-2)", "Merge sort divides and conquers, merging sorted halves; O(n log n) time but O(n) extra space (1-2)", "For ten million records O(n^2) is far too slow (~10^14 operations) (1)", "Merge sort's O(n log n) is vastly faster and the O(n) memory is acceptable (1)", "Justified choice of merge sort, noting the memory trade-off (1)"] }
+    {
+      "q": "Explain the swapped-flag optimisation and the benefit it gives.",
+      "marks": 2,
+      "ms": [
+        "A boolean records whether any swap happened during a pass. (1)",
+        "If a pass makes no swaps the list is sorted and the algorithm stops early, giving an O(n) best case. (1)"
+      ]
+    },
+    {
+      "q": "Compare bubble sort and merge sort, and discuss which you would choose to sort ten million records, justifying your answer.",
+      "marks": 6,
+      "ms": [
+        "Bubble sort repeatedly swaps adjacent out-of-order pairs; simple, in-place, O(1) space but O(n^2) time. (1)",
+        "Merge sort divides and conquers, merging sorted halves; O(n log n) time but O(n) extra space. (1)",
+        "For ten million records, O(n^2) is around 10^14 operations — far too slow. (1)",
+        "Merge sort's O(n log n) is vastly faster. (1)",
+        "Its O(n) extra memory is acceptable on modern systems. (1)",
+        "Therefore choose merge sort, noting the memory trade-off. (1)"
+      ]
+    }
   ]
 };
 
