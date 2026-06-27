@@ -9995,7 +9995,9 @@ C["maths:8.7"] = {
 
 C["maths:9.1"] = {
   "notes": [
-    { "h": "Location of Roots" },
+    {
+      "h": "Location of Roots"
+    },
     {
       "callout": {
         "t": "info",
@@ -10013,41 +10015,110 @@ C["maths:9.1"] = {
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "Sign Change — Exam Phrasing", "body": "Full response requires: 1. Define $f(x)$. 2. Calculate $f(a)$ and $f(b)$. 3. State: sign change (one negative, one positive) AND $f$ is continuous on $[a,b]$, therefore a root exists in $(a,b)$. Missing 'continuous' or the sign change statement loses marks." } },
-    { "callout": { "t": "miscon", "h": "One Sign Change = Exactly One Root", "body": "WRONG. A sign change in $[a,b]$ guarantees AT LEAST ONE root, not exactly one. There could be 3 (or any odd number of) roots. Also, no sign change does NOT mean no root — an even number of roots cancels out (e.g., $(x-2)^2$)." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Sign Change — Exam Phrasing",
+        "body": "Full response requires: 1. Define $f(x)$. 2. Calculate $f(a)$ and $f(b)$. 3. State: sign change (one negative, one positive) AND $f$ is continuous on $[a,b]$, therefore a root exists in $(a,b)$. Missing 'continuous' or the sign change statement loses marks."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "One Sign Change = Exactly One Root",
+        "body": "WRONG. A sign change in $[a,b]$ guarantees AT LEAST ONE root, not exactly one. There could be 3 (or any odd number of) roots. Also, no sign change does NOT mean no root — an even number of roots cancels out (e.g., $(x-2)^2$)."
+      }
+    }
   ],
   "flashcards": [
-    ["How to show a root exists in $[1, 2]$?", "Show $f(1)$ and $f(2)$ have different signs."],
-    ["What if $f(1) < 0$ and $f(2) < 0$?", "There could be zero or an even number of roots."],
-    ["Requirement for sign change rule?", "$f(x)$ must be continuous."],
-    ["Can $1/x$ have a sign change without a root?", "Yes, at $x=0$ (discontinuity)."],
-    ["What is a 'root'?", "A value of $x$ such that $f(x) = 0$."],
-    ["Does $f(1)=0.1$ and $f(2)=-0.1$ guarantee a root?", "Yes, if $f(x)$ is continuous."]
+    [
+      "How to show a root exists in $[1, 2]$?",
+      "Show $f(1)$ and $f(2)$ have different signs."
+    ],
+    [
+      "What if $f(1) < 0$ and $f(2) < 0$?",
+      "There could be zero or an even number of roots."
+    ],
+    [
+      "Requirement for sign change rule?",
+      "$f(x)$ must be continuous."
+    ],
+    [
+      "Can $1/x$ have a sign change without a root?",
+      "Yes, at $x=0$ (discontinuity)."
+    ],
+    [
+      "What is a 'root'?",
+      "A value of $x$ such that $f(x) = 0$."
+    ],
+    [
+      "Does $f(1)=0.1$ and $f(2)=-0.1$ guarantee a root?",
+      "Yes, if $f(x)$ is continuous."
+    ],
+    [
+      "How does a sign change locate a root?",
+      "If $f(a)$ and $f(b)$ have opposite signs and $f$ is continuous, a root lies in $(a,b)$."
+    ],
+    [
+      "When can the sign-change method fail?",
+      "If $f$ is discontinuous in the interval, or has an even number of roots (no sign change)."
+    ]
   ],
   "quiz": [
     {
       "q": "For $f(x) = x^3 - 5$, show where a root lies.",
-      "opts": ["$[1, 2]$", "$[2, 3]$", "$[0, 1]$", "$[-1, 0]$"],
+      "opts": [
+        "$[1, 2]$",
+        "$[2, 3]$",
+        "$[0, 1]$",
+        "$[-1, 0]$"
+      ],
       "ans": 0,
       "why": "$f(1)=-4, f(2)=3$. Sign change."
     },
     {
       "q": "Why might $f(x) = \\frac{1}{x-1}$ change sign between 0 and 2 without a root?",
-      "opts": ["Discontinuity at $x=1$", "It has 2 roots", "It is a parabola", "It's always positive"],
+      "opts": [
+        "Discontinuity at $x=1$",
+        "It has 2 roots",
+        "It is a parabola",
+        "It's always positive"
+      ],
       "ans": 0,
       "why": "The function is undefined at $x=1$."
     },
     {
       "q": "If $f(x) = (x-2)^2$, is there a sign change at $x=2$?",
-      "opts": ["No", "Yes", "Maybe", "Only if $x$ is large"],
+      "opts": [
+        "No",
+        "Yes",
+        "Maybe",
+        "Only if $x$ is large"
+      ],
       "ans": 0,
       "why": "The graph touches but doesn't cross the $x$-axis."
     },
     {
       "q": "What is the first step in finding a root numerically?",
-      "opts": ["Locate an interval with a sign change", "Use Newton-Raphson", "Differentiate", "Integrate"],
+      "opts": [
+        "Locate an interval with a sign change",
+        "Use Newton-Raphson",
+        "Differentiate",
+        "Integrate"
+      ],
       "ans": 0,
       "why": "You need a starting point or interval."
+    },
+    {
+      "q": "$f(1)=-2$, $f(2)=3$ ($f$ continuous). Conclude...?",
+      "opts": [
+        "no root in $(1,2)$",
+        "a root in $(1,2)$",
+        "exactly two roots",
+        "$f$ is linear"
+      ],
+      "ans": 1,
+      "why": "A sign change implies at least one root."
     }
   ],
   "exam": [
@@ -10059,13 +10130,36 @@ C["maths:9.1"] = {
         "$f(0.5) = e^{0.5} + 0.5 - 3 \\approx -0.85$. (1)",
         "$f(1.0) = e^1 + 1 - 3 \\approx 0.72$. Sign change $\\implies$ root exists. (1)"
       ]
+    },
+    {
+      "q": "Show that $f(x)=x^3-x-3$ has a root between $x=1$ and $x=2$.",
+      "marks": 3,
+      "ms": [
+        "$f(1)=1-1-3=-3$. (1)",
+        "$f(2)=8-2-3=3$. (1)",
+        "Sign change and $f$ continuous, so a root lies in $(1,2)$. (1)"
+      ]
+    },
+    {
+      "q": "$f(x)=e^x-3x$. (a) Show there is a root between $1.5$ and $2$. (b) Explain a limitation of using only a sign change.",
+      "marks": 6,
+      "ms": [
+        "$f(1.5)=e^{1.5}-4.5\\approx-0.02$. (1)",
+        "$f(2)=e^2-6\\approx1.39$. (1)",
+        "Sign change, so a root in $(1.5,2)$. (1)",
+        "(b) A sign change shows only at least one root. (1)",
+        "If two roots lie in the interval the sign may not change, missing them. (1)",
+        "A discontinuity (asymptote) can also give a sign change with no root. (1)"
+      ]
     }
   ]
 };
 
 C["maths:9.2"] = {
   "notes": [
-    { "h": "Iteration" },
+    {
+      "h": "Iteration"
+    },
     {
       "callout": {
         "t": "formula",
@@ -10084,45 +10178,120 @@ C["maths:9.2"] = {
     },
     {
       "kv": [
-        ["Cobweb Diagram", "Formed when $g(x)$ is monotonic."],
-        ["Staircase Diagram", "Formed when $g(x)$ is not monotonic (oscillates)."]
+        [
+          "Cobweb Diagram",
+          "Formed when $g(x)$ is monotonic."
+        ],
+        [
+          "Staircase Diagram",
+          "Formed when $g(x)$ is not monotonic (oscillates)."
+        ]
       ]
     },
-    { "callout": { "t": "memorise", "h": "Fixed-Point Iteration — When It Works", "body": "$x_{n+1} = g(x_n)$. Converges if $|g'(\\alpha)| < 1$ at the root $\\alpha$. If $|g'(\\alpha)| > 1$, the iteration diverges — try a different rearrangement. Staircase diagram: $g$ increasing. Cobweb diagram: $g$ decreasing (alternates above/below the root)." } },
-    { "callout": { "t": "miscon", "h": "Any Rearrangement of $f(x)=0$ Will Converge", "body": "WRONG. Only rearrangements where $|g'(\\text{root})| < 1$ converge. For example, $x = x^2 - 3$ from $x^2 - x - 3 = 0$ has $|g'| > 1$ near the root and will diverge. Always check or verify convergence from the cobweb/staircase — if values diverge, try a different rearrangement." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Fixed-Point Iteration — When It Works",
+        "body": "$x_{n+1} = g(x_n)$. Converges if $|g'(\\alpha)| < 1$ at the root $\\alpha$. If $|g'(\\alpha)| > 1$, the iteration diverges — try a different rearrangement. Staircase diagram: $g$ increasing. Cobweb diagram: $g$ decreasing (alternates above/below the root)."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Any Rearrangement of $f(x)=0$ Will Converge",
+        "body": "WRONG. Only rearrangements where $|g'(\\text{root})| < 1$ converge. For example, $x = x^2 - 3$ from $x^2 - x - 3 = 0$ has $|g'| > 1$ near the root and will diverge. Always check or verify convergence from the cobweb/staircase — if values diverge, try a different rearrangement."
+      }
+    }
   ],
   "flashcards": [
-    ["What is an iterative formula?", "A rule where each term depends on the previous one, $x_{n+1} = g(x_n)$."],
-    ["How to rearrange $x^2-x-3=0$ for iteration?", "e.g., $x = \\sqrt{x+3}$ or $x = x^2-3$."],
-    ["When does an iteration converge?", "When the values approach a single number."],
-    ["What is a cobweb diagram?", "A visual representation of iteration showing convergence or divergence."],
-    ["What is $x_0$?", "The initial guess."],
-    ["How to show $x=L$ is the root of $x=g(x)$?", "Show $L = g(L)$."]
+    [
+      "What is an iterative formula?",
+      "A rule where each term depends on the previous one, $x_{n+1} = g(x_n)$."
+    ],
+    [
+      "How to rearrange $x^2-x-3=0$ for iteration?",
+      "e.g., $x = \\sqrt{x+3}$ or $x = x^2-3$."
+    ],
+    [
+      "When does an iteration converge?",
+      "When the values approach a single number."
+    ],
+    [
+      "What is a cobweb diagram?",
+      "A visual representation of iteration showing convergence or divergence."
+    ],
+    [
+      "What is $x_0$?",
+      "The initial guess."
+    ],
+    [
+      "How to show $x=L$ is the root of $x=g(x)$?",
+      "Show $L = g(L)$."
+    ],
+    [
+      "What is a staircase/cobweb diagram?",
+      "A graphical illustration of an iteration $x_{n+1}=g(x_n)$ converging to or diverging from a root."
+    ],
+    [
+      "When does $x_{n+1}=g(x_n)$ converge near a root?",
+      "When $|g'(x)|<1$ near the root."
+    ]
   ],
   "quiz": [
     {
       "q": "If $x_{n+1} = \\frac{5}{x_n^2}$, find $x_1$ if $x_0 = 2$.",
-      "opts": ["1.25", "2.5", "0.2", "5"],
+      "opts": [
+        "1.25",
+        "2.5",
+        "0.2",
+        "5"
+      ],
       "ans": 0,
       "why": "$5/4 = 1.25$."
     },
     {
       "q": "Which rearrangement of $x^3 + x - 3 = 0$ is valid?",
-      "opts": ["$x = 3 - x^3$", "$x = \\sqrt[3]{3-x}$", "$x = 3/x - 1/x^2$", "Both A and B"],
+      "opts": [
+        "$x = 3 - x^3$",
+        "$x = \\sqrt[3]{3-x}$",
+        "$x = 3/x - 1/x^2$",
+        "Both A and B"
+      ],
       "ans": 3,
       "why": "Both are algebraically correct rearrangements."
     },
     {
       "q": "A staircase diagram indicates what?",
-      "opts": ["Convergence/Divergence from one side", "Oscillating values", "A repeated root", "No root"],
+      "opts": [
+        "Convergence/Divergence from one side",
+        "Oscillating values",
+        "A repeated root",
+        "No root"
+      ],
       "ans": 0,
       "why": "Staircase is produced by a monotonic $g(x)$."
     },
     {
       "q": "If iteration fails to converge, what should you do?",
-      "opts": ["Try a different rearrangement $g(x)$", "Try a different $x_0$", "Give up", "A or B"],
+      "opts": [
+        "Try a different rearrangement $g(x)$",
+        "Try a different $x_0$",
+        "Give up",
+        "A or B"
+      ],
       "ans": 3,
       "why": "Convergence depends on both the starting value and the formula."
+    },
+    {
+      "q": "An iteration converges to a root when, near it...?",
+      "opts": [
+        "$|g'(x)|>1$",
+        "$|g'(x)|<1$",
+        "$g(x)=0$",
+        "$g'(x)=1$"
+      ],
+      "ans": 1,
+      "why": "Gradient magnitude below 1 gives convergence."
     }
   ],
   "exam": [
@@ -10135,13 +10304,36 @@ C["maths:9.2"] = {
         "$x_3 = 4/(0.8^2 + 1) \\approx 2.439$. (1)",
         "Equation: $x = \\frac{4}{x^2 + 1} \\implies x^3 + x - 4 = 0$. (1)"
       ]
+    },
+    {
+      "q": "For $x_{n+1}=\\sqrt{2x_n+3}$ with $x_0=2$, find $x_1$ and $x_2$ to 3 d.p.",
+      "marks": 3,
+      "ms": [
+        "$x_1=\\sqrt{2(2)+3}=\\sqrt7\\approx2.646$. (1)",
+        "$x_2=\\sqrt{2(2.646)+3}=\\sqrt{8.291}$. (1)",
+        "$\\approx2.879$. (1)"
+      ]
+    },
+    {
+      "q": "A root of $x^3-x-1=0$ is found by $x_{n+1}=(x_n+1)^{1/3}$, $x_0=1$. (a) Find $x_1,x_2,x_3$ to 3 d.p. (b) State what the values suggest.",
+      "marks": 6,
+      "ms": [
+        "$x_1=2^{1/3}\\approx1.260$. (1)",
+        "$x_2=2.260^{1/3}\\approx1.312$. (1)",
+        "$x_3=2.312^{1/3}\\approx1.322$. (1)",
+        "Successive values are getting closer. (1)",
+        "This suggests convergence. (1)",
+        "to a root near $1.32$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:9.3"] = {
   "notes": [
-    { "h": "Newton-Raphson Method" },
+    {
+      "h": "Newton-Raphson Method"
+    },
     {
       "callout": {
         "t": "formula",
@@ -10170,41 +10362,110 @@ C["maths:9.3"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Newton-Raphson — Formula & Failure Conditions", "body": "$x_{n+1} = x_n - \\frac{f(x_n)}{f'(x_n)}$. Requires $f$ to be differentiable and $f'(x_n) \\ne 0$. Generally converges much faster than fixed-point iteration. Geometric interpretation: draw tangent at $(x_n, f(x_n))$, find where it crosses the $x$-axis." } },
-    { "callout": { "t": "miscon", "h": "Newton-Raphson Always Converges to the Nearest Root", "body": "WRONG. NR can diverge (if $f'(x_0) \\approx 0$) or converge to a different root if $x_0$ is poorly chosen. It may also cycle or diverge near inflection points. Always verify which root you are converging to by checking $f(x_n) \\to 0$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Newton-Raphson — Formula & Failure Conditions",
+        "body": "$x_{n+1} = x_n - \\frac{f(x_n)}{f'(x_n)}$. Requires $f$ to be differentiable and $f'(x_n) \\ne 0$. Generally converges much faster than fixed-point iteration. Geometric interpretation: draw tangent at $(x_n, f(x_n))$, find where it crosses the $x$-axis."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Newton-Raphson Always Converges to the Nearest Root",
+        "body": "WRONG. NR can diverge (if $f'(x_0) \\approx 0$) or converge to a different root if $x_0$ is poorly chosen. It may also cycle or diverge near inflection points. Always verify which root you are converging to by checking $f(x_n) \\to 0$."
+      }
+    }
   ],
   "flashcards": [
-    ["Newton-Raphson formula?", "$x_{n+1} = x_n - f(x_n)/f'(x_n)$."],
-    ["Major advantage of NR?", "Very fast convergence."],
-    ["When does NR fail?", "When $f'(x)=0$ or $x_0$ is poor."],
-    ["Geometric meaning of NR?", "Using $x$-intercepts of tangents to approximate roots."],
-    ["How many iterations are usually needed?", "Often just 2 or 3 for high accuracy."],
-    ["Does NR work for all functions?", "No, it must be differentiable."]
+    [
+      "Newton-Raphson formula?",
+      "$x_{n+1} = x_n - f(x_n)/f'(x_n)$."
+    ],
+    [
+      "Major advantage of NR?",
+      "Very fast convergence."
+    ],
+    [
+      "When does NR fail?",
+      "When $f'(x)=0$ or $x_0$ is poor."
+    ],
+    [
+      "Geometric meaning of NR?",
+      "Using $x$-intercepts of tangents to approximate roots."
+    ],
+    [
+      "How many iterations are usually needed?",
+      "Often just 2 or 3 for high accuracy."
+    ],
+    [
+      "Does NR work for all functions?",
+      "No, it must be differentiable."
+    ],
+    [
+      "State the Newton-Raphson formula.",
+      "$x_{n+1}=x_n-\\dfrac{f(x_n)}{f'(x_n)}$."
+    ],
+    [
+      "When can Newton-Raphson fail?",
+      "If $f'(x_n)$ is zero or near zero, or with a poor starting value (it may diverge)."
+    ]
   ],
   "quiz": [
     {
       "q": "For $f(x) = x^2 - 2$, find the NR formula.",
-      "opts": ["$x - \\frac{x^2-2}{2x}$", "$x - \\frac{2x}{x^2-2}$", "$\\frac{x^2+2}{2x}$", "A and C are correct"],
+      "opts": [
+        "$x - \\frac{x^2-2}{2x}$",
+        "$x - \\frac{2x}{x^2-2}$",
+        "$\\frac{x^2+2}{2x}$",
+        "A and C are correct"
+      ],
       "ans": 3,
       "why": "$x - (x^2-2)/(2x) = (2x^2 - x^2 + 2)/(2x) = (x^2+2)/(2x)$."
     },
     {
       "q": "What is the value of $f'(x)$ at a stationary point?",
-      "opts": ["0", "1", "undefined", "infinite"],
+      "opts": [
+        "0",
+        "1",
+        "undefined",
+        "infinite"
+      ],
       "ans": 0,
       "why": "Tangents are horizontal at stationary points."
     },
     {
       "q": "Find $x_1$ for $f(x)=x^3-10, x_0=2$.",
-      "opts": ["2.167", "2.5", "3", "2.05"],
+      "opts": [
+        "2.167",
+        "2.5",
+        "3",
+        "2.05"
+      ],
       "ans": 0,
       "why": "$2 - (8-10)/(3 \\times 4) = 2 - (-2/12) = 2 + 1/6 \\approx 2.167$."
     },
     {
       "q": "NR is used to solve which type of problem?",
-      "opts": ["$f(x)=0$", "$\\int f(x) dx$", "$dy/dx = k$", "Area calculation"],
+      "opts": [
+        "$f(x)=0$",
+        "$\\int f(x) dx$",
+        "$dy/dx = k$",
+        "Area calculation"
+      ],
       "ans": 0,
       "why": "It is a root-finding algorithm."
+    },
+    {
+      "q": "Newton-Raphson uses which derivative?",
+      "opts": [
+        "$f''$",
+        "$f'$",
+        "none",
+        "the integral"
+      ],
+      "ans": 1,
+      "why": "$x_{n+1}=x_n-f(x_n)/f'(x_n)$."
     }
   ],
   "exam": [
@@ -10218,13 +10479,36 @@ C["maths:9.3"] = {
         "$f'(0.5) = 1 + 0.878 = 1.878$. (1)",
         "$x_1 = 0.5 - (-0.271/1.878) \\approx 0.644$. (1)"
       ]
+    },
+    {
+      "q": "Use one Newton-Raphson iteration on $f(x)=x^2-5$ with $x_0=2$ to estimate $\\sqrt5$.",
+      "marks": 3,
+      "ms": [
+        "$f'(x)=2x$. (1)",
+        "$x_1=2-\\dfrac{2^2-5}{2(2)}=2-\\dfrac{-1}{4}$. (1)",
+        "$=2.25$. (1)"
+      ]
+    },
+    {
+      "q": "$f(x)=x^3-2x-5$. Using $x_0=2$, apply Newton-Raphson twice to find $x_2$ to 3 d.p.",
+      "marks": 6,
+      "ms": [
+        "$f'(x)=3x^2-2$. (1)",
+        "$f(2)=-1$, $f'(2)=10$. (1)",
+        "$x_1=2-(-1)/10=2.1$. (1)",
+        "$f(2.1)\\approx0.061$, $f'(2.1)=11.23$. (1)",
+        "$x_2=2.1-0.061/11.23$. (1)",
+        "$\\approx2.095$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:9.4"] = {
   "notes": [
-    { "h": "The Trapezium Rule" },
+    {
+      "h": "The Trapezium Rule"
+    },
     {
       "callout": {
         "t": "formula",
@@ -10235,11 +10519,27 @@ C["maths:9.4"] = {
     },
     {
       "table": {
-        "head": ["Strips ($n$)", "Ordinates", "Width ($h$)"],
+        "head": [
+          "Strips ($n$)",
+          "Ordinates",
+          "Width ($h$)"
+        ],
         "rows": [
-          ["1", "$y_0, y_1$", "$b-a$"],
-          ["2", "$y_0, y_1, y_2$", "$(b-a)/2$"],
-          ["4", "$y_0, \\dots, y_4$", "$(b-a)/4$"]
+          [
+            "1",
+            "$y_0, y_1$",
+            "$b-a$"
+          ],
+          [
+            "2",
+            "$y_0, y_1, y_2$",
+            "$(b-a)/2$"
+          ],
+          [
+            "4",
+            "$y_0, \\dots, y_4$",
+            "$(b-a)/4$"
+          ]
         ]
       }
     },
@@ -10253,41 +10553,110 @@ C["maths:9.4"] = {
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "Trapezium Rule — Structure", "body": "$\\approx \\frac{1}{2}h[(y_0 + y_n) + 2(y_1 + y_2 + \\cdots + y_{n-1})]$ where $h = \\frac{b-a}{n}$. $n$ strips give $n+1$ $y$-values. First and last ordinate each added once; middle ordinates added twice. Convex ($y'' > 0$): overestimate. Concave ($y'' < 0$): underestimate." } },
-    { "callout": { "t": "miscon", "h": "$n$ Strips Needs $n$ Ordinates", "body": "WRONG. $n$ strips require $n+1$ ordinates (one at each boundary: $x_0, x_1, \\ldots, x_n$). Forgetting the extra ordinate is a very common exam error. For 4 strips from $x=1$ to $x=5$: ordinates at $x = 1, 2, 3, 4, 5$ (that's 5 values)." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Trapezium Rule — Structure",
+        "body": "$\\approx \\frac{1}{2}h[(y_0 + y_n) + 2(y_1 + y_2 + \\cdots + y_{n-1})]$ where $h = \\frac{b-a}{n}$. $n$ strips give $n+1$ $y$-values. First and last ordinate each added once; middle ordinates added twice. Convex ($y'' > 0$): overestimate. Concave ($y'' < 0$): underestimate."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$n$ Strips Needs $n$ Ordinates",
+        "body": "WRONG. $n$ strips require $n+1$ ordinates (one at each boundary: $x_0, x_1, \\ldots, x_n$). Forgetting the extra ordinate is a very common exam error. For 4 strips from $x=1$ to $x=5$: ordinates at $x = 1, 2, 3, 4, 5$ (that's 5 values)."
+      }
+    }
   ],
   "flashcards": [
-    ["Trapezium rule formula?", "$0.5h [ends + 2(middles)]$."],
-    ["How to find strip width $h$?", "$(b-a)/n$."],
-    ["Difference between strips and ordinates?", "Number of ordinates is $n+1$."],
-    ["When does Trapezium rule over-estimate?", "When the curve is convex (U-shaped)."],
-    ["When does it under-estimate?", "When the curve is concave (n-shaped)."],
-    ["Is the rule exact for linear functions?", "Yes, because the 'trapeziums' match the 'curve' exactly."]
+    [
+      "Trapezium rule formula?",
+      "$0.5h [ends + 2(middles)]$."
+    ],
+    [
+      "How to find strip width $h$?",
+      "$(b-a)/n$."
+    ],
+    [
+      "Difference between strips and ordinates?",
+      "Number of ordinates is $n+1$."
+    ],
+    [
+      "When does Trapezium rule over-estimate?",
+      "When the curve is convex (U-shaped)."
+    ],
+    [
+      "When does it under-estimate?",
+      "When the curve is concave (n-shaped)."
+    ],
+    [
+      "Is the rule exact for linear functions?",
+      "Yes, because the 'trapeziums' match the 'curve' exactly."
+    ],
+    [
+      "State the trapezium rule.",
+      "$\\int_a^b y\\,dx\\approx\\dfrac{h}{2}[y_0+y_n+2(y_1+\\dots+y_{n-1})]$, $h=\\dfrac{b-a}{n}$."
+    ],
+    [
+      "Does the trapezium rule over- or under-estimate a convex (concave-up) curve?",
+      "It over-estimates (the trapezia lie above the curve)."
+    ]
   ],
   "quiz": [
     {
       "q": "Find $h$ for $\\int_1^5 f(x) dx$ with 4 strips.",
-      "opts": ["1", "4", "2", "0.5"],
+      "opts": [
+        "1",
+        "4",
+        "2",
+        "0.5"
+      ],
       "ans": 0,
       "why": "$(5-1)/4 = 1$."
     },
     {
       "q": "How many y-values are needed for 6 strips?",
-      "opts": ["7", "6", "5", "12"],
+      "opts": [
+        "7",
+        "6",
+        "5",
+        "12"
+      ],
       "ans": 0,
       "why": "Number of ordinates is always strips + 1."
     },
     {
       "q": "Area under $y = x^2$ is being estimated. Over or under?",
-      "opts": ["Over", "Under", "Exact", "Zero"],
+      "opts": [
+        "Over",
+        "Under",
+        "Exact",
+        "Zero"
+      ],
       "ans": 0,
       "why": "$x^2$ is convex."
     },
     {
       "q": "What happens to the error as $n$ increases?",
-      "opts": ["Decreases", "Increases", "Stays same", "Becomes negative"],
+      "opts": [
+        "Decreases",
+        "Increases",
+        "Stays same",
+        "Becomes negative"
+      ],
       "ans": 0,
       "why": "More strips provide a better approximation."
+    },
+    {
+      "q": "In the trapezium rule, the strip width $h=$...?",
+      "opts": [
+        "$b-a$",
+        "$\\dfrac{b-a}{n}$",
+        "$n$",
+        "$\\dfrac{n}{b-a}$"
+      ],
+      "ans": 1,
+      "why": "Range divided by number of strips."
     }
   ],
   "exam": [
@@ -10300,13 +10669,36 @@ C["maths:9.4"] = {
         "Table of $y$: $1, 1.031, 1.118, 1.25, 1.414$. (1)",
         "Area $\\approx 0.125 [ (1 + 1.414) + 2(1.031+1.118+1.25) ] \\approx 1.151$. (1)"
       ]
+    },
+    {
+      "q": "Use the trapezium rule with 2 strips to estimate $\\int_0^2 x^2\\,dx$.",
+      "marks": 3,
+      "ms": [
+        "$h=1$; $y_0=0,y_1=1,y_2=4$. (1)",
+        "$\\approx\\dfrac12[0+4+2(1)]$. (1)",
+        "$=\\dfrac12(6)=3$. (1)"
+      ]
+    },
+    {
+      "q": "Estimate $\\int_1^3 \\ln x\\,dx$ using the trapezium rule with 4 strips (3 d.p.) and state whether it over- or under-estimates.",
+      "marks": 6,
+      "ms": [
+        "$h=0.5$; $x=1,1.5,2,2.5,3$. (1)",
+        "$y=0,0.405,0.693,0.916,1.099$. (1)",
+        "$\\approx0.25[0+1.099+2(0.405+0.693+0.916)]$. (1)",
+        "$=0.25[1.099+2(2.014)]$. (1)",
+        "$=0.25(5.127)\\approx1.282$. (1)",
+        "$\\ln x$ is concave, so this UNDER-estimates. (1)"
+      ]
     }
   ]
 };
 
 C["maths:9.5"] = {
   "notes": [
-    { "h": "Numerical Applications" },
+    {
+      "h": "Numerical Applications"
+    },
     {
       "callout": {
         "t": "info",
@@ -10315,46 +10707,124 @@ C["maths:9.5"] = {
     },
     {
       "kv": [
-        ["$\\int e^{-x^2} dx$", "Impossible to integrate analytically. Must use numerical methods."],
-        ["$x + \\sin x = 3$", "Impossible to solve for $x$ exactly. Must use iteration/NR."],
-        ["Experimental Data", "No equation given, only points. Trapezium rule is the only option."]
+        [
+          "$\\int e^{-x^2} dx$",
+          "Impossible to integrate analytically. Must use numerical methods."
+        ],
+        [
+          "$x + \\sin x = 3$",
+          "Impossible to solve for $x$ exactly. Must use iteration/NR."
+        ],
+        [
+          "Experimental Data",
+          "No equation given, only points. Trapezium rule is the only option."
+        ]
       ]
     },
-    { "callout": { "t": "memorise", "h": "Choosing a Numerical Method", "body": "**Root location**: sign change. **Root refinement**: NR (fastest, needs $f'$) or fixed-point iteration (simpler, needs $|g'|<1$). **Area when antiderivative exists**: exact integration. **Area when antiderivative is not expressible in closed form** (e.g., $e^{-x^2}$) or only data points given: trapezium rule." } },
-    { "callout": { "t": "miscon", "h": "Numerical Methods Give Exact Answers", "body": "WRONG. They are approximations. The trapezium rule gives an estimate with an error that decreases as $n$ increases. Newton-Raphson gives an approximate root to whatever precision you specify. An exact answer requires an analytical method." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Choosing a Numerical Method",
+        "body": "**Root location**: sign change. **Root refinement**: NR (fastest, needs $f'$) or fixed-point iteration (simpler, needs $|g'|<1$). **Area when antiderivative exists**: exact integration. **Area when antiderivative is not expressible in closed form** (e.g., $e^{-x^2}$) or only data points given: trapezium rule."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Numerical Methods Give Exact Answers",
+        "body": "WRONG. They are approximations. The trapezium rule gives an estimate with an error that decreases as $n$ increases. Newton-Raphson gives an approximate root to whatever precision you specify. An exact answer requires an analytical method."
+      }
+    }
   ],
   "flashcards": [
-    ["Why use numerical integration?", "When the antiderivative cannot be expressed in standard functions."],
-    ["Can numerical methods give an exact answer?", "Usually no, but they can be arbitrarily close."],
-    ["What is a 'heuristic'?", "A 'rule of thumb' or method that is not guaranteed to be optimal but is sufficient."],
-    ["Most accurate method between 9.1-9.4?", "Newton-Raphson usually converges fastest."],
-    ["Real-world use of Trapezium rule?", "Calculating areas from sensor data (e.g., GPS points)."],
-    ["What does 'converge to 4dp' mean?", "The value stops changing in the first 4 decimal places."]
+    [
+      "Why use numerical integration?",
+      "When the antiderivative cannot be expressed in standard functions."
+    ],
+    [
+      "Can numerical methods give an exact answer?",
+      "Usually no, but they can be arbitrarily close."
+    ],
+    [
+      "What is a 'heuristic'?",
+      "A 'rule of thumb' or method that is not guaranteed to be optimal but is sufficient."
+    ],
+    [
+      "Most accurate method between 9.1-9.4?",
+      "Newton-Raphson usually converges fastest."
+    ],
+    [
+      "Real-world use of Trapezium rule?",
+      "Calculating areas from sensor data (e.g., GPS points)."
+    ],
+    [
+      "What does 'converge to 4dp' mean?",
+      "The value stops changing in the first 4 decimal places."
+    ],
+    [
+      "Why use numerical methods?",
+      "When an equation or integral has no exact (closed-form) solution."
+    ],
+    [
+      "How do you improve the accuracy of a numerical estimate?",
+      "Use more iterations / more strips (a smaller step size)."
+    ]
   ],
   "quiz": [
     {
       "q": "Which equation cannot be solved analytically?",
-      "opts": ["$x = \\cos x$", "$x^2 = 4$", "$e^x = 10$", "$\\ln x = 5$"],
+      "opts": [
+        "$x = \\cos x$",
+        "$x^2 = 4$",
+        "$e^x = 10$",
+        "$\\ln x = 5$"
+      ],
       "ans": 0,
       "why": "Transcendental equation with $x$ both inside and outside the trig function."
     },
     {
       "q": "To find the root of $x^5+x-1=0$, which is best?",
-      "opts": ["Newton-Raphson", "Quadratic formula", "Factor theorem", "Exact division"],
+      "opts": [
+        "Newton-Raphson",
+        "Quadratic formula",
+        "Factor theorem",
+        "Exact division"
+      ],
       "ans": 0,
       "why": "Polynomials of degree 5 generally have no radical solution."
     },
     {
       "q": "Numerical integration is the same as...",
-      "opts": ["Approximating area", "Finding $dy/dx$", "Locating roots", "Simplifying surds"],
+      "opts": [
+        "Approximating area",
+        "Finding $dy/dx$",
+        "Locating roots",
+        "Simplifying surds"
+      ],
       "ans": 0,
       "why": "Integration is area calculation."
     },
     {
       "q": "What is 'error analysis' in numerical methods?",
-      "opts": ["Estimating the difference between approx and exact", "Counting typos", "Ignoring mistakes", "Rounding to 1dp"],
+      "opts": [
+        "Estimating the difference between approx and exact",
+        "Counting typos",
+        "Ignoring mistakes",
+        "Rounding to 1dp"
+      ],
       "ans": 0,
       "why": "Crucial for knowing if the result is reliable."
+    },
+    {
+      "q": "Numerical methods are used when...?",
+      "opts": [
+        "the answer is exact",
+        "no analytic solution exists",
+        "the function is linear",
+        "there is no calculator"
+      ],
+      "ans": 1,
+      "why": "They approximate otherwise-unsolvable problems."
     }
   ],
   "exam": [
@@ -10366,13 +10836,35 @@ C["maths:9.5"] = {
         "Area $\\approx 0.5 \\times 2 [ (0+0) + 2(0.5+1.2+0.8) ]$. (1)",
         "Area $\\approx 1 [ 5 ] = 5$ m$^2$. (1)"
       ]
+    },
+    {
+      "q": "Explain why a numerical method might be used to evaluate $\\int_0^1 e^{-x^2}\\,dx$.",
+      "marks": 2,
+      "ms": [
+        "$e^{-x^2}$ has no elementary antiderivative. (1)",
+        "So the integral cannot be evaluated exactly; a numerical method (e.g. the trapezium rule) estimates it. (1)"
+      ]
+    },
+    {
+      "q": "A model gives $x=\\cos x$. (a) Show a root lies in $(0,1)$. (b) Describe how an iterative method finds it and how to improve accuracy.",
+      "marks": 6,
+      "ms": [
+        "Let $f(x)=x-\\cos x$. (1)",
+        "$f(0)=-1<0$, $f(1)=1-\\cos1\\approx0.46>0$. (1)",
+        "Sign change, so a root in $(0,1)$. (1)",
+        "Iterate $x_{n+1}=\\cos x_n$ from a starting value. (1)",
+        "Repeat until successive values agree to the required accuracy. (1)",
+        "Improve accuracy by iterating further / checking a sign change in a narrower interval. (1)"
+      ]
     }
   ]
 };
 
 C["maths:10.1"] = {
   "notes": [
-    { "h": "2D and 3D Vectors" },
+    {
+      "h": "2D and 3D Vectors"
+    },
     {
       "callout": {
         "t": "info",
@@ -10382,47 +10874,128 @@ C["maths:10.1"] = {
     },
     {
       "kv": [
-        ["$\\mathbf{i}$", "Unit vector in the positive $x$ direction."],
-        ["$\\mathbf{j}$", "Unit vector in the positive $y$ direction."],
-        ["$\\mathbf{k}$", "Unit vector in the positive $z$ direction (3D only)."],
-        ["$\\begin{pmatrix} a \\\\ b \\\\ c \\end{pmatrix}$", "Column vector notation."]
+        [
+          "$\\mathbf{i}$",
+          "Unit vector in the positive $x$ direction."
+        ],
+        [
+          "$\\mathbf{j}$",
+          "Unit vector in the positive $y$ direction."
+        ],
+        [
+          "$\\mathbf{k}$",
+          "Unit vector in the positive $z$ direction (3D only)."
+        ],
+        [
+          "$\\begin{pmatrix} a \\\\ b \\\\ c \\end{pmatrix}$",
+          "Column vector notation."
+        ]
       ]
     },
-    { "callout": { "t": "memorise", "h": "Vectors vs Scalars — Key Distinction", "body": "**Scalar**: magnitude only (speed, temperature, distance). **Vector**: magnitude AND direction (velocity, displacement, force). In column vector form $\\begin{pmatrix} a \\\\ b \\end{pmatrix}$ and $a\\mathbf{i}+b\\mathbf{j}$ are equivalent — both are vectors, not scalars." } },
-    { "callout": { "t": "miscon", "h": "Distance Is a Vector", "body": "WRONG. Distance is a scalar (no direction). Displacement is the vector — it records both how far and which way. Speed is scalar; velocity is vector. When a question asks for 'distance $AB$', give $|\\vec{AB}|$ (a positive number), not the vector $\\vec{AB}$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Vectors vs Scalars — Key Distinction",
+        "body": "**Scalar**: magnitude only (speed, temperature, distance). **Vector**: magnitude AND direction (velocity, displacement, force). In column vector form $\\begin{pmatrix} a \\\\ b \\end{pmatrix}$ and $a\\mathbf{i}+b\\mathbf{j}$ are equivalent — both are vectors, not scalars."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Distance Is a Vector",
+        "body": "WRONG. Distance is a scalar (no direction). Displacement is the vector — it records both how far and which way. Speed is scalar; velocity is vector. When a question asks for 'distance $AB$', give $|\\vec{AB}|$ (a positive number), not the vector $\\vec{AB}$."
+      }
+    }
   ],
   "flashcards": [
-    ["What is a vector?", "A quantity with magnitude and direction."],
-    ["Component form of $\\begin{pmatrix} 2 \\\\ -3 \\end{pmatrix}$?", "$2\\mathbf{i} - 3\\mathbf{j}$."],
-    ["What is a unit vector?", "A vector with magnitude 1."],
-    ["How to represent a 3D vector?", "$a\\mathbf{i} + b\\mathbf{j} + c\\mathbf{k}$ or a $3 \\times 1$ column vector."],
-    ["Zero vector symbol?", "$\\mathbf{0}$ or $\\begin{pmatrix} 0 \\\\ 0 \\\\ 0 \\end{pmatrix}$."],
-    ["Are coordinates the same as vectors?", "No, but position vectors represent coordinates relative to the origin."]
+    [
+      "What is a vector?",
+      "A quantity with magnitude and direction."
+    ],
+    [
+      "Component form of $\\begin{pmatrix} 2 \\\\ -3 \\end{pmatrix}$?",
+      "$2\\mathbf{i} - 3\\mathbf{j}$."
+    ],
+    [
+      "What is a unit vector?",
+      "A vector with magnitude 1."
+    ],
+    [
+      "How to represent a 3D vector?",
+      "$a\\mathbf{i} + b\\mathbf{j} + c\\mathbf{k}$ or a $3 \\times 1$ column vector."
+    ],
+    [
+      "Zero vector symbol?",
+      "$\\mathbf{0}$ or $\\begin{pmatrix} 0 \\\\ 0 \\\\ 0 \\end{pmatrix}$."
+    ],
+    [
+      "Are coordinates the same as vectors?",
+      "No, but position vectors represent coordinates relative to the origin."
+    ],
+    [
+      "Write a 3D vector in component form.",
+      "$a\\mathbf{i}+b\\mathbf{j}+c\\mathbf{k}$, i.e. $(a,b,c)$."
+    ],
+    [
+      "Difference between a scalar and a vector?",
+      "A scalar has magnitude only; a vector has magnitude AND direction."
+    ]
   ],
   "quiz": [
     {
       "q": "Which is a scalar quantity?",
-      "opts": ["Force", "Velocity", "Speed", "Acceleration"],
+      "opts": [
+        "Force",
+        "Velocity",
+        "Speed",
+        "Acceleration"
+      ],
       "ans": 2,
       "why": "Speed has no direction."
     },
     {
       "q": "Convert $5\\mathbf{i} - \\mathbf{k}$ to column vector.",
-      "opts": ["$\\begin{pmatrix} 5 \\\\ 0 \\\\ -1 \\end{pmatrix}$", "$\\begin{pmatrix} 5 \\\\ -1 \\\\ 0 \\end{pmatrix}$", "$\\begin{pmatrix} 5 \\\\ -1 \\end{pmatrix}$", "$\\begin{pmatrix} 0 \\\\ 5 \\\\ -1 \\end{pmatrix}$"],
+      "opts": [
+        "$\\begin{pmatrix} 5 \\\\ 0 \\\\ -1 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 5 \\\\ -1 \\\\ 0 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 5 \\\\ -1 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 0 \\\\ 5 \\\\ -1 \\end{pmatrix}$"
+      ],
       "ans": 0,
       "why": "The $\\mathbf{j}$ component is 0."
     },
     {
       "q": "What is the unit vector $\\mathbf{j}$?",
-      "opts": ["$\\begin{pmatrix} 0 \\\\ 1 \\\\ 0 \\end{pmatrix}$", "$\\begin{pmatrix} 1 \\\\ 0 \\\\ 0 \\end{pmatrix}$", "$\\begin{pmatrix} 0 \\\\ 0 \\\\ 1 \\end{pmatrix}$", "$\\begin{pmatrix} 1 \\\\ 1 \\\\ 1 \\end{pmatrix}$"],
+      "opts": [
+        "$\\begin{pmatrix} 0 \\\\ 1 \\\\ 0 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 1 \\\\ 0 \\\\ 0 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 0 \\\\ 0 \\\\ 1 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 1 \\\\ 1 \\\\ 1 \\end{pmatrix}$"
+      ],
       "ans": 0,
       "why": "Standard basis vector for the y-axis."
     },
     {
       "q": "How many components does a 3D vector have?",
-      "opts": ["3", "2", "1", "4"],
+      "opts": [
+        "3",
+        "2",
+        "1",
+        "4"
+      ],
       "ans": 0,
       "why": "$x, y,$ and $z$."
+    },
+    {
+      "q": "$\\mathbf{i},\\mathbf{j},\\mathbf{k}$ are...?",
+      "opts": [
+        "scalars",
+        "unit vectors along the axes",
+        "magnitudes",
+        "angles"
+      ],
+      "ans": 1,
+      "why": "Standard unit base vectors."
     }
   ],
   "exam": [
@@ -10433,13 +11006,35 @@ C["maths:10.1"] = {
         "$2\\mathbf{a} = 4\\mathbf{i} - 2\\mathbf{j} + 6\\mathbf{k}$ and $3\\mathbf{b} = 3\\mathbf{i} + 12\\mathbf{j} - 3\\mathbf{k}$. (1)",
         "Result: $\\mathbf{i} - 14\\mathbf{j} + 9\\mathbf{k}$. (1)"
       ]
+    },
+    {
+      "q": "Write the vector from $A(1,2,3)$ to $B(4,0,5)$ in component form.",
+      "marks": 2,
+      "ms": [
+        "$\\vec{AB}=B-A=(4-1,\\,0-2,\\,5-3)$. (1)",
+        "$=3\\mathbf{i}-2\\mathbf{j}+2\\mathbf{k}$. (1)"
+      ]
+    },
+    {
+      "q": "Given $\\mathbf{a}=2\\mathbf{i}-\\mathbf{j}+3\\mathbf{k}$ and $\\mathbf{b}=\\mathbf{i}+4\\mathbf{j}-\\mathbf{k}$, find $2\\mathbf{a}-\\mathbf{b}$ and its magnitude.",
+      "marks": 6,
+      "ms": [
+        "$2\\mathbf{a}=4\\mathbf{i}-2\\mathbf{j}+6\\mathbf{k}$. (1)",
+        "$2\\mathbf{a}-\\mathbf{b}=(4-1)\\mathbf{i}+(-2-4)\\mathbf{j}+(6+1)\\mathbf{k}$. (1)",
+        "$=3\\mathbf{i}-6\\mathbf{j}+7\\mathbf{k}$. (1)",
+        "$|2\\mathbf{a}-\\mathbf{b}|=\\sqrt{3^2+6^2+7^2}$. (1)",
+        "$=\\sqrt{94}$. (1)",
+        "$\\approx9.70$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:10.2"] = {
   "notes": [
-    { "h": "Magnitude and Direction" },
+    {
+      "h": "Magnitude and Direction"
+    },
     {
       "callout": {
         "t": "formula",
@@ -10463,41 +11058,110 @@ C["maths:10.2"] = {
         "body": "$\\hat{\\mathbf{v}} = \\frac{\\mathbf{v}}{|\\mathbf{v}|}$"
       }
     },
-    { "callout": { "t": "memorise", "h": "Magnitude & Unit Vectors", "body": "$|\\mathbf{v}| = \\sqrt{a^2+b^2+c^2}$. Unit vector: $\\hat{\\mathbf{v}} = \\frac{\\mathbf{v}}{|\\mathbf{v}|}$ (always magnitude 1). To get a vector of magnitude $k$ in direction $\\mathbf{v}$: $k \\cdot \\hat{\\mathbf{v}} = \\frac{k\\mathbf{v}}{|\\mathbf{v}|}$. Magnitude is always $\\ge 0$." } },
-    { "callout": { "t": "miscon", "h": "$|{-2\\mathbf{a}}| = -2|\\mathbf{a}|$", "body": "WRONG. Magnitude is always non-negative. $|\\lambda\\mathbf{a}| = |\\lambda| \\cdot |\\mathbf{a}|$ — you take the absolute value of the scalar. So $|-2\\mathbf{a}| = 2|\\mathbf{a}|$, not $-2|\\mathbf{a}|$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Magnitude & Unit Vectors",
+        "body": "$|\\mathbf{v}| = \\sqrt{a^2+b^2+c^2}$. Unit vector: $\\hat{\\mathbf{v}} = \\frac{\\mathbf{v}}{|\\mathbf{v}|}$ (always magnitude 1). To get a vector of magnitude $k$ in direction $\\mathbf{v}$: $k \\cdot \\hat{\\mathbf{v}} = \\frac{k\\mathbf{v}}{|\\mathbf{v}|}$. Magnitude is always $\\ge 0$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$|{-2\\mathbf{a}}| = -2|\\mathbf{a}|$",
+        "body": "WRONG. Magnitude is always non-negative. $|\\lambda\\mathbf{a}| = |\\lambda| \\cdot |\\mathbf{a}|$ — you take the absolute value of the scalar. So $|-2\\mathbf{a}| = 2|\\mathbf{a}|$, not $-2|\\mathbf{a}|$."
+      }
+    }
   ],
   "flashcards": [
-    ["Formula for magnitude of $x\\mathbf{i} + y\\mathbf{j}$?", "$\\sqrt{x^2 + y^2}$."],
-    ["Magnitude of $3\\mathbf{i} + 4\\mathbf{j}$?", "5."],
-    ["How to find a unit vector in the same direction?", "Divide the vector by its magnitude."],
-    ["Magnitude of $\\mathbf{i} + \\mathbf{j} + \\mathbf{k}$?", "$\\sqrt{3}$."],
-    ["Direction of $\\mathbf{i} + \\mathbf{j}$ relative to $x$-axis?", "$45^\\circ$."],
-    ["Is magnitude always positive?", "Yes (or zero)."]
+    [
+      "Formula for magnitude of $x\\mathbf{i} + y\\mathbf{j}$?",
+      "$\\sqrt{x^2 + y^2}$."
+    ],
+    [
+      "Magnitude of $3\\mathbf{i} + 4\\mathbf{j}$?",
+      "5."
+    ],
+    [
+      "How to find a unit vector in the same direction?",
+      "Divide the vector by its magnitude."
+    ],
+    [
+      "Magnitude of $\\mathbf{i} + \\mathbf{j} + \\mathbf{k}$?",
+      "$\\sqrt{3}$."
+    ],
+    [
+      "Direction of $\\mathbf{i} + \\mathbf{j}$ relative to $x$-axis?",
+      "$45^\\circ$."
+    ],
+    [
+      "Is magnitude always positive?",
+      "Yes (or zero)."
+    ],
+    [
+      "Magnitude of $a\\mathbf{i}+b\\mathbf{j}$?",
+      "$\\sqrt{a^2+b^2}$."
+    ],
+    [
+      "How do you find a unit vector in the direction of $\\mathbf{v}$?",
+      "Divide by the magnitude: $\\hat{\\mathbf{v}}=\\dfrac{\\mathbf{v}}{|\\mathbf{v}|}$."
+    ]
   ],
   "quiz": [
     {
       "q": "Find the magnitude of $\\begin{pmatrix} 1 \\\\ -2 \\\\ 2 \\end{pmatrix}$.",
-      "opts": ["3", "9", "5", "1"],
+      "opts": [
+        "3",
+        "9",
+        "5",
+        "1"
+      ],
       "ans": 0,
       "why": "$\\sqrt{1^2 + (-2)^2 + 2^2} = \\sqrt{1+4+4} = \\sqrt{9} = 3$."
     },
     {
       "q": "Find a unit vector in the direction of $3\\mathbf{i} - 4\\mathbf{j}$.",
-      "opts": ["$0.6\\mathbf{i} - 0.8\\mathbf{j}$", "$3\\mathbf{i} - 4\\mathbf{j}$", "$\\mathbf{i} - \\mathbf{j}$", "$0.3\\mathbf{i} - 0.4\\mathbf{j}$"],
+      "opts": [
+        "$0.6\\mathbf{i} - 0.8\\mathbf{j}$",
+        "$3\\mathbf{i} - 4\\mathbf{j}$",
+        "$\\mathbf{i} - \\mathbf{j}$",
+        "$0.3\\mathbf{i} - 0.4\\mathbf{j}$"
+      ],
       "ans": 0,
       "why": "Magnitude is 5. Divide components by 5."
     },
     {
       "q": "Angle of $\\mathbf{i} - \\sqrt{3}\\mathbf{j}$ with positive $x$-axis?",
-      "opts": ["$-60^\\circ$", "$60^\\circ$", "$30^\\circ$", "$-30^\\circ$"],
+      "opts": [
+        "$-60^\\circ$",
+        "$60^\\circ$",
+        "$30^\\circ$",
+        "$-30^\\circ$"
+      ],
       "ans": 0,
       "why": "$\\tan \\theta = -\\sqrt{3}/1 \\implies \\theta = -60^\\circ$."
     },
     {
       "q": "If $|\\mathbf{v}| = 10$ and $\\mathbf{v}$ is parallel to $\\mathbf{i}$, what is $\\mathbf{v}$?",
-      "opts": ["$10\\mathbf{i}$", "$\\mathbf{i}$", "$10\\mathbf{j}$", "$\\pm 10\\mathbf{i}$"],
+      "opts": [
+        "$10\\mathbf{i}$",
+        "$\\mathbf{i}$",
+        "$10\\mathbf{j}$",
+        "$\\pm 10\\mathbf{i}$"
+      ],
       "ans": 3,
       "why": "Parallel can mean same or opposite direction."
+    },
+    {
+      "q": "Magnitude of $3\\mathbf{i}+4\\mathbf{j}$?",
+      "opts": [
+        "$5$",
+        "$7$",
+        "$12$",
+        "$25$"
+      ],
+      "ans": 0,
+      "why": "$\\sqrt{9+16}=5$."
     }
   ],
   "exam": [
@@ -10509,13 +11173,36 @@ C["maths:10.2"] = {
         "$k^2 + 144 = 169$. (1)",
         "$k^2 = 25 \\implies k = \\pm 5$. (1)"
       ]
+    },
+    {
+      "q": "Find the magnitude of $\\mathbf{v}=6\\mathbf{i}-8\\mathbf{j}$ and a unit vector in its direction.",
+      "marks": 3,
+      "ms": [
+        "$|\\mathbf{v}|=\\sqrt{36+64}=10$. (1)",
+        "Unit vector $=\\dfrac{1}{10}(6\\mathbf{i}-8\\mathbf{j})$. (1)",
+        "$=0.6\\mathbf{i}-0.8\\mathbf{j}$. (1)"
+      ]
+    },
+    {
+      "q": "A vector of magnitude 13 is in the direction $5\\mathbf{i}+12\\mathbf{j}$. Find the vector and the angle it makes with the positive $x$-axis.",
+      "marks": 6,
+      "ms": [
+        "$|5\\mathbf{i}+12\\mathbf{j}|=\\sqrt{25+144}=13$. (1)",
+        "Unit vector $=\\dfrac{1}{13}(5\\mathbf{i}+12\\mathbf{j})$. (1)",
+        "Required vector $=13\\times$ unit $=5\\mathbf{i}+12\\mathbf{j}$. (1)",
+        "Angle $\\theta=\\arctan\\dfrac{12}{5}$. (1)",
+        "$=\\arctan2.4$. (1)",
+        "$\\approx67.4^\\circ$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:10.3"] = {
   "notes": [
-    { "h": "Vector Addition & Scalar Multiplication" },
+    {
+      "h": "Vector Addition & Scalar Multiplication"
+    },
     {
       "callout": {
         "t": "formula",
@@ -10572,41 +11259,110 @@ C["maths:10.3"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Vector Operations — Key Rules", "body": "Add/subtract component-wise. $\\vec{AB} = \\mathbf{b} - \\mathbf{a}$ (destination minus source). Triangle law: $\\vec{AB} + \\vec{BC} = \\vec{AC}$. Parallel: $\\mathbf{a} = \\lambda\\mathbf{b}$ for some scalar $\\lambda$. Negative of a vector reverses direction, keeps same magnitude." } },
-    { "callout": { "t": "miscon", "h": "$\\vec{AB} = \\mathbf{a} - \\mathbf{b}$", "body": "WRONG direction. $\\vec{AB}$ means 'travel from $A$ to $B$', so you subtract the start ($A$) from the destination ($B$): $\\vec{AB} = \\mathbf{b} - \\mathbf{a}$. Reversing gives $\\vec{BA} = \\mathbf{a} - \\mathbf{b}$. A useful check: $\\vec{AB} + \\vec{BA} = \\mathbf{0}$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Vector Operations — Key Rules",
+        "body": "Add/subtract component-wise. $\\vec{AB} = \\mathbf{b} - \\mathbf{a}$ (destination minus source). Triangle law: $\\vec{AB} + \\vec{BC} = \\vec{AC}$. Parallel: $\\mathbf{a} = \\lambda\\mathbf{b}$ for some scalar $\\lambda$. Negative of a vector reverses direction, keeps same magnitude."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$\\vec{AB} = \\mathbf{a} - \\mathbf{b}$",
+        "body": "WRONG direction. $\\vec{AB}$ means 'travel from $A$ to $B$', so you subtract the start ($A$) from the destination ($B$): $\\vec{AB} = \\mathbf{b} - \\mathbf{a}$. Reversing gives $\\vec{BA} = \\mathbf{a} - \\mathbf{b}$. A useful check: $\\vec{AB} + \\vec{BA} = \\mathbf{0}$."
+      }
+    }
   ],
   "flashcards": [
-    ["How to add two vectors?", "Add their $x, y, z$ components separately."],
-    ["What is a resultant vector?", "The sum of two or more vectors."],
-    ["Condition for two vectors to be parallel?", "One is a scalar multiple of the other."],
-    ["Effect of multiplying a vector by -2?", "Doubles magnitude and reverses direction."],
-    ["$\\vec{AB}$ in terms of position vectors?", "$\\mathbf{b} - \\mathbf{a}$."],
-    ["Does $\\mathbf{a} + \\mathbf{b} = \\mathbf{b} + \\mathbf{a}$?", "Yes (Commutative)."]
+    [
+      "How to add two vectors?",
+      "Add their $x, y, z$ components separately."
+    ],
+    [
+      "What is a resultant vector?",
+      "The sum of two or more vectors."
+    ],
+    [
+      "Condition for two vectors to be parallel?",
+      "One is a scalar multiple of the other."
+    ],
+    [
+      "Effect of multiplying a vector by -2?",
+      "Doubles magnitude and reverses direction."
+    ],
+    [
+      "$\\vec{AB}$ in terms of position vectors?",
+      "$\\mathbf{b} - \\mathbf{a}$."
+    ],
+    [
+      "Does $\\mathbf{a} + \\mathbf{b} = \\mathbf{b} + \\mathbf{a}$?",
+      "Yes (Commutative)."
+    ],
+    [
+      "How do you add vectors in component form?",
+      "Add the corresponding components."
+    ],
+    [
+      "What does multiplying a vector by scalar $k$ do?",
+      "Scales its magnitude by $|k|$ (reverses direction if $k<0$)."
+    ]
   ],
   "quiz": [
     {
       "q": "$\\begin{pmatrix} 1 \\\\ 2 \\end{pmatrix} + 3\\begin{pmatrix} 0 \\\\ -1 \\end{pmatrix} =$ ?",
-      "opts": ["$\\begin{pmatrix} 1 \\\\ -1 \\end{pmatrix}$", "$\\begin{pmatrix} 4 \\\\ 1 \\end{pmatrix}$", "$\\begin{pmatrix} 1 \\\\ 1 \\end{pmatrix}$", "$\\begin{pmatrix} 1 \\\\ -3 \\end{pmatrix}$"],
+      "opts": [
+        "$\\begin{pmatrix} 1 \\\\ -1 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 4 \\\\ 1 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 1 \\\\ 1 \\end{pmatrix}$",
+        "$\\begin{pmatrix} 1 \\\\ -3 \\end{pmatrix}$"
+      ],
       "ans": 0,
       "why": "$\\begin{pmatrix} 1+0 \\\\ 2-3 \\end{pmatrix} = \\begin{pmatrix} 1 \\\\ -1 \\end{pmatrix}$."
     },
     {
       "q": "Are $\\begin{pmatrix} 2 \\\\ 4 \\end{pmatrix}$ and $\\begin{pmatrix} -1 \\\\ -2 \\end{pmatrix}$ parallel?",
-      "opts": ["Yes", "No", "Only in 3D", "Insufficient info"],
+      "opts": [
+        "Yes",
+        "No",
+        "Only in 3D",
+        "Insufficient info"
+      ],
       "ans": 0,
       "why": "First is $-2 \\times$ the second."
     },
     {
       "q": "Find $\\vec{PQ}$ if $P(1, 5)$ and $Q(4, 2)$.",
-      "opts": ["$3\\mathbf{i} - \\mathbf{j}$", "$-3\\mathbf{i} + 3\\mathbf{j}$", "$5\\mathbf{i} + 7\\mathbf{j}$", "$4\\mathbf{i} + 2\\mathbf{j}$"],
+      "opts": [
+        "$3\\mathbf{i} - \\mathbf{j}$",
+        "$-3\\mathbf{i} + 3\\mathbf{j}$",
+        "$5\\mathbf{i} + 7\\mathbf{j}$",
+        "$4\\mathbf{i} + 2\\mathbf{j}$"
+      ],
       "ans": 0,
       "why": "$\\vec{OQ} - \\vec{OP} = (4-1)\\mathbf{i} + (2-5)\\mathbf{j}$."
     },
     {
       "q": "If $\\mathbf{a} + \\mathbf{b} = \\mathbf{0}$, what is the relationship?",
-      "opts": ["$\\mathbf{a} = -\\mathbf{b}$", "They are same", "They are perpendicular", "They are unit vectors"],
+      "opts": [
+        "$\\mathbf{a} = -\\mathbf{b}$",
+        "They are same",
+        "They are perpendicular",
+        "They are unit vectors"
+      ],
       "ans": 0,
       "why": "They have same magnitude but opposite direction."
+    },
+    {
+      "q": "$(1\\mathbf{i}+2\\mathbf{j})+(3\\mathbf{i}-\\mathbf{j})=$?",
+      "opts": [
+        "$4\\mathbf{i}+\\mathbf{j}$",
+        "$3\\mathbf{i}-2\\mathbf{j}$",
+        "$4\\mathbf{i}+3\\mathbf{j}$",
+        "$-2\\mathbf{i}+3\\mathbf{j}$"
+      ],
+      "ans": 0,
+      "why": "Add components."
     }
   ],
   "exam": [
@@ -10618,13 +11374,36 @@ C["maths:10.3"] = {
         "$pq = -12$. (1)",
         "If $q=6, 6p = -12 \\implies p = -2$. (1)"
       ]
+    },
+    {
+      "q": "Given $\\mathbf{a}=2\\mathbf{i}+3\\mathbf{j}$ and $\\mathbf{b}=-\\mathbf{i}+4\\mathbf{j}$, find $3\\mathbf{a}-2\\mathbf{b}$.",
+      "marks": 3,
+      "ms": [
+        "$3\\mathbf{a}=6\\mathbf{i}+9\\mathbf{j}$. (1)",
+        "$2\\mathbf{b}=-2\\mathbf{i}+8\\mathbf{j}$. (1)",
+        "$3\\mathbf{a}-2\\mathbf{b}=8\\mathbf{i}+\\mathbf{j}$. (1)"
+      ]
+    },
+    {
+      "q": "Vectors $\\mathbf{a}$ and $\\mathbf{b}$ satisfy $\\mathbf{a}+\\mathbf{b}=5\\mathbf{i}+7\\mathbf{j}$ and $\\mathbf{a}-\\mathbf{b}=\\mathbf{i}+3\\mathbf{j}$. Find $\\mathbf{a}$ and $\\mathbf{b}$.",
+      "marks": 6,
+      "ms": [
+        "Add: $2\\mathbf{a}=6\\mathbf{i}+10\\mathbf{j}$. (1)",
+        "$\\mathbf{a}=3\\mathbf{i}+5\\mathbf{j}$. (1)",
+        "Subtract: $2\\mathbf{b}=4\\mathbf{i}+4\\mathbf{j}$. (1)",
+        "$\\mathbf{b}=2\\mathbf{i}+2\\mathbf{j}$. (1)",
+        "Check: $\\mathbf{a}+\\mathbf{b}=5\\mathbf{i}+7\\mathbf{j}$. (1)",
+        "Correct. (1)"
+      ]
     }
   ]
 };
 
 C["maths:10.4"] = {
   "notes": [
-    { "h": "Position Vectors & Distance" },
+    {
+      "h": "Position Vectors & Distance"
+    },
     {
       "callout": {
         "t": "info",
@@ -10648,41 +11427,110 @@ C["maths:10.4"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Position Vectors — Key Formulae", "body": "Position vector of $P(x,y,z)$: $\\vec{OP} = x\\mathbf{i}+y\\mathbf{j}+z\\mathbf{k}$. Distance $|AB| = |\\mathbf{b}-\\mathbf{a}|$. Midpoint: $\\frac{1}{2}(\\mathbf{a}+\\mathbf{b})$. Division $m:n$: $\\mathbf{a} + \\frac{m}{m+n}(\\mathbf{b}-\\mathbf{a})$." } },
-    { "callout": { "t": "miscon", "h": "Midpoint = $\\frac{1}{2}(\\mathbf{a} - \\mathbf{b})$", "body": "WRONG. The midpoint of $AB$ is $\\frac{1}{2}(\\mathbf{a} + \\mathbf{b})$ — the average (sum and halve, not difference and halve). $\\frac{1}{2}(\\mathbf{a}-\\mathbf{b})$ is half of $\\vec{BA}$, which is a different vector altogether." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Position Vectors — Key Formulae",
+        "body": "Position vector of $P(x,y,z)$: $\\vec{OP} = x\\mathbf{i}+y\\mathbf{j}+z\\mathbf{k}$. Distance $|AB| = |\\mathbf{b}-\\mathbf{a}|$. Midpoint: $\\frac{1}{2}(\\mathbf{a}+\\mathbf{b})$. Division $m:n$: $\\mathbf{a} + \\frac{m}{m+n}(\\mathbf{b}-\\mathbf{a})$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Midpoint = $\\frac{1}{2}(\\mathbf{a} - \\mathbf{b})$",
+        "body": "WRONG. The midpoint of $AB$ is $\\frac{1}{2}(\\mathbf{a} + \\mathbf{b})$ — the average (sum and halve, not difference and halve). $\\frac{1}{2}(\\mathbf{a}-\\mathbf{b})$ is half of $\\vec{BA}$, which is a different vector altogether."
+      }
+    }
   ],
   "flashcards": [
-    ["What is $\\vec{AB}$ in terms of position vectors?", "$\\mathbf{b} - \\mathbf{a}$."],
-    ["Formula for distance between two points in 3D?", "$\\sqrt{\\Delta x^2 + \\Delta y^2 + \\Delta z^2}$."],
-    ["How to find the midpoint of $AB$?", "$0.5(\\mathbf{a} + \\mathbf{b})$."],
-    ["Position vector of the origin?", "$\\mathbf{0}$."],
-    ["Distance from origin to $(a, b, c)$?", "$\\sqrt{a^2 + b^2 + c^2}$."],
-    ["If $\\vec{OA} = \\mathbf{a}$ and $\\vec{OB} = \\mathbf{b}$, find $\\vec{AM}$ where $M$ is midpoint.", "$0.5(\\mathbf{b} - \\mathbf{a})$."]
+    [
+      "What is $\\vec{AB}$ in terms of position vectors?",
+      "$\\mathbf{b} - \\mathbf{a}$."
+    ],
+    [
+      "Formula for distance between two points in 3D?",
+      "$\\sqrt{\\Delta x^2 + \\Delta y^2 + \\Delta z^2}$."
+    ],
+    [
+      "How to find the midpoint of $AB$?",
+      "$0.5(\\mathbf{a} + \\mathbf{b})$."
+    ],
+    [
+      "Position vector of the origin?",
+      "$\\mathbf{0}$."
+    ],
+    [
+      "Distance from origin to $(a, b, c)$?",
+      "$\\sqrt{a^2 + b^2 + c^2}$."
+    ],
+    [
+      "If $\\vec{OA} = \\mathbf{a}$ and $\\vec{OB} = \\mathbf{b}$, find $\\vec{AM}$ where $M$ is midpoint.",
+      "$0.5(\\mathbf{b} - \\mathbf{a})$."
+    ],
+    [
+      "What is a position vector?",
+      "The vector from the origin $O$ to a point, $\\vec{OP}$."
+    ],
+    [
+      "Distance between points with position vectors $\\mathbf{a}$ and $\\mathbf{b}$?",
+      "$|\\mathbf{b}-\\mathbf{a}|$."
+    ]
   ],
   "quiz": [
     {
       "q": "Distance between $(1, 0, 2)$ and $(4, 4, 2)$.",
-      "opts": ["5", "25", "7", "3"],
+      "opts": [
+        "5",
+        "25",
+        "7",
+        "3"
+      ],
       "ans": 0,
       "why": "$\\sqrt{(4-1)^2 + (4-0)^2 + 0^2} = \\sqrt{3^2 + 4^2} = 5$."
     },
     {
       "q": "Position vector of point $(3, -1, 5)$.",
-      "opts": ["$3\\mathbf{i} - \\mathbf{j} + 5\\mathbf{k}$", "$\\begin{pmatrix} 3 \\\\ -1 \\\\ 5 \\end{pmatrix}$", "Both", "Neither"],
+      "opts": [
+        "$3\\mathbf{i} - \\mathbf{j} + 5\\mathbf{k}$",
+        "$\\begin{pmatrix} 3 \\\\ -1 \\\\ 5 \\end{pmatrix}$",
+        "Both",
+        "Neither"
+      ],
       "ans": 2,
       "why": "Both are valid notations for the same vector."
     },
     {
       "q": "Point $C$ lies on $AB$ such that $\\vec{AC} = 3\\vec{CB}$. Ratio $AC:CB$?",
-      "opts": ["$3:1$", "$1:3$", "$3:4$", "$4:3$"],
+      "opts": [
+        "$3:1$",
+        "$1:3$",
+        "$3:4$",
+        "$4:3$"
+      ],
       "ans": 0,
       "why": "Direct from the vector equation."
     },
     {
       "q": "Find midpoint of $A(2, 4)$ and $B(6, 10)$.",
-      "opts": ["$(4, 7)$", "$(8, 14)$", "$(2, 3)$", "$(4, 3)$"],
+      "opts": [
+        "$(4, 7)$",
+        "$(8, 14)$",
+        "$(2, 3)$",
+        "$(4, 3)$"
+      ],
       "ans": 0,
       "why": "Average the components: $(2+6)/2=4, (4+10)/2=7$."
+    },
+    {
+      "q": "Distance between $A(1,2)$ and $B(4,6)$?",
+      "opts": [
+        "$5$",
+        "$7$",
+        "$\\sqrt7$",
+        "$25$"
+      ],
+      "ans": 0,
+      "why": "$\\sqrt{3^2+4^2}=5$."
     }
   ],
   "exam": [
@@ -10695,13 +11543,36 @@ C["maths:10.4"] = {
         "$\\vec{OC} = (2\\mathbf{i} + \\mathbf{j} + 3\\mathbf{k}) + (0.5\\mathbf{i} - \\mathbf{j} - 0.5\\mathbf{k})$. (1)",
         "$\\vec{OC} = 2.5\\mathbf{i} + 2.5\\mathbf{k}$. (1)"
       ]
+    },
+    {
+      "q": "Points $A$ and $B$ have position vectors $\\mathbf{i}+2\\mathbf{j}+2\\mathbf{k}$ and $4\\mathbf{i}+6\\mathbf{j}+2\\mathbf{k}$. Find $|\\vec{AB}|$.",
+      "marks": 3,
+      "ms": [
+        "$\\vec{AB}=3\\mathbf{i}+4\\mathbf{j}+0\\mathbf{k}$. (1)",
+        "$|\\vec{AB}|=\\sqrt{9+16+0}$. (1)",
+        "$=5$. (1)"
+      ]
+    },
+    {
+      "q": "$A(2,-1,3)$ and $B(6,1,-1)$. Find the position vector of the midpoint $M$ of $AB$ and the distance $AB$.",
+      "marks": 6,
+      "ms": [
+        "$M=\\tfrac12(A+B)=\\tfrac12(8,0,2)$. (1)",
+        "$=(4,0,1)$, i.e. $4\\mathbf{i}+\\mathbf{k}$. (1)",
+        "$\\vec{AB}=(4,2,-4)$. (1)",
+        "$|\\vec{AB}|=\\sqrt{16+4+16}$. (1)",
+        "$=\\sqrt{36}$. (1)",
+        "$=6$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:10.5"] = {
   "notes": [
-    { "h": "Geometric Problems" },
+    {
+      "h": "Geometric Problems"
+    },
     {
       "callout": {
         "t": "info",
@@ -10710,9 +11581,18 @@ C["maths:10.5"] = {
     },
     {
       "kv": [
-        ["Collinear Points", "Points $A, B, C$ lie on a straight line if $\\vec{AB} = \\lambda \\vec{BC}$."],
-        ["Parallelogram", "Opposite sides are equal vectors: $\\vec{AB} = \\vec{DC}$."],
-        ["Coplanar", "Vectors lying in the same plane (not required for pure A-level but useful)."]
+        [
+          "Collinear Points",
+          "Points $A, B, C$ lie on a straight line if $\\vec{AB} = \\lambda \\vec{BC}$."
+        ],
+        [
+          "Parallelogram",
+          "Opposite sides are equal vectors: $\\vec{AB} = \\vec{DC}$."
+        ],
+        [
+          "Coplanar",
+          "Vectors lying in the same plane (not required for pure A-level but useful)."
+        ]
       ]
     },
     {
@@ -10724,41 +11604,110 @@ C["maths:10.5"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Collinearity & Parallelogram Proofs", "body": "**Collinear**: show $\\vec{AB} = \\lambda\\vec{BC}$ (or any two of the three) AND state they share a common point (e.g., $B$). **Parallelogram**: show $\\vec{AB} = \\vec{DC}$ (opposite sides equal and parallel — note $DC$ not $CD$). **Midpoint**: use $\\frac{1}{2}(\\mathbf{a}+\\mathbf{b})$ for any two vertices." } },
-    { "callout": { "t": "miscon", "h": "Parallel Vectors Are Sufficient to Prove Collinearity", "body": "WRONG. You must ALSO state that the vectors share a common point. Without this, two vectors could be parallel but on completely separate parallel lines. Example: $\\vec{AB} \\parallel \\vec{CD}$ doesn't mean $A, B, C, D$ are collinear — they could be sides of a parallelogram." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Collinearity & Parallelogram Proofs",
+        "body": "**Collinear**: show $\\vec{AB} = \\lambda\\vec{BC}$ (or any two of the three) AND state they share a common point (e.g., $B$). **Parallelogram**: show $\\vec{AB} = \\vec{DC}$ (opposite sides equal and parallel — note $DC$ not $CD$). **Midpoint**: use $\\frac{1}{2}(\\mathbf{a}+\\mathbf{b})$ for any two vertices."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Parallel Vectors Are Sufficient to Prove Collinearity",
+        "body": "WRONG. You must ALSO state that the vectors share a common point. Without this, two vectors could be parallel but on completely separate parallel lines. Example: $\\vec{AB} \\parallel \\vec{CD}$ doesn't mean $A, B, C, D$ are collinear — they could be sides of a parallelogram."
+      }
+    }
   ],
   "flashcards": [
-    ["How to show 3 points are collinear?", "Show vectors between them are parallel and share a common point."],
-    ["Vector property of a parallelogram $ABCD$?", "$\\vec{AB} = \\vec{DC}$."],
-    ["In triangle $OAB$, if $M$ is midpoint of $AB$, what is $\\vec{OM}$?", "$0.5(\\mathbf{a} + \\mathbf{b})$."],
-    ["If $\\vec{AB} = \\vec{BC}$, what is $B$?", "The midpoint of $AC$."],
-    ["What does it mean if $\\vec{AB} = 2\\vec{CD}$?", "$AB$ is parallel to $CD$ and twice as long."],
-    ["Can vectors prove the diagonal of a parallelogram bisect each other?", "Yes, by finding the midpoint of both diagonals and showing they are the same."]
+    [
+      "How to show 3 points are collinear?",
+      "Show vectors between them are parallel and share a common point."
+    ],
+    [
+      "Vector property of a parallelogram $ABCD$?",
+      "$\\vec{AB} = \\vec{DC}$."
+    ],
+    [
+      "In triangle $OAB$, if $M$ is midpoint of $AB$, what is $\\vec{OM}$?",
+      "$0.5(\\mathbf{a} + \\mathbf{b})$."
+    ],
+    [
+      "If $\\vec{AB} = \\vec{BC}$, what is $B$?",
+      "The midpoint of $AC$."
+    ],
+    [
+      "What does it mean if $\\vec{AB} = 2\\vec{CD}$?",
+      "$AB$ is parallel to $CD$ and twice as long."
+    ],
+    [
+      "Can vectors prove the diagonal of a parallelogram bisect each other?",
+      "Yes, by finding the midpoint of both diagonals and showing they are the same."
+    ],
+    [
+      "How do you show three points are collinear with vectors?",
+      "Show one connecting vector is a scalar multiple of another (parallel with a common point)."
+    ],
+    [
+      "What does $\\vec{AB}=k\\vec{CD}$ tell you?",
+      "$AB$ is parallel to $CD$."
+    ]
   ],
   "quiz": [
     {
       "q": "If $\\vec{AB} = 2\\mathbf{i} + 3\\mathbf{j}$ and $\\vec{BC} = 4\\mathbf{i} + 6\\mathbf{j}$, are $A, B, C$ collinear?",
-      "opts": ["Yes", "No", "Only if $B$ is origin", "Insufficient info"],
+      "opts": [
+        "Yes",
+        "No",
+        "Only if $B$ is origin",
+        "Insufficient info"
+      ],
       "ans": 0,
       "why": "$\\vec{BC} = 2\\vec{AB}$ and they share point $B$."
     },
     {
       "q": "In rectangle $ABCD$, if $\\vec{AB} = \\mathbf{p}$ and $\\vec{AD} = \\mathbf{q}$, what is $\\vec{AC}$?",
-      "opts": ["$\\mathbf{p} + \\mathbf{q}$", "$\\mathbf{p} - \\mathbf{q}$", "$\\mathbf{q} - \\mathbf{p}$", "$\\sqrt{p^2+q^2}$"],
+      "opts": [
+        "$\\mathbf{p} + \\mathbf{q}$",
+        "$\\mathbf{p} - \\mathbf{q}$",
+        "$\\mathbf{q} - \\mathbf{p}$",
+        "$\\sqrt{p^2+q^2}$"
+      ],
       "ans": 0,
       "why": "Diagonal resultant of the two sides."
     },
     {
       "q": "If $\\vec{OA} = \\mathbf{a}$ and $\\vec{OB} = \\mathbf{b}$, find $\\vec{AB}$.",
-      "opts": ["$\\mathbf{b} - \\mathbf{a}$", "$\\mathbf{a} + \\mathbf{b}$", "$\\mathbf{a} - \\mathbf{b}$", "$-\\mathbf{a} - \\mathbf{b}$"],
+      "opts": [
+        "$\\mathbf{b} - \\mathbf{a}$",
+        "$\\mathbf{a} + \\mathbf{b}$",
+        "$\\mathbf{a} - \\mathbf{b}$",
+        "$-\\mathbf{a} - \\mathbf{b}$"
+      ],
       "ans": 0,
       "why": "Shortcut from $A$ to $B$ is $A \\to O \\to B$."
     },
     {
       "q": "Property of a rhombus in vectors?",
-      "opts": ["$\\vec{AB} = \\vec{DC}$ and $|\\vec{AB}| = |\\vec{BC}|$", "$\\vec{AB} \\perp \\vec{BC}$", "$\\vec{AC} = \\vec{BD}$", "None"],
+      "opts": [
+        "$\\vec{AB} = \\vec{DC}$ and $|\\vec{AB}| = |\\vec{BC}|$",
+        "$\\vec{AB} \\perp \\vec{BC}$",
+        "$\\vec{AC} = \\vec{BD}$",
+        "None"
+      ],
       "ans": 0,
       "why": "All sides are equal and opposite sides are parallel."
+    },
+    {
+      "q": "Vectors are parallel if one is a ... of the other.",
+      "opts": [
+        "sum",
+        "scalar multiple",
+        "perpendicular",
+        "unit vector"
+      ],
+      "ans": 1,
+      "why": "Parallel means scalar multiple."
     }
   ],
   "exam": [
@@ -10770,6 +11719,27 @@ C["maths:10.5"] = {
         "$\\vec{MN} = \\vec{ON} - \\vec{OM} = 0.5\\mathbf{b} - 0.5\\mathbf{a}$. (1)",
         "$\\vec{AB} = \\mathbf{b} - \\mathbf{a}$. (1)",
         "Since $\\vec{MN} = 0.5\\vec{AB}$, they are parallel and $MN$ is half the length. (1)"
+      ]
+    },
+    {
+      "q": "Show that $A(1,1)$, $B(3,4)$, $C(7,10)$ are collinear.",
+      "marks": 3,
+      "ms": [
+        "$\\vec{AB}=2\\mathbf{i}+3\\mathbf{j}$. (1)",
+        "$\\vec{AC}=6\\mathbf{i}+9\\mathbf{j}=3\\vec{AB}$. (1)",
+        "Parallel with common point $A$, so $A,B,C$ are collinear. (1)"
+      ]
+    },
+    {
+      "q": "$OACB$ is a parallelogram with $\\vec{OA}=\\mathbf{a}$ and $\\vec{OB}=\\mathbf{b}$. $M$ is the midpoint of $AC$. Express $\\vec{OM}$ in terms of $\\mathbf{a}$ and $\\mathbf{b}$.",
+      "marks": 6,
+      "ms": [
+        "In parallelogram $OACB$, $\\vec{OC}=\\mathbf{a}+\\mathbf{b}$. (1)",
+        "$\\vec{AC}=\\vec{OC}-\\vec{OA}=\\mathbf{b}$. (1)",
+        "$M$ is the midpoint of $AC$, so $\\vec{AM}=\\tfrac12\\mathbf{b}$. (1)",
+        "$\\vec{OM}=\\vec{OA}+\\vec{AM}$. (1)",
+        "$=\\mathbf{a}+\\tfrac12\\mathbf{b}$. (1)",
+        "So $\\vec{OM}=\\mathbf{a}+\\tfrac12\\mathbf{b}$. (1)"
       ]
     }
   ]

@@ -915,6 +915,42 @@ window.KOS_DATA.intel = {
 },
 
 /* ============ Edexcel Mathematics 9MA0 — Pure ============ */
+"maths:9.1": {
+  defs: [["Change-of-sign method", "If f(a), f(b) have opposite signs and f is continuous, a root lies between a and b."]],
+  tips: ["Evaluate f at the endpoints and look for a sign change.", "A sign change shows AT LEAST one root in the interval."],
+  pitfalls: ["A discontinuity can cause a sign change with no root.", "An even number of roots gives no sign change."]
+},
+"maths:9.2": {
+  defs: [["Iteration", "x_{n+1}=g(x_n) repeated; converges near a root if |g'(x)|<1."]],
+  tips: ["Show successive values getting closer to argue convergence.", "Cobweb/staircase diagrams illustrate convergence or divergence."],
+  pitfalls: ["Assuming convergence without checking |g'|<1.", "Rounding too early between iterations."]
+},
+"maths:9.5": {
+  defs: [["Numerical methods in context", "Used when no exact solution exists; accuracy improves with smaller step size."]],
+  tips: ["Pick the right tool: change-of-sign/iteration/Newton-Raphson for roots, trapezium for integrals.", "More strips/iterations -> better accuracy."],
+  pitfalls: ["Quoting more accuracy than the method supports.", "Forgetting to justify why a numerical method is needed."]
+},
+"maths:10.1": {
+  defs: [["Vector", "Quantity with magnitude AND direction; components ai+bj+ck."]],
+  tips: ["AB = B - A (position-vector subtraction).", "Add/subtract componentwise."],
+  pitfalls: ["Confusing scalars and vectors.", "Sign errors forming B - A."]
+},
+"maths:10.2": {
+  defs: [["Magnitude", "|ai+bj+ck| = sqrt(a^2+b^2+c^2)."],
+         ["Unit vector", "v / |v|; magnitude 1 in the direction of v."]],
+  tips: ["Divide by the magnitude to get a unit vector.", "Direction angle: arctan(b/a) in 2D."],
+  pitfalls: ["Forgetting to square-root for the magnitude.", "Not normalising for a unit vector."]
+},
+"maths:10.3": {
+  defs: [["Vector addition", "Add corresponding components; scalar k scales magnitude by |k|."]],
+  tips: ["Solve vector simultaneous equations by adding/subtracting the equations.", "Keep components aligned (i with i, etc.)."],
+  pitfalls: ["Adding magnitudes instead of components.", "Sign slips with negative scalars."]
+},
+"maths:10.5": {
+  defs: [["Collinearity", "Show one connecting vector is a scalar multiple of another, with a common point."]],
+  tips: ["Parallel = scalar multiple; collinear = parallel + shared point.", "Build path vectors via the origin (OM = OA + AM)."],
+  pitfalls: ["Proving parallel but forgetting the common point for collinearity.", "Errors building combined path vectors."]
+},
 "maths:8.1": {
   defs: [["Fundamental Theorem of Calculus", "Integration and differentiation are inverse: int_a^b f'(x) dx = f(b)-f(a)."]],
   tips: ["Find an antiderivative F, then evaluate F(b)-F(a).", "The FTC turns a limiting sum into simple evaluation."],
