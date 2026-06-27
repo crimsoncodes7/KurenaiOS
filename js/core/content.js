@@ -142,6 +142,27 @@
           (sim ? '<span class="nd-t">' + esc(sim.title) + "</span>" : "") +
           "</span></button>"; return;
       }
+      if (b.worked) {
+        var w = b.worked;
+        var tag = w.tag || "example";
+        var tagLabel = { example: "Worked example", exam: "Exam-style", variation: "Variation", check: "Check" }[tag] || "Worked example";
+        html += '<figure class="n-worked n-worked-' + esc(tag) + '">' + COPY_BTN +
+          '<figcaption class="nw-head"><span class="nw-tag">' + esc(tagLabel) + "</span>" +
+          (w.title ? '<span class="nw-title">' + inline(w.title) + "</span>" : "") + "</figcaption>" +
+          '<ol class="nw-steps">' + (w.steps || []).map(function (s) {
+            if (typeof s === "string") return '<li class="nw-step"><span class="nw-num"></span><div class="nw-body"><div class="nw-m">' + inline(s) + "</div></div></li>";
+            return '<li class="nw-step"><span class="nw-num"></span><div class="nw-body">' +
+              (s.h ? '<div class="nw-sh">' + inline(s.h) + "</div>" : "") +
+              (s.m != null ? '<div class="nw-m">' + inline(s.m) + "</div>" : "") +
+              (s.n ? '<div class="nw-n">' + inline(s.n) + "</div>" : "") + "</div></li>";
+          }).join("") + "</ol>" +
+          (w.result ? '<div class="nw-result"><span class="nw-rlabel">Answer</span><span class="nw-rval">' + inline(w.result) + "</span></div>" : "") +
+          "</figure>"; return;
+      }
+      if (b.svg) {
+        html += '<figure class="n-fig">' + (b.svg.src || "") +
+          (b.svg.cap ? "<figcaption>" + inline(b.svg.cap) + "</figcaption>" : "") + "</figure>"; return;
+      }
       if (b.steps) {
         html += '<div class="n-steps">' + COPY_BTN + b.steps.map(function (s, i) {
           if (typeof s === "string") return '<div class="step revealed"><div class="sh">Step ' + (i + 1) + '</div><div class="sn">' + inline(s) + "</div></div>";
@@ -185,7 +206,7 @@
   document.addEventListener("click", function (e) {
     var cp = e.target && e.target.closest ? e.target.closest(".n-copy") : null;
     if (!cp) return;
-    var box = cp.closest(".n-code,.n-call,.n-tablewrap,.n-kv,.n-steps");
+    var box = cp.closest(".n-code,.n-call,.n-tablewrap,.n-kv,.n-steps,.n-worked");
     if (!box) return;
     /* clone, drop the copy button, then read the visible text so the "Copy"
        label is excluded — works for tables/lists, not just <code>. */
