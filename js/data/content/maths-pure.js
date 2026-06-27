@@ -2350,7 +2350,9 @@ C["maths:2.11"] = {
 
 C["maths:3.1"] = {
   "notes": [
-    { "h": "Straight Lines" },
+    {
+      "h": "Straight Lines"
+    },
     {
       "callout": {
         "t": "formula",
@@ -2389,19 +2391,94 @@ C["maths:3.1"] = {
     }
   ],
   "flashcards": [
-    ["Formula for gradient between two points?", "$m = (y_2-y_1)/(x_2-x_1)$."],
-    ["Condition for perpendicular lines?", "$m_1 m_2 = -1$."],
-    ["Equation of line through $(x_1, y_1)$ with gradient $m$?", "$y - y_1 = m(x - x_1)$."],
-    ["Gradient of the line $2x + 3y = 6$?", "$-2/3$."],
-    ["Midpoint formula?", "$(\\frac{x_1+x_2}{2}, \\frac{y_1+y_2}{2})$."],
-    ["Distance formula between two points?", "$\\sqrt{(x_2-x_1)^2 + (y_2-y_1)^2}$."]
+    [
+      "Formula for gradient between two points?",
+      "$m = (y_2-y_1)/(x_2-x_1)$."
+    ],
+    [
+      "Condition for perpendicular lines?",
+      "$m_1 m_2 = -1$."
+    ],
+    [
+      "Equation of line through $(x_1, y_1)$ with gradient $m$?",
+      "$y - y_1 = m(x - x_1)$."
+    ],
+    [
+      "Gradient of the line $2x + 3y = 6$?",
+      "$-2/3$."
+    ],
+    [
+      "Midpoint formula?",
+      "$(\\frac{x_1+x_2}{2}, \\frac{y_1+y_2}{2})$."
+    ],
+    [
+      "Distance formula between two points?",
+      "$\\sqrt{(x_2-x_1)^2 + (y_2-y_1)^2}$."
+    ],
+    [
+      "Gradient between $(x_1,y_1)$ and $(x_2,y_2)$?",
+      "$\\dfrac{y_2-y_1}{x_2-x_1}$."
+    ],
+    [
+      "Condition for two lines to be perpendicular?",
+      "The product of their gradients is $-1$."
+    ]
   ],
   "quiz": [
     {
       "q": "Find the gradient of a line perpendicular to $y = 3x - 5$.",
-      "opts": ["3", "-3", "$1/3$", "$-1/3$"],
+      "opts": [
+        "3",
+        "-3",
+        "$1/3$",
+        "$-1/3$"
+      ],
       "ans": 3,
       "why": "Negative reciprocal of 3 is $-1/3$."
+    },
+    {
+      "q": "Gradient of the line through $(1,2)$ and $(3,8)$?",
+      "opts": [
+        "2",
+        "3",
+        "4",
+        "6"
+      ],
+      "ans": 1,
+      "why": "$(8-2)/(3-1)=3$."
+    },
+    {
+      "q": "A line perpendicular to $y=2x+1$ has gradient...?",
+      "opts": [
+        "$2$",
+        "$-2$",
+        "$\\tfrac12$",
+        "$-\\tfrac12$"
+      ],
+      "ans": 3,
+      "why": "Negative reciprocal of 2 is $-\\tfrac12$."
+    },
+    {
+      "q": "Midpoint of $(2,4)$ and $(6,10)$?",
+      "opts": [
+        "$(4,7)$",
+        "$(8,14)$",
+        "$(4,6)$",
+        "$(2,3)$"
+      ],
+      "ans": 0,
+      "why": "Average the coordinates."
+    },
+    {
+      "q": "Equation of the line, gradient 3, through $(0,-1)$?",
+      "opts": [
+        "$y=3x-1$",
+        "$y=-x+3$",
+        "$y=3x+1$",
+        "$y=x-3$"
+      ],
+      "ans": 0,
+      "why": "$y=mx+c$ with $m=3,c=-1$."
     }
   ],
   "exam": [
@@ -2415,13 +2492,37 @@ C["maths:3.1"] = {
         "$y - 7 = -1/2(x - 3)$. (1)",
         "$y = -1/2x + 8.5$ (or equivalent). (1)"
       ]
+    },
+    {
+      "q": "Find the equation of the perpendicular bisector of the line joining $A(1,2)$ and $B(5,8)$.",
+      "marks": 4,
+      "ms": [
+        "Midpoint $(3,5)$. (1)",
+        "Gradient $AB=\\dfrac{8-2}{5-1}=\\dfrac32$. (1)",
+        "Perpendicular gradient $=-\\dfrac23$. (1)",
+        "$y-5=-\\dfrac23(x-3)$, i.e. $2x+3y-21=0$. (1)"
+      ]
+    },
+    {
+      "q": "Points $A(-1,3)$ and $B(2,-3)$. Find the equation of the line through $A$ perpendicular to $AB$, and where it meets the $x$-axis.",
+      "marks": 6,
+      "ms": [
+        "Gradient $AB=\\dfrac{-3-3}{2+1}=-2$. (1)",
+        "Perpendicular gradient $=\\dfrac12$. (1)",
+        "Through $A$: $y-3=\\dfrac12(x+1)$. (1)",
+        "$y=\\dfrac12 x+\\dfrac72$. (1)",
+        "At $x$-axis $y=0$: $\\dfrac12 x=-\\dfrac72$. (1)",
+        "$x=-7$, meets at $(-7,0)$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:3.2"] = {
   "notes": [
-    { "h": "Circles" },
+    {
+      "h": "Circles"
+    },
     {
       "callout": {
         "t": "formula",
@@ -2434,11 +2535,22 @@ C["maths:3.2"] = {
         "t": "def",
         "h": "Circle Theorems Used at A-Level",
         "body": [
-          {"kv": [
-            ["Angle in semicircle", "Always 90°. If $AB$ is a diameter, $\\angle APB = 90°$ for any point $P$ on the circle."],
-            ["Tangent ⊥ radius", "The tangent at any point is perpendicular to the radius at that point."],
-            ["Perpendicular bisector", "The perpendicular bisector of any chord passes through the centre."]
-          ]}
+          {
+            "kv": [
+              [
+                "Angle in semicircle",
+                "Always 90°. If $AB$ is a diameter, $\\angle APB = 90°$ for any point $P$ on the circle."
+              ],
+              [
+                "Tangent ⊥ radius",
+                "The tangent at any point is perpendicular to the radius at that point."
+              ],
+              [
+                "Perpendicular bisector",
+                "The perpendicular bisector of any chord passes through the centre."
+              ]
+            ]
+          }
         ]
       }
     },
@@ -2472,22 +2584,103 @@ C["maths:3.2"] = {
         }
       ]
     },
-    { "callout": { "t": "memorise", "h": "Circles — Four Key Facts", "body": "Standard form: $(x-a)^2+(y-b)^2=r^2$, centre $(a,b)$, radius $r$. To convert from $x^2+y^2+2gx+2fy+c=0$: complete the square on both $x$ and $y$. Theorems: angle in semicircle $=90°$; tangent $\\perp$ radius; perpendicular bisector of chord → centre." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Circles — Four Key Facts",
+        "body": "Standard form: $(x-a)^2+(y-b)^2=r^2$, centre $(a,b)$, radius $r$. To convert from $x^2+y^2+2gx+2fy+c=0$: complete the square on both $x$ and $y$. Theorems: angle in semicircle $=90°$; tangent $\\perp$ radius; perpendicular bisector of chord → centre."
+      }
+    }
   ],
   "flashcards": [
-    ["Standard equation of a circle?", "$(x-a)^2 + (y-b)^2 = r^2$."],
-    ["Center of $(x+3)^2 + (y-5)^2 = 10$?", "$(-3, 5)$."],
-    ["Radius of $x^2 + y^2 = 49$?", "7."],
-    ["Angle in a semi-circle?", "$90^\\circ$ (Right angle)."],
-    ["Perpendicular bisector of a chord passes through...?", "The center of the circle."],
-    ["The tangent at any point is perpendicular to...?", "The radius at that point."]
+    [
+      "Standard equation of a circle?",
+      "$(x-a)^2 + (y-b)^2 = r^2$."
+    ],
+    [
+      "Center of $(x+3)^2 + (y-5)^2 = 10$?",
+      "$(-3, 5)$."
+    ],
+    [
+      "Radius of $x^2 + y^2 = 49$?",
+      "7."
+    ],
+    [
+      "Angle in a semi-circle?",
+      "$90^\\circ$ (Right angle)."
+    ],
+    [
+      "Perpendicular bisector of a chord passes through...?",
+      "The center of the circle."
+    ],
+    [
+      "The tangent at any point is perpendicular to...?",
+      "The radius at that point."
+    ],
+    [
+      "Equation of a circle, centre $(a,b)$, radius $r$?",
+      "$(x-a)^2+(y-b)^2=r^2$."
+    ],
+    [
+      "A tangent meets the radius at the point of contact at what angle?",
+      "$90^\\circ$ — they are perpendicular."
+    ]
   ],
   "quiz": [
     {
       "q": "A circle has equation $(x-1)^2 + y^2 = 25$. Does point $(4, 4)$ lie on the circle?",
-      "opts": ["Yes", "No, it's inside", "No, it's outside", "Insufficient info"],
+      "opts": [
+        "Yes",
+        "No, it's inside",
+        "No, it's outside",
+        "Insufficient info"
+      ],
       "ans": 0,
       "why": "$(4-1)^2 + 4^2 = 3^2 + 4^2 = 9+16=25$. Yes."
+    },
+    {
+      "q": "Centre of $(x-2)^2+(y+3)^2=16$?",
+      "opts": [
+        "$(2,-3)$",
+        "$(-2,3)$",
+        "$(2,3)$",
+        "$(-2,-3)$"
+      ],
+      "ans": 0,
+      "why": "Read off $(a,b)=(2,-3)$."
+    },
+    {
+      "q": "Radius of $(x-1)^2+(y-1)^2=25$?",
+      "opts": [
+        "$25$",
+        "$5$",
+        "$12.5$",
+        "$10$"
+      ],
+      "ans": 1,
+      "why": "$r=\\sqrt{25}=5$."
+    },
+    {
+      "q": "$x^2+y^2-4x-6y+9=0$ has centre...?",
+      "opts": [
+        "$(2,3)$",
+        "$(-2,-3)$",
+        "$(4,6)$",
+        "$(2,-3)$"
+      ],
+      "ans": 0,
+      "why": "Complete the square: $(x-2)^2+(y-3)^2=4$."
+    },
+    {
+      "q": "The angle in a semicircle is...?",
+      "opts": [
+        "$45^\\circ$",
+        "$60^\\circ$",
+        "$90^\\circ$",
+        "$180^\\circ$"
+      ],
+      "ans": 2,
+      "why": "A right angle (Thales' theorem)."
     }
   ],
   "exam": [
@@ -2499,13 +2692,36 @@ C["maths:3.2"] = {
         "Radius squared = distance from center to $A$: $(3-1)^2 + (8-7)^2 = 2^2 + 1^2 = 5$. (2)",
         "Equation: $(x-3)^2 + (y-8)^2 = 5$. (1)"
       ]
+    },
+    {
+      "q": "A circle has equation $x^2+y^2-6x+4y-12=0$. Find its centre and radius.",
+      "marks": 3,
+      "ms": [
+        "$(x-3)^2-9+(y+2)^2-4-12=0$. (1)",
+        "$(x-3)^2+(y+2)^2=25$. (1)",
+        "Centre $(3,-2)$, radius $5$. (1)"
+      ]
+    },
+    {
+      "q": "Circle $C$ has centre $(3,1)$ and passes through $(7,4)$. Find its equation and the tangent at $(7,4)$.",
+      "marks": 6,
+      "ms": [
+        "Radius $=\\sqrt{(7-3)^2+(4-1)^2}=\\sqrt{25}=5$. (1)",
+        "$(x-3)^2+(y-1)^2=25$. (1)",
+        "Radius gradient $=\\dfrac{4-1}{7-3}=\\dfrac34$. (1)",
+        "Tangent gradient $=-\\dfrac43$. (1)",
+        "Through $(7,4)$: $y-4=-\\dfrac43(x-7)$. (1)",
+        "$4x+3y-40=0$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:3.3"] = {
   "notes": [
-    { "h": "Parametric Equations" },
+    {
+      "h": "Parametric Equations"
+    },
     {
       "callout": {
         "t": "def",
@@ -2529,11 +2745,22 @@ C["maths:3.3"] = {
         "t": "memorise",
         "h": "Standard Trig Parametric Forms",
         "body": [
-          {"kv": [
-            ["$x = r\\cos\\theta,\\ y = r\\sin\\theta$", "Circle $x^2 + y^2 = r^2$"],
-            ["$x = a\\cos\\theta,\\ y = b\\sin\\theta$", "Ellipse $\\dfrac{x^2}{a^2} + \\dfrac{y^2}{b^2} = 1$"],
-            ["$x = at^2,\\ y = 2at$", "Parabola $y^2 = 4ax$"]
-          ]}
+          {
+            "kv": [
+              [
+                "$x = r\\cos\\theta,\\ y = r\\sin\\theta$",
+                "Circle $x^2 + y^2 = r^2$"
+              ],
+              [
+                "$x = a\\cos\\theta,\\ y = b\\sin\\theta$",
+                "Ellipse $\\dfrac{x^2}{a^2} + \\dfrac{y^2}{b^2} = 1$"
+              ],
+              [
+                "$x = at^2,\\ y = 2at$",
+                "Parabola $y^2 = 4ax$"
+              ]
+            ]
+          }
         ]
       }
     },
@@ -2574,19 +2801,94 @@ C["maths:3.3"] = {
     }
   ],
   "flashcards": [
-    ["What is a parametric equation?", "Representing $x$ and $y$ as functions of a parameter $t$."],
-    ["How to eliminate $t$ from $x=2t, y=t^2$?", "$t=x/2 \\implies y=(x/2)^2$."],
-    ["Identity used to eliminate $\\theta$ from $x=\\cos \\theta, y=\\sin \\theta$?", "$\\cos^2 \\theta + \\sin^2 \\theta = 1$."],
-    ["Cartesian equation for $x = a \\cos \\theta, y = b \\sin \\theta$?", "$(x/a)^2 + (y/b)^2 = 1$ (Ellipse)."],
-    ["Find $y$ if $x=3$ for $x=t+1, y=2t$?", "$t=2 \\implies y=4$."],
-    ["What does $t$ often represent in physics?", "Time."]
+    [
+      "What is a parametric equation?",
+      "Representing $x$ and $y$ as functions of a parameter $t$."
+    ],
+    [
+      "How to eliminate $t$ from $x=2t, y=t^2$?",
+      "$t=x/2 \\implies y=(x/2)^2$."
+    ],
+    [
+      "Identity used to eliminate $\\theta$ from $x=\\cos \\theta, y=\\sin \\theta$?",
+      "$\\cos^2 \\theta + \\sin^2 \\theta = 1$."
+    ],
+    [
+      "Cartesian equation for $x = a \\cos \\theta, y = b \\sin \\theta$?",
+      "$(x/a)^2 + (y/b)^2 = 1$ (Ellipse)."
+    ],
+    [
+      "Find $y$ if $x=3$ for $x=t+1, y=2t$?",
+      "$t=2 \\implies y=4$."
+    ],
+    [
+      "What does $t$ often represent in physics?",
+      "Time."
+    ],
+    [
+      "What are parametric equations?",
+      "$x$ and $y$ each expressed in terms of a parameter $t$."
+    ],
+    [
+      "How do you convert parametric to Cartesian form?",
+      "Eliminate the parameter between the two equations."
+    ]
   ],
   "quiz": [
     {
       "q": "Eliminate $t$ from $x=e^t, y=e^{2t}$.",
-      "opts": ["$y=2x$", "$y=x^2$", "$y=\\ln x$", "$y=2\\ln x$"],
+      "opts": [
+        "$y=2x$",
+        "$y=x^2$",
+        "$y=\\ln x$",
+        "$y=2\\ln x$"
+      ],
       "ans": 1,
       "why": "$y = (e^t)^2 = x^2$."
+    },
+    {
+      "q": "For $x=t^2$, $y=2t$, eliminating $t$ gives...?",
+      "opts": [
+        "$y^2=4x$",
+        "$x=y^2$",
+        "$y=2\\sqrt x$",
+        "$x^2=4y$"
+      ],
+      "ans": 0,
+      "why": "$t=y/2\\Rightarrow x=(y/2)^2\\Rightarrow y^2=4x$."
+    },
+    {
+      "q": "For $x=\\cos t$, $y=\\sin t$, the Cartesian curve is...?",
+      "opts": [
+        "$y=x$",
+        "$x^2+y^2=1$",
+        "$x^2-y^2=1$",
+        "$xy=1$"
+      ],
+      "ans": 1,
+      "why": "$\\cos^2t+\\sin^2t=1$."
+    },
+    {
+      "q": "At $t=2$ for $x=t+1$, $y=t^2$, the point is...?",
+      "opts": [
+        "$(3,4)$",
+        "$(2,4)$",
+        "$(3,2)$",
+        "$(1,4)$"
+      ],
+      "ans": 0,
+      "why": "$x=3,y=4$."
+    },
+    {
+      "q": "To convert to Cartesian you...?",
+      "opts": [
+        "add the equations",
+        "eliminate the parameter",
+        "square both",
+        "differentiate"
+      ],
+      "ans": 1,
+      "why": "Express $t$ and substitute."
     }
   ],
   "exam": [
@@ -2598,13 +2900,36 @@ C["maths:3.3"] = {
         "Using $\\sin^2 \\theta + \\cos^2 \\theta = 1$. (1)",
         "$(x/2)^2 + (y/3)^2 = 1 \\implies \\frac{x^2}{4} + \\frac{y^2}{9} = 1$. (1)"
       ]
+    },
+    {
+      "q": "A curve has parametric equations $x=2t$, $y=t^2-1$. Find the Cartesian equation.",
+      "marks": 3,
+      "ms": [
+        "$t=x/2$. (1)",
+        "$y=(x/2)^2-1$. (1)",
+        "$y=\\dfrac{x^2}{4}-1$. (1)"
+      ]
+    },
+    {
+      "q": "A curve is given by $x=3\\cos\\theta$, $y=2\\sin\\theta$. Show it is an ellipse and state its Cartesian equation.",
+      "marks": 6,
+      "ms": [
+        "$\\cos\\theta=x/3$, $\\sin\\theta=y/2$. (1)",
+        "Use $\\cos^2\\theta+\\sin^2\\theta=1$. (1)",
+        "$(x/3)^2+(y/2)^2=1$. (1)",
+        "$\\dfrac{x^2}{9}+\\dfrac{y^2}{4}=1$. (1)",
+        "Different denominators, so an ellipse. (1)",
+        "Semi-axes $3$ (in $x$) and $2$ (in $y$). (1)"
+      ]
     }
   ]
 };
 
 C["maths:3.4"] = {
   "notes": [
-    { "h": "Parametric Modelling" },
+    {
+      "h": "Parametric Modelling"
+    },
     {
       "callout": {
         "t": "info",
@@ -2661,19 +2986,94 @@ C["maths:3.4"] = {
     }
   ],
   "flashcards": [
-    ["Why use parametric modelling?", "It describes position at a specific time, not just the path."],
-    ["Common parameter in physical models?", "$t$ (time)."],
-    ["How to find when a projectile hits the ground?", "Set the $y(t)$ equation to zero."],
-    ["How to find initial position in a parametric model?", "Set $t=0$."],
-    ["What represents horizontal displacement?", "$x(t)$."],
-    ["What represents vertical displacement?", "$y(t)$."]
+    [
+      "Why use parametric modelling?",
+      "It describes position at a specific time, not just the path."
+    ],
+    [
+      "Common parameter in physical models?",
+      "$t$ (time)."
+    ],
+    [
+      "How to find when a projectile hits the ground?",
+      "Set the $y(t)$ equation to zero."
+    ],
+    [
+      "How to find initial position in a parametric model?",
+      "Set $t=0$."
+    ],
+    [
+      "What represents horizontal displacement?",
+      "$x(t)$."
+    ],
+    [
+      "What represents vertical displacement?",
+      "$y(t)$."
+    ],
+    [
+      "Why use parametric equations in modelling?",
+      "To describe a path where position depends on a parameter such as time, e.g. projectile motion."
+    ],
+    [
+      "In projectile motion, $x$ and $y$ are both functions of what?",
+      "Time $t$."
+    ]
   ],
   "quiz": [
     {
       "q": "Path $x=10t, y=20t-5t^2$. Find horizontal distance when $y=0$ (for $t>0$).",
-      "opts": ["20", "40", "10", "5"],
+      "opts": [
+        "20",
+        "40",
+        "10",
+        "5"
+      ],
       "ans": 1,
       "why": "$y=0 \\implies 5t(4-t)=0 \\implies t=4$. $x=10(4)=40$."
+    },
+    {
+      "q": "A projectile has $x=20t$, $y=15t-5t^2$. When does it land ($y=0$, $t>0$)?",
+      "opts": [
+        "$t=2$",
+        "$t=3$",
+        "$t=15$",
+        "$t=4$"
+      ],
+      "ans": 1,
+      "why": "$5t(3-t)=0\\Rightarrow t=3$."
+    },
+    {
+      "q": "Parametric form is natural when...?",
+      "opts": [
+        "$y$ depends only on $x$",
+        "both coordinates depend on a third variable",
+        "there is no curve",
+        "the graph is a line"
+      ],
+      "ans": 1,
+      "why": "A parameter drives both $x$ and $y$."
+    },
+    {
+      "q": "For $x=20t$ above, the range at landing ($t=3$) is...?",
+      "opts": [
+        "$40$",
+        "$60$",
+        "$20$",
+        "$45$"
+      ],
+      "ans": 1,
+      "why": "$x=20(3)=60$."
+    },
+    {
+      "q": "The parameter in motion problems is usually...?",
+      "opts": [
+        "distance",
+        "time",
+        "speed",
+        "angle"
+      ],
+      "ans": 1,
+      "why": "Time parametrises the trajectory."
     }
   ],
   "exam": [
@@ -2685,13 +3085,37 @@ C["maths:3.4"] = {
         "$20 - 9.8t = 0 \\implies t \\approx 2.04$. (1)",
         "$y(2.04) = 20(2.04) - 4.9(2.04)^2 \\approx 20.4m$. (1)"
       ]
+    },
+    {
+      "q": "A ball follows $x=8t$, $y=6t-5t^2$ (metres, seconds). Find the time of flight and horizontal range.",
+      "marks": 4,
+      "ms": [
+        "Lands when $y=0$: $t(6-5t)=0$. (1)",
+        "$t=1.2$ s ($t>0$). (1)",
+        "Range $x=8(1.2)$. (1)",
+        "$=9.6$ m. (1)"
+      ]
+    },
+    {
+      "q": "A particle moves with $x=t^2$, $y=2t$, $t\\ge0$. Find the Cartesian equation and discuss one limitation of using it instead of the parametric form.",
+      "marks": 6,
+      "ms": [
+        "$t=y/2$. (1)",
+        "$x=(y/2)^2$. (1)",
+        "$y^2=4x$. (1)",
+        "The Cartesian equation gives the path shape only. (1)",
+        "Limitation: it loses the time information — you cannot tell where the particle is at a given time. (1)",
+        "Also $y^2=4x$ allows $y<0$, but the parameter restricts to $y\\ge0$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:4.1"] = {
   "notes": [
-    { "h": "Binomial Expansion (Rational $n$)" },
+    {
+      "h": "Binomial Expansion (Rational $n$)"
+    },
     {
       "callout": {
         "t": "formula",
@@ -2723,19 +3147,94 @@ C["maths:4.1"] = {
     }
   ],
   "flashcards": [
-    ["Validity condition for $(1+x)^n$?", "$|x| < 1$."],
-    ["First three terms of $(1+x)^{-1}$?", "$1 - x + x^2$."],
-    ["First three terms of $(1+x)^{1/2}$?", "$1 + \\frac{1}{2}x - \\frac{1}{8}x^2$."],
-    ["Factor to extract from $(4+x)^n$?", "$4^n$."],
-    ["What is $n!$ (factorial)?", "Product of all integers from 1 to $n$."],
-    ["Validity of $(1-2x)^{1/2}$ expansion?", "$|-2x| < 1 \\implies |x| < 1/2$."]
+    [
+      "Validity condition for $(1+x)^n$?",
+      "$|x| < 1$."
+    ],
+    [
+      "First three terms of $(1+x)^{-1}$?",
+      "$1 - x + x^2$."
+    ],
+    [
+      "First three terms of $(1+x)^{1/2}$?",
+      "$1 + \\frac{1}{2}x - \\frac{1}{8}x^2$."
+    ],
+    [
+      "Factor to extract from $(4+x)^n$?",
+      "$4^n$."
+    ],
+    [
+      "What is $n!$ (factorial)?",
+      "Product of all integers from 1 to $n$."
+    ],
+    [
+      "Validity of $(1-2x)^{1/2}$ expansion?",
+      "$|-2x| < 1 \\implies |x| < 1/2$."
+    ],
+    [
+      "Binomial expansion of $(1+x)^n$ for any $n$?",
+      "$1+nx+\\dfrac{n(n-1)}{2!}x^2+\\dots$, valid for $|x|<1$."
+    ],
+    [
+      "Validity range for $(1+x)^n$ with non-integer $n$?",
+      "$|x|<1$."
+    ]
   ],
   "quiz": [
     {
       "q": "What is the third term in the expansion of $(1+x)^{1/2}$?",
-      "opts": ["$\\frac{1}{2}x$", "$-\\frac{1}{4}x^2$", "$-\\frac{1}{8}x^2$", "$\\frac{3}{8}x^2$"],
+      "opts": [
+        "$\\frac{1}{2}x$",
+        "$-\\frac{1}{4}x^2$",
+        "$-\\frac{1}{8}x^2$",
+        "$\\frac{3}{8}x^2$"
+      ],
       "ans": 2,
       "why": "$\\frac{(1/2)(-1/2)}{2}x^2 = -1/8 x^2$."
+    },
+    {
+      "q": "First three terms of $(1+x)^{1/2}$?",
+      "opts": [
+        "$1+\\tfrac12 x-\\tfrac18 x^2$",
+        "$1+x+x^2$",
+        "$1-\\tfrac12 x$",
+        "$1+\\tfrac12 x+\\tfrac18 x^2$"
+      ],
+      "ans": 0,
+      "why": "$1+\\tfrac12 x+\\dfrac{(1/2)(-1/2)}{2}x^2=1+\\tfrac12 x-\\tfrac18 x^2$."
+    },
+    {
+      "q": "$(1+x)^{-1}$ expands to...?",
+      "opts": [
+        "$1-x+x^2-\\dots$",
+        "$1+x+x^2+\\dots$",
+        "$1-x^2$",
+        "$1+x$"
+      ],
+      "ans": 0,
+      "why": "Alternating geometric-style series."
+    },
+    {
+      "q": "Validity of expanding $(1+3x)^{-2}$?",
+      "opts": [
+        "$|x|<1$",
+        "$|x|<\\tfrac13$",
+        "$|x|<3$",
+        "all $x$"
+      ],
+      "ans": 1,
+      "why": "Need $|3x|<1$."
+    },
+    {
+      "q": "The coefficient of $x^2$ in $(1+x)^4$ is...?",
+      "opts": [
+        "$4$",
+        "$6$",
+        "$12$",
+        "$1$"
+      ],
+      "ans": 1,
+      "why": "$\\binom42=6$."
     }
   ],
   "exam": [
@@ -2747,13 +3246,36 @@ C["maths:4.1"] = {
         "$1 + 6x + 27x^2$. (1)",
         "Validity: $|-3x| < 1 \\implies |x| < 1/3$. (1)"
       ]
+    },
+    {
+      "q": "Find the first three terms in the expansion of $(1+2x)^{1/2}$.",
+      "marks": 3,
+      "ms": [
+        "$1+\\tfrac12(2x)+\\dfrac{(1/2)(-1/2)}{2}(2x)^2+\\dots$. (1)",
+        "$\\dfrac{(1/2)(-1/2)}{2}=-\\tfrac18$; $-\\tfrac18(4x^2)=-\\tfrac12 x^2$. (1)",
+        "$1+x-\\tfrac12 x^2$. (1)"
+      ]
+    },
+    {
+      "q": "(a) Expand $(1-x)^{-2}$ up to and including the term in $x^2$. (b) State the range of validity.",
+      "marks": 6,
+      "ms": [
+        "Use $(1+y)^n$ with $y=-x$, $n=-2$. (1)",
+        "$1+(-2)(-x)+\\dfrac{(-2)(-3)}{2}(-x)^2+\\dots$. (1)",
+        "$=1+2x+3x^2+\\dots$. (1)",
+        "First three terms $1+2x+3x^2$. (1)",
+        "(b) Need $|-x|<1$. (1)",
+        "Valid for $|x|<1$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:4.2"] = {
   "notes": [
-    { "h": "Sequences & Recurrence" },
+    {
+      "h": "Sequences & Recurrence"
+    },
     {
       "callout": {
         "t": "def",
@@ -2766,11 +3288,22 @@ C["maths:4.2"] = {
         "t": "def",
         "h": "Types of Sequence",
         "body": [
-          {"kv": [
-            ["Convergent", "Terms approach a fixed limit $L$ as $n \\to \\infty$. E.g. $u_{n+1} = 0.5u_n + 1$ converges to $L = 2$."],
-            ["Divergent", "Terms grow without bound OR oscillate without settling. E.g. $u_{n+1} = 2u_n$."],
-            ["Periodic", "Terms repeat in a cycle: $u_{n+k} = u_n$ for some period $k$. E.g. $+1, -1, +1, -1$ has period 2."]
-          ]}
+          {
+            "kv": [
+              [
+                "Convergent",
+                "Terms approach a fixed limit $L$ as $n \\to \\infty$. E.g. $u_{n+1} = 0.5u_n + 1$ converges to $L = 2$."
+              ],
+              [
+                "Divergent",
+                "Terms grow without bound OR oscillate without settling. E.g. $u_{n+1} = 2u_n$."
+              ],
+              [
+                "Periodic",
+                "Terms repeat in a cycle: $u_{n+k} = u_n$ for some period $k$. E.g. $+1, -1, +1, -1$ has period 2."
+              ]
+            ]
+          }
         ]
       }
     },
@@ -2811,19 +3344,94 @@ C["maths:4.2"] = {
     }
   ],
   "flashcards": [
-    ["What is a recurrence relation?", "Defining a term using previous terms, e.g., $u_{n+1} = 2u_n + 1$."],
-    ["What is a periodic sequence?", "A sequence that repeats its values after a fixed interval."],
-    ["How to find the limit $L$ of a convergent sequence?", "Solve $L = f(L)$."],
-    ["Meaning of $u_1$?", "The first term of the sequence."],
-    ["Generate first 3 terms: $u_{n+1} = u_n^2, u_1 = 2$.", "2, 4, 16."],
-    ["Order of a periodic sequence $1, 2, 1, 2...$?", "2."]
+    [
+      "What is a recurrence relation?",
+      "Defining a term using previous terms, e.g., $u_{n+1} = 2u_n + 1$."
+    ],
+    [
+      "What is a periodic sequence?",
+      "A sequence that repeats its values after a fixed interval."
+    ],
+    [
+      "How to find the limit $L$ of a convergent sequence?",
+      "Solve $L = f(L)$."
+    ],
+    [
+      "Meaning of $u_1$?",
+      "The first term of the sequence."
+    ],
+    [
+      "Generate first 3 terms: $u_{n+1} = u_n^2, u_1 = 2$.",
+      "2, 4, 16."
+    ],
+    [
+      "Order of a periodic sequence $1, 2, 1, 2...$?",
+      "2."
+    ],
+    [
+      "What is a recurrence relation?",
+      "A rule giving each term from previous term(s), e.g. $u_{n+1}=2u_n+1$."
+    ],
+    [
+      "How do you find the limit $L$ of a convergent recurrence $u_{n+1}=f(u_n)$?",
+      "Solve $L=f(L)$."
+    ]
   ],
   "quiz": [
     {
       "q": "Find the limit of the sequence $u_{n+1} = 0.5u_n + 4$.",
-      "opts": ["4", "8", "2", "No limit"],
+      "opts": [
+        "4",
+        "8",
+        "2",
+        "No limit"
+      ],
       "ans": 1,
       "why": "$L = 0.5L + 4 \\implies 0.5L = 4 \\implies L = 8$."
+    },
+    {
+      "q": "$u_{n+1}=2u_n-1$, $u_1=3$. $u_2=$?",
+      "opts": [
+        "$5$",
+        "$6$",
+        "$3$",
+        "$7$"
+      ],
+      "ans": 0,
+      "why": "$2(3)-1=5$."
+    },
+    {
+      "q": "A sequence with $u_{n+1}=u_n$ is...?",
+      "opts": [
+        "increasing",
+        "constant",
+        "periodic 2",
+        "divergent"
+      ],
+      "ans": 1,
+      "why": "Every term equals the previous."
+    },
+    {
+      "q": "$u_{n+1}=-u_n$, $u_1=4$ is periodic with period...?",
+      "opts": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "ans": 1,
+      "why": "$4,-4,4,-4,\\dots$ repeats every 2."
+    },
+    {
+      "q": "A sequence that grows without bound is...?",
+      "opts": [
+        "convergent",
+        "periodic",
+        "divergent",
+        "constant"
+      ],
+      "ans": 2,
+      "why": "It does not approach a limit."
     }
   ],
   "exam": [
@@ -2836,13 +3444,37 @@ C["maths:4.2"] = {
         "$2k^2 + 3k - 10 = 0$. (1)",
         "$(2k+5)(k-2) = 0 \\implies k=2$ or $k=-2.5$. (1)"
       ]
+    },
+    {
+      "q": "A sequence is defined by $u_{n+1}=\\tfrac12 u_n+3$, $u_1=10$. Find $u_2,u_3$ and the limit.",
+      "marks": 4,
+      "ms": [
+        "$u_2=\\tfrac12(10)+3=8$. (1)",
+        "$u_3=\\tfrac12(8)+3=7$. (1)",
+        "Limit: $L=\\tfrac12 L+3$. (1)",
+        "$\\tfrac12 L=3\\Rightarrow L=6$. (1)"
+      ]
+    },
+    {
+      "q": "A sequence satisfies $u_{n+1}=ku_n+2$ with $u_1=1$ and converges to $5$. Find $k$.",
+      "marks": 6,
+      "ms": [
+        "At the limit: $L=kL+2$. (1)",
+        "$L=5$: $5=5k+2$. (1)",
+        "$5k=3$. (1)",
+        "$k=\\tfrac35$. (1)",
+        "Check $|k|<1$ for convergence: $\\tfrac35<1$. (1)",
+        "So $k=\\tfrac35$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:4.3"] = {
   "notes": [
-    { "h": "Sigma Notation" },
+    {
+      "h": "Sigma Notation"
+    },
     {
       "callout": {
         "t": "info",
@@ -2872,19 +3504,94 @@ C["maths:4.3"] = {
     }
   ],
   "flashcards": [
-    ["What does $\\sum$ stand for?", "Summation."],
-    ["Number of terms in $\\sum_{r=1}^{10} r$?", "10."],
-    ["Number of terms in $\\sum_{r=5}^{15} f(r)$?", "$15 - 5 + 1 = 11$."],
-    ["Evaluate $\\sum_{r=1}^{4} 2r$.", "$2+4+6+8 = 20$."],
-    ["$\\sum_{r=1}^{n} k$ where $k$ is constant?", "$nk$."],
-    ["Linear property: $\\sum (ar+b)$?", "$a\\sum r + \\sum b$."]
+    [
+      "What does $\\sum$ stand for?",
+      "Summation."
+    ],
+    [
+      "Number of terms in $\\sum_{r=1}^{10} r$?",
+      "10."
+    ],
+    [
+      "Number of terms in $\\sum_{r=5}^{15} f(r)$?",
+      "$15 - 5 + 1 = 11$."
+    ],
+    [
+      "Evaluate $\\sum_{r=1}^{4} 2r$.",
+      "$2+4+6+8 = 20$."
+    ],
+    [
+      "$\\sum_{r=1}^{n} k$ where $k$ is constant?",
+      "$nk$."
+    ],
+    [
+      "Linear property: $\\sum (ar+b)$?",
+      "$a\\sum r + \\sum b$."
+    ],
+    [
+      "What does $\\sum_{r=1}^{n} r$ equal?",
+      "$\\dfrac{n(n+1)}{2}$."
+    ],
+    [
+      "What does $\\sum_{r=1}^{n} c$ equal for a constant $c$?",
+      "$nc$ (add $c$ a total of $n$ times)."
+    ]
   ],
   "quiz": [
     {
       "q": "Evaluate $\\sum_{r=1}^{3} r^2$.",
-      "opts": ["6", "14", "9", "13"],
+      "opts": [
+        "6",
+        "14",
+        "9",
+        "13"
+      ],
       "ans": 1,
       "why": "$1^2 + 2^2 + 3^2 = 1 + 4 + 9 = 14$."
+    },
+    {
+      "q": "$\\sum_{r=1}^{4} 2r$ equals...?",
+      "opts": [
+        "$20$",
+        "$16$",
+        "$10$",
+        "$8$"
+      ],
+      "ans": 0,
+      "why": "$2(1+2+3+4)=20$."
+    },
+    {
+      "q": "$\\sum_{r=1}^{3} r^2$ equals...?",
+      "opts": [
+        "$14$",
+        "$9$",
+        "$6$",
+        "$36$"
+      ],
+      "ans": 0,
+      "why": "$1+4+9=14$."
+    },
+    {
+      "q": "$\\sum_{r=1}^{5} r$ equals...?",
+      "opts": [
+        "$10$",
+        "$15$",
+        "$25$",
+        "$5$"
+      ],
+      "ans": 1,
+      "why": "$\\dfrac{5\\cdot6}{2}=15$."
+    },
+    {
+      "q": "$\\sum_{r=1}^{n} c$ (constant) equals...?",
+      "opts": [
+        "$c$",
+        "$nc$",
+        "$c^n$",
+        "$n+c$"
+      ],
+      "ans": 1,
+      "why": "$c$ added $n$ times."
     }
   ],
   "exam": [
@@ -2896,13 +3603,36 @@ C["maths:4.3"] = {
         "$S_n = \\frac{n}{2}(2(1) + (n-1)2)$. (1)",
         "$S_n = \\frac{n}{2}(2 + 2n - 2) = \\frac{n}{2}(2n) = n^2$. (1)"
       ]
+    },
+    {
+      "q": "Evaluate $\\sum_{r=1}^{10}(3r-2)$.",
+      "marks": 3,
+      "ms": [
+        "$=3\\sum r-\\sum 2=3\\cdot\\dfrac{10\\cdot11}{2}-2(10)$. (1)",
+        "$=165-20$. (1)",
+        "$=145$. (1)"
+      ]
+    },
+    {
+      "q": "Show that $\\sum_{r=1}^{n}(2r-1)=n^2$.",
+      "marks": 6,
+      "ms": [
+        "$\\sum_{r=1}^n(2r-1)=2\\sum r-\\sum 1$. (1)",
+        "$=2\\cdot\\dfrac{n(n+1)}{2}-n$. (1)",
+        "$=n(n+1)-n$. (1)",
+        "$=n^2+n-n$. (1)",
+        "$=n^2$. (1)",
+        "So the sum of the first $n$ odd numbers is $n^2$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:4.4"] = {
   "notes": [
-    { "h": "Arithmetic Sequences & Series" },
+    {
+      "h": "Arithmetic Sequences & Series"
+    },
     {
       "callout": {
         "t": "formula",
@@ -2914,23 +3644,110 @@ C["maths:4.4"] = {
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "AP — Formulae & Strategy", "body": "$u_n = a + (n-1)d$ — index starts at 1, so subtract 1 before multiplying by $d$. Sum: $S_n = \\frac{n}{2}(2a+(n-1)d)$ or $\\frac{n}{2}(a+l)$ when last term $l$ is known. If two terms are given, set up simultaneous equations and subtract to find $d$, then back-substitute for $a$." } },
-    { "callout": { "t": "miscon", "h": "$u_n = a + nd$ — Off-by-One Error", "body": "The correct formula is $u_n = a + (n-1)d$. Using $a + nd$ shifts every term one place forward: it gives $u_1 = a + d$ (the second term). Check: $u_1$ must equal $a$, so when $n=1$ you need $(n-1)d = 0d = 0$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "AP — Formulae & Strategy",
+        "body": "$u_n = a + (n-1)d$ — index starts at 1, so subtract 1 before multiplying by $d$. Sum: $S_n = \\frac{n}{2}(2a+(n-1)d)$ or $\\frac{n}{2}(a+l)$ when last term $l$ is known. If two terms are given, set up simultaneous equations and subtract to find $d$, then back-substitute for $a$."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$u_n = a + nd$ — Off-by-One Error",
+        "body": "The correct formula is $u_n = a + (n-1)d$. Using $a + nd$ shifts every term one place forward: it gives $u_1 = a + d$ (the second term). Check: $u_1$ must equal $a$, so when $n=1$ you need $(n-1)d = 0d = 0$."
+      }
+    }
   ],
   "flashcards": [
-    ["Formula for the $n$th term of an AP?", "$a + (n-1)d$."],
-    ["Formula for the sum of an AP?", "$n/2 [2a + (n-1)d]$."],
-    ["What is $d$ in an AP?", "The common difference."],
-    ["Sum of first $n$ integers?", "$n(n+1)/2$."],
-    ["If $a=5, d=3$, what is $u_{10}$?", "$5 + 9(3) = 32$."],
-    ["Common difference of $10, 7, 4...$?", "$-3$."]
+    [
+      "Formula for the $n$th term of an AP?",
+      "$a + (n-1)d$."
+    ],
+    [
+      "Formula for the sum of an AP?",
+      "$n/2 [2a + (n-1)d]$."
+    ],
+    [
+      "What is $d$ in an AP?",
+      "The common difference."
+    ],
+    [
+      "Sum of first $n$ integers?",
+      "$n(n+1)/2$."
+    ],
+    [
+      "If $a=5, d=3$, what is $u_{10}$?",
+      "$5 + 9(3) = 32$."
+    ],
+    [
+      "Common difference of $10, 7, 4...$?",
+      "$-3$."
+    ],
+    [
+      "$n$th term of an arithmetic sequence?",
+      "$u_n=a+(n-1)d$."
+    ],
+    [
+      "Sum of $n$ terms of an arithmetic series?",
+      "$S_n=\\dfrac n2(2a+(n-1)d)=\\dfrac n2(a+l)$."
+    ]
   ],
   "quiz": [
     {
       "q": "An AP has $a=10$ and $d=2$. Find $S_{20}$.",
-      "opts": ["480", "580", "500", "400"],
+      "opts": [
+        "480",
+        "580",
+        "500",
+        "400"
+      ],
       "ans": 1,
       "why": "$20/2 [20 + 19(2)] = 10 [20 + 38] = 580$."
+    },
+    {
+      "q": "Arithmetic sequence $3,7,11,\\dots$ 10th term?",
+      "opts": [
+        "$39$",
+        "$40$",
+        "$43$",
+        "$37$"
+      ],
+      "ans": 0,
+      "why": "$3+9(4)=39$."
+    },
+    {
+      "q": "Sum of the first 20 terms of $2,5,8,\\dots$?",
+      "opts": [
+        "$590$",
+        "$610$",
+        "$600$",
+        "$580$"
+      ],
+      "ans": 1,
+      "why": "$\\dfrac{20}{2}(4+19\\cdot3)=10(61)=610$."
+    },
+    {
+      "q": "Common difference of $10,7,4,\\dots$?",
+      "opts": [
+        "$3$",
+        "$-3$",
+        "$7$",
+        "$-7$"
+      ],
+      "ans": 1,
+      "why": "$7-10=-3$."
+    },
+    {
+      "q": "Which formula uses first term $a$ and last term $l$?",
+      "opts": [
+        "$\\dfrac n2(a+l)$",
+        "$a+(n-1)d$",
+        "$ar^{n-1}$",
+        "$\\dfrac a{1-r}$"
+      ],
+      "ans": 0,
+      "why": "Average of the ends times the count."
     }
   ],
   "exam": [
@@ -2944,13 +3761,36 @@ C["maths:4.4"] = {
         "$S_{20} = \\frac{20}{2}(2(6) + 19(4))$. (1)",
         "$10(12+76) = 880$. (1)"
       ]
+    },
+    {
+      "q": "An arithmetic series has first term 5 and common difference 3. Find the sum of the first 15 terms.",
+      "marks": 3,
+      "ms": [
+        "$S_{15}=\\dfrac{15}{2}(2(5)+14(3))$. (1)",
+        "$=\\dfrac{15}{2}(52)$. (1)",
+        "$=390$. (1)"
+      ]
+    },
+    {
+      "q": "The 4th term of an arithmetic sequence is 13 and the 9th term is 33. Find $a$, $d$, and the sum of the first 20 terms.",
+      "marks": 6,
+      "ms": [
+        "$a+3d=13$, $a+8d=33$. (1)",
+        "Subtract: $5d=20\\Rightarrow d=4$. (1)",
+        "$a+12=13\\Rightarrow a=1$. (1)",
+        "$S_{20}=\\dfrac{20}{2}(2(1)+19(4))$. (1)",
+        "$=10(78)$. (1)",
+        "$=780$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:4.5"] = {
   "notes": [
-    { "h": "Geometric Sequences & Series" },
+    {
+      "h": "Geometric Sequences & Series"
+    },
     {
       "callout": {
         "t": "formula",
@@ -2962,23 +3802,110 @@ C["maths:4.5"] = {
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "GP — Formulae & Convergence", "body": "$u_n = ar^{n-1}$. Sum $n$ terms: $S_n = \\frac{a(1-r^n)}{1-r}$ (use when $|r|<1$) or $\\frac{a(r^n-1)}{r-1}$ (cleaner when $r>1$). Sum to infinity: $S_\\infty = \\frac{a}{1-r}$ — **only valid when $|r|<1$**. If $|r|\\ge 1$, no sum to infinity exists." } },
-    { "callout": { "t": "miscon", "h": "$S_\\infty$ Exists for Any GP", "body": "WRONG. $S_\\infty = \\frac{a}{1-r}$ only works when $|r| < 1$ (the series converges). If $r = 2$, each term doubles — the sum blows up to infinity. If $r = -2$, terms oscillate and grow — also divergent. Always state $|r|<1$ before using $S_\\infty$." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "GP — Formulae & Convergence",
+        "body": "$u_n = ar^{n-1}$. Sum $n$ terms: $S_n = \\frac{a(1-r^n)}{1-r}$ (use when $|r|<1$) or $\\frac{a(r^n-1)}{r-1}$ (cleaner when $r>1$). Sum to infinity: $S_\\infty = \\frac{a}{1-r}$ — **only valid when $|r|<1$**. If $|r|\\ge 1$, no sum to infinity exists."
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "$S_\\infty$ Exists for Any GP",
+        "body": "WRONG. $S_\\infty = \\frac{a}{1-r}$ only works when $|r| < 1$ (the series converges). If $r = 2$, each term doubles — the sum blows up to infinity. If $r = -2$, terms oscillate and grow — also divergent. Always state $|r|<1$ before using $S_\\infty$."
+      }
+    }
   ],
   "flashcards": [
-    ["Formula for the $n$th term of a GP?", "$ar^{n-1}$."],
-    ["Condition for a GP to converge to infinity?", "$|r| < 1$."],
-    ["Formula for sum to infinity?", "$a/(1-r)$."],
-    ["What is $r$ in a GP?", "Common ratio."],
-    ["If $a=3, r=2$, what is $u_5$?", "$3 \\times 2^4 = 48$."],
-    ["Sum of $1 + 1/2 + 1/4 + \\dots$?", "$1/(1-0.5) = 2$."]
+    [
+      "Formula for the $n$th term of a GP?",
+      "$ar^{n-1}$."
+    ],
+    [
+      "Condition for a GP to converge to infinity?",
+      "$|r| < 1$."
+    ],
+    [
+      "Formula for sum to infinity?",
+      "$a/(1-r)$."
+    ],
+    [
+      "What is $r$ in a GP?",
+      "Common ratio."
+    ],
+    [
+      "If $a=3, r=2$, what is $u_5$?",
+      "$3 \\times 2^4 = 48$."
+    ],
+    [
+      "Sum of $1 + 1/2 + 1/4 + \\dots$?",
+      "$1/(1-0.5) = 2$."
+    ],
+    [
+      "$n$th term of a geometric sequence?",
+      "$u_n=ar^{n-1}$."
+    ],
+    [
+      "Sum to infinity of a geometric series (for $|r|<1$)?",
+      "$S_\\infty=\\dfrac{a}{1-r}$."
+    ]
   ],
   "quiz": [
     {
       "q": "Find the common ratio $r$ of the GP: $8, 12, 18, \\dots$",
-      "opts": ["$4$", "$1.5$", "$2$", "$0.66$"],
+      "opts": [
+        "$4$",
+        "$1.5$",
+        "$2$",
+        "$0.66$"
+      ],
       "ans": 1,
       "why": "$12/8 = 1.5$."
+    },
+    {
+      "q": "Geometric $2,6,18,\\dots$ 5th term?",
+      "opts": [
+        "$162$",
+        "$54$",
+        "$108$",
+        "$486$"
+      ],
+      "ans": 0,
+      "why": "$2(3^4)=162$."
+    },
+    {
+      "q": "Sum to infinity of $8,4,2,\\dots$?",
+      "opts": [
+        "$16$",
+        "$8$",
+        "$12$",
+        "$32$"
+      ],
+      "ans": 0,
+      "why": "$\\dfrac{8}{1-1/2}=16$."
+    },
+    {
+      "q": "For a sum to infinity to exist, $|r|$ must be...?",
+      "opts": [
+        "$>1$",
+        "$<1$",
+        "$=1$",
+        "$>2$"
+      ],
+      "ans": 1,
+      "why": "Convergence needs $|r|<1$."
+    },
+    {
+      "q": "Common ratio of $81,27,9,\\dots$?",
+      "opts": [
+        "$3$",
+        "$\\tfrac13$",
+        "$-3$",
+        "$9$"
+      ],
+      "ans": 1,
+      "why": "$27/81=\\tfrac13$."
     }
   ],
   "exam": [
@@ -2990,13 +3917,35 @@ C["maths:4.5"] = {
         "$10 = 50 - 50r \\implies 50r = 40$. (1)",
         "$r = 0.8$. (1)"
       ]
+    },
+    {
+      "q": "A geometric series has first term 12 and common ratio $\\tfrac13$. Find the sum to infinity.",
+      "marks": 2,
+      "ms": [
+        "$S_\\infty=\\dfrac{12}{1-1/3}$. (1)",
+        "$=\\dfrac{12}{2/3}=18$. (1)"
+      ]
+    },
+    {
+      "q": "The 2nd term of a geometric sequence is 6 and the 5th term is 48. Find $a$, $r$, and the sum of the first 8 terms.",
+      "marks": 6,
+      "ms": [
+        "$ar=6$, $ar^4=48$. (1)",
+        "Divide: $r^3=8\\Rightarrow r=2$. (1)",
+        "$2a=6\\Rightarrow a=3$. (1)",
+        "$S_8=\\dfrac{3(2^8-1)}{2-1}$. (1)",
+        "$=3(255)$. (1)",
+        "$=765$. (1)"
+      ]
     }
   ]
 };
 
 C["maths:4.6"] = {
   "notes": [
-    { "h": "Series in Modelling" },
+    {
+      "h": "Series in Modelling"
+    },
     {
       "callout": {
         "t": "info",
@@ -3005,32 +3954,139 @@ C["maths:4.6"] = {
     },
     {
       "table": {
-        "head": ["Context", "Series Type", "Key Variable"],
+        "head": [
+          "Context",
+          "Series Type",
+          "Key Variable"
+        ],
         "rows": [
-          ["Simple Interest", "Arithmetic", "$d$ = fixed interest amount."],
-          ["Compound Interest", "Geometric", "$r = 1 + \\text{rate}$."],
-          ["Depreciation", "Geometric", "$r = 1 - \\text{rate}$."],
-          ["Salary Increase (fixed amount)", "Arithmetic", "$d$ = increase amount."]
+          [
+            "Simple Interest",
+            "Arithmetic",
+            "$d$ = fixed interest amount."
+          ],
+          [
+            "Compound Interest",
+            "Geometric",
+            "$r = 1 + \\text{rate}$."
+          ],
+          [
+            "Depreciation",
+            "Geometric",
+            "$r = 1 - \\text{rate}$."
+          ],
+          [
+            "Salary Increase (fixed amount)",
+            "Arithmetic",
+            "$d$ = increase amount."
+          ]
         ]
       }
     },
-    { "callout": { "t": "memorise", "h": "Modelling — AP vs GP Quick Guide", "body": "**AP** (fixed added amount): simple interest ($d$ = fixed interest), fixed salary increment. **GP** (fixed multiplied ratio): compound interest ($r = 1 + \\text{rate}$), depreciation ($r = 1 - \\text{rate}$), population growth. Decide by asking: *is the change added or multiplied each period?*" } },
-    { "callout": { "t": "miscon", "h": "Compound Interest Uses an AP", "body": "WRONG. Compound interest is geometric because each year's interest is a **percentage of the current total** (which grows). That ratio stays constant: $r = 1 + i$. Simple interest is arithmetic — the same fixed amount is added every year regardless of the total." } }
+    {
+      "callout": {
+        "t": "memorise",
+        "h": "Modelling — AP vs GP Quick Guide",
+        "body": "**AP** (fixed added amount): simple interest ($d$ = fixed interest), fixed salary increment. **GP** (fixed multiplied ratio): compound interest ($r = 1 + \\text{rate}$), depreciation ($r = 1 - \\text{rate}$), population growth. Decide by asking: *is the change added or multiplied each period?*"
+      }
+    },
+    {
+      "callout": {
+        "t": "miscon",
+        "h": "Compound Interest Uses an AP",
+        "body": "WRONG. Compound interest is geometric because each year's interest is a **percentage of the current total** (which grows). That ratio stays constant: $r = 1 + i$. Simple interest is arithmetic — the same fixed amount is added every year regardless of the total."
+      }
+    }
   ],
   "flashcards": [
-    ["Type of series for compound interest?", "Geometric."],
-    ["Type of series for fixed annual salary increments?", "Arithmetic."],
-    ["If a value drops by 10% each year, what is $r$?", "$0.9$."],
-    ["Sum used for total savings over $n$ years?", "$S_n$."],
-    ["Term used for value in year $n$?", "$u_n$."],
-    ["Meaning of $r=1.05$ in a growth model?", "5% increase per period."]
+    [
+      "Type of series for compound interest?",
+      "Geometric."
+    ],
+    [
+      "Type of series for fixed annual salary increments?",
+      "Arithmetic."
+    ],
+    [
+      "If a value drops by 10% each year, what is $r$?",
+      "$0.9$."
+    ],
+    [
+      "Sum used for total savings over $n$ years?",
+      "$S_n$."
+    ],
+    [
+      "Term used for value in year $n$?",
+      "$u_n$."
+    ],
+    [
+      "Meaning of $r=1.05$ in a growth model?",
+      "5% increase per period."
+    ],
+    [
+      "When does an arithmetic series model a situation well?",
+      "When a quantity changes by a constant amount each period (e.g. a fixed annual saving)."
+    ],
+    [
+      "When does a geometric series model a situation well?",
+      "When a quantity changes by a constant ratio/percentage each period (e.g. compound interest)."
+    ]
   ],
   "quiz": [
     {
       "q": "Save $£100$ in month 1, $£110$ in month 2, adding $£10$ more each month. Total after 12 months?",
-      "opts": ["$£1200$", "$£1860$", "$£2310$", "$£1500$"],
+      "opts": [
+        "$£1200$",
+        "$£1860$",
+        "$£2310$",
+        "$£1500$"
+      ],
       "ans": 1,
       "why": "AP: $a=100, d=10, n=12$. $S_{12} = 6[200 + 11(10)] = 6(310) = 1860$."
+    },
+    {
+      "q": "Compound interest is modelled by a...?",
+      "opts": [
+        "arithmetic series",
+        "geometric series",
+        "linear function",
+        "quadratic"
+      ],
+      "ans": 1,
+      "why": "Fixed percentage growth = constant ratio."
+    },
+    {
+      "q": "Saving £50 more each month than the last is...?",
+      "opts": [
+        "geometric",
+        "arithmetic",
+        "exponential",
+        "constant"
+      ],
+      "ans": 1,
+      "why": "Constant difference of £50."
+    },
+    {
+      "q": "A salary rising 3% per year forms a...?",
+      "opts": [
+        "arithmetic sequence",
+        "geometric sequence",
+        "periodic sequence",
+        "constant sequence"
+      ],
+      "ans": 1,
+      "why": "Multiplying by 1.03 each year is geometric."
+    },
+    {
+      "q": "The total saved with a fixed monthly amount over many months uses...?",
+      "opts": [
+        "sum to infinity",
+        "an arithmetic/geometric sum formula",
+        "the nth term only",
+        "the discriminant"
+      ],
+      "ans": 1,
+      "why": "Sum the series to get the total."
     }
   ],
   "exam": [
@@ -3041,6 +4097,27 @@ C["maths:4.6"] = {
         "GP with $a=20000, r=0.85$. (1)",
         "Value after 5 years is $u_6$ or $20000 \\times 0.85^5$. (1)",
         "Result: $\\approx £8874$. (1)"
+      ]
+    },
+    {
+      "q": "A person saves £100 in month 1 and £20 more each subsequent month. Find the total saved after 12 months.",
+      "marks": 3,
+      "ms": [
+        "Arithmetic: $a=100,d=20,n=12$. (1)",
+        "$S_{12}=\\dfrac{12}{2}(2(100)+11(20))=6(420)$. (1)",
+        "$=£2520$. (1)"
+      ]
+    },
+    {
+      "q": "£2000 is invested at 4% compound interest per year. (a) Find the value after 5 years. (b) After how many complete years does it first exceed £3000?",
+      "marks": 6,
+      "ms": [
+        "Value after $n$ years $=2000(1.04)^n$. (1)",
+        "(a) $2000(1.04)^5=2000(1.2167)$. (1)",
+        "$\\approx£2433$. (1)",
+        "(b) $2000(1.04)^n>3000\\Rightarrow(1.04)^n>1.5$. (1)",
+        "$n>\\dfrac{\\ln1.5}{\\ln1.04}\\approx10.3$. (1)",
+        "So after 11 complete years. (1)"
       ]
     }
   ]

@@ -915,6 +915,49 @@ window.KOS_DATA.intel = {
 },
 
 /* ============ Edexcel Mathematics 9MA0 — Pure ============ */
+"maths:3.1": {
+  defs: [["Straight line", "y = mx + c; gradient m = (y2-y1)/(x2-x1)."],
+         ["Perpendicular lines", "Gradients multiply to -1 (negative reciprocals)."]],
+  tips: ["Perpendicular bisector: use the midpoint and the negative-reciprocal gradient.", "Quote distance and midpoint formulas explicitly."],
+  pitfalls: ["Forgetting the negative reciprocal for perpendicular gradients.", "Arithmetic slips in the midpoint/gradient."]
+},
+"maths:3.2": {
+  defs: [["Circle equation", "(x-a)^2 + (y-b)^2 = r^2, centre (a,b), radius r."],
+         ["Tangent-radius property", "A tangent is perpendicular to the radius at the point of contact."]],
+  tips: ["Complete the square to read off centre and radius from the general form.", "Use the tangent-radius right angle for tangent questions."],
+  pitfalls: ["Sign errors reading the centre (it is +a, +b after the minus signs).", "Forgetting to square-root for the radius."]
+},
+"maths:3.3": {
+  defs: [["Parametric equations", "x and y given separately in terms of a parameter t."]],
+  tips: ["Eliminate t by substitution, or use cos^2+sin^2=1 for trig parameters.", "State any domain restriction the parameter imposes."],
+  pitfalls: ["Losing the domain restriction when converting to Cartesian.", "Algebra slips eliminating the parameter."]
+},
+"maths:3.4": {
+  defs: [["Parametric modelling", "Using a parameter (often time) so both coordinates of a path are functions of it."]],
+  tips: ["For projectiles, landing is y = 0 with t > 0.", "Parametric form keeps the time information that Cartesian loses."],
+  pitfalls: ["Taking t = 0 (the launch) as the landing time.", "Ignoring the limitation that Cartesian form loses timing/domain."]
+},
+"maths:4.2": {
+  defs: [["Recurrence relation", "Defines each term from previous ones, e.g. u_{n+1} = f(u_n)."]],
+  tips: ["Find the limit of a convergent recurrence by solving L = f(L).", "Spot periodic sequences by listing a few terms."],
+  pitfalls: ["Assuming convergence without checking |gradient| < 1.", "Mislabelling a constant or periodic sequence."]
+},
+"maths:4.3": {
+  defs: [["Sigma notation", "Sum r from lower to upper limit; sum_{1}^{n} r = n(n+1)/2."]],
+  tips: ["Split sums linearly: sum(ar+b) = a sum r + b sum 1.", "Remember sum of a constant c over n terms is nc."],
+  pitfalls: ["Treating sum of a constant as just c.", "Off-by-one in the limits."]
+},
+"maths:4.4": {
+  defs: [["Arithmetic sequence", "Constant difference d; u_n = a + (n-1)d."],
+         ["Arithmetic series sum", "S_n = n/2 (2a + (n-1)d) = n/2 (a + l)."]],
+  tips: ["Two given terms give simultaneous equations for a and d.", "Use the (a+l) form when the last term is known."],
+  pitfalls: ["Forgetting the n/2 factor in the sum.", "Confusing the nth-term and sum formulas."]
+},
+"maths:4.6": {
+  defs: [["Series modelling", "Arithmetic for constant change per step; geometric for constant ratio (e.g. compound interest)."]],
+  tips: ["Identify constant difference (arithmetic) vs constant ratio (geometric) first.", "Compound interest: value = P(1+r)^n; sum a series for cumulative totals."],
+  pitfalls: ["Modelling percentage growth as arithmetic.", "Using the nth term when the total (sum) is required."]
+},
 "maths:2.1": {
   defs: [["Index laws", "a^m x a^n = a^(m+n); a^m / a^n = a^(m-n); (a^m)^n = a^(mn)."],
          ["Fractional index", "a^(m/n) = the n-th root of a^m: root is the denominator, power the numerator."]],
