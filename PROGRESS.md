@@ -173,6 +173,55 @@ and the LMC verified live in Chrome.
 
 Total interactive tools: **22 simulations + 4 sandboxes**.
 
+## Build 2a — The Behavioural Governor: Foundation (Claude Code, 2026-07-01)
+Architecture + scaffolding for the governor layer. Placeholder/sample data only —
+no real exam dates. Both smoke suites pass.
+
+**FRs implemented: FR-1.1, FR-1.2, FR-1.4, FR-1.5, FR-3.2, FR-3.6, FR-3.7, FR-4.1, FR-4.2 ✅**
+
+- **New core** (`js/core/`): `srs.js` (SM-2 engine + unified card registry, 4-point
+  Again/Hard/Good/Easy, persistent per-card metadata, due queue, custom-card CRUD),
+  `sessions.js` (session log — the data backbone — + streak derivation),
+  `governor.js` (HP/gold/XP/level, catalog, gating, avatar seals, HUD).
+- **Flashcards** (`js/engines/flashcards.js`, rewritten): SM-2 session engine —
+  "Again" requeues into the current session AND resets the long-term interval
+  (two separate mechanisms); per-card ⓘ metrics (reviews, rating, last/next date,
+  interval, EF, lapses); Study/Manage modes; custom cards (badged) reviewed
+  together with curriculum cards. The Flashcards tab now appears on every
+  enriched topic even before cards exist, so customs can be added anywhere.
+- **Quiz/exam engines**: retrofit to append session log entries on completion.
+- **Views**: `due` (global Due Today queue, overdue first, rail badge),
+  `calendar` (month/week, event CRUD modal, weekly recurrence, type legend,
+  reminder threshold, SAMPLE events seeded relative to first-run date),
+  `governor` (Status + Recovery checklist, Gold Shop, Avatar, Session Log).
+- **Gamification**: HP 60/30 thresholds gate labs/sims/shop ONLY (core revision
+  never locks); drains −15/inactive day, −10/day when due backlog >30; restores
+  via the same actions as XP with a half-rate trickle while Critical. Gold:
+  8 lab/sim unlocks + themes (Kin, Shinku) + kanji seals + avatar frames.
+  XP/level is pure progress; 5 procedural SVG seals unlock by level; custom
+  avatar upload crops to circle + compresses to 256×256 before storage.
+- **Home**: HP banner, due-count stat, Today's directives (auto to-do (FR-4.1):
+  due cards + near deadlines + today's blocks + manual tasks), deadline
+  countdown widget (also on subject dashboards, subject-filtered), per-subject
+  streak chips. Streaks now derive from the session log (the old
+  open-the-app-and-streak++ `touchStreak` is gone; `state.streak` is legacy).
+- **HUD** (topbar): avatar, level, gold, HP + XP bars; click → governor panel.
+- **Tests**: smoke/smoke2 unlock the catalog after load (labs are gold-gated on
+  a fresh store) and now `process.exit(0)` on success (the 30-min reminder
+  interval keeps the event loop alive). NEW `tools/smoke3.test.js` — 20-step
+  governor suite: SM-2 maths, lapse/requeue scheduling, custom CRUD, streaks,
+  awards, drains, gating, purchases, recurrence, reminders, to-do, and the
+  never-lock-core-revision invariant. All three suites pass.
+
+**Carry into Build 2b (Focus Timer)**:
+- `sessions.log` accepts `dur` (seconds) and `type:"focus"` already — the timer
+  should start/end sessions and pass real durations; engines currently log
+  `dur:null`.
+- `governor.onSession` has a `focus` award branch stubbed (XP ∝ minutes).
+- Interface Focus Mode (FR-5.3) not started; consider a body class + CSS.
+- Gold economy numbers are placeholders — rebalance once real usage data exists.
+- Recovery checklist targets are static; could scale with backlog size.
+
 ## Claude Code backlog (app features)
 - **Content**: fill quiz (≥3) and exam (≥1) gaps across maths + thin CS files, using
   PMT papers in `Context/` as source (see the plan: build-1 completion sprint).

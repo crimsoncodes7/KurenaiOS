@@ -12,10 +12,49 @@
     progress: {},          // "subject:ref" -> {status, check:[c,s,q,u], note}
     notes: {},             // reserved
     ui: { subject: "compsci", view: "dash", openSections: {}, lastRef: {}, railOpen: true },
-    streak: { count: 0, lastDate: null },
+    streak: { count: 0, lastDate: null },   // legacy (pre-2a); streaks now derive from sessions
     oop: { classes: [], links: [], nextId: 1 },
     worked: { last: null },
-    trace: {}
+    trace: {},
+
+    /* ---- Build 2a: the Behavioural Governor ---- */
+    custom: { nextId: 1, cards: [] },
+    /* user-created flashcards: {id, sid, ref, q, a, created:"YYYY-MM-DD"} */
+
+    srs: {},
+    /* SM-2 metadata per card key ("sid:ref:i" curriculum, "u<id>" custom):
+       {ef, ivl, reps, due:"YYYY-MM-DD", last:"YYYY-MM-DD", views, lapses, lastRating} */
+
+    sessions: [],
+    /* study session log — the data backbone streaks/HP/XP/RAG read from:
+       {id, ts, date:"YYYY-MM-DD", type:"flashcards|due-review|quiz|exam|todo|focus",
+        subject, ref, dur (seconds|null), metrics:{...}} */
+
+    governor: {
+      hp: 100, gold: 0, xp: 0,
+      owned: [],                       // purchased catalog item ids
+      theme: "kurenai",                // active OS theme variant
+      seal: "kurenai",                 // active kanji seal variant
+      avatar: { kind: "seal", id: "seal-ember", img: null, frame: null },
+      lastTick: null,                  // "YYYY-MM-DD" of the last HP day-tick
+      lastBacklogDrain: null           // "YYYY-MM-DD" the backlog penalty last applied
+    },
+
+    calendar: {
+      nextId: 1, seeded: false,
+      events: [],
+      /* {id, title, date:"YYYY-MM-DD", time:"HH:MM"|null,
+          type:"exam|deadline|study|lesson|personal",
+          subject:null|sid, ref:null, recur:"none|weekly"} */
+      notifyDays: 3,                   // deadline reminder threshold (days out)
+      notified: {}                     // "eventId|date" -> true (reminder fired today)
+    },
+
+    todo: {
+      nextId: 1,
+      manual: [],                      // {id, text, done, created:"YYYY-MM-DD"} — persist independently
+      autoChecked: {}                  // "YYYY-MM-DD|autoKey" -> true (per-day auto item ticks)
+    }
   };
 
   function deepMerge(base, extra) {

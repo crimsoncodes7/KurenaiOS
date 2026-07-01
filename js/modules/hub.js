@@ -88,6 +88,12 @@
     var total = SUBJECTS.reduce(function (a, s) { return a + LEAVES[s].length; }, 0);
     var nc = document.getElementById("node-count");
     if (nc) nc.textContent = total;
+    var due = document.getElementById("pc-due");
+    if (due && KOS.srs) {
+      var n2 = KOS.srs.dueCount();
+      due.textContent = n2 ? String(n2) : "";
+      due.classList.toggle("hot", n2 > 0);
+    }
   }
   KOS.refreshRailCounters = refreshRailCounters;
 
@@ -187,21 +193,6 @@
   }
 
   /* ---------- views ---------- */
-  function localISO(d) {
-    function p(n) { return (n < 10 ? "0" : "") + n; }
-    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
-  }
-  function touchStreak() {
-    var stk = store.state.streak = store.state.streak || { count: 0, lastDate: null };
-    var today = localISO(new Date());
-    if (stk.lastDate !== today) {
-      var yesterday = localISO(new Date(Date.now() - 864e5));
-      stk.count = stk.lastDate === yesterday ? (stk.count || 0) + 1 : 1;
-      stk.lastDate = today;
-      store.save();
-    }
-    return stk;
-  }
   function masteredCount() {
     var n = 0;
     SUBJECTS.forEach(function (sid) {
@@ -224,18 +215,31 @@
     var study = store.state.study || {};
     var fcSeen = Object.keys(study.fc || {}).reduce(function (a, k) { return a + study.fc[k].seen; }, 0);
     var qAtt = Object.keys(study.quiz || {}).reduce(function (a, k) { return a + study.quiz[k].attempts; }, 0);
-    var stk = touchStreak();
+    var stks = KOS.sessions.streaks();
+    var dueN = KOS.srs.dueCount();
 
     main.appendChild(el("div", { class: "home-hero" }, [
       el("h1", {}, [el("span", { class: "kanji-inline", text: "紅" }), " Kurenai OS"])
     ]));
 
+    /* governor state banner — recovery nudge when HP is low */
+    var hpS = KOS.governor.hpState();
+    if (hpS !== "healthy") {
+      main.appendChild(el("div", { class: "gov-banner " + (hpS === "critical" ? "bad" : "warn") }, [
+        el("span", { html: hpS === "critical"
+          ? "<b>HP Critical.</b> Recovery Mode is the fastest way back — clear a few due cards and tick today's list."
+          : "<b>HP Strained.</b> Labs, sims and the shop are suspended until 60 HP. Core revision stays open." }),
+        el("button", { class: "btn", text: hpS === "critical" ? "Open Recovery →" : "Governor →",
+          onclick: function () { KOS.show("governor"); } })
+      ]));
+    }
+
     /* TOP — full-width stats bar */
     var ringWrap = el("div", { class: "home-ring" });
     var ringCv = el("canvas", { "aria-label": "Overall completion" });
     ringWrap.appendChild(ringCv);
-    function hstat(v, k) {
-      return el("div", { class: "hstat" }, [
+    function hstat(v, k, onclick) {
+      return el("div", { class: "hstat" + (onclick ? " click" : ""), onclick: onclick || function () {} }, [
         el("div", { class: "v", text: String(v) }),
         el("div", { class: "k", text: k })]);
     }
@@ -245,8 +249,15 @@
       hstat(masteredCount(), "Topics mastered"),
       hstat(fcSeen, "Flashcards reviewed"),
       hstat(qAtt, "Quiz attempts"),
-      hstat(stk.count + (stk.count === 1 ? " day" : " days"), "Current streak")
+      hstat(dueN, dueN === 1 ? "Card due today" : "Cards due today", function () { KOS.show("due"); }),
+      hstat(stks.all + (stks.all === 1 ? " day" : " days"), "Study streak")
     ]));
+
+    /* TODAY — auto-generated to-do + deadline countdowns side by side */
+    var todayRow = el("div", { class: "home-today" });
+    todayRow.appendChild(KOS.todo.panel());
+    todayRow.appendChild(KOS.calendar.countdownWidget(null));
+    main.appendChild(todayRow);
 
     /* MIDDLE — subject cards with a slim completion progress bar */
     var cards = el("div", { class: "home-cards" });
@@ -267,7 +278,12 @@
           (function () { var c = el("canvas", { class: "mini-ring" }); setTimeout(function () {
             miniRing(c, st.pct, HEX[sid]); }, 0); return c; })()
         ]),
-        el("div", { class: "m", text: st.done + "/" + st.total + " completed · " + cov + " deep-content topics" })
+        el("div", { class: "m", text: st.done + "/" + st.total + " completed · " + cov + " deep-content topics" }),
+        el("div", { class: "streak-chip" + (stks[sid] ? " lit" : ""),
+          title: "Days in a row with a logged session in this subject" }, [
+          el("span", { class: "fl", text: "炎" }),
+          el("span", { text: stks[sid] + (stks[sid] === 1 ? " day streak" : " day streak") })
+        ])
       ]);
 
       /* slim liquid-glass progress track — overall subject completion */
@@ -295,7 +311,7 @@
 
     /* BOTTOM — future build placeholders */
     var soon = el("div", { class: "home-cards soon-row" });
-    [["Build 2", "Behavioural Governor", "Focus timer, XP, avatar, SM-2 engine"],
+    [["Build 2b", "Focus Timer & Focus Mode", "Pomodoro sessions, timed logging, interface focus"],
      ["Build 3", "Kurenai Collection Matrix", "Track your manga/anime/manhwa vault"],
      ["Build 4", "Competitions & Music", "AniCord events, playlists, Ollama bridge"]
     ].forEach(function (t) {
@@ -357,18 +373,23 @@
   /* labs reachable per subject now the rail entries are gone */
   var PRACTICE = {
     compsci: [
-      ["Trace Lab", "Stacks, queues, lists & trees animated with trace tables", function () { KOS.show("trace"); }],
-      ["OOP Sandbox", "Drag class blocks, draw inheritance, read the C#", function () { KOS.show("oop"); }],
-      ["Logic Lab", "Boolean expressions with live truth tables", function () { KOS.sims.open("logic-lab"); }],
-      ["Sort Visualiser", "Bubble vs merge — watch the Big-O gap appear", function () { KOS.sims.open("sort-viz"); }],
-      ["FSM Lab", "Feed strings through acceptor state machines", function () { KOS.sims.open("fsm-lab"); }]
+      ["Trace Lab", "Stacks, queues, lists & trees animated with trace tables", function () { KOS.show("trace"); }, { view: "trace" }],
+      ["OOP Sandbox", "Drag class blocks, draw inheritance, read the C#", function () { KOS.show("oop"); }, { view: "oop" }],
+      ["Logic Lab", "Boolean expressions with live truth tables", function () { KOS.sims.open("logic-lab"); }, { sim: "logic-lab" }],
+      ["Sort Visualiser", "Bubble vs merge — watch the Big-O gap appear", function () { KOS.sims.open("sort-viz"); }, { sim: "sort-viz" }],
+      ["FSM Lab", "Feed strings through acceptor state machines", function () { KOS.sims.open("fsm-lab"); }, { sim: "fsm-lab" }]
     ],
     maths: [
-      ["Worked Examples", "Mark-scheme walkthroughs by paper, your numbers", function () { KOS.show("worked"); }],
-      ["Function Transformer", "y = a·f(bx + c) + d with exam wording written for you", function () { KOS.sims.open("fn-transform"); }]
+      ["Worked Examples", "Mark-scheme walkthroughs by paper, your numbers", function () { KOS.show("worked"); }, null],
+      ["Function Transformer", "y = a·f(bx + c) + d with exam wording written for you", function () { KOS.sims.open("fn-transform"); }, { sim: "fn-transform" }]
     ],
     it: []
   };
+  /* gate state for a practice tile: null = free, else governor verdict */
+  function practiceAccess(gate) {
+    if (!gate || !KOS.governor) return { ok: true };
+    return gate.view ? KOS.governor.viewAccess(gate.view) : KOS.governor.simAccess(gate.sim);
+  }
 
   function compareModal(sid) {
     var deepLeaves = LEAVES[sid].filter(function (l) { return KOS.content.has(sid, l.ref); });
@@ -444,18 +465,23 @@
     Object.keys(study.quiz || {}).forEach(function (k) {
       if (k.indexOf(sid + ":") === 0) bestPct = Math.max(bestPct, study.quiz[k].lastPct || 0);
     });
+    var subjStreak = KOS.sessions.streak(sid);
     main.appendChild(el("div", { class: "stat-strip" }, [
       stat(s.total, "Spec points"), stat(s.done, "Completed"),
       stat(s.started, "Started"), stat(s.paused, "Paused"),
       stat(cov, "Deep-content topics"),
       stat((s.total ? Math.round(100 * cov / s.total) : 0) + "%", "Deep-content %"),
       stat(fcSeen, "Flashcards reviewed"),
-      stat(bestPct + "%", "Best quiz score")
+      stat(bestPct + "%", "Best quiz score"),
+      stat(subjStreak + (subjStreak === 1 ? " day" : " days"), "Subject streak")
     ]));
     function stat(v, k) {
       return el("div", { class: "stat-card" }, [
         el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k })]);
     }
+
+    /* deadline countdowns scoped to this subject (FR-3.6) */
+    main.appendChild(KOS.calendar.countdownWidget(sid));
 
     var last = store.state.ui.lastRef[sid];
     if (last && BYREF[sid][last]) {
@@ -523,9 +549,12 @@
       main.appendChild(el("h3", { class: "n-h", style: "margin-top:26px", text: "Practice zone" }));
       var pz = el("div", { class: "practice-row" });
       labs.forEach(function (t) {
-        pz.appendChild(el("button", { class: "practice-card", onclick: t[2] }, [
+        var acc = practiceAccess(t[3]);
+        pz.appendChild(el("button", { class: "practice-card" + (acc.ok ? "" : " gated"), onclick: t[2] }, [
           el("b", { text: t[0] }),
-          el("span", { text: t[1] })
+          el("span", { text: t[1] }),
+          acc.ok ? null : el("span", { class: "practice-lock",
+            text: acc.why === "hp" ? "朽 suspended — low HP" : "錠 locked · ◈ " + acc.item.price })
         ]));
       });
       main.appendChild(pz);
@@ -596,10 +625,14 @@
     (KOS.sims.forRef ? KOS.sims.forRef(sid, ref) : []).forEach(function (sm) {
       if (!sims.some(function (x) { return x.id === sm.id; })) sims.push(sm);
     });
+    /* flashcards: curriculum + user-created custom cards for this topic — the
+       tab shows whenever either exists so custom cards are reachable, and on
+       enriched topics regardless so new ones can be added (FR-1.1) */
+    var deckSize = KOS.srs.cardsFor(sid, ref).length;
     var TABDEFS = [
       ["spec", "Specification", true],
       ["notes", "Notes", content && content.notes && content.notes.length],
-      ["cards", "Flashcards", content && content.flashcards && content.flashcards.length],
+      ["cards", "Flashcards", deckSize || !!content],
       ["quiz", "Quiz", content && content.quiz && content.quiz.length],
       ["exam", "Exam Qs", content && content.exam && content.exam.length],
       ["worked", "Worked", gens.length],
@@ -612,7 +645,7 @@
 
     TABDEFS.forEach(function (t) {
       var counter = "";
-      if (t[0] === "cards") counter = " " + content.flashcards.length;
+      if (t[0] === "cards" && deckSize) counter = " " + deckSize;
       if (t[0] === "quiz") counter = " " + content.quiz.length;
       if (t[0] === "exam") counter = " " + content.exam.length;
       tabBar.appendChild(el("button", {
@@ -703,7 +736,7 @@
       else if (curTab === "cards") {
         var fcHolder = el("div", { class: "fc-wrap" });
         panel.appendChild(fcHolder);
-        KOS.flashcards.mount(fcHolder, sid, ref, content.flashcards);
+        KOS.flashcards.mount(fcHolder, sid, ref);
       }
       else if (curTab === "quiz") {
         var qHolder = el("div", {});
@@ -725,6 +758,14 @@
       }
       else if (curTab === "sim") {
         sims.forEach(function (sm, i) {
+          /* the enrichment layer gates here; core tabs above never do */
+          var acc = KOS.governor.simAccess(sm.id);
+          if (!acc.ok) {
+            var lockCard = el("div", { class: "lab-panel", style: i ? "margin-top:16px" : "" });
+            KOS.governor.lockPanel(lockCard, acc);
+            panel.appendChild(lockCard);
+            return;
+          }
           if (sm.mount) {
             var card = el("div", { class: "lab-panel", style: i ? "margin-top:16px" : "" });
             card.appendChild(el("h3", { class: "n-h", style: "margin-top:0", text: sm.title }));

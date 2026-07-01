@@ -64,6 +64,11 @@
         st.lastPct = Math.round(100 * correct / items.length);
         if (correct > st.best) st.best = correct;
         store.save();
+        /* FR-3.2 — every completed quiz attempt lands in the session log */
+        KOS.sessions.log({
+          type: "quiz", subject: sid, ref: ref,
+          metrics: { correct: correct, total: items.length, pct: st.lastPct }
+        });
         var verdict = correct === items.length ? "Full marks ★" :
           correct >= items.length * 0.7 ? "Solid — review the misses." :
           "Worth another pass over the notes.";
@@ -104,6 +109,11 @@
           var st = qstats(sid, ref);
           st.attempts++;
           store.save();
+          /* FR-3.2 — self-marked exam questions are sessions too */
+          KOS.sessions.log({
+            type: "exam", subject: sid, ref: ref,
+            metrics: { marks: v, max: item.marks }
+          });
           KOS.ui.toast("Logged " + v + "/" + item.marks + " — be a harsh marker, future-you benefits.");
         }}));
         card.appendChild(selfRow);

@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm install jsdom          # one-time
 node tools/smoke.test.js   # core engine tests
 node tools/smoke2.test.js  # deep content + engines tests
+node tools/smoke3.test.js  # Build 2a governor: SM-2, sessions, economy, calendar, todo
 ```
 
 Note: both test files resolve `ROOT` via `path.resolve(__dirname, "..")`, so they
@@ -36,12 +37,17 @@ All JS is loaded via `<script src="...">` in `index.html` in strict dependency o
 ### Load order (from `index.html`)
 
 1. **Data** — `js/data/{compsci,maths,it,intel}.js` populate `window.KOS_DATA.*`
-2. **Core** — `store.js`, `ui.js`, `content.js` build the `KOS` object
+2. **Core** — `store.js`, `ui.js`, `content.js`, then Build 2a: `srs.js` (SM-2
+   engine + card registry), `sessions.js` (session log + streaks), `governor.js`
+   (HP/gold/XP, catalog, gating, avatar, HUD)
 3. **Deep content** — `js/data/content/*.js` populate `window.KOS_CONTENT["subject:ref"]`
 4. **Engines** — `js/engines/{flashcards,quiz}.js` register engine logic onto `KOS`
-5. **Modules** — `js/modules/hub.js` registers views: home, subject dashboard, ref view, search
+5. **Modules** — `js/modules/hub.js` (home, subject dash, ref view, search) +
+   `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`
 6. **Labs** — `js/labs/{worked,trace,oop,sims}.js` register their views
-7. **Boot** — `js/main.js` wires the rail nav and restores the last view
+7. **Boot** — `js/main.js` wires the rail nav, runs the governor boot sequence
+   (seed samples → HP tick → cosmetics → view gates → HUD → reminders), restores
+   the last view
 
 ### Key globals
 
@@ -64,11 +70,21 @@ All JS is loaded via `<script src="...">` in `index.html` in strict dependency o
   ui: { subject, view, openSections, lastRef },
   oop: { classes, links, nextId },
   worked: { last },
-  trace: {}
+  trace: {},
+  /* Build 2a — Behavioural Governor */
+  custom: { nextId, cards: [] },        // user flashcards {id,sid,ref,q,a,created}
+  srs: {},                              // card key -> {ef,ivl,reps,due,last,views,lapses,lastRating}
+  sessions: [],                         // study log {id,ts,date,type,subject,ref,dur,metrics}
+  governor: { hp, gold, xp, owned, theme, seal, avatar, lastTick, lastBacklogDrain },
+  calendar: { nextId, seeded, events, notifyDays, notified },
+  todo: { nextId, manual, autoChecked }
 }
 ```
 
 All mutations go through `KOS.store.*` methods so autosave fires automatically.
+Governor invariants: streaks/XP/HP flow ONLY from `KOS.sessions.log(...)` (never
+write them directly), and HP/gold gate only labs/sims/shop — core revision
+(spec, notes, flashcards, quizzes, exam Qs) must never lock.
 
 ### Adding deep revision content
 
@@ -80,8 +96,11 @@ window.KOS_CONTENT["subject:ref"] = {
            {kv:[["Term","Definition"]]},
            {table:{head:[],rows:[]}},
            {code:{lang:"csharp|sql|pseudo",src:"..."}},
-           {callout:{t:"def|tip|warn|miscon|mnemonic|memorise|formula", h:"optional header", body:"string or [blocks]"}},
-           {steps:[{h:"heading",m:"main text",n:"optional note"}]} ],
+           {callout:{t:"def|tip|warn|miscon|mnemonic|memorise|formula|info", h:"optional header", body:"string or [blocks]"}},
+           {steps:[{h:"heading",m:"main text",n:"optional note"}]},
+           {worked:{tag:"example|variation|exam|check", title:"what this example is", steps:[{m:"working line",n:"optional why"}], result:"final answer"}},
+           {svg:{src:"<svg>…</svg>", cap:"caption"}},
+           {page:"Page title"} ],
   flashcards: [["Question","Answer"]],
   quiz: [{q:"...", opts:["a","b"], ans:0, why:"..."}],
   exam: [{q:"...", marks:4, ms:["mark point"]}],

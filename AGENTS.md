@@ -47,6 +47,36 @@ you do NOT need to touch content files to wire a lab:
 - **Textarea gotcha**: `el("textarea", {value})` sets the *attribute*, which a textarea
   ignores. Create it, then assign `node.value = "…"` as a property.
 
+## Build 2a — the Behavioural Governor (architecture)
+Core loads in this order (all before engines/modules): `store.js` → `ui.js` →
+`content.js` → `srs.js` → `sessions.js` → `governor.js`.
+- **`KOS.srs`** — the SM-2 engine + unified card registry. Curriculum cards key
+  `"sid:ref:i"`, custom cards `"u<id>"`. `rate(key, 0..3)` (Again/Hard/Good/Easy)
+  updates persistent metadata in `store.state.srs`; `dueCards()` is the global
+  queue (reviewed cards only — unseen cards enter the schedule on first rating).
+  Custom-card CRUD: `addCustom/updateCustom/deleteCustom`.
+- **`KOS.sessions`** — the session log (`store.state.sessions`), THE data
+  backbone. `log({type, subject, ref, dur, metrics})` on every completed
+  activity; `streak(sid|null)` derives consecutive-day streaks from it.
+  **Never write streaks or XP directly — log a session and let it flow.**
+- **`KOS.governor`** — HP (healthy ≥60 / strained ≥30 / critical <30), gold,
+  XP/level, catalog, avatar seals, cosmetics, gating. `onSession(e)` is called
+  by `sessions.log` and pays XP/gold/HP. `tick()` (boot + 30-min interval)
+  applies day drains and backlog drains. `installGates()` (called in main.js)
+  wraps the `trace`/`oop`/`sims` views; `simAccess(id)`/`viewAccess(id)` are
+  the gate checks hub.js and sims.js use.
+- **HARD RULE**: HP/gold gate ONLY labs, sims and the shop. Spec, notes,
+  flashcards, quizzes, exam Qs never lock. Don't add gates to core revision.
+- **Views**: `due` (global SM-2 queue), `calendar` (events + weekly recurrence;
+  deadlines are events typed `exam`/`deadline`, no separate store), `governor`
+  (status/shop/avatar/session log). `KOS.todo.panel()` renders the daily list
+  on home; auto items derive from due cards + near deadlines, manual tasks
+  persist in `store.state.todo.manual`.
+- **Tests**: both suites call `KOS.governor.debugUnlockAll()` right after
+  script load because labs are gold-locked on a fresh store. Keep that line in
+  mind when a lab step fails with missing DOM.
+- `#hud` in the topbar is repainted by `KOS.refreshHUD()` after any award.
+
 ## Navigation
 `KOS.show(viewId, arg)` records a history stack; `KOS.back()`/`KOS.forward()` (and
 `KOS.canBack()`/`KOS.canForward()`) drive the topbar **‹ Back** / **Forward ›** buttons
@@ -66,8 +96,9 @@ forward trail and rail state stay correct.
   guard against divide-by-zero, `f'(x₀)=0`, equal roots, etc. in `validate()`.
 - `{code}` blocks auto-render a copy button + language tag; author them normally.
 
-## Tests — both must print ALL SMOKE TESTS PASSED
+## Tests — all three must print ALL SMOKE TESTS PASSED
 ```sh
 node tools/smoke.test.js    # core engine
 node tools/smoke2.test.js   # deep content + engines
+node tools/smoke3.test.js   # Build 2a governor: SM-2, sessions, economy, calendar, todo
 ```

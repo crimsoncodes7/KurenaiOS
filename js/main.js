@@ -43,6 +43,23 @@
   }
   applyRail();
 
+  /* ---- Behavioural Governor boot sequence (Build 2a) ----
+     seed sample calendar, apply HP day-tick, wrap the gated lab views (they
+     are all registered by now), paint the HUD, then fire deadline reminders */
+  KOS.calendar.seedSamples();
+  KOS.governor.tick();
+  KOS.governor.applyCosmetics();
+  KOS.governor.installGates();
+  KOS.refreshHUD();
+  setTimeout(function () { KOS.calendar.checkReminders(); }, 900);
+  /* re-check reminders + HP drift every 30 min while the app stays open */
+  setInterval(function () {
+    KOS.governor.tick();
+    KOS.calendar.checkReminders();
+    KOS.refreshHUD();
+    KOS.refreshRailCounters();
+  }, 30 * 60 * 1000);
+
   KOS.refreshRailCounters();
   var ui = KOS.store.state.ui;
   var view = ui.view || "home";

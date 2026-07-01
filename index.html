@@ -26,7 +26,7 @@
     <div class="brand">
       <span class="kanji" aria-hidden="true">紅</span>
       <span class="name">Kurenai OS</span>
-      <span class="sub">Unified HQ · Build 2.1</span>
+      <span class="sub">Unified HQ · Build 2a</span>
     </div>
     <div id="searchbox">
       <span class="glyph" aria-hidden="true">⌕</span>
@@ -34,6 +34,7 @@
              autocomplete="off" aria-label="Search the specification database">
       <div id="search-results" role="listbox"></div>
     </div>
+    <div id="hud"></div>
     <div class="save-wrap" title="Every change autosaves to this browser">
       <span id="save-dot"></span><span>AUTOSAVE</span>
     </div>
@@ -45,6 +46,15 @@
       <div class="rail-h">System</div>
       <button class="rail-item" data-view="home">
         <span class="dot" style="--accent:#e8425a"></span><span class="lbl">Overview</span>
+      </button>
+      <button class="rail-item" data-view="due">
+        <span class="dot" style="--accent:#ecc15a"></span><span class="lbl">Due Today</span><span class="pc" id="pc-due"></span>
+      </button>
+      <button class="rail-item" data-view="calendar">
+        <span class="dot" style="--accent:#7b9ef8"></span><span class="lbl">Calendar</span>
+      </button>
+      <button class="rail-item" data-view="governor">
+        <span class="dot" style="--accent:#c77bf2"></span><span class="lbl">Governor</span>
       </button>
 
       <div class="rail-h">Subjects</div>
@@ -87,6 +97,9 @@
 <script src="js/core/store.js"></script>
 <script src="js/core/ui.js"></script>
 <script src="js/core/content.js"></script>
+<script src="js/core/srs.js"></script>
+<script src="js/core/sessions.js"></script>
+<script src="js/core/governor.js"></script>
 <!-- deep revision content (wave 1) -->
 <script src="js/data/content/cs-programming.js"></script>
 <script src="js/data/content/cs-theory-computation.js"></script>
@@ -111,6 +124,10 @@
 <script src="js/engines/quiz.js"></script>
 <!-- modules -->
 <script src="js/modules/hub.js"></script>
+<script src="js/modules/due.js"></script>
+<script src="js/modules/calendar.js"></script>
+<script src="js/modules/todo.js"></script>
+<script src="js/modules/governor-ui.js"></script>
 <script src="js/labs/worked.js"></script>
 <script src="js/labs/trace.js"></script>
 <script src="js/labs/oop.js"></script>

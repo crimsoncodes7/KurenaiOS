@@ -20,6 +20,10 @@ for (const src of scripts) {
   try { window.eval(fs.readFileSync(path.join(ROOT, src), "utf8")); }
   catch (e) { errors.push(`LOAD FAIL ${src}: ${e.message}`); }
 }
+// Build 2a: labs/sims are gold-gated behind the Behavioural Governor on a
+// fresh store — own the whole catalog so the sim/lab steps run unobstructed.
+window.eval("KOS.governor.debugUnlockAll()");
+
 function step(name, fn) {
   try { fn(); console.log("  ok  " + name); }
   catch (e) { errors.push(`STEP "${name}": ${e.stack.split("\n").slice(0, 2).join(" | ")}`); console.log("FAIL  " + name); }
@@ -238,5 +242,7 @@ setTimeout(() => {
   } catch (e) { errors.push("persist: " + e.message); }
   console.log("\n==============================");
   if (errors.length) { console.log("FAILURES (" + errors.length + "):"); errors.forEach(e => console.log(" • " + e)); process.exit(1); }
-  else console.log("ALL SMOKE TESTS PASSED");
+  // explicit exit: the app keeps a 30-min reminder interval alive (Build 2a),
+  // so the event loop never drains on its own any more
+  else { console.log("ALL SMOKE TESTS PASSED"); process.exit(0); }
 }, 600);

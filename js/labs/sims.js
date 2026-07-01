@@ -1750,18 +1750,22 @@
     var panel = el("div", { class: "lab-panel lab-wrap" });
     var current = openId && KOS.sims.get(openId) && KOS.sims.get(openId).mount ? openId : withMount[0].id;
     withMount.forEach(function (s) {
+      var locked = KOS.governor && !KOS.governor.simAccess(s.id).ok;
       tabs.appendChild(el("button", { class: "lab-tab" + (s.id === current ? " active" : ""),
         onclick: function () {
           current = s.id;
           tabs.querySelectorAll(".lab-tab").forEach(function (b, i) {
             b.classList.toggle("active", withMount[i].id === current); });
           open(s);
-        } }, [s.title]));
+        } }, [(locked ? "◈ " : "") + s.title]));
     });
     main.appendChild(tabs);
     main.appendChild(panel);
     function open(s) {
       panel.innerHTML = "";
+      /* gold-locked sims stay locked inside this view too, not just at entry */
+      var acc = KOS.governor ? KOS.governor.simAccess(s.id) : { ok: true };
+      if (!acc.ok) { KOS.governor.lockPanel(panel, acc); return; }
       panel.appendChild(el("p", { class: "sub", style: "margin-top:0", text: s.desc }));
       panel.appendChild(el("div", { style: "font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-bottom:12px",
         text: (s.subject === "maths" ? "Edexcel 9MA0 · " : "AQA 7517 · ") + s.ref }));
