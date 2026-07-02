@@ -68,6 +68,15 @@
     g.hp = clamp(g.hp + amount);
   }
 
+  /* immediate HP nick (Build 2b: focus-session distraction penalty) */
+  function drainHp(amount) {
+    var g = G();
+    g.hp = clamp(g.hp - amount);
+    store.save();
+    if (KOS.refreshHUD) KOS.refreshHUD();
+    return g.hp;
+  }
+
   /* ================= XP / level ================= */
   /* XP to go from level n to n+1: 100 + 50·(n−1). Pure progress, no gating. */
   function levelInfo(xp) {
@@ -99,7 +108,29 @@
     }
     else if (e.type === "exam") { xp = 12; gold = 2; hp = 3; }
     else if (e.type === "todo") { xp = 5; gold = 1; hp = 2; }
-    else if (e.type === "focus") { xp = 10 + Math.round((e.dur || 0) / 60); gold = 3; hp = 5; }
+    else if (e.type === "focus") {
+      /* Build 2b — the real focus award. Ended-early sessions log but forfeit
+         the whole award; extra pauses (first is free) shave XP/gold 15% each;
+         distraction HP nicks were already applied live by the timer. */
+      if (!m.complete) {
+        store.save();
+        if (KOS.ui) KOS.ui.toast("Focus session logged — ended early, award forfeited.");
+        if (KOS.refreshHUD) KOS.refreshHUD();
+        return;
+      }
+      var mins = m.mins || Math.round((e.dur || 0) / 60);
+      xp = 10 + mins;
+      gold = 3 + 2 * Math.floor(mins / 25);
+      hp = 6;
+      var extraPauses = Math.max(0, (m.pauses || 0) - 1);
+      if (extraPauses) {
+        var mult = Math.max(0.25, 1 - 0.15 * extraPauses);
+        xp = Math.round(xp * mult);
+        gold = Math.round(gold * mult);
+        notes.push(extraPauses + " extra pause" + (extraPauses > 1 ? "s" : "") + " −" + Math.round((1 - mult) * 100) + "%");
+      }
+      if (m.distractions) notes.push(m.distractions + " distraction" + (m.distractions > 1 ? "s" : ""));
+    }
 
     /* streak milestone bonuses (once per milestone per streak-run) */
     var stk = KOS.sessions.streak(null);
@@ -392,6 +423,7 @@
     onSession: onSession,
     levelInfo: levelInfo,
     level: level,
+    drainHp: drainHp,
     catalog: catalog,
     item: item,
     owns: owns,

@@ -253,6 +253,19 @@
       hstat(stks.all + (stks.all === 1 ? " day" : " days"), "Study streak")
     ]));
 
+    /* focus CTA — start (or return to) a timed session */
+    var fxActive = KOS.focus && KOS.focus.state() !== "idle";
+    main.appendChild(el("button", { class: "focus-cta" + (fxActive ? " live" : ""), onclick: function () {
+      KOS.show("focus");
+    } }, [
+      el("span", { class: "k", "aria-hidden": "true", text: "集" }),
+      el("span", { class: "t" }, [
+        el("b", { text: fxActive ? "Focus session in progress" : "Start a focus session" }),
+        el("span", { text: fxActive ? "The clock is running — return to the stage." : "Pomodoro or custom timer · what you study during it gets logged to the session." })
+      ]),
+      el("span", { class: "go", text: "→" })
+    ]));
+
     /* TODAY — auto-generated to-do + deadline countdowns side by side */
     var todayRow = el("div", { class: "home-today" });
     todayRow.appendChild(KOS.todo.panel());

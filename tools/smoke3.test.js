@@ -212,6 +212,104 @@ step("core revision never locks at 0 HP", () => {
   }
 });
 
+console.log("== focus timer (Build 2b) ==");
+const setVis = v => {
+  Object.defineProperty(document, "visibilityState", { value: v, configurable: true });
+  document.dispatchEvent(new window.Event("visibilitychange"));
+};
+step("start custom session -> running, chrome hidden, stage + dock built", () => {
+  KOS.store.state.governor.hp = 50;
+  KOS.focus.start({ mode: "custom", workMin: 25, breakMin: 5, subject: "compsci", ref: "4.2.3.1" });
+  if (KOS.focus.state() !== "running") throw new Error("state: " + KOS.focus.state());
+  if (!document.body.classList.contains("focus-mode")) throw new Error("focus-mode class missing");
+  if (!$(".fx-stage .fx-clock")) throw new Error("stage clock missing");
+  if (!$(".fx-dock")) throw new Error("dock missing");
+  if (!KOS.focus.activeId()) throw new Error("no active id");
+});
+step("attribution: entries logged mid-session carry the focusId", () => {
+  KOS.sessions.log({ type: "quiz", subject: "compsci", ref: "4.2.2.1", metrics: { correct: 5, total: 5, pct: 100 } });
+  const last = KOS.sessions.all()[KOS.sessions.all().length - 1];
+  if (last.focusId !== KOS.focus.activeId()) throw new Error("focusId: " + last.focusId);
+});
+step("pause economy: pauses counted; resume works", () => {
+  KOS.focus.pause();
+  if (KOS.focus.state() !== "paused") throw new Error("not paused");
+  KOS.focus.resume();
+  if (KOS.focus.state() !== "running") throw new Error("not resumed");
+  if (KOS.focus.session().pauses !== 1) throw new Error("pauses: " + KOS.focus.session().pauses);
+  // the distraction step below adds one more pause/resume -> 2 total for the session
+});
+step("distractions: first free, second nicks HP; only while running", () => {
+  const hp0 = KOS.store.state.governor.hp;
+  setVis("hidden"); setVis("visible");                       // #1 — free
+  if (KOS.focus.session().distractions.length !== 1) throw new Error("d1: " + KOS.focus.session().distractions.length);
+  if (KOS.store.state.governor.hp !== hp0) throw new Error("first distraction should be free");
+  setVis("hidden"); setVis("visible");                       // #2 — −2 HP
+  if (KOS.focus.session().distractions.length !== 2) throw new Error("d2");
+  if (KOS.store.state.governor.hp !== hp0 - 2) throw new Error("hp: " + KOS.store.state.governor.hp);
+  KOS.focus.pause();
+  setVis("hidden"); setVis("visible");                       // paused — not a distraction
+  if (KOS.focus.session().distractions.length !== 2) throw new Error("paused tab-switch counted");
+  KOS.focus.resume();
+});
+step("pomodoro cycle: work interval completes -> break, end becomes eligible", () => {
+  if (KOS.focus.canComplete()) throw new Error("complete-eligible too early");
+  KOS.focus._debugAdvance(25 * 60);
+  KOS.focus.tick();
+  const s = KOS.focus.session();
+  if (s.phase !== "break" || s.cycles !== 1) throw new Error("phase=" + s.phase + " cycles=" + s.cycles);
+  if (!KOS.focus.canComplete()) throw new Error("should be end-eligible after a full cycle");
+  if (KOS.focus.workSeconds() !== 1500) throw new Error("workSeconds: " + KOS.focus.workSeconds());
+});
+step("complete: real dur + activity summary logged, award paid with pause penalty, chrome restored, block ticked", () => {
+  const today = KOS.srs.todayISO();
+  const blk = KOS.calendar.addEvent({ title: "Focus test block", date: today, type: "study", subject: "compsci", recur: "none" });
+  const g = KOS.store.state.governor;
+  const gold0 = g.gold, xp0 = g.xp;
+  KOS.focus.endComplete();                                    // confirm() stubbed true -> block ticked
+  if (KOS.focus.state() !== "idle") throw new Error("session not cleared");
+  if (document.body.classList.contains("focus-mode")) throw new Error("chrome not restored");
+  if ($(".fx-stage")) throw new Error("stage not removed");
+  const e = KOS.sessions.all()[KOS.sessions.all().length - 1];
+  if (e.type !== "focus" || e.dur !== 1500) throw new Error("entry: " + e.type + " dur=" + e.dur);
+  if (!e.metrics.complete || e.metrics.pauses !== 2 || e.metrics.distractions !== 2) throw new Error(JSON.stringify(e.metrics));
+  if (e.metrics.activities.quizzes !== 1 || !/quiz/.test(e.metrics.summary)) throw new Error("summary: " + e.metrics.summary);
+  // 25 min, 1 extra pause: xp 35->30, gold 5->4 after the 15% shave
+  if (g.xp - xp0 !== 30) throw new Error("xp delta: " + (g.xp - xp0));
+  if (g.gold - gold0 !== 4) throw new Error("gold delta: " + (g.gold - gold0));
+  if (!KOS.store.state.todo.autoChecked[today + "|blk" + blk.id]) throw new Error("study block not ticked");
+});
+step("early stop: still logs (incomplete), award forfeited", () => {
+  const g = KOS.store.state.governor;
+  KOS.focus.start({ mode: "pomodoro", workMin: 25, breakMin: 5, subject: null, ref: null });
+  KOS.focus._debugAdvance(120);
+  const gold0 = g.gold, xp0 = g.xp, n0 = KOS.sessions.all().length;
+  KOS.focus.endEarly();                                       // confirm() stubbed true
+  if (KOS.focus.state() !== "idle") throw new Error("not cleared");
+  const e = KOS.sessions.all()[KOS.sessions.all().length - 1];
+  if (KOS.sessions.all().length !== n0 + 1) throw new Error("not logged");
+  if (e.type !== "focus" || e.metrics.complete !== false) throw new Error("entry: " + JSON.stringify(e.metrics));
+  if (e.dur < 118 || e.dur > 125) throw new Error("dur: " + e.dur);
+  if (g.gold !== gold0 || g.xp !== xp0) throw new Error("award not forfeited");
+});
+step("focus start view renders modes + link selects; reload restore is paused", () => {
+  KOS.show("focus");
+  if ($$(".fx-mode-card").length !== 2) throw new Error("mode cards: " + $$(".fx-mode-card").length);
+  if (!$(".fx-start")) throw new Error("start button missing");
+  // simulate a reload restore: plant a running snapshot and re-eval focus.js
+  const f = KOS.store.state.focus;
+  f.active = { id: "f99", mode: "custom", workMin: 25, breakMin: 0, subject: null, ref: null,
+    state: "running", phase: "work", phaseAccum: 300, phaseStartTs: Date.now() - 60000,
+    lastBeat: Date.now() - 50000, workAccum: 0, cycles: 0, pauses: 0, distractions: [], startedAt: Date.now() - 400000 };
+  window.eval(fs.readFileSync(path.join(ROOT, "js/modules/focus.js"), "utf8"));
+  if (KOS.focus.state() !== "paused") throw new Error("restore state: " + KOS.focus.state());
+  // 300s accumulated + ~10s credited up to the heartbeat
+  const ws = KOS.focus.workSeconds();
+  if (ws < 305 || ws > 315) throw new Error("restored workSeconds: " + ws);
+  KOS.focus.endEarly();                                       // clean up for the exit checks
+  if (document.body.classList.contains("focus-mode")) throw new Error("chrome stuck after cleanup");
+});
+
 setTimeout(() => {
   console.log("\n==============================");
   if (errors.length) { console.log("FAILURES (" + errors.length + "):"); errors.forEach(e => console.log(" • " + e)); process.exit(1); }

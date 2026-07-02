@@ -1576,3 +1576,124 @@ body[data-theme="shinku"] {
   .cal-form { grid-template-columns: 1fr; }
   .fc-r { min-width: 72px; padding: 7px 10px; }
 }
+
+/* ============================================================
+   Build 2b — Focus Timer (FR-5.1/5.2/5.3)
+   Chrome-free focus mode, full-screen stage, docked mini-timer.
+   ============================================================ */
+
+/* focus mode strips the chrome; #main stays usable under the dock */
+body.focus-mode #topbar, body.focus-mode #rail, body.focus-mode #tree { display: none; }
+body.focus-mode #app { grid-template-rows: 1fr; }
+body.focus-mode #cols { display: block; }
+body.focus-mode #main { padding-top: 72px; }
+body.focus-mode .bg-flora { opacity: .5; }
+
+/* ---- the stage: full-screen timer ---- */
+.fx-stage {
+  position: fixed; inset: 0; z-index: 70;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; text-align: center; padding: 30px;
+  background:
+    radial-gradient(900px 600px at 50% -10%, rgba(239,73,101,.12), transparent 60%),
+    linear-gradient(180deg, rgba(7,6,10,.97), rgba(5,4,7,.99));
+  backdrop-filter: blur(10px);
+}
+.fx-stage.fx-break {
+  background:
+    radial-gradient(900px 600px at 50% -10%, rgba(69,214,168,.10), transparent 60%),
+    linear-gradient(180deg, rgba(7,6,10,.97), rgba(5,4,7,.99));
+}
+body.fx-minimised .fx-stage { display: none; }
+.fx-kanji {
+  font-family: var(--kanji); font-size: 70px; line-height: 1; color: var(--kurenai-dim);
+  text-shadow: 0 0 40px var(--kurenai-glow); margin-bottom: 4px;
+}
+.fx-stage.fx-break .fx-kanji { color: #2c8f70; text-shadow: 0 0 40px rgba(69,214,168,.4); }
+.fx-stage.fx-paused .fx-kanji { color: var(--gold-dim); text-shadow: 0 0 40px rgba(236,193,90,.3); }
+.fx-phase {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .5em; text-indent: .5em;
+  color: var(--kurenai-2); text-transform: uppercase;
+}
+.fx-stage.fx-break .fx-phase { color: var(--ok); }
+.fx-stage.fx-paused .fx-phase { color: var(--gold); }
+.fx-clock {
+  font-family: var(--mono); font-weight: 700; font-size: clamp(72px, 16vw, 150px);
+  line-height: 1; letter-spacing: -.02em; color: var(--text);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 60px rgba(239,73,101,.18);
+}
+.fx-track { width: min(430px, 74vw); height: 5px; border-radius: 5px; background: rgba(255,255,255,.08); overflow: hidden; }
+.fx-fill { display: block; height: 100%; border-radius: 5px; width: 0;
+  background: linear-gradient(90deg, var(--kurenai-dim), var(--kurenai));
+  transition: width 1s linear; }
+.fx-stage.fx-break .fx-fill { background: linear-gradient(90deg, #2c8f70, var(--ok)); }
+.fx-stage.fx-paused .fx-fill { background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+.fx-topic { font-family: var(--disp); font-size: 16px; font-weight: 600; color: var(--text-2); max-width: 640px; }
+.fx-meta { font-family: var(--mono); font-size: 11px; color: var(--mute); }
+.fx-stats { display: flex; gap: 18px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+.fx-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+.fx-big { padding: 11px 24px; font-size: 14px; }
+.fx-open-topic {
+  background: none; border: none; color: var(--kurenai-2); font-size: 13px;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.fx-open-topic:hover { color: var(--kurenai); }
+.fx-note { font-size: 11.5px; color: var(--faint); max-width: 460px; margin: 6px 0 0; }
+
+/* ---- the dock: slim bar while studying in-session ---- */
+.fx-dock {
+  position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 69; display: none; align-items: center; gap: 12px;
+  padding: 8px 16px; border-radius: var(--r-pill);
+  background: var(--glass-fill); border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-hi), var(--sh-2); backdrop-filter: var(--glass-blur);
+  max-width: min(92vw, 760px);
+}
+body.fx-minimised .fx-dock { display: flex; }
+.fx-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--kurenai); box-shadow: 0 0 10px var(--kurenai-glow); animation: hud-pulse 2s ease-in-out infinite; }
+.fx-dock.fx-break .fx-dot { background: var(--ok); box-shadow: 0 0 10px rgba(69,214,168,.5); }
+.fx-dock.fx-paused .fx-dot { background: var(--gold); animation: none; }
+.fx-dock-clock { font-family: var(--mono); font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
+.fx-dock-phase { font-family: var(--mono); font-size: 9px; letter-spacing: .3em; color: var(--faint); }
+.fx-dock-topic { font-size: 12px; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+.fx-dock-ctl { display: flex; gap: 6px; margin-left: 6px; }
+
+/* ---- start view ---- */
+.fx-modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 14px; }
+.fx-mode-card {
+  display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 18px;
+  background: var(--glass-fill); border: 1px solid var(--glass-edge); border-radius: var(--r3);
+  box-shadow: var(--glass-hi); color: var(--text-2);
+  transition: transform var(--t-fast) var(--e-out), border-color var(--t-fast) var(--e-out);
+}
+.fx-mode-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.2); }
+.fx-mode-card.active { border-color: var(--kurenai); box-shadow: var(--glass-hi), 0 0 18px rgba(239,73,101,.15); }
+.fx-mode-card b { font-family: var(--disp); font-size: 15px; color: var(--text); }
+.fx-mode-card span { font-size: 12.5px; color: var(--mute); }
+.fx-custom { display: flex; gap: 14px; margin-bottom: 14px; }
+.fx-num { width: 110px; }
+.fx-link-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.fx-start { padding: 12px 26px; font-size: 14.5px; }
+
+/* ---- home CTA ---- */
+.focus-cta {
+  display: flex; align-items: center; gap: 16px; width: 100%; text-align: left;
+  padding: 14px 20px; margin: 0 0 18px; border-radius: var(--r3);
+  background: var(--glass-fill); border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-hi); color: var(--text-2);
+  transition: transform var(--t-fast) var(--e-out), border-color var(--t-fast) var(--e-out);
+}
+.focus-cta:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.2); }
+.focus-cta.live { border-color: rgba(69,214,168,.5); }
+.focus-cta .k { font-family: var(--kanji); font-size: 26px; color: var(--kurenai); text-shadow: 0 0 16px var(--kurenai-glow); }
+.focus-cta.live .k { color: var(--ok); text-shadow: 0 0 16px rgba(69,214,168,.4); }
+.focus-cta .t { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.focus-cta .t b { font-family: var(--disp); font-size: 15px; color: var(--text); }
+.focus-cta .t span { font-size: 12.5px; color: var(--mute); }
+.focus-cta .go { font-size: 18px; color: var(--faint); }
+
+@media (max-width: 860px) {
+  .fx-dock-topic { display: none; }
+  .fx-custom { flex-direction: column; }
+}

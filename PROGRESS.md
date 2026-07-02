@@ -222,6 +222,41 @@ no real exam dates. Both smoke suites pass.
 - Gold economy numbers are placeholders — rebalance once real usage data exists.
 - Recovery checklist targets are static; could scale with backlog size.
 
+## Build 2b — Focus Timer (Claude Code, 2026-07-02)
+**FRs implemented: FR-5.1, FR-5.2, FR-5.3 ✅** (Build 2 = 2a + 2b now complete.)
+All three smoke suites pass; smoke3 gained 8 focus-timer steps.
+
+- **`js/modules/focus.js`** — session state machine (idle → running ⇄ paused →
+  completed/stopped-early) with the Pomodoro work/break auto-cycle as a
+  sub-state. Pomodoro 25/5 or custom work (+optional break); the user can end ✓
+  after any completed work interval; custom-no-break auto-completes at target.
+  Optional subject/topic link. Active sessions persist (10 s heartbeat) and a
+  reload restores them PAUSED, clock credited to the last heartbeat.
+- **Focus Mode UI (FR-5.3)**: `body.focus-mode` hides topbar/rail/tree; a
+  full-screen stage (giant mono clock, phase chip, progress track, 集中/息
+  kanji, pause/end controls) can minimise to a docked pill so the chrome-free
+  app stays usable mid-session ("study while focused"). Countdown mirrors into
+  `document.title`.
+- **Deterrent (honest friction)**: native `beforeunload` confirm while RUNNING;
+  Page-Visibility distraction log during running work phases (first free, then
+  −2 HP each); pause economy (first free, −15% XP/gold per extra, floor 25%);
+  ending early logs the session marked incomplete but forfeits the whole award.
+  The rules are stated plainly on the start screen — no fake "lock" claims.
+- **Activity attribution (FR-3.2)**: `sessions.log` tags entries created while
+  a session is live with `focusId`; the final focus entry carries a summary
+  ("18 flashcards reviewed, 1 quiz attempt") + per-type counts.
+- **Completion**: real `dur` seconds, cycles/pauses/distractions in metrics;
+  `governor.onSession` focus branch pays XP = 10 + mins, gold = 3 + 2/cycle-of-25,
+  HP +6, then applies the pause shave; a completed linked session offers to tick
+  today's matching calendar study block in the daily to-do.
+- **Entry points**: rail "Focus Timer" (start view with mode cards + topic
+  link + the economy rules), home CTA strip (switches to "session in progress").
+
+**Deviations/notes**: browser can't truly prevent leaving — implemented as
+friction + accountability per the brief. Pauses during BREAK phases are free
+(not focus time). Incomplete sessions still count toward streaks (they are
+logged study evidence); flag if unwanted.
+
 ## Claude Code backlog (app features)
 - **Content**: fill quiz (≥3) and exam (≥1) gaps across maths + thin CS files, using
   PMT papers in `Context/` as source (see the plan: build-1 completion sprint).

@@ -54,6 +54,12 @@
       nextId: 1,
       manual: [],                      // {id, text, done, created:"YYYY-MM-DD"} — persist independently
       autoChecked: {}                  // "YYYY-MM-DD|autoKey" -> true (per-day auto item ticks)
+    },
+
+    focus: {
+      active: null,                    // running-session snapshot (survives reload → restored paused)
+      nextId: 1,
+      lastConfig: { mode: "pomodoro", workMin: 25, breakMin: 5, subject: "", ref: "" }
     }
   };
 

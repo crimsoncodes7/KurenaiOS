@@ -36,6 +36,13 @@
       dur: entry.dur != null ? entry.dur : null,
       metrics: entry.metrics || {}
     };
+    /* activity attribution (Build 2b): anything completed while a focus
+       session is live carries that session's id, so the focus entry can
+       summarise what was actually done during it (FR-3.2). The focus entry
+       itself is logged after the session clears, so it never self-tags. */
+    if (KOS.focus && KOS.focus.activeId && KOS.focus.activeId()) {
+      e.focusId = KOS.focus.activeId();
+    }
     list.push(e);
     if (list.length > CAP) list.splice(0, list.length - CAP);
     store.save();

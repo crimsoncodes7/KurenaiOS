@@ -77,6 +77,24 @@ Core loads in this order (all before engines/modules): `store.js` → `ui.js` �
   mind when a lab step fails with missing DOM.
 - `#hud` in the topbar is repainted by `KOS.refreshHUD()` after any award.
 
+## Build 2b — Focus Timer
+- **`KOS.focus`** (`js/modules/focus.js`, loads last of the modules): state
+  machine idle → running ⇄ paused → done; Pomodoro auto-cycle via `phase`
+  ("work"/"break"). Live session lives at `store.state.focus.active` and is
+  restored PAUSED after a reload (10 s heartbeat bounds the loss).
+- `sessions.log` stamps `focusId` on entries created while a session is live —
+  the focus entry itself logs AFTER the session clears, so it never self-tags.
+  Keep that ordering if you touch `finish()`.
+- Deterrents: `beforeunload` confirm while running; visibilitychange →
+  distraction (running WORK phase only; first free, then `governor.drainHp(2)`);
+  pause economy applied in `governor.onSession`'s focus branch (first pause
+  free, −15%/extra); `metrics.complete:false` forfeits the award entirely.
+- Focus Mode UI: `body.focus-mode` (chrome hidden) + `body.fx-minimised`
+  (stage ↔ dock). Never gate the focus timer itself behind HP/gold.
+- Tests: smoke3's focus steps drive the clock with `KOS.focus._debugAdvance(sec)`
+  + `KOS.focus.tick()` and fake tab-switches by redefining
+  `document.visibilityState`. Award assertions are exact — pause counts matter.
+
 ## Navigation
 `KOS.show(viewId, arg)` records a history stack; `KOS.back()`/`KOS.forward()` (and
 `KOS.canBack()`/`KOS.canForward()`) drive the topbar **‹ Back** / **Forward ›** buttons
