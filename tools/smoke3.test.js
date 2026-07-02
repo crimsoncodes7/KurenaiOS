@@ -310,6 +310,127 @@ step("focus start view renders modes + link selects; reload restore is paused", 
   if (document.body.classList.contains("focus-mode")) throw new Error("chrome stuck after cleanup");
 });
 
+console.log("== tracker (Build 2c: FR-3.4/3.5) ==");
+step("add exam entry -> stored, session-logged, awarded", () => {
+  const g = KOS.store.state.governor, gold0 = g.gold;
+  const n0 = KOS.sessions.all().length;
+  const e = KOS.tracker.add({ kind: "exam", subject: "maths", ref: "2.3", topic: "Quadratics mock",
+    paper: "Paper 1", marks: 10, max: 40, grade: "U", date: today, well: "surds", badly: "discriminant", notes: "recheck b²−4ac" });
+  if (!e.id || KOS.store.state.tracker.entries.length !== 1) throw new Error("not stored");
+  const log = KOS.sessions.all()[KOS.sessions.all().length - 1];
+  if (KOS.sessions.all().length !== n0 + 1 || log.type !== "tracker") throw new Error("no session entry");
+  if (log.metrics.pct !== 25) throw new Error("pct: " + log.metrics.pct);
+  if (g.gold <= gold0 - 1) throw new Error("no award");
+  if (KOS.tracker.forRef("maths", "2.3").length !== 1) throw new Error("forRef miss");
+});
+step("tracker view renders rows, reviewed toggle + update persist", () => {
+  KOS.show("tracker");
+  if ($$(".study-tab").length !== 2) throw new Error("kind tabs: " + $$(".study-tab").length);
+  if (!$$(".trk-row").length) throw new Error("no rows");
+  const e = KOS.store.state.tracker.entries[0];
+  KOS.tracker.update(e.id, { reviewed: true, grade: "C" });
+  if (!KOS.store.state.tracker.entries[0].reviewed || KOS.store.state.tracker.entries[0].grade !== "C") throw new Error("update lost");
+  // paper tab is empty for now
+  click($$(".study-tab").find(t => t.dataset.tab === "paper"));
+  if ($$(".trk-row").length) throw new Error("paper tab should be empty");
+});
+
+console.log("== RAG flagging (FR-3.3) ==");
+step("auto score degrades with lapses + quiz + exam data", () => {
+  // maths:2.3 already has: 1 tracked card (overdue) + a 25% mock (above).
+  KOS.store.state.study = KOS.store.state.study || {};
+  KOS.store.state.study.quiz = KOS.store.state.study.quiz || {};
+  KOS.store.state.study.quiz["maths:2.3"] = { attempts: 1, best: 1, lastPct: 20 };
+  for (let i = 0; i < 3; i++) KOS.srs.rate("maths:2.3:0", 0);   // 3 lapses
+  const a = KOS.rag.auto("maths", "2.3");
+  if (!a) throw new Error("no auto rating despite data");
+  if (a.band !== "r") throw new Error("expected red, got " + a.band + " (score " + a.score + ")");
+  if (!a.reasons.length) throw new Error("no reasons");
+});
+step("manual override wins display; disagreement is surfaced", () => {
+  KOS.rag.setManual("maths", "2.3", "g");
+  const e = KOS.rag.effective("maths", "2.3");
+  if (e.band !== "g" || e.source !== "manual") throw new Error(JSON.stringify(e));
+  if (!e.disagree) throw new Error("disagreement not flagged");
+  KOS.rag.setManual("maths", "2.3", null);                      // clear
+  if (KOS.rag.effective("maths", "2.3").band !== "r") throw new Error("auto not restored");
+});
+step("worst() + recommended-next panel on home", () => {
+  const w = KOS.rag.worst(null, 6);
+  if (!w.some(t => t.sid === "maths" && t.ref === "2.3")) throw new Error("flagged topic missing from worst()");
+  KOS.show("home");
+  if (!$(".rag-panel")) throw new Error("no recommended-next panel");
+  if (!$$(".rag-item").length) throw new Error("no flagged items");
+});
+step("ref page carries the confidence picker + data verdict", () => {
+  KOS.show("ref", { subject: "maths", ref: "2.3" });
+  if (!$(".rag-picker")) throw new Error("picker missing");
+  if ($$(".rag-pick").length !== 3) throw new Error("pick buttons: " + $$(".rag-pick").length);
+  click($$(".rag-pick")[2]);                                    // set green manually
+  if (KOS.rag.manual("maths", "2.3") !== "g") throw new Error("manual not set via picker");
+  if (!$(".rag-disagree")) throw new Error("disagreement indicator missing");
+  click($$(".rag-pick")[2]);                                    // click again clears
+  if (KOS.rag.manual("maths", "2.3") !== null) throw new Error("clear failed");
+});
+
+console.log("== card stats (FR-1.6) ==");
+step("dashboard renders stat strip + SVG charts", () => {
+  KOS.show("cardstats");
+  if ($$(".stat-card").length < 6) throw new Error("stat strip thin");
+  if ($$(".cs-chart svg").length < 4) throw new Error("charts: " + $$(".cs-chart svg").length);
+  if (!$$(".cs-chart svg rect").length) throw new Error("no bars drawn");
+});
+step("subject scope adds the per-topic breakdown, drill-down to topic", () => {
+  KOS.show("cardstats", { subject: "maths" });
+  if (!$(".cs-topics")) throw new Error("per-topic table missing");
+  if (!$$(".cs-topics tbody tr").length) throw new Error("no topic rows");
+  KOS.show("cardstats", { subject: "maths", ref: "2.3" });
+  if (!$$(".cs-chart svg").length) throw new Error("topic-scope charts missing");
+});
+
+console.log("== resources (FR-2.8) + attachments (FR-2.5) ==");
+step("resource table CRUD on the subject dashboard", () => {
+  KOS.show("subject", "maths");
+  if (!$(".res-table")) throw new Error("resource table missing");
+  const ins = $$(".res-add .todo-in");
+  ins[0].value = "PMT pure notes"; ins[1].value = "https://example.org/pmt";
+  click($$(".res-add .btn")[0]);
+  if (!$$(".res-row").length) throw new Error("row not added");
+  if (KOS.store.state.resources.items.length !== 1) throw new Error("not stored");
+  click($(".res-row .mini-btn.danger"));                        // confirm stubbed true
+  if (KOS.store.state.resources.items.length !== 0) throw new Error("delete failed");
+});
+step("files tab present on every ref; degrades without IndexedDB", () => {
+  KOS.show("ref", { subject: "it", ref: "F200.1.1" });
+  const ft = $$(".study-tab").find(t => t.dataset.tab === "files");
+  if (!ft) throw new Error("files tab missing");
+  click(ft);
+  if (KOS.attach.available()) {
+    if (!$$(".lab-controls .btn.primary").length) throw new Error("upload control missing");
+  } else {
+    if (!$(".att-unavail")) throw new Error("no graceful fallback without IndexedDB");
+  }
+});
+
+console.log("== streak integrity (2c) ==");
+step("early-stopped focus sessions don't keep a streak alive", () => {
+  KOS.store.state.sessions.splice(0);                           // clean slate
+  KOS.sessions.log({ type: "focus", subject: null, ref: null, dur: 300,
+    metrics: { complete: false, mins: 5, pauses: 0, distractions: 0 } });
+  if (KOS.sessions.streak(null) !== 0) throw new Error("incomplete focus counted: " + KOS.sessions.streak(null));
+  KOS.sessions.log({ type: "quiz", subject: "maths", ref: "2.3", metrics: { correct: 3, total: 5, pct: 60 } });
+  if (KOS.sessions.streak(null) !== 1) throw new Error("normal session should count");
+  KOS.sessions.log({ type: "focus", subject: null, ref: null, dur: 1500,
+    metrics: { complete: true, mins: 25, pauses: 0, distractions: 0 } });
+  if (KOS.sessions.streak(null) !== 1) throw new Error("completed focus should count (still 1 day)");
+});
+
+console.log("== help view ==");
+step("help & guide renders every section", () => {
+  KOS.show("help");
+  if ($$(".help-card").length < 15) throw new Error("help cards: " + $$(".help-card").length);
+});
+
 setTimeout(() => {
   console.log("\n==============================");
   if (errors.length) { console.log("FAILURES (" + errors.length + "):"); errors.forEach(e => console.log(" • " + e)); process.exit(1); }

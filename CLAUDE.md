@@ -43,7 +43,9 @@ All JS is loaded via `<script src="...">` in `index.html` in strict dependency o
 3. **Deep content** — `js/data/content/*.js` populate `window.KOS_CONTENT["subject:ref"]`
 4. **Engines** — `js/engines/{flashcards,quiz}.js` register engine logic onto `KOS`
 5. **Modules** — `js/modules/hub.js` (home, subject dash, ref view, search) +
-   `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`
+   `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`, `tracker.js` (exams/
+   papers), `rag.js` (struggle flags), `cardstats.js` (SVG stats dashboard),
+   `attachments.js` (IndexedDB Files tab), `help.js`, `focus.js` (Focus Timer)
 6. **Labs** — `js/labs/{worked,trace,oop,sims}.js` register their views
 7. **Boot** — `js/main.js` wires the rail nav, runs the governor boot sequence
    (seed samples → HP tick → cosmetics → view gates → HUD → reminders), restores
@@ -77,9 +79,14 @@ All JS is loaded via `<script src="...">` in `index.html` in strict dependency o
   sessions: [],                         // study log {id,ts,date,type,subject,ref,dur,metrics}
   governor: { hp, gold, xp, owned, theme, seal, avatar, lastTick, lastBacklogDrain },
   calendar: { nextId, seeded, events, notifyDays, notified },
-  todo: { nextId, manual, autoChecked }
+  todo: { nextId, manual, autoChecked },
+  focus: { active, nextId, lastConfig },   // live focus-session snapshot
+  tracker: { nextId, entries: [] },        // exam/paper records (FR-3.4/3.5)
+  resources: { nextId, items: [] }         // per-subject link tables (FR-2.8)
 }
 ```
+File attachments (FR-2.5) live in IndexedDB `kurenai-os-files`, NOT in this
+object — they are excluded from the JSON backup.
 
 All mutations go through `KOS.store.*` methods so autosave fires automatically.
 Governor invariants: streaks/XP/HP flow ONLY from `KOS.sessions.log(...)` (never

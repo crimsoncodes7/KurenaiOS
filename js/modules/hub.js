@@ -272,6 +272,10 @@
     todayRow.appendChild(KOS.calendar.countdownWidget(null));
     main.appendChild(todayRow);
 
+    /* prescriptive analytics — struggling topics across all subjects (FR-3.3) */
+    var ragPanel = KOS.rag.panel(null);
+    if (ragPanel) main.appendChild(ragPanel);
+
     /* MIDDLE — subject cards with a slim completion progress bar */
     var cards = el("div", { class: "home-cards" });
     SUBJECTS.forEach(function (sid) {
@@ -496,6 +500,10 @@
     /* deadline countdowns scoped to this subject (FR-3.6) */
     main.appendChild(KOS.calendar.countdownWidget(sid));
 
+    /* struggling topics in this subject (FR-3.3) */
+    var ragPanel = KOS.rag.panel(sid);
+    if (ragPanel) { ragPanel.style.marginTop = "18px"; main.appendChild(ragPanel); }
+
     var last = store.state.ui.lastRef[sid];
     if (last && BYREF[sid][last]) {
       main.appendChild(el("button", {
@@ -572,7 +580,53 @@
       });
       main.appendChild(pz);
     }
+
+    /* resource link table (FR-2.8) */
+    main.appendChild(el("h3", { class: "n-h", style: "margin-top:26px", text: "Resources & reference sheets" }));
+    var resHolder = el("div", {});
+    main.appendChild(resHolder);
+    renderResources(resHolder, sid);
   };
+
+  /* ---------- FR-2.8: per-subject resource links ---------- */
+  function renderResources(holder, sid) {
+    holder.innerHTML = "";
+    var R = store.state.resources;
+    var items = R.items.filter(function (r) { return r.subject === sid; });
+    var wrap = el("div", { class: "res-table" });
+    items.forEach(function (r) {
+      wrap.appendChild(el("div", { class: "res-row" }, [
+        el("a", { class: "res-name", href: r.url, target: "_blank", rel: "noopener", text: r.name, title: r.url }),
+        r.ref ? el("button", { class: "res-ref", text: r.ref, title: "Open the topic", onclick: function () {
+          KOS.show("ref", { subject: sid, ref: r.ref }); } }) : el("span", { class: "res-ref dim", text: "subject-wide" }),
+        el("span", { class: "res-url", text: r.url }),
+        el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete resource", onclick: function () {
+          if (!confirm("Remove “" + r.name + "” from the resource table?")) return;
+          R.items.splice(R.items.indexOf(r), 1);
+          store.save();
+          renderResources(holder, sid);
+        } })
+      ]));
+    });
+    if (!items.length) wrap.appendChild(el("p", { class: "sub", style: "margin:4px 0 10px", text: "No resources saved for this subject yet — textbook PDFs, PMT pages, reference sheets, video playlists…" }));
+
+    var name = el("input", { type: "text", class: "todo-in", placeholder: "Resource name" });
+    var url = el("input", { type: "text", class: "todo-in", placeholder: "https://… or file path" });
+    var refIn = el("input", { type: "text", class: "todo-in res-refin", placeholder: "topic ref (optional)" });
+    wrap.appendChild(el("div", { class: "res-add" }, [
+      name, url, refIn,
+      el("button", { class: "btn", text: "+ Add", onclick: function () {
+        if (!name.value.trim() || !url.value.trim()) { KOS.ui.toast("A name and a link are both needed.", true); return; }
+        var ref = refIn.value.trim();
+        if (ref && !BYREF[sid][ref]) { KOS.ui.toast("“" + ref + "” isn't a spec point in this subject — leave it blank for subject-wide.", true); return; }
+        R.items.push({ id: R.nextId++, subject: sid, ref: ref || null,
+          name: name.value.trim(), url: url.value.trim() });
+        store.save();
+        renderResources(holder, sid);
+      } })
+    ]));
+    holder.appendChild(wrap);
+  }
 
   KOS.views.ref = function (main, arg) {
     var sid = arg.subject, ref = arg.ref;
@@ -623,6 +677,9 @@
       cb.checked = p.check[i];
       ctl.appendChild(el("label", { class: "chk" }, [cb, label]));
     });
+    /* RAG confidence (FR-3.3) — manual picker + what the data says */
+    ctl.appendChild(el("div", { class: "ctl-sep" }));
+    ctl.appendChild(KOS.rag.picker(sid, ref));
     main.appendChild(ctl);
 
     /* ---------- study tabs ---------- */
@@ -649,7 +706,8 @@
       ["quiz", "Quiz", content && content.quiz && content.quiz.length],
       ["exam", "Exam Qs", content && content.exam && content.exam.length],
       ["worked", "Worked", gens.length],
-      ["sim", "Simulate", sims.length]
+      ["sim", "Simulate", sims.length],
+      ["files", "Files", true]
     ].filter(function (t) { return t[2]; });
 
     var tabBar = el("div", { class: "study-tabs", role: "tablist" });
@@ -768,6 +826,9 @@
           panel.appendChild(card);
           KOS.worked.mount(card, g);
         });
+      }
+      else if (curTab === "files") {
+        KOS.attach.mountTab(panel, sid, ref);
       }
       else if (curTab === "sim") {
         sims.forEach(function (sm, i) {

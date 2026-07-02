@@ -108,6 +108,7 @@
     }
     else if (e.type === "exam") { xp = 12; gold = 2; hp = 3; }
     else if (e.type === "todo") { xp = 5; gold = 1; hp = 2; }
+    else if (e.type === "tracker") { xp = 8; gold = 1; hp = 2; }
     else if (e.type === "focus") {
       /* Build 2b — the real focus award. Ended-early sessions log but forfeit
          the whole award; extra pauses (first is free) shave XP/gold 15% each;

@@ -128,11 +128,14 @@ step("notes pager: splitPages + sectioned rendering", () => {
     if (!tabs[2].classList.contains("active")) throw new Error("page tab did not activate");
   } finally { window.KOS_CONTENT[KEY] = orig; }
 });
-step("plain ref (no content) shows spec only", () => {
+step("plain ref (no content) shows spec + files only", () => {
   // F200.1.1 is a leaf with no deep KOS_CONTENT entry (the old fixture
   // it:F201.2.1 was later enriched by Gemini, so it now has study tabs).
+  // Build 2c: every ref carries a Files tab (attachments), so plain = 2 tabs.
   KOS.show("ref", { subject: "it", ref: "F200.1.1" });
-  if ($$(".study-tab").length !== 1) throw new Error("unexpected tabs on plain ref");
+  const tabs = $$(".study-tab").map(t => t.dataset.tab);
+  if (tabs.length !== 2 || tabs[0] !== "spec" || tabs[1] !== "files")
+    throw new Error("unexpected tabs on plain ref: " + tabs.join(","));
   if (!$(".speccontent")) throw new Error("spec missing");
 });
 

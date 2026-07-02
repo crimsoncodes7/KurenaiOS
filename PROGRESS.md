@@ -257,6 +257,52 @@ friction + accountability per the brief. Pauses during BREAK phases are free
 (not focus time). Incomplete sessions still count toward streaks (they are
 logged study evidence); flag if unwanted.
 
+## Build 2c — Tracking Completion (Claude Code, 2026-07-02)
+**FRs implemented: FR-1.6, FR-2.5, FR-2.8, FR-3.3, FR-3.4, FR-3.5 ✅**
+**→ BUILD 2 COMPLETE. FR Categories 1–5 are now fully implemented** (the single
+deliberate exception: FR-2.9 mind-map canvas, marked Won't-have in the FR doc).
+All three smoke suites pass (smoke3 gained 11 steps); IndexedDB attachments and
+the focus-mode fix additionally verified live in Chrome.
+
+- **Exams & Papers tracker** (`js/modules/tracker.js`, rail · Records): FR-3.4
+  and FR-3.5 share one component with a kind discriminator (exam | paper). All
+  specified columns: topic, paper, marks/max, grade, date completed, went well,
+  didn't go well, mistakes/notes, reviewed checkbox. Filter by subject, date
+  sort toggle, summary strip (average, unreviewed, below-60%). Entries are
+  study evidence: logged to sessions (type `tracker`, small award) and
+  topic-linked results feed the RAG auto-score.
+- **RAG flagging** (`js/modules/rag.js`): hybrid per FR-3.3. Manual R/A/G
+  confidence picker on every topic's control row (stored as `progress[].rag` —
+  confidence, distinct from completion status; click again to clear). Auto
+  score (0–100 → band) computed from SM-2 lapse rate / avg ease / overdue,
+  quiz lastPct, and recent exam/paper results — no data → unrated, never fake
+  green. Manual wins display; the data verdict stays visible with a ≠ marker
+  when they disagree. "Recommended next" panels (home + subject dash) list the
+  worst topics with reasons — the prescriptive-analytics piece.
+- **Flashcard stats dashboard** (`js/modules/cardstats.js`, rail · Records):
+  FR-1.6 with plain inline SVG (no chart lib): reviews/day (14d, from the
+  session log), due forecast (+overdue bucket), ease distribution, rating mix;
+  scope pills (all/subject) + per-topic drill-down; per-topic breakdown table
+  sorted by lapses with RAG dots.
+- **Resource tables** (FR-2.8): lightweight CRUD table on each subject
+  dashboard — name + URL, optional topic ref (validated), opens in a new tab.
+- **Attachments** (`js/modules/attachments.js`): FR-2.5 on IndexedDB
+  (`kurenai-os-files`, blobs + metadata indexed by [subject, ref], 25 MB/file
+  cap). A **Files tab on every topic page**: upload, inline viewer for images
+  and PDFs, open-in-new-tab/download fallback for everything else, per-file
+  notes field, delete. Graceful fallback message where IndexedDB is missing.
+  **SCOPE DECISION (explicit): "annotate" = a notes field per document, NOT
+  inline markup/highlighting on the file itself — true in-document annotation
+  was deliberately cut as a disproportionate scope expansion.**
+  ⚠ Attachments live outside the localStorage backup JSON.
+- **Streak integrity**: streaks now ignore focus sessions with
+  `complete:false` (log entries unchanged; HP day-drain still sees them).
+- **Help & Guide** (`js/modules/help.js`, rail · Data): every feature and tab
+  explained in a sentence or two, plus keyboard shortcuts.
+- **Focus-mode navigation fix**: minimising to "Study while focused" now
+  brings the rail + tree back (topbar stays replaced by the dock), so study
+  pages are actually reachable mid-session. Verified in Chrome.
+
 ## Claude Code backlog (app features)
 - **Content**: fill quiz (≥3) and exam (≥1) gaps across maths + thin CS files, using
   PMT papers in `Context/` as source (see the plan: build-1 completion sprint).

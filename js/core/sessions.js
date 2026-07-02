@@ -62,15 +62,25 @@
       return e.date === dateISO && (!sid || e.subject === sid);
     });
   }
+  /* streak integrity (2c): an early-stopped focus session stays in the log as
+     evidence (and still counts as "activity" for the HP day-drain), but only
+     COMPLETED sessions keep a streak alive. Non-timer activity types have no
+     `complete` field and count as before. */
+  function hasStreakActivity(dateISO, sid) {
+    return store.state.sessions.some(function (e) {
+      return e.date === dateISO && (!sid || e.subject === sid) &&
+        !(e.type === "focus" && e.metrics && e.metrics.complete === false);
+    });
+  }
 
   /* Consecutive-day streak ending today (or yesterday — an unbroken run
      doesn't read as zero before you've studied today; it resets only once
      a full day is actually missed). sid null → overall streak. */
   function streak(sid) {
     var today = KOS.srs.todayISO();
-    var cursor = hasActivity(today, sid) ? today : KOS.srs.addDays(today, -1);
+    var cursor = hasStreakActivity(today, sid) ? today : KOS.srs.addDays(today, -1);
     var n = 0;
-    while (hasActivity(cursor, sid)) {
+    while (hasStreakActivity(cursor, sid)) {
       n++;
       cursor = KOS.srs.addDays(cursor, -1);
       if (n > 3650) break;   // sanity bound

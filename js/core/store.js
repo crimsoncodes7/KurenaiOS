@@ -60,7 +60,23 @@
       active: null,                    // running-session snapshot (survives reload → restored paused)
       nextId: 1,
       lastConfig: { mode: "pomodoro", workMin: 25, breakMin: 5, subject: "", ref: "" }
+    },
+
+    /* ---- Build 2c: tracking completion ---- */
+    tracker: {
+      nextId: 1,
+      entries: []
+      /* exam/paper records (FR-3.4/3.5 share one shape, discriminated by kind):
+         {id, kind:"exam"|"paper", subject, ref|null, topic, paper, marks, max,
+          grade, date:"YYYY-MM-DD", well, badly, notes, reviewed:bool, added} */
+    },
+
+    resources: {
+      nextId: 1,
+      items: []                        // {id, subject, ref|null, name, url}
     }
+    /* progress entries additionally carry rag: null|"r"|"a"|"g" (manual
+       confidence — separate concept from completion status) */
   };
 
   function deepMerge(base, extra) {
