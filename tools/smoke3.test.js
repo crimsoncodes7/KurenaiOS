@@ -108,7 +108,8 @@ step("gating: strained locks sims + purchased labs, buy blocked", () => {
   if (!acc.ok) throw new Error("owned lab should open when healthy");
   if (KOS.governor.simAccess("logic-lab").ok) throw new Error("unowned sim should be locked");
   const r = KOS.governor.buy("logic-lab");
-  if (!r.ok || !KOS.governor.owns("logic-lab") || g.gold !== 500 - 90) throw new Error(JSON.stringify(r) + " gold=" + g.gold);
+  /* 3j rebalance: sims are 100 gold (the 2a 90 was a flagged placeholder) */
+  if (!r.ok || !KOS.governor.owns("logic-lab") || g.gold !== 500 - 100) throw new Error(JSON.stringify(r) + " gold=" + g.gold);
 });
 step("level maths: 100 xp -> level 2", () => {
   if (KOS.governor.levelInfo(0).level !== 1) throw new Error("l0");

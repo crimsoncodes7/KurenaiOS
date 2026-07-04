@@ -142,12 +142,29 @@
   function dueCount() { return dueCards().length; }
 
   /* ---- custom flashcard CRUD (FR-1.1) ---- */
-  function addCustom(sid, ref, q, a) {
+  /* Build 3c: `sid` is no longer necessarily a curriculum subject — the
+     reserved sid "personal" (PERSONAL_SID) is a general bucket for cards
+     with no A-level home (VN quotes use ref "vn"). Everything downstream
+     (SM-2 keys "u<id>", the due queue, the session engine) already treats
+     sid/ref as opaque strings, so the bucket needs no migration; `extra`
+     is optional origin metadata (e.g. {src:{module,entryId,title}}). */
+  var PERSONAL_SID = "personal";
+  function addCustom(sid, ref, q, a, extra) {
     var cu = store.state.custom;
     var card = { id: cu.nextId++, sid: sid, ref: ref, q: q, a: a, created: todayISO() };
+    if (extra) Object.keys(extra).forEach(function (k) { card[k] = extra[k]; });
     cu.cards.push(card);
     store.save();
     return card;
+  }
+  /* every distinct ref inside the personal bucket, with card counts —
+     the Personal Deck view (due.js) builds itself from this */
+  function personalRefs() {
+    var by = {};
+    store.state.custom.cards.forEach(function (c) {
+      if (c.sid === PERSONAL_SID) by[c.ref] = (by[c.ref] || 0) + 1;
+    });
+    return Object.keys(by).sort().map(function (r) { return { ref: r, count: by[r] }; });
   }
   function updateCustom(id, q, a) {
     var card = store.state.custom.cards.find(function (c) { return c.id === id; });
@@ -178,6 +195,8 @@
     allCards: allCards,
     dueCards: dueCards,
     dueCount: dueCount,
+    PERSONAL_SID: PERSONAL_SID,
+    personalRefs: personalRefs,
     addCustom: addCustom,
     updateCustom: updateCustom,
     deleteCustom: deleteCustom

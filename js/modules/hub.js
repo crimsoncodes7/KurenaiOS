@@ -326,11 +326,18 @@
     });
     main.appendChild(cards);
 
-    /* BOTTOM — future build placeholders */
+    /* BOTTOM — the Collection Matrix (live, Build 3a) + future builds */
     var soon = el("div", { class: "home-cards soon-row" });
-    [["Build 2b", "Focus Timer & Focus Mode", "Pomodoro sessions, timed logging, interface focus"],
-     ["Build 3", "Kurenai Collection Matrix", "Track your manga/anime/manhwa vault"],
-     ["Build 4", "Competitions & Music", "AniCord events, playlists, Ollama bridge"]
+    soon.appendChild(el("div", { class: "subj-card med-home-card", style: "--accent:#ef4965",
+      role: "button", tabindex: "0",
+      onclick: function () { KOS.show("matrix"); },
+      onkeydown: function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); KOS.show("matrix"); } }
+    }, [
+      el("span", { class: "soon-tag live", text: "Live · Build 3d" }),
+      el("h3", {}, [el("span", { class: "kanji-inline", text: "蒐" }), " Kurenai Collection Matrix"]),
+      el("div", { class: "m", text: "Anime + Books + Visual Novels: two-way AniList sync & VNDB · search-to-add · physical volume shelf · routes & quote log · rest streak · the Shrine. Games plugs in next." })
+    ]));
+    [["Build 4", "Competitions & Music", "AniCord events, playlists, Ollama bridge"]
     ].forEach(function (t) {
       soon.appendChild(el("div", { class: "subj-card soon-card" }, [
         el("span", { class: "soon-tag", text: "Coming soon" }),

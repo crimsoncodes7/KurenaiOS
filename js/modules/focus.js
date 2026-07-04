@@ -13,7 +13,17 @@
    - ending early logs the session (marked incomplete) but forfeits the award
 
    Activity attribution: sessions.log tags entries created while a session is
-   live with its focusId; the final focus entry summarises them (FR-3.2).    */
+   live with its focusId; the final focus entry summarises them (FR-3.2).
+
+   Build 3i — READING SESSIONS reuse this exact state machine (kind:
+   "reading", started from the Books module, optionally linked to a vault
+   entry). Same clock, same pause/resume, same reload restore — but the
+   GOVERNOR BOUNDARY flips to the Collection Matrix contract: the finished
+   session logs type:"media" (module "books"), so it feeds the media XP/gold
+   trickle, the rest streak and the reading heatmap, and NEVER the study
+   streak. HP is untouched in either direction — the distraction HP nick is
+   skipped entirely for reading (rest is allowed to be leisurely), and
+   type:"media" awards 0 HP by the 3a contract in governor.onSession.       */
 (function () {
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
@@ -56,15 +66,17 @@
   }
 
   function start(cfg) {
-    if (S) { KOS.ui.toast("A focus session is already running.", true); return; }
+    if (S) { KOS.ui.toast("A " + (S.kind === "reading" ? "reading" : "focus") + " session is already running.", true); return; }
     var f = F();
     S = f.active = {
       id: "f" + f.nextId++,
+      kind: cfg.kind === "reading" ? "reading" : "study",   // 3i: one machine, two contracts
       mode: cfg.mode,                                   // "pomodoro" | "custom"
       workMin: cfg.workMin,
       breakMin: cfg.breakMin,                           // 0 = single interval
       subject: cfg.subject || null,
       ref: cfg.ref || null,
+      book: cfg.book || null,                           // 3i: {id,title}|null — the linked vault entry
       state: "running",
       phase: "work",
       phaseAccum: 0,
@@ -76,13 +88,19 @@
       distractions: [],
       startedAt: now()
     };
-    f.lastConfig = { mode: cfg.mode, workMin: cfg.workMin, breakMin: cfg.breakMin,
-      subject: cfg.subject || "", ref: cfg.ref || "" };
+    if (S.kind === "reading") {
+      f.lastReading = { workMin: cfg.workMin, bookId: cfg.book ? cfg.book.id : null };
+    } else {
+      f.lastConfig = { mode: cfg.mode, workMin: cfg.workMin, breakMin: cfg.breakMin,
+        subject: cfg.subject || "", ref: cfg.ref || "" };
+    }
     store.save();
     enterMode();
     timer = setInterval(tick, 1000);
-    KOS.ui.toast("Focus session started — " + cfg.workMin + " min" +
-      (cfg.breakMin ? " / " + cfg.breakMin + " min break" : "") + ". 集中.");
+    KOS.ui.toast(S.kind === "reading"
+      ? "Reading session started — " + cfg.workMin + " min" + (cfg.book ? " with “" + cfg.book.title + "”" : "") + ". 読書."
+      : "Focus session started — " + cfg.workMin + " min" +
+        (cfg.breakMin ? " / " + cfg.breakMin + " min break" : "") + ". 集中.");
   }
 
   function pause() {
@@ -117,6 +135,9 @@
           store.save();
           render();
         } else {
+          /* the interval was just banked into workAccum — zero the live
+             phase clock so workSeconds() doesn't count it twice */
+          S.phaseAccum = 0; S.phaseStartTs = now();
           finish(true);                       // custom, no break: done at target
           return;
         }
@@ -136,7 +157,9 @@
 
   function endEarly() {
     if (!S) return;
-    if (!confirm("End this session early?\n\nIt still gets logged (the data point matters), but the XP and gold award is forfeited.")) return;
+    if (!confirm(S.kind === "reading"
+      ? "End this reading session early?\n\nThe time you read still gets logged — nothing is forfeited, reading is rest."
+      : "End this session early?\n\nIt still gets logged (the data point matters), but the XP and gold award is forfeited.")) return;
     finish(false);
   }
   function endComplete() {
@@ -154,6 +177,34 @@
     F().active = null;
     store.save();
     exitMode();
+
+    /* 3i — reading sessions log under the COLLECTION MATRIX contract:
+       type "media", module "books" (same shape as KOS.media.logActivity,
+       plus the duration this timer actually measured). That single entry
+       feeds the media trickle (+4 XP/+1 gold, 0 HP), the rest streak and
+       the Books reading heatmap — and is invisible to the study streak
+       and the HP day-drain by the sessions.js rules. No forfeit on an
+       early end: rest is not study, there is no award to forfeit beyond
+       the flat trickle. */
+    if (sess.kind === "reading") {
+      KOS.sessions.log({
+        type: "media", subject: null, ref: null, dur: dur,
+        metrics: {
+          module: "books",
+          entryId: sess.book ? sess.book.id : null,
+          title: sess.book ? sess.book.title : null,
+          action: "reading-session",
+          mins: Math.round(dur / 60),
+          complete: complete
+        }
+      });
+      KOS.ui.toast("Reading session logged — " + fmtLong(dur) +
+        (sess.book ? " with “" + sess.book.title + "”" : "") + ".");
+      KOS.refreshHUD();
+      if (KOS.refreshRailCounters) KOS.refreshRailCounters();
+      if (store.state.ui.view === "books") KOS.show("books", undefined, { _nav: true });
+      return;
+    }
 
     /* activity attribution summary (FR-3.2's "activities done") */
     var acts = KOS.sessions.all().filter(function (e) { return e.focusId === sess.id; });
@@ -224,9 +275,12 @@
     }
   });
 
-  /* unannounced tab-switch during a running WORK phase = distraction */
+  /* unannounced tab-switch during a running WORK phase = distraction.
+     Reading sessions are exempt WHOLESALE (3i): no logging, no HP nick —
+     the Collection Matrix contract forbids this module's activities from
+     ever touching HP, and rest doesn't owe anyone its attention. */
   document.addEventListener("visibilitychange", function () {
-    if (!S || S.state !== "running" || S.phase !== "work") {
+    if (!S || S.kind === "reading" || S.state !== "running" || S.phase !== "work") {
       pendingDistractToast = false;
       return;
     }
@@ -261,6 +315,7 @@
 
   /* ---------------- Focus Mode UI (FR-5.3) ---------------- */
   function topicLabel() {
+    if (S && S.kind === "reading") return S.book ? S.book.title : "Reading — no book linked";
     if (!S || !S.subject) return "General study";
     var name = KOS_DATA[S.subject] ? KOS_DATA[S.subject].name : S.subject;
     if (S.ref && KOS.hub.BYREF[S.subject] && KOS.hub.BYREF[S.subject][S.ref]) {
@@ -293,41 +348,47 @@
     if (!S || !stageEl) return;
     var paused = S.state === "paused";
     var onBreak = S.phase === "break";
-    var phaseName = paused ? "PAUSED" : onBreak ? "BREAK" : "FOCUS";
+    var reading = S.kind === "reading";
+    var phaseName = paused ? "PAUSED" : onBreak ? "BREAK" : reading ? "READING" : "FOCUS";
     var phaseCls = paused ? "paused" : onBreak ? "break" : "work";
 
     /* ---- full stage ---- */
     stageEl.innerHTML = "";
-    stageEl.className = "fx-stage fx-" + phaseCls;
-    stageEl.appendChild(el("div", { class: "fx-kanji", "aria-hidden": "true", text: onBreak ? "息" : "集中" }));
+    stageEl.className = "fx-stage fx-" + phaseCls + (reading ? " fx-reading" : "");
+    stageEl.appendChild(el("div", { class: "fx-kanji", "aria-hidden": "true", text: onBreak ? "息" : reading ? "読書" : "集中" }));
     stageEl.appendChild(el("div", { class: "fx-phase", text: phaseName }));
     stageEl.appendChild(el("div", { class: "fx-clock", text: fmt(phaseTarget() - phaseElapsed()) }));
     stageEl.appendChild(el("div", { class: "fx-track" }, [el("span", { class: "fx-fill" })]));
     stageEl.appendChild(el("div", { class: "fx-topic", text: topicLabel() }));
     stageEl.appendChild(el("div", { class: "fx-meta", text:
-      (S.mode === "pomodoro" ? "Pomodoro " : "Custom ") + S.workMin + "/" + (S.breakMin || "–") +
+      (reading ? "Reading " : S.mode === "pomodoro" ? "Pomodoro " : "Custom ") + S.workMin + "/" + (S.breakMin || "–") +
       " · cycle " + (S.cycles + (S.phase === "work" && !paused ? 1 : 0)) +
-      " · " + fmtLong(workSeconds()) + " focused" }));
-    stageEl.appendChild(el("div", { class: "fx-stats" }, [
-      el("span", { text: "pauses " + S.pauses + " (1 free)" }),
-      el("span", { text: "distractions " + S.distractions.length + " (" + DISTRACT_FREE + " free)" })
-    ]));
+      " · " + fmtLong(workSeconds()) + (reading ? " read" : " focused") }));
+    stageEl.appendChild(reading
+      ? el("div", { class: "fx-stats" }, [
+          el("span", { text: "rest, not study — pause freely, no penalties" })
+        ])
+      : el("div", { class: "fx-stats" }, [
+          el("span", { text: "pauses " + S.pauses + " (1 free)" }),
+          el("span", { text: "distractions " + S.distractions.length + " (" + DISTRACT_FREE + " free)" })
+        ]));
     var ctl = el("div", { class: "fx-controls" });
     ctl.appendChild(el("button", { class: "btn primary fx-big", text: paused ? "▶ Resume" : "⏸ Pause",
       onclick: paused ? resume : pause }));
     if (canComplete()) ctl.appendChild(el("button", { class: "btn jade fx-big", text: "✓ End session",
       title: "Bank the completed cycles — full award", onclick: endComplete }));
-    ctl.appendChild(el("button", { class: "btn gold", text: "⤓ Study while focused",
+    ctl.appendChild(el("button", { class: "btn gold", text: reading ? "⤓ Minimise the clock" : "⤓ Study while focused",
       title: "Minimise the timer and use the (chrome-free) app", onclick: function () { setMinimised(true); } }));
     ctl.appendChild(el("button", { class: "btn danger", text: "✕ End early",
-      title: "Logs the session but forfeits the award", onclick: endEarly }));
+      title: reading ? "Logs the time read — nothing forfeited" : "Logs the session but forfeits the award", onclick: endEarly }));
     stageEl.appendChild(ctl);
     if (S.subject && S.ref) {
       stageEl.appendChild(el("button", { class: "fx-open-topic", text: "Open " + S.ref + " and study →",
         onclick: function () { setMinimised(true); KOS.show("ref", { subject: S.subject, ref: S.ref }); } }));
     }
-    stageEl.appendChild(el("p", { class: "fx-note", text:
-      "Leaving the tab mid-focus counts as a distraction. Pausing is honest — the first is free." }));
+    stageEl.appendChild(el("p", { class: "fx-note", text: reading
+      ? "Put the screen down and read. The clock logs to your reading heatmap and rest streak when it ends — HP and the study streak are never touched."
+      : "Leaving the tab mid-focus counts as a distraction. Pausing is honest — the first is free." }));
 
     /* ---- docked bar ---- */
     dockEl.innerHTML = "";
@@ -484,6 +545,7 @@
     activeId: function () { return S ? S.id : null; },
     session: function () { return S; },
     state: function () { return S ? S.state : "idle"; },
+    kind: function () { return S ? S.kind || "study" : null; },
     workSeconds: workSeconds,
     canComplete: canComplete,
     /* test helper: shift the phase clock backwards so suites can cross

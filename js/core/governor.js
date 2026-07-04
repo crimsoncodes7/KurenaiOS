@@ -109,6 +109,25 @@
     else if (e.type === "exam") { xp = 12; gold = 2; hp = 3; }
     else if (e.type === "todo") { xp = 5; gold = 1; hp = 2; }
     else if (e.type === "tracker") { xp = 8; gold = 1; hp = 2; }
+    else if (e.type === "media") {
+      /* Collection Matrix (Build 3a): a small trickle for logging what you
+         watched/read. HP stays at 0 BY CONTRACT — this module never drains
+         or restores HP (sessions.js also hides media from the day-drain). */
+      if (m.action === "sync-reward") {
+        /* Build 3j — a pull that discovered progress made elsewhere
+           (mal-sync, site edits). Proportional to the watermark delta,
+           capped so even a month of catch-up can't outpay real study:
+           a unit is one episode/chapter, an advance one status step up. */
+        var units = Math.min(m.units || 0, 50);
+        var advances = Math.min(m.advances || 0, 10);
+        xp = Math.min(4 + units + 3 * advances, 60);
+        gold = Math.min(1 + Math.floor(units / 4) + advances, 12);
+        hp = 0;
+        notes.push("synced progress");
+      } else {
+        xp = 4; gold = 1; hp = 0;
+      }
+    }
     else if (e.type === "focus") {
       /* Build 2b — the real focus award. Ended-early sessions log but forfeit
          the whole award; extra pauses (first is free) shave XP/gold 15% each;
@@ -158,29 +177,52 @@
   }
 
   /* ================= gold catalog ================= */
+  /* Pricing rebalanced in Build 3j (the 2a numbers were flagged
+     placeholders from day one). Anchor: a steady study day yields roughly
+     15–30 gold (sessions 1–10 each, quiz ≥80% +10, clearing the due queue
+     +20, streak milestones on top). So: a BIG lab ≈ a week of real study
+     (180), a focused sim ≈ 3–4 days (100), an OS theme is the prestige
+     cosmetic (140), and the small cosmetics sit at 2–3 days (70–90) so
+     there is always something within reach. Existing owned items keep
+     working — ids never change, only prices did. */
   var CATALOG = [
     /* functional: one-time permanent lab/sim unlocks */
-    { id: "trace",            kind: "lab",   name: "Trace Lab",              price: 150, desc: "Stacks, queues, lists & trees animated with trace tables." },
-    { id: "oop",              kind: "lab",   name: "OOP Sandbox",            price: 150, desc: "Drag class blocks, draw inheritance, read the C#." },
-    { id: "logic-lab",        kind: "lab",   name: "Logic Lab",              price: 90,  desc: "Boolean expressions with live truth tables." },
-    { id: "sort-viz",         kind: "lab",   name: "Sort Visualiser",        price: 90,  desc: "Bubble vs merge — watch the Big-O gap appear." },
-    { id: "fsm-lab",          kind: "lab",   name: "FSM Lab",                price: 90,  desc: "Feed strings through acceptor state machines." },
-    { id: "fn-transform",     kind: "lab",   name: "Function Transformer",   price: 90,  desc: "y = a·f(bx + c) + d with exam wording written for you." },
-    { id: "trig-circle",      kind: "lab",   name: "Trig Circle",            price: 90,  desc: "Unit circle explorer for the wave functions." },
-    { id: "integration-area", kind: "lab",   name: "Integration Area",       price: 90,  desc: "Definite integrals as signed area, live." },
+    { id: "trace",            kind: "lab",   name: "Trace Lab",              price: 180, desc: "Stacks, queues, lists & trees animated with trace tables." },
+    { id: "oop",              kind: "lab",   name: "OOP Sandbox",            price: 180, desc: "Drag class blocks, draw inheritance, read the C#." },
+    { id: "logic-lab",        kind: "lab",   name: "Logic Lab",              price: 100, desc: "Boolean expressions with live truth tables." },
+    { id: "sort-viz",         kind: "lab",   name: "Sort Visualiser",        price: 100, desc: "Bubble vs merge — watch the Big-O gap appear." },
+    { id: "fsm-lab",          kind: "lab",   name: "FSM Lab",                price: 100, desc: "Feed strings through acceptor state machines." },
+    { id: "fn-transform",     kind: "lab",   name: "Function Transformer",   price: 100, desc: "y = a·f(bx + c) + d with exam wording written for you." },
+    { id: "trig-circle",      kind: "lab",   name: "Trig Circle",            price: 100, desc: "Unit circle explorer for the wave functions." },
+    { id: "integration-area", kind: "lab",   name: "Integration Area",       price: 100, desc: "Definite integrals as signed area, live." },
     /* cosmetic: OS theme variants off the crimson/gold base */
-    { id: "theme-kin",    kind: "theme", name: "Kin — gilded chrome",   price: 120, desc: "Gold-led accent palette; crimson recedes to the glow.", theme: "kin" },
-    { id: "theme-shinku", kind: "theme", name: "Shinku — deep crimson", price: 120, desc: "Darker, redder chrome with silvered edges.", theme: "shinku" },
+    { id: "theme-kin",    kind: "theme", name: "Kin — gilded chrome",   price: 140, desc: "Gold-led accent palette; crimson recedes to the glow.", theme: "kin" },
+    { id: "theme-shinku", kind: "theme", name: "Shinku — deep crimson", price: 140, desc: "Darker, redder chrome with silvered edges.", theme: "shinku" },
+    { id: "theme-aoi",    kind: "theme", name: "Aoi — azure night",     price: 140, desc: "Cool azure chrome — the Maths hue takes the wheel.", theme: "aoi" },
+    { id: "theme-sumi",   kind: "theme", name: "Sumi — ink & silver",   price: 140, desc: "Near-monochrome inkwash; colour only where it means something.", theme: "sumi" },
     /* cosmetic: kanji seal variants (the topbar mark) */
-    { id: "seal-homura", kind: "seal", name: "焔 Homura seal", price: 60, desc: "Flame variant of the OS mark.", glyph: "焔" },
-    { id: "seal-tsuki",  kind: "seal", name: "月 Tsuki seal",  price: 60, desc: "Moon variant of the OS mark.", glyph: "月" },
-    { id: "seal-ryuu",   kind: "seal", name: "竜 Ryū seal",    price: 60, desc: "Dragon variant of the OS mark.", glyph: "竜" },
+    { id: "seal-homura", kind: "seal", name: "焔 Homura seal", price: 70, desc: "Flame variant of the OS mark.", glyph: "焔" },
+    { id: "seal-tsuki",  kind: "seal", name: "月 Tsuki seal",  price: 70, desc: "Moon variant of the OS mark.", glyph: "月" },
+    { id: "seal-ryuu",   kind: "seal", name: "竜 Ryū seal",    price: 70, desc: "Dragon variant of the OS mark.", glyph: "竜" },
+    { id: "seal-sakura", kind: "seal", name: "桜 Sakura seal", price: 70, desc: "Blossom variant — for the spring seasons.", glyph: "桜" },
+    { id: "seal-rai",    kind: "seal", name: "雷 Rai seal",    price: 70, desc: "Thunder variant of the OS mark.", glyph: "雷" },
+    { id: "seal-hoshi",  kind: "seal", name: "星 Hoshi seal",  price: 70, desc: "Star variant of the OS mark.", glyph: "星" },
     /* cosmetic: avatar frames */
-    { id: "frame-gold",    kind: "frame", name: "Gilt ring",     price: 80, desc: "A solid gold ring around your avatar." },
-    { id: "frame-crimson", kind: "frame", name: "Kurenai bloom", price: 80, desc: "A crimson glow bleeding off the rim." },
-    { id: "frame-jade",    kind: "frame", name: "Jade band",     price: 80, desc: "A cool jade ring — the CS hue." }
+    { id: "frame-gold",     kind: "frame", name: "Gilt ring",      price: 90, desc: "A solid gold ring around your avatar." },
+    { id: "frame-crimson",  kind: "frame", name: "Kurenai bloom",  price: 90, desc: "A crimson glow bleeding off the rim." },
+    { id: "frame-jade",     kind: "frame", name: "Jade band",      price: 90, desc: "A cool jade ring — the CS hue." },
+    { id: "frame-amethyst", kind: "frame", name: "Amethyst orbit", price: 90, desc: "A violet ring — the IT hue." },
+    /* cosmetic: Collection Matrix — bookshelf skins (Books' Physical tab) */
+    { id: "shelf-walnut",    kind: "shelfskin", name: "Walnut grain",     price: 80, desc: "Warm wood tones under the spines — a reading-lamp shelf." },
+    { id: "shelf-lacquer",   kind: "shelfskin", name: "Black lacquer",    price: 80, desc: "Gloss-dark boards with a gold hairline." },
+    { id: "shelf-vermilion", kind: "shelfskin", name: "Vermilion shrine", price: 80, desc: "Torii-red boards — the shelf as a small shrine." },
+    /* cosmetic: Collection Matrix — Shrine card border styles */
+    { id: "shrine-gilded", kind: "shrinestyle", name: "Gilded torii", price: 80, desc: "Double gold borders on every enshrined card." },
+    { id: "shrine-ink",    kind: "shrinestyle", name: "Ink brush",    price: 80, desc: "Soft brushed monochrome edges — the quiet hall." },
+    { id: "shrine-neon",   kind: "shrinestyle", name: "Neon shrine",  price: 80, desc: "Crimson glow bleeding off every card rim." }
   ];
-  var SEAL_GLYPHS = { kurenai: "紅", "seal-homura": "焔", "seal-tsuki": "月", "seal-ryuu": "竜" };
+  var SEAL_GLYPHS = { kurenai: "紅", "seal-homura": "焔", "seal-tsuki": "月", "seal-ryuu": "竜",
+                      "seal-sakura": "桜", "seal-rai": "雷", "seal-hoshi": "星" };
 
   function catalog() { return CATALOG.slice(); }
   function item(id) { return CATALOG.find(function (c) { return c.id === id; }); }
@@ -359,6 +401,12 @@
   }
   function setTheme(themeId) { G().theme = themeId; store.save(); applyCosmetics(); }
   function setSeal(sealId) { G().seal = sealId; store.save(); applyCosmetics(); }
+  /* Collection Matrix cosmetics (3j): the id is read at render time by
+     books.js (Physical-tab shelf) and shrine.js — null = the default look */
+  function setShelfSkin(id) { G().shelfSkin = id || null; store.save(); }
+  function setShrineStyle(id) { G().shrineStyle = id || null; store.save(); }
+  function shelfSkin() { return G().shelfSkin || null; }
+  function shrineStyle() { return G().shrineStyle || null; }
 
   /* ================= recovery mode ================= */
   /* The fastest route from Critical back to Strained: three concrete tasks,
@@ -442,6 +490,10 @@
     applyCosmetics: applyCosmetics,
     setTheme: setTheme,
     setSeal: setSeal,
+    setShelfSkin: setShelfSkin,
+    setShrineStyle: setShrineStyle,
+    shelfSkin: shelfSkin,
+    shrineStyle: shrineStyle,
     recoveryTasks: recoveryTasks,
     refreshHUD: refreshHUD,
     debugUnlockAll: debugUnlockAll,

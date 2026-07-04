@@ -57,9 +57,13 @@
       return e.date === dateISO && (!sid || e.subject === sid);
     });
   }
+  /* Collection Matrix (Build 3a) contract: "media" entries are rest, not
+     study. They must not keep the study streak alive AND must not count as
+     activity for the HP day-drain — HP is never touched by that module in
+     either direction. They feed only the rest streak below. */
   function hasActivity(dateISO, sid) {
     return store.state.sessions.some(function (e) {
-      return e.date === dateISO && (!sid || e.subject === sid);
+      return e.date === dateISO && (!sid || e.subject === sid) && e.type !== "media";
     });
   }
   /* streak integrity (2c): an early-stopped focus session stays in the log as
@@ -68,8 +72,13 @@
      `complete` field and count as before. */
   function hasStreakActivity(dateISO, sid) {
     return store.state.sessions.some(function (e) {
-      return e.date === dateISO && (!sid || e.subject === sid) &&
+      return e.date === dateISO && (!sid || e.subject === sid) && e.type !== "media" &&
         !(e.type === "focus" && e.metrics && e.metrics.complete === false);
+    });
+  }
+  function hasMediaActivity(dateISO) {
+    return store.state.sessions.some(function (e) {
+      return e.date === dateISO && e.type === "media";
     });
   }
 
@@ -96,12 +105,28 @@
     };
   }
 
+  /* rest streak (Build 3a): consecutive days with at least one Collection
+     Matrix log entry — same yesterday-grace as the study streak, fully
+     independent of it. */
+  function restStreak() {
+    var today = KOS.srs.todayISO();
+    var cursor = hasMediaActivity(today) ? today : KOS.srs.addDays(today, -1);
+    var n = 0;
+    while (hasMediaActivity(cursor)) {
+      n++;
+      cursor = KOS.srs.addDays(cursor, -1);
+      if (n > 3650) break;
+    }
+    return n;
+  }
+
   KOS.sessions = {
     log: log,
     all: function () { return store.state.sessions; },
     forDate: forDate,
     hasActivity: hasActivity,
     streak: streak,
-    streaks: streaks
+    streaks: streaks,
+    restStreak: restStreak
   };
 })();

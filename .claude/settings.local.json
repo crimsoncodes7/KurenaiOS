@@ -34,7 +34,26 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(grep -rn '\\\\\\\\\\\\\\\\times\\\\|\"[^$]*\\\\\\\\\\\\\\\\times[^$]*\"' \"/Users/fj/Downloads/KurenaiOS 2/js/data/content/cs-networking-ethics.js\")",
-      "Bash(xxd)"
+      "Bash(xxd)",
+      "Bash(node -e \"require\\('fs'\\).readFileSync\\('js/data/content/cs-theory.js','utf8'\\)\")",
+      "Bash(node --input-type=module)",
+      "Bash(python3 -c ' *)",
+      "Bash(awk '/\\\\\"steps\\\\\"/{found=1} found && /\\\\\"h\\\\\"/{print NR\": \"$0} found && /\\\\\"m\\\\\"/{hasM=1} found && /\\\\]/{if\\(!hasM\\) print \"  ^^ NO {m} FOUND\"; found=0; hasM=0}' js/data/content/cs-networking-ethics.js)",
+      "Bash(awk '/^C\\\\[\"compsci:/ {entry=$0} /\"flashcards\"/ {fc=NR} /\"quiz\"/ {q=NR} END{}' js/data/content/cs-networking-ethics.js)",
+      "Bash(node -e \"const d = require\\('./js/data/it.js'\\); const sections = d.KOS_DATA.it.sections; function walk\\(s,d\\){ s.forEach\\(x=>{ console.log\\(' '.repeat\\(d*2\\)+x.ref+': '+x.title\\); if\\(x.children\\) walk\\(x.children,d+1\\); }\\); } walk\\(sections,0\\);\")",
+      "Bash(awk '/steps:/{found=1; block=\"\"} found{block=block $0} found && /h:/{has_h=1} found && / m:/{has_m=1} found && /\\\\]/{if\\(found && has_h && !has_m\\) print NR\": MISSING m: -- \"substr\\(block,1,100\\); found=0; has_h=0; has_m=0; block=\"\"}' js/data/content/it-f201.js)",
+      "Bash(node -e \"try { eval\\(require\\('fs'\\).readFileSync\\('js/data/content/it-f201.js','utf8'\\)\\); console.log\\('SYNTAX OK'\\); } catch\\(e\\) { console.log\\('SYNTAX ERROR: '+e.message\\); }\")",
+      "Bash(node -e \"const window={KOS_CONTENT:{}}; eval\\(require\\('fs'\\).readFileSync\\('js/data/content/it-f201.js','utf8'\\)\\); console.log\\('SYNTAX OK'\\);\")",
+      "Bash(node *)",
+      "Bash(cat)",
+      "Bash(python3 /tmp/add_callouts_tc2.py)",
+      "Bash(python3 /tmp/add_callouts_tc1.py)",
+      "Bash(python3 /tmp/add_callouts_prog.py)",
+      "Bash(python3 /tmp/add_callouts_ds.py)",
+      "Bash(python3 /tmp/add_callouts_f201.py)",
+      "Bash(python3 *)",
+      "Bash(cp /tmp/verify_wiring.js ./_verify_wiring.js)",
+      "Bash(rm -f ./_verify_wiring.js)"
     ]
   }
 }

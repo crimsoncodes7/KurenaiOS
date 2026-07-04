@@ -61,6 +61,44 @@
       svg
     ]);
   }
+  /* calendar heatmap (Build 3b — the Books reading heatmap): GitHub-style
+     week columns, 7 rows. days = [{date:"YYYY-MM-DD", value, hint?}] in
+     ascending date order; cells scale opacity against the max value. */
+  function heatmap(days, opts) {
+    opts = opts || {};
+    var cell = 11, gap = 3, padT = 14, padL = 26;
+    var max = Math.max(1, days.reduce(function (a, d) { return Math.max(a, d.value); }, 0));
+    var firstDow = days.length ? (new Date(days[0].date + "T00:00:00").getDay() + 6) % 7 : 0;  // Mon = 0
+    var weeks = Math.ceil((days.length + firstDow) / 7);
+    var s = svgEl(padL + weeks * (cell + gap), padT + 7 * (cell + gap));
+    ["Mon", "Wed", "Fri"].forEach(function (lbl, i) {
+      s.appendChild(svgNode("text", { x: 2, y: padT + (i * 2) * (cell + gap) + cell - 2,
+        "font-size": "8", fill: "#6e6488", text: lbl }));
+    });
+    var lastMonth = "";
+    days.forEach(function (d, i) {
+      var slot = i + firstDow;
+      var col = Math.floor(slot / 7), row = slot % 7;
+      var x = padL + col * (cell + gap), y = padT + row * (cell + gap);
+      var mon = d.date.slice(0, 7);
+      if (row === 0 && mon !== lastMonth) {
+        lastMonth = mon;
+        s.appendChild(svgNode("text", { x: x, y: padT - 4, "font-size": "8", fill: "#6e6488",
+          text: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][parseInt(mon.slice(5), 10) - 1] }));
+      }
+      var g = svgNode("g", {});
+      g.appendChild(svgNode("title", { text: d.hint || (d.date + ": " + d.value) }));
+      g.appendChild(svgNode("rect", { x: x, y: y, width: cell, height: cell, rx: 2.5,
+        fill: d.value ? (opts.color || "#ef4965") : "#241c33",
+        opacity: d.value ? String(0.3 + 0.7 * d.value / max) : "1" }));
+      s.appendChild(g);
+    });
+    return s;
+  }
+
+  /* shared with the Collection Matrix (Build 3a/3b) — same inline-SVG
+     approach everywhere, no charting library */
+  KOS.charts = { svgEl: svgEl, svgNode: svgNode, barChart: barChart, chartCard: chartCard, heatmap: heatmap };
 
   /* ---------------- data aggregation ---------------- */
   function cardsInScope(sid, ref) {

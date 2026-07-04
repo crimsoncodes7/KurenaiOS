@@ -117,7 +117,9 @@
           "<b>Shop suspended.</b> HP is " + state.label + " — purchases and purchased labs reopen at 60 HP." }));
       }
       var groups = [["lab", "Labs & simulations — one-time permanent unlocks"],
-                    ["theme", "OS themes"], ["seal", "Kanji seals"], ["frame", "Avatar frames"]];
+                    ["theme", "OS themes"], ["seal", "Kanji seals"], ["frame", "Avatar frames"],
+                    ["shelfskin", "Bookshelf skins — Books' Physical tab"],
+                    ["shrinestyle", "Shrine card styles"]];
       groups.forEach(function (grp) {
         var items = KOS.governor.catalog().filter(function (c) { return c.kind === grp[0]; });
         if (!items.length) return;
@@ -127,7 +129,9 @@
           var owned = KOS.governor.owns(it.id);
           var active = (it.kind === "theme" && (g.theme === it.theme)) ||
                        (it.kind === "seal" && (g.seal === it.id)) ||
-                       (it.kind === "frame" && (g.avatar.frame === it.id));
+                       (it.kind === "frame" && (g.avatar.frame === it.id)) ||
+                       (it.kind === "shelfskin" && (g.shelfSkin === it.id)) ||
+                       (it.kind === "shrinestyle" && (g.shrineStyle === it.id));
           var card = el("div", { class: "shop-card" + (owned ? " owned" : "") + (suspended && it.kind === "lab" ? " suspended" : "") });
           card.appendChild(el("div", { class: "shop-card-h" }, [
             el("b", { text: it.name }),
@@ -156,6 +160,14 @@
             card.appendChild(el("button", { class: "btn", text: active ? "✓ Worn" : "Wear frame", onclick: function () {
               g.avatar.frame = active ? null : it.id;
               store.save(); KOS.refreshHUD(); render();
+            } }));
+          } else if (it.kind === "shelfskin") {
+            card.appendChild(el("button", { class: "btn", text: active ? "✓ Applied" : "Apply skin", onclick: function () {
+              KOS.governor.setShelfSkin(active ? null : it.id); render();
+            } }));
+          } else if (it.kind === "shrinestyle") {
+            card.appendChild(el("button", { class: "btn", text: active ? "✓ Applied" : "Apply style", onclick: function () {
+              KOS.governor.setShrineStyle(active ? null : it.id); render();
             } }));
           } else {
             card.appendChild(el("p", { class: "shop-note", text: suspended ? "Suspended until HP recovers." : "Unlocked — reachable from its subject's Practice zone." }));

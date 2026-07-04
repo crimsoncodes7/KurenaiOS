@@ -26,7 +26,7 @@
     <div class="brand">
       <span class="kanji" aria-hidden="true">紅</span>
       <span class="name">Kurenai OS</span>
-      <span class="sub">Unified HQ · Build 2a</span>
+      <span class="sub">Unified HQ · Build 3j</span>
     </div>
     <div id="searchbox">
       <span class="glyph" aria-hidden="true">⌕</span>
@@ -79,6 +79,32 @@
         <span class="dot"></span><span class="lbl">IT · Data Analytics</span><span class="pc" id="pc-it"></span>
       </button>
 
+      <div class="rail-h">Collection</div>
+      <button class="rail-item" data-view="matrix">
+        <span class="dot" style="--accent:#ef4965"></span><span class="lbl">Collection Matrix</span>
+      </button>
+      <button class="rail-item" data-view="anime">
+        <span class="dot" style="--accent:#ff5e78"></span><span class="lbl">Anime</span>
+      </button>
+      <button class="rail-item" data-view="books">
+        <span class="dot" style="--accent:#ecc15a"></span><span class="lbl">Books</span>
+      </button>
+      <button class="rail-item" data-view="vn">
+        <span class="dot" style="--accent:#c77bf2"></span><span class="lbl">Visual Novels</span>
+      </button>
+      <button class="rail-item" data-view="game">
+        <span class="dot" style="--accent:#66c0f4"></span><span class="lbl">Games</span>
+      </button>
+      <button class="rail-item" data-view="shrine">
+        <span class="dot" style="--accent:#ecc15a"></span><span class="lbl">The Shrine</span>
+      </button>
+      <button class="rail-item" data-view="aniprofile">
+        <span class="dot" style="--accent:#3db4f2"></span><span class="lbl">AniList Profile</span>
+      </button>
+      <button class="rail-item" data-view="vndbprofile">
+        <span class="dot" style="--accent:#c77bf2"></span><span class="lbl">VNDB Profile</span>
+      </button>
+
       <div class="rail-h">Data</div>
       <button class="rail-item" data-view="data">
         <span class="dot" style="--accent:#6f6488"></span><span class="lbl">Backup &amp; Restore</span>
@@ -114,6 +140,14 @@
 <script src="js/core/srs.js"></script>
 <script src="js/core/sessions.js"></script>
 <script src="js/core/governor.js"></script>
+<!-- Build 3a: Collection Matrix core (IndexedDB store → AniList client → domain) -->
+<script src="js/core/mediadb.js"></script>
+<script src="js/core/anilist.js"></script>
+<script src="js/core/vndb.js"></script>
+<script src="js/core/bookapi.js"></script>
+<script src="js/core/media.js"></script>
+<script src="js/core/mediapush.js"></script>
+<script src="js/core/autosync.js"></script>
 <!-- deep revision content (wave 1) -->
 <script src="js/data/content/cs-programming.js"></script>
 <script src="js/data/content/cs-theory-computation.js"></script>
@@ -148,6 +182,18 @@
 <script src="js/modules/attachments.js"></script>
 <script src="js/modules/help.js"></script>
 <script src="js/modules/focus.js"></script>
+<!-- Build 3a/3b: Collection Matrix views (anime.js first — it owns the base
+     KOS.mediaEditor; books.js wraps it to route Books entries) -->
+<script src="js/modules/anime.js"></script>
+<script src="js/modules/books.js"></script>
+<script src="js/modules/vn.js"></script>
+<script src="js/modules/games.js"></script>
+<script src="js/modules/aniprofile.js"></script>
+<script src="js/modules/vndbprofile.js"></script>
+<script src="js/modules/matrix.js"></script>
+<script src="js/modules/shrine.js"></script>
+<script src="js/modules/mediasync.js"></script>
+<script src="js/modules/mediasearch.js"></script>
 <script src="js/labs/worked.js"></script>
 <script src="js/labs/trace.js"></script>
 <script src="js/labs/oop.js"></script>

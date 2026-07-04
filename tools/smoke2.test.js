@@ -225,7 +225,10 @@ console.log("== home & dashboards ==");
 step("home renders rings, coverage and resume", () => {
   KOS.show("home");
   if (!$(".home-ring canvas")) throw new Error("no overall ring");
-  if ($$(".subj-card").length < 6) throw new Error("subject+lab cards missing");
+  /* 3 subject cards + the live Collection Matrix card + ≥1 future-build card
+     (Build 3a: the 2b and 3 "coming soon" placeholders are gone/live now) */
+  if ($$(".subj-card").length < 5) throw new Error("subject+lab cards missing");
+  if (!$(".med-home-card")) throw new Error("Collection Matrix home card missing");
   if (!$$(".subj-card").some(c => c.textContent.includes("deep-content"))) throw new Error("coverage stat missing");
 });
 step("subject dash shows deep-content stat", () => {

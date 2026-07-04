@@ -36,6 +36,8 @@
       theme: "kurenai",                // active OS theme variant
       seal: "kurenai",                 // active kanji seal variant
       avatar: { kind: "seal", id: "seal-ember", img: null, frame: null },
+      shelfSkin: null,                 // Build 3j — Books Physical-tab shelf cosmetic
+      shrineStyle: null,               // Build 3j — Shrine card border cosmetic
       lastTick: null,                  // "YYYY-MM-DD" of the last HP day-tick
       lastBacklogDrain: null           // "YYYY-MM-DD" the backlog penalty last applied
     },
@@ -74,7 +76,12 @@
     resources: {
       nextId: 1,
       items: []                        // {id, subject, ref|null, name, url}
-    }
+    },
+
+    /* ---- Build 3a: Collection Matrix ----
+       View preferences ONLY. Media entries live in IndexedDB
+       ("kurenai-os-media"), never here — see js/core/mediadb.js. */
+    media: { layout: "grid", sort: "updated" }
     /* progress entries additionally carry rag: null|"r"|"a"|"g" (manual
        confidence — separate concept from completion status) */
   };
