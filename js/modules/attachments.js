@@ -86,6 +86,88 @@
     });
   }
 
+  /* ---------------- bulk export / import (R3 full-coverage backup) ------- */
+  function blobToBase64(blob, cb) {
+    /* arrayBuffer() works on both browser Blobs and Node.js Blobs (the latter
+       appears when fake-indexeddb structuredClone-s a stored File in tests).
+       Fall back to FileReader for environments that lack the Promise API. */
+    var mime = (blob && blob.type) || "application/octet-stream";
+    if (blob && typeof blob.arrayBuffer === "function") {
+      blob.arrayBuffer().then(function (buf) {
+        var bytes = new Uint8Array(buf), binary = "";
+        for (var i = 0; i < bytes.length; i++) { binary += String.fromCharCode(bytes[i]); }
+        cb(null, "data:" + mime + ";base64," + btoa(binary));
+      }).catch(function (e) { cb(e); });
+    } else if (typeof FileReader !== "undefined") {
+      var reader = new FileReader();
+      reader.onload = function () { cb(null, reader.result); };
+      reader.onerror = function () { cb(reader.error || new Error("Could not encode attachment")); };
+      reader.readAsDataURL(blob);
+    } else {
+      cb(new Error("Cannot encode attachment: no arrayBuffer or FileReader API"));
+    }
+  }
+
+  function base64ToBlob(dataUrl) {
+    var comma = dataUrl.indexOf(",");
+    if (comma === -1) throw new Error("Invalid data URL");
+    var meta = dataUrl.slice(0, comma);
+    var mimeMatch = meta.match(/:(.*?);/);
+    if (!mimeMatch) throw new Error("Invalid data URL MIME");
+    var mime = mimeMatch[1];
+    var bstr = atob(dataUrl.slice(comma + 1));
+    var u8 = new Uint8Array(bstr.length);
+    for (var i = 0; i < bstr.length; i++) { u8[i] = bstr.charCodeAt(i); }
+    return new Blob([u8], { type: mime });
+  }
+
+  function exportAll(cb) {
+    tx("readonly", function (err, os) {
+      if (err) { cb(err); return; }
+      var rq = os.getAll();
+      rq.onsuccess = function () {
+        var items = rq.result || [];
+        if (!items.length) { cb(null, []); return; }
+        var result = new Array(items.length);
+        var pending = items.length, fired = false;
+        items.forEach(function (rec, i) {
+          blobToBase64(rec.blob, function (e, b64) {
+            if (fired) return;
+            if (e) { fired = true; cb(e); return; }
+            result[i] = { id: rec.id, subject: rec.subject, ref: rec.ref,
+              name: rec.name, mime: rec.mime, size: rec.size,
+              note: rec.note || "", added: rec.added, blobBase64: b64 };
+            if (!--pending) { fired = true; cb(null, result); }
+          });
+        });
+      };
+      rq.onerror = function () { cb(rq.error); };
+    });
+  }
+
+  function importAll(items, cb) {
+    tx("readwrite", function (err, os) {
+      if (err) { cb(err); return; }
+      var clearRq = os.clear();
+      clearRq.onsuccess = function () {
+        if (!items.length) { cb(null); return; }
+        var pending = items.length, fired = false;
+        items.forEach(function (item) {
+          var blob;
+          try { blob = base64ToBlob(item.blobBase64); }
+          catch (e) { if (!fired) { fired = true; cb(new Error("Could not decode " + (item.name || "attachment"))); } return; }
+          var rec = { id: item.id, subject: item.subject, ref: item.ref,
+            name: item.name, mime: item.mime, size: item.size,
+            blob: blob, note: item.note || "", added: item.added };
+          var putRq = os.put(rec);
+          putRq.onsuccess = function () { if (!fired && !--pending) { fired = true; cb(null); } };
+          putRq.onerror = function () { if (!fired) { fired = true; cb(putRq.error); } };
+        });
+      };
+      clearRq.onerror = function () { cb(clearRq.error); };
+    });
+  }
+
   /* ---------------- the Files tab ---------------- */
   function fmtSize(b) {
     return b > 1048576 ? (b / 1048576).toFixed(1) + " MB"
@@ -121,7 +203,7 @@
     }
 
     wrap.appendChild(el("p", { class: "sub att-lead", text:
-      "Attach worksheets, mark schemes, scanned notes — stored in this browser's IndexedDB (not the backup JSON; export files separately if you move machines). Images and PDFs preview inline; each file carries its own notes field." }));
+      "Attach worksheets, mark schemes, scanned notes — stored in this browser's IndexedDB. Included in the full backup export (Backup & Restore). Images and PDFs preview inline; each file carries its own notes field." }));
 
     var file = el("input", { type: "file", style: "display:none", onchange: function () {
       if (!file.files[0]) return;
@@ -208,6 +290,8 @@
     list: list,
     setNote: setNote,
     remove: remove,
-    mountTab: mountTab
+    mountTab: mountTab,
+    exportAll: exportAll,
+    importAll: importAll
   };
 })();

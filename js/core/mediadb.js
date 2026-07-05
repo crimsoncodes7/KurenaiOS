@@ -823,7 +823,55 @@
     });
   }
 
-  /* ---------------- key-value store (AniList connection) ---------------- */
+  /* ---------------- bulk export / import (R3 full-coverage backup) -------
+     Token keys are deliberately excluded from export — a backup file may be
+     stored or shared in less-secure locations; the user reconnects services
+     the same way they did originally after a restore.                      */
+  var TOKEN_KV_KEYS = {
+    "anilist.clientId": 1, "anilist.token": 1, "anilist.viewer": 1,
+    "vndb.token": 1, "vndb.user": 1
+  };
+
+  function exportAll(cb) {
+    open(function (err, d) {
+      if (err) { cb(err); return; }
+      var t = d.transaction([ENTRIES, KV], "readonly");
+      var entriesResult = [], kvResult = [], pending = 2, fired = false;
+      function done(e) {
+        if (fired) return;
+        if (e) { fired = true; cb(e); return; }
+        if (!--pending) { fired = true; cb(null, { entries: entriesResult, kv: kvResult }); }
+      }
+      var eRq = t.objectStore(ENTRIES).getAll();
+      eRq.onsuccess = function () { entriesResult = eRq.result || []; done(null); };
+      eRq.onerror = function () { done(eRq.error || new Error("entries read failed")); };
+      var kRq = t.objectStore(KV).getAll();
+      kRq.onsuccess = function () {
+        kvResult = (kRq.result || []).filter(function (item) { return !TOKEN_KV_KEYS[item.key]; });
+        done(null);
+      };
+      kRq.onerror = function () { done(kRq.error || new Error("kv read failed")); };
+    });
+  }
+
+  function importAll(data, cb) {
+    open(function (err, d) {
+      if (err) { cb(err); return; }
+      var t = d.transaction([ENTRIES, KV], "readwrite");
+      var cbCalled = false;
+      t.oncomplete = function () { if (!cbCalled) { cbCalled = true; cb(null); } };
+      t.onerror = function () { if (!cbCalled) { cbCalled = true; cb(t.error || new Error("Import failed")); } };
+      t.onabort = function () { if (!cbCalled) { cbCalled = true; cb(t.error || new Error("Import aborted")); } };
+      var es = t.objectStore(ENTRIES);
+      var ks = t.objectStore(KV);
+      es.clear();
+      ks.clear();
+      (data.entries || []).forEach(function (e) { es.put(e); });
+      (data.kv || []).forEach(function (item) { ks.put(item); });
+    });
+  }
+
+  /* ---------------- key-value store (AniList + VNDB connection) ---------- */
   function getKV(key, cb) {
     tx(KV, "readonly", function (err, os) {
       if (err) { cb(err); return; }
@@ -880,6 +928,8 @@
     bulkUpsert: bulkUpsert,
     hasLocalData: hasLocalData,
     needingEnrichment: needingEnrichment,
+    exportAll: exportAll,
+    importAll: importAll,
     getKV: getKV,
     setKV: setKV,
     delKV: delKV

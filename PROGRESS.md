@@ -1078,8 +1078,8 @@ CLAUDE.md, and the build-log entry for whatever it's about to touch.
   modules live (Anime deep, Books deep, VN deep, Games manual-by-necessity),
   AniList + VNDB read sync, AniList write-back, reward-on-sync watermark,
   autonomous 15-min sync loop, profiles, shop rebalance.
-- **Tests**: 12 smoke suites, all passing as of this snapshot (re-verified
-  2026-07-05). Inventory below.
+- **Tests**: 13 smoke suites, all passing (smoke13 added 2026-07-05 for R3
+  backup/restore). Inventory below.
 - **Branch**: `build1-completion` (the name is historical — everything lives
   here). Working tree was clean at snapshot time.
 
@@ -1208,10 +1208,17 @@ flashcard review, `{see:[…]}` cross-ref block.
 - **R2 — "fully offline" is approximate**: KaTeX and the Google Fonts load
   from CDNs — offline, maths renders as raw `$…$` and fonts fall back.
   Everything functional works offline; the claim should be softened.
-- **R3 — no export path for IndexedDB data**: media vault (650 entries incl.
-  hand-built routes/quotes/physical volumes), attachments, and API tokens are
-  all outside the backup JSON. A browser-profile wipe loses them. See Build 4
-  prerequisite — this is the single biggest data-loss exposure in the app.
+- ~~**R3 — no export path for IndexedDB data**~~ **RESOLVED 2026-07-05**:
+  `store.exportFull` / `store.importFull` now produce a single combined JSON
+  covering localStorage state + all four media vault modules + document
+  attachments (blobs as base64). AniList/VNDB tokens are deliberately excluded
+  — a backup file may be shared/stored in less-secure locations; the user
+  reconnects from Sync & Import after any restore. This is a permanent design
+  decision, not a deferred improvement. The Backup & Restore view and Help FAQ
+  were updated accordingly. Legacy-format backups (pre-R3) import whatever
+  sections they contain and report what was missing. Smoke13 verifies:
+  round-trip fidelity for all four modules incl. VN routes/chapters/quotes,
+  token exclusion, and legacy-backup graceful handling (13 suites total).
 - **R4 — sessions log grows unboundedly** in localStorage (`state.sessions`).
   Every study/media/focus action appends forever; localStorage has a ~5 MB
   budget shared with the (large) progress/custom-card state. No pruning or
@@ -1251,8 +1258,8 @@ flashcard review, `{see:[…]}` cross-ref block.
 
 ## TEST SUITE INVENTORY (12 suites, `node tools/smokeN.test.js`)
 
-Prereqs: `npm install jsdom` (all), `npm install fake-indexeddb` (4–12).
-All 12 print "ALL SMOKE TESTS PASSED" as of 2026-07-05.
+Prereqs: `npm install jsdom` (all), `npm install fake-indexeddb` (4–13).
+All 13 suites verified green 2026-07-05.
 
 | Suite | Covers |
 |---|---|
@@ -1268,6 +1275,7 @@ All 12 print "ALL SMOKE TESTS PASSED" as of 2026-07-05.
 | smoke10 | 3h regression: the VNDB duplication bug (REAL /ulist shape), title-claim fallback, dedupeVault, replace mode |
 | smoke11 | 3i Books deepening: lookup clients, ISBN utils, tab split, reading sessions (governor boundary), ranked shelves, scanner degradation |
 | smoke12 | 3j: reward watermark (THE push→echoing-pull single-reward property), autosync cycle, VN chapters, profile tabs, shop, season picker |
+| smoke13 | R3 backup/restore: mediadb exportAll/importAll (all four modules incl. VN routes/chapters/quotes), attach importAll + metadata, store.importFull (v2 + legacy v1), token exclusion, end-to-end round-trip |
 
 Suite-hygiene notes: smoke6's /ulist mocks were the source of the 3h bug
 slipping through (they invented a nested `vn.id` reality never sends) — when

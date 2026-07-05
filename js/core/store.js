@@ -188,6 +188,127 @@
       reader.readAsText(file);
     },
 
+    /* --- R3 fix: unified full-coverage backup/restore ---
+       Combines localStorage state + the media vault (entries + non-token KV)
+       + document attachments into one JSON file. AniList/VNDB tokens are
+       deliberately excluded — a backup file may be copied, shared, or stored
+       in less-secure locations than the browser itself; after a restore the
+       user reconnects services the same way they did originally.            */
+    exportFull: function (done) {
+      var result = {
+        kos_backup_version: 2,
+        exportedAt: Date.now(),
+        state: JSON.parse(JSON.stringify(state)),
+        mediaEntries: [],
+        mediaKV: [],
+        attachments: []
+      };
+
+      function download() {
+        var blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "kurenai-os-full-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+        done && done(null);
+      }
+
+      var steps = 0, completed = 0, hadError = false;
+      function stepDone(err) {
+        if (hadError) return;
+        if (err) { hadError = true; done && done(err); return; }
+        if (++completed >= steps) download();
+      }
+
+      if (window.KOS && KOS.mediadb && KOS.mediadb.available()) {
+        steps++;
+        KOS.mediadb.exportAll(function (err, data) {
+          if (!err) { result.mediaEntries = data.entries; result.mediaKV = data.kv; }
+          stepDone(err);
+        });
+      }
+      if (window.KOS && KOS.attach && KOS.attach.available()) {
+        steps++;
+        KOS.attach.exportAll(function (err, items) {
+          if (!err) result.attachments = items;
+          stepDone(err);
+        });
+      }
+      if (steps === 0) download();
+    },
+
+    importFull: function (file, done) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var backup, incoming;
+        try {
+          var parsed = JSON.parse(reader.result);
+          if (parsed && typeof parsed === "object" && "state" in parsed) {
+            backup = parsed;
+            incoming = parsed.state;
+          } else if (parsed && typeof parsed === "object" && "progress" in parsed) {
+            /* legacy format: the whole file IS the state object */
+            incoming = parsed;
+            backup = { kos_backup_version: 1, state: incoming };
+          } else {
+            return done && done(new Error("Not a Kurenai OS backup file"));
+          }
+          if (!incoming || typeof incoming !== "object" || !("progress" in incoming)) {
+            return done && done(new Error("Not a Kurenai OS backup file"));
+          }
+        } catch (e) { return done && done(e); }
+
+        /* Restore localStorage state */
+        Object.keys(state).forEach(function (k) { delete state[k]; });
+        Object.assign(state, deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), incoming));
+        save();
+
+        var version = backup.kos_backup_version || 1;
+        var report = { restoredSections: ["study & governor data"], missingSections: [] };
+
+        if (version < 2) {
+          report.missingSections.push(
+            "media vault (not in this backup — re-sync from AniList/VNDB to restore)",
+            "attachments (not in this backup — attach files again manually)"
+          );
+          return done && done(null, report);
+        }
+
+        function restoreMedia(next) {
+          if (!window.KOS || !KOS.mediadb || !KOS.mediadb.available()) {
+            report.missingSections.push("media vault (IndexedDB unavailable)");
+            return next();
+          }
+          var data = { entries: backup.mediaEntries || [], kv: backup.mediaKV || [] };
+          KOS.mediadb.importAll(data, function (err) {
+            if (err) report.missingSections.push("media vault (error: " + err.message + ")");
+            else report.restoredSections.push("media vault (" + data.entries.length + " entries)");
+            next();
+          });
+        }
+
+        function restoreFiles(next) {
+          var items = backup.attachments || [];
+          if (!items.length) return next();
+          if (!window.KOS || !KOS.attach || !KOS.attach.available()) {
+            report.missingSections.push("attachments (IndexedDB unavailable)");
+            return next();
+          }
+          KOS.attach.importAll(items, function (err) {
+            if (err) report.missingSections.push("attachments (error: " + err.message + ")");
+            else report.restoredSections.push("attachments (" + items.length + " files)");
+            next();
+          });
+        }
+
+        restoreMedia(function () { restoreFiles(function () { done && done(null, report); }); });
+      };
+      reader.onerror = function () { done && done(new Error("Could not read file")); };
+      reader.readAsText(file);
+    },
+
     reset: function () {
       Object.keys(state).forEach(function (k) { delete state[k]; });
       Object.assign(state, JSON.parse(JSON.stringify(DEFAULTS)));

@@ -55,7 +55,7 @@
       ["Governor boundary", "Logging media earns a small XP/gold trickle and feeds the rest streak; a sync that discovers progress made elsewhere logs ONE proportional reward per sync. HP is untouched in both directions — media days don't drain it, and can't heal it."]
     ]],
     ["Data & housekeeping", [
-      ["Backup & Restore", "Study data lives in one localStorage JSON — export it regularly and when moving machines. Attached files and the Collection Matrix vault (media entries + the AniList/VNDB tokens) live separately in IndexedDB and are NOT in the backup file; the vault re-fills from a sync. Manual-only VN data (routes, quotes) has no cloud copy — treat the vault with care."],
+      ["Backup & Restore", "The full export covers everything in one file: study progress, governor state, the entire media vault across all four modules (including routes, quotes, physical volumes, chapters — all the data only you can build), and document attachments. Import is a complete restore for disaster recovery or moving to a new machine. AniList/VNDB tokens are intentionally not included — a backup file can end up in less-secure places than your browser; after restoring, reconnect from Sync & Import the same way you did originally (a minor inconvenience, the correct trade-off). Old-format backups (pre-R3, missing the media vault) import the study data they contain and tell you clearly what was not covered."],
       ["Autosave", "Every change saves automatically (the AUTOSAVE dot pulses). There is no save button anywhere."],
       ["Sample data", "Calendar events marked SAMPLE are placeholders — edit or delete them and add your real dates."]
     ]]

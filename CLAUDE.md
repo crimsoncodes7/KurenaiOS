@@ -70,10 +70,12 @@ Collected from every build. If a change would break one of these, stop and say s
    added there or every `put()` silently strips it. New axes = new DB version
    + migration + indexes.
 7. Media entries live in IndexedDB `kurenai-os-media`; attachments in
-   `kurenai-os-files`; API tokens in the media kv store. NONE of these ride
-   the localStorage backup JSON (known data-loss exposure — PROGRESS.md R3).
-   IndexedDB is origin-scoped: `file://` and `localhost` vaults are different
-   databases.
+   `kurenai-os-files`; API tokens in the media kv store. The localStorage
+   backup JSON covers none of these on its own, but `store.exportFull`/
+   `importFull` (R3, 2026-07-05) now produce one combined JSON that covers
+   all three — tokens deliberately excluded (see permanent design decision in
+   PROGRESS.md). IndexedDB is origin-scoped: `file://` and `localhost` vaults
+   are different databases.
 8. Views NEVER render the whole vault at once — lazy 60-entry batches via the
    IntersectionObserver sentinel; filters walk real DB indexes, no in-memory
    scans.

@@ -929,22 +929,47 @@
     hideTree();
     main.appendChild(el("div", { class: "lab-h" }, [
       el("h1", { text: "Backup & Restore" }),
-      el("p", { class: "sub", text: "Everything — progress, checklists, notes, sandbox layouts — lives in one JSON object in this browser's storage and autosaves on every change. Export it for safekeeping or to move between machines." })
+      el("p", { class: "sub", text: "Full export covers everything: study progress, governor state, the entire media vault (anime/books/VN/games, including routes, quotes, and physical volumes), and document attachments. A vault with many large attachments may produce a large file — that is expected. Import is a complete restore, not a merge." }),
+      el("p", { class: "sub", text: "AniList and VNDB tokens are intentionally excluded from backups — a backup file may be stored or shared in less-secure places than your browser profile. After restoring, reconnect both services from Sync & Import the same way you did originally." })
     ]));
     var row = el("div", { class: "lab-controls", style: "margin-top:18px" });
-    row.appendChild(el("button", { class: "btn primary", text: "Export backup (.json)",
-      onclick: function () { store.exportJSON(); } }));
+
+    var exportBtn = el("button", { class: "btn primary", text: "Export full backup (.json)",
+      onclick: function () {
+        exportBtn.disabled = true;
+        exportBtn.textContent = "Exporting…";
+        store.exportFull(function (err) {
+          exportBtn.disabled = false;
+          exportBtn.textContent = "Export full backup (.json)";
+          if (err) KOS.ui.toast("Export error: " + err.message, true);
+        });
+      }});
+    row.appendChild(exportBtn);
+
     var file = el("input", { type: "file", accept: ".json,application/json", style: "display:none",
       onchange: function () {
         if (!file.files[0]) return;
-        store.importJSON(file.files[0], function (err) {
-          if (err) { KOS.ui.toast("Import failed: " + err.message, true); }
-          else { KOS.ui.toast("Backup restored."); KOS.refreshRailCounters(); KOS.show("home"); }
+        importBtn.disabled = true;
+        importBtn.textContent = "Restoring…";
+        store.importFull(file.files[0], function (err, report) {
+          importBtn.disabled = false;
+          importBtn.textContent = "Import backup…";
+          file.value = "";
+          if (err) { KOS.ui.toast("Import failed: " + err.message, true); return; }
+          var msg = "Restored: " + report.restoredSections.join(", ") + ".";
+          if (report.missingSections.length) {
+            msg += " Note: " + report.missingSections.join("; ") + ".";
+          }
+          KOS.ui.toast(msg);
+          KOS.refreshRailCounters();
+          KOS.show("home");
         });
       }});
     row.appendChild(file);
-    row.appendChild(el("button", { class: "btn gold", text: "Import backup…",
-      onclick: function () { file.click(); } }));
+    var importBtn = el("button", { class: "btn gold", text: "Import backup…",
+      onclick: function () { file.click(); } });
+    row.appendChild(importBtn);
+
     row.appendChild(el("button", { class: "btn jade", text: "Export revision summary (print / PDF)",
       onclick: exportSummary }));
     row.appendChild(el("button", { class: "btn danger", text: "Reset everything",
