@@ -1,9 +1,16 @@
-# 紅 Kurenai OS — Build 2.1 "Liquid Glass": the Unified HQ
+# 紅 Kurenai OS — the Unified HQ (Build 3j)
 
-A fully offline, file-system-local revision operating system for A-level Computer
-Science, Mathematics and IT. Open `index.html` in any modern browser — **no server,
-no build step, no dependencies**. Everything (progress, notes, sandbox layouts) lives
-in one autosaved JSON object in `localStorage`.
+A file-system-local revision operating system for A-level Computer Science,
+Mathematics and IT — plus a Behavioural Governor (SM-2 spaced repetition, focus
+timer, HP/gold/XP economy) and the 蒐 Collection Matrix (anime / books / visual
+novels / games tracking with live AniList + VNDB sync). Open `index.html` in any
+modern browser — **no server, no build step, no bundler**.
+
+Works offline with two honest caveats: KaTeX and the fonts load from CDNs (offline,
+maths shows raw `$…$` and fonts fall back), and the media sync features naturally
+need the network. Core state lives in one autosaved `localStorage` object; the
+media vault, file attachments and API tokens live in IndexedDB (origin-scoped, and
+**not** included in the JSON backup — see CLAUDE.md invariant 7).
 
 ```sh
 # just open it
@@ -94,7 +101,11 @@ KurenaiOS/
 │   ├── core/
 │   │   ├── store.js          state object, autosave, export/import
 │   │   ├── ui.js             el() builder, toast, view registry (KOS.show)
-│   │   └── content.js        deep-content registry + rich block renderer (renderBlocks)
+│   │   ├── content.js        deep-content registry + rich block renderer (renderBlocks)
+│   │   ├── srs.js / sessions.js / governor.js      Build 2: SM-2, session log, economy
+│   │   ├── mediadb.js        Build 3: IndexedDB media vault (the schema gate)
+│   │   ├── anilist.js / vndb.js / bookapi.js       API clients (AniList, VNDB Kana, Open Library/Google Books)
+│   │   └── media.js / mediapush.js / autosync.js   module registry + write-back + 15-min sync loop
 │   ├── data/                 GENERATED tree data — don't hand-edit, regenerate
 │   │   ├── compsci.js        AQA 7517 tree   → window.KOS_DATA.compsci
 │   │   ├── maths.js          Edexcel 9MA0    → window.KOS_DATA.maths
@@ -105,7 +116,11 @@ KurenaiOS/
 │   │   ├── flashcards.js      flip / shuffle / self-rate engine
 │   │   └── quiz.js            MCQ + exam-question engines
 │   ├── modules/
-│   │   └── hub.js            tree, dashboards, reference view, search
+│   │   ├── hub.js            tree, dashboards, reference view, search
+│   │   ├── due.js / calendar.js / todo.js / governor-ui.js / focus.js     Build 2 views
+│   │   ├── tracker.js / rag.js / cardstats.js / attachments.js / help.js  Build 2c views
+│   │   ├── anime.js / books.js / vn.js / games.js  the four media vaults (editor wrap chain)
+│   │   └── matrix.js / shrine.js / mediasync.js / mediasearch.js / aniprofile.js / vndbprofile.js
 │   └── labs/
 │       ├── worked.js         worked-example generators + step UI
 │       ├── trace.js          canvas data structures + animation clock
@@ -117,8 +132,7 @@ KurenaiOS/
     ├── parse_maths.py        spec PDF → maths.json
     ├── parse_it.py           spec PDF → it.json
     ├── gen_data.py           *.json → js/data/*.js
-    ├── smoke.test.js         core-engine jsdom test suite
-    └── smoke2.test.js        deep-content + engines jsdom test suite
+    └── smoke.test.js … smoke12.test.js   twelve jsdom test suites (see Tests below)
 ```
 
 ## Authoring more deep content
@@ -158,29 +172,40 @@ Architecture notes: classic `<script>` tags (no ES modules) so `file://` works
 everywhere; one global namespace `KOS`; every view is a function that receives the
 cleared `#main` node; all mutation flows through `KOS.store` so autosave is automatic.
 
+## What shipped after Build 2.1 (summary — details in PROGRESS.md)
+
+- **Build 2 — Behavioural Governor** (complete): real SM-2 spaced repetition with a
+  global due queue, the session log that everything derives from (streaks, XP,
+  RAG struggle-detection, stats), HP/gold/XP with gold-gated labs (core revision
+  never locks), calendar + auto daily to-do, exam/paper tracker, focus timer with
+  Focus Mode, IndexedDB file attachments on every topic, SVG stats dashboards.
+- **Build 3 — 蒐 Collection Matrix** (complete through 3j): four media vaults —
+  Anime (seasonal view, airing countdowns, AniList profile), Books (physical/
+  digital dual-tracking, virtual bookshelf, ISBN lookup + barcode scan, reading
+  sessions, ranked shelves), Visual Novels (VNDB sync, routes/chapters/quotes,
+  quote→flashcard bridge), Games (manual-by-verified-necessity, bulk paste-in) —
+  on one IndexedDB schema with live AniList/VNDB pull sync, AniList write-back,
+  a reward-on-sync watermark, and an autonomous 15-minute sync loop.
+
 ## Tests
 
-Smoke tests require Node.js + jsdom:
+Smoke tests require Node.js + jsdom (suites 4–12 also need fake-indexeddb):
 
 ```sh
-npm install jsdom          # one-time
-node tools/smoke.test.js   # core engine tests
-node tools/smoke2.test.js  # deep content + engines tests
+npm install jsdom fake-indexeddb   # one-time
+for i in "" 2 3 4 5 6 7 8 9 10 11 12; do node tools/smoke$i.test.js; done
 ```
 
-Both must print **ALL SMOKE TESTS PASSED**.
+All twelve must pass. Per-suite coverage: the snapshot section of `PROGRESS.md`.
 
 ## Roadmap
 
-- **Build 2 — Behavioural Governor**: avatar HP/XP/Gold, focus timer with full-screen
-  lock, gold-gated module access, SM-2 flashcard engine.
-- **Build 3 — Kurenai Collection Matrix**: physical vault CRUD, analytics, budget
-  planner, AniList import.
-- **Build 4 — Competitions, Music & the Ollama bridge** at
-  `http://localhost:11434/api/generate` (pages opened via `file://` can call localhost
-  Ollama if launched with `OLLAMA_ORIGINS="*"`).
+Prioritised backlog with scoping notes: **the "SNAPSHOT — 2026-07-05" section of
+`PROGRESS.md`**. Headlines: Purchase/Budget Planner (next), the FR-6 LLM bridge
+(research first), Books extras (highlights, series webs, pace projections),
+Build 4 (backend / cross-device sync / PWA / Steam+IGDB proxy), Competitions &
+Music modules (unscoped), and the paused Build-1 labs expansion.
 
-(Build numbers above are feature milestones; "Build 2.0/2.1" name design-system
-iterations of the current Revision Hub.)
+("Build 2.0/2.1" name design-system iterations; Build 2/3/4 are feature milestones.)
 
-> Detailed per-build history lives in `PROGRESS.md`.
+> Detailed per-build history lives in `PROGRESS.md`; architecture + invariants in `CLAUDE.md`.

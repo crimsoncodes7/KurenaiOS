@@ -134,9 +134,16 @@ forward trail and rail state stay correct.
   guard against divide-by-zero, `f'(x₀)=0`, equal roots, etc. in `validate()`.
 - `{code}` blocks auto-render a copy button + language tag; author them normally.
 
-## Tests — all three must print ALL SMOKE TESTS PASSED
+## Build 3 — the Collection Matrix (architecture)
+CLAUDE.md is the canonical doc for Build 3 (module map, merge contracts, the
+reward watermark, push field-scoping, live-verified API facts) — read its
+"INVARIANTS" section before touching anything under `js/core/media*`,
+`anilist.js`, `vndb.js`, `autosync.js` or the four vault modules.
+
+## Tests — all TWELVE suites must pass
 ```sh
-node tools/smoke.test.js    # core engine
-node tools/smoke2.test.js   # deep content + engines
-node tools/smoke3.test.js   # Build 2a governor: SM-2, sessions, economy, calendar, todo
+for i in "" 2 3 4 5 6 7 8 9 10 11 12; do node tools/smoke$i.test.js; done
 ```
+smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–12 print "SMOKE-N PASS …"
+(smoke10 prints "10 passed, 0 failed"). smoke4–12 need `npm i fake-indexeddb`
+in addition to jsdom. Per-suite coverage table: PROGRESS.md snapshot section.

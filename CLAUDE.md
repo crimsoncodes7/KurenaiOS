@@ -38,6 +38,114 @@ python tools/parse_it.py     # → it.json
 python tools/gen_data.py     # aqa/maths/it.json → js/data/*.js
 ```
 
+**Current status & backlog**: see the "SNAPSHOT — 2026-07-05" section at the end
+of `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges
+(R1–R13), and the test inventory. All 12 suites verified green 2026-07-05.
+
+## INVARIANTS — the one-place list (never violate; details in the sections below)
+
+Collected from every build. If a change would break one of these, stop and say so.
+
+**Governor / economy**
+1. Streaks, XP, HP and gold flow ONLY from `KOS.sessions.log(...)` — never write
+   them directly.
+2. HP/gold gate ONLY labs, sims and the shop. Core revision (spec, notes,
+   flashcards, quizzes, exam Qs) never locks. The Focus Timer is never gated.
+   Cosmetics stay buyable while strained; only labs suspend.
+3. Leisure never touches HP in either direction: media sessions award 0 HP, are
+   excluded from the day-drain activity check AND the study streak, and feed
+   only the independent rest streak. Reading sessions (`kind:"reading"`) skip
+   distraction HP nicks and forfeit nothing on early end.
+4. Study streak, rest streak and the HP day-drain activity check are THREE
+   separate derivations from the one sessions log: streaks skip
+   `focus`+`complete:false` entries; the day-drain still sees them. Keep them
+   separate.
+5. Bulk operations never log per-entry sessions. One deliberate act = one
+   session (games bulk-add; the 3j `sync-reward` session, watermark-filtered
+   and capped at 60 XP / 12 gold per sync per module). XML import ignores the
+   reward list entirely.
+
+**Media schema & storage**
+6. `mediadb.normalise()` is the SINGLE schema gate — any new field must be
+   added there or every `put()` silently strips it. New axes = new DB version
+   + migration + indexes.
+7. Media entries live in IndexedDB `kurenai-os-media`; attachments in
+   `kurenai-os-files`; API tokens in the media kv store. NONE of these ride
+   the localStorage backup JSON (known data-loss exposure — PROGRESS.md R3).
+   IndexedDB is origin-scoped: `file://` and `localhost` vaults are different
+   databases.
+8. Views NEVER render the whole vault at once — lazy 60-entry batches via the
+   IntersectionObserver sentinel; filters walk real DB indexes, no in-memory
+   scans.
+9. `bulkUpsert` merge: sync wins on list state, but the manual layer ALWAYS
+   survives — Books: `physical`, `mood`, `shelves`, active `dnf`, local
+   `author`/`format`; VN: `routes`, `quotes`, `chapters`, `cgGallery`,
+   `contentWarnings`, local `developer`. `extra` accretes (fresh non-null
+   wins; null never beats stored). Progress re-derives from surviving routes.
+10. Derived progress, never stored: `vn` ← routes (cleared/total), `game` ←
+    playtimeHours (unit "hr"). Don't add a parallel stored progress.
+11. Upsert match order: vndbId first (vn), then anilistId, then malId.
+    Title-claim fallback is vn-only, claims only id-less same-title rows,
+    never crosses modules.
+
+**Write-back & sync**
+12. Push eligibility: ONLY `syncSource:"anilist"` + anilistId (anime/books) or
+    `syncSource:"vndb"` + vndbId (vn). Games NEVER push and the games module
+    emits ZERO network traffic, ever (smoke8-asserted).
+13. Field scoping by construction: push payloads only know status, progress
+    (+ volumes for books), score. Nothing else may gain a code path into a
+    payload. Local score 0 = unrated → omitted, never clears a remote rating.
+14. All remote mutations go through `mediapush.js`/`mediasearch.js` only —
+    list state only, no deletes, no favourites, no reviews.
+15. `bulkUpsert` (the pull path) never schedules pushes and never logs
+    sessions — it returns `res.rewards` for the caller.
+16. Last-write-wins is DELIBERATE (stated in Help/Sync & Import) — do not
+    bolt on conflict detection as a drive-by.
+17. The reward watermark: `put()/add()` absorb it on every local save;
+    `bulkUpsert` compares the merged state against it BEFORE absorbing. The
+    pinned property (smoke12): a push followed by an echoing pull produces
+    ZERO reward events. Below-watermark movement lowers it silently — no
+    reward, no clawback. Null watermarks/inserts initialise silently.
+
+**External-API facts (all verified LIVE — do not re-litigate without new facts)**
+18. VNDB Kana `/ulist`: the TOP-LEVEL `id` is the VN id; the nested `vn`
+    record carries NO id. Mocks must never invent `vn.id` (that's how the 3h
+    duplication bug shipped). Official endpoint `api.vndb.org/kana` only —
+    never the community proxy.
+19. VNDB's CORS preflight allows POST/GET/OPTIONS only — browser PATCH
+    (write-back) is blocked regardless of token permissions. The client
+    implements the documented shape anyway; don't retry the wall.
+20. Steam is a three-way verified dead end (check_authentication response
+    unreadable cross-origin; https→file:// return blocked; claimed_id is a
+    bare SteamID64). Games stay manual-entry-only; do not re-attempt without
+    new facts.
+21. Book lookup: Open Library PRIMARY, Google Books FALLBACK ONLY (keyless
+    quota is zeroed, 429). Goodreads is dead — never add it.
+22. AniList MAL-format XML exports carry MAL ids, not AniList ids (they
+    coincide only below ~22k). Rate limits: AniList degraded 30 req/min
+    (batch 50, pace ~2.4 s, honour Retry-After); VNDB 200 req/5 min (pace
+    ~1.6 s).
+23. Airing data is cached in MEMORY only (10-min TTL) — never written to the
+    vault, never background-polled. The AniList profile is ONE GraphQL
+    request, read-only (`resetNotificationCount: false`).
+
+**Content & UI**
+24. `js/data/compsci.js`/`maths.js`/`it.js` are generated — never hand-edit by
+    default (caveat: regen via pdfplumber is currently unreliable — the
+    committed spec data was cleaned in place in June 2026, so if you must
+    regen, diff per-ref against the committed files first).
+25. Content keys only on LEAF refs (non-empty `content[]`). Callouts need TWO
+    closing braces. No bare-string paragraphs in notes (user preference —
+    wrap prose in callouts).
+26. Reuse existing class names — engines/views/tests key off them. Restyle
+    through `:root` tokens; never repurpose the three subject hues.
+27. Navigate only via `KOS.show` (history/forward/rail state). Charts are
+    hand-built inline SVG via `KOS.charts` — no charting library.
+28. The `KOS.mediaEditor` wrap chain is game → vn → books → anime base, fixed
+    purely by script-tag order in index.html — don't reorder those four tags.
+29. VN CG gallery is a COUNTER only — never store/scrape artwork. Content
+    warnings are manual — never auto-filled from VNDB tags.
+
 ## Architecture
 
 ### Script-tag globals, no bundler
@@ -78,6 +186,56 @@ All JS is loaded via `<script src="...">` in `index.html` in strict dependency o
 7. **Boot** — `js/main.js` wires the rail nav, runs the governor boot sequence
    (seed samples → HP tick → cosmetics → view gates → HUD → reminders), restores
    the last view
+
+### Module map & data flow (who owns what, how it connects)
+
+**Governor spine** (everything behavioural funnels through one pipeline):
+```
+any completed activity ──► KOS.sessions.log({type, subject, ref, dur, metrics})
+                                │
+              ┌─────────────────┼──────────────────────┐
+   governor.onSession       streak derivation      todo/RAG/stats read it
+   (pays XP/gold/HP;        (study streak skips    (cardstats, rag.auto,
+    media type → 0 HP,       media + incomplete     heatmaps, burn-down —
+    rest-streak only)        focus; rest streak     ALL charts read the
+                             = media days only)     same log)
+```
+- `srs.js` owns SM-2 + the unified card registry (curriculum `"sid:ref:i"`,
+  custom `"u<id>"`, personal bucket sid `"personal"`); `due.js` renders the
+  queue + personal deck. `governor.js` owns HP/gold/XP/catalog/gates/HUD;
+  `governor-ui.js` the panel. `focus.js` owns the ONE timer state machine
+  (study `kind` default; Books reading sessions reuse it via `kind:"reading"`).
+  `tracker.js`/`rag.js` feed struggle detection; `calendar.js`/`todo.js` the
+  planning layer. All state in `KOS.store` → localStorage.
+
+**Collection Matrix** (leisure; separate storage, same sessions log):
+```
+IndexedDB kurenai-os-media (v5) ── mediadb.js owns schema (normalise = the gate),
+       │                           indexes, bulkUpsert (merge + rewardDelta)
+       │
+  media.js — module registry, XML import, logActivity/logSyncRewards,
+       │     quickEdit + push chip, dedupeVault (shared by all four vaults)
+       │
+  vault views: anime.js (base mediaEditor; + seasonal/airing/heatmap)
+               books.js (wraps editor; physical vault, shelves, lookup via bookapi.js)
+               vn.js    (wraps again; routes/chapters/quotes/CG)
+               games.js (final wrap; manual-only, bulk paste)
+  cross-cutting views: matrix.js (home), shrine.js (favourites),
+               mediasync.js (connect/import/maintenance), mediasearch.js (⊕ find-new),
+               aniprofile.js / vndbprofile.js (read-only profiles)
+```
+- **Read path**: `anilist.js`/`vndb.js` clients → `bulkUpsert` (merge contract:
+  sync wins list state, manual layer survives) → `res.rewards` → caller logs
+  ONE sync-reward session. `autosync.js` drives this every 15 min (flush
+  failed pushes first, then pull).
+- **Write path**: editors/quick-edit/+1 → `mediadb.put()` (absorbs the reward
+  watermark) → `mediapush.schedule()` (350 ms debounce, field-scoped payloads)
+  → AniList mutation (VNDB blocked by CORS). `mediasearch.js` is the separate
+  create-then-mirror path for adding new entries.
+- **The watermark loop**: `entry.reward` = last state the app accounted for.
+  Local saves absorb it at `put()`; pulls diff against it before absorbing —
+  so external progress rewards once, and a pull that echoes a push rewards
+  zero. This is THE mechanism that makes two-way sync economy-safe.
 
 ### Key globals
 

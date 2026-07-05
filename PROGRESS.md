@@ -1054,10 +1054,222 @@ silently (no reward) and only when a sync button was pressed.
   Import panel count 7→8), smoke9 (profile content now behind tabs).
   **All twelve suites pass.**
 
-## Claude Code backlog (app features)
-- **Content**: fill quiz (≥3) and exam (≥1) gaps across maths + thin CS files, using
-  PMT papers in `Context/` as source (see the plan: build-1 completion sprint).
-- More simulations (Karnaugh maps, BFS/DFS graph traversal, projectile motion).
-- More sandboxes (BNF validator 4.4.3.1, normalisation 4.10.3).
-- Build 2 (gamification): Behavioural Governor (avatar, focus timer, SM-2 engine).
-- Build 3: Kurenai Collection Matrix.
+---
+
+# SNAPSHOT — 2026-07-05 (handoff state)
+
+Written as a deliberate handoff snapshot at the end of the Fable-5 sessions.
+Everything above this line is the chronological build log (accurate, keep it);
+everything below is the **current state + the prioritised backlog**. A future
+session should read this section, the matching "Invariants" section in
+CLAUDE.md, and the build-log entry for whatever it's about to touch.
+
+## Where the project stands
+
+- **Build 1 (content + labs)**: content is DONE — all 156 CS + 89 Maths + 15 IT
+  F201 leaves at the IT-2.4 depth bar, correctly keyed, floor-met
+  (≥8fc/≥5qz/≥3ex incl 6+, intel). Stage 3 (labs expansion) was **paused, not
+  finished** — see backlog item 6.
+- **Build 2 (Behavioural Governor)**: COMPLETE. FR categories 1–5 fully
+  implemented (sole exception FR-2.9 mind-map = Won't-have). SM-2, sessions
+  backbone, HP/gold/XP, calendar, to-do, focus timer, tracker, RAG, stats,
+  attachments, resources, help.
+- **Build 3 (蒐 Collection Matrix)**: COMPLETE through 3j. All four media
+  modules live (Anime deep, Books deep, VN deep, Games manual-by-necessity),
+  AniList + VNDB read sync, AniList write-back, reward-on-sync watermark,
+  autonomous 15-min sync loop, profiles, shop rebalance.
+- **Tests**: 12 smoke suites, all passing as of this snapshot (re-verified
+  2026-07-05). Inventory below.
+- **Branch**: `build1-completion` (the name is historical — everything lives
+  here). Working tree was clean at snapshot time.
+
+## Still owed by the USER (cannot be automated — needs their logins/data)
+
+1. Real calendar dates — the calendar still holds SAMPLE events seeded
+   relative to first run. Exam dates especially.
+2. AniList API client ID (settings/developer, redirect
+   `https://anilist.co/api/v2/oauth/pin`) pasted into Sync & Import — required
+   for authenticated sync + write-back. (XML import + public enrichment
+   already worked without it.)
+3. VNDB personal token ("access to my list"; add "modify my list" for the day
+   VNDB unblocks browser PATCH) pasted into Sync & Import.
+4. A real AniList **manga** XML export to verify the manga import path against
+   (it is tested against the EXPECTED MAL shape only — see rough edge R6).
+
+## PRIORITISED BACKLOG
+
+### 1. Collection Matrix — Purchase / Budget Planner  ← NEXT UP (unscoped)
+What exists to build on: `physical.volumes[]` already carries `price` +
+`purchaseDate` per volume (Books only); Mangaka pages aggregate spend per
+author; the sessions log timestamps purchases indirectly via volume adds.
+What a scoping session must decide first:
+- **Cross-module or Books-only?** Only Books has price fields today. If games
+  /VN purchases count, the shared schema needs a purchase axis added through
+  `normalise()` (the single schema gate — see invariants) + a v6 migration.
+- **Where budget state lives.** Precedent says media kv store (like
+  `books.shelfOrder`) — but note kv is EXCLUDED from the backup JSON, so a
+  budget would have no backup. Decide deliberately and state it in Help.
+- **Wishlist vs owned**: "planned purchases" likely = entries/volumes flagged
+  wanted with an expected price; interacts with the Physical tab and possibly
+  `backlogPriority` on games.
+- **Governor boundary**: logging a purchase is a media action (+4 XP/+1 gold,
+  0 HP, rest streak) at most — a budget must never become a gold source/sink
+  (real money ≠ game economy; keep them visually and mechanically separate).
+- Charts: reuse `KOS.charts` (bars/heatmap) — no chart lib (standing rule).
+
+### 2. Category 6 — the LLM bridge (FR-6 AI layer)  (unscoped — RESEARCH FIRST)
+The plan always said build this LAST with a pluggable `KOS.ai` provider
+abstraction (external API / local Ollama / disabled). **A future session must
+research before scoping — do not assume any of this works:**
+- **CORS from file:// per provider, verified live** (the AniList/VNDB/Steam
+  lesson: test, don't assume). Anthropic's API supports browser calls only
+  with a special opt-in header; OpenAI blocks browsers; **Ollama at
+  localhost:11434 rejects `Origin: null` unless the user sets
+  `OLLAMA_ORIGINS`** — which would be a documented manual setup step like the
+  AniList client ID. Whichever provider(s) survive this test define the
+  feature.
+- **RAG-lite grounding approach**: the corpus is already structured —
+  `KOS_CONTENT["subject:ref"]` blocks + `intel.js` + the user's own notes/
+  attachments. For a per-topic tutor, retrieval may be trivial (current ref's
+  content + intel, no embeddings). Cross-topic Q&A needs real retrieval:
+  research whether the existing lexical search index is enough, vs
+  embeddings (which need either an API or transformers.js — and whether
+  transformers.js even loads on file:// with no bundler/script-tag-globals
+  architecture).
+- **Structured-output reliability**: card/quiz generation needs valid JSON
+  matching the KOS_CONTENT schemas. Research: JSON-schema/tool-forcing
+  support per provider from a browser; design a validate-and-retry loop;
+  decide what happens on repeated failure (never write a malformed card —
+  `normalise()`-style gate for AI output).
+- **Tutor state machine**: where conversation state persists (localStorage
+  rides the backup but is small; IndexedDB doesn't ride the backup — same
+  trade-off as attachments); how a tutoring session logs (it should log a
+  session for streak/XP purposes, but the pricing must not make chatting a
+  gold farm — cap like sync-reward, precedent exists).
+- **Key storage**: media-DB kv store, NEVER localStorage (the token
+  precedent — keys must not ride into the backup JSON export).
+- **Seams already in place**: structured content corpus, per-topic intel,
+  attachments in IndexedDB, "Generate with AI" was planned as stubs on
+  relevant tabs (not yet built).
+
+### 3. Books extras (scoped in spirit by 3b/3i, deferred)
+- **Quotes/highlights for Books**: the VN quote pattern is the template —
+  `quotes[]` on the entry, survives merges, counts as `hasLocalData`,
+  optional bridge to personal flashcards (`KOS.srs.addCustom(PERSONAL_SID,
+  "books", …)` — the sid/ref are opaque strings, so ref "books" beside ref
+  "vn" costs nothing; the personaldeck view already handles mixed refs).
+- **Series relationship webs**: AniList exposes `relations` edges (prequel/
+  sequel/spin-off) — needs an `extra.relations` capture in the manga/anime
+  queries + a small graph render. Mind the accepted limitation that Mangaka
+  grouping is name-based; relations are id-based and don't share it.
+- **Reading pace projections**: the raw data EXISTS since 3i — reading
+  sessions carry real `dur` + the sessions log carries progress deltas.
+  Projection = chapters-per-week trend → estimated finish date per
+  in-progress book. Pure derivation from the log; no schema change needed.
+
+### 4. Build 4 — backend / cross-device sync / PWA / Steam+IGDB proxy (unscoped)
+A real server dissolves several documented walls at once: Steam OpenID
+verification (all three 3e dead ends are server-shaped), IGDB (needs a
+Twitch OAuth secret — server-only), VNDB write-back (proxy around the CORS
+PATCH wall), true cross-device sync, PWA installability.
+**Hard prerequisite discovered by 3a and still unsolved**: IndexedDB is
+ORIGIN-SCOPED — the media vault at `file://` and at `localhost:8137` and at
+any future hosted origin are THREE different databases, and the media vault
++ attachments + tokens are all EXCLUDED from the backup JSON. **Before any
+origin move, build a full media-vault + attachments export/import** (JSON or
+file-based), or the user's 650-entry vault strands on the old origin. This
+export is also the only disaster-recovery story for manual VN routes/quotes
+and the physical vault — arguably worth building before Build 4 regardless.
+
+### 5. Competitions / Music modules — fully unscoped
+Nothing designed, nothing promised. The Matrix schema is module-agnostic by
+construction (module string + `normalise()` + shared status/progress/score),
+so a fifth module follows the Games playbook: decide axes, add through
+`normalise()`, bump the DB version with indexes, wrap `KOS.mediaEditor`
+(chain order matters — see invariants), add rail + Matrix card.
+Music may have API options (MusicBrainz is CORS-open; Last.fm needs a key) —
+verify live before promising sync, per the standing rule.
+
+### 6. Build 1 leftovers — Stage 3 labs expansion (paused 2026-07-01)
+From the approved plan, still valid: IT has ZERO interactive tools (Data
+Lake→Warehouse ETL flow, MapReduce visualiser, ER/normalisation 1NF→3NF
+sandbox, data-cleaning playground, 6 V's interactive); CS gaps (Karnaugh
+map, BFS/DFS, A*, Huffman, cache hierarchy, BNF validator, Boolean
+simplifier); Maths staircase/cobweb diagrams. Wire via `forRef`/`GENWIRE`.
+Plus approved plan §6 extras never built: command palette (Cmd-K),
+exam-countdown banner + readiness %, print/export a topic, keyboard-first
+flashcard review, `{see:[…]}` cross-ref block.
+
+## ROUGH EDGES / TECH DEBT (noted honestly, none blocking)
+
+- **R1 — README.md is stale at Build 2.1**: no mention of the Governor,
+  Focus Timer, or the entire Collection Matrix. Its "fully offline, no
+  dependencies" headline is also only half-true (R2). Rewrite when convenient.
+- **R2 — "fully offline" is approximate**: KaTeX and the Google Fonts load
+  from CDNs — offline, maths renders as raw `$…$` and fonts fall back.
+  Everything functional works offline; the claim should be softened.
+- **R3 — no export path for IndexedDB data**: media vault (650 entries incl.
+  hand-built routes/quotes/physical volumes), attachments, and API tokens are
+  all outside the backup JSON. A browser-profile wipe loses them. See Build 4
+  prerequisite — this is the single biggest data-loss exposure in the app.
+- **R4 — sessions log grows unboundedly** in localStorage (`state.sessions`).
+  Every study/media/focus action appends forever; localStorage has a ~5 MB
+  budget shared with the (large) progress/custom-card state. No pruning or
+  archiving exists. Not urgent at current volume; will matter eventually.
+- **R5 — `state.streak` is a dead legacy field** (streaks derive from the
+  session log since 2a). Harmless; remove on the next store-shape touch.
+- **R6 — manga XML import is tested against the EXPECTED MAL-export shape
+  only** — no real AniList manga export has ever been run through it
+  (anime's was live-verified in 3a; manga's wasn't). Verify when the user
+  provides one.
+- **R7 — VNDB write-back is implemented but dead** behind VNDB's CORS
+  preflight (POST/GET/OPTIONS only — no PATCH). The code path is exercised
+  only by mocked tests. It self-activates if VNDB ever allows PATCH; until
+  then it's shipped dead weight with a good error message.
+- **R8 — the `KOS.mediaEditor` wrap chain is load-order-fragile**: game →
+  vn → books → anime base, established purely by script-tag order in
+  index.html. Reordering those four `<script>` tags silently mis-routes
+  editors. Documented in CLAUDE.md; nothing enforces it at runtime.
+- **R9 — gold economy anchor is still an estimate**: 3j priced the shop off
+  "~15–30 gold/day of steady study", which is itself a guess — no real
+  long-term usage data has calibrated it. Revisit after real use.
+- **R10 — AGENTS.md lagged the build** (tests section listed 3 of 12 suites;
+  no Build 3 architecture) — the tests list is fixed as part of this
+  snapshot; for architecture, CLAUDE.md is the canonical doc, AGENTS.md
+  intentionally stays the thin agent-contract layer.
+- **R11 — engine sessions log `dur:null`** for quiz/flashcard sessions run
+  outside a focus session (only focus + reading sessions carry measured
+  durations). Fine for streaks/XP; means time-based analytics undercount
+  non-focus study. Known since 2a; deliberate.
+- **R12 — recovery checklist targets are static** (2a note): they don't
+  scale with backlog size. Cosmetic.
+- **R13 — accepted limitations, restated so nobody "fixes" them into bugs**:
+  Mangaka groups by author string as written (no entity resolution);
+  Seasonal hides entries without season data; last-write-wins on push/pull
+  (no conflict detection); CG gallery is a counter, never images; games are
+  manual-entry-only permanently (Steam CORS, three verified dead ends).
+
+## TEST SUITE INVENTORY (12 suites, `node tools/smokeN.test.js`)
+
+Prereqs: `npm install jsdom` (all), `npm install fake-indexeddb` (4–12).
+All 12 print "ALL SMOKE TESTS PASSED" as of 2026-07-05.
+
+| Suite | Covers |
+|---|---|
+| smoke | Core engine: store, UI, content render, views load, nav |
+| smoke2 | Deep content integrity + engines (every content key → spec leaf, block types, pagination, labs mount) |
+| smoke3 | Build 2 governor: SM-2 maths, sessions/streaks, HP/gold/XP economy, gating, calendar, todo, focus timer (8 steps), tracker/RAG additions |
+| smoke4 | 3a Matrix core: mediadb schema/indexes, AniList client, XML import, dual-id upsert, 650-scale, HP invariant, rest streak |
+| smoke5 | 3b Books: dual-tracking schema, v2→v3 migration, physical vault CRUD, manga sync/XML, merge preservation |
+| smoke6 | 3c VN: v3→v4 migration, VNDB client (mocked to live shapes), label mapping, personal flashcard bucket |
+| smoke7 | 3d write-back: push eligibility/field-scoping, debounce coalescing, mutation shapes, search-and-add, quick-edit |
+| smoke8 | 3e Games: v5 schema, bulk paste-in, analytics, cross-media, run-wide "no request mentions steam" |
+| smoke9 | 3f Anime deepening: season calc, extra-merge fix, airing countdown (mocked), heatmap, AniList profile |
+| smoke10 | 3h regression: the VNDB duplication bug (REAL /ulist shape), title-claim fallback, dedupeVault, replace mode |
+| smoke11 | 3i Books deepening: lookup clients, ISBN utils, tab split, reading sessions (governor boundary), ranked shelves, scanner degradation |
+| smoke12 | 3j: reward watermark (THE push→echoing-pull single-reward property), autosync cycle, VN chapters, profile tabs, shop, season picker |
+
+Suite-hygiene notes: smoke6's /ulist mocks were the source of the 3h bug
+slipping through (they invented a nested `vn.id` reality never sends) — when
+mocking an API, mock the LIVE-verified shape, and say in the file when a
+shape could not be live-verified (smoke11 does this for Google Books).
