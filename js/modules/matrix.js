@@ -223,6 +223,7 @@
       el("button", { class: "btn primary", text: "選 Visual Novels", onclick: function () { KOS.show("vn"); } }),
       el("button", { class: "btn primary", text: "遊 Games vault", onclick: function () { KOS.show("game"); } }),
       el("button", { class: "btn gold", text: "祠 The Shrine", onclick: function () { KOS.show("shrine"); } }),
+      el("button", { class: "btn", text: "円 Budget Planner", onclick: function () { KOS.show("wishlist"); } }),
       el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
     ]));
   };

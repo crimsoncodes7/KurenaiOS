@@ -81,9 +81,30 @@
     /* ---- Build 3a: Collection Matrix ----
        View preferences ONLY. Media entries live in IndexedDB
        ("kurenai-os-media"), never here — see js/core/mediadb.js. */
-    media: { layout: "grid", sort: "updated" }
+    media: { layout: "grid", sort: "updated" },
     /* progress entries additionally carry rag: null|"r"|"a"|"g" (manual
        confidence — separate concept from completion status) */
+
+    /* ---- Build 3g: Purchase / Budget Planner (Collection Matrix) ----
+       Wishlist items across Books, Games and Visual Novels, against ONE
+       shared monthly budget pool (not per-module limits). This module is
+       pure logistics — it DELIBERATELY never touches the Governor: no
+       sessions, no XP/gold/HP. Buying things is not media engagement, so
+       it stays outside the reward loop, consistent with HP never touching
+       leisure. Release dates are entered by hand (no viable automated
+       cross-media source exists). Lives in localStorage so it rides the
+       standard backup (exportFull serialises the whole state object). */
+    wishlist: {
+      nextId: 1,
+      budget: { monthlyLimit: 0, currency: "£", history: [] },
+      /* history: [{ month:"YYYY-MM", spent,
+                     items:[{id,title,module,price,currency,purchasedAt}] }] */
+      items: []
+      /* {id, module:"books"|"vn"|"game", title, coverUrl, price, currency,
+          retailer, retailerUrl, priority, releaseDate:"YYYY-MM-DD"|null,
+          status:"wantToBuy"|"waitingForRelease"|"purchased"|"cancelled",
+          linkedEntryId:null|entryId, notes, addedAt, purchasedAt } */
+    }
   };
 
   function deepMerge(base, extra) {

@@ -1056,6 +1056,66 @@ silently (no reward) and only when a sync button was pressed.
 
 ---
 
+## Build 3g — 円 Purchase / Budget Planner (Claude Code, 2026-07-08)
+
+A cross-media wishlist + budget planner spanning Books (physical), Visual
+Novels and Games, sitting inside the Collection Matrix but deliberately
+OUTSIDE the governor.
+
+- **Shared pool, not per-module limits** (confirmed architecture): one
+  `budget.monthlyLimit` in `state.wishlist`; every chart can still break the
+  spend down by module (`spendByModule()`) without splitting the limit.
+- **Governor boundary held** (confirmed boundary): `wishlist.js` never calls
+  `KOS.sessions.log` / `KOS.media.logActivity` and never moves HP/gold/XP or
+  a streak — purchasing is logistics, not media engagement, consistent with
+  HP never touching leisure. Pinned by smoke14: a full flow (add, edit,
+  budget change, purchase, status move, reorder, remove, render) leaves the
+  sessions log, HP, gold and XP byte-for-byte unchanged, and fires ZERO
+  network requests. New invariant **#5a** in CLAUDE.md.
+- **Storage**: `state.wishlist` (localStorage), NOT the media vault — these
+  are planning records, not media entries. Rides the standard backup because
+  `exportFull` serialises the whole state object (smoke14 asserts it's in the
+  serialised state). Added to `store.js` DEFAULTS so `deepMerge` back-fills
+  older saves.
+- **Core interaction**: three tabs (Want to buy / Waiting for release /
+  Purchased). Want-to-buy rows carry checkboxes that SIMULATE a purchase —
+  Selected total + Remaining recompute live off `selectedTotal`/`remaining`
+  (can go negative → the meter + figure turn crimson). Nothing is spent
+  until **Mark purchased**, which archives a snapshot into
+  `budget.history[month]` (idempotent, never deletes the item) and feeds the
+  charts. Draggable priority reorder within each tab (HTML5 DnD →
+  `reorder(status, ids)`).
+- **Next-to-drop hero**: on the waiting tab, `nextToDrop()` surfaces the item
+  with the nearest UPCOMING manual release date (else most-recent past) as a
+  countdown hero, accent-tinted per module.
+- **Linking, both directions**: an item's `linkedEntryId` ties it to a vault
+  entry via an in-editor vault search picker. Forward — the item shows an
+  "⇄ in collection" chip that opens the linked entry. Reverse — `wishlist.js`
+  wraps `KOS.mediaEditor` OUTERMOST (loaded after games.js; does NOT reorder
+  the game→vn→books→anime chain, invariant #28) and injects an `.wl-onlist`
+  "◆ On your wishlist" banner into the vault editor form when the opened
+  entry is on the list. Both directions asserted by smoke14.
+- **Release dates are MANUAL by design** — stated plainly in the UI, not
+  faked automation. Findings (summarised, not re-derived): Amazon PA-API
+  needs an approved affiliate account and forbids price-watch use; Keepa is a
+  paid per-key subscription; IGDB (games only, no books) needs a Twitch OAuth
+  secret a static `file://` app can't hold. So a typed date field is the
+  honest answer.
+- **UI**: new rail item "Budget Planner" + a "円 Budget Planner" quick-action
+  on the Matrix home. Reuses the shared modal / med-form / study-tab /
+  cs-chart chrome; ~150 lines of planner-specific CSS appended to main.css.
+- **Tests**: new `tools/smoke14.test.js` (17 steps): state init, add +
+  defaults + "games"→"game" normalisation + priority append, byStatus/
+  forEntry, budget maths incl. over-budget negative, purchase archiving +
+  idempotence + two-month history, spendByMonth/spendByModule split,
+  next-to-drop upcoming pick, reorder, both-direction linking (forEntry +
+  the injected editor banner + no-banner-when-unlinked), the view render,
+  the live checkbox simulation, the hero, THE governor boundary (zero
+  sessions/activity/HP/gold/XP/network), rail nav, and backup coverage.
+  **All fourteen suites pass.**
+
+---
+
 # SNAPSHOT — 2026-07-05 (handoff state)
 
 Written as a deliberate handoff snapshot at the end of the Fable-5 sessions.
@@ -1078,8 +1138,8 @@ CLAUDE.md, and the build-log entry for whatever it's about to touch.
   modules live (Anime deep, Books deep, VN deep, Games manual-by-necessity),
   AniList + VNDB read sync, AniList write-back, reward-on-sync watermark,
   autonomous 15-min sync loop, profiles, shop rebalance.
-- **Tests**: 13 smoke suites, all passing (smoke13 added 2026-07-05 for R3
-  backup/restore). Inventory below.
+- **Tests**: 14 smoke suites, all passing (smoke14 added 2026-07-08 for the
+  Build 3g Purchase/Budget Planner). Inventory below.
 - **Branch**: `build1-completion` (the name is historical — everything lives
   here). Working tree was clean at snapshot time.
 
@@ -1276,6 +1336,7 @@ All 13 suites verified green 2026-07-05.
 | smoke11 | 3i Books deepening: lookup clients, ISBN utils, tab split, reading sessions (governor boundary), ranked shelves, scanner degradation |
 | smoke12 | 3j: reward watermark (THE push→echoing-pull single-reward property), autosync cycle, VN chapters, profile tabs, shop, season picker |
 | smoke13 | R3 backup/restore: mediadb exportAll/importAll (all four modules incl. VN routes/chapters/quotes), attach importAll + metadata, store.importFull (v2 + legacy v1), token exclusion, end-to-end round-trip |
+| smoke14 | 3g Purchase/Budget Planner: budget maths (shared pool, simulation, over-budget), purchase archiving + spend charts, both-direction vault linking, next-to-drop, drag reorder, THE governor boundary (zero sessions/XP/gold/HP/network) |
 
 Suite-hygiene notes: smoke6's /ulist mocks were the source of the 3h bug
 slipping through (they invented a nested `vn.id` reality never sends) — when

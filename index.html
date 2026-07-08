@@ -95,6 +95,9 @@
       <button class="rail-item" data-view="game">
         <span class="dot" style="--accent:#66c0f4"></span><span class="lbl">Games</span>
       </button>
+      <button class="rail-item" data-view="wishlist">
+        <span class="dot" style="--accent:#66c0f4"></span><span class="lbl">Budget Planner</span>
+      </button>
       <button class="rail-item" data-view="shrine">
         <span class="dot" style="--accent:#ecc15a"></span><span class="lbl">The Shrine</span>
       </button>
@@ -190,6 +193,10 @@
 <script src="js/modules/games.js"></script>
 <script src="js/modules/aniprofile.js"></script>
 <script src="js/modules/vndbprofile.js"></script>
+<!-- wishlist.js loads after games.js so it wraps KOS.mediaEditor OUTERMOST
+     (reverse "on your wishlist" surfacing) without reordering the
+     game→vn→books→anime chain (invariant #28) -->
+<script src="js/modules/wishlist.js"></script>
 <script src="js/modules/matrix.js"></script>
 <script src="js/modules/shrine.js"></script>
 <script src="js/modules/mediasync.js"></script>
