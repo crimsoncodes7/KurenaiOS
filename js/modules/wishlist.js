@@ -683,23 +683,19 @@
   };
 
   /* ---------------- reverse surfacing: vault editor "on your wishlist" ----
-     wrap KOS.mediaEditor (this file loads after games.js, so it is the
-     outermost wrap — it never reorders the game→vn→books→anime chain,
-     invariant #28). After the underlying editor opens its modal, if the
-     entry is on the wishlist, prepend a banner into the form.            */
-  var underlyingEditor = KOS.mediaEditor;
-  KOS.mediaEditor = function (entry, onSaved) {
-    underlyingEditor(entry, onSaved);
-    if (!entry || entry.id == null) return;
+     a KOS.mediaEditorHooks entry (the dispatcher in core/media.js runs
+     hooks after the editor's modal is in the DOM, passing the overlay
+     element directly — no DOM probing). When the opened entry is on the
+     wishlist, prepend a banner into the editor form.                      */
+  KOS.mediaEditorHooks.push(function (entry, overlay) {
+    if (!entry || entry.id == null || !overlay) return;
     var linked = forEntry(entry.id);
     if (!linked.length) return;
-    var ov = document.body.lastElementChild;
-    if (!ov || !ov.querySelector) return;
-    var form = ov.querySelector(".med-form");
+    var form = overlay.querySelector(".med-form");
     if (!form) return;
-    form.insertBefore(wishlistBanner(linked), form.firstChild);
-  };
-  function wishlistBanner(linked) {
+    form.insertBefore(wishlistBanner(linked, overlay), form.firstChild);
+  });
+  function wishlistBanner(linked, overlay) {
     var banner = el("div", { class: "wl-onlist" });
     banner.appendChild(el("span", { class: "wl-onlist-h", text: "◆ On your wishlist" }));
     linked.forEach(function (it) {
@@ -707,8 +703,7 @@
         text: it.title + " · " + STATUS_LABEL[it.status] + (it.price ? " · " + money(it.price, it.currency) : "") }));
     });
     banner.appendChild(el("button", { class: "mini-btn", text: "Open planner →", onclick: function () {
-      var ov = document.querySelector(".modal-ov");
-      if (ov) ov.remove();
+      overlay.remove();
       KOS.show("wishlist");
     } }));
     return banner;

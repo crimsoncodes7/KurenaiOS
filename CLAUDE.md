@@ -144,8 +144,12 @@ Collected from every build. If a change would break one of these, stop and say s
     through `:root` tokens; never repurpose the three subject hues.
 27. Navigate only via `KOS.show` (history/forward/rail state). Charts are
     hand-built inline SVG via `KOS.charts` — no charting library.
-28. The `KOS.mediaEditor` wrap chain is game → vn → books → anime base, fixed
-    purely by script-tag order in index.html — don't reorder those four tags.
+28. Vault editors live in the `KOS.mediaEditors` registry (keyed by module
+    id; anime is the fallback base). `KOS.mediaEditor` (core/media.js)
+    dispatches on `entry.module` and then runs `KOS.mediaEditorHooks`
+    (each called with `(entry, overlayEl)`) once the modal is in the DOM.
+    Never wrap or replace `KOS.mediaEditor` itself — register an editor or
+    a hook. Script-tag order between the vault modules no longer matters.
 29. VN CG gallery is a COUNTER only — never store/scrape artwork. Content
     warnings are manual — never auto-filled from VNDB tags.
 
@@ -161,7 +165,7 @@ All JS is loaded via `<script src="...">` in `index.html` in strict dependency o
 2. **Core** — `store.js`, `ui.js`, `content.js`, then `srs.js`, `sessions.js`, `governor.js`, `mediadb.js`, `anilist.js`, `vndb.js`, `bookapi.js`, `media.js`, `mediapush.js`, `autosync.js`
 3. **Deep content** — `js/data/content/*.js` populate `window.KOS_CONTENT["subject:ref"]`
 4. **Engines** — `js/engines/{flashcards,quiz}.js`
-5. **Modules** — `js/modules/hub.js` + `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`, `tracker.js`, `rag.js`, `cardstats.js`, `attachments.js`, `help.js`, `focus.js`, then `anime.js` (base `KOS.mediaEditor`), `books.js` (wraps), `vn.js` (wraps), `games.js` (final wrap), `aniprofile.js`, `vndbprofile.js`, `wishlist.js` (wraps `KOS.mediaEditor` OUTERMOST for "on your wishlist" surfacing — does not reorder the four editor tags), `matrix.js`, `shrine.js`, `mediasync.js`, `mediasearch.js`
+5. **Modules** — `js/modules/hub.js` + `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`, `tracker.js`, `rag.js`, `cardstats.js`, `attachments.js`, `help.js`, `focus.js`, then the four vault views `anime.js`, `books.js`, `vn.js`, `games.js` (each registers its editor in `KOS.mediaEditors` — dispatch lives in core/media.js, so their relative order is free), `aniprofile.js`, `vndbprofile.js`, `wishlist.js` (registers a `KOS.mediaEditorHooks` entry for "on your wishlist" surfacing), `matrix.js`, `shrine.js`, `mediasync.js`, `mediasearch.js`
 6. **Labs** — `js/labs/{worked,trace,oop,sims}.js`
 7. **Boot** — `js/main.js` wires rail nav, governor boot sequence, restores last view
 
@@ -296,7 +300,7 @@ File attachments live in IndexedDB `kurenai-os-files`, NOT here — excluded fro
 - Core interaction: `wantToBuy` items carry checkboxes that SIMULATE a purchase — `selectedTotal(ids)` + `remaining(limit, spentThisMonth, selected)` recompute live (can go negative = over budget). Nothing is spent until `markPurchased(id[,ts])`, which flips status, sets `purchasedAt`, and archives a snapshot into `budget.history[month].items` (recomputing `spent`). Idempotent — re-marking never double-archives; items are never deleted on purchase.
 - Charts reuse `KOS.charts` only: `spendByMonth()` → spend-over-time bars; `spendByModule()` → per-module split over the shared pool (books vs VN vs games).
 - Tabs: Want-to-buy / Waiting-for-release / Purchased. Draggable priority reorder within a tab (`reorder(status, orderedIds)` rewrites `priority` 0..n). `nextToDrop()` = the waiting-for-release item with the nearest UPCOMING manual release date (else most-recent past) — rendered as the hero.
-- Linking, BOTH directions: an item's `linkedEntryId` ties it to a vault entry. `forEntry(entryId)` powers the reverse surfacing — `wishlist.js` wraps `KOS.mediaEditor` outermost and injects an `.wl-onlist` banner into the editor form when the opened entry is on the wishlist. Module ids match the vault ("game", not "games" — incoming "games" is normalised).
+- Linking, BOTH directions: an item's `linkedEntryId` ties it to a vault entry. `forEntry(entryId)` powers the reverse surfacing — `wishlist.js` registers a `KOS.mediaEditorHooks` entry that injects an `.wl-onlist` banner into the editor form when the opened entry is on the wishlist. Module ids match the vault ("game", not "games" — incoming "games" is normalised).
 - **Release dates are MANUAL by design** — no viable automated cross-media source: Amazon PA-API needs an approved affiliate account and bars price-watch use, Keepa is a paid per-key subscription, IGDB (games only) needs a Twitch OAuth secret a static `file://` app can't hold and covers no books. The UI says so plainly; don't add a scraper.
 
 **Write-back (3d)** — `js/core/mediapush.js`, list state only (invariants 12–16 apply).

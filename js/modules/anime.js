@@ -272,8 +272,11 @@
     overlay.appendChild(box);
     document.body.appendChild(overlay);
     title.focus();
+    return overlay;
   }
-  KOS.mediaEditor = editorModal;   // the Shrine + Matrix home reuse it
+  /* the generic base editor — KOS.mediaEditor (core/media.js) dispatches
+     by module and falls back to this one */
+  KOS.mediaEditors.anime = editorModal;
 
   /* ---------------- cards ---------------- */
   function gridCard(e, mod, rerender) {

@@ -570,19 +570,14 @@
     overlay.appendChild(box);
     document.body.appendChild(overlay);
     title.focus();
+    return overlay;
   }
   KOS.booksEditor = booksEditor;
 
-  /* The Shrine and Matrix open entries through KOS.mediaEditor — route Books
-     entries to the Books editor, everything else to the original (anime's). */
-  var baseEditor = KOS.mediaEditor;
-  KOS.mediaEditor = function (entry, onSaved) {
-    if (entry && (entry.module === "books" || entry.module === "manga" || entry.module === "ln")) {
-      booksEditor(entry, onSaved);
-    } else {
-      baseEditor(entry, onSaved);
-    }
-  };
+  /* The Shrine and Matrix open entries through KOS.mediaEditor — register
+     with the dispatcher (core/media.js), which also folds the legacy
+     "manga"/"ln" module ids into books */
+  KOS.mediaEditors.books = booksEditor;
 
   /* ================= reading sessions (3i) =================
      The Focus Timer's state machine wearing the Collection Matrix contract:

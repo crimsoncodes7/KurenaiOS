@@ -349,16 +349,13 @@
     overlay.appendChild(box);
     document.body.appendChild(overlay);
     title.focus();
+    return overlay;
   }
   KOS.gamesEditor = gamesEditor;
 
-  /* The Shrine and Matrix open entries through KOS.mediaEditor — route Games
-     entries here; the chain is now game → vn → books → anime base. */
-  var baseEditor = KOS.mediaEditor;
-  KOS.mediaEditor = function (entry, onSaved) {
-    if (entry && entry.module === "game") gamesEditor(entry, onSaved);
-    else baseEditor(entry, onSaved);
-  };
+  /* The Shrine and Matrix open entries through KOS.mediaEditor — register
+     with the dispatcher (core/media.js) */
+  KOS.mediaEditors.game = gamesEditor;
 
   /* ================= bulk paste-in add (the "no API import" mitigation) ================= */
   function bulkAddModal(onDone) {

@@ -418,17 +418,13 @@
     overlay.appendChild(box);
     document.body.appendChild(overlay);
     title.focus();
+    return overlay;
   }
   KOS.vnEditor = vnEditor;
 
-  /* The Shrine and Matrix open entries through KOS.mediaEditor — route VN
-     entries here, chain everything else to the previous handler (books'
-     wrapper, which in turn falls back to anime's base editor). */
-  var baseEditor = KOS.mediaEditor;
-  KOS.mediaEditor = function (entry, onSaved) {
-    if (entry && entry.module === "vn") vnEditor(entry, onSaved);
-    else baseEditor(entry, onSaved);
-  };
+  /* The Shrine and Matrix open entries through KOS.mediaEditor — register
+     with the dispatcher (core/media.js) */
+  KOS.mediaEditors.vn = vnEditor;
 
   /* ================= cards ================= */
   function gridCard(e, rerender) {

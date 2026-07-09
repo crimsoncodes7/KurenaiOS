@@ -186,17 +186,16 @@
 <script src="js/modules/attachments.js"></script>
 <script src="js/modules/help.js"></script>
 <script src="js/modules/focus.js"></script>
-<!-- Build 3a/3b: Collection Matrix views (anime.js first — it owns the base
-     KOS.mediaEditor; books.js wraps it to route Books entries) -->
+<!-- Collection Matrix views — each registers its editor in KOS.mediaEditors
+     (dispatch lives in core/media.js), so their relative order is free -->
 <script src="js/modules/anime.js"></script>
 <script src="js/modules/books.js"></script>
 <script src="js/modules/vn.js"></script>
 <script src="js/modules/games.js"></script>
 <script src="js/modules/aniprofile.js"></script>
 <script src="js/modules/vndbprofile.js"></script>
-<!-- wishlist.js loads after games.js so it wraps KOS.mediaEditor OUTERMOST
-     (reverse "on your wishlist" surfacing) without reordering the
-     game→vn→books→anime chain (invariant #28) -->
+<!-- wishlist.js registers a KOS.mediaEditorHooks entry for the reverse
+     "on your wishlist" surfacing -->
 <script src="js/modules/wishlist.js"></script>
 <script src="js/modules/matrix.js"></script>
 <script src="js/modules/shrine.js"></script>

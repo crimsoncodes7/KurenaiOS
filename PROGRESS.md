@@ -1245,8 +1245,8 @@ and the physical vault — arguably worth building before Build 4 regardless.
 Nothing designed, nothing promised. The Matrix schema is module-agnostic by
 construction (module string + `normalise()` + shared status/progress/score),
 so a fifth module follows the Games playbook: decide axes, add through
-`normalise()`, bump the DB version with indexes, wrap `KOS.mediaEditor`
-(chain order matters — see invariants), add rail + Matrix card.
+`normalise()`, bump the DB version with indexes, register the module's
+editor in `KOS.mediaEditors` (see invariant #28), add rail + Matrix card.
 Music may have API options (MusicBrainz is CORS-open; Last.fm needs a key) —
 verify live before promising sync, per the standing rule.
 
@@ -1295,10 +1295,14 @@ flashcard review, `{see:[…]}` cross-ref block.
   preflight (POST/GET/OPTIONS only — no PATCH). The code path is exercised
   only by mocked tests. It self-activates if VNDB ever allows PATCH; until
   then it's shipped dead weight with a good error message.
-- **R8 — the `KOS.mediaEditor` wrap chain is load-order-fragile**: game →
-  vn → books → anime base, established purely by script-tag order in
-  index.html. Reordering those four `<script>` tags silently mis-routes
-  editors. Documented in CLAUDE.md; nothing enforces it at runtime.
+- ~~**R8 — the `KOS.mediaEditor` wrap chain is load-order-fragile**~~
+  **RESOLVED 2026-07-09**: the monkey-patch chain was replaced by a
+  registry — vault views register editors in `KOS.mediaEditors`, the
+  dispatcher in core/media.js routes on `entry.module` (anime fallback)
+  and runs `KOS.mediaEditorHooks` with the modal's overlay element after
+  it mounts (wishlist's banner uses this instead of probing
+  `document.body.lastElementChild`). Script-tag order between the vault
+  modules no longer matters; invariant #28 now documents the registry.
 - **R9 — gold economy anchor is still an estimate**: 3j priced the shop off
   "~15–30 gold/day of steady study", which is itself a guess — no real
   long-term usage data has calibrated it. Revisit after real use.

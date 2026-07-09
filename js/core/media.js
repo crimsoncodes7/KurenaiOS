@@ -376,6 +376,28 @@
     return out;
   }
 
+  /* ---------------- the editor registry ----------------
+     Replaces the pre-refactor monkey-patch chain (each vault module used
+     to wrap KOS.mediaEditor, so routing depended purely on script-tag
+     order — the old invariant #28 / rough edge R8). Now: each vault view
+     registers its editor under its module id at load time
+     (KOS.mediaEditors.anime = …), and this dispatcher routes on
+     entry.module, falling back to the anime editor (the generic base).
+     Editors return their overlay element; KOS.mediaEditorHooks run after
+     the modal is in the DOM with (entry, overlayEl) — wishlist's
+     "on your wishlist" banner registers here. Script-tag order between
+     the vault modules no longer matters. */
+  KOS.mediaEditors = {};
+  KOS.mediaEditorHooks = [];
+  KOS.mediaEditor = function (entry, onSaved) {
+    var id = entry && entry.module;
+    if (id === "manga" || id === "ln") id = "books";   // pre-v3 rows
+    var editor = (id && KOS.mediaEditors[id]) || KOS.mediaEditors.anime;
+    var overlay = editor(entry, onSaved);
+    KOS.mediaEditorHooks.forEach(function (hook) { hook(entry, overlay || null); });
+    return overlay;
+  };
+
   /* the pending/failed push indicator + manual retry, per card */
   function pushChip(e, rerender) {
     var el = KOS.ui.el;
