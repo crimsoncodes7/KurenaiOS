@@ -75,20 +75,7 @@
           text: "⚠ " + e.contentWarnings.length })
       : null;
   }
-  function cover(e) {
-    var box = el("div", { class: "med-cover" });
-    if (e.coverUrl) {
-      var img = el("img", { src: e.coverUrl, alt: "", loading: "lazy", decoding: "async" });
-      img.addEventListener("error", function () {
-        box.removeChild(img);
-        box.appendChild(el("span", { class: "med-cover-ph", "aria-hidden": "true", text: mod().kanji }));
-      });
-      box.appendChild(img);
-    } else {
-      box.appendChild(el("span", { class: "med-cover-ph", "aria-hidden": "true", text: mod().kanji }));
-    }
-    return box;
-  }
+  function cover(e) { return KOS.medview.cover(e, mod().kanji); }
   function metaLine(e) {
     var bits = [];
     var rp = routeProgress(e);
@@ -482,46 +469,22 @@
     document.getElementById("cols").classList.add("no-tree");
     var p = prefs();
     var filt = { status: null };
+    var mv = KOS.medview;
 
     main.appendChild(el("div", { class: "lab-h" }, [
       el("h1", {}, [el("span", { class: "kanji-inline", text: mod().kanji }), " Visual Novels"]),
       el("p", { class: "sub", text: "VNDB fills the metadata (title, developer, cover, tags, length); the tracking that matters is yours — routes cleared, CGs counted, content warnings, and a quote log that can feed the flashcard system." })
     ]));
 
-    if (!KOS.mediadb.available()) {
-      main.appendChild(el("p", { class: "fc-empty", text: "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide." }));
-      return;
-    }
+    if (mv.unavailable(main)) return;
 
-    /* toolbar */
-    var search = el("input", { type: "search", class: "todo-in med-search", placeholder: "Search titles…", "aria-label": "Search visual novel titles" });
+    /* toolbar — the shared pieces come from the medview toolkit */
+    var search = mv.searchInput("Search visual novel titles");
     var genreSel = el("select", { class: "status-sel", "aria-label": "Filter by genre" });
     var devSel = el("select", { class: "status-sel", "aria-label": "Filter by developer" });
-    var sortSel = el("select", { class: "status-sel", "aria-label": "Sort" }, [
-      ["updated", "Recently updated"], ["title", "Title A–Z"], ["score", "Score"], ["progress", "Routes cleared"]
-    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
-    sortSel.value = p.sort || "updated";
-
-    var layoutBtn = el("button", { class: "btn", text: p.layout === "list" ? "▦ Grid" : "☰ List",
-      title: "Toggle grid / list", onclick: function () {
-        p.layout = p.layout === "list" ? "grid" : "list";
-        store.save();
-        layoutBtn.textContent = p.layout === "list" ? "▦ Grid" : "☰ List";
-        refresh();
-      } });
-
-    var pills = el("div", { class: "study-tabs med-pills", role: "tablist" });
-    function pill(label, val) {
-      return el("button", { class: "study-tab" + (filt.status === val ? " active" : ""), role: "tab",
-        onclick: function () {
-          filt.status = val;
-          pills.querySelectorAll(".study-tab").forEach(function (b) { b.classList.remove("active"); });
-          this.classList.add("active");
-          refresh();
-        } }, [label]);
-    }
-    pills.appendChild(pill("All", null));
-    STATUSES.forEach(function (s) { pills.appendChild(pill(KOS.media.STATUS_LABEL[s], s)); });
+    var sortSel = mv.sortSelect(p.sort, { progress: "Routes cleared" });
+    var layoutBtn = mv.layoutToggle(p, function () { refresh(); });
+    var pills = mv.statusPills(function (s) { filt.status = s; refresh(); });
 
     main.appendChild(el("div", { class: "med-toolbar" }, [
       search, genreSel, devSel, sortSel, layoutBtn,
@@ -535,12 +498,10 @@
     ]));
     main.appendChild(pills);
 
-    var countLine = el("p", { class: "sub med-count" });
-    main.appendChild(countLine);
-    var holder = el("div", { class: "med-grid" });
-    main.appendChild(holder);
-    var sentinel = el("div", { class: "med-sentinel", "aria-hidden": "true" });
-    main.appendChild(sentinel);
+    /* countLine + holder + sentinel + the lazy batch renderer */
+    var area = mv.resultsArea(main, function (e) {
+      return p.layout === "list" ? listRow(e, refresh) : gridCard(e, refresh);
+    });
 
     /* stats strip under the vault */
     var statsWrap = el("div", { class: "vn-stats" });
@@ -562,13 +523,6 @@
     });
 
     /* dropdown fills — genres from vn rows, developers from the v4 index */
-    function fillSel(sel, values, blank) {
-      var cur = sel.value;
-      sel.innerHTML = "";
-      sel.appendChild(el("option", { value: "", text: blank }));
-      values.forEach(function (v) { sel.appendChild(el("option", { value: v, text: v })); });
-      sel.value = values.indexOf(cur) !== -1 ? cur : "";
-    }
     KOS.mediadb.query({ module: "vn" }, function (err, rows) {
       if (err) return;
       var gs = {}, ds = {};
@@ -576,37 +530,10 @@
         r.genres.forEach(function (g) { gs[g] = true; });
         if (r.developer) ds[r.developer] = true;
       });
-      fillSel(genreSel, Object.keys(gs).sort(), "All genres");
-      fillSel(devSel, Object.keys(ds).sort(), "All developers");
+      mv.fillSel(genreSel, Object.keys(gs).sort(), "All genres");
+      mv.fillSel(devSel, Object.keys(ds).sort(), "All developers");
     });
 
-    /* ---- lazy batch renderer ---- */
-    var results = [], rendered = 0, io = null;
-    function renderBatch() {
-      var end = Math.min(rendered + BATCH, results.length);
-      var frag = document.createDocumentFragment();
-      for (var i = rendered; i < end; i++) {
-        frag.appendChild(p.layout === "list" ? listRow(results[i], refresh) : gridCard(results[i], refresh));
-      }
-      holder.appendChild(frag);
-      rendered = end;
-      if (rendered >= results.length && io) { io.disconnect(); io = null; }
-    }
-    function startLazy() {
-      if (io) { io.disconnect(); io = null; }
-      renderBatch();
-      if (rendered >= results.length) return;
-      if (typeof IntersectionObserver === "undefined") {
-        (function chunk() { if (rendered < results.length) { renderBatch(); setTimeout(chunk, 0); } })();
-        return;
-      }
-      io = new IntersectionObserver(function (ents) {
-        if (ents.some(function (x) { return x.isIntersecting; })) renderBatch();
-      }, { root: null, rootMargin: "600px" });
-      io.observe(sentinel);
-    }
-
-    var emptyBox = null;
     function refresh() {
       KOS.mediadb.query({
         module: "vn", status: filt.status || undefined,
@@ -614,28 +541,27 @@
         developer: devSel.value || undefined,
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
-        if (emptyBox) { emptyBox.remove(); emptyBox = null; }
-        holder.innerHTML = "";
-        rendered = 0;
-        holder.className = p.layout === "list" ? "med-list" : "med-grid";
-        if (err) { countLine.textContent = "Query failed: " + err.message; return; }
-        results = rows;
-        var filtered = filt.status || genreSel.value || devSel.value || search.value;
-        countLine.textContent = rows.length + (rows.length === 1 ? " visual novel" : " visual novels") + (filtered ? " (filtered)" : "");
-        if (!rows.length) {
-          emptyBox = el("div", { class: "med-empty" }, [
-            el("p", { class: "fc-empty", text: filtered
-              ? "Nothing matches this filter."
-              : "The VN vault is empty. Connect your VNDB (a personal token — one paste, no OAuth dance) or add a title by hand, then build its route list as you play." }),
-            el("div", { class: "lab-controls", style: "justify-content:center" }, [
-              el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-              el("button", { class: "btn", text: "+ Add manually", onclick: function () { vnEditor(null, refresh); } })
-            ])
-          ]);
-          holder.appendChild(emptyBox);
+        area.holder.className = p.layout === "list" ? "med-list" : "med-grid";
+        if (err) {
+          area.holder.innerHTML = "";
+          area.countLine.textContent = "Query failed: " + err.message;
           return;
         }
-        startLazy();
+        var filtered = filt.status || genreSel.value || devSel.value || search.value;
+        area.countLine.textContent = rows.length + (rows.length === 1 ? " visual novel" : " visual novels") + (filtered ? " (filtered)" : "");
+        if (!rows.length) {
+          area.holder.innerHTML = "";
+          area.holder.appendChild(mv.emptyState(
+            filtered
+              ? "Nothing matches this filter."
+              : "The VN vault is empty. Connect your VNDB (a personal token — one paste, no OAuth dance) or add a title by hand, then build its route list as you play.",
+            [
+              el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
+              el("button", { class: "btn", text: "+ Add manually", onclick: function () { vnEditor(null, refresh); } })
+            ]));
+          return;
+        }
+        area.start(rows);
       });
     }
 

@@ -85,10 +85,7 @@
       el("p", { class: "sub", text: "The account behind the VN sync — your labels with live counts (custom ones included), length-vote contributions, list statistics and the size of the database you're drawing from. Built from what VNDB's API actually offers: it has no favourites, follower graph, activity feed or notifications, so none are faked here." })
     ]));
 
-    if (!KOS.mediadb.available()) {
-      main.appendChild(el("p", { class: "fc-empty", text: "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide." }));
-      return;
-    }
+    if (KOS.medview.unavailable(main)) return;
 
     var body = el("div", { class: "ap-body" });
     main.appendChild(body);

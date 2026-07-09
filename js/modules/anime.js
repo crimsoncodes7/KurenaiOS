@@ -112,28 +112,12 @@
     return m;
   }
 
-  /* ---------------- little shared bits ---------------- */
+  /* ---------------- little shared bits (toolkit: medview.js) ---------------- */
   function progressText(e, mod) {
     var c = e.progress.current || 0, t = e.progress.total;
     return c + (t ? "/" + t : "") + " " + mod.unit;
   }
-  function cover(e, mod) {
-    var box = el("div", { class: "med-cover" });
-    if (e.coverUrl) {
-      var img = el("img", { src: e.coverUrl, alt: "", loading: "lazy", decoding: "async" });
-      img.addEventListener("error", function () {
-        box.removeChild(img);
-        box.appendChild(placeholder(mod));
-      });
-      box.appendChild(img);
-    } else {
-      box.appendChild(placeholder(mod));
-    }
-    return box;
-  }
-  function placeholder(mod) {
-    return el("span", { class: "med-cover-ph", "aria-hidden": "true", text: mod.kanji });
-  }
+  function cover(e, mod) { return KOS.medview.cover(e, mod.kanji); }
   /* the 3f airing badge — only exists when the live cache knows the entry */
   function airingChip(e) {
     var a = airingInfo(e);
@@ -143,26 +127,8 @@
       text: "EP " + a.episode + " · " + fmtCountdown(a.timeUntilAiring) });
   }
 
-  /* +1 progress — the everyday logging action. Completing the last unit
-     offers the completed status. Feeds the governor trickle. */
-  function bumpProgress(e, done) {
-    e.progress.current = (e.progress.current || 0) + 1;
-    var finished = e.progress.total && e.progress.current >= e.progress.total;
-    if (finished) {
-      e.progress.current = e.progress.total;
-      e.status = "completed";
-      if (!e.dates.finished) e.dates.finished = KOS.srs.todayISO();
-    } else if (e.status === "planned" || e.status === "onHold") {
-      e.status = "inProgress";
-      if (!e.dates.started) e.dates.started = KOS.srs.todayISO();
-    }
-    KOS.mediadb.put(e, function (err) {
-      if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
-      KOS.media.logActivity(e, finished ? "completed" : "progress");
-      KOS.mediapush.schedule(e);   // 3d: coalesces rapid +1 clicks into one push
-      done && done(e);
-    });
-  }
+  /* +1 episode — the everyday logging action (shared bump, mode "progress") */
+  function bumpProgress(e, done) { KOS.medview.bumpUnit(e, "progress", done); }
 
   /* ---------------- the editor modal (create + edit) ---------------- */
   function editorModal(entry, onSaved) {
@@ -341,47 +307,23 @@
     document.getElementById("cols").classList.add("no-tree");
     var mod = KOS.media.module("anime");
     var p = prefs();
-    var filt = { status: null, genre: "", tag: "", search: "" };
+    var filt = { status: null };
+    var mv = KOS.medview;
 
     main.appendChild(el("div", { class: "lab-h" }, [
       el("h1", {}, [el("span", { class: "kanji-inline", text: mod.kanji }), " Anime"]),
       el("p", { class: "sub", text: "The first real Collection Matrix module. Sync your AniList, import an XML export, or track by hand — filters run on the database indexes, cards render as you scroll." })
     ]));
 
-    if (!KOS.mediadb.available()) {
-      main.appendChild(el("p", { class: "fc-empty", text: "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide." }));
-      return;
-    }
+    if (mv.unavailable(main)) return;
 
-    /* toolbar */
-    var search = el("input", { type: "search", class: "todo-in med-search", placeholder: "Search titles…", "aria-label": "Search anime titles" });
+    /* toolbar — the shared pieces come from the medview toolkit */
+    var search = mv.searchInput("Search anime titles");
     var genreSel = el("select", { class: "status-sel", "aria-label": "Filter by genre" });
     var tagSel = el("select", { class: "status-sel", "aria-label": "Filter by tag" });
-    var sortSel = el("select", { class: "status-sel", "aria-label": "Sort" }, [
-      ["updated", "Recently updated"], ["title", "Title A–Z"], ["score", "Score"], ["progress", "Progress"]
-    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
-    sortSel.value = p.sort || "updated";
-
-    var pills = el("div", { class: "study-tabs med-pills", role: "tablist" });
-    function pill(label, val) {
-      return el("button", { class: "study-tab" + (filt.status === val ? " active" : ""), role: "tab",
-        onclick: function () {
-          filt.status = val;
-          pills.querySelectorAll(".study-tab").forEach(function (b) { b.classList.remove("active"); });
-          this.classList.add("active");
-          refresh();
-        } }, [label]);
-    }
-    pills.appendChild(pill("All", null));
-    STATUSES.forEach(function (s) { pills.appendChild(pill(KOS.media.STATUS_LABEL[s], s)); });
-
-    var layoutBtn = el("button", { class: "btn", text: p.layout === "list" ? "▦ Grid" : "☰ List",
-      title: "Toggle grid / list", onclick: function () {
-        p.layout = p.layout === "list" ? "grid" : "list";
-        store.save();
-        layoutBtn.textContent = p.layout === "list" ? "▦ Grid" : "☰ List";
-        refresh();
-      } });
+    var sortSel = mv.sortSelect(p.sort);
+    var pills = mv.statusPills(function (s) { filt.status = s; refresh(); });
+    var layoutBtn = mv.layoutToggle(p, function () { refresh(); });
 
     main.appendChild(el("div", { class: "med-toolbar" }, [
       search, genreSel, tagSel, sortSel, layoutBtn,
@@ -396,12 +338,10 @@
     ]));
     main.appendChild(pills);
 
-    var countLine = el("p", { class: "sub med-count" });
-    main.appendChild(countLine);
-    var holder = el("div", { class: "med-grid" });
-    main.appendChild(holder);
-    var sentinel = el("div", { class: "med-sentinel", "aria-hidden": "true" });
-    main.appendChild(sentinel);
+    /* countLine + holder + sentinel + the lazy batch renderer */
+    var area = mv.resultsArea(main, function (e) {
+      return p.layout === "list" ? listRow(e, mod, refresh) : gridCard(e, mod, refresh);
+    });
 
     /* watch-history heatmap (3f): the SAME sessions log and the SAME
        KOS.charts.heatmap as Books' reading heatmap — filtered to anime */
@@ -410,72 +350,36 @@
     statsWrap.appendChild(el("div", { class: "cs-grid an-heat" }, [watchHeatmapCard(16)]));
 
     /* dropdown option fill from the real index keys */
-    function fillSel(sel, values, blank) {
-      var cur = sel.value;
-      sel.innerHTML = "";
-      sel.appendChild(el("option", { value: "", text: blank }));
-      values.forEach(function (v) { sel.appendChild(el("option", { value: v, text: v })); });
-      sel.value = values.indexOf(cur) !== -1 ? cur : "";
-    }
-    KOS.mediadb.distinct("genres", function (err, gs) { if (!err) fillSel(genreSel, gs, "All genres"); });
-    KOS.mediadb.distinct("tags", function (err, ts) { if (!err) fillSel(tagSel, ts, "All tags"); });
+    KOS.mediadb.distinct("genres", function (err, gs) { if (!err) mv.fillSel(genreSel, gs, "All genres"); });
+    KOS.mediadb.distinct("tags", function (err, ts) { if (!err) mv.fillSel(tagSel, ts, "All tags"); });
 
-    /* ---- lazy batch renderer ---- */
-    var results = [], rendered = 0, io = null;
-    function renderBatch() {
-      var end = Math.min(rendered + BATCH, results.length);
-      var frag = document.createDocumentFragment();
-      for (var i = rendered; i < end; i++) {
-        frag.appendChild(p.layout === "list" ? listRow(results[i], mod, refresh) : gridCard(results[i], mod, refresh));
-      }
-      holder.appendChild(frag);
-      rendered = end;
-      if (rendered >= results.length && io) { io.disconnect(); io = null; }
-    }
-    function startLazy() {
-      if (io) { io.disconnect(); io = null; }
-      renderBatch();
-      if (rendered >= results.length) return;
-      if (typeof IntersectionObserver === "undefined") {
-        /* no IO (old engine / jsdom) — degrade to render-all in idle chunks */
-        (function chunk() { if (rendered < results.length) { renderBatch(); setTimeout(chunk, 0); } })();
-        return;
-      }
-      io = new IntersectionObserver(function (ents) {
-        if (ents.some(function (x) { return x.isIntersecting; })) renderBatch();
-      }, { root: null, rootMargin: "600px" });
-      io.observe(sentinel);
-    }
-
-    var emptyBox = null;
     function refresh() {
       KOS.mediadb.query({
         module: "anime", status: filt.status || undefined,
         genre: genreSel.value || undefined, tag: tagSel.value || undefined,
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
-        if (emptyBox) { emptyBox.remove(); emptyBox = null; }
-        holder.innerHTML = "";
-        rendered = 0;
-        holder.className = p.layout === "list" ? "med-list" : "med-grid";
-        if (err) { countLine.textContent = "Query failed: " + err.message; return; }
-        results = rows;
-        countLine.textContent = rows.length + (rows.length === 1 ? " entry" : " entries") +
-          (filt.status || genreSel.value || tagSel.value || search.value ? " (filtered)" : "");
-        if (!rows.length) {
-          emptyBox = el("div", { class: "med-empty" }, [
-            el("p", { class: "fc-empty", text: search.value || filt.status || genreSel.value || tagSel.value
-              ? "Nothing matches this filter."
-              : "The vault is empty. Connect your AniList (or import its XML export) and 650 entries land in one sync — or add titles by hand." }),
-            el("div", { class: "lab-controls", style: "justify-content:center" }, [
-              el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-              el("button", { class: "btn", text: "+ Add manually", onclick: function () { editorModal(null, refresh); } })
-            ])
-          ]);
-          holder.appendChild(emptyBox);
+        area.holder.className = p.layout === "list" ? "med-list" : "med-grid";
+        if (err) {
+          area.holder.innerHTML = "";
+          area.countLine.textContent = "Query failed: " + err.message;
           return;
         }
-        startLazy();
+        area.countLine.textContent = rows.length + (rows.length === 1 ? " entry" : " entries") +
+          (filt.status || genreSel.value || tagSel.value || search.value ? " (filtered)" : "");
+        if (!rows.length) {
+          area.holder.innerHTML = "";
+          area.holder.appendChild(mv.emptyState(
+            search.value || filt.status || genreSel.value || tagSel.value
+              ? "Nothing matches this filter."
+              : "The vault is empty. Connect your AniList (or import its XML export) and 650 entries land in one sync — or add titles by hand.",
+            [
+              el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
+              el("button", { class: "btn", text: "+ Add manually", onclick: function () { editorModal(null, refresh); } })
+            ]));
+          return;
+        }
+        area.start(rows);
       });
     }
 
@@ -488,7 +392,7 @@
     /* airing badges (3f): render immediately from the cache, kick a live
        refresh, repaint once when fresh data lands (never a polling loop) */
     KOS.anime.refreshAiring(false, function (err, byId, fromCache) {
-      if (!err && !fromCache && document.body.contains(holder)) refresh();
+      if (!err && !fromCache && document.body.contains(area.holder)) refresh();
     });
   };
 
@@ -541,10 +445,7 @@
       el("p", { class: "sub", text: "Your vault, one season at a time — live next-episode countdowns on anything airing. Defaults to today; the picker walks any past or future season. Season comes from AniList's own data — entries without it (manual, unenriched or unlinked) don't appear here; that's the honest scope, not an oversight." })
     ]));
 
-    if (!KOS.mediadb.available()) {
-      wrap.appendChild(el("p", { class: "fc-empty", text: "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide." }));
-      return;
-    }
+    if (KOS.medview.unavailable(wrap)) return;
 
     /* ---- the picker (3j) ---- */
     var seasonSel = el("select", { class: "status-sel", "aria-label": "Season" },

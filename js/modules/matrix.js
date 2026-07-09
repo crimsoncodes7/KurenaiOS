@@ -19,10 +19,7 @@
       el("p", { class: "sub", text: "The other half of the ledger — what you watch, read and play. Logging here feeds a small XP/gold trickle and its own rest streak; it never touches HP, in either direction." })
     ]));
 
-    if (!KOS.mediadb.available()) {
-      main.appendChild(el("p", { class: "fc-empty", text: "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide." }));
-      return;
-    }
+    if (KOS.medview.unavailable(main)) return;
 
     /* ---- streak pair: study vs rest, deliberately side by side and
        visually distinct so they never read as one number ---- */

@@ -105,10 +105,7 @@
       el("p", { class: "sub", text: "The account behind the sync — stats, favourites, follows, notifications and activity, read straight from AniList in one request. Read-only: looking at notifications here doesn't mark them read on the site." })
     ]));
 
-    if (!KOS.mediadb.available()) {
-      main.appendChild(el("p", { class: "fc-empty", text: "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide." }));
-      return;
-    }
+    if (KOS.medview.unavailable(main)) return;
 
     var body = el("div", { class: "ap-body" });
     main.appendChild(body);

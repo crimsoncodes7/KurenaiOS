@@ -186,8 +186,11 @@
 <script src="js/modules/attachments.js"></script>
 <script src="js/modules/help.js"></script>
 <script src="js/modules/focus.js"></script>
-<!-- Collection Matrix views — each registers its editor in KOS.mediaEditors
-     (dispatch lives in core/media.js), so their relative order is free -->
+<!-- Collection Matrix views — medview.js is the shared vault-view toolkit
+     (cover/lazy list/pills/empty states/editor shell) the four views build
+     on; each view registers its editor in KOS.mediaEditors (dispatch lives
+     in core/media.js), so their relative order after medview.js is free -->
+<script src="js/modules/medview.js"></script>
 <script src="js/modules/anime.js"></script>
 <script src="js/modules/books.js"></script>
 <script src="js/modules/vn.js"></script>

@@ -109,20 +109,7 @@
 
   /* ================= little shared bits ================= */
   var mod = function () { return KOS.media.module("game"); };
-  function cover(e) {
-    var box = el("div", { class: "med-cover" });
-    if (e.coverUrl) {
-      var img = el("img", { src: e.coverUrl, alt: "", loading: "lazy", decoding: "async" });
-      img.addEventListener("error", function () {
-        box.removeChild(img);
-        box.appendChild(el("span", { class: "med-cover-ph", "aria-hidden": "true", text: mod().kanji }));
-      });
-      box.appendChild(img);
-    } else {
-      box.appendChild(el("span", { class: "med-cover-ph", "aria-hidden": "true", text: mod().kanji }));
-    }
-    return box;
-  }
+  function cover(e) { return KOS.medview.cover(e, mod().kanji); }
   function tierChip(e) {
     if (!e.completionTier || e.completionTier === "notStarted") return null;
     return el("span", { class: "med-chip gm-tier", style: "--chip:" + KOS.media.TIER_COLOR[e.completionTier],
@@ -147,19 +134,9 @@
 
   /* +1 hour — the everyday logging action, mirroring anime's +1 ep. Hours
      are manual (nothing exists to pull them from), so the one-click bump is
-     what keeps the number honest instead of abandoned. */
-  function bumpHour(e, done) {
-    e.playtimeHours = (e.playtimeHours || 0) + 1;
-    if (e.status === "planned" || e.status === "onHold") {
-      e.status = "inProgress";
-      if (!e.dates.started) e.dates.started = KOS.srs.todayISO();
-    }
-    KOS.mediadb.put(e, function (err, rec) {
-      if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
-      KOS.media.logActivity(rec, "progress");
-      done && done(rec);
-    });
-  }
+     what keeps the number honest instead of abandoned. Shared bump, mode
+     "hours": no total to complete against, never a push (games don't sync). */
+  function bumpHour(e, done) { KOS.medview.bumpUnit(e, "hours", done); }
 
   /* ================= the editor modal ================= */
   function gamesEditor(entry, onSaved) {
@@ -544,19 +521,17 @@
     document.getElementById("cols").classList.add("no-tree");
     var p = prefs();
     var filt = { status: null };
+    var mv = KOS.medview;
 
     main.appendChild(el("div", { class: "lab-h" }, [
       el("h1", {}, [el("span", { class: "kanji-inline", text: mod().kanji }), " Games"]),
       el("p", { class: "sub", text: "Manual-first and honest about it: no game service lets a browser pull your library (Steam's API and even its sign-in are CORS-walled — see Sync & Import), so the vault is yours to type — or paste in bulk, one title per line. Completion tiers, platforms, playtime and backlog priority are the axes that matter." })
     ]));
 
-    if (!KOS.mediadb.available()) {
-      main.appendChild(el("p", { class: "fc-empty", text: "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide." }));
-      return;
-    }
+    if (mv.unavailable(main)) return;
 
-    /* toolbar */
-    var search = el("input", { type: "search", class: "todo-in med-search", placeholder: "Search titles…", "aria-label": "Search game titles" });
+    /* toolbar — the shared pieces come from the medview toolkit */
+    var search = mv.searchInput("Search game titles");
     var platSel = el("select", { class: "status-sel", "aria-label": "Filter by platform" }, [["", "All platforms"]].concat(
       KOS.mediadb.PLATFORMS.map(function (x) { return [x, KOS.media.PLATFORM_LABEL[x]]; })
     ).map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
@@ -564,31 +539,9 @@
     var tierSel = el("select", { class: "status-sel", "aria-label": "Filter by completion tier" }, [["", "All tiers"]].concat(
       KOS.mediadb.TIERS.map(function (x) { return [x, KOS.media.TIER_LABEL[x]]; })
     ).map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
-    var sortSel = el("select", { class: "status-sel", "aria-label": "Sort" }, [
-      ["updated", "Recently updated"], ["title", "Title A–Z"], ["score", "Score"], ["progress", "Playtime"]
-    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
-    sortSel.value = p.sort || "updated";
-
-    var layoutBtn = el("button", { class: "btn", text: p.layout === "list" ? "▦ Grid" : "☰ List",
-      title: "Toggle grid / list", onclick: function () {
-        p.layout = p.layout === "list" ? "grid" : "list";
-        store.save();
-        layoutBtn.textContent = p.layout === "list" ? "▦ Grid" : "☰ List";
-        refresh();
-      } });
-
-    var pills = el("div", { class: "study-tabs med-pills", role: "tablist" });
-    function pill(label, val) {
-      return el("button", { class: "study-tab" + (filt.status === val ? " active" : ""), role: "tab",
-        onclick: function () {
-          filt.status = val;
-          pills.querySelectorAll(".study-tab").forEach(function (b) { b.classList.remove("active"); });
-          this.classList.add("active");
-          refresh();
-        } }, [label]);
-    }
-    pills.appendChild(pill("All", null));
-    STATUSES.forEach(function (s) { pills.appendChild(pill(KOS.media.STATUS_LABEL[s], s)); });
+    var sortSel = mv.sortSelect(p.sort, { progress: "Playtime" });
+    var layoutBtn = mv.layoutToggle(p, function () { refresh(); });
+    var pills = mv.statusPills(function (s) { filt.status = s; refresh(); });
 
     main.appendChild(el("div", { class: "med-toolbar" }, [
       search, platSel, genreSel, tierSel, sortSel, layoutBtn,
@@ -599,12 +552,10 @@
     ]));
     main.appendChild(pills);
 
-    var countLine = el("p", { class: "sub med-count" });
-    main.appendChild(countLine);
-    var holder = el("div", { class: "med-grid" });
-    main.appendChild(holder);
-    var sentinel = el("div", { class: "med-sentinel", "aria-hidden": "true" });
-    main.appendChild(sentinel);
+    /* countLine + holder + sentinel + the lazy batch renderer */
+    var area = mv.resultsArea(main, function (e) {
+      return p.layout === "list" ? listRow(e, refresh) : gridCard(e, refresh);
+    });
 
     /* stats strip + games analytics under the vault */
     var statsWrap = el("div", { class: "gm-stats" });
@@ -639,47 +590,13 @@
     renderStats();
 
     /* genre dropdown fill from game rows only */
-    function fillSel(sel, values, blank) {
-      var cur = sel.value;
-      sel.innerHTML = "";
-      sel.appendChild(el("option", { value: "", text: blank }));
-      values.forEach(function (v) { sel.appendChild(el("option", { value: v, text: v })); });
-      sel.value = values.indexOf(cur) !== -1 ? cur : "";
-    }
     KOS.mediadb.query({ module: "game" }, function (err, rows) {
       if (err) return;
       var gs = {};
       rows.forEach(function (r) { r.genres.forEach(function (x) { gs[x] = true; }); });
-      fillSel(genreSel, Object.keys(gs).sort(), "All genres");
+      mv.fillSel(genreSel, Object.keys(gs).sort(), "All genres");
     });
 
-    /* ---- lazy batch renderer ---- */
-    var results = [], rendered = 0, io = null;
-    function renderBatch() {
-      var end = Math.min(rendered + BATCH, results.length);
-      var frag = document.createDocumentFragment();
-      for (var i = rendered; i < end; i++) {
-        frag.appendChild(p.layout === "list" ? listRow(results[i], refresh) : gridCard(results[i], refresh));
-      }
-      holder.appendChild(frag);
-      rendered = end;
-      if (rendered >= results.length && io) { io.disconnect(); io = null; }
-    }
-    function startLazy() {
-      if (io) { io.disconnect(); io = null; }
-      renderBatch();
-      if (rendered >= results.length) return;
-      if (typeof IntersectionObserver === "undefined") {
-        (function chunk() { if (rendered < results.length) { renderBatch(); setTimeout(chunk, 0); } })();
-        return;
-      }
-      io = new IntersectionObserver(function (ents) {
-        if (ents.some(function (x) { return x.isIntersecting; })) renderBatch();
-      }, { root: null, rootMargin: "600px" });
-      io.observe(sentinel);
-    }
-
-    var emptyBox = null;
     function refresh() {
       KOS.mediadb.query({
         module: "game", status: filt.status || undefined,
@@ -688,28 +605,27 @@
         tier: tierSel.value || undefined,
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
-        if (emptyBox) { emptyBox.remove(); emptyBox = null; }
-        holder.innerHTML = "";
-        rendered = 0;
-        holder.className = p.layout === "list" ? "med-list" : "med-grid";
-        if (err) { countLine.textContent = "Query failed: " + err.message; return; }
-        results = rows;
-        var filtered = filt.status || platSel.value || genreSel.value || tierSel.value || search.value;
-        countLine.textContent = rows.length + (rows.length === 1 ? " game" : " games") + (filtered ? " (filtered)" : "");
-        if (!rows.length) {
-          emptyBox = el("div", { class: "med-empty" }, [
-            el("p", { class: "fc-empty", text: filtered
-              ? "Nothing matches this filter."
-              : "The Games vault is empty. Paste your library in bulk — one title per line, straight off Steam's library page — or add games one at a time. There's no import API a browser is allowed to use; this is the whole toolkit, honestly stated." }),
-            el("div", { class: "lab-controls", style: "justify-content:center" }, [
-              el("button", { class: "btn gold", text: "▤ Bulk add from a pasted list", onclick: function () { bulkAddModal(refresh); } }),
-              el("button", { class: "btn", text: "+ Add one game", onclick: function () { gamesEditor(null, refresh); } })
-            ])
-          ]);
-          holder.appendChild(emptyBox);
+        area.holder.className = p.layout === "list" ? "med-list" : "med-grid";
+        if (err) {
+          area.holder.innerHTML = "";
+          area.countLine.textContent = "Query failed: " + err.message;
           return;
         }
-        startLazy();
+        var filtered = filt.status || platSel.value || genreSel.value || tierSel.value || search.value;
+        area.countLine.textContent = rows.length + (rows.length === 1 ? " game" : " games") + (filtered ? " (filtered)" : "");
+        if (!rows.length) {
+          area.holder.innerHTML = "";
+          area.holder.appendChild(mv.emptyState(
+            filtered
+              ? "Nothing matches this filter."
+              : "The Games vault is empty. Paste your library in bulk — one title per line, straight off Steam's library page — or add games one at a time. There's no import API a browser is allowed to use; this is the whole toolkit, honestly stated.",
+            [
+              el("button", { class: "btn gold", text: "▤ Bulk add from a pasted list", onclick: function () { bulkAddModal(refresh); } }),
+              el("button", { class: "btn", text: "+ Add one game", onclick: function () { gamesEditor(null, refresh); } })
+            ]));
+          return;
+        }
+        area.start(rows);
       });
     }
 

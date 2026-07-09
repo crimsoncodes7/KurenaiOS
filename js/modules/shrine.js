@@ -17,10 +17,7 @@
       el("p", { class: "sub", text: "Everything you've marked ♥, ranked by score — across every module of the Collection Matrix." })
     ]));
 
-    if (!KOS.mediadb.available()) {
-      main.appendChild(el("p", { class: "fc-empty", text: "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide." }));
-      return;
-    }
+    if (KOS.medview.unavailable(main)) return;
 
     KOS.mediadb.query({ favourite: true, sort: "score" }, function (err, favs) {
       if (err) { main.appendChild(el("p", { class: "fc-empty", text: "Could not read the vault: " + err.message })); return; }

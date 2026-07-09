@@ -70,10 +70,7 @@
       el("p", { class: "sub", text: "Connect your AniList (anime & manga) and VNDB (visual novels), or import an AniList XML export with no setup at all. Since Build 3d, list-state edits (status, progress, score) push back automatically to the connected account — everything else stays local. Pushes are last-write-wins: there's no conflict merging with edits made on the sites themselves." })
     ]));
 
-    if (!KOS.mediadb.available()) {
-      main.appendChild(el("p", { class: "fc-empty", text: "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide." }));
-      return;
-    }
+    if (KOS.medview.unavailable(main)) return;
 
     /* ================= 1 · AniList connection (primary) ================= */
     var connBody = el("div", {});

@@ -251,20 +251,7 @@
     }
     return s;
   }
-  function cover(e) {
-    var box = el("div", { class: "med-cover" });
-    if (e.coverUrl) {
-      var img = el("img", { src: e.coverUrl, alt: "", loading: "lazy", decoding: "async" });
-      img.addEventListener("error", function () {
-        box.removeChild(img);
-        box.appendChild(el("span", { class: "med-cover-ph", "aria-hidden": "true", text: mod().kanji }));
-      });
-      box.appendChild(img);
-    } else {
-      box.appendChild(el("span", { class: "med-cover-ph", "aria-hidden": "true", text: mod().kanji }));
-    }
-    return box;
-  }
+  function cover(e) { return KOS.medview.cover(e, mod().kanji); }
 
   /* the owned-vs-read payoff bar: gold = volumes on the shelf, crimson =
      chapters actually read */
@@ -279,25 +266,9 @@
     return wrap;
   }
 
-  /* +1 chapter — the everyday logging action, mirroring anime's +1 ep */
-  function bumpChapter(e, done) {
-    e.progress.current = (e.progress.current || 0) + 1;
-    var finished = e.progress.total && e.progress.current >= e.progress.total;
-    if (finished) {
-      e.progress.current = e.progress.total;
-      e.status = "completed";
-      if (!e.dates.finished) e.dates.finished = KOS.srs.todayISO();
-    } else if (e.status === "planned" || e.status === "onHold") {
-      e.status = "inProgress";
-      if (!e.dates.started) e.dates.started = KOS.srs.todayISO();
-    }
-    KOS.mediadb.put(e, function (err) {
-      if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
-      KOS.media.logActivity(e, finished ? "completed" : "progress");
-      KOS.mediapush.schedule(e);   // 3d: coalesces rapid +1 clicks into one push
-      done && done(e);
-    });
-  }
+  /* +1 chapter — the everyday logging action, mirroring anime's +1 ep
+     (shared bump, mode "progress") */
+  function bumpChapter(e, done) { KOS.medview.bumpUnit(e, "progress", done); }
 
   /* ================= the editor modal ================= */
   function booksEditor(entry, onSaved) {
@@ -960,16 +931,14 @@
     var p = prefs();
     if (arg && (arg.tab === "physical" || arg.tab === "digital")) { p.tab = arg.tab; store.save(); }
     var filt = { status: null, dnf: false };
+    var mv = KOS.medview;
 
     main.appendChild(el("div", { class: "lab-h" }, [
       el("h1", {}, [el("span", { class: "kanji-inline", text: mod().kanji }), " Books"]),
       el("p", { class: "sub", text: "One vault, two lenses: the Digital tab is reading progress (AniList-synced or manual), the Physical Vault tab is what's actually on your shelves, volume by volume. A series tracked both ways appears in both — open any entry for its owned-vs-read comparison." })
     ]));
 
-    if (!KOS.mediadb.available()) {
-      main.appendChild(el("p", { class: "fc-empty", text: "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide." }));
-      return;
-    }
+    if (mv.unavailable(main)) return;
 
     /* ---- the Physical/Digital tab split (3i) — navigation only ---- */
     var tabBar = el("div", { class: "bk-tabs", role: "tablist", "aria-label": "Books lens" });
@@ -996,18 +965,15 @@
     tabBar.appendChild(tabBtn("physical", "蔵", "Physical Vault", "owned volumes only — the real shelf"));
     main.appendChild(tabBar);
 
-    /* toolbar */
-    var search = el("input", { type: "search", class: "todo-in med-search", placeholder: "Search titles…", "aria-label": "Search book titles" });
+    /* toolbar — the shared pieces come from the medview toolkit */
+    var search = mv.searchInput("Search book titles");
     var fmtSel = el("select", { class: "status-sel", "aria-label": "Filter by format" }, [
       ["", "All formats"], ["manga", "Manga"], ["lightNovel", "Light Novels"], ["oneShot", "One-shots"]
     ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
     var genreSel = el("select", { class: "status-sel", "aria-label": "Filter by genre" });
     var moodSel = el("select", { class: "status-sel", "aria-label": "Filter by mood" });
     var shelfSel = el("select", { class: "status-sel", "aria-label": "Filter by shelf" });
-    var sortSel = el("select", { class: "status-sel", "aria-label": "Sort" }, [
-      ["updated", "Recently updated"], ["title", "Title A–Z"], ["score", "Rating"], ["progress", "Progress"]
-    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
-    sortSel.value = p.sort || "updated";
+    var sortSel = mv.sortSelect(p.sort, { score: "Rating" });
 
     /* layout is a per-tab pref: the Digital lens reads as grid/list, the
        Physical lens defaults to the bookshelf (its whole point is volume-
@@ -1032,23 +998,8 @@
     function syncToolbar() { layoutBtn.textContent = LAYOUTS[nextLayout()]; }
     syncToolbar();
 
-    var pills = el("div", { class: "study-tabs med-pills", role: "tablist" });
-    function pill(label, apply) {
-      var b = el("button", { class: "study-tab", role: "tab", onclick: function () {
-        apply();
-        pills.querySelectorAll(".study-tab").forEach(function (x) { x.classList.remove("active"); });
-        b.classList.add("active");
-        refresh();
-      } }, [label]);
-      return b;
-    }
-    var allPill = pill("All", function () { filt.status = null; filt.dnf = false; });
-    allPill.classList.add("active");
-    pills.appendChild(allPill);
-    STATUSES.forEach(function (s) {
-      pills.appendChild(pill(KOS.media.STATUS_LABEL[s], function () { filt.status = s; filt.dnf = false; }));
-    });
-    pills.appendChild(pill("DNF", function () { filt.status = null; filt.dnf = true; }));
+    var pills = mv.statusPills(function (s) { filt.status = s; filt.dnf = false; refresh(); },
+      [["DNF", function () { filt.status = null; filt.dnf = true; refresh(); }]]);
 
     main.appendChild(el("div", { class: "med-toolbar" }, [
       search, fmtSel, genreSel, moodSel, shelfSel, sortSel, layoutBtn,
@@ -1064,12 +1015,9 @@
     ]));
     main.appendChild(pills);
 
-    var countLine = el("p", { class: "sub med-count" });
-    main.appendChild(countLine);
-    var holder = el("div", { class: "med-grid" });
-    main.appendChild(holder);
-    var sentinel = el("div", { class: "med-sentinel", "aria-hidden": "true" });
-    main.appendChild(sentinel);
+    /* countLine + holder + sentinel + the lazy batch renderer (makeItem is
+       hoisted — the shelf-ranking block below defines it) */
+    var area = mv.resultsArea(main, function (e, i) { return makeItem(e, i); });
 
     /* stats + heatmap under the vault */
     var statsWrap = el("div", { class: "bk-stats" });
@@ -1098,32 +1046,26 @@
 
     /* dropdown fills from the real index keys (books rows only for
        mood/shelves — those axes exist only here anyway) */
-    function fillSel(sel, values, blank) {
-      var cur = sel.value;
-      sel.innerHTML = "";
-      sel.appendChild(el("option", { value: "", text: blank }));
-      values.forEach(function (v) { sel.appendChild(el("option", { value: v, text: v })); });
-      sel.value = values.indexOf(cur) !== -1 ? cur : "";
-    }
-    KOS.mediadb.distinct("mood", function (err, ms) { if (!err) fillSel(moodSel, ms, "All moods"); });
-    KOS.mediadb.distinct("shelves", function (err, ss) { if (!err) fillSel(shelfSel, ss, "All shelves"); });
+    KOS.mediadb.distinct("mood", function (err, ms) { if (!err) mv.fillSel(moodSel, ms, "All moods"); });
+    KOS.mediadb.distinct("shelves", function (err, ss) { if (!err) mv.fillSel(shelfSel, ss, "All shelves"); });
     KOS.mediadb.query({ module: "books" }, function (err, rows) {
       if (err) return;
       var gs = {};
       rows.forEach(function (r) { r.genres.forEach(function (g) { gs[g] = true; }); });
-      fillSel(genreSel, Object.keys(gs).sort(), "All genres");
+      mv.fillSel(genreSel, Object.keys(gs).sort(), "All genres");
     });
 
     /* ---- shelf ranking (3i): drag / ▲▼ within a selected shelf ---- */
     var reorderMode = false, activeShelf = null, dragIdx = null;
     function moveRank(from, to) {
+      var results = area.results();   // the live array behind the lazy renderer
       if (to < 0 || to >= results.length || from === to) return;
       var moved = results.splice(from, 1)[0];
       results.splice(to, 0, moved);
       KOS.books.setShelfOrder(activeShelf, results.map(function (r) { return r.id; }), function (err) {
         if (err) KOS.ui.toast("Could not save the order: " + err.message, true);
       });
-      repaint();
+      area.repaint();
     }
     function rankRow(e, idx) {
       var wrap = el("div", { class: "bk-rank-row", draggable: "true", "data-id": String(e.id) }, [
@@ -1157,41 +1099,12 @@
       return wrap;
     }
 
-    /* ---- lazy batch renderer (grid/list) ---- */
-    var results = [], rendered = 0, io = null;
+    /* what the lazy renderer builds per row: rank rows only in reorder mode */
     function makeItem(e, i) {
       if (curLayout() === "list") return reorderMode ? rankRow(e, i) : listRow(e, refresh);
       return gridCard(e, refresh);
     }
-    function renderBatch() {
-      var end = Math.min(rendered + BATCH, results.length);
-      var frag = document.createDocumentFragment();
-      for (var i = rendered; i < end; i++) frag.appendChild(makeItem(results[i], i));
-      holder.appendChild(frag);
-      rendered = end;
-      if (rendered >= results.length && io) { io.disconnect(); io = null; }
-    }
-    function startLazy() {
-      if (io) { io.disconnect(); io = null; }
-      renderBatch();
-      if (rendered >= results.length) return;
-      if (typeof IntersectionObserver === "undefined") {
-        (function chunk() { if (rendered < results.length) { renderBatch(); setTimeout(chunk, 0); } })();
-        return;
-      }
-      io = new IntersectionObserver(function (ents) {
-        if (ents.some(function (x) { return x.isIntersecting; })) renderBatch();
-      }, { root: null, rootMargin: "600px" });
-      io.observe(sentinel);
-    }
-    /* re-render the current results without a re-query (rank moves) */
-    function repaint() {
-      holder.innerHTML = "";
-      rendered = 0;
-      startLazy();
-    }
 
-    var emptyBox = null;
     function refresh() {
       var lay = curLayout();
       var physical = p.tab === "physical";
@@ -1208,9 +1121,8 @@
       if (physical) opts.owned = true;
       KOS.mediadb.query(opts, function (err, rows) {
         if (err) {
-          if (emptyBox) { emptyBox.remove(); emptyBox = null; }
-          holder.innerHTML = "";
-          countLine.textContent = "Query failed: " + err.message;
+          area.holder.innerHTML = "";
+          area.countLine.textContent = "Query failed: " + err.message;
           return;
         }
         activeShelf = shelfSel.value || null;
@@ -1221,39 +1133,35 @@
         sortSel.disabled = !!activeShelf;
         sortSel.title = activeShelf ? "A selected shelf keeps its own ranked order" : "";
         function paint(rowsOrdered) {
-          if (emptyBox) { emptyBox.remove(); emptyBox = null; }
-          holder.innerHTML = "";
-          rendered = 0;
           /* shelf skin (3j): a purchased Gold Shop cosmetic sets one extra
              class on the shelf layout — the default look is its absence */
           var skin = lay === "shelf" && KOS.governor.shelfSkin && KOS.governor.shelfSkin();
-          holder.className = lay === "list" ? "med-list" : lay === "shelf" ? "bk-shelves" + (skin ? " " + skin : "") : "med-grid";
-          results = rowsOrdered;
+          area.holder.className = lay === "list" ? "med-list" : lay === "shelf" ? "bk-shelves" + (skin ? " " + skin : "") : "med-grid";
           var filtered = filt.status || filt.dnf || fmtSel.value || genreSel.value || moodSel.value || shelfSel.value || search.value;
-          countLine.textContent = rowsOrdered.length + " series" +
+          area.countLine.textContent = rowsOrdered.length + " series" +
             (physical ? " with owned volumes" : "") + (filtered ? " (filtered)" : "") +
             (activeShelf ? (reorderMode ? " · drag or ▲▼ to rank this shelf" : " · List layout (no other filters) unlocks ranking") : "");
           if (!rowsOrdered.length) {
-            emptyBox = el("div", { class: "med-empty" }, [
-              el("p", { class: "fc-empty", text: filtered
+            area.holder.innerHTML = "";
+            area.holder.appendChild(mv.emptyState(
+              filtered
                 ? "Nothing matches this filter."
                 : physical
                   ? "No physical volumes recorded yet — open any series and add what you own (the range tool takes a whole box set in one go), or scan a barcode with ◫ Find book."
-                  : "The Books vault is empty. Sync your AniList manga list, import an XML export, look a book up by ISBN, or add a series by hand." }),
-              el("div", { class: "lab-controls", style: "justify-content:center" }, [
+                  : "The Books vault is empty. Sync your AniList manga list, import an XML export, look a book up by ISBN, or add a series by hand.",
+              [
                 el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
                 el("button", { class: "btn gold", text: "◫ Find book / ISBN", onclick: function () { openLookup(physical, refresh); } }),
                 el("button", { class: "btn", text: "+ Add manually", onclick: function () { booksEditor(null, refresh); } })
-              ])
-            ]);
-            holder.appendChild(emptyBox);
+              ]));
             return;
           }
           if (lay === "shelf") {
-            rowsOrdered.forEach(function (e) { holder.appendChild(shelfFor(e, refresh)); });
+            area.holder.innerHTML = "";
+            rowsOrdered.forEach(function (e) { area.holder.appendChild(shelfFor(e, refresh)); });
             return;
           }
-          startLazy();
+          area.start(rowsOrdered);
         }
         if (activeShelf) {
           KOS.books.getShelfOrders(function (e2, orders) {
@@ -1286,10 +1194,7 @@
       el("p", { class: "sub", text: "Every author across the Books vault — works, volumes owned, chapters read. Grouping is by the author name as written (synced or manual); differing spellings stay separate groups." })
     ]));
 
-    if (!KOS.mediadb.available()) {
-      main.appendChild(el("p", { class: "fc-empty", text: "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide." }));
-      return;
-    }
+    if (KOS.medview.unavailable(main)) return;
 
     KOS.mediadb.query({ module: "books", sort: "title" }, function (err, rows) {
       if (err) { main.appendChild(el("p", { class: "fc-empty", text: "Could not read the vault: " + err.message })); return; }
