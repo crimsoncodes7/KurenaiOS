@@ -781,7 +781,7 @@
       });
     }
 
-    var deb = null, seq = 0;
+    var seq = 0;
     function handle(mySeq) {
       return function (err, list, meta) {
         if (mySeq !== seq) return;
@@ -801,10 +801,7 @@
       statusNote.textContent = "Looking up ISBN…";
       KOS.bookapi.byIsbn(isbnIn.value, handle(mySeq));
     }
-    titleIn.addEventListener("input", function () {
-      clearTimeout(deb);
-      deb = setTimeout(runTitle, 220);
-    });
+    titleIn.addEventListener("input", KOS.ui.debounce(runTitle, 220));
     isbnIn.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { ev.preventDefault(); doIsbn(); } });
 
     var box = el("div", { class: "modal med-modal msch-modal bk-lookup" }, [
@@ -1268,11 +1265,7 @@
       });
     }
 
-    var deb = null;
-    search.addEventListener("input", function () {
-      clearTimeout(deb);
-      deb = setTimeout(refresh, 220);
-    });
+    search.addEventListener("input", KOS.ui.debounce(refresh, 220));
     [fmtSel, genreSel, moodSel, shelfSel].forEach(function (s) { s.addEventListener("change", refresh); });
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 

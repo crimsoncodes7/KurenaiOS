@@ -207,7 +207,7 @@ IndexedDB kurenai-os-media (v5) ── mediadb.js owns schema + indexes + bulkUp
 | Global | Purpose |
 |--------|---------|
 | `KOS.store` | Single state object, autosaved to `localStorage` key `kurenai-os-v1` on every mutation |
-| `KOS.ui` | `el()` DOM builder, `toast()`, `flashSaved()` |
+| `KOS.ui` | `el()` DOM builder, `toast()`, `flashSaved()`, `esc()` (the canonical HTML escaper), `debounce()` |
 | `KOS.content` | `get(sid,ref)`, `has(sid,ref)`, `renderBlocks(blocks)`, `coverage(sid,leaves)` |
 | `KOS.show(viewId, arg)` | Clears `#main`, calls `KOS.views[viewId](main, arg)`, updates rail active state, saves |
 | `KOS.views` | Registry of view render functions; each module registers itself here |

@@ -175,5 +175,5 @@
     }
   };
 
-  function esc(s) { return KOS.hub.esc(s); }
+  var esc = KOS.ui.esc;
 })();

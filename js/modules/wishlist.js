@@ -332,8 +332,7 @@
         if (!rows.length) results.appendChild(el("p", { class: "sub", text: "No matching entries in the " + MODULE_LABEL[module] + " vault." }));
       });
     }
-    var deb = null;
-    search.addEventListener("input", function () { clearTimeout(deb); deb = setTimeout(runSearch, 200); });
+    search.addEventListener("input", KOS.ui.debounce(runSearch, 200));
     paintCurrent();
     return box;
   }

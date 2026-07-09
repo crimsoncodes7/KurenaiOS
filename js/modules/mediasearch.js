@@ -171,7 +171,7 @@
       });
     }
 
-    var deb = null, seq = 0;
+    var seq = 0;
     function runSearch() {
       var term = input.value.trim();
       if (term.length < 2) { render([]); return; }
@@ -185,10 +185,7 @@
       if (module === "vn") KOS.vndb.searchVN(term, handle);
       else KOS.anilist.searchMedia(term, module, handle);
     }
-    input.addEventListener("input", function () {
-      clearTimeout(deb);
-      deb = setTimeout(runSearch, SEARCH_DEBOUNCE);
-    });
+    input.addEventListener("input", KOS.ui.debounce(runSearch, SEARCH_DEBOUNCE));
 
     var box = el("div", { class: "modal med-modal msch-modal" }, [
       el("div", { class: "modal-h" }, [

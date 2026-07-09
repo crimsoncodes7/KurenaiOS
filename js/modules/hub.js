@@ -1121,12 +1121,8 @@
     }
   });
 
-  /* ---------- shared helpers ---------- */
-  function esc(s) {
-    return String(s).replace(/[&<>"]/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
-    });
-  }
+  /* ---------- shared helpers (canonical copies live in core/ui.js) ---------- */
+  var esc = KOS.ui.esc;
 
   /* Turn extracted spec lines into paragraphs + bullet lists. */
   function listify(lines) {
@@ -1236,14 +1232,7 @@
     return out;
   }
 
-  function debounce(fn, ms) {
-    var t;
-    return function () {
-      var args = arguments, self = this;
-      clearTimeout(t);
-      t = setTimeout(function () { fn.apply(self, args); }, ms);
-    };
-  }
+  var debounce = KOS.ui.debounce;
 
   KOS.hub = { LEAVES: LEAVES, BYREF: BYREF, COLORS: COLORS, HEX: HEX, esc: esc };
 })();

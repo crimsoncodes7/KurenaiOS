@@ -42,11 +42,7 @@
      handler below copies the box's text minus this button. */
   var COPY_BTN = '<button class="n-copy" type="button" aria-label="Copy to clipboard">Copy</button>';
 
-  function esc(s) {
-    return String(s).replace(/[&<>"]/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
-    });
-  }
+  var esc = KOS.ui.esc;   // the canonical escaper (core/ui.js)
   /* inline markup: `code`, **bold**, *italic*, →
      Italic is matched conservatively so it can't capture arithmetic like
      "6*3" or "p * q": the opening * must sit on a word boundary and hug a

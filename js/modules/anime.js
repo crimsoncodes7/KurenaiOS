@@ -479,11 +479,7 @@
       });
     }
 
-    var deb = null;
-    search.addEventListener("input", function () {
-      clearTimeout(deb);
-      deb = setTimeout(refresh, 220);
-    });
+    search.addEventListener("input", KOS.ui.debounce(refresh, 220));
     genreSel.addEventListener("change", refresh);
     tagSel.addEventListener("change", refresh);
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });

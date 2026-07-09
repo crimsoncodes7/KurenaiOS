@@ -182,14 +182,7 @@
   function canInline(mime) {
     return mime.indexOf("image/") === 0 || mime === "application/pdf";
   }
-  function debounce(fn, ms) {
-    var t;
-    return function () {
-      var a = arguments, self = this;
-      clearTimeout(t);
-      t = setTimeout(function () { fn.apply(self, a); }, ms);
-    };
-  }
+  var debounce = KOS.ui.debounce;
 
   function mountTab(panel, sid, ref) {
     var wrap = el("div", { class: "att-wrap" });

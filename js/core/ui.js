@@ -40,7 +40,25 @@
     savedTimer = setTimeout(function () { s.classList.remove("pulse"); }, 900);
   }
 
-  KOS.ui = { el: el, toast: toast, flashSaved: flashSaved };
+  /* the canonical HTML escaper — every hand-built HTML string goes through
+     this one (content.js, hub.js and the labs alias it; do not redefine) */
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  /* the canonical trailing-edge debounce — search boxes, autosaving inputs */
+  function debounce(fn, ms) {
+    var t;
+    return function () {
+      var args = arguments, self = this;
+      clearTimeout(t);
+      t = setTimeout(function () { fn.apply(self, args); }, ms);
+    };
+  }
+
+  KOS.ui = { el: el, toast: toast, flashSaved: flashSaved, esc: esc, debounce: debounce };
 
   // ---- view registry: each module registers render functions ----
   KOS.views = {};

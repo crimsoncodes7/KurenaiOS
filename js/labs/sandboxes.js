@@ -115,7 +115,7 @@
       panel.appendChild(out);
       [pat, gFlag, iFlag, text].forEach(function (f) { f.addEventListener("input", run); f.addEventListener("change", run); });
 
-      function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+      var esc = KOS.ui.esc;   // canonical — the old local copy didn't escape quotes
       function run() {
         out.innerHTML = "";
         var flags = "" + (gFlag.checked ? "g" : "") + (iFlag.checked ? "i" : "");
