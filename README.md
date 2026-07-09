@@ -127,12 +127,16 @@ KurenaiOS/
 │       ├── oop.js            C# OOP class-designer sandbox + transpiler
 │       ├── sims.js           interactive simulations (mount inline on topics)
 │       └── sandboxes.js      SQL / regex / base / Little Man Computer sandboxes
+├── Context/                  predecessor apps kept as reference material, intentionally —
+│                             AS_Maths_Mock_Trainer.html and DataStructures_RevisionHub.html
+│                             are the standalone tools KurenaiOS absorbed; not dead files
 └── tools/                    the data pipeline (Python 3 + pdfplumber) + tests
     ├── parse_aqa.py          spec PDF → aqa.json
     ├── parse_maths.py        spec PDF → maths.json
     ├── parse_it.py           spec PDF → it.json
     ├── gen_data.py           *.json → js/data/*.js
-    └── smoke.test.js … smoke12.test.js   twelve jsdom test suites (see Tests below)
+    ├── validate_content.js   deep-content validator (node tools/validate_content.js [files…])
+    └── smoke.test.js … smoke14.test.js   fourteen jsdom test suites (see Tests below)
 ```
 
 ## Authoring more deep content

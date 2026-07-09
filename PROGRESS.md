@@ -1279,10 +1279,12 @@ flashcard review, `{see:[…]}` cross-ref block.
   sections they contain and report what was missing. Smoke13 verifies:
   round-trip fidelity for all four modules incl. VN routes/chapters/quotes,
   token exclusion, and legacy-backup graceful handling (13 suites total).
-- **R4 — sessions log grows unboundedly** in localStorage (`state.sessions`).
-  Every study/media/focus action appends forever; localStorage has a ~5 MB
-  budget shared with the (large) progress/custom-card state. No pruning or
-  archiving exists. Not urgent at current volume; will matter eventually.
+- **R4 — sessions log is CAPPED at 2000 entries** (`CAP` in sessions.js —
+  oldest entries fall off on append), so localStorage growth is bounded.
+  The flip side: anything reading long-horizon history (heatmaps, streak
+  walks, per-day analytics) silently truncates once the log wraps past
+  2000 entries. Fine at current volume; an archive would be needed before
+  raising analytics horizons.
 - **R5 — `state.streak` is a dead legacy field** (streaks derive from the
   session log since 2a). Harmless; remove on the next store-shape touch.
 - **R6 — manga XML import is tested against the EXPECTED MAL-export shape

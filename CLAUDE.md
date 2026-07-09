@@ -222,9 +222,14 @@ IndexedDB kurenai-os-media (v5) ── mediadb.js owns schema + indexes + bulkUp
   trace: {},
   custom: { nextId, cards: [] },        // user flashcards; sid "personal" = non-curriculum bucket
   srs: {},                              // card key -> {ef,ivl,reps,due,last,views,lapses,lastRating}
-  sessions: [],                         // study log {id,ts,date,type,subject,ref,dur,metrics}
+  sessions: [],                         // study log {id,ts,date,type,subject,ref,dur,metrics} — capped at 2000
+  study: { fc: {}, quiz: {} },          // per-topic tallies keyed "sid:ref" (fc: {seen,right,wrong};
+                                        // quiz: {attempts,best,lastPct}). Created lazily by the engines,
+                                        // NOT in DEFAULTS — but LOAD-BEARING: the home and subject
+                                        // dashboards read it for their stat strips. Not legacy.
   governor: { hp, gold, xp, owned, theme, seal, avatar,
-              shelfSkin, shrineStyle, lastTick, lastBacklogDrain },
+              shelfSkin, shrineStyle, lastTick, lastBacklogDrain,
+              milestones },             // milestones: lazily-created map of streak-bonus keys → run-start date
   calendar: { nextId, seeded, events, notifyDays, notified },
   todo: { nextId, manual, autoChecked },
   focus: { active, nextId, lastConfig, lastReading },

@@ -19,8 +19,9 @@
     { cls: "easy",  label: "Easy",  key: "4" }
   ];
 
-  /* legacy per-ref tallies kept for old dashboards; SM-2 metadata is the
-     source of truth now (KOS.srs) */
+  /* per-ref tallies (state.study.fc) — LOAD-BEARING, not legacy: the home
+     dashboard ("Flashcards reviewed") and each subject dashboard read these.
+     SM-2 metadata (KOS.srs) owns scheduling; this owns the lifetime counts. */
   function stats(sid, ref) {
     var st = store.state.study = store.state.study || {};
     var fc = st.fc = st.fc || {};
