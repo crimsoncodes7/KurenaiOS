@@ -191,22 +191,20 @@
           ])
         ]));
         /* genre + status charts (the shared inline-SVG helpers) */
-        if (KOS.charts) {
-          var grid = el("div", { class: "cs-grid" });
-          if (an.genres && an.genres.length) {
-            grid.appendChild(KOS.charts.chartCard("Top genres (anime)", "by titles watched",
-              KOS.charts.barChart(an.genres.map(function (g) { return { label: g.genre, value: g.count }; }), { color: "#ef4965" })));
-          }
-          if (an.statuses && an.statuses.length) {
-            grid.appendChild(KOS.charts.chartCard("List breakdown (anime)", "your AniList statuses",
-              KOS.charts.barChart(an.statuses.map(function (s2) {
-                var loc = KOS.anilist.STATUS_MAP[s2.status];
-                return { label: loc ? KOS.media.STATUS_LABEL[loc] : s2.status, value: s2.count,
-                         color: loc ? KOS.media.STATUS_COLOR[loc] : "#6f6488" };
-              }))));
-          }
-          if (grid.children.length) pane.appendChild(grid);
+        var grid = el("div", { class: "cs-grid" });
+        if (an.genres && an.genres.length) {
+          grid.appendChild(KOS.charts.chartCard("Top genres (anime)", "by titles watched",
+            KOS.charts.barChart(an.genres.map(function (g) { return { label: g.genre, value: g.count }; }), { color: "#ef4965" })));
         }
+        if (an.statuses && an.statuses.length) {
+          grid.appendChild(KOS.charts.chartCard("List breakdown (anime)", "your AniList statuses",
+            KOS.charts.barChart(an.statuses.map(function (s2) {
+              var loc = KOS.anilist.STATUS_MAP[s2.status];
+              return { label: loc ? KOS.media.STATUS_LABEL[loc] : s2.status, value: s2.count,
+                       color: loc ? KOS.media.STATUS_COLOR[loc] : "#6f6488" };
+            }))));
+        }
+        if (grid.children.length) pane.appendChild(grid);
       }
 
       function renderFavourites() {

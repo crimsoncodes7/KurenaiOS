@@ -404,9 +404,7 @@
        KOS.charts.heatmap as Books' reading heatmap — filtered to anime */
     var statsWrap = el("div", { class: "an-stats" });
     main.appendChild(statsWrap);
-    if (KOS.charts && KOS.charts.heatmap) {
-      statsWrap.appendChild(el("div", { class: "cs-grid an-heat" }, [watchHeatmapCard(16)]));
-    }
+    statsWrap.appendChild(el("div", { class: "cs-grid an-heat" }, [watchHeatmapCard(16)]));
 
     /* dropdown option fill from the real index keys */
     function fillSel(sel, values, blank) {

@@ -101,6 +101,7 @@ KurenaiOS/
 │   ├── core/
 │   │   ├── store.js          state object, autosave, export/import
 │   │   ├── ui.js             el() builder, toast, view registry (KOS.show)
+│   │   ├── charts.js         shared inline-SVG chart helpers (KOS.charts — bars, cards, heatmap)
 │   │   ├── content.js        deep-content registry + rich block renderer (renderBlocks)
 │   │   ├── srs.js / sessions.js / governor.js      Build 2: SM-2, session log, economy
 │   │   ├── mediadb.js        Build 3: IndexedDB media vault (the schema gate)

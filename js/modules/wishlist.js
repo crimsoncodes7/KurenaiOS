@@ -663,19 +663,17 @@
       }
       chartsWrap.appendChild(el("h3", { class: "n-h", text: "Spending" }));
       var grid = el("div", { class: "cs-grid" });
-      if (KOS.charts) {
-        grid.appendChild(KOS.charts.chartCard("Spend over time", money(spentAll) + " across " + byMonth.length + (byMonth.length === 1 ? " month" : " months"),
-          KOS.charts.barChart(byMonth.map(function (m) {
-            return { label: m.month.slice(2), value: Math.round(m.total), hint: m.month + ": " + money(m.total) };
-          }), { color: "#ecc15a" })));
-        var modBars = MODULES.map(function (m) {
-          return { label: MODULE_LABEL[m], value: Math.round(byMod[m] || 0), color: MODULE_COLOR[m],
-            hint: MODULE_LABEL[m] + ": " + money(byMod[m] || 0) };
-        }).filter(function (b) { return b.value; });
-        if (modBars.length) {
-          grid.appendChild(KOS.charts.chartCard("By module", "how the shared pool split — books vs VNs vs games",
-            KOS.charts.barChart(modBars)));
-        }
+      grid.appendChild(KOS.charts.chartCard("Spend over time", money(spentAll) + " across " + byMonth.length + (byMonth.length === 1 ? " month" : " months"),
+        KOS.charts.barChart(byMonth.map(function (m) {
+          return { label: m.month.slice(2), value: Math.round(m.total), hint: m.month + ": " + money(m.total) };
+        }), { color: "#ecc15a" })));
+      var modBars = MODULES.map(function (m) {
+        return { label: MODULE_LABEL[m], value: Math.round(byMod[m] || 0), color: MODULE_COLOR[m],
+          hint: MODULE_LABEL[m] + ": " + money(byMod[m] || 0) };
+      }).filter(function (b) { return b.value; });
+      if (modBars.length) {
+        grid.appendChild(KOS.charts.chartCard("By module", "how the shared pool split — books vs VNs vs games",
+          KOS.charts.barChart(modBars)));
       }
       chartsWrap.appendChild(grid);
     }

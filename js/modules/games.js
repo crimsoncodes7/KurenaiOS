@@ -629,7 +629,7 @@
           stat(Math.round(g.episodes || 0), "Hours logged"),
           stat((tiers.platinum || 0) + (tiers.fullCompletion || 0), "100% / platinum")
         ]));
-        if (g.total && KOS.charts) {
+        if (g.total) {
           KOS.mediadb.query({ module: "game" }, function (err2, rows) {
             if (err2) return;
             var grid = el("div", { class: "cs-grid gm-charts" });

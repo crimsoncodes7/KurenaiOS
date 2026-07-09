@@ -139,7 +139,7 @@
       ]));
 
       /* charts — the Build 2c SVG helpers, nothing new */
-      if (agg.total && KOS.charts) {
+      if (agg.total) {
         var grid = el("div", { class: "cs-grid" });
         grid.appendChild(KOS.charts.chartCard("Anime by status", "the whole vault at a glance",
           KOS.charts.barChart(["inProgress", "planned", "onHold", "completed", "dropped"].map(function (s) {
