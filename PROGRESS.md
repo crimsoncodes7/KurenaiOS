@@ -1285,8 +1285,9 @@ flashcard review, `{see:[…]}` cross-ref block.
   walks, per-day analytics) silently truncates once the log wraps past
   2000 entries. Fine at current volume; an archive would be needed before
   raising analytics horizons.
-- **R5 — `state.streak` is a dead legacy field** (streaks derive from the
-  session log since 2a). Harmless; remove on the next store-shape touch.
+- ~~**R5 — `state.streak` is a dead legacy field**~~ **RESOLVED 2026-07-09**:
+  removed from DEFAULTS along with the never-used `notes` reserve;
+  store.js scrubs both from old saves and imported backups on load.
 - **R6 — manga XML import is tested against the EXPECTED MAL-export shape
   only** — no real AniList manga export has ever been run through it
   (anime's was live-verified in 3a; manga's wasn't). Verify when the user

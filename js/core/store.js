@@ -10,9 +10,7 @@
     v: 1,
     created: Date.now(),
     progress: {},          // "subject:ref" -> {status, check:[c,s,q,u], note}
-    notes: {},             // reserved
     ui: { subject: "compsci", view: "dash", openSections: {}, lastRef: {}, railOpen: true },
-    streak: { count: 0, lastDate: null },   // legacy (pre-2a); streaks now derive from sessions
     oop: { classes: [], links: [], nextId: 1 },
     worked: { last: null },
     trace: {},
@@ -120,6 +118,15 @@
     return out;
   }
 
+  /* fields older saves/backups may still carry but nothing reads:
+     `streak` (streaks derive from the sessions log since 2a) and the
+     never-used `notes` reserve. Scrubbed on load and on import so they
+     stop riding into saves and backup files. */
+  function scrubLegacy(s) {
+    delete s.streak;
+    delete s.notes;
+  }
+
   var state;
   try {
     var raw = localStorage.getItem(KEY);
@@ -129,6 +136,7 @@
     console.warn("Kurenai OS: stored state unreadable, starting fresh.", e);
     state = JSON.parse(JSON.stringify(DEFAULTS));
   }
+  scrubLegacy(state);
 
   var saveTimer = null;
   function save() {
@@ -201,6 +209,7 @@
           }
           Object.keys(state).forEach(function (k) { delete state[k]; });
           Object.assign(state, deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), incoming));
+          scrubLegacy(state);
           save();
           done && done(null);
         } catch (e) { done && done(e); }
@@ -284,6 +293,7 @@
         /* Restore localStorage state */
         Object.keys(state).forEach(function (k) { delete state[k]; });
         Object.assign(state, deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), incoming));
+        scrubLegacy(state);
         save();
 
         var version = backup.kos_backup_version || 1;

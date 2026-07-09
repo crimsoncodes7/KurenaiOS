@@ -22,7 +22,12 @@
   var store = KOS.store;
 
   var CAP = 2000;   // keep the log bounded — oldest entries fall off
-  var nextId = 1;
+  /* resume past the highest persisted id — restarting at 1 every boot
+     minted ids that collide with stored entries (max, not last+1, because
+     pre-fix logs may already hold such collisions out of order) */
+  var nextId = 1 + store.state.sessions.reduce(function (a, e) {
+    return Math.max(a, e.id || 0);
+  }, 0);
 
   function log(entry) {
     var list = store.state.sessions;

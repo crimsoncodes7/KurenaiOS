@@ -53,6 +53,21 @@
   }
   function budget() { return data().budget; }
   function items() { return data().items; }
+  /* view prefs live under state.media like every other Matrix view — NOT on
+     the data object. Migration: pre-refactor saves kept the active tab as a
+     stray `_tab` key on state.wishlist; fold it in and drop it. */
+  var TABS = ["wantToBuy", "waitingForRelease", "purchased"];
+  function prefs() {
+    var m = store.state.media = store.state.media || {};
+    m.wishlist = m.wishlist || { tab: "wantToBuy" };
+    var w = store.state.wishlist;
+    if (w && w._tab) {
+      if (TABS.indexOf(w._tab) !== -1) m.wishlist.tab = w._tab;
+      delete w._tab;
+    }
+    if (TABS.indexOf(m.wishlist.tab) === -1) m.wishlist.tab = "wantToBuy";
+    return m.wishlist;
+  }
   function get(id) { return items().find(function (it) { return it.id === id; }) || null; }
   function normModule(m) { return m === "games" ? "game" : (MODULES.indexOf(m) !== -1 ? m : "game"); }
   function cleanPrice(p) {
@@ -447,7 +462,8 @@
     document.getElementById("cols").classList.add("no-tree");
 
     var w = data();
-    var tab = w._tab && ["wantToBuy", "waitingForRelease", "purchased"].indexOf(w._tab) !== -1 ? w._tab : "wantToBuy";
+    var pref = prefs();
+    var tab = pref.tab;
     var selected = {};   // ephemeral checkbox simulation — id -> true
 
     main.appendChild(el("div", { class: "lab-h" }, [
@@ -463,7 +479,7 @@
     var tabsRow = el("div", { class: "study-tabs wl-tabs", role: "tablist" });
     [["wantToBuy", "Want to buy"], ["waitingForRelease", "Waiting for release"], ["purchased", "Purchased"]].forEach(function (t) {
       tabsRow.appendChild(el("button", { class: "study-tab" + (tab === t[0] ? " active" : ""), role: "tab",
-        onclick: function () { w._tab = t[0]; store.save(); KOS.show("wishlist", undefined, { _nav: true }); } }, [
+        onclick: function () { pref.tab = t[0]; store.save(); KOS.show("wishlist", undefined, { _nav: true }); } }, [
           t[1],
           el("span", { class: "wl-tabcount", text: String(byStatus(t[0]).length) })
         ]));

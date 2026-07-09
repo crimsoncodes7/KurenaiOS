@@ -242,7 +242,8 @@ IndexedDB kurenai-os-media (v5) ── mediadb.js owns schema + indexes + bulkUp
   media: { layout, sort,
            books: { layout, sort, tab, physLayout },
            vn: { layout, sort },
-           game: { layout, sort } },
+           game: { layout, sort },
+           wishlist: { tab } },           // Budget Planner active tab (view pref, NOT on state.wishlist)
   wishlist: {                             // Build 3g Purchase/Budget Planner
     nextId,
     budget: { monthlyLimit, currency, history:[{month,spent,items:[…]}] },
