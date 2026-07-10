@@ -50,63 +50,169 @@
       else renderHistory();
     }
 
-    /* ---------------- STATUS + RECOVERY ---------------- */
+    /* ---------------- STATUS — the Fable bento (Build 4.0) ----------------
+       Identity · vitals · edicts · streak · exams · heatmap · ledger, laid
+       out as a 12-column bento per the Fable mockup. It deliberately blends
+       overview-page and governor-page concepts (design.md: accepted as-is). */
+    var RANKS = [[1, "Novice"], [3, "Apprentice"], [5, "Scholar"], [8, "Adept"],
+                 [12, "Sage"], [16, "Archivist"], [20, "Grandmaster"]];
+    function rankName(level) {
+      var r = RANKS[0][1];
+      RANKS.forEach(function (x) { if (level >= x[0]) r = x[1]; });
+      return r;
+    }
+    function bentoCard(cls, title, kids, endNote) {
+      return el("div", { class: "card bento-card " + cls }, [
+        el("h4", {}, [
+          el("span", { text: title }),
+          endNote ? el("span", { class: "end", text: endNote }) : null
+        ]),
+      ].concat(kids));
+    }
     function renderStatus() {
       var hpCls = KOS.governor.hpState();
-      var card = el("div", { class: "gov-status gov-" + hpCls });
-      card.appendChild(el("div", { class: "gov-status-top" }, [
-        KOS.governor.avatarNode(64),
-        el("div", { class: "gov-status-id" }, [
-          el("div", { class: "gov-lv-big", text: "Level " + li.level }),
-          el("div", { class: "sub", text: li.into + " / " + li.need + " XP to level " + (li.level + 1) }),
-          el("div", { class: "hud-bar hud-xp big" }, [el("span", { style: "width:" + Math.round(100 * li.into / li.need) + "%" })])
-        ]),
-        el("div", { class: "gov-gold-big", title: "Gold" }, [
-          el("b", { text: "◈ " + g.gold }),
-          el("span", { class: "sub", text: "gold" })
+      var bento = el("div", { class: "bento gov-status gov-" + hpCls });
+      panel.appendChild(bento);
+
+      /* — identity — */
+      var idCard = el("div", { class: "card bento-card b-id" }, [
+        el("div", { class: "id-wrap" }, [
+          KOS.governor.avatarNode(84),
+          el("div", { class: "id-txt" }, [
+            el("div", { class: "rank", text: rankName(li.level) }),
+            el("h2", { text: "Level " + li.level }),
+            el("div", { class: "title-line" }, [
+              "Behavioural Governor \u00b7 ", el("b", { text: state.label })
+            ]),
+            el("div", { class: "lvl-row" }, [
+              el("span", { class: "lvl-badge" }, [el("i", { text: "LV" }), String(li.level)]),
+              el("div", { class: "hud-bar hud-xp big lvl-bar" }, [
+                el("span", { style: "width:" + Math.round(100 * li.into / li.need) + "%" })]),
+              el("span", { class: "to-next", text: (li.need - li.into) + " XP to Lv " + (li.level + 1) })
+            ])
+          ])
         ])
-      ]));
-      card.appendChild(el("div", { class: "gov-hp-row" }, [
-        el("span", { class: "gov-hp-label", text: "HP " + g.hp + "/100 — " + state.label }),
-        el("div", { class: "hud-bar hud-hp big" }, [el("span", { style: "width:" + g.hp + "%" })]),
-        el("p", { class: "sub", text: state.desc })
-      ]));
-      panel.appendChild(card);
+      ]);
+      bento.appendChild(idCard);
 
-      /* how HP moves */
-      panel.appendChild(el("div", { class: "gov-rules" }, [
-        el("div", { class: "gov-rule" }, [el("b", { text: "Drains" }), el("span", { text: "a day with zero logged sessions (−15), or a due-card backlog past " + KOS.governor.BACKLOG_LIMIT + " (−10/day)." })]),
-        el("div", { class: "gov-rule" }, [el("b", { text: "Restores" }), el("span", { text: "completing sessions, clearing due reviews, ticking to-do items. Restores trickle at half rate while Critical." })]),
-        el("div", { class: "gov-rule" }, [el("b", { text: "Never locks" }), el("span", { text: "spec reading, notes, personal notes, per-topic flashcards, quizzes, exam questions." })])
+      /* — vitals — */
+      var cheapest = KOS.governor.catalog()
+        .filter(function (c) { return !KOS.governor.owns(c.id); })
+        .sort(function (a, b) { return a.price - b.price; })[0];
+      function vital(cls, label, val, pct, hint, warn) {
+        return el("div", { class: "vital " + cls }, [
+          el("div", { class: "vt" }, [
+            el("b", { text: label }),
+            el("span", { class: "val", text: val })
+          ]),
+          el("div", { class: "hud-bar big " + (cls === "hp" ? "hud-hp" : cls === "xp" ? "hud-xp" : "hud-gold") },
+            [el("span", { style: "width:" + Math.max(0, Math.min(100, pct)) + "%" })]),
+          hint ? el("div", { class: "hint" + (warn ? " warn" : ""), text: hint }) : null
+        ]);
+      }
+      bento.appendChild(bentoCard("b-vitals", "Vitals", [
+        vital("hp", "HP", g.hp + " / 100", g.hp, state.desc, hpCls !== "healthy"),
+        vital("gold", "Gold", "\u25c8 " + g.gold,
+          cheapest ? 100 * g.gold / cheapest.price : 100,
+          cheapest ? (g.gold >= cheapest.price ? cheapest.name + " is affordable now"
+                     : (cheapest.price - g.gold) + " more for " + cheapest.name) : "everything owned"),
+        vital("xp", "XP", li.into + " / " + li.need, 100 * li.into / li.need,
+          "level " + (li.level + 1) + " at " + li.need + " XP")
       ]));
 
-      /* recovery checklist — surfaced hard when critical, visible when strained */
+      /* — edicts: the live to-do panel (one implementation, todo.js) — */
+      var edicts = el("div", { class: "card bento-card b-edicts" });
+      edicts.appendChild(KOS.todo.panel());
+      bento.appendChild(edicts);
+
+      /* — streak — */
+      var stks = KOS.sessions.streaks();
+      var week = [];
+      var dayMs = 864e5;
+      var activeDates = {};
+      KOS.sessions.all().forEach(function (s) { activeDates[s.date] = true; });
+      for (var i = 6; i >= 0; i--) {
+        var d = new Date(Date.now() - i * dayMs);
+        var iso = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+        week.push({ on: !!activeDates[iso], today: i === 0 });
+      }
+      bento.appendChild(bentoCard("b-streak", "Study streak", [
+        el("div", { class: "streak-big" }, [
+          el("b", { text: String(stks.all) }),
+          el("small", { text: stks.all === 1 ? "day" : "days" })
+        ]),
+        el("div", { class: "week-dots" }, week.map(function (w) {
+          return el("i", { class: (w.on ? "on" : "") + (w.today && !w.on ? " today" : "") });
+        })),
+        el("div", { class: "streak-best", text: "CS " + stks.compsci + " \u00b7 Maths " + stks.maths + " \u00b7 IT " + stks.it })
+      ]));
+
+      /* — exams / deadlines — */
+      var exams = el("div", { class: "card bento-card b-exams" });
+      exams.appendChild(KOS.calendar.countdownWidget(null));
+      bento.appendChild(exams);
+
+      /* — the activity heatmap — */
+      var byDate = {};
+      KOS.sessions.all().forEach(function (s) { byDate[s.date] = (byDate[s.date] || 0) + 1; });
+      var days = [];
+      for (var j = 16 * 7 - 1; j >= 0; j--) {
+        var dd = new Date(Date.now() - j * dayMs);
+        var iso2 = dd.getFullYear() + "-" + ("0" + (dd.getMonth() + 1)).slice(-2) + "-" + ("0" + dd.getDate()).slice(-2);
+        days.push({ date: iso2, value: byDate[iso2] || 0 });
+      }
+      var totalSess = days.reduce(function (a, d) { return a + d.value; }, 0);
+      var activeDays = days.filter(function (d) { return d.value > 0; }).length;
+      var heat = el("div", { class: "heat-wrap" }, [
+        el("div", { class: "heat-svg" }, [KOS.charts.heatmap(days, {})]),
+        el("div", { class: "heat-side" }, [
+          el("div", { class: "hnum", text: String(totalSess) }),
+          el("div", { class: "hlbl", text: "sessions \u00b7 16 weeks" }),
+          el("div", { class: "hrow" }, [el("span", { text: "Active days" }), el("b", { text: String(activeDays) })]),
+          el("div", { class: "hrow" }, [el("span", { text: "Cards due" }), el("b", { text: String(KOS.srs.dueCount()) })]),
+          el("div", { class: "hrow" }, [el("span", { text: "Rest streak" }), el("b", { text: String(stks.rest || 0) })])
+        ])
+      ]);
+      bento.appendChild(bentoCard("b-heat", "Activity", [heat]));
+
+      /* — ledger: the most recent governor-relevant sessions — */
+      var led = el("div", { class: "ledger" });
+      var recent = KOS.sessions.all().slice(-8).reverse();
+      if (!recent.length) led.appendChild(el("p", { class: "sub", text: "No sessions yet \u2014 finish a flashcard batch, quiz or focus block and it lands here." }));
+      recent.forEach(function (s) {
+        var sig = s.type === "quiz" || s.type === "exam" ? "plus-xp"
+                : s.type === "todo" ? "plus-g"
+                : s.type === "media" ? "log" : "plus-xp";
+        var sigTxt = s.type === "media" ? "\u00b7 rest" : s.type === "todo" ? "+ gold" : "+ XP";
+        led.appendChild(el("div", { class: "led-row" }, [
+          el("span", { class: "sig " + sig, text: sigTxt }),
+          el("span", { class: "lt", text: s.type + (s.subject ? " \u00b7 " + s.subject + (s.ref ? " " + s.ref : "") : "") }),
+          el("span", { class: "when", text: s.date })
+        ]));
+      });
+      bento.appendChild(bentoCard("b-ledger", "Ledger", [led], "latest 8"));
+
+      /* recovery checklist — full-width when not healthy */
       if (hpCls !== "healthy") {
-        var rec = el("div", { class: "gov-recovery" + (hpCls === "critical" ? " urgent" : "") });
-        rec.appendChild(el("h3", { class: "n-h", text: hpCls === "critical" ? "Recovery Mode — fastest route back" : "Shortest route back to Healthy" }));
+        var rec = el("div", { class: "gov-recovery b-wide" + (hpCls === "critical" ? " urgent" : "") });
+        rec.appendChild(el("h3", { class: "n-h", text: hpCls === "critical" ? "Recovery Mode \u2014 fastest route back" : "Shortest route back to Healthy" }));
         KOS.governor.recoveryTasks().forEach(function (t) {
           var done = t.cur >= t.target;
           rec.appendChild(el("button", { class: "gov-rec-item" + (done ? " done" : ""), onclick: t.go }, [
-            el("span", { class: "gov-rec-check", text: done ? "✓" : "○" }),
+            el("span", { class: "gov-rec-check", text: done ? "\u2713" : "\u25cb" }),
             el("span", { text: t.label }),
             el("span", { class: "gov-rec-n", text: t.cur + "/" + t.target })
           ]));
         });
-        panel.appendChild(rec);
+        bento.appendChild(rec);
       }
 
-      /* streaks (FR-3.7) */
-      var stks = KOS.sessions.streaks();
-      var names = { all: "Overall", compsci: "Computer Science", maths: "Mathematics", it: "IT" };
-      var srow = el("div", { class: "stat-strip" });
-      Object.keys(names).forEach(function (k) {
-        srow.appendChild(el("div", { class: "stat-card" }, [
-          el("div", { class: "v", text: stks[k] + (stks[k] === 1 ? " day" : " days") }),
-          el("div", { class: "k", text: names[k] + " streak" })
-        ]));
-      });
-      panel.appendChild(el("h3", { class: "n-h", text: "Study streaks" }));
-      panel.appendChild(srow);
+      /* how HP moves — kept, full width below the bento */
+      panel.appendChild(el("div", { class: "gov-rules" }, [
+        el("div", { class: "gov-rule" }, [el("b", { text: "Drains" }), el("span", { text: "a day with zero logged sessions (\u221215), or a due-card backlog past " + KOS.governor.BACKLOG_LIMIT + " (\u221210/day)." })]),
+        el("div", { class: "gov-rule" }, [el("b", { text: "Restores" }), el("span", { text: "completing sessions, clearing due reviews, ticking to-do items. Restores trickle at half rate while Critical." })]),
+        el("div", { class: "gov-rule" }, [el("b", { text: "Never locks" }), el("span", { text: "spec reading, notes, personal notes, per-topic flashcards, quizzes, exam questions." })])
+      ]));
     }
 
     /* ---------------- SHOP ---------------- */

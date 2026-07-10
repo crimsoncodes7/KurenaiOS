@@ -1371,7 +1371,92 @@ canvas.labcanvas { width: 100%; background: linear-gradient(180deg, var(--bg1), 
 .gov-lock h2 { font-family: var(--disp); font-size: 20px; margin: 0 0 8px; }
 .gov-lock .sub { max-width: 560px; margin: 0 auto; color: var(--mute); font-size: 13.5px; }
 
-/* ---------------- governor panel: status ---------------- */
+/* ---------------- governor panel: the Fable bento (Build 4.0) ---------------- */
+.bento { display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); }
+.bento-card { padding: 20px 22px; border: 1px solid var(--line-soft); border-radius: var(--r4);
+  background: linear-gradient(160deg, var(--panel-2), var(--panel)); position: relative; min-width: 0; }
+.bento-card h4 { margin: 0 0 14px; display: flex; align-items: center; gap: 8px;
+  font-family: var(--disp); font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--mute); font-weight: 600; }
+.bento-card h4 .end { margin-left: auto; font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .06em; color: var(--faint); text-transform: none; font-weight: 400; }
+.b-id     { grid-column: span 7; display: flex; align-items: center;
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  background: linear-gradient(130deg, color-mix(in srgb, var(--accent) 8%, var(--panel)) 0%, var(--panel) 60%); }
+.b-vitals { grid-column: span 5; }
+.b-edicts { grid-column: span 5; }
+.b-streak { grid-column: span 3; display: flex; flex-direction: column; }
+.b-exams  { grid-column: span 4; }
+.b-heat   { grid-column: span 8; }
+.b-ledger { grid-column: span 4; }
+.b-wide   { grid-column: 1 / -1; }
+@media (max-width: 1240px) {
+  .b-id { grid-column: span 12; } .b-vitals, .b-edicts { grid-column: span 6; }
+  .b-streak { grid-column: span 4; } .b-exams { grid-column: span 8; }
+  .b-heat, .b-ledger { grid-column: span 12; }
+}
+@media (max-width: 760px) { .bento > * { grid-column: 1 / -1 !important; } }
+
+/* identity */
+.id-wrap { display: flex; align-items: center; gap: 20px; flex: 1; }
+.id-txt { min-width: 0; flex: 1; }
+.id-txt .rank { font-family: var(--mono); font-size: 9.5px; letter-spacing: .26em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+.id-txt h2 { margin: 0 0 2px; font-family: var(--disp); font-size: 24px; font-weight: 600; }
+.id-txt .title-line { font-size: 12px; color: var(--mute); letter-spacing: .04em; margin-bottom: 12px; }
+.id-txt .title-line b { color: var(--kurenai-2); font-weight: 500; }
+.lvl-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.lvl-badge { font-family: var(--disp); font-weight: 700; font-size: 14px; color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+  padding: 2px 12px; border-radius: var(--r-pill); white-space: nowrap; }
+.lvl-badge i { font-style: normal; font-size: 9px; color: var(--gold); letter-spacing: .16em; margin-right: 5px; }
+.lvl-bar { flex: 1; max-width: 240px; }
+.to-next { font-family: var(--mono); font-size: 10px; color: var(--faint); white-space: nowrap; }
+
+/* vitals */
+.vital { margin-bottom: 16px; }
+.vital:last-child { margin-bottom: 0; }
+.vital .vt { display: flex; align-items: baseline; gap: 9px; margin-bottom: 7px; }
+.vital .vt b { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-2); font-weight: 700; }
+.vital .vt .val { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--text); }
+.vital .hint { font-size: 10.5px; color: var(--faint); margin-top: 6px; letter-spacing: .03em; }
+.vital .hint.warn { color: var(--bad); }
+.hud-gold > span { background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+
+/* streak */
+.streak-big { text-align: center; padding: 6px 0 2px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.streak-big b { font-family: var(--disp); font-size: 42px; font-weight: 700; color: var(--text); line-height: 1.1; display: block; }
+.streak-big small { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--faint); }
+.week-dots { display: flex; justify-content: center; gap: 6px; margin-top: 14px; }
+.week-dots i { width: 9px; height: 9px; border-radius: 50%; background: color-mix(in srgb, var(--text) 8%, transparent); }
+.week-dots i.on { background: var(--gold); box-shadow: 0 0 6px color-mix(in srgb, var(--gold) 45%, transparent); }
+.week-dots i.today { border: 1.5px solid var(--gold); background: transparent; }
+.streak-best { text-align: center; font-family: var(--mono); font-size: 10px; color: var(--faint); margin-top: 10px; letter-spacing: .05em; }
+
+/* heatmap + ledger */
+.heat-wrap { display: flex; gap: 18px; align-items: flex-start; }
+.heat-svg { flex: 1; min-width: 0; overflow-x: auto; }
+.heat-svg svg { display: block; }
+.heat-side { width: 150px; flex: none; }
+.heat-side .hnum { font-family: var(--disp); font-size: 28px; font-weight: 700; color: var(--text); line-height: 1.15; }
+.heat-side .hlbl { font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin-bottom: 10px; }
+.heat-side .hrow { display: flex; justify-content: space-between; font-size: 11px; color: var(--mute);
+  padding: 4px 0; border-top: 1px solid var(--line-soft); }
+.heat-side .hrow b { color: var(--text-2); font-weight: 500; font-variant-numeric: tabular-nums; }
+.ledger { display: flex; flex-direction: column; }
+.led-row { display: flex; align-items: center; gap: 12px; padding: 9px 2px; border-bottom: 1px solid var(--line-soft); }
+.led-row:last-child { border-bottom: none; }
+.led-row .sig { font-family: var(--mono); font-size: 10.5px; font-weight: 500; width: 52px; flex: none; }
+.sig.plus-xp { color: var(--c-maths); } .sig.plus-g { color: var(--gold); }
+.sig.minus { color: var(--bad); } .sig.log { color: var(--ok); }
+.led-row .lt { flex: 1; font-size: 12px; color: var(--text-2); line-height: 1.45;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.led-row .when { font-size: 9.5px; font-family: var(--mono); color: var(--faint); white-space: nowrap; }
+.b-edicts .todo-panel { background: none; border: none; box-shadow: none; padding: 0; }
+
+/* ---------------- governor panel: status (legacy chrome kept for the
+   strained/critical border treatments) ---------------- */
 .gov-status {
   background: var(--glass-fill); border: 1px solid var(--glass-edge);
   border-radius: var(--r4); box-shadow: var(--glass-hi); padding: 22px;
