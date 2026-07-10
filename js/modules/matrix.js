@@ -171,7 +171,7 @@
         if (scored) {
           grid.appendChild(KOS.charts.chartCard("Score distribution", "everything you've rated, /10",
             KOS.charts.barChart(agg.scores.map(function (n, i) {
-              return { label: String(i), value: n, color: i >= 8 ? "#ecc15a" : i >= 5 ? "#45d6a8" : "#ef4965" };
+              return { label: String(i), value: n, color: i >= 8 ? "#F2C46D" : i >= 5 ? "#45d6a8" : "#FF2E44" };
             }).slice(1))));
         }
         statsWrap.appendChild(grid);

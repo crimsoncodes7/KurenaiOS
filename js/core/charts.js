@@ -42,7 +42,7 @@
       if (d.hint || d.value) g.appendChild(svgNode("title", { text: (d.hint || d.label + ": " + d.value) }));
       g.appendChild(svgNode("rect", { x: x, y: d.value ? y : H - padB - 1, width: bw,
         height: d.value ? Math.max(2, h) : 1, rx: 3,
-        fill: d.color || opts.color || "#ef4965", opacity: d.value ? "0.9" : "0.25" }));
+        fill: d.color || opts.color || "#8C7CFF", opacity: d.value ? "0.9" : "0.25" }));
       if (d.value && bw > 16) {
         g.appendChild(svgNode("text", { x: x + bw / 2, y: y - 4, "text-anchor": "middle",
           "font-size": "9", fill: "#a99fc0", text: String(d.value) }));
@@ -91,7 +91,7 @@
       var g = svgNode("g", {});
       g.appendChild(svgNode("title", { text: d.hint || (d.date + ": " + d.value) }));
       g.appendChild(svgNode("rect", { x: x, y: y, width: cell, height: cell, rx: 2.5,
-        fill: d.value ? (opts.color || "#ef4965") : "#241c33",
+        fill: d.value ? (opts.color || "#8C7CFF") : "#141a28",
         opacity: d.value ? String(0.3 + 0.7 * d.value / max) : "1" }));
       s.appendChild(g);
     });

@@ -130,7 +130,7 @@
           el("a", { class: "mini-btn", href: v.siteUrl, target: "_blank", rel: "noopener", text: "anilist.co ↗" })
         ]),
         v.unreadNotificationCount
-          ? el("span", { class: "med-chip ap-unread", style: "--chip:#ef4965", text: v.unreadNotificationCount + " unread" })
+          ? el("span", { class: "med-chip ap-unread", style: "--chip:#FF2E44", text: v.unreadNotificationCount + " unread" })
           : null
       ]));
       body.appendChild(head);
@@ -191,7 +191,7 @@
         var grid = el("div", { class: "cs-grid" });
         if (an.genres && an.genres.length) {
           grid.appendChild(KOS.charts.chartCard("Top genres (anime)", "by titles watched",
-            KOS.charts.barChart(an.genres.map(function (g) { return { label: g.genre, value: g.count }; }), { color: "#ef4965" })));
+            KOS.charts.barChart(an.genres.map(function (g) { return { label: g.genre, value: g.count }; }), { color: "#3db4f2" })));
         }
         if (an.statuses && an.statuses.length) {
           grid.appendChild(KOS.charts.chartCard("List breakdown (anime)", "your AniList statuses",

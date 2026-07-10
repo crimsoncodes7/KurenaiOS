@@ -39,7 +39,7 @@
   var MODULES = ["books", "vn", "game"];
   var MODULE_LABEL = { books: "Books", vn: "Visual Novels", game: "Games" };
   var MODULE_KANJI = { books: "本", vn: "選", game: "遊" };
-  var MODULE_COLOR = { books: "#ecc15a", vn: "#c77bf2", game: "#66c0f4" };
+  var MODULE_COLOR = { books: "#F2C46D", vn: "#c77bf2", game: "#35D7FF" };
 
   /* ---------------- data layer (pure — no governor, ever) ---------------- */
   function data() {
@@ -679,7 +679,7 @@
       grid.appendChild(KOS.charts.chartCard("Spend over time", money(spentAll) + " across " + byMonth.length + (byMonth.length === 1 ? " month" : " months"),
         KOS.charts.barChart(byMonth.map(function (m) {
           return { label: m.month.slice(2), value: Math.round(m.total), hint: m.month + ": " + money(m.total) };
-        }), { color: "#ecc15a" })));
+        }), { color: "#35D7FF" })));
       var modBars = MODULES.map(function (m) {
         return { label: MODULE_LABEL[m], value: Math.round(byMod[m] || 0), color: MODULE_COLOR[m],
           hint: MODULE_LABEL[m] + ": " + money(byMod[m] || 0) };

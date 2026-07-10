@@ -6,7 +6,7 @@
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
   var SUBJ = { compsci: "Computer Science", maths: "Mathematics", it: "IT" };
-  var HEX = { compsci: "#45d6a8", maths: "#7b9ef8", it: "#c77bf2", all: "#ef4965" };
+  var HEX = { compsci: "#45d6a8", maths: "#7b9ef8", it: "#c77bf2", all: "#8C7CFF" };
 
   /* the shared inline-SVG chart helpers live in core/charts.js */
   var barChart = KOS.charts.barChart, chartCard = KOS.charts.chartCard;
@@ -103,21 +103,21 @@
       }), { color: color })));
 
     /* due forecast, next 14 days (+ overdue bucket first) */
-    var forecast = [{ label: "over", value: overdue, color: "#ef4965", hint: "Overdue: " + overdue }];
+    var forecast = [{ label: "over", value: overdue, color: "#FF2E44", hint: "Overdue: " + overdue }];
     for (var j = 0; j < 14; j++) {
       var d2 = KOS.srs.addDays(today, j);
       var n2 = tracked.filter(function (c) { return c.meta.due === d2; }).length;
       forecast.push({ label: j === 0 ? "today" : d2.slice(8), value: n2, hint: d2 + ": " + n2 + " due" });
     }
     grid.appendChild(chartCard("Due forecast", "cards falling due, next 14 days",
-      barChart(forecast, { color: "#ecc15a" })));
+      barChart(forecast, { color: "#35D7FF" })));
 
     /* ease-factor distribution */
     var buckets = [["<1.7", 1.3, 1.7], ["1.7–2.1", 1.7, 2.1], ["2.1–2.5", 2.1, 2.5], ["2.5–2.9", 2.5, 2.9], ["≥2.9", 2.9, 99]];
     grid.appendChild(chartCard("Ease distribution", "low ease = the algorithm finds these hard",
       barChart(buckets.map(function (b) {
         return { label: b[0], value: tracked.filter(function (c) { return c.meta.ef >= b[1] && c.meta.ef < b[2]; }).length,
-          color: b[1] < 2.1 ? "#ef4965" : b[1] < 2.5 ? "#ecc15a" : "#45d6a8" };
+          color: b[1] < 2.1 ? "#FF2E44" : b[1] < 2.5 ? "#F2C46D" : "#45d6a8" };
       }))));
 
     /* rating mix from the session log */
@@ -127,8 +127,8 @@
     });
     grid.appendChild(chartCard("Rating mix", "every rating you've given in this scope",
       barChart([
-        { label: "Again", value: mix.again, color: "#ef4965" },
-        { label: "Hard", value: mix.hard, color: "#ecc15a" },
+        { label: "Again", value: mix.again, color: "#FF2E44" },
+        { label: "Hard", value: mix.hard, color: "#F2C46D" },
         { label: "Good", value: mix.good, color: "#45d6a8" },
         { label: "Easy", value: mix.easy, color: "#7b9ef8" }
       ])));

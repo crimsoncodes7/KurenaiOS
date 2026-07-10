@@ -50,7 +50,7 @@
           el("div", { class: "shrine-body" }, [
             el("div", { class: "med-title", title: e.title, text: e.title }),
             el("div", { class: "med-meta" }, [
-              el("span", { class: "med-chip", style: "--chip:" + (mod.accent || "#ef4965"), text: mod.label }),
+              el("span", { class: "med-chip", style: "--chip:" + (mod.accent || "#8C7CFF"), text: mod.label }),
               e.score ? el("span", { class: "med-score", text: "★ " + e.score }) : el("span", { class: "sub", text: "unrated" })
             ])
           ])

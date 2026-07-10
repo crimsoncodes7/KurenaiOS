@@ -898,7 +898,7 @@
       days.push({ date: d, value: n, hint: d + ": " + n + (n === 1 ? " reading log" : " reading logs") });
     }
     return KOS.charts.chartCard("Reading heatmap", total + " logs in " + weeks + " weeks — chapters, volumes and status changes",
-      KOS.charts.heatmap(days, { color: "#ecc15a" }));
+      KOS.charts.heatmap(days, { color: "#F2C46D" }));
   }
 
   /* ================= the Books view ================= */

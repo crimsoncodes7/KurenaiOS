@@ -24,10 +24,10 @@
      paste-in tool is the quick-start path instead). All four are real. */
   var MODULES = [
     { id: "anime", label: "Anime", kanji: "映", unit: "ep",
-      unitName: "episodes", real: true, accent: "#ef4965",
+      unitName: "episodes", real: true, accent: "#FF2E44",
       desc: "Watching, planned, completed — synced from AniList or tracked by hand." },
     { id: "books", label: "Books", kanji: "本", unit: "ch",
-      unitName: "chapters", real: true, accent: "#ecc15a",
+      unitName: "chapters", real: true, accent: "#F2C46D",
       desc: "Manga & light novels — digital tracking and the physical vault on one entry: what you read via AniList, what you own volume by volume." },
     { id: "vn", label: "Visual Novels", kanji: "選", unit: "route",
       unitName: "routes", real: true, accent: "#c77bf2",
@@ -42,13 +42,13 @@
   }
   var FORMAT_LABEL = { manga: "Manga", lightNovel: "Light Novel", oneShot: "One-shot" };
   var CONDITION_LABEL = { mint: "Mint", good: "Good", worn: "Worn", damaged: "Damaged" };
-  var CONDITION_COLOR = { mint: "#45d6a8", good: "#7b9ef8", worn: "#ecc15a", damaged: "#ef4965" };
+  var CONDITION_COLOR = { mint: "#45d6a8", good: "#7b9ef8", worn: "#F2C46D", damaged: "#FF2E44" };
   var STATUS_LABEL = {
     planned: "Planned", inProgress: "In progress", onHold: "On hold",
     completed: "Completed", dropped: "Dropped"
   };
   var STATUS_COLOR = {
-    planned: "#7b9ef8", inProgress: "#45d6a8", onHold: "#ecc15a",
+    planned: "#7b9ef8", inProgress: "#45d6a8", onHold: "#F2C46D",
     completed: "#c77bf2", dropped: "#6f6488"
   };
   /* Build 3e — Games label maps (enums live in mediadb) */
@@ -59,13 +59,13 @@
   };
   var TIER_COLOR = {
     notStarted: "#6f6488", storyComplete: "#45d6a8",
-    fullCompletion: "#7b9ef8", platinum: "#ecc15a", abandoned: "#ef4965"
+    fullCompletion: "#7b9ef8", platinum: "#F2C46D", abandoned: "#FF2E44"
   };
   var PLATFORM_LABEL = {
     pc: "PC", playstation: "PlayStation", xbox: "Xbox", switch: "Switch", other: "Other"
   };
   var PRIORITY_LABEL = { low: "Low", medium: "Medium", high: "High" };
-  var PRIORITY_COLOR = { low: "#6f6488", medium: "#ecc15a", high: "#ef4965" };
+  var PRIORITY_COLOR = { low: "#7E899A", medium: "#F2C46D", high: "#FF2E44" };
 
   /* ---------------- XML import (fallback path) ----------------
      AniList's MAL-compatible export. Structure confirmed from a real file:

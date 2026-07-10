@@ -301,7 +301,7 @@
           var cell = el("div", {
             style: "padding:6px 2px;text-align:center;border-radius:6px;font-family:var(--mono);font-size:11px;" +
               "border:1px solid " + (cur ? "var(--gold)" : "var(--line)") + ";" +
-              "background:" + (cur ? "rgba(236,193,90,.15)" : "var(--raise)") + ";" +
+              "background:" + (cur ? "rgba(242,196,109,.15)" : "var(--raise)") + ";" +
               "color:" + (v ? "var(--text)" : "var(--faint)")
           }, [
             el("div", { style: "font-size:8.5px;color:var(--faint)", text: String(i) }),

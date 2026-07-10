@@ -579,7 +579,7 @@
         var list = el("div", { class: "med-wlog" });
         log.slice(0, 30).forEach(function (r) {
           list.appendChild(el("div", { class: "med-wlog-row" + (r.ok ? "" : " bad") }, [
-            el("span", { class: "med-chip", style: "--chip:" + (r.ok ? "#45d6a8" : "#ef4965"), text: r.ok ? "✓" : "✕" }),
+            el("span", { class: "med-chip", style: "--chip:" + (r.ok ? "#45d6a8" : "#FF2E44"), text: r.ok ? "✓" : "✕" }),
             el("b", { class: "med-wlog-t", text: r.title || ("entry #" + r.entryId) }),
             el("span", { class: "sub", text: (r.service === "vndb" ? "VNDB" : "AniList") + " · " + (r.fields || []).join(", ") +
               " · " + new Date(r.ts).toLocaleString() + (r.ok ? "" : " — " + (r.error || "failed")) })

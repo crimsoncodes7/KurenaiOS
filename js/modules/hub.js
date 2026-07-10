@@ -328,7 +328,7 @@
 
     /* BOTTOM — the Collection Matrix (live, Build 3a) + future builds */
     var soon = el("div", { class: "home-cards soon-row" });
-    soon.appendChild(el("div", { class: "subj-card med-home-card", style: "--accent:#ef4965",
+    soon.appendChild(el("div", { class: "subj-card med-home-card", style: "--accent:#8C7CFF",
       role: "button", tabindex: "0",
       onclick: function () { KOS.show("matrix"); },
       onkeydown: function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); KOS.show("matrix"); } }
@@ -363,7 +363,7 @@
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
     if (pct > 0) {
       var grad = ctx.createLinearGradient(0, 0, size, size);
-      grad.addColorStop(0, "#e8425a"); grad.addColorStop(1, "#e2b23f");
+      grad.addColorStop(0, "#8C7CFF"); grad.addColorStop(1, "#35D7FF");
       ctx.strokeStyle = grad;
       ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct / 100); ctx.stroke();
     }

@@ -6,7 +6,7 @@
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
 
-  var GOLD = "#e2b23f", CRIM = "#e8425a", JADE = "#45d6a8", BLUE = "#7b9ef8",
+  var GOLD = "#F2C46D", CRIM = "#FF2E44", JADE = "#45d6a8", BLUE = "#7b9ef8",
       INKC = "#120d1b", LINE = "#3a2d52", TEXT = "#ece7f4", MUTE = "#a89dbf", FAINT = "#6f6488";
 
   /* shared animation clock */

@@ -424,9 +424,14 @@ step("catalog: rebalanced prices + the new kinds exist; cosmetics apply their cl
   const cat = KOS.governor.catalog();
   if (KOS.governor.item("trace").price !== 180) throw new Error("big-lab price");
   if (KOS.governor.item("logic-lab").price !== 100) throw new Error("sim price");
-  ["theme-aoi", "theme-sumi", "seal-sakura", "seal-rai", "seal-hoshi", "frame-amethyst"].forEach(id => {
+  /* Build 4.0: the four crimson-era themes are retired; the 23 theme-lab
+     palettes replaced them (each carries a body[data-theme] block + swatches) */
+  ["theme-ember-wraith", "theme-sakura-skyline", "theme-lycoris-radiata",
+   "seal-sakura", "seal-rai", "seal-hoshi", "frame-amethyst"].forEach(id => {
     if (!KOS.governor.item(id)) throw new Error("missing item " + id);
   });
+  if (cat.filter(c => c.kind === "theme").length !== 23) throw new Error("23 lab themes expected");
+  if (!cat.filter(c => c.kind === "theme").every(c => Array.isArray(c.sw) && c.sw.length === 3)) throw new Error("theme swatches missing");
   if (cat.filter(c => c.kind === "shelfskin").length !== 3) throw new Error("3 shelf skins expected");
   if (cat.filter(c => c.kind === "shrinestyle").length !== 3) throw new Error("3 shrine styles expected");
   const g = KOS.store.state.governor;

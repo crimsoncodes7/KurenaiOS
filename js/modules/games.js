@@ -484,7 +484,7 @@
     weeks.forEach(function (w, i) {
       addedTotal += w.added; doneTotal += w.done;
       var lbl = w.end.slice(5);   // MM-DD
-      bars.push({ label: lbl, value: w.added, color: "#ef4965", hint: "week to " + w.end + ": " + w.added + " added" });
+      bars.push({ label: lbl, value: w.added, color: "#35D7FF", hint: "week to " + w.end + ": " + w.added + " added" });
       bars.push({ label: "", value: w.done, color: "#45d6a8", hint: "week to " + w.end + ": " + w.done + " reached a completion tier" });
     });
     var net = addedTotal - doneTotal;

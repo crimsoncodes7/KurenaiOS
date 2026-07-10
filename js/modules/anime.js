@@ -392,7 +392,7 @@
       days.push({ date: d, value: n, hint: d + ": " + n + (n === 1 ? " watch log" : " watch logs") });
     }
     return KOS.charts.chartCard("Watch history", total + " logs in " + weeks + " weeks — episodes, status changes and adds",
-      KOS.charts.heatmap(days, { color: "#ef4965" }));
+      KOS.charts.heatmap(days, { color: "#FF2E44" }));
   }
   KOS.anime.watchHeatmapCard = watchHeatmapCard;
 

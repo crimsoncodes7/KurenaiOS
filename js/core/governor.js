@@ -195,11 +195,34 @@
     { id: "fn-transform",     kind: "lab",   name: "Function Transformer",   price: 100, desc: "y = a·f(bx + c) + d with exam wording written for you." },
     { id: "trig-circle",      kind: "lab",   name: "Trig Circle",            price: 100, desc: "Unit circle explorer for the wave functions." },
     { id: "integration-area", kind: "lab",   name: "Integration Area",       price: 100, desc: "Definite integrals as signed area, live." },
-    /* cosmetic: OS theme variants off the crimson/gold base */
-    { id: "theme-kin",    kind: "theme", name: "Kin — gilded chrome",   price: 140, desc: "Gold-led accent palette; crimson recedes to the glow.", theme: "kin" },
-    { id: "theme-shinku", kind: "theme", name: "Shinku — deep crimson", price: 140, desc: "Darker, redder chrome with silvered edges.", theme: "shinku" },
-    { id: "theme-aoi",    kind: "theme", name: "Aoi — azure night",     price: 140, desc: "Cool azure chrome — the Maths hue takes the wheel.", theme: "aoi" },
-    { id: "theme-sumi",   kind: "theme", name: "Sumi — ink & silver",   price: 140, desc: "Near-monochrome inkwash; colour only where it means something.", theme: "sumi" },
+    /* cosmetic: OS theme variants over the Linear Void default (Build 4.0).
+       23 palettes generated from tools/theme-lab-raw.json — the CSS lives in
+       body[data-theme="<id>"] blocks in main.css. sw = shop swatch preview.
+       The retired kin/shinku/aoi/sumi ids fall back to the default theme in
+       applyCosmetics(); owned copies simply stop being applicable. */
+    { id: "theme-spectral-rose", kind: "theme", name: "Spectral Rose", price: 140, desc: "Blue-black lacquer, wine red, cyan rim-light and ember orange.", theme: "spectral-rose", sw: ["#D82D57", "#22D7E8", "#FF8A3D"] },
+    { id: "theme-verdigris-duel", kind: "theme", name: "Verdigris Duel", price: 140, desc: "Charcoal, oxidised teal, fog white and restrained rust.", theme: "verdigris-duel", sw: ["#6F9E98", "#DDEBE7", "#A65E58"] },
+    { id: "theme-sakura-skyline", kind: "theme", name: "Sakura Skyline", price: 140, desc: "Deep indigo city-night with periwinkle, electric blue and sakura pink.", theme: "sakura-skyline", sw: ["#9B8DFF", "#55C7FF", "#F052B7"] },
+    { id: "theme-starfall-serenade", kind: "theme", name: "Starfall Serenade", price: 140, desc: "Midnight plum, smoky violet, coral horizon and cold starlight.", theme: "starfall-serenade", sw: ["#E67F74", "#87AAFF", "#A66FD2"] },
+    { id: "theme-feathered-dusk", kind: "theme", name: "Feathered Dusk", price: 140, desc: "Ink mauve, dusty rose, blue-grey and pale blush.", theme: "feathered-dusk", sw: ["#B985A0", "#6F83AC", "#D9A8BC"] },
+    { id: "theme-rosewater-abyss", kind: "theme", name: "Rosewater Abyss", price: 140, desc: "Near-black marine blue, pearl aqua, coral petals and pale gold.", theme: "rosewater-abyss", sw: ["#EF8997", "#6EC5DE", "#D6B05C"] },
+    { id: "theme-clinic-noir", kind: "theme", name: "Clinic Noir", price: 140, desc: "Sterile slate, charcoal, pearl and faint blush reflections.", theme: "clinic-noir", sw: ["#DDE7E9", "#5DD7E8", "#E7A2B1"] },
+    { id: "theme-azure-corset-noir", kind: "theme", name: "Azure Corset Noir", price: 140, desc: "Midnight blue, icy porcelain, graphite lace and cardinal ribbon.", theme: "azure-corset-noir", sw: ["#79BAD3", "#DCEBF0", "#C83E53"] },
+    { id: "theme-shattered-bloom", kind: "theme", name: "Shattered Bloom", price: 140, desc: "Blue-black, electric cyan, hot pink and ultraviolet.", theme: "shattered-bloom", sw: ["#FF2F84", "#3BE3FF", "#8B5CFF"] },
+    { id: "theme-scarlet-garden-night", kind: "theme", name: "Scarlet Garden Night", price: 140, desc: "Dark sage, blackened porcelain, scarlet silk and muted stone.", theme: "scarlet-garden-night", sw: ["#BF3B48", "#769383", "#C6D0C8"] },
+    { id: "theme-midnight-lilies", kind: "theme", name: "Midnight Lilies", price: 140, desc: "Ink-black water, moon-white petals, slate and muted sage.", theme: "midnight-lilies", sw: ["#D8DAD7", "#94B0A4", "#697E91"] },
+    { id: "theme-gothic-camellia", kind: "theme", name: "Gothic Camellia", price: 140, desc: "Deep navy, magenta velvet, antique brass and smoky violet.", theme: "gothic-camellia", sw: ["#D64087", "#B79753", "#7454AF"] },
+    { id: "theme-rain-cafe", kind: "theme", name: "Rain Café", price: 140, desc: "Deep teal glass, rain-blue neon, warm peach and coffee cream.", theme: "rain-cafe", sw: ["#42C6D0", "#E99A78", "#83A8FF"] },
+    { id: "theme-porcelain-sky-night", kind: "theme", name: "Porcelain Sky Night", price: 140, desc: "Navy-black, powder blue, porcelain highlights and a clean red bow.", theme: "porcelain-sky-night", sw: ["#6BB5D1", "#C73B50", "#D9EAF0"] },
+    { id: "theme-crimson-moth", kind: "theme", name: "Crimson Moth", price: 140, desc: "Absolute black, blood-red wings, bone white and smoke brown.", theme: "crimson-moth", sw: ["#E53228", "#FF6650", "#80645A"] },
+    { id: "theme-celestial-duality", kind: "theme", name: "Celestial Duality", price: 140, desc: "Black void, ultramarine, ice-white, cyan and silver.", theme: "celestial-duality", sw: ["#3348C9", "#52D9FF", "#C8D3FF"] },
+    { id: "theme-jade-camellia", kind: "theme", name: "Jade Camellia", price: 140, desc: "Forest black, jade leaf, olive gold, coral flower and parchment.", theme: "jade-camellia", sw: ["#4D8D67", "#A6A15D", "#D16E67"] },
+    { id: "theme-ember-wraith", kind: "theme", name: "Ember Wraith", price: 140, desc: "Midnight navy, dark crimson, rose flame and ice-blue eyes.", theme: "ember-wraith", sw: ["#D9546E", "#FF8AA1", "#76DFFF"] },
+    { id: "theme-solar-manuscript", kind: "theme", name: "Solar Manuscript", price: 140, desc: "Charcoal ink, saffron, engraved gold, lavender-grey and ivory.", theme: "solar-manuscript", sw: ["#F0B92C", "#B98936", "#AAA0C5"] },
+    { id: "theme-violet-requiem", kind: "theme", name: "Violet Requiem", price: 140, desc: "Midnight indigo, hydrangea violet, pale lilac, rose and white cloth.", theme: "violet-requiem", sw: ["#A586C7", "#D0A6DA", "#B86D91"] },
+    { id: "theme-rosarium", kind: "theme", name: "Rosarium", price: 140, desc: "Black rose garden, oxblood, petal pink, ivory and antique brass.", theme: "rosarium", sw: ["#D83D68", "#F19AB4", "#D1A95B"] },
+    { id: "theme-lycoris-radiata", kind: "theme", name: "Lycoris Radiata", price: 140, desc: "Sumi black, scarlet filaments, ember orange and pale bone.", theme: "lycoris-radiata", sw: ["#E32636", "#FF7448", "#D7C9BC"] },
+    { id: "theme-azure-butterfly", kind: "theme", name: "Azure Butterfly", price: 140, desc: "Night-sky blue, luminous aqua, pearl, silver and soft lilac.", theme: "azure-butterfly", sw: ["#5DB9E7", "#92E4FF", "#B8A9F2"] },
     /* cosmetic: kanji seal variants (the topbar mark) */
     { id: "seal-homura", kind: "seal", name: "焔 Homura seal", price: 70, desc: "Flame variant of the OS mark.", glyph: "焔" },
     { id: "seal-tsuki",  kind: "seal", name: "月 Tsuki seal",  price: 70, desc: "Moon variant of the OS mark.", glyph: "月" },
@@ -310,7 +333,7 @@
   /* Default library: procedural SVG seals, geometric/kanji-adjacent, crimson +
      gold, unlocking progressively by level. */
   function sealSvg(spec) {
-    var K = "#ef4965", K2 = "#ff5e78", GD = "#ecc15a", INK = "#15101e";
+    var K = "#8C7CFF", K2 = "#A99BFF", GD = "#35D7FF", INK = "#0A0D13";
     var defs = '<circle cx="32" cy="32" r="30" fill="' + INK + '" stroke="' + spec.ring + '" stroke-width="2.5"/>';
     return '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + spec.name + '">' +
       defs + spec.art
@@ -318,24 +341,24 @@
       "</svg>";
   }
   var SEALS = [
-    { id: "seal-ember", name: "Ember", minLevel: 1, ring: "#ef4965",
+    { id: "seal-ember", name: "Ember", minLevel: 1, ring: "#8C7CFF",
       art: '<circle cx="32" cy="32" r="17" fill="none" stroke="{K}" stroke-width="2"/>' +
            '<circle cx="32" cy="32" r="8" fill="{K}"/>' +
            '<circle cx="32" cy="32" r="23" fill="none" stroke="{G}" stroke-width="1" stroke-dasharray="2 5"/>' },
-    { id: "seal-facet", name: "Facet", minLevel: 2, ring: "#ecc15a",
+    { id: "seal-facet", name: "Facet", minLevel: 2, ring: "#35D7FF",
       art: '<polygon points="32,12 49,32 32,52 15,32" fill="none" stroke="{G}" stroke-width="2"/>' +
            '<polygon points="32,20 42,32 32,44 22,32" fill="{K}"/>' +
            '<line x1="32" y1="12" x2="32" y2="52" stroke="{G}" stroke-width="1"/>' },
-    { id: "seal-torii", name: "Torii", minLevel: 3, ring: "#ef4965",
+    { id: "seal-torii", name: "Torii", minLevel: 3, ring: "#8C7CFF",
       art: '<path d="M15 24 h34 M18 30 h28 M22 30 v18 M42 30 v18 M13 22 q19 -6 38 0" fill="none" stroke="{K}" stroke-width="3" stroke-linecap="round"/>' +
            '<circle cx="32" cy="41" r="3.4" fill="{G}"/>' },
-    { id: "seal-asanoha", name: "Asanoha", minLevel: 5, ring: "#ecc15a",
+    { id: "seal-asanoha", name: "Asanoha", minLevel: 5, ring: "#35D7FF",
       art: '<g stroke="{K}" stroke-width="1.6" fill="none">' +
            '<polygon points="32,13 48.5,22.5 48.5,41.5 32,51 15.5,41.5 15.5,22.5"/>' +
            '<line x1="32" y1="13" x2="32" y2="51"/><line x1="15.5" y1="22.5" x2="48.5" y2="41.5"/>' +
            '<line x1="48.5" y1="22.5" x2="15.5" y2="41.5"/></g>' +
            '<circle cx="32" cy="32" r="4.5" fill="{G}"/>' },
-    { id: "seal-getsuei", name: "Getsuei", minLevel: 8, ring: "#ef4965",
+    { id: "seal-getsuei", name: "Getsuei", minLevel: 8, ring: "#8C7CFF",
       art: '<circle cx="32" cy="32" r="18" fill="{K}"/>' +
            '<circle cx="39" cy="27" r="15" fill="{I}"/>' +
            '<circle cx="45" cy="20" r="2.4" fill="{G}"/><circle cx="20" cy="44" r="1.7" fill="{G}"/>' +
@@ -395,7 +418,14 @@
   /* ================= cosmetics application ================= */
   function applyCosmetics() {
     var g = G();
-    document.body.dataset.theme = g.theme === "kurenai" ? "" : g.theme;
+    /* unknown/retired theme ids (the old kin/shinku/aoi/sumi) render as the
+       Linear Void default rather than a half-themed page */
+    var known = CATALOG.some(function (c) { return c.kind === "theme" && c.theme === g.theme; });
+    /* the attribute must live on <html>: derived tokens (--panel, --kurenai,
+       …) are computed at :root, so canonical overrides must land there too */
+    var tid = (g.theme === "kurenai" || !known) ? "" : g.theme;
+    document.documentElement.dataset.theme = tid;
+    document.body.dataset.theme = tid;   /* legacy hook, harmless */
     var mark = document.querySelector("#topbar .brand .kanji");
     if (mark) mark.textContent = SEAL_GLYPHS[g.seal] || "紅";
   }

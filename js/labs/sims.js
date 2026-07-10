@@ -69,7 +69,7 @@
     return { c: c, ctx: ctx, W: W, H: h };
   }
   var COL = { ink:"#120d1b", line:"#3a2d52", text:"#ece7f4", mute:"#a89dbf", faint:"#6f6488",
-              crim:"#e8425a", gold:"#e2b23f", jade:"#45d6a8", blue:"#7b9ef8", vio:"#c77bf2" };
+              crim:"#FF2E44", gold:"#F2C46D", jade:"#45d6a8", blue:"#7b9ef8", vio:"#c77bf2" };
 
   /* =================== 1. LOGIC LAB =================== */
   KOS.sims.register({

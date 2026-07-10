@@ -138,6 +138,11 @@
             owned ? el("span", { class: "shop-owned", text: active ? "Active" : "Owned" })
                   : el("span", { class: "shop-price", text: "◈ " + it.price })
           ]));
+          if (it.sw) {
+            card.appendChild(el("div", { class: "shop-sw" }, it.sw.map(function (c) {
+              return el("span", { class: "shop-sw-dot", style: "background:" + c });
+            })));
+          }
           card.appendChild(el("p", { class: "sub", text: it.desc }));
           if (!owned) {
             var buyBtn = el("button", { class: "btn gold", text: "Buy — ◈ " + it.price,
