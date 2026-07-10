@@ -177,6 +177,7 @@
       syncSource: "anilist",
       lastSyncedAt: Date.now(),
       extra: {
+        bannerImage: m.bannerImage || null,
         format: m.format || null, season: m.season || null,
         seasonYear: m.seasonYear || null,
         studio: (m.studios && m.studios.nodes && m.studios.nodes[0] && m.studios.nodes[0].name) || null,
@@ -206,7 +207,7 @@
       "   id status score(format: POINT_10_DECIMAL) progress" +
       (isAnime ? "" : " progressVolumes") +
       "   startedAt { year month day } completedAt { year month day }" +
-      "   media { id idMal title { romaji english } coverImage { extraLarge large }" +
+      "   media { id idMal title { romaji english } coverImage { extraLarge large } bannerImage" +
       "    genres season seasonYear format episodes chapters volumes" +
       "    studios(isMain: true) { nodes { name } }" +
       (isAnime ? "" : " staff(perPage: 4) { edges { role node { name { full } } } }") +
@@ -229,6 +230,16 @@
         });
       });
       cb(null, mapped);
+    });
+  }
+
+  /* one public read-only lookup: the banner for a single media id.
+     Used by the vault hero (Build 4.0) when a synced entry predates the
+     bannerImage field in the list query. cb(err, urlOrNull). */
+  function fetchBanner(anilistId, cb) {
+    gql("query ($id: Int) { Media(id: $id) { bannerImage } }", { id: anilistId }, null, function (err, data) {
+      if (err) { cb(err); return; }
+      cb(null, (data && data.Media && data.Media.bannerImage) || null);
     });
   }
 
@@ -484,6 +495,7 @@
   }
 
   KOS.anilist = {
+    fetchBanner: fetchBanner,
     ENDPOINT: ENDPOINT,
     PIN_URL: PIN_URL,
     gql: gql,

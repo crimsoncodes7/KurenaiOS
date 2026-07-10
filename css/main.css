@@ -2226,6 +2226,45 @@ body.fx-minimised .fx-dock { display: flex; }
    lazy-load, placeholders are kanji on glass.
    ============================================================ */
 
+/* ---- the vault hero (Build 4.0) — per-module spotlight over a genuine
+   banner image (AniList bannerImage / user upload), Sol's treatment ---- */
+.vault-hero { position: relative; display: flex; align-items: stretch; gap: 20px;
+  min-height: 196px; margin: 2px 0 18px; padding: 22px 26px;
+  border: 1px solid var(--line-soft); border-radius: var(--r4); overflow: hidden;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 10%, var(--panel)) 0%, var(--panel) 60%);
+  background-size: cover; background-position: center; }
+.vault-hero.has-banner { border-color: color-mix(in srgb, var(--text) 14%, transparent); }
+.vault-hero::after { content: ""; position: absolute; inset: 16px 16px auto auto;
+  width: 38px; height: 38px; pointer-events: none;
+  border-top: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--text) 30%, transparent); }
+.vh-cover { flex: none; width: 118px; aspect-ratio: 2 / 3; object-fit: cover; align-self: center;
+  border-radius: var(--r2); border: 1px solid var(--line); box-shadow: var(--sh-2); }
+.vh-ph { flex: none; width: 118px; aspect-ratio: 2 / 3; display: flex; align-items: center;
+  justify-content: center; font-size: 40px; align-self: center;
+  border-radius: var(--r2); border: 1px solid var(--line-soft); background: var(--raise); }
+.vh-body { position: relative; z-index: 1; display: flex; flex-direction: column;
+  justify-content: center; gap: 9px; min-width: 0; max-width: 620px; }
+.vh-kicker { display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .26em;
+  text-transform: uppercase; color: var(--kurenai-2); }
+.vh-kicker .vh-mod { color: var(--mute); letter-spacing: .14em; }
+.vh-kicker::after { content: ""; height: 1px; width: 40px;
+  background: linear-gradient(90deg, var(--accent), transparent); }
+.vh-title { margin: 0; font-family: var(--disp); font-size: 25px; font-weight: 600;
+  line-height: 1.2; color: var(--text); text-shadow: 0 1px 10px rgba(0,0,0,.55);
+  overflow: hidden; text-overflow: ellipsis; }
+.vh-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.vh-track { height: 6px; max-width: 360px; border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--text) 10%, transparent); overflow: hidden; }
+.vh-track i { display: block; height: 100%; border-radius: var(--r-pill);
+  background: linear-gradient(90deg, var(--kurenai-dim), var(--kurenai)); }
+.vh-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+@media (max-width: 860px) {
+  .vault-hero { flex-direction: column; padding: 18px; }
+  .vh-cover, .vh-ph { width: 84px; align-self: flex-start; }
+}
+
 /* ---- toolbar + filters ---- */
 .med-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .med-toolbar .med-search { flex: 1 1 220px; min-width: 160px; }
@@ -2251,9 +2290,15 @@ body.fx-minimised .fx-dock { display: flex; }
   transition: color var(--t-fast) var(--e-out), transform var(--t-fast) var(--e-spring); }
 .med-fav:hover { transform: scale(1.15); color: var(--text-2); }
 .med-fav.on { color: var(--kurenai); text-shadow: 0 0 10px var(--kurenai-glow); }
-.med-card-body { padding: 10px 11px 12px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
-.med-title { font-size: 12.5px; font-weight: 600; line-height: 1.35; color: var(--text);
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.6em; }
+/* Build 4.0: the card body OVERLAYS the cover (AniList's own pattern) —
+   same markup, the info no longer occupies space beside/below the art */
+.med-card-body { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
+  padding: 26px 11px 12px; display: flex; flex-direction: column; gap: 6px;
+  background: linear-gradient(180deg, transparent, rgba(2,3,5,.62) 34%, rgba(2,3,5,.93));
+  border-radius: 0 0 var(--r3) var(--r3); }
+.med-title { font-size: 12.5px; font-weight: 600; line-height: 1.35; color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,.6);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .med-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
 .med-chip { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase;
   padding: 2px 8px; border-radius: var(--r-pill); color: var(--chip, var(--mute));
@@ -2262,7 +2307,8 @@ body.fx-minimised .fx-dock { display: flex; }
 .med-prog { font-family: var(--mono); font-size: 10.5px; color: var(--mute); }
 .med-score { font-family: var(--mono); font-size: 10.5px; color: var(--gold); }
 .med-plus { align-self: flex-start; }
-.med-track { margin: 0; border-radius: 0; }
+.med-track { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  margin: 0; border: none; border-radius: 0; height: 4px; background: rgba(2,3,5,.55); }
 .med-sentinel { height: 2px; }
 .med-empty { grid-column: 1 / -1; padding: 26px 0; }
 
@@ -2497,7 +2543,10 @@ body.fx-minimised .fx-dock { display: flex; }
    ═══════════════════════════════════════════════════════════════ */
 
 /* ---- inline quick-edit on vault cards/rows ---- */
-.med-quickrow { margin-top: 4px; }
+.med-quickrow { margin-top: 2px; max-height: 0; opacity: 0; overflow: hidden; pointer-events: none;
+  transition: max-height var(--t-med) var(--e-out), opacity var(--t-med) var(--e-out); }
+.med-card:hover .med-quickrow, .med-card:focus-within .med-quickrow,
+.med-row .med-quickrow { max-height: 40px; opacity: 1; pointer-events: auto; overflow: visible; }
 .med-quick { display: inline-flex; align-items: center; gap: 5px; }
 .med-qsel { font-size: 10.5px; padding: 3px 6px; max-width: 118px; }
 .med-qscore { font-size: 10.5px; padding: 3px 4px; width: 52px; text-align: center;
@@ -2754,11 +2803,30 @@ body.fx-minimised .fx-dock { display: flex; }
    Reuses the shared modal / med-form / study-tab / cs-chart chrome;
    these rules only add the planner-specific pieces.
    ============================================================ */
+/* Build 4.0: the Purchase Planner top row — hero left, budget summary right
+   (structural reference: the original Kurenai manga-tracker screenshots) */
+.wl-top { display: grid; grid-template-columns: minmax(0, 7fr) minmax(280px, 5fr);
+  gap: 16px; align-items: stretch; margin: 4px 0 16px; }
+.wl-hero-wrap { min-width: 0; display: flex; }
+.wl-hero-wrap .wl-hero { flex: 1; margin-bottom: 0; }
+.wl-hero-empty { opacity: .8; }
 .wl-budget {
   border: 1px solid var(--line-soft); border-radius: var(--r3);
   background: linear-gradient(180deg, var(--panel-2), var(--panel));
-  padding: 14px 18px; margin: 4px 0 16px;
+  padding: 14px 18px; margin: 0;
+  display: flex; flex-direction: column; gap: 10px;
 }
+.wl-sum-h { margin: 0; font-family: var(--disp); font-size: 10.5px; font-weight: 600;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--mute); }
+.wl-counts { display: flex; gap: 0; border-top: 1px solid var(--line-soft); padding-top: 10px; }
+.wl-cnt { flex: 1; display: flex; flex-direction: column; gap: 1px; text-align: center; }
+.wl-cnt + .wl-cnt { border-left: 1px solid var(--line-soft); }
+.wl-cnt b { font-family: var(--mono); font-size: 16px; color: var(--text); }
+.wl-cnt:first-child b { color: var(--text); }
+.wl-cnt:nth-child(2) b { color: var(--paused); }
+.wl-cnt:last-child b { color: var(--gold); }
+.wl-cnt .k { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+@media (max-width: 1000px) { .wl-top { grid-template-columns: 1fr; } }
 .wl-budget-head {
   display: flex; flex-wrap: wrap; gap: 18px 26px; align-items: flex-end;
   justify-content: space-between;

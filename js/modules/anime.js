@@ -294,6 +294,10 @@
 
     if (mv.unavailable(main)) return;
 
+    /* Build 4.0: the per-module spotlight hero (medview.heroCard) */
+    var heroHolder = el("div", { class: "vh-holder" });
+    main.appendChild(heroHolder);
+
     /* toolbar — the shared pieces come from the medview toolkit */
     var search = mv.searchInput("Search anime titles");
     var genreSel = el("select", { class: "status-sel", "aria-label": "Filter by genre" });
@@ -365,6 +369,8 @@
     tagSel.addEventListener("change", refresh);
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
+    function mountHero() { mv.heroCard(heroHolder, "anime", mod, function () { refresh(); mountHero(); }); }
+    mountHero();
     refresh();
     /* airing badges (3f): render immediately from the cache, kick a live
        refresh, repaint once when fresh data lands (never a polling loop) */

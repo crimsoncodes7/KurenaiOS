@@ -917,6 +917,10 @@
 
     if (mv.unavailable(main)) return;
 
+    /* Build 4.0: the per-module spotlight hero (medview.heroCard) */
+    var heroHolder = el("div", { class: "vh-holder" });
+    main.appendChild(heroHolder);
+
     /* ---- the Physical/Digital tab split (3i) — navigation only ---- */
     var tabBar = el("div", { class: "bk-tabs", role: "tablist", "aria-label": "Books lens" });
     function tabBtn(id, kanji, label, hint) {
@@ -1154,6 +1158,8 @@
     [fmtSel, genreSel, moodSel, shelfSel].forEach(function (s) { s.addEventListener("change", refresh); });
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
+    function mountHero() { mv.heroCard(heroHolder, "books", mod(), function () { refresh(); mountHero(); }); }
+    mountHero();
     refresh();
   };
 

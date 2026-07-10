@@ -105,6 +105,10 @@
     var main = document.getElementById("main");
     main.innerHTML = "";
     main.scrollTop = 0;
+    /* subject views set a per-subject --accent on #main; without this reset
+       it leaks into every later view (vault bars picked up the last subject
+       hue). Views that want an accent set it themselves. */
+    main.style.removeProperty("--accent");
     /* exactly one rail item active: the subject button for subject/ref
        views, otherwise the button whose data-view matches. Labs have no
        rail entry any more, so they highlight nothing. */

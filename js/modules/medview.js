@@ -370,8 +370,183 @@
     });
   }
 
+  /* ================= the vault hero (Build 4.0) =================
+     Sol's hero treatment, per design.md: one user-selectable spotlight PER
+     MODULE, carried by a genuine banner image — AniList's bannerImage where
+     the entry is synced (verified live: a separate schema field from
+     coverImage), a user-uploaded wide image otherwise (VNDB exposes no
+     banner; games/books lookups don't either). Selection + upload live in
+     the media kv store ("hero.<module>"), NOT on the entry — no schema
+     change, no normalise() edit needed.
+     Network discipline: the ONLY fetch is the read-only AniList banner
+     lookup, and only for syncSource:"anilist" entries missing one. Games
+     and VN entries never trigger network from here (invariants #12/#20). */
+  function heroKey(modId) { return "hero." + modId; }
+
+  /* wide-banner upload: centre-crop to ~3.2:1 and compress to JPEG ≤1600px,
+     same canvas approach as the avatar/volume-cover uploads */
+  function compressBanner(file, cb) {
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function () {
+      URL.revokeObjectURL(url);
+      var W = Math.min(1600, img.width), H = Math.round(W / 3.2);
+      var c = document.createElement("canvas");
+      c.width = W; c.height = H;
+      var scale = Math.max(W / img.width, H / img.height);
+      var sw = W / scale, sh = H / scale;
+      var sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
+      c.getContext("2d").drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+      cb(null, c.toDataURL("image/jpeg", 0.82));
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); cb(new Error("Could not read the image")); };
+    img.src = url;
+  }
+
+  /* the spotlight picker: search-as-you-type over the module's vault */
+  function heroPicker(modId, kanji, onPick) {
+    var overlay = modalOverlay();
+    var input = el("input", { type: "search", class: "todo-in msch-in", placeholder: "Search your vault…" });
+    var list = el("div", { class: "msch-results" });
+    function run() {
+      KOS.mediadb.query({ module: modId, search: input.value.trim() || undefined, sort: "updated" }, function (err, rows) {
+        if (err) return;
+        list.innerHTML = "";
+        rows.slice(0, 40).forEach(function (e) {
+          list.appendChild(el("div", { class: "msch-row", role: "button", tabindex: "0",
+            onclick: function () { overlay.close(); onPick(e); } }, [
+            e.coverUrl ? el("img", { class: "msch-cover", src: e.coverUrl, alt: "" })
+                       : el("span", { class: "msch-cover med-cover-ph", text: kanji }),
+            el("div", { class: "msch-body" }, [
+              el("div", { class: "msch-title", text: e.title }),
+              el("span", { class: "sub", text: KOS.media.STATUS_LABEL[e.status] })
+            ])
+          ]));
+        });
+        if (!rows.length) list.appendChild(el("p", { class: "fc-empty", text: "Nothing in this vault yet." }));
+      });
+    }
+    input.addEventListener("input", KOS.ui.debounce(run, 200));
+    overlay.appendChild(el("div", { class: "modal msch-modal" }, [
+      el("div", { class: "modal-h" }, [
+        el("b", { text: "Choose the spotlight" }),
+        el("button", { class: "mini-btn", style: "margin-left:auto", text: "\u2715", onclick: overlay.close })
+      ]),
+      input, list
+    ]));
+    document.body.appendChild(overlay);
+    input.focus();
+    run();
+    return overlay;
+  }
+
+  /* mount the hero into `holder`. mod = KOS.media.module(modId); rerender
+     re-runs the view's refresh so progress bumps show everywhere. */
+  function heroCard(holder, modId, mod, rerender) {
+    holder.innerHTML = "";
+    KOS.mediadb.getKV(heroKey(modId), function (err, pref) {
+      if (err) return;
+      pref = pref || {};
+      function renderWith(e) {
+        if (!e) return;   // empty vault — no hero
+        var banner = (e.extra && e.extra.bannerImage) || pref.banner || null;
+        var hero = el("div", { class: "vault-hero" + (banner ? " has-banner" : ""), role: "region", "aria-label": "Spotlight" });
+        if (banner) hero.style.backgroundImage =
+          "linear-gradient(90deg, color-mix(in srgb, var(--bg0) 94%, transparent) 0%, color-mix(in srgb, var(--bg0) 78%, transparent) 42%, color-mix(in srgb, var(--bg0) 30%, transparent) 100%), url(" + JSON.stringify(banner).slice(1, -1) + ")";
+        var pct = e.progress && e.progress.total
+          ? Math.min(100, Math.round(100 * (e.progress.current || 0) / e.progress.total)) : null;
+        var frac = KOS.media.progressText ? null : null;
+        var body = el("div", { class: "vh-body" }, [
+          el("div", { class: "vh-kicker" }, [
+            el("span", { text: "Spotlight" }),
+            el("span", { class: "vh-mod", text: mod.label })
+          ]),
+          el("h2", { class: "vh-title", text: e.title }),
+          el("div", { class: "vh-meta" }, [
+            el("span", { class: "med-chip", style: "--chip:" + (KOS.media.STATUS_COLOR[e.status] || "#888"),
+              text: KOS.media.STATUS_LABEL[e.status] }),
+            e.score ? el("span", { class: "med-score", text: "\u2605 " + e.score }) : null,
+            e.progress && e.progress.total
+              ? el("span", { class: "med-prog", text: (e.progress.current || 0) + " / " + e.progress.total + " " + mod.unitName })
+              : (e.module === "game" && e.playtimeHours != null
+                  ? el("span", { class: "med-prog", text: e.playtimeHours + " hr" }) : null)
+          ]),
+          pct !== null ? el("div", { class: "vh-track" }, [el("i", { style: "width:" + pct + "%" })]) : null,
+          el("div", { class: "vh-actions" }, [
+            e.status === "inProgress" && e.module !== "game"
+              ? el("button", { class: "btn primary", text: "+1 " + mod.unit, onclick: function () {
+                  bumpUnit(e, "progress", function () { rerender && rerender(); });
+                } }) : null,
+            el("button", { class: "btn", text: "Edit", onclick: function () {
+              KOS.mediaEditor(e, function () { rerender && rerender(); });
+            } }),
+            el("button", { class: "btn", text: "\u2606 Change spotlight", onclick: function () {
+              heroPicker(modId, mod.kanji, function (picked) {
+                KOS.mediadb.setKV(heroKey(modId), { entryId: picked.id, banner: null }, function () {
+                  /* synced AniList entries that predate the banner field:
+                     one read-only lookup, saved into extra so it sticks */
+                  if (picked.syncSource === "anilist" && picked.externalIds && picked.externalIds.anilistId
+                      && !(picked.extra && picked.extra.bannerImage)) {
+                    KOS.anilist.fetchBanner(picked.externalIds.anilistId, function (err2, url) {
+                      if (!err2 && url) {
+                        picked.extra = picked.extra || {};
+                        picked.extra.bannerImage = url;
+                        KOS.mediadb.put(picked, function () { rerender && rerender(); });
+                        return;
+                      }
+                      rerender && rerender();
+                    });
+                  } else { rerender && rerender(); }
+                });
+              });
+            } }),
+            (function () {
+              var file = el("input", { type: "file", accept: "image/*", style: "display:none", onchange: function () {
+                if (!file.files[0]) return;
+                compressBanner(file.files[0], function (err2, dataUrl) {
+                  if (err2) { KOS.ui.toast("Banner upload failed: " + err2.message, true); return; }
+                  KOS.mediadb.setKV(heroKey(modId), { entryId: e.id, banner: dataUrl }, function () {
+                    KOS.ui.toast("Banner set.");
+                    rerender && rerender();
+                  });
+                });
+              } });
+              var btn = el("button", { class: "btn", text: "\u2912 Banner",
+                title: "Upload a wide banner image for this spotlight", onclick: function () { file.click(); } });
+              return el("span", {}, [file, btn]);
+            })()
+          ].filter(Boolean))
+        ].filter(Boolean));
+        if (!banner && e.coverUrl) {
+          hero.appendChild(el("img", { class: "vh-cover", src: e.coverUrl, alt: "" }));
+        } else if (!banner) {
+          hero.appendChild(el("span", { class: "vh-ph med-cover-ph", text: mod.kanji }));
+        }
+        hero.appendChild(body);
+        holder.appendChild(hero);
+      }
+      if (pref.entryId != null) {
+        KOS.mediadb.get(pref.entryId, function (err2, e) {
+          if (!err2 && e && e.module === modId) { renderWith(e); return; }
+          autoPick();
+        });
+      } else autoPick();
+      function autoPick() {
+        /* nothing chosen: spotlight the most recently updated in-progress
+           entry, falling back to the most recent anything */
+        KOS.mediadb.query({ module: modId, status: "inProgress", sort: "updated" }, function (err2, rows) {
+          if (!err2 && rows && rows.length) { renderWith(rows[0]); return; }
+          KOS.mediadb.query({ module: modId, sort: "updated" }, function (err3, all) {
+            renderWith(!err3 && all && all.length ? all[0] : null);
+          });
+        });
+      }
+    });
+  }
+
   KOS.medview = {
     BATCH: BATCH,
+    heroCard: heroCard,
     STATUSES: STATUSES,
     NEEDS_IDB: NEEDS_IDB,
     unavailable: unavailable,

@@ -456,6 +456,10 @@
 
     if (mv.unavailable(main)) return;
 
+    /* Build 4.0: the per-module spotlight hero (medview.heroCard) */
+    var heroHolder = el("div", { class: "vh-holder" });
+    main.appendChild(heroHolder);
+
     /* toolbar — the shared pieces come from the medview toolkit */
     var search = mv.searchInput("Search visual novel titles");
     var genreSel = el("select", { class: "status-sel", "aria-label": "Filter by genre" });
@@ -547,6 +551,8 @@
     [genreSel, devSel].forEach(function (s) { s.addEventListener("change", refresh); });
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
+    function mountHero() { mv.heroCard(heroHolder, "vn", mod(), function () { refresh(); mountHero(); }); }
+    mountHero();
     refresh();
   };
 })();

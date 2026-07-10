@@ -469,9 +469,16 @@
       el("p", { class: "sub", text: "A wishlist across Books, Visual Novels and Games against one shared monthly budget. Tick items to simulate a purchase — the total and what's left update live; nothing is spent until you mark it Purchased. This is pure logistics: it never earns XP, gold or a streak. Release dates are typed in by hand — no automated source spans books, VNs and games." })
     ]));
 
-    /* ---- budget bar ---- */
+    /* ---- top row: Next-to-Drop hero + Budget Summary panel ----
+       Structural reference: the original Kurenai manga-tracker's Purchase
+       Planner screen (Phase 3 Context) — hero left, summary right, the
+       Want to Buy / Waiting for Release tabs below. */
+    var top = el("div", { class: "wl-top" });
+    main.appendChild(top);
+    var heroWrap = el("div", { class: "wl-hero-wrap" });
+    top.appendChild(heroWrap);
     var barWrap = el("div", { class: "wl-budget" });
-    main.appendChild(barWrap);
+    top.appendChild(barWrap);
 
     /* ---- tabs ---- */
     var tabsRow = el("div", { class: "study-tabs wl-tabs", role: "tablist" });
@@ -520,17 +527,24 @@
     limitIn.addEventListener("change", function () { setBudget({ monthlyLimit: limitIn.value }); recalc(); });
     curIn.addEventListener("change", function () { setBudget({ currency: curIn.value }); KOS.show("wishlist", undefined, { _nav: true }); });
 
-    barWrap.appendChild(el("div", { class: "wl-budget-head" }, [
-      el("label", { class: "wl-budget-limit" }, [
-        el("span", { class: "k", text: "Monthly budget" }), curIn, limitIn
-      ]),
-      el("div", { class: "wl-budget-nums" }, [
-        el("div", { class: "wl-bn" }, [el("span", { class: "k", text: "Spent this month" }), spentEl]),
-        el("div", { class: "wl-bn" }, [el("span", { class: "k", text: "Selected (sim)" }), selEl]),
-        el("div", { class: "wl-bn wl-bn-rem" }, [el("span", { class: "k", text: "Remaining" }), remainEl])
-      ])
+    function cnt(v, k) { return el("div", { class: "wl-cnt" }, [el("b", { text: v }), el("span", { class: "k", text: k })]); }
+    var activeItems = items().filter(function (it) { return it.status !== "purchased"; });
+    var listTotal = activeItems.reduce(function (a2, it) { return a2 + (it.price || 0); }, 0);
+    barWrap.appendChild(el("h3", { class: "wl-sum-h", text: "Budget summary" }));
+    barWrap.appendChild(el("label", { class: "wl-budget-limit" }, [
+      el("span", { class: "k", text: "Monthly budget" }), curIn, limitIn
+    ]));
+    barWrap.appendChild(el("div", { class: "wl-budget-nums" }, [
+      el("div", { class: "wl-bn" }, [el("span", { class: "k", text: "Spent this month" }), spentEl]),
+      el("div", { class: "wl-bn" }, [el("span", { class: "k", text: "Selected (sim)" }), selEl]),
+      el("div", { class: "wl-bn wl-bn-rem" }, [el("span", { class: "k", text: "Remaining" }), remainEl])
     ]));
     barWrap.appendChild(el("div", { class: "wl-meter" }, [meter]));
+    barWrap.appendChild(el("div", { class: "wl-counts" }, [
+      cnt(String(activeItems.length), activeItems.length === 1 ? "item" : "items"),
+      cnt(String(byStatus("waitingForRelease").length), "upcoming"),
+      cnt(money(listTotal), "total list")
+    ]));
     barWrap.appendChild(el("p", { class: "sub wl-budget-note", text: "One shared pool — Books, VNs and games all draw from the same limit. Ticking below is a simulation; “Mark purchased” is what actually records a spend." }));
 
     /* ---- render the active tab ---- */
@@ -551,17 +565,25 @@
         return;
       }
 
-      /* next-to-drop hero on the waiting tab */
-      if (tab === "waitingForRelease") {
-        var hero = nextToDrop();
-        if (hero) listWrap.appendChild(dropHero(hero));
-      }
-
       var list = el("div", { class: "wl-list" });
       rows.forEach(function (it) { list.appendChild(itemRow(it)); });
       listWrap.appendChild(list);
       if (tab !== "purchased") enableDrag(list);
       recalc();
+    }
+
+    function renderHero() {
+      heroWrap.innerHTML = "";
+      var hero = nextToDrop();
+      if (hero) { heroWrap.appendChild(dropHero(hero)); return; }
+      heroWrap.appendChild(el("div", { class: "wl-hero wl-hero-empty" }, [
+        el("div", { class: "wl-hero-badge", text: "\u25c6 Next to drop" }),
+        el("span", { class: "wl-hero-ph", text: "\u5186" }),
+        el("div", { class: "wl-hero-body" }, [
+          el("h3", { class: "wl-hero-title", text: "Nothing on pre-order watch" }),
+          el("p", { class: "sub", text: "Add an item as \u201cWaiting for release\u201d with a manual date and the countdown lands here." })
+        ])
+      ]));
     }
 
     function dropHero(it) {
@@ -691,6 +713,7 @@
       chartsWrap.appendChild(grid);
     }
 
+    renderHero();
     renderList();
     renderCharts();
   };
