@@ -134,6 +134,7 @@
     function close() { overlay.remove(); document.removeEventListener("keydown", onEsc); }
     function onEsc(e) { if (e.key === "Escape") close(); }
     document.addEventListener("keydown", onEsc);
+    var field = KOS.medview.calField;   // the shared cal-field flavor
 
     var title = el("input", { type: "text", class: "cal-in", placeholder: "Event title" });
     var date = el("input", { type: "date", class: "cal-in" });
@@ -189,9 +190,6 @@
         } }) : null
       ])
     ]);
-    function field(label, node) {
-      return el("label", { class: "cal-field" }, [el("span", { text: label }), node]);
-    }
     overlay.appendChild(box);
     document.body.appendChild(overlay);
     title.focus();

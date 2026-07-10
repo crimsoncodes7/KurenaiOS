@@ -114,9 +114,7 @@
       fillRefs();
     }
 
-    function field(label, node) {
-      return el("label", { class: "cal-field" }, [el("span", { text: label }), node]);
-    }
+    var field = KOS.medview.calField;   // the shared cal-field flavor
     overlay.appendChild(el("div", { class: "modal cal-modal" }, [
       el("div", { class: "modal-h" }, [
         el("b", { text: (existing ? "Edit " : "Log ") + (kind === "paper" ? "practice paper" : "exam") }),

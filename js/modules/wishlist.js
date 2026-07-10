@@ -358,11 +358,9 @@
     var e = existing ? JSON.parse(JSON.stringify(existing)) : { module: "books", status: "wantToBuy" };
     var linkedId = e.linkedEntryId != null ? e.linkedEntryId : null;
 
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
-    function close() { overlay.remove(); }
-    function field(label, input) {
-      return el("label", { class: "med-field" }, [el("span", { class: "k", text: label }), input]);
-    }
+    var overlay = KOS.medview.modalOverlay();   // click-outside + Esc close
+    var close = overlay.close;
+    var field = KOS.medview.field;
 
     var title = el("input", { type: "text", class: "todo-in", value: e.title && e.title !== "Untitled" ? e.title : "", placeholder: "Title" });
     var moduleSel = el("select", { class: "status-sel" }, MODULES.map(function (m) {

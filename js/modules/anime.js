@@ -131,18 +131,16 @@
   function bumpProgress(e, done) { KOS.medview.bumpUnit(e, "progress", done); }
 
   /* ---------------- the editor modal (create + edit) ---------------- */
+  /* built on the shared medview editor shell — the working copy is a
+     NORMALISED clone (aligned with books/vn/games; audit A11) */
   function editorModal(entry, onSaved) {
-    var isNew = !entry;
-    var e = entry ? JSON.parse(JSON.stringify(entry)) : KOS.mediadb.normalise({ module: "anime" });
+    var mv = KOS.medview;
+    var isNew = !entry || entry.id == null;
+    var e = mv.editDraft(entry, "anime");
     var pushBefore = KOS.mediapush.snapshot(e);
     var mod = KOS.media.module(e.module);
+    var field = mv.field, splitList = mv.splitList;
 
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
-    function close() { overlay.remove(); }
-
-    function field(label, input) {
-      return el("label", { class: "med-field" }, [el("span", { class: "k", text: label }), input]);
-    }
     var title = el("input", { type: "text", class: "todo-in", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Title" });
     var status = el("select", { class: "status-sel" }, STATUSES.map(function (s) {
       return el("option", { value: s, text: KOS.media.STATUS_LABEL[s] });
@@ -165,9 +163,6 @@
     var notes = el("textarea", { class: "note-area", rows: 3, placeholder: "Notes…" });
     notes.value = e.notes || "";
 
-    function splitList(v) {
-      return v.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
-    }
     function save() {
       if (!title.value.trim()) { KOS.ui.toast("A title is needed.", true); return; }
       var oldStatus = e.status;
@@ -184,24 +179,17 @@
       e.coverUrl = coverU.value.trim() || null;
       e.favourite = fav.checked;
       e.notes = notes.value;
-      KOS.mediadb.put(e, function (err, rec) {
-        if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
-        if (isNew) KOS.media.logActivity(rec, "added");
-        else if (oldStatus !== rec.status) KOS.media.logActivity(rec, "status");
-        else KOS.ui.toast("Saved.");
-        if (KOS.mediapush.snapshot(rec) !== pushBefore) KOS.mediapush.schedule(rec);
-        close();
-        onSaved && onSaved(rec);
+      mv.saveEntry(e, {
+        isNew: isNew, pushBefore: pushBefore,
+        activity: function (rec) { return oldStatus !== rec.status ? "status" : null; },
+        close: function () { overlay.close(); }, onSaved: onSaved
       });
     }
 
-    var box = el("div", { class: "modal med-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", { text: (isNew ? "Add to " : "Edit — ") + mod.label }),
-        el("span", { class: "sub", text: e.syncSource === "anilist" ? "synced from AniList — a Sync now overwrites list state, keeps your notes/tags" : e.syncSource === "import" ? "from XML import" : "manual entry" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
-      ]),
-      el("div", { class: "med-form" }, [
+    var overlay = mv.editorModal({
+      isNew: isNew, label: mod.label,
+      subtitle: e.syncSource === "anilist" ? "synced from AniList — a Sync now overwrites list state, keeps your notes/tags" : e.syncSource === "import" ? "from XML import" : "manual entry",
+      form: [
         field("Title", title),
         el("div", { class: "med-form-row" }, [
           field("Status", status),
@@ -219,25 +207,14 @@
         field("Tags (comma-separated, shared taxonomy)", tags),
         field("Cover URL", coverU),
         field("Notes", notes)
-      ]),
-      el("div", { class: "lab-controls med-modal-foot" }, [
-        !isNew ? el("button", { class: "btn danger", text: "Delete", onclick: function () {
-          if (!confirm("Delete “" + e.title + "” from the collection?")) return;
-          KOS.mediadb.remove(e.id, function (err) {
-            if (err) { KOS.ui.toast("Delete failed: " + err.message, true); return; }
-            KOS.ui.toast("Deleted.");
-            close();
-            onSaved && onSaved(null);
-          });
-        } }) : null,
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Cancel", onclick: close }),
-        el("button", { class: "btn primary", text: isNew ? "Add" : "Save", onclick: save })
-      ])
-    ]);
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-    title.focus();
+      ],
+      onSave: save,
+      onDelete: function () {
+        mv.deleteEntry(e, "Delete “" + e.title + "” from the collection?",
+          function () { overlay.close(); }, onSaved);
+      },
+      focus: title
+    });
     return overlay;
   }
   /* the generic base editor — KOS.mediaEditor (core/media.js) dispatches

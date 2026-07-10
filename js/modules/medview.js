@@ -207,6 +207,103 @@
     });
   }
 
+  /* ================= the editor shell (Phase B) ================= */
+  /* the two labelled-field flavors, matching the pre-extraction markup
+     exactly: field() is the Matrix editors' label.med-field > span.k;
+     calField() is the calendar/tracker forms' label.cal-field > bare span */
+  function field(label, input, cls) {
+    return el("label", { class: "med-field" + (cls ? " " + cls : "") },
+      [el("span", { class: "k", text: label }), input]);
+  }
+  function calField(label, input) {
+    return el("label", { class: "cal-field" }, [el("span", { text: label }), input]);
+  }
+  function splitList(v) {
+    return v.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+
+  /* overlay + close plumbing shared by every Matrix modal: click outside
+     closes, and — new with the shell — Esc closes too (parity with the
+     calendar/tracker modals). onClose (optional) runs first, for teardown
+     like stopping the barcode scanner's camera. overlay.close is the one
+     close path. */
+  function modalOverlay(onClose) {
+    function close() {
+      if (onClose) onClose();
+      document.removeEventListener("keydown", onEsc);
+      overlay.remove();
+    }
+    function onEsc(ev) { if (ev.key === "Escape") close(); }
+    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
+    document.addEventListener("keydown", onEsc);
+    overlay.close = close;
+    return overlay;
+  }
+
+  /* the editor's working copy: a NORMALISED deep clone (id preserved), or
+     a normalised blank of the module. Normalising here is what aligned the
+     anime editor with books/vn/games (audit A11) — it used to edit a raw
+     clone and rely on the entry already being clean. */
+  function editDraft(entry, module) {
+    var e = entry ? KOS.mediadb.normalise(JSON.parse(JSON.stringify(entry)))
+                  : KOS.mediadb.normalise({ module: module });
+    if (entry && entry.id != null) e.id = entry.id;
+    return e;
+  }
+
+  /* the editor modal scaffold: header (Add to / Edit —, syncSource
+     subtitle, ✕), the med-form body, and the Delete/Cancel/Add|Save
+     footer. opts: { isNew, label, subtitle, className, form: node[],
+     onSave, onDelete (null hides the button), focus }. Returns the
+     overlay (whose .close() the save/delete paths call). */
+  function editorModal(opts) {
+    var overlay = modalOverlay();
+    overlay.appendChild(el("div", { class: "modal med-modal" + (opts.className ? " " + opts.className : "") }, [
+      el("div", { class: "modal-h" }, [
+        el("b", { text: (opts.isNew ? "Add to " : "Edit — ") + opts.label }),
+        el("span", { class: "sub", text: opts.subtitle }),
+        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: overlay.close })
+      ]),
+      el("div", { class: "med-form" }, opts.form),
+      el("div", { class: "lab-controls med-modal-foot" }, [
+        !opts.isNew && opts.onDelete ? el("button", { class: "btn danger", text: "Delete", onclick: opts.onDelete }) : null,
+        el("span", { style: "flex:1" }),
+        el("button", { class: "btn", text: "Cancel", onclick: overlay.close }),
+        el("button", { class: "btn primary", text: opts.isNew ? "Add" : "Save", onclick: opts.onSave })
+      ])
+    ]));
+    document.body.appendChild(overlay);
+    if (opts.focus) opts.focus.focus();
+    return overlay;
+  }
+
+  /* the shared save tail: put → ONE deliberate activity log ("added" for
+     new entries, else the module's own precedence via ctx.activity(rec) —
+     null means just a "Saved." toast) → push when the remote-mapped state
+     moved (a no-op for never-eligible modules like games) → close. */
+  function saveEntry(e, ctx) {
+    KOS.mediadb.put(e, function (err, rec) {
+      if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
+      var action = ctx.isNew ? "added" : (ctx.activity ? ctx.activity(rec) : null);
+      if (action) KOS.media.logActivity(rec, action);
+      else KOS.ui.toast("Saved.");
+      if (KOS.mediapush.snapshot(rec) !== ctx.pushBefore) KOS.mediapush.schedule(rec);
+      ctx.close();
+      ctx.onSaved && ctx.onSaved(rec);
+    });
+  }
+
+  /* the shared delete tail — every editor's Delete button */
+  function deleteEntry(e, confirmMsg, close, onSaved) {
+    if (!confirm(confirmMsg)) return;
+    KOS.mediadb.remove(e.id, function (err) {
+      if (err) { KOS.ui.toast("Delete failed: " + err.message, true); return; }
+      KOS.ui.toast("Deleted.");
+      close();
+      onSaved && onSaved(null);
+    });
+  }
+
   KOS.medview = {
     BATCH: BATCH,
     STATUSES: STATUSES,
@@ -220,6 +317,14 @@
     statusPills: statusPills,
     emptyState: emptyState,
     resultsArea: resultsArea,
-    bumpUnit: bumpUnit
+    bumpUnit: bumpUnit,
+    field: field,
+    calField: calField,
+    splitList: splitList,
+    modalOverlay: modalOverlay,
+    editDraft: editDraft,
+    editorModal: editorModal,
+    saveEntry: saveEntry,
+    deleteEntry: deleteEntry
   };
 })();

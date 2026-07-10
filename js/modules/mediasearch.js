@@ -116,8 +116,8 @@
     var mod = KOS.media.module(module);
     var serviceName = module === "vn" ? "VNDB" : "AniList";
 
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
-    function close() { overlay.remove(); }
+    var overlay = KOS.medview.modalOverlay();   // click-outside + Esc close
+    var close = overlay.close;
 
     var input = el("input", { type: "search", class: "todo-in msch-in",
       placeholder: "Search all of " + serviceName + "…",

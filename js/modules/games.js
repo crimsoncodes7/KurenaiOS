@@ -138,20 +138,17 @@
      "hours": no total to complete against, never a push (games don't sync). */
   function bumpHour(e, done) { KOS.medview.bumpUnit(e, "hours", done); }
 
-  /* ================= the editor modal ================= */
+  /* ================= the editor modal (shared medview shell) ================= */
   function gamesEditor(entry, onSaved) {
-    var isNew = !entry;
-    var e = entry ? KOS.mediadb.normalise(JSON.parse(JSON.stringify(entry))) : KOS.mediadb.normalise({ module: "game" });
-    if (entry && entry.id != null) e.id = entry.id;
+    var mv = KOS.medview;
+    var isNew = !entry || entry.id == null;
+    var e = mv.editDraft(entry, "game");
+    /* the shell's push wiring is a no-op here — games are never push-
+       eligible (invariant #12) — but the snapshot keeps the ctx uniform */
+    var pushBefore = KOS.mediapush.snapshot(e);
     var tierAtOpen = e.completionTier;
     var hoursAtOpen = e.playtimeHours || 0;
-
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
-    function close() { overlay.remove(); }
-    function field(label, input, cls) {
-      return el("label", { class: "med-field" + (cls ? " " + cls : "") }, [el("span", { class: "k", text: label }), input]);
-    }
-    function splitList(v) { return v.split(",").map(function (s) { return s.trim(); }).filter(Boolean); }
+    var field = mv.field, splitList = mv.splitList;
 
     /* --- identity --- */
     var title = el("input", { type: "text", class: "todo-in", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Title" });
@@ -259,26 +256,23 @@
       else if (!e.coverUrl || e.coverUrl.slice(0, 5) !== "data:") e.coverUrl = null;
       e.favourite = fav.checked;
       e.notes = notes.value;
-      KOS.mediadb.put(e, function (err, rec) {
-        if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
+      mv.saveEntry(e, {
+        isNew: isNew, pushBefore: pushBefore,
         /* one deliberate act per save, most significant first */
-        if (isNew) KOS.media.logActivity(rec, "added");
-        else if (rec.completionTier !== tierAtOpen && rec.completionTier !== "notStarted") KOS.media.logActivity(rec, "tier");
-        else if (oldStatus !== rec.status) KOS.media.logActivity(rec, "status");
-        else if ((rec.playtimeHours || 0) > hoursAtOpen) KOS.media.logActivity(rec, "progress");
-        else KOS.ui.toast("Saved.");
-        close();
-        onSaved && onSaved(rec);
+        activity: function (rec) {
+          if (rec.completionTier !== tierAtOpen && rec.completionTier !== "notStarted") return "tier";
+          if (oldStatus !== rec.status) return "status";
+          if ((rec.playtimeHours || 0) > hoursAtOpen) return "progress";
+          return null;
+        },
+        close: function () { overlay.close(); }, onSaved: onSaved
       });
     }
 
-    var box = el("div", { class: "modal med-modal gm-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", { text: (isNew ? "Add to " : "Edit — ") + "Games" }),
-        el("span", { class: "sub", text: "manual entry — games have no live sync (Steam blocks browsers); everything here is yours to keep" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
-      ]),
-      el("div", { class: "med-form" }, [
+    var overlay = mv.editorModal({
+      isNew: isNew, label: "Games", className: "gm-modal",
+      subtitle: "manual entry — games have no live sync (Steam blocks browsers); everything here is yours to keep",
+      form: [
         field("Title", title),
         el("div", { class: "med-form-row" }, [
           field("Developer", developer, "bk-grow"),
@@ -307,25 +301,14 @@
         field("Cover URL", coverU),
         el("div", { class: "lab-controls" }, [uploadBtn, coverNote]),
         field("Notes", notes)
-      ]),
-      el("div", { class: "lab-controls med-modal-foot" }, [
-        !isNew ? el("button", { class: "btn danger", text: "Delete", onclick: function () {
-          if (!confirm("Delete “" + e.title + "” from the collection?")) return;
-          KOS.mediadb.remove(e.id, function (err) {
-            if (err) { KOS.ui.toast("Delete failed: " + err.message, true); return; }
-            KOS.ui.toast("Deleted.");
-            close();
-            onSaved && onSaved(null);
-          });
-        } }) : null,
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Cancel", onclick: close }),
-        el("button", { class: "btn primary", text: isNew ? "Add" : "Save", onclick: save })
-      ])
-    ]);
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-    title.focus();
+      ],
+      onSave: save,
+      onDelete: function () {
+        mv.deleteEntry(e, "Delete “" + e.title + "” from the collection?",
+          function () { overlay.close(); }, onSaved);
+      },
+      focus: title
+    });
     return overlay;
   }
   KOS.gamesEditor = gamesEditor;
@@ -336,8 +319,8 @@
 
   /* ================= bulk paste-in add (the "no API import" mitigation) ================= */
   function bulkAddModal(onDone) {
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
-    function close() { overlay.remove(); }
+    var overlay = KOS.medview.modalOverlay();   // click-outside + Esc close
+    var close = overlay.close;
     var ta = el("textarea", { class: "note-area gm-bulk-in", rows: 12,
       placeholder: "Hades\nOuter Wilds\nDisco Elysium\n…one title per line. Steam's library page (steamcommunity.com/id/you/games) copy-pastes cleanly; so does any spreadsheet column." });
     var statusLine = el("p", { class: "sub" });

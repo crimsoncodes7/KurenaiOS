@@ -117,24 +117,18 @@
     ]);
   }
 
-  /* ================= the editor modal ================= */
+  /* ================= the editor modal (shared medview shell) ================= */
   function vnEditor(entry, onSaved) {
-    var isNew = !entry;
-    var e = entry ? KOS.mediadb.normalise(JSON.parse(JSON.stringify(entry))) : KOS.mediadb.normalise({ module: "vn" });
-    if (entry && entry.id != null) e.id = entry.id;
+    var mv = KOS.medview;
+    var isNew = !entry || entry.id == null;
+    var e = mv.editDraft(entry, "vn");
     var pushBefore = KOS.mediapush.snapshot(e);   // status|score only for VN
+    var field = mv.field, splitList = mv.splitList;
 
     /* deltas for honest activity logging: one deliberate act per save */
     var clearedAtOpen = routeProgress(e).cleared;
     var quotesAtOpen = e.quotes.length;
     var chaptersDoneAtOpen = chapterProgress(e).done;
-
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
-    function close() { overlay.remove(); }
-    function field(label, input, cls) {
-      return el("label", { class: "med-field" + (cls ? " " + cls : "") }, [el("span", { class: "k", text: label }), input]);
-    }
-    function splitList(v) { return v.split(",").map(function (s) { return s.trim(); }).filter(Boolean); }
 
     /* --- identity + list state --- */
     var title = el("input", { type: "text", class: "todo-in", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Title" });
@@ -330,30 +324,25 @@
       e.coverUrl = coverU.value.trim() || null;
       e.favourite = fav.checked;
       e.notes = notes.value;
-      KOS.mediadb.put(e, function (err, rec) {
-        if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
+      mv.saveEntry(e, {
+        isNew: isNew, pushBefore: pushBefore,
         /* one deliberate act per save, most significant first — bulk sync
            never comes through here, so the trickle stays honest */
-        var clearedNow = routeProgress(rec).cleared;
-        if (isNew) KOS.media.logActivity(rec, "added");
-        else if (oldStatus !== rec.status) KOS.media.logActivity(rec, "status");
-        else if (clearedNow > clearedAtOpen) KOS.media.logActivity(rec, "route");
-        else if (chapterProgress(rec).done > chaptersDoneAtOpen) KOS.media.logActivity(rec, "chapter");
-        else if (rec.quotes.length > quotesAtOpen) KOS.media.logActivity(rec, "quote");
-        else KOS.ui.toast("Saved.");
-        if (KOS.mediapush.snapshot(rec) !== pushBefore) KOS.mediapush.schedule(rec);
-        close();
-        onSaved && onSaved(rec);
+        activity: function (rec) {
+          if (oldStatus !== rec.status) return "status";
+          if (routeProgress(rec).cleared > clearedAtOpen) return "route";
+          if (chapterProgress(rec).done > chaptersDoneAtOpen) return "chapter";
+          if (rec.quotes.length > quotesAtOpen) return "quote";
+          return null;
+        },
+        close: function () { overlay.close(); }, onSaved: onSaved
       });
     }
 
-    var box = el("div", { class: "modal med-modal vn-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", { text: (isNew ? "Add to " : "Edit — ") + "Visual Novels" }),
-        el("span", { class: "sub", text: e.syncSource === "vndb" ? "synced from VNDB — a Sync overwrites list state, keeps your routes/quotes/CG/warnings" : "manual entry" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
-      ]),
-      el("div", { class: "med-form" }, [
+    var overlay = mv.editorModal({
+      isNew: isNew, label: "Visual Novels", className: "vn-modal",
+      subtitle: e.syncSource === "vndb" ? "synced from VNDB — a Sync overwrites list state, keeps your routes/quotes/CG/warnings" : "manual entry",
+      form: [
         el("div", { class: "med-form-row" }, [
           field("Title", title, "bk-grow"),
           field("VNDB id", vndbId)
@@ -386,25 +375,14 @@
         ]),
         quotesWrap,
         field("Notes", notes)
-      ]),
-      el("div", { class: "lab-controls med-modal-foot" }, [
-        !isNew ? el("button", { class: "btn danger", text: "Delete", onclick: function () {
-          if (!confirm("Delete “" + e.title + "” — including its routes, chapters and quote log?")) return;
-          KOS.mediadb.remove(e.id, function (err) {
-            if (err) { KOS.ui.toast("Delete failed: " + err.message, true); return; }
-            KOS.ui.toast("Deleted.");
-            close();
-            onSaved && onSaved(null);
-          });
-        } }) : null,
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Cancel", onclick: close }),
-        el("button", { class: "btn primary", text: isNew ? "Add" : "Save", onclick: save })
-      ])
-    ]);
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-    title.focus();
+      ],
+      onSave: save,
+      onDelete: function () {
+        mv.deleteEntry(e, "Delete “" + e.title + "” — including its routes, chapters and quote log?",
+          function () { overlay.close(); }, onSaved);
+      },
+      focus: title
+    });
     return overlay;
   }
   KOS.vnEditor = vnEditor;

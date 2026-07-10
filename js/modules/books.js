@@ -270,21 +270,15 @@
      (shared bump, mode "progress") */
   function bumpChapter(e, done) { KOS.medview.bumpUnit(e, "progress", done); }
 
-  /* ================= the editor modal ================= */
+  /* ================= the editor modal (shared medview shell) ================= */
   function booksEditor(entry, onSaved) {
     /* a lookup-prefilled draft (3i) arrives as an entry with no id — still
        a NEW entry: shows "Add", logs "added" on save */
+    var mv = KOS.medview;
     var isNew = !entry || entry.id == null;
-    var e = entry ? KOS.mediadb.normalise(JSON.parse(JSON.stringify(entry))) : KOS.mediadb.normalise({ module: "books" });
-    if (entry && entry.id != null) e.id = entry.id;
+    var e = mv.editDraft(entry, "books");
     var pushBefore = KOS.mediapush.snapshot(e);
-
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
-    function close() { overlay.remove(); }
-    function field(label, input, cls) {
-      return el("label", { class: "med-field" + (cls ? " " + cls : "") }, [el("span", { class: "k", text: label }), input]);
-    }
-    function splitList(v) { return v.split(",").map(function (s) { return s.trim(); }).filter(Boolean); }
+    var field = mv.field, splitList = mv.splitList;
 
     /* --- identity + reading state --- */
     var title = el("input", { type: "text", class: "todo-in", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Series title" });
@@ -474,24 +468,17 @@
       e.coverUrl = coverU.value.trim() || null;
       e.favourite = fav.checked;
       e.notes = notes.value;
-      KOS.mediadb.put(e, function (err, rec) {
-        if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
-        if (isNew) KOS.media.logActivity(rec, "added");
-        else if (oldStatus !== rec.status) KOS.media.logActivity(rec, "status");
-        else KOS.ui.toast("Saved.");
-        if (KOS.mediapush.snapshot(rec) !== pushBefore) KOS.mediapush.schedule(rec);
-        close();
-        onSaved && onSaved(rec);
+      mv.saveEntry(e, {
+        isNew: isNew, pushBefore: pushBefore,
+        activity: function (rec) { return oldStatus !== rec.status ? "status" : null; },
+        close: function () { overlay.close(); }, onSaved: onSaved
       });
     }
 
-    var box = el("div", { class: "modal med-modal bk-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", { text: (isNew ? "Add to " : "Edit — ") + "Books" }),
-        el("span", { class: "sub", text: e.syncSource === "anilist" ? "synced from AniList — a Sync overwrites reading state, keeps your vault/notes/shelves" : e.syncSource === "import" ? "from XML import" : "manual entry" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
-      ]),
-      el("div", { class: "med-form" }, [
+    var overlay = mv.editorModal({
+      isNew: isNew, label: "Books", className: "bk-modal",
+      subtitle: e.syncSource === "anilist" ? "synced from AniList — a Sync overwrites reading state, keeps your vault/notes/shelves" : e.syncSource === "import" ? "from XML import" : "manual entry",
+      form: [
         comparePanel(),
         el("div", { class: "med-form-row" }, [
           field("Title", title, "bk-grow"),
@@ -522,25 +509,14 @@
         field("Cover URL (series default; volumes can override below)", coverU),
         physWrap,
         field("Notes", notes)
-      ]),
-      el("div", { class: "lab-controls med-modal-foot" }, [
-        !isNew ? el("button", { class: "btn danger", text: "Delete", onclick: function () {
-          if (!confirm("Delete “" + e.title + "” — including its physical vault records?")) return;
-          KOS.mediadb.remove(e.id, function (err) {
-            if (err) { KOS.ui.toast("Delete failed: " + err.message, true); return; }
-            KOS.ui.toast("Deleted.");
-            close();
-            onSaved && onSaved(null);
-          });
-        } }) : null,
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Cancel", onclick: close }),
-        el("button", { class: "btn primary", text: isNew ? "Add" : "Save", onclick: save })
-      ])
-    ]);
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-    title.focus();
+      ],
+      onSave: save,
+      onDelete: function () {
+        mv.deleteEntry(e, "Delete “" + e.title + "” — including its physical vault records?",
+          function () { overlay.close(); }, onSaved);
+      },
+      focus: title
+    });
     return overlay;
   }
   KOS.booksEditor = booksEditor;
@@ -561,8 +537,8 @@
       KOS.ui.toast("A session is already on the clock — finish it first.", true);
       return;
     }
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
-    function close() { overlay.remove(); }
+    var overlay = KOS.medview.modalOverlay();   // click-outside + Esc close
+    var close = overlay.close;
 
     var last = (store.state.focus && store.state.focus.lastReading) || {};
     var mins = el("input", { type: "number", class: "cal-in fx-num", min: "5", max: "480",
@@ -617,7 +593,6 @@
      doesn't (or the camera is refused), the typed-ISBN path IS the feature,
      not a consolation. */
   function openLookup(physicalIntent, onDone) {
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
     var stream = null, pollTimer = null;
     function stopScan() {
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
@@ -627,7 +602,9 @@
       }
       scanWrap.style.display = "none";
     }
-    function close() { stopScan(); overlay.remove(); }
+    /* click-outside + Esc close; the camera stops on every close path */
+    var overlay = KOS.medview.modalOverlay(stopScan);
+    var close = overlay.close;
 
     var titleIn = el("input", { type: "search", class: "todo-in msch-in",
       placeholder: "Search by title or author…", "aria-label": "Search books by title" });
