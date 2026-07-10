@@ -479,6 +479,34 @@
         onclick: function () { compareModal(sid); } })
     ]));
 
+    /* Build 4.0 — Sol's subject-level unit breakdown: one card per paper /
+       coursework unit with its own completion track. Derived from each
+       section's paper tag; sections without one group under the board name. */
+    var units = {};
+    d.sections.forEach(function (sec) {
+      var lbl = sec.paper !== undefined ? paperLabel(sid, sec.paper) : d.board;
+      var st = sectionStats(sid, sec);
+      if (!st.total) return;
+      units[lbl] = units[lbl] || { done: 0, total: 0, secs: [] };
+      units[lbl].done += st.done; units[lbl].total += st.total;
+      units[lbl].secs.push(sec.title);
+    });
+    var unitKeys = Object.keys(units);
+    if (unitKeys.length > 1) {
+      var uwrap = el("div", { class: "subject-units", "aria-label": "Course units" });
+      unitKeys.forEach(function (lbl) {
+        var u = units[lbl];
+        var upct = u.total ? Math.round(100 * u.done / u.total) : 0;
+        uwrap.appendChild(el("div", { class: "unit-stat" }, [
+          el("span", { text: lbl }),
+          el("strong", { text: u.secs.length === 1 ? u.secs[0] : u.secs.length + " sections" }),
+          el("div", { class: "insp-track" }, [el("i", { style: "width:" + upct + "%" })]),
+          el("small", { text: u.done + " / " + u.total + " secure" })
+        ]));
+      });
+      main.appendChild(uwrap);
+    }
+
     /* stat strip */
     var cov = KOS.content.coverage(sid, LEAVES[sid]);
     var study = store.state.study || {};
@@ -737,8 +765,16 @@
         }
       }, [t[1] + counter]));
     });
-    main.appendChild(tabBar);
-    main.appendChild(panel);
+    /* Build 4.0 — study workspace: content column + collapsible inspector.
+       The inspector carries the topic's live stats (mastery, recall record,
+       next review); its open state persists in ui.inspectorOpen. */
+    var studyGrid = el("div", { class: "study-grid" + (store.state.ui.inspectorOpen === false ? " insp-closed" : "") });
+    var studyCol = el("div", {});
+    studyCol.appendChild(tabBar);
+    studyCol.appendChild(panel);
+    studyGrid.appendChild(studyCol);
+    studyGrid.appendChild(buildInspector(studyGrid, sid, ref));
+    main.appendChild(studyGrid);
 
     var firstMount = true;
     function openTab() {
@@ -917,6 +953,84 @@
     }
     main.appendChild(nav);
   };
+
+  /* ---------- Build 4.0: the study inspector ----------
+     Sol's study-inspector information — mastery %, recall record, next
+     review — kept, but behind a genuinely collapsible panel (design.md §3).
+     Reads only: progress checks, study tallies, SM-2 peek, the sessions log. */
+  function buildInspector(grid, sid, ref) {
+    var key = sid + ":" + ref;
+    var pct = leafPercent(sid, ref);
+    var p = store.getProgress(sid, ref);
+    var checksDone = p.check.filter(Boolean).length;
+    var study = store.state.study || {};
+    var fc = (study.fc || {})[key] || { seen: 0, right: 0, wrong: 0 };
+    var qz = (study.quiz || {})[key] || null;
+    var cards = KOS.srs.cardsFor(sid, ref);
+    var today = new Date().toISOString().slice(0, 10);
+    var dueNow = 0, nextDue = null, lapses = 0, reviewed = 0;
+    cards.forEach(function (c) {
+      var m = KOS.srs.peek(c.key);
+      if (!m || !m.due) return;
+      reviewed++;
+      lapses += m.lapses || 0;
+      if (m.due <= today) dueNow++;
+      else if (!nextDue || m.due < nextDue) nextDue = m.due;
+    });
+    var acc = (fc.right + fc.wrong) ? Math.round(100 * fc.right / (fc.right + fc.wrong)) : null;
+    var sess = KOS.sessions.all().filter(function (s) { return s.subject === sid && s.ref === ref; });
+    var mins = Math.round(sess.reduce(function (a, s) { return a + (s.dur || 0); }, 0) / 60);
+
+    var body = el("div", { class: "insp-body" });
+    var mast = el("div", { class: "insp-sec" }, [
+      el("h5", { text: "Mastery" }),
+      el("div", { class: "insp-mastery" }, [
+        el("strong", { text: pct + "%" }),
+        el("span", { text: checksDone + "/4 checks" })
+      ]),
+      el("div", { class: "insp-track" }, [el("i", { style: "width:" + pct + "%" })])
+    ]);
+    body.appendChild(mast);
+
+    var rec = el("ul", { class: "insp-list" }, [
+      li("Cards in deck", String(cards.length)),
+      li("Card views", String(fc.seen)),
+      acc !== null ? li("Recall accuracy", acc + "%") : null,
+      li("Lapses", String(lapses)),
+      qz ? li("Quiz best", qz.best + "%") : null,
+      qz ? li("Quiz attempts", String(qz.attempts)) : null
+    ].filter(Boolean));
+    body.appendChild(el("div", { class: "insp-sec" }, [el("h5", { text: "Recall record" }), rec]));
+
+    var nextTxt = dueNow ? dueNow + " due now" : nextDue ? nextDue : reviewed ? "all scheduled" : "not started";
+    body.appendChild(el("div", { class: "insp-sec" }, [
+      el("h5", { text: "Next review" }),
+      el("ul", { class: "insp-list" }, [
+        li("Review queue", nextTxt),
+        li("Cards scheduled", reviewed + "/" + cards.length),
+        li("Sessions here", sess.length + (mins ? " · " + mins + " min" : ""))
+      ])
+    ]));
+
+    function li(k, v) {
+      return el("li", {}, [el("span", { text: k }), el("strong", { text: v })]);
+    }
+
+    var toggle = el("button", { class: "insp-toggle", "aria-label": "Collapse inspector",
+      title: "Collapse / expand the study inspector",
+      onclick: function () {
+        var closed = grid.classList.toggle("insp-closed");
+        store.state.ui.inspectorOpen = !closed;
+        store.save();
+        toggle.textContent = closed ? "‹" : "›";
+      } });
+    toggle.textContent = grid.classList.contains("insp-closed") ? "‹" : "›";
+
+    return el("aside", { class: "study-inspector", "aria-label": "Study inspector" }, [
+      el("div", { class: "insp-head" }, [el("b", { text: "Inspector" }), toggle]),
+      body
+    ]);
+  }
 
   function paperLabel(sid, p) {
     if (sid === "compsci") return "Paper " + p;
