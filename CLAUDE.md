@@ -23,6 +23,7 @@ node tools/smoke11.test.js # Build 3i Books deepening: lookup clients (Open Libr
 node tools/smoke12.test.js # Build 3j: reward-on-sync watermark (the push→echoing-pull single-reward property), autosync engine, VN chapters, profile tabs + VNDB profile, shop rebalance + Matrix cosmetics, season picker
 node tools/smoke13.test.js # R3 full-coverage backup/restore: mediadb exportAll/importAll, attachments, store.importFull (v2 + legacy), token exclusion, round-trip
 node tools/smoke14.test.js # Build 3g Purchase/Budget Planner: budget maths (shared pool + simulation + over-budget), purchase archiving + spend charts, both-direction vault linking, next-to-drop, drag reorder, THE governor boundary (zero sessions/XP/gold/HP/network)
+node tools/smoke15.test.js # Build 4.0 UI overhaul: Linear Void token architecture + 23 :root[data-theme] blocks, retired-theme fallback, Study Hall workspace (collapsible inspector, unit breakdown), vault hero (kv spotlight, bannerImage plumbing, games/VN zero-network), planner top row, Governor bento, shop swatches
 ```
 (smoke4–smoke14 additionally need `npm install fake-indexeddb` — jsdom ships no IndexedDB.)
 
@@ -37,7 +38,7 @@ python tools/parse_it.py     # → it.json
 python tools/gen_data.py     # aqa/maths/it.json → js/data/*.js
 ```
 
-**Current status & backlog**: see the "SNAPSHOT — 2026-07-05" section at the end of `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges (R1–R13), and the test inventory. All 14 suites verified green (smoke14 = Build 3g Purchase/Budget Planner, 2026-07-08).
+**Current status & backlog**: see the "SNAPSHOT — 2026-07-05" section at the end of `PROGRESS.md` (plus the Build 4.0 addendum) — prioritised backlog, user-owed manual steps, rough edges (R1–R13), and the test inventory. All 15 suites verified green (smoke15 = Build 4.0 UI overhaul, 2026-07-11).
 
 ## INVARIANTS — the one-place list (never violate; details in the sections below)
 
@@ -142,6 +143,20 @@ Collected from every build. If a change would break one of these, stop and say s
     wrap prose in callouts).
 26. Reuse existing class names — engines/views/tests key off them. Restyle
     through `:root` tokens; never repurpose the three subject hues.
+26a. Build 4.0 colour system: the default theme is Linear Void (violet
+    `#8C7CFF` / cyan `#35D7FF` / bright red `#FF2E44` over `#020305`). Every
+    component rides CANONICAL tokens (`--bg0/--bg1/--panel3`, `--accent/-2/-3`,
+    `--good/--warning/--danger`, `--theme-r`); the legacy names (`--kurenai`,
+    `--gold`, `--bad`, radii, lines, glass) are DERIVED aliases in `:root` —
+    never hard-code a palette hex in CSS or JS, extend the token layer.
+    Brand vs danger is a real split now: violet accent = brand, `--red`/`--bad`
+    = danger. The crimson/gold default is retired.
+26b. Theme variants are `:root[data-theme="<id>"]` blocks (generated from
+    `tools/theme-lab-raw.json`, 23 shop unlockables at 140 gold, swatches in
+    the catalog `sw` field). They MUST target `:root` — derived tokens are
+    computed at `:root`, so `body[data-theme]` silently does nothing (that bug
+    shipped once). `applyCosmetics` maps unknown/retired ids (kin/shinku/aoi/
+    sumi) to the default.
 27. Navigate only via `KOS.show` (history/forward/rail state). Charts are
     hand-built inline SVG via `KOS.charts` — no charting library.
 28. Vault editors live in the `KOS.mediaEditors` registry (keyed by module
@@ -152,6 +167,14 @@ Collected from every build. If a change would break one of these, stop and say s
     a hook. Script-tag order between the vault modules no longer matters.
 29. VN CG gallery is a COUNTER only — never store/scrape artwork. Content
     warnings are manual — never auto-filled from VNDB tags.
+30. The vault hero (Build 4.0): spotlight selection + banner uploads live in
+    media kv (`hero.<module>`), NEVER on the entry (no schema change).
+    `extra.bannerImage` comes from AniList sync (the `bannerImage` field is
+    VERIFIED LIVE as separate from `coverImage`) or the one read-only
+    `fetchBanner` lookup — only for `syncSource:"anilist"` entries. VNDB has
+    no banner (image+screenshots only, verified) and games are manual-only:
+    both are USER-UPLOAD ONLY and must never gain a network path
+    (smoke15-asserted zero network from the games/VN vaults).
 
 ## Architecture
 

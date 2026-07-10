@@ -1367,3 +1367,85 @@ Suite-hygiene notes: smoke6's /ulist mocks were the source of the 3h bug
 slipping through (they invented a nested `vn.id` reality never sends) — when
 mocking an API, mock the LIVE-verified shape, and say in the file when a
 shape could not be live-verified (smoke11 does this for Google Books).
+
+---
+
+# BUILD 4.0 ADDENDUM — 2026-07-11 (UI/UX overhaul, "Void")
+
+The full-app visual overhaul specified in `design (1).md` (v2). All 15 smoke
+suites green (smoke15 is new — it guards the overhaul's new markup).
+
+## What shipped
+
+**1 · Colour system — full replacement.** Default theme is **Linear Void**
+from the theme lab: pitch black `#020305`, violet `#8C7CFF`, cyan `#35D7FF`,
+plus a genuinely bright red `#FF2E44` as the third signal colour (not a
+crimson callback). Treatment: flat void background (petal flora retired),
+thin text-derived hairlines, theme-keyed radii, near-zero glow. The token
+architecture is two-layer: canonical tokens (`--bg0/--bg1/--panel3`,
+`--accent/-2/-3`, status trio, `--theme-r`) that themes override, and derived
+aliases (`--kurenai`, `--gold`, `--bad`, lines, radii, glass) that everything
+else consumes — so 2,500 lines of components and every inline style survived
+unchanged. Old crimson's brand/danger double-duty was split: violet = brand,
+bright red = danger (wrong answers, critical HP, exam chips, HP bar).
+**The 23 remaining lab themes are Gold Shop cosmetics** (140 gold each, same
+CATALOG mechanism, swatch previews on the cards). Theme CSS lives in
+`:root[data-theme="<id>"]` blocks — they must target `:root`, not `body`
+(derived tokens are computed at `:root`; the body version silently no-ops).
+Retired kin/shinku/aoi/sumi ids fall back to the default in `applyCosmetics`.
+
+**2 · Kanji dial-back.** Held at the app's existing restrained level
+(wordmark + a few functional markers); the mockups' pervasive kanji language
+was deliberately not adopted.
+
+**3 · Study Hall.** Fable's segmented tab bar (`.study-tabs` restyled, class
+contract intact — governor/wishlist/profile tabs inherit it). Topic pages are
+a two-pane `.study-grid`: content column + the **study inspector** (Sol's
+mastery % / recall record / next review info) as a genuinely collapsible
+panel persisted in `ui.inspectorOpen`. Subject overview gained Sol's
+per-paper/coursework `.subject-units` breakdown. Tree kept, reskinned by
+tokens. Crisp seal (no rotation).
+
+**4 · Collection Vault.** Card grid info now **overlays the cover art**
+(AniList's pattern) — pure CSS, markup unchanged; quick-edit reveals on
+hover/focus. **Vault hero** (`medview.heroCard`): a user-selectable spotlight
+per module over a genuine banner image. `AniList Media.bannerImage` was
+**verified live** (separate field from `coverImage`) — now pulled with every
+list sync into `extra.bannerImage`, with a read-only `fetchBanner` lookup for
+older synced entries; VNDB **verified to expose no banner** (image +
+screenshots only) → VN is user-upload only, as are games (manual-only) and
+books. Selection + uploads live in media kv (`hero.<module>`) — no schema
+change. Auto-spotlight = most recent in-progress entry. **Purchase Planner**
+restructured to the original Kurenai manga-tracker reference: always-on
+Next-to-Drop hero + Budget Summary panel (limit, spent/sim/remaining, meter,
+items·upcoming·total-list counts) side by side above the tabs.
+
+**5 · Governor.** Status tab is the Fable bento: identity (rank ladder,
+level, XP-to-next), vitals (HP / gold-toward-cheapest-unlock / XP), edicts
+(reuses `todo.panel`), streak + week dots, countdowns, 16-week heatmap with
+side stats, session ledger. Recovery checklist goes full-width when strained.
+
+**Fixes along the way:** subject views' `--accent` on `#main` leaked into
+every later view (vault bars tinted by the last-visited subject) — `KOS.show`
+now clears it.
+
+## New invariants (also in CLAUDE.md #26a/#26b/#30)
+- Never hard-code palette hexes; ride the canonical/derived token layers.
+- Theme blocks target `:root[data-theme]`, applied to `<html>`.
+- Hero state in media kv only; banner fetches only for `syncSource:"anilist"`;
+  games/VN vaults stay zero-network (smoke15-asserted).
+
+## Verification
+- smoke1–15 all green, 2026-07-11.
+- AniList `bannerImage`: live introspection + real query (One Piece id 21
+  returned a real banner URL) — confirmed as expected.
+- VNDB `/vn`: schema + live query show `image`/`screenshots` only — no banner.
+- Shop mechanism accepted all 23 themes with zero structural change (one
+  CATALOG swap + swatch rendering); buy/apply verified in-browser and in
+  smoke12/15.
+
+## Not done / future
+- Charts and canvas rings use new-palette literal hexes — they don't retint
+  per theme (CSS-var-driven SVG fills would fix this; low priority).
+- The general-purpose wishlist/finance tracker stays explicitly out of scope
+  (design.md §5) — its own future build.
