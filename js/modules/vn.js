@@ -412,10 +412,10 @@
         el("div", { class: "med-meta" }, [
           cwChip(e),
           el("span", { class: "med-prog", text: metaLine(e) || "no routes yet" }),
-          KOS.media.pushChip(e, rerender)
+          KOS.medview.pushChip(e, rerender)
         ]),
         el("div", { class: "med-meta med-quickrow" }, [
-          KOS.media.quickEdit(e, rerender)
+          KOS.medview.quickEdit(e, rerender)
         ])
       ])
     ]);
@@ -434,9 +434,9 @@
       el("span", { class: "med-row-fav" + (e.favourite ? " on" : ""), text: e.favourite ? "♥" : "" }),
       el("span", { class: "med-row-title", text: e.title, title: e.title }),
       el("span", { class: "med-row-genres", text: e.developer || e.genres.slice(0, 2).join(" · ") }),
-      KOS.media.quickEdit(e, rerender),
+      KOS.medview.quickEdit(e, rerender),
       el("span", { class: "med-prog", text: metaLine(e) }),
-      KOS.media.pushChip(e, rerender),
+      KOS.medview.pushChip(e, rerender),
       el("span", { class: "med-plus-gap" })
     ]);
   }

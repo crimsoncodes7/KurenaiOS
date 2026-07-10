@@ -417,7 +417,7 @@
           el("span", { class: "med-prog", text: playtimeText(e) || "no hours logged" })
         ]),
         el("div", { class: "med-meta med-quickrow" }, [
-          KOS.media.quickEdit(e, rerender),
+          KOS.medview.quickEdit(e, rerender),
           e.status === "inProgress" ? el("button", { class: "mini-btn med-plus", text: "+1 hr",
             title: "Log another hour played", onclick: function (ev) {
               ev.stopPropagation();
@@ -437,7 +437,7 @@
       el("span", { class: "med-row-title", text: e.title, title: e.title }),
       el("span", { class: "med-row-genres", text: (KOS.media.PLATFORM_LABEL[e.platform] || "") +
         (e.genres.length ? " · " + e.genres.slice(0, 2).join(" · ") : "") }),
-      KOS.media.quickEdit(e, rerender),
+      KOS.medview.quickEdit(e, rerender),
       el("span", { class: "med-prog", text: metaLine(e) }),
       tierChip(e),
       e.status === "inProgress" ? el("button", { class: "mini-btn med-plus", text: "+1", onclick: function (ev) {

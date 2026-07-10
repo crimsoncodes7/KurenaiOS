@@ -120,7 +120,8 @@ KurenaiOS/
 │   │   ├── hub.js            tree, dashboards, reference view, search
 │   │   ├── due.js / calendar.js / todo.js / governor-ui.js / focus.js     Build 2 views
 │   │   ├── tracker.js / rag.js / cardstats.js / attachments.js / help.js  Build 2c views
-│   │   ├── anime.js / books.js / vn.js / games.js  the four media vaults (editors register in KOS.mediaEditors)
+│   │   ├── medview.js        the shared vault-view toolkit (cover/lazy list/pills/editor shell/quickEdit)
+│   │   ├── anime.js / books.js / vn.js / games.js  the four media vaults (built on medview; editors register in KOS.mediaEditors)
 │   │   └── matrix.js / shrine.js / mediasync.js / mediasearch.js / aniprofile.js / vndbprofile.js
 │   └── labs/
 │       ├── worked.js         worked-example generators + step UI

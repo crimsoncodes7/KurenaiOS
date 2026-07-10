@@ -797,12 +797,12 @@
           dnfChip(e),
           el("span", { class: "med-prog", text: progressText(e) }),
           e.score ? el("span", { class: "med-score", text: "★ " + starText(e.score) }) : null,
-          KOS.media.pushChip(e, rerender)
+          KOS.medview.pushChip(e, rerender)
         ]),
         e.physical && e.physical.volumes.length ? el("div", { class: "bk-owned-line",
           text: "📚 " + e.physical.volumes.length + " vol" + (e.physical.volumes.length === 1 ? "" : "s") + " owned" }) : null,
         el("div", { class: "med-meta med-quickrow" }, [
-          KOS.media.quickEdit(e, rerender),
+          KOS.medview.quickEdit(e, rerender),
           e.status === "inProgress" ? el("button", { class: "mini-btn med-plus", text: "+1 ch",
             title: "Log the next chapter", onclick: function (ev) {
               ev.stopPropagation();
@@ -823,9 +823,9 @@
       el("span", { class: "med-row-fav" + (e.favourite ? " on" : ""), text: e.favourite ? "♥" : "" }),
       el("span", { class: "med-row-title", text: e.title, title: e.title }),
       el("span", { class: "med-row-genres", text: e.author || e.genres.slice(0, 2).join(" · ") }),
-      KOS.media.quickEdit(e, rerender),
+      KOS.medview.quickEdit(e, rerender),
       el("span", { class: "med-prog", text: progressText(e) }),
-      KOS.media.pushChip(e, rerender),
+      KOS.medview.pushChip(e, rerender),
       e.status === "inProgress" ? el("button", { class: "mini-btn med-plus", text: "+1", onclick: function (ev) {
         ev.stopPropagation();
         bumpChapter(e, rerender);

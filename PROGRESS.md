@@ -1245,8 +1245,11 @@ and the physical vault — arguably worth building before Build 4 regardless.
 Nothing designed, nothing promised. The Matrix schema is module-agnostic by
 construction (module string + `normalise()` + shared status/progress/score),
 so a fifth module follows the Games playbook: decide axes, add through
-`normalise()`, bump the DB version with indexes, register the module's
-editor in `KOS.mediaEditors` (see invariant #28), add rail + Matrix card.
+`normalise()`, bump the DB version with indexes, build the view on
+`KOS.medview` (the shared vault-view toolkit — cover, lazy list, pills,
+empty states, editor shell; do NOT copy a sibling view), register the
+module's editor in `KOS.mediaEditors` (see invariant #28), add rail +
+Matrix card.
 Music may have API options (MusicBrainz is CORS-open; Last.fm needs a key) —
 verify live before promising sync, per the standing rule.
 
@@ -1322,6 +1325,21 @@ flashcard review, `{see:[…]}` cross-ref block.
   Seasonal hides entries without season data; last-write-wins on push/pull
   (no conflict detection); CG gallery is a counter, never images; games are
   manual-entry-only permanently (Steam CORS, three verified dead ends).
+
+## REFACTOR PASS (2026-07-09/10, post-snapshot — audit steps 1–6)
+
+Six commits of debt paydown, all 14 suites green throughout; the notable
+structural change is **`js/modules/medview.js`** (audit item A1, RESOLVED):
+the single vault-view toolkit the four media views now build on — cover
+renderer, lazy batch renderer, status pills, search/sort/layout controls,
+empty states, the editor shell (normalised drafts, modal scaffold with
+click-outside + Esc close, save/delete tails), the shared +1 bump, and
+quickEdit/pushChip (moved out of core/media.js, which is pure domain layer
+again). Also landed: `KOS.mediaEditors` registry (R8 resolved),
+`core/charts.js`, `KOS.ui.esc`/`debounce`, state scrubbing (R5 resolved),
+capped-log doc fix (R4), session-id seeding, validator consolidation.
+A FIFTH media module starts from `KOS.medview` + `KOS.mediaEditors` —
+never from a copy of a sibling view.
 
 ## TEST SUITE INVENTORY (12 suites, `node tools/smokeN.test.js`)
 

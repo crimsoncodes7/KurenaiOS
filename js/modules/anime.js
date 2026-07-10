@@ -240,10 +240,10 @@
         el("div", { class: "med-meta" }, [
           airingChip(e),
           el("span", { class: "med-prog", text: progressText(e, mod) }),
-          KOS.media.pushChip(e, rerender)
+          KOS.medview.pushChip(e, rerender)
         ]),
         el("div", { class: "med-meta med-quickrow" }, [
-          KOS.media.quickEdit(e, rerender),
+          KOS.medview.quickEdit(e, rerender),
           e.status === "inProgress" ? el("button", { class: "mini-btn med-plus", text: "+1 " + mod.unit,
             title: "Log the next " + mod.unitName.replace(/s$/, ""), onclick: function (ev) {
               ev.stopPropagation();
@@ -267,10 +267,10 @@
       el("span", { class: "med-row-fav" + (e.favourite ? " on" : ""), text: e.favourite ? "♥" : "" }),
       el("span", { class: "med-row-title", text: e.title, title: e.title }),
       el("span", { class: "med-row-genres", text: e.genres.slice(0, 3).join(" · ") }),
-      KOS.media.quickEdit(e, rerender),
+      KOS.medview.quickEdit(e, rerender),
       airingChip(e),
       el("span", { class: "med-prog", text: progressText(e, mod) }),
-      KOS.media.pushChip(e, rerender),
+      KOS.medview.pushChip(e, rerender),
       e.status === "inProgress" ? el("button", { class: "mini-btn med-plus", text: "+1", onclick: function (ev) {
         ev.stopPropagation();
         bumpProgress(e, rerender);

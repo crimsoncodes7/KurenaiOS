@@ -165,7 +165,7 @@ All JS is loaded via `<script src="...">` in `index.html` in strict dependency o
 2. **Core** — `store.js`, `ui.js`, `content.js`, then `srs.js`, `sessions.js`, `governor.js`, `mediadb.js`, `anilist.js`, `vndb.js`, `bookapi.js`, `media.js`, `mediapush.js`, `autosync.js`
 3. **Deep content** — `js/data/content/*.js` populate `window.KOS_CONTENT["subject:ref"]`
 4. **Engines** — `js/engines/{flashcards,quiz}.js`
-5. **Modules** — `js/modules/hub.js` + `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`, `tracker.js`, `rag.js`, `cardstats.js`, `attachments.js`, `help.js`, `focus.js`, then the four vault views `anime.js`, `books.js`, `vn.js`, `games.js` (each registers its editor in `KOS.mediaEditors` — dispatch lives in core/media.js, so their relative order is free), `aniprofile.js`, `vndbprofile.js`, `wishlist.js` (registers a `KOS.mediaEditorHooks` entry for "on your wishlist" surfacing), `matrix.js`, `shrine.js`, `mediasync.js`, `mediasearch.js`
+5. **Modules** — `js/modules/hub.js` + `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`, `tracker.js`, `rag.js`, `cardstats.js`, `attachments.js`, `help.js`, `focus.js`, then `medview.js` (the shared vault-view toolkit: cover/lazy list/pills/empty states, the editor shell, quickEdit + push chip — every vault view builds on it), the four vault views `anime.js`, `books.js`, `vn.js`, `games.js` (each registers its editor in `KOS.mediaEditors` — dispatch lives in core/media.js, so their relative order after medview.js is free), `aniprofile.js`, `vndbprofile.js`, `wishlist.js` (registers a `KOS.mediaEditorHooks` entry for "on your wishlist" surfacing), `matrix.js`, `shrine.js`, `mediasync.js`, `mediasearch.js`
 6. **Labs** — `js/labs/{worked,trace,oop,sims}.js`
 7. **Boot** — `js/main.js` wires rail nav, governor boot sequence, restores last view
 
@@ -189,7 +189,14 @@ any completed activity ──► KOS.sessions.log({type, subject, ref, dur, metr
 IndexedDB kurenai-os-media (v5) ── mediadb.js owns schema + indexes + bulkUpsert
        │
   media.js — module registry, XML import, logActivity/logSyncRewards,
-       │     quickEdit + push chip, dedupeVault
+       │     dedupeVault, the KOS.mediaEditors dispatcher (pure domain —
+       │     no DOM; quickEdit/pushChip live in medview.js since step 6)
+       │
+  medview.js — the shared vault-view toolkit (view layer): cover, lazy
+       │       batch renderer, pills/search/sort/layout, empty states,
+       │       the editor shell (modalOverlay/editDraft/saveEntry),
+       │       quickEdit + pushChip. A fifth media module builds on THIS,
+       │       not on a copy of a sibling view.
        │
   vault views: anime.js · books.js · vn.js · games.js
   cross-cutting: matrix.js · shrine.js · mediasync.js · mediasearch.js

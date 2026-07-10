@@ -190,53 +190,6 @@
     });
   }
 
-  /* ---------------- inline quick-edit (Build 3d) ----------------
-     status + score editable straight on a vault card — the low-friction
-     editing that makes automatic push worth having. One implementation,
-     used by all three module views. Status changes log a session
-     ("status", same as the editors); score-only changes just save+push
-     (the editors don't log those either). */
-  function quickEdit(e, rerender) {
-    var el = KOS.ui.el;
-    var before = KOS.mediapush.snapshot(e);
-    function saved(action) {
-      KOS.mediadb.put(e, function (err, rec) {
-        if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
-        if (action) logActivity(rec, action);
-        if (KOS.mediapush.snapshot(rec) !== before) KOS.mediapush.schedule(rec);
-        rerender && rerender(rec);
-      });
-    }
-    var sel = el("select", { class: "status-sel med-qsel", "aria-label": "Status",
-      title: "Change status — " + (e.module === "game"
-        ? "saved locally (games have no live sync)"
-        : "pushes to " + (e.module === "vn" ? "VNDB" : "AniList") + " when this entry is synced") },
-      Object.keys(STATUS_LABEL).map(function (s) {
-        return el("option", { value: s, text: STATUS_LABEL[s] });
-      }));
-    sel.value = e.status;
-    sel.addEventListener("click", function (ev) { ev.stopPropagation(); });
-    sel.addEventListener("change", function (ev) {
-      ev.stopPropagation();
-      e.status = sel.value;
-      var today = KOS.srs.todayISO();
-      if (e.status === "inProgress" && !e.dates.started) e.dates.started = today;
-      if (e.status === "completed" && !e.dates.finished) e.dates.finished = today;
-      saved("status");
-    });
-    var score = el("input", { type: "number", class: "todo-in med-qscore", min: "0", max: "10",
-      step: "0.5", value: e.score ? String(e.score) : "", placeholder: "★",
-      "aria-label": "Score out of 10" });
-    score.addEventListener("click", function (ev) { ev.stopPropagation(); });
-    score.addEventListener("keydown", function (ev) { ev.stopPropagation(); });
-    score.addEventListener("change", function (ev) {
-      ev.stopPropagation();
-      e.score = Math.max(0, Math.min(10, parseFloat(score.value) || 0));
-      saved(null);
-    });
-    return el("span", { class: "med-quick" }, [sel, score]);
-  }
-
   /* ---------------- vault dedup (Build 3h) ----------------
      One-time repair for the VNDB duplication bug (synced rows landed with
      vndbId null, so every re-sync inserted the list fresh), kept around
@@ -398,31 +351,9 @@
     return overlay;
   };
 
-  /* the pending/failed push indicator + manual retry, per card */
-  function pushChip(e, rerender) {
-    var el = KOS.ui.el;
-    if (e.push && e.push.state === "failed") {
-      return el("button", { class: "med-chip med-push-fail", text: "⚠ sync",
-        title: (e.push.error || "Push failed.") + " — click to retry",
-        "aria-label": "Sync failed — retry", onclick: function (ev) {
-          ev.stopPropagation();
-          KOS.ui.toast("Retrying the push…");
-          KOS.mediapush.flush(e.id);
-          setTimeout(function () { rerender && rerender(); }, 400);
-        } });
-    }
-    if (KOS.mediapush.isPending(e.id)) {
-      return el("span", { class: "med-chip med-push-pending", title: "Syncing to " +
-        (e.module === "vn" ? "VNDB" : "AniList") + "…", text: "⇅" });
-    }
-    return null;
-  }
-
   KOS.media = {
     MODULES: MODULES,
     module: module_,
-    quickEdit: quickEdit,
-    pushChip: pushChip,
     STATUS_LABEL: STATUS_LABEL,
     STATUS_COLOR: STATUS_COLOR,
     TIER_LABEL: TIER_LABEL,
