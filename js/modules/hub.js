@@ -98,21 +98,44 @@
   KOS.refreshRailCounters = refreshRailCounters;
 
   /* ---------- tree ---------- */
+  function applyTreeCollapsed() {
+    var closed = store.state.ui.treeClosed === true;
+    document.getElementById("cols").classList.toggle("tree-closed", closed);
+  }
   function renderTree(sid, activeRef) {
     var tree = document.getElementById("tree");
     tree.classList.remove("hidden");
     document.getElementById("cols").classList.remove("no-tree");
+    applyTreeCollapsed();
     tree.innerHTML = "";
     var data = KOS_DATA[sid];
+    var st = subjectStats(sid);
     tree.style.setProperty("--accent", COLORS[sid]);
+
+    /* the slim reopen rail, shown only when the tree is collapsed */
+    tree.appendChild(el("button", { class: "tree-reopen", title: "Show the spec spine",
+      onclick: function () { store.state.ui.treeClosed = false; store.save(); applyTreeCollapsed(); } }, [
+      el("span", { class: "tr-arr", "aria-hidden": "true", text: "›" }),
+      el("span", { class: "tr-lbl", text: "Spec spine" })
+    ]));
+
+    /* the header: subject, board, a live completion bar, and the collapse control */
     tree.appendChild(el("div", { class: "tree-subject-h" }, [
-      el("span", { class: "t", text: data.name, style: "color:" + COLORS[sid] }),
-      el("span", { class: "b", text: data.board })
+      el("div", { class: "tsh-txt" }, [
+        el("span", { class: "t", text: data.name, style: "color:" + COLORS[sid] }),
+        el("span", { class: "b", text: data.board + " · " + st.done + "/" + st.total + " secure" }),
+        el("div", { class: "tree-progress", "aria-label": st.pct + "% complete" }, [
+          el("i", { style: "width:" + st.pct + "%" })
+        ])
+      ]),
+      el("button", { class: "tree-collapse", title: "Collapse the spec spine", "aria-label": "Collapse",
+        onclick: function () { store.state.ui.treeClosed = true; store.save(); applyTreeCollapsed(); } }, ["‹"])
     ]));
     var open = store.state.ui.openSections[sid] = store.state.ui.openSections[sid] || {};
 
     data.sections.forEach(function (sec) {
       var secEl = el("div", { class: "sec" + (open[sec.ref] ? " open" : "") });
+      var sst = sectionStats(sid, sec);
       var head = el("button", {
         class: "sec-head", style: "--accent:" + COLORS[sid],
         "aria-expanded": open[sec.ref] ? "true" : "false",
@@ -125,7 +148,8 @@
       }, [
         el("span", { class: "ref", text: sec.ref }),
         el("span", { text: sec.title }),
-        el("span", { class: "arr", text: "▶" })
+        sst.total ? el("span", { class: "pc", text: sst.done + "/" + sst.total }) : null,
+        el("span", { class: "arr", text: "▸" })
       ]);
       secEl.appendChild(head);
 
