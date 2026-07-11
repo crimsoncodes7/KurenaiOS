@@ -3,8 +3,8 @@
   "use strict";
   document.querySelectorAll(".rail-item").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      var v = btn.dataset.view;
-      KOS.show(v, v === "subject" ? btn.dataset.subject : undefined);
+      var landing = KOS.sectionLanding(btn.dataset.section);
+      KOS.show(landing[0], landing[1]);
     });
   });
 

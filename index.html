@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>紅 Kurenai OS — Unified HQ</title>
+<title>Kurenai OS — Study Atelier</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Shippori+Mincho:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=Shippori+Mincho:wght@600;700&display=swap">
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
@@ -19,112 +19,58 @@
 </div>
 <div id="app">
   <header id="topbar">
-    <div class="nav-arrows">
-      <button id="nav-back" class="nav-back" type="button" aria-label="Back to previous page" title="Back (Alt+←)" disabled>‹ Back</button>
-      <button id="nav-fwd" class="nav-back nav-fwd" type="button" aria-label="Forward to next page" title="Forward (Alt+→)" disabled>Forward ›</button>
-    </div>
     <div class="brand">
       <span class="kanji" aria-hidden="true">紅</span>
-      <span class="name">Kurenai OS</span>
-      <span class="sub">Unified HQ · Build 4.0</span>
+      <span class="name">Kurenai</span>
+      <span class="sub">study atelier</span>
+    </div>
+    <div class="nav-arrows">
+      <button id="nav-back" class="nav-back" type="button" aria-label="Back to previous page" title="Back (Alt+←)" disabled>‹</button>
+      <button id="nav-fwd" class="nav-back nav-fwd" type="button" aria-label="Forward to next page" title="Forward (Alt+→)" disabled>›</button>
     </div>
     <div id="searchbox">
       <span class="glyph" aria-hidden="true">⌕</span>
-      <input id="search" type="search" placeholder="Search spec points &amp; flashcards…  press / to search"
+      <input id="search" type="search" placeholder="Search the specification… ( / )"
              autocomplete="off" aria-label="Search the specification database">
       <div id="search-results" role="listbox"></div>
     </div>
     <div id="hud"></div>
     <div class="save-wrap" title="Every change autosaves to this browser">
-      <span id="save-dot"></span><span>AUTOSAVE</span>
+      <span id="save-dot"></span><span>saved</span>
     </div>
   </header>
 
   <div id="cols">
     <nav id="rail" aria-label="Primary">
       <button id="rail-toggle" aria-label="Collapse sidebar" title="Collapse / expand sidebar">‹</button>
-      <div class="rail-h">System</div>
-      <button class="rail-item" data-view="home">
-        <span class="dot" style="--accent:#8C7CFF"></span><span class="lbl">Overview</span>
+      <button class="rail-item" data-section="home" data-view="home">
+        <span class="glyph" aria-hidden="true">灯</span><span class="lbl">Home</span>
       </button>
-      <button class="rail-item" data-view="focus">
-        <span class="dot" style="--accent:#6ED7A5"></span><span class="lbl">Focus Timer</span>
+      <button class="rail-item" data-section="study" data-view="subject">
+        <span class="glyph" aria-hidden="true">学</span><span class="lbl">Study</span><span class="pc" id="pc-due"></span>
       </button>
-      <button class="rail-item" data-view="due">
-        <span class="dot" style="--accent:#F2C46D"></span><span class="lbl">Due Today</span><span class="pc" id="pc-due"></span>
+      <button class="rail-item" data-section="collection" data-view="matrix">
+        <span class="glyph" aria-hidden="true">蒐</span><span class="lbl">Collection</span>
       </button>
-      <button class="rail-item" data-view="calendar">
-        <span class="dot" style="--accent:#35D7FF"></span><span class="lbl">Calendar</span>
+      <button class="rail-item" data-section="governor" data-view="governor">
+        <span class="glyph" aria-hidden="true">守</span><span class="lbl">Governor</span>
       </button>
-      <button class="rail-item" data-view="governor">
-        <span class="dot" style="--accent:#8C7CFF"></span><span class="lbl">Governor</span>
-      </button>
-
-      <div class="rail-h">Records</div>
-      <button class="rail-item" data-view="tracker">
-        <span class="dot" style="--accent:#FF2E44"></span><span class="lbl">Exams &amp; Papers</span>
-      </button>
-      <button class="rail-item" data-view="cardstats">
-        <span class="dot" style="--accent:#35D7FF"></span><span class="lbl">Card Stats</span>
-      </button>
-
-      <div class="rail-h">Subjects</div>
-      <button class="rail-item" data-view="subject" data-subject="compsci" style="--accent:var(--c-compsci)">
-        <span class="dot"></span><span class="lbl">Computer Science</span><span class="pc" id="pc-compsci"></span>
-      </button>
-      <button class="rail-item" data-view="subject" data-subject="maths" style="--accent:var(--c-maths)">
-        <span class="dot"></span><span class="lbl">Mathematics</span><span class="pc" id="pc-maths"></span>
-      </button>
-      <button class="rail-item" data-view="subject" data-subject="it" style="--accent:var(--c-it)">
-        <span class="dot"></span><span class="lbl">IT · Data Analytics</span><span class="pc" id="pc-it"></span>
-      </button>
-
-      <div class="rail-h">Collection</div>
-      <button class="rail-item" data-view="matrix">
-        <span class="dot" style="--accent:#8C7CFF"></span><span class="lbl">Collection Matrix</span>
-      </button>
-      <button class="rail-item" data-view="anime">
-        <span class="dot" style="--accent:#FF2E44"></span><span class="lbl">Anime</span>
-      </button>
-      <button class="rail-item" data-view="books">
-        <span class="dot" style="--accent:#F2C46D"></span><span class="lbl">Books</span>
-      </button>
-      <button class="rail-item" data-view="vn">
-        <span class="dot" style="--accent:#c77bf2"></span><span class="lbl">Visual Novels</span>
-      </button>
-      <button class="rail-item" data-view="game">
-        <span class="dot" style="--accent:#35D7FF"></span><span class="lbl">Games</span>
-      </button>
-      <button class="rail-item" data-view="wishlist">
-        <span class="dot" style="--accent:#6ED7A5"></span><span class="lbl">Budget Planner</span>
-      </button>
-      <button class="rail-item" data-view="shrine">
-        <span class="dot" style="--accent:#F2C46D"></span><span class="lbl">The Shrine</span>
-      </button>
-      <button class="rail-item" data-view="aniprofile">
-        <span class="dot" style="--accent:#3db4f2"></span><span class="lbl">AniList Profile</span>
-      </button>
-      <button class="rail-item" data-view="vndbprofile">
-        <span class="dot" style="--accent:#c77bf2"></span><span class="lbl">VNDB Profile</span>
-      </button>
-
-      <div class="rail-h">Data</div>
-      <button class="rail-item" data-view="data">
-        <span class="dot" style="--accent:#7E899A"></span><span class="lbl">Backup &amp; Restore</span>
-      </button>
-      <button class="rail-item" data-view="help">
-        <span class="dot" style="--accent:#6ED7A5"></span><span class="lbl">Help &amp; Guide</span>
+      <button class="rail-item" data-section="system" data-view="data">
+        <span class="glyph" aria-hidden="true">蔵</span><span class="lbl">Archive</span>
       </button>
 
       <div class="rail-foot">
-        <span class="rail-brand"><span class="k">紅</span> Unified HQ</span>
-        <span id="node-count"></span> spec points indexed
+        <span class="rail-brand"><span class="k">紅</span> Kurenai</span>
+        <span><span id="node-count"></span> spec points indexed</span>
       </div>
     </nav>
 
     <aside id="tree" class="hidden" aria-label="Topic tree"></aside>
 
-    <main id="main" tabindex="-1"></main>
+    <div id="stage">
+      <nav id="subnav" aria-label="Section"></nav>
+      <main id="main" tabindex="-1"></main>
+    </div>
   </div>
 </div>
 

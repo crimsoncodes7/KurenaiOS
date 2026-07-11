@@ -89,6 +89,83 @@
     KOS.show(next.viewId, next.arg, { _nav: true });
   };
 
+  /* ---- sections: five rail entries, each owning a family of views.
+     The rail carries the section; the subnav (in-page, above #main)
+     carries the views inside it. ---- */
+  var SECTION_OF = {
+    home: "home",
+    subject: "study", ref: "study", due: "study", cardstats: "study",
+    tracker: "study", focus: "study", calendar: "study", personaldeck: "study",
+    worked: "study", trace: "study", oop: "study", sims: "study",
+    matrix: "collection", anime: "collection", books: "collection",
+    vn: "collection", game: "collection", seasonal: "collection",
+    mangaka: "collection", wishlist: "collection", shrine: "collection",
+    aniprofile: "collection", vndbprofile: "collection", mediasync: "collection",
+    governor: "governor",
+    data: "system", help: "system"
+  };
+  /* subnav entries per section: [label, viewId, arg, pcId] — null = divider */
+  var SUBNAV = {
+    study: [
+      ["Computer Science", "subject", "compsci", "pc-compsci"],
+      ["Mathematics", "subject", "maths", "pc-maths"],
+      ["IT · Data Analytics", "subject", "it", "pc-it"],
+      null,
+      ["Due Today", "due"],
+      ["Focus Timer", "focus"],
+      ["Calendar", "calendar"],
+      ["Exams & Papers", "tracker"],
+      ["Card Stats", "cardstats"]
+    ],
+    collection: [
+      ["Overview", "matrix"],
+      ["Anime", "anime"],
+      ["Books", "books"],
+      ["Visual Novels", "vn"],
+      ["Games", "game"],
+      ["Budget Planner", "wishlist"],
+      ["Shrine", "shrine"],
+      null,
+      ["AniList", "aniprofile"],
+      ["VNDB", "vndbprofile"],
+      ["Sync & Import", "mediasync"]
+    ],
+    system: [
+      ["Backup & Restore", "data"],
+      ["Help & Guide", "help"]
+    ]
+  };
+  KOS.sectionOf = function (viewId) { return SECTION_OF[viewId] || null; };
+  /* the landing view when a rail section button is pressed */
+  KOS.sectionLanding = function (sec) {
+    if (sec === "study") return ["subject", KOS.store.state.ui.subject || "compsci"];
+    return [{ home: "home", collection: "matrix", governor: "governor", system: "data" }[sec] || "home", undefined];
+  };
+
+  function renderSubnav(sec, viewId, arg) {
+    var nav = document.getElementById("subnav");
+    if (!nav) return;
+    var items = SUBNAV[sec];
+    nav.innerHTML = "";
+    if (!items) { nav.classList.add("hidden"); return; }
+    nav.classList.remove("hidden");
+    /* which entry is lit: the view itself, or the owning subject for ref pages */
+    var activeView = viewId, activeArg = arg;
+    if (viewId === "ref" && arg) { activeView = "subject"; activeArg = arg.subject; }
+    if (viewId === "seasonal" || viewId === "mangaka") activeView = "anime";
+    items.forEach(function (it) {
+      if (!it) { nav.appendChild(el("span", { class: "subnav-sep", "aria-hidden": "true" })); return; }
+      var on = it[1] === activeView && (it[2] === undefined || it[2] === activeArg);
+      var btn = el("button", { class: "subnav-item" + (on ? " active" : ""),
+        onclick: function () { KOS.show(it[1], it[2]); } }, [
+        el("span", { class: "lbl", text: it[0] }),
+        it[3] ? el("span", { class: "pc", id: it[3] }) : null
+      ]);
+      nav.appendChild(btn);
+    });
+    if (KOS.refreshRailCounters) KOS.refreshRailCounters();
+  }
+
   KOS.show = function (viewId, arg, opts) {
     opts = opts || {};
     /* a fresh navigation (not Back/Forward) records history and abandons any
@@ -109,22 +186,13 @@
        it leaks into every later view (vault bars picked up the last subject
        hue). Views that want an accent set it themselves. */
     main.style.removeProperty("--accent");
-    /* exactly one rail item active: the subject button for subject/ref
-       views, otherwise the button whose data-view matches. Labs have no
-       rail entry any more, so they highlight nothing. */
-    var sid = viewId === "subject" ? arg
-            : viewId === "ref" && arg ? arg.subject : null;
-    var target = null;
+    /* exactly one rail section lit: the one owning this view. Views outside
+       any section (none today) highlight nothing. */
+    var sec = SECTION_OF[viewId] || null;
     document.querySelectorAll(".rail-item").forEach(function (b) {
-      b.classList.remove("active");
-      if (target) return;
-      if (sid) {
-        if (b.dataset.view === "subject" && b.dataset.subject === sid) target = b;
-      } else if (b.dataset.view === viewId && !b.dataset.subject) {
-        target = b;
-      }
+      b.classList.toggle("active", !!sec && b.dataset.section === sec);
     });
-    if (target) target.classList.add("active");
+    renderSubnav(sec, viewId, arg);
     if (KOS.views[viewId]) KOS.views[viewId](main, arg);
     KOS.store.state.ui.view = viewId;
     if (viewId === "subject") KOS.store.state.ui.subject = arg;
