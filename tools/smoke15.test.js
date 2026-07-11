@@ -67,12 +67,13 @@ const css = fs.readFileSync(path.join(ROOT, "css", "main.css"), "utf8");
 /* ============ 1 · the Linear Void colour system ============ */
 console.log("== colour system ==");
 step("canonical tokens exist and the legacy names alias them", async () => {
-  for (const tok of ["--bg0:", "--bg1:", "--panel3:", "--accent:", "--accent-2:", "--accent-3:", "--theme-r:"]) {
+  for (const tok of ["--bg0:", "--bg1:", "--panel:", "--text:", "--accent:", "--accent2:", "--accent3:", "--good:", "--warning:", "--danger:", "--radius:"]) {
     if (!css.includes(tok)) throw new Error("missing canonical token " + tok);
   }
   if (!/--kurenai:\s*var\(--accent\)/.test(css)) throw new Error("--kurenai must alias --accent");
-  if (!/--gold:\s*var\(--accent-2\)/.test(css)) throw new Error("--gold must alias --accent-2");
+  if (!/--gold:\s*var\(--accent2\)/.test(css)) throw new Error("--gold must alias --accent2");
   if (!/--bad:\s*var\(--danger\)/.test(css)) throw new Error("--bad must alias --danger");
+  if (!/--faint:\s*var\(--muted\)/.test(css)) throw new Error("--faint must alias --muted");
 });
 step("all 23 lab themes have :root[data-theme] blocks matching the catalog", async () => {
   const themes = KOS.governor.catalog().filter(c => c.kind === "theme");
@@ -236,19 +237,29 @@ step("budget summary panel: counts strip (items · upcoming · total list)", asy
 
 /* ============ 5 · Governor bento ============ */
 console.log("== governor bento ==");
-step("status tab renders the bento with all seven cards", async () => {
+step("status tab renders the seat: identity, vitals, cadence, ledger", async () => {
   KOS.show("governor");
   await tick(60);
   const main = document.getElementById("main");
   const bento = main.querySelector(".bento");
   if (!bento) throw new Error("no .bento grid");
-  for (const cls of [".b-id", ".b-vitals", ".b-edicts", ".b-streak", ".b-exams", ".b-heat", ".b-ledger"]) {
+  for (const cls of [".b-id", ".b-vitals", ".b-heat", ".b-ledger"]) {
     if (!bento.querySelector(cls)) throw new Error("bento card missing: " + cls);
   }
   if (!/Level \d/.test(bento.querySelector(".b-id").textContent)) throw new Error("identity level missing");
   if (bento.querySelectorAll(".b-vitals .vital").length !== 3) throw new Error("three vitals expected");
-  if (bento.querySelectorAll(".week-dots i").length !== 7) throw new Error("seven week dots expected");
-  if (!bento.querySelector(".b-edicts .todo-panel")) throw new Error("edicts must reuse todo.panel");
+  /* the overview's widgets (directives, countdowns, streak card) must NOT
+     live here any more — they belong to Home */
+  if (bento.querySelector(".b-edicts") || bento.querySelector(".b-exams") || bento.querySelector(".b-streak"))
+    throw new Error("overview widgets leaked back into the Governor's Seat");
+});
+step("profile banner: presets paint css, custom clears, retired stays default", async () => {
+  KOS.governor.setBanner("dawn");
+  if (!/background-image/.test(KOS.governor.bannerCss() || "")) throw new Error("preset banner paints nothing");
+  KOS.governor.setBanner(null);
+  if (KOS.governor.bannerCss() !== null) throw new Error("cleared banner must paint nothing");
+  const banners = KOS.governor.catalog().filter(c => c.kind === "banner");
+  if (banners.length < 4) throw new Error("shop must offer default banners");
 });
 step("recovery checklist appears full-width when HP is strained", async () => {
   const g = KOS.store.state.governor;
@@ -266,7 +277,7 @@ step("shop cards carry swatch previews for every theme", async () => {
   await tick(60);
   const main = document.getElementById("main");
   const sw = main.querySelectorAll(".shop-sw");
-  if (sw.length !== 23) throw new Error("23 swatch rows expected, got " + sw.length);
+  if (sw.length < 23) throw new Error(">=23 swatch rows expected (themes + banners), got " + sw.length);
   if (sw[0].querySelectorAll(".shop-sw-dot").length !== 3) throw new Error("3 dots per theme");
 });
 

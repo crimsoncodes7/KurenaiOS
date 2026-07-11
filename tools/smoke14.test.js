@@ -249,11 +249,15 @@ step("a full planner flow fires ZERO governor traffic and zero network", async (
 });
 
 /* ============ 8 · nav ============ */
-step("rail: Budget Planner button navigates to the view", async () => {
-  const btn = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.view === "wishlist");
-  if (!btn) throw new Error("rail button missing");
-  btn.click();
-  await tick(50);
+step("nav: Collection section + subnav reaches the Budget Planner", async () => {
+  const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");
+  if (!rb) throw new Error("collection rail button missing");
+  rb.click();
+  await tick(60);
+  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /Budget Planner/.test(b.textContent));
+  if (!sn) throw new Error("subnav item missing");
+  sn.click();
+  await tick(60);
   if (!/Budget/.test(document.getElementById("main").textContent)) throw new Error("navigation failed");
 });
 step("backup coverage: wishlist rides the localStorage state (exportJSON serialises it)", async () => {

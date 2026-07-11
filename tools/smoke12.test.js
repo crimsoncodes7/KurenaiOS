@@ -412,8 +412,9 @@ step("VNDB profile: labels/lengthvotes/site stats render; the API's gaps are sta
   if (labels.length !== 3) throw new Error("expected 3 label chips, got " + labels.length);
   if (![...labels].some(l => /Waiting/.test(l.textContent) && /custom/.test(l.textContent))) throw new Error("custom label not marked");
   if (!/Length votes/.test(main.textContent)) throw new Error("length-vote stats missing");
-  if (!/64354/.test(main.textContent)) throw new Error("site stats missing");
-  if (!/no favourites, no followers\/following, no activity feed, no notifications/i.test(main.textContent)) throw new Error("the honest API-gap statement is missing");
+  /* the site-totals panel and the API-gap essay were cut in the Atelier
+     rebuild — impersonal decoration; the profile keeps only YOUR data */
+  if (/64354/.test(main.textContent)) throw new Error("site totals should no longer render");
   if (!/Routes cleared/.test(main.textContent)) throw new Error("vault-derived stats missing");
   netScript = null;
 });

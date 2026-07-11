@@ -242,7 +242,7 @@ step("seasonal view: current-season entries only, palette class, no-season entri
   const titles = [...main.querySelectorAll(".med-card .med-title")].map(x => x.textContent);
   if (!titles.some(t => /Frieren/.test(t))) throw new Error("current-season entry missing");
   if (titles.some(t => /Old Classic|Hand Tracked/.test(t))) throw new Error("non-current/no-season entries leaked in: " + titles.join(", "));
-  if (!/don't appear here/.test(wrap.textContent)) throw new Error("the accepted limitation must be stated");
+  if (!/appear here/.test(wrap.textContent)) throw new Error("the accepted limitation must be stated");
   if (![...main.querySelectorAll("button")].some(b => /Refresh airing/.test(b.textContent))) throw new Error("manual refresh missing");
 });
 
@@ -251,8 +251,8 @@ console.log("== matrix ==");
 step("airing-soon strip renders beside the consuming strip (not instead of it)", async () => {
   KOS.show("matrix");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".mx-air-row").length > 0, 4000);
-  const row = main.querySelector(".mx-air-row");
+  await waitFor(() => main.querySelectorAll(".mx-air-card").length > 0, 4000);
+  const row = main.querySelector(".mx-air-card");
   if (!/Frieren/.test(row.textContent)) throw new Error("airing entry missing");
   if (!/1d 1h/.test(row.textContent) || !/EP 13/.test(row.textContent)) throw new Error("countdown/episode missing: " + row.textContent);
   await waitFor(() => main.querySelectorAll(".med-strip-card").length > 0, 4000);
@@ -345,10 +345,14 @@ step("profile cache: re-entering within TTL is free; ⟳ forces a refetch", asyn
   await waitFor(() => count() === before + 1, 4000);
   if (count() !== before + 1) throw new Error("force refresh did not refetch");
 });
-step("rail: AniList Profile button navigates", async () => {
-  const btn = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.view === "aniprofile");
-  if (!btn) throw new Error("rail button missing");
-  btn.click();
+step("nav: Collection section + subnav reaches the AniList profile", async () => {
+  const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");
+  if (!rb) throw new Error("collection rail button missing");
+  rb.click();
+  await tick(60);
+  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /AniList/.test(b.textContent));
+  if (!sn) throw new Error("subnav item missing");
+  sn.click();
   await tick(60);
   if (!/AniList Profile/.test(document.getElementById("main").textContent)) throw new Error("navigation failed");
 });

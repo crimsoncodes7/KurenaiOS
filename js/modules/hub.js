@@ -289,7 +289,14 @@
           el("span", { class: "week-dots" }, week.map(function (w) {
             return el("i", { class: (w.on ? "on" : "") + (w.today && !w.on ? " today" : "") });
           })),
-          el("span", { class: "sub", text: stks.all + "-day study streak · " + (stks.rest || 0) + "-day rest streak" })
+          el("span", { class: "streak-chip" + (stks.all ? " lit" : ""), title: "Days in a row with a real study session" }, [
+            el("span", { class: "fl", text: "炎" }),
+            el("span", { text: stks.all + "-day study" })
+          ]),
+          el("span", { class: "streak-chip med-rest" + (stks.rest ? " lit" : ""), title: "Days in a row with a Collection log — rest, kept separately" }, [
+            el("span", { class: "fl", text: "休" }),
+            el("span", { text: (stks.rest || 0) + "-day rest" })
+          ])
         ])
       ])
     ]));

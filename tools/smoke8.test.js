@@ -339,7 +339,7 @@ step("Matrix home: Games is a live module card with stats, plus its status chart
   if (!/Manual-first · live/.test(gm.textContent)) throw new Error("badge wrong: " + gm.textContent);
   if (!/tracked/.test(gm.textContent) || !/hours logged/.test(gm.textContent)) throw new Error("stats line wrong");
   if (!/Games by status/.test(main.textContent)) throw new Error("games status chart missing");
-  if (![...main.querySelectorAll("button")].some(b => /Games vault/.test(b.textContent))) throw new Error("quick action missing");
+  /* navigation to the vault now lives on the module card + subnav */
   if (!/Playing now/.test(main.textContent)) throw new Error("games stat missing from the strip");
 });
 step("Shrine: a favourite game routes to the games editor", async () => {
@@ -370,10 +370,14 @@ step("Sync & Import: Games panel states the verified Steam dead end; no steamcom
   if (!/Bulk add/.test(txt)) throw new Error("the mitigation must be pointed to");
   if (netLog.some(r => /steam/i.test(r.url))) throw new Error("something called Steam: " + netLog.map(r => r.url).join(", "));
 });
-step("rail: Games button navigates to the vault", async () => {
-  const btn = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.view === "game");
-  if (!btn) throw new Error("rail button missing");
-  btn.click();
+step("nav: Collection section + subnav reaches the Games vault", async () => {
+  const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");
+  if (!rb) throw new Error("collection rail button missing");
+  rb.click();
+  await tick(60);
+  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /^Games/.test(b.textContent));
+  if (!sn) throw new Error("subnav item missing");
+  sn.click();
   await tick(60);
   if (!/Games/.test(document.getElementById("main").textContent)) throw new Error("navigation failed");
 });

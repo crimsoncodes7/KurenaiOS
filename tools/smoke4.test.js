@@ -381,8 +381,8 @@ step("OS home shows the live Collection Matrix card (not Coming soon)", async ()
   KOS.show("home");
   await tick(30);
   const card = document.querySelector(".med-home-card");
-  if (!card) throw new Error("no live matrix card on home");
-  if (!/Live/.test(card.textContent)) throw new Error("card not marked live");
+  if (!card) throw new Error("no collection card on home");
+  if (!/Collection/.test(card.textContent)) throw new Error("collection card unlabelled");
 });
 
 /* ============ runner ============ */
