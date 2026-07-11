@@ -142,11 +142,217 @@
     return wrap;
   }
 
+  /* ================= Tasks & Habits (the full page) =================
+     Reminders with checkable sub-tasks, plus daily habit trackers.
+     Rewards flow ONLY through the existing sessions.log "todo" path —
+     the same sanctioned trickle every tick has always used. */
+  function habits() {
+    var t = T();
+    t.habits = t.habits || [];
+    return t.habits;
+  }
+  function addHabit(text) {
+    var t = T();
+    t.habits = t.habits || [];
+    t.habits.push({ id: t.nextId++, text: text, days: {}, created: KOS.srs.todayISO() });
+    store.save();
+  }
+  function deleteHabit(id) {
+    var hs = habits();
+    var i = hs.findIndex(function (h) { return h.id === id; });
+    if (i !== -1) { hs.splice(i, 1); store.save(); }
+  }
+  function tickHabit(id, val) {
+    var h = habits().find(function (x) { return x.id === id; });
+    if (!h) return;
+    var today = KOS.srs.todayISO();
+    if (val) {
+      h.days[today] = true;
+      KOS.sessions.log({ type: "todo", metrics: { item: "Habit kept: " + h.text } });
+    } else {
+      delete h.days[today];
+      store.save();
+    }
+  }
+  function habitStreak(h) {
+    var d = KOS.srs.todayISO(), n = 0;
+    if (!h.days[d]) d = KOS.srs.addDays(d, -1);   // an unticked today doesn't break it yet
+    while (h.days[d]) { n++; d = KOS.srs.addDays(d, -1); }
+    return n;
+  }
+
+  /* sub-tasks on manual reminders (lazily added to existing items) */
+  function addSub(item, text) {
+    var t = T();
+    item.subs = item.subs || [];
+    item.subs.push({ id: t.nextId++, text: text, done: false });
+    store.save();
+  }
+  function tickSub(item, subId, val) {
+    var s = (item.subs || []).find(function (x) { return x.id === subId; });
+    if (!s) return;
+    s.done = val;
+    if (val) KOS.sessions.log({ type: "todo", metrics: { item: s.text } });
+    else store.save();
+  }
+  function deleteSub(item, subId) {
+    var i = (item.subs || []).findIndex(function (x) { return x.id === subId; });
+    if (i !== -1) { item.subs.splice(i, 1); store.save(); }
+  }
+
+  KOS.views.tasks = function (main) {
+    document.getElementById("tree").classList.add("hidden");
+    document.getElementById("cols").classList.add("no-tree");
+
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "The day's shape" }),
+        el("h1", { text: "Tasks & Habits" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "Reminders with sub-tasks, and the small things you do every day." })
+        ])
+      ])
+    ]));
+
+    var grid = el("div", { class: "tasks-grid" });
+    main.appendChild(grid);
+    var remCol = el("section", { class: "tasks-col" });
+    var habCol = el("section", { class: "tasks-col" });
+    grid.appendChild(remCol);
+    grid.appendChild(habCol);
+
+    function renderReminders() {
+      remCol.innerHTML = "";
+      remCol.appendChild(el("h3", { class: "tasks-h" }, [
+        el("span", { class: "tk", "aria-hidden": "true", text: "筆" }), "Reminders"
+      ]));
+      var list = el("div", { class: "rem-list" });
+      var manual = T().manual;
+      if (!manual.length) list.appendChild(el("p", { class: "sub", text: "Nothing on the list. Anything you add here also shows on the Overview." }));
+      manual.forEach(function (m) {
+        var subs = m.subs || [];
+        var doneSubs = subs.filter(function (s) { return s.done; }).length;
+        var row = el("div", { class: "rem-item" + (m.done ? " done" : "") });
+        var cb = el("input", { type: "checkbox", class: "todo-tick", onchange: function () {
+          toggleManual(m.id, cb.checked, m.text); renderReminders();
+        } });
+        cb.checked = m.done;
+        var openSubs = row.dataset.open === "1";
+        row.appendChild(el("div", { class: "rem-main" }, [
+          cb,
+          el("span", { class: "todo-label", text: m.text }),
+          subs.length ? el("span", { class: "rem-subcount", text: doneSubs + "/" + subs.length }) : null,
+          el("button", { class: "mini-btn", text: "＋ sub-task", onclick: function () {
+            var box = row.querySelector(".rem-subs");
+            box.style.display = "";
+            box.querySelector("input").focus();
+          } }),
+          el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete", onclick: function () {
+            deleteManual(m.id); renderReminders();
+          } })
+        ]));
+        var subBox = el("div", { class: "rem-subs", style: subs.length ? "" : "display:none" });
+        subs.forEach(function (s) {
+          var scb = el("input", { type: "checkbox", class: "todo-tick", onchange: function () {
+            tickSub(m, s.id, scb.checked); renderReminders();
+          } });
+          scb.checked = s.done;
+          subBox.appendChild(el("div", { class: "rem-sub" + (s.done ? " done" : "") }, [
+            scb,
+            el("span", { class: "todo-label", text: s.text }),
+            el("button", { class: "xbtn", text: "✕", "aria-label": "Delete sub-task", onclick: function () {
+              deleteSub(m, s.id); renderReminders();
+            } })
+          ]));
+        });
+        var subIn = el("input", { type: "text", class: "todo-in", placeholder: "Add a sub-task…",
+          onkeydown: function (e) {
+            if (e.key === "Enter" && subIn.value.trim()) { addSub(m, subIn.value.trim()); renderReminders(); }
+          } });
+        subBox.appendChild(el("div", { class: "rem-sub-add" }, [subIn]));
+        row.appendChild(subBox);
+        list.appendChild(row);
+      });
+      remCol.appendChild(list);
+      var input = el("input", { type: "text", class: "todo-in", placeholder: "Add a reminder…",
+        onkeydown: function (e) { if (e.key === "Enter") submit(); } });
+      function submit() {
+        if (!input.value.trim()) return;
+        addManual(input.value.trim());
+        renderReminders();
+      }
+      remCol.appendChild(el("div", { class: "todo-add" }, [
+        input, el("button", { class: "btn", text: "+ Add", onclick: submit })
+      ]));
+    }
+
+    function renderHabits() {
+      habCol.innerHTML = "";
+      habCol.appendChild(el("h3", { class: "tasks-h" }, [
+        el("span", { class: "tk", "aria-hidden": "true", text: "習" }), "Habits"
+      ]));
+      var hs = habits();
+      var list = el("div", { class: "habit-list" });
+      if (!hs.length) list.appendChild(el("p", { class: "sub", text: "A habit is anything you want to keep daily — ticking one pays the same small trickle as a to-do." }));
+      var today = KOS.srs.todayISO();
+      hs.forEach(function (h) {
+        var streak = habitStreak(h);
+        var week = [];
+        for (var i = 6; i >= 0; i--) {
+          var d = KOS.srs.addDays(today, -i);
+          week.push({ on: !!h.days[d], today: i === 0 });
+        }
+        var doneToday = !!h.days[today];
+        var tick = el("button", { class: "habit-tick" + (doneToday ? " on" : ""),
+          "aria-label": doneToday ? "Undo today's tick" : "Tick off today",
+          text: doneToday ? "✓" : "○",
+          onclick: function () { tickHabit(h.id, !doneToday); renderHabits(); } });
+        list.appendChild(el("div", { class: "habit-row" + (doneToday ? " kept" : "") }, [
+          tick,
+          el("div", { class: "habit-main" }, [
+            el("span", { class: "habit-name", text: h.text }),
+            el("span", { class: "week-dots" }, week.map(function (w) {
+              return el("i", { class: (w.on ? "on" : "") + (w.today && !w.on ? " today" : "") });
+            }))
+          ]),
+          el("span", { class: "habit-streak" + (streak ? " lit" : "") }, [
+            el("b", { text: String(streak) }), streak === 1 ? " day" : " days"
+          ]),
+          el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete habit", onclick: function () {
+            if (confirm("Delete the habit “" + h.text + "”? Its history goes with it.")) {
+              deleteHabit(h.id); renderHabits();
+            }
+          } })
+        ]));
+      });
+      habCol.appendChild(list);
+      var input = el("input", { type: "text", class: "todo-in", placeholder: "Add a daily habit…",
+        onkeydown: function (e) { if (e.key === "Enter") submit(); } });
+      function submit() {
+        if (!input.value.trim()) return;
+        addHabit(input.value.trim());
+        renderHabits();
+      }
+      habCol.appendChild(el("div", { class: "todo-add" }, [
+        input, el("button", { class: "btn", text: "+ Add", onclick: submit })
+      ]));
+    }
+
+    renderReminders();
+    renderHabits();
+  };
+
   KOS.todo = {
     autoItems: autoItems,
     addManual: addManual,
     toggleManual: toggleManual,
     deleteManual: deleteManual,
+    habits: habits,
+    addHabit: addHabit,
+    tickHabit: tickHabit,
+    habitStreak: habitStreak,
+    addSub: addSub,
+    tickSub: tickSub,
     panel: panel
   };
 })();

@@ -442,6 +442,30 @@
 
   /* mount the hero into `holder`. mod = KOS.media.module(modId); rerender
      re-runs the view's refresh so progress bumps show everywhere. */
+  /* the one human sentence under the spotlight title */
+  function heroLine(e, mod) {
+    var cur = (e.progress && e.progress.current) || 0;
+    var total = e.progress && e.progress.total;
+    var unit = mod.unitName || mod.unit || "units";
+    if (e.module === "game") {
+      if (e.status === "completed") return "Finished" + (e.score ? " — you gave it ★ " + e.score + "." : ".");
+      if (e.playtimeHours) return e.playtimeHours + " hours in" + (e.status === "inProgress" ? " — the save file is waiting." : ".");
+      return "Not started yet — it's on the pile.";
+    }
+    switch (e.status) {
+      case "inProgress":
+        if (total) {
+          var left = Math.max(0, total - cur);
+          return cur + " " + unit + " in — " + (left === 0 ? "the last one is next." : left + " to go.");
+        }
+        return cur ? cur + " " + unit + " so far." : "Just started.";
+      case "completed": return "Finished" + (e.score ? " — you gave it ★ " + e.score + "." : ".");
+      case "onHold": return "Resting at " + cur + (total ? " of " + total : "") + " " + unit + ".";
+      case "dropped": return "Set down at " + cur + " " + unit + ".";
+      default: return total ? total + " " + unit + ", ready when you are." : "Waiting on the shelf.";
+    }
+  }
+
   function heroCard(holder, modId, mod, rerender) {
     holder.innerHTML = "";
     KOS.mediadb.getKV(heroKey(modId), function (err, pref) {
@@ -452,35 +476,36 @@
         var banner = (e.extra && e.extra.bannerImage) || pref.banner || null;
         var hero = el("div", { class: "vault-hero" + (banner ? " has-banner" : ""), role: "region", "aria-label": "Spotlight" });
         if (banner) hero.style.backgroundImage =
-          "linear-gradient(90deg, color-mix(in srgb, var(--bg0) 94%, transparent) 0%, color-mix(in srgb, var(--bg0) 78%, transparent) 42%, color-mix(in srgb, var(--bg0) 30%, transparent) 100%), url(" + JSON.stringify(banner).slice(1, -1) + ")";
+          "linear-gradient(100deg, rgba(16,14,10,.9) 0%, rgba(16,14,10,.66) 42%, rgba(16,14,10,.22) 75%, rgba(16,14,10,.08) 100%), url(" + JSON.stringify(banner).slice(1, -1) + ")";
         var pct = e.progress && e.progress.total
           ? Math.min(100, Math.round(100 * (e.progress.current || 0) / e.progress.total)) : null;
-        var frac = KOS.media.progressText ? null : null;
         var body = el("div", { class: "vh-body" }, [
           el("div", { class: "vh-kicker" }, [
             el("span", { text: "Spotlight" }),
-            el("span", { class: "vh-mod", text: mod.label })
+            el("span", { class: "vh-mod", text: "/ " + mod.label })
           ]),
           el("h2", { class: "vh-title", text: e.title }),
+          el("p", { class: "vh-line", text: heroLine(e, mod) }),
           el("div", { class: "vh-meta" }, [
             el("span", { class: "med-chip", style: "--chip:" + (KOS.media.STATUS_COLOR[e.status] || "#888"),
               text: KOS.media.STATUS_LABEL[e.status] }),
-            e.score ? el("span", { class: "med-score", text: "\u2605 " + e.score }) : null,
             e.progress && e.progress.total
-              ? el("span", { class: "med-prog", text: (e.progress.current || 0) + " / " + e.progress.total + " " + mod.unitName })
+              ? el("span", { class: "vh-chip", text: (e.progress.current || 0) + " / " + e.progress.total + " " + mod.unitName })
               : (e.module === "game" && e.playtimeHours != null
-                  ? el("span", { class: "med-prog", text: e.playtimeHours + " hr" }) : null)
-          ]),
+                  ? el("span", { class: "vh-chip", text: e.playtimeHours + " hr logged" }) : null),
+            e.score ? el("span", { class: "vh-chip", text: "★ " + e.score }) : null
+          ].filter(Boolean)),
           pct !== null ? el("div", { class: "vh-track" }, [el("i", { style: "width:" + pct + "%" })]) : null,
           el("div", { class: "vh-actions" }, [
             e.status === "inProgress" && e.module !== "game"
-              ? el("button", { class: "btn primary", text: "+1 " + mod.unit, onclick: function () {
+              ? el("button", { class: "btn primary", text: "▶ +1 " + mod.unit, onclick: function () {
                   bumpUnit(e, "progress", function () { rerender && rerender(); });
                 } }) : null,
-            el("button", { class: "btn", text: "Edit", onclick: function () {
+            el("button", { class: "btn ghost", text: "Open entry", onclick: function () {
               KOS.mediaEditor(e, function () { rerender && rerender(); });
             } }),
-            el("button", { class: "btn", text: "\u2606 Change spotlight", onclick: function () {
+            el("button", { class: "btn ghost", text: "☆ Spotlight", title: "Choose a different spotlight",
+              onclick: function () {
               heroPicker(modId, mod.kanji, function (picked) {
                 KOS.mediadb.setKV(heroKey(modId), { entryId: picked.id, banner: null }, function () {
                   /* synced AniList entries that predate the banner field:
@@ -511,16 +536,19 @@
                   });
                 });
               } });
-              var btn = el("button", { class: "btn", text: "\u2912 Banner",
+              var btn = el("button", { class: "btn ghost", text: "⤒ Banner",
                 title: "Upload a wide banner image for this spotlight", onclick: function () { file.click(); } });
               return el("span", {}, [file, btn]);
             })()
           ].filter(Boolean))
         ].filter(Boolean));
-        if (!banner && e.coverUrl) {
-          hero.appendChild(el("img", { class: "vh-cover", src: e.coverUrl, alt: "" }));
-        } else if (!banner) {
-          hero.appendChild(el("span", { class: "vh-ph med-cover-ph", text: mod.kanji }));
+        if (!banner) {
+          /* no banner: a painted backdrop in the module's hue with the cover
+             standing on the right like a book on a stand */
+          hero.classList.add("vh-painted");
+          hero.style.setProperty("--vh-accent", mod.accent || "var(--accent)");
+          if (e.coverUrl) hero.appendChild(el("img", { class: "vh-cover", src: e.coverUrl, alt: "" }));
+          else hero.appendChild(el("span", { class: "vh-ph", "aria-hidden": "true", text: mod.kanji }));
         }
         hero.appendChild(body);
         holder.appendChild(hero);
@@ -544,9 +572,125 @@
     });
   }
 
+
+  /* ================= per-module statistics ================= */
+  /* One modal per vault: composition, taste and pace — donut, bars,
+     horizontal bars and a trend line, all KOS.charts (invariant #27). */
+  function monthKey(iso) { return iso ? iso.slice(0, 7) : null; }
+  function statsModal(modId, mod) {
+    KOS.mediadb.query({ module: modId }, function (err, rows) {
+      if (err) { KOS.ui.toast("Could not read the vault: " + err.message, true); return; }
+      var overlay = modalOverlay();
+      var box = el("div", { class: "modal stats-modal" });
+      box.appendChild(el("div", { class: "modal-h" }, [
+        el("b", { text: mod.label + " — the numbers" }),
+        el("span", { class: "sub", text: rows.length + (rows.length === 1 ? " entry" : " entries") }),
+        el("button", { class: "mini-btn", style: "margin-left:auto", text: "\u2715", "aria-label": "Close", onclick: overlay.close })
+      ]));
+
+      /* headline band */
+      var inProg = 0, completed = 0, scored = 0, scoreSum = 0, favs = 0, units = 0;
+      rows.forEach(function (e) {
+        if (e.status === "inProgress") inProg++;
+        if (e.status === "completed") completed++;
+        if (e.score) { scored++; scoreSum += e.score; }
+        if (e.favourite) favs++;
+        units += modId === "game" ? (e.playtimeHours || 0) : ((e.progress && e.progress.current) || 0);
+      });
+      function cell(v, k) {
+        return el("div", { class: "stat-cell" }, [
+          el("b", { text: String(v) }), el("span", { text: k })]);
+      }
+      box.appendChild(el("div", { class: "stat-band" }, [
+        cell(rows.length, "in the vault"),
+        cell(inProg, modId === "books" ? "reading" : modId === "anime" ? "watching" : "playing"),
+        cell(completed, "finished"),
+        cell(modId === "game" ? Math.round(units) + " hr" : units, modId === "game" ? "logged" : mod.unitName + " logged"),
+        cell(scored ? (scoreSum / scored).toFixed(1) : "—", "mean score"),
+        cell(favs, "in the Shrine")
+      ]));
+
+      var grid = el("div", { class: "stats-grid" });
+      box.appendChild(grid);
+
+      /* 1 — composition donut */
+      var statusData = ["inProgress", "planned", "onHold", "completed", "dropped"].map(function (s) {
+        return { label: KOS.media.STATUS_LABEL[s], value: rows.filter(function (e) { return e.status === s; }).length,
+          color: KOS.media.STATUS_COLOR[s] };
+      });
+      grid.appendChild(KOS.charts.chartCard("By status", "the shape of the vault",
+        KOS.charts.donutWithLegend(statusData, { centre: rows.length, centreSub: "titles" })));
+
+      /* 2 — score distribution */
+      var scores = [];
+      for (var i = 1; i <= 10; i++) {
+        scores.push({ label: String(i), value: rows.filter(function (e) { return Math.round(e.score) === i && e.score; }).length,
+          color: i >= 8 ? "#B08A3E" : i >= 5 ? "#7D9B76" : "#B5573F" });
+      }
+      if (scored) grid.appendChild(KOS.charts.chartCard("Scores", "everything you have rated, out of 10",
+        KOS.charts.barChart(scores)));
+
+      /* 3 — top genres, ranked */
+      var gCount = {};
+      rows.forEach(function (e) { (e.genres || []).forEach(function (g) { gCount[g] = (gCount[g] || 0) + 1; }); });
+      var gTop = Object.keys(gCount).map(function (g) { return { label: g, value: gCount[g] }; })
+        .sort(function (a, b) { return b.value - a.value; }).slice(0, 8);
+      if (gTop.length) grid.appendChild(KOS.charts.chartCard("Genres", "where your taste actually lives",
+        KOS.charts.hbarChart(gTop, { color: mod.accent })));
+
+      /* 4 — finishes over the last 12 months */
+      var months = [], now = new Date();
+      for (var j = 11; j >= 0; j--) {
+        var d = new Date(now.getFullYear(), now.getMonth() - j, 1);
+        var key = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2);
+        months.push({ key: key, label: ["J","F","M","A","M","J","J","A","S","O","N","D"][d.getMonth()], value: 0 });
+      }
+      rows.forEach(function (e) {
+        var mk = monthKey(e.dates && e.dates.finished);
+        var hit = months.find(function (x) { return x.key === mk; });
+        if (hit) hit.value++;
+      });
+      if (months.some(function (x) { return x.value; })) {
+        grid.appendChild(KOS.charts.chartCard("Finished, by month", "the last twelve months",
+          KOS.charts.lineChart(months, { color: mod.accent })));
+      }
+
+      /* 5 — module-specific extras */
+      if (modId === "game") {
+        var pCount = {};
+        rows.forEach(function (e) { if (e.platform) pCount[e.platform] = (pCount[e.platform] || 0) + 1; });
+        var pData = Object.keys(pCount).map(function (p) {
+          return { label: KOS.media.PLATFORM_LABEL && KOS.media.PLATFORM_LABEL[p] || p, value: pCount[p] };
+        }).sort(function (a, b) { return b.value - a.value; });
+        if (pData.length) grid.appendChild(KOS.charts.chartCard("Platforms", "where the hours went",
+          KOS.charts.hbarChart(pData, { color: mod.accent })));
+      }
+      if (modId === "books") {
+        var owned = 0;
+        rows.forEach(function (e) { owned += (e.physical && e.physical.volumes ? e.physical.volumes.length : 0); });
+        if (owned) box.appendChild(el("p", { class: "sub", style: "margin-top:12px",
+          text: owned + " physical volumes on the shelf across " +
+            rows.filter(function (e) { return e.physical && e.physical.volumes && e.physical.volumes.length; }).length + " series." }));
+      }
+      if (modId === "vn") {
+        var routes = 0, quotes = 0;
+        rows.forEach(function (e) {
+          routes += (e.routes || []).filter(function (r) { return r.cleared; }).length;
+          quotes += (e.quotes || []).length;
+        });
+        if (routes || quotes) box.appendChild(el("p", { class: "sub", style: "margin-top:12px",
+          text: routes + " routes cleared \u00b7 " + quotes + " quotes kept." }));
+      }
+
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+    });
+  }
+
   KOS.medview = {
     BATCH: BATCH,
     heroCard: heroCard,
+    statsModal: statsModal,
     STATUSES: STATUSES,
     NEEDS_IDB: NEEDS_IDB,
     unavailable: unavailable,

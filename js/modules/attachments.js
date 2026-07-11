@@ -180,7 +180,12 @@
     return "📎";
   }
   function canInline(mime) {
-    return mime.indexOf("image/") === 0 || mime === "application/pdf";
+    return mime.indexOf("image/") === 0 || mime === "application/pdf" || mime.indexOf("text/") === 0;
+  }
+  function inlineNote(mime) {
+    if (canInline(mime)) return null;
+    if (/word|officedocument|msword/.test(mime)) return "Word documents can't preview inside a browser — Open ↗ hands it to the app that can.";
+    return "This format has no in-browser preview — Open ↗ opens or downloads it.";
   }
   var debounce = KOS.ui.debounce;
 
@@ -243,6 +248,10 @@
           viewer.innerHTML = "";
           if (rec.mime.indexOf("image/") === 0) {
             viewer.appendChild(el("img", { src: objUrl, alt: rec.name }));
+          } else if (rec.mime.indexOf("text/") === 0) {
+            var pre = el("pre", { class: "att-text" });
+            viewer.appendChild(pre);
+            rec.blob.text().then(function (t) { pre.textContent = t.slice(0, 200000); });
           } else {
             viewer.appendChild(el("iframe", { src: objUrl, title: rec.name }));
           }
@@ -257,6 +266,7 @@
           }
           setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
         } }),
+        !canInline(rec.mime) ? el("span", { class: "sub att-nopreview", text: inlineNote(rec.mime) }) : null,
         el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete file", onclick: function () {
           if (!confirm("Delete “" + rec.name + "” and its notes?")) return;
           closeViewer();

@@ -100,9 +100,14 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: "顔" }), " AniList Profile"]),
-      el("p", { class: "sub", text: "The account behind the sync — stats, favourites, follows, notifications and activity, read straight from AniList in one request. Read-only: looking at notifications here doesn't mark them read on the site." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "Collection · 顔" }),
+        el("h1", { text: "AniList Profile" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "The account behind the sync — stats, favourites, follows and activity." })
+        ])
+      ])
     ]));
 
     if (KOS.medview.unavailable(main)) return;

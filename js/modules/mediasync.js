@@ -65,9 +65,14 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "Sync & Import — Collection Matrix" }),
-      el("p", { class: "sub", text: "Connect your AniList (anime & manga) and VNDB (visual novels), or import an AniList XML export with no setup at all. Since Build 3d, list-state edits (status, progress, score) push back automatically to the connected account — everything else stays local. Pushes are last-write-wins: there's no conflict merging with edits made on the sites themselves." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "The bridge" }),
+        el("h1", { text: "Sync & Import" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "Connect AniList and VNDB, or import an XML export. Local edits push back on their own; pushes are last-write-wins." })
+        ])
+      ])
     ]));
 
     if (KOS.medview.unavailable(main)) return;

@@ -12,9 +12,14 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: "祠" }), " The Shrine"]),
-      el("p", { class: "sub", text: "Everything you've marked ♥, ranked by score — across every module of the Collection Matrix." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "祠 · Hall of fame" }),
+        el("h1", { text: "The Shrine" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "Everything you've marked ♥, ranked by your own scores." })
+        ])
+      ])
     ]));
 
     if (KOS.medview.unavailable(main)) return;

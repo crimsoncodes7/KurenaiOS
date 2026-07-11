@@ -161,9 +161,14 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "Exams & Papers" }),
-      el("p", { class: "sub", text: "Every exam, assessment and practice paper you've sat — marks, grades, what went well and what didn't, and whether you've actually reviewed it. Topic-linked results feed the RAG struggle flags." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "The record" }),
+        el("h1", { text: "Exams & Papers" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "Every paper you've sat — marks, what went well, and whether you've reviewed it." })
+        ])
+      ])
     ]));
 
     var kind = openKind === "paper" ? "paper" : "exam";

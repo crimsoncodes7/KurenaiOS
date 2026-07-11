@@ -910,9 +910,14 @@
     var filt = { status: null, dnf: false };
     var mv = KOS.medview;
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: mod().kanji }), " Books"]),
-      el("p", { class: "sub", text: "One vault, two lenses: the Digital tab is reading progress (AniList-synced or manual), the Physical Vault tab is what's actually on your shelves, volume by volume. A series tracked both ways appears in both — open any entry for its owned-vs-read comparison." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "Collection · 本" }),
+        el("h1", { text: "Books" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "What you're reading and what's on the shelf — one entry, both lives." })
+        ])
+      ])
     ]));
 
     if (mv.unavailable(main)) return;
@@ -985,6 +990,7 @@
     main.appendChild(el("div", { class: "med-toolbar" }, [
       search, fmtSel, genreSel, moodSel, shelfSel, sortSel, layoutBtn,
       el("button", { class: "btn", text: "作 Mangaka", title: "Every author you own or track, aggregated", onclick: function () { KOS.show("mangaka"); } }),
+      el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("books", mod()); } }),
       el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
       el("button", { class: "btn", text: "⏱ Reading session", title: "A timed reading session on the Focus Timer's clock — logs to the reading heatmap and rest streak, never HP or the study streak",
         onclick: function () { openReadingSession(); } }),
@@ -1172,9 +1178,14 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: "作" }), " Mangaka"]),
-      el("p", { class: "sub", text: "Every author across the Books vault — works, volumes owned, chapters read. Grouping is by the author name as written (synced or manual); differing spellings stay separate groups." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "Collection · 作" }),
+        el("h1", { text: "Mangaka" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "Every author on your shelves — their works, side by side." })
+        ])
+      ])
     ]));
 
     if (KOS.medview.unavailable(main)) return;

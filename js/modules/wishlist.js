@@ -464,9 +464,14 @@
     var tab = pref.tab;
     var selected = {};   // ephemeral checkbox simulation — id -> true
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: "円" }), " Purchase & Budget Planner"]),
-      el("p", { class: "sub", text: "A wishlist across Books, Visual Novels and Games against one shared monthly budget. Tick items to simulate a purchase — the total and what's left update live; nothing is spent until you mark it Purchased. This is pure logistics: it never earns XP, gold or a streak. Release dates are typed in by hand — no automated source spans books, VNs and games." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "円 · The allowance" }),
+        el("h1", { text: "Budget Planner" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "One wishlist, one monthly pool. Tick items to try a purchase on paper — nothing spends until you say so." })
+        ])
+      ])
     ]));
 
     /* ---- top row: Next-to-Drop hero + Budget Summary panel ----

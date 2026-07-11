@@ -64,9 +64,14 @@
   KOS.views.help = function (main) {
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "Help & Guide" }),
-      el("p", { class: "sub", text: "What everything is and how to use it — one short description per feature." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "The manual" }),
+        el("h1", { text: "Help & Guide" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "What everything is and how to use it, one short note per feature." })
+        ])
+      ])
     ]));
     SECTIONS.forEach(function (sec) {
       main.appendChild(el("h3", { class: "n-h", text: sec[0] }));

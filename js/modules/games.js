@@ -506,9 +506,14 @@
     var filt = { status: null };
     var mv = KOS.medview;
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: mod().kanji }), " Games"]),
-      el("p", { class: "sub", text: "Manual-first and honest about it: no game service lets a browser pull your library (Steam's API and even its sign-in are CORS-walled — see Sync & Import), so the vault is yours to type — or paste in bulk, one title per line. Completion tiers, platforms, playtime and backlog priority are the axes that matter." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "Collection · 遊" }),
+        el("h1", { text: "Games" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "The backlog, the hours, and what actually got finished." })
+        ])
+      ])
     ]));
 
     if (mv.unavailable(main)) return;
@@ -534,6 +539,7 @@
       search, platSel, genreSel, tierSel, sortSel, layoutBtn,
       el("button", { class: "btn gold", text: "▤ Bulk add", title: "Paste a list of titles — one per line — and each becomes a draft entry",
         onclick: function () { bulkAddModal(refresh); } }),
+      el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("game", mod()); } }),
       el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
       el("button", { class: "btn primary", text: "+ Add", onclick: function () { gamesEditor(null, refresh); } })
     ]));

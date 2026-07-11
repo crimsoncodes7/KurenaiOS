@@ -24,16 +24,16 @@
      paste-in tool is the quick-start path instead). All four are real. */
   var MODULES = [
     { id: "anime", label: "Anime", kanji: "映", unit: "ep",
-      unitName: "episodes", real: true, accent: "#FF2E44",
+      unitName: "episodes", real: true, accent: "#B85C50",
       desc: "Watching, planned, completed — synced from AniList or tracked by hand." },
     { id: "books", label: "Books", kanji: "本", unit: "ch",
-      unitName: "chapters", real: true, accent: "#F2C46D",
+      unitName: "chapters", real: true, accent: "#B08A3E",
       desc: "Manga & light novels — digital tracking and the physical vault on one entry: what you read via AniList, what you own volume by volume." },
     { id: "vn", label: "Visual Novels", kanji: "選", unit: "route",
-      unitName: "routes", real: true, accent: "#c77bf2",
+      unitName: "routes", real: true, accent: "#8A63A8",
       desc: "VNDB-synced metadata; routes, CG counter, content warnings and the quote log are yours to build." },
     { id: "game", label: "Games", kanji: "遊", unit: "hr",
-      unitName: "hours", real: true, accent: "#66c0f4",
+      unitName: "hours", real: true, accent: "#5E86A8",
       desc: "Manual-first, permanently: completion tiers, platforms, playtime, backlog priority — pasted in bulk or added one by one; no API exists that a browser may use." }
   ];
   function module_(id) {
@@ -42,14 +42,14 @@
   }
   var FORMAT_LABEL = { manga: "Manga", lightNovel: "Light Novel", oneShot: "One-shot" };
   var CONDITION_LABEL = { mint: "Mint", good: "Good", worn: "Worn", damaged: "Damaged" };
-  var CONDITION_COLOR = { mint: "#45d6a8", good: "#7b9ef8", worn: "#F2C46D", damaged: "#FF2E44" };
+  var CONDITION_COLOR = { mint: "#6F9A5E", good: "#5F7FBF", worn: "#C0912F", damaged: "#B5573F" };
   var STATUS_LABEL = {
     planned: "Planned", inProgress: "In progress", onHold: "On hold",
     completed: "Completed", dropped: "Dropped"
   };
   var STATUS_COLOR = {
-    planned: "#7b9ef8", inProgress: "#45d6a8", onHold: "#F2C46D",
-    completed: "#c77bf2", dropped: "#6f6488"
+    planned: "#5F7FBF", inProgress: "#6F9A5E", onHold: "#C0912F",
+    completed: "#8A63A8", dropped: "#9A8F7B"
   };
   /* Build 3e — Games label maps (enums live in mediadb) */
   var TIER_LABEL = {

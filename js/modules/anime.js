@@ -287,9 +287,14 @@
     var filt = { status: null };
     var mv = KOS.medview;
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: mod.kanji }), " Anime"]),
-      el("p", { class: "sub", text: "The first real Collection Matrix module. Sync your AniList, import an XML export, or track by hand — filters run on the database indexes, cards render as you scroll." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "Collection · 映" }),
+        el("h1", { text: "Anime" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "What you're watching, what's waiting, and what the season is doing." })
+        ])
+      ])
     ]));
 
     if (mv.unavailable(main)) return;
@@ -312,6 +317,7 @@
         title: "Everything airing this season, with countdowns", onclick: function () { KOS.show("seasonal"); } }),
       el("button", { class: "btn", text: "＠ Profile", title: "Your AniList profile — stats, favourites, activity",
         onclick: function () { KOS.show("aniprofile"); } }),
+      el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("anime", mod); } }),
       el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
       el("button", { class: "btn gold", text: "⊕ Find new", title: "Search all of AniList — not your vault — and add with one click",
         onclick: function () { KOS.mediaSearch.open("anime", refresh); } }),
@@ -398,7 +404,7 @@
       days.push({ date: d, value: n, hint: d + ": " + n + (n === 1 ? " watch log" : " watch logs") });
     }
     return KOS.charts.chartCard("Watch history", total + " logs in " + weeks + " weeks — episodes, status changes and adds",
-      KOS.charts.heatmap(days, { color: "#FF2E44" }));
+      KOS.charts.heatmap(days, { color: "#B85C50" }));
   }
   KOS.anime.watchHeatmapCard = watchHeatmapCard;
 
@@ -425,7 +431,7 @@
     var heroTitle = el("h1", {});
     wrap.appendChild(el("div", { class: "lab-h season-hero" }, [
       heroTitle,
-      el("p", { class: "sub", text: "Your vault, one season at a time — live next-episode countdowns on anything airing. Defaults to today; the picker walks any past or future season. Season comes from AniList's own data — entries without it (manual, unenriched or unlinked) don't appear here; that's the honest scope, not an oversight." })
+      el("p", { class: "sub", text: "Your vault, one season at a time — live countdowns on anything airing. Only entries with season data from AniList appear here." })
     ]));
 
     if (KOS.medview.unavailable(wrap)) return;

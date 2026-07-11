@@ -85,7 +85,10 @@
   /* ---------------- in-app reminders ---------------- */
   function checkReminders() {
     var c = cal(), today = KOS.srs.todayISO();
-    var near = deadlines().filter(function (d) { return d.days <= c.notifyDays; });
+    var near = deadlines().filter(function (d) {
+      var th = d.ev.notify == null ? c.notifyDays : d.ev.notify;
+      return th >= 0 && d.days <= th;
+    });
     near.forEach(function (d) {
       var key = d.ev.id + "|" + today;
       if (c.notified[key]) return;
@@ -153,11 +156,18 @@
       el("option", { value: "none", text: "One-off" }),
       el("option", { value: "weekly", text: "Repeats weekly" })
     ]);
+    var notify = el("select", { class: "status-sel" }, [
+      el("option", { value: "", text: "Default (" + cal().notifyDays + " days out)" }),
+      el("option", { value: "-1", text: "No alert" })
+    ].concat([1, 2, 3, 5, 7, 14].map(function (n) {
+      return el("option", { value: String(n), text: n + (n === 1 ? " day" : " days") + " before" });
+    })));
     if (existing) {
       title.value = existing.title; date.value = existing.date;
       time.value = existing.time || ""; type.value = existing.type;
       subj.value = existing.subject || ""; ref.value = existing.ref || "";
       recur.value = existing.recur || "none";
+      notify.value = existing.notify == null ? "" : String(existing.notify);
     } else {
       date.value = presetDate || KOS.srs.todayISO();
     }
@@ -169,13 +179,15 @@
       ]),
       el("div", { class: "cal-form" }, [
         field("Title", title), field("Date", date), field("Time (optional)", time),
-        field("Type", type), field("Subject", subj), field("Topic", ref), field("Repeats", recur)
+        field("Type", type), field("Subject", subj), field("Topic", ref),
+        field("Repeats", recur), field("Alert", notify)
       ]),
       el("div", { class: "lab-controls", style: "margin-top:14px" }, [
         el("button", { class: "btn primary", text: existing ? "Save changes" : "Add event", onclick: function () {
           if (!title.value.trim() || !date.value) { KOS.ui.toast("A title and a date are required.", true); return; }
           var data = { title: title.value.trim(), date: date.value, time: time.value || null,
-            type: type.value, subject: subj.value || null, ref: ref.value.trim() || null, recur: recur.value };
+            type: type.value, subject: subj.value || null, ref: ref.value.trim() || null, recur: recur.value,
+            notify: notify.value === "" ? null : parseInt(notify.value, 10) };
           if (existing) updateEvent(existing.id, data);
           else addEvent(data);
           KOS.ui.toast(existing ? "Event updated." : "Event added.");
@@ -205,9 +217,14 @@
     var focus = ui.calFocus ? parseISO(ui.calFocus) : now;
     var today = KOS.srs.todayISO();
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "Calendar" }),
-      el("p", { class: "sub", text: "Exams, deadlines, study blocks and fixtures in one grid. Exam/deadline events feed the countdown widgets and daily to-do automatically." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "The term ahead" }),
+        el("h1", { text: "Calendar" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "Exams and deadlines here feed the countdowns and the daily list by themselves." })
+        ])
+      ])
     ]));
 
     var head = el("div", { class: "cal-head" });

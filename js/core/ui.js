@@ -95,7 +95,7 @@
   var SECTION_OF = {
     home: "home",
     subject: "study", ref: "study", due: "study", cardstats: "study",
-    tracker: "study", focus: "study", calendar: "study", personaldeck: "study",
+    tracker: "study", focus: "study", calendar: "study", tasks: "study", personaldeck: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
     matrix: "collection", anime: "collection", books: "collection",
     vn: "collection", game: "collection", seasonal: "collection",
@@ -114,6 +114,7 @@
       ["Due Today", "due"],
       ["Focus Timer", "focus"],
       ["Calendar", "calendar"],
+      ["Tasks & Habits", "tasks"],
       ["Exams & Papers", "tracker"],
       ["Card Stats", "cardstats"]
     ],

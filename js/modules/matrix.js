@@ -14,9 +14,18 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
-    main.appendChild(el("div", { class: "home-hero" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: "蒐" }), " Collection Matrix"]),
-      el("p", { class: "sub", text: "The other half of the ledger — what you watch, read and play. Logging here feeds a small XP/gold trickle and its own rest streak; it never touches HP, in either direction." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "蒐 · Personal archive" }),
+        el("h1", { text: "The Collection" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "The other half of the ledger — what you watch, read and play. Rest, kept honestly." })
+        ])
+      ]),
+      el("div", { class: "dh-actions" }, [
+        el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
+        el("button", { class: "btn gold", text: "祠 The Shrine", onclick: function () { KOS.show("shrine"); } })
+      ])
     ]));
 
     if (KOS.medview.unavailable(main)) return;
@@ -55,14 +64,22 @@
         ]));
         var box = el("div", { class: "mx-air-list" });
         list.forEach(function (x) {
-          box.appendChild(el("div", { class: "mx-air-row", role: "button", tabindex: "0",
+          var open = function () { KOS.mediaEditor(x.entry, function () { KOS.show("matrix", undefined, { _nav: true }); }); };
+          box.appendChild(el("div", { class: "mx-air-card", role: "button", tabindex: "0",
             title: "Episode " + x.airing.episode + " airs " + new Date(x.airing.airingAt * 1000).toLocaleString(),
-            onclick: function () { KOS.mediaEditor(x.entry, function () { KOS.show("matrix", undefined, { _nav: true }); }); },
-            onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); KOS.mediaEditor(x.entry, function () { KOS.show("matrix", undefined, { _nav: true }); }); } }
+            onclick: open,
+            onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); open(); } }
           }, [
-            el("span", { class: "mx-air-count", text: KOS.anime.fmtCountdown(x.airing.timeUntilAiring) }),
-            el("span", { class: "mx-air-title", text: x.entry.title }),
-            el("span", { class: "sub", text: "EP " + x.airing.episode })
+            x.entry.coverUrl
+              ? el("img", { class: "mx-air-cover", src: x.entry.coverUrl, alt: "", loading: "lazy" })
+              : el("span", { class: "mx-air-cover med-cover-ph", "aria-hidden": "true", text: "映" }),
+            el("span", { class: "mx-air-body" }, [
+              el("span", { class: "mx-air-title", text: x.entry.title }),
+              el("span", { class: "mx-air-when" }, [
+                el("b", { class: "mx-air-count", text: KOS.anime.fmtCountdown(x.airing.timeUntilAiring) }),
+                el("span", { class: "sub", text: " · EP " + x.airing.episode })
+              ])
+            ])
           ]));
         });
         airWrap.appendChild(box);
@@ -138,7 +155,13 @@
       /* charts — the Build 2c SVG helpers, nothing new */
       if (agg.total) {
         var grid = el("div", { class: "cs-grid" });
-        grid.appendChild(KOS.charts.chartCard("Anime by status", "the whole vault at a glance",
+        grid.appendChild(KOS.charts.chartCard("The whole vault", "every module, by status",
+          KOS.charts.donutWithLegend(["inProgress", "planned", "onHold", "completed", "dropped"].map(function (s) {
+            return { label: KOS.media.STATUS_LABEL[s],
+              value: (anime[s] || 0) + (books[s] || 0) + (vn[s] || 0) + (game[s] || 0),
+              color: KOS.media.STATUS_COLOR[s] };
+          }), { centre: agg.total, centreSub: "titles" })));
+        grid.appendChild(KOS.charts.chartCard("Anime by status", "the founding module",
           KOS.charts.barChart(["inProgress", "planned", "onHold", "completed", "dropped"].map(function (s) {
             return { label: KOS.media.STATUS_LABEL[s], value: anime[s] || 0, color: KOS.media.STATUS_COLOR[s] };
           }))));
@@ -164,14 +187,14 @@
         var topGenres = Object.keys(agg.genres).map(function (g) { return { label: g, value: agg.genres[g] }; })
           .sort(function (a, b) { return b.value - a.value; }).slice(0, 10);
         if (topGenres.length) {
-          grid.appendChild(KOS.charts.chartCard("Top genres", "shared taxonomy across every module",
-            KOS.charts.barChart(topGenres, { color: "#c77bf2" })));
+          grid.appendChild(KOS.charts.chartCard("Top genres", "one taxonomy across every module",
+            KOS.charts.hbarChart(topGenres, { color: "#8A63A8" })));
         }
         var scored = agg.scores.reduce(function (a, n) { return a + n; }, 0);
         if (scored) {
           grid.appendChild(KOS.charts.chartCard("Score distribution", "everything you've rated, /10",
             KOS.charts.barChart(agg.scores.map(function (n, i) {
-              return { label: String(i), value: n, color: i >= 8 ? "#F2C46D" : i >= 5 ? "#45d6a8" : "#FF2E44" };
+              return { label: String(i), value: n, color: i >= 8 ? "#B08A3E" : i >= 5 ? "#7D9B76" : "#B5573F" };
             }).slice(1))));
         }
         statsWrap.appendChild(grid);
@@ -213,15 +236,6 @@
       statsWrap.appendChild(cards);
     });
 
-    /* quick actions */
-    main.appendChild(el("div", { class: "lab-controls", style: "margin-top:16px" }, [
-      el("button", { class: "btn primary", text: "映 Anime vault", onclick: function () { KOS.show("anime"); } }),
-      el("button", { class: "btn primary", text: "本 Books vault", onclick: function () { KOS.show("books"); } }),
-      el("button", { class: "btn primary", text: "選 Visual Novels", onclick: function () { KOS.show("vn"); } }),
-      el("button", { class: "btn primary", text: "遊 Games vault", onclick: function () { KOS.show("game"); } }),
-      el("button", { class: "btn gold", text: "祠 The Shrine", onclick: function () { KOS.show("shrine"); } }),
-      el("button", { class: "btn", text: "円 Budget Planner", onclick: function () { KOS.show("wishlist"); } }),
-      el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
-    ]));
+
   };
 })();

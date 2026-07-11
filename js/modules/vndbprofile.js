@@ -29,7 +29,7 @@
      customs get the VN module accent */
   function labelColor(id) {
     var status = KOS.vndb.LABEL_STATUS[id];
-    return status ? KOS.media.STATUS_COLOR[status] : "#c77bf2";
+    return status ? KOS.media.STATUS_COLOR[status] : "#8A63A8";
   }
 
   function section(title, sub, children) {
@@ -80,9 +80,14 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: "貌" }), " VNDB Profile"]),
-      el("p", { class: "sub", text: "The account behind the VN sync — your labels with live counts (custom ones included), length-vote contributions, list statistics and the size of the database you're drawing from. Built from what VNDB's API actually offers: it has no favourites, follower graph, activity feed or notifications, so none are faked here." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "Collection · 貌" }),
+        el("h1", { text: "VNDB Profile" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "The account behind the visual-novel sync — labels, list stats and your length votes." })
+        ])
+      ])
     ]));
 
     if (KOS.medview.unavailable(main)) return;
@@ -100,7 +105,7 @@
         el("span", { class: "ap-avatar vp-avatar", "aria-hidden": "true", text: "選" }),
         el("div", { class: "ap-id" }, [
           el("b", { class: "ap-name", text: u.username }),
-          el("span", { class: "sub", text: "VNDB " + u.id + " · token permissions: " + (u.permissions || []).join(", ") }),
+          el("span", { class: "sub", text: "vndb.org · " + u.id }),
           el("a", { class: "mini-btn", href: "https://vndb.org/" + u.id, target: "_blank", rel: "noopener", text: "vndb.org ↗" })
         ])
       ]));
@@ -156,24 +161,7 @@
         ]));
       }
 
-      /* --- the database itself --- */
-      if (data.site) {
-        body.appendChild(section("The database you draw from", "vndb.org, right now", [
-          el("div", { class: "stat-strip" }, [
-            stat(data.site.vn || 0, "Visual novels"),
-            stat(data.site.releases || 0, "Releases"),
-            stat(data.site.producers || 0, "Producers"),
-            stat(data.site.staff || 0, "Staff"),
-            stat(data.site.tags || 0, "Tags"),
-            stat(data.site.chars || 0, "Characters")
-          ])
-        ]));
-      }
 
-      /* --- the honest boundary --- */
-      body.appendChild(section("What VNDB's API doesn't offer", null, [
-        el("p", { class: "sub", text: "No favourites, no followers/following, no activity feed, no notifications — the Kana API simply has no endpoints for them (checked against the live API, 2026-07-04). The AniList profile has those panels because AniList's API carries the data; here they would be decoration. Everything above is the real surface." })
-      ]));
     }
 
     function load(force) {

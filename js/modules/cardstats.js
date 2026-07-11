@@ -35,9 +35,14 @@
     var sid = arg && arg.subject ? arg.subject : null;
     var ref = arg && arg.ref ? arg.ref : null;
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "Flashcard Statistics" }),
-      el("p", { class: "sub", text: "Everything the SM-2 engine knows about your cards — review volume, scheduling health, ease distribution and where the lapses live." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "The memory ledger" }),
+        el("h1", { text: "Card Statistics" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "Review volume, scheduling health, and where the lapses live." })
+        ])
+      ])
     ]));
 
     /* scope pills: All / subject / (topic when drilled in) */

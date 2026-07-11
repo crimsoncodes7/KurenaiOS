@@ -449,9 +449,14 @@
     var filt = { status: null };
     var mv = KOS.medview;
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: mod().kanji }), " Visual Novels"]),
-      el("p", { class: "sub", text: "VNDB fills the metadata (title, developer, cover, tags, length); the tracking that matters is yours — routes cleared, CGs counted, content warnings, and a quote log that can feed the flashcard system." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "Collection · 選" }),
+        el("h1", { text: "Visual Novels" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "VNDB fills the covers and tags — the routes, quotes and warnings are yours." })
+        ])
+      ])
     ]));
 
     if (mv.unavailable(main)) return;
@@ -473,6 +478,7 @@
       el("button", { class: "btn", text: "❝ Personal deck", title: "Quote-born flashcards live here", onclick: function () { KOS.show("personaldeck"); } }),
       el("button", { class: "btn", text: "＠ Profile", title: "Your VNDB profile — labels, length votes, list stats",
         onclick: function () { KOS.show("vndbprofile"); } }),
+      el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("vn", mod()); } }),
       el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
       el("button", { class: "btn gold", text: "⊕ Find new", title: "Search all of VNDB — not your vault — and add with one click",
         onclick: function () { KOS.mediaSearch.open("vn", refresh); } }),

@@ -14,9 +14,14 @@
     var due = KOS.srs.dueCards();
     var overdue = due.filter(function (c) { return c.overdue > 0; }).length;
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "Due Today" }),
-      el("p", { class: "sub", text: "The SM-2 schedule's verdict: these cards are ready for review right now. Cards enter the schedule the first time you rate them on a topic's Flashcards tab." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "The queue" }),
+        el("h1", { text: "Due Today" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "These cards are ready for review right now." })
+        ])
+      ])
     ]));
 
     /* summary strip — the personal bucket (Build 3c: VN quotes etc.) counts
@@ -82,9 +87,14 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: "句" }), " Personal Deck"]),
-      el("p", { class: "sub", text: "Cards without a curriculum home — quotes sent from the Collection Matrix and anything you add here. Same SM-2 schedule, same due queue; they count as study, not rest." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "句 · The commonplace book" }),
+        el("h1", { text: "Personal Deck" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "Cards without a curriculum home — kept quotes and anything you add here." })
+        ])
+      ])
     ]));
 
     var refs = KOS.srs.personalRefs();
