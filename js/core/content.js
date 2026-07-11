@@ -182,6 +182,9 @@
           {left: "$$", right: "$$", display: true},
           {left: "$", right: "$", display: false}
         ],
+        /* KaTeX's default ignore list lacks <svg> — walking into inline SVG
+           diagrams re-parented their <text> nodes and exploded the figure */
+        ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code", "option", "svg"],
         throwOnError: false
       });
     } else if (document.readyState !== "complete") {
@@ -204,11 +207,19 @@
     if (!cp) return;
     var box = cp.closest(".n-code,.n-call,.n-tablewrap,.n-kv,.n-steps,.n-worked");
     if (!box) return;
-    /* clone, drop the copy button, then read the visible text so the "Copy"
-       label is excluded — works for tables/lists, not just <code>. */
-    var clone = box.cloneNode(true);
-    var b = clone.querySelector(".n-copy"); if (b) b.remove();
-    var text = (clone.innerText || clone.textContent || "").trim();
+    /* read the LIVE element's innerText (a detached clone has no layout, so
+       its innerText collapses to one line — the old bug). Hide the button
+       during the read so the "Copy" label is excluded; tables keep their
+       tab/newline structure, lists keep line breaks. */
+    var text;
+    var codeEl = box.classList.contains("n-code") ? box.querySelector("code") : null;
+    if (codeEl) {
+      text = codeEl.textContent.trim();
+    } else {
+      cp.style.display = "none";
+      text = (box.innerText || box.textContent || "").trim();
+      cp.style.display = "";
+    }
     function done() {
       cp.classList.add("copied");
       cp.textContent = "Copied";

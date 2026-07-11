@@ -337,7 +337,7 @@
     document.body.classList.remove("focus-mode", "fx-minimised");
     if (stageEl) { stageEl.remove(); stageEl = null; }
     if (dockEl) { dockEl.remove(); dockEl = null; }
-    document.title = "紅 Kurenai OS — Unified HQ";
+    document.title = "Kurenai OS — Study Atelier";
   }
   function setMinimised(v) {
     minimised = v;
@@ -424,7 +424,7 @@
       var dc = dockEl.querySelector(".fx-dock-clock");
       if (dc) dc.textContent = remain;
     }
-    document.title = (S ? remain + " · " : "") + "紅 Kurenai OS — Unified HQ";
+    document.title = (S ? remain + " · " : "") + "Kurenai OS — Study Atelier";
   }
 
   /* ---------------- start view (rail: Focus) ---------------- */
@@ -432,9 +432,14 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "Focus Timer" }),
-      el("p", { class: "sub", text: "Timed, accountable study. The session logs what you actually did during it — flashcards, quizzes, exam questions — not just how long the clock ran." })
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "The quiet hour" }),
+        el("h1", { text: "Focus Timer" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "The session records what you actually did while the clock ran." })
+        ])
+      ])
     ]));
 
     if (S) {
@@ -452,24 +457,34 @@
     work.value = String(cfg.workMin || 25);
     brk.value = String(cfg.breakMin != null ? cfg.breakMin : 5);
 
+    var grid = el("div", { class: "fx-setup" });
+    main.appendChild(grid);
+
+    /* --- left: the session you're about to start --- */
+    var setup = el("section", { class: "fx-setup-main" });
+    grid.appendChild(setup);
+
     var modeRow = el("div", { class: "fx-modes" });
     var customFields = el("div", { class: "fx-custom", style: mode === "custom" ? "" : "display:none" }, [
       el("label", { class: "cal-field" }, [el("span", { text: "Work (min)" }), work]),
       el("label", { class: "cal-field" }, [el("span", { text: "Break (min, 0 = none)" }), brk])
     ]);
-    function modeCard(id, title, desc) {
+    function modeCard(id, kanji, title, desc) {
       var c = el("button", { class: "fx-mode-card" + (mode === id ? " active" : ""), onclick: function () {
         mode = id;
         modeRow.querySelectorAll(".fx-mode-card").forEach(function (b) { b.classList.remove("active"); });
         c.classList.add("active");
         customFields.style.display = id === "custom" ? "" : "none";
-      } }, [el("b", { text: title }), el("span", { text: desc })]);
+      } }, [
+        el("span", { class: "fx-mode-k", "aria-hidden": "true", text: kanji }),
+        el("span", { class: "fx-mode-t" }, [el("b", { text: title }), el("span", { text: desc })])
+      ]);
       return c;
     }
-    modeRow.appendChild(modeCard("pomodoro", "Pomodoro", "25 min focus / 5 min break, auto-cycling. End after any completed cycle."));
-    modeRow.appendChild(modeCard("custom", "Custom", "Set your own work duration, with an optional break cycle."));
-    main.appendChild(modeRow);
-    main.appendChild(customFields);
+    modeRow.appendChild(modeCard("pomodoro", "波", "Pomodoro", "25 / 5, auto-cycling — end after any completed wave."));
+    modeRow.appendChild(modeCard("custom", "灯", "Custom", "Your own duration, break optional."));
+    setup.appendChild(modeRow);
+    setup.appendChild(customFields);
 
     /* optional subject/topic link */
     var subjSel = el("select", { class: "status-sel", onchange: function () { fillRefs(); } }, [
@@ -492,12 +507,12 @@
     subjSel.value = cfg.subject || "";
     fillRefs();
     if (cfg.ref) refSel.value = cfg.ref;
-    main.appendChild(el("div", { class: "fx-link-row" }, [
+    setup.appendChild(el("div", { class: "fx-link-row" }, [
       el("label", { class: "cal-field" }, [el("span", { text: "Link to subject" }), subjSel]),
       el("label", { class: "cal-field" }, [el("span", { text: "Topic (optional)" }), refSel])
     ]));
 
-    main.appendChild(el("button", { class: "btn primary fx-start", text: "◉ Start focus session", onclick: function () {
+    setup.appendChild(el("button", { class: "btn primary fx-start", text: "◉ Start focus session", onclick: function () {
       var w = Math.max(1, Math.min(240, parseInt(work.value || "25", 10)));
       var b = Math.max(0, Math.min(60, parseInt(brk.value || "0", 10)));
       start({
@@ -509,12 +524,38 @@
       });
     } }));
 
+    /* --- right: the deal + your recent record --- */
+    var side = el("aside", { class: "fx-setup-side" });
+    grid.appendChild(side);
+
     /* the deal, stated plainly — friction only works when it's understood */
-    main.appendChild(el("div", { class: "gov-rules", style: "margin-top:22px" }, [
-      el("div", { class: "gov-rule" }, [el("b", { text: "The award" }), el("span", { text: "complete the session for XP, gold and HP — scaled by focused minutes." })]),
-      el("div", { class: "gov-rule" }, [el("b", { text: "Pauses" }), el("span", { text: "the first is free; each extra shaves 15% off the XP/gold." })]),
-      el("div", { class: "gov-rule" }, [el("b", { text: "Distractions" }), el("span", { text: "switching tabs mid-focus is logged; after the first, each costs 2 HP. Pausing first is always cheaper." })]),
-      el("div", { class: "gov-rule" }, [el("b", { text: "Ending early" }), el("span", { text: "still logged — but the award is forfeited. Closing the tab asks first." })])
+    side.appendChild(el("div", { class: "fx-deal" }, [
+      el("h4", { text: "The deal" }),
+      el("ul", { class: "insp-list" }, [
+        el("li", {}, [el("span", { text: "Complete the session" }), el("strong", { text: "XP · gold · HP" })]),
+        el("li", {}, [el("span", { text: "Pauses (first free)" }), el("strong", { text: "−15% each" })]),
+        el("li", {}, [el("span", { text: "Tab-switches (first free)" }), el("strong", { text: "−2 HP each" })]),
+        el("li", {}, [el("span", { text: "Ending early" }), el("strong", { text: "logged, no award" })])
+      ])
+    ]));
+
+    /* recent focus record */
+    var focusSessions = KOS.sessions.all().filter(function (s) { return s.type === "focus"; });
+    var today = KOS.srs.todayISO();
+    var todaySecs = focusSessions.filter(function (s) { return s.date === today; })
+      .reduce(function (a, s) { return a + (s.dur || 0); }, 0);
+    var weekStart = KOS.srs.addDays(today, -6);
+    var weekSecs = focusSessions.filter(function (s) { return s.date >= weekStart; })
+      .reduce(function (a, s) { return a + (s.dur || 0); }, 0);
+    var lastS = focusSessions[focusSessions.length - 1];
+    side.appendChild(el("div", { class: "fx-deal" }, [
+      el("h4", { text: "Your record" }),
+      el("ul", { class: "insp-list" }, [
+        el("li", {}, [el("span", { text: "Focused today" }), el("strong", { text: todaySecs ? fmtLong(todaySecs) : "—" })]),
+        el("li", {}, [el("span", { text: "This week" }), el("strong", { text: weekSecs ? fmtLong(weekSecs) : "—" })]),
+        lastS ? el("li", {}, [el("span", { text: "Last session" }), el("strong", { text: fmtLong(lastS.dur || 0) + (lastS.metrics && lastS.metrics.complete ? "" : " · early") })]) : null,
+        el("li", {}, [el("span", { text: "Sessions logged" }), el("strong", { text: String(focusSessions.length) })])
+      ].filter(Boolean))
     ]));
   };
 

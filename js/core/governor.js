@@ -242,8 +242,24 @@
     /* cosmetic: Collection Matrix — Shrine card border styles */
     { id: "shrine-gilded", kind: "shrinestyle", name: "Gilded torii", price: 80, desc: "Double gold borders on every enshrined card." },
     { id: "shrine-ink",    kind: "shrinestyle", name: "Ink brush",    price: 80, desc: "Soft brushed monochrome edges — the quiet hall." },
-    { id: "shrine-neon",   kind: "shrinestyle", name: "Neon shrine",  price: 80, desc: "Crimson glow bleeding off every card rim." }
+    { id: "shrine-neon",   kind: "shrinestyle", name: "Neon shrine",  price: 80, desc: "Crimson glow bleeding off every card rim." },
+    /* cosmetic: painted profile banners — the backdrop of the identity card
+       on the Governor's Seat and the home profile band. A custom image
+       upload is always free (it's your own picture); these are the painted
+       house set. */
+    { id: "banner-dawn",    kind: "banner", name: "Dawn over the fields", price: 60, desc: "First light on wheat and mist.", banner: "dawn",    sw: ["#E9CE9E", "#CB9D62", "#9FB0C7"] },
+    { id: "banner-lantern", kind: "banner", name: "Lantern dusk",         price: 60, desc: "Paper lanterns against a violet evening.", banner: "lantern", sw: ["#54487A", "#8B6FA8", "#D9A25F"] },
+    { id: "banner-tide",    kind: "banner", name: "Tide glass",           price: 60, desc: "Cold green sea-glass and foam.", banner: "tide",    sw: ["#7FA294", "#B9CDC1", "#51707F"] },
+    { id: "banner-inknight", kind: "banner", name: "Ink night",           price: 60, desc: "Deep indigo with a thin gold horizon.", banner: "inknight", sw: ["#2A3050", "#4B5378", "#C09239"] }
   ];
+  /* preset banner paints, keyed by the catalog `banner` field */
+  var BANNER_CSS = {
+    dawn: "background-image:radial-gradient(140% 160% at 8% 0%, rgba(233,206,158,.85), rgba(203,157,98,.55) 45%, rgba(159,176,199,.5) 100%);",
+    lantern: "background-image:radial-gradient(90% 130% at 85% 10%, rgba(217,162,95,.55), transparent 55%), linear-gradient(115deg, #544878 0%, #8B6FA8 60%, #A98BB8 100%);",
+    tide: "background-image:radial-gradient(120% 150% at 90% 100%, rgba(81,112,127,.6), transparent 60%), linear-gradient(110deg, #8FB0A2 0%, #B9CDC1 55%, #9FB8C4 100%);",
+    inknight: "background-image:radial-gradient(140% 90% at 50% 108%, rgba(192,146,57,.5), transparent 45%), linear-gradient(160deg, #2A3050 0%, #3A4166 55%, #4B5378 100%);"
+  };
+  var BANNER_DARK = { lantern: true, inknight: true, tide: false, dawn: false };
   var SEAL_GLYPHS = { kurenai: "紅", "seal-homura": "焔", "seal-tsuki": "月", "seal-ryuu": "竜",
                       "seal-sakura": "桜", "seal-rai": "雷", "seal-hoshi": "星" };
 
@@ -333,7 +349,7 @@
   /* Default library: procedural SVG seals, geometric/kanji-adjacent, crimson +
      gold, unlocking progressively by level. */
   function sealSvg(spec) {
-    var K = "#8C7CFF", K2 = "#A99BFF", GD = "#35D7FF", INK = "#0A0D13";
+    var K = "#6D7BB8", K2 = "#98A3D4", GD = "#C09239", INK = "#2E2A22";
     var defs = '<circle cx="32" cy="32" r="30" fill="' + INK + '" stroke="' + spec.ring + '" stroke-width="2.5"/>';
     return '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + spec.name + '">' +
       defs + spec.art
@@ -438,6 +454,55 @@
   function shelfSkin() { return G().shelfSkin || null; }
   function shrineStyle() { return G().shrineStyle || null; }
 
+  /* ---- profile banner (identity card backdrop) ----
+     g.banner = null | "<preset id>" | "custom"; a custom upload's compressed
+     dataURL lives in g.bannerImg. Presets are painted CSS, no images. */
+  function setBanner(v, dataUrl) {
+    var g = G();
+    g.banner = v || null;
+    g.bannerImg = v === "custom" ? (dataUrl || g.bannerImg || null) : null;
+    store.save();
+  }
+  function bannerCss() {
+    var g = G();
+    if (!g.banner) return null;
+    if (g.banner === "custom" && g.bannerImg) {
+      return "background-image:linear-gradient(100deg, color-mix(in srgb, var(--bg1) 88%, transparent) 30%, color-mix(in srgb, var(--bg1) 45%, transparent) 70%, transparent), url(" + JSON.stringify(g.bannerImg).slice(1, -1) + ");background-size:cover;background-position:center;";
+    }
+    return BANNER_CSS[g.banner] || null;
+  }
+  function bannerIsDark() {
+    var g = G();
+    if (g.banner === "custom") return true;   // scrimmed — treat text as over-image
+    return !!BANNER_DARK[g.banner];
+  }
+  /* the upload path mirrors the avatar's canvas-compress discipline */
+  function setCustomBanner(fileObj, done) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var W = Math.min(1400, img.width), H = Math.round(W / 3.4);
+          var cv = document.createElement("canvas");
+          cv.width = W; cv.height = H;
+          var ctx = cv.getContext("2d");
+          var scale = Math.max(W / img.width, H / img.height);
+          var sw = W / scale, sh = H / scale;
+          ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, W, H);
+          var data = cv.toDataURL("image/jpeg", 0.78);
+          if (data.length > 320 * 1024) data = cv.toDataURL("image/jpeg", 0.6);
+          setBanner("custom", data);
+          done && done(null);
+        } catch (e) { done && done(e); }
+      };
+      img.onerror = function () { done && done(new Error("Not a readable image")); };
+      img.src = reader.result;
+    };
+    reader.onerror = function () { done && done(new Error("Could not read the file")); };
+    reader.readAsDataURL(fileObj);
+  }
+
   /* ================= recovery mode ================= */
   /* The fastest route from Critical back to Strained: three concrete tasks,
      progress measured from today's session log. */
@@ -524,6 +589,10 @@
     setShrineStyle: setShrineStyle,
     shelfSkin: shelfSkin,
     shrineStyle: shrineStyle,
+    setBanner: setBanner,
+    setCustomBanner: setCustomBanner,
+    bannerCss: bannerCss,
+    bannerIsDark: bannerIsDark,
     recoveryTasks: recoveryTasks,
     refreshHUD: refreshHUD,
     debugUnlockAll: debugUnlockAll,

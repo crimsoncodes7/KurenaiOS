@@ -7,7 +7,7 @@
 
   var SUBJECTS = ["compsci", "maths", "it"];
   var COLORS = { compsci: "var(--c-compsci)", maths: "var(--c-maths)", it: "var(--c-it)" };
-  var HEX = { compsci: "#45d6a8", maths: "#7b9ef8", it: "#c77bf2" };
+  var HEX = { compsci: "#3D8E76", maths: "#4C6DB3", it: "#8A63A8" };
   var STATUS = [
     ["none", "Not started"], ["started", "Started"],
     ["paused", "Paused"], ["done", "Completed"]
@@ -204,6 +204,24 @@
     return n;
   }
 
+  /* rank ladder shared by the home profile band and the Governor's Seat */
+  var RANKS = [[1, "Novice"], [3, "Apprentice"], [5, "Scholar"], [8, "Adept"],
+               [12, "Sage"], [16, "Archivist"], [20, "Grandmaster"]];
+  function rankName(level) {
+    var r = RANKS[0][1];
+    RANKS.forEach(function (x) { if (level >= x[0]) r = x[1]; });
+    return r;
+  }
+  KOS.rankName = rankName;
+
+  function greeting() {
+    var h = new Date().getHours();
+    return h < 5 ? "Working late." : h < 12 ? "Good morning." : h < 18 ? "Good afternoon." : "Good evening.";
+  }
+  function todayLine() {
+    return new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  }
+
   KOS.views.home = function (main) {
     hideTree();
     var totals = { done: 0, total: 0 };
@@ -212,14 +230,21 @@
       totals.done += st.done; totals.total += st.total;
     });
     var pct = totals.total ? Math.round(100 * totals.done / totals.total) : 0;
-    var study = store.state.study || {};
-    var fcSeen = Object.keys(study.fc || {}).reduce(function (a, k) { return a + study.fc[k].seen; }, 0);
-    var qAtt = Object.keys(study.quiz || {}).reduce(function (a, k) { return a + study.quiz[k].attempts; }, 0);
     var stks = KOS.sessions.streaks();
     var dueN = KOS.srs.dueCount();
+    var g = store.state.governor;
+    var li = KOS.governor.levelInfo(g.xp);
+    var hpInfo = KOS.governor.hpStateInfo();
 
+    /* header — the day, not the brand (the topbar already carries the mark) */
+    var fxActive = KOS.focus && KOS.focus.state() !== "idle";
     main.appendChild(el("div", { class: "home-hero" }, [
-      el("h1", {}, [el("span", { class: "kanji-inline", text: "紅" }), " Kurenai OS"])
+      el("div", {}, [
+        el("span", { class: "hh-kicker", text: todayLine() }),
+        el("h1", { text: greeting() })
+      ]),
+      el("button", { class: "btn primary hh-focus" + (fxActive ? " live" : ""), onclick: function () { KOS.show("focus"); } },
+        [fxActive ? "◉ Return to the session" : "◉ Begin a focus session"])
     ]));
 
     /* governor state banner — recovery nudge when HP is low */
@@ -234,53 +259,73 @@
       ]));
     }
 
-    /* TOP — full-width stats bar */
+    /* ---- the profile band: who you are today ---- */
+    var banner = KOS.governor.bannerCss ? KOS.governor.bannerCss() : null;
+    var band = el("section", { class: "home-id" + (banner ? " has-banner" : ""), "aria-label": "Profile" });
+    if (banner) band.style.cssText += banner;
+    var week = [];
+    var activeDates = {};
+    KOS.sessions.all().forEach(function (s) { if (s.type !== "media") activeDates[s.date] = true; });
+    for (var i = 6; i >= 0; i--) {
+      var d0 = new Date(Date.now() - i * 864e5);
+      var iso = d0.getFullYear() + "-" + ("0" + (d0.getMonth() + 1)).slice(-2) + "-" + ("0" + d0.getDate()).slice(-2);
+      week.push({ on: !!activeDates[iso], today: i === 0 });
+    }
+    band.appendChild(el("div", { class: "hi-main" }, [
+      KOS.governor.avatarNode(72),
+      el("div", { class: "hi-txt" }, [
+        el("span", { class: "rank", text: rankName(li.level) }),
+        el("h2", { text: "Level " + li.level }),
+        el("div", { class: "hi-state" }, [
+          el("b", { text: hpInfo.label }),
+          " · ◈ " + g.gold + " gold"
+        ]),
+        el("div", { class: "lvl-row" }, [
+          el("div", { class: "hud-bar hud-xp big lvl-bar" }, [
+            el("span", { style: "width:" + Math.round(100 * li.into / li.need) + "%" })]),
+          el("span", { class: "to-next", text: (li.need - li.into) + " XP to Lv " + (li.level + 1) })
+        ]),
+        el("div", { class: "hi-week" }, [
+          el("span", { class: "week-dots" }, week.map(function (w) {
+            return el("i", { class: (w.on ? "on" : "") + (w.today && !w.on ? " today" : "") });
+          })),
+          el("span", { class: "sub", text: stks.all + "-day study streak · " + (stks.rest || 0) + "-day rest streak" })
+        ])
+      ])
+    ]));
     var ringWrap = el("div", { class: "home-ring" });
     var ringCv = el("canvas", { "aria-label": "Overall completion" });
     ringWrap.appendChild(ringCv);
-    function hstat(v, k, onclick) {
-      return el("div", { class: "hstat" + (onclick ? " click" : ""), onclick: onclick || function () {} }, [
+    function bandStat(v, k, onclick) {
+      return el("div", { class: "hstat" + (onclick ? " click" : "") , onclick: onclick || null }, [
         el("div", { class: "v", text: String(v) }),
-        el("div", { class: "k", text: k })]);
+        el("div", { class: "k", text: k })
+      ]);
     }
-    main.appendChild(el("div", { class: "home-stats" }, [
+    band.appendChild(el("div", { class: "hi-stats" }, [
       ringWrap,
-      hstat(totals.done + "/" + totals.total, "Spec points"),
-      hstat(masteredCount(), "Topics mastered"),
-      hstat(fcSeen, "Flashcards reviewed"),
-      hstat(qAtt, "Quiz attempts"),
-      hstat(dueN, dueN === 1 ? "Card due today" : "Cards due today", function () { KOS.show("due"); }),
-      hstat(stks.all + (stks.all === 1 ? " day" : " days"), "Study streak")
+      bandStat(totals.done + " / " + totals.total, "Spec points"),
+      bandStat(masteredCount(), "Mastered"),
+      bandStat(dueN, dueN === 1 ? "Card due" : "Cards due", function () { KOS.show("due"); })
     ]));
+    main.appendChild(band);
 
-    /* focus CTA — start (or return to) a timed session */
-    var fxActive = KOS.focus && KOS.focus.state() !== "idle";
-    main.appendChild(el("button", { class: "focus-cta" + (fxActive ? " live" : ""), onclick: function () {
-      KOS.show("focus");
-    } }, [
-      el("span", { class: "k", "aria-hidden": "true", text: "集" }),
-      el("span", { class: "t" }, [
-        el("b", { text: fxActive ? "Focus session in progress" : "Start a focus session" }),
-        el("span", { text: fxActive ? "The clock is running — return to the stage." : "Pomodoro or custom timer · what you study during it gets logged to the session." })
-      ]),
-      el("span", { class: "go", text: "→" })
-    ]));
-
-    /* TODAY — auto-generated to-do + deadline countdowns side by side */
+    /* ---- today's path + the horizon ---- */
     var todayRow = el("div", { class: "home-today" });
-    todayRow.appendChild(KOS.todo.panel());
-    todayRow.appendChild(KOS.calendar.countdownWidget(null));
+    var pathCard = el("section", { class: "path-card" });
+    pathCard.appendChild(KOS.todo.panel());
+    todayRow.appendChild(pathCard);
+    var side = el("div", { class: "home-side" });
+    side.appendChild(KOS.calendar.countdownWidget(null));
+    todayRow.appendChild(side);
     main.appendChild(todayRow);
 
-    /* prescriptive analytics — struggling topics across all subjects (FR-3.3) */
-    var ragPanel = KOS.rag.panel(null);
-    if (ragPanel) main.appendChild(ragPanel);
-
-    /* MIDDLE — subject cards with a slim completion progress bar */
+    /* ---- the desks: three subjects + the collection ---- */
     var cards = el("div", { class: "home-cards" });
     SUBJECTS.forEach(function (sid) {
       var d = KOS_DATA[sid], st = subjectStats(sid);
       var cov = KOS.content.coverage(sid, LEAVES[sid]);
+      var last = store.state.ui.lastRef[sid];
       var card = el("div", {
         class: "subj-card", style: "--accent:" + COLORS[sid],
         role: "button", tabindex: "0",
@@ -295,21 +340,13 @@
           (function () { var c = el("canvas", { class: "mini-ring" }); setTimeout(function () {
             miniRing(c, st.pct, HEX[sid]); }, 0); return c; })()
         ]),
-        el("div", { class: "m", text: st.done + "/" + st.total + " completed · " + cov + " deep-content topics" }),
-        el("div", { class: "streak-chip" + (stks[sid] ? " lit" : ""),
-          title: "Days in a row with a logged session in this subject" }, [
-          el("span", { class: "fl", text: "炎" }),
-          el("span", { text: stks[sid] + (stks[sid] === 1 ? " day streak" : " day streak") })
-        ])
+        el("div", { class: "m", text: st.done + "/" + st.total + " completed · " + cov + " deep-content topics" +
+          (stks[sid] ? " · 炎 " + stks[sid] + "-day streak" : "") })
       ]);
-
-      /* slim liquid-glass progress track — overall subject completion */
       card.appendChild(el("div", {
         class: "subj-track", "aria-label": st.pct + "% complete",
         title: st.done + "/" + st.total + " spec points completed"
       }, [el("span", { class: "subj-fill", style: "width:" + st.pct + "%" })]));
-
-      var last = store.state.ui.lastRef[sid];
       if (last && BYREF[sid][last]) {
         card.appendChild(el("button", {
           class: "continue mini", style: "--accent:" + COLORS[sid],
@@ -324,72 +361,77 @@
       }
       cards.appendChild(card);
     });
-    main.appendChild(cards);
-
-    /* BOTTOM — the Collection Matrix (live, Build 3a) + future builds */
-    var soon = el("div", { class: "home-cards soon-row" });
-    soon.appendChild(el("div", { class: "subj-card med-home-card", style: "--accent:#8C7CFF",
+    /* the collection desk */
+    cards.appendChild(el("div", { class: "subj-card med-home-card", style: "--accent:var(--accent)",
       role: "button", tabindex: "0",
       onclick: function () { KOS.show("matrix"); },
       onkeydown: function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); KOS.show("matrix"); } }
     }, [
-      el("span", { class: "soon-tag live", text: "Live · Build 3d" }),
-      el("h3", {}, [el("span", { class: "kanji-inline", text: "蒐" }), " Kurenai Collection Matrix"]),
-      el("div", { class: "m", text: "Anime + Books + Visual Novels: two-way AniList sync & VNDB · search-to-add · physical volume shelf · routes & quote log · rest streak · the Shrine. Games plugs in next." })
+      el("div", { class: "subj-card-top" }, [
+        el("div", {}, [
+          el("h3", {}, [el("span", { class: "kanji-inline", text: "蒐" }), " Collection"]),
+          el("span", { class: "b", text: "The other half of the ledger" })
+        ])
+      ]),
+      el("div", { class: "m", text: "Anime · books · visual novels · games — what you watch, read and play, with its own rest streak." })
     ]));
-    [["Build 4", "Competitions & Music", "AniCord events, playlists, Ollama bridge"]
-    ].forEach(function (t) {
-      soon.appendChild(el("div", { class: "subj-card soon-card" }, [
-        el("span", { class: "soon-tag", text: "Coming soon" }),
-        el("h3", { text: t[0] + ": " + t[1] }),
-        el("div", { class: "m", text: t[2] })
-      ]));
-    });
-    main.appendChild(soon);
+    main.appendChild(cards);
+
+    /* struggling topics across all subjects (FR-3.3) */
+    var ragPanel = KOS.rag.panel(null);
+    if (ragPanel) { ragPanel.classList.add("home-rag"); main.appendChild(ragPanel); }
 
     bigRing(ringCv, pct);
   };
 
+  /* canvas rings read their colours from the live theme tokens */
+  function tokenColor(name, fallback) {
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  }
   function bigRing(canvas, pct) {
-    var dpr = window.devicePixelRatio || 1, size = 112;
+    var dpr = window.devicePixelRatio || 1, size = 108;
     canvas.width = size * dpr; canvas.height = size * dpr;
     canvas.style.width = size + "px"; canvas.style.height = size + "px";
     var ctx = canvas.getContext("2d");
     if (!ctx || !ctx.scale) return;
     ctx.scale(dpr, dpr);
-    var cx = size / 2, cy = size / 2, r = 45;
-    ctx.lineWidth = 9; ctx.lineCap = "round";
-    ctx.strokeStyle = "#2c2240";
+    var cx = size / 2, cy = size / 2, r = 44;
+    ctx.lineWidth = 8; ctx.lineCap = "round";
+    ctx.strokeStyle = tokenColor("--well", "#E7DFCC");
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
     if (pct > 0) {
       var grad = ctx.createLinearGradient(0, 0, size, size);
-      grad.addColorStop(0, "#8C7CFF"); grad.addColorStop(1, "#35D7FF");
+      grad.addColorStop(0, tokenColor("--accent", "#5D6BA8"));
+      grad.addColorStop(1, tokenColor("--accent2", "#A97F2F"));
       ctx.strokeStyle = grad;
       ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct / 100); ctx.stroke();
     }
-    ctx.fillStyle = "#ece7f4";
-    ctx.font = "700 24px 'Avenir Next Condensed','Arial Narrow',sans-serif";
+    ctx.fillStyle = tokenColor("--text", "#332C20");
+    ctx.font = "600 22px Fraunces, Georgia, serif";
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillText(pct + "%", cx, cy - 5);
-    ctx.fillStyle = "#6f6488"; ctx.font = "8px 'SF Mono',monospace";
+    ctx.fillStyle = tokenColor("--muted", "#97896D");
+    ctx.font = "8px 'IBM Plex Mono', monospace";
     ctx.fillText("COVERED", cx, cy + 14);
   }
   function miniRing(canvas, pct, color) {
-    var dpr = window.devicePixelRatio || 1, size = 54;
+    var dpr = window.devicePixelRatio || 1, size = 52;
     canvas.width = size * dpr; canvas.height = size * dpr;
     canvas.style.width = size + "px"; canvas.style.height = size + "px";
     var ctx = canvas.getContext("2d");
     if (!ctx || !ctx.scale) return;
     ctx.scale(dpr, dpr);
-    var cx = size / 2, cy = size / 2, r = 21;
-    ctx.lineWidth = 5; ctx.lineCap = "round";
-    ctx.strokeStyle = "#2c2240";
+    var cx = size / 2, cy = size / 2, r = 20;
+    ctx.lineWidth = 4.5; ctx.lineCap = "round";
+    ctx.strokeStyle = tokenColor("--well", "#E7DFCC");
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
     if (pct > 0) {
       ctx.strokeStyle = color;
       ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct / 100); ctx.stroke();
     }
-    ctx.fillStyle = "#ece7f4"; ctx.font = "700 12px 'SF Mono',monospace";
+    ctx.fillStyle = tokenColor("--text", "#332C20");
+    ctx.font = "600 12px 'IBM Plex Mono', monospace";
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillText(pct + "%", cx, cy);
   }
@@ -463,25 +505,28 @@
     var d = KOS_DATA[sid], s = subjectStats(sid);
     main.style.setProperty("--accent", COLORS[sid]);
 
-    /* header: name + board + paper structure */
+    /* header — the subject desk */
     var papers = [];
     d.sections.forEach(function (sec) {
       var lbl = sec.paper !== undefined ? paperLabel(sid, sec.paper) : null;
       if (lbl && papers.indexOf(lbl) === -1) papers.push(lbl);
     });
     main.appendChild(el("div", { class: "dash-head" }, [
-      el("h1", { text: d.name }),
-      el("div", {}, [
-        el("span", { class: "board", text: d.board }),
-        el("span", { class: "papers", text: papers.join("  ·  ") })
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "Subject desk" }),
+        el("h1", { text: d.name }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: d.board }),
+          el("span", { class: "papers", text: papers.join("  ·  ") })
+        ])
       ]),
-      el("button", { class: "btn", style: "margin-left:auto", text: "⇆ Compare topics",
-        onclick: function () { compareModal(sid); } })
+      el("div", { class: "dh-actions" }, [
+        el("button", { class: "btn", text: "⇆ Compare topics", onclick: function () { compareModal(sid); } }),
+        el("button", { class: "btn primary", text: "◉ Start focus", onclick: function () { KOS.show("focus"); } })
+      ])
     ]));
 
-    /* Build 4.0 — Sol's subject-level unit breakdown: one card per paper /
-       coursework unit with its own completion track. Derived from each
-       section's paper tag; sections without one group under the board name. */
+    /* the desk band: board summary + one column per paper/unit (Sol) */
     var units = {};
     d.sections.forEach(function (sec) {
       var lbl = sec.paper !== undefined ? paperLabel(sid, sec.paper) : d.board;
@@ -492,65 +537,38 @@
       units[lbl].secs.push(sec.title);
     });
     var unitKeys = Object.keys(units);
-    if (unitKeys.length > 1) {
-      var uwrap = el("div", { class: "subject-units", "aria-label": "Course units" });
-      unitKeys.forEach(function (lbl) {
-        var u = units[lbl];
-        var upct = u.total ? Math.round(100 * u.done / u.total) : 0;
-        uwrap.appendChild(el("div", { class: "unit-stat" }, [
-          el("span", { text: lbl }),
-          el("strong", { text: u.secs.length === 1 ? u.secs[0] : u.secs.length + " sections" }),
-          el("div", { class: "insp-track" }, [el("i", { style: "width:" + upct + "%" })]),
-          el("small", { text: u.done + " / " + u.total + " secure" })
-        ]));
-      });
-      main.appendChild(uwrap);
-    }
-
-    /* stat strip */
-    var cov = KOS.content.coverage(sid, LEAVES[sid]);
-    var study = store.state.study || {};
-    var fcSeen = 0, bestPct = 0;
-    Object.keys(study.fc || {}).forEach(function (k) {
-      if (k.indexOf(sid + ":") === 0) fcSeen += study.fc[k].seen;
-    });
-    Object.keys(study.quiz || {}).forEach(function (k) {
-      if (k.indexOf(sid + ":") === 0) bestPct = Math.max(bestPct, study.quiz[k].lastPct || 0);
-    });
-    var subjStreak = KOS.sessions.streak(sid);
-    main.appendChild(el("div", { class: "stat-strip" }, [
-      stat(s.total, "Spec points"), stat(s.done, "Completed"),
-      stat(s.started, "Started"), stat(s.paused, "Paused"),
-      stat(cov, "Deep-content topics"),
-      stat((s.total ? Math.round(100 * cov / s.total) : 0) + "%", "Deep-content %"),
-      stat(fcSeen, "Flashcards reviewed"),
-      stat(bestPct + "%", "Best quiz score"),
-      stat(subjStreak + (subjStreak === 1 ? " day" : " days"), "Subject streak")
+    var uwrap = el("div", { class: "subject-units", "aria-label": "Course units" });
+    uwrap.appendChild(el("div", { class: "unit-lead" }, [
+      el("span", { class: "ul-glyph", "aria-hidden": "true", text: d.name.slice(0, 1) }),
+      el("div", { class: "ul-txt" }, [
+        el("strong", { text: d.board }),
+        el("span", { text: s.total + " spec points · " + s.done + " completed" }),
+        el("div", { class: "insp-track" }, [el("i", { style: "width:" + s.pct + "%" })]),
+        el("small", { text: "Subject mastery " + s.pct + "%" })
+      ])
     ]));
-    function stat(v, k) {
-      return el("div", { class: "stat-card" }, [
-        el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k })]);
-    }
-
-    /* deadline countdowns scoped to this subject (FR-3.6) */
-    main.appendChild(KOS.calendar.countdownWidget(sid));
-
-    /* struggling topics in this subject (FR-3.3) */
-    var ragPanel = KOS.rag.panel(sid);
-    if (ragPanel) { ragPanel.style.marginTop = "18px"; main.appendChild(ragPanel); }
-
-    var last = store.state.ui.lastRef[sid];
-    if (last && BYREF[sid][last]) {
-      main.appendChild(el("button", {
-        class: "continue", style: "margin-bottom:18px",
-        onclick: function () { KOS.show("ref", { subject: sid, ref: last }); }
-      }, [
-        el("span", { text: "Continue where you left off →" }),
-        el("b", { text: last + " " + BYREF[sid][last].title })
+    unitKeys.forEach(function (lbl) {
+      var u = units[lbl];
+      var upct = u.total ? Math.round(100 * u.done / u.total) : 0;
+      uwrap.appendChild(el("div", { class: "unit-stat" }, [
+        el("span", { text: lbl }),
+        el("strong", { text: u.secs.length === 1 ? u.secs[0] : u.secs.length + " sections" }),
+        el("div", { class: "insp-track" }, [el("i", { style: "width:" + upct + "%" })]),
+        el("small", { text: u.done + " / " + u.total + " secure" })
       ]));
-    }
+    });
+    main.appendChild(uwrap);
 
-    /* section breakdown — grid of colour-coded cards, expandable */
+    /* the two-column workspace: sections on the left, context on the right */
+    var grid = el("div", { class: "subject-grid" });
+    var colMain = el("div", { class: "subject-main" });
+    var colSide = el("aside", { class: "subject-side" });
+    grid.appendChild(colMain);
+    grid.appendChild(colSide);
+    main.appendChild(grid);
+
+    /* --- left: the section ledger (accordion rows) --- */
+    colMain.appendChild(el("h3", { class: "n-h", text: "Sections" }));
     function tone(pct) { return pct < 20 ? "low" : pct <= 70 ? "mid" : "high"; }
     var secGrid = el("div", { class: "sec-grid" });
     d.sections.forEach(function (sec) {
@@ -569,11 +587,12 @@
       }, [
         el("span", { class: "ref", text: sec.ref }),
         el("span", { class: "ttl", text: sec.title }),
-        el("span", { class: "pc", text: st.done + "/" + st.total })
+        el("span", { class: "sec-bar bar-track" }, [
+          el("span", { class: "bar-fill", style: "width:" + st.pct + "%" })]),
+        el("span", { class: "pc", text: st.done + "/" + st.total }),
+        el("span", { class: "arr", "aria-hidden": "true", text: "▾" })
       ]);
       card.appendChild(head);
-      card.appendChild(el("div", { class: "bar-track" }, [
-        el("div", { class: "bar-fill", style: "width:" + st.pct + "%" })]));
 
       /* subsection bars, revealed on expand */
       var subs = (sec.children || []).map(function (ch) {
@@ -593,16 +612,16 @@
           el("span", { class: "pc", text: x.st.done + "/" + x.st.total })
         ]));
       });
-      if (!subs.length) sub.appendChild(el("div", { class: "bar-row", style: "color:var(--faint);font-size:12px", text: "No subsections — open the topic tree to study the leaves directly." }));
+      if (!subs.length) sub.appendChild(el("div", { class: "bar-row dim", text: "No subsections — the topics live directly in the tree on the left." }));
       card.appendChild(sub);
       secGrid.appendChild(card);
     });
-    main.appendChild(secGrid);
+    colMain.appendChild(secGrid);
 
-    /* practice zone — labs now live here */
+    /* practice zone — labs live here */
     var labs = PRACTICE[sid] || [];
     if (labs.length) {
-      main.appendChild(el("h3", { class: "n-h", style: "margin-top:26px", text: "Practice zone" }));
+      colMain.appendChild(el("h3", { class: "n-h", style: "margin-top:26px", text: "Practice zone" }));
       var pz = el("div", { class: "practice-row" });
       labs.forEach(function (t) {
         var acc = practiceAccess(t[3]);
@@ -613,14 +632,52 @@
             text: acc.why === "hp" ? "朽 suspended — low HP" : "錠 locked · ◈ " + acc.item.price })
         ]));
       });
-      main.appendChild(pz);
+      colMain.appendChild(pz);
     }
 
     /* resource link table (FR-2.8) */
-    main.appendChild(el("h3", { class: "n-h", style: "margin-top:26px", text: "Resources & reference sheets" }));
+    colMain.appendChild(el("h3", { class: "n-h", style: "margin-top:26px", text: "Resources & reference sheets" }));
     var resHolder = el("div", {});
-    main.appendChild(resHolder);
+    colMain.appendChild(resHolder);
     renderResources(resHolder, sid);
+
+    /* --- right: continue, countdowns, struggle flags, the numbers --- */
+    var last = store.state.ui.lastRef[sid];
+    if (last && BYREF[sid][last]) {
+      colSide.appendChild(el("button", {
+        class: "continue",
+        onclick: function () { KOS.show("ref", { subject: sid, ref: last }); }
+      }, [
+        el("span", { class: "d", text: "Continue where you left off" }),
+        el("b", { text: last + " " + BYREF[sid][last].title })
+      ]));
+    }
+    colSide.appendChild(KOS.calendar.countdownWidget(sid));
+    var ragPanel = KOS.rag.panel(sid);
+    if (ragPanel) colSide.appendChild(ragPanel);
+
+    var cov = KOS.content.coverage(sid, LEAVES[sid]);
+    var study = store.state.study || {};
+    var fcSeen = 0, bestPct = 0;
+    Object.keys(study.fc || {}).forEach(function (k) {
+      if (k.indexOf(sid + ":") === 0) fcSeen += study.fc[k].seen;
+    });
+    Object.keys(study.quiz || {}).forEach(function (k) {
+      if (k.indexOf(sid + ":") === 0) bestPct = Math.max(bestPct, study.quiz[k].lastPct || 0);
+    });
+    var subjStreak = KOS.sessions.streak(sid);
+    function stat(v, k) {
+      return el("div", { class: "stat-card" }, [
+        el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k })]);
+    }
+    colSide.appendChild(el("div", { class: "stat-strip side-stats" }, [
+      stat(s.started, "Started"), stat(s.paused, "Paused"),
+      stat(cov, "Deep topics"),
+      stat((s.total ? Math.round(100 * cov / s.total) : 0) + "%", "Deep %"),
+      stat(fcSeen, "Cards seen"),
+      stat(bestPct + "%", "Best quiz"),
+      stat(subjStreak + (subjStreak === 1 ? " day" : " days"), "Streak")
+    ]));
   };
 
   /* ---------- FR-2.8: per-subject resource links ---------- */
@@ -1041,13 +1098,27 @@
   /* ---------- backup view ---------- */
   KOS.views.data = function (main) {
     hideTree();
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "Backup & Restore" }),
-      el("p", { class: "sub", text: "Full export covers everything: study progress, governor state, the entire media vault (anime/books/VN/games, including routes, quotes, and physical volumes), and document attachments. A vault with many large attachments may produce a large file — that is expected. Import is a complete restore, not a merge." }),
-      el("p", { class: "sub", text: "AniList and VNDB tokens are intentionally excluded from backups — a backup file may be stored or shared in less-secure places than your browser profile. After restoring, reconnect both services from Sync & Import the same way you did originally." })
+    var s = store.state;
+    var n = Object.keys(s.progress).length;
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "The archive" }),
+        el("h1", { text: "Backup & Restore" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: n + " spec points with saved progress · since " + new Date(s.created).toLocaleDateString("en-GB") })
+        ])
+      ])
     ]));
-    var row = el("div", { class: "lab-controls", style: "margin-top:18px" });
 
+    var grid = el("div", { class: "data-grid" });
+    main.appendChild(grid);
+
+    /* left — the actions, one per row with its own explanation */
+    var actions = el("section", { class: "data-card" });
+    actions.appendChild(el("h3", { text: "Keep it safe" }));
+    function actionRow(btn, blurb) {
+      return el("div", { class: "data-action" }, [btn, el("p", { class: "sub", text: blurb })]);
+    }
     var exportBtn = el("button", { class: "btn primary", text: "Export full backup (.json)",
       onclick: function () {
         exportBtn.disabled = true;
@@ -1058,7 +1129,7 @@
           if (err) KOS.ui.toast("Export error: " + err.message, true);
         });
       }});
-    row.appendChild(exportBtn);
+    actions.appendChild(actionRow(exportBtn, "One file with everything in it. Large attachments make a large file — that's expected."));
 
     var file = el("input", { type: "file", accept: ".json,application/json", style: "display:none",
       onchange: function () {
@@ -1079,25 +1150,35 @@
           KOS.show("home");
         });
       }});
-    row.appendChild(file);
+    actions.appendChild(file);
     var importBtn = el("button", { class: "btn gold", text: "Import backup…",
       onclick: function () { file.click(); } });
-    row.appendChild(importBtn);
-
-    row.appendChild(el("button", { class: "btn jade", text: "Export revision summary (print / PDF)",
-      onclick: exportSummary }));
-    row.appendChild(el("button", { class: "btn danger", text: "Reset everything",
-      onclick: function () {
+    actions.appendChild(actionRow(importBtn, "A complete restore, not a merge — the file replaces what's here."));
+    actions.appendChild(actionRow(
+      el("button", { class: "btn jade", text: "Export revision summary (print / PDF)", onclick: exportSummary }),
+      "A printable table of every spec point, its status and your notes."));
+    actions.appendChild(actionRow(
+      el("button", { class: "btn danger", text: "Reset everything", onclick: function () {
         if (confirm("Wipe all progress, notes and sandbox work? Export first if unsure.")) {
           store.reset(); KOS.refreshRailCounters(); KOS.ui.toast("Fresh start."); KOS.show("home");
         }
-      }}));
-    main.appendChild(row);
+      }}),
+      "Back to a blank desk. Export first if there's any doubt."));
+    grid.appendChild(actions);
 
-    var s = store.state;
-    var n = Object.keys(s.progress).length;
-    main.appendChild(el("p", { style: "color:var(--mute);font-size:13px;margin-top:14px",
-      text: n + " spec points carry saved progress. State object created " + new Date(s.created).toLocaleDateString("en-GB") + "." }));
+    /* right — what a backup covers */
+    var covers = el("section", { class: "data-card" });
+    covers.appendChild(el("h3", { text: "What a backup covers" }));
+    covers.appendChild(el("ul", { class: "data-list" }, [
+      el("li", { text: "Study progress, notes and flashcard scheduling" }),
+      el("li", { text: "Governor state — HP, gold, XP, everything you own" }),
+      el("li", { text: "The whole media vault: anime, books, visual novels, games — routes, quotes, physical volumes included" }),
+      el("li", { text: "The purchase planner and budget history" }),
+      el("li", { text: "Document attachments" })
+    ]));
+    covers.appendChild(el("p", { class: "sub", text:
+      "AniList and VNDB tokens are deliberately left out — a backup file can end up in less careful places than your browser. After a restore, reconnect both from Sync & Import." }));
+    grid.appendChild(covers);
   };
 
   /* ---------- printable revision summary ---------- */

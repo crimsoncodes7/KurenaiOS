@@ -10,28 +10,28 @@ C["it:F201.1.1"] = {
     { page: "The six characteristics (6 V's)" },
     { h: "What the 6 V's are and why they matter" },
     "Each V is a *dimension* on which a data set can be \"big\". A data set usually qualifies as big data on several at once — but naming the **dominant** V for a given scenario is the most common exam skill. For each, know the definition, *how it helps define big data*, its *purpose* (why an analyst cares), and *when it applies*.",
-    { callout: { t: "def", h: "Volume", body: "The sheer **amount** of data generated and stored — measured in terabytes, petabytes or more. Defines big data because the quantity exceeds what a single machine can hold, forcing distributed storage. Purpose: drives the choice of storage infrastructure ($data$ $lakes$, distributed clusters). Applies when: an organisation accumulates huge historical or streamed datasets (e.g. years of transaction logs)." }},
-    { callout: { t: "def", h: "Variety", body: "The **range of formats and sources** — structured (tables), semi-structured ($XML$/$JSON$), and unstructured (video, text, audio). Defines big data because mixed formats can't fit one rigid schema. Purpose: dictates whether you need $NoSQL$/$data$ $lakes$ rather than a relational database. Applies when: combining e.g. sensor readings + social posts + images in one analysis." }},
+    { callout: { t: "def", h: "Volume", body: "The sheer **amount** of data generated and stored — measured in terabytes, petabytes or more. Defines big data because the quantity exceeds what a single machine can hold, forcing distributed storage. Purpose: drives the choice of storage infrastructure (data lakes, distributed clusters). Applies when: an organisation accumulates huge historical or streamed datasets (e.g. years of transaction logs)." }},
+    { callout: { t: "def", h: "Variety", body: "The **range of formats and sources** — structured (tables), semi-structured (XML/JSON), and unstructured (video, text, audio). Defines big data because mixed formats can't fit one rigid schema. Purpose: dictates whether you need NoSQL/data lakes rather than a relational database. Applies when: combining e.g. sensor readings + social posts + images in one analysis." }},
     { callout: { t: "def", h: "Velocity", body: "The **speed** at which data is generated and streamed, and the speed at which it must be processed to stay useful. Defines big data because real-time arrival outpaces batch tools. Purpose: drives the choice of streaming/real-time processing. Applies when: data loses value quickly — stock ticks, fraud checks, live sensor feeds." }},
-    { callout: { t: "def", h: "Value", body: "The **usefulness** of the data to the organisation's goals — whether acting on it produces a worthwhile return ($ROI$). Defines big data because volume alone is worthless if no insight can be extracted. Purpose: justifies the cost of collection and storage. Applies when: deciding which data is worth keeping vs discarding." }},
+    { callout: { t: "def", h: "Value", body: "The **usefulness** of the data to the organisation's goals — whether acting on it produces a worthwhile return (ROI). Defines big data because volume alone is worthless if no insight can be extracted. Purpose: justifies the cost of collection and storage. Applies when: deciding which data is worth keeping vs discarding." }},
     { callout: { t: "def", h: "Veracity", body: "The **accuracy, quality and trustworthiness** of the data — how complete, consistent and reliable it is. Defines big data because large, varied, fast data is often messy, biased or incomplete. Purpose: low veracity means insights cannot be trusted, so it drives the need for cleaning. Applies when: data comes from unverified sources (social media, crowd-sourced input)." }},
     { callout: { t: "def", h: "Variability", body: "The **inconsistency** of the data — in its flow rate, its meaning, or its structure **over time**. Defines big data because patterns shift (seasonal peaks, a word's sentiment changing by context). Purpose: warns analysts that a model trained once may drift and need re-training. Applies when: demand or meaning fluctuates — retail seasons, trending slang, irregular sensor bursts." }},
     { table: { head: ["V", "One-word handle", "What it drives in an analytics system"], rows: [
-      ["$Volume$", "Amount", "Storage scale — distributed clusters, data lakes."],
-      ["$Variety$", "Formats", "Schema choice — NoSQL / lake over relational."],
-      ["$Velocity$", "Speed", "Real-time streaming vs batch processing."],
-      ["$Value$", "Usefulness", "Whether the project is worth funding ($ROI$)."],
-      ["$Veracity$", "Trust", "How much cleaning/validation is needed."],
-      ["$Variability$", "Consistency", "Whether models must adapt to drift over time."]
+      ["Volume", "Amount", "Storage scale — distributed clusters, data lakes."],
+      ["Variety", "Formats", "Schema choice — NoSQL / lake over relational."],
+      ["Velocity", "Speed", "Real-time streaming vs batch processing."],
+      ["Value", "Usefulness", "Whether the project is worth funding (ROI)."],
+      ["Veracity", "Trust", "How much cleaning/validation is needed."],
+      ["Variability", "Consistency", "Whether models must adapt to drift over time."]
     ] } },
-    { callout: { t: "miscon", h: "Variety ≠ Variability; Velocity ≠ processing speed", body: "$Variety$ is about **how many different formats** you have; $Variability$ is about **inconsistency over time** in flow or meaning. They are different V's — don't conflate them. Likewise $Velocity$ measures how fast **data arrives**, not how fast the computer runs; the system must keep *pace* with velocity to avoid a bottleneck." }},
+    { callout: { t: "miscon", h: "Variety ≠ Variability; Velocity ≠ processing speed", body: "Variety is about **how many different formats** you have; Variability is about **inconsistency over time** in flow or meaning. They are different V's — don't conflate them. Likewise Velocity measures how fast **data arrives**, not how fast the computer runs; the system must keep *pace* with velocity to avoid a bottleneck." }},
 
     { page: "The six analysis steps" },
     { h: "Six steps for analysing big data" },
     "This is the pipeline a data set passes through. The spec wants what each step *involves*, its *role* in managing big data, and *when* it is used. The order matters — each step feeds the next.",
     { steps: [
-      { h: "1 · Data collection", m: "Gather raw data from every source — sensors, $GPS$, social media, transactional records.", n: "Role: feeds the pipeline. Without broad, representative collection later steps work on gaps. Used at ingestion, continuously for streamed sources." },
-      { h: "2 · Data storing", m: "Persist the raw data in scalable systems — distributed clusters, $cloud$ storage, $data$ $lakes$.", n: "Role: makes high-volume data available for repeated processing. Used immediately after collection; choice driven by Volume and Variety." },
+      { h: "1 · Data collection", m: "Gather raw data from every source — sensors, GPS, social media, transactional records.", n: "Role: feeds the pipeline. Without broad, representative collection later steps work on gaps. Used at ingestion, continuously for streamed sources." },
+      { h: "2 · Data storing", m: "Persist the raw data in scalable systems — distributed clusters, cloud storage, data lakes.", n: "Role: makes high-volume data available for repeated processing. Used immediately after collection; choice driven by Volume and Variety." },
       { h: "3 · Data cleaning", m: "Remove duplicates, fix errors, handle missing values and standardise formats.", n: "Role: raises Veracity so later analysis is trustworthy. Used before any mining — \"garbage in, garbage out\"." },
       { h: "4 · Data mining", m: "Apply algorithms to discover hidden patterns, correlations and relationships.", n: "Role: turns clean data into candidate insights. Used once data is clean and stored; see techniques in 2.3." },
       { h: "5 · Data analysis", m: "Interpret the mined patterns against the business question to produce meaning.", n: "Role: converts patterns into decisions/recommendations. Used after mining; distinguishes correlation from useful insight." },
@@ -52,32 +52,32 @@ C["it:F201.1.1"] = {
     { callout: { t: "warn", h: "\"Describe\" vs \"Explain\"", body: "\"Describe a characteristic\" = state what it is. \"Explain how it helps define big data\" = link the feature to *why traditional tools fail* (e.g. Volume exceeds one server → needs distributed storage). The second verb earns the higher marks — don't just re-state the definition." }}
   ],
   flashcards: [
-    ["List the $6Vs$ of big data.", "$Volume$ (amount), $Variety$ (formats), $Velocity$ (speed of arrival), $Value$ (usefulness/$ROI$), $Veracity$ (accuracy/trust), $Variability$ (inconsistency over time)."],
-    ["Define $Veracity$.", "The accuracy, quality and trustworthiness of the data — how complete, consistent and reliable it is."],
-    ["How does $Variability$ differ from $Variety$?", "$Variety$ = the number of different data formats/sources; $Variability$ = inconsistency in flow or meaning over time (e.g. seasonal peaks, shifting sentiment)."],
-    ["Why does $Velocity$ help define data as 'big'?", "Data arrives so fast that batch tools can't keep pace — it forces real-time/streaming processing to stay useful."],
-    ["What does $Value$ mean and why does it matter?", "The usefulness of the data to the organisation — whether acting on it yields a positive $ROI$. Volume is worthless without extractable insight."],
+    ["List the $6Vs$ of big data.", "Volume (amount), Variety (formats), Velocity (speed of arrival), Value (usefulness/ROI), Veracity (accuracy/trust), Variability (inconsistency over time)."],
+    ["Define Veracity.", "The accuracy, quality and trustworthiness of the data — how complete, consistent and reliable it is."],
+    ["How does Variability differ from Variety?", "Variety = the number of different data formats/sources; Variability = inconsistency in flow or meaning over time (e.g. seasonal peaks, shifting sentiment)."],
+    ["Why does Velocity help define data as 'big'?", "Data arrives so fast that batch tools can't keep pace — it forces real-time/streaming processing to stay useful."],
+    ["What does Value mean and why does it matter?", "The usefulness of the data to the organisation — whether acting on it yields a positive ROI. Volume is worthless without extractable insight."],
     ["List the six steps for analysing big data in order.", "Data collection → storing → cleaning → mining → analysis → consumption."],
-    ["What is the role of the data cleaning step?", "To raise $Veracity$ — removing duplicates, fixing errors and missing values so later mining/analysis can be trusted."],
-    ["What happens in the data consumption step?", "Findings are presented via dashboards/reports/visualisations to decision-makers — delivering the data's $Value$ as action."],
+    ["What is the role of the data cleaning step?", "To raise Veracity — removing duplicates, fixing errors and missing values so later mining/analysis can be trusted."],
+    ["What happens in the data consumption step?", "Findings are presented via dashboards/reports/visualisations to decision-makers — delivering the data's Value as action."],
     ["Which step turns clean data into hidden patterns?", "Data mining — applying algorithms to discover correlations and relationships."],
     ["Why must cleaning come before mining?", "\"Garbage in, garbage out\" — mining errors or duplicates produces unreliable, misleading patterns."]
   ],
   quiz: [
     {
-      q: "A logistics firm streams live $GPS$ from 50,000 vehicles that must be processed within seconds. Which characteristic is most relevant?",
-      opts: ["$Volume$", "$Velocity$", "$Variety$", "$Value$"],
+      q: "A logistics firm streams live GPS from 50,000 vehicles that must be processed within seconds. Which characteristic is most relevant?",
+      opts: ["Volume", "Velocity", "Variety", "Value"],
       ans: 1,
-      why: "The defining feature is the speed of arrival and the need for near-instant processing — $Velocity$."
+      why: "The defining feature is the speed of arrival and the need for near-instant processing — Velocity."
     },
     {
       q: "A retailer notices its data flow and meaning change sharply between seasons. Which V describes this?",
-      opts: ["$Variety$", "$Veracity$", "$Variability$", "$Volume$"],
+      opts: ["Variety", "Veracity", "Variability", "Volume"],
       ans: 2,
-      why: "$Variability$ is inconsistency in flow or meaning over time — exactly seasonal fluctuation."
+      why: "Variability is inconsistency in flow or meaning over time — exactly seasonal fluctuation."
     },
     {
-      q: "Which step directly raises the $Veracity$ of a dataset?",
+      q: "Which step directly raises the Veracity of a dataset?",
       opts: ["Data storing", "Data cleaning", "Data mining", "Data consumption"],
       ans: 1,
       why: "Cleaning removes duplicates and fixes errors/missing values, improving accuracy and trustworthiness."
@@ -95,15 +95,15 @@ C["it:F201.1.1"] = {
     },
     {
       q: "An analyst argues a dataset isn't worth keeping because no insight can be extracted from it. Which V is being questioned?",
-      opts: ["$Value$", "$Volume$", "$Velocity$", "$Veracity$"],
+      opts: ["Value", "Volume", "Velocity", "Veracity"],
       ans: 0,
-      why: "$Value$ is whether the data is useful enough to justify its cost — usefulness, not size."
+      why: "Value is whether the data is useful enough to justify its cost — usefulness, not size."
     },
     {
-      q: "Which characteristic most directly forces an organisation to abandon a single relational database for a $data$ $lake$?",
-      opts: ["$Value$", "$Variability$", "$Variety$", "$Veracity$"],
+      q: "Which characteristic most directly forces an organisation to abandon a single relational database for a data lake?",
+      opts: ["Value", "Variability", "Variety", "Veracity"],
       ans: 2,
-      why: "$Variety$ — mixed structured/semi/unstructured formats won't fit one rigid relational schema, so a flexible store is needed."
+      why: "Variety — mixed structured/semi/unstructured formats won't fit one rigid relational schema, so a flexible store is needed."
     }
   ],
   exam: [
@@ -149,21 +149,21 @@ C["it:F201.1.1"] = {
 C["it:F201.1.2"] = {
   notes: [
     "Big data did not appear overnight — it is the result of five technological **developments** the spec names explicitly: **database management systems**, the **Internet of Everything (IoE)**, the **proliferation of devices** generating digital data, **search engines**, and **web-based storage**. For each you must explain *how it contributed* to the evolution of big data and give its *benefits and limitations* in that role.",
-    { callout: { t: "tip", h: "How to read \"evolution\"", body: "These developments stack: storage tech ($DBMS$ → web-based storage) made it *possible* to hold huge data; data-generating tech ($IoE$, device proliferation) *produced* the data; search engines forced the *processing* breakthroughs (distributed indexing) that made huge unstructured data usable. Strong answers link a development to *which V it boosted*." }},
+    { callout: { t: "tip", h: "How to read \"evolution\"", body: "These developments stack: storage tech (DBMS → web-based storage) made it *possible* to hold huge data; data-generating tech (IoE, device proliferation) *produced* the data; search engines forced the *processing* breakthroughs (distributed indexing) that made huge unstructured data usable. Strong answers link a development to *which V it boosted*." }},
 
     { page: "The five developments" },
-    { callout: { t: "def", h: "Database management systems (DBMS)", body: "Software for storing, organising and querying data — evolving from flat files to relational databases ($RDBMS$, using $SQL$) and then to $NoSQL$ systems built for horizontal scaling. Contribution: gave organisations a structured way to *store and retrieve* growing datasets reliably, and $NoSQL$ later removed the rigid-schema limit so high-$Variety$ data could be stored at scale." }},
-    { callout: { t: "def", h: "Internet of Everything (IoE)", body: "The networked connection of **people, processes, data and things** — extending the Internet of Things to include human and process interactions. Contribution: turned everyday objects and interactions into continuous data sources, massively increasing the $Volume$ and $Velocity$ of data generated." }},
-    { callout: { t: "def", h: "Proliferation of devices generating digital data", body: "The explosion of smartphones, wearables, smart appliances and embedded sensors. Contribution: every device is a data producer — location, usage, biometric and environmental signals — so the *quantity and variety* of data sources grew exponentially, feeding the $IoE$." }},
-    { callout: { t: "def", h: "Search engines", body: "Systems ($Google$ and others) that crawl, index and rank the entire web. Contribution: the need to index billions of unstructured web pages fast drove the invention of **distributed storage and processing** (e.g. the $MapReduce$/$Hadoop$ lineage) — the core technology that later made *all* big data processing feasible." }},
-    { callout: { t: "def", h: "Web-based storage", body: "Online/$cloud$ storage where data is held on remote provider infrastructure ($AWS$, $Azure$, $GCP$) and accessed over the internet. Contribution: provided **affordable, elastic** capacity so organisations could store petabytes without buying their own data centres — removing the cost barrier to keeping big data." }},
-    { callout: { t: "miscon", h: "IoE is broader than IoT", body: "Candidates often equate the two. $IoT$ = the *things* (connected devices). $IoE$ = things **plus people, processes and data** — the wider networked ecosystem. Device proliferation is what *populates* the $IoT$ layer of the $IoE$." }},
+    { callout: { t: "def", h: "Database management systems (DBMS)", body: "Software for storing, organising and querying data — evolving from flat files to relational databases (RDBMS, using SQL) and then to NoSQL systems built for horizontal scaling. Contribution: gave organisations a structured way to *store and retrieve* growing datasets reliably, and NoSQL later removed the rigid-schema limit so high-Variety data could be stored at scale." }},
+    { callout: { t: "def", h: "Internet of Everything (IoE)", body: "The networked connection of **people, processes, data and things** — extending the Internet of Things to include human and process interactions. Contribution: turned everyday objects and interactions into continuous data sources, massively increasing the Volume and Velocity of data generated." }},
+    { callout: { t: "def", h: "Proliferation of devices generating digital data", body: "The explosion of smartphones, wearables, smart appliances and embedded sensors. Contribution: every device is a data producer — location, usage, biometric and environmental signals — so the *quantity and variety* of data sources grew exponentially, feeding the IoE." }},
+    { callout: { t: "def", h: "Search engines", body: "Systems (Google and others) that crawl, index and rank the entire web. Contribution: the need to index billions of unstructured web pages fast drove the invention of **distributed storage and processing** (e.g. the MapReduce/Hadoop lineage) — the core technology that later made *all* big data processing feasible." }},
+    { callout: { t: "def", h: "Web-based storage", body: "Online/cloud storage where data is held on remote provider infrastructure (AWS, Azure, GCP) and accessed over the internet. Contribution: provided **affordable, elastic** capacity so organisations could store petabytes without buying their own data centres — removing the cost barrier to keeping big data." }},
+    { callout: { t: "miscon", h: "IoE is broader than IoT", body: "Candidates often equate the two. IoT = the *things* (connected devices). IoE = things **plus people, processes and data** — the wider networked ecosystem. Device proliferation is what *populates* the IoT layer of the IoE." }},
 
     { page: "Benefits & limitations" },
     { table: { head: ["Development", "Benefit to big data", "Limitation"], rows: [
-      ["$DBMS$ → $NoSQL$", "Reliable structured storage/querying; NoSQL adds flexible schemas + horizontal scale for $Variety$.", "Relational schemas are rigid; NoSQL weakens $ACID$ consistency guarantees."],
-      ["$IoE$", "Huge rise in real-time data $Volume$ and $Velocity$ from connected entities.", "Security/privacy risk; heterogeneous formats are hard to integrate."],
-      ["Device proliferation", "Vast number and variety of data sources, cheaply.", "Data quality varies ($Veracity$); device sprawl raises attack surface."],
+      ["DBMS → NoSQL", "Reliable structured storage/querying; NoSQL adds flexible schemas + horizontal scale for Variety.", "Relational schemas are rigid; NoSQL weakens ACID consistency guarantees."],
+      ["IoE", "Huge rise in real-time data Volume and Velocity from connected entities.", "Security/privacy risk; heterogeneous formats are hard to integrate."],
+      ["Device proliferation", "Vast number and variety of data sources, cheaply.", "Data quality varies (Veracity); device sprawl raises attack surface."],
       ["Search engines", "Forced invention of scalable distributed indexing/processing.", "Early solutions were proprietary and complex; relevance ranking can bias results."],
       ["Web-based storage", "Elastic, pay-as-you-go capacity for any size organisation.", "Data sovereignty, ongoing cost and vendor lock-in concerns."]
     ] } },
@@ -174,21 +174,21 @@ C["it:F201.1.2"] = {
     { callout: { t: "warn", h: "Don't forget limitations", body: "\"Benefits **and** limitations\" is in the spec for each development. An answer that only praises a development is capped — always pair it with a drawback (cost, security, lock-in, consistency, quality)." }}
   ],
   flashcards: [
-    ["Name the five developments behind big data's evolution.", "Database management systems, Internet of Everything ($IoE$), proliferation of devices, search engines, and web-based storage."],
-    ["What does the $IoE$ connect?", "People, processes, data and things — broader than the $IoT$, which is just the things."],
-    ["How did $DBMS$ evolution contribute to big data?", "From flat files → relational ($SQL$) → $NoSQL$; $NoSQL$ removed the rigid-schema limit, allowing high-$Variety$ data to be stored and scaled horizontally."],
-    ["How did search engines drive big data technology?", "Indexing the whole web forced the invention of distributed storage/processing (the $MapReduce$/$Hadoop$ lineage) that underpins all big data processing."],
-    ["How did web-based storage contribute?", "Cheap, elastic $cloud$ capacity removed the cost barrier, so organisations could store petabytes instead of discarding data."],
-    ["Give one benefit and one limitation of $IoE$ for big data.", "Benefit: huge rise in real-time $Volume$/$Velocity$. Limitation: security/privacy risk and hard-to-integrate heterogeneous formats."],
-    ["Why did 'device proliferation' increase $Variety$?", "Different device types (phones, wearables, sensors, appliances) each produce different data formats — location, biometric, environmental, usage."],
+    ["Name the five developments behind big data's evolution.", "Database management systems, Internet of Everything (IoE), proliferation of devices, search engines, and web-based storage."],
+    ["What does the IoE connect?", "People, processes, data and things — broader than the IoT, which is just the things."],
+    ["How did DBMS evolution contribute to big data?", "From flat files → relational (SQL) → NoSQL; NoSQL removed the rigid-schema limit, allowing high-Variety data to be stored and scaled horizontally."],
+    ["How did search engines drive big data technology?", "Indexing the whole web forced the invention of distributed storage/processing (the MapReduce/Hadoop lineage) that underpins all big data processing."],
+    ["How did web-based storage contribute?", "Cheap, elastic cloud capacity removed the cost barrier, so organisations could store petabytes instead of discarding data."],
+    ["Give one benefit and one limitation of IoE for big data.", "Benefit: huge rise in real-time Volume/Velocity. Limitation: security/privacy risk and hard-to-integrate heterogeneous formats."],
+    ["Why did 'device proliferation' increase Variety?", "Different device types (phones, wearables, sensors, appliances) each produce different data formats — location, biometric, environmental, usage."],
     ["What is one limitation of relying on web-based (cloud) storage?", "Data sovereignty concerns, ongoing cost, and vendor lock-in."]
   ],
   quiz: [
     {
       q: "Which development is defined as the connection of people, processes, data and things?",
-      opts: ["$DBMS$", "$IoE$", "Search engines", "Web-based storage"],
+      opts: ["DBMS", "IoE", "Search engines", "Web-based storage"],
       ans: 1,
-      why: "$IoE$ (Internet of Everything) extends the $IoT$ to include people, processes and data, not just devices."
+      why: "IoE (Internet of Everything) extends the IoT to include people, processes and data, not just devices."
     },
     {
       q: "The need to index the entire web most directly drove which big data breakthrough?",
@@ -198,31 +198,31 @@ C["it:F201.1.2"] = {
     },
     {
       q: "Which development most directly removed the cost barrier to storing petabytes of data?",
-      opts: ["Web-based storage", "$IoE$", "Search engines", "Device proliferation"],
+      opts: ["Web-based storage", "IoE", "Search engines", "Device proliferation"],
       ans: 0,
       why: "Cloud/web-based storage offers elastic pay-as-you-go capacity without buying physical data centres."
     },
     {
-      q: "Which is a genuine limitation of the move from relational databases to $NoSQL$?",
+      q: "Which is a genuine limitation of the move from relational databases to NoSQL?",
       opts: [
         "It cannot store any structured data",
-        "It weakens $ACID$ consistency guarantees",
+        "It weakens ACID consistency guarantees",
         "It only runs on a single server",
         "It removed support for horizontal scaling"
       ],
       ans: 1,
-      why: "$NoSQL$ trades strict $ACID$ consistency for schema flexibility and horizontal scalability."
+      why: "NoSQL trades strict ACID consistency for schema flexibility and horizontal scalability."
     },
     {
-      q: "Why is 'device proliferation' considered a driver of big data $Variety$?",
+      q: "Why is 'device proliferation' considered a driver of big data Variety?",
       opts: [
         "All devices output identical formats",
         "Different device types generate different data formats and signals",
         "Devices reduce the number of data sources",
-        "It only affects data $Volume$, never $Variety$"
+        "It only affects data Volume, never Variety"
       ],
       ans: 1,
-      why: "Phones, wearables, sensors and appliances each produce distinct formats — boosting $Variety$ as well as $Volume$."
+      why: "Phones, wearables, sensors and appliances each produce distinct formats — boosting Variety as well as Volume."
     }
   ],
   exam: [
@@ -239,8 +239,8 @@ C["it:F201.1.2"] = {
       q: "Explain how the development of database management systems contributed to the evolution of big data, and give one limitation of relational databases for big data.",
       marks: 4,
       ms: [
-        "DBMS evolved from flat files to relational ($SQL$) systems giving reliable structured storage/querying (1).",
-        "Then to $NoSQL$, removing the rigid-schema constraint (1).",
+        "DBMS evolved from flat files to relational (SQL) systems giving reliable structured storage/querying (1).",
+        "Then to NoSQL, removing the rigid-schema constraint (1).",
         "This allowed high-variety data to be stored and scaled horizontally across many servers (1).",
         "Limitation: relational schemas are rigid / cannot easily handle unstructured high-variety data (1)."
       ]
@@ -268,58 +268,58 @@ C["it:F201.1.3"] = {
     { page: "The nine capture methods" },
     { callout: { t: "info", h: "What each method captures", body: [
       { kv: [
-        ["Digital images and videos", "Visual data from $CCTV$, cameras, medical scanners and dashcams. Used for surveillance, diagnostics, automated inspection. Type: **unstructured** (pixels/frames)."],
-        ["$GPS$ signals", "Location coordinates + timestamps from satellites to receivers in phones/vehicles. Used for navigation, logistics, asset tracking. Type: **structured** (lat/long, time)."],
-        ["$IoE$ connected devices", "Readings exchanged by connected smart devices — smart meters, wearables, industrial machines. Used for monitoring and automation. Type: usually **structured/semi-structured** streams."],
-        ["Natural language", "Human speech and text — voice notes, call-centre recordings, chat messages. Used for sentiment, voice assistants, transcription. Type: **unstructured** (needs $NLP$)."],
+        ["Digital images and videos", "Visual data from CCTV, cameras, medical scanners and dashcams. Used for surveillance, diagnostics, automated inspection. Type: **unstructured** (pixels/frames)."],
+        ["GPS signals", "Location coordinates + timestamps from satellites to receivers in phones/vehicles. Used for navigation, logistics, asset tracking. Type: **structured** (lat/long, time)."],
+        ["IoE connected devices", "Readings exchanged by connected smart devices — smart meters, wearables, industrial machines. Used for monitoring and automation. Type: usually **structured/semi-structured** streams."],
+        ["Natural language", "Human speech and text — voice notes, call-centre recordings, chat messages. Used for sentiment, voice assistants, transcription. Type: **unstructured** (needs NLP)."],
         ["Online surveys", "Direct responses captured through web forms/questionnaires. Used for market research and feedback. Type: **semi-structured** (defined fields + free text)."],
         ["Satellites", "Earth-observation and weather imagery/telemetry from orbit. Used for forecasting, mapping, environmental monitoring. Type: **unstructured** imagery + structured telemetry."],
-        ["Sensors", "Hardware measuring physical quantities — temperature, motion, pressure, light. Used in $IoT$, manufacturing, environment. Type: **structured** numeric, often high-$Velocity$."],
-        ["Social media sites", "Posts, likes, shares, profiles and interactions captured via platform feeds/$APIs$. Used for sentiment and trend analysis. Type: **unstructured/semi-structured**."],
-        ["Transactional records", "Logs of completed transactions — $POS$ sales, online banking, orders. Used for finance, retail analytics, audit. Type: **structured** (relational rows)."]
+        ["Sensors", "Hardware measuring physical quantities — temperature, motion, pressure, light. Used in IoT, manufacturing, environment. Type: **structured** numeric, often high-Velocity."],
+        ["Social media sites", "Posts, likes, shares, profiles and interactions captured via platform feeds/APIs. Used for sentiment and trend analysis. Type: **unstructured/semi-structured**."],
+        ["Transactional records", "Logs of completed transactions — POS sales, online banking, orders. Used for finance, retail analytics, audit. Type: **structured** (relational rows)."]
       ] }
     ] } },
-    { callout: { t: "miscon", h: "Capture method ≠ data type one-to-one", body: "Some methods produce mixed types: satellites give *both* unstructured imagery and structured telemetry; $IoE$ devices and surveys are usually *semi*-structured. Don't blanket-label everything 'unstructured' — state what the *specific* method produces." }},
+    { callout: { t: "miscon", h: "Capture method ≠ data type one-to-one", body: "Some methods produce mixed types: satellites give *both* unstructured imagery and structured telemetry; IoE devices and surveys are usually *semi*-structured. Don't blanket-label everything 'unstructured' — state what the *specific* method produces." }},
 
     { page: "Benefits & limitations" },
     { table: { head: ["Method", "Generates", "Benefit", "Limitation"], rows: [
-      ["Digital images/video", "Unstructured", "Rich detail; works where text can't (visual evidence).", "Huge $Volume$; needs $AI$/vision to interpret; privacy."],
-      ["$GPS$ signals", "Structured coords", "Precise real-time location at scale.", "Privacy concerns; weak indoors; battery drain."],
-      ["$IoE$ devices", "Structured/semi streams", "Continuous automated monitoring, real time.", "Security/attack surface; format heterogeneity."],
-      ["Natural language", "Unstructured", "Captures nuanced human intent/sentiment.", "Needs $NLP$; dialect/sarcasm/ambiguity errors."],
+      ["Digital images/video", "Unstructured", "Rich detail; works where text can't (visual evidence).", "Huge Volume; needs AI/vision to interpret; privacy."],
+      ["GPS signals", "Structured coords", "Precise real-time location at scale.", "Privacy concerns; weak indoors; battery drain."],
+      ["IoE devices", "Structured/semi streams", "Continuous automated monitoring, real time.", "Security/attack surface; format heterogeneity."],
+      ["Natural language", "Unstructured", "Captures nuanced human intent/sentiment.", "Needs NLP; dialect/sarcasm/ambiguity errors."],
       ["Online surveys", "Semi-structured", "Targeted, cheap, direct from the consumer.", "Self-selection bias; low response rates; honesty."],
       ["Satellites", "Imagery + telemetry", "Global coverage without physical access.", "Expensive; cloud cover; latency."],
-      ["Sensors", "Structured numeric", "High-$Velocity$, objective, continuous readings.", "Calibration drift / sensor failure; maintenance."],
-      ["Social media", "Unstructured/semi", "Vast real-time sentiment and trends.", "Low $Veracity$ (bots/fakes); demographic bias."],
+      ["Sensors", "Structured numeric", "High-Velocity, objective, continuous readings.", "Calibration drift / sensor failure; maintenance."],
+      ["Social media", "Unstructured/semi", "Vast real-time sentiment and trends.", "Low Veracity (bots/fakes); demographic bias."],
       ["Transactional records", "Structured", "Accurate, complete audit trail of real events.", "Often batch (latency); needs format standardising."]
     ] } },
-    { callout: { t: "memorise", h: "Capture → data class shortcut", body: "**Structured & high-velocity:** sensors, $GPS$, $IoE$, transactional records. **Unstructured (needs AI):** images/video, natural language, social media. **Semi-structured:** online surveys (and parts of social/$IoE$). **Imagery + telemetry mix:** satellites." }},
+    { callout: { t: "memorise", h: "Capture → data class shortcut", body: "**Structured & high-velocity:** sensors, GPS, IoE, transactional records. **Unstructured (needs AI):** images/video, natural language, social media. **Semi-structured:** online surveys (and parts of social/IoE). **Imagery + telemetry mix:** satellites." }},
 
     { page: "Exam technique" },
-    { callout: { t: "tip", h: "Matching method to scenario", body: "\"Track delivery vans in real time\" → $GPS$. \"Gauge opinion on a new product launch\" → social media or online surveys. \"Monitor a production line for faults\" → sensors / $IoE$. \"Forecast a storm\" → satellites. Justify with the data *type* and the *when* it suits." }},
+    { callout: { t: "tip", h: "Matching method to scenario", body: "\"Track delivery vans in real time\" → GPS. \"Gauge opinion on a new product launch\" → social media or online surveys. \"Monitor a production line for faults\" → sensors / IoE. \"Forecast a storm\" → satellites. Justify with the data *type* and the *when* it suits." }},
     { callout: { t: "warn", h: "Always pair benefit with limitation", body: "The spec demands benefits **and** limitations for each method. Social media's reach is worthless without flagging its low veracity and bias; sensor accuracy is undermined by calibration drift. Single-sided answers are capped." }}
   ],
   flashcards: [
-    ["List the nine big data capture methods.", "Digital images/videos, $GPS$ signals, $IoE$ connected devices, natural language, online surveys, satellites, sensors, social media sites, transactional records."],
+    ["List the nine big data capture methods.", "Digital images/videos, GPS signals, IoE connected devices, natural language, online surveys, satellites, sensors, social media sites, transactional records."],
     ["What is data capture?", "The process of collecting raw data from real-world sources into a system for storage and analysis — the first step of the pipeline."],
-    ["What data type do $GPS$ signals generate?", "Structured data — coordinates (latitude/longitude) plus timestamps."],
-    ["Give a benefit and a limitation of sensor capture.", "Benefit: high-$Velocity$, objective, continuous numeric readings. Limitation: calibration drift / sensor failure needing maintenance."],
-    ["Why is social media a low-$Veracity$ capture method?", "It contains bots, fake accounts and demographic bias, so the data may not be accurate or representative."],
-    ["Which methods typically produce unstructured data?", "Digital images/videos, natural language, and social media — all need $AI$/$NLP$ to interpret."],
+    ["What data type do GPS signals generate?", "Structured data — coordinates (latitude/longitude) plus timestamps."],
+    ["Give a benefit and a limitation of sensor capture.", "Benefit: high-Velocity, objective, continuous numeric readings. Limitation: calibration drift / sensor failure needing maintenance."],
+    ["Why is social media a low-Veracity capture method?", "It contains bots, fake accounts and demographic bias, so the data may not be accurate or representative."],
+    ["Which methods typically produce unstructured data?", "Digital images/videos, natural language, and social media — all need AI/NLP to interpret."],
     ["What type of data do online surveys produce, and a key limitation?", "Semi-structured (defined fields + free text); limitation: self-selection bias and low response rates."],
     ["When would satellites be the best capture method?", "When you need global coverage without physical access — e.g. weather forecasting or environmental/Earth monitoring."],
-    ["Why are transactional records high-$Veracity$?", "They log completed real-world events in structured relational form, giving an accurate, complete audit trail."],
-    ["Give one limitation of capturing digital images/video.", "Very high $Volume$/storage cost and the need for $AI$/computer vision to interpret them (plus privacy concerns)."]
+    ["Why are transactional records high-Veracity?", "They log completed real-world events in structured relational form, giving an accurate, complete audit trail."],
+    ["Give one limitation of capturing digital images/video.", "Very high Volume/storage cost and the need for AI/computer vision to interpret them (plus privacy concerns)."]
   ],
   quiz: [
     {
       q: "A logistics firm wants to track its delivery fleet's position in real time. Which capture method fits best?",
-      opts: ["Online surveys", "$GPS$ signals", "Satellites", "Transactional records"],
+      opts: ["Online surveys", "GPS signals", "Satellites", "Transactional records"],
       ans: 1,
-      why: "$GPS$ provides precise, high-velocity location coordinates in real time."
+      why: "GPS provides precise, high-velocity location coordinates in real time."
     },
     {
-      q: "Which capture method generates structured numeric data with the highest $Velocity$?",
+      q: "Which capture method generates structured numeric data with the highest Velocity?",
       opts: ["Online surveys", "Social media", "Sensors", "Digital images"],
       ans: 2,
       why: "Sensors continuously emit objective numeric readings (temperature, pressure, motion) as structured streams."
@@ -333,17 +333,17 @@ C["it:F201.1.3"] = {
         "It requires no software to interpret"
       ],
       ans: 1,
-      why: "Natural language is unstructured and needs $NLP$; ambiguity, dialect and sarcasm reduce accuracy."
+      why: "Natural language is unstructured and needs NLP; ambiguity, dialect and sarcasm reduce accuracy."
     },
     {
       q: "Which capture method produces both unstructured imagery and structured telemetry?",
-      opts: ["Transactional records", "Satellites", "Online surveys", "$GPS$ signals"],
+      opts: ["Transactional records", "Satellites", "Online surveys", "GPS signals"],
       ans: 1,
       why: "Satellites return Earth-observation images plus structured positional/sensor telemetry."
     },
     {
       q: "A market-research team needs targeted opinions on a specific new feature. Which method is most appropriate?",
-      opts: ["Sensors", "Online surveys", "Satellites", "$IoE$ devices"],
+      opts: ["Sensors", "Online surveys", "Satellites", "IoE devices"],
       ans: 1,
       why: "Online surveys capture targeted, direct consumer responses in a semi-structured form."
     },
@@ -367,11 +367,11 @@ C["it:F201.1.3"] = {
         "Benefit: captures a large volume of real-time consumer sentiment/trends (1).",
         "Benefit: rich, varied content (text, images, interactions) (1).",
         "Limitation: low veracity — bots, fake accounts and bias (1).",
-        "Limitation: unstructured, so needs $AI$/$NLP$ to process (1)."
+        "Limitation: unstructured, so needs AI/NLP to process (1)."
       ]
     },
     {
-      q: "For each of sensors, $GPS$ signals and online surveys, state the type of data captured and one situation in which the method would be used.",
+      q: "For each of sensors, GPS signals and online surveys, state the type of data captured and one situation in which the method would be used.",
       marks: 6,
       ms: [
         "Sensors — structured numeric (1); e.g. monitoring a production line / environment for faults (1).",
@@ -397,7 +397,7 @@ C["it:F201.1.3"] = {
 C["it:F201.1.4"] = {
   notes: [
     "The spec names **nine areas of application** for big data analytics and wants, for each: the *purpose* of using analytics there, and its *benefits and limitations*. The areas are: **banking; communications, media and entertainment; education; energy and utilities; government; healthcare; insurance; manufacturing; retail.** The overarching purpose across all of them is to move from **reactive** to **proactive, evidence-based** decision-making.",
-    { callout: { t: "def", h: "Big data analytics", body: "The process of examining large, varied datasets to uncover patterns, correlations and trends that support decision-making. Its purpose is to convert raw data ($Volume$/$Variety$/$Velocity$) into $Value$ — actionable insight — in a specific domain." }},
+    { callout: { t: "def", h: "Big data analytics", body: "The process of examining large, varied datasets to uncover patterns, correlations and trends that support decision-making. Its purpose is to convert raw data (Volume/Variety/Velocity) into Value — actionable insight — in a specific domain." }},
 
     { page: "The nine application areas" },
     { callout: { t: "info", h: "Purpose of analytics in each area", body: [
@@ -422,9 +422,9 @@ C["it:F201.1.4"] = {
       ["Education", "Early intervention raises attainment.", "Risk of labelling students; data privacy of minors."],
       ["Energy/utilities", "Efficient grids; fewer outages via prediction.", "High sensor/infra cost; security of critical infrastructure."],
       ["Government", "Evidence-based policy; faster emergency response.", "Mass-surveillance concerns; siloed legacy systems."],
-      ["Healthcare", "Earlier diagnosis; personalised treatment.", "Breaches risk sensitive data ($GDPR$); bias harms patients."],
+      ["Healthcare", "Earlier diagnosis; personalised treatment.", "Breaches risk sensitive data (GDPR); bias harms patients."],
       ["Insurance", "Fairer, accurate premiums; less fraud.", "Telematics feels intrusive; can penalise some groups."],
-      ["Manufacturing", "Predictive maintenance cuts downtime; fewer defects.", "Costly $IoT$ rollout; integration with legacy machinery."],
+      ["Manufacturing", "Predictive maintenance cuts downtime; fewer defects.", "Costly IoT rollout; integration with legacy machinery."],
       ["Retail", "More sales; less waste from better forecasting.", "Customer distrust over data use; over-personalisation."]
     ] } },
     { callout: { t: "memorise", h: "Area → flagship use case", body: "Banking = fraud/credit. Media = recommendation engines. Education = at-risk alerts. Energy = smart grid/demand forecast. Government = policy + tax fraud. Healthcare = outbreak prediction + personalised medicine. Insurance = telematics pricing. Manufacturing = predictive maintenance. Retail = targeted marketing + anticipatory shipping." }},
@@ -433,27 +433,27 @@ C["it:F201.1.4"] = {
     { callout: { t: "info", h: "Big data in action", body: [
       { kv: [
         ["Retail — anticipatory shipping", "Predictive analytics pre-positions likely orders in local hubs before customers buy, cutting delivery time."],
-        ["Transport — dynamic pricing", "Real-time $GPS$ + historic demand sets surge prices and optimal routing for ride-hailing fleets."],
+        ["Transport — dynamic pricing", "Real-time GPS + historic demand sets surge prices and optimal routing for ride-hailing fleets."],
         ["Entertainment — content commissioning", "Clustering anonymised viewing data guides which original series to produce, reducing flop risk."],
         ["Healthcare — protein folding", "Large protein-structure datasets trained models that predict 3-D shapes, accelerating drug discovery."]
       ] }
     ] } },
-    { callout: { t: "tip", h: "Technology → outcome", body: "In a case study always link the **technology** (big data / $ML$) to a concrete **outcome** (profit, efficiency, safety, lives saved). \"Used data\" earns nothing; \"used real-time transaction data to cut fraud losses by X\" earns the mark." }},
+    { callout: { t: "tip", h: "Technology → outcome", body: "In a case study always link the **technology** (big data / ML) to a concrete **outcome** (profit, efficiency, safety, lives saved). \"Used data\" earns nothing; \"used real-time transaction data to cut fraud losses by X\" earns the mark." }},
 
     { page: "Exam technique" },
-    { callout: { t: "miscon", h: "Big data ≠ guaranteed better outcomes", body: "Every benefit depends on $Veracity$. Biased or poor-quality data produces wrong predictions — a fraud model trained on skewed data wrongly blocks genuine customers. \"Garbage in, garbage out.\" Always temper benefit claims with the data-quality and ethics limitation." }},
+    { callout: { t: "miscon", h: "Big data ≠ guaranteed better outcomes", body: "Every benefit depends on Veracity. Biased or poor-quality data produces wrong predictions — a fraud model trained on skewed data wrongly blocks genuine customers. \"Garbage in, garbage out.\" Always temper benefit claims with the data-quality and ethics limitation." }},
     { callout: { t: "warn", h: "Answer the area asked", body: "Generic \"it improves efficiency\" answers are capped. Tie the purpose and the benefit/limitation to the *specific* area in the question — telematics for insurance, predictive maintenance for manufacturing, outbreak modelling for healthcare." }}
   ],
   flashcards: [
     ["List the nine areas of application for big data analytics.", "Banking; communications/media/entertainment; education; energy & utilities; government; healthcare; insurance; manufacturing; retail."],
-    ["What is the overarching purpose of big data analytics?", "To shift from reactive to proactive, evidence-based decision-making by turning data into actionable insight ($Value$)."],
+    ["What is the overarching purpose of big data analytics?", "To shift from reactive to proactive, evidence-based decision-making by turning data into actionable insight (Value)."],
     ["Purpose of big data analytics in banking?", "Real-time fraud detection, credit-risk assessment and market modelling — to reduce losses and lend safely."],
-    ["Purpose in healthcare, with one benefit and one limitation?", "Predict outbreaks, personalise medicine, speed drug discovery. Benefit: earlier diagnosis/better outcomes. Limitation: breaches risk sensitive data ($GDPR$)."],
+    ["Purpose in healthcare, with one benefit and one limitation?", "Predict outbreaks, personalise medicine, speed drug discovery. Benefit: earlier diagnosis/better outcomes. Limitation: breaches risk sensitive data (GDPR)."],
     ["Flagship use of analytics in manufacturing?", "Predictive maintenance — predicting machine failure before it happens to cut downtime; plus defect detection."],
     ["How does insurance use big data analytics?", "Telematics/behaviour data to price premiums accurately, model risk and detect fraudulent claims."],
     ["What is 'anticipatory shipping'?", "Retail predictive analytics that pre-positions likely orders in local hubs before customers buy, cutting delivery time."],
     ["Give a limitation of analytics in government.", "Mass-surveillance/privacy concerns, and integration difficulty across siloed legacy systems."],
-    ["Why is data $Veracity$ the foundation of every application area?", "Biased/poor-quality data yields wrong predictions (\"garbage in, garbage out\") — e.g. a skewed fraud model blocks legitimate customers."],
+    ["Why is data Veracity the foundation of every application area?", "Biased/poor-quality data yields wrong predictions (\"garbage in, garbage out\") — e.g. a skewed fraud model blocks legitimate customers."],
     ["Purpose of analytics in energy & utilities?", "Smart-grid management, demand forecasting and predictive maintenance to balance supply/demand and reduce outages."]
   ],
   quiz: [
@@ -461,7 +461,7 @@ C["it:F201.1.4"] = {
       q: "Predictive maintenance to reduce machine downtime is a flagship application for which area?",
       opts: ["Banking", "Manufacturing", "Insurance", "Education"],
       ans: 1,
-      why: "Manufacturing uses sensor/$IoT$ data to predict failures before they cause downtime."
+      why: "Manufacturing uses sensor/IoT data to predict failures before they cause downtime."
     },
     {
       q: "Pricing premiums from telematics and driving-behaviour data is characteristic of which area?",
@@ -531,7 +531,7 @@ C["it:F201.1.4"] = {
       ms: [
         "Benefit: earlier diagnosis and better patient outcomes through prediction (1).",
         "Benefit: personalised medicine / faster drug discovery (1).",
-        "Limitation: breaches risk highly sensitive personal data ($GDPR$) (1).",
+        "Limitation: breaches risk highly sensitive personal data (GDPR) (1).",
         "Limitation: biased/poor-quality data can harm patients via wrong predictions (1)."
       ]
     },
@@ -542,7 +542,7 @@ C["it:F201.1.4"] = {
         "Benefit: real-time tracking of infection rates to allocate resources (1–2).",
         "Benefit: predictive modelling to identify future hotspots and plan capacity (1–2).",
         "Benefit: monitoring public sentiment toward restrictions to shape communication (1).",
-        "Limitation: privacy/surveillance concerns and $GDPR$ compliance (1–2).",
+        "Limitation: privacy/surveillance concerns and GDPR compliance (1–2).",
         "Limitation: integration difficulty across siloed regional/legacy systems; data veracity (1–2).",
         "Judgement: net vital for evidence-based policy provided privacy safeguards and data quality are maintained (1–2)."
       ]
@@ -554,14 +554,14 @@ C["it:F201.2.1"] = {
   notes: [
     { h: "Types of Big Data" },
     "Big data is classified by how organised it is into three types — **structured**, **unstructured** and **semi-structured**. The spec wants the **difference** between them, **how each is captured**, **its purpose**, **when it is used**, and the **benefits and limitations** of each. Structured numeric data is further split into **continuous** and **discrete**.",
-    { callout: { t: "memorise", h: "The three types in one line each", body: "**Structured** = fixed rows + columns / schema ($SQL$ tables, spreadsheets, transactions). **Unstructured** = no predefined format, very high volume (social media, video, weather imagery). **Semi-structured** = no rigid schema but self-describing tags/metadata ($XML$, $JSON$, emails, web pages)." }},
+    { callout: { t: "memorise", h: "The three types in one line each", body: "**Structured** = fixed rows + columns / schema (SQL tables, spreadsheets, transactions). **Unstructured** = no predefined format, very high volume (social media, video, weather imagery). **Semi-structured** = no rigid schema but self-describing tags/metadata (XML, JSON, emails, web pages)." }},
 
     { page: "Structured data" },
-    { callout: { t: "def", h: "Structured data", body: "Data organised into a predefined model of rows and columns with a fixed schema, so it can be stored in a relational database and queried with $SQL$." }},
+    { callout: { t: "def", h: "Structured data", body: "Data organised into a predefined model of rows and columns with a fixed schema, so it can be stored in a relational database and queried with SQL." }},
     "**Examples:** relational database tables, spreadsheet files, transactional data (sales, payments). **Captured** through forms, point-of-sale tills, online transactions and database entry. **Subtypes (numeric):** *continuous* — any value in a range (temperature $22.51°$); *discrete* — separate countable values ($5$ customers).",
     { callout: { t: "info", h: "Structured — benefits and limitations", body: [
       { table: { head: ["Benefits", "Limitations"], rows: [
-        ["Easy to store, search and query ($SQL$).", "Rigid schema — adding new fields is costly."],
+        ["Easy to store, search and query (SQL).", "Rigid schema — adding new fields is costly."],
         ["Consistent and reliable for reporting.", "Can only represent data that fits the model."],
         ["Mature, well-supported tools.", "Poor fit for varied, fast-changing big data."]
       ] } }
@@ -569,7 +569,7 @@ C["it:F201.2.1"] = {
 
     { page: "Unstructured data" },
     { callout: { t: "def", h: "Unstructured data", body: "Data with no predefined format or internal model — it cannot be held in simple rows and columns. It makes up the majority of big data by volume." }},
-    "**Examples:** social media and entertainment data, images, audio/video, weather/satellite imagery. **Captured** from sensors, cameras, social platforms, $IoT$ devices and uploads. **Purpose/use:** sentiment analysis, image recognition, recommendation engines — rich insight that structured data can't hold.",
+    "**Examples:** social media and entertainment data, images, audio/video, weather/satellite imagery. **Captured** from sensors, cameras, social platforms, IoT devices and uploads. **Purpose/use:** sentiment analysis, image recognition, recommendation engines — rich insight that structured data can't hold.",
     { callout: { t: "info", h: "Unstructured — benefits and limitations", body: [
       { table: { head: ["Benefits", "Limitations"], rows: [
         ["Captures rich, real-world variety (text, media).", "Hard to search, store and analyse directly."],
@@ -580,7 +580,7 @@ C["it:F201.2.1"] = {
 
     { page: "Semi-structured data" },
     { callout: { t: "def", h: "Semi-structured data", body: "Data with no rigid schema, but which carries self-describing tags or metadata that give it some structure — sitting between structured and unstructured." }},
-    "**Examples:** emails, $XML$ and $JSON$, zipped files, web pages. **Captured** from web APIs, document exchanges and messaging. **Purpose/use:** flexible data exchange between systems and storage of varied records — common in $IoT$ and web apps.",
+    "**Examples:** emails, XML and JSON, zipped files, web pages. **Captured** from web APIs, document exchanges and messaging. **Purpose/use:** flexible data exchange between systems and storage of varied records — common in IoT and web apps.",
     { callout: { t: "info", h: "Semi-structured — benefits and limitations", body: [
       { table: { head: ["Benefits", "Limitations"], rows: [
         ["Flexible — new fields added without rebuilding a schema.", "Less efficient to query than fully structured data."],
@@ -592,30 +592,30 @@ C["it:F201.2.1"] = {
     { page: "Comparison & exam technique" },
     { table: { head: ["", "Structured", "Semi-structured", "Unstructured"], rows: [
       ["Schema", "Fixed, rigid.", "Flexible tags/metadata.", "None."],
-      ["Store with", "Relational DB / $SQL$.", "$XML$/$JSON$ stores, NoSQL.", "Data lake, object store."],
-      ["Examples", "Tables, spreadsheets, transactions.", "Emails, $XML$, web pages.", "Video, audio, social media."],
+      ["Store with", "Relational DB / SQL.", "XML/JSON stores, NoSQL.", "Data lake, object store."],
+      ["Examples", "Tables, spreadsheets, transactions.", "Emails, XML, web pages.", "Video, audio, social media."],
       ["Query/analysis", "Easy.", "Moderate.", "Hard (needs AI)."],
       ["Share of big data", "Small.", "Some.", "Most (by volume)."]
     ] } },
-    { callout: { t: "miscon", h: "CSV is structured, not semi-structured", body: "Students see a plain-text $CSV$ and call it semi-structured. But $CSV$ has a **fixed column schema**, so it is **structured**. $XML$/$JSON$ are semi-structured because they use tags but enforce no rigid schema." }},
+    { callout: { t: "miscon", h: "CSV is structured, not semi-structured", body: "Students see a plain-text CSV and call it semi-structured. But CSV has a **fixed column schema**, so it is **structured**. XML/JSON are semi-structured because they use tags but enforce no rigid schema." }},
     { callout: { t: "tip", h: "Answering type questions", body: "Justify a classification by the schema: rigid columns → structured; tags but no rigid schema → semi-structured; no format at all → unstructured. For 'continuous vs discrete', ask: can it take any value in a range (continuous) or only separate counts (discrete)?" }}
   ],
   flashcards: [
-    ["Define structured data.", "Data in a fixed schema of rows and columns, e.g. $SQL$ tables — easy to query."],
+    ["Define structured data.", "Data in a fixed schema of rows and columns, e.g. SQL tables — easy to query."],
     ["Define unstructured data.", "Data with no predefined format (video, audio, social media); the majority of big data by volume."],
-    ["Define semi-structured data.", "Data with no rigid schema but self-describing tags/metadata, e.g. $XML$, $JSON$, emails."],
-    ["How is unstructured data captured?", "From sensors, cameras, social platforms, $IoT$ devices and uploads."],
+    ["Define semi-structured data.", "Data with no rigid schema but self-describing tags/metadata, e.g. XML, JSON, emails."],
+    ["How is unstructured data captured?", "From sensors, cameras, social platforms, IoT devices and uploads."],
     ["One benefit and limitation of structured data?", "Benefit: easy to query/report. Limitation: rigid schema, poor fit for varied big data."],
     ["One benefit of semi-structured data?", "Flexible — new fields can be added without rebuilding a schema."],
     ["Continuous vs discrete data?", "Continuous = any value in a range (temperature). Discrete = separate countable values (number of customers)."],
-    ["Is $JSON$ structured or semi-structured?", "Semi-structured — it uses tags/keys but enforces no rigid schema."]
+    ["Is JSON structured or semi-structured?", "Semi-structured — it uses tags/keys but enforces no rigid schema."]
   ],
   quiz: [
     {
       q: "Which is semi-structured?",
-      opts: ["$SQL$ database table", "$XML$ file", "MP4 video", "Spreadsheet"],
+      opts: ["SQL database table", "XML file", "MP4 video", "Spreadsheet"],
       ans: 1,
-      why: "$XML$ uses self-describing tags but has no rigid tabular schema."
+      why: "XML uses self-describing tags but has no rigid tabular schema."
     },
     {
       q: "A count of people entering a building is…",
@@ -658,7 +658,7 @@ C["it:F201.2.1"] = {
       marks: 4,
       ms: [
         "Sensors generate varied data whose fields change (1).",
-        "Semi-structured ($JSON$/$XML$) allows new fields without rebuilding a schema (1).",
+        "Semi-structured (JSON/XML) allows new fields without rebuilding a schema (1).",
         "A rigid structured schema would be costly to update each change (1).",
         "Semi-structured tags make records self-describing and portable between systems (1)."
       ]
@@ -926,8 +926,8 @@ C["it:F201.2.4"] = {
     { callout: { t: "info", h: "The three infrastructure decisions", body: [
       { kv: [
         ["Server configuration", "Dedicated servers vs a distributed cluster of servers — how the processing power is arranged."],
-        ["Software platform", "Open-source vs vendor-specific tools, plus visualisation, analytics, $NoSQL$ and integration software."],
-        ["Data storage area", "Public/private cloud, data lake, data warehouse and $SSDs$ — where the data is physically held."]
+        ["Software platform", "Open-source vs vendor-specific tools, plus visualisation, analytics, NoSQL and integration software."],
+        ["Data storage area", "Public/private cloud, data lake, data warehouse and SSDs — where the data is physically held."]
       ] }
     ] } },
     { callout: { t: "tip", h: "What the exam actually wants", body: "Almost every question here is a compare/evaluate. For each option, hold a benefit AND a limitation in your head and be ready to recommend one for a given scenario using the 'factors influencing choice'." }},
@@ -944,7 +944,7 @@ C["it:F201.2.4"] = {
       ] } }
     ] } },
     { h: "Distributed cluster of servers" },
-    "A **distributed cluster** is many servers (nodes) working together, splitting a job and processing data **in parallel** — the model behind $Hadoop$ and $Spark$. Data is replicated across nodes for resilience.",
+    "A **distributed cluster** is many servers (nodes) working together, splitting a job and processing data **in parallel** — the model behind Hadoop and Spark. Data is replicated across nodes for resilience.",
     { callout: { t: "info", h: "Distributed cluster — benefits vs limitations", body: [
       { table: { head: ["Benefits", "Limitations"], rows: [
         ["Handles massive volume and velocity by processing in parallel.", "Complex to set up, configure and manage."],
@@ -964,28 +964,28 @@ C["it:F201.2.4"] = {
     { callout: { t: "memorise", h: "Factors influencing the choice of server configuration", body: "**Data volume & growth** (how big, how fast). **Scalability needs** (steady vs spiky). **Budget** (upfront hardware vs commodity). **In-house expertise** (can staff run a cluster?). **Fault-tolerance requirement** (how costly is downtime?). **Security/control** (must data stay physically isolated?). Frame any 'recommend a configuration' answer around these." }},
 
     { page: "Software platforms" },
-    "The software platform is the set of tools used to store, process, analyse and present big data. The first decision is **open-source vs vendor-specific**; the spec also names visualisation, analytics, $NoSQL$ and integration software.",
+    "The software platform is the set of tools used to store, process, analyse and present big data. The first decision is **open-source vs vendor-specific**; the spec also names visualisation, analytics, NoSQL and integration software.",
     { callout: { t: "info", h: "Open-source vs vendor-specific", body: [
-      { table: { head: ["", "Open-source (e.g. $Hadoop$, $Spark$)", "Vendor-specific (e.g. $Oracle$, $SAP$)"], rows: [
+      { table: { head: ["", "Open-source (e.g. Hadoop, Spark)", "Vendor-specific (e.g. Oracle, SAP)"], rows: [
         ["Purpose", "Process/store/analyse big data with freely available, modifiable code.", "Managed, proprietary big-data tooling sold under licence."],
-        ["Benefits", "Free licensing; fully customisable; large community; no lock-in.", "Professional support + $SLAs$; polished, integrated tools; training; accountability."],
+        ["Benefits", "Free licensing; fully customisable; large community; no lock-in.", "Professional support + SLAs; polished, integrated tools; training; accountability."],
         ["Limitations", "Needs in-house expertise; support is community-based (no guaranteed SLA).", "Licensing cost; vendor lock-in; less customisable."],
         ["When used", "Org has technical staff and wants flexibility/low cost.", "Org wants reliable managed support and has fewer specialists."]
       ] } }
     ] } },
     { callout: { t: "info", h: "The other platform types", body: [
       { kv: [
-        ["Data visualisation software", "Turns analysis into charts/dashboards (e.g. $Tableau$, $PowerBI$). Benefit: makes patterns accessible to non-technical stakeholders. Limitation: cost, and poor design can mislead."],
-        ["Data analytics software", "Performs statistics and modelling (e.g. $R$, $SAS$, $Python$ libraries). Benefit: extracts insight and builds predictive models. Limitation: needs analytical skill to use correctly."],
-        ["$NoSQL$ database", "Non-relational store for unstructured/semi-structured data (e.g. $MongoDB$). Benefit: flexible schema, scales horizontally, handles variety. Limitation: weaker $ACID$ guarantees than $SQL$."],
-        ["Data integration platforms", "Combine many sources into one unified view via $ETL$ pipelines. Benefit: consistency and automated pipelines. Limitation: setup complexity."]
+        ["Data visualisation software", "Turns analysis into charts/dashboards (e.g. Tableau, PowerBI). Benefit: makes patterns accessible to non-technical stakeholders. Limitation: cost, and poor design can mislead."],
+        ["Data analytics software", "Performs statistics and modelling (e.g. $R$, SAS, Python libraries). Benefit: extracts insight and builds predictive models. Limitation: needs analytical skill to use correctly."],
+        ["NoSQL database", "Non-relational store for unstructured/semi-structured data (e.g. MongoDB). Benefit: flexible schema, scales horizontally, handles variety. Limitation: weaker ACID guarantees than SQL."],
+        ["Data integration platforms", "Combine many sources into one unified view via ETL pipelines. Benefit: consistency and automated pipelines. Limitation: setup complexity."]
       ] }
     ] } },
     { callout: { t: "miscon", h: "'Open-source means no cost'", body: "The licence is free, but running open-source big-data software needs skilled staff to set up, integrate and maintain it — a real cost. 'Free software' is not 'free to operate'." }},
 
     { page: "Data storage areas" },
     { callout: { t: "info", h: "Cloud: public vs private", body: [
-      { table: { head: ["", "Public cloud (e.g. $AWS$, $Azure$)", "Private cloud"], rows: [
+      { table: { head: ["", "Public cloud (e.g. AWS, Azure)", "Private cloud"], rows: [
         ["Characteristics", "Shared third-party infrastructure, pay-as-you-go, elastic.", "Cloud infrastructure dedicated to one organisation."],
         ["Benefits", "Scales on demand; no upfront hardware; accessible anywhere; provider-managed.", "More control; better for security/compliance; customisable."],
         ["Limitations", "Less control; security/compliance concerns; ongoing cost; depends on provider + internet.", "Higher cost; the organisation must manage it."],
@@ -993,15 +993,15 @@ C["it:F201.2.4"] = {
       ] } }
     ] } },
     { h: "Data lake vs data warehouse" },
-    "Both store large volumes, but they sit at different points in the pipeline. Raw data lands in a **lake**; once cleaned and structured by an **$ETL$** (Extract → Transform → Load) process it moves into a **warehouse** for reporting.",
+    "Both store large volumes, but they sit at different points in the pipeline. Raw data lands in a **lake**; once cleaned and structured by an **ETL** (Extract → Transform → Load) process it moves into a **warehouse** for reporting.",
     { table: { head: ["", "Data lake", "Data warehouse"], rows: [
       ["Data held", "Raw, any format, unprocessed.", "Structured, cleaned, processed."],
       ["Schema", "Schema-on-read (applied when queried).", "Schema-on-write (applied on entry)."],
-      ["Main users", "Data scientists, ML, exploration.", "Business analysts, $BI$/reporting."],
+      ["Main users", "Data scientists, ML, exploration.", "Business analysts, BI/reporting."],
       ["Cost per TB", "Lower (cheap bulk storage).", "Higher (optimised, structured)."],
       ["Risk", "Becomes a 'data swamp' if ungoverned.", "Rigid schema; ETL overhead."]
     ] } },
-    { callout: { t: "info", h: "Solid state drives ($SSDs$)", body: "Fast storage with no moving parts. **Benefit:** very low latency and high read/write speed, improving processing throughput; reliable (no mechanical parts). **Limitation:** higher cost per GB than traditional hard drives." }},
+    { callout: { t: "info", h: "Solid state drives (SSDs)", body: "Fast storage with no moving parts. **Benefit:** very low latency and high read/write speed, improving processing throughput; reliable (no mechanical parts). **Limitation:** higher cost per GB than traditional hard drives." }},
     { callout: { t: "miscon", h: "Data lake ≠ data warehouse", body: "Running complex BI queries directly on a raw data lake is slow and unreliable — the data must be ETL-processed into a warehouse first. Lake = store raw at scale; warehouse = structured analytics and reporting." }},
 
     { page: "Emerging storage technologies" },
@@ -1028,20 +1028,20 @@ C["it:F201.2.4"] = {
   flashcards: [
     ["Two main server configurations for big data?", "Dedicated servers and a distributed cluster of servers."],
     ["One benefit and one limitation of a dedicated server?", "Benefit: full control + predictable performance. Limitation: single point of failure, expensive to scale."],
-    ["Why does a distributed cluster scale well?", "It scales horizontally — add cheap commodity nodes to process more data in parallel ($Hadoop$)."],
+    ["Why does a distributed cluster scale well?", "It scales horizontally — add cheap commodity nodes to process more data in parallel (Hadoop)."],
     ["Two limitations of a distributed cluster?", "Complex to set up/manage, and needs distributed-systems expertise (plus network overhead)."],
-    ["Open-source vs vendor-specific software?", "Open-source: free, customisable, community support, no lock-in but needs expertise. Vendor: managed support + $SLAs$ but licensing cost and lock-in."],
+    ["Open-source vs vendor-specific software?", "Open-source: free, customisable, community support, no lock-in but needs expertise. Vendor: managed support + SLAs but licensing cost and lock-in."],
     ["What is vendor lock-in?", "Becoming so dependent on a vendor's platform that switching away is very costly/difficult."],
     ["Data lake vs data warehouse?", "Lake = raw, any format, schema-on-read. Warehouse = structured, processed, schema-on-write (after ETL), optimised for reporting."],
     ["What does ETL stand for and do?", "Extract, Transform, Load — moves raw lake data into a structured warehouse."],
     ["Public vs private cloud trade-off?", "Public: elastic + cheap to start but less control/compliance. Private: more control + compliance but higher cost to run."],
-    ["Benefit and limitation of an $SSD$?", "Benefit: fast, low-latency read/write. Limitation: higher cost per GB than a hard drive."],
+    ["Benefit and limitation of an SSD?", "Benefit: fast, low-latency read/write. Limitation: higher cost per GB than a hard drive."],
     ["Name the three emerging storage technologies.", "Blockchain (immutable ledger), DNA storage (density/longevity), quantum servers (qubit speed)."]
   ],
   quiz: [
     {
       q: "An organisation's data is growing rapidly and must tolerate hardware failures. Which configuration best fits?",
-      opts: ["A single dedicated server", "A distributed cluster of servers", "A faster $SSD$", "A private cloud only"],
+      opts: ["A single dedicated server", "A distributed cluster of servers", "A faster SSD", "A private cloud only"],
       ans: 1,
       why: "A distributed cluster scales horizontally and replicates data, so it handles growth and survives node failures."
     },
@@ -1053,7 +1053,7 @@ C["it:F201.2.4"] = {
     },
     {
       q: "Which storage area is best for raw sensor data in any format, kept for later analysis?",
-      opts: ["Data warehouse", "Data lake", "$SSD$ cache", "Private cloud"],
+      opts: ["Data warehouse", "Data lake", "SSD cache", "Private cloud"],
       ans: 1,
       why: "A data lake stores raw, unprocessed data of any format (schema-on-read)."
     },
@@ -1099,7 +1099,7 @@ C["it:F201.2.4"] = {
         "Open-source: lower initial licensing cost (1).",
         "Open-source: flexibility to customise the code (1).",
         "Open-source limitation: requires internal experts; only community support (1).",
-        "Vendor: professional support and service-level agreements ($SLAs$) (1).",
+        "Vendor: professional support and service-level agreements (SLAs) (1).",
         "Vendor limitation: higher recurring cost and vendor lock-in (1).",
         "Conclusion: choice depends on budget and in-house technical capability (1)."
       ]
@@ -1123,7 +1123,7 @@ C["it:F201.2.5"] = {
 
     { page: "Data analytics" },
     { callout: { t: "def", h: "Data analytics", body: "The process of examining existing datasets to find trends, answer specific business questions and support decision-making. It is mostly backward/present-looking and business-oriented." }},
-    "A data **analyst** takes data that has been collected and cleaned, then queries and visualises it to explain what has happened and why — feeding reports and dashboards to decision-makers. It typically works with **structured** data using $SQL$, $Excel$ and business-intelligence ($BI$) tools such as $Tableau$ or $PowerBI$.",
+    "A data **analyst** takes data that has been collected and cleaned, then queries and visualises it to explain what has happened and why — feeding reports and dashboards to decision-makers. It typically works with **structured** data using SQL, Excel and business-intelligence (BI) tools such as Tableau or PowerBI.",
     { callout: { t: "info", h: "The four types of analytics (increasing value & difficulty)", body: [
       { kv: [
         ["Descriptive", "What happened? — summaries, dashboards, KPIs (the most common)."],
@@ -1142,7 +1142,7 @@ C["it:F201.2.5"] = {
 
     { page: "Data science" },
     { callout: { t: "def", h: "Data science", body: "An interdisciplinary field combining statistics, programming and domain knowledge to discover new insights and build predictive/prescriptive models from large, often messy datasets. It is forward-looking and research-oriented." }},
-    "A data **scientist** forms a hypothesis, experiments with machine-learning models and works with **raw, unstructured and high-volume** data using $Python$, $R$ and $ML$ libraries. The output is an algorithm or model — new knowledge the business did not previously have — rather than a report.",
+    "A data **scientist** forms a hypothesis, experiments with machine-learning models and works with **raw, unstructured and high-volume** data using Python, $R$ and ML libraries. The output is an algorithm or model — new knowledge the business did not previously have — rather than a report.",
     { callout: { t: "info", h: "Data science — benefits and limitations", body: [
       { table: { head: ["Benefits", "Limitations"], rows: [
         ["Predicts future outcomes and uncovers unknown patterns.", "Needs scarce, expensive specialist skills (stats + programming)."],
@@ -1157,7 +1157,7 @@ C["it:F201.2.5"] = {
       ["Question", "Closed — 'What were last month's sales?'", "Open — 'Which customers will churn, and why?'"],
       ["Time focus", "Past / present (what happened).", "Future (what will happen, what to do)."],
       ["Data", "Mostly structured, already cleaned.", "Raw, unstructured, high-volume."],
-      ["Tools", "$SQL$, $Excel$, $BI$ dashboards ($Tableau$).", "$Python$, $R$, $ML$ libraries."],
+      ["Tools", "SQL, Excel, BI dashboards (Tableau).", "Python, $R$, ML libraries."],
       ["Output", "Reports, dashboards, trend summaries.", "Algorithms, predictive models, new knowledge."],
       ["Role / skills", "Data analyst — business-oriented.", "Data scientist — research + programming."]
     ] } },
@@ -1171,7 +1171,7 @@ C["it:F201.2.5"] = {
       ["Healthcare", "Trend analysis of ward waiting times to plan staffing.", "ML model predicting which patients risk readmission."],
       ["Government", "Reporting tax-collection figures by region.", "Modelling the spread of disease to plan responses."]
     ] } },
-    { callout: { t: "memorise", h: "Science vs analytics — decision rule", body: "If a **defined** question exists and you are explaining the past/present from clean data → **analytics** ($SQL$/$Excel$/$Tableau$, reports). If someone is **building a model** to predict or discover something previously unknown from raw data → **science** ($Python$/$R$/$ML$, algorithms). Analytics looks back; science looks forward." }},
+    { callout: { t: "memorise", h: "Science vs analytics — decision rule", body: "If a **defined** question exists and you are explaining the past/present from clean data → **analytics** (SQL/Excel/Tableau, reports). If someone is **building a model** to predict or discover something previously unknown from raw data → **science** (Python/$R$/ML, algorithms). Analytics looks back; science looks forward." }},
 
     { page: "Exam technique" },
     { callout: { t: "tip", h: "How to answer 'difference' and 'how used' questions", body: [
@@ -1184,8 +1184,8 @@ C["it:F201.2.5"] = {
     ["Purpose of data analytics?", "Examine existing data to answer defined business questions and support decisions (mostly backward-looking)."],
     ["Purpose of data science?", "Discover new insights and build predictive models from large datasets (forward-looking)."],
     ["The key difference between them?", "Analytics answers a known question about the past/present; science builds a model to predict/discover the unknown."],
-    ["Typical tools for data analytics?", "$SQL$, $Excel$, and $BI$ dashboards such as $Tableau$ or $PowerBI$."],
-    ["Typical tools for data science?", "$Python$, $R$ and machine-learning libraries."],
+    ["Typical tools for data analytics?", "SQL, Excel, and BI dashboards such as Tableau or PowerBI."],
+    ["Typical tools for data science?", "Python, $R$ and machine-learning libraries."],
     ["Name the four types of analytics.", "Descriptive (what happened), diagnostic (why), predictive (what will happen), prescriptive (what to do)."],
     ["One limitation of data analytics?", "It mostly explains the past and depends on clean structured data; it can miss unknown patterns."],
     ["One limitation of data science?", "Needs scarce specialist skills, and biased training data produces biased predictions; models can be hard to explain."],
@@ -1229,7 +1229,7 @@ C["it:F201.2.5"] = {
       marks: 4,
       ms: [
         "Data analytics examines existing data to answer defined questions (1).",
-        "It is backward/present-looking and uses tools like $SQL$/$BI$ dashboards (1).",
+        "It is backward/present-looking and uses tools like SQL/BI dashboards (1).",
         "Data science builds models to discover new insight and predict the future (1).",
         "It is forward-looking, works with raw data and outputs algorithms/models (1)."
       ]
@@ -1440,7 +1440,7 @@ C["it:F201.2.6"] = {
 C["it:F201.3.1"] = {
   notes: [
     "This leaf links big data to **artificial intelligence (AI)** and **machine learning (ML)** within **data science**. The spec wants: what AI is; how it is developed and used in data science (with benefits and limitations); what ML is; how ML algorithms are used and their purpose/characteristics; the benefits and limitations of each of the three named algorithms — **Decision Tree, Random Forest, K-Means** — and how each can be used for digital analysis; and finally **how big data, ML and AI interact**. It does *not* require the historical development of AI/ML.",
-    { callout: { t: "def", h: "Artificial Intelligence (AI)", body: "Computer systems that perform tasks normally requiring human intelligence — reasoning, recognising patterns, understanding language, making decisions. In data science, AI is the broad goal; $ML$ is the main technique used to achieve it from data." }},
+    { callout: { t: "def", h: "Artificial Intelligence (AI)", body: "Computer systems that perform tasks normally requiring human intelligence — reasoning, recognising patterns, understanding language, making decisions. In data science, AI is the broad goal; ML is the main technique used to achieve it from data." }},
     { callout: { t: "def", h: "Machine Learning (ML)", body: "A subset of AI in which systems **learn patterns from data** and improve their predictions with experience, *without being explicitly programmed* with rules. The model is trained on data, then applied to new, unseen inputs." }},
 
     { page: "AI in data science" },
@@ -1449,7 +1449,7 @@ C["it:F201.3.1"] = {
     { table: { head: ["AI in data science", "Benefit", "Limitation"], rows: [
       ["Automation of analysis", "Processes volumes no human team could, fast and consistently.", "Expensive to build; needs skilled data scientists."],
       ["Pattern/anomaly detection", "Spots subtle correlations and fraud humans miss.", "Correlation isn't causation — can mislead."],
-      ["Prediction", "Enables proactive decisions (1.4).", "Only as good as training-data $Veracity$ — bias in → bias out."],
+      ["Prediction", "Enables proactive decisions (1.4).", "Only as good as training-data Veracity — bias in → bias out."],
       ["Decision support", "Consistent application of criteria at scale.", "\"Black box\" models are hard to explain (ethics — 4.2)."]
     ] } },
 
@@ -1467,7 +1467,7 @@ C["it:F201.3.1"] = {
     { page: "How big data, ML and AI interact" },
     "These three are nested and mutually reinforcing. **Big data** supplies the huge, varied training sets; **ML** learns patterns from that data; **AI** is the resulting intelligent behaviour applied to a task. More high-quality data → better-trained ML models → more capable AI — and the AI's outputs often generate *more* data, feeding the loop.",
     { steps: [
-      { h: "1 · Big data supplies fuel", m: "High $Volume$ + $Variety$ training data is captured and cleaned.", n: "Without enough representative data, models underfit or inherit bias." },
+      { h: "1 · Big data supplies fuel", m: "High Volume + Variety training data is captured and cleaned.", n: "Without enough representative data, models underfit or inherit bias." },
       { h: "2 · ML learns the patterns", m: "Algorithms (tree/forest/K-Means) train on that data to model relationships.", n: "More data generally → better pattern recognition, lower variance." },
       { h: "3 · AI applies the model", m: "The trained model drives an intelligent task — recommend, detect, predict, classify.", n: "This is the user-facing 'AI' in data science." },
       { h: "4 · Feedback loop", m: "AI outputs and user responses become new data.", n: "The cycle repeats, continually refining accuracy." }
@@ -1587,7 +1587,7 @@ C["it:F201.3.1"] = {
 C["it:F201.4.1"] = {
   notes: [
     "The spec's legal focus is **UK GDPR** — its *features*, *principles*, *rights of data subjects* and *marketing consent*. You must know the *latest version* of the regulation, its *main purpose(s)*, *how to comply*, *why compliance matters*, the *impacts of non-compliance* on organisations, and how *organisational policies* mitigate against non-compliance. You do **not** need the detailed legal content of the regulation itself.",
-    { callout: { t: "def", h: "UK GDPR (latest version)", body: "The **UK General Data Protection Regulation**, the UK's data-protection law that came into force alongside the Data Protection Act 2018 and was retained/amended after Brexit (the current UK version). Its main purpose: to protect individuals' personal data and give them control over how organisations collect, store and use it. Enforced by the **Information Commissioner's Office ($ICO$)**." }},
+    { callout: { t: "def", h: "UK GDPR (latest version)", body: "The **UK General Data Protection Regulation**, the UK's data-protection law that came into force alongside the Data Protection Act 2018 and was retained/amended after Brexit (the current UK version). Its main purpose: to protect individuals' personal data and give them control over how organisations collect, store and use it. Enforced by the **Information Commissioner's Office (ICO)**." }},
 
     { page: "Features & principles" },
     { h: "Features" },
@@ -1596,8 +1596,8 @@ C["it:F201.4.1"] = {
         ["Scope", "Applies to any **personal data** — information that can identify a living person — held digitally *or* in a structured paper system."],
         ["Controllers & processors", "Defines responsibilities for the organisation that decides *why/how* data is processed (controller) and any third party processing on its behalf."],
         ["Lawful basis", "Processing needs a lawful basis (e.g. consent, contract, legal obligation, legitimate interest)."],
-        ["Breach notification", "Serious breaches must be reported to the $ICO$ within 72 hours."],
-        ["Enforcement", "The $ICO$ can audit, order changes and issue fines."]
+        ["Breach notification", "Serious breaches must be reported to the ICO within 72 hours."],
+        ["Enforcement", "The ICO can audit, order changes and issue fines."]
       ] }
     ] } },
     { h: "The seven principles" },
@@ -1605,10 +1605,10 @@ C["it:F201.4.1"] = {
       { h: "1 · Lawfulness, fairness & transparency", m: "Process data legally and openly.", n: "Tell people what you do with their data." },
       { h: "2 · Purpose limitation", m: "Only use data for the specified purpose.", n: "Can't repurpose delivery data for ad-selling." },
       { h: "3 · Data minimisation", m: "Collect only what is necessary.", n: "Don't hoard fields you don't need." },
-      { h: "4 · Accuracy", m: "Keep data correct and up to date.", n: "Links to $Veracity$ — fix/erase errors." },
+      { h: "4 · Accuracy", m: "Keep data correct and up to date.", n: "Links to Veracity — fix/erase errors." },
       { h: "5 · Storage limitation", m: "Don't keep data longer than needed.", n: "Delete records once their purpose ends." },
       { h: "6 · Integrity & confidentiality (security)", m: "Protect data from theft/loss.", n: "Encryption, access control, backups." },
-      { h: "7 · Accountability", m: "Be able to *prove* you comply.", n: "Records, policies, a $DPO$ where required." }
+      { h: "7 · Accountability", m: "Be able to *prove* you comply.", n: "Records, policies, a DPO where required." }
     ] },
     { callout: { t: "memorise", h: "7 principles — LP-DA-SIA", body: "**L**awful/fair/transparent · **P**urpose limitation · **D**ata minimisation · **A**ccuracy · **S**torage limitation · **I**ntegrity & security · **A**ccountability. Hook: *Lawful Purpose, Data Accurate, Stored Securely, I'm Accountable.*" }},
 
@@ -1636,25 +1636,25 @@ C["it:F201.4.1"] = {
         "Apply data minimisation and storage limits; delete data when its purpose ends.",
         "Secure data — encryption, access controls, staff training, backups.",
         "Honour data-subject rights promptly (access, erasure, rectification).",
-        "Keep records and appoint a Data Protection Officer ($DPO$) where required (accountability).",
-        "Report serious breaches to the $ICO$ within 72 hours."
+        "Keep records and appoint a Data Protection Officer (DPO) where required (accountability).",
+        "Report serious breaches to the ICO within 72 hours."
       ] }
     ] } },
     "Compliance matters because it protects individuals' privacy, **maintains customer trust**, avoids heavy penalties, and is a legal obligation. **Organisational policies** — a clear privacy/data-protection policy, staff training, access controls, retention schedules and breach-response plans — mitigate against non-compliance by making correct handling routine rather than ad hoc.",
     { table: { head: ["Impact of non-compliance", "Detail"], rows: [
       ["Financial", "Fines up to £17.5m or 4% of global annual turnover (higher tier); lower tier £8.7m/2%."],
       ["Reputational", "Loss of customer trust and brand value after a publicised breach."],
-      ["Legal", "Compensation claims from affected data subjects; $ICO$ enforcement orders."],
+      ["Legal", "Compensation claims from affected data subjects; ICO enforcement orders."],
       ["Operational", "Forced deletion of unlawfully held datasets — losing analytical value; remediation costs."]
     ] } },
-    { callout: { t: "memorise", h: "Non-compliance — 4 impacts", body: "**Financial** (up to £17.5m / 4% turnover) · **Reputational** (lost trust) · **Legal** (claims + $ICO$ orders) · **Operational** (forced data deletion + remediation). Mitigate with policies: lawful basis, minimisation, security, rights handling, training, breach plan." }},
+    { callout: { t: "memorise", h: "Non-compliance — 4 impacts", body: "**Financial** (up to £17.5m / 4% turnover) · **Reputational** (lost trust) · **Legal** (claims + ICO orders) · **Operational** (forced data deletion + remediation). Mitigate with policies: lawful basis, minimisation, security, rights handling, training, breach plan." }},
 
     { page: "Exam technique" },
     { callout: { t: "tip", h: "Spot-the-breached-principle", body: "Scenario questions describe a misuse and ask which principle is broken: reselling delivery data → **purpose limitation**; keeping records for decades → **storage limitation**; a leaked unencrypted database → **integrity/security**; collecting needless fields → **data minimisation**; refusing a Subject Access Request → breaches the **right of access**." }},
     { callout: { t: "warn", h: "Name the latest regulation correctly", body: "Say **UK GDPR** (with the Data Protection Act 2018), not just 'GDPR' or 'the EU GDPR' — the spec asks for the *latest UK* version. Quoting the £17.5m / 4% figure earns a precise mark in non-compliance questions." }}
   ],
   flashcards: [
-    ["What is the latest UK data-protection regulation and who enforces it?", "UK GDPR (alongside the Data Protection Act 2018), enforced by the Information Commissioner's Office ($ICO$)."],
+    ["What is the latest UK data-protection regulation and who enforces it?", "UK GDPR (alongside the Data Protection Act 2018), enforced by the Information Commissioner's Office (ICO)."],
     ["State the main purpose of UK GDPR.", "To protect individuals' personal data and give them control over how organisations collect, store and use it."],
     ["List the seven GDPR principles (LP-DA-SIA).", "Lawfulness/fairness/transparency, purpose limitation, data minimisation, accuracy, storage limitation, integrity & security, accountability."],
     ["What is the 'right to be forgotten'?", "The right to erasure — having personal data deleted when there's no lawful reason to keep it."],
@@ -1662,7 +1662,7 @@ C["it:F201.4.1"] = {
     ["Does UK GDPR apply to paper records?", "Yes — to any personal data in a structured filing system, not just digital data."],
     ["Give three ways an organisation complies with UK GDPR.", "Lawful basis + opt-in consent; data minimisation and retention limits; security (encryption/access control); honouring data-subject rights; breach reporting within 72h."],
     ["State the maximum UK GDPR fine.", "Up to £17.5 million or 4% of global annual turnover, whichever is higher (higher tier)."],
-    ["Name the four impacts of non-compliance.", "Financial (fines), reputational (lost trust), legal (claims/$ICO$ orders), operational (forced data deletion + remediation)."],
+    ["Name the four impacts of non-compliance.", "Financial (fines), reputational (lost trust), legal (claims/ICO orders), operational (forced data deletion + remediation)."],
     ["How do organisational policies mitigate non-compliance?", "Privacy policy, staff training, access controls, retention schedules and breach-response plans make correct handling routine rather than ad hoc."]
   ],
   quiz: [
@@ -1704,7 +1704,7 @@ C["it:F201.4.1"] = {
       q: "Which measure best demonstrates the 'accountability' principle?",
       opts: [
         "Encrypting the database",
-        "Keeping records/policies that prove compliance and appointing a $DPO$ where required",
+        "Keeping records/policies that prove compliance and appointing a DPO where required",
         "Collecting more data for analysis",
         "Marketing only to opted-in users"
       ],
@@ -1741,7 +1741,7 @@ C["it:F201.4.1"] = {
       ms: [
         "Financial: fines up to £17.5m or 4% of global turnover (1–2).",
         "Reputational: loss of customer trust and brand damage after a publicised breach (1–2).",
-        "Legal: compensation claims from data subjects and $ICO$ enforcement orders (1–2).",
+        "Legal: compensation claims from data subjects and ICO enforcement orders (1–2).",
         "Operational: forced deletion of unlawful datasets, losing analytical value; remediation cost (1–2).",
         "Mitigation: clear privacy policy, staff training, access controls, retention schedules, breach-response plan (1–2).",
         "Judgement: proactive policies make compliance routine and far cheaper than the cost of a breach (1–2)."
@@ -1810,7 +1810,7 @@ C["it:F201.4.2"] = {
   ],
   quiz: [
     {
-      q: "Which term describes $AI$ reproducing human prejudice from its training data?",
+      q: "Which term describes AI reproducing human prejudice from its training data?",
       opts: ["Data portability", "Algorithmic bias", "Data minimisation", "Pseudonymisation"],
       ans: 1,
       why: "Bias arises when training data is unrepresentative or reflects historical discrimination."
@@ -1902,7 +1902,7 @@ C["it:F201.5.1"] = {
         ["Energy efficiency", "Smart grids and smart meters use real-time data to match supply to demand and cut waste; analytics optimise building/industry energy use."],
         ["Environmental management", "Satellite and sensor data track deforestation, ocean health, air quality and ice melt objectively at global scale."],
         ["Platforms to combat climate change", "Shared global datasets and modelling platforms let scientists/governments collaborate on emissions and climate projections."],
-        ["Emerging environmental developments", "New uses — e.g. precision agriculture, carbon-tracking, biodiversity monitoring with AI/$IoT$ — continually expand what big data can do for the environment."]
+        ["Emerging environmental developments", "New uses — e.g. precision agriculture, carbon-tracking, biodiversity monitoring with AI/IoT — continually expand what big data can do for the environment."]
       ] }
     ] } },
 
@@ -1915,7 +1915,7 @@ C["it:F201.5.1"] = {
       ["Climate platforms", "International collaboration accelerates climate science.", "The data centres themselves emit significant $CO_2$ and use water."],
       ["Emerging developments", "Opens new frontiers (precision farming, carbon tracking).", "Unproven, costly, and may raise their own footprint."]
     ] } },
-    { callout: { t: "miscon", h: "Big data isn't automatically 'green'", body: "Some firms ($Google$, $Microsoft$) buy renewable energy, but the global majority of data centres still draw heavily on fossil fuels, use vast cooling water, and generate hardware **e-waste**. Big data is a *tool* for the environment whose own footprint must be managed — not an inherently clean technology." }},
+    { callout: { t: "miscon", h: "Big data isn't automatically 'green'", body: "Some firms (Google, Microsoft) buy renewable energy, but the global majority of data centres still draw heavily on fossil fuels, use vast cooling water, and generate hardware **e-waste**. Big data is a *tool* for the environment whose own footprint must be managed — not an inherently clean technology." }},
     { callout: { t: "memorise", h: "Environment — both sides", body: "**Helps:** accurate forecasting, disaster early-warning, smart-grid energy efficiency, satellite environmental monitoring, climate-modelling platforms, emerging green uses. **Costs:** data centres' electricity + cooling water + $CO_2$, sensor/satellite energy, and e-waste from hardware churn." }},
 
     { page: "Exam technique" },
@@ -1931,13 +1931,13 @@ C["it:F201.5.1"] = {
     ["What is the main environmental *cost* of big data?", "Data centres consume large amounts of electricity and cooling water and produce $CO_2$; hardware churn creates e-waste."],
     ["Give a limitation of big-data disaster early-warning.", "False alarms erode public trust, and the data infrastructure itself may fail during the disaster."],
     ["Why isn't big data automatically 'green'?", "Most data centres still rely heavily on fossil-fuel energy and water cooling, and generate e-waste — its footprint must be actively managed."],
-    ["Give an emerging environmental use of big data.", "Precision agriculture, carbon/emissions tracking, or AI/$IoT$ biodiversity monitoring."],
+    ["Give an emerging environmental use of big data.", "Precision agriculture, carbon/emissions tracking, or AI/IoT biodiversity monitoring."],
     ["State the core environmental trade-off of big data.", "It helps understand and protect the environment, but the centres/sensors/satellites powering it consume energy and create e-waste."]
   ],
   quiz: [
     {
       q: "Which technology uses big data to balance electricity supply and demand in real time?",
-      opts: ["Data lake", "Smart grid", "Blockchain", "$NoSQL$ database"],
+      opts: ["Data lake", "Smart grid", "Blockchain", "NoSQL database"],
       ans: 1,
       why: "Smart grids use real-time sensor data to optimise electricity distribution and cut waste."
     },
@@ -2019,8 +2019,8 @@ C["it:F201.5.2"] = {
     "This leaf covers big data's impact on **society**. The spec has two parts: **big data and the development of smart cities**, and **emerging social developments driven by big data** — namely **personalised healthcare, smart homes, traffic management, and urban & community planning**. You must know the *purpose* of a smart city, *how data from many sources is exchanged to optimise city operations*, the *benefits and limitations* of a smart city, and *how individuals are affected* by the emerging developments.",
 
     { page: "Smart cities" },
-    { callout: { t: "def", h: "Smart city", body: "An urban area that uses **big data and $IoT$** — sensors, cameras, connected infrastructure — to monitor and manage city services (traffic, waste, lighting, energy, transport) in real time. Purpose: make the city more **efficient, sustainable and liveable** by basing operations on live data rather than guesswork." }},
-    "A smart city works by **exchanging data from many sources** — traffic sensors, public-transport feeds, energy meters, environmental monitors, mobile/$GPS$ data and citizen apps — into a central platform that analyses it and triggers responses: re-timing traffic lights, rerouting buses, dimming unused street lighting, predicting maintenance. The value comes from *integration* — many feeds optimised together, not in isolation.",
+    { callout: { t: "def", h: "Smart city", body: "An urban area that uses **big data and IoT** — sensors, cameras, connected infrastructure — to monitor and manage city services (traffic, waste, lighting, energy, transport) in real time. Purpose: make the city more **efficient, sustainable and liveable** by basing operations on live data rather than guesswork." }},
+    "A smart city works by **exchanging data from many sources** — traffic sensors, public-transport feeds, energy meters, environmental monitors, mobile/GPS data and citizen apps — into a central platform that analyses it and triggers responses: re-timing traffic lights, rerouting buses, dimming unused street lighting, predicting maintenance. The value comes from *integration* — many feeds optimised together, not in isolation.",
     { table: { head: ["Smart city", "Benefit", "Limitation"], rows: [
       ["Traffic & transport", "Less congestion, lower emissions, smoother journeys.", "System failure/cyber-attack can paralyse the city."],
       ["Energy & lighting", "Lower energy use and cost via demand-based control.", "Expensive sensor/network infrastructure to install."],
@@ -2028,26 +2028,26 @@ C["it:F201.5.2"] = {
       ["Safety", "Faster emergency response from live data.", "Privacy erosion; residents often can't opt out."],
       ["Inclusion", "Better-targeted public services.", "Digital exclusion — elderly/low-income may not benefit equally."]
     ] } },
-    { callout: { t: "miscon", h: "Smart cities aren't purely beneficial", body: "Answers that list only benefits are capped. Smart cities also bring **mass surveillance** ($CCTV$/$IoT$ track all movement), **privacy erosion** (no real opt-out), **cyber-attack vulnerability** (interconnected systems = single points of failure), and **digital exclusion**. Always balance the efficiency gains against these." }},
+    { callout: { t: "miscon", h: "Smart cities aren't purely beneficial", body: "Answers that list only benefits are capped. Smart cities also bring **mass surveillance** (CCTV/IoT track all movement), **privacy erosion** (no real opt-out), **cyber-attack vulnerability** (interconnected systems = single points of failure), and **digital exclusion**. Always balance the efficiency gains against these." }},
 
     { page: "Emerging social developments" },
     { callout: { t: "info", h: "How individuals are affected", body: [
       { kv: [
         ["Personalised healthcare", "Genetic + lifestyle + monitoring data tailors treatment to the individual. **Effect:** earlier diagnosis, better outcomes — but highly sensitive data and risk of insurance/discrimination misuse."],
         ["Smart homes", "Connected appliances, heating and security learn habits and automate the home. **Effect:** convenience and lower bills — but always-on devices collect intimate behavioural data and can be hacked."],
-        ["Traffic management", "Real-time $GPS$/sensor data reroutes and re-times traffic. **Effect:** shorter, safer commutes and less pollution — but location tracking and dependence on the system."],
+        ["Traffic management", "Real-time GPS/sensor data reroutes and re-times traffic. **Effect:** shorter, safer commutes and less pollution — but location tracking and dependence on the system."],
         ["Urban & community planning", "Footfall, movement and service-use data informs where to build parks, transport and services. **Effect:** better-designed communities — but planning driven by data may overlook under-represented residents."]
       ] }
     ] } },
-    { callout: { t: "memorise", h: "Society — smart city + 4 developments", body: "**Smart city:** $IoT$ + big data exchanged across sources → optimise traffic/energy/waste/safety. Benefits efficiency/sustainability; costs surveillance, privacy, cyber-risk, exclusion. **Emerging developments:** *personalised healthcare* (tailored treatment), *smart homes* (automation/convenience), *traffic management* (faster commutes), *urban & community planning* (data-led design)." }},
+    { callout: { t: "memorise", h: "Society — smart city + 4 developments", body: "**Smart city:** IoT + big data exchanged across sources → optimise traffic/energy/waste/safety. Benefits efficiency/sustainability; costs surveillance, privacy, cyber-risk, exclusion. **Emerging developments:** *personalised healthcare* (tailored treatment), *smart homes* (automation/convenience), *traffic management* (faster commutes), *urban & community planning* (data-led design)." }},
 
     { page: "Exam technique" },
-    { callout: { t: "tip", h: "'How is data exchanged?'", body: "For smart-city questions, explicitly name *multiple sources* (traffic sensors, transport feeds, energy meters, $GPS$, citizen apps) feeding a *central platform* that analyses and *acts*. The mark is for the **integration** of many feeds, not one sensor in isolation." }},
+    { callout: { t: "tip", h: "'How is data exchanged?'", body: "For smart-city questions, explicitly name *multiple sources* (traffic sensors, transport feeds, energy meters, GPS, citizen apps) feeding a *central platform* that analyses and *acts*. The mark is for the **integration** of many feeds, not one sensor in isolation." }},
     { callout: { t: "warn", h: "Reach the individual", body: "For the emerging developments the spec asks *how individuals are affected* — so for each, give a concrete personal effect (better treatment, a lower bill, a shorter commute) **and** a personal risk (sensitive data exposure, surveillance, dependence). Pair benefit with impact every time." }}
   ],
   flashcards: [
-    ["What is a smart city and its purpose?", "An urban area using big data/$IoT$ to manage services (traffic, waste, energy, lighting) in real time — purpose: a more efficient, sustainable, liveable city."],
-    ["How does a smart city optimise operations?", "By exchanging data from many sources (traffic sensors, transport feeds, energy meters, $GPS$, citizen apps) into a central platform that analyses it and triggers responses."],
+    ["What is a smart city and its purpose?", "An urban area using big data/IoT to manage services (traffic, waste, energy, lighting) in real time — purpose: a more efficient, sustainable, liveable city."],
+    ["How does a smart city optimise operations?", "By exchanging data from many sources (traffic sensors, transport feeds, energy meters, GPS, citizen apps) into a central platform that analyses it and triggers responses."],
     ["Give two benefits of a smart city.", "Reduced congestion/emissions; lower energy use/cost; faster emergency response; better-targeted services (any two)."],
     ["Give two limitations of a smart city.", "Mass surveillance/privacy erosion; cyber-attack vulnerability; high infrastructure cost; digital exclusion (any two)."],
     ["Name the four emerging social developments driven by big data.", "Personalised healthcare, smart homes, traffic management, and urban & community planning."],
@@ -2062,12 +2062,12 @@ C["it:F201.5.2"] = {
       q: "Which best describes the purpose of a smart city?",
       opts: [
         "To remove all sensors from a city",
-        "To use big data/$IoT$ to manage services efficiently and sustainably in real time",
+        "To use big data/IoT to manage services efficiently and sustainably in real time",
         "To replace local government with a database",
         "To stop collecting any personal data"
       ],
       ans: 1,
-      why: "Smart cities use integrated $IoT$/big data to optimise services and make the city more liveable."
+      why: "Smart cities use integrated IoT/big data to optimise services and make the city more liveable."
     },
     {
       q: "A hospital combines genetic sequencing with lifestyle data to prescribe individualised drugs. Which development is this?",
@@ -2079,7 +2079,7 @@ C["it:F201.5.2"] = {
       q: "Which is a significant negative impact of smart cities on individuals?",
       opts: ["Reduced commute times", "Mass surveillance of residents", "Lower energy bills", "Cleaner streets"],
       ans: 1,
-      why: "Pervasive $IoT$/$CCTV$ tracking of movement raises serious privacy/surveillance concerns."
+      why: "Pervasive IoT/CCTV tracking of movement raises serious privacy/surveillance concerns."
     },
     {
       q: "What gives a smart city's data its value?",
@@ -2109,8 +2109,8 @@ C["it:F201.5.2"] = {
       q: "Explain the purpose of a smart city and how it uses data to optimise city operations.",
       marks: 4,
       ms: [
-        "Purpose: use big data/$IoT$ to make the city more efficient, sustainable and liveable (1).",
-        "Collects data from many sources — traffic sensors, transport feeds, energy meters, $GPS$ (1).",
+        "Purpose: use big data/IoT to make the city more efficient, sustainable and liveable (1).",
+        "Collects data from many sources — traffic sensors, transport feeds, energy meters, GPS (1).",
         "Integrates and analyses them on a central platform (1).",
         "Triggers responses — re-timing lights, rerouting transport, demand-based lighting/energy (1)."
       ]
