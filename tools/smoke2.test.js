@@ -13,7 +13,7 @@ const ctxStub = new Proxy({}, { get: (t, k) => k === "measureText" ? () => ({ wi
 window.HTMLCanvasElement.prototype.getContext = () => ctxStub;
 window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.cancelAnimationFrame = clearTimeout;
-window.confirm = () => true;
+window.confirm = () => true; window.__kosAutoConfirm = true;
 
 const scripts = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]);
 for (const src of scripts) {

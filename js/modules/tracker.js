@@ -148,7 +148,7 @@
           close(); onSaved && onSaved();
         } }),
         existing ? el("button", { class: "btn danger", text: "Delete entry", onclick: function () {
-          if (confirm("Delete this " + kind + " record?")) { remove(existing.id); close(); onSaved && onSaved(); }
+          KOS.ui.confirm({ title: "Delete record?", body: "Delete this " + kind + " record?", danger: true, confirm: "Delete" }, function () { remove(existing.id); close(); onSaved && onSaved(); });
         } }) : null
       ])
     ]));

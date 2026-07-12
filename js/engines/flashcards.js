@@ -268,11 +268,11 @@
           detail.appendChild(cardForm(sid, ref, c, rerender));
         } }) : null,
         c.custom ? el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete card", onclick: function () {
-          if (confirm("Delete this custom card and its review history?")) {
+          KOS.ui.confirm({ title: "Delete this card?", body: "The card and its review history go with it.", danger: true, confirm: "Delete" }, function () {
             KOS.srs.deleteCustom(c.id);
             KOS.ui.toast("Card deleted.");
             rerender();
-          }
+          });
         } }) : null
       ]));
       row.appendChild(el("div", { class: "fc-row-a", html: KOS.content.inline(c.a) }));

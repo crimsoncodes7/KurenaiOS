@@ -49,10 +49,10 @@
     if (mode !== "replace") return {};
     return { replace: { module: module, source: source, protect: KOS.media.protectedCardIds(module) } };
   }
-  function confirmReplace(mode, sourceName) {
-    if (mode !== "replace") return true;
-    return window.confirm("Replace mode: entries previously synced/imported from " + sourceName +
-      " that this import no longer carries will be REMOVED (anything holding your own data — routes, quotes, physical volumes, notes… — is kept and just updated). Continue?");
+  function confirmReplace(mode, sourceName, proceed) {
+    if (mode !== "replace") { proceed(); return; }
+    KOS.ui.confirm({ title: "Replace from " + sourceName + "?", danger: true, confirm: "Replace",
+      body: "Entries previously synced or imported from " + sourceName + " that this import no longer carries will be removed. Anything holding your own data — routes, quotes, physical volumes, notes — is kept and just updated." }, proceed);
   }
   function doneWording(res) {
     var bits = [res.added + " added", res.updated + " updated"];
@@ -131,7 +131,7 @@
           function syncButton(label, module, noun) {
             var btn = el("button", { class: "btn primary", text: "⇅ Sync now — " + label, onclick: function () {
               var mode = aniMode.value();
-              if (!confirmReplace(mode, "AniList (" + noun + ")")) return;
+              confirmReplace(mode, "AniList (" + noun + ")", function () {
               btn.disabled = true;
               syncStatus.textContent = "Pulling your " + noun + " list (one call — status, progress, scores, covers, genres)…";
               KOS.anilist.syncList(conn.token, conn.viewer.id, module, function (err3, mapped) {
@@ -157,7 +157,7 @@
                   renderEnrich();
                 });
               });
-            } });
+            }); } });
             return btn;
           }
           connBody.appendChild(aniMode.root);
@@ -218,7 +218,7 @@
           var vnMode = modePicker();
           var syncBtn = el("button", { class: "btn primary", text: "⇅ Sync now — Visual Novels", onclick: function () {
             var mode = vnMode.value();
-            if (!confirmReplace(mode, "VNDB")) return;
+            confirmReplace(mode, "VNDB", function () {
             syncBtn.disabled = true;
             vnStatus.textContent = "Pulling your VNDB list (pages of 100 — status, votes, covers, developers, tags)…";
             KOS.vndb.syncList(conn.token, {
@@ -243,7 +243,7 @@
                 renderEnrich();
               });
             });
-          } });
+          }); } });
           vndbBody.appendChild(vnMode.root);
           vndbBody.appendChild(el("div", { class: "lab-controls" }, [
             syncBtn,
@@ -349,7 +349,7 @@
         var parsed = KOS.media.parseXML(reader.result);
         if (parsed.error) { xmlStatus.textContent = parsed.error; return; }
         var mode = xmlMode.value();
-        if (!confirmReplace(mode, "XML imports (" + parsed.module + ")")) { xmlStatus.textContent = "Import cancelled."; return; }
+        confirmReplace(mode, "XML imports (" + parsed.module + ")", function () {
         xmlStatus.textContent = "Parsed " + parsed.entries.length + " " + parsed.module + " entries" +
           (parsed.userName ? " (" + parsed.userName + "'s export)" : "") + " — importing…";
         KOS.mediadb.bulkUpsert(parsed.entries, replaceOpts(mode, parsed.module, "import"), function (err, res) {
@@ -358,7 +358,7 @@
           KOS.ui.toast("XML import complete.");
           renderEnrich();
         });
-      };
+        }); };
       reader.readAsText(f);
       file.value = "";
     } });

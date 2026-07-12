@@ -58,7 +58,40 @@
     };
   }
 
-  KOS.ui = { el: el, toast: toast, flashSaved: flashSaved, esc: esc, debounce: debounce };
+  /* ---- the in-app confirm modal ----
+     Native window.confirm is banned in this app — every destructive action
+     asks through this. Callback-based (can't be synchronous like the native
+     one). opts: {title, body, confirm, cancel, danger}. Test hook:
+     window.__kosAutoConfirm === true resolves onYes immediately (headless). */
+  function confirmModal(opts, onYes, onNo) {
+    if (typeof opts === "string") opts = { body: opts };
+    opts = opts || {};
+    if (window.__kosAutoConfirm) { onYes && onYes(); return; }
+    var overlay = el("div", { class: "modal-ov confirm-ov", onclick: function (e) { if (e.target === overlay) close(false); } });
+    function close(yes) {
+      document.removeEventListener("keydown", onKey);
+      overlay.remove();
+      if (yes) { onYes && onYes(); } else { onNo && onNo(); }
+    }
+    function onKey(e) { if (e.key === "Escape") close(false); else if (e.key === "Enter") close(true); }
+    document.addEventListener("keydown", onKey);
+    var box = el("div", { class: "modal confirm-modal" + (opts.danger ? " danger" : "") }, [
+      el("div", { class: "confirm-glyph", "aria-hidden": "true", text: opts.danger ? "⚠" : "?" }),
+      el("h3", { class: "confirm-title", text: opts.title || (opts.danger ? "Are you sure?" : "Confirm") }),
+      opts.body ? el("p", { class: "confirm-body", text: opts.body }) : null,
+      el("div", { class: "confirm-foot" }, [
+        el("button", { class: "btn", text: opts.cancel || "Cancel", onclick: function () { close(false); } }),
+        el("button", { class: "btn " + (opts.danger ? "danger" : "primary"), text: opts.confirm || (opts.danger ? "Delete" : "Confirm"),
+          onclick: function () { close(true); } })
+      ])
+    ].filter(Boolean));
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    var b = box.querySelector(".btn.primary, .btn.danger");
+    if (b) b.focus();
+  }
+
+  KOS.ui = { el: el, toast: toast, flashSaved: flashSaved, esc: esc, debounce: debounce, confirm: confirmModal };
 
   // ---- view registry: each module registers render functions ----
   KOS.views = {};

@@ -157,10 +157,11 @@
 
   function endEarly() {
     if (!S) return;
-    if (!confirm(S.kind === "reading"
-      ? "End this reading session early?\n\nThe time you read still gets logged — nothing is forfeited, reading is rest."
-      : "End this session early?\n\nIt still gets logged (the data point matters), but the XP and gold award is forfeited.")) return;
-    finish(false);
+    KOS.ui.confirm({ title: "End early?", confirm: "End session",
+      body: S.kind === "reading"
+        ? "The time you read still gets logged — nothing is forfeited, reading is rest."
+        : "It still gets logged — the data point matters — but the XP and gold award is forfeited." },
+      function () { finish(false); });
   }
   function endComplete() {
     if (!S || !canComplete()) return;
@@ -259,11 +260,11 @@
     var t = store.state.todo;
     var open = blocks.find(function (e) { return !t.autoChecked[today + "|blk" + e.id]; });
     if (!open) return;
-    if (confirm("Mark today's study block “" + open.title + "” as done?")) {
+    KOS.ui.confirm({ title: "Study block done?", body: "Mark today's study block “" + open.title + "” as done?", confirm: "Mark done" }, function () {
       t.autoChecked[today + "|blk" + open.id] = true;
       store.save();
       KOS.ui.toast("Study block ticked off.");
-    }
+    });
   }
 
   /* ---------------- deterrents ---------------- */

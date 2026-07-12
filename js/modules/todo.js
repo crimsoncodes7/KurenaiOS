@@ -319,9 +319,9 @@
             el("b", { text: String(streak) }), streak === 1 ? " day" : " days"
           ]),
           el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete habit", onclick: function () {
-            if (confirm("Delete the habit “" + h.text + "”? Its history goes with it.")) {
+            KOS.ui.confirm({ title: "Delete habit?", body: "“" + h.text + "” and its streak history go with it.", danger: true, confirm: "Delete" }, function () {
               deleteHabit(h.id); renderHabits();
-            }
+            });
           } })
         ]));
       });

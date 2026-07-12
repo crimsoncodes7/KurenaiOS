@@ -28,7 +28,7 @@ const ctxStub = new Proxy({}, {
 window.HTMLCanvasElement.prototype.getContext = () => ctxStub;
 window.requestAnimationFrame = (cb) => setTimeout(cb, 0);
 window.cancelAnimationFrame = clearTimeout;
-window.confirm = () => true;
+window.confirm = () => true; window.__kosAutoConfirm = true;
 if (!window.navigator.clipboard) {
   Object.defineProperty(window.navigator, "clipboard", {
     value: { writeText: () => Promise.resolve() },

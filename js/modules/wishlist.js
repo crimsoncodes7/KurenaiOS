@@ -441,8 +441,9 @@
       ]),
       el("div", { class: "lab-controls med-modal-foot" }, [
         !isNew ? el("button", { class: "btn danger", text: "Delete", onclick: function () {
-          if (!confirm("Remove “" + e.title + "” from the planner?")) return;
-          remove(e.id); KOS.ui.toast("Removed."); close(); onSaved && onSaved();
+          KOS.ui.confirm({ title: "Remove from planner?", body: "“" + e.title + "” will be removed.", danger: true, confirm: "Remove" }, function () {
+            remove(e.id); KOS.ui.toast("Removed."); close(); onSaved && onSaved();
+          });
         } }) : null,
         el("span", { style: "flex:1" }),
         el("button", { class: "btn", text: "Cancel", onclick: close }),

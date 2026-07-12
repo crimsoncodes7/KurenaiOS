@@ -194,11 +194,11 @@
           close(); onSaved && onSaved();
         } }),
         existing ? el("button", { class: "btn danger", text: "Delete event", onclick: function () {
-          if (confirm("Delete “" + existing.title + "”?")) {
+          KOS.ui.confirm({ title: "Delete event?", body: "Delete “" + existing.title + "”?", danger: true, confirm: "Delete" }, function () {
             deleteEvent(existing.id);
             KOS.ui.toast("Event deleted.");
             close(); onSaved && onSaved();
-          }
+          });
         } }) : null
       ])
     ]);

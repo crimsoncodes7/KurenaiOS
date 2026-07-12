@@ -720,12 +720,11 @@
       /* soft duplicate check by exact title — advisory, never blocking */
       KOS.mediadb.query({ module: "books", search: r.title }, function (err, rows) {
         var exact = !err && rows.find(function (x) { return x.titleLower === String(r.title).toLowerCase(); });
-        if (exact && confirm("“" + exact.title + "” is already in the vault — open the existing entry instead?\n\n(Cancel adds a separate copy.)")) {
-          close();
-          booksEditor(exact, onDone);
-          return;
-        }
-        openDraft();
+        if (exact) {
+          KOS.ui.confirm({ title: "Already in the vault", body: "“" + exact.title + "” is already tracked. Open the existing entry instead of adding a copy?", confirm: "Open existing", cancel: "Add a copy" },
+            function () { close(); booksEditor(exact, onDone); },
+            function () { openDraft(); });
+        } else openDraft();
       });
     }
 

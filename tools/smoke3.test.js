@@ -17,7 +17,7 @@ const noop = () => {};
 const ctxStub = new Proxy({}, { get: (t, k) => k === "measureText" ? () => ({ width: 10 }) : (typeof k === "string" ? noop : undefined), set: () => true });
 window.HTMLCanvasElement.prototype.getContext = () => ctxStub;
 window.requestAnimationFrame = cb => setTimeout(cb, 0);
-window.confirm = () => true;
+window.confirm = () => true; window.__kosAutoConfirm = true;
 const scripts = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]);
 for (const src of scripts) {
   try { window.eval(fs.readFileSync(path.join(ROOT, src), "utf8")); }

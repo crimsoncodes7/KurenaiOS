@@ -361,12 +361,13 @@
 
   /* the shared delete tail — every editor's Delete button */
   function deleteEntry(e, confirmMsg, close, onSaved) {
-    if (!confirm(confirmMsg)) return;
-    KOS.mediadb.remove(e.id, function (err) {
-      if (err) { KOS.ui.toast("Delete failed: " + err.message, true); return; }
-      KOS.ui.toast("Deleted.");
-      close();
-      onSaved && onSaved(null);
+    KOS.ui.confirm({ title: "Delete this entry?", body: confirmMsg, danger: true, confirm: "Delete" }, function () {
+      KOS.mediadb.remove(e.id, function (err) {
+        if (err) { KOS.ui.toast("Delete failed: " + err.message, true); return; }
+        KOS.ui.toast("Deleted.");
+        close();
+        onSaved && onSaved(null);
+      });
     });
   }
 

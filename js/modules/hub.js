@@ -724,10 +724,11 @@
           KOS.show("ref", { subject: sid, ref: r.ref }); } }) : el("span", { class: "res-ref dim", text: "subject-wide" }),
         el("span", { class: "res-url", text: r.url }),
         el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete resource", onclick: function () {
-          if (!confirm("Remove “" + r.name + "” from the resource table?")) return;
-          R.items.splice(R.items.indexOf(r), 1);
-          store.save();
-          renderResources(holder, sid);
+          KOS.ui.confirm({ title: "Remove resource?", body: "“" + r.name + "” will be removed from the table.", danger: true, confirm: "Remove" }, function () {
+            R.items.splice(R.items.indexOf(r), 1);
+            store.save();
+            renderResources(holder, sid);
+          });
         } })
       ]));
     });
@@ -838,10 +839,9 @@
     var curTab = (content && content.notes && content.notes.length) ? "notes" : "spec";
 
     TABDEFS.forEach(function (t) {
-      var counter = "";
-      if (t[0] === "cards" && deckSize) counter = " " + deckSize;
-      if (t[0] === "quiz") counter = " " + content.quiz.length;
-      if (t[0] === "exam") counter = " " + content.exam.length;
+      var count = t[0] === "cards" && deckSize ? deckSize
+        : t[0] === "quiz" ? content.quiz.length
+        : t[0] === "exam" ? content.exam.length : null;
       tabBar.appendChild(el("button", {
         class: "study-tab" + (t[0] === curTab ? " active" : ""), role: "tab",
         "data-tab": t[0],
@@ -851,7 +851,7 @@
             b.classList.toggle("active", b.dataset.tab === curTab); });
           openTab();
         }
-      }, [t[1] + counter]));
+      }, [t[1], count ? el("span", { class: "tab-n", text: String(count) }) : null].filter(Boolean)));
     });
     /* Build 4.0 — study workspace: content column + collapsible inspector.
        The inspector carries the topic's live stats (mastery, recall record,
@@ -1190,9 +1190,9 @@
       "A printable table of every spec point, its status and your notes."));
     actions.appendChild(actionRow(
       el("button", { class: "btn danger", text: "Reset everything", onclick: function () {
-        if (confirm("Wipe all progress, notes and sandbox work? Export first if unsure.")) {
+        KOS.ui.confirm({ title: "Reset everything?", body: "All progress, notes and sandbox work will be wiped. Export a backup first if you're unsure.", danger: true, confirm: "Wipe it all" }, function () {
           store.reset(); KOS.refreshRailCounters(); KOS.ui.toast("Fresh start."); KOS.show("home");
-        }
+        });
       }}),
       "Back to a blank desk. Export first if there's any doubt."));
     grid.appendChild(actions);

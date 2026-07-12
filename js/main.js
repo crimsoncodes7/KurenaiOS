@@ -8,6 +8,10 @@
     });
   });
 
+  /* the brand mark returns to the Home overview */
+  var brand = document.getElementById("brand-home");
+  if (brand) brand.addEventListener("click", function () { KOS.show("home"); });
+
   /* back/forward navigation — topbar buttons + Alt+←/→ / Backspace (outside inputs) */
   var backBtn = document.getElementById("nav-back");
   if (backBtn) backBtn.addEventListener("click", function () { KOS.back(); });

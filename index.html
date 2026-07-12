@@ -19,14 +19,16 @@
 </div>
 <div id="app">
   <header id="topbar">
-    <div class="brand">
-      <span class="kanji" aria-hidden="true">紅</span>
-      <span class="name">Kurenai</span>
-      <span class="sub">study atelier</span>
-    </div>
-    <div class="nav-arrows">
-      <button id="nav-back" class="nav-back" type="button" aria-label="Back to previous page" title="Back (Alt+←)" disabled>‹</button>
-      <button id="nav-fwd" class="nav-back nav-fwd" type="button" aria-label="Forward to next page" title="Forward (Alt+→)" disabled>›</button>
+    <div class="topbar-left">
+      <button class="brand" id="brand-home" type="button" title="Home" aria-label="Go to Home">
+        <span class="kanji" aria-hidden="true">紅</span>
+        <span class="name">Kurenai</span>
+        <span class="sub">study atelier</span>
+      </button>
+      <div class="nav-arrows">
+        <button id="nav-back" class="nav-back" type="button" aria-label="Back to previous page" title="Back (Alt+←)" disabled>‹</button>
+        <button id="nav-fwd" class="nav-back nav-fwd" type="button" aria-label="Forward to next page" title="Forward (Alt+→)" disabled>›</button>
+      </div>
     </div>
     <div id="searchbox">
       <span class="glyph" aria-hidden="true">⌕</span>
@@ -34,9 +36,11 @@
              autocomplete="off" aria-label="Search the specification database">
       <div id="search-results" role="listbox"></div>
     </div>
-    <div id="hud"></div>
-    <div class="save-wrap" title="Every change autosaves to this browser">
-      <span id="save-dot"></span><span>saved</span>
+    <div class="topbar-right">
+      <div id="hud"></div>
+      <div class="save-wrap" title="Every change autosaves to this browser">
+        <span id="save-dot"></span><span>saved</span>
+      </div>
     </div>
   </header>
 

@@ -268,11 +268,12 @@
         } }),
         !canInline(rec.mime) ? el("span", { class: "sub att-nopreview", text: inlineNote(rec.mime) }) : null,
         el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete file", onclick: function () {
-          if (!confirm("Delete “" + rec.name + "” and its notes?")) return;
-          closeViewer();
-          remove(rec.id, function (err) {
-            if (err) KOS.ui.toast("Delete failed: " + err.message, true);
-            else { KOS.ui.toast("File deleted."); render(); }
+          KOS.ui.confirm({ title: "Delete file?", body: "Delete “" + rec.name + "” and its notes?", danger: true, confirm: "Delete" }, function () {
+            closeViewer();
+            remove(rec.id, function (err) {
+              if (err) KOS.ui.toast("Delete failed: " + err.message, true);
+              else { KOS.ui.toast("File deleted."); render(); }
+            });
           });
         } })
       ]));

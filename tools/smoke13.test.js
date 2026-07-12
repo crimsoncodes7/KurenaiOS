@@ -36,7 +36,7 @@ const noop = () => {};
 const ctxStub = new Proxy({}, { get: (t, k) => k === "measureText" ? () => ({ width: 10 }) : (typeof k === "string" ? noop : undefined), set: () => true });
 window.HTMLCanvasElement.prototype.getContext = () => ctxStub;
 window.requestAnimationFrame = cb => setTimeout(cb, 0);
-window.confirm = () => true;
+window.confirm = () => true; window.__kosAutoConfirm = true;
 window.fetch = () => Promise.resolve({ ok: true, status: 200, headers: { get: () => null }, json: () => Promise.resolve({}), text: () => Promise.resolve("") });
 
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
