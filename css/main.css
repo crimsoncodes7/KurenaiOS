@@ -2578,6 +2578,34 @@ body.fx-minimised .fx-dock { display: flex; }
 }
 .shrine-card.top .shrine-rank { background: linear-gradient(135deg, var(--accent2), color-mix(in srgb, var(--accent2) 60%, #fff)); color: #3A2E12; }
 .shrine-body { padding: 10px 12px 12px; }
+.shrine-card-btn {
+  position: absolute; top: 8px; right: 8px; z-index: 3;
+  border: none; cursor: pointer;
+  font-family: var(--serif); font-size: 11px; font-weight: 600; letter-spacing: .02em;
+  padding: 4px 9px; border-radius: 999px;
+  color: #FCFAF4; background: rgba(20,16,10,.5);
+  backdrop-filter: blur(4px);
+  opacity: 0; transform: translateY(-3px);
+  transition: opacity .18s, transform .18s, background .18s;
+}
+.shrine-card:hover .shrine-card-btn, .shrine-card:focus-within .shrine-card-btn { opacity: 1; transform: none; }
+.shrine-card-btn:hover { background: color-mix(in srgb, var(--accent2) 82%, #000); }
+
+/* ---- Shrine collector card ---- */
+.shrine-card-modal { max-width: 380px; }
+.shrine-card-preview {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 200px; padding: 6px 2px 12px;
+}
+.shrine-card-img {
+  width: 100%; max-width: 320px; height: auto;
+  border-radius: 16px;
+  box-shadow: var(--shadow-md), 0 0 0 1px color-mix(in srgb, var(--accent2) 40%, transparent);
+}
+.shrine-card-actions { display: flex; flex-direction: column; gap: 10px; }
+.shrine-card-actions .todo-in { width: 100%; }
+.shrine-card-actions .lab-controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.shrine-card-actions .lab-controls .btn { flex: 1 1 auto; }
 
 /* ---- Books ---- */
 .bk-author { font-size: 10.5px; color: rgba(245,239,226,.75); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: -3px; }
