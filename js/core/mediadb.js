@@ -74,7 +74,7 @@
   "use strict";
   window.KOS = window.KOS || {};
 
-  var DB_NAME = "kurenai-os-media", DB_VER = 5;
+  var DB_NAME = "kurenai-os-media", DB_VER = 6;
   var ENTRIES = "entries", KV = "kv";
   var db = null;
 
@@ -130,6 +130,12 @@
       }
       if (!os.indexNames.contains("steam")) {
         os.createIndex("steam", "externalIds.steamAppId", { unique: false });
+      }
+      /* v6 (Build 3k — custom lists): a manual (and, for AniList, synced)
+         membership axis that ALL modules share — VN and games finally get
+         lists too. multiEntry so an entry can sit on several lists. */
+      if (!os.indexNames.contains("customLists")) {
+        os.createIndex("customLists", "customLists", { unique: false, multiEntry: true });
       }
       if (!d.objectStoreNames.contains(KV)) {
         d.createObjectStore(KV, { keyPath: "key" });
@@ -318,6 +324,11 @@
         : legacy ? (e.module === "ln" ? "lightNovel" : "manga") : null,
       mood: Array.isArray(e.mood) ? e.mood.slice() : [],
       shelves: Array.isArray(e.shelves) ? e.shelves.slice() : [],
+      /* Build 3k — custom lists (all modules). Deduped, trimmed, non-empty. */
+      customLists: Array.isArray(e.customLists)
+        ? e.customLists.map(function (s) { return String(s).trim(); })
+            .filter(function (s, i, a) { return s && a.indexOf(s) === i; })
+        : [],
       dnf: {
         isDnf: !!(e.dnf && e.dnf.isDnf),
         reason: (e.dnf && e.dnf.reason) || ""
@@ -428,6 +439,7 @@
     if (opts.tag) return { rq: os.index("tags").openCursor(window.IDBKeyRange.only(opts.tag)), used: ["tag"] };
     if (opts.mood) return { rq: os.index("mood").openCursor(window.IDBKeyRange.only(opts.mood)), used: ["mood"] };
     if (opts.shelf) return { rq: os.index("shelves").openCursor(window.IDBKeyRange.only(opts.shelf)), used: ["shelf"] };
+    if (opts.customList) return { rq: os.index("customLists").openCursor(window.IDBKeyRange.only(opts.customList)), used: ["customList"] };
     if (opts.author) return { rq: os.index("author").openCursor(window.IDBKeyRange.only(opts.author)), used: ["author"] };
     if (opts.developer) return { rq: os.index("developer").openCursor(window.IDBKeyRange.only(opts.developer)), used: ["developer"] };
     if (opts.platform) return { rq: os.index("platform").openCursor(window.IDBKeyRange.only(opts.platform)), used: ["platform"] };
@@ -463,6 +475,7 @@
         if (ok && used.indexOf("tag") === -1 && opts.tag && v.tags.indexOf(opts.tag) === -1) ok = false;
         if (ok && used.indexOf("mood") === -1 && opts.mood && (!v.mood || v.mood.indexOf(opts.mood) === -1)) ok = false;
         if (ok && used.indexOf("shelf") === -1 && opts.shelf && (!v.shelves || v.shelves.indexOf(opts.shelf) === -1)) ok = false;
+        if (ok && used.indexOf("customList") === -1 && opts.customList && (!v.customLists || v.customLists.indexOf(opts.customList) === -1)) ok = false;
         if (ok && used.indexOf("author") === -1 && opts.author && v.author !== opts.author) ok = false;
         if (ok && used.indexOf("developer") === -1 && opts.developer && v.developer !== opts.developer) ok = false;
         if (ok && used.indexOf("platform") === -1 && opts.platform && v.platform !== opts.platform) ok = false;
@@ -651,6 +664,10 @@
         inc.physical = old.physical || inc.physical;
         inc.mood = (old.mood && old.mood.length) ? old.mood : inc.mood;
         inc.shelves = (old.shelves && old.shelves.length) ? old.shelves : inc.shelves;
+        /* custom lists UNION (3k): a locally-added list and an AniList-synced
+           list both survive — a pull never drops a membership you made. */
+        inc.customLists = (old.customLists || []).concat(inc.customLists || [])
+          .filter(function (s, i, a) { return s && a.indexOf(s) === i; });
         if (old.dnf && old.dnf.isDnf) inc.dnf = old.dnf;
         inc.author = inc.author || old.author || "";
         inc.format = inc.format || old.format || null;

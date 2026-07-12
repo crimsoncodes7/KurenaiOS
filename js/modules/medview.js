@@ -737,9 +737,185 @@
     });
   }
 
+  /* ---------------- filter rail (Build 3k) ----------------
+     AniList-style left sidebar: Status + shared Custom Lists (which every
+     module now carries). Bespoke per-module axes (mood, platform, developer…)
+     stay in the toolbar; this rail owns the two axes ALL vaults share.
+     onChange() fires when the selection changes → the caller re-runs its
+     query reading rail.status() / rail.customList(). Counts are tallied from
+     one module query and re-rendered on reload(). */
+  function filterRail(module, onChange) {
+    var sel = { status: null, customList: null };
+    var statusBox = el("div", { class: "fr-group" });
+    var listBox = el("div", { class: "fr-group" });
+    var root = el("aside", { class: "med-filter-rail", "aria-label": "Filters" }, [
+      el("div", { class: "fr-head", text: "Filter" }),
+      statusBox, listBox
+    ]);
+
+    function rowBtn(label, active, count, onClick, cls) {
+      return el("button", { class: "fr-row" + (active ? " active" : "") + (cls ? " " + cls : ""), onclick: onClick }, [
+        el("span", { class: "fr-row-lbl", text: label }),
+        count != null ? el("span", { class: "fr-row-n", text: String(count) }) : null
+      ].filter(Boolean));
+    }
+    function pick(what, val) {
+      sel[what] = val;
+      if (what === "status" && val) sel.customList = null;   // one primary axis at a time keeps counts honest
+      if (what === "customList" && val) sel.status = null;
+      render();
+      onChange();
+    }
+
+    var counts = { status: {}, list: {}, total: 0 };
+    function render() {
+      statusBox.innerHTML = "";
+      statusBox.appendChild(el("div", { class: "fr-title", text: "Status" }));
+      statusBox.appendChild(rowBtn("All", sel.status == null, counts.total, function () { pick("status", null); }));
+      STATUSES.forEach(function (s) {
+        statusBox.appendChild(rowBtn(KOS.media.STATUS_LABEL[s], sel.status === s, counts.status[s] || 0, function () { pick("status", s); }, "st-" + s));
+      });
+
+      listBox.innerHTML = "";
+      var titleRow = el("div", { class: "fr-title fr-title-lists" }, [
+        el("span", { text: "Lists" }),
+        el("button", { class: "fr-manage", title: "New / rename / delete lists", text: "⚙", onclick: function () { manageLists(module, reload); } })
+      ]);
+      listBox.appendChild(titleRow);
+      var names = Object.keys(counts.list);
+      if (!names.length) {
+        listBox.appendChild(el("p", { class: "fr-empty", text: "No custom lists yet." }));
+        listBox.appendChild(el("button", { class: "fr-new", text: "＋ New list", onclick: function () { newList(module, reload); } }));
+      } else {
+        names.sort(function (a, b) { return a.toLowerCase() < b.toLowerCase() ? -1 : 1; }).forEach(function (n) {
+          listBox.appendChild(rowBtn(n, sel.customList === n, counts.list[n], function () { pick("customList", sel.customList === n ? null : n); }, "fr-listrow"));
+        });
+        listBox.appendChild(el("button", { class: "fr-new", text: "＋ New list", onclick: function () { newList(module, reload); } }));
+      }
+    }
+
+    function reload() {
+      KOS.media.customLists(module, function (e0, names) {
+        KOS.mediadb.query({ module: module }, function (err, rows) {
+          counts = { status: {}, list: {}, total: (rows || []).length };
+          (names || []).forEach(function (n) { counts.list[n] = 0; });
+          (rows || []).forEach(function (e) {
+            counts.status[e.status] = (counts.status[e.status] || 0) + 1;
+            (e.customLists || []).forEach(function (n) { counts.list[n] = (counts.list[n] || 0) + 1; });
+          });
+          /* a filter whose list vanished falls back to All */
+          if (sel.customList && counts.list[sel.customList] == null) { sel.customList = null; onChange(); }
+          render();
+        });
+      });
+    }
+    render();
+    reload();
+    return {
+      root: root,
+      status: function () { return sel.status; },
+      customList: function () { return sel.customList; },
+      reload: reload
+    };
+  }
+
+  function newList(module, done) {
+    var overlay = modalOverlay();
+    var nameIn = el("input", { type: "text", class: "todo-in", placeholder: "List name — e.g. “Comfort reads”, “100% club”" });
+    overlay.appendChild(el("div", { class: "modal cl-modal" }, [
+      el("div", { class: "modal-h" }, [el("b", { text: "New custom list" }), el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", onclick: overlay.close })]),
+      el("div", { class: "med-form" }, [el("label", { class: "med-field" }, [el("span", { class: "k", text: "Name" }), nameIn])]),
+      el("div", { class: "lab-controls", style: "margin-top:12px" }, [
+        el("button", { class: "btn primary", text: "Create", onclick: function () {
+          var n = nameIn.value.trim();
+          if (!n) { KOS.ui.toast("Give the list a name first.", true); return; }
+          KOS.media.registerList(module, n, function () { overlay.close(); KOS.ui.toast("List created."); done && done(); });
+        } })
+      ])
+    ]));
+    document.body.appendChild(overlay);
+    setTimeout(function () { nameIn.focus(); }, 30);
+  }
+
+  function manageLists(module, done) {
+    var overlay = modalOverlay();
+    var body = el("div", { class: "cl-manage" });
+    function fill() {
+      body.innerHTML = "";
+      KOS.media.customLists(module, function (e0, names) {
+        if (!names.length) { body.appendChild(el("p", { class: "sub", text: "No custom lists yet — create one from the filter rail." })); return; }
+        names.forEach(function (n) {
+          var nameIn = el("input", { type: "text", class: "todo-in cl-name", value: n });
+          body.appendChild(el("div", { class: "cl-row" }, [
+            nameIn,
+            el("button", { class: "mini-btn", text: "Rename", onclick: function () {
+              var to = nameIn.value.trim();
+              if (!to || to === n) return;
+              KOS.media.renameList(module, n, to, function () { KOS.ui.toast("Renamed."); fill(); });
+            } }),
+            el("button", { class: "mini-btn danger", text: "Delete", onclick: function () {
+              KOS.ui.confirm({ title: "Delete “" + n + "”?", danger: true, confirm: "Delete",
+                body: "The list is removed from every entry that's on it. The entries themselves stay." }, function () {
+                KOS.media.deleteList(module, n, function () { KOS.ui.toast("List deleted."); fill(); });
+              });
+            } })
+          ]));
+        });
+      });
+    }
+    overlay.appendChild(el("div", { class: "modal cl-modal" }, [
+      el("div", { class: "modal-h" }, [el("b", { text: "Manage custom lists" }), el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", onclick: function () { overlay.close(); done && done(); } })]),
+      body,
+      el("div", { class: "lab-controls", style: "margin-top:12px" }, [
+        el("button", { class: "btn", text: "＋ New list", onclick: function () { newList(module, fill); } }),
+        el("button", { class: "btn primary", text: "Done", onclick: function () { overlay.close(); done && done(); } })
+      ])
+    ]));
+    document.body.appendChild(overlay);
+    fill();
+  }
+
+  /* the per-entry custom-list assignment control for editors (all modules).
+     Renders known lists as toggle chips + a free-text add. Mutates
+     entry.customLists in place; the editor's normal save persists it. */
+  function customListChips(entry) {
+    entry.customLists = Array.isArray(entry.customLists) ? entry.customLists : [];
+    var wrap = el("div", { class: "cl-chips" });
+    function render() {
+      wrap.innerHTML = "";
+      KOS.media.customLists(entry.module, function (e0, names) {
+        var known = {};
+        names.forEach(function (n) { known[n] = true; });
+        entry.customLists.forEach(function (n) { known[n] = true; });
+        Object.keys(known).sort().forEach(function (n) {
+          var on = entry.customLists.indexOf(n) !== -1;
+          wrap.appendChild(el("button", { type: "button", class: "cl-chip" + (on ? " on" : ""), text: (on ? "✓ " : "") + n, onclick: function () {
+            if (on) entry.customLists = entry.customLists.filter(function (x) { return x !== n; });
+            else entry.customLists.push(n);
+            render();
+          } }));
+        });
+        var addIn = el("input", { type: "text", class: "todo-in cl-chip-add", placeholder: "＋ new list…" });
+        addIn.addEventListener("keydown", function (ev) {
+          if (ev.key !== "Enter") return;
+          ev.preventDefault();
+          var n = addIn.value.trim();
+          if (!n) return;
+          if (entry.customLists.indexOf(n) === -1) entry.customLists.push(n);
+          KOS.media.registerList(entry.module, n, function () { render(); });
+        });
+        wrap.appendChild(addIn);
+      });
+    }
+    render();
+    return wrap;
+  }
+
   KOS.medview = {
     BATCH: BATCH,
     heroCard: heroCard,
+    filterRail: filterRail,
+    customListChips: customListChips,
     statsModal: statsModal,
     listRow: listRow,
     STATUSES: STATUSES,

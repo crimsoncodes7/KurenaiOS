@@ -243,8 +243,8 @@ step("syncList dedupes entries that AniList repeats in custom lists", async () =
   const media = { id: 999, idMal: 555, title: { romaji: "Test", english: null }, coverImage: { extraLarge: "https://c/x.png", large: null }, genres: ["Drama"], season: "FALL", seasonYear: 2008, format: "TV", episodes: 24, chapters: null, volumes: null, studios: { nodes: [{ name: "KyoAni" }] } };
   const entry = { id: 55, status: "CURRENT", score: 8, progress: 3, startedAt: { year: 2026, month: 4, day: 27 }, completedAt: { year: null }, media };
   window.fetch = () => Promise.resolve(mockRes(200, { data: { MediaListCollection: { lists: [
-    { name: "Watching", status: "CURRENT", entries: [entry] },
-    { name: "━━━ ☾ ━━━", status: null, entries: [entry] }   // the duplicate, as seen live
+    { name: "Watching", status: "CURRENT", isCustomList: false, entries: [entry] },
+    { name: "Comfort", status: null, isCustomList: true, entries: [entry] }   // a real custom list
   ] } } }));
   const mapped = await new Promise((res, rej) => KOS.anilist.syncList("tok", 1, "anime", (e, out) => e ? rej(new Error(e.message)) : res(out)));
   if (mapped.length !== 1) throw new Error("dedup failed: " + mapped.length);
@@ -254,6 +254,31 @@ step("syncList dedupes entries that AniList repeats in custom lists", async () =
       e0.externalIds.malId !== 555 ||
       e0.dates.started !== "2026-04-27" || e0.syncSource !== "anilist" ||
       !e0.lastSyncedAt || e0.extra.studio !== "KyoAni") throw new Error(JSON.stringify(e0));
+  if (!e0.customLists || e0.customLists.join() !== "Comfort") throw new Error("custom-list membership not carried: " + JSON.stringify(e0.customLists));
+});
+step("custom lists (3k): normalise dedupes, query filters, media CRUD renames/deletes across entries", async () => {
+  /* normalise trims + dedupes */
+  const n = KOS.mediadb.normalise({ title: "CL", module: "game", customLists: ["A", " A ", "", "B"] });
+  if (n.customLists.join() !== "A,B") throw new Error("normalise customLists: " + JSON.stringify(n.customLists));
+  /* two game entries, one on the "Backlog" list */
+  const g1 = await p(cb => KOS.mediadb.add({ title: "CL Game 1", module: "game", customLists: ["Backlog"] }, cb));
+  const g2 = await p(cb => KOS.mediadb.add({ title: "CL Game 2", module: "game" }, cb));
+  const onList = await p(cb => KOS.mediadb.query({ module: "game", customList: "Backlog" }, cb));
+  if (onList.length !== 1 || onList[0].id !== g1.id) throw new Error("customList query: " + onList.length);
+  /* registerList persists an empty list; customLists() unions registry + in-use */
+  await p(cb => KOS.media.registerList("game", "Someday", cb));
+  const names = await p(cb => KOS.media.customLists("game", cb));
+  if (names.indexOf("Backlog") === -1 || names.indexOf("Someday") === -1) throw new Error("customLists() union: " + names.join());
+  /* rename rewrites membership on every entry that held it */
+  await p(cb => KOS.media.renameList("game", "Backlog", "To Play", cb));
+  const renamed = await p(cb => KOS.mediadb.query({ module: "game", customList: "To Play" }, cb));
+  if (renamed.length !== 1 || renamed[0].id !== g1.id) throw new Error("rename did not carry membership");
+  /* delete strips it from all entries but leaves the entries themselves */
+  await p(cb => KOS.media.deleteList("game", "To Play", cb));
+  const gone = await p(cb => KOS.mediadb.query({ module: "game", customList: "To Play" }, cb));
+  const still = await p(cb => KOS.mediadb.get(g1.id, cb));
+  if (gone.length !== 0) throw new Error("delete left membership");
+  if (!still) throw new Error("delete removed the entry itself");
 });
 step("401 classifies as auth (reconnect prompt), 429 carries Retry-After", async () => {
   window.fetch = () => Promise.resolve(mockRes(401, {}));

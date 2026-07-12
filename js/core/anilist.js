@@ -158,10 +158,11 @@
   }
 
   /* one authenticated list entry → the shared media schema */
-  function mapListEntry(en, module) {
+  function mapListEntry(en, module, customLists) {
     var m = en.media || {};
     var out = {
       module: module,
+      customLists: customLists || [],
       title: (m.title && (m.title.romaji || m.title.english)) || "Untitled",
       status: STATUS_MAP[en.status] || "planned",
       progress: {
@@ -203,7 +204,7 @@
     var isAnime = module === "anime";
     return "query ($userId: Int, $type: MediaType) {" +
       " MediaListCollection(userId: $userId, type: $type) {" +
-      "  lists { name status entries {" +
+      "  lists { name status isCustomList entries {" +
       "   id status score(format: POINT_10_DECIMAL) progress" +
       (isAnime ? "" : " progressVolumes") +
       "   startedAt { year month day } completedAt { year month day }" +
@@ -221,12 +222,23 @@
       if (err) { cb(err); return; }
       var coll = data && data.MediaListCollection;
       if (!coll || !coll.lists) { cb({ kind: "gql", message: "Empty list response." }); return; }
+      /* first pass: gather each entry's CUSTOM-list memberships (a custom
+         list is a group flagged isCustomList — its name is the list name;
+         the same entry also appears in its status group). */
+      var lists = {};   // entryId -> [customListName]
+      coll.lists.forEach(function (list) {
+        if (!list.isCustomList || !list.name) return;
+        (list.entries || []).forEach(function (en) {
+          if (!en) return;
+          (lists[en.id] = lists[en.id] || []).push(list.name);
+        });
+      });
       var seen = {}, mapped = [];
       coll.lists.forEach(function (list) {
         (list.entries || []).forEach(function (en) {
           if (!en || seen[en.id]) return;
           seen[en.id] = true;
-          mapped.push(mapListEntry(en, module));
+          mapped.push(mapListEntry(en, module, lists[en.id] || []));
         });
       });
       cb(null, mapped);

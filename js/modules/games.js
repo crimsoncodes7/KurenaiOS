@@ -300,6 +300,7 @@
         field("Tags", tags),
         field("Cover URL", coverU),
         el("div", { class: "lab-controls" }, [uploadBtn, coverNote]),
+        field("Custom lists", mv.customListChips(e), "wl-notes-full"),
         field("Notes", notes)
       ],
       onSave: save,
@@ -494,7 +495,6 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
     var p = prefs();
-    var filt = { status: null };
     var mv = KOS.medview;
 
     main.appendChild(el("div", { class: "dash-head" }, [
@@ -524,21 +524,24 @@
     ).map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
     var sortSel = mv.sortSelect(p.sort, { progress: "Playtime" });
     var layoutBtn = mv.layoutToggle(p, function () { refresh(); });
-    var pills = mv.statusPills(function (s) { filt.status = s; refresh(); });
+    var rail = mv.filterRail("game", function () { refresh(); });
 
-    main.appendChild(el("div", { class: "med-toolbar" }, [
+    var mainCol = el("div", { class: "med-main" });
+    mainCol.appendChild(el("div", { class: "med-toolbar" }, [
       search, platSel, genreSel, tierSel, sortSel, layoutBtn,
       el("button", { class: "btn gold", text: "▤ Bulk add", title: "Paste a list of titles — one per line — and each becomes a draft entry",
-        onclick: function () { bulkAddModal(refresh); } }),
+        onclick: function () { bulkAddModal(refreshAll); } }),
       el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("game", mod()); } }),
       el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-      el("button", { class: "btn primary", text: "+ Add", onclick: function () { gamesEditor(null, refresh); } })
+      el("button", { class: "btn primary", text: "+ Add", onclick: function () { gamesEditor(null, refreshAll); } })
     ]));
-    main.appendChild(pills);
+    main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
+
+    function refreshAll() { rail.reload(); refresh(); }
 
     /* countLine + holder + sentinel + the lazy batch renderer */
-    var area = mv.resultsArea(main, function (e) {
-      return p.layout === "list" ? listRow(e, refresh) : gridCard(e, refresh);
+    var area = mv.resultsArea(mainCol, function (e) {
+      return p.layout === "list" ? listRow(e, refreshAll) : gridCard(e, refreshAll);
     });
 
     /* stats strip + games analytics under the vault */
@@ -583,7 +586,8 @@
 
     function refresh() {
       KOS.mediadb.query({
-        module: "game", status: filt.status || undefined,
+        module: "game", status: rail.status() || undefined,
+        customList: rail.customList() || undefined,
         platform: platSel.value || undefined,
         genre: genreSel.value || undefined,
         tier: tierSel.value || undefined,
@@ -595,7 +599,7 @@
           area.countLine.textContent = "Query failed: " + err.message;
           return;
         }
-        var filtered = filt.status || platSel.value || genreSel.value || tierSel.value || search.value;
+        var filtered = rail.status() || rail.customList() || platSel.value || genreSel.value || tierSel.value || search.value;
         area.countLine.textContent = rows.length + (rows.length === 1 ? " game" : " games") + (filtered ? " (filtered)" : "");
         if (!rows.length) {
           area.holder.innerHTML = "";
@@ -604,8 +608,8 @@
               ? "Nothing matches this filter."
               : "The Games vault is empty. Paste your library in bulk — one title per line, straight off Steam's library page — or add games one at a time. There's no import API a browser is allowed to use; this is the whole toolkit, honestly stated.",
             [
-              el("button", { class: "btn gold", text: "▤ Bulk add from a pasted list", onclick: function () { bulkAddModal(refresh); } }),
-              el("button", { class: "btn", text: "+ Add one game", onclick: function () { gamesEditor(null, refresh); } })
+              el("button", { class: "btn gold", text: "▤ Bulk add from a pasted list", onclick: function () { bulkAddModal(refreshAll); } }),
+              el("button", { class: "btn", text: "+ Add one game", onclick: function () { gamesEditor(null, refreshAll); } })
             ]));
           return;
         }
@@ -617,7 +621,7 @@
     [platSel, genreSel, tierSel].forEach(function (s) { s.addEventListener("change", refresh); });
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
-    function mountHero() { mv.heroCard(heroHolder, "game", mod(), function () { refresh(); mountHero(); }); }
+    function mountHero() { mv.heroCard(heroHolder, "game", mod(), function () { refreshAll(); mountHero(); }); }
     mountHero();
     refresh();
   };

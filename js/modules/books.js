@@ -508,6 +508,7 @@
         field("Tags (comma-separated, shared taxonomy)", tags),
         field("Cover URL (series default; volumes can override below)", coverU),
         physWrap,
+        field("Custom lists", mv.customListChips(e), "wl-notes-full"),
         field("Notes", notes)
       ],
       onSave: save,
@@ -974,31 +975,38 @@
     function syncToolbar() { layoutBtn.textContent = LAYOUTS[nextLayout()]; }
     syncToolbar();
 
-    var pills = mv.statusPills(function (s) { filt.status = s; filt.dnf = false; refresh(); },
-      [["DNF", function () { filt.status = null; filt.dnf = true; refresh(); }]]);
+    var rail = mv.filterRail("books", function () { refresh(); });
+    var dnfBtn = el("button", { class: "btn", title: "Show only did-not-finish books", text: "✕ DNF", onclick: function () {
+      filt.dnf = !filt.dnf;
+      dnfBtn.classList.toggle("primary", filt.dnf);
+      refresh();
+    } });
 
-    main.appendChild(el("div", { class: "med-toolbar" }, [
-      search, fmtSel, genreSel, moodSel, shelfSel, sortSel, layoutBtn,
+    var mainCol = el("div", { class: "med-main" });
+    mainCol.appendChild(el("div", { class: "med-toolbar" }, [
+      search, fmtSel, genreSel, moodSel, shelfSel, sortSel, layoutBtn, dnfBtn,
       el("button", { class: "btn", text: "作 Mangaka", title: "Every author you own or track, aggregated", onclick: function () { KOS.show("mangaka"); } }),
       el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("books", mod()); } }),
       el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
       el("button", { class: "btn", text: "⏱ Reading session", title: "A timed reading session on the Focus Timer's clock — logs to the reading heatmap and rest streak, never HP or the study streak",
         onclick: function () { openReadingSession(); } }),
       el("button", { class: "btn gold", text: "⊕ Find new", title: "Search all of AniList's manga database — not your vault — and add with one click",
-        onclick: function () { KOS.mediaSearch.open("books", refresh); } }),
+        onclick: function () { KOS.mediaSearch.open("books", refreshAll); } }),
       el("button", { class: "btn gold", text: "◫ Find book / ISBN", title: "Look a book up by title or ISBN (type or scan the barcode) — Open Library, with Google Books as fallback — and prefill the add form",
-        onclick: function () { openLookup(p.tab === "physical", refresh); } }),
-      el("button", { class: "btn primary", text: "+ Add", onclick: function () { booksEditor(null, refresh); } })
+        onclick: function () { openLookup(p.tab === "physical", refreshAll); } }),
+      el("button", { class: "btn primary", text: "+ Add", onclick: function () { booksEditor(null, refreshAll); } })
     ]));
-    main.appendChild(pills);
+    main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
+
+    function refreshAll() { rail.reload(); refresh(); }
 
     /* countLine + holder + sentinel + the lazy batch renderer (makeItem is
        hoisted — the shelf-ranking block below defines it) */
-    var area = mv.resultsArea(main, function (e, i) { return makeItem(e, i); });
+    var area = mv.resultsArea(mainCol, function (e, i) { return makeItem(e, i); });
 
     /* stats + heatmap under the vault */
     var statsWrap = el("div", { class: "bk-stats" });
-    main.appendChild(statsWrap);
+    mainCol.appendChild(statsWrap);
     function renderStats() {
       statsWrap.innerHTML = "";
       KOS.mediadb.stats(function (err, agg) {
@@ -1077,15 +1085,16 @@
 
     /* what the lazy renderer builds per row: rank rows only in reorder mode */
     function makeItem(e, i) {
-      if (curLayout() === "list") return reorderMode ? rankRow(e, i) : listRow(e, refresh);
-      return gridCard(e, refresh);
+      if (curLayout() === "list") return reorderMode ? rankRow(e, i) : listRow(e, refreshAll);
+      return gridCard(e, refreshAll);
     }
 
     function refresh() {
       var lay = curLayout();
       var physical = p.tab === "physical";
       var opts = {
-        module: "books", status: filt.status || undefined,
+        module: "books", status: rail.status() || undefined,
+        customList: rail.customList() || undefined,
         format: fmtSel.value || undefined,
         genre: genreSel.value || undefined,
         mood: moodSel.value || undefined,
@@ -1104,7 +1113,7 @@
         activeShelf = shelfSel.value || null;
         /* ranking edits only make sense on the WHOLE shelf in list layout —
            any extra filter would silently save a partial order */
-        reorderMode = !!activeShelf && lay === "list" && !filt.status && !filt.dnf &&
+        reorderMode = !!activeShelf && lay === "list" && !rail.status() && !rail.customList() && !filt.dnf &&
           !fmtSel.value && !genreSel.value && !moodSel.value && !search.value.trim();
         sortSel.disabled = !!activeShelf;
         sortSel.title = activeShelf ? "A selected shelf keeps its own ranked order" : "";
@@ -1113,7 +1122,7 @@
              class on the shelf layout — the default look is its absence */
           var skin = lay === "shelf" && KOS.governor.shelfSkin && KOS.governor.shelfSkin();
           area.holder.className = lay === "list" ? "med-list" : lay === "shelf" ? "bk-shelves" + (skin ? " " + skin : "") : "med-grid";
-          var filtered = filt.status || filt.dnf || fmtSel.value || genreSel.value || moodSel.value || shelfSel.value || search.value;
+          var filtered = rail.status() || rail.customList() || filt.dnf || fmtSel.value || genreSel.value || moodSel.value || shelfSel.value || search.value;
           area.countLine.textContent = rowsOrdered.length + " series" +
             (physical ? " with owned volumes" : "") + (filtered ? " (filtered)" : "") +
             (activeShelf ? (reorderMode ? " · drag or ▲▼ to rank this shelf" : " · List layout (no other filters) unlocks ranking") : "");
@@ -1127,14 +1136,14 @@
                   : "The Books vault is empty. Sync your AniList manga list, import an XML export, look a book up by ISBN, or add a series by hand.",
               [
                 el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-                el("button", { class: "btn gold", text: "◫ Find book / ISBN", onclick: function () { openLookup(physical, refresh); } }),
-                el("button", { class: "btn", text: "+ Add manually", onclick: function () { booksEditor(null, refresh); } })
+                el("button", { class: "btn gold", text: "◫ Find book / ISBN", onclick: function () { openLookup(physical, refreshAll); } }),
+                el("button", { class: "btn", text: "+ Add manually", onclick: function () { booksEditor(null, refreshAll); } })
               ]));
             return;
           }
           if (lay === "shelf") {
             area.holder.innerHTML = "";
-            rowsOrdered.forEach(function (e) { area.holder.appendChild(shelfFor(e, refresh)); });
+            rowsOrdered.forEach(function (e) { area.holder.appendChild(shelfFor(e, refreshAll)); });
             return;
           }
           area.start(rowsOrdered);
@@ -1153,7 +1162,7 @@
     [fmtSel, genreSel, moodSel, shelfSel].forEach(function (s) { s.addEventListener("change", refresh); });
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
-    function mountHero() { mv.heroCard(heroHolder, "books", mod(), function () { refresh(); mountHero(); }); }
+    function mountHero() { mv.heroCard(heroHolder, "books", mod(), function () { refreshAll(); mountHero(); }); }
     mountHero();
     refresh();
   };

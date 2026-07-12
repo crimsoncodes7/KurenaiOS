@@ -351,9 +351,67 @@
     return overlay;
   };
 
+  /* ---------------- custom lists (Build 3k) ----------------
+     A membership axis EVERY module shares (VN/games finally get lists too).
+     Names registered in media kv (`customLists.<module>`) so a freshly-made,
+     still-empty list persists; the live set is the union of that registry
+     with names actually in use across the vault. AniList-synced lists appear
+     automatically because normalise/bulkUpsert carry entry.customLists. */
+  function listKey(module) { return "customLists." + module; }
+  function customLists(module, cb) {
+    KOS.mediadb.getKV(listKey(module), function (e0, reg) {
+      var set = {};
+      (Array.isArray(reg) ? reg : []).forEach(function (n) { if (n) set[n] = true; });
+      KOS.mediadb.query({ module: module }, function (err, rows) {
+        if (!err) (rows || []).forEach(function (e) {
+          (e.customLists || []).forEach(function (n) { if (n) set[n] = true; });
+        });
+        cb(null, Object.keys(set).sort(function (a, b) { return a.toLowerCase() < b.toLowerCase() ? -1 : 1; }));
+      });
+    });
+  }
+  function registerList(module, name, cb) {
+    name = String(name || "").trim();
+    if (!name) { cb && cb(null); return; }
+    KOS.mediadb.getKV(listKey(module), function (e0, reg) {
+      reg = Array.isArray(reg) ? reg : [];
+      if (reg.indexOf(name) === -1) reg.push(name);
+      KOS.mediadb.setKV(listKey(module), reg, function () { cb && cb(null, name); });
+    });
+  }
+  /* rename/delete rewrite membership across every entry that holds the name,
+     then update the kv registry. cb(err, touchedCount). */
+  function rewriteLists(module, from, to, cb) {
+    KOS.mediadb.query({ module: module, customList: from }, function (err, rows) {
+      if (err) { cb && cb(err); return; }
+      var i = 0, touched = 0;
+      (function step() {
+        if (i >= rows.length) {
+          KOS.mediadb.getKV(listKey(module), function (e0, reg) {
+            reg = (Array.isArray(reg) ? reg : []).filter(function (n) { return n !== from; });
+            if (to && reg.indexOf(to) === -1) reg.push(to);
+            KOS.mediadb.setKV(listKey(module), reg, function () { cb && cb(null, touched); });
+          });
+          return;
+        }
+        var e = rows[i++];
+        e.customLists = (e.customLists || []).filter(function (n) { return n !== from; });
+        if (to && e.customLists.indexOf(to) === -1) e.customLists.push(to);
+        touched++;
+        KOS.mediadb.put(e, step);
+      })();
+    });
+  }
+  function renameList(module, from, to, cb) { rewriteLists(module, from, String(to || "").trim(), cb); }
+  function deleteList(module, name, cb) { rewriteLists(module, name, null, cb); }
+
   KOS.media = {
     MODULES: MODULES,
     module: module_,
+    customLists: customLists,
+    registerList: registerList,
+    renameList: renameList,
+    deleteList: deleteList,
     STATUS_LABEL: STATUS_LABEL,
     STATUS_COLOR: STATUS_COLOR,
     TIER_LABEL: TIER_LABEL,

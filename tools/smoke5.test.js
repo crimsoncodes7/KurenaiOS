@@ -328,8 +328,9 @@ step("books vault renders: toolbar, DNF pill, dual bar, author line, stats+heatm
   const main = document.getElementById("main");
   await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
   if (!main.querySelector(".med-toolbar")) throw new Error("no toolbar");
-  const pillText = [...main.querySelectorAll(".study-tab")].map(b => b.textContent);
-  if (!pillText.includes("DNF")) throw new Error("no DNF pill");
+  if (!main.querySelector(".med-filter-rail")) throw new Error("no filter rail");
+  const toolbarText = [...main.querySelectorAll(".med-toolbar .btn")].map(b => b.textContent);
+  if (!toolbarText.some(t => /DNF/.test(t))) throw new Error("no DNF toggle");
   if (!main.querySelector(".bk-dual")) throw new Error("no owned-vs-read bar");
   if (!main.querySelector(".bk-author")) throw new Error("no author line");
   if (!/Volumes on the shelf/.test(main.textContent)) throw new Error("no vault stats");

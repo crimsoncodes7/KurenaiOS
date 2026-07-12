@@ -86,6 +86,11 @@ Collected from every build. If a change would break one of these, stop and say s
    `author`/`format`; VN: `routes`, `quotes`, `chapters`, `cgGallery`,
    `contentWarnings`, local `developer`. `extra` accretes (fresh non-null
    wins; null never beats stored). Progress re-derives from surviving routes.
+   `customLists` (Build 3k, ALL modules — DB v6, multiEntry index) is the one
+   axis that UNIONS on merge: a locally-added list and an AniList-synced list
+   (the mapper reads `isCustomList` groups) both survive; a pull never drops a
+   membership you made. CRUD lives in `KOS.media` (`customLists`/`registerList`/
+   `renameList`/`deleteList`); the filter rail + editor chips are in medview.
 10. Derived progress, never stored: `vn` ← routes (cleared/total), `game` ←
     playtimeHours (unit "hr"). Don't add a parallel stored progress.
 11. Upsert match order: vndbId first (vn), then anilistId, then malId.

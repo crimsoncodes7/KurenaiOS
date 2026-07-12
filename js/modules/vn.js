@@ -374,6 +374,7 @@
           ])
         ]),
         quotesWrap,
+        field("Custom lists", mv.customListChips(e), "wl-notes-full"),
         field("Notes", notes)
       ],
       onSave: save,
@@ -439,7 +440,6 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
     var p = prefs();
-    var filt = { status: null };
     var mv = KOS.medview;
 
     main.appendChild(el("div", { class: "dash-head" }, [
@@ -464,9 +464,10 @@
     var devSel = el("select", { class: "status-sel", "aria-label": "Filter by developer" });
     var sortSel = mv.sortSelect(p.sort, { progress: "Routes cleared" });
     var layoutBtn = mv.layoutToggle(p, function () { refresh(); });
-    var pills = mv.statusPills(function (s) { filt.status = s; refresh(); });
+    var rail = mv.filterRail("vn", function () { refresh(); });
 
-    main.appendChild(el("div", { class: "med-toolbar" }, [
+    var mainCol = el("div", { class: "med-main" });
+    mainCol.appendChild(el("div", { class: "med-toolbar" }, [
       search, genreSel, devSel, sortSel, layoutBtn,
       el("button", { class: "btn", text: "❝ Personal deck", title: "Quote-born flashcards live here", onclick: function () { KOS.show("personaldeck"); } }),
       el("button", { class: "btn", text: "＠ Profile", title: "Your VNDB profile — labels, length votes, list stats",
@@ -474,14 +475,16 @@
       el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("vn", mod()); } }),
       el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
       el("button", { class: "btn gold", text: "⊕ Find new", title: "Search all of VNDB — not your vault — and add with one click",
-        onclick: function () { KOS.mediaSearch.open("vn", refresh); } }),
-      el("button", { class: "btn primary", text: "+ Add", onclick: function () { vnEditor(null, refresh); } })
+        onclick: function () { KOS.mediaSearch.open("vn", refreshAll); } }),
+      el("button", { class: "btn primary", text: "+ Add", onclick: function () { vnEditor(null, refreshAll); } })
     ]));
-    main.appendChild(pills);
+    main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
+
+    function refreshAll() { rail.reload(); refresh(); }
 
     /* countLine + holder + sentinel + the lazy batch renderer */
-    var area = mv.resultsArea(main, function (e) {
-      return p.layout === "list" ? listRow(e, refresh) : gridCard(e, refresh);
+    var area = mv.resultsArea(mainCol, function (e) {
+      return p.layout === "list" ? listRow(e, refreshAll) : gridCard(e, refreshAll);
     });
 
     /* stats strip under the vault */
@@ -517,7 +520,8 @@
 
     function refresh() {
       KOS.mediadb.query({
-        module: "vn", status: filt.status || undefined,
+        module: "vn", status: rail.status() || undefined,
+        customList: rail.customList() || undefined,
         genre: genreSel.value || undefined,
         developer: devSel.value || undefined,
         search: search.value.trim() || undefined, sort: sortSel.value
@@ -528,7 +532,7 @@
           area.countLine.textContent = "Query failed: " + err.message;
           return;
         }
-        var filtered = filt.status || genreSel.value || devSel.value || search.value;
+        var filtered = rail.status() || rail.customList() || genreSel.value || devSel.value || search.value;
         area.countLine.textContent = rows.length + (rows.length === 1 ? " visual novel" : " visual novels") + (filtered ? " (filtered)" : "");
         if (!rows.length) {
           area.holder.innerHTML = "";
@@ -538,7 +542,7 @@
               : "The VN vault is empty. Connect your VNDB (a personal token — one paste, no OAuth dance) or add a title by hand, then build its route list as you play.",
             [
               el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-              el("button", { class: "btn", text: "+ Add manually", onclick: function () { vnEditor(null, refresh); } })
+              el("button", { class: "btn", text: "+ Add manually", onclick: function () { vnEditor(null, refreshAll); } })
             ]));
           return;
         }
@@ -550,7 +554,7 @@
     [genreSel, devSel].forEach(function (s) { s.addEventListener("change", refresh); });
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
-    function mountHero() { mv.heroCard(heroHolder, "vn", mod(), function () { refresh(); mountHero(); }); }
+    function mountHero() { mv.heroCard(heroHolder, "vn", mod(), function () { refreshAll(); mountHero(); }); }
     mountHero();
     refresh();
   };

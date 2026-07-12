@@ -208,6 +208,7 @@
         ]),
         field("Genres (comma-separated, shared taxonomy)", genres),
         field("Tags (comma-separated, shared taxonomy)", tags),
+        field("Custom lists", mv.customListChips(e), "wl-notes-full"),
         field("Notes", notes, "wl-notes-full")
       ],
       onSave: save,
@@ -277,7 +278,6 @@
     document.getElementById("cols").classList.add("no-tree");
     var mod = KOS.media.module("anime");
     var p = prefs();
-    var filt = { status: null };
     var mv = KOS.medview;
 
     main.appendChild(el("div", { class: "dash-head" }, [
@@ -301,10 +301,11 @@
     var genreSel = el("select", { class: "status-sel", "aria-label": "Filter by genre" });
     var tagSel = el("select", { class: "status-sel", "aria-label": "Filter by tag" });
     var sortSel = mv.sortSelect(p.sort);
-    var pills = mv.statusPills(function (s) { filt.status = s; refresh(); });
+    var rail = mv.filterRail("anime", function () { refresh(); });
     var layoutBtn = mv.layoutToggle(p, function () { refresh(); });
 
-    main.appendChild(el("div", { class: "med-toolbar" }, [
+    var mainCol = el("div", { class: "med-main" });
+    mainCol.appendChild(el("div", { class: "med-toolbar" }, [
       search, genreSel, tagSel, sortSel, layoutBtn,
       el("button", { class: "btn", text: KOS.anime.SEASON_META[KOS.anime.currentSeason().season].kanji + " Seasonal",
         title: "Everything airing this season, with countdowns", onclick: function () { KOS.show("seasonal"); } }),
@@ -313,14 +314,18 @@
       el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("anime", mod); } }),
       el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
       el("button", { class: "btn gold", text: "⊕ Find new", title: "Search all of AniList — not your vault — and add with one click",
-        onclick: function () { KOS.mediaSearch.open("anime", refresh); } }),
-      el("button", { class: "btn primary", text: "+ Add", onclick: function () { editorModal(null, refresh); } })
+        onclick: function () { KOS.mediaSearch.open("anime", refreshAll); } }),
+      el("button", { class: "btn primary", text: "+ Add", onclick: function () { editorModal(null, refreshAll); } })
     ]));
-    main.appendChild(pills);
+    main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
+
+    /* a mutation (add/edit/quick-edit) can change list/status membership, so
+       reload the rail counts too; a plain filter/search change does not */
+    function refreshAll() { rail.reload(); refresh(); }
 
     /* countLine + holder + sentinel + the lazy batch renderer */
-    var area = mv.resultsArea(main, function (e) {
-      return p.layout === "list" ? listRow(e, mod, refresh) : gridCard(e, mod, refresh);
+    var area = mv.resultsArea(mainCol, function (e) {
+      return p.layout === "list" ? listRow(e, mod, refreshAll) : gridCard(e, mod, refreshAll);
     });
 
     /* dropdown option fill from the real index keys */
@@ -329,7 +334,8 @@
 
     function refresh() {
       KOS.mediadb.query({
-        module: "anime", status: filt.status || undefined,
+        module: "anime", status: rail.status() || undefined,
+        customList: rail.customList() || undefined,
         genre: genreSel.value || undefined, tag: tagSel.value || undefined,
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
@@ -340,16 +346,16 @@
           return;
         }
         area.countLine.textContent = rows.length + (rows.length === 1 ? " entry" : " entries") +
-          (filt.status || genreSel.value || tagSel.value || search.value ? " (filtered)" : "");
+          (rail.status() || rail.customList() || genreSel.value || tagSel.value || search.value ? " (filtered)" : "");
         if (!rows.length) {
           area.holder.innerHTML = "";
           area.holder.appendChild(mv.emptyState(
-            search.value || filt.status || genreSel.value || tagSel.value
+            search.value || rail.status() || rail.customList() || genreSel.value || tagSel.value
               ? "Nothing matches this filter."
               : "The vault is empty. Connect your AniList (or import its XML export) and 650 entries land in one sync — or add titles by hand.",
             [
               el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-              el("button", { class: "btn", text: "+ Add manually", onclick: function () { editorModal(null, refresh); } })
+              el("button", { class: "btn", text: "+ Add manually", onclick: function () { editorModal(null, refreshAll); } })
             ]));
           return;
         }
@@ -362,7 +368,7 @@
     tagSel.addEventListener("change", refresh);
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
-    function mountHero() { mv.heroCard(heroHolder, "anime", mod, function () { refresh(); mountHero(); }); }
+    function mountHero() { mv.heroCard(heroHolder, "anime", mod, function () { refreshAll(); mountHero(); }); }
     mountHero();
     refresh();
     /* airing badges (3f): render immediately from the cache, kick a live
