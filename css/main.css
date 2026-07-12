@@ -3401,3 +3401,77 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .b-id.has-banner { border: none; box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.06); }
 .home-id.has-banner { border: none; box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.06); }
 .ap-head { border: none; box-shadow: var(--shadow-md); }
+
+/* ============================================================
+   Budget Planner v3 — £-only, banner hero, condensed summary
+   ============================================================ */
+.wl-sum-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.wl-sum-h { margin: 0; }
+.wl-budget-limit { display: inline-flex; align-items: center; gap: 6px; }
+.wl-pound { font-family: var(--serif); font-size: 16px; color: var(--muted); }
+.wl-budget-limit .wl-limit { width: 78px !important; text-align: right; }
+.wl-budget-limit .k { font-size: 11px; color: var(--muted); }
+.wl-budget-nums { display: flex; gap: 0; margin-top: 2px; }
+.wl-bn { flex: 1; display: flex; flex-direction: column; gap: 1px; padding: 4px 0; }
+.wl-bn + .wl-bn { border-left: 1px solid var(--line2); padding-left: 14px; }
+.wl-bn .k { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.wl-bn b { font-family: var(--serif); font-size: 21px; }
+.wl-bn-rem b { color: var(--good); }
+.wl-counts { margin-top: 8px; }
+
+/* the hero: full banner treatment (Sol-style, not the split card) */
+.wl-hero {
+  position: relative; min-height: 172px;
+  display: flex; align-items: flex-end;
+  padding: 20px 24px 18px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent, var(--accent2)) 32%, var(--line2));
+  background:
+    radial-gradient(120% 150% at 100% 0%, color-mix(in srgb, var(--accent, var(--accent2)) 18%, transparent), transparent 55%),
+    var(--bg1);
+  box-shadow: var(--shadow-sm);
+}
+.wl-hero.has-banner { border: none; color: #F6F1E6; box-shadow: var(--shadow-md); }
+.wl-hero.has-banner::before {
+  content: ""; position: absolute; inset: 0;
+  background: var(--wl-banner) center/cover no-repeat;
+  filter: saturate(1.05);
+  z-index: 0;
+}
+.wl-hero.has-banner::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, rgba(16,14,10,.92) 0%, rgba(16,14,10,.66) 46%, rgba(16,14,10,.24) 100%);
+  z-index: 0;
+}
+.wl-hero-badge {
+  position: absolute; top: 16px; left: 24px; z-index: 2;
+  font-size: 9.5px; letter-spacing: .22em; text-transform: uppercase; font-weight: 700;
+  color: var(--accent, var(--accent2));
+}
+.wl-hero.has-banner .wl-hero-badge { color: #EFC77E; }
+.wl-hero-cover, .wl-hero-ph {
+  position: relative; z-index: 1;
+  width: 84px; height: 118px; flex: none;
+  object-fit: cover; border-radius: 8px;
+  margin-right: 18px;
+  background: var(--well); border: 1px solid rgba(255,255,255,.15);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--jp); font-size: 34px; color: var(--muted);
+  box-shadow: var(--shadow-md);
+}
+.wl-hero-body { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; padding-bottom: 2px; }
+.wl-hero-count { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--accent, var(--accent2)); text-transform: uppercase; letter-spacing: .04em; }
+.wl-hero.has-banner .wl-hero-count { color: #EFC77E; }
+.wl-hero-count.out { color: var(--good); }
+.wl-hero-title { margin: 0; font-size: 24px; line-height: 1.12; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.wl-hero-meta { margin: 0; font-size: 13px; }
+.wl-hero.has-banner .wl-hero-meta { color: rgba(246,241,230,.82); }
+.wl-hero:not(.has-banner) .wl-hero-meta { color: var(--muted); }
+.wl-hero-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.wl-hero.has-banner .wl-hero-actions .btn.ghost, .wl-hero.has-banner .wl-hero-actions .btn:not(.primary) { color: #F6F1E6; border-color: rgba(246,241,230,.4); background: rgba(16,14,10,.3); }
+.wl-hero-empty { min-height: 140px; align-items: center; }
+.wl-hero-empty .wl-hero-body { padding-bottom: 0; }
+
+.wl-row-author { font-size: 11.5px; color: var(--muted); font-style: italic; }
+.wl-notes-full textarea { min-height: 70px; }

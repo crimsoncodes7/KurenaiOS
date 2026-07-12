@@ -264,10 +264,9 @@
   };
 
   /* ---------------- little shared bits ---------------- */
-  function money(n, cur) {
-    cur = cur || budget().currency || "£";
+  function money(n) {
     var v = (typeof n === "number" && !isNaN(n)) ? n : 0;
-    return cur + v.toFixed(2);
+    return "£" + v.toFixed(2);
   }
   function daysUntil(iso) {
     if (!iso) return null;
@@ -373,8 +372,7 @@
     statusSel.value = STATUSES.indexOf(e.status) !== -1 ? e.status : "wantToBuy";
     var price = el("input", { type: "number", class: "todo-in med-num", min: "0", step: "0.01",
       value: (e.price != null && e.price !== 0) ? String(e.price) : "", placeholder: "0.00" });
-    var currency = el("input", { type: "text", class: "todo-in wl-cur", maxlength: "3",
-      value: e.currency || budget().currency || "£" });
+    var author = el("input", { type: "text", class: "todo-in", value: e.author || "", placeholder: "Author / creator / studio" });
     var retailer = el("input", { type: "text", class: "todo-in", value: e.retailer || "", placeholder: "Amazon, Steam, local shop…" });
     var retailerUrl = el("input", { type: "url", class: "todo-in", value: e.retailerUrl || "", placeholder: "https://… (manual link)" });
     var release = el("input", { type: "date", class: "todo-in", value: e.releaseDate || "" });
@@ -401,7 +399,7 @@
       if (!title.value.trim()) { KOS.ui.toast("A title is needed.", true); return; }
       var payload = {
         module: moduleSel.value, title: title.value.trim(),
-        price: price.value, currency: currency.value.trim() || "£",
+        price: price.value, author: author.value.trim(),
         retailer: retailer.value.trim(), retailerUrl: retailerUrl.value.trim(),
         releaseDate: release.value || null, coverUrl: coverU.value.trim() || null,
         notes: notes.value, linkedEntryId: linkedId, status: statusSel.value
@@ -420,24 +418,26 @@
         el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
       ]),
       el("div", { class: "med-form" }, [
-        field("Title", title),
+        el("div", { class: "med-form-row" }, [
+          field("Title", title, "bk-grow"),
+          field("Cover URL", coverU, "bk-grow")
+        ]),
         el("div", { class: "med-form-row" }, [
           field("Module", moduleSel),
           field("Status", statusSel),
-          field("Price", price),
-          field("Currency", currency)
+          field("Price (£)", price)
         ]),
         el("div", { class: "med-form-row" }, [
+          field("Author / creator", author),
           field("Retailer", retailer),
-          field("Retailer link (manual)", retailerUrl)
+          field("Retailer link", retailerUrl)
         ]),
         field("Release date (manual — no automated source exists)", release),
         el("div", { class: "wl-field" }, [
           el("span", { class: "k", text: "Link to a collection entry (optional)" }),
           linkHolder
         ]),
-        field("Cover URL", coverU),
-        field("Notes", notes)
+        field("Notes", notes, "wl-notes-full")
       ]),
       el("div", { class: "lab-controls med-modal-foot" }, [
         !isNew ? el("button", { class: "btn danger", text: "Delete", onclick: function () {
@@ -511,7 +511,6 @@
     /* ---- budget bar renderer (recomputed on every simulation change) ---- */
     var limitIn = el("input", { type: "number", class: "todo-in wl-limit", min: "0", step: "1",
       value: w.budget.monthlyLimit ? String(w.budget.monthlyLimit) : "", placeholder: "0" });
-    var curIn = el("input", { type: "text", class: "todo-in wl-cur", maxlength: "3", value: w.budget.currency || "£", "aria-label": "Currency" });
     var spentEl = el("b", {});
     var selEl = el("b", {});
     var remainEl = el("b", {});
@@ -531,19 +530,20 @@
       meter.className = "wl-meter-fill" + (rem < 0 ? " over" : "");
     }
     limitIn.addEventListener("change", function () { setBudget({ monthlyLimit: limitIn.value }); recalc(); });
-    curIn.addEventListener("change", function () { setBudget({ currency: curIn.value }); KOS.show("wishlist", undefined, { _nav: true }); });
 
     function cnt(v, k) { return el("div", { class: "wl-cnt" }, [el("b", { text: v }), el("span", { class: "k", text: k })]); }
     var activeItems = items().filter(function (it) { return it.status !== "purchased"; });
     var listTotal = activeItems.reduce(function (a2, it) { return a2 + (it.price || 0); }, 0);
-    barWrap.appendChild(el("h3", { class: "wl-sum-h", text: "Budget summary" }));
-    barWrap.appendChild(el("label", { class: "wl-budget-limit" }, [
-      el("span", { class: "k", text: "Monthly budget" }), curIn, limitIn
+    barWrap.appendChild(el("div", { class: "wl-sum-head" }, [
+      el("h3", { class: "wl-sum-h", text: "Budget summary" }),
+      el("label", { class: "wl-budget-limit" }, [
+        el("span", { class: "wl-pound", text: "£" }), limitIn, el("span", { class: "k", text: "/ month" })
+      ])
     ]));
     barWrap.appendChild(el("div", { class: "wl-budget-nums" }, [
-      el("div", { class: "wl-bn" }, [el("span", { class: "k", text: "Spent this month" }), spentEl]),
-      el("div", { class: "wl-bn" }, [el("span", { class: "k", text: "Selected (sim)" }), selEl]),
-      el("div", { class: "wl-bn wl-bn-rem" }, [el("span", { class: "k", text: "Remaining" }), remainEl])
+      el("div", { class: "wl-bn" }, [el("span", { class: "k", text: "Spent" }), spentEl]),
+      el("div", { class: "wl-bn" }, [el("span", { class: "k", text: "Selected" }), selEl]),
+      el("div", { class: "wl-bn wl-bn-rem" }, [el("span", { class: "k", text: "Left" }), remainEl])
     ]));
     barWrap.appendChild(el("div", { class: "wl-meter" }, [meter]));
     barWrap.appendChild(el("div", { class: "wl-counts" }, [
@@ -551,7 +551,6 @@
       cnt(String(byStatus("waitingForRelease").length), "upcoming"),
       cnt(money(listTotal), "total list")
     ]));
-    barWrap.appendChild(el("p", { class: "sub wl-budget-note", text: "One shared pool — Books, VNs and games all draw from the same limit. Ticking below is a simulation; “Mark purchased” is what actually records a spend." }));
 
     /* ---- render the active tab ---- */
     function renderList() {
@@ -594,20 +593,28 @@
 
     function dropHero(it) {
       var d = daysUntil(it.releaseDate);
-      return el("div", { class: "wl-hero" + (d != null && d >= 0 && d <= 7 ? " imminent" : ""), style: "--accent:" + MODULE_COLOR[it.module] }, [
-        el("div", { class: "wl-hero-badge", text: "◆ Next to drop" }),
-        it.coverUrl ? el("img", { class: "wl-hero-cover", src: it.coverUrl, alt: "", loading: "lazy" })
-          : el("span", { class: "wl-hero-ph", text: MODULE_KANJI[it.module] }),
-        el("div", { class: "wl-hero-body" }, [
-          el("div", { class: "wl-hero-count", text: d == null ? "—" : d === 0 ? "Today" : d > 0 ? d + (d === 1 ? " day" : " days") : "Out now" }),
-          el("h3", { class: "wl-hero-title", text: it.title }),
-          el("p", { class: "sub", text: MODULE_LABEL[it.module] + " · " + releaseText(it.releaseDate) + (it.price ? " · " + money(it.price, it.currency) : "") }),
-          el("div", { class: "lab-controls" }, [
-            el("button", { class: "btn primary", text: "Mark purchased", onclick: function () { doPurchase(it); } }),
-            el("button", { class: "btn", text: "Edit", onclick: function () { itemEditor(it, renderList); } })
-          ])
-        ])
-      ]);
+      var imminent = d != null && d >= 0 && d <= 7;
+      var out = d != null && d < 0;
+      var hero = el("div", { class: "wl-hero" + (imminent ? " imminent" : "") + (it.coverUrl ? " has-banner" : ""), style: "--accent:" + MODULE_COLOR[it.module] });
+      if (it.coverUrl) hero.style.setProperty("--wl-banner", "url(" + JSON.stringify(it.coverUrl).slice(1,-1) + ")");
+      hero.appendChild(el("div", { class: "wl-hero-badge", text: "◆ Next to drop" }));
+      hero.appendChild(it.coverUrl
+        ? el("img", { class: "wl-hero-cover", src: it.coverUrl, alt: "", loading: "lazy" })
+        : el("span", { class: "wl-hero-ph", text: MODULE_KANJI[it.module] }));
+      var metaBits = [MODULE_LABEL[it.module]];
+      if (it.author) metaBits.push(it.author);
+      if (it.retailer) metaBits.push(it.retailer);
+      hero.appendChild(el("div", { class: "wl-hero-body" }, [
+        el("div", { class: "wl-hero-count" + (out ? " out" : ""), text: d == null ? "No date" : d === 0 ? "Out today" : d > 0 ? "in " + d + (d === 1 ? " day" : " days") : "Out now" }),
+        el("h3", { class: "wl-hero-title", text: it.title }),
+        el("p", { class: "wl-hero-meta", text: metaBits.join(" · ") + (it.price ? " · " + money(it.price) : "") }),
+        el("div", { class: "wl-hero-actions" }, [
+          el("button", { class: "btn primary", text: "Mark purchased", onclick: function () { doPurchase(it); } }),
+          it.retailerUrl ? el("a", { class: "btn", href: it.retailerUrl, target: "_blank", rel: "noopener noreferrer", text: (it.retailer || "Buy") + " ↗" }) : null,
+          el("button", { class: "btn ghost", text: "Edit", onclick: function () { itemEditor(it, renderList); } })
+        ].filter(Boolean))
+      ]));
+      return hero;
     }
 
     function itemRow(it) {
@@ -644,6 +651,7 @@
           : el("span", { class: "wl-cover wl-cover-ph", text: MODULE_KANJI[it.module] }),
         el("div", { class: "wl-row-main" }, [
           el("div", { class: "wl-row-title", text: it.title, title: it.title }),
+          it.author ? el("div", { class: "wl-row-author", text: it.author }) : null,
           el("div", { class: "wl-row-meta" }, [
             el("span", { class: "wl-modtag", style: "--accent:" + MODULE_COLOR[it.module], text: MODULE_KANJI[it.module] + " " + MODULE_LABEL[it.module] }),
             relChip, retailChip, linkChip,
@@ -657,10 +665,6 @@
     }
 
     function doPurchase(it) {
-      if (it.price && (it.currency || "£") !== (w.budget.currency || "£")) {
-        /* different currency from the pool — still archives, just flag it */
-        KOS.ui.toast("Recorded (note: item currency differs from the budget currency).");
-      }
       markPurchased(it.id);
       delete selected[it.id];
       renderList();
@@ -707,7 +711,7 @@
       grid.appendChild(KOS.charts.chartCard("Spend over time", money(spentAll) + " across " + byMonth.length + (byMonth.length === 1 ? " month" : " months"),
         KOS.charts.barChart(byMonth.map(function (m) {
           return { label: m.month.slice(2), value: Math.round(m.total), hint: m.month + ": " + money(m.total) };
-        }), { color: "#35D7FF" })));
+        }), { color: "#5E86A8" })));
       var modBars = MODULES.map(function (m) {
         return { label: MODULE_LABEL[m], value: Math.round(byMod[m] || 0), color: MODULE_COLOR[m],
           hint: MODULE_LABEL[m] + ": " + money(byMod[m] || 0) };
