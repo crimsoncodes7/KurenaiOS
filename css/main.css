@@ -597,7 +597,7 @@ small { font-size: 12.5px; }
 .modal-h b { font-family: var(--serif); font-size: 18px; font-weight: 600; }
 
 /* generic charts */
-.cs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-top: 18px; }
+.cs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-top: 18px; align-items: start; }
 .cs-chart { background: var(--bg1); border: 1px solid var(--line2); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow-sm); }
 .cs-chart-h { display: flex; flex-direction: column; gap: 1px; margin-bottom: 10px; }
 .cs-chart-h b { font-family: var(--serif); font-size: 15px; font-weight: 600; }
@@ -3485,3 +3485,14 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 
 .wl-row-author { font-size: 11.5px; color: var(--muted); font-style: italic; }
 .wl-notes-full textarea { min-height: 70px; }
+
+/* ---- collection module cards: kanji watermark for character ---- */
+.med-mod-card { position: relative; overflow: hidden; }
+.med-mod-wm {
+  position: absolute; right: -8px; bottom: -22px; z-index: 0;
+  font-family: var(--jp); font-size: 108px; line-height: 1;
+  color: color-mix(in srgb, var(--accent, var(--kurenai)) 12%, transparent);
+  pointer-events: none;
+}
+.med-mod-card .subj-card-top, .med-mod-card .m { position: relative; z-index: 1; }
+.med-mod-card h3 .kanji-inline { color: var(--accent, var(--kurenai)); }

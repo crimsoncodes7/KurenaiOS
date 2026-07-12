@@ -197,6 +197,16 @@
               return { label: String(i), value: n, color: i >= 8 ? "#B08A3E" : i >= 5 ? "#7D9B76" : "#B5573F" };
             }).slice(1))));
         }
+        /* two more, so the grid fills rather than leaving blank cells */
+        grid.appendChild(KOS.charts.chartCard("Vault by medium", "where your collection lives",
+          KOS.charts.donutWithLegend(KOS.media.MODULES.map(function (mod) {
+            return { label: mod.label, value: (agg.modules[mod.id] || {}).total || 0, color: mod.accent };
+          }).filter(function (d) { return d.value; }), { centre: agg.total, centreSub: "titles" })));
+        var inProg = KOS.media.MODULES.map(function (mod) {
+          return { label: mod.label, value: (agg.modules[mod.id] || {}).inProgress || 0, color: mod.accent };
+        }).filter(function (d) { return d.value; });
+        if (inProg.length) grid.appendChild(KOS.charts.chartCard("In progress now", "what's on the go across every medium",
+          KOS.charts.hbarChart(inProg, { labelW: 110 })));
         statsWrap.appendChild(grid);
       }
 
@@ -217,6 +227,7 @@
             onclick: function () { KOS.show(mod.id); },
             onkeydown: function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); KOS.show(mod.id); } }
           }, [
+            el("span", { class: "med-mod-wm", "aria-hidden": "true", text: mod.kanji }),
             el("div", { class: "subj-card-top" }, [
               el("div", {}, [
                 el("h3", {}, [el("span", { class: "kanji-inline", text: mod.kanji }), " " + mod.label]),

@@ -30,7 +30,7 @@
     node.style[prop] = value;
     return node;
   }
-  var LABEL = "var(--muted)";
+  var LABEL = "var(--text2)";
   var AXIS = "var(--line)";
   var DEFAULT_C = "var(--accent)";
 
@@ -58,8 +58,9 @@
         paint(vt, "fill", LABEL);
         g.appendChild(vt);
       }
-      if (d.label && (n <= 16 || i % Math.ceil(n / 16) === 0)) {
-        var lt = svgNode("text", { x: x + bw / 2, y: H - padB + 13, "text-anchor": "middle", "font-size": "8.5", text: d.label });
+      if (d.label && (n <= 20 || i % Math.ceil(n / 20) === 0)) {
+        var short = d.label.length > 10 ? d.label.slice(0, 9) + "…" : d.label;
+        var lt = svgNode("text", { x: x + bw / 2, y: H - padB + 14, "text-anchor": "middle", "font-size": "10", text: short });
         paint(lt, "fill", LABEL);
         g.appendChild(lt);
       }
