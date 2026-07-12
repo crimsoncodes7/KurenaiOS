@@ -429,22 +429,13 @@
     return card;
   }
   function listRow(e, rerender) {
-    return el("div", { class: "med-row gm-row", role: "button", tabindex: "0",
-      onclick: function () { gamesEditor(e, rerender); },
-      onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); gamesEditor(e, rerender); } }
-    }, [
-      el("span", { class: "med-row-fav" + (e.favourite ? " on" : ""), text: e.favourite ? "♥" : "" }),
-      el("span", { class: "med-row-title", text: e.title, title: e.title }),
-      el("span", { class: "med-row-genres", text: (KOS.media.PLATFORM_LABEL[e.platform] || "") +
-        (e.genres.length ? " · " + e.genres.slice(0, 2).join(" · ") : "") }),
-      KOS.medview.quickEdit(e, rerender),
-      el("span", { class: "med-prog", text: metaLine(e) }),
-      tierChip(e),
-      e.status === "inProgress" ? el("button", { class: "mini-btn med-plus", text: "+1", onclick: function (ev) {
-        ev.stopPropagation();
-        bumpHour(e, rerender);
-      } }) : el("span", { class: "med-plus-gap" })
-    ]);
+    return KOS.medview.listRow(e, mod(), rerender, {
+      subline: (KOS.media.PLATFORM_LABEL[e.platform] || "") + (e.genres.length ? " · " + e.genres.slice(0, 2).join(" · ") : ""),
+      chips: [tierChip(e)],
+      prog: metaLine(e),
+      onBump: e.status === "inProgress" ? function () { bumpHour(e, rerender); } : null,
+      open: function () { gamesEditor(e, rerender); }
+    });
   }
 
   /* ================= games analytics (KOS.charts reuse, nothing new) ================= */

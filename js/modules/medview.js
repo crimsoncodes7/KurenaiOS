@@ -340,6 +340,38 @@
     return el("span", { class: "med-quick" }, [sel, score]);
   }
 
+  /* the shared list-view row — a robust flex layout so nullable chips never
+     shift columns (the old grid broke when airing/push chips were absent).
+     opts: { genres|subline, chips:[nodes], prog, onBump, open, extra:[nodes] } */
+  function listRow(e, mod, rerender, opts) {
+    opts = opts || {};
+    var thumb = e.coverUrl
+      ? el("img", { class: "med-row-cover", src: e.coverUrl, alt: "", loading: "lazy" })
+      : el("span", { class: "med-row-cover med-cover-ph", "aria-hidden": "true", text: mod.kanji });
+    var main = el("div", { class: "med-row-main" }, [
+      el("span", { class: "med-row-title", text: e.title, title: e.title }),
+      (opts.genres || opts.subline) ? el("span", { class: "med-row-genres", text: opts.subline || opts.genres }) : null
+    ].filter(Boolean));
+    var side = el("div", { class: "med-row-side" },
+      (opts.chips || []).filter(Boolean)
+        .concat([quickEdit(e, rerender)])
+        .concat((opts.extra || []).filter(Boolean))
+        .concat([
+          opts.prog ? el("span", { class: "med-prog", text: opts.prog }) : null,
+          pushChip(e, rerender),
+          opts.onBump ? el("button", { class: "mini-btn med-plus", text: "+1", onclick: function (ev) {
+            ev.stopPropagation(); opts.onBump();
+          } }) : null
+        ].filter(Boolean)));
+    return el("div", { class: "med-row", role: "button", tabindex: "0",
+      onclick: opts.open,
+      onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); opts.open(); } }
+    }, [
+      el("span", { class: "med-row-fav" + (e.favourite ? " on" : ""), text: e.favourite ? "♥" : "" }),
+      thumb, main, side
+    ]);
+  }
+
   /* the pending/failed push indicator + manual retry, per card */
   function pushChip(e, rerender) {
     if (e.push && e.push.state === "failed") {
@@ -692,6 +724,7 @@
     BATCH: BATCH,
     heroCard: heroCard,
     statsModal: statsModal,
+    listRow: listRow,
     STATUSES: STATUSES,
     NEEDS_IDB: NEEDS_IDB,
     unavailable: unavailable,

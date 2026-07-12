@@ -190,7 +190,10 @@
       isNew: isNew, label: mod.label,
       subtitle: e.syncSource === "anilist" ? "synced from AniList — a Sync now overwrites list state, keeps your notes/tags" : e.syncSource === "import" ? "from XML import" : "manual entry",
       form: [
-        field("Title", title),
+        el("div", { class: "med-form-row" }, [
+          field("Title", title, "bk-grow"),
+          field("Cover URL", coverU, "bk-grow")
+        ]),
         el("div", { class: "med-form-row" }, [
           field("Status", status),
           field(mod.unitName + " done", cur),
@@ -205,8 +208,7 @@
         ]),
         field("Genres (comma-separated, shared taxonomy)", genres),
         field("Tags (comma-separated, shared taxonomy)", tags),
-        field("Cover URL", coverU),
-        field("Notes", notes)
+        field("Notes", notes, "wl-notes-full")
       ],
       onSave: save,
       onDelete: function () {
@@ -260,22 +262,13 @@
     return card;
   }
   function listRow(e, mod, rerender) {
-    return el("div", { class: "med-row", role: "button", tabindex: "0",
-      onclick: function () { editorModal(e, rerender); },
-      onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); editorModal(e, rerender); } }
-    }, [
-      el("span", { class: "med-row-fav" + (e.favourite ? " on" : ""), text: e.favourite ? "♥" : "" }),
-      el("span", { class: "med-row-title", text: e.title, title: e.title }),
-      el("span", { class: "med-row-genres", text: e.genres.slice(0, 3).join(" · ") }),
-      KOS.medview.quickEdit(e, rerender),
-      airingChip(e),
-      el("span", { class: "med-prog", text: progressText(e, mod) }),
-      KOS.medview.pushChip(e, rerender),
-      e.status === "inProgress" ? el("button", { class: "mini-btn med-plus", text: "+1", onclick: function (ev) {
-        ev.stopPropagation();
-        bumpProgress(e, rerender);
-      } }) : el("span", { class: "med-plus-gap" })
-    ]);
+    return KOS.medview.listRow(e, mod, rerender, {
+      genres: e.genres.slice(0, 3).join(" · "),
+      chips: [airingChip(e)],
+      prog: progressText(e, mod),
+      onBump: e.status === "inProgress" ? function () { bumpProgress(e, rerender); } : null,
+      open: function () { editorModal(e, rerender); }
+    });
   }
 
   /* ---------------- the view ---------------- */

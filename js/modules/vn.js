@@ -427,18 +427,11 @@
     return card;
   }
   function listRow(e, rerender) {
-    return el("div", { class: "med-row vn-row", role: "button", tabindex: "0",
-      onclick: function () { vnEditor(e, rerender); },
-      onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); vnEditor(e, rerender); } }
-    }, [
-      el("span", { class: "med-row-fav" + (e.favourite ? " on" : ""), text: e.favourite ? "♥" : "" }),
-      el("span", { class: "med-row-title", text: e.title, title: e.title }),
-      el("span", { class: "med-row-genres", text: e.developer || e.genres.slice(0, 2).join(" · ") }),
-      KOS.medview.quickEdit(e, rerender),
-      el("span", { class: "med-prog", text: metaLine(e) }),
-      KOS.medview.pushChip(e, rerender),
-      el("span", { class: "med-plus-gap" })
-    ]);
+    return KOS.medview.listRow(e, mod(), rerender, {
+      subline: e.developer || e.genres.slice(0, 2).join(" · "),
+      prog: metaLine(e),
+      open: function () { vnEditor(e, rerender); }
+    });
   }
 
   /* ================= the VN view ================= */
