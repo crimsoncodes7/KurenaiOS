@@ -365,7 +365,7 @@ step("Sync & Import: Games panel states the verified Steam dead end; no steamcom
   await waitFor(() => main.querySelectorAll(".med-panel").length >= 8, 4000);
   if (main.querySelectorAll(".med-panel").length !== 8) throw new Error("panel count");   // 8 since 3j (Autonomous sync)
   const txt = main.textContent;
-  if (!/Games — manual by design/.test(txt)) throw new Error("games panel missing");
+  if (!/Games/.test(txt) || !/Manual by design/.test(txt)) throw new Error("games panel missing");
   if (!/check_authentication/.test(txt) || !/CORS/.test(txt)) throw new Error("the verified reason must be stated");
   if (!/Bulk add/.test(txt)) throw new Error("the mitigation must be pointed to");
   if (netLog.some(r => /steam/i.test(r.url))) throw new Error("something called Steam: " + netLog.map(r => r.url).join(", "));

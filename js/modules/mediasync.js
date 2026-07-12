@@ -10,10 +10,39 @@
   "use strict";
   var el = KOS.ui.el;
 
-  function panel(title, kanji, children) {
-    return el("div", { class: "colcard med-panel" }, [
-      el("h3", {}, [el("span", { class: "kanji-inline", text: kanji }), " " + title])
-    ].concat(children));
+  /* A cleaner card: kanji chip + title on a header row (with an optional
+     status pill slot on the right), then the body. Long explanatory prose no
+     longer leads the card — pass it as info() so it collapses out of the way. */
+  function panel(title, kanji, children, opts) {
+    opts = opts || {};
+    var head = el("div", { class: "sync-head" }, [
+      el("span", { class: "sync-glyph", text: kanji }),
+      el("div", { class: "sync-head-txt" }, [
+        el("h3", { class: "sync-title", text: title }),
+        opts.tag ? el("span", { class: "sync-kicker", text: opts.tag }) : null
+      ].filter(Boolean)),
+      opts.pill ? el("span", { class: "sync-pill", style: "--pill:" + (opts.pill.color || "var(--muted)"), text: opts.pill.text }) : null
+    ].filter(Boolean));
+    return el("div", { class: "colcard med-panel sync-card" }, [head].concat(children));
+  }
+
+  /* Collapsible "how this works" note — replaces the wall-of-text sub-paragraph
+     that used to lead every card. Leads collapsed; the controls sit up front. */
+  function info(text) {
+    var body = el("p", { class: "sub sync-info-body", text: text });
+    var wrap = el("div", { class: "sync-info" });
+    var sum = el("button", { class: "sync-info-toggle", type: "button" }, [
+      el("span", { class: "sync-info-ico", text: "ⓘ" }),
+      el("span", { text: "How this works" }),
+      el("span", { class: "sync-info-caret", text: "▾" })
+    ]);
+    sum.addEventListener("click", function () {
+      var open = wrap.classList.toggle("open");
+      sum.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    wrap.appendChild(sum);
+    wrap.appendChild(body);
+    return wrap;
   }
 
   /* ---------------- import mode (Build 3h) ----------------
@@ -79,10 +108,10 @@
 
     /* ================= 1 · AniList connection (primary) ================= */
     var connBody = el("div", {});
-    main.appendChild(panel("AniList — live connection", "接", [
-      el("p", { class: "sub", text: "One-time setup: register an API client at anilist.co/settings/developer, set its Redirect URL to EXACTLY " + KOS.anilist.PIN_URL + ", and paste the Client ID below (no secret is needed). Tokens last 1 year; when one expires you just reconnect the same way." }),
+    main.appendChild(panel("AniList", "接", [
+      info("One-time setup: register an API client at anilist.co/settings/developer, set its Redirect URL to EXACTLY " + KOS.anilist.PIN_URL + ", and paste the Client ID below (no secret is needed). Tokens last 1 year; when one expires you just reconnect the same way."),
       connBody
-    ]));
+    ], { tag: "Anime & manga · live connection" }));
 
     function renderConn() {
       connBody.innerHTML = "";
@@ -198,10 +227,10 @@
 
     /* ================= 2 · VNDB connection (Build 3c) ================= */
     var vndbBody = el("div", {});
-    main.appendChild(panel("VNDB — visual novels", "選", [
-      el("p", { class: "sub", text: "One-time setup, simpler than AniList: generate a personal token at " + KOS.vndb.TOKEN_URL.replace("https://", "") + " (tick “access to my list”; for write-back also tick “modify my list”) and paste it below. Treat the token like a password; it lives in the media store here, never in the backup JSON. Reads verified working from file://; pushes are currently blocked by VNDB's own CORS policy regardless of token permissions — see Write activity below." }),
+    main.appendChild(panel("VNDB", "選", [
+      info("One-time setup, simpler than AniList: generate a personal token at " + KOS.vndb.TOKEN_URL.replace("https://", "") + " (tick “access to my list”; for write-back also tick “modify my list”) and paste it below. Treat the token like a password; it lives in the media store here, never in the backup JSON. Reads verified working from file://; pushes are currently blocked by VNDB's own CORS policy regardless of token permissions — see Write activity below."),
       vndbBody
-    ]));
+    ], { tag: "Visual novels · live connection" }));
 
     function renderVndb() {
       vndbBody.innerHTML = "";
@@ -291,10 +320,10 @@
 
     /* ================= 2½ · autonomous sync (Build 3j) ================= */
     var autoBody = el("div", {});
-    main.appendChild(panel("Autonomous sync — hands-free, both directions", "環", [
-      el("p", { class: "sub", text: "Once connected, nothing here needs pressing: local edits push out by themselves (debounced, since 3d), and the app PULLS your AniList (anime + manga) and VNDB lists every 15 minutes, on coming back online, and when the tab wakes past the interval — so updates made elsewhere (mal-sync marking an episode watched, edits on the sites) appear here on their own. Progress a pull discovers was made elsewhere earns the normal XP/gold trickle, sized to what actually advanced — echoes of this app's own pushes are recognised by a per-entry watermark and never rewarded twice. Pulls are plain update-and-add: replace mode stays a manual-only choice. Still last-write-wins: whichever side wrote most recently overwrites the other." }),
+    main.appendChild(panel("Autonomous sync", "環", [
+      info("Once connected, nothing here needs pressing: local edits push out by themselves (debounced, since 3d), and the app PULLS your AniList (anime + manga) and VNDB lists every 15 minutes, on coming back online, and when the tab wakes past the interval — so updates made elsewhere (mal-sync marking an episode watched, edits on the sites) appear here on their own. Progress a pull discovers was made elsewhere earns the normal XP/gold trickle, sized to what actually advanced — echoes of this app's own pushes are recognised by a per-entry watermark and never rewarded twice. Pulls are plain update-and-add: replace mode stays a manual-only choice. Still last-write-wins: whichever side wrote most recently overwrites the other."),
       autoBody
-    ]));
+    ], { tag: "Hands-free · both directions" }));
     function renderAuto() {
       autoBody.innerHTML = "";
       KOS.autosync.enabled(function (e0, on) {
@@ -362,15 +391,15 @@
       reader.readAsText(f);
       file.value = "";
     } });
-    main.appendChild(panel("XML import — zero-setup fallback", "紙", [
-      el("p", { class: "sub", text: "AniList → Settings → Apps → Export gives a MAL-format XML file (anime or manga — manga lands in Books). No login or token needed. The ids inside are MAL ids; enrichment below backfills the AniList ids so later syncs match these rows instead of duplicating. Imports carry no covers or genres — enrichment fills those too. Replace mode only sweeps entries that themselves arrived by XML import — synced and hand-made entries are out of its reach." }),
+    main.appendChild(panel("XML import", "紙", [
+      info("AniList → Settings → Apps → Export gives a MAL-format XML file (anime or manga — manga lands in Books). No login or token needed. The ids inside are MAL ids; enrichment below backfills the AniList ids so later syncs match these rows instead of duplicating. Imports carry no covers or genres — enrichment fills those too. Replace mode only sweeps entries that themselves arrived by XML import — synced and hand-made entries are out of its reach."),
       file,
       xmlMode.root,
       el("div", { class: "lab-controls" }, [
         el("button", { class: "btn", text: "⇪ Import an XML export…", onclick: function () { file.click(); } })
       ]),
       xmlStatus
-    ]));
+    ], { tag: "Zero-setup fallback" }));
 
     /* ================= 3½ · vault maintenance (Build 3h) ================= */
     var dedupStatus = el("p", { class: "sub" });
@@ -399,11 +428,11 @@
         });
       })(null);
     } });
-    main.appendChild(panel("Vault maintenance — duplicate repair", "掃", [
-      el("p", { class: "sub", text: "A one-time repair for the Build 3h VNDB bug (synced entries landed without their VNDB id, so every re-sync duplicated the whole list), safe to run any time: entries sharing an external id — or sharing a title where one copy is missing its id — are merged into one, keeping the union of everything you added yourself across the copies. Ambiguous cases (same title, different ids) are left untouched. It also runs by itself once, on the first app start after the fix." }),
+    main.appendChild(panel("Vault maintenance", "掃", [
+      info("A one-time repair for the Build 3h VNDB bug (synced entries landed without their VNDB id, so every re-sync duplicated the whole list), safe to run any time: entries sharing an external id — or sharing a title where one copy is missing its id — are merged into one, keeping the union of everything you added yourself across the copies. Ambiguous cases (same title, different ids) are left untouched. It also runs by itself once, on the first app start after the fix."),
       dedupStatus,
       el("div", { class: "lab-controls" }, [dedupBtn])
-    ]));
+    ], { tag: "Duplicate repair" }));
     KOS.mediadb.getKV("maint.dedupe3h", function (e0, rep) {
       if (!rep || dedupStatus.textContent) return;
       dedupStatus.textContent = "One-time repair ran " + new Date(rep.ts).toLocaleString() + ": " +
@@ -415,10 +444,10 @@
 
     /* ================= 4 · public enrichment ================= */
     var enrichBody = el("div", {});
-    main.appendChild(panel("Enrichment — covers & metadata, no login", "彩", [
-      el("p", { class: "sub", text: "For entries that arrived via XML, were linked by hand, or lost their art: public batched queries — 50 ids a call, paced to each API's limits (AniList 30 req/min; VNDB 200 req/5 min), with automatic backoff if they say slow down. Both verified working from file://." }),
+    main.appendChild(panel("Enrichment", "彩", [
+      info("For entries that arrived via XML, were linked by hand, or lost their art: public batched queries — 50 ids a call, paced to each API's limits (AniList 30 req/min; VNDB 200 req/5 min), with automatic backoff if they say slow down. Both verified working from file://."),
       enrichBody
-    ]));
+    ], { tag: "Covers & metadata · no login" }));
 
     /* one enrichment block per real module — same public batch query, but a
        Books pass additionally backfills author (staff), format and volume
@@ -559,20 +588,19 @@
     renderEnrich();
 
     /* ================= 5 · Games — why there is no connection (3e) ================= */
-    main.appendChild(panel("Games — manual by design", "遊", [
-      el("p", { class: "sub", text: "There is nothing to connect here, and that's a verified conclusion, not a gap. Steam's data API (library, playtime) blocks browser CORS with no client-side workaround. Steam SIGN-IN (OpenID 2.0, identity only) was attempted and tested live on 2026-07-03 and abandoned: the verification round-trip that makes a sign-in trustworthy (check_authentication) returns its answer without CORS headers, so a browser page can send it but can never read the result — verifying would require a server, which this app deliberately doesn't have. And even unverified, Steam only returns a bare SteamID64 number; the display name sits behind the Web API, which is CORS-blocked too. GOG, PSN, Xbox and Nintendo offer no public per-user API a browser may use either." }),
-      el("p", { class: "sub", text: "What \"manual-entry only\" means in practice: the ▤ Bulk add tool in the Games vault turns a pasted list (Steam's library page copy-pastes cleanly, one title per line) into draft entries in one go; playtime, tiers and platforms are then filled per game. A hand-entered Steam App ID gives each entry a working store link — that's the whole Steam integration, honestly." }),
+    main.appendChild(panel("Games", "遊", [
+      info("There is nothing to connect here, and that's a verified conclusion, not a gap. Steam's data API (library, playtime) blocks browser CORS with no client-side workaround. Steam SIGN-IN (OpenID 2.0, identity only) was attempted and tested live on 2026-07-03 and abandoned: the verification round-trip that makes a sign-in trustworthy (check_authentication) returns its answer without CORS headers, so a browser page can send it but can never read the result — verifying would require a server, which this app deliberately doesn't have. And even unverified, Steam only returns a bare SteamID64 number; the display name sits behind the Web API, which is CORS-blocked too. GOG, PSN, Xbox and Nintendo offer no public per-user API a browser may use either. What \"manual-entry only\" means in practice: the ▤ Bulk add tool in the Games vault turns a pasted list (Steam's library page copy-pastes cleanly, one title per line) into draft entries in one go; playtime, tiers and platforms are then filled per game. A hand-entered Steam App ID gives each entry a working store link — that's the whole Steam integration."),
       el("div", { class: "lab-controls" }, [
         el("button", { class: "btn primary", text: "遊 Open the Games vault", onclick: function () { KOS.show("game"); } })
       ])
-    ]));
+    ], { tag: "Manual by design" }));
 
     /* ================= 6 · write activity (Build 3d) ================= */
     var wlogBody = el("div", {});
-    main.appendChild(panel("Write activity — the push paper trail", "跡", [
-      el("p", { class: "sub", text: "Every automatic push of status/progress/score to AniList or VNDB lands here (newest first, last 200). Writes are last-write-wins with no conflict detection — an edit made on the site between local edits is simply overwritten by the next push, and a pull sync overwrites local list state the same way. Note: VNDB pushes currently fail from the browser — VNDB's CORS policy only allows POST/GET/OPTIONS, so the PATCH their API requires never leaves the page (verified 2026-07-03; not a token problem)." }),
+    main.appendChild(panel("Write activity", "跡", [
+      info("Every automatic push of status/progress/score to AniList or VNDB lands here (newest first, last 200). Writes are last-write-wins with no conflict detection — an edit made on the site between local edits is simply overwritten by the next push, and a pull sync overwrites local list state the same way. Note: VNDB pushes currently fail from the browser — VNDB's CORS policy only allows POST/GET/OPTIONS, so the PATCH their API requires never leaves the page (verified 2026-07-03; not a token problem)."),
       wlogBody
-    ]));
+    ], { tag: "The push paper trail" }));
     function renderWriteLog() {
       wlogBody.innerHTML = "";
       KOS.mediapush.getLog(function (err, log) {

@@ -2498,6 +2498,56 @@ body.fx-minimised .fx-dock { display: flex; }
 /* ---- sync & import ---- */
 .med-panel { margin-bottom: 16px; }
 .med-panel h3 { margin-top: 0; }
+
+/* ---- Sync & Import: cleaner cards ---- */
+.sync-card { padding: 0; overflow: hidden; }
+.sync-head {
+  display: flex; align-items: center; gap: 13px;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--line2);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, var(--panel)), var(--panel));
+}
+.sync-glyph {
+  flex: 0 0 auto; width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 12px;
+  font-family: var(--jp, var(--serif)); font-size: 20px; line-height: 1;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+}
+.sync-head-txt { flex: 1 1 auto; min-width: 0; }
+.sync-title { margin: 0; font-size: 16px; line-height: 1.2; }
+.sync-kicker { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: .02em; }
+.sync-pill {
+  flex: 0 0 auto;
+  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  color: var(--pill); background: color-mix(in srgb, var(--pill) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pill) 32%, transparent);
+}
+.sync-card > *:not(.sync-head) { margin-left: 18px; margin-right: 18px; }
+.sync-card > *:not(.sync-head):last-child { margin-bottom: 16px; }
+.sync-card .med-conn-ok, .sync-card .med-impmode, .sync-card .lab-controls { margin-top: 12px; }
+.sync-info {
+  margin: 12px 0 0; border-radius: 10px;
+  border: 1px solid var(--line2); background: var(--well); overflow: hidden;
+}
+.sync-info-toggle {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 9px 12px; border: none; background: none; cursor: pointer;
+  font-family: inherit; font-size: 12px; color: var(--text2); text-align: left;
+}
+.sync-info-toggle:hover { color: var(--text); }
+.sync-info-ico { color: var(--accent); }
+.sync-info-caret { margin-left: auto; transition: transform .18s; color: var(--muted); }
+.sync-info.open .sync-info-caret { transform: rotate(180deg); }
+.sync-info-body {
+  margin: 0; padding: 0 12px;
+  max-height: 0; opacity: 0; overflow: hidden;
+  transition: max-height .28s ease, opacity .2s, padding .2s;
+}
+.sync-info.open .sync-info-body { max-height: 400px; opacity: 1; padding: 0 12px 11px; }
+
 .med-conn-ok { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
 .med-sync-status { font-family: var(--mono); font-size: 11px; }
 .med-enrich-track { margin: 10px 0; }
