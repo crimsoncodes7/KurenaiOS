@@ -124,19 +124,31 @@
       var an = st.anime || {}, mg = st.manga || {};
       var fav = v.favourites || {};
 
-      /* --- header: banner + avatar + identity --- */
+      /* --- header: banner + big avatar + identity + inline stat rail --- */
+      var an0 = st.anime || {}, mg0 = st.manga || {};
+      function hstat(v2, k) { return el("div", { class: "ap-hstat" }, [el("b", { text: String(v2) }), el("span", { text: k })]); }
       var head = el("div", { class: "ap-head" + (v.bannerImage ? " has-banner" : "") });
       if (v.bannerImage) head.style.backgroundImage = "url(" + v.bannerImage + ")";
       head.appendChild(el("div", { class: "ap-head-scrim" }, [
-        v.avatar && v.avatar.large ? el("img", { class: "ap-avatar", src: v.avatar.large, alt: "" }) : null,
+        v.avatar && v.avatar.large
+          ? el("img", { class: "ap-avatar", src: v.avatar.large, alt: "" })
+          : el("span", { class: "ap-avatar med-cover-ph", text: "顔" }),
         el("div", { class: "ap-id" }, [
-          el("b", { class: "ap-name", text: v.name }),
-          el("span", { class: "sub", text: "member since " + new Date(v.createdAt * 1000).toLocaleDateString() }),
-          el("a", { class: "mini-btn", href: v.siteUrl, target: "_blank", rel: "noopener", text: "anilist.co ↗" })
+          el("div", { class: "ap-id-top" }, [
+            el("b", { class: "ap-name", text: v.name }),
+            v.unreadNotificationCount
+              ? el("span", { class: "med-chip ap-unread", style: "--chip:#B85C50", text: v.unreadNotificationCount + " unread" })
+              : null
+          ]),
+          el("span", { class: "ap-since", text: "member since " + new Date(v.createdAt * 1000).toLocaleDateString() }),
+          el("a", { class: "ap-sitelink", href: v.siteUrl, target: "_blank", rel: "noopener", text: "anilist.co ↗" })
         ]),
-        v.unreadNotificationCount
-          ? el("span", { class: "med-chip ap-unread", style: "--chip:#FF2E44", text: v.unreadNotificationCount + " unread" })
-          : null
+        el("div", { class: "ap-headstats" }, [
+          hstat(an0.count || 0, "anime"),
+          hstat(mg0.count || 0, "manga"),
+          hstat(an0.minutesWatched ? Math.round(an0.minutesWatched / 1440) + "d" : "0d", "watched"),
+          hstat(an0.meanScore ? (an0.meanScore / 10).toFixed(1) : "—", "mean")
+        ])
       ]));
       body.appendChild(head);
 

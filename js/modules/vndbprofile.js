@@ -100,14 +100,21 @@
       var u = data.user, us = data.userStats, vault = data.vault;
 
       /* --- header --- */
+      function hstat(v2, k) { return el("div", { class: "ap-hstat" }, [el("b", { text: String(v2) }), el("span", { text: k })]); }
       var head = el("div", { class: "ap-head vp-head" });
       head.appendChild(el("div", { class: "ap-head-scrim" }, [
         el("span", { class: "ap-avatar vp-avatar", "aria-hidden": "true", text: "選" }),
         el("div", { class: "ap-id" }, [
-          el("b", { class: "ap-name", text: u.username }),
-          el("span", { class: "sub", text: "vndb.org · " + u.id }),
-          el("a", { class: "mini-btn", href: "https://vndb.org/" + u.id, target: "_blank", rel: "noopener", text: "vndb.org ↗" })
-        ])
+          el("div", { class: "ap-id-top" }, [el("b", { class: "ap-name", text: u.username })]),
+          el("span", { class: "ap-since", text: "vndb.org · " + u.id }),
+          el("a", { class: "ap-sitelink", href: "https://vndb.org/" + u.id, target: "_blank", rel: "noopener", text: "vndb.org ↗" })
+        ]),
+        vault ? el("div", { class: "ap-headstats" }, [
+          hstat(vault.total, "tracked"),
+          hstat(vault.completed, "finished"),
+          hstat(vault.routesCleared, "routes"),
+          hstat(vault.quotes, "quotes")
+        ]) : null
       ]));
       body.appendChild(head);
 

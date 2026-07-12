@@ -2699,13 +2699,23 @@ body.fx-minimised .fx-dock { display: flex; }
 
 /* ---- profiles ---- */
 .ap-body { display: flex; flex-direction: column; gap: 12px; }
-.ap-head { border-radius: 16px; overflow: hidden; border: 1px solid var(--line2); background: var(--well); background-size: cover; background-position: center; box-shadow: var(--shadow-sm); }
-.ap-head-scrim { display: flex; align-items: center; gap: 14px; padding: 26px 20px 18px; background: linear-gradient(180deg, rgba(24,19,10,.14), rgba(24,19,10,.55)); }
-.ap-avatar { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; border: 2px solid rgba(255,251,240,.7); box-shadow: var(--shadow-md); }
-.ap-id { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
-.ap-name { font-family: var(--serif); font-size: 21px; color: #FBF7EC; text-shadow: 0 1px 8px rgba(0,0,0,.5); }
-.ap-head .sub { color: rgba(251,247,236,.82); }
-.ap-unread { margin-left: auto; font-weight: 700; color: #FBF7EC; }
+.ap-head { position: relative; border-radius: 18px; overflow: hidden; border: 1px solid var(--line2); background: var(--well); background-size: cover; background-position: center; box-shadow: var(--shadow-md); min-height: 168px; }
+.ap-head.has-banner { border: none; }
+.ap-head-scrim { position: relative; display: flex; align-items: center; gap: 22px; padding: 26px 30px; min-height: 168px; background: linear-gradient(180deg, rgba(18,14,8,.28), rgba(18,14,8,.72)); }
+.ap-avatar { width: 116px; height: 116px; flex: none; border-radius: 16px; object-fit: cover; border: 3px solid rgba(255,251,240,.85); box-shadow: var(--shadow-lg); font-size: 44px; display: flex; align-items: center; justify-content: center; }
+.ap-id { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; min-width: 0; }
+.ap-id-top { display: flex; align-items: center; gap: 12px; }
+.ap-name { font-family: var(--serif); font-size: 30px; color: #FBF7EC; text-shadow: 0 1px 10px rgba(0,0,0,.6); line-height: 1.05; }
+.ap-since { color: rgba(251,247,236,.82); font-size: 13px; }
+.ap-sitelink { color: rgba(251,247,236,.9); font-size: 12.5px; border: 1px solid rgba(251,247,236,.35); border-radius: 999px; padding: 3px 12px; text-decoration: none; background: rgba(18,14,8,.3); margin-top: 3px; }
+.ap-sitelink:hover { border-color: rgba(251,247,236,.7); }
+.ap-unread { font-weight: 700; color: #FBF7EC; }
+.ap-headstats { display: flex; gap: 4px; margin-left: auto; align-self: stretch; align-items: center; }
+.ap-hstat { min-width: 74px; text-align: center; padding: 6px 12px; border-left: 1px solid rgba(251,247,236,.18); }
+.ap-hstat:first-child { border-left: none; }
+.ap-hstat b { display: block; font-family: var(--serif); font-size: 24px; color: #FBF7EC; text-shadow: 0 1px 8px rgba(0,0,0,.55); }
+.ap-hstat span { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: rgba(251,247,236,.72); }
+@media (max-width: 860px) { .ap-headstats { display: none; } .ap-avatar { width: 84px; height: 84px; } .ap-name { font-size: 23px; } }
 .ap-sec { margin: 0; }
 .ap-about { white-space: pre-wrap; font-size: 13px; max-height: 220px; overflow-y: auto; }
 .ap-favs { display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px; }
@@ -2725,8 +2735,8 @@ body.fx-minimised .fx-dock { display: flex; }
 .ap-tabs { margin-top: 14px; }
 .ap-pane { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
 .ap-loading { padding: 10px 0; }
-.vp-head { background: linear-gradient(135deg, color-mix(in srgb, var(--c-it) 55%, #3A3040), #4A3E52); }
-.vp-avatar { display: inline-flex; align-items: center; justify-content: center; font-family: var(--jp); font-size: 34px; color: #E8DFF2; background: rgba(255,255,255,.12); border-radius: 50%; }
+.vp-head { background: radial-gradient(120% 160% at 100% 0%, color-mix(in srgb, var(--c-it) 45%, transparent), transparent 60%), linear-gradient(135deg, #3A3040, #2A2432); }
+.vp-avatar { display: inline-flex; align-items: center; justify-content: center; font-family: var(--jp); font-size: 52px; color: #E8DFF2; background: rgba(255,255,255,.1); border-radius: 16px; }
 .vp-labels { display: flex; flex-wrap: wrap; gap: 10px; }
 .vp-label { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line2); border-radius: 999px; padding: 5px 12px; background: var(--panel); }
 .vp-label b { font-family: var(--mono); font-size: 13px; }
