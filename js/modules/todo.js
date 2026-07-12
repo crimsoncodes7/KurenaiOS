@@ -68,11 +68,26 @@
     }
   }
 
-  /* manual tasks — CRUD, persist independently of the generated list */
-  function addManual(text) {
+  /* manual tasks — CRUD, persist independently of the generated list.
+     opts (Apple-Reminders style): { date, category } — both optional. */
+  function addManual(text, opts) {
+    opts = opts || {};
     var t = T();
-    t.manual.push({ id: t.nextId++, text: text, done: false, created: KOS.srs.todayISO() });
+    t.manual.push({ id: t.nextId++, text: text, done: false, created: KOS.srs.todayISO(),
+      date: opts.date || null, category: opts.category || null });
     store.save();
+  }
+  function updateManual(id, patch) {
+    var m = T().manual.find(function (x) { return x.id === id; });
+    if (!m) return;
+    Object.keys(patch).forEach(function (k) { m[k] = patch[k]; });
+    store.save();
+  }
+  /* every distinct category the user has used — powers the picker */
+  function categories() {
+    var seen = {};
+    T().manual.forEach(function (m) { if (m.category) seen[m.category] = true; });
+    return Object.keys(seen);
   }
   function toggleManual(id, val, label) {
     var m = T().manual.find(function (x) { return x.id === id; });
@@ -93,7 +108,10 @@
     function render() {
       wrap.innerHTML = "";
       var autos = autoItems();
-      var manual = T().manual;
+      var today = KOS.srs.todayISO();
+      /* on the Overview only surface reminders that are undated or due
+         today/overdue — future-dated ones stay in Tasks & Habits */
+      var manual = T().manual.filter(function (m) { return !m.date || m.date <= today; });
       var doneN = autos.filter(function (a) { return isChecked(a.key); }).length +
         manual.filter(function (m) { return m.done; }).length;
       var totalN = autos.length + manual.length;
@@ -113,7 +131,9 @@
         }, a.go, null, "auto", a.reward));
       });
       manual.forEach(function (m) {
-        listEl.appendChild(row(m.done, m.text, function (val) {
+        var overdue = m.date && m.date < today;
+        var lbl = m.text + (m.category ? "  ·  " + m.category : "") + (overdue ? "  ·  overdue" : m.date === today ? "  ·  today" : "");
+        listEl.appendChild(row(m.done, lbl, function (val) {
           toggleManual(m.id, val, m.text); render();
         }, null, function () { deleteManual(m.id); render(); }, "manual", "+5 XP"));
       });
@@ -242,15 +262,28 @@
           toggleManual(m.id, cb.checked, m.text); renderReminders();
         } });
         cb.checked = m.done;
-        var openSubs = row.dataset.open === "1";
+        var today = KOS.srs.todayISO();
+        var dateChip = m.date
+          ? el("span", { class: "rem-date" + (m.date < today ? " overdue" : m.date === today ? " today" : ""),
+              text: m.date < today ? "overdue · " + m.date : m.date === today ? "today" : m.date })
+          : null;
         row.appendChild(el("div", { class: "rem-main" }, [
           cb,
-          el("span", { class: "todo-label", text: m.text }),
+          el("div", { class: "rem-label-wrap" }, [
+            el("span", { class: "todo-label", text: m.text }),
+            (m.category || dateChip) ? el("span", { class: "rem-meta" }, [
+              m.category ? el("span", { class: "rem-cat", text: m.category }) : null,
+              dateChip
+            ].filter(Boolean)) : null
+          ].filter(Boolean)),
           subs.length ? el("span", { class: "rem-subcount", text: doneSubs + "/" + subs.length }) : null,
           el("button", { class: "mini-btn", text: "＋ sub-task", onclick: function () {
             var box = row.querySelector(".rem-subs");
             box.style.display = "";
             box.querySelector("input").focus();
+          } }),
+          el("button", { class: "mini-btn", text: "⚙", "aria-label": "Edit reminder", onclick: function () {
+            editReminder(m);
           } }),
           el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete", onclick: function () {
             deleteManual(m.id); renderReminders();
@@ -279,16 +312,47 @@
         list.appendChild(row);
       });
       remCol.appendChild(list);
-      var input = el("input", { type: "text", class: "todo-in", placeholder: "Add a reminder…",
+      var input = el("input", { type: "text", class: "todo-in rem-add-text", placeholder: "Add a reminder…",
         onkeydown: function (e) { if (e.key === "Enter") submit(); } });
+      var dateIn = el("input", { type: "date", class: "todo-in rem-add-date", title: "Due date (optional)" });
+      var catIn = el("input", { type: "text", class: "todo-in rem-add-cat", placeholder: "List", list: "rem-cats",
+        title: "Category / list (optional)" });
+      var cats = el("datalist", { id: "rem-cats" }, categories().map(function (c) { return el("option", { value: c }); }));
       function submit() {
         if (!input.value.trim()) return;
-        addManual(input.value.trim());
+        addManual(input.value.trim(), { date: dateIn.value || null, category: catIn.value.trim() || null });
         renderReminders();
       }
-      remCol.appendChild(el("div", { class: "todo-add" }, [
-        input, el("button", { class: "btn", text: "+ Add", onclick: submit })
+      remCol.appendChild(el("div", { class: "rem-add-row" }, [
+        input, catIn, dateIn, cats, el("button", { class: "btn primary", text: "+ Add", onclick: submit })
       ]));
+    }
+
+    /* edit a reminder's text / date / category inline via the confirm-shell modal */
+    function editReminder(m) {
+      var overlay = KOS.medview.modalOverlay();
+      var text = el("input", { type: "text", class: "todo-in", value: m.text });
+      var date = el("input", { type: "date", class: "todo-in", value: m.date || "" });
+      var cat = el("input", { type: "text", class: "todo-in", value: m.category || "", list: "rem-cats", placeholder: "List / category" });
+      overlay.appendChild(el("div", { class: "modal", style: "width:min(440px,92vw)" }, [
+        el("div", { class: "modal-h" }, [el("b", { text: "Edit reminder" }),
+          el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", onclick: overlay.close })]),
+        el("div", { class: "med-form" }, [
+          KOS.medview.field("Reminder", text),
+          el("div", { class: "med-form-row" }, [KOS.medview.field("Category", cat), KOS.medview.field("Due date", date)])
+        ]),
+        el("div", { class: "lab-controls med-modal-foot" }, [
+          el("span", { style: "flex:1" }),
+          el("button", { class: "btn", text: "Cancel", onclick: overlay.close }),
+          el("button", { class: "btn primary", text: "Save", onclick: function () {
+            if (!text.value.trim()) { KOS.ui.toast("A reminder needs some text.", true); return; }
+            updateManual(m.id, { text: text.value.trim(), date: date.value || null, category: cat.value.trim() || null });
+            overlay.close(); renderReminders();
+          } })
+        ])
+      ]));
+      document.body.appendChild(overlay);
+      text.focus();
     }
 
     function renderHabits() {
