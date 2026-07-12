@@ -429,7 +429,8 @@ step("early-stopped focus sessions don't keep a streak alive", () => {
 console.log("== help view ==");
 step("help & guide renders every section", () => {
   KOS.show("help");
-  if ($$(".help-card").length < 15) throw new Error("help cards: " + $$(".help-card").length);
+  if ($(".help-row").length < 15) throw new Error("help rows: " + $(".help-row").length);
+  if (!$(".help-nav-item")) throw new Error("help nav missing");
 });
 
 setTimeout(() => {
