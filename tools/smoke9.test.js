@@ -262,19 +262,20 @@ step("airing-soon strip renders beside the consuming strip (not instead of it)",
 
 /* ============ 6 · watch-history heatmap ============ */
 console.log("== heatmap ==");
-step("anime view heatmap uses the shared helper and counts ONLY anime logs", async () => {
+step("anime activity heatmap lives in the stats modal, counting ONLY anime logs", async () => {
   const row = await p(cb => KOS.mediadb.get(frierenId, cb));
   KOS.media.logActivity(row, "progress");
   KOS.media.logActivity(row, "progress");
   KOS.sessions.log({ type: "media", subject: null, ref: null, dur: null,
     metrics: { module: "books", entryId: 1, title: "Berserk", action: "progress" } });
-  KOS.show("anime");
-  const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".an-heat .cs-chart").length > 0, 4000);
-  const card = main.querySelector(".an-heat .cs-chart");
-  if (!/Watch history/.test(card.textContent)) throw new Error("heatmap card missing");
-  if (!/2 logs in 16 weeks/.test(card.textContent)) throw new Error("books log leaked into the anime count: " + card.textContent.slice(0, 80));
+  KOS.medview.statsModal("anime", KOS.media.module("anime"));
+  await waitFor(() => document.querySelector(".stats-modal"), 4000);
+  const modal = document.querySelector(".stats-modal");
+  const card = [...modal.querySelectorAll(".cs-chart")].find(c => /Activity/.test(c.textContent));
+  if (!card) throw new Error("activity heatmap missing from the stats modal");
+  if (!/2 watch logs/.test(card.textContent)) throw new Error("books log leaked into the anime count: " + card.textContent.slice(0, 80));
   if (!card.querySelector("svg rect")) throw new Error("not rendered via KOS.charts.heatmap SVG");
+  const ov = modal.closest(".modal-ov"); if (ov) ov.remove();
 });
 
 /* ============ 7 · AniList profile ============ */

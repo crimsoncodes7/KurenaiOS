@@ -332,9 +332,11 @@ step("books vault renders: toolbar, DNF pill, dual bar, author line, stats+heatm
   if (!pillText.includes("DNF")) throw new Error("no DNF pill");
   if (!main.querySelector(".bk-dual")) throw new Error("no owned-vs-read bar");
   if (!main.querySelector(".bk-author")) throw new Error("no author line");
-  await waitFor(() => main.querySelector(".bk-heat svg"), 3000);
-  if (!main.querySelector(".bk-heat svg")) throw new Error("no reading heatmap");
   if (!/Volumes on the shelf/.test(main.textContent)) throw new Error("no vault stats");
+  KOS.medview.statsModal("books", KOS.media.module("books"));
+  await waitFor(() => document.querySelector(".stats-modal"), 3000);
+  if (!document.querySelector(".stats-modal")) throw new Error("stats modal did not open");
+  const smv = document.querySelector(".stats-modal").closest(".modal-ov"); if (smv) smv.remove();
 });
 step("shelf layout: one spine per owned volume, deterministic colour, condition mark", async () => {
   KOS.store.state.media.books.layout = "shelf";

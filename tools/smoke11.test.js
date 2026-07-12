@@ -423,14 +423,15 @@ step("ISBN → result row (Open Library) → + Use prefills the add form, physic
 console.log("== heatmap ==");
 step("reading sessions surface on the existing reading heatmap with zero extra wiring", async () => {
   KOS.store.state.media.books = { layout: "grid", sort: "updated", tab: "digital", physLayout: "shelf" };
-  KOS.show("books");
-  const main = document.getElementById("main");
-  await waitFor(() => main.querySelector(".bk-heat svg"), 5000);
-  const card = [...main.querySelectorAll(".cs-chart")].find(c => /Reading heatmap/.test(c.textContent));
-  if (!card) throw new Error("heatmap card missing");
-  const mLogs = card.textContent.match(/(\d+) logs in/);
+  KOS.medview.statsModal("books", KOS.media.module("books"));
+  await waitFor(() => document.querySelector(".stats-modal"), 5000);
+  const modal = document.querySelector(".stats-modal");
+  const card = [...modal.querySelectorAll(".cs-chart")].find(c => /Activity/.test(c.textContent));
+  if (!card) throw new Error("activity heatmap missing from the stats modal");
+  const mLogs = card.textContent.match(/(\d+) reading logs/);
   /* 2 reading sessions + the add + any bump = at least 3 media logs today */
   if (!mLogs || parseInt(mLogs[1], 10) < 3) throw new Error("heatmap not counting reading sessions: " + (mLogs && mLogs[0]));
+  const ov = modal.closest(".modal-ov"); if (ov) ov.remove();
 });
 
 /* ============ runner ============ */

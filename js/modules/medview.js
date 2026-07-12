@@ -688,6 +688,23 @@
           KOS.charts.lineChart(months, { color: mod.accent })));
       }
 
+      /* the activity heatmap — sessions logged against this module */
+      var byDay = {}, total = 0;
+      KOS.sessions.all().forEach(function (s) {
+        if (s.type === "media" && s.metrics && s.metrics.module === modId) byDay[s.date] = (byDay[s.date] || 0) + 1;
+      });
+      var days = [];
+      for (var h = 16 * 7 - 1; h >= 0; h--) {
+        var dd = KOS.srs.addDays(KOS.srs.todayISO(), -h);
+        var n = byDay[dd] || 0; total += n;
+        days.push({ date: dd, value: n, hint: dd + ": " + n });
+      }
+      if (total) {
+        var verb = modId === "books" ? "reading" : modId === "anime" ? "watch" : modId === "vn" ? "reading" : "play";
+        grid.appendChild(KOS.charts.chartCard("Activity", total + " " + verb + " logs · 16 weeks",
+          KOS.charts.heatmap(days, { color: mod.accent })));
+      }
+
       /* 5 — module-specific extras */
       if (modId === "game") {
         var pCount = {};

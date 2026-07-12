@@ -323,12 +323,6 @@
       return p.layout === "list" ? listRow(e, mod, refresh) : gridCard(e, mod, refresh);
     });
 
-    /* watch-history heatmap (3f): the SAME sessions log and the SAME
-       KOS.charts.heatmap as Books' reading heatmap — filtered to anime */
-    var statsWrap = el("div", { class: "an-stats" });
-    main.appendChild(statsWrap);
-    statsWrap.appendChild(el("div", { class: "cs-grid an-heat" }, [watchHeatmapCard(16)]));
-
     /* dropdown option fill from the real index keys */
     KOS.mediadb.distinct("genres", function (err, gs) { if (!err) mv.fillSel(genreSel, gs, "All genres"); });
     KOS.mediadb.distinct("tags", function (err, ts) { if (!err) mv.fillSel(tagSel, ts, "All tags"); });

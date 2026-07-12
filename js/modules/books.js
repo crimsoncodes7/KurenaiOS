@@ -1016,7 +1016,6 @@
           stat(b.volumesOwned || 0, "Volumes on the shelf"),
           stat(b.spent ? "£" + b.spent.toFixed(0) : "£0", "Spent on volumes")
         ]));
-        statsWrap.appendChild(el("div", { class: "cs-grid bk-heat" }, [heatmapCard(16)]));
       });
     }
     renderStats();
