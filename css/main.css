@@ -1670,17 +1670,37 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
 .streak-chip .fl { font-family: var(--jp); font-size: 12px; }
 .streak-chip.lit { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 45%, transparent); background: var(--wash-brass); }
 
-/* daily to-do */
-.todo-panel { background: var(--bg1); border: 1px solid var(--line2); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 18px; }
-.todo-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
-.todo-h b { font-family: var(--serif); font-size: 16px; font-weight: 600; }
+/* daily to-do — Fable edicts: reward-labelled, dividers, sealed footer */
+.todo-panel { background: var(--bg1); border: 1px solid var(--line2); border-radius: 16px; box-shadow: var(--shadow-sm); padding: 18px 20px; }
+.todo-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.todo-h b { font-family: var(--sans); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .todo-count { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-.todo-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; border: 1px solid transparent; }
-.todo-item:hover { background: color-mix(in srgb, var(--text) 3%, transparent); border-color: var(--line2); }
+.todo-list { display: flex; flex-direction: column; }
+.todo-item { display: flex; align-items: center; gap: 13px; padding: 11px 2px; border-bottom: 1px solid var(--line2); }
+.todo-item:last-child { border-bottom: none; }
 .todo-item.done .todo-label { text-decoration: line-through; color: var(--muted); }
-.todo-tick { accent-color: var(--accent3); width: 16px; height: 16px; cursor: pointer; }
-.todo-label { flex: 1; font-size: 13.5px; color: var(--text2); }
+.todo-tick {
+  appearance: none; -webkit-appearance: none;
+  width: 22px; height: 22px; flex: none; cursor: pointer;
+  border: 1.5px solid var(--line); border-radius: 7px;
+  background: var(--panel);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.todo-tick:checked { background: var(--accent3); border-color: var(--accent3); }
+.todo-tick:checked::after { content: "✓"; color: #FCFAF4; font-size: 13px; font-weight: 700; }
+.todo-label { flex: 1; font-size: 15px; color: var(--text); }
+.todo-item.done .todo-label { color: var(--muted); }
+.todo-reward { font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--accent); white-space: nowrap; }
+.todo-item.done .todo-reward { color: var(--muted); }
 .todo-tag { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line2); border-radius: 999px; padding: 2px 8px; }
+.todo-foot {
+  margin: 12px 0 0; padding: 11px 14px;
+  border: 1px dashed color-mix(in srgb, var(--accent2) 40%, transparent);
+  border-radius: 10px; text-align: center;
+  font-size: 12.5px; color: var(--text2);
+  background: var(--wash-brass);
+}
 .todo-add { display: flex; gap: 8px; margin-top: 12px; }
 .todo-in { flex: 1; }
 
@@ -3498,3 +3518,48 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 }
 .med-mod-card .subj-card-top, .med-mod-card .m { position: relative; z-index: 1; }
 .med-mod-card h3 .kanji-inline { color: var(--accent, var(--kurenai)); }
+
+/* ============================================================
+   Governor v3 — session-log categories + Discord-style avatar
+   ============================================================ */
+.log-cats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 2px 0 16px; }
+.log-cat {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line2); border-radius: 14px;
+  background: var(--bg1); text-align: left;
+  transition: border-color .15s, transform .15s;
+}
+.log-cat:hover { transform: translateY(-2px); border-color: var(--line); }
+.log-cat.active { border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: var(--wash-accent); }
+.log-cat-k { font-family: var(--jp); font-size: 22px; color: var(--accent); width: 40px; height: 40px; flex: none; display: inline-flex; align-items: center; justify-content: center; border-radius: 11px; background: var(--wash-accent); }
+.log-cat b { font-family: var(--serif); font-size: 22px; font-weight: 600; display: block; line-height: 1; }
+.log-cat-l { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.log-seg { margin-bottom: 14px; }
+.gov-log.ledger { max-width: 760px; }
+.gov-log.ledger .led-row { padding: 9px 4px; }
+.gov-log .led-row .when { min-width: 72px; text-align: right; }
+
+/* Discord-style avatar page */
+.av-grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+@media (max-width: 900px) { .av-grid { grid-template-columns: 1fr; } }
+.av-preview {
+  position: sticky; top: 10px;
+  border: 1px solid var(--line2); border-radius: 16px;
+  background: var(--bg1); overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.av-pv-banner {
+  height: 96px;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 40%, var(--bg1)), color-mix(in srgb, var(--accent2) 30%, var(--bg1)));
+  background-size: cover; background-position: center;
+}
+.av-pv-body { padding: 0 20px 22px; margin-top: -46px; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.av-pv-avatar { padding: 5px; background: var(--bg1); border-radius: 50%; box-shadow: var(--shadow-sm); }
+.av-pv-avatar .gov-avatar { border-width: 0; }
+.av-pv-name { font-family: var(--serif); font-size: 24px; font-weight: 600; margin-top: 8px; }
+.av-pv-rank { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent2); font-weight: 700; }
+.av-pv-meta { font-size: 12.5px; color: var(--muted); margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--line2); width: 100%; }
+.av-controls { display: flex; flex-direction: column; gap: 22px; }
+.av-sec h4 { margin: 0 0 12px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.seal-lv { font-size: 9px; }

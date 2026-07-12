@@ -353,8 +353,53 @@
 
     /* ---------------- AVATAR ---------------- */
     function renderAvatar() {
-      panel.appendChild(el("h3", { class: "n-h", style: "margin-top:0", text: "Seal library — unlocks by level" }));
-      var grid = el("div", { class: "seal-grid" });
+      /* Discord-profile layout: a live preview card on the left, the
+         customisation controls on the right. */
+      var grid = el("div", { class: "av-grid" });
+      panel.appendChild(grid);
+
+      /* --- left: the live profile preview --- */
+      var bannerCss = KOS.governor.bannerCss();
+      var preview = el("div", { class: "av-preview" });
+      var pvBanner = el("div", { class: "av-pv-banner" + (bannerCss && KOS.governor.bannerIsDark() ? " dark" : "") });
+      if (bannerCss) pvBanner.style.cssText += bannerCss;
+      preview.appendChild(pvBanner);
+      preview.appendChild(el("div", { class: "av-pv-body" }, [
+        el("div", { class: "av-pv-avatar" }, [KOS.governor.avatarNode(88)]),
+        el("div", { class: "av-pv-name", text: "Level " + li.level }),
+        el("div", { class: "av-pv-rank", text: KOS.rankName(li.level) + " · Behavioural Governor" }),
+        el("div", { class: "av-pv-meta", text: (g.avatar.kind === "custom" ? "Custom image" : (KOS.governor.sealById(g.avatar.id) || {}).name || "Ember seal") +
+          (g.avatar.frame ? " · " + (KOS.governor.item(g.avatar.frame) || {}).name : "") })
+      ]));
+      grid.appendChild(preview);
+
+      /* --- right: the controls --- */
+      var ctl = el("div", { class: "av-controls" });
+      grid.appendChild(ctl);
+
+      /* custom upload */
+      var file = el("input", { type: "file", accept: "image/*", style: "display:none", onchange: function () {
+        if (!file.files[0]) return;
+        KOS.governor.setCustomAvatar(file.files[0], function (err) {
+          if (err) KOS.ui.toast("Upload failed: " + err.message, true);
+          else { KOS.ui.toast("Avatar set — cropped to a circle, 256×256."); render(); }
+        });
+      } });
+      ctl.appendChild(el("div", { class: "av-sec" }, [
+        el("h4", { text: "Your image" }),
+        el("div", { class: "lab-controls" }, [
+          file,
+          el("button", { class: "btn primary", text: "⤒ Upload image…", onclick: function () { file.click(); } }),
+          (g.avatar.kind === "custom" && g.avatar.img) ? el("button", { class: "btn", text: "Remove", onclick: function () {
+            g.avatar.kind = "seal"; g.avatar.img = null; store.save(); KOS.refreshHUD(); render();
+          } }) : null
+        ].filter(Boolean)),
+        el("p", { class: "sub", text: "Centre-cropped to a circle and compressed in this browser — large originals never touch storage." })
+      ]));
+
+      /* seal library */
+      var sealSec = el("div", { class: "av-sec" }, [el("h4", { text: "Seal library — unlocks by level" })]);
+      var sgrid = el("div", { class: "seal-grid" });
       KOS.governor.seals().forEach(function (s) {
         var unlocked = KOS.governor.sealUnlocked(s);
         var active = g.avatar.kind === "seal" && g.avatar.id === s.id;
@@ -366,59 +411,95 @@
           } });
         card.innerHTML = KOS.governor.sealSvg(s);
         card.appendChild(el("span", { class: "seal-name", text: s.name }));
-        card.appendChild(el("span", { class: "seal-lv", text: unlocked ? (active ? "Active" : "Level " + s.minLevel) : "Locks off at Lv " + s.minLevel }));
-        grid.appendChild(card);
+        card.appendChild(el("span", { class: "seal-lv", text: unlocked ? (active ? "Active" : "Lv " + s.minLevel) : "Lv " + s.minLevel }));
+        sgrid.appendChild(card);
       });
-      panel.appendChild(grid);
+      sealSec.appendChild(sgrid);
+      ctl.appendChild(sealSec);
 
-      panel.appendChild(el("h3", { class: "n-h", text: "Custom avatar" }));
-      var row = el("div", { class: "lab-controls" });
-      var file = el("input", { type: "file", accept: "image/*", style: "display:none", onchange: function () {
-        if (!file.files[0]) return;
-        KOS.governor.setCustomAvatar(file.files[0], function (err) {
-          if (err) KOS.ui.toast("Upload failed: " + err.message, true);
-          else { KOS.ui.toast("Avatar set — cropped to a circle and compressed to 256×256."); render(); }
+      /* frames the user owns (from the shop) */
+      var frames = KOS.governor.catalog().filter(function (c) { return c.kind === "frame" && KOS.governor.owns(c.id); });
+      if (frames.length) {
+        var fRow = el("div", { class: "lab-controls" }, [
+          el("button", { class: "btn" + (!g.avatar.frame ? " primary" : ""), text: "No frame", onclick: function () {
+            g.avatar.frame = null; store.save(); KOS.refreshHUD(); render();
+          } })
+        ]);
+        frames.forEach(function (fr) {
+          fRow.appendChild(el("button", { class: "btn" + (g.avatar.frame === fr.id ? " primary" : ""), text: fr.name, onclick: function () {
+            g.avatar.frame = fr.id; store.save(); KOS.refreshHUD(); render();
+          } }));
         });
-      } });
-      row.appendChild(file);
-      row.appendChild(el("button", { class: "btn primary", text: "Upload image…", onclick: function () { file.click(); } }));
-      if (g.avatar.kind === "custom" && g.avatar.img) {
-        row.appendChild(el("button", { class: "btn", text: "Remove custom image", onclick: function () {
-          g.avatar.kind = "seal"; g.avatar.img = null;
-          store.save(); KOS.refreshHUD(); render();
-        } }));
+        ctl.appendChild(el("div", { class: "av-sec" }, [el("h4", { text: "Frame" }), fRow]));
       }
-      panel.appendChild(el("p", { class: "sub", text: "Images are centre-cropped to a circle, resized to 256×256 and stored compressed in this browser — large originals never touch localStorage." }));
-      panel.appendChild(row);
-      panel.appendChild(el("div", { class: "avatar-preview" }, [
-        KOS.governor.avatarNode(96),
-        el("span", { class: "sub", text: "Current avatar" + (g.avatar.frame ? " · " + (KOS.governor.item(g.avatar.frame) || {}).name : "") })
-      ]));
     }
 
     /* ---------------- HISTORY ---------------- */
+    var LOG_CATS = [
+      { id: "all", label: "Everything", match: function () { return true; } },
+      { id: "study", label: "Study", glyph: "学", match: function (e) { return ["flashcards", "due-review", "quiz", "exam", "focus"].indexOf(e.type) !== -1; } },
+      { id: "media", label: "Collection", glyph: "蒐", match: function (e) { return e.type === "media"; } },
+      { id: "directives", label: "Directives", glyph: "勅", match: function (e) { return e.type === "todo"; } },
+      { id: "papers", label: "Papers", glyph: "試", match: function (e) { return e.type === "tracker"; } }
+    ];
     function renderHistory() {
       var all = KOS.sessions.all().slice().reverse();
       if (!all.length) {
         panel.appendChild(el("p", { class: "sub", text: "No sessions logged yet. Finish a flashcard batch, quiz or exam question and it lands here." }));
         return;
       }
-      panel.appendChild(el("p", { class: "sub", style: "margin-top:0",
-        text: all.length + " sessions on record — streaks, HP and the struggle flags all read from this ledger." }));
-      /* the full ledger, day-grouped, in the same voice as the status card */
-      var wrap = el("div", { class: "gov-log ledger" });
-      var lastDate = null;
-      all.slice(0, 120).forEach(function (e) {
-        if (e.date !== lastDate) {
-          lastDate = e.date;
-          var d = new Date(e.date + "T12:00:00");
-          wrap.appendChild(el("div", { class: "led-day", text:
-            d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) }));
-        }
-        wrap.appendChild(KOS.governorLedgerRow(e));
+      /* category summary boxes — the whole record broken down at a glance */
+      var band = el("div", { class: "log-cats" });
+      var cur = "all";
+      LOG_CATS.forEach(function (c) {
+        if (c.id === "all") return;
+        var n = all.filter(c.match).length;
+        band.appendChild(el("button", { class: "log-cat", "data-cat": c.id, onclick: function () { setCat(c.id); } }, [
+          el("span", { class: "log-cat-k", "aria-hidden": "true", text: c.glyph }),
+          el("div", {}, [
+            el("b", { text: String(n) }),
+            el("span", { class: "log-cat-l", text: c.label })
+          ])
+        ]));
       });
+      panel.appendChild(band);
+
+      /* segmented filter + the day-grouped ledger, constrained to a
+         readable column so it doesn't sprawl across empty space */
+      var seg = el("div", { class: "study-tabs log-seg", role: "tablist" });
+      LOG_CATS.forEach(function (c) {
+        seg.appendChild(el("button", { class: "study-tab" + (c.id === cur ? " active" : ""), "data-cat": c.id,
+          onclick: function () { setCat(c.id); } }, [c.label]));
+      });
+      panel.appendChild(seg);
+
+      var wrap = el("div", { class: "gov-log ledger" });
       panel.appendChild(wrap);
-      if (all.length > 120) panel.appendChild(el("p", { class: "sub", text: "Showing the most recent 120." }));
+
+      function setCat(id) {
+        cur = id;
+        seg.querySelectorAll(".study-tab").forEach(function (b) { b.classList.toggle("active", b.dataset.cat === cur); });
+        band.querySelectorAll(".log-cat").forEach(function (b) { b.classList.toggle("active", b.dataset.cat === cur); });
+        draw();
+      }
+      function draw() {
+        wrap.innerHTML = "";
+        var cat = LOG_CATS.find(function (c) { return c.id === cur; });
+        var rows = all.filter(cat.match).slice(0, 120);
+        if (!rows.length) { wrap.appendChild(el("p", { class: "sub", text: "Nothing in this category yet." })); return; }
+        var lastDate = null;
+        rows.forEach(function (e) {
+          if (e.date !== lastDate) {
+            lastDate = e.date;
+            var d = new Date(e.date + "T12:00:00");
+            wrap.appendChild(el("div", { class: "led-day", text:
+              d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) }));
+          }
+          wrap.appendChild(KOS.governorLedgerRow(e));
+        });
+        if (all.filter(cat.match).length > 120) wrap.appendChild(el("p", { class: "sub", text: "Showing the most recent 120." }));
+      }
+      draw();
     }
 
     render();

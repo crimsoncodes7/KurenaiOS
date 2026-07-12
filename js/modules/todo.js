@@ -24,7 +24,7 @@
       out.push({
         key: "due", label: "Clear " + due.length + " due flashcard" + (due.length === 1 ? "" : "s") +
           (overdue ? " (" + overdue + " overdue)" : ""),
-        go: function () { KOS.show("due"); }
+        reward: "+20 XP", go: function () { KOS.show("due"); }
       });
     }
 
@@ -34,7 +34,7 @@
         key: "ev" + d.ev.id,
         label: (d.ev.type === "exam" ? "Revise for: " : "Prepare: ") + d.ev.title +
           " — " + (d.days === 0 ? "today" : d.days + "d away"),
-        go: function () { KOS.show("calendar"); }
+        reward: "+5 XP", go: function () { KOS.show("calendar"); }
       });
     });
     KOS.calendar.eventsOn(today).filter(function (e) { return e.type === "study" || e.type === "lesson"; })
@@ -42,6 +42,7 @@
         out.push({
           key: "blk" + e.id,
           label: (e.time ? e.time + " · " : "") + e.title,
+          reward: "+5 XP",
           go: e.subject && e.ref ? function () { KOS.show("ref", { subject: e.subject, ref: e.ref }); }
             : function () { KOS.show("calendar"); }
         });
@@ -104,16 +105,20 @@
 
       if (!totalN) wrap.appendChild(el("p", { class: "sub", text: "Nothing generated for today — no due cards, no near deadlines. Add a task below or take the win." }));
 
+      var listEl = el("div", { class: "todo-list" });
+      wrap.appendChild(listEl);
       autos.forEach(function (a) {
-        wrap.appendChild(row(isChecked(a.key), a.label, function (val) {
+        listEl.appendChild(row(isChecked(a.key), a.label, function (val) {
           setChecked(a.key, val, a.label); render();
-        }, a.go, null, "auto"));
+        }, a.go, null, "auto", a.reward));
       });
       manual.forEach(function (m) {
-        wrap.appendChild(row(m.done, m.text, function (val) {
+        listEl.appendChild(row(m.done, m.text, function (val) {
           toggleManual(m.id, val, m.text); render();
-        }, null, function () { deleteManual(m.id); render(); }, "manual"));
+        }, null, function () { deleteManual(m.id); render(); }, "manual", "+5 XP"));
       });
+      if (totalN) wrap.appendChild(el("p", { class: "todo-foot", text:
+        doneN >= totalN ? "◆ All sealed — the streak lives on." : "◆ Seal every directive to keep the streak alive." }));
 
       var input = el("input", { type: "text", class: "todo-in", placeholder: "Add your own task…",
         onkeydown: function (e) { if (e.key === "Enter") submit(); } });
@@ -127,15 +132,15 @@
         el("button", { class: "btn", text: "+ Add", onclick: submit })
       ]));
     }
-    function row(done, label, onTick, onGo, onDel, kind) {
-      var cb = el("input", { type: "checkbox", onchange: function () { onTick(cb.checked); } });
+    function row(done, label, onTick, onGo, onDel, kind, reward) {
+      var cb = el("input", { type: "checkbox", class: "todo-tick", onchange: function () { onTick(cb.checked); } });
       cb.checked = done;
       return el("div", { class: "todo-item " + kind + (done ? " done" : "") }, [
-        el("label", { class: "todo-tick" }, [cb]),
+        cb,
         el("span", { class: "todo-label", text: label,
           onclick: onGo || function () {} , style: onGo ? "cursor:pointer" : "" }),
-        kind === "auto" ? el("span", { class: "todo-tag", text: "auto" }) : null,
-        onDel ? el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete task", onclick: onDel }) : null
+        reward ? el("span", { class: "todo-reward", text: reward }) : (kind === "auto" ? el("span", { class: "todo-tag", text: "auto" }) : null),
+        onDel ? el("button", { class: "xbtn", text: "✕", "aria-label": "Delete task", onclick: onDel }) : null
       ]);
     }
     render();
