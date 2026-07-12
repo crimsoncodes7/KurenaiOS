@@ -266,6 +266,77 @@ step("backup coverage: wishlist rides the localStorage state (exportJSON seriali
   if (!Array.isArray(raw.wishlist.budget.history)) throw new Error("history not serialised");
 });
 
+/* ============ 9 · Goals (Build 3k) — same off-spine, no-network rules ============ */
+console.log("== goals ==");
+step("boot: state.goals initialises; add() fills defaults for a manual goal", async () => {
+  const g = KOS.goals.add({ title: "Read 5 books", target: 5, kind: "manual", current: 1 });
+  if (g.kind !== "manual" || g.target !== 5 || g.current !== 1) throw new Error("manual defaults wrong");
+  if (g.status !== "active") throw new Error("new goal should be active");
+  if (!Array.isArray(KOS.store.state.goals.items)) throw new Error("goals state missing");
+});
+step("nudge() bumps a manual goal and never goes negative", async () => {
+  const g = KOS.goals.all().find(x => x.title === "Read 5 books");
+  KOS.goals.nudge(g.id, 3);
+  if (KOS.goals.get(g.id).current !== 4) throw new Error("nudge up failed");
+  KOS.goals.nudge(g.id, -10);
+  if (KOS.goals.get(g.id).current !== 0) throw new Error("nudge floored at 0");
+});
+step("compute() enriches with _current/_status/_pct and completes when target met", async () => {
+  const g = KOS.goals.all().find(x => x.title === "Read 5 books");
+  KOS.goals.update(g.id, { current: 5 });
+  const list = await p(cb => KOS.goals.compute(cb));
+  const row = list.find(x => x.id === g.id);
+  if (row._current !== 5 || row._pct !== 100) throw new Error("enrichment wrong");
+  if (row._status !== "completed") throw new Error("should be completed at/over target");
+  if (!KOS.goals.get(g.id).completedAt) throw new Error("completedAt not stamped");
+});
+step("a past deadline with an unmet target derives 'failed'", async () => {
+  const g = KOS.goals.add({ title: "Overdue goal", target: 10, kind: "manual", current: 1, deadline: "2000-01-01" });
+  const list = await p(cb => KOS.goals.compute(cb));
+  if (list.find(x => x.id === g.id)._status !== "failed") throw new Error("overdue goal should be failed");
+});
+step("an auto goal measures against the vault (mediadb.stats), not a stored counter", async () => {
+  await p(cb => KOS.mediadb.open(cb));
+  await p(cb => KOS.mediadb.add({ module: "game", title: "Auto Metric Game", status: "completed" }, cb));
+  const g = KOS.goals.add({ title: "Finish 1 game", target: 1, kind: "auto", metric: "game-completed" });
+  const list = await p(cb => KOS.goals.compute(cb));
+  const row = list.find(x => x.id === g.id);
+  if (row._current < 1) throw new Error("auto metric did not read completed games from the vault");
+  if (row._status !== "completed") throw new Error("auto goal should complete once the vault meets it");
+});
+step("the view renders Active/Completed/Failed tabs and goal cards", async () => {
+  KOS.show("goals");
+  await tick(60);
+  const main = document.getElementById("main");
+  if (main.querySelectorAll(".goal-tabs .study-tab").length !== 3) throw new Error("expected 3 goal tabs");
+  if (!/Goals/.test(main.textContent)) throw new Error("goals view did not render");
+});
+step("Goals fires ZERO governor traffic and zero network", async () => {
+  netLog = [];
+  const before = govSnapshot();
+  const g = KOS.goals.add({ title: "Boundary Goal", target: 3, kind: "manual" });
+  KOS.goals.nudge(g.id, 2);
+  KOS.goals.update(g.id, { detail: "note" });
+  await p(cb => KOS.goals.compute(cb));
+  KOS.goals.remove(g.id);
+  KOS.show("goals");
+  await tick(50);
+  const after = govSnapshot();
+  if (after.sessions !== before.sessions) throw new Error("KOS.sessions.log was called");
+  if (after.activity !== before.activity) throw new Error("KOS.media.logActivity was called");
+  if (after.hp !== before.hp || after.gold !== before.gold || after.xp !== before.xp) throw new Error("governor HP/gold/XP moved");
+  if (netLog.length !== 0) throw new Error("Goals emitted network: " + netLog.map(r => r.url).join(", "));
+});
+step("nav: Collection subnav reaches Goals; goals ride the serialised backup", async () => {
+  const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");
+  rb.click();
+  await tick(60);
+  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /Goals/.test(b.textContent));
+  if (!sn) throw new Error("Goals subnav item missing");
+  const raw = JSON.parse(JSON.stringify(KOS.store.state));
+  if (!raw.goals || !Array.isArray(raw.goals.items)) throw new Error("goals not part of serialised state");
+});
+
 /* ============ runner ============ */
 (async () => {
   for (const [name, fn] of steps) {

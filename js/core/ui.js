@@ -133,6 +133,7 @@
     matrix: "collection", anime: "collection", books: "collection",
     vn: "collection", game: "collection", seasonal: "collection",
     mangaka: "collection", wishlist: "collection", shrine: "collection",
+    goals: "collection",
     aniprofile: "collection", vndbprofile: "collection", mediasync: "collection",
     governor: "governor",
     data: "system", help: "system"
@@ -158,6 +159,7 @@
       ["Visual Novels", "vn"],
       ["Games", "game"],
       ["Budget Planner", "wishlist"],
+      ["Goals", "goals"],
       ["Shrine", "shrine"],
       null,
       ["AniList", "aniprofile"],

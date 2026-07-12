@@ -102,6 +102,23 @@
           retailer, retailerUrl, priority, releaseDate:"YYYY-MM-DD"|null,
           status:"wantToBuy"|"waitingForRelease"|"purchased"|"cancelled",
           linkedEntryId:null|entryId, notes, addedAt, purchasedAt } */
+    },
+
+    /* ---- Build 3k: Goals (Collection Matrix) ----
+       Personal collecting/reading/watching goals, manual or auto-tracked.
+       Like the Budget Planner this is pure logistics: it NEVER touches the
+       Governor (no sessions, no XP/gold/HP) and emits ZERO network — auto
+       goals are computed by reading the media vault + sessions log + wishlist
+       that already exist locally. Lives in localStorage, rides the backup. */
+    goals: {
+      nextId: 1,
+      items: []
+      /* {id, title, detail, deadline:"YYYY-MM-DD"|null,
+          kind:"manual"|"auto",
+          metric:null|<auto metric id>, module:null, genre:null,
+          target:number, current:number (manual only — auto recomputes),
+          status:"active"|"completed"|"failed",
+          createdAt, completedAt:null|ts, failedAt:null|ts } */
     }
   };
 

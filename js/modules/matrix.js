@@ -24,6 +24,7 @@
       ]),
       el("div", { class: "dh-actions" }, [
         el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
+        el("button", { class: "btn", text: "標 Goals", onclick: function () { KOS.show("goals"); } }),
         el("button", { class: "btn gold", text: "祠 The Shrine", onclick: function () { KOS.show("shrine"); } })
       ])
     ]));
