@@ -780,7 +780,9 @@ small { font-size: 12.5px; }
 .focus-cta.live .k { background: linear-gradient(150deg, color-mix(in srgb, var(--accent2) 90%, #fff), color-mix(in srgb, var(--accent2) 78%, #000)); animation: breathe 2.6s ease-in-out infinite; }
 @keyframes breathe { 50% { transform: scale(1.08); } }
 
-.home-today { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; margin-bottom: 18px; align-items: start; }
+.home-today { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 18px; align-items: stretch; }
+.home-today .todo-panel, .home-side .dl-widget { height: 100%; }
+.home-side { height: 100%; }
 @media (max-width: 1100px) { .home-today { grid-template-columns: 1fr; } }
 
 .home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
@@ -2029,11 +2031,25 @@ body.fx-minimised .fx-dock { display: flex; }
 .att-list { margin-top: 6px; }
 
 /* help */
-.help-grid { column-width: 300px; column-gap: 12px; }
-.help-grid .help-card { break-inside: avoid; margin-bottom: 12px; }
-.help-card { background: var(--bg1); border: 1px solid var(--line2); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 14px 16px; }
-.help-card b { font-family: var(--serif); font-size: 14.5px; display: block; margin-bottom: 4px; font-weight: 600; }
-.help-card p { margin: 0; font-size: 12.5px; color: var(--text2); line-height: 1.55; }
+.help-wrap { display: grid; grid-template-columns: 220px 1fr; gap: 28px; align-items: start; }
+@media (max-width: 900px) { .help-wrap { grid-template-columns: 1fr; } .help-nav { display: none; } }
+.help-nav { position: sticky; top: 10px; display: flex; flex-direction: column; gap: 2px; }
+.help-nav-item { text-align: left; padding: 8px 12px; border-radius: 9px; font-size: 13.5px; color: var(--text2); font-weight: 500; transition: background .15s, color .15s; }
+.help-nav-item:hover { background: color-mix(in srgb, var(--text) 4%, transparent); color: var(--text); }
+.help-nav-item.active { background: var(--wash-accent); color: var(--accent); font-weight: 600; }
+.help-content { min-width: 0; }
+.help-search { width: 100%; border-radius: 999px; margin-bottom: 18px; }
+.help-block { margin-bottom: 26px; }
+.help-block-h { font-family: var(--serif); font-size: 18px; font-weight: 600; margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line2); }
+.help-row { border-bottom: 1px solid var(--line2); }
+.help-row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; padding: 13px 4px; }
+.help-row-head:hover .help-row-t { color: var(--accent); }
+.help-row-t { font-size: 15px; font-weight: 600; }
+.help-row-arr { font-size: 10px; color: var(--muted); transition: transform .18s; flex: none; }
+.help-row.open .help-row-arr { transform: rotate(180deg); color: var(--accent); }
+.help-row-body { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
+.help-row.open .help-row-body { max-height: 600px; }
+.help-row-body p { margin: 0 0 14px; font-size: 14px; line-height: 1.6; color: var(--text2); max-width: 72ch; }
 
 /* ============================================================
    Focus setup page + Tasks & Habits

@@ -69,21 +69,69 @@
         el("span", { class: "dh-kicker", text: "The manual" }),
         el("h1", { text: "Help & Guide" }),
         el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "What everything is and how to use it, one short note per feature." })
+          el("span", { class: "board", text: "What everything is and how to use it. Search, or open a topic to read." })
         ])
       ])
     ]));
-    SECTIONS.forEach(function (sec) {
-      main.appendChild(el("h3", { class: "n-h", text: sec[0] }));
-      var grid = el("div", { class: "help-grid" });
-      sec[1].forEach(function (item) {
-        grid.appendChild(el("div", { class: "help-card" }, [
-          el("b", { text: item[0] }),
-          el("p", { text: item[1] })
-        ]));
-      });
-      main.appendChild(grid);
+
+    /* a search field + a two-column accordion: section nav down the left,
+       collapsible topic rows on the right. Variable-length entries read
+       cleanly because a row only shows its body when open. */
+    var wrap = el("div", { class: "help-wrap" });
+    main.appendChild(wrap);
+    var nav = el("nav", { class: "help-nav" });
+    var content = el("div", { class: "help-content" });
+    wrap.appendChild(nav);
+    wrap.appendChild(content);
+
+    var search = el("input", { type: "search", class: "todo-in help-search", placeholder: "Search the guide…" });
+    content.appendChild(search);
+    var list = el("div", { class: "help-list" });
+    content.appendChild(list);
+
+    SECTIONS.forEach(function (sec, si) {
+      nav.appendChild(el("button", { class: "help-nav-item" + (si === 0 ? " active" : ""), "data-si": String(si),
+        onclick: function () {
+          nav.querySelectorAll(".help-nav-item").forEach(function (b) { b.classList.remove("active"); });
+          this.classList.add("active");
+          var target = list.querySelector('[data-sec="' + si + '"]');
+          if (target && target.scrollIntoView) target.scrollIntoView({ block: "start", behavior: "smooth" });
+        } }, [sec[0]]));
     });
+
+    SECTIONS.forEach(function (sec, si) {
+      var block = el("section", { class: "help-block", "data-sec": String(si) });
+      block.appendChild(el("h3", { class: "help-block-h", text: sec[0] }));
+      sec[1].forEach(function (item) {
+        var body = el("div", { class: "help-row-body" }, [el("p", { text: item[1] })]);
+        var row = el("div", { class: "help-row", "data-q": (item[0] + " " + item[1]).toLowerCase() });
+        var head = el("button", { class: "help-row-head", "aria-expanded": "false", onclick: function () {
+          var open = row.classList.toggle("open");
+          head.setAttribute("aria-expanded", String(open));
+        } }, [
+          el("span", { class: "help-row-t", text: item[0] }),
+          el("span", { class: "help-row-arr", "aria-hidden": "true", text: "▾" })
+        ]);
+        row.appendChild(head);
+        row.appendChild(body);
+        block.appendChild(row);
+      });
+      list.appendChild(block);
+    });
+
+    search.addEventListener("input", KOS.ui.debounce(function () {
+      var q = search.value.trim().toLowerCase();
+      list.querySelectorAll(".help-row").forEach(function (r) {
+        var hit = !q || r.dataset.q.indexOf(q) !== -1;
+        r.style.display = hit ? "" : "none";
+        r.classList.toggle("open", !!q && hit);
+      });
+      list.querySelectorAll(".help-block").forEach(function (b) {
+        var any = [].some.call(b.querySelectorAll(".help-row"), function (r) { return r.style.display !== "none"; });
+        b.style.display = any ? "" : "none";
+      });
+    }, 150));
+
     main.appendChild(el("p", { class: "sub", style: "margin-top:20px", text:
       "Shortcuts: /  search · Alt+← / Alt+→ (or Backspace)  history · Esc  close search/modals." }));
   };
