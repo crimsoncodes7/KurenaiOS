@@ -164,33 +164,10 @@
     return added;
   }
 
-  /* Per-volume custom cover: the Build 2a avatar pattern with the circle
-     crop swapped for a 2:3 rectangle — cover-fit, compressed JPEG base64.
-     Lives inside the IndexedDB entry, never localStorage. */
+  /* Legacy/public helper retained for callers and tests. It now compresses
+     the whole source; the per-volume `coverCrop` owns the visible 2:3 view. */
   function compressVolumeCover(file, done) {
-    var reader = new FileReader();
-    reader.onload = function () {
-      var img = new Image();
-      img.onload = function () {
-        try {
-          var W = 200, H = 300;
-          var cv = document.createElement("canvas");
-          cv.width = W; cv.height = H;
-          var ctx = cv.getContext("2d");
-          /* cover-fit: crop whichever axis overflows the 2:3 frame, centred */
-          var scale = Math.max(W / img.width, H / img.height);
-          var sw = W / scale, sh = H / scale;
-          ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, W, H);
-          var data = cv.toDataURL("image/jpeg", 0.8);
-          if (data.length > 150 * 1024) data = cv.toDataURL("image/jpeg", 0.6);
-          done(null, data);
-        } catch (err) { done(err); }
-      };
-      img.onerror = function () { done(new Error("Not a readable image")); };
-      img.src = reader.result;
-    };
-    reader.onerror = function () { done(new Error("Could not read the file")); };
-    reader.readAsDataURL(file);
+    KOS.imageCrop.prepareFile(file, { maxWidth: 900, maxHeight: 1350, maxBytes: 420 * 1024, quality: 0.84 }, done);
   }
 
   /* ---- shelf ranking (Build 3i) ----
@@ -315,6 +292,7 @@
     var mood = el("input", { type: "text", class: "todo-in", value: e.mood.join(", "), placeholder: "dark, hopeful, tense… (its own axis, not genre)" });
     var shelves = el("input", { type: "text", class: "todo-in", value: e.shelves.join(", "), placeholder: "top-shelf, to-lend… (your own shelf names)" });
     var coverU = el("input", { type: "url", class: "todo-in", value: e.coverUrl || "", placeholder: "https://… (filled by sync/enrichment)" });
+    var coverPosition = mv.coverPositionControl(e, coverU);
     var fav = el("input", { type: "checkbox" });
     fav.checked = e.favourite;
     var notes = el("textarea", { class: "note-area", rows: 3, placeholder: "Notes…" });
@@ -381,20 +359,21 @@
             var p = parseFloat(price.value);
             v.price = isNaN(p) ? null : p;
           });
-          var covBtn = el("button", { class: "mini-btn", text: v.coverUrl ? "🖼 replace" : "🖼 cover",
-            title: "Custom cover for this volume (cropped to 2:3, compressed)", onclick: function (ev) {
+          var covBtn = el("button", { class: "mini-btn", text: v.coverUrl ? "⌖ cover" : "＋ cover",
+            title: "Choose and position a custom cover for this volume", onclick: function (ev) {
               ev.preventDefault();
-              var f = el("input", { type: "file", accept: "image/*" });
-              f.addEventListener("change", function () {
-                if (!f.files[0]) return;
-                compressVolumeCover(f.files[0], function (err, data) {
-                  if (err) { KOS.ui.toast(err.message, true); return; }
-                  v.coverUrl = data;
+              KOS.imageCrop.open({
+                title: "Position volume " + v.number + " cover",
+                description: "Preview the 2:3 physical-shelf frame. Nothing is saved until you save the book entry.",
+                source: v.coverUrl || "", crop: v.coverCrop, aspect: 2 / 3, allowUpload: true,
+                fileOptions: { maxWidth: 900, maxHeight: 1350, maxBytes: 420 * 1024, quality: 0.84 },
+                onSave: function (result) {
+                  v.coverUrl = result.source;
+                  v.coverCrop = result.crop;
                   renderPhys();
-                  KOS.ui.toast("Volume " + v.number + " cover set — save to keep it.");
-                });
+                  KOS.ui.toast("Volume " + v.number + " cover positioned — save to keep it.");
+                }
               });
-              f.click();
             } });
           list.appendChild(el("div", { class: "bk-vol-row" }, [
             el("span", { class: "bk-vol-n", style: "--spine:" + spineColor(title.value || e.title), text: "Vol " + v.number }),
@@ -465,7 +444,8 @@
       e.tags = splitList(tags.value);
       e.mood = splitList(mood.value);
       e.shelves = splitList(shelves.value);
-      e.coverUrl = coverU.value.trim() || null;
+      e.coverUrl = coverPosition.sourceFor();
+      e.coverCrop = coverPosition.cropFor(e.coverUrl);
       e.favourite = fav.checked;
       e.notes = notes.value;
       mv.saveEntry(e, {
@@ -506,7 +486,7 @@
         field("Mood (comma-separated — how it feels, not what it is)", mood),
         field("Shelves (comma-separated — your own collections)", shelves),
         field("Tags (comma-separated, shared taxonomy)", tags),
-        field("Cover URL (series default; volumes can override below)", coverU),
+        field("Cover URL (series default; volumes can override below)", el("div", { class: "image-field" }, [coverU, coverPosition.node])),
         physWrap,
         field("Custom lists", mv.customListChips(e), "wl-notes-full"),
         field("Notes", notes)
@@ -845,7 +825,7 @@
       if (v.coverUrl) {
         spine = el("div", { class: "bk-spine bk-spine-img", role: "listitem",
           title: e.title + " vol " + v.number + " · " + KOS.media.CONDITION_LABEL[v.condition] }, [
-          el("img", { src: v.coverUrl, alt: e.title + " volume " + v.number, loading: "lazy" })
+          KOS.imageCrop.image(v.coverUrl, { alt: e.title + " volume " + v.number, loading: "lazy" }, v.coverCrop)
         ]);
       } else {
         spine = el("div", { class: "bk-spine", role: "listitem", style: "--spine:" + colour,
@@ -1246,7 +1226,8 @@
               onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); booksEditor(e, function () { KOS.show("mangaka", undefined, { _nav: true }); }); } }
             }, [
               e.coverUrl
-                ? el("img", { src: e.coverUrl, alt: "", loading: "lazy", decoding: "async" })
+                ? el("span", { class: "mk-work-cover" }, [KOS.imageCrop.image(e.coverUrl,
+                    { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)])
                 : el("span", { class: "med-cover-ph mk-ph", "aria-hidden": "true", style: "--spine:" + spineColor(e.title), text: "本" }),
               el("div", { class: "mk-work-body" }, [
                 el("span", { class: "mk-work-t", text: e.title }),

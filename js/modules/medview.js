@@ -40,7 +40,7 @@
     var box = el("div", { class: "med-cover" });
     function ph() { return el("span", { class: "med-cover-ph", "aria-hidden": "true", text: kanji }); }
     if (e.coverUrl) {
-      var img = el("img", { src: e.coverUrl, alt: "", loading: "lazy", decoding: "async" });
+      var img = KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop);
       img.addEventListener("error", function () {
         box.removeChild(img);
         box.appendChild(ph());
@@ -50,6 +50,72 @@
       box.appendChild(ph());
     }
     return box;
+  }
+
+  /* Shared media-editor control. URL edits and uploads both feed the one
+     cropper; metadata remains draft-local until the parent editor saves. */
+  function coverPositionControl(entry, urlInput, opts) {
+    opts = opts || {};
+    var draftCrop = KOS.imageCrop.normalise(entry.coverCrop);
+    var positionedSource = String(entry.coverUrl || "");
+    var originalPlaceholder = urlInput.placeholder;
+    var masked = false;
+    var note = el("span", { class: "sub image-position-note", text: draftCrop ? "position saved" : "centred by default" });
+
+    function showSource(source) {
+      masked = !!opts.maskDataUrl && /^data:image\//i.test(source);
+      urlInput.value = masked ? "" : source;
+      urlInput.placeholder = masked
+        ? "Local cover selected — position it to edit or remove"
+        : originalPlaceholder;
+    }
+    function candidateSource() {
+      var typed = urlInput.value.trim();
+      return typed || (masked ? positionedSource : "");
+    }
+    showSource(positionedSource);
+
+    var button = el("button", { type: "button", class: "btn subtle", text: "⌖ Position cover…", onclick: function () {
+      var candidate = candidateSource();
+      var candidateCrop = candidate && candidate === positionedSource ? draftCrop : null;
+      KOS.imageCrop.open({
+        title: "Position the cover",
+        description: "Preview the portrait frame used throughout the Collection Matrix. The source URL or upload is saved only with this entry.",
+        source: candidate,
+        originalSource: positionedSource,
+        originalCrop: draftCrop,
+        originalLabel: "Use saved cover",
+        crop: candidateCrop, aspect: 2 / 3, allowUrl: true, allowUpload: !!opts.allowUpload,
+        fileOptions: { maxWidth: 1000, maxHeight: 1500, maxBytes: 520 * 1024, quality: 0.84 },
+        removeLabel: "Remove cover",
+        onRemove: candidate ? function () {
+          positionedSource = "";
+          draftCrop = null;
+          showSource("");
+          note.textContent = "cover removed — save the entry to keep it";
+        } : null,
+        onSave: function (result) {
+          positionedSource = result.source;
+          draftCrop = result.crop;
+          showSource(positionedSource);
+          note.textContent = "position ready — save the entry to keep it";
+        }
+      });
+    } });
+    return {
+      node: el("div", { class: "image-position-row" }, [button, note]),
+      set: function (source, crop) {
+        positionedSource = String(source || "");
+        draftCrop = KOS.imageCrop.normalise(crop);
+        showSource(positionedSource);
+        note.textContent = draftCrop ? "linked position copied" : "centred by default";
+      },
+      sourceFor: function () { return candidateSource() || null; },
+      cropFor: function (source) {
+        source = String(source || "");
+        return source && source === positionedSource ? KOS.imageCrop.normalise(draftCrop) : null;
+      }
+    };
   }
 
   /* dropdown option fill from real index keys, preserving the selection */
@@ -346,7 +412,7 @@
   function listRow(e, mod, rerender, opts) {
     opts = opts || {};
     var thumb = e.coverUrl
-      ? el("img", { class: "med-row-cover", src: e.coverUrl, alt: "", loading: "lazy" })
+      ? el("span", { class: "med-row-cover" }, [KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy" }, e.coverCrop)])
       : el("span", { class: "med-row-cover med-cover-ph", "aria-hidden": "true", text: mod.kanji });
     var main = el("div", { class: "med-row-main" }, [
       el("span", { class: "med-row-title", text: e.title, title: e.title }),
@@ -416,26 +482,6 @@
      and VN entries never trigger network from here (invariants #12/#20). */
   function heroKey(modId) { return "hero." + modId; }
 
-  /* wide-banner upload: centre-crop to ~3.2:1 and compress to JPEG ≤1600px,
-     same canvas approach as the avatar/volume-cover uploads */
-  function compressBanner(file, cb) {
-    var img = new Image();
-    var url = URL.createObjectURL(file);
-    img.onload = function () {
-      URL.revokeObjectURL(url);
-      var W = Math.min(1600, img.width), H = Math.round(W / 3.2);
-      var c = document.createElement("canvas");
-      c.width = W; c.height = H;
-      var scale = Math.max(W / img.width, H / img.height);
-      var sw = W / scale, sh = H / scale;
-      var sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
-      c.getContext("2d").drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
-      cb(null, c.toDataURL("image/jpeg", 0.82));
-    };
-    img.onerror = function () { URL.revokeObjectURL(url); cb(new Error("Could not read the image")); };
-    img.src = url;
-  }
-
   /* the spotlight picker: search-as-you-type over the module's vault */
   function heroPicker(modId, kanji, onPick) {
     var overlay = modalOverlay();
@@ -448,7 +494,9 @@
         rows.slice(0, 40).forEach(function (e) {
           list.appendChild(el("div", { class: "msch-row", role: "button", tabindex: "0",
             onclick: function () { overlay.close(); onPick(e); } }, [
-            e.coverUrl ? el("img", { class: "msch-cover", src: e.coverUrl, alt: "" })
+            e.coverUrl ? el("span", { class: "msch-cover" }, [
+              KOS.imageCrop.image(e.coverUrl, { alt: "" }, e.coverCrop)
+            ])
                        : el("span", { class: "msch-cover med-cover-ph", text: kanji }),
             el("div", { class: "msch-body" }, [
               el("div", { class: "msch-title", text: e.title }),
@@ -506,10 +554,12 @@
       pref = pref || {};
       function renderWith(e) {
         if (!e) return;   // empty vault — no hero
-        var banner = (e.extra && e.extra.bannerImage) || pref.banner || null;
+        var remoteBanner = (e.extra && e.extra.bannerImage) || null;
+        var banner = pref.banner || remoteBanner;
         var hero = el("div", { class: "vault-hero" + (banner ? " has-banner" : ""), role: "region", "aria-label": "Spotlight" });
-        if (banner) hero.style.backgroundImage =
-          "linear-gradient(100deg, rgba(16,14,10,.9) 0%, rgba(16,14,10,.66) 42%, rgba(16,14,10,.22) 75%, rgba(16,14,10,.08) 100%), url(" + JSON.stringify(banner).slice(1, -1) + ")";
+        if (banner) KOS.imageCrop.background(hero, banner, pref.crop, {
+          overlay: "linear-gradient(100deg, rgba(16,14,10,.9) 0%, rgba(16,14,10,.66) 42%, rgba(16,14,10,.22) 75%, rgba(16,14,10,.08) 100%)"
+        });
         var pct = e.progress && e.progress.total
           ? Math.min(100, Math.round(100 * (e.progress.current || 0) / e.progress.total)) : null;
         var body = el("div", { class: "vh-body" }, [
@@ -540,7 +590,7 @@
             el("button", { class: "btn ghost", text: "☆ Spotlight", title: "Choose a different spotlight",
               onclick: function () {
               heroPicker(modId, mod.kanji, function (picked) {
-                KOS.mediadb.setKV(heroKey(modId), { entryId: picked.id, banner: null }, function () {
+                KOS.mediadb.setKV(heroKey(modId), { entryId: picked.id, banner: null, crop: null }, function () {
                   /* synced AniList entries that predate the banner field:
                      one read-only lookup, saved into extra so it sticks */
                   if (picked.syncSource === "anilist" && picked.externalIds && picked.externalIds.anilistId
@@ -558,21 +608,31 @@
                 });
               });
             } }),
-            (function () {
-              var file = el("input", { type: "file", accept: "image/*", style: "display:none", onchange: function () {
-                if (!file.files[0]) return;
-                compressBanner(file.files[0], function (err2, dataUrl) {
-                  if (err2) { KOS.ui.toast("Banner upload failed: " + err2.message, true); return; }
-                  KOS.mediadb.setKV(heroKey(modId), { entryId: e.id, banner: dataUrl }, function () {
-                    KOS.ui.toast("Banner set.");
-                    rerender && rerender();
-                  });
+            el("button", { class: "btn ghost", text: "✎ Banner",
+              title: "Upload or reposition this spotlight banner", onclick: function () {
+                KOS.imageCrop.open({
+                  title: "Position the spotlight banner",
+                  description: "This preview matches the shared Collection hero. Drag the focal point so it stays useful at narrower widths.",
+                  source: banner || "", originalSource: remoteBanner,
+                  originalLabel: "Use title banner", crop: pref.crop,
+                  aspect: 3.2, allowUpload: true,
+                  fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 520 * 1024, quality: 0.82 },
+                  removeLabel: remoteBanner ? "Use automatic banner" : "Remove banner",
+                  onRemove: function () {
+                    KOS.mediadb.setKV(heroKey(modId), { entryId: e.id, banner: null, crop: null }, function () {
+                      KOS.ui.toast(remoteBanner ? "Using the title banner." : "Custom banner removed.");
+                      rerender && rerender();
+                    });
+                  },
+                  onSave: function (result) {
+                    var custom = remoteBanner && result.source === remoteBanner ? null : result.source;
+                    KOS.mediadb.setKV(heroKey(modId), { entryId: e.id, banner: custom, crop: result.crop }, function () {
+                      KOS.ui.toast("Banner position saved.");
+                      rerender && rerender();
+                    });
+                  }
                 });
-              } });
-              var btn = el("button", { class: "btn ghost", text: "⤒ Banner",
-                title: "Upload a wide banner image for this spotlight", onclick: function () { file.click(); } });
-              return el("span", {}, [file, btn]);
-            })()
+              } })
           ].filter(Boolean))
         ].filter(Boolean));
         if (!banner) {
@@ -580,7 +640,9 @@
              standing on the right like a book on a stand */
           hero.classList.add("vh-painted");
           hero.style.setProperty("--vh-accent", mod.accent || "var(--accent)");
-          if (e.coverUrl) hero.appendChild(el("img", { class: "vh-cover", src: e.coverUrl, alt: "" }));
+          if (e.coverUrl) hero.appendChild(el("span", { class: "vh-cover" }, [
+            KOS.imageCrop.image(e.coverUrl, { alt: "" }, e.coverCrop)
+          ]));
           else hero.appendChild(el("span", { class: "vh-ph", "aria-hidden": "true", text: mod.kanji }));
         }
         hero.appendChild(body);
@@ -922,6 +984,7 @@
     NEEDS_IDB: NEEDS_IDB,
     unavailable: unavailable,
     cover: cover,
+    coverPositionControl: coverPositionControl,
     fillSel: fillSel,
     searchInput: searchInput,
     sortSelect: sortSelect,

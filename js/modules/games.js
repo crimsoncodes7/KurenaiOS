@@ -211,24 +211,8 @@
     /* --- taxonomy + cover --- */
     var genres = el("input", { type: "text", class: "todo-in", value: e.genres.join(", "), placeholder: "RPG, Roguelike… (comma-separated, shared taxonomy)" });
     var tags = el("input", { type: "text", class: "todo-in", value: e.tags.join(", "), placeholder: "co-op, replay… (comma-separated)" });
-    var coverU = el("input", { type: "url", class: "todo-in", value: (e.coverUrl && e.coverUrl.slice(0, 5) !== "data:") ? e.coverUrl : "", placeholder: "https://… (or upload below — Steam art can't be fetched, CORS)" });
-    /* manual upload — the same 2:3 canvas-compress used for per-volume book
-       covers (Build 2a avatar pattern); lands as base64 in the entry */
-    var coverNote = el("span", { class: "sub gm-cover-note", text: e.coverUrl && e.coverUrl.slice(0, 5) === "data:" ? "uploaded cover stored" : "" });
-    var uploadBtn = el("button", { class: "btn", text: "🖼 Upload cover…", onclick: function (ev) {
-      ev.preventDefault();
-      var f = el("input", { type: "file", accept: "image/*" });
-      f.addEventListener("change", function () {
-        if (!f.files[0]) return;
-        KOS.books.compressVolumeCover(f.files[0], function (err, data) {
-          if (err) { KOS.ui.toast(err.message, true); return; }
-          e.coverUrl = data;
-          coverU.value = "";
-          coverNote.textContent = "uploaded cover stored — save to keep it";
-        });
-      });
-      f.click();
-    } });
+    var coverU = el("input", { type: "url", class: "todo-in", value: e.coverUrl || "", placeholder: "https://… (or choose a local image in Position cover)" });
+    var coverPosition = mv.coverPositionControl(e, coverU, { allowUpload: true, maskDataUrl: true });
     var notes = el("textarea", { class: "note-area", rows: 3, placeholder: "Notes…" });
     notes.value = e.notes || "";
 
@@ -252,8 +236,8 @@
       e.externalIds.steamAppId = sid ? parseInt(sid, 10) : null;
       e.genres = splitList(genres.value);
       e.tags = splitList(tags.value);
-      if (coverU.value.trim()) e.coverUrl = coverU.value.trim();
-      else if (!e.coverUrl || e.coverUrl.slice(0, 5) !== "data:") e.coverUrl = null;
+      e.coverUrl = coverPosition.sourceFor();
+      e.coverCrop = coverPosition.cropFor(e.coverUrl);
       e.favourite = fav.checked;
       e.notes = notes.value;
       mv.saveEntry(e, {
@@ -298,8 +282,7 @@
         ]),
         field("Genres", genres),
         field("Tags", tags),
-        field("Cover URL", coverU),
-        el("div", { class: "lab-controls" }, [uploadBtn, coverNote]),
+        field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node])),
         field("Custom lists", mv.customListChips(e), "wl-notes-full"),
         field("Notes", notes)
       ],

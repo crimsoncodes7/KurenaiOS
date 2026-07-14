@@ -1,4 +1,4 @@
-# 紅 Kurenai OS — the Unified HQ (Build 3j)
+# 紅 Kurenai OS — the Unified HQ (Build 5 foundation)
 
 A file-system-local revision operating system for A-level Computer Science,
 Mathematics and IT — plus a Behavioural Governor (SM-2 spaced repetition, focus
@@ -9,8 +9,10 @@ modern browser — **no server, no build step, no bundler**.
 Works offline with two honest caveats: KaTeX and the fonts load from CDNs (offline,
 maths shows raw `$…$` and fonts fall back), and the media sync features naturally
 need the network. Core state lives in one autosaved `localStorage` object; the
-media vault, file attachments and API tokens live in IndexedDB (origin-scoped, and
-**not** included in the JSON backup — see CLAUDE.md invariant 7).
+media vault, file attachments and API tokens live in origin-scoped IndexedDB.
+Full Backup & Restore includes state, media, non-token media preferences and
+attachments; AniList/VNDB credentials are deliberately omitted (see CLAUDE.md
+invariant 7).
 
 ```sh
 # just open it
@@ -65,26 +67,35 @@ xdg-open index.html    # Linux
   callouts and step walkthroughs (hover to reveal the Copy button).
 - **Backup & Restore** — export / import / reset the whole state object, plus a
   printable revision summary (Data → Backup & Restore).
+- **Reusable image positioning** — profile pictures, app/profile banners,
+  Collection heroes and user-editable covers share one final-ratio preview with
+  focal-point selection, zoom, horizontal/vertical positioning, reset and cancel.
+  The source image stays separate from `{x,y,zoom}` metadata, so edits remain
+  reversible and survive reload and full backup/restore. Positioned synced
+  covers retain a source fingerprint so their crop is never transferred to
+  different artwork during a later pull.
 
-## Design system — Build 2.1 "Liquid Glass"
+## Design system — Build 5 "The Atelier"
 
-`css/main.css` is a token-driven dark theme (Build 2.0 "Higanbana"), refined in 2.1
-with an Apple-style **Liquid Glass** treatment applied in *balance*: chrome, controls,
-cards, search and modals get layered translucent fills, a specular top-edge highlight
-(`--glass-hi`), a thin light border (`--glass-edge`) and a stronger
-`backdrop-filter` (`--glass-blur`), while dense reading surfaces (notes, code, table
-cells) keep solid dark backgrounds for legibility. Work through the `:root` variables
-rather than hard-coding values.
+`css/main.css` owns the shared visual foundation. Change its `:root` tokens before
+adding view-specific geometry: the 4px `--space-*` scale, page/content widths,
+shell/sidebar sizes, type sizes, control/card/hero radii, section/grid gaps and modal
+dimensions are the canonical rules. The documented breakpoints are 1240px (workspace),
+1080px (compact rail), 860px (compact) and 560px (small), with component-specific
+queries only where content determines the collapse point.
 
-- **Surfaces**: `--bg` → `--panel`/`--raise`; glass tokens `--glass`/`--glass-top` and
-  the 2.1 set `--glass-fill`/`--glass-edge`/`--glass-hi`/`--glass-sheen`/`--glass-blur`.
-- **Brand/status**: `--kurenai` (crimson) + `--gold`; `--ok/--warn/--paused/--bad`.
-- **Subject hues stay distinct**: `--c-compsci` jade, `--c-maths` azure, `--c-it`
-  violet. Views set `--accent` on a container to tint borders/glows for the subject.
-- **Type**: `--disp` (Space Grotesk), `--body` (Inter), `--mono` (JetBrains Mono),
-  `--serif`/`--kanji` (Shippori Mincho — the 紅 mark and verbatim spec wording).
-- Ambient spider-lily petals (`.bg-flora`); all motion is gated behind
-  `prefers-reduced-motion`.
+- **Surfaces**: `--bg0`, `--bg1`, `--panel`, `--well`, plus `.card-normal`,
+  `.card-elevated` and `.hero-card` primitives.
+- **Layout**: `--content-wide`, `--page-pad-*`, `--section-gap`, `--grid-gap`,
+  `--rail-w`, `--tree-w` and the `--sidebar-*-w` family.
+- **Controls**: shared `.btn` variants, `.icon-btn`, primary/secondary tabs, form,
+  badge/count-pill, empty-state and modal primitives.
+- **Type**: Fraunces (`--serif`), Alegreya Sans (`--sans`), IBM Plex Mono (`--mono`)
+  and Shippori Mincho (`--jp`). Subject hues remain distinct through `--c-*` and
+  per-view `--accent` overrides.
+- **Heroes**: normal image heroes share `--hero-min-h` (240px),
+  `--hero-pad-block` / `--hero-pad-inline` and `--radius-hero`. Governor Status
+  intentionally keeps its own profile-banner composition.
 
 ## Folder structure
 
@@ -95,16 +106,17 @@ KurenaiOS/
 ├── CLAUDE.md / AGENTS.md      contributor + agent guidance
 ├── PROGRESS.md               build log / changelog
 ├── css/
-│   └── main.css              all tokens, layout, components, the Liquid Glass system
+│   └── main.css              shared tokens, layout and component primitives
 ├── js/
 │   ├── main.js               boot: wires the rail, restores last view
 │   ├── core/
 │   │   ├── store.js          state object, autosave, export/import
 │   │   ├── ui.js             el() builder, toast, view registry (KOS.show)
+│   │   ├── imagecrop.js      shared non-destructive image renderer + crop/focal modal
 │   │   ├── charts.js         shared inline-SVG chart helpers (KOS.charts — bars, cards, heatmap)
 │   │   ├── content.js        deep-content registry + rich block renderer (renderBlocks)
 │   │   ├── srs.js / sessions.js / governor.js      Build 2: SM-2, session log, economy
-│   │   ├── mediadb.js        Build 3: IndexedDB media vault (the schema gate)
+│   │   ├── mediadb.js        IndexedDB v7 media vault (schema gate; coverCrop)
 │   │   ├── anilist.js / vndb.js / bookapi.js       API clients (AniList, VNDB Kana, Open Library/Google Books)
 │   │   └── media.js / mediapush.js / autosync.js   module registry + write-back + 15-min sync loop
 │   ├── data/                 GENERATED tree data — don't hand-edit, regenerate
@@ -138,7 +150,8 @@ KurenaiOS/
     ├── parse_it.py           spec PDF → it.json
     ├── gen_data.py           *.json → js/data/*.js
     ├── validate_content.js   deep-content validator (node tools/validate_content.js [files…])
-    └── smoke.test.js … smoke14.test.js   fourteen jsdom test suites (see Tests below)
+    ├── visual_audit.mjs      live Chrome crop/hero/responsive regression audit
+    └── smoke.test.js … smoke16.test.js   sixteen jsdom test suites (see Tests below)
 ```
 
 ## Authoring more deep content
@@ -176,7 +189,8 @@ automatically. Every `{callout:{…}}` must close with **two** braces — valida
 
 Architecture notes: classic `<script>` tags (no ES modules) so `file://` works
 everywhere; one global namespace `KOS`; every view is a function that receives the
-cleared `#main` node; all mutation flows through `KOS.store` so autosave is automatic.
+cleared `#main` node; core/user-interface state mutates through `KOS.store`, while
+Collection records and non-token visual preferences go through `KOS.mediadb`.
 
 ## What shipped after Build 2.1 (summary — details in PROGRESS.md)
 
@@ -192,25 +206,32 @@ cleared `#main` node; all mutation flows through `KOS.store` so autosave is auto
   quote→flashcard bridge), Games (manual-by-verified-necessity, bulk paste-in) —
   on one IndexedDB schema with live AniList/VNDB pull sync, AniList write-back,
   a reward-on-sync watermark, and an autonomous 15-minute sync loop.
+- **Build 4/5 visual foundation**: the Collection hero/profile workspace from
+  the Build 4 overhaul now sits on the Build 5 Atelier token and component
+  system. One shared image-positioning workflow renders app identity, connected
+  profiles, vault heroes, media covers and wishlist artwork consistently.
 
 ## Tests
 
-Smoke tests require Node.js + jsdom (suites 4–12 also need fake-indexeddb):
+Smoke tests require Node.js + jsdom (suites 4–16 also need fake-indexeddb):
 
 ```sh
 npm install jsdom fake-indexeddb   # one-time
-for i in "" 2 3 4 5 6 7 8 9 10 11 12; do node tools/smoke$i.test.js; done
+for i in "" 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16; do node tools/smoke$i.test.js; done
 ```
 
-All twelve must pass. Per-suite coverage: the snapshot section of `PROGRESS.md`.
+All sixteen must pass. Per-suite coverage: the current inventory in `PROGRESS.md`.
+For crop, hero or shared-layout changes, also run `node tools/visual_audit.mjs`
+against the local app in Chrome on CDP port 9222 (launch details are in the
+script header).
 
 ## Roadmap
 
-Prioritised backlog with scoping notes: **the "SNAPSHOT — 2026-07-05" section of
-`PROGRESS.md`**. Headlines: Purchase/Budget Planner (next), the FR-6 LLM bridge
-(research first), Books extras (highlights, series webs, pace projections),
-Build 4 (backend / cross-device sync / PWA / Steam+IGDB proxy), Competitions &
-Music modules (unscoped), and the paused Build-1 labs expansion.
+Prioritised backlog with scoping notes lives in the historical snapshot and the
+latest addenda in `PROGRESS.md`. Remaining large items include the FR-6 LLM
+bridge (research first), Books extras (highlights, series webs, pace
+projections), backend/cross-device sync/PWA work, unscoped Competitions/Music
+modules and the paused Build-1 labs expansion.
 
 ("Build 2.0/2.1" name design-system iterations; Build 2/3/4 are feature milestones.)
 

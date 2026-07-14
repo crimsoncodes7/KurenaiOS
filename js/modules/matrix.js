@@ -72,7 +72,8 @@
             onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); open(); } }
           }, [
             x.entry.coverUrl
-              ? el("img", { class: "mx-air-cover", src: x.entry.coverUrl, alt: "", loading: "lazy" })
+              ? el("span", { class: "mx-air-cover" }, [KOS.imageCrop.image(x.entry.coverUrl,
+                  { alt: "", loading: "lazy" }, x.entry.coverCrop)])
               : el("span", { class: "mx-air-cover med-cover-ph", "aria-hidden": "true", text: "映" }),
             el("span", { class: "mx-air-body" }, [
               el("span", { class: "mx-air-title", text: x.entry.title }),
@@ -115,9 +116,11 @@
           onclick: function () { KOS.mediaEditor(e, function () { KOS.show("matrix", undefined, { _nav: true }); }); },
           onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); KOS.mediaEditor(e, function () { KOS.show("matrix", undefined, { _nav: true }); }); } }
         }, [
-          e.coverUrl
-            ? el("img", { src: e.coverUrl, alt: "", loading: "lazy", decoding: "async" })
-            : el("span", { class: "med-cover-ph", "aria-hidden": "true", text: mod.kanji }),
+          el("span", { class: "med-strip-cover" }, [
+            e.coverUrl
+              ? KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)
+              : el("span", { class: "med-cover-ph", "aria-hidden": "true", text: mod.kanji })
+          ]),
           el("span", { class: "med-strip-mod", text: mod.kanji, title: mod.label }),
           el("span", { class: "med-strip-t", text: e.title }),
           el("span", { class: "med-strip-p", text: (e.progress.current || 0) + (t ? "/" + t : "") + " " + mod.unit })

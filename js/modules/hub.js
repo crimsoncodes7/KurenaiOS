@@ -286,7 +286,7 @@
     /* ---- the profile band: who you are today ---- */
     var banner = KOS.governor.bannerCss ? KOS.governor.bannerCss() : null;
     var band = el("section", { class: "home-id" + (banner ? " has-banner" : ""), "aria-label": "Profile" });
-    if (banner) band.style.cssText += banner;
+    if (banner) KOS.governor.applyBanner(band);
     var week = [];
     var activeDates = {};
     KOS.sessions.all().forEach(function (s) { if (s.type !== "media") activeDates[s.date] = true; });

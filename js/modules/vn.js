@@ -154,6 +154,7 @@
     var tags = el("input", { type: "text", class: "todo-in", value: e.tags.join(", "), placeholder: "replay, untranslated…" });
     var warns = el("input", { type: "text", class: "todo-in", value: e.contentWarnings.join(", "), placeholder: "your own warnings — never auto-filled from VNDB tags" });
     var coverU = el("input", { type: "url", class: "todo-in", value: e.coverUrl || "", placeholder: "https://… (filled by sync/enrichment)" });
+    var coverPosition = mv.coverPositionControl(e, coverU);
     var notes = el("textarea", { class: "note-area", rows: 3, placeholder: "Notes…" });
     notes.value = e.notes || "";
 
@@ -321,7 +322,8 @@
         unlockedCount: Math.max(0, parseInt(cgUn.value, 10) || 0),
         totalKnown: cgTot.value === "" ? null : Math.max(0, parseInt(cgTot.value, 10) || 0)
       };
-      e.coverUrl = coverU.value.trim() || null;
+      e.coverUrl = coverPosition.sourceFor();
+      e.coverCrop = coverPosition.cropFor(e.coverUrl);
       e.favourite = fav.checked;
       e.notes = notes.value;
       mv.saveEntry(e, {
@@ -360,7 +362,7 @@
         field("Genres (comma-separated — filled from VNDB content tags)", genres),
         field("Tags (comma-separated, shared taxonomy)", tags),
         field("Content warnings (comma-separated — yours, never auto-filled)", warns),
-        field("Cover URL", coverU),
+        field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node])),
         routesWrap,
         chaptersWrap,
         el("div", { class: "vn-cg" }, [

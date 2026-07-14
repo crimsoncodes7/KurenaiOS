@@ -49,7 +49,8 @@ you do NOT need to touch content files to wire a lab:
 
 ## Build 2a — the Behavioural Governor (architecture)
 Core loads in this order (all before engines/modules): `store.js` → `ui.js` →
-`content.js` → `srs.js` → `sessions.js` → `governor.js`.
+`imagecrop.js` → `charts.js` → `content.js` → `srs.js` → `sessions.js` →
+`governor.js`.
 - **`KOS.srs`** — the SM-2 engine + unified card registry. Curriculum cards key
   `"sid:ref:i"`, custom cards `"u<id>"`. `rate(key, 0..3)` (Again/Hard/Good/Easy)
   updates persistent metadata in `store.state.srs`; `dueCards()` is the global
@@ -140,10 +141,36 @@ reward watermark, push field-scoping, live-verified API facts) — read its
 "INVARIANTS" section before touching anything under `js/core/media*`,
 `anilist.js`, `vndb.js`, `autosync.js` or the four vault modules.
 
-## Tests — all TWELVE suites must pass
+## Build 5 — shared image positioning
+
+- **`KOS.imageCrop`** (`js/core/imagecrop.js`) is the ONE crop/focal workflow
+  for avatars, banners and covers. The persisted companion shape is
+  `{x:0..100, y:0..100, zoom:1..3}`; a missing crop means centred cover-fit.
+  Render through `image()` / `background()` (or `apply()` for an existing
+  `<img>`), and open edits through `open({...})` instead of rebuilding sliders.
+- Uploads may be resized/compressed as a whole image via `prepareFile()`, but
+  must not be cut to the display ratio. Keep the source URL/data URL and crop
+  metadata separate. Reset/cancel are modal semantics; neither may write state.
+- State locations are deliberate: Governor `avatar.crop` + `bannerCrop`;
+  media-entry and physical-volume `coverCrop` (DB v7); positioned synced
+  entry covers also carry `coverCropSource` so a pull cannot apply coordinates
+  to different artwork; vault-hero kv
+  `hero.<module> = {entryId,banner,crop}`; account-keyed
+  `profile.anilist.<viewerId>` / `profile.vndb.<userId>` visual kv; wishlist
+  item `coverCrop`. Non-token media kv is backed up; connection tokens are not.
+- Do not put edit buttons on every image surface. Reuse the owning editor,
+  profile toolbar/popover or the vault hero's existing banner action. Normal
+  heroes use the shared Build 5 geometry; Governor Status keeps its special
+  profile-banner composition.
+
+## Tests — all SIXTEEN suites must pass
+
 ```sh
-for i in "" 2 3 4 5 6 7 8 9 10 11 12; do node tools/smoke$i.test.js; done
+for i in "" 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16; do node tools/smoke$i.test.js; done
 ```
-smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–12 print "SMOKE-N PASS …"
-(smoke10 prints "10 passed, 0 failed"). smoke4–12 need `npm i fake-indexeddb`
+smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–16 print "SMOKE-N PASS …"
+(smoke10 prints "10 passed, 0 failed"). smoke4–16 need `npm i fake-indexeddb`
 in addition to jsdom. Per-suite coverage table: PROGRESS.md snapshot section.
+
+Crop/hero changes also run through `node tools/visual_audit.mjs` against the
+local app in Chrome on CDP port 9222; the script header has the launch contract.

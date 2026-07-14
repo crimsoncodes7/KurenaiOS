@@ -44,9 +44,12 @@
     var ax = pad + 26, ay = pad + 62, aw = W - (pad + 26) * 2, ah = 440;
     ctx.save(); roundRect(ctx, ax, ay, aw, ah, 16); ctx.clip();
     if (coverImg) {
-      var scale = Math.max(aw / coverImg.width, ah / coverImg.height);
+      var crop = KOS.imageCrop.value(e.coverCrop);
+      var scale = Math.max(aw / coverImg.width, ah / coverImg.height) * crop.zoom;
       var sw = aw / scale, sh = ah / scale;
-      ctx.drawImage(coverImg, (coverImg.width - sw) / 2, (coverImg.height - sh) / 2, sw, sh, ax, ay, aw, ah);
+      var sx = (coverImg.width - sw) * crop.x / 100;
+      var sy = (coverImg.height - sh) * crop.y / 100;
+      ctx.drawImage(coverImg, sx, sy, sw, sh, ax, ay, aw, ah);
     } else {
       var g2 = ctx.createLinearGradient(ax, ay, ax, ay + ah);
       g2.addColorStop(0, "rgba(255,255,255,.08)"); g2.addColorStop(1, "rgba(0,0,0,.2)");
@@ -211,7 +214,7 @@
           el("span", { class: "shrine-rank", text: String(i + 1) }),
           el("div", { class: "med-cover" }, [
             e.coverUrl
-              ? el("img", { src: e.coverUrl, alt: "", loading: "lazy", decoding: "async" })
+              ? KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)
               : el("span", { class: "med-cover-ph", "aria-hidden": "true", text: mod.kanji })
           ]),
           el("div", { class: "shrine-body" }, [

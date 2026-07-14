@@ -17,13 +17,14 @@
    activity feed, notifications — is stated in the view rather than faked:
    parity with AniList's profile isn't possible and pretending otherwise
    would just be broken panels. Two requests total, cached in memory for
-   a few minutes; the ⟳ button forces. Read-only throughout.             */
+   a few minutes; the ⟳ button forces. Optional local avatar/banner sources
+   and crops live in an account-keyed media KV record, never the API data. */
 (function () {
   "use strict";
   var el = KOS.ui.el;
 
   var TTL = 5 * 60 * 1000;
-  var cache = { at: 0, data: null };
+  var cache = { key: null, at: 0, data: null };
 
   /* label colours: the five defaults map to the shared status palette;
      customs get the VN module accent */
@@ -94,6 +95,16 @@
 
     var body = el("div", { class: "ap-body" });
     main.appendChild(body);
+    var visual = {};
+    var visualKey = null;
+
+    function saveVisual(next, data, fetchedAt) {
+      visual = next || {};
+      KOS.mediadb.setKV(visualKey, visual, function (err) {
+        if (err) { KOS.ui.toast("Could not save profile images: " + err.message, true); return; }
+        render(data, fetchedAt);
+      });
+    }
 
     function render(data, fetchedAt) {
       body.innerHTML = "";
@@ -101,9 +112,14 @@
 
       /* --- header --- */
       function hstat(v2, k) { return el("div", { class: "ap-hstat" }, [el("b", { text: String(v2) }), el("span", { text: k })]); }
-      var head = el("div", { class: "ap-head vp-head" });
+      var bannerPref = visual.banner || {}, avatarPref = visual.avatar || {};
+      var bannerSource = bannerPref.source || null, avatarSource = avatarPref.source || null;
+      var head = el("div", { class: "ap-head vp-head" + (bannerSource ? " has-banner" : "") });
+      if (bannerSource) KOS.imageCrop.background(head, bannerSource, bannerPref.crop);
       head.appendChild(el("div", { class: "ap-head-scrim" }, [
-        el("span", { class: "ap-avatar vp-avatar", "aria-hidden": "true", text: "選" }),
+        avatarSource
+          ? el("span", { class: "ap-avatar ap-avatar-media" }, [KOS.imageCrop.image(avatarSource, { alt: "" }, avatarPref.crop)])
+          : el("span", { class: "ap-avatar vp-avatar", "aria-hidden": "true", text: "選" }),
         el("div", { class: "ap-id" }, [
           el("div", { class: "ap-id-top" }, [el("b", { class: "ap-name", text: u.username })]),
           el("span", { class: "ap-since", text: "vndb.org · " + u.id }),
@@ -122,6 +138,39 @@
       body.appendChild(el("div", { class: "lab-controls" }, [
         refreshBtn,
         el("span", { class: "sub", text: "fetched " + new Date(fetchedAt).toLocaleTimeString() }),
+        el("button", { class: "btn", text: "✎ Banner", onclick: function () {
+          KOS.imageCrop.open({
+            title: "Position your VNDB banner",
+            description: "VNDB does not expose profile artwork here, so this upload stays local to Kurenai.",
+            source: bannerSource || "", crop: bannerPref.crop, aspect: 3.2, allowUpload: true,
+            fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 520 * 1024, quality: 0.82 },
+            onRemove: bannerSource ? function () {
+              var next = Object.assign({}, visual); delete next.banner;
+              saveVisual(next, data, fetchedAt);
+            } : null,
+            onSave: function (result) {
+              var next = Object.assign({}, visual);
+              next.banner = { source: result.source, crop: result.crop };
+              saveVisual(next, data, fetchedAt);
+            }
+          });
+        } }),
+        el("button", { class: "btn", text: "✎ Avatar", onclick: function () {
+          KOS.imageCrop.open({
+            title: "Position your VNDB avatar", source: avatarSource || "", crop: avatarPref.crop,
+            aspect: 1, allowUpload: true,
+            fileOptions: { maxWidth: 900, maxHeight: 900, maxBytes: 260 * 1024, quality: 0.84 },
+            onRemove: avatarSource ? function () {
+              var next = Object.assign({}, visual); delete next.avatar;
+              saveVisual(next, data, fetchedAt);
+            } : null,
+            onSave: function (result) {
+              var next = Object.assign({}, visual);
+              next.avatar = { source: result.source, crop: result.crop };
+              saveVisual(next, data, fetchedAt);
+            }
+          });
+        } }),
         el("span", { style: "flex:1" }),
         el("button", { class: "btn", text: "選 VN vault", onclick: function () { KOS.show("vn"); } }),
         el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
@@ -183,25 +232,29 @@
           ]));
           return;
         }
-        if (!force && cache.data && Date.now() - cache.at < TTL) {
-          render(cache.data, cache.at);
-          return;
-        }
-        body.innerHTML = "";
-        body.appendChild(el("p", { class: "sub ap-loading", text: "Loading your profile from VNDB (two small requests)…" }));
-        gather(conn, function (err2, data) {
-          if (err2) {
-            body.innerHTML = "";
-            body.appendChild(el("p", { class: "fc-empty", text: err2.message }));
-            if (err2.kind === "auth") {
-              body.appendChild(el("div", { class: "lab-controls", style: "justify-content:center" }, [
-                el("button", { class: "btn primary", text: "⇅ Reconnect on Sync & Import", onclick: function () { KOS.show("mediasync"); } })
-              ]));
-            }
+        visualKey = "profile.vndb." + conn.user.id;
+        KOS.mediadb.getKV(visualKey, function (prefErr, pref) {
+          visual = !prefErr && pref && typeof pref === "object" ? pref : {};
+          if (!force && cache.key === String(conn.user.id) && cache.data && Date.now() - cache.at < TTL) {
+            render(cache.data, cache.at);
             return;
           }
-          cache = { at: Date.now(), data: data };
-          render(data, cache.at);
+          body.innerHTML = "";
+          body.appendChild(el("p", { class: "sub ap-loading", text: "Loading your profile from VNDB (two small requests)…" }));
+          gather(conn, function (err2, data) {
+            if (err2) {
+              body.innerHTML = "";
+              body.appendChild(el("p", { class: "fc-empty", text: err2.message }));
+              if (err2.kind === "auth") {
+                body.appendChild(el("div", { class: "lab-controls", style: "justify-content:center" }, [
+                  el("button", { class: "btn primary", text: "⇅ Reconnect on Sync & Import", onclick: function () { KOS.show("mediasync"); } })
+                ]));
+              }
+              return;
+            }
+            cache = { key: String(conn.user.id), at: Date.now(), data: data };
+            render(data, cache.at);
+          });
         });
       });
     }

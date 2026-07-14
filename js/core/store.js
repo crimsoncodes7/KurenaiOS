@@ -33,7 +33,8 @@
       owned: [],                       // purchased catalog item ids
       theme: "kurenai",                // active OS theme variant
       seal: "kurenai",                 // active kanji seal variant
-      avatar: { kind: "seal", id: "seal-ember", img: null, frame: null },
+      avatar: { kind: "seal", id: "seal-ember", img: null, crop: null, frame: null },
+      banner: null, bannerImg: null, bannerCrop: null,
       shelfSkin: null,                 // Build 3j — Books Physical-tab shelf cosmetic
       shrineStyle: null,               // Build 3j — Shrine card border cosmetic
       lastTick: null,                  // "YYYY-MM-DD" of the last HP day-tick
@@ -98,7 +99,7 @@
       /* history: [{ month:"YYYY-MM", spent,
                      items:[{id,title,module,price,currency,purchasedAt}] }] */
       items: []
-      /* {id, module:"books"|"vn"|"game", title, coverUrl, price, currency,
+      /* {id, module:"books"|"vn"|"game", title, coverUrl, coverCrop, price, currency,
           retailer, retailerUrl, priority, releaseDate:"YYYY-MM-DD"|null,
           status:"wantToBuy"|"waitingForRelease"|"purchased"|"cancelled",
           linkedEntryId:null|entryId, notes, addedAt, purchasedAt } */

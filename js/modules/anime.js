@@ -158,6 +158,7 @@
     var genres = el("input", { type: "text", class: "todo-in", value: e.genres.join(", "), placeholder: "Drama, Romance…" });
     var tags = el("input", { type: "text", class: "todo-in", value: e.tags.join(", "), placeholder: "comfort, rewatch…" });
     var coverU = el("input", { type: "url", class: "todo-in", value: e.coverUrl || "", placeholder: "https://… (filled by sync/enrichment)" });
+    var coverPosition = mv.coverPositionControl(e, coverU);
     var fav = el("input", { type: "checkbox" });
     fav.checked = e.favourite;
     var notes = el("textarea", { class: "note-area", rows: 3, placeholder: "Notes…" });
@@ -176,7 +177,8 @@
       e.dates.finished = finished.value || null;
       e.genres = splitList(genres.value);
       e.tags = splitList(tags.value);
-      e.coverUrl = coverU.value.trim() || null;
+      e.coverUrl = coverPosition.sourceFor();
+      e.coverCrop = coverPosition.cropFor(e.coverUrl);
       e.favourite = fav.checked;
       e.notes = notes.value;
       mv.saveEntry(e, {
@@ -192,7 +194,7 @@
       form: [
         el("div", { class: "med-form-row" }, [
           field("Title", title, "bk-grow"),
-          field("Cover URL", coverU, "bk-grow")
+          field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]), "bk-grow")
         ]),
         el("div", { class: "med-form-row" }, [
           field("Status", status),

@@ -9,14 +9,15 @@
    few minutes so rail-hopping doesn't spend the 30 req/min budget; the ⟳
    button forces. Read-only throughout: notifications are fetched with
    resetNotificationCount:false, so looking here never consumes the unread
-   badge on the site itself. Nothing from this view is written to the vault
-   or localStorage — live profile data stays live.                          */
+   badge on the site itself. Live API data stays live; only optional local
+   avatar/banner source overrides and crop metadata are stored in account-
+   keyed media KV records (and therefore included in full backups).         */
 (function () {
   "use strict";
   var el = KOS.ui.el;
 
   var TTL = 5 * 60 * 1000;
-  var cache = { at: 0, data: null };
+  var cache = { key: null, at: 0, data: null };
   /* the active sub-page survives refresh/rail-hops (3j tab split) */
   var curTab = "overview";
 
@@ -114,6 +115,16 @@
 
     var body = el("div", { class: "ap-body" });
     main.appendChild(body);
+    var visual = {};
+    var visualKey = null;
+
+    function saveVisual(next, data, fetchedAt) {
+      visual = next || {};
+      KOS.mediadb.setKV(visualKey, visual, function (err) {
+        if (err) { KOS.ui.toast("Could not save profile images: " + err.message, true); return; }
+        render(data, fetchedAt);
+      });
+    }
 
     /* One fetch, five sub-pages (3j): the tabs re-render slices of the SAME
        cached bundle — switching tabs never spends a request. */
@@ -127,11 +138,17 @@
       /* --- header: banner + big avatar + identity + inline stat rail --- */
       var an0 = st.anime || {}, mg0 = st.manga || {};
       function hstat(v2, k) { return el("div", { class: "ap-hstat" }, [el("b", { text: String(v2) }), el("span", { text: k })]); }
-      var head = el("div", { class: "ap-head" + (v.bannerImage ? " has-banner" : "") });
-      if (v.bannerImage) head.style.backgroundImage = "url(" + v.bannerImage + ")";
+      var bannerPref = visual.banner || {};
+      var avatarPref = visual.avatar || {};
+      var bannerSource = bannerPref.source || v.bannerImage || null;
+      var avatarSource = avatarPref.source || (v.avatar && v.avatar.large) || null;
+      var head = el("div", { class: "ap-head" + (bannerSource ? " has-banner" : "") });
+      if (bannerSource) KOS.imageCrop.background(head, bannerSource, bannerPref.crop);
       head.appendChild(el("div", { class: "ap-head-scrim" }, [
-        v.avatar && v.avatar.large
-          ? el("img", { class: "ap-avatar", src: v.avatar.large, alt: "" })
+        avatarSource
+          ? el("span", { class: "ap-avatar ap-avatar-media" }, [
+              KOS.imageCrop.image(avatarSource, { alt: "" }, avatarPref.crop)
+            ])
           : el("span", { class: "ap-avatar med-cover-ph", text: "顔" }),
         el("div", { class: "ap-id" }, [
           el("div", { class: "ap-id-top" }, [
@@ -156,6 +173,44 @@
       body.appendChild(el("div", { class: "lab-controls" }, [
         refreshBtn,
         el("span", { class: "sub", text: "fetched " + new Date(fetchedAt).toLocaleTimeString() }),
+        el("button", { class: "btn", text: "✎ Banner", onclick: function () {
+          KOS.imageCrop.open({
+            title: "Position your AniList banner",
+            description: "Your AniList image remains the default source; Kurenai stores only an optional override and focal position.",
+            source: bannerSource || "", originalSource: v.bannerImage || "", originalLabel: "Use AniList banner",
+            crop: bannerPref.crop, aspect: 3.2, allowUpload: true,
+            fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 520 * 1024, quality: 0.82 },
+            removeLabel: "Reset to AniList banner",
+            onRemove: function () {
+              var next = Object.assign({}, visual); delete next.banner;
+              saveVisual(next, data, fetchedAt);
+            },
+            onSave: function (result) {
+              var next = Object.assign({}, visual);
+              next.banner = { source: v.bannerImage && result.source === v.bannerImage ? null : result.source, crop: result.crop };
+              saveVisual(next, data, fetchedAt);
+            }
+          });
+        } }),
+        el("button", { class: "btn", text: "✎ Avatar", onclick: function () {
+          var remoteAvatar = (v.avatar && v.avatar.large) || "";
+          KOS.imageCrop.open({
+            title: "Position your AniList avatar", source: avatarSource || "",
+            originalSource: remoteAvatar, originalLabel: "Use AniList avatar",
+            crop: avatarPref.crop, aspect: 1, allowUpload: true,
+            fileOptions: { maxWidth: 900, maxHeight: 900, maxBytes: 260 * 1024, quality: 0.84 },
+            removeLabel: "Reset to AniList avatar",
+            onRemove: function () {
+              var next = Object.assign({}, visual); delete next.avatar;
+              saveVisual(next, data, fetchedAt);
+            },
+            onSave: function (result) {
+              var next = Object.assign({}, visual);
+              next.avatar = { source: remoteAvatar && result.source === remoteAvatar ? null : result.source, crop: result.crop };
+              saveVisual(next, data, fetchedAt);
+            }
+          });
+        } }),
         el("span", { style: "flex:1" }),
         el("button", { class: "btn", text: "映 Anime vault", onclick: function () { KOS.show("anime"); } }),
         el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
@@ -296,25 +351,29 @@
           ]));
           return;
         }
-        if (!force && cache.data && Date.now() - cache.at < TTL) {
-          render(cache.data, cache.at);
-          return;
-        }
-        body.innerHTML = "";
-        body.appendChild(el("p", { class: "sub ap-loading", text: "Loading your profile from AniList (one request)…" }));
-        KOS.anilist.fetchProfileBundle(conn.token, conn.viewer.id, function (err2, data) {
-          if (err2) {
-            body.innerHTML = "";
-            body.appendChild(el("p", { class: "fc-empty", text: err2.message }));
-            if (err2.kind === "auth") {
-              body.appendChild(el("div", { class: "lab-controls", style: "justify-content:center" }, [
-                el("button", { class: "btn primary", text: "⇅ Reconnect on Sync & Import", onclick: function () { KOS.show("mediasync"); } })
-              ]));
-            }
+        visualKey = "profile.anilist." + conn.viewer.id;
+        KOS.mediadb.getKV(visualKey, function (prefErr, pref) {
+          visual = !prefErr && pref && typeof pref === "object" ? pref : {};
+          if (!force && cache.key === String(conn.viewer.id) && cache.data && Date.now() - cache.at < TTL) {
+            render(cache.data, cache.at);
             return;
           }
-          cache = { at: Date.now(), data: data };
-          render(data, cache.at);
+          body.innerHTML = "";
+          body.appendChild(el("p", { class: "sub ap-loading", text: "Loading your profile from AniList (one request)…" }));
+          KOS.anilist.fetchProfileBundle(conn.token, conn.viewer.id, function (err2, data) {
+            if (err2) {
+              body.innerHTML = "";
+              body.appendChild(el("p", { class: "fc-empty", text: err2.message }));
+              if (err2.kind === "auth") {
+                body.appendChild(el("div", { class: "lab-controls", style: "justify-content:center" }, [
+                  el("button", { class: "btn primary", text: "⇅ Reconnect on Sync & Import", onclick: function () { KOS.show("mediasync"); } })
+                ]));
+              }
+              return;
+            }
+            cache = { key: String(conn.viewer.id), at: Date.now(), data: data };
+            render(data, cache.at);
+          });
         });
       });
     }

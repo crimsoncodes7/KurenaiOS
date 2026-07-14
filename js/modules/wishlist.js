@@ -107,6 +107,7 @@
       module: normModule(d.module),
       title: (String(d.title || "").trim()) || "Untitled",
       coverUrl: d.coverUrl || null,
+      coverCrop: KOS.imageCrop.normalise(d.coverCrop),
       price: cleanPrice(d.price),
       currency: d.currency || w.budget.currency || "£",
       retailer: String(d.retailer || "").trim(),
@@ -133,6 +134,7 @@
       if (k === "id" || k === "addedAt" || k === "purchasedAt") return;
       if (k === "module") { it.module = normModule(patch.module); return; }
       if (k === "price") { it.price = cleanPrice(patch.price); return; }
+      if (k === "coverCrop") { it.coverCrop = KOS.imageCrop.normalise(patch.coverCrop); return; }
       if (k === "status") return;   // status transitions go through setStatus
       it[k] = patch[k];
     });
@@ -338,7 +340,9 @@
             results.innerHTML = "";
             paintCurrent();
           } }, [
-            entry.coverUrl ? el("img", { src: entry.coverUrl, alt: "", loading: "lazy" })
+            entry.coverUrl ? el("span", { class: "wl-linkhit-cover" }, [
+              KOS.imageCrop.image(entry.coverUrl, { alt: "", loading: "lazy" }, entry.coverCrop)
+            ])
               : el("span", { class: "wl-linkhit-ph", text: MODULE_KANJI[module] }),
             el("span", { class: "wl-linkhit-t", text: entry.title })
           ]));
@@ -377,6 +381,7 @@
     var retailerUrl = el("input", { type: "url", class: "todo-in", value: e.retailerUrl || "", placeholder: "https://… (manual link)" });
     var release = el("input", { type: "date", class: "todo-in", value: e.releaseDate || "" });
     var coverU = el("input", { type: "url", class: "todo-in", value: e.coverUrl || "", placeholder: "https://… (optional)" });
+    var coverPosition = KOS.medview.coverPositionControl(e, coverU);
     var notes = el("textarea", { class: "note-area", rows: 2, placeholder: "Why, edition, condition wanted…" });
     notes.value = e.notes || "";
 
@@ -387,7 +392,7 @@
         linkedId = entry ? entry.id : null;
         /* borrow the entry's cover/title if the item is otherwise blank */
         if (entry) {
-          if (!coverU.value.trim() && entry.coverUrl) coverU.value = entry.coverUrl;
+          if (!coverU.value.trim() && entry.coverUrl) coverPosition.set(entry.coverUrl, entry.coverCrop);
           if (!title.value.trim()) title.value = entry.title;
         }
       }));
@@ -401,7 +406,8 @@
         module: moduleSel.value, title: title.value.trim(),
         price: price.value, author: author.value.trim(),
         retailer: retailer.value.trim(), retailerUrl: retailerUrl.value.trim(),
-        releaseDate: release.value || null, coverUrl: coverU.value.trim() || null,
+        releaseDate: release.value || null, coverUrl: coverPosition.sourceFor(),
+        coverCrop: coverPosition.cropFor(coverPosition.sourceFor()),
         notes: notes.value, linkedEntryId: linkedId, status: statusSel.value
       };
       if (isNew) add(payload);
@@ -420,7 +426,7 @@
       el("div", { class: "med-form" }, [
         el("div", { class: "med-form-row" }, [
           field("Title", title, "bk-grow"),
-          field("Cover URL", coverU, "bk-grow")
+          field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]), "bk-grow")
         ]),
         el("div", { class: "med-form-row" }, [
           field("Module", moduleSel),
@@ -596,10 +602,12 @@
       var imminent = d != null && d >= 0 && d <= 7;
       var out = d != null && d < 0;
       var hero = el("div", { class: "wl-hero" + (imminent ? " imminent" : "") + (it.coverUrl ? " has-banner" : ""), style: "--accent:" + MODULE_COLOR[it.module] });
-      if (it.coverUrl) hero.style.setProperty("--wl-banner", "url(" + JSON.stringify(it.coverUrl).slice(1,-1) + ")");
+      if (it.coverUrl) KOS.imageCrop.background(hero, it.coverUrl, it.coverCrop, {
+        overlay: "linear-gradient(100deg, rgba(16,14,10,.92) 0%, rgba(16,14,10,.66) 46%, rgba(16,14,10,.24) 100%)"
+      });
       hero.appendChild(el("div", { class: "wl-hero-badge", text: "◆ Next to drop" }));
       hero.appendChild(it.coverUrl
-        ? el("img", { class: "wl-hero-cover", src: it.coverUrl, alt: "", loading: "lazy" })
+        ? el("span", { class: "wl-hero-cover" }, [KOS.imageCrop.image(it.coverUrl, { alt: "", loading: "lazy" }, it.coverCrop)])
         : el("span", { class: "wl-hero-ph", text: MODULE_KANJI[it.module] }));
       var metaBits = [MODULE_LABEL[it.module]];
       if (it.author) metaBits.push(it.author);
@@ -647,7 +655,7 @@
         draggable: draggable ? "true" : null, style: "--accent:" + MODULE_COLOR[it.module] }, [
         draggable ? el("span", { class: "wl-grip", "aria-hidden": "true", text: "⋮⋮" }) : null,
         checkbox,
-        it.coverUrl ? el("img", { class: "wl-cover", src: it.coverUrl, alt: "", loading: "lazy" })
+        it.coverUrl ? el("span", { class: "wl-cover" }, [KOS.imageCrop.image(it.coverUrl, { alt: "", loading: "lazy" }, it.coverCrop)])
           : el("span", { class: "wl-cover wl-cover-ph", text: MODULE_KANJI[it.module] }),
         el("div", { class: "wl-row-main" }, [
           el("div", { class: "wl-row-title", text: it.title, title: it.title }),

@@ -1120,9 +1120,9 @@ OUTSIDE the governor.
 
 Written as a deliberate handoff snapshot at the end of the Fable-5 sessions.
 Everything above this line is the chronological build log (accurate, keep it);
-everything below is the **current state + the prioritised backlog**. A future
-session should read this section, the matching "Invariants" section in
-CLAUDE.md, and the build-log entry for whatever it's about to touch.
+this section records what was current on its date, not today's backlog. Read it
+with the later Build 4/5 addenda and the current "Invariants" section in
+CLAUDE.md; later addenda supersede old storage, design and test-count claims.
 
 ## Where the project stands
 
@@ -1265,9 +1265,9 @@ flashcard review, `{see:[…]}` cross-ref block.
 
 ## ROUGH EDGES / TECH DEBT (noted honestly, none blocking)
 
-- **R1 — README.md is stale at Build 2.1**: no mention of the Governor,
-  Focus Timer, or the entire Collection Matrix. Its "fully offline, no
-  dependencies" headline is also only half-true (R2). Rewrite when convenient.
+- ~~**R1 — README.md is stale at Build 2.1**~~ **RESOLVED 2026-07-13**:
+  README now covers the Governor, Collection Matrix, Build 5 design foundation,
+  shared image positioning, the real backup boundary and the current test run.
 - **R2 — "fully offline" is approximate**: KaTeX and the Google Fonts load
   from CDNs — offline, maths renders as raw `$…$` and fonts fall back.
   Everything functional works offline; the claim should be softened.
@@ -1341,10 +1341,10 @@ capped-log doc fix (R4), session-id seeding, validator consolidation.
 A FIFTH media module starts from `KOS.medview` + `KOS.mediaEditors` —
 never from a copy of a sibling view.
 
-## TEST SUITE INVENTORY (12 suites, `node tools/smokeN.test.js`)
+## TEST SUITE INVENTORY (current: 16 suites, `node tools/smokeN.test.js`)
 
-Prereqs: `npm install jsdom` (all), `npm install fake-indexeddb` (4–13).
-All 13 suites verified green 2026-07-05.
+Prereqs: `npm install jsdom` (all), `npm install fake-indexeddb` (4–16).
+The release gate is the complete smoke through smoke16 run.
 
 | Suite | Covers |
 |---|---|
@@ -1362,6 +1362,8 @@ All 13 suites verified green 2026-07-05.
 | smoke12 | 3j: reward watermark (THE push→echoing-pull single-reward property), autosync cycle, VN chapters, profile tabs, shop, season picker |
 | smoke13 | R3 backup/restore: mediadb exportAll/importAll (all four modules incl. VN routes/chapters/quotes), attach importAll + metadata, store.importFull (v2 + legacy v1), token exclusion, end-to-end round-trip |
 | smoke14 | 3g Purchase/Budget Planner: budget maths (shared pool, simulation, over-budget), purchase archiving + spend charts, both-direction vault linking, next-to-drop, drag reorder, THE governor boundary (zero sessions/XP/gold/HP/network) |
+| smoke15 | Build 4 UI overhaul: token/theme contracts, Study Hall inspector, vault hero, overlay cards, Planner top row, Governor bento and games/VN zero-network boundary |
+| smoke16 | Build 5 image positioning (18 steps): one cropper/render contract, source-space focal maths, reset/cancel/error recovery, legacy centred fallback, Governor/media/volume/wishlist/profile persistence, DB v7 source-paired crops and full-backup/token boundaries |
 
 Suite-hygiene notes: smoke6's /ulist mocks were the source of the 3h bug
 slipping through (they invented a nested `vn.id` reality never sends) — when
@@ -1374,6 +1376,8 @@ shape could not be live-verified (smoke11 does this for Google Books).
 
 The full-app visual overhaul specified in `design (1).md` (v2). All 15 smoke
 suites green (smoke15 is new — it guards the overhaul's new markup).
+This section is historical: Build 5 later replaced Linear Void as the default
+with The Atelier while keeping the theme and class contracts described here.
 
 ## What shipped
 
@@ -1449,3 +1453,79 @@ now clears it.
   per theme (CSS-var-driven SVG fills would fix this; low priority).
 - The general-purpose wishlist/finance tracker stays explicitly out of scope
   (design.md §5) — its own future build.
+
+---
+
+# BUILD 5 FOUNDATION ADDENDUM — 2026-07-13 ("The Atelier")
+
+This foundation pass consolidates the visual language used by later page work
+and adds one non-destructive image-positioning path. It does not flatten Study,
+Collection and Governor into the same page; their compositions remain distinct
+while shared elements now use shared rules.
+
+## Visual-system foundation
+
+- `css/main.css` now documents the canonical 4px spacing scale, page/content
+  widths, 58px topbar, sidebar/inspector sizes, heading type, card/elevation,
+  controls, tabs, stat tiles, grids, empty states, modal geometry and the core
+  1240/1080/860/560px responsive tiers.
+- The current default is Atelier Dawn: warm parchment, sepia ink, dusk iris,
+  brass and sage, driven by canonical tokens with legacy aliases retained for
+  compatibility. The 23 shop theme blocks still target `:root[data-theme]`.
+- Normal image heroes use the Collection-derived shared system:
+  `--hero-min-h:240px`, `--hero-pad-block`, `--hero-pad-inline` and
+  `--radius-hero`, with responsive reductions at compact widths. Governor
+  Status deliberately keeps its own identity/profile-banner composition.
+
+## Shared image positioning
+
+- New `js/core/imagecrop.js` exposes one `KOS.imageCrop` contract:
+  `value`/`normalise`, `apply`/`image`/`background`, whole-frame
+  `prepareFile`, and `open` for the shared modal. The modal previews the final
+  aspect ratio, supports upload or URL where the owning editor already allows
+  it, zoom, horizontal/vertical sliders, pointer focal selection, centre,
+  reset, cancel and save.
+- Sources remain URLs or whole-frame resized/compressed data URLs. A sibling
+  crop `{x,y,zoom}` (0–100%, 0–100%, 1–3×) controls the visible frame; saving a
+  crop never overwrites the source with a canvas cutout.
+- The workflow is reached through existing intentional edit surfaces: the
+  Governor identity/avatar controls, vault hero banner action, media/wishlist
+  editors and connected-profile toolbars. No edit button was stamped onto
+  every rendered hero or cover.
+
+## Persistence and compatibility
+
+- App identity: `governor.avatar.crop` and `governor.bannerCrop`.
+- Media DB v7: entry `coverCrop` and `physical.volumes[].coverCrop`; remote
+  pulls preserve local positioning. Positioned synced entries also retain
+  `coverCropSource`, pairing coordinates to the exact artwork so a refreshed
+  remote URL cannot inherit a crop chosen for another image. This display
+  metadata is normalised but intentionally unindexed because no filter queries
+  it.
+- Vault heroes: `hero.<module> = {entryId,banner,crop}`. AniList's verified
+  remote `extra.bannerImage` and its attribution/source path are left intact;
+  VN and games retain their zero-network, user-upload-only boundary.
+- Connected profile visuals: account-keyed `profile.anilist.<viewerId>` and
+  `profile.vndb.<userId>` media-kv records. Purchase Planner items retain
+  `coverCrop` in `state.wishlist`.
+- Missing crop metadata renders centred at 1×, so existing URLs and data URLs
+  remain valid after reload/import. Earlier destructively cropped avatar,
+  banner or volume data URLs cannot regain pixels already discarded; the new
+  system can position that surviving image, and new uploads retain the whole
+  frame.
+- Full backup/restore carries local state, media entries, profile/hero visual
+  kv and attachments. AniList/VNDB tokens remain deliberately excluded.
+
+## Test coverage
+
+`tools/smoke16.test.js` is the dedicated 18-step release guard for crop
+normalisation, source-space focal maths, shared rendering/modal behaviour,
+legacy fallback, state/DB persistence, the v7 migration and backup/token
+boundaries. All sixteen suites passed on 2026-07-13.
+
+`tools/visual_audit.mjs` then drove the running app in Chrome at 1440×900 and
+980×800: avatar save/reset/cancel and failed-upload recovery; Collection hero
+and nested cover-editor flows; AniList/VNDB profile actions against deterministic
+fixtures; Matrix cover clipping; reload; real full backup/restore; and overflow
+checks on Home, Study, Collection, Governor and Archive. The live audit passed
+and its screenshots were inspected before this stage was marked complete.

@@ -137,10 +137,10 @@
       var dayMs = 864e5;
 
       /* — identity, over the banner — */
-      var bannerCss = KOS.governor.bannerCss();
-      var idCard = el("div", { class: "card bento-card b-id" + (bannerCss ? " has-banner" : "") +
-        (bannerCss && KOS.governor.bannerIsDark() ? " banner-dark" : "") });
-      if (bannerCss) idCard.style.cssText += bannerCss;
+      var hasBanner = !!KOS.governor.bannerCss();
+      var idCard = el("div", { class: "card bento-card b-id" + (hasBanner ? " has-banner" : "") +
+        (hasBanner && KOS.governor.bannerIsDark() ? " banner-dark" : "") });
+      if (hasBanner) KOS.governor.applyBanner(idCard, { darkScrim: true });
       idCard.appendChild(el("div", { class: "id-wrap" }, [
         KOS.governor.avatarNode(88),
         el("div", { class: "id-txt" }, [
@@ -164,19 +164,15 @@
         ])
       ]));
       /* banner controls — quiet, top-right of the card */
-      var bfile = el("input", { type: "file", accept: "image/*", style: "display:none", onchange: function () {
-        if (!bfile.files[0]) return;
-        KOS.governor.setCustomBanner(bfile.files[0], function (err) {
-          if (err) { KOS.ui.toast("Banner upload failed: " + err.message, true); return; }
-          KOS.ui.toast("Banner set.");
-          render();
-        });
-      } });
-      idCard.appendChild(bfile);
       idCard.appendChild(el("div", { class: "id-banner-ctl" }, [
-        el("button", { class: "mini-btn", text: "⤒ Banner", title: "Upload a banner image for your profile",
-          onclick: function () { bfile.click(); } }),
-        bannerCss ? el("button", { class: "mini-btn", text: "✕", title: "Remove the banner",
+        el("button", { class: "mini-btn", text: "✎ Banner", title: "Upload or reposition your profile banner",
+          onclick: function () { KOS.governor.editBanner(function (err, result) {
+            if (err) { KOS.ui.toast("Banner upload failed: " + err.message, true); return; }
+            if (result && result.cancelled) return;
+            KOS.ui.toast("Banner set.");
+            render();
+          }); } }),
+        hasBanner ? el("button", { class: "mini-btn", text: "✕", title: "Remove the banner",
           onclick: function () { KOS.governor.setBanner(null); render(); } }) : null
       ]));
       bento.appendChild(idCard);
@@ -362,7 +358,7 @@
       var bannerCss = KOS.governor.bannerCss();
       var preview = el("div", { class: "av-preview" });
       var pvBanner = el("div", { class: "av-pv-banner" + (bannerCss && KOS.governor.bannerIsDark() ? " dark" : "") });
-      if (bannerCss) pvBanner.style.cssText += bannerCss;
+      if (bannerCss) KOS.governor.applyBanner(pvBanner, { darkScrim: true });
       preview.appendChild(pvBanner);
       preview.appendChild(el("div", { class: "av-pv-body" }, [
         el("div", { class: "av-pv-avatar" }, [KOS.governor.avatarNode(88)]),
@@ -377,24 +373,21 @@
       var ctl = el("div", { class: "av-controls" });
       grid.appendChild(ctl);
 
-      /* custom upload */
-      var file = el("input", { type: "file", accept: "image/*", style: "display:none", onchange: function () {
-        if (!file.files[0]) return;
-        KOS.governor.setCustomAvatar(file.files[0], function (err) {
-          if (err) KOS.ui.toast("Upload failed: " + err.message, true);
-          else { KOS.ui.toast("Avatar set — cropped to a circle, 256×256."); render(); }
-        });
-      } });
+      /* custom image — the editor owns upload, preview, positioning + cancel */
       ctl.appendChild(el("div", { class: "av-sec" }, [
         el("h4", { text: "Your image" }),
         el("div", { class: "lab-controls" }, [
-          file,
-          el("button", { class: "btn primary", text: "⤒ Upload image…", onclick: function () { file.click(); } }),
+          el("button", { class: "btn primary", text: g.avatar.kind === "custom" ? "✎ Edit image…" : "＋ Add image…", onclick: function () {
+            KOS.governor.editAvatar(function (err, result) {
+              if (err) KOS.ui.toast("Upload failed: " + err.message, true);
+              else if (!(result && result.cancelled)) { KOS.ui.toast("Avatar positioned and saved."); render(); }
+            });
+          } }),
           (g.avatar.kind === "custom" && g.avatar.img) ? el("button", { class: "btn", text: "Remove", onclick: function () {
-            g.avatar.kind = "seal"; g.avatar.img = null; store.save(); KOS.refreshHUD(); render();
+            g.avatar.kind = "seal"; g.avatar.img = null; g.avatar.crop = null; store.save(); KOS.refreshHUD(); render();
           } }) : null
         ].filter(Boolean)),
-        el("p", { class: "sub", text: "Centre-cropped to a circle and compressed in this browser — large originals never touch storage." })
+        el("p", { class: "sub", text: "Preview the final circle, then zoom or move its focal point. The resized source remains available for later repositioning." })
       ]));
 
       /* seal library */

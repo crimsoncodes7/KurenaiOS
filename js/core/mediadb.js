@@ -19,7 +19,9 @@
        score: 0-10 (0 = unrated), tags: [], genres: [],
        dates: { started: "YYYY-MM-DD"|null, finished: null },
        externalIds: { anilistId, malId, steamAppId },   // null when absent
-       coverUrl: null|url, notes, favourite: bool,
+       coverUrl: null|url, coverCrop: null|{x,y,zoom},
+       coverCropSource: null|url,       // source fingerprint paired to crop
+       notes, favourite: bool,
        syncSource: "anilist"|"manual"|"import",
        lastSyncedAt: ms|null,                 // null for manual/imported
        createdAt, updatedAt,
@@ -36,7 +38,7 @@
        dnf:     { isDnf, reason },   did-not-finish, orthogonal to status
        physical: null | { owned, volumes: [{ number,
                   condition: "mint"|"good"|"worn"|"damaged",
-                  purchaseDate, price, coverUrl (per-volume override) }] },
+                  purchaseDate, price, coverUrl, coverCrop (per-volume override) }] },
 
        -- Build 3c, Visual Novels. VNDB sync populates the metadata half
           (title, developer, cover, tags-as-genres, length estimate); the
@@ -74,7 +76,7 @@
   "use strict";
   window.KOS = window.KOS || {};
 
-  var DB_NAME = "kurenai-os-media", DB_VER = 6;
+  var DB_NAME = "kurenai-os-media", DB_VER = 7;
   var ENTRIES = "entries", KV = "kv";
   var db = null;
 
@@ -137,6 +139,10 @@
       if (!os.indexNames.contains("customLists")) {
         os.createIndex("customLists", "customLists", { unique: false, multiEntry: true });
       }
+      /* v7: non-destructive cover positioning. `coverCrop` is companion
+         display metadata rather than a filter axis, so it is normalised on
+         every write but deliberately has no query index. Missing fields are
+         the migration: old rows continue as centred cover-fit. */
       if (!d.objectStoreNames.contains(KV)) {
         d.createObjectStore(KV, { keyPath: "key" });
       }
@@ -181,6 +187,10 @@
   var PLATFORMS = ["pc", "playstation", "xbox", "switch", "other"];
   var PRIORITIES = ["low", "medium", "high"];
 
+  function normCrop(crop) {
+    return KOS.imageCrop ? KOS.imageCrop.normalise(crop) : null;
+  }
+
   /* one physical volume record (Build 3b) */
   function normVolume(v) {
     v = v || {};
@@ -189,7 +199,8 @@
       condition: CONDITIONS.indexOf(v.condition) !== -1 ? v.condition : "good",
       purchaseDate: v.purchaseDate || null,     // "YYYY-MM-DD"
       price: typeof v.price === "number" && !isNaN(v.price) ? v.price : null,
-      coverUrl: v.coverUrl || null              // per-volume override
+      coverUrl: v.coverUrl || null,             // per-volume override
+      coverCrop: normCrop(v.coverCrop)
     };
   }
 
@@ -311,6 +322,11 @@
         isbn13: (e.externalIds && e.externalIds.isbn13) || null
       },
       coverUrl: e.coverUrl || null,
+      coverCrop: normCrop(e.coverCrop),
+      /* A positioned synced cover is local display intent. Pairing the crop
+         to its source prevents a later pull applying those coordinates to
+         different artwork; attribution remains in `extra` as before. */
+      coverCropSource: e.coverCrop ? (e.coverCropSource || e.coverUrl || null) : null,
       notes: e.notes || "",
       favourite: !!e.favourite,
       syncSource: e.syncSource || "manual",
@@ -579,6 +595,7 @@
       (e.shelves && e.shelves.length) ||
       (e.dnf && e.dnf.isDnf) ||
       (e.tags && e.tags.length) ||
+      !!e.coverCrop ||
       e.favourite
     );
   }
@@ -657,6 +674,17 @@
         inc.notes = old.notes || inc.notes;
         inc.tags = old.tags.length ? old.tags : inc.tags;
         inc.favourite = old.favourite || inc.favourite;
+        /* A crop is local display intent and is meaningful only for the
+           exact artwork it was chosen against. Once positioned, keep that
+           source/crop pair together instead of applying old coordinates to
+           a newly supplied remote cover. Remote attribution in `extra`
+           still merges below. `old.coverUrl` is the legacy fingerprint. */
+        var positionedCover = old.coverCropSource || (old.coverCrop && old.coverUrl);
+        if (old.coverCrop && positionedCover) {
+          inc.coverUrl = positionedCover;
+          inc.coverCrop = old.coverCrop;
+          inc.coverCropSource = positionedCover;
+        }
         if (old.ownership !== "unset" && old.ownership !== "digital") inc.ownership = old.ownership;
         /* Books (3b): the physical vault + local axes are NEVER supplied by
            sync/import — they always survive a merge. Author/format prefer

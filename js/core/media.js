@@ -258,7 +258,14 @@
                (r.physical.volumes || []).length > (out.physical.volumes || []).length) out.physical = r.physical;
       if (r.dnf && r.dnf.isDnf && !(out.dnf && out.dnf.isDnf)) out.dnf = r.dnf;
       ["developer", "author", "publisher"].forEach(function (k) { if (!out[k] && r[k]) out[k] = r[k]; });
-      if (!out.coverUrl && r.coverUrl) out.coverUrl = r.coverUrl;
+      if (!out.coverUrl && r.coverUrl) {
+        out.coverUrl = r.coverUrl;
+        out.coverCrop = r.coverCrop || null;
+        out.coverCropSource = r.coverCropSource || (r.coverCrop ? r.coverUrl : null);
+      } else if (!out.coverCrop && r.coverCrop && r.coverUrl === out.coverUrl) {
+        out.coverCrop = r.coverCrop;
+        out.coverCropSource = r.coverCropSource || r.coverUrl;
+      }
       Object.keys(r.extra || {}).forEach(function (k) {
         if (out.extra[k] == null && r.extra[k] != null) out.extra[k] = r.extra[k];
       });

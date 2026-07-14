@@ -24,10 +24,13 @@ node tools/smoke12.test.js # Build 3j: reward-on-sync watermark (the push→echo
 node tools/smoke13.test.js # R3 full-coverage backup/restore: mediadb exportAll/importAll, attachments, store.importFull (v2 + legacy), token exclusion, round-trip
 node tools/smoke14.test.js # Build 3g Purchase/Budget Planner: budget maths (shared pool + simulation + over-budget), purchase archiving + spend charts, both-direction vault linking, next-to-drop, drag reorder, THE governor boundary (zero sessions/XP/gold/HP/network)
 node tools/smoke15.test.js # Build 4.0 UI overhaul: Linear Void token architecture + 23 :root[data-theme] blocks, retired-theme fallback, Study Hall workspace (collapsible inspector, unit breakdown), vault hero (kv spotlight, bannerImage plumbing, games/VN zero-network), planner top row, Governor bento, shop swatches
+node tools/smoke16.test.js # Build 5 image positioning: shared crop contract/UI, legacy fallback, governor/media/wishlist/profile persistence, DB v7 and backup/restore
 ```
-(smoke4–smoke14 additionally need `npm install fake-indexeddb` — jsdom ships no IndexedDB.)
+(smoke4–smoke16 additionally need `npm install fake-indexeddb` — jsdom ships no IndexedDB.)
 
-Note: both test files resolve `ROOT` via `path.resolve(__dirname, "..")`, so they run from any checkout location. They load every `<script src="…">` in `index.html`; CDN scripts (KaTeX) are marked `defer` so the tests skip them.
+All suites resolve `ROOT` via `path.resolve(__dirname, "..")`, so they run from
+any checkout location. They load every `<script src="…">` in `index.html`; CDN
+scripts (KaTeX) are marked `defer` so the tests skip them.
 
 **Regenerating spec data** from PDF sources:
 ```sh
@@ -38,7 +41,12 @@ python tools/parse_it.py     # → it.json
 python tools/gen_data.py     # aqa/maths/it.json → js/data/*.js
 ```
 
-**Current status & backlog**: see the "SNAPSHOT — 2026-07-05" section at the end of `PROGRESS.md` (plus the Build 4.0 addendum) — prioritised backlog, user-owed manual steps, rough edges (R1–R13), and the test inventory. All 15 suites verified green (smoke15 = Build 4.0 UI overhaul, 2026-07-11).
+**Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
+the Build 4.0 / Build 5 addenda at the end of `PROGRESS.md` — prioritised
+backlog, user-owed manual steps, rough edges and the current test inventory.
+All 16 suites are the release gate (smoke16 covers shared image positioning,
+DB v7 and its backup boundaries). All 16 plus the running-Chrome visual audit
+were verified green on 2026-07-13.
 
 ## INVARIANTS — the one-place list (never violate; details in the sections below)
 
@@ -72,7 +80,9 @@ Collected from every build. If a change would break one of these, stop and say s
 **Media schema & storage**
 6. `mediadb.normalise()` is the SINGLE schema gate — any new field must be
    added there or every `put()` silently strips it. New axes = new DB version
-   + migration + indexes.
+   + migration + indexes. The current database is v7. `coverCrop` is companion
+   display metadata, not a query/filter axis, so v7 normalises/migrates it but
+   deliberately adds no meaningless crop index.
 7. Media entries live in IndexedDB `kurenai-os-media`; attachments in
    `kurenai-os-files`; API tokens in the media kv store. `store.exportFull`/
    `importFull` produce one combined JSON covering all three — tokens
@@ -85,7 +95,10 @@ Collected from every build. If a change would break one of these, stop and say s
    survives — Books: `physical`, `mood`, `shelves`, active `dnf`, local
    `author`/`format`; VN: `routes`, `quotes`, `chapters`, `cgGallery`,
    `contentWarnings`, local `developer`. `extra` accretes (fresh non-null
-   wins; null never beats stored). Progress re-derives from surviving routes.
+   wins; null never beats stored). User positioning (`coverCrop`, including
+   per-volume crops) also survives a pull. A positioned synced cover keeps a
+   `coverCropSource` fingerprint: source and coordinates move together, never
+   onto newly supplied artwork. Progress re-derives from surviving routes.
    `customLists` (Build 3k, ALL modules — DB v6, multiEntry index) is the one
    axis that UNIONS on merge: a locally-added list and an AniList-synced list
    (the mapper reads `isCustomList` groups) both survive; a pull never drops a
@@ -148,20 +161,29 @@ Collected from every build. If a change would break one of these, stop and say s
     wrap prose in callouts).
 26. Reuse existing class names — engines/views/tests key off them. Restyle
     through `:root` tokens; never repurpose the three subject hues.
-26a. Build 4.0 colour system: the default theme is Linear Void (violet
-    `#8C7CFF` / cyan `#35D7FF` / bright red `#FF2E44` over `#020305`). Every
-    component rides CANONICAL tokens (`--bg0/--bg1/--panel3`, `--accent/-2/-3`,
-    `--good/--warning/--danger`, `--theme-r`); the legacy names (`--kurenai`,
-    `--gold`, `--bad`, radii, lines, glass) are DERIVED aliases in `:root` —
-    never hard-code a palette hex in CSS or JS, extend the token layer.
-    Brand vs danger is a real split now: violet accent = brand, `--red`/`--bad`
-    = danger. The crimson/gold default is retired.
+26a. Build 5 visual system: the current default is **The Atelier / Atelier
+    Dawn**, a warm parchment-and-ink theme. Every component rides canonical
+    tokens (`--bg0/--bg1/--panel`, `--text/--text2/--muted`,
+    `--accent/--accent2/--accent3`, `--good/--warning/--danger`, `--radius`)
+    plus the shared 4px geometry/type/layout tokens. Legacy names
+    (`--kurenai`, `--gold`, `--bad`, lines, glass) remain derived aliases in
+    `:root` for compatibility. Never hard-code a palette or one-page geometry
+    fix; extend the token/component layer. Build 4.0 Linear Void remains a
+    historical milestone in PROGRESS.md, not the current default.
 26b. Theme variants are `:root[data-theme="<id>"]` blocks (generated from
     `tools/theme-lab-raw.json`, 23 shop unlockables at 140 gold, swatches in
     the catalog `sw` field). They MUST target `:root` — derived tokens are
     computed at `:root`, so `body[data-theme]` silently does nothing (that bug
     shipped once). `applyCosmetics` maps unknown/retired ids (kin/shinku/aoi/
     sumi) to the default.
+26c. `KOS.imageCrop` is the only image-positioning contract. Persist the
+    original URL or whole-frame resized/compressed data URL separately from a
+    normalised `{x,y,zoom}` crop (`x/y` 0–100, `zoom` 1–3). Missing metadata
+    MUST render as centred cover-fit so legacy records remain valid. Use
+    `image()`/`background()`/`apply()` to render and `open()` to edit; never
+    canvas-crop a source to its visible aspect ratio. Reset/cancel must not
+    commit. Normal heroes share `--hero-min-h`, `--hero-pad-*` and
+    `--radius-hero`; only Governor Status retains its profile-banner geometry.
 27. Navigate only via `KOS.show` (history/forward/rail state). Charts are
     hand-built inline SVG via `KOS.charts` — no charting library.
 28. Vault editors live in the `KOS.mediaEditors` registry (keyed by module
@@ -172,8 +194,8 @@ Collected from every build. If a change would break one of these, stop and say s
     a hook. Script-tag order between the vault modules no longer matters.
 29. VN CG gallery is a COUNTER only — never store/scrape artwork. Content
     warnings are manual — never auto-filled from VNDB tags.
-30. The vault hero (Build 4.0): spotlight selection + banner uploads live in
-    media kv (`hero.<module>`), NEVER on the entry (no schema change).
+30. The vault hero: spotlight selection + banner uploads/positioning live in
+    media kv (`hero.<module> = {entryId,banner,crop}`), NEVER on the entry.
     `extra.bannerImage` comes from AniList sync (the `bannerImage` field is
     VERIFIED LIVE as separate from `coverImage`) or the one read-only
     `fetchBanner` lookup — only for `syncSource:"anilist"` entries. VNDB has
@@ -190,10 +212,14 @@ All JS is loaded via `<script src="...">` in `index.html` in strict dependency o
 ### Load order (from `index.html`)
 
 1. **Data** — `js/data/{compsci,maths,it,intel}.js` populate `window.KOS_DATA.*`
-2. **Core** — `store.js`, `ui.js`, `content.js`, then `srs.js`, `sessions.js`, `governor.js`, `mediadb.js`, `anilist.js`, `vndb.js`, `bookapi.js`, `media.js`, `mediapush.js`, `autosync.js`
+2. **Core** — `store.js`, `ui.js`, `imagecrop.js`, `charts.js`, `content.js`,
+   then `srs.js`, `sessions.js`, `governor.js`, `mediadb.js`, `anilist.js`,
+   `vndb.js`, `bookapi.js`, `media.js`, `mediapush.js`, `autosync.js`.
+   `imagecrop.js` must follow `ui.js` (it uses `KOS.ui.el`) and precede every
+   renderer/editor that consumes it.
 3. **Deep content** — `js/data/content/*.js` populate `window.KOS_CONTENT["subject:ref"]`
 4. **Engines** — `js/engines/{flashcards,quiz}.js`
-5. **Modules** — `js/modules/hub.js` + `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`, `tracker.js`, `rag.js`, `cardstats.js`, `attachments.js`, `help.js`, `focus.js`, then `medview.js` (the shared vault-view toolkit: cover/lazy list/pills/empty states, the editor shell, quickEdit + push chip — every vault view builds on it), the four vault views `anime.js`, `books.js`, `vn.js`, `games.js` (each registers its editor in `KOS.mediaEditors` — dispatch lives in core/media.js, so their relative order after medview.js is free), `aniprofile.js`, `vndbprofile.js`, `wishlist.js` (registers a `KOS.mediaEditorHooks` entry for "on your wishlist" surfacing), `matrix.js`, `shrine.js`, `mediasync.js`, `mediasearch.js`
+5. **Modules** — `js/modules/hub.js` + `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`, `tracker.js`, `rag.js`, `cardstats.js`, `attachments.js`, `help.js`, `focus.js`, then `medview.js` (the shared vault-view toolkit: cover/lazy list/pills/empty states, the editor shell, quickEdit + push chip — every vault view builds on it), the four vault views `anime.js`, `books.js`, `vn.js`, `games.js` (each registers its editor in `KOS.mediaEditors` — dispatch lives in core/media.js, so their relative order after medview.js is free), `aniprofile.js`, `vndbprofile.js`, `wishlist.js` (registers a `KOS.mediaEditorHooks` entry for "on your wishlist" surfacing), `goals.js`, `matrix.js`, `shrine.js`, `mediasync.js`, `mediasearch.js`
 6. **Labs** — `js/labs/{worked,trace,oop,sims}.js`
 7. **Boot** — `js/main.js` wires rail nav, governor boot sequence, restores last view
 
@@ -214,7 +240,7 @@ any completed activity ──► KOS.sessions.log({type, subject, ref, dur, metr
 
 **Collection Matrix** (leisure; separate storage, same sessions log):
 ```
-IndexedDB kurenai-os-media (v5) ── mediadb.js owns schema + indexes + bulkUpsert
+IndexedDB kurenai-os-media (v7) ── mediadb.js owns schema + indexes + bulkUpsert
        │
   media.js — module registry, XML import, logActivity/logSyncRewards,
        │     dedupeVault, the KOS.mediaEditors dispatcher (pure domain —
@@ -243,6 +269,7 @@ IndexedDB kurenai-os-media (v5) ── mediadb.js owns schema + indexes + bulkUp
 |--------|---------|
 | `KOS.store` | Single state object, autosaved to `localStorage` key `kurenai-os-v1` on every mutation |
 | `KOS.ui` | `el()` DOM builder, `toast()`, `flashSaved()`, `esc()` (the canonical HTML escaper), `debounce()` |
+| `KOS.imageCrop` | Shared non-destructive image renderer/editor: `value`, `normalise`, `apply`, `image`, `background`, `prepareFile`, `open` |
 | `KOS.content` | `get(sid,ref)`, `has(sid,ref)`, `renderBlocks(blocks)`, `coverage(sid,leaves)` |
 | `KOS.show(viewId, arg)` | Clears `#main`, calls `KOS.views[viewId](main, arg)`, updates rail active state, saves |
 | `KOS.views` | Registry of view render functions; each module registers itself here |
@@ -266,7 +293,9 @@ IndexedDB kurenai-os-media (v5) ── mediadb.js owns schema + indexes + bulkUp
                                         // quiz: {attempts,best,lastPct}). Created lazily by the engines,
                                         // NOT in DEFAULTS — but LOAD-BEARING: the home and subject
                                         // dashboards read it for their stat strips. Not legacy.
-  governor: { hp, gold, xp, owned, theme, seal, avatar,
+  governor: { hp, gold, xp, owned, theme, seal,
+              avatar: {kind,id,img,crop,frame},
+              banner, bannerImg, bannerCrop,
               shelfSkin, shrineStyle, lastTick, lastBacklogDrain,
               milestones },             // milestones: lazily-created map of streak-bonus keys → run-start date
   calendar: { nextId, seeded, events, notifyDays, notified },
@@ -282,20 +311,58 @@ IndexedDB kurenai-os-media (v5) ── mediadb.js owns schema + indexes + bulkUp
   wishlist: {                             // Build 3g Purchase/Budget Planner
     nextId,
     budget: { monthlyLimit, currency, history:[{month,spent,items:[…]}] },
-    items: [ /* {id, module:"books"|"vn"|"game", title, coverUrl, price,
+    items: [ /* {id, module:"books"|"vn"|"game", title, coverUrl, coverCrop, price,
                   currency, retailer, retailerUrl, priority, releaseDate,
                   status, linkedEntryId, notes, addedAt, purchasedAt} */ ]
   }
 }
 ```
-File attachments live in IndexedDB `kurenai-os-files`, NOT here — excluded from JSON backup.
+File attachments live in IndexedDB `kurenai-os-files`, not this localStorage
+shape. The full backup still includes them, media entries, and every non-token
+media kv record. AniList/VNDB credentials remain deliberately excluded.
+
+### Shared image positioning (Build 5)
+
+`js/core/imagecrop.js` owns both rendering and the one reusable modal. Its
+persisted crop shape is `{x, y, zoom}`: `x`/`y` are focal percentages (0–100)
+and `zoom` is 1–3. `normalise(null)` deliberately returns `null`; render helpers
+interpret that as `{x:50,y:50,zoom:1}`, preserving centred cover-fit for old
+records. `prepareFile()` resizes/compresses the whole frame for storage but
+never cuts it to the preview ratio. The modal previews the caller's final
+aspect ratio and owns upload/URL (when allowed), pointer focal selection,
+sliders, centre, reset, cancel and save.
+
+Persistence is split by domain:
+
+- app identity: `store.state.governor.avatar.crop` and `bannerCrop` beside the
+  existing `img` / `bannerImg` source;
+- media covers: entry `coverCrop` plus `coverCropSource` (the artwork
+  fingerprint that keeps positioned synced art stable), and
+  `physical.volumes[].coverCrop` for per-volume overrides (IndexedDB v7);
+- vault heroes: media kv `hero.<module> = {entryId,banner,crop}`; synced AniList
+  attribution remains in `entry.extra.bannerImage` and is never overwritten;
+- connected profiles: account-keyed kv `profile.anilist.<viewerId>` and
+  `profile.vndb.<userId>`, each storing visual overrides as
+  `{banner:{source,crop},avatar:{source,crop}}`; a null AniList override source
+  continues to use the live remote profile image;
+- Purchase Planner: `state.wishlist.items[].coverCrop` beside `coverUrl`.
+
+The localStorage fields and all non-token media kv/entry fields round-trip via
+`store.exportFull` / `importFull`; profile and hero visual preferences therefore
+survive backup/restore, while connection tokens still do not. Older images with
+no metadata remain centred. Old avatar/banner/volume data URLs that earlier
+code already destructively cropped cannot recover pixels that were discarded;
+the new system positions the surviving source sensibly and all new uploads keep
+their full frame.
 
 ### Collection Matrix detail
 
-**Books** — dual-tracking on ONE entry. Top-level fields = digital half; `physical: { owned, volumes: [{number, condition, purchaseDate, price, coverUrl}] }` = physical half. Books-only axes: `author`, `format` (manga|lightNovel|oneShot), `mood`, `shelves`, `dnf`, `progress.volumes/totalVolumes`. Half-star ratings use shared 0–10 score (UI shows /5).
+**Books** — dual-tracking on ONE entry. Top-level fields = digital half; `physical: { owned, volumes: [{number, condition, purchaseDate, price, coverUrl, coverCrop}] }` = physical half. Books-only axes: `author`, `format` (manga|lightNovel|oneShot), `mood`, `shelves`, `dnf`, `progress.volumes/totalVolumes`. Half-star ratings use shared 0–10 score (UI shows /5).
 - `normalise()` is the single schema gate; also maps legacy `module:"manga"/"ln"` → `"books"` forever.
 - MANGA sync additionally requests `progressVolumes` + staff (author = first Story/Art role, translators excluded).
-- Bookshelf spines: `KOS.books.spineColor(title)` — deterministic palette hash. Per-volume covers use canvas-compress (2:3 JPEG base64 in entry).
+- Bookshelf spines: `KOS.books.spineColor(title)` — deterministic palette hash.
+  Per-volume uploads are whole-frame compressed data URLs with a separate 2:3
+  `coverCrop`; do not restore the former destructive canvas crop.
 - Reading heatmap = sessions log filtered to `metrics.module:"books"`, drawn with `KOS.charts.heatmap`.
 
 **Books deepening (3i)** — Physical/Digital is a TAB SPLIT (`media.books.tab`), not a data split. A legacy `layout:"shelf"` pref migrates to Physical tab. The owned%/read% comparison lives in the editor (`.bk-compare`) — keep it there.
@@ -316,7 +383,7 @@ File attachments live in IndexedDB `kurenai-os-files`, NOT here — excluded fro
 **Anime deepening (3f)** — `KOS.anime.currentSeason(date)`: device date → AniList enum by calendar quarter. Seasonal view filters `extra.season`/`extra.seasonYear`; entries without season data don't appear. Palette via `s-winter|s-spring|s-summer|s-fall` classes.
 - Airing data: `KOS.anilist.fetchAiring(ids)` — airingAt unix SECONDS + episode; can be null. Memory-cached 10 min; refreshed on view load + manual ⟳.
 - Watch heatmap = same `KOS.charts.heatmap`, sessions filtered to `metrics.module === "anime"`.
-- AniList profile (`aniprofile.js`): five tabs (Overview/Favourites/Social/Activity/Notifications) over ONE cached fetch — switching tabs must never refetch. 5-min in-memory cache.
+- AniList profile (`aniprofile.js`): five tabs (Overview/Favourites/Social/Activity/Notifications) over ONE cached fetch — switching tabs must never refetch. 5-min in-memory cache. Banner/avatar visual overrides and crops live in account-keyed media kv; they do not alter or erase the remote AniList source/attribution.
 
 **Sync integrity (3h)**
 - `KOS.media.dedupeVault(module, cb)`: merges rows sharing an external id (or title where exactly one id-bearing cluster exists), keeping the UNION of the manual layer; list state follows the freshest copy; ambiguous same-title-different-id rows are never merged. Re-run-safe. Runs once at boot (4 s delay, if `vndb.lastSync` exists, flag `maint.dedupe3h`) and manually from Vault maintenance.
@@ -327,11 +394,15 @@ File attachments live in IndexedDB `kurenai-os-files`, NOT here — excluded fro
 - `STATUS_RANK`: planned 0 · onHold/dropped 1 · inProgress 2 · completed 3. Moving TO dropped never rewards. Below-watermark: lowers silently, no clawback.
 - Autosync (`autosync.js`, starts 8 s after boot): AniList anime + manga (2.5 s apart) + VNDB every 15 min, on `online`, on visibilitychange past interval. Cycle: flush stranded FAILED pushes first, then pull. Kill switch: `autosync.enabled` (kv, default ON). Auth failures toast once per session; network failures silent.
 - VN chapters: `chapters: [{name, status, notes}]` — parallel to routes, never derived from VNDB, don't drive progress. Completing one logs a "chapter" session (precedence: added > status > route > chapter > quote).
-- VNDB profile (`vndbprofile.js`): /ulist_labels + /user length-votes + /stats site totals + vault-derived stats. VNDB has no favourites/followers/activity — the view states that; do not fake parity panels.
+- VNDB profile (`vndbprofile.js`): `/ulist_labels` + `/user` length-votes +
+  vault-derived stats. `/stats` is gathered best-effort but is site-wide, not
+  personal, and is not currently rendered. VNDB has no favourites/followers/
+  activity — the view states that; do not fake parity panels. Its user-supplied
+  avatar/banner and crop metadata live only in account-keyed media kv.
 - Shop anchors: ~15–30 gold/day steady study → big labs 180, sims 100, themes 140, seals 70, frames 90, Matrix cosmetics 80. `shelfskin` → class on `.bk-shelves`; `shrinestyle` → class on `.shrine-hall`.
 - Season picker walks any season/year via `SEASON_ORDER` stepping; palette class follows selection.
 
-**Purchase / Budget Planner (3g)** — `js/modules/wishlist.js`, view `wishlist`, `KOS.wishlist` API. Wishlist across Books/VNs/Games against ONE shared monthly budget pool (never per-module limits). Stored in `state.wishlist` (localStorage), NOT the media vault — these are planning records, not media entries; they ride the standard backup because `exportFull` serialises the whole state object.
+**Purchase / Budget Planner (3g)** — `js/modules/wishlist.js`, view `wishlist`, `KOS.wishlist` API. Wishlist across Books/VNs/Games against ONE shared monthly budget pool (never per-module limits). Stored in `state.wishlist` (localStorage), NOT the media vault — these are planning records, not media entries; they ride the standard backup because `exportFull` serialises the whole state object. Manual `coverUrl` values carry a sibling `coverCrop` used by cards and the Next-to-Drop hero.
 - **GOVERNOR BOUNDARY (invariant #5a)**: this module never calls `KOS.sessions.log` / `KOS.media.logActivity`, never moves HP/gold/XP/streaks, and emits ZERO network. smoke14 asserts a full flow leaves all of them untouched. Do not "helpfully" reward purchases.
 - Core interaction: `wantToBuy` items carry checkboxes that SIMULATE a purchase — `selectedTotal(ids)` + `remaining(limit, spentThisMonth, selected)` recompute live (can go negative = over budget). Nothing is spent until `markPurchased(id[,ts])`, which flips status, sets `purchasedAt`, and archives a snapshot into `budget.history[month].items` (recomputing `spent`). Idempotent — re-marking never double-archives; items are never deleted on purchase.
 - Charts reuse `KOS.charts` only: `spendByMonth()` → spend-over-time bars; `spendByModule()` → per-module split over the shared pool (books vs VN vs games).
