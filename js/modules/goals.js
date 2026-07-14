@@ -318,7 +318,8 @@
     document.getElementById("cols").classList.add("no-tree");
 
     main.appendChild(KOS.collectionCrumbs("Planner", "Goals"));
-    main.appendChild(KOS.collectionWorkspaceTabs("planner", "goals"));
+    var workspaceTabs = KOS.collectionWorkspaceTabs("planner", "goals");
+    workspaceTabs.classList.add("profile-workspace-tabs");
 
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [
@@ -327,7 +328,8 @@
         el("div", { class: "dh-sub" }, [
           el("span", { class: "board", text: "What you're reaching for across the collection — tracked by hand, or measured against the vault on its own." })
         ])
-      ])
+      ]),
+      workspaceTabs
     ]));
 
     var pref = (store.state.media = store.state.media || {});

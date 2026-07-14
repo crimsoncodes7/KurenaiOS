@@ -472,7 +472,8 @@
     var selected = {};   // ephemeral checkbox simulation — id -> true
 
     main.appendChild(KOS.collectionCrumbs("Planner", "Budget Planner"));
-    main.appendChild(KOS.collectionWorkspaceTabs("planner", "wishlist"));
+    var workspaceTabs = KOS.collectionWorkspaceTabs("planner", "wishlist");
+    workspaceTabs.classList.add("profile-workspace-tabs");
 
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [
@@ -481,7 +482,8 @@
         el("div", { class: "dh-sub" }, [
           el("span", { class: "board", text: "One wishlist, one monthly pool. Tick items to try a purchase on paper — nothing spends until you say so." })
         ])
-      ])
+      ]),
+      workspaceTabs
     ]));
 
     /* ---- top row: Next-to-Drop hero + Budget Summary panel ----
