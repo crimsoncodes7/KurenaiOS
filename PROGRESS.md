@@ -1561,3 +1561,21 @@ marked complete.
   `KOS.media.logSyncRewardBatch()` makes a multi-provider autosync cycle one
   Governor ledger entry. Smoke4 verifies disconnected/connected/loading/success/
   failure states; smoke12 verifies batch shape.
+
+## Study Compare Topics workspace (2026-07-14)
+
+- **Structured comparison, not split articles**: the Study dashboard's Compare
+  Topics action now opens one cross-subject workspace. Topic A/B selectors,
+  swap and close stay together; two persistent summary headers surface reference,
+  title, subject/section, completion, confidence, mastery and available cards /
+  questions.
+- **Six aligned modes**: Overview, Specification, Notes, Key terms, Exam focus
+  and Progress render collapsible A/B rows with bounded reading widths. Shared
+  terms, cross-subject state, uneven question coverage and absent content are
+  explicit. On narrower desktops the rows stack rather than becoming unreadably
+  narrow.
+- **Study actions preserved**: either topic opens through `KOS.show("ref")`; focus
+  actions use the existing Focus Timer; a pair-keyed comparison note saves under
+  `state.study.compareNotes` and therefore remains compatible with regular
+  backup/restore. No mixed quiz control was added because the application has no
+  mixed-quiz engine to route it to.

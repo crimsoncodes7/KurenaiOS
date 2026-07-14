@@ -3095,6 +3095,40 @@ body.fx-minimised .fx-dock { display: flex; }
 .vp-label-stats { margin-bottom: 0; }
 .vp-label-stats .stat-card { min-width: 132px; border-top: 3px solid var(--label-color); background: color-mix(in srgb, var(--label-color) 10%, var(--surface-card)); }
 
+/* ---- topic comparison: a study ledger, not two squeezed articles ---- */
+.cmp-modal { --modal-max: 1320px; width: min(1320px, calc(100vw - 32px)); max-height: min(88vh, 980px); display: flex; flex-direction: column; }
+.cmp-modal .modal-h { align-items: end; }
+.cmp-modal .modal-h > div:first-child { display: flex; flex-direction: column; gap: 3px; }
+.cmp-selectors { display: grid; grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr); gap: 8px; flex: 1 1 600px; min-width: 0; }
+.cmp-selectors .status-sel { min-width: 0; width: 100%; }
+.cmp-sticky-head { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; position: sticky; top: 0; z-index: 2; background: var(--surface-border); border: 1px solid var(--surface-border); border-radius: var(--radius-card); overflow: hidden; }
+.cmp-topic { display: flex; min-width: 0; flex-direction: column; gap: 4px; padding: var(--space-4) var(--space-5); background: var(--surface-elevated); }
+.cmp-topic b { font-family: var(--serif); font-size: 18px; line-height: 1.2; }
+.cmp-code { color: var(--accent); font-family: var(--mono); font-size: 11px; font-weight: 700; }
+.cmp-metrics { display: flex; flex-wrap: wrap; gap: 5px 12px; margin-top: 5px; color: var(--muted); font-size: 11px; }
+.cmp-tabs { margin: var(--space-4) 0; }
+.cmp-body { display: flex; flex-direction: column; gap: var(--space-3); overflow: auto; padding-right: 2px; }
+.cmp-signals { display: flex; flex-wrap: wrap; gap: 8px; }
+.cmp-signal { padding: 4px 9px; border-radius: 999px; background: var(--wash-accent); color: var(--text2); font-size: 11px; }
+.cmp-row { border: 1px solid var(--surface-border); border-radius: var(--radius-card); background: var(--surface-card); overflow: hidden; }
+.cmp-row > summary { padding: 11px var(--space-4); cursor: pointer; color: var(--text); font-family: var(--serif); font-size: 16px; }
+.cmp-row-cells { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--surface-border); }
+.cmp-cell { min-width: 0; padding: var(--space-4) var(--space-5); border-left: 1px solid var(--surface-border); }
+.cmp-cell:first-child { border-left: 0; }
+.cmp-cell-label { display: block; margin-bottom: var(--space-3); color: var(--accent); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.cmp-cell p { max-width: 66ch; margin: 0 0 8px; line-height: 1.55; }
+.cmp-cell .notes-article { max-width: 66ch; font-size: 13px; }
+.cmp-term { display: grid; grid-template-columns: minmax(100px, .35fr) 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line2); font-size: 12px; }
+.cmp-term.shared { margin-inline: -6px; padding-inline: 6px; background: color-mix(in srgb, var(--good) 10%, transparent); }
+.cmp-question { display: flex; flex-direction: column; gap: 4px; padding: 9px 0; border-bottom: 1px solid var(--line2); font-size: 12px; }
+.cmp-question b { color: var(--accent); font-family: var(--mono); font-size: 10px; text-transform: uppercase; }
+.cmp-progress { display: flex; flex-direction: column; gap: 6px; }
+.cmp-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: var(--space-4); }
+.cmp-note-modal { width: min(580px, calc(100vw - 32px)); }
+.cmp-note-modal .note-area { width: 100%; min-height: 180px; resize: vertical; }
+@media (max-width: 1040px) { .cmp-modal .modal-h { align-items: stretch; } .cmp-selectors { flex-basis: 100%; order: 3; } .cmp-row-cells, .cmp-sticky-head { grid-template-columns: 1fr; } .cmp-cell { border-left: 0; border-top: 1px solid var(--surface-border); } .cmp-cell:first-child { border-top: 0; } }
+@media (max-width: 560px) { .cmp-selectors { grid-template-columns: 1fr; } .cmp-selectors .btn { width: 100%; } }
+
 /* ============================================================
    円 Budget Planner — allowance panel + hero + rows (Sol)
    ============================================================ */

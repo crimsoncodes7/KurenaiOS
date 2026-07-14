@@ -351,6 +351,43 @@ await waitFor("document.querySelector('.collection-workspace-tabs .study-tab.act
 await evaluate("KOS.forward()");
 await waitFor("document.querySelector('.ap-head')", "forward to AniList profile");
 
+/* Study comparison: cross-subject data, aligned modes and pair notes use the
+   actual modal rather than treating two reference articles as a layout test. */
+await evaluate("KOS.show('subject', 'compsci')");
+await waitFor("document.querySelector('.subject-grid')", "Study dashboard for comparison");
+await clickText("#main", "Compare topics");
+await waitFor("document.querySelector('.cmp-modal .cmp-sticky-head')", "Compare Topics workspace");
+let comparison = await evaluate(`(() => ({
+  selectors: document.querySelectorAll('.cmp-selectors select').length,
+  summaries: document.querySelectorAll('.cmp-sticky-head .cmp-topic').length,
+  modes: [...document.querySelectorAll('.cmp-tabs button')].map(b => b.textContent.trim()),
+  rows: document.querySelectorAll('.cmp-row').length
+}))()`);
+assert(comparison.selectors === 2 && comparison.summaries === 2 && comparison.rows > 0 &&
+  JSON.stringify(comparison.modes) === JSON.stringify(["Overview", "Specification", "Notes", "Key terms", "Exam focus", "Progress"]),
+  `Compare Topics workspace is incomplete: ${JSON.stringify(comparison)}`);
+await evaluate(`(() => {
+  const select = document.querySelectorAll('.cmp-selectors select')[1];
+  const option = [...select.options].find(o => o.value.startsWith('maths:'));
+  if (!option) return false;
+  select.value = option.value;
+  select.dispatchEvent(new Event('change', { bubbles: true }));
+  return true;
+})()`);
+await waitFor("[...document.querySelectorAll('.cmp-topic .sub')].some(x => x.textContent.includes('Mathematics'))", "cross-subject comparison");
+await clickText(".cmp-tabs", "Key terms");
+await waitFor("document.querySelector('.cmp-row')", "key terms comparison row");
+await clickText(".cmp-actions", "Comparison note");
+await waitFor("document.querySelector('.cmp-note-modal .note-area')", "comparison note editor");
+await evaluate(`(() => { const ta = document.querySelector('.cmp-note-modal .note-area'); ta.value = 'Audit: compare the evidence before revision.'; ta.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+await clickText(".cmp-note-modal", "Save note");
+await waitFor("!document.querySelector('.cmp-note-modal')", "saved comparison note");
+assert(await evaluate("Object.values(KOS.store.state.study.compareNotes || {}).includes('Audit: compare the evidence before revision.')"),
+  "Comparison note did not persist in study state");
+await screenshot("/tmp/kos-compare-topics-1440.png");
+await clickText(".cmp-modal", "Close");
+await waitFor("!document.querySelector('.cmp-modal')", "closed comparison workspace");
+
 /* Matrix strip clipping and adjacent-page regression pass. */
 await auditView("matrix", undefined, ".med-strip-card");
 const stripClip = await evaluate(`(() => {
@@ -379,6 +416,19 @@ for (const [view, arg, selector] of [
   ["governor", "status", ".gov-status"],
   ["data", undefined, "#main"]
 ]) await auditView(view, arg, selector);
+await evaluate("KOS.show('subject', 'compsci')");
+await waitFor("document.querySelector('.subject-grid')", "narrow Study dashboard");
+await clickText("#main", "Compare topics");
+await waitFor("document.querySelector('.cmp-modal')", "narrow Compare Topics workspace");
+const narrowCompare = await evaluate(`(() => {
+  const modal = document.querySelector('.cmp-modal'), body = document.querySelector('.cmp-body');
+  return { viewport: innerWidth, doc: document.documentElement.scrollWidth, modal: modal.scrollWidth, modalClient: modal.clientWidth,
+    cols: getComputedStyle(document.querySelector('.cmp-row-cells')).gridTemplateColumns, bodyOverflow: getComputedStyle(body).overflowY };
+})()`);
+assert(narrowCompare.doc <= narrowCompare.viewport + 1 && narrowCompare.modal <= narrowCompare.modalClient + 1 &&
+  narrowCompare.cols.split(' ').length === 1 && narrowCompare.bodyOverflow === 'auto',
+  `Narrow comparison workspace overflows or keeps unreadable columns: ${JSON.stringify(narrowCompare)}`);
+await clickText(".cmp-modal", "Close");
 await evaluate(`KOS.show("anime")`);
 await waitFor("document.querySelector('.vault-hero')", "narrow Collection hero");
 await screenshot("/tmp/kos-anime-hero-980.png");
@@ -412,8 +462,9 @@ assert(restored.avatar.x === 63 && restored.avatar.y === 24 && restored.hero.cro
   `Backup restore lost crop metadata: ${JSON.stringify(restored)}`);
 
 await pause(300);
+const reloadOrigin = await evaluate("performance.timeOrigin");
 await send("Page.reload", { ignoreCache: true });
-await waitFor("document.readyState === 'complete' && window.KOS && KOS.imageCrop", "post-save reload", 12000);
+await waitFor(`performance.timeOrigin > ${reloadOrigin} && document.readyState === 'complete' && window.KOS && KOS.imageCrop`, "post-save reload", 12000);
 const afterReload = await evaluate(`KOS.store.state.governor.avatar.crop`);
 assert(afterReload.x === 63 && afterReload.y === 24 && afterReload.zoom === 1.72, "Avatar crop did not survive reload");
 await evaluate(`KOS.show("home")`);
@@ -425,6 +476,6 @@ await viewport(1440, 900);
 await screenshot("/tmp/kos-home-restored-1440.png");
 assert(browserErrors.length === 0, `Browser errors:\n${browserErrors.join("\n")}`);
 
-console.log("VISUAL AUDIT PASS — live crop workflows, persistence, backup/restore and responsive adjacent pages verified");
-console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-banner-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
+console.log("VISUAL AUDIT PASS — live crop workflows, Compare Topics, persistence, backup/restore and responsive adjacent pages verified");
+console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-banner-1440.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
 ws.close();

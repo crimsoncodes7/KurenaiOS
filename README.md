@@ -62,6 +62,11 @@ xdg-open index.html    # Linux
   and a four-stage checklist (Covered in class · Studied it · Done exam Qs · Fully
   understood), shown as spine strips in the tree, a completion bar on each subject
   card, and donut + per-section bars on the dashboards.
+- **Compare Topics workspace** — select any two enriched specification points,
+  including across subjects, then compare their summaries, specification wording,
+  notes, terms, exam focus and progress in aligned collapsible rows. Shared terms,
+  uneven coverage and missing material are surfaced rather than squeezing two
+  articles together; comparison notes persist in the normal backup.
 - **Global search** (press `/`) across all 350 spec points and the flashcard text.
 - **Copy-to-clipboard** on every content box — code, tables, definition lists,
   callouts and step walkthroughs (hover to reveal the Copy button).

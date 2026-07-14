@@ -489,7 +489,11 @@
   }
 
   function compareModal(sid) {
-    var deepLeaves = LEAVES[sid].filter(function (l) { return KOS.content.has(sid, l.ref); });
+    var deepLeaves = SUBJECTS.reduce(function (all, subject) {
+      return all.concat(LEAVES[subject].filter(function (l) { return KOS.content.has(subject, l.ref); }).map(function (l) {
+        return { sid: subject, ref: l.ref, title: l.title };
+      }));
+    }, []);
     if (deepLeaves.length < 2) { KOS.ui.toast("Need at least two deep-content topics to compare.", true); return; }
     var overlay = el("div", { class: "modal-ov", onclick: function (e) { if (e.target === overlay) close(); } });
     function close() { overlay.remove(); document.removeEventListener("keydown", onEsc); }
@@ -498,34 +502,133 @@
 
     function picker(defIdx) {
       return el("select", { class: "status-sel" }, deepLeaves.map(function (l, i) {
-        var o = el("option", { value: l.ref, text: l.ref + " — " + l.title });
+        var o = el("option", { value: l.sid + ":" + l.ref, text: KOS_DATA[l.sid].name + " · " + l.ref + " — " + l.title });
         if (i === defIdx) o.selected = true;
         return o;
       }));
     }
-    var selA = picker(0), selB = picker(1);
-    var grid = el("div", { class: "cmp-grid" });
-    function renderSide(holder, ref) {
-      holder.innerHTML = "";
-      var leaf = BYREF[sid][ref], c = KOS.content.get(sid, ref);
-      if (!leaf || !c) return;
-      holder.appendChild(el("h3", { class: "n-h", style: "margin-top:0", text: ref + " " + leaf.title }));
-      var art = el("article", { class: "notes-article", html: KOS.content.renderBlocks(c.notes) });
-      holder.appendChild(art);
-      KOS.content.typeset(art);
-    }
-    var colA = el("div", { class: "cmp-col" }), colB = el("div", { class: "cmp-col" });
-    grid.appendChild(colA); grid.appendChild(colB);
-    function update() { renderSide(colA, selA.value); renderSide(colB, selB.value); }
-    selA.onchange = update; selB.onchange = update;
+    var first = deepLeaves.findIndex(function (l) { return l.sid === sid; });
+    var selA = picker(first < 0 ? 0 : first), selB = picker((first < 0 ? 0 : first) + 1);
+    if (selB.selectedIndex < 0) selB.selectedIndex = 1;
+    var mode = "overview", head = el("div", { class: "cmp-sticky-head" }), body = el("div", { class: "cmp-body" });
 
-    overlay.appendChild(el("div", { class: "modal" }, [
+    function topic(value) {
+      var cut = value.indexOf(":"), tsid = value.slice(0, cut), ref = value.slice(cut + 1);
+      return { sid: tsid, ref: ref, leaf: BYREF[tsid][ref], content: KOS.content.get(tsid, ref) };
+    }
+    function flat(blocks) {
+      return (blocks || []).map(function (b) {
+        if (typeof b === "string") return b.replace(/[*`]/g, "");
+        if (b.h) return b.h;
+        if (b.callout) return b.callout.h || (typeof b.callout.body === "string" ? b.callout.body : "");
+        return "";
+      }).filter(Boolean);
+    }
+    function terms(c) {
+      var out = [];
+      (c.notes || []).forEach(function (b) { if (b && b.kv) b.kv.forEach(function (p) { out.push(p); }); });
+      return out;
+    }
+    function sectionFor(tsid, ref) {
+      var found = "";
+      function walk(node, section) {
+        if (node.ref === ref) { found = section.title; return true; }
+        return (node.children || []).some(function (child) { return walk(child, section); });
+      }
+      (KOS_DATA[tsid].sections || []).some(function (section) { return walk(section, section); });
+      return found || "Specification";
+    }
+    function info(t) {
+      var p = store.peekProgress(t.sid, t.ref) || {}, e = KOS.rag.effective(t.sid, t.ref), c = t.content;
+      var pct = p.status === "done" ? 100 : ((p.check || []).filter(Boolean).length * 25);
+      var status = p.status || "none";
+      return { code: t.ref, title: t.leaf.title, subject: KOS_DATA[t.sid].name, section: sectionFor(t.sid, t.ref), status: (STATUS.find(function (s) { return s[0] === status; }) || [status, status])[1], pct: pct,
+        confidence: e.band ? KOS.rag.BANDS[e.band].label : "Unrated", mastery: e.auto ? e.auto.score + "%" : "No evidence",
+        cards: (c.flashcards || []).length, questions: (c.quiz || []).length + (c.exam || []).length };
+    }
+    function summaryCard(t, side) {
+      var d = info(t);
+      return el("div", { class: "cmp-topic cmp-" + side }, [
+        el("span", { class: "cmp-code", text: d.code }), el("b", { text: d.title }), el("span", { class: "sub", text: d.subject + " · " + d.section }),
+        el("div", { class: "cmp-metrics" }, [
+          el("span", { text: d.status + " · " + d.pct + "% complete" }), el("span", { text: d.confidence + " confidence" }),
+          el("span", { text: d.mastery + " mastery" }), el("span", { text: d.cards + " cards · " + d.questions + " questions" })
+        ])
+      ]);
+    }
+    function column(title, items, empty) {
+      return el("div", { class: "cmp-cell" }, [el("span", { class: "cmp-cell-label", text: title })].concat(items && items.length ? items : [el("p", { class: "sub", text: empty || "No matching content." })]));
+    }
+    function details(title, a, b, render) {
+      var d = el("details", { class: "cmp-row", open: true }, [el("summary", { text: title })]);
+      var cells = el("div", { class: "cmp-row-cells" }, [render(a, "Topic A"), render(b, "Topic B")]);
+      d.appendChild(cells); return d;
+    }
+    function renderRows(a, b) {
+      body.innerHTML = "";
+      var common = terms(a.content).map(function (p) { return p[0].toLowerCase(); }).filter(function (x) { return terms(b.content).some(function (p) { return p[0].toLowerCase() === x; }); });
+      body.appendChild(el("div", { class: "cmp-signals" }, [
+        el("span", { class: "cmp-signal", text: common.length ? common.length + " shared key term" + (common.length === 1 ? "" : "s") : "No identical key terms" }),
+        el("span", { class: "cmp-signal", text: a.sid === b.sid ? "Same subject" : "Cross-subject comparison" }),
+        el("span", { class: "cmp-signal", text: Math.abs(info(a).questions - info(b).questions) ? "Uneven question coverage" : "Comparable question coverage" })
+      ]));
+      if (mode === "overview") {
+        body.appendChild(details("What each topic is about", a, b, function (t, label) { return column(label, flat(t.content.notes).slice(0, 4).map(function (x) { return el("p", { text: x }); }), "No overview note."); }));
+        body.appendChild(details("Where they overlap or diverge", a, b, function (t, label) {
+          var own = terms(t.content).slice(0, 8).map(function (p) { return el("div", { class: "cmp-term" + (common.indexOf(p[0].toLowerCase()) !== -1 ? " shared" : "") }, [el("b", { text: p[0] }), el("span", { text: p[1] })]); });
+          return column(label, own, "No named terms yet.");
+        }));
+      } else if (mode === "specification") {
+        body.appendChild(details("Specification requirements", a, b, function (t, label) { return column(label, (t.leaf.content || []).map(function (x) { return el("p", { text: x }); }), "No specification bullets."); }));
+        body.appendChild(details("Exam-board emphasis", a, b, function (t, label) { return column(label, (t.leaf.info || []).slice(0, 12).map(function (x) { return el("p", { text: x }); }), "No supplementary specification detail."); }));
+      } else if (mode === "notes") {
+        body.appendChild(details("Structured notes", a, b, function (t, label) { var art = el("article", { class: "notes-article cmp-notes", html: KOS.content.renderBlocks(t.content.notes) }); KOS.content.typeset(art); return column(label, [art], "No notes."); }));
+      } else if (mode === "terms") {
+        body.appendChild(details("Key terms", a, b, function (t, label) { return column(label, terms(t.content).map(function (p) { return el("div", { class: "cmp-term" + (common.indexOf(p[0].toLowerCase()) !== -1 ? " shared" : "") }, [el("b", { text: p[0] }), el("span", { text: p[1] })]); }), "No key terms."); }));
+      } else if (mode === "exam") {
+        body.appendChild(details("Exam focus", a, b, function (t, label) { return column(label, (t.content.exam || []).map(function (q) { return el("div", { class: "cmp-question" }, [el("b", { text: q.marks + " marks" }), el("span", { text: q.q })]); }), "No exam questions available."); }));
+        body.appendChild(details("Common confusions", a, b, function (t, label) { return column(label, flat(t.content.notes).filter(function (x) { return /miscon|avoid|not |rather than|confus/i.test(x); }).slice(0, 5).map(function (x) { return el("p", { text: x }); }), "No explicit misconception note."); }));
+      } else {
+        body.appendChild(details("Progress and confidence", a, b, function (t, label) { var d = info(t); return column(label, [el("div", { class: "cmp-progress" }, [el("b", { text: d.pct + "% complete" }), el("span", { text: d.status }), el("span", { text: d.confidence + " confidence · " + d.mastery + " mastery" }), el("span", { text: d.cards + " cards · " + d.questions + " questions" })])]); }));
+      }
+    }
+    function update() { var a = topic(selA.value), b = topic(selB.value); head.innerHTML = ""; head.appendChild(summaryCard(a, "a")); head.appendChild(summaryCard(b, "b")); renderRows(a, b); }
+    selA.onchange = update; selB.onchange = update;
+    function comparisonNote() {
+      var key = [selA.value, selB.value].sort().join("|");
+      var study = store.state.study = store.state.study || {};
+      var notes = study.compareNotes = study.compareNotes || {};
+      var noteOverlay = el("div", { class: "modal-ov", onclick: function (e) { if (e.target === noteOverlay) noteOverlay.remove(); } });
+      var ta = el("textarea", { class: "note-area", placeholder: "Capture the distinction, shared rule, or question to revisit…" });
+      ta.value = notes[key] || "";
+      noteOverlay.appendChild(el("div", { class: "modal cmp-note-modal" }, [
+        el("div", { class: "modal-h" }, [el("b", { text: "Comparison note" }), el("button", { class: "btn", text: "✕ Close", onclick: function () { noteOverlay.remove(); } })]),
+        el("p", { class: "sub", text: "Saved with this pair of topics and included in the normal backup." }), ta,
+        el("div", { class: "cmp-actions" }, [
+          el("button", { class: "btn", text: "Cancel", onclick: function () { noteOverlay.remove(); } }),
+          el("button", { class: "btn primary", text: "Save note", onclick: function () { notes[key] = ta.value.trim(); store.save(); noteOverlay.remove(); KOS.ui.toast(notes[key] ? "Comparison note saved." : "Comparison note cleared."); } })
+        ])
+      ]));
+      document.body.appendChild(noteOverlay); ta.focus();
+    }
+    var swap = el("button", { class: "btn", text: "⇄ Swap", onclick: function () { var v = selA.value; selA.value = selB.value; selB.value = v; update(); } });
+    var modes = [["overview", "Overview"], ["specification", "Specification"], ["notes", "Notes"], ["terms", "Key terms"], ["exam", "Exam focus"], ["progress", "Progress"]];
+    var modeBar = el("div", { class: "study-tabs cmp-tabs", role: "tablist" }, modes.map(function (m) { return el("button", { class: "study-tab" + (m[0] === mode ? " active" : ""), text: m[1], onclick: function () { mode = m[0]; modeBar.querySelectorAll("button").forEach(function (b) { b.classList.toggle("active", b.textContent === m[1]); }); update(); } }); }));
+
+    overlay.appendChild(el("div", { class: "modal cmp-modal" }, [
       el("div", { class: "modal-h" }, [
-        el("b", { text: "Compare topics — " + KOS_DATA[sid].name }),
-        selA, el("span", { class: "cmp-vs", text: "vs" }), selB,
+        el("div", {}, [el("b", { text: "Compare topics" }), el("span", { class: "sub", text: "Line up the syllabus, evidence and exam focus." })]),
+        el("div", { class: "cmp-selectors" }, [selA, swap, selB]),
         el("button", { class: "btn", text: "✕ Close", style: "margin-left:auto", onclick: close })
       ]),
-      grid
+      head, modeBar, body,
+      el("div", { class: "cmp-actions" }, [
+        el("button", { class: "btn", text: "Open Topic A", onclick: function () { var t = topic(selA.value); close(); KOS.show("ref", { sid: t.sid, ref: t.ref }); } }),
+        el("button", { class: "btn", text: "Open Topic B", onclick: function () { var t = topic(selB.value); close(); KOS.show("ref", { sid: t.sid, ref: t.ref }); } }),
+        el("button", { class: "btn", text: "◉ Focus Topic A", onclick: function () { close(); KOS.show("focus"); } }),
+        el("button", { class: "btn", text: "◉ Focus Topic B", onclick: function () { close(); KOS.show("focus"); } }),
+        el("button", { class: "btn", text: "✎ Comparison note", onclick: comparisonNote })
+      ])
     ]));
     document.body.appendChild(overlay);
     update();
