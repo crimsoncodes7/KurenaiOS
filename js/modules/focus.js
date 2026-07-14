@@ -429,7 +429,7 @@
   }
 
   /* ---------------- start view (rail: Focus) ---------------- */
-  KOS.views.focus = function (main) {
+  KOS.views.focus = function (main, arg) {
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
@@ -451,7 +451,11 @@
       return;
     }
 
-    var cfg = F().lastConfig;
+    var cfg = Object.assign({}, F().lastConfig);
+    /* Contextual entry points (such as Compare Topics) prefill the existing
+       subject/topic controls without changing the user's saved configuration
+       until they deliberately start a session. */
+    if (arg && arg.subject) { cfg.subject = arg.subject; cfg.ref = arg.ref || ""; }
     var mode = cfg.mode || "pomodoro";
     var work = el("input", { type: "number", min: 1, max: 240, class: "cal-in fx-num" });
     var brk = el("input", { type: "number", min: 0, max: 60, class: "cal-in fx-num" });

@@ -516,18 +516,53 @@
       var cut = value.indexOf(":"), tsid = value.slice(0, cut), ref = value.slice(cut + 1);
       return { sid: tsid, ref: ref, leaf: BYREF[tsid][ref], content: KOS.content.get(tsid, ref) };
     }
-    function flat(blocks) {
-      return (blocks || []).map(function (b) {
-        if (typeof b === "string") return b.replace(/[*`]/g, "");
-        if (b.h) return b.h;
-        if (b.callout) return b.callout.h || (typeof b.callout.body === "string" ? b.callout.body : "");
-        return "";
-      }).filter(Boolean);
+    function cleanText(value) { return String(value || "").replace(/[*`]/g, "").replace(/\s+/g, " ").trim(); }
+    function textOf(value) {
+      if (typeof value === "string") return cleanText(value);
+      if (Array.isArray(value)) return value.map(textOf).filter(Boolean).join(" ");
+      if (!value || typeof value !== "object") return "";
+      if (value.kv) return value.kv.map(function (p) { return cleanText(p[0]) + ": " + cleanText(p[1]); }).join(" ");
+      if (value.callout) return textOf(value.callout.body);
+      if (value.h) return cleanText(value.h);
+      return "";
+    }
+    function callouts(c, kind) {
+      var out = [];
+      function visit(blocks) {
+        (blocks || []).forEach(function (block) {
+          if (!block || typeof block !== "object") return;
+          if (block.callout) {
+            if (!kind || block.callout.t === kind) out.push(block.callout);
+            if (Array.isArray(block.callout.body)) visit(block.callout.body);
+          }
+        });
+      }
+      visit(c.notes); return out;
+    }
+    function overview(c) {
+      var out = [];
+      (c.notes || []).forEach(function (block) {
+        var value = block && block.callout ? textOf(block.callout.body) : textOf(block);
+        if (value.length > 45 && out.indexOf(value) === -1) out.push(value);
+      });
+      return out.slice(0, 4);
     }
     function terms(c) {
       var out = [];
-      (c.notes || []).forEach(function (b) { if (b && b.kv) b.kv.forEach(function (p) { out.push(p); }); });
-      return out;
+      function visit(blocks) {
+        (blocks || []).forEach(function (block) {
+          if (!block || typeof block !== "object") return;
+          if (block.kv) block.kv.forEach(function (p) { out.push([cleanText(p[0]), cleanText(p[1])]); });
+          if (block.callout) {
+            if (block.callout.h && (block.callout.t === "def" || block.callout.t === "memorise")) {
+              out.push([cleanText(block.callout.h), textOf(block.callout.body)]);
+            }
+            if (Array.isArray(block.callout.body)) visit(block.callout.body);
+          }
+        });
+      }
+      visit(c.notes);
+      return out.filter(function (p, i) { return p[0] && out.findIndex(function (other) { return other[0].toLowerCase() === p[0].toLowerCase(); }) === i; });
     }
     function sectionFor(tsid, ref) {
       var found = "";
@@ -559,8 +594,10 @@
     function column(title, items, empty) {
       return el("div", { class: "cmp-cell" }, [el("span", { class: "cmp-cell-label", text: title })].concat(items && items.length ? items : [el("p", { class: "sub", text: empty || "No matching content." })]));
     }
-    function details(title, a, b, render) {
-      var d = el("details", { class: "cmp-row", open: true }, [el("summary", { text: title })]);
+    function details(title, a, b, render, open) {
+      var attrs = { class: "cmp-row" };
+      if (open !== false) attrs.open = true;
+      var d = el("details", attrs, [el("summary", { text: title })]);
       var cells = el("div", { class: "cmp-row-cells" }, [render(a, "Topic A"), render(b, "Topic B")]);
       d.appendChild(cells); return d;
     }
@@ -573,7 +610,7 @@
         el("span", { class: "cmp-signal", text: Math.abs(info(a).questions - info(b).questions) ? "Uneven question coverage" : "Comparable question coverage" })
       ]));
       if (mode === "overview") {
-        body.appendChild(details("What each topic is about", a, b, function (t, label) { return column(label, flat(t.content.notes).slice(0, 4).map(function (x) { return el("p", { text: x }); }), "No overview note."); }));
+        body.appendChild(details("What each topic is about", a, b, function (t, label) { return column(label, overview(t.content).map(function (x) { return el("p", { text: x }); }), "No overview note."); }));
         body.appendChild(details("Where they overlap or diverge", a, b, function (t, label) {
           var own = terms(t.content).slice(0, 8).map(function (p) { return el("div", { class: "cmp-term" + (common.indexOf(p[0].toLowerCase()) !== -1 ? " shared" : "") }, [el("b", { text: p[0] }), el("span", { text: p[1] })]); });
           return column(label, own, "No named terms yet.");
@@ -582,18 +619,33 @@
         body.appendChild(details("Specification requirements", a, b, function (t, label) { return column(label, (t.leaf.content || []).map(function (x) { return el("p", { text: x }); }), "No specification bullets."); }));
         body.appendChild(details("Exam-board emphasis", a, b, function (t, label) { return column(label, (t.leaf.info || []).slice(0, 12).map(function (x) { return el("p", { text: x }); }), "No supplementary specification detail."); }));
       } else if (mode === "notes") {
-        body.appendChild(details("Structured notes", a, b, function (t, label) { var art = el("article", { class: "notes-article cmp-notes", html: KOS.content.renderBlocks(t.content.notes) }); KOS.content.typeset(art); return column(label, [art], "No notes."); }));
+        var pagesA = KOS.content.splitPages(a.content.notes), pagesB = KOS.content.splitPages(b.content.notes);
+        for (var page = 0; page < Math.max(pagesA.length, pagesB.length); page++) (function (pa, pb, index) {
+          var title = "Notes · " + (pa ? pa.title : "No matching section") + " / " + (pb ? pb.title : "No matching section");
+          body.appendChild(details(title, pa, pb, function (p, label) {
+            if (!p) return column(label, [], "This topic has no matching note section.");
+            var art = el("article", { class: "notes-article cmp-notes", html: KOS.content.renderBlocks(p.blocks) });
+            KOS.content.typeset(art); return column(label + " · " + p.title, [art], "No notes.");
+          }, index === 0));
+        })(pagesA[page], pagesB[page], page);
       } else if (mode === "terms") {
         body.appendChild(details("Key terms", a, b, function (t, label) { return column(label, terms(t.content).map(function (p) { return el("div", { class: "cmp-term" + (common.indexOf(p[0].toLowerCase()) !== -1 ? " shared" : "") }, [el("b", { text: p[0] }), el("span", { text: p[1] })]); }), "No key terms."); }));
       } else if (mode === "exam") {
         body.appendChild(details("Exam focus", a, b, function (t, label) { return column(label, (t.content.exam || []).map(function (q) { return el("div", { class: "cmp-question" }, [el("b", { text: q.marks + " marks" }), el("span", { text: q.q })]); }), "No exam questions available."); }));
-        body.appendChild(details("Common confusions", a, b, function (t, label) { return column(label, flat(t.content.notes).filter(function (x) { return /miscon|avoid|not |rather than|confus/i.test(x); }).slice(0, 5).map(function (x) { return el("p", { text: x }); }), "No explicit misconception note."); }));
+        body.appendChild(details("Common confusions", a, b, function (t, label) { return column(label, callouts(t.content, "miscon").map(function (c) { return el("div", { class: "cmp-question" }, [el("b", { text: c.h || "Misconception" }), el("span", { text: textOf(c.body) })]); }), "No explicit misconception note."); }));
       } else {
         body.appendChild(details("Progress and confidence", a, b, function (t, label) { var d = info(t); return column(label, [el("div", { class: "cmp-progress" }, [el("b", { text: d.pct + "% complete" }), el("span", { text: d.status }), el("span", { text: d.confidence + " confidence · " + d.mastery + " mastery" }), el("span", { text: d.cards + " cards · " + d.questions + " questions" })])]); }));
       }
     }
-    function update() { var a = topic(selA.value), b = topic(selB.value); head.innerHTML = ""; head.appendChild(summaryCard(a, "a")); head.appendChild(summaryCard(b, "b")); renderRows(a, b); }
-    selA.onchange = update; selB.onchange = update;
+    function update(changed) {
+      if (selA.value === selB.value) {
+        var other = changed === "a" ? selB : selA;
+        other.selectedIndex = (other.selectedIndex + 1) % other.options.length;
+      }
+      var a = topic(selA.value), b = topic(selB.value);
+      head.innerHTML = ""; head.appendChild(summaryCard(a, "a")); head.appendChild(summaryCard(b, "b")); renderRows(a, b); body.scrollTop = 0;
+    }
+    selA.onchange = function () { update("a"); }; selB.onchange = function () { update("b"); };
     function comparisonNote() {
       var key = [selA.value, selB.value].sort().join("|");
       var study = store.state.study = store.state.study || {};
@@ -623,10 +675,10 @@
       ]),
       head, modeBar, body,
       el("div", { class: "cmp-actions" }, [
-        el("button", { class: "btn", text: "Open Topic A", onclick: function () { var t = topic(selA.value); close(); KOS.show("ref", { sid: t.sid, ref: t.ref }); } }),
-        el("button", { class: "btn", text: "Open Topic B", onclick: function () { var t = topic(selB.value); close(); KOS.show("ref", { sid: t.sid, ref: t.ref }); } }),
-        el("button", { class: "btn", text: "◉ Focus Topic A", onclick: function () { close(); KOS.show("focus"); } }),
-        el("button", { class: "btn", text: "◉ Focus Topic B", onclick: function () { close(); KOS.show("focus"); } }),
+        el("button", { class: "btn", text: "Open Topic A", onclick: function () { var t = topic(selA.value); close(); KOS.show("ref", { subject: t.sid, ref: t.ref }); } }),
+        el("button", { class: "btn", text: "Open Topic B", onclick: function () { var t = topic(selB.value); close(); KOS.show("ref", { subject: t.sid, ref: t.ref }); } }),
+        el("button", { class: "btn", text: "◉ Focus Topic A", onclick: function () { var t = topic(selA.value); close(); KOS.show("focus", { subject: t.sid, ref: t.ref }); } }),
+        el("button", { class: "btn", text: "◉ Focus Topic B", onclick: function () { var t = topic(selB.value); close(); KOS.show("focus", { subject: t.sid, ref: t.ref }); } }),
         el("button", { class: "btn", text: "✎ Comparison note", onclick: comparisonNote })
       ])
     ]));

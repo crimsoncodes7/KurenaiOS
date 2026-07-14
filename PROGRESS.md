@@ -1579,3 +1579,16 @@ marked complete.
   `state.study.compareNotes` and therefore remains compatible with regular
   backup/restore. No mixed quiz control was added because the application has no
   mixed-quiz engine to route it to.
+
+### Comparison workspace correction (2026-07-14)
+
+- The modal now has one explicit scroll body; its header, tab bar and action row
+  never compete with the content scroll. Long note rows cannot flex-shrink or
+  hide their lower content.
+- Notes are paired by their existing `{page:"…"}` sections and collapse after
+  the first pair, so uneven topic lengths remain navigable instead of becoming
+  two unbroken articles. Structured callout bodies now feed summaries, terms and
+  misconception rows.
+- Open Topic uses the reference route's `subject` contract; Focus Topic preloads
+  the existing Focus Timer's subject/ref selectors without overwriting the last
+  saved configuration until a session starts.

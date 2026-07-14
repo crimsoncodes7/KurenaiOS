@@ -139,8 +139,9 @@ await send("Page.enable");
 await send("Runtime.enable");
 await send("Log.enable");
 await viewport(1440, 900);
+const bootOrigin = await evaluate("performance.timeOrigin");
 await send("Page.reload", { ignoreCache: true });
-await waitFor("document.readyState === 'complete' && window.KOS && KOS.imageCrop && KOS.views.home", "application boot", 12000);
+await waitFor(`performance.timeOrigin > ${bootOrigin} && document.readyState === 'complete' && window.KOS && KOS.imageCrop && KOS.views.home`, "application boot", 12000);
 
 const seeded = await evaluate(`(async () => {
   const avatar = ${JSON.stringify(avatar)}, banner = ${JSON.stringify(banner)}, cover = ${JSON.stringify(cover)};
@@ -384,9 +385,33 @@ await clickText(".cmp-note-modal", "Save note");
 await waitFor("!document.querySelector('.cmp-note-modal')", "saved comparison note");
 assert(await evaluate("Object.values(KOS.store.state.study.compareNotes || {}).includes('Audit: compare the evidence before revision.')"),
   "Comparison note did not persist in study state");
+await evaluate(`(() => {
+  const [a, b] = document.querySelectorAll('.cmp-selectors select');
+  a.value = 'compsci:4.1.1.1'; a.dispatchEvent(new Event('change', { bubbles: true }));
+  b.value = 'compsci:4.1.1.2'; b.dispatchEvent(new Event('change', { bubbles: true }));
+})()`);
+await clickText(".cmp-tabs", "Notes");
+await waitFor("document.querySelector('.cmp-notes')", "long structured note comparison");
+const longNotes = await evaluate(`(() => {
+  const body = document.querySelector('.cmp-body'), row = document.querySelector('.cmp-row');
+  body.scrollTop = body.scrollHeight;
+  return { client: body.clientHeight, scroll: body.scrollHeight, top: body.scrollTop,
+    rowClient: row.clientHeight, rowScroll: row.scrollHeight };
+})()`);
+assert(longNotes.scroll > longNotes.client && longNotes.top > 0 && longNotes.rowClient === longNotes.rowScroll,
+  `Long comparison notes are clipped instead of scrolling: ${JSON.stringify(longNotes)}`);
 await screenshot("/tmp/kos-compare-topics-1440.png");
-await clickText(".cmp-modal", "Close");
-await waitFor("!document.querySelector('.cmp-modal')", "closed comparison workspace");
+await clickText(".cmp-actions", "Open Topic A");
+await waitFor("document.querySelector('#main .page-h')", "open Topic A");
+assert(await evaluate("document.querySelector('#main .page-h h1')?.textContent.includes('Data types')"), "Open Topic A did not open the selected reference");
+await evaluate("KOS.show('subject', 'compsci')");
+await waitFor("document.querySelector('.subject-grid')", "return to Study dashboard");
+await clickText("#main", "Compare topics");
+await waitFor("document.querySelector('.cmp-modal')", "comparison workspace for focus action");
+await clickText(".cmp-actions", "Focus Topic A");
+await waitFor("document.querySelector('.fx-link-row')", "prefilled focus timer");
+assert(await evaluate(`(() => { const s = document.querySelectorAll('.fx-link-row select'); return s[0].value === 'compsci' && !!s[1].value; })()`),
+  "Focus Topic A did not prefill the selected subject/topic");
 
 /* Matrix strip clipping and adjacent-page regression pass. */
 await auditView("matrix", undefined, ".med-strip-card");
