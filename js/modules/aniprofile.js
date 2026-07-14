@@ -62,7 +62,7 @@
   }
 
   function section(title, sub, children) {
-    return el("div", { class: "colcard med-panel ap-sec" }, [
+    return el("section", { class: "ap-sec" }, [
       el("div", { class: "vn-sec-h" }, [el("b", { text: title }), sub ? el("span", { class: "sub", text: sub }) : null])
     ].concat(children));
   }
@@ -101,6 +101,10 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
+    main.appendChild(KOS.collectionCrumbs("Sync", "AniList"));
+    var workspaceTabs = KOS.collectionWorkspaceTabs("sync", "aniprofile");
+    workspaceTabs.classList.add("profile-workspace-tabs");
+
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [
         el("span", { class: "dh-kicker", text: "Collection · 顔" }),
@@ -108,7 +112,8 @@
         el("div", { class: "dh-sub" }, [
           el("span", { class: "board", text: "The account behind the sync — stats, favourites, follows and activity." })
         ])
-      ])
+      ]),
+      workspaceTabs
     ]));
 
     if (KOS.medview.unavailable(main)) return;
@@ -170,9 +175,9 @@
       body.appendChild(head);
 
       var refreshBtn = el("button", { class: "btn", text: "⟳ Refresh", onclick: function () { load(true); } });
-      body.appendChild(el("div", { class: "lab-controls" }, [
+      body.appendChild(el("div", { class: "lab-controls ap-actions" }, [
         refreshBtn,
-        el("span", { class: "sub", text: "fetched " + new Date(fetchedAt).toLocaleTimeString() }),
+        el("span", { class: "ap-fetched", text: "Updated " + new Date(fetchedAt).toLocaleTimeString() }),
         el("button", { class: "btn", text: "✎ Banner", onclick: function () {
           KOS.imageCrop.open({
             title: "Position your AniList banner",
@@ -211,14 +216,13 @@
             }
           });
         } }),
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "映 Anime vault", onclick: function () { KOS.show("anime"); } }),
-        el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
+        el("button", { class: "btn", text: "Vault", onclick: function () { KOS.show("anime"); } }),
+        el("button", { class: "btn", text: "Sync", onclick: function () { KOS.show("mediasync"); } })
       ]));
 
       /* --- the sub-page tabs --- */
       var TABS = [
-        ["overview", "Overview"], ["favourites", "Favourites"], ["social", "Social"],
+        ["overview", "Overview"], ["analytics", "Analytics"], ["favourites", "Favourites"], ["social", "Social"],
         ["activity", "Activity"], ["notifications", "Notifications"]
       ];
       if (!TABS.some(function (t) { return t[0] === curTab; })) curTab = "overview";
@@ -239,7 +243,7 @@
       function renderOverview() {
         if (v.about) {
           pane.appendChild(section("About me", null, [
-            el("p", { class: "ap-about", text: v.about })
+            el("div", { class: "ap-about-card" }, [el("p", { class: "ap-about", text: v.about })])
           ]));
         }
         var days = an.minutesWatched ? (an.minutesWatched / 1440) : 0;
@@ -259,21 +263,37 @@
             stat(mg.meanScore || 0, "Mean score")
           ])
         ]));
-        /* genre + status charts (the shared inline-SVG helpers) */
-        var grid = el("div", { class: "cs-grid" });
-        if (an.genres && an.genres.length) {
-          grid.appendChild(KOS.charts.chartCard("Top genres (anime)", "by titles watched",
-            KOS.charts.barChart(an.genres.map(function (g) { return { label: g.genre, value: g.count }; }), { color: "#3db4f2" })));
+      }
+
+      function renderAnalytics() {
+        var grid = el("div", { class: "ap-analytics-grid" });
+        var colors = ["#3db4f2", "#6f7890", "#e06a57", "#c77bf2", "#c99b45"];
+        function rows(list, key, status) {
+          return (list || []).filter(function (r) { return r && r.count; }).map(function (r, i) {
+            var local = status ? KOS.anilist.STATUS_MAP[r[key]] : null;
+            if (status && local === "planned") return null;
+            return { label: local ? KOS.media.STATUS_LABEL[local] : String(r[key] || "Unknown"), value: r.count,
+              color: local ? KOS.media.STATUS_COLOR[local] : colors[i % colors.length] };
+          }).filter(Boolean);
         }
-        if (an.statuses && an.statuses.length) {
-          grid.appendChild(KOS.charts.chartCard("List breakdown (anime)", "your AniList statuses",
-            KOS.charts.barChart(an.statuses.map(function (s2) {
-              var loc = KOS.anilist.STATUS_MAP[s2.status];
-              return { label: loc ? KOS.media.STATUS_LABEL[loc] : s2.status, value: s2.count,
-                       color: loc ? KOS.media.STATUS_COLOR[loc] : "#6f6488" };
-            }))));
+        function add(title, sub, node) { grid.appendChild(KOS.charts.chartCard(title, sub, node)); }
+        function medium(label, stats) {
+          var formats = rows(stats.formats, "format"), statuses = rows(stats.statuses, "status", true);
+          var lengths = rows(stats.lengths, "length"), years = rows(stats.releaseYears, "releaseYear");
+          if (formats.length) add(label + " formats", "titles by format", KOS.charts.donutWithLegend(formats, { centre: stats.count || 0, centreSub: "titles" }));
+          if (statuses.length) add(label + " status", "active and completed titles", KOS.charts.donutWithLegend(statuses, { centre: statuses.reduce(function (n, item) { return n + item.value; }, 0), centreSub: "titles" }));
+          if (lengths.length) add(label + " length", "title count by length", KOS.charts.barChart(lengths, { color: "#3db4f2" }));
+          if (years.length) add(label + " release year", "titles by release year", KOS.charts.lineChart(years, { color: "#3db4f2" }));
         }
+        medium("Anime", an);
+        medium("Manga", mg);
+        var genres = rows(an.genres, "genre").concat(rows(mg.genres, "genre"));
+        if (genres.length) add("Library genres", "anime and manga favourites", KOS.charts.hbarChart(genres.slice(0, 8), { color: "#3db4f2" }));
         if (grid.children.length) pane.appendChild(grid);
+        else pane.appendChild(el("div", { class: "ap-state" }, [
+          el("b", { text: "Analytics will appear as your library grows." }),
+          el("span", { class: "sub", text: "AniList has not returned enough distribution data for this account yet." })
+        ]));
       }
 
       function renderFavourites() {
@@ -330,7 +350,8 @@
 
       function renderTab() {
         pane.innerHTML = "";
-        if (curTab === "favourites") renderFavourites();
+        if (curTab === "analytics") renderAnalytics();
+        else if (curTab === "favourites") renderFavourites();
         else if (curTab === "social") renderSocial();
         else if (curTab === "activity") renderActivity();
         else if (curTab === "notifications") renderNotifications();

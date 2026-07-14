@@ -226,6 +226,18 @@ step("governor prices sync-reward proportionally and NEVER moves HP", async () =
     metrics: { module: "anime", action: "sync-reward", entries: 100, units: 900, advances: 40 } });
   if (g.xp - x1 !== 60) throw new Error("xp cap must hold: +" + (g.xp - x1));
 });
+step("a multi-provider background cycle batches rewards into one Governor ledger entry", async () => {
+  const s0 = sessionCount();
+  KOS.media.logSyncRewardBatch([
+    { module: "anime", events: [{ title: "A", units: 2, statusAdvanced: false }] },
+    { module: "vn", events: [{ title: "B", units: 1, statusAdvanced: true }] }
+  ]);
+  if (sessionCount() !== s0 + 1) throw new Error("batch must add exactly one session");
+  const s = KOS.store.state.sessions[KOS.store.state.sessions.length - 1];
+  if (s.metrics.module !== "integrations" || s.metrics.entries !== 2 || s.metrics.units !== 3 || s.metrics.advances !== 1) {
+    throw new Error("batch session shape: " + JSON.stringify(s.metrics));
+  }
+});
 
 /* ============ 3 · the autosync engine ============ */
 console.log("== autosync ==");
@@ -408,8 +420,8 @@ step("VNDB profile: labels/lengthvotes/site stats render; the API's gaps are sta
   const main = document.getElementById("main");
   await waitFor(() => /List labels/.test(main.textContent), 4000);
   if (!/crimson/.test(main.textContent)) throw new Error("identity missing");
-  const labels = main.querySelectorAll(".vp-label");
-  if (labels.length !== 3) throw new Error("expected 3 label chips, got " + labels.length);
+  const labels = main.querySelectorAll(".vp-label-stats .stat-card");
+  if (labels.length !== 3) throw new Error("expected 3 label statistics, got " + labels.length);
   if (![...labels].some(l => /Waiting/.test(l.textContent) && /custom/.test(l.textContent))) throw new Error("custom label not marked");
   if (!/Length votes/.test(main.textContent)) throw new Error("length-vote stats missing");
   /* the site-totals panel and the API-gap essay were cut in the Atelier

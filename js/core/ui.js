@@ -158,13 +158,10 @@
       ["Books", "books"],
       ["Visual Novels", "vn"],
       ["Games", "game"],
-      ["Budget Planner", "wishlist"],
-      ["Goals", "goals"],
       ["Shrine", "shrine"],
       null,
-      ["AniList", "aniprofile"],
-      ["VNDB", "vndbprofile"],
-      ["Sync & Import", "mediasync"]
+      ["Planner", "wishlist"],
+      ["Sync", "mediasync"]
     ],
     system: [
       ["Backup & Restore", "data"],
@@ -176,6 +173,24 @@
   KOS.sectionLanding = function (sec) {
     if (sec === "study") return ["subject", KOS.store.state.ui.subject || "compsci"];
     return [{ home: "home", collection: "matrix", governor: "governor", system: "data" }[sec] || "home", undefined];
+  };
+  KOS.collectionCrumbs = function (area, page) {
+    return el("div", { class: "crumbs collection-crumbs", "aria-label": "Collection navigation" }, [
+      "Collection", " / ", el("b", { text: area }),
+      page ? [" / ", el("b", { text: page })] : null
+    ].flat().filter(Boolean));
+  };
+  KOS.collectionWorkspaceTabs = function (area, current) {
+    var groups = {
+      planner: [["Budget Planner", "wishlist"], ["Goals", "goals"]],
+      sync: [["AniList", "aniprofile"], ["VNDB", "vndbprofile"], ["Sync & Import", "mediasync"]]
+    };
+    return el("div", { class: "study-tabs collection-workspace-tabs", role: "tablist",
+      "aria-label": area === "planner" ? "Planner pages" : "Sync pages" }, groups[area].map(function (item) {
+      var selected = item[1] === current;
+      return el("button", { class: "study-tab" + (selected ? " active" : ""), role: "tab",
+        "aria-selected": String(selected), text: item[0], onclick: function () { KOS.show(item[1]); } });
+    }));
   };
 
   function renderSubnav(sec, viewId, arg) {
@@ -189,6 +204,8 @@
     var activeView = viewId, activeArg = arg;
     if (viewId === "ref" && arg) { activeView = "subject"; activeArg = arg.subject; }
     if (viewId === "seasonal" || viewId === "mangaka") activeView = "anime";
+    if (["goals"].indexOf(viewId) !== -1) activeView = "wishlist";
+    if (["aniprofile", "vndbprofile"].indexOf(viewId) !== -1) activeView = "mediasync";
     items.forEach(function (it) {
       if (!it) { nav.appendChild(el("span", { class: "subnav-sep", "aria-hidden": "true" })); return; }
       var on = it[1] === activeView && (it[2] === undefined || it[2] === activeArg);

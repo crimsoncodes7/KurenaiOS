@@ -321,6 +321,36 @@ await waitFor("!document.querySelector('.cropper-ov')", "VNDB avatar save");
 const vndbSaved = await evaluate(`new Promise((resolve, reject) => KOS.mediadb.getKV("profile.vndb.u7", (err, value) => err ? reject(err) : resolve(value)))`);
 assert(vndbSaved.avatar.source === avatar && vndbSaved.avatar.crop.y === 47, "VNDB local source/crop did not persist");
 
+/* Collection hierarchy: archive stays compact; workspaces preserve their routes/history. */
+await auditView("wishlist", undefined, ".collection-workspace-tabs");
+const collectionNav = await evaluate(`(() => ({
+  labels: [...document.querySelectorAll("#subnav .subnav-item")].map(b => b.textContent.trim()),
+  active: document.querySelector("#subnav .subnav-item.active")?.textContent.trim(),
+  planner: [...document.querySelectorAll(".collection-workspace-tabs button")].map(b => b.textContent.trim())
+}))()`);
+assert(JSON.stringify(collectionNav.labels) === JSON.stringify(["Overview", "Anime", "Books", "Visual Novels", "Games", "Shrine", "Planner", "Sync"]),
+  `Collection primary navigation is overcrowded: ${JSON.stringify(collectionNav.labels)}`);
+assert(collectionNav.active === "Planner" && JSON.stringify(collectionNav.planner) === JSON.stringify(["Budget Planner", "Goals"]),
+  "Planner workspace or active navigation is incomplete");
+await evaluate("KOS.show('mediasync')");
+await waitFor("document.querySelector('.integration-provider')", "Sync workspace");
+const integrations = await evaluate(`(() => ({
+  providers: document.querySelectorAll('.integration-provider').length,
+  facts: [...document.querySelectorAll('.integration-facts')].map(x => x.textContent),
+  nested: document.querySelectorAll('.integration-provider .colcard').length
+}))()`);
+assert(integrations.providers === 2 && integrations.facts.every(text => /Status/.test(text) && /Sync mode/.test(text)) && integrations.nested === 0,
+  `Integration overview composition is incomplete: ${JSON.stringify(integrations)}`);
+await screenshot("/tmp/kos-integrations-1440.png");
+await clickText(".collection-workspace-tabs", "AniList");
+await waitFor("document.querySelector('.ap-head')", "AniList profile from Sync");
+assert(await evaluate("document.querySelector('#subnav .subnav-item.active')?.textContent.trim() === 'Sync'"),
+  "AniList profile did not retain Sync as active");
+await evaluate("KOS.back()");
+await waitFor("document.querySelector('.collection-workspace-tabs .study-tab.active')?.textContent.includes('Sync & Import')", "back to Sync & Import");
+await evaluate("KOS.forward()");
+await waitFor("document.querySelector('.ap-head')", "forward to AniList profile");
+
 /* Matrix strip clipping and adjacent-page regression pass. */
 await auditView("matrix", undefined, ".med-strip-card");
 const stripClip = await evaluate(`(() => {
@@ -335,6 +365,7 @@ for (const [view, arg, selector] of [
   ["home", undefined, ".home-id"],
   ["subject", "compsci", ".subject-grid"],
   ["matrix", undefined, ".med-mods"],
+  ["mediasync", undefined, ".collection-workspace-tabs"],
   ["governor", "status", ".gov-status"],
   ["data", undefined, "#main"]
 ]) await auditView(view, arg, selector);
@@ -344,6 +375,7 @@ for (const [view, arg, selector] of [
   ["home", undefined, ".home-id"],
   ["subject", "compsci", ".subject-grid"],
   ["matrix", undefined, ".med-mods"],
+  ["mediasync", undefined, ".integration-provider"],
   ["governor", "status", ".gov-status"],
   ["data", undefined, "#main"]
 ]) await auditView(view, arg, selector);

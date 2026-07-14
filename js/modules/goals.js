@@ -317,6 +317,9 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
+    main.appendChild(KOS.collectionCrumbs("Planner", "Goals"));
+    main.appendChild(KOS.collectionWorkspaceTabs("planner", "goals"));
+
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [
         el("span", { class: "dh-kicker", text: "標 · The intentions" }),
@@ -349,7 +352,6 @@
       body.appendChild(el("div", { class: "med-toolbar" }, [
         tabs,
         el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "← Collection Matrix", onclick: function () { KOS.show("matrix"); } }),
         el("button", { class: "btn primary", text: "+ New goal", onclick: function () { goalEditor(null, rerender); } })
       ]));
 

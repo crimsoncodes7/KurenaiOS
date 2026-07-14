@@ -402,6 +402,30 @@ step("mediasync renders all eight panels (AniList, VNDB, autosync, XML, maintena
   if (!/anilist\.co\/settings\/developer/.test(main.textContent)) throw new Error("setup steps missing");
   if (!/last-write-wins/.test(main.textContent)) throw new Error("write-back limitation not stated");
 });
+step("integration overview covers disconnected, connected, loading, success and failure states", async () => {
+  let main = document.getElementById("main");
+  if (main.querySelectorAll(".integration-provider").length !== 2) throw new Error("provider overview missing");
+  if (!/Not connected/.test(main.textContent)) throw new Error("disconnected state missing");
+  await p(cb => KOS.mediadb.setKV("anilist.clientId", "42", cb));
+  await p(cb => KOS.mediadb.setKV("anilist.token", "test-token", cb));
+  await p(cb => KOS.mediadb.setKV("anilist.viewer", { id: 42, name: "Integration Tester" }, cb));
+  await p(cb => KOS.mediadb.setKV("anilist.lastSync.anime", Date.now(), cb));
+  KOS.show("mediasync");
+  await waitFor(() => /Integration Tester/.test(document.getElementById("main").textContent), 4000);
+  main = document.getElementById("main");
+  if (!/Connected/.test(main.textContent) || !/Items imported/.test(main.textContent)) throw new Error("connected overview facts missing");
+  const original = KOS.anilist.syncList;
+  KOS.anilist.syncList = (_token, _id, _module, cb) => setTimeout(() => cb({ message: "Service unavailable for test" }), 30);
+  const anime = [...main.querySelectorAll("button")].find(b => /Sync now — Anime/.test(b.textContent));
+  anime.click();
+  if (!/Pulling your anime list/.test(main.textContent)) throw new Error("loading state missing");
+  await waitFor(() => /Service unavailable for test/.test(main.textContent), 4000);
+  if (!main.querySelector(".med-sync-status.is-error")) throw new Error("failure state not styled");
+  KOS.anilist.syncList = (_token, _id, _module, cb) => setTimeout(() => cb(null, []), 10);
+  anime.click();
+  await waitFor(() => /Done — 0 added, 0 updated/.test(main.textContent), 4000);
+  KOS.anilist.syncList = original;
+});
 step("OS home shows the live Collection Matrix card (not Coming soon)", async () => {
   KOS.show("home");
   await tick(30);

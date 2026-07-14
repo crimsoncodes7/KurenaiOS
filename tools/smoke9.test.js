@@ -53,8 +53,10 @@ const PROFILE_DATA = {
     statistics: {
       anime: { count: 162, episodesWatched: 2100, minutesWatched: 50400, meanScore: 74.1,
         genres: [{ genre: "Drama", count: 85 }, { genre: "Action", count: 72 }],
-        statuses: [{ status: "COMPLETED", count: 112 }, { status: "CURRENT", count: 12 }] },
-      manga: { count: 40, chaptersRead: 3200, volumesRead: 210, meanScore: 80, genres: [] }
+        statuses: [{ status: "COMPLETED", count: 112 }, { status: "CURRENT", count: 12 }],
+        formats: [{ format: "TV", count: 130 }], lengths: [{ length: "13 - 26", count: 90 }], releaseYears: [{ releaseYear: 2024, count: 24 }] },
+      manga: { count: 40, chaptersRead: 3200, volumesRead: 210, meanScore: 80, genres: [],
+        statuses: [{ status: "CURRENT", count: 18 }], formats: [{ format: "MANGA", count: 35 }], lengths: [{ length: "50+", count: 21 }], releaseYears: [{ releaseYear: 2023, count: 8 }] }
     },
     favourites: {
       anime: { nodes: [{ id: 1, title: { romaji: "Sousou no Frieren", english: "Frieren" }, coverImage: { large: "https://x/f.jpg" } }] },
@@ -312,7 +314,9 @@ step("connected: one-request bundle renders identity, stats, favourites, follows
   if (!/3 unread/.test(txt)) throw new Error("unread count missing");
   if (!/162/.test(txt) || !/2100/.test(txt) || !/35\.0/.test(txt)) throw new Error("anime stats missing (incl. days watched 50400min → 35.0)");
   if (!/3200/.test(txt) || !/210/.test(txt)) throw new Error("manga stats missing");
-  if (!/Top genres \(anime\)/.test(txt) || !/List breakdown/.test(txt)) throw new Error("stat charts missing");
+  clickTab("Analytics");
+  txt = main.textContent;
+  if (!/Anime formats/.test(txt) || !/Manga formats/.test(txt) || !main.querySelector(".ap-analytics-grid")) throw new Error("analytics tab missing both media types");
   clickTab("Favourites");
   txt = main.textContent;
   if (!/Sousou no Frieren/.test(txt) || !/Berserk/.test(txt)) throw new Error("media favourites missing");
@@ -346,16 +350,27 @@ step("profile cache: re-entering within TTL is free; ⟳ forces a refetch", asyn
   await waitFor(() => count() === before + 1, 4000);
   if (count() !== before + 1) throw new Error("force refresh did not refetch");
 });
-step("nav: Collection section + subnav reaches the AniList profile", async () => {
+step("nav: Sync reaches AniList and history returns to the Sync tab", async () => {
   const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");
   if (!rb) throw new Error("collection rail button missing");
   rb.click();
   await tick(60);
-  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /AniList/.test(b.textContent));
-  if (!sn) throw new Error("subnav item missing");
+  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /^Sync$/.test(b.textContent.trim()));
+  if (!sn) throw new Error("Sync entry missing");
   sn.click();
   await tick(60);
+  const anilist = [...document.querySelectorAll(".collection-workspace-tabs button")].find(b => /^AniList$/.test(b.textContent.trim()));
+  if (!anilist) throw new Error("AniList Sync tab missing");
+  anilist.click();
+  await tick(60);
   if (!/AniList Profile/.test(document.getElementById("main").textContent)) throw new Error("navigation failed");
+  if (!document.querySelector("#subnav .subnav-item.active")?.textContent.includes("Sync")) throw new Error("Sync nav was not active");
+  KOS.back();
+  await tick(60);
+  if (!document.querySelector(".collection-workspace-tabs .study-tab.active")?.textContent.includes("Sync & Import")) throw new Error("back did not restore Sync & Import tab");
+  KOS.forward();
+  await tick(60);
+  if (!/AniList Profile/.test(document.getElementById("main").textContent)) throw new Error("forward navigation failed");
 });
 
 /* ============ runner ============ */

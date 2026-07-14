@@ -1521,11 +1521,43 @@ while shared elements now use shared rules.
 `tools/smoke16.test.js` is the dedicated 18-step release guard for crop
 normalisation, source-space focal maths, shared rendering/modal behaviour,
 legacy fallback, state/DB persistence, the v7 migration and backup/token
-boundaries. All sixteen suites passed on 2026-07-13.
+boundaries. All sixteen suites passed on 2026-07-14.
 
 `tools/visual_audit.mjs` then drove the running app in Chrome at 1440×900 and
 980×800: avatar save/reset/cancel and failed-upload recovery; Collection hero
 and nested cover-editor flows; AniList/VNDB profile actions against deterministic
 fixtures; Matrix cover clipping; reload; real full backup/restore; and overflow
-checks on Home, Study, Collection, Governor and Archive. The live audit passed
-and its screenshots were inspected before this stage was marked complete.
+checks on Home, Study, Collection, Governor and Archive. It also verifies the
+Collection archive-first hierarchy and Planner/Sync back/forward paths. The
+live audit passed and its screenshots were inspected before this stage was
+marked complete.
+
+## Collection navigation hierarchy (2026-07-14)
+
+- **Archive-first primary navigation**: Collection now keeps only Overview,
+  Anime, Books, Visual Novels, Games and Shrine in its main bar.
+- **Two primary workspaces**: Planner and Sync sit beside the archive tabs.
+  Their existing specialised pages render secondary tabs directly: Budget
+  Planner/Goals and AniList/VNDB/Sync & Import, with no intermediate cards.
+- **Navigation contract retained**: child routes keep their owning primary tab
+  active, add Collection breadcrumbs, and use `KOS.show()` for secondary tabs
+  so back/forward restores the selected page. Smoke9 and smoke14 cover these
+  paths.
+
+## Integration workspace overhaul (2026-07-14)
+
+- **One integration language**: Sync & Import begins with matching AniList and
+  VNDB provider panels: identity, connection state, account, last successful
+  sync, vault count, mode and actions are visible without opening technical
+  detail. Technical explanations and item-level write history are disclosures.
+- **Profile hierarchy**: AniList and VNDB retain their real tabs and data, but
+  now share compact standard-height banner identity headers, fitted avatars and
+  divider-led content sections rather than nested card stacks.
+- **Profile refinement**: both profiles use one concise refresh/edit/vault/sync
+  action row with a quiet fetched timestamp. VNDB labels are metric tiles with
+  their label colour used as an accent; AniList adds a dedicated responsive
+  Analytics tab for both anime and manga rather than crowding the overview.
+- **Ledger integrity**: manual sync remains one deliberate reward event;
+  `KOS.media.logSyncRewardBatch()` makes a multi-provider autosync cycle one
+  Governor ledger entry. Smoke4 verifies disconnected/connected/loading/success/
+  failure states; smoke12 verifies batch shape.

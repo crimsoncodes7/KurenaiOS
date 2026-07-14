@@ -114,7 +114,7 @@
           desc = "Paper logged — " + (topic || "results"); break;
         case "media":
           sig = "log"; sigTxt = "LOGGED";
-          if (m.action === "sync-reward") desc = (m.entries || 0) + " title" + (m.entries === 1 ? "" : "s") + " synced from " + (m.module === "vn" ? "VNDB" : "AniList");
+          if (m.action === "sync-reward") desc = (m.entries || 0) + " title" + (m.entries === 1 ? "" : "s") + " synced from " + (m.module === "integrations" ? "your integrations" : (m.module === "vn" ? "VNDB" : "AniList"));
           else if (m.action === "reading-session") desc = (m.mins || "?") + " min read" + (m.title ? " — " + m.title : "");
           else desc = (m.title || "Media") + " — " + (ACTION_TEXT[m.action] || m.action || "logged");
           break;

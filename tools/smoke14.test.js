@@ -249,16 +249,23 @@ step("a full planner flow fires ZERO governor traffic and zero network", async (
 });
 
 /* ============ 8 · nav ============ */
-step("nav: Collection section + subnav reaches the Budget Planner", async () => {
+step("nav: Collection keeps vaults primary and reaches the Budget Planner through Planner", async () => {
   const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");
   if (!rb) throw new Error("collection rail button missing");
   rb.click();
   await tick(60);
-  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /Budget Planner/.test(b.textContent));
-  if (!sn) throw new Error("subnav item missing");
+  const labels = [...document.querySelectorAll("#subnav .subnav-item")].map(b => b.textContent.trim());
+  ["Overview", "Anime", "Books", "Visual Novels", "Games", "Shrine", "Planner", "Sync"].forEach(label => {
+    if (!labels.includes(label)) throw new Error("primary Collection destination missing: " + label);
+  });
+  if (labels.some(label => /Budget Planner|Goals|AniList|VNDB|Sync & Import/.test(label))) throw new Error("utility route leaked into primary Collection navigation");
+  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /^Planner$/.test(b.textContent.trim()));
+  if (!sn) throw new Error("Planner entry missing");
   sn.click();
   await tick(60);
   if (!/Budget/.test(document.getElementById("main").textContent)) throw new Error("navigation failed");
+  if (!document.querySelector("#subnav .subnav-item.active")?.textContent.includes("Planner")) throw new Error("Planner nav state was not retained");
+  if (!document.querySelector(".collection-workspace-tabs .study-tab.active")?.textContent.includes("Budget Planner")) throw new Error("Planner secondary tab missing");
 });
 step("backup coverage: wishlist rides the localStorage state (exportJSON serialises it)", async () => {
   const raw = JSON.parse(JSON.stringify(KOS.store.state));
@@ -327,12 +334,18 @@ step("Goals fires ZERO governor traffic and zero network", async () => {
   if (after.hp !== before.hp || after.gold !== before.gold || after.xp !== before.xp) throw new Error("governor HP/gold/XP moved");
   if (netLog.length !== 0) throw new Error("Goals emitted network: " + netLog.map(r => r.url).join(", "));
 });
-step("nav: Collection subnav reaches Goals; goals ride the serialised backup", async () => {
+step("nav: Planner secondary tab reaches Goals; goals ride the serialised backup", async () => {
   const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");
   rb.click();
   await tick(60);
-  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /Goals/.test(b.textContent));
-  if (!sn) throw new Error("Goals subnav item missing");
+  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /^Planner$/.test(b.textContent.trim()));
+  sn.click();
+  await tick(60);
+  const goals = [...document.querySelectorAll(".collection-workspace-tabs button")].find(b => /^Goals$/.test(b.textContent.trim()));
+  if (!goals) throw new Error("Goals secondary tab missing");
+  goals.click();
+  await tick(60);
+  if (!/Goals/.test(document.getElementById("main").textContent)) throw new Error("Goals navigation failed");
   const raw = JSON.parse(JSON.stringify(KOS.store.state));
   if (!raw.goals || !Array.isArray(raw.goals.items)) throw new Error("goals not part of serialised state");
 });

@@ -471,6 +471,9 @@
     var tab = pref.tab;
     var selected = {};   // ephemeral checkbox simulation — id -> true
 
+    main.appendChild(KOS.collectionCrumbs("Planner", "Budget Planner"));
+    main.appendChild(KOS.collectionWorkspaceTabs("planner", "wishlist"));
+
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [
         el("span", { class: "dh-kicker", text: "円 · The allowance" }),
@@ -504,7 +507,6 @@
     main.appendChild(el("div", { class: "med-toolbar wl-toolbar" }, [
       tabsRow,
       el("span", { style: "flex:1" }),
-      el("button", { class: "btn", text: "← Collection Matrix", onclick: function () { KOS.show("matrix"); } }),
       el("button", { class: "btn primary", text: "+ Add item", onclick: function () { itemEditor(null, function () { KOS.show("wishlist", undefined, { _nav: true }); }); } })
     ]));
 

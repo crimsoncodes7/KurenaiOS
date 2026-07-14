@@ -68,7 +68,9 @@ Collected from every build. If a change would break one of these, stop and say s
    separate.
 5. Bulk operations never log per-entry sessions. One deliberate act = one
    session (games bulk-add; the 3j `sync-reward` session, watermark-filtered
-   and capped at 60 XP / 12 gold per sync per module). XML import ignores the
+   and capped at 60 XP / 12 gold per sync). Manual provider syncs log once;
+   an autonomous multi-provider cycle batches its rewards into one ledger
+   entry. XML import ignores the
    reward list entirely.
 5a. The Purchase/Budget Planner (Build 3g, `wishlist.js`) is OUTSIDE the
    governor entirely — it NEVER calls `KOS.sessions.log` / `KOS.media.logActivity`
@@ -256,10 +258,18 @@ IndexedDB kurenai-os-media (v7) ── mediadb.js owns schema + indexes + bulkUp
   cross-cutting: matrix.js · shrine.js · mediasync.js · mediasearch.js
                  aniprofile.js · vndbprofile.js · wishlist.js
 ```
+- **Navigation**: Collection's primary subnav is the archive destinations,
+  then Planner and Sync. `KOS.collectionWorkspaceTabs()` supplies the secondary
+  tabs directly inside the existing specialised pages: `wishlist`/`goals` and
+  `aniprofile`/`vndbprofile`/`mediasync`. Always use `KOS.show()` for tab
+  transitions so direct routes and history remain intact.
 - **Off-spine**: `wishlist.js` (Purchase/Budget Planner, 3g) shares the Matrix
   UI chrome but stores in localStorage (`state.wishlist`), not the media vault,
   and NEVER touches the governor or the network — see the detail section below.
-- **Read path**: API clients → `bulkUpsert` → `res.rewards` → caller logs ONE sync-reward session. `autosync.js` drives this every 15 min (flush failed pushes first, then pull).
+- **Read path**: API clients → `bulkUpsert` → `res.rewards` → a manual provider
+  action logs one sync-reward session; `autosync.js` batches all rewarded
+  modules into one cycle-level session. It runs every 15 min (flush failed
+  pushes first, then pull).
 - **Write path**: editors/quick-edit/+1 → `mediadb.put()` (absorbs watermark) → `mediapush.schedule()` (350 ms debounce) → AniList mutation (VNDB CORS-blocked).
 - **Watermark loop**: `entry.reward` = last accounted state. `put()` absorbs; `bulkUpsert` diffs BEFORE absorbing — external progress rewards once, echoed push rewards zero.
 
@@ -383,7 +393,7 @@ their full frame.
 **Anime deepening (3f)** — `KOS.anime.currentSeason(date)`: device date → AniList enum by calendar quarter. Seasonal view filters `extra.season`/`extra.seasonYear`; entries without season data don't appear. Palette via `s-winter|s-spring|s-summer|s-fall` classes.
 - Airing data: `KOS.anilist.fetchAiring(ids)` — airingAt unix SECONDS + episode; can be null. Memory-cached 10 min; refreshed on view load + manual ⟳.
 - Watch heatmap = same `KOS.charts.heatmap`, sessions filtered to `metrics.module === "anime"`.
-- AniList profile (`aniprofile.js`): five tabs (Overview/Favourites/Social/Activity/Notifications) over ONE cached fetch — switching tabs must never refetch. 5-min in-memory cache. Banner/avatar visual overrides and crops live in account-keyed media kv; they do not alter or erase the remote AniList source/attribution.
+- AniList profile (`aniprofile.js`): six tabs (Overview/Analytics/Favourites/Social/Activity/Notifications) over ONE cached fetch — switching tabs must never refetch. Analytics reads anime and manga formats, statuses, lengths and release years from that same bundle. 5-min in-memory cache. Banner/avatar visual overrides and crops live in account-keyed media kv; they do not alter or erase the remote AniList source/attribution.
 
 **Sync integrity (3h)**
 - `KOS.media.dedupeVault(module, cb)`: merges rows sharing an external id (or title where exactly one id-bearing cluster exists), keeping the UNION of the manual layer; list state follows the freshest copy; ambiguous same-title-different-id rows are never merged. Re-run-safe. Runs once at boot (4 s delay, if `vndb.lastSync` exists, flag `maint.dedupe3h`) and manually from Vault maintenance.

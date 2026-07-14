@@ -210,6 +210,15 @@ Collection records and non-token visual preferences go through `KOS.mediadb`.
   the Build 4 overhaul now sits on the Build 5 Atelier token and component
   system. One shared image-positioning workflow renders app identity, connected
   profiles, vault heroes, media covers and wishlist artwork consistently.
+- **Collection navigation**: the primary Matrix bar keeps the archive first,
+  followed by one **Planner** tab and one **Sync** tab. Each destination renders
+  its existing page directly with a secondary tab bar: Budget Planner/Goals or
+  AniList/VNDB/Sync & Import. Direct routes and history behaviour are unchanged.
+- **Integration workspace**: Sync & Import is a provider overview for AniList
+  and VNDB (connection state, account, last successful sync, imported items and
+  sync mode), with the detailed write log folded into technical history. Profile
+  pages share the same compact banner-led account treatment; AniList analytics
+  live in their own tab and include both anime and manga distributions.
 
 ## Tests
 

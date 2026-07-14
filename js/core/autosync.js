@@ -90,7 +90,8 @@
       ": " + err.message, true);
   }
 
-  /* one AniList list pull → upsert → reward. cb(result|null) — errors
+  /* one AniList list pull → upsert. Rewards are batched once the full cycle
+     completes, so the Governor ledger gets one background-sync entry. cb(result|null) — errors
      resolve null so the cycle continues with the other pulls. */
   function pullAnilistModule(conn, module, report, cb) {
     KOS.anilist.syncList(conn.token, conn.viewer.id, module, function (err, mapped) {
@@ -98,7 +99,6 @@
       KOS.mediadb.bulkUpsert(mapped, {}, function (err2, res) {
         if (err2) { report.errors.push("anilist/" + module + " write: " + err2.message); cb(null); return; }
         KOS.mediadb.setKV("anilist.lastSync." + module, Date.now(), function () {});
-        KOS.media.logSyncRewards(module, res.rewards);
         cb(res);
       });
     });
@@ -125,7 +125,6 @@
         KOS.mediadb.bulkUpsert(mapped, {}, function (err3, res) {
           if (err3) { report.errors.push("vndb write: " + err3.message); cb(); return; }
           KOS.mediadb.setKV("vndb.lastSync", Date.now(), function () {});
-          KOS.media.logSyncRewards("vn", res.rewards);
           report.vndb = res;
           cb();
         });
@@ -149,6 +148,11 @@
         report.pushesRetried = retried;
         pullAnilist(report, function () {
           pullVndb(report, function () {
+            KOS.media.logSyncRewardBatch([
+              { module: "anime", events: report.anilist.anime && report.anilist.anime.rewards },
+              { module: "books", events: report.anilist.books && report.anilist.books.rewards },
+              { module: "vn", events: report.vndb && report.vndb.rewards }
+            ]);
             running = false;
             lastRun = Date.now();
             KOS.mediadb.setKV("autosync.lastReport", report, function () {});

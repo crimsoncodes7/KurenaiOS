@@ -190,6 +190,27 @@
     });
   }
 
+  /* An autonomous cycle can reconcile several providers at once. Keep that
+     deliberate background work to one Governor ledger entry rather than one
+     entry per provider/module. Manual provider syncs still use the singular
+     helper above because each button press is a separate user action. */
+  function logSyncRewardBatch(groups) {
+    groups = (groups || []).filter(function (g) { return g && g.events && g.events.length; });
+    if (!groups.length) return null;
+    if (groups.length === 1) return logSyncRewards(groups[0].module, groups[0].events);
+    var events = groups.reduce(function (all, g) { return all.concat(g.events); }, []);
+    var units = events.reduce(function (a, ev) { return a + (ev.units || 0); }, 0);
+    var advances = events.filter(function (ev) { return ev.statusAdvanced; }).length;
+    return KOS.sessions.log({
+      type: "media", subject: null, ref: null, dur: null,
+      metrics: {
+        module: "integrations", modules: groups.map(function (g) { return g.module; }),
+        action: "sync-reward", entries: events.length, units: units, advances: advances,
+        titles: events.slice(0, 5).map(function (ev) { return ev.title; })
+      }
+    });
+  }
+
   /* ---------------- vault dedup (Build 3h) ----------------
      One-time repair for the VNDB duplication bug (synced rows landed with
      vndbId null, so every re-sync inserted the list fresh), kept around
@@ -432,6 +453,7 @@
     parseXML: parseXML,
     logActivity: logActivity,
     logSyncRewards: logSyncRewards,
+    logSyncRewardBatch: logSyncRewardBatch,
     dedupeVault: dedupeVault,
     protectedCardIds: protectedCardIds
   };

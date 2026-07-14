@@ -23,7 +23,7 @@
       ].filter(Boolean)),
       opts.pill ? el("span", { class: "sync-pill", style: "--pill:" + (opts.pill.color || "var(--muted)"), text: opts.pill.text }) : null
     ].filter(Boolean));
-    return el("div", { class: "colcard med-panel sync-card" }, [head].concat(children));
+    return el("div", { class: "colcard med-panel sync-card" + (opts.className ? " " + opts.className : "") }, [head].concat(children));
   }
 
   /* Collapsible "how this works" note — replaces the wall-of-text sub-paragraph
@@ -89,10 +89,18 @@
     if (res.kept) bits.push(res.kept + " kept because they have your own data attached");
     return bits.join(", ");
   }
+  function syncNote(node, text, isError) {
+    node.textContent = text;
+    node.classList.toggle("is-error", !!isError);
+  }
 
   KOS.views.mediasync = function (main) {
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
+
+    main.appendChild(KOS.collectionCrumbs("Sync", "Sync & Import"));
+    var workspaceTabs = KOS.collectionWorkspaceTabs("sync", "mediasync");
+    workspaceTabs.classList.add("profile-workspace-tabs");
 
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [
@@ -101,17 +109,48 @@
         el("div", { class: "dh-sub" }, [
           el("span", { class: "board", text: "Connect AniList and VNDB, or import an XML export. Local edits push back on their own; pushes are last-write-wins." })
         ])
-      ])
+      ]),
+      workspaceTabs
     ]));
 
     if (KOS.medview.unavailable(main)) return;
 
+    main.appendChild(el("div", { class: "integration-intro" }, [
+      el("span", { class: "integration-rule", "aria-hidden": "true" }),
+      el("p", { class: "sub", text: "Connections are kept separate from the collection itself. Sync when you choose, inspect the result, and unfold the technical record only when you need it." })
+    ]));
+    var providerGrid = el("div", { class: "integration-grid" });
+    main.appendChild(providerGrid);
+
+    function facts(items) {
+      return el("dl", { class: "integration-facts" }, items.map(function (item) {
+        return el("div", {}, [el("dt", { text: item[0] }), el("dd", { text: item[1] })]);
+      }));
+    }
+    function stampFacts(node, keys, modules, source) {
+      KOS.mediadb.getKV(keys[0], function (_e1, first) {
+        KOS.mediadb.getKV(keys[1], function (_e2, second) {
+          var stamps = [first, second].filter(Boolean);
+          node.querySelector("[data-last-sync]").textContent = stamps.length
+            ? new Date(Math.max.apply(null, stamps)).toLocaleString() : "Not yet";
+        });
+      });
+      var total = 0, index = 0;
+      (function countImported() {
+        if (index >= modules.length) { node.querySelector("[data-imported]").textContent = total + " imported"; return; }
+        KOS.mediadb.query({ module: modules[index++] }, function (_err, rows) {
+          total += (rows || []).filter(function (row) { return row.syncSource === source; }).length;
+          countImported();
+        });
+      })();
+    }
+
     /* ================= 1 · AniList connection (primary) ================= */
     var connBody = el("div", {});
-    main.appendChild(panel("AniList", "接", [
+    providerGrid.appendChild(panel("AniList", "接", [
       info("One-time setup: register an API client at anilist.co/settings/developer, set its Redirect URL to EXACTLY " + KOS.anilist.PIN_URL + ", and paste the Client ID below (no secret is needed). Tokens last 1 year; when one expires you just reconnect the same way."),
       connBody
-    ], { tag: "Anime & manga · live connection" }));
+    ], { tag: "Anime & manga", className: "integration-provider integration-anilist" }));
 
     function renderConn() {
       connBody.innerHTML = "";
@@ -147,6 +186,11 @@
         } });
 
         if (conn.token && conn.viewer) {
+          var meta = facts([["Status", "Connected"], ["Account", conn.viewer.name], ["Last successful sync", "Checking…"], ["Items imported", "Checking…"], ["Sync mode", "Update & add"]]);
+          meta.querySelectorAll("dd")[2].setAttribute("data-last-sync", "");
+          meta.querySelectorAll("dd")[3].setAttribute("data-imported", "");
+          connBody.appendChild(meta);
+          stampFacts(meta, ["anilist.lastSync.anime", "anilist.lastSync.books"], ["anime", "books"], "anilist");
           connBody.appendChild(el("div", { class: "med-conn-ok" }, [
             el("span", { class: "med-chip", style: "--chip:#45d6a8", text: "Connected" }),
             el("b", { text: conn.viewer.name }),
@@ -162,26 +206,26 @@
               var mode = aniMode.value();
               confirmReplace(mode, "AniList (" + noun + ")", function () {
               btn.disabled = true;
-              syncStatus.textContent = "Pulling your " + noun + " list (one call — status, progress, scores, covers, genres)…";
+              syncNote(syncStatus, "Pulling your " + noun + " list (one call — status, progress, scores, covers, genres)…");
               KOS.anilist.syncList(conn.token, conn.viewer.id, module, function (err3, mapped) {
                 if (err3) {
                   btn.disabled = false;
-                  syncStatus.textContent = err3.message;
+                  syncNote(syncStatus, err3.message, true);
                   if (err3.kind === "auth") { KOS.anilist.disconnect(function () { renderConn(); }); }
                   return;
                 }
-                syncStatus.textContent = "Mapped " + mapped.length + " entries — writing to the vault…";
+                syncNote(syncStatus, "Mapped " + mapped.length + " entries — writing to the vault…");
                 KOS.mediadb.bulkUpsert(mapped, replaceOpts(mode, module, "anilist"), function (err4, res) {
                   btn.disabled = false;
-                  if (err4) { syncStatus.textContent = "Write failed: " + err4.message; return; }
+                  if (err4) { syncNote(syncStatus, "Write failed: " + err4.message, true); return; }
                   KOS.mediadb.setKV("anilist.lastSync." + module, Date.now(), function () {});
                   /* 3j: progress made elsewhere (mal-sync, site edits) that
                      this pull discovered → ONE proportional reward session */
                   KOS.media.logSyncRewards(module, res.rewards);
-                  syncStatus.textContent = "Done — " + doneWording(res) +
+                  syncNote(syncStatus, "Done — " + doneWording(res) +
                     (res.rewards && res.rewards.length ? ", " + res.rewards.length + " advanced elsewhere (rewarded)" : "") +
                     " (matched by AniList id, no duplicates" +
-                    (module === "books" ? "; physical vault records untouched" : "") + ").";
+                    (module === "books" ? "; physical vault records untouched" : "") + ").");
                   KOS.ui.toast("AniList " + noun + " sync complete: " + (res.added + res.updated) + " entries.");
                   renderEnrich();
                 });
@@ -202,11 +246,12 @@
               var bits = [];
               if (ts) bits.push("anime " + new Date(ts).toLocaleString());
               if (ts2) bits.push("manga " + new Date(ts2).toLocaleString());
-              if (bits.length) syncStatus.textContent = "Last synced: " + bits.join(" · ") + ".";
+            if (bits.length) syncNote(syncStatus, "Last synced: " + bits.join(" · ") + ".");
             });
           });
           connBody.appendChild(syncStatus);
         } else {
+          connBody.appendChild(facts([["Status", "Not connected"], ["Account", "Connect AniList to begin"], ["Last successful sync", "—"], ["Items imported", "—"], ["Sync mode", "Update & add"]]));
           connBody.appendChild(el("div", { class: "med-form" }, [
             el("div", { class: "med-form-row" }, [
               el("label", { class: "med-field", style: "flex:2" }, [el("span", { class: "k", text: "Client ID" }), idIn]),
@@ -227,10 +272,10 @@
 
     /* ================= 2 · VNDB connection (Build 3c) ================= */
     var vndbBody = el("div", {});
-    main.appendChild(panel("VNDB", "選", [
+    providerGrid.appendChild(panel("VNDB", "選", [
       info("One-time setup, simpler than AniList: generate a personal token at " + KOS.vndb.TOKEN_URL.replace("https://", "") + " (tick “access to my list”; for write-back also tick “modify my list”) and paste it below. Treat the token like a password; it lives in the media store here, never in the backup JSON. Reads verified working from file://; pushes are currently blocked by VNDB's own CORS policy regardless of token permissions — see Write activity below."),
       vndbBody
-    ], { tag: "Visual novels · live connection" }));
+    ], { tag: "Visual novels", className: "integration-provider integration-vndb" }));
 
     function renderVndb() {
       vndbBody.innerHTML = "";
@@ -238,6 +283,11 @@
         if (err) { vndbBody.appendChild(el("p", { class: "sub", text: "Could not read the connection store: " + err.message })); return; }
 
         if (conn.token && conn.user) {
+          var vnMeta = facts([["Status", "Connected"], ["Account", conn.user.username], ["Last successful sync", "Checking…"], ["Items imported", "Checking…"], ["Sync mode", "Update & add"]]);
+          vnMeta.querySelectorAll("dd")[2].setAttribute("data-last-sync", "");
+          vnMeta.querySelectorAll("dd")[3].setAttribute("data-imported", "");
+          vndbBody.appendChild(vnMeta);
+          stampFacts(vnMeta, ["vndb.lastSync", "vndb.lastSync"], ["vn"], "vndb");
           vndbBody.appendChild(el("div", { class: "med-conn-ok" }, [
             el("span", { class: "med-chip", style: "--chip:#45d6a8", text: "Connected" }),
             el("b", { text: conn.user.username }),
@@ -249,25 +299,25 @@
             var mode = vnMode.value();
             confirmReplace(mode, "VNDB", function () {
             syncBtn.disabled = true;
-            vnStatus.textContent = "Pulling your VNDB list (pages of 100 — status, votes, covers, developers, tags)…";
+            syncNote(vnStatus, "Pulling your VNDB list (pages of 100 — status, votes, covers, developers, tags)…");
             KOS.vndb.syncList(conn.token, {
-              onProgress: function (n, msg) { vnStatus.textContent = msg || ("Fetched " + n + " entries…"); }
+              onProgress: function (n, msg) { syncNote(vnStatus, msg || ("Fetched " + n + " entries…")); }
             }, function (err3, mapped) {
               if (err3) {
                 syncBtn.disabled = false;
-                vnStatus.textContent = err3.message;
+                syncNote(vnStatus, err3.message, true);
                 if (err3.kind === "auth") { KOS.vndb.disconnect(function () { renderVndb(); }); }
                 return;
               }
-              vnStatus.textContent = "Mapped " + mapped.length + " entries — writing to the vault…";
+              syncNote(vnStatus, "Mapped " + mapped.length + " entries — writing to the vault…");
               KOS.mediadb.bulkUpsert(mapped, replaceOpts(mode, "vn", "vndb"), function (err4, res) {
                 syncBtn.disabled = false;
-                if (err4) { vnStatus.textContent = "Write failed: " + err4.message; return; }
+                if (err4) { syncNote(vnStatus, "Write failed: " + err4.message, true); return; }
                 KOS.mediadb.setKV("vndb.lastSync", Date.now(), function () {});
                 KOS.media.logSyncRewards("vn", res.rewards);
-                vnStatus.textContent = "Done — " + doneWording(res) +
+                syncNote(vnStatus, "Done — " + doneWording(res) +
                   (res.rewards && res.rewards.length ? ", " + res.rewards.length + " advanced elsewhere (rewarded)" : "") +
-                  " (matched by VNDB id; routes, chapters, quotes, CG counts and warnings untouched).";
+                  " (matched by VNDB id; routes, chapters, quotes, CG counts and warnings untouched).");
                 KOS.ui.toast("VNDB sync complete: " + (res.added + res.updated) + " entries.");
                 renderEnrich();
               });
@@ -281,10 +331,11 @@
             } })
           ]));
           KOS.mediadb.getKV("vndb.lastSync", function (e5, ts) {
-            if (ts) vnStatus.textContent = "Last synced: " + new Date(ts).toLocaleString() + ".";
+            if (ts) syncNote(vnStatus, "Last synced: " + new Date(ts).toLocaleString() + ".");
           });
           vndbBody.appendChild(vnStatus);
         } else {
+          vndbBody.appendChild(facts([["Status", "Not connected"], ["Account", "Connect VNDB to begin"], ["Last successful sync", "—"], ["Items imported", "—"], ["Sync mode", "Update & add"]]));
           var tokIn = el("input", { type: "password", class: "todo-in", placeholder: "Paste your VNDB token (from vndb.org/u/tokens)" });
           var verifyBtn = el("button", { class: "btn primary", text: "Save & verify", onclick: function () {
             var tok = tokIn.value.trim();
@@ -618,15 +669,17 @@
               " · " + new Date(r.ts).toLocaleString() + (r.ok ? "" : " — " + (r.error || "failed")) })
           ]));
         });
-        wlogBody.appendChild(list);
-        if (log.length > 30) wlogBody.appendChild(el("p", { class: "sub", text: "Showing the 30 most recent of " + log.length + " logged pushes." }));
+        wlogBody.appendChild(el("details", { class: "sync-history" }, [
+          el("summary", { text: "Technical history · " + Math.min(log.length, 30) + " recent push" + (Math.min(log.length, 30) === 1 ? "" : "es") }),
+          list,
+          log.length > 30 ? el("p", { class: "sub", text: "Showing the 30 most recent of " + log.length + " logged pushes." }) : null
+        ].filter(Boolean)));
       });
     }
     renderWriteLog();
 
     /* footer nav */
     main.appendChild(el("div", { class: "lab-controls", style: "margin-top:14px" }, [
-      el("button", { class: "btn", text: "← Collection Matrix", onclick: function () { KOS.show("matrix"); } }),
       el("button", { class: "btn", text: "映 Anime vault", onclick: function () { KOS.show("anime"); } }),
       el("button", { class: "btn", text: "本 Books vault", onclick: function () { KOS.show("books"); } }),
       el("button", { class: "btn", text: "選 Visual Novels", onclick: function () { KOS.show("vn"); } })

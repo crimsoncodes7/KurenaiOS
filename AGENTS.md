@@ -123,6 +123,11 @@ Core loads in this order (all before engines/modules): `store.js` → `ui.js` �
 browser. Don't replace `#main` directly — always route through `KOS.show` so history,
 forward trail and rail state stay correct.
 
+Collection's primary subnav is the archive destinations plus one Planner and one
+Sync entry. `KOS.collectionWorkspaceTabs()` renders the secondary tabs within
+the specialised existing views; direct child views must continue to mark their
+own primary entry active and use `KOS.show()` for tab transitions.
+
 ## Common pitfalls (have actually broken the build)
 - **Callouts need TWO closing braces.** `{ callout: { t:"def", body:"…" } }` — the
   inner `}` closes the callout object, the outer `}` closes the block. Writing one
@@ -140,6 +145,10 @@ CLAUDE.md is the canonical doc for Build 3 (module map, merge contracts, the
 reward watermark, push field-scoping, live-verified API facts) — read its
 "INVARIANTS" section before touching anything under `js/core/media*`,
 `anilist.js`, `vndb.js`, `autosync.js` or the four vault modules.
+
+Manual provider sync may create one watermark-filtered `sync-reward` session;
+an autonomous cycle must batch all providers into one ledger entry through
+`KOS.media.logSyncRewardBatch()` — never one entry per imported item or module.
 
 ## Build 5 — shared image positioning
 

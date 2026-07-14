@@ -378,8 +378,8 @@
     return "query ($userId: Int!) {" +
       " Viewer { id name about(asHtml: false) avatar { large } bannerImage siteUrl createdAt unreadNotificationCount" +
       "  statistics {" +
-      "   anime { count episodesWatched minutesWatched meanScore genres(limit: 8, sort: COUNT_DESC) { genre count } statuses { status count } }" +
-      "   manga { count chaptersRead volumesRead meanScore genres(limit: 8, sort: COUNT_DESC) { genre count } } }" +
+      "   anime { count episodesWatched minutesWatched meanScore genres(limit: 8, sort: COUNT_DESC) { genre count } statuses { status count } formats { format count } lengths { length count } releaseYears { releaseYear count } }" +
+      "   manga { count chaptersRead volumesRead meanScore genres(limit: 8, sort: COUNT_DESC) { genre count } statuses { status count } formats { format count } lengths { length count } releaseYears { releaseYear count } } }" +
       "  favourites {" +
       "   anime(perPage: 12) { nodes { id title { romaji english } coverImage { large } } }" +
       "   manga(perPage: 12) { nodes { id title { romaji english } coverImage { large } } }" +

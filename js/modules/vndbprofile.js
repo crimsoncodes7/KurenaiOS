@@ -34,7 +34,7 @@
   }
 
   function section(title, sub, children) {
-    return el("div", { class: "colcard med-panel ap-sec" }, [
+    return el("section", { class: "ap-sec" }, [
       el("div", { class: "vn-sec-h" }, [el("b", { text: title }), sub ? el("span", { class: "sub", text: sub }) : null])
     ].concat(children));
   }
@@ -81,6 +81,10 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
+    main.appendChild(KOS.collectionCrumbs("Sync", "VNDB"));
+    var workspaceTabs = KOS.collectionWorkspaceTabs("sync", "vndbprofile");
+    workspaceTabs.classList.add("profile-workspace-tabs");
+
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [
         el("span", { class: "dh-kicker", text: "Collection · 貌" }),
@@ -88,7 +92,8 @@
         el("div", { class: "dh-sub" }, [
           el("span", { class: "board", text: "The account behind the visual-novel sync — labels, list stats and your length votes." })
         ])
-      ])
+      ]),
+      workspaceTabs
     ]));
 
     if (KOS.medview.unavailable(main)) return;
@@ -135,9 +140,9 @@
       body.appendChild(head);
 
       var refreshBtn = el("button", { class: "btn", text: "⟳ Refresh", onclick: function () { load(true); } });
-      body.appendChild(el("div", { class: "lab-controls" }, [
+      body.appendChild(el("div", { class: "lab-controls ap-actions" }, [
         refreshBtn,
-        el("span", { class: "sub", text: "fetched " + new Date(fetchedAt).toLocaleTimeString() }),
+        el("span", { class: "ap-fetched", text: "Updated " + new Date(fetchedAt).toLocaleTimeString() }),
         el("button", { class: "btn", text: "✎ Banner", onclick: function () {
           KOS.imageCrop.open({
             title: "Position your VNDB banner",
@@ -171,21 +176,20 @@
             }
           });
         } }),
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "選 VN vault", onclick: function () { KOS.show("vn"); } }),
-        el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
+        el("button", { class: "btn", text: "Vault", onclick: function () { KOS.show("vn"); } }),
+        el("button", { class: "btn", text: "Sync", onclick: function () { KOS.show("mediasync"); } })
       ]));
 
       /* --- labels, live from the site --- */
-      var total = data.labels.reduce(function (a, l) { return a + (l.count || 0); }, 0);
+      var visibleLabels = data.labels.filter(function (l) { return l.label && !/^no label$/i.test(l.label); });
+      var total = visibleLabels.reduce(function (a, l) { return a + (l.count || 0); }, 0);
       body.appendChild(section("List labels — live from VNDB", total + " label assignments · customs included",
-        data.labels.length ? [
-          el("div", { class: "vp-labels" }, data.labels.map(function (l) {
-            return el("div", { class: "vp-label" }, [
-              el("span", { class: "med-chip", style: "--chip:" + labelColor(l.id), text: l.label }),
-              el("b", { text: String(l.count || 0) }),
-              l.private ? el("span", { class: "sub", text: "private" }) : null,
-              l.id >= 10 ? el("span", { class: "sub", text: "custom" }) : null
+        visibleLabels.length ? [
+          el("div", { class: "stat-strip vp-label-stats" }, visibleLabels.map(function (l) {
+            var meta = (l.private ? " · private" : "") + (l.id >= 10 ? " · custom" : "");
+            return el("div", { class: "stat-card", style: "--label-color:" + labelColor(l.id) }, [
+              el("div", { class: "v", text: String(l.count || 0) }),
+              el("div", { class: "k", text: l.label + meta })
             ]);
           }))
         ] : [el("p", { class: "sub", text: "No labels on the account yet." })]));
