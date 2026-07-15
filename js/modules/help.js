@@ -37,20 +37,21 @@
       ["Avatar", "Pick a procedural seal or upload your own image (auto-cropped to a circle and compressed before storing)."],
       ["Streaks", "Consecutive days with at least one completed session — overall and per subject. Early-stopped focus sessions don't count; everything else does."]
     ]],
-    ["The Collection Matrix (Build 3a–3j)", [
+    ["The Collection Matrix", [
       ["Collection Matrix", "The cross-media home: what you're currently consuming across every module, an “airing soon” list with live countdowns, aggregate charts, and the rest streak — consecutive days with at least one media log, fully independent of the study streak. All four modules are live: Anime, Books, Visual Novels and Games."],
       ["Anime vault", "Grid or list of your whole anime collection. Filter by status, genre or tag and search titles — all against database indexes, so 650 entries stay instant; cards render as you scroll. Click a card to edit everything; “+1 ep” on an in-progress card is the everyday logging action. Since 3f: airing entries carry a live “EP n · countdown” badge, and the watch-history heatmap below the vault mirrors Books' reading heatmap — same log, same chart."],
       ["Seasonal Watching (3f)", "Your vault one season at a time — defaults to today (device date onto AniList's own season calendar: Winter Jan–Mar, Spring Apr–Jun, Summer Jul–Sep, Fall Oct–Dec), and the season/year picker walks any past or future season. Next-episode countdowns on anything airing, and the palette follows the selected season (cool for winter, warm for summer). Season data comes from AniList sync/enrichment; manual or unenriched entries simply don't appear here — that's the honest scope. Airing times refresh when the view loads (plus a ⟳ button); there is no background polling."],
-      ["AniList Profile (3f/3j)", "Your account behind the sync, in-app, split into five tabs — Overview (stats + charts), Favourites, Social (followers & following), Activity, Notifications — all served from ONE API request, cached a few minutes; switching tabs never refetches. Strictly read-only: viewing notifications here never marks them read on the site."],
-      ["VNDB Profile (3j)", "The VN account behind the sync, built from what VNDB's API genuinely offers: your labels with live counts (custom labels included), your play-length vote contributions, list statistics from the synced vault, and the size of the database itself. What you won't find — favourites, followers, activity, notifications — doesn't exist in VNDB's API, and the page says so instead of showing empty panels."],
+      ["AniList Profile", "Your account behind the sync: Overview, Analytics, Favourites, Social, Activity and Notifications. The profile is read-only; viewing notifications here never marks them read on AniList."],
+      ["VNDB Profile", "Your VN account behind the sync: profile identity, label statistics, play-length votes and collection analytics. VNDB does not expose favourites, followers, social activity or notifications, so those panels are deliberately absent."],
       ["Books vault", "Manga & light novels, dual-tracked on one entry: the digital reading half (status, chapters/volumes read, half-star rating — synced from AniList or manual) AND the physical half (each owned volume with condition, purchase date and price; the range tool adds a whole box set in one go). The card bar shows owned % in gold against read % in crimson. Extras: mood tags, custom shelves, DNF tracking, and the reading heatmap fed by your logs."],
       ["Bookshelf & Mangaka", "The Shelf layout renders your physically-owned volumes as spines — deterministic colours per series, or upload a custom cover for any volume. The Mangaka page groups every work by author (as-written name grouping) with aggregate owned/read stats."],
       ["Visual Novels vault", "VNDB fills the metadata (title, developer, cover, content tags as genres, length estimate); the tracking that matters is manual by design — VNDB has no structured route data, so the route list is yours to build, and a VN's progress IS its routes cleared. Since 3j there's also an optional chapters/parts layer — your own division of a VN's internal structure, parallel to routes (each chapter has the shared status and a note; most VNs just leave it empty). Plus: a CG counter (numbers only, never artwork), your own content-warning tags, and the quote log — any kept line can be sent to the flashcard system's Personal deck, where it joins the normal SM-2 schedule without being forced into a subject."],
       ["Sync & Import", "Three ways in: connect your AniList (one-time Client ID + token via their PIN page) for anime & manga; connect your VNDB (a personal token from vndb.org/u/tokens — simpler, no OAuth) for visual novels; or import the zero-setup AniList XML export and run the public enrichment. All paths feed the same vault, matched by AniList/MAL/VNDB id — no duplicates, and your physical volumes, routes, chapters, quotes and warnings always survive a sync."],
-      ["Autonomous sync (3j)", "Once connected, the app keeps itself current in BOTH directions: local edits push automatically (as before), and your AniList + VNDB lists are pulled every 15 minutes, on coming back online, and when the tab wakes — so mal-sync marking an episode watched shows up here by itself. Progress a pull discovers was made elsewhere earns the normal XP/gold trickle, sized to what actually advanced; a per-entry watermark recognises echoes of this app's own pushes so nothing is ever rewarded twice, and progress that went DOWN (a rewatch, a correction) is never punished. Toggle + last-cycle report live on Sync & Import. Still last-write-wins between the app and the sites."],
-      ["Write-back (3d)", "Editing a synced entry's status, progress or score pushes the change back to the connected account automatically — rapid edits (repeated +1) coalesce into one push, failures show a ⚠ chip on the card with one-tap retry, and every push lands in the Write activity log on Sync & Import. ONLY list state ever leaves the machine: the physical vault, mood, shelves, notes, quotes, routes, CG counts and content warnings are local by construction. Two plain-spoken limits: (1) it's last-write-wins — no conflict detection, so an edit made on the site between local edits just gets overwritten by whichever side writes last; (2) VNDB pushes currently fail because VNDB's CORS policy blocks browser PATCH requests (their side, not your token) — AniList push works fully."],
-      ["Find new (3d)", "The ⊕ Find new button in each vault searches the whole external database (AniList for anime/manga, VNDB for VNs) — deliberately separate from the vault search box, which only filters what you already track. Pick a status on a result and it's created on your remote list and mirrored locally in one step; if the remote create can't happen (not connected, or VNDB's CORS wall), it's added locally with the external id kept so a later sync claims it instead of duplicating."],
-      ["Games vault (3e)", "Manual-first, permanently and honestly: no game service lets a browser pull a library (Steam's data API blocks CORS, and Steam sign-in was tested live and abandoned — the OpenID verification response can't be read from a browser page, and verifying it would need a server this app deliberately doesn't have). The real quick-start is ▤ Bulk add: paste titles one per line — Steam's own library page copy-pastes cleanly — and each becomes a Planned draft to flesh out later. Games-only axes: completion tier (story complete / full completion / platinum / abandoned — finer than the shared status), platform, manual playtime (a game's progress IS its hours, so “+1 hr” is the everyday log), backlog priority, publisher, and a hand-entered Steam App ID that gives a working store-page link. Analytics under the vault: tier/platform/genre breakdowns and the backlog burn-down — added vs finished per week, is the pile growing or shrinking."],
+      ["Planner", "The Planner workspace holds Budget Planner and Goals under one secondary tab bar. Use it for collection budgeting and personal goals without crowding the archive navigation."],
+      ["Autonomous sync", "Once connected, the app keeps AniList and VNDB current in both directions: local edits push automatically and connected lists are pulled every 15 minutes, on coming back online and when the tab wakes. Sync & Import shows the toggle, last cycle and technical history."],
+      ["Write-back", "Editing a synced entry's status, progress or score pushes the change back to the connected account automatically. Rapid edits coalesce, failures expose a retry chip, and only list state ever leaves the device; personal media details remain local."],
+      ["Find new", "The ⊕ Find new button in each vault searches the external database, separately from the local-vault search. Pick a status to add a result to the appropriate collection."],
+      ["Games vault", "Manual-first by design: bulk-add titles, then track completion tier, platform, playtime, backlog priority, publisher and an optional Steam store link. The analytics area shows tier/platform/genre breakdowns and backlog burn-down."],
       ["The Shrine", "Everything you've marked ♥, ranked by your scores, across all modules. The hall of fame."],
       ["Governor boundary", "Logging media earns a small XP/gold trickle and feeds the rest streak; a sync that discovers progress made elsewhere logs ONE proportional reward per sync. HP is untouched in both directions — media days don't drain it, and can't heal it."]
     ]],
@@ -60,6 +61,33 @@
       ["Sample data", "Calendar events marked SAMPLE are placeholders — edit or delete them and add your real dates."]
     ]]
   ];
+
+  /* Keep the guide as a practical launch point. Entries without a route remain
+     explanatory rather than pretending every help subject is a destination. */
+  var RELATED = {
+    "Overview": ["Open Home", "home"],
+    "Subjects (rail)": ["Open Study", "subject", "compsci"],
+    "Due Today": ["Open Due Today", "due"],
+    "Focus Timer": ["Open Focus Timer", "focus"],
+    "Calendar": ["Open Calendar", "calendar"],
+    "Today's directives": ["Open Tasks", "tasks"],
+    "Exams & Papers": ["Open Exams & Papers", "tracker"],
+    "Card Stats": ["Open Card Stats", "cardstats"],
+    "HP": ["Open Governor Status", "governor", "status"],
+    "Gold": ["Open Gold Shop", "governor", "shop"],
+    "Avatar": ["Open Avatar", "governor", "avatar"],
+    "Collection Matrix": ["Open Collection Overview", "matrix"],
+    "Anime vault": ["Open Anime", "anime"],
+    "AniList Profile": ["Open AniList", "aniprofile"],
+    "VNDB Profile": ["Open VNDB", "vndbprofile"],
+    "Books vault": ["Open Books", "books"],
+    "Visual Novels vault": ["Open Visual Novels", "vn"],
+    "Games vault": ["Open Games", "game"],
+    "The Shrine": ["Open Shrine", "shrine"],
+    "Sync & Import": ["Open Sync & Import", "mediasync"],
+    "Backup & Restore": ["Open Data & Backup", "data"]
+  };
+  function slug(value) { return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
 
   KOS.views.help = function (main) {
     document.getElementById("tree").classList.add("hidden");
@@ -74,46 +102,81 @@
       ])
     ]));
 
-    /* a search field + a two-column accordion: section nav down the left,
-       collapsible topic rows on the right. Variable-length entries read
-       cleanly because a row only shows its body when open. */
+    /* Documentation desk: navigation, a deliberately narrow reading column,
+       and a practical context rail on wide screens. */
     var wrap = el("div", { class: "help-wrap" });
     main.appendChild(wrap);
-    var nav = el("nav", { class: "help-nav" });
+    var nav = el("nav", { class: "help-nav", "aria-label": "Guide sections" });
+    var searchShell = el("div", { class: "help-search-shell" });
     var content = el("div", { class: "help-content" });
+    var aside = el("aside", { class: "help-aside", "aria-label": "Guide context" });
     wrap.appendChild(nav);
+    wrap.appendChild(searchShell);
     wrap.appendChild(content);
+    wrap.appendChild(aside);
 
-    var search = el("input", { type: "search", class: "todo-in help-search", placeholder: "Search the guide…" });
-    content.appendChild(search);
+    var searchLabel = el("label", { class: "help-search-label", text: "Search the manual" });
+    var search = el("input", { type: "search", class: "todo-in help-search", placeholder: "Search pages, study systems and shortcuts…", "aria-describedby": "help-search-hint" });
+    searchShell.appendChild(searchLabel);
+    searchShell.appendChild(search);
+    searchShell.appendChild(el("span", { id: "help-search-hint", class: "help-search-hint", text: "Results expand automatically. Press Esc to clear the search." }));
     var list = el("div", { class: "help-list" });
     content.appendChild(list);
 
+    var contextTitle = el("b", { text: "Getting around" });
+    aside.appendChild(el("div", { class: "help-aside-card" }, [
+      el("span", { class: "help-aside-kicker", text: "Guide context" }), contextTitle,
+      el("p", { text: "Choose a section, scan the headings, then open only the detail you need." })
+    ]));
+    aside.appendChild(el("div", { class: "help-aside-card help-aside-shortcuts" }, [
+      el("span", { class: "help-aside-kicker", text: "Useful shortcuts" }),
+      el("div", {}, [el("kbd", { text: "/" }), el("span", { text: "Search the app" })]),
+      el("div", {}, [el("kbd", { text: "Alt+← / →" }), el("span", { text: "Back / forward" })]),
+      el("div", {}, [el("kbd", { text: "Esc" }), el("span", { text: "Close overlays" })])
+    ]));
+
+    function setDeepLink(id) {
+      if (window.history && window.history.replaceState) window.history.replaceState(null, "", "#" + id);
+    }
+    function openRow(row, head, id) {
+      row.classList.add("open"); head.setAttribute("aria-expanded", "true"); setDeepLink(id);
+    }
+
     SECTIONS.forEach(function (sec, si) {
-      nav.appendChild(el("button", { class: "help-nav-item" + (si === 0 ? " active" : ""), "data-si": String(si),
+      var secId = "help-" + slug(sec[0]);
+      nav.appendChild(el("button", { class: "help-nav-item" + (si === 0 ? " active" : ""), "data-si": String(si), "aria-current": si === 0 ? "true" : "false",
         onclick: function () {
-          nav.querySelectorAll(".help-nav-item").forEach(function (b) { b.classList.remove("active"); });
-          this.classList.add("active");
-          var target = list.querySelector('[data-sec="' + si + '"]');
+          nav.querySelectorAll(".help-nav-item").forEach(function (b) { b.classList.remove("active"); b.setAttribute("aria-current", "false"); });
+          this.classList.add("active"); this.setAttribute("aria-current", "true"); contextTitle.textContent = sec[0]; setDeepLink(secId);
+          var target = document.getElementById(secId);
           if (target && target.scrollIntoView) target.scrollIntoView({ block: "start", behavior: "smooth" });
         } }, [sec[0]]));
     });
 
     SECTIONS.forEach(function (sec, si) {
-      var block = el("section", { class: "help-block", "data-sec": String(si) });
-      block.appendChild(el("h3", { class: "help-block-h", text: sec[0] }));
+      var secId = "help-" + slug(sec[0]);
+      var block = el("section", { class: "help-block", id: secId, "data-sec": String(si) });
+      block.appendChild(el("h2", { class: "help-block-h", text: sec[0] }));
       sec[1].forEach(function (item) {
-        var body = el("div", { class: "help-row-body" }, [el("p", { text: item[1] })]);
-        var row = el("div", { class: "help-row", "data-q": (item[0] + " " + item[1]).toLowerCase() });
+        var rowId = secId + "-" + slug(item[0]);
+        var body = el("div", { class: "help-row-body", id: rowId + "-detail" }, [el("p", { text: item[1] })]);
+        var row = el("article", { class: "help-row", id: rowId, "data-q": (item[0] + " " + item[1]).toLowerCase() });
         var head = el("button", { class: "help-row-head", "aria-expanded": "false", onclick: function () {
           var open = row.classList.toggle("open");
           head.setAttribute("aria-expanded", String(open));
+          if (open) setDeepLink(rowId);
         } }, [
           el("span", { class: "help-row-t", text: item[0] }),
           el("span", { class: "help-row-arr", "aria-hidden": "true", text: "▾" })
         ]);
+        head.setAttribute("aria-controls", rowId + "-detail");
+        var tools = el("div", { class: "help-row-tools" }, [
+          el("a", { class: "help-deeplink", href: "#" + rowId, text: "Link", onclick: function () { setDeepLink(rowId); } }),
+          RELATED[item[0]] ? el("button", { class: "help-related", text: RELATED[item[0]][0] + " →", onclick: function () { KOS.show(RELATED[item[0]][1], RELATED[item[0]][2]); } }) : null
+        ].filter(Boolean));
         row.appendChild(head);
         row.appendChild(body);
+        body.appendChild(tools);
         block.appendChild(row);
       });
       list.appendChild(block);
@@ -125,12 +188,27 @@
         var hit = !q || r.dataset.q.indexOf(q) !== -1;
         r.style.display = hit ? "" : "none";
         r.classList.toggle("open", !!q && hit);
+        var head = r.querySelector(".help-row-head");
+        if (head) head.setAttribute("aria-expanded", String(!!q && hit));
       });
       list.querySelectorAll(".help-block").forEach(function (b) {
         var any = [].some.call(b.querySelectorAll(".help-row"), function (r) { return r.style.display !== "none"; });
         b.style.display = any ? "" : "none";
       });
     }, 150));
+
+    search.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && search.value) { search.value = ""; search.dispatchEvent(new Event("input")); search.focus(); }
+    });
+
+    if (location.hash && location.hash.indexOf("#help-") === 0) {
+      var linked = document.getElementById(location.hash.slice(1));
+      if (linked) {
+        var linkedRow = linked.classList.contains("help-row") ? linked : null;
+        if (linkedRow) openRow(linkedRow, linkedRow.querySelector(".help-row-head"), linkedRow.id);
+        setTimeout(function () { linked.scrollIntoView({ block: "start" }); }, 0);
+      }
+    }
 
     main.appendChild(el("p", { class: "sub", style: "margin-top:20px", text:
       "Shortcuts: /  search · Alt+← / Alt+→ (or Backspace)  history · Esc  close search/modals." }));

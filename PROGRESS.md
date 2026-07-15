@@ -1592,3 +1592,15 @@ marked complete.
 - Open Topic uses the reference route's `subject` contract; Focus Topic preloads
   the existing Focus Timer's subject/ref selectors without overwriting the last
   saved configuration until a session starts.
+
+## Help & Guide documentation desk (2026-07-15)
+
+- The in-app manual now uses a three-part wide-screen workspace: sticky section
+  navigation, a 760px reading column and a practical context/shortcut rail.
+  Search spans the working area without making prose lines too long; compact
+  widths remove the context rail before hiding the section navigation.
+- Every help topic has an addressable `#help-…` anchor, native-button accordion
+  semantics and search-safe keyboard behaviour. Relevant entries offer direct
+  links into the active Home, Study, Governor, Collection, Sync and Data routes.
+- Collection terminology now matches the archive-first navigation and the
+  current Planner, Sync, Analytics and profile layouts.

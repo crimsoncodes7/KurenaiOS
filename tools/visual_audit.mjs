@@ -426,11 +426,27 @@ assert(stripClip.overflow === "hidden" && Math.abs(stripClip.aspect - 2 / 3) < 0
 for (const [view, arg, selector] of [
   ["home", undefined, ".home-id"],
   ["subject", "compsci", ".subject-grid"],
+  ["help", undefined, ".help-wrap"],
   ["matrix", undefined, ".med-mods"],
   ["mediasync", undefined, ".collection-workspace-tabs"],
   ["governor", "status", ".gov-status"],
   ["data", undefined, "#main"]
 ]) await auditView(view, arg, selector);
+
+await auditView("help", undefined, ".help-wrap");
+const helpWide = await evaluate(`(() => {
+  const wrap = document.querySelector('.help-wrap'), content = document.querySelector('.help-content');
+  return { columns: getComputedStyle(wrap).gridTemplateColumns.split(' ').length,
+    aside: !!document.querySelector('.help-aside'), width: Math.round(content.getBoundingClientRect().width),
+    search: Math.round(document.querySelector('.help-search-shell').getBoundingClientRect().width) };
+})()`);
+assert(helpWide.columns === 3 && helpWide.aside && helpWide.width <= 760 && helpWide.search > helpWide.width,
+  `Help documentation layout is not a readable wide-screen workspace: ${JSON.stringify(helpWide)}`);
+await screenshot("/tmp/kos-help-1440.png");
+await evaluate(`(() => { const s = document.querySelector('.help-search'); s.value = 'Focus Timer'; s.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+await waitFor("document.querySelectorAll('.help-row[style*=none]').length > 0 && document.querySelector('.help-row.open')", "Help search results");
+await clickText(".help-row.open", "Open Focus Timer");
+await waitFor("document.querySelector('.fx-setup')", "related Help link");
 
 await viewport(980, 800);
 for (const [view, arg, selector] of [
@@ -441,6 +457,12 @@ for (const [view, arg, selector] of [
   ["governor", "status", ".gov-status"],
   ["data", undefined, "#main"]
 ]) await auditView(view, arg, selector);
+await auditView("help", undefined, ".help-wrap");
+const helpNarrow = await evaluate(`(() => ({ aside: getComputedStyle(document.querySelector('.help-aside')).display,
+  nav: getComputedStyle(document.querySelector('.help-nav')).display,
+  scroll: document.documentElement.scrollWidth, viewport: innerWidth }))()`);
+assert(helpNarrow.aside === 'none' && helpNarrow.nav !== 'none' && helpNarrow.scroll <= helpNarrow.viewport + 1,
+  `Compact Help workspace does not adapt cleanly: ${JSON.stringify(helpNarrow)}`);
 await evaluate("KOS.show('subject', 'compsci')");
 await waitFor("document.querySelector('.subject-grid')", "narrow Study dashboard");
 await clickText("#main", "Compare topics");
@@ -502,5 +524,5 @@ await screenshot("/tmp/kos-home-restored-1440.png");
 assert(browserErrors.length === 0, `Browser errors:\n${browserErrors.join("\n")}`);
 
 console.log("VISUAL AUDIT PASS — live crop workflows, Compare Topics, persistence, backup/restore and responsive adjacent pages verified");
-console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-banner-1440.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
+console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
 ws.close();
