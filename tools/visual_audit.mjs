@@ -440,7 +440,7 @@ const helpWide = await evaluate(`(() => {
     aside: !!document.querySelector('.help-aside'), width: Math.round(content.getBoundingClientRect().width),
     search: Math.round(document.querySelector('.help-search-shell').getBoundingClientRect().width) };
 })()`);
-assert(helpWide.columns === 3 && helpWide.aside && helpWide.width <= 760 && helpWide.search > helpWide.width,
+assert(helpWide.columns === 3 && helpWide.aside && helpWide.width <= 760 && Math.abs(helpWide.search - helpWide.width) <= 2,
   `Help documentation layout is not a readable wide-screen workspace: ${JSON.stringify(helpWide)}`);
 await screenshot("/tmp/kos-help-1440.png");
 await evaluate(`(() => { const s = document.querySelector('.help-search'); s.value = 'Focus Timer'; s.dispatchEvent(new Event('input', { bubbles: true })); })()`);

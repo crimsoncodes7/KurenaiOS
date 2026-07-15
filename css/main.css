@@ -2240,7 +2240,7 @@ body.fx-minimised .fx-dock { display: flex; }
 .att-list { margin-top: 6px; }
 
 /* help */
-.help-wrap { display: grid; grid-template-columns: 220px minmax(0, 760px) minmax(210px, 1fr); grid-template-areas: "nav search search" "nav content aside"; gap: 24px 32px; align-items: start; }
+.help-wrap { display: grid; grid-template-columns: 220px minmax(0, 760px) minmax(210px, 1fr); grid-template-areas: "nav search ." "nav content aside"; gap: 24px 32px; align-items: start; }
 .help-nav { grid-area: nav; position: sticky; top: 10px; display: flex; flex-direction: column; gap: 3px; padding-top: 4px; }
 .help-nav-item { text-align: left; padding: 10px 13px; border-radius: 9px; font-size: 14px; color: var(--text2); font-weight: 500; transition: background .15s, color .15s; }
 .help-nav-item:hover { background: color-mix(in srgb, var(--text) 4%, transparent); color: var(--text); }
