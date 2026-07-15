@@ -216,20 +216,21 @@ step(".wl-top: the hero is ALWAYS present (placeholder when nothing is waiting)"
   if (!top) throw new Error("no .wl-top row");
   const hero = top.querySelector(".wl-hero");
   if (!hero) throw new Error("hero missing from the top row");
-  if (!/Next to drop/i.test(hero.textContent)) throw new Error("hero badge text");
+  if (!/Release desk/i.test(hero.textContent)) throw new Error("hero badge text");
   if (!hero.classList.contains("wl-hero-empty")) throw new Error("empty vault should show the placeholder hero");
 });
-step("budget summary panel: counts strip (items · upcoming · total list)", async () => {
+step("budget summary panel: allowance ledger keeps committed, spent and remaining distinct", async () => {
   KOS.wishlist.add({ module: "books", title: "Test Vol 1", price: 10, status: "wantToBuy" });
   KOS.wishlist.add({ module: "game", title: "Waited Game", price: 20, status: "waitingForRelease", releaseDate: "2030-06-01" });
   KOS.show("wishlist", undefined, { _nav: true });
   await tick(40);
   const main = document.getElementById("main");
-  const cnts = main.querySelectorAll(".wl-budget .wl-cnt");
-  if (cnts.length !== 3) throw new Error("expected 3 count cells, got " + cnts.length);
-  if (!/2/.test(cnts[0].textContent)) throw new Error("active item count wrong");
-  if (!/1/.test(cnts[1].textContent)) throw new Error("upcoming count wrong");
-  if (!/30/.test(cnts[2].textContent)) throw new Error("total list value wrong");
+  const lines = [...main.querySelectorAll(".wl-budget .wl-ledger-line")];
+  if (lines.length !== 3) throw new Error("expected 3 decision ledger lines, got " + lines.length);
+  if (!/Committed/.test(lines[0].textContent) || !/30/.test(lines[0].textContent)) throw new Error("committed planner value wrong");
+  if (!/Spent/.test(lines[1].textContent)) throw new Error("spent line missing");
+  if (!/Remaining/.test(lines[2].textContent)) throw new Error("remaining line missing");
+  if (!main.querySelector(".wl-budget-edit") || main.querySelector(".wl-limit")) throw new Error("budget must use the edit action, not a visible numeric input");
   const hero = main.querySelector(".wl-hero");
   if (hero.classList.contains("wl-hero-empty")) throw new Error("real waiting item should replace the placeholder");
   if (!/Waited Game/.test(hero.textContent)) throw new Error("next-to-drop pick wrong");

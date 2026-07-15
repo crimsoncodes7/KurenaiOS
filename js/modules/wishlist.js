@@ -57,15 +57,17 @@
      the data object. Migration: pre-refactor saves kept the active tab as a
      stray `_tab` key on state.wishlist; fold it in and drop it. */
   var TABS = ["wantToBuy", "waitingForRelease", "purchased"];
+  var SORTS = ["priority", "release", "price", "recent"];
   function prefs() {
     var m = store.state.media = store.state.media || {};
-    m.wishlist = m.wishlist || { tab: "wantToBuy" };
+    m.wishlist = m.wishlist || { tab: "wantToBuy", sort: "priority" };
     var w = store.state.wishlist;
     if (w && w._tab) {
       if (TABS.indexOf(w._tab) !== -1) m.wishlist.tab = w._tab;
       delete w._tab;
     }
     if (TABS.indexOf(m.wishlist.tab) === -1) m.wishlist.tab = "wantToBuy";
+    if (SORTS.indexOf(m.wishlist.sort) === -1) m.wishlist.sort = "priority";
     return m.wishlist;
   }
   function get(id) { return items().find(function (it) { return it.id === id; }) || null; }
@@ -110,6 +112,7 @@
       coverCrop: KOS.imageCrop.normalise(d.coverCrop),
       price: cleanPrice(d.price),
       currency: d.currency || w.budget.currency || "£",
+      author: String(d.author || "").trim(),
       retailer: String(d.retailer || "").trim(),
       retailerUrl: String(d.retailerUrl || "").trim(),
       priority: nextPriority(status),
@@ -118,7 +121,17 @@
       linkedEntryId: d.linkedEntryId != null ? d.linkedEntryId : null,
       notes: String(d.notes || ""),
       addedAt: now(),
-      purchasedAt: null
+      purchasedAt: null,
+      /* A book purchase can identify its physical copy precisely. Earlier
+         saves omit this harmlessly; 1 is the safe default for a standalone
+         title, while an existing series can be set explicitly in the editor. */
+      physicalVolumeNumber: d.physicalVolumeNumber != null && d.physicalVolumeNumber !== ""
+        ? Math.max(1, Math.floor(parseFloat(d.physicalVolumeNumber) || 1)) : 1,
+      /* A handoff marker prevents a repeated purchase click or retry from
+         duplicating a physical volume. These are planner-local pointers;
+         `linkedEntryId` remains the public collection link. */
+      collectionAppliedAt: d.collectionAppliedAt || null,
+      collectionHandoffError: d.collectionHandoffError || null
     };
     if (status === "purchased") { it.purchasedAt = now(); archive(it, it.purchasedAt); }
     w.items.push(it);
@@ -134,6 +147,11 @@
       if (k === "id" || k === "addedAt" || k === "purchasedAt") return;
       if (k === "module") { it.module = normModule(patch.module); return; }
       if (k === "price") { it.price = cleanPrice(patch.price); return; }
+      if (k === "physicalVolumeNumber") {
+        it.physicalVolumeNumber = patch.physicalVolumeNumber != null && patch.physicalVolumeNumber !== ""
+          ? Math.max(1, Math.floor(parseFloat(patch.physicalVolumeNumber) || 1)) : 1;
+        return;
+      }
       if (k === "coverCrop") { it.coverCrop = KOS.imageCrop.normalise(patch.coverCrop); return; }
       if (k === "status") return;   // status transitions go through setStatus
       it[k] = patch[k];
@@ -141,6 +159,9 @@
     if (patch && patch.status && patch.status !== wasStatus) {
       setStatus(id, patch.status);   // saves
     } else {
+      /* Keep an already-confirmed purchase's historical snapshot in step
+         with safe edits such as title, module, price or creator. */
+      if (it.status === "purchased") archive(it, it.purchasedAt || now());
       store.save();
     }
     return it;
@@ -152,6 +173,12 @@
     var it = get(id);
     if (!it || STATUSES.indexOf(status) === -1 || it.status === status) return it;
     if (status === "purchased") { markPurchased(id); return get(id); }
+    if (it.status === "purchased") {
+      /* The planner's archived record follows a reversal, but a local
+         Collection handoff remains intentionally non-destructive. */
+      unarchive(id);
+      it.purchasedAt = null;
+    }
     it.status = status;
     it.priority = nextPriority(status);
     store.save();
@@ -160,6 +187,10 @@
 
   function remove(id) {
     var w = data();
+    /* A planner row and its archived actual-spend snapshot are one purchase
+       record. Removing the row must not leave a phantom charge behind. This
+       deliberately does not remove any already-created Collection entry. */
+    unarchive(id);
     w.items = w.items.filter(function (it) { return it.id !== id; });
     store.save();
   }
@@ -177,16 +208,29 @@
      Marking Purchased never deletes the item — it flips status and lands a
      snapshot in the month bucket of budget.history, which is what the
      spend-over-time chart and per-module breakdown read. */
+  function recalcBucket(bucket) {
+    bucket.spent = (bucket.items || []).reduce(function (a, x) { return a + (x.price || 0); }, 0);
+  }
+  /* Remove every historical copy for an item. The normal path has exactly one,
+     but scanning all buckets repairs old manually-edited saves and lets an
+     archived purchase be corrected or reverted without leaving phantom spend. */
+  function unarchive(id) {
+    var w = data();
+    w.budget.history.forEach(function (bucket) {
+      bucket.items = (bucket.items || []).filter(function (x) { return x.id !== id; });
+      recalcBucket(bucket);
+    });
+    w.budget.history = w.budget.history.filter(function (bucket) { return (bucket.items || []).length; });
+  }
   function archive(it, t) {
     var w = data();
+    unarchive(it.id);
     var mk = monthKey(t);
     var bucket = w.budget.history.find(function (h) { return h.month === mk; });
     if (!bucket) { bucket = { month: mk, spent: 0, items: [] }; w.budget.history.push(bucket); }
-    if (!bucket.items.some(function (x) { return x.id === it.id; })) {
-      bucket.items.push({ id: it.id, title: it.title, module: it.module,
-        price: it.price, currency: it.currency, purchasedAt: t });
-    }
-    bucket.spent = bucket.items.reduce(function (a, x) { return a + (x.price || 0); }, 0);
+    bucket.items.push({ id: it.id, title: it.title, module: it.module,
+      price: it.price, currency: it.currency, purchasedAt: t });
+    recalcBucket(bucket);
     w.budget.history.sort(function (a, b) { return a.month < b.month ? -1 : 1; });
   }
   function markPurchased(id, ts) {
@@ -204,7 +248,10 @@
   function setBudget(patch) {
     var b = budget();
     if (patch.monthlyLimit != null) b.monthlyLimit = Math.max(0, parseFloat(patch.monthlyLimit) || 0);
-    if (patch.currency != null) b.currency = String(patch.currency).slice(0, 3) || "£";
+    /* There is no FX conversion engine. Once any value has been recorded,
+       changing the shared currency would only relabel amounts, so the UI and
+       API retain the established unit instead of silently corrupting totals. */
+    if (patch.currency != null && canChangeCurrency()) b.currency = String(patch.currency).slice(0, 3) || "£";
     store.save();
     return b;
   }
@@ -215,7 +262,7 @@
   function currentMonthSpend(ts) { return spentInMonth(monthKey(ts)); }
   function selectedTotal(ids) {
     return (ids || []).reduce(function (a, id) {
-      var it = get(id); return a + (it ? (it.price || 0) : 0);
+      var it = get(id); return a + (it && it.status === "wantToBuy" ? (it.price || 0) : 0);
     }, 0);
   }
   /* the live "will I bust the budget" number: limit − already spent this
@@ -238,6 +285,79 @@
   function totalSpent() {
     return budget().history.reduce(function (a, h) { return a + (h.spent || 0); }, 0);
   }
+  function purchaseCount() {
+    return budget().history.reduce(function (n, h) { return n + ((h.items || []).length); }, 0);
+  }
+  function canChangeCurrency() {
+    return purchaseCount() === 0 && !items().some(function (it) { return (it.price || 0) > 0; });
+  }
+  /* Everything still waiting to be bought is a commitment against future
+     allowance, but never an actual charge. Cancelled and purchased records
+     intentionally stay out of this number. */
+  function committedTotal() {
+    return items().filter(function (it) {
+      return it.status === "wantToBuy" || it.status === "waitingForRelease";
+    }).reduce(function (sum, it) { return sum + (it.price || 0); }, 0);
+  }
+
+  function dayKey(ts) {
+    if (ts == null) return KOS.srs.todayISO();
+    var d = new Date(ts);
+    return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+  }
+  function shiftDay(iso, amount) {
+    var d = new Date(iso + "T12:00:00");
+    d.setDate(d.getDate() + amount);
+    return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+  }
+  /* Release-day behaviour is deliberately calendar-based: a 15 July item
+     remains the featured reminder on the 15th and the whole 16th, moving to
+     Want to Buy only when the 17th begins. Return moved records for a useful
+     UI toast, but retain the existing synchronous planner data contract. */
+  function advanceReleasedItems(ts) {
+    var today = dayKey(ts), cutoff = shiftDay(today, -1), moved = [];
+    byStatus("waitingForRelease").forEach(function (it) {
+      if (it.releaseDate && it.releaseDate < cutoff) {
+        it.status = "wantToBuy";
+        it.priority = nextPriority("wantToBuy");
+        moved.push(it);
+      }
+    });
+    if (moved.length) store.save();
+    return moved;
+  }
+  function rotateSameDay(candidates, ts) {
+    if (!candidates.length) return null;
+    if (candidates.length === 1) return candidates[0];
+    /* A deterministic hourly rotation works after reload and does not add a
+       cosmetic state field to backups. */
+    var slot = Math.floor((ts == null ? now() : ts) / 3600000);
+    return candidates[slot % candidates.length];
+  }
+  /* The screen's actual feature decision. `nextToDrop` remains exported with
+     its historic nearest-upcoming semantics for callers that only need a date
+     lookup; this richer helper owns visual release reminders and fallbacks. */
+  function featuredItem(ts) {
+    var today = dayKey(ts);
+    var waiting = byStatus("waitingForRelease").filter(function (it) { return it.releaseDate; });
+    var valid = waiting.filter(function (it) { return it.releaseDate >= shiftDay(today, -1); });
+    if (valid.length) {
+      valid.sort(function (a, b) {
+        return a.releaseDate < b.releaseDate ? -1 : a.releaseDate > b.releaseDate ? 1
+          : (a.priority || 0) - (b.priority || 0) || a.id - b.id;
+      });
+      var date = valid[0].releaseDate;
+      var sameDate = valid.filter(function (it) { return it.releaseDate === date; });
+      return {
+        item: rotateSameDay(sameDate, ts),
+        kind: date < today ? "releaseReminder" : date === today ? "releaseDay" : "nextDrop"
+      };
+    }
+    var undated = byStatus("waitingForRelease").filter(function (it) { return !it.releaseDate; });
+    if (undated.length) return { item: undated[0], kind: "awaitingDate" };
+    var priorityPick = byStatus("wantToBuy")[0];
+    return priorityPick ? { item: priorityPick, kind: "priorityPick" } : null;
+  }
   /* the "next to drop": whichever waiting-for-release item has the nearest
      manual release date — upcoming first, else the most recent past one */
   function nextToDrop() {
@@ -248,6 +368,138 @@
       .sort(function (a, b) { return a.releaseDate < b.releaseDate ? -1 : 1; });
     if (upcoming.length) return upcoming[0];
     return waiting.sort(function (a, b) { return a.releaseDate > b.releaseDate ? -1 : 1; })[0];
+  }
+
+  /* ---------------- Collection handoff ----------------
+     A wishlist record remains the source of purchase intent. The Collection
+     entry is only created or changed through a conscious local handoff — no
+     title matching, provider sync, network request or Governor activity.
+     Books gain an owned physical-volume record once purchased; VNs and games
+     are created as planned library entries. Existing collection progress is
+     never downgraded. */
+  function purchaseDate(ts) { return dayKey(ts == null ? now() : ts); }
+  function collectionAvailable() {
+    return !!(KOS.mediadb && typeof KOS.mediadb.add === "function" &&
+      typeof KOS.mediadb.get === "function" && typeof KOS.mediadb.put === "function");
+  }
+  function collectionDraft(it, physical) {
+    var rec = {
+      module: it.module,
+      title: it.title,
+      status: "planned",
+      syncSource: "manual",
+      coverUrl: it.coverUrl || null,
+      coverCrop: it.coverCrop || null,
+      author: it.author || "",
+      notes: it.notes || ""
+    };
+    if (it.module === "books" && physical) {
+      rec.ownership = "physical";
+      rec.physical = { owned: true, volumes: [KOS.mediadb.normVolume({
+        number: it.physicalVolumeNumber || 1,
+        condition: "good",
+        purchaseDate: purchaseDate(it.purchasedAt),
+        price: it.price || 0,
+        coverUrl: it.coverUrl || null,
+        coverCrop: it.coverCrop || null
+      })] };
+    }
+    return rec;
+  }
+  function rememberCollectionLink(it, entryId, applied) {
+    it.linkedEntryId = entryId;
+    if (applied) it.collectionAppliedAt = now();
+    it.collectionHandoffError = null;
+    store.save();
+  }
+  function handoffError(it, err) {
+    if (it) {
+      it.collectionHandoffError = String((err && err.message) || err || "Could not update Collection.");
+      store.save();
+    }
+  }
+  /* Explicitly create the linked library record before purchase when the
+     user wants it on their Collection roadmap. Books remain digital/planned
+     until a confirmed purchase later adds their physical volume. */
+  function createCollectionEntry(id, done) {
+    var it = get(id);
+    if (!it) { done && done(new Error("Wishlist item not found.")); return; }
+    if (!collectionAvailable()) { done && done(new Error("Collection storage is unavailable.")); return; }
+    if (it.linkedEntryId != null) {
+      KOS.mediadb.get(it.linkedEntryId, function (err, entry) {
+        if (err || !entry) { done && done(err || new Error("The linked collection entry is missing.")); return; }
+        done && done(null, entry, true);
+      });
+      return;
+    }
+    KOS.mediadb.add(collectionDraft(it, false), function (err2, entry2) {
+      if (err2 || !entry2) {
+        handoffError(it, err2 || new Error("Could not create the collection entry."));
+        done && done(err2 || new Error("Could not create the collection entry."));
+        return;
+      }
+      rememberCollectionLink(it, entry2.id, false);
+      done && done(null, entry2, false);
+    });
+  }
+  function applyBookPurchase(it, entry) {
+    var volumeNo = it.physicalVolumeNumber || 1;
+    entry.physical = entry.physical || { owned: true, volumes: [] };
+    entry.physical.owned = true;
+    entry.ownership = "physical";
+    var exists = (entry.physical.volumes || []).some(function (v) { return Number(v.number) === Number(volumeNo); });
+    if (exists) return { entry: entry, changed: false, duplicate: true };
+    entry.physical.volumes.push(KOS.mediadb.normVolume({
+      number: volumeNo,
+      condition: "good",
+      purchaseDate: purchaseDate(it.purchasedAt),
+      price: it.price || 0,
+      coverUrl: it.coverUrl || null,
+      coverCrop: it.coverCrop || null
+    }));
+    return { entry: entry, changed: true, duplicate: false };
+  }
+  /* Actual purchase first archives locally. This optional follow-up materialises
+     that truth in Collection without altering the synchronous `markPurchased`
+     API. A missing link creates a deliberately new manual entry — NEVER a
+     fuzzy title match — and an existing VN/game status is respected. */
+  function handoffPurchased(id, done) {
+    var it = get(id);
+    if (!it || it.status !== "purchased") { done && done(new Error("Mark the item purchased first.")); return; }
+    if (!collectionAvailable()) { done && done(new Error("Collection storage is unavailable.")); return; }
+    if (it.collectionAppliedAt) { done && done(null, null, { alreadyApplied: true }); return; }
+    function finish(err, entry, detail) {
+      if (err) handoffError(it, err);
+      else if (entry) rememberCollectionLink(it, entry.id, true);
+      done && done(err || null, entry || null, detail || {});
+    }
+    function updateExisting(entry) {
+      if (entry.module !== it.module) {
+        finish(new Error("The linked Collection entry is a different media type."));
+        return;
+      }
+      if (it.module !== "books") {
+        /* A collection item can already be in progress/completed. Planning
+           must never erase that history, so no status write is needed. */
+        finish(null, entry, { preservedStatus: true });
+        return;
+      }
+      var applied = applyBookPurchase(it, entry);
+      if (!applied.changed) { finish(null, entry, { duplicateVolume: true }); return; }
+      KOS.mediadb.put(entry, function (err, saved) { finish(err, saved || entry, { physicalVolume: true }); });
+    }
+    if (it.linkedEntryId != null) {
+      KOS.mediadb.get(it.linkedEntryId, function (err, entry) {
+        if (err || !entry) { finish(err || new Error("The linked Collection entry is missing.")); return; }
+        updateExisting(entry);
+      });
+      return;
+    }
+    var draft = collectionDraft(it, it.module === "books");
+    KOS.mediadb.add(draft, function (err2, entry2) {
+      finish(err2 || null, entry2 || null,
+        it.module === "books" ? { physicalVolume: true, created: true } : { planned: true, created: true });
+    });
   }
 
   KOS.wishlist = {
@@ -262,13 +514,17 @@
     spentInMonth: spentInMonth, currentMonthSpend: currentMonthSpend,
     selectedTotal: selectedTotal, remaining: remaining,
     spendByMonth: spendByMonth, spendByModule: spendByModule,
-    totalSpent: totalSpent, nextToDrop: nextToDrop
+    totalSpent: totalSpent, purchaseCount: purchaseCount, committedTotal: committedTotal,
+    nextToDrop: nextToDrop, advanceReleasedItems: advanceReleasedItems,
+    featuredItem: featuredItem, createCollectionEntry: createCollectionEntry,
+    handoffPurchased: handoffPurchased
   };
 
   /* ---------------- little shared bits ---------------- */
-  function money(n) {
+  function money(n, currency) {
     var v = (typeof n === "number" && !isNaN(n)) ? n : 0;
-    return "£" + v.toFixed(2);
+    var cur = String(currency || budget().currency || "£").trim() || "£";
+    return (/^[£$€¥]$/.test(cur) ? cur : cur + " ") + v.toFixed(2);
   }
   function daysUntil(iso) {
     if (!iso) return null;
@@ -358,7 +614,7 @@
   /* ---------------- item editor modal ---------------- */
   function itemEditor(existing, onSaved) {
     var isNew = !existing;
-    var e = existing ? JSON.parse(JSON.stringify(existing)) : { module: "books", status: "wantToBuy" };
+    var e = existing ? JSON.parse(JSON.stringify(existing)) : { module: "books", status: "wantToBuy", physicalVolumeNumber: 1 };
     var linkedId = e.linkedEntryId != null ? e.linkedEntryId : null;
 
     var overlay = KOS.medview.modalOverlay();   // click-outside + Esc close
@@ -376,6 +632,8 @@
     statusSel.value = STATUSES.indexOf(e.status) !== -1 ? e.status : "wantToBuy";
     var price = el("input", { type: "number", class: "todo-in med-num", min: "0", step: "0.01",
       value: (e.price != null && e.price !== 0) ? String(e.price) : "", placeholder: "0.00" });
+    var volumeNumber = el("input", { type: "number", class: "todo-in med-num", min: "1", step: "1",
+      value: String(e.physicalVolumeNumber || 1), placeholder: "1" });
     var author = el("input", { type: "text", class: "todo-in", value: e.author || "", placeholder: "Author / creator / studio" });
     var retailer = el("input", { type: "text", class: "todo-in", value: e.retailer || "", placeholder: "Amazon, Steam, local shop…" });
     var retailerUrl = el("input", { type: "url", class: "todo-in", value: e.retailerUrl || "", placeholder: "https://… (manual link)" });
@@ -384,6 +642,10 @@
     var coverPosition = KOS.medview.coverPositionControl(e, coverU);
     var notes = el("textarea", { class: "note-area", rows: 2, placeholder: "Why, edition, condition wanted…" });
     notes.value = e.notes || "";
+    var volumeField = field("Physical volume / edition #", volumeNumber);
+    function syncModuleFields() {
+      volumeField.style.display = moduleSel.value === "books" ? "" : "none";
+    }
 
     var linkHolder = el("div", {});
     function buildLinker() {
@@ -398,7 +660,8 @@
       }));
     }
     buildLinker();
-    moduleSel.addEventListener("change", function () { linkedId = null; buildLinker(); });
+    syncModuleFields();
+    moduleSel.addEventListener("change", function () { linkedId = null; buildLinker(); syncModuleFields(); });
 
     function save() {
       if (!title.value.trim()) { KOS.ui.toast("A title is needed.", true); return; }
@@ -408,13 +671,17 @@
         retailer: retailer.value.trim(), retailerUrl: retailerUrl.value.trim(),
         releaseDate: release.value || null, coverUrl: coverPosition.sourceFor(),
         coverCrop: coverPosition.cropFor(coverPosition.sourceFor()),
-        notes: notes.value, linkedEntryId: linkedId, status: statusSel.value
+        notes: notes.value, linkedEntryId: linkedId, status: statusSel.value,
+        physicalVolumeNumber: moduleSel.value === "books" ? volumeNumber.value : null
       };
-      if (isNew) add(payload);
-      else update(e.id, payload);
+      var saved = isNew ? add(payload) : update(e.id, payload);
       KOS.ui.toast(isNew ? "Added to the planner." : "Saved.");
       close();
       onSaved && onSaved();
+      if (saved && saved.status === "purchased") handoffPurchased(saved.id, function (err) {
+        if (err) KOS.ui.toast("Purchase saved; its Collection handoff needs attention.", true);
+        else { onSaved && onSaved(); KOS.ui.toast("Collection handoff completed."); }
+      });
     }
 
     var box = el("div", { class: "modal med-modal wl-modal" }, [
@@ -431,17 +698,21 @@
         el("div", { class: "med-form-row" }, [
           field("Module", moduleSel),
           field("Status", statusSel),
-          field("Price (£)", price)
+          field("Price (" + (budget().currency || "£") + ")", price)
         ]),
         el("div", { class: "med-form-row" }, [
           field("Author / creator", author),
           field("Retailer", retailer),
           field("Retailer link", retailerUrl)
         ]),
-        field("Release date (manual — no automated source exists)", release),
+        el("div", { class: "med-form-row" }, [
+          field("Release date (manual — no automated source exists)", release),
+          volumeField
+        ]),
         el("div", { class: "wl-field" }, [
           el("span", { class: "k", text: "Link to a collection entry (optional)" }),
-          linkHolder
+          linkHolder,
+          el("p", { class: "sub wl-collection-guidance", text: "Confirmed Book purchases add this volume to the Physical Vault. Visual Novels and Games become planned Collection entries. Existing progress is never overwritten." })
         ]),
         field("Notes", notes, "wl-notes-full")
       ]),
@@ -470,6 +741,7 @@
     var pref = prefs();
     var tab = pref.tab;
     var selected = {};   // ephemeral checkbox simulation — id -> true
+    var heroRotationTimer = null;
 
     main.appendChild(KOS.collectionCrumbs("Planner", "Budget Planner"));
     var workspaceTabs = KOS.collectionWorkspaceTabs("planner", "wishlist");
@@ -486,10 +758,7 @@
       workspaceTabs
     ]));
 
-    /* ---- top row: Next-to-Drop hero + Budget Summary panel ----
-       Structural reference: the original Kurenai manga-tracker's Purchase
-       Planner screen (Phase 3 Context) — hero left, summary right, the
-       Want to Buy / Waiting for Release tabs below. */
+    /* ---- top row: release desk + operational allowance ledger ---- */
     var top = el("div", { class: "wl-top" });
     main.appendChild(top);
     var heroWrap = el("div", { class: "wl-hero-wrap" });
@@ -497,168 +766,307 @@
     var barWrap = el("div", { class: "wl-budget" });
     top.appendChild(barWrap);
 
-    /* ---- tabs ---- */
-    var tabsRow = el("div", { class: "study-tabs wl-tabs", role: "tablist" });
-    [["wantToBuy", "Want to buy"], ["waitingForRelease", "Waiting for release"], ["purchased", "Purchased"]].forEach(function (t) {
-      tabsRow.appendChild(el("button", { class: "study-tab" + (tab === t[0] ? " active" : ""), role: "tab",
-        onclick: function () { pref.tab = t[0]; store.save(); KOS.show("wishlist", undefined, { _nav: true }); } }, [
-          t[1],
-          el("span", { class: "wl-tabcount", text: String(byStatus(t[0]).length) })
-        ]));
-    });
-    main.appendChild(el("div", { class: "med-toolbar wl-toolbar" }, [
+    /* ---- queue controls ---- */
+    var tabsRow = el("div", { class: "study-tabs wl-tabs", role: "tablist", "aria-label": "Purchase queue" });
+    var queryIn = el("input", { type: "search", class: "todo-in wl-search", placeholder: "Search this queue…", "aria-label": "Search purchase queue" });
+    var sortSel = el("select", { class: "status-sel wl-sort", "aria-label": "Sort purchase queue" }, [
+      el("option", { value: "priority", text: "Priority order" }),
+      el("option", { value: "release", text: "Release date" }),
+      el("option", { value: "price", text: "Price" }),
+      el("option", { value: "recent", text: "Recently added" })
+    ]);
+    sortSel.value = pref.sort;
+    var toolbar = el("div", { class: "med-toolbar wl-toolbar" }, [
       tabsRow,
-      el("span", { style: "flex:1" }),
-      el("button", { class: "btn primary", text: "+ Add item", onclick: function () { itemEditor(null, function () { KOS.show("wishlist", undefined, { _nav: true }); }); } })
-    ]));
+      el("div", { class: "wl-toolbar-tools" }, [queryIn, sortSel]),
+      el("button", { class: "btn primary", text: "+ Add item", onclick: function () { itemEditor(null, renderPlanner); } })
+    ]);
+    main.appendChild(toolbar);
 
     var listWrap = el("div", { class: "wl-list-wrap" });
     main.appendChild(listWrap);
-
-    var chartsWrap = el("div", {});
+    var chartsWrap = el("section", { class: "wl-history", "aria-labelledby": "wl-history-title" });
     main.appendChild(chartsWrap);
 
-    /* ---- budget bar renderer (recomputed on every simulation change) ---- */
-    var limitIn = el("input", { type: "number", class: "todo-in wl-limit", min: "0", step: "1",
-      value: w.budget.monthlyLimit ? String(w.budget.monthlyLimit) : "", placeholder: "0" });
-    var spentEl = el("b", {});
-    var selEl = el("b", {});
-    var remainEl = el("b", {});
-    var meter = el("span", { class: "wl-meter-fill" });
+    queryIn.addEventListener("input", function () { renderList(); });
+    sortSel.addEventListener("change", function () {
+      pref.sort = sortSel.value;
+      store.save();
+      renderList();
+    });
 
-    function recalc() {
+    /* ---- allowance ledger — actual spend and a temporary scenario stay
+       visibly separate. The numeric budget editor intentionally lives in a
+       modal so this operational panel reads as a decision aid, not a form. */
+    function selectedIds() {
+      return Object.keys(selected).filter(function (k) { return selected[k]; }).map(Number);
+    }
+    function pruneSelection() {
+      Object.keys(selected).forEach(function (id) {
+        var it = get(Number(id));
+        if (!it || it.status !== "wantToBuy") delete selected[id];
+      });
+    }
+    function ledgerLine(label, value, detail, tone) {
+      return el("div", { class: "wl-ledger-line" + (tone ? " " + tone : "") }, [
+        el("div", { class: "wl-ledger-copy" }, [
+          el("span", { class: "wl-ledger-label", text: label }),
+          el("span", { class: "wl-ledger-detail", text: detail })
+        ]),
+        el("b", { text: value })
+      ]);
+    }
+    function renderBudget() {
+      w = data();
+      barWrap.innerHTML = "";
       var limit = w.budget.monthlyLimit || 0;
       var spent = currentMonthSpend();
-      var sel = selectedTotal(Object.keys(selected).filter(function (k) { return selected[k]; }).map(Number));
-      var rem = remaining(limit, spent, sel);
-      spentEl.textContent = money(spent);
-      selEl.textContent = money(sel);
-      remainEl.textContent = money(rem);
-      remainEl.className = rem < 0 ? "wl-over" : "";
-      var used = limit ? Math.min(100, Math.round(100 * (spent + sel) / limit)) : 0;
-      meter.style.width = used + "%";
-      meter.className = "wl-meter-fill" + (rem < 0 ? " over" : "");
-    }
-    limitIn.addEventListener("change", function () { setBudget({ monthlyLimit: limitIn.value }); recalc(); });
+      var committed = committedTotal();
+      var selectedNow = selectedTotal(selectedIds());
+      var rem = remaining(limit, spent, selectedNow);
+      var used = limit ? Math.min(100, Math.round(100 * (spent + selectedNow) / limit)) : 0;
+      var month = monthKey();
+      var remainingText = limit ? money(rem) : "Set allowance";
+      var remainingClass = limit && rem < 0 ? "wl-over" : "";
 
-    function cnt(v, k) { return el("div", { class: "wl-cnt" }, [el("b", { text: v }), el("span", { class: "k", text: k })]); }
-    var activeItems = items().filter(function (it) { return it.status !== "purchased"; });
-    var listTotal = activeItems.reduce(function (a2, it) { return a2 + (it.price || 0); }, 0);
-    barWrap.appendChild(el("div", { class: "wl-sum-head" }, [
-      el("h3", { class: "wl-sum-h", text: "Budget summary" }),
-      el("label", { class: "wl-budget-limit" }, [
-        el("span", { class: "wl-pound", text: "£" }), limitIn, el("span", { class: "k", text: "/ month" })
-      ])
-    ]));
-    barWrap.appendChild(el("div", { class: "wl-budget-nums" }, [
-      el("div", { class: "wl-bn" }, [el("span", { class: "k", text: "Spent" }), spentEl]),
-      el("div", { class: "wl-bn" }, [el("span", { class: "k", text: "Selected" }), selEl]),
-      el("div", { class: "wl-bn wl-bn-rem" }, [el("span", { class: "k", text: "Left" }), remainEl])
-    ]));
-    barWrap.appendChild(el("div", { class: "wl-meter" }, [meter]));
-    barWrap.appendChild(el("div", { class: "wl-counts" }, [
-      cnt(String(activeItems.length), activeItems.length === 1 ? "item" : "items"),
-      cnt(String(byStatus("waitingForRelease").length), "upcoming"),
-      cnt(money(listTotal), "total list")
-    ]));
+      barWrap.appendChild(el("div", { class: "wl-budget-head" }, [
+        el("div", {}, [
+          el("span", { class: "wl-sum-h", text: "Allowance ledger" }),
+          el("h2", { class: "wl-budget-title", text: "Monthly budget" })
+        ]),
+        el("button", { class: "btn subtle wl-budget-edit", text: "Edit monthly budget", onclick: editBudget })
+      ]));
+      barWrap.appendChild(el("div", { class: "wl-allowance-main" }, [
+        el("span", { class: "k", text: month + " allowance" }),
+        el("b", { text: limit ? money(limit) : "Not set" }),
+        el("span", { class: "sub", text: limit ? "A ceiling for this month’s actual purchases." : "Set a ceiling to calculate what remains." })
+      ]));
+      barWrap.appendChild(el("div", { class: "wl-ledger" }, [
+        ledgerLine("Committed / planned", money(committed), "Wishlist value only — not paid yet."),
+        ledgerLine("Spent", money(spent), "Actual purchases recorded in " + month + ".", "is-actual"),
+        ledgerLine("Remaining", remainingText, limit
+          ? "After actual spend" + (selectedNow ? " and the current scenario" : ".")
+          : "Set a monthly allowance to calculate this.", "wl-bn-rem " + remainingClass)
+      ]));
+      if (limit) {
+        barWrap.appendChild(el("div", { class: "wl-meter-block" }, [
+          el("div", { class: "wl-meter-copy" }, [
+            el("span", { text: selectedNow ? "Actual spend + selected scenario" : "Actual spend" }),
+            el("b", { text: used + "% allocated" })
+          ]),
+          el("div", { class: "wl-meter" }, [el("span", { class: "wl-meter-fill" + (rem < 0 ? " over" : ""), style: "width:" + used + "%" })])
+        ]));
+      }
+      barWrap.appendChild(el("div", { class: "wl-selection-note" + (selectedNow ? " has-selection" : "") }, [
+        el("span", { class: "wl-selection-dot", "aria-hidden": "true" }),
+        el("span", { text: selectedNow
+          ? money(selectedNow) + " selected as a temporary purchase scenario — it is not spent."
+          : "Select items in Want to buy to test a purchase scenario without changing your history." })
+      ]));
+      barWrap.appendChild(el("details", { class: "wl-budget-definitions" }, [
+        el("summary", { text: "How these figures work" }),
+        el("p", { text: "Committed is every active wishlist item. Spent is a finalised purchase. Selected is a temporary checkbox scenario and only affects the remaining estimate." })
+      ]));
+    }
+    function editBudget() {
+      var overlay = KOS.medview.modalOverlay(), close = overlay.close;
+      var amount = el("input", { type: "number", class: "todo-in", min: "0", step: "1", placeholder: "0.00",
+        value: w.budget.monthlyLimit ? String(w.budget.monthlyLimit) : "" });
+      var currencyIsEditable = canChangeCurrency();
+      var currency = currencyIsEditable
+        ? el("input", { type: "text", class: "todo-in wl-cur", maxlength: "3", value: w.budget.currency || "£", "aria-label": "Currency symbol or code" })
+        : null;
+      var formFields = [KOS.medview.field("Monthly allowance", amount)];
+      if (currencyIsEditable) {
+        formFields.push(KOS.medview.field("Currency", currency));
+      } else {
+        formFields.push(el("p", { class: "sub wl-currency-lock", text: "Currency stays " + (w.budget.currency || "£") + " once priced items or purchases exist, so totals are never relabelled without a real conversion." }));
+      }
+      var box = el("div", { class: "modal med-modal wl-budget-modal" }, [
+        el("div", { class: "modal-h" }, [
+          el("div", {}, [el("b", { text: "Edit monthly budget" }), el("span", { class: "sub", text: "This changes the allowance, not your recorded purchases." })]),
+          el("button", { class: "mini-btn", text: "✕", "aria-label": "Close", onclick: close })
+        ]),
+        el("div", { class: "med-form" }, formFields),
+        el("div", { class: "lab-controls med-modal-foot" }, [
+          el("span", { style: "flex:1" }),
+          el("button", { class: "btn", text: "Cancel", onclick: close }),
+          el("button", { class: "btn primary", text: "Save budget", onclick: function () {
+            var patch = { monthlyLimit: amount.value };
+            if (currencyIsEditable) patch.currency = currency.value;
+            setBudget(patch);
+            close(); renderPlanner(); KOS.ui.toast("Monthly allowance updated.");
+          } })
+        ])
+      ]);
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+      amount.focus();
+    }
 
     /* ---- render the active tab ---- */
     function renderList() {
       listWrap.innerHTML = "";
-      var rows = byStatus(tab);
+      var labels = { wantToBuy: "Want to buy", waitingForRelease: "Waiting for release", purchased: "Purchased history" };
+      var allRows = byStatus(tab);
+      var needle = queryIn.value.trim().toLowerCase();
+      var rows = allRows.filter(function (it) {
+        return !needle || [it.title, it.author, it.retailer, MODULE_LABEL[it.module]].join(" ").toLowerCase().indexOf(needle) !== -1;
+      });
+      if (pref.sort === "release") {
+        rows.sort(function (a, b) { return (a.releaseDate || "9999-12-31") < (b.releaseDate || "9999-12-31") ? -1 : 1; });
+      } else if (pref.sort === "price") {
+        rows.sort(function (a, b) { return (b.price || 0) - (a.price || 0) || a.id - b.id; });
+      } else if (pref.sort === "recent") {
+        rows.sort(function (a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
+      }
+      var queue = el("section", { class: "wl-queue", "aria-labelledby": "wl-queue-title" });
+      queue.appendChild(el("div", { class: "wl-queue-head" }, [
+        el("div", {}, [
+          el("span", { class: "wl-sum-h", text: "Purchase queue" }),
+          el("h2", { id: "wl-queue-title", text: labels[tab] })
+        ]),
+        el("span", { class: "wl-queue-count", text: rows.length + (rows.length === 1 ? " item" : " items") + (needle ? " matching" : "") })
+      ]));
       if (!rows.length) {
-        listWrap.appendChild(el("div", { class: "med-empty" }, [
-          el("p", { class: "fc-empty", text: tab === "purchased"
-            ? "Nothing marked purchased yet — buys you record land here and in the spend history below."
-            : tab === "waitingForRelease"
-            ? "Nothing on pre-order watch. Add an item and set it to “Waiting for release”, with a manual release date, to see the countdown."
-            : "Your wishlist is empty. Add something you're eyeing across Books, VNs or Games." }),
-          el("div", { class: "lab-controls", style: "justify-content:center" }, [
-            el("button", { class: "btn primary", text: "+ Add item", onclick: function () { itemEditor(null, function () { KOS.show("wishlist", undefined, { _nav: true }); }); } })
-          ])
-        ]));
+        queue.appendChild(el("div", { class: "wl-queue-empty" }, [
+          el("span", { class: "wl-empty-mark", text: tab === "purchased" ? "◌" : "＋" }),
+          el("div", {}, [
+            el("b", { text: needle ? "No matching purchases" : tab === "purchased" ? "No purchases recorded yet" : tab === "waitingForRelease" ? "No releases on watch" : "Your buy list is clear" }),
+            el("p", { class: "sub", text: needle ? "Try a different title, creator, retailer or media type." : tab === "purchased"
+              ? "Confirmed purchases will appear here and start building useful spending insights."
+              : tab === "waitingForRelease" ? "Add an item with a manual release date when you want it to take the release desk."
+              : "Add a book, visual novel or game when something belongs in your next purchase plan." })
+          ]),
+          !needle && tab !== "purchased" ? el("button", { class: "btn primary", text: "+ Add item", onclick: function () { itemEditor(null, renderPlanner); } }) : null
+        ].filter(Boolean)));
+        listWrap.appendChild(queue);
         return;
       }
 
+      if (pref.sort === "priority" && !needle && tab !== "purchased") {
+        queue.appendChild(el("p", { class: "wl-queue-hint", text: "Drag a row to set its priority. Check a Want to buy item to model it against this month’s allowance." }));
+      }
       var list = el("div", { class: "wl-list" });
       rows.forEach(function (it) { list.appendChild(itemRow(it)); });
-      listWrap.appendChild(list);
-      if (tab !== "purchased") enableDrag(list);
-      recalc();
+      queue.appendChild(list);
+      listWrap.appendChild(queue);
+      if (tab !== "purchased" && pref.sort === "priority" && !needle) enableDrag(list);
     }
 
     function renderHero() {
+      if (heroRotationTimer) {
+        clearTimeout(heroRotationTimer);
+        heroRotationTimer = null;
+      }
       heroWrap.innerHTML = "";
-      var hero = nextToDrop();
-      if (hero) { heroWrap.appendChild(dropHero(hero)); return; }
+      var feature = featuredItem();
+      if (feature) { heroWrap.appendChild(dropHero(feature)); scheduleHeroRotation(feature); return; }
       heroWrap.appendChild(el("div", { class: "wl-hero wl-hero-empty" }, [
-        el("div", { class: "wl-hero-badge", text: "\u25c6 Next to drop" }),
-        el("span", { class: "wl-hero-ph", text: "\u5186" }),
+        el("div", { class: "wl-hero-badge", text: "◆ Release desk" }),
+        el("span", { class: "wl-hero-ph", text: "円" }),
         el("div", { class: "wl-hero-body" }, [
-          el("h3", { class: "wl-hero-title", text: "Nothing on pre-order watch" }),
-          el("p", { class: "sub", text: "Add an item as \u201cWaiting for release\u201d with a manual date and the countdown lands here." })
+          el("h2", { class: "wl-hero-title", text: "Your next release will live here" }),
+          el("p", { class: "sub", text: "Add a manual release date to an item on watch, or use Want to buy to surface your highest-priority purchase." }),
+          el("button", { class: "btn primary", text: "+ Add release", onclick: function () { itemEditor(null, renderPlanner); } })
         ])
       ]));
     }
 
-    function dropHero(it) {
+    function scheduleHeroRotation(feature) {
+      if (!feature || !feature.item || !feature.item.releaseDate) return;
+      var delay = 3600000 - (now() % 3600000) + 40;
+      heroRotationTimer = setTimeout(function () {
+        heroRotationTimer = null;
+        if (!document.body.contains(heroWrap)) return;
+        /* Re-run the lifecycle as well as the cosmetic rotation. This lets a
+           release move into Want to buy on the first scheduled refresh after
+           its release-day-plus-one grace period ends. */
+        renderPlanner();
+      }, delay);
+    }
+
+    function featureCopy(feature) {
+      var it = feature.item, d = daysUntil(it.releaseDate);
+      if (feature.kind === "releaseReminder") return { badge: "◆ Final release reminder", state: "Released yesterday · choose it before it joins Want to buy" };
+      if (feature.kind === "releaseDay") return { badge: "◆ Release day", state: "Out today · it will remain here through tomorrow" };
+      if (feature.kind === "awaitingDate") return { badge: "◆ Waiting for a date", state: "Add a manual release date to schedule this item" };
+      if (feature.kind === "priorityPick") return { badge: "◆ Priority purchase", state: "Top of your Want to buy queue" };
+      return { badge: "◆ Next to drop", state: d == null ? "Release date not set" : "Releases " + it.releaseDate + " · " + (d === 1 ? "tomorrow" : "in " + d + " days") };
+    }
+    function priorityText(it) {
+      var rank = byStatus(it.status).map(function (x) { return x.id; }).indexOf(it.id) + 1;
+      return rank > 0 ? "Priority " + rank : "Priority";
+    }
+    function dropHero(feature) {
+      var it = feature.item;
       var d = daysUntil(it.releaseDate);
       var imminent = d != null && d >= 0 && d <= 7;
-      var out = d != null && d < 0;
-      var hero = el("div", { class: "wl-hero" + (imminent ? " imminent" : "") + (it.coverUrl ? " has-banner" : ""), style: "--accent:" + MODULE_COLOR[it.module] });
+      var copy = featureCopy(feature);
+      var hero = el("article", { class: "wl-hero wl-hero-feature" + (imminent ? " imminent" : "") + (it.coverUrl ? " has-banner" : ""), style: "--accent:" + MODULE_COLOR[it.module] });
       if (it.coverUrl) KOS.imageCrop.background(hero, it.coverUrl, it.coverCrop, {
-        overlay: "linear-gradient(100deg, rgba(16,14,10,.92) 0%, rgba(16,14,10,.66) 46%, rgba(16,14,10,.24) 100%)"
+        overlay: "linear-gradient(100deg, color-mix(in srgb, var(--bg0) 94%, transparent) 0%, color-mix(in srgb, var(--bg0) 74%, transparent) 52%, color-mix(in srgb, var(--bg0) 26%, transparent) 100%)"
       });
-      hero.appendChild(el("div", { class: "wl-hero-badge", text: "◆ Next to drop" }));
-      hero.appendChild(it.coverUrl
-        ? el("span", { class: "wl-hero-cover" }, [KOS.imageCrop.image(it.coverUrl, { alt: "", loading: "lazy" }, it.coverCrop)])
-        : el("span", { class: "wl-hero-ph", text: MODULE_KANJI[it.module] }));
-      var metaBits = [MODULE_LABEL[it.module]];
-      if (it.author) metaBits.push(it.author);
-      if (it.retailer) metaBits.push(it.retailer);
+      hero.appendChild(el("div", { class: "wl-hero-badge", text: copy.badge }));
       hero.appendChild(el("div", { class: "wl-hero-body" }, [
-        el("div", { class: "wl-hero-count" + (out ? " out" : ""), text: d == null ? "No date" : d === 0 ? "Out today" : d > 0 ? "in " + d + (d === 1 ? " day" : " days") : "Out now" }),
-        el("h3", { class: "wl-hero-title", text: it.title }),
-        el("p", { class: "wl-hero-meta", text: metaBits.join(" · ") + (it.price ? " · " + money(it.price) : "") }),
+        el("div", { class: "wl-hero-status", text: copy.state }),
+        el("div", { class: "wl-hero-tags" }, [
+          el("span", { class: "wl-modtag", style: "--accent:" + MODULE_COLOR[it.module], text: MODULE_KANJI[it.module] + " " + MODULE_LABEL[it.module] }),
+          el("span", { class: "wl-priority-pill", text: priorityText(it) })
+        ]),
+        el("h2", { class: "wl-hero-title", text: it.title }),
+        it.author ? el("p", { class: "wl-hero-meta", text: it.author }) : null,
+        it.notes ? el("p", { class: "wl-hero-note", text: it.notes }) : null,
+        el("dl", { class: "wl-hero-facts" }, [
+          el("div", {}, [el("dt", { text: "Price" }), el("dd", { text: it.price ? money(it.price, it.currency) : "Unpriced" })]),
+          el("div", {}, [el("dt", { text: "Release" }), el("dd", { text: it.releaseDate || "Date not set" })]),
+          el("div", {}, [el("dt", { text: "Store" }), el("dd", { text: it.retailer || "Not set" })])
+        ]),
         el("div", { class: "wl-hero-actions" }, [
-          el("button", { class: "btn primary", text: "Mark purchased", onclick: function () { doPurchase(it); } }),
-          it.retailerUrl ? el("a", { class: "btn", href: it.retailerUrl, target: "_blank", rel: "noopener noreferrer", text: (it.retailer || "Buy") + " ↗" }) : null,
-          el("button", { class: "btn ghost", text: "Edit", onclick: function () { itemEditor(it, renderList); } })
+          el("button", { class: "btn primary", text: "Confirm purchase", onclick: function () { doPurchase(it); } }),
+          it.retailerUrl ? el("a", { class: "btn", href: it.retailerUrl, target: "_blank", rel: "noopener noreferrer", text: "Store link ↗" }) : null,
+          el("button", { class: "btn subtle", text: "Edit", onclick: function () { itemEditor(it, renderPlanner); } })
         ].filter(Boolean))
-      ]));
+      ].filter(Boolean)));
       return hero;
     }
 
     function itemRow(it) {
-      var draggable = tab !== "purchased";
+      var draggable = tab !== "purchased" && pref.sort === "priority" && !queryIn.value.trim();
       var checkbox = null;
       if (tab === "wantToBuy") {
         checkbox = el("input", { type: "checkbox", class: "wl-check", "aria-label": "Simulate buying " + it.title });
         checkbox.checked = !!selected[it.id];
-        checkbox.addEventListener("change", function () { selected[it.id] = checkbox.checked; recalc(); });
+        checkbox.addEventListener("change", function () { selected[it.id] = checkbox.checked; renderBudget(); });
       }
       var linkChip = it.linkedEntryId != null
         ? el("button", { class: "wl-chip wl-linked", title: "Part of your collection — open the linked entry",
-            text: "⇄ in collection", onclick: function () { openLinkedEntry(it.linkedEntryId, renderList); } })
+            text: "⇄ Collection", onclick: function () { openLinkedEntry(it.linkedEntryId, renderPlanner); } })
         : null;
       var retailChip = it.retailerUrl
         ? el("a", { class: "wl-chip wl-retail", href: it.retailerUrl, target: "_blank", rel: "noopener noreferrer",
             text: (it.retailer || "store") + " ↗", onclick: function (ev) { ev.stopPropagation(); } })
         : (it.retailer ? el("span", { class: "wl-chip", text: it.retailer }) : null);
-      var relChip = it.releaseDate ? el("span", { class: "wl-chip wl-rel", text: "◷ " + releaseText(it.releaseDate) }) : null;
+      var relChip = it.releaseDate ? el("span", { class: "wl-chip wl-rel", text: "◷ " + releaseText(it.releaseDate) })
+        : el("span", { class: "wl-chip", text: tab === "waitingForRelease" ? "date needed" : "no release date" });
 
       var actions = el("div", { class: "wl-row-actions" }, [
-        tab !== "purchased" ? el("button", { class: "mini-btn", text: "Purchased", title: "Record this as bought — archives it into the spend history",
+        tab !== "purchased" ? el("button", { class: "mini-btn wl-purchase", text: "Purchased", title: "Record this as bought — archives it into spend history and updates its Collection handoff",
           onclick: function (ev) { ev.stopPropagation(); doPurchase(it); } }) : null,
-        tab === "waitingForRelease" ? el("button", { class: "mini-btn", text: "→ Want to buy", title: "It's out — move it to the buy list",
-          onclick: function (ev) { ev.stopPropagation(); setStatus(it.id, "wantToBuy"); renderList(); } }) : null,
-        el("button", { class: "mini-btn", text: "Edit", onclick: function (ev) { ev.stopPropagation(); itemEditor(it, renderList); } })
-      ]);
+        tab === "waitingForRelease" ? el("button", { class: "mini-btn", text: "Move to buy", title: "Move it from release watch to Want to buy",
+          onclick: function (ev) { ev.stopPropagation(); setStatus(it.id, "wantToBuy"); renderPlanner(); } }) : null,
+        tab === "purchased" && it.collectionHandoffError ? el("button", { class: "mini-btn", text: "Retry Collection", title: it.collectionHandoffError,
+          onclick: function (ev) { ev.stopPropagation(); handoffPurchased(it.id, function (err) { renderPlanner(); KOS.ui.toast(err ? "Purchase kept, but Collection still needs attention." : "Collection handoff completed.", !!err); }); } }) : null,
+        tab === "purchased" && it.linkedEntryId != null ? el("button", { class: "mini-btn", text: "Open Collection", onclick: function (ev) { ev.stopPropagation(); openLinkedEntry(it.linkedEntryId, renderPlanner); } }) : null,
+        el("button", { class: "mini-btn", text: "Edit", onclick: function (ev) { ev.stopPropagation(); itemEditor(it, renderPlanner); } })
+      ].filter(Boolean));
 
-      var row = el("div", { class: "wl-row" + (draggable ? " draggable" : ""), "data-id": String(it.id),
+      var row = el("article", { class: "wl-row" + (draggable ? " draggable" : ""), "data-id": String(it.id),
         draggable: draggable ? "true" : null, style: "--accent:" + MODULE_COLOR[it.module] }, [
-        draggable ? el("span", { class: "wl-grip", "aria-hidden": "true", text: "⋮⋮" }) : null,
-        checkbox,
+        el("div", { class: "wl-row-lead" }, [
+          draggable ? el("span", { class: "wl-grip", "aria-hidden": "true", text: "⋮⋮" }) : null,
+          checkbox
+        ].filter(Boolean)),
         it.coverUrl ? el("span", { class: "wl-cover" }, [KOS.imageCrop.image(it.coverUrl, { alt: "", loading: "lazy" }, it.coverCrop)])
           : el("span", { class: "wl-cover wl-cover-ph", text: MODULE_KANJI[it.module] }),
         el("div", { class: "wl-row-main" }, [
@@ -667,21 +1075,36 @@
           el("div", { class: "wl-row-meta" }, [
             el("span", { class: "wl-modtag", style: "--accent:" + MODULE_COLOR[it.module], text: MODULE_KANJI[it.module] + " " + MODULE_LABEL[it.module] }),
             relChip, retailChip, linkChip,
-            it.status === "purchased" && it.purchasedAt ? el("span", { class: "wl-chip", text: "bought " + monthKey(it.purchasedAt) }) : null
-          ])
+            it.status === "purchased" && it.purchasedAt ? el("span", { class: "wl-chip", text: "bought " + monthKey(it.purchasedAt) }) : null,
+            it.collectionHandoffError ? el("span", { class: "wl-chip wl-handoff-error", title: it.collectionHandoffError, text: "Collection needs attention" }) : null
+          ].filter(Boolean))
+        ].filter(Boolean)),
+        el("div", { class: "wl-row-price" }, [
+          el("span", { class: "k", text: "Price" }),
+          el("b", { text: it.price ? money(it.price, it.currency) : "—" })
         ]),
-        el("div", { class: "wl-row-price", text: it.price ? money(it.price, it.currency) : "—" }),
         actions
-      ]);
+      ].filter(Boolean));
       return row;
     }
 
     function doPurchase(it) {
       markPurchased(it.id);
       delete selected[it.id];
-      renderList();
-      renderCharts();
-      KOS.ui.toast("Marked purchased — logged to " + monthKey() + " spend.");
+      renderPlanner();
+      KOS.ui.toast("Purchase recorded — added to " + monthKey() + " actual spend.");
+      handoffPurchased(it.id, function (err, entry, detail) {
+        renderPlanner();
+        if (err) {
+          KOS.ui.toast("Purchase kept. Collection needs attention before it can link.", true);
+          return;
+        }
+        if (detail && detail.duplicateVolume) {
+          KOS.ui.toast("Purchase recorded — that book volume is already in the Physical Vault.");
+        } else if (entry) {
+          KOS.ui.toast(it.module === "books" ? "Added to the Physical Vault." : "Added to Collection as planned.");
+        }
+      });
     }
 
     /* HTML5 drag reordering within the active tab (List only) */
@@ -708,36 +1131,83 @@
       reorder(tab, ids);
     }
 
-    /* ---- charts (shared KOS.charts helpers, nothing new) ---- */
+    /* ---- Purchase history: show charts only once they can say something
+       useful. A small, intentional state replaces decorative zero charts. */
     function renderCharts() {
       chartsWrap.innerHTML = "";
       var byMonth = spendByMonth();
       var byMod = spendByModule();
       var spentAll = totalSpent();
-      if (!spentAll) {
-        chartsWrap.appendChild(el("p", { class: "sub wl-nochart", text: "Spend charts appear once you've marked something purchased." }));
-        return;
-      }
-      chartsWrap.appendChild(el("h3", { class: "n-h", text: "Spending" }));
-      var grid = el("div", { class: "cs-grid" });
-      grid.appendChild(KOS.charts.chartCard("Spend over time", money(spentAll) + " across " + byMonth.length + (byMonth.length === 1 ? " month" : " months"),
-        KOS.charts.barChart(byMonth.map(function (m) {
-          return { label: m.month.slice(2), value: Math.round(m.total), hint: m.month + ": " + money(m.total) };
-        }), { color: "#5E86A8" })));
+      var count = purchaseCount();
       var modBars = MODULES.map(function (m) {
         return { label: MODULE_LABEL[m], value: Math.round(byMod[m] || 0), color: MODULE_COLOR[m],
           hint: MODULE_LABEL[m] + ": " + money(byMod[m] || 0) };
       }).filter(function (b) { return b.value; });
-      if (modBars.length) {
-        grid.appendChild(KOS.charts.chartCard("By module", "how the shared pool split — books vs VNs vs games",
-          KOS.charts.barChart(modBars)));
+      var enough = count >= 3 && (byMonth.length >= 2 || modBars.length >= 2);
+      chartsWrap.appendChild(el("div", { class: "wl-history-head" }, [
+        el("div", {}, [
+          el("span", { class: "wl-sum-h", text: "Purchase history" }),
+          el("h2", { id: "wl-history-title", text: "Actual spend, not wishlist value" })
+        ]),
+        el("div", { class: "wl-history-total" }, [
+          el("span", { class: "k", text: count + (count === 1 ? " purchase" : " purchases") }),
+          el("b", { text: money(spentAll) })
+        ])
+      ]));
+      if (!enough) {
+        var remainingToInsights = Math.max(0, 3 - count);
+        chartsWrap.appendChild(el("div", { class: "wl-history-empty" }, [
+          el("span", { class: "wl-empty-mark", text: "◔" }),
+          el("div", {}, [
+            el("b", { text: count ? "Keep recording purchases for a useful picture" : "Your spending story starts with the first purchase" }),
+            el("p", { class: "sub", text: count === 0
+              ? "When you confirm purchases here, this space will show timing and Collection split without treating planned items as money spent."
+              : remainingToInsights
+                ? remainingToInsights + (remainingToInsights === 1 ? " more purchase helps unlock a meaningful trend." : " more purchases help unlock meaningful trends.")
+                : "More than one month or media type is needed before a chart would add useful context." })
+          ])
+        ]));
+        return;
       }
+      var grid = el("div", { class: "cs-grid wl-history-charts" });
+      grid.appendChild(KOS.charts.chartCard("Actual spend over time", money(spentAll) + " across " + byMonth.length + (byMonth.length === 1 ? " month" : " months"),
+        KOS.charts.barChart(byMonth.map(function (m) {
+          return { label: m.month.slice(2), value: Math.round(m.total), hint: m.month + ": " + money(m.total) };
+        }), { color: "var(--accent2)" })));
+      grid.appendChild(KOS.charts.chartCard("Collection split", "What you actually bought across the Matrix",
+        KOS.charts.barChart(modBars)));
       chartsWrap.appendChild(grid);
     }
 
-    renderHero();
-    renderList();
-    renderCharts();
+    function renderTabs() {
+      tabsRow.innerHTML = "";
+      [["wantToBuy", "Want to buy"], ["waitingForRelease", "Waiting for release"], ["purchased", "Purchased"]].forEach(function (t) {
+        tabsRow.appendChild(el("button", { class: "study-tab" + (tab === t[0] ? " active" : ""), role: "tab",
+          "aria-selected": tab === t[0] ? "true" : "false", onclick: function () {
+            tab = t[0]; pref.tab = tab; store.save(); renderTabs(); renderList();
+          } }, [
+            t[1], el("span", { class: "wl-tabcount", text: String(byStatus(t[0]).length) })
+          ]));
+      });
+    }
+    function renderPlanner() {
+      var moved = advanceReleasedItems();
+      w = data();
+      pruneSelection();
+      tab = pref.tab;
+      renderTabs();
+      renderHero();
+      renderBudget();
+      renderList();
+      renderCharts();
+      if (moved.length) {
+        KOS.ui.toast(moved.length === 1
+          ? "Released item moved to Want to buy."
+          : moved.length + " released items moved to Want to buy.");
+      }
+    }
+
+    renderPlanner();
   };
 
   /* ---------------- reverse surfacing: vault editor "on your wishlist" ----

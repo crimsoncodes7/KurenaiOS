@@ -111,6 +111,16 @@ step("setBudget + selection simulation + remaining (incl. going over)", async ()
   const remOver = KOS.wishlist.remaining(50, 20, selBoth);   // 50 - 20 - 48.99 = -18.99
   if (remOver >= 0) throw new Error("remaining should go NEGATIVE when over: " + remOver);
 });
+step("scenarios only count current Want-to-buy rows, and a priced planner cannot silently relabel currency", async () => {
+  const scenario = KOS.wishlist.add({ module: "game", title: "Temporary Scenario", price: 7 });
+  if (!near(KOS.wishlist.selectedTotal([scenario.id]), 7)) throw new Error("want-to-buy scenario was not counted");
+  KOS.wishlist.setStatus(scenario.id, "waitingForRelease");
+  if (KOS.wishlist.selectedTotal([scenario.id]) !== 0) throw new Error("non-buy scenario still changed remaining");
+  const currency = KOS.wishlist.budget().currency;
+  KOS.wishlist.setBudget({ currency: currency === "£" ? "USD" : "£" });
+  if (KOS.wishlist.budget().currency !== currency) throw new Error("priced planner currency was relabelled without conversion");
+  KOS.wishlist.remove(scenario.id);
+});
 
 /* ============ 3 · purchase archiving + charts ============ */
 console.log("== purchase archiving ==");
@@ -140,6 +150,18 @@ step("second purchase in a different month; spendByMonth + spendByModule split c
   if (byMod.game) throw new Error("no game purchases yet — should be absent");
   if (!near(KOS.wishlist.totalSpent(), 48.99)) throw new Error("total spent");
 });
+step("editing, reverting or deleting a confirmed purchase keeps its history exact", async () => {
+  const item = KOS.wishlist.add({ module: "game", title: "History Correction", price: 5 });
+  KOS.wishlist.markPurchased(item.id, julyTs);
+  KOS.wishlist.update(item.id, { title: "History Correction (final)", price: 7 });
+  let archived = KOS.wishlist.budget().history.flatMap(h => h.items).find(x => x.id === item.id);
+  if (!archived || archived.title !== "History Correction (final)" || !near(archived.price, 7)) throw new Error("purchase edit did not update its archive snapshot");
+  KOS.wishlist.setStatus(item.id, "cancelled");
+  if (KOS.wishlist.budget().history.some(h => h.items.some(x => x.id === item.id))) throw new Error("reverted purchase left phantom spend");
+  KOS.wishlist.markPurchased(item.id, julyTs);
+  KOS.wishlist.remove(item.id);
+  if (KOS.wishlist.budget().history.some(h => h.items.some(x => x.id === item.id))) throw new Error("deleted purchase left phantom spend");
+});
 
 /* ============ 4 · next-to-drop + reorder ============ */
 console.log("== waiting tab: next-to-drop + reorder ==");
@@ -158,6 +180,23 @@ step("reorder() rewrites priority by drop order within a tab", async () => {
   KOS.wishlist.reorder("waitingForRelease", reversed);
   const after = KOS.wishlist.byStatus("waitingForRelease");
   if (after[0].id !== reversed[0]) throw new Error("reorder did not take");
+});
+step("release desk retains release day + the next full day, then moves it to Want to buy", async () => {
+  const released = KOS.wishlist.add({ module: "game", title: "Release Reminder", status: "waitingForRelease", releaseDate: "2031-02-10" });
+  const mate = KOS.wishlist.add({ module: "vn", title: "Release Rotation Mate", status: "waitingForRelease", releaseDate: "2031-02-10" });
+  const dayOf = new Date("2031-02-10T12:00:00").getTime();
+  const nextDay = new Date("2031-02-11T12:00:00").getTime();
+  const expiry = new Date("2031-02-12T12:00:00").getTime();
+  if (KOS.wishlist.advanceReleasedItems(dayOf).some(x => x.id === released.id)) throw new Error("moved on release day");
+  if (KOS.wishlist.advanceReleasedItems(nextDay).some(x => x.id === released.id)) throw new Error("moved before the full reminder day ended");
+  const rotatingA = KOS.wishlist.featuredItem(new Date("2031-02-10T00:00:00").getTime());
+  const rotatingB = KOS.wishlist.featuredItem(new Date("2031-02-10T01:00:00").getTime());
+  if (!rotatingA || !rotatingB || rotatingA.item.releaseDate !== "2031-02-10" || rotatingA.item.id === rotatingB.item.id) {
+    throw new Error("same-date releases did not rotate hourly");
+  }
+  const moved = KOS.wishlist.advanceReleasedItems(expiry);
+  if (!moved.some(x => x.id === released.id) || KOS.wishlist.get(released.id).status !== "wantToBuy") throw new Error("release did not move after the grace day");
+  if (KOS.wishlist.get(mate.id).status !== "wantToBuy") throw new Error("same-date release mate did not move");
 });
 
 /* ============ 5 · vault linking, BOTH directions ============ */
@@ -191,24 +230,78 @@ step("no banner when the entry is not on the wishlist", async () => {
   const ov = document.querySelector(".modal-ov");
   if (ov) ov.remove();
 });
+step("purchased unlinked Book creates a physical-vault record with its source and crop", async () => {
+  const item = KOS.wishlist.add({
+    module: "books", title: "Planner Physical Book", price: 14.5, physicalVolumeNumber: 1,
+    author: "Planner Author",
+    coverUrl: "https://example.test/book.jpg", coverCrop: { x: 71, y: 22, zoom: 1.4 }
+  });
+  KOS.wishlist.markPurchased(item.id, julyTs);
+  const entry = await new Promise((resolve, reject) => KOS.wishlist.handoffPurchased(item.id, (err, row) => err ? reject(err) : resolve(row)));
+  if (!entry || entry.module !== "books" || !entry.physical || entry.physical.volumes.length !== 1) throw new Error("book was not materialised in the physical vault");
+  const vol = entry.physical.volumes[0];
+  if (vol.number !== 1 || !near(vol.price, 14.5) || vol.purchaseDate !== "2026-07-03") throw new Error("physical volume snapshot mismatch");
+  if (entry.author !== "Planner Author") throw new Error("planner author did not carry into Collection");
+  if (!vol.coverCrop || vol.coverCrop.x !== 71 || vol.coverCrop.zoom !== 1.4) throw new Error("book crop did not carry into the physical volume");
+  if (KOS.wishlist.get(item.id).linkedEntryId !== entry.id) throw new Error("new physical entry was not linked back to planner");
+  const owned = await p(cb => KOS.mediadb.query({ module: "books", owned: true }, cb));
+  if (!owned.some(x => x.id === entry.id)) throw new Error("physical book is absent from the owned vault lens");
+});
+step("linked Book adds the requested physical volume without overwriting reading state or duplicating it", async () => {
+  const entry = await p(cb => KOS.mediadb.add({
+    module: "books", title: "Linked Series", status: "inProgress", progress: { current: 18, total: 30 },
+    physical: { owned: true, volumes: [{ number: 1, price: 9, purchaseDate: "2026-01-01" }] }
+  }, cb));
+  const item = KOS.wishlist.add({ module: "books", title: "Linked Series Vol 2", price: 11, linkedEntryId: entry.id, physicalVolumeNumber: 2 });
+  KOS.wishlist.markPurchased(item.id, julyTs);
+  await new Promise((resolve, reject) => KOS.wishlist.handoffPurchased(item.id, err => err ? reject(err) : resolve()));
+  const after = await p(cb => KOS.mediadb.get(entry.id, cb));
+  if (after.status !== "inProgress" || after.progress.current !== 18) throw new Error("book handoff overwrote digital tracking");
+  if (!after.physical.volumes.some(v => v.number === 2 && near(v.price, 11))) throw new Error("requested volume was not added");
+  await new Promise((resolve, reject) => KOS.wishlist.handoffPurchased(item.id, err => err ? reject(err) : resolve()));
+  const repeated = await p(cb => KOS.mediadb.get(entry.id, cb));
+  if (repeated.physical.volumes.filter(v => v.number === 2).length !== 1) throw new Error("repeated handoff duplicated the physical volume");
+});
+step("purchased Visual Novels and Games become manual planned Collection entries", async () => {
+  for (const module of ["vn", "game"]) {
+    const item = KOS.wishlist.add({ module, title: "Planner " + module, price: 20 });
+    KOS.wishlist.markPurchased(item.id, julyTs);
+    const entry = await new Promise((resolve, reject) => KOS.wishlist.handoffPurchased(item.id, (err, row) => err ? reject(err) : resolve(row)));
+    if (!entry || entry.module !== module || entry.status !== "planned" || entry.syncSource !== "manual") {
+      throw new Error(module + " was not created as a planned manual Collection entry");
+    }
+  }
+});
+step("a stale Collection link leaves the recorded purchase and exposes a safe retry state", async () => {
+  const item = KOS.wishlist.add({ module: "game", title: "Stale Link", price: 5, linkedEntryId: 999999 });
+  KOS.wishlist.markPurchased(item.id, julyTs);
+  const error = await new Promise(resolve => KOS.wishlist.handoffPurchased(item.id, err => resolve(err)));
+  if (!error || KOS.wishlist.get(item.id).status !== "purchased") throw new Error("stale link rolled back or hid the purchase");
+  if (!KOS.wishlist.get(item.id).collectionHandoffError) throw new Error("stale link is not retryable/visible");
+});
 
 /* ============ 6 · the view renders + live simulation ============ */
 console.log("== view ==");
-step("KOS.show('wishlist') builds the budget bar, tabs and list", async () => {
+step("KOS.show('wishlist') builds the allowance ledger, tabs, queue and history state", async () => {
   KOS.show("wishlist");
   await tick(40);
   const main = document.getElementById("main");
   if (!main.querySelector(".wl-budget")) throw new Error("no budget bar");
+  if (!main.querySelector(".wl-budget-edit")) throw new Error("no Edit monthly budget action");
+  if (main.querySelector(".wl-limit")) throw new Error("monthly budget must not be an always-visible input");
   if (main.querySelectorAll(".wl-tabs .study-tab").length !== 3) throw new Error("expected 3 tabs");
   if (!main.querySelector(".wl-row")) throw new Error("want-to-buy list empty");
+  if (!main.querySelector(".wl-history")) throw new Error("purchase history state missing");
 });
 step("ticking a checkbox updates the live Remaining figure (pure simulation)", async () => {
   KOS.wishlist.setBudget({ monthlyLimit: 100 });
+  KOS.wishlist.add({ module: "game", title: "Scenario Checkbox", price: 17, status: "wantToBuy" });
   KOS.show("wishlist");
   await tick(40);
   const main = document.getElementById("main");
   const remBefore = main.querySelector(".wl-bn-rem b").textContent;
-  const check = main.querySelector(".wl-check");
+  const scenarioRow = [...main.querySelectorAll(".wl-row")].find(row => /Scenario Checkbox/.test(row.textContent));
+  const check = scenarioRow && scenarioRow.querySelector(".wl-check");
   if (!check) throw new Error("no checkbox on the want-to-buy tab");
   check.checked = true;
   check.dispatchEvent(new window.Event("change"));
@@ -216,13 +309,31 @@ step("ticking a checkbox updates the live Remaining figure (pure simulation)", a
   const remAfter = main.querySelector(".wl-bn-rem b").textContent;
   if (remBefore === remAfter) throw new Error("Remaining did not react to the simulation");
 });
-step("waiting-for-release tab shows the next-to-drop hero", async () => {
+step("Edit monthly budget uses a modal and saves into the existing budget state", async () => {
+  KOS.show("wishlist");
+  await tick(30);
+  document.querySelector(".wl-budget-edit").click();
+  await tick(20);
+  const modal = document.querySelector(".wl-budget-modal");
+  if (!modal) throw new Error("budget modal did not open");
+  if (modal.querySelector('input[type="text"]')) throw new Error("currency should lock once planner values exist");
+  if (!/never relabelled/i.test(modal.textContent)) throw new Error("locked-currency explanation missing");
+  const amount = modal.querySelector('input[type="number"]');
+  amount.value = "125";
+  [...modal.querySelectorAll("button")].find(b => /save budget/i.test(b.textContent)).click();
+  await tick(20);
+  if (KOS.wishlist.budget().monthlyLimit !== 125) throw new Error("budget modal did not save");
+});
+step("waiting-for-release tab shows the release-aware next-to-drop hero", async () => {
+  const soon = KOS.srs.addDays(KOS.srs.todayISO(), 5);
+  KOS.wishlist.add({ module: "game", title: "View Release Desk", status: "waitingForRelease", releaseDate: soon });
   KOS.store.state.wishlist._tab = "waitingForRelease";
   KOS.show("wishlist");
   await tick(40);
   const hero = document.getElementById("main").querySelector(".wl-hero");
   if (!hero) throw new Error("no next-to-drop hero");
-  if (!/Next to drop/i.test(hero.textContent)) throw new Error("hero badge text");
+  if (!/Next to drop|Release day|Final release reminder/i.test(hero.textContent)) throw new Error("release-aware hero badge text");
+  if (!/View Release Desk/.test(hero.textContent)) throw new Error("next-to-drop title missing");
 });
 
 /* ============ 7 · THE governor boundary + no network ============ */
@@ -235,6 +346,7 @@ step("a full planner flow fires ZERO governor traffic and zero network", async (
   KOS.wishlist.update(x.id, { price: 15, retailer: "Steam" });
   KOS.wishlist.setBudget({ monthlyLimit: 200 });
   KOS.wishlist.markPurchased(x.id, julyTs);
+  await new Promise((resolve, reject) => KOS.wishlist.handoffPurchased(x.id, err => err ? reject(err) : resolve()));
   KOS.wishlist.setStatus(KOS.wishlist.byStatus("waitingForRelease")[0].id, "wantToBuy");
   KOS.wishlist.reorder("wantToBuy", KOS.wishlist.byStatus("wantToBuy").map(it => it.id));
   KOS.wishlist.remove(x.id);

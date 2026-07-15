@@ -150,6 +150,14 @@ Manual provider sync may create one watermark-filtered `sync-reward` session;
 an autonomous cycle must batch all providers into one ledger entry through
 `KOS.media.logSyncRewardBatch()` — never one entry per imported item or module.
 
+- **Budget Planner** (`wishlist.js`) is intentionally local logistics: it never
+  logs a Governor/media session and never fetches or pushes a provider. Its
+  release desk keeps a waiting item through release day plus the next full day,
+  then returns it to Want to buy; same-date drops rotate deterministically by
+  hour. A confirmed purchase may make a local `mediadb.get`/`add`/`put`
+  Collection handoff only: no fuzzy title matching, Book → physical volume,
+  VN/Game → planned entry, and never downgrade existing Collection progress.
+
 ## Build 5 — shared image positioning
 
 - **`KOS.imageCrop`** (`js/core/imagecrop.js`) is the ONE crop/focal workflow

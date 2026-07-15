@@ -333,6 +333,70 @@ assert(JSON.stringify(collectionNav.labels) === JSON.stringify(["Overview", "Ani
   `Collection primary navigation is overcrowded: ${JSON.stringify(collectionNav.labels)}`);
 assert(collectionNav.active === "Planner" && JSON.stringify(collectionNav.planner) === JSON.stringify(["Budget Planner", "Goals"]),
   "Planner workspace or active navigation is incomplete");
+
+/* Budget Planner: actual release desk, allowance ledger, crop-aware feature
+   art, queue density and charts are all exercised in the running app. */
+const plannerHeroId = await evaluate(`(() => {
+  const today = KOS.srs.todayISO();
+  KOS.store.state.wishlist = { nextId: 1, budget: { monthlyLimit: 180, currency: "£", history: [] }, items: [] };
+  const hero = KOS.wishlist.add({ module: "game", title: "Planner Audit — Next Release", status: "waitingForRelease",
+    releaseDate: KOS.srs.addDays(today, 2), price: 42, retailer: "Audit Store", retailerUrl: "https://example.test/store",
+    coverUrl: window.__cropAudit.banner, coverCrop: { x: 74, y: 33, zoom: 1.42 }, notes: "A focal-crop and allowance verification fixture." });
+  KOS.wishlist.add({ module: "books", title: "Planner Audit — Collector Edition", status: "wantToBuy", price: 26, author: "Audit Press" });
+  KOS.wishlist.add({ module: "vn", title: "Planner Audit — Long Title That Must Still Fit In The Responsive Queue", status: "wantToBuy", price: 32, author: "Audit Studio" });
+  const p1 = KOS.wishlist.add({ module: "books", title: "Planner Audit Purchase One", price: 18 });
+  const p2 = KOS.wishlist.add({ module: "vn", title: "Planner Audit Purchase Two", price: 28 });
+  const p3 = KOS.wishlist.add({ module: "game", title: "Planner Audit Purchase Three", price: 35 });
+  KOS.wishlist.markPurchased(p1.id, Date.now() - 62 * 86400000);
+  KOS.wishlist.markPurchased(p2.id, Date.now() - 31 * 86400000);
+  KOS.wishlist.markPurchased(p3.id, Date.now() - 4 * 86400000);
+  KOS.show("wishlist");
+  return hero.id;
+})()`);
+await waitFor("document.querySelector('.wl-hero-feature .image-crop-bg img') && document.querySelectorAll('.wl-budget .wl-ledger-line').length === 3", "Budget Planner feature and allowance ledger");
+const plannerWide = await evaluate(`(() => {
+  const hero = document.querySelector('.wl-hero'), cover = hero.querySelector('.image-crop-bg img'), budget = document.querySelector('.wl-budget'), row = document.querySelector('.wl-row');
+  return {
+    heroH: Math.round(hero.getBoundingClientRect().height), heroW: Math.round(hero.getBoundingClientRect().width), budgetW: Math.round(budget.getBoundingClientRect().width),
+    crop: [cover.style.getPropertyValue('--crop-x'), cover.style.getPropertyValue('--crop-y'), cover.style.getPropertyValue('--crop-zoom')],
+    visibleBudgetInput: !!document.querySelector('.wl-budget .wl-limit'), modalAction: !!document.querySelector('.wl-budget-edit'),
+    rows: document.querySelectorAll('.wl-row').length, charts: document.querySelectorAll('.wl-history .cs-chart').length,
+    rowOverflow: row.scrollWidth > row.clientWidth
+  };
+})()`);
+assert(plannerWide.heroH >= 390 && plannerWide.heroW > plannerWide.budgetW &&
+  JSON.stringify(plannerWide.crop) === JSON.stringify(["74%", "33%", "1.42"]) &&
+  !plannerWide.visibleBudgetInput && plannerWide.modalAction && plannerWide.rows >= 2 && plannerWide.charts === 2 && !plannerWide.rowOverflow,
+  `Budget Planner wide layout or crop/ledger contract failed: ${JSON.stringify(plannerWide)}`);
+const selectionChanged = await evaluate(`(() => {
+  const before = document.querySelector('.wl-bn-rem b').textContent;
+  const check = document.querySelector('.wl-check');
+  check.checked = true; check.dispatchEvent(new Event('change', { bubbles: true }));
+  return { before, after: document.querySelector('.wl-bn-rem b').textContent };
+})()`);
+assert(selectionChanged.before !== selectionChanged.after, `Planner selection did not update remaining allowance: ${JSON.stringify(selectionChanged)}`);
+await clickText(".wl-budget", "Edit monthly budget");
+await waitFor("document.querySelector('.wl-budget-modal')", "Budget Planner budget editor");
+await clickText(".wl-budget-modal", "Cancel");
+await waitFor("!document.querySelector('.wl-budget-modal')", "Budget Planner budget editor cancel");
+await screenshot("/tmp/kos-planner-1440.png");
+await evaluate(`(() => { const main = document.getElementById('main'), queue = document.querySelector('.wl-queue'); main.scrollTo({ top: main.scrollTop + queue.getBoundingClientRect().top - 22, behavior: 'instant' }); })()`);
+await pause(160);
+await screenshot("/tmp/kos-planner-queue-1440.png");
+await evaluate(`document.getElementById('main').scrollTo({ top: 0, behavior: 'instant' })`);
+await clickText(".wl-hero", "Confirm purchase");
+await waitFor(`KOS.wishlist.get(${plannerHeroId})?.status === 'purchased' && KOS.wishlist.get(${plannerHeroId})?.linkedEntryId != null`, "Planner purchase and Collection handoff", 7000);
+const plannerPurchase = await evaluate(`new Promise((resolve, reject) => {
+  const item = KOS.wishlist.get(${plannerHeroId});
+  KOS.mediadb.get(item.linkedEntryId, (err, entry) => err ? reject(err) : resolve({
+    item: { status: item.status, linkedEntryId: item.linkedEntryId },
+    spend: KOS.wishlist.currentMonthSpend(), entry: entry && { module: entry.module, status: entry.status }
+  }));
+})`);
+assert(plannerPurchase.item.status === "purchased" && plannerPurchase.spend >= 77 &&
+  plannerPurchase.entry?.module === "game" && plannerPurchase.entry?.status === "planned",
+  `Planner purchase did not update history/Collection truth: ${JSON.stringify(plannerPurchase)}`);
+
 await evaluate("KOS.show('mediasync')");
 await waitFor("document.querySelector('.integration-provider')", "Sync workspace");
 const integrations = await evaluate(`(() => ({
@@ -469,10 +533,22 @@ for (const [view, arg, selector] of [
   ["home", undefined, ".home-id"],
   ["subject", "compsci", ".subject-grid"],
   ["matrix", undefined, ".med-mods"],
+  ["wishlist", undefined, ".wl-queue"],
   ["mediasync", undefined, ".integration-provider"],
   ["governor", "status", ".gov-status"],
   ["data", undefined, "#main"]
 ]) await auditView(view, arg, selector);
+await auditView("wishlist", undefined, ".wl-queue");
+const plannerNarrow = await evaluate(`(() => {
+  const top = document.querySelector('.wl-top'), rows = [...document.querySelectorAll('.wl-row')];
+  return { columns: getComputedStyle(top).gridTemplateColumns.split(' ').length,
+    doc: document.documentElement.scrollWidth, viewport: innerWidth,
+    rows: rows.map(row => ({ scroll: row.scrollWidth, client: row.clientWidth })) };
+})()`);
+assert(plannerNarrow.columns === 1 && plannerNarrow.doc <= plannerNarrow.viewport + 1 &&
+  plannerNarrow.rows.every(row => row.scroll <= row.client),
+  `Narrow Budget Planner has a horizontal or queue-row overflow: ${JSON.stringify(plannerNarrow)}`);
+await screenshot("/tmp/kos-planner-980.png");
 await auditView("help", undefined, ".help-wrap");
 const helpNarrow = await evaluate(`(() => ({ aside: getComputedStyle(document.querySelector('.help-aside')).display,
   nav: getComputedStyle(document.querySelector('.help-nav')).display,
@@ -539,6 +615,6 @@ await viewport(1440, 900);
 await screenshot("/tmp/kos-home-restored-1440.png");
 assert(browserErrors.length === 0, `Browser errors:\n${browserErrors.join("\n")}`);
 
-console.log("VISUAL AUDIT PASS — live crop workflows, Compare Topics, persistence, backup/restore and responsive adjacent pages verified");
-console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
+console.log("VISUAL AUDIT PASS — live crop workflows, Budget Planner, Compare Topics, persistence, backup/restore and responsive adjacent pages verified");
+console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
 ws.close();

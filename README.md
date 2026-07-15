@@ -219,6 +219,12 @@ Collection records and non-token visual preferences go through `KOS.mediadb`.
   followed by one **Planner** tab and one **Sync** tab. Each destination renders
   its existing page directly with a secondary tab bar: Budget Planner/Goals or
   AniList/VNDB/Sync & Import. Direct routes and history behaviour are unchanged.
+- **Budget Planner release desk**: the Planner keeps a crop-aware next-release
+  feature card through the full day after release, rotates same-day drops hourly,
+  and then returns them to Want to buy. Its allowance ledger distinguishes
+  committed plans, temporary selected scenarios and actual spend; confirmed
+  purchases archive locally and hand Books to the physical vault or VNs/Games
+  to a planned Collection entry without provider traffic or Governor rewards.
 - **Integration workspace**: Sync & Import is a provider overview for AniList
   and VNDB (connection state, account, last successful sync, imported items and
   sync mode), with the detailed write log folded into technical history. Profile

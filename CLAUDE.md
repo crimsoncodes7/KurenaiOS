@@ -22,7 +22,7 @@ node tools/smoke10.test.js # Build 3h: the VNDB duplication regression (real /ul
 node tools/smoke11.test.js # Build 3i Books deepening: lookup clients (Open Library/Google Books), ISBN utils, tab split + comparison survival, reading sessions (governor boundary), ranked shelves, scanner degradation
 node tools/smoke12.test.js # Build 3j: reward-on-sync watermark (the push→echoing-pull single-reward property), autosync engine, VN chapters, profile tabs + VNDB profile, shop rebalance + Matrix cosmetics, season picker
 node tools/smoke13.test.js # R3 full-coverage backup/restore: mediadb exportAll/importAll, attachments, store.importFull (v2 + legacy), token exclusion, round-trip
-node tools/smoke14.test.js # Build 3g Purchase/Budget Planner: budget maths (shared pool + simulation + over-budget), purchase archiving + spend charts, both-direction vault linking, next-to-drop, drag reorder, THE governor boundary (zero sessions/XP/gold/HP/network)
+node tools/smoke14.test.js # Build 3g Purchase/Budget Planner: release grace + same-day rotation, allowance ledger/modal, purchase archive + thresholded history, local Book physical/VN/Game Collection handoff, both-direction linking, drag order, THE governor/network boundary
 node tools/smoke15.test.js # Build 4.0 UI overhaul: Linear Void token architecture + 23 :root[data-theme] blocks, retired-theme fallback, Study Hall workspace (collapsible inspector, unit breakdown), vault hero (kv spotlight, bannerImage plumbing, games/VN zero-network), planner top row, Governor bento, shop swatches
 node tools/smoke16.test.js # Build 5 image positioning: shared crop contract/UI, legacy fallback, governor/media/wishlist/profile persistence, DB v7 and backup/restore
 ```
@@ -77,7 +77,9 @@ Collected from every build. If a change would break one of these, stop and say s
    and NEVER moves HP/gold/XP or a streak. Purchasing is logistics, not media
    engagement (smoke14-asserted: a full flow fires zero governor traffic and
    zero network). It also emits ZERO network requests — release dates are
-   manual by design.
+   manual by design. A confirmed purchase may make a local `mediadb.get` /
+   `add` / `put` handoff to Collection, but must never use `mediapush`, sync,
+   title matching or any provider request to do so.
 
 **Media schema & storage**
 6. `mediadb.normalise()` is the SINGLE schema gate — any new field must be
@@ -317,13 +319,14 @@ IndexedDB kurenai-os-media (v7) ── mediadb.js owns schema + indexes + bulkUp
            books: { layout, sort, tab, physLayout },
            vn: { layout, sort },
            game: { layout, sort },
-           wishlist: { tab } },           // Budget Planner active tab (view pref, NOT on state.wishlist)
+           wishlist: { tab, sort } },     // Budget Planner view prefs, NOT on state.wishlist
   wishlist: {                             // Build 3g Purchase/Budget Planner
     nextId,
     budget: { monthlyLimit, currency, history:[{month,spent,items:[…]}] },
     items: [ /* {id, module:"books"|"vn"|"game", title, coverUrl, coverCrop, price,
                   currency, retailer, retailerUrl, priority, releaseDate,
-                  status, linkedEntryId, notes, addedAt, purchasedAt} */ ]
+                  status, linkedEntryId, physicalVolumeNumber, notes, addedAt,
+                  purchasedAt, collectionAppliedAt, collectionHandoffError} */ ]
   }
 }
 ```
@@ -412,12 +415,12 @@ their full frame.
 - Shop anchors: ~15–30 gold/day steady study → big labs 180, sims 100, themes 140, seals 70, frames 90, Matrix cosmetics 80. `shelfskin` → class on `.bk-shelves`; `shrinestyle` → class on `.shrine-hall`.
 - Season picker walks any season/year via `SEASON_ORDER` stepping; palette class follows selection.
 
-**Purchase / Budget Planner (3g)** — `js/modules/wishlist.js`, view `wishlist`, `KOS.wishlist` API. Wishlist across Books/VNs/Games against ONE shared monthly budget pool (never per-module limits). Stored in `state.wishlist` (localStorage), NOT the media vault — these are planning records, not media entries; they ride the standard backup because `exportFull` serialises the whole state object. Manual `coverUrl` values carry a sibling `coverCrop` used by cards and the Next-to-Drop hero.
+**Purchase / Budget Planner (3g)** — `js/modules/wishlist.js`, view `wishlist`, `KOS.wishlist` API. Wishlist across Books/VNs/Games against ONE shared monthly budget pool (never per-module limits). Stored in `state.wishlist` (localStorage), NOT the media vault — these are planning records, not media entries; they ride the standard backup because `exportFull` serialises the whole state object. Manual `coverUrl` values carry a sibling `coverCrop` used by cards and the release-desk hero.
 - **GOVERNOR BOUNDARY (invariant #5a)**: this module never calls `KOS.sessions.log` / `KOS.media.logActivity`, never moves HP/gold/XP/streaks, and emits ZERO network. smoke14 asserts a full flow leaves all of them untouched. Do not "helpfully" reward purchases.
-- Core interaction: `wantToBuy` items carry checkboxes that SIMULATE a purchase — `selectedTotal(ids)` + `remaining(limit, spentThisMonth, selected)` recompute live (can go negative = over budget). Nothing is spent until `markPurchased(id[,ts])`, which flips status, sets `purchasedAt`, and archives a snapshot into `budget.history[month].items` (recomputing `spent`). Idempotent — re-marking never double-archives; items are never deleted on purchase.
-- Charts reuse `KOS.charts` only: `spendByMonth()` → spend-over-time bars; `spendByModule()` → per-module split over the shared pool (books vs VN vs games).
-- Tabs: Want-to-buy / Waiting-for-release / Purchased. Draggable priority reorder within a tab (`reorder(status, orderedIds)` rewrites `priority` 0..n). `nextToDrop()` = the waiting-for-release item with the nearest UPCOMING manual release date (else most-recent past) — rendered as the hero.
-- Linking, BOTH directions: an item's `linkedEntryId` ties it to a vault entry. `forEntry(entryId)` powers the reverse surfacing — `wishlist.js` registers a `KOS.mediaEditorHooks` entry that injects an `.wl-onlist` banner into the editor form when the opened entry is on the wishlist. Module ids match the vault ("game", not "games" — incoming "games" is normalised).
+- Core interaction: `wantToBuy` items carry checkboxes that SIMULATE a purchase — `selectedTotal(ids)` + `remaining(limit, spentThisMonth, selected)` recompute live (can go negative = over budget). The vertical allowance ledger keeps this provisional selection separate from committed/planned value and actual spent. Nothing is spent until `markPurchased(id[,ts])`, which flips status, sets `purchasedAt`, and archives a snapshot into `budget.history[month].items` (recomputing `spent`). Idempotent — re-marking never double-archives; edits refresh that snapshot, and reverting/removing a purchase removes it from planner history without destructively deleting an already-created Collection entry. The limit is edited through the shared modal shell, not a permanently visible input. Currency can only change before priced items or purchases exist: there is no hidden FX conversion or amount relabelling.
+- Charts reuse `KOS.charts` only: `spendByMonth()` → spend-over-time bars; `spendByModule()` → per-module split over the shared pool (books vs VN vs games). The planner deliberately keeps charts hidden until at least three purchases form a useful multi-month or multi-module comparison; the empty state explains what will appear.
+- Tabs: Want-to-buy / Waiting-for-release / Purchased. Draggable priority reorder within a tab (`reorder(status, orderedIds)` rewrites `priority` 0..n); priority, release, price and recency sorting are view-only prefs. `featuredItem()` owns the release desk: it retains a waiting item through release day and the next full calendar day, moves it to Want to buy on the following day, and rotates equal-date releases by hour. `nextToDrop()` remains the nearest-upcoming compatibility helper.
+- Linking, BOTH directions: an item's `linkedEntryId` ties it to a vault entry. `forEntry(entryId)` powers the reverse surfacing — `wishlist.js` registers a `KOS.mediaEditorHooks` entry that injects an `.wl-onlist` banner into the editor form when the opened entry is on the wishlist. On confirmed purchase, the local handoff creates an unlinked Book as a physical-volume entry or an unlinked VN/Game as planned; a linked Book gains the selected physical volume, while an existing VN/Game status is never downgraded. It never fuzzy-matches titles, and failure leaves the purchase/history intact for retry. Module ids match the vault ("game", not "games" — incoming "games" is normalised).
 - **Release dates are MANUAL by design** — no viable automated cross-media source: Amazon PA-API needs an approved affiliate account and bars price-watch use, Keepa is a paid per-key subscription, IGDB (games only) needs a Twitch OAuth secret a static `file://` app can't hold and covers no books. The UI says so plainly; don't add a scraper.
 
 **Write-back (3d)** — `js/core/mediapush.js`, list state only (invariants 12–16 apply).

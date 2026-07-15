@@ -1361,7 +1361,7 @@ The release gate is the complete smoke through smoke16 run.
 | smoke11 | 3i Books deepening: lookup clients, ISBN utils, tab split, reading sessions (governor boundary), ranked shelves, scanner degradation |
 | smoke12 | 3j: reward watermark (THE push→echoing-pull single-reward property), autosync cycle, VN chapters, profile tabs, shop, season picker |
 | smoke13 | R3 backup/restore: mediadb exportAll/importAll (all four modules incl. VN routes/chapters/quotes), attach importAll + metadata, store.importFull (v2 + legacy v1), token exclusion, end-to-end round-trip |
-| smoke14 | 3g Purchase/Budget Planner: budget maths (shared pool, simulation, over-budget), purchase archiving + spend charts, both-direction vault linking, next-to-drop, drag reorder, THE governor boundary (zero sessions/XP/gold/HP/network) |
+| smoke14 | 3g Purchase/Budget Planner: budget maths, release-day grace + hourly same-date rotation, allowance ledger/modal, thresholded history, Book physical/VN/Game local handoff, both-direction vault linking, drag order, THE governor/network boundary |
 | smoke15 | Build 4 UI overhaul: token/theme contracts, Study Hall inspector, vault hero, overlay cards, Planner top row, Governor bento and games/VN zero-network boundary |
 | smoke16 | Build 5 image positioning (18 steps): one cropper/render contract, source-space focal maths, reset/cancel/error recovery, legacy centred fallback, Governor/media/volume/wishlist/profile persistence, DB v7 source-paired crops and full-backup/token boundaries |
 
@@ -1604,3 +1604,41 @@ marked complete.
   links into the active Home, Study, Governor, Collection, Sync and Data routes.
 - Collection terminology now matches the archive-first navigation and the
   current Planner, Sync, Analytics and profile layouts.
+
+## Budget Planner release desk (2026-07-15)
+
+- The Planner is now a release-aware purchase desk instead of a row of summary
+  boxes. Its larger crop-aware feature card follows the shared image-positioning
+  contract and keeps the next drop visible on release day plus the next full
+  calendar day. After that grace period, it automatically returns to Want to
+  buy; multiple items with the same release date rotate hourly without storing
+  cosmetic state.
+- The companion vertical allowance ledger keeps the practical figures together:
+  monthly allowance, committed/planned wishlist value, actual spent and
+  remaining. Checked Want-to-buy entries are explicitly described as a
+  temporary scenario, not a charge. The monthly limit now changes through the
+  existing modal shell rather than a permanently visible numeric field. Currency
+  locks once a priced item or purchase exists, because the Planner deliberately
+  has no hidden FX conversion or misleading amount relabelling.
+- Want to buy, Waiting for release and Purchased retain their real behaviours,
+  priority drag ordering and linked-entry controls, but now render as responsive
+  queue rows with searchable/sortable views. Long titles and compact desktop
+  widths no longer force the action cluster outside the row.
+- Purchase history now states what it is measuring (actual spend rather than
+  wishlist value) and only renders month/module charts after at least three
+  purchases form a useful comparison. Before then, its empty state says exactly
+  what further activity will unlock.
+- Confirmed purchases still archive synchronously before any bridge work. A
+  local-only Collection handoff then creates an unlinked Book as a physical
+  volume record, or an unlinked VN/Game as planned; linked Books add the chosen
+  physical volume and existing VN/Game progress is never downgraded. No title
+  matching, provider request, media push, Governor session, XP, gold or HP is
+  involved. Failed handoffs preserve the purchase/history and expose a retry.
+  Editing an archived purchase refreshes its planner snapshot; reverting or
+  deleting it removes that planner spend without destructively removing a
+  Collection record already created through the handoff.
+- `tools/smoke14.test.js` now has 33 deterministic planner checks for the
+  lifecycle, rotation, ledger/modal, archived-record consistency, local handoff
+  and boundaries. The live
+  Chrome audit verifies the release desk, an actual purchase/handoff, responsive
+  queue rows, charts and budget modal at 1440px and 980px.
