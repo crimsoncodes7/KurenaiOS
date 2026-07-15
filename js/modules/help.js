@@ -115,11 +115,8 @@
     wrap.appendChild(content);
     wrap.appendChild(aside);
 
-    var searchLabel = el("label", { class: "help-search-label", text: "Search the manual" });
-    var search = el("input", { type: "search", class: "todo-in help-search", placeholder: "Search pages, study systems and shortcuts…", "aria-describedby": "help-search-hint" });
-    searchShell.appendChild(searchLabel);
+    var search = el("input", { type: "search", class: "todo-in help-search", placeholder: "Search pages, study systems and shortcuts…", "aria-label": "Search the manual" });
     searchShell.appendChild(search);
-    searchShell.appendChild(el("span", { id: "help-search-hint", class: "help-search-hint", text: "Results expand automatically. Press Esc to clear the search." }));
     var list = el("div", { class: "help-list" });
     content.appendChild(list);
 
@@ -170,13 +167,11 @@
           el("span", { class: "help-row-arr", "aria-hidden": "true", text: "▾" })
         ]);
         head.setAttribute("aria-controls", rowId + "-detail");
-        var tools = el("div", { class: "help-row-tools" }, [
-          el("a", { class: "help-deeplink", href: "#" + rowId, text: "Link", onclick: function () { setDeepLink(rowId); } }),
-          RELATED[item[0]] ? el("button", { class: "help-related", text: RELATED[item[0]][0] + " →", onclick: function () { KOS.show(RELATED[item[0]][1], RELATED[item[0]][2]); } }) : null
-        ].filter(Boolean));
         row.appendChild(head);
         row.appendChild(body);
-        body.appendChild(tools);
+        if (RELATED[item[0]]) body.appendChild(el("div", { class: "help-row-tools" }, [
+          el("button", { class: "help-related", text: RELATED[item[0]][0] + " →", onclick: function () { KOS.show(RELATED[item[0]][1], RELATED[item[0]][2]); } })
+        ]));
         block.appendChild(row);
       });
       list.appendChild(block);
