@@ -1655,3 +1655,13 @@ marked complete.
 - Before/after canonical JSON SHA-256 values matched for all three trees; the
   generated JavaScript was syntax-checked and the complete smoke suite remains
   the regression gate.
+
+## Study and Productivity navigation (2026-07-15)
+
+- The rail now distinguishes **Study** from **Productivity**. Study keeps the
+  three subject dashboards, a consolidated Review destination and Exams &
+  Papers; Productivity owns Focus Timer, Calendar and Tasks & Habits.
+- Review composes the existing Due Today queue and Card Stats dashboard beneath
+  the shared secondary workspace tabs used by Collection Planner and Sync. The
+  `due` and `cardstats` routes remain compatibility entries, so launch actions,
+  history navigation and saved view state retain their established behaviour.

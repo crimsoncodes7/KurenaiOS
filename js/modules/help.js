@@ -20,15 +20,19 @@
       ["Files", "Attach documents (PDFs, images, anything) to this topic. Stored in the browser's IndexedDB; images and PDFs preview inline, and every file has its own notes field."],
       ["Status, checklist & confidence", "The status dropdown and four checkboxes track completion. The R/A/G confidence dots are separate — how solid the topic feels. The app also computes its own R/A/G from your data and shows when it disagrees with you."]
     ]],
-    ["Study systems", [
+    ["Study & review", [
+      ["Review", "The Study review workspace keeps the global Due Today queue and Card Stats together. Clear the cards that are ready, then switch to the ledger to understand review volume, scheduling health and lapses."],
       ["Due Today", "The global SM-2 queue: every card whose review date has arrived, across all subjects, most-overdue first. Cards join the schedule the first time you rate them. Clearing this daily is the single highest-value habit."],
-      ["Focus Timer", "Pomodoro (25/5) or custom timed sessions, with an optional subject/topic link. Starting one enters a minimal focus mode; “Study while focused” brings back the sidebar so you can work through pages while the clock runs. Everything you complete during the session is attributed to it. First pause is free; extra pauses shave the reward; switching tabs mid-focus is logged and costs HP after the first; ending early keeps the log but forfeits the award."],
-      ["Calendar", "Month/week grid for exams, deadlines, study blocks, lessons (weekly repeat supported) and personal events. Exams and deadlines drive the countdown widgets and in-app reminders — set the reminder threshold at the top."],
-      ["Today's directives", "The auto-generated daily list on the home page: due cards, near deadlines and today's study blocks, plus anything you add yourself. Ticks earn XP."],
-      ["Exams & Papers", "Log every exam, assessment and practice paper: marks, grade, what went well, what didn't, mistakes, and a reviewed checkbox. Topic-linked results feed the RAG flags."],
       ["Card Stats", "The flashcard analytics dashboard: reviews per day, due forecast, ease distribution, rating mix, and a per-topic breakdown sorted by lapses."],
+      ["Exams & Papers", "Log every exam, assessment and practice paper: marks, grade, what went well, what didn't, mistakes, and a reviewed checkbox. Topic-linked results feed the RAG flags."],
       ["Recommended next", "The flagged-topics panel on the home and subject dashboards — your manual R/A/G plus the computed one, worst first. That's the app telling you what to study next."],
       ["Resources", "Each subject dashboard has a link table for reference sheets, textbook PDFs and useful sites, optionally tagged to a topic."]
+    ]],
+    ["Productivity", [
+      ["Focus Timer", "Pomodoro (25/5) or custom timed sessions, with an optional subject/topic link. Starting one enters a minimal focus mode; “Study while focused” brings back the sidebar so you can work through pages while the clock runs. Everything you complete during the session is attributed to it. First pause is free; extra pauses shave the reward; switching tabs mid-focus is logged and costs HP after the first; ending early keeps the log but forfeits the award."],
+      ["Calendar", "Month/week grid for exams, deadlines, study blocks, lessons (weekly repeat supported) and personal events. Exams and deadlines drive the countdown widgets and in-app reminders — set the reminder threshold at the top."],
+      ["Tasks & Habits", "A dedicated planning space for reminders with sub-tasks and repeatable daily habits. Tasks added here also appear in the day-to-day Overview list where relevant."],
+      ["Today's directives", "The auto-generated daily list on the home page: due cards, near deadlines and today's study blocks, plus anything you add yourself. Ticks earn XP."],
     ]],
     ["The Behavioural Governor", [
       ["HP", "Health drains on days with zero study and when the due-card backlog piles up (past " + (KOS.governor ? KOS.governor.BACKLOG_LIMIT : 30) + "). Below 60 the enrichment layer (labs, sims, shop) suspends; below 30 you're in Recovery Mode. Core revision — spec, notes, cards, quizzes, exam Qs — never locks, ever."],
@@ -67,6 +71,7 @@
   var RELATED = {
     "Overview": ["Open Home", "home"],
     "Subjects (rail)": ["Open Study", "subject", "compsci"],
+    "Review": ["Open Review", "review"],
     "Due Today": ["Open Due Today", "due"],
     "Focus Timer": ["Open Focus Timer", "focus"],
     "Calendar": ["Open Calendar", "calendar"],

@@ -198,6 +198,14 @@ everywhere; one global namespace `KOS`; every view is a function that receives t
 cleared `#main` node; core/user-interface state mutates through `KOS.store`, while
 Collection records and non-token visual preferences go through `KOS.mediadb`.
 
+### Navigation
+
+The rail separates learning from tools: **Study** contains the subject dashboards,
+the Review workspace and Exams & Papers; **Productivity** contains Focus Timer,
+Calendar and Tasks & Habits. Review places Due Today and Card Stats behind one
+secondary tab bar. The established `due` and `cardstats` routes are retained, so
+existing actions, history and saved links still open the corresponding Review tab.
+
 ## What shipped after Build 2.1 (summary — details in PROGRESS.md)
 
 - **Build 2 — Behavioural Governor** (complete): real SM-2 spaced repetition with a

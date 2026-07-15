@@ -7,22 +7,26 @@
   "use strict";
   var el = KOS.ui.el;
 
-  KOS.views.due = function (main) {
+  KOS.review = KOS.review || {};
+  KOS.review.renderDue = function (main, opts) {
+    opts = opts || {};
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
     var due = KOS.srs.dueCards();
     var overdue = due.filter(function (c) { return c.overdue > 0; }).length;
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "The queue" }),
-        el("h1", { text: "Due Today" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "These cards are ready for review right now." })
+    if (!opts.embedded) {
+      main.appendChild(el("div", { class: "dash-head" }, [
+        el("div", { class: "dh-txt" }, [
+          el("span", { class: "dh-kicker", text: "The queue" }),
+          el("h1", { text: "Due Today" }),
+          el("div", { class: "dh-sub" }, [
+            el("span", { class: "board", text: "These cards are ready for review right now." })
+          ])
         ])
-      ])
-    ]));
+      ]));
+    }
 
     /* summary strip — the personal bucket (Build 3c: VN quotes etc.) counts
        alongside the three subjects, never inside them */

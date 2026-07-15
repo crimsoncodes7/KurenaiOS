@@ -127,6 +127,12 @@ Core loads in this order (all before engines/modules): `store.js` → `ui.js` �
 browser. Don't replace `#main` directly — always route through `KOS.show` so history,
 forward trail and rail state stay correct.
 
+Study owns the subject dashboards, the **Review** workspace and Exams & Papers.
+Review composes Due Today and Card Stats under a secondary tab bar; the `due` and
+`cardstats` view ids remain compatibility routes. Productivity owns Focus Timer,
+Calendar and Tasks & Habits. Reuse `KOS.workspaceTabs` for this kind of compact
+workspace switcher rather than recreating a page-specific tab implementation.
+
 Collection's primary subnav is the archive destinations plus one Planner and one
 Sync entry. `KOS.collectionWorkspaceTabs()` renders the secondary tabs within
 the specialised existing views; direct child views must continue to mark their

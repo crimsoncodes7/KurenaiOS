@@ -122,14 +122,15 @@
     KOS.show(next.viewId, next.arg, { _nav: true });
   };
 
-  /* ---- sections: five rail entries, each owning a family of views.
+  /* ---- sections: six rail entries, each owning a family of views.
      The rail carries the section; the subnav (in-page, above #main)
      carries the views inside it. ---- */
   var SECTION_OF = {
     home: "home",
-    subject: "study", ref: "study", due: "study", cardstats: "study",
-    tracker: "study", focus: "study", calendar: "study", tasks: "study", personaldeck: "study",
+    subject: "study", ref: "study", review: "study", due: "study", cardstats: "study",
+    tracker: "study", personaldeck: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
+    focus: "productivity", calendar: "productivity", tasks: "productivity",
     matrix: "collection", anime: "collection", books: "collection",
     vn: "collection", game: "collection", seasonal: "collection",
     mangaka: "collection", wishlist: "collection", shrine: "collection",
@@ -145,12 +146,13 @@
       ["Mathematics", "subject", "maths", "pc-maths"],
       ["IT · Data Analytics", "subject", "it", "pc-it"],
       null,
-      ["Due Today", "due"],
+      ["Review", "review"],
+      ["Exams & Papers", "tracker"],
+    ],
+    productivity: [
       ["Focus Timer", "focus"],
       ["Calendar", "calendar"],
-      ["Tasks & Habits", "tasks"],
-      ["Exams & Papers", "tracker"],
-      ["Card Stats", "cardstats"]
+      ["Tasks & Habits", "tasks"]
     ],
     collection: [
       ["Overview", "matrix"],
@@ -172,7 +174,7 @@
   /* the landing view when a rail section button is pressed */
   KOS.sectionLanding = function (sec) {
     if (sec === "study") return ["subject", KOS.store.state.ui.subject || "compsci"];
-    return [{ home: "home", collection: "matrix", governor: "governor", system: "data" }[sec] || "home", undefined];
+    return [{ home: "home", productivity: "focus", collection: "matrix", governor: "governor", system: "data" }[sec] || "home", undefined];
   };
   KOS.collectionCrumbs = function (area, page) {
     return el("div", { class: "crumbs collection-crumbs", "aria-label": "Collection navigation" }, [
@@ -180,17 +182,23 @@
       page ? [" / ", el("b", { text: page })] : null
     ].flat().filter(Boolean));
   };
+  /* Shared compact workspace switcher. Planner, Sync and Study Review use the
+     same semantics and visual rhythm without forcing their page content alike. */
+  KOS.workspaceTabs = function (items, current, label, className) {
+    return el("div", { class: "study-tabs" + (className ? " " + className : ""), role: "tablist",
+      "aria-label": label }, items.map(function (item) {
+      var selected = (item[3] || item[1]) === current;
+      return el("button", { class: "study-tab" + (selected ? " active" : ""), role: "tab",
+        "aria-selected": String(selected), text: item[0], onclick: function () { KOS.show(item[1], item[2]); } });
+    }));
+  };
   KOS.collectionWorkspaceTabs = function (area, current) {
     var groups = {
       planner: [["Budget Planner", "wishlist"], ["Goals", "goals"]],
       sync: [["AniList", "aniprofile"], ["VNDB", "vndbprofile"], ["Sync & Import", "mediasync"]]
     };
-    return el("div", { class: "study-tabs collection-workspace-tabs", role: "tablist",
-      "aria-label": area === "planner" ? "Planner pages" : "Sync pages" }, groups[area].map(function (item) {
-      var selected = item[1] === current;
-      return el("button", { class: "study-tab" + (selected ? " active" : ""), role: "tab",
-        "aria-selected": String(selected), text: item[0], onclick: function () { KOS.show(item[1]); } });
-    }));
+    return KOS.workspaceTabs(groups[area], current,
+      area === "planner" ? "Planner pages" : "Sync pages", "collection-workspace-tabs");
   };
 
   function renderSubnav(sec, viewId, arg) {
@@ -204,6 +212,7 @@
     var activeView = viewId, activeArg = arg;
     if (viewId === "ref" && arg) { activeView = "subject"; activeArg = arg.subject; }
     if (viewId === "seasonal" || viewId === "mangaka") activeView = "anime";
+    if (viewId === "due" || viewId === "cardstats") activeView = "review";
     if (["goals"].indexOf(viewId) !== -1) activeView = "wishlist";
     if (["aniprofile", "vndbprofile"].indexOf(viewId) !== -1) activeView = "mediasync";
     items.forEach(function (it) {

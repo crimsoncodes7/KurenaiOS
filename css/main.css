@@ -1211,6 +1211,11 @@ small { font-size: 12.5px; }
 .study-tab.active::after { content: none; }
 .study-panel { padding-top: var(--section-gap); }
 
+/* Review is a shared Study workspace. Its switcher sits in the page header,
+   matching the Collection workspaces while retaining the selected surface. */
+.review-workspace { padding-top: 0; }
+.cardstats-scope-tabs + .stat-strip { margin-top: var(--section-gap); }
+
 /* filter pills variant (vault status rows reuse .study-tabs) */
 .med-pills {
   display: flex; gap: 7px; flex-wrap: wrap;
@@ -3085,10 +3090,12 @@ body.fx-minimised .fx-dock { display: flex; }
 .ap-analytics-grid .cs-chart > svg { margin-top: auto; }
 .ap-analytics-grid .donut-wrap { flex: 1; align-items: center; }
 .ap-state { display: flex; min-height: 180px; flex-direction: column; justify-content: center; gap: var(--space-2); padding: var(--space-5); border: 1px dashed var(--line); border-radius: var(--radius-card); text-align: center; }
+.workspace-header-tabs,
 .profile-workspace-tabs { flex: 0 1 auto; margin: 0; align-self: center; }
+.dash-head .workspace-header-tabs,
 .dash-head .profile-workspace-tabs { max-width: min(100%, 470px); }
 @media (max-width: 1120px) { .ap-analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 680px) { .ap-analytics-grid { grid-template-columns: 1fr; } .ap-fetched { width: 100%; margin-left: 0; } .profile-workspace-tabs { width: 100%; } }
+@media (max-width: 680px) { .ap-analytics-grid { grid-template-columns: 1fr; } .ap-fetched { width: 100%; margin-left: 0; } .workspace-header-tabs, .profile-workspace-tabs { width: 100%; } }
 .ap-favs { display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px; }
 .ap-fav { flex: 0 0 92px; display: flex; flex-direction: column; gap: 5px; }
 .ap-fav img, .ap-fav .med-cover-ph { width: 92px; height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line2); display: flex; align-items: center; justify-content: center; font-size: 26px; }

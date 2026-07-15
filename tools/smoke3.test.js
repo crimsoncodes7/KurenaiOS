@@ -156,6 +156,26 @@ step("due view renders with a mixed queue", () => {
   if (!$(".fc-card") && !$(".due-clear")) throw new Error("due view empty");
   if (!$$(".stat-card").length) throw new Error("no summary strip");
 });
+step("Study Review and Productivity own the intended navigation", () => {
+  KOS.show("review");
+  const reviewTabs = $$(".review-tabs .study-tab").map(b => b.textContent.trim());
+  if (reviewTabs.join("|") !== "Due Today|Card Stats") throw new Error("review tabs: " + reviewTabs.join("|"));
+  if (!$(".dash-head > .review-tabs")) throw new Error("Review tabs are not in the header");
+  if (!document.querySelector('.rail-item[data-section="study"]').classList.contains("active")) throw new Error("Study rail not active");
+
+  click($$(".review-tabs .study-tab").find(b => b.textContent.trim() === "Card Stats"));
+  if (!$$(".cs-chart svg").length) throw new Error("Review Card Stats pane missing");
+  if (!$$(".review-tabs .study-tab").find(b => b.textContent.trim() === "Card Stats").classList.contains("active")) throw new Error("stats tab inactive");
+
+  KOS.show("due");
+  if (!$$(".review-tabs .study-tab").find(b => b.textContent.trim() === "Due Today").classList.contains("active")) throw new Error("due compatibility route lost its tab");
+  KOS.show("focus");
+  if (!document.querySelector('.rail-item[data-section="productivity"]').classList.contains("active")) throw new Error("Productivity rail not active");
+  const productivityTabs = $$("#subnav .subnav-item").map(b => b.textContent.trim());
+  if (productivityTabs.join("|") !== "Focus Timer|Calendar|Tasks & Habits") throw new Error("productivity tabs: " + productivityTabs.join("|"));
+  KOS.show("tracker");
+  if (!$(".dash-head > .workspace-header-tabs")) throw new Error("record tabs are not in the header");
+});
 step("governor view: all four tabs render", () => {
   KOS.show("governor");
   for (const t of ["status", "shop", "avatar", "history"]) {

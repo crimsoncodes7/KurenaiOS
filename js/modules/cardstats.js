@@ -29,24 +29,28 @@
   }
 
   /* ---------------- the view ---------------- */
-  KOS.views.cardstats = function (main, arg) {
+  KOS.review = KOS.review || {};
+  KOS.review.renderStats = function (main, arg, opts) {
+    opts = opts || {};
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
     var sid = arg && arg.subject ? arg.subject : null;
     var ref = arg && arg.ref ? arg.ref : null;
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "The memory ledger" }),
-        el("h1", { text: "Card Statistics" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "Review volume, scheduling health, and where the lapses live." })
+    if (!opts.embedded) {
+      main.appendChild(el("div", { class: "dash-head" }, [
+        el("div", { class: "dh-txt" }, [
+          el("span", { class: "dh-kicker", text: "The memory ledger" }),
+          el("h1", { text: "Card Statistics" }),
+          el("div", { class: "dh-sub" }, [
+            el("span", { class: "board", text: "Review volume, scheduling health, and where the lapses live." })
+          ])
         ])
-      ])
-    ]));
+      ]));
+    }
 
     /* scope pills: All / subject / (topic when drilled in) */
-    var pills = el("div", { class: "study-tabs", role: "tablist" });
+    var pills = el("div", { class: "study-tabs cardstats-scope-tabs", role: "tablist", "aria-label": "Card statistics scope" });
     [[null, "All subjects"], ["compsci", SUBJ.compsci], ["maths", SUBJ.maths], ["it", SUBJ.it]].forEach(function (p) {
       pills.appendChild(el("button", {
         class: "study-tab" + (sid === p[0] && !ref ? " active" : ""), role: "tab",

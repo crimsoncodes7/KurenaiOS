@@ -194,7 +194,11 @@ Collected from every build. If a change would break one of these, stop and say s
     commit. Normal heroes share `--hero-min-h`, `--hero-pad-*` and
     `--radius-hero`; only Governor Status retains its profile-banner geometry.
 27. Navigate only via `KOS.show` (history/forward/rail state). Charts are
-    hand-built inline SVG via `KOS.charts` — no charting library.
+    hand-built inline SVG via `KOS.charts` — no charting library. Study owns
+    subject work, Review and Exams & Papers; Productivity owns Focus Timer,
+    Calendar and Tasks & Habits. Review composes the legacy `due` and
+    `cardstats` routes, so keep both ids working. `KOS.workspaceTabs` is the
+    shared secondary-switcher primitive for Review, Planner and Sync.
 28. Vault editors live in the `KOS.mediaEditors` registry (keyed by module
     id; anime is the fallback base). `KOS.mediaEditor` (core/media.js)
     dispatches on `entry.module` and then runs `KOS.mediaEditorHooks`

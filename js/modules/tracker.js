@@ -161,21 +161,10 @@
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "The record" }),
-        el("h1", { text: "Exams & Papers" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "Every paper you've sat — marks, what went well, and whether you've reviewed it." })
-        ])
-      ])
-    ]));
-
     var kind = openKind === "paper" ? "paper" : "exam";
     var filterSubj = "";
     var sortAsc = false;
-
-    var bar = el("div", { class: "study-tabs", role: "tablist" });
+    var bar = el("div", { class: "study-tabs workspace-header-tabs", role: "tablist", "aria-label": "Record type" });
     Object.keys(KINDS).forEach(function (k) {
       bar.appendChild(el("button", { class: "study-tab" + (k === kind ? " active" : ""), role: "tab", "data-tab": k,
         onclick: function () {
@@ -184,7 +173,17 @@
           render();
         } }, [KINDS[k]]));
     });
-    main.appendChild(bar);
+
+    main.appendChild(el("div", { class: "dash-head" }, [
+      el("div", { class: "dh-txt" }, [
+        el("span", { class: "dh-kicker", text: "The record" }),
+        el("h1", { text: "Exams & Papers" }),
+        el("div", { class: "dh-sub" }, [
+          el("span", { class: "board", text: "Every paper you've sat — marks, what went well, and whether you've reviewed it." })
+        ])
+      ]),
+      bar
+    ]));
 
     var ctl = el("div", { class: "trk-ctl" });
     var subjSel = el("select", { class: "status-sel", onchange: function () { filterSubj = subjSel.value; render(); } }, [
