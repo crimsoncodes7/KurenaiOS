@@ -39,6 +39,8 @@ python tools/parse_aqa.py    # → aqa.json
 python tools/parse_maths.py  # → maths.json
 python tools/parse_it.py     # → it.json
 python tools/gen_data.py     # aqa/maths/it.json → js/data/*.js
+# formatting-only, preserves the checked-in JSON payload (including CS NEA)
+python3 tools/gen_data.py --format-existing
 ```
 
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
@@ -159,7 +161,10 @@ Collected from every build. If a change would break one of these, stop and say s
 24. `js/data/compsci.js`/`maths.js`/`it.js` are generated — never hand-edit by
     default (caveat: regen via pdfplumber is currently unreliable — the
     committed spec data was cleaned in place in June 2026, so if you must
-    regen, diff per-ref against the committed files first).
+    regen, diff per-ref against the committed files first). For a whitespace-
+    only readability refresh without the extracts, use
+    `python3 tools/gen_data.py --format-existing`; it preserves the current
+    JSON payload and the manual CS NEA section.
 25. Content keys only on LEAF refs (non-empty `content[]`). Callouts need TWO
     closing braces. No bare-string paragraphs in notes (user preference —
     wrap prose in callouts).

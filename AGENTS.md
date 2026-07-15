@@ -21,6 +21,10 @@ Editable:
 
 These are produced from the spec PDFs by the Python pipeline. To change spec wording
 or the tree, edit the parsers in `tools/` and re-run `gen_data.py` — never hand-edit.
+For a layout-only refresh when the original extracts are unavailable, run
+`python3 tools/gen_data.py --format-existing`. It round-trips the existing JSON
+payload through the generator with stable two-space indentation, preserving the
+manually authored CS NEA section; it must not be used to alter spec wording.
 
 ## Content schema
 Every `KOS_CONTENT` entry must follow the schema in `js/core/content.js`.

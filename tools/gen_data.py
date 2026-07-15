@@ -1,8 +1,53 @@
-import json, re
+import json, re, sys
+from pathlib import Path
 
-OUT = "/Users/fj/Downloads/KurenaiOS 2/js/data"
-import os
-os.makedirs(OUT, exist_ok=True)
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "js" / "data"
+OUT.mkdir(parents=True, exist_ok=True)
+
+
+def write(name, var, obj):
+    """Emit readable JavaScript data without changing object key order."""
+    has_manual_nea = name == "compsci" and any(
+        section.get("ref") == "NEA" for section in obj.get("sections", [])
+    )
+    with (OUT / f"{name}.js").open("w", encoding="utf-8") as f:
+        f.write("/* Kurenai OS — generated from the official specification PDF. */\n")
+        if has_manual_nea:
+            f.write("/* NEA section (below) is manually authored — preserved by the generator. */\n")
+        f.write(f"window.KOS_DATA = window.KOS_DATA || {{}};\nwindow.KOS_DATA.{var} = ")
+        json.dump(obj, f, ensure_ascii=False, indent=2)
+        f.write(";\n")
+
+
+def read_generated(name, var):
+    """Read the JSON payload from an existing generated assignment.
+
+    This is intentionally layout-only: it does not invent or clean spec data,
+    and lets a repository without the original extracted PDFs make the output
+    readable while retaining manual additions such as Computer Science's NEA.
+    """
+    path = OUT / f"{name}.js"
+    marker = f"window.KOS_DATA.{var} = "
+    source = path.read_text(encoding="utf-8")
+    if marker not in source:
+        raise SystemExit(f"Could not find {marker!r} in {path}")
+    payload = source.split(marker, 1)[1].strip()
+    if not payload.endswith(";"):
+        raise SystemExit(f"Expected a terminating semicolon in {path}")
+    return json.loads(payload[:-1])
+
+
+def format_existing():
+    """Re-emit the checked-in generated data with stable, editable layout."""
+    for name, var in (("compsci", "compsci"), ("maths", "maths"), ("it", "it")):
+        write(name, var, read_generated(name, var))
+    print("Reformatted existing generated data without changing its payload.")
+
+
+if "--format-existing" in sys.argv:
+    format_existing()
+    raise SystemExit(0)
 
 def clean(s):
     s = s.replace("\u2212", "-").replace("\ufb01", "fi").replace("\ufb02", "fl")
@@ -45,6 +90,13 @@ compsci = {
     "labelL": "Content (spec wording)", "labelR": "Additional information",
     "sections": tree,
 }
+# The AQA parser intentionally stops before the manually authored NEA project.
+# Preserve that section from the existing generated tree when doing a full PDF
+# regeneration, rather than silently dropping user-maintained curriculum data.
+existing_compsci = read_generated("compsci", "compsci")
+manual_nea = [section for section in existing_compsci.get("sections", []) if section.get("ref") == "NEA"]
+if manual_nea:
+    compsci["sections"].extend(manual_nea)
 
 # ---------- Mathematics (Edexcel 9MA0) ----------
 m = json.load(open("/home/claude/extract/maths.json"))
@@ -132,19 +184,12 @@ it = {"id": "it", "name": "IT: Data Analytics", "board": "OCR AAQ H019/H119",
       "labelL": "Teaching content", "labelR": "Breadth & depth / Exemplification",
       "sections": it_sections}
 
-def write(name, var, obj):
-    with open(f"{OUT}/{name}.js", "w") as f:
-        f.write(f"/* Kurenai OS \u2014 generated from the official specification PDF. */\n")
-        f.write(f"window.KOS_DATA = window.KOS_DATA || {{}};\nwindow.KOS_DATA.{var} = ")
-        f.write(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
-        f.write(";\n")
-
 write("compsci", "compsci", compsci)
 write("maths", "maths", maths)
 write("it", "it", it)
 
 import subprocess
-print(subprocess.run(["ls", "-la", OUT], capture_output=True, text=True).stdout)
+print(subprocess.run(["ls", "-la", str(OUT)], capture_output=True, text=True).stdout)
 def count(sections):
     n = 0
     def walk(x):

@@ -153,7 +153,7 @@ KurenaiOS/
     ├── parse_aqa.py          spec PDF → aqa.json
     ├── parse_maths.py        spec PDF → maths.json
     ├── parse_it.py           spec PDF → it.json
-    ├── gen_data.py           *.json → js/data/*.js
+    ├── gen_data.py           *.json → js/data/*.js; `--format-existing` is a layout-only round-trip
     ├── validate_content.js   deep-content validator (node tools/validate_content.js [files…])
     ├── visual_audit.mjs      live Chrome crop/hero/responsive regression audit
     └── smoke.test.js … smoke16.test.js   sixteen jsdom test suites (see Tests below)
@@ -191,6 +191,7 @@ automatically. Every `{callout:{…}}` must close with **two** braces — valida
 | Add a trace-lab tab               | `js/labs/trace.js`                                         |
 | Add a whole new module/view       | `KOS.views.yourView = fn(main)` + a rail button in `index.html` |
 | Re-extract after a spec update    | run the three parsers, then `gen_data.py`                  |
+| Reformat generated spec data      | `python3 tools/gen_data.py --format-existing` (payload unchanged) |
 
 Architecture notes: classic `<script>` tags (no ES modules) so `file://` works
 everywhere; one global namespace `KOS`; every view is a function that receives the

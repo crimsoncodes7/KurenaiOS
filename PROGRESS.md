@@ -1642,3 +1642,16 @@ marked complete.
   and boundaries. The live
   Chrome audit verifies the release desk, an actual purchase/handoff, responsive
   queue rows, charts and budget modal at 1440px and 980px.
+
+## Generated spec-data layout (2026-07-15)
+
+- `compsci.js`, `maths.js` and `it.js` now use a stable two-space JSON layout:
+  section, child, content and guidance boundaries are directly editable instead
+  of being compressed into three long assignment lines.
+- `tools/gen_data.py --format-existing` is the supported layout-only generator
+  path for a checkout without the original PDF extracts. It parses the existing
+  assignments and re-emits the same JSON payload, preserving the manually
+  authored Computer Science NEA section rather than risking a blind re-extract.
+- Before/after canonical JSON SHA-256 values matched for all three trees; the
+  generated JavaScript was syntax-checked and the complete smoke suite remains
+  the regression gate.
