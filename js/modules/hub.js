@@ -147,7 +147,7 @@
         }
       }, [
         el("span", { class: "ref", text: sec.ref }),
-        el("span", { text: sec.title }),
+        el("span", { class: "sec-title", text: sec.title }),
         sst.total ? el("span", { class: "pc", text: sst.done + "/" + sst.total }) : null,
         el("span", { class: "arr", text: "▸" })
       ]);

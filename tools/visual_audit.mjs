@@ -440,6 +440,15 @@ assert(dataActionButtons.length === 4 && dataActionButtons.every(b => b.width ==
   `Backup actions are inconsistent or wrap their labels: ${JSON.stringify(dataActionButtons)}`);
 await screenshot("/tmp/kos-backup-1440.png");
 
+await auditView("subject", "maths", ".tree-subject-h");
+const sectionCounts = await evaluate(`(() => [...document.querySelectorAll('#tree .sec-head')].map(head => {
+  const pc = head.querySelector('.pc'), arr = head.querySelector('.arr');
+  return pc && arr ? { countRight: Math.round(pc.getBoundingClientRect().right), arrowLeft: Math.round(arr.getBoundingClientRect().left), arrowRight: Math.round(arr.getBoundingClientRect().right) } : null;
+}).filter(Boolean))()`);
+assert(sectionCounts.length > 1 && sectionCounts.every(x => x.arrowLeft - x.countRight >= 0) &&
+  new Set(sectionCounts.map(x => x.arrowRight)).size === 1,
+  `Subject section counts are not consistently anchored beside their arrows: ${JSON.stringify(sectionCounts)}`);
+
 await auditView("help", undefined, ".help-wrap");
 const helpWide = await evaluate(`(() => {
   const wrap = document.querySelector('.help-wrap'), content = document.querySelector('.help-content');

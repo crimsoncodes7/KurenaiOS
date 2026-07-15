@@ -501,8 +501,8 @@ small { font-size: 12.5px; }
 .tree-collapse:hover { color: var(--text); border-color: var(--line); }
 .tree-progress { height: 4px; border-radius: 999px; background: color-mix(in srgb, var(--text) 8%, transparent); overflow: hidden; margin: 7px 0 2px; }
 .tree-progress i { display: block; height: 100%; border-radius: 999px; background: var(--accent, var(--kurenai)); }
-.sec-head .pc { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--muted); flex: none; }
-.sec-head .arr { margin-left: 6px; }
+.sec-head .pc { margin-left: auto; min-width: 42px; font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: right; flex: none; }
+.sec-head .arr { width: 12px; margin-left: 0; text-align: center; }
 .tree-subject-h .t { font-family: var(--serif); font-size: 17px; font-weight: 600; }
 .tree-subject-h .b { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .sec { margin-bottom: 2px; }
@@ -518,7 +518,8 @@ small { font-size: 12.5px; }
 }
 .sec-head:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
 .sec-head .ref { font-family: var(--mono); font-size: 10.5px; color: var(--accent); flex: none; }
-.sec-head .arr { margin-left: auto; font-size: 9px; color: var(--muted); transition: transform .18s; }
+.sec-head .sec-title { min-width: 0; flex: 1 1 auto; }
+.sec-head .arr { font-size: 9px; color: var(--muted); transition: transform .18s; flex: none; }
 .sec.open > .sec-head .arr { transform: rotate(90deg); }
 .sec-kids { display: none; padding-left: 6px; }
 .sec.open > .sec-kids { display: block; }
