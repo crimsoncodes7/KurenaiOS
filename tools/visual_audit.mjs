@@ -433,11 +433,12 @@ for (const [view, arg, selector] of [
   ["data", undefined, "#main"]
 ]) await auditView(view, arg, selector);
 
-const exportSummaryButton = await evaluate(`(() => { const b = document.querySelector('.data-export-summary'); return b && {
+const dataActionButtons = await evaluate(`(() => [...document.querySelectorAll('.data-action .btn')].map(b => ({
   width: Math.round(b.getBoundingClientRect().width), client: b.clientHeight, scroll: b.scrollHeight,
-  whiteSpace: getComputedStyle(b).whiteSpace }; })()`);
-assert(exportSummaryButton && exportSummaryButton.width >= 340 && exportSummaryButton.client === exportSummaryButton.scroll && exportSummaryButton.whiteSpace === 'nowrap',
-  `Revision-summary export label does not remain on one line: ${JSON.stringify(exportSummaryButton)}`);
+  whiteSpace: getComputedStyle(b).whiteSpace, text: b.textContent.trim() })))()`);
+assert(dataActionButtons.length === 4 && dataActionButtons.every(b => b.width === 280 && b.client === b.scroll && b.whiteSpace === 'nowrap'),
+  `Backup actions are inconsistent or wrap their labels: ${JSON.stringify(dataActionButtons)}`);
+await screenshot("/tmp/kos-backup-1440.png");
 
 await auditView("help", undefined, ".help-wrap");
 const helpWide = await evaluate(`(() => {
@@ -530,5 +531,5 @@ await screenshot("/tmp/kos-home-restored-1440.png");
 assert(browserErrors.length === 0, `Browser errors:\n${browserErrors.join("\n")}`);
 
 console.log("VISUAL AUDIT PASS — live crop workflows, Compare Topics, persistence, backup/restore and responsive adjacent pages verified");
-console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
+console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
 ws.close();
