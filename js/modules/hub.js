@@ -1341,7 +1341,7 @@
       onclick: function () { file.click(); } });
     actions.appendChild(actionRow(importBtn, "A complete restore, not a merge — the file replaces what's here."));
     actions.appendChild(actionRow(
-      el("button", { class: "btn jade", text: "Export revision summary (print / PDF)", onclick: exportSummary }),
+      el("button", { class: "btn jade data-export-summary", text: "Export revision summary (print / PDF)", onclick: exportSummary }),
       "A printable table of every spec point, its status and your notes."));
     actions.appendChild(actionRow(
       el("button", { class: "btn danger", text: "Reset everything", onclick: function () {

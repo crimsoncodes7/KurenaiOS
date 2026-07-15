@@ -433,6 +433,12 @@ for (const [view, arg, selector] of [
   ["data", undefined, "#main"]
 ]) await auditView(view, arg, selector);
 
+const exportSummaryButton = await evaluate(`(() => { const b = document.querySelector('.data-export-summary'); return b && {
+  width: Math.round(b.getBoundingClientRect().width), client: b.clientHeight, scroll: b.scrollHeight,
+  whiteSpace: getComputedStyle(b).whiteSpace }; })()`);
+assert(exportSummaryButton && exportSummaryButton.width >= 340 && exportSummaryButton.client === exportSummaryButton.scroll && exportSummaryButton.whiteSpace === 'nowrap',
+  `Revision-summary export label does not remain on one line: ${JSON.stringify(exportSummaryButton)}`);
+
 await auditView("help", undefined, ".help-wrap");
 const helpWide = await evaluate(`(() => {
   const wrap = document.querySelector('.help-wrap'), content = document.querySelector('.help-content');
