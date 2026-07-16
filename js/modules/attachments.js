@@ -20,15 +20,63 @@
 
   function available() { return !!window.indexedDB; }
 
+  /* Build 4a — cloud plumbing. Identity generation rides mediadb's shared
+     UUID helper; file deletions queue a tombstone in the media kv store so
+     cloud sync can propagate them; local mutations nudge the sync engine.
+     All of it is best-effort and inert when cloud sync is absent. */
+  function genId() {
+    return (window.KOS && KOS.mediadb && KOS.mediadb.genSyncId)
+      ? KOS.mediadb.genSyncId()
+      : Date.now().toString(16) + "-" + Math.random().toString(16).slice(2);
+  }
+  var FILE_TOMBSTONE_KEY = "cloudsync.filesPendingDeletes", FILE_TOMBSTONE_CAP = 500;
+  function recordFileTombstone(rec, cb) {
+    if (!rec || !rec.fileId || !window.KOS || !KOS.mediadb || !KOS.mediadb.available()) { cb && cb(null); return; }
+    KOS.mediadb.getKV(FILE_TOMBSTONE_KEY, function (err, q) {
+      if (err) { cb && cb(null); return; }
+      q = Array.isArray(q) ? q : [];
+      /* name rides along so the sync engine can also remove the uploaded
+         binary at <uid>/<fileId>/<safeName> when it pushes the tombstone */
+      q.push({ fileId: rec.fileId, name: rec.name || null, ts: Date.now() });
+      if (q.length > FILE_TOMBSTONE_CAP) q = q.slice(q.length - FILE_TOMBSTONE_CAP);
+      KOS.mediadb.setKV(FILE_TOMBSTONE_KEY, q, function () { cb && cb(null); });
+    });
+  }
+  function noteCloud() {
+    if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteChange) KOS.cloudsync.noteChange("files");
+  }
+
   function open(cb) {
     if (!available()) { cb(new Error("IndexedDB unavailable")); return; }
     if (db) { cb(null, db); return; }
-    var rq = window.indexedDB.open(DB_NAME, 1);
+    var rq = window.indexedDB.open(DB_NAME, 2);
     rq.onupgradeneeded = function (e) {
-      var d = e.target.result;
+      var d = e.target.result, os;
       if (!d.objectStoreNames.contains(STORE)) {
-        var os = d.createObjectStore(STORE, { keyPath: "id", autoIncrement: true });
+        os = d.createObjectStore(STORE, { keyPath: "id", autoIncrement: true });
         os.createIndex("topic", ["subject", "ref"], { unique: false });
+      } else {
+        os = e.target.transaction.objectStore(STORE);
+      }
+      /* v2 (Build 4a — cloud sync): fileId is the device-independent
+         identity a kos_files row keys on; updatedAt drives per-record
+         last-write-wins. Backfilled for pre-v2 rows. */
+      if (!os.indexNames.contains("fileId")) {
+        os.createIndex("fileId", "fileId", { unique: false });
+      }
+      if (e.oldVersion > 0 && e.oldVersion < 2) {
+        var cur = os.openCursor();
+        cur.onsuccess = function (ev) {
+          var c = ev.target.result;
+          if (!c) return;
+          var v = c.value;
+          if (!v.fileId) {
+            v.fileId = genId();
+            v.updatedAt = v.updatedAt || v.added || Date.now();
+            c.update(v);
+          }
+          c.continue();
+        };
       }
     };
     rq.onsuccess = function () { db = rq.result; cb(null, db); };
@@ -48,9 +96,10 @@
       var rq = os.add({
         subject: sid, ref: ref, name: file.name,
         mime: file.type || "application/octet-stream",
-        size: file.size, blob: file, note: "", added: Date.now()
+        size: file.size, blob: file, note: "", added: Date.now(),
+        fileId: genId(), updatedAt: Date.now()
       });
-      rq.onsuccess = function () { cb(null, rq.result); };
+      rq.onsuccess = function () { noteCloud(); cb(null, rq.result); };
       rq.onerror = function () { cb(rq.error); };
     });
   }
@@ -70,19 +119,31 @@
         var rec = rq.result;
         if (!rec) { cb && cb(new Error("gone")); return; }
         rec.note = note;
+        rec.updatedAt = Date.now();
         var p = os.put(rec);
-        p.onsuccess = function () { cb && cb(null); };
+        p.onsuccess = function () { noteCloud(); cb && cb(null); };
         p.onerror = function () { cb && cb(p.error); };
       };
       rq.onerror = function () { cb && cb(rq.error); };
     });
   }
-  function remove(id, cb) {
+  function remove(id, cb, opts) {
     tx("readwrite", function (err, os) {
       if (err) { cb && cb(err); return; }
-      var rq = os.delete(id);
-      rq.onsuccess = function () { cb && cb(null); };
-      rq.onerror = function () { cb && cb(rq.error); };
+      var gq = os.get(id);
+      gq.onsuccess = function () {
+        var victim = gq.result || null;
+        var rq = os.delete(id);
+        rq.onsuccess = function () {
+          if (victim && !(opts && opts.skipTombstone)) {
+            recordFileTombstone(victim, function () { noteCloud(); cb && cb(null); });
+          } else {
+            cb && cb(null);
+          }
+        };
+        rq.onerror = function () { cb && cb(rq.error); };
+      };
+      gq.onerror = function () { cb && cb(gq.error); };
     });
   }
 
@@ -131,13 +192,21 @@
         var result = new Array(items.length);
         var pending = items.length, fired = false;
         items.forEach(function (rec, i) {
+          function fill(b64) {
+            result[i] = { id: rec.id, subject: rec.subject, ref: rec.ref,
+              name: rec.name, mime: rec.mime, size: rec.size,
+              note: rec.note || "", added: rec.added, blobBase64: b64,
+              fileId: rec.fileId || null,
+              updatedAt: rec.updatedAt || rec.added || null };
+            if (!--pending) { fired = true; cb(null, result); }
+          }
+          /* a cloud-metadata-only record has no local blob yet (Build 4a) —
+             it still rides the backup as metadata */
+          if (!rec.blob) { fill(null); return; }
           blobToBase64(rec.blob, function (e, b64) {
             if (fired) return;
             if (e) { fired = true; cb(e); return; }
-            result[i] = { id: rec.id, subject: rec.subject, ref: rec.ref,
-              name: rec.name, mime: rec.mime, size: rec.size,
-              note: rec.note || "", added: rec.added, blobBase64: b64 };
-            if (!--pending) { fired = true; cb(null, result); }
+            fill(b64);
           });
         });
       };
@@ -153,18 +222,87 @@
         if (!items.length) { cb(null); return; }
         var pending = items.length, fired = false;
         items.forEach(function (item) {
-          var blob;
-          try { blob = base64ToBlob(item.blobBase64); }
-          catch (e) { if (!fired) { fired = true; cb(new Error("Could not decode " + (item.name || "attachment"))); } return; }
+          var blob = null;
+          if (item.blobBase64) {
+            try { blob = base64ToBlob(item.blobBase64); }
+            catch (e) { if (!fired) { fired = true; cb(new Error("Could not decode " + (item.name || "attachment"))); } return; }
+          }
           var rec = { id: item.id, subject: item.subject, ref: item.ref,
             name: item.name, mime: item.mime, size: item.size,
-            blob: blob, note: item.note || "", added: item.added };
+            blob: blob, note: item.note || "", added: item.added,
+            fileId: item.fileId || genId(),
+            updatedAt: item.updatedAt || item.added || Date.now() };
           var putRq = os.put(rec);
           putRq.onsuccess = function () { if (!fired && !--pending) { fired = true; cb(null); } };
           putRq.onerror = function () { if (!fired) { fired = true; cb(putRq.error); } };
         });
       };
       clearRq.onerror = function () { cb(clearRq.error); };
+    });
+  }
+
+  /* ---------------- cloud-sync helpers (Build 4a) ----------------
+     Metadata in, metadata out — the sync engine never touches this store's
+     transactions directly. Blobs move only through setBlob (explicit
+     download) and getByFileId (explicit upload). */
+  function listMeta(cb) {
+    tx("readonly", function (err, os) {
+      if (err) { cb(err, []); return; }
+      var rq = os.getAll();
+      rq.onsuccess = function () {
+        cb(null, (rq.result || []).map(function (rec) {
+          return { id: rec.id, fileId: rec.fileId || null, subject: rec.subject,
+            ref: rec.ref, name: rec.name, mime: rec.mime, size: rec.size,
+            note: rec.note || "", added: rec.added,
+            updatedAt: rec.updatedAt || rec.added || null, hasBlob: !!rec.blob };
+        }));
+      };
+      rq.onerror = function () { cb(rq.error, []); };
+    });
+  }
+  function getByFileId(fileId, cb) {
+    tx("readonly", function (err, os) {
+      if (err) { cb(err, null); return; }
+      var rq = os.index("fileId").get(window.IDBKeyRange.only(fileId));
+      rq.onsuccess = function () { cb(null, rq.result || null); };
+      rq.onerror = function () { cb(rq.error, null); };
+    });
+  }
+  /* upsert a remote metadata record by fileId. An existing record keeps its
+     local blob; a new one lands blob-less ("cloud only" in the Files tab,
+     with an explicit download action). Never notifies the sync engine —
+     this IS the sync engine writing. */
+  function putRemoteMeta(meta, cb) {
+    getByFileId(meta.fileId, function (err, existing) {
+      if (err) { cb && cb(err); return; }
+      tx("readwrite", function (e2, os) {
+        if (e2) { cb && cb(e2); return; }
+        var rec = existing || { blob: null, added: meta.added || Date.now() };
+        rec.fileId = meta.fileId;
+        rec.subject = meta.subject;
+        rec.ref = meta.ref;
+        rec.name = meta.name;
+        rec.mime = meta.mime || "application/octet-stream";
+        rec.size = meta.size || 0;
+        rec.note = meta.note || "";
+        rec.updatedAt = meta.updatedAt || Date.now();
+        var rq = os.put(rec);
+        rq.onsuccess = function () { rec.id = rec.id != null ? rec.id : rq.result; cb && cb(null, rec); };
+        rq.onerror = function () { cb && cb(rq.error); };
+      });
+    });
+  }
+  function setBlob(fileId, blob, cb) {
+    getByFileId(fileId, function (err, rec) {
+      if (err || !rec) { cb && cb(err || new Error("No local record for that file.")); return; }
+      tx("readwrite", function (e2, os) {
+        if (e2) { cb && cb(e2); return; }
+        rec.blob = blob;
+        if (blob && blob.size != null) rec.size = blob.size;
+        var rq = os.put(rec);
+        rq.onsuccess = function () { cb && cb(null, rec); };
+        rq.onerror = function () { cb && cb(rq.error); };
+      });
     });
   }
 
@@ -238,11 +376,35 @@
         if (objUrl) { URL.revokeObjectURL(objUrl); objUrl = null; }
       }
       var r = el("div", { class: "att-row" });
+      /* Build 4a — a record whose binary lives only in cloud storage (synced
+         metadata from another device). View/Open need the blob; offer the
+         explicit download instead. */
+      var cloudOnly = !rec.blob;
+      var dlBtn = cloudOnly ? el("button", { class: "mini-btn", text: "⇣ Download from cloud", onclick: function () {
+        if (!window.KOS || !KOS.cloudsync || !KOS.cloudsync.downloadFile) {
+          KOS.ui.toast("Cloud sync isn't available here — this file's content lives on another device.", true);
+          return;
+        }
+        dlBtn.disabled = true;
+        dlBtn.textContent = "Downloading…";
+        KOS.cloudsync.downloadFile(rec.fileId, function (err) {
+          if (err) {
+            dlBtn.disabled = false;
+            dlBtn.textContent = "⇣ Download from cloud";
+            KOS.ui.toast("Download failed: " + err.message, true);
+          } else {
+            KOS.ui.toast("File downloaded.");
+            render();
+          }
+        });
+      } }) : null;
       r.appendChild(el("div", { class: "att-head" }, [
         el("span", { class: "att-ico", "aria-hidden": "true", text: icon(rec.mime) }),
         el("span", { class: "att-name", text: rec.name, title: rec.mime }),
         el("span", { class: "att-size", text: fmtSize(rec.size) }),
-        canInline(rec.mime) ? el("button", { class: "mini-btn", text: "View", onclick: function () {
+        cloudOnly ? el("span", { class: "sub att-nopreview", text: "☁ metadata synced — the file itself hasn't been downloaded to this device" }) : null,
+        dlBtn,
+        !cloudOnly && canInline(rec.mime) ? el("button", { class: "mini-btn", text: "View", onclick: function () {
           if (viewer.style.display !== "none") { closeViewer(); return; }
           objUrl = URL.createObjectURL(rec.blob);
           viewer.innerHTML = "";
@@ -257,7 +419,7 @@
           }
           viewer.style.display = "";
         } }) : null,
-        el("button", { class: "mini-btn", text: "Open ↗", title: "Open in a new tab / download", onclick: function () {
+        cloudOnly ? null : el("button", { class: "mini-btn", text: "Open ↗", title: "Open in a new tab / download", onclick: function () {
           var u = URL.createObjectURL(rec.blob);
           var w = window.open(u, "_blank");
           if (!w) {
@@ -266,7 +428,7 @@
           }
           setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
         } }),
-        !canInline(rec.mime) ? el("span", { class: "sub att-nopreview", text: inlineNote(rec.mime) }) : null,
+        !cloudOnly && !canInline(rec.mime) ? el("span", { class: "sub att-nopreview", text: inlineNote(rec.mime) }) : null,
         el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete file", onclick: function () {
           KOS.ui.confirm({ title: "Delete file?", body: "Delete “" + rec.name + "” and its notes?", danger: true, confirm: "Delete" }, function () {
             closeViewer();
@@ -296,6 +458,11 @@
     remove: remove,
     mountTab: mountTab,
     exportAll: exportAll,
-    importAll: importAll
+    importAll: importAll,
+    /* Build 4a — cloud sync surface */
+    listMeta: listMeta,
+    getByFileId: getByFileId,
+    putRemoteMeta: putRemoteMeta,
+    setBlob: setBlob
   };
 })();

@@ -4081,3 +4081,33 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .cl-manage { display: flex; flex-direction: column; gap: 8px; }
 .cl-row { display: flex; align-items: center; gap: 7px; }
 .cl-name { flex: 1; }
+
+/* ============================================================
+   Build 4a — cloud sync: topbar status chip + Archive account card
+   ============================================================ */
+.sync-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: inherit; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); background: none; border: 1px solid var(--line2);
+  border-radius: var(--radius); padding: 3px 10px; cursor: pointer;
+}
+.sync-chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.sync-chip.sync-synced { color: var(--good); }
+.sync-chip.sync-synced::before { background: var(--good); }
+.sync-chip.sync-syncing::before { background: var(--accent2); animation: syncPulse 1s ease-in-out infinite; }
+.sync-chip.sync-pending { color: var(--warning); }
+.sync-chip.sync-pending::before { background: var(--warning); }
+.sync-chip.sync-attention { color: var(--warning); border-color: var(--warning); }
+.sync-chip.sync-attention::before { background: var(--warning); }
+.sync-chip.sync-error { color: var(--danger); border-color: var(--danger); }
+.sync-chip.sync-error::before { background: var(--danger); }
+.sync-chip.sync-offline::before,
+.sync-chip.sync-signedOut::before { background: var(--muted); }
+@keyframes syncPulse { 50% { opacity: .35; } }
+
+.cloud-body { display: flex; flex-direction: column; gap: var(--space-4); }
+.cloud-form { display: flex; flex-direction: column; gap: var(--space-3); max-width: 340px; }
+.cloud-in { width: 100%; }
+.cloud-btns { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+.cloud-msg { min-height: 1.2em; margin: 0; }
+.cloud-link { border: 1px solid var(--warning); border-radius: var(--radius); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }

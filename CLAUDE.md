@@ -25,8 +25,14 @@ node tools/smoke13.test.js # R3 full-coverage backup/restore: mediadb exportAll/
 node tools/smoke14.test.js # Build 3g Purchase/Budget Planner: release grace + same-day rotation, allowance ledger/modal, purchase archive + thresholded history, local Book physical/VN/Game Collection handoff, both-direction linking, drag order, THE governor/network boundary
 node tools/smoke15.test.js # Build 4.0 UI overhaul: Linear Void token architecture + 23 :root[data-theme] blocks, retired-theme fallback, Study Hall workspace (collapsible inspector, unit breakdown), vault hero (kv spotlight, bannerImage plumbing, games/VN zero-network), planner top row, Governor bento, shop swatches
 node tools/smoke16.test.js # Build 5 image positioning: shared crop contract/UI, legacy fallback, governor/media/wishlist/profile persistence, DB v7 and backup/restore
+node tools/smoke17.test.js # Build 4a cloud sync: syncId schema (DB v8, files v2), tombstones, push/pull/echo-freedom, first-link matrix, empty-remote guard, reward neutrality, attachment metadata-vs-binary boundary, restore re-baseline (Supabase boundary mocked)
 ```
-(smoke4–smoke16 additionally need `npm install fake-indexeddb` — jsdom ships no IndexedDB.)
+(smoke4–smoke17 additionally need `npm install fake-indexeddb` — jsdom ships no IndexedDB.)
+
+**Live cloud verification** (needs the migration applied + js/env.local.js):
+```sh
+node tools/cloud_integration.mjs   # real auth + positive/negative RLS + storage ownership, creates 2 throw-away users
+```
 
 All suites resolve `ROOT` via `path.resolve(__dirname, "..")`, so they run from
 any checkout location. They load every `<script src="…">` in `index.html`; CDN
@@ -44,11 +50,12 @@ python3 tools/gen_data.py --format-existing
 ```
 
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
-the Build 4.0 / Build 5 addenda at the end of `PROGRESS.md` — prioritised
-backlog, user-owed manual steps, rough edges and the current test inventory.
-All 16 suites are the release gate (smoke16 covers shared image positioning,
-DB v7 and its backup boundaries). All 16 plus the running-Chrome visual audit
-were verified green on 2026-07-13.
+the Build 4.0 / Build 5 / Build 4a addenda at the end of `PROGRESS.md` —
+prioritised backlog, user-owed manual steps, rough edges and the current test
+inventory. All 17 suites are the release gate (smoke17 covers the Build 4a
+cloud-sync engine and its schema/backup boundaries). Suites 1–16 plus the
+running-Chrome visual audit were verified green on 2026-07-13; all 17 on
+2026-07-16.
 
 ## INVARIANTS — the one-place list (never violate; details in the sections below)
 
@@ -86,9 +93,14 @@ Collected from every build. If a change would break one of these, stop and say s
 **Media schema & storage**
 6. `mediadb.normalise()` is the SINGLE schema gate — any new field must be
    added there or every `put()` silently strips it. New axes = new DB version
-   + migration + indexes. The current database is v7. `coverCrop` is companion
+   + migration + indexes. The current database is v8. `coverCrop` is companion
    display metadata, not a query/filter axis, so v7 normalises/migrates it but
-   deliberately adds no meaningless crop index.
+   deliberately adds no meaningless crop index. v8 (Build 4a) adds `syncId` —
+   the device-independent cloud identity: minted once in `normalise()`,
+   backfilled by the upgrade cursor, PRESERVED by every `bulkUpsert` merge
+   (`inc.syncId = old.syncId`), indexed for pull-merge lookup. Data
+   migrations run in ONE cursor pass — a second concurrent cursor races the
+   first's updates and resurrects stale rows (that bug was caught by smoke5).
 7. Media entries live in IndexedDB `kurenai-os-media`; attachments in
    `kurenai-os-files`; API tokens in the media kv store. `store.exportFull`/
    `importFull` produce one combined JSON covering all three — tokens
@@ -156,6 +168,49 @@ Collected from every build. If a change would break one of these, stop and say s
 23. Airing data is cached in MEMORY only (10-min TTL) — never written to the
     vault, never background-polled. The AniList profile is ONE GraphQL
     request, read-only (`resetNotificationCount: false`).
+
+**Cloud sync (Build 4a — Supabase)**
+31. Cloud sync is a REPLICATION layer outside the governor: `cloudsync.js`
+    never calls `KOS.sessions.log`/`logActivity`, never moves HP/gold/XP or a
+    streak, and never schedules a `mediapush`. Pull-applies go through
+    `mediadb.put/add`, which absorb the reward watermark — progress rewarded
+    on one device is silently absorbed on the others (ONE reward across the
+    fleet). Local persistence stays the primary write path; a failed sync
+    never touches the successful local save; the app is fully functional
+    signed out, offline, and with no `js/env.local.js` at all. Auth gates
+    cloud sync ONLY, never the app.
+32. Identity: `syncId` (media, DB v8) and `fileId` (attachments, files DB v2)
+    are the ONLY cross-device identities — local autoIncrement ids never
+    leave the device. Every delete path records a tombstone
+    (`mediadb.remove`, the `bulkUpsert` replace pass, `attach.remove`;
+    dedupeVault deletes via `mediadb.remove` so it's covered); a pull that
+    APPLIES a deletion passes `skipTombstone` so it can't re-queue itself.
+33. Timestamps: remote `updated_at` is SERVER-generated (touch trigger); the
+    client never supplies one and never compares its own clock to the
+    server's. Dirtiness is derived locally (entry `updatedAt` vs the recorded
+    `cleanLocal`; state hash vs `lastPushedHash`) — do not add client-time
+    conflict logic. Order is push-then-pull (local edits are the newest
+    truth); echoes are skipped by recorded `updated_at` fingerprints.
+    Whole-document LWW on `kos_state` is DELIBERATE (documented in Help) —
+    do not bolt on field-level merging.
+34. Safety rails: an empty remote state NEVER replaces meaningful local
+    state; the first-link `localOnly` upload and the `both` state-document
+    choice require explicit user confirmation; `store.importFull` triggers a
+    full re-baseline (`noteRestore`) that re-pushes the vault and tombstones
+    remote rows the backup no longer carries.
+35. Secrets: the publishable key is browser-public BY DESIGN — Row-Level
+    Security is the actual boundary (owner-only policies on every table +
+    storage path ownership from `auth.uid()`; verified positively AND
+    negatively by `tools/cloud_integration.mjs`). `js/env.local.js` is
+    gitignored and never committed; the Supabase session lives in the client
+    library's own localStorage key; `cloudsync.*` kv keys and the session are
+    excluded from backups exactly like AniList/VNDB tokens. Never log tokens.
+    Never put a service-role key anywhere in this repo.
+36. Attachments: metadata syncs automatically through `kos_files`; binary
+    content uploads ONLY through the explicit "Sync files now" action (and
+    downloads through the per-file ⇣ action). Deleting an attachment
+    tombstones its row AND removes its storage object — nothing else ever
+    deletes remote binaries (a failed local read must never trigger one).
 
 **Content & UI**
 24. `js/data/compsci.js`/`maths.js`/`it.js` are generated — never hand-edit by
@@ -227,12 +282,15 @@ All JS is loaded via `<script src="...">` in `index.html` in strict dependency o
 1. **Data** — `js/data/{compsci,maths,it,intel}.js` populate `window.KOS_DATA.*`
 2. **Core** — `store.js`, `ui.js`, `imagecrop.js`, `charts.js`, `content.js`,
    then `srs.js`, `sessions.js`, `governor.js`, `mediadb.js`, `anilist.js`,
-   `vndb.js`, `bookapi.js`, `media.js`, `mediapush.js`, `autosync.js`.
-   `imagecrop.js` must follow `ui.js` (it uses `KOS.ui.el`) and precede every
-   renderer/editor that consumes it.
+   `vndb.js`, `bookapi.js`, `media.js`, `mediapush.js`, `autosync.js`,
+   `cloud.js`, `cloudsync.js` (Build 4a — both feature-check lazily; the
+   vendored `js/vendor/supabase.js` UMD and the gitignored `js/env.local.js`
+   load with `defer` in `<head>`, so the smoke loader regex skips them and a
+   missing env file 404s harmlessly). `imagecrop.js` must follow `ui.js` (it
+   uses `KOS.ui.el`) and precede every renderer/editor that consumes it.
 3. **Deep content** — `js/data/content/*.js` populate `window.KOS_CONTENT["subject:ref"]`
 4. **Engines** — `js/engines/{flashcards,quiz}.js`
-5. **Modules** — `js/modules/hub.js` + `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`, `tracker.js`, `rag.js`, `cardstats.js`, `attachments.js`, `help.js`, `focus.js`, then `medview.js` (the shared vault-view toolkit: cover/lazy list/pills/empty states, the editor shell, quickEdit + push chip — every vault view builds on it), the four vault views `anime.js`, `books.js`, `vn.js`, `games.js` (each registers its editor in `KOS.mediaEditors` — dispatch lives in core/media.js, so their relative order after medview.js is free), `aniprofile.js`, `vndbprofile.js`, `wishlist.js` (registers a `KOS.mediaEditorHooks` entry for "on your wishlist" surfacing), `goals.js`, `matrix.js`, `shrine.js`, `mediasync.js`, `mediasearch.js`. `hub.js` also owns the Compare Topics workspace: it is read-only over deep content/progress except `state.study.compareNotes`, which is a pair-keyed personal note and therefore rides normal state export/import.
+5. **Modules** — `js/modules/hub.js` + `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`, `tracker.js`, `rag.js`, `cardstats.js`, `attachments.js`, `help.js`, `focus.js`, `cloudui.js` (the topbar sync chip + the Archive "Account & Cloud Sync" card), then `medview.js` (the shared vault-view toolkit: cover/lazy list/pills/empty states, the editor shell, quickEdit + push chip — every vault view builds on it), the four vault views `anime.js`, `books.js`, `vn.js`, `games.js` (each registers its editor in `KOS.mediaEditors` — dispatch lives in core/media.js, so their relative order after medview.js is free), `aniprofile.js`, `vndbprofile.js`, `wishlist.js` (registers a `KOS.mediaEditorHooks` entry for "on your wishlist" surfacing), `goals.js`, `matrix.js`, `shrine.js`, `mediasync.js`, `mediasearch.js`. `hub.js` also owns the Compare Topics workspace: it is read-only over deep content/progress except `state.study.compareNotes`, which is a pair-keyed personal note and therefore rides normal state export/import.
 6. **Labs** — `js/labs/{worked,trace,oop,sims}.js`
 7. **Boot** — `js/main.js` wires rail nav, governor boot sequence, restores last view
 
@@ -291,6 +349,8 @@ IndexedDB kurenai-os-media (v7) ── mediadb.js owns schema + indexes + bulkUp
 | `KOS.store` | Single state object, autosaved to `localStorage` key `kurenai-os-v1` on every mutation |
 | `KOS.ui` | `el()` DOM builder, `toast()`, `flashSaved()`, `esc()` (the canonical HTML escaper), `debounce()` |
 | `KOS.imageCrop` | Shared non-destructive image renderer/editor: `value`, `normalise`, `apply`, `image`, `background`, `prepareFile`, `open` |
+| `KOS.cloud` | Supabase client + email/password auth (Build 4a): `configured`, `available`, `signUp/signIn/signOut`, `init`, `onAuth`, `userId` |
+| `KOS.cloudsync` | The multi-device sync engine (Build 4a): `start`, `syncNow`, `noteChange`, `noteRestore`, `migrateUp`, `resolveBoth`, `uploadBinaries`, `downloadFile`, `onStatus` — see invariants 31–36 |
 | `KOS.content` | `get(sid,ref)`, `has(sid,ref)`, `renderBlocks(blocks)`, `coverage(sid,leaves)` |
 | `KOS.show(viewId, arg)` | Clears `#main`, calls `KOS.views[viewId](main, arg)`, updates rail active state, saves |
 | `KOS.views` | Registry of view render functions; each module registers itself here |

@@ -1665,3 +1665,100 @@ marked complete.
   the shared secondary workspace tabs used by Collection Planner and Sync. The
   `due` and `cardstats` routes remain compatibility entries, so launch actions,
   history navigation and saved view state retain their established behaviour.
+
+---
+
+# BUILD 4a ADDENDUM — 2026-07-16 (Supabase multi-device sync)
+
+Cloud replication over the existing offline-first storage. Nothing local
+changed owners: localStorage + the two IndexedDB stores remain the primary
+write path; Supabase mirrors them per authenticated user. Auth (email +
+password, confirmation disabled → immediate session) gates SYNC ONLY — the
+app never blocks on it and runs unchanged with no configuration at all.
+
+## Configuration convention (new — the repo had none)
+
+- `js/env.example.js` (committed, names only) → copy to `js/env.local.js`
+  (gitignored) holding `window.KOS_ENV = {SUPABASE_URL, SUPABASE_ANON_KEY}`.
+- The publishable key ships in the browser BY DESIGN; RLS is the boundary.
+  No service-role key exists anywhere in the repo — keep it that way.
+- `js/vendor/supabase.js` = supabase-js 2.110.6 UMD (pinned, vendored).
+  Both files load with `defer` so the jsdom suites skip them and a missing
+  env file is a harmless 404.
+
+## Schema (supabase/migrations/20260716000001_kos_sync_init.sql)
+
+- `kos_state` — one jsonb doc per user (mirrors the R3 export; document-level
+  last-write-wins, stated trade-off), `kos_media` — one row per vault entry
+  keyed `(user_id, entry_id=syncId)` + `(user_id, module)` index, `kos_files`
+  — attachment metadata only (`meta_json` addition carries subject/ref/note;
+  `binary_uploaded` tracks explicit uploads). All tables: `deleted` tombstone
+  column, server-time touch trigger on `updated_at`, RLS owner-only policies
+  (select/insert/update/delete). Private storage bucket `kos-attachments`,
+  objects under `<uid>/<fileId>/<safeName>`, ownership from `auth.uid()` and
+  the path — never a client-supplied id.
+
+## Local schema changes
+
+- Media DB **v8**: `syncId` UUID on every entry — minted in `normalise()`,
+  preserved through every merge, backfilled in the same single cursor pass as
+  the v3 module migration (two concurrent upgrade cursors race; smoke5 caught
+  it). Files DB **v2**: `fileId` + `updatedAt` + index, backfilled.
+- Deletion tombstones queue in media kv (`cloudsync.pendingDeletes`,
+  `cloudsync.filesPendingDeletes`) from every delete path; `cloudsync.*` kv
+  keys are excluded from backups (stale watermarks must not travel).
+- `store.snapshotFull()` extracted from `exportFull` — the R3 serializer now
+  has one representation shared by backup export and cloud migration;
+  `replaceState()` shared by importFull and remote-state apply.
+
+## Engine (js/core/cloud.js + js/core/cloudsync.js + js/modules/cloudui.js)
+
+- Dirty detection is DERIVED, skew-proof: entry `updatedAt` vs recorded
+  `cleanLocal`, state hash vs `lastPushedHash` — no client-vs-server clock
+  comparison anywhere; all remote timestamps are trigger-generated.
+- Cycle = push (state, media tombstones, media, file tombstones, file
+  metadata) then pull (state, media, files), on: 5-min interval, `online`,
+  visibility/focus past a 60 s gap, debounced change nudges from
+  `store.save()`/mediadb/attachments, and manual Sync now. Echo-free by
+  fingerprint (recorded `updated_at`), re-entrant-safe, offline-tolerant.
+- First-link matrix: empty/empty links silently; local-only waits for the
+  explicit "Upload local data" confirmation (R3-snapshot validated, retryable,
+  idempotent); remote-only auto-adopts onto the empty device; both-sides
+  merges media per entry (syncId → external id → title+module adoption, newer
+  copy wins, no duplicates) and asks which STATE document to keep. An empty
+  remote can never silently destroy meaningful local data.
+- Reward neutrality: pull-applies absorb the reward watermark via
+  `mediadb.put/add`; zero sessions, zero governor movement (smoke17-asserted).
+- Attachments: metadata auto-syncs; binaries upload only via "Sync files
+  now" (per-file ⇣ download for cloud-only records); deleting an attachment
+  tombstones the row and removes its storage object.
+- Restore re-baseline: `importFull` → `noteRestore()` → next cycle re-pushes
+  everything and tombstones remote rows the backup no longer carries.
+- UI: persistent topbar chip (Synced / Syncing… / Changes pending / Offline /
+  Signed out / Action needed / Error—tap to retry — real sync state, not
+  connectivity) + the Archive "Account & Cloud Sync" card (sign-up/in/out,
+  link decisions, Sync now, Sync files now, plain-language sync semantics).
+
+## Environment variables
+
+| Name | Where | Purpose |
+|------|-------|---------|
+| `SUPABASE_URL` | js/env.local.js (gitignored) | project URL, browser client |
+| `SUPABASE_ANON_KEY` | js/env.local.js (gitignored) | publishable key, browser client (RLS-bound) |
+
+## Test coverage
+
+- `tools/smoke17.test.js` — 17 steps over a mocked Supabase boundary: v8
+  syncId schema + merge identity, tombstone capture/backup exclusion, the
+  push/pull/echo-freedom property, remote tombstones, the empty-remote-state
+  guard, document LWW, the three interactive first-link cases, attachment
+  metadata-vs-binary boundary + no-duplicate uploads + delete semantics,
+  cloud-only download, restore re-baseline. All 17 suites green 2026-07-16.
+- `tools/cloud_integration.mjs` — live auth + positive/negative RLS +
+  storage-ownership verification (run after the migration is applied).
+
+## Status / remaining for the 4a gate
+
+- Migration NOT yet applied to the hosted project (awaiting approval +
+  `supabase login`); live integration, in-browser flows and the two-context
+  device test follow it. PWA (4b) and Steam/IGDB (4c) not started.

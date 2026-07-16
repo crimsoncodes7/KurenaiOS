@@ -1365,6 +1365,9 @@
     covers.appendChild(el("p", { class: "sub", text:
       "AniList and VNDB tokens are deliberately left out — a backup file can end up in less careful places than your browser. After a restore, reconnect both from Sync & Import." }));
     grid.appendChild(covers);
+
+    /* Account & Cloud Sync (Build 4a) — rendered by cloudui when present */
+    if (KOS.cloudui) grid.appendChild(KOS.cloudui.panel());
   };
 
   /* ---------- printable revision summary ---------- */

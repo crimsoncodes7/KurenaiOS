@@ -158,6 +158,10 @@
 
   var saveTimer = null;
   function save() {
+    /* Build 4a — nudge cloud sync (debounced + no-op when absent/signed
+       out; dirtiness is DERIVED by hashing, so a missed nudge is only a
+       missed shortcut, never lost data) */
+    if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteChange) KOS.cloudsync.noteChange("state");
     clearTimeout(saveTimer);
     saveTimer = setTimeout(function () {
       try {
@@ -242,7 +246,11 @@
        deliberately excluded — a backup file may be copied, shared, or stored
        in less-secure locations than the browser itself; after a restore the
        user reconnects services the same way they did originally.            */
-    exportFull: function (done) {
+    /* Build the complete backup object WITHOUT downloading it — the R3
+       serializer, shared by the backup export and the Build 4a first-time
+       cloud migration so there is exactly one representation of "all of
+       the user's data". cb(err, result). */
+    snapshotFull: function (cb) {
       var result = {
         kos_backup_version: 2,
         exportedAt: Date.now(),
@@ -252,22 +260,11 @@
         attachments: []
       };
 
-      function download() {
-        var blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
-        var a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "kurenai-os-full-backup-" + new Date().toISOString().slice(0, 10) + ".json";
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
-        done && done(null);
-      }
-
       var steps = 0, completed = 0, hadError = false;
       function stepDone(err) {
         if (hadError) return;
-        if (err) { hadError = true; done && done(err); return; }
-        if (++completed >= steps) download();
+        if (err) { hadError = true; cb(err); return; }
+        if (++completed >= steps) cb(null, result);
       }
 
       if (window.KOS && KOS.mediadb && KOS.mediadb.available()) {
@@ -284,7 +281,21 @@
           stepDone(err);
         });
       }
-      if (steps === 0) download();
+      if (steps === 0) cb(null, result);
+    },
+
+    exportFull: function (done) {
+      this.snapshotFull(function (err, result) {
+        if (err) { done && done(err); return; }
+        var blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "kurenai-os-full-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+        done && done(null);
+      });
     },
 
     importFull: function (file, done) {
@@ -309,10 +320,7 @@
         } catch (e) { return done && done(e); }
 
         /* Restore localStorage state */
-        Object.keys(state).forEach(function (k) { delete state[k]; });
-        Object.assign(state, deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), incoming));
-        scrubLegacy(state);
-        save();
+        KOS.store.replaceState(incoming);
 
         var version = backup.kos_backup_version || 1;
         var report = { restoredSections: ["study & governor data"], missingSections: [] };
@@ -352,10 +360,27 @@
           });
         }
 
-        restoreMedia(function () { restoreFiles(function () { done && done(null, report); }); });
+        restoreMedia(function () { restoreFiles(function () {
+          /* Build 4a — a restore is authoritative for this account: cloud
+             sync must re-baseline (push everything, tombstone remote rows
+             the backup no longer carries) instead of trusting stale
+             watermarks. No-op when cloud sync is absent or signed out. */
+          if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteRestore) KOS.cloudsync.noteRestore();
+          done && done(null, report);
+        }); });
       };
       reader.onerror = function () { done && done(new Error("Could not read file")); };
       reader.readAsText(file);
+    },
+
+    /* Replace the whole state document in place (restore + Build 4a cloud
+       pull share this path): defaults merged under, legacy fields scrubbed,
+       every existing reference to KOS.store.state stays valid. */
+    replaceState: function (incoming) {
+      Object.keys(state).forEach(function (k) { delete state[k]; });
+      Object.assign(state, deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), incoming));
+      scrubLegacy(state);
+      save();
     },
 
     reset: function () {
