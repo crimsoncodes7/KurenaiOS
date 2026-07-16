@@ -1757,8 +1757,42 @@ app never blocks on it and runs unchanged with no configuration at all.
 - `tools/cloud_integration.mjs` — live auth + positive/negative RLS +
   storage-ownership verification (run after the migration is applied).
 
-## Status / remaining for the 4a gate
+## Build 4a verification evidence (2026-07-16)
 
-- Migration NOT yet applied to the hosted project (awaiting approval +
-  `supabase login`); live integration, in-browser flows and the two-context
-  device test follow it. PWA (4b) and Steam/IGDB (4c) not started.
+- **Migration applied**: `supabase db push` → local `20260716000001` = remote
+  `20260716000001` on project `pdogeklnbaolnccqricb` (KurenaiOS, eu-west-2,
+  Postgres 17). One dashboard change was needed first: the Email auth
+  provider was disabled project-wide (distinct from confirmation) — enabled
+  by the user, confirmation left off.
+- **Live integration** (`tools/cloud_integration.mjs`): 22/22 — immediate
+  sign-up sessions; positive RLS on all three tables; NEGATIVE RLS (user B
+  sees zero of A's rows, cannot insert-as or update A; bare anon key reads
+  nothing); server-generated monotonic `updated_at`; storage upload/download
+  under own path, B denied read AND write on A's path. Two throw-away users
+  (kos.test.a/b.…@example.com) remain in Authentication → Users; delete from
+  the dashboard at leisure.
+- **Browser verification** (Chrome, app served on `127.0.0.1:8899` — a fresh
+  origin so the real `file://` vault was never touched; throw-away account
+  kos.test.browser.1@example.com): chip renders Signed out → sign-up with
+  immediate session → **localOnly** first-link ("Action needed" chip, Archive
+  prompt, confirm modal, upload) → Synced; local edit → **Changes pending** →
+  auto-push (remote doc advanced, edit present); simulated device-B remote
+  write → cycle pulls and applies it; simulated offline (navigator.onLine
+  shadow + events) → **Offline** chip, local save intact, reconnect pushes
+  the offline edit; media entry pushes within the debounce (after the
+  mediadb noteCloud fix below); reload restores the session straight to
+  Synced; sign-out leaves the app fully navigable; a wiped-vault re-sign-in
+  ran the **both** flow and "Use the cloud copy" merged media (cloud
+  identities adopted, no duplicates) and applied the cloud state.
+- **Fix found by verification**: pure media mutations relied on the interval
+  cycle (up to 5-min latency) — `mediadb` add/put/remove/bulkUpsert now nudge
+  `cloudsync.noteChange("media")` like store.js and attachments do. All 17
+  suites green after the change.
+- **Environment quirk noted**: a password-manager extension intercepts focus
+  on the password field under automation; sign-up was driven through the same
+  `KOS.cloud.signUp` call the button makes. Real-keyboard entry should be
+  re-checked once by hand.
+- Not exercised live (covered by smoke17/integration instead): the hostile
+  empty-remote-state guard, attachment binary upload through the real file
+  picker, and a provoked network error on the chip's retry path.
+- PWA (4b) and Steam/IGDB (4c) NOT started, per instruction.

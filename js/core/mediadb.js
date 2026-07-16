@@ -207,6 +207,13 @@
     return KOS.imageCrop ? KOS.imageCrop.normalise(crop) : null;
   }
 
+  /* Build 4a — nudge cloud sync after a local write (debounced + no-op when
+     absent or signed out; dirtiness is DERIVED from updatedAt watermarks, so
+     a missed nudge only delays the next cycle, never loses data) */
+  function noteCloud() {
+    if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteChange) KOS.cloudsync.noteChange("media");
+  }
+
   /* Build 4a — the device-independent identity a cloud row keys on.
      crypto.randomUUID everywhere modern; the fallback is the standard
      v4-shaped substitute for older engines. */
@@ -442,7 +449,7 @@
       rec.reward = rewardSnapshot(rec);
       delete rec.id;                    // let autoIncrement assign
       var rq = os.add(rec);
-      rq.onsuccess = function () { rec.id = rq.result; cb && cb(null, rec); };
+      rq.onsuccess = function () { rec.id = rq.result; noteCloud(); cb && cb(null, rec); };
       rq.onerror = function () { cb && cb(rq.error); };
     });
   }
@@ -453,7 +460,7 @@
       var rec = normalise(entry);
       rec.reward = rewardSnapshot(rec);
       var rq = os.put(rec);
-      rq.onsuccess = function () { cb && cb(null, rec); };
+      rq.onsuccess = function () { noteCloud(); cb && cb(null, rec); };
       rq.onerror = function () { cb && cb(rq.error); };
     });
   }
@@ -494,7 +501,7 @@
         rq.onsuccess = function () {
           if (victim && victim.syncId && !(opts && opts.skipTombstone)) {
             recordTombstones([{ syncId: victim.syncId, module: victim.module, ts: Date.now() }],
-              function () { cb && cb(null); });
+              function () { noteCloud(); cb && cb(null); });
           } else {
             cb && cb(null);
           }
@@ -834,6 +841,7 @@
       function step() {
         if (i >= list.length) {
           recordTombstones(tombstones, function () {
+            if (added || updated || removed) noteCloud();
             cb && cb(null, { added: added, updated: updated, removed: removed, kept: kept, rewards: rewards });
           });
           return;
