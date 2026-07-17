@@ -412,3 +412,15 @@ enabled = true
 # declarative_schema_path = "./database"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+# Build 4c Edge Functions. steam-auth must accept Steam's browser redirect
+# (a GET that cannot carry a JWT) — it validates the JWT itself for every
+# POST action; the other two also get platform-level JWT verification.
+[functions.igdb-search]
+verify_jwt = true
+
+[functions.steam-auth]
+verify_jwt = false
+
+[functions.steam-owned-games]
+verify_jwt = true

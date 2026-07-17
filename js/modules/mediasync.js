@@ -638,13 +638,13 @@
     }
     renderEnrich();
 
-    /* ================= 5 · Games — why there is no connection (3e) ================= */
+    /* ================= 5 · Games — server-assisted since 4c ================= */
     main.appendChild(panel("Games", "遊", [
-      info("There is nothing to connect here, and that's a verified conclusion, not a gap. Steam's data API (library, playtime) blocks browser CORS with no client-side workaround. Steam SIGN-IN (OpenID 2.0, identity only) was attempted and tested live on 2026-07-03 and abandoned: the verification round-trip that makes a sign-in trustworthy (check_authentication) returns its answer without CORS headers, so a browser page can send it but can never read the result — verifying would require a server, which this app deliberately doesn't have. And even unverified, Steam only returns a bare SteamID64 number; the display name sits behind the Web API, which is CORS-blocked too. GOG, PSN, Xbox and Nintendo offer no public per-user API a browser may use either. What \"manual-entry only\" means in practice: the ▤ Bulk add tool in the Games vault turns a pasted list (Steam's library page copy-pastes cleanly, one title per line) into draft entries in one go; playtime, tiers and platforms are then filled per game. A hand-entered Steam App ID gives each entry a working store link — that's the whole Steam integration."),
+      info("Manual entry remains the permanent baseline — ▤ Bulk add still turns any pasted list into draft entries with zero setup. Since Build 4c, signing in to cloud sync additionally unlocks two server-assisted paths, both living in the Games vault and both strictly on-demand: ⊕ Find new searches IGDB (title, cover, release date, genres, publisher — added locally, fully editable), and ◆ Steam links your Steam account through a SERVER-verified OpenID sign-in and imports your owned library behind a review/selection stage. The Build 3e conclusion still stands for the browser alone: Steam's check_authentication response is unreadable cross-origin, which is exactly why the verification now happens in a Supabase Edge Function — the browser never supplies a SteamID, and a Steam import only fills gaps (it never overwrites values you edited by hand). With no cloud sign-in, or either upstream service down, the vault works exactly as before."),
       el("div", { class: "lab-controls" }, [
         el("button", { class: "btn primary", text: "遊 Open the Games vault", onclick: function () { KOS.show("game"); } })
       ])
-    ], { tag: "Manual by design" }));
+    ], { tag: "Manual baseline + verified Steam" }));
 
     /* ================= 6 · write activity (Build 3d) ================= */
     var wlogBody = el("div", {});

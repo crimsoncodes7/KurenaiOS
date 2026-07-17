@@ -27,6 +27,7 @@ node tools/smoke15.test.js # Build 4.0 UI overhaul: Linear Void token architectu
 node tools/smoke16.test.js # Build 5 image positioning: shared crop contract/UI, legacy fallback, governor/media/wishlist/profile persistence, DB v7 and backup/restore
 node tools/smoke17.test.js # Build 4a cloud sync: syncId schema (DB v8, files v2), tombstones, push/pull/echo-freedom, first-link matrix, empty-remote guard, reward neutrality, attachment metadata-vs-binary boundary, restore re-baseline (Supabase boundary mocked)
 node tools/smoke18.test.js # Build 4b PWA: manifest/icons, service-worker contract (safe updates, API-cache exclusion, self-maintaining precache), pwa.js inertness, phone-tier CSS contract
+node tools/smoke19.test.js # Build 4c games: gameapi graceful degradation, manual-baseline UI, applySteamImport merge law (gap-fill only, one session), Edge Function source contracts (server-side check_authentication, no client SteamID, per-function verify_jwt, secrets via env only)
 ```
 (smoke4–smoke17 additionally need `npm install fake-indexeddb` — jsdom ships no IndexedDB.)
 
@@ -76,10 +77,20 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 18 suites are the release gate (smoke17 the
-Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer). Suites 1–16 plus
-the running-Chrome visual audit were verified green on 2026-07-13; all 17 on
-2026-07-16; all 18 plus the phone/tablet CDP audit on 2026-07-17.
+the current test inventory. All 19 suites are the release gate (smoke17 the
+Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
+Build 4c games integrations). Suites 1–16 plus the running-Chrome visual
+audit were verified green on 2026-07-13; all 17 on 2026-07-16; all 18 plus
+the phone/tablet CDP audit on 2026-07-17; all 19 on 2026-07-17.
+
+**Edge Functions** (Build 4c, `supabase/functions/`): deploy with
+`supabase functions deploy <name>`; secrets via `supabase secrets set` only
+(STEAM_API_KEY, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, PUBLIC_APP_URL) —
+never in the repo or client. `steam-auth` has `verify_jwt = false` in
+config.toml because Steam's browser redirect can't carry a JWT; it validates
+JWTs itself for every POST action. The runtime auto-injects SUPABASE_URL +
+anon/service keys (legacy names AND the new PUBLISHABLE/SECRET_KEYS lists —
+_shared/cors.ts accepts either generation; verified against the docs).
 
 ## INVARIANTS — the one-place list (never violate; details in the sections below)
 
@@ -179,10 +190,26 @@ Collected from every build. If a change would break one of these, stop and say s
 19. VNDB's CORS preflight allows POST/GET/OPTIONS only — browser PATCH
     (write-back) is blocked regardless of token permissions. The client
     implements the documented shape anyway; don't retry the wall.
-20. Steam is a three-way verified dead end (check_authentication response
-    unreadable cross-origin; https→file:// return blocked; claimed_id is a
-    bare SteamID64). Games stay manual-entry-only; do not re-attempt without
-    new facts.
+20. Steam in the BROWSER remains a three-way verified dead end
+    (check_authentication response unreadable cross-origin; https→file://
+    return blocked; claimed_id is a bare SteamID64) — the browser must never
+    talk to Steam directly (smoke8-asserted). Build 4c added the new fact:
+    a Supabase Edge Function IS the server that 3e lacked. Manual entry is
+    the PERMANENT BASELINE; IGDB search (`igdb-search`) and Steam library
+    import (`steam-auth` + `steam-owned-games`) are additive, run only on
+    explicit user action behind a cloud sign-in, and the module works
+    unchanged when either service is unavailable. Identity law: the browser
+    NEVER supplies a SteamID — steam-auth verifies the OpenID assertion
+    server-side (is_valid gate, 17-digit claimed_id pattern, single-use
+    user-bound nonce) and stores it in `kos_steam` (service-role writes
+    only; clients may only read their own row). Import law: a review/
+    selection stage is mandatory; applying only creates new drafts or
+    GAP-FILLS (playtime when null, an appId onto an id-less same-title row)
+    — a manually edited value is never overwritten by Steam/IGDB metadata,
+    a same-title row with a different appId is skipped, and the whole
+    import logs ONE governor session (invariant #5). Games still never push
+    and IGDB adds are local-only `syncSource:"manual"` (igdbId kept in
+    `extra` for dedupe).
 21. Book lookup: Open Library PRIMARY, Google Books FALLBACK ONLY (keyless
     quota is zeroed, 429). Goodreads is dead — never add it.
 22. AniList MAL-format XML exports carry MAL ids, not AniList ids (they

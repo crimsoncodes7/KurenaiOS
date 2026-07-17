@@ -359,16 +359,21 @@ step("Shrine: a favourite game routes to the games editor", async () => {
   if (!modal) throw new Error("mediaEditor chain did not route to the games editor");
   modal.querySelector("button[aria-label='Close']").click();
 });
-step("Sync & Import: Games panel states the verified Steam dead end; no steamcommunity request ever fired", async () => {
+step("Sync & Import: Games panel states the manual baseline + server-verified Steam (4c); the browser never calls Steam directly", async () => {
   KOS.show("mediasync");
   const main = document.getElementById("main");
   await waitFor(() => main.querySelectorAll(".med-panel").length >= 8, 4000);
   if (main.querySelectorAll(".med-panel").length !== 8) throw new Error("panel count");   // 8 since 3j (Autonomous sync)
   const txt = main.textContent;
-  if (!/Games/.test(txt) || !/Manual by design/.test(txt)) throw new Error("games panel missing");
-  if (!/check_authentication/.test(txt) || !/CORS/.test(txt)) throw new Error("the verified reason must be stated");
-  if (!/Bulk add/.test(txt)) throw new Error("the mitigation must be pointed to");
-  if (netLog.some(r => /steam/i.test(r.url))) throw new Error("something called Steam: " + netLog.map(r => r.url).join(", "));
+  if (!/Games/.test(txt) || !/Manual baseline/.test(txt)) throw new Error("games panel missing");
+  /* the 3e browser conclusion must still be stated, along with the 4c fix:
+     verification moved SERVER-side, behind a review stage */
+  if (!/check_authentication/.test(txt)) throw new Error("the 3e browser dead end must still be stated");
+  if (!/Edge Function|server/i.test(txt) || !/review/i.test(txt)) throw new Error("the 4c server-verified path must be stated");
+  if (!/Bulk add/.test(txt)) throw new Error("the manual baseline must be pointed to");
+  /* the invariant that survives 4c: the BROWSER never talks to Steam —
+     only our own Edge Functions do, server-side, on explicit action */
+  if (netLog.some(r => /steamcommunity|steampowered/i.test(r.url))) throw new Error("the browser called Steam directly: " + netLog.map(r => r.url).join(", "));
 });
 step("nav: Collection section + subnav reaches the Games vault", async () => {
   const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");

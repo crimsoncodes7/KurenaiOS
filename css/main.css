@@ -4265,3 +4265,11 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .nav-arrows .nav-fwd { display: none; }
 }
 .sync-chip { white-space: nowrap; flex: none; }
+
+/* Build 4c — the Steam panel */
+.gm-steam-body { display: flex; flex-direction: column; gap: var(--space-4); }
+.gm-steam-list { max-height: 48vh; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.gm-steam-row { display: flex; align-items: baseline; gap: 10px; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+.gm-steam-row:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
+.gm-steam-row input { flex: none; }
+.gm-steam-title { font-weight: 500; }

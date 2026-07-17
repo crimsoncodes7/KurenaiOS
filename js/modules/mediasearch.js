@@ -27,7 +27,8 @@
   var STATUS_WORDS = {
     anime: { planned: "Plan to watch", inProgress: "Watching", onHold: "On hold", completed: "Completed", dropped: "Dropped" },
     books: { planned: "Plan to read", inProgress: "Reading", onHold: "On hold", completed: "Completed", dropped: "Dropped" },
-    vn: { planned: "Wishlist", inProgress: "Playing", onHold: "Stalled", completed: "Finished", dropped: "Dropped" }
+    vn: { planned: "Wishlist", inProgress: "Playing", onHold: "Stalled", completed: "Finished", dropped: "Dropped" },
+    game: { planned: "Planned", inProgress: "Playing", onHold: "On hold", completed: "Completed", dropped: "Dropped" }
   };
   var STATUS_ORDER = ["planned", "inProgress", "completed", "onHold", "dropped"];
 
@@ -46,6 +47,23 @@
       entry.format = KOS.anilist.bookFormat(r.format);
     }
     return entry;
+  }
+  /* Build 4c — IGDB result → local game entry. Games have no list service
+     to mirror to, so the entry is local-only (syncSource "manual") and every
+     field stays hand-editable; the IGDB id rides in `extra` purely so a
+     repeat add can be recognised. */
+  function localFromIgdb(r, status) {
+    return {
+      module: "game", title: r.title, status: status,
+      progress: { current: 0, total: null },
+      score: 0, genres: r.genres || [],
+      coverUrl: r.coverUrl || null,
+      publisher: r.publisher || "",
+      platform: r.platformGuess || null,
+      syncSource: "manual",
+      extra: { igdbId: r.igdbId || null, released: r.releaseDate || null,
+               platforms: (r.platforms || []).slice(0, 6) }
+    };
   }
   function localFromVndb(r, status) {
     return {
@@ -82,6 +100,28 @@
 
   /* ---------------- the add flow ---------------- */
   function addResult(module, result, status, statusNote, onAdded) {
+    /* Build 4c — games: LOCAL add only (no remote list exists). Dedupe by
+       the IGDB id kept in extra, then by exact title. */
+    if (module === "game") {
+      KOS.mediadb.query({ module: "game", search: result.title }, function (e0, rows) {
+        var existing = (rows || []).find(function (r2) {
+          return (result.igdbId && r2.extra && r2.extra.igdbId === result.igdbId) ||
+            r2.titleLower === String(result.title).toLowerCase();
+        });
+        if (existing) {
+          KOS.ui.toast("“" + existing.title + "” is already in your vault (" + KOS.media.STATUS_LABEL[existing.status] + ").");
+          return;
+        }
+        KOS.mediadb.add(localFromIgdb(result, status), function (err, rec) {
+          if (err) { statusNote.textContent = "Local save failed: " + err.message; return; }
+          KOS.media.logActivity(rec, "added");
+          statusNote.textContent = "";
+          KOS.ui.toast("“" + rec.title + "” added to your vault — IGDB holds no personal list, so everything stays local and editable.");
+          onAdded && onAdded(rec);
+        });
+      });
+      return;
+    }
     var idIndex = module === "vn" ? "vndb" : "anilist";
     var idValue = module === "vn" ? result.vndbId : result.anilistId;
     KOS.mediadb.getByExternal(idIndex, idValue, function (e0, existing) {
@@ -114,7 +154,7 @@
   /* ---------------- the modal ---------------- */
   function open(module, onAdded) {
     var mod = KOS.media.module(module);
-    var serviceName = module === "vn" ? "VNDB" : "AniList";
+    var serviceName = module === "vn" ? "VNDB" : module === "game" ? "IGDB" : "AniList";
 
     var overlay = KOS.medview.modalOverlay();   // click-outside + Esc close
     var close = overlay.close;
@@ -182,7 +222,18 @@
         statusNote.textContent = err ? err.message : "";
         render(err ? [] : list);
       }
-      if (module === "vn") KOS.vndb.searchVN(term, handle);
+      if (module === "game") {
+        KOS.gameapi.igdbSearch(term, null, function (err, list) {
+          handle(err, (list || []).map(function (r) {
+            /* map onto the shared row fields — released/developer/format
+               drive the meta line */
+            r.released = r.releaseDate;
+            r.developer = r.publisher;
+            r.format = (r.platforms || []).slice(0, 3).join(" / ");
+            return r;
+          }));
+        });
+      } else if (module === "vn") KOS.vndb.searchVN(term, handle);
       else KOS.anilist.searchMedia(term, module, handle);
     }
     input.addEventListener("input", KOS.ui.debounce(runSearch, SEARCH_DEBOUNCE));
@@ -190,8 +241,10 @@
     var box = el("div", { class: "modal med-modal msch-modal" }, [
       el("div", { class: "modal-h" }, [
         el("b", {}, [el("span", { class: "kanji-inline", text: mod.kanji }), " Find new — " + serviceName]),
-        el("span", { class: "sub", text: "searches the whole " + serviceName + " database, not your vault — picking a status creates the entry " +
-          (module === "vn" ? "on VNDB (browser writes are currently blocked by VNDB's CORS policy — it will fall back to a local add)" : "on your AniList") + " and mirrors it here" }),
+        el("span", { class: "sub", text: "searches the whole " + serviceName + " database, not your vault — picking a status " +
+          (module === "game"
+            ? "adds the entry locally (IGDB holds no personal list; everything stays hand-editable)"
+            : "creates the entry " + (module === "vn" ? "on VNDB (browser writes are currently blocked by VNDB's CORS policy — it will fall back to a local add)" : "on your AniList") + " and mirrors it here") }),
         el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
       ]),
       input,

@@ -1921,3 +1921,61 @@ app never blocks on it and runs unchanged with no configuration at all.
   deployment path (staging safety checks + direct upload). Before every
   deploy: full smoke gate green, staging checks pass, `sw.js` VERSION
   bumped; installed clients switch only via the safe-update offer.
+
+---
+
+# BUILD 4c ADDENDUM — 2026-07-17 (IGDB search + verified Steam import)
+
+Local implementation complete; server deployment pending user approval.
+
+## Server (supabase/functions/ + migration 20260717000001)
+
+- `igdb-search`: authenticated POST {query, platform?} → normalised results
+  (title, release date, genres, platforms + app-enum guess, cover, publisher,
+  igdbId). Twitch client-credentials token cached in-instance, refreshed on
+  401; query length/result caps; 503 with a plain message when unconfigured.
+- `steam-auth` (verify_jwt=false — Steam's redirect can't carry a JWT; every
+  POST action validates the JWT itself): begin mints a single-use 10-minute
+  nonce BOUND to the authenticated user; the GET callback consumes the nonce
+  first, POSTs the whole assertion back to Steam with check_authentication
+  SERVER-side, requires is_valid:true + our return_to + the strict 17-digit
+  claimed_id, then stores the SteamID in kos_steam (service-role only; the
+  browser can only read its own row). status/unlink actions round it out.
+- `steam-owned-games`: reads the VERIFIED kos_steam row for the JWT's user —
+  no request body is parsed at all, so a client-supplied SteamID is
+  structurally impossible — calls GetOwnedGames with the server-held key,
+  returns normalised {appId, title, playtimeHours}; private profiles get a
+  specific actionable message.
+- `_shared/cors.ts`: permissive CORS (auth is the boundary; file:// sends
+  Origin null), JWT→user validation, service-role REST helper. Runtime env
+  verified against the docs, not assumed: accepts both the legacy
+  ANON/SERVICE_ROLE vars and the new PUBLISHABLE/SECRET_KEYS lists.
+- Secrets: STEAM_API_KEY, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET,
+  PUBLIC_APP_URL — `supabase secrets set` only; never in repo/client/logs.
+
+## Frontend
+
+- `js/core/gameapi.js`: functions.invoke wrapper; without cloud sign-in every
+  call explains instead of fetching. IGDB/Steam traffic happens ONLY on
+  explicit user action.
+- Find new (⊕) on the Games vault → the shared mediasearch modal's new game
+  branch (IGDB); adds are LOCAL-only, syncSource "manual", igdbId in extra
+  for dedupe (by id, then exact title), fully hand-editable.
+- ◆ Steam panel: link (server-verified) → mandatory review/selection stage →
+  `KOS.games.applySteamImport`: new drafts, gap-fill only (playtime when
+  null; appId adoption onto id-less same-title rows), same-title-different-id
+  rows skipped (no dupes, no clobber), ONE governor session per import and
+  none for a no-op. Manual entry + bulk paste remain the untouched baseline.
+- Sync & Import Games panel rewritten: manual baseline + the 4c server-
+  verified reality (the 3e browser conclusion still stated).
+
+## Verification so far
+
+- smoke19 (11 steps) covers the client boundary + merge law + Edge Function
+  source contracts; smoke8's games panel step re-scoped (browser still never
+  calls Steam directly — now asserted as steamcommunity/steampowered URLs).
+  All 19 suites green 2026-07-17.
+- NOT yet done (awaiting approval + credentials): kos_steam migration push,
+  secrets set, `supabase functions deploy` ×3, live verification
+  (unauthenticated rejection, IGDB search results, Steam link + import
+  end-to-end), Cloudflare frontend deployment.
