@@ -46,6 +46,22 @@ All suites resolve `ROOT` via `path.resolve(__dirname, "..")`, so they run from
 any checkout location. They load every `<script src="…">` in `index.html`; CDN
 scripts (KaTeX) are marked `defer` so the tests skip them.
 
+**Deploying to production** (Cloudflare Pages — https://kurenai-os.pages.dev):
+```sh
+tools/deploy_pages.sh --stage   # stage runtime files into dist/ for inspection
+tools/deploy_pages.sh           # stage + direct-upload to production
+```
+- **`git push` does NOT update the live site.** GitHub is version control
+  only; the live deployment happens exclusively through `tools/deploy_pages.sh`
+  (direct upload of the staged `dist/` — which is how the gitignored
+  `js/env.local.js` ships without ever being committed).
+- Every production deployment must: (1) run the full smoke-suite gate first,
+  (2) let the script's staging safety checks pass (they hard-fail if any
+  dev-only file leaks into dist/), (3) bump `VERSION` in `sw.js` so installed
+  clients get the safe-update offer and old caches clean up. Deployed changes
+  reach a running installed app only after the user accepts the "Update
+  ready" reload (or closes every tab) — that is by design, not a bug.
+
 **Regenerating spec data** from PDF sources:
 ```sh
 # requires Python 3 + pdfplumber

@@ -1906,3 +1906,18 @@ app never blocks on it and runs unchanged with no configuration at all.
   account (fresh device → auto-adopt), then the real-iPhone Safari checklist
   above against the live URL. Test users kos.test.hosted.1@example.com (and
   any earlier kos.test.*) can be deleted from Supabase Auth at leisure.
+
+## Build 4b closure notes (2026-07-17, post-approval)
+
+- Hosted desktop AND real-iPhone Safari checklists completed by the user —
+  passed. Build 4b approved.
+- **DEFERRED: dedicated mobile UX pass.** The ≤700px tier is usable and
+  verified overflow-free, but a polish pass (per-view mobile compositions,
+  gesture affordances, denser vault cards, mobile-first editor flows) is
+  deliberately deferred. The priority remains a complete and stable DESKTOP
+  application; Build 4c must not broaden into mobile redesign.
+- **Ongoing deployment workflow** (also in CLAUDE.md): `git push` does NOT
+  update the live site — `tools/deploy_pages.sh` is the only production
+  deployment path (staging safety checks + direct upload). Before every
+  deploy: full smoke gate green, staging checks pass, `sw.js` VERSION
+  bumped; installed clients switch only via the safe-update offer.
