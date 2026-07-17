@@ -99,7 +99,12 @@
 
   /* ---------- tree ---------- */
   function applyTreeCollapsed() {
-    var closed = store.state.ui.treeClosed === true;
+    /* Build 4b: with no saved preference, phones start with the tree
+       CLOSED (it's a drawer over the content there); desktop keeps its
+       open-by-default spine. An explicit choice wins on both. */
+    var pref = store.state.ui.treeClosed;
+    var closed = pref === true ||
+      (pref == null && typeof window.matchMedia === "function" && window.matchMedia("(max-width: 700px)").matches);
     document.getElementById("cols").classList.toggle("tree-closed", closed);
   }
   function renderTree(sid, activeRef) {

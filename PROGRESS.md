@@ -1796,3 +1796,85 @@ app never blocks on it and runs unchanged with no configuration at all.
   empty-remote-state guard, attachment binary upload through the real file
   picker, and a provoked network error on the chip's retry path.
 - PWA (4b) and Steam/IGDB (4c) NOT started, per instruction.
+
+---
+
+# BUILD 4b ADDENDUM — 2026-07-17 (PWA + mobile adaptation)
+
+## PWA technical layer
+
+- `manifest.webmanifest` (standalone, Atelier Dawn colours, id/scope `./`)
+  with icons generated from the brand seal by `tools/gen_icons.mjs` (192,
+  512, maskable-512, apple-touch-180 — headless-Chrome canvas, no image
+  toolchain). index.html gains the install metadata and
+  `viewport-fit=cover`; `js/core/pwa.js` keeps `theme-color` in step with
+  the active shop theme.
+- `sw.js` (versioned `kos-4b-1` — bump on deploy): precache DERIVED from
+  index.html's own tags at install (cannot drift; a missing gitignored
+  env.local.js is tolerated); same-origin statics stale-while-revalidate;
+  navigations network-first with the cached shell as offline fallback;
+  fonts/jsdelivr in a runtime cache; Supabase/AniList/VNDB/book APIs and all
+  non-GETs never intercepted. Old kos-* caches cleaned at activate.
+- SAFE updates: no skipWaiting at install; pwa.js watches `updatefound` and
+  offers "Reload now" — only that confirmation posts SKIP_WAITING, then
+  reloads on controllerchange. First install controls silently.
+- `navigator.storage.persist()`: once, on `appinstalled` or first cloud
+  sign-in; result logged, never claimed as immunity. Background Sync is a
+  progressive enhancement (SW `sync` event nudges open pages to run a cloud
+  cycle; the tag registers while changes are pending) — correctness stays on
+  cloudsync's online/boot/focus/manual retries. Help gained "Install as an
+  app (PWA)" with the four honest storage facts.
+
+## Mobile adaptation (≤700px tier + pointer:coarse, desktop untouched)
+
+- Rail → fixed bottom tab bar (glyphs + small labels, active top-strip,
+  safe-area padding); `#main` reserves space above it. Spec tree → drawer
+  over a scrim, driven by the EXISTING `ui.treeClosed` state — phones just
+  default it closed (hub.js `applyTreeCollapsed`); collapsed it renders as a
+  floating "Spec spine" pill above the bar. Subnav scrolls horizontally.
+- Modals and the confirm dialog render as bottom sheets (safe-area padded,
+  `100dvh`-bounded). Inputs hold 16px at phone widths (kills iOS focus-zoom);
+  `pointer: coarse` bumps button/tap-target minimums. Topbar: safe-area
+  insets, compact HUD (bars hidden ≤700), nowrap sync chip, forward arrow
+  hidden.
+- `tools/mobile_audit.mjs` (CDP + device-metrics emulation): 23 views ×
+  iPhone 390×844 and iPad 820×1180 — ZERO horizontal overflow on every view;
+  screenshots (incl. drawer open/closed and the bottom sheet) inspected.
+  Fixes that came out of the audit: sync-chip wrap collision in the phone
+  topbar; HUD bar column too wide at 390px.
+
+## Verification
+
+- `tools/smoke18.test.js` (9 steps): manifest validity + real PNGs, install
+  metadata, SW parses with all five handlers, skipWaiting only in the
+  message handler, no API host in the CDN cache list, non-GET pass-through,
+  precache derivation matches every local tag in index.html, pwa.js inert in
+  jsdom, phone-tier CSS contract. All 18 suites green 2026-07-17.
+- Desktop PWA behaviours (registration, offline shell, update flow) verified
+  on localhost Chrome; **localhost testing is NOT proof of iPhone Safari
+  behaviour** — see the manual checklist below, which runs against the
+  hosted deployment once hosting is chosen.
+
+## Manual iPhone Safari checklist (post-deployment — NOT yet performed)
+
+1. Open the deployed HTTPS site in Safari; browse two or three views.
+2. Share → Add to Home Screen; confirm the 紅 seal icon and "Kurenai" name.
+3. Launch from the Home Screen; confirm standalone presentation (no Safari
+   chrome; topbar clears the notch; bottom bar clears the home indicator).
+4. Sign in to cloud sync; confirm the account's data adopts onto the phone.
+5. Close the app fully, reopen — session and view state restore.
+6. Enable Airplane Mode; open the app (shell loads offline), make a study
+   edit, confirm the chip shows Offline/Changes pending.
+7. Reconnect; confirm the edit reaches another device (chip → Synced).
+8. Leave the app installed across a deploy; on next launch accept the
+   "Update ready" reload; confirm all local data survived the update.
+9. Attach a small file on desktop, "Sync files now"; on the phone confirm
+   the metadata row appears with the ⇣ download action, and download it.
+10. Export a full backup from the phone (share sheet) and re-import it.
+
+## Hosting
+
+- Options analysis + recommendation delivered at the Build 4b checkpoint;
+  NO deployment-specific configuration implemented yet. The user's
+  switch-over preconditions stand: successful cloud sync from file://, a
+  fresh R3 backup, and verified cloud restore on the hosted origin first.

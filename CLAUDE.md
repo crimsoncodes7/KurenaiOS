@@ -26,8 +26,16 @@ node tools/smoke14.test.js # Build 3g Purchase/Budget Planner: release grace + s
 node tools/smoke15.test.js # Build 4.0 UI overhaul: Linear Void token architecture + 23 :root[data-theme] blocks, retired-theme fallback, Study Hall workspace (collapsible inspector, unit breakdown), vault hero (kv spotlight, bannerImage plumbing, games/VN zero-network), planner top row, Governor bento, shop swatches
 node tools/smoke16.test.js # Build 5 image positioning: shared crop contract/UI, legacy fallback, governor/media/wishlist/profile persistence, DB v7 and backup/restore
 node tools/smoke17.test.js # Build 4a cloud sync: syncId schema (DB v8, files v2), tombstones, push/pull/echo-freedom, first-link matrix, empty-remote guard, reward neutrality, attachment metadata-vs-binary boundary, restore re-baseline (Supabase boundary mocked)
+node tools/smoke18.test.js # Build 4b PWA: manifest/icons, service-worker contract (safe updates, API-cache exclusion, self-maintaining precache), pwa.js inertness, phone-tier CSS contract
 ```
 (smoke4–smoke17 additionally need `npm install fake-indexeddb` — jsdom ships no IndexedDB.)
+
+**Mobile/PWA audits** (Build 4b, both CDP-driven — see each file's header for
+the two long-running commands to start first):
+```sh
+node tools/mobile_audit.mjs   # phone/tablet overflow + screenshots across every view
+node tools/gen_icons.mjs      # regenerate the icon set from the brand seal
+```
 
 **Live cloud verification** (needs the migration applied + js/env.local.js):
 ```sh
@@ -50,12 +58,12 @@ python3 tools/gen_data.py --format-existing
 ```
 
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
-the Build 4.0 / Build 5 / Build 4a addenda at the end of `PROGRESS.md` —
-prioritised backlog, user-owed manual steps, rough edges and the current test
-inventory. All 17 suites are the release gate (smoke17 covers the Build 4a
-cloud-sync engine and its schema/backup boundaries). Suites 1–16 plus the
-running-Chrome visual audit were verified green on 2026-07-13; all 17 on
-2026-07-16.
+the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
+`PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
+the current test inventory. All 18 suites are the release gate (smoke17 the
+Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer). Suites 1–16 plus
+the running-Chrome visual audit were verified green on 2026-07-13; all 17 on
+2026-07-16; all 18 plus the phone/tablet CDP audit on 2026-07-17.
 
 ## INVARIANTS — the one-place list (never violate; details in the sections below)
 
@@ -211,6 +219,34 @@ Collected from every build. If a change would break one of these, stop and say s
     downloads through the per-file ⇣ action). Deleting an attachment
     tombstones its row AND removes its storage object — nothing else ever
     deletes remote binaries (a failed local read must never trigger one).
+
+**PWA & mobile (Build 4b)**
+37. The service worker (`sw.js`) NEVER caches API traffic: Supabase, AniList,
+    VNDB, Open Library and Google Books requests — and every non-GET — pass
+    through untouched (authenticated/personalised responses must never enter
+    Cache Storage; only the fixed font/jsdelivr CDN list gets a runtime
+    cache). Same-origin statics are stale-while-revalidate; navigations are
+    network-first with the cached shell as offline fallback; the precache
+    list is DERIVED from index.html's own tags at install (it cannot drift —
+    smoke18-asserted).
+38. Updates are safe by default: `skipWaiting()` runs ONLY from the
+    SKIP_WAITING message after the user confirms the reload offer in
+    `pwa.js` — never at install. Bump `VERSION` in sw.js when deploying.
+    Registration is guarded off `file://`; the app must stay fully
+    functional with no service worker at all.
+39. `navigator.storage.persist()` is requested once, at install or first
+    cloud sign-in — never nagged per load, and never described as a
+    guarantee (Help states eviction honestly; backups remain the strongest
+    protection). Background Sync is a progressive enhancement only —
+    cloudsync's own online/boot/focus/manual retries are the correctness
+    path.
+40. The phone tier is the `@media (max-width: 700px)` block at the end of
+    css/main.css: the rail becomes the bottom tab bar, the spec tree a
+    drawer driven by the SAME `ui.treeClosed`/`tree-closed` state (phones
+    just default it closed in hub.js), modals become bottom sheets, inputs
+    hold 16px (iOS zoom), and safe-area insets ride `env()`. Desktop rules
+    above that block are untouched — extend the tier, don't fork
+    components. Icons regenerate via `tools/gen_icons.mjs`, never by hand.
 
 **Content & UI**
 24. `js/data/compsci.js`/`maths.js`/`it.js` are generated — never hand-edit by
