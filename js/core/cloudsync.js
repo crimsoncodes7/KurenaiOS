@@ -120,15 +120,33 @@
   function storagePath(fileId, name) { return uid() + "/" + fileId + "/" + safeName(name); }
   function toast(msg, bad) { if (!QUIET && KOS.ui && KOS.ui.toast) KOS.ui.toast(msg, bad); }
 
+  /* Boot LAZILY creates default progress records (status "none", empty
+     checks) just by rendering views — those are furniture, not data. Only
+     a record the user actually touched makes the state meaningful, else a
+     brand-new device would classify as "data on both sides" instead of
+     auto-adopting the account. */
+  function progressMeaningful(p) {
+    return Object.keys(p || {}).some(function (k) {
+      var v = p[k] || {};
+      return (v.status && v.status !== "none") ||
+        (v.note && String(v.note).trim()) ||
+        (Array.isArray(v.check) && v.check.some(Boolean)) ||
+        !!v.rag;
+    });
+  }
   function stateMeaningful(s) {
     if (!s || typeof s !== "object") return false;
-    return !!(Object.keys(s.progress || {}).length ||
+    return !!(progressMeaningful(s.progress) ||
       (s.sessions || []).length ||
       (s.custom && s.custom.cards && s.custom.cards.length) ||
       (s.wishlist && s.wishlist.items && s.wishlist.items.length) ||
       (s.tracker && s.tracker.entries && s.tracker.entries.length) ||
       (s.goals && s.goals.items && s.goals.items.length) ||
-      (s.calendar && s.calendar.events && s.calendar.events.length > 3) ||
+      /* the boot seeder plants SAMPLE events — only an event the user
+         actually created (or renamed) counts as data */
+      (s.calendar && (s.calendar.events || []).some(function (ev) {
+        return String(ev.title || "").indexOf("SAMPLE") === -1;
+      })) ||
       (s.governor && ((s.governor.xp || 0) > 0 || (s.governor.gold || 0) > 0 ||
         (s.governor.owned || []).length)));
   }

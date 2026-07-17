@@ -1878,3 +1878,31 @@ app never blocks on it and runs unchanged with no configuration at all.
   NO deployment-specific configuration implemented yet. The user's
   switch-over preconditions stand: successful cloud sync from file://, a
   fresh R3 backup, and verified cloud restore on the hosted origin first.
+
+## Build 4b deployment + hosted verification (2026-07-17)
+
+- **Live**: https://kurenai-os.pages.dev — Cloudflare Pages, direct upload
+  via `tools/deploy_pages.sh` (stages 86 runtime files into gitignored
+  dist/; js/env.local.js ships from disk, never committed; dev material
+  guarded out; deploys pinned to the production branch). No custom domain
+  at this stage, per decision. Free plan; no paid configuration requested.
+- **Hosted origin verified live**: HTTPS boot, SW active (registration scope
+  /), 84-file precached shell, manifest 200, cloud configured. A throw-away
+  account (kos.test.hosted.1@…) signed up on the hosted origin, uploaded
+  data, was wiped, signed back in → REMOTE-ONLY AUTO-ADOPTION restored both
+  the study state and the media entry with the chip at Synced — the cloud
+  restore path the user's real account will take.
+- **Safe-update flow proven in production**: three successive deploys left
+  the old worker controlling the page (by design) with new versions waiting;
+  accepting the update (SKIP_WAITING) activated kos-4b-3 and the activate
+  handler removed every older kos-* cache. sw.js VERSION now kos-4b-3.
+- **Fixes shaken out by the hosted verification** (both in
+  cloudsync.stateMeaningful): boot-lazily-created default progress records
+  and the 4 seeded SAMPLE calendar events counted as "meaningful local
+  data", so a brand-new device classified as "both sides have data" instead
+  of auto-adopting. Now only touched progress (status/note/checks/rag) and
+  non-SAMPLE events count. All 18 suites green after both.
+- Remaining for the user: sign in at kurenai-os.pages.dev with the real
+  account (fresh device → auto-adopt), then the real-iPhone Safari checklist
+  above against the live URL. Test users kos.test.hosted.1@example.com (and
+  any earlier kos.test.*) can be deleted from Supabase Auth at leisure.
