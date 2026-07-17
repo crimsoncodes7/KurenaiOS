@@ -2008,3 +2008,31 @@ Local implementation complete; server deployment pending user approval.
 - REMAINING: user's personal Steam link + real library import (their Steam
   sign-in), and the Cloudflare frontend deployment (awaiting approval; the
   live site does not yet carry the 4c UI).
+
+## Build 4c closure (2026-07-17)
+
+- The REAL Steam link + owned-library import passed end-to-end on the
+  production deployment (user-verified): server-side OpenID verification,
+  review stage, gap-fill import. Build 4c complete; Build 4 (4a cloud sync,
+  4b PWA + mobile adaptation, 4c IGDB/Steam server proxies) closes with all
+  19 suites green and every live gate verified.
+
+### DEFERRED — Games enhancements (recorded, NOT blockers, do not start unasked)
+
+- Enrich Steam imports with IGDB metadata: covers, artwork/banners, release
+  dates, genres, platforms, publisher (batch igdb-search by title/appId
+  after an import; respect the never-overwrite-manual rule).
+- Bulk KurenaiOS status/category assignment IN the Steam import review stage
+  (e.g. mark a selection completed/onHold/platform in one pass before
+  writing).
+- Investigate a reliable SERVER-side Steam wishlist import feeding the
+  Collection Matrix wishlist/Budget Planner (the browser-side conclusion in
+  invariant #5a still stands for release dates; any path would be another
+  Edge Function and must respect the planner's governor/network boundary).
+- Investigate Steam custom library collections. DOCUMENTED FACT: the
+  official GetOwnedGames Web API does not expose user-defined library
+  collections/categories — they live in client-side cloud storage
+  (sharedconfig) with no supported public API; any approach needs fresh
+  research, not assumption.
+
+Also still deferred from 4b: the dedicated mobile UX polish pass.
