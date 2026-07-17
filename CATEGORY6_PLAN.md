@@ -690,17 +690,34 @@ such and is NOT deployment proof).
 
 ## 11. Live status
 
-- **Completed**: repository-wide inventory (all core/module APIs, Build 4
-  Supabase patterns incl. migrations/RLS/Edge Functions/secrets, hub search
-  structures, every §5 tool candidate traced to its real implementation);
-  this plan.
-- **In progress**: —
-- **Not started**: Phases A–F.
-- **Current blockers**: none. API keys deliberately not requested yet
-  (Phase F).
-- **Exact resume point**: commit this plan, then Phase A — verify current
-  Gemini/DeepSeek/Ollama REST shapes against live docs, then write
-  `supabase/migrations/*_kos_assistant.sql` (metering part),
-  `supabase/functions/ai-chat/index.ts`, `js/core/ai.js`, smoke20.
-- **Last verified commit**: c0bf409 (all 19 suites green 2026-07-17,
-  pre-Category-6).
+- **Completed**:
+  - Inventory + this plan (commit 84c5edd).
+  - **Phase A** — provider layer:
+    `supabase/migrations/20260718000001_kos_ai.sql` (kos_ai_daily +
+    atomic `kos_ai_consume` security-definer capped increment,
+    service_role-only EXECUTE; kos_ai_usage metadata rows; RLS select-own
+    only, zero client write policies),
+    `supabase/functions/ai-chat/index.ts` (JWT via requireUserId, cap
+    consumed before any provider call, raw-fetch Gemini
+    `generateContent` with `x-goog-api-key` header + DeepSeek
+    `/chat/completions`, structured-output translation
+    [responseJsonSchema / json_object+schema-instruction], usage rows,
+    redacted upstream errors, health action; `verify_jwt = true` in
+    config.toml), `js/core/ai.js` (normalized chat/tools/structured/usage
+    contract, Ollama client-side transport with OLLAMA_ORIGINS-aware
+    errors and on-demand health, per-category routing with the §2
+    defaults, explicit-only labelled fallback, single network-only retry,
+    noRetry seam for the orchestrator, cancellation + correlation ids,
+    local-only Ollama visibility counter), `tools/smoke20.test.js`
+    (22 steps). Provider REST shapes verified against live docs
+    2026-07-17 (gemini-3.5-flash and deepseek-v4-flash confirmed real
+    current ids).
+- **In progress**: Phase A closeout (regression gate + commit).
+- **Not started**: Phases B–F. Migration/deploy of ai-chat happens with
+  live verification (Phase F), keys requested then.
+- **Current blockers**: none.
+- **Exact resume point**: commit Phase A, then Phase B — hub `search()`
+  extraction, `state.custom.quizzes` store + srs CRUD, `js/core/aitools.js`
+  registry per §5, smoke21.
+- **Last verified commit**: 84c5edd + Phase A working tree (smoke20 green;
+  full 1–19 gate re-run pending in this checkpoint).

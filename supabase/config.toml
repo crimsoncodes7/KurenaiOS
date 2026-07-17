@@ -424,3 +424,7 @@ verify_jwt = false
 
 [functions.steam-owned-games]
 verify_jwt = true
+
+# Category 6: the external-provider AI proxy — always JWT-authenticated.
+[functions.ai-chat]
+verify_jwt = true

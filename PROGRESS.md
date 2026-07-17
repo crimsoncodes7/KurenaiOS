@@ -2036,3 +2036,29 @@ Local implementation complete; server deployment pending user approval.
   research, not assumption.
 
 Also still deferred from 4b: the dedicated mobile UX polish pass.
+
+# CATEGORY 6 — Kurenai Assistant (in progress)
+
+Design record: `CATEGORY6_PLAN.md` (authoritative for scope, tool registry,
+autonomy tiers, status). Branch: feature/category-6-kurenai-assistant.
+
+## Phase A — model provider layer (2026-07-17)
+
+- `js/core/ai.js`: one normalized provider contract over local Ollama
+  (client-side transport, on-demand health, never assumed available) and
+  Gemini/DeepSeek (server-side via the new `ai-chat` Edge Function — raw
+  REST, no SDKs, keys only in function secrets). Per-task-category routing
+  (tutor/complex → gemini-3.5-flash, crud → Ollama, generation →
+  deepseek-v4-flash), fallback ONLY when explicitly configured and always
+  labelled (`usedFallback`), single network-only retry, cancellation,
+  correlation ids, normalized error kinds.
+- `supabase/migrations/20260718000001_kos_ai.sql`: server-owned metering
+  (kos_steam pattern) — kos_ai_daily + atomic capped `kos_ai_consume`
+  (security definer, service_role-only EXECUTE, concurrency-safe single
+  statement), kos_ai_usage metadata rows (never prompts/content/keys).
+  Clients: select-own only.
+- smoke20 (22 steps) covers the transport shapes, routing, the
+  no-silent-paid-fallback property, retries/cancellation, health, and the
+  server source contracts (meter-before-provider, header-auth, redaction,
+  RLS). Not yet deployed/migrated — live verification and API keys are
+  deliberately deferred to Phase F.
