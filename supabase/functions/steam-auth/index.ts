@@ -26,10 +26,16 @@ const NONCE_TTL_MS = 10 * 60 * 1000;
 function appUrl(): string {
   return Deno.env.get("PUBLIC_APP_URL") ?? "https://kurenai-os.pages.dev";
 }
-function callbackUrl(req: Request): string {
-  /* the function's own public URL, derived from the request itself */
-  const u = new URL(req.url);
-  return `${u.origin}${u.pathname}`;
+function callbackUrl(): string {
+  /* The function's PUBLIC URL. Deliberately built from SUPABASE_URL rather
+     than req.url: the gateway strips the /functions/v1 prefix before
+     invoking the function, so req.url would yield
+     https://<ref>.supabase.co/steam-auth — a path the gateway refuses
+     ("requested path is invalid"), which is exactly where the first real
+     sign-in died. The callback stays on the base function URL with the
+     nonce as a QUERY parameter — no sub-path routing anywhere. */
+  const base = (Deno.env.get("SUPABASE_URL") ?? "").replace(/\/$/, "");
+  return `${base}/functions/v1/steam-auth`;
 }
 
 function htmlPage(title: string, body: string, ok: boolean): Response {
@@ -59,15 +65,14 @@ async function begin(req: Request): Promise<Response> {
   });
   if (!ins.ok) return json({ error: "Could not start the Steam link." }, 500);
 
-  const returnTo = `${callbackUrl(req)}?nonce=${nonce}`;
-  const origin = new URL(req.url).origin;
+  const returnTo = `${callbackUrl()}?nonce=${nonce}`;
   const params = new URLSearchParams({
     "openid.ns": "http://specs.openid.net/auth/2.0",
     "openid.mode": "checkid_setup",
     "openid.claimed_id": "http://specs.openid.net/auth/2.0/identifier_select",
     "openid.identity": "http://specs.openid.net/auth/2.0/identifier_select",
     "openid.return_to": returnTo,
-    "openid.realm": origin,
+    "openid.realm": new URL(callbackUrl()).origin,
   });
   return json({ url: `${STEAM_OPENID}?${params.toString()}` });
 }
@@ -94,7 +99,7 @@ async function callback(req: Request): Promise<Response> {
     return htmlPage("Steam link cancelled", "Steam did not complete the sign-in.", false);
   }
   const returnTo = url.searchParams.get("openid.return_to") ?? "";
-  if (!returnTo.startsWith(callbackUrl(req))) {
+  if (!returnTo.startsWith(callbackUrl() + "?nonce=")) {
     return htmlPage("Steam link failed", "The response was addressed to a different endpoint.", false);
   }
 

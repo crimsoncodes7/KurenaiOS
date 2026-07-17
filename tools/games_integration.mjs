@@ -90,8 +90,14 @@ async function req(url, opts = {}, token) {
   r = await req(`${FN}/steam-auth`, { method: "POST", body: JSON.stringify({ action: "begin" }) }, token);
   const loginUrl = r.body?.url || "";
   ok("begin returns a steamcommunity OpenID URL", loginUrl.startsWith("https://steamcommunity.com/openid/login?"), loginUrl.slice(0, 90));
-  const nonce = new URL(new URL(loginUrl).searchParams.get("openid.return_to")).searchParams.get("nonce");
+  const returnTo = new URL(loginUrl).searchParams.get("openid.return_to") || "";
+  const nonce = new URL(returnTo).searchParams.get("nonce");
   ok("the return_to carries a nonce bound server-side", !!nonce && /^[0-9a-f-]{36}$/.test(nonce || ""), String(nonce));
+  /* REGRESSION: the exact production callback URL, /functions/v1 prefix and
+     all — a req.url-derived path loses the prefix and the gateway refuses
+     Steam's redirect ("requested path is invalid") */
+  ok("return_to is the EXACT gateway-routable production URL",
+    returnTo === `${FN}/steam-auth?nonce=${nonce}`, returnTo);
   ok("no API key appears in the login URL", !/key=|secret/i.test(loginUrl), loginUrl.slice(0, 120));
 
   /* forged callback: real nonce, fabricated assertion — Steam must refuse it */

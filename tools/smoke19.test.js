@@ -222,6 +222,16 @@ step("steam-auth: server-side check_authentication, strict identity, single-use 
   assert(verifyCall !== -1, "verification call missing");
   assert(src.indexOf('method: "DELETE"') < verifyCall, "nonce must be single-use even on failed verification");
   assert(src.includes("requireUserId"), "begin/status/unlink must validate the JWT");
+  /* REGRESSION (found by the first real sign-in): the gateway strips
+     /functions/v1 before invoking the function, so a return_to derived
+     from req.url loses the prefix and Steam's redirect dies on
+     "requested path is invalid". The callback URL must be built from
+     SUPABASE_URL + the full public path, and the callback must route by
+     QUERY parameter only — never a sub-path. */
+  assert(src.includes('/functions/v1/steam-auth'), "callback URL must carry the /functions/v1 public prefix");
+  assert(/callbackUrl\(\):\s*string\s*\{[\s\S]*?SUPABASE_URL[\s\S]*?\}/.test(src), "callbackUrl must derive from SUPABASE_URL, not req.url");
+  assert(!/callbackUrl\(req\)/.test(src), "callbackUrl must not depend on the gateway-stripped req.url");
+  assert(src.includes("?nonce="), "the callback must route by query parameter");
 });
 
 step("steam-owned-games never reads a client-supplied SteamID", () => {
