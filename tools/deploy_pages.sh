@@ -58,5 +58,7 @@ if [ "${1:-}" = "--stage" ]; then
 fi
 
 echo "== deploying to Cloudflare Pages ($PROJECT) =="
-npx --yes wrangler@3 pages deploy "$DIST" --project-name "$PROJECT" --commit-dirty=true
+# --branch main = the project's production branch, so every run of this
+# script IS a production deployment regardless of the local git branch
+npx --yes wrangler@3 pages deploy "$DIST" --project-name "$PROJECT" --branch main --commit-dirty=true
 echo "== done — the *.pages.dev URL above is the live deployment =="
