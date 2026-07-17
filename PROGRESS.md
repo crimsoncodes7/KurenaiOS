@@ -1665,3 +1665,374 @@ marked complete.
   the shared secondary workspace tabs used by Collection Planner and Sync. The
   `due` and `cardstats` routes remain compatibility entries, so launch actions,
   history navigation and saved view state retain their established behaviour.
+
+---
+
+# BUILD 4a ADDENDUM — 2026-07-16 (Supabase multi-device sync)
+
+Cloud replication over the existing offline-first storage. Nothing local
+changed owners: localStorage + the two IndexedDB stores remain the primary
+write path; Supabase mirrors them per authenticated user. Auth (email +
+password, confirmation disabled → immediate session) gates SYNC ONLY — the
+app never blocks on it and runs unchanged with no configuration at all.
+
+## Configuration convention (new — the repo had none)
+
+- `js/env.example.js` (committed, names only) → copy to `js/env.local.js`
+  (gitignored) holding `window.KOS_ENV = {SUPABASE_URL, SUPABASE_ANON_KEY}`.
+- The publishable key ships in the browser BY DESIGN; RLS is the boundary.
+  No service-role key exists anywhere in the repo — keep it that way.
+- `js/vendor/supabase.js` = supabase-js 2.110.6 UMD (pinned, vendored).
+  Both files load with `defer` so the jsdom suites skip them and a missing
+  env file is a harmless 404.
+
+## Schema (supabase/migrations/20260716000001_kos_sync_init.sql)
+
+- `kos_state` — one jsonb doc per user (mirrors the R3 export; document-level
+  last-write-wins, stated trade-off), `kos_media` — one row per vault entry
+  keyed `(user_id, entry_id=syncId)` + `(user_id, module)` index, `kos_files`
+  — attachment metadata only (`meta_json` addition carries subject/ref/note;
+  `binary_uploaded` tracks explicit uploads). All tables: `deleted` tombstone
+  column, server-time touch trigger on `updated_at`, RLS owner-only policies
+  (select/insert/update/delete). Private storage bucket `kos-attachments`,
+  objects under `<uid>/<fileId>/<safeName>`, ownership from `auth.uid()` and
+  the path — never a client-supplied id.
+
+## Local schema changes
+
+- Media DB **v8**: `syncId` UUID on every entry — minted in `normalise()`,
+  preserved through every merge, backfilled in the same single cursor pass as
+  the v3 module migration (two concurrent upgrade cursors race; smoke5 caught
+  it). Files DB **v2**: `fileId` + `updatedAt` + index, backfilled.
+- Deletion tombstones queue in media kv (`cloudsync.pendingDeletes`,
+  `cloudsync.filesPendingDeletes`) from every delete path; `cloudsync.*` kv
+  keys are excluded from backups (stale watermarks must not travel).
+- `store.snapshotFull()` extracted from `exportFull` — the R3 serializer now
+  has one representation shared by backup export and cloud migration;
+  `replaceState()` shared by importFull and remote-state apply.
+
+## Engine (js/core/cloud.js + js/core/cloudsync.js + js/modules/cloudui.js)
+
+- Dirty detection is DERIVED, skew-proof: entry `updatedAt` vs recorded
+  `cleanLocal`, state hash vs `lastPushedHash` — no client-vs-server clock
+  comparison anywhere; all remote timestamps are trigger-generated.
+- Cycle = push (state, media tombstones, media, file tombstones, file
+  metadata) then pull (state, media, files), on: 5-min interval, `online`,
+  visibility/focus past a 60 s gap, debounced change nudges from
+  `store.save()`/mediadb/attachments, and manual Sync now. Echo-free by
+  fingerprint (recorded `updated_at`), re-entrant-safe, offline-tolerant.
+- First-link matrix: empty/empty links silently; local-only waits for the
+  explicit "Upload local data" confirmation (R3-snapshot validated, retryable,
+  idempotent); remote-only auto-adopts onto the empty device; both-sides
+  merges media per entry (syncId → external id → title+module adoption, newer
+  copy wins, no duplicates) and asks which STATE document to keep. An empty
+  remote can never silently destroy meaningful local data.
+- Reward neutrality: pull-applies absorb the reward watermark via
+  `mediadb.put/add`; zero sessions, zero governor movement (smoke17-asserted).
+- Attachments: metadata auto-syncs; binaries upload only via "Sync files
+  now" (per-file ⇣ download for cloud-only records); deleting an attachment
+  tombstones the row and removes its storage object.
+- Restore re-baseline: `importFull` → `noteRestore()` → next cycle re-pushes
+  everything and tombstones remote rows the backup no longer carries.
+- UI: persistent topbar chip (Synced / Syncing… / Changes pending / Offline /
+  Signed out / Action needed / Error—tap to retry — real sync state, not
+  connectivity) + the Archive "Account & Cloud Sync" card (sign-up/in/out,
+  link decisions, Sync now, Sync files now, plain-language sync semantics).
+
+## Environment variables
+
+| Name | Where | Purpose |
+|------|-------|---------|
+| `SUPABASE_URL` | js/env.local.js (gitignored) | project URL, browser client |
+| `SUPABASE_ANON_KEY` | js/env.local.js (gitignored) | publishable key, browser client (RLS-bound) |
+
+## Test coverage
+
+- `tools/smoke17.test.js` — 17 steps over a mocked Supabase boundary: v8
+  syncId schema + merge identity, tombstone capture/backup exclusion, the
+  push/pull/echo-freedom property, remote tombstones, the empty-remote-state
+  guard, document LWW, the three interactive first-link cases, attachment
+  metadata-vs-binary boundary + no-duplicate uploads + delete semantics,
+  cloud-only download, restore re-baseline. All 17 suites green 2026-07-16.
+- `tools/cloud_integration.mjs` — live auth + positive/negative RLS +
+  storage-ownership verification (run after the migration is applied).
+
+## Build 4a verification evidence (2026-07-16)
+
+- **Migration applied**: `supabase db push` → local `20260716000001` = remote
+  `20260716000001` on project `pdogeklnbaolnccqricb` (KurenaiOS, eu-west-2,
+  Postgres 17). One dashboard change was needed first: the Email auth
+  provider was disabled project-wide (distinct from confirmation) — enabled
+  by the user, confirmation left off.
+- **Live integration** (`tools/cloud_integration.mjs`): 22/22 — immediate
+  sign-up sessions; positive RLS on all three tables; NEGATIVE RLS (user B
+  sees zero of A's rows, cannot insert-as or update A; bare anon key reads
+  nothing); server-generated monotonic `updated_at`; storage upload/download
+  under own path, B denied read AND write on A's path. Two throw-away users
+  (kos.test.a/b.…@example.com) remain in Authentication → Users; delete from
+  the dashboard at leisure.
+- **Browser verification** (Chrome, app served on `127.0.0.1:8899` — a fresh
+  origin so the real `file://` vault was never touched; throw-away account
+  kos.test.browser.1@example.com): chip renders Signed out → sign-up with
+  immediate session → **localOnly** first-link ("Action needed" chip, Archive
+  prompt, confirm modal, upload) → Synced; local edit → **Changes pending** →
+  auto-push (remote doc advanced, edit present); simulated device-B remote
+  write → cycle pulls and applies it; simulated offline (navigator.onLine
+  shadow + events) → **Offline** chip, local save intact, reconnect pushes
+  the offline edit; media entry pushes within the debounce (after the
+  mediadb noteCloud fix below); reload restores the session straight to
+  Synced; sign-out leaves the app fully navigable; a wiped-vault re-sign-in
+  ran the **both** flow and "Use the cloud copy" merged media (cloud
+  identities adopted, no duplicates) and applied the cloud state.
+- **Fix found by verification**: pure media mutations relied on the interval
+  cycle (up to 5-min latency) — `mediadb` add/put/remove/bulkUpsert now nudge
+  `cloudsync.noteChange("media")` like store.js and attachments do. All 17
+  suites green after the change.
+- **Environment quirk noted**: a password-manager extension intercepts focus
+  on the password field under automation; sign-up was driven through the same
+  `KOS.cloud.signUp` call the button makes. Real-keyboard entry should be
+  re-checked once by hand.
+- Not exercised live (covered by smoke17/integration instead): the hostile
+  empty-remote-state guard, attachment binary upload through the real file
+  picker, and a provoked network error on the chip's retry path.
+- PWA (4b) and Steam/IGDB (4c) NOT started, per instruction.
+
+---
+
+# BUILD 4b ADDENDUM — 2026-07-17 (PWA + mobile adaptation)
+
+## PWA technical layer
+
+- `manifest.webmanifest` (standalone, Atelier Dawn colours, id/scope `./`)
+  with icons generated from the brand seal by `tools/gen_icons.mjs` (192,
+  512, maskable-512, apple-touch-180 — headless-Chrome canvas, no image
+  toolchain). index.html gains the install metadata and
+  `viewport-fit=cover`; `js/core/pwa.js` keeps `theme-color` in step with
+  the active shop theme.
+- `sw.js` (versioned `kos-4b-1` — bump on deploy): precache DERIVED from
+  index.html's own tags at install (cannot drift; a missing gitignored
+  env.local.js is tolerated); same-origin statics stale-while-revalidate;
+  navigations network-first with the cached shell as offline fallback;
+  fonts/jsdelivr in a runtime cache; Supabase/AniList/VNDB/book APIs and all
+  non-GETs never intercepted. Old kos-* caches cleaned at activate.
+- SAFE updates: no skipWaiting at install; pwa.js watches `updatefound` and
+  offers "Reload now" — only that confirmation posts SKIP_WAITING, then
+  reloads on controllerchange. First install controls silently.
+- `navigator.storage.persist()`: once, on `appinstalled` or first cloud
+  sign-in; result logged, never claimed as immunity. Background Sync is a
+  progressive enhancement (SW `sync` event nudges open pages to run a cloud
+  cycle; the tag registers while changes are pending) — correctness stays on
+  cloudsync's online/boot/focus/manual retries. Help gained "Install as an
+  app (PWA)" with the four honest storage facts.
+
+## Mobile adaptation (≤700px tier + pointer:coarse, desktop untouched)
+
+- Rail → fixed bottom tab bar (glyphs + small labels, active top-strip,
+  safe-area padding); `#main` reserves space above it. Spec tree → drawer
+  over a scrim, driven by the EXISTING `ui.treeClosed` state — phones just
+  default it closed (hub.js `applyTreeCollapsed`); collapsed it renders as a
+  floating "Spec spine" pill above the bar. Subnav scrolls horizontally.
+- Modals and the confirm dialog render as bottom sheets (safe-area padded,
+  `100dvh`-bounded). Inputs hold 16px at phone widths (kills iOS focus-zoom);
+  `pointer: coarse` bumps button/tap-target minimums. Topbar: safe-area
+  insets, compact HUD (bars hidden ≤700), nowrap sync chip, forward arrow
+  hidden.
+- `tools/mobile_audit.mjs` (CDP + device-metrics emulation): 23 views ×
+  iPhone 390×844 and iPad 820×1180 — ZERO horizontal overflow on every view;
+  screenshots (incl. drawer open/closed and the bottom sheet) inspected.
+  Fixes that came out of the audit: sync-chip wrap collision in the phone
+  topbar; HUD bar column too wide at 390px.
+
+## Verification
+
+- `tools/smoke18.test.js` (9 steps): manifest validity + real PNGs, install
+  metadata, SW parses with all five handlers, skipWaiting only in the
+  message handler, no API host in the CDN cache list, non-GET pass-through,
+  precache derivation matches every local tag in index.html, pwa.js inert in
+  jsdom, phone-tier CSS contract. All 18 suites green 2026-07-17.
+- Desktop PWA behaviours (registration, offline shell, update flow) verified
+  on localhost Chrome; **localhost testing is NOT proof of iPhone Safari
+  behaviour** — see the manual checklist below, which runs against the
+  hosted deployment once hosting is chosen.
+
+## Manual iPhone Safari checklist (post-deployment — NOT yet performed)
+
+1. Open the deployed HTTPS site in Safari; browse two or three views.
+2. Share → Add to Home Screen; confirm the 紅 seal icon and "Kurenai" name.
+3. Launch from the Home Screen; confirm standalone presentation (no Safari
+   chrome; topbar clears the notch; bottom bar clears the home indicator).
+4. Sign in to cloud sync; confirm the account's data adopts onto the phone.
+5. Close the app fully, reopen — session and view state restore.
+6. Enable Airplane Mode; open the app (shell loads offline), make a study
+   edit, confirm the chip shows Offline/Changes pending.
+7. Reconnect; confirm the edit reaches another device (chip → Synced).
+8. Leave the app installed across a deploy; on next launch accept the
+   "Update ready" reload; confirm all local data survived the update.
+9. Attach a small file on desktop, "Sync files now"; on the phone confirm
+   the metadata row appears with the ⇣ download action, and download it.
+10. Export a full backup from the phone (share sheet) and re-import it.
+
+## Hosting
+
+- Options analysis + recommendation delivered at the Build 4b checkpoint;
+  NO deployment-specific configuration implemented yet. The user's
+  switch-over preconditions stand: successful cloud sync from file://, a
+  fresh R3 backup, and verified cloud restore on the hosted origin first.
+
+## Build 4b deployment + hosted verification (2026-07-17)
+
+- **Live**: https://kurenai-os.pages.dev — Cloudflare Pages, direct upload
+  via `tools/deploy_pages.sh` (stages 86 runtime files into gitignored
+  dist/; js/env.local.js ships from disk, never committed; dev material
+  guarded out; deploys pinned to the production branch). No custom domain
+  at this stage, per decision. Free plan; no paid configuration requested.
+- **Hosted origin verified live**: HTTPS boot, SW active (registration scope
+  /), 84-file precached shell, manifest 200, cloud configured. A throw-away
+  account (kos.test.hosted.1@…) signed up on the hosted origin, uploaded
+  data, was wiped, signed back in → REMOTE-ONLY AUTO-ADOPTION restored both
+  the study state and the media entry with the chip at Synced — the cloud
+  restore path the user's real account will take.
+- **Safe-update flow proven in production**: three successive deploys left
+  the old worker controlling the page (by design) with new versions waiting;
+  accepting the update (SKIP_WAITING) activated kos-4b-3 and the activate
+  handler removed every older kos-* cache. sw.js VERSION now kos-4b-3.
+- **Fixes shaken out by the hosted verification** (both in
+  cloudsync.stateMeaningful): boot-lazily-created default progress records
+  and the 4 seeded SAMPLE calendar events counted as "meaningful local
+  data", so a brand-new device classified as "both sides have data" instead
+  of auto-adopting. Now only touched progress (status/note/checks/rag) and
+  non-SAMPLE events count. All 18 suites green after both.
+- Remaining for the user: sign in at kurenai-os.pages.dev with the real
+  account (fresh device → auto-adopt), then the real-iPhone Safari checklist
+  above against the live URL. Test users kos.test.hosted.1@example.com (and
+  any earlier kos.test.*) can be deleted from Supabase Auth at leisure.
+
+## Build 4b closure notes (2026-07-17, post-approval)
+
+- Hosted desktop AND real-iPhone Safari checklists completed by the user —
+  passed. Build 4b approved.
+- **DEFERRED: dedicated mobile UX pass.** The ≤700px tier is usable and
+  verified overflow-free, but a polish pass (per-view mobile compositions,
+  gesture affordances, denser vault cards, mobile-first editor flows) is
+  deliberately deferred. The priority remains a complete and stable DESKTOP
+  application; Build 4c must not broaden into mobile redesign.
+- **Ongoing deployment workflow** (also in CLAUDE.md): `git push` does NOT
+  update the live site — `tools/deploy_pages.sh` is the only production
+  deployment path (staging safety checks + direct upload). Before every
+  deploy: full smoke gate green, staging checks pass, `sw.js` VERSION
+  bumped; installed clients switch only via the safe-update offer.
+
+---
+
+# BUILD 4c ADDENDUM — 2026-07-17 (IGDB search + verified Steam import)
+
+Local implementation complete; server deployment pending user approval.
+
+## Server (supabase/functions/ + migration 20260717000001)
+
+- `igdb-search`: authenticated POST {query, platform?} → normalised results
+  (title, release date, genres, platforms + app-enum guess, cover, publisher,
+  igdbId). Twitch client-credentials token cached in-instance, refreshed on
+  401; query length/result caps; 503 with a plain message when unconfigured.
+- `steam-auth` (verify_jwt=false — Steam's redirect can't carry a JWT; every
+  POST action validates the JWT itself): begin mints a single-use 10-minute
+  nonce BOUND to the authenticated user; the GET callback consumes the nonce
+  first, POSTs the whole assertion back to Steam with check_authentication
+  SERVER-side, requires is_valid:true + our return_to + the strict 17-digit
+  claimed_id, then stores the SteamID in kos_steam (service-role only; the
+  browser can only read its own row). status/unlink actions round it out.
+- `steam-owned-games`: reads the VERIFIED kos_steam row for the JWT's user —
+  no request body is parsed at all, so a client-supplied SteamID is
+  structurally impossible — calls GetOwnedGames with the server-held key,
+  returns normalised {appId, title, playtimeHours}; private profiles get a
+  specific actionable message.
+- `_shared/cors.ts`: permissive CORS (auth is the boundary; file:// sends
+  Origin null), JWT→user validation, service-role REST helper. Runtime env
+  verified against the docs, not assumed: accepts both the legacy
+  ANON/SERVICE_ROLE vars and the new PUBLISHABLE/SECRET_KEYS lists.
+- Secrets: STEAM_API_KEY, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET,
+  PUBLIC_APP_URL — `supabase secrets set` only; never in repo/client/logs.
+
+## Frontend
+
+- `js/core/gameapi.js`: functions.invoke wrapper; without cloud sign-in every
+  call explains instead of fetching. IGDB/Steam traffic happens ONLY on
+  explicit user action.
+- Find new (⊕) on the Games vault → the shared mediasearch modal's new game
+  branch (IGDB); adds are LOCAL-only, syncSource "manual", igdbId in extra
+  for dedupe (by id, then exact title), fully hand-editable.
+- ◆ Steam panel: link (server-verified) → mandatory review/selection stage →
+  `KOS.games.applySteamImport`: new drafts, gap-fill only (playtime when
+  null; appId adoption onto id-less same-title rows), same-title-different-id
+  rows skipped (no dupes, no clobber), ONE governor session per import and
+  none for a no-op. Manual entry + bulk paste remain the untouched baseline.
+- Sync & Import Games panel rewritten: manual baseline + the 4c server-
+  verified reality (the 3e browser conclusion still stated).
+
+## Verification so far
+
+- smoke19 (11 steps) covers the client boundary + merge law + Edge Function
+  source contracts; smoke8's games panel step re-scoped (browser still never
+  calls Steam directly — now asserted as steamcommunity/steampowered URLs).
+  All 19 suites green 2026-07-17.
+- NOT yet done (awaiting approval + credentials): kos_steam migration push,
+  secrets set, `supabase functions deploy` ×3, live verification
+  (unauthenticated rejection, IGDB search results, Steam link + import
+  end-to-end), Cloudflare frontend deployment.
+
+## Build 4c live verification (2026-07-17)
+
+- Migration 20260717000001 applied (kos_steam + kos_steam_auth only; nothing
+  destructive, no reset). All three functions deployed via
+  `supabase functions deploy --use-api`; secrets set by the user privately.
+- `tools/games_integration.mjs` 22/22 against the DEPLOYED functions:
+  unauthenticated rejection on all three; live IGDB search returns
+  normalised results with NO credential/token in any response; input
+  validation; steam-auth begin issues a steamcommunity OpenID URL with a
+  server-bound nonce and no key material; a FORGED assertion is refused by
+  the server-side check_authentication round-trip; the nonce is single-use
+  (replay refused); unknown nonces refused; steam-owned-games returns 409
+  for unlinked accounts and structurally ignores client-supplied SteamIDs;
+  kos_steam/kos_steam_auth accept no client writes (RLS verified live).
+- Browser UI (localhost, throw-away account): ⊕ Find new → "Find new — IGDB"
+  → 16 live results for "hollow knight" → status pick → local entry with
+  cover/genres/igdbId, syncSource manual, planned. ◆ Steam → unlinked state
+  with the server-verification explanation → Link Steam → begin succeeded and
+  the panel handed off to the Steam sign-in tab ("Check link" affordance
+  shown) — verified up to the personal-sign-in boundary, per approval.
+- Dev-origin note: localhost testing surfaced the 4b service worker serving
+  stale scripts on previously-used dev ports (SWR + HTTP-cache interplay) —
+  expected behaviour, not a bug; use a fresh port or unregister the SW when
+  testing local changes. Production updates ride the VERSION bump + safe
+  update flow as documented.
+- REMAINING: user's personal Steam link + real library import (their Steam
+  sign-in), and the Cloudflare frontend deployment (awaiting approval; the
+  live site does not yet carry the 4c UI).
+
+## Build 4c closure (2026-07-17)
+
+- The REAL Steam link + owned-library import passed end-to-end on the
+  production deployment (user-verified): server-side OpenID verification,
+  review stage, gap-fill import. Build 4c complete; Build 4 (4a cloud sync,
+  4b PWA + mobile adaptation, 4c IGDB/Steam server proxies) closes with all
+  19 suites green and every live gate verified.
+
+### DEFERRED — Games enhancements (recorded, NOT blockers, do not start unasked)
+
+- Enrich Steam imports with IGDB metadata: covers, artwork/banners, release
+  dates, genres, platforms, publisher (batch igdb-search by title/appId
+  after an import; respect the never-overwrite-manual rule).
+- Bulk KurenaiOS status/category assignment IN the Steam import review stage
+  (e.g. mark a selection completed/onHold/platform in one pass before
+  writing).
+- Investigate a reliable SERVER-side Steam wishlist import feeding the
+  Collection Matrix wishlist/Budget Planner (the browser-side conclusion in
+  invariant #5a still stands for release dates; any path would be another
+  Edge Function and must respect the planner's governor/network boundary).
+- Investigate Steam custom library collections. DOCUMENTED FACT: the
+  official GetOwnedGames Web API does not expose user-defined library
+  collections/categories — they live in client-side cloud storage
+  (sharedconfig) with no supported public API; any approach needs fresh
+  research, not assumption.
+
+Also still deferred from 4b: the dedicated mobile UX polish pass.

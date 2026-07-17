@@ -100,6 +100,12 @@
      clear of the dedupe pass above. Toggle lives on Sync & Import. */
   if (KOS.autosync) KOS.autosync.start();
 
+  /* ---- cloud sync (Build 4a) ----
+     Supabase replication: pushes local changes, pulls remote ones, shows
+     the topbar status chip. Auth gates SYNC only — the app never blocks on
+     it, and with no js/env.local.js it stays silently unconfigured. */
+  if (KOS.cloudsync) KOS.cloudsync.start();
+
   KOS.refreshRailCounters();
   var ui = KOS.store.state.ui;
   var view = ui.view || "home";

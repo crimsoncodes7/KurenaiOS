@@ -100,10 +100,90 @@
     return weeks;
   }
 
+  /* ================= Steam library import (Build 4c) =================
+     Applies a USER-REVIEWED selection of owned games to the vault. Rules,
+     in order, per row:
+     - a vault entry already carrying this steamAppId → gap-fill ONLY
+       (playtimeHours if the entry has none); manually edited values are
+       never overwritten by Steam metadata;
+     - else an entry with the exact same title and NO steamAppId of its own
+       → adopts the id (identity accretes, like XML→AniList) + same
+       gap-fill; a different stored id blocks adoption (never clobber);
+     - else a new Planned draft is created (syncSource "manual" — games
+       never push anywhere; the app id also powers the store link).
+     ONE governor session for the whole import (same law as bulk paste:
+     one deliberate act), and only when something actually changed.
+     cb(err, {added, updated, unchanged})                                  */
+  function applySteamImport(rows, cb) {
+    rows = (rows || []).filter(function (r) { return r && r.appId != null && r.title; });
+    var report = { added: 0, updated: 0, unchanged: 0 };
+    var i = 0;
+    function finish() {
+      if (report.added + report.updated > 0) {
+        KOS.sessions.log({
+          type: "media", subject: null, ref: null, dur: null,
+          metrics: { module: "game", entryId: null,
+            title: (report.added + report.updated) + " games from Steam",
+            action: "steam-import", count: report.added + report.updated }
+        });
+      }
+      cb && cb(null, report);
+    }
+    function gapFill(entry, row, adoptId, next) {
+      var changed = false;
+      if (adoptId && !(entry.externalIds && entry.externalIds.steamAppId)) {
+        entry.externalIds = entry.externalIds || {};
+        entry.externalIds.steamAppId = row.appId;
+        changed = true;
+      }
+      if (entry.playtimeHours == null && row.playtimeHours > 0) {
+        entry.playtimeHours = row.playtimeHours;
+        changed = true;
+      }
+      if (!changed) { report.unchanged++; next(); return; }
+      KOS.mediadb.put(entry, function (err) {
+        if (!err) report.updated++;
+        next();
+      });
+    }
+    function step() {
+      if (i >= rows.length) { finish(); return; }
+      var row = rows[i++];
+      KOS.mediadb.getByExternal("steam", row.appId, function (e0, byId) {
+        if (byId) { gapFill(byId, row, false, step); return; }
+        KOS.mediadb.query({ module: "game", search: row.title }, function (e1, cands) {
+          var exact = (cands || []).find(function (c) {
+            return c.titleLower === row.title.toLowerCase();
+          });
+          if (exact) {
+            /* adopt only into an id-less entry — an entry that already
+               carries a DIFFERENT appId is a different game or a manual
+               choice; leave it alone entirely */
+            if (exact.externalIds && exact.externalIds.steamAppId) { report.unchanged++; step(); return; }
+            gapFill(exact, row, true, step);
+            return;
+          }
+          KOS.mediadb.add({
+            module: "game", title: row.title, status: "planned",
+            playtimeHours: row.playtimeHours > 0 ? row.playtimeHours : null,
+            externalIds: { steamAppId: row.appId },
+            syncSource: "manual",
+            extra: { steamImportedAt: Date.now() }
+          }, function (e2) {
+            if (!e2) report.added++;
+            step();
+          });
+        });
+      });
+    }
+    step();
+  }
+
   KOS.games = {
     playtimeText: playtimeText,
     steamUrl: steamUrl,
     parseBulkTitles: parseBulkTitles,
+    applySteamImport: applySteamImport,
     backlogWeeks: backlogWeeks
   };
 
@@ -474,6 +554,136 @@
   }
 
   /* ================= the Games view ================= */
+  /* ================= the Steam panel (Build 4c) =================
+     Link (verified server-side via OpenID — the browser never supplies a
+     SteamID), then import with a MANDATORY review/selection stage before
+     anything is written. Requires the cloud session; without it, or with
+     the server unconfigured, this panel explains and manual entry carries
+     on untouched. */
+  function steamModal(onDone) {
+    var overlay = KOS.medview.modalOverlay();
+    var close = overlay.close;
+    var body = el("div", { class: "gm-steam-body" });
+
+    function note(text, bad) {
+      body.innerHTML = "";
+      body.appendChild(el("p", { class: "sub", text: text }));
+      if (bad) body.lastChild.style.color = "var(--danger)";
+    }
+
+    function renderUnlinked() {
+      body.innerHTML = "";
+      body.appendChild(el("p", { class: "sub", text:
+        "Link your Steam account to import your owned library. The sign-in happens on steamcommunity.com and is verified SERVER-side (Steam itself confirms the identity — the fix for the Build 3e dead end); Kurenai never sees your Steam password and never trusts a typed-in ID." }));
+      var linkBtn = el("button", { class: "btn primary", text: "Link Steam account…", onclick: function () {
+        linkBtn.disabled = true;
+        KOS.gameapi.steamBegin(function (err, data) {
+          linkBtn.disabled = false;
+          if (err || !data || !data.url) { note((err && err.message) || "Could not start the Steam link.", true); return; }
+          window.open(data.url, "_blank", "noopener");
+          note("Steam sign-in opened in a new tab. Finish it there, then press “Check link” below.");
+          body.appendChild(el("button", { class: "btn gold", text: "Check link", onclick: render }));
+        });
+      } });
+      body.appendChild(linkBtn);
+    }
+
+    function renderReview(owned) {
+      body.innerHTML = "";
+      KOS.mediadb.query({ module: "game" }, function (e0, vault) {
+        var byApp = {}, byTitle = {};
+        (vault || []).forEach(function (v) {
+          if (v.externalIds && v.externalIds.steamAppId) byApp[v.externalIds.steamAppId] = v;
+          byTitle[v.titleLower] = v;
+        });
+        var boxes = [];
+        body.appendChild(el("p", { class: "sub", text:
+          owned.games.length + " games in the Steam library. NEW titles are pre-selected; titles already in the vault are unticked — selecting one only fills gaps (playtime if empty, the app id) and never overwrites anything you edited by hand. Nothing is written until you confirm." }));
+        var controls = el("div", { class: "lab-controls" }, [
+          el("button", { class: "mini-btn", text: "Select all", onclick: function () { boxes.forEach(function (b) { b.el.checked = true; }); } }),
+          el("button", { class: "mini-btn", text: "Select none", onclick: function () { boxes.forEach(function (b) { b.el.checked = false; }); } })
+        ]);
+        body.appendChild(controls);
+        var list = el("div", { class: "msch-results gm-steam-list" });
+        owned.games.forEach(function (g) {
+          var inVault = byApp[g.appId] || byTitle[g.title.toLowerCase()] || null;
+          var cb = el("input", { type: "checkbox" });
+          cb.checked = !inVault;
+          boxes.push({ el: cb, row: g });
+          list.appendChild(el("label", { class: "gm-steam-row" }, [
+            cb,
+            el("span", { class: "gm-steam-title", text: g.title }),
+            el("span", { class: "sub", text: (g.playtimeHours ? g.playtimeHours + " h" : "unplayed") +
+              (inVault ? " · in vault — gap-fill only" : "") })
+          ]));
+        });
+        body.appendChild(list);
+        var foot = el("div", { class: "lab-controls med-modal-foot" });
+        var goBtn = el("button", { class: "btn primary", text: "Import selected", onclick: function () {
+          var chosen = boxes.filter(function (b) { return b.el.checked; }).map(function (b) { return b.row; });
+          if (!chosen.length) { KOS.ui.toast("Nothing selected."); return; }
+          goBtn.disabled = true;
+          goBtn.textContent = "Importing…";
+          applySteamImport(chosen, function (err, rep) {
+            KOS.ui.toast(err ? "Import failed: " + err.message
+              : "Steam import: " + rep.added + " added, " + rep.updated + " gap-filled, " + rep.unchanged + " left untouched.", !!err);
+            close();
+            onDone && onDone();
+          });
+        } });
+        foot.appendChild(goBtn);
+        body.appendChild(foot);
+      });
+    }
+
+    function renderLinked(st) {
+      body.innerHTML = "";
+      body.appendChild(el("p", { class: "sub", text:
+        "Linked to Steam account " + st.steamId + " (verified " + new Date(st.verifiedAt).toLocaleDateString("en-GB") + "). Importing fetches your owned library for review — nothing is added without your selection." }));
+      var impBtn = el("button", { class: "btn primary", text: "Import owned library…", onclick: function () {
+        impBtn.disabled = true;
+        impBtn.textContent = "Fetching library…";
+        KOS.gameapi.steamOwnedGames(function (err, data) {
+          impBtn.disabled = false;
+          impBtn.textContent = "Import owned library…";
+          if (err) { note(err.message, true); return; }
+          if (data && data.kind === "private") { note(data.error, true); return; }
+          if (!data || !data.games || !data.games.length) { note("Steam returned an empty library.", true); return; }
+          renderReview(data);
+        });
+      } });
+      var unlinkBtn = el("button", { class: "btn", text: "Unlink", onclick: function () {
+        KOS.gameapi.steamUnlink(function () { render(); });
+      } });
+      body.appendChild(el("div", { class: "lab-controls" }, [impBtn, unlinkBtn]));
+    }
+
+    function render() {
+      if (!KOS.gameapi.ready()) {
+        note("Steam import runs through your cloud account — sign in from Archive → Account & Cloud Sync first. Manual entry and bulk paste keep working without it.");
+        return;
+      }
+      note("Checking the Steam link…");
+      KOS.gameapi.steamStatus(function (err, st) {
+        if (err) { note(err.message, true); return; }
+        if (st && st.linked) renderLinked(st);
+        else renderUnlinked();
+      });
+    }
+
+    var box = el("div", { class: "modal med-modal gm-steam-modal" }, [
+      el("div", { class: "modal-h" }, [
+        el("b", { text: "Steam — verified link & library import" }),
+        el("span", { class: "sub", text: "identity is confirmed by Steam itself, server-side; the library import always shows a review stage first" }),
+        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
+      ]),
+      body
+    ]);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    render();
+  }
+
   KOS.views.game = function (main) {
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
@@ -514,6 +724,16 @@
       search, platSel, genreSel, tierSel, sortSel, layoutBtn,
       el("button", { class: "btn gold", text: "▤ Bulk add", title: "Paste a list of titles — one per line — and each becomes a draft entry",
         onclick: function () { bulkAddModal(refreshAll); } }),
+      el("button", { class: "btn", text: "⊕ Find new", title: "Search IGDB and add games with cover, release date and genres (needs cloud sign-in)",
+        onclick: function () {
+          if (!KOS.gameapi.ready()) {
+            KOS.ui.toast("Game search runs through your cloud account — sign in from Archive → Account & Cloud Sync first. Manual entry keeps working regardless.", true);
+            return;
+          }
+          KOS.mediaSearch.open("game", refreshAll);
+        } }),
+      el("button", { class: "btn", text: "◆ Steam", title: "Link your Steam account (verified server-side) and import your owned library",
+        onclick: function () { steamModal(refreshAll); } }),
       el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("game", mod()); } }),
       el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
       el("button", { class: "btn primary", text: "+ Add", onclick: function () { gamesEditor(null, refreshAll); } })

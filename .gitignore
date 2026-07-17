@@ -9,3 +9,14 @@ node_modules/
 # generated screenshots / scratch
 /tmp/
 *.local
+
+# cloud-sync credentials (copy js/env.example.js → js/env.local.js)
+js/env.local.js
+
+# supabase CLI local scratch
+supabase/.temp/
+supabase/.branches/
+
+# Cloudflare Pages staging output (tools/deploy_pages.sh)
+dist/
+.wrangler/

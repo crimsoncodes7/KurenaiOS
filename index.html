@@ -2,8 +2,17 @@
 <html lang="en-GB">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kurenai OS — Study Atelier</title>
+<!-- PWA (Build 4b): manifest + install metadata. theme-color is kept in
+     step with the active shop theme by js/core/pwa.js. -->
+<meta name="theme-color" content="#EFE7D6">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kurenai">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=Shippori+Mincho:wght@600;700&display=swap">
@@ -11,6 +20,12 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<!-- cloud sync (Build 4a) — both deferred: the vendored supabase-js UMD
+     build, and the gitignored per-device credentials (js/env.example.js is
+     the template; a missing env.local.js 404s harmlessly and cloud sync
+     simply stays unconfigured). cloud.js feature-checks both lazily. -->
+<script defer src="js/vendor/supabase.js"></script>
+<script defer src="js/env.local.js"></script>
 </head>
 <body>
 <div class="bg-flora" aria-hidden="true">
@@ -38,6 +53,7 @@
     </div>
     <div class="topbar-right">
       <div id="hud"></div>
+      <button id="sync-status" class="sync-chip" type="button" hidden aria-live="polite"></button>
       <div class="save-wrap" title="Every change autosaves to this browser">
         <span id="save-dot"></span><span>saved</span>
       </div>
@@ -106,6 +122,13 @@
 <script src="js/core/media.js"></script>
 <script src="js/core/mediapush.js"></script>
 <script src="js/core/autosync.js"></script>
+<!-- Build 4a: Supabase auth + the multi-device sync engine -->
+<script src="js/core/cloud.js"></script>
+<script src="js/core/cloudsync.js"></script>
+<!-- Build 4b: service-worker registration, safe updates, persistent storage -->
+<script src="js/core/pwa.js"></script>
+<!-- Build 4c: game Edge-Function client (IGDB search + verified Steam) -->
+<script src="js/core/gameapi.js"></script>
 <!-- deep revision content (wave 1) -->
 <script src="js/data/content/cs-programming.js"></script>
 <script src="js/data/content/cs-theory-computation.js"></script>
@@ -141,6 +164,7 @@
 <script src="js/modules/attachments.js"></script>
 <script src="js/modules/help.js"></script>
 <script src="js/modules/focus.js"></script>
+<script src="js/modules/cloudui.js"></script>
 <!-- Collection Matrix views — medview.js is the shared vault-view toolkit
      (cover/lazy list/pills/empty states/editor shell) the four views build
      on; each view registers its editor in KOS.mediaEditors (dispatch lives

@@ -61,6 +61,8 @@
     ]],
     ["Data & housekeeping", [
       ["Backup & Restore", "The full export covers everything in one file: study progress, governor state, the entire media vault across all four modules (including routes, quotes, physical volumes, chapters — all the data only you can build), and document attachments. Import is a complete restore for disaster recovery or moving to a new machine. AniList/VNDB tokens are intentionally not included — a backup file can end up in less-secure places than your browser; after restoring, reconnect from Sync & Import the same way you did originally (a minor inconvenience, the correct trade-off). Old-format backups (pre-R3, missing the media vault) import the study data they contain and tell you clearly what was not covered."],
+      ["Cloud Sync", "Optional multi-device sync through a personal Supabase account (Archive → Account & Cloud Sync). Signing in syncs three things automatically: the study/Governor state, the media vault (entry by entry) and attachment DETAILS; attachment FILES upload only when you press “Sync files now”, and files never uploaded stay on the device they were added on. Conflicts are last-write-wins on server time — the study state is one document, so if two devices edit it at the same time the most recent save wins whole; media entries win or lose individually. The topbar chip shows the true sync state (synced / syncing / changes pending / offline / signed out / error with tap-to-retry). Everything works signed out or offline — sync is a replication layer, not a gate — and it complements backups rather than replacing them: the export file remains the strongest protection. AniList/VNDB tokens and your cloud password never sync anywhere."],
+      ["Install as an app (PWA)", "Served over HTTPS (or localhost), Kurenai OS installs to your home screen / dock and works offline: the app shell is cached by a service worker, so it opens without a connection and everything local keeps working (live AniList/VNDB/cloud features naturally need the network). Updates are safe by default — a new version downloads in the background and asks before switching; it never swaps code out from under a running session. Four honest facts about storage: (1) Kurenai OS requests persistent browser storage where supported, at a meaningful moment (installing the app, or signing in to cloud sync) — never as a nag; (2) even granted, browsers and especially iOS can still evict local data under storage pressure or long disuse — persistence is a request, not a guarantee; (3) the backup export remains the strongest protection against local storage loss, full stop; (4) cloud sync gives multi-device continuity but is not a substitute for deliberate backups in every failure scenario. Note the browser treats file://, localhost and a hosted address as separate stores — use cloud sync or a backup file to move between them."],
       ["Autosave", "Every change saves automatically (the AUTOSAVE dot pulses). There is no save button anywhere."],
       ["Sample data", "Calendar events marked SAMPLE are placeholders — edit or delete them and add your real dates."]
     ]]
@@ -90,7 +92,9 @@
     "Games vault": ["Open Games", "game"],
     "The Shrine": ["Open Shrine", "shrine"],
     "Sync & Import": ["Open Sync & Import", "mediasync"],
-    "Backup & Restore": ["Open Data & Backup", "data"]
+    "Backup & Restore": ["Open Data & Backup", "data"],
+    "Cloud Sync": ["Open Cloud Sync", "data"],
+    "Install as an app (PWA)": ["Open Data & Backup", "data"]
   };
   function slug(value) { return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
 

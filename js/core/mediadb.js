@@ -76,7 +76,7 @@
   "use strict";
   window.KOS = window.KOS || {};
 
-  var DB_NAME = "kurenai-os-media", DB_VER = 7;
+  var DB_NAME = "kurenai-os-media", DB_VER = 8;
   var ENTRIES = "entries", KV = "kv";
   var db = null;
 
@@ -143,22 +143,38 @@
          display metadata rather than a filter axis, so it is normalised on
          every write but deliberately has no query index. Missing fields are
          the migration: old rows continue as centred cover-fit. */
+      /* v8 (Build 4a — cloud sync): a device-independent identity. Local
+         autoIncrement ids are per-device and never leave the device; syncId
+         is the UUID the cloud rows key on. Indexed for the pull-merge
+         lookup; backfilled below for pre-v8 rows. */
+      if (!os.indexNames.contains("syncId")) {
+        os.createIndex("syncId", "syncId", { unique: false });
+      }
       if (!d.objectStoreNames.contains(KV)) {
         d.createObjectStore(KV, { keyPath: "key" });
       }
-      /* v3 data migration: the old "manga"/"ln" placeholder modules fold
-         into the real "books" module, keeping what they were as `format` */
-      if (e.oldVersion > 0 && e.oldVersion < 3) {
+      /* data migrations — ONE cursor pass (two concurrent cursors would
+         race each other's updates: whichever writes second resurrects the
+         stale copy of the row it read first):
+         v3 — the old "manga"/"ln" placeholder modules fold into the real
+              "books" module, keeping what they were as `format`;
+         v8 — every pre-cloud row gets its device-independent syncId. */
+      if (e.oldVersion > 0 && e.oldVersion < 8) {
         var cur = os.openCursor();
         cur.onsuccess = function (ev) {
           var c = ev.target.result;
           if (!c) return;
-          var v = c.value;
-          if (v.module === "manga" || v.module === "ln") {
+          var v = c.value, dirty = false;
+          if (e.oldVersion < 3 && (v.module === "manga" || v.module === "ln")) {
             v.format = v.format || (v.module === "ln" ? "lightNovel" : "manga");
             v.module = "books";
-            c.update(v);
+            dirty = true;
           }
+          if (!v.syncId) {
+            v.syncId = genSyncId();
+            dirty = true;
+          }
+          if (dirty) c.update(v);
           c.continue();
         };
       }
@@ -189,6 +205,24 @@
 
   function normCrop(crop) {
     return KOS.imageCrop ? KOS.imageCrop.normalise(crop) : null;
+  }
+
+  /* Build 4a — nudge cloud sync after a local write (debounced + no-op when
+     absent or signed out; dirtiness is DERIVED from updatedAt watermarks, so
+     a missed nudge only delays the next cycle, never loses data) */
+  function noteCloud() {
+    if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteChange) KOS.cloudsync.noteChange("media");
+  }
+
+  /* Build 4a — the device-independent identity a cloud row keys on.
+     crypto.randomUUID everywhere modern; the fallback is the standard
+     v4-shaped substitute for older engines. */
+  function genSyncId() {
+    if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (ch) {
+      var r = Math.random() * 16 | 0;
+      return (ch === "x" ? r : (r & 3 | 8)).toString(16);
+    });
   }
 
   /* one physical volume record (Build 3b) */
@@ -294,6 +328,10 @@
     var now = Date.now();
     var legacy = e.module === "manga" || e.module === "ln";   // pre-v3 rows
     var out = {
+      /* Build 4a — cloud identity. Preserved verbatim once minted; a row
+         only ever gets a fresh one when it has none (new entries, and the
+         v8 backfill for old rows). Local numeric `id` stays device-local. */
+      syncId: (typeof e.syncId === "string" && e.syncId) ? e.syncId : genSyncId(),
       module: legacy ? "books" : (e.module || "anime"),
       title: String(e.title || "Untitled"),
       status: STATUSES.indexOf(e.status) !== -1 ? e.status : "planned",
@@ -411,7 +449,7 @@
       rec.reward = rewardSnapshot(rec);
       delete rec.id;                    // let autoIncrement assign
       var rq = os.add(rec);
-      rq.onsuccess = function () { rec.id = rq.result; cb && cb(null, rec); };
+      rq.onsuccess = function () { rec.id = rq.result; noteCloud(); cb && cb(null, rec); };
       rq.onerror = function () { cb && cb(rq.error); };
     });
   }
@@ -422,7 +460,7 @@
       var rec = normalise(entry);
       rec.reward = rewardSnapshot(rec);
       var rq = os.put(rec);
-      rq.onsuccess = function () { cb && cb(null, rec); };
+      rq.onsuccess = function () { noteCloud(); cb && cb(null, rec); };
       rq.onerror = function () { cb && cb(rq.error); };
     });
   }
@@ -434,12 +472,43 @@
       rq.onerror = function () { cb(rq.error); };
     });
   }
-  function remove(id, cb) {
+  /* Build 4a — deletion tombstones. A deleted row's syncId is queued in the
+     kv store so cloud sync can propagate the deletion to other devices; a
+     bare "row missing" is indistinguishable from "never existed" under
+     last-write-wins. Captured on EVERY delete path (remove below, the
+     replace-pass in bulkUpsert, dedupeVault via remove) and drained by
+     cloudsync after a confirmed remote tombstone. Capped: if cloud sync is
+     never used this is just a small ring buffer. */
+  var TOMBSTONE_KEY = "cloudsync.pendingDeletes", TOMBSTONE_CAP = 1000;
+  function recordTombstones(list, cb) {
+    if (!list || !list.length) { cb && cb(null); return; }
+    getKV(TOMBSTONE_KEY, function (err, q) {
+      if (err) { cb && cb(null); return; }   // tombstones are best-effort
+      q = Array.isArray(q) ? q : [];
+      list.forEach(function (t) { if (t && t.syncId) q.push(t); });
+      if (q.length > TOMBSTONE_CAP) q = q.slice(q.length - TOMBSTONE_CAP);
+      setKV(TOMBSTONE_KEY, q, function () { cb && cb(null); });
+    });
+  }
+
+  function remove(id, cb, opts) {
     tx(ENTRIES, "readwrite", function (err, os) {
       if (err) { cb && cb(err); return; }
-      var rq = os.delete(id);
-      rq.onsuccess = function () { cb && cb(null); };
-      rq.onerror = function () { cb && cb(rq.error); };
+      var gq = os.get(id);
+      gq.onsuccess = function () {
+        var victim = gq.result || null;
+        var rq = os.delete(id);
+        rq.onsuccess = function () {
+          if (victim && victim.syncId && !(opts && opts.skipTombstone)) {
+            recordTombstones([{ syncId: victim.syncId, module: victim.module, ts: Date.now() }],
+              function () { noteCloud(); cb && cb(null); });
+          } else {
+            cb && cb(null);
+          }
+        };
+        rq.onerror = function () { cb && cb(rq.error); };
+      };
+      gq.onerror = function () { cb && cb(gq.error); };
     });
   }
 
@@ -518,6 +587,8 @@
       rq.onerror = function () { cb(rq.error, null); };
     });
   }
+  /* one entry by its cloud identity (Build 4a pull merge) */
+  function getBySyncId(syncId, cb) { getByExternal("syncId", syncId, cb); }
   function count(module, cb) {
     tx(ENTRIES, "readonly", function (err, os) {
       if (err) { cb(err, 0); return; }
@@ -635,6 +706,7 @@
       if (err) { cb && cb(err); return; }
       var added = 0, updated = 0, removed = 0, kept = 0, i = 0;
       var rewards = [];
+      var tombstones = [];   // replace-pass deletions, for cloud sync (4a)
       /* identity sets of the incoming list (raw, pre-normalise — only the
          fields the mappers emit), for the replace pass and title claims */
       var incVndb = {}, incAni = {}, incMal = {}, incTitle = {};
@@ -670,6 +742,10 @@
       }
       function merge(inc, old, next) {
         inc.id = old.id;
+        /* cloud identity survives every merge — a fresh normalise mints a
+           new syncId for the incoming row, but the STORED row's identity
+           is what the cloud copy is keyed on (Build 4a) */
+        inc.syncId = old.syncId || inc.syncId;
         inc.createdAt = old.createdAt;
         inc.notes = old.notes || inc.notes;
         inc.tags = old.tags.length ? old.tags : inc.tags;
@@ -763,7 +839,13 @@
         rq.onerror = function () { cb && cb(rq.error); };
       }
       function step() {
-        if (i >= list.length) { cb && cb(null, { added: added, updated: updated, removed: removed, kept: kept, rewards: rewards }); return; }
+        if (i >= list.length) {
+          recordTombstones(tombstones, function () {
+            if (added || updated || removed) noteCloud();
+            cb && cb(null, { added: added, updated: updated, removed: removed, kept: kept, rewards: rewards });
+          });
+          return;
+        }
         var inc = normalise(list[i++]);
         delete inc.id;
         var alid = inc.externalIds.anilistId, mal = inc.externalIds.malId,
@@ -821,7 +903,10 @@
               (rp.module === "vn" && x.vndbId == null && incTitle[v.titleLower]);
             if (!inIncoming) {
               if (hasLocalData(v) || protect[v.id]) kept++;
-              else { c.delete(); removed++; }
+              else {
+                if (v.syncId) tombstones.push({ syncId: v.syncId, module: v.module, ts: Date.now() });
+                c.delete(); removed++;
+              }
             }
           }
           c.continue();
@@ -892,7 +977,12 @@
       eRq.onerror = function () { done(eRq.error || new Error("entries read failed")); };
       var kRq = t.objectStore(KV).getAll();
       kRq.onsuccess = function () {
-        kvResult = (kRq.result || []).filter(function (item) { return !TOKEN_KV_KEYS[item.key]; });
+        /* cloudsync.* keys are device/account-local sync watermarks and
+           queues — restoring them onto another device would poison its
+           echo detection, so they never ride a backup (Build 4a) */
+        kvResult = (kRq.result || []).filter(function (item) {
+          return !TOKEN_KV_KEYS[item.key] && String(item.key).indexOf("cloudsync.") !== 0;
+        });
         done(null);
       };
       kRq.onerror = function () { done(kRq.error || new Error("kv read failed")); };
@@ -967,6 +1057,9 @@
     remove: remove,
     query: query,
     getByExternal: getByExternal,
+    getBySyncId: getBySyncId,
+    genSyncId: genSyncId,
+    recordTombstones: recordTombstones,
     count: count,
     stats: stats,
     distinct: distinct,
