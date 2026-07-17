@@ -1979,3 +1979,32 @@ Local implementation complete; server deployment pending user approval.
   secrets set, `supabase functions deploy` ×3, live verification
   (unauthenticated rejection, IGDB search results, Steam link + import
   end-to-end), Cloudflare frontend deployment.
+
+## Build 4c live verification (2026-07-17)
+
+- Migration 20260717000001 applied (kos_steam + kos_steam_auth only; nothing
+  destructive, no reset). All three functions deployed via
+  `supabase functions deploy --use-api`; secrets set by the user privately.
+- `tools/games_integration.mjs` 22/22 against the DEPLOYED functions:
+  unauthenticated rejection on all three; live IGDB search returns
+  normalised results with NO credential/token in any response; input
+  validation; steam-auth begin issues a steamcommunity OpenID URL with a
+  server-bound nonce and no key material; a FORGED assertion is refused by
+  the server-side check_authentication round-trip; the nonce is single-use
+  (replay refused); unknown nonces refused; steam-owned-games returns 409
+  for unlinked accounts and structurally ignores client-supplied SteamIDs;
+  kos_steam/kos_steam_auth accept no client writes (RLS verified live).
+- Browser UI (localhost, throw-away account): ⊕ Find new → "Find new — IGDB"
+  → 16 live results for "hollow knight" → status pick → local entry with
+  cover/genres/igdbId, syncSource manual, planned. ◆ Steam → unlinked state
+  with the server-verification explanation → Link Steam → begin succeeded and
+  the panel handed off to the Steam sign-in tab ("Check link" affordance
+  shown) — verified up to the personal-sign-in boundary, per approval.
+- Dev-origin note: localhost testing surfaced the 4b service worker serving
+  stale scripts on previously-used dev ports (SWR + HTTP-cache interplay) —
+  expected behaviour, not a bug; use a fresh port or unregister the SW when
+  testing local changes. Production updates ride the VERSION bump + safe
+  update flow as documented.
+- REMAINING: user's personal Steam link + real library import (their Steam
+  sign-in), and the Cloudflare frontend deployment (awaiting approval; the
+  live site does not yet carry the 4c UI).
