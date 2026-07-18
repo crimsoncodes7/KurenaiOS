@@ -2108,3 +2108,21 @@ autonomy tiers, status). Branch: feature/category-6-kurenai-assistant.
   owner-only RLS, audit undeletable + status-checked. Audit wired now;
   the rest is Phase D.
 - smoke22 (22 steps) green; full smoke gate green before commit.
+
+## Phase D — conversations + explicit-consent memory (2026-07-18)
+
+- `js/core/aimemory.js`: KOS.ai.convo (UUID conversations, deterministic
+  client-seq message ordering, validated appends, bounded context assembly
+  — ≤30 msgs/≤24k chars, text-only history with tool activity folded to
+  inert lines so resume can never replay an action, idempotent digest
+  summaries) and KOS.ai.memory (writes only via the two consent origins,
+  secrets screen before saving, list/edit/delete, loud signed-out states).
+- Registry: memory_list (read) + memory_save/update/delete (consequential —
+  the Phase C confirmation card IS the memory-proposal approval).
+- Orchestrator: prepRequest loads memories + history before turn 1;
+  user/assistant/tool-summary rows persist as the request runs; one clear
+  persist_warning on transient failure; memories/summary ride the system
+  prompt only as labelled DATA. Phase C gating untouched — smoke23 proves
+  hostile stored content still cannot skip a confirmation.
+- smoke23 (15 steps) green; full smoke gate green before commit. Live RLS
+  isolation remains the Phase F integration script.

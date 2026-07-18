@@ -835,13 +835,50 @@ such and is NOT deployment proof).
       superseded card, audit transition sequences, the signed-out queue,
       migration source contracts. Live RLS isolation on the four tables
       remains a Phase F integration-script item as planned.
-- **In progress**: Phase C closeout (full gate + commit).
-- **Not started**: Phases D–F. Migrations/deploy happen with live
-  verification (Phase F), keys requested then.
+  - **Phase C committed**: 5a2f034 (smoke22 22/22, full 22-suite gate
+    green).
+  - **Phase D** — conversations + memory (working tree, committing at this
+    checkpoint):
+    - `js/core/aimemory.js` — `KOS.ai.convo`: create/list/get/rename/
+      delete with client-minted UUIDs through the user's own session
+      (every data call user_id-scoped — the fake test layer REFUSES
+      unscoped calls); deterministic message ordering via a client seq in
+      the content jsonb (created_at collisions resolved); appendMessage
+      validates role/shape/size and saves nothing on failure;
+      `assembleContext` is the bounded-context policy — ≤30 messages /
+      ≤24k chars (configurable), TEXT-ONLY history where past tool
+      activity folds to inert "[used tool …]" lines (resume can never
+      replay an action), and older turns become a PURE deterministic
+      digest summary that replaces the cached row value (idempotent
+      reassembly). `KOS.ai.memory`: the explicit-consent store — writes
+      only via origin "user" or "approved-proposal" (any other origin
+      refused; exactly one insert site, smoke-asserted), a secrets screen
+      refusing keys/tokens/passwords/token-shaped blobs before saving,
+      list/edit/delete, signed-out states loud and clear.
+    - Registry: four memory tools — memory_list (read) and memory_save/
+      update/delete (CONSEQUENTIAL — the Phase C confirmation card is the
+      consent mechanism; a rejected proposal saves nothing).
+    - Orchestrator integration (additive, Phase C gating untouched):
+      prepRequest loads memories + assembled history before turn 1,
+      persists user/assistant/tool-summary rows as the request runs,
+      surfaces exactly one persist_warning on transient failure and
+      continues unsaved; memories + summary enter the system prompt only
+      inside labelled DATA blocks (summary explicitly non-authoritative
+      about tool state).
+    - `tools/smoke23.test.js` (15 steps) incl. the injection-inertness
+      proof (hostile stored memory/history → consequential still pauses,
+      dup guard holds), idempotent-summary proof, and two-user scoping.
+- **In progress**: Phase D closeout (full 1–23 gate + commit).
+- **Not started**: Phases E–F. Live RLS isolation + migrations/deploy
+  remain Phase F (keys requested then).
 - **Current blockers**: none.
-- **Exact resume point**: after the Phase C commit → Phase D
-  (`js/core/aimemory.js`): conversation CRUD + resume over
-  kos_assistant_conversations/messages, bounded context assembly,
-  the explicit-consent memory store, smoke23.
-- **Last verified commit**: 9dc81c9; Phase C tree smoke22 green 22/22,
-  full 1–22 gate in flight at this checkpoint.
+- **Exact resume point**: after the Phase D commit → Phase E
+  (`js/modules/assistant.js` + `css` additions): the shared mascot visual
+  component over the six orchestrator-driven states (assets from
+  `kurenai-assistant-assets-v2/assets/assistant/` copied into the
+  production asset area), the global drawer, contextual actions, the
+  dedicated `assistant` view (history/routing/availability/usage/memory/
+  permissions/audit/confirmations), smoke24. Voice stays a minimal
+  optional enhancement that must not delay the surfaces.
+- **Last verified commit**: 5a2f034; Phase D tree smoke23 green 15/15,
+  full 1–23 gate in flight at this checkpoint.
