@@ -130,8 +130,10 @@
 <!-- Build 4c: game Edge-Function client (IGDB search + verified Steam) -->
 <script src="js/core/gameapi.js"></script>
 <!-- Category 6: the Kurenai Assistant provider layer (Ollama local
-     transport + Gemini/DeepSeek via the ai-chat Edge Function) -->
+     transport + Gemini/DeepSeek via the ai-chat Edge Function) and the
+     explicit tool registry (binds to domain modules lazily at call time) -->
 <script src="js/core/ai.js"></script>
+<script src="js/core/aitools.js"></script>
 <!-- deep revision content (wave 1) -->
 <script src="js/data/content/cs-programming.js"></script>
 <script src="js/data/content/cs-theory-computation.js"></script>

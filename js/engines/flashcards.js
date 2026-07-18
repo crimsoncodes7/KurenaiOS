@@ -126,7 +126,7 @@
     function badgeHtml(c) {
       var b = "";
       if (opts.showTopic) b += '<span class="fc-topic">' + KOS.hub.esc(c.sid + " · " + c.ref) + "</span>";
-      if (c.custom) b += '<span class="fc-custom">Custom</span>';
+      if (c.custom) b += '<span class="fc-custom">' + (c.ai ? "AI · Custom" : "Custom") + "</span>";
       var m = KOS.srs.peek(c.key);
       b += '<span class="fc-due">' + KOS.hub.esc(dueLabel(m)) + "</span>";
       return '<span class="fc-badges">' + b + "</span>";
@@ -258,7 +258,7 @@
       var detail = el("div", { class: "fc-row-detail", style: "display:none" });
       row.appendChild(el("div", { class: "fc-row-top" }, [
         el("span", { class: "fc-row-q", html: KOS.content.inline(c.q) }),
-        c.custom ? el("span", { class: "fc-custom", text: "Custom" }) : el("span", { class: "fc-curr", text: "Curriculum" }),
+        c.custom ? el("span", { class: "fc-custom", text: c.ai ? "AI · Custom" : "Custom" }) : el("span", { class: "fc-curr", text: "Curriculum" }),
         el("button", { class: "mini-btn", text: "ⓘ", "aria-label": "Card metrics", onclick: function () {
           detail.style.display = detail.style.display === "none" ? "" : "none";
         } }),

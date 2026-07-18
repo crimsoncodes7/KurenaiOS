@@ -2062,3 +2062,32 @@ autonomy tiers, status). Branch: feature/category-6-kurenai-assistant.
   server source contracts (meter-before-provider, header-auth, redaction,
   RLS). Not yet deployed/migrated — live verification and API keys are
   deliberately deferred to Phase F.
+
+## Phase B — complete tool layer (2026-07-18)
+
+- `js/core/aitools.js`: 64 registered tools (study 21 · governor/focus 10 ·
+  collection 15 · planner 16 · archive 5 · search 1 · sync 4 · app 2) —
+  every one wrapping the REAL domain function the UI uses, with strict
+  schema validation (no coercion, unknown fields rejected), live target
+  revalidation, autonomy tiers (read/reversible/consequential), sanitized
+  results (no blobs/tokens/reward bookkeeping) and undo where reliable.
+- Shared-domain extractions so the UI and assistant ride ONE implementation:
+  `KOS.hub.search` (topbar search now uses it too), `KOS.games.bulkAddTitles`
+  (the modal calls it; the public `bulkAdd` name stays the modal opener,
+  smoke8-asserted), `KOS.mediaSearch.createFromResult` (DOM-free
+  create-then-mirror), `KOS.mediasync.run` (both provider sync buttons now
+  ride it; loading state still immediate), `focus.endEarly({confirmed})`.
+- New custom-quiz store (`state.custom.quizzes`, srs CRUD, atomic
+  validate-before-save) + the topic Quiz tab renders custom/AI questions as
+  a separate labelled block with per-question delete; custom flashcards
+  carry an `ai` flag surfaced as "AI · Custom" badges.
+- Generation tools (`study_generate_flashcards` / `study_generate_quiz`)
+  ground in `KOS.content` canonical notes, request structured output, and
+  validate application-side before ANY save — a malformed batch (bad JSON,
+  extra fields, out-of-range answer) saves nothing and offers a retry.
+- smoke21 (34 steps) covers the registry, validation matrix, real-domain
+  invocation, governor invariants #3/#5/#5a through the tool layer,
+  generation atomicity, quickEdit parity, tombstones, and the sync runner.
+- Asset pack `kurenai-assistant-assets-v2/` (mascot state portraits,
+  Whispering Bloom logos, manifest, voice notes) recorded in
+  CATEGORY6_PLAN.md for Phase E; untouched until then.

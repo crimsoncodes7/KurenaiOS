@@ -94,6 +94,60 @@
     node.classList.toggle("is-error", !!isError);
   }
 
+  /* ---------------- the ONE sync runner (Category 6 extraction) ----------
+     The pull flow was inline in each provider button; the assistant's sync
+     tool and both buttons now share this: connection check → provider
+     syncList → bulkUpsert (replace opts only when asked) → lastSync kv →
+     the single reward session (invariant #5). cb(err, res) where res =
+     bulkUpsert's {added, updated, removed, kept, rewards}; err.kind
+     "auth" passes through so the UI can drop a dead token.
+     source: "anilist" (module anime|books) | "vndb" (module vn).
+     opts: { mode: "update"|"replace", onProgress(msg) }.                  */
+  function runSync(source, module, opts, cb) {
+    opts = opts || {};
+    var mode = opts.mode === "replace" ? "replace" : "update";
+    var progress = opts.onProgress || function () {};
+    function finish(err4, res) {
+      if (err4) { cb(err4); return; }
+      KOS.mediadb.setKV(source === "vndb" ? "vndb.lastSync" : "anilist.lastSync." + module,
+        Date.now(), function () {});
+      KOS.media.logSyncRewards(module, res.rewards);
+      cb(null, res);
+    }
+    if (source === "anilist") {
+      if (module !== "anime" && module !== "books") { cb(new Error("AniList syncs the anime or books module.")); return; }
+      /* the loading state shows IMMEDIATELY on the deliberate action —
+         before the async connection read (smoke4-asserted UX) */
+      progress("Pulling your " + (module === "books" ? "manga" : "anime") + " list…");
+      KOS.anilist.getConnection(function (err, conn) {
+        if (err || !conn.token || !conn.viewer) { cb(new Error("AniList isn't connected — set it up in Sync & Import.")); return; }
+        KOS.anilist.syncList(conn.token, conn.viewer.id, module, function (err3, mapped) {
+          if (err3) { cb(err3); return; }
+          progress("Mapped " + mapped.length + " entries — writing to the vault…");
+          KOS.mediadb.bulkUpsert(mapped, replaceOpts(mode, module, "anilist"), finish);
+        });
+      });
+      return;
+    }
+    if (source === "vndb") {
+      if (module !== "vn") { cb(new Error("VNDB syncs the visual novels module.")); return; }
+      progress("Pulling your VNDB list…");
+      KOS.vndb.getConnection(function (err, conn) {
+        if (err || !conn.token || !conn.user) { cb(new Error("VNDB isn't connected — set it up in Sync & Import.")); return; }
+        KOS.vndb.syncList(conn.token, {
+          onProgress: function (n, msg) { progress(msg || ("Fetched " + n + " entries…")); }
+        }, function (err3, mapped) {
+          if (err3) { cb(err3); return; }
+          progress("Mapped " + mapped.length + " entries — writing to the vault…");
+          KOS.mediadb.bulkUpsert(mapped, replaceOpts(mode, "vn", "vndb"), finish);
+        });
+      });
+      return;
+    }
+    cb(new Error("Unknown sync source: " + source));
+  }
+  KOS.mediasync = { run: runSync };
+
   KOS.views.mediasync = function (main) {
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
@@ -206,29 +260,22 @@
               var mode = aniMode.value();
               confirmReplace(mode, "AniList (" + noun + ")", function () {
               btn.disabled = true;
-              syncNote(syncStatus, "Pulling your " + noun + " list (one call — status, progress, scores, covers, genres)…");
-              KOS.anilist.syncList(conn.token, conn.viewer.id, module, function (err3, mapped) {
+              runSync("anilist", module, {
+                mode: mode,
+                onProgress: function (msg) { syncNote(syncStatus, msg); }
+              }, function (err3, res) {
+                btn.disabled = false;
                 if (err3) {
-                  btn.disabled = false;
                   syncNote(syncStatus, err3.message, true);
                   if (err3.kind === "auth") { KOS.anilist.disconnect(function () { renderConn(); }); }
                   return;
                 }
-                syncNote(syncStatus, "Mapped " + mapped.length + " entries — writing to the vault…");
-                KOS.mediadb.bulkUpsert(mapped, replaceOpts(mode, module, "anilist"), function (err4, res) {
-                  btn.disabled = false;
-                  if (err4) { syncNote(syncStatus, "Write failed: " + err4.message, true); return; }
-                  KOS.mediadb.setKV("anilist.lastSync." + module, Date.now(), function () {});
-                  /* 3j: progress made elsewhere (mal-sync, site edits) that
-                     this pull discovered → ONE proportional reward session */
-                  KOS.media.logSyncRewards(module, res.rewards);
-                  syncNote(syncStatus, "Done — " + doneWording(res) +
-                    (res.rewards && res.rewards.length ? ", " + res.rewards.length + " advanced elsewhere (rewarded)" : "") +
-                    " (matched by AniList id, no duplicates" +
-                    (module === "books" ? "; physical vault records untouched" : "") + ").");
-                  KOS.ui.toast("AniList " + noun + " sync complete: " + (res.added + res.updated) + " entries.");
-                  renderEnrich();
-                });
+                syncNote(syncStatus, "Done — " + doneWording(res) +
+                  (res.rewards && res.rewards.length ? ", " + res.rewards.length + " advanced elsewhere (rewarded)" : "") +
+                  " (matched by AniList id, no duplicates" +
+                  (module === "books" ? "; physical vault records untouched" : "") + ").");
+                KOS.ui.toast("AniList " + noun + " sync complete: " + (res.added + res.updated) + " entries.");
+                renderEnrich();
               });
             }); } });
             return btn;
@@ -299,28 +346,21 @@
             var mode = vnMode.value();
             confirmReplace(mode, "VNDB", function () {
             syncBtn.disabled = true;
-            syncNote(vnStatus, "Pulling your VNDB list (pages of 100 — status, votes, covers, developers, tags)…");
-            KOS.vndb.syncList(conn.token, {
-              onProgress: function (n, msg) { syncNote(vnStatus, msg || ("Fetched " + n + " entries…")); }
-            }, function (err3, mapped) {
+            runSync("vndb", "vn", {
+              mode: mode,
+              onProgress: function (msg) { syncNote(vnStatus, msg); }
+            }, function (err3, res) {
+              syncBtn.disabled = false;
               if (err3) {
-                syncBtn.disabled = false;
                 syncNote(vnStatus, err3.message, true);
                 if (err3.kind === "auth") { KOS.vndb.disconnect(function () { renderVndb(); }); }
                 return;
               }
-              syncNote(vnStatus, "Mapped " + mapped.length + " entries — writing to the vault…");
-              KOS.mediadb.bulkUpsert(mapped, replaceOpts(mode, "vn", "vndb"), function (err4, res) {
-                syncBtn.disabled = false;
-                if (err4) { syncNote(vnStatus, "Write failed: " + err4.message, true); return; }
-                KOS.mediadb.setKV("vndb.lastSync", Date.now(), function () {});
-                KOS.media.logSyncRewards("vn", res.rewards);
-                syncNote(vnStatus, "Done — " + doneWording(res) +
-                  (res.rewards && res.rewards.length ? ", " + res.rewards.length + " advanced elsewhere (rewarded)" : "") +
-                  " (matched by VNDB id; routes, chapters, quotes, CG counts and warnings untouched).");
-                KOS.ui.toast("VNDB sync complete: " + (res.added + res.updated) + " entries.");
-                renderEnrich();
-              });
+              syncNote(vnStatus, "Done — " + doneWording(res) +
+                (res.rewards && res.rewards.length ? ", " + res.rewards.length + " advanced elsewhere (rewarded)" : "") +
+                " (matched by VNDB id; routes, chapters, quotes, CG counts and warnings untouched).");
+              KOS.ui.toast("VNDB sync complete: " + (res.added + res.updated) + " entries.");
+              renderEnrich();
             });
           }); } });
           vndbBody.appendChild(vnMode.root);

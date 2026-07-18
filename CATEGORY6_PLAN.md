@@ -1,3 +1,4 @@
+
 # CATEGORY 6 — Kurenai Assistant: Implementation Plan
 
 This is the design record and resume point for the Category 6 workstream: a
@@ -192,6 +193,46 @@ section is omitted; recorded as deferred (§10). *Accept when*: smoke24 green
 (surfaces mount, permission edits can't weaken consequential minimum,
 provider-offline states render), phone-tier CSS respected, suites green,
 committed.
+
+*Phase E visual identity (locked, assets delivered 2026-07-18).*
+`kurenai-assistant-assets-v2/` at the repo root holds the approved pack:
+state portraits (`assets/assistant/mascot/portrait/{idle,thinking,working,
+success,error,confirmation}.png`), a full-body idle render, the Whispering
+Bloom logo set (emblem/wordmark/alt), `manifest.json` (semantic state→image
+map incl. `success.autoReturnMs`), reference-only `integration/` files, and
+concept references. Decisions:
+- The canonical mascot is the Kurenai Reinterpretation character; the
+  primary assistant logo is Whispering Bloom. Exactly six visual states —
+  idle/thinking/working/success/error/confirmation — driven by the REAL
+  orchestrator lifecycle (idle=no request, thinking=awaiting provider/
+  planning, working=executing tools, success=done→auto-return, error=any
+  failure kind, confirmation=consequential action pending), never inferred
+  from message text.
+- At Phase E: copy `assets/assistant/` into the repo's production asset
+  area (beside `icons/`, ridden by the sw precache via index.html-referenced
+  paths as the existing convention allows), wire `manifest.json` into ONE
+  reusable visual component shared by the drawer and the assistant page —
+  no duplicated state logic, lightweight CSS transitions only,
+  `prefers-reduced-motion` respected, animation paused while hidden,
+  image-load fallback (text status always rendered beside the portrait; the
+  mascot is supplementary, never the only status signal).
+- `integration/` files are reference examples ONLY — the real component
+  binds to the Category 6 orchestrator, not the sample architecture.
+- Do NOT add: Live2D/Rive/skeletal animation, skins/cosmetics/gold-shop
+  mascot items, Fallen Crown / Faded Oath, alternate mascots (all deferred).
+- Overlay elements baked into working/success/error/confirmation portraits
+  are used as supplied — no redraw time in Category 6.
+
+*Voice (minimal Phase E enhancement, may defer to follow-up).* Per
+`VOICE_NOTES.md`: Gemini TTS behind a small provider abstraction (config-
+driven model), opt-in and muted by default, per-response speaker button, no
+auto-narration of long results, clean stop/cancel when the next response
+begins, never reads secrets/hidden tool args/raw audit data. Voice
+character: young-adult feminine, calm/measured/quietly confident, restrained
+warmth, precise, subtle dry wit. Explicitly out of scope: full-duplex voice
+agents, continuous listening, cloning, wake words. Voice must not delay the
+three required surfaces — if Phase E runs long it ships as the recorded
+follow-up instead.
 
 **Phase F — verification.** §9 test matrix fully executed; live browser
 verification via Claude in Chrome against the running app with real Gemini
@@ -588,12 +629,37 @@ proposal time); numeric ranges per field; unknown fields rejected.
 - **No automation engine** — nothing in the codebase schedules user-defined
   automations (autosync/cron-like behaviour is fixed engine code).
   Automation management is deferred; no placeholder UI (§10).
-- **Session-boundary verifications** deferred to Phase B implementation
-  (marked "verify" above): focus.start signature, todo toggle session site,
-  games bulk apply separation, mediasearch create extraction shape,
-  governor.buy self-containedness, quote→flashcard call shape. Each is a
-  wrap-vs-extract decision recorded here and finalized (with the plan
-  updated) during Phase B.
+- **Session-boundary verifications — RESOLVED during Phase B** (all
+  smoke21-asserted):
+  - `governor.buy` is fully self-contained (gold, HP gate, owned) — wrapped.
+  - `todo.toggleManual(id, val, label)` logs the todo session itself —
+    wrapped; the tool passes the task text as the label and no-ops on
+    unchanged state.
+  - `focus.start(cfg)` is domain-level — wrapped. `focus.endEarly` was
+    modal-coupled; it now takes `{confirmed:true}` to skip the modal (the
+    assistant's explicit `early:true` argument IS the deliberate decision;
+    the UI keeps its modal — same `finish(false)` path, no duplication).
+  - games bulk paste: domain sequence extracted from `bulkAddModal` into
+    `KOS.games.bulkAddTitles(text, cb)` (NOT `bulkAdd` — that public name
+    is the modal opener, smoke8-asserted); the modal now calls the shared
+    function. One governor session per paste preserved.
+  - mediasearch: `createFromResult(module, result, status, cb)` extracted
+    DOM-free (dedupe by external id → create-then-mirror → local fallback
+    with kept id); `addResult` is now its modal wrapper.
+  - mediasync: the pull flow extracted into `KOS.mediasync.run(source,
+    module, {mode, onProgress}, cb)`; BOTH provider buttons now ride it
+    (replace mode stays UI-only for the assistant).
+  - `wishlist.markPurchased` + `handoffPurchased(id, done)` wrapped in
+    sequence exactly as the UI does; handoff failure leaves the purchase
+    intact and reports retryable.
+- **Tool naming**: registry names use underscores (`study_add_flashcard`),
+  not dots — Gemini's function-name constraint disallows dots. The §5
+  dotted names map 1:1.
+- **`study_explain_topic` (§5.1.22)**: not a registry tool — explanation is
+  a conversation, not a tool call. Phase E's "explain this topic"
+  contextual action calls `KOS.ai.chat("tutor", …)` grounded via
+  `study_read_notes` output instead. Recorded as resolved, not dropped
+  silently.
 
 Excluded (with reasons): XML/file imports and `importFull` restore (file
 pickers + destructive restore stay human-only), Steam link/import
@@ -712,12 +778,39 @@ such and is NOT deployment proof).
     (22 steps). Provider REST shapes verified against live docs
     2026-07-17 (gemini-3.5-flash and deepseek-v4-flash confirmed real
     current ids).
-- **In progress**: Phase A closeout (regression gate + commit).
-- **Not started**: Phases B–F. Migration/deploy of ai-chat happens with
+  - **Phase A committed**: 82c5f78 (smoke20 22 steps green, full 1–19 gate
+    green before commit).
+  - **Phase B** — tool layer (working tree, committing at this checkpoint):
+    - Shared-domain extractions: `KOS.hub.search` (topbar + tool share the
+      one ranked-snippet search), `state.custom.quizzes` + srs CRUD
+      (`addCustomQuiz` atomic validate-before-save, `customQuizFor`,
+      `updateCustomQuiz`, `deleteCustomQuiz`) with the topic Quiz tab
+      rendering custom/AI questions as a separate labelled block with
+      delete affordances, the `ai` flag surfaced on custom cards ("AI ·
+      Custom" badges in the session engine + manage panel),
+      `KOS.games.bulkAddTitles`, `KOS.mediaSearch.createFromResult`,
+      `KOS.mediasync.run`, `focus.endEarly({confirmed})` (details in §5.9).
+    - `js/core/aitools.js`: 64 registered tools across study/governor/
+      collection/planner/archive/search/sync/app per §5, each with strict
+      schema validation (types/enums/ranges/lengths/unknown-field
+      rejection, no coercion), live target revalidation, tier metadata,
+      sanitized results, undo where reliable; generation tools grounded in
+      `KOS.content` canonical notes with atomic application-side
+      validation (malformed → zero saves + retry offer).
+    - `tools/smoke21.test.js` (34 steps): registry integrity, validation
+      matrix, real-domain invocation for every tool family, governor
+      invariants (#3/#5/#5a) through the tool layer, generation
+      atomicity/malformed-rejection, quickEdit parity, tombstone-on-delete,
+      the stubbed-transport sync runner with the single reward session.
+    - Asset pack `kurenai-assistant-assets-v2/` recorded for Phase E
+      (visual identity + voice direction sections above).
+- **In progress**: Phase B closeout (full regression gate + commit).
+- **Not started**: Phases C–F. Migration/deploy of ai-chat happens with
   live verification (Phase F), keys requested then.
 - **Current blockers**: none.
-- **Exact resume point**: commit Phase A, then Phase B — hub `search()`
-  extraction, `state.custom.quizzes` store + srs CRUD, `js/core/aitools.js`
-  registry per §5, smoke21.
-- **Last verified commit**: 84c5edd + Phase A working tree (smoke20 green;
-  full 1–19 gate re-run pending in this checkpoint).
+- **Exact resume point**: after the Phase B commit → Phase C
+  (`js/core/aiorchestrator.js`): loop bounds, live-context revalidation,
+  confirmation integrity, audit log (new migration section for
+  conversations/memory/audit lands with C/D), smoke22.
+- **Last verified commit**: 82c5f78; Phase B tree smoke21 green 34/34,
+  full gate rerun in flight at this checkpoint.

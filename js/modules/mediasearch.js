@@ -98,8 +98,14 @@
     }
   }
 
-  /* ---------------- the add flow ---------------- */
-  function addResult(module, result, status, statusNote, onAdded) {
+  /* ---------------- the add flow (domain) ----------------
+     Extracted DOM-free for Category 6 so the assistant tool and the modal
+     share ONE create-then-mirror implementation. cb(err, out) where out =
+     { existing }                     — already in the vault, nothing done
+     { rec, remote, note }           — created; remote=true means mirrored
+                                       to AniList/VNDB, note explains a
+                                       local-only fallback.               */
+  function createFromResult(module, result, status, cb) {
     /* Build 4c — games: LOCAL add only (no remote list exists). Dedupe by
        the IGDB id kept in extra, then by exact title. */
     if (module === "game") {
@@ -108,16 +114,12 @@
           return (result.igdbId && r2.extra && r2.extra.igdbId === result.igdbId) ||
             r2.titleLower === String(result.title).toLowerCase();
         });
-        if (existing) {
-          KOS.ui.toast("“" + existing.title + "” is already in your vault (" + KOS.media.STATUS_LABEL[existing.status] + ").");
-          return;
-        }
+        if (existing) { cb(null, { existing: existing }); return; }
         KOS.mediadb.add(localFromIgdb(result, status), function (err, rec) {
-          if (err) { statusNote.textContent = "Local save failed: " + err.message; return; }
+          if (err) { cb(err); return; }
           KOS.media.logActivity(rec, "added");
-          statusNote.textContent = "";
-          KOS.ui.toast("“" + rec.title + "” added to your vault — IGDB holds no personal list, so everything stays local and editable.");
-          onAdded && onAdded(rec);
+          cb(null, { rec: rec, remote: false,
+            note: "IGDB holds no personal list, so everything stays local and editable." });
         });
       });
       return;
@@ -125,11 +127,7 @@
     var idIndex = module === "vn" ? "vndb" : "anilist";
     var idValue = module === "vn" ? result.vndbId : result.anilistId;
     KOS.mediadb.getByExternal(idIndex, idValue, function (e0, existing) {
-      if (existing) {
-        KOS.ui.toast("“" + existing.title + "” is already in your vault (" + KOS.media.STATUS_LABEL[existing.status] + ").");
-        return;
-      }
-      statusNote.textContent = "Creating on " + (module === "vn" ? "VNDB" : "AniList") + "…";
+      if (existing) { cb(null, { existing: existing }); return; }
       remoteCreate(module, result, status, function (remoteOk, failNote) {
         var entry = module === "vn" ? localFromVndb(result, status) : localFromAniList(result, module, status);
         if (remoteOk) {
@@ -139,15 +137,33 @@
           entry.syncSource = "manual";   // the kept external id lets a later pull sync claim it
         }
         KOS.mediadb.add(entry, function (err, rec) {
-          if (err) { statusNote.textContent = "Local save failed: " + err.message; return; }
+          if (err) { cb(err); return; }
           KOS.media.logActivity(rec, "added");
-          statusNote.textContent = "";
-          KOS.ui.toast(remoteOk
-            ? "“" + rec.title + "” added — created on " + (module === "vn" ? "VNDB" : "AniList") + " and mirrored here."
-            : "“" + rec.title + "” added locally. " + (failNote || ""), !remoteOk);
-          onAdded && onAdded(rec);
+          cb(null, { rec: rec, remote: remoteOk, note: remoteOk ? null : (failNote || "Added locally.") });
         });
       });
+    });
+  }
+
+  /* the modal's wrapper: same domain path + the toasts/status line */
+  function addResult(module, result, status, statusNote, onAdded) {
+    if (module !== "game") statusNote.textContent = "Creating on " + (module === "vn" ? "VNDB" : "AniList") + "…";
+    createFromResult(module, result, status, function (err, out) {
+      if (err) { statusNote.textContent = "Local save failed: " + err.message; return; }
+      statusNote.textContent = "";
+      if (out.existing) {
+        KOS.ui.toast("“" + out.existing.title + "” is already in your vault (" + KOS.media.STATUS_LABEL[out.existing.status] + ").");
+        return;
+      }
+      var rec = out.rec;
+      if (module === "game") {
+        KOS.ui.toast("“" + rec.title + "” added to your vault — " + out.note);
+      } else {
+        KOS.ui.toast(out.remote
+          ? "“" + rec.title + "” added — created on " + (module === "vn" ? "VNDB" : "AniList") + " and mirrored here."
+          : "“" + rec.title + "” added locally. " + (out.note || ""), !out.remote);
+      }
+      onAdded && onAdded(rec);
     });
   }
 
@@ -256,5 +272,5 @@
     input.focus();
   }
 
-  KOS.mediaSearch = { open: open, STATUS_WORDS: STATUS_WORDS };
+  KOS.mediaSearch = { open: open, createFromResult: createFromResult, STATUS_WORDS: STATUS_WORDS };
 })();
