@@ -931,20 +931,74 @@ speaker button behind an off-by-default toggle, clean stop/cancel, never
 reads secrets/hidden args/audit — all already compatible with the current
 controller.
 
-- **In progress**: Phase E closeout (full 1–24 gate + browser pass done;
-  committing at this checkpoint).
-- **Not started**: Phase F. Live RLS isolation + migrations/deploy +
-  live-provider verification remain Phase F (API keys requested then).
-- **Current blockers**: none.
-- **Exact resume point**: after the Phase E commit → **Phase F**
-  (verification): apply migrations `20260718000001`/`0002`, deploy the
-  `ai-chat` Edge Function + set `GEMINI_API_KEY`/`DEEPSEEK_API_KEY`
-  secrets (REQUEST KEYS FROM USER FIRST), write
-  `tools/assistant_integration.mjs` (live RLS isolation across all six new
-  tables with two throw-away users + cap-concurrency burst + ai-chat auth
-  rejection + no-secret-in-response), live Gemini browser verification of
-  one request per §5 category through the default route, and deliver the
-  Ollama user-assisted checklist. Automated per-tool coverage already
-  lands in smoke21–24.
-- **Last verified commit**: 3ff767b; Phase E tree smoke24 green 18/18,
-  full 1–24 gate green, live browser pass clean.
+  - **Phase E committed**: ed2e71d (smoke24 18/18, full 24-suite gate
+    green, live browser pass clean).
+  - **Phase F** — verification (in progress; two real defects found + fixed
+    live, committing at this checkpoint):
+    - **Migrations applied** to production `pdogeklnbaolnccqricb`
+      (`supabase db push` by the operator): `20260718000001_kos_ai` +
+      `20260718000002_kos_assistant`. `ai-chat` deployed;
+      `GEMINI_API_KEY` + `AI_DAILY_CAP=50` set. **DeepSeek DEFERRED** (no
+      key — recorded, adapter intact, fails closed 503).
+    - `tools/assistant_integration.mjs` — **live PASS** against production.
+      Sections A–D + G (no spend) and E + F (`--live-provider`, Gemini) all
+      green: 401 on unauthenticated + invalid-token ai-chat; 200 on
+      authenticated; RLS isolation POSITIVE+NEGATIVE across all six new
+      tables (kos_ai_daily/usage server-owned no-client-write, conversations/
+      messages/memory owner-only, audit owner-insert/update + **no-delete
+      even for the owner**); deterministic message ordering; conversation/
+      memory persistence + resume + cleanup; audit lifecycle + status CHECK
+      constraint; concurrency-safe cap (counter == accepted, no
+      over-consumption, no secret leak); **live Gemini text 200** with real
+      content + usage metadata; **live Gemini structured 200** → schema-valid
+      JSON (`{"ok":true}` parsed); unknown-model → clean key-free error;
+      DeepSeek 503 fail-closed.
+    - **DEFECT 1 (fixed live)**: Gemini `functionDeclarations` reject
+      `additionalProperties` → HTTP 400 on the FIRST tool-calling turn.
+      Fix: `geminiSchema()` recursive whitelist sanitizer in the Gemini
+      adapter (tool params + structured schema); client/other-provider
+      schemas untouched. Verified live: the 83-tool payload went 400 → 200,
+      Gemini selected `study_list_subjects`. smoke20 regression added.
+    - **DEFECT 2 (fixed live)**: Gemini 3.5-flash is a thinking model —
+      multi-turn function calling requires echoing the `functionCall`
+      `thoughtSignature`; dropping it 400'd the FOLLOW-UP turn. Fix: thread
+      the signature through `fromGemini` (capture) → `validate` (preserve)
+      → `toGemini` (echo), entirely within the Edge Function (client passes
+      tool calls through verbatim). Also surfaced the redacted upstream
+      error reason (`extractProviderReason`) for diagnosis. Verified live:
+      the follow-up turn went 400 → accepted (429 rate, not schema).
+      smoke20 regression added.
+    - Live browser (real Chrome, signed-in throw-away user, Gemini route):
+      the assistant drawer + dedicated page drove real Gemini; turn-1 tool
+      selection + execution confirmed (`✓ study_list_subjects`); the error
+      lifecycle rendered correctly live (error mascot + textual error +
+      error row); the multi-turn structure is accepted post-fix.
+    - **QUOTA WALL (environment, not code)**: the free-tier Gemini key's
+      **daily** request quota was exhausted by the heavy debugging traffic
+      for the two defects (our own cap read 17/50; the 429 is Google's, and
+      persists after 4+ min of zero calls). This blocks capturing a single
+      COMPLETED multi-turn final-answer and the live-Gemini-driven UI flows
+      (consequential gating end-to-end, generation-saves-cards, stale-
+      context, memory proposal, resume). Their CLIENT logic is exhaustively
+      proven provider-independently in smoke22/23/24 + the Phase E scripted-
+      provider browser pass; only the "live Gemini drives them" layer is
+      quota-blocked. Recorded as a **user-assisted follow-up** (§Phase F
+      remaining), to run once the daily quota resets or with a higher-quota
+      key — a handful of UI actions, code already proven.
+- **In progress**: Phase F closeout — commit the two defect fixes +
+  integration script + regression tests + docs; deliver the Ollama
+  user-assisted checklist; hand the operator the short post-quota-reset
+  live-UI confirmation checklist.
+- **Not started**: —
+- **Current blockers**: Gemini free-tier daily quota (environment) blocks
+  the final live-Gemini UI round-trips this session; DeepSeek live path
+  deferred pending a key.
+- **Exact resume point**: (1) operator runs the post-quota-reset live-UI
+  checklist (consequential gating, generation, stale-context, memory,
+  resume — all with real Gemini) + the DeepSeek live path if a key is
+  added; (2) operator runs the Ollama user-assisted checklist from the
+  deployed app. Category 6 code is complete and gate-green; these are the
+  remaining user-assisted live confirmations.
+- **Last verified commit**: ed2e71d; Phase F tree: full 1–24 gate green,
+  live integration script PASS (incl. live Gemini E/F), two live-found
+  defects fixed + regression-tested.

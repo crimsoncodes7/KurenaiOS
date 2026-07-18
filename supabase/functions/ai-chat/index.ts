@@ -40,7 +40,11 @@ function clampInt(v: string | undefined, min: number, max: number, dflt: number)
 type NormMessage = {
   role: "user" | "assistant" | "tool";
   content?: string;
-  toolCalls?: { id: string; name: string; args: Record<string, unknown> }[];
+  /* thoughtSignature: Gemini 2.5+/3.x are thinking models — a functionCall
+     they emit carries an opaque signature that MUST be echoed back on the
+     follow-up turn, or the request 400s. Opaque to us; passed through
+     verbatim, never inspected. Absent for non-thinking providers. */
+  toolCalls?: { id: string; name: string; args: Record<string, unknown>; thoughtSignature?: string }[];
   toolCallId?: string;
   name?: string;
 };
@@ -121,7 +125,12 @@ function toGemini(body: {
     if (m.role === "assistant") {
       const parts: Record<string, unknown>[] = [];
       if (m.content) parts.push({ text: m.content });
-      for (const tc of m.toolCalls ?? []) parts.push({ functionCall: { name: tc.name, args: tc.args } });
+      for (const tc of m.toolCalls ?? []) {
+        const part: Record<string, unknown> = { functionCall: { name: tc.name, args: tc.args } };
+        /* echo the thinking-model signature back on the same part */
+        if (tc.thoughtSignature) part.thoughtSignature = tc.thoughtSignature;
+        parts.push(part);
+      }
       return { role: "model", parts: parts.length ? parts : [{ text: "" }] };
     }
     return { role: "user", parts: [{ text: m.content ?? "" }] };
@@ -131,7 +140,7 @@ function toGemini(body: {
   if (body.tools?.length) {
     out.tools = [{
       functionDeclarations: body.tools.map((t) => ({
-        name: t.name, description: t.description, parameters: t.parameters,
+        name: t.name, description: t.description, parameters: geminiSchema(t.parameters),
       })),
     }];
   }
@@ -140,24 +149,64 @@ function toGemini(body: {
   if (typeof body.maxTokens === "number") gen.maxOutputTokens = body.maxTokens;
   if (body.structured) {
     gen.responseMimeType = "application/json";
-    gen.responseJsonSchema = body.structured.schema;
+    gen.responseJsonSchema = geminiSchema(body.structured.schema);
   }
   if (Object.keys(gen).length) out.generationConfig = gen;
   return out;
 }
 
+/* Gemini's functionDeclarations + responseJsonSchema accept only a strict
+   OpenAPI-3.0 subset: keywords like `additionalProperties` cause an HTTP
+   400 (verified live 2026-07-18). The client sends the FULL JSON Schema
+   (correct for DeepSeek/Ollama and for local validation intent); this
+   recursively strips the keywords Gemini rejects, adapting per-provider
+   without weakening the schema anywhere else. Whitelist is safer than a
+   blocklist — unknown keywords are dropped. */
+const GEMINI_SCHEMA_KEYS = new Set([
+  "type", "format", "title", "description", "nullable", "enum", "default",
+  "items", "properties", "required", "minItems", "maxItems", "minLength",
+  "maxLength", "pattern", "minimum", "maximum", "minProperties",
+  "maxProperties", "anyOf", "example", "propertyOrdering",
+]);
+function geminiSchema(schema: unknown): unknown {
+  if (Array.isArray(schema)) return schema.map(geminiSchema);
+  if (!schema || typeof schema !== "object") return schema;
+  const src = schema as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const k of Object.keys(src)) {
+    if (!GEMINI_SCHEMA_KEYS.has(k)) continue;   // drop additionalProperties, $schema, etc.
+    if (k === "properties" && src[k] && typeof src[k] === "object") {
+      const props = src[k] as Record<string, unknown>;
+      const cleaned: Record<string, unknown> = {};
+      for (const p of Object.keys(props)) cleaned[p] = geminiSchema(props[p]);
+      out[k] = cleaned;
+    } else if (k === "items" || k === "anyOf") {
+      out[k] = geminiSchema(src[k]);
+    } else {
+      out[k] = src[k];
+    }
+  }
+  return out;
+}
+
 function fromGemini(resp: Record<string, unknown>): {
-  text: string; toolCalls: { id: string; name: string; args: Record<string, unknown> }[];
+  text: string; toolCalls: { id: string; name: string; args: Record<string, unknown>; thoughtSignature?: string }[];
   finishReason: string; promptTokens: number | null; completionTokens: number | null;
 } {
   const cand = (resp.candidates as Record<string, unknown>[] | undefined)?.[0];
   const parts = ((cand?.content as Record<string, unknown> | undefined)?.parts ?? []) as Record<string, unknown>[];
   let text = "";
-  const toolCalls: { id: string; name: string; args: Record<string, unknown> }[] = [];
+  const toolCalls: { id: string; name: string; args: Record<string, unknown>; thoughtSignature?: string }[] = [];
   parts.forEach((p, i) => {
-    if (typeof p.text === "string") text += p.text;
+    if (typeof p.text === "string" && p.thought !== true) text += p.text;
     const fc = p.functionCall as { name?: string; args?: Record<string, unknown> } | undefined;
-    if (fc?.name) toolCalls.push({ id: `g${i}`, name: fc.name, args: fc.args ?? {} });
+    if (fc?.name) {
+      const call: { id: string; name: string; args: Record<string, unknown>; thoughtSignature?: string } =
+        { id: `g${i}`, name: fc.name, args: fc.args ?? {} };
+      /* preserve the thinking signature so a follow-up turn round-trips */
+      if (typeof p.thoughtSignature === "string") call.thoughtSignature = p.thoughtSignature;
+      toolCalls.push(call);
+    }
   });
   const usage = resp.usageMetadata as Record<string, unknown> | undefined;
   return {
@@ -274,13 +323,26 @@ async function safeBodyText(res: Response): Promise<string> {
   } catch { return ""; }
 }
 
-function providerHttpError(provider: string, status: number, _detail: string) {
+function providerHttpError(provider: string, status: number, detail: string) {
   if (status === 429) return { kind: "rate", status: 429, message: `${provider} is rate-limiting — try again shortly.` };
   if (status === 401 || status === 403) {
     return { kind: "config", status: 502, message: `${provider} rejected the server's credentials — the key needs attention.` };
   }
   if (status === 404) return { kind: "config", status: 502, message: `${provider} does not recognise that model id.` };
-  return { kind: "provider", status: 502, message: `${provider} returned HTTP ${status}.` };
+  /* surface the provider's own (already token-redacted, 300-char-capped)
+     reason on a generic failure — turns an opaque "HTTP 400" into an
+     actionable message for the user and for diagnosis. */
+  const reason = detail ? extractProviderReason(detail) : "";
+  return { kind: "provider", status: 502, message: `${provider} returned HTTP ${status}${reason ? ": " + reason : ""}.` };
+}
+/* pull the human-readable message out of a provider error body without
+   ever echoing structure that could carry sensitive data */
+function extractProviderReason(detail: string): string {
+  try {
+    const j = JSON.parse(detail) as { error?: { message?: string } };
+    if (j?.error?.message) return String(j.error.message).slice(0, 180);
+  } catch { /* not JSON */ }
+  return detail.slice(0, 180);
 }
 
 /* ---------------- validation ---------------- */
@@ -315,6 +377,8 @@ function validate(input: Record<string, unknown>): { error?: string; body?: {
         id: String(tc.id ?? "").slice(0, 64),
         name: String(tc.name ?? "").slice(0, 80),
         args: (tc.args && typeof tc.args === "object" ? tc.args : {}) as Record<string, unknown>,
+        /* preserve the opaque thinking-model signature verbatim (bounded) */
+        thoughtSignature: typeof tc.thoughtSignature === "string" ? tc.thoughtSignature.slice(0, 8192) : undefined,
       }));
     }
     messages.push(m);

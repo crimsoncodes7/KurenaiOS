@@ -2151,3 +2151,35 @@ autonomy tiers, status). Branch: feature/category-6-kurenai-assistant.
   vault delete → success mascot; tabs wrap without clipping; signed-out states
   honest; phone-tier bottom-sheet verified live; zero console errors.
 - Voice: DEFERRED (needs its own TTS Edge Function; documented in the plan).
+
+## Phase F — live verification (2026-07-18)
+
+- Migrations 20260718000001 (kos_ai) + 20260718000002 (kos_assistant)
+  applied to production pdogeklnbaolnccqricb; ai-chat deployed; GEMINI_API_KEY
+  + AI_DAILY_CAP=50 set. DeepSeek DEFERRED (no key; adapter intact, 503 fail-
+  closed).
+- `tools/assistant_integration.mjs` — live PASS against production. A–D+G
+  (no spend) and E+F (--live-provider, Gemini): auth rejection (401), RLS
+  isolation positive+negative across all six new tables (metering server-
+  owned no-client-write; conversations/messages/memory owner-only; audit
+  owner insert/update + NO delete even for the owner), deterministic message
+  ordering, conversation/memory persistence+resume+cleanup, audit lifecycle
+  + status CHECK, concurrency-safe cap (counter==accepted), live Gemini text
+  200 + structured JSON 200 (schema-valid), unknown-model clean error, no
+  secret leaks anywhere.
+- TWO real defects found + fixed under live conditions (both Edge-Function-
+  contained, regression-tested in smoke20; full 1–24 gate green):
+  1. Gemini functionDeclarations reject additionalProperties → 400 on the
+     first tool turn. Fix: geminiSchema() recursive whitelist sanitizer for
+     tool params + structured schema (client/other providers untouched).
+     Verified live 400→200 with the real 83-tool payload.
+  2. Gemini 3.5-flash (thinking model) needs the functionCall thoughtSignature
+     echoed on the follow-up turn. Fix: thread it through fromGemini→validate
+     →toGemini. Also surface the redacted upstream error reason. Verified
+     live: follow-up turn 400→accepted (429 rate).
+- QUOTA WALL: the free-tier Gemini key's DAILY quota was exhausted by the
+  two-defect debugging (our cap read 17/50; the 429 is Google's, persists
+  after 4+ min idle). Blocks the final live-Gemini UI round-trips this
+  session (consequential gating end-to-end, generation-saves, stale-context,
+  memory, resume). Client logic proven in smoke22-24; deferred to a user-
+  assisted post-quota-reset checklist + the Ollama checklist.

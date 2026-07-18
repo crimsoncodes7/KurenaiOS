@@ -395,6 +395,26 @@ step("ai-chat: secrets via Deno.env only, no logging, meter before provider", as
   assert(/replace\(\/\[A-Za-z0-9_-\]\{25,\}\/g/.test(src), "upstream error bodies must redact token-like blobs");
   assert(/rate_limited/.test(src) && /correlation_id/.test(src), "usage rows must carry rate decision + correlation id");
   assert(!/messages/.test(src.split("recordUsage")[1].split("}")[0] || "x"), "recordUsage must not carry messages");
+  /* Phase F regression: Gemini's functionDeclarations reject
+     additionalProperties (live HTTP 400). The adapter must sanitize tool
+     params AND the structured schema to Gemini's OpenAPI subset. */
+  assert(/function geminiSchema/.test(src), "the Gemini schema sanitizer must exist");
+  assert(/geminiSchema\(t\.parameters\)/.test(src), "tool parameters must be sanitized for Gemini");
+  assert(/geminiSchema\(body\.structured\.schema\)/.test(src), "the structured schema must be sanitized for Gemini");
+  const whitelist = src.match(/GEMINI_SCHEMA_KEYS = new Set\(\[([\s\S]*?)\]\)/);
+  assert(whitelist && !/"additionalProperties"/.test(whitelist[1]),
+    "additionalProperties must NOT be in the Gemini whitelist (it causes a 400)");
+  /* Phase F regression: Gemini 3.x are thinking models — a functionCall's
+     thoughtSignature MUST round-trip or the FOLLOW-UP turn 400s. */
+  assert(/thoughtSignature/.test(src), "the Gemini thinking-signature round-trip must exist");
+  assert(/if \(typeof p\.thoughtSignature === "string"\) call\.thoughtSignature/.test(src),
+    "fromGemini must CAPTURE the functionCall thoughtSignature");
+  assert(/thoughtSignature: typeof tc\.thoughtSignature === "string"/.test(src),
+    "validate() must PRESERVE the incoming thoughtSignature (not drop it)");
+  assert(/if \(tc\.thoughtSignature\) part\.thoughtSignature/.test(src),
+    "toGemini must ECHO the thoughtSignature on the functionCall part");
+  /* a generic provider failure must surface the (redacted) upstream reason */
+  assert(/extractProviderReason/.test(src), "provider errors must surface the redacted upstream reason for diagnosis");
 });
 
 step("config.toml: ai-chat is JWT-verified", async () => {
