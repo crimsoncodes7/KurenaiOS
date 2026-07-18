@@ -2091,3 +2091,20 @@ autonomy tiers, status). Branch: feature/category-6-kurenai-assistant.
 - Asset pack `kurenai-assistant-assets-v2/` (mascot state portraits,
   Whispering Bloom logos, manifest, voice notes) recorded in
   CATEGORY6_PLAN.md for Phase E; untouched until then.
+
+## Phase C — orchestrator (2026-07-18)
+
+- `js/core/aiorchestrator.js`: the policy layer over the Phase B registry —
+  bounded loops (8 turns / 12 tool calls / one request at a time / explicit
+  cancel), duplicate-mutation guard + single-failed-retry + noRetry after
+  any write, live-context revalidation immediately before every write,
+  confirmation integrity (stored canonical args execute byte-for-byte;
+  expiry, rejection, context/target change and supersession all invalidate
+  with a did-NOT-run report to the model), per-tool permissions with an
+  unbreakable consequential floor, sanitized audit lifecycle rows
+  (proposed→awaiting→confirmed/rejected→executed/failed/cancelled) through
+  the user's own RLS session with a serialized signed-out queue.
+- Migration 20260718000002: conversations/messages/memory/audit tables,
+  owner-only RLS, audit undeletable + status-checked. Audit wired now;
+  the rest is Phase D.
+- smoke22 (22 steps) green; full smoke gate green before commit.

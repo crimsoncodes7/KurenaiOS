@@ -804,13 +804,44 @@ such and is NOT deployment proof).
       the stubbed-transport sync runner with the single reward session.
     - Asset pack `kurenai-assistant-assets-v2/` recorded for Phase E
       (visual identity + voice direction sections above).
-- **In progress**: Phase B closeout (full regression gate + commit).
-- **Not started**: Phases C–F. Migration/deploy of ai-chat happens with
-  live verification (Phase F), keys requested then.
+  - **Phase B committed**: 9dc81c9 (+ 6e507c4 asset pack). Full gate was
+    green (21 suites).
+  - **Phase C** — orchestrator (working tree, committing at this
+    checkpoint):
+    - `supabase/migrations/20260718000002_kos_assistant.sql`: all four
+      assistant tables (conversations/messages/memory/audit) on the Build
+      4a owner-only RLS pattern, client-minted UUID ids, touch triggers;
+      audit has a status check constraint and deliberately NO delete
+      policy. Only AUDIT is wired in Phase C — conversations/messages/
+      memory wire up in Phase D.
+    - `js/core/aiorchestrator.js` (`KOS.ai.orchestrator`): bounded loop
+      (8 provider turns / 12 tool calls / 4 per turn / 120 s, one request
+      at a time, explicit cancel), duplicate-mutation guard (identical
+      executed call refused; failed call retryable once; noRetry to the
+      provider once any write ran), live-context fingerprint revalidated
+      immediately before every write (stale → safe tool error instructing
+      an app_get_context re-read), confirmation integrity (stored
+      canonical args execute byte-for-byte; expiry 2 min; invalidated by
+      context change, target change/disappearance, rejection,
+      supersession, cancel — every path reports "did NOT run" to the
+      model), permissions (per-tool auto/ask/never; consequential floor
+      cannot be weakened; never-tools leave the schema list), audit
+      lifecycle rows through the user's own session with a SERIALIZED
+      signed-out kv queue + flush, sanitized args/result summaries, the
+      system prompt carrying the untrusted-content rule.
+    - `tools/smoke22.test.js` (22 steps): every §Phase C acceptance
+      behaviour incl. an attacker mutating the surfaced confirmation args
+      (stored args still execute), a vanished target, an expired card, a
+      superseded card, audit transition sequences, the signed-out queue,
+      migration source contracts. Live RLS isolation on the four tables
+      remains a Phase F integration-script item as planned.
+- **In progress**: Phase C closeout (full gate + commit).
+- **Not started**: Phases D–F. Migrations/deploy happen with live
+  verification (Phase F), keys requested then.
 - **Current blockers**: none.
-- **Exact resume point**: after the Phase B commit → Phase C
-  (`js/core/aiorchestrator.js`): loop bounds, live-context revalidation,
-  confirmation integrity, audit log (new migration section for
-  conversations/memory/audit lands with C/D), smoke22.
-- **Last verified commit**: 82c5f78; Phase B tree smoke21 green 34/34,
-  full gate rerun in flight at this checkpoint.
+- **Exact resume point**: after the Phase C commit → Phase D
+  (`js/core/aimemory.js`): conversation CRUD + resume over
+  kos_assistant_conversations/messages, bounded context assembly,
+  the explicit-consent memory store, smoke23.
+- **Last verified commit**: 9dc81c9; Phase C tree smoke22 green 22/22,
+  full 1–22 gate in flight at this checkpoint.
