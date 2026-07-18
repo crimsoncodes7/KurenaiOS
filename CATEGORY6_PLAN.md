@@ -993,12 +993,28 @@ controller.
 - **Current blockers**: Gemini free-tier daily quota (environment) blocks
   the final live-Gemini UI round-trips this session; DeepSeek live path
   deferred pending a key.
-- **Exact resume point**: (1) operator runs the post-quota-reset live-UI
-  checklist (consequential gating, generation, stale-context, memory,
-  resume — all with real Gemini) + the DeepSeek live path if a key is
-  added; (2) operator runs the Ollama user-assisted checklist from the
-  deployed app. Category 6 code is complete and gate-green; these are the
-  remaining user-assisted live confirmations.
-- **Last verified commit**: ed2e71d; Phase F tree: full 1–24 gate green,
+  - **Ollama (user-assisted, real machine — DONE 2026-07-18)**: verified
+    live from the local app against real Ollama v0.31.2 (mistral:latest,
+    tool-capable). App detects availability across the CORS boundary
+    (no OLLAMA_ORIGINS change needed for localhost); basic local
+    conversation works; local tool-calling TRANSPORT verified (valid
+    tool_call parsed) though mistral 7B degrades to prose under the full
+    tool set (recommend qwen2.5/llama3.2 — model-choice, not an app defect;
+    the app relayed text and executed nothing hallucinated); Ollama-
+    unavailable reports cleanly; fallback-OFF never silently switches;
+    fallback-ON switches explicitly + labelled (usedFallback/fellBackFrom).
+- **Exact resume point** (remaining user-assisted live confirmations only —
+  Category 6 code is complete and gate-green):
+  1. **Gemini live-UI round-trips** — I resume these MYSELF once Google's
+     free-tier daily quota resets: one completed multi-turn final answer,
+     consequential gating end-to-end, generation-saves-cards, stale-context,
+     memory proposal, resume, audit display. (Adapter + provider path
+     already verified live; only the quota blocks the UI captures.)
+  2. **DeepSeek live path** — deferred pending a key (adapter intact, 503
+     fail-closed).
+  3. **Ollama from the DEPLOYED app** (pages.dev) with OLLAMA_ORIGINS set +
+     a full local reversible-tool execution with a stronger tool model —
+     optional polish; app-side behaviour fully verified locally.
+- **Last verified commit**: 9a7ea3e; Phase F tree: full 1–24 gate green,
   live integration script PASS (incl. live Gemini E/F), two live-found
-  defects fixed + regression-tested.
+  defects fixed + regression-tested, Ollama app-side verified live.

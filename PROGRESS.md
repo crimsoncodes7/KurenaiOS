@@ -2183,3 +2183,36 @@ autonomy tiers, status). Branch: feature/category-6-kurenai-assistant.
   session (consequential gating end-to-end, generation-saves, stale-context,
   memory, resume). Client logic proven in smoke22-24; deferred to a user-
   assisted post-quota-reset checklist + the Ollama checklist.
+
+## Phase F — Ollama local-provider verification (2026-07-18, user-assisted, real machine)
+
+Run from the local app (http://localhost:8471) against real Ollama on the
+user's machine — NOT a sandbox/mock.
+- Ollama v0.31.2 installed, server running at :11434; mistral:latest (7.2B)
+  pulled, advertises capabilities ['completion','tools'].
+- App detects availability LIVE across the CORS boundary: KOS.ai.health
+  ("ollama") → available:true, models:[mistral:latest]. Ollama 0.31's
+  default origins already allow http://localhost:8471 (no OLLAMA_ORIGINS
+  change needed locally; the deployed pages.dev origin WOULD need it — noted
+  in the checklist).
+- Basic local conversation: mistral answered correctly via the app transport
+  (~19.5s on this Mac), with usage metadata, provider:ollama.
+- Local tool-calling TRANSPORT verified: with a minimal tool + directive
+  prompt mistral emitted a valid structured tool_call the app parsed
+  correctly. HONEST CAVEAT: mistral 7B degrades to PROSE under the full
+  83-tool payload (replied describing a hallucinated function instead of
+  calling the real one). The app behaved SAFELY — saw no valid tool_call,
+  relayed the text, executed nothing hallucinated. Recommend a stronger
+  small tool model (qwen2.5:3b/7b, llama3.2:3b) for reliable local tool use.
+  The orchestrator's gating/execution of a local tool call is provider-
+  independent (proven in smoke22-24).
+- Ollama unavailable (dead endpoint): app reports available:false with the
+  OLLAMA_ORIGINS/not-running hint; a crud request with fallback OFF fails
+  cleanly (kind:network, provider:none) — NO silent switch to a billable
+  provider.
+- Explicit fallback enabled (ollama→gemini): the switch is attempted and
+  LABELLED (usedFallback:true, fellBackFrom:"ollama") — never silent.
+- REMAINING (user-assisted, when convenient): confirm from the DEPLOYED app
+  (kurenai-os.pages.dev) with OLLAMA_ORIGINS including that origin; a full
+  end-to-end local reversible-tool EXECUTION with a stronger tool model; the
+  phone "assumed unavailable" state. App-side behaviour all verified.
