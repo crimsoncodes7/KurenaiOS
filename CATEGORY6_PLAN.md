@@ -837,8 +837,46 @@ such and is NOT deployment proof).
       remains a Phase F integration-script item as planned.
   - **Phase C committed**: 5a2f034 (smoke22 22/22, full 22-suite gate
     green).
-  - **Phase D** — conversations + memory (working tree, committing at this
+  - **Phase D committed**: 3ff767b (smoke23 15/15, full 23-suite gate
+    green).
+  - **Phase E** — the three UI surfaces (working tree, committing at this
     checkpoint):
+    - Assets copied `kurenai-assistant-assets-v2/assets/assistant/` →
+      `assets/assistant/` (the repo's production asset area, beside
+      `icons/`); `.DS_Store` stripped; `tools/deploy_pages.sh` now stages
+      `assets` alongside `css`/`icons`; `sw.js` VERSION → `kos-c6e-1`.
+    - `js/modules/assistant.js` — ONE shared controller (`KOS.assistant`)
+      for all three surfaces: the global drawer (topbar emblem trigger),
+      contextual actions, and the dedicated `assistant` view (system
+      subnav + Archive). One submission path (`submit`) → orchestrator;
+      confirmations use the canonical Phase C card object; conversations/
+      memory/routing/audit ride the Phase A–D services only. The mascot is
+      one reusable component (compact + large) driven EXPLICITLY by
+      lifecycle events (idle/thinking/working/success→idle/error/
+      confirmation), image supplementary to always-present text status,
+      glyph fallback on image error, reduced-motion honoured.
+    - Contextual actions (documented below) on the topic (ref) page and
+      the vault entry editor.
+    - Dedicated page tabs: Chat / History / Settings (routing + fallback,
+      no keys) / Memory / Permissions (consequential floor unweakenable) /
+      Activity (audit lifecycle, no delete control).
+    - `css/main.css` — assistant styles + phone-tier bottom-sheet drawer
+      extending the Build 4b `@media (max-width:700px)` block.
+    - `tools/smoke24.test.js` (18 steps): shared-architecture source
+      contracts, six mascot states → real assets + fallback + success
+      auto-return, drawer open/close/focus/draft/duplicate-guard/
+      close-doesn't-cancel/canonical-confirmation/expired-card, contextual
+      actions through the shared path, all six page tabs + history sync +
+      routing/memory/permissions/audit, HTML-injection inertness, no key
+      material, voice-absent.
+    - Browser pass (local http, real Chrome, NOT Phase F live-provider):
+      drawer + dedicated page render one shared state live; a stubbed
+      provider drove thinking → confirmation card (identical in drawer AND
+      page) → Confirm → REAL vault delete → success mascot + "Done"; the
+      six tabs wrap without clipping; Settings/Permissions/Activity render
+      correctly signed out; phone-tier bottom-sheet rule verified live in
+      the parsed stylesheet; zero console errors.
+  - **Phase D detail** (unchanged) — conversations + memory:
     - `js/core/aimemory.js` — `KOS.ai.convo`: create/list/get/rename/
       delete with client-minted UUIDs through the user's own session
       (every data call user_id-scoped — the fake test layer REFUSES
@@ -868,17 +906,45 @@ such and is NOT deployment proof).
     - `tools/smoke23.test.js` (15 steps) incl. the injection-inertness
       proof (hostile stored memory/history → consequential still pauses,
       dup guard holds), idempotent-summary proof, and two-user scoping.
-- **In progress**: Phase D closeout (full 1–23 gate + commit).
-- **Not started**: Phases E–F. Live RLS isolation + migrations/deploy
-  remain Phase F (keys requested then).
+**Contextual actions (Phase E) — which views and why.** Kept deliberately
+small and high-value, each mapping to a real conversation or Phase B tool
+and riding the ONE shared submission path with live context (never a direct
+tool call):
+- **Topic page (`ref` view, hub.js)** — the highest-traffic study surface,
+  with a subject+ref already selected: *Ask Kurenai* (tutor explanation
+  grounded in the topic's notes), *Make flashcards* (→ study_generate_
+  flashcards), *Make a quiz* (→ study_generate_quiz). The ref rides the
+  prompt so the orchestrator revalidates it as usual.
+- **Vault entry editor (mediaEditorHooks, all four modules)** — *Ask
+  Kurenai* about the open entry (summarise progress + suggest updates);
+  injected via the same hook mechanism wishlist uses, carries module+id.
+Other views were intentionally left plain — scattering assistant buttons
+everywhere was explicitly out of scope.
+
+**Voice: DEFERRED** (recorded, not partially built). Gemini TTS needs its
+own authenticated Edge Function surface (a new provider endpoint + secret),
+which is a Phase-A-shaped addition, not a safe end-of-E add. The three
+required surfaces are complete without it; smoke24 asserts no partial TTS
+code shipped. Resume note for a future pass: a `tts-speak` Edge Function
+mirroring `ai-chat` (JWT + server key + usage), a per-assistant-message
+speaker button behind an off-by-default toggle, clean stop/cancel, never
+reads secrets/hidden args/audit — all already compatible with the current
+controller.
+
+- **In progress**: Phase E closeout (full 1–24 gate + browser pass done;
+  committing at this checkpoint).
+- **Not started**: Phase F. Live RLS isolation + migrations/deploy +
+  live-provider verification remain Phase F (API keys requested then).
 - **Current blockers**: none.
-- **Exact resume point**: after the Phase D commit → Phase E
-  (`js/modules/assistant.js` + `css` additions): the shared mascot visual
-  component over the six orchestrator-driven states (assets from
-  `kurenai-assistant-assets-v2/assets/assistant/` copied into the
-  production asset area), the global drawer, contextual actions, the
-  dedicated `assistant` view (history/routing/availability/usage/memory/
-  permissions/audit/confirmations), smoke24. Voice stays a minimal
-  optional enhancement that must not delay the surfaces.
-- **Last verified commit**: 5a2f034; Phase D tree smoke23 green 15/15,
-  full 1–23 gate in flight at this checkpoint.
+- **Exact resume point**: after the Phase E commit → **Phase F**
+  (verification): apply migrations `20260718000001`/`0002`, deploy the
+  `ai-chat` Edge Function + set `GEMINI_API_KEY`/`DEEPSEEK_API_KEY`
+  secrets (REQUEST KEYS FROM USER FIRST), write
+  `tools/assistant_integration.mjs` (live RLS isolation across all six new
+  tables with two throw-away users + cap-concurrency burst + ai-chat auth
+  rejection + no-secret-in-response), live Gemini browser verification of
+  one request per §5 category through the default route, and deliver the
+  Ollama user-assisted checklist. Automated per-tool coverage already
+  lands in smoke21–24.
+- **Last verified commit**: 3ff767b; Phase E tree smoke24 green 18/18,
+  full 1–24 gate green, live browser pass clean.

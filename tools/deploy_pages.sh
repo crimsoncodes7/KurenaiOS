@@ -29,7 +29,7 @@ echo "== staging runtime files into $DIST/ =="
 rm -rf "$DIST"
 mkdir -p "$DIST"
 cp index.html manifest.webmanifest sw.js "$DIST/"
-cp -R css icons "$DIST/"
+cp -R css icons assets "$DIST/"
 mkdir -p "$DIST/js"
 # everything under js/ is runtime (data, content, core, engines, modules,
 # labs, vendor, env.local.js) — copy wholesale

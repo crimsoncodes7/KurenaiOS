@@ -4273,3 +4273,133 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .gm-steam-row:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
 .gm-steam-row input { flex: none; }
 .gm-steam-title { font-weight: 500; }
+
+/* ================= Category 6 — the Kurenai Assistant ================= */
+/* the topbar trigger */
+.assistant-trigger { position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line, color-mix(in srgb, var(--text) 14%, transparent));
+  background: var(--panel); cursor: pointer; padding: 0; flex: none; }
+.assistant-trigger img { width: 24px; height: 24px; object-fit: contain; }
+.assistant-trigger:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.assistant-trigger .at-dot { position: absolute; top: 1px; right: 1px; width: 9px; height: 9px;
+  border-radius: 50%; background: transparent; }
+.assistant-trigger.is-busy .at-dot { background: var(--accent2); animation: asstDot 1.4s ease-in-out infinite; }
+.assistant-trigger.is-confirm .at-dot { background: var(--danger); }
+@keyframes asstDot { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) {
+  .assistant-trigger.is-busy .at-dot { animation: none; }
+}
+
+/* the mascot component — image is supplementary; text status always shows */
+.asst-mascot { display: flex; align-items: center; gap: 12px; }
+.asst-mascot-frame { position: relative; flex: none; border-radius: var(--radius, 10px); overflow: hidden;
+  background: color-mix(in srgb, var(--text) 5%, transparent); }
+.asst-mascot-sm .asst-mascot-frame { width: 56px; height: 56px; }
+.asst-mascot-lg { flex-direction: column; align-items: center; text-align: center; }
+.asst-mascot-lg .asst-mascot-frame { width: 132px; height: 132px; }
+.asst-mascot-img { width: 100%; height: 100%; object-fit: cover; object-position: top center;
+  transition: opacity .25s ease; }
+.asst-mascot-fallback { display: none; position: absolute; inset: 0; align-items: center; justify-content: center;
+  font-family: "Shippori Mincho", serif; font-size: 26px; color: var(--accent); }
+.asst-mascot.img-failed .asst-mascot-img { display: none; }
+.asst-mascot.img-failed .asst-mascot-fallback { display: flex; }
+.asst-status-line { margin: 0; font-size: 12px; color: var(--text2); }
+.asst-mascot[data-state="error"] .asst-status-line { color: var(--danger); }
+.asst-mascot[data-state="confirmation"] .asst-status-line { color: var(--warning); }
+@media (prefers-reduced-motion: reduce) { .asst-mascot-img { transition: none; } }
+
+/* the drawer */
+.asst-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 92vw); z-index: 60;
+  display: flex; flex-direction: column; gap: 10px; padding: 14px;
+  background: var(--panel); border-left: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  box-shadow: -18px 0 40px rgba(0,0,0,.18); }
+.asst-drawer-head { display: flex; align-items: center; gap: 10px; }
+.asst-emblem { width: 28px; height: 28px; object-fit: contain; flex: none; }
+.asst-drawer-title { display: flex; flex-direction: column; min-width: 0; margin-right: auto; }
+.asst-drawer-title .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* the thread */
+.asst-thread-wrap { display: flex; flex-direction: column; gap: 10px; flex: 1 1 auto; min-height: 0; }
+.asst-thread { flex: 1 1 auto; min-height: 120px; overflow-y: auto; display: flex; flex-direction: column;
+  gap: 8px; padding: 4px 2px; }
+.asst-row { max-width: 100%; }
+.asst-row .asst-bubble { padding: 8px 12px; border-radius: 12px; white-space: pre-wrap; word-break: break-word;
+  font-size: 13.5px; line-height: 1.5; }
+.asst-user { align-self: flex-end; max-width: 88%; }
+.asst-user .asst-bubble { background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
+.asst-assistant { align-self: flex-start; max-width: 92%; }
+.asst-assistant .asst-bubble { background: color-mix(in srgb, var(--text) 6%, transparent); }
+.asst-tool { align-self: flex-start; font-size: 12px; color: var(--text2); }
+.asst-tool-chip { font-family: "IBM Plex Mono", monospace; font-size: 11px; padding: 2px 8px;
+  border-radius: 999px; background: color-mix(in srgb, var(--good) 14%, transparent); }
+.asst-tool.failed .asst-tool-chip { background: color-mix(in srgb, var(--danger) 14%, transparent); }
+.asst-warning { font-size: 12px; color: var(--warning); padding: 4px 8px;
+  border-left: 3px solid var(--warning); }
+.asst-error { font-size: 12.5px; color: var(--danger); padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent); border-radius: 8px; }
+.asst-empty p { margin: 4px 0; }
+
+/* the confirmation card — always explicit, never auto-focused */
+.asst-confirm-card { border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  border-radius: var(--radius, 10px); padding: 12px; display: flex; flex-direction: column; gap: 6px;
+  background: color-mix(in srgb, var(--danger) 5%, var(--panel)); }
+.asst-confirm-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.asst-confirm-args { margin: 0; font-size: 11px; max-height: 120px; overflow: auto;
+  background: color-mix(in srgb, var(--text) 6%, transparent); border-radius: 6px; padding: 6px 8px;
+  white-space: pre-wrap; word-break: break-word; }
+.asst-confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* the composer */
+.asst-composer { display: flex; flex-direction: column; gap: 6px; }
+.asst-composer-in { resize: vertical; min-height: 40px; }
+.asst-composer-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* contextual actions — subtle, glyph-led */
+.asst-ctx { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.asst-ctx-glyph { width: 18px; height: 18px; object-fit: contain; opacity: .8; }
+
+/* the dedicated page */
+.asst-page { display: flex; flex-direction: column; gap: 14px; }
+.asst-page-chat-head { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.asst-page-chat-meta { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.asst-wordmark { max-width: 240px; height: auto; object-fit: contain; }
+.asst-page-chat .asst-thread { max-height: 52vh; min-height: 220px; }
+.asst-history-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; }
+.asst-history-row.current { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.asst-history-main { display: flex; flex-direction: column; min-width: 0; margin-right: auto; }
+.asst-history-btns { display: flex; gap: 6px; flex: none; }
+.asst-history-rename { display: flex; gap: 6px; align-items: center; }
+.asst-route-row { display: grid; grid-template-columns: minmax(140px, 1fr) 1fr 1fr 1fr; gap: 8px;
+  align-items: center; padding: 6px 0; border-bottom: 1px dashed color-mix(in srgb, var(--text) 10%, transparent); }
+.asst-memory-row { display: flex; align-items: baseline; gap: 10px; padding: 8px 0;
+  border-bottom: 1px dashed color-mix(in srgb, var(--text) 10%, transparent); }
+.asst-memory-text { margin: 0; flex: 1 1 auto; }
+.asst-memory-add { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+.asst-memory-add textarea { flex: 1 1 auto; }
+.asst-perm-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; }
+.asst-perm-row code { flex: 1 1 auto; font-size: 12px; }
+.asst-perm-sel { max-width: 220px; }
+.asst-audit-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; padding: 6px 0;
+  border-bottom: 1px dashed color-mix(in srgb, var(--text) 10%, transparent); font-size: 12.5px; }
+.asst-audit-status { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px;
+  border-radius: 999px; background: color-mix(in srgb, var(--text) 8%, transparent); flex: none; }
+.asst-audit-row.st-executed .asst-audit-status { background: color-mix(in srgb, var(--good) 16%, transparent); }
+.asst-audit-row.st-failed .asst-audit-status,
+.asst-audit-row.st-rejected .asst-audit-status { background: color-mix(in srgb, var(--danger) 16%, transparent); }
+.asst-audit-row.st-awaiting_confirmation .asst-audit-status { background: color-mix(in srgb, var(--warning) 18%, transparent); }
+.asst-audit-sum { max-width: 100%; word-break: break-word; }
+.asst-health p { margin: 3px 0; }
+
+/* phone tier — extends the Build 4b block: the drawer becomes a bottom
+   sheet and the page rows stack */
+@media (max-width: 700px) {
+  .asst-drawer { top: auto; left: 0; width: 100%; height: 82vh; border-left: none;
+    border-top: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+    border-radius: 16px 16px 0 0; padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+  .asst-route-row { grid-template-columns: 1fr; }
+  .asst-page-chat-head { flex-direction: column; align-items: flex-start; }
+  .assistant-trigger { width: 32px; height: 32px; }
+}
+
+/* the six assistant page tabs wrap rather than clip on narrower desktops */
+.asst-tabs { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }

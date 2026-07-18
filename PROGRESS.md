@@ -2126,3 +2126,28 @@ autonomy tiers, status). Branch: feature/category-6-kurenai-assistant.
   hostile stored content still cannot skip a confirmation.
 - smoke23 (15 steps) green; full smoke gate green before commit. Live RLS
   isolation remains the Phase F integration script.
+
+## Phase E — the three assistant UI surfaces (2026-07-18)
+
+- Assets: `kurenai-assistant-assets-v2/assets/assistant/` copied to
+  `assets/assistant/` (production area beside icons/); deploy_pages.sh stages
+  it; sw.js VERSION → kos-c6e-1.
+- `js/modules/assistant.js`: ONE shared controller (KOS.assistant) behind the
+  global drawer (topbar Whispering Bloom emblem trigger), contextual actions,
+  and the dedicated `assistant` view. One submission path → KOS.ai.orchestrator;
+  confirmations use the canonical Phase C card; conversations/memory/routing/
+  audit ride the Phase A–D services. The mascot is one reusable component
+  (compact + large) driven EXPLICITLY by lifecycle events (six states, image
+  supplementary to always-present text status, glyph fallback, reduced-motion).
+- Contextual actions: topic (ref) page (Ask / Make flashcards / Make a quiz)
+  and the vault entry editor (Ask about this entry) — shared path, live
+  context, never a direct tool call.
+- Dedicated page tabs: Chat / History / Settings (routing+fallback, no keys) /
+  Memory / Permissions (consequential floor unweakenable) / Activity (audit
+  lifecycle, no delete control).
+- smoke24 (18 steps) green; full smoke1–24 gate green. Local Chrome browser
+  pass: drawer + page share one live state; a stubbed provider drove
+  thinking → confirmation card (identical in both surfaces) → Confirm → REAL
+  vault delete → success mascot; tabs wrap without clipping; signed-out states
+  honest; phone-tier bottom-sheet verified live; zero console errors.
+- Voice: DEFERRED (needs its own TTS Edge Function; documented in the plan).

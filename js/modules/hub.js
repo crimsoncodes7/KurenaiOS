@@ -1019,6 +1019,12 @@
        next review); its open state persists in ui.inspectorOpen. */
     var studyGrid = el("div", { class: "study-grid" + (store.state.ui.inspectorOpen === false ? " insp-closed" : "") });
     var studyCol = el("div", {});
+    /* Category 6 — the assistant's contextual actions for this topic
+       (shared submission path; nothing here calls a tool directly) */
+    if (KOS.assistant && KOS.assistant.contextActions) {
+      var asstStrip = KOS.assistant.contextActions("ref", { subject: sid, ref: ref, title: leaf.title });
+      if (asstStrip) studyCol.appendChild(asstStrip);
+    }
     studyCol.appendChild(tabBar);
     studyCol.appendChild(panel);
     studyGrid.appendChild(studyCol);
