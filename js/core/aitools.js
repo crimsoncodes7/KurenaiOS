@@ -2177,9 +2177,74 @@
     }
   });
 
+  /* ================= local-model tool shortlisting =================
+     A small local model (Ollama) has a tiny context window — sending all
+     ~80 tool schemas overflows it (verified: 83 tools = 8832 tokens vs a
+     4096 ctx). This picks a DETERMINISTIC, ≤max relevant subset from the
+     request category + the live view, so the local model gets a focused
+     toolset. The Phase C orchestrator still VALIDATES/GATES/EXECUTES the
+     full registry — this only trims what the model is offered to choose
+     from. Cloud models (Gemini/DeepSeek) get the full list unchanged. */
+  var UNIVERSAL_TOOLS = ["app_get_context", "search_app"];
+  /* each domain's most useful tools, in priority order (curated) */
+  var DOMAIN_TOOLS = {
+    study: ["study_search_spec", "study_get_topic", "study_list_topics", "study_read_notes",
+      "study_set_topic_status", "study_add_flashcard", "study_generate_flashcards",
+      "study_generate_quiz", "study_get_due_summary", "study_log_exam_result"],
+    collection: ["collection_list_entries", "collection_get_entry", "collection_update_entry",
+      "collection_add_entry", "collection_search_external", "collection_add_from_external",
+      "media_log_activity", "collection_get_stats"],
+    planner: ["todo_list", "todo_add_task", "todo_toggle_task", "calendar_list_events",
+      "calendar_add_event", "wishlist_list", "wishlist_add_item", "goals_list", "goals_add"],
+    governor: ["governor_get_status", "governor_list_shop", "governor_buy_item",
+      "focus_get_state", "focus_start_session", "focus_end_session"],
+    archive: ["archive_get_backup_info", "attachments_list", "attachments_set_note"],
+    memory: ["memory_list", "memory_save"],
+    sync: ["sync_cloud_status", "collection_get_sync_health", "collection_sync_provider"]
+  };
+  /* which domain the current view belongs to (live context) */
+  function viewDomain(view) {
+    if (!view) return null;
+    if (/^(ref|subject|review|due|cardstats|tracker|personaldeck|worked|trace|oop|sims)$/.test(view)) return "study";
+    if (/^(matrix|anime|books|vn|game|seasonal|mangaka|shrine|aniprofile|vndbprofile)$/.test(view)) return "collection";
+    if (/^(wishlist|goals)$/.test(view)) return "planner";
+    if (/^(calendar|tasks)$/.test(view)) return "planner";
+    if (view === "focus") return "governor";
+    if (view === "governor") return "governor";
+    if (view === "data") return "archive";
+    if (view === "mediasync") return "sync";
+    return null;
+  }
+  /* ordered domain preference per request category */
+  var CATEGORY_DOMAINS = {
+    crud: ["planner", "collection", "study", "governor"],
+    tutor: ["study", "collection", "planner"],
+    generation: ["study"],
+    complex: ["study", "collection", "planner", "governor", "sync", "archive", "memory"]
+  };
+  function shortlist(opts) {
+    opts = opts || {};
+    var max = opts.max || 12;
+    var allowed = opts.allowed || null;   // Set of permitted names, or null = all
+    function isAllowed(n) { return TOOLS[n] && (!allowed || allowed.has(n)); }
+    var order = [], seen = {};
+    function add(n) { if (order.length < max && isAllowed(n) && !seen[n]) { seen[n] = true; order.push(n); } }
+    UNIVERSAL_TOOLS.forEach(add);
+    /* live-context domain first, then the category's preferred domains */
+    var domains = [];
+    var vd = viewDomain(opts.view);
+    if (vd) domains.push(vd);
+    (CATEGORY_DOMAINS[opts.category] || CATEGORY_DOMAINS.complex).forEach(function (d) {
+      if (domains.indexOf(d) === -1) domains.push(d);
+    });
+    domains.forEach(function (d) { (DOMAIN_TOOLS[d] || []).forEach(add); });
+    return order;
+  }
+
   /* ================= the public surface ================= */
   KOS.ai = KOS.ai || {};
   KOS.ai.tools = {
+    shortlist: shortlist,
     names: function () { return Object.keys(TOOLS); },
     get: function (name) {
       var t = TOOLS[name];

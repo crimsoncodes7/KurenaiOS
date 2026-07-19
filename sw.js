@@ -23,7 +23,7 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-c6f-1";
+var VERSION = "kos-c6f-2";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 

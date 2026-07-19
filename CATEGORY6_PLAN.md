@@ -1027,6 +1027,23 @@ controller.
     real qwen3:4b-instruct (crud→ollama→/api/chat→real answer in 3.9s). The
     reused-port failures were the documented stale SW/HTTP-cache dev
     artifact, not the fix. sw.js VERSION → kos-c6f-1.
-- **Last verified commit**: da373a6 + this fix; full 1–25 gate green, live
-  integration script PASS (incl. live Gemini E/F), three live-found defects
-  fixed + regression-tested, Ollama end-to-end verified live with qwen3.
+  - **Ollama request-payload compat (2026-07-18)**: a real request 400'd —
+    captured body: `request (8832 tokens) exceeds the available context size
+    (4096 tokens)`. NOT a schema-keyword issue (Ollama accepts
+    additionalProperties/nested); the ~80-tool payload overflows a small
+    local model's context. Fixes: (1) deterministic ≤12 tool SHORTLIST by
+    category + live view, applied only when the resolved provider is ollama
+    (Phase C still validates/gates/executes the full registry); (2) an
+    Ollama schema sanitizer stripping validation-only keywords from
+    transmitted params (client keeps full schemas for validation); (3)
+    omit `format` on tool-selection turns (tools+format conflict); (4)
+    surface the redacted Ollama error body. Payload 8832 → 1513 tokens.
+    Verified LIVE end-to-end through the orchestrator with real
+    qwen3:4b-instruct: "add a task" → shortlist → todo_add_task EXECUTED →
+    final answer (a complete multi-turn round-trip). smoke26 (10 steps).
+    sw.js VERSION → kos-c6f-2.
+- **Last verified commit**: 5fc58ee + this fix; full 1–26 gate green, live
+  integration script PASS (incl. live Gemini E/F), FOUR live-found defects
+  fixed + regression-tested, Ollama end-to-end verified live with qwen3
+  (full tool round-trip). The Gemini live-UI round-trips remain the only
+  user-assisted item pending the daily quota reset.

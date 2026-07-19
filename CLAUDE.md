@@ -34,6 +34,7 @@ node tools/smoke22.test.js # Category 6 Phase C: orchestrator (bounds, duplicate
 node tools/smoke23.test.js # Category 6 Phase D: conversations + bounded context + explicit-consent memory (RLS/isolation source contracts, injection inertness)
 node tools/smoke24.test.js # Category 6 Phase E: the three UI surfaces (shared controller, mascot states, drawer, contextual actions, dedicated page)
 node tools/smoke25.test.js # Category 6 Phase F: Ollama model-config path (input-persist, reload hydration, per-category resolution, empty→error / configured→/api/chat)
+node tools/smoke26.test.js # Category 6 Phase F: Ollama request-payload compat (≤12 tool shortlist, ollama schema sanitizer, tools+format conflict avoidance, surfaced error body)
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):

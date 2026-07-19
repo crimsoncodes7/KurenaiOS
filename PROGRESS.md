@@ -2244,3 +2244,35 @@ to localStorage, hydrates on reload, resolves for every category, and reaches
   noted: cloud-sync whole-document LWW (invariant #33) can revert in-memory
   settings if a pull applies an older kos_state — relevant only when signed
   in, separate from this fix.
+
+## Phase F — Ollama request-payload compatibility (2026-07-18)
+
+Reported: the model reaches /api/chat but a real request returns "Ollama
+returned HTTP 400." Captured the actual error body against real qwen3:4b-
+instruct: `request (8832 tokens) exceeds the available context size (4096
+tokens)`. NOT a schema-keyword incompatibility — Ollama/qwen3 ACCEPTS
+additionalProperties/maxLength/nested schemas (verified: 1 full tool = 200;
+83 tools = 400). Root cause: the ~80-tool payload overflows a small local
+model's context window.
+- FIX 1 — deterministic tool shortlisting (KOS.ai.tools.shortlist): a local
+  model gets a ≤12-tool subset chosen from the request category + live view
+  (universal app_get_context/search_app first, then the focused domain).
+  The orchestrator applies it ONLY when the resolved provider is ollama;
+  cloud models still get the full set. Phase C stays authoritative —
+  validates/gates/executes any registered tool. Payload 8832 → 1513 tokens.
+- FIX 2 — Ollama schema sanitizer (ai.js ollamaSchema): recursively whitelists
+  only structural/semantic keywords (type/description/enum/properties/
+  required/items/anyOf) for transmitted tool params, dropping validation-only
+  keywords that just inflate the payload. Client keeps the FULL strict schema
+  for Phase B validation (validate() reads the registry, not the transmitted
+  copy). Parallels the Gemini adapter; Gemini/DeepSeek untouched.
+- FIX 3 — tools+format conflict avoidance: a tool-selection turn omits the
+  structured `format` (a local model can't emit a tool_call AND satisfy a
+  forced JSON schema); pure generation turns (no tools) still send format.
+- FIX 4 — surface the real Ollama error body: {"error":"..."} /
+  {"error":{"message":"..."}} is redacted (token-blob strip, 200-char cap)
+  and shown in the UI instead of a bare status code.
+- Verified LIVE end-to-end through the orchestrator with real qwen3:4b-instruct:
+  "add a task" → shortlist → todo_add_task selected + EXECUTED (task added) →
+  natural final answer. Full multi-turn round-trip, no 400. smoke26 (10 steps)
+  locks all seven properties. sw.js VERSION → kos-c6f-2. Full smoke1-26 green.

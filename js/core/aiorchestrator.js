@@ -539,10 +539,27 @@
     req.providerTurns++;
     emit(req, "onStatus", { state: "thinking", turn: req.providerTurns });
 
+    /* Tool set offered to the model. A local model (Ollama) has a tiny
+       context window, so it gets a deterministic ≤12 shortlist by category +
+       live view; cloud models get every permitted tool. Either way the
+       orchestrator remains authoritative — it validates/gates/executes ANY
+       registered tool the model returns, shortlisted or not. */
+    var allowed = allowedToolNames();
+    var route = (KOS.ai.config().routing || {})[req.category] || {};
+    var toolNames = allowed;
+    if (route.provider === "ollama") {
+      toolNames = KOS.ai.tools.shortlist({
+        category: req.category,
+        view: (KOS.store.state.ui || {}).view,
+        allowed: (function () { var s = {}; allowed.forEach(function (n) { s[n] = 1; }); return { has: function (n) { return !!s[n]; } }; })(),
+        max: 12
+      });
+    }
+
     KOS.ai.chat(req.category, {
       system: systemPrompt(req),
       messages: req.messages,
-      tools: KOS.ai.tools.schemas(allowedToolNames()),
+      tools: KOS.ai.tools.schemas(toolNames),
       noRetry: req.writeExecuted     // never auto-retry once a mutation ran
     }, function (err, res) {
       if (req.cancelled) { finish(req, "cancelled"); return; }

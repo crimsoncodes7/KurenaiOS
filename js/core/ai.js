@@ -208,6 +208,48 @@
     });
     return out;
   }
+  /* Ollama tool-parameter sanitizer (client-side analogue of the Gemini
+     adapter's geminiSchema): the model needs only the STRUCTURAL + semantic
+     keywords to SELECT a tool — validation-only keywords (additionalProperties,
+     length/range bounds, pattern, format, …) are dead weight in the payload
+     and inflate the local model's tiny context window. Ollama accepts them,
+     but stripping them shrinks the request. The client keeps the FULL strict
+     schema for Phase B validation (KOS.ai.tools.validate reads the registry,
+     not this transmitted copy) — this only trims what's sent to the model.
+     Whitelist, so anything unknown is dropped. */
+  var OLLAMA_SCHEMA_KEYS = { type: 1, description: 1, enum: 1, properties: 1, required: 1, items: 1, anyOf: 1 };
+  function ollamaSchema(schema) {
+    if (Array.isArray(schema)) return schema.map(ollamaSchema);
+    if (!schema || typeof schema !== "object") return schema;
+    var out = {};
+    Object.keys(schema).forEach(function (k) {
+      if (!OLLAMA_SCHEMA_KEYS[k]) return;
+      if (k === "properties" && schema[k] && typeof schema[k] === "object") {
+        var cleaned = {};
+        Object.keys(schema[k]).forEach(function (p) { cleaned[p] = ollamaSchema(schema[k][p]); });
+        out[k] = cleaned;
+      } else if (k === "items" || k === "anyOf") {
+        out[k] = ollamaSchema(schema[k]);
+      } else {
+        out[k] = schema[k];
+      }
+    });
+    return out;
+  }
+  /* extract the safe, redacted human message from an Ollama error body:
+     Ollama returns {"error":"..."} or {"error":{"message":"..."}} */
+  function ollamaErrorText(bodyText) {
+    if (!bodyText) return "";
+    var msg = "";
+    try {
+      var j = JSON.parse(bodyText);
+      msg = (j && j.error && (j.error.message || j.error)) || "";
+      if (typeof msg !== "string") msg = JSON.stringify(msg);
+    } catch (e) { msg = bodyText; }
+    /* never echo long token-like blobs, cap length */
+    return String(msg).replace(/[A-Za-z0-9_-]{25,}/g, "…").slice(0, 200);
+  }
+
   function chatOllama(model, request, correlationId, cb) {
     if (!model) {
       cb(mkErr("config", "No Ollama model is configured — set one in Assistant settings (e.g. a small tool-capable model you've pulled).", false, correlationId));
@@ -218,17 +260,21 @@
     inflight[correlationId] = controller;
     var timeoutMs = request.timeoutMs || REQUEST_TIMEOUT;
     var timer = setTimeout(function () { controller.abort(); }, timeoutMs);
+    var hasTools = !!(request.tools && request.tools.length);
     var body = {
       model: model,
       messages: ollamaMessages(request),
       stream: false
     };
-    if (request.tools && request.tools.length) {
+    if (hasTools) {
       body.tools = request.tools.map(function (t) {
-        return { type: "function", function: { name: t.name, description: t.description, parameters: t.parameters } };
+        return { type: "function", function: { name: t.name, description: t.description, parameters: ollamaSchema(t.parameters) } };
       });
     }
-    if (request.structured) body.format = request.structured.schema;
+    /* omit structured `format` on a tool-selection turn — a local model given
+       both `tools` and a forced `format` conflicts (it can't emit a tool_call
+       AND satisfy the JSON schema). format is for pure generation turns. */
+    if (request.structured && !hasTools) body.format = request.structured.schema;
     if (request.temperature != null) body.options = { temperature: request.temperature };
 
     doFetch(a.ollama.url + "/api/chat", {
@@ -238,10 +284,15 @@
       signal: controller.signal
     }).then(function (res) {
       if (!res.ok) {
-        var kind = res.status === 404 ? "config" : "provider";
-        throw mkErr(kind, res.status === 404
-          ? "Ollama doesn't know that model — pull it first (ollama pull <model>)."
-          : "Ollama returned HTTP " + res.status + ".", false, correlationId);
+        if (res.status === 404) {
+          throw mkErr("config", "Ollama doesn't know that model — pull it first (ollama pull <model>).", false, correlationId);
+        }
+        /* surface Ollama's real (redacted) error body, not just the status */
+        return (res.text ? res.text() : Promise.resolve("")).then(function (t) {
+          var detail = ollamaErrorText(t);
+          throw mkErr("provider",
+            "Ollama returned HTTP " + res.status + (detail ? ": " + detail : "") + ".", false, correlationId);
+        });
       }
       return res.json();
     }).then(function (data) {
