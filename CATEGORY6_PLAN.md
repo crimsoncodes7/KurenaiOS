@@ -1015,6 +1015,18 @@ controller.
   3. **Ollama from the DEPLOYED app** (pages.dev) with OLLAMA_ORIGINS set +
      a full local reversible-tool execution with a stronger tool model —
      optional polish; app-side behaviour fully verified locally.
-- **Last verified commit**: 9a7ea3e; Phase F tree: full 1–24 gate green,
-  live integration script PASS (incl. live Gemini E/F), two live-found
-  defects fixed + regression-tested, Ollama app-side verified live.
+  - **Ollama model-config fix (2026-07-18)**: reported "Settings shows the
+    model but a request says 'No Ollama model is configured'". Traced the
+    whole path — it is sound (configured model persists → hydrates on reload
+    → resolves per category → reaches /api/chat; empty → the error). Root
+    cause: the Settings model input saved only on `change` (blur), so a
+    model typed and then abandoned by switching tab / submitting was
+    discarded (KOS.show destroys the input, `change` never fires). Fix: the
+    model + endpoint inputs now also persist on `input`. smoke25 (9 steps)
+    locks all six requested properties; verified live on a fresh port with
+    real qwen3:4b-instruct (crud→ollama→/api/chat→real answer in 3.9s). The
+    reused-port failures were the documented stale SW/HTTP-cache dev
+    artifact, not the fix. sw.js VERSION → kos-c6f-1.
+- **Last verified commit**: da373a6 + this fix; full 1–25 gate green, live
+  integration script PASS (incl. live Gemini E/F), three live-found defects
+  fixed + regression-tested, Ollama end-to-end verified live with qwen3.

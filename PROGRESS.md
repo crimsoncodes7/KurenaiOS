@@ -2216,3 +2216,31 @@ user's machine — NOT a sandbox/mock.
   (kurenai-os.pages.dev) with OLLAMA_ORIGINS including that origin; a full
   end-to-end local reversible-tool EXECUTION with a stronger tool model; the
   phone "assumed unavailable" state. App-side behaviour all verified.
+
+## Phase F — Ollama model-config fix (2026-07-18)
+
+Reported: Settings shows the Ollama model (e.g. qwen3:4b-instruct) but a
+request errors "No Ollama model is configured." Traced the full path
+(input → persist → reload hydration → per-category resolution → adapter
+lookup → /api/chat request): the path is SOUND — a configured model persists
+to localStorage, hydrates on reload, resolves for every category, and reaches
+/api/chat with the exact model; an empty model correctly gives the error.
+- ROOT CAUSE: the Settings model input saved only on `change` (blur). A model
+  typed and then abandoned by switching tab / submitting — KOS.show destroys
+  the input, `change` never fires — was discarded, leaving the category's
+  model empty at request time. The UI "showed" the model (typed into the
+  input) but it was never persisted.
+- FIX (js/modules/assistant.js): the model input and the Ollama endpoint
+  input now also persist on `input` (every keystroke), so a typed value can
+  never be lost before blur. `change` kept as a final save.
+- smoke25 (9 steps) locks all six properties: input-persists-before-blur,
+  reload-hydrates, per-category resolution, new-conversation submit uses the
+  model, availability+request share the config source, empty→error /
+  configured→reaches /api/chat. Verified live on a fresh port with the real
+  qwen3:4b-instruct (crud→ollama→/api/chat→real answer, 3.9s).
+- Dev note: the reused localhost port served a STALE cached assistant.js
+  (the documented 4b SW/HTTP-cache artifact) which masked the fix until a
+  fresh port was used — not a code issue. sw.js VERSION → kos-c6f-1. Also
+  noted: cloud-sync whole-document LWW (invariant #33) can revert in-memory
+  settings if a pull applies an older kos_state — relevant only when signed
+  in, separate from this fix.

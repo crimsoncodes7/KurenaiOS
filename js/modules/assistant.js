@@ -557,6 +557,12 @@
         if (!KOS.ai.setRouting(cat[0], provSel.value, modelIn.value)) KOS.ui.toast("That routing isn't valid.", true);
       }
       provSel.addEventListener("change", save);
+      /* persist on every keystroke (input), not just blur (change): a typed
+         model that never blurs — because the user switches tab or submits —
+         would otherwise be discarded when KOS.show destroys this input,
+         leaving the model empty at request time. `change` is kept as a
+         belt-and-braces final save. */
+      modelIn.addEventListener("input", save);
       modelIn.addEventListener("change", save);
       var fb = cfg.fallback[cat[0]];
       var fbSel = el("select", { class: "todo-in", "aria-label": cat[1] + " fallback" }, [
@@ -579,6 +585,9 @@
     });
 
     var ollamaIn = el("input", { type: "text", class: "todo-in", value: cfg.ollama.url, "aria-label": "Ollama endpoint" });
+    /* same reasoning as the model input — persist on input so a typed
+       endpoint survives tab navigation */
+    ollamaIn.addEventListener("input", function () { KOS.ai.setOllamaUrl(ollamaIn.value); });
     ollamaIn.addEventListener("change", function () { KOS.ai.setOllamaUrl(ollamaIn.value); });
     body.appendChild(el("div", { class: "asst-route-row" }, [
       el("b", { text: "Ollama endpoint" }), ollamaIn,
