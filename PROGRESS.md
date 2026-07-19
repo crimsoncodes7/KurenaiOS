@@ -2276,3 +2276,37 @@ model's context window.
   "add a task" → shortlist → todo_add_task selected + EXECUTED (task added) →
   natural final answer. Full multi-turn round-trip, no 400. smoke26 (10 steps)
   locks all seven properties. sw.js VERSION → kos-c6f-2. Full smoke1-26 green.
+
+## Phase F — conversational continuity + Ollama context budgeting (2026-07-18)
+
+Reported: a follow-up ("add it", "yes add that") lost the previous turn — the
+model re-asked for subject/ref/q/a it had just been given. Captured the actual
+payload: SIGNED OUT, turn 2 sent only [system, user] to Ollama — no prior
+history. Root cause: prepRequest only assembled history when convoReady (a
+persisted, signed-in conversation); signed-out local-Ollama chats carried
+nothing across sends. A second bug: the no-tools completion branch never
+pushed the assistant answer into req.messages, so even the persisted path
+dropped the immediately-previous reply from continuity.
+- FIX: the orchestrator now keeps in-memory sessionHistory as the PRIMARY
+  continuity source (works signed out), keyed by a client conversationKey the
+  controller passes (reset on new/open conversation). Persistence hydrates it
+  once on resume; each completed turn (user + assistant + folded tool
+  activity) is appended. The final assistant answer is now retained in
+  req.messages.
+- Ollama context budgeting: request num_ctx 8192; reserve output (1024) +
+  tools (~2200) + system (~700); give the rest to recent history, keeping the
+  LATEST turns and never silently dropping the immediately-previous one
+  (dropped head becomes a deliberate summary line). Follow-up tool shortlist
+  shrinks 12 -> 6 once a tool has run. num_ctx threaded through the ollama
+  adapter to body.options.
+- Pending-artifact mechanism (KOS.ai.tools): study_propose_flashcards /
+  study_propose_quiz generate + validate but DON'T save, holding the object;
+  study_save_proposed ("add it"/"save that"/"yes") saves it via the normal
+  srs write + reversible tier; a live proposal injects a save-hint into the
+  system prompt; cleared on conversation change or when the topic no longer
+  resolves. Gemini/DeepSeek behaviour unchanged (no num_ctx, full tool list,
+  full client schemas for validation).
+- Verified LIVE signed-out with real qwen3: turn 2 carried [system,user,
+  assistant,user] and a bare "summarize that topic" resolved to the topic
+  from turn 1. smoke27 (13 steps). sw.js VERSION -> kos-c6f-3. Full
+  smoke1-27 gate green.

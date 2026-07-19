@@ -348,7 +348,10 @@ step("topic contextual actions submit through the shared path with live context"
   await tick(30);
   assert(drawer(), "the action must surface the drawer");
   assert(chatLog.length === 1, "the action must ride the ONE submission path");
-  const sentText = chatLog[0].request.messages[chatLog[0].request.messages.length - 1].content;
+  /* the orchestrator appends the assistant reply to req.messages after the
+     call (in-memory history), so check the USER message specifically */
+  const userMsg = chatLog[0].request.messages.filter(m => m.role === "user").pop();
+  const sentText = userMsg ? userMsg.content : "";
   assert(sentText.includes(ref.ref) && sentText.includes("compsci"), "live context must ride the prompt: " + sentText);
   assert(chatLog[0].category === "tutor", "the ask action routes as tutor");
   await untilIdle();

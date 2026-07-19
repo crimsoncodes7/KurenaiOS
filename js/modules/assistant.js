@@ -42,7 +42,9 @@
   /* ================= the shared controller ================= */
   var S = {
     open: false,
-    conversationId: null,
+    conversationId: null,   // persisted (Supabase) id, or null when signed out
+    localId: "c" + Date.now(),  // client conversation key (always set) — drives
+                                // the orchestrator's in-memory continuity + reset
     conversationTitle: null,
     thread: [],           // [{kind:"user"|"assistant"|"tool"|"warning"|"error", text, tool, ok}]
     draft: "",
@@ -120,6 +122,7 @@
   }
   function newConversation() {
     S.conversationId = null;
+    S.localId = "c" + Date.now() + "-" + Math.random().toString(36).slice(2, 6);
     S.conversationTitle = null;
     S.thread = [];
     S.pending = null;
@@ -131,6 +134,7 @@
     KOS.ai.convo.get(id, function (err, data) {
       if (err) { KOS.ui.toast(err.message, true); cb && cb(err); return; }
       S.conversationId = id;
+      S.localId = "c-open-" + id;   // stable key for this conversation
       S.conversationTitle = data.conversation.title;
       S.thread = threadFromStored(data.messages);
       S.pending = null;
@@ -157,6 +161,7 @@
       S.requestId = KOS.ai.orchestrator.send({
         userText: text,
         conversationId: S.conversationId,
+        conversationKey: S.localId,   // stable per-conversation continuity key
         category: opts.category || "complex"
       }, {
         onStatus: function (p) {

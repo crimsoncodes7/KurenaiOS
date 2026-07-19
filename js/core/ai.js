@@ -275,7 +275,12 @@
        both `tools` and a forced `format` conflicts (it can't emit a tool_call
        AND satisfy the JSON schema). format is for pure generation turns. */
     if (request.structured && !hasTools) body.format = request.structured.schema;
-    if (request.temperature != null) body.options = { temperature: request.temperature };
+    /* Ollama runtime options: num_ctx enlarges the local context window (the
+       orchestrator sizes history to fit it); num_predict reserves output. */
+    var options = null;
+    if (request.temperature != null) { options = options || {}; options.temperature = request.temperature; }
+    if (request.numCtx) { options = options || {}; options.num_ctx = request.numCtx; }
+    if (options) body.options = options;
 
     doFetch(a.ollama.url + "/api/chat", {
       method: "POST",

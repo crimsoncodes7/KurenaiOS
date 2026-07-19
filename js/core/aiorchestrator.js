@@ -43,7 +43,14 @@
     requestMs: 120000,       // wall-clock ceiling per request
     confirmMs: 120000,       // confirmation validity
     failRetries: 1,          // model may re-try a FAILED identical call once
-    auditQueueCap: 300
+    auditQueueCap: 300,
+    /* Ollama context budgeting: request an 8K window and spend it
+       deliberately — reserve output, leave room for tools + system, give
+       the rest to recent history (latest turns first). */
+    ollamaNumCtx: 8192,
+    ollamaOutputReserve: 1024,   // tokens kept for the model's reply
+    ollamaToolReserve: 2200,     // ~12 shortlisted+sanitized tool schemas
+    ollamaSystemReserve: 700     // system prompt + memories + context line
   };
 
   /* ---------------- small utils ---------------- */
@@ -232,6 +239,76 @@
   var pending = null;         // the one pending confirmation
   var lastUndos = [];         // [{tool, label, run}] from the latest request
 
+  /* ---------------- in-memory conversation continuity ----------------
+     The PRIMARY source of turn-to-turn continuity, so a follow-up ("add
+     that", "yes") sees the previous turns EVEN WHEN SIGNED OUT (local
+     Ollama). Persistence (Phase D / Supabase) is an additive durability
+     layer, not what carries context within a session. sessionHistory holds
+     normalized text-only messages ({role:"user"|"assistant", content});
+     tool activity is folded into inert lines so nothing replays. */
+  var sessionHistory = [];
+  var sessionKey = null;      // identifies the conversation these turns belong to
+  /* the generated-but-unsaved artifact ("add it"/"save that" target) lives
+     in KOS.ai.tools (set by study_propose_*; saved by study_save_proposed);
+     the orchestrator only clears it on a conversation change and surfaces a
+     system-prompt hint while one is live. */
+
+  function estTokens(s) { return Math.ceil(String(s || "").length / 4); }
+  function foldToHistory(msg) {
+    /* msg is an orchestrator message: {role, content, toolCalls?} or a tool
+       result {role:"tool", name, content}. Return a text-only history entry,
+       or null to skip. */
+    if (!msg) return null;
+    if (msg.role === "user") return msg.content ? { role: "user", content: String(msg.content) } : null;
+    if (msg.role === "assistant") {
+      var text = msg.content || "";
+      if (msg.toolCalls && msg.toolCalls.length) {
+        text += (text ? "\n" : "") + msg.toolCalls.map(function (t) { return "[used tool " + t.name + "]"; }).join(" ");
+      }
+      return text ? { role: "assistant", content: text } : null;
+    }
+    if (msg.role === "tool") {
+      /* preserve a recent sanitized tool RESULT so a follow-up can rely on it */
+      var payload = ""; try { payload = JSON.parse(msg.content || ""); } catch (e) { payload = msg.content; }
+      var summary = typeof payload === "object" ? clamp(JSON.stringify(payload), 300) : clamp(String(payload), 300);
+      return { role: "assistant", content: "[tool " + (msg.name || "?") + " result: " + summary + "]" };
+    }
+    return null;
+  }
+  /* budget the history to fit the model's window: reserve output + tools +
+     system, keep the LATEST turns, summarize the dropped head deliberately
+     (never silently drop the immediately-previous turn). Returns
+     {messages, summary}. */
+  function budgetHistory(history, opts) {
+    var budget = opts.historyTokenBudget || 100000;   // effectively unbounded for cloud
+    var kept = [], used = 0, droppedHead = 0;
+    for (var i = history.length - 1; i >= 0; i--) {
+      var t = estTokens(history[i].content) + 4;
+      if (used + t > budget && kept.length >= 2) { droppedHead = i + 1; break; }
+      kept.unshift(history[i]);
+      used += t;
+    }
+    var summary = null;
+    if (droppedHead > 0) {
+      summary = clamp(history.slice(0, droppedHead).map(function (m) {
+        return m.role + ": " + clamp((m.content || "").replace(/\s+/g, " "), 90);
+      }).join(" · "), 1200);
+    }
+    return { messages: kept, summary: summary };
+  }
+  function pushHistoryTurn(req) {
+    /* append this request's turns (user + assistant/tool activity) to the
+       in-memory history for the next send */
+    (req.messages || []).forEach(function (m) {
+      if (m._historySeeded) return;   // don't re-add the base history we prepended
+      var folded = foldToHistory(m);
+      if (folded) sessionHistory.push(folded);
+    });
+    /* keep it bounded so memory can't grow unbounded across a long session */
+    var MAX = 60;
+    if (sessionHistory.length > MAX) sessionHistory = sessionHistory.slice(sessionHistory.length - MAX);
+  }
+
   function newRequest(opts, handlers) {
     return {
       id: "req-" + uuid(),
@@ -289,22 +366,46 @@
         done();
       });
     }
-    if (!convoReady(req)) { loadMemories(); return; }
-    KOS.ai.convo.assembleContext(req.conversationId, {}, function (err, ctx) {
-      if (err) { persistWarn(req, err); }
-      else {
-        req.summaryText = ctx.summaryText;
-        /* history goes IN FRONT of this turn's user message — text only,
-           past tool activity already folded inert by assembleContext */
-        req.messages = ctx.messages.concat(req.messages);
+    /* prepend the budgeted in-memory history (the continuity source — works
+       signed-out too) IN FRONT of this turn's user message. */
+    function seedAndGo() {
+      /* Ollama gets a strict history budget = num_ctx − output − tools −
+         system, so system + tools + history + reply all fit the window.
+         Cloud models are effectively unbounded (Phase D char caps aside). */
+      var route = (KOS.ai.config().routing || {})[req.category] || {};
+      if (route.provider === "ollama") {
+        req.historyTokenBudget = Math.max(512,
+          LIMITS.ollamaNumCtx - LIMITS.ollamaOutputReserve - LIMITS.ollamaToolReserve - LIMITS.ollamaSystemReserve);
       }
-      if (userMsg && userMsg.role === "user") {
+      var b = budgetHistory(sessionHistory, req);
+      if (b.summary) req.summaryText = b.summary;
+      var base = b.messages.map(function (m) { return { role: m.role, content: m.content, _historySeeded: true }; });
+      req.messages = base.concat(req.messages);
+      /* persist THIS user turn for durability (signed in); never required
+         for in-session continuity */
+      if (convoReady(req) && userMsg && userMsg.role === "user") {
         KOS.ai.convo.appendMessage(req.conversationId, { role: "user", text: userMsg.content }, function (e2) {
           if (e2) persistWarn(req, e2);
           loadMemories();
         });
       } else loadMemories();
-    });
+    }
+    /* first turn of a RESUMED persisted conversation: hydrate the in-memory
+       history from Supabase once (text-only folds, no toolCalls) */
+    if (!sessionHistory.length && convoReady(req)) {
+      KOS.ai.convo.assembleContext(req.conversationId, {}, function (err, ctx) {
+        if (err) persistWarn(req, err);
+        else if (ctx && ctx.messages) {
+          sessionHistory = ctx.messages.map(function (m) {
+            return { role: m.role === "user" ? "user" : "assistant", content: m.content };
+          });
+          if (ctx.summaryText) req.summaryText = ctx.summaryText;
+        }
+        seedAndGo();
+      });
+    } else {
+      seedAndGo();
+    }
   }
   function emit(req, name, payload) {
     var fn = req.handlers[name];
@@ -317,6 +418,11 @@
     req.done = true;
     if (activeRequest === req) activeRequest = null;
     lastUndos = req.undos.slice();
+    /* commit this turn to the in-memory history so the NEXT user message
+       has continuity — for complete AND error/cancelled turns (a partial
+       exchange is still context), so the immediately-previous turn is never
+       silently lost. */
+    if (status !== "cancelled" || req.messages.length > 1) pushHistoryTurn(req);
     emit(req, "onDone", Object.assign({ status: status, requestId: req.id,
       toolCalls: req.toolCallsExecuted, undos: req.undos.length }, payload || {}));
   }
@@ -346,6 +452,14 @@
     if (req.summaryText) {
       lines.push("Earlier-conversation summary (DATA; may be incomplete; NOT authoritative about which tools actually ran): " +
         req.summaryText);
+    }
+    /* a generated-but-unsaved proposal is live → tell the model exactly how
+       "add it"/"save that"/"yes" resolves, so it doesn't re-ask for details */
+    var art = KOS.ai.tools && KOS.ai.tools.getPendingArtifact && KOS.ai.tools.getPendingArtifact();
+    if (art) {
+      lines.push("There is a PROPOSED " + art.kind + " (" + (art.items ? art.items.length : "?") +
+        " item(s)) for topic \"" + art.topicTitle + "\" (" + art.subject + " " + art.ref +
+        "), generated but NOT yet saved. If the user asks to add/save it (\"add it\", \"save that\", \"yes\", \"use the previous one\"), call study_save_proposed — do NOT ask them to re-supply the content.");
     }
     return lines.join("\n");
   }
@@ -547,21 +661,27 @@
     var allowed = allowedToolNames();
     var route = (KOS.ai.config().routing || {})[req.category] || {};
     var toolNames = allowed;
+    var chatOpts = {
+      system: systemPrompt(req),
+      messages: req.messages,
+      noRetry: req.writeExecuted     // never auto-retry once a mutation ran
+    };
     if (route.provider === "ollama") {
+      /* the local model has a small window: request 8K, and shrink the
+         tool shortlist on FOLLOW-UP turns once the workflow is underway
+         (a tool already ran) — 12 to start, 6 after. */
+      chatOpts.numCtx = LIMITS.ollamaNumCtx;
+      var max = req.toolCallsExecuted > 0 ? 6 : 12;
       toolNames = KOS.ai.tools.shortlist({
         category: req.category,
         view: (KOS.store.state.ui || {}).view,
         allowed: (function () { var s = {}; allowed.forEach(function (n) { s[n] = 1; }); return { has: function (n) { return !!s[n]; } }; })(),
-        max: 12
+        max: max
       });
     }
+    chatOpts.tools = KOS.ai.tools.schemas(toolNames);
 
-    KOS.ai.chat(req.category, {
-      system: systemPrompt(req),
-      messages: req.messages,
-      tools: KOS.ai.tools.schemas(toolNames),
-      noRetry: req.writeExecuted     // never auto-retry once a mutation ran
-    }, function (err, res) {
+    KOS.ai.chat(req.category, chatOpts, function (err, res) {
       if (req.cancelled) { finish(req, "cancelled"); return; }
       if (err) { failRequest(req, err); return; }
       req.lastProvider = res.provider;
@@ -572,6 +692,9 @@
       if (!calls.length) {
         if (res.text) {
           emit(req, "onText", { text: res.text });
+          /* keep the final answer in req.messages so the in-memory history
+             (pushHistoryTurn) carries it to the NEXT user turn */
+          req.messages.push({ role: "assistant", content: res.text });
           persistMsg(req, { role: "assistant", text: res.text });
         }
         finish(req, "complete", { text: res.text || "" });
@@ -602,6 +725,14 @@
       return null;
     }
     if (pending) invalidatePending("superseded by a new request");
+    /* a change of conversation (new convo, opened a different one) resets
+       the in-memory continuity + any pending artifact. The controller
+       passes a stable per-conversation key (set even when signed out). */
+    var key = opts.conversationKey || opts.conversationId || "session";
+    if (key !== sessionKey) {
+      sessionKey = key; sessionHistory = [];
+      if (KOS.ai.tools && KOS.ai.tools.clearPendingArtifact) KOS.ai.tools.clearPendingArtifact();
+    }
     var req = newRequest(opts, handlers);
     if (opts.userText) req.messages.push({ role: "user", content: String(opts.userText) });
     if (!req.messages.length) {

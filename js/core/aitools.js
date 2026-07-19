@@ -659,6 +659,45 @@
     if (!clean.length) return { error: "Every generated card duplicated an existing one — nothing to add." };
     return { cards: clean };
   }
+
+  /* ---- generate-and-validate helpers (shared by generate + propose) ---- */
+  function genFlashcards(subject, ref, count, focus, cb) {
+    var leaf = KOS.hub.BYREF[subject][ref];
+    var c = KOS.content.get(subject, ref);
+    var ground = c && c.notes && c.notes.length
+      ? blocksToText(c.notes).slice(0, 24000)
+      : "Specification wording only:\n" + leaf.content.join("\n");
+    var existing = KOS.srs.cardsFor(subject, ref);
+    var avoid = existing.slice(0, 60).map(function (x) { return "- " + clampText(x.q, 160); }).join("\n");
+    KOS.ai.chat("generation", {
+      system: "You write A-level revision flashcards. Ground every card ONLY in the provided topic content. Return JSON only.",
+      messages: [{ role: "user", content:
+        "Topic: " + leaf.title + " (" + ref + ", " + subject + ")\n" +
+        (focus ? "Focus on: " + focus + "\n" : "") +
+        "Write exactly " + count + " flashcards as {\"cards\":[{\"q\":…,\"a\":…}]}.\n" +
+        (avoid ? "Do NOT duplicate these existing questions:\n" + avoid + "\n" : "") +
+        "CONTENT:\n" + ground }],
+      structured: { schema: FC_GEN_SCHEMA }
+    }, function (err, res) {
+      if (err) { cb(err); return; }
+      var raw; try { raw = JSON.parse(res.text); } catch (e) { raw = null; }
+      var v = validateGeneratedCards(raw, count, existing);
+      if (v.error) { cb(fail(v.error + " You can ask me to try again.")); return; }
+      cb(null, { cards: v.cards, provider: res.provider, model: res.model, usedFallback: !!res.usedFallback });
+    });
+  }
+
+  /* ---- pending artifact: a generated-but-UNSAVED flashcard/quiz set kept
+     in conversation state so a follow-up ("add it", "save that", "use the
+     previous one") resolves to it. Cleared when the conversation, topic or
+     target changes (the orchestrator clears on a conversation change; a
+     propose for a different ref replaces it). Saving still runs through the
+     normal registered srs write + the reversible tier. ---- */
+  var pendingArtifact = null;
+  function setPending(a) { pendingArtifact = a; }
+  function getPending() { return pendingArtifact; }
+  function clearPending() { pendingArtifact = null; }
+
   def("study_generate_flashcards", {
     desc: "Generate flashcards for a topic from its REAL notes (grounded), validate them, and save as AI-marked custom cards. Fails cleanly with zero saves on malformed output.",
     category: "study", tier: "reversible", read: false,
@@ -671,38 +710,42 @@
     run: function (args, cb) {
       var bad = requireRef(args.subject, args.ref);
       if (bad) { cb(bad); return; }
-      var leaf = KOS.hub.BYREF[args.subject][args.ref];
-      var c = KOS.content.get(args.subject, args.ref);
-      var ground = c && c.notes && c.notes.length
-        ? blocksToText(c.notes).slice(0, 24000)
-        : "Specification wording only:\n" + leaf.content.join("\n");
-      var existing = KOS.srs.cardsFor(args.subject, args.ref);
-      var avoid = existing.slice(0, 60).map(function (x) { return "- " + clampText(x.q, 160); }).join("\n");
-      KOS.ai.chat("generation", {
-        system: "You write A-level revision flashcards. Ground every card ONLY in the provided topic content. Return JSON only.",
-        messages: [{ role: "user", content:
-          "Topic: " + leaf.title + " (" + args.ref + ", " + args.subject + ")\n" +
-          (args.focus ? "Focus on: " + args.focus + "\n" : "") +
-          "Write exactly " + args.count + " flashcards as {\"cards\":[{\"q\":…,\"a\":…}]}.\n" +
-          (avoid ? "Do NOT duplicate these existing questions:\n" + avoid + "\n" : "") +
-          "CONTENT:\n" + ground }],
-        structured: { schema: FC_GEN_SCHEMA }
-      }, function (err, res) {
+      genFlashcards(args.subject, args.ref, args.count, args.focus, function (err, gen) {
         if (err) { cb(err); return; }
-        var raw;
-        try { raw = JSON.parse(res.text); } catch (e) { raw = null; }
-        var v = validateGeneratedCards(raw, args.count, existing);
-        if (v.error) { cb(fail(v.error + " You can ask me to try again.")); return; }
-        /* atomic: everything validated above; only now do writes begin */
-        var ids = v.cards.map(function (card) {
+        /* atomic: everything validated in the helper; only now do writes */
+        var ids = gen.cards.map(function (card) {
           return KOS.srs.addCustom(args.subject, args.ref, card.q, card.a,
-            { ai: true, src: { provider: res.provider, model: res.model } }).id;
+            { ai: true, src: { provider: gen.provider, model: gen.model } }).id;
         });
-        cb(null, { added: ids.length, ids: ids, marked: "AI · Custom",
-          usedFallback: !!res.usedFallback },
+        clearPending();   // saved directly — no pending state left dangling
+        cb(null, { added: ids.length, ids: ids, marked: "AI · Custom", usedFallback: gen.usedFallback },
           { label: "delete the generated cards", run: function (ucb) {
             ids.forEach(function (id) { KOS.srs.deleteCustom(id); }); ucb(null);
           } });
+      });
+    }
+  });
+
+  def("study_propose_flashcards", {
+    desc: "Generate + validate flashcards for a topic but DO NOT save them yet — hold them as a proposal the user can approve. Use this when the user wants to review before saving; then study_save_proposed (or the user saying 'add them') saves them.",
+    category: "study", tier: "read", read: true,
+    params: {
+      subject: { type: "string", enum: SUBJECTS, required: true },
+      ref: { type: "string", required: true, maxLen: 40 },
+      count: { type: "integer", min: 1, max: 20, required: true },
+      focus: { type: "string", maxLen: 300 }
+    },
+    run: function (args, cb) {
+      var bad = requireRef(args.subject, args.ref);
+      if (bad) { cb(bad); return; }
+      genFlashcards(args.subject, args.ref, args.count, args.focus, function (err, gen) {
+        if (err) { cb(err); return; }
+        var leaf = KOS.hub.BYREF[args.subject][args.ref];
+        setPending({ kind: "flashcards", subject: args.subject, ref: args.ref,
+          topicTitle: leaf.title, items: gen.cards, provider: gen.provider, model: gen.model });
+        cb(null, { proposed: gen.cards.length, kind: "flashcards", topic: leaf.title,
+          preview: gen.cards.slice(0, 3).map(function (c) { return { q: clampText(c.q, 120), a: clampText(c.a, 120) }; }),
+          note: "Not saved yet. Call study_save_proposed (or the user can say 'add them') to save these to the deck." });
       });
     }
   });
@@ -723,6 +766,30 @@
     },
     required: ["questions"], additionalProperties: false
   };
+  function genQuiz(subject, ref, count, focus, cb) {
+    var leaf = KOS.hub.BYREF[subject][ref];
+    var c = KOS.content.get(subject, ref);
+    var ground = c && c.notes && c.notes.length
+      ? blocksToText(c.notes).slice(0, 24000)
+      : "Specification wording only:\n" + leaf.content.join("\n");
+    KOS.ai.chat("generation", {
+      system: "You write A-level multiple-choice questions. Ground every question ONLY in the provided topic content. 4 options each, exactly one correct, with a short why. Return JSON only.",
+      messages: [{ role: "user", content:
+        "Topic: " + leaf.title + " (" + ref + ", " + subject + ")\n" +
+        (focus ? "Focus on: " + focus + "\n" : "") +
+        "Write exactly " + count + " questions as {\"questions\":[{\"q\",\"opts\",\"ans\",\"why\"}]} where ans is the 0-based index of the correct option.\n" +
+        "CONTENT:\n" + ground }],
+      structured: { schema: QUIZ_GEN_SCHEMA }
+    }, function (err, res) {
+      if (err) { cb(err); return; }
+      var raw; try { raw = JSON.parse(res.text); } catch (e) { raw = null; }
+      if (!raw || !Array.isArray(raw.questions) || !raw.questions.length) {
+        cb(fail("The model did not return usable questions — nothing was saved. You can ask me to try again."));
+        return;
+      }
+      cb(null, { questions: raw.questions.slice(0, count), provider: res.provider, model: res.model, usedFallback: !!res.usedFallback });
+    });
+  }
   def("study_generate_quiz", {
     desc: "Generate multiple-choice quiz questions for a topic from its REAL notes, validate them (options, answer index, explanations), and save as a separate AI-marked custom quiz block. Zero saves on malformed output.",
     category: "study", tier: "reversible", read: false,
@@ -735,40 +802,71 @@
     run: function (args, cb) {
       var bad = requireRef(args.subject, args.ref);
       if (bad) { cb(bad); return; }
-      var leaf = KOS.hub.BYREF[args.subject][args.ref];
-      var c = KOS.content.get(args.subject, args.ref);
-      var ground = c && c.notes && c.notes.length
-        ? blocksToText(c.notes).slice(0, 24000)
-        : "Specification wording only:\n" + leaf.content.join("\n");
-      KOS.ai.chat("generation", {
-        system: "You write A-level multiple-choice questions. Ground every question ONLY in the provided topic content. 4 options each, exactly one correct, with a short why. Return JSON only.",
-        messages: [{ role: "user", content:
-          "Topic: " + leaf.title + " (" + args.ref + ", " + args.subject + ")\n" +
-          (args.focus ? "Focus on: " + args.focus + "\n" : "") +
-          "Write exactly " + args.count + " questions as {\"questions\":[{\"q\",\"opts\",\"ans\",\"why\"}]} where ans is the 0-based index of the correct option.\n" +
-          "CONTENT:\n" + ground }],
-        structured: { schema: QUIZ_GEN_SCHEMA }
-      }, function (err, res) {
+      genQuiz(args.subject, args.ref, args.count, args.focus, function (err, gen) {
         if (err) { cb(err); return; }
-        var raw;
-        try { raw = JSON.parse(res.text); } catch (e) { raw = null; }
-        if (!raw || !Array.isArray(raw.questions) || !raw.questions.length) {
-          cb(fail("The model did not return usable questions — nothing was saved. You can ask me to try again."));
-          return;
-        }
         /* srs.addCustomQuiz is the atomic application-side gate: the whole
            batch validates against the real quiz schema before ANY write */
-        var out = KOS.srs.addCustomQuiz(args.subject, args.ref,
-          raw.questions.slice(0, args.count),
-          { ai: true, src: { provider: res.provider, model: res.model } });
+        var out = KOS.srs.addCustomQuiz(args.subject, args.ref, gen.questions,
+          { ai: true, src: { provider: gen.provider, model: gen.model } });
         if (out.error) { cb(fail(out.error + " You can ask me to try again.")); return; }
         var ids = out.created.map(function (r) { return r.id; });
-        cb(null, { added: ids.length, ids: ids, marked: "AI · Custom",
-          usedFallback: !!res.usedFallback },
+        clearPending();
+        cb(null, { added: ids.length, ids: ids, marked: "AI · Custom", usedFallback: gen.usedFallback },
           { label: "delete the generated questions", run: function (ucb) {
             ids.forEach(function (id) { KOS.srs.deleteCustomQuiz(id); }); ucb(null);
           } });
       });
+    }
+  });
+
+  def("study_propose_quiz", {
+    desc: "Generate + validate quiz questions for a topic but DO NOT save them yet — hold them as a proposal. study_save_proposed (or the user saying 'add them') saves them.",
+    category: "study", tier: "read", read: true,
+    params: {
+      subject: { type: "string", enum: SUBJECTS, required: true },
+      ref: { type: "string", required: true, maxLen: 40 },
+      count: { type: "integer", min: 1, max: 15, required: true },
+      focus: { type: "string", maxLen: 300 }
+    },
+    run: function (args, cb) {
+      var bad = requireRef(args.subject, args.ref);
+      if (bad) { cb(bad); return; }
+      genQuiz(args.subject, args.ref, args.count, args.focus, function (err, gen) {
+        if (err) { cb(err); return; }
+        var leaf = KOS.hub.BYREF[args.subject][args.ref];
+        setPending({ kind: "quiz", subject: args.subject, ref: args.ref,
+          topicTitle: leaf.title, items: gen.questions, provider: gen.provider, model: gen.model });
+        cb(null, { proposed: gen.questions.length, kind: "quiz", topic: leaf.title,
+          preview: gen.questions.slice(0, 2).map(function (q) { return { q: clampText(q.q, 120) }; }),
+          note: "Not saved yet. Call study_save_proposed (or the user can say 'add them') to save these." });
+      });
+    }
+  });
+
+  def("study_save_proposed", {
+    desc: "Save the currently proposed (generated-but-unsaved) flashcards or quiz to the deck. This is what 'add it', 'save that', 'yes add them', 'use the previous one' resolve to. Fails if nothing is proposed or if the topic no longer matches.",
+    category: "study", tier: "reversible", read: false,
+    params: {},
+    run: function (args, cb) {
+      var p = getPending();
+      if (!p) { cb(fail("There's nothing proposed to save — generate or propose flashcards/quiz first.")); return; }
+      if (!refExists(p.subject, p.ref)) { clearPending(); cb(fail("The proposed topic is no longer valid — please generate again.")); return; }
+      if (p.kind === "flashcards") {
+        var ids = p.items.map(function (card) {
+          return KOS.srs.addCustom(p.subject, p.ref, card.q, card.a, { ai: true, src: { provider: p.provider, model: p.model } }).id;
+        });
+        clearPending();
+        cb(null, { saved: ids.length, kind: "flashcards", topic: p.topicTitle, marked: "AI · Custom" },
+          { label: "delete the saved cards", run: function (ucb) { ids.forEach(function (id) { KOS.srs.deleteCustom(id); }); ucb(null); } });
+        return;
+      }
+      /* quiz */
+      var out = KOS.srs.addCustomQuiz(p.subject, p.ref, p.items, { ai: true, src: { provider: p.provider, model: p.model } });
+      if (out.error) { cb(fail(out.error)); return; }
+      var qids = out.created.map(function (r) { return r.id; });
+      clearPending();
+      cb(null, { saved: qids.length, kind: "quiz", topic: p.topicTitle, marked: "AI · Custom" },
+        { label: "delete the saved questions", run: function (ucb) { qids.forEach(function (id) { KOS.srs.deleteCustomQuiz(id); }); ucb(null); } });
     }
   });
 
@@ -2188,9 +2286,10 @@
   var UNIVERSAL_TOOLS = ["app_get_context", "search_app"];
   /* each domain's most useful tools, in priority order (curated) */
   var DOMAIN_TOOLS = {
-    study: ["study_search_spec", "study_get_topic", "study_list_topics", "study_read_notes",
-      "study_set_topic_status", "study_add_flashcard", "study_generate_flashcards",
-      "study_generate_quiz", "study_get_due_summary", "study_log_exam_result"],
+    study: ["study_search_spec", "study_get_topic", "study_read_notes",
+      "study_propose_flashcards", "study_save_proposed", "study_add_flashcard",
+      "study_generate_flashcards", "study_generate_quiz", "study_list_topics",
+      "study_set_topic_status", "study_get_due_summary"],
     collection: ["collection_list_entries", "collection_get_entry", "collection_update_entry",
       "collection_add_entry", "collection_search_external", "collection_add_from_external",
       "media_log_activity", "collection_get_stats"],
@@ -2245,6 +2344,9 @@
   KOS.ai = KOS.ai || {};
   KOS.ai.tools = {
     shortlist: shortlist,
+    /* pending generated-but-unsaved artifact ("add it"/"save that" target) */
+    getPendingArtifact: getPending,
+    clearPendingArtifact: clearPending,
     names: function () { return Object.keys(TOOLS); },
     get: function (name) {
       var t = TOOLS[name];

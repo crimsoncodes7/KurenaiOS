@@ -1042,8 +1042,25 @@ controller.
     qwen3:4b-instruct: "add a task" → shortlist → todo_add_task EXECUTED →
     final answer (a complete multi-turn round-trip). smoke26 (10 steps).
     sw.js VERSION → kos-c6f-2.
-- **Last verified commit**: 5fc58ee + this fix; full 1–26 gate green, live
-  integration script PASS (incl. live Gemini E/F), FOUR live-found defects
+  - **Conversational continuity + Ollama budgeting (2026-07-18)**: a
+    follow-up ("add it"/"yes") lost the prior turn — captured that SIGNED
+    OUT, turn 2 sent only [system, user] (prepRequest assembled history
+    only when signed-in/persisted); also the no-tools completion branch
+    never kept the assistant answer in req.messages. Fixes: (1) the
+    orchestrator keeps in-memory sessionHistory as the PRIMARY continuity
+    source (works signed out), keyed by a client conversationKey, reset on
+    new/open, hydrated once from persistence on resume; (2) Ollama context
+    budgeting — request num_ctx 8192, reserve output/tools/system, keep the
+    LATEST turns (never silently drop the previous one), follow-up shortlist
+    12→6; (3) pending-artifact tools (study_propose_flashcards/quiz +
+    study_save_proposed) so "add it/save that/yes" resolves a
+    generated-but-unsaved set through the normal reversible save, cleared on
+    conversation change. Gemini/DeepSeek unchanged. Verified LIVE signed-out
+    with real qwen3 (turn 2 carried the prior turn; "summarize that topic"
+    resolved). smoke27 (13 steps). sw.js VERSION → kos-c6f-3.
+- **Last verified commit**: 334a9a4 + this fix; full 1–27 gate green, live
+  integration script PASS (incl. live Gemini E/F), FIVE live-found defects
   fixed + regression-tested, Ollama end-to-end verified live with qwen3
-  (full tool round-trip). The Gemini live-UI round-trips remain the only
-  user-assisted item pending the daily quota reset.
+  (full tool round-trip + multi-turn continuity). The Gemini live-UI
+  round-trips remain the only user-assisted item pending the daily quota
+  reset.

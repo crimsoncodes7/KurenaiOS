@@ -35,6 +35,7 @@ node tools/smoke23.test.js # Category 6 Phase D: conversations + bounded context
 node tools/smoke24.test.js # Category 6 Phase E: the three UI surfaces (shared controller, mascot states, drawer, contextual actions, dedicated page)
 node tools/smoke25.test.js # Category 6 Phase F: Ollama model-config path (input-persist, reload hydration, per-category resolution, empty→error / configured→/api/chat)
 node tools/smoke26.test.js # Category 6 Phase F: Ollama request-payload compat (≤12 tool shortlist, ollama schema sanitizer, tools+format conflict avoidance, surfaced error body)
+node tools/smoke27.test.js # Category 6 Phase F: conversational continuity (in-memory history signed-out, num_ctx 8K budgeting, follow-up shortlist shrink, pending-artifact propose/save)
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
