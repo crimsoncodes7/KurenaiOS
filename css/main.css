@@ -4349,6 +4349,42 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   white-space: pre-wrap; word-break: break-word; }
 .asst-confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
 
+/* app-generated VERIFIED action receipt — the ground truth that a write ran.
+   Never a model sentence; the checkmark here comes from the execution ledger. */
+.asst-receipt { align-self: flex-start; display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap; font-size: 12px; color: var(--text2);
+  padding: 4px 8px; border-left: 3px solid var(--good); }
+.asst-receipt-badge { font-size: 11px; font-weight: 600; color: var(--good);
+  padding: 1px 7px; border-radius: 999px;
+  background: color-mix(in srgb, var(--good) 16%, transparent); }
+.asst-receipt code { font-family: "IBM Plex Mono", monospace; font-size: 11px; }
+.asst-receipt-sum { color: var(--text); }
+
+/* the pending-artifact card — a validated-but-UNSAVED proposal. Distinct from
+   a persisted (saved) state until the Save action's write receipt lands. */
+.asst-proposal { align-self: stretch; display: flex; flex-direction: column; gap: 8px;
+  border: 1px dashed color-mix(in srgb, var(--accent2) 55%, transparent);
+  border-radius: var(--radius, 10px); padding: 10px 12px;
+  background: color-mix(in srgb, var(--accent2) 5%, var(--panel)); }
+.asst-proposal.is-saved { border-style: solid; border-color: color-mix(in srgb, var(--good) 50%, transparent);
+  background: color-mix(in srgb, var(--good) 6%, var(--panel)); }
+.asst-proposal.is-discarded { opacity: .6; }
+.asst-proposal-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.asst-proposal-tag { font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 999px;
+  color: var(--accent2); background: color-mix(in srgb, var(--accent2) 16%, transparent); }
+.asst-proposal.is-saved .asst-proposal-tag { color: var(--good);
+  background: color-mix(in srgb, var(--good) 16%, transparent); }
+.asst-proposal-items { display: flex; flex-direction: column; gap: 6px;
+  max-height: 240px; overflow: auto; }
+.asst-proposal-item { font-size: 12.5px; line-height: 1.45; padding: 5px 8px;
+  border-radius: 8px; background: color-mix(in srgb, var(--text) 5%, transparent); }
+.asst-proposal-q { word-break: break-word; }
+.asst-proposal-a { margin-top: 2px; word-break: break-word; }
+.asst-proposal-edit { display: flex; flex-direction: column; gap: 3px; }
+.asst-edit-in { width: 100%; resize: vertical; font-size: 12.5px; }
+.asst-proposal-btns { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
 /* the composer */
 .asst-composer { display: flex; flex-direction: column; gap: 6px; }
 .asst-composer-in { resize: vertical; min-height: 40px; }

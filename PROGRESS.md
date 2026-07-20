@@ -2310,3 +2310,39 @@ dropped the immediately-previous reply from continuity.
   assistant,user] and a bare "summarize that topic" resolved to the topic
   from turn 1. smoke27 (13 steps). sw.js VERSION -> kos-c6f-3. Full
   smoke1-27 gate green.
+
+### Category 6 Phase F — execution grounding (2026-07-20)
+
+Live qwen3:4b testing exposed a hallucinated-success defect: the model wrote
+flashcards as PROSE without calling a tool, claimed "this has been saved" with
+nothing written, invented a saved location, and left "I'll now generate…" as
+its final answer. Fixed at the orchestrator + UI layer (the model is never
+trusted for ground truth):
+
+- **Verified write receipts** — a write tool that actually executes records a
+  receipt `{tool, target, result, summary}` in `req.writeReceipts` and emits
+  `onReceipt`; the drawer/page render it as an app-generated "✓ done" row
+  (real tool + target + result). This ledger — not the model's prose — is the
+  only proof a mutation happened, and is returned in the onDone payload.
+- **Proposal ≠ persisted** — study_propose_* emit `onProposal`; the UI shows a
+  PROPOSED-not-saved card (`proposalCard` in assistant.js) with Edit / Discard
+  / Save. Save runs the EXACT stored (and optionally edited, via
+  `updatePendingArtifact`) artifact through study_save_proposed on the new
+  deterministic `KOS.ai.orchestrator.runTool` path — same Phase C gating,
+  audit, receipts and confirmation as the model loop. The ref-page "Make
+  flashcards/quiz" contextual actions now call runTool directly, so a small
+  model never has to interpret "save that".
+- **Completion checking** (`completeOrNudge`) — before accepting a
+  no-tool-call final answer: a success-claim with no write, or an
+  action-promise (future-intent word + mutation verb) with nothing done, gets
+  ONE corrective retry; if still unfulfilled a deterministic "⚠ Correction /
+  Note" replaces the false text. A legitimate proposal counts as "acted", so a
+  proposal-card turn is never falsely corrected. SUCCESS_RX/PROMISE_RX are
+  auxiliary/object-bound so benign replies ("First saved reply", "done") don't
+  trip.
+- Batch atomicity preserved (8 requested → exactly 8 validated proposals, or a
+  clean failure holding/saving nothing); retrieval after save returns the real
+  persisted record (count + topic). Gemini/DeepSeek routing and Phase C
+  confirmation unchanged.
+
+smoke28 (14 steps). sw.js VERSION -> kos-c6f-4. Full smoke1-28 gate green.

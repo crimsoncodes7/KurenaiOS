@@ -300,7 +300,7 @@
     /* append this request's turns (user + assistant/tool activity) to the
        in-memory history for the next send */
     (req.messages || []).forEach(function (m) {
-      if (m._historySeeded) return;   // don't re-add the base history we prepended
+      if (m._historySeeded || m._ephemeral) return;   // skip prepended history + transient nudges
       var folded = foldToHistory(m);
       if (folded) sessionHistory.push(folded);
     });
@@ -331,7 +331,16 @@
       /* Phase D — conversation + memory context */
       memories: [],
       summaryText: null,
-      persistWarned: false
+      persistWarned: false,
+      /* Phase F — execution grounding: the ledger of WRITES that actually
+         succeeded this request (the ONLY proof a mutation happened), the
+         user's stated goal (for completion checking), and a one-shot nudge
+         guard so a lying/promising model gets exactly one corrective retry. */
+      userGoal: opts.userText ? String(opts.userText) : "",
+      writeReceipts: [],
+      readsRun: [],
+      proposalsMade: 0,        // validated-but-unsaved artifacts produced this request
+      nudged: false
     };
   }
 
@@ -431,6 +440,53 @@
     finish(req, "error", { error: err.message });
   }
 
+  /* Phase F — accept the final answer ONLY if it's grounded. If the model
+     claims a mutation but no write receipt exists, or promises an action but
+     called no tool, give it ONE corrective retry (within loop bounds); if it
+     still doesn't act, append a DETERMINISTIC truth statement so the user is
+     never told something happened that didn't. Returns true (always — it
+     either continues the loop or finishes). */
+  function completeOrNudge(req, text) {
+    var wrote = req.writeReceipts.length > 0;
+    /* a proposal (validated-but-unsaved artifact) is a legitimate deliverable —
+       it counts as "acted" for completion, so a proposal-card turn is never
+       falsely corrected, but it is NOT a save (no write receipt). */
+    var acted = wrote || req.proposalsMade > 0;
+    var claimsSuccess = SUCCESS_RX.test(text);
+    var promises = PROMISE_RX.test(text);
+    var problem = null;
+    if (claimsSuccess && !acted) problem = "claimed-success-no-write";
+    else if (promises && !acted) problem = "promised-no-action";
+
+    if (problem && !req.nudged && req.providerTurns < LIMITS.providerTurns) {
+      req.nudged = true;
+      var nudge = problem === "claimed-success-no-write"
+        ? "SYSTEM CHECK: your reply claims something was saved/added/changed, but NO write tool has executed this turn. If the user wants it done, CALL THE CORRECT TOOL NOW (study_save_proposed to save a pending proposal; study_add_flashcard to add one; the relevant write tool otherwise). If you genuinely cannot, say so plainly. Never claim success without a tool call."
+        : "SYSTEM CHECK: you described what you WOULD do but called no tool. CALL THE APPROPRIATE TOOL NOW to actually do it (if a proposal is pending, study_save_proposed). Do not end with \"I will…\" — act, or say plainly that you cannot.";
+      if (text) req.messages.push({ role: "assistant", content: text, _ephemeral: true });
+      req.messages.push({ role: "user", content: nudge, _ephemeral: true });
+      emit(req, "onStatus", { state: "working" });
+      providerTurn(req);
+      return true;
+    }
+
+    var finalText = text;
+    if (problem === "claimed-success-no-write") {
+      finalText = (text ? text + "\n\n" : "") +
+        "⚠ Correction: nothing was actually saved or changed — no write completed this turn. Ask me to try again, or use the proposal card's Save button.";
+    } else if (problem === "promised-no-action") {
+      finalText = (text ? text + "\n\n" : "") +
+        "⚠ Note: I described an action but did not actually perform it.";
+    }
+    if (finalText) {
+      emit(req, "onText", { text: finalText });
+      req.messages.push({ role: "assistant", content: finalText });
+      persistMsg(req, { role: "assistant", text: finalText });
+    }
+    finish(req, "complete", { text: finalText, receipts: req.writeReceipts.slice() });
+    return true;
+  }
+
   /* ---------------- the system prompt ---------------- */
   function systemPrompt(req) {
     var ui = KOS.store.state.ui || {};
@@ -463,6 +519,50 @@
     }
     return lines.join("\n");
   }
+
+  /* ---------------- execution-grounding helpers ---------------- */
+  /* a human, verifiable target + one-line result for a write receipt */
+  function receiptTarget(call, result) {
+    var a = call.args || {};
+    if (result && result.id != null) return "#" + result.id;
+    if (a.entryId != null) return "entry #" + a.entryId;
+    if (a.id != null) return "#" + a.id;
+    if (a.subject && a.ref) return a.subject + " " + a.ref;
+    if (a.itemId) return a.itemId;
+    if (a.title) return a.title;
+    return "";
+  }
+  function receiptSummary(name, result) {
+    if (result && typeof result === "object") {
+      if (result.saved != null) return "saved " + result.saved + " " + (result.kind || "item") + (result.saved === 1 ? "" : "s");
+      if (result.added != null) return "added " + result.added + (result.marked ? " (" + result.marked + ")" : "");
+      if (result.deleted) return "deleted";
+      if (result.updated) return "updated " + (Array.isArray(result.updated) ? result.updated.join(", ") : "");
+      if (result.status) return "set to " + result.status;
+      if (result.logged) return "logged";
+      if (result.purchased) return "marked purchased";
+      if (result.bought) return "bought";
+    }
+    return "done";
+  }
+  /* success-claim and promise detectors for completion checking */
+  /* asserts a DATA MUTATION actually happened. A persistence verb only counts
+     when it is bound to an AUXILIARY ("it's been saved", "I've added…") or to a
+     DATA OBJECT ("saved them", "deleted the card") — so adjectival/benign uses
+     ("First saved reply", "done", "here you go") never trip a false correction.
+     Bare weak words (done/completed/set up) are deliberately excluded. */
+  var SUCCESS_RX = new RegExp(
+    "(?:\\b(?:been|have|has|i'?ve|we'?ve|is|are|it'?s|they'?re|now|successfully)\\b[^.!?\\n]{0,20}?\\b(?:saved|added|created|updated|deleted|removed|logged)\\b)" +
+    "|\\b(?:saved|added|created|updated|deleted|removed|logged) (?:it|them|that|the|your|a |an |to (?:the|your))" +
+    "|\\badded to (?:the|your) (?:deck|collection|planner|list)\\b" +
+    "|\\bmarked (?:it|them|\\w+)(?: as)? (?:done|complete|read|purchased)\\b" +
+    "|\\bit'?s (?:now )?(?:in|on|saved|added)\\b",
+    "i");
+  /* a FUTURE-INTENT word closely followed by a MUTATION verb — "I'll now
+     generate 8 flashcards", "let me add them", "going to save these". Narrow
+     on purpose: benign completions ("let me summarise", "I'll explain") never
+     match, so only genuinely-unfulfilled action promises are flagged. */
+  var PROMISE_RX = /\b(i'?ll|i will|let me|i'?m going to|going to|i can (?:now )?|i'?m about to|next i'?ll)\b[^.!?\n]{0,40}?\b(generate|add|create|save|make|build|write|update|delete|remove|log|mark|set up|put together|proceed to)\b/i;
 
   /* ---------------- tool-call handling ---------------- */
   function callKey(call) { return call.name + "::" + canonical(call.args || {}); }
@@ -534,6 +634,25 @@
       if (!tool.read) req.writeExecuted = true;
       if (undo) req.undos.push({ tool: call.name, label: undo.label, run: undo.run });
       auditStatus(auditId, "executed", { result_summary: clamp(JSON.stringify(result), 300) });
+      /* Phase F — execution grounding. A successful WRITE tool produces a
+         VERIFIED RECEIPT: the real tool + target + result. This — not the
+         model's prose — is the proof a mutation happened. Read tools are
+         noted so completion-checking knows what was gathered. A proposal
+         (study_propose_*) emits a distinct event so the UI can render the
+         validated-but-unsaved artifact as a card. */
+      if (tool.read) {
+        req.readsRun.push(call.name);
+        if (result && result.kind && (result.proposed !== undefined)) {
+          req.proposalsMade++;
+          emit(req, "onProposal", { tool: call.name, kind: result.kind, count: result.proposed,
+            topic: result.topic, preview: result.preview });
+        }
+      } else {
+        var receipt = { tool: call.name, target: receiptTarget(call, result), result: result,
+          summary: receiptSummary(call.name, result), ts: Date.now() };
+        req.writeReceipts.push(receipt);
+        emit(req, "onReceipt", receipt);
+      }
       emit(req, "onToolResult", { tool: call.name, ok: true, result: result, undo: !!undo });
       persistMsg(req, { role: "tool", tool: call.name, ok: true,
         summary: clamp(JSON.stringify(result), 200) });
@@ -690,14 +809,7 @@
 
       var calls = (res.toolCalls || []).slice(0, LIMITS.toolCallsPerTurn);
       if (!calls.length) {
-        if (res.text) {
-          emit(req, "onText", { text: res.text });
-          /* keep the final answer in req.messages so the in-memory history
-             (pushHistoryTurn) carries it to the NEXT user turn */
-          req.messages.push({ role: "assistant", content: res.text });
-          persistMsg(req, { role: "assistant", text: res.text });
-        }
-        finish(req, "complete", { text: res.text || "" });
+        if (completeOrNudge(req, res.text || "")) return;   // may continue the loop
         return;
       }
       /* record the assistant turn (with its calls) then run them serially */
@@ -755,9 +867,40 @@
     return false;
   }
 
+  /* Phase F — deterministic single-tool execution (no provider loop). The UI
+     uses this to run a workflow step exactly (propose, then save the exact
+     stored artifact) through the SAME Phase C gating, audit, receipts and
+     confirmation policy — a small model never has to plan or interpret
+     "save that". A consequential tool still pauses for confirmation via the
+     normal onConfirmationNeeded → orchestrator.confirm() path. */
+  function runTool(name, args, handlers) {
+    if (activeRequest && !activeRequest.done) {
+      if (handlers && handlers.onError) handlers.onError({ message: "The assistant is busy — wait for the current step." });
+      return null;
+    }
+    var req = newRequest({}, handlers);
+    activeRequest = req;
+    if (!KOS.ai.tools.get(name)) { failRequest(req, new Error("Unknown tool: " + name)); return req.id; }
+    var call = { id: "ui-" + uuid(), name: name, args: args || {} };
+    handleCall(req, call, function (resultMessage) {
+      /* handleCall may have PAUSED for confirmation (consequential) — in that
+         case the request stays active until confirm/reject resumes here. */
+      var payload = null;
+      try { payload = JSON.parse(resultMessage.content); } catch (e) { payload = null; }
+      if (payload && payload.error) {
+        emit(req, "onError", { message: payload.error, kind: "tool" });
+        finish(req, "error", { error: payload.error });
+      } else {
+        finish(req, "complete", { text: "", receipts: req.writeReceipts.slice() });
+      }
+    });
+    return req.id;
+  }
+
   KOS.ai.orchestrator = {
     LIMITS: LIMITS,
     send: send,
+    runTool: runTool,
     cancel: cancel,
     confirm: confirmAction,
     reject: rejectAction,

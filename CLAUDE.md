@@ -36,6 +36,7 @@ node tools/smoke24.test.js # Category 6 Phase E: the three UI surfaces (shared c
 node tools/smoke25.test.js # Category 6 Phase F: Ollama model-config path (input-persist, reload hydration, per-category resolution, empty→error / configured→/api/chat)
 node tools/smoke26.test.js # Category 6 Phase F: Ollama request-payload compat (≤12 tool shortlist, ollama schema sanitizer, tools+format conflict avoidance, surfaced error body)
 node tools/smoke27.test.js # Category 6 Phase F: conversational continuity (in-memory history signed-out, num_ctx 8K budgeting, follow-up shortlist shrink, pending-artifact propose/save)
+node tools/smoke28.test.js # Category 6 Phase F: execution grounding (verified write receipts, proposal≠persisted, exact-artifact save incl. edits, false-success/promise-no-action correction, batch atomicity, retrieval proof)
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):

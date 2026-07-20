@@ -177,6 +177,17 @@
         onToolResult: function (p) {
           pushRow({ kind: "tool", tool: p.tool, ok: p.ok, text: p.ok ? "" : p.error });
         },
+        onProposal: function (p) {
+          /* a validated-but-UNSAVED artifact — render a real card (Save/Edit/
+             Discard), clearly labelled as a proposal, from the stored object */
+          var art = KOS.ai.tools.getPendingArtifact && KOS.ai.tools.getPendingArtifact();
+          pushRow({ kind: "proposal", artifact: art, tool: p.tool });
+        },
+        onReceipt: function (p) {
+          /* an app-generated VERIFIED action receipt — proof a write happened,
+             never a model sentence */
+          pushRow({ kind: "receipt", tool: p.tool, target: p.target, summary: p.summary });
+        },
         onConfirmationNeeded: function (card) {
           S.pending = card;
           S.pendingState = null;
@@ -222,6 +233,58 @@
     if (S.pending) { S.pending = null; S.pendingState = null; }
     S.busy = false;
     setVisual("idle", "Cancelled");
+    notify();
+  }
+
+  /* ---- deterministic single-tool run (proposal Save/Discard, contextual
+     "Generate flashcards") — runs the EXACT tool through the orchestrator's
+     Phase C gating/audit/receipts, no model interpretation ---- */
+  function runToolUi(name, args, onComplete) {
+    if (S.busy) { KOS.ui.toast("Kurenai is busy — wait for the current step.", true); return; }
+    S.busy = true;
+    setVisual("working", name + "…");
+    notify();
+    S.requestId = KOS.ai.orchestrator.runTool(name, args || {}, {
+      onProposal: function (p) {
+        var art = KOS.ai.tools.getPendingArtifact && KOS.ai.tools.getPendingArtifact();
+        pushRow({ kind: "proposal", artifact: art, tool: p.tool });
+      },
+      onReceipt: function (p) { pushRow({ kind: "receipt", tool: p.tool, target: p.target, summary: p.summary }); },
+      onConfirmationNeeded: function (card) {
+        S.pending = card; S.pendingState = null; S.busy = true;
+        setVisual("confirmation", "Awaiting your confirmation — " + card.tool); notify();
+      },
+      onError: function (p) { S.lastError = p.message; pushRow({ kind: "error", text: p.message }); setVisual("error", clampText(p.message, 80)); },
+      onDone: function (p) {
+        S.busy = false; S.requestId = null;
+        if (p.status === "complete") setVisual("success"); else if (p.status === "cancelled") setVisual("idle", "Cancelled");
+        if (typeof onComplete === "function") onComplete(p.status);
+        notify();
+      }
+    });
+    if (S.requestId === null) { S.busy = false; setVisual("idle"); notify(); }
+  }
+  function saveProposed(row) {
+    runToolUi("study_save_proposed", {}, function (status) {
+      /* mark the exact proposal row as saved ONLY when the write truly
+         completed — the receipt row is the app-verified proof */
+      if (status === "complete" && row) { row._saved = true; row._editing = false; }
+      notify();
+    });
+  }
+  function discardProposed(row) {
+    /* only clear the shared pending state if THIS row is the live one */
+    var live = KOS.ai.tools.getPendingArtifact && KOS.ai.tools.getPendingArtifact();
+    if (live && live === row.artifact && KOS.ai.tools.clearPendingArtifact) KOS.ai.tools.clearPendingArtifact();
+    row._discarded = true;
+    notify();
+  }
+  function toggleEditProposal(row, on) { row._editing = on; notify(); }
+  function commitProposalEdits(row, items) {
+    if (KOS.ai.tools.updatePendingArtifact && KOS.ai.tools.updatePendingArtifact(items)) {
+      row.artifact = KOS.ai.tools.getPendingArtifact();
+    }
+    row._editing = false;
     notify();
   }
 
@@ -328,6 +391,75 @@
     ].filter(Boolean));
   }
 
+  /* ---- the pending-artifact card: a validated-but-UNSAVED proposal with
+     real Edit / Discard / Save actions. Save runs the EXACT stored artifact
+     through study_save_proposed; nothing here persists until then. ---- */
+  function proposalCard(r) {
+    var art = r.artifact;
+    var isFlash = !art || art.kind !== "quiz";
+    var items = (art && art.items) || [];
+    var typeLabel = isFlash ? "flashcards" : "quiz questions";
+    /* is this row still THE live pending artifact (a newer proposal replaces it)? */
+    var current = KOS.ai.tools.getPendingArtifact && KOS.ai.tools.getPendingArtifact();
+    var live = !!art && current === art;
+
+    var tagText = r._saved ? "✓ Saved to your deck"
+      : r._discarded ? "Discarded — nothing was saved"
+      : !live ? "Superseded by a newer proposal"
+      : "PROPOSED — not saved yet";
+    var head = el("div", { class: "asst-proposal-head" }, [
+      el("span", { class: "asst-proposal-tag", text: tagText }),
+      art ? el("span", { class: "sub", text: (art.topicTitle ? art.topicTitle + " · " : "") + items.length + " " + typeLabel
+        + (art.provider ? " · " + art.provider : "") }) : null
+    ].filter(Boolean));
+
+    /* --- editing mode (flashcards only: inline q/a) --- */
+    if (r._editing && isFlash && !r._saved && !r._discarded && live) {
+      var rows = items.map(function (it) {
+        var q = el("textarea", { class: "asst-edit-in", rows: "2", "aria-label": "Question" }); q.value = it.q || "";
+        var a = el("textarea", { class: "asst-edit-in", rows: "2", "aria-label": "Answer" }); a.value = it.a || "";
+        return { q: q, a: a };
+      });
+      var editList = el("div", { class: "asst-proposal-items" }, rows.map(function (row2, i) {
+        return el("div", { class: "asst-proposal-item asst-proposal-edit" }, [
+          el("label", { class: "sub", text: "Q" + (i + 1) }), row2.q,
+          el("label", { class: "sub", text: "A" + (i + 1) }), row2.a
+        ]);
+      }));
+      var editBtns = el("div", { class: "asst-proposal-btns" }, [
+        el("button", { class: "btn", type: "button", text: "Cancel", onclick: function () { toggleEditProposal(r, false); } }),
+        el("button", { class: "btn primary", type: "button", text: "Apply edits", onclick: function () {
+          var next = rows.map(function (row2) { return { q: row2.q.value.trim(), a: row2.a.value.trim() }; })
+            .filter(function (c) { return c.q && c.a; });
+          if (!next.length) { KOS.ui.toast("Each card needs a question and an answer.", true); return; }
+          commitProposalEdits(r, next);
+        } })
+      ]);
+      return el("div", { class: "asst-row asst-proposal is-editing" }, [head, editList, editBtns]);
+    }
+
+    /* --- display mode --- */
+    var list = el("div", { class: "asst-proposal-items" }, items.map(function (it, i) {
+      var answer = isFlash ? (it.a || "")
+        : (it.opts || []).map(function (o, oi) { return (oi === it.ans ? "✓ " : "") + o; }).join("   ·   ");
+      return el("div", { class: "asst-proposal-item" }, [
+        el("div", { class: "asst-proposal-q" }, [ el("b", { text: (i + 1) + ". " }), document.createTextNode(it.q || "") ]),
+        el("div", { class: "asst-proposal-a sub", text: answer })
+      ]);
+    }));
+
+    var kids = [head, list];
+    if (!r._saved && !r._discarded && live) {
+      var btns = [
+        el("button", { class: "btn", type: "button", text: "Discard", onclick: function () { discardProposed(r); } })
+      ];
+      if (isFlash) btns.push(el("button", { class: "btn", type: "button", text: "Edit", onclick: function () { toggleEditProposal(r, true); } }));
+      btns.push(el("button", { class: "btn primary", type: "button", text: "Save to deck", onclick: function () { saveProposed(r); } }));
+      kids.push(el("div", { class: "asst-proposal-btns" }, btns));
+    }
+    return el("div", { class: "asst-row asst-proposal" + (r._saved ? " is-saved" : r._discarded ? " is-discarded" : "") }, kids);
+  }
+
   function threadRows() {
     return S.thread.map(function (r) {
       if (r.kind === "tool") {
@@ -336,6 +468,16 @@
           r.text ? el("span", { class: "sub", text: " " + clampText(r.text, 160) }) : null
         ].filter(Boolean));
       }
+      if (r.kind === "receipt") {
+        /* app-generated VERIFIED action receipt — the ground truth of a write */
+        return el("div", { class: "asst-row asst-receipt" }, [
+          el("span", { class: "asst-receipt-badge", text: "✓ done" }),
+          el("code", { text: r.tool }),
+          r.target ? el("span", { class: "sub", text: r.target }) : null,
+          el("span", { class: "asst-receipt-sum", text: r.summary || "" })
+        ].filter(Boolean));
+      }
+      if (r.kind === "proposal") return proposalCard(r);
       if (r.kind === "warning") return el("div", { class: "asst-row asst-warning", text: r.text });
       if (r.kind === "error") return el("div", { class: "asst-row asst-error", text: r.text });
       /* user/assistant text renders via textContent — provider output is
@@ -421,14 +563,21 @@
     openDrawer();
     submit(prompt, { category: category || "complex" });
   }
+  /* deterministic generation: open the drawer, then run the propose tool
+     directly (no model interpretation) — it validates and yields a real
+     proposal card the user reviews and saves. */
+  function proposeFromContext(tool, ctx, count) {
+    openDrawer();
+    runToolUi(tool, { subject: ctx.subject, ref: ctx.ref, count: count });
+  }
   function contextActions(kind, ctx) {
     var acts = [];
     if (kind === "ref") {
       var label = ctx.subject + " " + ctx.ref + (ctx.title ? " (" + ctx.title + ")" : "");
       acts = [
         ["Ask Kurenai", function () { ask("I'm looking at topic " + label + ". Give me a quick, exam-focused explanation of it grounded in my notes.", "tutor"); }],
-        ["Make flashcards", function () { ask("Generate 8 flashcards for topic " + label + " from my real notes.", "complex"); }],
-        ["Make a quiz", function () { ask("Generate 6 quiz questions for topic " + label + " from my real notes.", "complex"); }]
+        ["Make flashcards", function () { proposeFromContext("study_propose_flashcards", ctx, 8); }],
+        ["Make a quiz", function () { proposeFromContext("study_propose_quiz", ctx, 6); }]
       ];
     } else if (kind === "entry") {
       acts = [

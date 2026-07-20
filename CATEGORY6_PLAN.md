@@ -1058,8 +1058,32 @@ controller.
     conversation change. Gemini/DeepSeek unchanged. Verified LIVE signed-out
     with real qwen3 (turn 2 carried the prior turn; "summarize that topic"
     resolved). smoke27 (13 steps). sw.js VERSION → kos-c6f-3.
-- **Last verified commit**: 334a9a4 + this fix; full 1–27 gate green, live
-  integration script PASS (incl. live Gemini E/F), FIVE live-found defects
+  - **Execution grounding (2026-07-20)**: live qwen3:4b testing exposed a
+    hallucinated-success defect — the model wrote flashcards as PROSE without
+    calling a tool, claimed "this has been saved" when NOTHING was written,
+    invented a saved location, and left "I'll now generate…" as its final
+    answer. Fixed at the orchestrator + UI layer, never trusting the model:
+    (1) a WRITE that actually executes produces a VERIFIED RECEIPT (real
+    tool + target + result) recorded in `req.writeReceipts` and surfaced in
+    the UI as an app-generated "✓ done" row — the model's checkmark is never
+    proof; (2) proposals (study_propose_*) emit a distinct `onProposal` event
+    rendered as a PROPOSED-not-saved card with Edit/Discard/Save, where Save
+    runs the EXACT stored artifact through study_save_proposed via the new
+    deterministic `orchestrator.runTool` path (Phase C gating/audit/receipts
+    intact) — the small model never interprets "save that"; the ref-page
+    "Make flashcards/quiz" actions now call runTool directly; (3) completion
+    checking (`completeOrNudge`): a success-claim with no write, or an
+    action-promise (future-intent + mutation verb) with nothing done, gets
+    ONE corrective retry, then a deterministic "⚠ Correction/Note" replaces
+    the false text — a legitimate proposal counts as "acted" so a proposal
+    card is never falsely corrected; SUCCESS_RX/PROMISE_RX are auxiliary/
+    object-bound so benign replies ("First saved reply", "done") never trip.
+    Batch atomicity preserved (8 or a clean failure, never a partial silent
+    save); retrieval proof returns the real persisted record. Gemini/DeepSeek
+    and Phase C confirmation unchanged. smoke28 (14 steps). sw.js VERSION →
+    kos-c6f-4.
+- **Last verified commit**: 334a9a4 + this fix; full 1–28 gate green, live
+  integration script PASS (incl. live Gemini E/F), SIX live-found defects
   fixed + regression-tested, Ollama end-to-end verified live with qwen3
   (full tool round-trip + multi-turn continuity). The Gemini live-UI
   round-trips remain the only user-assisted item pending the daily quota

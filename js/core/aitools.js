@@ -697,6 +697,13 @@
   function setPending(a) { pendingArtifact = a; }
   function getPending() { return pendingArtifact; }
   function clearPending() { pendingArtifact = null; }
+  /* replace the items of the current proposal (the Edit action) — kept as a
+     proposal (unsaved); study_save_proposed still runs the real validation */
+  function updatePending(items) {
+    if (!pendingArtifact || !Array.isArray(items) || !items.length) return false;
+    pendingArtifact.items = items;
+    return true;
+  }
 
   def("study_generate_flashcards", {
     desc: "Generate flashcards for a topic from its REAL notes (grounded), validate them, and save as AI-marked custom cards. Fails cleanly with zero saves on malformed output.",
@@ -2347,6 +2354,7 @@
     /* pending generated-but-unsaved artifact ("add it"/"save that" target) */
     getPendingArtifact: getPending,
     clearPendingArtifact: clearPending,
+    updatePendingArtifact: updatePending,
     names: function () { return Object.keys(TOOLS); },
     get: function (name) {
       var t = TOOLS[name];
