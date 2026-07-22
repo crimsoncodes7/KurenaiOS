@@ -2346,3 +2346,64 @@ trusted for ground truth):
   confirmation unchanged.
 
 smoke28 (14 steps). sw.js VERSION -> kos-c6f-4. Full smoke1-28 gate green.
+
+### Category 6 Phase F — live-Gemini UI acceptance DONE (2026-07-21)
+
+The Google free-tier **daily** quota (which had blocked the final UI captures)
+reset. Confirmed with a single minimal probe (ai-chat health 200,
+`gemini configured, used:0`; a `maxTokens:1` call → clean normalized 200) and a
+second probe capturing real text ("A stack is a linear data structure that
+follows the Last-In, First-Out (LIFO) principle.", finish STOP). The live-Gemini
+UI flows were then driven through the **real running app** (local http :8899,
+latest bundle, sw `kos-c6f-4`, signed-in throw-away user, every task category
+routed to Gemini):
+
+- **A · multi-turn round-trip** — "How many completed topics per subject?" →
+  mascot thinking→working→idle, app-generated `✓ study_list_subjects` (single),
+  natural final answer matching seeded data (compsci 2/156, maths 1/89, IT
+  0/110). thoughtSignature survived the follow-up turn; no 400; no duplicate
+  execution; audit `executed·read`.
+- **B · consequential gating** — delete a disposable anime: proposed, zero
+  mutation pre-confirm, canonical Phase C card (tool + CONSEQUENTIAL + target +
+  read-only args `{"entryId":4}` + ~120s expiry). **Tamper proof**: rewriting
+  the DOM args/target to `entryId 3`/"Witch Hat Atelier" did not change the
+  stored action — Confirm deleted entry **4**, entry 3 survived; the receipt
+  `✓done collection_delete_entry #4 deleted` appeared only after the write;
+  audit `executed·consequential`. **Reject**: a second disposable, Decline left
+  it intact and wrote a `rejected` audit row.
+- **C · generation → proposal → save** — read the real notes
+  (`✓ study_read_notes`), `study_propose_flashcards` produced a pending artifact
+  (savedCount 0) shown as **"PROPOSED — NOT SAVED YET · gemini"**. **Edit**
+  changed only the stored artifact (`[EDITED-BY-USER]`, still unsaved); **Save
+  to deck** ran the exact stored+edited artifact via `runTool` →
+  `study_save_proposed` → green **"✓ SAVED TO YOUR DECK"** receipt, two
+  `ai:true` cards persisted to compsci 4.1.1.1 with the edit intact. "What did
+  you just add?" called `study_list_flashcards` and returned the real records.
+- **G · reload & resume** — after a full reload, History listed the persisted
+  conversations; reopening restored the transcript coherently with prior tool
+  chips **inert (no replay)** — saved card count stayed 2, never 4.
+- **H · audit display** — Activity tab shows the honest ledger
+  (proposed/executed/failed/rejected, tool + tier + target + timestamp +
+  truncated safe result, no secrets, no oversized payload, and no delete
+  control).
+- **I · provider failure + recovery** — a Gemini per-minute RPM limit surfaced
+  as a safe redacted error ("gemini is rate-limiting — try again shortly.") with
+  the error mascot; no mutation retried; a later request recovered and produced
+  the confirmation card.
+
+Execution grounding (ac5b041) held throughout: proposal ≠ persisted, every
+receipt app-generated from the real tool result, saved locations from the tool
+result. **D** (malformed-generation rejection) is smoke21/28-proven (a real
+model can't be forced to emit malformed, and ai-chat has no persistence path);
+**E** (stale-context) is smoke22-proven with its mechanism shown live on the B
+card; **F** (memory) reuses the SAME consequential Phase C card proven live in B
+plus smoke23. A dedicated fresh live capture for each was curtailed by Gemini's
+transient RPM wall (a real infra limit, not a defect).
+
+No Category 6 code changed this session — verification only, sw.js stays
+`kos-c6f-4`, ai-chat unchanged. **Production remaining action**: live
+https://kurenai-os.pages.dev is still on `kos-4c-1` (pre-Category-6); the smoke
+gate is green and `tools/deploy_pages.sh --stage` produced a clean 104-file /
+19M dist (assets/assistant + all ai*.js + assistant.js; dev-leak guards passed).
+Operator deploys with `npx wrangler login` then `tools/deploy_pages.sh`.
+DeepSeek + TTS deferred; assistant UI/UX polish is a separate follow-up build.

@@ -985,14 +985,75 @@ controller.
       quota-blocked. Recorded as a **user-assisted follow-up** (§Phase F
       remaining), to run once the daily quota resets or with a higher-quota
       key — a handful of UI actions, code already proven.
-- **In progress**: Phase F closeout — commit the two defect fixes +
-  integration script + regression tests + docs; deliver the Ollama
-  user-assisted checklist; hand the operator the short post-quota-reset
-  live-UI confirmation checklist.
+    - **QUOTA WALL RESOLVED — live-UI acceptance DONE (2026-07-21).** The
+      Google free-tier **daily** quota reset. A single minimal probe
+      confirmed the reset (health 200, `gemini configured, used:0`; a
+      `maxTokens:1` call returned a clean normalized 200); a second probe
+      captured a real natural-language answer ("A stack is a linear data
+      structure that follows the Last-In, First-Out (LIFO) principle.",
+      finish STOP). The live-Gemini UI flows were then driven through the
+      REAL running app (local http :8899, latest bundle, sw kos-c6f-4,
+      signed-in throw-away user, every category routed to Gemini so Ollama/
+      DeepSeek were not needed):
+      - **A — complete multi-turn round-trip**: "How many completed topics
+        do I have in each subject?" → mascot thinking→working→idle,
+        app-generated `✓ study_list_subjects` chip (single, no duplicate),
+        natural final answer exactly matching seeded data (compsci 2/156,
+        maths 1/89, IT 0/110). thoughtSignature survived the follow-up (no
+        400). Audit row `executed·read`.
+      - **B — consequential gating** (delete a disposable anime): model
+        proposed, no mutation before confirm, the canonical Phase C card
+        showed tool + CONSEQUENTIAL + target + read-only args `{"entryId":4}`
+        + ~120s expiry. **Tamper proof**: overwriting the DOM args/target to
+        `entryId 3`/"Witch Hat Atelier" did NOT change the stored action —
+        Confirm deleted **entry 4** (real stored args), entry 3 survived.
+        App-generated receipt `✓done collection_delete_entry #4 deleted`
+        appeared only after the write. Audit ended `executed·consequential`.
+        **Reject path**: a second disposable — Decline left the entry intact
+        and wrote a `rejected` audit row.
+      - **C — generation → proposal → save**: read the real notes
+        (`✓ study_read_notes`), proposed via `study_propose_flashcards`
+        (pending artifact, savedCount 0), card labelled **"PROPOSED — NOT
+        SAVED YET · gemini"**. **Edit** modified ONLY the stored artifact
+        (marker `[EDITED-BY-USER]`), still unsaved; **Save to deck** ran the
+        exact stored (edited) artifact through `study_save_proposed` via
+        runTool → green **"✓ SAVED TO YOUR DECK"** receipt, two `ai:true`
+        cards persisted to compsci 4.1.1.1 with the edit intact. Retrieval
+        proof: "what did you just add?" called `study_list_flashcards` and
+        returned the real persisted records, not reconstructed prose.
+      - **G — reload & resume**: after a full page reload the History tab
+        listed all persisted conversations; reopening restored the transcript
+        coherently with prior tool chips **inert (no replay)** — the saved
+        card count stayed 2, never 4.
+      - **H — audit display**: the Activity tab renders the honest ledger
+        (proposed/executed/failed/rejected states, tool + tier badge +
+        target + timestamp + truncated safe result, no secrets, no oversized
+        payload, and NO delete control — "the record stays honest").
+      - **I — provider failure + recovery**: a Gemini per-minute RPM limit
+        surfaced as a safe redacted error ("gemini is rate-limiting — try
+        again shortly.") with the error mascot; **no mutation was retried**;
+        a subsequent request recovered and produced the confirmation card.
+      - **Execution grounding (ac5b041) held throughout**: proposals are
+        visibly distinct from persisted state, every receipt is app-generated
+        from the real tool result (never the model's checkmark), and saved
+        locations come from the tool result.
+      - **D (malformed-generation rejection)** and **E (stale-context
+        invalidation)** and **F (memory proposal/approval)** were NOT given a
+        dedicated fresh live-Gemini capture this session: D cannot be forced
+        from a real model and is smoke21/28-proven (the ai-chat function has
+        no persistence path, so it cannot save malformed output); E is
+        smoke22-proven and its mechanism ("Changing screens or targets
+        cancels it automatically") was shown live on the B card; F's
+        mechanism is the SAME consequential Phase C card proven live in B
+        (memory_save is CONSEQUENTIAL) plus smoke23. Repeated live attempts
+        were curtailed by Gemini's transient RPM wall — a real infrastructure
+        limit, not a defect.
+- **In progress**: Phase F closeout — final docs + a docs-only closeout
+  commit; production frontend deploy is the one remaining OPERATOR action
+  (Cloudflare auth required — see below).
 - **Not started**: —
-- **Current blockers**: Gemini free-tier daily quota (environment) blocks
-  the final live-Gemini UI round-trips this session; DeepSeek live path
-  deferred pending a key.
+- **Current blockers**: none for the code. Production Pages deploy needs the
+  operator's `wrangler login`; DeepSeek live path deferred pending a key.
   - **Ollama (user-assisted, real machine — DONE 2026-07-18)**: verified
     live from the local app against real Ollama v0.31.2 (mistral:latest,
     tool-capable). App detects availability across the CORS boundary
@@ -1003,16 +1064,25 @@ controller.
     the app relayed text and executed nothing hallucinated); Ollama-
     unavailable reports cleanly; fallback-OFF never silently switches;
     fallback-ON switches explicitly + labelled (usedFallback/fellBackFrom).
-- **Exact resume point** (remaining user-assisted live confirmations only —
-  Category 6 code is complete and gate-green):
-  1. **Gemini live-UI round-trips** — I resume these MYSELF once Google's
-     free-tier daily quota resets: one completed multi-turn final answer,
-     consequential gating end-to-end, generation-saves-cards, stale-context,
-     memory proposal, resume, audit display. (Adapter + provider path
-     already verified live; only the quota blocks the UI captures.)
-  2. **DeepSeek live path** — deferred pending a key (adapter intact, 503
+- **Exact resume point** (Category 6 code is complete, gate-green, and
+  live-UI-accepted; the remaining items are OPERATOR/optional):
+  1. **Gemini live-UI round-trips — DONE 2026-07-21** (quota reset; A/B/C/G/
+     H/I driven live through the real app — see the Phase F "live-UI
+     acceptance DONE" record above). D/E/F share mechanisms proven live in B
+     + smoke21/22/23/28; a dedicated fresh capture for each was curtailed by
+     Gemini's transient RPM wall, not a defect.
+  2. **Production Pages deploy — OPERATOR ACTION** (the one thing left to
+     ship Category 6 to https://kurenai-os.pages.dev). Live production is
+     still on `kos-4c-1` (pre-Category-6). Full smoke gate (smoke.test.js +
+     smoke2–28) is green and `tools/deploy_pages.sh --stage` produced a clean
+     104-file / 19M dist (sw kos-c6f-4, assets/assistant/ + all ai*.js +
+     assistant.js present, dev-leak guards passed). To deploy:
+     `npx wrangler login` (once), then `tools/deploy_pages.sh`. No frontend
+     code changed this session, so sw.js stays kos-c6f-4 and the ai-chat
+     Edge Function does NOT need redeploying.
+  3. **DeepSeek live path** — deferred pending a key (adapter intact, 503
      fail-closed).
-  3. **Ollama from the DEPLOYED app** (pages.dev) with OLLAMA_ORIGINS set +
+  4. **Ollama from the DEPLOYED app** (pages.dev) with OLLAMA_ORIGINS set +
      a full local reversible-tool execution with a stronger tool model —
      optional polish; app-side behaviour fully verified locally.
   - **Ollama model-config fix (2026-07-18)**: reported "Settings shows the
@@ -1082,9 +1152,17 @@ controller.
     save); retrieval proof returns the real persisted record. Gemini/DeepSeek
     and Phase C confirmation unchanged. smoke28 (14 steps). sw.js VERSION →
     kos-c6f-4.
-- **Last verified commit**: 334a9a4 + this fix; full 1–28 gate green, live
-  integration script PASS (incl. live Gemini E/F), SIX live-found defects
-  fixed + regression-tested, Ollama end-to-end verified live with qwen3
-  (full tool round-trip + multi-turn continuity). The Gemini live-UI
-  round-trips remain the only user-assisted item pending the daily quota
-  reset.
+- **Last verified commit**: ac5b041 (code) + this docs-only closeout; full
+  gate green (smoke.test.js + smoke2–28), live integration script PASS
+  (sections A–G; live Gemini text 200 + structured 200 + concurrency-safe
+  cap; the two section-F "fails" this run were a transient upstream
+  `503 high demand`, correctly normalized to a redacted 502 — re-probed to a
+  clean text 200 the same minute). SIX earlier live-found defects fixed +
+  regression-tested; Ollama end-to-end verified live with qwen3; and — the
+  formerly quota-blocked item — the **live-Gemini UI acceptance A/B/C/G/H/I
+  is now DONE (2026-07-21)** through the real app. The ONLY remaining action
+  is the operator-run production Pages deploy (Cloudflare auth) to move
+  https://kurenai-os.pages.dev off `kos-4c-1` onto `kos-c6f-4`. No Category 6
+  code changed this session; ai-chat Edge Function unchanged (no redeploy);
+  DeepSeek + TTS deferred; the assistant UI/UX polish pass remains a separate
+  follow-up build.
