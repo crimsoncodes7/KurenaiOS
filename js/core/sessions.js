@@ -101,12 +101,16 @@
     }
     return n;
   }
+  /* `rest` rides along because every consumer (the Home profile band, the
+     Governor cadence panel) reads both from this one call — leaving it out
+     made both surfaces silently render 0 for the rest streak. */
   function streaks() {
     return {
       all: streak(null),
       compsci: streak("compsci"),
       maths: streak("maths"),
-      it: streak("it")
+      it: streak("it"),
+      rest: restStreak()
     };
   }
 

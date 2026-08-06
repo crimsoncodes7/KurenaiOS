@@ -35,6 +35,11 @@
       seal: "kurenai",                 // active kanji seal variant
       avatar: { kind: "seal", id: "seal-ember", img: null, crop: null, frame: null },
       banner: null, bannerImg: null, bannerCrop: null,
+      /* the one identity blurb (Build 6): a short status line and a few
+         lines of "about". Every surface that shows who you are — the
+         Governor hero, the Home profile band, the topbar popover — reads
+         these two fields, so they can never drift apart. */
+      status: "", about: "",
       shelfSkin: null,                 // Build 3j — Books Physical-tab shelf cosmetic
       shrineStyle: null,               // Build 3j — Shrine card border cosmetic
       lastTick: null,                  // "YYYY-MM-DD" of the last HP day-tick

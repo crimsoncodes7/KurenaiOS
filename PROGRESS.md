@@ -2407,3 +2407,64 @@ gate is green and `tools/deploy_pages.sh --stage` produced a clean 104-file /
 19M dist (assets/assistant + all ai*.js + assistant.js; dev-leak guards passed).
 Operator deploys with `npx wrangler login` then `tools/deploy_pages.sh`.
 DeepSeek + TTS deferred; assistant UI/UX polish is a separate follow-up build.
+
+---
+
+## ADDENDUM — Governor v4 (the Seat rebuilt) · 2026-08-06
+
+Redesign of the whole Governor section, plus the first shared identity record.
+
+**Navigation (Part A).** The four pages (Status · Gold Shop · Avatar · Session
+Log) now ride `KOS.workspaceTabs` inside `.dash-head`, exactly like the
+Collection planner/sync workspaces — the switcher sits at the top of the
+content area with no dead strip above or below it. Tab clicks go through
+`KOS.show("governor", <tab>)`, so each page is a real history entry. The
+`data-tab` hook is preserved on every tab.
+
+**Status (Part B).** Two balanced rows: hero (span 8) + vitals (span 4), then
+cadence (span 8) + ledger (span 4) — the stat stack is a genuine right-hand
+column and the ledger sits beside it. The hero portrait is 132px (was 88), the
+substats moved to a right-edge rail (`.id-side`), and the identity now carries
+a Discord-shaped status line + about block. **`.gstat` is THE stat tile** —
+one shape (label, value, bar, hint) at one set of dimensions, used by the
+vitals stack and the cadence numbers alike; the old bespoke `.vital .vt` /
+`.heat-side .hnum` treatments are gone.
+
+**Cadence (Part B7).** `KOS.charts.heatmap` now emits intrinsic `width`/
+`height` attributes, so the grid keeps GitHub-scale cells instead of being
+stretched to the container (that stretch was the empty space). The Governor
+view shows a full 52 weeks, the grid takes the card's whole width, and the six
+numbers sit beneath it as `.gstat-mini` tiles, filling the card's height.
+
+**Ledger (Part C).** `isRoutine(s)` — `type:"media"` + `action:"sync-reward"` —
+is the one classifier. Routine entries are **still logged unchanged** (the
+governor prices from that log; invariants #1/#5 untouched) but are excluded
+from the Status ledger, from the "Everything" session log, and from every
+human-facing session count including the cadence heatmap. They live under
+**Session Log → Sync history**, coalesced to one row per day per provider:
+"AniList sync completed — 24 entries updated across 12 syncs".
+
+**Identity (Part D).** `state.governor.status` / `.about` are new, and
+`KOS.governor.profile()` is the ONE record every identity surface renders
+from: the Governor hero, the Home profile band, and a new topbar profile
+popover (`profileCard` + `openProfilePopover`, hung off the HUD chip).
+`setProfileText` is the only writer (trims, caps at 90/400) and
+`editProfileText` the one editor, reachable from all three surfaces.
+
+**Shop & Avatar (Part E).** The shop is a Treasury: a purse/facts strip, a
+sticky category rail with per-kind owned counts, and sectioned cards whose
+preview shows what is actually being sold — painted bands for banners, the
+real palette for themes, the kanji for seals, a rendered ring for frames, a
+per-lab glyph for labs. Every group stays rendered (one browsable catalogue).
+The Avatar page is an atelier: a live profile preview reading `profile()`,
+portrait + banner as paired media cards, the seal library with lock states,
+and frames rendered as actual rings.
+
+**Bugs fixed in passing.** `KOS.sessions.streaks()` never returned `rest`, so
+the Home rest-streak chip and the Governor rest-streak row both rendered a
+hard 0. `.gov-avatar.frame-amethyst` had no CSS rule at all — the fourth shop
+frame was purchasable and wore nothing.
+
+**Tests.** smoke15 gained 8 steps (28 total) covering Part A nav, the hero and
+tile contracts, the routine/meaningful split in both the ledger and Sync
+history, and the single-identity agreement across Governor / Home / popover.

@@ -300,15 +300,23 @@
       var iso = d0.getFullYear() + "-" + ("0" + (d0.getMonth() + 1)).slice(-2) + "-" + ("0" + d0.getDate()).slice(-2);
       week.push({ on: !!activeDates[iso], today: i === 0 });
     }
+    /* the ONE identity record — the Governor's Seat and the topbar popover
+       render from this same call, so the three surfaces can never drift */
+    var prof = KOS.governor.profile();
     band.appendChild(el("div", { class: "hi-main" }, [
       KOS.governor.avatarNode(72),
       el("div", { class: "hi-txt" }, [
-        el("span", { class: "rank", text: rankName(li.level) }),
-        el("h2", { text: "Level " + li.level }),
+        el("span", { class: "rank", text: prof.rank }),
+        el("h2", { text: "Level " + prof.level }),
         el("div", { class: "hi-state" }, [
           el("b", { text: hpInfo.label }),
           " · ◈ " + g.gold + " gold"
         ]),
+        prof.status ? el("button", { class: "hi-status", title: "Edit your status and about",
+          onclick: function () { KOS.governor.editProfileText(function (err, r) { if (!(r && r.cancelled)) KOS.show("home"); }); } }, [
+          el("span", { class: "hi-status-dot", "aria-hidden": "true" }),
+          el("span", { text: prof.status })
+        ]) : null,
         el("div", { class: "lvl-row" }, [
           el("div", { class: "hud-bar hud-xp big lvl-bar" }, [
             el("span", { style: "width:" + Math.round(100 * li.into / li.need) + "%" })]),
@@ -327,7 +335,7 @@
             el("span", { text: (stks.rest || 0) + "-day rest" })
           ])
         ])
-      ])
+      ].filter(Boolean))
     ]));
     var ringWrap = el("div", { class: "home-ring" });
     var ringCv = el("canvas", { "aria-label": "Overall completion" });

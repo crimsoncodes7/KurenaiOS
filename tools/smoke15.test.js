@@ -282,6 +282,123 @@ step("shop cards carry swatch previews for every theme", async () => {
   if (sw[0].querySelectorAll(".shop-sw-dot").length !== 3) throw new Error("3 dots per theme");
 });
 
+/* ============ 6 · Governor v4 — the Seat rebuilt ============
+   Part A nav, Part B layout + one stat-tile shape, Part C ledger
+   classification, Part D the single identity record. */
+console.log("== governor v4 ==");
+
+step("Part A: the page switcher lives in the header, all four pages reachable", async () => {
+  KOS.show("governor");
+  await tick(60);
+  const main = document.getElementById("main");
+  const tabs = main.querySelector(".dash-head > .gov-tabs");
+  if (!tabs) throw new Error("switcher is not in the page header");
+  const labels = [...tabs.querySelectorAll(".study-tab")].map(b => b.textContent.trim());
+  if (labels.join("|") !== "Status|Gold Shop|Avatar|Session Log")
+    throw new Error("wrong tabs: " + labels.join("|"));
+  /* the data-tab hook every consumer of this switcher uses */
+  if ([...tabs.querySelectorAll(".study-tab")].some(b => !b.dataset.tab))
+    throw new Error("data-tab hook missing from a tab");
+  if (!tabs.querySelector(".study-tab.active")) throw new Error("no active tab marked");
+});
+
+step("Part B: hero carries a large portrait, the right-hand stat rail and the about block", async () => {
+  KOS.governor.setProfileText({ status: "Grinding paper 1", about: "A quote.\nAnd a second line." });
+  KOS.show("governor", undefined, { _nav: true });
+  await tick(60);
+  const id = document.getElementById("main").querySelector(".b-id");
+  const face = id.querySelector(".id-face .gov-avatar");
+  if (!face) throw new Error("hero portrait missing");
+  if (!/132px/.test(face.getAttribute("style") || "")) throw new Error("hero portrait was not enlarged: " + face.getAttribute("style"));
+  if (id.querySelectorAll(".id-side .id-side-stat").length !== 4) throw new Error("the hero stat rail should carry four stats");
+  if (!id.querySelector(".id-status")) throw new Error("status line missing from the hero");
+  if (!id.querySelector(".id-about-txt")) throw new Error("about block missing from the hero");
+});
+
+step("Part B5: every stat tile is the same shape — label, value and a bar", async () => {
+  const main = document.getElementById("main");
+  const tiles = [...main.querySelectorAll(".gstat")];
+  if (tiles.length < 9) throw new Error("expected the vitals stack + cadence tiles, got " + tiles.length);
+  for (const t of tiles) {
+    if (!t.querySelector(".gstat-k")) throw new Error("a tile has no label");
+    if (!t.querySelector(".gstat-v")) throw new Error("a tile has no value");
+  }
+  /* the three vitals are the bar-carrying variant and stay inside .b-vitals */
+  const vitals = [...main.querySelectorAll(".b-vitals .vital .gstat")];
+  if (vitals.length !== 3) throw new Error("three vitals expected, got " + vitals.length);
+  if (vitals.some(v => !v.querySelector(".gstat-bar > span"))) throw new Error("a vital tile has no progress bar");
+});
+
+step("Part C: routine sync is logged but kept out of the ledger and the cadence count", async () => {
+  const before = KOS.sessions.all().length;
+  /* six autosync cycles, exactly the shape media.js writes */
+  for (let i = 0; i < 6; i++) {
+    KOS.sessions.log({ type: "media", metrics: { module: "anime", action: "sync-reward", entries: 4, units: 4, advances: 0 } });
+  }
+  if (KOS.sessions.all().length !== before + 6)
+    throw new Error("sync sessions must still be written — the governor prices from them");
+  KOS.show("governor", undefined, { _nav: true });
+  await tick(60);
+  const main = document.getElementById("main");
+  const led = [...main.querySelectorAll(".b-ledger .led-row .lt")].map(n => n.textContent);
+  if (led.some(t => /sync/i.test(t))) throw new Error("routine sync leaked into the ledger: " + led.join(" | "));
+  if (!main.querySelector(".b-ledger .led-more")) throw new Error("no route from the ledger to the full log");
+});
+
+step("Part C: Sync history coalesces the run into one line per provider per day", async () => {
+  KOS.show("governor", "history", { _nav: true });
+  await tick(60);
+  const main = document.getElementById("main");
+  const seg = [...main.querySelectorAll(".log-seg .study-tab")];
+  const syncTab = seg.find(b => b.dataset.cat === "sync");
+  if (!syncTab) throw new Error("no Sync history category");
+  /* Everything excludes routine */
+  const everything = [...main.querySelectorAll(".gov-log .led-row .lt")].map(n => n.textContent);
+  if (everything.some(t => /sync completed/i.test(t))) throw new Error("Everything must exclude routine sync");
+  syncTab.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  const rows = [...main.querySelectorAll(".gov-log .led-row")];
+  if (!rows.length) throw new Error("sync history rendered nothing");
+  if (rows.length >= 6) throw new Error("six syncs should collapse, got " + rows.length + " rows");
+  if (!/sync completed .*entries updated/i.test(rows[0].textContent))
+    throw new Error("unexpected coalesced wording: " + rows[0].textContent);
+});
+
+step("Part D: one identity record — Governor, Home and the topbar popover agree", async () => {
+  KOS.governor.setProfileText({ status: "Reading Fate", about: "Only one copy of this text exists." });
+  const p = KOS.governor.profile();
+  if (p.status !== "Reading Fate") throw new Error("profile() did not read the written status");
+
+  KOS.show("governor", undefined, { _nav: true });
+  await tick(60);
+  const govAbout = document.getElementById("main").querySelector(".id-about-txt").textContent;
+
+  KOS.show("home", undefined, { _nav: true });
+  await tick(60);
+  const homeStatus = document.getElementById("main").querySelector(".hi-status");
+  if (!homeStatus || !homeStatus.textContent.includes("Reading Fate"))
+    throw new Error("Home profile band does not show the shared status");
+
+  const pop = KOS.governor.openProfilePopover();
+  const popAbout = pop.querySelector(".pc-about p").textContent;
+  const popStatus = pop.querySelector(".pc-status").textContent;
+  if (popAbout !== govAbout) throw new Error("popover about differs from the Governor hero");
+  if (popStatus !== p.status) throw new Error("popover status differs from profile()");
+  KOS.governor.closeProfilePopover();
+  if (document.querySelector(".profile-pop")) throw new Error("popover did not close");
+});
+
+step("Part D: the writer trims and caps, so no surface has to defend itself", () => {
+  KOS.governor.setProfileText({ status: "  spaced   out  ", about: "x".repeat(900) });
+  const p = KOS.governor.profile();
+  if (p.status !== "spaced out") throw new Error("status not normalised: " + JSON.stringify(p.status));
+  if (p.about.length !== KOS.governor.ABOUT_MAX) throw new Error("about not capped: " + p.about.length);
+});
+
+step("streaks() carries the rest streak both surfaces render", () => {
+  const s = KOS.sessions.streaks();
+  if (typeof s.rest !== "number") throw new Error("streaks().rest is missing — both surfaces silently showed 0");
+});
+
 /* ============ runner ============ */
 (async () => {
   for (const [name, fn] of steps) {

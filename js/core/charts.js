@@ -208,11 +208,17 @@
      ascending date order; cells scale opacity against the max value. */
   function heatmap(days, opts) {
     opts = opts || {};
-    var cell = 11, gap = 3, padT = 14, padL = 26;
+    var cell = opts.cell || 11, gap = opts.gap || 3, padT = 14, padL = 26;
     var max = Math.max(1, days.reduce(function (a, d) { return Math.max(a, d.value); }, 0));
     var firstDow = days.length ? (new Date(days[0].date + "T00:00:00").getDay() + 6) % 7 : 0;  // Mon = 0
     var weeks = Math.ceil((days.length + firstDow) / 7);
-    var s = svgEl(padL + weeks * (cell + gap), padT + 7 * (cell + gap));
+    var W = padL + weeks * (cell + gap), H = padT + 7 * (cell + gap);
+    var s = svgEl(W, H);
+    /* intrinsic size, so the grid keeps GitHub-scale cells instead of being
+       stretched to whatever the container is wide (which left the card mostly
+       empty air). CSS caps it at 100% and scales height with it. */
+    s.setAttribute("width", String(W));
+    s.setAttribute("height", String(H));
     ["Mon", "Wed", "Fri"].forEach(function (lbl, i) {
       var t = svgNode("text", { x: 2, y: padT + (i * 2) * (cell + gap) + cell - 2, "font-size": "8", text: lbl });
       paint(t, "fill", LABEL);

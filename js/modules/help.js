@@ -39,6 +39,8 @@
       ["Gold", "Earned from sessions, streak milestones, quiz scores ≥80% and clearing the due queue. Spent in the Governor's shop on permanent lab/sim unlocks and cosmetics (themes, kanji seals, avatar frames, bookshelf skins for the Books Physical tab, Shrine card styles). Prices were rebalanced in 3j around real earning rates — a big lab is about a week of steady study, small cosmetics two or three days."],
       ["XP & level", "A pure progress meter — it gates nothing except the avatar seal library, which unlocks by level. The HUD in the topbar shows avatar, level, gold, HP and XP at a glance; click it for the full panel."],
       ["Avatar", "Pick a procedural seal or upload your own image (auto-cropped to a circle and compressed before storing)."],
+      ["Status & about", "A short status line and a few lines about yourself, edited from the Governor's Seat, the Home profile band or the topbar profile popover. All three surfaces read the ONE record, so editing anywhere updates everywhere — there is no second copy to fall out of step."],
+      ["The ledger vs the session log", "The Governor's Seat shows meaningful acts only: sessions finished, directives sealed, papers logged, media completed. Background integration traffic (the entry an autosync cycle writes) is filed under Session Log → Sync history, collapsed to one line per provider per day. Nothing is deleted — the governor still prices from the full log — it just stops drowning out what you actually did."],
       ["Streaks", "Consecutive days with at least one completed session — overall and per subject. Early-stopped focus sessions don't count; everything else does."]
     ]],
     ["The Collection Matrix", [

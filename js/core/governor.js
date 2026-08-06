@@ -466,6 +466,9 @@
     }
     store.save();
   }
+  /* the painted CSS for a PRESET id, independent of what is currently hung —
+     the shop needs to preview a banner it doesn't own yet */
+  function bannerPresetCss(id) { return BANNER_CSS[id] || null; }
   function bannerCss() {
     var g = G();
     if (!g.banner) return null;
@@ -540,7 +543,172 @@
     ];
   }
 
+  /* ================= identity (the one profile record) =================
+     Governor Status, the Home profile band and the topbar popover all render
+     from THIS — never from their own reading of state.governor. Adding a
+     field here surfaces it everywhere at once, which is the whole point:
+     three surfaces, one identity. */
+  var STATUS_MAX = 90, ABOUT_MAX = 400;
+
+  function profile() {
+    var g = G();
+    var li = levelInfo(g.xp);
+    var info = hpStateInfo();
+    return {
+      level: li.level,
+      rank: (KOS.rankName ? KOS.rankName(li.level) : "Novice"),
+      xpInto: li.into,
+      xpNeed: li.need,
+      xpPct: li.need ? Math.round(100 * li.into / li.need) : 0,
+      xpToNext: Math.max(0, li.need - li.into),
+      hp: g.hp,
+      hpState: hpState(),
+      hpLabel: info.label,
+      hpDesc: info.desc,
+      gold: g.gold,
+      status: String(g.status || "").trim(),
+      about: String(g.about || "").trim(),
+      sessions: KOS.sessions ? KOS.sessions.all().length : 0
+    };
+  }
+  /* the only writer — both editors and any future surface go through it */
+  function setProfileText(patch) {
+    var g = G();
+    patch = patch || {};
+    if (patch.status !== undefined) g.status = String(patch.status || "").replace(/\s+/g, " ").trim().slice(0, STATUS_MAX);
+    if (patch.about !== undefined) g.about = String(patch.about || "").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim().slice(0, ABOUT_MAX);
+    store.save();
+    if (KOS.refreshHUD) refreshHUD();
+    return profile();
+  }
+  /* the shared editor. Same modal wherever identity is edited, so the two
+     fields can't grow separate rules per surface. */
+  function editProfileText(done) {
+    var el = KOS.ui.el, p = profile();
+    var overlay = el("div", { class: "modal-ov", onclick: function (e) { if (e.target === overlay) close(); } });
+    function close() { document.removeEventListener("keydown", onKey); overlay.remove(); }
+    function onKey(e) { if (e.key === "Escape") close(); }
+    document.addEventListener("keydown", onKey);
+    var statusIn = el("input", { type: "text", maxlength: String(STATUS_MAX), value: p.status,
+      placeholder: "Grinding paper 1 · back in an hour" });
+    var aboutIn = el("textarea", { rows: "5", maxlength: String(ABOUT_MAX),
+      placeholder: "A quote, a couple of lines, whatever you want the seat to say." });
+    aboutIn.value = p.about;
+    var count = el("span", { class: "pe-count", text: p.about.length + " / " + ABOUT_MAX });
+    aboutIn.addEventListener("input", function () { count.textContent = aboutIn.value.length + " / " + ABOUT_MAX; });
+    var box = el("div", { class: "modal profile-editor" }, [
+      el("h3", { text: "Status & about" }),
+      el("p", { class: "sub", text: "Shown on the Governor's Seat, the Home profile band and the topbar profile — one identity, every surface." }),
+      el("label", { class: "pe-field" }, [el("span", { text: "Status" }), statusIn]),
+      el("label", { class: "pe-field" }, [
+        el("span", {}, [el("b", { text: "About" }), count]),
+        aboutIn
+      ]),
+      el("div", { class: "modal-foot" }, [
+        el("button", { class: "btn", text: "Cancel", onclick: function () { close(); done && done(null, { cancelled: true }); } }),
+        el("button", { class: "btn primary", text: "Save", onclick: function () {
+          var next = setProfileText({ status: statusIn.value, about: aboutIn.value });
+          close();
+          done && done(null, next);
+        } })
+      ])
+    ]);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    statusIn.focus();
+    return overlay;
+  }
+
+  /* the compact profile card — the topbar popover's body. The Governor hero
+     keeps its own larger geometry (invariant 26c) but reads the same
+     profile() record, so the two can never disagree. */
+  function profileCard(opts) {
+    var el = KOS.ui.el, p = profile();
+    opts = opts || {};
+    var card = el("div", { class: "profile-card hp-" + p.hpState });
+    var band = el("div", { class: "pc-banner" });
+    if (!applyBanner(band, { darkScrim: true })) band.classList.add("plain");
+    card.appendChild(band);
+    var body = el("div", { class: "pc-body" });
+    body.appendChild(el("div", { class: "pc-avatar" }, [avatarNode(64)]));
+    body.appendChild(el("div", { class: "pc-name", text: "Level " + p.level }));
+    body.appendChild(el("div", { class: "pc-rank", text: p.rank + " · Behavioural Governor" }));
+    if (p.status) body.appendChild(el("div", { class: "pc-status", text: p.status }));
+    body.appendChild(el("div", { class: "pc-meters" }, [
+      meterRow("HP", p.hp + " / 100", p.hp, "hud-hp", p.hpLabel),
+      meterRow("XP", p.xpInto + " / " + p.xpNeed, p.xpPct, "hud-xp", "Lv " + (p.level + 1) + " next"),
+      meterRow("Gold", "◈ " + p.gold, null, null, null)
+    ]));
+    if (p.about) body.appendChild(el("div", { class: "pc-about" }, [
+      el("div", { class: "pc-about-h", text: "About" }),
+      el("p", { text: p.about })
+    ]));
+    body.appendChild(el("div", { class: "pc-foot" }, [
+      el("button", { class: "btn", text: "✎ Edit", onclick: function () {
+        editProfileText(function () { opts.onChange && opts.onChange(); });
+      } }),
+      el("button", { class: "btn primary", text: "The Governor's Seat →", onclick: function () {
+        opts.onNavigate && opts.onNavigate();
+        KOS.show("governor");
+      } })
+    ]));
+    card.appendChild(body);
+    return card;
+
+    function meterRow(label, val, pct, barCls, hint) {
+      return el("div", { class: "pc-meter" }, [
+        el("span", { class: "pc-m-k", text: label }),
+        el("span", { class: "pc-m-v", text: val }),
+        pct == null ? null : el("span", { class: "hud-bar " + barCls },
+          [el("span", { style: "width:" + Math.max(0, Math.min(100, pct)) + "%" })]),
+        hint ? el("span", { class: "pc-m-h", text: hint }) : null
+      ].filter(Boolean));
+    }
+  }
+
   /* ================= HUD ================= */
+  /* the topbar profile popover — anchored to the HUD chip */
+  var popNode = null;
+  function closeProfilePopover() {
+    if (!popNode) return;
+    popNode.remove();
+    popNode = null;
+    document.removeEventListener("keydown", onPopKey, true);
+    document.removeEventListener("mousedown", onPopOutside, true);
+    var btn = document.querySelector("#hud .hud");
+    if (btn) btn.setAttribute("aria-expanded", "false");
+  }
+  function onPopKey(e) { if (e.key === "Escape") closeProfilePopover(); }
+  function onPopOutside(e) {
+    if (!popNode) return;
+    if (popNode.contains(e.target)) return;
+    if (e.target.closest && e.target.closest("#hud .hud")) return;
+    /* a modal opened FROM the popover (the profile editor) must not close it
+       out from under itself before its own click handler runs */
+    if (e.target.closest && e.target.closest(".modal-ov")) return;
+    closeProfilePopover();
+  }
+  function openProfilePopover() {
+    closeProfilePopover();
+    var el = KOS.ui.el;
+    popNode = el("div", { class: "profile-pop", role: "dialog", "aria-label": "Your profile" });
+    popNode.appendChild(profileCard({
+      onNavigate: closeProfilePopover,
+      onChange: function () { openProfilePopover(); }
+    }));
+    document.body.appendChild(popNode);
+    var btn = document.querySelector("#hud .hud");
+    if (btn) {
+      btn.setAttribute("aria-expanded", "true");
+      var r = btn.getBoundingClientRect();
+      popNode.style.top = Math.round(r.bottom + 8) + "px";
+      popNode.style.right = Math.max(8, Math.round(window.innerWidth - r.right)) + "px";
+    }
+    document.addEventListener("keydown", onPopKey, true);
+    document.addEventListener("mousedown", onPopOutside, true);
+    return popNode;
+  }
+
   function refreshHUD() {
     var holder = document.getElementById("hud");
     if (!holder) return;
@@ -548,8 +716,10 @@
     var li = levelInfo(g.xp);
     var state = hpState();
     holder.innerHTML = "";
-    var btn = el("button", { class: "hud hud-" + state, title: "Behavioural Governor — HP " + g.hp + " · Level " + li.level + " · " + g.gold + " gold",
-      onclick: function () { KOS.show("governor"); } }, [
+    var wasOpen = !!popNode;
+    var btn = el("button", { class: "hud hud-" + state, "aria-haspopup": "dialog", "aria-expanded": "false",
+      title: "Behavioural Governor — HP " + g.hp + " · Level " + li.level + " · " + g.gold + " gold",
+      onclick: function () { if (popNode) closeProfilePopover(); else openProfilePopover(); } }, [
       avatarNode(30),
       el("span", { class: "hud-col" }, [
         el("span", { class: "hud-row" }, [
@@ -565,6 +735,9 @@
       ])
     ]);
     holder.appendChild(btn);
+    /* a HUD repaint mid-popover (a purchase, an XP award) must not orphan the
+       open card against a button node that no longer exists */
+    if (wasOpen) { btn.setAttribute("aria-expanded", "true"); }
   }
   KOS.refreshHUD = refreshHUD;
 
@@ -612,8 +785,17 @@
     editBanner: editBanner,
     applyBanner: applyBanner,
     bannerCss: bannerCss,
+    bannerPresetCss: bannerPresetCss,
     bannerIsDark: bannerIsDark,
     recoveryTasks: recoveryTasks,
+    profile: profile,
+    setProfileText: setProfileText,
+    editProfileText: editProfileText,
+    profileCard: profileCard,
+    openProfilePopover: openProfilePopover,
+    closeProfilePopover: closeProfilePopover,
+    STATUS_MAX: STATUS_MAX,
+    ABOUT_MAX: ABOUT_MAX,
     refreshHUD: refreshHUD,
     debugUnlockAll: debugUnlockAll,
     BACKLOG_LIMIT: BACKLOG_LIMIT
