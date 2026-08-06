@@ -105,26 +105,38 @@
 
   /* ---------------- countdown widget (home + subject dash) ---------------- */
   function countdownWidget(sid) {
-    var list = deadlines().filter(function (d) { return !sid || d.ev.subject === sid || !d.ev.subject; }).slice(0, 3);
+    /* Build 6.4 — the rail is a MERGED read over two canonical sources:
+       calendar exams/deadlines, and assignments explicitly marked major.
+       deadlines() itself is left calendar-only so nothing else changes. */
+    var evRows = deadlines().filter(function (d) { return !sid || d.ev.subject === sid || !d.ev.subject; })
+      .map(function (d) { return { days: d.days, title: d.ev.title,
+        meta: TYPE_LABEL[d.ev.type] + (d.ev.subject ? " · " + d.ev.subject : "") + " · " + d.ev.date,
+        go: function () { KOS.show("calendar"); } }; });
+    var asgRows = (KOS.assignments ? KOS.assignments.countdownItems(sid) : []).map(function (x) {
+      return { days: x.days, title: x.assignment.title,
+        meta: "Assignment · " + KOS.assignments.typeLabel(x.assignment.type) + " · " + x.assignment.due,
+        go: (function (id) { return function () { KOS.assignmentDetail(id); }; })(x.assignment.id) };
+    });
+    var list = evRows.concat(asgRows).sort(function (a, b) { return a.days - b.days; }).slice(0, 3);
     var wrap = el("div", { class: "dl-widget" });
     wrap.appendChild(el("div", { class: "dl-h" }, [
       el("b", { text: "Countdowns" }),
       el("button", { class: "mini-btn", text: "Calendar →", onclick: function () { KOS.show("calendar"); } })
     ]));
     if (!list.length) {
-      wrap.appendChild(el("p", { class: "sub", text: "No upcoming exams or deadlines. Add them in the calendar." }));
+      wrap.appendChild(el("p", { class: "sub", text: "No upcoming exams, deadlines or major assignments." }));
       return wrap;
     }
     list.forEach(function (d) {
       var tone = d.days <= 3 ? "hot" : d.days <= 7 ? "warm" : "cool";
-      wrap.appendChild(el("div", { class: "dl-item " + tone }, [
+      wrap.appendChild(el("button", { class: "dl-item " + tone, onclick: d.go }, [
         el("span", { class: "dl-days" }, [
           el("b", { text: String(d.days) }),
           el("span", { text: d.days === 1 ? "day" : "days" })
         ]),
         el("span", { class: "dl-body" }, [
-          el("span", { class: "dl-title", text: d.ev.title }),
-          el("span", { class: "dl-meta", text: TYPE_LABEL[d.ev.type] + (d.ev.subject ? " · " + d.ev.subject : "") + " · " + d.ev.date })
+          el("span", { class: "dl-title", text: d.title }),
+          el("span", { class: "dl-meta", text: d.meta })
         ])
       ]));
     });
@@ -306,6 +318,19 @@
             (ev.time ? ev.time + " " : "") + ev.title + (ev.recur === "weekly" ? " ↻" : "")
           ]));
         });
+        /* Build 6.4: assignment deadlines are DERIVED, never events. The
+           grid asks the assignment store what is due today, so deleting an
+           assignment cannot leave an orphan behind. */
+        if (KOS.assignments) {
+          KOS.assignments.forDate(dISO).forEach(function (a) {
+            cell.appendChild(el("button", { class: "cal-ev cal-asg" + (KOS.assignments.isOverdue(a) ? " overdue" : "") +
+                (a.status === "submitted" ? " handed-in" : ""),
+              title: "Assignment · " + a.title + (a.dueTime ? " · " + a.dueTime : "") + " — open the tracker",
+              onclick: function (e) { e.stopPropagation(); KOS.assignmentDetail(a.id, function () { KOS.show("calendar", undefined, { _nav: true }); }); } }, [
+              "課 " + (a.dueTime ? a.dueTime + " " : "") + a.title
+            ]));
+          });
+        }
         /* Build 6.2: dated reminders SHOW here, quietly and read-only. They
            are deliberately not calendar events and never enter deadlines()
            — an ordinary reminder must not become a major Countdown. */
@@ -324,6 +349,7 @@
 
       /* legend + upcoming deadlines below the grid */
       var legend = el("div", { class: "cal-legend" });
+      legend.appendChild(el("span", { class: "cal-key cal-asg", text: "Assignment" }));
       legend.appendChild(el("span", { class: "cal-key cal-rem", text: "Reminder" }));
       TYPES.forEach(function (t) {
         legend.appendChild(el("span", { class: "cal-key t-" + t[0], text: t[1] }));

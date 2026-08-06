@@ -76,6 +76,10 @@
       breakMin: cfg.breakMin,                           // 0 = single interval
       subject: cfg.subject || null,
       ref: cfg.ref || null,
+      /* Build 6.4 — the assignment this session is being spent on. Stored as
+         an id only: the assignment record stays canonical, and a deleted
+         assignment simply stops resolving rather than leaving a stale copy. */
+      assignmentId: cfg.assignmentId != null ? cfg.assignmentId : null,
       book: cfg.book || null,                           // 3i: {id,title}|null — the linked vault entry
       state: "running",
       phase: "work",
@@ -229,6 +233,13 @@
     if (counts.todos) bits.push(counts.todos + " to-do item" + (counts.todos === 1 ? "" : "s"));
     var summary = bits.length ? bits.join(", ") : "timer only";
 
+    /* Build 6.4 — a completed session linked to an assignment banks its
+       minutes as actual effort. Only COMPLETE sessions count: an abandoned
+       session forfeits its award, and it should not quietly inflate effort
+       either. */
+    if (complete && sess.assignmentId != null && KOS.assignments) {
+      KOS.assignments.addEffort(sess.assignmentId, Math.round(dur / 60));
+    }
     KOS.sessions.log({
       type: "focus",
       subject: sess.subject, ref: sess.ref,
@@ -241,6 +252,7 @@
         pauses: sess.pauses,
         distractions: sess.distractions.length,
         activities: counts,
+        assignmentId: sess.assignmentId != null ? sess.assignmentId : undefined,
         summary: summary
       }
     });
@@ -496,13 +508,29 @@
     setup.appendChild(customFields);
 
     /* optional subject/topic link */
-    var subjSel = el("select", { class: "status-sel", onchange: function () { fillRefs(); } }, [
+    var subjSel = el("select", { class: "status-sel", onchange: function () { fillRefs(); fillAssignments(); } }, [
       el("option", { value: "", text: "General study — no link" }),
       el("option", { value: "compsci", text: "Computer Science" }),
       el("option", { value: "maths", text: "Mathematics" }),
       el("option", { value: "it", text: "IT · Data Analytics" })
     ]);
     var refSel = el("select", { class: "status-sel" });
+    /* Build 6.4 — the open assignments a session can be spent on. Read from
+       the canonical store; the option list narrows with the subject. */
+    var asgSel = el("select", { class: "status-sel", "aria-label": "Link to an assignment" });
+    function fillAssignments() {
+      var keep = asgSel.value;
+      asgSel.innerHTML = "";
+      asgSel.appendChild(el("option", { value: "", text: "No assignment" }));
+      if (!KOS.assignments) { asgSel.disabled = true; return; }
+      var rows = KOS.assignments.linkable(subjSel.value || null);
+      rows.forEach(function (a) {
+        asgSel.appendChild(el("option", { value: String(a.id),
+          text: a.title + (a.due ? " · due " + a.due : "") }));
+      });
+      asgSel.disabled = !rows.length;
+      if (keep && rows.some(function (a) { return String(a.id) === keep; })) asgSel.value = keep;
+    }
     function fillRefs() {
       refSel.innerHTML = "";
       refSel.appendChild(el("option", { value: "", text: "Whole subject" }));
@@ -515,10 +543,22 @@
     }
     subjSel.value = cfg.subject || "";
     fillRefs();
+    fillAssignments();
+    /* deep link from an assignment's "Focus on this" — preselect its subject
+       and the assignment itself so the session is linked before it starts */
+    if (arg && arg.assignmentId != null && KOS.assignments) {
+      var linked = KOS.assignments.get(arg.assignmentId);
+      if (linked) {
+        if (linked.subject) { subjSel.value = linked.subject; fillRefs(); }
+        fillAssignments();
+        asgSel.value = String(linked.id);
+      }
+    }
     if (cfg.ref) refSel.value = cfg.ref;
     setup.appendChild(el("div", { class: "fx-link-row" }, [
       el("label", { class: "cal-field" }, [el("span", { text: "Link to subject" }), subjSel]),
-      el("label", { class: "cal-field" }, [el("span", { text: "Topic (optional)" }), refSel])
+      el("label", { class: "cal-field" }, [el("span", { text: "Topic (optional)" }), refSel]),
+      el("label", { class: "cal-field" }, [el("span", { text: "Assignment (optional)" }), asgSel])
     ]));
 
     setup.appendChild(el("button", { class: "btn primary fx-start", text: "◉ Start focus session", onclick: function () {
@@ -529,7 +569,8 @@
         workMin: mode === "pomodoro" ? 25 : w,
         breakMin: mode === "pomodoro" ? 5 : b,
         subject: subjSel.value || null,
-        ref: subjSel.value && refSel.value ? refSel.value : null
+        ref: subjSel.value && refSel.value ? refSel.value : null,
+        assignmentId: asgSel.value ? parseInt(asgSel.value, 10) : null
       });
     } }));
 

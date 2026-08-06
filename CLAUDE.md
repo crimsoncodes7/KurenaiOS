@@ -41,6 +41,7 @@ node tools/smoke29.test.js # Category 6.1 assistant UI/UX acceptance: one contro
 node tools/smoke30.test.js # Build 6.2 Reminders: lists-vs-tags separation, smart sections, recurrence, anti-farming reward bounds, migration, Home/Calendar boundaries, backup fidelity
 node tools/smoke31.test.js # Governor v5 UI/UX: 90-day cadence, meaningful ledger, recovery dispatch, expandable/paginated history, shop departments/previews, shared cropper, status bubbles
 node tools/smoke32.test.js # Build 6.3 Study Files: selectable list + preview stage, fit/zoom/expand/collapse controls, metadata + rename/replace/remove, IndexedDB + backup fidelity, missing/corrupt handling
+node tools/smoke33.test.js # Build 6.4 Assignment Tracker: one canonical record, derived Calendar/Countdown/Home/Focus surfaces, lifecycle (submit/complete/reopen/overdue), filters, delete-removes-derived-surfaces, backup fidelity
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
@@ -96,7 +97,7 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 32 suites are the release gate (smoke17 the
+the current test inventory. All 34 suites are the release gate (smoke17 the
 Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
 Build 4c games integrations). Suites 1–16 plus the running-Chrome visual
 audit were verified green on 2026-07-13; all 17 on 2026-07-16; all 18 plus
@@ -349,7 +350,12 @@ Collected from every build. If a change would break one of these, stop and say s
 27. Navigate only via `KOS.show` (history/forward/rail state). Charts are
     hand-built inline SVG via `KOS.charts` — no charting library. Study owns
     subject work, Review and Exams & Papers; Productivity owns Focus Timer,
-    Reminders, Habits and Calendar. Reminders own state.reminders (lists are
+    Reminders, Habits and Calendar. The Assignment Tracker (view `assignments`,
+    Study) owns state.assignments and is the ONE record for an assignment:
+    Calendar chips, Countdown rows, the Home urgent card and Focus-session
+    links are all DERIVED reads, never copies, so deleting an assignment
+    removes every surface it appeared on and can leave no orphan event.
+    Reminders own state.reminders (lists are
     containers, tags are cross-list labels); dated ones ride the Calendar grid
     but NEVER KOS.calendar.deadlines(). Review composes the legacy `due` and
     `cardstats` routes, so keep both ids working. `KOS.workspaceTabs` is the
@@ -480,6 +486,14 @@ IndexedDB kurenai-os-media (v7) ── mediadb.js owns schema + indexes + bulkUp
               shelfSkin, shrineStyle, lastTick, lastBacklogDrain,
               milestones },             // milestones: lazily-created map of streak-bonus keys → run-start date
   calendar: { nextId, seeded, events, notifyDays, notified },
+  assignments: {                          // Build 6.4 — THE canonical assignment
+    v, nextId,
+    items: [ /* {id,title,subject,type,description,assigned,due,dueTime,status,
+                  progress,priority,estimateMins,actualMins,subtasks[],notes,
+                  topics[{subject,ref}],alerts[],alerted{},showInCalendar,
+                  showInCountdown,rewarded,created,updatedAt,submittedAt,
+                  completedAt} */ ]
+  },
   todo: { nextId, manual, autoChecked },   // manual[] is LEGACY — emptied by the 6.2 migration
   reminders: {                            // Build 6.2 — the Reminders page's store
     v, nextId, migrated,

@@ -361,6 +361,12 @@
     todayRow.appendChild(pathCard);
     var side = el("div", { class: "home-side" });
     side.appendChild(KOS.calendar.countdownWidget(null));
+    /* Build 6.4 — urgent assignments, DERIVED from the one record. The card
+       is absent entirely when nothing is due, so Home stays quiet. */
+    if (KOS.assignmentsUrgentCard) {
+      var asgCard = KOS.assignmentsUrgentCard();
+      if (asgCard) side.appendChild(asgCard);
+    }
     todayRow.appendChild(side);
     main.appendChild(todayRow);
 
@@ -724,6 +730,13 @@
         el("button", { class: "btn primary", text: "◉ Start focus", onclick: function () { KOS.show("focus"); } })
       ])
     ]));
+
+    /* Build 6.4 — the Assignment Tracker is a tab page on the subject desk;
+       selecting it opens the tracker already filtered to this subject. */
+    main.appendChild(KOS.workspaceTabs([
+      ["Overview", "subject", sid, "subject"],
+      ["Assignments", "assignments", sid, "assignments"]
+    ], "subject", "Subject pages", "subject-workspace-tabs"));
 
     /* the desk band: board summary + one column per paper/unit (Sol) */
     var units = {};

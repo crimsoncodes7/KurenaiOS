@@ -62,6 +62,22 @@
       autoChecked: {}                  // "YYYY-MM-DD|autoKey" -> true (per-day auto item ticks)
     },
 
+    /* ---- Build 6.4: the Assignment Tracker (core/assignments.js) ----
+       The canonical assignment record. Calendar chips, Countdown rows, the
+       Home urgent card and Focus-session links are all DERIVED from this
+       array — nothing else stores an assignment, so deleting one removes
+       every surface it appeared on. Rides the normal state export. */
+    assignments: {
+      v: 1,
+      nextId: 1,
+      items: []
+      /* {id,title,subject,type,description,assigned,due,dueTime,status,
+          progress,priority,estimateMins,actualMins,subtasks[{id,text,done}],
+          notes,topics[{subject,ref}],alerts[minutes],alerted{},
+          showInCalendar,showInCountdown,rewarded,created,updatedAt,
+          submittedAt,completedAt} */
+    },
+
     /* ---- Build 6.2: the Reminders store (core/reminders.js) ----
        Lists are containers (one per item); tags are cross-list labels (many).
        Smart sections are derived, never stored. Rides the normal state export
@@ -195,9 +211,25 @@
     }, 120);
   }
 
+  /* Build 6.5 — an IMMEDIATE, synchronous write. The 120 ms debounce above is
+     a batching nicety, not a durability contract: at `pagehide` there is no
+     later tick to run it in, so a refresh could drop the last fraction of a
+     second of state. The Focus Timer calls this when the page is going away
+     so a reload can never cost a running session the time it had banked. */
+  function flush() {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    try {
+      localStorage.setItem(KEY, JSON.stringify(state));
+    } catch (e) {
+      console.error("Kurenai OS: flush failed", e);
+    }
+  }
+
   KOS.store = {
     state: state,
     save: save,
+    flush: flush,
 
     progressKey: function (subjectId, ref) { return subjectId + ":" + ref; },
 

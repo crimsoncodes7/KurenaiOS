@@ -2830,3 +2830,63 @@ binary elsewhere), **damaged** (stored but 0 bytes), and **unsupported type**.
 **Tests.** `tools/smoke32.test.js` (24 steps) covers A–E, including the
 "no fixed pixel height on the PDF frame" CSS contract so the clipping
 regression can't come back. Suite count is now 32.
+
+---
+
+## ADDENDUM — Build 6.4: the Assignment Tracker · 2026-08-06
+
+One canonical record (`state.assignments`, `js/core/assignments.js`) with a
+Study workspace page (`js/modules/assignments.js`, view `assignments`) and
+four DERIVED surfaces.
+
+**The one-record rule.** Study, Calendar, Countdown, Home and the Focus Timer
+all read the same array; none keeps a copy. Two consequences are deliberate
+and both are asserted by tests:
+
+- **A deadline is not a calendar event.** The grid asks `forDate()` what is
+  due that day, so no event row is ever written. `smoke33` checks that
+  creating an assignment leaves `calendar.events.length` unchanged.
+- **Deleting removes every derived surface at once**, because there was never
+  anything else to delete — the calendar chip, countdown row and Home card
+  all vanish with the record, and real calendar events are untouched.
+
+**Fields.** id, title, subject, type, description, assigned, due + dueTime,
+status, progress, priority, estimateMins, actualMins, subtasks, notes,
+topics, alerts, showInCalendar, showInCountdown, and the timestamps
+(created / updatedAt / submittedAt / completedAt). `normalise()` is the
+single schema gate. Two invariants live there: the terminal statuses ARE
+100% (a "complete" assignment sitting at 40% would make every derived
+surface lie), and clearing the date clears the time.
+
+**Attachments** ride the existing attachment store under a deterministic ref
+(`assignment:<id>`), so backup, restore and cloud sync already carry them and
+there is no second binary store to keep in step.
+
+**Statuses.** Not started → In progress → Blocked → Submitted → Complete.
+Submitting stamps `submittedAt` and forces 100%; completing stamps
+`completedAt`; **reopening clears both stamps and drops progress back to what
+the subtasks actually say**, so a reopened assignment stops claiming to be
+finished. Overdue is judged by the clock, not just the date, and a completed
+assignment is never overdue however late it was.
+
+**Integrations.** Calendar chips (`cal-asg`, muted once submitted) ·
+Countdown merges assignment rows with calendar exams/deadlines in
+`countdownWidget` while leaving `deadlines()` calendar-only, so nothing else
+changes and only assignments explicitly marked **major** appear · Home shows
+an urgent card (overdue first, absent entirely when nothing is due) · the
+Focus Timer gains an assignment picker, and a **completed** session banks its
+minutes as actual effort (an abandoned session banks nothing, matching the
+existing forfeit rule) · related topics are navigable straight to the topic
+page.
+
+**Governor.** Completing logs one `sessions.log({type:"todo"})` with
+`metrics.source:"assignment"` — the sanctioned trickle, never a direct
+economy write. It pays **once per assignment**: the `rewarded` flag means
+reopening and re-completing earns nothing, so the status field is not a
+faucet.
+
+**Tests.** `tools/smoke33.test.js` (21 steps) covers the canonical-record
+claim, the full lifecycle the brief names (create, edit, submit, complete,
+reopen, overdue, delete, reload, backup/restore), filters and sorting, and
+each derived surface including the delete-cleanup and the Home-stays-quiet
+case. Suite count is now 34.

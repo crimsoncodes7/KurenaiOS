@@ -5902,3 +5902,140 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .att-files .att-file { flex: 1 1 200px; }
   .att-stage { padding: var(--card-pad) 16px; }
 }
+
+/* ============================================================
+   Assignment Tracker (Build 6.4).
+   Every surface below is a READ over state.assignments — the
+   page, the Home card, the calendar chip and the countdown row
+   all render the same record, so none of them can drift.
+   ============================================================ */
+.subject-workspace-tabs { margin: 0 0 var(--section-gap); }
+
+.asg-band { display: flex; gap: var(--grid-gap); flex-wrap: wrap; margin-bottom: var(--space-4); }
+.asg-stat {
+  display: flex; align-items: baseline; gap: 7px;
+  padding: 10px 16px; border-radius: 12px;
+  border: 1px solid var(--line2); background: var(--bg1);
+}
+.asg-stat b { font-family: var(--serif); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.asg-stat span { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.asg-stat.bad b { color: var(--danger); }
+
+.asg-tools { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-3); }
+.asg-search { min-width: 220px; flex: 1 1 220px; }
+.asg-count { margin: 0 0 var(--space-2); }
+
+.asg-list { display: flex; flex-direction: column; gap: 8px; }
+.asg-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: var(--space-4);
+  padding: 13px 16px;
+  border: 1px solid var(--line2); border-radius: 12px;
+  background: var(--bg1); cursor: pointer; text-align: left;
+  transition: border-color .15s, background .15s;
+}
+.asg-row:hover { border-color: var(--line); }
+.asg-row.overdue { border-left: 3px solid var(--danger); }
+.asg-row.st-complete, .asg-row.st-submitted { opacity: .68; }
+.asg-row.st-complete .asg-title { text-decoration: line-through; }
+.asg-row-main { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.asg-row-top { display: flex; align-items: baseline; gap: 9px; min-width: 0; flex-wrap: wrap; }
+.asg-title { font-size: 14.5px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+.asg-prio { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--muted); }
+.asg-row.pr-3 .asg-prio { color: var(--danger); }
+.asg-row.pr-2 .asg-prio { color: var(--warning); }
+.asg-row-meta { display: flex; gap: 5px; flex-wrap: wrap; }
+.asg-chip {
+  font-size: 10.5px; padding: 2px 8px; border-radius: var(--radius-pill);
+  border: 1px solid var(--line2); color: var(--muted); background: var(--well); white-space: nowrap;
+}
+.asg-chip.subj { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.asg-chip.due.today { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 40%, transparent); }
+.asg-chip.due.overdue { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: var(--wash-danger); }
+.asg-chip.major { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 40%, transparent); }
+.asg-next { display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: var(--text2); }
+.asg-next-k { font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.asg-row-side { display: flex; align-items: center; gap: var(--space-3); flex: none; }
+.asg-prog { display: flex; align-items: center; gap: 8px; }
+.asg-pct { font-family: var(--mono); font-size: 11px; color: var(--muted); min-width: 34px; text-align: right; }
+
+.asg-status {
+  font-size: 10px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700;
+  padding: 2px 9px; border-radius: var(--radius-pill);
+  color: var(--muted); background: color-mix(in srgb, var(--text) 7%, transparent);
+}
+.asg-status.s-inProgress { color: var(--accent); background: var(--wash-accent); }
+.asg-status.s-blocked { color: var(--danger); background: var(--wash-danger); }
+.asg-status.s-submitted { color: var(--accent2); background: var(--wash-brass); }
+.asg-status.s-complete { color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+
+.asg-track { display: block; width: 90px; height: 6px; border-radius: 4px; background: color-mix(in srgb, var(--text) 10%, transparent); overflow: hidden; }
+.asg-track.sm { width: 100%; height: 4px; }
+.asg-track > i { display: block; height: 100%; border-radius: 4px; background: var(--accent); transition: width .35s; }
+
+/* ---- the modal + detail ---- */
+.asg-modal .med-form, .asg-detail { display: flex; flex-direction: column; gap: var(--space-3); }
+.asg-block h4 { margin: 0 0 7px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.asg-alerts, .asg-topics { display: flex; flex-wrap: wrap; gap: 5px; }
+.asg-alert, .asg-topic {
+  font-size: 11px; padding: 4px 10px; border-radius: var(--radius-pill);
+  border: 1px solid var(--line2); background: var(--well); color: var(--text2);
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.asg-alert.on { background: var(--accent); border-color: var(--accent); color: var(--bg1); font-weight: 600; }
+.asg-topic.link { cursor: pointer; }
+.asg-topic.link:hover { border-color: var(--accent); color: var(--text); }
+.asg-check { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text2); padding: 3px 0; }
+
+.asg-d-head { display: flex; align-items: flex-start; gap: var(--space-4); }
+.asg-d-head h3 { margin: 0 0 3px; font-size: 19px; }
+.asg-d-sub { font-size: 12.5px; color: var(--muted); }
+.asg-late { color: var(--danger); font-weight: 600; }
+.asg-d-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.asg-d-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.asg-d-stat {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 10px 12px; border: 1px solid var(--line2); border-radius: 10px; background: var(--well);
+}
+.asg-d-stat .k { font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.asg-d-stat b { font-family: var(--mono); font-size: 13px; }
+.asg-d-text { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text2); white-space: pre-wrap; }
+.asg-subs { display: flex; flex-direction: column; gap: 5px; }
+.asg-sub { display: flex; align-items: center; gap: 9px; font-size: 13px; }
+.asg-sub.done .asg-sub-t { text-decoration: line-through; color: var(--muted); }
+.asg-sub-t { flex: 1; min-width: 0; }
+.asg-att { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+.asg-att-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text2); }
+
+/* ---- the Home card ---- */
+.asg-urgent { margin-top: var(--space-4); display: flex; flex-direction: column; gap: 6px; }
+.asg-urgent-h { display: flex; align-items: center; gap: 8px; }
+.asg-urgent-h b { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.asg-urgent-h .mini-btn { margin-left: auto; }
+.asg-urgent-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px;
+  padding: 9px 11px; border-radius: 10px; text-align: left;
+  border: 1px solid var(--line2); background: var(--bg1);
+  transition: border-color .15s;
+}
+.asg-urgent-row:hover { border-color: var(--accent); }
+.asg-urgent-row.overdue { border-left: 3px solid var(--danger); }
+.asg-urgent-row .au-t { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.asg-urgent-row .au-m { grid-column: 1 / -1; font-size: 10.5px; color: var(--muted); }
+.asg-urgent-row .asg-track { grid-column: 1 / -1; }
+
+/* ---- the calendar chip ---- */
+.cal-ev.cal-asg { background: var(--wash-accent); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+.cal-ev.cal-asg.overdue { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 50%, transparent); background: var(--wash-danger); }
+.cal-key.cal-asg::before { background: var(--wash-accent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+
+/* the countdown rows became buttons when assignments joined them */
+button.dl-item { width: 100%; text-align: left; cursor: pointer; }
+
+@media (max-width: 760px) {
+  .asg-row { grid-template-columns: minmax(0, 1fr); }
+  .asg-row-side { justify-content: space-between; }
+  .asg-search { min-width: 0; }
+}
+/* a submitted assignment keeps its place on the calendar but reads as done */
+.cal-ev.cal-asg.handed-in { opacity: .55; text-decoration: line-through; }

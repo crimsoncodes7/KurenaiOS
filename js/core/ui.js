@@ -128,7 +128,7 @@
   var SECTION_OF = {
     home: "home",
     subject: "study", ref: "study", review: "study", due: "study", cardstats: "study",
-    tracker: "study", personaldeck: "study",
+    tracker: "study", personaldeck: "study", assignments: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
     focus: "productivity", calendar: "productivity", tasks: "productivity",
     reminders: "productivity",
@@ -149,6 +149,7 @@
       ["IT · Data Analytics", "subject", "it", "pc-it"],
       null,
       ["Review", "review"],
+      ["Assignments", "assignments"],
       ["Exams & Papers", "tracker"],
     ],
     productivity: [
