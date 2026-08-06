@@ -137,7 +137,7 @@
     goals: "collection",
     aniprofile: "collection", vndbprofile: "collection", mediasync: "collection",
     governor: "governor",
-    data: "system", help: "system"
+    data: "system", help: "system", assistant: "system"
   };
   /* subnav entries per section: [label, viewId, arg, pcId] — null = divider */
   var SUBNAV = {
@@ -167,7 +167,8 @@
     ],
     system: [
       ["Backup & Restore", "data"],
-      ["Help & Guide", "help"]
+      ["Help & Guide", "help"],
+      ["Kurenai Assistant", "assistant"]
     ]
   };
   KOS.sectionOf = function (viewId) { return SECTION_OF[viewId] || null; };

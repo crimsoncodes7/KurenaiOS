@@ -179,10 +179,53 @@
     step();
   }
 
+  /* The bulk paste-in DOMAIN path (extracted from the modal for Category 6
+     so the assistant tool and the UI share one implementation): dedupe
+     against the vault + within the paste, create Planned drafts, and log
+     exactly ONE governor session for the whole act (invariant #5 — a no-op
+     paste logs none). cb(err, {added, dupVault, dupPaste}). */
+  function bulkAdd(text, cb) {
+    if (!text || !String(text).trim()) { cb(new Error("Paste some titles first — one per line.")); return; }
+    KOS.mediadb.query({ module: "game" }, function (err, rows) {
+      if (err) { cb(new Error("Could not read the vault: " + err.message)); return; }
+      var existing = {};
+      (rows || []).forEach(function (r) { existing[r.titleLower] = true; });
+      var parsed = parseBulkTitles(String(text), existing);
+      if (!parsed.titles.length) {
+        cb(null, { added: 0, dupVault: parsed.dupVault, dupPaste: parsed.dupPaste });
+        return;
+      }
+      var i = 0;
+      (function step() {
+        if (i >= parsed.titles.length) {
+          /* ONE session for the whole paste: it is one deliberate act.
+             Logging per row would flood the log and mint gold — the same
+             reason bulk sync/import never logs. */
+          KOS.sessions.log({
+            type: "media", subject: null, ref: null, dur: null,
+            metrics: { module: "game", entryId: null,
+              title: parsed.titles.length + " titles pasted in", action: "bulk-add",
+              count: parsed.titles.length }
+          });
+          cb(null, { added: parsed.titles.length, dupVault: parsed.dupVault, dupPaste: parsed.dupPaste });
+          return;
+        }
+        KOS.mediadb.add({ module: "game", title: parsed.titles[i++], status: "planned",
+          syncSource: "manual" }, function (err2) {
+          if (err2) { cb(new Error("Write failed at #" + i + ": " + err2.message)); return; }
+          step();
+        });
+      })();
+    });
+  }
+
   KOS.games = {
     playtimeText: playtimeText,
     steamUrl: steamUrl,
     parseBulkTitles: parseBulkTitles,
+    /* NOTE: the public name `KOS.games.bulkAdd` is the MODAL opener (set
+       later, smoke8-asserted); the shared DOMAIN path is bulkAddTitles. */
+    bulkAddTitles: bulkAdd,
     applySteamImport: applySteamImport,
     backlogWeeks: backlogWeeks
   };
@@ -389,49 +432,23 @@
       placeholder: "Hades\nOuter Wilds\nDisco Elysium\n…one title per line. Steam's library page (steamcommunity.com/id/you/games) copy-pastes cleanly; so does any spreadsheet column." });
     var statusLine = el("p", { class: "sub" });
     var createBtn = el("button", { class: "btn primary", text: "Create drafts", onclick: function () {
-      var text = ta.value;
-      if (!text.trim()) { KOS.ui.toast("Paste some titles first — one per line.", true); return; }
       createBtn.disabled = true;
       statusLine.textContent = "Checking the vault for duplicates…";
-      KOS.mediadb.query({ module: "game" }, function (err, rows) {
-        if (err) { statusLine.textContent = "Could not read the vault: " + err.message; createBtn.disabled = false; return; }
-        var existing = {};
-        rows.forEach(function (r) { existing[r.titleLower] = true; });
-        var parsed = parseBulkTitles(text, existing);
-        if (!parsed.titles.length) {
-          statusLine.textContent = "Nothing new to add — " + parsed.dupVault + " already in the vault, " +
-            parsed.dupPaste + " repeated in the paste.";
+      bulkAdd(ta.value, function (err, report) {
+        if (err) { statusLine.textContent = err.message; createBtn.disabled = false; return; }
+        if (!report.added) {
+          statusLine.textContent = "Nothing new to add — " + report.dupVault + " already in the vault, " +
+            report.dupPaste + " repeated in the paste.";
           createBtn.disabled = false;
           return;
         }
-        statusLine.textContent = "Creating " + parsed.titles.length + " drafts…";
-        var i = 0;
-        (function step() {
-          if (i >= parsed.titles.length) {
-            /* ONE session for the whole paste: it is one deliberate act.
-               Logging per row would flood the log and mint gold — the same
-               reason bulk sync/import never logs. */
-            KOS.sessions.log({
-              type: "media", subject: null, ref: null, dur: null,
-              metrics: { module: "game", entryId: null,
-                title: parsed.titles.length + " titles pasted in", action: "bulk-add",
-                count: parsed.titles.length }
-            });
-            var skipped = [];
-            if (parsed.dupVault) skipped.push(parsed.dupVault + " already in the vault");
-            if (parsed.dupPaste) skipped.push(parsed.dupPaste + " repeated in the paste");
-            KOS.ui.toast("Added " + parsed.titles.length + " draft" + (parsed.titles.length === 1 ? "" : "s") +
-              (skipped.length ? " (skipped " + skipped.join(", ") + ")" : "") + " — each opens for fleshing out like any entry.");
-            close();
-            onDone && onDone();
-            return;
-          }
-          KOS.mediadb.add({ module: "game", title: parsed.titles[i++], status: "planned",
-            syncSource: "manual" }, function (err2) {
-            if (err2) { statusLine.textContent = "Write failed at #" + i + ": " + err2.message; createBtn.disabled = false; return; }
-            step();
-          });
-        })();
+        var skipped = [];
+        if (report.dupVault) skipped.push(report.dupVault + " already in the vault");
+        if (report.dupPaste) skipped.push(report.dupPaste + " repeated in the paste");
+        KOS.ui.toast("Added " + report.added + " draft" + (report.added === 1 ? "" : "s") +
+          (skipped.length ? " (skipped " + skipped.join(", ") + ")" : "") + " — each opens for fleshing out like any entry.");
+        close();
+        onDone && onDone();
       });
     } });
     var box = el("div", { class: "modal med-modal gm-bulk-modal" }, [

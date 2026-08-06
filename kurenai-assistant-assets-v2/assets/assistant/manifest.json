@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "character": {
+    "id": "kurenai-reinterpretation-sheet-extract-v2",
+    "displayName": "Kurenai",
+    "recommendedSurface": "portrait",
+    "fullIdle": "./mascot/full/idle.png"
+  },
+  "states": {
+    "idle": {
+      "image": "./mascot/portrait/idle.png",
+      "className": "is-idle"
+    },
+    "thinking": {
+      "image": "./mascot/portrait/thinking.png",
+      "className": "is-thinking"
+    },
+    "working": {
+      "image": "./mascot/portrait/working.png",
+      "className": "is-working"
+    },
+    "success": {
+      "image": "./mascot/portrait/success.png",
+      "className": "is-success",
+      "autoReturnMs": 2200
+    },
+    "error": {
+      "image": "./mascot/portrait/error.png",
+      "className": "is-error"
+    },
+    "confirmation": {
+      "image": "./mascot/portrait/confirmation.png",
+      "className": "is-confirmation"
+    }
+  },
+  "logo": {
+    "emblem": "./logo/whispering-bloom-emblem.png",
+    "wordmark": "./logo/whispering-bloom-wordmark.png",
+    "altEmblem": "./logo/whispering-bloom-emblem-alt.png"
+  }
+}

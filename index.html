@@ -53,6 +53,12 @@
     </div>
     <div class="topbar-right">
       <div id="hud"></div>
+      <button id="assistant-trigger" class="assistant-trigger" type="button"
+              aria-label="Open the Kurenai assistant" aria-haspopup="dialog" aria-expanded="false"
+              title="Kurenai assistant">
+        <img src="assets/assistant/logo/whispering-bloom-emblem.png" alt="" aria-hidden="true">
+        <span class="at-dot" aria-hidden="true"></span>
+      </button>
       <button id="sync-status" class="sync-chip" type="button" hidden aria-live="polite"></button>
       <div class="save-wrap" title="Every change autosaves to this browser">
         <span id="save-dot"></span><span>saved</span>
@@ -129,6 +135,13 @@
 <script src="js/core/pwa.js"></script>
 <!-- Build 4c: game Edge-Function client (IGDB search + verified Steam) -->
 <script src="js/core/gameapi.js"></script>
+<!-- Category 6: the Kurenai Assistant provider layer (Ollama local
+     transport + Gemini/DeepSeek via the ai-chat Edge Function) and the
+     explicit tool registry (binds to domain modules lazily at call time) -->
+<script src="js/core/ai.js"></script>
+<script src="js/core/aitools.js"></script>
+<script src="js/core/aiorchestrator.js"></script>
+<script src="js/core/aimemory.js"></script>
 <!-- deep revision content (wave 1) -->
 <script src="js/data/content/cs-programming.js"></script>
 <script src="js/data/content/cs-theory-computation.js"></script>
@@ -165,6 +178,9 @@
 <script src="js/modules/help.js"></script>
 <script src="js/modules/focus.js"></script>
 <script src="js/modules/cloudui.js"></script>
+<!-- Category 6 Phase E: the Kurenai Assistant surfaces (drawer + page +
+     contextual actions) over the Phase A–D services -->
+<script src="js/modules/assistant.js"></script>
 <!-- Collection Matrix views — medview.js is the shared vault-view toolkit
      (cover/lazy list/pills/empty states/editor shell) the four views build
      on; each view registers its editor in KOS.mediaEditors (dispatch lives

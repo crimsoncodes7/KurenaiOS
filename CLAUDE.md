@@ -28,6 +28,21 @@ node tools/smoke16.test.js # Build 5 image positioning: shared crop contract/UI,
 node tools/smoke17.test.js # Build 4a cloud sync: syncId schema (DB v8, files v2), tombstones, push/pull/echo-freedom, first-link matrix, empty-remote guard, reward neutrality, attachment metadata-vs-binary boundary, restore re-baseline (Supabase boundary mocked)
 node tools/smoke18.test.js # Build 4b PWA: manifest/icons, service-worker contract (safe updates, API-cache exclusion, self-maintaining precache), pwa.js inertness, phone-tier CSS contract
 node tools/smoke19.test.js # Build 4c games: gameapi graceful degradation, manual-baseline UI, applySteamImport merge law (gap-fill only, one session), Edge Function source contracts (server-side check_authentication, no client SteamID, per-function verify_jwt, secrets via env only)
+node tools/smoke20.test.js # Category 6 Phase A: assistant provider layer (Ollama transport + Gemini/DeepSeek ai-chat adapters, routing, no-silent-fallback, cap/metering source contracts, Gemini schema sanitizer + thoughtSignature round-trip)
+node tools/smoke21.test.js # Category 6 Phase B: the 64-tool registry (schema validation, real-domain invocation, governor invariants, generation atomicity)
+node tools/smoke22.test.js # Category 6 Phase C: orchestrator (bounds, duplicate/mutation guards, live-context, confirmation integrity, audit lifecycle)
+node tools/smoke23.test.js # Category 6 Phase D: conversations + bounded context + explicit-consent memory (RLS/isolation source contracts, injection inertness)
+node tools/smoke24.test.js # Category 6 Phase E: the three UI surfaces (shared controller, mascot states, drawer, contextual actions, dedicated page)
+node tools/smoke25.test.js # Category 6 Phase F: Ollama model-config path (input-persist, reload hydration, per-category resolution, empty→error / configured→/api/chat)
+node tools/smoke26.test.js # Category 6 Phase F: Ollama request-payload compat (≤12 tool shortlist, ollama schema sanitizer, tools+format conflict avoidance, surfaced error body)
+node tools/smoke27.test.js # Category 6 Phase F: conversational continuity (in-memory history signed-out, num_ctx 8K budgeting, follow-up shortlist shrink, pending-artifact propose/save)
+node tools/smoke28.test.js # Category 6 Phase F: execution grounding (verified write receipts, proposal≠persisted, exact-artifact save incl. edits, false-success/promise-no-action correction, batch atomicity, retrieval proof)
+```
+
+**Live integration** (Category 6, needs migrations applied + ai-chat deployed):
+```sh
+node tools/assistant_integration.mjs                 # auth + RLS (6 tables) + persistence + audit (no spend)
+node tools/assistant_integration.mjs --live-provider # + concurrency-safe cap + live Gemini (needs GEMINI_API_KEY)
 ```
 (smoke4–smoke17 additionally need `npm install fake-indexeddb` — jsdom ships no IndexedDB.)
 

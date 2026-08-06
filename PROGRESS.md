@@ -2036,3 +2036,374 @@ Local implementation complete; server deployment pending user approval.
   research, not assumption.
 
 Also still deferred from 4b: the dedicated mobile UX polish pass.
+
+# CATEGORY 6 — Kurenai Assistant (in progress)
+
+Design record: `CATEGORY6_PLAN.md` (authoritative for scope, tool registry,
+autonomy tiers, status). Branch: feature/category-6-kurenai-assistant.
+
+## Phase A — model provider layer (2026-07-17)
+
+- `js/core/ai.js`: one normalized provider contract over local Ollama
+  (client-side transport, on-demand health, never assumed available) and
+  Gemini/DeepSeek (server-side via the new `ai-chat` Edge Function — raw
+  REST, no SDKs, keys only in function secrets). Per-task-category routing
+  (tutor/complex → gemini-3.5-flash, crud → Ollama, generation →
+  deepseek-v4-flash), fallback ONLY when explicitly configured and always
+  labelled (`usedFallback`), single network-only retry, cancellation,
+  correlation ids, normalized error kinds.
+- `supabase/migrations/20260718000001_kos_ai.sql`: server-owned metering
+  (kos_steam pattern) — kos_ai_daily + atomic capped `kos_ai_consume`
+  (security definer, service_role-only EXECUTE, concurrency-safe single
+  statement), kos_ai_usage metadata rows (never prompts/content/keys).
+  Clients: select-own only.
+- smoke20 (22 steps) covers the transport shapes, routing, the
+  no-silent-paid-fallback property, retries/cancellation, health, and the
+  server source contracts (meter-before-provider, header-auth, redaction,
+  RLS). Not yet deployed/migrated — live verification and API keys are
+  deliberately deferred to Phase F.
+
+## Phase B — complete tool layer (2026-07-18)
+
+- `js/core/aitools.js`: 64 registered tools (study 21 · governor/focus 10 ·
+  collection 15 · planner 16 · archive 5 · search 1 · sync 4 · app 2) —
+  every one wrapping the REAL domain function the UI uses, with strict
+  schema validation (no coercion, unknown fields rejected), live target
+  revalidation, autonomy tiers (read/reversible/consequential), sanitized
+  results (no blobs/tokens/reward bookkeeping) and undo where reliable.
+- Shared-domain extractions so the UI and assistant ride ONE implementation:
+  `KOS.hub.search` (topbar search now uses it too), `KOS.games.bulkAddTitles`
+  (the modal calls it; the public `bulkAdd` name stays the modal opener,
+  smoke8-asserted), `KOS.mediaSearch.createFromResult` (DOM-free
+  create-then-mirror), `KOS.mediasync.run` (both provider sync buttons now
+  ride it; loading state still immediate), `focus.endEarly({confirmed})`.
+- New custom-quiz store (`state.custom.quizzes`, srs CRUD, atomic
+  validate-before-save) + the topic Quiz tab renders custom/AI questions as
+  a separate labelled block with per-question delete; custom flashcards
+  carry an `ai` flag surfaced as "AI · Custom" badges.
+- Generation tools (`study_generate_flashcards` / `study_generate_quiz`)
+  ground in `KOS.content` canonical notes, request structured output, and
+  validate application-side before ANY save — a malformed batch (bad JSON,
+  extra fields, out-of-range answer) saves nothing and offers a retry.
+- smoke21 (34 steps) covers the registry, validation matrix, real-domain
+  invocation, governor invariants #3/#5/#5a through the tool layer,
+  generation atomicity, quickEdit parity, tombstones, and the sync runner.
+- Asset pack `kurenai-assistant-assets-v2/` (mascot state portraits,
+  Whispering Bloom logos, manifest, voice notes) recorded in
+  CATEGORY6_PLAN.md for Phase E; untouched until then.
+
+## Phase C — orchestrator (2026-07-18)
+
+- `js/core/aiorchestrator.js`: the policy layer over the Phase B registry —
+  bounded loops (8 turns / 12 tool calls / one request at a time / explicit
+  cancel), duplicate-mutation guard + single-failed-retry + noRetry after
+  any write, live-context revalidation immediately before every write,
+  confirmation integrity (stored canonical args execute byte-for-byte;
+  expiry, rejection, context/target change and supersession all invalidate
+  with a did-NOT-run report to the model), per-tool permissions with an
+  unbreakable consequential floor, sanitized audit lifecycle rows
+  (proposed→awaiting→confirmed/rejected→executed/failed/cancelled) through
+  the user's own RLS session with a serialized signed-out queue.
+- Migration 20260718000002: conversations/messages/memory/audit tables,
+  owner-only RLS, audit undeletable + status-checked. Audit wired now;
+  the rest is Phase D.
+- smoke22 (22 steps) green; full smoke gate green before commit.
+
+## Phase D — conversations + explicit-consent memory (2026-07-18)
+
+- `js/core/aimemory.js`: KOS.ai.convo (UUID conversations, deterministic
+  client-seq message ordering, validated appends, bounded context assembly
+  — ≤30 msgs/≤24k chars, text-only history with tool activity folded to
+  inert lines so resume can never replay an action, idempotent digest
+  summaries) and KOS.ai.memory (writes only via the two consent origins,
+  secrets screen before saving, list/edit/delete, loud signed-out states).
+- Registry: memory_list (read) + memory_save/update/delete (consequential —
+  the Phase C confirmation card IS the memory-proposal approval).
+- Orchestrator: prepRequest loads memories + history before turn 1;
+  user/assistant/tool-summary rows persist as the request runs; one clear
+  persist_warning on transient failure; memories/summary ride the system
+  prompt only as labelled DATA. Phase C gating untouched — smoke23 proves
+  hostile stored content still cannot skip a confirmation.
+- smoke23 (15 steps) green; full smoke gate green before commit. Live RLS
+  isolation remains the Phase F integration script.
+
+## Phase E — the three assistant UI surfaces (2026-07-18)
+
+- Assets: `kurenai-assistant-assets-v2/assets/assistant/` copied to
+  `assets/assistant/` (production area beside icons/); deploy_pages.sh stages
+  it; sw.js VERSION → kos-c6e-1.
+- `js/modules/assistant.js`: ONE shared controller (KOS.assistant) behind the
+  global drawer (topbar Whispering Bloom emblem trigger), contextual actions,
+  and the dedicated `assistant` view. One submission path → KOS.ai.orchestrator;
+  confirmations use the canonical Phase C card; conversations/memory/routing/
+  audit ride the Phase A–D services. The mascot is one reusable component
+  (compact + large) driven EXPLICITLY by lifecycle events (six states, image
+  supplementary to always-present text status, glyph fallback, reduced-motion).
+- Contextual actions: topic (ref) page (Ask / Make flashcards / Make a quiz)
+  and the vault entry editor (Ask about this entry) — shared path, live
+  context, never a direct tool call.
+- Dedicated page tabs: Chat / History / Settings (routing+fallback, no keys) /
+  Memory / Permissions (consequential floor unweakenable) / Activity (audit
+  lifecycle, no delete control).
+- smoke24 (18 steps) green; full smoke1–24 gate green. Local Chrome browser
+  pass: drawer + page share one live state; a stubbed provider drove
+  thinking → confirmation card (identical in both surfaces) → Confirm → REAL
+  vault delete → success mascot; tabs wrap without clipping; signed-out states
+  honest; phone-tier bottom-sheet verified live; zero console errors.
+- Voice: DEFERRED (needs its own TTS Edge Function; documented in the plan).
+
+## Phase F — live verification (2026-07-18)
+
+- Migrations 20260718000001 (kos_ai) + 20260718000002 (kos_assistant)
+  applied to production pdogeklnbaolnccqricb; ai-chat deployed; GEMINI_API_KEY
+  + AI_DAILY_CAP=50 set. DeepSeek DEFERRED (no key; adapter intact, 503 fail-
+  closed).
+- `tools/assistant_integration.mjs` — live PASS against production. A–D+G
+  (no spend) and E+F (--live-provider, Gemini): auth rejection (401), RLS
+  isolation positive+negative across all six new tables (metering server-
+  owned no-client-write; conversations/messages/memory owner-only; audit
+  owner insert/update + NO delete even for the owner), deterministic message
+  ordering, conversation/memory persistence+resume+cleanup, audit lifecycle
+  + status CHECK, concurrency-safe cap (counter==accepted), live Gemini text
+  200 + structured JSON 200 (schema-valid), unknown-model clean error, no
+  secret leaks anywhere.
+- TWO real defects found + fixed under live conditions (both Edge-Function-
+  contained, regression-tested in smoke20; full 1–24 gate green):
+  1. Gemini functionDeclarations reject additionalProperties → 400 on the
+     first tool turn. Fix: geminiSchema() recursive whitelist sanitizer for
+     tool params + structured schema (client/other providers untouched).
+     Verified live 400→200 with the real 83-tool payload.
+  2. Gemini 3.5-flash (thinking model) needs the functionCall thoughtSignature
+     echoed on the follow-up turn. Fix: thread it through fromGemini→validate
+     →toGemini. Also surface the redacted upstream error reason. Verified
+     live: follow-up turn 400→accepted (429 rate).
+- QUOTA WALL: the free-tier Gemini key's DAILY quota was exhausted by the
+  two-defect debugging (our cap read 17/50; the 429 is Google's, persists
+  after 4+ min idle). Blocks the final live-Gemini UI round-trips this
+  session (consequential gating end-to-end, generation-saves, stale-context,
+  memory, resume). Client logic proven in smoke22-24; deferred to a user-
+  assisted post-quota-reset checklist + the Ollama checklist.
+
+## Phase F — Ollama local-provider verification (2026-07-18, user-assisted, real machine)
+
+Run from the local app (http://localhost:8471) against real Ollama on the
+user's machine — NOT a sandbox/mock.
+- Ollama v0.31.2 installed, server running at :11434; mistral:latest (7.2B)
+  pulled, advertises capabilities ['completion','tools'].
+- App detects availability LIVE across the CORS boundary: KOS.ai.health
+  ("ollama") → available:true, models:[mistral:latest]. Ollama 0.31's
+  default origins already allow http://localhost:8471 (no OLLAMA_ORIGINS
+  change needed locally; the deployed pages.dev origin WOULD need it — noted
+  in the checklist).
+- Basic local conversation: mistral answered correctly via the app transport
+  (~19.5s on this Mac), with usage metadata, provider:ollama.
+- Local tool-calling TRANSPORT verified: with a minimal tool + directive
+  prompt mistral emitted a valid structured tool_call the app parsed
+  correctly. HONEST CAVEAT: mistral 7B degrades to PROSE under the full
+  83-tool payload (replied describing a hallucinated function instead of
+  calling the real one). The app behaved SAFELY — saw no valid tool_call,
+  relayed the text, executed nothing hallucinated. Recommend a stronger
+  small tool model (qwen2.5:3b/7b, llama3.2:3b) for reliable local tool use.
+  The orchestrator's gating/execution of a local tool call is provider-
+  independent (proven in smoke22-24).
+- Ollama unavailable (dead endpoint): app reports available:false with the
+  OLLAMA_ORIGINS/not-running hint; a crud request with fallback OFF fails
+  cleanly (kind:network, provider:none) — NO silent switch to a billable
+  provider.
+- Explicit fallback enabled (ollama→gemini): the switch is attempted and
+  LABELLED (usedFallback:true, fellBackFrom:"ollama") — never silent.
+- REMAINING (user-assisted, when convenient): confirm from the DEPLOYED app
+  (kurenai-os.pages.dev) with OLLAMA_ORIGINS including that origin; a full
+  end-to-end local reversible-tool EXECUTION with a stronger tool model; the
+  phone "assumed unavailable" state. App-side behaviour all verified.
+
+## Phase F — Ollama model-config fix (2026-07-18)
+
+Reported: Settings shows the Ollama model (e.g. qwen3:4b-instruct) but a
+request errors "No Ollama model is configured." Traced the full path
+(input → persist → reload hydration → per-category resolution → adapter
+lookup → /api/chat request): the path is SOUND — a configured model persists
+to localStorage, hydrates on reload, resolves for every category, and reaches
+/api/chat with the exact model; an empty model correctly gives the error.
+- ROOT CAUSE: the Settings model input saved only on `change` (blur). A model
+  typed and then abandoned by switching tab / submitting — KOS.show destroys
+  the input, `change` never fires — was discarded, leaving the category's
+  model empty at request time. The UI "showed" the model (typed into the
+  input) but it was never persisted.
+- FIX (js/modules/assistant.js): the model input and the Ollama endpoint
+  input now also persist on `input` (every keystroke), so a typed value can
+  never be lost before blur. `change` kept as a final save.
+- smoke25 (9 steps) locks all six properties: input-persists-before-blur,
+  reload-hydrates, per-category resolution, new-conversation submit uses the
+  model, availability+request share the config source, empty→error /
+  configured→reaches /api/chat. Verified live on a fresh port with the real
+  qwen3:4b-instruct (crud→ollama→/api/chat→real answer, 3.9s).
+- Dev note: the reused localhost port served a STALE cached assistant.js
+  (the documented 4b SW/HTTP-cache artifact) which masked the fix until a
+  fresh port was used — not a code issue. sw.js VERSION → kos-c6f-1. Also
+  noted: cloud-sync whole-document LWW (invariant #33) can revert in-memory
+  settings if a pull applies an older kos_state — relevant only when signed
+  in, separate from this fix.
+
+## Phase F — Ollama request-payload compatibility (2026-07-18)
+
+Reported: the model reaches /api/chat but a real request returns "Ollama
+returned HTTP 400." Captured the actual error body against real qwen3:4b-
+instruct: `request (8832 tokens) exceeds the available context size (4096
+tokens)`. NOT a schema-keyword incompatibility — Ollama/qwen3 ACCEPTS
+additionalProperties/maxLength/nested schemas (verified: 1 full tool = 200;
+83 tools = 400). Root cause: the ~80-tool payload overflows a small local
+model's context window.
+- FIX 1 — deterministic tool shortlisting (KOS.ai.tools.shortlist): a local
+  model gets a ≤12-tool subset chosen from the request category + live view
+  (universal app_get_context/search_app first, then the focused domain).
+  The orchestrator applies it ONLY when the resolved provider is ollama;
+  cloud models still get the full set. Phase C stays authoritative —
+  validates/gates/executes any registered tool. Payload 8832 → 1513 tokens.
+- FIX 2 — Ollama schema sanitizer (ai.js ollamaSchema): recursively whitelists
+  only structural/semantic keywords (type/description/enum/properties/
+  required/items/anyOf) for transmitted tool params, dropping validation-only
+  keywords that just inflate the payload. Client keeps the FULL strict schema
+  for Phase B validation (validate() reads the registry, not the transmitted
+  copy). Parallels the Gemini adapter; Gemini/DeepSeek untouched.
+- FIX 3 — tools+format conflict avoidance: a tool-selection turn omits the
+  structured `format` (a local model can't emit a tool_call AND satisfy a
+  forced JSON schema); pure generation turns (no tools) still send format.
+- FIX 4 — surface the real Ollama error body: {"error":"..."} /
+  {"error":{"message":"..."}} is redacted (token-blob strip, 200-char cap)
+  and shown in the UI instead of a bare status code.
+- Verified LIVE end-to-end through the orchestrator with real qwen3:4b-instruct:
+  "add a task" → shortlist → todo_add_task selected + EXECUTED (task added) →
+  natural final answer. Full multi-turn round-trip, no 400. smoke26 (10 steps)
+  locks all seven properties. sw.js VERSION → kos-c6f-2. Full smoke1-26 green.
+
+## Phase F — conversational continuity + Ollama context budgeting (2026-07-18)
+
+Reported: a follow-up ("add it", "yes add that") lost the previous turn — the
+model re-asked for subject/ref/q/a it had just been given. Captured the actual
+payload: SIGNED OUT, turn 2 sent only [system, user] to Ollama — no prior
+history. Root cause: prepRequest only assembled history when convoReady (a
+persisted, signed-in conversation); signed-out local-Ollama chats carried
+nothing across sends. A second bug: the no-tools completion branch never
+pushed the assistant answer into req.messages, so even the persisted path
+dropped the immediately-previous reply from continuity.
+- FIX: the orchestrator now keeps in-memory sessionHistory as the PRIMARY
+  continuity source (works signed out), keyed by a client conversationKey the
+  controller passes (reset on new/open conversation). Persistence hydrates it
+  once on resume; each completed turn (user + assistant + folded tool
+  activity) is appended. The final assistant answer is now retained in
+  req.messages.
+- Ollama context budgeting: request num_ctx 8192; reserve output (1024) +
+  tools (~2200) + system (~700); give the rest to recent history, keeping the
+  LATEST turns and never silently dropping the immediately-previous one
+  (dropped head becomes a deliberate summary line). Follow-up tool shortlist
+  shrinks 12 -> 6 once a tool has run. num_ctx threaded through the ollama
+  adapter to body.options.
+- Pending-artifact mechanism (KOS.ai.tools): study_propose_flashcards /
+  study_propose_quiz generate + validate but DON'T save, holding the object;
+  study_save_proposed ("add it"/"save that"/"yes") saves it via the normal
+  srs write + reversible tier; a live proposal injects a save-hint into the
+  system prompt; cleared on conversation change or when the topic no longer
+  resolves. Gemini/DeepSeek behaviour unchanged (no num_ctx, full tool list,
+  full client schemas for validation).
+- Verified LIVE signed-out with real qwen3: turn 2 carried [system,user,
+  assistant,user] and a bare "summarize that topic" resolved to the topic
+  from turn 1. smoke27 (13 steps). sw.js VERSION -> kos-c6f-3. Full
+  smoke1-27 gate green.
+
+### Category 6 Phase F — execution grounding (2026-07-20)
+
+Live qwen3:4b testing exposed a hallucinated-success defect: the model wrote
+flashcards as PROSE without calling a tool, claimed "this has been saved" with
+nothing written, invented a saved location, and left "I'll now generate…" as
+its final answer. Fixed at the orchestrator + UI layer (the model is never
+trusted for ground truth):
+
+- **Verified write receipts** — a write tool that actually executes records a
+  receipt `{tool, target, result, summary}` in `req.writeReceipts` and emits
+  `onReceipt`; the drawer/page render it as an app-generated "✓ done" row
+  (real tool + target + result). This ledger — not the model's prose — is the
+  only proof a mutation happened, and is returned in the onDone payload.
+- **Proposal ≠ persisted** — study_propose_* emit `onProposal`; the UI shows a
+  PROPOSED-not-saved card (`proposalCard` in assistant.js) with Edit / Discard
+  / Save. Save runs the EXACT stored (and optionally edited, via
+  `updatePendingArtifact`) artifact through study_save_proposed on the new
+  deterministic `KOS.ai.orchestrator.runTool` path — same Phase C gating,
+  audit, receipts and confirmation as the model loop. The ref-page "Make
+  flashcards/quiz" contextual actions now call runTool directly, so a small
+  model never has to interpret "save that".
+- **Completion checking** (`completeOrNudge`) — before accepting a
+  no-tool-call final answer: a success-claim with no write, or an
+  action-promise (future-intent word + mutation verb) with nothing done, gets
+  ONE corrective retry; if still unfulfilled a deterministic "⚠ Correction /
+  Note" replaces the false text. A legitimate proposal counts as "acted", so a
+  proposal-card turn is never falsely corrected. SUCCESS_RX/PROMISE_RX are
+  auxiliary/object-bound so benign replies ("First saved reply", "done") don't
+  trip.
+- Batch atomicity preserved (8 requested → exactly 8 validated proposals, or a
+  clean failure holding/saving nothing); retrieval after save returns the real
+  persisted record (count + topic). Gemini/DeepSeek routing and Phase C
+  confirmation unchanged.
+
+smoke28 (14 steps). sw.js VERSION -> kos-c6f-4. Full smoke1-28 gate green.
+
+### Category 6 Phase F — live-Gemini UI acceptance DONE (2026-07-21)
+
+The Google free-tier **daily** quota (which had blocked the final UI captures)
+reset. Confirmed with a single minimal probe (ai-chat health 200,
+`gemini configured, used:0`; a `maxTokens:1` call → clean normalized 200) and a
+second probe capturing real text ("A stack is a linear data structure that
+follows the Last-In, First-Out (LIFO) principle.", finish STOP). The live-Gemini
+UI flows were then driven through the **real running app** (local http :8899,
+latest bundle, sw `kos-c6f-4`, signed-in throw-away user, every task category
+routed to Gemini):
+
+- **A · multi-turn round-trip** — "How many completed topics per subject?" →
+  mascot thinking→working→idle, app-generated `✓ study_list_subjects` (single),
+  natural final answer matching seeded data (compsci 2/156, maths 1/89, IT
+  0/110). thoughtSignature survived the follow-up turn; no 400; no duplicate
+  execution; audit `executed·read`.
+- **B · consequential gating** — delete a disposable anime: proposed, zero
+  mutation pre-confirm, canonical Phase C card (tool + CONSEQUENTIAL + target +
+  read-only args `{"entryId":4}` + ~120s expiry). **Tamper proof**: rewriting
+  the DOM args/target to `entryId 3`/"Witch Hat Atelier" did not change the
+  stored action — Confirm deleted entry **4**, entry 3 survived; the receipt
+  `✓done collection_delete_entry #4 deleted` appeared only after the write;
+  audit `executed·consequential`. **Reject**: a second disposable, Decline left
+  it intact and wrote a `rejected` audit row.
+- **C · generation → proposal → save** — read the real notes
+  (`✓ study_read_notes`), `study_propose_flashcards` produced a pending artifact
+  (savedCount 0) shown as **"PROPOSED — NOT SAVED YET · gemini"**. **Edit**
+  changed only the stored artifact (`[EDITED-BY-USER]`, still unsaved); **Save
+  to deck** ran the exact stored+edited artifact via `runTool` →
+  `study_save_proposed` → green **"✓ SAVED TO YOUR DECK"** receipt, two
+  `ai:true` cards persisted to compsci 4.1.1.1 with the edit intact. "What did
+  you just add?" called `study_list_flashcards` and returned the real records.
+- **G · reload & resume** — after a full reload, History listed the persisted
+  conversations; reopening restored the transcript coherently with prior tool
+  chips **inert (no replay)** — saved card count stayed 2, never 4.
+- **H · audit display** — Activity tab shows the honest ledger
+  (proposed/executed/failed/rejected, tool + tier + target + timestamp +
+  truncated safe result, no secrets, no oversized payload, and no delete
+  control).
+- **I · provider failure + recovery** — a Gemini per-minute RPM limit surfaced
+  as a safe redacted error ("gemini is rate-limiting — try again shortly.") with
+  the error mascot; no mutation retried; a later request recovered and produced
+  the confirmation card.
+
+Execution grounding (ac5b041) held throughout: proposal ≠ persisted, every
+receipt app-generated from the real tool result, saved locations from the tool
+result. **D** (malformed-generation rejection) is smoke21/28-proven (a real
+model can't be forced to emit malformed, and ai-chat has no persistence path);
+**E** (stale-context) is smoke22-proven with its mechanism shown live on the B
+card; **F** (memory) reuses the SAME consequential Phase C card proven live in B
+plus smoke23. A dedicated fresh live capture for each was curtailed by Gemini's
+transient RPM wall (a real infra limit, not a defect).
+
+No Category 6 code changed this session — verification only, sw.js stays
+`kos-c6f-4`, ai-chat unchanged. **Production remaining action**: live
+https://kurenai-os.pages.dev is still on `kos-4c-1` (pre-Category-6); the smoke
+gate is green and `tools/deploy_pages.sh --stage` produced a clean 104-file /
+19M dist (assets/assistant + all ai*.js + assistant.js; dev-leak guards passed).
+Operator deploys with `npx wrangler login` then `tools/deploy_pages.sh`.
+DeepSeek + TTS deferred; assistant UI/UX polish is a separate follow-up build.

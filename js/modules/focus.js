@@ -155,8 +155,12 @@
     updateClock();
   }
 
-  function endEarly() {
+  function endEarly(opts) {
     if (!S) return;
+    /* Category 6: a caller that has ALREADY gathered the user's deliberate
+       early-end decision (the assistant's explicit early:true) skips the
+       modal — same finish path, no second ask. The UI keeps the modal. */
+    if (opts && opts.confirmed) { finish(false); return; }
     KOS.ui.confirm({ title: "End early?", confirm: "End session",
       body: S.kind === "reading"
         ? "The time you read still gets logged — nothing is forfeited, reading is rest."

@@ -105,7 +105,9 @@
     return store.state.custom.cards
       .filter(function (c) { return (!sid || c.sid === sid) && (!ref || c.ref === ref); })
       .map(function (c) {
-        return { key: "u" + c.id, id: c.id, sid: c.sid, ref: c.ref, q: c.q, a: c.a, custom: true };
+        /* `ai` marks assistant-generated cards (Category 6) so every surface
+           can badge them; they are otherwise ordinary custom cards */
+        return { key: "u" + c.id, id: c.id, sid: c.sid, ref: c.ref, q: c.q, a: c.a, custom: true, ai: !!c.ai };
       });
   }
   /* every card for a topic — curriculum first, user cards after */
@@ -183,6 +185,80 @@
     return true;
   }
 
+  /* ---- custom quiz items (Category 6) ----
+     The curriculum quiz lives in KOS_CONTENT and is hand-authored; there was
+     no store for user/AI quiz questions until the assistant needed one. Same
+     custom-vs-curriculum split as flashcards: these live in
+     state.custom.quizzes, share custom.nextId, ride the normal backup, and
+     are rendered as a SEPARATE clearly-labelled block in the topic Quiz tab
+     (hub.js) — never merged invisibly into curriculum questions.
+     Item shape: {id, sid, ref, q, opts[2–6], ans, why, ai, created}.
+     addCustomQuiz is ATOMIC: the whole batch validates before the first
+     write; a malformed item means zero saves and a specific error.        */
+  function customQuizzes() {
+    var cu = store.state.custom;
+    return cu.quizzes = cu.quizzes || [];
+  }
+  function validQuizItem(it) {
+    if (!it || typeof it !== "object") return "not an object";
+    if (typeof it.q !== "string" || !it.q.trim() || it.q.length > 2000) return "bad question text";
+    if (!Array.isArray(it.opts) || it.opts.length < 2 || it.opts.length > 6) return "needs 2–6 options";
+    for (var i = 0; i < it.opts.length; i++) {
+      if (typeof it.opts[i] !== "string" || !it.opts[i].trim() || it.opts[i].length > 400) return "bad option " + (i + 1);
+      if (it.opts.indexOf(it.opts[i]) !== i) return "duplicate option " + (i + 1);
+    }
+    if (typeof it.ans !== "number" || it.ans !== Math.floor(it.ans) ||
+        it.ans < 0 || it.ans >= it.opts.length) return "answer index out of range";
+    if (it.why != null && (typeof it.why !== "string" || it.why.length > 2000)) return "bad explanation";
+    return null;
+  }
+  function addCustomQuiz(sid, ref, items, extra) {
+    if (!Array.isArray(items) || !items.length) return { error: "No questions supplied." };
+    for (var i = 0; i < items.length; i++) {
+      var bad = validQuizItem(items[i]);
+      if (bad) return { error: "Question " + (i + 1) + ": " + bad + ". Nothing was saved." };
+    }
+    var cu = store.state.custom;
+    var created = items.map(function (it) {
+      var row = { id: cu.nextId++, sid: sid, ref: ref, q: it.q.trim(),
+        opts: it.opts.map(function (o) { return o.trim(); }),
+        ans: it.ans, why: it.why != null ? String(it.why) : "", created: todayISO() };
+      if (extra) Object.keys(extra).forEach(function (k) { row[k] = extra[k]; });
+      customQuizzes().push(row);
+      return row;
+    });
+    store.save();
+    return { created: created };
+  }
+  function customQuizFor(sid, ref) {
+    return customQuizzes().filter(function (c) {
+      return (!sid || c.sid === sid) && (!ref || c.ref === ref);
+    });
+  }
+  function updateCustomQuiz(id, patch) {
+    var row = customQuizzes().find(function (c) { return c.id === id; });
+    if (!row) return null;
+    var probe = {
+      q: patch.q != null ? patch.q : row.q,
+      opts: patch.opts != null ? patch.opts : row.opts,
+      ans: patch.ans != null ? patch.ans : row.ans,
+      why: patch.why != null ? patch.why : row.why
+    };
+    var bad = validQuizItem(probe);
+    if (bad) return { error: bad };
+    row.q = probe.q.trim(); row.opts = probe.opts.slice(); row.ans = probe.ans; row.why = probe.why || "";
+    store.save();
+    return row;
+  }
+  function deleteCustomQuiz(id) {
+    var list = customQuizzes();
+    var i = list.findIndex(function (c) { return c.id === id; });
+    if (i === -1) return false;
+    list.splice(i, 1);
+    store.save();
+    return true;
+  }
+
   KOS.srs = {
     RATINGS: RATINGS,
     todayISO: todayISO,
@@ -199,6 +275,10 @@
     personalRefs: personalRefs,
     addCustom: addCustom,
     updateCustom: updateCustom,
-    deleteCustom: deleteCustom
+    deleteCustom: deleteCustom,
+    addCustomQuiz: addCustomQuiz,
+    customQuizFor: customQuizFor,
+    updateCustomQuiz: updateCustomQuiz,
+    deleteCustomQuiz: deleteCustomQuiz
   };
 })();

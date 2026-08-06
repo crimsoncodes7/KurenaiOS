@@ -53,7 +53,9 @@
       "Bash(python3 /tmp/add_callouts_f201.py)",
       "Bash(python3 *)",
       "Bash(cp /tmp/verify_wiring.js ./_verify_wiring.js)",
-      "Bash(rm -f ./_verify_wiring.js)"
+      "Bash(rm -f ./_verify_wiring.js)",
+      "Bash(supabase --version)",
+      "Bash(git rev-list *)"
     ]
   }
 }
