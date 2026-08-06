@@ -2717,3 +2717,116 @@ all three reward bounds, the Home and Calendar boundaries, and backup
 fidelity. Two real bugs were caught by writing it: a repeat surviving the
 date being cleared, and `nextOccurrence` skipping past intermediate
 occurrences instead of advancing one step.
+
+---
+
+## ADDENDUM — Governor v5: lacquered command desk · 2026-08-06
+
+The complete Governor surface has been rebuilt again around a clearer
+information hierarchy. This supersedes the v4 layout notes above; the
+economy, session model, HP gates, awards, recovery task definitions and shared
+image-crop contract are unchanged.
+
+**Status.** The profile banner remains the unique Governor hero, but now holds
+identity only: portrait, level/rank, HP state, status speech bubble and about
+copy. Five equal command instruments below it are the single source for HP,
+XP, Gold, review queue and study streak—there is no duplicate hero stat rail.
+The study cadence is exactly 13 weeks / 91 days, rendered at the chart's
+intrinsic dimensions so it cannot stretch or overflow. It is balanced against
+a milestone ledger that excludes background sync, low-signal collection
+progress and incomplete focus attempts.
+
+**Recovery.** Strained/Critical mode now presents one prescriptive next action
+with progress and a direct route. The former three-row checklist is gone from
+the page, while the existing `KOS.governor.recoveryTasks()` definition remains
+the source of truth. Core revision availability is stated in the dispatch;
+the HP rules are collapsed into an accessible disclosure.
+
+**Chronicle.** Session Log is now a filtered, expandable timeline grouped by
+full date, with category counts, human-readable action titles/icons, recorded
+context and metrics, 30-entry incremental pagination, and designed empty
+states. Technical integration traffic is hidden from All activity and filed
+under System, where runs remain coalesced per provider/day.
+
+**Avatar.** The page is an identity stage plus workshop. Portrait and banner
+edits still open `KOS.imageCrop` (source and crop metadata remain separate),
+while the full level-gated seal library, owned frame controls and Gold Shop
+route remain intact. Status is consistently drawn as a conversational bubble
+on the stage, rail HUD and compact profile popover; popover actions are now
+smaller.
+
+**Gold Shop.** The catalogue has four filters over three clear merchandise
+domains: Learning tools, Simulations and Cosmetics. Existing catalog ids,
+prices, purchase calls, ownership and suspension rules are untouched. Every
+card has equal geometry and a contextual CSS mini-scene: labs show the
+interaction, themes a miniature shell, seals a profile context, frames an
+avatar, and shelf/shrine cosmetics their destination. Essential revision is
+explicitly described as free; HP suspension is temporary and routes back to
+recovery.
+
+**Accessibility and verification.** Filters use tab semantics and selected
+state, history uses native `details/summary`, keyboard focus remains visible,
+status copy is announced, horizontal filters scroll locally on phone, and all
+new motion respects `prefers-reduced-motion`. `tools/smoke31.test.js` adds 11
+dedicated checks. The real-Chrome `tools/visual_audit.mjs` now captures Status
+light/dark, ledger, recovery, History, Avatar, Shop and 390×844 Status/History,
+and asserts no page/main horizontal overflow. Service worker:
+`kos-gov5-2`.
+
+---
+
+## ADDENDUM — Build 6.3: the Study Files tab · 2026-08-06
+
+The tab was a flat list of rows, each with its own expandable inline viewer
+and a fixed 520px iframe. It is now a selectable list plus one preview stage.
+
+**Structure (A).** `.att-body` is a two-column grid: a narrow selectable
+`.att-files` listbox (role=listbox / option, exactly one selection, exposed
+via aria-selected) and one `.att-stage`. Selecting a file previews that file.
+PDFs get an iframe, images an `<img>`, text a `<pre>`; anything else gets a
+metadata card with Open and Download rather than a broken frame.
+
+**Controls (B).** Fit width, Fit page, zoom (50–400% in steps), Collapse,
+Full screen, Open externally and Download. Images use CSS; PDFs ride the
+viewer's own fragment params (`#view=FitH`, `#view=Fit`, `#zoom=N`) — and the
+toolbar is **never** suppressed (`toolbar=0` is asserted absent). Full screen
+is an overlay with its own control bar, closable by Escape or backdrop click.
+
+**Layout (C).** The old `height: 520px` iframe is gone: `.att-pdf` is
+`min(78vh, 1000px)` with a `min-height`, so the embedded toolbar can't be
+clipped. Notes moved beneath the preview inside the stage. Two width fixes:
+the Files tab folds the inspector using the existing `insp-closed`
+mechanism (without rewriting `ui.inspectorOpen`, so the preference returns
+with the tab), and `.att-body` responds to a **container query** on
+`.att-wrap` rather than a viewport media query — with a spec tree and an
+inspector open, a 1400px window still left the panel ~90px wide, which
+wrapped the stage to one character per line.
+
+**Metadata + actions (D).** The stage head shows filename, type, size, added
+date and linked topic, with notes beneath. Actions: view (selection), open,
+download, rename, replace, remove. New store ops `rename`, `replace` and
+`get`; both mutators **preserve `id`, `fileId`, topic and notes** — a rename
+must not read as delete-plus-add to cloud sync, and the note describes the
+document rather than one upload.
+
+**Persistence (E).** IndexedDB unchanged; backup/restore verified
+round-trip-identical in a real browser (jsdom can't test the export path —
+fake-indexeddb strips the Blob prototype, as smoke13 already documents, so
+smoke32 covers the import direction and the fail-fast guarantee instead).
+Three degraded states are now distinguished: **cloud-only** (metadata synced,
+binary elsewhere), **damaged** (stored but 0 bytes), and **unsupported type**.
+
+**Bugs found while building/testing.**
+- `blobToBase64` never called back for a non-Blob, so a single bad record
+  hung the whole backup export with no error. It now fails fast.
+- `health()` treated an *unknown* blob size as empty; only a real 0 (on the
+  blob or the stored metadata) now means damaged.
+- Zoom above 100% did nothing: the base `max-width: 100%` clamped the inline
+  width. `.att-preview.fit-zoom .att-img` now drops the clamp and the stage
+  scrolls.
+- Text preview called `blob.text()` unguarded; there is now a FileReader
+  fallback and an explicit failure message.
+
+**Tests.** `tools/smoke32.test.js` (24 steps) covers A–E, including the
+"no fixed pixel height on the PDF frame" CSS contract so the clipping
+regression can't come back. Suite count is now 32.

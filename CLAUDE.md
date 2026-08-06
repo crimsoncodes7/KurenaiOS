@@ -39,6 +39,7 @@ node tools/smoke27.test.js # Category 6 Phase F: conversational continuity (in-m
 node tools/smoke28.test.js # Category 6 Phase F: execution grounding (verified write receipts, proposal≠persisted, exact-artifact save incl. edits, false-success/promise-no-action correction, batch atomicity, retrieval proof)
 node tools/smoke29.test.js # Category 6.1 assistant UI/UX acceptance: one controller across drawer/page, inert provider rendering, canonical confirmations, theme inheritance, focus containment, production assets
 node tools/smoke30.test.js # Build 6.2 Reminders: lists-vs-tags separation, smart sections, recurrence, anti-farming reward bounds, migration, Home/Calendar boundaries, backup fidelity
+node tools/smoke32.test.js # Build 6.3 Study Files: selectable list + preview stage, fit/zoom/expand/collapse controls, metadata + rename/replace/remove, IndexedDB + backup fidelity, missing/corrupt handling
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
@@ -94,7 +95,7 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 30 suites are the release gate (smoke17 the
+the current test inventory. All 32 suites are the release gate (smoke17 the
 Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
 Build 4c games integrations). Suites 1–16 plus the running-Chrome visual
 audit were verified green on 2026-07-13; all 17 on 2026-07-16; all 18 plus

@@ -603,7 +603,7 @@ small { font-size: 12.5px; }
 .qz-result,
 .trk-row,
 .rag-panel,
-.att-row,
+.att-stage,
 .fx-setup-main,
 .fx-deal,
 .tasks-col {
@@ -2234,15 +2234,13 @@ body.fx-minimised .fx-dock { display: flex; }
 
 /* attachments */
 .att-lead { margin-top: 0; }
-.att-row { padding: 12px 14px; margin-top: 10px; }
-.att-head { display: flex; align-items: center; gap: 10px; }
 .att-ico { font-size: 16px; }
 .att-name { flex: 1; font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .att-size { font-family: var(--mono); font-size: 10.5px; color: var(--muted); white-space: nowrap; }
-.att-viewer { margin-top: 10px; }
-.att-viewer img { max-width: 100%; max-height: 480px; border-radius: 10px; border: 1px solid var(--line2); }
-.att-viewer iframe { width: 100%; height: 520px; border: 1px solid var(--line2); border-radius: 10px; background: #fff; }
-.att-note { margin-top: 10px; min-height: 44px; width: 100%; }
+/* the pre-6.3 inline viewer is gone — .att-stage owns previews now, and its
+   PDF frame is sized in viewport units so the embedded toolbar is never
+   clipped by a fixed pixel height */
+.att-note { min-height: 44px; width: 100%; }
 .att-unavail { padding: 20px; border: 1px dashed var(--line); border-radius: var(--radius); color: var(--muted); }
 .att-wrap { margin-top: 8px; }
 .att-list { margin-top: 6px; }
@@ -2444,7 +2442,6 @@ body.fx-minimised .fx-dock { display: flex; }
 
 /* attachments */
 .att-text { max-height: 420px; overflow: auto; background: var(--well); border-radius: 10px; padding: 14px 16px; font-family: var(--mono); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; }
-.att-nopreview { flex-basis: 100%; margin: 4px 0 0 26px; }
 
 /* ============================================================
    Calendar — the month, set like a print calendar
@@ -5358,4 +5355,140 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .rem-side { position: static; }
   .rem-tools { margin-left: 0; width: 100%; }
   .rem-search { min-width: 0; flex: 1; }
+}
+
+/* ============================================================
+   Study → Files (Build 6.3): a selectable list + one preview stage.
+
+   Layout law: the list is a fixed narrow column, the stage takes
+   everything else, and the document's notes sit BENEATH the
+   preview. Preview heights are viewport-relative, never fixed
+   pixels — a fixed height is what clipped the PDF viewer's own
+   toolbar before.
+   ============================================================ */
+.att-wrap { margin-top: 8px; display: flex; flex-direction: column; gap: var(--space-4); }
+.att-lead-row { display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; }
+.att-lead { margin: 0; flex: 1; min-width: 240px; max-width: 76ch; }
+
+.att-body { display: grid; grid-template-columns: 244px minmax(0, 1fr); gap: var(--layout-gap); align-items: start; }
+
+/* ---- the file list ---- */
+.att-files {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: var(--space-2);
+  border: 1px solid var(--line2); border-radius: 14px; background: var(--well);
+  position: sticky; top: 10px;
+  max-height: calc(100vh - var(--topbar-h) - 40px); overflow-y: auto;
+}
+.att-empty { margin: 10px 8px; font-size: 12.5px; }
+.att-file {
+  display: grid; grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center; gap: 9px;
+  padding: 9px 10px; border-radius: 10px;
+  text-align: left; color: var(--text2);
+  border: 1px solid transparent;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.att-file:hover { background: var(--bg1); color: var(--text); }
+.att-file.selected { background: var(--bg1); border-color: var(--accent); color: var(--text); box-shadow: var(--shadow-sm); }
+.att-file.degraded .att-name { color: var(--muted); }
+.att-file .att-ico { font-size: 15px; }
+.att-file-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.att-file .att-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.att-file-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.att-badge { font-size: 11px; color: var(--muted); }
+.att-badge.bad { color: var(--danger); font-weight: 700; }
+
+/* ---- the stage ---- */
+.att-stage { padding: var(--card-pad) 20px; display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.att-stage-empty { padding: 54px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.att-stage-empty .ase-g { font-size: 34px; opacity: .5; }
+.att-stage-empty .sub { margin: 0; max-width: 34ch; }
+.att-stage-head { display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; }
+.att-stage-id { min-width: 0; flex: 1; }
+.att-stage-name { margin: 0 0 6px; font-size: 17px; overflow-wrap: anywhere; }
+.att-meta { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 0; font-size: 11.5px; }
+.att-meta dt { color: var(--muted); letter-spacing: .06em; text-transform: uppercase; font-size: 9.5px; align-self: baseline; }
+.att-meta dd { margin: 0; color: var(--text2); overflow-wrap: anywhere; }
+.att-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ---- the control bar ---- */
+.att-bar {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  padding: var(--space-2); border-radius: 12px;
+  border: 1px solid var(--line2); background: var(--well);
+}
+.att-bar-group { display: inline-flex; align-items: center; gap: 3px; }
+.att-bar-sp { flex: 1; }
+.att-bar .mini-btn.on { background: var(--accent); border-color: var(--accent); color: var(--bg1); font-weight: 600; }
+.att-zoom { font-family: var(--mono); font-size: 11px; color: var(--text2); min-width: 44px; text-align: center; font-variant-numeric: tabular-nums; }
+.att-collapsed { margin: 0; padding: 18px 0; }
+
+/* ---- the preview ----
+   Heights are viewport-relative and generous; overflow is auto so a zoomed
+   document scrolls inside the stage rather than stretching the page. */
+.att-preview { border: 1px solid var(--line2); border-radius: 12px; background: var(--well); overflow: auto; }
+.att-preview.fit-page { display: grid; place-items: center; }
+.att-img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.att-preview.fit-page .att-img { max-height: min(72vh, 900px); width: auto; object-fit: contain; }
+.att-preview.fit-width .att-img { width: 100%; }
+/* zooming past 100% must be allowed to overflow — the base max-width:100%
+   silently clamped it, so every zoom level above 100% looked identical */
+.att-preview.fit-zoom .att-img { max-width: none; }
+.att-pdf {
+  display: block; width: 100%;
+  height: min(78vh, 1000px); min-height: 420px;
+  border: 0; background: #fff;
+}
+.att-preview .att-text { max-height: min(72vh, 900px); margin: 0; border-radius: 0; }
+
+/* ---- unusable / degraded states ---- */
+.att-unusable {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 40px 24px; text-align: center;
+  border: 1px dashed var(--line); border-radius: 12px; background: var(--well);
+}
+.att-unusable .au-g { font-size: 30px; opacity: .7; }
+.att-unusable b { font-family: var(--serif); font-size: 15px; }
+.att-unusable .sub { margin: 0; max-width: 46ch; }
+
+/* ---- notes, beneath the preview ---- */
+.att-notes { display: flex; flex-direction: column; gap: 6px; }
+.att-notes h4 { margin: 0; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+
+/* ---- expanded / full-screen ---- */
+.att-fs {
+  position: fixed; inset: 0; z-index: 200;
+  background: color-mix(in srgb, var(--bg0) 94%, transparent);
+  backdrop-filter: blur(4px);
+  display: flex; flex-direction: column; gap: 10px; padding: 14px;
+}
+.att-fs-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.att-fs-name { font-family: var(--serif); font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46vw; }
+.att-preview.is-full { flex: 1; min-height: 0; background: var(--bg1); }
+.att-preview.is-full .att-pdf { height: 100%; min-height: 0; }
+.att-preview.is-full .att-img { max-height: 100%; }
+.att-preview.is-full .att-text { max-height: none; height: 100%; }
+
+@media (max-width: 1080px) {
+  .att-body { grid-template-columns: 200px minmax(0, 1fr); }
+}
+@media (max-width: 820px) {
+  .att-body { grid-template-columns: minmax(0, 1fr); }
+  .att-files { position: static; max-height: 300px; }
+  .att-pdf { height: min(70vh, 720px); min-height: 340px; }
+  .att-fs-name { max-width: 40vw; }
+}
+
+/* The list/stage split responds to the space the TAB actually has, not to the
+   viewport — with a spec tree and an inspector open, a wide window can still
+   leave the panel narrow, and that is what crushed the preview into a
+   one-character-per-line column. The container is the WRAP; the query targets
+   its child. */
+.att-wrap { container-type: inline-size; }
+@container (max-width: 680px) {
+  .att-body { grid-template-columns: minmax(0, 1fr); }
+  .att-files { position: static; max-height: 260px; flex-direction: row; flex-wrap: wrap; }
+  .att-files .att-file { flex: 1 1 200px; }
+  .att-stage { padding: var(--card-pad) 16px; }
 }

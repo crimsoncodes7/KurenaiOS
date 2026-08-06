@@ -1045,6 +1045,17 @@
          not on every tab switch */
       panel.classList.toggle("first-mount", firstMount);
       firstMount = false;
+      /* Build 6.3 — a document preview needs width far more than the stats
+         rail does, so the Files tab folds the inspector using the SAME
+         insp-closed mechanism the toggle uses. ui.inspectorOpen is never
+         rewritten, so the user's own preference returns with the tab. */
+      if (curTab === "files") {
+        studyGrid.classList.add("files-tab");
+        studyGrid.classList.add("insp-closed");
+      } else if (studyGrid.classList.contains("files-tab")) {
+        studyGrid.classList.remove("files-tab");
+        studyGrid.classList.toggle("insp-closed", store.state.ui.inspectorOpen === false);
+      }
       panel.innerHTML = "";
       if (curTab === "spec") {
         var split = el("div", { class: "split" });

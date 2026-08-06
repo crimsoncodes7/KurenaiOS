@@ -127,6 +127,56 @@
       rq.onerror = function () { cb && cb(rq.error); };
     });
   }
+  function get(id, cb) {
+    tx("readonly", function (err, os) {
+      if (err) { cb(err, null); return; }
+      var rq = os.get(id);
+      rq.onsuccess = function () { cb(null, rq.result || null); };
+      rq.onerror = function () { cb(rq.error, null); };
+    });
+  }
+  /* rename keeps the record's identity (id AND fileId) — a rename must not
+     read as a delete-plus-add to cloud sync or to the backup */
+  function rename(id, name, cb) {
+    name = String(name || "").trim();
+    if (!name) { cb && cb(new Error("A file needs a name.")); return; }
+    tx("readwrite", function (err, os) {
+      if (err) { cb && cb(err); return; }
+      var rq = os.get(id);
+      rq.onsuccess = function () {
+        var rec = rq.result;
+        if (!rec) { cb && cb(new Error("That file is no longer in the store.")); return; }
+        rec.name = name;
+        rec.updatedAt = Date.now();
+        var p = os.put(rec);
+        p.onsuccess = function () { noteCloud(); cb && cb(null, rec); };
+        p.onerror = function () { cb && cb(p.error); };
+      };
+      rq.onerror = function () { cb && cb(rq.error); };
+    });
+  }
+  /* replace swaps the binary but preserves id, fileId, topic and NOTES —
+     the note is about the document, not about that particular upload */
+  function replace(id, file, cb) {
+    if (file.size > MAX_BYTES) { cb && cb(new Error("Over the 25 MB per-file limit — link it as a resource instead")); return; }
+    tx("readwrite", function (err, os) {
+      if (err) { cb && cb(err); return; }
+      var rq = os.get(id);
+      rq.onsuccess = function () {
+        var rec = rq.result;
+        if (!rec) { cb && cb(new Error("That file is no longer in the store.")); return; }
+        rec.blob = file;
+        rec.mime = file.type || "application/octet-stream";
+        rec.size = file.size;
+        rec.replacedAt = Date.now();
+        rec.updatedAt = Date.now();
+        var p = os.put(rec);
+        p.onsuccess = function () { noteCloud(); cb && cb(null, rec); };
+        p.onerror = function () { cb && cb(p.error); };
+      };
+      rq.onerror = function () { cb && cb(rq.error); };
+    });
+  }
   function remove(id, cb, opts) {
     tx("readwrite", function (err, os) {
       if (err) { cb && cb(err); return; }
@@ -153,6 +203,12 @@
        appears when fake-indexeddb structuredClone-s a stored File in tests).
        Fall back to FileReader for environments that lack the Promise API. */
     var mime = (blob && blob.type) || "application/octet-stream";
+    /* Fail FAST on anything that is not encodable. Before this guard a record
+       holding a non-Blob simply never called back, and one such record hung
+       the entire backup export with no error to show for it. */
+    var encodable = blob && (typeof blob.arrayBuffer === "function" ||
+      (typeof Blob !== "undefined" && blob instanceof Blob));
+    if (!encodable) { cb(new Error("Attachment content is not readable")); return; }
     if (blob && typeof blob.arrayBuffer === "function") {
       blob.arrayBuffer().then(function (buf) {
         var bytes = new Uint8Array(buf), binary = "";
@@ -326,6 +382,55 @@
     return "This format has no in-browser preview — Open ↗ opens or downloads it.";
   }
   var debounce = KOS.ui.debounce;
+  /* ================= the Files tab (Build 6.3) =================
+     A selectable file list on the left, one preview stage on the right.
+     Selecting a file previews it; the stage owns fit/zoom/expand/collapse
+     and the document's own notes sit beneath the preview, never beside it. */
+
+  var FIT = { WIDTH: "width", PAGE: "page", ZOOM: "zoom" };
+  var ZOOM_STEPS = [50, 75, 100, 125, 150, 200, 300, 400];
+
+  function fmtDate(ts) {
+    if (!ts) return "—";
+    return new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  }
+  function kindLabel(mime) {
+    if (!mime) return "Unknown";
+    if (mime === "application/pdf") return "PDF";
+    if (mime.indexOf("image/") === 0) return mime.slice(6).toUpperCase();
+    if (mime.indexOf("text/") === 0) return mime.slice(5).toUpperCase() + " text";
+    if (/wordprocessingml|msword/.test(mime)) return "Word";
+    if (/spreadsheetml|ms-excel/.test(mime)) return "Spreadsheet";
+    if (/presentationml|ms-powerpoint/.test(mime)) return "Slides";
+    if (/zip|compressed/.test(mime)) return "Archive";
+    return mime;
+  }
+  /* A record can be unusable in two distinct ways and the UI must say which.
+     Note the deliberate strictness: an UNKNOWN blob size (some environments
+     hand back a structured clone without the accessor) is not the same as a
+     size of zero, and must not be reported as damage. Only a real 0 — on the
+     blob or on the stored metadata — means the content was lost. */
+  /* Blob.text() is the happy path; fall back to FileReader for older engines
+     and report failure rather than leaving an empty frame. */
+  function readText(blob, cb) {
+    if (blob && typeof blob.text === "function") {
+      blob.text().then(function (t) { cb(null, t); }).catch(function (e) { cb(e); });
+      return;
+    }
+    if (typeof FileReader !== "undefined" && blob instanceof Blob) {
+      var r = new FileReader();
+      r.onload = function () { cb(null, String(r.result)); };
+      r.onerror = function () { cb(r.error || new Error("unreadable")); };
+      r.readAsText(blob);
+      return;
+    }
+    cb(new Error("no text API"));
+  }
+  function health(rec) {
+    if (!rec.blob) return "cloud-only";                   // metadata synced, binary elsewhere
+    if (rec.blob.size === 0 || rec.size === 0) return "damaged";
+    return "ok";
+  }
 
   function mountTab(panel, sid, ref) {
     var wrap = el("div", { class: "att-wrap" });
@@ -338,114 +443,341 @@
       return;
     }
 
-    wrap.appendChild(el("p", { class: "sub att-lead", text:
-      "Attach worksheets, mark schemes, scanned notes — stored in this browser's IndexedDB. Included in the full backup export (Backup & Restore). Images and PDFs preview inline; each file carries its own notes field." }));
+    var items = [];
+    var selectedId = null;
+    var fit = FIT.WIDTH;
+    var zoom = 100;
+    var previewOpen = true;
+    var objUrl = null;
 
-    var file = el("input", { type: "file", style: "display:none", onchange: function () {
-      if (!file.files[0]) return;
-      add(sid, ref, file.files[0], function (err) {
+    function releaseUrl() {
+      if (objUrl) { URL.revokeObjectURL(objUrl); objUrl = null; }
+    }
+    function selected() {
+      return items.find(function (x) { return x.id === selectedId; }) || null;
+    }
+
+    /* ---- header: lead + attach ---- */
+    var fileIn = el("input", { type: "file", style: "display:none", onchange: function () {
+      if (!fileIn.files[0]) return;
+      add(sid, ref, fileIn.files[0], function (err, id) {
         if (err) KOS.ui.toast("Upload failed: " + err.message, true);
-        else { KOS.ui.toast("Attached to " + ref + "."); render(); }
-        file.value = "";
+        else { KOS.ui.toast("Attached to " + ref + "."); selectedId = id; render(); }
+        fileIn.value = "";
       });
     } });
-    wrap.appendChild(file);
-    wrap.appendChild(el("div", { class: "lab-controls" }, [
-      el("button", { class: "btn primary", text: "⇪ Attach a file…", onclick: function () { file.click(); } })
+    var replaceIn = el("input", { type: "file", style: "display:none", onchange: function () {
+      var rec = selected();
+      if (!replaceIn.files[0] || !rec) return;
+      replace(rec.id, replaceIn.files[0], function (err) {
+        if (err) KOS.ui.toast("Replace failed: " + err.message, true);
+        else { KOS.ui.toast("File replaced — notes and links kept."); render(); }
+        replaceIn.value = "";
+      });
+    } });
+    wrap.appendChild(fileIn);
+    wrap.appendChild(replaceIn);
+
+    wrap.appendChild(el("div", { class: "att-lead-row" }, [
+      el("p", { class: "sub att-lead", text:
+        "Stored in this browser's IndexedDB and included in the full backup export. Images and PDFs preview inline; every document carries its own notes." }),
+      el("button", { class: "btn primary", text: "⇪ Attach a file…", onclick: function () { fileIn.click(); } })
     ]));
 
-    var listEl = el("div", { class: "att-list" });
-    wrap.appendChild(listEl);
+    var body = el("div", { class: "att-body" });
+    wrap.appendChild(body);
+    var listEl = el("div", { class: "att-files", role: "listbox", "aria-label": "Attached files" });
+    var stage = el("section", { class: "att-stage", "aria-label": "Document preview" });
+    body.appendChild(listEl);
+    body.appendChild(stage);
 
-    function render() {
-      list(sid, ref, function (err, items) {
-        listEl.innerHTML = "";
-        if (err) { listEl.appendChild(el("p", { class: "sub", text: "Could not read the file store: " + err.message })); return; }
-        if (!items.length) { listEl.appendChild(el("p", { class: "fc-empty", text: "Nothing attached to this topic yet." })); return; }
-        items.sort(function (a, b) { return b.added - a.added; });
-        items.forEach(function (rec) { listEl.appendChild(row(rec)); });
+    /* ---- the file list ---- */
+    function renderList() {
+      listEl.innerHTML = "";
+      if (!items.length) {
+        listEl.appendChild(el("p", { class: "fc-empty att-empty", text: "Nothing attached to this topic yet." }));
+        return;
+      }
+      items.forEach(function (rec) {
+        var st = health(rec);
+        var node = el("button", { class: "att-file" + (rec.id === selectedId ? " selected" : "") + (st !== "ok" ? " degraded" : ""),
+          role: "option", "aria-selected": rec.id === selectedId ? "true" : "false",
+          onclick: function () { selectedId = rec.id; previewOpen = true; renderList(); renderStage(); } }, [
+          el("span", { class: "att-ico", "aria-hidden": "true", text: icon(rec.mime) }),
+          el("span", { class: "att-file-txt" }, [
+            el("span", { class: "att-name", text: rec.name, title: rec.name }),
+            el("span", { class: "att-file-meta", text: kindLabel(rec.mime) + " · " + fmtSize(rec.size) })
+          ]),
+          st === "cloud-only" ? el("span", { class: "att-badge", title: "Metadata synced; the file itself is on another device", text: "☁" })
+            : st === "damaged" ? el("span", { class: "att-badge bad", title: "Stored but empty", text: "!" }) : null
+        ].filter(Boolean));
+        listEl.appendChild(node);
       });
     }
 
-    function row(rec) {
-      var viewer = el("div", { class: "att-viewer", style: "display:none" });
-      var objUrl = null;
-      function closeViewer() {
-        viewer.style.display = "none";
-        viewer.innerHTML = "";
-        if (objUrl) { URL.revokeObjectURL(objUrl); objUrl = null; }
+    /* ---- the preview stage ---- */
+    function renderStage() {
+      releaseUrl();
+      stage.innerHTML = "";
+      var rec = selected();
+      if (!rec) {
+        stage.appendChild(el("div", { class: "att-stage-empty" }, [
+          el("span", { class: "ase-g", "aria-hidden": "true", text: "📄" }),
+          el("p", { class: "sub", text: items.length ? "Select a file to preview it." : "Attach a worksheet, mark scheme or scan and it previews here." })
+        ]));
+        return;
       }
-      var r = el("div", { class: "att-row" });
-      /* Build 4a — a record whose binary lives only in cloud storage (synced
-         metadata from another device). View/Open need the blob; offer the
-         explicit download instead. */
-      var cloudOnly = !rec.blob;
-      var dlBtn = cloudOnly ? el("button", { class: "mini-btn", text: "⇣ Download from cloud", onclick: function () {
+      var st = health(rec);
+
+      /* --- metadata head + actions (Part D) --- */
+      var nameEl = el("h3", { class: "att-stage-name", text: rec.name, title: rec.name });
+      stage.appendChild(el("div", { class: "att-stage-head" }, [
+        el("div", { class: "att-stage-id" }, [
+          nameEl,
+          el("dl", { class: "att-meta" }, [
+            metaPair("Type", kindLabel(rec.mime)),
+            metaPair("Size", fmtSize(rec.size)),
+            metaPair("Added", fmtDate(rec.added)),
+            metaPair("Topic", subjectLabel(rec.subject) + " · " + rec.ref)
+          ].reduce(function (a, b) { return a.concat(b); }, []))
+        ]),
+        el("div", { class: "att-actions" }, [
+          el("button", { class: "mini-btn", text: "✎ Rename", onclick: function () { renameFlow(rec); } }),
+          el("button", { class: "mini-btn", text: "⇄ Replace", title: "Swap the file, keep the notes and links",
+            onclick: function () { replaceIn.click(); } }),
+          el("button", { class: "mini-btn danger", text: "✕ Remove", onclick: function () { removeFlow(rec); } })
+        ])
+      ]));
+
+      /* --- the control bar (Part B) --- */
+      var inlineable = st === "ok" && canInline(rec.mime);
+      var bar = el("div", { class: "att-bar" });
+      if (inlineable) {
+        bar.appendChild(el("div", { class: "att-bar-group", role: "group", "aria-label": "Fit" }, [
+          fitBtn("Fit width", FIT.WIDTH),
+          fitBtn("Fit page", FIT.PAGE)
+        ]));
+        bar.appendChild(el("div", { class: "att-bar-group", role: "group", "aria-label": "Zoom" }, [
+          el("button", { class: "mini-btn", text: "−", "aria-label": "Zoom out", onclick: function () { stepZoom(-1); } }),
+          el("span", { class: "att-zoom", text: zoom + "%" }),
+          el("button", { class: "mini-btn", text: "+", "aria-label": "Zoom in", onclick: function () { stepZoom(1); } })
+        ]));
+        bar.appendChild(el("button", { class: "mini-btn", text: previewOpen ? "▾ Collapse" : "▸ Expand",
+          title: previewOpen ? "Hide the preview" : "Show the preview",
+          onclick: function () { previewOpen = !previewOpen; renderStage(); } }));
+        bar.appendChild(el("button", { class: "mini-btn", text: "⤢ Full screen", onclick: function () { openFullscreen(rec); } }));
+      }
+      bar.appendChild(el("span", { class: "att-bar-sp" }));
+      if (st === "ok") {
+        bar.appendChild(el("button", { class: "mini-btn", text: "↗ Open", title: "Open in a new tab", onclick: function () { openExternally(rec); } }));
+        bar.appendChild(el("button", { class: "mini-btn", text: "⤓ Download", onclick: function () { download(rec); } }));
+      }
+      if (st === "cloud-only") bar.appendChild(cloudDownloadBtn(rec));
+      stage.appendChild(bar);
+
+      /* --- the preview itself --- */
+      if (!previewOpen) {
+        stage.appendChild(el("p", { class: "sub att-collapsed", text: "Preview hidden — Expand to bring it back." }));
+      } else if (st === "cloud-only") {
+        stage.appendChild(unusableCard("☁", "On another device",
+          "The metadata for this file synced, but its content hasn't been downloaded here yet."));
+      } else if (st === "damaged") {
+        stage.appendChild(unusableCard("!", "This file is empty",
+          "The record is stored but its content is 0 bytes — the upload was interrupted or the data was lost. Replace it with a fresh copy, or remove it."));
+      } else if (!canInline(rec.mime)) {
+        stage.appendChild(unusableCard(icon(rec.mime), kindLabel(rec.mime) + " — no in-browser preview",
+          inlineNote(rec.mime), [
+            el("button", { class: "btn", text: "↗ Open", onclick: function () { openExternally(rec); } }),
+            el("button", { class: "btn primary", text: "⤓ Download", onclick: function () { download(rec); } })
+          ]));
+      } else {
+        stage.appendChild(previewNode(rec, false));
+      }
+
+      /* --- notes, always BENEATH the preview (Part C) --- */
+      var note = el("textarea", { class: "note-area att-note", rows: 3,
+        placeholder: "Notes on this document — page refs, what to revisit, corrections…",
+        oninput: debounce(function () { setNote(rec.id, note.value); }, 400) });
+      note.value = rec.note || "";
+      stage.appendChild(el("div", { class: "att-notes" }, [
+        el("h4", { text: "Document notes" }),
+        note
+      ]));
+
+      function fitBtn(label, mode) {
+        return el("button", { class: "mini-btn" + (fit === mode ? " on" : ""), text: label,
+          onclick: function () { fit = mode; zoom = 100; renderStage(); } });
+      }
+    }
+
+    function metaPair(k, v) {
+      return [el("dt", { text: k }), el("dd", { text: v })];
+    }
+    function subjectLabel(s) {
+      return (window.KOS_DATA && KOS_DATA[s] && KOS_DATA[s].name) || s || "—";
+    }
+    function stepZoom(dir) {
+      var i = ZOOM_STEPS.indexOf(zoom);
+      if (i === -1) { i = ZOOM_STEPS.indexOf(100); }
+      i = Math.max(0, Math.min(ZOOM_STEPS.length - 1, i + dir));
+      zoom = ZOOM_STEPS[i];
+      fit = FIT.ZOOM;
+      renderStage();
+    }
+    function unusableCard(glyph, title, body, actions) {
+      return el("div", { class: "att-unusable" }, [
+        el("span", { class: "au-g", "aria-hidden": "true", text: glyph }),
+        el("b", { text: title }),
+        body ? el("p", { class: "sub", text: body }) : null,
+        actions ? el("div", { class: "lab-controls", style: "justify-content:center" }, actions) : null
+      ].filter(Boolean));
+    }
+
+    /* the one place a preview node is built — used inline AND full screen */
+    function previewNode(rec, full) {
+      var url = URL.createObjectURL(rec.blob);
+      if (!full) objUrl = url;
+      var host = el("div", { class: "att-preview" + (full ? " is-full" : "") + " fit-" + fit });
+
+      if (rec.mime.indexOf("image/") === 0) {
+        var img = el("img", { class: "att-img", src: url, alt: rec.name });
+        if (fit === FIT.ZOOM) img.style.width = zoom + "%";
+        img.addEventListener("error", function () {
+          host.innerHTML = "";
+          host.appendChild(unusableCard("!", "This image could not be decoded",
+            "The stored data is corrupt or in a format this browser can't read. Replace it, or download it to inspect."));
+        });
+        host.appendChild(img);
+      } else if (rec.mime === "application/pdf") {
+        /* PDF viewer fragment params. The toolbar is NEVER suppressed —
+           the embedded viewer's own controls stay available, and the frame
+           is given real height so they can't be clipped. */
+        var frag = fit === FIT.PAGE ? "#view=Fit" : fit === FIT.ZOOM ? "#zoom=" + zoom : "#view=FitH";
+        host.appendChild(el("iframe", { class: "att-pdf", src: url + frag, title: rec.name,
+          allow: "fullscreen" }));
+      } else {
+        var pre = el("pre", { class: "att-text" });
+        if (fit === FIT.ZOOM) pre.style.fontSize = (12.5 * zoom / 100).toFixed(1) + "px";
+        host.appendChild(pre);
+        readText(rec.blob, function (err, t) {
+          pre.textContent = err ? "This text file could not be read." : t.slice(0, 200000);
+        });
+      }
+      if (full) {
+        host.addEventListener("kos-release", function () { URL.revokeObjectURL(url); });
+      }
+      return host;
+    }
+
+    /* ---- expanded / full-screen preview ---- */
+    function openFullscreen(rec) {
+      var overlay = el("div", { class: "att-fs", role: "dialog", "aria-label": rec.name + " preview" });
+      var node = previewNode(rec, true);
+      function close() {
+        document.removeEventListener("keydown", onKey, true);
+        node.dispatchEvent(new window.CustomEvent("kos-release"));
+        overlay.remove();
+      }
+      function onKey(e) { if (e.key === "Escape") { e.stopPropagation(); close(); } }
+      document.addEventListener("keydown", onKey, true);
+      overlay.appendChild(el("div", { class: "att-fs-bar" }, [
+        el("b", { class: "att-fs-name", text: rec.name }),
+        el("span", { class: "att-bar-sp" }),
+        el("button", { class: "mini-btn", text: "↗ Open", onclick: function () { openExternally(rec); } }),
+        el("button", { class: "mini-btn", text: "⤓ Download", onclick: function () { download(rec); } }),
+        el("button", { class: "mini-btn", text: "✕ Close", onclick: close })
+      ]));
+      overlay.appendChild(node);
+      overlay.addEventListener("click", function (e) { if (e.target === overlay) close(); });
+      document.body.appendChild(overlay);
+      return overlay;
+    }
+
+    /* ---- external open / download ---- */
+    function openExternally(rec) {
+      var u = URL.createObjectURL(rec.blob);
+      var w = window.open(u, "_blank");
+      if (!w) {
+        var a = el("a", { href: u, download: rec.name });
+        document.body.appendChild(a); a.click(); a.remove();
+      }
+      setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
+    }
+    function download(rec) {
+      var u = URL.createObjectURL(rec.blob);
+      var a = el("a", { href: u, download: rec.name });
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
+    }
+    function cloudDownloadBtn(rec) {
+      var b = el("button", { class: "mini-btn", text: "⇣ Download from cloud", onclick: function () {
         if (!window.KOS || !KOS.cloudsync || !KOS.cloudsync.downloadFile) {
           KOS.ui.toast("Cloud sync isn't available here — this file's content lives on another device.", true);
           return;
         }
-        dlBtn.disabled = true;
-        dlBtn.textContent = "Downloading…";
+        b.disabled = true; b.textContent = "Downloading…";
         KOS.cloudsync.downloadFile(rec.fileId, function (err) {
           if (err) {
-            dlBtn.disabled = false;
-            dlBtn.textContent = "⇣ Download from cloud";
+            b.disabled = false; b.textContent = "⇣ Download from cloud";
             KOS.ui.toast("Download failed: " + err.message, true);
-          } else {
-            KOS.ui.toast("File downloaded.");
-            render();
-          }
+          } else { KOS.ui.toast("File downloaded."); render(); }
         });
-      } }) : null;
-      r.appendChild(el("div", { class: "att-head" }, [
-        el("span", { class: "att-ico", "aria-hidden": "true", text: icon(rec.mime) }),
-        el("span", { class: "att-name", text: rec.name, title: rec.mime }),
-        el("span", { class: "att-size", text: fmtSize(rec.size) }),
-        cloudOnly ? el("span", { class: "sub att-nopreview", text: "☁ metadata synced — the file itself hasn't been downloaded to this device" }) : null,
-        dlBtn,
-        !cloudOnly && canInline(rec.mime) ? el("button", { class: "mini-btn", text: "View", onclick: function () {
-          if (viewer.style.display !== "none") { closeViewer(); return; }
-          objUrl = URL.createObjectURL(rec.blob);
-          viewer.innerHTML = "";
-          if (rec.mime.indexOf("image/") === 0) {
-            viewer.appendChild(el("img", { src: objUrl, alt: rec.name }));
-          } else if (rec.mime.indexOf("text/") === 0) {
-            var pre = el("pre", { class: "att-text" });
-            viewer.appendChild(pre);
-            rec.blob.text().then(function (t) { pre.textContent = t.slice(0, 200000); });
-          } else {
-            viewer.appendChild(el("iframe", { src: objUrl, title: rec.name }));
-          }
-          viewer.style.display = "";
-        } }) : null,
-        cloudOnly ? null : el("button", { class: "mini-btn", text: "Open ↗", title: "Open in a new tab / download", onclick: function () {
-          var u = URL.createObjectURL(rec.blob);
-          var w = window.open(u, "_blank");
-          if (!w) {
-            var a = el("a", { href: u, download: rec.name });
-            document.body.appendChild(a); a.click(); a.remove();
-          }
-          setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
-        } }),
-        !cloudOnly && !canInline(rec.mime) ? el("span", { class: "sub att-nopreview", text: inlineNote(rec.mime) }) : null,
-        el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete file", onclick: function () {
-          KOS.ui.confirm({ title: "Delete file?", body: "Delete “" + rec.name + "” and its notes?", danger: true, confirm: "Delete" }, function () {
-            closeViewer();
-            remove(rec.id, function (err) {
-              if (err) KOS.ui.toast("Delete failed: " + err.message, true);
-              else { KOS.ui.toast("File deleted."); render(); }
-            });
-          });
-        } })
+      } });
+      return b;
+    }
+
+    /* ---- rename / remove ---- */
+    function renameFlow(rec) {
+      var overlay = KOS.medview.modalOverlay();
+      var input = el("input", { type: "text", class: "todo-in", value: rec.name,
+        onkeydown: function (e) { if (e.key === "Enter") save(); } });
+      function save() {
+        var v = input.value.trim();
+        if (!v) { KOS.ui.toast("A file needs a name.", true); return; }
+        rename(rec.id, v, function (err) {
+          if (err) { KOS.ui.toast("Rename failed: " + err.message, true); return; }
+          overlay.close(); render();
+        });
+      }
+      overlay.appendChild(el("div", { class: "modal modal-sm" }, [
+        el("div", { class: "modal-h" }, [el("b", { text: "Rename file" }),
+          el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", onclick: overlay.close })]),
+        el("div", { class: "med-form" }, [KOS.medview.field("Filename", input)]),
+        el("div", { class: "lab-controls med-modal-foot" }, [
+          el("span", { style: "flex:1" }),
+          el("button", { class: "btn", text: "Cancel", onclick: overlay.close }),
+          el("button", { class: "btn primary", text: "Save", onclick: save })
+        ])
       ]));
-      r.appendChild(viewer);
-      var note = el("textarea", { class: "note-area att-note", rows: 2,
-        placeholder: "Notes on this document — page refs, what to revisit, corrections…",
-        oninput: debounce(function () { setNote(rec.id, note.value); }, 400) });
-      note.value = rec.note || "";
-      r.appendChild(note);
-      return r;
+      document.body.appendChild(overlay);
+      input.focus();
+    }
+    function removeFlow(rec) {
+      KOS.ui.confirm({ title: "Delete file?", body: "Delete “" + rec.name + "” and its notes?", danger: true, confirm: "Delete" },
+        function () {
+          releaseUrl();
+          remove(rec.id, function (err) {
+            if (err) KOS.ui.toast("Delete failed: " + err.message, true);
+            else { KOS.ui.toast("File deleted."); selectedId = null; render(); }
+          });
+        });
+    }
+
+    /* ---- the one read path ---- */
+    function render() {
+      list(sid, ref, function (err, rows) {
+        if (err) {
+          listEl.innerHTML = "";
+          listEl.appendChild(el("p", { class: "sub", text: "Could not read the file store: " + err.message }));
+          return;
+        }
+        items = (rows || []).slice().sort(function (a, b) { return b.added - a.added; });
+        /* keep the selection across a reload when the record still exists */
+        if (selectedId != null && !items.some(function (x) { return x.id === selectedId; })) selectedId = null;
+        if (selectedId == null && items.length) selectedId = items[0].id;
+        renderList();
+        renderStage();
+      });
     }
     render();
   }
@@ -454,7 +786,10 @@
     available: available,
     add: add,
     list: list,
+    get: get,
     setNote: setNote,
+    rename: rename,
+    replace: replace,
     remove: remove,
     mountTab: mountTab,
     exportAll: exportAll,
