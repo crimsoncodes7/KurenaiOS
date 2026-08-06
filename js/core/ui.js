@@ -122,7 +122,7 @@
     KOS.show(next.viewId, next.arg, { _nav: true });
   };
 
-  /* ---- sections: six rail entries, each owning a family of views.
+  /* ---- sections: seven rail entries, each owning a family of views.
      The rail carries the section; the subnav (in-page, above #main)
      carries the views inside it. ---- */
   var SECTION_OF = {
@@ -137,7 +137,8 @@
     goals: "collection",
     aniprofile: "collection", vndbprofile: "collection", mediasync: "collection",
     governor: "governor",
-    data: "system", help: "system", assistant: "system"
+    assistant: "assistant",
+    data: "system", help: "system"
   };
   /* subnav entries per section: [label, viewId, arg, pcId] — null = divider */
   var SUBNAV = {
@@ -167,15 +168,15 @@
     ],
     system: [
       ["Backup & Restore", "data"],
-      ["Help & Guide", "help"],
-      ["Kurenai Assistant", "assistant"]
+      ["Help & Guide", "help"]
     ]
   };
   KOS.sectionOf = function (viewId) { return SECTION_OF[viewId] || null; };
   /* the landing view when a rail section button is pressed */
   KOS.sectionLanding = function (sec) {
     if (sec === "study") return ["subject", KOS.store.state.ui.subject || "compsci"];
-    return [{ home: "home", productivity: "focus", collection: "matrix", governor: "governor", system: "data" }[sec] || "home", undefined];
+    return [{ home: "home", productivity: "focus", collection: "matrix", governor: "governor",
+      assistant: "assistant", system: "data" }[sec] || "home", undefined];
   };
   KOS.collectionCrumbs = function (area, page) {
     return el("div", { class: "crumbs collection-crumbs", "aria-label": "Collection navigation" }, [
