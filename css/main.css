@@ -4784,6 +4784,58 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .asst-message-body { min-width: 0; }
 .asst-message-author { display: block; margin: 0 0 3px; color: var(--accent); font-size: 11px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
 .asst-assistant .asst-bubble { padding: 0 4px 2px 0; color: var(--text); }
+
+/* Provider prose: a compact GFM-style reading surface assembled from safe
+   DOM nodes in assistant.js. Long code, tables and display maths scroll
+   inside the message instead of widening the drawer/page. */
+.asst-richtext { min-width: 0; white-space: normal !important; overflow-wrap: anywhere; }
+.asst-richtext > :first-child { margin-top: 0 !important; }
+.asst-richtext > :last-child { margin-bottom: 0 !important; }
+.asst-richtext p { margin: 0 0 .82em; }
+.asst-richtext :where(h2, h3, h4, h5, h6) { margin: 1.12em 0 .42em; color: var(--text); font-family: var(--serif); line-height: 1.22; text-wrap: balance; }
+.asst-richtext h2 { font-size: 1.38em; font-weight: 600; }
+.asst-richtext h3 { font-size: 1.22em; font-weight: 600; }
+.asst-richtext :where(h4, h5, h6) { font-size: 1.06em; font-weight: 700; }
+.asst-richtext :where(ul, ol) { margin: .35em 0 .9em; padding-left: 1.45em; }
+.asst-richtext li { padding-left: .15em; }
+.asst-richtext li + li { margin-top: .28em; }
+.asst-richtext li::marker { color: var(--accent); font-weight: 700; }
+.asst-richtext .asst-task-item { display: flex; align-items: baseline; gap: 8px; margin-left: -1.2em; list-style: none; }
+.asst-richtext .asst-task-item input { flex: none; accent-color: var(--accent); pointer-events: none; }
+.asst-richtext strong { font-weight: 760; }
+.asst-richtext del { color: var(--muted); text-decoration-color: color-mix(in srgb, var(--danger) 70%, transparent); }
+.asst-richtext a { color: var(--accent); font-weight: 650; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 42%, transparent); text-underline-offset: 3px; }
+.asst-richtext a:hover { text-decoration-color: currentColor; }
+.asst-richtext .asst-image-link::before { content: "↗"; margin-right: 4px; font-family: var(--mono); font-size: .82em; }
+.asst-richtext .asst-unsafe-link { text-decoration: underline dotted var(--muted); text-underline-offset: 3px; }
+.asst-richtext :where(a, .asst-table-wrap):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+.asst-richtext blockquote { margin: .75em 0 1em; padding: .62em .85em .64em 1em; color: var(--text2);
+  border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.asst-richtext blockquote > :last-child { margin-bottom: 0; }
+.asst-richtext hr { height: 1px; margin: 1.15em 0; border: 0; background: var(--asst-line); }
+.asst-richtext .asst-inline-code { padding: .12em .38em; border: 1px solid var(--asst-line); border-radius: 5px;
+  background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text); font-family: var(--mono); font-size: .88em; }
+.asst-code-block { margin: .75em 0 1em; overflow: hidden; border: 1px solid var(--asst-line); border-radius: 12px;
+  background: color-mix(in srgb, var(--bg0) 72%, var(--panel)); }
+.asst-code-block figcaption { display: flex; align-items: center; justify-content: space-between; min-height: 34px; padding: 5px 7px 5px 12px;
+  color: var(--muted); border-bottom: 1px solid var(--asst-line); font-family: var(--mono); font-size: 9.5px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; }
+.asst-code-copy { min-height: 26px; padding: 3px 8px; color: var(--text2); cursor: pointer; border: 1px solid var(--asst-line); border-radius: 7px;
+  background: color-mix(in srgb, var(--panel) 76%, transparent); font: 600 10px/1 var(--sans); text-transform: none; }
+.asst-code-copy:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--asst-line)); }
+.asst-code-block pre { max-width: 100%; margin: 0; padding: 13px 14px; overflow: auto; overscroll-behavior-inline: contain; white-space: pre; }
+.asst-code-block pre code { color: var(--text); background: transparent; font: 500 12px/1.58 var(--mono); tab-size: 2; }
+.asst-table-wrap { max-width: 100%; margin: .75em 0 1em; overflow-x: auto; overscroll-behavior-inline: contain;
+  border: 1px solid var(--asst-line); border-radius: 11px; scrollbar-color: var(--line) transparent; }
+.asst-richtext table { width: 100%; min-width: 390px; border-collapse: collapse; font-size: .92em; }
+.asst-richtext th { color: var(--text); background: color-mix(in srgb, var(--accent) 8%, var(--panel)); font-weight: 740; }
+.asst-richtext :where(th, td) { padding: 8px 10px; vertical-align: top; border-right: 1px solid var(--asst-line); border-bottom: 1px solid var(--asst-line); }
+.asst-richtext :where(th, td):last-child { border-right: 0; }
+.asst-richtext tbody tr:last-child td { border-bottom: 0; }
+.asst-richtext tbody tr:nth-child(even) { background: color-mix(in srgb, var(--text) 2.5%, transparent); }
+.asst-math-source:not(.is-rendered) { padding: .08em .24em; border-radius: 4px; background: color-mix(in srgb, var(--text) 5%, transparent); font-family: var(--mono); font-size: .92em; }
+.asst-math-display { display: block; max-width: 100%; margin: .8em 0 1em; overflow-x: auto; overflow-y: hidden; text-align: center; }
+.asst-richtext .katex-display { max-width: 100%; margin: .25em 0; overflow-x: auto; overflow-y: hidden; padding: .25em 0; }
+.asst-richtext .katex { color: inherit; font-size: 1.04em; }
 .asst-tool { display: grid; align-self: flex-start; grid-template-columns: 26px minmax(0, 1fr); gap: 9px; margin-left: 38px; }
 .asst-event-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px;
   color: var(--good); border: 1px solid color-mix(in srgb, var(--good) 28%, transparent); border-radius: 50%;
@@ -5087,6 +5139,9 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .asst-starter { width: 100%; }
   .asst-user { max-width: 90%; }
   .asst-assistant { width: 100%; }
+  .asst-richtext table { min-width: 330px; font-size: .88em; }
+  .asst-richtext :where(th, td) { padding: 7px 8px; }
+  .asst-code-block pre { padding: 11px 12px; }
   .asst-tool { margin-left: 10px; }
   .asst-composer { padding: 8px; border-radius: 15px; }
   .asst-composer-foot { align-items: flex-end; }

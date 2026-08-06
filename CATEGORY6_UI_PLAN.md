@@ -222,3 +222,38 @@ Built-in image editing produced flat chroma-key sources from the approved full-b
 - Production alias: `https://kurenai-os.pages.dev`
 - Live verification: the unique deployment rendered the new empty chat; the production alias served service worker `kos-gov4-c6ui-1` and an assistant bundle containing the clean production mascot, “Begin with the part that feels tangled,” and the human-readable “Reading your subjects” activity label.
 - No backend, provider, memory, tool-registry, orchestrator, migration, or cloud-function file was modified for Category 6.1.
+
+## 11. Markdown and mathematics follow-up · 2026-08-06
+
+The screenshots supplied after the first deployment exposed a frontend-only
+integration defect: provider answers were correctly kept inert, but Markdown
+and LaTeX punctuation was presented literally. The safety boundary is now
+preserved by parsing assistant prose into a deliberately small DOM allowlist
+instead of accepting provider HTML.
+
+Supported response structure now includes headings, paragraphs, emphasis,
+strikethrough, ordered/unordered/task lists, blockquotes, horizontal rules,
+safe links, inline and fenced code, GFM-style tables, and inline/display maths
+with `$…$`, `$$…$$`, `\\(…\\)`, and `\\[…\\]`. Tables, code blocks, and display
+maths scroll inside the response at narrow widths. The already-loaded KaTeX
+runtime receives only extracted formula source with `trust:false` and
+`throwOnError:false`; malformed formulae fall back to readable source.
+
+Raw HTML remains visible text, `javascript:` and other unsafe link protocols
+are rejected, and Markdown images become labelled links rather than external
+image fetches. User messages, tool events, proposals, confirmations, receipts,
+warnings, and errors are intentionally unchanged. No backend, provider,
+orchestrator, tool, memory, or canonical confirmation code was modified.
+
+Smoke29 gained an eighth acceptance step covering semantic Markdown output,
+GFM tables, code, safe/unsafe links, inert HTML, non-fetching images, KaTeX
+options, display maths, and malformed-math recovery. Real in-app Browser checks
+at desktop and 390×844 confirmed that the assistant page remains responsive.
+The service-worker cache version is `kos-gov4-c6md-1`.
+
+Final release verification: smoke1–29 passed; the existing staging guard
+produced 106 runtime files / 20M; Cloudflare Pages deployed the follow-up to
+`https://307af73d.kurenai-os.pages.dev`. The live assistant page mounted all
+six tabs, the unique deployment and production alias both served service
+worker `kos-gov4-c6md-1`, and the deployed assistant bundle contained the
+safe rich-text renderer and public render hook.

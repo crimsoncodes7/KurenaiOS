@@ -580,6 +580,351 @@
     return el("div", { class: "asst-row asst-proposal" + (r._saved ? " is-saved" : r._discarded ? " is-discarded" : "") }, kids);
   }
 
+  /* ================= safe assistant rich text =================
+     Provider prose is Markdown, but it is still untrusted input. This
+     renderer deliberately builds a small, useful Markdown DOM vocabulary
+     rather than converting arbitrary HTML and sanitising it afterwards.
+     Raw HTML therefore remains visible text; links pass a protocol allowlist;
+     remote images are never fetched; and maths is handed only to KaTeX with
+     trust:false. User copy, tool data, confirmations and receipts stay on
+     their existing plain-text render paths. */
+  function safeMarkdownHref(raw) {
+    var href = String(raw || "").trim().replace(/^<|>$/g, "");
+    if (!href || /[\u0000-\u001f\u007f]/.test(href)) return null;
+    if (href.charAt(0) === "#" || href.charAt(0) === "/" || href.indexOf("./") === 0 || href.indexOf("../") === 0) return href;
+    try {
+      var parsed = new URL(href, window.location.href);
+      return /^(https?:|mailto:)$/.test(parsed.protocol) ? parsed.href : null;
+    } catch (e) { return null; }
+  }
+
+  function closingRun(text, start, marker) {
+    var at = text.indexOf(marker, start + marker.length);
+    while (at >= 0 && text.charAt(at - 1) === "\\") at = text.indexOf(marker, at + marker.length);
+    return at;
+  }
+
+  function mathNode(expression, display, source) {
+    var node = el("span", {
+      class: "asst-math-source" + (display ? " asst-math-display" : ""),
+      text: source
+    });
+    node._asstMath = String(expression || "");
+    node._asstMathDisplay = !!display;
+    return node;
+  }
+
+  function appendInline(parent, value, depth) {
+    var text = String(value == null ? "" : value);
+    var i = 0, plain = 0;
+    depth = depth || 0;
+    function flush(end) {
+      if (end > plain) parent.appendChild(document.createTextNode(text.slice(plain, end)));
+    }
+    function addWrapped(tag, className, inner, markerLength, closeAt) {
+      flush(i);
+      var node = el(tag, className ? { class: className } : {});
+      appendInline(node, inner, depth + 1);
+      parent.appendChild(node);
+      i = closeAt + markerLength;
+      plain = i;
+    }
+
+    while (i < text.length) {
+      var rest = text.slice(i);
+      var match, close, ticks, expression, href, link;
+
+      if (text.charAt(i) === "\\" && i + 1 < text.length && /[\\`*_[\]{}()#+.!|>$~\-]/.test(text.charAt(i + 1))) {
+        flush(i);
+        parent.appendChild(document.createTextNode(text.charAt(i + 1)));
+        i += 2; plain = i; continue;
+      }
+      if (text.charAt(i) === "\n") {
+        flush(i);
+        parent.appendChild(el("br"));
+        i += 1; plain = i; continue;
+      }
+
+      match = rest.match(/^(`+)/);
+      if (match) {
+        ticks = match[1]; close = closingRun(text, i, ticks);
+        if (close >= 0) {
+          flush(i);
+          parent.appendChild(el("code", { class: "asst-inline-code", text: text.slice(i + ticks.length, close).replace(/^ | $/g, "") }));
+          i = close + ticks.length; plain = i; continue;
+        }
+      }
+
+      if (rest.indexOf("\\(") === 0) {
+        close = text.indexOf("\\)", i + 2);
+        if (close >= 0) {
+          flush(i); expression = text.slice(i + 2, close);
+          parent.appendChild(mathNode(expression, false, "\\(" + expression + "\\)"));
+          i = close + 2; plain = i; continue;
+        }
+      }
+      if (rest.indexOf("\\[") === 0) {
+        close = text.indexOf("\\]", i + 2);
+        if (close >= 0) {
+          flush(i); expression = text.slice(i + 2, close);
+          parent.appendChild(mathNode(expression, true, "\\[" + expression + "\\]"));
+          i = close + 2; plain = i; continue;
+        }
+      }
+      if (rest.indexOf("$$") === 0) {
+        close = closingRun(text, i, "$$");
+        if (close >= 0) {
+          flush(i); expression = text.slice(i + 2, close);
+          parent.appendChild(mathNode(expression, true, "$$" + expression + "$$"));
+          i = close + 2; plain = i; continue;
+        }
+      }
+      if (text.charAt(i) === "$" && text.charAt(i + 1) && !/\s/.test(text.charAt(i + 1))) {
+        close = closingRun(text, i, "$");
+        if (close > i + 1 && !/\s/.test(text.charAt(close - 1))) {
+          flush(i); expression = text.slice(i + 1, close);
+          parent.appendChild(mathNode(expression, false, "$" + expression + "$"));
+          i = close + 1; plain = i; continue;
+        }
+      }
+
+      match = rest.match(/^(!?)\[([^\]\n]+)\]\(([^)\n]+)\)/);
+      if (match) {
+        flush(i);
+        href = safeMarkdownHref(match[3].replace(/\s+["'][^"']*["']\s*$/, ""));
+        if (match[1]) {
+          link = href ? el("a", { class: "asst-image-link", href: href, target: "_blank", rel: "noopener noreferrer" })
+            : el("span", { class: "asst-image-link" });
+          link.appendChild(document.createTextNode("Image: "));
+          appendInline(link, match[2], depth + 1);
+          parent.appendChild(link);
+        } else if (href) {
+          link = el("a", { href: href, target: href.charAt(0) === "#" || href.charAt(0) === "/" ? "_self" : "_blank",
+            rel: "noopener noreferrer" });
+          appendInline(link, match[2], depth + 1);
+          parent.appendChild(link);
+        } else {
+          link = el("span", { class: "asst-unsafe-link" });
+          appendInline(link, match[2], depth + 1);
+          parent.appendChild(link);
+        }
+        i += match[0].length; plain = i; continue;
+      }
+
+      match = rest.match(/^<(https?:\/\/[^<>\s]+)>/i);
+      if (match) {
+        flush(i); href = safeMarkdownHref(match[1]);
+        link = el("a", { href: href, target: "_blank", rel: "noopener noreferrer", text: match[1] });
+        parent.appendChild(link);
+        i += match[0].length; plain = i; continue;
+      }
+
+      if (depth < 10 && (rest.indexOf("**") === 0 || rest.indexOf("__") === 0)) {
+        var strongMarker = rest.slice(0, 2);
+        close = closingRun(text, i, strongMarker);
+        if (close > i + 2) { addWrapped("strong", "", text.slice(i + 2, close), 2, close); continue; }
+      }
+      if (depth < 10 && rest.indexOf("~~") === 0) {
+        close = closingRun(text, i, "~~");
+        if (close > i + 2) { addWrapped("del", "", text.slice(i + 2, close), 2, close); continue; }
+      }
+      if (depth < 10 && (text.charAt(i) === "*" || text.charAt(i) === "_")) {
+        var emMarker = text.charAt(i);
+        close = closingRun(text, i, emMarker);
+        if (close > i + 1) { addWrapped("em", "", text.slice(i + 1, close), 1, close); continue; }
+      }
+      i += 1;
+    }
+    flush(text.length);
+  }
+
+  function splitTableRow(line) {
+    var value = String(line || "").trim();
+    if (value.charAt(0) === "|") value = value.slice(1);
+    if (value.charAt(value.length - 1) === "|") value = value.slice(0, -1);
+    var out = [], cell = "", escaped = false, ticks = 0;
+    for (var i = 0; i < value.length; i++) {
+      var ch = value.charAt(i);
+      if (escaped) { cell += ch; escaped = false; continue; }
+      if (ch === "\\") { cell += ch; escaped = true; continue; }
+      if (ch === "`") { ticks = ticks ? 0 : 1; cell += ch; continue; }
+      if (ch === "|" && !ticks) { out.push(cell.trim()); cell = ""; continue; }
+      cell += ch;
+    }
+    out.push(cell.trim());
+    return out;
+  }
+
+  function tableDivider(line) {
+    var cells = splitTableRow(line);
+    return cells.length > 0 && cells.every(function (cell) { return /^:?-{3,}:?$/.test(cell); });
+  }
+
+  function startsMarkdownBlock(lines, at) {
+    var line = lines[at] || "";
+    if (!line.trim()) return true;
+    if (/^\s{0,3}(```+|~~~+)/.test(line) || /^\s{0,3}#{1,6}\s+/.test(line) || /^\s{0,3}>/.test(line) ||
+        /^\s{0,3}([-+*]|\d+[.)])\s+/.test(line) || /^\s{0,3}((\*\s*){3,}|(-\s*){3,}|(_\s*){3,})$/.test(line)) return true;
+    return at + 1 < lines.length && line.indexOf("|") >= 0 && tableDivider(lines[at + 1]);
+  }
+
+  function codeBlock(language, code) {
+    var copy = el("button", { class: "asst-code-copy", type: "button", text: "Copy", "aria-label": "Copy code" });
+    copy.addEventListener("click", function () {
+      var done = function () { copy.textContent = "Copied"; setTimeout(function () { copy.textContent = "Copy"; }, 1400); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done).catch(function () { KOS.ui.toast("Couldn't copy code", true); });
+      else KOS.ui.toast("Clipboard access is unavailable", true);
+    });
+    return el("figure", { class: "asst-code-block" }, [
+      el("figcaption", {}, [el("span", { text: language || "Code" }), copy]),
+      el("pre", {}, [el("code", { class: language ? "language-" + language.replace(/[^a-z0-9_+-]/gi, "") : "", text: code })])
+    ]);
+  }
+
+  function appendParagraph(parent, lines) {
+    var p = el("p");
+    lines.forEach(function (line, index) {
+      var hardBreak = /\s{2}$/.test(line);
+      appendInline(p, line.replace(/\s+$/, ""));
+      if (index < lines.length - 1) p.appendChild(hardBreak ? el("br") : document.createTextNode(" "));
+    });
+    parent.appendChild(p);
+  }
+
+  function renderMarkdownInto(parent, source) {
+    var lines = String(source == null ? "" : source).replace(/\r\n?/g, "\n").split("\n");
+    var at = 0, expression;
+    while (at < lines.length) {
+      var line = lines[at], trimmed = line.trim(), match, end, cells, aligns, row, wrap, table, group;
+      if (!trimmed) { at += 1; continue; }
+
+      match = line.match(/^\s{0,3}(```+|~~~+)\s*([^\s]*)\s*$/);
+      if (match) {
+        var fence = match[1], code = [];
+        at += 1;
+        while (at < lines.length && !(new RegExp("^\\s{0,3}" + fence.charAt(0) + "{" + fence.length + ",}\\s*$").test(lines[at]))) {
+          code.push(lines[at]); at += 1;
+        }
+        if (at < lines.length) at += 1;
+        parent.appendChild(codeBlock(match[2], code.join("\n")));
+        continue;
+      }
+
+      if (trimmed.indexOf("$$") === 0 || trimmed.indexOf("\\[") === 0) {
+        var texOpen = trimmed.indexOf("$$") === 0 ? "$$" : "\\[";
+        var texClose = texOpen === "$$" ? "$$" : "\\]";
+        var afterOpen = trimmed.slice(texOpen.length), texLines = [];
+        if (afterOpen.lastIndexOf(texClose) > 0 && !afterOpen.slice(afterOpen.lastIndexOf(texClose) + texClose.length).trim()) {
+          end = afterOpen.lastIndexOf(texClose);
+          parent.appendChild(mathNode(afterOpen.slice(0, end), true, texOpen + afterOpen.slice(0, end) + texClose));
+          at += 1; continue;
+        }
+        if (!afterOpen) {
+          var mathStart = at;
+          at += 1;
+          while (at < lines.length && lines[at].trim() !== texClose) { texLines.push(lines[at]); at += 1; }
+          if (at < lines.length) {
+            at += 1; expression = texLines.join("\n");
+            parent.appendChild(mathNode(expression, true, texOpen + expression + texClose));
+            continue;
+          }
+          /* An unclosed display delimiter is ordinary readable text. Do not
+             consume the rest of the answer as one broken formula. */
+          at = mathStart;
+        }
+      }
+
+      match = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+      if (match) {
+        var heading = el("h" + Math.min(6, match[1].length + 1));
+        appendInline(heading, match[2]); parent.appendChild(heading); at += 1; continue;
+      }
+      if (/^\s{0,3}((\*\s*){3,}|(-\s*){3,}|(_\s*){3,})$/.test(line)) {
+        parent.appendChild(el("hr")); at += 1; continue;
+      }
+
+      if (at + 1 < lines.length && line.indexOf("|") >= 0 && tableDivider(lines[at + 1])) {
+        cells = splitTableRow(line);
+        aligns = splitTableRow(lines[at + 1]).map(function (cell) {
+          return cell.charAt(0) === ":" && cell.charAt(cell.length - 1) === ":" ? "center" : cell.charAt(cell.length - 1) === ":" ? "right" : "left";
+        });
+        table = el("table");
+        row = el("tr");
+        cells.forEach(function (cell, index) {
+          var th = el("th", { scope: "col", style: "text-align:" + (aligns[index] || "left") });
+          appendInline(th, cell); row.appendChild(th);
+        });
+        table.appendChild(el("thead", {}, [row]));
+        var tbody = el("tbody"); at += 2;
+        while (at < lines.length && lines[at].trim() && lines[at].indexOf("|") >= 0) {
+          row = el("tr"); splitTableRow(lines[at]).forEach(function (cell, index) {
+            var td = el("td", { style: "text-align:" + (aligns[index] || "left") });
+            appendInline(td, cell); row.appendChild(td);
+          });
+          while (row.children.length < cells.length) row.appendChild(el("td"));
+          tbody.appendChild(row); at += 1;
+        }
+        table.appendChild(tbody);
+        wrap = el("div", { class: "asst-table-wrap", role: "region", tabindex: "0", "aria-label": "Scrollable response table" }, [table]);
+        parent.appendChild(wrap); continue;
+      }
+
+      if (/^\s{0,3}>/.test(line)) {
+        group = [];
+        while (at < lines.length && /^\s{0,3}>/.test(lines[at])) {
+          group.push(lines[at].replace(/^\s{0,3}>\s?/, "")); at += 1;
+        }
+        var quote = el("blockquote"); renderMarkdownInto(quote, group.join("\n")); parent.appendChild(quote); continue;
+      }
+
+      match = line.match(/^\s{0,3}([-+*]|\d+[.)])\s+(.+)$/);
+      if (match) {
+        var ordered = /^\d/.test(match[1]);
+        var list = el(ordered ? "ol" : "ul");
+        while (at < lines.length) {
+          match = lines[at].match(/^\s{0,3}([-+*]|\d+[.)])\s+(.+)$/);
+          if (!match || /^\d/.test(match[1]) !== ordered) break;
+          var itemText = match[2], task = itemText.match(/^\[([ xX])\]\s+(.*)$/), li = el("li");
+          if (task) {
+            li.className = "asst-task-item";
+            li.appendChild(el("input", { type: "checkbox", disabled: "", "aria-label": task[1].toLowerCase() === "x" ? "Completed" : "Not completed" }));
+            if (task[1].toLowerCase() === "x") li.firstChild.checked = true;
+            appendInline(li, task[2]);
+          } else appendInline(li, itemText);
+          list.appendChild(li); at += 1;
+        }
+        parent.appendChild(list); continue;
+      }
+
+      group = [line]; at += 1;
+      while (at < lines.length && !startsMarkdownBlock(lines, at)) { group.push(lines[at]); at += 1; }
+      appendParagraph(parent, group);
+    }
+  }
+
+  function typesetAssistantMath(root) {
+    function apply() {
+      if (!window.katex) return false;
+      Array.prototype.forEach.call(root.querySelectorAll(".asst-math-source"), function (node) {
+        if (node._asstMathRendered) return;
+        try {
+          window.katex.render(node._asstMath, node, { displayMode: node._asstMathDisplay, throwOnError: false, trust: false, strict: "ignore" });
+          node._asstMathRendered = true;
+          node.classList.add("is-rendered");
+        } catch (e) { /* malformed maths remains readable in its source form */ }
+      });
+      return true;
+    }
+    if (!apply() && document.readyState !== "complete") window.addEventListener("load", apply, { once: true });
+  }
+
+  function assistantRichText(source) {
+    var bubble = el("div", { class: "asst-bubble asst-richtext" });
+    renderMarkdownInto(bubble, source);
+    typesetAssistantMath(bubble);
+    return bubble;
+  }
+
   function threadRows() {
     return S.thread.map(function (r) {
       if (r.kind === "tool") {
@@ -614,14 +959,14 @@
         el("span", { class: "asst-alert-icon", "aria-hidden": "true", text: "×" }),
         el("div", {}, [el("strong", { text: "Kurenai couldn't finish that" }), el("span", { text: r.text })])
       ]);
-      /* user/assistant text renders via textContent — provider output is
-         never injected as HTML */
+      /* Provider Markdown is parsed into an allowlisted DOM tree. Raw HTML
+         remains text; only assistant prose takes this path. */
       if (r.kind === "assistant") {
         return el("div", { class: "asst-row asst-assistant" }, [
           el("img", { class: "asst-message-mark", src: EMBLEM, alt: "" }),
           el("div", { class: "asst-message-body" }, [
             el("span", { class: "asst-message-author", text: "Kurenai" }),
-            el("div", { class: "asst-bubble", text: r.text })
+            assistantRichText(r.text)
           ])
         ]);
       }
@@ -1235,6 +1580,7 @@
     setVisual: setVisual,
     toolDisplayName: toolDisplayName,
     toolActivity: toolActivity,
+    renderMarkdown: assistantRichText,
     loadAudit: loadAudit,
     state: function () { return S; },
     MASCOT_STATES: MASCOT_STATES,

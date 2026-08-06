@@ -2,7 +2,7 @@
    Category 6.1 assistant UI/UX acceptance gate.
 
    Covers the redesigned presentation without weakening Category 6 contracts:
-   one controller across drawer/page, inert provider rendering, canonical
+   one controller across drawer/page, safe Markdown/LaTeX rendering, canonical
    confirmations, human activity copy, theme inheritance, focus containment,
    clean production assets, and the Phase E–F regression guardrails. */
 
@@ -79,6 +79,54 @@ step("provider text stays inert and visually belongs to Kurenai", async () => {
   assert(bubble && bubble.textContent === payload, "provider output must render through textContent");
   assert(bubble.closest(".asst-assistant").querySelector(".asst-message-mark"), "assistant hierarchy needs a bloom identity mark");
   ORCH.send = originalSend;
+});
+
+step("assistant Markdown, tables and maths render cleanly without widening trust", () => {
+  const katexCalls = [];
+  window.katex = { render(expression, node, options) {
+    katexCalls.push({ expression, options });
+    node.textContent = "";
+    node.appendChild(doc.createElement("span")).className = "katex";
+  } };
+  const rich = A.renderMarkdown([
+    "# Radians at a glance",
+    "",
+    "Use **radians** for *clean* formulae and `Math.PI` in code.",
+    "",
+    "- Arc length is $s = r\\theta$",
+    "- Sector area is $A = \\frac{1}{2}r^2\\theta$",
+    "",
+    "| Feature | Formula |",
+    "| :--- | ---: |",
+    "| Arc length | $r\\theta$ |",
+    "",
+    "> **Remember:** convert degrees first.",
+    "",
+    "```js",
+    "const angle = Math.PI / 2;",
+    "```",
+    "",
+    "[Safe source](https://example.com) [Unsafe](javascript:alert(1)) ![Remote](https://example.com/a.png)",
+    "<script>window.__mdPwned = true</script>",
+    "",
+    "$$\\pi \\text{ radians} = 180^\\circ$$"
+  ].join("\n"));
+  doc.body.appendChild(rich);
+  assert(rich.classList.contains("asst-richtext") && rich.querySelector("h2"), "Markdown heading should become semantic DOM");
+  assert(rich.querySelector("strong") && rich.querySelector("em") && rich.querySelector("ul"), "inline emphasis and lists should render");
+  assert(rich.querySelector(".asst-table-wrap table thead") && rich.querySelector("tbody td"), "GFM table should render in a scroll wrapper");
+  assert(rich.querySelector("blockquote") && rich.querySelector(".asst-code-block pre code").textContent.includes("Math.PI"), "quotes and fenced code should render");
+  assert(rich.querySelector('a[href^="https://example.com"]'), "safe web links should be clickable");
+  assert(![...rich.querySelectorAll("a")].some(a => /^javascript:/i.test(a.getAttribute("href") || "")), "unsafe URL protocols must never become links");
+  assert(rich.querySelectorAll("img").length === 0, "provider Markdown must not fetch remote images");
+  assert(rich.textContent.includes("<script>") && window.__mdPwned === undefined, "raw HTML must stay inert text");
+  assert(katexCalls.length >= 4 && katexCalls.every(call => call.options.trust === false && call.options.throwOnError === false),
+    "all maths must pass through non-trusting KaTeX options");
+  assert(rich.querySelector(".asst-math-display.is-rendered .katex"), "display maths should render through KaTeX");
+  rich.remove();
+  delete window.katex;
+  const malformed = A.renderMarkdown("Before\n\n$$unclosed\n\nAfter");
+  assert(malformed.textContent.includes("$$unclosed") && malformed.textContent.includes("After"), "malformed maths must remain readable without swallowing later prose");
 });
 
 step("tool activity leads with human copy and keeps the id secondary", async () => {
