@@ -9,6 +9,8 @@ node_modules/
 # generated screenshots / scratch
 /tmp/
 *.local
+# review screenshots produced by the CDP audits (kept on disk, not tracked)
+artifacts/
 
 # cloud-sync credentials (copy js/env.example.js → js/env.local.js)
 js/env.local.js

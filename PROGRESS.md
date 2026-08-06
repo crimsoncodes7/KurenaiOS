@@ -2590,3 +2590,30 @@ against the pre-fix code) plus an empty-lens step. smoke4 gained five steps
 pinning the cover fallback ORDER (local first with zero network, fetch with
 `cache:reload`, the crossOrigin retry, unreachable vs cors diagnosis, and the
 no-cover path) and one pinning the rail user panel.
+
+---
+
+## ADDENDUM — Category 6.1 assistant UI/UX build · 2026-08-06
+
+Landed by a parallel working session; recorded here so the tree's history is
+complete. Scope was the Kurenai Assistant frontend only — the provider layer,
+tool registry, orchestrator and safety model are unchanged.
+
+- `js/modules/assistant.js` reworked across the drawer and the dedicated
+  page (one shared controller, inert provider rendering, canonical
+  confirmation copy, human-readable activity text, theme inheritance and
+  focus containment).
+- Production artwork replaced the v2 asset pack: `kurenai-production.png`
+  (mascot) and `whispering-bloom-emblem-production.png` (topbar/emblem), with
+  `assets/assistant/manifest.json` repointed at them. Both are referenced by
+  `index.html` and `assistant.js`, so they are tracked — a fresh clone would
+  otherwise 404 the emblem.
+- `tools/smoke29.test.js` is the acceptance gate for that surface and joins
+  the release gate (29 suites).
+- The implementation plan is checked in as `CATEGORY6_UI_PLAN.md`.
+- CDP review screenshots live in `artifacts/category6-ui/`; those are
+  generated evidence and are gitignored (kept on disk, not tracked).
+
+Verified after the fact on the live deployment: no console errors, the
+assistant page and drawer both mount, the mascot resolves to the production
+asset, and all six assistant tabs render.

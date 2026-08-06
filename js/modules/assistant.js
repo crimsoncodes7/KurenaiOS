@@ -28,16 +28,89 @@
 
   /* ================= mascot state map (mirrors manifest.json) ========== */
   var ASSET_BASE = "assets/assistant/";
+  var PRODUCTION_MASCOT = "mascot/full/kurenai-production.png";
   var MASCOT_STATES = {
-    idle:         { image: "mascot/portrait/idle.png",         label: "Ready" },
-    thinking:     { image: "mascot/portrait/thinking.png",     label: "Thinking…" },
-    working:      { image: "mascot/portrait/working.png",      label: "Working…" },
-    success:      { image: "mascot/portrait/success.png",      label: "Completed", autoReturnMs: 2200 },
-    error:        { image: "mascot/portrait/error.png",        label: "Something went wrong" },
-    confirmation: { image: "mascot/portrait/confirmation.png", label: "Awaiting your confirmation" }
+    idle:         { image: PRODUCTION_MASCOT, label: "Ready when you are" },
+    thinking:     { image: PRODUCTION_MASCOT, label: "Thinking…" },
+    working:      { image: PRODUCTION_MASCOT, label: "Working with your KurenaiOS data…" },
+    success:      { image: PRODUCTION_MASCOT, label: "Complete and verified", autoReturnMs: 2200 },
+    error:        { image: PRODUCTION_MASCOT, label: "Something needs attention" },
+    confirmation: { image: PRODUCTION_MASCOT, label: "Waiting for your approval" }
   };
-  var EMBLEM = ASSET_BASE + "logo/whispering-bloom-emblem.png";
+  var EMBLEM = ASSET_BASE + "logo/whispering-bloom-emblem-production.png";
   var WORDMARK = ASSET_BASE + "logo/whispering-bloom-wordmark.png";
+
+  /* Display copy only. Tool ids remain untouched in controller, audit and
+     orchestrator data, but are never the primary language shown to people. */
+  var TOOL_COPY = {
+    study_list_subjects: "Reading your subjects",
+    study_list_topics: "Reading your topics",
+    study_read_notes: "Reading your topic notes",
+    study_get_progress: "Checking your study progress",
+    study_generate_flashcards: "Preparing flashcards",
+    study_propose_flashcards: "Preparing a flashcard proposal",
+    study_propose_quiz: "Preparing a quiz proposal",
+    study_save_proposed: "Saving the approved study set",
+    collection_list_entries: "Reading your collection",
+    collection_get_entry: "Reading a collection entry",
+    todo_list_tasks: "Reading your tasks",
+    todo_add_task: "Adding a task",
+    calendar_list_events: "Reading your calendar",
+    calendar_add_event: "Adding a calendar event"
+  };
+  var TOOL_NAMES = {
+    app_navigate: "Open an app page",
+    app_get_context: "Check current context",
+    focus_pause_resume: "Pause or resume focus",
+    games_bulk_add: "Add games in bulk",
+    todo_list: "Read tasks",
+    wishlist_list: "Read wishlist",
+    goals_list: "Read goals",
+    attachments_list: "Read attachments",
+    memory_list: "Read memory",
+    sync_cloud_sync_now: "Sync cloud data now",
+    sync_retry_pushes: "Retry pending sync changes",
+    wishlist_mark_purchased: "Mark wishlist item purchased",
+    collection_add_from_external: "Add an external search result"
+  };
+  var ACTION_WORDS = {
+    list: "Read", read: "Read", get: "Check", search: "Search", find: "Find",
+    propose: "Prepare", generate: "Prepare", save: "Save", add: "Add", create: "Create",
+    update: "Update", set: "Set", mark: "Mark", delete: "Delete", remove: "Remove",
+    import: "Import", export: "Export", sync: "Sync", start: "Start", stop: "Stop",
+    complete: "Complete", log: "Record", archive: "Archive", restore: "Restore",
+    navigate: "Open", buy: "Buy", toggle: "Toggle", tick: "Check off", rate: "Rate"
+  };
+  var DOMAIN_NOUNS = { todo: "tasks", wishlist: "wishlist", goals: "goals", attachments: "attachments",
+    memory: "memory", app: "app page", governor: "Governor", focus: "focus session", archive: "backup",
+    sync: "cloud sync", games: "games" };
+
+  function titleWords(value) {
+    return String(value || "").split("_").filter(Boolean).map(function (w) {
+      return w.charAt(0).toUpperCase() + w.slice(1);
+    }).join(" ");
+  }
+  function toolDisplayName(name) {
+    if (TOOL_NAMES[name]) return TOOL_NAMES[name];
+    var parts = String(name || "assistant_action").split("_");
+    var verbIndex = parts.findIndex(function (p) { return ACTION_WORDS[p]; });
+    var verb = verbIndex >= 0 ? ACTION_WORDS[parts[verbIndex]] : "Use";
+    var subject = parts.slice(verbIndex >= 0 ? verbIndex + 1 : 1).join("_");
+    if (!subject && verbIndex > 0) subject = DOMAIN_NOUNS[parts[0]] || parts.slice(0, verbIndex).join("_");
+    if (!subject) subject = parts.join("_");
+    return verb + " " + titleWords(subject).toLowerCase();
+  }
+  function toolActivity(name, phase) {
+    var copy = TOOL_COPY[name] || toolDisplayName(name);
+    if (phase === "done") return copy.replace(/ing\b/, "ed");
+    return copy;
+  }
+  function tierLabel(tier) {
+    return tier === "consequential" ? "Needs approval" : tier === "reversible" ? "Undoable action" : "Read only";
+  }
+  function providerName(name) {
+    return name === "gemini" ? "Gemini" : name === "deepseek" ? "DeepSeek" : name === "ollama" ? "Ollama" : titleWords(name);
+  }
 
   /* ================= the shared controller ================= */
   var S = {
@@ -60,6 +133,19 @@
   var mascots = [];       // live mascot nodes
   var successTimer = null;
   var _auditReader = null; // test seam
+  var announcerEl = null;
+
+  function announcer() {
+    if (announcerEl && announcerEl.isConnected) return announcerEl;
+    announcerEl = el("div", { class: "asst-live sr-only", "aria-live": "polite", "aria-atomic": "true" });
+    document.body.appendChild(announcerEl);
+    return announcerEl;
+  }
+  function announce(text) {
+    var n = announcer();
+    n.textContent = "";
+    window.setTimeout(function () { if (n.isConnected) n.textContent = String(text || ""); }, 20);
+  }
 
   function notify() {
     listeners = listeners.filter(function (l) { return l.node.isConnected; });
@@ -84,6 +170,7 @@
     updateTrigger();
     var status = document.querySelectorAll(".asst-status-line");
     status.forEach(function (n) { n.textContent = S.statusText; });
+    announce(S.statusText);
   }
 
   /* ---- the mascot component (one implementation, two sizes) ---- */
@@ -92,13 +179,20 @@
     img.addEventListener("error", function () { node.classList.add("img-failed"); });
     var glyph = el("span", { class: "asst-mascot-fallback", "aria-hidden": "true", text: "紅" });
     var status = el("p", { class: "asst-status-line", role: "status" });
+    var frame = el("div", { class: "asst-mascot-frame" }, [
+      el("span", { class: "asst-bloom-ring ring-one", "aria-hidden": "true" }),
+      el("span", { class: "asst-bloom-ring ring-two", "aria-hidden": "true" }),
+      img,
+      glyph
+    ]);
     var node = el("div", { class: "asst-mascot " + (size === "large" ? "asst-mascot-lg" : "asst-mascot-sm") },
-      [el("div", { class: "asst-mascot-frame" }, [img, glyph]), status]);
+      [frame, status]);
     function update() {
       var st = MASCOT_STATES[S.visual] || MASCOT_STATES.idle;
       node.classList.remove("img-failed");
       node.setAttribute("data-state", S.visual);
       img.src = ASSET_BASE + st.image;
+      img.alt = size === "large" ? "Kurenai, the Whispering Bloom assistant" : "";
       status.textContent = S.statusText;
     }
     mascots.push({ node: node, update: update });
@@ -107,7 +201,15 @@
   }
 
   /* ---- thread helpers ---- */
-  function pushRow(row) { S.thread.push(row); notify(); }
+  function pushRow(row) {
+    S.thread.push(row);
+    if (row.kind === "assistant") announce("Kurenai replied. " + clampText(row.text, 140));
+    else if (row.kind === "tool") announce((row.ok ? "Completed: " : "Could not complete: ") + toolActivity(row.tool));
+    else if (row.kind === "receipt") announce("Verified action complete. " + (row.summary || toolDisplayName(row.tool)));
+    else if (row.kind === "warning") announce("Warning. " + clampText(row.text, 140));
+    else if (row.kind === "error") announce("Error. " + clampText(row.text, 140));
+    notify();
+  }
   function threadFromStored(messages) {
     return messages.map(function (m) {
       var c = m.content || {};
@@ -168,11 +270,11 @@
           if (p.state === "thinking") setVisual("thinking");
           else if (p.state === "working") setVisual("working");
           else if (p.state === "awaiting_confirmation") setVisual("confirmation");
-          else if (p.state === "fallback") pushRow({ kind: "warning", text: "Fell back from " + p.from + " to " + p.to + " (you enabled this fallback)." });
+          else if (p.state === "fallback") pushRow({ kind: "warning", text: "Switched from " + providerName(p.from) + " to " + providerName(p.to) + " using the fallback you enabled." });
           else if (p.state === "persist_warning") pushRow({ kind: "warning", text: p.message });
         },
         onToolStart: function (p) {
-          setVisual("working", "Running " + p.tool + "…");
+          setVisual("working", toolActivity(p.tool) + "…");
         },
         onToolResult: function (p) {
           pushRow({ kind: "tool", tool: p.tool, ok: p.ok, text: p.ok ? "" : p.error });
@@ -192,7 +294,8 @@
           S.pending = card;
           S.pendingState = null;
           S.busy = true;   // the request is paused, not gone
-          setVisual("confirmation", "Awaiting your confirmation — " + card.tool);
+          setVisual("confirmation", "Review before Kurenai acts: " + toolDisplayName(card.tool));
+          announce("Your approval is required for " + toolDisplayName(card.tool));
           notify();
         },
         onText: function (p) { pushRow({ kind: "assistant", text: p.text }); },
@@ -242,7 +345,7 @@
   function runToolUi(name, args, onComplete) {
     if (S.busy) { KOS.ui.toast("Kurenai is busy — wait for the current step.", true); return; }
     S.busy = true;
-    setVisual("working", name + "…");
+    setVisual("working", toolActivity(name) + "…");
     notify();
     S.requestId = KOS.ai.orchestrator.runTool(name, args || {}, {
       onProposal: function (p) {
@@ -252,7 +355,8 @@
       onReceipt: function (p) { pushRow({ kind: "receipt", tool: p.tool, target: p.target, summary: p.summary }); },
       onConfirmationNeeded: function (card) {
         S.pending = card; S.pendingState = null; S.busy = true;
-        setVisual("confirmation", "Awaiting your confirmation — " + card.tool); notify();
+        setVisual("confirmation", "Review before Kurenai acts: " + toolDisplayName(card.tool));
+        announce("Your approval is required for " + toolDisplayName(card.tool)); notify();
       },
       onError: function (p) { S.lastError = p.message; pushRow({ kind: "error", text: p.message }); setVisual("error", clampText(p.message, 80)); },
       onDone: function (p) {
@@ -320,7 +424,7 @@
   function clampText(s, n) { s = String(s == null ? "" : s); return s.length > n ? s.slice(0, n) + "…" : s; }
 
   /* ================= trigger + drawer ================= */
-  var drawerEl = null, composerEl = null, lastFocus = null;
+  var drawerEl = null, drawerScrim = null, composerEl = null, lastFocus = null;
 
   function updateTrigger() {
     var t = document.getElementById("assistant-trigger");
@@ -334,7 +438,7 @@
 
   function buildComposer(compact) {
     var ta = el("textarea", { class: "asst-composer-in", rows: compact ? "2" : "3",
-      placeholder: "Ask Kurenai — she can read and change your real data…",
+      placeholder: compact ? "Ask Kurenai…" : "Ask about your studies, collection, plans, or progress…",
       "aria-label": "Message to the Kurenai assistant" });
     ta.value = S.draft;
     ta.addEventListener("input", function () { S.draft = ta.value; });
@@ -346,7 +450,8 @@
         if (submit(ta.value)) ta.value = "";
       }
     });
-    var sendBtn = el("button", { class: "btn primary asst-send", text: "Send",
+    var sendBtn = el("button", { class: "btn primary asst-send", text: "Send message",
+      "aria-label": "Send message to Kurenai",
       onclick: function () { if (submit(ta.value)) ta.value = ""; } });
     var cancelBtn = el("button", { class: "btn asst-cancel", text: "Stop",
       "aria-label": "Stop the current request",
@@ -355,11 +460,17 @@
       var lock = S.busy;
       ta.disabled = lock;
       sendBtn.disabled = lock;
-      sendBtn.textContent = lock ? "Working…" : "Send";
+      sendBtn.textContent = lock ? "Working…" : "Send message";
       cancelBtn.style.display = lock ? "" : "none";
     }
     refresh();
-    var wrap = el("div", { class: "asst-composer" }, [ta, el("div", { class: "asst-composer-btns" }, [cancelBtn, sendBtn])]);
+    var wrap = el("div", { class: "asst-composer" }, [
+      ta,
+      el("div", { class: "asst-composer-foot" }, [
+        el("span", { class: "asst-composer-hint", text: "Enter to send · Shift + Enter for a new line" }),
+        el("div", { class: "asst-composer-btns" }, [cancelBtn, sendBtn])
+      ])
+    ]);
     wrap._refresh = refresh;
     wrap._ta = ta;
     return wrap;
@@ -369,15 +480,24 @@
     if (!S.pending) return null;
     var p = S.pending;
     var expiresIn = Math.max(0, Math.round((p.expiresAt - Date.now()) / 1000));
-    return el("div", { class: "asst-confirm-card", role: "group", "aria-label": "Action awaiting confirmation" }, [
+    return el("div", { class: "asst-confirm-card", role: "group", "aria-label": "Review an action before Kurenai runs it" }, [
+      el("div", { class: "asst-confirm-kicker", text: "Review before Kurenai acts" }),
       el("div", { class: "asst-confirm-head" }, [
-        el("b", { text: "Kurenai wants to run: " + p.tool }),
-        el("span", { class: "med-chip", style: "--chip:var(--danger)", text: p.tier })
+        el("div", {}, [
+          el("h3", { text: toolDisplayName(p.tool) }),
+          el("code", { class: "asst-technical-id", text: p.tool })
+        ]),
+        el("span", { class: "asst-tier asst-tier-" + p.tier, text: tierLabel(p.tier) })
       ]),
-      el("p", { class: "sub", text: p.description || "" }),
-      p.target ? el("p", { class: "asst-confirm-target", text: "Target: " + p.target }) : null,
-      el("pre", { class: "asst-confirm-args", text: JSON.stringify(p.args, null, 1) }),
-      el("p", { class: "sub", text: "Expires in ~" + expiresIn + "s. Changing screens or targets cancels it automatically — nothing runs without this exact approval." }),
+      el("p", { class: "asst-confirm-desc", text: p.description || "This action changes your KurenaiOS data." }),
+      p.target ? el("div", { class: "asst-confirm-target" }, [
+        el("span", { text: "Target" }), el("b", { text: p.target })
+      ]) : null,
+      el("details", { class: "asst-confirm-detail" }, [
+        el("summary", { text: "Review the exact request" }),
+        el("pre", { class: "asst-confirm-args", text: JSON.stringify(p.args, null, 1) })
+      ]),
+      el("p", { class: "asst-confirm-expiry", text: "Approval expires in about " + expiresIn + " seconds. A changed target or screen invalidates it automatically." }),
       el("div", { class: "asst-confirm-btns" }, [
         el("button", { class: "btn", type: "button", text: "Decline", onclick: rejectPending }),
         (function () {
@@ -464,25 +584,49 @@
     return S.thread.map(function (r) {
       if (r.kind === "tool") {
         return el("div", { class: "asst-row asst-tool" + (r.ok ? "" : " failed") }, [
-          el("span", { class: "asst-tool-chip", text: (r.ok ? "✓ " : "✕ ") + r.tool }),
-          r.text ? el("span", { class: "sub", text: " " + clampText(r.text, 160) }) : null
+          el("span", { class: "asst-event-icon", "aria-hidden": "true", text: r.ok ? "✓" : "!" }),
+          el("div", { class: "asst-event-copy" }, [
+            el("span", { class: "asst-event-title", text: (r.ok ? "Finished · " : "Could not finish · ") + toolActivity(r.tool) }),
+            el("code", { class: "asst-technical-id", text: r.tool }),
+            r.text ? el("span", { class: "asst-event-detail", text: clampText(r.text, 160) }) : null
+          ].filter(Boolean))
         ].filter(Boolean));
       }
       if (r.kind === "receipt") {
         /* app-generated VERIFIED action receipt — the ground truth of a write */
         return el("div", { class: "asst-row asst-receipt" }, [
-          el("span", { class: "asst-receipt-badge", text: "✓ done" }),
-          el("code", { text: r.tool }),
-          r.target ? el("span", { class: "sub", text: r.target }) : null,
-          el("span", { class: "asst-receipt-sum", text: r.summary || "" })
+          el("span", { class: "asst-receipt-badge", "aria-hidden": "true", text: "✓" }),
+          el("div", { class: "asst-receipt-copy" }, [
+            el("span", { class: "asst-receipt-label", text: "Verified action complete" }),
+            el("strong", { text: toolDisplayName(r.tool) }),
+            el("span", { class: "asst-receipt-sum", text: r.summary || "The change was recorded by KurenaiOS." }),
+            r.target ? el("span", { class: "asst-event-detail", text: "Target · " + r.target }) : null,
+            el("code", { class: "asst-technical-id", text: r.tool })
+          ].filter(Boolean))
         ].filter(Boolean));
       }
       if (r.kind === "proposal") return proposalCard(r);
-      if (r.kind === "warning") return el("div", { class: "asst-row asst-warning", text: r.text });
-      if (r.kind === "error") return el("div", { class: "asst-row asst-error", text: r.text });
+      if (r.kind === "warning") return el("div", { class: "asst-row asst-warning", role: "note" }, [
+        el("span", { class: "asst-alert-icon", "aria-hidden": "true", text: "!" }),
+        el("div", {}, [el("strong", { text: "Heads up" }), el("span", { text: r.text })])
+      ]);
+      if (r.kind === "error") return el("div", { class: "asst-row asst-error", role: "alert" }, [
+        el("span", { class: "asst-alert-icon", "aria-hidden": "true", text: "×" }),
+        el("div", {}, [el("strong", { text: "Kurenai couldn't finish that" }), el("span", { text: r.text })])
+      ]);
       /* user/assistant text renders via textContent — provider output is
          never injected as HTML */
-      return el("div", { class: "asst-row asst-" + r.kind }, [
+      if (r.kind === "assistant") {
+        return el("div", { class: "asst-row asst-assistant" }, [
+          el("img", { class: "asst-message-mark", src: EMBLEM, alt: "" }),
+          el("div", { class: "asst-message-body" }, [
+            el("span", { class: "asst-message-author", text: "Kurenai" }),
+            el("div", { class: "asst-bubble", text: r.text })
+          ])
+        ]);
+      }
+      return el("div", { class: "asst-row asst-user" }, [
+        el("span", { class: "sr-only", text: "You said" }),
         el("div", { class: "asst-bubble", text: r.text })
       ]);
     });
@@ -491,15 +635,30 @@
   function buildThreadArea(compact) {
     var scroller = el("div", { class: "asst-thread", tabindex: "0", "aria-label": "Conversation" });
     var composer = buildComposer(compact);
+    function emptyState() {
+      var prompts = compact ? [
+        "What should I revise next?",
+        "Show today's study plan"
+      ] : [
+        "What should I revise next?",
+        "Summarise my study progress",
+        "Help me plan this week"
+      ];
+      return el("div", { class: "asst-empty" }, [
+        el("img", { class: "asst-empty-mark", src: EMBLEM, alt: "" }),
+        el("span", { class: "asst-empty-kicker", text: "Whispering Bloom" }),
+        el("h2", { text: compact ? "What are we working on?" : "Begin with the part that feels tangled." }),
+        el("p", { text: "Kurenai can read your KurenaiOS context and help you act on it. Any consequential change pauses for your explicit approval." }),
+        el("div", { class: "asst-starters", "aria-label": "Suggested prompts" }, prompts.map(function (prompt) {
+          return el("button", { class: "asst-starter", type: "button", text: prompt,
+            onclick: function () { submit(prompt, { category: "complex" }); } });
+        }))
+      ]);
+    }
     function render() {
       var atBottom = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 60;
       scroller.innerHTML = "";
-      if (!S.thread.length) {
-        scroller.appendChild(el("div", { class: "asst-empty" }, [
-          el("p", { text: "Hello. I can read and change your real KurenaiOS data — topics, flashcards, the collection, the planner." }),
-          el("p", { class: "sub", text: "Anything consequential waits for your explicit confirmation." })
-        ]));
-      }
+      if (!S.thread.length) scroller.appendChild(emptyState());
       threadRows().forEach(function (n) { scroller.appendChild(n); });
       var card = confirmationCard();
       if (card) scroller.appendChild(card);
@@ -518,12 +677,14 @@
     if (S.open) return;
     S.open = true;
     lastFocus = document.activeElement;
-    drawerEl = el("aside", { class: "asst-drawer", role: "dialog", "aria-label": "Kurenai assistant", "aria-modal": "false" }, [
+    drawerScrim = el("button", { class: "asst-drawer-scrim", type: "button", tabindex: "-1",
+      "aria-label": "Close Kurenai assistant", onclick: closeDrawer });
+    drawerEl = el("aside", { class: "asst-drawer", role: "dialog", "aria-label": "Kurenai assistant", "aria-modal": "true" }, [
       el("div", { class: "asst-drawer-head" }, [
         el("img", { class: "asst-emblem", src: EMBLEM, alt: "" }),
         el("div", { class: "asst-drawer-title" }, [
-          el("b", { text: "Kurenai" }),
-          el("span", { class: "sub", text: S.conversationTitle || "assistant" })
+          el("span", { class: "asst-drawer-kicker", text: "Whispering Bloom" }),
+          el("b", { text: "Kurenai Assistant" })
         ]),
         el("button", { class: "mini-btn", type: "button", text: "⤢", "aria-label": "Open the full assistant page",
           title: "Open the full assistant page",
@@ -531,12 +692,27 @@
         el("button", { class: "mini-btn", type: "button", text: "✕", "aria-label": "Close the assistant drawer",
           onclick: function () { closeDrawer(); } })
       ]),
-      mascotNode("small"),
+      el("div", { class: "asst-drawer-presence" }, [
+        mascotNode("small"),
+        el("div", { class: "asst-drawer-context" }, [
+          el("span", { text: S.conversationTitle || "Current conversation" }),
+          el("small", { text: "Consequential changes always pause for review." })
+        ])
+      ]),
       buildThreadArea(true)
     ]);
     drawerEl.addEventListener("keydown", function (e) {
       if (e.key === "Escape") { e.stopPropagation(); closeDrawer(); }
+      if (e.key === "Tab") {
+        var focusable = Array.prototype.slice.call(drawerEl.querySelectorAll("button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [href], [tabindex]:not([tabindex='-1'])"));
+        if (!focusable.length) { e.preventDefault(); return; }
+        var first = focusable[0], last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
     });
+    document.body.classList.add("asst-drawer-open");
+    document.body.appendChild(drawerScrim);
     document.body.appendChild(drawerEl);
     updateTrigger();
     var ta = drawerEl.querySelector(".asst-composer-in");
@@ -548,6 +724,8 @@
     if (!S.open) return;
     S.open = false;
     if (drawerEl) { drawerEl.remove(); drawerEl = null; }
+    if (drawerScrim) { drawerScrim.remove(); drawerScrim = null; }
+    document.body.classList.remove("asst-drawer-open");
     updateTrigger();
     var t = document.getElementById("assistant-trigger");
     if (lastFocus && lastFocus.isConnected) lastFocus.focus();
@@ -614,25 +792,83 @@
     ["Activity", "assistant", { tab: "activity" }, "activity"]
   ];
 
+  function assistantTabs(active) {
+    var nav = el("div", { class: "asst-tabs", role: "tablist", "aria-label": "Kurenai Assistant pages" });
+    [
+      ["Conversation", PAGE_TABS.slice(0, 2)],
+      ["Control room", PAGE_TABS.slice(2)]
+    ].forEach(function (group) {
+      var items = group[1].map(function (tab) {
+        var selected = tab[3] === active;
+        return el("button", { class: "study-tab" + (selected ? " active" : ""), type: "button",
+          role: "tab", "aria-selected": selected ? "true" : "false", "aria-controls": "asst-page-panel",
+          tabindex: selected ? "0" : "-1", text: tab[0],
+          onclick: function () { KOS.show(tab[1], tab[2]); } });
+      });
+      nav.appendChild(el("div", { class: "asst-tab-group", role: "presentation" }, [
+        el("span", { class: "asst-tab-group-label", role: "presentation", text: group[0] })
+      ].concat(items)));
+    });
+    nav.addEventListener("keydown", function (e) {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"].indexOf(e.key) < 0) return;
+      var tabs = Array.prototype.slice.call(nav.querySelectorAll(".study-tab"));
+      var current = tabs.indexOf(document.activeElement);
+      if (current < 0) return;
+      e.preventDefault();
+      var next = e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1
+        : (e.key === "ArrowUp" || e.key === "ArrowLeft") ? (current - 1 + tabs.length) % tabs.length
+        : (current + 1) % tabs.length;
+      tabs[next].focus();
+    });
+    return nav;
+  }
+
+  function sectionIntro(body, kicker, title, copy) {
+    body.appendChild(el("header", { class: "asst-section-intro" }, [
+      el("span", { class: "asst-section-kicker", text: kicker }),
+      el("h2", { text: title }),
+      el("p", { text: copy })
+    ]));
+  }
+
   function pageChat(body) {
-    var head = el("div", { class: "asst-page-chat-head" }, [
-      mascotNode("large"),
-      el("div", { class: "asst-page-chat-meta" }, [
-        el("img", { class: "asst-wordmark", src: WORDMARK, alt: "Whispering Bloom" }),
-        el("p", { class: "sub", text: S.conversationTitle ? "Conversation: " + S.conversationTitle : "A fresh conversation — it saves to history when you're signed in to cloud sync." }),
-        el("div", { class: "lab-controls" }, [
-          el("button", { class: "btn", type: "button", text: "＋ New conversation", onclick: function () { newConversation(); KOS.show("assistant", { tab: "chat" }); } })
-        ])
-      ])
+    var conversation = el("div", { class: "asst-chat-main" }, [
+      el("div", { class: "asst-chat-toolbar" }, [
+        el("div", {}, [
+          el("span", { class: "asst-section-kicker", text: "Conversation" }),
+          el("h2", { text: S.conversationTitle || "A fresh thread" })
+        ]),
+        el("button", { class: "btn", type: "button", text: "＋ New conversation", onclick: function () {
+          newConversation(); KOS.show("assistant", { tab: "chat" });
+        } })
+      ]),
+      buildThreadArea(false)
     ]);
-    body.appendChild(head);
-    body.appendChild(buildThreadArea(false));
+    var presence = el("aside", { class: "asst-presence", "aria-label": "Kurenai status and safety" }, [
+      el("div", { class: "asst-presence-wash", "aria-hidden": "true" }),
+      el("div", { class: "asst-presence-copy" }, [
+        el("span", { class: "asst-presence-kicker", text: "Whispering Bloom" }),
+        el("h3", { text: "Kurenai is with you" })
+      ]),
+      mascotNode("large"),
+      el("div", { class: "asst-safety-notes" }, [
+        el("div", {}, [el("span", { "aria-hidden": "true", text: "◌" }), el("p", { text: "Reads only the KurenaiOS context needed for your request." })]),
+        el("div", {}, [el("span", { "aria-hidden": "true", text: "✓" }), el("p", { text: "Consequential changes wait for the exact approval card." })])
+      ]),
+      el("p", { class: "asst-presence-foot", text: canPersist() ? "Cloud history is available for this session." : "Signed out · this conversation stays on this device for now." })
+    ]);
+    body.appendChild(el("div", { class: "asst-chat-layout" }, [conversation, presence]));
   }
 
   function pageHistory(body) {
+    sectionIntro(body, "Conversation archive", "History", "Return to an earlier thread without losing the shared drawer and page state.");
     var avail = canPersist();
     if (!avail) {
-      body.appendChild(el("p", { class: "sub", text: "Conversation history needs a cloud sign-in (Archive → Account & Cloud Sync). The current conversation still works — it just isn't saved." }));
+      body.appendChild(el("div", { class: "asst-empty-panel" }, [
+        el("h3", { text: "History is available after cloud sign-in" }),
+        el("p", { text: "The current conversation still works and keeps its signed-out continuity; it simply is not added to the cloud archive." }),
+        el("button", { class: "btn", type: "button", text: "Open Account & Cloud Sync", onclick: function () { KOS.show("mediasync"); } })
+      ]));
       return;
     }
     var list = el("div", { class: "asst-history" });
@@ -696,7 +932,11 @@
     ];
     var PROVIDERS = [["ollama", "Ollama (local, free)"], ["gemini", "Gemini (online, billable)"], ["deepseek", "DeepSeek (online, billable)"]];
     var cfg = KOS.ai.config();
-    body.appendChild(el("p", { class: "sub", text: "Each kind of request routes to its own model. Online providers run through your cloud account with a daily cap; the local Ollama needs its app running on this machine. API keys live only on the server — nothing here stores one." }));
+    sectionIntro(body, "Model control", "Routing & usage", "Choose the model for each kind of request. The safety tier and confirmation path do not change with the provider.");
+    body.appendChild(el("div", { class: "asst-info-strip" }, [
+      el("span", { "aria-hidden": "true", text: "◇" }),
+      el("p", { text: "Online providers use your cloud account and daily cap. Ollama stays local. API keys live only on the server and are never rendered here." })
+    ]));
 
     CATS.forEach(function (cat) {
       var route = cfg.routing[cat[0]];
@@ -734,7 +974,13 @@
         KOS.ui.toast("Fallback enabled for " + cat[1] + " — switches are always labelled, never silent.");
       });
       body.appendChild(el("div", { class: "asst-route-row" }, [
-        el("b", { text: cat[1] }), provSel, modelIn, fbSel
+        el("div", { class: "asst-route-label" }, [
+          el("b", { text: cat[1] }),
+          el("span", { class: "asst-technical-id", text: cat[0] + " requests" })
+        ]),
+        el("label", { class: "asst-field" }, [el("span", { text: "Primary provider" }), provSel]),
+        el("label", { class: "asst-field" }, [el("span", { text: "Model" }), modelIn]),
+        el("label", { class: "asst-field" }, [el("span", { text: "Fallback" }), fbSel])
       ]));
     });
 
@@ -744,8 +990,9 @@
     ollamaIn.addEventListener("input", function () { KOS.ai.setOllamaUrl(ollamaIn.value); });
     ollamaIn.addEventListener("change", function () { KOS.ai.setOllamaUrl(ollamaIn.value); });
     body.appendChild(el("div", { class: "asst-route-row" }, [
-      el("b", { text: "Ollama endpoint" }), ollamaIn,
-      el("span", { class: "sub", text: "Start Ollama with OLLAMA_ORIGINS allowing this app's origin." })
+      el("div", { class: "asst-route-label" }, [el("b", { text: "Ollama endpoint" }), el("span", { class: "asst-technical-id", text: "Local connection" })]),
+      el("label", { class: "asst-field asst-field-wide" }, [el("span", { text: "Endpoint URL" }), ollamaIn]),
+      el("span", { class: "asst-route-note", text: "Start Ollama with OLLAMA_ORIGINS allowing this app's origin." })
     ]));
 
     var health = el("div", { class: "asst-health" });
@@ -778,7 +1025,11 @@
   }
 
   function pageMemory(body) {
-    body.appendChild(el("p", { class: "sub", text: "Kurenai's notes-to-self. Everything here was explicitly asked for or approved by you — nothing is ever inferred silently, and this list IS the whole memory. Secrets and keys are refused." }));
+    sectionIntro(body, "User-controlled context", "Memory", "The complete list of notes Kurenai may carry between conversations. Nothing is inferred silently.");
+    body.appendChild(el("div", { class: "asst-info-strip" }, [
+      el("span", { "aria-hidden": "true", text: "✓" }),
+      el("p", { text: "Every memory was explicitly requested or approved by you. Secrets and keys are always refused." })
+    ]));
     if (!KOS.ai.memory.available().persist) {
       body.appendChild(el("p", { class: "sub", text: "Memory needs a cloud sign-in (Archive → Account & Cloud Sync)." }));
       return;
@@ -831,13 +1082,18 @@
   }
 
   function pagePermissions(body) {
-    body.appendChild(el("p", { class: "sub", text: "What Kurenai may do on her own. Read tools just look things up. Reversible tools may run automatically (tighten any to “ask first”). Consequential tools — deleting, spending, purchases, syncs — ALWAYS require your confirmation; that floor cannot be turned off. “Blocked” removes a tool entirely." }));
+    sectionIntro(body, "Autonomy controls", "Permissions", "Decide what Kurenai may read or do automatically. Consequential actions always keep their fixed approval floor.");
+    body.appendChild(el("div", { class: "asst-perm-legend" }, [
+      el("span", { class: "asst-tier asst-tier-read", text: "Read only" }),
+      el("span", { class: "asst-tier asst-tier-reversible", text: "Undoable action" }),
+      el("span", { class: "asst-tier asst-tier-consequential", text: "Needs approval" })
+    ]));
     var cats = {};
     KOS.ai.tools.list().forEach(function (t) { (cats[t.category] = cats[t.category] || []).push(t); });
-    Object.keys(cats).sort().forEach(function (cat) {
-      body.appendChild(el("h3", { class: "n-h", text: cat }));
+    var groups = el("div", { class: "asst-perm-groups" });
+    Object.keys(cats).sort().forEach(function (cat, catIndex) {
+      var rows = el("div", { class: "asst-perm-rows" });
       cats[cat].forEach(function (t) {
-        var mode = KOS.ai.orchestrator.effectiveMode(t.name);
         var opts = [];
         if (t.tier !== "consequential") opts.push(["", "default (" + (t.tier === "read" ? "runs freely" : "runs, undoable") + ")"], ["ask", "ask first"]);
         else opts.push(["", "always asks (fixed)"]);
@@ -852,14 +1108,27 @@
           var r = KOS.ai.orchestrator.setPermission(t.name, sel.value === "" ? null : sel.value);
           if (!r.ok) { KOS.ui.toast(r.msg, true); sel.value = ""; }
         });
-        body.appendChild(el("div", { class: "asst-perm-row" }, [
-          el("code", { text: t.name }),
-          el("span", { class: "med-chip", style: "--chip:" + (t.tier === "read" ? "var(--good)" : t.tier === "reversible" ? "var(--warning)" : "var(--danger)"), text: t.tier }),
+        rows.appendChild(el("div", { class: "asst-perm-row" }, [
+          el("div", { class: "asst-perm-copy" }, [
+            el("strong", { text: toolDisplayName(t.name) }),
+            el("span", { text: t.desc || "KurenaiOS assistant action" }),
+            el("code", { class: "asst-technical-id", text: t.name })
+          ]),
+          el("span", { class: "asst-tier asst-tier-" + t.tier, text: tierLabel(t.tier) }),
           sel
         ]));
-        void mode;
       });
+      var details = el("details", { class: "asst-perm-group" }, [
+        el("summary", {}, [
+          el("span", { text: titleWords(cat) }),
+          el("span", { class: "asst-perm-count", text: cats[cat].length + " tools" })
+        ]),
+        rows
+      ]);
+      if (catIndex === 0) details.open = true;
+      groups.appendChild(details);
     });
+    body.appendChild(groups);
   }
 
   /* audit reading: own rows via the user's session; signed out, the queued
@@ -882,7 +1151,7 @@
   }
 
   function pageActivity(body) {
-    body.appendChild(el("p", { class: "sub", text: "Every action Kurenai proposed or ran, with its real outcome — separate from the chat, and it can't be deleted from here (the record stays honest)." }));
+    sectionIntro(body, "Immutable record", "Activity", "Every proposed or executed action and its real outcome. This view is deliberately read-only so the record stays honest.");
     var list = el("div", { class: "asst-audit" });
     body.appendChild(list);
     loadAudit(function (err, rows, source) {
@@ -892,13 +1161,21 @@
       if (!rows.length) { list.appendChild(el("p", { class: "sub", text: "No assistant actions yet." })); return; }
       rows.forEach(function (r) {
         list.appendChild(el("div", { class: "asst-audit-row st-" + (r.status || "proposed") }, [
-          el("span", { class: "asst-audit-status", text: r.status || "proposed" }),
-          el("code", { text: r.tool }),
-          el("span", { class: "med-chip", text: r.tier || "" }),
-          r.target ? el("span", { class: "sub", text: r.target }) : null,
-          el("span", { class: "sub", text: r.created_at ? new Date(r.created_at).toLocaleString() : "" }),
-          r.result_summary ? el("span", { class: "sub asst-audit-sum", text: clampText(r.result_summary, 120) }) : null,
-          r.error_summary ? el("span", { class: "sub is-error", text: clampText(r.error_summary, 120) }) : null
+          el("span", { class: "asst-audit-dot", "aria-hidden": "true" }),
+          el("div", { class: "asst-audit-copy" }, [
+            el("div", { class: "asst-audit-head" }, [
+              el("strong", { text: toolDisplayName(r.tool) }),
+              el("span", { class: "asst-audit-status", text: r.status || "proposed" })
+            ]),
+            el("div", { class: "asst-audit-meta" }, [
+              el("span", { class: "asst-tier asst-tier-" + (r.tier || "read"), text: tierLabel(r.tier || "read") }),
+              r.target ? el("span", { text: "Target · " + r.target }) : null,
+              el("span", { text: r.created_at ? new Date(r.created_at).toLocaleString() : "" })
+            ].filter(Boolean)),
+            r.result_summary ? el("span", { class: "asst-audit-sum", text: clampText(r.result_summary, 120) }) : null,
+            r.error_summary ? el("span", { class: "is-error", text: clampText(r.error_summary, 120) }) : null,
+            el("code", { class: "asst-technical-id", text: r.tool })
+          ].filter(Boolean))
         ].filter(Boolean)));
       });
     });
@@ -909,23 +1186,32 @@
     document.getElementById("cols").classList.add("no-tree");
     var tab = (arg && arg.tab) || "chat";
     if (!PAGE_TABS.some(function (t) { return t[3] === tab; })) tab = "chat";
-    var tabs = KOS.workspaceTabs(PAGE_TABS, tab, "Assistant pages", "asst-tabs workspace-header-tabs");
+    var heading = el("h1", { id: "asst-page-title", tabindex: "-1", text: "Kurenai Assistant" });
     main.appendChild(el("div", { class: "dash-head asst-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "Whispering Bloom" }),
-        el("h1", { text: "Kurenai Assistant" }),
-        el("div", { class: "dh-sub" }, [el("span", { class: "board", text: "A context-aware companion over your real data — every consequential action needs your explicit confirmation." })])
+      el("div", { class: "asst-head-identity" }, [
+        el("img", { class: "asst-head-emblem", src: EMBLEM, alt: "" }),
+        el("div", { class: "dh-txt" }, [
+          el("span", { class: "dh-kicker", text: "Whispering Bloom" }),
+          heading,
+          el("div", { class: "dh-sub", text: "Your context-aware companion for study, planning and collection work." })
+        ])
       ]),
-      tabs
+      el("div", { class: "asst-head-promise" }, [
+        el("span", { "aria-hidden": "true", text: "✓" }),
+        el("p", {}, [el("b", { text: "You stay in control." }), document.createTextNode(" Consequential actions always pause for review.")])
+      ])
     ]));
-    var body = el("section", { class: "asst-page asst-page-" + tab, "aria-label": "Assistant " + tab });
-    main.appendChild(body);
+    var tabs = assistantTabs(tab);
+    var body = el("section", { id: "asst-page-panel", class: "asst-page asst-page-" + tab,
+      role: "tabpanel", "aria-label": "Assistant " + tab });
+    main.appendChild(el("div", { class: "asst-shell" }, [tabs, body]));
     if (tab === "chat") pageChat(body);
     else if (tab === "history") pageHistory(body);
     else if (tab === "settings") pageSettings(body);
     else if (tab === "memory") pageMemory(body);
     else if (tab === "permissions") pagePermissions(body);
     else if (tab === "activity") pageActivity(body);
+    window.requestAnimationFrame(function () { if (heading.isConnected) heading.focus({ preventScroll: true }); });
   };
 
   /* ================= wiring ================= */
@@ -947,6 +1233,8 @@
     contextActions: contextActions,
     mascotNode: mascotNode,
     setVisual: setVisual,
+    toolDisplayName: toolDisplayName,
+    toolActivity: toolActivity,
     loadAudit: loadAudit,
     state: function () { return S; },
     MASCOT_STATES: MASCOT_STATES,
