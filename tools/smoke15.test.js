@@ -248,7 +248,7 @@ step("status tab renders the seat: identity, vitals, cadence, ledger", async () 
     if (!bento.querySelector(cls)) throw new Error("bento card missing: " + cls);
   }
   if (!/Level \d/.test(bento.querySelector(".b-id").textContent)) throw new Error("identity level missing");
-  if (bento.querySelectorAll(".b-vitals .vital").length !== 3) throw new Error("three vitals expected");
+  if (bento.querySelectorAll(".b-vitals .vital").length !== 5) throw new Error("five command instruments expected");
   /* the overview's widgets (directives, countdowns, streak card) must NOT
      live here any more — they belong to Home */
   if (bento.querySelector(".b-edicts") || bento.querySelector(".b-exams") || bento.querySelector(".b-streak"))
@@ -262,7 +262,7 @@ step("profile banner: presets paint css, custom clears, retired stays default", 
   const banners = KOS.governor.catalog().filter(c => c.kind === "banner");
   if (banners.length < 4) throw new Error("shop must offer default banners");
 });
-step("recovery checklist appears full-width when HP is strained", async () => {
+step("prescriptive recovery dispatch appears full-width when HP is strained", async () => {
   const g = KOS.store.state.governor;
   const hp0 = g.hp;
   g.hp = 45;
@@ -282,10 +282,10 @@ step("shop cards carry swatch previews for every theme", async () => {
   if (sw[0].querySelectorAll(".shop-sw-dot").length !== 3) throw new Error("3 dots per theme");
 });
 
-/* ============ 6 · Governor v4 — the Seat rebuilt ============
+/* ============ 6 · Governor v5 — the Seat rebuilt ============
    Part A nav, Part B layout + one stat-tile shape, Part C ledger
    classification, Part D the single identity record. */
-console.log("== governor v4 ==");
+console.log("== governor v5 ==");
 
 step("Part A: the page switcher lives in the header, all four pages reachable", async () => {
   KOS.show("governor");
@@ -302,15 +302,16 @@ step("Part A: the page switcher lives in the header, all four pages reachable", 
   if (!tabs.querySelector(".study-tab.active")) throw new Error("no active tab marked");
 });
 
-step("Part B: hero carries a large portrait, the right-hand stat rail and the about block", async () => {
+step("Part B: hero carries a large portrait, identity mark and the about block without duplicate telemetry", async () => {
   KOS.governor.setProfileText({ status: "Grinding paper 1", about: "A quote.\nAnd a second line." });
   KOS.show("governor", undefined, { _nav: true });
   await tick(60);
   const id = document.getElementById("main").querySelector(".b-id");
   const face = id.querySelector(".id-face .gov-avatar");
   if (!face) throw new Error("hero portrait missing");
-  if (!/132px/.test(face.getAttribute("style") || "")) throw new Error("hero portrait was not enlarged: " + face.getAttribute("style"));
-  if (id.querySelectorAll(".id-side .id-side-stat").length !== 4) throw new Error("the hero stat rail should carry four stats");
+  if (!/116px/.test(face.getAttribute("style") || "")) throw new Error("hero portrait has the wrong scale: " + face.getAttribute("style"));
+  if (!id.querySelector(".id-command-mark")) throw new Error("the Governor command mark is missing");
+  if (id.querySelector(".id-side")) throw new Error("duplicate stat rail leaked back into the hero");
   if (!id.querySelector(".id-status")) throw new Error("status line missing from the hero");
   if (!id.querySelector(".id-about-txt")) throw new Error("about block missing from the hero");
 });
@@ -318,14 +319,14 @@ step("Part B: hero carries a large portrait, the right-hand stat rail and the ab
 step("Part B5: every stat tile is the same shape — label, value and a bar", async () => {
   const main = document.getElementById("main");
   const tiles = [...main.querySelectorAll(".gstat")];
-  if (tiles.length < 9) throw new Error("expected the vitals stack + cadence tiles, got " + tiles.length);
+  if (tiles.length < 8) throw new Error("expected five instruments + three cadence tiles, got " + tiles.length);
   for (const t of tiles) {
     if (!t.querySelector(".gstat-k")) throw new Error("a tile has no label");
     if (!t.querySelector(".gstat-v")) throw new Error("a tile has no value");
   }
-  /* the three vitals are the bar-carrying variant and stay inside .b-vitals */
+  /* the five instruments are the bar-carrying variant and stay inside .b-vitals */
   const vitals = [...main.querySelectorAll(".b-vitals .vital .gstat")];
-  if (vitals.length !== 3) throw new Error("three vitals expected, got " + vitals.length);
+  if (vitals.length !== 5) throw new Error("five instruments expected, got " + vitals.length);
   if (vitals.some(v => !v.querySelector(".gstat-bar > span"))) throw new Error("a vital tile has no progress bar");
 });
 
@@ -345,21 +346,20 @@ step("Part C: routine sync is logged but kept out of the ledger and the cadence 
   if (!main.querySelector(".b-ledger .led-more")) throw new Error("no route from the ledger to the full log");
 });
 
-step("Part C: Sync history coalesces the run into one line per provider per day", async () => {
+step("Part C: System history coalesces sync runs into one line per provider per day", async () => {
   KOS.show("governor", "history", { _nav: true });
   await tick(60);
   const main = document.getElementById("main");
-  const seg = [...main.querySelectorAll(".log-seg .study-tab")];
-  const syncTab = seg.find(b => b.dataset.cat === "sync");
-  if (!syncTab) throw new Error("no Sync history category");
-  /* Everything excludes routine */
+  const syncTab = main.querySelector('.log-filterbar .log-cat[data-cat="system"]');
+  if (!syncTab) throw new Error("no System history category");
+  /* All activity excludes routine */
   const everything = [...main.querySelectorAll(".gov-log .led-row .lt")].map(n => n.textContent);
   if (everything.some(t => /sync completed/i.test(t))) throw new Error("Everything must exclude routine sync");
   syncTab.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   const rows = [...main.querySelectorAll(".gov-log .led-row")];
   if (!rows.length) throw new Error("sync history rendered nothing");
   if (rows.length >= 6) throw new Error("six syncs should collapse, got " + rows.length + " rows");
-  if (!/sync completed .*entries updated/i.test(rows[0].textContent))
+  if (!/sync completed.*entries updated/i.test(rows[0].textContent))
     throw new Error("unexpected coalesced wording: " + rows[0].textContent);
 });
 

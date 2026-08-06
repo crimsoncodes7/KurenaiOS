@@ -39,6 +39,7 @@ node tools/smoke27.test.js # Category 6 Phase F: conversational continuity (in-m
 node tools/smoke28.test.js # Category 6 Phase F: execution grounding (verified write receipts, proposal≠persisted, exact-artifact save incl. edits, false-success/promise-no-action correction, batch atomicity, retrieval proof)
 node tools/smoke29.test.js # Category 6.1 assistant UI/UX acceptance: one controller across drawer/page, inert provider rendering, canonical confirmations, theme inheritance, focus containment, production assets
 node tools/smoke30.test.js # Build 6.2 Reminders: lists-vs-tags separation, smart sections, recurrence, anti-farming reward bounds, migration, Home/Calendar boundaries, backup fidelity
+node tools/smoke31.test.js # Governor v5 UI/UX: 90-day cadence, meaningful ledger, recovery dispatch, expandable/paginated history, shop departments/previews, shared cropper, status bubbles
 node tools/smoke32.test.js # Build 6.3 Study Files: selectable list + preview stage, fit/zoom/expand/collapse controls, metadata + rename/replace/remove, IndexedDB + backup fidelity, missing/corrupt handling
 ```
 

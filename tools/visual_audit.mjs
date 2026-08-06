@@ -169,7 +169,7 @@ assert(seeded?.entryId, "Could not seed the live media entry");
    replacement recovery, reset/cancel isolation, and real save. */
 await evaluate(`KOS.show("governor", "avatar")`);
 await waitFor("document.querySelector('.av-grid')", "Governor avatar page");
-await clickText("#main", "Edit image");
+await clickText(".av-mc", "Edit");
 await waitFor("document.querySelector('.cropper-ov') && !document.querySelector('.cropper-foot .primary').disabled", "loaded avatar cropper");
 let ratio = await evaluate(`(() => { const r = document.querySelector('.cropper-preview').getBoundingClientRect(); return r.width / r.height; })()`);
 assert(Math.abs(ratio - 1) < 0.03, `Avatar preview ratio is ${ratio}`);
@@ -195,7 +195,7 @@ await waitFor("!document.querySelector('.cropper-ov')", "avatar crop save");
 let savedAvatar = await evaluate(`KOS.store.state.governor.avatar.crop`);
 assert(savedAvatar.x === 63 && savedAvatar.y === 24 && savedAvatar.zoom === 1.72, "Avatar crop did not persist from the UI");
 
-await clickText("#main", "Edit image");
+await clickText(".av-mc", "Edit");
 await waitFor("document.querySelector('.cropper-ov') && !document.querySelector('.cropper-foot .primary').disabled", "reopened avatar cropper");
 const uploadRecovery = await evaluate(`(() => {
   const input = document.querySelector('.cropper-file');
@@ -233,6 +233,47 @@ await waitFor("document.querySelector('.b-id.banner-dark .image-crop-shade')", "
 const govContrast = await evaluate(`document.querySelector('.b-id .image-crop-shade').style.background`);
 assert(/rgba\(16, 14, 10/.test(govContrast), `Governor did not receive the dark contrast scrim: ${govContrast}`);
 await screenshot("/tmp/kos-governor-banner-1440.png");
+
+/* Governor v5: the redesigned Status, Chronicle, Avatar and Treasury in
+   light/dark desktop plus the phone breakpoint. The fixture deliberately
+   includes both meaningful and technical activity. */
+await evaluate(`(() => {
+  KOS.governor.setProfileText({ status: "Deep work until noon", about: "Keep the signal clear; let the ledger remember the rest." });
+  KOS.sessions.log({ type: "focus", subject: "compsci", ref: "4.3.1", dur: 1500, metrics: { complete: true, mins: 25, pauses: 1 } });
+  KOS.sessions.log({ type: "quiz", subject: "maths", ref: "5.1", metrics: { pct: 88, correct: 7, total: 8 } });
+  KOS.sessions.log({ type: "todo", metrics: { item: "Finish database assignment" } });
+  KOS.sessions.log({ type: "media", metrics: { title: "Higurashi", action: "completed" } });
+  KOS.sessions.log({ type: "tracker", subject: "compsci", ref: "Paper 1", metrics: { marks: 64, max: 80 } });
+  KOS.sessions.log({ type: "media", metrics: { module: "anime", action: "sync-reward", entries: 14, advances: 2 } });
+  document.querySelector('.toast')?.classList.remove('show');
+})()`);
+await auditView("governor", "status", ".gov-status");
+await screenshot("/tmp/kos-governor-status-light-1440.png");
+await evaluate(`(() => { KOS.store.state.governor.theme = "spectral-rose"; KOS.governor.applyCosmetics(); })()`);
+await auditView("governor", "status", ".gov-status");
+await screenshot("/tmp/kos-governor-status-dark-1440.png");
+await evaluate(`document.getElementById("main").scrollTop = 470`);
+await pause(120);
+await screenshot("/tmp/kos-governor-ledger-dark-1440.png");
+await evaluate(`(() => { KOS.store.state.governor.hp = 40; KOS.store.save(); KOS.show("governor", "status"); })()`);
+await waitFor("document.querySelector('.gov-recovery .gov-rec-go')", "Governor recovery dispatch");
+await evaluate(`document.getElementById("main").scrollTop = document.getElementById("main").scrollHeight`);
+await pause(120);
+await screenshot("/tmp/kos-governor-recovery-dark-1440.png");
+await evaluate(`(() => { KOS.store.state.governor.hp = 100; KOS.store.save(); })()`);
+await auditView("governor", "history", ".gov-history");
+await screenshot("/tmp/kos-governor-history-dark-1440.png");
+await auditView("governor", "avatar", ".avatar-studio");
+await screenshot("/tmp/kos-governor-avatar-dark-1440.png");
+await auditView("governor", "shop", ".shop-depts");
+await screenshot("/tmp/kos-governor-shop-dark-1440.png");
+await viewport(390, 844);
+await auditView("governor", "status", ".gov-status");
+await screenshot("/tmp/kos-governor-status-mobile-390.png");
+await auditView("governor", "history", ".gov-history");
+await screenshot("/tmp/kos-governor-history-mobile-390.png");
+await viewport(1440, 900);
+await evaluate(`(() => { KOS.store.state.governor.theme = "kurenai"; KOS.governor.applyCosmetics(); })()`);
 
 /* Collection hero and nested cover editor. */
 await evaluate(`KOS.show("anime")`);
@@ -616,5 +657,5 @@ await screenshot("/tmp/kos-home-restored-1440.png");
 assert(browserErrors.length === 0, `Browser errors:\n${browserErrors.join("\n")}`);
 
 console.log("VISUAL AUDIT PASS — live crop workflows, Budget Planner, Compare Topics, persistence, backup/restore and responsive adjacent pages verified");
-console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
+console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
 ws.close();

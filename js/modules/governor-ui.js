@@ -121,9 +121,9 @@
       ]);
     }
 
-    var ACTION_TEXT = { progress: "progress logged", completed: "finished", added: "added to the vault",
-      status: "status changed", dropped: "set down", "reading-session": "reading session",
-      chapter: "chapter completed", quote: "quote kept", route: "route cleared" };
+    var ACTION_TEXT = { progress: "Progress saved", completed: "Completed", added: "Added to the vault",
+      status: "Status changed", dropped: "Set down", "reading-session": "Reading session",
+      chapter: "Chapter completed", quote: "Quote saved", route: "Route cleared" };
     function relTime(ts) {
       if (!ts) return "";
       var diff = Date.now() - ts;
@@ -137,46 +137,67 @@
     function subjName(sid) {
       return sid && KOS_DATA[sid] ? KOS_DATA[sid].name.replace("Computer Science", "CS").replace("Mathematics", "Maths") : sid;
     }
-    function ledgerRow(s) {
+    function activityInfo(s) {
       var m = s.metrics || {};
-      var sig, sigTxt, desc;
       var topic = s.subject ? subjName(s.subject) + (s.ref ? " " + s.ref : "") : null;
+      var info = { icon: "◆", label: "Activity", title: "Activity recorded", detail: topic || "KurenaiOS", tone: "study", category: "study", meaningful: true };
       switch (s.type) {
         case "quiz":
-          sig = "plus-xp"; sigTxt = "+XP";
-          desc = "Quiz passed — " + (topic || "mixed") + (m.pct != null ? ", " + m.correct + "/" + m.total : ""); break;
+          info.icon = "✓"; info.label = "Quiz"; info.title = "Quiz completed";
+          info.detail = (topic || "Mixed topics") + (m.pct != null ? " · " + (m.pct || 0) + "%" : ""); break;
         case "exam":
-          sig = "plus-xp"; sigTxt = "+XP";
-          desc = "Exam question self-marked — " + (topic || "mixed") + (m.max ? " (" + m.marks + "/" + m.max + ")" : ""); break;
+          info.icon = "試"; info.label = "Paper"; info.title = "Exam practice marked";
+          info.detail = (topic || "Mixed topics") + (m.max ? " · " + m.marks + "/" + m.max + " marks" : ""); break;
         case "flashcards":
-          sig = "plus-xp"; sigTxt = "+XP";
-          desc = (m.cards || "?") + " cards reviewed — " + (topic || "mixed deck"); break;
+          info.icon = "札"; info.label = "Review"; info.title = "Flashcard review complete";
+          info.detail = (m.cards || 0) + " cards · " + (topic || "Mixed deck"); break;
         case "due-review":
-          sig = "plus-xp"; sigTxt = "+XP";
-          desc = (m.cards || "?") + " due cards cleared"; break;
+          info.icon = "◎"; info.label = "Review"; info.title = "Due review cleared";
+          info.detail = (m.cards || 0) + " scheduled cards"; break;
         case "focus":
-          sig = m.complete ? "plus-xp" : "minus"; sigTxt = m.complete ? "+XP" : "FORFEIT";
-          desc = "Focus block — " + (m.mins || Math.round((s.dur || 0) / 60)) + " min" +
-            (topic ? " on " + topic : "") + (m.complete ? "" : " (ended early)"); break;
+          info.icon = m.complete ? "◉" : "◌"; info.label = "Focus";
+          info.title = m.complete ? "Focus session completed" : "Focus session ended early";
+          info.detail = (m.mins || Math.round((s.dur || 0) / 60)) + " min" + (topic ? " · " + topic : "");
+          info.tone = m.complete ? "focus" : "muted"; info.category = "focus"; info.meaningful = !!m.complete; break;
         case "todo":
-          sig = "plus-g"; sigTxt = "+G";
-          desc = m.item || "Directive sealed"; break;
+          info.icon = "✓"; info.label = "Task"; info.title = m.item || "Task completed";
+          info.detail = "Checked off today's list"; info.tone = "task"; info.category = "tasks"; break;
         case "tracker":
-          sig = "plus-g"; sigTxt = "+G";
-          desc = "Paper logged — " + (topic || "results"); break;
+          info.icon = "▤"; info.label = "Record"; info.title = "Paper result recorded";
+          info.detail = topic || "Exam and paper records"; info.tone = "paper"; info.category = "papers"; break;
         case "media":
-          sig = "log"; sigTxt = "LOGGED";
-          if (m.action === "sync-reward") desc = providerName(m) + " sync — " + (m.entries || 0) + " title" + (m.entries === 1 ? "" : "s") + " updated";
-          else if (m.action === "reading-session") desc = (m.mins || "?") + " min read" + (m.title ? " — " + m.title : "");
-          else desc = (m.title || "Media") + " — " + (ACTION_TEXT[m.action] || m.action || "logged");
+          info.category = "collection"; info.tone = "collection";
+          if (m.action === "sync-reward") {
+            info.icon = "↻"; info.label = "System"; info.title = providerName(m) + " sync completed";
+            info.detail = (m.entries || 0) + " title" + (m.entries === 1 ? "" : "s") + " updated";
+            info.category = "system"; info.tone = "system"; info.meaningful = false;
+          } else if (m.action === "reading-session") {
+            info.icon = "◫"; info.label = "Reading"; info.title = "Reading session completed";
+            info.detail = (m.mins || "?") + " min" + (m.title ? " · " + m.title : "");
+          } else {
+            info.icon = m.action === "completed" ? "◇" : m.action === "chapter" ? "▣" : m.action === "route" ? "⌁" : "◫";
+            info.label = "Collection"; info.title = ACTION_TEXT[m.action] || "Collection updated";
+            info.detail = m.title || "Media library";
+            info.meaningful = ["completed", "chapter", "route", "reading-session"].indexOf(m.action) !== -1;
+          }
           break;
         default:
-          sig = "plus-xp"; sigTxt = "+XP"; desc = s.type + (topic ? " — " + topic : "");
+          info.title = String(s.type || "Activity").replace(/(^|-)([a-z])/g, function (_, gap, ch) { return (gap ? " " : "") + ch.toUpperCase(); });
       }
-      return el("div", { class: "led-row" }, [
-        el("span", { class: "sig " + sig, text: sigTxt }),
-        el("span", { class: "lt", text: desc, title: desc }),
-        el("span", { class: "when", text: relTime(s.ts) || s.date })
+      return info;
+    }
+    function isMeaningful(s) {
+      return !isRoutine(s) && activityInfo(s).meaningful;
+    }
+    function ledgerRow(s) {
+      var info = activityInfo(s);
+      return el("div", { class: "led-row gov-ledger-event tone-" + info.tone }, [
+        el("span", { class: "gov-event-icon", "aria-hidden": "true", text: info.icon }),
+        el("span", { class: "lt gov-event-copy" }, [
+          el("b", { text: info.title }),
+          info.detail ? el("span", { text: info.detail }) : null
+        ].filter(Boolean)),
+        el("time", { class: "when", datetime: s.date || "", text: relTime(s.ts) || s.date })
       ]);
     }
     KOS.governorLedgerRow = ledgerRow;
@@ -185,10 +206,13 @@
     function routineRow(b) {
       var desc = b.provider + " sync completed — " + b.entries + " entr" + (b.entries === 1 ? "y" : "ies") +
         " updated" + (b.syncs > 1 ? " across " + b.syncs + " syncs" : "");
-      return el("div", { class: "led-row is-routine" }, [
-        el("span", { class: "sig sync", text: "SYNC" }),
-        el("span", { class: "lt", text: desc, title: desc }),
-        el("span", { class: "when", text: relTime(b.ts) || b.date })
+      return el("div", { class: "led-row gov-ledger-event is-routine tone-system" }, [
+        el("span", { class: "gov-event-icon", "aria-hidden": "true", text: "↻" }),
+        el("span", { class: "lt gov-event-copy" }, [
+          el("b", { text: b.provider + " sync completed" }),
+          el("span", { text: desc.replace(b.provider + " sync completed — ", "") })
+        ]),
+        el("time", { class: "when", datetime: b.date || "", text: relTime(b.ts) || b.date })
       ]);
     }
 
@@ -199,103 +223,85 @@
       panel.appendChild(bento);
       var stks = KOS.sessions.streaks();
       var dayMs = 864e5;
-      /* "sessions" means acts you performed — routine sync traffic is
-         counted nowhere a human reads a number (Part C) */
-      var realSessions = KOS.sessions.all().filter(function (s) { return !isRoutine(s); });
-      var routineCount = KOS.sessions.all().length - realSessions.length;
+      var allSessions = KOS.sessions.all();
+      var realSessions = allSessions.filter(function (s) { return !isRoutine(s); });
+      var meaningfulSessions = realSessions.filter(isMeaningful);
+      var routineCount = allSessions.length - realSessions.length;
 
-      /* — identity, over the banner — */
-      var hasBanner = !!KOS.governor.bannerCss();
-      var idCard = el("div", { class: "card bento-card b-id" + (hasBanner ? " has-banner" : "") +
+      /* — the unique identity stage: identity and state only; telemetry lives
+         in the equal instrument strip below so nothing is repeated. — */
+      var hasBanner = !!KOS.governor.bannerCss(), pState = state.label;
+      var idCard = el("section", { class: "card bento-card b-id gov-seat-hero" + (hasBanner ? " has-banner" : "") +
         (hasBanner && KOS.governor.bannerIsDark() ? " banner-dark" : "") });
       if (hasBanner) KOS.governor.applyBanner(idCard, { darkScrim: true });
-
-      /* the about/status block — Discord-shaped, edited through the one
-         shared editor so the topbar popover and Home never disagree */
       var aboutBlock = el("div", { class: "id-about" });
       if (p.status) aboutBlock.appendChild(el("div", { class: "id-status" }, [
-        el("span", { class: "id-status-dot", "aria-hidden": "true" }),
         el("span", { text: p.status })
       ]));
       if (p.about) aboutBlock.appendChild(el("p", { class: "id-about-txt", text: p.about }));
       if (!p.status && !p.about) aboutBlock.appendChild(el("button", {
-        class: "id-about-empty", text: "＋ Add a status or a couple of lines about yourself",
+        class: "id-about-empty", text: "＋ Set a status for your command seat",
         onclick: openProfileEditor }));
 
       idCard.appendChild(el("div", { class: "id-wrap" }, [
         el("div", { class: "id-face" }, [
-          KOS.governor.avatarNode(132),
+          KOS.governor.avatarNode(116),
           el("button", { class: "id-face-edit", title: "Edit your profile picture", "aria-label": "Edit your profile picture",
             text: "✎", onclick: function () { KOS.show("governor", "avatar"); } })
         ]),
         el("div", { class: "id-txt" }, [
-          el("div", { class: "rank", text: p.rank }),
+          el("div", { class: "rank", text: "The Governor's Seat · " + p.rank }),
           el("h2", { text: "Level " + p.level }),
           el("div", { class: "title-line" }, [
-            "Behavioural Governor · ", el("b", { text: state.label }),
-            " · " + realSessions.length + " sessions on record"
+            el("span", { class: "gov-state-dot", "aria-hidden": "true" }),
+            el("b", { text: pState }),
+            el("span", { text: "Behavioural Governor" })
           ]),
-          aboutBlock,
-          el("div", { class: "lvl-row" }, [
-            el("span", { class: "lvl-badge" }, [el("i", { text: "LV" }), String(p.level)]),
-            el("div", { class: "hud-bar hud-xp big lvl-bar" }, [
-              el("span", { style: "width:" + p.xpPct + "%" })]),
-            el("span", { class: "to-next", text: p.xpToNext + " XP to Lv " + (p.level + 1) })
-          ])
+          aboutBlock
         ]),
-        /* the substats, pushed to the hero's right edge */
-        el("div", { class: "id-side" }, [
-          sideStat("炎", stks.all, "day streak"),
-          sideStat("◈", p.gold, "gold"),
-          sideStat("休", stks.rest, "rest streak"),
-          sideStat("札", KOS.srs.dueCount(), "cards due")
+        el("div", { class: "id-command-mark", "aria-hidden": "true" }, [
+          el("span", { text: "守" }),
+          el("small", { text: hpCls === "healthy" ? "systems open" : "recovery active" })
         ])
       ]));
-      function sideStat(glyph, v, k) {
-        return el("div", { class: "id-side-stat" }, [
-          el("span", { class: "iss-g", "aria-hidden": "true", text: glyph }),
-          el("b", { text: String(v) }),
-          el("span", { class: "iss-k", text: k })
-        ]);
-      }
-      /* quiet controls — top-right of the card */
       idCard.appendChild(el("div", { class: "id-banner-ctl" }, [
-        el("button", { class: "mini-btn", text: "✎ Status", title: "Edit your status and about", onclick: openProfileEditor }),
-        el("button", { class: "mini-btn", text: "✎ Banner", title: "Upload or reposition your profile banner",
+        el("button", { class: "mini-btn", text: "Edit profile", title: "Edit your status and about", onclick: openProfileEditor }),
+        el("button", { class: "mini-btn", text: "Position banner", title: "Upload or reposition your profile banner",
           onclick: function () { KOS.governor.editBanner(function (err, result) {
             if (err) { KOS.ui.toast("Banner upload failed: " + err.message, true); return; }
             if (result && result.cancelled) return;
             KOS.ui.toast("Banner set.");
             render();
           }); } }),
-        hasBanner ? el("button", { class: "mini-btn", text: "✕", title: "Remove the banner",
+        hasBanner ? el("button", { class: "mini-btn icon-only", text: "×", "aria-label": "Remove profile banner", title: "Remove the banner",
           onclick: function () { KOS.governor.setBanner(null); render(); } }) : null
       ].filter(Boolean)));
       bento.appendChild(idCard);
 
-      /* — vitals: the vertical stat stack on the right — */
+      /* — five equal instruments: one place for every number — */
       var cheapest = KOS.governor.catalog()
         .filter(function (c) { return !KOS.governor.owns(c.id); })
         .sort(function (a, b) { return a.price - b.price; })[0];
-      var vitals = el("div", { class: "vital-stack" }, [
+      var dueCount = KOS.srs.dueCount();
+      var vitals = el("div", { class: "vital-stack gov-instruments" }, [
         el("div", { class: "vital" }, [statTile({ cls: "hp", label: "HP", value: p.hp + " / 100", pct: p.hp,
           barCls: "hud-hp", hint: state.desc, warn: hpCls !== "healthy" })]),
+        el("div", { class: "vital" }, [statTile({ cls: "xp", label: "XP", value: p.xpInto + " / " + p.xpNeed,
+          pct: p.xpPct, barCls: "hud-xp", hint: p.xpToNext + " to level " + (p.level + 1) })]),
         el("div", { class: "vital" }, [statTile({ cls: "gold", label: "Gold", value: "◈ " + p.gold,
           pct: cheapest ? 100 * p.gold / cheapest.price : 100, barCls: "hud-gold",
-          hint: cheapest ? (p.gold >= cheapest.price ? cheapest.name + " is affordable now"
-                           : (cheapest.price - p.gold) + " more for " + cheapest.name) : "everything owned" })]),
-        el("div", { class: "vital" }, [statTile({ cls: "xp", label: "XP", value: p.xpInto + " / " + p.xpNeed,
-          pct: p.xpPct, barCls: "hud-xp", hint: "level " + (p.level + 1) + " at " + p.xpNeed + " XP" })])
+          hint: cheapest ? (p.gold >= cheapest.price ? cheapest.name + " is affordable" : (cheapest.price - p.gold) + " to " + cheapest.name) : "Catalogue complete" })]),
+        el("div", { class: "vital" }, [statTile({ cls: "due", label: "Review queue", value: String(dueCount),
+          pct: Math.max(0, 100 - Math.min(100, dueCount * 3)), barCls: "hud-neutral", hint: dueCount ? "Ready in Review" : "Queue clear" })]),
+        el("div", { class: "vital" }, [statTile({ cls: "streak", label: "Study streak", value: stks.all + (stks.all === 1 ? " day" : " days"),
+          pct: Math.min(100, stks.all / 30 * 100), barCls: "hud-neutral", hint: stks.rest ? stks.rest + " rest day" + (stks.rest === 1 ? "" : "s") + " protected" : "Build from one completed session" })])
       ]);
-      bento.appendChild(bentoCard("b-vitals", "Vitals", [vitals], state.label));
+      bento.appendChild(bentoCard("b-vitals", "Command instruments", [vitals], state.label));
 
-      /* — study cadence: a full year at GitHub scale, so the grid fills the
-           card instead of being stretched over empty air. Routine sync
-           traffic is excluded — otherwise every square lights up for work
-           you didn't do (Part C, same reasoning as the ledger). — */
+      /* — ninety days at its native geometry: compact and never stretched — */
       var byDate = {};
       realSessions.forEach(function (s) { byDate[s.date] = (byDate[s.date] || 0) + 1; });
-      var WEEKS = 52;
+      var WEEKS = 13;
       var days = [];
       for (var j = WEEKS * 7 - 1; j >= 0; j--) {
         var dd = new Date(Date.now() - j * dayMs);
@@ -305,22 +311,16 @@
       }
       var totalSess = days.reduce(function (a, d) { return a + d.value; }, 0);
       var activeDays = days.filter(function (d) { return d.value > 0; }).length;
-      var busiest = days.reduce(function (a, d) { return d.value > a.value ? d : a; }, days[0]);
       var since = days[0].date;
-      var bySubj = {};
       var weekSecs = 0;
       var weekStart = KOS.srs.addDays(KOS.srs.todayISO(), -6);
       realSessions.forEach(function (s) {
-        if (s.date >= since && s.subject) bySubj[s.subject] = (bySubj[s.subject] || 0) + 1;
         if (s.date >= weekStart && s.type !== "media") weekSecs += (s.dur || 0);
       });
-      var bestSubj = Object.keys(bySubj).sort(function (a, b) { return bySubj[b] - bySubj[a]; })[0];
-      /* the grid takes the card's full width; the numbers sit beneath it as
-         the same tile shape used everywhere else on this page */
       var heat = el("div", { class: "heat-wrap" }, [
         el("div", { class: "heat-svg" }, [KOS.charts.heatmap(days, {})]),
         el("div", { class: "heat-legend" }, [
-          el("span", { class: "hl-num", text: totalSess + " sessions in the last year" }),
+          el("span", { class: "hl-num", text: totalSess + " session" + (totalSess === 1 ? "" : "s") + " in 90 days" }),
           el("span", { class: "hl-scale" }, [
             el("span", { class: "hl-t", text: "Less" }),
             el("i", { class: "l0" }), el("i", { class: "l1" }), el("i", { class: "l2" }),
@@ -329,12 +329,9 @@
           ])
         ]),
         el("div", { class: "heat-stats" }, [
-          miniStat("Active days", activeDays + " / " + days.length),
-          miniStat("Best subject", bestSubj ? subjName(bestSubj) : "—"),
-          miniStat("Busiest day", busiest && busiest.value ? busiest.value + " sessions" : "—"),
-          miniStat("This week", weekSecs ? Math.round(weekSecs / 60) + " min" : "—"),
-          miniStat("Study streak", stks.all + (stks.all === 1 ? " day" : " days")),
-          miniStat("Rest streak", stks.rest + (stks.rest === 1 ? " day" : " days"))
+          miniStat("Active days", String(activeDays)),
+          miniStat("This week", weekSecs ? Math.round(weekSecs / 60) + " min" : "0 min"),
+          miniStat("Rest rhythm", stks.rest + (stks.rest === 1 ? " day" : " days"))
         ])
       ]);
       function miniStat(k, v) {
@@ -343,39 +340,54 @@
           el("div", { class: "gstat-v", text: String(v) })
         ]);
       }
-      bento.appendChild(bentoCard("b-heat", "Study cadence", [heat], "last 12 months"));
+      bento.appendChild(bentoCard("b-heat", "Study cadence", [heat], "last 90 days"));
 
-      /* — the ledger: meaningful acts only (routine sync is filed into the
-           Session Log's Sync history instead) — */
+      /* — meaningful milestones only; progress noise and sync live in filters — */
       var led = el("div", { class: "ledger" });
-      var recent = realSessions.slice(-8).reverse();
-      if (!recent.length) led.appendChild(el("p", { class: "sub", text: "No sessions yet — finish a flashcard batch, quiz or focus block and it lands here." }));
+      var recent = meaningfulSessions.slice(-6).reverse();
+      if (!recent.length) led.appendChild(el("div", { class: "gov-empty compact" }, [
+        el("span", { class: "gov-empty-mark", "aria-hidden": "true", text: "◇" }),
+        el("div", {}, [
+          el("b", { text: "Your first milestone is waiting" }),
+          el("p", { text: "Complete a focus session, review, task, paper, or collection title." })
+        ])
+      ]));
       recent.forEach(function (s) { led.appendChild(ledgerRow(s)); });
       var ledKids = [led];
       ledKids.push(el("button", { class: "led-more", onclick: function () { KOS.show("governor", "history"); } },
-        [routineCount ? "Full log · " + routineCount + " sync events filed separately →" : "Open the full session log →"]));
-      bento.appendChild(bentoCard("b-ledger", "The ledger", ledKids, "meaningful acts"));
+        [routineCount ? "Open full log · " + routineCount + " system event" + (routineCount === 1 ? "" : "s") + " filed separately →" : "Open the full session log →"]));
+      bento.appendChild(bentoCard("b-ledger", "Milestone ledger", ledKids, meaningfulSessions.length + " meaningful acts"));
 
-      /* recovery checklist — full-width when not healthy */
+      /* — one prescriptive dispatch instead of a long route map — */
       if (hpCls !== "healthy") {
-        var rec = el("div", { class: "gov-recovery b-wide" + (hpCls === "critical" ? " urgent" : "") });
-        rec.appendChild(el("h3", { class: "n-h", text: hpCls === "critical" ? "Recovery Mode — fastest route back" : "Shortest route back to Healthy" }));
-        KOS.governor.recoveryTasks().forEach(function (t) {
-          var done = t.cur >= t.target;
-          rec.appendChild(el("button", { class: "gov-rec-item" + (done ? " done" : ""), onclick: t.go }, [
-            el("span", { class: "gov-rec-check", text: done ? "✓" : "○" }),
-            el("span", { text: t.label }),
-            el("span", { class: "gov-rec-n", text: t.cur + "/" + t.target })
-          ]));
-        });
+        var recTasks = KOS.governor.recoveryTasks();
+        var nextTask = recTasks.find(function (t) { return t.cur < t.target; }) || recTasks[0];
+        var rec = el("aside", { class: "gov-recovery b-wide" + (hpCls === "critical" ? " urgent" : ""), "aria-live": "polite" }, [
+          el("div", { class: "gov-rec-signal", "aria-hidden": "true", text: "✦" }),
+          el("div", { class: "gov-rec-copy" }, [
+            el("span", { class: "gov-rec-eyebrow", text: hpCls === "critical" ? "Recovery dispatch" : "Route to Healthy" }),
+            el("h3", { class: "n-h", text: nextTask.label }),
+            el("p", { text: "Complete this one action now. Core notes, quizzes, flashcards, and exam questions remain open throughout recovery." })
+          ]),
+          el("div", { class: "gov-rec-progress" }, [
+            el("span", { text: nextTask.cur + " / " + nextTask.target }),
+            el("div", { class: "hud-bar hud-hp", "aria-label": "Recovery task progress" }, [
+              el("span", { style: "width:" + Math.min(100, 100 * nextTask.cur / nextTask.target) + "%" })
+            ])
+          ]),
+          el("button", { class: "btn primary gov-rec-go", text: "Start this step →", onclick: nextTask.go })
+        ]);
         bento.appendChild(rec);
       }
 
-      /* how HP moves — kept, full width below the bento */
-      panel.appendChild(el("div", { class: "gov-rules" }, [
-        el("div", { class: "gov-rule" }, [el("b", { text: "Drains" }), el("span", { text: "a day with zero logged sessions (−15), or a due-card backlog past " + KOS.governor.BACKLOG_LIMIT + " (−10/day)." })]),
-        el("div", { class: "gov-rule" }, [el("b", { text: "Restores" }), el("span", { text: "completing sessions, clearing due reviews, ticking to-do items. Restores trickle at half rate while Critical." })]),
-        el("div", { class: "gov-rule" }, [el("b", { text: "Never locks" }), el("span", { text: "spec reading, notes, personal notes, per-topic flashcards, quizzes, exam questions." })])
+      /* rules remain accessible without competing with current status */
+      panel.appendChild(el("details", { class: "gov-rules-note" }, [
+        el("summary", { text: "How HP and access work" }),
+        el("div", { class: "gov-rules" }, [
+          el("div", { class: "gov-rule" }, [el("b", { text: "Drains" }), el("span", { text: "A fully missed day costs 15 HP; a due backlog past " + KOS.governor.BACKLOG_LIMIT + " costs 10 HP per day." })]),
+          el("div", { class: "gov-rule" }, [el("b", { text: "Restores" }), el("span", { text: "Completed sessions, due reviews, and tasks restore HP. Recovery is slower while Critical." })]),
+          el("div", { class: "gov-rule" }, [el("b", { text: "Always open" }), el("span", { text: "Specification, notes, flashcards, quizzes, and exam questions never lock." })])
+        ])
       ]));
     }
 
@@ -391,14 +403,22 @@
        A ledger-style treasury strip, a sticky category rail, and one card
        shape whose preview changes with what is being sold. Every group stays
        rendered so the whole catalogue is browsable (and searchable) at once. */
+    var BIG_LABS = ["trace", "oop"];
     var SHOP_GROUPS = [
-      { kind: "lab", label: "Labs & simulations", glyph: "験", blurb: "One-time permanent unlocks. Suspended, never lost, while HP is low." },
-      { kind: "theme", label: "OS themes", glyph: "彩", blurb: "Repaint the whole interface. Applied instantly, switchable forever." },
-      { kind: "banner", label: "Profile banners", glyph: "幟", blurb: "Painted backdrops for the identity card." },
-      { kind: "seal", label: "Kanji seals", glyph: "印", blurb: "The mark in the topbar and your default avatar." },
-      { kind: "frame", label: "Avatar frames", glyph: "環", blurb: "Rings worn around the profile picture." },
-      { kind: "shelfskin", label: "Bookshelf skins", glyph: "棚", blurb: "The Physical tab in Books." },
-      { kind: "shrinestyle", label: "Shrine card styles", glyph: "社", blurb: "Card treatment in the Shrine." }
+      { id: "tools", domain: "tools", label: "Learning tools", glyph: "⌘", blurb: "Deep interactive workspaces for practising a full method.", match: function (c) { return c.kind === "lab" && BIG_LABS.indexOf(c.id) !== -1; } },
+      { id: "simulations", domain: "simulations", label: "Simulations", glyph: "◉", blurb: "Focused visual experiments attached to relevant specification points.", match: function (c) { return c.kind === "lab" && BIG_LABS.indexOf(c.id) === -1; } },
+      { id: "themes", domain: "cosmetics", label: "OS themes", glyph: "彩", blurb: "Repaint the whole interface. Applied instantly and switchable forever.", match: function (c) { return c.kind === "theme"; } },
+      { id: "banners", domain: "cosmetics", label: "Profile banners", glyph: "幟", blurb: "Painted backdrops for your identity stage.", match: function (c) { return c.kind === "banner"; } },
+      { id: "seals", domain: "cosmetics", label: "Profile seals", glyph: "印", blurb: "Identity marks presented in the context where you will wear them.", match: function (c) { return c.kind === "seal"; } },
+      { id: "frames", domain: "cosmetics", label: "Avatar frames", glyph: "環", blurb: "Rings worn around your profile picture.", match: function (c) { return c.kind === "frame"; } },
+      { id: "shelves", domain: "cosmetics", label: "Bookshelf skins", glyph: "棚", blurb: "Material treatments for the Physical Books shelf.", match: function (c) { return c.kind === "shelfskin"; } },
+      { id: "shrines", domain: "cosmetics", label: "Shrine card styles", glyph: "社", blurb: "Card treatments for the Shrine collection.", match: function (c) { return c.kind === "shrinestyle"; } }
+    ];
+    var SHOP_DEPTS = [
+      { id: "all", label: "All wares", hint: "Full catalogue" },
+      { id: "tools", label: "Learning tools", hint: "Deep practice" },
+      { id: "simulations", label: "Simulations", hint: "Visual experiments" },
+      { id: "cosmetics", label: "Cosmetics", hint: "Profile & atmosphere" }
     ];
 
     function renderShop() {
@@ -432,10 +452,26 @@
       }
       shop.appendChild(treasury);
       if (suspended) {
-        shop.appendChild(el("div", { class: "gov-banner bad", html:
-          "<b>Shop suspended.</b> HP is " + state.label + " — purchases and purchased labs reopen at 60 HP. " +
-          "Cosmetics you already own stay usable." }));
+        shop.appendChild(el("div", { class: "gov-banner bad shop-lock-note" }, [
+          el("span", { class: "shop-lock-icon", "aria-hidden": "true", text: "◇" }),
+          el("div", {}, [
+            el("b", { text: "Purchases are paused, not lost." }),
+            el("span", { text: " HP is " + state.label + ". The shop and purchased labs reopen at 60 HP; essential study tools stay available." })
+          ]),
+          el("button", { class: "btn", text: "View recovery", onclick: function () { KOS.show("governor", "status"); } })
+        ]));
       }
+
+      var activeDept = "all";
+      var deptBar = el("div", { class: "shop-depts", role: "tablist", "aria-label": "Shop departments" });
+      SHOP_DEPTS.forEach(function (d) {
+        deptBar.appendChild(el("button", { class: "shop-dept" + (d.id === activeDept ? " active" : ""),
+          role: "tab", "aria-selected": d.id === activeDept ? "true" : "false", "data-dept": d.id,
+          onclick: function () { setDepartment(d.id); } }, [
+          el("span", { text: d.label }), el("small", { text: d.hint })
+        ]));
+      });
+      shop.appendChild(deptBar);
 
       var body = el("div", { class: "shop-body" });
       shop.appendChild(body);
@@ -447,12 +483,13 @@
       body.appendChild(sections);
 
       SHOP_GROUPS.forEach(function (grp) {
-        var items = cat.filter(function (c) { return c.kind === grp.kind; });
+        var items = cat.filter(grp.match);
         if (!items.length) return;
         var own = items.filter(function (c) { return KOS.governor.owns(c.id); }).length;
-        var secId = "shop-sec-" + grp.kind;
+        var secId = "shop-sec-" + grp.id;
 
         rail.appendChild(el("button", { class: "shop-rail-item" + (own === items.length ? " complete" : ""),
+          "data-domain": grp.domain,
           onclick: function () {
             var t = document.getElementById(secId);
             if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -462,7 +499,7 @@
           el("span", { class: "sri-n", text: own + "/" + items.length })
         ]));
 
-        var sec = el("section", { class: "shop-sec", id: secId });
+        var sec = el("section", { class: "shop-sec", id: secId, "data-domain": grp.domain });
         sec.appendChild(el("div", { class: "shop-sec-h" }, [
           el("span", { class: "ssh-g", "aria-hidden": "true", text: grp.glyph }),
           el("div", {}, [
@@ -477,6 +514,21 @@
         sec.appendChild(row);
         sections.appendChild(sec);
       });
+
+      function setDepartment(id) {
+        activeDept = id;
+        deptBar.querySelectorAll(".shop-dept").forEach(function (b) {
+          var on = b.dataset.dept === activeDept;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        sections.querySelectorAll(".shop-sec").forEach(function (sec) {
+          sec.hidden = activeDept !== "all" && sec.dataset.domain !== activeDept;
+        });
+        rail.querySelectorAll(".shop-rail-item").forEach(function (b) {
+          b.hidden = activeDept !== "all" && b.dataset.domain !== activeDept;
+        });
+      }
 
       sections.appendChild(el("p", { class: "sub shop-earn",
         text: "Earning gold: session completions, streak milestones, quiz scores ≥80%, and clearing the due queue to zero. Worked examples, flashcards and quizzes are free forever." }));
@@ -499,11 +551,15 @@
       card.appendChild(shopPreview(it, grp));
 
       card.appendChild(el("div", { class: "shop-card-h" }, [
-        el("b", { text: it.name }),
+        el("div", { class: "shop-card-title" }, [
+          el("span", { class: "shop-kind", text: grp.domain === "tools" ? "Learning tool" : grp.domain === "simulations" ? "Simulation" : "Cosmetic" }),
+          el("b", { text: it.name })
+        ]),
         owned ? el("span", { class: "shop-owned" + (active ? " on" : ""), text: active ? "Active" : "Owned" })
               : el("span", { class: "shop-price" + (afford ? "" : " short"), text: "◈ " + it.price })
       ]));
       card.appendChild(el("p", { class: "sub", text: it.desc }));
+      if (it.kind === "lab") card.appendChild(el("p", { class: "shop-access-note", text: "Core revision stays free. This unlock adds an interactive practice surface." }));
 
       var foot = el("div", { class: "shop-card-f" });
       if (!owned) {
@@ -547,10 +603,15 @@
       return card;
     }
 
-    /* each lab gets its own mark so the section doesn't read as eight
-       identical tiles */
-    var LAB_GLYPH = { trace: "塔", oop: "継", "logic-lab": "論", "sort-viz": "序",
-      "fsm-lab": "状", "fn-transform": "函", "trig-circle": "円", "integration-area": "積" };
+    /* Functional cards show the interaction a learner receives, not an
+       unexplained glyph. These miniature scenes are CSS-native and remain
+       crisp in every theme and at every density. */
+    var LAB_MARK = {
+      trace: { mark: "⇄", label: "step through" }, oop: { mark: "{ }", label: "compose classes" },
+      "logic-lab": { mark: "⊢", label: "test a truth" }, "sort-viz": { mark: "▥", label: "compare passes" },
+      "fsm-lab": { mark: "⟲", label: "follow a state" }, "fn-transform": { mark: "f(x)", label: "move a graph" },
+      "trig-circle": { mark: "◯", label: "turn the circle" }, "integration-area": { mark: "∫", label: "measure area" }
+    };
 
     /* the visual sold by each card kind — a painted band for anything with a
        palette, the rendered seal for seals, a drawn ring for frames */
@@ -560,27 +621,47 @@
         var band = el("div", { class: "shop-pv-band" });
         band.style.cssText += KOS.governor.bannerPresetCss(it.banner) || "";
         pv.appendChild(band);
+        pv.appendChild(el("div", { class: "sp-banner-card", "aria-hidden": "true" }, [
+          el("span", { class: "sp-banner-avatar" }), el("span", { class: "sp-banner-line" })
+        ]));
       } else if (it.kind === "theme") {
         var strip = el("div", { class: "shop-pv-theme" });
         (it.sw || []).forEach(function (c) {
           strip.appendChild(el("span", { class: "spt-band", style: "background:" + c }));
         });
         pv.appendChild(strip);
+        pv.appendChild(el("div", { class: "sp-theme-shell", "aria-hidden": "true" }, [
+          el("span", { class: "sp-theme-rail" }),
+          el("span", { class: "sp-theme-main" }, [el("i"), el("i"), el("i")])
+        ]));
       } else if (it.kind === "seal") {
-        /* shop seals are topbar MARK variants (they carry their own kanji),
-           not entries in the avatar seal library — show the actual glyph */
-        pv.appendChild(el("div", { class: "shop-pv-mark" }, [
-          el("span", { class: "spm-k", "aria-hidden": "true", text: it.glyph || grp.glyph })
+        pv.appendChild(el("div", { class: "shop-pv-mark sp-seal-profile", "aria-hidden": "true" }, [
+          el("span", { class: "sp-seal-avatar" }, [el("span", { class: "spm-k", text: it.glyph || grp.glyph })]),
+          el("span", { class: "sp-seal-copy" }, [el("i"), el("i"), el("i")])
         ]));
       } else if (it.kind === "frame") {
         pv.appendChild(el("div", { class: "shop-pv-frame" }, [
           el("span", { class: "gov-avatar " + it.id, style: "width:56px;height:56px" }, [
-            el("span", { class: "spf-fill", "aria-hidden": "true" })
+            el("span", { class: "spf-fill spf-face", "aria-hidden": "true" })
           ])
         ]));
+      } else if (it.kind === "shelfskin") {
+        pv.appendChild(el("div", { class: "sp-shelf " + it.id, "aria-hidden": "true" }, [
+          el("span", { class: "sp-books" }, [el("i"), el("i"), el("i"), el("i"), el("i")]),
+          el("span", { class: "sp-shelf-board" })
+        ]));
+      } else if (it.kind === "shrinestyle") {
+        pv.appendChild(el("div", { class: "sp-shrine " + it.id, "aria-hidden": "true" }, [
+          el("span", { class: "sp-shrine-card back" }),
+          el("span", { class: "sp-shrine-card front" }, [el("i"), el("i")])
+        ]));
       } else {
-        pv.appendChild(el("div", { class: "shop-pv-glyph", "aria-hidden": "true" }, [
-          el("span", { text: LAB_GLYPH[it.id] || grp.glyph })
+        var lab = LAB_MARK[it.id] || { mark: "◎", label: "explore" };
+        pv.appendChild(el("div", { class: "shop-lab-scene", "aria-hidden": "true" }, [
+          el("span", { class: "sp-lab-chrome" }, [el("i"), el("i"), el("i")]),
+          el("span", { class: "sp-lab-mark", text: lab.mark }),
+          el("span", { class: "sp-lab-label", text: lab.label }),
+          el("span", { class: "sp-lab-steps" }, [el("i"), el("i"), el("i"), el("i")])
         ]));
       }
       /* the canonical swatch row stays on every palette-bearing item */
@@ -597,28 +678,29 @@
        topbar popover renders), the workshop on the right. */
     function renderAvatar() {
       var p = KOS.governor.profile();
-      var grid = el("div", { class: "av-grid" });
+      var grid = el("div", { class: "av-grid avatar-studio" });
       panel.appendChild(grid);
 
       /* --- left: the live profile preview --- */
       var bannerCss = KOS.governor.bannerCss();
-      var preview = el("div", { class: "av-preview" });
+      var preview = el("aside", { class: "av-preview identity-stage", "aria-label": "Live Governor profile preview" });
       var pvBanner = el("div", { class: "av-pv-banner" + (bannerCss && KOS.governor.bannerIsDark() ? " dark" : "") });
       if (bannerCss) KOS.governor.applyBanner(pvBanner, { darkScrim: true });
       else pvBanner.classList.add("plain");
+      pvBanner.appendChild(el("span", { class: "av-stage-label", text: "Live identity" }));
       preview.appendChild(pvBanner);
       preview.appendChild(el("div", { class: "av-pv-body" }, [
         el("div", { class: "av-pv-avatar" }, [KOS.governor.avatarNode(96)]),
         el("div", { class: "av-pv-name", text: "Level " + p.level }),
         el("div", { class: "av-pv-rank", text: p.rank + " · Behavioural Governor" }),
-        p.status ? el("div", { class: "av-pv-status", text: p.status }) : null,
+        p.status ? el("div", { class: "av-pv-status profile-speech", "aria-label": "Profile status", text: p.status }) : null,
         p.about ? el("p", { class: "av-pv-about", text: p.about }) : null,
         el("div", { class: "av-pv-meta" }, [
-          el("span", { text: (g.avatar.kind === "custom" ? "Custom image" : (KOS.governor.sealById(g.avatar.id) || {}).name || "Ember seal") }),
-          el("span", { text: g.avatar.frame ? (KOS.governor.item(g.avatar.frame) || {}).name : "No frame" }),
-          el("span", { text: g.banner ? (g.banner === "custom" ? "Custom banner" : bannerName(g.banner)) : "No banner" })
+          el("span", {}, [el("small", { text: "Portrait" }), (g.avatar.kind === "custom" ? "Custom image" : (KOS.governor.sealById(g.avatar.id) || {}).name || "Ember seal")]),
+          el("span", {}, [el("small", { text: "Frame" }), g.avatar.frame ? (KOS.governor.item(g.avatar.frame) || {}).name : "None"]),
+          el("span", {}, [el("small", { text: "Banner" }), g.banner ? (g.banner === "custom" ? "Custom banner" : bannerName(g.banner)) : "None"])
         ]),
-        el("button", { class: "btn av-pv-edit", text: "✎ Status & about", onclick: openProfileEditor })
+        el("button", { class: "btn av-pv-edit", text: "Edit status & about", onclick: openProfileEditor })
       ].filter(Boolean)));
       grid.appendChild(preview);
 
@@ -630,6 +712,11 @@
       /* --- right: the workshop --- */
       var ctl = el("div", { class: "av-controls" });
       grid.appendChild(ctl);
+      ctl.appendChild(el("header", { class: "av-workshop-head" }, [
+        el("span", { class: "dh-kicker", text: "Identity workshop" }),
+        el("h2", { text: "Compose your Governor profile" }),
+        el("p", { text: "Choose the portrait, banner, seal and frame independently. Every image edit uses the same non-destructive cropper." })
+      ]));
 
       /* portrait + banner, side by side — the two image sources */
       ctl.appendChild(avSection("Portrait & banner", "The two images that make up your identity. Both keep their full source, so you can reposition later without re-uploading.", [
@@ -672,6 +759,7 @@
 
       /* seal library */
       var sgrid = el("div", { class: "seal-grid" });
+      var unlockedSeals = KOS.governor.seals().filter(function (seal) { return KOS.governor.sealUnlocked(seal); }).length;
       KOS.governor.seals().forEach(function (s) {
         var unlocked = KOS.governor.sealUnlocked(s);
         var active = g.avatar.kind === "seal" && g.avatar.id === s.id;
@@ -688,7 +776,7 @@
         if (!unlocked) card.appendChild(el("span", { class: "seal-lock", "aria-hidden": "true", text: "🔒" }));
         sgrid.appendChild(card);
       });
-      ctl.appendChild(avSection("Seal library", "Unlocked by level. A seal is used as your avatar whenever no custom image is set.", [sgrid]));
+      ctl.appendChild(avSection("Seal library", unlockedSeals + " of " + KOS.governor.seals().length + " unlocked by level. Seals become your portrait when no custom image is active.", [sgrid]));
 
       /* frames the user owns — rendered as the actual ring, not a text button */
       var frames = KOS.governor.catalog().filter(function (c) { return c.kind === "frame" && KOS.governor.owns(c.id); });
@@ -696,9 +784,9 @@
       fGrid.appendChild(frameChip(null, "No frame", !g.avatar.frame));
       frames.forEach(function (fr) { fGrid.appendChild(frameChip(fr.id, fr.name, g.avatar.frame === fr.id)); });
       var lockedFrames = KOS.governor.catalog().filter(function (c) { return c.kind === "frame" && !KOS.governor.owns(c.id); });
-      ctl.appendChild(avSection("Frame",
-        lockedFrames.length ? lockedFrames.length + " more available in the Gold Shop." : "Every frame unlocked.",
-        [fGrid]));
+      var frameKids = [fGrid];
+      if (lockedFrames.length) frameKids.push(el("button", { class: "av-shop-link", text: "Browse " + lockedFrames.length + " locked frame" + (lockedFrames.length === 1 ? "" : "s") + " in the Gold Shop →", onclick: function () { KOS.show("governor", "shop"); } }));
+      ctl.appendChild(avSection("Frames", lockedFrames.length ? "Owned frames are ready to wear; the rest are cosmetic Gold Shop unlocks." : "Every frame is unlocked.", frameKids));
 
       function frameChip(id, label, on) {
         var chip = el("button", { class: "frame-chip" + (on ? " active" : ""), onclick: function () {
@@ -741,88 +829,144 @@
        Meaningful acts by default. Routine integration traffic lives in its
        own Sync history category, coalesced per day + provider (Part C). */
     var LOG_CATS = [
-      { id: "all", label: "Everything", match: function (e) { return !isRoutine(e); } },
-      { id: "study", label: "Study", glyph: "学", match: function (e) { return ["flashcards", "due-review", "quiz", "exam", "focus"].indexOf(e.type) !== -1; } },
-      { id: "media", label: "Collection", glyph: "蒐", match: function (e) { return e.type === "media" && !isRoutine(e); } },
-      { id: "directives", label: "Directives", glyph: "勅", match: function (e) { return e.type === "todo"; } },
+      { id: "all", label: "All activity", glyph: "◇", match: function (e) { return !isRoutine(e); } },
+      { id: "study", label: "Study", glyph: "学", match: function (e) { return ["flashcards", "due-review", "quiz", "exam"].indexOf(e.type) !== -1; } },
+      { id: "focus", label: "Focus", glyph: "◉", match: function (e) { return e.type === "focus"; } },
+      { id: "tasks", label: "Tasks", glyph: "✓", match: function (e) { return e.type === "todo"; } },
+      { id: "collection", label: "Collection", glyph: "蒐", match: function (e) { return e.type === "media" && !isRoutine(e); } },
       { id: "papers", label: "Papers", glyph: "試", match: function (e) { return e.type === "tracker"; } },
-      { id: "sync", label: "Sync history", glyph: "同", routine: true, match: isRoutine }
+      { id: "system", label: "System", glyph: "↻", routine: true, match: isRoutine }
     ];
     function renderHistory() {
       var all = KOS.sessions.all().slice().reverse();
-      if (!all.length) {
-        panel.appendChild(el("p", { class: "sub", text: "No sessions logged yet. Finish a flashcard batch, quiz or exam question and it lands here." }));
-        return;
-      }
-      var cur2 = "all";
+      var cur2 = "all", visible = 30;
+      var human = all.filter(function (e) { return !isRoutine(e); });
+      var activeDates = {};
+      human.forEach(function (e) { activeDates[e.date] = true; });
 
-      /* category summary boxes — the whole record broken down at a glance */
-      var band = el("div", { class: "log-cats" });
+      var history = el("div", { class: "gov-history" });
+      panel.appendChild(history);
+      history.appendChild(el("header", { class: "gov-history-head" }, [
+        el("div", {}, [
+          el("span", { class: "dh-kicker", text: "Chronicle" }),
+          el("h2", { text: "Session Log" }),
+          el("p", { text: "Human actions first. Open any entry for its study context and recorded metrics; technical sync stays filed under System." })
+        ]),
+        el("div", { class: "gov-history-stats", "aria-label": "Session history summary" }, [
+          historyStat(String(human.length), "actions"),
+          historyStat(String(Object.keys(activeDates).length), "active days"),
+          historyStat(String(human.filter(isMeaningful).length), "milestones")
+        ])
+      ]));
+      function historyStat(value, label) {
+        return el("span", { class: "gov-history-stat" }, [el("b", { text: value }), el("small", { text: label })]);
+      }
+
+      /* A compact filter row replaces the previous wall of stat cards. */
+      var band = el("div", { class: "log-cats log-filterbar", role: "tablist", "aria-label": "Session categories" });
       LOG_CATS.forEach(function (c) {
-        if (c.id === "all") return;
         var n = all.filter(c.match).length;
         band.appendChild(el("button", { class: "log-cat" + (c.routine ? " is-routine" : ""), "data-cat": c.id,
+          role: "tab", "aria-selected": c.id === cur2 ? "true" : "false",
           onclick: function () { setCat(c.id); } }, [
           el("span", { class: "log-cat-k", "aria-hidden": "true", text: c.glyph }),
-          el("div", {}, [
-            el("b", { text: String(n) }),
-            el("span", { class: "log-cat-l", text: c.label })
-          ])
+          el("span", { class: "log-cat-l", text: c.label }),
+          el("b", { text: String(n) })
         ]));
       });
-      panel.appendChild(band);
+      history.appendChild(band);
 
-      var seg = el("div", { class: "study-tabs log-seg", role: "tablist" });
-      LOG_CATS.forEach(function (c) {
-        seg.appendChild(el("button", { class: "study-tab" + (c.id === cur2 ? " active" : ""), "data-cat": c.id,
-          onclick: function () { setCat(c.id); } }, [c.label]));
-      });
-      panel.appendChild(seg);
-
-      var note = el("p", { class: "sub log-note" });
-      panel.appendChild(note);
-      var wrap = el("div", { class: "gov-log ledger" });
-      panel.appendChild(wrap);
+      var note = el("p", { class: "sub log-note", role: "status", "aria-live": "polite" });
+      history.appendChild(note);
+      var wrap = el("div", { class: "gov-log ledger gov-timeline" });
+      history.appendChild(wrap);
+      var pager = el("div", { class: "gov-log-pager" });
+      history.appendChild(pager);
 
       function setCat(id) {
-        cur2 = id;
-        seg.querySelectorAll(".study-tab").forEach(function (b) { b.classList.toggle("active", b.dataset.cat === cur2); });
-        band.querySelectorAll(".log-cat").forEach(function (b) { b.classList.toggle("active", b.dataset.cat === cur2); });
+        cur2 = id; visible = 30;
+        band.querySelectorAll(".log-cat").forEach(function (b) {
+          var on = b.dataset.cat === cur2;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-selected", on ? "true" : "false");
+        });
         draw();
       }
       function draw() {
         wrap.innerHTML = "";
+        pager.innerHTML = "";
         var cat = LOG_CATS.find(function (c) { return c.id === cur2; });
         var matched = all.filter(cat.match);
 
         if (cat.routine) {
-          note.textContent = "Background integration traffic, collapsed to one line per provider per day. These entries are kept out of the main ledger on purpose.";
+          note.textContent = "Technical integration traffic · collapsed to one record per provider and day.";
           var groups = coalesceRoutine(matched);
-          if (!groups.length) { wrap.appendChild(el("p", { class: "sub", text: "No sync activity recorded." })); return; }
+          if (!groups.length) { wrap.appendChild(emptyLog("System is quiet", "No provider sync activity has been recorded.")); return; }
           var lastD = null;
-          groups.slice(0, 90).forEach(function (b) {
-            if (b.date !== lastD) { lastD = b.date; wrap.appendChild(dayHead(b.date)); }
+          groups.slice(0, visible).forEach(function (b) {
+            if (b.date !== lastD) { lastD = b.date; wrap.appendChild(dayHead(b.date, groups.filter(function (g2) { return g2.date === b.date; }).length)); }
             wrap.appendChild(routineRow(b));
           });
+          addPager(groups.length);
           return;
         }
 
-        note.textContent = cur2 === "all"
-          ? "Meaningful acts only — routine sync traffic lives under Sync history."
-          : "";
-        var rows = matched.slice(0, 120);
-        if (!rows.length) { wrap.appendChild(el("p", { class: "sub", text: "Nothing in this category yet." })); return; }
+        note.textContent = cur2 === "all" ? "Technical sync is hidden here and available under System." : matched.length + " recorded " + cat.label.toLowerCase() + " event" + (matched.length === 1 ? "" : "s") + ".";
+        var rows = matched.slice(0, visible);
+        if (!rows.length) {
+          wrap.appendChild(emptyLog(all.length ? "Nothing filed here yet" : "Begin your chronicle",
+            all.length ? "Complete an activity in this category and its details will appear here." : "Finish a focus block, review, quiz, task, paper, or collection title to create your first entry."));
+          return;
+        }
         var lastDate = null;
         rows.forEach(function (e) {
-          if (e.date !== lastDate) { lastDate = e.date; wrap.appendChild(dayHead(e.date)); }
-          wrap.appendChild(KOS.governorLedgerRow(e));
+          if (e.date !== lastDate) { lastDate = e.date; wrap.appendChild(dayHead(e.date, matched.filter(function (r) { return r.date === e.date; }).length)); }
+          wrap.appendChild(historyRow(e));
         });
-        if (matched.length > 120) wrap.appendChild(el("p", { class: "sub", text: "Showing the most recent 120 of " + matched.length + "." }));
+        addPager(matched.length);
       }
-      function dayHead(dateISO) {
+      function addPager(total) {
+        if (total <= visible) return;
+        pager.appendChild(el("button", { class: "btn gov-log-more", text: "Show " + Math.min(30, total - visible) + " more · " + visible + " of " + total,
+          onclick: function () { visible += 30; draw(); } }));
+      }
+      function dayHead(dateISO, count) {
         var d = new Date(dateISO + "T12:00:00");
-        return el("div", { class: "led-day", text:
-          d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) });
+        return el("div", { class: "led-day" }, [
+          el("span", { text: d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) }),
+          el("small", { text: count + " event" + (count === 1 ? "" : "s") })
+        ]);
+      }
+      function emptyLog(title, copy) {
+        return el("div", { class: "gov-empty gov-log-empty" }, [
+          el("span", { class: "gov-empty-mark", "aria-hidden": "true", text: "◇" }),
+          el("div", {}, [el("b", { text: title }), el("p", { text: copy })]),
+          !all.length ? el("button", { class: "btn primary", text: "Open Review", onclick: function () { KOS.show("due"); } }) : null
+        ].filter(Boolean));
+      }
+      function historyRow(e) {
+        var info = activityInfo(e), m = e.metrics || {};
+        var details = el("details", { class: "led-row gov-log-event tone-" + info.tone });
+        details.appendChild(el("summary", { class: "gov-log-summary" }, [
+          el("span", { class: "gov-event-icon", "aria-hidden": "true", text: info.icon }),
+          el("span", { class: "lt gov-event-copy" }, [el("small", { text: info.label }), el("b", { text: info.title }), info.detail ? el("span", { text: info.detail }) : null].filter(Boolean)),
+          el("time", { class: "when", datetime: e.date || "", text: e.ts ? new Date(e.ts).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : e.date }),
+          el("span", { class: "gov-event-chevron", "aria-hidden": "true", text: "+" })
+        ]));
+        var facts = [];
+        if (e.subject) facts.push(["Subject", subjName(e.subject)]);
+        if (e.ref) facts.push(["Topic", e.ref]);
+        if (e.dur) facts.push(["Duration", Math.max(1, Math.round(e.dur / 60)) + " min"]);
+        [["cards", "Cards"], ["pct", "Score"], ["correct", "Correct"], ["total", "Questions"], ["marks", "Marks"], ["max", "Available"], ["pauses", "Pauses"], ["distractions", "Distractions"], ["entries", "Entries updated"], ["advances", "Status advances"]].forEach(function (pair) {
+          if (m[pair[0]] !== undefined && m[pair[0]] !== null) facts.push([pair[1], String(m[pair[0]]) + (pair[0] === "pct" ? "%" : "")]);
+        });
+        var detailBox = el("div", { class: "gov-event-details" }, [
+          el("p", { text: info.detail || "Recorded by KurenaiOS." }),
+          facts.length ? el("dl", {}, facts.map(function (f) { return el("div", {}, [el("dt", { text: f[0] }), el("dd", { text: f[1] })]); })) : el("span", { class: "sub", text: "No extra metrics were recorded for this event." })
+        ]);
+        details.appendChild(detailBox);
+        details.addEventListener("toggle", function () { details.querySelector(".gov-event-chevron").textContent = details.open ? "−" : "+"; });
+        return details;
       }
       draw();
     }

@@ -633,7 +633,7 @@
     body.appendChild(el("div", { class: "pc-avatar" }, [avatarNode(64)]));
     body.appendChild(el("div", { class: "pc-name", text: "Level " + p.level }));
     body.appendChild(el("div", { class: "pc-rank", text: p.rank + " · Behavioural Governor" }));
-    if (p.status) body.appendChild(el("div", { class: "pc-status", text: p.status }));
+    if (p.status) body.appendChild(el("div", { class: "pc-status profile-speech", text: p.status }));
     body.appendChild(el("div", { class: "pc-meters" }, [
       meterRow("HP", p.hp + " / 100", p.hp, "hud-hp", p.hpLabel),
       meterRow("XP", p.xpInto + " / " + p.xpNeed, p.xpPct, "hud-xp", "Lv " + (p.level + 1) + " next"),
@@ -644,10 +644,10 @@
       el("p", { text: p.about })
     ]));
     body.appendChild(el("div", { class: "pc-foot" }, [
-      el("button", { class: "btn", text: "✎ Edit", onclick: function () {
+      el("button", { class: "btn pc-action", text: "Edit profile", onclick: function () {
         editProfileText(function () { opts.onChange && opts.onChange(); });
       } }),
-      el("button", { class: "btn primary", text: "The Governor's Seat →", onclick: function () {
+      el("button", { class: "btn primary pc-action", text: "Open Governor →", onclick: function () {
         opts.onNavigate && opts.onNavigate();
         KOS.show("governor");
       } })
@@ -737,7 +737,7 @@
         ]),
         /* the status line, Discord-style, when one is set */
         String(g.status || "").trim()
-          ? el("span", { class: "hud-status", text: String(g.status).trim() })
+          ? el("span", { class: "hud-status profile-speech", text: String(g.status).trim() })
           : null,
         el("span", { class: "hud-bars" }, [
           el("span", { class: "hud-bar hud-hp", title: "HP " + g.hp + "/100 — " + hpStateInfo().label }, [
