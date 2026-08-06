@@ -58,8 +58,24 @@
 
     todo: {
       nextId: 1,
-      manual: [],                      // {id, text, done, created:"YYYY-MM-DD"} — persist independently
+      manual: [],                      // LEGACY: emptied by the 6.2 migration into state.reminders
       autoChecked: {}                  // "YYYY-MM-DD|autoKey" -> true (per-day auto item ticks)
+    },
+
+    /* ---- Build 6.2: the Reminders store (core/reminders.js) ----
+       Lists are containers (one per item); tags are cross-list labels (many).
+       Smart sections are derived, never stored. Rides the normal state export
+       so backup/restore carries every reminder, list and tag. */
+    reminders: {
+      v: 1,
+      nextId: 1,
+      items: [],
+      /* {id,title,notes,done,completedAt,due,dueTime,priority,listId,tags[],
+          subs[{id,text,done}],recur,alerts[minutes],alerted{},lastRewardedOn,
+          created,updatedAt} */
+      lists: [],                       // {id, name, colour}
+      rewardLog: {},                   // "YYYY-MM-DD" -> rewarded completions (anti-farming cap)
+      migrated: false                  // the one-time todo.manual → reminders move
     },
 
     focus: {

@@ -131,6 +131,7 @@
     tracker: "study", personaldeck: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
     focus: "productivity", calendar: "productivity", tasks: "productivity",
+    reminders: "productivity",
     matrix: "collection", anime: "collection", books: "collection",
     vn: "collection", game: "collection", seasonal: "collection",
     mangaka: "collection", wishlist: "collection", shrine: "collection",
@@ -152,8 +153,9 @@
     ],
     productivity: [
       ["Focus Timer", "focus"],
-      ["Calendar", "calendar"],
-      ["Tasks & Habits", "tasks"]
+      ["Reminders", "reminders"],
+      ["Habits", "tasks"],
+      ["Calendar", "calendar"]
     ],
     collection: [
       ["Overview", "matrix"],

@@ -172,7 +172,9 @@ step("Study Review and Productivity own the intended navigation", () => {
   KOS.show("focus");
   if (!document.querySelector('.rail-item[data-section="productivity"]').classList.contains("active")) throw new Error("Productivity rail not active");
   const productivityTabs = $$("#subnav .subnav-item").map(b => b.textContent.trim());
-  if (productivityTabs.join("|") !== "Focus Timer|Calendar|Tasks & Habits") throw new Error("productivity tabs: " + productivityTabs.join("|"));
+  /* Build 6.2: Reminders became a page of its own, so Tasks & Habits is now
+     just Habits and Reminders sits beside it */
+  if (productivityTabs.join("|") !== "Focus Timer|Reminders|Habits|Calendar") throw new Error("productivity tabs: " + productivityTabs.join("|"));
   KOS.show("tracker");
   if (!$(".dash-head > .workspace-header-tabs")) throw new Error("record tabs are not in the header");
 });

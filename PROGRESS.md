@@ -2492,7 +2492,8 @@ have separate visual and semantic treatments. Primary tool copy is human
 language (for example, “Reading your subjects”); the exact tool id remains
 secondary diagnostic text. Confirmation cards lead with action, target,
 consequence and expiry while retaining the canonical args in an expandable
-review. Provider output still renders through text content only.
+review. Provider output now uses a safe DOM-built Markdown/LaTeX renderer;
+raw HTML stays inert text and never enters the confirmation/tool paths.
 
 **Control room.** History uses conversation cards and a signed-out continuity
 state. Routing uses one card per request class. Memory uses user-controlled
@@ -2509,14 +2510,14 @@ PNGs with transparent corners and no baked checkerboard. Manifest v3 maps all
 six semantic states to the one production render. The old checkerboard assets
 remain only as historical source files and are no longer displayed.
 
-**Verification.** `tools/smoke29.test.js` adds seven focused steps covering
-the single controller, inert provider rendering, human activity labels,
+**Verification.** `tools/smoke29.test.js` adds eight focused steps covering
+the single controller, safe rich provider rendering, human activity labels,
 canonical confirmation identity, light/dark theme inheritance, true-alpha
 assets, drawer/tab focus management and smoke24–28 safety guardrails. Browser
 captures in `artifacts/category6-ui/` cover desktop light/dark, the drawer,
 chat and message states, all five management destinations, and 390px mobile
 chat/confirmation layouts. The service-worker version is
-`kos-gov4-c6ui-1`.
+`kos-gov4-c6md-1`.
 
 **Deployment.** `tools/deploy_pages.sh --stage` produced a clean 106-file /
 20M runtime bundle, including the two new assistant assets. smoke1–29 passed
@@ -2617,3 +2618,102 @@ tool registry, orchestrator and safety model are unchanged.
 Verified after the fact on the live deployment: no console errors, the
 assistant page and drawer both mount, the mascot resolves to the production
 asset, and all six assistant tabs render.
+
+---
+
+## ADDENDUM — Assistant Markdown and mathematics · 2026-08-06
+
+Assistant prose now renders the structure providers already send instead of
+showing Markdown punctuation and LaTeX source. The frontend supports headings,
+paragraphs, emphasis, strikethrough, ordered/unordered/task lists, blockquotes,
+rules, safe links, inline/fenced code, scroll-contained GFM tables, and inline
+or display maths using `$…$`, `$$…$$`, `\\(…\\)` and `\\[…\\]`.
+
+Security stays fail-closed: the renderer constructs an allowlisted DOM tree,
+does not parse provider HTML, rejects unsafe URL protocols, never loads remote
+Markdown images, keeps user/tool/receipt/confirmation data on plain-text paths,
+and invokes the existing KaTeX runtime with `trust:false`. Malformed maths
+remains readable and cannot swallow the remainder of a response.
+
+`tools/smoke29.test.js` now includes an eighth rich-response regression step.
+Desktop and 390×844 in-app Browser checks confirmed the assistant shell stays
+within its responsive bounds; tables, code and display maths own their local
+horizontal overflow. Service-worker version: `kos-gov4-c6md-1`. No provider,
+orchestrator, tool, memory, or confirmation contract changed.
+
+The existing Pages workflow staged 106 runtime files / 20M and deployed the
+follow-up at `https://307af73d.kurenai-os.pages.dev`. The unique deployment
+mounted the six-tab assistant surface; both it and the production alias served
+`kos-gov4-c6md-1`, and the live assistant bundle contained the safe rich-text
+renderer export.
+
+---
+
+## ADDENDUM — Build 6.2: Reminders as a dedicated page · 2026-08-06
+
+Reminders were a strip inside Tasks & Habits (`state.todo.manual`:
+`{id,text,done,date,category,subs}`). They are now a real store with a page
+of their own.
+
+**Model** (`js/core/reminders.js`, `state.reminders`). One flat `items` array
+plus a separate `lists` array. The two container concepts stay distinct by
+construction: a **list** is a container (`listId`, one per item), a **tag** is
+a cross-list label (`tags[]`, many per item). They have separate CRUD,
+separate sidebar groups and separate filters; nothing converts one into the
+other. Per item: title, notes, done/completedAt, `due` + `dueTime`, priority
+0–3, sub-tasks, `recur`, `alerts[]` (minutes before), `alerted{}`. Smart
+sections (All/Today/Scheduled/Upcoming/Overdue/Completed) are **derived**,
+never stored. `normalise()` is the single schema gate, so a field not listed
+there cannot enter the store — and clearing the date clears the time *and*
+the repeat, because a repeat with nothing to repeat from can never fire.
+
+**Page** (`js/modules/reminders.js`, view `reminders`). Three columns:
+sections/lists/tags sidebar · the list · a side inspector owning every
+detail. Search covers title, notes, tags and sub-task text; filters are
+list/tag/priority; sorts are due, priority, title, recency. Recurrence rolls
+a completed repeat forward to the first occurrence that is not already past,
+resetting its sub-tasks, rather than closing it.
+
+**Governor bounds (anti-farming).** Full CRUD makes trivial items cheap, so
+completion rewards are bounded three ways, all still flowing through
+`sessions.log({type:"todo"})` and never touching the economy directly:
+a daily cap (`REWARD_CAP` 8), one reward per item per day (re-ticking pays
+nothing), and **sub-task ticks pay nothing at all** — the old code logged a
+session per sub-task, which was the most farmable path in the app.
+Completing always works past the cap; it simply stops paying.
+
+**Integrations.** Home's directives panel is now the generated list only,
+with a strictly read-only reminders digest beneath it and a link through —
+no second editing surface. Dated reminders render on the Calendar grid as
+quiet dashed chips and are deliberately NOT routed into
+`KOS.calendar.deadlines()`, so an ordinary reminder never becomes a major
+Countdown. Alerts are in-app only (a 60s ticker while the app is open),
+matching the calendar's existing honesty about having no push.
+
+**Migration.** `todo.manual` migrates once at boot: `text→title`,
+`date→due`, `category→` a **list**, sub-tasks preserved, then the legacy
+array is emptied so nothing is counted twice. Idempotent. The four assistant
+tools (`todo_list`, `todo_add_task`, `todo_toggle_task`, `todo_delete_task`)
+and the live-context task search were repointed at the new store — left
+alone they would have written to an orphaned array no UI reads. `todo_add_task`
+gained time/priority/list/tags/notes.
+
+**Backup/restore** carries everything by construction (`state.reminders`
+rides `snapshotFull`); smoke30 asserts a full-fidelity round-trip and that a
+pre-6.2 backup without the branch self-heals.
+
+**Navigation.** Productivity is now Focus Timer · Reminders · Habits ·
+Calendar. `tasks` remains the Habits page (route kept working).
+
+**Cleanup.** The pre-6.2 `.rem-*` CSS (`.rem-main`, `.rem-list`, `.rem-item`,
+`.rem-sub*`, `.rem-add-*`, `.rem-cat`, `.rem-date`) was dead after the strip
+was removed AND collided with the new page's class names — deleted.
+
+**Tests.** `tools/smoke30.test.js` (22 steps) is the new gate entry: it boots
+from a seeded legacy list to exercise migration, then covers lists-vs-tags
+separation, the five sections including overdue-by-clock, CRUD/subtasks/
+recurrence (including the 31 Jan → 28 Feb month clamp), search/filter/sort,
+all three reward bounds, the Home and Calendar boundaries, and backup
+fidelity. Two real bugs were caught by writing it: a repeat surviving the
+date being cleared, and `nextOccurrence` skipping past intermediate
+occurrences instead of advancing one step.

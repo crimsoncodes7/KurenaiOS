@@ -306,12 +306,25 @@
             (ev.time ? ev.time + " " : "") + ev.title + (ev.recur === "weekly" ? " ↻" : "")
           ]));
         });
+        /* Build 6.2: dated reminders SHOW here, quietly and read-only. They
+           are deliberately not calendar events and never enter deadlines()
+           — an ordinary reminder must not become a major Countdown. */
+        if (KOS.reminders) {
+          KOS.reminders.forDate(dISO).slice(0, 4).forEach(function (r) {
+            cell.appendChild(el("button", { class: "cal-ev cal-rem" + (KOS.reminders.isOverdue(r) ? " overdue" : ""),
+              title: "Reminder · " + r.title + (r.dueTime ? " · " + r.dueTime : "") + " — manage in Reminders",
+              onclick: function (e) { e.stopPropagation(); KOS.show("reminders"); } }, [
+              "◦ " + (r.dueTime ? r.dueTime + " " : "") + r.title
+            ]));
+          });
+        }
         g2.appendChild(cell);
       });
       grid.appendChild(g2);
 
       /* legend + upcoming deadlines below the grid */
       var legend = el("div", { class: "cal-legend" });
+      legend.appendChild(el("span", { class: "cal-key cal-rem", text: "Reminder" }));
       TYPES.forEach(function (t) {
         legend.appendChild(el("span", { class: "cal-key t-" + t[0], text: t[1] }));
       });

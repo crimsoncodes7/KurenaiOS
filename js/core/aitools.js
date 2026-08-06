@@ -201,6 +201,7 @@
   }
 
   var DATE_RX = /^\d{4}-\d{2}-\d{2}$/;
+  var TIME_RE = /^\d{2}:\d{2}$/;
   function validDate(s) {
     if (!DATE_RX.test(s)) return false;
     var p = s.split("-");
@@ -1653,14 +1654,20 @@
   });
 
   def("todo_list", {
-    desc: "Today's auto-generated items, manual tasks, and habits with streaks.",
+    desc: "Today's auto-generated items, reminders (with their lists and tags), and habits with streaks.",
     category: "planner", tier: "read", read: true, params: {},
     run: function (args, cb) {
       cb(null, {
         auto: KOS.todo.autoItems().map(function (a) { return { key: a.key, text: a.text, done: !!a.done }; }),
-        manual: KOS.store.state.todo.manual.slice(-80).map(function (m) {
-          return { id: m.id, text: m.text, done: m.done, date: m.date || null, category: m.category || null };
+        /* Build 6.2: reminders live in their own store — lists are
+           containers, tags are cross-list labels, and both are reported */
+        reminders: KOS.reminders.query({ section: "all", sort: "due" }).slice(0, 80).map(function (m) {
+          return { id: m.id, title: m.title, done: m.done, due: m.due || null, dueTime: m.dueTime || null,
+            priority: m.priority, list: KOS.reminders.listName(m.listId), tags: m.tags || [],
+            overdue: KOS.reminders.isOverdue(m), subs: (m.subs || []).length };
         }),
+        lists: KOS.reminders.lists().map(function (l) { return { id: l.id, name: l.name }; }),
+        tags: KOS.reminders.tags().map(function (t) { return t.tag; }),
         habits: KOS.todo.habits().map(function (h) {
           return { id: h.id, text: h.text, streak: KOS.todo.habitStreak(h),
             doneToday: !!h.days[KOS.srs.todayISO()] };
@@ -1670,47 +1677,58 @@
   });
 
   def("todo_add_task", {
-    desc: "Add a manual task.",
+    desc: "Add a reminder. `list` is a container (one per reminder); `tags` are cross-list labels (many).",
     category: "planner", tier: "reversible", read: false,
     params: {
       text: { type: "string", required: true, minLen: 1, maxLen: 500 },
       date: { type: "string", maxLen: 10 },
-      category: { type: "string", maxLen: 40 }
+      time: { type: "string", maxLen: 5 },
+      priority: { type: "integer", min: 0, max: 3 },
+      list: { type: "string", maxLen: 40 },
+      tags: { type: "array", items: { type: "string", maxLen: 30 } },
+      notes: { type: "string", maxLen: 2000 }
     },
     run: function (args, cb) {
       if (args.date && !validDate(args.date)) { cb(fail("date must be a real YYYY-MM-DD date.")); return; }
-      KOS.todo.addManual(args.text, { date: args.date || null, category: args.category || null });
-      var t = KOS.store.state.todo.manual[KOS.store.state.todo.manual.length - 1];
-      cb(null, { id: t.id, text: t.text },
-        { label: "remove the task", run: function (ucb) { KOS.todo.deleteManual(t.id); ucb(null); } });
+      if (args.time && !TIME_RE.test(args.time)) { cb(fail("time must be HH:MM.")); return; }
+      var listId = null;
+      if (args.list) { var l = KOS.reminders.addList(args.list); listId = l ? l.id : null; }
+      var t = KOS.reminders.add({ title: args.text, due: args.date || null, dueTime: args.time || null,
+        priority: args.priority || 0, listId: listId, tags: args.tags || [], notes: args.notes || "" });
+      if (!t) { cb(fail("A reminder needs some text.")); return; }
+      cb(null, { id: t.id, title: t.title, due: t.due, list: KOS.reminders.listName(t.listId), tags: t.tags },
+        { label: "remove the reminder", run: function (ucb) { KOS.reminders.remove(t.id); ucb(null); } });
     }
   });
 
   def("todo_toggle_task", {
-    desc: "Complete or un-complete a manual task (completing logs the normal todo session — one act, one reward).",
+    desc: "Complete or un-complete a reminder. Completing logs the normal todo session, subject to the daily reward cap; a repeating reminder rolls forward instead of closing.",
     category: "planner", tier: "reversible", read: false,
     params: {
       id: { type: "integer", required: true, min: 1 },
       done: { type: "boolean", required: true }
     },
     run: function (args, cb) {
-      var t = KOS.store.state.todo.manual.find(function (x) { return x.id === args.id; });
-      if (!t) { cb(fail("No task with id " + args.id + ".")); return; }
+      var t = KOS.reminders.get(args.id);
+      if (!t) { cb(fail("No reminder with id " + args.id + ".")); return; }
       if (t.done === args.done) { cb(null, { id: t.id, done: t.done, unchanged: true }); return; }
-      KOS.todo.toggleManual(args.id, args.done, t.text);
-      cb(null, { id: t.id, done: args.done });
+      /* whether this pays is decided by the store's daily cap, not by us */
+      var paid = args.done ? KOS.reminders.rewardState(t).pays : false;
+      var after = KOS.reminders.complete(args.id, args.done);
+      cb(null, { id: t.id, done: !!after.done, due: after.due, rewarded: paid,
+        repeated: !!(t.recur && args.done) });
     }
   });
 
   def("todo_delete_task", {
-    desc: "Delete a manual task. Permanent.",
+    desc: "Delete a reminder. Permanent.",
     category: "planner", tier: "consequential", read: false,
     params: { id: { type: "integer", required: true, min: 1 } },
     run: function (args, cb) {
-      var t = KOS.store.state.todo.manual.find(function (x) { return x.id === args.id; });
-      if (!t) { cb(fail("No task with id " + args.id + ".")); return; }
-      KOS.todo.deleteManual(args.id);
-      cb(null, { id: args.id, deleted: true, text: t.text });
+      var t = KOS.reminders.get(args.id);
+      if (!t) { cb(fail("No reminder with id " + args.id + ".")); return; }
+      KOS.reminders.remove(args.id);
+      cb(null, { id: args.id, deleted: true, text: t.title });
     }
   });
 
@@ -2102,9 +2120,8 @@
         }).slice(0, 10).map(function (e) { return { id: e.id, title: e.title, date: e.date, type: e.type }; });
       }
       if (want.indexOf("tasks") !== -1) {
-        out.tasks = KOS.store.state.todo.manual.filter(function (t) {
-          return t.text.toLowerCase().indexOf(q) !== -1;
-        }).slice(0, 10).map(function (t) { return { id: t.id, text: t.text, done: t.done }; });
+        out.tasks = KOS.reminders.query({ section: "all", search: q, sort: "due" })
+          .slice(0, 10).map(function (t) { return { id: t.id, text: t.title, done: t.done, due: t.due || null }; });
       }
       if (want.indexOf("media") === -1) { cb(null, out); return; }
       var mods = MODULES.slice();
