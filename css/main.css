@@ -384,16 +384,17 @@ small { font-size: 12.5px; }
 .rail-item .pc:empty { display: none; }
 .rail-item .pc.hot { color: var(--bg1); background: var(--accent2); font-weight: 600; }
 
+/* the user panel at the foot of the rail (Discord-style): it replaced the
+   old brand/spec-point strip and hosts the ONE #hud node, so the profile is
+   always in the bottom-left corner and one click from the popover. */
 .rail-foot {
   margin-top: auto;
-  padding: 12px 10px 2px;
+  padding: 10px 0 0;
   border-top: 1px solid var(--line2);
-  font-size: 11px;
-  color: var(--muted);
-  display: flex; flex-direction: column; gap: 3px;
+  display: flex; flex-direction: column;
 }
-.rail-brand { font-family: var(--serif); font-size: 12.5px; color: var(--text2); }
-.rail-brand .k { font-family: var(--jp); color: var(--accent); }
+.rail-foot #hud { margin-left: 0; width: 100%; }
+.rail-foot .hud { width: 100%; text-align: left; }
 
 #rail-toggle {
   position: absolute;
@@ -411,8 +412,11 @@ small { font-size: 12.5px; }
 #cols.rail-closed #rail { width: var(--rail-w-compact); padding-left: 10px; padding-right: 10px; }
 #cols.rail-closed .rail-item { padding: 8px 5px; justify-content: center; }
 #cols.rail-closed .rail-item .lbl,
-#cols.rail-closed .rail-item .pc,
-#cols.rail-closed .rail-foot { display: none; }
+#cols.rail-closed .rail-item .pc { display: none; }
+/* the user panel survives collapse — it shrinks to the avatar alone */
+#cols.rail-closed .rail-foot { padding: 10px 0 0; }
+#cols.rail-closed .rail-foot .hud { justify-content: center; padding: 5px; border-radius: 12px; }
+#cols.rail-closed .rail-foot .hud-col { display: none; }
 #cols.rail-closed .rail-item.active::after { left: -10px; }
 
 /* ---------- the stage: subnav + main ---------- */
@@ -909,14 +913,14 @@ small { font-size: 12.5px; }
   background-size: cover; background-position: center;
 }
 .hi-main { display: flex; align-items: center; gap: 20px; min-width: 300px; }
-.hi-txt { display: flex; flex-direction: column; gap: 1px; }
+.hi-txt { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .hi-txt .rank { font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: var(--accent2); font-weight: 700; }
 .hi-txt h2 { margin: 0; font-size: 25px; font-weight: 600; }
 .hi-state { font-size: 12.5px; color: var(--muted); }
 .hi-state b { color: var(--accent); font-weight: 600; }
 .hi-txt .lvl-row { margin-top: 8px; }
 .hi-txt .lvl-bar { width: 190px; }
-.hi-week { display: flex; align-items: center; gap: 12px; margin-top: 9px; }
+.hi-week { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 9px; }
 .hi-week .week-dots { display: inline-flex; gap: 5px; margin: 0; }
 .hi-stats { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .hi-stats .home-ring { flex: none; margin-right: 10px; }
@@ -1672,19 +1676,25 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
 /* ============================================================
    The Behavioural Governor
    ============================================================ */
-/* ---- topbar HUD ---- */
-#hud { display: flex; align-items: center; margin-left: auto; }
+/* ---- the governor HUD / user panel (foot of the rail) ---- */
+#hud { display: flex; align-items: center; }
 #searchbox { margin-left: 0; }
 .hud {
   display: flex; align-items: center; gap: 10px;
   background: var(--bg1);
   border: 1px solid var(--line2);
-  border-radius: 999px;
-  padding: 4px 14px 4px 5px;
+  border-radius: 14px;
+  padding: 7px 12px 7px 7px;
   box-shadow: var(--shadow-sm);
-  transition: border-color .15s, transform .15s;
+  transition: border-color .15s, background .15s;
 }
-.hud:hover { transform: translateY(-1px); border-color: var(--line); }
+.hud:hover { border-color: var(--line); background: var(--panel); }
+.hud-col { flex: 1; min-width: 0; }
+.hud-status {
+  display: block; min-width: 0;
+  font-size: 10.5px; color: var(--muted); line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .hud-strained { border-color: color-mix(in srgb, var(--warning) 55%, transparent); }
 .hud-critical { border-color: color-mix(in srgb, var(--danger) 65%, transparent); }
 .hud-col { display: flex; flex-direction: column; gap: 3px; min-width: 96px; }
@@ -3315,7 +3325,10 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 @media (max-width: 1080px) {
   #rail { width: var(--rail-w-compact); padding-left: 10px; padding-right: 10px; }
   #rail .rail-item { padding: 8px 5px; justify-content: center; }
-  #rail .rail-item .lbl, #rail .rail-item .pc, #rail .rail-foot { display: none; }
+  #rail .rail-item .lbl, #rail .rail-item .pc { display: none; }
+  /* the user panel stays — it just narrows to the avatar, like the rail items */
+  #rail .rail-foot .hud { justify-content: center; padding: 5px; border-radius: 12px; }
+  #rail .rail-foot .hud-col { display: none; }
   #rail-toggle { display: none; }
   #searchbox { flex-basis: 360px; }
   .brand .sub, .save-wrap span:last-child { display: none; }
@@ -4544,8 +4557,10 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
     padding: 5px max(8px, env(safe-area-inset-right)) calc(5px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)) !important;
     border-right: none;
     border-top: 1px solid var(--line2);
-    background: color-mix(in srgb, var(--bg1) 94%, transparent);
-    backdrop-filter: blur(10px);
+    /* opaque rather than blurred: backdrop-filter makes an element the
+       containing block for its fixed-position descendants, which trapped the
+       user panel inside the tab bar instead of letting it sit in the topbar */
+    background: var(--bg1);
     z-index: 60;
   }
   #rail .rail-item {
@@ -4567,7 +4582,19 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  #rail .rail-item .pc, #rail .rail-foot, #rail-toggle { display: none !important; }
+  #rail .rail-item .pc, #rail-toggle { display: none !important; }
+  /* the rail is a bottom tab bar here, so the user panel can't sit in it.
+     position:fixed frees it from that parent and returns it to the topbar
+     corner it used to occupy — same node, same popover, reachable on phones. */
+  #rail .rail-foot {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 7px);
+    right: max(10px, env(safe-area-inset-right));
+    z-index: 70;
+    margin: 0; padding: 0; border: none; width: auto;
+  }
+  #rail .rail-foot .hud { padding: 3px; border-radius: 999px; }
+  #rail .rail-foot .hud-col { display: none; }
   .rail-item.active::after {
     left: 20%; right: 20%; top: -6px; bottom: auto;
     width: auto; height: 3px;
@@ -4834,3 +4861,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 
 /* the six assistant page tabs wrap rather than clip on narrower desktops */
 .asst-tabs { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
+
+/* the Shrine card's honest explanation when a cover can't be embedded */
+.shrine-card-notice { display: flex; flex-direction: column; gap: var(--space-3); align-items: flex-start; margin-top: var(--space-3); }
+.shrine-card-notice:empty { display: none; }
+.shrine-card-notice .sub { margin: 0; max-width: 46ch; }

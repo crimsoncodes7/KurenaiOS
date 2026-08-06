@@ -203,8 +203,32 @@
     var sentinel = el("div", { class: "med-sentinel", "aria-hidden": "true" });
     main.appendChild(sentinel);
 
-    var results = [], rendered = 0, io = null;
-    function renderBatch() {
+    var results = [], rendered = 0, io = null, gen = 0;
+
+    /* GENERATION GUARD.
+       This area owns the lazy observer, but callers legitimately paint the
+       holder themselves for empty/error/shelf states. Before the guard, such
+       a caller cleared the holder and returned while the observer was STILL
+       live against the previous result set — so the next scroll appended the
+       old list underneath the new one, in whatever geometry the new layout
+       class implied (that is the Digital-rows-under-the-Physical-shelf bug,
+       oversized covers included). Every entry point now bumps `gen`; a batch
+       from a superseded generation is dropped on the floor. */
+    function stop() {
+      gen++;
+      if (io) { io.disconnect(); io = null; }
+      results = [];
+      rendered = 0;
+      return gen;
+    }
+    /* stop + empty the holder: the one way to leave nothing mounted */
+    function clear() {
+      var g = stop();
+      holder.innerHTML = "";
+      return g;
+    }
+    function renderBatch(myGen) {
+      if (myGen !== gen) return;                       // superseded — drop it
       var end = Math.min(rendered + BATCH, results.length);
       var frag = document.createDocumentFragment();
       for (var i = rendered; i < end; i++) frag.appendChild(makeItem(results[i], i));
@@ -214,17 +238,21 @@
     }
     /* re-render the current results without a re-query (rank moves etc.) */
     function repaint() {
-      if (io) { io.disconnect(); io = null; }
-      holder.innerHTML = "";
-      rendered = 0;
-      renderBatch();
+      var rows = results;
+      var myGen = clear();
+      results = rows;
+      renderBatch(myGen);
       if (rendered >= results.length) return;
       if (typeof IntersectionObserver === "undefined") {
-        (function chunk() { if (rendered < results.length) { renderBatch(); setTimeout(chunk, 0); } })();
+        (function chunk() {
+          if (myGen !== gen) return;
+          if (rendered < results.length) { renderBatch(myGen); setTimeout(chunk, 0); }
+        })();
         return;
       }
       io = new IntersectionObserver(function (ents) {
-        if (ents.some(function (x) { return x.isIntersecting; })) renderBatch();
+        if (myGen !== gen) return;
+        if (ents.some(function (x) { return x.isIntersecting; })) renderBatch(myGen);
       }, { root: null, rootMargin: "600px" });
       io.observe(sentinel);
     }
@@ -232,6 +260,21 @@
       results = rows;
       repaint();
     }
+    /* paint every row at once through this area (the Books shelf lens), so
+       the observer state is reset exactly as it is for a lazy list */
+    function paintAll(rows, build) {
+      var myGen = clear();
+      results = rows;
+      rendered = rows.length;
+      var frag = document.createDocumentFragment();
+      rows.forEach(function (r, i) { frag.appendChild(build(r, i)); });
+      if (myGen !== gen) return;
+      holder.appendChild(frag);
+    }
+    /* async callers claim a generation before querying and check it on the
+       way back, so a slow query for a lens you already left can't paint */
+    function begin() { return stop(); }
+    function current(token) { return token === gen; }
 
     return {
       countLine: countLine,
@@ -239,6 +282,11 @@
       sentinel: sentinel,
       start: start,
       repaint: repaint,
+      stop: stop,
+      clear: clear,
+      paintAll: paintAll,
+      begin: begin,
+      current: current,
       results: function () { return results; }
     };
   }

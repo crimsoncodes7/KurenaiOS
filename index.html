@@ -52,7 +52,6 @@
       <div id="search-results" role="listbox"></div>
     </div>
     <div class="topbar-right">
-      <div id="hud"></div>
       <button id="assistant-trigger" class="assistant-trigger" type="button"
               aria-label="Open the Kurenai assistant" aria-haspopup="dialog" aria-expanded="false"
               title="Kurenai assistant">
@@ -91,9 +90,13 @@
         <span class="glyph" aria-hidden="true">蔵</span><span class="lbl">Archive</span>
       </button>
 
+      <!-- the user panel, Discord-style: the profile lives at the foot of the
+           rail and opens the same profile popover the identity record feeds.
+           #hud is the same node the governor HUD has always painted into —
+           it simply lives here now instead of the topbar. -->
       <div class="rail-foot">
-        <span class="rail-brand"><span class="k">紅</span> Kurenai</span>
-        <span><span id="node-count"></span> spec points indexed</span>
+        <div id="hud"></div>
+        <span id="node-count" class="sr-only" aria-live="polite"></span>
       </div>
     </nav>
 

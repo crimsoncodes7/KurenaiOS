@@ -521,6 +521,9 @@
     });
 
     function refresh() {
+      /* claim the render generation before the query so a slow result for a
+         filter you already left can never paint over the current one */
+      var token = area.begin();
       KOS.mediadb.query({
         module: "vn", status: rail.status() || undefined,
         customList: rail.customList() || undefined,
@@ -528,16 +531,17 @@
         developer: devSel.value || undefined,
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
+        if (!area.current(token)) return;
         area.holder.className = p.layout === "list" ? "med-list" : "med-grid";
         if (err) {
-          area.holder.innerHTML = "";
+          area.clear();
           area.countLine.textContent = "Query failed: " + err.message;
           return;
         }
         var filtered = rail.status() || rail.customList() || genreSel.value || devSel.value || search.value;
         area.countLine.textContent = rows.length + (rows.length === 1 ? " visual novel" : " visual novels") + (filtered ? " (filtered)" : "");
         if (!rows.length) {
-          area.holder.innerHTML = "";
+          area.clear();
           area.holder.appendChild(mv.emptyState(
             filtered
               ? "Nothing matches this filter."

@@ -2468,3 +2468,125 @@ frame was purchasable and wore nothing.
 **Tests.** smoke15 gained 8 steps (28 total) covering Part A nav, the hero and
 tile contracts, the routine/meaningful split in both the ledger and Sync
 history, and the single-identity agreement across Governor / Home / popover.
+
+---
+
+## CATEGORY 6.1 — Kurenai Assistant UI/UX Overhaul · 2026-08-06
+
+The assistant frontend is now a composed KurenaiOS workspace instead of a
+generic chat shell. The controller, provider, tool, memory, confirmation,
+receipt, audit and orchestration contracts remain unchanged.
+
+**Identity and layout.** Whispering Bloom now leads with a clean emblem and a
+single approved, true-alpha Kurenai render. Idle, thinking, working, success,
+error and confirmation are expressed by CSS bloom-field state effects rather
+than alternate portraits. The page has a stable Conversation / Control room
+navigation rail, a readable chat column with a sticky composer, and a mascot
+presence rail that explains current state and the approval boundary. The
+drawer is a full-height side dialog on desktop and a full-screen dialog on
+phones, with a scrim, focus containment, Escape handling and focus restore.
+
+**Conversation grammar.** User and Kurenai messages, tool activity, unsaved
+proposals, canonical confirmations, verified receipts, warnings and errors now
+have separate visual and semantic treatments. Primary tool copy is human
+language (for example, “Reading your subjects”); the exact tool id remains
+secondary diagnostic text. Confirmation cards lead with action, target,
+consequence and expiry while retaining the canonical args in an expandable
+review. Provider output still renders through text content only.
+
+**Control room.** History uses conversation cards and a signed-out continuity
+state. Routing uses one card per request class. Memory uses user-controlled
+note cards. Permissions is grouped into category accordions with readable
+names, descriptions, immutable tier labels and the original controls.
+Activity is an immutable execution timeline. All surfaces inherit the existing
+theme tokens, have visible focus states and live-region announcements, and
+honour `prefers-reduced-motion`.
+
+**Assets.** Added
+`assets/assistant/mascot/full/kurenai-production.png` and
+`assets/assistant/logo/whispering-bloom-emblem-production.png`; both are RGBA
+PNGs with transparent corners and no baked checkerboard. Manifest v3 maps all
+six semantic states to the one production render. The old checkerboard assets
+remain only as historical source files and are no longer displayed.
+
+**Verification.** `tools/smoke29.test.js` adds seven focused steps covering
+the single controller, inert provider rendering, human activity labels,
+canonical confirmation identity, light/dark theme inheritance, true-alpha
+assets, drawer/tab focus management and smoke24–28 safety guardrails. Browser
+captures in `artifacts/category6-ui/` cover desktop light/dark, the drawer,
+chat and message states, all five management destinations, and 390px mobile
+chat/confirmation layouts. The service-worker version is
+`kos-gov4-c6ui-1`.
+
+**Deployment.** `tools/deploy_pages.sh --stage` produced a clean 106-file /
+20M runtime bundle, including the two new assistant assets. smoke1–29 passed
+on the final workspace. Cloudflare Pages deployment completed at
+`https://01019473.kurenai-os.pages.dev`; the production alias
+`https://kurenai-os.pages.dev` was then live-verified against the new service
+worker and assistant bundle.
+
+---
+
+## ADDENDUM — Collection + logging bug fixes · 2026-08-06
+
+**Part A — the Digital/Physical vault leak.** `medview.resultsArea` owns the
+lazy IntersectionObserver, but every vault legitimately painted the holder
+itself for empty/error/shelf states — clearing `holder.innerHTML` and
+returning while the observer was STILL live against the previous result set.
+The next scroll then appended the old rows underneath the new lens, and
+because the holder's class had changed to `bk-shelves`, those `.med-card`
+rows inherited shelf geometry — the enormous covers. Root cause, one place.
+
+The area now owns a **generation counter**. `stop()`/`clear()`/`start()`/
+`paintAll()`/`begin()` all bump it, and a batch from a superseded generation
+is dropped. `paintAll(rows, build)` is the supported way to render every row
+at once (the Books shelf) *through* the area rather than around it, and
+`begin()`/`current(token)` let an async caller claim a generation before the
+query so a slow result for a lens you already left can never paint. All four
+vaults (anime, books, vn, games) route their empty/error paths through
+`area.clear()`; no module touches `holder.innerHTML` any more.
+
+**Part B — the Shrine card cover.** Root cause was NOT the CDN headers.
+Measured live: AniList and Open Library both send
+`Access-Control-Allow-Origin`, and a never-before-requested AniList url loads
+clean under `crossOrigin="anonymous"`. But the Shrine list renders every
+cover as an ordinary `<img>` *before* you press ✦ Card, putting a non-CORS
+response in the HTTP cache — and the later crossOrigin load is served from
+that cached response, which carries no ACAO, so it fails outright. The old
+code read that as "no cover" and drew the kanji.
+
+The resolver now fetches the bytes itself (`cache:"reload"`, `mode:"cors"`)
+and decodes from a `blob:` url, which is same-origin and therefore always
+exportable. Order: **stored local (data:/blob:) → fetched remote →
+crossOrigin image → diagnosis → placeholder**. VNDB (`t.vndb.org`) genuinely
+sends no CORS header at all, so it is diagnosed honestly and the card says
+which host refused and offers "⌖ Use a local cover…" rather than silently
+degrading. Also fixed: zero-size images no longer divide by zero in the
+source-rect maths, `toBlob` on a tainted canvas is caught (it throws rather
+than yielding null), the preview no longer renders blank when export fails,
+and the card waits for `document.fonts.ready` so the exported PNG uses the
+app's own typefaces.
+
+**Part C — the profile moved to the rail foot (Discord-style).** `#hud` — the
+same node the governor HUD has always painted into — moved from the topbar
+into `.rail-foot`, replacing the old brand/spec-points strip (`node-count`
+survives as an `.sr-only` live region). The chip gained the status line and
+the popover now measures its anchor and opens upward/right from a bottom-left
+corner instead of assuming a topbar. Collapsed rail shows the avatar alone.
+
+On the phone tier the rail IS the bottom tab bar, so the panel is
+`position: fixed` back into the topbar corner — which required dropping
+`backdrop-filter` from the phone rail: a `backdrop-filter` makes an element
+the containing block for its fixed-position descendants, which trapped the
+panel inside the bar. The bar is now opaque instead of blurred.
+
+**Fixed in passing:** `.hi-txt` had no `min-width: 0` and `.hi-week` did not
+wrap, so the Home profile band overflowed its container at 375px.
+
+**Tests.** smoke11 gained the lens-switch regression (with an
+`IntersectionObserver` stub, without which jsdom silently takes the
+setTimeout fallback and never exercises the real path — verified to FAIL
+against the pre-fix code) plus an empty-lens step. smoke4 gained five steps
+pinning the cover fallback ORDER (local first with zero network, fetch with
+`cache:reload`, the crossOrigin retry, unreachable vs cors diagnosis, and the
+no-cover path) and one pinning the rail user panel.

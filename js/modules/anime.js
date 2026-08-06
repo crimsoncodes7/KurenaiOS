@@ -335,22 +335,26 @@
     KOS.mediadb.distinct("tags", function (err, ts) { if (!err) mv.fillSel(tagSel, ts, "All tags"); });
 
     function refresh() {
+      /* claim the render generation before the query so a slow result for a
+         filter you already left can never paint over the current one */
+      var token = area.begin();
       KOS.mediadb.query({
         module: "anime", status: rail.status() || undefined,
         customList: rail.customList() || undefined,
         genre: genreSel.value || undefined, tag: tagSel.value || undefined,
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
+        if (!area.current(token)) return;
         area.holder.className = p.layout === "list" ? "med-list" : "med-grid";
         if (err) {
-          area.holder.innerHTML = "";
+          area.clear();
           area.countLine.textContent = "Query failed: " + err.message;
           return;
         }
         area.countLine.textContent = rows.length + (rows.length === 1 ? " entry" : " entries") +
           (rail.status() || rail.customList() || genreSel.value || tagSel.value || search.value ? " (filtered)" : "");
         if (!rows.length) {
-          area.holder.innerHTML = "";
+          area.clear();
           area.holder.appendChild(mv.emptyState(
             search.value || rail.status() || rail.customList() || genreSel.value || tagSel.value
               ? "Nothing matches this filter."

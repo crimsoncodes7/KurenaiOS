@@ -40,6 +40,23 @@ window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true; window.__kosAutoConfirm = true;
 if (!window.AbortController) window.AbortController = class { constructor() { this.signal = {}; } abort() {} };
 
+/* jsdom ships no IntersectionObserver, so without this stub the lazy renderer
+   silently takes its setTimeout fallback and the real observer path — the one
+   that leaked a previous lens's rows into the next — is never exercised.
+   Instances are tracked so a test can fire the sentinel deliberately. */
+const ioInstances = [];
+window.IntersectionObserver = class {
+  constructor(cb) { this.cb = cb; this.disconnected = false; ioInstances.push(this); }
+  observe(el) { this.el = el; }
+  unobserve() {}
+  disconnect() { this.disconnected = true; }
+};
+/* fire every observer that still believes it is live */
+function fireSentinels() {
+  ioInstances.filter(o => !o.disconnected)
+    .forEach(o => o.cb([{ isIntersecting: true, target: o.el }]));
+}
+
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;
@@ -310,6 +327,83 @@ step("digital tab (default): both series show; physical tab: owned only, bookshe
   if (/Frieren/.test(main.querySelector(".bk-shelves").textContent)) throw new Error("digital-only series on the physical shelf");
   if (!/with owned volumes/.test(main.querySelector(".med-count").textContent)) throw new Error("count line not lens-aware");
 });
+/* The reported bug: switching Digital → Physical left the Digital list's lazy
+   IntersectionObserver live against the OLD result set, so the next batch was
+   appended UNDER the shelf — in shelf geometry, which is what blew the covers
+   up. The area now owns a generation counter; a superseded batch is dropped. */
+step("lens switch tears the previous lens down — no stale rows, no stale observer", async () => {
+  /* enough digital-only rows that the lazy renderer cannot finish in one batch */
+  const bulk = [];
+  for (let i = 0; i < 80; i++) {
+    const rec = await p(cb => KOS.mediadb.add({ module: "books", title: "Filler Series " + i,
+      status: "inProgress", progress: { current: i, total: 100 } }, cb));
+    bulk.push(rec.id);
+  }
+  KOS.store.state.media.books = { layout: "grid", sort: "title", tab: "digital", physLayout: "shelf" };
+  KOS.show("books");
+  const main = document.getElementById("main");
+  await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
+
+  const tabs = main.querySelectorAll(".bk-tab");
+  tabs[1].click();                                  // → Physical (shelf layout)
+  await waitFor(() => main.querySelectorAll(".bk-shelf-series").length === 1, 5000);
+
+  /* scroll the sentinel into view exactly as a real browser would: any
+     observer still bound to the Digital results now tries to append them */
+  fireSentinels();
+  fireSentinels();
+  await new Promise(r => setTimeout(r, 120));
+
+  const holder = main.querySelector(".bk-shelves");
+  if (!holder) throw new Error("physical lens did not mount its shelf holder");
+  if (main.querySelectorAll(".bk-card").length)
+    throw new Error("digital grid cards are still mounted under the Physical lens");
+  if (/Filler Series/.test(holder.textContent))
+    throw new Error("stale digital rows were appended into the shelf");
+  if (main.querySelectorAll(".med-grid").length)
+    throw new Error("a digital grid holder is still mounted");
+
+  /* and back again, repeatedly, must stay stable */
+  for (let k = 0; k < 3; k++) {
+    main.querySelectorAll(".bk-tab")[0].click();
+    await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
+    main.querySelectorAll(".bk-tab")[1].click();
+    await waitFor(() => main.querySelectorAll(".bk-shelf-series").length === 1, 5000);
+    fireSentinels();
+  }
+  await new Promise(r => setTimeout(r, 120));
+  if (main.querySelectorAll(".bk-card").length) throw new Error("repeat switching leaked digital cards");
+  if (main.querySelectorAll(".bk-shelves").length !== 1) throw new Error("more than one shelf holder mounted");
+
+  /* category switching AFTER a lens switch still works */
+  const fmt = [...main.querySelectorAll(".status-sel")].find(s => s.getAttribute("aria-label") === "Filter by format");
+  if (!fmt) throw new Error("format filter missing");
+  fmt.value = "lightNovel";
+  fmt.dispatchEvent(new window.Event("change", { bubbles: true }));
+  await new Promise(r => setTimeout(r, 150));
+  if (main.querySelectorAll(".bk-card").length) throw new Error("filtering after a lens switch resurrected the grid");
+
+  for (const id of bulk) await p(cb => KOS.mediadb.remove(id, cb));
+  fmt.value = "";
+  fmt.dispatchEvent(new window.Event("change", { bubbles: true }));
+});
+
+step("an empty lens mounts nothing but its empty state", async () => {
+  KOS.store.state.media.books = { layout: "grid", sort: "title", tab: "digital", physLayout: "shelf" };
+  KOS.show("books");
+  const main = document.getElementById("main");
+  await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
+  const search = main.querySelector('input[type="search"]');
+  search.value = "zzzz-no-such-series-zzzz";
+  search.dispatchEvent(new window.Event("input", { bubbles: true }));
+  await waitFor(() => !!main.querySelector(".med-empty"), 5000);
+  await new Promise(r => setTimeout(r, 120));
+  if (main.querySelectorAll(".bk-card").length) throw new Error("rows survived under the empty state");
+  search.value = "";
+  search.dispatchEvent(new window.Event("input", { bubbles: true }));
+  await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
+});
+
 step("a pre-3i saved 'shelf' layout migrates to the Physical tab", async () => {
   KOS.store.state.media.books = { layout: "shelf", sort: "updated" };
   KOS.show("books");

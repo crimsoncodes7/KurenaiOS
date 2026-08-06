@@ -435,6 +435,115 @@ step("OS home shows the live Collection Matrix card (not Coming soon)", async ()
 });
 
 /* ============ runner ============ */
+/* ============ Shrine card: the cover fallback order ============
+   The card broke because the Shrine list renders every cover as a plain
+   <img> first, which puts a NON-CORS response in the HTTP cache; a later
+   crossOrigin load of the same url is then served from it and fails. The
+   resolver must therefore fetch the bytes itself. These steps pin the
+   ORDER of attempts — the part that is a contract rather than a detail. */
+console.log("== shrine card cover resolution ==");
+
+/* a controllable stand-in for Image + fetch: records what was attempted */
+function withImageStubs(plan, run) {
+  const attempts = [];
+  const RealImage = window.Image;
+  const realFetch = window.fetch;
+  window.Image = class {
+    constructor() { this.crossOrigin = null; this._src = ""; this.naturalWidth = 0; this.naturalHeight = 0; }
+    set src(v) {
+      this._src = v;
+      attempts.push({ kind: "img", url: v, crossOrigin: this.crossOrigin || null });
+      const ok = plan.img(v, this.crossOrigin || null);
+      setTimeout(() => {
+        if (ok) { this.naturalWidth = 200; this.naturalHeight = 300; this.onload && this.onload(); }
+        else this.onerror && this.onerror();
+      }, 0);
+    }
+    get src() { return this._src; }
+  };
+  window.fetch = (url, opts) => {
+    attempts.push({ kind: "fetch", url, cache: (opts || {}).cache, mode: (opts || {}).mode });
+    return plan.fetch(url)
+      ? Promise.resolve({ ok: true, blob: () => Promise.resolve({ type: "image/png", size: 10 }) })
+      : Promise.reject(new Error("Failed to fetch"));
+  };
+  const realCreate = window.URL.createObjectURL, realRevoke = window.URL.revokeObjectURL;
+  window.URL.createObjectURL = () => "blob:stub/1";
+  window.URL.revokeObjectURL = () => {};
+  return Promise.resolve(run(attempts)).finally(() => {
+    window.Image = RealImage; window.fetch = realFetch;
+    window.URL.createObjectURL = realCreate; window.URL.revokeObjectURL = realRevoke;
+  });
+}
+const resolve = e => new Promise(r => KOS.shrineResolveCover(e, (img, info) => r({ img, info })));
+
+step("a stored local cover is used first — no network at all", async () => {
+  await withImageStubs({ img: () => true, fetch: () => true }, async attempts => {
+    const out = await resolve({ module: "anime", coverUrl: "data:image/png;base64,AAAA" });
+    if (!out.img || out.info.source !== "local") throw new Error("local cover not used: " + JSON.stringify(out.info));
+    if (attempts.some(a => a.kind === "fetch")) throw new Error("a local cover must never hit the network");
+    if (attempts[0].crossOrigin) throw new Error("a data: url must not be requested crossOrigin");
+  });
+});
+
+step("a remote cover is FETCHED with cache:reload — the cache-poisoning cure", async () => {
+  await withImageStubs({ img: () => true, fetch: () => true }, async attempts => {
+    const out = await resolve({ module: "anime", coverUrl: "https://s4.anilist.co/cover.jpg" });
+    if (!out.img || out.info.source !== "remote") throw new Error("remote cover not used: " + JSON.stringify(out.info));
+    const f = attempts.find(a => a.kind === "fetch");
+    if (!f) throw new Error("the remote cover was not fetched");
+    if (f.cache !== "reload") throw new Error("fetch must bypass the poisoned cache entry, got cache=" + f.cache);
+    if (f.mode !== "cors") throw new Error("fetch must be a cors request");
+    if (out.info.release) out.info.release();
+  });
+});
+
+step("fetch blocked (no CORS) → crossOrigin image is tried, then the honest diagnosis", async () => {
+  /* VNDB's real shape: fetch rejects, crossOrigin errors, a plain img loads */
+  await withImageStubs({ img: (u, co) => !co, fetch: () => false }, async attempts => {
+    const out = await resolve({ module: "vn", coverUrl: "https://t.vndb.org/cv/1.jpg" });
+    if (out.img) throw new Error("a cover that cannot be exported must not be drawn");
+    if (out.info.reason !== "cors") throw new Error("expected a cors diagnosis, got " + JSON.stringify(out.info));
+    if (out.info.host !== "t.vndb.org") throw new Error("the message must name the real host");
+    const order = attempts.map(a => a.kind + (a.crossOrigin ? ":co" : ""));
+    if (order[0] !== "fetch") throw new Error("fetch must be attempted first: " + order.join(","));
+    if (!order.includes("img:co")) throw new Error("crossOrigin image must still be attempted: " + order.join(","));
+  });
+});
+
+step("a url that loads nowhere reports unreachable, not a CORS excuse", async () => {
+  await withImageStubs({ img: () => false, fetch: () => false }, async () => {
+    const out = await resolve({ module: "anime", coverUrl: "https://s4.anilist.co/gone.jpg" });
+    if (out.img || out.info.reason !== "unreachable") throw new Error(JSON.stringify(out.info));
+  });
+});
+
+step("no cover set → the placeholder path, with nothing to explain", async () => {
+  await withImageStubs({ img: () => true, fetch: () => true }, async attempts => {
+    const out = await resolve({ module: "anime", coverUrl: "" });
+    if (out.img || out.info.reason !== "none") throw new Error(JSON.stringify(out.info));
+    if (attempts.length) throw new Error("an entry with no cover must attempt nothing");
+  });
+});
+
+/* ============ the user panel (profile at the foot of the rail) ============ */
+console.log("== rail user panel ==");
+step("the HUD lives in the rail foot, not the topbar, and opens the profile", () => {
+  const hud = document.getElementById("hud");
+  if (!hud) throw new Error("#hud is missing");
+  if (document.querySelectorAll("#hud").length !== 1) throw new Error("#hud must be unique");
+  if (!hud.closest(".rail-foot")) throw new Error("#hud is not in the rail foot");
+  if (hud.closest(".topbar-right")) throw new Error("#hud is still in the topbar");
+  if (document.querySelector(".rail-foot .rail-brand")) throw new Error("the old brand/spec-point footer is still there");
+  KOS.refreshHUD();
+  const btn = document.querySelector("#hud .hud");
+  if (!btn) throw new Error("the HUD chip did not render");
+  if (btn.getAttribute("aria-haspopup") !== "dialog") throw new Error("the chip must advertise its popover");
+  btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  if (!document.querySelector(".profile-pop .profile-card")) throw new Error("clicking the panel did not open the profile");
+  KOS.governor.closeProfilePopover();
+});
+
 (async () => {
   for (const [name, fn] of steps) {
     try { await fn(); console.log("  ok  " + name); }

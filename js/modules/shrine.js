@@ -9,9 +9,126 @@
   var el = KOS.ui.el;
 
   /* ---- the collector card: a canvas render, shareable / saveable ----
-     Drawn entirely in canvas so it exports cleanly; the cover is loaded
-     crossOrigin and skipped if it would taint the canvas (AniList/VNDB
-     CDNs vary), so Save/Copy/Share always work. */
+     Drawn entirely in canvas so it exports cleanly.
+
+     COVER RESOLUTION (all verified live in-browser, 2026-08):
+
+     · A stored local cover is a data: URL — same-origin, never taints,
+       always exportable. Tried FIRST.
+     · THE ROOT CAUSE of the blank card: the Shrine list renders every cover
+       as an ordinary <img> (no crossOrigin) BEFORE you press ✦ Card. That
+       puts a non-CORS response in the HTTP cache, and a later
+       crossOrigin="anonymous" load of the SAME url is then served from that
+       cached response — which carries no Access-Control-Allow-Origin, so it
+       fails outright. Measured: a never-before-requested AniList url loads
+       clean under crossOrigin; the identical url after one plain load
+       errors. AniList/Open Library DO send the header — the cache was
+       eating it.
+       The cure is to fetch the bytes ourselves with cache:"reload" and
+       decode from a blob: url, which is same-origin and therefore always
+       exportable.
+     · VNDB (t.vndb.org) genuinely sends no CORS header at all, so neither
+       fetch nor a crossOrigin image can read it. That cover can be shown on
+       screen but never baked into an exportable PNG, so it is deliberately
+       NOT drawn: an honest placeholder plus a one-click remedy beats a card
+       whose Save/Copy/Share are all broken.
+
+     Order: local → fetched remote → crossOrigin remote → diagnose →
+     placeholder. */
+
+  /* does this canvas still allow readback? cheap 8x8 probe */
+  function exportable(img) {
+    try {
+      var c = document.createElement("canvas");
+      c.width = 8; c.height = 8;
+      c.getContext("2d").drawImage(img, 0, 0);
+      c.toDataURL("image/png");
+      return true;
+    } catch (taint) { return false; }
+  }
+  function loadImage(url, useCrossOrigin, cb) {
+    var img = new Image();
+    var settled = false;
+    function done(ok) { if (settled) return; settled = true; cb(ok ? img : null); }
+    if (useCrossOrigin) img.crossOrigin = "anonymous";
+    img.onload = function () {
+      /* a decoded image with no intrinsic size draws nothing and would make
+         the source-rect maths divide by zero */
+      done(img.naturalWidth > 0 && img.naturalHeight > 0);
+    };
+    img.onerror = function () { done(false); };
+    img.src = url;
+    /* an image already in cache can complete before the handlers attach */
+    if (img.complete && img.naturalWidth > 0) done(true);
+  }
+  function hostOf(url) {
+    try { return new URL(url, location.href).hostname; } catch (e) { return "that host"; }
+  }
+  /* fetch the bytes and decode from a blob: url. cache:"reload" is the whole
+     point — it steps over the non-CORS entry the Shrine list already put in
+     the HTTP cache. The blob is same-origin, so the canvas never taints. */
+  function fetchAsImage(url, cb) {
+    if (typeof fetch !== "function" || typeof URL === "undefined" || !URL.createObjectURL) { cb(null); return; }
+    var objectUrl = null;
+    fetch(url, { mode: "cors", credentials: "omit", cache: "reload" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.blob();
+      })
+      .then(function (blob) {
+        if (!blob || !/^image\//i.test(blob.type || "")) throw new Error("not an image");
+        objectUrl = URL.createObjectURL(blob);
+        loadImage(objectUrl, false, function (img) {
+          if (!img) { URL.revokeObjectURL(objectUrl); cb(null); return; }
+          /* the caller releases the url once the card has been drawn */
+          cb(img, function () { URL.revokeObjectURL(objectUrl); });
+        });
+      })
+      .catch(function () {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        cb(null);
+      });
+  }
+
+  /* cb(img|null, info) — info.reason is why there is no usable image;
+     info.release, when present, must be called once the card is drawn */
+  function resolveCover(e, cb) {
+    var url = String(e.coverUrl || "").trim();
+    if (!url) { cb(null, { reason: "none" }); return; }
+
+    /* 1 — a stored local/cached image: no network, no CORS, always exportable */
+    if (/^data:/i.test(url) || /^blob:/i.test(url)) {
+      loadImage(url, false, function (img) {
+        if (img && exportable(img)) { cb(img, { source: "local" }); return; }
+        cb(null, { reason: "unreadable" });
+      });
+      return;
+    }
+
+    /* 2 — fetch the remote bytes ourselves (cache-proof, taint-proof) */
+    fetchAsImage(url, function (img, release) {
+      if (img && exportable(img)) { cb(img, { source: "remote", release: release }); return; }
+      if (release) release();
+      /* 3 — no fetch (or it was blocked): a crossOrigin image can still
+             succeed when nothing has poisoned the cache yet */
+      loadImage(url, true, function (co) {
+        if (co && exportable(co)) { cb(co, { source: "remote" }); return; }
+        /* 4 — say WHY: does the url load at all without the CORS request? */
+        loadImage(url, false, function (plain) {
+          cb(null, plain ? { reason: "cors", host: hostOf(url) } : { reason: "unreachable", host: hostOf(url) });
+        });
+      });
+    });
+  }
+  /* the exported PNG should use the app's own typefaces, not whatever the
+     canvas falls back to before the webfonts land */
+  function whenFontsReady(cb) {
+    if (!document.fonts || !document.fonts.ready) { cb(); return; }
+    var done = false;
+    function go() { if (done) return; done = true; cb(); }
+    document.fonts.ready.then(go).catch(go);
+    setTimeout(go, 1200);          // never block the card on a slow font
+  }
   function drawStars(ctx, x, y, score, accent) {
     var full = Math.round((score || 0) / 2);   // /10 → /5
     ctx.font = "34px serif"; ctx.textAlign = "left"; ctx.textBaseline = "middle";
@@ -43,12 +160,14 @@
     /* cover / kanji art panel */
     var ax = pad + 26, ay = pad + 62, aw = W - (pad + 26) * 2, ah = 440;
     ctx.save(); roundRect(ctx, ax, ay, aw, ah, 16); ctx.clip();
-    if (coverImg) {
+    var iw = coverImg ? (coverImg.naturalWidth || coverImg.width || 0) : 0;
+    var ih = coverImg ? (coverImg.naturalHeight || coverImg.height || 0) : 0;
+    if (coverImg && iw > 0 && ih > 0) {
       var crop = KOS.imageCrop.value(e.coverCrop);
-      var scale = Math.max(aw / coverImg.width, ah / coverImg.height) * crop.zoom;
-      var sw = aw / scale, sh = ah / scale;
-      var sx = (coverImg.width - sw) * crop.x / 100;
-      var sy = (coverImg.height - sh) * crop.y / 100;
+      var scale = Math.max(aw / iw, ah / ih) * crop.zoom;
+      var sw = Math.min(iw, aw / scale), sh = Math.min(ih, ah / scale);
+      var sx = (iw - sw) * crop.x / 100;
+      var sy = (ih - sh) * crop.y / 100;
       ctx.drawImage(coverImg, sx, sy, sw, sh, ax, ay, aw, ah);
     } else {
       var g2 = ctx.createLinearGradient(ax, ay, ax, ay + ah);
@@ -111,41 +230,74 @@
   function shrineCardModal(e) {
     var overlay = KOS.medview.modalOverlay();
     var preview = el("div", { class: "shrine-card-preview" }, [el("p", { class: "sub", text: "Rendering…" })]);
+    var notice = el("div", { class: "shrine-card-notice" });
     var actions = el("div", { class: "shrine-card-actions" });
+    var closed = false;
     overlay.appendChild(el("div", { class: "modal shrine-card-modal" }, [
       el("div", { class: "modal-h" }, [
         el("b", { text: "祠 Shrine card" }),
         el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", onclick: overlay.close })
       ]),
-      preview, actions
+      preview, notice, actions
     ]));
+    var innerClose = overlay.close;
+    overlay.close = function () { closed = true; innerClose(); };
     document.body.appendChild(overlay);
 
-    function build(coverImg) {
+    function build(coverImg, info) {
+      if (closed) return;
       renderCard(e, coverImg, function (cv) {
-        var dataUrl;
+        /* the pixels are on the canvas now — the blob url has done its job */
+        if (info && info.release) { info.release(); info.release = null; }
+        if (closed) return;
+        var dataUrl = null;
         try { dataUrl = cv.toDataURL("image/png"); }
-        catch (taint) { if (coverImg) { build(null); return; } dataUrl = null; }   // tainted → re-render without cover
+        catch (taint) {
+          /* belt and braces: resolveCover already proves exportability, so
+             reaching here means something else tainted the canvas */
+          if (coverImg) { build(null, { reason: "cors", host: hostOf(e.coverUrl || "") }); return; }
+        }
         preview.innerHTML = "";
-        if (dataUrl) preview.appendChild(el("img", { class: "shrine-card-img", src: dataUrl, alt: e.title + " collector card" }));
+        if (dataUrl) {
+          preview.appendChild(el("img", { class: "shrine-card-img", src: dataUrl, alt: e.title + " collector card" }));
+        } else {
+          preview.appendChild(el("p", { class: "fc-empty", text: "This browser would not let the card be rendered to an image." }));
+        }
+        renderNotice(info);
         actions.innerHTML = "";
         var msgIn = el("input", { type: "text", class: "todo-in", placeholder: "Add a message to share (optional)…" });
         actions.appendChild(msgIn);
-        actions.appendChild(el("div", { class: "lab-controls" }, [
+        var btns = el("div", { class: "lab-controls" }, [
           navigator.share ? el("button", { class: "btn primary", text: "⇪ Share", onclick: function () { shareCard(cv, e, msgIn.value); } }) : null,
           el("button", { class: "btn", text: "⤓ Save to device", onclick: function () { saveCard(dataUrl, e); } }),
           el("button", { class: "btn", text: "⧉ Copy", onclick: function () { copyCard(cv); } })
-        ].filter(Boolean)));
+        ].filter(Boolean));
+        if (!dataUrl) btns.querySelectorAll(".btn").forEach(function (b) { b.disabled = true; });
+        actions.appendChild(btns);
       });
     }
-    /* try the cover crossOrigin; fall back to a kanji card if it can't load */
-    if (e.coverUrl) {
-      var img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = function () { build(img); };
-      img.onerror = function () { build(null); };
-      img.src = e.coverUrl;
-    } else build(null);
+
+    /* say plainly why a cover is missing, and offer the one thing that fixes
+       it — storing the image locally, which is exportable forever after */
+    function renderNotice(info) {
+      notice.innerHTML = "";
+      if (!info || info.source) return;                 // a cover was used
+      var msg;
+      if (info.reason === "none") return;               // no cover set: placeholder is correct, silently
+      else if (info.reason === "cors") msg = "The cover loads on screen but " + info.host + " won't let another site read its pixels, so it can't be baked into a shareable image.";
+      else if (info.reason === "unreachable") msg = "The cover URL didn't load, so the card is using the module mark.";
+      else msg = "That cover couldn't be read, so the card is using the module mark.";
+      notice.appendChild(el("p", { class: "sub", text: msg }));
+      notice.appendChild(el("button", { class: "btn subtle", text: "⌖ Use a local cover…", onclick: function () {
+        overlay.close();
+        KOS.mediaEditor(e, function () { KOS.show("shrine", undefined, { _nav: true }); });
+      } }));
+    }
+
+    whenFontsReady(function () {
+      if (closed) return;
+      resolveCover(e, function (img, info) { build(img, info); });
+    });
   }
   function saveCard(dataUrl, e) {
     if (!dataUrl) { KOS.ui.toast("Could not render the image.", true); return; }
@@ -153,9 +305,14 @@
     document.body.appendChild(a); a.click(); a.remove();
     KOS.ui.toast("Saved.");
   }
+  /* toBlob on a tainted canvas throws SecurityError rather than yielding null */
+  function toBlobSafe(cv, cb) {
+    try { cv.toBlob(function (blob) { cb(blob || null); }); }
+    catch (err) { cb(null); }
+  }
   function copyCard(cv) {
     if (!navigator.clipboard || !window.ClipboardItem) { KOS.ui.toast("Copy isn't supported here — use Save instead.", true); return; }
-    cv.toBlob(function (blob) {
+    toBlobSafe(cv, function (blob) {
       if (!blob) { KOS.ui.toast("Could not copy.", true); return; }
       navigator.clipboard.write([new window.ClipboardItem({ "image/png": blob })])
         .then(function () { KOS.ui.toast("Card copied to the clipboard."); })
@@ -163,7 +320,7 @@
     });
   }
   function shareCard(cv, e, msg) {
-    cv.toBlob(function (blob) {
+    toBlobSafe(cv, function (blob) {
       if (!blob) { KOS.ui.toast("Could not render for sharing.", true); return; }
       var file = new File([blob], "shrine_" + e.title.replace(/[^\w]+/g, "_").slice(0, 30) + ".png", { type: "image/png" });
       var data = { title: e.title + " — Kurenai Shrine", text: msg || (e.title + " is enshrined in my Kurenai collection.") };
@@ -171,6 +328,8 @@
       navigator.share(data).catch(function () {});
     });
   }
+  /* exposed for the suites: the resolution order is a contract, not a detail */
+  KOS.shrineResolveCover = resolveCover;
   KOS.shrineCard = shrineCardModal;
 
   KOS.views.shrine = function (main) {

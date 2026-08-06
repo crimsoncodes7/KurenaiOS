@@ -1084,9 +1084,15 @@
       };
       /* the Physical lens IS a filter on the same vault: owned volumes only */
       if (physical) opts.owned = true;
+      /* claim the render generation BEFORE the query: switching lens mid-flight
+         (or typing in search) must not let the older query paint the newer
+         lens — and it tears down the previous lens's lazy observer at once,
+         so nothing from it can ever be appended again */
+      var token = area.begin();
       KOS.mediadb.query(opts, function (err, rows) {
+        if (!area.current(token)) return;              // a newer lens/filter won
         if (err) {
-          area.holder.innerHTML = "";
+          area.clear();
           area.countLine.textContent = "Query failed: " + err.message;
           return;
         }
@@ -1107,7 +1113,7 @@
             (physical ? " with owned volumes" : "") + (filtered ? " (filtered)" : "") +
             (activeShelf ? (reorderMode ? " · drag or ▲▼ to rank this shelf" : " · List layout (no other filters) unlocks ranking") : "");
           if (!rowsOrdered.length) {
-            area.holder.innerHTML = "";
+            area.clear();
             area.holder.appendChild(mv.emptyState(
               filtered
                 ? "Nothing matches this filter."
@@ -1122,8 +1128,9 @@
             return;
           }
           if (lay === "shelf") {
-            area.holder.innerHTML = "";
-            rowsOrdered.forEach(function (e) { area.holder.appendChild(shelfFor(e, refreshAll)); });
+            /* through the area, not around it — the shelf paints every row at
+               once but must still reset the lazy observer */
+            area.paintAll(rowsOrdered, function (e) { return shelfFor(e, refreshAll); });
             return;
           }
           area.start(rowsOrdered);

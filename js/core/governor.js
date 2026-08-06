@@ -700,9 +700,18 @@
     var btn = document.querySelector("#hud .hud");
     if (btn) {
       btn.setAttribute("aria-expanded", "true");
+      /* anchor to whichever corner the chip actually sits in: at the foot of
+         the rail it opens upward and to the right, in a topbar it drops down
+         and to the left. Measured, not assumed, so a moved chip still works. */
       var r = btn.getBoundingClientRect();
-      popNode.style.top = Math.round(r.bottom + 8) + "px";
-      popNode.style.right = Math.max(8, Math.round(window.innerWidth - r.right)) + "px";
+      var ph = popNode.offsetHeight || 420;
+      var pw = popNode.offsetWidth || 320;
+      var vh = window.innerHeight, vw = window.innerWidth;
+      var openUp = r.top > vh / 2;
+      var top = openUp ? Math.max(8, r.top - ph - 8) : Math.min(vh - ph - 8, r.bottom + 8);
+      popNode.style.top = Math.round(Math.max(8, top)) + "px";
+      if (r.left < vw / 2) popNode.style.left = Math.round(Math.min(r.left, vw - pw - 8)) + "px";
+      else popNode.style.right = Math.max(8, Math.round(vw - r.right)) + "px";
     }
     document.addEventListener("keydown", onPopKey, true);
     document.addEventListener("mousedown", onPopOutside, true);
@@ -720,12 +729,16 @@
     var btn = el("button", { class: "hud hud-" + state, "aria-haspopup": "dialog", "aria-expanded": "false",
       title: "Behavioural Governor — HP " + g.hp + " · Level " + li.level + " · " + g.gold + " gold",
       onclick: function () { if (popNode) closeProfilePopover(); else openProfilePopover(); } }, [
-      avatarNode(30),
+      avatarNode(32),
       el("span", { class: "hud-col" }, [
         el("span", { class: "hud-row" }, [
           el("span", { class: "hud-lv", text: "Lv " + li.level }),
           el("span", { class: "hud-gold", text: "◈ " + g.gold })
         ]),
+        /* the status line, Discord-style, when one is set */
+        String(g.status || "").trim()
+          ? el("span", { class: "hud-status", text: String(g.status).trim() })
+          : null,
         el("span", { class: "hud-bars" }, [
           el("span", { class: "hud-bar hud-hp", title: "HP " + g.hp + "/100 — " + hpStateInfo().label }, [
             el("span", { style: "width:" + g.hp + "%" })]),
