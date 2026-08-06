@@ -215,7 +215,7 @@ step("editor: fleshing out a draft saves every axis; steam link is a working sto
   const statusSel = modal.querySelectorAll("select")[0];
   statusSel.value = "inProgress";
   const sessionsBefore = KOS.store.state.sessions.length;
-  [...modal.querySelectorAll("button")].find(b => b.textContent === "Save").click();
+  [...modal.querySelectorAll("button")].find(b => b.textContent === "Save changes").click();
   await waitFor(() => !document.querySelector(".gm-modal"), 3000);
   const back = await p(cb => KOS.mediadb.get(hadesId, cb));
   if (back.developer !== "Supergiant Games" || back.playtimeHours !== 35 ||
@@ -236,7 +236,7 @@ step("tier change logs a 'tier' session and nudges status to completed", async (
   const statusSel = modal.querySelectorAll("select")[0];
   if (statusSel.value !== "completed") throw new Error("tier→status nudge missing");
   const sessionsBefore = KOS.store.state.sessions.length;
-  [...modal.querySelectorAll("button")].find(b => b.textContent === "Save").click();
+  [...modal.querySelectorAll("button")].find(b => b.textContent === "Save changes").click();
   await waitFor(() => !document.querySelector(".gm-modal"), 3000);
   const back = await p(cb => KOS.mediadb.get(hadesId, cb));
   if (back.completionTier !== "storyComplete" || back.status !== "completed") throw new Error("tier not saved");
@@ -294,19 +294,15 @@ step("push eligibility: a game is never eligible, whatever its ids/syncSource cl
 
 /* ============ 4 · analytics ============ */
 console.log("== analytics ==");
-step("vault page: stat strip + tier/platform/backlog charts render", async () => {
+step("vault page removes bottom statistics/charts and keeps dedicated Stats", async () => {
   KOS.show("game");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".gm-stats .stat-card").length > 0, 4000);
-  const strip = main.querySelector(".gm-stats .stat-strip");
-  if (!/Games tracked/.test(strip.textContent) || !/Hours logged/.test(strip.textContent) ||
-      !/100% \/ platinum/.test(strip.textContent)) throw new Error("stat strip labels");
-  await waitFor(() => main.querySelectorAll(".gm-charts .cs-chart").length > 0, 4000);
-  const charts = main.querySelector(".gm-charts").textContent;
-  if (!/Completion tiers/.test(charts)) throw new Error("tier chart missing");
-  if (!/Platforms/.test(charts)) throw new Error("platform chart missing");
-  if (!/Backlog burn-down/.test(charts)) throw new Error("burn-down missing (adds + tier sessions exist this run)");
-  if (!/backlog GREW|backlog SHRANK|held steady/.test(charts)) throw new Error("burn-down verdict missing");
+  await waitFor(() => main.querySelector(".med-toolbar"), 4000);
+  if (main.querySelector(".gm-stats, .gm-charts")) throw new Error("obsolete game analytics still mounted");
+  KOS.medview.statsModal("game", KOS.media.module("game"));
+  await waitFor(() => document.querySelector(".stats-modal"), 3000);
+  if (!document.querySelector(".stats-modal")) throw new Error("dedicated stats did not open");
+  document.querySelector(".stats-modal").closest(".modal-ov").remove();
 });
 step("backlogWeeks: bulk-add counts by its count, tier reaches count as done", async () => {
   const weeks = KOS.games.backlogWeeks(2);

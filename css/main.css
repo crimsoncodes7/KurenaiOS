@@ -1942,11 +1942,12 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
 .dl-title { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dl-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); }
 
-/* calendar */
+/* calendar — the base layer. Every coloured surface reads ONE custom
+   property, --ev-hue: a type sets it, an explicit category colour overrides
+   it, and chips/keys/swatches never name a palette value themselves. */
 .cal-head { margin-bottom: 8px; }
 .cal-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .cal-title { font-family: var(--serif); font-size: 20px; margin: 0 6px; min-width: 170px; text-align: center; }
-.cal-thresh { display: flex; align-items: center; gap: 10px; margin: 8px 0 14px; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .cal-dow { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); text-align: center; padding: 4px 0; }
 .cal-cell {
@@ -1955,34 +1956,51 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
   display: flex; flex-direction: column; gap: 4px; overflow: hidden;
   transition: border-color .15s, box-shadow .15s;
 }
-.cal-grid.week .cal-cell { min-height: 190px; }
 .cal-cell:hover { border-color: var(--line); box-shadow: var(--shadow-sm); }
 .cal-cell.other { opacity: .45; }
 .cal-cell.today { border-color: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent) inset; }
 .cal-daynum { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 .cal-cell.today .cal-daynum { color: var(--accent); font-weight: 700; }
+
+/* the hue map — types first, explicit colours after, so a chosen colour wins */
+.cal-ev, .cal-key, .cal-sw, .cal-d-swatch, .cal-day-row { --ev-hue: var(--muted); }
+.t-exam { --ev-hue: var(--danger); }
+.t-deadline { --ev-hue: var(--accent2); }
+.t-study { --ev-hue: var(--good); }
+.t-lesson { --ev-hue: var(--c-maths); }
+.t-personal { --ev-hue: var(--c-it); }
+.c-iris { --ev-hue: var(--accent); }
+.c-brass { --ev-hue: var(--accent2); }
+.c-sage { --ev-hue: var(--accent3); }
+.c-clay { --ev-hue: var(--danger); }
+.c-sky { --ev-hue: var(--c-maths); }
+.c-plum { --ev-hue: var(--c-it); }
+.c-jade { --ev-hue: var(--c-compsci); }
+.c-slate { --ev-hue: var(--text2); }
+
 .cal-ev {
-  display: block; width: 100%; text-align: left; font-size: 10.5px; line-height: 1.35;
-  border-radius: 6px; padding: 3px 7px; border: 1px solid var(--line2);
-  background: var(--panel); color: var(--text2);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: baseline; gap: 5px;
+  width: 100%; text-align: left; font-size: 10.5px; line-height: 1.35;
+  border-radius: 6px; padding: 3px 7px;
+  border: 1px solid color-mix(in srgb, var(--ev-hue) 40%, transparent);
+  background: color-mix(in srgb, var(--ev-hue) 9%, var(--bg1));
+  color: color-mix(in srgb, var(--ev-hue) 78%, var(--text));
+  overflow: hidden;
 }
-.cal-ev.t-exam { border-color: color-mix(in srgb, var(--danger) 45%, transparent); color: var(--danger); background: var(--wash-danger); }
-.cal-ev.t-deadline { border-color: color-mix(in srgb, var(--accent2) 50%, transparent); color: var(--accent2); background: var(--wash-brass); }
-.cal-ev.t-study { border-color: color-mix(in srgb, var(--good) 45%, transparent); color: var(--good); background: color-mix(in srgb, var(--good) 8%, var(--bg1)); }
-.cal-ev.t-lesson { border-color: color-mix(in srgb, var(--c-maths) 45%, transparent); color: var(--c-maths); background: color-mix(in srgb, var(--c-maths) 8%, var(--bg1)); }
-.cal-ev.t-personal { border-color: color-mix(in srgb, var(--c-it) 45%, transparent); color: var(--c-it); background: color-mix(in srgb, var(--c-it) 8%, var(--bg1)); }
+.cal-ev-time { font-family: var(--mono); font-size: 9.5px; opacity: .8; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+.cal-ev-t { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-ev-re, .cal-ev-pri { flex: 0 0 auto; font-size: 9px; opacity: .75; }
 .cal-legend { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 18px; }
-.cal-key { font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line2); color: var(--muted); }
-.cal-key.t-exam { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, transparent); }
-.cal-key.t-deadline { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 50%, transparent); }
-.cal-key.t-study { color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, transparent); }
-.cal-key.t-lesson { color: var(--c-maths); border-color: color-mix(in srgb, var(--c-maths) 45%, transparent); }
-.cal-key.t-personal { color: var(--c-it); border-color: color-mix(in srgb, var(--c-it) 45%, transparent); }
+.cal-key {
+  font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--ev-hue) 45%, transparent);
+  color: color-mix(in srgb, var(--ev-hue) 80%, var(--text));
+}
 .cal-modal { --modal-max: 560px; }
 .cal-form { grid-template-columns: 1fr 1fr; margin-top: 14px; }
 .cal-field { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-.cal-field:first-child { grid-column: 1 / -1; }
+.cal-form > .cal-field:first-child { grid-column: 1 / -1; }
 .cal-in { font-size: 13.5px; letter-spacing: normal; text-transform: none; font-weight: 400; font-family: var(--sans); }
 
 /* ============================================================
@@ -2328,6 +2346,127 @@ body.fx-minimised .fx-dock { display: flex; }
 }
 .fx-stats span { border: 1px solid var(--line2); border-radius: 999px; padding: 4px 12px; background: color-mix(in srgb, var(--bg1) 70%, transparent); }
 
+/* ============================================================
+   Build 6.5 — the whole session: setup objective, the running
+   working row, and the completion review
+   ============================================================ */
+
+/* setup: the objective sits with the links, not above them */
+.fx-obj-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; max-width: 560px; }
+.fx-obj-in { width: 100%; }
+.fx-deal-list li strong { text-align: right; }
+.fx-deal-foot { margin: 12px 0 0; font-size: 11.5px; line-height: 1.6; color: var(--muted); }
+
+/* running: the context this session was started for */
+.fx-context { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.fx-ctx-chip {
+  font-size: 12px; padding: 4px 12px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line2));
+  background: var(--wash-accent); color: var(--text2);
+}
+.fx-ctx-chip.sub { border-color: var(--line2); background: transparent; color: var(--muted); }
+
+/* running: the objective line */
+.fx-objective {
+  display: inline-flex; align-items: center; gap: 9px;
+  max-width: min(620px, 86vw);
+  padding: 7px 16px; border-radius: 999px;
+  border: 1px solid var(--line2);
+  background: color-mix(in srgb, var(--bg1) 70%, transparent);
+  font-family: var(--serif); font-size: 14.5px; color: var(--text);
+  text-align: left;
+}
+.fx-objective:hover { border-color: var(--accent); }
+.fx-objective.ghost { font-family: inherit; font-size: 12.5px; color: var(--muted); border-style: dashed; }
+.fx-obj-k { color: var(--accent2); flex: none; }
+.fx-obj-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* running: session progress */
+.fx-progress { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--muted); }
+.fx-pips { display: inline-flex; gap: 4px; }
+.fx-pip { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: block; }
+.fx-pip.live { background: transparent; border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent); }
+.fx-progress-t { letter-spacing: .06em; text-transform: uppercase; }
+
+/* running: reward eligibility */
+.fx-elig {
+  display: flex; flex-direction: column; gap: 2px; align-items: center;
+  padding: 9px 18px; border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--good) 35%, var(--line2));
+  background: color-mix(in srgb, var(--good) 8%, transparent);
+  max-width: min(520px, 90vw);
+}
+.fx-elig b { font-size: 13.5px; color: var(--text); }
+.fx-elig span { font-size: 11.5px; color: var(--muted); }
+.fx-elig.warn {
+  border-color: color-mix(in srgb, var(--warning) 40%, var(--line2));
+  background: color-mix(in srgb, var(--warning) 8%, transparent);
+}
+
+/* running: the working row */
+.fx-tools {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;
+  width: min(560px, 92vw);
+}
+.fx-note-in { flex: 1 1 240px; min-width: 200px; }
+.fx-notes { width: 100%; text-align: left; font-size: 12px; }
+.fx-notes summary { cursor: pointer; color: var(--muted); font-size: 11.5px; text-align: center; }
+.fx-note-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 5px; max-height: 24vh; overflow-y: auto; }
+.fx-note-list li {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 6px 10px; border-radius: 9px;
+  background: color-mix(in srgb, var(--bg1) 75%, transparent);
+  border: 1px solid var(--line2);
+}
+.fx-note-list li span { flex: 1; color: var(--text2); line-height: 1.5; }
+
+/* completion review */
+.fx-review-modal .fx-review { display: flex; flex-direction: column; gap: 16px; padding: 4px 2px; }
+.fx-rev-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+.fx-rev-fact {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 9px 12px; border-radius: var(--radius);
+  border: 1px solid var(--line2); background: color-mix(in srgb, var(--bg1) 60%, transparent);
+}
+.fx-rev-fact .k { font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.fx-rev-fact b { font-size: 15px; font-family: var(--serif); }
+.fx-rev-award {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 12px 16px; border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--good) 38%, var(--line2));
+  background: color-mix(in srgb, var(--good) 9%, transparent);
+}
+.fx-rev-award b { font-size: 16px; font-family: var(--serif); }
+.fx-rev-award span { font-size: 12px; color: var(--muted); }
+.fx-rev-award.muted { border-color: var(--line2); background: color-mix(in srgb, var(--bg1) 60%, transparent); }
+.fx-rev-level { color: var(--accent2) !important; font-weight: 600; }
+.fx-rev-block { display: flex; flex-direction: column; gap: 9px; }
+.fx-rev-block h4 { margin: 0; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.fx-rev-obj { margin: 0; font-family: var(--serif); font-size: 15px; color: var(--text); }
+.fx-rev-choices { display: flex; gap: 8px; flex-wrap: wrap; }
+.fx-rev-choice {
+  padding: 7px 16px; border-radius: 999px; font-size: 13px;
+  border: 1px solid var(--line2); background: transparent; color: var(--text2);
+}
+.fx-rev-choice:hover { border-color: var(--accent); }
+.fx-rev-choice.active { border-color: var(--accent); background: var(--wash-accent); color: var(--text); font-weight: 600; }
+.fx-rev-reflect { width: 100%; resize: vertical; }
+.fx-rev-notes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; max-height: 22vh; overflow-y: auto; }
+.fx-rev-notes li {
+  font-size: 12.5px; color: var(--text2); line-height: 1.5;
+  padding: 6px 10px; border-radius: 9px; border: 1px solid var(--line2);
+  background: color-mix(in srgb, var(--bg1) 60%, transparent);
+}
+.fx-rev-asg-h { display: flex; flex-direction: column; gap: 2px; margin: 0; }
+.fx-rev-asg-h b { font-family: var(--serif); font-size: 15px; }
+.fx-rev-subs { display: flex; flex-direction: column; gap: 6px; }
+.fx-rev-sub { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: var(--text2); cursor: pointer; }
+.fx-rev-sub input { margin-top: 2px; flex: none; }
+.fx-rev-prog { display: flex; align-items: center; gap: 12px; }
+.fx-rev-prog .k { font-size: 12px; color: var(--muted); flex: none; }
+.fx-rev-range { flex: 1; min-width: 0; }
+.fx-rev-pct { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; flex: none; min-width: 44px; text-align: right; }
+
 /* tasks & habits */
 .tasks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--layout-gap); align-items: start; }
 @media (max-width: 1000px) { .tasks-grid { grid-template-columns: 1fr; } }
@@ -2457,12 +2596,13 @@ body.fx-minimised .fx-dock { display: flex; }
 .cal-cell.today { box-shadow: none; border: none; }
 .cal-daynum { align-self: flex-end; font-size: 12px; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
 .cal-cell.today .cal-daynum { background: var(--accent); color: #FCFAF4; font-weight: 700; }
-.cal-ev { border: none; border-left: 3px solid var(--line); border-radius: 4px; padding: 2px 7px; background: var(--well); }
-.cal-ev.t-exam { border-left-color: var(--danger); }
-.cal-ev.t-deadline { border-left-color: var(--accent2); }
-.cal-ev.t-study { border-left-color: var(--good); }
-.cal-ev.t-lesson { border-left-color: var(--c-maths); }
-.cal-ev.t-personal { border-left-color: var(--c-it); }
+/* the chip keeps its hue as a colour rail rather than a full wash, so a busy
+   cell reads as a list of titles instead of a block of colour */
+.cal-ev {
+  border: none; border-left: 3px solid var(--ev-hue); border-radius: 4px;
+  padding: 2px 7px; background: var(--well);
+  color: var(--text2);
+}
 
 /* ============================================================
    蒐 The Collection — vault surfaces
@@ -2681,7 +2821,6 @@ body.fx-minimised .fx-dock { display: flex; }
 .vn-quote-meta .sub { flex: 1; }
 .vn-quote-add { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
 .vn-quote-in { font-family: var(--serif); }
-.vn-stats, .bk-stats, .gm-stats, .an-stats { margin-top: 26px; }
 
 /* ---- find-new modal + hero picker ---- */
 .msch-modal { --modal-max: 660px; display: flex; flex-direction: column; gap: 10px; }
@@ -2914,7 +3053,6 @@ body.fx-minimised .fx-dock { display: flex; }
 .bk-stars-val { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-left: 6px; }
 .bk-modal { --modal-max: 780px; }
 .bk-grow { flex: 2 1 220px !important; }
-.bk-dnf-row { align-items: flex-end; }
 .bk-phys-h { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .bk-vol-list { display: flex; flex-direction: column; gap: 5px; max-height: 220px; overflow-y: auto; padding-right: 4px; }
 .bk-vol-row { display: grid; grid-template-columns: 64px minmax(90px, 1fr) minmax(120px, 1fr) 84px auto auto; gap: 6px; align-items: center; }
@@ -2922,9 +3060,6 @@ body.fx-minimised .fx-dock { display: flex; }
 .bk-vol-cond, .bk-vol-date, .bk-vol-price { font-size: 11px; }
 .bk-vol-price { max-width: 84px; }
 .bk-vol-del { color: var(--muted); }
-.bk-vol-add { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.bk-vol-add-sep { font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.bk-vol-add .med-num { max-width: 70px; }
 @media (max-width: 700px) { .bk-vol-row { grid-template-columns: 52px 1fr 1fr; } }
 .bk-compare { border: 1px solid color-mix(in srgb, var(--accent2) 35%, var(--line2)); border-radius: 10px; padding: 10px 12px; margin-bottom: 4px; background: var(--wash-brass); grid-column: 1 / -1; }
 .bk-compare-h { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -3018,7 +3153,6 @@ body.fx-minimised .fx-dock { display: flex; }
 .gm-bulk-modal { --modal-max: 560px; }
 .gm-bulk-in { width: 100%; min-height: 180px; font-family: var(--mono); font-size: 12.5px; }
 .gm-steamlink { font-size: 12px; }
-.gm-charts { margin-top: 14px; }
 .gm-cover-note { font-size: 11px; color: var(--muted); }
 
 /* ---- seasonal ---- */
@@ -4218,7 +4352,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .b-heat { grid-column: span 8; }
 .heat-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 14px; height: 100%; }
 .heat-svg { flex: none; min-width: 0; overflow-x: auto; padding-bottom: 2px; }
-.heat-svg svg { display: block; width: 100%; max-width: 100%; height: auto; }
+.heat-svg svg { display: block; width: 100% !important; max-width: 100%; height: auto; }
 .heat-legend { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .hl-num { font-size: 12px; color: var(--text2); margin-right: auto; }
 .hl-scale { display: inline-flex; align-items: center; gap: 4px; }
@@ -4577,6 +4711,26 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   /* content never hides behind the bar */
   #main { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
   body.fx-minimised #cols { padding-bottom: 0; }
+
+  /* Build 6.5 — the stage carries more rows now (context, objective,
+     progress, eligibility, the working row). On a phone it scrolls as one
+     column with the clock still the largest thing on it; nothing is
+     dropped, so the running session is never less honest on a small
+     screen than on a desktop. */
+  .fx-stage {
+    justify-content: flex-start;
+    padding: calc(22px + env(safe-area-inset-top)) 16px calc(26px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    gap: 11px;
+  }
+  .fx-kanji { font-size: 46px; }
+  .fx-clock { font-size: clamp(64px, 21vw, 104px); }
+  .fx-clock::after { margin-top: 12px; }
+  .fx-stats { flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .fx-controls .btn { flex: 1 1 44%; justify-content: center; }
+  .fx-tools { width: 100%; }
+  .fx-note-in { flex: 1 1 100%; }
+  .fx-review-modal .fx-rev-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   /* --- the spec tree becomes a drawer ---
      Open: a fixed panel under the topbar (the ≤860 tier already floats
@@ -6039,3 +6193,374 @@ button.dl-item { width: 100%; text-align: left; cursor: pointer; }
 }
 /* a submitted assignment keeps its place on the calendar but reads as done */
 .cal-ev.cal-asg.handed-in { opacity: .55; text-decoration: line-through; }
+
+/* ============================================================
+   Collection record folio — shared media editor refinement.
+   Anime, Books, Visual Novels and Games all use one scroll shell,
+   one section index and one two-column field grammar.
+   ============================================================ */
+.med-record-modal {
+  --modal-max: 940px;
+  max-height: min(900px, 92vh);
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.med-record-modal > .modal-h {
+  flex: none;
+  align-items: flex-start;
+  margin: 0;
+  padding: 20px 24px 17px;
+  border-bottom: 1px solid var(--line2);
+  background: color-mix(in srgb, var(--bg1) 94%, var(--accent) 6%);
+}
+.med-modal-heading { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+.med-modal-heading > b { font-size: 24px; line-height: 1.15; }
+.med-modal-heading > .sub { max-width: 68ch; line-height: 1.45; }
+.med-record-modal > .med-form {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 2px 24px 28px;
+  scrollbar-gutter: stable;
+}
+.med-edit-section {
+  display: grid;
+  grid-template-columns: minmax(132px, 160px) minmax(0, 1fr);
+  gap: 22px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line2);
+}
+.med-edit-section:last-child { border-bottom: none; padding-bottom: 4px; }
+.med-edit-index { min-width: 0; padding-left: 12px; border-left: 2px solid var(--line2); }
+.med-edit-index h3 { margin: 0; font-family: var(--serif); font-size: 15.5px; font-weight: 600; line-height: 1.2; }
+.med-edit-index p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.med-edit-body { min-width: 0; }
+.med-edit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 14px; align-items: start; }
+.med-edit-grid > .med-field { min-width: 0; }
+.med-edit-grid > .med-span-2,
+.med-edit-grid > .wl-notes-full,
+.med-edit-grid > .med-source-info,
+.med-edit-grid > .bk-compare,
+.med-edit-grid > .bk-phys,
+.med-edit-grid > .vn-routes,
+.med-edit-grid > .vn-chapters,
+.med-edit-grid > .vn-cg,
+.med-edit-grid > .vn-quotes { grid-column: 1 / -1; }
+.med-edit-notes .med-edit-index { border-left-color: color-mix(in srgb, var(--accent) 54%, var(--line2)); }
+.med-edit-notes textarea { min-height: 112px; line-height: 1.6; resize: vertical; }
+.med-source-info { min-width: 0; display: flex; align-items: flex-start; gap: 11px; padding: 11px 12px; border: 1px solid var(--line2); border-radius: var(--radius-control); background: var(--well); }
+.med-source-mark { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: var(--muted); background: var(--panel); font-family: var(--mono); }
+.med-source-info.is-linked .med-source-mark { color: var(--good); background: color-mix(in srgb, var(--good) 12%, var(--panel)); }
+.med-source-copy { min-width: 0; }
+.med-source-copy b { display: block; font-size: 12.5px; }
+.med-source-copy p { max-width: 68ch; margin: 2px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+.med-record-modal > .med-modal-foot { flex: none; justify-content: space-between; align-items: center; margin: 0; padding: 14px 24px; border-top: 1px solid var(--line2); background: color-mix(in srgb, var(--bg1) 96%, var(--panel)); }
+.med-delete-actions, .med-save-actions { display: flex; align-items: center; gap: 8px; }
+.med-delete-actions:empty { min-width: 1px; }
+
+/* Physical ownership: next-volume is deliberately separate from the
+   batch editor, whose labels make the range operation unambiguous. */
+.bk-vol-actions { display: grid; grid-template-columns: minmax(170px, .55fr) minmax(0, 1.45fr); gap: 10px; margin-top: 2px; }
+.bk-vol-quick, .bk-range-tool { padding: 11px; border: 1px solid var(--line2); border-radius: 10px; background: var(--well); }
+.bk-vol-quick { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; }
+.bk-vol-quick .sub { font-size: 10.5px; line-height: 1.35; }
+.bk-range-tool { display: flex; flex-direction: column; gap: 9px; }
+.bk-range-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.bk-range-head b { font-size: 12.5px; }
+.bk-range-head .sub { font-size: 10.5px; }
+.bk-range-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: 7px; align-items: end; }
+.bk-range-grid .med-field { gap: 3px; }
+.bk-range-grid .med-field .k { font-size: 8.5px; letter-spacing: .06em; }
+.bk-range-grid .med-num, .bk-range-grid .bk-vol-date, .bk-range-grid .bk-vol-price { max-width: none; }
+.bk-range-submit { display: flex; align-items: flex-end; }
+.bk-range-submit .btn { white-space: nowrap; }
+
+@media (max-width: 850px) {
+  .bk-vol-actions { grid-template-columns: 1fr; }
+  .bk-range-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .med-record-modal { max-height: calc(100dvh - var(--topbar-h) - env(safe-area-inset-top)); }
+  .med-record-modal > .modal-h { padding: 16px 16px 13px; }
+  .med-modal-heading > b { font-size: 21px; }
+  .med-record-modal > .med-form { padding: 0 16px 22px; }
+  .med-edit-section { grid-template-columns: 1fr; gap: 11px; padding: 17px 0; }
+  .med-edit-index { padding-left: 9px; }
+  .med-edit-index p { max-width: 55ch; }
+  .med-edit-grid { grid-template-columns: 1fr; }
+  .med-edit-grid > * { grid-column: 1 !important; }
+  .med-record-modal > .med-modal-foot { padding: 11px 16px calc(11px + env(safe-area-inset-bottom)); }
+  .med-save-actions { margin-left: auto; }
+  .med-delete-actions .btn, .med-save-actions .btn { padding-inline: 11px; }
+  .bk-vol-row { grid-template-columns: 52px 1fr 1fr; }
+  .bk-range-grid { grid-template-columns: 1fr 1fr; }
+  .bk-range-submit { grid-column: 1 / -1; }
+  .bk-range-submit .btn { width: 100%; }
+}
+
+/* ============================================================
+   Build 6.6 — Calendar & the event model
+
+   Three surfaces share one hue variable (--ev-hue, mapped in the base
+   calendar block): the grid chip, the legend key and the editor's colour
+   swatches. Nothing below names a palette value directly, so a theme
+   change or a new category colour needs no edit here.
+   ============================================================ */
+
+/* ---- toolbar ---- */
+.cal-body { display: block; }
+.cal-step { display: inline-flex; gap: 2px; }
+.cal-step .mini-btn { min-width: var(--icon-btn-size-sm); justify-content: center; font-size: 15px; line-height: 1; }
+.cal-modes { display: inline-flex; border: 1px solid var(--line2); border-radius: var(--radius-pill); padding: 2px; background: var(--well); }
+.cal-mode {
+  border: none; background: none; cursor: pointer; font: inherit;
+  font-size: 11.5px; letter-spacing: .04em; color: var(--muted);
+  padding: 4px 14px; border-radius: var(--radius-pill); transition: background .15s, color .15s;
+}
+.cal-mode:hover { color: var(--text); }
+.cal-mode.on { background: var(--panel); color: var(--text); box-shadow: var(--shadow-sm); font-weight: 600; }
+
+/* ---- month cell ---- */
+.cal-cell { gap: 3px; padding: 5px 5px 6px; }
+.cal-cell-h { display: flex; align-items: center; gap: 5px; min-height: 24px; }
+.cal-daynum { align-self: center; order: 2; margin-left: auto; }
+.cal-todaytag {
+  order: 1; font-size: 8.5px; letter-spacing: .12em; text-transform: uppercase;
+  font-weight: 700; color: var(--accent);
+}
+.cal-add {
+  order: 0; width: 18px; height: 18px; padding: 0; line-height: 1;
+  border: none; background: none; color: var(--muted); cursor: pointer;
+  border-radius: 50%; font-size: 13px; opacity: 0; transition: opacity .15s, background .15s;
+}
+.cal-cell:hover .cal-add, .cal-add:focus-visible { opacity: 1; }
+.cal-add:hover { background: var(--wash-accent); color: var(--accent); }
+.cal-stack { display: flex; flex-direction: column; gap: 2px; min-height: 8px; }
+
+/* today reads from the numeral AND the field, so it survives a busy cell */
+.cal-cell.today { background: color-mix(in srgb, var(--accent) 6%, var(--bg1)); }
+.cal-cell.today::before {
+  content: ""; display: block; height: 2px; margin: -5px -5px 3px;
+  background: var(--accent);
+}
+.cal-cell.wknd:not(.today) { background: color-mix(in srgb, var(--bg0) 34%, var(--bg1)); }
+.cal-cell.wknd.other { background: color-mix(in srgb, var(--bg0) 66%, var(--bg1)); }
+.cal-cell.past:not(.today) .cal-ev { opacity: .62; }
+.cal-dow.wknd { color: color-mix(in srgb, var(--muted) 80%, var(--text)); }
+
+.cal-ev { cursor: pointer; font: inherit; font-size: 10.5px; transition: background .15s, transform .12s; }
+.cal-ev:hover { background: color-mix(in srgb, var(--ev-hue) 12%, var(--well)); }
+.cal-ev:focus-visible { outline: 2px solid var(--ev-hue); outline-offset: 1px; }
+.cal-ev.allday { border-left-width: 3px; background: color-mix(in srgb, var(--ev-hue) 10%, var(--well)); }
+.cal-ev-pri { color: var(--danger); font-weight: 700; opacity: 1; }
+.cal-more {
+  border: none; background: none; cursor: pointer; font: inherit;
+  font-size: 10px; letter-spacing: .04em; color: var(--muted);
+  text-align: left; padding: 2px 7px; border-radius: 4px;
+}
+.cal-more:hover { color: var(--accent); background: var(--wash-accent); }
+
+/* ---- week: a real time grid ---- */
+.cal-week {
+  --cw-gutter: 52px;
+  border: 1px solid var(--line2); border-radius: 14px; overflow: hidden; background: var(--bg1);
+}
+.cw-head, .cw-band, .cw-body { display: grid; grid-template-columns: var(--cw-gutter) repeat(7, minmax(0, 1fr)); }
+.cw-head { border-bottom: 1px solid var(--line2); }
+.cw-gutter-h {
+  font-size: 8.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; justify-content: flex-end; padding: 0 7px 4px;
+}
+.cw-day {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 8px 0 6px; border: none; border-left: 1px solid var(--line2);
+  background: none; cursor: pointer; font: inherit;
+}
+.cw-day:hover { background: var(--wash-accent); }
+.cw-dow { font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.cw-num {
+  font-family: var(--mono); font-size: 15px; color: var(--text2);
+  width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;
+}
+.cw-day.today .cw-dow { color: var(--accent); font-weight: 700; }
+.cw-day.today .cw-num { background: var(--accent); color: #FCFAF4; font-weight: 700; }
+.cw-day.wknd { background: color-mix(in srgb, var(--bg0) 30%, var(--bg1)); }
+
+.cw-band { border-bottom: 1px solid var(--line2); min-height: 34px; }
+.cw-band .cw-gutter-h { align-items: flex-start; padding-top: 6px; }
+.cw-band-col {
+  border-left: 1px solid var(--line2); padding: 4px 3px;
+  display: flex; flex-direction: column; gap: 2px; cursor: pointer;
+}
+.cw-band-col.today { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+.cw-body { max-height: 62vh; overflow-y: auto; }
+.cw-gutter { position: relative; }
+.cw-hour { position: relative; }
+.cw-hour span {
+  position: absolute; top: -6px; right: 7px;
+  font-family: var(--mono); font-size: 9.5px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.cw-hour:first-child span { top: 2px; }
+.cw-col { position: relative; border-left: 1px solid var(--line2); cursor: pointer; }
+.cw-col.wknd { background: color-mix(in srgb, var(--bg0) 30%, var(--bg1)); }
+.cw-col.today { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.cw-slot { position: absolute; left: 0; right: 0; border-top: 1px solid var(--line2); pointer-events: none; }
+.cw-now { position: absolute; left: 0; right: 0; height: 0; border-top: 2px solid var(--danger); z-index: 3; }
+.cw-now::before {
+  content: ""; position: absolute; left: -3px; top: -4px;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--danger);
+}
+.cal-ev.block {
+  position: absolute; z-index: 2; overflow: hidden;
+  flex-direction: column; align-items: flex-start; gap: 0;
+  border-left-width: 3px; padding: 3px 6px;
+  background: color-mix(in srgb, var(--ev-hue) 13%, var(--bg1));
+}
+.cal-ev.block .cal-ev-t { white-space: normal; overflow: hidden; }
+
+/* ---- the day sheet (overflow) ---- */
+.cal-day-modal { --modal-max: 520px; }
+.cal-day-body { display: flex; flex-direction: column; gap: 4px; margin-bottom: var(--space-4); }
+.cal-day-row {
+  display: flex; align-items: baseline; gap: 12px; width: 100%; text-align: left;
+  border: none; border-left: 3px solid var(--ev-hue); border-radius: 6px;
+  background: var(--well); padding: 8px 12px; cursor: pointer; font: inherit;
+}
+.cal-day-row:hover { background: color-mix(in srgb, var(--ev-hue) 10%, var(--well)); }
+.cdr-when {
+  font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+  flex: 0 0 86px; font-variant-numeric: tabular-nums;
+}
+.cdr-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.cdr-t { font-size: 13.5px; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+.cdr-m { font-size: 11px; color: var(--muted); }
+
+/* ---- the detail card: reading, not editing ---- */
+.cal-detail-modal { --modal-max: 480px; }
+.cal-d-swatch { display: block; height: 3px; border-radius: 2px; background: var(--ev-hue); margin-bottom: var(--space-4); }
+.cal-detail-body { display: flex; flex-direction: column; gap: 7px; }
+.cal-d-row { display: flex; align-items: baseline; gap: 12px; }
+.cal-d-k {
+  flex: 0 0 104px; font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700;
+}
+.cal-d-v { font-size: 13.5px; color: var(--text); min-width: 0; }
+.cal-d-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.cal-d-desc {
+  margin: var(--space-3) 0 0; padding: 10px 12px; border-radius: 8px;
+  background: var(--well); font-size: 13px; color: var(--text2); white-space: pre-wrap;
+}
+.cal-d-actions { display: flex; gap: var(--space-2); margin-top: var(--space-4); }
+
+/* ---- one footer shape: Delete alone on the left, Save on the right ---- */
+.cal-modal-foot {
+  display: flex; align-items: center; gap: var(--space-2);
+  margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--line2);
+}
+.cal-foot-del { margin-right: var(--space-5); }
+
+/* ---- the event editor ---- */
+.cal-ev-modal { --modal-max: 620px; }
+.cal-ev-modal .modal-h { margin-bottom: var(--space-3); }
+.cal-ev-modal .modal-h::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--ev-hue);
+}
+.cal-ev-modal .modal-h { position: relative; padding-top: var(--space-3); }
+.cal-sec { display: flex; flex-direction: column; gap: var(--form-gap); }
+.cal-fgrid { display: grid; gap: var(--form-gap); grid-template-columns: minmax(0, 1fr); }
+.cal-fgrid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cal-fgrid.three { grid-template-columns: 1.3fr 1fr 1fr; }
+.cal-fgrid.allday input[type="time"] { opacity: .45; }
+.cal-span { grid-column: 1 / -1; }
+.cal-check { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); cursor: pointer; }
+.cal-check-in { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+.cal-area { resize: vertical; min-height: 68px; line-height: 1.55; }
+.cal-hint { font-size: 11px; color: var(--muted); letter-spacing: normal; text-transform: none; font-weight: 400; }
+.cal-note { margin: var(--space-2) 0 0; font-size: 11.5px; }
+.cal-countdown-row { margin-top: var(--space-2); }
+
+/* progressive disclosure: the basics stay visible, everything else asks */
+.cal-disc { border-top: 1px solid var(--line2); margin-top: var(--space-3); }
+.cal-disc-h {
+  display: flex; align-items: baseline; gap: 9px; width: 100%; text-align: left;
+  border: none; background: none; cursor: pointer; font: inherit;
+  padding: 11px 2px; color: var(--text2);
+}
+.cal-disc-h b { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.cal-disc-hint { font-size: 11px; color: var(--muted); }
+.cal-disc-caret { display: inline-block; color: var(--muted); transition: transform .18s; font-size: 14px; line-height: 1; }
+.cal-disc.open .cal-disc-caret { transform: rotate(90deg); }
+.cal-disc-body { display: none; padding: 0 2px var(--space-4); }
+.cal-disc.open .cal-disc-body { display: block; }
+.cal-cond .cal-disc:first-child { border-top: none; }
+
+/* category colour swatches */
+.cal-swatches { display: flex; gap: 5px; flex-wrap: wrap; }
+.cal-sw {
+  width: 22px; height: 22px; border-radius: 50%; cursor: pointer; padding: 0;
+  border: 1px solid var(--line); background: var(--ev-hue);
+  transition: transform .12s, box-shadow .12s;
+}
+.cal-sw.sw-auto {
+  background: repeating-linear-gradient(45deg, var(--well) 0 4px, var(--line2) 4px 8px);
+}
+.cal-sw:hover { transform: scale(1.08); }
+.cal-sw.on { box-shadow: 0 0 0 2px var(--bg1), 0 0 0 3.5px var(--text2); }
+
+/* alerts: plural by design */
+.cal-alerts { display: flex; gap: 5px; flex-wrap: wrap; }
+.cal-alert {
+  border: 1px solid var(--line2); background: var(--well); color: var(--text2);
+  border-radius: var(--radius-pill); padding: 4px 11px; cursor: pointer;
+  font: inherit; font-size: 11.5px; letter-spacing: normal; text-transform: none; font-weight: 400;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.cal-alert:hover { border-color: var(--line); color: var(--text); }
+.cal-alert.on { border-color: var(--accent); color: var(--accent); background: var(--wash-accent); font-weight: 600; }
+
+/* validation, said plainly and next to the control that is wrong */
+.cal-errs {
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+  background: var(--wash-danger); border-radius: 8px;
+  padding: 9px 13px; margin-bottom: var(--space-4);
+}
+.cal-errs p { margin: 2px 0; font-size: 12.5px; color: var(--danger); }
+.cal-in.bad, .status-sel.bad { border-color: var(--danger); box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 14%, transparent); }
+.cal-shortcut { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-3); }
+.cal-shortcut .sub { flex: 1 1 220px; margin: 0; font-size: 11.5px; }
+
+/* the countdown rail is now a merged read over two stores — its rows are
+   buttons that open the record they came from */
+button.dl-item { background: none; font: inherit; color: inherit; }
+button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ---- phones: the grid gets denser, the modals become sheets ---- */
+@media (max-width: 700px) {
+  .cal-nav { gap: 6px; }
+  .cal-nav .cal-title { font-size: 18px; min-width: 0; flex: 1 1 100%; order: -1; }
+  .cal-cell { min-height: 72px; padding: 4px 3px 5px; }
+  .cal-cell-h { min-height: 20px; }
+  .cal-daynum { width: 20px; height: 20px; font-size: 11px; }
+  .cal-todaytag { display: none; }
+  .cal-add { display: none; }
+  .cal-ev { font-size: 9.5px; padding: 2px 5px; }
+  .cal-ev-time { display: none; }
+  .cal-week { --cw-gutter: 38px; }
+  .cw-body { max-height: 54vh; }
+  .cal-fgrid.two, .cal-fgrid.three { grid-template-columns: minmax(0, 1fr); }
+  /* invariant #40: the tier's `input, select, textarea { font-size: 16px }`
+     loses to the .cal-in class, so iOS zoomed on every focus in this modal */
+  .cal-in, .cal-modal .status-sel { font-size: 16px; }
+  .cal-modal-foot { flex-wrap: wrap; }
+  .cal-foot-del { order: 3; width: 100%; margin-right: 0; margin-top: var(--space-2); }
+  .cal-modal-foot .btn:not(.cal-foot-del) { flex: 1; justify-content: center; }
+  .cal-d-row { flex-direction: column; gap: 1px; }
+  .cal-d-k { flex: none; }
+  .cdr-when { flex: 0 0 62px; }
+}

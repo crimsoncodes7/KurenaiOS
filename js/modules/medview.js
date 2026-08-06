@@ -329,6 +329,51 @@
     return el("label", { class: "med-field" + (cls ? " " + cls : "") },
       [el("span", { class: "k", text: label }), input]);
   }
+
+  /* One information grammar for every media editor. A section owns a real
+     subject (identity, progress, dates, taxonomy, lists, source or notes),
+     while its body owns the same two-column field grid. Module editors only
+     choose which controls belong in each subject; they no longer invent
+     local rows or spacing rules. */
+  function editorSection(id, title, description, children, opts) {
+    opts = opts || {};
+    var bodyChildren = (children || []).filter(Boolean);
+    var body = opts.raw
+      ? el("div", { class: "med-edit-body med-edit-raw" }, bodyChildren)
+      : el("div", { class: "med-edit-body" }, [
+          el("div", { class: "med-edit-grid" }, bodyChildren)
+        ]);
+    return el("section", {
+      class: "med-edit-section med-edit-" + id + (opts.className ? " " + opts.className : ""),
+      "data-edit-section": id,
+      "aria-labelledby": "med-edit-" + id + "-" + (++editorSectionSeq)
+    }, [
+      el("div", { class: "med-edit-index" }, [
+        el("h3", { id: "med-edit-" + id + "-" + editorSectionSeq, text: title }),
+        description ? el("p", { text: description }) : null
+      ]),
+      body
+    ]);
+  }
+  var editorSectionSeq = 0;
+
+  function sourceInfo(entry, provider, detail) {
+    var synced = entry.syncSource === "anilist" || entry.syncSource === "vndb";
+    var imported = entry.syncSource === "import";
+    var source = provider || (entry.syncSource === "anilist" ? "AniList"
+      : entry.syncSource === "vndb" ? "VNDB"
+      : entry.syncSource === "import" ? "Imported file" : "Local record");
+    return el("div", { class: "med-source-info" + (synced || imported ? " is-linked" : "") }, [
+      el("span", { class: "med-source-mark", "aria-hidden": "true", text: synced ? "⇅" : imported ? "↥" : "⌂" }),
+      el("div", { class: "med-source-copy" }, [
+        el("b", { text: source }),
+        el("p", { text: detail || (synced
+          ? "Synced list fields may refresh from the source; your local notes and personal organisation stay yours."
+          : imported ? "Imported metadata stays local until you deliberately import or sync again."
+          : "This record is stored locally and changes only when you edit it.") })
+      ])
+    ]);
+  }
   function calField(label, input) {
     return el("label", { class: "cal-field" }, [el("span", { text: label }), input]);
   }
@@ -372,18 +417,24 @@
      overlay (whose .close() the save/delete paths call). */
   function editorModal(opts) {
     var overlay = modalOverlay();
-    overlay.appendChild(el("div", { class: "modal med-modal" + (opts.className ? " " + opts.className : "") }, [
+    overlay.appendChild(el("div", { class: "modal med-modal med-record-modal" + (opts.className ? " " + opts.className : "") }, [
       el("div", { class: "modal-h" }, [
-        el("b", { text: (opts.isNew ? "Add to " : "Edit — ") + opts.label }),
-        el("span", { class: "sub", text: opts.subtitle }),
+        el("div", { class: "med-modal-heading" }, [
+          el("span", { class: "modal-kicker", text: opts.isNew ? "New collection record" : "Collection record" }),
+          el("b", { text: (opts.isNew ? "Add to " : "Edit — ") + opts.label }),
+          el("span", { class: "sub", text: opts.subtitle })
+        ]),
         el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: overlay.close })
       ]),
       el("div", { class: "med-form" }, opts.form),
       el("div", { class: "lab-controls med-modal-foot" }, [
-        !opts.isNew && opts.onDelete ? el("button", { class: "btn danger", text: "Delete", onclick: opts.onDelete }) : null,
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Cancel", onclick: overlay.close }),
-        el("button", { class: "btn primary", text: opts.isNew ? "Add" : "Save", onclick: opts.onSave })
+        el("div", { class: "med-delete-actions" }, [
+          !opts.isNew && opts.onDelete ? el("button", { class: "btn danger", text: "Delete record", onclick: opts.onDelete }) : null
+        ]),
+        el("div", { class: "med-save-actions" }, [
+          el("button", { class: "btn", text: "Cancel", onclick: overlay.close }),
+          el("button", { class: "btn primary", text: opts.isNew ? "Add to collection" : "Save changes", onclick: opts.onSave })
+        ])
       ])
     ]));
     document.body.appendChild(overlay);
@@ -1042,6 +1093,8 @@
     resultsArea: resultsArea,
     bumpUnit: bumpUnit,
     field: field,
+    editorSection: editorSection,
+    sourceInfo: sourceInfo,
     calField: calField,
     splitList: splitList,
     modalOverlay: modalOverlay,

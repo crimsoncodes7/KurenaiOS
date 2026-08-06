@@ -323,7 +323,7 @@ step("books log: +4 XP/+1 gold, HP untouched, rest streak fed, study streak not"
 
 /* ============ 6 · views ============ */
 console.log("== views ==");
-step("books vault renders: toolbar, DNF pill, dual bar, author line, stats+heatmap", async () => {
+step("books vault renders without obsolete bottom stats; dedicated Stats remains", async () => {
   KOS.show("books");
   const main = document.getElementById("main");
   await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
@@ -333,7 +333,7 @@ step("books vault renders: toolbar, DNF pill, dual bar, author line, stats+heatm
   if (!toolbarText.some(t => /DNF/.test(t))) throw new Error("no DNF toggle");
   if (!main.querySelector(".bk-dual")) throw new Error("no owned-vs-read bar");
   if (!main.querySelector(".bk-author")) throw new Error("no author line");
-  if (!/Volumes on the shelf/.test(main.textContent)) throw new Error("no vault stats");
+  if (main.querySelector(".bk-stats, .bk-stats .stat-strip")) throw new Error("obsolete vault stats still mounted");
   KOS.medview.statsModal("books", KOS.media.module("books"));
   await waitFor(() => document.querySelector(".stats-modal"), 3000);
   if (!document.querySelector(".stats-modal")) throw new Error("stats modal did not open");
@@ -351,17 +351,19 @@ step("shelf layout: one spine per owned volume, deterministic colour, condition 
   if (!main.querySelector(".bk-spine-cond.worn")) throw new Error("worn vol 3 not marked");
   KOS.store.state.media.books.layout = "grid";
 });
-step("editor modal: dual sections, stars, range tool adds volumes end-to-end", async () => {
+step("editor modal: shared sections, stars, compact range tool save end-to-end", async () => {
   const saved = await new Promise((res) => {
     KOS.booksEditor(null, res);
     const modal = document.querySelector(".bk-modal");
     if (!modal) { res(null); return; }
     if (!modal.querySelector(".bk-stars")) { res(null); return; }
     modal.querySelector("input[placeholder='Series title']").value = "Frieren";
-    const nums = [...modal.querySelectorAll(".bk-vol-add .med-num")];
+    if (!modal.classList.contains("med-record-modal")) { res(null); return; }
+    if (!modal.querySelector("[data-edit-section='progress']") || !modal.querySelector("[data-edit-section='ownership']")) { res(null); return; }
+    const nums = [...modal.querySelectorAll(".bk-range-grid .med-num")];
     nums[0].value = "1"; nums[1].value = "12";
     [...modal.querySelectorAll("button")].find(b => b.textContent === "Add range").click();
-    [...modal.querySelectorAll("button")].find(b => b.textContent === "Add").click();
+    [...modal.querySelectorAll("button")].find(b => b.textContent === "Add to collection").click();
   });
   if (!saved) throw new Error("editor did not save (modal/stars/inputs missing?)");
   if (saved.title !== "Frieren" || !saved.physical || saved.physical.volumes.length !== 12) throw new Error(JSON.stringify({ t: saved.title, v: saved.physical && saved.physical.volumes.length }));

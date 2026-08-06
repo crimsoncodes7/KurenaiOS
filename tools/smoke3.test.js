@@ -189,13 +189,23 @@ step("governor view: all four tabs render", () => {
   click($$(".study-tab").find(b => b.dataset.tab === "avatar"));
   if ($$(".seal-card").length !== 5) throw new Error("seal count: " + $$(".seal-card").length);
 });
+/* Build 6.6 rebuilt both views: the month trims to whole weeks (35 or 42
+   cells, never a trailing empty row) and the week is a real time grid, not
+   seven tall month cells. */
 step("calendar view renders month grid + sample events", () => {
   KOS.show("calendar");
-  if ($$(".cal-cell").length !== 42) throw new Error("cells: " + $$(".cal-cell").length);
+  const cells = $$(".cal-cell").length;
+  if (cells !== 35 && cells !== 42) throw new Error("cells: " + cells);
   if (!$$(".cal-ev").length) throw new Error("no events painted");
-  // week mode
-  click($$(".btn").find(b => b.textContent === "Week"));
-  if ($$(".cal-cell").length !== 7) throw new Error("week cells: " + $$(".cal-cell").length);
+  if (!$(".cal-cell.today")) throw new Error("today is not marked on the grid");
+  // week mode is the time grid: seven day columns, an all-day band, an hour gutter
+  click($$(".cal-mode").find(b => b.textContent === "Week"));
+  if (!$(".cal-week")) throw new Error("week view did not render the time grid");
+  if ($$(".cw-col").length !== 7) throw new Error("week columns: " + $$(".cw-col").length);
+  if ($$(".cw-band-col").length !== 7) throw new Error("no all-day band");
+  if (!$$(".cw-hour").length) throw new Error("no hour gutter");
+  click($$(".cal-mode").find(b => b.textContent === "Month"));
+  if (!$$(".cal-cell").length) throw new Error("month view did not come back");
 });
 step("home renders today panel + countdowns + streak chips + HUD", () => {
   KOS.show("home");

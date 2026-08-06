@@ -985,9 +985,15 @@
     category: "governor", tier: "read", read: true, params: {},
     run: function (args, cb) {
       var s = KOS.focus.session();
-      cb(null, s ? { state: KOS.focus.state(), kind: KOS.focus.kind(), phase: s.phase,
+      if (!s) { cb(null, { state: "idle" }); return; }
+      var elig = KOS.focus.eligibility ? KOS.focus.eligibility() : null;
+      cb(null, { state: KOS.focus.state(), kind: KOS.focus.kind(), phase: s.phase,
         workedSeconds: Math.round(KOS.focus.workSeconds()), subject: s.subject, ref: s.ref,
-        canComplete: KOS.focus.canComplete() } : { state: "idle" });
+        objective: s.objective || null, assignmentId: s.assignmentId != null ? s.assignmentId : null,
+        pauses: s.pauses, distractions: (s.distractions || []).length,
+        notes: (s.notes || []).length,
+        endingNowWouldPay: elig && !elig.forfeited ? { xp: elig.xp, gold: elig.gold, hp: elig.hp } : null,
+        canComplete: KOS.focus.canComplete() });
     }
   });
 
@@ -1000,7 +1006,11 @@
       workMin: { type: "integer", min: 5, max: 240, required: true },
       breakMin: { type: "integer", min: 0, max: 60 },
       subject: { type: "string", enum: SUBJECTS },
-      ref: { type: "string", maxLen: 40 }
+      ref: { type: "string", maxLen: 40 },
+      /* Build 6.5 — the session's stated purpose. Optional, recorded on the
+         session entry, and reported back by the completion review. */
+      objective: { type: "string", maxLen: 200 },
+      assignmentId: { type: "integer", min: 1 }
     },
     run: function (args, cb) {
       if (KOS.focus.state() !== "idle") { cb(fail("A session is already running — pause, resume or end it instead.")); return; }
@@ -1008,10 +1018,18 @@
         var bad = requireRef(args.subject, args.ref);
         if (bad) { cb(bad); return; }
       }
+      if (args.assignmentId != null) {
+        if (!KOS.assignments || !KOS.assignments.get(args.assignmentId)) {
+          cb(fail("No assignment with id " + args.assignmentId + " — list them first.")); return;
+        }
+      }
       KOS.focus.start({ kind: args.kind || "study", mode: args.mode || "pomodoro",
         workMin: args.workMin, breakMin: args.breakMin != null ? args.breakMin : (args.mode === "custom" ? 0 : 5),
-        subject: args.subject || "", ref: args.ref || "" });
-      cb(null, { started: true, kind: args.kind || "study", workMin: args.workMin });
+        subject: args.subject || "", ref: args.ref || "",
+        objective: args.objective || "",
+        assignmentId: args.assignmentId != null ? args.assignmentId : null });
+      cb(null, { started: true, kind: args.kind || "study", workMin: args.workMin,
+        objective: args.objective || null, assignmentId: args.assignmentId != null ? args.assignmentId : null });
     }
   });
 
@@ -1036,13 +1054,17 @@
     run: function (args, cb) {
       var st = KOS.focus.state();
       if (st === "idle") { cb(fail("No session is running.")); return; }
-      if (args.early) { KOS.focus.endEarly({ confirmed: true }); cb(null, { ended: true, early: true, awardForfeited: true }); return; }
+      /* review:false — the assistant reports the outcome in the conversation
+         rather than throwing the stage's completion modal at the user. The
+         session is logged and paid identically either way (Build 6.5). */
+      if (args.early) { KOS.focus.endEarly({ confirmed: true, review: false }); cb(null, { ended: true, early: true, awardForfeited: true }); return; }
       if (!KOS.focus.canComplete()) {
         cb(fail("The work interval isn't finished — ending now would forfeit the award. Pass early:true only if the user explicitly wants that."));
         return;
       }
-      KOS.focus.endComplete();
-      cb(null, { ended: true, early: false });
+      KOS.focus.endComplete({ review: false });
+      var paid = KOS.governor.lastAward ? KOS.governor.lastAward() : null;
+      cb(null, { ended: true, early: false, awarded: paid ? { xp: paid.xp, gold: paid.gold, hp: paid.hp } : null });
     }
   });
 
@@ -1585,7 +1607,9 @@
         return { id: e.id, title: e.title, date: e.date, time: e.time, type: e.type,
           subject: e.subject, ref: e.ref, recur: e.recur };
       }), upcomingDeadlines: KOS.calendar.deadlines().slice(0, 10).map(function (d) {
-        return { id: d.id, title: d.title, date: d.date, type: d.type };
+        /* deadlines() returns {ev, date, days} — reading id/title straight
+           off the wrapper handed the model ten nulls */
+        return { id: d.ev.id, title: d.ev.title, date: d.date, type: d.ev.type, days: d.days };
       }) });
     }
   });

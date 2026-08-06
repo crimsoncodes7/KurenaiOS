@@ -341,7 +341,7 @@ step("editor CRUD: add a chapter in the modal, save → persisted + a 'chapter' 
   [...modal.querySelectorAll(".vn-chapters button")].find(b => /Add chapter/.test(b.textContent)).click();
   await tick(10);
   const s0 = sessionCount();
-  [...modal.querySelectorAll("button")].find(b => b.textContent === "Save").click();
+  [...modal.querySelectorAll("button")].find(b => b.textContent === "Save changes").click();
   await waitFor(() => !document.querySelector(".vn-modal"), 3000);
   const after = await p(cb => KOS.mediadb.get(idVn, cb));
   if (after.chapters.length !== 3) throw new Error("added chapter not saved: " + after.chapters.length);

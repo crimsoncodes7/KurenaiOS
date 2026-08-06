@@ -314,7 +314,7 @@ step("a VN log action gives +4 XP / +1 gold / 0 HP and feeds only the rest strea
 
 /* ============ 7 · views ============ */
 console.log("== views ==");
-step("VN vault renders: card, developer line, route progress, stats strip", async () => {
+step("VN vault renders without obsolete bottom stats; dedicated Stats remains", async () => {
   KOS.show("vn");
   const main = document.getElementById("main");
   await waitFor(() => main.querySelectorAll(".vn-card, .vn-row").length > 0, 5000);
@@ -322,8 +322,11 @@ step("VN vault renders: card, developer line, route progress, stats strip", asyn
   if (!card || !/Ever17/.test(card.textContent)) throw new Error("entry card missing");
   if (!/KID/.test(card.textContent)) throw new Error("developer line missing");
   if (!/1\/2 routes/.test(card.textContent)) throw new Error("route progress missing: " + card.textContent.slice(0, 120));
-  await waitFor(() => main.querySelectorAll(".stat-card").length > 0, 3000);
-  if (!/Routes cleared/.test(main.textContent)) throw new Error("stats strip missing");
+  if (main.querySelector(".vn-stats, .vn-stats .stat-card")) throw new Error("obsolete VN stats still mounted");
+  KOS.medview.statsModal("vn", KOS.media.module("vn"));
+  await waitFor(() => document.querySelector(".stats-modal"), 3000);
+  if (!document.querySelector(".stats-modal")) throw new Error("dedicated stats did not open");
+  document.querySelector(".stats-modal").closest(".modal-ov").remove();
 });
 step("VN editor opens with routes, CG counter, quote log and warnings", async () => {
   const main = document.getElementById("main");
@@ -331,6 +334,7 @@ step("VN editor opens with routes, CG counter, quote log and warnings", async ()
   await tick(60);
   const modal = document.querySelector(".vn-modal");
   if (!modal) throw new Error("editor did not open");
+  if (!modal.querySelector("[data-edit-section='progress']") || !modal.querySelector("[data-edit-section='notes']")) throw new Error("shared editor sections missing");
   if (!modal.querySelector(".vn-route-row")) throw new Error("routes section");
   if (!/CG gallery/.test(modal.textContent)) throw new Error("CG section");
   if (!modal.querySelector(".vn-quote")) throw new Error("quote log");

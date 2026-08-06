@@ -380,34 +380,43 @@
       isNew: isNew, label: "Games", className: "gm-modal",
       subtitle: "manual entry — games have no live sync (Steam blocks browsers); everything here is yours to keep",
       form: [
-        field("Title", title),
-        el("div", { class: "med-form-row" }, [
-          field("Developer", developer, "bk-grow"),
-          field("Publisher", publisher, "bk-grow")
+        mv.editorSection("identity", "Identity & artwork", "The title, studio and cover used throughout the vault.", [
+          field("Title", title, "med-span-2"),
+          field("Developer", developer),
+          field("Publisher", publisher),
+          field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]), "med-span-2")
         ]),
-        el("div", { class: "med-form-row" }, [
+        mv.editorSection("progress", "Progress", "Play state, completion depth and time invested.", [
           field("Status", status),
           field("Completion tier", tier),
-          field("Platform", platform),
-          field("Ownership", own)
-        ]),
-        el("div", { class: "med-form-row" }, [
           field("Playtime (hours)", hours),
           field("Score /10", score),
-          field("Backlog priority", prio),
-          field("Started", started),
-          field("Finished", finished),
+          field("Backlog priority", prio)
+        ]),
+        mv.editorSection("ownership", "Platform & ownership", "Where the game lives and whether it belongs in the Shrine.", [
+          field("Platform", platform),
+          field("Ownership", own),
           field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
         ]),
-        el("div", { class: "med-form-row" }, [
+        mv.editorSection("dates", "Dates", "When play started and finished.", [
+          field("Started", started),
+          field("Finished", finished)
+        ]),
+        mv.editorSection("taxonomy", "Genres & tags", "Comma-separated labels used by filters and search.", [
+          field("Genres", genres, "med-span-2"),
+          field("Tags", tags, "med-span-2")
+        ]),
+        mv.editorSection("lists", "Lists", "Your personal collection groupings.", [
+          field("Custom lists", mv.customListChips(e), "med-span-2")
+        ]),
+        mv.editorSection("source", "Source & store link", "Games remain local; the optional Steam id creates a direct store link only.", [
+          mv.sourceInfo(e, "Local game record", "No browser-side game sync runs from this editor. Steam library import remains a separate, reviewed flow."),
           field("Steam App ID (optional)", steamId),
           el("label", { class: "med-field" }, [el("span", { class: "k", text: " " }), steamLinkHolder])
         ]),
-        field("Genres", genres),
-        field("Tags", tags),
-        field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node])),
-        field("Custom lists", mv.customListChips(e), "wl-notes-full"),
-        field("Notes", notes)
+        mv.editorSection("notes", "Notes", "Your private play notes and backlog context.", [
+          field("Notes", notes, "med-span-2")
+        ])
       ],
       onSave: save,
       onDelete: function () {
@@ -517,57 +526,6 @@
       onBump: e.status === "inProgress" ? function () { bumpHour(e, rerender); } : null,
       open: function () { gamesEditor(e, rerender); }
     });
-  }
-
-  /* ================= games analytics (KOS.charts reuse, nothing new) ================= */
-  function analyticsCards(agg, rows) {
-    var out = [];
-    var g = agg.modules.game;
-    if (!g || !g.total) return out;
-
-    /* completion tier breakdown across the whole enum */
-    out.push(KOS.charts.chartCard("Completion tiers", "credits-rolled vs 100% vs platinum — finer than status",
-      KOS.charts.barChart(KOS.mediadb.TIERS.map(function (t) {
-        return { label: KOS.media.TIER_LABEL[t], value: (g.tiers && g.tiers[t]) || 0, color: KOS.media.TIER_COLOR[t] };
-      }))));
-
-    /* platform + genre breakdowns from the vault rows */
-    var plats = {}, gens = {};
-    rows.forEach(function (e) {
-      if (e.platform) plats[e.platform] = (plats[e.platform] || 0) + 1;
-      e.genres.forEach(function (x) { gens[x] = (gens[x] || 0) + 1; });
-    });
-    out.push(KOS.charts.chartCard("Platforms", "where the library lives",
-      KOS.charts.barChart(KOS.mediadb.PLATFORMS.map(function (p2) {
-        return { label: KOS.media.PLATFORM_LABEL[p2], value: plats[p2] || 0 };
-      }), { color: mod().accent })));
-    var topGenres = Object.keys(gens).map(function (x) { return { label: x, value: gens[x] }; })
-      .sort(function (a, b) { return b.value - a.value; }).slice(0, 10);
-    if (topGenres.length) {
-      out.push(KOS.charts.chartCard("Top genres", "games only, shared taxonomy",
-        KOS.charts.barChart(topGenres, { color: "#c77bf2" })));
-    }
-
-    /* backlog burn-down: added vs reached-a-tier per week, from the same
-       activity log that backs the rest streak. Paired bars — crimson in,
-       jade out; the subtitle states the verdict in plain words. */
-    var weeks = backlogWeeks(12);
-    var addedTotal = 0, doneTotal = 0, bars = [];
-    weeks.forEach(function (w, i) {
-      addedTotal += w.added; doneTotal += w.done;
-      var lbl = w.end.slice(5);   // MM-DD
-      bars.push({ label: lbl, value: w.added, color: "#35D7FF", hint: "week to " + w.end + ": " + w.added + " added" });
-      bars.push({ label: "", value: w.done, color: "#45d6a8", hint: "week to " + w.end + ": " + w.done + " reached a completion tier" });
-    });
-    var net = addedTotal - doneTotal;
-    var verdict = net > 0 ? "backlog GREW by " + net + " in 12 weeks"
-      : net < 0 ? "backlog SHRANK by " + (-net) + " in 12 weeks"
-      : "backlog held steady over 12 weeks";
-    if (addedTotal || doneTotal) {
-      out.push(KOS.charts.chartCard("Backlog burn-down", "crimson = added · jade = reached a tier — " + verdict,
-        KOS.charts.barChart(bars)));
-    }
-    return out;
   }
 
   /* ================= the Games view ================= */
@@ -763,38 +721,6 @@
     var area = mv.resultsArea(mainCol, function (e) {
       return p.layout === "list" ? listRow(e, refreshAll) : gridCard(e, refreshAll);
     });
-
-    /* stats strip + games analytics under the vault */
-    var statsWrap = el("div", { class: "gm-stats" });
-    main.appendChild(statsWrap);
-    function renderStats() {
-      statsWrap.innerHTML = "";
-      KOS.mediadb.stats(function (err, agg) {
-        if (err || !agg) return;
-        var g = agg.modules.game || { total: 0, inProgress: 0, completed: 0, planned: 0, episodes: 0, tiers: {} };
-        function stat(v, k) {
-          return el("div", { class: "stat-card" }, [
-            el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k })]);
-        }
-        var tiers = g.tiers || {};
-        statsWrap.appendChild(el("div", { class: "stat-strip" }, [
-          stat(g.total, "Games tracked"),
-          stat(g.inProgress || 0, "Playing now"),
-          stat(g.planned || 0, "In the backlog"),
-          stat(Math.round(g.episodes || 0), "Hours logged"),
-          stat((tiers.platinum || 0) + (tiers.fullCompletion || 0), "100% / platinum")
-        ]));
-        if (g.total) {
-          KOS.mediadb.query({ module: "game" }, function (err2, rows) {
-            if (err2) return;
-            var grid = el("div", { class: "cs-grid gm-charts" });
-            analyticsCards(agg, rows).forEach(function (c) { grid.appendChild(c); });
-            statsWrap.appendChild(grid);
-          });
-        }
-      });
-    }
-    renderStats();
 
     /* genre dropdown fill from game rows only */
     KOS.mediadb.query({ module: "game" }, function (err, rows) {

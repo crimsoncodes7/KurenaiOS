@@ -493,12 +493,12 @@ step("ISBN → result row (Open Library) → + Use prefills the add form, physic
   if (!/Koyoharu Gotoge/.test(ed.querySelector("input[placeholder^='Author']").value)) throw new Error("author not prefilled");
   if (!/covers\.openlibrary\.org/.test(ed.querySelector("input[type='url']").value)) throw new Error("cover not prefilled");
   if (!/1 volume owned/.test(ed.textContent)) throw new Error("physical intent did not shelve volume 1");
-  if ([...ed.querySelectorAll("button")].every(b => b.textContent !== "Add")) throw new Error("prefilled draft not treated as NEW");
+  if ([...ed.querySelectorAll("button")].every(b => b.textContent !== "Add to collection")) throw new Error("prefilled draft not treated as NEW");
   /* save it: the added entry carries the isbn and logs 'added' */
   const g = KOS.store.state.governor;
   const xp0 = g.xp;
   const saved = await new Promise(res => {
-    const closeBtn = [...ed.querySelectorAll("button")].find(b => b.textContent === "Add");
+    const closeBtn = [...ed.querySelectorAll("button")].find(b => b.textContent === "Add to collection");
     KOS.booksEditor; // (no-op; the editor was opened by the lookup with its own onSaved)
     /* re-open path: click Add and watch the vault instead */
     closeBtn.click();

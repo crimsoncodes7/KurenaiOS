@@ -21,6 +21,28 @@
     ["avatar", "Avatar"],
     ["history", "Session Log"]
   ];
+  var PAGE_META = {
+    status: {
+      kicker: "Command centre",
+      title: "The Governor's Seat",
+      copy: "Your identity, current access state, study rhythm, and recent milestones."
+    },
+    shop: {
+      kicker: "Treasury",
+      title: "Gold Shop",
+      copy: "Spend earned gold on practice spaces and cosmetics. Core study tools remain free."
+    },
+    avatar: {
+      kicker: "Identity",
+      title: "Avatar & profile",
+      copy: "Shape the profile shown across KurenaiOS with one shared portrait and banner cropper."
+    },
+    history: {
+      kicker: "Chronicle",
+      title: "Session Log",
+      copy: "Browse meaningful activity by date and open an entry when you need its recorded detail."
+    }
+  };
 
   /* ---------------- ledger classification (Part C) ----------------
      One predicate, used by every ledger surface. "Routine" = background
@@ -61,6 +83,10 @@
     var li = KOS.governor.levelInfo(g.xp);
     var state = KOS.governor.hpStateInfo();
     var cur = TABS.some(function (t) { return t[0] === openTab; }) ? openTab : "status";
+    var pageMeta = PAGE_META[cur];
+    var hpPreview = "live";
+    try { hpPreview = sessionStorage.getItem("kos-governor-hp-preview") || "live"; } catch (e) {}
+    if (["live", "full", "critical"].indexOf(hpPreview) === -1) hpPreview = "live";
 
     /* --- Part A: header carries the switcher; no strip above or below --- */
     var govTabs = KOS.workspaceTabs(TABS.map(function (t) { return [t[1], "governor", t[0], t[0]]; }),
@@ -70,10 +96,10 @@
 
     var head = el("div", { class: "dash-head gov-head" }, [
       el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "Command centre" }),
-        el("h1", { text: "The Governor's Seat" }),
+        el("span", { class: "dh-kicker", text: pageMeta.kicker }),
+        el("h1", { text: pageMeta.title }),
         el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "One glance at the whole domain — vitals, cadence, and the ledger." })
+          el("span", { class: "board", text: pageMeta.copy })
         ])
       ]),
       govTabs
@@ -217,8 +243,15 @@
     }
 
     function renderStatus() {
-      var hpCls = KOS.governor.hpState();
       var p = KOS.governor.profile();
+      var actualHpCls = KOS.governor.hpState();
+      var displayHp = hpPreview === "full" ? 100 : hpPreview === "critical" ? 0 : p.hp;
+      var hpCls = hpPreview === "full" ? "healthy" : hpPreview === "critical" ? "critical" : actualHpCls;
+      var displayState = hpCls === "healthy"
+        ? { label: "Healthy", desc: "Everything open." }
+        : hpCls === "strained"
+          ? { label: "Strained", desc: "Labs, simulations, and purchases are paused. Core study remains open." }
+          : { label: "Critical", desc: "Recovery mode is visible. Core study remains open." };
       var bento = el("div", { class: "bento gov-status gov-" + hpCls });
       panel.appendChild(bento);
       var stks = KOS.sessions.streaks();
@@ -230,7 +263,7 @@
 
       /* — the unique identity stage: identity and state only; telemetry lives
          in the equal instrument strip below so nothing is repeated. — */
-      var hasBanner = !!KOS.governor.bannerCss(), pState = state.label;
+      var hasBanner = !!KOS.governor.bannerCss(), pState = displayState.label;
       var idCard = el("section", { class: "card bento-card b-id gov-seat-hero" + (hasBanner ? " has-banner" : "") +
         (hasBanner && KOS.governor.bannerIsDark() ? " banner-dark" : "") });
       if (hasBanner) KOS.governor.applyBanner(idCard, { darkScrim: true });
@@ -245,38 +278,58 @@
 
       idCard.appendChild(el("div", { class: "id-wrap" }, [
         el("div", { class: "id-face" }, [
-          KOS.governor.avatarNode(116),
+          KOS.governor.avatarNode(140),
           el("button", { class: "id-face-edit", title: "Edit your profile picture", "aria-label": "Edit your profile picture",
             text: "✎", onclick: function () { KOS.show("governor", "avatar"); } })
         ]),
         el("div", { class: "id-txt" }, [
-          el("div", { class: "rank", text: "The Governor's Seat · " + p.rank }),
+          el("div", { class: "rank", text: p.rank + " · Behavioural Governor" }),
           el("h2", { text: "Level " + p.level }),
           el("div", { class: "title-line" }, [
             el("span", { class: "gov-state-dot", "aria-hidden": "true" }),
             el("b", { text: pState }),
-            el("span", { text: "Behavioural Governor" })
+            el("span", { text: hpPreview === "live" ? "Live HP" : "UI preview" })
           ]),
           aboutBlock
         ]),
-        el("div", { class: "id-command-mark", "aria-hidden": "true" }, [
-          el("span", { text: "守" }),
-          el("small", { text: hpCls === "healthy" ? "systems open" : "recovery active" })
+        el("aside", { class: "id-access", "aria-label": "Governor access state" }, [
+          el("span", { class: "id-access-k", text: "Access state" }),
+          el("strong", { text: hpCls === "healthy" ? "All systems open" : "Recovery mode" }),
+          el("p", { text: hpCls === "healthy"
+            ? "Labs, simulations, and the Gold Shop are available."
+            : "Core study stays open; labs and purchases wait for recovery." }),
+          el("div", { class: "hp-preview", role: "group", "aria-label": "Preview HP state" }, [
+            el("span", { text: "Preview HP" }),
+            hpPreviewButton("live", "Live"),
+            hpPreviewButton("full", "Full"),
+            hpPreviewButton("critical", "Off")
+          ]),
+          hpPreview !== "live" ? el("small", { class: "hp-preview-note", text: "Preview only · actual HP " + p.hp + "/100" }) : null,
+          el("div", { class: "id-banner-ctl" }, [
+            el("button", { class: "mini-btn", text: "Edit profile", title: "Edit your status and about", onclick: openProfileEditor }),
+            el("button", { class: "mini-btn", text: "Edit banner", title: "Upload or reposition your profile banner",
+              onclick: function () { KOS.governor.editBanner(function (err, result) {
+                if (err) { KOS.ui.toast("Banner upload failed: " + err.message, true); return; }
+                if (result && result.cancelled) return;
+                KOS.ui.toast("Banner set.");
+                render();
+              }); } }),
+            hasBanner ? el("button", { class: "mini-btn icon-only", text: "×", "aria-label": "Remove profile banner", title: "Remove the banner",
+              onclick: function () { KOS.governor.setBanner(null); render(); } }) : null
+          ].filter(Boolean))
         ])
       ]));
-      idCard.appendChild(el("div", { class: "id-banner-ctl" }, [
-        el("button", { class: "mini-btn", text: "Edit profile", title: "Edit your status and about", onclick: openProfileEditor }),
-        el("button", { class: "mini-btn", text: "Position banner", title: "Upload or reposition your profile banner",
-          onclick: function () { KOS.governor.editBanner(function (err, result) {
-            if (err) { KOS.ui.toast("Banner upload failed: " + err.message, true); return; }
-            if (result && result.cancelled) return;
-            KOS.ui.toast("Banner set.");
-            render();
-          }); } }),
-        hasBanner ? el("button", { class: "mini-btn icon-only", text: "×", "aria-label": "Remove profile banner", title: "Remove the banner",
-          onclick: function () { KOS.governor.setBanner(null); render(); } }) : null
-      ].filter(Boolean)));
       bento.appendChild(idCard);
+
+      function hpPreviewButton(value, label) {
+        return el("button", { class: "hp-preview-btn" + (hpPreview === value ? " active" : ""),
+          type: "button", "aria-pressed": hpPreview === value ? "true" : "false", text: label,
+          onclick: function () {
+            hpPreview = value;
+            try { sessionStorage.setItem("kos-governor-hp-preview", value); } catch (e) {}
+            render();
+          } });
+      }
 
       /* — five equal instruments: one place for every number — */
       var cheapest = KOS.governor.catalog()
@@ -284,8 +337,8 @@
         .sort(function (a, b) { return a.price - b.price; })[0];
       var dueCount = KOS.srs.dueCount();
       var vitals = el("div", { class: "vital-stack gov-instruments" }, [
-        el("div", { class: "vital" }, [statTile({ cls: "hp", label: "HP", value: p.hp + " / 100", pct: p.hp,
-          barCls: "hud-hp", hint: state.desc, warn: hpCls !== "healthy" })]),
+        el("div", { class: "vital" }, [statTile({ cls: "hp", label: "HP", value: displayHp + " / 100", pct: displayHp,
+          barCls: "hud-hp", hint: hpPreview === "live" ? displayState.desc : "UI preview · actual HP " + p.hp + "/100", warn: hpCls !== "healthy" })]),
         el("div", { class: "vital" }, [statTile({ cls: "xp", label: "XP", value: p.xpInto + " / " + p.xpNeed,
           pct: p.xpPct, barCls: "hud-xp", hint: p.xpToNext + " to level " + (p.level + 1) })]),
         el("div", { class: "vital" }, [statTile({ cls: "gold", label: "Gold", value: "◈ " + p.gold,
@@ -296,7 +349,7 @@
         el("div", { class: "vital" }, [statTile({ cls: "streak", label: "Study streak", value: stks.all + (stks.all === 1 ? " day" : " days"),
           pct: Math.min(100, stks.all / 30 * 100), barCls: "hud-neutral", hint: stks.rest ? stks.rest + " rest day" + (stks.rest === 1 ? "" : "s") + " protected" : "Build from one completed session" })])
       ]);
-      bento.appendChild(bentoCard("b-vitals", "Command instruments", [vitals], state.label));
+      bento.appendChild(bentoCard("b-vitals", "Command instruments", [vitals], displayState.label));
 
       /* — ninety days at its native geometry: compact and never stretched — */
       var byDate = {};
@@ -318,7 +371,7 @@
         if (s.date >= weekStart && s.type !== "media") weekSecs += (s.dur || 0);
       });
       var heat = el("div", { class: "heat-wrap" }, [
-        el("div", { class: "heat-svg" }, [KOS.charts.heatmap(days, {})]),
+        el("div", { class: "heat-svg" }, [KOS.charts.heatmap(days, { cell: 16, gap: 4 })]),
         el("div", { class: "heat-legend" }, [
           el("span", { class: "hl-num", text: totalSess + " session" + (totalSess === 1 ? "" : "s") + " in 90 days" }),
           el("span", { class: "hl-scale" }, [
@@ -344,7 +397,7 @@
 
       /* — meaningful milestones only; progress noise and sync live in filters — */
       var led = el("div", { class: "ledger" });
-      var recent = meaningfulSessions.slice(-6).reverse();
+      var recent = meaningfulSessions.slice(-5).reverse();
       if (!recent.length) led.appendChild(el("div", { class: "gov-empty compact" }, [
         el("span", { class: "gov-empty-mark", "aria-hidden": "true", text: "◇" }),
         el("div", {}, [
@@ -360,14 +413,13 @@
 
       /* — one prescriptive dispatch instead of a long route map — */
       if (hpCls !== "healthy") {
-        var recTasks = KOS.governor.recoveryTasks();
-        var nextTask = recTasks.find(function (t) { return t.cur < t.target; }) || recTasks[0];
+        var nextTask = recoveryAction(dueCount);
         var rec = el("aside", { class: "gov-recovery b-wide" + (hpCls === "critical" ? " urgent" : ""), "aria-live": "polite" }, [
           el("div", { class: "gov-rec-signal", "aria-hidden": "true", text: "✦" }),
           el("div", { class: "gov-rec-copy" }, [
             el("span", { class: "gov-rec-eyebrow", text: hpCls === "critical" ? "Recovery dispatch" : "Route to Healthy" }),
             el("h3", { class: "n-h", text: nextTask.label }),
-            el("p", { text: "Complete this one action now. Core notes, quizzes, flashcards, and exam questions remain open throughout recovery." })
+            el("p", { text: nextTask.detail })
           ]),
           el("div", { class: "gov-rec-progress" }, [
             el("span", { text: nextTask.cur + " / " + nextTask.target }),
@@ -378,6 +430,18 @@
           el("button", { class: "btn primary gov-rec-go", text: "Start this step →", onclick: nextTask.go })
         ]);
         bento.appendChild(rec);
+      }
+
+      function recoveryAction(due) {
+        if (due > 0) {
+          var target = Math.min(5, due);
+          return { label: "Review " + target + " due flashcard" + (target === 1 ? "" : "s"), cur: 0, target: target,
+            detail: due + " card" + (due === 1 ? " is" : "s are") + " ready now. Review opens directly to that queue.",
+            go: function () { KOS.show("due"); } };
+        }
+        return { label: "Complete a 15-minute focus block", cur: 0, target: 15,
+          detail: "Your review queue is clear. Focus Timer is available now and completed study time restores HP.",
+          go: function () { KOS.show("focus"); } };
       }
 
       /* rules remain accessible without competing with current status */
@@ -621,30 +685,23 @@
         var band = el("div", { class: "shop-pv-band" });
         band.style.cssText += KOS.governor.bannerPresetCss(it.banner) || "";
         pv.appendChild(band);
-        pv.appendChild(el("div", { class: "sp-banner-card", "aria-hidden": "true" }, [
-          el("span", { class: "sp-banner-avatar" }), el("span", { class: "sp-banner-line" })
-        ]));
+        pv.appendChild(el("span", { class: "shop-preview-label", text: "Profile banner" }));
       } else if (it.kind === "theme") {
         var strip = el("div", { class: "shop-pv-theme" });
         (it.sw || []).forEach(function (c) {
           strip.appendChild(el("span", { class: "spt-band", style: "background:" + c }));
         });
         pv.appendChild(strip);
-        pv.appendChild(el("div", { class: "sp-theme-shell", "aria-hidden": "true" }, [
-          el("span", { class: "sp-theme-rail" }),
-          el("span", { class: "sp-theme-main" }, [el("i"), el("i"), el("i")])
-        ]));
+        pv.appendChild(el("span", { class: "shop-preview-label", text: "Interface palette" }));
       } else if (it.kind === "seal") {
-        pv.appendChild(el("div", { class: "shop-pv-mark sp-seal-profile", "aria-hidden": "true" }, [
+        pv.appendChild(el("div", { class: "shop-pv-mark sp-seal-brand", "aria-hidden": "true" }, [
           el("span", { class: "sp-seal-avatar" }, [el("span", { class: "spm-k", text: it.glyph || grp.glyph })]),
-          el("span", { class: "sp-seal-copy" }, [el("i"), el("i"), el("i")])
+          el("span", { class: "sp-seal-copy" }, [el("b", { text: "Kurenai" }), el("small", { text: "Topbar seal" })])
         ]));
       } else if (it.kind === "frame") {
-        pv.appendChild(el("div", { class: "shop-pv-frame" }, [
-          el("span", { class: "gov-avatar " + it.id, style: "width:56px;height:56px" }, [
-            el("span", { class: "spf-fill spf-face", "aria-hidden": "true" })
-          ])
-        ]));
+        var framedAvatar = KOS.governor.avatarNode(68);
+        framedAvatar.classList.add(it.id);
+        pv.appendChild(el("div", { class: "shop-pv-frame" }, [framedAvatar]));
       } else if (it.kind === "shelfskin") {
         pv.appendChild(el("div", { class: "sp-shelf " + it.id, "aria-hidden": "true" }, [
           el("span", { class: "sp-books" }, [el("i"), el("i"), el("i"), el("i"), el("i")]),
@@ -690,10 +747,12 @@
       pvBanner.appendChild(el("span", { class: "av-stage-label", text: "Live identity" }));
       preview.appendChild(pvBanner);
       preview.appendChild(el("div", { class: "av-pv-body" }, [
-        el("div", { class: "av-pv-avatar" }, [KOS.governor.avatarNode(96)]),
+        el("div", { class: "av-pv-identity" }, [
+          el("div", { class: "av-pv-avatar" }, [KOS.governor.avatarNode(96)]),
+          p.status ? el("div", { class: "av-pv-status profile-speech", "aria-label": "Profile status", text: p.status }) : null
+        ].filter(Boolean)),
         el("div", { class: "av-pv-name", text: "Level " + p.level }),
         el("div", { class: "av-pv-rank", text: p.rank + " · Behavioural Governor" }),
-        p.status ? el("div", { class: "av-pv-status profile-speech", "aria-label": "Profile status", text: p.status }) : null,
         p.about ? el("p", { class: "av-pv-about", text: p.about }) : null,
         el("div", { class: "av-pv-meta" }, [
           el("span", {}, [el("small", { text: "Portrait" }), (g.avatar.kind === "custom" ? "Custom image" : (KOS.governor.sealById(g.avatar.id) || {}).name || "Ember seal")]),
@@ -712,14 +771,9 @@
       /* --- right: the workshop --- */
       var ctl = el("div", { class: "av-controls" });
       grid.appendChild(ctl);
-      ctl.appendChild(el("header", { class: "av-workshop-head" }, [
-        el("span", { class: "dh-kicker", text: "Identity workshop" }),
-        el("h2", { text: "Compose your Governor profile" }),
-        el("p", { text: "Choose the portrait, banner, seal and frame independently. Every image edit uses the same non-destructive cropper." })
-      ]));
 
       /* portrait + banner, side by side — the two image sources */
-      ctl.appendChild(avSection("Portrait & banner", "The two images that make up your identity. Both keep their full source, so you can reposition later without re-uploading.", [
+      ctl.appendChild(avSection("Profile", "Portrait, banner, status, and about are shared everywhere this identity appears. Images retain their full source for repositioning.", [
         el("div", { class: "av-media" }, [
           avMediaCard({
             title: "Profile picture",
@@ -846,18 +900,6 @@
 
       var history = el("div", { class: "gov-history" });
       panel.appendChild(history);
-      history.appendChild(el("header", { class: "gov-history-head" }, [
-        el("div", {}, [
-          el("span", { class: "dh-kicker", text: "Chronicle" }),
-          el("h2", { text: "Session Log" }),
-          el("p", { text: "Human actions first. Open any entry for its study context and recorded metrics; technical sync stays filed under System." })
-        ]),
-        el("div", { class: "gov-history-stats", "aria-label": "Session history summary" }, [
-          historyStat(String(human.length), "actions"),
-          historyStat(String(Object.keys(activeDates).length), "active days"),
-          historyStat(String(human.filter(isMeaningful).length), "milestones")
-        ])
-      ]));
       function historyStat(value, label) {
         return el("span", { class: "gov-history-stat" }, [el("b", { text: value }), el("small", { text: label })]);
       }
@@ -874,7 +916,14 @@
           el("b", { text: String(n) })
         ]));
       });
-      history.appendChild(band);
+      history.appendChild(el("div", { class: "gov-history-tools" }, [
+        band,
+        el("div", { class: "gov-history-stats", "aria-label": "Session history summary" }, [
+          historyStat(String(human.length), "actions"),
+          historyStat(String(Object.keys(activeDates).length), "active days"),
+          historyStat(String(human.filter(isMeaningful).length), "milestones")
+        ])
+      ]));
 
       var note = el("p", { class: "sub log-note", role: "status", "aria-live": "polite" });
       history.appendChild(note);
@@ -957,6 +1006,14 @@
         if (e.subject) facts.push(["Subject", subjName(e.subject)]);
         if (e.ref) facts.push(["Topic", e.ref]);
         if (e.dur) facts.push(["Duration", Math.max(1, Math.round(e.dur / 60)) + " min"]);
+        /* Build 6.5 — a focus session's objective, how it went and where its
+           notes were filed are part of the record, so the chronicle shows
+           them beside the numbers rather than only in the timer. */
+        if (m.objective) facts.push(["Objective", m.objective]);
+        if (m.objectiveResult) facts.push(["Objective result", { met: "Met", partly: "Partly met", missed: "Missed" }[m.objectiveResult] || m.objectiveResult]);
+        if (m.reflection) facts.push(["Reflection", m.reflection]);
+        if (m.notesFiledTo) facts.push(["Notes filed to", m.notesFiledTo]);
+        if (m.selfMarks) facts.push(["Self-marked", String(m.selfMarks)]);
         [["cards", "Cards"], ["pct", "Score"], ["correct", "Correct"], ["total", "Questions"], ["marks", "Marks"], ["max", "Available"], ["pauses", "Pauses"], ["distractions", "Distractions"], ["entries", "Entries updated"], ["advances", "Status advances"]].forEach(function (pair) {
           if (m[pair[0]] !== undefined && m[pair[0]] !== null) facts.push([pair[1], String(m[pair[0]]) + (pair[0] === "pct" ? "%" : "")]);
         });

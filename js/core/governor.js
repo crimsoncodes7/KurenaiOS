@@ -87,6 +87,34 @@
   function level() { return levelInfo(G().xp).level; }
 
   /* ================= awards ================= */
+  /* Build 6.5 — the focus award as ONE PURE FUNCTION. The setup screen and
+     the running stage quote the deal from here, and onSession pays from the
+     same arithmetic, so a preview can never drift from the payout. It reads
+     nothing and writes nothing: HP is quoted at face value (the Critical
+     half-trickle is applied by restoreHp at payment time, and the preview
+     says so rather than pretending to model it). */
+  function focusAward(m) {
+    m = m || {};
+    var mins = m.mins != null ? m.mins : 0;
+    var extraPauses = Math.max(0, (m.pauses || 0) - 1);
+    var mult = extraPauses ? Math.max(0.25, 1 - 0.15 * extraPauses) : 1;
+    if (!m.complete) {
+      return { xp: 0, gold: 0, hp: 0, forfeited: true, extraPauses: extraPauses, penaltyPct: 0 };
+    }
+    return {
+      xp: Math.round((10 + mins) * mult),
+      gold: Math.round((3 + 2 * Math.floor(mins / 25)) * mult),
+      hp: 6,
+      forfeited: false,
+      extraPauses: extraPauses,
+      penaltyPct: Math.round((1 - mult) * 100)
+    };
+  }
+
+  /* what the LAST session actually paid — the completion review reports the
+     real figures (streak bonuses included), never a second guess at them */
+  var lastAward = null;
+
   /* Session-type → base award. XP and gold always land; HP goes through the
      Critical trickle. One toast summarises the take. */
   function onSession(e) {
@@ -132,22 +160,18 @@
       /* Build 2b — the real focus award. Ended-early sessions log but forfeit
          the whole award; extra pauses (first is free) shave XP/gold 15% each;
          distraction HP nicks were already applied live by the timer. */
-      if (!m.complete) {
+      var fa = focusAward({ complete: m.complete,
+        mins: m.mins || Math.round((e.dur || 0) / 60), pauses: m.pauses });
+      if (fa.forfeited) {
+        lastAward = { xp: 0, gold: 0, hp: 0, notes: ["ended early — award forfeited"], levelUp: false };
         store.save();
         if (KOS.ui) KOS.ui.toast("Focus session logged — ended early, award forfeited.");
         if (KOS.refreshHUD) KOS.refreshHUD();
         return;
       }
-      var mins = m.mins || Math.round((e.dur || 0) / 60);
-      xp = 10 + mins;
-      gold = 3 + 2 * Math.floor(mins / 25);
-      hp = 6;
-      var extraPauses = Math.max(0, (m.pauses || 0) - 1);
-      if (extraPauses) {
-        var mult = Math.max(0.25, 1 - 0.15 * extraPauses);
-        xp = Math.round(xp * mult);
-        gold = Math.round(gold * mult);
-        notes.push(extraPauses + " extra pause" + (extraPauses > 1 ? "s" : "") + " −" + Math.round((1 - mult) * 100) + "%");
+      xp = fa.xp; gold = fa.gold; hp = fa.hp;
+      if (fa.extraPauses) {
+        notes.push(fa.extraPauses + " extra pause" + (fa.extraPauses > 1 ? "s" : "") + " −" + fa.penaltyPct + "%");
       }
       if (m.distractions) notes.push(m.distractions + " distraction" + (m.distractions > 1 ? "s" : ""));
     }
@@ -170,6 +194,7 @@
     store.save();
 
     var after = levelInfo(g.xp).level;
+    lastAward = { xp: xp, gold: gold, hp: hp, notes: notes.slice(), levelUp: after > before, level: after };
     var msg = "+" + xp + " XP · +" + gold + " gold" + (notes.length ? " · " + notes.join(", ") : "");
     if (after > before) msg += " · LEVEL " + after + "!";
     if (KOS.ui) KOS.ui.toast(msg);
@@ -630,10 +655,12 @@
     if (!applyBanner(band, { darkScrim: true })) band.classList.add("plain");
     card.appendChild(band);
     var body = el("div", { class: "pc-body" });
-    body.appendChild(el("div", { class: "pc-avatar" }, [avatarNode(64)]));
+    body.appendChild(el("div", { class: "pc-identity-row" }, [
+      el("div", { class: "pc-avatar" }, [avatarNode(64)]),
+      p.status ? el("div", { class: "pc-status profile-speech", text: p.status }) : null
+    ].filter(Boolean)));
     body.appendChild(el("div", { class: "pc-name", text: "Level " + p.level }));
     body.appendChild(el("div", { class: "pc-rank", text: p.rank + " · Behavioural Governor" }));
-    if (p.status) body.appendChild(el("div", { class: "pc-status profile-speech", text: p.status }));
     body.appendChild(el("div", { class: "pc-meters" }, [
       meterRow("HP", p.hp + " / 100", p.hp, "hud-hp", p.hpLabel),
       meterRow("XP", p.xpInto + " / " + p.xpNeed, p.xpPct, "hud-xp", "Lv " + (p.level + 1) + " next"),
@@ -729,21 +756,14 @@
     var btn = el("button", { class: "hud hud-" + state, "aria-haspopup": "dialog", "aria-expanded": "false",
       title: "Behavioural Governor — HP " + g.hp + " · Level " + li.level + " · " + g.gold + " gold",
       onclick: function () { if (popNode) closeProfilePopover(); else openProfilePopover(); } }, [
-      avatarNode(32),
+      avatarNode(34),
       el("span", { class: "hud-col" }, [
-        el("span", { class: "hud-row" }, [
-          el("span", { class: "hud-lv", text: "Lv " + li.level }),
+        el("span", { class: "hud-profile-name", text: "Level " + li.level }),
+        el("span", { class: "hud-profile-meta" }, [
+          el("i", { class: "hud-state-dot", "aria-hidden": "true" }),
+          el("span", { text: hpStateInfo().label }),
+          el("span", { "aria-hidden": "true", text: "·" }),
           el("span", { class: "hud-gold", text: "◈ " + g.gold })
-        ]),
-        /* the status line, Discord-style, when one is set */
-        String(g.status || "").trim()
-          ? el("span", { class: "hud-status profile-speech", text: String(g.status).trim() })
-          : null,
-        el("span", { class: "hud-bars" }, [
-          el("span", { class: "hud-bar hud-hp", title: "HP " + g.hp + "/100 — " + hpStateInfo().label }, [
-            el("span", { style: "width:" + g.hp + "%" })]),
-          el("span", { class: "hud-bar hud-xp", title: li.into + "/" + li.need + " XP to level " + (li.level + 1) }, [
-            el("span", { style: "width:" + Math.round(100 * li.into / li.need) + "%" })])
         ])
       ])
     ]);
@@ -768,6 +788,9 @@
     hpStateInfo: hpStateInfo,
     tick: tick,
     onSession: onSession,
+    /* Build 6.5: the focus deal, quotable without paying it */
+    focusAward: focusAward,
+    lastAward: function () { return lastAward; },
     levelInfo: levelInfo,
     level: level,
     drainHp: drainHp,

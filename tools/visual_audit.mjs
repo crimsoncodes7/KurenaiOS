@@ -251,6 +251,22 @@ await auditView("governor", "status", ".gov-status");
 await screenshot("/tmp/kos-governor-status-light-1440.png");
 await evaluate(`(() => { KOS.store.state.governor.theme = "spectral-rose"; KOS.governor.applyCosmetics(); })()`);
 await auditView("governor", "status", ".gov-status");
+const governorRefine = await evaluate(`(() => {
+  const head = document.querySelector('.gov-head'), hero = document.querySelector('.gov-seat-hero');
+  const face = hero.querySelector('.id-face .gov-avatar');
+  return {
+    gap: Math.round(hero.getBoundingClientRect().top - head.getBoundingClientRect().bottom),
+    face: Math.round(face.getBoundingClientRect().width),
+    access: !!hero.querySelector('.id-access .hp-preview'),
+    cap: getComputedStyle(document.querySelector('.b-vitals'), '::before').content,
+    idleAssistantDot: getComputedStyle(document.querySelector('.assistant-trigger .at-dot')).display,
+    saveLabels: document.querySelectorAll('.save-wrap').length
+  };
+})()`);
+assert(governorRefine.gap <= 30 && governorRefine.face === 140 && governorRefine.access &&
+  (governorRefine.cap === 'none' || governorRefine.cap === 'normal') &&
+  governorRefine.idleAssistantDot === 'none' && governorRefine.saveLabels === 0,
+  `Governor header/hero/topbar refinement regressed: ${JSON.stringify(governorRefine)}`);
 await screenshot("/tmp/kos-governor-status-dark-1440.png");
 await evaluate(`document.getElementById("main").scrollTop = 470`);
 await pause(120);
@@ -262,11 +278,41 @@ await pause(120);
 await screenshot("/tmp/kos-governor-recovery-dark-1440.png");
 await evaluate(`(() => { KOS.store.state.governor.hp = 100; KOS.store.save(); })()`);
 await auditView("governor", "history", ".gov-history");
+assert(await evaluate(`!document.querySelector('.gov-history-head') && document.querySelector('.gov-head h1')?.textContent === 'Session Log'`),
+  "Session Log still has a duplicate internal hero/title");
 await screenshot("/tmp/kos-governor-history-dark-1440.png");
 await auditView("governor", "avatar", ".avatar-studio");
+const avatarAlignment = await evaluate(`(() => {
+  const preview = document.querySelector('.identity-stage').getBoundingClientRect();
+  const profile = document.querySelector('.av-controls .av-sec').getBoundingClientRect();
+  const avatar = document.querySelector('.av-pv-avatar').getBoundingClientRect();
+  const status = document.querySelector('.av-pv-status')?.getBoundingClientRect();
+  return { topDelta: Math.round(Math.abs(preview.top - profile.top)),
+    statusBeside: !status || (status.left >= avatar.right - 2 && Math.abs(status.bottom - avatar.bottom) < 20),
+    duplicateHead: !!document.querySelector('.av-workshop-head') };
+})()`);
+assert(avatarAlignment.topDelta <= 2 && avatarAlignment.statusBeside && !avatarAlignment.duplicateHead,
+  `Avatar editor is not aligned like one profile workspace: ${JSON.stringify(avatarAlignment)}`);
 await screenshot("/tmp/kos-governor-avatar-dark-1440.png");
 await auditView("governor", "shop", ".shop-depts");
+const shopRefine = await evaluate(`(() => ({
+  fakeThemeOverlays: document.querySelectorAll('.sp-theme-shell').length,
+  fakeBannerOverlays: document.querySelectorAll('.sp-banner-card').length,
+  maxActionGap: Math.max(...[...document.querySelectorAll('.shop-card')].map(card => {
+    const desc = card.querySelector('.shop-access-note') || card.querySelector('.sub');
+    const foot = card.querySelector('.shop-card-f');
+    return desc && foot ? Math.round(foot.getBoundingClientRect().top - desc.getBoundingClientRect().bottom) : 0;
+  }))
+}))()`);
+assert(shopRefine.fakeThemeOverlays === 0 && shopRefine.fakeBannerOverlays === 0 && shopRefine.maxActionGap <= 18,
+  `Shop previews/actions remain disconnected: ${JSON.stringify(shopRefine)}`);
 await screenshot("/tmp/kos-governor-shop-dark-1440.png");
+await evaluate(`document.getElementById('main').scrollTop = document.getElementById('shop-sec-themes').offsetTop - 90`);
+await pause(120);
+await screenshot("/tmp/kos-governor-themes-dark-1440.png");
+await evaluate(`document.getElementById('main').scrollTop = document.getElementById('shop-sec-banners').offsetTop - 90`);
+await pause(120);
+await screenshot("/tmp/kos-governor-banners-dark-1440.png");
 await viewport(390, 844);
 await auditView("governor", "status", ".gov-status");
 await screenshot("/tmp/kos-governor-status-mobile-390.png");
@@ -657,5 +703,5 @@ await screenshot("/tmp/kos-home-restored-1440.png");
 assert(browserErrors.length === 0, `Browser errors:\n${browserErrors.join("\n")}`);
 
 console.log("VISUAL AUDIT PASS — live crop workflows, Budget Planner, Compare Topics, persistence, backup/restore and responsive adjacent pages verified");
-console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
+console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-themes-dark-1440.png, /tmp/kos-governor-banners-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
 ws.close();

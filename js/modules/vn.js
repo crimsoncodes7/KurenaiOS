@@ -345,39 +345,56 @@
       isNew: isNew, label: "Visual Novels", className: "vn-modal",
       subtitle: e.syncSource === "vndb" ? "synced from VNDB — a Sync overwrites list state, keeps your routes/quotes/CG/warnings" : "manual entry",
       form: [
-        el("div", { class: "med-form-row" }, [
-          field("Title", title, "bk-grow"),
-          field("VNDB id", vndbId)
+        mv.editorSection("identity", "Identity & artwork", "The title, studio and cover used throughout the vault.", [
+          field("Title", title, "med-span-2"),
+          field("Developer", developer),
+          field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]))
         ]),
-        field("Developer", developer),
-        el("div", { class: "med-form-row" }, [
+        mv.editorSection("progress", "Progress", "Status and route completion are the primary progress record.", [
           field("Status", status),
           field("Score /10", score),
+          routesWrap
+        ]),
+        mv.editorSection("ownership", "Ownership", "How you own it and whether it belongs in the Shrine.", [
           field("Ownership", own),
-          field("Started", started),
-          field("Finished", finished),
           field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
         ]),
-        lengthText(e.extra) ? el("p", { class: "sub vn-length", text: "Length (VNDB estimate): " + lengthText(e.extra) }) : null,
-        field("Genres (comma-separated — filled from VNDB content tags)", genres),
-        field("Tags (comma-separated, shared taxonomy)", tags),
-        field("Content warnings (comma-separated — yours, never auto-filled)", warns),
-        field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node])),
-        routesWrap,
-        chaptersWrap,
-        el("div", { class: "vn-cg" }, [
-          el("div", { class: "vn-sec-h" }, [
-            el("b", { text: "CG gallery" }),
-            el("span", { class: "sub", text: "a counter, not a gallery — no artwork is stored" })
-          ]),
-          el("div", { class: "med-form-row" }, [
-            field("Unlocked", cgUn),
-            field("of (total known)", cgTot)
+        mv.editorSection("dates", "Dates", "When play started and finished.", [
+          field("Started", started),
+          field("Finished", finished)
+        ]),
+        mv.editorSection("structure", "Chapters & gallery", "Optional detail that stays independent of route progress.", [
+          chaptersWrap,
+          el("div", { class: "vn-cg" }, [
+            el("div", { class: "vn-sec-h" }, [
+              el("b", { text: "CG gallery" }),
+              el("span", { class: "sub", text: "A progress counter only; no artwork is stored." })
+            ]),
+            el("div", { class: "med-form-row" }, [
+              field("Unlocked", cgUn),
+              field("Total known", cgTot)
+            ])
           ])
         ]),
-        quotesWrap,
-        field("Custom lists", mv.customListChips(e), "wl-notes-full"),
-        field("Notes", notes)
+        mv.editorSection("highlights", "Quote log", "Lines worth keeping can become personal flashcards.", [
+          quotesWrap
+        ], { raw: true }),
+        mv.editorSection("taxonomy", "Genres & tags", "Shared filters plus your own content warnings.", [
+          field("Genres", genres, "med-span-2"),
+          field("Tags", tags, "med-span-2"),
+          field("Content warnings", warns, "med-span-2")
+        ]),
+        mv.editorSection("lists", "Lists", "Your personal collection groupings.", [
+          field("Custom lists", mv.customListChips(e), "med-span-2")
+        ]),
+        mv.editorSection("source", "Source & sync", "VNDB identity and fields that may refresh.", [
+          mv.sourceInfo(e, e.syncSource === "vndb" ? "VNDB" : "Local record"),
+          field("VNDB id", vndbId),
+          lengthText(e.extra) ? el("p", { class: "sub vn-length med-span-2", text: "VNDB length estimate · " + lengthText(e.extra) }) : null
+        ]),
+        mv.editorSection("notes", "Notes", "Your private play notes and route context.", [
+          field("Notes", notes, "med-span-2")
+        ])
       ],
       onSave: save,
       onDelete: function () {
@@ -487,25 +504,6 @@
     /* countLine + holder + sentinel + the lazy batch renderer */
     var area = mv.resultsArea(mainCol, function (e) {
       return p.layout === "list" ? listRow(e, refreshAll) : gridCard(e, refreshAll);
-    });
-
-    /* stats strip under the vault */
-    var statsWrap = el("div", { class: "vn-stats" });
-    main.appendChild(statsWrap);
-    KOS.mediadb.stats(function (err, agg) {
-      if (err || !agg) return;
-      var v = agg.modules.vn || { total: 0, inProgress: 0, completed: 0, episodes: 0, quotes: 0 };
-      function stat(val, k) {
-        return el("div", { class: "stat-card" }, [
-          el("div", { class: "v", text: String(val) }), el("div", { class: "k", text: k })]);
-      }
-      statsWrap.appendChild(el("div", { class: "stat-strip" }, [
-        stat(v.total, "VNs tracked"),
-        stat(v.inProgress || 0, "Playing now"),
-        stat(v.completed || 0, "Completed"),
-        stat(v.episodes || 0, "Routes cleared"),
-        stat(v.quotes || 0, "Quotes kept")
-      ]));
     });
 
     /* dropdown fills — genres from vn rows, developers from the v4 index */

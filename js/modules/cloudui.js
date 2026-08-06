@@ -40,8 +40,16 @@
       }
     });
     KOS.cloudsync.onStatus(function (s) {
-      if (s.state === "unconfigured") { chip.hidden = true; return; }
+      var localSave = document.querySelector(".save-wrap");
+      if (s.state === "unconfigured") {
+        chip.hidden = true;
+        if (localSave) localSave.hidden = false;
+        return;
+      }
       chip.hidden = false;
+      /* One persistence indicator at a time: once cloud status is meaningful,
+         it replaces the redundant local "saved" label beside it. */
+      if (localSave) localSave.hidden = true;
       chip.className = "sync-chip sync-" + s.state;
       chip.textContent = LABELS[s.state] || s.state;
       chip.title = "Cloud sync — " + (LABELS[s.state] || s.state) +

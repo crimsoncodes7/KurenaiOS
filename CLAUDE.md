@@ -39,9 +39,12 @@ node tools/smoke27.test.js # Category 6 Phase F: conversational continuity (in-m
 node tools/smoke28.test.js # Category 6 Phase F: execution grounding (verified write receipts, proposal≠persisted, exact-artifact save incl. edits, false-success/promise-no-action correction, batch atomicity, retrieval proof)
 node tools/smoke29.test.js # Category 6.1 assistant UI/UX acceptance: one controller across drawer/page, inert provider rendering, canonical confirmations, theme inheritance, focus containment, production assets
 node tools/smoke30.test.js # Build 6.2 Reminders: lists-vs-tags separation, smart sections, recurrence, anti-farming reward bounds, migration, Home/Calendar boundaries, backup fidelity
-node tools/smoke31.test.js # Governor v5 UI/UX: 90-day cadence, meaningful ledger, recovery dispatch, expandable/paginated history, shop departments/previews, shared cropper, status bubbles
+node tools/smoke31.test.js # Governor v5.1 UI/UX: page-specific headers, non-mutating HP preview, 90-day cadence, meaningful ledger, state-aware recovery, history, shop and shared cropper
 node tools/smoke32.test.js # Build 6.3 Study Files: selectable list + preview stage, fit/zoom/expand/collapse controls, metadata + rename/replace/remove, IndexedDB + backup fidelity, missing/corrupt handling
 node tools/smoke33.test.js # Build 6.4 Assignment Tracker: one canonical record, derived Calendar/Countdown/Home/Focus surfaces, lifecycle (submit/complete/reopen/overdue), filters, delete-removes-derived-surfaces, backup fidelity
+node tools/smoke34.test.js # Build 6.5 Focus Timer end-to-end: pure focusAward quoted on setup, session objective, running working-record (notes/self-marks/eligibility/progress), refresh + navigation fairness, completion review over an already-logged session
+node tools/smoke35.test.js # Build 6.6 Calendar + the event model: retired global alert threshold (v1→v2 migration, per-record alerts that stay cleared), computed recurrence (daily→yearly, end date, clamped month-ends), merged countdowns over two canonical stores, month/week grids (whole weeks, day-overflow sheet, time grid with packed overlaps), detail-before-edit, the one progressive-disclosure modal (conditional sections, validation, Delete apart from Save)
+node tools/smoke36.test.js # Shared media record folio: sectioned Anime/Books/VN/Games editors, two-column/phone layouts, full-width Notes, source summaries, compact physical ranges, separated Delete/Save, dedicated Stats with obsolete bottom analytics removed
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
@@ -130,6 +133,29 @@ Collected from every build. If a change would break one of these, stop and say s
    separate derivations from the one sessions log: streaks skip
    `focus`+`complete:false` entries; the day-drain still sees them. Keep them
    separate.
+4a. The focus award has ONE definition: the pure `KOS.governor.focusAward({
+   complete, mins, pauses })`. `onSession` pays from it and every preview
+   (the setup "deal", the running eligibility read) QUOTES it — so a number
+   shown to the user can never drift from the number paid. It reads nothing
+   and writes nothing; the Critical HP half-trickle stays in `restoreHp`, at
+   payment time. `KOS.governor.lastAward()` reports what the last session
+   actually paid (streak bonuses included) — the completion review reports
+   that, it never recomputes an award of its own.
+4b. A Focus session is RECORDED AND PAID before its completion review opens
+   (Build 6.5). The review is an annotation pass on an entry that already
+   exists: it may add `objectiveResult`, `reflection` and `notesFiledTo` to
+   that one entry, move a linked assignment through `KOS.assignments`, and
+   file the session's notes onto a topic or assignment — but it must NEVER
+   log a second session or pay a second award. Dismissing it, or suppressing
+   it (`{review:false}`, the assistant's path), must cost nothing.
+4c. A refresh or a navigation NEVER costs a session. `pagehide`/`beforeunload`
+   bank the live phase clock and write it through `KOS.store.flush()` (the
+   ordinary save is debounced 120 ms and the page may not survive it); the
+   unload's own `visibilitychange` is exempt from the distraction penalty;
+   restore comes back PAUSED with the banked time intact, counting
+   `restores` but charging neither a pause nor a distraction. A
+   self-marked distraction (`KOS.focus.markDistraction`) is recorded and
+   never charged — pricing honesty would only buy silence.
 5. Bulk operations never log per-entry sessions. One deliberate act = one
    session (games bulk-add; the 3j `sync-reward` session, watermark-filtered
    and capped at 60 XP / 12 gold per sync). Manual provider syncs log once;
@@ -311,6 +337,45 @@ Collected from every build. If a change would break one of these, stop and say s
     above that block are untouched — extend the tier, don't fork
     components. Icons regenerate via `tools/gen_icons.mjs`, never by hand.
 
+**Calendar & the event model (Build 6.6)**
+41. `KOS.calendar.normalise()` is the SINGLE schema gate for an event — every
+    write goes through it, so an unlisted field cannot enter the store. The
+    branch is `state.calendar` at `v: 2`; `v` is deliberately ABSENT from
+    store DEFAULTS (DEFAULTS deep-merge UNDER stored state, so defaulting it
+    would stamp a legacy branch as migrated and the one-time pass would never
+    run). `time` remains the START-time field name — focus.js and todo.js
+    have read it since Build 2a.
+42. There is NO global alert threshold. `alerts[]` (minute offsets, the same
+    vocabulary reminders and assignments use, max 4) lives on each event.
+    The default 3-day lead is applied ONLY in `addEvent()` for a new
+    exam/deadline — `normalise()` must never re-seed one, or clearing every
+    alert would silently undo itself on the next edit. The v1 `notifyDays`
+    + per-event `notify` day count migrate once, on first access.
+43. Recurrence is COMPUTED, never materialised: one record, occurrences
+    derived by `occursOn`/`nextOccurrence` (daily · weekly · fortnightly ·
+    monthly, clamped to short month-ends · yearly, with optional
+    `recurUntil`). Editing the record edits every showing; deleting it
+    removes them all. Never expand a repeat into extra rows.
+44. Countdowns are a merged READ over two canonical stores — calendar
+    exam/deadline events and `KOS.assignments.countdownItems()` — composed in
+    `KOS.calendar.countdowns()`. `deadlines()` stays calendar-only and keeps
+    its `{ev, date, days}` shape. Visibility is a FIELD on each record
+    (`showInCountdown`), never a second copy, and a completed deadline
+    retires itself. Assignments and reminders render on the grid as derived
+    chips (`.cal-asg` / `.cal-rem`) and must never be written as events.
+45. The event editor is ONE modal for add and edit: core fields visible,
+    everything else behind `.cal-disc` disclosures (a populated section opens
+    itself), and exactly one conditional section per type — exam (paper,
+    duration, room, related topics), deadline (priority, status from the
+    assignment tracker's vocabulary, countdown visibility), study block
+    (intended duration, `assignmentId` LINK, focus-session shortcut). A
+    study block links to an assignment by id and copies nothing from it.
+    Validation runs before any write; Delete stays separated from Save.
+46. Category colour is one custom property: `--ev-hue`, set by the type
+    class and overridden by an explicit `.c-*` colour. Chips, legend keys,
+    swatches and the detail card all read it — never hard-code a palette
+    value into a calendar rule.
+
 **Content & UI**
 24. `js/data/compsci.js`/`maths.js`/`it.js` are generated — never hand-edit by
     default (caveat: regen via pdfplumber is currently unreliable — the
@@ -414,6 +479,21 @@ any completed activity ──► KOS.sessions.log({type, subject, ref, dur, metr
                              = media days only)
 ```
 - `srs.js` owns SM-2 + unified card registry (curriculum `"sid:ref:i"`, custom `"u<id>"`, personal bucket `"personal"`). `governor.js` owns HP/gold/XP/catalog/gates/HUD. `focus.js` owns the ONE timer state machine (`kind:"reading"` for Books). All state in `KOS.store` → localStorage.
+- **Focus Timer, end to end (Build 6.5)** — three surfaces, one machine.
+  *Setup*: mode, duration, break, subject, topic, optional assignment, one
+  objective line; the side "deal" quotes `governor.focusAward` for the
+  duration chosen (invariant 4a). *Running*: the clock stays dominant and
+  gains context chips, the objective (`fx-objective`, editable live), cycle
+  pips, a live eligibility read, quick notes and a free distraction marker —
+  all of it inside the persisted `state.focus.active` snapshot, so a reload
+  restores the notes with the clock. *Completion*: `reviewModal` over an
+  already-logged entry (invariant 4b) — facts, the real award, objective
+  result, one line of reflection, linked-assignment progress, and filing the
+  notes onto the topic note or the assignment. Session metrics gained
+  `objective`, `objectiveResult`, `reflection`, `notes`, `selfMarks`,
+  `restores`, `notesFiledTo`; self-marks are deliberately NOT `marks`, which
+  already means exam marks on tracker entries and is read generically by the
+  Governor chronicle.
 
 **Collection Matrix** (leisure; separate storage, same sessions log):
 ```

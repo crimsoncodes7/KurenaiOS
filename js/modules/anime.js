@@ -192,26 +192,37 @@
       isNew: isNew, label: mod.label,
       subtitle: e.syncSource === "anilist" ? "synced from AniList — a Sync now overwrites list state, keeps your notes/tags" : e.syncSource === "import" ? "from XML import" : "manual entry",
       form: [
-        el("div", { class: "med-form-row" }, [
-          field("Title", title, "bk-grow"),
-          field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]), "bk-grow")
+        mv.editorSection("identity", "Identity & artwork", "The title and the image used across your vault.", [
+          field("Title", title, "med-span-2"),
+          field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]), "med-span-2")
         ]),
-        el("div", { class: "med-form-row" }, [
+        mv.editorSection("progress", "Progress", "Your list state, episode count and rating.", [
           field("Status", status),
           field(mod.unitName + " done", cur),
-          field("of (total)", tot),
+          field(mod.unitName + " total", tot),
           field("Score /10", score)
         ]),
-        el("div", { class: "med-form-row" }, [
+        mv.editorSection("ownership", "Ownership", "How you have it and whether it belongs in the Shrine.", [
           field("Ownership", own),
-          field("Started", started),
-          field("Finished", finished),
           field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
         ]),
-        field("Genres (comma-separated, shared taxonomy)", genres),
-        field("Tags (comma-separated, shared taxonomy)", tags),
-        field("Custom lists", mv.customListChips(e), "wl-notes-full"),
-        field("Notes", notes, "wl-notes-full")
+        mv.editorSection("dates", "Dates", "When watching started and finished.", [
+          field("Started", started),
+          field("Finished", finished)
+        ]),
+        mv.editorSection("taxonomy", "Genres & tags", "Comma-separated labels used by filters and search.", [
+          field("Genres", genres, "med-span-2"),
+          field("Tags", tags, "med-span-2")
+        ]),
+        mv.editorSection("lists", "Lists", "Your personal collection groupings.", [
+          field("Custom lists", mv.customListChips(e), "med-span-2")
+        ]),
+        mv.editorSection("source", "Source & sync", "Where this record came from and what may refresh.", [
+          mv.sourceInfo(e, e.syncSource === "anilist" ? "AniList" : e.syncSource === "import" ? "XML import" : "Local record")
+        ]),
+        mv.editorSection("notes", "Notes", "Your private thoughts, reminders and viewing context.", [
+          field("Notes", notes, "med-span-2")
+        ])
       ],
       onSave: save,
       onDelete: function () {

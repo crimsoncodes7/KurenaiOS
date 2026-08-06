@@ -2720,58 +2720,60 @@ occurrences instead of advancing one step.
 
 ---
 
-## ADDENDUM — Governor v5: lacquered command desk · 2026-08-06
+## ADDENDUM — Governor v5.1: refinement audit · 2026-08-06
 
 The complete Governor surface has been rebuilt again around a clearer
 information hierarchy. This supersedes the v4 layout notes above; the
 economy, session model, HP gates, awards, recovery task definitions and shared
 image-crop contract are unchanged.
 
-**Status.** The profile banner remains the unique Governor hero, but now holds
-identity only: portrait, level/rank, HP state, status speech bubble and about
-copy. Five equal command instruments below it are the single source for HP,
-XP, Gold, review queue and study streak—there is no duplicate hero stat rail.
-The study cadence is exactly 13 weeks / 91 days, rendered at the chart's
-intrinsic dimensions so it cannot stretch or overflow. It is balanced against
-a milestone ledger that excludes background sync, low-signal collection
-progress and incomplete focus attempts.
+**Status.** The Governor now follows the same one-gap page rhythm as Collection
+Planner/Sync; the accidental second workspace padding and decorative top-edge
+"bleed" are gone. The banner hero pairs a proportionate 140px portrait and
+identity copy with a useful access-state panel. Its Live / Full / Off HP control
+is a session-only UI preview and never mutates HP or gating. Five equal command
+instruments remain the single source for HP, XP, Gold, review queue and study
+streak. Cadence owns the wide side of the lower row, scales its 13-week / 91-day
+chart inside the card, and leaves the meaningful milestone ledger deliberately
+narrower.
 
-**Recovery.** Strained/Critical mode now presents one prescriptive next action
-with progress and a direct route. The former three-row checklist is gone from
-the page, while the existing `KOS.governor.recoveryTasks()` definition remains
-the source of truth. Core revision availability is stated in the dispatch;
-the HP rules are collapsed into an accessible disclosure.
+**Recovery.** Strained/Critical mode presents one prescriptive next action with
+progress and a direct route. A due review is offered only when cards are
+actually due; a clear queue falls back to a 15-minute Focus block. The backend
+recovery definitions and HP semantics remain untouched. Core revision
+availability is stated in the dispatch; HP rules stay in an accessible
+disclosure.
 
-**Chronicle.** Session Log is now a filtered, expandable timeline grouped by
-full date, with category counts, human-readable action titles/icons, recorded
-context and metrics, 30-entry incremental pagination, and designed empty
-states. Technical integration traffic is hidden from All activity and filed
-under System, where runs remain coalesced per provider/day.
+**Chronicle.** Session Log owns the page header instead of repeating it in a
+second banner. Its compact count/filter toolbar leads directly into the
+filtered, expandable timeline grouped by full date, with human-readable action
+titles/icons, recorded context and metrics, 30-entry pagination, and useful
+empty states. Technical integration traffic remains under System and is
+coalesced per provider/day.
 
-**Avatar.** The page is an identity stage plus workshop. Portrait and banner
-edits still open `KOS.imageCrop` (source and crop metadata remain separate),
-while the full level-gated seal library, owned frame controls and Gold Shop
-route remain intact. Status is consistently drawn as a conversational bubble
-on the stage, rail HUD and compact profile popover; popover actions are now
-smaller.
+**Avatar.** The tab now owns the `Avatar & profile` heading and uses a familiar
+profile-customisation layout: the live profile and first editor group share a
+top edge, with no duplicate workshop title. Status sits beside the portrait on
+the live stage and full profile popover. Portrait/banner edits still open
+`KOS.imageCrop`; level-gated seals, frames and Gold Shop routes are preserved.
+The rail control is reduced to a two-line identity shortcut instead of a
+compressed dashboard.
 
-**Gold Shop.** The catalogue has four filters over three clear merchandise
-domains: Learning tools, Simulations and Cosmetics. Existing catalog ids,
-prices, purchase calls, ownership and suspension rules are untouched. Every
-card has equal geometry and a contextual CSS mini-scene: labs show the
-interaction, themes a miniature shell, seals a profile context, frames an
-avatar, and shelf/shrine cosmetics their destination. Essential revision is
-explicitly described as free; HP suspension is temporary and routes back to
-recovery.
+**Gold Shop.** The catalogue still has four filters over Learning tools,
+Simulations and Cosmetics, with all ids/prices/purchases untouched. Cards now
+end immediately after their action instead of manufacturing vertical space.
+Themes and banners show their actual palettes without fake interface/profile
+overlays; topbar seals are labelled in their real brand context, and frames
+use the current portrait. Essential revision remains explicitly free.
 
 **Accessibility and verification.** Filters use tab semantics and selected
 state, history uses native `details/summary`, keyboard focus remains visible,
 status copy is announced, horizontal filters scroll locally on phone, and all
-new motion respects `prefers-reduced-motion`. `tools/smoke31.test.js` adds 11
-dedicated checks. The real-Chrome `tools/visual_audit.mjs` now captures Status
-light/dark, ledger, recovery, History, Avatar, Shop and 390×844 Status/History,
-and asserts no page/main horizontal overflow. Service worker:
-`kos-gov5-2`.
+new motion respects `prefers-reduced-motion`. `tools/smoke31.test.js` now has 12
+dedicated checks, including page-specific headings and non-mutating HP preview.
+The real-Chrome audit also measures header/hero spacing, portrait scale, Avatar
+alignment, shop action gaps, overlay removal and idle header indicators, with
+dedicated theme/banner captures. Service worker: `kos-gov5-files-refine-2`.
 
 ---
 
@@ -2890,3 +2892,238 @@ claim, the full lifecycle the brief names (create, edit, submit, complete,
 reopen, overdue, delete, reload, backup/restore), filters and sorting, and
 each derived surface including the delete-cleanup and the Home-stays-quiet
 case. Suite count is now 34.
+
+---
+
+## ADDENDUM — Build 6.5: the Focus Timer, end to end · 2026-08-06
+
+The timer was one honest clock with a thin start form and no ending. It is
+now a whole session — setup, running, completion — around the *same* state
+machine. Nothing here changes what a session is, what it pays, or the 3i
+reading contract.
+
+**One award definition.** `KOS.governor.focusAward({complete, mins, pauses})`
+is a new PURE function. `onSession` pays from it; the setup "deal" and the
+running eligibility read QUOTE it. That is the point: the number on screen
+and the number paid cannot drift, because there is only one arithmetic.
+`KOS.governor.lastAward()` reports what the last session actually paid
+(streak bonuses included) so the completion review reports the truth rather
+than recomputing a second guess. The Critical half-trickle deliberately
+stays in `restoreHp`, at payment time — the preview says so instead of
+pretending to model it.
+
+**Setup stays a short form.** Mode · duration · break · subject · topic ·
+optional assignment · one objective line, then Start. The side rail is the
+deal and your record — and nothing else, so there is no invented content
+filling the column. The deal now states real figures for the duration
+selected ("One completed 25-minute cycle → +35 XP · +5 gold · +6 HP") and
+every penalty in the same voice, including the two that were previously
+unstated: marking a distraction yourself is free, and refreshing costs
+nothing.
+
+**Running keeps the clock dominant.** Added, in this order and no more: the
+context chips the session was started for (topic, assignment, deadline), the
+objective as its own line (click to rewrite it mid-session, the clock does
+not stop), cycle pips + banked-cycle count, a live reward-eligibility panel
+("Ending now pays +38 XP…" / "Ending now forfeits the award"), and a working
+row with a quick-note field and a **⚑ Mark a distraction** button. Notes and
+self-marks live in the persisted snapshot, so a reload brings them back with
+the clock; the note field is also on the dock, because a note worth keeping
+usually turns up while you are studying minimised.
+
+**Self-marking is free by design.** The HP nick exists to price an
+*unannounced* tab-switch. Pricing honesty as well would simply buy silence,
+so a self-marked distraction is recorded (and shown in the review) and never
+charged.
+
+**Completion is a review of a record that already exists.** `finish()` logs
+and pays FIRST, then opens `reviewModal`. Dismissing it, or suppressing it,
+loses nothing — the session, the award, the streak and the assignment effort
+have all already landed. The review reports duration, cycles, pauses, tab
+switches, self-marks and recoveries; the real award; then asks for an
+objective result (Met / Partly / Missed) and one line of reflection, offers
+to move a linked assignment (open subtasks, progress, status — through
+`KOS.assignments`, never a direct write), and files the session's notes onto
+**the topic note or the assignment**, appending rather than overwriting.
+Those answers annotate the one entry (`objectiveResult`, `reflection`,
+`notesFiledTo`); they never log a second session or pay a second award.
+The old study-block confirm is folded in as a checkbox instead of stacking a
+second modal — it still asks as a confirm when the review is suppressed.
+
+**Sessions are no longer lost to a refresh.** Three changes:
+
+- `KOS.store.flush()` (new) writes synchronously, clearing the 120 ms save
+  debounce. `pagehide`/`beforeunload` bank the live phase clock through it,
+  so the page may die immediately without shaving the last seconds off.
+- The unload fires its own `visibilitychange`; it is now exempt from the
+  distraction penalty. Pressing F5 used to cost 2 HP.
+- Restore counts `restores` and comes back paused with the banked time,
+  notes, objective and assignment link intact — charging neither a pause nor
+  a distraction, and saying how much time it kept.
+
+**Recorded once, read everywhere.** The session entry is unchanged in shape,
+so the topic inspector still counts its minutes and the Governor chronicle
+still renders the row — now also showing the objective, its result, where the
+notes went and the self-mark count. Self-marks are stored as `selfMarks`, NOT
+`marks`: that key already means exam marks on tracker entries and the
+chronicle reads it generically, so the collision would have shown "Marks: 2"
+on a focus session.
+
+**Assistant path.** `focus_start_session` accepts `objective` and
+`assignmentId`; `focus_get_state` reports the objective, the linked
+assignment, note count and what ending now would pay; `focus_end_session`
+passes `{review:false}` so the assistant reports the outcome in the
+conversation instead of throwing the stage's modal at the user — and returns
+the award it actually paid.
+
+**Tests.** `tools/smoke34.test.js` (28 steps) covers the quoted-deal
+identity (quote == payout, and quoting mutates nothing), the setup form's
+shape, the running working-record, the free self-mark against the still-
+charged tab-switch, all three fairness guarantees, and the completion review
+— including the two properties that matter most: dismissing the review
+changes nothing, and saving it never pays twice. Suite count is now 34.
+
+---
+
+## ADDENDUM — Build 6.6: the Calendar, and one event model
+
+**The global alert setting is gone.** The page carried a single "Remind me
+about deadlines — N days out" dropdown, which meant every exam and every
+homework deadline shouted on the same schedule. Alerts now live on the
+record: `alerts[]` of minute offsets, drawn from the same list Reminders and
+the Assignment Tracker use, up to four per event. A mock exam can warn a week
+out while a coursework hand-in warns the night before.
+
+The v1 branch migrates once, on first access: the old global `notifyDays`
+becomes a per-event alert on every exam/deadline that had no opinion of its
+own, an explicit `notify: 2` becomes a 2-day alert, and an explicit "no
+alert" (`notify: -1`) stays silent. `notifyDays` is deleted from the branch
+and from store DEFAULTS.
+
+The one trap worth recording: `v` is deliberately NOT in DEFAULTS. Defaults
+are deep-merged *under* the stored state, so shipping `v: 2` there would
+stamp every legacy branch as already-migrated and the pass would never run.
+The migration writes the marker.
+
+**A new exam or deadline still gets a three-day warning** — the retired
+default, now applied at creation only. `normalise()` never re-seeds it, so
+clearing every alert sticks through later edits. That asymmetry is the whole
+point of moving alerts onto the record.
+
+**Recurrence is computed, not copied.** Daily, weekly, fortnightly, monthly
+(clamped: the 31st lands on the last day of a short month rather than
+vanishing) and yearly, with an optional end date. A repeating event is ONE
+record — editing it moves every showing, deleting it removes them all, and
+the grid marks each occurrence with `↻` rather than pretending they are
+separate entries.
+
+**Countdowns derive from canonical records.** `KOS.calendar.countdowns()`
+merges upcoming calendar exams/deadlines with the assignments marked major
+and sorts the two together. Nothing is duplicated to make a row appear, and
+nothing is deleted to make one disappear — `showInCountdown` is a field on
+each record. A completed deadline retires itself. `deadlines()` stays
+calendar-only and keeps its `{ev, date, days}` shape, so todo.js and the
+assistant read what they always read.
+
+**The grid.** Today is marked three ways (filled numeral, a rule across the
+top of the cell, a tinted field) so it survives a busy day; weekends and
+past days are toned rather than greyed out; the month trims to whole weeks
+instead of always painting a trailing empty row. Chips carry a colour rail,
+a monospace time, a truncating title and a hover/`aria-label` with the full
+detail. A cell shows three chips and then `+N more` — except when exactly one
+would be hidden, since the control costs the same room as the chip. `+N more`
+opens a day sheet listing events, assignment deadlines and reminders
+together. Week view is now a real time grid: an all-day band, an hour gutter
+sized to the week's actual events, blocks placed by start and end, and
+overlapping blocks packed into shared columns instead of hiding each other,
+with a now-line on today.
+
+**Reading is separate from editing.** Clicking anything opens a read-only
+detail card — when, repeat, subject, topic (clickable through to the ref),
+location, the type's own fields, alerts, description — with Edit and Delete
+in the footer and a "Start a focus session" action on study blocks and
+lessons. An assignment chip opens the tracker's own modal
+(`KOS.assignmentDetail`); the calendar never grew a second editor over an
+assignment record.
+
+**The event modal.** One modal adds and edits. Visible: title, all-day,
+date/start/end, type, colour. Behind disclosures: details (subject, topic,
+location, description) and repeat & alerts — and a section that already holds
+data opens itself, so editing never turns into a hunt. Exactly one
+conditional section per type:
+
+- **exam** — paper, duration, room, related topics;
+- **deadline** — priority, status (the Assignment Tracker's vocabulary, so
+  the two never drift), countdown visibility;
+- **study block** — intended duration, a linked assignment, and a
+  "Save and start a focus session" shortcut.
+
+The study block stores `assignmentId` and nothing else about the assignment:
+renaming the assignment is instantly reflected because there was never a
+copy. With no open assignments the picker is a disabled placeholder that says
+so, rather than a missing control.
+
+Validation runs before any write — title, real date, end-after-start, an end
+without a start, a repeat ending before it starts, duration range — reporting
+in a summary and marking the offending field. Delete sits alone at the far
+side of the footer behind a confirm that says a repeating event is one
+record; Cancel and Save sit at the other end.
+
+**Category colour is one variable.** `--ev-hue` is set by the type class and
+overridden by an explicit colour; chips, legend keys, swatches and the detail
+card all read it, so a theme change or a new colour needs no rule edits.
+
+**Also fixed in passing.** `calendar_list_events` was building
+`upcomingDeadlines` by reading `id`/`title`/`date` straight off the `{ev,
+days}` wrapper — the assistant was handed ten objects of nulls. It now reads
+through `d.ev` and includes the day count.
+
+**Tests.** `tools/smoke35.test.js` (31 steps) pins the retired global
+setting and its migration (including that a cleared alert stays cleared),
+every recurrence cadence and its end date, the merged countdown and its
+per-record visibility, the month and week grids including day overflow and
+overlap packing, detail-before-edit, the modal's disclosure/conditional/
+validation/footer contract, the schema gate, backup fidelity, and the
+boundaries the rest of the app leans on — the calendar still logs no session
+and moves no HP/XP/gold, and `eventsOn()` still returns the shape the focus
+timer and daily list have read since Build 2a. Suite count is now 35.
+
+**smoke3 updated, not weakened:** its calendar step asserted 42 cells and
+seven `.cal-cell` in week mode. It now asserts whole-week month grids, a
+marked today, and the week time grid's columns, band and gutter.
+
+---
+
+## ADDENDUM — Shared media detail and record-editor refinement
+
+Anime, Books, Visual Novels and Games now open the same **record folio**:
+semantic, labelled sections for identity/artwork, progress, ownership, dates,
+taxonomy, lists, source/sync and Notes. The body scrolls inside a fixed modal
+shell, fields follow one two-column grammar on desktop and one column on
+phones, Notes always owns the final full row, and Delete stays physically
+separate from Cancel/Save. Source cards plainly distinguish local, imported
+and live-linked records instead of exposing provider-shaped metadata as the
+primary explanation.
+
+The module-specific information architecture remains honest. Anime keeps its
+cover beneath Title rather than letting the URL dominate the opening row.
+Books separates reading progress from Physical ownership, with an explicitly
+labelled, compact From volume / To volume batch tool (and a browser-found
+overflow defect corrected). Visual Novels keeps routes, chapters, gallery and
+quotes in their own structured groups; Games keeps platform/ownership apart
+from completion and explains that its optional Steam id is a store link, not
+live sync.
+
+Obsolete bottom `bk-stats`, `vn-stats`, `gm-stats` and `gm-charts` components
+are no longer constructed; the Games analytics builder was removed rather
+than hidden. Vault-level numbers remain available from each module's explicit
+Stats action. Browser verification covered all four editors, the dedicated
+Games Stats modal, a 1280×720 desktop viewport and a 390×844 phone viewport;
+the console remained clean and the compact Books range measured zero overflow.
+
+**Tests.** Existing media suites 5/6/8/11/12 were tightened around the new
+contract. `tools/smoke36.test.js` pins shared section semantics, per-module
+field groupings, internal scroll, responsive columns, full-width final Notes,
+separated destructive/save actions, the labelled Physical Vault range and
+the complete removal of bottom analytics while retaining dedicated Stats.
+Suite count is now 36.

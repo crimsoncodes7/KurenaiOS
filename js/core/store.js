@@ -46,14 +46,35 @@
       lastBacklogDrain: null           // "YYYY-MM-DD" the backlog penalty last applied
     },
 
+    /* ---- Build 6.6: the calendar event, one record per thing ----
+       There is NO global reminder threshold any more: alerts[] lives on each
+       event, in the same minute-offset vocabulary reminders and assignments
+       use. The v1 branch (a single `notifyDays` + a per-event `notify` day
+       count) migrates once, on first access, in modules/calendar.js.
+       Assignments are NEVER events — the grid reads them from
+       state.assignments through KOS.assignments.forDate(). */
+    /* `v` is deliberately absent here: DEFAULTS are deep-merged UNDER the
+       stored state, so defaulting it to 2 would stamp a legacy branch as
+       already-migrated and the one-time pass would never run. The migration
+       writes it. */
     calendar: {
       nextId: 1, seeded: false,
       events: [],
-      /* {id, title, date:"YYYY-MM-DD", time:"HH:MM"|null,
+      /* {id, v, title, date:"YYYY-MM-DD", allDay,
+          time:"HH:MM"|null,            // start (kept as `time` since 2a)
+          endTime:"HH:MM"|null,
           type:"exam|deadline|study|lesson|personal",
-          subject:null|sid, ref:null, recur:"none|weekly"} */
-      notifyDays: 3,                   // deadline reminder threshold (days out)
-      notified: {}                     // "eventId|date" -> true (reminder fired today)
+          subject:null|sid, ref:null, description, location,
+          colour:""|palette id,         // "" = inherit the type's hue
+          recur:"none|daily|weekly|fortnightly|monthly|yearly",
+          recurUntil:null|"YYYY-MM-DD",
+          alerts:[minutes before],
+          paper, room, topics:[{subject,ref}],   // exam
+          durationMins:null|int,                 // exam + study block
+          priority:0-3, status, showInCountdown,  // deadline
+          assignmentId:null|int,                 // study block → assignment LINK
+          created, updatedAt} */
+      notified: {}                     // "date|eventId|occurrence|mins" -> fired
     },
 
     todo: {

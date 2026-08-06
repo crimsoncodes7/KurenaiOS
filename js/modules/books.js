@@ -390,7 +390,7 @@
       }
 
       /* quick add — picking up the newest release one at a time */
-      var quick = el("button", { class: "btn", text: "+ Vol " + nextVolumeNumber(e), onclick: function (ev) {
+      var quick = el("button", { class: "btn", text: "+ Add next · Vol " + nextVolumeNumber(e), onclick: function (ev) {
         ev.preventDefault();
         addVolumeRange(e, nextVolumeNumber(e), nextVolumeNumber(e), { purchaseDate: KOS.srs.todayISO() });
         renderPhys();
@@ -417,10 +417,25 @@
         KOS.ui.toast(n ? "Added " + n + (n === 1 ? " volume" : " volumes") + " — each is editable above." : "Those volumes are already on the shelf.");
         renderPhys();
       } });
-      physWrap.appendChild(el("div", { class: "bk-vol-add" }, [
-        quick,
-        el("span", { class: "bk-vol-add-sep", text: "or range" }),
-        rFrom, el("span", { class: "sub", text: "–" }), rTo, rCond, rDate, rPrice, rBtn
+      physWrap.appendChild(el("div", { class: "bk-vol-actions" }, [
+        el("div", { class: "bk-vol-quick" }, [
+          quick,
+          el("span", { class: "sub", text: "Adds today’s next numbered volume with default condition." })
+        ]),
+        el("div", { class: "bk-range-tool" }, [
+          el("div", { class: "bk-range-head" }, [
+            el("b", { text: "Add a volume range" }),
+            el("span", { class: "sub", text: "Use one purchase date, condition and per-volume price for the batch." })
+          ]),
+          el("div", { class: "bk-range-grid" }, [
+            field("From volume", rFrom),
+            field("To volume", rTo),
+            field("Condition", rCond),
+            field("Purchase date", rDate),
+            field("Price each", rPrice),
+            el("div", { class: "bk-range-submit" }, [rBtn])
+          ])
+        ])
       ]));
     }
     renderPhys();
@@ -459,37 +474,48 @@
       isNew: isNew, label: "Books", className: "bk-modal",
       subtitle: e.syncSource === "anilist" ? "synced from AniList — a Sync overwrites reading state, keeps your vault/notes/shelves" : e.syncSource === "import" ? "from XML import" : "manual entry",
       form: [
-        comparePanel(),
-        el("div", { class: "med-form-row" }, [
-          field("Title", title, "bk-grow"),
+        mv.editorSection("identity", "Identity & artwork", "The bibliographic details used across the collection.", [
+          field("Title", title, "med-span-2"),
+          field("Author / mangaka", author),
           field("Format", fmt)
         ]),
-        field("Author / mangaka", author),
-        el("div", { class: "med-form-row" }, [
+        mv.editorSection("artwork", "Cover", "The series default; individual physical volumes can override it.", [
+          field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]), "med-span-2")
+        ]),
+        mv.editorSection("progress", "Reading progress", "Reading state is separate from what you physically own.", [
           field("Status", status),
           field("Chapters read", chCur),
-          field("of (total)", chTot),
+          field("Chapters total", chTot),
           field("Volumes read", vlCur),
-          field("of (total)", vlTot)
-        ]),
-        el("div", { class: "med-form-row" }, [
+          field("Volumes total", vlTot),
           field("Rating", stars),
+          field("DNF — did not finish", el("span", { class: "med-favwrap" }, [dnfBox])),
+          field("Reason", dnfReason, "bk-grow")
+        ]),
+        mv.editorSection("dates", "Dates & favourite", "Reading dates and Shrine placement.", [
           field("Started", started),
           field("Finished", finished),
           field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
         ]),
-        el("div", { class: "med-form-row bk-dnf-row" }, [
-          field("DNF — did not finish", el("span", { class: "med-favwrap" }, [dnfBox])),
-          field("Reason", dnfReason, "bk-grow")
+        mv.editorSection("ownership", "Physical ownership", "Volumes on your shelf are tracked independently from reading progress.", [
+          comparePanel(),
+          physWrap
+        ], { raw: true }),
+        mv.editorSection("taxonomy", "Taxonomy & shelves", "What it is, how it feels and where you organise it.", [
+          field("Genres", genres),
+          field("Mood", mood),
+          field("Shelves", shelves),
+          field("Tags", tags)
         ]),
-        field("Genres (comma-separated, shared taxonomy)", genres),
-        field("Mood (comma-separated — how it feels, not what it is)", mood),
-        field("Shelves (comma-separated — your own collections)", shelves),
-        field("Tags (comma-separated, shared taxonomy)", tags),
-        field("Cover URL (series default; volumes can override below)", el("div", { class: "image-field" }, [coverU, coverPosition.node])),
-        physWrap,
-        field("Custom lists", mv.customListChips(e), "wl-notes-full"),
-        field("Notes", notes)
+        mv.editorSection("lists", "Lists", "Your personal collection groupings.", [
+          field("Custom lists", mv.customListChips(e), "med-span-2")
+        ]),
+        mv.editorSection("source", "Source & sync", "Where this record came from and what may refresh.", [
+          mv.sourceInfo(e, e.syncSource === "anilist" ? "AniList" : e.syncSource === "import" ? "XML import" : "Local record")
+        ]),
+        mv.editorSection("notes", "Notes", "Your private reading notes and edition context.", [
+          field("Notes", notes, "med-span-2")
+        ])
       ],
       onSave: save,
       onDelete: function () {
@@ -983,30 +1009,6 @@
     /* countLine + holder + sentinel + the lazy batch renderer (makeItem is
        hoisted — the shelf-ranking block below defines it) */
     var area = mv.resultsArea(mainCol, function (e, i) { return makeItem(e, i); });
-
-    /* stats + heatmap under the vault */
-    var statsWrap = el("div", { class: "bk-stats" });
-    mainCol.appendChild(statsWrap);
-    function renderStats() {
-      statsWrap.innerHTML = "";
-      KOS.mediadb.stats(function (err, agg) {
-        if (err || !agg) return;
-        var b = agg.modules.books || { total: 0, inProgress: 0, completed: 0, episodes: 0, volumesOwned: 0, spent: 0 };
-        function stat(v, k) {
-          return el("div", { class: "stat-card" }, [
-            el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k })]);
-        }
-        statsWrap.appendChild(el("div", { class: "stat-strip" }, [
-          stat(b.total, "Series tracked"),
-          stat(b.inProgress || 0, "Reading now"),
-          stat(b.completed || 0, "Completed"),
-          stat(b.episodes || 0, "Chapters logged"),
-          stat(b.volumesOwned || 0, "Volumes on the shelf"),
-          stat(b.spent ? "£" + b.spent.toFixed(0) : "£0", "Spent on volumes")
-        ]));
-      });
-    }
-    renderStats();
 
     /* dropdown fills from the real index keys (books rows only for
        mood/shelves — those axes exist only here anyway) */
