@@ -277,6 +277,10 @@
       // all four checks complete -> mark completed automatically
       if (p.check.every(Boolean)) p.status = "done";
       else if (p.status === "done") p.status = "started";
+      // …and a topic carrying any check at all cannot still read "Not started":
+      // the Topic Status component shows the status and the check-derived
+      // mastery side by side, and the two must never contradict each other.
+      else if (p.status === "none" && p.check.some(Boolean)) p.status = "started";
       save();
     },
 

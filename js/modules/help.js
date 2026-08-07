@@ -7,7 +7,7 @@
   var SECTIONS = [
     ["Getting around", [
       ["Overview", "The home dashboard: overall completion ring, today's to-do, deadline countdowns, streaks, flagged topics, and the entry point for focus sessions. Click a subject card to open its dashboard."],
-      ["Subjects (rail)", "Each subject shows its spec tree on the left. Click any leaf to open the topic page. The % next to each subject is spec points marked Completed."],
+      ["Subjects (rail)", "Each subject shows its spec tree on the left. Click any leaf to open the topic page. The % next to each subject is spec points marked Completed — the subject desk calls that figure “secure”, and shows it alongside mastery, which averages the four progress checks over every topic."],
       ["Search (topbar)", "Press / anywhere to search every spec point and flashcard across all three subjects. Arrow keys + Enter to jump."],
       ["Back / Forward", "The ‹ › buttons (or Alt+←/→, Backspace) step through your page history like a browser."]
     ]],
@@ -15,10 +15,10 @@
       ["Specification", "The verbatim board wording, split into content and guidance columns, plus examiner intel (definitions, tips, pitfalls) and your personal note box."],
       ["Notes", "The deep revision content — paginated sections, worked processes, callouts, tables and code. This is the main study surface."],
       ["Flashcards", "Reviews the topic's deck with the 4-point SM-2 scale (Again / Hard / Good / Easy). Again retests the card in the same session AND reschedules it. ⚙ Manage cards lets you add, edit and delete your own custom cards and see each card's full history (ⓘ)."],
-      ["Quiz / Exam Qs", "Instant-feedback multiple choice, and exam-style questions with reveal-the-mark-scheme self-marking. Both log to your session history."],
-      ["Worked / Simulate", "Worked-example generators with your own numbers, and interactive simulations. Sims are part of the enrichment layer — some are gold unlocks."],
+      ["Quiz / Exam questions", "Instant-feedback multiple choice, and exam-style questions with reveal-the-mark-scheme self-marking. Both log to your session history."],
+      ["Worked examples / Simulations", "Worked-example generators with your own numbers, and interactive simulations. Sims are part of the enrichment layer — some are gold unlocks."],
       ["Files", "Attach documents (PDFs, images, anything) to this topic. Stored in the browser's IndexedDB; images and PDFs preview inline, and every file has its own notes field."],
-      ["Status, checklist & confidence", "The status dropdown and four checkboxes track completion. The R/A/G confidence dots are separate — how solid the topic feels. The app also computes its own R/A/G from your data and shows when it disagrees with you."]
+      ["Topic status", "One component at the top of every topic page: the status dropdown, the four progress checks and the R/A/G confidence dots, headed by a live mastery figure. Mastery is the four checks averaged (a topic marked Completed reads 100% and says so). The confidence dots are separate — how solid the topic feels — and the app computes its own R/A/G from your data and shows when it disagrees with you."]
     ]],
     ["Study & review", [
       ["Review", "The Study review workspace keeps the global Due Today queue and Card Stats together. Clear the cards that are ready, then switch to the ledger to understand review volume, scheduling health and lapses."],

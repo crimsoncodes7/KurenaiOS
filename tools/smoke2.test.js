@@ -230,10 +230,12 @@ step("home renders rings, coverage and resume", () => {
   if (!$(".med-home-card")) throw new Error("Collection Matrix home card missing");
   if (!$$(".subj-card").some(c => c.textContent.includes("deep-content"))) throw new Error("coverage stat missing");
 });
-step("subject dash shows deep-content stat", () => {
+step("subject dash keeps deep-content coverage in the analytics panel", () => {
   KOS.show("subject", "maths");
-  const strip = $(".stat-strip").textContent;
-  if (!strip.includes("Deep")) throw new Error("stat missing");
+  const panel = $(".subj-analytics");
+  if (!panel) throw new Error("analytics panel missing");
+  if (!panel.querySelector(".sa-foot").textContent.includes("Deep revision content"))
+    throw new Error("deep-content coverage dropped");
 });
 
 console.log("== persistence ==");

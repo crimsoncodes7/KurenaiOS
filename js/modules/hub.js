@@ -13,7 +13,7 @@
     ["paused", "Paused"], ["done", "Completed"]
   ];
   var STATUS_GLYPH = { none: "○", started: "◐", paused: "◔", done: "●" };
-  var CHECKS = ["Covered in class", "Studied it", "Done exam Qs", "Fully understood"];
+  var CHECKS = ["Covered in class", "Studied it", "Done exam questions", "Fully understood"];
 
   /* ---------- flatten data into ordered leaf lists & a search index ---------- */
   var LEAVES = {};       // subjectId -> [{ref,title,content,info,path:[..titles],section}]
@@ -60,14 +60,113 @@
     return p.check.filter(Boolean).length * 25;
   }
   function subjectStats(sid) {
-    var s = { none: 0, started: 0, paused: 0, done: 0, total: LEAVES[sid].length };
+    var s = { none: 0, started: 0, paused: 0, done: 0, total: LEAVES[sid].length, checkSum: 0 };
     LEAVES[sid].forEach(function (l) {
       var p = store.peekProgress(sid, l.ref);
       s[(p && p.status) || "none"]++;
+      s.checkSum += leafPercent(sid, l.ref);
     });
-    s.pct = s.total ? Math.round(100 * s.done / s.total) : 0;
+    s.pct = pctOf(s.done, s.total);        // topics marked completed — "secure"
+    s.touched = s.total - s.none;          // topics carrying any status at all
+    s.mastery = s.total ? Math.round(s.checkSum / s.total) : 0;   // the four checks, averaged
     return s;
   }
+
+  /* ---------- one derivation per statistic ----------
+     The subject analytics grid, the Topic Status component, the study tab
+     counts and the study inspector all read the functions below. Two
+     surfaces that claim to show the same number cannot drift, because the
+     number is only computed in one place.
+
+     Formatting is standardised here too, and nowhere else: a percentage is
+     always a whole number followed by "%", a part-of-whole is always
+     "A / B", a bar always carries the SAME quantity as the value printed
+     beside it, and a metric with nothing behind it yet renders an em dash
+     plus one sentence saying why. */
+  function pctOf(a, b) { return b ? Math.round(100 * a / b) : 0; }
+  function pctText(n) { return Math.round(n) + "%"; }
+  function ratioText(a, b) { return a + " / " + b; }
+  /* the one performance ramp — the section ledger already colours its bars
+     with these three class names, so every new bar reuses them rather than
+     inventing a second set of thresholds */
+  function tone(pct) { return pct < 20 ? "low" : pct <= 70 ? "mid" : "high"; }
+
+  /* every flashcard in a subject, counted exactly the way the inspector
+     counts one topic's cards — so "cards due" here and the inspector's
+     review queue can never disagree */
+  function subjectCardStats(sid) {
+    var today = KOS.srs.todayISO();
+    var out = { total: 0, reviewed: 0, due: 0 };
+    LEAVES[sid].forEach(function (l) {
+      KOS.srs.cardsFor(sid, l.ref).forEach(function (c) {
+        out.total++;
+        var m = KOS.srs.peek(c.key);
+        if (!m || !m.due) return;
+        out.reviewed++;
+        if (m.due <= today) out.due++;
+      });
+    });
+    return out;
+  }
+  /* the subject's quiz record. `best` is the best score ever recorded, which
+     is what the inspector has always shown; the subject page used to read
+     `lastPct` under a "Best quiz" label, so the two surfaces disagreed. */
+  function subjectQuizStats(sid) {
+    var q = (store.state.study || {}).quiz || {};
+    var out = { best: null, attempts: 0, topics: 0 };
+    Object.keys(q).forEach(function (k) {
+      if (k.indexOf(sid + ":") !== 0) return;
+      out.topics++;
+      out.attempts += q[k].attempts || 0;
+      if (q[k].best != null) out.best = Math.max(out.best == null ? 0 : out.best, q[k].best);
+    });
+    return out;
+  }
+  function subjectExamCount(sid) {
+    return KOS.sessions.all().filter(function (e) {
+      return e.type === "exam" && e.subject === sid;
+    }).length;
+  }
+
+  /* the topic-level read. KOS.views.ref hands the SAME object to the tab bar
+     and to the inspector, which is what keeps a tab count and the inspector
+     line beneath it honest about each other. */
+  function topicStats(sid, ref) {
+    var key = sid + ":" + ref;
+    var study = store.state.study || {};
+    var fc = (study.fc || {})[key] || { seen: 0, right: 0, wrong: 0 };
+    var cards = KOS.srs.cardsFor(sid, ref);
+    var today = KOS.srs.todayISO();
+    var p = store.peekProgress(sid, ref);
+    var t = {
+      cards: cards.length, reviewed: 0, due: 0, next: null, lapses: 0,
+      seen: fc.seen, accuracy: null, quiz: (study.quiz || {})[key] || null,
+      mastery: leafPercent(sid, ref),
+      checks: p ? p.check.filter(Boolean).length : 0,
+      completed: !!(p && p.status === "done")
+    };
+    /* A topic marked Completed is 100% by definition (leafPercent), which can
+       outrun its checklist. Rather than fake the boxes — the assistant's undo
+       path restores status and checks separately, so writing one from the
+       other would lose data — the readout says WHY it reads 100. */
+    t.checkText = t.completed && t.checks < CHECKS.length
+      ? "marked completed" : ratioText(t.checks, CHECKS.length) + " checks";
+    cards.forEach(function (c) {
+      var m = KOS.srs.peek(c.key);
+      if (!m || !m.due) return;
+      t.reviewed++;
+      t.lapses += m.lapses || 0;
+      if (m.due <= today) t.due++;
+      else if (!t.next || m.due < t.next) t.next = m.due;
+    });
+    if (fc.right + fc.wrong) t.accuracy = pctOf(fc.right, fc.right + fc.wrong);
+    var sess = KOS.sessions.all().filter(function (e) { return e.subject === sid && e.ref === ref; });
+    t.sessions = sess.length;
+    t.minutes = Math.round(sess.reduce(function (a, e) { return a + (e.dur || 0); }, 0) / 60);
+    t.examLogged = sess.filter(function (e) { return e.type === "exam"; }).length;
+    return t;
+  }
+
   function sectionStats(sid, sec) {
     var done = 0, total = 0;
     (function walk(n) {
@@ -731,12 +830,10 @@
       ])
     ]));
 
-    /* Build 6.4 — the Assignment Tracker is a tab page on the subject desk;
-       selecting it opens the tracker already filtered to this subject. */
-    main.appendChild(KOS.workspaceTabs([
-      ["Overview", "subject", sid, "subject"],
-      ["Assignments", "assignments", sid, "assignments"]
-    ], "subject", "Subject pages", "subject-workspace-tabs"));
+    /* The Overview/Assignments switcher is gone: the desk had a page-level
+       tab strip whose only other page is already a first-class Study subnav
+       entry, so the strip added a second navigation grammar for nothing.
+       Assignments remains one click away in the Study subnav. */
 
     /* the desk band: board summary + one column per paper/unit (Sol) */
     var units = {};
@@ -754,19 +851,21 @@
       el("span", { class: "ul-glyph", "aria-hidden": "true", text: d.name.slice(0, 1) }),
       el("div", { class: "ul-txt" }, [
         el("strong", { text: d.board }),
-        el("span", { text: s.total + " spec points · " + s.done + " completed" }),
+        el("span", { text: s.total + " spec points · " + s.touched + " started" }),
+        /* the bar and the caption underneath it carry the same quantity —
+           topics secure — so the band cannot read as two different figures */
         el("div", { class: "insp-track" }, [el("i", { style: "width:" + s.pct + "%" })]),
-        el("small", { text: "Subject mastery " + s.pct + "%" })
+        el("small", { text: ratioText(s.done, s.total) + " secure · " + pctText(s.pct) })
       ])
     ]));
     unitKeys.forEach(function (lbl) {
       var u = units[lbl];
-      var upct = u.total ? Math.round(100 * u.done / u.total) : 0;
+      var upct = pctOf(u.done, u.total);
       uwrap.appendChild(el("div", { class: "unit-stat" }, [
         el("span", { text: lbl }),
         el("strong", { text: u.secs.length === 1 ? u.secs[0] : u.secs.length + " sections" }),
         el("div", { class: "insp-track" }, [el("i", { style: "width:" + upct + "%" })]),
-        el("small", { text: u.done + " / " + u.total + " secure" })
+        el("small", { text: ratioText(u.done, u.total) + " secure · " + pctText(upct) })
       ]));
     });
     main.appendChild(uwrap);
@@ -781,7 +880,6 @@
 
     /* --- left: the section ledger (accordion rows) --- */
     colMain.appendChild(el("h3", { class: "n-h", text: "Sections" }));
-    function tone(pct) { return pct < 20 ? "low" : pct <= 70 ? "mid" : "high"; }
     var secGrid = el("div", { class: "sec-grid" });
     d.sections.forEach(function (sec) {
       var st = sectionStats(sid, sec);
@@ -853,44 +951,123 @@
     colMain.appendChild(resHolder);
     renderResources(resHolder, sid);
 
-    /* --- right: continue, countdowns, struggle flags, the numbers --- */
-    var last = store.state.ui.lastRef[sid];
-    if (last && BYREF[sid][last]) {
-      colSide.appendChild(el("button", {
-        class: "continue",
-        onclick: function () { KOS.show("ref", { subject: sid, ref: last }); }
-      }, [
-        el("span", { class: "d", text: "Continue where you left off" }),
-        el("b", { text: last + " " + BYREF[sid][last].title })
-      ]));
-    }
+    /* --- right: the analytics block, then the action, then the dates ---
+       Order is deliberate: the numbers first, the one thing to DO next
+       immediately under them as a full-width action card, and only then a
+       ruled break into the date-driven panels. Countdowns are not subject
+       analytics and must not read as a ninth tile. Nothing here is sticky —
+       the column scrolls with the page. */
+    colSide.appendChild(subjectAnalytics(sid, s));
+    var cont = continueCard(sid);
+    if (cont) colSide.appendChild(cont);
+    colSide.appendChild(el("div", { class: "side-div", role: "separator" }));
     colSide.appendChild(KOS.calendar.countdownWidget(sid));
     var ragPanel = KOS.rag.panel(sid);
     if (ragPanel) colSide.appendChild(ragPanel);
-
-    var cov = KOS.content.coverage(sid, LEAVES[sid]);
-    var study = store.state.study || {};
-    var fcSeen = 0, bestPct = 0;
-    Object.keys(study.fc || {}).forEach(function (k) {
-      if (k.indexOf(sid + ":") === 0) fcSeen += study.fc[k].seen;
-    });
-    Object.keys(study.quiz || {}).forEach(function (k) {
-      if (k.indexOf(sid + ":") === 0) bestPct = Math.max(bestPct, study.quiz[k].lastPct || 0);
-    });
-    var subjStreak = KOS.sessions.streak(sid);
-    function stat(v, k) {
-      return el("div", { class: "stat-card" }, [
-        el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k })]);
-    }
-    colSide.appendChild(el("div", { class: "stat-strip side-stats" }, [
-      stat(s.started, "Started"), stat(s.paused, "Paused"),
-      stat(cov, "Deep topics"),
-      stat((s.total ? Math.round(100 * cov / s.total) : 0) + "%", "Deep %"),
-      stat(fcSeen, "Cards seen"),
-      stat(bestPct + "%", "Best quiz"),
-      stat(subjStreak + (subjStreak === 1 ? " day" : " days"), "Streak")
-    ]));
   };
+
+  /* ---------- the subject analytics panel (right column) ----------
+     Eight statistics genuinely exist for a subject, so the grid is the
+     balanced 2 x 4 the brief allows for — no filler tile invented to fill a
+     hole, and no hole left in the corner (the old strip was seven tiles in a
+     two-column grid). Every tile is the same shape: label, value, one line
+     of context, and a bar that is present only when it shows the same
+     quantity as the value above it. */
+  function statTile(o) {
+    var empty = o.empty === true;
+    var bar = o.pct != null && !empty;
+    return el("div", { class: "sa-tile" + (empty ? " empty" : "") + (bar && o.tone ? " " + o.tone : "") +
+                              (o.flag ? " " + o.flag : "") }, [
+      el("span", { class: "k", text: o.k }),
+      el("strong", { class: "v", text: empty ? "—" : o.v }),
+      el("span", { class: "s", text: o.sub }),
+      el("div", { class: "insp-track sa-track" + (bar ? "" : " na"), "aria-hidden": "true" },
+        [el("i", { style: "width:" + (bar ? Math.max(0, Math.min(100, o.pct)) : 0) + "%" })])
+    ]);
+  }
+
+  function subjectAnalytics(sid, s) {
+    var cards = subjectCardStats(sid);
+    var quiz = subjectQuizStats(sid);
+    var exams = subjectExamCount(sid);
+    var run = KOS.sessions.streak(sid);
+    var deep = KOS.content.coverage(sid, LEAVES[sid]);
+    var startedPct = pctOf(s.touched, s.total);
+    var reviewedPct = pctOf(cards.reviewed, cards.total);
+
+    return el("section", { class: "subj-analytics", "aria-label": "Subject analytics" }, [
+      el("div", { class: "sa-h" }, [
+        el("b", { text: "Subject analytics" }),
+        el("span", { class: "sub", text: "this subject only" })
+      ]),
+      el("div", { class: "sa-grid" }, [
+        statTile({ k: "Mastery", v: pctText(s.mastery), pct: s.mastery, tone: tone(s.mastery),
+          sub: "progress checks across " + s.total + " topics" }),
+        statTile({ k: "Topics secure", v: ratioText(s.done, s.total), pct: s.pct, tone: tone(s.pct),
+          sub: pctText(s.pct) + " marked completed" }),
+        statTile({ k: "Topics started", v: ratioText(s.touched, s.total), pct: startedPct,
+          sub: s.paused ? pctText(startedPct) + " opened · " + s.paused + " paused"
+                        : pctText(startedPct) + " opened at least once" }),
+        statTile({ k: "Cards due", v: String(cards.due), empty: !cards.total,
+          flag: cards.due ? "due" : null,
+          sub: !cards.total ? "no flashcards in this subject yet"
+             : cards.due ? "ready to review now" : "nothing due today" }),
+        statTile({ k: "Cards reviewed", v: ratioText(cards.reviewed, cards.total),
+          empty: !cards.total, pct: cards.total ? reviewedPct : null, tone: tone(reviewedPct),
+          sub: cards.total ? pctText(reviewedPct) + " of the deck is in the schedule"
+                           : "study a topic's cards to begin" }),
+        statTile({ k: "Quiz best", v: quiz.best == null ? "" : pctText(quiz.best),
+          empty: quiz.best == null, pct: quiz.best, tone: quiz.best == null ? null : tone(quiz.best),
+          sub: quiz.best == null ? "no quiz attempts yet"
+             : quiz.attempts + (quiz.attempts === 1 ? " attempt" : " attempts") + " across " +
+               quiz.topics + (quiz.topics === 1 ? " topic" : " topics") }),
+        statTile({ k: "Exam questions", v: String(exams), empty: !exams,
+          sub: exams ? "self-marked and logged" : "none self-marked yet" }),
+        statTile({ k: "Study streak", v: run + (run === 1 ? " day" : " days"), empty: !run,
+          sub: run ? "consecutive days on this subject" : "study today to start one" })
+      ]),
+      /* the two ratios that look alike are explained rather than left to be
+         read as a contradiction, and deep-content coverage keeps its place */
+      el("p", { class: "sa-foot", text:
+        "Mastery averages the four progress checks over every topic; secure counts only topics " +
+        "you have marked completed. Deep revision content exists for " +
+        (deep >= s.total ? "every one of the " + s.total + " topics."
+                         : ratioText(deep, s.total) + " topics.") })
+    ]);
+  }
+
+  /* the full-width action card under the stat grid — one card, one action,
+     and a standardised empty state (a subject you have never opened still
+     gets a card, pointed at the first unfinished topic) */
+  function continueCard(sid) {
+    var last = store.state.ui.lastRef[sid];
+    var leaf = last && BYREF[sid][last];
+    var kicker = "Continue where you left off";
+    if (!leaf) {
+      leaf = LEAVES[sid].filter(function (l) {
+        var p = store.peekProgress(sid, l.ref);
+        return !p || p.status !== "done";
+      })[0] || LEAVES[sid][0];
+      kicker = "Start here";
+    }
+    if (!leaf) return null;
+    var pct = leafPercent(sid, leaf.ref);
+    return el("button", {
+      class: "continue continue-action",
+      onclick: function () { KOS.show("ref", { subject: sid, ref: leaf.ref }); }
+    }, [
+      el("span", { class: "ca-txt" }, [
+        el("span", { class: "d", text: kicker }),
+        el("b", { text: leaf.ref + " " + leaf.title }),
+        el("span", { class: "ca-meta", text: leaf.section.title }),
+        el("span", { class: "ca-foot" }, [
+          el("span", { class: "insp-track ca-track" }, [el("i", { style: "width:" + pct + "%" })]),
+          el("span", { class: "ca-pct", text: pctText(pct) + " mastery" })
+        ])
+      ]),
+      el("span", { class: "ca-go", "aria-hidden": "true", text: "→" })
+    ]);
+  }
 
   /* ---------- FR-2.8: per-subject resource links ---------- */
   function renderResources(holder, sid) {
@@ -956,35 +1133,90 @@
       ])
     ]));
 
-    /* status + checklist */
+    /* ---------- the Topic Status component ----------
+       Status, the four progress checks and the RAG confidence rating used to
+       be three loose control groups sharing one flex row with hairline
+       separators between them. They are one labelled component now, headed by
+       a single live mastery readout that repaints the moment any of the three
+       changes — and repaints the inspector's copy of the same figure with it,
+       because both read topicStats(). */
     var p = store.getProgress(sid, ref);
-    var ctl = el("div", { class: "ctl-row" });
+    var masteryHooks = [];
+    function syncMastery() { masteryHooks.forEach(function (f) { f(); }); }
+
+    var ctl = el("section", { class: "ctl-row topic-status", "aria-label": "Topic status" });
+    var tsPct = el("strong", { class: "ts-pct" });
+    var tsChecks = el("span", { class: "ts-checks" });
+    var tsBar = el("i");
+    function paintStatus() {
+      var t = topicStats(sid, ref);
+      tsPct.textContent = pctText(t.mastery);
+      tsChecks.textContent = t.checkText;
+      tsBar.style.width = t.mastery + "%";
+      ctl.classList.remove("low", "mid", "high");
+      ctl.classList.add(tone(t.mastery));
+    }
+    masteryHooks.push(paintStatus);
+
     var sel = el("select", {
-      class: "status-sel", "aria-label": "Topic status",
+      class: "status-sel", id: "ts-status", "aria-label": "Topic status",
       onchange: function () {
         store.setStatus(sid, ref, sel.value);
         renderTree(sid, ref);
         KOS.refreshRailCounters();
+        syncChecks();
+        syncMastery();
       }
     }, STATUS.map(function (st) {
       return el("option", { value: st[0], text: STATUS_GLYPH[st[0]] + "  " + st[1] });
     }));
     sel.value = p.status;
-    ctl.appendChild(sel);
-    ctl.appendChild(el("div", { class: "ctl-sep" }));
+
+    /* marking a topic Completed fills the checklist in the store; the boxes
+       have to say so, or the component shows 4/4 mastery beside empty boxes */
+    var boxes = [];
+    function syncChecks() {
+      var cur = store.getProgress(sid, ref);
+      boxes.forEach(function (cb, i) {
+        cb.checked = !!cur.check[i];
+        cb.parentNode.classList.toggle("on", cb.checked);
+      });
+    }
+    var checkGrid = el("div", { class: "ts-checkgrid" });
     CHECKS.forEach(function (label, i) {
       var cb = el("input", { type: "checkbox", onchange: function () {
         store.setCheck(sid, ref, i, cb.checked);
         sel.value = store.getProgress(sid, ref).status;
         renderTree(sid, ref);
         KOS.refreshRailCounters();
+        syncChecks();
+        syncMastery();
       }});
       cb.checked = p.check[i];
-      ctl.appendChild(el("label", { class: "chk" }, [cb, label]));
+      boxes.push(cb);
+      checkGrid.appendChild(el("label", { class: "chk ts-chk" + (cb.checked ? " on" : "") }, [cb, label]));
     });
-    /* RAG confidence (FR-3.3) — manual picker + what the data says */
-    ctl.appendChild(el("div", { class: "ctl-sep" }));
-    ctl.appendChild(KOS.rag.picker(sid, ref));
+
+    ctl.appendChild(el("div", { class: "ts-head" }, [
+      el("span", { class: "ts-k", text: "Topic status" }),
+      el("span", { class: "ts-mastery" }, [
+        tsPct, tsChecks,
+        el("span", { class: "insp-track ts-track" }, [tsBar])
+      ])
+    ]));
+    ctl.appendChild(el("div", { class: "ts-body" }, [
+      el("div", { class: "ts-field ts-field-status" }, [
+        el("label", { class: "ts-lbl", for: "ts-status", text: "Status" }), sel
+      ]),
+      el("div", { class: "ts-field ts-field-checks" }, [
+        el("span", { class: "ts-lbl", text: "Progress checks" }), checkGrid
+      ]),
+      /* RAG confidence (FR-3.3) — manual picker + what the data says */
+      el("div", { class: "ts-field ts-field-conf" }, [
+        el("span", { class: "ts-lbl", text: "Confidence" }), KOS.rag.picker(sid, ref)
+      ])
+    ]));
+    paintStatus();
     main.appendChild(ctl);
 
     /* ---------- study tabs ---------- */
@@ -1003,37 +1235,52 @@
     /* flashcards: curriculum + user-created custom cards for this topic — the
        tab shows whenever either exists so custom cards are reachable, and on
        enriched topics regardless so new ones can be added (FR-1.1) */
-    var deckSize = KOS.srs.cardsFor(sid, ref).length;
     var customQuizCount = KOS.srs.customQuizFor(sid, ref).length;
+    /* ONE materials tally. The tab bar prints these numbers on its chips and
+       the inspector prints the same object in its Materials section, so a
+       badge and the panel beside it are incapable of disagreeing. */
+    var mats = {
+      cards: KOS.srs.cardsFor(sid, ref).length,
+      notes: content && content.notes && content.notes.length
+        ? KOS.content.splitPages(content.notes).length : 0,
+      quiz: (content && content.quiz ? content.quiz.length : 0) + customQuizCount,
+      exam: content && content.exam ? content.exam.length : 0,
+      worked: gens.length,
+      sim: sims.length
+    };
+    /* every label is the full noun the rest of the OS uses — the strip mixed
+       full words ("Specification", "Flashcards") with clipped ones ("Exam Qs",
+       "Simulate", "Worked") and read as two different families of control */
     var TABDEFS = [
-      ["spec", "Specification", true],
-      ["notes", "Notes", content && content.notes && content.notes.length],
-      ["cards", "Flashcards", deckSize || !!content],
-      ["quiz", "Quiz", (content && content.quiz && content.quiz.length) || customQuizCount],
-      ["exam", "Exam Qs", content && content.exam && content.exam.length],
-      ["worked", "Worked", gens.length],
-      ["sim", "Simulate", sims.length],
-      ["files", "Files", true]
+      ["spec", "Specification", true, null],
+      ["notes", "Notes", !!mats.notes, mats.notes > 1 ? mats.notes : null],
+      ["cards", "Flashcards", mats.cards || !!content, mats.cards],
+      ["quiz", "Quiz", mats.quiz, mats.quiz],
+      ["exam", "Exam questions", mats.exam, mats.exam],
+      ["worked", "Worked examples", mats.worked, mats.worked],
+      ["sim", "Simulations", mats.sim, mats.sim],
+      ["files", "Files", true, null]
     ].filter(function (t) { return t[2]; });
 
-    var tabBar = el("div", { class: "study-tabs", role: "tablist" });
+    var tabBar = el("div", { class: "study-tabs study-tabs-topic", role: "tablist" });
     var panel = el("div", { class: "study-panel" });
     var curTab = (content && content.notes && content.notes.length) ? "notes" : "spec";
 
     TABDEFS.forEach(function (t) {
-      var count = t[0] === "cards" && deckSize ? deckSize
-        : t[0] === "quiz" ? ((content && content.quiz ? content.quiz.length : 0) + customQuizCount)
-        : t[0] === "exam" ? content.exam.length : null;
       tabBar.appendChild(el("button", {
         class: "study-tab" + (t[0] === curTab ? " active" : ""), role: "tab",
+        "aria-selected": String(t[0] === curTab),
         "data-tab": t[0],
         onclick: function () {
           curTab = t[0];
           tabBar.querySelectorAll(".study-tab").forEach(function (b) {
-            b.classList.toggle("active", b.dataset.tab === curTab); });
+            var on = b.dataset.tab === curTab;
+            b.classList.toggle("active", on);
+            b.setAttribute("aria-selected", String(on));
+          });
           openTab();
         }
-      }, [t[1], count ? el("span", { class: "tab-n", text: String(count) }) : null].filter(Boolean)));
+      }, [t[1], t[3] ? el("span", { class: "tab-n", text: String(t[3]) }) : null].filter(Boolean)));
     });
     /* Build 4.0 — study workspace: content column + collapsible inspector.
        The inspector carries the topic's live stats (mastery, recall record,
@@ -1049,7 +1296,7 @@
     studyCol.appendChild(tabBar);
     studyCol.appendChild(panel);
     studyGrid.appendChild(studyCol);
-    studyGrid.appendChild(buildInspector(studyGrid, sid, ref));
+    studyGrid.appendChild(buildInspector(studyGrid, sid, ref, mats, masteryHooks));
     main.appendChild(studyGrid);
 
     var firstMount = true;
@@ -1268,80 +1515,106 @@
     main.appendChild(nav);
   };
 
-  /* ---------- Build 4.0: the study inspector ----------
-     Sol's study-inspector information — mastery %, recall record, next
-     review — kept, but behind a genuinely collapsible panel (design.md §3).
-     Reads only: progress checks, study tallies, SM-2 peek, the sessions log. */
-  function buildInspector(grid, sid, ref) {
-    var key = sid + ":" + ref;
-    var pct = leafPercent(sid, ref);
-    var p = store.getProgress(sid, ref);
-    var checksDone = p.check.filter(Boolean).length;
-    var study = store.state.study || {};
-    var fc = (study.fc || {})[key] || { seen: 0, right: 0, wrong: 0 };
-    var qz = (study.quiz || {})[key] || null;
-    var cards = KOS.srs.cardsFor(sid, ref);
-    var today = new Date().toISOString().slice(0, 10);
-    var dueNow = 0, nextDue = null, lapses = 0, reviewed = 0;
-    cards.forEach(function (c) {
-      var m = KOS.srs.peek(c.key);
-      if (!m || !m.due) return;
-      reviewed++;
-      lapses += m.lapses || 0;
-      if (m.due <= today) dueNow++;
-      else if (!nextDue || m.due < nextDue) nextDue = m.due;
-    });
-    var acc = (fc.right + fc.wrong) ? Math.round(100 * fc.right / (fc.right + fc.wrong)) : null;
-    var sess = KOS.sessions.all().filter(function (s) { return s.subject === sid && s.ref === ref; });
-    var mins = Math.round(sess.reduce(function (a, s) { return a + (s.dur || 0); }, 0) / 60);
+  /* ---------- the study inspector ----------
+     Mastery, the materials tally, the recall record and the next review, in a
+     panel that genuinely collapses (and says so when collapsed, instead of
+     leaving a bare chevron floating in the gutter).
 
+     It computes nothing of its own: `mats` is the very object the tab bar
+     printed on its chips, and every other figure comes from topicStats(), the
+     same call the Topic Status component makes. `hooks` lets the status
+     component repaint the mastery block when a check is ticked, so the two
+     mastery readouts on the page move together. */
+  function buildInspector(grid, sid, ref, mats, hooks) {
+    mats = mats || {};
     var body = el("div", { class: "insp-body" });
-    var mast = el("div", { class: "insp-sec" }, [
-      el("h5", { text: "Mastery" }),
-      el("div", { class: "insp-mastery" }, [
-        el("strong", { text: pct + "%" }),
-        el("span", { text: checksDone + "/4 checks" })
-      ]),
-      el("div", { class: "insp-track" }, [el("i", { style: "width:" + pct + "%" })])
-    ]);
-    body.appendChild(mast);
 
-    var rec = el("ul", { class: "insp-list" }, [
-      li("Cards in deck", String(cards.length)),
-      li("Card views", String(fc.seen)),
-      acc !== null ? li("Recall accuracy", acc + "%") : null,
-      li("Lapses", String(lapses)),
-      qz ? li("Quiz best", qz.best + "%") : null,
-      qz ? li("Quiz attempts", String(qz.attempts)) : null
-    ].filter(Boolean));
-    body.appendChild(el("div", { class: "insp-sec" }, [el("h5", { text: "Recall record" }), rec]));
-
-    var nextTxt = dueNow ? dueNow + " due now" : nextDue ? nextDue : reviewed ? "all scheduled" : "not started";
+    /* --- mastery (live) --- */
+    var mPct = el("strong", {});
+    var mChecks = el("span", {});
+    var mBar = el("i");
+    function paintMastery() {
+      var t = topicStats(sid, ref);
+      mPct.textContent = pctText(t.mastery);
+      mChecks.textContent = t.checkText;
+      mBar.style.width = t.mastery + "%";
+    }
+    if (hooks) hooks.push(paintMastery);
     body.appendChild(el("div", { class: "insp-sec" }, [
-      el("h5", { text: "Next review" }),
+      el("h5", { text: "Mastery" }),
+      el("div", { class: "insp-mastery" }, [mPct, mChecks]),
+      el("div", { class: "insp-track" }, [mBar])
+    ]));
+
+    function li(k, v, empty) {
+      return el("li", { class: empty ? "na" : "" }, [
+        el("span", { text: k }), el("strong", { text: empty ? "—" : v })]);
+    }
+    function count(k, n) { return li(k, String(n), !n); }
+
+    /* --- materials: the tab counts, restated --- */
+    body.appendChild(el("div", { class: "insp-sec" }, [
+      el("h5", { text: "Materials" }),
       el("ul", { class: "insp-list" }, [
-        li("Review queue", nextTxt),
-        li("Cards scheduled", reviewed + "/" + cards.length),
-        li("Sessions here", sess.length + (mins ? " · " + mins + " min" : ""))
+        count("Flashcards", mats.cards || 0),
+        count("Quiz questions", mats.quiz || 0),
+        count("Exam questions", mats.exam || 0),
+        mats.worked ? count("Worked examples", mats.worked) : null,
+        mats.sim ? count("Simulations", mats.sim) : null,
+        mats.notes > 1 ? count("Note pages", mats.notes) : null
+      ].filter(Boolean))
+    ]));
+
+    var t = topicStats(sid, ref);
+    var qz = t.quiz;
+    body.appendChild(el("div", { class: "insp-sec" }, [
+      el("h5", { text: "Recall record" }),
+      el("ul", { class: "insp-list" }, [
+        count("Card views", t.seen),
+        li("Recall accuracy", t.accuracy == null ? "" : pctText(t.accuracy), t.accuracy == null),
+        count("Lapses", t.lapses),
+        li("Quiz best", qz && qz.best != null ? pctText(qz.best) : "", !(qz && qz.best != null)),
+        count("Quiz attempts", qz ? qz.attempts || 0 : 0),
+        count("Exam questions logged", t.examLogged)
       ])
     ]));
 
-    function li(k, v) {
-      return el("li", {}, [el("span", { text: k }), el("strong", { text: v })]);
-    }
+    var nextTxt = t.due ? t.due + " due now"
+      : t.next ? t.next
+      : t.reviewed ? "all scheduled" : "";
+    body.appendChild(el("div", { class: "insp-sec" }, [
+      el("h5", { text: "Next review" }),
+      el("ul", { class: "insp-list" }, [
+        li("Review queue", nextTxt, !nextTxt),
+        li("Cards scheduled", ratioText(t.reviewed, t.cards), !t.cards),
+        li("Sessions here", t.sessions + (t.minutes ? " · " + t.minutes + " min" : ""), !t.sessions)
+      ])
+    ]));
 
-    var toggle = el("button", { class: "insp-toggle", "aria-label": "Collapse inspector",
+    var toggle = el("button", { class: "insp-toggle",
       title: "Collapse / expand the study inspector",
       onclick: function () {
         var closed = grid.classList.toggle("insp-closed");
         store.state.ui.inspectorOpen = !closed;
         store.save();
-        toggle.textContent = closed ? "‹" : "›";
+        paintToggle(closed);
       } });
-    toggle.textContent = grid.classList.contains("insp-closed") ? "‹" : "›";
+    function paintToggle(closed) {
+      toggle.textContent = closed ? "‹" : "›";
+      toggle.setAttribute("aria-expanded", String(!closed));
+      toggle.setAttribute("aria-label", closed ? "Expand study inspector" : "Collapse study inspector");
+    }
+    paintToggle(grid.classList.contains("insp-closed"));
 
+    paintMastery();
     return el("aside", { class: "study-inspector", "aria-label": "Study inspector" }, [
-      el("div", { class: "insp-head" }, [el("b", { text: "Inspector" }), toggle]),
+      el("div", { class: "insp-head" }, [
+        el("b", { text: "Inspector" }),
+        /* the collapsed panel keeps a readable spine so it can be found and
+           re-opened without hunting for a naked chevron */
+        el("span", { class: "insp-spine", "aria-hidden": "true", text: "Inspector" }),
+        toggle
+      ]),
       body
     ]);
   }

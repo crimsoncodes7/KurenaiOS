@@ -45,6 +45,7 @@ node tools/smoke33.test.js # Build 6.4 Assignment Tracker: one canonical record,
 node tools/smoke34.test.js # Build 6.5 Focus Timer end-to-end: pure focusAward quoted on setup, session objective, running working-record (notes/self-marks/eligibility/progress), refresh + navigation fairness, completion review over an already-logged session
 node tools/smoke35.test.js # Build 6.6 Calendar + the event model: retired global alert threshold (v1→v2 migration, per-record alerts that stay cleared), computed recurrence (daily→yearly, end date, clamped month-ends), merged countdowns over two canonical stores, month/week grids (whole weeks, day-overflow sheet, time grid with packed overlaps), detail-before-edit, the one progressive-disclosure modal (conditional sections, validation, Delete apart from Save)
 node tools/smoke36.test.js # Shared media record folio: sectioned Anime/Books/VN/Games editors, two-column/phone layouts, full-width Notes, source summaries, compact physical ranges, separated Delete/Save, dedicated Stats with obsolete bottom analytics removed
+node tools/smoke37.test.js # Study overview + topic shell: the 2×4 subject analytics grid, one tile shape, the full-width action card below it, countdowns kept separate, nothing sticky; statistic consistency (formats, empty states, one colour ramp, quiz-best, no "Not started" beside a ticked check); the one Topic Status component; inspector collapse + tab counts sharing the inspector's numbers; full tab names and the retired Overview/Assignments switcher
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
@@ -100,11 +101,12 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 34 suites are the release gate (smoke17 the
+the current test inventory. All 37 suites are the release gate (smoke17 the
 Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
-Build 4c games integrations). Suites 1–16 plus the running-Chrome visual
-audit were verified green on 2026-07-13; all 17 on 2026-07-16; all 18 plus
-the phone/tablet CDP audit on 2026-07-17; all 19 on 2026-07-17.
+Build 4c games integrations, smoke37 the Study overview/topic-shell
+refinement). Suites 1–16 plus the running-Chrome visual audit were verified
+green on 2026-07-13; all 17 on 2026-07-16; all 18 plus the phone/tablet CDP
+audit on 2026-07-17; all 19 on 2026-07-17; all 37 on 2026-08-07.
 
 **Edge Functions** (Build 4c, `supabase/functions/`): deploy with
 `supabase functions deploy <name>`; secrets via `supabase secrets set` only
@@ -412,6 +414,24 @@ Collected from every build. If a change would break one of these, stop and say s
     canvas-crop a source to its visible aspect ratio. Reset/cancel must not
     commit. Normal heroes share `--hero-min-h`, `--hero-pad-*` and
     `--radius-hero`; only Governor Status retains its profile-banner geometry.
+26d. Study statistics have ONE derivation each, in hub.js: `subjectStats`
+    (adds `touched` and the check-averaged `mastery`), `subjectCardStats`,
+    `subjectQuizStats`, `subjectExamCount` and `topicStats`. The subject
+    analytics grid, the Topic Status component, the study TAB COUNTS and the
+    study inspector all read them — never recompute a figure at a call site,
+    or two surfaces will silently disagree (the subject page once showed
+    `quiz.lastPct` under a "Best quiz" label while the inspector showed
+    `quiz.best`). Formatting is standardised in the same block: `pctText`
+    (whole number + "%"), `ratioText` ("A / B"), `tone()` (the ONE `low`/
+    `mid`/`high` ramp, shared with the section ledger's bar colours), and the
+    single empty state — an em dash plus one sentence saying why. A progress
+    bar must carry the SAME quantity as the value printed beside it; where a
+    derived figure can outrun its inputs (a topic marked Completed is 100%
+    regardless of its checklist) the readout EXPLAINS itself
+    (`topicStats().checkText`) rather than rewriting the store — the
+    assistant's undo restores status and checks separately, so deriving one
+    from the other loses data. `store.setCheck` does move a `none` topic to
+    `started`, so a ticked box can never sit beside "Not started".
 27. Navigate only via `KOS.show` (history/forward/rail state). Charts are
     hand-built inline SVG via `KOS.charts` — no charting library. Study owns
     subject work, Review and Exams & Papers; Productivity owns Focus Timer,
@@ -424,7 +444,10 @@ Collected from every build. If a change would break one of these, stop and say s
     containers, tags are cross-list labels); dated ones ride the Calendar grid
     but NEVER KOS.calendar.deadlines(). Review composes the legacy `due` and
     `cardstats` routes, so keep both ids working. `KOS.workspaceTabs` is the
-    shared secondary-switcher primitive for Review, Planner and Sync.
+    shared secondary-switcher primitive for Review, Planner and Sync — the
+    subject desk deliberately has NO tab strip of its own (the retired
+    Overview/Assignments switcher was a second navigation grammar for a
+    destination the Study subnav already owns).
 28. Vault editors live in the `KOS.mediaEditors` registry (keyed by module
     id; anime is the fallback base). `KOS.mediaEditor` (core/media.js)
     dispatches on `entry.module` and then runs `KOS.mediaEditorHooks`

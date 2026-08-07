@@ -815,6 +815,11 @@ small { font-size: 12.5px; }
 .page-h h1 { font-size: var(--type-page-title); margin: 2px 0 0; line-height: 1.12; }
 .page-h .pap { font-size: 12px; color: var(--muted); display: block; margin-top: 5px; letter-spacing: .04em; }
 
+/* ---- Topic Status: one component, three labelled fields ----
+   Status, the four progress checks and the confidence rating were three
+   control groups sharing a flex row separated by hairlines. They are one
+   headed component now, with a single live mastery readout across the top
+   that the inspector mirrors from the same derivation. */
 .ctl-row {
   display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
   margin: 16px 0 20px;
@@ -827,6 +832,71 @@ small { font-size: 12.5px; }
 .ctl-row label.chk:hover { color: var(--text); }
 .ctl-row input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
 .ctl-sep { width: 1px; align-self: stretch; background: var(--line2); margin: 0 4px; }
+
+.topic-status { display: block; padding: 0; overflow: hidden; background: var(--surface-card); }
+.ts-head {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
+  padding: 10px var(--space-4);
+  border-bottom: 1px solid var(--line2);
+  background: var(--well);
+}
+.ts-k {
+  font-size: var(--type-label); letter-spacing: .16em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700; white-space: nowrap;
+}
+.ts-mastery { display: flex; align-items: center; gap: 9px; min-width: 0; flex: 0 1 300px; }
+.ts-pct { font-family: var(--serif); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ts-checks { font-family: var(--mono); font-size: 10.5px; color: var(--muted); white-space: nowrap; }
+.ts-track { flex: 1; min-width: 60px; margin-top: 0; }
+.topic-status.low .ts-track i { background: var(--danger); }
+.topic-status.mid .ts-track i { background: var(--warning); }
+.topic-status.high .ts-track i { background: var(--good); }
+
+.ts-body {
+  display: grid; grid-template-columns: minmax(160px, auto) minmax(0, 1fr) minmax(150px, auto);
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4) 14px;
+  align-items: start;
+}
+.ts-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ts-lbl {
+  font-size: var(--type-label); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700;
+}
+.ts-field-status .status-sel { width: 100%; }
+.ts-checkgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+/* every check is the same control: one chip height, one hit area */
+.ctl-row label.chk.ts-chk {
+  min-height: var(--control-h-sm);
+  padding: 4px 11px 4px 9px;
+  border: 1px solid var(--line2);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  font-size: 12.5px;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.ctl-row label.chk.ts-chk:hover { border-color: var(--line); }
+.ctl-row label.chk.ts-chk.on {
+  color: var(--text); font-weight: 600;
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: var(--wash-accent);
+}
+/* the picker brings its own label; the field already has one. The three
+   dots stay a row and the "data says" read-out drops to its own line, so a
+   narrow column never squeezes the two together. */
+.ts-field-conf .rag-picker { display: flex; flex-wrap: wrap; gap: 7px; }
+.ts-field-conf .rag-picker-l { display: none; }
+.ts-field-conf .rag-pick { width: 22px; height: 22px; }
+.ts-field-conf .rag-auto { flex: 1 0 100%; margin-left: 0; }
+
+@media (max-width: 1000px) {
+  .ts-body { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+}
+@media (max-width: 560px) {
+  .ts-head { flex-wrap: wrap; gap: var(--space-2); }
+  .ts-mastery { flex: 1 1 100%; }
+  .ts-checkgrid { grid-template-columns: minmax(0, 1fr); }
+}
 
 /* spec split */
 .split { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); gap: var(--grid-gap); align-items: start; }
@@ -1111,15 +1181,86 @@ small { font-size: 12.5px; }
 .unit-stat strong { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .unit-stat small { font-size: 11.5px; color: var(--text2); }
 
-/* subject workspace: sections left, context right */
+/* subject workspace: sections left, context right.
+   The context column is deliberately NOT sticky — it scrolls with the page,
+   so the analytics read as part of the document rather than as chrome that
+   follows you down it. */
 .subject-grid { display: grid; grid-template-columns: minmax(0, 1fr) var(--sidebar-context-w); gap: var(--layout-gap); align-items: start; }
 .subject-main { min-width: 0; }
-.subject-side { display: flex; flex-direction: column; gap: 14px; }
-.subject-side .continue { width: 100%; flex-direction: column; align-items: flex-start; gap: 2px; }
+.subject-side { position: static; display: flex; flex-direction: column; gap: var(--space-3); }
 .side-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
 .side-stats .stat-card { padding: 9px 10px; }
 .side-stats .stat-card .v { font-size: 17px; }
-@media (max-width: 1240px) { .subject-grid { grid-template-columns: 1fr; } }
+/* the ruled break that keeps date-driven panels out of the analytics block */
+.side-div { height: 1px; background: var(--line2); margin: var(--space-2) 0 var(--space-1); }
+
+/* ---- the subject analytics panel: eight tiles, one shape ----
+   A balanced 2 x 4 grid. Every tile is label / value / context / track, and
+   the track is only drawn when it carries the same quantity as the value
+   above it — an absent bar keeps its row so the rows stay on one baseline. */
+.subj-analytics {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+}
+.sa-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); }
+.sa-h b { font-family: var(--serif); font-size: 15px; font-weight: 600; }
+.sa-h .sub { font-size: 11px; color: var(--muted); }
+.sa-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.sa-tile {
+  display: grid; grid-template-rows: auto auto 1fr auto; gap: 2px;
+  min-width: 0;
+  padding: 10px 11px 9px;
+  border: 1px solid var(--line2);
+  border-radius: var(--radius-control);
+  background: var(--well);
+}
+.sa-tile .k {
+  font-size: var(--type-label); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700;
+}
+.sa-tile .v {
+  font-family: var(--serif); font-size: 19px; font-weight: 600; line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.sa-tile .s { font-size: 10.5px; line-height: 1.35; color: var(--text2); }
+.sa-track { margin-top: 7px; }
+.sa-track.na { visibility: hidden; }
+/* one performance ramp, shared with the section ledger's .low/.mid/.high */
+.sa-tile.low .sa-track i { background: var(--danger); }
+.sa-tile.mid .sa-track i { background: var(--warning); }
+.sa-tile.high .sa-track i { background: var(--good); }
+/* attention, not judgement: work waiting to be done reads warm, never red */
+.sa-tile.due { border-color: color-mix(in srgb, var(--accent2) 45%, transparent); background: var(--wash-brass); }
+.sa-tile.due .v { color: var(--accent2); }
+/* the one empty state: an em dash and a sentence saying why it is empty */
+.sa-tile.empty .v { color: var(--muted); font-family: var(--serif); }
+.sa-foot { margin: var(--space-3) 0 0; font-size: 10.5px; line-height: 1.5; color: var(--muted); }
+
+/* ---- the full-width action card under the grid ---- */
+.continue-action {
+  display: flex; align-items: center; gap: var(--space-3);
+  width: 100%; text-align: left;
+  padding: 13px 14px;
+  border-radius: var(--radius-card);
+}
+.continue-action .ca-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.continue-action b { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+.continue-action .ca-meta { font-size: 11px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.continue-action .ca-foot { display: flex; align-items: center; gap: var(--space-2); margin-top: 5px; }
+.continue-action .ca-track { flex: 1; margin-top: 0; }
+.continue-action .ca-pct { font-family: var(--mono); font-size: 10px; color: var(--muted); flex: none; }
+.continue-action .ca-go { flex: none; font-size: 17px; color: var(--accent, var(--kurenai)); }
+.continue-action:hover { transform: none; box-shadow: var(--shadow-md); border-color: var(--line); }
+.continue-action:hover .ca-go { transform: translateX(2px); }
+
+@media (max-width: 1240px) {
+  .subject-grid { grid-template-columns: 1fr; }
+  .sa-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) { .sa-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* practice zone */
 .practice-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: var(--grid-gap); }
@@ -1214,6 +1355,16 @@ small { font-size: 12.5px; }
 .study-tab.active::after { content: none; }
 .study-panel { padding-top: var(--section-gap); }
 
+/* The topic strip carries eight destinations with their full names, so it
+   wraps onto a second row rather than hiding "Files" behind a silent
+   horizontal scroll. Every tab in it is the same height and the same
+   padding whether or not it carries a count chip. */
+.study-tabs-topic {
+  display: flex; flex-wrap: wrap; overflow: visible;
+  max-width: 100%; width: 100%;
+}
+.study-tabs-topic .study-tab { padding: 8px 14px; flex: 0 0 auto; }
+
 /* Review is a shared Study workspace. Its switcher sits in the page header,
    matching the Collection workspaces while retaining the selected surface. */
 .review-workspace { padding-top: 0; }
@@ -1240,10 +1391,11 @@ small { font-size: 12.5px; }
 
 /* the workspace grid + inspector */
 .study-grid { display: grid; grid-template-columns: minmax(0, 1fr) var(--sidebar-inspector-w); gap: var(--layout-gap); align-items: start; }
-.study-grid.insp-closed { grid-template-columns: minmax(0, 1fr) 34px; }
+.study-grid.insp-closed { grid-template-columns: minmax(0, 1fr) 36px; }
 .study-grid > * { min-width: 0; }
+/* not sticky: the inspector belongs to the page and scrolls with it */
 .study-inspector {
-  position: sticky; top: 10px;
+  position: static;
   overflow: hidden;
   min-width: 0;
 }
@@ -1252,6 +1404,7 @@ small { font-size: 12.5px; }
 .insp-toggle {
   margin-left: auto; flex: none;
   width: var(--icon-btn-size-sm); height: var(--icon-btn-size-sm);
+  display: inline-flex; align-items: center; justify-content: center;
   background: var(--panel);
   border: 1px solid var(--line2);
   border-radius: var(--radius-control);
@@ -1259,26 +1412,42 @@ small { font-size: 12.5px; }
   font-size: 12px; line-height: 1;
 }
 .insp-toggle:hover { color: var(--text); border-color: var(--line); }
+/* the collapsed rail keeps a readable spine, so the panel can be found and
+   re-opened without hunting for an unlabelled chevron in the gutter */
+.insp-spine { display: none; }
 .insp-closed .study-inspector { background: none; border-color: transparent; box-shadow: none; }
-.insp-closed .insp-head { border-bottom-color: transparent; padding: 0; }
+.insp-closed .insp-head {
+  border-bottom-color: transparent; padding: 0;
+  flex-direction: column-reverse; align-items: center; gap: 10px;
+}
 .insp-closed .insp-head b, .insp-closed .insp-body { display: none; }
+.insp-closed .insp-toggle { margin-left: 0; }
+.insp-closed .insp-spine {
+  display: block;
+  writing-mode: vertical-rl;
+  font-size: 9.5px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700;
+}
 .insp-sec { padding: 14px 14px 16px; }
 .insp-sec + .insp-sec { border-top: 1px solid var(--line2); }
 .insp-sec h5 { margin: 0 0 10px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .insp-mastery { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.insp-mastery strong { font-family: var(--serif); font-size: 28px; font-weight: 600; }
-.insp-mastery span { font-size: 11px; color: var(--good); }
+.insp-mastery strong { font-family: var(--serif); font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.insp-mastery span { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
 .insp-track { height: 5px; border-radius: 999px; background: color-mix(in srgb, var(--text) 8%, transparent); overflow: hidden; margin-top: 8px; }
-.insp-track i { display: block; height: 100%; border-radius: 999px; background: var(--accent, var(--kurenai)); }
+.insp-track i { display: block; height: 100%; border-radius: 999px; background: var(--accent, var(--kurenai)); transition: width .35s cubic-bezier(.2,.7,.3,1); }
 .insp-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .insp-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--text2); font-size: 12.5px; }
-.insp-list strong { color: var(--text); font-family: var(--mono); font-size: 11.5px; font-weight: 500; }
+.insp-list strong { color: var(--text); font-family: var(--mono); font-size: 11.5px; font-weight: 500; font-variant-numeric: tabular-nums; }
+/* the same empty state the analytics tiles use: em dash, muted */
+.insp-list li.na strong { color: var(--muted); }
 @media (max-width: 1240px) {
   .study-grid, .study-grid.insp-closed { grid-template-columns: minmax(0, 1fr); }
-  .study-inspector { position: static; }
   .insp-closed .study-inspector { border-color: var(--line2); background: var(--bg1); box-shadow: var(--shadow-sm); }
-  .insp-closed .insp-head { border-bottom-color: transparent; padding: 10px 12px; }
+  .insp-closed .insp-head { border-bottom-color: transparent; padding: 10px 12px; flex-direction: row; align-items: center; }
   .insp-closed .insp-head b { display: block; }
+  .insp-closed .insp-spine { display: none; }
+  .insp-closed .insp-toggle { margin-left: auto; }
 }
 
 /* notes sub-pager */
@@ -4019,12 +4188,16 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .confirm-foot { display: flex; gap: 10px; justify-content: center; }
 .confirm-foot .btn { min-width: 110px; justify-content: center; }
 
-/* count badges inside tabs (Flashcards 12, Exam Qs 5) */
+/* count badges inside tabs (Flashcards 12, Exam questions 5).
+   One fixed geometry so a one-digit and a three-digit count are the same
+   chip, and so every tab in the strip keeps the same height. */
 .study-tab .tab-n, .study-tab .wl-tabcount {
-  font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 18px; padding: 0 6px; margin-left: 2px;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 600; line-height: 1;
   color: var(--muted);
   background: color-mix(in srgb, var(--text) 8%, transparent);
-  border-radius: var(--radius-pill); padding: 1px 7px; margin-left: 2px;
+  border-radius: var(--radius-pill);
 }
 .study-tab.active .tab-n, .study-tab.active .wl-tabcount {
   color: var(--accent); background: var(--wash-accent);

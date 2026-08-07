@@ -266,12 +266,21 @@ step("related topics are navigable", async () => {
 
 /* ============ 5 · the page ============ */
 console.log("== the tracker page ==");
-step("the Study subject desk carries an Assignments tab page", async () => {
+/* The subject desk's Overview/Assignments switcher was retired: its only
+   other page is already a first-class Study subnav entry, so the strip was a
+   second navigation grammar for one destination. The tracker must stay
+   reachable and stay owned by Study. */
+step("the tracker is reached from the Study subnav, not a desk tab strip", async () => {
   KOS.show("subject", "compsci");
   await tick(80);
-  const tabs = $$(".subject-workspace-tabs .study-tab").map(b => b.textContent.trim());
-  if (tabs.join("|") !== "Overview|Assignments") throw new Error("subject tabs: " + tabs.join("|"));
+  if ($(".subject-workspace-tabs")) throw new Error("the desk tab switcher is back");
   if (KOS.sectionOf("assignments") !== "study") throw new Error("assignments must belong to Study");
+  const entry = [...document.querySelectorAll("#subnav .subnav-item")]
+    .find(b => b.textContent.trim() === "Assignments");
+  if (!entry) throw new Error("Assignments is not in the Study subnav");
+  click(entry);
+  await tick(80);
+  if (KOS.store.state.ui.view !== "assignments") throw new Error("the subnav entry did not open the tracker");
 });
 
 step("the page lists title, subject, deadline, status, progress, priority and next subtask", async () => {

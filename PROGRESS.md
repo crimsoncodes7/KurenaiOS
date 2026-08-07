@@ -3189,3 +3189,66 @@ Smoke1–36 and the Chrome visual audit pass. The visual gate now measures the
 cadence column order, full-width Session Log alignment, grouped date structure,
 equal Avatar/workshop height, and All wares default rather than relying only on
 class presence.
+
+### Study overview + topic shell refinement · 2026-08-07
+
+**Subject overview (Part A).** The right column now leads with a `Subject
+analytics` panel instead of a seven-tile strip sitting in a two-column grid
+with a hole in the corner. Eight statistics genuinely exist for a subject —
+mastery, topics secure, topics started, cards due, cards reviewed, quiz best,
+exam questions, study streak — so the grid is the balanced 2 × 4 the brief
+allows, with no filler tile invented and none of the old depth dropped
+(deep-content coverage moved into the panel's footnote, which is also where
+the mastery-vs-secure distinction is explained). "Continue where you left
+off" moved below the grid as a full-width action card that carries the topic,
+its section and its mastery bar, and that still renders — as "Start here",
+pointed at the first unfinished topic — for a subject never opened. A ruled
+break separates the analytics block from Countdowns and the flagged-topics
+panel, which are dates, not subject analytics. Nothing in the column is
+sticky, and `.study-inspector` lost its `position: sticky` too: both scroll
+with the page.
+
+**Statistic consistency (Part B).** Every Study figure now has exactly one
+derivation, in `hub.js`: `subjectStats` (which gained `touched` and a
+check-averaged `mastery`), `subjectCardStats`, `subjectQuizStats`,
+`subjectExamCount` and `topicStats`. Formatting is standardised in the same
+block — `pctText`, `ratioText`, the single `low`/`mid`/`high` ramp shared with
+the section ledger, and one empty state (an em dash plus a sentence saying
+why). A bar is only drawn when it carries the same quantity as the value
+beside it. Two real contradictions died: the subject page was reading
+`quiz.lastPct` under a "Best quiz" label while the inspector read
+`quiz.best`, and a topic with a ticked progress check could still read "Not
+started" (`store.setCheck` now moves a `none` topic to `started`). Where a
+figure legitimately outruns its inputs — a topic marked Completed is 100%
+whatever its checklist says — the readout explains itself
+(`topicStats().checkText` prints "marked completed") rather than rewriting the
+store, because the assistant restores status and checks separately and
+deriving one from the other would lose an undo.
+
+**Topic status (Part C).** The status dropdown, the four progress checks and
+the RAG confidence rating were three loose control groups sharing one flex row
+with hairline separators. They are one headed `.topic-status` component now:
+three labelled fields, checks as equal-height chips that light when ticked, and
+a live mastery readout across the header that repaints on every change. The
+third check reads "Done exam questions" rather than "Done exam Qs".
+
+**Inspector (Part D).** The panel still collapses and still persists in
+`ui.inspectorOpen`, but the collapsed rail now carries a readable vertical
+spine instead of a naked chevron, and the toggle announces `aria-expanded`. It
+computes nothing of its own: a new Materials section prints the very object the
+tab bar printed on its chips, and its mastery block shares `topicStats()` and
+the status component's repaint hook, so the two mastery readouts on the page
+cannot drift.
+
+**Tabs and controls (Part E).** Tabs carry their full names — "Exam
+questions", "Simulations", "Worked examples" — count chips have one fixed
+geometry, every tab shares one height, and the topic strip wraps rather than
+hiding "Files" behind a silent horizontal scroll. The subject desk's
+Overview/Assignments switcher is retired; the tracker keeps its first-class
+Study subnav entry.
+
+**Verification.** New suite `tools/smoke37.test.js` (24 steps) pins all five
+parts. Smoke1–37 pass. Checked in a running Chrome at 1560×1000, 768×1024 and
+375×812: no new horizontal overflow on the subject desk or the topic page (the
+only element past the viewport on a phone is the pre-existing, deliberately
+scrollable `.subject-units` band).
