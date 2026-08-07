@@ -45,6 +45,21 @@ if find "$DIST" -name "*.md" -o -name "*.py" -o -name "*.test.js" -o -name "pack
   exit 1
 fi
 
+# Phase 2 release gate: no Live2D SDK, Core binary, model or motion file may
+# reach a public build until Live2D answers the AI/chatbot publication
+# question in art-source/assistant/live2d/LICENSE_REQUEST.md. The adapter
+# js/modules/assistant-live2d.js is our own code and stays inert without a
+# runtime, so it ships; anything Live2D-authored is a hard stop.
+LIVE2D_LEAK=$(find "$DIST" \( -name "*.moc3" -o -name "*.model3.json" \
+  -o -name "*.motion3.json" -o -name "*.physics3.json" -o -name "*.cdi3.json" \
+  -o -iname "live2dcubismcore*" -o -path "*/live2d/*" \) -print)
+if [ -n "$LIVE2D_LEAK" ]; then
+  echo "ERROR: Live2D runtime material leaked into dist — public deployment is gated" >&2
+  echo "on the licence classification in art-source/assistant/live2d/LICENSE_REQUEST.md:" >&2
+  echo "$LIVE2D_LEAK" >&2
+  exit 1
+fi
+
 COUNT=$(find "$DIST" -type f | wc -l | tr -d " ")
 SIZE=$(du -sh "$DIST" | cut -f1)
 SWV=$(grep -o 'VERSION = "[^"]*"' sw.js | head -1)

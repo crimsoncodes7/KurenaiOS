@@ -190,6 +190,11 @@
 <!-- Category 6 Phase E: the Kurenai Assistant surfaces (drawer + page +
      contextual actions) over the Phase A–D services -->
 <script src="js/modules/assistant.js"></script>
+<!-- Phase 2: the Live2D binding for the assistant renderer seam. Contains no
+     Cubism SDK/Core/model and downloads none, so it stays inert on the
+     deployed build; enable() refuses until a runtime is installed by hand
+     and the AI/chatbot licence question in LICENSE_REQUEST.md is answered. -->
+<script src="js/modules/assistant-live2d.js"></script>
 <!-- Collection Matrix views — medview.js is the shared vault-view toolkit
      (cover/lazy list/pills/empty states/editor shell) the four views build
      on; each view registers its editor in KOS.mediaEditors (dispatch lives

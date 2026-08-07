@@ -198,14 +198,35 @@ an autonomous cycle must batch all providers into one ledger entry through
   heroes use the shared Build 5 geometry; Governor Status keeps its special
   profile-banner composition.
 
-## Tests — all THIRTY-EIGHT suites must pass
+## Tests — all THIRTY-NINE suites must pass
 
 ```sh
-for i in "" {2..38}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..39}; do node "tools/smoke${i}.test.js"; done
 ```
-smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–38 print "SMOKE-N PASS …"
+smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–39 print "SMOKE-N PASS …"
 (smoke10 prints "10 passed, 0 failed"). Collection suites need `npm i fake-indexeddb`
 in addition to jsdom. Per-suite coverage table: PROGRESS.md snapshot section.
 
 Crop/hero/Goals/Shrine changes also run through `node tools/visual_audit.mjs` against the
 local app in Chrome on CDP port 9222; the script header has the launch contract.
+The audit derives its Cache Storage name from `sw.js`'s `VERSION`, so a version
+bump no longer breaks its assistant-offline assertion — do not hard-code it back.
+
+## Phase 2 — the live Kurenai character (in progress, NOT deployable)
+
+- `js/modules/assistant-live2d.js` is OUR adapter over the renderer seam in
+  `assistant.js`. It contains no Cubism SDK, Core, `.moc3` or texture and
+  downloads none; `enable()` refuses unless a Cubism runtime is installed on
+  the page by hand, so it is inert on every build that ships today. The
+  controller stays the sole lifecycle authority — the adapter is write-only
+  and never sets state, reads prose or touches audio.
+- Its motion/reaction/fps tables MIRROR `art-source/assistant/live2d/rig-contract.json`;
+  smoke39 fails if the two drift. Change the contract first, then the mirror.
+- `tools/build_live2d_scaffold.sh` builds the empty 4096×6144 Krita scaffold
+  (126 named layers, 19 groups, back-to-front, guide reference locked at the
+  bottom). It creates STRUCTURE ONLY — every contract layer is empty and the
+  redraw is manual by contract. Never add automatic layer extraction.
+  `tools/validate_live2d_scaffold.mjs` checks it against `layer-map.json`.
+- Release gate: `.gitignore` and `tools/deploy_pages.sh` both hard-block every
+  Cubism file type. Nothing Live2D-authored may be committed or staged until
+  the AI/chatbot classification in `LICENSE_REQUEST.md` is answered in writing.

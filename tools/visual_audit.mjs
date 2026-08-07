@@ -10,7 +10,17 @@
    local origin when an older service-worker scope is intentionally retained.
    The script drives the real browser UI through CDP and writes inspection
    screenshots to /tmp; it does not alter repository files or real profiles. */
-import { writeFile } from "node:fs/promises";
+import { writeFile, readFile } from "node:fs/promises";
+
+/* The static cache name is derived from sw.js's VERSION, which invariant
+   #38 requires bumping on every deploy. Hard-coding it here made this
+   audit fail on each bump — and because caches.open() CREATES a missing
+   cache, the failure looked like "every asset is missing" rather than
+   "wrong cache name". */
+const swSource = await readFile(new URL("../sw.js", import.meta.url), "utf8");
+const swVersion = /VERSION\s*=\s*"([^"]+)"/.exec(swSource)?.[1];
+if (!swVersion) throw new Error("could not read VERSION from sw.js");
+const staticCacheName = `kos-static-${swVersion}`;
 
 const endpoint = process.env.KOS_CDP || "http://127.0.0.1:9222/json";
 const auditUrl = process.env.KOS_AUDIT_URL || "http://127.0.0.1:8765/index.html";
@@ -1051,7 +1061,7 @@ const assistantCache = await evaluate(`(async () => {
   const deadline = Date.now() + 10000;
   let cache = null;
   while (Date.now() < deadline) {
-    cache = await caches.open("kos-static-kos-assistant-character-1");
+    cache = await caches.open(${JSON.stringify(staticCacheName)});
     const ready = await cache.match(${JSON.stringify(assistantOfflineAssets[0])});
     if (ready) break;
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -1069,7 +1079,7 @@ await send("Network.emulateNetworkConditions", { offline: true, latency: 0, down
 let assistantOfflineFetch;
 try {
   assistantOfflineFetch = await evaluate(`(async () => {
-    const cache = await caches.open("kos-static-kos-assistant-character-1");
+    const cache = await caches.open(${JSON.stringify(staticCacheName)});
     return Promise.all(${JSON.stringify(assistantOfflineAssets)}.map(async path => {
       const response = await cache.match(path);
       return { path, ok: !!response && response.ok, bytes: response ? (await response.arrayBuffer()).byteLength : 0 };

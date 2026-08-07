@@ -57,6 +57,35 @@ background. Chroma removal used the bundled `remove_chroma_key.py` helper with
 soft matte, despill, and a one-pixel edge contraction. The selected cutout was
 then enlarged to `2048×3072` as a manual redraw guide.
 
+## Redraw scaffold (build this first)
+
+`source/kurenai-live2d-scaffold-4096-v1.kra` is the starting canvas for the
+manual redraw. Rebuild it at any time with:
+
+```sh
+tools/build_live2d_scaffold.sh          # → source/kurenai-live2d-scaffold-4096-v1.kra
+node tools/validate_live2d_scaffold.mjs # structural check against layer-map.json
+```
+
+It is `4096×6144` RGBA and contains every group and layer in `layer-map.json`,
+in the map's back-to-front order, so a misspelt or mis-stacked layer cannot
+reach Cubism. Colour labels mark the work: **yellow** = merge into its parent
+for the FREE profile, **purple** = `ALT_*` variant (starts hidden), **grey** =
+optional (starts hidden), **red** = never exported.
+
+`00_GUIDES_NO_EXPORT` holds a locked `REF_Master_4096_NO_EXPORT` tracing
+reference at the bottom, plus a magenta symmetry axis at x=2022 and a cyan
+foot baseline at y=5769 (both measured from the guide's alpha bounding box,
+x 843–3201 / y 231–5769). `Guide_Joints` is deliberately empty — joint centres
+are the rigger's decision. **Delete the whole guide group before exporting the
+PSD.**
+
+**Every one of the 126 contract layers is EMPTY.** The scaffold builds
+structure only; it does not segment, trace, matte or infer any character
+material from the master, and no tool in this repository may be changed to do
+so. The redraw — including the material hidden behind every joint — is manual
+work, exactly as the PSD preparation contract below requires.
+
 ## PSD preparation contract
 
 Use Krita or Photopea for source preparation and validate the first structural
@@ -106,3 +135,34 @@ durable baseline because it can still be opened and saved after a trial expires.
 fallback contract. The existing JavaScript lifecycle controller owns state,
 cooldowns, audio priority, and reduced-motion behaviour; Cubism may animate the
 visual but may not infer or change lifecycle state.
+
+## Runtime binding
+
+`js/modules/assistant-live2d.js` is the adapter that plugs a Cubism runtime
+into the renderer seam in `js/modules/assistant.js`. It ships with the app and
+contains **no** SDK, Core binary, model or texture — `enable()` refuses unless
+`window.Live2DCubismCore` and `window.Live2DCubismFramework` have been
+installed on the page by hand, so it is inert on every build produced today.
+
+Its motion, reaction and frame-budget tables mirror `rig-contract.json`;
+`tools/smoke39.test.js` fails if the two drift, and also proves the fallback:
+a runtime that returns nothing, throws, rejects or hands back an unplayable
+model leaves the Phase 1 static PNGs untouched.
+
+To evaluate a runtime locally, place the SDK under `js/vendor/live2d/` and the
+exported model under `assets/assistant/live2d/`. Both paths are gitignored and
+`tools/deploy_pages.sh` hard-fails if either reaches `dist/` — the gate above
+stays closed until Live2D answers `LICENSE_REQUEST.md` in writing.
+
+## Blocked on the user
+
+1. **Live2D Cubism Editor 5.3 (Apple Silicon) is not installed.** Download it
+   from <https://www.live2d.com/en/cubism/download/editor/> and accept the
+   EULA personally — no agent may accept it on the user's behalf. The 42-day
+   PRO trial starts on first launch; the FREE editor is the durable baseline
+   because it still opens and saves after the trial expires.
+2. **The redraw itself.** 126 layers of hand illustration on the scaffold,
+   including material hidden behind every joint and overlap. Automatic layer
+   extraction is forbidden by this contract, so this cannot be delegated to
+   tooling. Rigging, expressions, physics and the six lifecycle motions all
+   follow from it.

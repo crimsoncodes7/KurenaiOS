@@ -47,6 +47,7 @@ node tools/smoke35.test.js # Build 6.6 Calendar + the event model: retired globa
 node tools/smoke36.test.js # Shared media record folio: sectioned Anime/Books/VN/Games editors, two-column/phone layouts, full-width Notes, source summaries, compact physical ranges, separated Delete/Save, dedicated Stats with obsolete bottom analytics removed
 node tools/smoke37.test.js # Study overview + topic shell: the 2×4 subject analytics grid, one tile shape, the full-width action card below it, countdowns kept separate, nothing sticky; statistic consistency (formats, empty states, one colour ramp, quiz-best, no "Not started" beside a ticked check); the one Topic Status component; inspector collapse + tab counts sharing the inspector's numbers; full tab names and the retired Overview/Assignments switcher
 node tools/smoke38.test.js # Collection Goals v2 + Shrine Hall of Fame: automatic/manual measures, structured editor and status views, activity-only anti-farming receipts, featured rank one, ranked filters/sort, crop-aware branded share card
+node tools/smoke39.test.js # Phase 2 Live2D binding: closed release gate (no SDK/Core/model, inert with no runtime, deploy + gitignore blocks), rig-contract mirror (6 motions/4 reactions/fps budgets), seam integration against a stub runtime, write-only ownership, every failure mode falling back to the Phase 1 PNG, frame governing + hidden/offscreen pausing + teardown, and the Krita redraw scaffold vs layer-map.json
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
@@ -102,12 +103,14 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 38 suites are the release gate (smoke17 the
+the current test inventory. All 39 suites are the release gate (smoke17 the
 Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
 Build 4c games integrations, smoke37 the Study overview/topic-shell
-refinement, smoke38 Collection Goals v2 and Shrine Hall of Fame). Suites 1–16 plus the running-Chrome visual audit were verified
+refinement, smoke38 Collection Goals v2 and Shrine Hall of Fame, smoke39 the
+Phase 2 Live2D binding and its closed release gate). Suites 1–16 plus the running-Chrome visual audit were verified
 green on 2026-07-13; all 17 on 2026-07-16; all 18 plus the phone/tablet CDP
-audit on 2026-07-17; all 19 on 2026-07-17; all 38 on 2026-08-07.
+audit on 2026-07-17; all 19 on 2026-07-17; all 38 on 2026-08-07; all 39 plus
+the visual audit on 2026-08-07.
 
 **Edge Functions** (Build 4c, `supabase/functions/`): deploy with
 `supabase functions deploy <name>`; secrets via `supabase secrets set` only

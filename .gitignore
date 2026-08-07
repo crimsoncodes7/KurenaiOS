@@ -15,6 +15,20 @@ artifacts/
 # cloud-sync credentials (copy js/env.example.js → js/env.local.js)
 js/env.local.js
 
+# Live2D Cubism SDK / Core / model runtime files (Phase 2).
+# Public deployment is gated on the AI-chatbot licence classification in
+# art-source/assistant/live2d/LICENSE_REQUEST.md; until that is answered in
+# writing, none of this may be committed or staged into dist/.
+js/vendor/live2d/
+assets/assistant/live2d/
+*.moc3
+*.model3.json
+*.motion3.json
+*.physics3.json
+*.cdi3.json
+live2dcubismcore*.js
+live2dcubismcore*.min.js
+
 # supabase CLI local scratch
 supabase/.temp/
 supabase/.branches/
