@@ -389,10 +389,10 @@ step("anime vault renders + lazy fallback paints all cards in jsdom", async () =
 step("shrine renders favourites ranked, module-agnostic", async () => {
   KOS.show("shrine");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".shrine-card").length > 0, 5000);
-  const cards = main.querySelectorAll(".shrine-card");
+  await waitFor(() => main.querySelectorAll(".shrine-feature,.shrine-rank-card").length > 0, 5000);
+  const cards = main.querySelectorAll(".shrine-feature,.shrine-rank-card");
   if (cards.length !== 1) throw new Error("expected the 1 favourite, saw " + cards.length);
-  if (!main.querySelector(".shrine-rank")) throw new Error("no rank badge");
+  if (!main.querySelector(".shrine-feature-rank,.shrine-rank")) throw new Error("no rank badge");
 });
 step("mediasync renders all eight panels (AniList, VNDB, autosync, XML, maintenance, enrichment, games, write activity)", async () => {
   KOS.show("mediasync");

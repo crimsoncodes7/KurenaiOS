@@ -135,15 +135,77 @@
     if (clipped && lines.length) lines[lines.length - 1] = lines[lines.length - 1].replace(/[.,;:]?$/, "…");
     lines.forEach(function (value, index) { ctx.fillText(value, x, y + index * lineHeight); });
   }
+  function starPath(ctx, cx, cy, outer, inner) {
+    ctx.beginPath();
+    for (var point = 0; point < 10; point++) {
+      var radius = point % 2 ? inner : outer;
+      var angle = -Math.PI / 2 + point * Math.PI / 5;
+      var x = cx + Math.cos(angle) * radius, y = cy + Math.sin(angle) * radius;
+      if (!point) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+  }
   function drawStars(ctx, x, y, score, accent) {
     var full = Math.round((Number(score) || 0) / 2);
-    ctx.font = "30px serif";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
     for (var i = 0; i < 5; i++) {
-      ctx.fillStyle = i < full ? accent : "rgba(255,255,255,.2)";
-      ctx.fillText("★", x + i * 35, y);
+      starPath(ctx, x + i * 31, y, 12, 5.2);
+      ctx.fillStyle = i < full ? accent : "rgba(255,243,214,.16)";
+      ctx.fill();
+      ctx.strokeStyle = i < full ? "rgba(255,236,184,.8)" : "rgba(255,243,214,.22)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
     }
+  }
+  function drawFlower(ctx, x, y, size, colour) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = colour;
+    for (var i = 0; i < 5; i++) {
+      ctx.save();
+      ctx.rotate(i * Math.PI * 2 / 5);
+      ctx.beginPath();
+      ctx.ellipse(0, -size * .42, size * .22, size * .42, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 0, size * .16, 0, Math.PI * 2);
+    ctx.fillStyle = "#F8E3AA";
+    ctx.fill();
+    ctx.restore();
+  }
+  function drawCorner(ctx, x, y, sx, sy, accent) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(sx, sy);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(0, 34);
+    ctx.quadraticCurveTo(2, 4, 34, 0);
+    ctx.moveTo(7, 27);
+    ctx.quadraticCurveTo(15, 13, 29, 7);
+    ctx.stroke();
+    ctx.fillStyle = accent;
+    [[9, 22, 3.2], [17, 13, 2.6], [27, 7, 2]].forEach(function (leaf) {
+      ctx.beginPath();
+      ctx.ellipse(leaf[0], leaf[1], leaf[2], leaf[2] * .55, -.7, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+  function drawPetal(ctx, x, y, size, rotation, colour) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    ctx.fillStyle = colour;
+    ctx.beginPath();
+    ctx.moveTo(0, -size);
+    ctx.bezierCurveTo(size * .7, -size * .45, size * .55, size * .55, 0, size);
+    ctx.bezierCurveTo(-size * .5, size * .35, -size * .6, -size * .45, 0, -size);
+    ctx.fill();
+    ctx.restore();
   }
   function defaultMessage(entry) {
     return "“" + entry.title + "” earned its place in my KurenaiOS Hall of Fame.";
@@ -177,47 +239,64 @@
     canvas.height = height;
     var ctx = canvas.getContext("2d");
     var mod = KOS.media.module(entry.module), accent = mod.accent || "#B08A3E";
+    var gold = "#D7A949", paleGold = "#F4DDA1", ivory = "#FFF5E2";
     var bg = ctx.createLinearGradient(0, 0, width, height);
-    bg.addColorStop(0, "#09111B");
-    bg.addColorStop(.58, "#111523");
-    bg.addColorStop(1, "#21151D");
+    bg.addColorStop(0, "#090D19");
+    bg.addColorStop(.52, "#130E1C");
+    bg.addColorStop(1, "#2A101B");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, width, height);
 
-    /* A lacquered exhibition pass: one decisive brass rail, a faint seal and
-       a double keyline. The decoration encodes rank without competing with
-       the cover or the personal note. */
-    ctx.fillStyle = accent;
-    ctx.fillRect(0, 0, 12, height);
-    ctx.globalAlpha = .08;
-    ctx.beginPath();
-    ctx.arc(820, 490, 188, 0, Math.PI * 2);
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 54;
+    /* Ceremonial private-hall card: hand-drawn rails, a rank pennant and
+       blossom work make the export feel earned rather than dashboard-like. */
+    ctx.strokeStyle = paleGold;
+    ctx.lineWidth = 2;
+    roundRect(ctx, 12, 10, width - 24, height - 20, 18);
     ctx.stroke();
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = "rgba(255,255,255,.18)";
-    ctx.lineWidth = 1.5;
-    roundRect(ctx, 30, 28, width - 60, height - 56, 22);
+    ctx.strokeStyle = "rgba(215,169,73,.72)";
+    ctx.lineWidth = 1;
+    roundRect(ctx, 24, 22, width - 48, height - 44, 13);
     ctx.stroke();
-    ctx.strokeStyle = accent;
-    ctx.globalAlpha = .48;
-    roundRect(ctx, 38, 36, width - 76, height - 72, 18);
+    ctx.strokeStyle = "rgba(215,169,73,.32)";
+    roundRect(ctx, 29, 27, width - 58, height - 54, 11);
     ctx.stroke();
-    ctx.globalAlpha = 1;
+    drawCorner(ctx, 29, 27, 1, 1, paleGold);
+    drawCorner(ctx, width - 29, 27, -1, 1, paleGold);
+    drawCorner(ctx, 29, height - 27, 1, -1, paleGold);
+    drawCorner(ctx, width - 29, height - 27, -1, -1, paleGold);
 
-    ctx.fillStyle = accent;
-    ctx.font = "700 13px 'IBM Plex Mono', monospace";
+    ctx.globalAlpha = .08;
+    ctx.strokeStyle = gold;
+    for (var arc = 0; arc < 6; arc++) {
+      ctx.beginPath();
+      ctx.arc(606, 308, 76 + arc * 34, Math.PI * 1.05, Math.PI * 1.93);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    drawPetal(ctx, 776, 214, 9, .8, "rgba(225,112,132,.72)");
+    drawPetal(ctx, 82, 355, 7, -.6, "rgba(225,112,132,.54)");
+    drawPetal(ctx, 822, 462, 10, .45, "rgba(225,112,132,.62)");
+
+    drawFlower(ctx, 54, 52, 11, paleGold);
+    ctx.fillStyle = paleGold;
+    ctx.font = "600 13px 'Fraunces', Georgia, serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
-    ctx.fillText("KURENAI · PRIVATE HALL", 56, 52);
+    ctx.fillText("KURENAI · PRIVATE HALL", 75, 44);
+    ctx.strokeStyle = "rgba(215,169,73,.66)";
+    ctx.beginPath();
+    ctx.moveTo(238, 52);
+    ctx.lineTo(354, 52);
+    ctx.stroke();
+    ctx.fillStyle = paleGold;
+    ctx.fillRect(351, 49, 6, 6);
 
-    var imageX = 56, imageY = 88, imageW = 286, imageH = 418;
-    ctx.fillStyle = accent;
-    roundRect(ctx, imageX + 8, imageY + 8, imageW, imageH, 18);
+    var imageX = 58, imageY = 94, imageW = 292, imageH = 408;
+    ctx.fillStyle = "rgba(215,169,73,.32)";
+    roundRect(ctx, imageX + 8, imageY + 8, imageW, imageH, 16);
     ctx.fill();
     ctx.save();
-    roundRect(ctx, imageX, imageY, imageW, imageH, 18);
+    roundRect(ctx, imageX, imageY, imageW, imageH, 16);
     ctx.clip();
     var sourceW = coverImage ? (coverImage.naturalWidth || coverImage.width || 0) : 0;
     var sourceH = coverImage ? (coverImage.naturalHeight || coverImage.height || 0) : 0;
@@ -239,81 +318,127 @@
       ctx.fillText(mod.kanji, imageX + imageW / 2, imageY + imageH / 2);
     }
     ctx.restore();
-    ctx.strokeStyle = accent;
+    ctx.strokeStyle = paleGold;
     ctx.lineWidth = 2;
-    roundRect(ctx, imageX, imageY, imageW, imageH, 18);
+    roundRect(ctx, imageX, imageY, imageW, imageH, 16);
     ctx.stroke();
+    ctx.strokeStyle = "rgba(255,239,198,.62)";
+    ctx.lineWidth = 1;
+    roundRect(ctx, imageX + 5, imageY + 5, imageW - 10, imageH - 10, 12);
+    ctx.stroke();
+    drawFlower(ctx, imageX + imageW / 2, imageY - 2, 10, paleGold);
 
-    var bodyX = 386, bodyW = width - bodyX - 54;
+    var bodyX = 390, bodyW = width - bodyX - 52;
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
-    ctx.fillStyle = accent;
-    ctx.font = "700 11px 'IBM Plex Mono', monospace";
-    ctx.fillText(mod.label.toUpperCase() + " · PERSONAL ARCHIVE", bodyX, 88);
-    ctx.fillStyle = "#F7F3EC";
-    ctx.font = "600 37px 'Fraunces', Georgia, serif";
-    wrapText(ctx, entry.title, bodyX, 116, 340, 41, 3);
-
-    /* Rank seal is intentionally separate from the title and score geometry. */
-    var sealX = 798, sealY = 116;
+    ctx.fillStyle = gold;
+    ctx.font = "700 10px 'IBM Plex Mono', monospace";
+    ctx.fillText(mod.label.toUpperCase() + " · PERSONAL ARCHIVE", bodyX, 86);
+    ctx.strokeStyle = "rgba(215,169,73,.56)";
     ctx.beginPath();
-    ctx.arc(sealX, sealY, 46, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255,255,255,.045)";
-    ctx.fill();
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 2;
+    ctx.moveTo(bodyX + 202, 92);
+    ctx.lineTo(704, 92);
     ctx.stroke();
-    ctx.fillStyle = accent;
+    ctx.fillStyle = ivory;
+    ctx.font = "600 35px 'Fraunces', Georgia, serif";
+    wrapText(ctx, entry.title, bodyX, 112, 350, 39, 3);
+
+    /* The pennant owns rank; it never shares geometry with title or score. */
+    var pennantX = 775, pennantY = 24, pennantW = 86, pennantH = 166;
+    ctx.fillStyle = "rgba(74,21,32,.94)";
+    ctx.beginPath();
+    ctx.moveTo(pennantX, pennantY);
+    ctx.lineTo(pennantX + pennantW, pennantY);
+    ctx.lineTo(pennantX + pennantW, pennantY + pennantH - 22);
+    ctx.lineTo(pennantX + pennantW / 2, pennantY + pennantH);
+    ctx.lineTo(pennantX, pennantY + pennantH - 22);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = paleGold;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(215,169,73,.56)";
+    ctx.beginPath();
+    ctx.moveTo(pennantX + 6, pennantY + 6);
+    ctx.lineTo(pennantX + pennantW - 6, pennantY + 6);
+    ctx.lineTo(pennantX + pennantW - 6, pennantY + pennantH - 27);
+    ctx.lineTo(pennantX + pennantW / 2, pennantY + pennantH - 8);
+    ctx.lineTo(pennantX + 6, pennantY + pennantH - 27);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fillStyle = paleGold;
     ctx.textAlign = "center";
     ctx.font = "700 10px 'IBM Plex Mono', monospace";
-    ctx.fillText("RANK", sealX, sealY - 18);
-    ctx.fillStyle = "#F7F3EC";
-    ctx.font = "600 28px 'Fraunces', Georgia, serif";
-    ctx.fillText(String(rank || 1).padStart(2, "0"), sealX, sealY - 2);
+    ctx.fillText("RANK", pennantX + pennantW / 2, pennantY + 45);
+    ctx.fillStyle = ivory;
+    ctx.font = "600 38px 'Fraunces', Georgia, serif";
+    ctx.fillText(String(rank || 1).padStart(2, "0"), pennantX + pennantW / 2, pennantY + 64);
+    drawFlower(ctx, pennantX + pennantW / 2, pennantY + 128, 7, paleGold);
 
     var score = Number(entry.score || 0);
-    var scoreX = bodyX, scoreY = 286, scoreW = 154, scoreH = 112;
-    ctx.fillStyle = "rgba(255,255,255,.045)";
-    roundRect(ctx, scoreX, scoreY, scoreW, scoreH, 14);
+    var scoreX = bodyX, scoreY = 280, scoreW = bodyW, scoreH = 116;
+    ctx.fillStyle = "rgba(10,11,24,.72)";
+    roundRect(ctx, scoreX, scoreY, scoreW, scoreH, 18);
     ctx.fill();
-    ctx.strokeStyle = "rgba(255,255,255,.11)";
+    ctx.strokeStyle = "rgba(215,169,73,.72)";
     ctx.lineWidth = 1;
-    roundRect(ctx, scoreX, scoreY, scoreW, scoreH, 14);
+    roundRect(ctx, scoreX, scoreY, scoreW, scoreH, 18);
     ctx.stroke();
     ctx.textAlign = "left";
-    ctx.fillStyle = "#F7F3EC";
-    ctx.font = "600 55px 'Fraunces', Georgia, serif";
-    ctx.fillText(score ? String(score) : "—", scoreX + 16, scoreY + 10);
-    ctx.fillStyle = accent;
+    ctx.fillStyle = ivory;
+    ctx.font = "600 54px 'Fraunces', Georgia, serif";
+    ctx.fillText(score ? String(score) : "—", scoreX + 24, scoreY + 12);
+    ctx.fillStyle = gold;
     ctx.font = "700 9px 'IBM Plex Mono', monospace";
-    ctx.fillText("PERSONAL SCORE / 10", scoreX + 17, scoreY + 76);
-    drawStars(ctx, scoreX + 15, scoreY + 100, score, accent);
+    ctx.fillText("PERSONAL SCORE / 10", scoreX + 25, scoreY + 73);
+    drawStars(ctx, scoreX + 28, scoreY + 100, score, gold);
+    ctx.strokeStyle = "rgba(215,169,73,.28)";
+    ctx.beginPath();
+    ctx.moveTo(scoreX + 192, scoreY + 14);
+    ctx.lineTo(scoreX + 192, scoreY + scoreH - 14);
+    ctx.stroke();
 
-    var metadata = cardMetadata(entry), metaX = bodyX + 172, metaW = bodyW - 172;
+    var metadata = cardMetadata(entry), metaX = scoreX + 214, metaW = scoreW - 232;
     metadata.forEach(function (item, index) {
-      var y = scoreY + index * 58;
-      ctx.fillStyle = "rgba(255,255,255,.045)";
-      roundRect(ctx, metaX, y, metaW, 50, 12);
+      var y = scoreY + 14 + index * 47;
+      if (index) {
+        ctx.strokeStyle = "rgba(215,169,73,.28)";
+        ctx.beginPath();
+        ctx.moveTo(metaX, y - 7);
+        ctx.lineTo(metaX + metaW, y - 7);
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.arc(metaX + 15, y + 16, 13, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(215,169,73,.1)";
       ctx.fill();
-      ctx.fillStyle = accent;
+      ctx.strokeStyle = "rgba(215,169,73,.55)";
+      ctx.stroke();
+      ctx.fillStyle = gold;
       ctx.font = "700 10px 'IBM Plex Mono', monospace";
-      ctx.fillText(item[0], metaX + 14, y + 8);
-      ctx.fillStyle = "#F7F3EC";
+      ctx.fillText(item[0], metaX + 38, y + 1);
+      ctx.fillStyle = ivory;
       ctx.font = "600 14px 'Fraunces', Georgia, serif";
-      ctx.fillText(String(item[1]).slice(0, 28), metaX + 14, y + 25);
+      ctx.fillText(String(item[1]).slice(0, 26), metaX + 38, y + 18);
     });
 
-    ctx.fillStyle = "rgba(255,255,255,.045)";
-    roundRect(ctx, bodyX, 418, bodyW, 68, 12);
+    ctx.fillStyle = "rgba(37,20,35,.82)";
+    roundRect(ctx, bodyX, 414, bodyW, 78, 15);
     ctx.fill();
-    ctx.fillStyle = accent;
-    ctx.fillRect(bodyX, 418, 3, 68);
-    ctx.fillStyle = "rgba(247,243,236,.8)";
+    ctx.strokeStyle = "rgba(215,169,73,.66)";
+    roundRect(ctx, bodyX, 414, bodyW, 78, 15);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(215,169,73,.25)";
+    ctx.font = "italic 42px 'Fraunces', Georgia, serif";
+    ctx.fillText("“", bodyX + 18, 418);
+    ctx.fillStyle = "rgba(255,245,226,.9)";
     ctx.font = "italic 15px 'Fraunces', Georgia, serif";
-    wrapText(ctx, message || defaultMessage(entry), bodyX + 18, 432, bodyW - 34, 19, 2);
-    ctx.fillStyle = "rgba(247,243,236,.42)";
+    wrapText(ctx, message || defaultMessage(entry), bodyX + 46, 432, bodyW - 64, 20, 2);
+    ctx.fillStyle = "rgba(244,221,161,.62)";
     ctx.font = "9px 'IBM Plex Mono', monospace";
-    ctx.fillText("CURATED IN KURENAIOS · PERSONAL COLLECTION", bodyX, 505);
+    ctx.textAlign = "center";
+    ctx.fillText("CURATED IN KURENAIOS · PERSONAL COLLECTION", 594, 519);
+    ctx.fillRect(468, 523, 252, 1);
     cb(canvas);
   }
 
@@ -487,29 +612,41 @@
     };
   }
   function hallLedger(entries) {
-    var stats = shrineStats(entries), wingList = el("div", { class: "shrine-wing-list", "aria-label": "Shrine media split" });
-    ["anime", "books", "vn", "game"].forEach(function (module) {
-      if (!stats.modules[module]) return;
-      var mod = KOS.media.module(module), count = stats.modules[module];
-      wingList.appendChild(el("div", { class: "shrine-wing-row" }, [
-        el("span", { class: "shrine-wing-mark", "aria-hidden": "true", text: mod.kanji }),
-        el("span", { class: "shrine-wing-name", text: mod.label }),
-        el("span", { class: "shrine-wing-track", "aria-hidden": "true" }, [el("i", { style: "width:" + Math.round(count / entries.length * 100) + "%" })]),
-        el("b", { text: String(count) })
-      ]));
-    });
-    return el("aside", { class: "shrine-ledger", "aria-label": "Hall statistics" }, [
-      el("div", { class: "shrine-ledger-head" }, [
-        el("div", {}, [el("span", { class: "shrine-overline", text: "Hall ledger" }), el("h3", { text: "The collection at a glance" })]),
+    var stats = shrineStats(entries);
+    var completion = entries.length ? Math.round(stats.completed / entries.length * 100) : 0;
+    function line(label, detail, value, tone) {
+      return el("div", { class: "wl-ledger-line shrine-ledger-line" + (tone ? " " + tone : "") }, [
+        el("div", { class: "wl-ledger-copy" }, [
+          el("span", { class: "wl-ledger-label", text: label }),
+          el("span", { class: "wl-ledger-detail", text: detail })
+        ]),
+        el("b", { text: value })
+      ]);
+    }
+    var represented = ["anime", "books", "vn", "game"].filter(function (module) { return stats.modules[module]; })
+      .map(function (module) { return KOS.media.module(module).label; });
+    return el("aside", { class: "wl-budget shrine-ledger", "aria-label": "Hall statistics" }, [
+      el("div", { class: "wl-budget-head shrine-ledger-head" }, [
+        el("div", {}, [el("span", { class: "wl-sum-h", text: "Hall ledger" }), el("h2", { class: "wl-budget-title", text: "Collection standing" })]),
         el("span", { class: "shrine-ledger-seal", "aria-hidden": "true", text: "祠" })
       ]),
-      el("div", { class: "shrine-ledger-score" }, [el("b", { text: stats.average }), el("span", { text: "/ 10 average score" })]),
-      el("div", { class: "shrine-ledger-metrics" }, [
-        el("div", {}, [el("b", { text: String(entries.length) }), el("span", { text: "Enshrined" })]),
-        el("div", {}, [el("b", { text: String(stats.completed) }), el("span", { text: "Completed" })]),
-        el("div", {}, [el("b", { text: String(stats.wings) }), el("span", { text: "Media wings" })])
+      el("div", { class: "wl-allowance-main shrine-ledger-primary" }, [
+        el("span", { class: "k", text: "Average personal score" }),
+        el("b", { text: stats.average === "—" ? "—" : stats.average + " / 10" }),
+        el("span", { class: "sub", text: entries.length + (entries.length === 1 ? " favourite defines" : " favourites define") + " this Hall of Fame." })
       ]),
-      wingList
+      el("div", { class: "wl-ledger shrine-ledger-lines" }, [
+        line("Enshrined", "Titles currently carrying favourite status.", String(entries.length)),
+        line("Completed", "Finished works among the current ranks.", String(stats.completed), "is-actual"),
+        line("Media wings", represented.join(" · ") || "No represented media yet.", String(stats.wings))
+      ]),
+      el("div", { class: "wl-meter-block shrine-ledger-meter" }, [
+        el("div", { class: "wl-meter-copy" }, [
+          el("span", { text: "Hall completion" }),
+          el("b", { text: completion + "% complete" })
+        ]),
+        el("div", { class: "wl-meter" }, [el("span", { class: "wl-meter-fill", style: "width:" + completion + "%" })])
+      ])
     ]);
   }
   function cover(entry, mod, className) {
@@ -642,7 +779,8 @@
       var first = favourites[0], firstMod = KOS.media.module(first.module);
       var firstMeta = shrineMeta(first);
       var feature = el("article", {
-        class: "shrine-card shrine-feature top",
+        class: "wl-hero wl-hero-feature shrine-feature" + (first.coverUrl ? " has-banner" : ""),
+        style: "--accent:" + (firstMod.accent || "var(--accent2)"),
         tabindex: "0",
         role: "button",
         onclick: function () { openEntry(first); },
@@ -653,17 +791,21 @@
           }
         }
       }, [
-        el("span", { class: "shrine-rank", text: "#1" }),
-        cover(first, firstMod, "shrine-feature-cover"),
-        el("div", { class: "shrine-feature-body" }, [
-          el("span", { class: "shrine-overline", text: firstMod.label + " · Featured favourite" }),
-          el("h2", { text: first.title }),
-          el("div", { class: "shrine-score-lockup" }, [
-            el("span", { class: "shrine-score", text: first.score ? String(first.score) : "—" }),
-            el("span", { text: "/ 10 personal score" })
+        el("div", { class: "wl-hero-badge shrine-feature-rank", text: "◆ Rank 01 · Hall of Fame" }),
+        !first.coverUrl ? el("span", { class: "wl-hero-ph", text: firstMod.kanji }) : null,
+        el("div", { class: "wl-hero-body shrine-feature-body" }, [
+          el("div", { class: "wl-hero-status", text: "Featured favourite" }),
+          el("div", { class: "wl-hero-tags" }, [
+            el("span", { class: "wl-priority-pill", text: firstMod.kanji + " " + firstMod.label }),
+            el("span", { class: "wl-priority-pill", text: "Personal rank #1" })
           ]),
-          el("div", { class: "shrine-feature-meta" }, firstMeta.map(function (value) { return el("span", { text: value }); })),
-          el("div", { class: "shrine-feature-actions" }, [
+          el("h2", { class: "wl-hero-title", text: first.title }),
+          firstMeta[0] ? el("p", { class: "wl-hero-meta", text: firstMeta[0] }) : null,
+          el("dl", { class: "wl-hero-facts" }, [
+            el("div", {}, [el("dt", { text: "Personal score" }), el("dd", { class: "shrine-score", text: first.score ? String(first.score) + " / 10" : "Not scored" })]),
+            el("div", {}, [el("dt", { text: "Progress" }), el("dd", { text: firstMeta[1] || (KOS.media.STATUS_LABEL[first.status] || "In collection") })])
+          ]),
+          el("div", { class: "wl-hero-actions shrine-feature-actions" }, [
             el("button", { class: "btn primary", text: "✦ Create share card", onclick: function (ev) {
               ev.stopPropagation();
               KOS.shrineCard(first, 1);
@@ -673,8 +815,11 @@
               openEntry(first);
             } })
           ])
-        ])
+        ].filter(Boolean))
       ]);
+      if (first.coverUrl) KOS.imageCrop.background(feature, first.coverUrl, first.coverCrop, {
+        overlay: "linear-gradient(100deg, color-mix(in srgb, var(--bg0) 94%, transparent) 0%, color-mix(in srgb, var(--bg0) 74%, transparent) 52%, color-mix(in srgb, var(--bg0) 26%, transparent) 100%)"
+      });
       hall.appendChild(el("div", { class: "shrine-stage" }, [feature, hallLedger(favourites)]));
 
       if (favourites.length > 1) {

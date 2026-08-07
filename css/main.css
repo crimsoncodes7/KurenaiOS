@@ -3167,8 +3167,8 @@ body.fx-minimised .fx-dock { display: flex; }
 }
 .shrine-hall { display: grid; gap: var(--space-3); }
 .shrine-stage {
-  min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) clamp(300px, 26vw, 372px);
-  gap: var(--grid-gap); align-items: stretch;
+  min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) clamp(320px, 28vw, 410px);
+  gap: var(--grid-gap); align-items: stretch; margin: 4px 0 var(--section-gap);
 }
 .shrine-card {
   position: relative; overflow: hidden;
@@ -3191,71 +3191,31 @@ body.fx-minimised .fx-dock { display: flex; }
   color: #FCFAF4; background: rgba(10,14,22,.74);
   backdrop-filter: blur(8px); padding: 0 10px;
 }
-.shrine-feature {
-  isolation: isolate; min-width: 0; min-height: clamp(330px, 31vw, 390px);
-  display: flex; align-items: stretch; cursor: pointer;
-}
-.shrine-feature::after {
-  content: ""; position: absolute; inset: 0; z-index: 1;
-  background: linear-gradient(90deg, transparent 0 28%, color-mix(in srgb, var(--panel) 76%, transparent) 52%, var(--panel) 76%);
-  pointer-events: none;
-}
-.shrine-feature-cover { position: absolute; inset: 0; z-index: 0; overflow: hidden; background: var(--well); }
-.shrine-feature-cover img,
 .shrine-rank-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.shrine-feature-cover .med-cover-ph,
 .shrine-rank-cover .med-cover-ph { width: 100%; height: 100%; display: grid; place-items: center; }
-.shrine-feature-cover .med-cover-ph { font-size: 92px; }
-.shrine-feature-body {
-  position: relative; z-index: 2; min-width: 0; width: min(62%, 610px); min-height: 100%; margin-left: auto;
-  display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start;
-  padding: clamp(24px, 3vw, 38px);
-}
-.shrine-feature > .shrine-rank { z-index: 3; }
+.shrine-feature { cursor: pointer; }
+.shrine-feature-body { width: min(100%, 720px); margin: 0; padding: 38px 0 0; align-items: flex-start; }
 .shrine-overline {
   color: var(--accent); font: 700 10px var(--mono);
   letter-spacing: .15em; text-transform: uppercase;
 }
-.shrine-feature h2 { margin: 8px 0 12px; max-width: 19ch; font: 600 clamp(28px, 3.2vw, 44px)/1.05 var(--serif); text-wrap: balance; }
-.shrine-score-lockup { display: flex; align-items: baseline; gap: 9px; color: var(--muted); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
-.shrine-score { color: var(--text); font: 600 42px/1 var(--serif); }
-.shrine-feature-meta { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 12px; }
-.shrine-feature-meta span {
-  max-width: 30ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  padding: 6px 9px; border: 1px solid var(--line2); border-radius: 999px;
-  color: var(--text2); background: var(--well); font-size: 11px;
-}
-.shrine-feature-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 17px; }
+.shrine-feature .shrine-score { color: var(--text); font-family: var(--serif); font-size: 17px; }
 
-/* The Hall ledger is the compact statistical counterweight to rank one,
-   matching the Budget Planner's hero + operational-sidecar proportions. */
+/* Rank one deliberately shares the Budget Planner hero + sidecar grammar.
+   The ledger is an operational reading of the Hall, not a miniature chart. */
 .shrine-ledger {
-  min-width: 0; display: flex; flex-direction: column; gap: 11px;
-  padding: clamp(18px, 1.8vw, 22px); border: 1px solid var(--line2); border-radius: calc(var(--radius) + 2px);
-  background: radial-gradient(110% 90% at 100% 0%, var(--wash-brass), transparent 58%), var(--panel);
-  box-shadow: var(--shadow-sm);
+  min-width: 0;
+  background: radial-gradient(110% 90% at 100% 0%, var(--wash-brass), transparent 58%), var(--surface-card);
 }
-.shrine-ledger-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.shrine-ledger-head h3 { margin: 3px 0 0; max-width: 16ch; font: 600 17px/1.15 var(--serif); }
+.shrine-ledger-head { flex-direction: row; align-items: flex-start; }
 .shrine-ledger-seal {
-  flex: 0 0 42px; width: 42px; height: 42px; display: grid; place-items: center;
+  flex: 0 0 38px; width: 38px; height: 38px; display: grid; place-items: center;
   border: 1px solid color-mix(in srgb, var(--accent2) 48%, var(--line2)); border-radius: 50%;
-  color: var(--accent2); background: var(--well); font: 21px var(--jp);
+  color: var(--accent2); background: var(--well); font: 18px var(--jp);
 }
-.shrine-ledger-score { display: flex; align-items: baseline; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid var(--line2); }
-.shrine-ledger-score b { font: 600 36px/1 var(--serif); color: var(--text); }
-.shrine-ledger-score span { color: var(--muted); font: 9.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
-.shrine-ledger-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line2); }
-.shrine-ledger-metrics div { display: flex; flex-direction: column; gap: 2px; padding: 8px 7px; background: var(--panel); }
-.shrine-ledger-metrics b { font: 600 18px var(--serif); }
-.shrine-ledger-metrics span { color: var(--muted); font: 8.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
-.shrine-wing-list { display: grid; gap: 7px; margin-top: auto; }
-.shrine-wing-row { display: grid; grid-template-columns: 22px minmax(66px, auto) minmax(44px, 1fr) 18px; align-items: center; gap: 7px; }
-.shrine-wing-mark { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 7px; color: var(--accent); background: var(--wash-accent); font: 11px var(--jp); }
-.shrine-wing-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text2); font-size: 11px; }
-.shrine-wing-track { height: 4px; overflow: hidden; border-radius: 999px; background: var(--well); }
-.shrine-wing-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
-.shrine-wing-row b { color: var(--muted); font: 10px var(--mono); text-align: right; }
+.shrine-ledger-primary b { color: var(--accent2); }
+.shrine-ledger-line.is-actual > b { color: var(--good); }
+.shrine-ledger-meter { margin-top: auto; }
 
 .shrine-ranked-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: var(--space-3); }
 .shrine-rank-card { min-width: 0; display: grid; grid-template-rows: 168px minmax(0, 1fr); cursor: pointer; }
@@ -3313,12 +3273,6 @@ body.fx-minimised .fx-dock { display: flex; }
   .shrine-toolbar { align-items: stretch; flex-direction: column; }
   .shrine-sort { justify-content: space-between; }
   .shrine-stage { grid-template-columns: minmax(0, 1fr); }
-  .shrine-feature { display: grid; min-height: 0; }
-  .shrine-feature::after { display: none; }
-  .shrine-feature-cover { position: relative; inset: auto; z-index: 0; min-height: 250px; max-height: 48vh; }
-  .shrine-feature-body { width: 100%; min-height: 0; margin-left: 0; padding: 22px 20px; background: var(--panel); }
-  .shrine-feature h2 { font-size: 34px; }
-  .shrine-ledger { padding: 18px; }
   .shrine-empty { grid-template-columns: auto 1fr; }
   .shrine-empty .btn { grid-column: 1 / -1; justify-self: start; }
 }
@@ -3329,9 +3283,6 @@ body.fx-minimised .fx-dock { display: flex; }
 }
 @media (min-width: 761px) and (max-width: 1100px) {
   .shrine-stage { grid-template-columns: minmax(0, 1fr); }
-  .shrine-ledger { display: grid; grid-template-columns: minmax(170px, .8fr) minmax(170px, .7fr) minmax(260px, 1.4fr); align-items: center; }
-  .shrine-ledger-score { border-bottom: 0; padding-bottom: 0; }
-  .shrine-wing-list { margin-top: 0; }
 }
 
 /* ---- Books ---- */

@@ -405,8 +405,8 @@ step("shrine routes a Books favourite through the Books editor", async () => {
   await p(cb => KOS.mediadb.put(e, cb));
   KOS.show("shrine");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".shrine-card").length > 0, 5000);
-  const card = [...main.querySelectorAll(".shrine-card")].find(c => /Berserk/.test(c.textContent));
+  await waitFor(() => main.querySelectorAll(".shrine-feature,.shrine-rank-card").length > 0, 5000);
+  const card = [...main.querySelectorAll(".shrine-feature,.shrine-rank-card")].find(c => /Berserk/.test(c.textContent));
   if (!card) throw new Error("Books favourite not in the Shrine");
   card.click();
   await tick(60);

@@ -3309,3 +3309,20 @@ linked-title Measure fields are browser-measured as fully contained in both
 dark desktop and phone layouts. The visual audit now captures the single-goal
 state, linked-title editor and ranked-card shelf in addition to the original
 Goals/Shrine/share-card frames.
+
+**Planner-parity correction.** Rank one now uses the Budget Planner feature
+hero itself: the same `wl-hero` geometry, crop-aware background layer,
+left-aligned information hierarchy, facts and action rail, and the same
+directional overlay. The former centre/right composition and its opaque cover
+split were removed. Its sidecar now follows the Planner's allowance-ledger
+grammar with a primary average, three explained accounting rows and one honest
+completion meter instead of decorative distribution bars.
+
+The export artwork was rebuilt as a ceremonial Private Hall plate: double gold
+rails, corner foliage, blossom details, a framed cover, isolated rank pennant,
+dedicated score chamber, metadata ledger and quotation panel. Stars are now
+drawn as five bounded vector paths inside the score chamber, eliminating the
+font-glyph overflow that previously crossed the panel boundary. Desktop and
+390×844 browser assertions verify the shared Planner structure, left-aligned
+content, crop metadata, equal-height sidecar and contained share-card geometry.
+Service-worker version: `kos-collection-goals-shrine-3`.

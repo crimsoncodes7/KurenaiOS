@@ -345,8 +345,8 @@ step("Shrine: a favourite game routes to the games editor", async () => {
   await p(cb => KOS.mediadb.put(e, cb));
   KOS.show("shrine");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".shrine-card").length > 0, 4000);
-  const card = [...main.querySelectorAll(".shrine-card")].find(c => /Hades/.test(c.textContent));
+  await waitFor(() => main.querySelectorAll(".shrine-feature,.shrine-rank-card").length > 0, 4000);
+  const card = [...main.querySelectorAll(".shrine-feature,.shrine-rank-card")].find(c => /Hades/.test(c.textContent));
   if (!card) throw new Error("game not enshrined");
   if (!/Games/.test(card.textContent)) throw new Error("module chip missing");
   card.click();

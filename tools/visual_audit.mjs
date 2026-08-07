@@ -672,23 +672,25 @@ const shrineComposition = await evaluate(`(() => {
   const stage = document.querySelector('.shrine-stage').getBoundingClientRect();
   const ledger = document.querySelector('.shrine-ledger').getBoundingClientRect();
   const grid = document.querySelector('.shrine-ranked-grid').getBoundingClientRect();
-  const crop = document.querySelector('.shrine-feature-cover img');
+  const crop = document.querySelector('.shrine-feature .image-crop-bg img');
+  const body = document.querySelector('.shrine-feature-body').getBoundingClientRect();
   return {
-    rank: document.querySelector('.shrine-feature .shrine-rank').textContent,
+    rank: document.querySelector('.shrine-feature-rank').textContent,
     score: document.querySelector('.shrine-feature .shrine-score').textContent,
     filters: document.querySelectorAll('.shrine-filter').length,
     featureHeight: Math.round(feature.height),
-    compactHero: feature.height <= 410,
+    plannerGeometry: document.querySelector('.shrine-feature').classList.contains('wl-hero-feature') && feature.height >= 390 && feature.height <= 540,
+    contentLeft: body.left - feature.left < feature.width * .16,
     ledgerBeside: ledger.left >= feature.right - 1 && Math.abs(ledger.height - feature.height) <= 2,
     stageContains: stage.width >= feature.width + ledger.width,
-    ledgerMetrics: document.querySelectorAll('.shrine-ledger-metrics > div').length,
+    ledgerMetrics: document.querySelectorAll('.shrine-ledger-lines .shrine-ledger-line').length,
     featureWider: feature.width > [...document.querySelectorAll('.shrine-rank-card')][0].getBoundingClientRect().width * 2,
     gridBelow: grid.top >= feature.bottom,
     crop: [crop.style.getPropertyValue('--crop-x'), crop.style.getPropertyValue('--crop-y'), crop.style.getPropertyValue('--crop-zoom')]
   };
 })()`);
-assert(shrineComposition.rank === "#1" && shrineComposition.score === "10" && shrineComposition.filters === 5 &&
-  shrineComposition.compactHero && shrineComposition.ledgerBeside && shrineComposition.stageContains &&
+assert(/Rank 01/.test(shrineComposition.rank) && /^10/.test(shrineComposition.score) && shrineComposition.filters === 5 &&
+  shrineComposition.plannerGeometry && shrineComposition.contentLeft && shrineComposition.ledgerBeside && shrineComposition.stageContains &&
   shrineComposition.ledgerMetrics === 3 && shrineComposition.featureWider && shrineComposition.gridBelow &&
   JSON.stringify(shrineComposition.crop) === JSON.stringify(["81%", "31%", "1.4"]),
   `Shrine Hall of Fame composition/crop failed: ${JSON.stringify(shrineComposition)}`);
@@ -736,12 +738,13 @@ await screenshot("/tmp/kos-goals-cards-mobile-390.png");
 await auditView("shrine", undefined, ".shrine-feature");
 const shrinePhone = await evaluate(`(() => {
   const feature = document.querySelector('.shrine-feature').getBoundingClientRect();
-  const cover = document.querySelector('.shrine-feature-cover').getBoundingClientRect();
   const body = document.querySelector('.shrine-feature-body').getBoundingClientRect();
-  return { stacked: body.top >= cover.bottom - 1, featureW: Math.round(feature.width), mainW: document.getElementById('main').clientWidth };
+  const cover = document.querySelector('.shrine-feature .image-crop-bg').getBoundingClientRect();
+  return { plannerOverlay: body.left - feature.left < 36 && Math.abs(cover.height - feature.height) <= 2,
+    featureW: Math.round(feature.width), mainW: document.getElementById('main').clientWidth };
 })()`);
-assert(shrinePhone.stacked && shrinePhone.featureW <= shrinePhone.mainW,
-  `Shrine phone layout is not stacked: ${JSON.stringify(shrinePhone)}`);
+assert(shrinePhone.plannerOverlay && shrinePhone.featureW <= shrinePhone.mainW,
+  `Shrine phone layout does not match the Planner hero: ${JSON.stringify(shrinePhone)}`);
 await evaluate(`(() => {
   const main = document.getElementById('main'), feature = document.querySelector('.shrine-feature');
   main.scrollTo({ top: main.scrollTop + feature.getBoundingClientRect().top - 12, behavior: 'instant' });

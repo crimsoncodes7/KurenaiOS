@@ -204,10 +204,11 @@ step("Shrine renders a featured #1 and a smaller ranked remainder", async () => 
   KOS.show("shrine");
   await waitFor(() => document.querySelector(".shrine-feature"));
   assert(/Clockwork Route/.test(document.querySelector(".shrine-feature").textContent), "score-sorted #1 is wrong");
-  assert(document.querySelector(".shrine-feature .shrine-rank").textContent === "#1", "featured rank unclear");
+  assert(/Rank 01/.test(document.querySelector(".shrine-feature-rank").textContent), "featured rank unclear");
   assert(document.querySelectorAll(".shrine-ranked-grid .shrine-rank-card").length === 2, "ranked remainder wrong");
   assert(document.querySelector(".shrine-stage .shrine-ledger"), "Hall ledger is not beside rank one");
-  assert(document.querySelectorAll(".shrine-ledger-metrics > div").length === 3, "Hall statistics missing");
+  assert(document.querySelectorAll(".shrine-ledger-lines .shrine-ledger-line").length === 3, "Hall statistics missing");
+  assert(document.querySelector(".shrine-feature.wl-hero.wl-hero-feature .wl-hero-body"), "rank one does not share the Budget Planner hero structure");
   assert(document.querySelectorAll(".shrine-rank-card .shrine-row-foot").length === 2, "ranked cards lack score/action footers");
   assert(document.querySelectorAll(".shrine-filter").length === 5, "media-type filters missing");
   assert(document.querySelector(".shrine-sort select"), "sort control missing");
