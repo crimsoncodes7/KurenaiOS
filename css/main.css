@@ -1,3 +1,25 @@
+@font-face {
+  font-family: "Shrine Display";
+  src: url("../assets/shrine/fonts/CormorantGaramond-Variable.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Shrine Display";
+  src: url("../assets/shrine/fonts/CormorantGaramond-Italic-Variable.ttf") format("truetype");
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Shrine Inscription";
+  src: url("../assets/shrine/fonts/Cinzel-Variable.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+}
+
 /* ============================================================
    Kurenai OS — main.css · Build 5.0 "The Atelier"
    A lamplit, painterly study room: warm parchment ground, sepia
@@ -3250,7 +3272,7 @@ body.fx-minimised .fx-dock { display: flex; }
 .shrine-empty p { margin: 0; max-width: 60ch; color: var(--muted); font-size: 12px; }
 
 /* ---- Shrine collector card ---- */
-.shrine-card-modal { --modal-max: 780px; max-height: calc(100dvh - 32px); overflow-y: auto; }
+.shrine-card-modal { --modal-max: 900px; max-height: calc(100dvh - 32px); overflow-y: auto; }
 .shrine-modal-close { margin-left: auto; }
 .shrine-modal-sub { margin: 3px 0 0; }
 .shrine-card-preview {
@@ -3258,7 +3280,7 @@ body.fx-minimised .fx-dock { display: flex; }
   min-height: 230px; padding: 6px 0 12px;
 }
 .shrine-card-img {
-  width: 100%; max-width: 720px; height: auto;
+  width: 100%; max-width: 840px; height: auto;
   border-radius: 14px;
   box-shadow: var(--shadow-md), 0 0 0 1px color-mix(in srgb, var(--accent2) 40%, transparent);
 }

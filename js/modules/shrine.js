@@ -4,6 +4,8 @@
 (function () {
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
+  var SHARE_TEMPLATE_URL = "assets/shrine/private-hall-template-v1.png";
+  var shareTemplate = null, templateLoading = false, templateWaiters = [];
 
   /* ---------------- export-safe cover resolution ----------------
      The visible vault may already have cached a remote cover without CORS.
@@ -31,6 +33,22 @@
     img.onerror = function () { done(false); };
     img.src = url;
     if (img.complete && img.naturalWidth > 0) done(true);
+  }
+  function loadShareTemplate(cb) {
+    if (shareTemplate) {
+      cb(shareTemplate);
+      return;
+    }
+    templateWaiters.push(cb);
+    if (templateLoading) return;
+    templateLoading = true;
+    loadImage(SHARE_TEMPLATE_URL, false, function (img) {
+      shareTemplate = img;
+      templateLoading = false;
+      var waiters = templateWaiters.slice();
+      templateWaiters.length = 0;
+      waiters.forEach(function (done) { done(img); });
+    });
   }
   function hostOf(url) {
     try { return new URL(url, location.href).hostname; }
@@ -106,8 +124,14 @@
       done = true;
       cb();
     }
-    document.fonts.ready.then(go).catch(go);
-    setTimeout(go, 1200);
+    var requested = [document.fonts.ready];
+    if (document.fonts.load) {
+      requested.push(document.fonts.load("600 72px 'Shrine Display'"));
+      requested.push(document.fonts.load("italic 500 34px 'Shrine Display'"));
+      requested.push(document.fonts.load("600 20px 'Shrine Inscription'"));
+    }
+    Promise.all(requested).then(go).catch(go);
+    setTimeout(go, 1800);
   }
 
   /* ---------------- share-card renderer ---------------- */
@@ -233,7 +257,166 @@
     if (!out.length) out.push(["STATUS", KOS.media.STATUS_LABEL[entry.status] || "In the collection"]);
     return out.slice(0, 2);
   }
-  function renderCard(entry, coverImage, rank, message, cb) {
+  function lineSet(ctx, text, maxWidth) {
+    var words = String(text || "").trim().split(/\s+/), lines = [], line = "";
+    words.forEach(function (word) {
+      var next = line ? line + " " + word : word;
+      if (line && ctx.measureText(next).width > maxWidth) {
+        lines.push(line);
+        line = word;
+      } else line = next;
+    });
+    if (line) lines.push(line);
+    return lines;
+  }
+  function drawFittedTitle(ctx, text, x, y, maxWidth, maxHeight) {
+    var size = 82, lines = [];
+    while (size >= 46) {
+      ctx.font = "600 " + size + "px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
+      lines = lineSet(ctx, text, maxWidth);
+      if (lines.length <= 3 && lines.length * size * 1.02 <= maxHeight) break;
+      size -= 4;
+    }
+    if (lines.length > 3) {
+      lines = lines.slice(0, 3);
+      lines[2] = lines[2].replace(/[.,;:]?$/, "…");
+    }
+    var lineHeight = size * 1.02;
+    lines.forEach(function (line, index) { ctx.fillText(line, x, y + index * lineHeight); });
+  }
+  function fittedValue(ctx, value, maxWidth, maxSize) {
+    var size = maxSize;
+    while (size > 22) {
+      ctx.font = "600 " + size + "px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
+      if (ctx.measureText(String(value)).width <= maxWidth) break;
+      size -= 2;
+    }
+    return size;
+  }
+  function drawCrop(ctx, entry, coverImage, mod, x, y, width, height) {
+    ctx.save();
+    roundRect(ctx, x, y, width, height, 22);
+    ctx.clip();
+    var sourceW = coverImage ? (coverImage.naturalWidth || coverImage.width || 0) : 0;
+    var sourceH = coverImage ? (coverImage.naturalHeight || coverImage.height || 0) : 0;
+    if (coverImage && sourceW > 0 && sourceH > 0) {
+      var crop = KOS.imageCrop.value(entry.coverCrop);
+      var scale = Math.max(width / sourceW, height / sourceH) * crop.zoom;
+      var sampleW = Math.min(sourceW, width / scale);
+      var sampleH = Math.min(sourceH, height / scale);
+      var sampleX = (sourceW - sampleW) * crop.x / 100;
+      var sampleY = (sourceH - sampleH) * crop.y / 100;
+      ctx.drawImage(coverImage, sampleX, sampleY, sampleW, sampleH, x, y, width, height);
+    } else {
+      var fallback = ctx.createLinearGradient(x, y, x + width, y + height);
+      fallback.addColorStop(0, "#191222");
+      fallback.addColorStop(1, "#30151F");
+      ctx.fillStyle = fallback;
+      ctx.fillRect(x, y, width, height);
+      ctx.fillStyle = "rgba(247,220,161,.16)";
+      ctx.font = "240px 'Shippori Mincho', serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(mod.kanji, x + width / 2, y + height / 2);
+    }
+    ctx.restore();
+  }
+  function metadataGlyph(label) {
+    return ({ CREATOR: "✦", STUDIO: "工", EPISODES: "話", VOLUMES: "冊", ROUTES: "路", PLAYTIME: "時", PLATFORM: "遊", GENRE: "類", STATUS: "録" })[label] || "✦";
+  }
+  function renderTemplateCard(entry, coverImage, rank, message, cb, template) {
+    var width = 1536, height = 1024, canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    var ctx = canvas.getContext("2d");
+    var mod = KOS.media.module(entry.module), gold = "#DDAF58", paleGold = "#F4DDA1", ivory = "#FFF6E4";
+    ctx.drawImage(template, 0, 0, width, height);
+
+    /* The raster owns the ceremony and the apertures. Entry data is typeset
+       into those apertures so it reads as one designed object, not a stack of
+       dashboard panels composited over artwork. */
+    drawCrop(ctx, entry, coverImage, mod, 128, 173, 463, 694);
+    ctx.strokeStyle = "rgba(255,237,185,.8)";
+    ctx.lineWidth = 2;
+    roundRect(ctx, 128, 173, 463, 694, 22);
+    ctx.stroke();
+
+    ctx.textBaseline = "top";
+    ctx.textAlign = "left";
+    ctx.fillStyle = paleGold;
+    ctx.shadowColor = "rgba(226,155,51,.3)";
+    ctx.shadowBlur = 8;
+    ctx.font = "600 23px 'Shrine Inscription', Cinzel, serif";
+    ctx.fillText("✿  KURENAI · PRIVATE HALL", 96, 72);
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = gold;
+    ctx.font = "600 20px 'Shrine Inscription', Cinzel, serif";
+    ctx.fillText(mod.label.toUpperCase() + " · PERSONAL ARCHIVE", 668, 151);
+    ctx.fillStyle = ivory;
+    ctx.shadowColor = "rgba(0,0,0,.62)";
+    ctx.shadowBlur = 12;
+    drawFittedTitle(ctx, entry.title, 668, 192, 570, 176);
+    ctx.shadowBlur = 0;
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = gold;
+    ctx.font = "600 18px 'Shrine Inscription', Cinzel, serif";
+    ctx.fillText("RANK", 1353, 120);
+    ctx.fillStyle = ivory;
+    ctx.font = "600 70px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
+    ctx.fillText(String(rank || 1).padStart(2, "0"), 1353, 151);
+
+    var score = Number(entry.score || 0), scoreText = score ? String(score) : "—";
+    ctx.fillStyle = ivory;
+    ctx.shadowColor = "rgba(226,155,51,.48)";
+    ctx.shadowBlur = 18;
+    ctx.font = "600 178px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
+    ctx.fillText(scoreText, 803, 409);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = gold;
+    ctx.font = "600 15px 'Shrine Inscription', Cinzel, serif";
+    ctx.fillText("PERSONAL SCORE / 10", 803, 580);
+    drawStars(ctx, 741, 628, score, gold);
+
+    var metadata = cardMetadata(entry), metaCenters = [477, 606];
+    ctx.textAlign = "center";
+    metadata.forEach(function (item, index) {
+      var centerY = metaCenters[index];
+      ctx.fillStyle = paleGold;
+      ctx.font = "600 31px 'Shrine Inscription', Cinzel, serif";
+      ctx.fillText(metadataGlyph(item[0]), 1012, centerY - 18);
+      ctx.textAlign = "left";
+      ctx.fillStyle = gold;
+      ctx.font = "600 16px 'Shrine Inscription', Cinzel, serif";
+      ctx.fillText(item[0], 1075, centerY - 35);
+      ctx.fillStyle = ivory;
+      var value = String(item[1]);
+      var valueSize = fittedValue(ctx, value, 292, 35);
+      ctx.font = "600 " + valueSize + "px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
+      ctx.fillText(value, 1075, centerY - 6);
+      ctx.textAlign = "center";
+    });
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(221,175,88,.32)";
+    ctx.font = "italic 500 72px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
+    ctx.fillText("“", 684, 714);
+    ctx.fillStyle = "rgba(255,246,228,.94)";
+    ctx.font = "italic 500 34px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
+    wrapText(ctx, message || defaultMessage(entry), 744, 745, 610, 40, 3);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(244,221,161,.74)";
+    ctx.font = "500 16px 'Shrine Inscription', Cinzel, serif";
+    ctx.fillText("CURATED IN KURENAIOS · PERSONAL COLLECTION", width / 2, 945);
+    cb(canvas);
+  }
+  function renderCard(entry, coverImage, rank, message, cb, template) {
+    if (template) {
+      renderTemplateCard(entry, coverImage, rank, message, cb, template);
+      return;
+    }
     var width = 900, height = 560, canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
@@ -490,6 +673,7 @@
   }
   function shrineCardModal(entry, rank) {
     var closed = false, release = null, coverImage = null, coverInfo = null;
+    var templateImage = null, templateReady = false;
     var currentCanvas = null, currentDataUrl = null, renderTimer = null;
     var overlay = KOS.medview.modalOverlay(function () {
       closed = true;
@@ -537,7 +721,7 @@
       } }));
     }
     function paint() {
-      if (closed || !coverInfo) return;
+      if (closed || !coverInfo || !templateReady) return;
       renderCard(entry, coverImage, rank || 1, message.value.trim() || defaultMessage(entry), function (canvas) {
         if (closed) return;
         var dataUrl = null;
@@ -558,7 +742,7 @@
           : el("p", { class: "fc-empty", text: "This browser could not render an exportable image." }));
         renderNotice(coverInfo);
         [shareButton, saveButton, copyButton].filter(Boolean).forEach(function (button) { button.disabled = !dataUrl; });
-      });
+      }, templateImage);
     }
     message.addEventListener("input", function () {
       if (renderTimer) clearTimeout(renderTimer);
@@ -566,6 +750,11 @@
     });
     whenFontsReady(function () {
       if (closed) return;
+      loadShareTemplate(function (img) {
+        templateImage = img;
+        templateReady = true;
+        paint();
+      });
       resolveCover(entry, function (img, info) {
         coverImage = img;
         coverInfo = info || { reason: "none" };
@@ -577,6 +766,7 @@
 
   KOS.shrineResolveCover = resolveCover;
   KOS.shrineRenderCard = renderCard;
+  KOS.shrineLoadShareTemplate = loadShareTemplate;
   KOS.shrineCard = shrineCardModal;
 
   /* ---------------- Hall of Fame view ---------------- */

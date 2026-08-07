@@ -23,7 +23,7 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-collection-goals-shrine-3";
+var VERSION = "kos-shrine-card-template-4";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 
@@ -35,7 +35,11 @@ var EXTRA_PRECACHE = [
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/icon-maskable-512.png",
-  "icons/apple-touch-icon.png"
+  "icons/apple-touch-icon.png",
+  "assets/shrine/private-hall-template-v1.png",
+  "assets/shrine/fonts/CormorantGaramond-Variable.ttf",
+  "assets/shrine/fonts/CormorantGaramond-Italic-Variable.ttf",
+  "assets/shrine/fonts/Cinzel-Variable.ttf"
 ];
 
 self.addEventListener("install", function (e) {

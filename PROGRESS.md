@@ -3326,3 +3326,21 @@ font-glyph overflow that previously crossed the panel boundary. Desktop and
 390×844 browser assertions verify the shared Planner structure, left-aligned
 content, crop metadata, equal-height sidecar and contained share-card geometry.
 Service-worker version: `kos-collection-goals-shrine-3`.
+
+**Integrated share-card atelier.** The final export no longer asks canvas to
+imitate an illustrated card from primitive panels. A purpose-built,
+detail-free 1536×1024 Private Hall plate now owns the ornamental rails,
+portrait aperture, title field, rank pennant, score medallion, two metadata
+seals and quotation chamber. The crop-aware renderer paints only the selected
+cover and entry data into those reserved apertures, including fitted long
+titles, module-specific facts, vector score stars and the editable dedication.
+The result stays legible with a missing cover through the existing honest
+module-mark fallback.
+
+Cormorant Garamond (roman + italic variable fonts) and Cinzel are bundled
+locally under `assets/shrine/fonts/` with their OFL licences. The share modal
+explicitly waits for both faces and the template before exporting, and all four
+runtime assets are part of the offline precache. Smoke38 now pins the template,
+font, 1536×1024 canvas and crop contracts; smoke1–38 and the complete live
+Chrome audit pass, including desktop/mobile Shrine and the real share modal.
+Service-worker version: `kos-shrine-card-template-4`.

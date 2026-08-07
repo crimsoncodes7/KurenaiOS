@@ -717,7 +717,7 @@ const shareCard = await evaluate(`(() => {
   return { ratio: img.width / img.height, buttons: document.querySelectorAll('.shrine-card-actions .btn').length,
     defaultMessage: document.querySelector('.shrine-message').value };
 })()`);
-assert(Math.abs(shareCard.ratio - 900 / 560) < .03 && shareCard.buttons >= 2 && /Hall of Fame/.test(shareCard.defaultMessage),
+assert(Math.abs(shareCard.ratio - 1536 / 1024) < .03 && shareCard.buttons >= 2 && /Hall of Fame/.test(shareCard.defaultMessage),
   `Shrine share card is incomplete: ${JSON.stringify(shareCard)}`);
 await pause(260);
 await screenshot("/tmp/kos-shrine-share-card-1440.png");

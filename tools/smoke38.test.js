@@ -228,16 +228,24 @@ step("share renderer includes identity fields and applies stored crop metadata",
   drawImageCalls = [];
   const entry = Object.assign({}, anime, { coverCrop: { x: 100, y: 0, zoom: 2 } });
   const image = { naturalWidth: 1000, naturalHeight: 1500 };
+  const template = { naturalWidth: 1536, naturalHeight: 1024 };
   let rendered = null;
-  KOS.shrineRenderCard(entry, image, 3, "A small message with meaning.", canvas => { rendered = canvas; });
-  assert(rendered && rendered.width === 900 && rendered.height === 560, "share card geometry wrong");
+  KOS.shrineRenderCard(entry, image, 3, "A small message with meaning.", canvas => { rendered = canvas; }, template);
+  assert(rendered && rendered.width === 1536 && rendered.height === 1024, "share card geometry wrong");
   const allText = paintedText.join(" | ");
   ["KURENAI · PRIVATE HALL", "RANK", "03", "ANIME · PERSONAL ARCHIVE", "Violet Archive",
     "PERSONAL SCORE / 10", "EPISODES", "A small message with meaning.", "CURATED IN KURENAIOS · PERSONAL COLLECTION"]
     .forEach(value => assert(allText.includes(value), "share card missing " + value));
+  assert(drawImageCalls.some(args => args.length === 5 && args[0] === template), "ceremonial template was not painted");
   const coverDraw = drawImageCalls.find(args => args.length === 9);
   assert(coverDraw, "cover was not drawn");
   assert(coverDraw[1] > 0 && coverDraw[2] === 0, "stored crop focal point was ignored");
+  [
+    "assets/shrine/private-hall-template-v1.png",
+    "assets/shrine/fonts/CormorantGaramond-Variable.ttf",
+    "assets/shrine/fonts/CormorantGaramond-Italic-Variable.ttf",
+    "assets/shrine/fonts/Cinzel-Variable.ttf"
+  ].forEach(file => assert(fs.existsSync(path.join(ROOT, file)), "bundled share-card asset missing: " + file));
 });
 
 step("share modal starts with a useful default message", async () => {
