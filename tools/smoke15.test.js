@@ -309,7 +309,7 @@ step("Part B: hero carries a proportionate portrait, access preview and the abou
   const id = document.getElementById("main").querySelector(".b-id");
   const face = id.querySelector(".id-face .gov-avatar");
   if (!face) throw new Error("hero portrait missing");
-  if (!/140px/.test(face.getAttribute("style") || "")) throw new Error("hero portrait has the wrong scale: " + face.getAttribute("style"));
+  if (!/112px/.test(face.getAttribute("style") || "")) throw new Error("hero portrait has the wrong scale: " + face.getAttribute("style"));
   if (!id.querySelector(".id-access .hp-preview")) throw new Error("the access-state preview is missing");
   if (id.querySelector(".id-side")) throw new Error("duplicate stat rail leaked back into the hero");
   if (!id.querySelector(".id-status")) throw new Error("status line missing from the hero");

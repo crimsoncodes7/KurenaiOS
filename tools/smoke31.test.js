@@ -184,9 +184,24 @@ step("Responsive and reduced-motion Governor rules are present", () => {
      passed while the geometry it described had no effect. */
   const heatRules = css.match(/^\.heat-svg svg \{[^}]*\}/gm) || [];
   if (heatRules.length !== 1) throw new Error("expected exactly one .heat-svg svg rule, found " + heatRules.length);
-  if (!/width: auto !important/.test(heatRules[0]) || !/max-width: 100%/.test(heatRules[0]) ||
+  if (!/width: 100% !important/.test(heatRules[0]) || !/max-width: 400px/.test(heatRules[0]) ||
       !/display: block/.test(heatRules[0]) || !/margin-inline: auto/.test(heatRules[0]))
     throw new Error("heatmap geometry rule changed: " + heatRules[0]);
+});
+
+step("Merged Governor classes retain their styling contracts and the assistant dot is state-only", () => {
+  const css = fs.readFileSync(path.join(ROOT, "css", "main.css"), "utf8");
+  for (const selector of [".gov-seat-hero .id-access", ".hp-preview", ".hud-profile-meta", ".pc-identity-row", ".av-pv-identity"])
+    if (!css.includes(selector)) throw new Error(`missing integration style ${selector}`);
+  if (!/\.gov-head \{ margin-bottom: 0; \}/.test(css) || !/\.gov-workspace \{[\s\S]*?padding-top: 18px;/.test(css))
+    throw new Error("Governor header-to-content spacing regressed");
+  const idleDot = css.match(/\.assistant-trigger \.at-dot \{[^}]*\}/);
+  if (!idleDot || !/opacity: 0/.test(idleDot[0]) || !/border: 2px solid transparent/.test(idleDot[0]))
+    throw new Error("idle assistant state dot is visible");
+  if (!/\.assistant-trigger\.is-busy \.at-dot \{[^}]*opacity: 1/.test(css) ||
+      !/\.assistant-trigger\.is-confirm \.at-dot \{[^}]*opacity: 1/.test(css))
+    throw new Error("assistant lifecycle states no longer reveal the dot");
+  if (/sp-theme-shell|sp-banner-card/.test(css)) throw new Error("obsolete shop overlays survived");
 });
 
 (async () => {

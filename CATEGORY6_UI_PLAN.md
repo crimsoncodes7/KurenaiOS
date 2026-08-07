@@ -257,3 +257,18 @@ produced 106 runtime files / 20M; Cloudflare Pages deployed the follow-up to
 six tabs, the unique deployment and production alias both served service
 worker `kos-gov4-c6md-1`, and the deployed assistant bundle contained the
 safe rich-text renderer and public render hook.
+
+## 12. Shared-shell regression follow-up · 2026-08-07
+
+A later merge left the assistant trigger using its Category 6.1 markup but
+restored an older idle-dot rule, producing the unexplained ring at the icon's
+top-right corner. The trigger now keeps that lifecycle dot fully transparent
+and borderless at rest; busy and confirmation classes explicitly reveal it.
+No assistant controller, provider, conversation, memory, tool, orchestrator,
+confirmation, or sanitisation path changed.
+
+The same audit repaired adjacent Governor/profile styling contracts that share
+the topbar and identity surfaces. Real browser checks on clean local origins
+confirmed the idle assistant trigger, compact HUD, anchored profile speech
+bubble, desktop light/dark Governor pages, and 390×844 layouts. Smoke29 remains
+green and smoke31 now prevents the shared-shell regression from recurring.

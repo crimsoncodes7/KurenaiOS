@@ -278,7 +278,7 @@
 
       idCard.appendChild(el("div", { class: "id-wrap" }, [
         el("div", { class: "id-face" }, [
-          KOS.governor.avatarNode(140),
+          KOS.governor.avatarNode(112),
           el("button", { class: "id-face-edit", title: "Edit your profile picture", "aria-label": "Edit your profile picture",
             text: "✎", onclick: function () { KOS.show("governor", "avatar"); } })
         ]),
@@ -526,7 +526,9 @@
         ]));
       }
 
-      var activeDept = "all";
+      /* Open on study-facing tools so the first phone viewport is useful;
+         All wares remains one tap away for browsing the full catalogue. */
+      var activeDept = "tools";
       var deptBar = el("div", { class: "shop-depts", role: "tablist", "aria-label": "Shop departments" });
       SHOP_DEPTS.forEach(function (d) {
         deptBar.appendChild(el("button", { class: "shop-dept" + (d.id === activeDept ? " active" : ""),
@@ -578,6 +580,8 @@
         sec.appendChild(row);
         sections.appendChild(sec);
       });
+
+      setDepartment(activeDept);
 
       function setDepartment(id) {
         activeDept = id;
@@ -685,14 +689,12 @@
         var band = el("div", { class: "shop-pv-band" });
         band.style.cssText += KOS.governor.bannerPresetCss(it.banner) || "";
         pv.appendChild(band);
-        pv.appendChild(el("span", { class: "shop-preview-label", text: "Profile banner" }));
       } else if (it.kind === "theme") {
         var strip = el("div", { class: "shop-pv-theme" });
         (it.sw || []).forEach(function (c) {
           strip.appendChild(el("span", { class: "spt-band", style: "background:" + c }));
         });
         pv.appendChild(strip);
-        pv.appendChild(el("span", { class: "shop-preview-label", text: "Interface palette" }));
       } else if (it.kind === "seal") {
         pv.appendChild(el("div", { class: "shop-pv-mark sp-seal-brand", "aria-hidden": "true" }, [
           el("span", { class: "sp-seal-avatar" }, [el("span", { class: "spm-k", text: it.glyph || grp.glyph })]),

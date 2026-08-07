@@ -6,16 +6,20 @@
        --user-data-dir=/tmp/kos-visual-audit http://127.0.0.1:8765/index.html
    Then run:
      node tools/visual_audit.mjs
+   Set KOS_AUDIT_URL=http://127.0.0.1:<port>/index.html to target a clean
+   local origin when an older service-worker scope is intentionally retained.
    The script drives the real browser UI through CDP and writes inspection
    screenshots to /tmp; it does not alter repository files or real profiles. */
 import { writeFile } from "node:fs/promises";
 
 const endpoint = process.env.KOS_CDP || "http://127.0.0.1:9222/json";
+const auditUrl = process.env.KOS_AUDIT_URL || "http://127.0.0.1:8765/index.html";
 const pages = await fetch(endpoint).then(r => {
   if (!r.ok) throw new Error(`CDP discovery failed (${r.status})`);
   return r.json();
 });
-const page = pages.find(p => p.type === "page" && /127\.0\.0\.1:8765/.test(p.url)) || pages.find(p => p.type === "page");
+const auditOrigin = new URL(auditUrl).origin;
+const page = pages.find(p => p.type === "page" && p.url.startsWith(auditOrigin)) || pages.find(p => p.type === "page");
 if (!page) throw new Error("No debuggable KurenaiOS page found.");
 
 const ws = new WebSocket(page.webSocketDebuggerUrl);
@@ -138,6 +142,8 @@ const cover = svgData(600, 900,
 await send("Page.enable");
 await send("Runtime.enable");
 await send("Log.enable");
+await send("Page.navigate", { url: auditUrl });
+await waitFor("document.readyState === 'complete' && window.KOS && KOS.imageCrop && KOS.views.home", "audit target", 12000);
 await viewport(1440, 900);
 const bootOrigin = await evaluate("performance.timeOrigin");
 await send("Page.reload", { ignoreCache: true });
@@ -259,13 +265,13 @@ const governorRefine = await evaluate(`(() => {
     face: Math.round(face.getBoundingClientRect().width),
     access: !!hero.querySelector('.id-access .hp-preview'),
     cap: getComputedStyle(document.querySelector('.b-vitals'), '::before').content,
-    idleAssistantDot: getComputedStyle(document.querySelector('.assistant-trigger .at-dot')).display,
+    idleAssistantDot: getComputedStyle(document.querySelector('.assistant-trigger .at-dot')).opacity,
     saveLabels: document.querySelectorAll('.save-wrap').length
   };
 })()`);
-assert(governorRefine.gap <= 30 && governorRefine.face === 140 && governorRefine.access &&
+assert(governorRefine.gap <= 30 && governorRefine.face === 112 && governorRefine.access &&
   (governorRefine.cap === 'none' || governorRefine.cap === 'normal') &&
-  governorRefine.idleAssistantDot === 'none' && governorRefine.saveLabels === 0,
+  governorRefine.idleAssistantDot === '0' && governorRefine.saveLabels === 0,
   `Governor header/hero/topbar refinement regressed: ${JSON.stringify(governorRefine)}`);
 await screenshot("/tmp/kos-governor-status-dark-1440.png");
 await evaluate(`document.getElementById("main").scrollTop = 470`);
@@ -307,6 +313,7 @@ const shopRefine = await evaluate(`(() => ({
 assert(shopRefine.fakeThemeOverlays === 0 && shopRefine.fakeBannerOverlays === 0 && shopRefine.maxActionGap <= 18,
   `Shop previews/actions remain disconnected: ${JSON.stringify(shopRefine)}`);
 await screenshot("/tmp/kos-governor-shop-dark-1440.png");
+await clickText(".shop-depts", "All wares");
 await evaluate(`document.getElementById('main').scrollTop = document.getElementById('shop-sec-themes').offsetTop - 90`);
 await pause(120);
 await screenshot("/tmp/kos-governor-themes-dark-1440.png");

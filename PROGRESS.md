@@ -3127,3 +3127,44 @@ field groupings, internal scroll, responsive columns, full-width final Notes,
 separated destructive/save actions, the labelled Physical Vault range and
 the complete removal of bottom analytics while retaining dedicated Stats.
 Suite count is now 36.
+
+---
+
+## ADDENDUM — Governor merge-integration recovery · 2026-08-07
+
+A repository/diff audit found no unresolved conflict markers and no damage to
+Governor economy, sessions, cropper, assistant, or routing logic. The actual
+regression was a split frontend contract: the later Governor markup introduced
+the access-state preview, compact HUD identity, and portrait/status rows while
+the surviving CSS still targeted the removed command mark, old HUD bars, and
+standalone status pills. A stale local service-worker scope initially masked
+the split during browser inspection; verification was repeated on clean local
+origins before acceptance.
+
+The repair restores the page-specific Governor composition without touching
+feature semantics. The header-to-content gap is now 18 px on desktop and 14 px
+on phones. Status uses a proportionate 112 px portrait, a fully styled access
+panel, non-mutating HP preview controls, and a contrast-backed control surface
+when a custom banner is present. Decorative card-edge and shop-preview overlays
+that no longer conveyed state were removed. Cadence and the milestone ledger
+now split the row evenly; the 13-week plot fills a bounded 400 px lane, its
+three summary tiles remain inside the parent at phone widths, and a stale
+`height:100%` rule can no longer push the legend outside its card.
+
+Gold Shop opens on Learning tools (All wares remains one tap away), reducing a
+fresh phone page from 51 cards to the two useful study-facing products. Product
+copy and actions no longer use an artificial flex gap. Avatar and the shared
+profile popover anchor the status bubble beside the portrait, while the corner
+HUD uses the compact name/state/gold markup it actually renders. The assistant
+lifecycle dot is invisible while idle and appears only for busy/confirmation
+states, removing the unexplained blue ring without changing controller state.
+
+**Verification.** The complete `smoke`/`smoke2`–`smoke36` run passed. Focused
+post-polish gates `smoke15`, `smoke18`, `smoke29`, and `smoke31` also passed;
+smoke31 now has 13 checks and pins the restored class/CSS contracts, compact
+spacing, cadence geometry, removed shop overlays, and state-only assistant dot.
+`tools/visual_audit.mjs` now accepts `KOS_AUDIT_URL` for clean-origin audits and
+passed against the final build at desktop light, desktop dark, and 390×844.
+Governor screenshots were refreshed at `/tmp/kos-governor-*.png`; measured
+document overflow was zero on Status, Gold Shop, Avatar, and Session Log.
+Service-worker cache version: `kos-governor-ui-integration-2`.

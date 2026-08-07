@@ -4851,9 +4851,10 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   outline: 2px solid var(--accent); outline-offset: 3px;
 }
 .assistant-trigger .at-dot { position: absolute; top: -2px; right: -2px; width: 10px; height: 10px;
-  border: 2px solid var(--panel); border-radius: 50%; background: transparent; }
-.assistant-trigger.is-busy .at-dot { background: var(--asst-brass, var(--accent2)); animation: asstDot 1.25s ease-in-out infinite; }
-.assistant-trigger.is-confirm .at-dot { background: var(--danger); animation: asstConfirmDot .9s ease-in-out infinite; }
+  border: 2px solid transparent; border-radius: 50%; background: transparent;
+  opacity: 0; transform: scale(.55); transition: opacity .16s ease, transform .16s ease; }
+.assistant-trigger.is-busy .at-dot { border-color: var(--panel); background: var(--asst-brass, var(--accent2)); opacity: 1; transform: scale(1); animation: asstDot 1.25s ease-in-out infinite; }
+.assistant-trigger.is-confirm .at-dot { border-color: var(--panel); background: var(--danger); opacity: 1; transform: scale(1); animation: asstConfirmDot .9s ease-in-out infinite; }
 @keyframes asstDot { 50% { opacity: .35; transform: scale(.78); } }
 @keyframes asstConfirmDot { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--danger) 18%, transparent); } }
 
@@ -5518,9 +5519,10 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --gov-signal: var(--accent3);
   --gov-lacquer: color-mix(in srgb, var(--accent) 11%, var(--bg1));
   --gov-brass: var(--accent2);
+  padding-top: 18px;
   container-type: inline-size;
 }
-.gov-head { margin-bottom: clamp(22px, 3vw, 38px); }
+.gov-head { margin-bottom: 0; }
 .gov-head .dh-sub { max-width: 62ch; }
 .gov-head .study-tabs { background: color-mix(in srgb, var(--panel) 88%, transparent); box-shadow: inset 0 0 0 1px var(--line2); }
 .gov-head .study-tab { min-height: 38px; padding-inline: 18px; }
@@ -5544,27 +5546,20 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 /* A — Status: identity stage, equal instruments, compact signal row */
 .gov-status { align-items: stretch; }
 .gov-status > .bento-card { border-color: var(--line2); box-shadow: none; }
-.gov-status > .bento-card::before {
-  content: ""; position: absolute; left: 22px; right: 22px; top: 0; height: 1px;
-  background: linear-gradient(90deg, var(--gov-signal), color-mix(in srgb, var(--gov-signal) 15%, transparent) 72%, transparent);
-  opacity: .55;
-}
+.gov-status > .bento-card::before { content: none; }
 .gov-seat-hero.b-id {
-  grid-column: span 12; min-height: 250px; overflow: hidden; isolation: isolate;
+  grid-column: span 12; min-height: 230px; overflow: hidden; isolation: isolate;
   padding: 0; background:
     radial-gradient(520px 260px at 100% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 72%),
     linear-gradient(135deg, var(--bg1), color-mix(in srgb, var(--panel) 92%, var(--accent) 8%));
 }
-.gov-seat-hero::after {
-  content: ""; position: absolute; inset: auto 0 0 0; height: 48%; pointer-events: none; z-index: -1;
-  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg0) 12%, transparent));
-}
+.gov-seat-hero::after { content: none; }
 .gov-seat-hero .id-wrap {
-  min-height: 250px; display: grid; grid-template-columns: auto minmax(0, 1fr) 118px;
-  align-items: center; gap: clamp(22px, 4vw, 52px); padding: 42px clamp(28px, 5vw, 64px);
+  min-height: 230px; display: grid; grid-template-columns: 112px minmax(0, 1fr) minmax(210px, 238px);
+  align-items: center; gap: clamp(18px, 3vw, 34px); padding: 26px clamp(24px, 4vw, 42px);
 }
 .gov-seat-hero .id-face { align-self: center; }
-.gov-seat-hero .id-face .gov-avatar { box-shadow: 0 16px 46px color-mix(in srgb, var(--accent) 18%, transparent); }
+.gov-seat-hero .id-face .gov-avatar { width: 112px !important; height: 112px !important; box-shadow: 0 16px 46px color-mix(in srgb, var(--accent) 18%, transparent); }
 .gov-seat-hero .id-txt { min-width: 0; max-width: 720px; }
 .gov-seat-hero .rank { margin-bottom: 6px; color: var(--accent); font-size: 10px; letter-spacing: .2em; }
 .gov-seat-hero h2 { margin: 0; font-size: clamp(38px, 4vw, 58px); letter-spacing: -.035em; }
@@ -5573,7 +5568,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .gov-state-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 4px color-mix(in srgb, var(--good) 14%, transparent); }
 .gov-strained .gov-state-dot { background: var(--warning); box-shadow: 0 0 0 4px color-mix(in srgb, var(--warning) 15%, transparent); }
 .gov-critical .gov-state-dot { background: var(--danger); box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 15%, transparent); }
-.gov-seat-hero .id-about { margin-top: 18px; max-width: 680px; }
+.gov-seat-hero .id-about { margin-top: 14px; max-width: 680px; }
 .gov-seat-hero .id-status,
 .profile-speech {
   position: relative; width: fit-content; max-width: 100%; padding: 7px 12px;
@@ -5586,13 +5581,23 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   background: inherit; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); transform: rotate(45deg);
 }
 .gov-seat-hero .id-about-txt { max-width: 62ch; margin: 11px 0 0; color: var(--text2); font-size: 13px; line-height: 1.55; }
-.gov-seat-hero .id-command-mark {
-  align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  border-left: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+.gov-seat-hero .id-access {
+  align-self: stretch; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 5px;
+  padding-left: 22px; border-left: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
 }
-.id-command-mark > span { font-family: var(--jp); font-size: 62px; line-height: 1; color: color-mix(in srgb, var(--accent) 35%, transparent); }
-.id-command-mark small { margin-top: 10px; color: var(--muted); font-family: var(--mono); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
-.gov-seat-hero .id-banner-ctl { top: 14px; right: 16px; display: flex; gap: 6px; }
+.id-access-k { color: var(--muted); font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.id-access strong { color: var(--text); font-family: var(--serif); font-size: 16px; font-weight: 600; }
+.id-access > p { margin: 0; color: var(--text2); font-size: 10.5px; line-height: 1.45; }
+.hp-preview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-top: 7px; }
+.hp-preview > span { grid-column: 1 / -1; color: var(--muted); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+.hp-preview-btn {
+  min-width: 0; min-height: 27px; padding: 3px 5px; border: 1px solid var(--line2); border-radius: 7px;
+  background: color-mix(in srgb, var(--well) 80%, transparent); color: var(--text2); font-size: 9px; text-align: center;
+}
+.hp-preview-btn:hover { border-color: var(--line); color: var(--text); }
+.hp-preview-btn.active { border-color: color-mix(in srgb, var(--accent) 48%, transparent); background: var(--wash-accent); color: var(--accent); font-weight: 700; }
+.hp-preview-note { color: var(--muted); font-family: var(--mono); font-size: 8px; line-height: 1.35; }
+.gov-seat-hero .id-banner-ctl { position: static; display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; opacity: 1; }
 .gov-seat-hero .mini-btn { min-height: 30px; padding: 4px 9px; background: color-mix(in srgb, var(--bg1) 88%, transparent); backdrop-filter: blur(10px); }
 .gov-seat-hero .mini-btn.icon-only { width: 30px; padding-inline: 0; justify-content: center; }
 .gov-seat-hero.banner-dark .id-status,
@@ -5601,9 +5606,18 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .gov-seat-hero.banner-dark .id-about-txt { color: rgba(247,240,232,.82); }
 .gov-seat-hero.banner-dark .title-line b,
 .gov-seat-hero.banner-dark h2 { color: #F7F0E8; }
-.gov-seat-hero.banner-dark .id-command-mark { border-left-color: rgba(255,255,255,.17); }
-.gov-seat-hero.banner-dark .id-command-mark > span { color: rgba(255,255,255,.2); }
-.gov-seat-hero.banner-dark .id-command-mark small { color: rgba(247,240,232,.68); }
+.gov-seat-hero.banner-dark .id-access {
+  align-self: center; min-height: 182px; padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,.17); border-radius: 14px;
+  background: rgba(8,10,14,.68); backdrop-filter: blur(12px);
+}
+.gov-seat-hero.banner-dark .id-access-k,
+.gov-seat-hero.banner-dark .id-access > p,
+.gov-seat-hero.banner-dark .hp-preview > span,
+.gov-seat-hero.banner-dark .hp-preview-note { color: rgba(247,240,232,.68); }
+.gov-seat-hero.banner-dark .id-access strong { color: #F7F0E8; }
+.gov-seat-hero.banner-dark .hp-preview-btn { border-color: rgba(255,255,255,.18); background: rgba(8,10,14,.5); color: rgba(247,240,232,.82); }
+.gov-seat-hero.banner-dark .hp-preview-btn.active { border-color: rgba(255,255,255,.48); color: #fff; }
 
 .b-vitals { grid-column: span 12; padding-block: 18px 20px; }
 .b-vitals > h4 { margin-bottom: 12px; }
@@ -5617,25 +5631,20 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .gov-instruments .gstat-bar { margin-top: auto; height: 6px; }
 .gov-instruments .gstat-h { min-height: 2.7em; font-size: 10.5px; }
 
-.b-heat { grid-column: span 5; }
-.b-ledger { grid-column: span 7; }
-.b-heat, .b-ledger { min-height: 340px; }
+.b-heat, .b-ledger { grid-column: span 6; min-height: 330px; }
 .heat-wrap {
-  display: grid; grid-template-columns: minmax(0, 1fr) 138px; grid-template-rows: 1fr auto;
-  gap: 12px 14px; align-items: center; align-content: center;
+  display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto;
+  gap: 10px; height: auto; align-items: center; align-content: center;
 }
 .heat-svg { grid-column: 1; grid-row: 1; overflow: hidden; padding: 12px 0 2px; }
-/* THE heatmap svg geometry — the single authoritative rule. Two earlier
-   copies used to sit thousands of lines above this one; the middle one set
-   width:100% !important and was silently overridden here, so it guarded
-   nothing while a test asserted its text. Keep this the only .heat-svg svg
-   rule: the grid renders at its intrinsic size, centred, and scales down
-   rather than stretching. */
-.heat-svg svg { display: block; width: auto !important; max-width: 100%; height: auto; margin-inline: auto; }
-.heat-legend { grid-column: 1; grid-row: 2; padding-top: 2px; }
+/* THE heatmap svg geometry — the single authoritative rule. The 13-week
+   plot fills its own lane, then stops at a readable maximum instead of
+   stretching across the ledger or collapsing beside its stat tiles. */
+.heat-svg svg { display: block; width: 100% !important; max-width: 400px; height: auto; margin-inline: auto; }
+.heat-legend { grid-column: 1; grid-row: 3; padding-top: 2px; }
 .hl-num { font-family: var(--mono); font-size: 10.5px; }
-.heat-stats { grid-column: 2; grid-row: 1 / span 2; grid-template-columns: 1fr; gap: 7px; margin-top: 0; }
-.heat-stats .gstat-mini { min-height: 84px; padding: 10px 11px; background: var(--well); }
+.heat-stats { grid-column: 1; grid-row: 2; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 0; }
+.heat-stats .gstat-mini { min-height: 66px; padding: 9px 10px; background: var(--well); }
 .heat-stats .gstat-mini .gstat-v { font-size: 16px; }
 
 .gov-ledger-event {
@@ -5741,8 +5750,14 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   color: #fff; background: rgba(7,9,13,.32); backdrop-filter: blur(8px); font-size: 8.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
 }
 .identity-stage .av-pv-body { padding: 0 22px 22px; margin-top: -50px; gap: 4px; }
+.av-pv-identity { width: 100%; display: flex; align-items: flex-end; gap: 12px; min-width: 0; }
+.av-pv-identity .av-pv-avatar { flex: none; }
+.identity-stage .av-pv-identity .av-pv-status {
+  min-width: 0; max-width: calc(100% - 116px); margin: 0 0 10px;
+  border-radius: 13px 13px 13px 4px; overflow-wrap: anywhere;
+}
 .identity-stage .av-pv-name { margin-top: 10px; font-size: 30px; }
-.identity-stage .av-pv-status { margin: 13px 0 0 11px; font-size: 12px; }
+.identity-stage .av-pv-status { font-size: 12px; }
 .identity-stage .av-pv-about { margin-top: 12px; }
 .identity-stage .av-pv-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 16px; padding-top: 12px; }
 .identity-stage .av-pv-meta > span { min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 8px; border-radius: 8px; background: var(--well); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text2); font-size: 10px; }
@@ -5794,18 +5809,18 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .shop-rail-item { min-height: 42px; padding: 7px 9px; }
 .shop-rail-item[hidden], .shop-sec[hidden] { display: none; }
 .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); grid-auto-rows: 1fr; gap: 12px; }
-.shop-card { min-height: 328px; display: flex; flex-direction: column; border-radius: 15px; }
+.shop-card { min-height: 300px; display: flex; flex-direction: column; border-radius: 15px; }
 .shop-pv { height: 126px; flex: none; }
 .shop-card .shop-card-h { align-items: flex-start; gap: 8px; padding: 13px 14px 0; }
 .shop-card-title { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .shop-card-title > b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .shop-kind { color: var(--accent); font-size: 8px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
-.shop-card .sub { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; min-height: 3.05em; padding-inline: 14px; }
+.shop-card .sub { flex: none; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; min-height: 3.05em; padding-inline: 14px; }
 .shop-access-note { margin: 8px 14px 0; padding: 7px 8px; border-radius: 7px; background: var(--well); color: var(--muted); font-size: 9.5px; line-height: 1.35; }
-.shop-card-f { padding: 11px 14px 14px; }
+.shop-card-f { margin-top: 6px; padding: 11px 14px 14px; }
 .shop-card-f .btn { min-height: 34px; padding: 6px 11px; font-size: 11px; }
 
-.shop-pv::after { content: ""; position: absolute; inset: auto 0 0; height: 40%; background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg0) 14%, transparent)); pointer-events: none; }
+.shop-pv::after { content: none; }
 .shop-lab-scene { position: absolute; inset: 11px; border: 1px solid color-mix(in srgb, var(--gov-signal) 25%, var(--line2)); border-radius: 10px; background: color-mix(in srgb, var(--bg1) 90%, var(--gov-signal) 10%); overflow: hidden; }
 .sp-lab-chrome { position: absolute; left: 9px; top: 8px; display: flex; gap: 4px; }
 .sp-lab-chrome i { width: 4px; height: 4px; border-radius: 50%; background: color-mix(in srgb, var(--text) 22%, transparent); }
@@ -5814,14 +5829,6 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .sp-lab-steps { position: absolute; right: 12px; top: 29px; bottom: 16px; width: 44%; display: flex; align-items: end; gap: 5px; }
 .sp-lab-steps i { flex: 1; border-radius: 3px 3px 1px 1px; background: color-mix(in srgb, var(--accent) 35%, transparent); }
 .sp-lab-steps i:nth-child(1) { height: 32%; } .sp-lab-steps i:nth-child(2) { height: 68%; } .sp-lab-steps i:nth-child(3) { height: 45%; } .sp-lab-steps i:nth-child(4) { height: 86%; background: color-mix(in srgb, var(--gov-signal) 62%, transparent); }
-.sp-theme-shell { position: absolute; inset: 17px 25px; display: grid; grid-template-columns: 24% 1fr; gap: 5px; padding: 5px; border: 1px solid rgba(255,255,255,.4); border-radius: 9px; background: rgba(5,8,12,.68); box-shadow: 0 10px 24px rgba(0,0,0,.25); }
-.sp-theme-rail { border-radius: 5px; background: rgba(255,255,255,.1); }
-.sp-theme-main { display: flex; gap: 4px; align-items: end; padding: 7px; border-radius: 5px; background: rgba(255,255,255,.07); }
-.sp-theme-main i { flex: 1; height: 40%; border-radius: 3px; background: rgba(255,255,255,.18); }
-.sp-theme-main i:nth-child(2) { height: 78%; } .sp-theme-main i:nth-child(3) { height: 58%; }
-.sp-banner-card { position: absolute; left: 24px; right: 24px; bottom: 12px; height: 46px; display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 9px; background: rgba(8,10,14,.68); box-shadow: 0 8px 20px rgba(0,0,0,.22); }
-.sp-banner-avatar { width: 28px; height: 28px; border: 2px solid rgba(255,255,255,.72); border-radius: 50%; background: rgba(255,255,255,.12); }
-.sp-banner-line { width: 48%; height: 5px; border-radius: 4px; background: rgba(255,255,255,.48); }
 .sp-seal-profile { display: flex; align-items: center; justify-content: center; gap: 15px; }
 .sp-seal-avatar { width: 62px; height: 62px; display: grid; place-items: center; border: 2px solid color-mix(in srgb, var(--accent) 50%, transparent); border-radius: 50%; background: var(--bg1); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 8%, transparent); }
 .sp-seal-avatar .spm-k { color: var(--accent); font-family: var(--jp); font-size: 27px; }
@@ -5844,16 +5851,22 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .shrine-ink .sp-shrine-card { filter: grayscale(1); border-style: dashed; }
 
 /* the corner identity and popover: conversational status, smaller actions */
-.hud { max-width: 190px; padding: 6px 9px 6px 6px; border-radius: 12px; }
-.hud-col { min-width: 88px; gap: 4px; }
-.hud-status.profile-speech { padding: 4px 7px 4px 9px; border-radius: 9px 9px 9px 3px; font-size: 9px; line-height: 1.25; background: var(--well); }
-.hud-status.profile-speech::before { width: 6px; height: 6px; left: -3px; bottom: 3px; }
+.hud { width: 174px; max-width: 174px; min-height: 50px; padding: 6px 9px 6px 6px; border-radius: 12px; }
+.hud-col { display: grid; gap: 2px; min-width: 0; flex: 1; text-align: left; }
+.hud-profile-name { overflow: hidden; color: var(--text); font-size: 11px; font-weight: 700; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.hud-profile-meta { display: flex; align-items: center; gap: 4px; min-width: 0; color: var(--muted); font-size: 9px; line-height: 1.2; white-space: nowrap; }
+.hud-state-dot { width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--good); }
+.hud-strained .hud-state-dot { background: var(--warning); }
+.hud-critical .hud-state-dot { background: var(--danger); }
+.hud-profile-meta .hud-gold { margin-left: auto; font-size: 9px; }
 .profile-pop { width: 306px; }
 .profile-card { border-radius: 18px; }
 .pc-banner { height: 68px; }
 .pc-body { padding: 0 16px 15px; margin-top: -31px; }
 .pc-name { font-size: 19px; }
-.pc-status { margin: 10px 0 0 8px; font-size: 11.5px; }
+.pc-identity-row { width: 100%; display: flex; align-items: flex-end; gap: 10px; min-width: 0; }
+.pc-identity-row .pc-avatar { flex: none; }
+.pc-identity-row .pc-status { min-width: 0; max-width: calc(100% - 76px); margin: 0 0 8px; font-size: 11.5px; overflow-wrap: anywhere; }
 .pc-meters { margin-top: 12px; gap: 7px; }
 .pc-about { margin-top: 11px; padding-top: 10px; }
 .pc-foot { gap: 6px; margin-top: 12px; }
@@ -5863,7 +5876,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .gov-instruments.vital-stack { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .b-heat, .b-ledger { grid-column: span 12; min-height: auto; }
   .b-ledger .ledger { min-height: 0; }
-  .heat-wrap { display: flex; }
+  .heat-wrap { display: grid; }
   .heat-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .heat-stats .gstat-mini { min-height: 66px; }
 }
@@ -5877,13 +5890,15 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 @media (max-width: 760px) {
   .gov-head { align-items: stretch; gap: 18px; }
   .gov-head .gov-tabs { width: 100%; overflow-x: auto; }
-  .gov-seat-hero .id-wrap { min-height: 330px; grid-template-columns: 86px minmax(0, 1fr); align-content: center; gap: 18px; padding: 58px 18px 26px; }
-  .gov-seat-hero .id-face .gov-avatar { width: 86px !important; height: 86px !important; }
-  .gov-seat-hero .id-command-mark { display: none; }
+  .gov-workspace { padding-top: 14px; }
+  .gov-seat-hero .id-wrap { min-height: 0; grid-template-columns: 78px minmax(0, 1fr); align-content: center; gap: 16px; padding: 20px 18px; }
+  .gov-seat-hero .id-face .gov-avatar { width: 78px !important; height: 78px !important; }
   .gov-seat-hero h2 { font-size: 36px; }
-  .gov-seat-hero .id-about { grid-column: 1 / -1; }
-  .gov-seat-hero .id-banner-ctl { left: 12px; right: 12px; justify-content: flex-end; overflow-x: auto; }
-  .gov-seat-hero .id-banner-ctl, .gov-seat-hero .id-face-edit { opacity: 1; }
+  .gov-seat-hero .id-access { grid-column: 1 / span 2; justify-self: stretch; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; padding: 14px 0 0; border-top: 1px solid var(--line2); border-left: 0; }
+  .gov-seat-hero.banner-dark .id-access { min-height: 0; padding: 14px; border: 1px solid rgba(255,255,255,.17); }
+  .id-access-k, .id-access strong, .id-access > p { grid-column: 1; }
+  .hp-preview { grid-column: 2; grid-row: 1 / span 3; align-self: center; min-width: 118px; margin-top: 0; }
+  .hp-preview-note, .gov-seat-hero .id-banner-ctl { grid-column: 1 / -1; }
   .gov-instruments.vital-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gov-instruments .vital:first-child { grid-column: 1 / -1; }
   .heat-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -5909,7 +5924,11 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .gov-seat-hero .id-wrap { grid-template-columns: 70px minmax(0, 1fr); }
   .gov-seat-hero .id-face .gov-avatar { width: 70px !important; height: 70px !important; }
   .gov-seat-hero h2 { font-size: 31px; }
-  .gov-instruments.vital-stack, .heat-stats { grid-template-columns: 1fr; }
+  .gov-seat-hero .id-access { grid-template-columns: minmax(0, 1fr); }
+  .id-access-k, .id-access strong, .id-access > p, .hp-preview, .hp-preview-note, .gov-seat-hero .id-banner-ctl { grid-column: 1; grid-row: auto; }
+  .hp-preview { width: 100%; min-width: 0; margin-top: 6px; }
+  .gov-instruments.vital-stack { grid-template-columns: 1fr; }
+  .heat-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .gov-instruments .vital:first-child { grid-column: auto; }
   .bento-card { padding-inline: 16px; }
   .gov-log-summary { grid-template-columns: 34px minmax(0, 1fr) 20px; padding-inline: 11px; }
