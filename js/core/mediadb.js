@@ -611,10 +611,11 @@
         var v = cur.value;
         agg.total++;
         var m = agg.modules[v.module] = agg.modules[v.module] ||
-          { total: 0, planned: 0, inProgress: 0, onHold: 0, completed: 0, dropped: 0, episodes: 0, volumesOwned: 0, spent: 0 };
+          { total: 0, planned: 0, inProgress: 0, onHold: 0, completed: 0, dropped: 0, episodes: 0, volumesOwned: 0, volumesRead: 0, spent: 0 };
         m.total++;
         m[v.status] = (m[v.status] || 0) + 1;
         m.episodes += v.progress.current || 0;   // generic unit count: eps for anime, chapters for books, routes cleared for VN, hours for games
+        if (v.module === "books") m.volumesRead += (v.progress && v.progress.volumes) || 0;
         if (v.quotes && v.quotes.length) m.quotes = (m.quotes || 0) + v.quotes.length;
         if (v.module === "game") {
           m.tiers = m.tiers || {};

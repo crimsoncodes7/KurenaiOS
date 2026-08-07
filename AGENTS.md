@@ -167,6 +167,14 @@ an autonomous cycle must batch all providers into one ledger entry through
   hour. A confirmed purchase may make a local `mediadb.get`/`add`/`put`
   Collection handoff only: no fuzzy title matching, Book → physical volume,
   VN/Game → planned entry, and never downgrade existing Collection progress.
+- **Collection Goals v2** (`goals.js`) measures local Collection/Planner state
+  and stores idempotent activity-only completion receipts in
+  `state.goals.completionLedger`. Goal completion NEVER logs a session or pays
+  HP/gold/XP; the underlying media activity is the one rewarded act. Keep this
+  anti-farming boundary and the legacy-goal migration intact.
+- **Shrine Hall of Fame** (`shrine.js`) ranks favourite local entries. Its share
+  card must use the export-safe cover resolver and persisted `coverCrop`; never
+  refetch solely to render a card or flatten crop metadata.
 
 ## Build 5 — shared image positioning
 
@@ -190,14 +198,14 @@ an autonomous cycle must batch all providers into one ledger entry through
   heroes use the shared Build 5 geometry; Governor Status keeps its special
   profile-banner composition.
 
-## Tests — all SIXTEEN suites must pass
+## Tests — all THIRTY-EIGHT suites must pass
 
 ```sh
-for i in "" 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16; do node tools/smoke$i.test.js; done
+for i in "" {2..38}; do node "tools/smoke${i}.test.js"; done
 ```
-smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–16 print "SMOKE-N PASS …"
-(smoke10 prints "10 passed, 0 failed"). smoke4–16 need `npm i fake-indexeddb`
+smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–38 print "SMOKE-N PASS …"
+(smoke10 prints "10 passed, 0 failed"). Collection suites need `npm i fake-indexeddb`
 in addition to jsdom. Per-suite coverage table: PROGRESS.md snapshot section.
 
-Crop/hero changes also run through `node tools/visual_audit.mjs` against the
+Crop/hero/Goals/Shrine changes also run through `node tools/visual_audit.mjs` against the
 local app in Chrome on CDP port 9222; the script header has the launch contract.

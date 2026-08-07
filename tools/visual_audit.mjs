@@ -119,8 +119,30 @@ async function auditView(view, arg, selector) {
     mainClient: document.getElementById("main").clientWidth,
     mainScroll: document.getElementById("main").scrollWidth
   }))()`);
+  if (size.mainScroll > size.mainClient + 1) {
+    size.debug = await evaluate(`(() => {
+      const goal = document.querySelector('.goal-overview'), workspace = document.querySelector('.goals-workspace');
+      return goal ? {
+        innerWidth, mobileRule: matchMedia('(max-width: 820px)').matches,
+        columns: getComputedStyle(goal).gridTemplateColumns,
+        goalWidth: Math.round(goal.getBoundingClientRect().width),
+        workspaceWidth: workspace && Math.round(workspace.getBoundingClientRect().width),
+        workspaceMin: workspace && getComputedStyle(workspace).minWidth,
+        workspaceMax: workspace && getComputedStyle(workspace).maxWidth
+      } : null;
+    })()`);
+    size.offenders = await evaluate(`(() => {
+      const main = document.getElementById("main"), mr = main.getBoundingClientRect();
+      return [...main.querySelectorAll("*")].map(node => {
+        const r = node.getBoundingClientRect();
+        return { node: node.tagName.toLowerCase() + (node.className ? "." + String(node.className).trim().replace(/\\s+/g, ".") : ""),
+          left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width),
+          client: node.clientWidth, scroll: node.scrollWidth };
+      }).filter(x => x.right > mr.right + 1 || x.left < mr.left - 1).slice(0, 8);
+    })()`);
+  }
   assert(size.doc <= size.viewport + 1, `${view} overflows the viewport (${size.doc} > ${size.viewport})`);
-  assert(size.mainScroll <= size.mainClient + 1, `${view} main content overflows (${size.mainScroll} > ${size.mainClient})`);
+  assert(size.mainScroll <= size.mainClient + 1, `${view} main content overflows (${size.mainScroll} > ${size.mainClient}) ${JSON.stringify(size.debug || null)}: ${JSON.stringify(size.offenders || [])}`);
 }
 
 function svgData(width, height, body) {
@@ -145,6 +167,12 @@ await send("Log.enable");
 await send("Page.navigate", { url: auditUrl });
 await waitFor("document.readyState === 'complete' && window.KOS && KOS.imageCrop && KOS.views.home", "audit target", 12000);
 await viewport(1440, 900);
+/* A visual audit must inspect the working tree, not the previous deployed
+   service-worker shell that this persistent Chrome profile may still own. */
+await evaluate(`Promise.all([
+  navigator.serviceWorker ? navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))) : Promise.resolve(),
+  window.caches ? caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key)))) : Promise.resolve()
+])`);
 const bootOrigin = await evaluate("performance.timeOrigin");
 await send("Page.reload", { ignoreCache: true });
 await waitFor(`performance.timeOrigin > ${bootOrigin} && document.readyState === 'complete' && window.KOS && KOS.imageCrop && KOS.views.home`, "application boot", 12000);
@@ -251,7 +279,7 @@ await evaluate(`(() => {
   KOS.sessions.log({ type: "media", metrics: { title: "Higurashi", action: "completed" } });
   KOS.sessions.log({ type: "tracker", subject: "compsci", ref: "Paper 1", metrics: { marks: 64, max: 80 } });
   KOS.sessions.log({ type: "media", metrics: { module: "anime", action: "sync-reward", entries: 14, advances: 2 } });
-  document.querySelector('.toast')?.classList.remove('show');
+  document.querySelector('.toast')?.style.setProperty('display', 'none');
 })()`);
 await auditView("governor", "status", ".gov-status");
 await screenshot("/tmp/kos-governor-status-light-1440.png");
@@ -515,6 +543,142 @@ assert(plannerPurchase.item.status === "purchased" && plannerPurchase.spend >= 7
   plannerPurchase.entry?.module === "game" && plannerPurchase.entry?.status === "planned",
   `Planner purchase did not update history/Collection truth: ${JSON.stringify(plannerPurchase)}`);
 
+/* Collection Goals v2 + Shrine Hall of Fame: seed one deliberate campaign
+   and four favourites, then exercise both wide and phone compositions plus
+   the two new modal surfaces. */
+await evaluate(`(async () => {
+  const art = window.__cropAudit.cover, banner = window.__cropAudit.banner;
+  const add = data => new Promise((resolve, reject) => KOS.mediadb.add(data, (err, row) => err ? reject(err) : resolve(row)));
+  const remove = id => new Promise((resolve, reject) => KOS.mediadb.remove(id, err => err ? reject(err) : resolve(), { skipTombstone: true }));
+  const auditTitles = ["Violet Letters", "The Long Shelf", "A Route Through Rain", "Clockwork Gardens"];
+  const prior = await new Promise((resolve, reject) => KOS.mediadb.query({}, (err, rows) => err ? reject(err) : resolve(rows)));
+  for (const row of prior) if (auditTitles.includes(row.title)) await remove(row.id);
+  const entries = [
+    await add({ module: "anime", title: "Violet Letters", status: "completed", favourite: true, score: 9.6,
+      genres: ["Drama"], tags: ["Letters"], customLists: ["Essential"], coverUrl: art,
+      coverCrop: { x: 74, y: 24, zoom: 1.55 }, progress: { current: 13, total: 13, unit: "ep" } }),
+    await add({ module: "books", title: "The Long Shelf", status: "inProgress", favourite: true, score: 8.8,
+      author: "Audit Press", genres: ["Drama"], coverUrl: banner,
+      coverCrop: { x: 67, y: 38, zoom: 1.3 }, progress: { current: 72, total: 100, volumes: 5, totalVolumes: 8, unit: "ch" } }),
+    await add({ module: "vn", title: "A Route Through Rain", status: "completed", favourite: true, score: 9.1,
+      developer: "Atelier Audit", genres: ["Mystery"], coverUrl: art,
+      routes: [{ id: "a", name: "True route", cleared: true }] }),
+    await add({ module: "game", title: "Clockwork Gardens", status: "completed", favourite: true, score: 10,
+      developer: "Studio Eight", genres: ["Adventure"], playtimeHours: 46, coverUrl: banner,
+      coverCrop: { x: 81, y: 31, zoom: 1.4 }, progress: { current: 46, total: 46, unit: "hr" } })
+  ];
+  KOS.store.state.goals = { v: 2, nextId: 1, items: [], completionLedger: {} };
+  KOS.goals.add({ title: "Finish a hundred-title season", description: "A compact campaign across every vault.", type: "titles-completed", target: 100, deadline: "2026-09-30" });
+  KOS.goals.add({ title: "Complete The Long Shelf", description: "Follow the linked reading progress automatically.", type: "finish-series", linkedEntryId: entries[1].id, notes: "Read with no deadline pressure." });
+  KOS.goals.add({ title: "Watch five hundred episodes", type: "episodes-watched", target: 500, deadline: "2026-10-15" });
+  KOS.goals.add({ title: "Keep the month below £120", description: "A planner-aware ceiling, settled at month end.", type: "spend-below", target: 120, startDate: "2026-08-01", deadline: "2026-08-31" });
+  KOS.goals.add({ title: "Write three short reflections", description: "A manual intention for the part data cannot measure.", type: "custom-manual", target: 3, current: 1 });
+  KOS.store.state.media.goalsTab = "active";
+  KOS.store.state.media.shrine = { module: "", sort: "score", description: "Only the works I would recommend without hesitation." };
+  KOS.store.save();
+  document.querySelector('.toast')?.style.setProperty('display', 'none');
+  window.__collectionAudit = { entries };
+})()`);
+
+await auditView("goals", undefined, ".goal-overview");
+await waitFor("document.querySelectorAll('.goal-card-v2').length >= 4", "Collection Goals campaign");
+const goalComposition = await evaluate(`(() => {
+  const root = document.querySelector('.goals-workspace').getBoundingClientRect();
+  const overview = document.querySelector('.goal-overview').getBoundingClientRect();
+  const command = document.querySelector('.goal-commandbar').getBoundingClientRect();
+  const cards = [...document.querySelectorAll('.goal-card-v2')].map(c => c.getBoundingClientRect());
+  return {
+    overviewDelta: Math.round(Math.abs(root.width - overview.width)),
+    commandDelta: Math.round(Math.abs(root.width - command.width)),
+    summary: document.querySelectorAll('.goal-summary-metric').length,
+    tabs: document.querySelectorAll('.goal-tabs .study-tab').length,
+    alignedCards: cards.every(r => r.width >= 330)
+  };
+})()`);
+assert(goalComposition.overviewDelta <= 2 && goalComposition.commandDelta <= 2 &&
+  goalComposition.summary === 4 && goalComposition.tabs === 3 && goalComposition.alignedCards,
+  `Collection Goals composition is incomplete: ${JSON.stringify(goalComposition)}`);
+await screenshot("/tmp/kos-goals-1440.png");
+await clickText(".goal-commandbar", "New goal");
+await waitFor("document.querySelector('.goal-modal-v2 .goal-editor-body')", "Collection Goal editor");
+const goalModal = await evaluate(`(() => {
+  const modal = document.querySelector('.goal-modal-v2'), body = modal.querySelector('.goal-editor-body');
+  return { sections: modal.querySelectorAll('.goal-form-section').length,
+    internalScroll: body.scrollHeight >= body.clientHeight,
+    deleteSeparated: !modal.querySelector('.goal-modal-delete'),
+    actions: modal.querySelectorAll('.goal-modal-actions .btn').length };
+})()`);
+assert(goalModal.sections === 4 && goalModal.internalScroll && goalModal.deleteSeparated && goalModal.actions === 2,
+  `Goal editor structure regressed: ${JSON.stringify(goalModal)}`);
+await pause(260);
+await screenshot("/tmp/kos-goal-editor-1440.png");
+await clickText(".goal-modal-actions", "Cancel");
+await waitFor("!document.querySelector('.goal-modal-v2')", "Collection Goal editor close");
+
+await auditView("shrine", undefined, ".shrine-feature");
+await waitFor("document.querySelectorAll('.shrine-rank-card').length >= 3", "Shrine ranked collection");
+const shrineComposition = await evaluate(`(() => {
+  const feature = document.querySelector('.shrine-feature').getBoundingClientRect();
+  const grid = document.querySelector('.shrine-ranked-grid').getBoundingClientRect();
+  const crop = document.querySelector('.shrine-feature-cover img');
+  return {
+    rank: document.querySelector('.shrine-feature .shrine-rank').textContent,
+    score: document.querySelector('.shrine-feature .shrine-score').textContent,
+    filters: document.querySelectorAll('.shrine-filter').length,
+    featureWider: feature.width > [...document.querySelectorAll('.shrine-rank-card')][0].getBoundingClientRect().width * 2,
+    gridBelow: grid.top >= feature.bottom,
+    crop: [crop.style.getPropertyValue('--crop-x'), crop.style.getPropertyValue('--crop-y'), crop.style.getPropertyValue('--crop-zoom')]
+  };
+})()`);
+assert(shrineComposition.rank === "#1" && shrineComposition.score === "10" && shrineComposition.filters === 5 &&
+  shrineComposition.featureWider && shrineComposition.gridBelow &&
+  JSON.stringify(shrineComposition.crop) === JSON.stringify(["81%", "31%", "1.4"]),
+  `Shrine Hall of Fame composition/crop failed: ${JSON.stringify(shrineComposition)}`);
+await screenshot("/tmp/kos-shrine-1440.png");
+await clickText(".shrine-feature-actions", "Create share card");
+await waitFor("document.querySelector('.shrine-card-img') && document.querySelector('.shrine-message').value.includes('Clockwork Gardens')", "Shrine share card");
+const shareCard = await evaluate(`(() => {
+  const img = document.querySelector('.shrine-card-img').getBoundingClientRect();
+  return { ratio: img.width / img.height, buttons: document.querySelectorAll('.shrine-card-actions .btn').length,
+    defaultMessage: document.querySelector('.shrine-message').value };
+})()`);
+assert(Math.abs(shareCard.ratio - 900 / 560) < .03 && shareCard.buttons >= 2 && /Hall of Fame/.test(shareCard.defaultMessage),
+  `Shrine share card is incomplete: ${JSON.stringify(shareCard)}`);
+await pause(260);
+await screenshot("/tmp/kos-shrine-share-card-1440.png");
+await evaluate("document.querySelector('.shrine-card-modal').closest('.modal-ov').close()");
+
+await viewport(390, 844);
+await auditView("goals", undefined, ".goal-overview");
+assert(await evaluate("document.querySelectorAll('.goal-grid-v2 .goal-card-v2').length >= 4"), "Goal cards disappeared at phone width");
+await evaluate("document.querySelector('.toast')?.classList.remove('show')");
+await screenshot("/tmp/kos-goals-mobile-390.png");
+await evaluate(`(() => {
+  const main = document.getElementById('main'), cards = document.querySelector('.goal-grid-v2');
+  main.scrollTo({ top: main.scrollTop + cards.getBoundingClientRect().top - 12, behavior: 'instant' });
+})()`);
+await pause(120);
+await evaluate("document.querySelector('.toast')?.classList.remove('show')");
+await screenshot("/tmp/kos-goals-cards-mobile-390.png");
+await auditView("shrine", undefined, ".shrine-feature");
+const shrinePhone = await evaluate(`(() => {
+  const feature = document.querySelector('.shrine-feature').getBoundingClientRect();
+  const cover = document.querySelector('.shrine-feature-cover').getBoundingClientRect();
+  const body = document.querySelector('.shrine-feature-body').getBoundingClientRect();
+  return { stacked: body.top >= cover.bottom - 1, featureW: Math.round(feature.width), mainW: document.getElementById('main').clientWidth };
+})()`);
+assert(shrinePhone.stacked && shrinePhone.featureW <= shrinePhone.mainW,
+  `Shrine phone layout is not stacked: ${JSON.stringify(shrinePhone)}`);
+await evaluate(`(() => {
+  const main = document.getElementById('main'), feature = document.querySelector('.shrine-feature');
+  main.scrollTo({ top: main.scrollTop + feature.getBoundingClientRect().top - 12, behavior: 'instant' });
+  document.querySelector('.toast')?.classList.remove('show');
+})()`);
+await pause(120);
+await evaluate("document.querySelector('.toast')?.classList.remove('show')");
+await screenshot("/tmp/kos-shrine-mobile-390.png");
+await viewport(1440, 900);
+
 await evaluate("KOS.show('mediasync')");
 await waitFor("document.querySelector('.integration-provider')", "Sync workspace");
 const integrations = await evaluate(`(() => ({
@@ -733,6 +897,6 @@ await viewport(1440, 900);
 await screenshot("/tmp/kos-home-restored-1440.png");
 assert(browserErrors.length === 0, `Browser errors:\n${browserErrors.join("\n")}`);
 
-console.log("VISUAL AUDIT PASS — live crop workflows, Budget Planner, Compare Topics, persistence, backup/restore and responsive adjacent pages verified");
-console.log("Screenshots: /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-themes-dark-1440.png, /tmp/kos-governor-banners-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
+console.log("VISUAL AUDIT PASS — live crop workflows, Collection Goals, Shrine/share card, Budget Planner, Compare Topics, persistence, backup/restore and responsive adjacent pages verified");
+console.log("Screenshots: /tmp/kos-goals-1440.png, /tmp/kos-goal-editor-1440.png, /tmp/kos-goals-mobile-390.png, /tmp/kos-goals-cards-mobile-390.png, /tmp/kos-shrine-1440.png, /tmp/kos-shrine-share-card-1440.png, /tmp/kos-shrine-mobile-390.png, /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-themes-dark-1440.png, /tmp/kos-governor-banners-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
 ws.close();

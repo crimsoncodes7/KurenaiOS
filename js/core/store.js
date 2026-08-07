@@ -163,21 +163,21 @@
           linkedEntryId:null|entryId, notes, addedAt, purchasedAt } */
     },
 
-    /* ---- Build 3k: Goals (Collection Matrix) ----
-       Personal collecting/reading/watching goals, manual or auto-tracked.
-       Like the Budget Planner this is pure logistics: it NEVER touches the
-       Governor (no sessions, no XP/gold/HP) and emits ZERO network — auto
-       goals are computed by reading the media vault + sessions log + wishlist
-       that already exist locally. Lives in localStorage, rides the backup. */
+    /* ---- Collection Goals v2 ----
+       Automatic goals derive from the local vault/wishlist; manual goals keep
+       their own counter. Completion is recorded once but never creates a
+       second Governor payout — the underlying Collection activity already
+       paid through its canonical session. LocalStorage rides full backup. */
     goals: {
+      v: 2,
       nextId: 1,
-      items: []
-      /* {id, title, detail, deadline:"YYYY-MM-DD"|null,
-          kind:"manual"|"auto",
-          metric:null|<auto metric id>, module:null, genre:null,
-          target:number, current:number (manual only — auto recomputes),
+      items: [],
+      completionLedger: {}
+      /* {id,title,description,notes,type,target,current,module,linkedEntryId,
+          filterKind,filterValue,startDate,deadline,
           status:"active"|"completed"|"failed",
-          createdAt, completedAt:null|ts, failedAt:null|ts } */
+          progress,lastCurrent,createdAt,updatedAt,completedAt,failedAt,
+          completionRecordedAt}; completionLedger[id] is the anti-farming mark. */
     }
   };
 

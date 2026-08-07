@@ -3252,3 +3252,40 @@ parts. Smoke1–37 pass. Checked in a running Chrome at 1560×1000, 768×1024 an
 375×812: no new horizontal overflow on the subject desk or the topic page (the
 only element past the viewport on a phone is the pre-existing, deliberately
 scrollable `.subject-units` band).
+
+### Collection Goals v2 + Shrine Hall of Fame · 2026-08-07
+
+**Goals.** The former one-dimensional target list is now an intention docket
+with summary metrics and Active, Completed and Failed/expired views. One
+structured, internally scrolling editor owns identity, measure/linkage,
+schedule and notes. Goal cards state what is being measured, show live current
+and target values, expose their linked scope and dates, and preserve compact
+empty states. The v2 domain supports completed-title, episode, chapter, volume,
+specific-title, series/list/tag/genre, budget ceiling, library-size,
+favourite, purchase, game-hour and cleared-route measures plus custom manual
+goals. Where local Collection or Planner records can answer a measure, progress
+is recomputed automatically; no provider request is involved.
+
+Goals ride ordinary backup/restore as
+`state.goals = {v:2,nextId,items,completionLedger}`. Legacy goals migrate through
+the same normaliser. The completion ledger is deliberately activity-only and
+idempotent: completion never logs a new session or directly moves HP, XP, gold
+or a streak, so the underlying activity is paid exactly once and deleting then
+recreating a goal cannot farm the Governor.
+
+**Shrine.** The Hall of Fame now gives rank one a full featured stage and lays
+the remaining favourites into smaller ranked cards. Media-type filters,
+sorting, an optional hall description, clear personal score/rank, one-item and
+empty compositions are all first-class. The landscape share card is tightly
+filled with the resolved cover, title, type, score, rank, useful metadata, an
+editable default message and restrained KurenaiOS branding. It reuses the
+export-safe resolver and exact persisted cover crop rather than flattening or
+recentering artwork.
+
+**Verification.** `tools/smoke38.test.js` adds 13 focused release checks for
+goal migration/measurement/editor/status/backup/anti-farming and Shrine
+ranking/filter/single-item/share-card/crop contracts. The running-Chrome audit
+now covers Goals, its editor, Shrine and the share card at desktop and 390×844,
+including measured overflow and responsive stacking. The complete smoke1–38
+release gate and the expanded live-browser audit pass. Service-worker version:
+`kos-collection-goals-shrine-1`.

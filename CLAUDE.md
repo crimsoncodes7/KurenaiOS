@@ -46,6 +46,7 @@ node tools/smoke34.test.js # Build 6.5 Focus Timer end-to-end: pure focusAward q
 node tools/smoke35.test.js # Build 6.6 Calendar + the event model: retired global alert threshold (v1→v2 migration, per-record alerts that stay cleared), computed recurrence (daily→yearly, end date, clamped month-ends), merged countdowns over two canonical stores, month/week grids (whole weeks, day-overflow sheet, time grid with packed overlaps), detail-before-edit, the one progressive-disclosure modal (conditional sections, validation, Delete apart from Save)
 node tools/smoke36.test.js # Shared media record folio: sectioned Anime/Books/VN/Games editors, two-column/phone layouts, full-width Notes, source summaries, compact physical ranges, separated Delete/Save, dedicated Stats with obsolete bottom analytics removed
 node tools/smoke37.test.js # Study overview + topic shell: the 2×4 subject analytics grid, one tile shape, the full-width action card below it, countdowns kept separate, nothing sticky; statistic consistency (formats, empty states, one colour ramp, quiz-best, no "Not started" beside a ticked check); the one Topic Status component; inspector collapse + tab counts sharing the inspector's numbers; full tab names and the retired Overview/Assignments switcher
+node tools/smoke38.test.js # Collection Goals v2 + Shrine Hall of Fame: automatic/manual measures, structured editor and status views, activity-only anti-farming receipts, featured rank one, ranked filters/sort, crop-aware branded share card
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
@@ -101,12 +102,12 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 37 suites are the release gate (smoke17 the
+the current test inventory. All 38 suites are the release gate (smoke17 the
 Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
 Build 4c games integrations, smoke37 the Study overview/topic-shell
-refinement). Suites 1–16 plus the running-Chrome visual audit were verified
+refinement, smoke38 Collection Goals v2 and Shrine Hall of Fame). Suites 1–16 plus the running-Chrome visual audit were verified
 green on 2026-07-13; all 17 on 2026-07-16; all 18 plus the phone/tablet CDP
-audit on 2026-07-17; all 19 on 2026-07-17; all 37 on 2026-08-07.
+audit on 2026-07-17; all 19 on 2026-07-17; all 38 on 2026-08-07.
 
 **Edge Functions** (Build 4c, `supabase/functions/`): deploy with
 `supabase functions deploy <name>`; secrets via `supabase secrets set` only
@@ -172,6 +173,12 @@ Collected from every build. If a change would break one of these, stop and say s
    manual by design. A confirmed purchase may make a local `mediadb.get` /
    `add` / `put` handoff to Collection, but must never use `mediapush`, sync,
    title matching or any provider request to do so.
+5b. Collection Goals recognise progress but NEVER create a second economic
+   event. Automatic completion writes one idempotent receipt to
+   `state.goals.completionLedger` with `payout:"activity-only"`; it does not
+   call `KOS.sessions.log`, `KOS.media.logActivity`, or write HP/gold/XP. The
+   underlying media activity remains the one rewarded act. Deleting/recreating
+   a goal cannot farm the Governor because its receipt remains in the ledger.
 
 **Media schema & storage**
 6. `mediadb.normalise()` is the SINGLE schema gate — any new field must be
@@ -716,6 +723,10 @@ their full frame.
 - Tabs: Want-to-buy / Waiting-for-release / Purchased. Draggable priority reorder within a tab (`reorder(status, orderedIds)` rewrites `priority` 0..n); priority, release, price and recency sorting are view-only prefs. `featuredItem()` owns the release desk: it retains a waiting item through release day and the next full calendar day, moves it to Want to buy on the following day, and rotates equal-date releases by hour. `nextToDrop()` remains the nearest-upcoming compatibility helper.
 - Linking, BOTH directions: an item's `linkedEntryId` ties it to a vault entry. `forEntry(entryId)` powers the reverse surfacing — `wishlist.js` registers a `KOS.mediaEditorHooks` entry that injects an `.wl-onlist` banner into the editor form when the opened entry is on the wishlist. On confirmed purchase, the local handoff creates an unlinked Book as a physical-volume entry or an unlinked VN/Game as planned; a linked Book gains the selected physical volume, while an existing VN/Game status is never downgraded. It never fuzzy-matches titles, and failure leaves the purchase/history intact for retry. Module ids match the vault ("game", not "games" — incoming "games" is normalised).
 - **Release dates are MANUAL by design** — no viable automated cross-media source: Amazon PA-API needs an approved affiliate account and bars price-watch use, Keepa is a paid per-key subscription, IGDB (games only) needs a Twitch OAuth secret a static `file://` app can't hold and covers no books. The UI says so plainly; don't add a scraper.
+
+**Collection Goals v2** — `js/modules/goals.js`, view `goals`, `KOS.goals` API. Stored in `state.goals = {v:2,nextId,items,completionLedger}` so the standard state backup/restore includes goals and their anti-farming receipts; legacy `{metric,target,progress}` records migrate through one normaliser. Automatic types read only local Collection/Planner truth: completed titles, episodes, chapters, volumes, a specific entry, a title series/filter (list, tag or genre), budget ceiling, library size, favourites, purchases, game hours and cleared VN routes. Custom/manual remains available. Goals keep title, description, notes, measure, target/current, linked media/filter, dates, status and computed progress. Spend-below goals settle at their deadline; other measurable goals complete as soon as their target is reached. Failed/expired and manually reopened states are explicit. The editor is the single structured modal; its local title/filter lookup never triggers provider traffic.
+
+**Shrine Hall of Fame** — `js/modules/shrine.js`, view `shrine`, with view preferences in `state.media.shrine = {module,sort,description}`. It is a read-only ranking over favourites: a large rank-one feature, compact ranked remainder, media-type filter, sorting, one-item and empty compositions, and an optional hall note. The 900×560 share card uses the same export-safe cover resolver and the persisted `coverCrop`; it includes rank, score, type, title, one or two useful metadata fields, an editable default message and restrained KurenaiOS branding. Cosmetics still attach through `.shrine-hall`.
 
 **Write-back (3d)** — `js/core/mediapush.js`, list state only (invariants 12–16 apply).
 - AniList mutation `SaveMediaListEntry(mediaId, status, progress, progressVolumes, scoreRaw)` — `scoreRaw` (0–100) is used so pushes are independent of user's site scoring format.

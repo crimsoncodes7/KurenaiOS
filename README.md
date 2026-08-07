@@ -156,7 +156,7 @@ KurenaiOS/
     ├── gen_data.py           *.json → js/data/*.js; `--format-existing` is a layout-only round-trip
     ├── validate_content.js   deep-content validator (node tools/validate_content.js [files…])
     ├── visual_audit.mjs      live Chrome crop/hero/responsive regression audit
-    └── smoke.test.js … smoke16.test.js   sixteen jsdom test suites (see Tests below)
+    └── smoke.test.js … smoke38.test.js   thirty-eight jsdom test suites (see Tests below)
 ```
 
 ## Authoring more deep content
@@ -234,6 +234,15 @@ existing actions, history and saved links still open the corresponding Review ta
   committed plans, temporary selected scenarios and actual spend; confirmed
   purchases archive locally and hand Books to the physical vault or VNs/Games
   to a planned Collection entry without provider traffic or Governor rewards.
+- **Collection Goals v2**: automatic measures cover completed titles, episodes,
+  chapters/volumes, one title or series/filter, spend limits, favourites,
+  purchases, game hours and VN routes; manual goals remain available. Active,
+  completed and failed/expired views share one structured editor. Completion is
+  activity-only and idempotent, so the underlying media act pays once and a goal
+  can never duplicate Governor rewards.
+- **Shrine Hall of Fame**: favourites become a proper ranked hall with a featured
+  number one, compact remainder, media filters, sorting, a hall note and a
+  crop-aware landscape share card carrying score, rank and useful metadata.
 - **Integration workspace**: Sync & Import is a provider overview for AniList
   and VNDB (connection state, account, last successful sync, imported items and
   sync mode), with the detailed write log folded into technical history. Profile
@@ -242,14 +251,14 @@ existing actions, history and saved links still open the corresponding Review ta
 
 ## Tests
 
-Smoke tests require Node.js + jsdom (suites 4–16 also need fake-indexeddb):
+Smoke tests require Node.js + jsdom (Collection suites also need fake-indexeddb):
 
 ```sh
 npm install jsdom fake-indexeddb   # one-time
-for i in "" 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16; do node tools/smoke$i.test.js; done
+for i in "" {2..38}; do node "tools/smoke${i}.test.js"; done
 ```
 
-All sixteen must pass. Per-suite coverage: the current inventory in `PROGRESS.md`.
+All 38 must pass. Per-suite coverage: the current inventory in `PROGRESS.md`.
 For crop, hero or shared-layout changes, also run `node tools/visual_audit.mjs`
 against the local app in Chrome on CDP port 9222 (launch details are in the
 script header).
