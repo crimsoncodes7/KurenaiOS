@@ -5310,6 +5310,101 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .asst-mascot[data-state="error"] .asst-status-line { color: var(--danger); }
 .asst-mascot[data-state="confirmation"] .asst-status-line { color: var(--warning); }
 
+/* ---- Phase 1.5: presence on the static renders ----------------------------
+   Six flat PNGs cannot blink or deform, but presence does not come from
+   detail at this size — the drawer render is 76px and the page render 245px.
+   It comes from the body never being perfectly still. Three cycles run at
+   deliberately coprime periods (breath / sway / bloom), so the composite
+   never visibly loops, and each is small enough to read as weight rather
+   than as animation. Restraint is the brief: this is a study desk, not a
+   toy. Amplitudes are percentages so both surfaces tune themselves.
+
+   Property budget, so nothing fights: the image owns `scale`+`translate`
+   (breath) and `rotate` (sway), the frame owns the one-shot state entry,
+   ::before owns the bloom, and the two existing ring spans own the tap
+   ripple. A reaction's nudge is appended LAST in the image's animation
+   list, so it deliberately overrides breath's `translate` for its 0.34s
+   and hands it straight back. */
+.asst-mascot {
+  --asst-breath-dur: 4.6s; --asst-breath-lift: 1.15%; --asst-breath-swell: 1.012;
+  --asst-sway-dur: 11s;    --asst-sway-deg: .5deg;
+  --asst-bloom-dur: 7s;    --asst-bloom-peak: 1.06;
+}
+.asst-mascot-img {
+  transform-origin: 50% 100%;   /* she is standing on the floor of the frame */
+  animation: asstBreath var(--asst-breath-dur) ease-in-out infinite,
+             asstSway var(--asst-sway-dur) ease-in-out infinite;
+}
+.asst-mascot-frame::before { animation: asstBloom var(--asst-bloom-dur) ease-in-out infinite; }
+
+@keyframes asstBreath {
+  50% { translate: 0 calc(var(--asst-breath-lift) * -1); scale: var(--asst-breath-swell); }
+}
+@keyframes asstSway {
+  25% { rotate: var(--asst-sway-deg); }
+  75% { rotate: calc(var(--asst-sway-deg) * -1); }
+}
+@keyframes asstBloom {
+  50% { opacity: .68; scale: var(--asst-bloom-peak); }
+}
+
+/* Per-state posture. Duration and amplitude carry the mood; the artwork
+   still carries the pose. */
+.asst-mascot[data-state="thinking"] {
+  --asst-breath-dur: 3.9s; --asst-sway-dur: 7.5s; --asst-sway-deg: .85deg; --asst-bloom-dur: 3.4s;
+}
+.asst-mascot[data-state="working"] {
+  --asst-breath-dur: 2.5s; --asst-breath-lift: 1.5%; --asst-sway-dur: 5s; --asst-bloom-dur: 2.2s;
+}
+.asst-mascot[data-state="confirmation"] {
+  --asst-breath-dur: 3.2s; --asst-breath-lift: .8%; --asst-sway-deg: .28deg; --asst-bloom-dur: 2.6s;
+}
+.asst-mascot[data-state="error"] {
+  --asst-breath-dur: 5.6s; --asst-breath-lift: .7%; --asst-sway-deg: .3deg;
+}
+
+/* One-shot entry, on the frame so the bloom and hit zones travel with her.
+   Changing data-state changes the animation-name, which is what restarts
+   these — they never replay while a state is merely repainted. */
+.asst-mascot-frame { transform-origin: 50% 100%; }
+.asst-mascot[data-state="success"] .asst-mascot-frame { animation: asstEnterSuccess .78s cubic-bezier(.22,1.2,.36,1) both; }
+.asst-mascot[data-state="error"] .asst-mascot-frame { animation: asstEnterError .5s ease-out both; }
+.asst-mascot[data-state="confirmation"] .asst-mascot-frame { animation: asstEnterLean .5s cubic-bezier(.3,.9,.3,1) both; }
+.asst-mascot[data-state="thinking"] .asst-mascot-frame { animation: asstEnterSettle .45s ease-out both; }
+.asst-mascot[data-state="working"] .asst-mascot-frame { animation: asstEnterSettle .35s ease-out both; }
+
+@keyframes asstEnterSuccess { 0% { translate: 0 0; } 42% { translate: 0 -4.5%; scale: 1.035; } 100% { translate: 0 0; scale: 1; } }
+@keyframes asstEnterError { 0%,100% { translate: 0 0; } 22% { translate: -2.2% 0; } 55% { translate: 1.6% 0; } 80% { translate: -.7% 0; } }
+@keyframes asstEnterLean { 0% { scale: 1; } 100% { scale: 1.022; } }
+@keyframes asstEnterSettle { 0% { translate: 0 1.6%; opacity: .82; } 100% { translate: 0 0; opacity: 1; } }
+
+/* Hovering the frame draws her a little closer. No pointer tracking: a
+   single honest lift beats a parallax gimmick at this scale. */
+.asst-mascot-frame:hover .asst-mascot-img,
+.asst-mascot-frame:focus-within .asst-mascot-img { scale: 1.03; }
+.asst-mascot-img { transition: opacity .16s ease, scale .35s cubic-bezier(.3,.9,.3,1); }
+
+/* The two ring spans already in the markup become the tap ripple. They stay
+   invisible until a reaction lands, and the whole ripple fits inside the
+   0.36s the controller keeps .is-reacting applied. */
+.asst-bloom-ring { display: block; position: absolute; z-index: 0; inset: 14%; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--asst-bloom) 46%, transparent); opacity: 0; pointer-events: none; }
+.asst-mascot.is-reacting .asst-bloom-ring { animation: asstRipple .34s ease-out both; }
+.asst-mascot.is-reacting .ring-two { animation: asstRipple .28s ease-out .06s both; }
+.asst-mascot.is-reacting .asst-mascot-img { animation: asstBreath var(--asst-breath-dur) ease-in-out infinite,
+  asstSway var(--asst-sway-dur) ease-in-out infinite, asstNudge .34s ease-out; }
+.asst-mascot.is-reacting[data-reaction="flower"] .asst-bloom-ring { border-color: color-mix(in srgb, var(--asst-brass) 58%, transparent); }
+.asst-mascot.is-reacting[data-reaction="tablet"] .asst-bloom-ring { border-color: color-mix(in srgb, var(--accent3, var(--accent2)) 52%, transparent); }
+
+@keyframes asstRipple { from { opacity: .85; scale: .82; } to { opacity: 0; scale: 1.22; } }
+@keyframes asstNudge { 40% { translate: 0 -2.6%; } }
+
+/* A mounted live renderer owns the motion; the static life must stand down
+   so the two can never double up. */
+.asst-mascot.has-live-renderer .asst-mascot-img,
+.asst-mascot.has-live-renderer .asst-mascot-frame,
+.asst-mascot.has-live-renderer .asst-mascot-frame::before { animation: none; }
+
 /* Drawer: a proper side-dialog, including an obscuring scrim. */
 .asst-drawer-open { overflow: hidden; }
 .asst-drawer-scrim { position: fixed; z-index: 89; inset: 0; width: 100%; height: 100%; padding: 0; border: 0;
@@ -5941,7 +6036,13 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 
 @media (prefers-reduced-motion: reduce) {
   .assistant-trigger, .assistant-trigger .at-dot, .asst-mascot-img, .asst-bloom-ring,
+  .asst-mascot-frame, .asst-mascot-frame::before,
   .asst-stream-caret, .asst-row, .asst-drawer, .asst-drawer-scrim, .asst-starter { animation: none !important; transition: none !important; }
+  /* rig-contract runtime.reducedMotion = "static-phase-1-png": she must be
+     genuinely still, so the resting transforms are cleared too and hovering
+     no longer resizes her. */
+  .asst-mascot-img, .asst-mascot-frame { translate: none !important; rotate: none !important; scale: none !important; }
+  .asst-bloom-ring { display: none; }
   .asst-mascot.has-live-renderer .asst-live2d-host { display: none; }
   .asst-mascot.has-live-renderer .asst-mascot-img { opacity: 1; }
   .asst-thread { scroll-behavior: auto; }
