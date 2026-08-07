@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "modelId": "kurenai-live2d-phase-2",
+  "release": {
+    "publicDeployment": false,
+    "gate": "written-live2d-ai-chatbot-classification",
+    "staticFallbackRequired": true
+  },
+  "parameters": [
+    { "id": "ParamAngleX", "min": -30, "default": 0, "max": 30 },
+    { "id": "ParamAngleY", "min": -30, "default": 0, "max": 30 },
+    { "id": "ParamAngleZ", "min": -15, "default": 0, "max": 15 },
+    { "id": "ParamBodyAngleX", "min": -12, "default": 0, "max": 12 },
+    { "id": "ParamBodyAngleY", "min": -8, "default": 0, "max": 8 },
+    { "id": "ParamBodyAngleZ", "min": -8, "default": 0, "max": 8 },
+    { "id": "ParamEyeBallX", "min": -1, "default": 0, "max": 1 },
+    { "id": "ParamEyeBallY", "min": -1, "default": 0, "max": 1 },
+    { "id": "ParamEyeLOpen", "min": 0, "default": 1, "max": 1 },
+    { "id": "ParamEyeROpen", "min": 0, "default": 1, "max": 1 },
+    { "id": "ParamBrowLY", "min": -1, "default": 0, "max": 1 },
+    { "id": "ParamBrowRY", "min": -1, "default": 0, "max": 1 },
+    { "id": "ParamMouthOpenY", "min": 0, "default": 0, "max": 1 },
+    { "id": "ParamMouthForm", "min": -1, "default": 0, "max": 1 },
+    { "id": "ParamBreath", "min": 0, "default": 0, "max": 1 },
+    { "id": "ParamArmPose", "min": 0, "default": 0, "max": 5 },
+    { "id": "ParamTablet", "min": 0, "default": 0, "max": 1 }
+  ],
+  "physics": [
+    "Hair_Back_L", "Hair_Back_R", "Hair_Side_L", "Hair_Side_R",
+    "Flower_Tassel", "Earring_L", "Earring_R", "Waist_Tassel",
+    "Coat_Back_L", "Coat_Back_R", "Skirt_Front_L", "Skirt_Front_R"
+  ],
+  "motions": {
+    "idle": { "group": "Lifecycle", "index": 0, "loop": true, "fadeMs": 350 },
+    "thinking": { "group": "Lifecycle", "index": 1, "loop": true, "fadeMs": 260 },
+    "working": { "group": "Lifecycle", "index": 2, "loop": true, "fadeMs": 220 },
+    "success": { "group": "Lifecycle", "index": 3, "loop": false, "fadeMs": 180 },
+    "error": { "group": "Lifecycle", "index": 4, "loop": false, "fadeMs": 180 },
+    "confirmation": { "group": "Lifecycle", "index": 5, "loop": true, "fadeMs": 220 }
+  },
+  "interactions": {
+    "hover": { "group": "Reaction", "index": 0, "hitArea": "Body" },
+    "head": { "group": "Reaction", "index": 1, "hitArea": "Head" },
+    "flower": { "group": "Reaction", "index": 2, "hitArea": "Flower" },
+    "tablet": { "group": "Reaction", "index": 3, "hitArea": "Tablet" }
+  },
+  "hitAreas": [
+    { "id": "Head", "phase1Percent": { "top": 2, "left": 34, "width": 32, "height": 24 } },
+    { "id": "Flower", "phase1Percent": { "top": 4, "left": 27, "width": 19, "height": 14 } },
+    { "id": "Tablet", "phase1Percent": { "top": 25, "left": 10, "width": 43, "height": 30 } },
+    { "id": "Body", "phase1Percent": { "top": 0, "left": 0, "width": 100, "height": 100 } }
+  ],
+  "runtime": {
+    "controllerOwnsLifecycle": true,
+    "audioRemainsLocal": true,
+    "inferStateFromProse": false,
+    "reducedMotion": "static-phase-1-png",
+    "loadFailure": "static-phase-1-png",
+    "drawer": { "maxFps": 30, "pauseWhenHidden": true },
+    "page": { "maxFps": 60, "pauseWhenOffscreen": true },
+    "stateSource": "KOS.assistant.character.setLifecycle",
+    "reactionSource": "KOS.assistant.character.react"
+  }
+}
+

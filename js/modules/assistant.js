@@ -199,6 +199,7 @@
   var audioEl = null, audioPriority = 0, audioSource = "", audioSettleTimer = null;
   var hoverTimer = null, tapCooldownAt = -Infinity, lastHoverAt = -Infinity;
   var reactionIndexes = {}, lastLifecycleAudioAt = {};
+  var rendererFactory = null, rendererEpoch = 0;
   var nowFn = function () { return Date.now(); }, audioFactory = null;
   var preloadedStates = {};
   var _auditReader = null; // test seam
@@ -305,7 +306,7 @@
     if (!playLocalAudio("voice/interaction/" + spec.files[at], 1, !!opts.force)) return false;
     if (kind === "hover") lastHoverAt = now;
     else tapCooldownAt = now;
-    mascots.forEach(function (m) { if (m.node.isConnected) m.react(kind); });
+    connectedMascots().forEach(function (m) { m.react(kind); });
     return true;
   }
 
@@ -321,6 +322,38 @@
     img.src = ASSET_BASE + MASCOT_STATES[state].image;
   }
   function preloadNext(state) { (NEXT_STATES[state] || []).forEach(preloadState); }
+
+  /* Phase 2 renderer seam. The request-owned controller remains the sole
+     lifecycle authority; a renderer only receives state/reaction commands.
+     No Cubism SDK or model is bundled here, so the installed renderer may
+     fail or disappear without affecting the Phase 1 PNG fallback. */
+  function connectedMascots() {
+    var keep = [];
+    mascots.forEach(function (m) {
+      if (m.node.isConnected) keep.push(m);
+      else if (m.destroy) m.destroy();
+    });
+    mascots = keep;
+    return keep;
+  }
+  function installRenderer(factory) {
+    if (typeof factory !== "function") return false;
+    rendererFactory = factory;
+    rendererEpoch += 1;
+    connectedMascots().forEach(function (m) { if (m.installRenderer) m.installRenderer(rendererEpoch); });
+    return true;
+  }
+  function removeRenderer() {
+    rendererFactory = null;
+    rendererEpoch += 1;
+    connectedMascots().forEach(function (m) { if (m.installRenderer) m.installRenderer(rendererEpoch); });
+  }
+  function rendererStatus() {
+    return {
+      mode: rendererFactory ? "live-candidate" : "static",
+      surfaces: connectedMascots().map(function (m) { return m.rendererStatus ? m.rendererStatus() : "static"; })
+    };
+  }
 
   /* ---- lifecycle state: EXPLICIT request-owned input only ---- */
   function setLifecycle(state, options) {
@@ -346,8 +379,7 @@
         }
       }, MASCOT_STATES[state].autoReturnMs);
     }
-    mascots = mascots.filter(function (m) { return m.node.isConnected; });
-    mascots.forEach(function (m) { m.update(); });
+    connectedMascots().forEach(function (m) { m.update(); });
     preloadNext(state);
     updateTrigger();
     var status = document.querySelectorAll(".asst-status-line");
@@ -369,9 +401,15 @@
 
   /* ---- the mascot component (one implementation, two sizes) ---- */
   function mascotNode(size) {
+    var staticImageFailed = false;
     var img = el("img", { class: "asst-mascot-img", alt: "" });
-    img.addEventListener("error", function () { node.classList.add("img-failed"); node.classList.remove("is-loading"); });
-    img.addEventListener("load", function () { node.classList.remove("is-loading"); });
+    img.addEventListener("error", function () {
+      staticImageFailed = true;
+      if (!node.classList.contains("has-live-renderer")) node.classList.add("img-failed");
+      node.classList.remove("is-loading");
+    });
+    img.addEventListener("load", function () { staticImageFailed = false; node.classList.remove("is-loading", "img-failed"); });
+    var liveHost = el("div", { class: "asst-live2d-host", "aria-hidden": "true" });
     var glyph = el("span", { class: "asst-mascot-fallback", "aria-hidden": "true", text: "紅" });
     var status = el("p", { class: "asst-status-line", role: "status" });
     function hit(kind, label) {
@@ -384,6 +422,7 @@
       el("span", { class: "asst-bloom-ring ring-one", "aria-hidden": "true" }),
       el("span", { class: "asst-bloom-ring ring-two", "aria-hidden": "true" }),
       img,
+      liveHost,
       glyph,
       hit("head", "Greet Kurenai"),
       hit("flower", "Touch Kurenai's flower ornament"),
@@ -397,13 +436,65 @@
     frame.addEventListener("pointerleave", clearHover);
     var node = el("div", { class: "asst-mascot " + (size === "large" ? "asst-mascot-lg" : "asst-mascot-sm") },
       [frame, status]);
-    var reactionTimer = null;
+    var reactionTimer = null, liveRenderer = null, liveToken = 0, liveState = "static";
+    function clearLive(nextState) {
+      liveToken += 1;
+      if (liveRenderer && typeof liveRenderer.destroy === "function") {
+        try { liveRenderer.destroy(); } catch (e) { /* renderer cleanup must not disturb fallback */ }
+      }
+      liveRenderer = null;
+      liveHost.replaceChildren();
+      liveState = nextState || "static";
+      node.setAttribute("data-renderer", liveState);
+      node.classList.remove("has-live-renderer", "is-live-loading");
+      if (staticImageFailed) node.classList.add("img-failed");
+    }
+    function updateLive() {
+      if (!liveRenderer || typeof liveRenderer.setState !== "function") return;
+      try {
+        liveRenderer.setState(S.visual, { label: S.statusText, size: size });
+      } catch (e) { clearLive("failed"); }
+    }
+    function mountLive(epoch) {
+      clearLive("static");
+      if (!rendererFactory || reducedMotion()) return;
+      var token = liveToken, factory = rendererFactory;
+      liveState = "loading";
+      node.setAttribute("data-renderer", liveState);
+      node.classList.add("is-live-loading");
+      var candidate;
+      try {
+        candidate = factory({
+          host: liveHost,
+          size: size,
+          assetBase: ASSET_BASE,
+          state: S.visual,
+          maxFps: size === "large" ? 60 : 30
+        });
+      } catch (e) { clearLive("failed"); return; }
+      Promise.resolve(candidate).then(function (renderer) {
+        if (token !== liveToken || epoch !== rendererEpoch || factory !== rendererFactory) {
+          if (renderer && typeof renderer.destroy === "function") renderer.destroy();
+          return;
+        }
+        if (!renderer || typeof renderer.setState !== "function") { clearLive("failed"); return; }
+        liveRenderer = renderer;
+        liveState = "live";
+        node.setAttribute("data-renderer", liveState);
+        node.classList.remove("is-live-loading", "img-failed");
+        node.classList.add("has-live-renderer");
+        updateLive();
+      }).catch(function () { if (token === liveToken) clearLive("failed"); });
+    }
     function showReaction(kind) {
       clearTimeout(reactionTimer);
       node.classList.remove("is-reacting");
       void node.offsetWidth;
       node.classList.add("is-reacting");
       node.setAttribute("data-reaction", kind);
+      if (liveRenderer && typeof liveRenderer.react === "function") {
+        try { liveRenderer.react(kind); } catch (e) { clearLive("failed"); }
+      }
       reactionTimer = window.setTimeout(function () { node.classList.remove("is-reacting"); node.removeAttribute("data-reaction"); }, 360);
     }
     function update() {
@@ -414,9 +505,19 @@
       if (img.getAttribute("src") !== nextSrc) { node.classList.add("is-loading"); img.src = nextSrc; }
       img.alt = size === "large" ? ("Kurenai, full-body assistant — " + st.label) : "";
       status.textContent = S.statusText;
+      updateLive();
     }
-    mascots.push({ node: node, update: update, react: showReaction });
+    var surface = {
+      node: node,
+      update: update,
+      react: showReaction,
+      installRenderer: mountLive,
+      rendererStatus: function () { return liveState; },
+      destroy: function () { clearTimeout(reactionTimer); clearLive("static"); }
+    };
+    mascots.push(surface);
     update();
+    if (rendererFactory) window.requestAnimationFrame(function () { if (rendererFactory) mountLive(rendererEpoch); });
     return node;
   }
 
@@ -2141,7 +2242,10 @@
     character: {
       setLifecycle: setLifecycle,
       react: react,
-      stopAudio: stopAudio
+      stopAudio: stopAudio,
+      installRenderer: installRenderer,
+      removeRenderer: removeRenderer,
+      rendererStatus: rendererStatus
     },
     toolDisplayName: toolDisplayName,
     toolActivity: toolActivity,

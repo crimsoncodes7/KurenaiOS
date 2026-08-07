@@ -38,7 +38,10 @@
       sanitized confirmation args.
    7. Voice: one local Audio player, 22 offline ElevenLabs clips, opt-in
       persistence, lifecycle priority, settling/suppression and shared
-      interaction cooldowns; no speech-synthesis dependency.              */
+      interaction cooldowns; no speech-synthesis dependency.
+   8. Phase 2 seam: an optional renderer receives explicit lifecycle and
+      reaction events, synchronises every surface, and fails/reduces cleanly
+      to the Phase 1 static PNGs without bundling a live SDK.               */
 
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
@@ -233,6 +236,58 @@ step("request ownership, confirmation latch and stale timers are deterministic",
   assert(A.character.setLifecycle("confirmation", { requestId: "req-new", silentAudio: true }), "confirmation should latch");
   assert(A.character.setLifecycle("working", { requestId: "req-new", silentAudio: true }) === false, "latched confirmation must resist ordinary transitions");
   assert(A.character.setLifecycle("working", { requestId: "req-new", releaseConfirmation: true, silentAudio: true }), "approved/rejected confirmation must release explicitly");
+});
+
+step("optional live renderer mirrors explicit state and fails safely to static art", async () => {
+  const states = [], reactions = [];
+  let destroyed = 0, factoryCalls = 0;
+  const node = A.mascotNode("large");
+  doc.body.appendChild(node);
+  A.character.setLifecycle("idle", { force: true, releaseConfirmation: true, silentAudio: true });
+  assert(A.character.installRenderer(ctx => {
+    factoryCalls += 1;
+    assert(ctx.size === "large" && ctx.maxFps === 60 && ctx.host.classList.contains("asst-live2d-host"),
+      "renderer factory needs the bounded surface contract");
+    ctx.host.appendChild(doc.createElement("canvas"));
+    return {
+      setState: state => states.push(state),
+      react: kind => reactions.push(kind),
+      destroy: () => { destroyed += 1; }
+    };
+  }), "renderer factory should install");
+  await tick(20);
+  assert(node.classList.contains("has-live-renderer") && node.getAttribute("data-renderer") === "live",
+    "a ready renderer must replace the visual while retaining the PNG fallback");
+  assert(node.querySelector(".asst-live2d-host canvas"), "renderer must receive its own host");
+  A.character.setLifecycle("thinking", { force: true, releaseConfirmation: true, silentAudio: true });
+  assert(states[states.length - 1] === "thinking", "renderer state must come from explicit lifecycle only");
+
+  KOS.store.state.assistant = KOS.store.state.assistant || {};
+  KOS.store.state.assistant.workspace = KOS.store.state.assistant.workspace || {};
+  KOS.store.state.assistant.workspace.characterAudio = { enabled: true, volume: 0.4 };
+  A._config({ resetCharacter: true, audioFactory: () => new FakeAudio() });
+  A.character.setLifecycle("idle", { force: true, releaseConfirmation: true, silentAudio: true });
+  assert(A.character.react("head", { force: true }), "forced idle test reaction should play");
+  assert(reactions[reactions.length - 1] === "head", "renderer must receive the existing reaction event");
+
+  A.character.removeRenderer();
+  assert(!node.classList.contains("has-live-renderer") && node.getAttribute("data-renderer") === "static" && destroyed === 1,
+    "removing a renderer must synchronously restore static art and release resources");
+
+  A.character.installRenderer(() => Promise.reject(new Error("model unavailable")));
+  await tick(20);
+  assert(node.getAttribute("data-renderer") === "failed" && !node.classList.contains("has-live-renderer"),
+    "renderer load failure must remain on the static fallback");
+
+  const oldMatchMedia = window.matchMedia;
+  window.matchMedia = () => ({ matches: true });
+  A.character.installRenderer(() => { factoryCalls += 1; return { setState() {} }; });
+  assert(node.getAttribute("data-renderer") === "static", "reduced motion must refuse the live renderer");
+  window.matchMedia = oldMatchMedia;
+  A.character.removeRenderer();
+  assert(factoryCalls === 1, "reduced motion and failed promises must not mount another live renderer");
+  A._config({ audioFactory: null, resetCharacter: true });
+  node.remove();
 });
 
 step("local audio settles, prioritises lifecycle and enforces shared cooldowns", async () => {
