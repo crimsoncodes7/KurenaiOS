@@ -23,7 +23,7 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-shrine-card-template-4";
+var VERSION = "kos-assistant-workspace-1";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 
@@ -36,6 +36,14 @@ var EXTRA_PRECACHE = [
   "icons/icon-512.png",
   "icons/icon-maskable-512.png",
   "icons/apple-touch-icon.png",
+  "assets/assistant/logo/whispering-bloom-emblem-production.png",
+  "assets/assistant/mascot/full/kurenai-production.png",
+  "assets/assistant/mascot/familiar/idle.png",
+  "assets/assistant/mascot/familiar/thinking.png",
+  "assets/assistant/mascot/familiar/working.png",
+  "assets/assistant/mascot/familiar/success.png",
+  "assets/assistant/mascot/familiar/error.png",
+  "assets/assistant/mascot/familiar/confirmation.png",
   "assets/shrine/private-hall-template-v1.png",
   "assets/shrine/fonts/CormorantGaramond-Variable.ttf",
   "assets/shrine/fonts/CormorantGaramond-Italic-Variable.ttf",

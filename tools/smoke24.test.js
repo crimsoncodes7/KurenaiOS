@@ -150,7 +150,10 @@ step("UI never executes tools, never rebuilds confirmations, never infers mascot
   assert(!/\.text\.(match|includes|indexOf)\(/.test(src), "mascot state must not be inferred from message text");
   const setVisualCalls = src.match(/setVisual\(/g).length;
   assert(setVisualCalls > 5, "visual state must be driven explicitly by lifecycle events");
-  assert(!/speechSynthesis|new Audio\(|audioContext/i.test(src), "voice is deferred — no partial TTS code in Phase E");
+  assert(/SpeechSynthesisUtterance/.test(src) && /voiceEnabled/.test(src),
+    "the optional state-cue voice must use the local speech engine behind a saved opt-in");
+  assert(!/speechSynthesis\.speak\([^)]*(?:r\.text|p\.text|message\.text)/.test(src),
+    "assistant answers must never be narrated by the state-cue voice");
 });
 
 step("all six mascot states map to real production assets with text labels", async () => {
@@ -521,9 +524,19 @@ step("provider text renders inertly — no HTML injection", async () => {
   A.close();
 });
 
-step("tool rows are informational, not interactive", async () => {
-  const src = read("js/modules/assistant.js");
-  assert(!/asst-tool[\s\S]{0,200}onclick/.test(src), "tool history rows must carry no click handlers");
+step("tool rows use one inert, progressively disclosed summary", async () => {
+  A.newConversation();
+  chatScript = [callTools([{ id: "subjects", name: "study_list_subjects", args: {} }]), say("Done")];
+  A.open();
+  A.submit("check subjects");
+  await untilIdle();
+  await tick(30);
+  const group = drawer().querySelector("details.asst-tool");
+  assert(group && group.querySelector("summary"), "tool activity must collapse into a native disclosure");
+  assert(group.querySelectorAll("button").length === 0, "tool history must not expose action controls");
+  assert(Array.from(group.querySelectorAll("*")).every(n => !n.onclick),
+    "tool history disclosure must not carry custom click handlers");
+  A.close();
 });
 
 /* ============ run ============ */

@@ -8,19 +8,20 @@
 
    Mascot: exactly six states (idle/thinking/working/success/error/
    confirmation), driven EXPLICITLY by orchestrator lifecycle events —
-   never inferred from message text. The image is supplementary: every
-   state also renders real textual status, and a failed image load falls
-   back to a glyph + the text. The state→asset map mirrors
-   assets/assistant/manifest.json (hardcoded — file:// can't fetch JSON;
-   keep the two in step).
+   never inferred from message text. Kurenai's canonical portrait stays
+   stable while a six-state Bloom Familiar changes beside her. Both are
+   supplementary: every state also renders real textual status, and a
+   failed image load falls back to a glyph + the text. The state→asset map
+   mirrors assets/assistant/manifest.json (hardcoded — file:// can't fetch
+   JSON; keep the two in step).
 
    The drawer and the dedicated page render the SAME thread/state, so a
    conversation moves between them without losing anything or duplicating
    provider requests (one busy flag, one draft, one pending confirmation).
 
-   Voice (VOICE_NOTES.md) is DEFERRED: Gemini TTS needs its own Edge
-   Function surface — a new provider endpoint, not a Phase E afternoon.
-   Recorded in CATEGORY6_PLAN.md; nothing here blocks adding it later.   */
+   Voice cues are deliberately short, optional and on-device through the
+   browser speech engine. They narrate lifecycle state only, never whole
+   provider answers and never send audio or text to a new cloud endpoint. */
 (function () {
   "use strict";
   window.KOS = window.KOS || {};
@@ -30,12 +31,12 @@
   var ASSET_BASE = "assets/assistant/";
   var PRODUCTION_MASCOT = "mascot/full/kurenai-production.png";
   var MASCOT_STATES = {
-    idle:         { image: PRODUCTION_MASCOT, label: "Ready when you are" },
-    thinking:     { image: PRODUCTION_MASCOT, label: "Thinking…" },
-    working:      { image: PRODUCTION_MASCOT, label: "Working with your KurenaiOS data…" },
-    success:      { image: PRODUCTION_MASCOT, label: "Complete and verified", autoReturnMs: 2200 },
-    error:        { image: PRODUCTION_MASCOT, label: "Something needs attention" },
-    confirmation: { image: PRODUCTION_MASCOT, label: "Waiting for your approval" }
+    idle:         { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/idle.png", label: "Ready when you are", cue: "Ready when you are." },
+    thinking:     { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/thinking.png", label: "Thinking…", cue: "Let me think." },
+    working:      { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/working.png", label: "Working with your KurenaiOS data…", cue: "I'm on it." },
+    success:      { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/success.png", label: "Complete and verified", cue: "All done.", autoReturnMs: 2200 },
+    error:        { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/error.png", label: "Something needs attention", cue: "That didn't work." },
+    confirmation: { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/confirmation.png", label: "Waiting for your approval", cue: "Your call." }
   };
   var EMBLEM = ASSET_BASE + "logo/whispering-bloom-emblem-production.png";
   var WORDMARK = ASSET_BASE + "logo/whispering-bloom-wordmark.png";
@@ -112,6 +113,52 @@
     return name === "gemini" ? "Gemini" : name === "deepseek" ? "DeepSeek" : name === "ollama" ? "Ollama" : titleWords(name);
   }
 
+  /* Assistant workspace preferences are ordinary app state, so pins,
+     projects, layout and voice choices ride the existing save/backup/cloud
+     state path. Conversation contents remain owned by KOS.ai.convo. */
+  function workspaceCfg() {
+    var root = KOS.store.state.assistant || (KOS.store.state.assistant = {});
+    var ws = root.workspace || (root.workspace = {});
+    if (!Array.isArray(ws.pins)) ws.pins = [];
+    if (!Array.isArray(ws.projects)) ws.projects = [];
+    if (!ws.conversationProjects || typeof ws.conversationProjects !== "object") ws.conversationProjects = {};
+    if (typeof ws.sidebarCollapsed !== "boolean") ws.sidebarCollapsed = false;
+    if (typeof ws.voiceEnabled !== "boolean") ws.voiceEnabled = false;
+    if (typeof ws.voiceName !== "string") ws.voiceName = "";
+    return ws;
+  }
+  function saveWorkspace() { KOS.store.save(); }
+  function conversationKey() { return S.conversationId || S.localId; }
+  function projectFor(key) { return workspaceCfg().conversationProjects[key || conversationKey()] || ""; }
+  function assignProject(projectId, key) {
+    var ws = workspaceCfg();
+    key = key || conversationKey();
+    if (!key) return;
+    if (projectId) ws.conversationProjects[key] = projectId;
+    else delete ws.conversationProjects[key];
+    saveWorkspace();
+  }
+  function migrateWorkspaceKey(from, to) {
+    if (!from || !to || from === to) return;
+    var ws = workspaceCfg();
+    if (ws.conversationProjects[from]) {
+      ws.conversationProjects[to] = ws.conversationProjects[from];
+      delete ws.conversationProjects[from];
+    }
+    var at = ws.pins.indexOf(from);
+    if (at >= 0) ws.pins.splice(at, 1, to);
+    saveWorkspace();
+  }
+  function togglePin(key) {
+    var ws = workspaceCfg();
+    key = key || conversationKey();
+    var at = ws.pins.indexOf(key);
+    if (at >= 0) ws.pins.splice(at, 1);
+    else ws.pins.unshift(key);
+    saveWorkspace();
+    notify();
+  }
+
   /* ================= the shared controller ================= */
   var S = {
     open: false,
@@ -127,13 +174,16 @@
     statusText: MASCOT_STATES.idle.label,
     pending: null,        // the canonical confirmation card from Phase C
     pendingState: null,   // null | "confirming" | "expired-message"
-    lastError: null
+    lastError: null,
+    streaming: false
   };
   var listeners = [];     // full re-render subscribers (thread/status areas)
   var mascots = [];       // live mascot nodes
   var successTimer = null;
   var _auditReader = null; // test seam
   var announcerEl = null;
+  var streamTimer = null, streamRow = null, streamDone = null;
+  var lastVoiceState = null, lastVoiceAt = 0;
 
   function announcer() {
     if (announcerEl && announcerEl.isConnected) return announcerEl;
@@ -154,6 +204,33 @@
   }
   function subscribe(node, fn) { listeners.push({ node: node, fn: fn }); }
 
+  function reducedMotion() {
+    return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }
+
+  function voiceCue(state, force) {
+    var ws = workspaceCfg();
+    if (!ws.voiceEnabled || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
+    var now = Date.now();
+    if (!force && (state === "idle" || (state === lastVoiceState && now - lastVoiceAt < 4500))) return;
+    var spec = MASCOT_STATES[state] || MASCOT_STATES.idle;
+    try {
+      var utterance = new SpeechSynthesisUtterance(spec.cue || spec.label);
+      var voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+      var selected = voices.find(function (v) { return v.name === ws.voiceName; }) ||
+        voices.find(function (v) { return /samantha|ava|serena|female|kyoko|haruka/i.test(v.name); }) ||
+        voices.find(function (v) { return /^en[-_]/i.test(v.lang || ""); });
+      if (selected) utterance.voice = selected;
+      utterance.pitch = 1.18;
+      utterance.rate = 1.04;
+      utterance.volume = 0.72;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+      lastVoiceState = state;
+      lastVoiceAt = now;
+    } catch (e) { /* an unavailable OS voice never interrupts the assistant */ }
+  }
+
   /* ---- visual state: EXPLICIT lifecycle input only ---- */
   function setVisual(state, statusText) {
     if (!MASCOT_STATES[state]) state = "idle";
@@ -171,28 +248,43 @@
     var status = document.querySelectorAll(".asst-status-line");
     status.forEach(function (n) { n.textContent = S.statusText; });
     announce(S.statusText);
+    voiceCue(state, false);
   }
 
   /* ---- the mascot component (one implementation, two sizes) ---- */
   function mascotNode(size) {
     var img = el("img", { class: "asst-mascot-img", alt: "" });
     img.addEventListener("error", function () { node.classList.add("img-failed"); });
+    var familiar = el("img", { class: "asst-familiar-img", alt: "" });
+    familiar.addEventListener("error", function () { node.classList.add("familiar-failed"); });
     var glyph = el("span", { class: "asst-mascot-fallback", "aria-hidden": "true", text: "紅" });
     var status = el("p", { class: "asst-status-line", role: "status" });
-    var frame = el("div", { class: "asst-mascot-frame" }, [
+    var frame = el("button", { class: "asst-mascot-frame", type: "button",
+      "aria-label": "Interact with Kurenai", title: "Say hello" }, [
       el("span", { class: "asst-bloom-ring ring-one", "aria-hidden": "true" }),
       el("span", { class: "asst-bloom-ring ring-two", "aria-hidden": "true" }),
       img,
+      familiar,
       glyph
     ]);
+    frame.addEventListener("click", function () {
+      node.classList.remove("is-reacting");
+      void node.offsetWidth;
+      node.classList.add("is-reacting");
+      voiceCue(S.visual, true);
+      window.setTimeout(function () { node.classList.remove("is-reacting"); }, 900);
+    });
     var node = el("div", { class: "asst-mascot " + (size === "large" ? "asst-mascot-lg" : "asst-mascot-sm") },
       [frame, status]);
     function update() {
       var st = MASCOT_STATES[S.visual] || MASCOT_STATES.idle;
       node.classList.remove("img-failed");
+      node.classList.remove("familiar-failed");
       node.setAttribute("data-state", S.visual);
       img.src = ASSET_BASE + st.image;
+      familiar.src = ASSET_BASE + st.familiar;
       img.alt = size === "large" ? "Kurenai, the Whispering Bloom assistant" : "";
+      familiar.alt = size === "large" ? ("Bloom Familiar: " + st.label) : "";
       status.textContent = S.statusText;
     }
     mascots.push({ node: node, update: update });
@@ -210,6 +302,51 @@
     else if (row.kind === "error") announce("Error. " + clampText(row.text, 140));
     notify();
   }
+  function finishAssistantStream(showAll) {
+    clearTimeout(streamTimer);
+    streamTimer = null;
+    if (streamRow) {
+      if (showAll) streamRow.visibleText = streamRow.text;
+      streamRow.streaming = false;
+      announce("Kurenai replied. " + clampText(streamRow.text, 140));
+    }
+    streamRow = null;
+    S.streaming = false;
+    var done = streamDone;
+    streamDone = null;
+    notify();
+    if (done) done();
+  }
+  function pushAssistantStream(text) {
+    text = String(text || "");
+    if (!text) return;
+    /* Short acknowledgements feel slower when artificially typed. The
+       progressive reveal is reserved for substantive replies. */
+    if (text.length <= 160 || reducedMotion()) {
+      pushRow({ kind: "assistant", text: text, visibleText: text, streaming: false });
+      return;
+    }
+    clearTimeout(streamTimer);
+    streamRow = { kind: "assistant", text: text, visibleText: "", streaming: true };
+    S.thread.push(streamRow);
+    S.streaming = true;
+    notify();
+    var at = 0;
+    var chunk = Math.max(2, Math.ceil(text.length / 180));
+    (function reveal() {
+      if (!streamRow) return;
+      var next = Math.min(text.length, at + chunk);
+      if (next < text.length) {
+        var boundary = text.slice(next, Math.min(text.length, next + 14)).search(/[\s,.;:!?)]/);
+        if (boundary >= 0) next += boundary + 1;
+      }
+      at = next;
+      streamRow.visibleText = text.slice(0, at);
+      notify();
+      if (at >= text.length) { finishAssistantStream(false); return; }
+      streamTimer = window.setTimeout(reveal, 32);
+    })();
+  }
   function threadFromStored(messages) {
     return messages.map(function (m) {
       var c = m.content || {};
@@ -223,6 +360,7 @@
     return !!(KOS.ai.convo && KOS.ai.convo.available().persist);
   }
   function newConversation() {
+    finishAssistantStream(true);
     S.conversationId = null;
     S.localId = "c" + Date.now() + "-" + Math.random().toString(36).slice(2, 6);
     S.conversationTitle = null;
@@ -233,6 +371,7 @@
     notify();
   }
   function openConversation(id, cb) {
+    finishAssistantStream(true);
     KOS.ai.convo.get(id, function (err, data) {
       if (err) { KOS.ui.toast(err.message, true); cb && cb(err); return; }
       S.conversationId = id;
@@ -252,7 +391,7 @@
     opts = opts || {};
     text = String(text || "").trim();
     if (!text) return false;
-    if (S.busy) { KOS.ui.toast("Kurenai is already working — cancel first or wait.", true); return false; }
+    if (S.busy || S.streaming) { KOS.ui.toast("Kurenai is already working — cancel first or wait.", true); return false; }
     S.lastError = null;
     S.draft = "";
 
@@ -298,19 +437,23 @@
           announce("Your approval is required for " + toolDisplayName(card.tool));
           notify();
         },
-        onText: function (p) { pushRow({ kind: "assistant", text: p.text }); },
+        onText: function (p) { pushAssistantStream(p.text); },
         onError: function (p) {
           S.lastError = p.message;
           pushRow({ kind: "error", text: p.message });
           setVisual("error", "Failed: " + clampText(p.message, 80));
         },
         onDone: function (p) {
+          function finishUi() {
           S.busy = false;
           S.requestId = null;
           if (p.status === "complete") setVisual("success");
           else if (p.status === "cancelled") setVisual("idle", "Cancelled");
           /* error state already set by onError */
           notify();
+          }
+          if (S.streaming) streamDone = finishUi;
+          else finishUi();
         }
       });
       if (S.requestId === null) { S.busy = false; setVisual("idle"); }
@@ -321,7 +464,11 @@
        history works from turn one; signed out it stays in-memory (loudly). */
     if (!S.conversationId && canPersist()) {
       KOS.ai.convo.create(clampText(text, 60), function (err, convo) {
-        if (!err && convo) { S.conversationId = convo.id; S.conversationTitle = convo.title; }
+        if (!err && convo) {
+          var localKey = S.localId;
+          S.conversationId = convo.id; S.conversationTitle = convo.title;
+          migrateWorkspaceKey(localKey, convo.id);
+        }
         else if (err) pushRow({ kind: "warning", text: "History couldn't be started (" + err.message + ") — this conversation is unsaved." });
         actuallySend();
       });
@@ -334,6 +481,7 @@
   function cancelActive() {
     if (S.requestId) KOS.ai.orchestrator.cancel(S.requestId);
     if (S.pending) { S.pending = null; S.pendingState = null; }
+    finishAssistantStream(true);
     S.busy = false;
     setVisual("idle", "Cancelled");
     notify();
@@ -437,42 +585,51 @@
   }
 
   function buildComposer(compact) {
-    var ta = el("textarea", { class: "asst-composer-in", rows: compact ? "2" : "3",
+    var ta = el("textarea", { class: "asst-composer-in", rows: "1",
       placeholder: compact ? "Ask Kurenai…" : "Ask about your studies, collection, plans, or progress…",
       "aria-label": "Message to the Kurenai assistant" });
     ta.value = S.draft;
-    ta.addEventListener("input", function () { S.draft = ta.value; });
+    function autoSize() {
+      var max = compact ? 132 : 168;
+      ta.style.height = "auto";
+      var next = ta.value ? Math.min(Math.max(24, ta.scrollHeight), max) : 24;
+      ta.style.height = next + "px";
+      ta.style.overflowY = ta.scrollHeight > max ? "auto" : "hidden";
+    }
+    ta.addEventListener("input", function () { S.draft = ta.value; autoSize(); });
     ta.addEventListener("keydown", function (e) {
       /* Enter sends; Shift+Enter newline. Never touches confirmation
          buttons — those are separate, explicit clicks. */
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        if (submit(ta.value)) ta.value = "";
+        if (submit(ta.value)) { ta.value = ""; autoSize(); }
       }
     });
-    var sendBtn = el("button", { class: "btn primary asst-send", text: "Send message",
+    var sendBtn = el("button", { class: "asst-send", type: "button", text: "↑",
       "aria-label": "Send message to Kurenai",
-      onclick: function () { if (submit(ta.value)) ta.value = ""; } });
-    var cancelBtn = el("button", { class: "btn asst-cancel", text: "Stop",
+      title: "Send message",
+      onclick: function () { if (submit(ta.value)) { ta.value = ""; autoSize(); } } });
+    var cancelBtn = el("button", { class: "mini-btn asst-cancel", type: "button", text: "Stop",
       "aria-label": "Stop the current request",
       onclick: function () { cancelActive(); } });
     function refresh() {
-      var lock = S.busy;
+      var lock = S.busy || S.streaming;
       ta.disabled = lock;
       sendBtn.disabled = lock;
-      sendBtn.textContent = lock ? "Working…" : "Send message";
       cancelBtn.style.display = lock ? "" : "none";
+      sendBtn.classList.toggle("is-working", lock);
     }
     refresh();
     var wrap = el("div", { class: "asst-composer" }, [
       ta,
       el("div", { class: "asst-composer-foot" }, [
-        el("span", { class: "asst-composer-hint", text: "Enter to send · Shift + Enter for a new line" }),
+        el("span", { class: "asst-composer-hint", text: compact ? "Shift + Enter for a new line" : "Enter to send · Shift + Enter for a new line" }),
         el("div", { class: "asst-composer-btns" }, [cancelBtn, sendBtn])
       ])
     ]);
     wrap._refresh = refresh;
     wrap._ta = ta;
+    window.requestAnimationFrame(autoSize);
     return wrap;
   }
 
@@ -768,6 +925,56 @@
     return at + 1 < lines.length && line.indexOf("|") >= 0 && tableDivider(lines[at + 1]);
   }
 
+  /* Small dependency-free syntax layer. It colours the distinctions people
+     actually scan for (comments, strings, keywords, numbers and callable
+     names) while keeping provider code inert text nodes. */
+  var CODE_KEYWORDS = {
+    js: "as async await break case catch class const continue debugger default delete do else export extends finally for from function get if import in instanceof let new of return set static super switch this throw try typeof var void while with yield",
+    ts: "abstract any as async await boolean break case catch class const constructor continue declare default delete do else enum export extends finally for from function get if implements import in infer instanceof interface keyof let namespace never new number object of private protected public readonly return set static string super switch symbol this throw try type typeof undefined unknown var void while with yield",
+    py: "and as assert async await break class continue def del elif else except False finally for from global if import in is lambda None nonlocal not or pass raise return True try while with yield",
+    sql: "add all alter and any as asc between by case check column constraint create database default delete desc distinct drop else end exists foreign from full group having in index inner insert into is join key left like limit not null on or order outer primary references right row select set table then union unique update values view when where with",
+    css: "important inherit initial unset revert auto none block inline flex grid relative absolute fixed sticky hidden visible",
+    html: "doctype html head body main section article aside nav header footer div span p a img button input textarea select option table thead tbody tr th td script style link meta",
+    java: "abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for goto if implements import instanceof int interface long native new package private protected public return short static strictfp super switch synchronized this throw throws transient try void volatile while",
+    c: "auto break case char const continue default do double else enum extern float for goto if inline int long register restrict return short signed sizeof static struct switch typedef union unsigned void volatile while"
+  };
+  function normalizedLanguage(language) {
+    var lang = String(language || "").toLowerCase();
+    if (/^(javascript|jsx|mjs|node)$/.test(lang)) return "js";
+    if (/^(typescript|tsx)$/.test(lang)) return "ts";
+    if (/^(python|py)$/.test(lang)) return "py";
+    if (/^(postgres|postgresql|mysql|sqlite)$/.test(lang)) return "sql";
+    if (/^(markup|xml|svg)$/.test(lang)) return "html";
+    if (/^(scss|sass)$/.test(lang)) return "css";
+    if (/^(c\+\+|cpp|cxx|c#|csharp)$/.test(lang)) return "c";
+    return CODE_KEYWORDS[lang] ? lang : "js";
+  }
+  function highlightedCode(language, source) {
+    var lang = normalizedLanguage(language);
+    var keywords = {};
+    String(CODE_KEYWORDS[lang] || "").split(/\s+/).forEach(function (word) { if (word) keywords[word.toLowerCase()] = true; });
+    var comment = lang === "py" ? "#[^\\n]*" : lang === "sql" ? "--[^\\n]*" : lang === "html" ? "<!--[\\s\\S]*?-->" : "\\/\\*[\\s\\S]*?\\*\\/|\\/\\/[^\\n]*";
+    var pattern = new RegExp("(?:\\\"(?:\\\\.|[^\\\"\\\\])*\\\"|'(?:\\\\.|[^'\\\\])*'|`(?:\\\\.|[^`\\\\])*`)|(?:" + comment + ")|(?:<\\/?[A-Za-z][^>]*>)|(?:\\b(?:0x[\\da-f]+|\\d+(?:\\.\\d+)?)\\b)|(?:\\b[A-Za-z_$][\\w$]*\\b)", "gim");
+    var code = el("code", { class: language ? "language-" + String(language).replace(/[^a-z0-9_+-]/gi, "") : "" });
+    var at = 0, match;
+    while ((match = pattern.exec(source))) {
+      if (match.index > at) code.appendChild(document.createTextNode(source.slice(at, match.index)));
+      var token = match[0], lower = token.toLowerCase(), kind = "";
+      if (/^(\/\*|\/\/|#|--|<!--)/.test(token)) kind = "comment";
+      else if (/^[\"'`]/.test(token)) kind = "string";
+      else if (/^<\/?/.test(token)) kind = "tag";
+      else if (/^(?:0x[\da-f]+|\d)/i.test(token)) kind = "number";
+      else if (keywords[lower]) kind = "keyword";
+      else if (/^(true|false|null|none|undefined|nan)$/i.test(token)) kind = "constant";
+      else if (/^\s*\(/.test(source.slice(pattern.lastIndex))) kind = "function";
+      if (kind) code.appendChild(el("span", { class: "tok tok-" + kind, text: token }));
+      else code.appendChild(document.createTextNode(token));
+      at = pattern.lastIndex;
+    }
+    if (at < source.length) code.appendChild(document.createTextNode(source.slice(at)));
+    return code;
+  }
+
   function codeBlock(language, code) {
     var copy = el("button", { class: "asst-code-copy", type: "button", text: "Copy", "aria-label": "Copy code" });
     copy.addEventListener("click", function () {
@@ -777,7 +984,7 @@
     });
     return el("figure", { class: "asst-code-block" }, [
       el("figcaption", {}, [el("span", { text: language || "Code" }), copy]),
-      el("pre", {}, [el("code", { class: language ? "language-" + language.replace(/[^a-z0-9_+-]/gi, "") : "", text: code })])
+      el("pre", {}, [highlightedCode(language, code)])
     ]);
   }
 
@@ -925,21 +1132,42 @@
     return bubble;
   }
 
+  function toolGroupNode(rows) {
+    var failed = rows.filter(function (r) { return !r.ok; }).length;
+    var title = rows.length === 1
+      ? (failed ? "Could not finish · " : "Finished · ") + toolActivity(rows[0].tool)
+      : failed ? rows.length + " steps · " + failed + " need attention" : rows.length + " steps completed";
+    var details = el("div", { class: "asst-tool-detail" }, rows.map(function (r) {
+      return el("div", { class: "asst-tool-step" }, [
+        el("span", { class: "asst-tool-step-state", "aria-hidden": "true", text: r.ok ? "✓" : "!" }),
+        el("span", { class: "asst-tool-step-copy", text: toolActivity(r.tool) }),
+        el("code", { class: "asst-technical-id", text: r.tool }),
+        r.text ? el("span", { class: "asst-event-detail", text: clampText(r.text, 160) }) : null
+      ].filter(Boolean));
+    }));
+    return el("details", { class: "asst-row asst-tool" + (failed ? " failed" : "") }, [
+      el("summary", {}, [
+        el("span", { class: "asst-event-icon", "aria-hidden": "true", text: failed ? "!" : "✓" }),
+        el("span", { class: "asst-event-title", text: title }),
+        el("span", { class: "asst-tool-expand", text: "Details" })
+      ]),
+      details
+    ]);
+  }
+
   function threadRows() {
-    return S.thread.map(function (r) {
+    var out = [];
+    for (var rowIndex = 0; rowIndex < S.thread.length; rowIndex++) {
+      var r = S.thread[rowIndex];
       if (r.kind === "tool") {
-        return el("div", { class: "asst-row asst-tool" + (r.ok ? "" : " failed") }, [
-          el("span", { class: "asst-event-icon", "aria-hidden": "true", text: r.ok ? "✓" : "!" }),
-          el("div", { class: "asst-event-copy" }, [
-            el("span", { class: "asst-event-title", text: (r.ok ? "Finished · " : "Could not finish · ") + toolActivity(r.tool) }),
-            el("code", { class: "asst-technical-id", text: r.tool }),
-            r.text ? el("span", { class: "asst-event-detail", text: clampText(r.text, 160) }) : null
-          ].filter(Boolean))
-        ].filter(Boolean));
+        var tools = [r];
+        while (rowIndex + 1 < S.thread.length && S.thread[rowIndex + 1].kind === "tool") tools.push(S.thread[++rowIndex]);
+        out.push(toolGroupNode(tools));
+        continue;
       }
       if (r.kind === "receipt") {
         /* app-generated VERIFIED action receipt — the ground truth of a write */
-        return el("div", { class: "asst-row asst-receipt" }, [
+        out.push(el("div", { class: "asst-row asst-receipt" }, [
           el("span", { class: "asst-receipt-badge", "aria-hidden": "true", text: "✓" }),
           el("div", { class: "asst-receipt-copy" }, [
             el("span", { class: "asst-receipt-label", text: "Verified action complete" }),
@@ -948,33 +1176,38 @@
             r.target ? el("span", { class: "asst-event-detail", text: "Target · " + r.target }) : null,
             el("code", { class: "asst-technical-id", text: r.tool })
           ].filter(Boolean))
-        ].filter(Boolean));
+        ].filter(Boolean)));
+        continue;
       }
-      if (r.kind === "proposal") return proposalCard(r);
-      if (r.kind === "warning") return el("div", { class: "asst-row asst-warning", role: "note" }, [
+      if (r.kind === "proposal") { out.push(proposalCard(r)); continue; }
+      if (r.kind === "warning") { out.push(el("div", { class: "asst-row asst-warning", role: "note" }, [
         el("span", { class: "asst-alert-icon", "aria-hidden": "true", text: "!" }),
         el("div", {}, [el("strong", { text: "Heads up" }), el("span", { text: r.text })])
-      ]);
-      if (r.kind === "error") return el("div", { class: "asst-row asst-error", role: "alert" }, [
+      ])); continue; }
+      if (r.kind === "error") { out.push(el("div", { class: "asst-row asst-error", role: "alert" }, [
         el("span", { class: "asst-alert-icon", "aria-hidden": "true", text: "×" }),
         el("div", {}, [el("strong", { text: "Kurenai couldn't finish that" }), el("span", { text: r.text })])
-      ]);
+      ])); continue; }
       /* Provider Markdown is parsed into an allowlisted DOM tree. Raw HTML
          remains text; only assistant prose takes this path. */
       if (r.kind === "assistant") {
-        return el("div", { class: "asst-row asst-assistant" }, [
+        var rich = assistantRichText(r.visibleText == null ? r.text : r.visibleText);
+        if (r.streaming) rich.appendChild(el("span", { class: "asst-stream-caret", "aria-hidden": "true" }));
+        out.push(el("div", { class: "asst-row asst-assistant" + (r.streaming ? " is-streaming" : "") }, [
           el("img", { class: "asst-message-mark", src: EMBLEM, alt: "" }),
           el("div", { class: "asst-message-body" }, [
             el("span", { class: "asst-message-author", text: "Kurenai" }),
-            assistantRichText(r.text)
+            rich
           ])
-        ]);
+        ]));
+        continue;
       }
-      return el("div", { class: "asst-row asst-user" }, [
+      out.push(el("div", { class: "asst-row asst-user" }, [
         el("span", { class: "sr-only", text: "You said" }),
         el("div", { class: "asst-bubble", text: r.text })
-      ]);
-    });
+      ]));
+    }
+    return out;
   }
 
   function buildThreadArea(compact) {
@@ -1137,8 +1370,69 @@
     ["Activity", "assistant", { tab: "activity" }, "activity"]
   ];
 
+  var TAB_ICONS = { chat: "✦", history: "◷", settings: "⌁", memory: "◇", permissions: "⌾", activity: "↻" };
+
+  function createProject(name) {
+    name = clampText(String(name || "").trim(), 48);
+    if (!name) return null;
+    var ws = workspaceCfg();
+    var project = { id: "p-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 5), name: name, createdAt: Date.now() };
+    ws.projects.push(project);
+    ws.projectFilter = project.id;
+    assignProject(project.id);
+    saveWorkspace();
+    return project;
+  }
+
+  function removeProject(project) {
+    KOS.ui.confirm({ title: "Delete this project?", danger: true, confirm: "Delete project",
+      body: "“" + project.name + "” is removed. Its conversations stay in History." }, function () {
+      var ws = workspaceCfg();
+      ws.projects = ws.projects.filter(function (p) { return p.id !== project.id; });
+      Object.keys(ws.conversationProjects).forEach(function (key) {
+        if (ws.conversationProjects[key] === project.id) delete ws.conversationProjects[key];
+      });
+      if (ws.projectFilter === project.id) ws.projectFilter = "";
+      saveWorkspace();
+      var view = (KOS.store.state.ui || {}).view;
+      if (view === "assistant") KOS.show("assistant", { tab: "chat" });
+    });
+  }
+
+  function projectPicker() {
+    var ws = workspaceCfg();
+    var selected = projectFor();
+    var select = el("select", { class: "asst-project-picker", "aria-label": "Conversation project", title: "Organise this conversation in a project" }, [
+      el("option", { value: "", text: "No project" })
+    ].concat(ws.projects.map(function (p) {
+      var option = el("option", { value: p.id, text: p.name });
+      if (p.id === selected) option.selected = true;
+      return option;
+    })));
+    select.addEventListener("change", function () { assignProject(select.value); notify(); });
+    return select;
+  }
+
   function assistantTabs(active) {
-    var nav = el("div", { class: "asst-tabs", role: "tablist", "aria-label": "Kurenai Assistant pages" });
+    var ws = workspaceCfg();
+    var nav = el("aside", { class: "asst-tabs" + (ws.sidebarCollapsed ? " is-collapsed" : ""),
+      "aria-label": "Assistant navigation and conversations" });
+    var collapse = el("button", { class: "mini-btn asst-side-collapse", type: "button",
+      text: ws.sidebarCollapsed ? "›" : "‹", "aria-label": ws.sidebarCollapsed ? "Expand assistant sidebar" : "Collapse assistant sidebar",
+      title: ws.sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar", onclick: function () {
+        ws.sidebarCollapsed = !ws.sidebarCollapsed; saveWorkspace();
+        KOS.show("assistant", { tab: active });
+      } });
+    nav.appendChild(el("div", { class: "asst-side-brand" }, [
+      el("img", { src: EMBLEM, alt: "" }),
+      el("div", { class: "asst-side-brand-copy" }, [el("b", { text: "Kurenai" }), el("span", { text: "Whispering Bloom" })]),
+      collapse
+    ]));
+    nav.appendChild(el("button", { class: "asst-new-chat", type: "button", "aria-label": "New conversation",
+      onclick: function () { newConversation(); KOS.show("assistant", { tab: "chat" }); } }, [
+      el("span", { "aria-hidden": "true", text: "+" }), el("b", { text: "New conversation" })
+    ]));
+    var tablist = el("div", { class: "asst-tablist", role: "tablist", "aria-label": "Kurenai Assistant pages" });
     [
       ["Conversation", PAGE_TABS.slice(0, 2)],
       ["Control room", PAGE_TABS.slice(2)]
@@ -1147,13 +1441,96 @@
         var selected = tab[3] === active;
         return el("button", { class: "study-tab" + (selected ? " active" : ""), type: "button",
           role: "tab", "aria-selected": selected ? "true" : "false", "aria-controls": "asst-page-panel",
-          tabindex: selected ? "0" : "-1", text: tab[0],
-          onclick: function () { KOS.show(tab[1], tab[2]); } });
+          tabindex: selected ? "0" : "-1", "aria-label": tab[0],
+          onclick: function () { KOS.show(tab[1], tab[2]); } }, [
+          el("span", { class: "asst-tab-icon", "aria-hidden": "true", text: TAB_ICONS[tab[3]] || "·" }),
+          el("span", { class: "asst-tab-text", text: tab[0] })
+        ]);
       });
-      nav.appendChild(el("div", { class: "asst-tab-group", role: "presentation" }, [
+      tablist.appendChild(el("div", { class: "asst-tab-group", role: "presentation" }, [
         el("span", { class: "asst-tab-group-label", role: "presentation", text: group[0] })
       ].concat(items)));
     });
+    nav.appendChild(tablist);
+
+    var projectList = el("div", { class: "asst-project-list" });
+    var addProject = el("button", { class: "mini-btn asst-side-add", type: "button", text: "+", "aria-label": "Create project", title: "Create project" });
+    addProject.addEventListener("click", function () {
+      if (projectList.querySelector(".asst-project-new")) return;
+      var input = el("input", { class: "asst-project-new", type: "text", maxlength: "48", placeholder: "Project name", "aria-label": "Project name" });
+      function commit() {
+        if (!createProject(input.value)) return;
+        KOS.show("assistant", { tab: active });
+      }
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter") commit(); else if (e.key === "Escape") input.remove(); });
+      input.addEventListener("blur", function () { if (!input.value.trim()) input.remove(); });
+      projectList.insertBefore(input, projectList.firstChild); input.focus();
+    });
+    nav.appendChild(el("div", { class: "asst-side-section asst-projects" }, [
+      el("div", { class: "asst-side-label" }, [el("span", { text: "Projects" }), addProject]), projectList
+    ]));
+    var projectCounts = {};
+    Object.keys(ws.conversationProjects).forEach(function (key) {
+      var id = ws.conversationProjects[key]; projectCounts[id] = (projectCounts[id] || 0) + 1;
+    });
+    ws.projects.forEach(function (project) {
+      var current = ws.projectFilter === project.id;
+      projectList.appendChild(el("div", { class: "asst-project-row" + (current ? " active" : "") }, [
+        el("button", { class: "asst-project-open", type: "button", "aria-pressed": current ? "true" : "false",
+          title: project.name, onclick: function () {
+            ws.projectFilter = current ? "" : project.id; saveWorkspace(); KOS.show("assistant", { tab: active });
+          } }, [el("span", { "aria-hidden": "true", text: "◇" }), el("span", { text: project.name }),
+          el("small", { text: String(projectCounts[project.id] || 0) })]),
+        el("button", { class: "asst-project-delete", type: "button", text: "×", "aria-label": "Delete project " + project.name,
+          onclick: function () { removeProject(project); } })
+      ]));
+    });
+    if (!ws.projects.length) projectList.appendChild(el("p", { class: "asst-side-empty", text: "Group chats by subject or goal." }));
+
+    var recents = el("div", { class: "asst-recent-list" }, [el("p", { class: "asst-side-empty", text: canPersist() ? "Loading…" : "Sign in to keep recent chats." })]);
+    nav.appendChild(el("div", { class: "asst-side-section asst-recents" }, [
+      el("div", { class: "asst-side-label" }, [el("span", { text: ws.projectFilter ? "Project chats" : "Recent" })]), recents
+    ]));
+    if (canPersist()) KOS.ai.convo.list(function (err, rows) {
+      if (!recents.isConnected) return;
+      recents.innerHTML = "";
+      if (err) { recents.appendChild(el("p", { class: "asst-side-empty", text: "History unavailable." })); return; }
+      if (ws.projectFilter) rows = rows.filter(function (c) { return projectFor(c.id) === ws.projectFilter; });
+      rows.sort(function (a, b) {
+        var ap = ws.pins.indexOf(a.id) >= 0, bp = ws.pins.indexOf(b.id) >= 0;
+        return ap === bp ? 0 : ap ? -1 : 1;
+      });
+      rows.slice(0, 8).forEach(function (c) {
+        var pinned = ws.pins.indexOf(c.id) >= 0;
+        recents.appendChild(el("div", { class: "asst-recent-row" + (c.id === S.conversationId ? " current" : "") }, [
+          el("button", { class: "asst-recent-open", type: "button", title: c.title,
+            onclick: function () { openConversation(c.id, function (e) { if (!e) KOS.show("assistant", { tab: "chat" }); }); } }, [
+            el("span", { class: "asst-recent-title", text: c.title }),
+            projectFor(c.id) ? el("span", { class: "asst-recent-project", text: (ws.projects.find(function (p) { return p.id === projectFor(c.id); }) || {}).name || "Project" }) : null
+          ].filter(Boolean)),
+          el("button", { class: "asst-pin" + (pinned ? " is-pinned" : ""), type: "button", text: "⌖",
+            "aria-label": (pinned ? "Unpin " : "Pin ") + c.title, "aria-pressed": pinned ? "true" : "false",
+            onclick: function () { togglePin(c.id); KOS.show("assistant", { tab: active }); } })
+        ]));
+      });
+      if (!rows.length) recents.appendChild(el("p", { class: "asst-side-empty", text: ws.projectFilter ? "No chats in this project yet." : "No conversations yet." }));
+    });
+    else {
+      recents.innerHTML = "";
+      var localPinned = ws.pins.indexOf(S.localId) >= 0;
+      recents.appendChild(el("div", { class: "asst-recent-row current" }, [
+        el("button", { class: "asst-recent-open", type: "button", title: S.conversationTitle || "Current conversation",
+          onclick: function () { KOS.show("assistant", { tab: "chat" }); } }, [
+          el("span", { class: "asst-recent-title", text: S.conversationTitle || "Current conversation" }),
+          projectFor(S.localId) ? el("span", { class: "asst-recent-project", text: "On this device" }) : null
+        ].filter(Boolean)),
+        el("button", { class: "asst-pin" + (localPinned ? " is-pinned" : ""), type: "button", text: "⌖",
+          "aria-label": localPinned ? "Unpin current conversation" : "Pin current conversation", "aria-pressed": localPinned ? "true" : "false",
+          onclick: function () { togglePin(S.localId); KOS.show("assistant", { tab: active }); } })
+      ]));
+      recents.appendChild(el("p", { class: "asst-side-empty", text: "Sign in to keep more chats across sessions." }));
+    }
+
     nav.addEventListener("keydown", function (e) {
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"].indexOf(e.key) < 0) return;
       var tabs = Array.prototype.slice.call(nav.querySelectorAll(".study-tab"));
@@ -1177,15 +1554,24 @@
   }
 
   function pageChat(body) {
+    var ws = workspaceCfg();
+    var currentPinned = ws.pins.indexOf(conversationKey()) >= 0;
     var conversation = el("div", { class: "asst-chat-main" }, [
       el("div", { class: "asst-chat-toolbar" }, [
         el("div", {}, [
           el("span", { class: "asst-section-kicker", text: "Conversation" }),
           el("h2", { text: S.conversationTitle || "A fresh thread" })
         ]),
-        el("button", { class: "btn", type: "button", text: "＋ New conversation", onclick: function () {
-          newConversation(); KOS.show("assistant", { tab: "chat" });
-        } })
+        el("div", { class: "asst-chat-actions" }, [
+          projectPicker(),
+          el("button", { class: "mini-btn asst-current-pin" + (currentPinned ? " is-pinned" : ""), type: "button", text: "⌖",
+            "aria-label": currentPinned ? "Unpin current conversation" : "Pin current conversation", title: currentPinned ? "Unpin conversation" : "Pin conversation",
+            "aria-pressed": currentPinned ? "true" : "false",
+            onclick: function () { togglePin(); KOS.show("assistant", { tab: "chat" }); } }),
+          el("button", { class: "mini-btn asst-toolbar-new", type: "button", text: "+", "aria-label": "New conversation", title: "New conversation", onclick: function () {
+            newConversation(); KOS.show("assistant", { tab: "chat" });
+          } })
+        ])
       ]),
       buildThreadArea(false)
     ]);
@@ -1193,12 +1579,17 @@
       el("div", { class: "asst-presence-wash", "aria-hidden": "true" }),
       el("div", { class: "asst-presence-copy" }, [
         el("span", { class: "asst-presence-kicker", text: "Whispering Bloom" }),
-        el("h3", { text: "Kurenai is with you" })
+        el("h3", { text: "Kurenai is with you" }),
+        el("p", { text: "Hover or tap the bloom to say hello." })
       ]),
       mascotNode("large"),
-      el("div", { class: "asst-safety-notes" }, [
-        el("div", {}, [el("span", { "aria-hidden": "true", text: "◌" }), el("p", { text: "Reads only the KurenaiOS context needed for your request." })]),
-        el("div", {}, [el("span", { "aria-hidden": "true", text: "✓" }), el("p", { text: "Consequential changes wait for the exact approval card." })])
+      el("div", { class: "asst-presence-actions" }, [
+        el("button", { class: "mini-btn", type: "button", text: ws.voiceEnabled ? "Voice on" : "Voice off",
+          "aria-pressed": ws.voiceEnabled ? "true" : "false", onclick: function () {
+            ws.voiceEnabled = !ws.voiceEnabled; saveWorkspace();
+            if (ws.voiceEnabled) voiceCue(S.visual, true);
+            KOS.show("assistant", { tab: "chat" });
+          } })
       ]),
       el("p", { class: "asst-presence-foot", text: canPersist() ? "Cloud history is available for this session." : "Signed out · this conversation stays on this device for now." })
     ]);
@@ -1255,6 +1646,10 @@
                   function () {
                     KOS.ai.convo.remove(c.id, function (err2) {
                       if (err2) { KOS.ui.toast(err2.message, true); return; }
+                      var ws = workspaceCfg();
+                      delete ws.conversationProjects[c.id];
+                      ws.pins = ws.pins.filter(function (id) { return id !== c.id; });
+                      saveWorkspace();
                       if (c.id === S.conversationId) newConversation();
                       render();
                     });
@@ -1281,6 +1676,34 @@
     body.appendChild(el("div", { class: "asst-info-strip" }, [
       el("span", { "aria-hidden": "true", text: "◇" }),
       el("p", { text: "Online providers use your cloud account and daily cap. Ollama stays local. API keys live only on the server and are never rendered here." })
+    ]));
+
+    var ws = workspaceCfg();
+    var voiceToggle = el("input", { type: "checkbox", "aria-label": "Enable short Kurenai voice cues" });
+    voiceToggle.checked = ws.voiceEnabled;
+    var voiceSelect = el("select", { class: "todo-in", "aria-label": "Kurenai voice" });
+    function loadVoices() {
+      var voices = window.speechSynthesis && window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+      voiceSelect.innerHTML = "";
+      voiceSelect.appendChild(el("option", { value: "", text: voices.length ? "Automatic soft voice" : "System voice" }));
+      voices.forEach(function (voice) {
+        var option = el("option", { value: voice.name, text: voice.name + (voice.lang ? " · " + voice.lang : "") });
+        if (voice.name === ws.voiceName) option.selected = true;
+        voiceSelect.appendChild(option);
+      });
+    }
+    loadVoices();
+    if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = loadVoices;
+    voiceToggle.addEventListener("change", function () { ws.voiceEnabled = voiceToggle.checked; saveWorkspace(); if (ws.voiceEnabled) voiceCue("idle", true); });
+    voiceSelect.addEventListener("change", function () { ws.voiceName = voiceSelect.value; saveWorkspace(); if (ws.voiceEnabled) voiceCue("idle", true); });
+    body.appendChild(el("div", { class: "asst-voice-row" }, [
+      el("div", { class: "asst-route-label" }, [
+        el("b", { text: "Character voice cues" }),
+        el("span", { class: "asst-technical-id", text: "On-device speech · no answer narration" })
+      ]),
+      el("label", { class: "asst-voice-toggle" }, [voiceToggle, el("span", { text: "Speak short state lines" })]),
+      el("label", { class: "asst-field" }, [el("span", { text: "Voice" }), voiceSelect]),
+      el("button", { class: "mini-btn", type: "button", text: "Preview", onclick: function () { voiceCue("working", true); } })
     ]));
 
     CATS.forEach(function (cat) {
@@ -1540,16 +1963,12 @@
           heading,
           el("div", { class: "dh-sub", text: "Your context-aware companion for study, planning and collection work." })
         ])
-      ]),
-      el("div", { class: "asst-head-promise" }, [
-        el("span", { "aria-hidden": "true", text: "✓" }),
-        el("p", {}, [el("b", { text: "You stay in control." }), document.createTextNode(" Consequential actions always pause for review.")])
       ])
     ]));
     var tabs = assistantTabs(tab);
     var body = el("section", { id: "asst-page-panel", class: "asst-page asst-page-" + tab,
       role: "tabpanel", "aria-label": "Assistant " + tab });
-    main.appendChild(el("div", { class: "asst-shell" }, [tabs, body]));
+    main.appendChild(el("div", { class: "asst-shell" + (workspaceCfg().sidebarCollapsed ? " is-side-collapsed" : "") }, [tabs, body]));
     if (tab === "chat") pageChat(body);
     else if (tab === "history") pageHistory(body);
     else if (tab === "settings") pageSettings(body);

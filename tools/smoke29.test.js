@@ -81,6 +81,28 @@ step("provider text stays inert and visually belongs to Kurenai", async () => {
   ORCH.send = originalSend;
 });
 
+step("substantive replies reveal incrementally and stop completes received text", async () => {
+  const originalSend = ORCH.send;
+  const payload = ("Kurenai streams a readable response one phrase at a time. ").repeat(8);
+  ORCH.send = function (request, callbacks) {
+    setTimeout(() => { callbacks.onText({ text: payload }); callbacks.onDone({ status: "complete" }); }, 0);
+    return "smoke29-stream";
+  };
+  A.newConversation();
+  A.submit("show streaming");
+  await tick(55);
+  const partial = [...doc.querySelectorAll(".asst-assistant .asst-bubble")].pop();
+  assert(partial && partial.textContent.length > 0 && partial.textContent.length < payload.length,
+    "long provider text should be visibly partial while streaming");
+  assert(partial.closest(".asst-assistant").classList.contains("is-streaming") && partial.querySelector(".asst-stream-caret"),
+    "streaming reply needs a quiet visual caret");
+  A.cancel();
+  await tick(20);
+  const complete = [...doc.querySelectorAll(".asst-assistant .asst-bubble")].pop();
+  assert(complete.textContent === payload.trim() && !A.state().streaming, "stop should reveal the received text and clear streaming state");
+  ORCH.send = originalSend;
+});
+
 step("assistant Markdown, tables and maths render cleanly without widening trust", () => {
   const katexCalls = [];
   window.katex = { render(expression, node, options) {
@@ -103,7 +125,7 @@ step("assistant Markdown, tables and maths render cleanly without widening trust
     "> **Remember:** convert degrees first.",
     "",
     "```js",
-    "const angle = Math.PI / 2;",
+    "const angle = Math.sin(Math.PI / 2);",
     "```",
     "",
     "[Safe source](https://example.com) [Unsafe](javascript:alert(1)) ![Remote](https://example.com/a.png)",
@@ -116,6 +138,7 @@ step("assistant Markdown, tables and maths render cleanly without widening trust
   assert(rich.querySelector("strong") && rich.querySelector("em") && rich.querySelector("ul"), "inline emphasis and lists should render");
   assert(rich.querySelector(".asst-table-wrap table thead") && rich.querySelector("tbody td"), "GFM table should render in a scroll wrapper");
   assert(rich.querySelector("blockquote") && rich.querySelector(".asst-code-block pre code").textContent.includes("Math.PI"), "quotes and fenced code should render");
+  assert(rich.querySelector(".tok-keyword") && rich.querySelector(".tok-function"), "fenced code should distinguish syntax roles");
   assert(rich.querySelector('a[href^="https://example.com"]'), "safe web links should be clickable");
   assert(![...rich.querySelectorAll("a")].some(a => /^javascript:/i.test(a.getAttribute("href") || "")), "unsafe URL protocols must never become links");
   assert(rich.querySelectorAll("img").length === 0, "provider Markdown must not fetch remote images");
@@ -211,6 +234,30 @@ step("theme inheritance and clean assets cover light and dark modes", async () =
   const mascot = fs.readFileSync(path.join(ROOT, "assets/assistant", stateFiles[0]));
   const emblem = fs.readFileSync(path.join(ROOT, "assets/assistant/logo/whispering-bloom-emblem-production.png"));
   assert(mascot.readUInt8(25) === 6 && emblem.readUInt8(25) === 6, "production PNG assets must carry RGBA alpha");
+  const familiars = Object.values(A.MASCOT_STATES).map(state => state.familiar);
+  assert(new Set(familiars).size === 6, "each lifecycle state needs its own Bloom Familiar asset");
+  familiars.forEach(file => assert(fs.readFileSync(path.join(ROOT, "assets/assistant", file)).readUInt8(25) === 6,
+    `familiar asset must carry RGBA alpha: ${file}`));
+});
+
+step("workspace rail collapses and exposes real project organisation", async () => {
+  KOS.show("assistant", { tab: "chat" });
+  await tick(20);
+  doc.querySelector(".asst-side-collapse").click();
+  await tick(20);
+  assert(doc.querySelector(".asst-shell.is-side-collapsed") && doc.querySelector(".asst-tabs.is-collapsed"),
+    "collapse control should give the conversation more width");
+  doc.querySelector(".asst-side-collapse").click();
+  await tick(20);
+  doc.querySelector(".asst-side-add").click();
+  const input = doc.querySelector(".asst-project-new");
+  input.value = "Computer Science";
+  input.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  await tick(20);
+  assert([...doc.querySelectorAll(".asst-project-open")].some(button => /Computer Science/.test(button.textContent)),
+    "created project should appear in the workspace rail");
+  assert([...doc.querySelector(".asst-project-picker").options].some(option => option.textContent === "Computer Science"),
+    "the current conversation should be assigned to the new project");
 });
 
 step("drawer and assistant tabs keep keyboard focus predictable", async () => {

@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "character": {
     "id": "kurenai-whispering-bloom-production-v3",
     "displayName": "Kurenai",
@@ -9,27 +9,33 @@
   "states": {
     "idle": {
       "image": "./mascot/full/kurenai-production.png",
+      "familiar": "./mascot/familiar/idle.png",
       "className": "is-idle"
     },
     "thinking": {
       "image": "./mascot/full/kurenai-production.png",
+      "familiar": "./mascot/familiar/thinking.png",
       "className": "is-thinking"
     },
     "working": {
       "image": "./mascot/full/kurenai-production.png",
+      "familiar": "./mascot/familiar/working.png",
       "className": "is-working"
     },
     "success": {
       "image": "./mascot/full/kurenai-production.png",
+      "familiar": "./mascot/familiar/success.png",
       "className": "is-success",
       "autoReturnMs": 2200
     },
     "error": {
       "image": "./mascot/full/kurenai-production.png",
+      "familiar": "./mascot/familiar/error.png",
       "className": "is-error"
     },
     "confirmation": {
       "image": "./mascot/full/kurenai-production.png",
+      "familiar": "./mascot/familiar/confirmation.png",
       "className": "is-confirmation"
     }
   },

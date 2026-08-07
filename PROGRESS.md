@@ -3344,3 +3344,38 @@ runtime assets are part of the offline precache. Smoke38 now pins the template,
 font, 1536×1024 canvas and crop contracts; smoke1–38 and the complete live
 Chrome audit pass, including desktop/mobile Shrine and the real share modal.
 Service-worker version: `kos-shrine-card-template-4`.
+
+### Assistant workspace + Bloom Familiar · 2026-08-07
+
+**Workspace.** The dedicated Assistant is now a full-height three-column
+workspace. Its left control rail collapses from 258px to 64px, remembers that
+choice, and contains New conversation, the existing Assistant destinations,
+project filters, pinned conversations and recent history. Conversations can be
+assigned to a local project and pinned without changing the cloud conversation
+schema. The chat gains compact pin/project controls while the character rail
+keeps lifecycle state and voice controls close to the active thread. Narrow
+screens stack the three surfaces without introducing horizontal overflow.
+
+**Conversation.** Provider replies progressively reveal into the shared thread
+instead of appearing as a single block. The composer now starts at one line,
+grows with its draft to a bounded height, then scrolls internally. Tool activity
+is condensed into one native disclosure with a human-readable summary; raw tool
+ids and results remain available inside it but no action is exposed. The
+redundant safety promise panel was removed. Fenced code remains inert and now
+uses dependency-free token colouring for comments, strings, keywords, numbers,
+functions, constants and tags.
+
+**Character.** Six original transparent Bloom Familiar assets accompany
+Kurenai's idle, thinking, working, success, error and confirmation poses. CSS
+state motion, hover and tap responses respect reduced-motion preferences. An
+optional local `speechSynthesis` voice emits only the short cue associated with
+a state change; it is off by default, persists as a user setting and never reads
+assistant answers or sends audio to a provider.
+
+**Verification.** Smoke24 now pins the opt-in/local-only voice boundary and the
+inert disclosure contract. Smoke29 covers incremental reveal, cancellation,
+syntax tokens, six distinct RGBA familiar assets, sidebar collapse and project
+creation. Live browser checks covered expanded/collapsed desktop layouts,
+project assignment, pinning, composer growth/capping, 390x844 responsive layout
+and zero console errors. Service-worker version:
+`kos-assistant-workspace-1`.
