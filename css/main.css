@@ -5280,19 +5280,18 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 @keyframes asstDot { 50% { opacity: .35; transform: scale(.78); } }
 @keyframes asstConfirmDot { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--danger) 18%, transparent); } }
 
-/* One approved render; state is expressed by the bloom field around it. */
+/* Six static full-body renders. State changes through art and one concise
+   status line; live deformation is reserved for the later rigging phase. */
 .asst-mascot { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .asst-mascot-frame { position: relative; isolation: isolate; flex: none; overflow: hidden; }
 .asst-mascot-frame::before { content: ""; position: absolute; z-index: -2; inset: 18%; border-radius: 50%;
   background: radial-gradient(circle, color-mix(in srgb, var(--asst-bloom) 19%, transparent), transparent 68%); }
-.asst-bloom-ring { position: absolute; z-index: -1; inset: 14%; border: 1px solid color-mix(in srgb, var(--asst-bloom) 28%, transparent);
-  border-radius: 48% 52% 55% 45% / 58% 42% 58% 42%; pointer-events: none; }
-.asst-bloom-ring.ring-two { inset: 23%; border-color: color-mix(in srgb, var(--asst-brass) 32%, transparent);
-  transform: rotate(44deg); }
+.asst-bloom-ring { display: none; }
 .asst-mascot-img { position: relative; z-index: 1; display: block; filter: drop-shadow(0 18px 22px color-mix(in srgb, var(--text) 20%, transparent));
-  transition: filter .3s ease, transform .3s ease, opacity .25s ease; }
+  transition: opacity .16s ease; }
+.asst-mascot.is-loading .asst-mascot-img { opacity: .34; }
 .asst-mascot-sm .asst-mascot-frame { width: 76px; height: 78px; border-radius: 20px; }
-.asst-mascot-sm .asst-mascot-img { width: 152%; height: 152%; margin: -6% 0 0 -27%; object-fit: contain; object-position: top center; }
+.asst-mascot-sm .asst-mascot-img { width: 100%; height: 100%; object-fit: contain; object-position: bottom center; }
 .asst-mascot-lg { flex-direction: column; align-items: center; text-align: center; width: 100%; }
 .asst-mascot-lg .asst-mascot-frame { width: min(100%, 245px); height: 390px; }
 .asst-mascot-lg .asst-mascot-img { width: 100%; height: 100%; object-fit: contain; object-position: bottom center; }
@@ -5301,19 +5300,11 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .asst-mascot.img-failed .asst-mascot-img { display: none; }
 .asst-mascot.img-failed .asst-mascot-fallback { display: flex; }
 .asst-status-line { max-width: 100%; margin: 0; color: var(--text2); font-size: 12px; font-weight: 650; letter-spacing: .02em; }
-.asst-mascot[data-state="thinking"] .ring-one { animation: asstOrbit 7s linear infinite; }
-.asst-mascot[data-state="thinking"] .ring-two { animation: asstOrbitBack 5s linear infinite; }
-.asst-mascot[data-state="working"] .ring-one { animation: asstOrbit 3.5s linear infinite; border-color: color-mix(in srgb, var(--asst-brass) 52%, transparent); }
-.asst-mascot[data-state="working"] .asst-mascot-img { filter: drop-shadow(0 20px 28px color-mix(in srgb, var(--asst-bloom) 24%, transparent)); }
 .asst-mascot[data-state="success"] .asst-mascot-frame::before { background: radial-gradient(circle, color-mix(in srgb, var(--good) 24%, transparent), transparent 70%); }
 .asst-mascot[data-state="success"] .asst-status-line { color: var(--good); }
 .asst-mascot[data-state="error"] .asst-mascot-frame::before { background: radial-gradient(circle, color-mix(in srgb, var(--danger) 18%, transparent), transparent 70%); }
 .asst-mascot[data-state="error"] .asst-status-line { color: var(--danger); }
-.asst-mascot[data-state="confirmation"] .ring-one { border-color: color-mix(in srgb, var(--warning) 58%, transparent); animation: asstConfirmRing 1.8s ease-in-out infinite; }
 .asst-mascot[data-state="confirmation"] .asst-status-line { color: var(--warning); }
-@keyframes asstOrbit { to { transform: rotate(360deg); } }
-@keyframes asstOrbitBack { to { transform: rotate(-316deg); } }
-@keyframes asstConfirmRing { 50% { inset: 8%; opacity: .45; } }
 
 /* Drawer: a proper side-dialog, including an obscuring scrim. */
 .asst-drawer-open { overflow: hidden; }
@@ -5734,33 +5725,18 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .asst-audit-head { align-items: flex-start; flex-direction: column; }
 }
 
-/* Category 6.3 — professional conversation workspace. The memorable motion
-   belongs to Kurenai's Bloom Familiar; navigation and chat stay disciplined. */
-.asst-mascot-frame { padding: 0; color: inherit; cursor: pointer; border: 0; background: transparent; appearance: none; }
-.asst-mascot-frame:focus-visible { outline-offset: -2px !important; border-radius: 18px; }
-.asst-familiar-img { position: absolute; z-index: 3; top: 20%; right: 1%; width: 34%; height: auto; object-fit: contain;
-  filter: drop-shadow(0 8px 12px color-mix(in srgb, var(--accent) 32%, transparent)); transform-origin: 50% 70%;
-  transition: transform .32s cubic-bezier(.2,.8,.2,1), filter .3s ease, opacity .2s ease; }
-.asst-mascot-sm .asst-familiar-img { top: 7%; right: 2%; width: 42%; }
-.asst-mascot.familiar-failed .asst-familiar-img { display: none; }
-.asst-mascot-frame:hover .asst-mascot-img { transform: translateY(-3px) rotate(-.5deg); }
-.asst-mascot-frame:hover .asst-familiar-img { transform: translateY(-6px) rotate(8deg) scale(1.08); filter: drop-shadow(0 12px 18px color-mix(in srgb, var(--accent) 48%, transparent)); }
-.asst-mascot.is-reacting .asst-mascot-img { animation: asstKurenaiReact .8s cubic-bezier(.2,.8,.2,1); }
-.asst-mascot.is-reacting .asst-familiar-img { animation: asstFamiliarHello .8s cubic-bezier(.2,.8,.2,1); }
-.asst-mascot[data-state="idle"] .asst-familiar-img { animation: asstFamiliarFloat 4.8s ease-in-out infinite; }
-.asst-mascot[data-state="thinking"] .asst-familiar-img { animation: asstFamiliarThink 3.3s ease-in-out infinite; }
-.asst-mascot[data-state="working"] .asst-familiar-img { animation: asstFamiliarWork 1.15s ease-in-out infinite; }
-.asst-mascot[data-state="success"] .asst-familiar-img { animation: asstFamiliarSuccess .72s cubic-bezier(.2,.9,.2,1) both; }
-.asst-mascot[data-state="error"] .asst-familiar-img { animation: asstFamiliarError .42s ease-in-out 2; }
-.asst-mascot[data-state="confirmation"] .asst-familiar-img { animation: asstFamiliarConfirm 1.7s ease-in-out infinite; }
-@keyframes asstFamiliarFloat { 50% { transform: translateY(-7px) rotate(2deg); } }
-@keyframes asstFamiliarThink { 50% { transform: translate(-4px,-8px) rotate(-8deg); } }
-@keyframes asstFamiliarWork { 50% { transform: translateY(-4px) scale(1.04); filter: drop-shadow(0 10px 18px color-mix(in srgb, var(--accent2) 55%, transparent)); } }
-@keyframes asstFamiliarSuccess { 45% { transform: translateY(-12px) scale(1.13) rotate(7deg); } }
-@keyframes asstFamiliarError { 30% { transform: translateX(-3px) rotate(-2deg); } 70% { transform: translateX(3px) rotate(2deg); } }
-@keyframes asstFamiliarConfirm { 50% { transform: translateY(-5px) scale(1.035); filter: drop-shadow(0 10px 19px color-mix(in srgb, var(--warning) 46%, transparent)); } }
-@keyframes asstFamiliarHello { 35% { transform: translate(-8px,-14px) rotate(-14deg) scale(1.12); } 70% { transform: translate(2px,-5px) rotate(8deg); } }
-@keyframes asstKurenaiReact { 40% { transform: translateY(-4px) rotate(-.7deg); } }
+/* Category 6.3 — Kurenai is the one signature surface. Transparent hit
+   regions keep Phase 1 interactive without pretending the static art is a
+   live rig; the percentages carry forward to Cubism hit areas later. */
+.asst-mascot-frame { padding: 0; color: inherit; border: 0; background: transparent; appearance: none; }
+.asst-hit-zone { position: absolute; z-index: 4; padding: 0; cursor: pointer; border: 0; border-radius: 999px; background: transparent; }
+.asst-hit-zone:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.asst-hit-zone.hit-head { top: 2%; left: 34%; width: 32%; height: 24%; }
+.asst-hit-zone.hit-flower { z-index: 5; top: 4%; left: 27%; width: 19%; height: 14%; }
+.asst-hit-zone.hit-tablet { top: 25%; left: 10%; width: 43%; height: 30%; }
+.asst-mascot-sm .asst-hit-zone:not(.hit-head) { display: none; }
+.asst-mascot-sm .asst-hit-zone.hit-head { inset: 0; width: 100%; height: 100%; border-radius: 18px; }
+.asst-mascot.is-reacting .asst-mascot-img { filter: drop-shadow(0 18px 25px color-mix(in srgb, var(--accent) 28%, transparent)); }
 
 .asst-head { min-height: 64px; margin-bottom: 12px; padding-bottom: 11px; }
 .asst-head-emblem { width: 52px; height: 52px; }
@@ -5893,6 +5869,13 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   margin-bottom: 14px; padding: 12px 14px; border: 1px solid var(--line2); border-radius: 14px; background: var(--panel); }
 .asst-voice-toggle { display: flex; align-items: center; gap: 8px; color: var(--text2); font-size: 11px; }
 .asst-voice-toggle input { accent-color: var(--accent); }
+.asst-volume-field input { width: 100%; accent-color: var(--accent); }
+.asst-voice-credit { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; line-height: 1.35; }
+.asst-voice-credit a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.asst-voice-about { margin: -5px 0 14px; padding: 9px 12px; border: 1px solid var(--line2); border-radius: 11px; background: var(--well); }
+.asst-voice-about summary { color: var(--text2); cursor: pointer; font-size: 11px; font-weight: 700; }
+.asst-voice-about p { max-width: 78ch; margin: 8px 0 1px; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.asst-voice-about a { color: var(--accent); }
 
 @media (max-width: 1120px) {
   .asst-shell { grid-template-columns: 228px minmax(0, 1fr); }
@@ -5918,8 +5901,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .asst-presence-copy { grid-column: 1; }
   .asst-presence .asst-mascot { grid-column: 2; grid-row: 1 / 4; }
   .asst-presence .asst-mascot-frame { width: 104px; height: 96px; }
-  .asst-presence .asst-mascot-img { width: 142%; height: 142%; margin: -4% 0 0 -21%; object-position: top center; }
-  .asst-presence .asst-familiar-img { top: 5%; right: 2%; width: 43%; }
+  .asst-presence .asst-mascot-img { width: 100%; height: 100%; margin: 0; object-position: bottom center; }
   .asst-presence-actions { grid-column: 1; justify-content: flex-start; padding-top: 4px; }
   .asst-presence-foot { grid-column: 1; margin-top: 1px; }
   .asst-chat-main { height: auto; }
@@ -5955,7 +5937,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 
 @media (prefers-reduced-motion: reduce) {
   .assistant-trigger, .assistant-trigger .at-dot, .asst-mascot-img, .asst-bloom-ring,
-  .asst-familiar-img, .asst-stream-caret, .asst-row, .asst-drawer, .asst-drawer-scrim, .asst-starter { animation: none !important; transition: none !important; }
+  .asst-stream-caret, .asst-row, .asst-drawer, .asst-drawer-scrim, .asst-starter { animation: none !important; transition: none !important; }
   .asst-thread { scroll-behavior: auto; }
 }
 

@@ -230,14 +230,18 @@ step("theme inheritance and clean assets cover light and dark modes", async () =
   assert(/prefers-reduced-motion[\s\S]{0,300}assistant-trigger/.test(css), "reduced-motion trigger coverage missing");
   assert(/prefers-reduced-motion[\s\S]{0,300}asst-mascot-img/.test(css), "reduced-motion mascot coverage missing");
   const stateFiles = Object.values(A.MASCOT_STATES).map(state => state.image);
-  assert(new Set(stateFiles).size === 1, "states should use one approved render, not alternate portraits");
-  const mascot = fs.readFileSync(path.join(ROOT, "assets/assistant", stateFiles[0]));
+  assert(new Set(stateFiles).size === 6, "each state needs its own approved full-body pose");
   const emblem = fs.readFileSync(path.join(ROOT, "assets/assistant/logo/whispering-bloom-emblem-production.png"));
-  assert(mascot.readUInt8(25) === 6 && emblem.readUInt8(25) === 6, "production PNG assets must carry RGBA alpha");
-  const familiars = Object.values(A.MASCOT_STATES).map(state => state.familiar);
-  assert(new Set(familiars).size === 6, "each lifecycle state needs its own Bloom Familiar asset");
-  familiars.forEach(file => assert(fs.readFileSync(path.join(ROOT, "assets/assistant", file)).readUInt8(25) === 6,
-    `familiar asset must carry RGBA alpha: ${file}`));
+  stateFiles.forEach(file => {
+    const mascot = fs.readFileSync(path.join(ROOT, "assets/assistant", file));
+    assert(mascot.readUInt32BE(16) === 1024 && mascot.readUInt32BE(20) === 1536,
+      `full-body asset must use the canonical canvas: ${file}`);
+    assert(mascot.readUInt8(25) === 6, `full-body asset must carry RGBA alpha: ${file}`);
+  });
+  assert(emblem.readUInt8(25) === 6, "production emblem must carry RGBA alpha");
+  const zones = doc.querySelectorAll(".asst-mascot .asst-hit-zone");
+  assert(zones.length >= 3 && [...zones].some(zone => zone.classList.contains("hit-flower")),
+    "full-body character needs reusable percentage hit areas");
 });
 
 step("workspace rail collapses and exposes real project organisation", async () => {

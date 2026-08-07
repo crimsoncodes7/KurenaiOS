@@ -12,10 +12,10 @@
       submission path); the UI never calls Phase B tools directly, never
       reconstructs confirmations, never infers mascot state from text
       (source contracts).
-   2. Mascot: all six lifecycle states map to the supplied production
-      assets (files exist on disk); every state carries real textual
-      status; success auto-returns to idle; a failed image load falls back
-      to glyph + text; reduced-motion CSS exists.
+   2. Character: all six lifecycle states map to unique 1024x1536 RGBA
+      full-body assets; request ownership rejects stale transitions;
+      confirmations latch; transient states auto-return safely; failed
+      image loads fall back to glyph + text; reduced-motion CSS exists.
    3. Drawer: open/close/toggle with focus into the composer and back to
       the trigger; Escape closes; draft survives close/reopen; duplicate
       submission is refused while busy; Stop cancels; CLOSING DOES NOT
@@ -36,8 +36,9 @@
       key material anywhere in assistant state or DOM; historical tool
       rows are not interactive; the drawer/page never expose more than the
       sanitized confirmation args.
-   7. Voice: not implemented this phase — asserted absent (deferred,
-      recorded in the plan).                                              */
+   7. Voice: one local Audio player, 22 offline ElevenLabs clips, opt-in
+      persistence, lifecycle priority, settling/suppression and shared
+      interaction cooldowns; no speech-synthesis dependency.              */
 
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
@@ -53,6 +54,14 @@ const ctxStub = new Proxy({}, { get: (t, k) => k === "measureText" ? () => ({ wi
 window.HTMLCanvasElement.prototype.getContext = () => ctxStub;
 window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true; window.__kosAutoConfirm = true;
+const audioLog = [];
+class FakeAudio {
+  constructor() { this.src = ""; this.volume = 1; this.currentTime = 0; this.listeners = {}; }
+  addEventListener(name, fn) { this.listeners[name] = fn; }
+  play() { audioLog.push({ src: this.src, volume: this.volume }); return Promise.resolve(); }
+  pause() {}
+}
+window.Audio = FakeAudio;
 
 let netLog = [];
 window.fetch = (url) => {
@@ -150,19 +159,33 @@ step("UI never executes tools, never rebuilds confirmations, never infers mascot
   assert(!/\.text\.(match|includes|indexOf)\(/.test(src), "mascot state must not be inferred from message text");
   const setVisualCalls = src.match(/setVisual\(/g).length;
   assert(setVisualCalls > 5, "visual state must be driven explicitly by lifecycle events");
-  assert(/SpeechSynthesisUtterance/.test(src) && /voiceEnabled/.test(src),
-    "the optional state-cue voice must use the local speech engine behind a saved opt-in");
-  assert(!/speechSynthesis\.speak\([^)]*(?:r\.text|p\.text|message\.text)/.test(src),
-    "assistant answers must never be narrated by the state-cue voice");
+  assert(/new window\.Audio/.test(src) && /voice\/state\//.test(src) && /characterAudio/.test(src),
+    "state cues must use one local Audio player behind the saved opt-in");
+  assert(!/SpeechSynthesisUtterance|speechSynthesis\.speak/.test(src),
+    "the character engine must have no browser speech-synthesis dependency");
 });
 
-step("all six mascot states map to real production assets with text labels", async () => {
+step("all six character states map to unique full-body RGBA assets and 22 local clips", async () => {
   const states = ["idle", "thinking", "working", "success", "error", "confirmation"];
+  const stateFiles = [];
   states.forEach(s => {
     const st = A.MASCOT_STATES[s];
     assert(st && st.label, s + " needs a textual label");
     const file = path.join(ROOT, "assets/assistant", st.image);
     assert(fs.existsSync(file), "missing production asset: " + st.image);
+    const png = fs.readFileSync(file);
+    assert(png.readUInt32BE(16) === 1024 && png.readUInt32BE(20) === 1536,
+      s + " must use the canonical 1024x1536 canvas");
+    assert(png.readUInt8(25) === 6, s + " must be a true RGBA PNG");
+    stateFiles.push(st.image);
+    assert(st.audio && fs.existsSync(path.join(ROOT, "assets/assistant", st.audio)), "missing state clip: " + st.audio);
+  });
+  assert(new Set(stateFiles).size === 6, "every lifecycle state needs distinct full-body art");
+  const interactionFiles = Object.values(A.CHARACTER_REACTIONS).flatMap(spec => spec.files);
+  assert(interactionFiles.length === 16 && new Set(interactionFiles).size === 16, "four unique clips are required for each reaction");
+  interactionFiles.forEach(file => {
+    const full = path.join(ROOT, "assets/assistant/voice/interaction", file);
+    assert(fs.existsSync(full) && fs.statSync(full).size > 500, "missing/empty reaction clip: " + file);
   });
   assert(fs.existsSync(path.join(ROOT, "assets/assistant/logo/whispering-bloom-emblem.png")), "emblem missing");
   assert(fs.existsSync(path.join(ROOT, "assets/assistant/logo/whispering-bloom-wordmark.png")), "wordmark missing");
@@ -196,6 +219,86 @@ step("explicit state changes; success auto-returns; image failure falls back", a
   assert(node.classList.contains("img-failed"), "image failure must mark the node");
   assert(node.querySelector(".asst-status-line").textContent.length > 0, "text status must survive image failure");
   node.remove();
+});
+
+step("request ownership, confirmation latch and stale timers are deterministic", async () => {
+  A._config({ resetCharacter: true });
+  assert(A.character.setLifecycle("thinking", { requestId: "req-old", claim: true, silentAudio: true }), "old request must claim");
+  A.MASCOT_STATES.success.autoReturnMs = 40;
+  assert(A.character.setLifecycle("success", { requestId: "req-old", releaseConfirmation: true, silentAudio: true }), "success should apply");
+  assert(A.character.setLifecycle("thinking", { requestId: "req-new", claim: true, releaseConfirmation: true, silentAudio: true }), "new request must take ownership");
+  assert(A.character.setLifecycle("error", { requestId: "req-old", silentAudio: true }) === false, "stale request event must be rejected");
+  await tick(90);
+  assert(A.state().visual === "thinking", "stale success timer must not reset the new request");
+  assert(A.character.setLifecycle("confirmation", { requestId: "req-new", silentAudio: true }), "confirmation should latch");
+  assert(A.character.setLifecycle("working", { requestId: "req-new", silentAudio: true }) === false, "latched confirmation must resist ordinary transitions");
+  assert(A.character.setLifecycle("working", { requestId: "req-new", releaseConfirmation: true, silentAudio: true }), "approved/rejected confirmation must release explicitly");
+});
+
+step("local audio settles, prioritises lifecycle and enforces shared cooldowns", async () => {
+  let now = 100000;
+  audioLog.length = 0;
+  KOS.store.state.assistant = KOS.store.state.assistant || {};
+  KOS.store.state.assistant.workspace = KOS.store.state.assistant.workspace || {};
+  KOS.store.state.assistant.workspace.characterAudio = { enabled: true, volume: 0.37 };
+  A._config({ resetCharacter: true, now: () => now, audioFactory: () => new FakeAudio() });
+  A.character.setLifecycle("thinking", { requestId: "audio-a", claim: true, releaseConfirmation: true });
+  A.character.setLifecycle("working", { requestId: "audio-a" });
+  await tick(290);
+  assert(audioLog.length === 1 && /voice\/state\/working\.mp3$/.test(audioLog[0].src),
+    "250ms settling must suppress the superseded thinking line");
+  assert(audioLog[0].volume === 0.37, "saved volume must reach the shared player");
+  const afterWorking = audioLog.length;
+  A.character.stopAudio();
+  A.character.setLifecycle("working", { requestId: "audio-a" });
+  await tick(280);
+  assert(audioLog.length === afterWorking, "same lifecycle line must be suppressed for 15 seconds");
+  now += 15001;
+  A.character.setLifecycle("working", { requestId: "audio-a" });
+  await tick(280);
+  assert(audioLog.length === afterWorking + 1, "lifecycle line should recover after suppression window");
+  assert(A.character.react("head") === false, "interactions must not override an active lifecycle");
+  A.character.setLifecycle("idle", { requestId: "audio-a", releaseConfirmation: true, silentAudio: true });
+  assert(A.character.react("head"), "first idle tap should play");
+  assert(A.character.react("flower") === false, "all tap zones must share the global cooldown");
+  A.character.stopAudio();
+  now += 8001;
+  assert(A.character.react("flower"), "tap should recover after eight seconds");
+  A.character.stopAudio();
+  assert(A.character.react("hover"), "first hover reaction should play");
+  A.character.stopAudio();
+  assert(A.character.react("hover") === false, "hover needs its independent 30 second cooldown");
+  const beforeMute = audioLog.length;
+  KOS.store.state.assistant.workspace.characterAudio.enabled = false;
+  now += 31000;
+  assert(A.character.react("hover") === false && audioLog.length === beforeMute, "muted playback must fail silently");
+
+  KOS.store.state.assistant.workspace.characterAudio.enabled = true;
+  A.character.stopAudio();
+  const mascot = A.mascotNode("large");
+  doc.body.appendChild(mascot);
+  const frame = mascot.querySelector(".asst-mascot-frame");
+  frame.dispatchEvent(new window.Event("pointerenter"));
+  await tick(250);
+  frame.dispatchEvent(new window.Event("pointerleave"));
+  await tick(620);
+  assert(audioLog.length === beforeMute, "leaving before 800ms must cancel hover audio");
+  frame.dispatchEvent(new window.Event("pointerenter"));
+  await tick(840);
+  assert(audioLog.length === beforeMute + 1 && /voice\/interaction\/hover-/.test(audioLog[audioLog.length - 1].src),
+    "an 800ms idle dwell should play one hover variant");
+  frame.dispatchEvent(new window.Event("pointerleave"));
+  mascot.remove();
+
+  class RejectingAudio extends FakeAudio { play() { return Promise.reject(new Error("autoplay denied")); } }
+  A.character.stopAudio();
+  now += 15001;
+  A._config({ audioFactory: () => new RejectingAudio() });
+  A.character.setLifecycle("thinking", { requestId: "audio-reject", claim: true, releaseConfirmation: true });
+  await tick(290);
+  assert(A.state().visual === "thinking", "autoplay rejection must not disturb textual lifecycle state");
+  A.character.stopAudio();
+  A._config({ now: null, audioFactory: null, resetCharacter: true });
 });
 
 /* ============ 3 · drawer ============ */

@@ -970,10 +970,122 @@ await waitFor("document.querySelector('.home-id .image-crop-bg img')", "post-rel
 const reloadBanner = await evaluate(`(() => { const i = document.querySelector('.home-id .image-crop-bg img'); return [i.style.getPropertyValue('--crop-x'), i.style.getPropertyValue('--crop-y')]; })()`);
 assert(reloadBanner[0] === "72%" && reloadBanner[1] === "38%", "Banner crop did not render after reload/restore");
 
+/* Assistant Phase 1: real full-body art, equal-height collapsible workspace,
+   bounded composer and responsive character/conversation geometry. */
+await viewport(1440, 900);
+await evaluate(`KOS.show("assistant", { tab: "chat" })`);
+await waitFor("document.querySelector('.asst-presence .asst-mascot-img')?.naturalWidth === 1024", "Assistant full-body character");
+await pause(360);
+const assistantWasCollapsed = await evaluate(`document.querySelector('.asst-shell').classList.contains('is-side-collapsed')`);
+if (assistantWasCollapsed) {
+  await evaluate(`document.querySelector('.asst-side-collapse').click()`);
+  await pause(260);
+}
+const assistantWide = await evaluate(`(() => {
+  const shell = document.querySelector('.asst-shell'), side = document.querySelector('.asst-tabs'), page = document.querySelector('.asst-page');
+  const chat = document.querySelector('.asst-chat-main'), presence = document.querySelector('.asst-presence');
+  const composer = document.querySelector('.asst-composer-in'), image = document.querySelector('.asst-presence .asst-mascot-img');
+  return {
+    shellHeight: Math.round(shell.getBoundingClientRect().height), sideHeight: Math.round(side.getBoundingClientRect().height),
+    pageHeight: Math.round(page.getBoundingClientRect().height), chatWidth: Math.round(chat.getBoundingClientRect().width),
+    pairedHeights: [Math.round(chat.getBoundingClientRect().height), Math.round(presence.getBoundingClientRect().height)],
+    image: [image.naturalWidth, image.naturalHeight], hitAreas: presence.querySelectorAll('.asst-hit-zone').length,
+    composerMin: Math.round(composer.getBoundingClientRect().height), composerMax: parseFloat(getComputedStyle(composer).maxHeight),
+    overflow: document.documentElement.scrollWidth - innerWidth
+  };
+})()`);
+assert(Math.abs(assistantWide.shellHeight - assistantWide.sideHeight) <= 1 && Math.abs(assistantWide.shellHeight - assistantWide.pageHeight) <= 1 &&
+  assistantWide.pairedHeights[0] === assistantWide.pairedHeights[1] && assistantWide.image[0] === 1024 && assistantWide.image[1] === 1536 &&
+  assistantWide.hitAreas === 3 && assistantWide.composerMin <= 72 && assistantWide.composerMax <= 180 && assistantWide.overflow <= 1,
+  `Assistant desktop composition failed: ${JSON.stringify(assistantWide)}`);
+await screenshot("/tmp/kos-assistant-1440.png");
+await evaluate(`document.querySelector('.asst-side-collapse').click()`);
+await pause(260);
+const assistantCollapsed = await evaluate(`(() => ({
+  collapsed: document.querySelector('.asst-shell').classList.contains('is-side-collapsed'),
+  chatWidth: Math.round(document.querySelector('.asst-chat-main').getBoundingClientRect().width)
+}))()`);
+assert(assistantCollapsed.collapsed && assistantCollapsed.chatWidth > assistantWide.chatWidth,
+  `Assistant collapse did not return space to the conversation: ${JSON.stringify(assistantCollapsed)}`);
+await screenshot("/tmp/kos-assistant-collapsed-1440.png");
+const assistantStateSwap = await evaluate(`(() => {
+  KOS.assistant.character.setLifecycle('success', { requestId: 'visual-audit', claim: true, releaseConfirmation: true, silentAudio: true });
+  const src = document.querySelector('.asst-presence .asst-mascot-img').getAttribute('src');
+  KOS.assistant.character.setLifecycle('idle', { requestId: 'visual-audit', releaseConfirmation: true, silentAudio: true });
+  return src;
+})()`);
+assert(assistantStateSwap.endsWith("/mascot/states/success.png"), `Assistant state art did not swap: ${assistantStateSwap}`);
+
+await viewport(390, 844);
+await evaluate(`KOS.show("assistant", { tab: "chat" })`);
+await waitFor("document.querySelector('.asst-page-chat .asst-mascot-img')?.naturalWidth === 1024", "mobile Assistant character");
+await pause(360);
+const assistantPhone = await evaluate(`(() => {
+  const layout = document.querySelector('.asst-chat-layout'), presence = document.querySelector('.asst-presence');
+  KOS.assistant.open();
+  const drawer = document.querySelector('.asst-drawer'), focused = document.activeElement?.classList.contains('asst-composer-in');
+  const result = { columns: getComputedStyle(layout).gridTemplateColumns.split(' ').length,
+    doc: document.documentElement.scrollWidth, viewport: innerWidth, characterHeight: Math.round(presence.querySelector('.asst-mascot-frame').getBoundingClientRect().height),
+    drawerWidth: Math.round(drawer.getBoundingClientRect().width), focused };
+  KOS.assistant.close();
+  return result;
+})()`);
+assert(assistantPhone.columns === 1 && assistantPhone.doc <= assistantPhone.viewport + 1 && assistantPhone.characterHeight <= 100 &&
+  assistantPhone.drawerWidth === assistantPhone.viewport && assistantPhone.focused,
+  `Assistant phone layout/focus failed: ${JSON.stringify(assistantPhone)}`);
+await screenshot("/tmp/kos-assistant-mobile-390.png");
+
+/* The Phase 1 character remains complete offline: every state image and voice
+   clip must be present in the versioned static cache and served by the active
+   worker while Chromium's network stack is offline. */
+const assistantOfflineAssets = [
+  ...["idle", "thinking", "working", "success", "error", "confirmation"]
+    .map(name => `assets/assistant/mascot/states/${name}.png`),
+  ...["idle", "thinking", "working", "success", "error", "confirmation"]
+    .map(name => `assets/assistant/voice/state/${name}.mp3`),
+  ...["hover", "head", "flower", "tablet"]
+    .flatMap(kind => [1, 2, 3, 4].map(index => `assets/assistant/voice/interaction/${kind}-${String(index).padStart(2, "0")}.mp3`))
+];
+const assistantCache = await evaluate(`(async () => {
+  await navigator.serviceWorker.ready;
+  const deadline = Date.now() + 10000;
+  let cache = null;
+  while (Date.now() < deadline) {
+    cache = await caches.open("kos-static-kos-assistant-character-1");
+    const ready = await cache.match(${JSON.stringify(assistantOfflineAssets[0])});
+    if (ready) break;
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  const paths = ${JSON.stringify(assistantOfflineAssets)};
+  const hits = await Promise.all(paths.map(async path => ({ path, hit: !!(await cache.match(path)) })));
+  return { controlled: !!navigator.serviceWorker.controller, missing: hits.filter(item => !item.hit).map(item => item.path) };
+})()`);
+assert(assistantCache.missing.length === 0,
+  `Assistant offline cache is incomplete: ${JSON.stringify(assistantCache)}`);
+
+await send("Network.enable");
+await send("Network.setCacheDisabled", { cacheDisabled: true });
+await send("Network.emulateNetworkConditions", { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
+let assistantOfflineFetch;
+try {
+  assistantOfflineFetch = await evaluate(`(async () => {
+    const cache = await caches.open("kos-static-kos-assistant-character-1");
+    return Promise.all(${JSON.stringify(assistantOfflineAssets)}.map(async path => {
+      const response = await cache.match(path);
+      return { path, ok: !!response && response.ok, bytes: response ? (await response.arrayBuffer()).byteLength : 0 };
+    }));
+  })()`);
+} finally {
+  await send("Network.emulateNetworkConditions", { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+  await send("Network.setCacheDisabled", { cacheDisabled: false });
+}
+assert(assistantOfflineFetch.every(item => item.ok && item.bytes > 0),
+  `Assistant assets failed the offline fetch pass: ${JSON.stringify(assistantOfflineFetch.filter(item => !item.ok || item.bytes <= 0))}`);
+
 await viewport(1440, 900);
 await screenshot("/tmp/kos-home-restored-1440.png");
 assert(browserErrors.length === 0, `Browser errors:\n${browserErrors.join("\n")}`);
 
-console.log("VISUAL AUDIT PASS — live crop workflows, Collection Goals, Shrine/share card, Budget Planner, Compare Topics, persistence, backup/restore and responsive adjacent pages verified");
-console.log("Screenshots: /tmp/kos-goals-1440.png, /tmp/kos-goals-single-dark-1440.png, /tmp/kos-goal-editor-1440.png, /tmp/kos-goal-editor-linked-1440.png, /tmp/kos-goals-mobile-390.png, /tmp/kos-goals-cards-mobile-390.png, /tmp/kos-shrine-1440.png, /tmp/kos-shrine-ranked-1440.png, /tmp/kos-shrine-share-card-1440.png, /tmp/kos-shrine-mobile-390.png, /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-themes-dark-1440.png, /tmp/kos-governor-banners-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
+console.log("VISUAL AUDIT PASS — live crop workflows, Collection Goals, Shrine/share card, Budget Planner, Compare Topics, Assistant character workspace, its 28 offline assets, persistence, backup/restore and responsive adjacent pages verified");
+console.log("Screenshots: /tmp/kos-assistant-1440.png, /tmp/kos-assistant-collapsed-1440.png, /tmp/kos-assistant-mobile-390.png, /tmp/kos-goals-1440.png, /tmp/kos-goals-single-dark-1440.png, /tmp/kos-goal-editor-1440.png, /tmp/kos-goal-editor-linked-1440.png, /tmp/kos-goals-mobile-390.png, /tmp/kos-goals-cards-mobile-390.png, /tmp/kos-shrine-1440.png, /tmp/kos-shrine-ranked-1440.png, /tmp/kos-shrine-share-card-1440.png, /tmp/kos-shrine-mobile-390.png, /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-themes-dark-1440.png, /tmp/kos-governor-banners-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
 ws.close();

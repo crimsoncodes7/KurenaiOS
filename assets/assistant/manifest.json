@@ -1,47 +1,76 @@
 {
-  "version": 4,
+  "version": 5,
   "character": {
-    "id": "kurenai-whispering-bloom-production-v3",
+    "id": "kurenai-static-character-phase-1",
     "displayName": "Kurenai",
     "recommendedSurface": "full",
-    "fullIdle": "./mascot/full/kurenai-production.png"
+    "canvas": {
+      "width": 1024,
+      "height": 1536
+    }
   },
   "states": {
     "idle": {
-      "image": "./mascot/full/kurenai-production.png",
-      "familiar": "./mascot/familiar/idle.png",
-      "className": "is-idle"
+      "image": "./mascot/states/idle.png",
+      "audio": "./voice/state/idle.mp3",
+      "label": "Ready when you are"
     },
     "thinking": {
-      "image": "./mascot/full/kurenai-production.png",
-      "familiar": "./mascot/familiar/thinking.png",
-      "className": "is-thinking"
+      "image": "./mascot/states/thinking.png",
+      "audio": "./voice/state/thinking.mp3",
+      "label": "Thinking…"
     },
     "working": {
-      "image": "./mascot/full/kurenai-production.png",
-      "familiar": "./mascot/familiar/working.png",
-      "className": "is-working"
+      "image": "./mascot/states/working.png",
+      "audio": "./voice/state/working.mp3",
+      "label": "Working with your KurenaiOS data…"
     },
     "success": {
-      "image": "./mascot/full/kurenai-production.png",
-      "familiar": "./mascot/familiar/success.png",
-      "className": "is-success",
+      "image": "./mascot/states/success.png",
+      "audio": "./voice/state/success.mp3",
+      "label": "Complete and verified",
       "autoReturnMs": 2200
     },
     "error": {
-      "image": "./mascot/full/kurenai-production.png",
-      "familiar": "./mascot/familiar/error.png",
-      "className": "is-error"
+      "image": "./mascot/states/error.png",
+      "audio": "./voice/state/error.mp3",
+      "label": "Something needs attention",
+      "autoReturnMs": 4000
     },
     "confirmation": {
-      "image": "./mascot/full/kurenai-production.png",
-      "familiar": "./mascot/familiar/confirmation.png",
-      "className": "is-confirmation"
+      "image": "./mascot/states/confirmation.png",
+      "audio": "./voice/state/confirmation.mp3",
+      "label": "Waiting for your approval"
     }
+  },
+  "interactions": {
+    "hover": {
+      "dwellMs": 800,
+      "cooldownMs": 30000,
+      "audio": ["./voice/interaction/hover-01.mp3", "./voice/interaction/hover-02.mp3", "./voice/interaction/hover-03.mp3", "./voice/interaction/hover-04.mp3"]
+    },
+    "head": {
+      "cooldownMs": 8000,
+      "audio": ["./voice/interaction/head-01.mp3", "./voice/interaction/head-02.mp3", "./voice/interaction/head-03.mp3", "./voice/interaction/head-04.mp3"]
+    },
+    "flower": {
+      "cooldownMs": 8000,
+      "audio": ["./voice/interaction/flower-01.mp3", "./voice/interaction/flower-02.mp3", "./voice/interaction/flower-03.mp3", "./voice/interaction/flower-04.mp3"]
+    },
+    "tablet": {
+      "cooldownMs": 8000,
+      "audio": ["./voice/interaction/tablet-01.mp3", "./voice/interaction/tablet-02.mp3", "./voice/interaction/tablet-03.mp3", "./voice/interaction/tablet-04.mp3"]
+    }
+  },
+  "voice": {
+    "provider": "ElevenLabs",
+    "runtime": "local-files-only",
+    "defaultEnabled": false,
+    "attributionUrl": "https://elevenlabs.io"
   },
   "logo": {
     "emblem": "./logo/whispering-bloom-emblem-production.png",
-    "wordmark": "./logo/whispering-bloom-emblem-production.png",
+    "wordmark": "./logo/whispering-bloom-wordmark.png",
     "altEmblem": "./logo/whispering-bloom-emblem-production.png"
   }
 }

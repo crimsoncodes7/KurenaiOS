@@ -6,22 +6,22 @@
    conversations/memory ride KOS.ai.convo / KOS.ai.memory, and no code in
    this file executes a tool, decides a tier, or writes memory directly.
 
-   Mascot: exactly six states (idle/thinking/working/success/error/
-   confirmation), driven EXPLICITLY by orchestrator lifecycle events —
-   never inferred from message text. Kurenai's canonical portrait stays
-   stable while a six-state Bloom Familiar changes beside her. Both are
-   supplementary: every state also renders real textual status, and a
-   failed image load falls back to a glyph + the text. The state→asset map
-   mirrors assets/assistant/manifest.json (hardcoded — file:// can't fetch
-   JSON; keep the two in step).
+   Character: exactly six full-body states (idle/thinking/working/success/
+   error/confirmation), driven EXPLICITLY by orchestrator lifecycle events
+   and request ownership — never inferred from message text. Each state has
+   a distinct static production PNG and real textual status. Image failure
+   falls back to a glyph + the text. The state→asset map mirrors
+   assets/assistant/manifest.json (hardcoded — file:// can't fetch JSON;
+   keep the two in step).
 
    The drawer and the dedicated page render the SAME thread/state, so a
    conversation moves between them without losing anything or duplicating
    provider requests (one busy flag, one draft, one pending confirmation).
 
-   Voice cues are deliberately short, optional and on-device through the
-   browser speech engine. They narrate lifecycle state only, never whole
-   provider answers and never send audio or text to a new cloud endpoint. */
+   Voice cues are deliberately short, optional local ElevenLabs renders.
+   One reusable audio player enforces lifecycle priority and interaction
+   cooldowns. It never narrates provider answers and makes no runtime TTS
+   request. */
 (function () {
   "use strict";
   window.KOS = window.KOS || {};
@@ -29,14 +29,19 @@
 
   /* ================= mascot state map (mirrors manifest.json) ========== */
   var ASSET_BASE = "assets/assistant/";
-  var PRODUCTION_MASCOT = "mascot/full/kurenai-production.png";
   var MASCOT_STATES = {
-    idle:         { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/idle.png", label: "Ready when you are", cue: "Ready when you are." },
-    thinking:     { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/thinking.png", label: "Thinking…", cue: "Let me think." },
-    working:      { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/working.png", label: "Working with your KurenaiOS data…", cue: "I'm on it." },
-    success:      { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/success.png", label: "Complete and verified", cue: "All done.", autoReturnMs: 2200 },
-    error:        { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/error.png", label: "Something needs attention", cue: "That didn't work." },
-    confirmation: { image: PRODUCTION_MASCOT, familiar: "mascot/familiar/confirmation.png", label: "Waiting for your approval", cue: "Your call." }
+    idle:         { image: "mascot/states/idle.png", label: "Ready when you are", audio: "voice/state/idle.mp3" },
+    thinking:     { image: "mascot/states/thinking.png", label: "Thinking…", audio: "voice/state/thinking.mp3" },
+    working:      { image: "mascot/states/working.png", label: "Working with your KurenaiOS data…", audio: "voice/state/working.mp3" },
+    success:      { image: "mascot/states/success.png", label: "Complete and verified", audio: "voice/state/success.mp3", autoReturnMs: 2200 },
+    error:        { image: "mascot/states/error.png", label: "Something needs attention", audio: "voice/state/error.mp3", autoReturnMs: 4000 },
+    confirmation: { image: "mascot/states/confirmation.png", label: "Waiting for your approval", audio: "voice/state/confirmation.mp3" }
+  };
+  var CHARACTER_REACTIONS = {
+    hover:  { cooldownMs: 30000, files: ["hover-01.mp3", "hover-02.mp3", "hover-03.mp3", "hover-04.mp3"] },
+    head:   { cooldownMs: 8000, files: ["head-01.mp3", "head-02.mp3", "head-03.mp3", "head-04.mp3"] },
+    flower: { cooldownMs: 8000, files: ["flower-01.mp3", "flower-02.mp3", "flower-03.mp3", "flower-04.mp3"] },
+    tablet: { cooldownMs: 8000, files: ["tablet-01.mp3", "tablet-02.mp3", "tablet-03.mp3", "tablet-04.mp3"] }
   };
   var EMBLEM = ASSET_BASE + "logo/whispering-bloom-emblem-production.png";
   var WORDMARK = ASSET_BASE + "logo/whispering-bloom-wordmark.png";
@@ -123,8 +128,19 @@
     if (!Array.isArray(ws.projects)) ws.projects = [];
     if (!ws.conversationProjects || typeof ws.conversationProjects !== "object") ws.conversationProjects = {};
     if (typeof ws.sidebarCollapsed !== "boolean") ws.sidebarCollapsed = false;
-    if (typeof ws.voiceEnabled !== "boolean") ws.voiceEnabled = false;
-    if (typeof ws.voiceName !== "string") ws.voiceName = "";
+    if (!ws.characterAudio || typeof ws.characterAudio !== "object") {
+      ws.characterAudio = {
+        enabled: typeof ws.voiceEnabled === "boolean" ? ws.voiceEnabled : false,
+        volume: 0.72
+      };
+    }
+    if (typeof ws.characterAudio.enabled !== "boolean") ws.characterAudio.enabled = false;
+    if (!Number.isFinite(Number(ws.characterAudio.volume))) ws.characterAudio.volume = 0.72;
+    ws.characterAudio.volume = Math.max(0, Math.min(1, Number(ws.characterAudio.volume)));
+    /* Build 6.1 migration: the local clip player has one authored voice,
+       so browser voice names and the legacy speech toggle are retired. */
+    delete ws.voiceEnabled;
+    delete ws.voiceName;
     return ws;
   }
   function saveWorkspace() { KOS.store.save(); }
@@ -178,12 +194,16 @@
     streaming: false
   };
   var listeners = [];     // full re-render subscribers (thread/status areas)
-  var mascots = [];       // live mascot nodes
-  var successTimer = null;
+  var mascots = [];       // live character nodes
+  var lifecycleTimer = null, lifecycleEpoch = 0, lifecycleOwner = null, lifecycleSerial = 0;
+  var audioEl = null, audioPriority = 0, audioSource = "", audioSettleTimer = null;
+  var hoverTimer = null, tapCooldownAt = -Infinity, lastHoverAt = -Infinity;
+  var reactionIndexes = {}, lastLifecycleAudioAt = {};
+  var nowFn = function () { return Date.now(); }, audioFactory = null;
+  var preloadedStates = {};
   var _auditReader = null; // test seam
   var announcerEl = null;
   var streamTimer = null, streamRow = null, streamDone = null;
-  var lastVoiceState = null, lastVoiceAt = 0;
 
   function announcer() {
     if (announcerEl && announcerEl.isConnected) return announcerEl;
@@ -208,86 +228,194 @@
     return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }
 
-  function voiceCue(state, force) {
-    var ws = workspaceCfg();
-    if (!ws.voiceEnabled || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
-    var now = Date.now();
-    if (!force && (state === "idle" || (state === lastVoiceState && now - lastVoiceAt < 4500))) return;
-    var spec = MASCOT_STATES[state] || MASCOT_STATES.idle;
+  function characterAudioCfg() { return workspaceCfg().characterAudio; }
+  function player() {
+    if (audioEl) return audioEl;
     try {
-      var utterance = new SpeechSynthesisUtterance(spec.cue || spec.label);
-      var voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
-      var selected = voices.find(function (v) { return v.name === ws.voiceName; }) ||
-        voices.find(function (v) { return /samantha|ava|serena|female|kyoko|haruka/i.test(v.name); }) ||
-        voices.find(function (v) { return /^en[-_]/i.test(v.lang || ""); });
-      if (selected) utterance.voice = selected;
-      utterance.pitch = 1.18;
-      utterance.rate = 1.04;
-      utterance.volume = 0.72;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utterance);
-      lastVoiceState = state;
-      lastVoiceAt = now;
-    } catch (e) { /* an unavailable OS voice never interrupts the assistant */ }
+      audioEl = audioFactory ? audioFactory() : (typeof window.Audio === "function" ? new window.Audio() : document.createElement("audio"));
+      audioEl.preload = "none";
+      audioEl.addEventListener && audioEl.addEventListener("ended", function () { audioPriority = 0; audioSource = ""; });
+      audioEl.addEventListener && audioEl.addEventListener("error", function () { audioPriority = 0; audioSource = ""; });
+    } catch (e) { audioEl = null; }
+    return audioEl;
+  }
+  function stopAudio() {
+    clearTimeout(audioSettleTimer);
+    audioSettleTimer = null;
+    if (audioEl) {
+      try { audioEl.pause(); audioEl.currentTime = 0; } catch (e) { /* local playback failure is non-fatal */ }
+    }
+    audioPriority = 0;
+    audioSource = "";
+  }
+  function playLocalAudio(path, priority, force) {
+    var cfg = characterAudioCfg();
+    if (!cfg.enabled || !path) return false;
+    if (audioPriority && !force && priority <= audioPriority) return false;
+    var p = player();
+    if (!p) return false;
+    try {
+      if (audioPriority) { p.pause(); p.currentTime = 0; }
+      audioPriority = priority;
+      audioSource = path;
+      p.volume = cfg.volume;
+      p.src = ASSET_BASE + path;
+      var result = p.play();
+      if (result && typeof result.catch === "function") result.catch(function () {
+        if (audioSource === path) { audioPriority = 0; audioSource = ""; }
+      });
+      return true;
+    } catch (e) {
+      audioPriority = 0;
+      audioSource = "";
+      return false;
+    }
+  }
+  function playStateCue(state, force) {
+    var spec = MASCOT_STATES[state] || MASCOT_STATES.idle;
+    var now = nowFn();
+    if (!force && (state === "idle" || now - (lastLifecycleAudioAt[state] || 0) < 15000)) return false;
+    if (playLocalAudio(spec.audio, 2, true)) {
+      lastLifecycleAudioAt[state] = now;
+      return true;
+    }
+    return false;
+  }
+  function scheduleStateCue(state, epoch) {
+    clearTimeout(audioSettleTimer);
+    if (state === "idle") return;
+    audioSettleTimer = setTimeout(function () {
+      audioSettleTimer = null;
+      if (epoch === lifecycleEpoch && S.visual === state) playStateCue(state, false);
+    }, 250);
+  }
+  function react(kind, opts) {
+    opts = opts || {};
+    var spec = CHARACTER_REACTIONS[kind];
+    if (!spec || (!opts.force && S.visual !== "idle")) return false;
+    var now = nowFn();
+    if (!opts.force) {
+      if (kind === "hover") {
+        if (now - lastHoverAt < spec.cooldownMs) return false;
+      } else if (now - tapCooldownAt < spec.cooldownMs) return false;
+    }
+    var previous = typeof reactionIndexes[kind] === "number" ? reactionIndexes[kind] : -1;
+    var at = (previous + 1) % spec.files.length;
+    reactionIndexes[kind] = at;
+    if (!playLocalAudio("voice/interaction/" + spec.files[at], 1, !!opts.force)) return false;
+    if (kind === "hover") lastHoverAt = now;
+    else tapCooldownAt = now;
+    mascots.forEach(function (m) { if (m.node.isConnected) m.react(kind); });
+    return true;
   }
 
-  /* ---- visual state: EXPLICIT lifecycle input only ---- */
-  function setVisual(state, statusText) {
+  var NEXT_STATES = {
+    idle: ["thinking"], thinking: ["working", "confirmation", "success", "error"],
+    working: ["confirmation", "success", "error"], confirmation: ["working", "error"],
+    success: ["idle"], error: ["idle"]
+  };
+  function preloadState(state) {
+    if (!MASCOT_STATES[state] || preloadedStates[state] || typeof window.Image !== "function") return;
+    preloadedStates[state] = true;
+    var img = new window.Image();
+    img.src = ASSET_BASE + MASCOT_STATES[state].image;
+  }
+  function preloadNext(state) { (NEXT_STATES[state] || []).forEach(preloadState); }
+
+  /* ---- lifecycle state: EXPLICIT request-owned input only ---- */
+  function setLifecycle(state, options) {
+    options = options || {};
     if (!MASCOT_STATES[state]) state = "idle";
-    clearTimeout(successTimer);
+    var owner = Object.prototype.hasOwnProperty.call(options, "requestId") ? options.requestId : lifecycleOwner;
+    if (options.claim) lifecycleOwner = owner || null;
+    else if (!options.force && owner != null && lifecycleOwner != null && owner !== lifecycleOwner) return false;
+    if (!options.force && S.visual === "confirmation" && state !== "confirmation" && !options.releaseConfirmation) return false;
+    clearTimeout(lifecycleTimer);
+    clearTimeout(audioSettleTimer);
+    lifecycleEpoch += 1;
+    var epoch = lifecycleEpoch;
     S.visual = state;
-    S.statusText = statusText || MASCOT_STATES[state].label;
-    if (state === "success") {
-      successTimer = setTimeout(function () {
-        if (S.visual === "success") setVisual("idle");
-      }, MASCOT_STATES.success.autoReturnMs);
+    S.statusText = options.statusText || MASCOT_STATES[state].label;
+    /* Idle means no request phase owns the audible channel. This also
+       makes Cancel immediate instead of letting a superseded cue finish. */
+    if (state === "idle") stopAudio();
+    if (MASCOT_STATES[state].autoReturnMs) {
+      lifecycleTimer = setTimeout(function () {
+        if (epoch === lifecycleEpoch && lifecycleOwner === (owner || null) && S.visual === state) {
+          setLifecycle("idle", { requestId: owner, releaseConfirmation: true, silentAudio: true });
+        }
+      }, MASCOT_STATES[state].autoReturnMs);
     }
     mascots = mascots.filter(function (m) { return m.node.isConnected; });
     mascots.forEach(function (m) { m.update(); });
+    preloadNext(state);
     updateTrigger();
     var status = document.querySelectorAll(".asst-status-line");
     status.forEach(function (n) { n.textContent = S.statusText; });
     announce(S.statusText);
-    voiceCue(state, false);
+    if (!options.silentAudio) scheduleStateCue(state, epoch);
+    return true;
+  }
+  function setVisual(state, statusText, options) {
+    options = options || {};
+    options.statusText = statusText;
+    return setLifecycle(state, options);
+  }
+  function claimLifecycle(prefix, state, statusText) {
+    var owner = prefix + ":" + (++lifecycleSerial);
+    setLifecycle(state, { requestId: owner, claim: true, releaseConfirmation: true, statusText: statusText });
+    return owner;
   }
 
   /* ---- the mascot component (one implementation, two sizes) ---- */
   function mascotNode(size) {
     var img = el("img", { class: "asst-mascot-img", alt: "" });
-    img.addEventListener("error", function () { node.classList.add("img-failed"); });
-    var familiar = el("img", { class: "asst-familiar-img", alt: "" });
-    familiar.addEventListener("error", function () { node.classList.add("familiar-failed"); });
+    img.addEventListener("error", function () { node.classList.add("img-failed"); node.classList.remove("is-loading"); });
+    img.addEventListener("load", function () { node.classList.remove("is-loading"); });
     var glyph = el("span", { class: "asst-mascot-fallback", "aria-hidden": "true", text: "紅" });
     var status = el("p", { class: "asst-status-line", role: "status" });
-    var frame = el("button", { class: "asst-mascot-frame", type: "button",
-      "aria-label": "Interact with Kurenai", title: "Say hello" }, [
+    function hit(kind, label) {
+      var button = el("button", { class: "asst-hit-zone hit-" + kind, type: "button", "data-reaction": kind,
+        "aria-label": label, title: label });
+      button.addEventListener("click", function (event) { event.stopPropagation(); react(kind); });
+      return button;
+    }
+    var frame = el("div", { class: "asst-mascot-frame", "aria-label": "Interactive full-body Kurenai character" }, [
       el("span", { class: "asst-bloom-ring ring-one", "aria-hidden": "true" }),
       el("span", { class: "asst-bloom-ring ring-two", "aria-hidden": "true" }),
       img,
-      familiar,
-      glyph
+      glyph,
+      hit("head", "Greet Kurenai"),
+      hit("flower", "Touch Kurenai's flower ornament"),
+      hit("tablet", "Tap Kurenai's tablet")
     ]);
-    frame.addEventListener("click", function () {
+    function clearHover() { clearTimeout(hoverTimer); hoverTimer = null; }
+    frame.addEventListener("pointerenter", function () {
+      clearHover();
+      hoverTimer = setTimeout(function () { hoverTimer = null; react("hover"); }, 800);
+    });
+    frame.addEventListener("pointerleave", clearHover);
+    var node = el("div", { class: "asst-mascot " + (size === "large" ? "asst-mascot-lg" : "asst-mascot-sm") },
+      [frame, status]);
+    var reactionTimer = null;
+    function showReaction(kind) {
+      clearTimeout(reactionTimer);
       node.classList.remove("is-reacting");
       void node.offsetWidth;
       node.classList.add("is-reacting");
-      voiceCue(S.visual, true);
-      window.setTimeout(function () { node.classList.remove("is-reacting"); }, 900);
-    });
-    var node = el("div", { class: "asst-mascot " + (size === "large" ? "asst-mascot-lg" : "asst-mascot-sm") },
-      [frame, status]);
+      node.setAttribute("data-reaction", kind);
+      reactionTimer = window.setTimeout(function () { node.classList.remove("is-reacting"); node.removeAttribute("data-reaction"); }, 360);
+    }
     function update() {
       var st = MASCOT_STATES[S.visual] || MASCOT_STATES.idle;
       node.classList.remove("img-failed");
-      node.classList.remove("familiar-failed");
       node.setAttribute("data-state", S.visual);
-      img.src = ASSET_BASE + st.image;
-      familiar.src = ASSET_BASE + st.familiar;
-      img.alt = size === "large" ? "Kurenai, the Whispering Bloom assistant" : "";
-      familiar.alt = size === "large" ? ("Bloom Familiar: " + st.label) : "";
+      var nextSrc = ASSET_BASE + st.image;
+      if (img.getAttribute("src") !== nextSrc) { node.classList.add("is-loading"); img.src = nextSrc; }
+      img.alt = size === "large" ? ("Kurenai, full-body assistant — " + st.label) : "";
       status.textContent = S.statusText;
     }
-    mascots.push({ node: node, update: update });
+    mascots.push({ node: node, update: update, react: showReaction });
     update();
     return node;
   }
@@ -367,7 +495,7 @@
     S.thread = [];
     S.pending = null;
     S.lastError = null;
-    setVisual("idle");
+    claimLifecycle("conversation", "idle");
     notify();
   }
   function openConversation(id, cb) {
@@ -380,7 +508,7 @@
       S.thread = threadFromStored(data.messages);
       S.pending = null;
       S.lastError = null;
-      setVisual("idle");
+      claimLifecycle("conversation", "idle");
       notify();
       cb && cb(null);
     });
@@ -398,7 +526,7 @@
     function actuallySend() {
       pushRow({ kind: "user", text: text });
       S.busy = true;
-      setVisual("thinking");
+      var characterOwner = claimLifecycle("request", "thinking");
       S.requestId = KOS.ai.orchestrator.send({
         userText: text,
         conversationId: S.conversationId,
@@ -406,14 +534,14 @@
         category: opts.category || "complex"
       }, {
         onStatus: function (p) {
-          if (p.state === "thinking") setVisual("thinking");
-          else if (p.state === "working") setVisual("working");
-          else if (p.state === "awaiting_confirmation") setVisual("confirmation");
+          if (p.state === "thinking") setVisual("thinking", null, { requestId: characterOwner });
+          else if (p.state === "working") setVisual("working", null, { requestId: characterOwner });
+          else if (p.state === "awaiting_confirmation") setVisual("confirmation", null, { requestId: characterOwner });
           else if (p.state === "fallback") pushRow({ kind: "warning", text: "Switched from " + providerName(p.from) + " to " + providerName(p.to) + " using the fallback you enabled." });
           else if (p.state === "persist_warning") pushRow({ kind: "warning", text: p.message });
         },
         onToolStart: function (p) {
-          setVisual("working", toolActivity(p.tool) + "…");
+          setVisual("working", toolActivity(p.tool) + "…", { requestId: characterOwner });
         },
         onToolResult: function (p) {
           pushRow({ kind: "tool", tool: p.tool, ok: p.ok, text: p.ok ? "" : p.error });
@@ -433,7 +561,7 @@
           S.pending = card;
           S.pendingState = null;
           S.busy = true;   // the request is paused, not gone
-          setVisual("confirmation", "Review before Kurenai acts: " + toolDisplayName(card.tool));
+          setVisual("confirmation", "Review before Kurenai acts: " + toolDisplayName(card.tool), { requestId: characterOwner });
           announce("Your approval is required for " + toolDisplayName(card.tool));
           notify();
         },
@@ -441,14 +569,15 @@
         onError: function (p) {
           S.lastError = p.message;
           pushRow({ kind: "error", text: p.message });
-          setVisual("error", "Failed: " + clampText(p.message, 80));
+          setVisual("error", "Failed: " + clampText(p.message, 80), { requestId: characterOwner, releaseConfirmation: true });
         },
         onDone: function (p) {
           function finishUi() {
+          if (lifecycleOwner !== characterOwner) return;
           S.busy = false;
           S.requestId = null;
-          if (p.status === "complete") setVisual("success");
-          else if (p.status === "cancelled") setVisual("idle", "Cancelled");
+          if (p.status === "complete") setVisual("success", null, { requestId: characterOwner, releaseConfirmation: true });
+          else if (p.status === "cancelled") setVisual("idle", "Cancelled", { requestId: characterOwner, releaseConfirmation: true });
           /* error state already set by onError */
           notify();
           }
@@ -456,7 +585,7 @@
           else finishUi();
         }
       });
-      if (S.requestId === null) { S.busy = false; setVisual("idle"); }
+      if (S.requestId === null) { S.busy = false; setVisual("idle", null, { requestId: characterOwner, releaseConfirmation: true }); }
       notify();
     }
 
@@ -483,7 +612,8 @@
     if (S.pending) { S.pending = null; S.pendingState = null; }
     finishAssistantStream(true);
     S.busy = false;
-    setVisual("idle", "Cancelled");
+    S.requestId = null;
+    claimLifecycle("cancel", "idle", "Cancelled");
     notify();
   }
 
@@ -493,7 +623,7 @@
   function runToolUi(name, args, onComplete) {
     if (S.busy) { KOS.ui.toast("Kurenai is busy — wait for the current step.", true); return; }
     S.busy = true;
-    setVisual("working", toolActivity(name) + "…");
+    var characterOwner = claimLifecycle("tool", "working", toolActivity(name) + "…");
     notify();
     S.requestId = KOS.ai.orchestrator.runTool(name, args || {}, {
       onProposal: function (p) {
@@ -503,18 +633,20 @@
       onReceipt: function (p) { pushRow({ kind: "receipt", tool: p.tool, target: p.target, summary: p.summary }); },
       onConfirmationNeeded: function (card) {
         S.pending = card; S.pendingState = null; S.busy = true;
-        setVisual("confirmation", "Review before Kurenai acts: " + toolDisplayName(card.tool));
+        setVisual("confirmation", "Review before Kurenai acts: " + toolDisplayName(card.tool), { requestId: characterOwner });
         announce("Your approval is required for " + toolDisplayName(card.tool)); notify();
       },
-      onError: function (p) { S.lastError = p.message; pushRow({ kind: "error", text: p.message }); setVisual("error", clampText(p.message, 80)); },
+      onError: function (p) { S.lastError = p.message; pushRow({ kind: "error", text: p.message }); setVisual("error", clampText(p.message, 80), { requestId: characterOwner, releaseConfirmation: true }); },
       onDone: function (p) {
+        if (lifecycleOwner !== characterOwner) return;
         S.busy = false; S.requestId = null;
-        if (p.status === "complete") setVisual("success"); else if (p.status === "cancelled") setVisual("idle", "Cancelled");
+        if (p.status === "complete") setVisual("success", null, { requestId: characterOwner, releaseConfirmation: true });
+        else if (p.status === "cancelled") setVisual("idle", "Cancelled", { requestId: characterOwner, releaseConfirmation: true });
         if (typeof onComplete === "function") onComplete(p.status);
         notify();
       }
     });
-    if (S.requestId === null) { S.busy = false; setVisual("idle"); notify(); }
+    if (S.requestId === null) { S.busy = false; setVisual("idle", null, { requestId: characterOwner, releaseConfirmation: true }); notify(); }
   }
   function saveProposed(row) {
     runToolUi("study_save_proposed", {}, function (status) {
@@ -551,10 +683,10 @@
       if (err) {
         S.pending = null;
         pushRow({ kind: "warning", text: err.message });
-        setVisual("error", clampText(err.message, 80));
+        setVisual("error", clampText(err.message, 80), { requestId: lifecycleOwner, releaseConfirmation: true });
       } else {
         S.pending = null;
-        setVisual("working", "Running the confirmed action…");
+        setVisual("working", "Running the confirmed action…", { requestId: lifecycleOwner, releaseConfirmation: true });
       }
       notify();
     });
@@ -565,7 +697,7 @@
     S.pending = null;
     S.pendingState = null;
     KOS.ai.orchestrator.reject(id, function () {});
-    setVisual("thinking", "Declined — Kurenai is responding…");
+    setVisual("thinking", "Declined — Kurenai is responding…", { requestId: lifecycleOwner, releaseConfirmation: true });
     notify();
   }
 
@@ -1580,14 +1712,14 @@
       el("div", { class: "asst-presence-copy" }, [
         el("span", { class: "asst-presence-kicker", text: "Whispering Bloom" }),
         el("h3", { text: "Kurenai is with you" }),
-        el("p", { text: "Hover or tap the bloom to say hello." })
+        el("p", { text: "Hover, or tap her flower, tablet or portrait." })
       ]),
       mascotNode("large"),
       el("div", { class: "asst-presence-actions" }, [
-        el("button", { class: "mini-btn", type: "button", text: ws.voiceEnabled ? "Voice on" : "Voice off",
-          "aria-pressed": ws.voiceEnabled ? "true" : "false", onclick: function () {
-            ws.voiceEnabled = !ws.voiceEnabled; saveWorkspace();
-            if (ws.voiceEnabled) voiceCue(S.visual, true);
+        el("button", { class: "mini-btn", type: "button", text: ws.characterAudio.enabled ? "Voice on" : "Voice off",
+          "aria-pressed": ws.characterAudio.enabled ? "true" : "false", onclick: function () {
+            ws.characterAudio.enabled = !ws.characterAudio.enabled; saveWorkspace();
+            if (ws.characterAudio.enabled) playStateCue("idle", true); else stopAudio();
             KOS.show("assistant", { tab: "chat" });
           } })
       ]),
@@ -1679,31 +1811,40 @@
     ]));
 
     var ws = workspaceCfg();
-    var voiceToggle = el("input", { type: "checkbox", "aria-label": "Enable short Kurenai voice cues" });
-    voiceToggle.checked = ws.voiceEnabled;
-    var voiceSelect = el("select", { class: "todo-in", "aria-label": "Kurenai voice" });
-    function loadVoices() {
-      var voices = window.speechSynthesis && window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
-      voiceSelect.innerHTML = "";
-      voiceSelect.appendChild(el("option", { value: "", text: voices.length ? "Automatic soft voice" : "System voice" }));
-      voices.forEach(function (voice) {
-        var option = el("option", { value: voice.name, text: voice.name + (voice.lang ? " · " + voice.lang : "") });
-        if (voice.name === ws.voiceName) option.selected = true;
-        voiceSelect.appendChild(option);
-      });
-    }
-    loadVoices();
-    if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = loadVoices;
-    voiceToggle.addEventListener("change", function () { ws.voiceEnabled = voiceToggle.checked; saveWorkspace(); if (ws.voiceEnabled) voiceCue("idle", true); });
-    voiceSelect.addEventListener("change", function () { ws.voiceName = voiceSelect.value; saveWorkspace(); if (ws.voiceEnabled) voiceCue("idle", true); });
+    var voiceToggle = el("input", { type: "checkbox", "aria-label": "Enable local Kurenai reaction clips" });
+    voiceToggle.checked = ws.characterAudio.enabled;
+    var volume = el("input", { type: "range", min: "0", max: "100", step: "1", value: String(Math.round(ws.characterAudio.volume * 100)),
+      "aria-label": "Kurenai voice volume" });
+    voiceToggle.addEventListener("change", function () {
+      ws.characterAudio.enabled = voiceToggle.checked; saveWorkspace();
+      if (ws.characterAudio.enabled) playStateCue("idle", true); else stopAudio();
+    });
+    volume.addEventListener("input", function () {
+      ws.characterAudio.volume = Math.max(0, Math.min(1, Number(volume.value) / 100));
+      if (audioEl) audioEl.volume = ws.characterAudio.volume;
+      saveWorkspace();
+    });
     body.appendChild(el("div", { class: "asst-voice-row" }, [
       el("div", { class: "asst-route-label" }, [
         el("b", { text: "Character voice cues" }),
-        el("span", { class: "asst-technical-id", text: "On-device speech · no answer narration" })
+        el("span", { class: "asst-technical-id", text: "Local reaction clips · never narrates answers" }),
+        el("span", { class: "asst-voice-credit" }, [
+          document.createTextNode("Audio generated with "),
+          el("a", { href: "https://elevenlabs.io", target: "_blank", rel: "noopener noreferrer", text: "ElevenLabs" }),
+          document.createTextNode(" · free-tier non-commercial use")
+        ])
       ]),
-      el("label", { class: "asst-voice-toggle" }, [voiceToggle, el("span", { text: "Speak short state lines" })]),
-      el("label", { class: "asst-field" }, [el("span", { text: "Voice" }), voiceSelect]),
-      el("button", { class: "mini-btn", type: "button", text: "Preview", onclick: function () { voiceCue("working", true); } })
+      el("label", { class: "asst-voice-toggle" }, [voiceToggle, el("span", { text: "Play short state and interaction lines" })]),
+      el("label", { class: "asst-field asst-volume-field" }, [el("span", { text: "Volume" }), volume]),
+      el("button", { class: "mini-btn", type: "button", text: "Preview", onclick: function () { playStateCue("working", true); } })
+    ]));
+    body.appendChild(el("details", { class: "asst-voice-about" }, [
+      el("summary", { text: "About the Kurenai voice" }),
+      el("p", {}, [
+        document.createTextNode("Kurenai Phase 1 uses 22 local clips generated with an original voice from "),
+        el("a", { href: "https://elevenlabs.io", target: "_blank", rel: "noopener noreferrer", text: "ElevenLabs" }),
+        document.createTextNode(". Playback is optional, offline after installation, and never sends assistant text or credentials to a voice provider.")
+      ])
     ]));
 
     CATS.forEach(function (cat) {
@@ -1997,12 +2138,26 @@
     contextActions: contextActions,
     mascotNode: mascotNode,
     setVisual: setVisual,
+    character: {
+      setLifecycle: setLifecycle,
+      react: react,
+      stopAudio: stopAudio
+    },
     toolDisplayName: toolDisplayName,
     toolActivity: toolActivity,
     renderMarkdown: assistantRichText,
     loadAudit: loadAudit,
     state: function () { return S; },
     MASCOT_STATES: MASCOT_STATES,
-    _config: function (o) { o = o || {}; if ("auditReader" in o) _auditReader = o.auditReader; }
+    CHARACTER_REACTIONS: CHARACTER_REACTIONS,
+    _config: function (o) {
+      o = o || {};
+      if ("auditReader" in o) _auditReader = o.auditReader;
+      if ("now" in o) nowFn = o.now || function () { return Date.now(); };
+      if ("audioFactory" in o) { stopAudio(); audioEl = null; audioFactory = o.audioFactory; }
+      if (o.resetCharacter) {
+        tapCooldownAt = -Infinity; lastHoverAt = -Infinity; reactionIndexes = {}; lastLifecycleAudioAt = {};
+      }
+    }
   };
 })();

@@ -102,6 +102,23 @@ queries only where content determines the collapse point.
   `--hero-pad-block` / `--hero-pad-inline` and `--radius-hero`. Governor Status
   intentionally keeps its own profile-banner composition.
 
+## Kurenai Assistant — static character release
+
+The Assistant drawer and full page share one conversation and one deterministic
+character controller. Six transparent `1024×1536` full-body Kurenai renders cover
+idle, thinking, working, success, error and confirmation. Those states are driven
+only by request-owned orchestrator events; provider prose never selects character
+art. The full page also includes collapsible conversation navigation, pins, local
+projects, streaming replies, a compact growing composer and highlighted code.
+
+Optional character voice cues are local MP3 files created with
+[ElevenLabs](https://elevenlabs.io/). Voice is disabled by default, never narrates
+assistant responses, makes no runtime ElevenLabs request and stores only the
+enabled flag and volume. The repository contains no ElevenLabs credential. These
+voice assets were produced under ElevenLabs' free-tier, non-commercial publishing
+terms and retain this visible attribution; review the provider terms before any
+commercial distribution.
+
 ## Folder structure
 
 ```

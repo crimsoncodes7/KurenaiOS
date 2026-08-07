@@ -23,7 +23,7 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-assistant-workspace-1";
+var VERSION = "kos-assistant-character-1";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 
@@ -37,13 +37,34 @@ var EXTRA_PRECACHE = [
   "icons/icon-maskable-512.png",
   "icons/apple-touch-icon.png",
   "assets/assistant/logo/whispering-bloom-emblem-production.png",
-  "assets/assistant/mascot/full/kurenai-production.png",
-  "assets/assistant/mascot/familiar/idle.png",
-  "assets/assistant/mascot/familiar/thinking.png",
-  "assets/assistant/mascot/familiar/working.png",
-  "assets/assistant/mascot/familiar/success.png",
-  "assets/assistant/mascot/familiar/error.png",
-  "assets/assistant/mascot/familiar/confirmation.png",
+  "assets/assistant/mascot/states/idle.png",
+  "assets/assistant/mascot/states/thinking.png",
+  "assets/assistant/mascot/states/working.png",
+  "assets/assistant/mascot/states/success.png",
+  "assets/assistant/mascot/states/error.png",
+  "assets/assistant/mascot/states/confirmation.png",
+  "assets/assistant/voice/state/idle.mp3",
+  "assets/assistant/voice/state/thinking.mp3",
+  "assets/assistant/voice/state/working.mp3",
+  "assets/assistant/voice/state/success.mp3",
+  "assets/assistant/voice/state/error.mp3",
+  "assets/assistant/voice/state/confirmation.mp3",
+  "assets/assistant/voice/interaction/hover-01.mp3",
+  "assets/assistant/voice/interaction/hover-02.mp3",
+  "assets/assistant/voice/interaction/hover-03.mp3",
+  "assets/assistant/voice/interaction/hover-04.mp3",
+  "assets/assistant/voice/interaction/head-01.mp3",
+  "assets/assistant/voice/interaction/head-02.mp3",
+  "assets/assistant/voice/interaction/head-03.mp3",
+  "assets/assistant/voice/interaction/head-04.mp3",
+  "assets/assistant/voice/interaction/flower-01.mp3",
+  "assets/assistant/voice/interaction/flower-02.mp3",
+  "assets/assistant/voice/interaction/flower-03.mp3",
+  "assets/assistant/voice/interaction/flower-04.mp3",
+  "assets/assistant/voice/interaction/tablet-01.mp3",
+  "assets/assistant/voice/interaction/tablet-02.mp3",
+  "assets/assistant/voice/interaction/tablet-03.mp3",
+  "assets/assistant/voice/interaction/tablet-04.mp3",
   "assets/shrine/private-hall-template-v1.png",
   "assets/shrine/fonts/CormorantGaramond-Variable.ttf",
   "assets/shrine/fonts/CormorantGaramond-Italic-Variable.ttf",

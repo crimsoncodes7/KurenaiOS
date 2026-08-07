@@ -3345,7 +3345,7 @@ font, 1536×1024 canvas and crop contracts; smoke1–38 and the complete live
 Chrome audit pass, including desktop/mobile Shrine and the real share modal.
 Service-worker version: `kos-shrine-card-template-4`.
 
-### Assistant workspace + Bloom Familiar · 2026-08-07
+### Assistant workspace + static Kurenai character · 2026-08-07
 
 **Workspace.** The dedicated Assistant is now a full-height three-column
 workspace. Its left control rail collapses from 258px to 64px, remembers that
@@ -3365,17 +3365,26 @@ redundant safety promise panel was removed. Fenced code remains inert and now
 uses dependency-free token colouring for comments, strings, keywords, numbers,
 functions, constants and tags.
 
-**Character.** Six original transparent Bloom Familiar assets accompany
-Kurenai's idle, thinking, working, success, error and confirmation poses. CSS
-state motion, hover and tap responses respect reduced-motion preferences. An
-optional local `speechSynthesis` voice emits only the short cue associated with
-a state change; it is off by default, persists as a user setting and never reads
-assistant answers or sends audio to a provider.
+**Character.** Six identity-consistent transparent `1024×1536` full-body Kurenai
+renders now own idle, thinking, working, success, error and confirmation. One
+request-owned controller drives both Assistant surfaces and rejects stale events
+and stale return timers. Confirmation stays latched, success and error return on
+their documented timers, and only opacity changes between states. Percentage hit
+areas for the head, flower and tablet are ready to map to later Live2D hit areas;
+hover requires an 800ms dwell and all reactions obey the release cooldowns.
 
-**Verification.** Smoke24 now pins the opt-in/local-only voice boundary and the
-inert disclosure contract. Smoke29 covers incremental reveal, cancellation,
-syntax tokens, six distinct RGBA familiar assets, sidebar collapse and project
-creation. Live browser checks covered expanded/collapsed desktop layouts,
-project assignment, pinning, composer growth/capping, 390x844 responsive layout
-and zero console errors. Service-worker version:
-`kos-assistant-workspace-1`.
+**Voice.** Browser speech synthesis is retired. One reusable local Audio player
+handles six lifecycle cues plus four variants each for hover, head, flower and
+tablet reactions. Lifecycle cues settle for 250ms, suppress repeats for 15 seconds
+and take priority over interaction audio. Voice is disabled by default; only
+`{enabled,volume}` persists. The MP3s were authored in ElevenLabs with a new Kurenai
+voice, are cached for offline use, make no runtime provider request and carry the
+required visible ElevenLabs attribution in Settings, About and README.
+
+**Verification.** Smoke24 now pins unique RGBA dimensions, lifecycle ownership,
+stale-event rejection, confirmation latching, audio settling/priority/cooldowns,
+mute and the no-speech-synthesis boundary. Smoke29 covers incremental reveal,
+cancellation, syntax tokens, character hit areas, sidebar collapse and project
+creation. The release gate includes smoke1–38, the Chrome visual audit, desktop
+and mobile interaction checks and an offline PWA pass. Service-worker version:
+`kos-assistant-character-1`.
