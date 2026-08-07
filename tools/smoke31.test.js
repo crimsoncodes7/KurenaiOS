@@ -179,7 +179,14 @@ step("Responsive and reduced-motion Governor rules are present", () => {
   const css = fs.readFileSync(path.join(ROOT, "css", "main.css"), "utf8");
   if (!/@media \(max-width: 760px\)[\s\S]*\.gov-seat-hero/.test(css)) throw new Error("mobile Governor rules missing");
   if (!/@media \(prefers-reduced-motion: reduce\)[\s\S]*\.shop-card/.test(css)) throw new Error("reduced-motion rules missing");
-  if (!/\.heat-svg svg \{ display: block; width: 100% !important; max-width: 100%/.test(css)) throw new Error("scaled heatmap geometry rule missing");
+  /* Guard the rule that ACTUALLY renders, and guard its uniqueness: the
+     previous assertion matched a copy that a later rule overrode, so it
+     passed while the geometry it described had no effect. */
+  const heatRules = css.match(/^\.heat-svg svg \{[^}]*\}/gm) || [];
+  if (heatRules.length !== 1) throw new Error("expected exactly one .heat-svg svg rule, found " + heatRules.length);
+  if (!/width: auto !important/.test(heatRules[0]) || !/max-width: 100%/.test(heatRules[0]) ||
+      !/display: block/.test(heatRules[0]) || !/margin-inline: auto/.test(heatRules[0]))
+    throw new Error("heatmap geometry rule changed: " + heatRules[0]);
 });
 
 (async () => {

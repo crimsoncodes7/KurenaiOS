@@ -1797,7 +1797,6 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
 /* heatmap + ledger */
 .heat-wrap { display: flex; gap: 18px; align-items: flex-start; }
 .heat-svg { flex: none; min-width: 0; overflow-x: auto; }
-.heat-svg svg { display: block; }
 .heat-side { width: 150px; flex: none; }
 .heat-side .hrow { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text2); padding: 4px 0; border-top: 1px solid var(--line2); }
 .heat-side .hrow b { font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -4352,7 +4351,6 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .b-heat { grid-column: span 8; }
 .heat-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 14px; height: 100%; }
 .heat-svg { flex: none; min-width: 0; overflow-x: auto; padding-bottom: 2px; }
-.heat-svg svg { display: block; width: 100% !important; max-width: 100%; height: auto; }
 .heat-legend { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .hl-num { font-size: 12px; color: var(--text2); margin-right: auto; }
 .hl-scale { display: inline-flex; align-items: center; gap: 4px; }
@@ -5627,7 +5625,13 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   gap: 12px 14px; align-items: center; align-content: center;
 }
 .heat-svg { grid-column: 1; grid-row: 1; overflow: hidden; padding: 12px 0 2px; }
-.heat-svg svg { width: auto !important; max-width: 100%; height: auto; margin-inline: auto; }
+/* THE heatmap svg geometry — the single authoritative rule. Two earlier
+   copies used to sit thousands of lines above this one; the middle one set
+   width:100% !important and was silently overridden here, so it guarded
+   nothing while a test asserted its text. Keep this the only .heat-svg svg
+   rule: the grid renders at its intrinsic size, centred, and scales down
+   rather than stretching. */
+.heat-svg svg { display: block; width: auto !important; max-width: 100%; height: auto; margin-inline: auto; }
 .heat-legend { grid-column: 1; grid-row: 2; padding-top: 2px; }
 .hl-num { font-family: var(--mono); font-size: 10.5px; }
 .heat-stats { grid-column: 2; grid-row: 1 / span 2; grid-template-columns: 1fr; gap: 7px; margin-top: 0; }
