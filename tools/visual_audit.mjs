@@ -550,7 +550,7 @@ await evaluate(`(async () => {
   const art = window.__cropAudit.cover, banner = window.__cropAudit.banner;
   const add = data => new Promise((resolve, reject) => KOS.mediadb.add(data, (err, row) => err ? reject(err) : resolve(row)));
   const remove = id => new Promise((resolve, reject) => KOS.mediadb.remove(id, err => err ? reject(err) : resolve(), { skipTombstone: true }));
-  const auditTitles = ["Violet Letters", "The Long Shelf", "A Route Through Rain", "Clockwork Gardens"];
+  const auditTitles = ["Violet Letters", "The Long Shelf", "A Route Through Rain", "Clockwork Gardens", "Clockwork Gardens Beneath the Last Moon"];
   const prior = await new Promise((resolve, reject) => KOS.mediadb.query({}, (err, rows) => err ? reject(err) : resolve(rows)));
   for (const row of prior) if (auditTitles.includes(row.title)) await remove(row.id);
   const entries = [
@@ -563,7 +563,7 @@ await evaluate(`(async () => {
     await add({ module: "vn", title: "A Route Through Rain", status: "completed", favourite: true, score: 9.1,
       developer: "Atelier Audit", genres: ["Mystery"], coverUrl: art,
       routes: [{ id: "a", name: "True route", cleared: true }] }),
-    await add({ module: "game", title: "Clockwork Gardens", status: "completed", favourite: true, score: 10,
+    await add({ module: "game", title: "Clockwork Gardens Beneath the Last Moon", status: "completed", favourite: true, score: 10,
       developer: "Studio Eight", genres: ["Adventure"], playtimeHours: 46, coverUrl: banner,
       coverCrop: { x: 81, y: 31, zoom: 1.4 }, progress: { current: 46, total: 46, unit: "hr" } })
   ];
@@ -575,6 +575,8 @@ await evaluate(`(async () => {
   KOS.goals.add({ title: "Write three short reflections", description: "A manual intention for the part data cannot measure.", type: "custom-manual", target: 3, current: 1 });
   KOS.store.state.media.goalsTab = "active";
   KOS.store.state.media.shrine = { module: "", sort: "score", description: "Only the works I would recommend without hesitation." };
+  KOS.store.state.governor.theme = "spectral-rose";
+  KOS.governor.applyCosmetics();
   KOS.store.save();
   document.querySelector('.toast')?.style.setProperty('display', 'none');
   window.__collectionAudit = { entries };
@@ -603,38 +605,109 @@ await clickText(".goal-commandbar", "New goal");
 await waitFor("document.querySelector('.goal-modal-v2 .goal-editor-body')", "Collection Goal editor");
 const goalModal = await evaluate(`(() => {
   const modal = document.querySelector('.goal-modal-v2'), body = modal.querySelector('.goal-editor-body');
+  const sections = [...modal.querySelectorAll('.goal-form-section')];
+  const identity = sections[0].getBoundingClientRect();
+  const description = sections[0].querySelector('textarea').getBoundingClientRect();
+  const measure = sections[1].getBoundingClientRect();
+  const lastVisibleMeasureField = sections[1].querySelector('.goal-target-field').getBoundingClientRect();
   return { sections: modal.querySelectorAll('.goal-form-section').length,
     internalScroll: body.scrollHeight >= body.clientHeight,
+    sectionsUnclipped: sections.every(section => section.scrollHeight <= section.clientHeight + 1),
+    identityComplete: description.bottom <= identity.bottom + 1,
+    measureComplete: lastVisibleMeasureField.bottom <= measure.bottom + 1,
     deleteSeparated: !modal.querySelector('.goal-modal-delete'),
     actions: modal.querySelectorAll('.goal-modal-actions .btn').length };
 })()`);
-assert(goalModal.sections === 4 && goalModal.internalScroll && goalModal.deleteSeparated && goalModal.actions === 2,
+assert(goalModal.sections === 4 && goalModal.internalScroll && goalModal.sectionsUnclipped &&
+  goalModal.identityComplete && goalModal.measureComplete && goalModal.deleteSeparated && goalModal.actions === 2,
   `Goal editor structure regressed: ${JSON.stringify(goalModal)}`);
 await pause(260);
 await screenshot("/tmp/kos-goal-editor-1440.png");
+await evaluate(`(() => {
+  const modal = document.querySelector('.goal-modal-v2');
+  const select = modal.querySelector('.goal-type-field select');
+  select.value = 'specific-title';
+  select.dispatchEvent(new Event('change', { bubbles: true }));
+  const body = modal.querySelector('.goal-editor-body');
+  body.scrollTop = modal.querySelectorAll('.goal-form-section')[1].offsetTop - 12;
+})()`);
+await pause(120);
+const linkedMeasure = await evaluate(`(() => {
+  const section = document.querySelectorAll('.goal-form-section')[1];
+  const link = section.querySelector('.goal-link-wrap');
+  const sr = section.getBoundingClientRect(), lr = link.getBoundingClientRect();
+  return { visible: !link.hidden, unclipped: section.scrollHeight <= section.clientHeight + 1, linkInside: lr.bottom <= sr.bottom + 1 };
+})()`);
+assert(linkedMeasure.visible && linkedMeasure.unclipped && linkedMeasure.linkInside,
+  `Dynamic linked-title measure is clipped: ${JSON.stringify(linkedMeasure)}`);
+await screenshot("/tmp/kos-goal-editor-linked-1440.png");
 await clickText(".goal-modal-actions", "Cancel");
 await waitFor("!document.querySelector('.goal-modal-v2')", "Collection Goal editor close");
+
+await evaluate(`(() => {
+  window.__goalCampaignBackup = JSON.stringify(KOS.store.state.goals);
+  const manual = KOS.store.state.goals.items.find(goal => goal.type === 'custom-manual');
+  KOS.store.state.goals.items = [manual];
+  KOS.show('goals', undefined, { _nav: true });
+})()`);
+await waitFor("document.querySelectorAll('.goal-card-v2').length === 1", "single-goal campaign");
+const singleGoal = await evaluate(`(() => {
+  const grid = document.querySelector('.goal-grid-v2').getBoundingClientRect();
+  const card = document.querySelector('.goal-card-v2').getBoundingClientRect();
+  return { grid: Math.round(grid.width), card: Math.round(card.width), height: Math.round(card.height) };
+})()`);
+assert(singleGoal.card < singleGoal.grid * .62 && singleGoal.height < 300,
+  `A single goal still expands into an empty billboard: ${JSON.stringify(singleGoal)}`);
+await pause(180);
+await screenshot("/tmp/kos-goals-single-dark-1440.png");
+await evaluate(`(() => {
+  KOS.store.state.goals = JSON.parse(window.__goalCampaignBackup);
+  KOS.store.save();
+})()`);
 
 await auditView("shrine", undefined, ".shrine-feature");
 await waitFor("document.querySelectorAll('.shrine-rank-card').length >= 3", "Shrine ranked collection");
 const shrineComposition = await evaluate(`(() => {
   const feature = document.querySelector('.shrine-feature').getBoundingClientRect();
+  const stage = document.querySelector('.shrine-stage').getBoundingClientRect();
+  const ledger = document.querySelector('.shrine-ledger').getBoundingClientRect();
   const grid = document.querySelector('.shrine-ranked-grid').getBoundingClientRect();
   const crop = document.querySelector('.shrine-feature-cover img');
   return {
     rank: document.querySelector('.shrine-feature .shrine-rank').textContent,
     score: document.querySelector('.shrine-feature .shrine-score').textContent,
     filters: document.querySelectorAll('.shrine-filter').length,
+    featureHeight: Math.round(feature.height),
+    compactHero: feature.height <= 410,
+    ledgerBeside: ledger.left >= feature.right - 1 && Math.abs(ledger.height - feature.height) <= 2,
+    stageContains: stage.width >= feature.width + ledger.width,
+    ledgerMetrics: document.querySelectorAll('.shrine-ledger-metrics > div').length,
     featureWider: feature.width > [...document.querySelectorAll('.shrine-rank-card')][0].getBoundingClientRect().width * 2,
     gridBelow: grid.top >= feature.bottom,
     crop: [crop.style.getPropertyValue('--crop-x'), crop.style.getPropertyValue('--crop-y'), crop.style.getPropertyValue('--crop-zoom')]
   };
 })()`);
 assert(shrineComposition.rank === "#1" && shrineComposition.score === "10" && shrineComposition.filters === 5 &&
-  shrineComposition.featureWider && shrineComposition.gridBelow &&
+  shrineComposition.compactHero && shrineComposition.ledgerBeside && shrineComposition.stageContains &&
+  shrineComposition.ledgerMetrics === 3 && shrineComposition.featureWider && shrineComposition.gridBelow &&
   JSON.stringify(shrineComposition.crop) === JSON.stringify(["81%", "31%", "1.4"]),
   `Shrine Hall of Fame composition/crop failed: ${JSON.stringify(shrineComposition)}`);
 await screenshot("/tmp/kos-shrine-1440.png");
+await evaluate(`(() => {
+  const main = document.getElementById('main'), grid = document.querySelector('.shrine-ranked-grid');
+  main.scrollTo({ top: main.scrollTop + grid.getBoundingClientRect().top - 124, behavior: 'instant' });
+})()`);
+await pause(140);
+const rankedCards = await evaluate(`(() => [...document.querySelectorAll('.shrine-rank-card')].map(card => ({
+  cover: !!card.querySelector('.shrine-rank-cover'),
+  score: !!card.querySelector('.shrine-row-score b'),
+  action: !!card.querySelector('.shrine-card-btn'),
+  height: Math.round(card.getBoundingClientRect().height)
+})))()`);
+assert(rankedCards.length >= 3 && rankedCards.every(card => card.cover && card.score && card.action && card.height < 360),
+  `Ranked Shrine cards are incomplete or oversized: ${JSON.stringify(rankedCards)}`);
+await screenshot("/tmp/kos-shrine-ranked-1440.png");
+await evaluate("document.getElementById('main').scrollTop = 0");
 await clickText(".shrine-feature-actions", "Create share card");
 await waitFor("document.querySelector('.shrine-card-img') && document.querySelector('.shrine-message').value.includes('Clockwork Gardens')", "Shrine share card");
 const shareCard = await evaluate(`(() => {
@@ -678,6 +751,7 @@ await pause(120);
 await evaluate("document.querySelector('.toast')?.classList.remove('show')");
 await screenshot("/tmp/kos-shrine-mobile-390.png");
 await viewport(1440, 900);
+await evaluate(`(() => { KOS.store.state.governor.theme = "kurenai"; KOS.governor.applyCosmetics(); })()`);
 
 await evaluate("KOS.show('mediasync')");
 await waitFor("document.querySelector('.integration-provider')", "Sync workspace");
@@ -898,5 +972,5 @@ await screenshot("/tmp/kos-home-restored-1440.png");
 assert(browserErrors.length === 0, `Browser errors:\n${browserErrors.join("\n")}`);
 
 console.log("VISUAL AUDIT PASS — live crop workflows, Collection Goals, Shrine/share card, Budget Planner, Compare Topics, persistence, backup/restore and responsive adjacent pages verified");
-console.log("Screenshots: /tmp/kos-goals-1440.png, /tmp/kos-goal-editor-1440.png, /tmp/kos-goals-mobile-390.png, /tmp/kos-goals-cards-mobile-390.png, /tmp/kos-shrine-1440.png, /tmp/kos-shrine-share-card-1440.png, /tmp/kos-shrine-mobile-390.png, /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-themes-dark-1440.png, /tmp/kos-governor-banners-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
+console.log("Screenshots: /tmp/kos-goals-1440.png, /tmp/kos-goals-single-dark-1440.png, /tmp/kos-goal-editor-1440.png, /tmp/kos-goal-editor-linked-1440.png, /tmp/kos-goals-mobile-390.png, /tmp/kos-goals-cards-mobile-390.png, /tmp/kos-shrine-1440.png, /tmp/kos-shrine-ranked-1440.png, /tmp/kos-shrine-share-card-1440.png, /tmp/kos-shrine-mobile-390.png, /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-themes-dark-1440.png, /tmp/kos-governor-banners-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
 ws.close();

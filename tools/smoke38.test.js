@@ -206,6 +206,9 @@ step("Shrine renders a featured #1 and a smaller ranked remainder", async () => 
   assert(/Clockwork Route/.test(document.querySelector(".shrine-feature").textContent), "score-sorted #1 is wrong");
   assert(document.querySelector(".shrine-feature .shrine-rank").textContent === "#1", "featured rank unclear");
   assert(document.querySelectorAll(".shrine-ranked-grid .shrine-rank-card").length === 2, "ranked remainder wrong");
+  assert(document.querySelector(".shrine-stage .shrine-ledger"), "Hall ledger is not beside rank one");
+  assert(document.querySelectorAll(".shrine-ledger-metrics > div").length === 3, "Hall statistics missing");
+  assert(document.querySelectorAll(".shrine-rank-card .shrine-row-foot").length === 2, "ranked cards lack score/action footers");
   assert(document.querySelectorAll(".shrine-filter").length === 5, "media-type filters missing");
   assert(document.querySelector(".shrine-sort select"), "sort control missing");
   assert(/Only the works/.test(document.querySelector(".shrine-description").textContent), "optional hall note missing");
@@ -228,8 +231,8 @@ step("share renderer includes identity fields and applies stored crop metadata",
   KOS.shrineRenderCard(entry, image, 3, "A small message with meaning.", canvas => { rendered = canvas; });
   assert(rendered && rendered.width === 900 && rendered.height === 560, "share card geometry wrong");
   const allText = paintedText.join(" | ");
-  ["KURENAI · HALL OF FAME", "RANK 03", "ANIME · PERSONAL ARCHIVE", "Violet Archive",
-    "/ 10  PERSONAL SCORE", "EPISODES", "A small message with meaning.", "CURATED IN KURENAIOS"]
+  ["KURENAI · PRIVATE HALL", "RANK", "03", "ANIME · PERSONAL ARCHIVE", "Violet Archive",
+    "PERSONAL SCORE / 10", "EPISODES", "A small message with meaning.", "CURATED IN KURENAIOS · PERSONAL COLLECTION"]
     .forEach(value => assert(allText.includes(value), "share card missing " + value));
   const coverDraw = drawImageCalls.find(args => args.length === 9);
   assert(coverDraw, "cover was not drawn");

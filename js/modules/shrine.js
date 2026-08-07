@@ -178,27 +178,44 @@
     var ctx = canvas.getContext("2d");
     var mod = KOS.media.module(entry.module), accent = mod.accent || "#B08A3E";
     var bg = ctx.createLinearGradient(0, 0, width, height);
-    bg.addColorStop(0, "#111722");
-    bg.addColorStop(1, "#1B1720");
+    bg.addColorStop(0, "#09111B");
+    bg.addColorStop(.58, "#111523");
+    bg.addColorStop(1, "#21151D");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, width, height);
-    ctx.fillStyle = "rgba(255,255,255,.025)";
-    roundRect(ctx, 24, 24, width - 48, height - 48, 24);
-    ctx.fill();
-    ctx.strokeStyle = "rgba(255,255,255,.16)";
-    ctx.lineWidth = 2;
-    roundRect(ctx, 24, 24, width - 48, height - 48, 24);
+
+    /* A lacquered exhibition pass: one decisive brass rail, a faint seal and
+       a double keyline. The decoration encodes rank without competing with
+       the cover or the personal note. */
+    ctx.fillStyle = accent;
+    ctx.fillRect(0, 0, 12, height);
+    ctx.globalAlpha = .08;
+    ctx.beginPath();
+    ctx.arc(820, 490, 188, 0, Math.PI * 2);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 54;
     ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = "rgba(255,255,255,.18)";
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, 30, 28, width - 60, height - 56, 22);
+    ctx.stroke();
+    ctx.strokeStyle = accent;
+    ctx.globalAlpha = .48;
+    roundRect(ctx, 38, 36, width - 76, height - 72, 18);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
 
     ctx.fillStyle = accent;
-    ctx.font = "700 15px 'IBM Plex Mono', monospace";
+    ctx.font = "700 13px 'IBM Plex Mono', monospace";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
-    ctx.fillText("KURENAI · HALL OF FAME", 50, 48);
-    ctx.textAlign = "right";
-    ctx.fillText("RANK " + String(rank || 1).padStart(2, "0"), width - 50, 48);
+    ctx.fillText("KURENAI · PRIVATE HALL", 56, 52);
 
-    var imageX = 50, imageY = 86, imageW = 288, imageH = 424;
+    var imageX = 56, imageY = 88, imageW = 286, imageH = 418;
+    ctx.fillStyle = accent;
+    roundRect(ctx, imageX + 8, imageY + 8, imageW, imageH, 18);
+    ctx.fill();
     ctx.save();
     roundRect(ctx, imageX, imageY, imageW, imageH, 18);
     ctx.clip();
@@ -227,48 +244,76 @@
     roundRect(ctx, imageX, imageY, imageW, imageH, 18);
     ctx.stroke();
 
-    var bodyX = 382, bodyW = width - bodyX - 50;
+    var bodyX = 386, bodyW = width - bodyX - 54;
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
     ctx.fillStyle = accent;
-    ctx.font = "700 12px 'IBM Plex Mono', monospace";
-    ctx.fillText(mod.label.toUpperCase() + " · PERSONAL ARCHIVE", bodyX, 100);
+    ctx.font = "700 11px 'IBM Plex Mono', monospace";
+    ctx.fillText(mod.label.toUpperCase() + " · PERSONAL ARCHIVE", bodyX, 88);
     ctx.fillStyle = "#F7F3EC";
-    ctx.font = "600 38px 'Fraunces', Georgia, serif";
-    wrapText(ctx, entry.title, bodyX, 130, bodyW, 43, 3);
+    ctx.font = "600 37px 'Fraunces', Georgia, serif";
+    wrapText(ctx, entry.title, bodyX, 116, 340, 41, 3);
+
+    /* Rank seal is intentionally separate from the title and score geometry. */
+    var sealX = 798, sealY = 116;
+    ctx.beginPath();
+    ctx.arc(sealX, sealY, 46, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,.045)";
+    ctx.fill();
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = accent;
+    ctx.textAlign = "center";
+    ctx.font = "700 10px 'IBM Plex Mono', monospace";
+    ctx.fillText("RANK", sealX, sealY - 18);
+    ctx.fillStyle = "#F7F3EC";
+    ctx.font = "600 28px 'Fraunces', Georgia, serif";
+    ctx.fillText(String(rank || 1).padStart(2, "0"), sealX, sealY - 2);
 
     var score = Number(entry.score || 0);
+    var scoreX = bodyX, scoreY = 286, scoreW = 154, scoreH = 112;
+    ctx.fillStyle = "rgba(255,255,255,.045)";
+    roundRect(ctx, scoreX, scoreY, scoreW, scoreH, 14);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,.11)";
+    ctx.lineWidth = 1;
+    roundRect(ctx, scoreX, scoreY, scoreW, scoreH, 14);
+    ctx.stroke();
+    ctx.textAlign = "left";
     ctx.fillStyle = "#F7F3EC";
-    ctx.font = "600 52px 'Fraunces', Georgia, serif";
-    ctx.fillText(score ? String(score) : "—", bodyX, 276);
-    ctx.fillStyle = "rgba(247,243,236,.55)";
-    ctx.font = "14px 'IBM Plex Mono', monospace";
-    ctx.fillText("/ 10  PERSONAL SCORE", bodyX + 74, 304);
-    drawStars(ctx, bodyX, 340, score, accent);
+    ctx.font = "600 55px 'Fraunces', Georgia, serif";
+    ctx.fillText(score ? String(score) : "—", scoreX + 16, scoreY + 10);
+    ctx.fillStyle = accent;
+    ctx.font = "700 9px 'IBM Plex Mono', monospace";
+    ctx.fillText("PERSONAL SCORE / 10", scoreX + 17, scoreY + 76);
+    drawStars(ctx, scoreX + 15, scoreY + 100, score, accent);
 
-    var metadata = cardMetadata(entry), metaX = bodyX + 228;
+    var metadata = cardMetadata(entry), metaX = bodyX + 172, metaW = bodyW - 172;
     metadata.forEach(function (item, index) {
-      var y = 277 + index * 68;
+      var y = scoreY + index * 58;
       ctx.fillStyle = "rgba(255,255,255,.045)";
-      roundRect(ctx, metaX, y, bodyW - 228, 54, 10);
+      roundRect(ctx, metaX, y, metaW, 50, 12);
       ctx.fill();
       ctx.fillStyle = accent;
       ctx.font = "700 10px 'IBM Plex Mono', monospace";
-      ctx.fillText(item[0], metaX + 14, y + 9);
+      ctx.fillText(item[0], metaX + 14, y + 8);
       ctx.fillStyle = "#F7F3EC";
-      ctx.font = "600 15px 'Fraunces', Georgia, serif";
-      ctx.fillText(String(item[1]).slice(0, 28), metaX + 14, y + 27);
+      ctx.font = "600 14px 'Fraunces', Georgia, serif";
+      ctx.fillText(String(item[1]).slice(0, 28), metaX + 14, y + 25);
     });
 
     ctx.fillStyle = "rgba(255,255,255,.045)";
-    roundRect(ctx, bodyX, 410, bodyW, 72, 12);
+    roundRect(ctx, bodyX, 418, bodyW, 68, 12);
     ctx.fill();
+    ctx.fillStyle = accent;
+    ctx.fillRect(bodyX, 418, 3, 68);
     ctx.fillStyle = "rgba(247,243,236,.8)";
-    ctx.font = "italic 16px 'Fraunces', Georgia, serif";
-    wrapText(ctx, message || defaultMessage(entry), bodyX + 16, 426, bodyW - 32, 21, 2);
+    ctx.font = "italic 15px 'Fraunces', Georgia, serif";
+    wrapText(ctx, message || defaultMessage(entry), bodyX + 18, 432, bodyW - 34, 19, 2);
     ctx.fillStyle = "rgba(247,243,236,.42)";
-    ctx.font = "10px 'IBM Plex Mono', monospace";
-    ctx.fillText("CURATED IN KURENAIOS", bodyX, 502);
+    ctx.font = "9px 'IBM Plex Mono', monospace";
+    ctx.fillText("CURATED IN KURENAIOS · PERSONAL COLLECTION", bodyX, 505);
     cb(canvas);
   }
 
@@ -429,6 +474,44 @@
     if (bits.length < 2 && entry.genres && entry.genres[0]) bits.push(entry.genres[0]);
     return bits.slice(0, 2);
   }
+  function shrineStats(entries) {
+    var scored = entries.filter(function (entry) { return Number(entry.score) > 0; });
+    var average = scored.length ? scored.reduce(function (sum, entry) { return sum + Number(entry.score); }, 0) / scored.length : 0;
+    var modules = {};
+    entries.forEach(function (entry) { modules[entry.module] = (modules[entry.module] || 0) + 1; });
+    return {
+      average: average ? average.toFixed(1) : "—",
+      completed: entries.filter(function (entry) { return entry.status === "completed"; }).length,
+      modules: modules,
+      wings: Object.keys(modules).length
+    };
+  }
+  function hallLedger(entries) {
+    var stats = shrineStats(entries), wingList = el("div", { class: "shrine-wing-list", "aria-label": "Shrine media split" });
+    ["anime", "books", "vn", "game"].forEach(function (module) {
+      if (!stats.modules[module]) return;
+      var mod = KOS.media.module(module), count = stats.modules[module];
+      wingList.appendChild(el("div", { class: "shrine-wing-row" }, [
+        el("span", { class: "shrine-wing-mark", "aria-hidden": "true", text: mod.kanji }),
+        el("span", { class: "shrine-wing-name", text: mod.label }),
+        el("span", { class: "shrine-wing-track", "aria-hidden": "true" }, [el("i", { style: "width:" + Math.round(count / entries.length * 100) + "%" })]),
+        el("b", { text: String(count) })
+      ]));
+    });
+    return el("aside", { class: "shrine-ledger", "aria-label": "Hall statistics" }, [
+      el("div", { class: "shrine-ledger-head" }, [
+        el("div", {}, [el("span", { class: "shrine-overline", text: "Hall ledger" }), el("h3", { text: "The collection at a glance" })]),
+        el("span", { class: "shrine-ledger-seal", "aria-hidden": "true", text: "祠" })
+      ]),
+      el("div", { class: "shrine-ledger-score" }, [el("b", { text: stats.average }), el("span", { text: "/ 10 average score" })]),
+      el("div", { class: "shrine-ledger-metrics" }, [
+        el("div", {}, [el("b", { text: String(entries.length) }), el("span", { text: "Enshrined" })]),
+        el("div", {}, [el("b", { text: String(stats.completed) }), el("span", { text: "Completed" })]),
+        el("div", {}, [el("b", { text: String(stats.wings) }), el("span", { text: "Media wings" })])
+      ]),
+      wingList
+    ]);
+  }
   function cover(entry, mod, className) {
     return el("div", { class: className }, [
       entry.coverUrl
@@ -558,7 +641,7 @@
       });
       var first = favourites[0], firstMod = KOS.media.module(first.module);
       var firstMeta = shrineMeta(first);
-      hall.appendChild(el("article", {
+      var feature = el("article", {
         class: "shrine-card shrine-feature top",
         tabindex: "0",
         role: "button",
@@ -580,7 +663,6 @@
             el("span", { text: "/ 10 personal score" })
           ]),
           el("div", { class: "shrine-feature-meta" }, firstMeta.map(function (value) { return el("span", { text: value }); })),
-          el("p", { class: "shrine-feature-copy", text: "The highest-ranked work in your personal Collection." }),
           el("div", { class: "shrine-feature-actions" }, [
             el("button", { class: "btn primary", text: "✦ Create share card", onclick: function (ev) {
               ev.stopPropagation();
@@ -592,7 +674,8 @@
             } })
           ])
         ])
-      ]));
+      ]);
+      hall.appendChild(el("div", { class: "shrine-stage" }, [feature, hallLedger(favourites)]));
 
       if (favourites.length > 1) {
         var ranked = el("div", { class: "shrine-ranked-grid" });
@@ -616,19 +699,25 @@
               el("span", { class: "shrine-overline", text: mod.label }),
               el("h3", { title: entry.title, text: entry.title }),
               el("div", { class: "shrine-row-meta" }, [
-                el("span", { class: "shrine-row-score", text: entry.score ? entry.score + " / 10" : "Unrated" }),
-                meta[0] ? el("span", { text: meta[0] }) : null
-              ].filter(Boolean))
-            ]),
-            el("button", {
-              class: "shrine-card-btn",
-              title: "Create share card",
-              "aria-label": "Create share card for rank " + rank,
-              onclick: function (ev) {
-                ev.stopPropagation();
-                KOS.shrineCard(entry, rank);
-              }
-            }, [el("span", { text: "✦ Card" })])
+                meta[0] ? el("span", { text: meta[0] }) : null,
+                meta[1] ? el("span", { text: meta[1] }) : null
+              ].filter(Boolean)),
+              el("div", { class: "shrine-row-foot" }, [
+                el("span", { class: "shrine-row-score" }, [
+                  el("b", { text: entry.score ? String(entry.score) : "—" }),
+                  el("span", { text: "/ 10" })
+                ]),
+                el("button", {
+                  class: "shrine-card-btn",
+                  title: "Create share card",
+                  "aria-label": "Create share card for rank " + rank,
+                  onclick: function (ev) {
+                    ev.stopPropagation();
+                    KOS.shrineCard(entry, rank);
+                  }
+                }, [el("span", { text: "✦ Share card" })])
+              ])
+            ])
           ]));
         });
         hall.appendChild(ranked);

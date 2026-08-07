@@ -3288,4 +3288,24 @@ ranking/filter/single-item/share-card/crop contracts. The running-Chrome audit
 now covers Goals, its editor, Shrine and the share card at desktop and 390×844,
 including measured overflow and responsive stacking. The complete smoke1–38
 release gate and the expanded live-browser audit pass. Service-worker version:
-`kos-collection-goals-shrine-1`.
+`kos-collection-goals-shrine-2`.
+
+**Visual correction.** A follow-up real-data audit exposed three density faults
+that the first synthetic composition did not catch. Rank one is no longer a
+full-width 380px split billboard: it now uses the Budget Planner's compact
+hero/sidecar rhythm, with a cover-led exhibition stage beside a Hall ledger
+showing average score, completion count, media wings and their distribution.
+The remaining ranks are cover-led accession cards with permanent score,
+metadata and share actions rather than sparse horizontal rows. The 900×560
+share artwork is now a lacquered exhibition pass with an isolated rank seal,
+score block and metadata column; a long three-line title cannot collide with
+the score or facts.
+
+Goals now reserve fixed card columns with `auto-fill`, so a lone goal stays a
+compact card instead of stretching across the entire workspace. The editor's
+scroll body gained max-content grid tracks and every form section keeps its
+intrinsic height. Identity, the default Measure fields and dynamically expanded
+linked-title Measure fields are browser-measured as fully contained in both
+dark desktop and phone layouts. The visual audit now captures the single-goal
+state, linked-title editor and ranked-card shelf in addition to the original
+Goals/Shrine/share-card frames.
