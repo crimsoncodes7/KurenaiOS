@@ -273,6 +273,14 @@ assert(governorRefine.gap <= 30 && governorRefine.face === 112 && governorRefine
   (governorRefine.cap === 'none' || governorRefine.cap === 'normal') &&
   governorRefine.idleAssistantDot === '0' && governorRefine.saveLabels === 0,
   `Governor header/hero/topbar refinement regressed: ${JSON.stringify(governorRefine)}`);
+const cadenceComposition = await evaluate(`(() => {
+  const plot = document.querySelector('.heat-svg').getBoundingClientRect();
+  const stats = [...document.querySelectorAll('.heat-stats .gstat-mini')].map(x => x.getBoundingClientRect());
+  return { plotRight: Math.round(plot.right), statsLeft: Math.round(stats[0].left),
+    stacked: stats.every((r, i) => !i || r.top >= stats[i - 1].bottom - 1) };
+})()`);
+assert(cadenceComposition.statsLeft >= cadenceComposition.plotRight && cadenceComposition.stacked,
+  `Cadence is not composed as left heatmap/right stat stack: ${JSON.stringify(cadenceComposition)}`);
 await screenshot("/tmp/kos-governor-status-dark-1440.png");
 await evaluate(`document.getElementById("main").scrollTop = 470`);
 await pause(120);
@@ -286,6 +294,17 @@ await evaluate(`(() => { KOS.store.state.governor.hp = 100; KOS.store.save(); })
 await auditView("governor", "history", ".gov-history");
 assert(await evaluate(`!document.querySelector('.gov-history-head') && document.querySelector('.gov-head h1')?.textContent === 'Session Log'`),
   "Session Log still has a duplicate internal hero/title");
+const historyComposition = await evaluate(`(() => {
+  const root = document.querySelector('.gov-history').getBoundingClientRect();
+  const stats = document.querySelector('.gov-history-stats').getBoundingClientRect();
+  const filters = document.querySelector('.log-filterbar').getBoundingClientRect();
+  const group = document.querySelector('.gov-day-group');
+  return { statsDelta: Math.round(Math.abs(root.width - stats.width)),
+    filterDelta: Math.round(Math.abs(root.width - filters.width)),
+    grouped: !!group?.querySelector(':scope > .led-day + .gov-day-events') };
+})()`);
+assert(historyComposition.statsDelta <= 2 && historyComposition.filterDelta <= 2 && historyComposition.grouped,
+  `Session Log overview and date groups are misaligned: ${JSON.stringify(historyComposition)}`);
 await screenshot("/tmp/kos-governor-history-dark-1440.png");
 await auditView("governor", "avatar", ".avatar-studio");
 const avatarAlignment = await evaluate(`(() => {
@@ -293,15 +312,19 @@ const avatarAlignment = await evaluate(`(() => {
   const profile = document.querySelector('.av-controls .av-sec').getBoundingClientRect();
   const avatar = document.querySelector('.av-pv-avatar').getBoundingClientRect();
   const status = document.querySelector('.av-pv-status')?.getBoundingClientRect();
+  const controls = document.querySelector('.av-controls').getBoundingClientRect();
   return { topDelta: Math.round(Math.abs(preview.top - profile.top)),
+    heightDelta: Math.round(Math.abs(preview.height - controls.height)),
     statusBeside: !status || (status.left >= avatar.right - 2 && Math.abs(status.bottom - avatar.bottom) < 20),
     duplicateHead: !!document.querySelector('.av-workshop-head') };
 })()`);
-assert(avatarAlignment.topDelta <= 2 && avatarAlignment.statusBeside && !avatarAlignment.duplicateHead,
+assert(avatarAlignment.topDelta <= 2 && avatarAlignment.heightDelta <= 2 && avatarAlignment.statusBeside && !avatarAlignment.duplicateHead,
   `Avatar editor is not aligned like one profile workspace: ${JSON.stringify(avatarAlignment)}`);
 await screenshot("/tmp/kos-governor-avatar-dark-1440.png");
 await auditView("governor", "shop", ".shop-depts");
 const shopRefine = await evaluate(`(() => ({
+  activeDepartment: document.querySelector('.shop-dept[aria-selected="true"]')?.dataset.dept,
+  hiddenDepartments: [...document.querySelectorAll('.shop-sec')].filter(s => s.hidden).length,
   fakeThemeOverlays: document.querySelectorAll('.sp-theme-shell').length,
   fakeBannerOverlays: document.querySelectorAll('.sp-banner-card').length,
   maxActionGap: Math.max(...[...document.querySelectorAll('.shop-card')].map(card => {
@@ -310,7 +333,8 @@ const shopRefine = await evaluate(`(() => ({
     return desc && foot ? Math.round(foot.getBoundingClientRect().top - desc.getBoundingClientRect().bottom) : 0;
   }))
 }))()`);
-assert(shopRefine.fakeThemeOverlays === 0 && shopRefine.fakeBannerOverlays === 0 && shopRefine.maxActionGap <= 18,
+assert(shopRefine.activeDepartment === 'all' && shopRefine.hiddenDepartments === 0 &&
+  shopRefine.fakeThemeOverlays === 0 && shopRefine.fakeBannerOverlays === 0 && shopRefine.maxActionGap <= 18,
   `Shop previews/actions remain disconnected: ${JSON.stringify(shopRefine)}`);
 await screenshot("/tmp/kos-governor-shop-dark-1440.png");
 await clickText(".shop-depts", "All wares");

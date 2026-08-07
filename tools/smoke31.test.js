@@ -104,6 +104,8 @@ step("Session Log has accessible category filters and expandable details", async
   for (const id of ["all", "study", "focus", "tasks", "collection", "papers", "system"])
     if (!ids.includes(id)) throw new Error(`missing history filter ${id}`);
   if (tabs.filter(t => t.getAttribute("aria-selected") === "true").length !== 1) throw new Error("history selected state invalid");
+  if (main.querySelectorAll(".gov-history-stats .gov-history-stat").length !== 3) throw new Error("history overview statistics missing");
+  if (!main.querySelector(".gov-day-group > .led-day + .gov-day-events")) throw new Error("history date groups are not structurally aligned");
   const rows = main.querySelectorAll(".gov-log details.gov-log-event");
   if (!rows.length || !rows[0].querySelector("summary.gov-log-summary")) throw new Error("expandable history rows missing");
   rows[0].open = true;
@@ -138,6 +140,8 @@ step("Gold Shop separates tools, simulations and cosmetics with contextual previ
   await tick(40);
   const main = document.getElementById("main");
   if (main.querySelectorAll(".shop-dept").length !== 4) throw new Error("department filter incomplete");
+  if (main.querySelector('.shop-dept[aria-selected="true"]')?.dataset.dept !== "all") throw new Error("Gold Shop should open on All wares");
+  if ([...main.querySelectorAll(".shop-sec")].some(s => s.hidden)) throw new Error("All wares should show every shop section by default");
   if (main.querySelectorAll('#shop-sec-tools .shop-card').length !== 2) throw new Error("learning tools not separated");
   if (main.querySelectorAll('#shop-sec-simulations .shop-card').length !== 6) throw new Error("simulations not separated");
   if (main.querySelectorAll(".shop-lab-scene").length !== 8) throw new Error("functional mini-scenes missing");
@@ -185,7 +189,7 @@ step("Responsive and reduced-motion Governor rules are present", () => {
   const heatRules = css.match(/^\.heat-svg svg \{[^}]*\}/gm) || [];
   if (heatRules.length !== 1) throw new Error("expected exactly one .heat-svg svg rule, found " + heatRules.length);
   if (!/width: 100% !important/.test(heatRules[0]) || !/max-width: 400px/.test(heatRules[0]) ||
-      !/display: block/.test(heatRules[0]) || !/margin-inline: auto/.test(heatRules[0]))
+      !/display: block/.test(heatRules[0]) || !/margin: 0 auto 0 0/.test(heatRules[0]))
     throw new Error("heatmap geometry rule changed: " + heatRules[0]);
 });
 

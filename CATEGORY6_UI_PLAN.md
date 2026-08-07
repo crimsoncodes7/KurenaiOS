@@ -272,3 +272,17 @@ the topbar and identity surfaces. Real browser checks on clean local origins
 confirmed the idle assistant trigger, compact HUD, anchored profile speech
 bubble, desktop light/dark Governor pages, and 390×844 layouts. Smoke29 remains
 green and smoke31 now prevents the shared-shell regression from recurring.
+
+## 13. Governor surface alignment follow-up · 2026-08-07
+
+Real-user review prompted a final layout correction across the four Governor
+destinations. Session Log uses a full-width overview row and filter rail above
+date-grouped expandable records; its desktop date rail collapses into a compact
+mobile group header. Avatar keeps the Discord-inspired identity/workshop split
+but stretches the live profile card with the workshop so the lower-left column
+is no longer a dead void. Status places the 90-day heatmap left of a vertical
+three-stat stack, and Gold Shop opens on the complete All wares catalogue.
+
+No economy, session, profile, cropper, routing, assistant, or provider contract
+changed. Smoke31 and the visual audit now assert these precise alignment and
+default-state decisions; smoke1–36 remain green.

@@ -5633,18 +5633,18 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 
 .b-heat, .b-ledger { grid-column: span 6; min-height: 330px; }
 .heat-wrap {
-  display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto;
-  gap: 10px; height: auto; align-items: center; align-content: center;
+  display: grid; grid-template-columns: minmax(0, 1fr) 126px; grid-template-rows: auto auto;
+  gap: 10px 14px; height: auto; align-items: start; align-content: center;
 }
 .heat-svg { grid-column: 1; grid-row: 1; overflow: hidden; padding: 12px 0 2px; }
 /* THE heatmap svg geometry — the single authoritative rule. The 13-week
    plot fills its own lane, then stops at a readable maximum instead of
    stretching across the ledger or collapsing beside its stat tiles. */
-.heat-svg svg { display: block; width: 100% !important; max-width: 400px; height: auto; margin-inline: auto; }
-.heat-legend { grid-column: 1; grid-row: 3; padding-top: 2px; }
+.heat-svg svg { display: block; width: 100% !important; max-width: 400px; height: auto; margin: 0 auto 0 0; }
+.heat-legend { grid-column: 1; grid-row: 2; padding-top: 2px; }
 .hl-num { font-family: var(--mono); font-size: 10.5px; }
-.heat-stats { grid-column: 1; grid-row: 2; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 0; }
-.heat-stats .gstat-mini { min-height: 66px; padding: 9px 10px; background: var(--well); }
+.heat-stats { grid-column: 2; grid-row: 1 / span 2; grid-template-columns: 1fr; gap: 7px; margin-top: 0; align-self: stretch; }
+.heat-stats .gstat-mini { min-height: 66px; height: 100%; padding: 9px 10px; background: var(--well); }
 .heat-stats .gstat-mini .gstat-v { font-size: 16px; }
 
 .gov-ledger-event {
@@ -5686,8 +5686,9 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .gov-rules-note[open] > summary { color: var(--text2); }
 .gov-rules-note .gov-rules { margin-top: 0; }
 
-/* B/C — the chronicle: compact filters and expandable day groups */
-.gov-history { display: flex; flex-direction: column; gap: 14px; max-width: 1180px; }
+/* B/C — the chronicle: one aligned overview rail and compact date dossiers */
+.gov-history { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: none; }
+.gov-history-tools { display: grid; gap: 10px; width: 100%; }
 .gov-history-head {
   display: flex; align-items: end; justify-content: space-between; gap: 24px;
   padding: 22px 24px; border: 1px solid var(--line2); border-radius: 16px;
@@ -5697,14 +5698,19 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 }
 .gov-history-head h2 { margin: 3px 0 2px; font-size: 28px; }
 .gov-history-head p { margin: 0; max-width: 66ch; color: var(--text2); font-size: 12.5px; line-height: 1.5; }
-.gov-history-stats { display: flex; gap: 8px; flex: none; }
-.gov-history-stat { min-width: 82px; padding: 10px 12px; border-left: 1px solid var(--line2); }
+.gov-history-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100%; }
+.gov-history-stat {
+  min-width: 0; min-height: 70px; display: flex; align-items: center; gap: 11px;
+  padding: 11px 14px; border: 1px solid var(--line2); border-radius: 12px; background: var(--bg1);
+}
+.gov-history-stat-mark { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 9px; background: var(--wash-accent); color: var(--accent); font-size: 14px; }
+.gov-history-stat-copy { min-width: 0; }
 .gov-history-stat b { display: block; font-family: var(--serif); font-size: 22px; line-height: 1; }
-.gov-history-stat small { color: var(--muted); font-size: 9px; letter-spacing: .11em; text-transform: uppercase; }
-.log-filterbar.log-cats { display: flex; gap: 6px; margin: 0; padding: 6px; overflow-x: auto; border: 1px solid var(--line2); border-radius: 13px; background: var(--well); scrollbar-width: none; }
+.gov-history-stat small { color: var(--muted); font-size: 8.5px; letter-spacing: .11em; text-transform: uppercase; white-space: nowrap; }
+.log-filterbar.log-cats { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; width: 100%; margin: 0; padding: 6px; overflow-x: auto; border: 1px solid var(--line2); border-radius: 13px; background: var(--well); scrollbar-width: none; }
 .log-filterbar::-webkit-scrollbar { display: none; }
 .log-filterbar .log-cat {
-  flex: none; min-height: 36px; padding: 6px 10px; gap: 7px; border: 0; border-radius: 9px; background: transparent; box-shadow: none;
+  min-width: 0; min-height: 38px; padding: 6px 9px; gap: 7px; border: 0; border-radius: 9px; background: transparent; box-shadow: none;
 }
 .log-filterbar .log-cat:hover { transform: none; background: var(--bg1); }
 .log-filterbar .log-cat.active { background: var(--bg1); box-shadow: var(--shadow-sm); }
@@ -5712,16 +5718,19 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .log-filterbar .log-cat-l { color: var(--text2); font-size: 11px; letter-spacing: .02em; text-transform: none; }
 .log-filterbar .log-cat b { min-width: 18px; padding: 1px 5px; border-radius: 999px; background: color-mix(in srgb, var(--text) 7%, transparent); font-family: var(--mono); font-size: 9px; text-align: center; }
 .log-filterbar .log-cat.active .log-cat-l { color: var(--text); font-weight: 600; }
-.log-note { min-height: 18px; margin: -3px 2px 0; font-size: 11.5px; }
-.gov-log.ledger { max-width: none; border: 1px solid var(--line2); border-radius: 16px; background: var(--bg1); overflow: hidden; }
+.log-note { min-height: 18px; margin: -1px 2px 0; font-size: 11.5px; }
+.gov-log.ledger { display: grid; gap: 10px; max-width: none; border: 0; border-radius: 0; background: transparent; overflow: visible; }
+.gov-day-group { display: grid; grid-template-columns: 172px minmax(0, 1fr); border: 1px solid var(--line2); border-radius: 14px; background: var(--bg1); overflow: clip; }
+.gov-day-events { min-width: 0; border-left: 1px solid var(--line2); }
 .gov-timeline .led-day {
-  position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between;
-  margin: 0; padding: 10px 18px; border-bottom: 1px solid var(--line2);
-  background: color-mix(in srgb, var(--well) 92%, transparent); backdrop-filter: blur(12px);
-  color: var(--text2); font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+  position: sticky; top: 10px; z-index: 1; align-self: start; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 3px;
+  margin: 0; padding: 15px 16px; border: 0; background: transparent;
+  color: var(--text2); font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
 }
-.gov-timeline .led-day small { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: .04em; text-transform: none; }
+.gov-timeline .led-day strong { color: var(--text); font-family: var(--serif); font-size: 16px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.gov-timeline .led-day small { font-family: var(--mono); font-size: 8.5px; color: var(--muted); letter-spacing: .02em; text-transform: none; }
 .gov-log-event.led-row { display: block; padding: 0; }
+.gov-day-events .gov-log-event:last-child { border-bottom: 0; }
 .gov-log-summary {
   list-style: none; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto 22px;
   gap: 12px; align-items: center; min-height: 72px; padding: 9px 16px; cursor: pointer;
@@ -5742,14 +5751,14 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .gov-log-empty { margin: 16px; }
 
 /* D — Avatar identity stage and workshop */
-.avatar-studio.av-grid { grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: clamp(20px, 3vw, 36px); }
-.identity-stage.av-preview { top: 16px; border-radius: 20px; box-shadow: var(--shadow-md); }
+.avatar-studio.av-grid { grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: clamp(20px, 3vw, 36px); align-items: stretch; }
+.identity-stage.av-preview { position: relative; top: auto; align-self: stretch; display: flex; flex-direction: column; border-radius: 20px; box-shadow: var(--shadow-md); }
 .identity-stage .av-pv-banner { height: 128px; position: relative; }
 .av-stage-label {
   position: absolute; left: 15px; top: 14px; padding: 4px 8px; border: 1px solid rgba(255,255,255,.24); border-radius: 999px;
   color: #fff; background: rgba(7,9,13,.32); backdrop-filter: blur(8px); font-size: 8.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
 }
-.identity-stage .av-pv-body { padding: 0 22px 22px; margin-top: -50px; gap: 4px; }
+.identity-stage .av-pv-body { flex: 1; padding: 0 22px 22px; margin-top: -50px; gap: 4px; }
 .av-pv-identity { width: 100%; display: flex; align-items: flex-end; gap: 12px; min-width: 0; }
 .av-pv-identity .av-pv-avatar { flex: none; }
 .identity-stage .av-pv-identity .av-pv-status {
@@ -5759,7 +5768,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .identity-stage .av-pv-name { margin-top: 10px; font-size: 30px; }
 .identity-stage .av-pv-status { font-size: 12px; }
 .identity-stage .av-pv-about { margin-top: 12px; }
-.identity-stage .av-pv-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 16px; padding-top: 12px; }
+.identity-stage .av-pv-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: auto; padding-top: 20px; }
 .identity-stage .av-pv-meta > span { min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 8px; border-radius: 8px; background: var(--well); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text2); font-size: 10px; }
 .identity-stage .av-pv-meta small { color: var(--muted); font-size: 7.5px; letter-spacing: .1em; text-transform: uppercase; }
 .identity-stage .av-pv-edit { width: auto; min-height: 34px; margin-top: 12px; padding-inline: 12px; }
@@ -5877,7 +5886,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .b-heat, .b-ledger { grid-column: span 12; min-height: auto; }
   .b-ledger .ledger { min-height: 0; }
   .heat-wrap { display: grid; }
-  .heat-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .heat-stats { grid-template-columns: 1fr; }
   .heat-stats .gstat-mini { min-height: 66px; }
 }
 @media (max-width: 1050px) {
@@ -5901,13 +5910,22 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .hp-preview-note, .gov-seat-hero .id-banner-ctl { grid-column: 1 / -1; }
   .gov-instruments.vital-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gov-instruments .vital:first-child { grid-column: 1 / -1; }
-  .heat-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .heat-wrap { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; }
+  .heat-svg { grid-column: 1; grid-row: 1; }
+  .heat-stats { grid-column: 1; grid-row: 2; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .heat-legend { grid-column: 1; grid-row: 3; }
   .gov-recovery { grid-template-columns: 34px minmax(0, 1fr); gap: 12px; }
   .gov-rec-progress, .gov-rec-go { grid-column: 2; }
   .gov-rec-go { justify-self: start; }
   .gov-history-head { align-items: flex-start; flex-direction: column; padding: 18px; }
   .gov-history-stats { width: 100%; }
   .gov-history-stat { flex: 1; min-width: 0; }
+  .log-filterbar.log-cats { display: flex; }
+  .log-filterbar .log-cat { flex: none; min-width: 118px; }
+  .gov-day-group { grid-template-columns: 1fr; }
+  .gov-day-events { border-left: 0; border-top: 1px solid var(--line2); }
+  .gov-timeline .led-day { position: static; flex-direction: row; align-items: baseline; gap: 8px; padding: 10px 14px; }
+  .gov-timeline .led-day small { margin-left: auto; }
   .gov-event-details { padding: 0 18px 16px 64px; }
   .avatar-studio.av-grid { grid-template-columns: 1fr; }
   .identity-stage.av-preview { position: static; }
@@ -5929,6 +5947,11 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .hp-preview { width: 100%; min-width: 0; margin-top: 6px; }
   .gov-instruments.vital-stack { grid-template-columns: 1fr; }
   .heat-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gov-history-stats { gap: 6px; }
+  .gov-history-stat { min-height: 62px; gap: 7px; padding: 9px; }
+  .gov-history-stat-mark { width: 26px; height: 26px; font-size: 11px; }
+  .gov-history-stat b { font-size: 18px; }
+  .gov-history-stat small { font-size: 7px; letter-spacing: .07em; }
   .gov-instruments .vital:first-child { grid-column: auto; }
   .bento-card { padding-inline: 16px; }
   .gov-log-summary { grid-template-columns: 34px minmax(0, 1fr) 20px; padding-inline: 11px; }

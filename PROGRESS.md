@@ -3151,9 +3151,9 @@ now split the row evenly; the 13-week plot fills a bounded 400 px lane, its
 three summary tiles remain inside the parent at phone widths, and a stale
 `height:100%` rule can no longer push the legend outside its card.
 
-Gold Shop opens on Learning tools (All wares remains one tap away), reducing a
-fresh phone page from 51 cards to the two useful study-facing products. Product
-copy and actions no longer use an artificial flex gap. Avatar and the shared
+Gold Shop opens on All wares so the catalogue is complete on arrival, with
+Learning tools, Simulations, and Cosmetics available as explicit filters.
+Product copy and actions no longer use an artificial flex gap. Avatar and the shared
 profile popover anchor the status bubble beside the portrait, while the corner
 HUD uses the compact name/state/gold markup it actually renders. The assistant
 lifecycle dot is invisible while idle and appears only for busy/confirmation
@@ -3167,4 +3167,25 @@ spacing, cadence geometry, removed shop overlays, and state-only assistant dot.
 passed against the final build at desktop light, desktop dark, and 390×844.
 Governor screenshots were refreshed at `/tmp/kos-governor-*.png`; measured
 document overflow was zero on Status, Gold Shop, Avatar, and Session Log.
-Service-worker cache version: `kos-governor-ui-integration-2`.
+Service-worker cache version: `kos-governor-layout-refine-1`.
+
+### Governor layout refinement · 2026-08-07
+
+The Session Log overview now shares one exact content edge across its three
+summary cards, seven-category switcher, status note, and event history. Dates
+form a compact chronicle rail beside grouped expandable events on desktop and
+collapse above those events on phones. System sync remains hidden by default,
+pagination and canonical session data are unchanged, and the filter stays
+horizontally keyboard-scrollable at narrow widths.
+
+The Avatar preview now stretches to the height of its workshop column, with
+the current portrait/frame/banner inventory and edit action anchored at the
+base instead of leaving an accidental empty lower-left quadrant. Study cadence
+returns to the requested composition: the 90-day heatmap is on the left and
+the three equal summary tiles stack vertically on the right, collapsing to a
+three-tile row on phones. Gold Shop now defaults to All wares.
+
+Smoke1–36 and the Chrome visual audit pass. The visual gate now measures the
+cadence column order, full-width Session Log alignment, grouped date structure,
+equal Avatar/workshop height, and All wares default rather than relying only on
+class presence.

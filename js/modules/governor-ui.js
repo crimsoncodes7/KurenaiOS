@@ -526,9 +526,9 @@
         ]));
       }
 
-      /* Open on study-facing tools so the first phone viewport is useful;
-         All wares remains one tap away for browsing the full catalogue. */
-      var activeDept = "tools";
+      /* The treasury is a catalogue first: open with every department visible
+         and let the user narrow the view only when they choose a filter. */
+      var activeDept = "all";
       var deptBar = el("div", { class: "shop-depts", role: "tablist", "aria-label": "Shop departments" });
       SHOP_DEPTS.forEach(function (d) {
         deptBar.appendChild(el("button", { class: "shop-dept" + (d.id === activeDept ? " active" : ""),
@@ -902,11 +902,14 @@
 
       var history = el("div", { class: "gov-history" });
       panel.appendChild(history);
-      function historyStat(value, label) {
-        return el("span", { class: "gov-history-stat" }, [el("b", { text: value }), el("small", { text: label })]);
+      function historyStat(value, label, glyph) {
+        return el("span", { class: "gov-history-stat" }, [
+          el("span", { class: "gov-history-stat-mark", "aria-hidden": "true", text: glyph }),
+          el("span", { class: "gov-history-stat-copy" }, [el("b", { text: value }), el("small", { text: label })])
+        ]);
       }
 
-      /* A compact filter row replaces the previous wall of stat cards. */
+      /* One aligned overview rail: summary first, category switcher second. */
       var band = el("div", { class: "log-cats log-filterbar", role: "tablist", "aria-label": "Session categories" });
       LOG_CATS.forEach(function (c) {
         var n = all.filter(c.match).length;
@@ -919,12 +922,12 @@
         ]));
       });
       history.appendChild(el("div", { class: "gov-history-tools" }, [
-        band,
         el("div", { class: "gov-history-stats", "aria-label": "Session history summary" }, [
-          historyStat(String(human.length), "actions"),
-          historyStat(String(Object.keys(activeDates).length), "active days"),
-          historyStat(String(human.filter(isMeaningful).length), "milestones")
-        ])
+          historyStat(String(human.length), "actions", "◇"),
+          historyStat(String(Object.keys(activeDates).length), "active days", "◉"),
+          historyStat(String(human.filter(isMeaningful).length), "milestones", "✦")
+        ]),
+        band
       ]));
 
       var note = el("p", { class: "sub log-note", role: "status", "aria-live": "polite" });
@@ -953,11 +956,7 @@
           note.textContent = "Technical integration traffic · collapsed to one record per provider and day.";
           var groups = coalesceRoutine(matched);
           if (!groups.length) { wrap.appendChild(emptyLog("System is quiet", "No provider sync activity has been recorded.")); return; }
-          var lastD = null;
-          groups.slice(0, visible).forEach(function (b) {
-            if (b.date !== lastD) { lastD = b.date; wrap.appendChild(dayHead(b.date, groups.filter(function (g2) { return g2.date === b.date; }).length)); }
-            wrap.appendChild(routineRow(b));
-          });
+          appendDateGroups(groups.slice(0, visible), groups, routineRow);
           addPager(groups.length);
           return;
         }
@@ -969,12 +968,27 @@
             all.length ? "Complete an activity in this category and its details will appear here." : "Finish a focus block, review, quiz, task, paper, or collection title to create your first entry."));
           return;
         }
-        var lastDate = null;
-        rows.forEach(function (e) {
-          if (e.date !== lastDate) { lastDate = e.date; wrap.appendChild(dayHead(e.date, matched.filter(function (r) { return r.date === e.date; }).length)); }
-          wrap.appendChild(historyRow(e));
-        });
+        appendDateGroups(rows, matched, historyRow);
         addPager(matched.length);
+      }
+      function appendDateGroups(rows, totalRows, rowFactory) {
+        var counts = {}, groups = [], byDate = {};
+        totalRows.forEach(function (row) { counts[row.date] = (counts[row.date] || 0) + 1; });
+        rows.forEach(function (row) {
+          if (!byDate[row.date]) {
+            byDate[row.date] = [];
+            groups.push({ date: row.date, rows: byDate[row.date] });
+          }
+          byDate[row.date].push(row);
+        });
+        groups.forEach(function (group) {
+          var events = el("div", { class: "gov-day-events" });
+          group.rows.forEach(function (row) { events.appendChild(rowFactory(row)); });
+          wrap.appendChild(el("section", { class: "gov-day-group" }, [
+            dayHead(group.date, counts[group.date] || group.rows.length),
+            events
+          ]));
+        });
       }
       function addPager(total) {
         if (total <= visible) return;
@@ -984,8 +998,9 @@
       function dayHead(dateISO, count) {
         var d = new Date(dateISO + "T12:00:00");
         return el("div", { class: "led-day" }, [
-          el("span", { text: d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) }),
-          el("small", { text: count + " event" + (count === 1 ? "" : "s") })
+          el("span", { class: "led-day-week", text: d.toLocaleDateString("en-GB", { weekday: "long" }) }),
+          el("strong", { text: d.toLocaleDateString("en-GB", { day: "numeric", month: "long" }) }),
+          el("small", { text: d.getFullYear() + " · " + count + " event" + (count === 1 ? "" : "s") })
         ]);
       }
       function emptyLog(title, copy) {
