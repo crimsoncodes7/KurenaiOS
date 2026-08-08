@@ -3443,9 +3443,113 @@ not yet re-synced, read without booting the app (booting would have pulled the
 regressed copy over it). Rescued document in `recovery/` (gitignored — personal
 data). The user re-imported it and both devices are correct.
 
-**Next: Phase B** — shared design system and layout foundations. Consolidate the
-21 breakpoints to the five declared tiers, split `main.css` into layers, fix the
-colour contract (`--muted` is 3.10:1 on the default theme; all 23 dark themes
-set `--text2 === --text`), ship a FREE dark theme and follow
-`prefers-color-scheme`, and build the shared primitives (Dialog with real focus
-management, Tabs, Card, StatTile, EmptyState, PageHeader).
+## CATEGORY 7 — PHASE B: THE SHARED FOUNDATIONS (8 August 2026)
+
+Release gate is now **42 suites**, all green, plus the live-Chrome visual audit.
+
+### The colour contract (landed first)
+
+`--muted` on the default theme went #97896D → #726751 (3.10 → 4.52/5.02/5.33),
+every one of the 23 dark themes gained its own `--text2` and `--muted` derived
+from that theme's own text hue rather than one shared blue-grey, and dark mode
+stopped costing 140 gold: Atelier Dawn and Atelier Dusk are free and owned
+without purchase, and an unpinned install follows `prefers-color-scheme` in pure
+CSS so a dark device never flashes the light palette before scripts run.
+
+### Breakpoint consolidation
+
+**Five tiers, and only five: 1240 workspace · 1080 compact rail · 860 compact ·
+700 phone · 560 small.** The token block declared four; the stylesheet used 21
+(1240, 1180, 1120, 1100, 1080, 1050, 1040, 1000, 900, 860, 850, 840, 820, 760,
+700, 680, 620, 560, 520, 480, 460), because every component that needed a
+collapse point invented one. 66 width queries now resolve to those five, no
+`min-width` bands remain, and `tools/smoke42.test.js` fails the build on a sixth.
+The tiers — and the rule that a component needing its own point must reflow
+intrinsically (`auto-fit`/`minmax`, `flex-wrap`, `min-width: 0`) rather than earn
+a breakpoint — are documented in the token block itself.
+
+**Ordering turned out to matter as much as the numbers.** Three clusters were
+written narrowest-first, so the narrow rules lost to their own wider siblings
+and never applied at all:
+
+- the Governor seat's ≤700 identity stack — the GOV-1 fix itself — sat above the
+  ≤1080 and ≤860 rules, so its `minmax(0,1fr)` and padding were dead;
+- a ≤620 `.heat-stats` rule was unreachable behind the Governor's own later
+  rules and was removed, not re-pointed;
+- the assistant carries two generations of CSS, the drawer-era rules and the
+  Category 6.1 workspace rewrite, and **24 declarations** in the older
+  generation were silently overridden by the newer one.
+
+All 30 inversions are gone and smoke42 asserts none returns.
+
+**Not done, deliberately: the `main.css` layer split.** It would relocate ~50
+media blocks across 7,700 lines, which is exactly the operation that resurrects
+dead rules. With the tier contract and the inversion check now enforced, a later
+split is safe and cheap to verify; doing it before the contract existed would
+have been the risky order.
+
+### Shared primitives
+
+- **Dialog.** All 33 modals were bare divs on a scrim — no `role`, no
+  `aria-modal`, no name, no focus trap, no scroll lock, no focus restoration.
+  `KOS.ui.openDialog` is the one way a modal enters the document; a source
+  contract in smoke42 fails the build if a new one appends itself directly. The
+  accessible name is taken from the modal's own visible heading, so it is right
+  by construction. Teardown runs however the overlay leaves — `remove()`,
+  `removeChild`, or a subtree replacement. **A destructive prompt is an
+  `alertdialog`, opens with Cancel focused, and ignores Enter**; two keystrokes
+  used to delete. The visual design of every modal is untouched: the Focus
+  completion review and the Calendar event modal were the references, not the
+  targets.
+- **Tabs.** `.subnav-item`, `.study-tab` and the bespoke Books "Digital /
+  Physical Vault" cards were three components doing one job; they are three
+  *variants* of one now — primary, workspace, card — because the jobs genuinely
+  differ. The section strip stays site navigation with `aria-current`; the
+  workspace switcher is a real tablist.
+- **EmptyState** with a compact form that does not reserve a card-sized box;
+  the eight vault call sites route through it.
+- **StatTile** that suppresses a zero carrying no information. Review showed six
+  cards all reading `0` to an active user; it shows Due and Overdue always —
+  "0 due" *is* the answer — plus whichever subject splits are non-zero.
+- **Scroller.** The two deliberate horizontal scrollers, Collection's cover
+  strip and the subject unit band, had no arrows and no edge fade, so the last
+  card was sliced by the container edge and read as a rendering bug. They now
+  have position-aware fades, arrow controls, ← → keys and `data-scroller` —
+  which is the marker the responsive probe honours. An *undeclared* sideways
+  scroll still counts as unreachable content, because it is.
+- One `--z-*` layer scale (toast above modals — "award forfeited" used to render
+  under the scrim at the one moment it matters), `KOS.ui.num()` locale
+  formatting on the HUD/instruments/shop, a visible-on-focus skip link, and
+  covers that paint the module kanji from the first frame instead of opening as
+  a field of empty boxes.
+
+`KOS.ui.pageHeader` / `sectionHeader` exist and emit the existing `.dh-*`
+classes; per-page adoption belongs with the page work in Phases C–E.
+
+### Verification
+
+`tools/responsive_audit.mjs` is new and is the Phase A lesson made permanent: it
+**seeds a dense account first** (533 collection entries with real cover art and
+long titles, 600 sessions, 120 progress records, a full calendar, reminders,
+assignments, planner and goals), then sweeps a width list rather than one phone
+width, in both themes, reporting per-element overflow, amputated text and
+tab-bar overlap as diffable JSON.
+
+- Breakpoint consolidation: 480 cells (24 views × 10 widths × 2 themes),
+  **0 worse, 0 better** against the pre-change baseline — a pure refactor.
+- After the primitives: **0 overflowing elements in all 480 cells**, down from
+  1,562, all of which were the two undeclared scrollers.
+- Screenshots at 1920 / 1440 / 820 / 390 in Atelier Dawn and Atelier Dusk.
+- smoke1–42 and `tools/visual_audit.mjs` green.
+
+**Lesson carried forward, second instance.** The pixel probe is necessary and
+not sufficient. It reported the subject desk clean at 390px while the
+"Spec spine" pill — still 32px wide from its desktop rule — wrapped its label
+into two lines that printed on top of the section list (SUBJ-4). Overlapping
+content vertically is invisible to a right-edge check. Screenshots at every
+viewport stay part of verifying a responsive change.
+
+Service-worker version: `kos-cat7-phase-b-1`.
+
+**Next: Phase C** — the ref page shell, the subject desk and Home. Those are the
+structural redesigns Phase B deliberately did not start.

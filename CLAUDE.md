@@ -50,6 +50,7 @@ node tools/smoke38.test.js # Collection Goals v2 + Shrine Hall of Fame: automati
 node tools/smoke39.test.js # Phase 2 Live2D binding: closed release gate (no SDK/Core/model, inert with no runtime, deploy + gitignore blocks), rig-contract mirror (6 motions/4 reactions/fps budgets), seam integration against a stub runtime, write-only ownership, every failure mode falling back to the Phase 1 PNG, frame governing + hidden/offscreen pausing + teardown, and the Krita redraw scaffold vs layer-map.json
 node tools/smoke41.test.js # Category 7 staleness guard: the monotonic __seq on the state document, the reproduced 8 Aug 2026 incident (a stale device with one real edit must not clobber a newer cloud copy), the refusal raising a conflict instead of an error, both resolveStale outcomes, an undisturbed two-device round trip, and a restore still outranking the guard
 node tools/smoke40.test.js # Category 7 Phase A: the note pager scrolling only on a reader-initiated page turn (B-04), the lazy area rooting on #main and refilling while the sentinel stays in range (B-05), Mangaka on the shared lazy area with author search and a filtering A–Z rail (B-06), #app dvh-with-vh-fallback and the phone tier's tab-bar clearance
+node tools/smoke42.test.js # Category 7 Phase B: the five-breakpoint contract (only 1240/1080/860/700/560, no width bands, no narrower-tier-above-wider inversions), the Dialog primitive (role/aria-modal/name-from-heading, focus trap, scroll lock, focus restore, Escape, danger-safe confirmations) and its source contract, the three Tabs variants, EmptyState/StatTile zero suppression, the scroll-affordance contract, locale numbers, cover loading state and the skip link
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
@@ -64,8 +65,18 @@ the two long-running commands to start first):
 ```sh
 node tools/mobile_audit.mjs     # phone/tablet overflow + screenshots across every view
 node tools/phone_overflow.mjs   # (Cat 7 Phase A) per-element overflow at 390px + tab-bar overlap
+node tools/responsive_audit.mjs --seed   # (Cat 7 Phase B) seed a DENSE account, then sweep
+node tools/responsive_audit.mjs --widths 1920,1440,820,390 --shots /tmp/kos-shots --out after.json
+node tools/responsive_audit.mjs --diff before.json        # prove a change regressed nothing
 node tools/gen_icons.mjs        # regenerate the icon set from the brand seal
 ```
+`responsive_audit.mjs` is the one to reach for on any responsive change:
+`--seed` installs 533 collection entries with real cover art and long titles,
+600 sessions, 120 progress records and a full calendar/planner/goals before it
+measures anything. **An empty account hides layout failures** — GOV-1 survived a
+whole phase because nobody measured it with real data, and the probe still
+cannot see a floating control that overlaps content vertically (SUBJ-4), so
+screenshots remain part of the check.
 
 **Live cloud verification** (needs the migration applied + js/env.local.js):
 ```sh
@@ -106,15 +117,16 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 41 suites are the release gate (smoke17 the
+the current test inventory. All 42 suites are the release gate (smoke17 the
 Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
 Build 4c games integrations, smoke37 the Study overview/topic-shell
 refinement, smoke38 Collection Goals v2 and Shrine Hall of Fame, smoke39 the
 Phase 2 Live2D binding and its closed release gate, smoke41 the cloud staleness guard, smoke40 the Category 7
-Phase A bug fixes). Suites 1–16 plus the running-Chrome visual audit were verified
+Phase A bug fixes, smoke42 the Phase B breakpoint contract and UI primitives). Suites 1–16 plus the running-Chrome visual audit were verified
 green on 2026-07-13; all 17 on 2026-07-16; all 18 plus the phone/tablet CDP
 audit on 2026-07-17; all 19 on 2026-07-17; all 38 on 2026-08-07; all 39 plus
-the visual audit on 2026-08-07; all 40 on 2026-08-08.
+the visual audit on 2026-08-07; all 40 on 2026-08-08; all 42 plus the visual audit and a
+480-cell responsive sweep on 2026-08-08.
 
 **Edge Functions** (Build 4c, `supabase/functions/`): deploy with
 `supabase functions deploy <name>`; secrets via `supabase secrets set` only
@@ -345,13 +357,41 @@ Collected from every build. If a change would break one of these, stop and say s
     protection). Background Sync is a progressive enhancement only —
     cloudsync's own online/boot/focus/manual retries are the correctness
     path.
-40. The phone tier is the `@media (max-width: 700px)` block at the end of
-    css/main.css: the rail becomes the bottom tab bar, the spec tree a
-    drawer driven by the SAME `ui.treeClosed`/`tree-closed` state (phones
-    just default it closed in hub.js), modals become bottom sheets, inputs
-    hold 16px (iOS zoom), and safe-area insets ride `env()`. Desktop rules
-    above that block are untouched — extend the tier, don't fork
+40. The phone tier is `@media (max-width: 700px)`: the rail becomes the bottom
+    tab bar, the spec tree a drawer driven by the SAME `ui.treeClosed`/
+    `tree-closed` state (phones just default it closed in hub.js), modals
+    become bottom sheets, inputs hold 16px (iOS zoom), and safe-area insets
+    ride `env()`. Desktop rules are untouched — extend the tier, don't fork
     components. Icons regenerate via `tools/gen_icons.mjs`, never by hand.
+
+**Breakpoints & shared primitives (Category 7 Phase B)**
+47. There are FIVE breakpoints and no others: **1240** workspace · **1080**
+    compact rail · **860** compact · **700** phone · **560** small. A sixth
+    `max-width`, or any `min-width` band, fails smoke42. A component that
+    genuinely needs its own collapse point must reflow intrinsically
+    (`auto-fit`/`minmax`, `flex-wrap`, `min-width: 0`) — `overflow: hidden`
+    is not a collapse point. `prefers-reduced-motion`, `prefers-color-scheme`
+    and `pointer: coarse` are feature queries, not breakpoints, and are fine.
+48. **Write a component's tiers widest-first.** A narrower tier placed above a
+    wider one loses to its own sibling and never applies — that is how half
+    the Governor seat's phone rules and 24 assistant declarations were dead
+    on arrival. smoke42 asserts zero such inversions.
+49. **`KOS.ui.openDialog` is the ONLY way a modal enters the document.** It
+    supplies `role="dialog"`, `aria-modal`, a name taken from the modal's own
+    visible heading, a focus trap, the body scroll lock, focus restoration
+    and Escape. Never `document.body.appendChild(overlay)` — smoke42 greps
+    for it. A `danger` prompt is an `alertdialog`, focuses Cancel, and must
+    never confirm on Enter.
+50. Repeated UI goes through the `KOS.ui` primitives rather than a fourth
+    copy: `tabs` (variants `primary` / `workspace` / `card` — the three
+    idioms that used to exist), `emptyState` (`compact` when the page has
+    other content), `statTile` (`suppressZero` for a figure that carries
+    nothing), `scroller`, `pageHeader`, `sectionHeader`, `num`. They emit the
+    EXISTING class names (invariant #26) — `.stat-card`, `.subnav-item`,
+    `.study-tab`, `.dh-*` — so they add behaviour, not a fifth card surface.
+    A horizontal scroller must be declared through `KOS.ui.scroller`; the
+    responsive probe counts an undeclared sideways scroll as unreachable
+    content.
 
 **Calendar & the event model (Build 6.6)**
 41. `KOS.calendar.normalise()` is the SINGLE schema gate for an event — every

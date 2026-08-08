@@ -1074,8 +1074,37 @@ controls always carry a name. Status changes are announced.
 | G-09 — default-theme secondary text fails AA | **Fixed (light) / partial (structure)** | `--muted` #97896D → #726751: 4.52 / 5.02 / 5.33. The hierarchy stays compressed (text2 : muted ≈ 1.34) because the Atelier surfaces span only ~4% luminance; moving `--text2` makes it worse, so opening it further needs a deliberate surface change, deferred as a design decision. |
 | **The 8 Aug data-loss incident** | **Fixed** | Not in the original audit — found in production after Phase A. A dormant device with one real edit still overwrote a newer cloud copy wholesale. A monotonic `__seq` staleness guard now refuses the push and raises a conflict. Covered by smoke41 and by `tools/cloud_staleness_live.mjs` **against the real Supabase database, two independent devices, end to end**. |
 
-**Phase B in progress** — the theme-system pass and free/system dark mode are done
-(G-06, G-08, G-09). Next: breakpoint consolidation, then shared primitives.
+**Phase B — complete.** The release gate is now **42 suites**, all green, plus the
+live-Chrome visual audit and a 480-cell responsive sweep (24 views × 10 widths ×
+2 themes) at zero overflowing elements.
+
+| Finding | Status | How it was verified |
+|---|---|---|
+| **G-17 — 21 breakpoints against a documented 4** | **Fixed** | Every `max-width` in `css/main.css` is now one of **1240 · 1080 · 860 · 700 · 560**; 66 width queries, five thresholds, no `min-width` bands. smoke42 fails the build on a sixth. The tiers, and the rule that a component needing its own collapse point must reflow intrinsically instead, are written into the token block. |
+| **Tier ordering (not in the original audit)** | **Fixed** | Consolidating exposed 30 cases where a *narrower* tier was written ABOVE its wider sibling and therefore never applied: half the Governor seat's ≤700 identity rules (the GOV-1 fix's own `minmax(0,1fr)` and padding), a dead `.heat-stats` rule, and 24 assistant declarations left over from the drawer-era CSS the Category 6.1 workspace rewrite superseded. Removed or reordered; smoke42 asserts zero inversions remain. |
+| **SUBJ-4 — the spec-spine handle floats over the section list** | **Fixed** | The pill kept its 32px desktop width on phones, so "Spec spine" wrapped to two lines and printed on top of the card beneath. `width: auto` in the phone tier. Not visible to a pixel probe — it overlaps vertically without crossing the viewport edge. |
+| **G-10 / U-03 — modals are not dialogs** | **Fixed** | One `KOS.ui.openDialog` primitive: `role="dialog"`, `aria-modal`, a name taken from the modal's own visible heading, focus trap, body scroll lock, focus restoration, Escape. All **33** overlays migrated; a source contract in smoke42 fails the build if a new modal appends itself directly. |
+| **G-11 / U-04 — Enter confirms destructive modals** | **Fixed** | A `danger` dialog is an `alertdialog`, opens with **Cancel** focused, and ignores Enter. Non-destructive dialogs keep the shortcut. |
+| **G-12 / U-05 / CHR-3 — no skip link** | **Fixed** | Visible-on-focus skip link to `#main`, which already carried `tabindex="-1"`. |
+| **G-23 / U-12 — three tab idioms** | **Fixed (component)** | One `KOS.ui.tabs` with three variants — primary (section nav, keeps navigation semantics and `aria-current`), workspace (a real tablist), card (the Books lens). `.subnav-item`, `.study-tab` and the bespoke Books cards all resolve to it. The *duplicate navigations* on Reminders and Gold Shop (REM-1, GOV-3) are page-level and remain open. |
+| **G-24 / U-15 / VLT-2 — covers are a void while loading** | **Fixed** | The module kanji is painted from the first frame and the image cross-fades over it; on error the mark is simply already there. |
+| **REV-1 / U-17 — six stat cards all reading `0`** | **Fixed (Review)** | `KOS.ui.statTile` suppresses a zero that carries no information. Review shows Due and Overdue always — "0 due" is the answer to the question — plus whichever per-subject splits are non-zero. The Gold Shop and Collection zero tiles are page-level and remain open. |
+| **U-20 — empty states occupy card-sized boxes** | **Fixed (component)** | `KOS.ui.emptyState` with a `compact` form: one line, inline action, no reserved box. The eight vault call sites route through it. Per-page adoption continues in later phases. |
+| **MTX-1 / U-29 / SUBJ-3 — scrollers with no affordance** | **Fixed** | `KOS.ui.scroller`: position-aware edge fades, arrow controls, ← → keys, `data-scroller`. Applied to Collection's cover strip and the subject unit band — the two real horizontal scrollers, which between them accounted for every one of the 1,562 overflowing elements the sweep found before the fix. |
+| **B-10 / G-26 — toasts render behind the modal scrim** | **Fixed** | One `--z-*` layer scale; the toast sits above the modal layer. Verified by screenshot with a modal open. |
+| **U-27 — unformatted thousands** | **Fixed (currency)** | `KOS.ui.num()` on the HUD, the Governor instruments and the Gold Shop. The gold progress bar (G-28/U-27's second half) is page-level and remains open. |
+
+**Deliberately retained.** `prefers-reduced-motion`, `prefers-color-scheme` and
+`pointer: coarse` are feature queries, not breakpoints, and stay. No component
+was given a container query: every case that looked like it needed one
+(`.ap-analytics-grid`, `.goal-grid-v2`, `.heat-stats`, `.integration-facts`)
+resolved cleanly onto a tier, and adding a second responsive mechanism to buy
+back 40px of collapse point is a worse trade than the tier.
+
+**Lesson carried forward, second instance:** the pixel probe is necessary and
+not sufficient. It found nothing wrong with the spec-spine pill, because
+overlapping content vertically is invisible to a right-edge check. Screenshots
+at every viewport are still part of verifying a responsive change.
 
 **Lesson carried forward:** an empty test account hides most layout failures.
 Density seeding is now part of verifying any responsive fix — GOV-1 survived a
@@ -1103,7 +1132,7 @@ make five major screens unusable on the most likely device.
   home, subject, focus, governor and assistant.
 - No content sits behind the bottom tab bar.
 
-### Phase B — Shared design system and layout foundations
+### Phase B — Shared design system and layout foundations · **COMPLETE**
 **Areas:** `main.css` token layer and split; `KOS.ui` primitives (Dialog, Tabs,
 Card, StatTile, EmptyState, PageHeader, SectionHeader); breakpoint consolidation.
 **Rationale:** every later phase is cheaper once there is one tab component, one
@@ -1120,6 +1149,19 @@ dialog and four breakpoints.
 - One `Tabs` primitive; `.subnav-item`, `.study-tab` and the Books tab cards all
   resolve to it.
 - No literal `font-size` below 11 px; no spacing literal that isn't a multiple of 4.
+
+**Outcome — met, except two items deliberately deferred:**
+
+| Criterion | Result |
+|---|---|
+| Only the five sanctioned widths | ✓ 66 width queries, thresholds 1240/1080/860/700/560, asserted by smoke42 |
+| `--muted` ≥ 4.5:1 in all 24 themes, three text levels each | ✓ landed earlier in Phase B (`605fcb1`, `93b4f6b`) |
+| One Dialog primitive, every modal uses it, danger-safe | ✓ 33 overlays, source contract in smoke42 |
+| One Tabs primitive resolving all three idioms | ✓ |
+| Visible-on-focus skip link | ✓ |
+| **No literal `font-size` below 11 px** | **Deferred.** ~40 rules sit at 8–10.5 px, most of them inside components (calendar chips at 9.5 px, the Focus micro-text stack, assistant presence at 8–9 px) whose *layout* has to change for 11 px to fit. Raising the number without re-laying-out the component would reintroduce the overflow Phase A removed. This belongs with the per-page work in Phases C–E, where each component is being re-laid-out anyway. The floor is enforced for anything the new primitives emit. |
+| **No spacing literal that isn't a multiple of 4** | **Deferred**, same reason and same phases — the literals are load-bearing inside components that are about to be rebuilt. |
+| **`main.css` split into layered files** | **Not done, and now recommended against for this phase.** The split would have relocated ~50 media blocks across a 7,700-line file; the ordering analysis above shows that is precisely the operation that resurrects dead rules. With the tier contract and the inversion check now enforced by smoke42, a later split is safe to attempt and cheap to verify. Doing it *before* the contract existed would have been the risky order. |
 - A visible-on-focus skip link reaches `#main`.
 
 ### Phase C — Highest-priority page overhauls
