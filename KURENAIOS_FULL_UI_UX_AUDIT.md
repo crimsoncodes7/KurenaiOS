@@ -1,0 +1,1244 @@
+# KurenaiOS — Full UI/UX & Product-Quality Audit
+**Category 7 · audit and remediation plan**
+Audited 7–8 August 2026 · build at `codex/assistant-phase-2-live-character` (123c1d3)
+
+Method: full repository read; live use of the app signed into the owner's real
+account (1,880 media entries, 1,652 sessions, Level 53, 253 progress records);
+a second seeded instance driven over CDP for the responsive/theme matrix.
+161 screenshots at four viewports × two themes are in [`audit-evidence/`](audit-evidence/),
+with machine-measured layout findings in
+[`audit-evidence/_probe-findings.json`](audit-evidence/_probe-findings.json).
+
+---
+
+## 1. Executive Summary
+
+### Overall quality
+
+KurenaiOS is a **remarkably ambitious, genuinely distinctive application with a
+real design identity** — and it is currently **held back far more by a handful of
+systemic defects than by any shortage of craft**. The visual language (parchment
+or lacquer grounds, Fraunces display serif, kanji section marks, restrained
+accent hues, watercolour washes) is coherent, unusual, and worth preserving. The
+token architecture in `css/main.css` is better documented than most commercial
+design systems.
+
+The problem is that this quality is **unevenly distributed**. Roughly a third of
+the app (Focus Timer running state, the media editor, the focus completion
+review, the calendar event modal, Governor's Seat, Assistant chat) is at or near
+production quality. Another third (Home, Review, Collection Overview, the vault
+views, Gold Shop) is competent but over-carded, over-duplicated and full of
+zero-value tiles. The final third (subject desk, ref page chrome, Mangaka,
+mobile everything) is either structurally wrong or has never been designed for
+the viewport it has to survive.
+
+Above all: **the app currently has a P0 that makes it hostile to use on more than
+one device**, and **an accessibility floor that fails WCAG AA on the default
+theme every new user sees**. Neither is a polish item. Both should be fixed
+before any redesign work begins.
+
+### Strongest areas
+
+| Area | Why |
+|---|---|
+| **Focus Timer running state** | The best screen in the app. One dominant clock, calm field, honest microcopy. |
+| **Focus completion review modal** | Facts strip, real award, reflection, note filing, "Already recorded — this only adds to it". Exemplary. |
+| **Calendar event modal** | Correct progressive disclosure, real validation with `role="alert"`, Delete separated from Save. |
+| **Media record editor** | Sectioned form with left-column explanations; destructive action correctly isolated. |
+| **Governor's Seat** | Confident hero, honest HP microcopy, coherent instrument strip. |
+| **Assistant page (desktop)** | Modern, well-composed; markdown/table rendering is excellent. |
+| **Microcopy throughout** | Consistently literate and honest ("Ending now forfeits the award", "Purchases are paused, not lost"). A real asset. |
+
+### Weakest areas
+
+| Area | Why |
+|---|---|
+| **Cloud sync ↔ navigation** | Background pulls hijack the current page and clobber local UI state. P0. |
+| **The ref page chrome stack** | ~330 px of controls before the first word of revision content. |
+| **The subject desk** | Renders the same section list twice, side by side. |
+| **Mobile, nearly everywhere** | Content is *clipped*, not reflowed. Home overflows by 208 px, Focus by 280 px. |
+| **Mangaka** | 142,062 px tall, 12,833 DOM nodes, 1,107 `<img>` in one view. |
+| **Default-theme contrast** | `--muted` is 3.1:1. Used at 9–13 px across the whole app. |
+| **Modal accessibility** | No `role="dialog"`, no focus trap, no scroll lock, Enter confirms deletes. |
+| **Dark mode** | Only available by spending 140 gold. No `prefers-color-scheme` support at all. |
+
+### Major recurring design problems
+
+1. **Duplicated information within one viewport.** The ref page shows mastery
+   twice and the four material counts twice. The subject desk shows the section
+   list twice. Collection Overview shows the four module totals three times.
+   Reminders and Governor each carry two navigations for the same destinations.
+2. **Chrome before content.** Every page opens with kicker + title + subtitle +
+   tabs + filters + action chips before anything the user came for.
+3. **Zero-value tiles.** Review shows six stat cards reading `0`. Gold Shop
+   shows "0 affordable now" beside "everything owned". Collection shows
+   "0 playing now".
+4. **Empty states occupy card-sized boxes** rather than collapsing.
+5. **Charts without axes**, several with one data point, several near-identical.
+6. **Three different tab idioms** (`subnav-item`, `study-tab`, the Books
+   `Digital / Physical Vault` cards) doing the same job.
+
+### Major recurring UX problems
+
+1. Background sync steals navigation and orphans open modals.
+2. Navigation dirties the cloud document, so the sync chip never rests.
+3. No URL routing — browser Back exits the app; nothing is linkable.
+4. No keyboard shortcuts in the flashcard/quiz engines.
+5. No global search over the 1,880-item collection (spec points only).
+6. Calendar opens on a stale, previously-viewed week.
+7. Provider tokens don't sync, so profile pages dead-end on a new device with no
+   explanation.
+
+### Major bug classes
+
+Navigation hijack (sync) · scroll-position jumps on render · lazy-loader stalls ·
+un-virtualised list rendering · state-vs-DOM desync · cosmetics not re-applied
+after a cloud pull · mobile overflow clipping.
+
+### Is the design system coherent?
+
+**The tokens are; the usage is not.** `:root` defines a well-considered set
+(`--bg0/--bg1/--panel`, `--text/--text2/--muted`, three accents, 4 px spacing
+scale, radius/control/type ramps) and documents a four-tier breakpoint plan.
+But the stylesheet then uses **21 distinct breakpoints**, and **23 of the 24
+themes set `--text2` identical to `--text`**, collapsing the three-level type
+hierarchy to two everywhere except the default. The system is sound; it needs
+enforcement, not replacement.
+
+### Polish vs redesign
+
+Across the 35 screens and sub-surfaces in the redesign matrix:
+**3 FULL OVERHAUL · 10 PARTIAL REDESIGN · 16 POLISH · 6 KEEP.**
+Weighted by usage, roughly **35 % needs structural work and 65 % needs polish**.
+No screen needs its visual language replaced — the identity is the app's best asset.
+
+---
+
+## 2. Severity Scale
+
+| Level | Meaning |
+|---|---|
+| **P0 — Critical** | Breaks core workflows, data safety, or makes an important area unusable. |
+| **P1 — High** | Major UX/layout/product problem; fix soon. |
+| **P2 — Medium** | Noticeable friction, inconsistency, or visual weakness. |
+| **P3 — Low** | Polish and detail. |
+
+**Redesign classification** — `KEEP` (sound as-is) · `POLISH` (spacing, type,
+tokens; no structural change) · `PARTIAL REDESIGN` (re-lay-out part of the page,
+keep the rest) · `FULL OVERHAUL` (rethink information architecture and layout).
+
+---
+
+## 3. Global / Cross-App Findings
+
+### 3.1 Navigation & routing
+
+**G-01 · P0 · Background cloud sync hijacks navigation and clobbers UI state.**
+`cloudsync.applyRemoteState()` replaces `KOS.store.state` wholesale — including
+`state.ui` — and then calls `rerenderCurrent()`
+([cloudsync.js:402](js/core/cloudsync.js:402)), which calls `KOS.show(ui.view)`.
+Because `ui.view`, `ui.subject`, `ui.openSections`, `ui.railOpen`, `ui.calFocus`,
+`media.*.layout/sort/tab` all live in the synced document, **whatever page
+another signed-in device is on is forced onto this one.**
+
+Observed three times in ~20 minutes of ordinary use:
+`review → ref`, `assistant → governor`, and — worst — while the **anime record
+editor was open**, the page behind it navigated to a Computer Science spec page,
+leaving the modal floating over an unrelated view. `KOS.show` runs
+`main.innerHTML = ""`, so any in-progress inline editing is destroyed.
+
+A guard instrumented at runtime proved the two halves are independent: with
+`KOS.show` blocked, `state.ui.view` was **still** overwritten to `governor`
+while the DOM showed the Assistant — a persistent state-vs-DOM desync that sends
+the next reload to the wrong page.
+
+*Fix:* split per-device UI preferences out of the synced document (keep them in
+a local-only `kos.ui` key), and make `rerenderCurrent()` refresh the **current**
+view in place rather than routing to the remote document's view.
+
+**G-02 · P1 · Every navigation dirties the cloud state document.**
+`KOS.show` ends with `KOS.store.save()`, writing `ui.view`; cloudsync's
+dirtiness test is `hashStr(JSON.stringify(KOS.store.state))`
+([cloudsync.js:436](js/core/cloudsync.js:436)). Measured: `Synced` →
+`Changes pending` on the very next page view, then a full push. Consequences:
+the sync chip never rests and therefore carries no information; every page view
+uploads the entire state document (1,652 sessions, 253 empty progress records);
+and under whole-document LWW, *looking* at a page on one device can overwrite
+real edits on another. Same fix as G-01.
+
+**G-03 · P1 · No URL routing.** `KOS.show` maintains a private
+`navHist`/`navFwd` array ([ui.js:99–123](js/core/ui.js:99)) and never touches
+`history.pushState`. The browser/OS Back button therefore **exits the app**
+instead of navigating it — severe in an installed PWA — and nothing is
+bookmarkable, linkable or shareable. The in-app `‹ ›` buttons are the only way
+back, and `rerenderCurrent()` pushes entries onto that stack too, so even they
+lie after a sync.
+
+**G-04 · P2 · The app scrolls an inner container, not the document.**
+`#main` is `overflow-y: auto` inside `#app { height: 100vh }`. Mobile browsers
+never collapse their URL bar, native scroll restoration doesn't apply, and
+`position: sticky` only works relative to `#main`.
+
+**G-05 · P2 · Views are torn down with no teardown hook.** `main.innerHTML = ""`
+is the only cleanup. Any interval, `IntersectionObserver` or listener a view
+registered keeps running after navigation.
+
+### 3.2 Themes
+
+**G-06 · P1 · Dark mode is paywalled and OS preference is ignored.** All 23
+themes are shop items at 140 gold ([governor.js:228–250](js/core/governor.js:228)).
+`:root` is the light Atelier Dawn. There is **no `prefers-color-scheme` rule
+anywhere** in the CSS or JS. A user whose device is in dark mode gets a bright
+parchment app and must grind currency to escape it.
+
+**G-07 · P1 · Cosmetics are not re-applied after a cloud pull.**
+`applyCosmetics()` is called exactly once, at boot ([main.js:55](js/main.js:55)).
+Signing in on a new device pulls `governor.theme = "celestial-duality"` and 27
+owned themes, but `data-theme` stayed empty and the app rendered in the default
+light theme until a manual reload. Theme, seal, avatar frame, shelf skin and
+shrine style are all affected. *Fix:* call `applyCosmetics()` from
+`rerenderCurrent()`.
+
+**G-08 · P2 · The three-level type hierarchy exists only in the default theme.**
+Measured across all theme blocks: **every one of the 23 dark themes sets
+`--text2` to the same value as `--text`**, and all 23 share one `--muted`
+(`#7E899A`, a blue-grey) regardless of the theme's hue — so a warm theme like
+*Solar Manuscript* or *Crimson Moth* renders its secondary text cold blue.
+
+### 3.3 Accessibility
+
+**G-09 · P1 · Default-theme secondary text fails WCAG AA.** Measured
+contrast ratios:
+
+| Token | Theme | On `--bg1` | On `--panel` | Verdict |
+|---|---|---|---|---|
+| `--muted` `#97896D` | **light default** | **3.10** | **3.29** | ✗ fails AA (4.5) |
+| `--text2` `#5E5442` | light default | 6.71 | — | ✓ |
+| `--muted` `#7E899A` | celestial-duality | 5.58 | 5.06 | ✓ |
+| `--muted` `#7E899A` | rain-cafe | 4.48 | **3.41** | ✗ on panels |
+| `--accent` `#5D6BA8` | **celestial-duality** | **2.74** | — | ✗ accent text/links |
+
+`--muted` is the app's workhorse: every ALL-CAPS field label, every empty-state
+sentence, every sub-line — at **9, 10, 11, 12, 12.5 and 13 px**, far below the
+large-text exemption. On Home alone, 26 distinct failing text styles were found.
+
+**G-10 · P1 · Modals are not dialogs.** `KOS.ui.confirm`
+([ui.js:66–92](js/core/ui.js:66)) creates a plain `div` with **no
+`role="dialog"`, no `aria-modal`, no `aria-labelledby`**, **no focus trap**
+(Tab from the last button escapes into the page behind), **no body scroll lock**
+(`overflow: visible` while open), and **no focus restoration** on close.
+
+**G-11 · P1 · Enter confirms destructive modals.** `onKey` binds
+`Enter → close(true)` ([ui.js:76](js/core/ui.js:76)) for *all* modals including
+`danger: true`, and initial focus is placed on the `.danger` button
+([ui.js:90](js/core/ui.js:90)). Two Enters deletes.
+
+**G-12 · P1 · No skip link.** Reaching page content requires tabbing past 13
+chrome controls (brand, back, search, assistant, sync, forward, 7 rail items,
+HUD). `#main` already carries `tabindex="-1"` — only the link is missing.
+
+**G-13 · P1 · Touch targets far below minimum.** Measured per view:
+the ref page has **11 controls at 16×16 px** (the four progress-check
+checkboxes among them); the calendar has **61 sub-24 px targets at every
+viewport including 1920**; Home has 4; the Assistant mascot hit-zones are
+14×10, 24×17 and 32×22 px. WCAG 2.5.5 asks for 44×44.
+
+**G-14 · P2 · Unlabelled and non-semantic controls.** `.todo-in`,
+`.res-refin` and `.rem-quick-in` inputs have no accessible name; a `div`
+(the subject card) sits in the tab order; the decorative quote pill on Home is
+a focusable `button`.
+
+**G-15 · P3 · Reduced motion is honoured bluntly but honestly.**
+`@media (prefers-reduced-motion: reduce)` kills petals and sets
+`* { animation-duration: .001s !important; transition-duration: .001s !important }`
+([main.css:250](css/main.css:250)). Effective; worth narrowing to avoid
+disabling functional transitions.
+
+### 3.4 Responsive behaviour
+
+**G-16 · P0 · The phone tier clips instead of reflowing.** Machine-measured at
+390 px (`_probe-findings.json`):
+
+| View | Overflowing elements | Worst offender |
+|---|---|---|
+| `subject` | **155** | `.unit-stat` +36 px; section rows and paper card cut off |
+| `home` | **54** | `.todo-panel` / `.path-card` **+208 px** |
+| `focus` | **40** | `.fx-setup-main` **+280 px**, `.fx-modes` +255 px |
+| `governor` | 8 | `.gov-seat-hero` content 492 px inside a 341 px box |
+| `assistant` | 21 | `.asst-presence` clipped 132 px — "Voice on"/"Ready when…" cut |
+
+Crucially `document.scrollWidth` never exceeds the viewport on any view — the
+app has **no horizontal page scrollbar because everything is `overflow: hidden`**.
+Content isn't reachable; it's amputated.
+
+**G-17 · P1 · 21 breakpoints against a documented 4.** The token comment at
+[main.css:84](css/main.css:84) declares "1240 workspace · 1080 compact rail ·
+860 compact · 560 small". The file actually uses 1240, 1180, 1120, 1100, 1080,
+1050, 1040, 1000, 900, 860, 850, 840, 820, 760, 700, 680, 620, 560, 520, 480,
+460. The "phone tier" CLAUDE.md describes as one block at the end of the file is
+**seven scattered `max-width: 700px` blocks**.
+
+**G-18 · P1 · `height: 100vh` with no `dvh` fallback.**
+[main.css:258](css/main.css:258) on `#app`, the outermost frame. Only three
+`100vh` uses exist in the whole file and none has a dynamic-viewport fallback.
+
+**G-19 · P1 · The bottom tab bar overlaps content.** At 390 px the primary CTA
+on Focus, section 4.5 on the subject desk and the last conversation turn on the
+Assistant all sit behind the tab bar — `#main` has no bottom padding for it.
+
+**G-20 · P2 · Seven-item bottom tab bar at 390 px.** "Productivity" truncates to
+"Productivi…"; labels render at ~9 px.
+
+**G-21 · P2 · Global search disappears on mobile.** `#searchbox` is hidden in
+the phone tier with no replacement entry point.
+
+**G-22 · P2 · The subnav wraps to three rows on phones.** On the subject desk
+that is ~230 px — a quarter of the screen — before the page title.
+
+### 3.5 Components
+
+**G-23 · P1 · Three tab idioms.** `.subnav-item` (section nav), `.study-tab`
+(`KOS.workspaceTabs`, used for Review/Planner/Sync/Governor/ref tabs), and the
+bespoke Books `Digital / Physical Vault` cards. On Reminders the workspace tabs
+sit **60 px below the subnav offering the same three destinations**. On Gold
+Shop a category card row sits beside a category list of the same taxonomy.
+
+**G-24 · P2 · Loading state for covers is a void.** `medview.cover()`
+([medview.js:39](js/modules/medview.js:39)) shows the module kanji on `error`
+and when `coverUrl` is empty, but **not while loading**. With `loading="lazy"`,
+a 1,100-item grid is a field of empty boxes that reads as broken.
+
+**G-25 · P2 · The sync chip has three states and no rest state.** Because of
+G-02 it cycles `Synced → Changes pending → Syncing…` on navigation alone.
+
+**G-26 · P2 · Toasts render behind the modal scrim.** After ending a focus
+session, "Focus session logged — award forfeited" appeared dimmed underneath the
+review modal.
+
+**G-27 · P3 · Numbers are unformatted.** `12344 gold` everywhere; no thousands
+separator, in the HUD, the hero, and the Gold Shop.
+
+**G-28 · P3 · Gold shows a progress bar.** In Governor's Seat, gold has a filled
+bar labelled "Catalogue complete" — a progress bar for a currency balance.
+
+### 3.6 Data & empty states
+
+**G-29 · P1 · The headline dashboard reads all-zero for an active user.** The
+real account — Level 53, 71,802 XP, 1,652 sessions, 1,880 collection entries —
+sees `0% covered · 0/355 spec points · 0 mastered · 0 cards due` on Home and
+`0%` on all three subject cards. The numbers are *truthful* (all 253 progress
+records are `status:"none"` with no checks), but the app's front page tells its
+most active user they have done nothing. The metrics chosen for the hero don't
+describe what this user actually does.
+
+**G-30 · P2 · 253 empty progress records are persisted and synced.** Merely
+opening a topic writes `{status:"none", check:[false×4], note:""}`, which then
+rides every cloud push and every backup.
+
+**G-31 · P2 · The genre facet mixes two vocabularies.** The "All genres"
+dropdown carries **64 options**, alphabetically interleaving real genres with
+one-off VNDB content tags — "Albino Heroine", "Battle of Wits", "Breaking the
+Fourth Wall", "Chuunibyou Protagonist" sitting between *Adventure* and *Comedy*.
+`stats().genres` shows ~40 tags with a count of 1 or 2.
+
+**G-32 · P2 · Charts render with one data point.** `scores` across all 1,880
+entries is `[0,0,0,0,0,0,0,0,0,0,1]` — a single rated title — yet "Score
+distribution" gets a full-size card.
+
+**G-33 · P2 · Seeded sample data persists on a mature account.** Four
+`SAMPLE — … (edit me)` calendar events from `KOS.calendar.seedSamples()` are
+still present on a Level 53 account and render on every month and week grid.
+
+---
+
+## 4. Section-by-Section Audit
+
+### 4.1 Home (`home`)
+
+**Current UX.** Date kicker + greeting + "Begin a focus session"; an HP-state
+banner; a hero band (avatar, level, quote, XP bar, streak chips, four KPIs over
+banner artwork); a two-column row of "Today's Directives / Reminders" and
+"Countdowns"; then four cards — three subjects plus Collection.
+
+**What works well.** The greeting is warm and time-aware ("Good evening.",
+"Working late."). The HP banner is a genuinely good actionable alert. The hero
+reads beautifully *when the numbers are non-zero* (see
+`audit-evidence/phone-390-dark-home.jpg`).
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| HOME-1 | P1 | Data/design | Four KPIs read `0` for the real account (G-29). Hero communicates nothing. |
+| HOME-2 | P1 | Contrast | KPI values and labels sit directly on banner artwork with **no scrim**; "COVERED" is overlapped by the progress ring and partly illegible. Fragile by luck of the image. |
+| HOME-3 | P1 | Responsive | At 390 px `.todo-panel` overflows **+208 px**; directive text is cut mid-sentence and unreachable. |
+| HOME-4 | P2 | Layout | Two large empty-state boxes side by side (Directives, Countdowns) consume ~280 px saying nothing. |
+| HOME-5 | P2 | Layout | The Collection card is a different shape from the three subject cards beside it — no % badge, no Continue action. |
+| HOME-6 | P2 | Clarity | Seven unlabelled pips beside the streak chips have no explanation. |
+| HOME-7 | P2 | A11y | The decorative quote is a focusable `<button>` in the tab order. |
+| HOME-8 | P3 | Responsive | At 390 px greeting and CTA compete on one row; hero is ~890 px tall on an 844 px screen. |
+
+**Visual assessment: PARTIAL REDESIGN.** The composition is good; the *content
+selection* is wrong and the hero has no scrim discipline.
+
+**Proposed direction.** Keep the band, change what it measures. Lead with a
+single **"what should I do next"** statement, then three honest figures chosen
+from what the user actually generates — study streak, cards due, hours logged
+this week — with coverage demoted to the subject cards where it belongs. Put a
+mandatory gradient scrim behind all hero text (`linear-gradient` from
+`--bg1` at the text side). Collapse empty Directives/Countdowns to a single
+one-line row with an inline "Add" affordance rather than two boxes. Give the
+Collection card the same shape as the subject cards. On phones, stack the hero
+into: identity row → one KPI row that scrolls horizontally → streaks; and let
+the directive list wrap.
+
+---
+
+### 4.2 Study — subject desk (`subject`)
+
+**Current UX.** Left spec tree; page header; a board card (AQA 7517 + three
+paper cards); a "Sections" ledger; a right "Subject analytics" 2×4 tile grid;
+a full-width action card.
+
+**What works well.** The board/paper card is a strong component. The analytics
+tiles have one consistent shape and a shared low/mid/high ramp.
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| SUBJ-1 | **P1** | Information architecture | **The left tree and the "Sections" ledger render the same list simultaneously** — same 14 sections, same counts, ~400 px apart. |
+| SUBJ-2 | P1 | Duplication | Spec-point totals appear four times with four labels: "156 spec points", "0/156 secure" (tree), "TOPICS SECURE 0/156", "TOPICS STARTED 0/156". |
+| SUBJ-3 | **P1** | Responsive | 155 overflowing elements at 390 px; the paper card scrolls horizontally inside itself (Papers 2–3 unreachable); section rows are cut at the right edge. See `audit-evidence/phone-390-dark-subject.jpg`. |
+| SUBJ-4 | P1 | Responsive | The "SPEC SPINE" drawer handle floats over the section list mid-content on phones, obscuring a row. |
+| SUBJ-5 | P2 | Layout | Long deadline titles clip by **286 px** in `.dl-title` at 1440. |
+| SUBJ-6 | P2 | Copy | A dense explanatory paragraph ("Mastery averages the four progress checks…") sits under the grid as body text. |
+
+**Visual assessment: FULL OVERHAUL.** A page cannot ship showing its primary
+navigation twice.
+
+**Proposed direction.** Decide what the tree is *for*. Recommended: **the tree
+becomes the only section list**, and the main column becomes a genuine subject
+*desk* — a single "continue where you left off" card, the paper/board summary,
+the analytics grid, and the action card. The section ledger disappears from the
+main column entirely; drilling into a section happens in the tree, which gains
+the ledger's progress bars. This alone reclaims ~600 px and removes SUBJ-1 and
+SUBJ-2. On phones, the tree is already a drawer — move the paper card into a
+horizontally-scrolling snap carousel with visible affordance, wrap the unit
+stats, and dock the spine handle to the bottom-left above the tab bar.
+
+---
+
+### 4.3 Study — topic / ref page (`ref`)
+
+**Current UX.** Crumbs → seal + title + exam board line → "TOPIC STATUS" band
+(status select, four progress checkboxes, three confidence dots) → an action
+row (Ask Kurenai / Make flashcards / Make a quiz) → six study tabs → up to seven
+note-page pills → content. A right "INSPECTOR" column carries mastery,
+materials, recall record and next review.
+
+**What works well.** The content typography is excellent — measure, callouts,
+worked examples, code slabs. The inspector's *idea* is right.
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| REF-1 | **P1** | Layout | **~330 px of chrome before the first word of content.** At 1440×900 only ~220 px of viewport shows revision material. See `audit-evidence/laptop-1440-light-ref.jpg`. |
+| REF-2 | **P1** | Bug | Opening a topic **scrolls the page 579 px down**, past the title, status band and tabs. Root cause: `showPage()` calls `article.scrollIntoView()` on **first mount**, not just on user page changes — [hub.js:1362](js/modules/hub.js:1362). |
+| REF-3 | P1 | Duplication | Mastery `0% · 0/4 checks` appears in the status band **and** in the inspector, ~280 px apart. |
+| REF-4 | P1 | Duplication | The four material counts appear as tab badges **and** as inspector "MATERIALS". Same four numbers twice. |
+| REF-5 | P1 | A11y | 11 controls at 16×16 px, including the four progress checkboxes. |
+| REF-6 | P2 | Layout | Six study tabs wrap, orphaning "Files" on its own row; seven note pills wrap to two rows. Three levels of tab on one page. |
+| REF-7 | P2 | Clarity | "CONFIDENCE" is three unlabelled pale circles; in the light theme they are near-invisible against cream. |
+| REF-8 | P1 | UX | **No keyboard support in the flashcard/quiz engines** — no space-to-flip, no 1–4 grading. Verified: zero `keydown` handlers in `js/engines/`. |
+| REF-9 | P2 | Layout | On the Flashcards tab the card and its grading buttons are below the fold at 900 px. |
+| REF-10 | P3 | Design | Rating pills carry 8 px sub-labels ("blanked — retest now") that are illegible. |
+
+**Visual assessment: FULL OVERHAUL** (of the page shell; **KEEP** the content
+renderer).
+
+**Proposed direction.** Invert the page: **content first, chrome on demand.**
+Header collapses to one row — seal, title, board line, and a compact
+`● Started ▾` status control. The progress checks, confidence and materials
+counts move into the inspector, which becomes the page's single "state" surface
+(and gains a proper collapse). The six study tabs become a single sticky bar
+directly above content. Note pages become a `‹ 3 / 7 ›` stepper in that bar, not
+a second pill row. Fix REF-2 by passing a flag so only user-initiated page
+changes scroll. Add flashcard keybindings (`Space` flip, `1–4` grade, `→` next)
+and surface them in the card footer. Target: **content begins within 140 px**.
+
+---
+
+### 4.4 Study — Review (`review` / `due` / `cardstats`)
+
+**Current UX.** Header with a two-tab switcher; a six-card stat strip; then the
+due queue or the card-stats charts.
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| REV-1 | P2 | Design | Six stat cards, **all reading `0`** on a real account. Five of six carry no information. |
+| REV-2 | P2 | Layout | The page ends at ~60 % of viewport height; the rest is empty. |
+| REV-3 | P3 | Design | The 澄 "Queue clear" empty state is handsome but occupies 190 px for one sentence. |
+
+**Visual assessment: POLISH.** Structure is right.
+
+**Proposed direction.** Collapse the stat strip to one line (`0 due · 0 overdue`)
+and only expand per-subject figures when non-zero. Bring the "Queue clear" state
+up to fill the reclaimed space and give it a real next action ("Rate cards on a
+topic →" as a button, not prose).
+
+---
+
+### 4.5 Study — Assignments, Exams & Papers, Personal Deck
+
+Clean at every desktop viewport; no overflow. Both are competent list-plus-stats
+pages with correct empty states. `tracker` has one 13×13 px checkbox.
+
+**Visual assessment: POLISH** (both). Raise checkbox hit areas; align their stat
+strips with whatever Review adopts.
+
+---
+
+### 4.6 Productivity — Focus Timer (`focus`)
+
+**Current UX.** Setup (mode cards, subject/topic/assignment/objective, "The
+deal" panel, "Your record") → running state (dominant clock, context chips,
+buttons, quick note) → completion review modal.
+
+**What works well.** The **running state is the best screen in the app**. The
+**completion review modal is exemplary**: facts strip, the real award,
+reflection, note filing, and "Already recorded — this only adds to it".
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| FOC-1 | **P1** | Responsive | At 390 px `.fx-setup-main` overflows **+280 px** and `.fx-modes` +255 px. Mode cards, topic select and objective input are all cut; the primary CTA sits behind the tab bar. |
+| FOC-2 | P2 | Design | "The deal" is a right-aligned monospace ledger (`-15% (36 XP at two)`, `-2 HP, charged as it happens`) — reads as a spec sheet, exposing the economy's implementation. |
+| FOC-3 | P2 | Design | The running state stacks ten rows of 9–11 px low-contrast micro-text under the clock, undoing the calm of the top half. |
+| FOC-4 | P2 | Hierarchy | Three buttons in three colours (purple Pause, blue "Study while focused", red "End early") with no clear primary. |
+| FOC-5 | P3 | Layering | The completion toast renders behind the review modal's scrim. |
+
+**Visual assessment:** setup **PARTIAL REDESIGN** · running state **POLISH** ·
+review modal **KEEP**.
+
+**Proposed direction.** Setup: a single column at ≤820 px with full-width mode
+cards; rewrite "The deal" as three plain sentences ("A finished 25-minute cycle
+pays 35 XP, 5 gold and 6 HP. Your first pause is free; each one after costs 15 %.
+Ending early logs the session but forfeits the award."). Running: keep the clock
+and the objective; move pauses/tab-switches/eligibility into one single-line
+status strip and put quick notes behind a "Jot" toggle. Make Pause the only
+filled button.
+
+---
+
+### 4.7 Productivity — Reminders (`reminders`)
+
+**Current UX.** Three columns: smart sections + lists + tags · list with search,
+priority and sort · detail inspector.
+
+**What works well.** Long titles wrap correctly in the list and truncate in the
+inspector. The inspector opens automatically on add. Lists-vs-tags is well
+explained inline.
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| REM-1 | P2 | Navigation | The workspace tabs (Reminders / Habits / Calendar) sit **60 px below the subnav offering the same destinations** (G-23). |
+| REM-2 | P2 | Layout | The inspector reserves a full column for a placeholder glyph when nothing is selected. |
+| REM-3 | P2 | A11y | The quick-add input has no accessible name; alert chips are ~9 px. |
+| REM-4 | P3 | Semantics | "All 0" while "Completed 1" — the counts don't explain their own scope. |
+
+**Visual assessment: POLISH.** One of the better-structured pages.
+
+---
+
+### 4.8 Productivity — Calendar (`calendar`)
+
+**Current UX.** Month/Week toggle, prev/next/Today, "New event"; a grid; a
+progressive-disclosure event modal.
+
+**What works well.** **The event modal is a model of the pattern** — core fields
+visible, Details and Repeat & alerts collapsed, colour swatches, real validation
+with `role="alert"`, date correctly defaulted to today.
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| CAL-1 | P2 | State | The grid opens on a **stale persisted week**: `ui.calFocus = "2026-08-01"` while today was 7 August, so the calendar opened on the previous week with only a quiet "Today" chip to signal it. Adding an event to the wrong week is one click away. |
+| CAL-2 | P1 | A11y | **61 sub-24 px targets at every viewport, including 1920** — the day cells' event chips. |
+| CAL-3 | P2 | Layout | Event titles clip: `.cal-ev-t` at 33 px content in a 15 px box on desktop; 19 clipped titles at 820 px; 103 px content in a 30 px box at 390 px. |
+| CAL-4 | P2 | Data | Four `SAMPLE — … (edit me)` seed events still render on a mature account (G-33). |
+| CAL-5 | P3 | Design | The colour swatch row has no labels; the white swatch is invisible on light themes. |
+
+**Visual assessment: POLISH.** Reset `calFocus` to today on view entry unless
+navigated within the session; raise chip heights; give chips a title tooltip and
+a two-line clamp.
+
+---
+
+### 4.9 Collection — Overview (`matrix`)
+
+**Current UX.** Header, streak chips, a "Currently consuming" cover strip, a
+seven-tile KPI row, then eleven chart cards, then four module cards.
+
+**What works well.** The most *alive* page in the app — real cover art, real
+numbers. The four module cards with kanji watermarks are a strong signature.
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| MTX-1 | P2 | Affordance | The cover strip is a real `overflow-x: auto` scroller but has **no arrows and no edge fade**; the last card is sliced by the container edge and reads as a rendering bug. |
+| MTX-2 | P1 | Design | **Four near-identical "X by status" bar charts** with the same five categories; the VN and Games versions have one bar each. |
+| MTX-3 | P2 | Duplication | The four module totals (692/1107/11/70) appear in the KPI row, the "whole vault" donut, the "vault by medium" donut **and** the four module cards — four times on one page. |
+| MTX-4 | P2 | Design | Charts have **no axes, no gridlines, no tooltips**; category labels render at ~7 px. |
+| MTX-5 | P2 | Data | "Score distribution" renders from a single rated title (G-32). "0 playing now" is a zero tile. |
+| MTX-6 | P3 | Consistency | Progress formats differ per card: `69 / 76`, `13 ch`, `7/8 vol`, `14 / 26 ch` — spacing around the slash is inconsistent. |
+
+**Visual assessment: PARTIAL REDESIGN.**
+
+**Proposed direction.** Replace the four status charts with **one small-multiples
+row** sharing an axis and a legend. Cut the second donut. Keep the KPI row, the
+cover strip (with fades and arrows) and the four module cards; move the long tail
+(genres, scores, medium, in-progress) behind an "Analytics" tab so the overview
+is one screen. Standardise a `progressText()` helper.
+
+---
+
+### 4.10 Collection — Anime · Books · Visual Novels · Games
+
+**Current UX.** Hero spotlight (banner + title + status + `+1 ep` / Open entry /
+Spotlight / Banner) → filter rail → toolbar → lazy cover grid.
+
+**What works well.** The Anime hero with a real banner is the app's best
+single visual moment. The filter rail is well organised. The lazy grid is fast.
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| VLT-1 | **P1** | Bug | **The lazy loader stalls whenever the sentinel stays continuously intersecting.** `renderBatch` appends one batch per intersection *transition* ([medview.js:253](js/modules/medview.js:253)); a flick-scroll to the bottom leaves the sentinel inside the 600 px `rootMargin` and the list stops dead at 300 of 692 entries. Reproduced 10/10 times. *Fix:* loop until the sentinel is no longer intersecting. |
+| VLT-2 | P1 | Loading | Covers show **nothing** while loading (G-24) — a grid of empty boxes. |
+| VLT-3 | P1 | Control clutter | Books stacks **17 controls in three rows** before content (tab cards, search + 5 selects + layout, then 8 action chips); Anime 11; Games 9. No grouping logic — "Profile" sits beside "+Add"; "Seasonal" beside "List". |
+| VLT-4 | P1 | Consistency | Hero treatment differs per vault: Anime gets a full-bleed banner, Books/VN a mostly-empty gradient with a small floated cover, Games a kanji placeholder. Same component, three levels of finish. |
+| VLT-5 | P2 | Contrast | Hero text sits on artwork with no scrim — legibility depends on which image happens to be spotlighted. |
+| VLT-6 | P2 | Data | Long titles wrap to three lines over the cover art, obscuring half the image. |
+| VLT-7 | P2 | Data | Custom lists imported from AniList with decorative Unicode names (`—— ☆ ——`) render as near-invisible thin lines in the filter rail. |
+| VLT-8 | P2 | Facet | The genre select carries 64 options mixing genres and VNDB tags (G-31). |
+| VLT-9 | P2 | Editor | The record editor exposes the **raw AniList CDN URL** in an editable field for synced entries, and shows an unrated score as `0`. |
+| VLT-10 | P2 | Layout | `.med-quickrow` overflows its 128 px card by 8 px on the Seasonal grid (23 instances). |
+| VLT-11 | P3 | Design | Games is 70 identical grey 遊 tiles — monotonous, reads as unfinished. |
+
+**Visual assessment: PARTIAL REDESIGN** (all four).
+
+**Proposed direction.** One vault shell, four skins. Fix the hero contract: every
+module gets the same component with a mandatory scrim and, absent a banner, a
+generated gradient derived from the cover's dominant hue rather than an empty
+panel. Collapse the toolbar to **search + sort + layout visible; everything else
+behind one "Actions ▾" menu and one "Filters" button** that opens the rail as a
+sheet below 900 px. Show the kanji placeholder during load, cross-fading to the
+image. Clamp titles to two lines with a tooltip. Split the genre facet into
+"Genres" and "Tags", or threshold tags at count ≥ 5.
+
+---
+
+### 4.11 Collection — Mangaka (`mangaka`)
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| MNG-1 | **P0** | Performance | Renders **all 882 authors and 1,107 series at once**: `scrollHeight` **142,062 px**, **12,833 DOM nodes**, **1,107 `<img>` elements**, 308 truncated titles. Directly violates the project's own invariant #8 ("Views NEVER render the whole vault at once"). |
+| MNG-2 | P1 | Navigation | No search, no A–Z index, no filter — 882 authors reachable only by scrolling 142 k px. |
+
+**Visual assessment: FULL OVERHAUL.**
+
+**Proposed direction.** Adopt `medview`'s lazy area (it already exists — this
+view simply doesn't use it). Add an author search, an A–Z jump rail and a
+"authors with ≥ N works" filter. Default to the 60 most-read authors.
+
+---
+
+### 4.12 Collection — Shrine · Planner · Goals · Sync · Profiles
+
+Clean at desktop; no overflow. Shrine's rank-one feature is well composed and the
+Planner's release desk is a genuinely good idea.
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| COL-1 | P1 | UX | **AniList and VNDB profile pages dead-end on a new device**: "Connect your AniList first" despite the vault being fully AniList-synced, because tokens are deliberately excluded from sync/backup. The message never says *why* or that the data is already there. |
+| COL-2 | P2 | A11y | Sync & Import has 6 unlabelled controls and 3 sub-24 px targets. |
+| COL-3 | P2 | Layout | Goals and both profile pages end at ~60 % viewport height. |
+
+**Visual assessment:** Shrine **KEEP** · Planner **POLISH** · Goals **POLISH** ·
+Sync **POLISH** · Profiles **PARTIAL REDESIGN** (they need a real signed-out /
+token-missing state that explains the situation and offers the reconnect action).
+
+---
+
+### 4.13 Governor (`governor`)
+
+**Current UX.** Four tabs (Status / Gold Shop / Avatar / Session Log). Status:
+hero with identity and an access-state panel; a five-tile instrument strip; a
+90-day cadence heatmap and a milestone ledger.
+
+**What works well.** The most polished page. HP microcopy is honest and
+actionable. The heatmap and ledger are genuinely useful.
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| GOV-1 | **P1** | Responsive | At 390 px `.gov-seat-hero` holds 492 px of content in a 341 px box with `overflow: hidden` — "Grandmaster · Behavioural Governor" and "Level 53" are cut off. |
+| GOV-2 | P2 | Placement | Settings (Recovery mode, PREFER HP Low/Full/Off, Edit profile, Edit banner) live **inside the decorative hero**. Configuration in a display banner. |
+| GOV-3 | P2 | Design | Gold Shop shows a category card row **and** a category list of the same taxonomy (G-23). |
+| GOV-4 | P2 | Data | "51 / 51 unlocked · **0 affordable now** · — everything owned" — a zero tile and an em-dash tile side by side. |
+| GOV-5 | P3 | Design | Shop items use abstract bar-chart SVGs that don't represent the item. Gold has a progress bar (G-28). |
+
+**Visual assessment: POLISH** (Status) · **POLISH** (Gold Shop).
+
+**Proposed direction.** Move the access-state/settings cluster out of the hero
+into its own card directly beneath it. Collapse the shop's dual taxonomy to the
+left list only. Swap the KPI trio for `51 / 51 owned` plus a single "Nothing left
+to buy" line when complete.
+
+---
+
+### 4.14 Assistant (`assistant`)
+
+**Current UX.** Three columns: conversation/control-room nav · chat · mascot
+presence panel.
+
+**What works well.** The most modern page. The empty state ("Begin with the part
+that feels tangled.") is excellent. **Markdown rendering is the best in the app** —
+proper tables, numbered lists with bold leads, good measure.
+
+**Problems found**
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| AST-1 | P1 | Layout | `.asst-presence` content is **132–138 px wider than its panel** at 820 px *and* 1440 px, relying on `overflow: hidden`. On mobile "Voice on" and "Ready when you are" are visibly cut off. |
+| AST-2 | P1 | Feedback | The "Thinking…" indicator appears **in the far-right mascot panel**, ~500 px from where the user is looking. No in-thread loading state. |
+| AST-3 | P2 | Layout | The mascot column consumes ~20 % of the workspace for a static PNG and two words of status; the chat column is squeezed on laptops. |
+| AST-4 | P2 | Consistency | User turns get a bubble; assistant turns get bare text with no bubble or surface. Asymmetric. |
+| AST-5 | P2 | Affordance | No copy, regenerate or edit actions on messages. |
+| AST-6 | P1 | A11y | Mascot hit-zones are 14×10, 24×17 and 32×22 px. |
+| AST-7 | P2 | Responsive | On phones the control-room tab strip needs horizontal scrolling with a raw scrollbar visible and the "Control room" group label lost. |
+
+**Visual assessment: POLISH.** This is the closest thing to a quality benchmark;
+it needs fixes, not a rethink.
+
+**Proposed direction.** Make the presence panel collapsible and let it collapse
+by default below 1240 px, reclaiming the width for the conversation. Move
+"Thinking…" into the thread as a streaming placeholder turn. Give assistant turns
+a subtle surface and a hover action row (copy / regenerate). Merge the tab strip
+into a single scroller with group separators and fade edges.
+
+---
+
+### 4.15 Archive — Backup & Restore (`data`) and Help (`help`)
+
+Both are **clean at every viewport and both themes** — zero overflow, zero
+clipping, zero tiny targets. Help's `4,076 px` guide with a nav rail and a
+search box is well built.
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| ARC-1 | P3 | Design | "Reset everything" is a soft pink pill visually similar to the other three export/import buttons; it deserves stronger separation. |
+| ARC-2 | P3 | Copy | The account card doesn't mention that AniList/VNDB tokens don't sync — the cause of COL-1. |
+
+**Visual assessment: KEEP** (both). Reference for how the rest of the app should
+behave responsively.
+
+---
+
+### 4.16 Global chrome — topbar, rail, search, HUD
+
+| ID | Sev | Category | Detail |
+|---|---|---|---|
+| CHR-1 | P1 | Search scope | Global search covers **spec points only**. With 1,880 collection entries, 5 events and assignments in the app, there is no cross-app search. Zero-result copy is good ("No spec point matches … across the three subjects."). |
+| CHR-2 | P2 | Mobile | Search is removed entirely on phones (G-21); the sync chip clips to "SY…"; the HUD avatar is cut by the viewport's right edge. |
+| CHR-3 | P2 | A11y | No skip link (G-12); 13 chrome tab stops before content. |
+| CHR-4 | P3 | State | The rail collapse button's `aria-label` and glyph only update via `applyRail()` at boot, so a state change from elsewhere leaves it stale. |
+
+**Visual assessment: POLISH.**
+
+---
+
+## 5. Bug Register
+
+*Functional defects only. Subjective design criticism is in §6.*
+
+| ID | Area | Sev | Bug | Reproduction | Likely cause | Proposed fix |
+|---|---|---|---|---|---|---|
+| B-01 | Cloud sync / nav | **P0** | A background pull navigates the app away from the current page and orphans open modals | Sign in on two devices; use device A; wait for a sync cycle | `applyRemoteState` replaces all of `state` incl. `state.ui`, then `rerenderCurrent()` calls `KOS.show(ui.view)` — [cloudsync.js:402](js/core/cloudsync.js:402) | Keep `state.ui` and `state.media.*` view prefs in a local-only key; make `rerenderCurrent` re-render the *current* view |
+| B-02 | Cloud sync | **P0** | `state.ui.view` is overwritten even when the re-render is suppressed, desyncing state from DOM | Block `KOS.show`, force a pull; DOM shows Assistant, `state.ui.view === "governor"` | Same as B-01 | Same as B-01 |
+| B-03 | Cosmetics | P1 | Theme/seal/frame/skins are not applied after a cloud pull; a new device renders in the default light theme despite owning and selecting a dark one | Sign in on a fresh device | `applyCosmetics()` called only at [main.js:55](js/main.js:55) | Call it from `rerenderCurrent()` |
+| B-04 | Study / ref | P1 | Opening a topic scrolls 579 px past the page header | `KOS.show('ref', …)` on any topic whose Notes tab is active | `showPage()` calls `article.scrollIntoView()` on first mount — [hub.js:1362](js/modules/hub.js:1362) | Add a `userInitiated` flag; skip the scroll on mount |
+| B-05 | Collection vaults | P1 | Lazy list stops loading at 300 of 692 entries | Flick-scroll to the bottom of the Anime grid and hold | One batch per intersection *transition*; sentinel stays inside the 600 px margin — [medview.js:253](js/modules/medview.js:253) | After each batch, re-check `isIntersecting` and loop |
+| B-06 | Mangaka | **P0** | 142,062 px page, 12,833 DOM nodes, 1,107 `<img>` rendered at once | Collection → Books → Mangaka with a large library | View builds every author synchronously, bypassing `medview`'s lazy area | Use the shared lazy area; add search + A–Z index |
+| B-07 | Cloud sync | P1 | Every page view marks the state dirty and triggers a full push | Navigate anywhere; watch the sync chip | Dirty hash is over the whole state incl. `ui.view` — [cloudsync.js:436](js/core/cloudsync.js:436) | Hash only synced domains |
+| B-08 | Calendar | P2 | Opens on a stale week/month from a previous session | Open Calendar after not using it for a week | `ui.calFocus` persisted and synced, never reset | Reset to today on view entry unless navigated in-session |
+| B-09 | mediadb | P3 | `KOS.mediadb.count({}, cb)` throws `DataError` | `count({}, cb)` | Signature takes a module string; a truthy object reaches `IDBKeyRange.only` — [mediadb.js:595](js/core/mediadb.js:595) | Guard `typeof module === "string"` |
+| B-10 | Focus | P3 | The completion toast renders behind the review modal's scrim | End a focus session early | Toast z-index below `.modal-ov` (120) | Raise the toast above modals or suppress while one is open |
+| B-11 | Store | P3 | 253 empty progress records are persisted and pushed to the cloud | Open any topic without marking anything | A progress object is written on read | Write lazily on first real mutation |
+| B-12 | Calendar | P3 | `SAMPLE — … (edit me)` seed events persist on mature accounts | Any account seeded before first use | `seedSamples()` has no retirement rule | Retire samples once the user creates a real event |
+
+---
+
+## 6. UI/UX Issue Register
+
+| ID | Area | Sev | Issue | Why it matters | Recommended treatment |
+|---|---|---|---|---|---|
+| U-01 | Global | P1 | Dark mode costs 140 gold; no `prefers-color-scheme` | Every new user gets a bright app regardless of OS setting | Ship one free dark theme; follow `prefers-color-scheme` when the user hasn't chosen |
+| U-02 | Global | P1 | `--muted` is 3.10:1 on the default theme, used at 9–13 px | Systemic AA failure on the theme everyone starts with | Darken to ≥ 4.5:1; raise the label floor to 11 px |
+| U-03 | Global | P1 | Modals lack `role="dialog"`, focus trap, scroll lock, focus restore | Screen-reader users can't tell a modal opened; keyboard users fall behind the scrim | Rewrite `KOS.ui.confirm` as a proper dialog primitive; reuse everywhere |
+| U-04 | Global | P1 | Enter confirms `danger` modals with focus on Delete | Two keystrokes destroy data | Focus Cancel on danger modals; require explicit activation |
+| U-05 | Global | P1 | No skip link; 13 tab stops before content | Keyboard navigation is impractical | Add a visible-on-focus skip link to `#main` |
+| U-06 | Global | P1 | Browser Back exits the app | Breaks the single most-used control on mobile | Adopt `history.pushState` in `KOS.show` |
+| U-07 | Global | P1 | Phone tier clips rather than reflows on 5 major views | Content is unreachable, not merely ugly | Consolidate to 4 breakpoints; audit every view at 390 px |
+| U-08 | Global | P1 | Bottom tab bar overlaps content | Primary CTAs sit behind it | Add `padding-block-end` to `#main` equal to the bar plus safe area |
+| U-09 | Study | P1 | Subject desk renders the section list twice | Doubles page length, halves confidence in the IA | Remove the ledger; the tree owns sections |
+| U-10 | Study | P1 | ~330 px of chrome before ref content | The core reading surface is a letterbox | Collapse the header; move state into the inspector |
+| U-11 | Study | P1 | No flashcard/quiz keyboard shortcuts | The core SRS loop is mouse-bound | `Space` flip, `1–4` grade, `→` next |
+| U-12 | Global | P2 | Three tab idioms; two nav bars on Reminders and Gold Shop | Users must learn the same control three ways | One `Tabs` primitive with `primary`/`workspace` variants |
+| U-13 | Collection | P1 | 17 controls before content on Books | Nothing has priority, so nothing is discoverable | Search + sort + layout visible; everything else behind Actions ▾ / Filters |
+| U-14 | Collection | P1 | Vault heroes have three levels of finish | The app looks half-built where art is missing | One hero component, generated gradient fallback, mandatory scrim |
+| U-15 | Collection | P2 | Covers show nothing while loading | A big grid reads as broken | Kanji placeholder during load, cross-fade in |
+| U-16 | Home | P1 | Headline KPIs read all-zero for a Level-53 user | The front page misrepresents the user to themselves | Choose metrics from what the user actually generates |
+| U-17 | Global | P2 | Zero-value tiles everywhere (Review ×5, Shop ×2, Collection ×1) | Dilutes the real numbers | Suppress or collapse zero tiles |
+| U-18 | Collection | P2 | Four near-identical status charts; two donuts of the same data | Chart soup instead of insight | One small-multiples row; move the tail behind an Analytics tab |
+| U-19 | Global | P2 | Charts have no axes, no gridlines, ~7 px labels | Unreadable, so decorative | Add axes/gridlines; 11 px label floor; tooltips |
+| U-20 | Global | P2 | Empty states occupy full card boxes | Empty screens look larger than full ones | Collapse to a single line with an inline action |
+| U-21 | Sync | P2 | The sync chip never rests at "Synced" | A status that always says "pending" says nothing | Fix B-07; then only surface real pending work |
+| U-22 | Collection | P1 | Profile pages dead-end on a new device | The user sees "connect first" over data that is already synced | Explain that tokens are device-local and offer reconnect inline |
+| U-23 | Focus | P2 | "The deal" reads as a console dump | Exposes the economy's implementation | Rewrite as three plain sentences |
+| U-24 | Assistant | P2 | Loading indicator is 500 px from the conversation | Users can't tell the app is working | In-thread streaming placeholder |
+| U-25 | Global | P2 | No cross-app search | 1,880 entries are unreachable from the one search box | Extend global search to media, reminders, assignments, events, notes |
+| U-26 | Collection | P2 | 64-option genre facet mixing genres and VNDB tags | The filter is unusable | Split facets or threshold tags |
+| U-27 | Global | P3 | Unformatted thousands; gold shown as a progress bar | Small credibility costs | `toLocaleString()`; drop the bar |
+| U-28 | Governor | P2 | Settings live inside the decorative hero | Configuration hidden in ornament | Move to a card beneath |
+| U-29 | Collection | P2 | Cover strip has no scroll affordance | Cut-off card reads as a bug | Edge fades + arrow controls |
+| U-30 | Global | P3 | Progress formats differ across cards | Sloppy at close reading | One `progressText()` helper |
+
+---
+
+## 7. Redesign Matrix
+
+| Screen | Current quality | Classification | Priority | Effort | Notes |
+|---|---|---|---|---|---|
+| Home | Mixed — good frame, wrong content | **PARTIAL REDESIGN** | P1 | M | Re-pick hero metrics; scrim; fix +208 px phone overflow |
+| Study — subject desk | Poor — duplicated IA | **FULL OVERHAUL** | P1 | L | Remove the second section list; rebuild the phone tier |
+| Study — ref page (shell) | Poor — letterboxed content | **FULL OVERHAUL** | P0/P1 | L | Content-first; fix B-04; keyboard shortcuts |
+| Study — ref page (content renderer) | Excellent | **KEEP** | — | — | Best typography in the app |
+| Study — Review | Adequate | POLISH | P2 | S | Collapse the zero stat strip |
+| Study — Assignments | Good | POLISH | P3 | S | Align stat strip |
+| Study — Exams & Papers | Good | POLISH | P3 | S | Checkbox hit area |
+| Study — Personal Deck | Adequate | POLISH | P3 | S | Empty state action |
+| Productivity — Focus setup | Mixed | PARTIAL REDESIGN | P1 | M | +280 px phone overflow; rewrite "The deal" |
+| Productivity — Focus running | Very good | POLISH | P2 | S | Compress the micro-text stack |
+| Productivity — Focus review modal | Excellent | **KEEP** | — | — | Use as the modal benchmark |
+| Productivity — Reminders | Good | POLISH | P2 | S | Remove duplicate nav; inspector empty state |
+| Productivity — Habits | Adequate | POLISH | P3 | S | Thin page |
+| Productivity — Calendar grid | Good | POLISH | P2 | M | 61 tiny targets; chip clipping; `calFocus` |
+| Productivity — Event modal | Excellent | **KEEP** | — | — | Progressive-disclosure benchmark |
+| Collection — Overview | Mixed — chart soup | PARTIAL REDESIGN | P2 | M | Small multiples; drop duplicate donut |
+| Collection — Anime | Good | PARTIAL REDESIGN | P1 | M | Toolbar; hero scrim; B-05 |
+| Collection — Books | Mixed — worst clutter | PARTIAL REDESIGN | P1 | M | 17 controls; hero |
+| Collection — Visual Novels | Adequate | PARTIAL REDESIGN | P2 | S | Shares the vault shell fix |
+| Collection — Games | Weak — 70 grey tiles | PARTIAL REDESIGN | P2 | S | Placeholder design; shares the shell fix |
+| Collection — Mangaka | **Unusable at scale** | **FULL OVERHAUL** | **P0** | M | 142 k px; no search |
+| Collection — Shrine | Very good | **KEEP** | — | — | Rank-one feature is strong |
+| Collection — Planner | Good | POLISH | P3 | S | Release desk is a good idea |
+| Collection — Goals | Adequate | POLISH | P3 | S | Short page |
+| Collection — Sync & Import | Adequate | POLISH | P2 | S | 6 unlabelled controls |
+| Collection — AniList profile | Broken on new devices | PARTIAL REDESIGN | P1 | S | Real token-missing state |
+| Collection — VNDB profile | Broken on new devices | PARTIAL REDESIGN | P1 | S | Same |
+| Collection — Seasonal | Adequate | POLISH | P3 | S | `.med-quickrow` 8 px overflow |
+| Governor — Status | Very good | POLISH | P1 | S | Phone clipping; settings out of the hero |
+| Governor — Gold Shop | Good | POLISH | P2 | S | Dual taxonomy; zero tiles |
+| Governor — Avatar / Session Log | Good | POLISH | P3 | S | Not deeply exercised |
+| Assistant | Very good | POLISH | P1 | M | Presence panel overflow; in-thread loading |
+| Archive — Backup & Restore | Very good | **KEEP** | — | — | Cleanest responsive page |
+| Archive — Help & Guide | Very good | **KEEP** | — | — | Reference implementation |
+| Global chrome | Mixed | PARTIAL REDESIGN | P1 | M | Routing, skip link, mobile topbar, search scope |
+
+**Totals over the 35 rows above — FULL OVERHAUL 3** (subject desk, ref page
+shell, Mangaka) · **PARTIAL REDESIGN 10** · **POLISH 16** · **KEEP 6**.
+
+---
+
+## 8. Design-System Problems
+
+**Font sizes.** Body is `15.5px`; inputs `14.5px`; `small` `12.5px`. Observed in
+the wild: 7, 8, 9, 10, 11, 12, 12.5, 13, 13.5, 14.5, 15.5, 16, 21, 24 px plus
+four `clamp()` ramps. Only four type tokens exist
+(`--type-page-title/hero-title/section-title/card-title/label`) and most
+components ignore them. **Recommend:** a 7-step scale
+(11 / 12.5 / 14 / 15.5 / 18 / 22 / 30) exposed as tokens, an **11 px floor**, and
+a lint rule against literal `font-size` under 11 px.
+
+**Font weights.** `h1–h3` at `550`; `strong` at `700`; buttons inherit. Kickers
+use `700` at 11.5 px. **Recommend:** three weights only — 400 / 550 / 700.
+
+**Spacing.** `--space-1…8` exist on a 4 px cadence and are genuinely used, but
+literals persist (`padding: 7px var(--space-3)` in the base input rule;
+`--hero-pad-block: 26px`; `--page-pad-start: 26px`; `--page-pad-end: 70px`).
+**Recommend:** eliminate non-multiples of 4.
+
+**Border radii.** `--radius: 12px` with `--radius-control`, `--radius-card`,
+`--radius-hero` (clamped 6–30 px) and `--radius-pill`. Well designed; the
+problem is that themes override `--radius` and the clamps then produce different
+relationships per theme. **Recommend:** derive hero/control radii from a fixed
+ratio, not independent clamps.
+
+**Card styles.** At least four surface treatments coexist: `.card`,
+`.subj-card`, `.stat-card`, `.bento-card`, plus one-off panels. Nesting is
+common — bento card → stat card → inner well. **Recommend:** two surfaces only
+(`surface` and `surface-raised`) and a rule against three levels of nesting.
+
+**Borders & shadows.** `--line` / `--line2` derived from `--text` are good.
+`--shadow-sm/md/lg` are hard-coded warm RGBA (`rgba(46,36,18,…)`) that stay warm
+on all 23 dark themes. **Recommend:** derive shadow colour from `--bg0`.
+
+**Colours.** Canonical set is sound. Two systemic faults: `--text2 === --text` in
+all 23 dark themes, and one shared `--muted` (`#7E899A`) across all of them
+regardless of hue. **Recommend:** every theme block must define three distinct
+text levels, and CI should assert `contrast(--muted, --bg1) ≥ 4.5`.
+
+**Buttons.** `.btn`, `.btn.primary`, `.btn.danger`, `.mini-btn`, `.study-tab`,
+`.subnav-item`, `.pill`, plus ad-hoc chips. Focus running state shows three
+different fills with no primary. **Recommend:** four variants — primary,
+secondary, ghost, danger — in three sizes, with exactly one primary per view.
+
+**Inputs.** The base `:where(input, select, textarea)` rule is good
+(min-height, focus ring, `accent-color`). Labels are the problem: 10 px
+uppercase `--muted` at 3.1:1. **Recommend:** 11 px, `--text2`, sentence case.
+
+**Section headers.** Three patterns: `.dh-kicker` + `h1` + `.dh-sub`;
+ALL-CAPS `--muted` mini-headers; and plain `h2`/`h3`. **Recommend:** one
+`PageHeader` and one `SectionHeader`.
+
+**Icon sizing.** `--icon-btn-size` 32/28/24 exists, but calendar chips, mascot
+hit-zones and ref checkboxes ignore it (13–22 px). **Recommend:** a 24 px visual
+minimum with a 44 px hit area via padding or `::after`.
+
+**Component density.** Content-region density varies wildly — the ref page packs
+five control bands into 330 px while Review leaves 40 % of the viewport empty.
+**Recommend:** a documented density target of ~140 px of chrome before content.
+
+**Responsive.** See G-17. **Recommend:** the four declared tiers only —
+1240 / 1080 / 860 / 560 — plus one phone tier at 700 consolidated into a single
+block, and a CI check that fails on any other breakpoint.
+
+---
+
+## 9. Technical UI Debt
+
+Only items with a direct UI-reliability payoff.
+
+1. **One 7,337-line / 426 KB `main.css`.** Section comments are excellent but
+   related rules for one component are scattered across thousands of lines (the
+   phone tier is in seven places). *Split into layered files
+   (`tokens / base / layout / components / views / responsive`) concatenated at
+   deploy* — no bundler required, `deploy_pages.sh` already stages files.
+2. **21 breakpoints** (G-17). Direct cause of the mobile failures — nobody can
+   hold 21 collapse points in their head.
+3. **`overflow: hidden` as a layout tool.** The reason no view reports document
+   overflow while five views are visibly amputated on phones. *Replace with real
+   wrapping/reflow; reserve `hidden` for deliberate bleed.*
+4. **`height: 100vh` on `#app`** with no `dvh` fallback (G-18).
+5. **No teardown contract for views.** `main.innerHTML = ""` is the only
+   cleanup. *Add an optional `KOS.views[id].destroy` invoked by `KOS.show`.*
+6. **`KOS.show` conflates routing, persistence and rendering.** It writes
+   `ui.view`, saves state (dirtying cloud sync — B-07), resets scroll, repaints
+   the rail and subnav, and calls the view. *Separate router / persistence /
+   render.*
+7. **UI preferences live in the synced state document.** Root cause of B-01,
+   B-02, B-07 and B-08. *Move `state.ui` and `state.media.*` view prefs to a
+   local-only store.*
+8. **`scrollIntoView` used for in-page positioning** (7 call sites). It walks
+   every scrollable ancestor; B-04 is the result. *Scroll the intended container
+   explicitly.*
+9. **The lazy area is implemented once but not adopted everywhere.**
+   `medview`'s area is good; Mangaka bypasses it entirely (B-06).
+10. **`IntersectionObserver` with `root: null`** against an inner scroll
+    container, plus one-batch-per-transition (B-05). *Set `root` to `#main` and
+    loop until not intersecting.*
+11. **`el(tag, {style: "..."})` sets `cssText`**, encouraging inline styles;
+    `crop-media` writes `--crop-x/y/zoom` inline per image (1,107 times on
+    Mangaka). *Acceptable for crop vars; audit other inline style use.*
+12. **Hard-coded pixel geometry in tokens** (`--hero-min-h: 240px`,
+    `--page-pad-end: 70px`, `--sidebar-*-w`) that never adapt below their
+    breakpoints.
+13. **Repeated components that should be primitives:** three tab
+    implementations, four card surfaces, at least three "stat tile" variants,
+    two hero patterns, and per-view empty states. *Promote to `KOS.ui`.*
+14. **No focus-management primitive.** Every modal reimplements (or omits)
+    trapping, labelling and restoration.
+
+---
+
+## 10. Proposed Target Design Direction
+
+**Preserve the identity. Fix the frame.** KurenaiOS should not become a generic
+SaaS dashboard; its parchment-and-lacquer, kanji-marked, serif-titled character
+is its main advantage over Anki + Notion + AniList.
+
+**Visual personality.** *A lamplit study room, not a control panel.* Warm
+grounds, ink text, one accent per context, kanji as quiet section marks, generous
+serif display type against compact sans UI. Ornament earns its place by marking
+structure (the 澄 empty state, the 集中 focus field, module watermarks) and is
+removed where it merely fills space (abstract shop SVGs, the decorative quote in
+the tab order).
+
+**Hierarchy.** One page title, one primary action, one dominant object per
+screen. Everything else is secondary. Where two components currently show the
+same number, exactly one survives.
+
+**Density.** Two modes. *Reading surfaces* (ref content, Help, assistant turns)
+get generous measure and ≤ 140 px of chrome. *Working surfaces* (vaults,
+calendar, reminders, planner) get compact rows, 32 px controls and real
+information per pixel. No screen should be 60 % empty; none should stack five
+control bands.
+
+**Typography.** Fraunces for display, Alegreya Sans for UI, IBM Plex Mono
+reserved for code and identifiers only (not for economy readouts). Seven sizes,
+three weights, 11 px floor.
+
+**Surfaces.** Two levels — `surface` and `surface-raised`. A maximum of two
+levels of nesting. Panels are separated by rules and space before they are
+separated by borders.
+
+**Colour.** Canonical tokens only. Every theme defines three distinct text
+levels. `--muted` must clear 4.5:1 in every theme. Subject hues stay fixed in
+meaning. Status colour is carried by `--good/--warning/--danger` and never
+hard-coded.
+
+**Imagery.** Cover art and banners are first-class, and every text-over-image
+surface carries a mandatory scrim. Missing art has a *designed* fallback (module
+kanji on a hue derived from the title), used during loading as well as on error —
+never an empty box.
+
+**Motion.** Motion explains state changes: a card flipping, a panel expanding, a
+batch of results arriving. It never decorates a static page. The drifting petals
+stay — they are ambient and already reduced-motion-aware — but no new decorative
+animation.
+
+**Navigation philosophy.** One primary rail (sections), one secondary strip
+(views within a section), and nothing else. A page never carries two navigations
+for the same destinations. `KOS.show` gains `history.pushState` so every view has
+a URL, browser Back works, and deep links are possible.
+
+**Mobile philosophy.** Phones are a first-class tier, not a squeeze. Content
+reflows; it is never clipped. One column, full-width cards, sheets instead of
+side panels, a bottom bar of at most five destinations with the rest behind
+"More", and `#main` padded clear of it. Every touch target is 44 px.
+
+**Responsive strategy.** Four tiers only — 1240 (workspace), 1080 (compact rail),
+860 (compact), 560 (small) — plus the consolidated 700 px phone block. Layout
+adapts by reflow and disclosure, never by `overflow: hidden`.
+
+**Accessibility principles.** AA contrast is a build gate, not an aspiration.
+Every modal is a real dialog. Every interactive surface is keyboard-reachable
+with a visible focus ring, in a sensible order, behind a skip link. Icon-only
+controls always carry a name. Status changes are announced.
+
+---
+
+## 11. Prioritised Remediation Roadmap
+
+### Phase A — Critical bugs and broken layouts
+**Areas:** `cloudsync.js`, `main.js`, `hub.js`, `medview.js`, Mangaka, the phone
+tier for Home / subject / focus / governor / assistant.
+**Rationale:** B-01/B-02 make multi-device use hostile and can orphan an open
+editor; B-06 can lock a large library out of a whole view; the phone overflows
+make five major screens unusable on the most likely device.
+**Dependencies:** none — this phase must land first.
+**Scope:** ~2–3 days.
+**Acceptance criteria:**
+- With two devices signed in and active, neither ever changes the other's
+  current view; `state.ui.view` always matches the rendered view.
+- Signing in on a fresh device applies the saved theme with no reload.
+- Opening any topic leaves `#main.scrollTop === 0`.
+- Scrolling a 692-entry vault to the end loads all entries; no stall.
+- Mangaka's `scrollHeight` is under 20,000 px with a library of 900 authors, and
+  the view has a working search.
+- At 390 px, `_probe-findings.json` reports **zero** overflowing elements on
+  home, subject, focus, governor and assistant.
+- No content sits behind the bottom tab bar.
+
+### Phase B — Shared design system and layout foundations
+**Areas:** `main.css` token layer and split; `KOS.ui` primitives (Dialog, Tabs,
+Card, StatTile, EmptyState, PageHeader, SectionHeader); breakpoint consolidation.
+**Rationale:** every later phase is cheaper once there is one tab component, one
+dialog and four breakpoints.
+**Dependencies:** Phase A (don't refactor CSS under a moving layout).
+**Scope:** ~3–4 days.
+**Acceptance criteria:**
+- `grep '@media' css/main.css` yields only the five sanctioned widths.
+- `--muted` clears 4.5:1 against `--bg1` and `--panel` in **all 24** themes; all
+  24 define three distinct text levels; a script asserts this in the smoke gate.
+- One `Dialog` primitive with `role="dialog"`, `aria-modal`, `aria-labelledby`,
+  focus trap, scroll lock and focus restore; every existing modal uses it;
+  danger dialogs focus Cancel and do not confirm on Enter.
+- One `Tabs` primitive; `.subnav-item`, `.study-tab` and the Books tab cards all
+  resolve to it.
+- No literal `font-size` below 11 px; no spacing literal that isn't a multiple of 4.
+- A visible-on-focus skip link reaches `#main`.
+
+### Phase C — Highest-priority page overhauls
+**Areas:** ref page shell, subject desk, Home.
+**Rationale:** the three most-visited study surfaces; they carry the duplication
+and letterboxing problems that most damage daily use.
+**Dependencies:** Phases A and B.
+**Scope:** ~4–5 days.
+**Acceptance criteria:**
+- Ref page: content begins within 140 px of the page top at 1440×900; mastery
+  and material counts appear exactly once each; flashcards support `Space` and
+  `1–4`.
+- Subject desk: the section list appears exactly once; paper cards are reachable
+  at 390 px without inner horizontal scrolling.
+- Home: hero KPIs are non-zero and meaningful for an account with sessions but
+  no ticked checks; all hero text sits on a scrim; directives wrap at 390 px.
+
+### Phase D — Secondary page redesigns
+**Areas:** the four vault views and their shared shell, Collection Overview,
+Focus setup, AniList/VNDB profiles, Governor Status and Gold Shop.
+**Rationale:** the Collection is where this user actually spends time; the
+vault shell fix pays out four times.
+**Dependencies:** Phase B primitives.
+**Scope:** ~4–5 days.
+**Acceptance criteria:**
+- One hero component across all four vaults, with a designed fallback and a
+  mandatory scrim.
+- No vault shows more than six controls above the grid; the rest is behind
+  Actions ▾ and Filters.
+- Covers show the kanji placeholder while loading.
+- Collection Overview fits one screen at 1440 with the analytics tail behind a tab.
+- Profile pages explain the missing-token state and offer reconnect inline.
+- Governor settings sit outside the hero; no zero-value tiles remain.
+
+### Phase E — Responsive / mobile polish
+**Areas:** every remaining view at 820 and 390 px; the bottom bar; the mobile
+topbar; the spec-spine drawer.
+**Dependencies:** Phases C and D.
+**Scope:** ~2–3 days.
+**Acceptance criteria:**
+- Zero overflowing elements and zero unintended clipping on **every** view at
+  390 and 820 px, verified by the probe script.
+- Bottom bar carries at most five destinations plus "More"; no label truncates.
+- Search is reachable on phones.
+- `#app` uses `100dvh` with a `100vh` fallback.
+
+### Phase F — Accessibility and interaction refinement
+**Areas:** touch targets, labels, tab order, announcements, keyboard shortcuts,
+routing.
+**Dependencies:** Phase B's primitives.
+**Scope:** ~2–3 days.
+**Acceptance criteria:**
+- No interactive target below 24 px visual / 44 px hit area anywhere (ref
+  checkboxes and the 61 calendar chips specifically).
+- Every input and icon-only button has an accessible name; no `div` in the tab
+  order; the decorative quote is not focusable.
+- `KOS.show` uses `history.pushState`; browser Back navigates within the app and
+  every view has a URL.
+- Toast/status updates announce via a live region; the sync chip announces only
+  real state changes.
+
+### Phase G — Final visual consistency pass
+**Areas:** charts, empty states, number formatting, iconography, shadows,
+remaining POLISH screens.
+**Dependencies:** all prior phases.
+**Scope:** ~2 days.
+**Acceptance criteria:**
+- All charts have axes, gridlines and ≥ 11 px labels; no chart renders from
+  fewer than three data points without an explanatory empty state.
+- One `EmptyState` component everywhere; none reserves more than 120 px when the
+  page has other content.
+- All large numbers are locale-formatted; gold has no progress bar.
+- Shadows derive from `--bg0`; radii relationships hold across all 24 themes.
+- A full smoke-suite run plus the probe script pass at four viewports × two
+  themes with zero regressions.
+
+---
+
+## 12. Recommended Implementation Order
+
+Ordered so each step makes the next cheaper.
+
+1. **Split per-device UI state out of the synced document** and fix
+   `rerenderCurrent` (B-01, B-02, B-07, B-08) — everything else is unreliable to
+   test until the app stops navigating itself.
+2. **Call `applyCosmetics()` after a cloud pull** (B-03) — one line; without it
+   every theme fix is invisible on a fresh device.
+3. **Fix the three render bugs**: ref scroll jump (B-04), lazy-loader stall
+   (B-05), Mangaka virtualisation (B-06).
+4. **Repair the phone tier for the five broken views** (Home, subject, focus,
+   governor, assistant) and pad `#main` clear of the bottom bar.
+5. **Consolidate breakpoints to five and split `main.css` into layers** — the
+   prerequisite for any confident layout work.
+6. **Fix the colour contract**: `--muted` ≥ 4.5:1 in all 24 themes; three
+   distinct text levels per theme; ship a **free** dark theme and follow
+   `prefers-color-scheme`.
+7. **Build the shared primitives**: Dialog (with focus management), Tabs, Card,
+   StatTile, EmptyState, PageHeader — and migrate existing usage.
+8. **Overhaul the ref page shell** (content-first) and add flashcard/quiz
+   keyboard shortcuts.
+9. **Overhaul the subject desk** (remove the duplicated section list).
+10. **Redesign Home's hero content model.**
+11. **Build the one vault shell** and apply it to Anime, Books, VN and Games.
+12. **Rework Collection Overview's analytics** into small multiples plus a tab.
+13. **Polish Governor, Focus setup, Reminders, Review and the profile pages.**
+14. **Add `history.pushState` routing** and extend global search across domains.
+15. **Complete the accessibility pass**: touch targets, labels, tab order, live
+    regions, skip link.
+16. **Final consistency pass**: charts, empty states, number formatting, shadows —
+    then re-run the full smoke suite and the probe script across the matrix.
+
+---
+
+## Appendix — Evidence and coverage
+
+**Screenshots:** 161 JPGs in `audit-evidence/`, named
+`<device>-<theme>-<view>.jpg` across `desktop-1920`, `laptop-1440`, `tablet-820`,
+`phone-390` × `light` / `dark` (celestial-duality) × 23 views, plus
+`_probe-findings.json` with per-view overflow, clipping and touch-target counts.
+
+**Referenced directly in this document:**
+`phone-390-dark-home.jpg` (HOME-3) · `phone-390-dark-subject.jpg` (SUBJ-3,
+SUBJ-4) · `laptop-1440-light-ref.jpg` (REF-1, REF-3, REF-4, REF-7) ·
+`laptop-1440-dark-assistant.jpg` (AST-1, AST-3) · `phone-390-*-focus.jpg`
+(FOC-1) · `*-matrix.jpg` (MTX-1, MTX-2).
+
+**Not fully tested, and why:**
+
+| Area | Reason |
+|---|---|
+| Governor → Avatar and Session Log tabs | Reached and rendered, but not exercised in depth. |
+| Labs (`trace`, `oop`, `sims`, `worked`) and sandboxes | Gold-gated views outside the seven audited sections; only their gating was verified. |
+| Attachments / Study Files | Requires uploading files into the owner's IndexedDB; skipped as out-of-scope side effects. |
+| Live AniList / VNDB sync and write-back | Would mutate the owner's real remote lists; only local state and UI were exercised. |
+| XML import, backup restore, "Reset everything" | Destructive against a live account; the surfaces were audited, the actions were not run. |
+| Steam / IGDB Edge Functions | Require deployed secrets; the graceful-degradation UI was audited. |
+| Live2D renderer | Release gate is deliberately closed; no runtime installed. |
+| iOS/Android installed-PWA behaviour | Audited via viewport emulation only; no physical device. |
+| Screen-reader verification | ARIA and focus behaviour audited in the DOM; no VoiceOver/NVDA session. |
+
+**Interaction note.** The browser automation's synthetic mouse events did not
+reach the page, so interactions were driven with real DOM `.click()` /
+`dispatchEvent` calls against the live app. Rendering, state and layout were
+observed exactly as a user would see them; only the input transport differed.
+
+**Temporary changes made during the audit** (all reverted or session-local):
+the service worker was unregistered and Cache Storage cleared in the audit
+browser only; a `KOS.show` guard was installed at runtime to work around B-01
+and removed by reload; one test reminder was created and deleted. **No
+repository files were modified**; `KURENAIOS_FULL_UI_UX_AUDIT.md` and
+`audit-evidence/` are the only additions.

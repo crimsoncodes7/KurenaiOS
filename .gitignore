@@ -11,6 +11,12 @@ node_modules/
 *.local
 # review screenshots produced by the CDP audits (kept on disk, not tracked)
 artifacts/
+# Category 7 UI/UX audit evidence (161 screenshots + probe JSON, ~14 MB).
+# The audit document itself IS tracked; its evidence stays on disk.
+audit-evidence/
+# Rescued state document + verification screenshots. Contains personal
+# account data (sessions, progress, planner) — never commit this.
+recovery/
 
 # cloud-sync credentials (copy js/env.example.js → js/env.local.js)
 js/env.local.js
