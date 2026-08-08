@@ -88,10 +88,37 @@
   /* — shared geometry: the Kurenai design-system foundation —
      Spacing follows a 4px cadence. Page chrome and wide content use the
      layout tokens below; prose can still opt into --content-readable.
-     Core media-query tiers (custom properties cannot drive @media rules):
-       1240px workspace · 1080px compact rail · 860px compact · 560px small.
-     Component-specific 1100/1000/900/760/700px queries remain where content,
-     rather than the app shell, determines the collapse point. */
+
+     THE FIVE BREAKPOINTS (Category 7 Phase B). Custom properties cannot
+     drive @media rules, so these five widths are the contract and the only
+     max-widths allowed in this file (tools/smoke42.test.js fails the build
+     on a sixth). The audit found 21 distinct thresholds against a
+     documented four; drift, not design, produced 1180/1120/1100/1050/1040/
+     1000/900/850/840/820/760/680/620/520/480/460.
+
+       1240  workspace   wide desktop → standard desktop. Optional side
+                         surfaces fold: inspectors, help aside, second
+                         columns, 4-up analytics grids. Page padding tightens.
+       1080  compact rail standard desktop → laptop. The SHELL compacts —
+                         rail to icons, search narrows, brand sub-line drops
+                         — and two-column page bodies become one.
+       860   compact     laptop → tablet. The spec tree becomes an overlay,
+                         the topbar sheds labels, three-column workspaces
+                         become one, hero geometry and page titles shrink.
+       700   phone       tablet → phone. The rail becomes a bottom tab bar,
+                         modals become sheets, inputs hold 16px, safe-area
+                         insets apply. This is the Build 4b tier.
+       560   small       small phone. Dense grids and identity blocks go to
+                         a single column; the search box drops.
+
+     Order matters as much as the numbers: within one component, write the
+     tiers widest-first so the narrower always wins. Half the Governor seat's
+     phone rules and 24 assistant declarations were dead on arrival because
+     they sat above their wider-tier siblings.
+
+     A component that genuinely needs its own collapse point should reflow
+     intrinsically (auto-fit/minmax, flex-wrap, min-width: 0) rather than
+     earn a sixth breakpoint. `overflow: hidden` is not a collapse point. */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -921,7 +948,7 @@ small { font-size: 12.5px; }
 .ts-field-conf .rag-pick { width: 22px; height: 22px; }
 .ts-field-conf .rag-auto { flex: 1 0 100%; margin-left: 0; }
 
-@media (max-width: 1000px) {
+@media (max-width: 1080px) {
   .ts-body { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
 }
 @media (max-width: 560px) {
@@ -1068,7 +1095,7 @@ small { font-size: 12.5px; }
 .home-today { display: grid; grid-template-columns: 1.3fr 1fr; gap: var(--grid-gap); margin-bottom: var(--section-gap); align-items: stretch; }
 .home-today .todo-panel, .home-side .dl-widget { height: 100%; }
 .home-side { height: 100%; }
-@media (max-width: 1100px) { .home-today { grid-template-columns: 1fr; } }
+@media (max-width: 1240px) { .home-today { grid-template-columns: 1fr; } }
 
 .home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--grid-gap); }
 .subj-card {
@@ -1963,7 +1990,7 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
   .b-streak { grid-column: span 4; } .b-exams { grid-column: span 8; }
   .b-heat, .b-ledger { grid-column: span 12; }
 }
-@media (max-width: 760px) { .bento > * { grid-column: 1 / -1 !important; } }
+@media (max-width: 860px) { .bento > * { grid-column: 1 / -1 !important; } }
 
 /* identity */
 .id-wrap { display: flex; align-items: center; gap: 20px; flex: 1; }
@@ -2495,15 +2522,15 @@ body.fx-minimised .fx-dock { display: flex; }
 .help-aside-shortcuts { display: flex; flex-direction: column; gap: 9px; }
 .help-aside-shortcuts > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--text2); font-size: 12px; }
 .help-aside-shortcuts kbd { padding: 2px 6px; border: 1px solid var(--line2); border-radius: 5px; background: var(--well); color: var(--text); font-family: var(--mono); font-size: 10px; white-space: nowrap; }
-@media (max-width: 1180px) { .help-wrap { grid-template-columns: 200px minmax(0, 760px); grid-template-areas: "nav search" "nav content"; } .help-aside { display: none; } }
-@media (max-width: 820px) { .help-wrap { grid-template-columns: 1fr; grid-template-areas: "search" "content"; gap: 18px; } .help-nav { display: none; } .help-content { max-width: none; } .help-block-h { font-size: 22px; } }
+@media (max-width: 1240px) { .help-wrap { grid-template-columns: 200px minmax(0, 760px); grid-template-areas: "nav search" "nav content"; } .help-aside { display: none; } }
+@media (max-width: 860px) { .help-wrap { grid-template-columns: 1fr; grid-template-areas: "search" "content"; gap: 18px; } .help-nav { display: none; } .help-content { max-width: none; } .help-block-h { font-size: 22px; } }
 @media (max-width: 560px) { .help-row-t { font-size: 16px; } .help-row-body p { font-size: 15px; line-height: 1.65; } }
 
 /* ============================================================
    Focus setup page + Tasks & Habits
    ============================================================ */
 .fx-setup { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 20px; align-items: start; }
-@media (max-width: 1000px) { .fx-setup { grid-template-columns: 1fr; } }
+@media (max-width: 1080px) { .fx-setup { grid-template-columns: 1fr; } }
 .fx-setup-main { padding: 22px 24px; }
 .fx-setup-side { display: flex; flex-direction: column; gap: 14px; }
 .fx-mode-k {
@@ -2669,7 +2696,7 @@ body.fx-minimised .fx-dock { display: flex; }
 
 /* tasks & habits */
 .tasks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--layout-gap); align-items: start; }
-@media (max-width: 1000px) { .tasks-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1080px) { .tasks-grid { grid-template-columns: 1fr; } }
 .tasks-col { padding: 18px 20px; }
 .tasks-h { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 18px; }
 .tasks-h .tk {
@@ -2768,7 +2795,7 @@ body.fx-minimised .fx-dock { display: flex; }
    Backup & Restore
    ============================================================ */
 .data-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: var(--layout-gap); align-items: start; }
-@media (max-width: 1000px) { .data-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1080px) { .data-grid { grid-template-columns: 1fr; } }
 .data-card { padding: var(--card-pad) var(--space-6); }
 .data-card h3 { margin: 0 0 var(--space-4); font-size: var(--type-section-title); }
 .data-action { display: flex; align-items: flex-start; gap: var(--space-4); padding: 10px 0; border-top: 1px solid var(--line2); flex-wrap: wrap; }
@@ -3122,8 +3149,8 @@ body.fx-minimised .fx-dock { display: flex; }
 .sync-history > summary { padding: 10px 0; color: var(--text2); cursor: pointer; font-size: 12px; font-weight: 600; }
 .sync-history > summary::marker { color: var(--accent); }
 .sync-history .sub:last-child { margin-bottom: 0; }
-@media (max-width: 840px) { .integration-grid { grid-template-columns: 1fr; } }
-@media (max-width: 480px) { .integration-facts { grid-template-columns: 1fr; } .integration-facts > div:nth-child(even) { padding-left: 0; border-left: 0; } }
+@media (max-width: 860px) { .integration-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .integration-facts { grid-template-columns: 1fr; } .integration-facts > div:nth-child(even) { padding-left: 0; border-left: 0; } }
 
 /* ---- matrix home ---- */
 .med-streaks { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -3299,21 +3326,22 @@ body.fx-minimised .fx-dock { display: flex; }
 .shrine-card-actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .shrine-description-modal { --modal-max: 520px; }
 .shrine-description-input { width: 100%; resize: vertical; }
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .shrine-head { align-items: flex-start; }
   .shrine-note-btn { margin-left: 0; }
   .shrine-toolbar { align-items: stretch; flex-direction: column; }
   .shrine-sort { justify-content: space-between; }
-  .shrine-stage { grid-template-columns: minmax(0, 1fr); }
   .shrine-empty { grid-template-columns: auto 1fr; }
   .shrine-empty .btn { grid-column: 1 / -1; justify-self: start; }
 }
-@media (max-width: 460px) {
+@media (max-width: 560px) {
   .shrine-ranked-grid { grid-template-columns: 1fr; }
   .shrine-rank-card { grid-template-rows: 154px minmax(0, 1fr); }
   .shrine-card-actions .btn { flex: 1 1 120px; }
 }
-@media (min-width: 761px) and (max-width: 1100px) {
+/* the ranked stage needs a full column before the shell compacts: it was two
+   bespoke queries (a 761–1100 band plus a ≤760 repeat) saying one thing */
+@media (max-width: 1080px) {
   .shrine-stage { grid-template-columns: minmax(0, 1fr); }
 }
 
@@ -3519,8 +3547,8 @@ body.fx-minimised .fx-dock { display: flex; }
 .profile-workspace-tabs { flex: 0 1 auto; margin: 0; align-self: center; }
 .dash-head .workspace-header-tabs,
 .dash-head .profile-workspace-tabs { max-width: min(100%, 470px); }
-@media (max-width: 1120px) { .ap-analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 680px) { .ap-analytics-grid { grid-template-columns: 1fr; } .ap-fetched { width: 100%; margin-left: 0; } .workspace-header-tabs, .profile-workspace-tabs { width: 100%; } }
+@media (max-width: 1240px) { .ap-analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .ap-analytics-grid { grid-template-columns: 1fr; } .ap-fetched { width: 100%; margin-left: 0; } .workspace-header-tabs, .profile-workspace-tabs { width: 100%; } }
 .ap-favs { display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px; }
 .ap-fav { flex: 0 0 92px; display: flex; flex-direction: column; gap: 5px; }
 .ap-fav img, .ap-fav .med-cover-ph { width: 92px; height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line2); display: flex; align-items: center; justify-content: center; font-size: 26px; }
@@ -3575,14 +3603,14 @@ body.fx-minimised .fx-dock { display: flex; }
 .cmp-actions { display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: 8px; padding-top: var(--space-4); }
 .cmp-note-modal { width: min(580px, calc(100vw - 32px)); }
 .cmp-note-modal .note-area { width: 100%; min-height: 180px; resize: vertical; }
-@media (max-width: 1040px) { .cmp-modal .modal-h { align-items: stretch; } .cmp-selectors { flex-basis: 100%; order: 3; } .cmp-row-cells, .cmp-sticky-head { grid-template-columns: 1fr; } .cmp-cell { border-left: 0; border-top: 1px solid var(--surface-border); } .cmp-cell:first-child { border-top: 0; } }
+@media (max-width: 1080px) { .cmp-modal .modal-h { align-items: stretch; } .cmp-selectors { flex-basis: 100%; order: 3; } .cmp-row-cells, .cmp-sticky-head { grid-template-columns: 1fr; } .cmp-cell { border-left: 0; border-top: 1px solid var(--surface-border); } .cmp-cell:first-child { border-top: 0; } }
 @media (max-width: 560px) { .cmp-selectors { grid-template-columns: 1fr; } .cmp-selectors .btn { width: 100%; } }
 
 /* ============================================================
    円 Budget Planner — allowance panel + hero + rows (Sol)
    ============================================================ */
 .wl-top { display: grid; grid-template-columns: minmax(0, 1fr) clamp(320px, 28vw, 410px); gap: var(--grid-gap); align-items: stretch; margin: 4px 0 var(--section-gap); }
-@media (max-width: 1100px) { .wl-top { grid-template-columns: 1fr; } }
+@media (max-width: 1240px) { .wl-top { grid-template-columns: 1fr; } }
 .wl-hero-wrap { min-width: 0; display: flex; }
 .wl-hero-wrap .wl-hero { flex: 1; margin-bottom: 0; }
 .wl-hero {
@@ -3703,7 +3731,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .wl-onlist { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid color-mix(in srgb, var(--accent2) 40%, transparent); border-radius: 10px; background: var(--wash-brass); grid-column: 1 / -1; }
 .wl-onlist-h { color: var(--accent2); font-size: 12px; font-weight: 700; }
 .wl-onlist-chip { background: var(--panel); color: var(--text2); }
-@media (max-width: 1050px) {
+@media (max-width: 1080px) {
   .wl-toolbar { grid-template-columns: 1fr auto; }
   .wl-tabs { grid-column: 1 / -1; }
   .wl-row { grid-template-columns: auto 42px minmax(0, 1fr) max-content; }
@@ -4459,7 +4487,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 
 /* Discord-style avatar page */
 .av-grid { display: grid; grid-template-columns: var(--sidebar-context-w) minmax(0, 1fr); gap: var(--layout-gap); align-items: start; }
-@media (max-width: 900px) { .av-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1080px) { .av-grid { grid-template-columns: 1fr; } }
 .av-preview {
   position: sticky; top: 10px;
   border: 1px solid var(--line2); border-radius: 16px;
@@ -4623,13 +4651,13 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   padding: 12px 18px; border-top: 1px solid var(--line2); background: var(--bg1);
 }
 .goal-modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
-@media (max-width: 820px) {
+@media (max-width: 860px) {
   .goal-overview { grid-template-columns: minmax(0, 1fr); }
   .goal-summary-metric:first-child { border-left: 0; }
   .goal-commandbar { align-items: stretch; flex-wrap: wrap; }
   .goal-integrity { order: 3; flex: 1 1 100%; margin-left: 0; text-align: left; }
 }
-@media (max-width: 620px) {
+@media (max-width: 700px) {
   .goal-summary-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .goal-summary-metric:nth-child(odd) { border-left: 0; }
   .goal-summary-metric:nth-child(n+3) { border-top: 1px solid var(--line2); }
@@ -4656,7 +4684,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
    Vault filter rail (AniList-style) + custom lists (Build 3k)
    ============================================================ */
 .med-layout { display: grid; grid-template-columns: var(--sidebar-filter-w) minmax(0, 1fr); gap: var(--layout-gap); align-items: start; }
-@media (max-width: 900px) { .med-layout { grid-template-columns: 1fr; } .med-filter-rail { position: static !important; } }
+@media (max-width: 860px) { .med-layout { grid-template-columns: 1fr; } .med-filter-rail { position: static !important; } }
 .med-main { min-width: 0; }
 .med-filter-rail {
   position: sticky; top: 12px;
@@ -4762,26 +4790,9 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   padding: 26px 28px;
   width: 100%;
 }
-/* Phone: the seat's three columns are avatar | identity | access panel, and
-   the third is `auto` — it does not shrink, so at 390px it pushed the rank,
-   the level, the quote and the lore past the card's `overflow: hidden` and
-   they were clipped, not scrollable (audit GOV-1). Empty accounts never
-   showed it: the rank string is short and the lore absent, so the row
-   happened to fit. Stack the three instead. */
-@media (max-width: 700px) {
-  .b-id .id-wrap {
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: start;
-    gap: var(--space-4);
-    padding: var(--space-5) var(--space-4);
-  }
-  .b-id .id-txt, .b-id .id-face, .b-id .id-access { width: 100%; min-width: 0; }
-  .id-txt .rank { letter-spacing: .18em; word-break: break-word; }
-  .id-txt h2 { font-size: 22px; }
-  /* the seat's personality line is worth two rows on a phone — its desktop
-     single-line ellipsis cut it mid-sentence at 390px */
-  .b-id .id-status > span:last-child { white-space: normal; overflow: visible; text-overflow: clip; }
-}
+/* (the ≤700px identity-stack rules that used to sit here moved down beside
+   the rest of the seat's responsive cluster — see "the seat, by tier" below.
+   Sitting above the ≤860 and ≤1080 blocks, half of them never applied.) */
 .id-face { position: relative; flex: none; align-self: center; }
 .id-face .gov-avatar {
   box-shadow: 0 0 0 5px color-mix(in srgb, var(--bg1) 78%, transparent), var(--shadow-md);
@@ -4898,7 +4909,9 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 }
 .gstat-mini { min-height: 0; gap: 6px; padding: 11px 13px; grid-template-rows: auto auto; }
 .gstat-mini .gstat-v { margin-left: 0; font-family: var(--serif); font-size: 17px; font-weight: 600; }
-@media (max-width: 620px) { .heat-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* (a ≤620px .heat-stats rule lived here and was dead: the Governor's own
+   ≤860 and ≤560 rules are later in the file and both matched first.
+   Removed with the breakpoint consolidation — behaviour is unchanged.) */
 
 /* ---- Part C: the ledger ---- */
 .b-ledger { grid-column: span 4; display: flex; flex-direction: column; }
@@ -4915,12 +4928,16 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .log-note { margin: -6px 0 12px; max-width: 68ch; }
 .log-cat.is-routine .log-cat-k { color: var(--muted); background: color-mix(in srgb, var(--text) 7%, transparent); }
 
+/* ---- the seat, by tier: 1240 · 1080 · 860 · 700, widest first so the
+     narrower tier always wins. Ordering this cluster correctly is what makes
+     the ≤700 identity stack below actually apply — it used to sit ABOVE the
+     ≤1080/≤860 rules and lose to them at 390px. ---- */
 @media (max-width: 1240px) {
   .b-id, .b-heat { grid-column: span 12; }
   .b-vitals, .b-ledger { grid-column: span 6; }
   .vital-stack { grid-template-columns: repeat(3, 1fr); }
 }
-@media (max-width: 1000px) {
+@media (max-width: 1080px) {
   .b-id .id-wrap { grid-template-columns: auto minmax(0, 1fr); gap: 20px; }
   .id-side {
     grid-column: 1 / -1;
@@ -4930,10 +4947,30 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   }
   .b-id.banner-dark .id-side { border-top-color: rgba(255,255,255,.2); }
 }
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .vital-stack { grid-template-columns: 1fr; }
   .b-id .id-wrap { grid-template-columns: 1fr; justify-items: start; padding: 20px; }
   .id-side { grid-template-columns: repeat(2, 1fr); }
+}
+/* Phone: the seat's three columns are avatar | identity | access panel, and
+   the third is `auto` — it does not shrink, so at 390px it pushed the rank,
+   the level, the quote and the lore past the card's `overflow: hidden` and
+   they were clipped, not scrollable (audit GOV-1). Empty accounts never
+   showed it: the rank string is short and the lore absent, so the row
+   happened to fit. Stack the three instead. */
+@media (max-width: 700px) {
+  .b-id .id-wrap {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-4);
+  }
+  .b-id .id-txt, .b-id .id-face, .b-id .id-access { width: 100%; min-width: 0; }
+  .id-txt .rank { letter-spacing: .18em; word-break: break-word; }
+  .id-txt h2 { font-size: 22px; }
+  /* the seat's personality line is worth two rows on a phone — its desktop
+     single-line ellipsis cut it mid-sentence at 390px */
+  .b-id .id-status > span:last-child { white-space: normal; overflow: visible; text-overflow: clip; }
 }
 
 /* ============================================================
@@ -5029,7 +5066,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .shop-card .shop-sw-dot { width: 12px; height: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
 .shop-earn { margin: 0; max-width: 74ch; }
 
-@media (max-width: 1000px) {
+@media (max-width: 1080px) {
   .shop-body { grid-template-columns: 1fr; }
   .shop-rail { position: static; flex-direction: row; overflow-x: auto; scrollbar-width: none; }
   .shop-rail::-webkit-scrollbar { display: none; }
@@ -5845,9 +5882,16 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .asst-audit-row.st-failed .asst-audit-dot, .asst-audit-row.st-rejected .asst-audit-dot { background: var(--danger); }
 .asst-audit-row.st-awaiting_confirmation .asst-audit-dot { background: var(--warning); }
 
-/* Compact layout keeps the presence visible but gives conversation priority. */
+/* Compact layout keeps the presence visible but gives conversation priority.
+
+   These two blocks are the DRAWER-era assistant rules. The Category 6.1
+   workspace rewrite added a second, later generation of both the plain and
+   the responsive rules (see "the workspace, by tier" further down), which
+   silently won every declaration the two generations shared — 24 of them.
+   The dead declarations are removed here rather than left to be resurrected
+   by the next person who reorders this file; what remains is the part the
+   drawer still owns and the workspace generation does not restate. */
 @media (max-width: 1080px) {
-  .asst-chat-layout { grid-template-columns: minmax(0, 1fr) 230px; }
   .asst-presence { padding-inline: 11px; }
   .asst-route-row { grid-template-columns: minmax(145px, .7fr) repeat(2, minmax(145px, 1fr)); }
   .asst-route-row .asst-field:last-child { grid-column: 2 / -1; }
@@ -5855,24 +5899,15 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 
 @media (max-width: 860px) {
   .asst-head-promise { display: none; }
-  .asst-shell { grid-template-columns: minmax(0, 1fr); gap: 14px; }
-  .asst-tabs { position: static; flex-direction: row; gap: 7px; padding: 6px; overflow-x: auto; border-radius: 13px; }
-  .asst-tab-group { flex-direction: row; flex: none; }
-  .asst-tab-group + .asst-tab-group { padding-left: 7px; border-left: 1px solid var(--line2); }
-  .asst-tab-group-label { display: none; }
-  .asst-tabs .study-tab { width: auto; min-height: 38px; padding-inline: 13px; }
+  .asst-tabs { position: static; gap: 7px; }
+  .asst-tab-group { flex: none; }
   .asst-tabs .study-tab.active { box-shadow: none; }
-  .asst-chat-layout { grid-template-columns: minmax(0, 1fr); }
-  .asst-presence { grid-row: 1; display: grid; grid-template-columns: 1fr 150px; grid-template-rows: auto 1fr auto; gap: 5px 12px;
-    width: 100%; height: 148px; padding: 13px 16px; }
-  .asst-presence-copy { grid-column: 1; }
-  .asst-presence .asst-mascot { grid-column: 2; grid-row: 1 / 4; flex-direction: column; }
-  .asst-presence .asst-mascot-frame { width: 110px; height: 105px; }
-  .asst-presence .asst-mascot-img { width: 145%; height: 145%; margin: -4% 0 0 -22%; object-position: top center; }
+  .asst-presence { width: 100%; }
+  .asst-presence .asst-mascot { flex-direction: column; }
   .asst-safety-notes { grid-column: 1; grid-row: 2; flex-direction: row; }
   .asst-safety-notes > div { flex: 1; padding: 5px 3px; }
-  .asst-presence-foot { grid-column: 1; grid-row: 3; }
-  .asst-chat-main { height: min(690px, calc(100dvh - 300px)); min-height: 560px; }
+  .asst-presence-foot { grid-row: 3; }
+  .asst-chat-main { min-height: 560px; }
   .asst-route-row { grid-template-columns: 1fr 1fr; }
   .asst-route-row .asst-field:last-child { grid-column: auto; }
   .asst-route-label { grid-column: 1 / -1; }
@@ -5888,19 +5923,11 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .asst-drawer-context { display: none; }
   .asst-drawer-presence .asst-mascot { width: 100%; }
   .asst-drawer .asst-thread { padding-top: 6px; }
-  .asst-head { margin-bottom: 12px; padding-bottom: 12px; }
-  .asst-head-emblem { width: 52px; height: 52px; }
-  .asst-head .dh-sub { font-size: 12px; }
   .asst-head h1 { font-size: clamp(25px, 8vw, 32px); }
-  .asst-tabs { margin-inline: calc(var(--page-pad-inline) * -1); padding-inline: var(--page-pad-inline); border-right: 0; border-left: 0; border-radius: 0; }
-  .asst-chat-toolbar { padding: 11px 12px 9px; }
+  .asst-tabs { margin-inline: calc(var(--page-pad-inline) * -1); padding-inline: var(--page-pad-inline); border-right: 0; border-left: 0; }
   .asst-chat-toolbar .btn { min-width: 44px; padding-inline: 10px; font-size: 0; }
   .asst-chat-toolbar .btn::after { content: "＋"; font-size: 20px; }
-  .asst-chat-main { height: max(560px, calc(100dvh - 270px)); min-height: 0; border-radius: 15px; }
-  .asst-chat-main .asst-thread-wrap { padding: 0 8px 9px; }
-  .asst-presence { grid-template-columns: 1fr 96px; height: 126px; border-radius: 15px; }
   .asst-presence-copy h3 { font-size: 17px; }
-  .asst-presence .asst-mascot-frame { width: 82px; height: 80px; }
   .asst-presence .asst-status-line { max-width: 100px; font-size: 9px; }
   .asst-safety-notes > div:nth-child(2) { display: none; }
   .asst-safety-notes p { font-size: 9.5px; }
@@ -5916,10 +5943,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .asst-richtext :where(th, td) { padding: 7px 8px; }
   .asst-code-block pre { padding: 11px 12px; }
   .asst-tool { margin-left: 10px; }
-  .asst-composer { padding: 8px; border-radius: 15px; }
   .asst-composer-foot { align-items: flex-end; }
   .asst-composer-hint { display: none; }
-  .asst-send { min-width: 96px; }
   .asst-confirm-head { flex-direction: column; }
   .asst-confirm-btns .btn { flex: 1; }
   .asst-history-row { align-items: flex-start; flex-direction: column; }
@@ -6087,7 +6112,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .asst-voice-about p { max-width: 78ch; margin: 8px 0 1px; color: var(--muted); font-size: 11px; line-height: 1.45; }
 .asst-voice-about a { color: var(--accent); }
 
-@media (max-width: 1120px) {
+@media (max-width: 1240px) {
   .asst-shell { grid-template-columns: 228px minmax(0, 1fr); }
   .asst-shell.is-side-collapsed { grid-template-columns: 64px minmax(0, 1fr); }
   .asst-chat-layout { grid-template-columns: minmax(0,1fr) 210px; }
@@ -6095,7 +6120,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .asst-voice-row { grid-template-columns: 1fr 1fr; }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 860px) {
   .asst-shell, .asst-shell.is-side-collapsed { display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; height: auto; }
   .asst-tabs, .asst-tabs.is-collapsed { display: block; height: auto; padding: 5px; overflow-x: auto; border-radius: 12px; }
   .asst-side-brand, .asst-new-chat, .asst-side-section { display: none !important; }
@@ -6725,14 +6750,14 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .heat-stats { grid-template-columns: 1fr; }
   .heat-stats .gstat-mini { min-height: 66px; }
 }
-@media (max-width: 1050px) {
+@media (max-width: 1080px) {
   .avatar-studio.av-grid { grid-template-columns: 300px minmax(0, 1fr); }
   .av-media { grid-template-columns: 1fr; }
   .shop-body { grid-template-columns: 1fr; }
   .shop-rail { position: static; flex-direction: row; overflow-x: auto; }
   .shop-rail-item { flex: none; grid-template-columns: 22px auto auto; }
 }
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .gov-head { align-items: stretch; gap: 18px; }
   .gov-head .gov-tabs { width: 100%; overflow-x: auto; }
   .gov-workspace { padding-top: 14px; }
@@ -6774,7 +6799,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .tre-facts { width: 100%; margin-left: 0; }
   .shop-lock-note { align-items: flex-start; flex-wrap: wrap; }
 }
-@media (max-width: 520px) {
+@media (max-width: 560px) {
   .gov-seat-hero .id-wrap { grid-template-columns: 70px minmax(0, 1fr); }
   .gov-seat-hero .id-face .gov-avatar { width: 70px !important; height: 70px !important; }
   .gov-seat-hero h2 { font-size: 31px; }
@@ -6919,7 +6944,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 @media (max-width: 1080px) {
   .att-body { grid-template-columns: 200px minmax(0, 1fr); }
 }
-@media (max-width: 820px) {
+@media (max-width: 860px) {
   .att-body { grid-template-columns: minmax(0, 1fr); }
   .att-files { position: static; max-height: 300px; }
   .att-pdf { height: min(70vh, 720px); min-height: 340px; }
@@ -7068,7 +7093,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 /* the countdown rows became buttons when assignments joined them */
 button.dl-item { width: 100%; text-align: left; cursor: pointer; }
 
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .asg-row { grid-template-columns: minmax(0, 1fr); }
   .asg-row-side { justify-content: space-between; }
   .asg-search { min-width: 0; }
@@ -7162,7 +7187,7 @@ button.dl-item { width: 100%; text-align: left; cursor: pointer; }
 .bk-range-submit { display: flex; align-items: flex-end; }
 .bk-range-submit .btn { white-space: nowrap; }
 
-@media (max-width: 850px) {
+@media (max-width: 860px) {
   .bk-vol-actions { grid-template-columns: 1fr; }
   .bk-range-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

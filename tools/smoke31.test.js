@@ -181,7 +181,11 @@ step("Corner identity stays concise and the full profile anchors status beside t
 
 step("Responsive and reduced-motion Governor rules are present", () => {
   const css = fs.readFileSync(path.join(ROOT, "css", "main.css"), "utf8");
-  if (!/@media \(max-width: 760px\)[\s\S]*\.gov-seat-hero/.test(css)) throw new Error("mobile Governor rules missing");
+  /* The Governor's compact tier used to be a bespoke 760px query. Category 7
+     Phase B folded it into the sanctioned 860px "compact" tier — assert the
+     tier, not a magic number, so the next consolidation does not have to
+     rewrite this line again. smoke42 owns the "only five widths" rule. */
+  if (!/@media \(max-width: 860px\)[\s\S]*\.gov-seat-hero/.test(css)) throw new Error("mobile Governor rules missing");
   if (!/@media \(prefers-reduced-motion: reduce\)[\s\S]*\.shop-card/.test(css)) throw new Error("reduced-motion rules missing");
   /* Guard the rule that ACTUALLY renders, and guard its uniqueness: the
      previous assertion matched a copy that a later rule overrode, so it
