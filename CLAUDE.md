@@ -51,6 +51,7 @@ node tools/smoke39.test.js # Phase 2 Live2D binding: closed release gate (no SDK
 node tools/smoke41.test.js # Category 7 staleness guard: the monotonic __seq on the state document, the reproduced 8 Aug 2026 incident (a stale device with one real edit must not clobber a newer cloud copy), the refusal raising a conflict instead of an error, both resolveStale outcomes, an undisturbed two-device round trip, and a restore still outranking the guard
 node tools/smoke40.test.js # Category 7 Phase A: the note pager scrolling only on a reader-initiated page turn (B-04), the lazy area rooting on #main and refilling while the sentinel stays in range (B-05), Mangaka on the shared lazy area with author search and a filtering A–Z rail (B-06), #app dvh-with-vh-fallback and the phone tier's tab-bar clearance
 node tools/smoke42.test.js # Category 7 Phase B: the five-breakpoint contract (only 1240/1080/860/700/560, no width bands, no narrower-tier-above-wider inversions), the Dialog primitive (role/aria-modal/name-from-heading, focus trap, scroll lock, focus restore, Escape, danger-safe confirmations) and its source contract, the three Tabs variants, EmptyState/StatTile zero suppression, the scroll-affordance contract, locale numbers, cover loading state and the skip link
+node tools/smoke43.test.js # Category 7 Phase C (Study): the spine as the ONE section list (inherited bar + subsection tally, active-topic reveal, dismissible overlay drawer at ≤860), content-first geometry (one header row, one navigation layer, nothing between header and content), the single state surface (Topic Status in the inspector, mastery once, material counts once, header/field over one store value), compact note-page navigation (stepper + disclosure, B-04 scroll rule), flashcard/quiz keyboard control incl. text-field and self-removal guards, and the REF-5/7/10 + SUBJ-4/5/6 fixes
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
@@ -117,16 +118,18 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 42 suites are the release gate (smoke17 the
+the current test inventory. All 43 suites are the release gate (smoke17 the
 Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
 Build 4c games integrations, smoke37 the Study overview/topic-shell
 refinement, smoke38 Collection Goals v2 and Shrine Hall of Fame, smoke39 the
 Phase 2 Live2D binding and its closed release gate, smoke41 the cloud staleness guard, smoke40 the Category 7
-Phase A bug fixes, smoke42 the Phase B breakpoint contract and UI primitives). Suites 1–16 plus the running-Chrome visual audit were verified
+Phase A bug fixes, smoke42 the Phase B breakpoint contract and UI primitives,
+smoke43 the Phase C Study redesign). Suites 1–16 plus the running-Chrome visual audit were verified
 green on 2026-07-13; all 17 on 2026-07-16; all 18 plus the phone/tablet CDP
 audit on 2026-07-17; all 19 on 2026-07-17; all 38 on 2026-08-07; all 39 plus
 the visual audit on 2026-08-07; all 40 on 2026-08-08; all 42 plus the visual audit and a
-480-cell responsive sweep on 2026-08-08.
+480-cell responsive sweep on 2026-08-08; all 43 plus a 108-cell Study sweep
+(9 widths × 2 themes) and Dawn/Dusk screenshots on 2026-08-08.
 
 **Edge Functions** (Build 4c, `supabase/functions/`): deploy with
 `supabase functions deploy <name>`; secrets via `supabase secrets set` only
@@ -392,6 +395,42 @@ Collected from every build. If a change would break one of these, stop and say s
     A horizontal scroller must be declared through `KOS.ui.scroller`; the
     responsive probe counts an undeclared sideways scroll as unreachable
     content.
+
+**Study: the spine and the topic shell (Category 7 Phase C)**
+51. **The spec spine is the ONLY section list in Study.** The subject desk's
+    `.sec-grid` ledger rendered the same 14 sections a second time ~400px to
+    its right (audit SUBJ-1) and is deleted; do not reintroduce a section
+    list, a section accordion or a per-section drill-down anywhere in
+    `#main`. The spine carries what the ledger carried — `.sec-head-bar` on
+    the shared `tone()` ramp and `.grp-pc` per subsection — and it must keep
+    ANSWERING WHERE YOU ARE: opening a ref expands its owning section
+    (through the stored `ui.openSections`, never a second state), marks it
+    `.here`, and scrolls the active leaf `block:"nearest"`. Below 860 the
+    spine is an overlay drawer, not a column: it defaults closed, it has a
+    scrim that dismisses on tap and on Escape (never stealing Escape from an
+    open modal, never firing above the tier), and the way back in is the
+    page header's `.tree-open-btn` — never a floating control over content.
+52. **The topic page is content-first, and the inspector is its ONE state
+    surface.** Content begins within ~140px of the topic header at desktop
+    widths. Exactly one header row (seal · title · the crumb path folded
+    into the meta line · the compact status control), then exactly one
+    navigation layer — the `.study-nav` bar, a single sticky row holding the
+    tab strip in a declared scroller plus the note-page stepper. Nothing
+    else may be added between the header and the content. Mastery is printed
+    ONCE (the Topic Status component's head, inside the inspector) and each
+    material count ONCE (its tab chip); the two status controls are two DOM
+    nodes over one store value, synced through `syncStatusControls()`, never
+    two sources of truth. Every figure still comes from `topicStats()`
+    (invariant #26d).
+53. **Engine keyboard handlers are self-removing and text-field-safe.**
+    `openTab()` replaces `panel.innerHTML` wholesale, so an engine has no
+    teardown callback: a `document` keydown listener MUST check that its
+    holder is still in the document and remove itself when it is not, or the
+    page accumulates one dead session per tab switch. It must also ignore
+    events whose target is an input, textarea, select or contenteditable,
+    and must refuse to grade a card that is still face-down. Shortcuts are
+    printed in the UI (a legend under the card, the number on each grading
+    button and each quiz option), not documented elsewhere.
 
 **Calendar & the event model (Build 6.6)**
 41. `KOS.calendar.normalise()` is the SINGLE schema gate for an event — every

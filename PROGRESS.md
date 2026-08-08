@@ -3553,3 +3553,135 @@ Service-worker version: `kos-cat7-phase-b-1`.
 
 **Next: Phase C** — the ref page shell, the subject desk and Home. Those are the
 structural redesigns Phase B deliberately did not start.
+
+---
+
+## Category 7 · Phase C (part 1) — the Study redesign
+
+**Scope:** the subject desk (`subject`) and the topic shell (`ref`), redesigned
+together because they share the spec spine, the progress derivations and the
+inspector. Home is the remaining Phase C item and is untouched here. The ref
+page's **content renderer was classified KEEP by the audit and is unchanged** —
+this is the information architecture, navigation, page shell, state surfaces
+and responsive behaviour around it.
+
+### The subject desk
+
+The page rendered its own primary navigation twice: the spec spine on the left
+and a "Sections" ledger about 400px to its right, same 14 sections, same counts,
+same drill-down (audit SUBJ-1). Deciding what the spine is *for* resolved the
+whole page.
+
+- **The spine is the only section list.** It inherited both things the ledger
+  did that it did not: a per-section progress bar (`.sec-head-bar`, on the one
+  shared `low/mid/high` ramp) and the per-subsection tally the ledger revealed
+  on expand (`.grp-pc`). `.sec-grid` / `.sec-card` are gone from the desk.
+- **The main column is now a desk**, reading top to bottom as one sentence:
+  where you were (the continue card, promoted to lead — it is the only element
+  on the page that is an instruction rather than a report) → what the course is
+  (the board/paper band) → how you are doing (the eight analytics tiles, which
+  get **four across** in the main column instead of two in a 300px rail) → what
+  you can do about it (practice zone, resources). The context column keeps only
+  what is genuinely not a subject statistic: countdowns and flagged topics.
+- **SUBJ-2**: the spec-point total appeared four times under four labels. Twice
+  now, each doing a different job — the spine header (navigation context) and
+  the "Topics secure" tile (the statistic). The board band's lead states the
+  board's identity instead.
+- **SUBJ-6**: the mastery-vs-secure definition is a `<details>`; the line that
+  carries information every time (deep-content coverage) stays visible.
+
+### The topic shell
+
+`571px → 161px` from `#main`'s top edge before the first word of revision
+content, measured against the dense account at 1440×900 — **135px below the
+topic header**, and 133–136 across 1240/1440/1920.
+
+- **One header row.** Crumbs, seal + title + board line and a 170px Topic Status
+  band were three stacked blocks costing 308px. The crumb path is the meta
+  line's first clause, and the only control that stays above the fold is the
+  status dropdown — the one that is used constantly rather than occasionally.
+- **The inspector is the page's single state surface.** The Topic Status
+  component moved into it whole (status · the four checks · confidence, with the
+  one live mastery readout in its head). Its own duplicate "Mastery" section is
+  gone (REF-3) and so is its "Materials" list (REF-4) — the counts stay on the
+  tab chips, where the number is what decides whether you press the tab. The
+  header control and the inspector field are two DOM nodes over one store value,
+  kept in step by `syncStatusControls()`.
+- **One study navigation layer** (REF-6). Three switchers became one: the
+  assistant strip moved into the inspector, the tab strip is a single row inside
+  a declared `KOS.ui.scroller` stuck to the top of the reader, and the note-page
+  pills became a `‹ 3 / 7 · Title ›` stepper in that same bar with the full page
+  list behind a disclosure. One row at every width from 390 to 1920.
+- **Keyboard control of both engines** (REF-8, which had *zero* `keydown`
+  handlers in `js/engines/`). Flashcards: `Space`/`Enter` flip, `1–4` grade,
+  `→` reveal-then-Good, `←` hide. Quiz: `1–9` answers the first question still
+  open. Printed in the UI, not documented elsewhere. Both refuse to act on a
+  face-down card, refuse to steal a key from a text field, and **remove their
+  own listener once their panel is replaced** — `openTab()` wipes
+  `panel.innerHTML` wholesale, so there is no teardown callback and a plain
+  listener would accumulate one dead session per tab switch.
+- REF-5 (checks 16 → 20px), REF-7 (confidence is three labelled controls —
+  struggling · shaky · solid — with `aria-pressed`, not three pale circles) and
+  REF-10 (rating sub-labels 9.5 → 11px).
+
+### Three defects found by inspection, not by the audit
+
+1. **The spine covered the page at 701–860.** `#tree` goes `position: fixed` at
+   ≤860 but the default-closed rule only ran at ≤700, so for a 160px band the
+   spine simply covered the page it navigates — no scrim, nothing to dismiss it.
+   Both thresholds are 860 now, and the drawer gained a scrim that dismisses on
+   tap and on Escape (and leaves Escape alone above the tier, and never takes it
+   from an open modal).
+2. **Opening a topic did not reveal it in the spine.** The active leaf sat
+   inside a collapsed section, so `.leaf.active` was `display:none` and the
+   existing `scrollIntoView` was a no-op. The owning section opens itself and is
+   marked `.here`; the scroll is `block:"nearest"` so it stops yanking the list
+   when the topic is already visible.
+3. **SUBJ-4 was not actually fixed.** Phase B fixed the pill's text *wrap* and
+   closed the finding; the pill was still a `position: fixed` control printing
+   over whatever paragraph was beneath it — which is exactly what a right-edge
+   pixel probe cannot see. The floating pill is retired: at ≤860 the closed
+   spine has no presence at all and the page header carries a real
+   `☰ Spec spine` button, which cannot overlap anything.
+
+### Verification
+
+- **43 suites green.** New: `tools/smoke43.test.js` (31 steps) covering the
+  spine contract, content-first geometry, the single state surface, the note
+  pager, engine keyboard control and the touch-target/label fixes. Updated:
+  smoke37 (nine steps asserted the layout the audit asked us to change; they now
+  assert the new contract while keeping every consistency claim) and smoke15.
+  smoke2, smoke24, smoke32, smoke34, smoke40 and smoke42 pass unchanged.
+- **108-cell responsive sweep** of the Study surfaces (9 widths × 2 themes ×
+  6 views): **0 overflowing, 0 amputated**. Full 192-cell sweep clean apart from
+  the pre-existing Focus Timer overflow below.
+- Screenshots at 1920 / 1440 / 820 / 390 in Atelier Dawn and Atelier Dusk
+  against the dense account, plus the drawer/scrim states at 820.
+
+### Open, and deliberately not fixed here
+
+- **`#subnav` wraps to three rows at 390px**, eating ~100px above every page in
+  the app — the largest remaining "chrome before content" cost on both Study
+  surfaces. The fix is to route it through `KOS.ui.scroller` (an undeclared
+  sideways scroll fails the probe by design), which changes global navigation on
+  all 24 views. It belongs with the Home/global chrome work, not as a drive-by.
+- **The Focus Timer setup overflows by 366px at 390px** (39 elements, both
+  themes). Confirmed pre-existing by running the same sweep against the Phase B
+  tree.
+
+### Lesson carried forward, third instance — and this one was in the harness
+
+`tools/responsive_audit.mjs` had two defects that between them meant the "dense
+account" was not dense. It seeded `status: "completed"`, which is not a value
+the app's `none|started|paused|done` vocabulary knows — so every Study surface
+read **0/156 secure**, which is the very figure the audit quoted for SUBJ-2. And
+its `store.save()` is debounced 120ms while the harness reloads the page the
+moment seeding resolves, so on a *re-seed* (media already present, no awaits
+left to burn the timer) the whole localStorage half of the seed was silently
+lost and the sweep measured a default store. Both fixed — `store.flush()`,
+correct statuses, plus SM-2 metadata, RAG ratings and custom cards, and the seed
+now reports its secure count so a silent regression is visible in the log.
+
+The measurement tool is part of the surface under test.
+
+**Next: Phase C part 2** — Home.

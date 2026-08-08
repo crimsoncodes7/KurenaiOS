@@ -196,15 +196,67 @@
   }
   KOS.refreshRailCounters = refreshRailCounters;
 
-  /* ---------- tree ---------- */
+  /* ---------- tree ----------
+     Category 7 Phase C: the spine is now the ONLY section list in Study.
+     The subject desk used to render an identical accordion of the same 14
+     sections about 400px to its right (audit SUBJ-1); that ledger is gone,
+     so everything it was doing — the completion bar per section, the
+     per-group tally, and drilling into a subsection — has to happen here. */
+
+  /* The tier at which the tree stops being a column and becomes an overlay
+     is 860, not 700: `#tree` goes `position: fixed` at ≤860. Defaulting it
+     open there meant that at 700–860 the spine simply covered the page it
+     navigates, with no scrim and nothing to dismiss it. */
+  var TREE_OVERLAY_Q = "(max-width: 860px)";
+  function treeIsOverlay() {
+    return typeof window.matchMedia === "function" && window.matchMedia(TREE_OVERLAY_Q).matches;
+  }
   function applyTreeCollapsed() {
-    /* Build 4b: with no saved preference, phones start with the tree
-       CLOSED (it's a drawer over the content there); desktop keeps its
-       open-by-default spine. An explicit choice wins on both. */
+    /* Build 4b: with no saved preference, the overlay tiers start CLOSED
+       (the tree is a drawer over the content there); wider viewports keep
+       their open-by-default spine. An explicit choice wins on both. */
     var pref = store.state.ui.treeClosed;
-    var closed = pref === true ||
-      (pref == null && typeof window.matchMedia === "function" && window.matchMedia("(max-width: 700px)").matches);
+    var closed = pref === true || (pref == null && treeIsOverlay());
     document.getElementById("cols").classList.toggle("tree-closed", closed);
+  }
+  function setTreeClosed(closed) {
+    store.state.ui.treeClosed = !!closed;
+    store.save();
+    applyTreeCollapsed();
+  }
+  KOS.setTreeClosed = setTreeClosed;
+
+  /* An open overlay drawer is dismissible: the scrim behind it and Escape
+     both close it. On a real column (>860) neither fires — the scrim is
+     not in the layout and the key is left alone. */
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape" || !treeIsOverlay()) return;
+    var cols = document.getElementById("cols");
+    var tree = document.getElementById("tree");
+    if (!cols || !tree || tree.classList.contains("hidden")) return;
+    if (cols.classList.contains("tree-closed")) return;
+    /* a modal is its own Escape owner — never steal the key from one */
+    if (document.querySelector(".modal-ov")) return;
+    setTreeClosed(true);
+  });
+  (function () {
+    var scrim = document.getElementById("tree-scrim");
+    if (scrim) scrim.addEventListener("click", function () { setTreeClosed(true); });
+  })();
+
+  /* The opener for the overlay tiers. The floating "Spec spine" pill it
+     replaces was fixed over the page (audit SUBJ-4): giving #main bottom
+     clearance stops it covering the LAST row, but a fixed pill still prints
+     on top of whatever paragraph happens to be under it mid-scroll. An
+     opener that sits in the page header cannot overlap anything, and it puts
+     the control for the section list on the page the section list serves.
+     CSS hides it above 860, where the spine is an ordinary column. */
+  function treeOpenButton() {
+    return el("button", { class: "btn tree-open-btn", type: "button",
+      "aria-label": "Show the spec spine",
+      onclick: function () { setTreeClosed(false); } }, [
+      el("span", { "aria-hidden": "true", text: "☰" }), " Spec spine"
+    ]);
   }
   function renderTree(sid, activeRef) {
     var tree = document.getElementById("tree");
@@ -218,7 +270,7 @@
 
     /* the slim reopen rail, shown only when the tree is collapsed */
     tree.appendChild(el("button", { class: "tree-reopen", title: "Show the spec spine",
-      onclick: function () { store.state.ui.treeClosed = false; store.save(); applyTreeCollapsed(); } }, [
+      onclick: function () { setTreeClosed(false); } }, [
       el("span", { class: "tr-arr", "aria-hidden": "true", text: "›" }),
       el("span", { class: "tr-lbl", text: "Spec spine" })
     ]));
@@ -227,18 +279,33 @@
     tree.appendChild(el("div", { class: "tree-subject-h" }, [
       el("div", { class: "tsh-txt" }, [
         el("span", { class: "t", text: data.name, style: "color:" + COLORS[sid] }),
-        el("span", { class: "b", text: data.board + " · " + st.done + "/" + st.total + " secure" }),
+        el("span", { class: "b", text: data.board + " · " + ratioText(st.done, st.total) + " secure" }),
         el("div", { class: "tree-progress", "aria-label": st.pct + "% complete" }, [
           el("i", { style: "width:" + st.pct + "%" })
         ])
       ]),
       el("button", { class: "tree-collapse", title: "Collapse the spec spine", "aria-label": "Collapse",
-        onclick: function () { store.state.ui.treeClosed = true; store.save(); applyTreeCollapsed(); } }, ["‹"])
+        onclick: function () { setTreeClosed(true); } }, ["‹"])
     ]));
     var open = store.state.ui.openSections[sid] = store.state.ui.openSections[sid] || {};
 
+    /* the section that owns the topic on screen opens itself. Without this
+       the active leaf sits inside a collapsed section, .leaf.active is
+       display:none, and scrolling it into view below is a no-op — i.e. the
+       spine could not show you where you were, which is disqualifying for
+       the one control that now owns section navigation. */
+    var activeSection = null;
+    if (activeRef) {
+      var actLeaf = BYREF[sid] && BYREF[sid][activeRef];
+      if (actLeaf && actLeaf.section) {
+        activeSection = actLeaf.section.ref;
+        open[activeSection] = true;
+      }
+    }
+
     data.sections.forEach(function (sec) {
-      var secEl = el("div", { class: "sec" + (open[sec.ref] ? " open" : "") });
+      var secEl = el("div", { class: "sec" + (open[sec.ref] ? " open" : "") +
+        (sec.ref === activeSection ? " here" : "") });
       var sst = sectionStats(sid, sec);
       var head = el("button", {
         class: "sec-head", style: "--accent:" + COLORS[sid],
@@ -252,7 +319,12 @@
       }, [
         el("span", { class: "ref", text: sec.ref }),
         el("span", { class: "sec-title", text: sec.title }),
-        sst.total ? el("span", { class: "pc", text: sst.done + "/" + sst.total }) : null,
+        /* the ledger's progress bar, inherited. Same tone() ramp, same
+           .bar-track/.bar-fill class names the ledger used, so the one
+           low/mid/high colour semantic is unchanged (invariant #26d). */
+        sst.total ? el("span", { class: "sec-head-bar bar-track " + tone(sst.pct),
+          "aria-hidden": "true" }, [el("span", { class: "bar-fill", style: "width:" + sst.pct + "%" })]) : null,
+        sst.total ? el("span", { class: "pc", text: ratioText(sst.done, sst.total) }) : null,
         el("span", { class: "arr", text: "▸" })
       ]);
       secEl.appendChild(head);
@@ -271,6 +343,10 @@
           var gkey = "g:" + node.ref;
           if (open[gkey] === undefined) open[gkey] = true;
           var grpKids = el("div", { class: "grp-kids", style: open[gkey] ? "" : "display:none" });
+          /* the retired ledger's one genuinely extra reading was the
+             per-SUBSECTION tally it revealed on expand. It lives on the
+             group row now, so nothing was lost by deleting the ledger. */
+          var gst = sectionStats(sid, node);
           var gbtn = el("button", { class: "grp-h", "aria-expanded": String(!!open[gkey]),
             onclick: function () {
               open[gkey] = !open[gkey];
@@ -280,8 +356,9 @@
               store.save();
             } }, [
             el("span", { class: "grp-arr", text: "▾" }),
-            el("span", { text: node.ref + " · " + node.title })
-          ]);
+            el("span", { class: "grp-t", text: node.ref + " · " + node.title }),
+            gst.total ? el("span", { class: "grp-pc", text: ratioText(gst.done, gst.total) }) : null
+          ].filter(Boolean));
           if (!open[gkey]) gbtn.classList.add("closed");
           parentEl.appendChild(gbtn);
           if (isLeaf) appendLeaf(grpKids, node);
@@ -312,7 +389,10 @@
     });
     if (activeRef) {
       var act = tree.querySelector(".leaf.active");
-      if (act && act.scrollIntoView) act.scrollIntoView({ block: "center" });
+      /* "nearest" — the spine only scrolls when the active leaf is actually
+         off its own view. `center` yanked the list on every navigation even
+         when the topic was already visible. Never touches #main. */
+      if (act && act.scrollIntoView) act.scrollIntoView({ block: "nearest" });
     }
   }
   function hideTree() {
@@ -825,6 +905,7 @@
         ])
       ]),
       el("div", { class: "dh-actions" }, [
+        treeOpenButton(),
         el("button", { class: "btn", text: "⇆ Compare topics", onclick: function () { compareModal(sid); } }),
         el("button", { class: "btn primary", text: "◉ Start focus", onclick: function () { KOS.show("focus"); } })
       ])
@@ -835,7 +916,31 @@
        entry, so the strip added a second navigation grammar for nothing.
        Assignments remains one click away in the Study subnav. */
 
-    /* the desk band: board summary + one column per paper/unit (Sol) */
+    /* ---------- the desk ----------
+       Category 7 Phase C, audit SUBJ-1. This page used to render the spec
+       tree's list a second time, ~400px to its right: same 14 sections, same
+       counts, same drill-down. The spine on the left is now the only section
+       navigation in Study, so the main column is free to be what the page is
+       called — a desk. It reads top to bottom as one sentence:
+
+         where you were  →  what the course is  →  how you are doing  →
+         what you can do about it
+
+       The context column keeps only what is genuinely NOT subject analytics:
+       dates, and the flagged-topic recommendations. */
+    var grid = el("div", { class: "subject-grid" });
+    var colMain = el("div", { class: "subject-main" });
+    var colSide = el("aside", { class: "subject-side" });
+    grid.appendChild(colMain);
+    grid.appendChild(colSide);
+    main.appendChild(grid);
+
+    /* 1 · continue state — the first thing on the desk, because it is the
+       only element here that is an instruction rather than a report */
+    var cont = continueCard(sid);
+    if (cont) colMain.appendChild(cont);
+
+    /* 2 · the board band: board summary + one column per paper/unit */
     var units = {};
     d.sections.forEach(function (sec) {
       var lbl = sec.paper !== undefined ? paperLabel(sid, sec.paper) : d.board;
@@ -847,21 +952,22 @@
     });
     var unitKeys = Object.keys(units);
     var uwrap = el("div", { class: "subject-units", "aria-label": "Course units" });
+    /* the lead is the board's IDENTITY, not a fourth restatement of the
+       secure ratio (audit SUBJ-2 counted that figure four times on one
+       screen). The spine header carries it as navigation context and the
+       "Topics secure" tile carries it as a statistic; that is enough. */
     uwrap.appendChild(el("div", { class: "unit-lead" }, [
       el("span", { class: "ul-glyph", "aria-hidden": "true", text: d.name.slice(0, 1) }),
       el("div", { class: "ul-txt" }, [
         el("strong", { text: d.board }),
-        el("span", { text: s.total + " spec points · " + s.touched + " started" }),
-        /* the bar and the caption underneath it carry the same quantity —
-           topics secure — so the band cannot read as two different figures */
-        el("div", { class: "insp-track" }, [el("i", { style: "width:" + s.pct + "%" })]),
-        el("small", { text: ratioText(s.done, s.total) + " secure · " + pctText(s.pct) })
+        el("span", { text: unitKeys.length === 1 ? "1 unit" : unitKeys.length + " papers" }),
+        el("small", { text: s.total + " spec points across " + d.sections.length + " sections" })
       ])
     ]));
     unitKeys.forEach(function (lbl) {
       var u = units[lbl];
       var upct = pctOf(u.done, u.total);
-      uwrap.appendChild(el("div", { class: "unit-stat" }, [
+      uwrap.appendChild(el("div", { class: "unit-stat " + tone(upct) }, [
         el("span", { text: lbl }),
         el("strong", { text: u.secs.length === 1 ? u.secs[0] : u.secs.length + " sections" }),
         el("div", { class: "insp-track" }, [el("i", { style: "width:" + upct + "%" })]),
@@ -872,72 +978,20 @@
        tier stacks it). Until Phase B it scrolled with no affordance at all,
        so Papers 2–3 were unreachable in practice at 880–1100px — the same
        defect as Collection's cover strip (audit SUBJ-3/MTX-1). */
-    main.appendChild(KOS.ui.scroller(uwrap, { label: "Course units",
+    colMain.appendChild(KOS.ui.scroller(uwrap, { label: "Course units",
       prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units",
       className: "subject-units-scroller" }));
 
-    /* the two-column workspace: sections on the left, context on the right */
-    var grid = el("div", { class: "subject-grid" });
-    var colMain = el("div", { class: "subject-main" });
-    var colSide = el("aside", { class: "subject-side" });
-    grid.appendChild(colMain);
-    grid.appendChild(colSide);
-    main.appendChild(grid);
+    /* 3 · the analytics. It was in the 300px context column, so eight tiles
+       had to stack 2-up and their captions wrapped to three lines; in the
+       main column the same grid gets four across and reads at a glance. */
+    colMain.appendChild(subjectAnalytics(sid, s));
 
-    /* --- left: the section ledger (accordion rows) --- */
-    colMain.appendChild(el("h3", { class: "n-h", text: "Sections" }));
-    var secGrid = el("div", { class: "sec-grid" });
-    d.sections.forEach(function (sec) {
-      var st = sectionStats(sid, sec);
-      if (!st.total) return;
-      var card = el("div", { class: "sec-card " + tone(st.pct) });
-      var sub = el("div", { class: "sec-sub", style: "display:none" });
-      var head = el("button", {
-        class: "sec-card-h", "aria-expanded": "false",
-        onclick: function () {
-          var open = sub.style.display === "none";
-          sub.style.display = open ? "" : "none";
-          head.setAttribute("aria-expanded", String(open));
-          card.classList.toggle("open", open);
-        }
-      }, [
-        el("span", { class: "ref", text: sec.ref }),
-        el("span", { class: "ttl", text: sec.title }),
-        el("span", { class: "sec-bar bar-track" }, [
-          el("span", { class: "bar-fill", style: "width:" + st.pct + "%" })]),
-        el("span", { class: "pc", text: st.done + "/" + st.total }),
-        el("span", { class: "arr", "aria-hidden": "true", text: "▾" })
-      ]);
-      card.appendChild(head);
-
-      /* subsection bars, revealed on expand */
-      var subs = (sec.children || []).map(function (ch) {
-        return { ch: ch, st: sectionStats(sid, ch) };
-      }).filter(function (x) { return x.st.total > 0; });
-      subs.forEach(function (x) {
-        sub.appendChild(el("div", { class: "bar-row" }, [
-          el("span", {
-            class: "nm", text: x.ch.ref + " " + x.ch.title, title: "Open in tree",
-            onclick: function () {
-              store.state.ui.openSections[sid][sec.ref] = true;
-              renderTree(sid, null); store.save();
-            }
-          }),
-          el("div", { class: "bar-track" }, [
-            el("div", { class: "bar-fill", style: "width:" + x.st.pct + "%" })]),
-          el("span", { class: "pc", text: x.st.done + "/" + x.st.total })
-        ]));
-      });
-      if (!subs.length) sub.appendChild(el("div", { class: "bar-row dim", text: "No subsections — the topics live directly in the tree on the left." }));
-      card.appendChild(sub);
-      secGrid.appendChild(card);
-    });
-    colMain.appendChild(secGrid);
-
-    /* practice zone — labs live here */
+    /* 4 · what you can do here — practice, then reference material */
     var labs = PRACTICE[sid] || [];
     if (labs.length) {
-      colMain.appendChild(el("h3", { class: "n-h", style: "margin-top:26px", text: "Practice zone" }));
+      colMain.appendChild(KOS.ui.sectionHeader({ title: "Practice zone",
+        sub: "Labs and simulations wired to this subject", className: "subject-sh" }));
       var pz = el("div", { class: "practice-row" });
       labs.forEach(function (t) {
         var acc = practiceAccess(t[3]);
@@ -952,21 +1006,15 @@
     }
 
     /* resource link table (FR-2.8) */
-    colMain.appendChild(el("h3", { class: "n-h", style: "margin-top:26px", text: "Resources & reference sheets" }));
+    colMain.appendChild(KOS.ui.sectionHeader({ title: "Resources & reference sheets",
+      sub: "Your own links for this subject", className: "subject-sh" }));
     var resHolder = el("div", {});
     colMain.appendChild(resHolder);
     renderResources(resHolder, sid);
 
-    /* --- right: the analytics block, then the action, then the dates ---
-       Order is deliberate: the numbers first, the one thing to DO next
-       immediately under them as a full-width action card, and only then a
-       ruled break into the date-driven panels. Countdowns are not subject
-       analytics and must not read as a ninth tile. Nothing here is sticky —
-       the column scrolls with the page. */
-    colSide.appendChild(subjectAnalytics(sid, s));
-    var cont = continueCard(sid);
-    if (cont) colSide.appendChild(cont);
-    colSide.appendChild(el("div", { class: "side-div", role: "separator" }));
+    /* --- the context column: dates and recommendations only ---
+       Countdowns are not subject analytics and must not read as a ninth
+       tile. Nothing here is sticky — the column scrolls with the page. */
     colSide.appendChild(KOS.calendar.countdownWidget(sid));
     var ragPanel = KOS.rag.panel(sid);
     if (ragPanel) colSide.appendChild(ragPanel);
@@ -1032,13 +1080,22 @@
         statTile({ k: "Study streak", v: run + (run === 1 ? " day" : " days"), empty: !run,
           sub: run ? "consecutive days on this subject" : "study today to start one" })
       ]),
-      /* the two ratios that look alike are explained rather than left to be
-         read as a contradiction, and deep-content coverage keeps its place */
-      el("p", { class: "sa-foot", text:
-        "Mastery averages the four progress checks over every topic; secure counts only topics " +
-        "you have marked completed. Deep revision content exists for " +
-        (deep >= s.total ? "every one of the " + s.total + " topics."
-                         : ratioText(deep, s.total) + " topics.") })
+      /* The two ratios that look alike still need explaining — but a dense
+         paragraph of body text under a stat grid is read as content, not as
+         a footnote (audit SUBJ-6). The line that carries information every
+         time (deep-content coverage) stays visible; the definition, which
+         you need once and then never again, is behind a disclosure. */
+      el("details", { class: "sa-foot" }, [
+        el("summary", {}, [
+          el("span", { class: "sa-foot-fact", text: "Deep revision content: " +
+            (deep >= s.total ? "all " + s.total + " topics" : ratioText(deep, s.total) + " topics") }),
+          el("span", { class: "sa-foot-more", text: "What do these mean?" })
+        ]),
+        el("p", { text:
+          "Mastery averages the four progress checks over every topic in the subject. " +
+          "Secure counts only the topics you have marked completed, so it moves in whole " +
+          "topics while mastery moves in quarters." })
+      ])
     ]);
   }
 
@@ -1127,25 +1184,18 @@
     main.style.setProperty("--accent", COLORS[sid]);
     var content = KOS.content.get(sid, ref);
 
-    main.appendChild(el("div", { class: "crumbs", html:
-      "<b>" + esc(d.name) + "</b> · " + leaf.path.map(esc).join(" · ") }));
-
-    main.appendChild(el("div", { class: "page-h" }, [
-      el("div", { class: "seal", text: leaf.ref }),
-      el("div", {}, [
-        el("h1", { text: leaf.title }),
-        el("span", { class: "pap", text: d.board + (leaf.section.paper ? " · " + paperLabel(sid, leaf.section.paper) : "") +
-          (content ? " · deep revision content" : "") })
-      ])
-    ]));
-
     /* ---------- the Topic Status component ----------
-       Status, the four progress checks and the RAG confidence rating used to
-       be three loose control groups sharing one flex row with hairline
-       separators between them. They are one labelled component now, headed by
-       a single live mastery readout that repaints the moment any of the three
-       changes — and repaints the inspector's copy of the same figure with it,
-       because both read topicStats(). */
+       Status, the four progress checks and the RAG confidence rating are one
+       labelled component, headed by a single live mastery readout.
+
+       Category 7 Phase C moves that whole component OFF the content path and
+       into the inspector, which becomes the page's single state surface. It
+       used to sit between the title and the tabs as a 170px band, and the
+       inspector then printed the same mastery figure again 280px lower
+       (audit REF-1, REF-3). The component is unchanged; only its address is.
+       The one control that is used constantly rather than occasionally — the
+       status dropdown — stays in the header, reading from the same store and
+       repainting through the same hooks. */
     var p = store.getProgress(sid, ref);
     var masteryHooks = [];
     function syncMastery() { masteryHooks.forEach(function (f) { f(); }); }
@@ -1164,19 +1214,56 @@
     }
     masteryHooks.push(paintStatus);
 
-    var sel = el("select", {
-      class: "status-sel", id: "ts-status", "aria-label": "Topic status",
-      onchange: function () {
-        store.setStatus(sid, ref, sel.value);
-        renderTree(sid, ref);
-        KOS.refreshRailCounters();
-        syncChecks();
-        syncMastery();
-      }
-    }, STATUS.map(function (st) {
-      return el("option", { value: st[0], text: STATUS_GLYPH[st[0]] + "  " + st[1] });
-    }));
-    sel.value = p.status;
+    /* the header's compact status control and the component's field are the
+       SAME <select> moved by CSS?  No — they are two elements over one store
+       value, kept in step by syncStatusControls(). Two DOM nodes, one truth. */
+    var statusSelects = [];
+    function syncStatusControls() {
+      var v = store.getProgress(sid, ref).status;
+      statusSelects.forEach(function (s) { s.value = v; });
+      headStatus.className = "th-status st-" + v;
+    }
+    function statusSelect(id, label) {
+      var s = el("select", {
+        class: "status-sel", id: id, "aria-label": label,
+        onchange: function () {
+          store.setStatus(sid, ref, s.value);
+          renderTree(sid, ref);
+          KOS.refreshRailCounters();
+          syncStatusControls();
+          syncChecks();
+          syncMastery();
+        }
+      }, STATUS.map(function (st) {
+        return el("option", { value: st[0], text: STATUS_GLYPH[st[0]] + "  " + st[1] });
+      }));
+      s.value = store.getProgress(sid, ref).status;
+      statusSelects.push(s);
+      return s;
+    }
+
+    /* ---------- one header row (audit REF-1) ----------
+       Crumbs + seal + title + board line + status used to be three stacked
+       blocks costing 138px before the status band even began. They are one
+       row: the path the crumbs carried becomes the meta line's first clause,
+       which is where a reader looks for it anyway. */
+    var headStatus = el("span", { class: "th-status" });
+    var metaBits = [d.name].concat(leaf.path).concat([d.board]);
+    if (leaf.section.paper) metaBits.push(paperLabel(sid, leaf.section.paper));
+    if (content) metaBits.push("deep revision content");
+    main.appendChild(el("header", { class: "page-h topic-head" }, [
+      el("div", { class: "seal", text: leaf.ref }),
+      el("div", { class: "th-txt" }, [
+        el("h1", { text: leaf.title }),
+        el("p", { class: "pap th-meta", text: metaBits.join(" · ") })
+      ]),
+      el("div", { class: "th-ctl" }, [
+        treeOpenButton(),
+        headStatus,
+        el("label", { class: "sr-only", for: "th-status", text: "Topic status" }),
+        statusSelect("th-status", "Topic status")
+      ])
+    ]));
 
     /* marking a topic Completed fills the checklist in the store; the boxes
        have to say so, or the component shows 4/4 mastery beside empty boxes */
@@ -1192,9 +1279,9 @@
     CHECKS.forEach(function (label, i) {
       var cb = el("input", { type: "checkbox", onchange: function () {
         store.setCheck(sid, ref, i, cb.checked);
-        sel.value = store.getProgress(sid, ref).status;
         renderTree(sid, ref);
         KOS.refreshRailCounters();
+        syncStatusControls();
         syncChecks();
         syncMastery();
       }});
@@ -1212,7 +1299,8 @@
     ]));
     ctl.appendChild(el("div", { class: "ts-body" }, [
       el("div", { class: "ts-field ts-field-status" }, [
-        el("label", { class: "ts-lbl", for: "ts-status", text: "Status" }), sel
+        el("label", { class: "ts-lbl", for: "ts-status", text: "Status" }),
+        statusSelect("ts-status", "Topic status")
       ]),
       el("div", { class: "ts-field ts-field-checks" }, [
         el("span", { class: "ts-lbl", text: "Progress checks" }), checkGrid
@@ -1223,7 +1311,7 @@
       ])
     ]));
     paintStatus();
-    main.appendChild(ctl);
+    syncStatusControls();
 
     /* ---------- study tabs ---------- */
     /* gens & sims: each is the content entry's own list merged with anything
@@ -1242,9 +1330,11 @@
        tab shows whenever either exists so custom cards are reachable, and on
        enriched topics regardless so new ones can be added (FR-1.1) */
     var customQuizCount = KOS.srs.customQuizFor(sid, ref).length;
-    /* ONE materials tally. The tab bar prints these numbers on its chips and
-       the inspector prints the same object in its Materials section, so a
-       badge and the panel beside it are incapable of disagreeing. */
+    /* ONE materials tally, printed ONCE — on the tab chips (audit REF-4).
+       It used to be printed twice: here, and again as an inspector
+       "Materials" list about 200px to the right, four identical numbers
+       under a different heading. The chip is the right home, because the
+       count is the thing that decides whether you press the tab. */
     var mats = {
       cards: KOS.srs.cardsFor(sid, ref).length,
       notes: content && content.notes && content.notes.length
@@ -1288,21 +1378,44 @@
         }
       }, [t[1], t[3] ? el("span", { class: "tab-n", text: String(t[3]) }) : null].filter(Boolean)));
     });
+
+    /* ---------- ONE study navigation layer (audit REF-6) ----------
+       The page carried three: an assistant action strip, a tab strip that
+       wrapped and orphaned "Files" on a row of its own, and a row of up to
+       seven note-page pills that wrapped again. That is 3 levels of tab and
+       ~240px of chrome for one decision.
+
+       There is one bar now. It sticks to the top of the scroller so the tabs
+       stay reachable however far down the topic you are, it is a DECLARED
+       horizontal scroller (Phase B invariant #50 — an undeclared sideways
+       scroll counts as unreachable content), and the note-page control lives
+       inside it at the right-hand end rather than as a second row. */
+    var navRow = el("div", { class: "study-nav-row" });
+    var pagerSlot = el("div", { class: "study-nav-pages" });
+    navRow.appendChild(KOS.ui.scroller(tabBar, { label: "Study material",
+      prevLabel: "Scroll to earlier tabs", nextLabel: "Scroll to later tabs",
+      className: "study-tabs-scroller" }));
+    navRow.appendChild(pagerSlot);
+    var pagesSlot = el("div", { class: "study-nav-pagelist" });
+    var studyNav = el("div", { class: "study-nav" }, [navRow, pagesSlot]);
+
     /* Build 4.0 — study workspace: content column + collapsible inspector.
-       The inspector carries the topic's live stats (mastery, recall record,
-       next review); its open state persists in ui.inspectorOpen. */
+       The inspector carries the topic's live state; its open state persists
+       in ui.inspectorOpen. */
     var studyGrid = el("div", { class: "study-grid" + (store.state.ui.inspectorOpen === false ? " insp-closed" : "") });
-    var studyCol = el("div", {});
-    /* Category 6 — the assistant's contextual actions for this topic
-       (shared submission path; nothing here calls a tool directly) */
-    if (KOS.assistant && KOS.assistant.contextActions) {
-      var asstStrip = KOS.assistant.contextActions("ref", { subject: sid, ref: ref, title: leaf.title });
-      if (asstStrip) studyCol.appendChild(asstStrip);
-    }
-    studyCol.appendChild(tabBar);
+    var studyCol = el("div", { class: "study-col" });
+    studyCol.appendChild(studyNav);
     studyCol.appendChild(panel);
     studyGrid.appendChild(studyCol);
-    studyGrid.appendChild(buildInspector(studyGrid, sid, ref, mats, masteryHooks));
+    /* Category 6 — the assistant's contextual actions for this topic
+       (shared submission path; nothing here calls a tool directly). They
+       were a strip directly above the tabs, i.e. on the path between the
+       title and the first word of revision content; they belong with the
+       page's other side-of-desk affordances. */
+    var asstStrip = KOS.assistant && KOS.assistant.contextActions
+      ? KOS.assistant.contextActions("ref", { subject: sid, ref: ref, title: leaf.title })
+      : null;
+    studyGrid.appendChild(buildInspector(studyGrid, sid, ref, ctl, asstStrip));
     main.appendChild(studyGrid);
 
     var firstMount = true;
@@ -1322,6 +1435,10 @@
         studyGrid.classList.remove("files-tab");
         studyGrid.classList.toggle("insp-closed", store.state.ui.inspectorOpen === false);
       }
+      /* the note-page control lives in the nav bar, outside `panel`, so it
+         has to be cleared here too or it would survive a tab change */
+      pagerSlot.innerHTML = "";
+      pagesSlot.innerHTML = "";
       panel.innerHTML = "";
       if (curTab === "spec") {
         var split = el("div", { class: "split" });
@@ -1353,23 +1470,61 @@
       else if (curTab === "notes") {
         var pages = KOS.content.splitPages(content.notes);
         if (pages.length > 1) {
-          /* paginated notes: a pill row of section pages + prev/next, so a long
-             exhaustive topic reads as clean sections instead of one scroll */
-          var pager = el("div", { class: "note-pager", role: "tablist" });
+          /* ---------- compact note-page navigation (audit REF-6) ----------
+             Seven page pills wrapped to two rows directly under a tab strip
+             that had already wrapped to two rows. The default state is now a
+             one-line stepper in the study nav bar — ‹ 3 / 7 · Title › — which
+             is all a reader turning pages in order needs. The full list is
+             one press away behind "All pages" for the reader who wants to
+             jump, and it is still the same row of .note-page-tab buttons. */
+          var pager = el("div", { class: "note-pager", role: "tablist",
+            "aria-label": "Note pages", hidden: true });
           var article = el("article", { class: "notes-article" });
           var foot = el("div", { class: "note-pager-foot" });
           var cur = 0;
-          /* `moved` is true only when the READER changed page (a pill or a
-             prev/next button). Scrolling the article into view on the first
-             mount landed them mid-article, with the title, the topic-status
-             band and the study tabs already scrolled off the top. */
+
+          var stepPrev = el("button", { class: "np-step", "aria-label": "Previous note page",
+            onclick: function () { showPage(cur - 1, true); } }, ["‹"]);
+          var stepNext = el("button", { class: "np-step", "aria-label": "Next note page",
+            onclick: function () { showPage(cur + 1, true); } }, ["›"]);
+          /* the readout IS the disclosure — one control instead of a
+             separate "All pages" button beside it, which is 70px the tab
+             strip would rather have */
+          var stepNow = el("span", { class: "np-count" });
+          var stepTitle = el("span", { class: "np-title" });
+          var pagesBtn = el("button", { class: "np-all", "aria-expanded": "false",
+            "aria-controls": "note-pagelist",
+            onclick: function () {
+              var open = pager.hidden;
+              pager.hidden = !open;
+              pagesBtn.setAttribute("aria-expanded", String(open));
+              pagesBtn.classList.toggle("on", open);
+            } }, [stepNow, stepTitle, el("span", { class: "np-caret", "aria-hidden": "true", text: "▾" })]);
+          pager.id = "note-pagelist";
+          pagerSlot.appendChild(el("div", { class: "note-stepper" },
+            [stepPrev, pagesBtn, stepNext]));
+          pagesSlot.appendChild(pager);
+
+          /* `moved` is true only when the READER changed page (a pill, the
+             stepper or a prev/next button). Scrolling the article into view
+             on the first mount landed them mid-article, with the title and
+             the study tabs already scrolled off the top (audit REF-2/B-04). */
           var showPage = function (i, moved) {
             cur = Math.max(0, Math.min(pages.length - 1, i));
             pager.querySelectorAll(".note-page-tab").forEach(function (b, j) {
-              b.classList.toggle("active", j === cur); });
+              var on = j === cur;
+              b.classList.toggle("active", on);
+              b.setAttribute("aria-selected", String(on));
+            });
             article.innerHTML = KOS.content.renderBlocks(pages[cur].blocks);
             KOS.content.typeset(article);
             if (moved && article.scrollIntoView) article.scrollIntoView({ block: "nearest" });
+            stepNow.textContent = (cur + 1) + " / " + pages.length;
+            stepTitle.textContent = pages[cur].title;
+            pagesBtn.title = "Page " + (cur + 1) + " of " + pages.length + " — " +
+              pages[cur].title + " · choose a page";
+            stepPrev.disabled = cur === 0;
+            stepNext.disabled = cur === pages.length - 1;
             foot.innerHTML = "";
             if (cur > 0) foot.appendChild(el("button", { class: "btn", text: "‹ " + pages[cur - 1].title,
               onclick: function () { showPage(cur - 1, true); } }));
@@ -1381,7 +1536,6 @@
             pager.appendChild(el("button", { class: "note-page-tab", role: "tab", "data-i": i,
               onclick: function () { showPage(i, true); } }, [(i + 1) + ". " + pg.title]));
           });
-          panel.appendChild(pager);
           panel.appendChild(article);
           panel.appendChild(foot);
           showPage(0);
@@ -1526,54 +1680,31 @@
   };
 
   /* ---------- the study inspector ----------
-     Mastery, the materials tally, the recall record and the next review, in a
-     panel that genuinely collapses (and says so when collapsed, instead of
-     leaving a bare chevron floating in the gutter).
+     Category 7 Phase C: this is now the page's SINGLE state surface.
 
-     It computes nothing of its own: `mats` is the very object the tab bar
-     printed on its chips, and every other figure comes from topicStats(), the
-     same call the Topic Status component makes. `hooks` lets the status
-     component repaint the mastery block when a check is ticked, so the two
-     mastery readouts on the page move together. */
-  function buildInspector(grid, sid, ref, mats, hooks) {
-    mats = mats || {};
+     Before, the page carried the same state twice — the Topic Status band
+     above the content printed mastery, and the inspector printed it again
+     280px to the right under its own heading (audit REF-3) — while the four
+     material counts appeared both on the tab chips and in an inspector
+     "Materials" list (REF-4). Both duplicates are gone. The inspector now
+     owns: the Topic Status component itself (status · the four checks ·
+     confidence, with the one live mastery readout in its head), the recall
+     record, the next review, and the assistant's contextual actions.
+
+     It still computes nothing of its own — every figure comes from
+     topicStats(), the same call the status component makes, so a number here
+     and a number in the header cannot drift (invariant #26d). */
+  function buildInspector(grid, sid, ref, statusComponent, asstStrip) {
     var body = el("div", { class: "insp-body" });
 
-    /* --- mastery (live) --- */
-    var mPct = el("strong", {});
-    var mChecks = el("span", {});
-    var mBar = el("i");
-    function paintMastery() {
-      var t = topicStats(sid, ref);
-      mPct.textContent = pctText(t.mastery);
-      mChecks.textContent = t.checkText;
-      mBar.style.width = t.mastery + "%";
-    }
-    if (hooks) hooks.push(paintMastery);
-    body.appendChild(el("div", { class: "insp-sec" }, [
-      el("h5", { text: "Mastery" }),
-      el("div", { class: "insp-mastery" }, [mPct, mChecks]),
-      el("div", { class: "insp-track" }, [mBar])
-    ]));
+    /* --- state: the Topic Status component, in its new home --- */
+    if (statusComponent) body.appendChild(statusComponent);
 
     function li(k, v, empty) {
       return el("li", { class: empty ? "na" : "" }, [
         el("span", { text: k }), el("strong", { text: empty ? "—" : v })]);
     }
     function count(k, n) { return li(k, String(n), !n); }
-
-    /* --- materials: the tab counts, restated --- */
-    body.appendChild(el("div", { class: "insp-sec" }, [
-      el("h5", { text: "Materials" }),
-      el("ul", { class: "insp-list" }, [
-        count("Flashcards", mats.cards || 0),
-        count("Quiz questions", mats.quiz || 0),
-        count("Exam questions", mats.exam || 0),
-        mats.worked ? count("Worked examples", mats.worked) : null,
-        mats.sim ? count("Simulations", mats.sim) : null,
-        mats.notes > 1 ? count("Note pages", mats.notes) : null
-      ].filter(Boolean))
-    ]));
 
     var t = topicStats(sid, ref);
     var qz = t.quiz;
@@ -1601,6 +1732,14 @@
       ])
     ]));
 
+    /* the assistant's topic actions — off the content path, but still one
+       press away and still riding the one shared submission path */
+    if (asstStrip) {
+      body.appendChild(el("div", { class: "insp-sec insp-asst" }, [
+        el("h5", { text: "Ask Kurenai" }), asstStrip
+      ]));
+    }
+
     var toggle = el("button", { class: "insp-toggle",
       title: "Collapse / expand the study inspector",
       onclick: function () {
@@ -1616,7 +1755,6 @@
     }
     paintToggle(grid.classList.contains("insp-closed"));
 
-    paintMastery();
     return el("aside", { class: "study-inspector", "aria-label": "Study inspector" }, [
       el("div", { class: "insp-head" }, [
         el("b", { text: "Inspector" }),

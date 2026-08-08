@@ -61,17 +61,20 @@ const REF = "4.2.3.1";               // an enriched leaf: notes, cards, quiz, ex
 /* ============ A · the subject overview ============ */
 console.log("== A · subject overview ==");
 
-step("the right column leads with a balanced 2 x 4 analytics grid", () => {
+/* Cat 7 Phase C moved the analytics out of the 300px context column and into
+   the desk's main column, where eight tiles get four across instead of two.
+   The claim the suite defends is unchanged: one balanced grid, no hole. */
+step("the desk carries the analytics grid, four across, with no hole", () => {
   KOS.show("subject", SID);
-  const side = $(".subject-side");
-  assert(side, "no context column");
-  const panel = side.querySelector(".subj-analytics");
-  assert(panel, "no analytics panel");
-  assert(side.firstElementChild === panel, "the stat area is not first in the column");
+  const main = $(".subject-main");
+  assert(main, "no desk column");
+  const panel = main.querySelector(".subj-analytics");
+  assert(panel, "no analytics panel on the desk");
+  assert(!$(".subject-side .subj-analytics"), "the analytics are still in the context column");
   const tiles = panel.querySelectorAll(".sa-grid > .sa-tile");
-  assert(tiles.length === 8, "expected 8 tiles (a balanced 2 x 4), got " + tiles.length);
-  assert(/\.sa-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,/s.test(css),
-    "the grid is not two columns — 8 tiles must not leave a hole");
+  assert(tiles.length === 8, "expected 8 tiles, got " + tiles.length);
+  assert(/\.sa-grid\s*\{[^}]*grid-template-columns:\s*repeat\(4,/s.test(css),
+    "the grid is not four columns — 8 tiles must divide evenly");
 });
 
 step("every tile is the same shape: label, value, context, one track", () => {
@@ -91,15 +94,20 @@ step("the eight statistics are the named ones, each labelled once", () => {
   assert(got.join("|") === want.join("|"), "tile labels: " + got.join("|"));
 });
 
-step("Continue where you left off is a full-width action card BELOW the stat area", () => {
+/* The desk reads as one sentence: where you were → what the course is → how
+   you are doing → what you can do about it. The continue card is the only
+   element on the page that is an instruction rather than a report, so it
+   leads; everything after it is context for it. */
+step("Continue where you left off is the desk's FIRST element", () => {
   KOS.store.state.ui.lastRef[SID] = REF;
   KOS.show("subject", SID);
-  const side = $(".subject-side");
-  const kids = [...side.children];
-  const panel = side.querySelector(".subj-analytics");
-  const card = side.querySelector(".continue-action");
+  const main = $(".subject-main");
+  const card = main.querySelector(".continue-action");
   assert(card, "no action card");
-  assert(kids.indexOf(card) > kids.indexOf(panel), "the action card is not below the stat area");
+  assert(main.firstElementChild === card, "the action card does not lead the desk");
+  const kids = [...main.children];
+  assert(kids.indexOf(card) < kids.indexOf(main.querySelector(".subj-analytics")),
+    "the action card is not above the analytics");
   assert(card.querySelector(".d").textContent === "Continue where you left off", "wrong kicker");
   assert(card.textContent.includes(REF), "the card does not name the topic");
   assert(/\.continue-action\s*\{[^}]*width:\s*100%/s.test(css), "the action card is not full width");
@@ -110,20 +118,35 @@ step("Continue where you left off is a full-width action card BELOW the stat are
 step("a never-opened subject still gets an action card, with an honest kicker", () => {
   delete KOS.store.state.ui.lastRef.it;
   KOS.show("subject", "it");
-  const card = $(".subject-side .continue-action");
+  const card = $(".subject-main .continue-action");
   assert(card, "the empty state dropped the card entirely");
   assert(card.querySelector(".d").textContent === "Start here", "empty state kept the Continue wording");
 });
 
-step("countdowns stay separate from subject analytics", () => {
+/* Countdowns are dates, not subject analytics. With the analytics moved to
+   the desk the context column holds only what genuinely is not a subject
+   statistic — so the ruled break has nothing left to separate and is gone. */
+step("countdowns stay out of the analytics block", () => {
   KOS.show("subject", SID);
   const side = $(".subject-side");
   assert(side.querySelector(".dl-widget"), "no countdown widget");
-  assert(!side.querySelector(".subj-analytics .dl-widget"), "countdowns leaked into the analytics panel");
-  const kids = [...side.children];
-  assert(kids.some(n => n.classList.contains("side-div")), "no ruled break before the date panels");
-  assert(kids.indexOf(side.querySelector(".side-div")) < kids.indexOf(side.querySelector(".dl-widget")),
-    "the break does not separate analytics from countdowns");
+  assert(!$(".subj-analytics .dl-widget"), "countdowns leaked into the analytics panel");
+  assert(!side.querySelector(".subj-analytics"), "the analytics are back in the date column");
+});
+
+/* audit SUBJ-1: the page rendered the spec tree's section list a second time,
+   ~400px to its right. The spine is the one section list now. */
+step("the section list appears exactly once, in the spine", () => {
+  KOS.show("subject", SID);
+  assert(!$("#main .sec-grid"), "the main-column section ledger is back");
+  assert(!$("#main .sec-card"), "a duplicate section row survives in the main column");
+  const spine = document.getElementById("tree");
+  const heads = spine.querySelectorAll(".sec-head");
+  assert(heads.length >= 8, "the spine lost its section list (" + heads.length + " rows)");
+  /* it inherited what the ledger did that the spine did not: a bar and,
+     one level down, the per-subsection tally */
+  assert(spine.querySelector(".sec-head .sec-head-bar .bar-fill"),
+    "the spine did not inherit the ledger's progress bar");
 });
 
 step("nothing in the context column or the inspector is pinned while the page scrolls", () => {
@@ -142,8 +165,13 @@ step("percentages are whole numbers with a %; part-of-whole is always A / B", ()
     if (v.includes("%")) assert(/^\d+%$/.test(v), "malformed percentage: " + v);
     if (v.includes("/")) assert(/^\d+ \/ \d+$/.test(v), "malformed ratio: " + v);
   });
-  const band = $(".unit-lead small").textContent;
+  /* the board band's per-paper columns carry the shared formats. The lead no
+     longer restates the subject-wide secure ratio — audit SUBJ-2 counted
+     that one figure four times on a single screen, and it belongs to the
+     spine header (as navigation context) and to one analytics tile. */
+  const band = $(".unit-stat small").textContent;
   assert(/^\d+ \/ \d+ secure · \d+%$/.test(band), "the desk band does not use the shared formats: " + band);
+  assert(!/secure/.test($(".unit-lead").textContent), "the board lead restates the secure ratio again");
 });
 
 step("a bar is only drawn when it carries the same quantity as its value", () => {
@@ -247,7 +275,9 @@ step("a Completed topic explains its 100% instead of contradicting the boxes", (
   assert($(".topic-status .ts-pct").textContent === "100%", "mastery did not follow the status");
   assert($(".topic-status .ts-checks").textContent === "marked completed",
     "the header still prints a contradictory ratio: " + $(".topic-status .ts-checks").textContent);
-  assert($(".insp-mastery span").textContent === "marked completed", "the inspector still contradicts itself");
+  /* the header's compact control is the same store value as the component's
+     field, so the two can never disagree about the status */
+  assert($("#th-status").value === "done", "the header status control did not follow");
   /* and once the boxes catch up, the ordinary ratio returns */
   $$(".ts-checkgrid input[type=checkbox]").forEach(b => {
     if (b.checked) return;
@@ -278,35 +308,41 @@ step("the inspector collapses, says so, and persists the choice", () => {
   KOS.store.state.ui.inspectorOpen = true;
 });
 
-step("tab counts and inspector statistics are the SAME numbers", () => {
+/* audit REF-4: the four material counts were printed twice — on the tab
+   chips and again in an inspector "Materials" list about 200px away. They
+   are printed ONCE, on the chips, where the number is what decides whether
+   you press the tab. */
+step("each material count appears exactly once, on its tab chip", () => {
   KOS.show("ref", { subject: SID, ref: REF });
   const chip = name => {
     const tab = $$(".study-tabs-topic .study-tab").find(b => b.textContent.startsWith(name));
     const n = tab && tab.querySelector(".tab-n");
-    return n ? Number(n.textContent) : 0;
+    return n ? Number(n.textContent) : null;
   };
-  const insp = name => {
-    const li = $$(".study-inspector .insp-list li").find(x => x.querySelector("span").textContent === name);
-    return li ? Number(li.querySelector("strong").textContent) : null;
-  };
-  [["Flashcards", "Flashcards"], ["Quiz", "Quiz questions"], ["Exam questions", "Exam questions"],
-   ["Simulations", "Simulations"]].forEach(([tab, row]) => {
-    const a = chip(tab), b = insp(row);
-    assert(b !== null, "the inspector has no Materials row for " + row);
-    assert(a === b, row + ": tab says " + a + ", inspector says " + b);
+  ["Flashcards", "Quiz", "Exam questions", "Simulations"].forEach(name => {
+    assert(chip(name) !== null, "no count chip on the " + name + " tab");
   });
+  const insp = $(".study-inspector").textContent;
+  assert(!/Materials/.test(insp), "the inspector still restates the material counts");
+  assert(!/Quiz questions/.test(insp), "a Materials row survived in the inspector");
 });
 
-step("the inspector's mastery repaints with the Topic Status component", () => {
+/* audit REF-3: mastery was printed in the status band above the content AND
+   again in the inspector, ~280px apart. One readout now — the component's
+   own head, in the inspector — and the header's status control moves with it
+   because both read the one store value. */
+step("mastery is printed exactly once, and it is live", () => {
   KOS.store.state.progress = {};
   KOS.show("ref", { subject: SID, ref: REF });
-  const read = () => $(".insp-mastery strong").textContent;
-  assert(read() === "0%", "inspector opened at " + read());
+  assert(!$(".insp-mastery"), "the inspector's duplicate mastery block is back");
+  assert($$(".ts-pct").length === 1, "expected one mastery readout, found " + $$(".ts-pct").length);
+  const read = () => $(".ts-pct").textContent;
+  assert(read() === "0%", "the readout opened at " + read());
   const box = $$(".ts-checkgrid input[type=checkbox]")[0];
   box.checked = true;
   box.dispatchEvent(new window.Event("change", { bubbles: true }));
-  assert(read() === "25%", "the inspector did not follow the check: " + read());
-  assert(read() === $(".topic-status .ts-pct").textContent, "the two mastery readouts disagree");
+  assert(read() === "25%", "the readout did not follow the check: " + read());
+  assert($(".study-inspector .topic-status"), "the state component is not in the inspector");
 });
 
 /* ============ E · tabs and controls ============ */
@@ -320,10 +356,18 @@ step("every study tab carries its full name", () => {
   assert(!names.some(n => n === "Exam Qs" || n === "Simulate" || n === "Worked"), "a clipped label survived: " + names.join(", "));
 });
 
-step("count chips are one geometry, and the strip wraps rather than hiding a tab", () => {
+/* audit REF-6: the strip wrapped and orphaned "Files" onto a row of its own,
+   under an assistant strip and above a second row of note-page pills — three
+   levels of tab for one decision. It is one row now, and the row is a
+   DECLARED scroller (Phase B invariant #50), which is what lets it stay one
+   row at 390px as well as at 1920. */
+step("count chips are one geometry, and the strip is one declared-scroller row", () => {
   assert(/\.study-tab \.tab-n[^{]*\{[^}]*min-width:\s*20px[^}]*height:\s*18px/s.test(css),
     "the count chip has no fixed geometry");
-  assert(/\.study-tabs-topic\s*\{[^}]*flex-wrap:\s*wrap/s.test(css), "the topic strip still hides tabs behind a scroll");
+  assert(/\.study-tabs-topic\s*\{[^}]*flex-wrap:\s*nowrap/s.test(css), "the topic strip wraps again");
+  const wrap = $(".study-tabs-topic").closest("[data-scroller]");
+  assert(wrap, "the topic strip scrolls sideways without declaring itself a scroller");
+  assert(wrap.querySelector(".u-scroller-arrow"), "the declared scroller has no arrow affordance");
   const heights = new Set($$(".study-tabs-topic .study-tab").map(b => window.getComputedStyle(b).minHeight));
   assert(heights.size === 1, "tabs do not share one height: " + [...heights].join(", "));
 });

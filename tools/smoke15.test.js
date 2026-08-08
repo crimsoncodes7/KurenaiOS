@@ -116,9 +116,14 @@ step("topic page: .study-grid holds the tab bar and the .study-inspector", async
   if (!grid.querySelector(".study-tabs")) throw new Error("tab bar not inside the grid");
   const insp = grid.querySelector(".study-inspector");
   if (!insp) throw new Error("no .study-inspector");
-  for (const h of ["Mastery", "Recall record", "Next review"]) {
+  /* Cat 7 Phase C: the inspector became the page's single STATE surface, so
+     its standalone "Mastery" section is gone — the one live mastery readout
+     is the Topic Status component's head, which now lives in here. "Recall
+     record" and "Next review" are unchanged. */
+  for (const h of ["Topic status", "Recall record", "Next review"]) {
     if (!insp.textContent.includes(h)) throw new Error("inspector missing section: " + h);
   }
+  if (!insp.querySelector(".topic-status .ts-pct")) throw new Error("no live mastery readout in the inspector");
 });
 step("inspector collapse toggles .insp-closed and persists ui.inspectorOpen", async () => {
   const main = document.getElementById("main");

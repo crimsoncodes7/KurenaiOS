@@ -1110,6 +1110,55 @@ at every viewport are still part of verifying a responsive change.
 Density seeding is now part of verifying any responsive fix — GOV-1 survived a
 whole phase because nobody measured it with real data.
 
+**Phase C (Study) — complete.** The release gate is now **43 suites**, all
+green, plus a 108-cell responsive sweep of the Study surfaces across nine
+widths × two themes at zero overflowing elements, and screenshots at
+1920/1440/820/390 in Dawn and Dusk against the dense account.
+
+| Finding | Status | How it was verified |
+|---|---|---|
+| **SUBJ-1 — the tree and the "Sections" ledger render the same list** | **Fixed** | The main-column ledger is deleted. The spine is the only section list, and it inherited both things the ledger did that it did not: a per-section progress bar on the shared `low/mid/high` ramp, and the per-subsection tally that the ledger revealed on expand. smoke43 A asserts both, that the bar carries the same quantity as the count beside it, and that no `.sec-card` is rendered in the main column. |
+| **SUBJ-2 — spec-point totals appear four times** | **Fixed** | Twice now, each doing a different job: the spine header (navigation context) and the "Topics secure" tile (the statistic). The board band's lead states the board's identity instead of restating the ratio. smoke37 asserts the lead carries no "secure" text. |
+| **SUBJ-4 — the spec-spine handle floats over the section list** | **Fixed properly** | Phase B fixed the pill's text *wrap* and closed this; it was still a `position: fixed` control printing over whatever paragraph was beneath it, which no right-edge probe can see. The pill is retired. At ≤860 the closed spine has no presence at all and the page header carries a real `☰ Spec spine` button, which cannot overlap anything. smoke43 F greps for both. |
+| **SUBJ-5 — long deadline titles clip by 286px** | **Fixed** | `.dl-title` clamps to two lines instead of one `nowrap` line. |
+| **SUBJ-6 — a dense explanatory paragraph sits under the grid as body text** | **Fixed** | The line that carries information every time (deep-content coverage) stays visible; the mastery-vs-secure definition is behind a `<details>`. |
+| **The spine covered the page at 701–860 (not in the original audit)** | **Fixed** | `#tree` goes `position: fixed` at ≤860, but the default-closed rule only ran at ≤700 — so for a 160px band the spine simply covered the page it navigates, with no scrim and nothing to dismiss it. The overlay threshold is now 860 for both, and the drawer gained a scrim that dismisses on tap and on Escape (and leaves Escape alone above the tier, and never steals it from a modal). |
+| **Opening a topic did not reveal it in the spine (not in the original audit)** | **Fixed** | The active leaf sat inside a collapsed section, so `.leaf.active` was `display:none` and the existing `scrollIntoView` was a no-op — the spine could not answer "where am I", which is disqualifying for the control that now owns section navigation. The owning section opens itself and is marked `.here`; `scrollIntoView` is `block:"nearest"` so it no longer yanks the list when the topic is already visible. |
+| **REF-1 — ~330px of chrome before the first word of content** | **Fixed** | Measured against the dense account at 1440×900: **571px → 161px** from `#main`'s top edge, **135px below the topic header** (133–136 at 1240/1440/1920). Crumbs, seal+title+board line and a 170px status band became one header row; the status band moved to the inspector. |
+| **REF-2 / B-04 — opening a topic scrolls the page down** | **Held** | `#main.scrollTop === 0` on every mount at every width; smoke43 D re-asserts the reader-initiated-only rule through the new page control. |
+| **REF-3 — mastery appears twice** | **Fixed** | Once. The inspector's standalone "Mastery" section is gone; the one live readout is the Topic Status component's head, which is now *in* the inspector. smoke37 asserts `$$(".ts-pct").length === 1`. |
+| **REF-4 — the four material counts appear twice** | **Fixed** | Once, on the tab chips — the number is what decides whether you press the tab. The inspector's "Materials" list is gone; smoke37 greps the inspector for it. |
+| **REF-5 — 11 controls at 16×16px** | **Fixed (the four progress checks)** | 16 → 20px, inside chips that already carry `--control-h-sm`. The confidence controls became labelled pills. |
+| **REF-6 — three levels of tab on one page** | **Fixed** | One. The assistant strip moved into the inspector, the tab strip is a single row inside a declared `KOS.ui.scroller` (arrows, edge fades, `data-scroller`) stuck to the top of the reader, and the note-page pills became a `‹ 3 / 7 · Title ›` stepper in that same bar with the full list behind a disclosure. Verified one row at 390/560/820/1080/1240/1440/1920. |
+| **REF-7 — confidence is three unlabelled pale circles** | **Fixed** | Three labelled controls — struggling · shaky · solid — each with `aria-pressed` and a real accessible name. The dot survives as the colour cue. |
+| **REF-8 — no keyboard support in the flashcard/quiz engines** | **Fixed** | Flashcards: `Space`/`Enter` flip, `1–4` grade, `→` reveal-then-Good, `←` hide. Quiz: `1–9` answers the first question still open. Both are printed in the UI (a legend under the card, the number on each grading button and each option), both refuse to act on a face-down card or steal a key from a text field, and both remove their own listener once their panel is replaced. smoke43 E covers all of it. |
+| **REF-9 — the flashcard and its grading buttons are below the fold** | **Fixed** | Consequentially: the card now begins 410px higher than it did. |
+| **REF-10 — 8px rating sub-labels** | **Fixed** | 9.5 → 11px, the floor Phase B set for the primitives. |
+
+**Open, and deliberately not fixed here.** `#subnav` sets `flex-wrap: wrap`, so
+at 390px the Study section strip wraps to **three rows and eats ~100px above
+every page in the app** — the single largest remaining "chrome before content"
+cost on both Study surfaces. The fix is to run the subnav through
+`KOS.ui.scroller` (an undeclared sideways scroll would fail the probe by
+design), which changes global navigation on all 24 views; it belongs with the
+Home/global chrome work in the rest of Phase C, not as a drive-by at the end of
+a Study redesign.
+
+**Also found, out of scope, unchanged:** the Focus Timer setup overflows by
+366px at 390px (39 elements, both themes). Confirmed pre-existing by running
+the same sweep against the Phase B tree — see the harness note below.
+
+**Lesson carried forward, third instance — and this one was in the harness.**
+`tools/responsive_audit.mjs` had two defects that between them meant the
+"dense account" was not dense: it seeded `status: "completed"`, which is not a
+value the app's `none|started|paused|done` vocabulary knows (so every Study
+surface read **0/156 secure** — the very figure the audit quoted for SUBJ-2),
+and its `store.save()` is debounced 120ms while the harness reloads the page
+the moment seeding resolves, so on a *re-seed* the entire localStorage half of
+the seed was silently lost. Both fixed (`store.flush()`, correct statuses, plus
+SM-2 metadata and RAG ratings). The measurement tool is part of the surface
+under test.
+
 ## 11. Prioritised Remediation Roadmap
 
 ### Phase A — Critical bugs and broken layouts
@@ -1178,6 +1227,18 @@ and letterboxing problems that most damage daily use.
   at 390 px without inner horizontal scrolling.
 - Home: hero KPIs are non-zero and meaningful for an account with sessions but
   no ticked checks; all hero text sits on a scrim; directives wrap at 390 px.
+
+**Outcome — the two Study surfaces are done; Home remains.**
+
+| Criterion | Result |
+|---|---|
+| Ref page: content within 140px at 1440×900 | ✓ 571px → **161px** from `#main`'s top, **135px below the topic header** (133–136 across 1240/1440/1920) |
+| Mastery appears exactly once | ✓ the inspector's duplicate block is gone; smoke37 asserts one `.ts-pct` |
+| Material counts appear exactly once | ✓ on the tab chips; the inspector's "Materials" list is gone |
+| Flashcards support `Space` and `1–4` | ✓ plus `→`/`←`, plus `1–9` in the quiz engine, all surfaced in the UI — smoke43 E |
+| Subject desk: the section list appears exactly once | ✓ the ledger is deleted; the spine inherited its bar and subsection tally |
+| Paper cards reachable at 390px without inner horizontal scrolling | ✓ the band stacks below the phone tier; above it, it is a declared scroller with arrows and fades |
+| **Home** | **Not started** — the remaining Phase C item |
 
 ### Phase D — Secondary page redesigns
 **Areas:** the four vault views and their shared shell, Collection Overview,

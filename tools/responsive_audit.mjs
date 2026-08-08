@@ -149,7 +149,11 @@ const SEED = String.raw`(async () => {
   }
   S.sessions.sort((a, b) => a.ts - b.ts);
 
-  /* ---- progress: 120 real records, some completed, some with notes ---- */
+  /* ---- progress: 120 real records, some completed, some with notes ----
+     The status vocabulary is none|started|paused|done (js/modules/hub.js).
+     This seeder used to write "completed", which is not a status the app
+     knows — so every study surface read 0 secure on a "dense" account and
+     the subject desk was measured with its primary figure blank. */
   const refs = [];
   Object.keys(window.KOS_DATA || {}).forEach(sid => {
     const walk = n => { if (!n) return; if (n.content && n.content.length) refs.push(sid + ":" + n.ref);
@@ -158,8 +162,9 @@ const SEED = String.raw`(async () => {
   });
   S.progress = S.progress || {};
   refs.slice(0, 120).forEach((k, i) => {
-    S.progress[k] = { status: i % 5 === 0 ? "completed" : i % 3 === 0 ? "started" : "none",
+    S.progress[k] = { status: i % 5 === 0 ? "done" : i % 3 === 0 ? "started" : i % 7 === 0 ? "paused" : "none",
       check: [i % 2 === 0, i % 3 === 0, i % 4 === 0, i % 5 === 0],
+      rag: i % 4 === 0 ? ["r", "a", "g"][i % 3] : null,
       note: i % 7 === 0 ? "Revisit the worked example — the exam mark scheme wants the justification written out in full, not just the final value." : "" };
   });
   S.study = S.study || {};
@@ -167,6 +172,25 @@ const SEED = String.raw`(async () => {
   refs.slice(0, 60).forEach((k, i) => {
     S.study.fc[k] = { seen: 20 + i, right: 12 + i, wrong: 8 };
     S.study.quiz[k] = { attempts: 3, best: 40 + (i % 55), lastPct: 30 + (i % 60) };
+  });
+  /* SM-2 metadata so the study inspector, "cards due" and the review queue
+     read like a used account rather than a fresh install */
+  S.srs = S.srs || {};
+  refs.slice(0, 60).forEach((k, i) => {
+    (KOS.srs.cardsFor(k.split(":")[0], k.split(":").slice(1).join(":")) || []).forEach((c, j) => {
+      if ((i + j) % 3 === 2) return;
+      S.srs[c.key] = { ef: 1.9 + ((i + j) % 12) / 10, ivl: 1 + ((i + j) % 21),
+        reps: 1 + ((i + j) % 9), due: iso(today + (((i + j) % 11) - 4) * DAY),
+        last: iso(today - (1 + ((i + j) % 9)) * DAY), views: 2 + ((i + j) % 14),
+        lapses: (i + j) % 5 === 0 ? 1 + ((i + j) % 3) : 0, lastRating: (i + j) % 4 };
+    });
+  });
+  /* a handful of user-authored cards so the personal/custom paths render */
+  S.custom = S.custom || { nextId: 1, cards: [] };
+  refs.slice(0, 6).forEach((k, i) => {
+    S.custom.cards.push({ id: S.custom.nextId++, sid: k.split(":")[0], ref: k.split(":").slice(1).join(":"),
+      q: "Custom card " + (i + 1) + " — state the definition the mark scheme rewards",
+      a: "The full wording, written out at length so the card face has to wrap onto several lines." });
   });
 
   /* ---- calendar: dense weeks, long titles, recurrence ---- */
@@ -259,7 +283,14 @@ const SEED = String.raw`(async () => {
     }
   }
   const n = await new Promise(r => KOS.mediadb.count(null, (e, c) => r(c || 0)));
-  return { sessions: S.sessions.length, progress: Object.keys(S.progress).length, media: n };
+  /* store.save() is debounced 120ms and the harness reloads the page the
+     moment this resolves — on a re-seed (media already present, no awaits
+     above to burn the timer) the whole localStorage half of the seed was
+     lost, and every "dense account" measurement after it ran against a
+     default store. flush() writes through synchronously. */
+  KOS.store.flush();
+  return { sessions: S.sessions.length, progress: Object.keys(S.progress).length,
+    media: n, secure: Object.values(S.progress).filter(p => p.status === "done").length };
 })()`;
 
 if (DO_SEED) {

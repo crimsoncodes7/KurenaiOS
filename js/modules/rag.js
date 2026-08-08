@@ -150,21 +150,37 @@
     return wrap;
   }
 
-  /* the per-topic picker for the ref-page control row */
+  /* the per-topic picker for the ref-page control row.
+
+     Category 7 Phase C (audit REF-7): this was three unlabelled pale circles
+     under the word CONFIDENCE — near-invisible on the cream default theme,
+     and giving a first-time reader no way to know which circle meant what
+     without clicking one. Each control now says what it means in words, and
+     the pressed one is announced with aria-pressed rather than a class the
+     eye has to find. The band ids, the store field and the auto read-out are
+     unchanged. */
   function picker(sid, ref) {
-    var wrap = el("span", { class: "rag-picker", title: "Your confidence on this topic (separate from completion status)" });
+    var wrap = el("span", { class: "rag-picker", role: "group",
+      "aria-label": "Your confidence on this topic",
+      title: "Your confidence on this topic (separate from completion status)" });
     wrap.appendChild(el("span", { class: "rag-picker-l", text: "Confidence" }));
     var cur = manual(sid, ref);
     ["r", "a", "g"].forEach(function (b) {
       var btn = el("button", { class: "rag-pick rag-" + b + (cur === b ? " on" : ""),
-        "aria-label": BANDS[b].label + " confidence", title: BANDS[b].label,
+        type: "button", "aria-pressed": String(cur === b),
+        "aria-label": BANDS[b].label + " — " + BANDS[b].word,
+        title: BANDS[b].label + " — " + BANDS[b].word + " (press again to clear)",
         onclick: function () {
           cur = cur === b ? null : b;             // click again to clear
           setManual(sid, ref, cur);
-          wrap.querySelectorAll(".rag-pick").forEach(function (x) { x.classList.remove("on"); });
-          if (cur) btn.classList.add("on");
+          wrap.querySelectorAll(".rag-pick").forEach(function (x) {
+            x.classList.remove("on"); x.setAttribute("aria-pressed", "false"); });
+          if (cur) { btn.classList.add("on"); btn.setAttribute("aria-pressed", "true"); }
           renderAuto();
-        } });
+        } }, [
+        el("span", { class: "rag-pick-dot", "aria-hidden": "true" }),
+        el("span", { class: "rag-pick-l", "aria-hidden": "true", text: BANDS[b].word })
+      ]);
       wrap.appendChild(btn);
     });
     var autoEl = el("span", { class: "rag-auto" });

@@ -542,6 +542,13 @@ small { font-size: 12.5px; }
   background: color-mix(in srgb, var(--bg1) 55%, transparent);
 }
 #tree.hidden { display: none; }
+/* Above 860 the spine is a column: the scrim does not exist and the page
+   header's opener is unnecessary, because the collapsed spine already has
+   its own rail. At ≤860 both switch on and the floating pill switches off.
+   `.btn` is declared later in this file and would otherwise win the display
+   back, so the hide is written as a compound selector rather than moved. */
+#tree-scrim { display: none; }
+button.tree-open-btn { display: none; }
 #cols.tree-closed #tree { width: var(--tree-w-compact); padding: 12px 7px; overflow: hidden; }
 .tree-reopen { display: none; }
 #cols.tree-closed #tree > .tree-subject-h,
@@ -592,6 +599,16 @@ small { font-size: 12.5px; }
 .sec-head .sec-title { min-width: 0; flex: 1 1 auto; }
 .sec-head .arr { font-size: 9px; color: var(--muted); transition: transform .18s; flex: none; }
 .sec.open > .sec-head .arr { transform: rotate(90deg); }
+/* the retired main-column ledger's progress bar, inherited by the spine
+   (Cat 7 Phase C · audit SUBJ-1). It sits on its own line under the title so
+   a long section name never has to compete with it for width. */
+.sec-head { flex-wrap: wrap; row-gap: 4px; }
+.sec-head-bar { flex: 1 1 100%; order: 3; height: 3px; }
+.sec-head .pc, .sec-head .arr { order: 2; }
+/* the section that owns the topic on screen is marked, so the spine can
+   answer "where am I" without the reader hunting for the active leaf */
+.sec.here > .sec-head { background: var(--wash-accent); }
+.sec.here > .sec-head .sec-title { color: var(--text); }
 .sec-kids { display: none; padding-left: 6px; }
 .sec.open > .sec-kids { display: block; }
 .grp-h {
@@ -604,7 +621,10 @@ small { font-size: 12.5px; }
   text-transform: uppercase;
   color: var(--muted);
 }
-.grp-h .grp-arr { font-size: 9px; transition: transform .15s; }
+.grp-h .grp-arr { font-size: 9px; transition: transform .15s; flex: none; }
+.grp-h .grp-t { min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; }
+/* the ledger's one genuinely extra reading — the per-subsection tally */
+.grp-h .grp-pc { flex: none; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0; }
 .grp-h.closed .grp-arr { transform: rotate(-90deg); }
 .grp-kids { padding-left: 8px; }
 .leaf {
@@ -888,6 +908,44 @@ body.modal-open #main { overflow: hidden; }
 .page-h h1 { font-size: var(--type-page-title); margin: 2px 0 0; line-height: 1.12; }
 .page-h .pap { font-size: 12px; color: var(--muted); display: block; margin-top: 5px; letter-spacing: .04em; }
 
+/* ---- the topic header: ONE row (Cat 7 Phase C, audit REF-1) ----
+   Crumbs, seal + title + board line, and a 170px status band used to stack
+   to 308px of chrome before the study tabs had even started. This is one
+   row: the crumb path is the meta line's first clause, and the only control
+   that survives above the fold is the status dropdown. */
+.topic-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-2);
+}
+.topic-head .seal { min-width: 42px; height: 42px; font-size: 11.5px; }
+.topic-head .th-txt { min-width: 0; }
+/* a topic title is a topic, not a page: one step below the page-title scale,
+   which is what buys the row back for the content underneath it */
+.topic-head h1 { margin: 0; font-size: var(--type-hero-title, 1.5rem); line-height: 1.1; }
+.th-meta {
+  margin: 3px 0 0;
+  font-size: 11.5px; color: var(--muted); letter-spacing: .03em;
+  /* long spec paths are normal here — two lines, then ellipsis, never a
+     third line pushing the content down */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.th-ctl { display: flex; align-items: center; gap: var(--space-2); flex: none; }
+.th-ctl .status-sel { min-height: var(--control-h-sm); }
+/* the glyph restates the selected status as colour, so the row reads at a
+   glance without opening the dropdown */
+.th-status {
+  width: 10px; height: 10px; border-radius: 50%; flex: none;
+  background: var(--line);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text) 5%, transparent);
+}
+.th-status.st-started { background: var(--warning); }
+.th-status.st-paused { background: var(--muted); }
+.th-status.st-done { background: var(--good); }
+
 /* ---- Topic Status: one component, three labelled fields ----
    Status, the four progress checks and the confidence rating were three
    control groups sharing a flex row separated by hairlines. They are one
@@ -903,10 +961,19 @@ body.modal-open #main { overflow: hidden; }
 }
 .ctl-row label.chk { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text2); cursor: pointer; }
 .ctl-row label.chk:hover { color: var(--text); }
-.ctl-row input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+/* audit REF-5: 16px was below any usable hit target, and these four are the
+   most-pressed controls on the page */
+.ctl-row input[type=checkbox] { accent-color: var(--accent); width: 20px; height: 20px; cursor: pointer; flex: none; }
 .ctl-sep { width: 1px; align-self: stretch; background: var(--line2); margin: 0 4px; }
 
+/* In its inspector home the component is the panel's first section rather
+   than a free-standing card: no second border inside a bordered aside, no
+   outer margin, and the head sits flush with the inspector's own head. */
 .topic-status { display: block; padding: 0; overflow: hidden; background: var(--surface-card); }
+.study-inspector .topic-status {
+  margin: 0; border: none; border-radius: 0; background: none;
+  border-bottom: 1px solid var(--line2);
+}
 .ts-head {
   display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
   padding: 10px var(--space-4);
@@ -955,12 +1022,28 @@ body.modal-open #main { overflow: hidden; }
   background: var(--wash-accent);
 }
 /* the picker brings its own label; the field already has one. The three
-   dots stay a row and the "data says" read-out drops to its own line, so a
-   narrow column never squeezes the two together. */
-.ts-field-conf .rag-picker { display: flex; flex-wrap: wrap; gap: 7px; }
+   controls stay a row and the "data says" read-out drops to its own line, so
+   a narrow column never squeezes the two together. */
+.ts-field-conf .rag-picker { display: flex; flex-wrap: wrap; gap: 6px; }
 .ts-field-conf .rag-picker-l { display: none; }
-.ts-field-conf .rag-pick { width: 22px; height: 22px; }
 .ts-field-conf .rag-auto { flex: 1 0 100%; margin-left: 0; }
+
+/* ---- the component inside the inspector (Cat 7 Phase C) ----
+   One narrow column, so the three fields stack and the mastery readout —
+   now the page's ONLY one — gets the whole width of the head. */
+.study-inspector .ts-body {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3) 14px;
+}
+.study-inspector .ts-head {
+  flex-direction: column; align-items: flex-start; gap: 6px;
+  padding: 12px var(--space-3) 11px;
+}
+.study-inspector .ts-mastery { flex: 1 1 100%; width: 100%; gap: 8px; }
+.study-inspector .ts-pct { font-size: 26px; }
+.study-inspector .ts-checkgrid { grid-template-columns: minmax(0, 1fr); }
+.study-inspector .ts-field-conf .rag-picker { gap: 5px; }
 
 @media (max-width: 1080px) {
   .ts-body { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
@@ -1197,28 +1280,24 @@ body.modal-open #main { overflow: hidden; }
 .stat-card .v, .stat-tile .v { font-family: var(--serif); font-size: 21px; font-weight: 600; }
 .stat-card .k, .stat-tile .k { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 1px; }
 
-/* section ledger — full-width accordion rows */
-.sec-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
-.sec-card { padding: 0; overflow: hidden; transition: border-color .15s; }
-.sec-card:hover { border-color: var(--line); }
-.sec-card-h { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 12px 18px; }
-.sec-card-h .ref { font-family: var(--mono); font-size: 11px; color: var(--accent, var(--kurenai)); flex: none; min-width: 34px; }
-.sec-card-h .ttl { font-weight: 600; font-size: 14.5px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sec-card-h .sec-bar { flex: 1; max-width: 220px; margin-left: auto; }
-.sec-card-h .pc { font-family: var(--mono); font-size: 11.5px; color: var(--muted); flex: none; min-width: 46px; text-align: right; }
-.sec-card-h .arr { flex: none; font-size: 10px; color: var(--muted); transition: transform .18s; }
-.sec-card.open .sec-card-h .arr { transform: rotate(180deg); }
-.sec-card.low .bar-fill { background: var(--danger); }
-.sec-card.mid .bar-fill { background: var(--warning); }
-.sec-card.high .bar-fill { background: var(--good); }
-.sec-sub { padding: 4px 18px 14px 66px; display: grid; gap: 8px; border-top: 1px dashed var(--line2); }
-.bar-row.dim { color: var(--muted); font-size: 12px; grid-template-columns: 1fr; }
-.bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 90px 44px; gap: 10px; align-items: center; font-size: 12.5px; }
-.bar-row .nm { color: var(--text2); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bar-row .nm:hover { color: var(--text); }
-.bar-row .pc { font-family: var(--mono); font-size: 10.5px; color: var(--muted); text-align: right; }
+/* ---- the section ledger is GONE (Cat 7 Phase C · audit SUBJ-1) ----
+   `.sec-grid` / `.sec-card` rendered the spec tree's list a second time,
+   ~400px to its right, with the same 14 sections and the same counts. The
+   spine is the one section list now and it inherited the ledger's progress
+   bar (.sec-head-bar) and per-subsection tally (.grp-pc).
+
+   `.bar-track` / `.bar-fill` and the .low/.mid/.high ramp on them survive —
+   they are the shared bar geometry and the ONE performance ramp
+   (invariant #26d), read by the spine, the analytics tiles and the unit
+   band alike. */
 .bar-track { height: 5px; border-radius: 999px; background: color-mix(in srgb, var(--text) 8%, transparent); overflow: hidden; }
 .bar-fill { display: block; height: 100%; border-radius: 999px; background: var(--accent, var(--kurenai)); transition: width .5s cubic-bezier(.2,.7,.3,1); }
+.bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 90px 44px; gap: 10px; align-items: center; font-size: 12.5px; }
+.bar-row .nm { color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row .pc { font-family: var(--mono); font-size: 10.5px; color: var(--muted); text-align: right; }
+.sec-card.low .bar-fill, .sec-head-bar.low .bar-fill { background: var(--danger); }
+.sec-card.mid .bar-fill, .sec-head-bar.mid .bar-fill { background: var(--warning); }
+.sec-card.high .bar-fill, .sec-head-bar.high .bar-fill { background: var(--good); }
 
 /* the desk band: board summary + one column per paper, one panel */
 .subject-units {
@@ -1253,11 +1332,14 @@ body.modal-open #main { overflow: hidden; }
 .unit-stat > span { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .unit-stat strong { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .unit-stat small { font-size: 11.5px; color: var(--text2); }
+/* the one ramp again — a paper's bar means what a section's bar means */
+.unit-stat.low .insp-track i { background: var(--danger); }
+.unit-stat.mid .insp-track i { background: var(--warning); }
+.unit-stat.high .insp-track i { background: var(--good); }
 
-/* subject workspace: sections left, context right.
+/* subject workspace: the desk on the left, dates and recommendations right.
    The context column is deliberately NOT sticky — it scrolls with the page,
-   so the analytics read as part of the document rather than as chrome that
-   follows you down it. */
+   so nothing here reads as chrome that follows you down it. */
 .subject-grid { display: grid; grid-template-columns: minmax(0, 1fr) var(--sidebar-context-w); gap: var(--layout-gap); align-items: start; }
 .subject-main { min-width: 0; }
 .subject-side { position: static; display: flex; flex-direction: column; gap: var(--space-3); }
@@ -1268,20 +1350,25 @@ body.modal-open #main { overflow: hidden; }
 .side-div { height: 1px; background: var(--line2); margin: var(--space-2) 0 var(--space-1); }
 
 /* ---- the subject analytics panel: eight tiles, one shape ----
-   A balanced 2 x 4 grid. Every tile is label / value / context / track, and
-   the track is only drawn when it carries the same quantity as the value
-   above it — an absent bar keeps its row so the rows stay on one baseline. */
+   Every tile is label / value / context / track, and the track is only drawn
+   when it carries the same quantity as the value above it — an absent bar
+   keeps its row so the rows stay on one baseline.
+
+   Cat 7 Phase C moved the panel out of the 300px context column and into the
+   desk's main column, where the eight tiles get four across instead of two
+   and their captions stop wrapping to three lines. */
 .subj-analytics {
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-sm);
   padding: var(--space-4);
+  margin: 0 0 var(--section-gap);
 }
 .sa-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); }
 .sa-h b { font-family: var(--serif); font-size: 15px; font-weight: 600; }
 .sa-h .sub { font-size: 11px; color: var(--muted); }
-.sa-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.sa-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
 .sa-tile {
   display: grid; grid-template-rows: auto auto 1fr auto; gap: 2px;
   min-width: 0;
@@ -1310,15 +1397,33 @@ body.modal-open #main { overflow: hidden; }
 .sa-tile.due .v { color: var(--accent2); }
 /* the one empty state: an em dash and a sentence saying why it is empty */
 .sa-tile.empty .v { color: var(--muted); font-family: var(--serif); }
-.sa-foot { margin: var(--space-3) 0 0; font-size: 10.5px; line-height: 1.5; color: var(--muted); }
+/* audit SUBJ-6: the definition of mastery vs secure was a dense paragraph of
+   body text under the grid, which reads as content rather than as a
+   footnote. The line that carries information every time stays visible; the
+   definition you need once sits behind the disclosure. */
+.sa-foot { margin: var(--space-3) 0 0; font-size: 11px; line-height: 1.5; color: var(--muted); }
+.sa-foot > summary {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2);
+  cursor: pointer; list-style: none;
+  padding: 6px 0 0; border-top: 1px solid var(--line2);
+}
+.sa-foot > summary::-webkit-details-marker { display: none; }
+.sa-foot-fact { color: var(--text2); }
+.sa-foot-more { color: var(--accent, var(--kurenai)); white-space: nowrap; }
+.sa-foot[open] .sa-foot-more::after { content: " ▴"; }
+.sa-foot:not([open]) .sa-foot-more::after { content: " ▾"; }
+.sa-foot > p { margin: 8px 0 0; line-height: 1.55; }
 
-/* ---- the full-width action card under the grid ---- */
+/* ---- the full-width action card: the desk's first element ---- */
 .continue-action {
   display: flex; align-items: center; gap: var(--space-3);
   width: 100%; text-align: left;
   padding: 13px 14px;
   border-radius: var(--radius-card);
 }
+.subject-main > .continue-action { margin: 0 0 var(--section-gap); }
+/* section headers inside the desk keep the shared primitive's rhythm */
+.subject-sh { margin-top: var(--section-gap); }
 .continue-action .ca-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .continue-action b { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
 .continue-action .ca-meta { font-size: 11px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1331,9 +1436,9 @@ body.modal-open #main { overflow: hidden; }
 
 @media (max-width: 1240px) {
   .subject-grid { grid-template-columns: 1fr; }
-  .sa-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 860px) { .sa-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .sa-grid { grid-template-columns: minmax(0, 1fr); } }
 
 /* practice zone */
 .practice-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: var(--grid-gap); }
@@ -1426,17 +1531,84 @@ body.modal-open #main { overflow: hidden; }
   box-shadow: var(--shadow-sm);
 }
 .study-tab.active::after { content: none; }
-.study-panel { padding-top: var(--section-gap); }
+.study-panel { padding-top: var(--space-3); }
+/* the content column's leading edge belongs to the page shell, not to the
+   typography: the first block's own top margin used to push the first word
+   of revision material 18px further down on every topic. Inside the article
+   the renderer's rhythm is untouched. */
+.study-panel > .notes-article > *:first-child,
+.study-panel > .split .cb > *:first-child { margin-top: 0; }
 
-/* The topic strip carries eight destinations with their full names, so it
-   wraps onto a second row rather than hiding "Files" behind a silent
-   horizontal scroll. Every tab in it is the same height and the same
-   padding whether or not it carries a count chip. */
-.study-tabs-topic {
-  display: flex; flex-wrap: wrap; overflow: visible;
-  max-width: 100%; width: 100%;
+/* ============================================================
+   The ONE study navigation layer  (Cat 7 Phase C · audit REF-6)
+
+   The topic page carried three stacked switchers — an assistant action
+   strip, a tab strip that wrapped and orphaned "Files" onto a row of its
+   own, and up to seven note-page pills that wrapped again. One bar now, one
+   row high at every width, stuck to the top of the scroller so the tabs
+   remain reachable however far into a topic you have read.
+
+   It is a DECLARED scroller (invariant #50) rather than a wrap: wrapping is
+   what cost the page its second and third rows, and a declared scroll keeps
+   the bar exactly one row tall on a 390px phone as well as on a 1920px
+   desktop.
+   ============================================================ */
+.study-nav {
+  position: sticky; top: 0; z-index: 5;
+  padding: var(--space-1) 0 var(--space-2);
+  background: linear-gradient(var(--bg0) 78%, transparent);
+  border-bottom: 1px solid var(--line2);
 }
-.study-tabs-topic .study-tab { padding: 8px 14px; flex: 0 0 auto; }
+.study-nav-row { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.study-tabs-scroller { flex: 1 1 auto; min-width: 0; }
+.study-tabs-scroller::before, .study-tabs-scroller::after { width: 28px; }
+/* the generic scroller reserves a thin scrollbar gutter; on a one-row tab
+   strip that gutter is 20px of pure height, and the arrows plus the edge
+   fades are already the affordance the Phase B contract asks for */
+.study-tabs-scroller > .u-scroller-track { scrollbar-width: none; }
+.study-tabs-scroller > .u-scroller-track::-webkit-scrollbar { display: none; }
+.study-tabs-topic {
+  display: flex; flex-wrap: nowrap; gap: 2px;
+  max-width: 100%; width: 100%;
+  /* the shared strip carries a 10px top margin for pages that set it under a
+     heading; this one is the first thing in its own bar */
+  margin: 0;
+}
+.study-tabs-topic .study-tab { padding: 7px 13px; flex: 0 0 auto; white-space: nowrap; }
+
+/* the note-page control: a stepper, not a second row of pills */
+.study-nav-pages { flex: none; }
+.note-stepper {
+  display: flex; align-items: center; gap: 4px;
+  padding: 2px 4px;
+  border: 1px solid var(--line2);
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+}
+.np-step {
+  width: var(--icon-btn-size-sm); height: var(--icon-btn-size-sm);
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: var(--text2); font-size: 13px; line-height: 1;
+}
+.np-step:hover:not(:disabled) { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+.np-step:disabled { opacity: .3; cursor: default; }
+.np-all {
+  display: inline-flex; align-items: baseline; gap: 6px; min-width: 0;
+  font-size: 11.5px;
+  padding: 4px 8px; min-height: var(--control-h-sm);
+  border-radius: var(--radius-pill);
+  color: var(--text2);
+}
+.np-count { font-family: var(--mono); font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+/* the page name is the useful half but the first thing that can go: it is
+   still in the tooltip, in the disclosed list and in the footer pager */
+.np-title { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-caret { font-size: 8px; color: var(--muted); flex: none; }
+.np-all:hover { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+.np-all.on { color: var(--accent, var(--kurenai)); background: var(--wash-accent); }
+@media (max-width: 1080px) { .np-title { display: none; } }
+.study-nav-pagelist:empty { display: none; }
 
 /* Review is a shared Study workspace. Its switcher sits in the page header,
    matching the Collection workspaces while retaining the selected surface. */
@@ -1524,7 +1696,10 @@ body.modal-open #main { overflow: hidden; }
 }
 
 /* notes sub-pager */
-.note-pager { display: flex; gap: 7px; flex-wrap: wrap; margin: 0 0 20px; padding-bottom: 14px; border-bottom: 1px solid var(--line2); }
+/* the full page list, revealed from the nav bar's "All pages" control — the
+   default reading state is the stepper, so this costs nothing until asked for */
+.note-pager { display: flex; gap: 7px; flex-wrap: wrap; margin: var(--space-2) 0 0; padding: var(--space-2) 0 0; border-top: 1px solid var(--line2); }
+.note-pager[hidden] { display: none; }
 .note-page-tab {
   border: 1px solid var(--line2);
   background: var(--bg1);
@@ -1796,7 +1971,34 @@ body.modal-open #main { overflow: hidden; }
 .fc-rate { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
 .fc-life { text-align: center; font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 14px; }
 .fc-r { min-width: 86px; justify-content: center; }
-.fc-r-hint { display: block; font-size: 9.5px; color: var(--muted); letter-spacing: .04em; }
+/* audit REF-10: 9.5px sub-labels ("blanked — retest now") were decorative,
+   not legible. 11px is the floor Phase B set for anything the primitives
+   emit, and the grading buttons are wide enough to carry it. */
+.fc-r-hint { display: block; font-size: 11px; color: var(--muted); letter-spacing: .02em; line-height: 1.25; }
+.fc-r-top { display: inline-flex; align-items: center; gap: 6px; }
+/* the number key that grades this card, on the control it grades */
+.fc-r-key, .fc-keys kbd, .qz-keys kbd {
+  font-family: var(--mono); font-size: 10px; line-height: 1;
+  min-width: 16px; padding: 3px 4px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line2); border-radius: 4px;
+  background: var(--panel); color: var(--muted);
+}
+.fc-keys, .qz-keys {
+  margin: 12px 0 0; text-align: center;
+  font-size: 11px; color: var(--muted);
+}
+.qz-keys { text-align: left; }
+.fc-keys kbd, .qz-keys kbd { margin: 0 1px; }
+/* the option's number, so 1–9 is discoverable rather than documented */
+.qz-opt { display: flex; align-items: baseline; gap: 10px; }
+.qz-opt-key {
+  flex: none; font-family: var(--mono); font-size: 10px; color: var(--muted);
+  min-width: 16px; padding: 2px 4px; text-align: center;
+  border: 1px solid var(--line2); border-radius: 4px;
+}
+.qz-opt-t { min-width: 0; }
+.qz-opt:disabled .qz-opt-key { opacity: .5; }
 .empty-state, .med-empty, .due-clear {
   min-height: 160px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -2167,8 +2369,11 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
 /* deadline countdown widget */
 .dl-widget { padding: 18px; }
 .sec-grid + .dl-widget, .stat-strip + .dl-widget { margin-top: 18px; }
-.dl-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+.dl-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); margin-bottom: 10px; }
 .dl-h b { font-family: var(--serif); font-size: 16px; font-weight: 600; }
+/* in the ~300px context column a two-part header cannot sit side by side —
+   the title wrapped to three lines around its own caption */
+.rag-panel .dl-h { flex-direction: column; align-items: flex-start; gap: 2px; }
 .dl-item { display: flex; align-items: center; gap: 14px; padding: 9px 10px; border-radius: 10px; border: 1px solid transparent; }
 .dl-item:hover { background: color-mix(in srgb, var(--text) 3%, transparent); }
 .dl-days { display: flex; flex-direction: column; align-items: center; min-width: 52px; border-radius: 10px; padding: 6px 8px; border: 1px solid var(--line2); background: var(--panel); }
@@ -2180,7 +2385,14 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
 .dl-item.warm .dl-days b { color: var(--accent2); }
 .dl-item.cool .dl-days b { color: var(--text2); }
 .dl-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.dl-title { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* audit SUBJ-5: a single nowrap line threw away 286px of a real deadline
+   title at 1440. Two lines, then ellipsis — the row grows by one line rather
+   than the title losing most of itself. */
+.dl-title {
+  font-size: 13.5px; font-weight: 600; line-height: 1.3;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+}
 .dl-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); }
 
 /* calendar — the base layer. Every coloured surface reads ONE custom
@@ -2471,15 +2683,37 @@ body.fx-minimised .fx-dock { display: flex; }
 .rag-g { background: var(--good); }
 .rag-picker { display: inline-flex; align-items: center; gap: 7px; }
 .rag-picker-l { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-.rag-pick { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line); background: transparent; padding: 0; opacity: .45; transition: all .15s; }
-.rag-pick:hover { opacity: .8; transform: scale(1.1); }
-.rag-pick.rag-r { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 25%, transparent); }
-.rag-pick.rag-a { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 25%, transparent); }
-.rag-pick.rag-g { border-color: var(--good); background: color-mix(in srgb, var(--good) 25%, transparent); }
-.rag-pick.on { opacity: 1; }
-.rag-pick.on.rag-r { background: var(--danger); }
-.rag-pick.on.rag-a { background: var(--warning); }
-.rag-pick.on.rag-g { background: var(--good); }
+/* audit REF-7: three unlabelled pale circles, near-invisible on the cream
+   default theme and unreadable to anyone who had not already learnt them.
+   Each control says what it means; the dot survives as the colour cue. */
+.rag-pick {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: var(--control-h-sm);
+  padding: 4px 10px 4px 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line2);
+  background: var(--panel);
+  color: var(--text2);
+  font-size: 11.5px;
+  opacity: 1;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.rag-pick-dot {
+  width: 11px; height: 11px; flex: none; border-radius: 50%;
+  border: 1.5px solid var(--line);
+  background: transparent;
+}
+.rag-pick:hover { border-color: var(--line); color: var(--text); }
+.rag-pick.rag-r .rag-pick-dot { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 25%, transparent); }
+.rag-pick.rag-a .rag-pick-dot { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 25%, transparent); }
+.rag-pick.rag-g .rag-pick-dot { border-color: var(--good); background: color-mix(in srgb, var(--good) 25%, transparent); }
+.rag-pick.on { color: var(--text); font-weight: 600; }
+.rag-pick.on.rag-r { border-color: var(--danger); background: var(--wash-danger); }
+.rag-pick.on.rag-a { border-color: color-mix(in srgb, var(--warning) 50%, transparent); background: var(--wash-brass); }
+.rag-pick.on.rag-g { border-color: color-mix(in srgb, var(--good) 50%, transparent); background: color-mix(in srgb, var(--good) 10%, transparent); }
+.rag-pick.on.rag-r .rag-pick-dot { background: var(--danger); }
+.rag-pick.on.rag-a .rag-pick-dot { background: var(--warning); }
+.rag-pick.on.rag-g .rag-pick-dot { background: var(--good); }
 .rag-auto { display: inline-flex; align-items: center; gap: 6px; margin-left: 4px; }
 .rag-why { font-family: var(--mono); font-size: 10px; color: var(--muted); }
 .rag-disagree { color: var(--warning); }
@@ -3810,7 +4044,25 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   }
   #topbar { gap: 10px; padding: 0 12px; }
   .brand .name { display: none; }
+  /* the spine is an overlay drawer from here down, so it gets a drawer's
+     contract: a scrim that dims and dismisses, and a stacking order above
+     the page but below modals (--z-modal) */
   #tree { position: fixed; left: var(--rail-w-compact); top: var(--topbar-h); bottom: 0; width: min(86vw, 340px); z-index: 40; box-shadow: var(--shadow-lg); background: var(--bg1); }
+  #cols:not(.tree-closed) #tree:not(.hidden) ~ #tree-scrim {
+    display: block;
+    position: fixed; inset: var(--topbar-h) 0 0 0;
+    z-index: 39;
+    border: none; border-radius: 0;
+    background: color-mix(in srgb, var(--text) 26%, transparent);
+    animation: tree-scrim-in .18s ease both;
+  }
+  @keyframes tree-scrim-in { from { opacity: 0; } }
+  /* the closed spine has no presence at all here: no 32px rail (there is no
+     column to sit in) and no floating pill (audit SUBJ-4). The page header
+     carries the opener instead. */
+  #cols.tree-closed #tree { display: none; }
+  #cols.tree-closed button.tree-open-btn { display: inline-flex; align-items: center; gap: 6px; }
+  .topic-head button.tree-open-btn { min-height: var(--control-h-sm); padding-inline: 10px; font-size: 12px; }
   .cmp-grid { grid-template-columns: 1fr; }
   .cal-form, .med-form { grid-template-columns: 1fr; }
   .med-form > .med-field { grid-column: 1 / -1; }
@@ -5285,6 +5537,12 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   }
   /* content never hides behind the bar */
   #main { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  /* …nor behind the floating "Spec spine" pill (audit SUBJ-4). Phase B fixed
+     the pill's text wrap; the pill itself is still fixed over the page, and
+     with only the tab bar's clearance the last card on the subject desk sat
+     underneath it. A pixel probe cannot see this — it overlaps vertically
+     without ever crossing the viewport's right edge. */
+  #cols.tree-closed #main { padding-bottom: calc(136px + env(safe-area-inset-bottom)); }
   body.fx-minimised #cols { padding-bottom: 0; }
 
   /* Build 6.5 — the stage carries more rows now (context, objective,
@@ -5308,54 +5566,45 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .fx-review-modal .fx-rev-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   /* --- the spec tree becomes a drawer ---
-     Open: a fixed panel under the topbar (the ≤860 tier already floats
-     it; here it pins to the left edge and gains a scrim). Closed: the
-     existing .tree-reopen control renders as a floating "Spec spine"
-     pill above the tab bar. The stored ui.treeClosed drives both — no
-     new state. */
+     Open: a fixed panel pinned to the left edge under the topbar, over the
+     ≤860 tier's scrim. Closed: nothing at all — the opener lives in the page
+     header (see .tree-open-btn). The floating "Spec spine" pill that used to
+     stand in for it is retired: Phase B fixed its text wrap, but it stayed a
+     fixed control printing over whatever paragraph happened to be beneath it
+     (audit SUBJ-4, and the reason a right-edge pixel probe never saw it).
+     The stored ui.treeClosed still drives both — no new state. */
   #tree {
     left: 0;
     top: calc(var(--topbar-h) + env(safe-area-inset-top));
     width: min(88vw, 330px);
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
   }
-  #cols:not(.tree-closed) #tree:not(.hidden) {
-    box-shadow: 0 0 0 100vmax color-mix(in srgb, var(--text) 26%, transparent), var(--shadow-lg);
+  /* the ≤860 tier's scrim element covers this now, and unlike the old
+     100vmax box-shadow it can actually be tapped to close the drawer */
+  #cols:not(.tree-closed) #tree:not(.hidden) ~ #tree-scrim {
+    inset: calc(var(--topbar-h) + env(safe-area-inset-top)) 0 0 0;
   }
-  #cols.tree-closed #tree {
-    position: fixed;
-    width: auto;
-    top: auto;
-    bottom: calc(66px + env(safe-area-inset-bottom));
-    left: 10px;
-    padding: 0;
-    border: none;
-    background: none;
-    overflow: visible;
-    box-shadow: none;
-  }
-  #cols.tree-closed #tree > .tree-reopen {
-    flex-direction: row;
-    gap: 7px;
-    /* the desktop rail handle is a 32px-wide vertical strip; the phone pill
-       is horizontal, and without releasing that width "Spec spine" wrapped
-       into two stacked lines that spilled out of the pill and printed on top
-       of the section list underneath it (audit SUBJ-4) */
-    width: auto;
-    white-space: nowrap;
-    padding: 9px 14px;
-    border-radius: var(--radius-pill);
-    background: var(--panel);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow-md);
-    color: var(--text2);
-    font-size: 12px;
-  }
-  #cols.tree-closed #tree .tr-lbl { writing-mode: horizontal-tb; }
+  .topic-head button.tree-open-btn, .dh-actions button.tree-open-btn { min-height: 44px; }
 
   /* --- subnav scrolls sideways instead of wrapping the stage --- */
   #subnav { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   #subnav::-webkit-scrollbar { display: none; }
+
+  /* --- the topic header reflows rather than squeezing (Cat 7 Phase C) ---
+     Three columns in 366px left the title wrapping in a 150px track with the
+     spec path stacked five lines beside it. Two rows: identity, then the
+     controls full width. */
+  .topic-head {
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: var(--space-2);
+  }
+  .topic-head .th-ctl { grid-column: 1 / -1; }
+  .topic-head .th-ctl .status-sel { flex: 1; min-height: 44px; }
+  .th-meta { -webkit-line-clamp: 3; }
+
+  /* the study nav keeps its one row; the page control loses its title and
+     the bar stops sticking (a 390px viewport cannot spare 46px of it) */
+  .study-nav { position: static; }
 
   /* --- modals become bottom sheets --- */
   .modal-ov { align-items: flex-end; padding: 0; }
@@ -7692,6 +7941,13 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
     overflow-x: visible;
   }
   .study-tabs .study-tab { flex: 0 1 auto; min-width: 0; }
+  /* …except the topic strip, which is the ONE study navigation layer and is
+     already inside a declared scroller with arrows and edge fades. Wrapping
+     it here is what put three rows of tabs on a 390px phone. */
+  .study-tabs.study-tabs-topic {
+    flex-wrap: nowrap; overflow-x: auto;
+  }
+  .study-tabs-topic .study-tab { flex: 0 0 auto; }
   .gov-head .gov-tabs { width: 100%; overflow-x: visible; }
 
   /* --- assistant: the control rail wraps, the presence card reflows ---
