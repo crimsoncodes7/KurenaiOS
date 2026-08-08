@@ -109,6 +109,20 @@
   }
   KOS.canBack = function () { return navHist.length > 0; };
   KOS.canForward = function () { return navFwd.length > 0; };
+  /* what is ACTUALLY on screen, as opposed to state.ui.view (which is the
+     last saved intent and can lag a redraw). Background work that wants to
+     refresh the page without moving the user reads this. */
+  KOS.currentNav = function () { return navCur ? { viewId: navCur.viewId, arg: navCur.arg } : null; };
+  /* redraw the current page in place: no history entry, no forward-trail
+     reset, and the reader keeps their scroll position. */
+  KOS.rerender = function () {
+    if (!navCur || !KOS.views[navCur.viewId]) return false;
+    var main = document.getElementById("main");
+    var top = main ? main.scrollTop : 0;
+    KOS.show(navCur.viewId, navCur.arg, { _nav: true });
+    if (main) main.scrollTop = top;
+    return true;
+  };
   KOS.back = function () {
     if (!navHist.length) return;
     navFwd.push(navCur);

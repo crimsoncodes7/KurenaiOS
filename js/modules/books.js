@@ -1160,7 +1160,24 @@
   /* NAME-BASED grouping, deliberately: entries group on the author string,
      whether it arrived from AniList staff data or was typed by hand. Two
      spellings of the same person are two groups — accepted limitation,
-     not entity resolution. */
+     not entity resolution.
+
+     SCALE: this page used to build every author and every work in one
+     synchronous pass. On a real library that was ~882 author cards, 1,107
+     <img> elements and a 142,000px scroll height — a direct violation of
+     the vault rule that no view renders everything at once. It rides the
+     shared lazy area now (one AUTHOR per lazy row), with a name search and
+     an A–Z jump rail so a long list stays reachable without scrolling. */
+  var MK_UNATTRIBUTED = "— unattributed —";
+  function mkVols(list) {
+    return list.reduce(function (n, e) { return n + (e.physical ? e.physical.volumes.length : 0); }, 0);
+  }
+  /* the jump letter for an author name: A–Z, "#" for everything else */
+  function mkLetter(name) {
+    if (name === MK_UNATTRIBUTED) return "#";
+    var c = String(name).trim().charAt(0).toUpperCase();
+    return c >= "A" && c <= "Z" ? c : "#";
+  }
   KOS.views.mangaka = function (main) {
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
@@ -1177,10 +1194,135 @@
 
     if (KOS.medview.unavailable(main)) return;
 
+    var search = el("input", { type: "search", class: "todo-in med-search", placeholder: "Search authors…",
+      "aria-label": "Search authors" });
+    /* the jump rail can only mean something in name order, so the page
+       defaults to A–Z (it is an author directory) and hides the rail when
+       the reader picks the old most-volumes ranking instead. */
+    var sortSel = el("select", { class: "todo-in med-sort", "aria-label": "Sort authors" }, [
+      el("option", { value: "name", text: "A–Z" }),
+      el("option", { value: "volumes", text: "Most volumes" })
+    ]);
+    var jump = el("div", { class: "mk-jump", role: "navigation", "aria-label": "Jump to letter" });
+    var toolbar = el("div", { class: "med-toolbar mk-toolbar" }, [search, sortSel]);
+    main.appendChild(toolbar);
+    main.appendChild(jump);
+
+    /* one lazy row = one author card */
+    var area = KOS.medview.resultsArea(main, function (name) { return authorCard(name); });
+    area.holder.className = "mk-wall";
+
+    var groups = {}, allNames = [], total = 0;
+
+    function authorCard(name) {
+      var works = groups[name];
+      var owned = mkVols(works);
+      var chapters = works.reduce(function (n, e) { return n + (e.progress.current || 0); }, 0);
+      var spent = works.reduce(function (n, e) {
+        return n + (e.physical ? e.physical.volumes.reduce(function (s, v) { return s + (v.price || 0); }, 0) : 0);
+      }, 0);
+      var scored = works.filter(function (e) { return e.score; });
+      var avg = scored.length ? scored.reduce(function (s, e) { return s + e.score; }, 0) / scored.length : 0;
+
+      return el("div", { class: "mk-card", "data-letter": mkLetter(name) }, [
+        el("div", { class: "mk-h" }, [
+          el("span", { class: "mk-mark", "aria-hidden": "true", style: "--spine:" + spineColor(name), text: name === MK_UNATTRIBUTED ? "?" : name.slice(0, 1) }),
+          el("div", {}, [
+            el("b", { class: "mk-name", text: name }),
+            el("span", { class: "sub", text: works.length + (works.length === 1 ? " work" : " works") +
+              " · " + owned + " vols owned" + (spent ? " · £" + spent.toFixed(0) : "") +
+              " · " + chapters + " ch read" + (avg ? " · ★ " + starText(Math.round(avg)) : "") })
+          ])
+        ]),
+        el("div", { class: "mk-works" }, works.map(function (e) {
+          var o = ownership(e);
+          function open() { booksEditor(e, function () { KOS.show("mangaka", undefined, { _nav: true }); }); }
+          return el("div", { class: "mk-work", role: "button", tabindex: "0",
+            onclick: open,
+            onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); open(); } }
+          }, [
+            e.coverUrl
+              ? el("span", { class: "mk-work-cover" }, [KOS.imageCrop.image(e.coverUrl,
+                  { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)])
+              : el("span", { class: "med-cover-ph mk-ph", "aria-hidden": "true", style: "--spine:" + spineColor(e.title), text: "本" }),
+            el("div", { class: "mk-work-body" }, [
+              el("span", { class: "mk-work-t", text: e.title }),
+              el("span", { class: "sub", text: KOS.media.STATUS_LABEL[e.status] +
+                (o.ownedVols ? " · " + o.ownedVols + " vols" : "") +
+                (e.score ? " · ★ " + starText(e.score) : "") })
+            ])
+          ]);
+        }))
+      ]);
+    }
+
+    /* The rail FILTERS to a letter rather than scrolling to it. Scrolling
+       would mean mounting every author above the target — on a real library
+       that is the whole 900-card wall again, which is the bug this view was
+       rewritten to fix. Filtering keeps the DOM bounded and still reaches
+       any author in one tap. Tapping the active letter clears it. */
+    var activeLetter = "";
+    function jumpTo(letter) {
+      activeLetter = activeLetter === letter ? "" : letter;
+      main.scrollTop = 0;
+      paint();
+    }
+
+    function paint() {
+      var q = search.value.trim().toLowerCase();
+      var byName = sortSel.value !== "volumes";
+      if (!byName) activeLetter = "";          // a ranked list has no alphabet
+      var names = allNames.filter(function (n) {
+        if (q && n.toLowerCase().indexOf(q) === -1) return false;
+        if (activeLetter && mkLetter(n) !== activeLetter) return false;
+        return true;
+      });
+      names.sort(function (a, b) {
+        /* the unattributed bucket sinks to the bottom either way */
+        if (a === MK_UNATTRIBUTED) return 1;
+        if (b === MK_UNATTRIBUTED) return -1;
+        if (byName) return a.localeCompare(b);
+        return mkVols(groups[b]) - mkVols(groups[a]) || (a < b ? -1 : 1);
+      });
+      /* the alphabet reflects the SEARCH, not the letter already chosen —
+         otherwise picking one letter would grey out every other one */
+      var letters = {};
+      allNames.forEach(function (n) {
+        if (!q || n.toLowerCase().indexOf(q) !== -1) letters[mkLetter(n)] = true;
+      });
+
+      jump.classList.toggle("hidden", !byName);
+      jump.innerHTML = "";
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("").forEach(function (L) {
+        var key = el("button", { class: "mk-jump-key" + (letters[L] ? "" : " off") +
+            (activeLetter === L ? " active" : ""),
+          type: "button", text: L, "aria-pressed": String(activeLetter === L),
+          onclick: function () { jumpTo(L); } });
+        /* el() would setAttribute("disabled", false) — which still disables */
+        key.disabled = !letters[L];
+        jump.appendChild(key);
+      });
+
+      var filtered = !!(q || activeLetter);
+      area.countLine.textContent = names.length + (names.length === 1 ? " author" : " authors") +
+        " · " + total + (total === 1 ? " series" : " series") +
+        (activeLetter ? " · " + activeLetter : "") + (filtered ? " (filtered)" : "");
+      if (!names.length) {
+        area.clear();
+        area.holder.appendChild(KOS.medview.emptyState("No author matches that search.", []));
+        return;
+      }
+      area.start(names);
+    }
+
     KOS.mediadb.query({ module: "books", sort: "title" }, function (err, rows) {
       if (err) { main.appendChild(el("p", { class: "fc-empty", text: "Could not read the vault: " + err.message })); return; }
       if (!rows.length) {
-        main.appendChild(el("div", { class: "med-empty" }, [
+        area.clear();
+        area.countLine.textContent = "";
+        jump.classList.add("hidden");
+        toolbar.classList.add("hidden");
+        area.holder.appendChild(el("div", { class: "med-empty" }, [
           el("p", { class: "fc-empty", text: "No books tracked yet — the author pages build themselves from the vault." }),
           el("div", { class: "lab-controls", style: "justify-content:center" }, [
             el("button", { class: "btn primary", text: "本 Open the Books vault", onclick: function () { KOS.show("books"); } })
@@ -1188,69 +1330,18 @@
         ]));
         return;
       }
-
-      var groups = {};
+      total = rows.length;
+      groups = {};
       rows.forEach(function (e) {
-        var a = (e.author || "").trim() || "— unattributed —";
+        var a = (e.author || "").trim() || MK_UNATTRIBUTED;
         (groups[a] = groups[a] || []).push(e);
       });
-      var names = Object.keys(groups).sort(function (a, b) {
-        /* the unattributed bucket sinks to the bottom */
-        if (a === "— unattributed —") return 1;
-        if (b === "— unattributed —") return -1;
-        var va = vols(groups[a]), vb = vols(groups[b]);
-        return vb - va || (a < b ? -1 : 1);
-      });
-      function vols(list) {
-        return list.reduce(function (n, e) { return n + (e.physical ? e.physical.volumes.length : 0); }, 0);
-      }
-
-      main.appendChild(el("p", { class: "sub med-count", text: (names.length - (groups["— unattributed —"] ? 1 : 0)) + " authors · " + rows.length + " series" }));
-
-      var wall = el("div", { class: "mk-wall" });
-      names.forEach(function (name) {
-        var works = groups[name];
-        var owned = vols(works);
-        var chapters = works.reduce(function (n, e) { return n + (e.progress.current || 0); }, 0);
-        var spent = works.reduce(function (n, e) {
-          return n + (e.physical ? e.physical.volumes.reduce(function (s, v) { return s + (v.price || 0); }, 0) : 0);
-        }, 0);
-        var scored = works.filter(function (e) { return e.score; });
-        var avg = scored.length ? scored.reduce(function (s, e) { return s + e.score; }, 0) / scored.length : 0;
-
-        var card = el("div", { class: "mk-card" }, [
-          el("div", { class: "mk-h" }, [
-            el("span", { class: "mk-mark", "aria-hidden": "true", style: "--spine:" + spineColor(name), text: name === "— unattributed —" ? "?" : name.slice(0, 1) }),
-            el("div", {}, [
-              el("b", { class: "mk-name", text: name }),
-              el("span", { class: "sub", text: works.length + (works.length === 1 ? " work" : " works") +
-                " · " + owned + " vols owned" + (spent ? " · £" + spent.toFixed(0) : "") +
-                " · " + chapters + " ch read" + (avg ? " · ★ " + starText(Math.round(avg)) : "") })
-            ])
-          ]),
-          el("div", { class: "mk-works" }, works.map(function (e) {
-            var o = ownership(e);
-            return el("div", { class: "mk-work", role: "button", tabindex: "0",
-              onclick: function () { booksEditor(e, function () { KOS.show("mangaka", undefined, { _nav: true }); }); },
-              onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); booksEditor(e, function () { KOS.show("mangaka", undefined, { _nav: true }); }); } }
-            }, [
-              e.coverUrl
-                ? el("span", { class: "mk-work-cover" }, [KOS.imageCrop.image(e.coverUrl,
-                    { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)])
-                : el("span", { class: "med-cover-ph mk-ph", "aria-hidden": "true", style: "--spine:" + spineColor(e.title), text: "本" }),
-              el("div", { class: "mk-work-body" }, [
-                el("span", { class: "mk-work-t", text: e.title }),
-                el("span", { class: "sub", text: KOS.media.STATUS_LABEL[e.status] +
-                  (o.ownedVols ? " · " + o.ownedVols + " vols" : "") +
-                  (e.score ? " · ★ " + starText(e.score) : "") })
-              ])
-            ]);
-          }))
-        ]);
-        wall.appendChild(card);
-      });
-      main.appendChild(wall);
+      allNames = Object.keys(groups);
+      paint();
     });
+
+    search.addEventListener("input", KOS.ui.debounce(paint, 220));
+    sortSel.addEventListener("change", paint);
 
     main.appendChild(el("div", { class: "lab-controls", style: "margin-top:14px" }, [
       el("button", { class: "btn", text: "← Books vault", onclick: function () { KOS.show("books"); } })

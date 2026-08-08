@@ -120,6 +120,77 @@
   function storagePath(fileId, name) { return uid() + "/" + fileId + "/" + safeName(name); }
   function toast(msg, bad) { if (!QUIET && KOS.ui && KOS.ui.toast) KOS.ui.toast(msg, bad); }
 
+  /* ---------------- per-device keys (never synced) ----------------
+     state.ui and the Collection view preferences describe THIS DEVICE's
+     window, not the account's data: which page is open, whether the spec
+     tree is collapsed, grid-vs-list, which Books tab. Syncing them made a
+     background pull yank the user off the page they were reading (the
+     remote document's ui.view won), and — because KOS.show() ends in
+     store.save() — made merely LOOKING at a page mark the whole state
+     document dirty and push it, so whole-document LWW could overwrite a
+     real edit made on another device with nothing but a page view.
+
+     ONE list feeds both the pushed payload and the dirty hash, so the two
+     can never disagree about what a change is. Backups are a separate
+     path: store.exportFull/importFull still carry state.ui verbatim.
+
+     media.shrine.description is the user's hall NOTE — content, not a view
+     preference — so it keeps syncing; only shrine's module/sort filters
+     are per-device.                                                      */
+  var DEVICE_PATHS = [
+    ["ui"],
+    ["media", "layout"], ["media", "sort"],
+    ["media", "books"], ["media", "vn"], ["media", "game"],
+    ["media", "wishlist"],
+    ["media", "shrine", "module"], ["media", "shrine", "sort"]
+  ];
+  function pathGet(obj, path) {
+    var cur = obj;
+    for (var i = 0; i < path.length; i++) {
+      if (!cur || typeof cur !== "object") return undefined;
+      cur = cur[path[i]];
+    }
+    return cur;
+  }
+  /* delete path[last] from a plain-object clone, pruning nothing else */
+  function pathDrop(obj, path) {
+    var cur = obj;
+    for (var i = 0; i < path.length - 1; i++) {
+      if (!cur || typeof cur !== "object") return;
+      cur = cur[path[i]];
+    }
+    if (cur && typeof cur === "object") delete cur[path[path.length - 1]];
+  }
+  /* the state document as the cloud sees it — a clone minus the
+     per-device keys. Used for the push payload AND the dirty hash. */
+  function syncableState(s) {
+    var out = JSON.parse(JSON.stringify(s || {}));
+    DEVICE_PATHS.forEach(function (p) { pathDrop(out, p); });
+    /* an emptied container is noise in the hash — drop it too */
+    if (out.media && typeof out.media === "object" && !Object.keys(out.media).length) delete out.media;
+    if (out.media && out.media.shrine && !Object.keys(out.media.shrine).length) delete out.media.shrine;
+    return out;
+  }
+  /* snapshot this device's values before a remote document lands */
+  function deviceSnapshot(s) {
+    return DEVICE_PATHS.map(function (p) { return [p, pathGet(s, p)]; });
+  }
+  /* put them back afterwards — the remote copy must never win */
+  function restoreDevice(s, snap) {
+    snap.forEach(function (pair) {
+      var path = pair[0], val = pair[1], cur = s, i;
+      /* nothing to restore and no branch to prune — don't conjure containers */
+      if (val === undefined && pathGet(s, path) === undefined) return;
+      for (i = 0; i < path.length - 1; i++) {
+        if (!cur[path[i]] || typeof cur[path[i]] !== "object") cur[path[i]] = {};
+        cur = cur[path[i]];
+      }
+      var leaf = path[path.length - 1];
+      if (val === undefined) delete cur[leaf];
+      else cur[leaf] = val;
+    });
+  }
+
   /* Boot LAZILY creates default progress records (status "none", empty
      checks) just by rendering views — those are furniture, not data. Only
      a record the user actually touched makes the state meaningful, else a
@@ -259,13 +330,20 @@
   function api() { return _api || realApi(); }
 
   /* ---------------- push: the state document ---------------- */
+  /* The last hash we KNOW matches the cloud copy, or null for "unknown".
+     Only used to answer "was that save a real change?" cheaply, so the
+     status chip stops reporting a page view as pending work. meta stays
+     the authority for whether a push actually happens. */
+  var cleanStateHash = null;
+  function syncableHash() { return hashStr(JSON.stringify(syncableState(KOS.store.state))); }
   function pushState(meta, done) {
-    var s = JSON.stringify(KOS.store.state);
+    var s = JSON.stringify(syncableState(KOS.store.state));
     var h = hashStr(s);
-    if (meta.state.lastPushedHash === h) { done(null); return; }
+    if (meta.state.lastPushedHash === h) { cleanStateHash = h; done(null); return; }
     api().upsertState(JSON.parse(s), function (err, row) {
       if (err) { done(err); return; }
       meta.state.lastPushedHash = h;
+      cleanStateHash = h;
       meta.state.remoteTs = row && row.updated_at ? row.updated_at : meta.state.remoteTs;
       done(null);
     });
@@ -399,22 +477,21 @@
   }
 
   /* ---------------- pull: the state document ---------------- */
+  /* Refresh what the user is LOOKING AT after a pull — never navigate.
+     This used to route to state.ui.view, which after applyRemoteState was
+     the REMOTE document's view: a background pull dragged the reader onto
+     whatever page another signed-in device happened to be on, wiping any
+     in-progress inline editing with it. state.ui is per-device now, so
+     there is no remote view to obey; redraw in place and stay put. */
   function rerenderCurrent() {
     try {
+      /* cosmetics ride the state document: a fresh device pulls the owned
+         list and governor.theme but was left rendering the default theme
+         until a manual reload. Guarded — the app runs with no cloud. */
+      if (KOS.governor && KOS.governor.applyCosmetics) KOS.governor.applyCosmetics();
       if (KOS.refreshHUD) KOS.refreshHUD();
       if (KOS.refreshRailCounters) KOS.refreshRailCounters();
-      if (!KOS.views || !KOS.show) return;
-      var ui = KOS.store.state.ui || {};
-      var view = ui.view || "home";
-      if (view === "ref") {
-        var sid = ui.subject, ref = ui.lastRef && ui.lastRef[sid];
-        if (sid && ref) KOS.show("ref", { subject: sid, ref: ref });
-        else if (KOS.views.home) KOS.show("home");
-      } else if (view === "subject" && KOS.views.subject) {
-        KOS.show("subject", ui.subject || "compsci");
-      } else if (KOS.views[view]) {
-        KOS.show(view);
-      }
+      if (KOS.rerender) KOS.rerender();
     } catch (e) { console.warn("cloudsync: rerender after remote apply failed", e); }
   }
   function applyRemoteState(row, meta, done) {
@@ -427,13 +504,19 @@
     if (!stateMeaningful(incoming) && stateMeaningful(KOS.store.state)) {
       console.warn("cloudsync: remote state is empty while local has data — refusing to apply.");
       meta.state.remoteTs = row.updated_at;   // acknowledged, not applied; the next push overwrites it
-      meta.state.lastPushedHash = null;
+      meta.state.lastPushedHash = null; cleanStateHash = null;
       done(null, false);
       return;
     }
+    /* per-device keys are this device's alone. New clients never push them,
+       but a document written by an older client still carries them — take
+       the local values back either way, so the remote copy can never win. */
+    var mine = deviceSnapshot(KOS.store.state);
     KOS.store.replaceState(incoming);
+    restoreDevice(KOS.store.state, mine);
+    KOS.store.save();
     meta.state.remoteTs = row.updated_at;
-    meta.state.lastPushedHash = hashStr(JSON.stringify(KOS.store.state));
+    meta.state.lastPushedHash = cleanStateHash = syncableHash();
     rerenderCurrent();
     done(null, true);
   }
@@ -694,7 +777,7 @@
           } else {
             /* keep this device's state: leave the hash null so the push
                phase uploads it over the cloud copy */
-            meta.state.lastPushedHash = null;
+            meta.state.lastPushedHash = null; cleanStateHash = null;
             if (linkPending && linkPending.stateRow) meta.state.remoteTs = linkPending.stateRow.updated_at;
             meta.linked = true;
             done(null);
@@ -712,6 +795,7 @@
     meta.media = {};
     meta.files = {};
     meta.state = { remoteTs: null, lastPushedHash: null };
+    cleanStateHash = null;
     KOS.mediadb.query({}, function (err, locals) {
       if (err) { done(err); return; }
       var have = {};
@@ -879,7 +963,7 @@
       loadMeta(function (e0, meta) {
         if (e0) { cb(e0); return; }
         meta.linked = true;
-        meta.state.lastPushedHash = null;   // force the state push
+        meta.state.lastPushedHash = null; cleanStateHash = null;   // force the state push
         linkPending = null;
         saveMeta(meta, function () {
           cycle("migrate", function (e1) {
@@ -983,13 +1067,23 @@
   }
 
   /* ---------------- lifecycle ---------------- */
+  /* Every KOS.show() ends in store.save(), so a plain page view nudges us.
+     With ui/view prefs out of the synced document that nudge usually
+     represents NOTHING to push — flipping the chip to "changes pending" for
+     it made the chip pure noise. Media/file nudges are always real (their
+     dirtiness is per-row and can't be checked from here). */
+  var noteStateOnly = true;
   function noteChange(kind) {
-    pendingHint = true;
-    if (!started || !uid()) return;
-    if (status.state === "synced" || status.state === "pending") setStatus("pending");
+    if (kind !== "state") noteStateOnly = false;
+    if (!started || !uid()) { pendingHint = true; return; }
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(function () {
       debounceTimer = null;
+      var onlyState = noteStateOnly;
+      noteStateOnly = true;
+      if (onlyState && cleanStateHash && syncableHash() === cleanStateHash) return;
+      pendingHint = true;
+      if (status.state === "synced" || status.state === "pending") setStatus("pending");
       cycle("change");
     }, PUSH_DEBOUNCE);
   }
@@ -1013,6 +1107,7 @@
           if (uid()) cycle("auth");
         } else if (event === "SIGNED_OUT") {
           linkPending = null;
+          cleanStateHash = null;   // next account's cleanliness is unknown
           setStatus("signedOut");
         }
       });
