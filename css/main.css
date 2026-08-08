@@ -4684,6 +4684,26 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   padding: 26px 28px;
   width: 100%;
 }
+/* Phone: the seat's three columns are avatar | identity | access panel, and
+   the third is `auto` — it does not shrink, so at 390px it pushed the rank,
+   the level, the quote and the lore past the card's `overflow: hidden` and
+   they were clipped, not scrollable (audit GOV-1). Empty accounts never
+   showed it: the rank string is short and the lore absent, so the row
+   happened to fit. Stack the three instead. */
+@media (max-width: 700px) {
+  .b-id .id-wrap {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-4);
+  }
+  .b-id .id-txt, .b-id .id-face, .b-id .id-access { width: 100%; min-width: 0; }
+  .id-txt .rank { letter-spacing: .18em; word-break: break-word; }
+  .id-txt h2 { font-size: 22px; }
+  /* the seat's personality line is worth two rows on a phone — its desktop
+     single-line ellipsis cut it mid-sentence at 390px */
+  .b-id .id-status > span:last-child { white-space: normal; overflow: visible; text-overflow: clip; }
+}
 .id-face { position: relative; flex: none; align-self: center; }
 .id-face .gov-avatar {
   box-shadow: 0 0 0 5px color-mix(in srgb, var(--bg1) 78%, transparent), var(--shadow-md);

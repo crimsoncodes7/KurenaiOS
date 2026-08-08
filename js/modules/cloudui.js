@@ -245,7 +245,7 @@
       body.appendChild(row);
 
       body.appendChild(el("p", { class: "sub", text:
-        "How it syncs: study/Governor state, the media vault and attachment DETAILS sync automatically (last write wins — the state document is one unit, so simultaneous edits on two devices keep the most recent save). Attachment FILES upload only via “Sync files now” — large files use bandwidth and storage, so that stays deliberate; files never uploaded remain on this device only. Cloud sync complements backups, it doesn't replace them." }));
+        "How it syncs: study/Governor state, the media vault and attachment DETAILS sync automatically (last write wins on the state document, with one guard: a device that has fallen behind will not overwrite a newer copy — it asks you instead). Attachment FILES upload only via “Sync files now” — large files use bandwidth and storage, so that stays deliberate; files never uploaded remain on this device only. Cloud sync complements backups, it doesn't replace them." }));
     }
 
     render();
