@@ -1174,12 +1174,19 @@
   /* ================================================================
      the calendar view
      ================================================================ */
+  /* Which month/week is on screen is a SESSION position, not a saved
+     preference: it was persisted as ui.calFocus, so opening the Calendar
+     landed you on whatever week you last browsed — days or weeks in the
+     past. It lives here for the life of the page instead, so paging around
+     still works while you are in the view (and survives a redraw), and a
+     fresh visit always starts on today.                                  */
+  var sessionFocus = null;
   KOS.views.calendar = function (main) {
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
     var ui = store.state.ui;
     var mode = ui.calMode === "week" ? "week" : "month";
-    var focus = ui.calFocus && isDate(ui.calFocus) ? parseISO(ui.calFocus) : new Date();
+    var focus = sessionFocus || new Date();
 
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [
@@ -1196,7 +1203,7 @@
     main.appendChild(head);
     main.appendChild(grid);
 
-    function setFocus(dt) { focus = dt; ui.calFocus = isoOf(dt); store.save(); render(); }
+    function setFocus(dt) { focus = sessionFocus = dt; render(); }
     function setMode(m) { mode = m; ui.calMode = m; store.save(); render(); }
 
     function render() {

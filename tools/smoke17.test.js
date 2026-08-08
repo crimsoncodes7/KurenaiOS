@@ -36,7 +36,13 @@
        locally tombstones the row and removes the storage object.
    14. downloadFile: a cloud-only record gains its blob.
    15. noteRestore: a restore re-baselines — remote rows missing from the
-       restored vault are tombstoned, local rows re-push.                  */
+       restored vault are tombstoned, local rows re-push.
+   16. Per-device keys (Category 7 Phase A): state.ui and the Collection
+       view preferences are excluded from the pushed document AND the dirty
+       hash by one shared filter, so a page view is not a change; a remote
+       document never wins them and never navigates the app; the shrine
+       hall NOTE (content, not a preference) still syncs; local persistence
+       keeps state.ui for backups; a pull re-applies cosmetics.           */
 
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
@@ -416,6 +422,128 @@ step("noteRestore tombstones remote rows absent locally and re-pushes the vault"
   }
   const ghost = await p(cb => KOS.mediadb.getBySyncId("ghost-1", cb));
   assert(!ghost, "ghost row resurrected locally");
+});
+
+/* ============ 4b · per-device keys are never synced (Category 7 Phase A) ============
+   state.ui and the Collection view preferences describe THIS DEVICE's window.
+   Syncing them let a background pull navigate the app away from the page the
+   user was on, and made every page view dirty the whole state document (so a
+   page view on one device could overwrite a real edit on another under
+   whole-document LWW). One filter feeds both the payload and the dirty hash. */
+console.log("== per-device keys: ui + Collection view prefs ==");
+
+const sv5 = makeServer();
+step("the pushed state document carries no ui / view-preference keys", async () => {
+  /* seed a meaningful remote so the first link classifies as "both" and the
+     "keep this device" choice links us without a separate upload dialog */
+  const api5 = makeApi(sv5);   // also installs sv5.stamp
+  sv5.state = { state_json: { v: 1, progress: { "compsci:seed": { status: "done", check: [true, true, true, true], note: "" } }, sessions: [] },
+                updated_at: sv5.stamp() };
+  KOS.cloudsync._config({ api: api5, session: { userId: "user-5", email: "five@test" } });
+  await sync();
+  assert(KOS.cloudsync.linkStatus() === "both", "expected 'both', got " + KOS.cloudsync.linkStatus());
+  await p(cb => KOS.cloudsync.resolveBoth("device", cb));
+  KOS.store.state.ui.view = "anime";
+  KOS.store.state.ui.subject = "maths";
+  KOS.store.state.media = { layout: "list", sort: "title",
+    books: { layout: "grid", sort: "updated", tab: "physical", physLayout: "shelf" },
+    vn: { layout: "list", sort: "score" }, game: { layout: "grid", sort: "updated" },
+    wishlist: { tab: "purchased", sort: "price" },
+    shrine: { module: "anime", sort: "score", description: "the hall note" } };
+  KOS.store.state.progress["compsci:device-keys"] = { status: "done", check: [true, true, true, true], note: "" };
+  KOS.store.save();
+  await sync();
+  const doc = sv5.state.state_json;
+  assert(doc.progress["compsci:device-keys"], "real data did not push");
+  assert(!("ui" in doc), "state.ui was pushed to the cloud: " + JSON.stringify(doc.ui));
+  const m = doc.media || {};
+  ["layout", "sort", "books", "vn", "game", "wishlist"].forEach(k => {
+    assert(!(k in m), "media." + k + " (a view preference) was pushed");
+  });
+  assert(!m.shrine || !("module" in m.shrine), "media.shrine.module (a filter) was pushed");
+  /* the hall note is user CONTENT, not a view preference — it still syncs */
+  assert(m.shrine && m.shrine.description === "the hall note", "the shrine hall note stopped syncing");
+});
+
+step("a page view alone leaves the state document clean (no push)", async () => {
+  const before = sv5.calls.upsertState;
+  KOS.store.state.ui.view = "governor";
+  KOS.store.state.ui.subject = "it";
+  KOS.store.state.media.layout = "grid";
+  KOS.store.state.media.books.tab = "digital";
+  KOS.store.save();
+  await sync();
+  assert(sv5.calls.upsertState === before,
+    "a page view pushed the whole state document (" + before + " → " + sv5.calls.upsertState + ")");
+});
+
+step("a remote document never wins the local ui / view preferences", async () => {
+  const remoteDoc = JSON.parse(JSON.stringify(sv5.state.state_json));
+  remoteDoc.progress["maths:other-device"] = { status: "started", check: [false, false, false, false], note: "" };
+  /* a document written by an OLDER client still carries these keys */
+  remoteDoc.ui = { view: "shrine", subject: "compsci", calFocus: "2026-01-01" };
+  remoteDoc.media = { layout: "list", sort: "title", books: { tab: "physical" },
+    shrine: { module: "vn", sort: "title", description: "note from device B" } };
+  sv5.state = { state_json: remoteDoc, updated_at: sv5.stamp() };
+  await sync();
+  assert(KOS.store.state.progress["maths:other-device"], "the newer remote document did not apply");
+  assert(KOS.store.state.ui.view !== "shrine",
+    "the remote document's ui.view hijacked this device: " + KOS.store.state.ui.view);
+  assert(KOS.store.state.ui.subject === "it", "remote ui.subject overwrote the local one");
+  assert(KOS.store.state.media.layout === "grid", "remote media.layout overwrote the local one");
+  assert(KOS.store.state.media.books.tab === "digital", "remote media.books overwrote the local one");
+  assert(KOS.store.state.media.shrine.description === "note from device B",
+    "the hall note (content) failed to apply from the remote document");
+});
+
+step("applying a remote document does not navigate the app", async () => {
+  /* KOS.show wipes #main, so a pull that routes is a pull that destroys
+     whatever the user was editing. Record every navigation and assert none. */
+  const realShow = KOS.show;
+  const navs = [];
+  KOS.show = function (viewId, arg, opts) { navs.push(viewId); return realShow.apply(this, arguments); };
+  try {
+    await sync();   // settle: push-then-pull means a dirty local doc would win the race
+    const remoteDoc = JSON.parse(JSON.stringify(sv5.state.state_json));
+    remoteDoc.progress["it:another"] = { status: "done", check: [true, true, true, true], note: "" };
+    remoteDoc.ui = { view: "wishlist", subject: "maths" };
+    sv5.state = { state_json: remoteDoc, updated_at: sv5.stamp() };
+    await sync();
+    assert(KOS.store.state.progress["it:another"], "remote document did not apply");
+    assert(navs.indexOf("wishlist") === -1, "a background pull navigated to the remote view");
+    var onScreen = KOS.currentNav();
+    assert(!onScreen || KOS.store.state.ui.view === onScreen.viewId,
+      "state.ui.view drifted from the view on screen: " + KOS.store.state.ui.view + " vs " + onScreen.viewId);
+  } finally { KOS.show = realShow; }
+});
+
+/* The backup path is deliberately SEPARATE from the sync filter: the state
+   snapshotFull embeds is the whole live state object. Backup round-trip
+   fidelity is smoke13's job; what matters here is that the sync filter has
+   not leaked into the local persistence the snapshot is taken from.       */
+step("local persistence still carries state.ui — only cloud sync excludes it", async () => {
+  KOS.store.state.ui.view = "governor";
+  KOS.store.state.media.books.tab = "digital";
+  KOS.store.flush();
+  const saved = JSON.parse(window.localStorage.getItem("kurenai-os-v1"));
+  assert(saved.ui && saved.ui.view === "governor", "state.ui missing from the saved document");
+  assert(saved.media.books.tab === "digital", "media view prefs missing from the saved document");
+});
+
+step("a pull re-applies cosmetics (theme survives a fresh device)", async () => {
+  let applied = 0;
+  const realApply = KOS.governor.applyCosmetics;
+  KOS.governor.applyCosmetics = function () { applied++; return realApply.apply(this, arguments); };
+  try {
+    const remoteDoc = JSON.parse(JSON.stringify(sv5.state.state_json));
+    remoteDoc.governor = Object.assign({}, remoteDoc.governor || {},
+      { theme: "celestial-duality", owned: ["theme:celestial-duality"], xp: 900 });
+    sv5.state = { state_json: remoteDoc, updated_at: sv5.stamp() };
+    await sync();
+    assert(applied > 0, "applyCosmetics was not called after a remote state applied");
+    assert(window.document.documentElement.getAttribute("data-theme") === "celestial-duality",
+      "data-theme not set from the pulled theme: " + window.document.documentElement.getAttribute("data-theme"));
+  } finally { KOS.governor.applyCosmetics = realApply; }
 });
 
 /* ============ run ============ */
