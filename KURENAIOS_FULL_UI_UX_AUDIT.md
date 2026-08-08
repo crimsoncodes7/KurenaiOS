@@ -1148,6 +1148,25 @@ a Study redesign.
 366px at 390px (39 elements, both themes). Confirmed pre-existing by running
 the same sweep against the Phase B tree — see the harness note below.
 
+**Phase C part 2 (Home) — complete.** A partial redesign, as the audit
+prescribed: the composition is kept, the content selection is replaced.
+
+| Finding | Status | How it was verified |
+|---|---|---|
+| **HOME-1 / G-29 — four KPIs read `0` for an active account** | **Fixed** | The hero measured a checklist the user does not tick. It measures the work now: **study streak · cards due · hours this week**, each with a line saying what it means so a zero is an answer rather than an accusation. Coverage was not deleted — it was demoted to the subject cards, where it is a property of a subject rather than a headline. smoke43 G drives an account with 24 sessions and *zero* ticked checks — exactly the shape the audit found — and asserts the figures are non-zero. |
+| **HOME-2 — hero text sits on banner artwork with no scrim** | **Fixed** | Two changes, both mandatory rather than best-effort. `applyBanner` gained a `full` scrim for hosts that carry text at *both* ends (Home's default gradient went transparent exactly where the figures sat, which is why a kanji watermark was printing through "SPEC POINTS"), and the figures gained their own translucent `--bg1` panel. The status pill, streak chips and XP bar lost the `rgba(0,0,0,.3)` treatment that assumed dark artwork. No text on this page depends on the image. |
+| **HOME-3 — `.todo-panel` overflows +208px at 390px** | **Held** | 0 overflowing elements on home across 9 widths × 2 themes with the dense account. |
+| **HOME-4 — two empty boxes consume ~280px saying nothing** | **Fixed** | Empty Directives *and* Countdowns collapse to one 64px line with the action that would fill them — **240px reclaimed**. When only one has content it takes the full width (`.home-today.one-up`) instead of sitting beside a hole. |
+| **HOME-5 — the Collection card is a different shape** | **Fixed** | It is the same component: the same ring, the same meta line, the same track, the same Continue action ("Anime · 24 in progress"). Its figures come from one `mediadb.stats` pass, gated on an IntersectionObserver so a full-table scan never runs on Home's render pass. |
+| **HOME-6 — seven unlabelled pips** | **Fixed** | The row is titled "Last 7 days", each pip carries its own date, and the group is announced as "N of the last 7 days had a study session". |
+| **HOME-7 — the decorative quote is a focusable button** | **Already resolved; now pinned** | The pill became the profile-status editor in an earlier build, so it is a real control with a name. smoke43 G asserts it stays one. |
+| **HOME-8 — greeting and CTA compete at 390px** | **Fixed** | The focus CTA left the greeting row for the next-action card, which is where a call to action belongs. The hero is a two-row reflow on phones and each headline figure becomes a full-width row rather than wrapping 2-then-1 around a hole. |
+| **"What should I do next" was not answered anywhere** | **New surface** | One statement, one reason, one action, directly under the greeting: a running session → cards due → anything dated inside a week → the first unsealed directive → where you left off → a genuinely clear board. It reads the surfaces that already exist (`countdowns()` is the same merged read the panel below uses, so the two cannot disagree) and writes nothing. The page now has **exactly one primary button**. |
+
+**Also fixed in passing:** Home used to force the media vault open during
+boot. The Collection card's scan is now visibility-gated, so a cold start on
+the app's most-visited page no longer opens IndexedDB or walks ~1,900 rows.
+
 **Lesson carried forward, third instance — and this one was in the harness.**
 `tools/responsive_audit.mjs` had two defects that between them meant the
 "dense account" was not dense: it seeded `status: "completed"`, which is not a
@@ -1228,7 +1247,7 @@ and letterboxing problems that most damage daily use.
 - Home: hero KPIs are non-zero and meaningful for an account with sessions but
   no ticked checks; all hero text sits on a scrim; directives wrap at 390 px.
 
-**Outcome — the two Study surfaces are done; Home remains.**
+**Outcome — Phase C is complete.**
 
 | Criterion | Result |
 |---|---|
@@ -1238,7 +1257,9 @@ and letterboxing problems that most damage daily use.
 | Flashcards support `Space` and `1–4` | ✓ plus `→`/`←`, plus `1–9` in the quiz engine, all surfaced in the UI — smoke43 E |
 | Subject desk: the section list appears exactly once | ✓ the ledger is deleted; the spine inherited its bar and subsection tally |
 | Paper cards reachable at 390px without inner horizontal scrolling | ✓ the band stacks below the phone tier; above it, it is a declared scroller with arrows and fades |
-| **Home** | **Not started** — the remaining Phase C item |
+| Home: hero KPIs non-zero and meaningful for an account with sessions but no ticked checks | ✓ streak / cards due / hours this week, asserted against exactly that account in smoke43 G |
+| Home: all hero text sits on a scrim | ✓ a `full` band scrim plus the figures' own surface; the dark-artwork assumptions removed |
+| Home: directives wrap at 390px | ✓ 0 overflowing elements on home across 9 widths × 2 themes |
 
 ### Phase D — Secondary page redesigns
 **Areas:** the four vault views and their shared shell, Collection Overview,

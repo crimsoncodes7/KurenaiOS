@@ -526,10 +526,21 @@
     if (!g.banner) return false;
     if (g.banner === "custom" && g.bannerImg) {
       KOS.imageCrop.background(node, g.bannerImg, g.bannerCrop, {
-        /* Home carries dark Atelier ink, while Governor Status declares
-           banner-dark and therefore needs a genuinely dark contrast scrim. */
+        /* Three scrims, because the three hosts have genuinely different
+           jobs. Governor Status declares banner-dark and needs a dark ink
+           scrim; the default lets the artwork run free on the right, which
+           suits a host whose right-hand side carries no text.
+
+           `full` is Home's (Cat 7 Phase C · audit HOME-2): the band carries
+           text at BOTH ends, and the default gradient went transparent
+           exactly where the figures sat, so "SPEC POINTS" was printed
+           through a kanji watermark and legibility depended on whichever
+           image the user happened to upload. A readable page cannot be a
+           property of someone's wallpaper. */
         overlay: opts.darkScrim
           ? "linear-gradient(100deg, rgba(16,14,10,.9) 0%, rgba(16,14,10,.67) 52%, rgba(16,14,10,.32) 100%)"
+          : opts.scrim === "full"
+          ? "linear-gradient(100deg, color-mix(in srgb, var(--bg1) 93%, transparent) 0%, color-mix(in srgb, var(--bg1) 74%, transparent) 45%, color-mix(in srgb, var(--bg1) 82%, transparent) 100%)"
           : "linear-gradient(100deg, color-mix(in srgb, var(--bg1) 88%, transparent) 30%, color-mix(in srgb, var(--bg1) 45%, transparent) 70%, transparent)"
       });
     } else {

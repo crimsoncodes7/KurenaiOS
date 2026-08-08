@@ -1,5 +1,6 @@
 /* Kurenai OS — smoke43.test.js
-   Category 7 Phase C — the Study redesign (subject desk + topic shell).
+   Category 7 Phase C — the Study redesign (subject desk + topic shell) and
+   the Home partial redesign.
 
    smoke37 defends CONSISTENCY across the Study surfaces (one derivation per
    statistic, one format, no contradictory pairs). This suite defends the
@@ -19,6 +20,10 @@
          including the guards that stop them stealing keys from a text field
          and the self-removal that stops them accumulating per tab switch
      F · touch targets and legible labels (REF-5, REF-7, REF-10)
+     G · Home — headline figures that describe activity rather than an
+         unticked checklist, one decision surface, collapsing empty panels,
+         the Collection card as the same component as its neighbours, and a
+         hero whose text never depends on the banner artwork
 
    Run: node tools/smoke43.test.js                                        */
 const { JSDOM } = require("jsdom");
@@ -484,6 +489,193 @@ step("the source keeps the retired ledger out of the desk", () => {
   assert(!/class: "sec-card /.test(hubSrc), "a duplicate section row is being rendered again");
 });
 
+/* ============ G · Home (Cat 7 Phase C part 2) ============ */
+console.log("== G · home ==");
+
+/* The account these steps run against is the shape the audit found: real
+   activity (sessions, a streak, a level) and NOT ONE ticked progress check.
+   That is precisely the account the old hero told "0% covered · 0 mastered". */
+function activeButUnticked() {
+  KOS.store.state.progress = {};
+  KOS.store.state.sessions = [];
+  const day = 86400000, now = Date.now();
+  for (let i = 0; i < 24; i++) {
+    const ts = now - (i % 6) * day - i * 3600000;
+    KOS.store.state.sessions.push({ id: i + 1, ts, date: new Date(ts).toISOString().slice(0, 10),
+      type: i % 4 === 0 ? "focus" : "flashcards", subject: "compsci", ref: REF,
+      dur: 1800, metrics: { complete: true } });
+  }
+  KOS.store.state.sessions.sort((a, b) => a.ts - b.ts);
+}
+
+step("the headline figures describe activity, not an unticked checklist", () => {
+  activeButUnticked();
+  KOS.show("home");
+  const tiles = $$(".hi-stats .hstat");
+  assert(tiles.length === 3, "expected three headline figures, got " + tiles.length);
+  const labels = tiles.map(t => t.querySelector(".k").textContent);
+  assert(labels.join("|") === "Day streak|Cards due|Hours this week", "headline figures: " + labels.join("|"));
+  /* the retired ones, by name: they read 0 for this account */
+  const hero = $(".home-id").textContent;
+  assert(!/Spec points/.test(hero), "the hero still leads with a spec-point tally");
+  assert(!/Mastered/.test(hero), "the hero still leads with a mastered count");
+  assert(!$(".home-ring"), "the 0%-COVERED ring is back on the hero");
+  /* and at least one of the three is genuinely non-zero for this account */
+  const values = tiles.map(t => t.querySelector(".v").textContent);
+  assert(values.some(v => v !== "0" && v !== "0.0"), "every headline figure still reads zero: " + values.join("|"));
+});
+
+step("every headline figure explains what it means, so a zero is an answer", () => {
+  KOS.show("home");
+  $$(".hi-stats .hstat").forEach(t => {
+    const s = t.querySelector(".s");
+    assert(s && s.textContent.trim(), "a headline figure carries no line of context");
+  });
+  /* coverage kept its place — on the subject cards, where it belongs */
+  assert($$(".subj-card").some(c => /deep-content/.test(c.textContent)),
+    "coverage was dropped rather than demoted to the subject cards");
+});
+
+step("the page leads with one decision, one reason and one primary action", () => {
+  KOS.show("home");
+  const main = document.getElementById("main");
+  const next = main.querySelector(".home-next");
+  assert(next, "no decision surface");
+  assert(main.children[1] === next, "the decision surface is not directly under the greeting");
+  assert(next.querySelector(".hn-kicker").textContent.trim(), "the statement has no kicker");
+  assert(next.querySelector(".hn-label").textContent.trim(), "the statement is empty");
+  assert(next.querySelector(".hn-why").textContent.trim(), "the statement gives no reason");
+  /* exactly one primary button on the page: there is never a question about
+     where to press. The old focus CTA shared the greeting row with the h1. */
+  assert(main.querySelectorAll(".btn.primary").length === 1,
+    "expected one primary action, found " + main.querySelectorAll(".btn.primary").length);
+  assert(!main.querySelector(".home-hero .btn"), "the greeting row is competing with a CTA again");
+});
+
+step("the decision surface picks the most perishable thing first", () => {
+  /* due cards outrank a dated item, which outranks a directive, which
+     outranks carrying on — and each branch hands off to the view that
+     already owns the work rather than doing anything itself */
+  KOS.store.state.srs = {};
+  KOS.store.state.calendar = { v: 2, nextId: 1, seeded: true, events: [], notified: {} };
+  KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
+  KOS.store.state.ui.lastRef.compsci = REF;
+  KOS.show("home");
+  assert($(".hn-kicker").textContent === "Where you left off",
+    "with nothing pressing it should offer to continue, got: " + $(".hn-kicker").textContent);
+  assert($(".hn-label").textContent.indexOf(REF) === 0, "it did not name the topic");
+
+  /* now make a card due — recall decay outranks carrying on */
+  const card = KOS.srs.cardsFor(SID, REF)[0];
+  assert(card, "no card to schedule");
+  KOS.store.state.srs[card.key] = { ef: 2.5, ivl: 1, reps: 1, due: "2000-01-01",
+    last: "1999-12-31", views: 1, lapses: 0, lastRating: 2 };
+  KOS.show("home");
+  assert($(".hn-kicker").textContent === "Due today", "a due card did not take priority");
+  assert(/ready for review/.test($(".hn-label").textContent), "wrong statement: " + $(".hn-label").textContent);
+  $(".hn-go").click();
+  assert(KOS.store.state.ui.view === "due", "the action did not reach the review queue");
+});
+
+step("a running session outranks everything", () => {
+  const real = KOS.focus.state;
+  KOS.focus.state = () => "running";
+  try {
+    KOS.show("home");
+    assert($(".hn-kicker").textContent === "In progress", "a running session was not the first answer");
+    assert($(".home-next").classList.contains("live"), "the running state is not marked");
+  } finally { KOS.focus.state = real; }
+});
+
+step("empty Directives and Countdowns collapse to one line, not two boxes", () => {
+  KOS.store.state.srs = {};
+  KOS.store.state.calendar = { v: 2, nextId: 1, seeded: true, events: [], notified: {} };
+  KOS.store.state.reminders = { v: 2, nextId: 1, migrated: true, items: [], lists: [], rewardLog: {} };
+  KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
+  KOS.show("home");
+  assert(!$(".home-today"), "the two-column row is still rendered with nothing in it");
+  const quiet = $(".home-quiet");
+  assert(quiet, "no collapsed row");
+  assert(quiet.querySelector(".empty-state.compact"), "the collapsed row is not the compact empty state");
+  assert(quiet.querySelector(".empty-state-action .btn"), "the collapsed row offers no way to fix it");
+  assert(!$(".path-card"), "the directives box survived");
+  assert(!$(".dl-widget"), "the countdowns box survived");
+});
+
+step("one populated panel takes the full width rather than sitting beside a hole", () => {
+  /* 20 days out: far enough to be a countdown but NOT to generate a
+     directive (autoItems only raises exams inside five days), so exactly one
+     of the two panels has content */
+  KOS.store.state.calendar = { v: 2, nextId: 2, seeded: true, notified: {},
+    events: [{ id: 1, type: "exam", title: "Paper 1", date: new Date(Date.now() + 20 * 86400000).toISOString().slice(0, 10),
+      time: "09:00", dur: 60, subject: SID, colour: "", recur: "", alerts: [], alerted: {},
+      showInCountdown: true, notes: "" }] };
+  KOS.show("home");
+  const row = $(".home-today");
+  assert(row, "the row disappeared with content on it");
+  assert(row.classList.contains("one-up"), "a single populated panel did not take the full width");
+  assert($(".dl-widget"), "the countdown panel is missing");
+  assert(!$(".path-card"), "an empty directives box is back beside it");
+});
+
+step("the Collection card is the same component as the subject cards", () => {
+  KOS.show("home");
+  const med = $(".med-home-card");
+  assert(med, "no Collection card");
+  assert(med.classList.contains("subj-card"), "it is not the subject-card component");
+  /* the four things it lacked: a ring, a track, a meta line and a Continue */
+  assert(med.querySelector(".subj-card-top canvas.mini-ring"), "no completion ring");
+  assert(med.querySelector(".subj-track .subj-fill"), "no progress track");
+  assert(med.querySelector(".m").textContent.trim(), "no meta line");
+  assert(med.getAttribute("role") === "button" && med.tabIndex === 0, "it is not keyboard reachable");
+});
+
+step("Home does not open the media vault on its render pass", () => {
+  /* mediadb.stats is a full-table cursor scan (~1,900 rows on a real
+     account). It runs when the card is on screen, not when Home boots —
+     jsdom has no IntersectionObserver, so this is also what keeps the
+     migration fixtures in smoke5/smoke6 owning their own database. */
+  assert(typeof window.IntersectionObserver !== "function",
+    "jsdom grew an IntersectionObserver — this step no longer proves anything");
+  assert(/IntersectionObserver/.test(hubSrc.slice(hubSrc.indexOf("fillCollectionCard"))),
+    "the Collection card's scan is not gated on visibility");
+  KOS.show("home");
+  assert(/Anime · books · visual novels · games/.test($(".med-home-card .m").textContent),
+    "the card fetched its figures during render");
+});
+
+step("the seven pips say what they are (HOME-6)", () => {
+  KOS.show("home");
+  assert($(".hi-week-l").textContent === "Last 7 days", "the pip row is still unlabelled");
+  const dots = $$(".week-dots i");
+  assert(dots.length === 7, "expected seven pips, got " + dots.length);
+  dots.forEach(d => assert(d.getAttribute("title"), "a pip carries no date"));
+  assert(/of the last 7 days/.test($(".week-dots").getAttribute("aria-label")),
+    "the row is not announced to assistive tech");
+});
+
+step("the hero's text never depends on the banner artwork (HOME-2)", () => {
+  /* the figures used to be bare text on the side the band's gradient
+     deliberately leaves transparent — legibility was a property of whichever
+     image the user had uploaded */
+  assert(/\.hi-stats\s*\{[^}]*background:\s*color-mix\([^)]*var\(--bg1\)/s.test(css),
+    "the headline figures have no surface of their own");
+  assert(/scrim === "full"/.test(fs.readFileSync(path.join(ROOT, "js/core/governor.js"), "utf8")),
+    "the full-band scrim was removed from applyBanner");
+  assert(/applyBanner\(band, \{ scrim: "full" \}\)/.test(hubSrc), "Home no longer asks for the full scrim");
+  assert(!/\.home-id\.has-banner \.hi-status \{ background: rgba\(0,0,0/.test(css),
+    "the status pill still assumes dark artwork");
+});
+
+step("the status pill is a real control, not a decorative focus stop (HOME-7)", () => {
+  KOS.store.state.governor.status = "Deep work until noon";
+  KOS.show("home");
+  const pill = $(".hi-status");
+  if (!pill) return;                       /* no status set — nothing to check */
+  assert(pill.tagName === "BUTTON", "the status pill is not a button");
+  assert(pill.getAttribute("title"), "a focusable control with no accessible name");
+});
+
 /* ---- run ---- */
 let pass = 0;
 for (const [name, fn] of steps) {
@@ -496,5 +688,5 @@ if (errors.length) {
   errors.forEach(e => console.log("  - " + e));
   process.exit(1);
 }
-console.log("\nSMOKE43 PASS — Category 7 Phase C Study redesign verified (" + pass + " steps).");
+console.log("\nSMOKE43 PASS — Category 7 Phase C (Study + Home) verified (" + pass + " steps).");
 process.exit(0);

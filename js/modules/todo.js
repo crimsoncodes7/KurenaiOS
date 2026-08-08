@@ -288,6 +288,9 @@
 
   KOS.todo = {
     autoItems: autoItems,
+    /* Home's "what next" reads the same tick state the panel renders, so the
+       front page can never offer a directive the list already shows sealed */
+    isChecked: isChecked,
     addManual: addManual,
     toggleManual: toggleManual,
     deleteManual: deleteManual,

@@ -1115,11 +1115,48 @@ body.modal-open #main { overflow: hidden; }
 /* ============================================================
    Home — the desk at dawn
    ============================================================ */
-.home-hero { margin: 2px 0 var(--section-gap); display: flex; align-items: flex-end; justify-content: space-between; gap: var(--grid-gap); flex-wrap: wrap; }
+.home-hero { margin: 2px 0 var(--space-4); display: flex; align-items: flex-end; justify-content: space-between; gap: var(--grid-gap); flex-wrap: wrap; }
 .home-hero h1 { font-size: var(--type-page-title); margin: 0; font-weight: 550; }
+.hh-txt { min-width: 0; }
 .hh-kicker { display: block; font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 4px; }
 .hh-focus { padding: 10px 22px; font-size: 14.5px; }
 .hh-focus.live { background: linear-gradient(150deg, color-mix(in srgb, var(--accent2) 92%, #fff), color-mix(in srgb, var(--accent2) 82%, #000)); }
+
+/* ============================================================
+   The decision surface  (Cat 7 Phase C · audit HOME-1)
+
+   Home opened with four figures about a checklist and left the reader to
+   work out what to do. One statement, one reason, one action — and it is
+   the page's only primary button, so there is never a question about where
+   to press. It sits above the identity band because who you are is context
+   for what to do next, not the other way round.
+   ============================================================ */
+.home-next {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-4); flex-wrap: wrap;
+  padding: var(--space-4) var(--space-5);
+  margin: 0 0 var(--section-gap);
+  border: 1px solid var(--surface-border);
+  border-left: 4px solid var(--accent, var(--kurenai));
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-sm);
+}
+.home-next.live { border-left-color: var(--accent2); background: var(--wash-brass); }
+.hn-txt { min-width: 0; flex: 1 1 340px; }
+.hn-kicker {
+  display: block; font-size: var(--type-label); letter-spacing: .18em;
+  text-transform: uppercase; color: var(--muted); font-weight: 700;
+}
+.home-next.live .hn-kicker { color: var(--accent2); }
+.hn-label {
+  margin: 3px 0 0; font-family: var(--serif);
+  font-size: 20px; font-weight: 600; line-height: 1.25;
+  /* a directive or a deadline title can run long — two lines, then ellipsis */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.hn-why { margin: 4px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--text2); }
+.hn-go { flex: none; padding: 10px 22px; font-size: 14.5px; }
 .kanji-inline { font-family: var(--jp); color: var(--accent); margin-right: 6px; }
 .kanji-big { font-family: var(--jp); font-size: 60px; color: var(--accent); line-height: 1; margin-bottom: 8px; }
 
@@ -1147,13 +1184,38 @@ body.modal-open #main { overflow: hidden; }
 .hi-txt .lvl-bar { width: 190px; }
 .hi-week { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 9px; }
 .hi-week .week-dots { display: inline-flex; gap: 5px; margin: 0; }
-.hi-stats { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.hi-stats .home-ring { flex: none; margin-right: 10px; }
-.hstat { min-width: 96px; text-align: center; padding: 4px 14px; border-left: 1px solid var(--line2); }
-.hstat.click { cursor: pointer; border-radius: 10px; }
-.hstat.click:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
-.hstat .v { font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--text); }
-.hstat .k { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 1px; }
+/* audit HOME-6: the seven pips had nothing saying what they were */
+.hi-week-l { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+
+/* ---- the three figures, on their OWN surface (audit HOME-2) ----
+   These used to be bare text over the banner artwork, on the side the
+   band's gradient deliberately leaves transparent — so "SPEC POINTS" was
+   routinely printed straight through a kanji watermark, and legibility was
+   a property of whichever image the user had uploaded. The cluster carries
+   its own translucent panel now: the artwork is still visible through it,
+   but no figure on this page depends on the artwork for contrast. */
+.hi-stats {
+  display: flex; align-items: stretch; gap: 2px; flex-wrap: wrap;
+  padding: var(--space-2);
+  border-radius: var(--radius-card);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  background: color-mix(in srgb, var(--bg1) 88%, transparent);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-sm);
+}
+.hstat {
+  min-width: 118px; text-align: center;
+  padding: 6px 14px 7px;
+  border-radius: var(--radius-control);
+  display: flex; flex-direction: column; gap: 1px; justify-content: center;
+}
+.hstat + .hstat { border-left: 1px solid var(--line2); }
+.hstat.click { cursor: pointer; }
+.hstat.click:hover { background: color-mix(in srgb, var(--text) 5%, transparent); }
+.hstat .v { font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.hstat .k { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+/* a zero is an answer here, not an accusation — so say what it means */
+.hstat .s { font-size: 10.5px; line-height: 1.3; color: var(--text2); margin-top: 2px; }
 .home-rag { margin-top: 18px; }
 .path-card .todo-panel { height: 100%; }
 .home-side { display: flex; flex-direction: column; gap: 16px; }
@@ -1190,8 +1252,15 @@ body.modal-open #main { overflow: hidden; }
 @keyframes breathe { 50% { transform: scale(1.08); } }
 
 .home-today { display: grid; grid-template-columns: 1.3fr 1fr; gap: var(--grid-gap); margin-bottom: var(--section-gap); align-items: stretch; }
+/* whichever panel survives when the other has nothing takes the full width,
+   rather than sitting beside an empty column (audit HOME-4) */
+.home-today.one-up { grid-template-columns: minmax(0, 1fr); }
 .home-today .todo-panel, .home-side .dl-widget { height: 100%; }
 .home-side { height: 100%; }
+/* both empty: one quiet line where two card-sized boxes used to spend ~280px
+   of the fold saying nothing */
+.home-quiet { margin-bottom: var(--section-gap); }
+.home-quiet .empty-state { border: 1px dashed var(--line2); border-radius: var(--radius-card); padding: var(--space-3) var(--space-4); }
 @media (max-width: 1240px) { .home-today { grid-template-columns: 1fr; } }
 
 .home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--grid-gap); }
@@ -3423,7 +3492,12 @@ body.fx-minimised .fx-dock { display: flex; }
 .med-strip-track span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
 .med-mods { margin-top: 18px; }
 .med-mod-card { cursor: pointer; }
+/* audit HOME-5: the Collection desk sat beside three subject cards in a
+   different shape — no ring, no track, no Continue — so the row read as
+   three cards plus a banner. It is the same component now; this rule only
+   keeps its kanji mark from inheriting a subject hue. */
 .med-home-card { position: relative; }
+.med-home-card .kanji-inline { color: var(--accent); }
 
 .collection-crumbs { margin-bottom: var(--space-2); }
 .collection-workspace-tabs { margin-bottom: var(--section-gap); }
@@ -5442,7 +5516,19 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .hi-status:hover { border-color: var(--accent); color: var(--text); }
 .hi-status > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hi-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); flex: none; }
-.home-id.has-banner .hi-status { background: rgba(0,0,0,.3); border-color: rgba(255,255,255,.22); color: #F4EFE2; }
+/* Cat 7 Phase C: the band used to force a dark pill with pale text whenever a
+   banner existed — a guess that only held for dark artwork. Home's scrim is
+   built from --bg1 and covers the whole band, so the surface under this pill
+   is a known token in both themes and the ordinary treatment is correct. The
+   pill needs a solid ground rather than a translucent tint, because the tint
+   sampled the artwork through the scrim. */
+.home-id.has-banner .hi-status { background: color-mix(in srgb, var(--bg1) 82%, transparent); }
+/* same reasoning for the streak chips and the XP bar: a translucent tint
+   samples the artwork through the scrim, so under a banner they take a
+   solid --bg1 ground. No text on this band depends on the image. */
+.home-id.has-banner .streak-chip { background: color-mix(in srgb, var(--bg1) 80%, transparent); }
+.home-id.has-banner .streak-chip.lit { background: color-mix(in srgb, var(--accent2) 14%, var(--bg1)); }
+.home-id.has-banner .hud-bar { background: color-mix(in srgb, var(--bg1) 70%, transparent); }
 
 /* the shared status/about editor */
 .profile-editor { --modal-max: 520px; }
@@ -7934,6 +8020,32 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
   .home-today > *, .home-grid > *, .subject-grid > * { min-width: 0; }
   .todo-item, .dl-item, .rem-sum-h, .rem-sum-stats, .todo-h { min-width: 0; flex-wrap: wrap; }
   .todo-item > *, .dl-item > * { min-width: 0; }
+
+  /* --- home hero: reflow, do not squeeze (Cat 7 Phase C) ---
+     The three figures wrapped 2-then-1 in a 330px band, leaving a hole and
+     a stat on its own row. Each becomes a full-width ROW instead: the
+     number reads left, its name and the sentence that makes a zero honest
+     read right. Nothing is dropped to make it fit. */
+  .home-id { flex-direction: column; align-items: stretch; gap: var(--space-4); }
+  .hi-main { min-width: 0; }
+  .hi-stats { flex-direction: column; gap: 0; }
+  .hstat {
+    flex-direction: row; align-items: baseline; gap: var(--space-3);
+    text-align: left; min-width: 0; min-height: 44px; padding: 8px 12px;
+  }
+  .hstat + .hstat { border-left: none; border-top: 1px solid var(--line2); }
+  .hstat .v { flex: none; min-width: 68px; }
+  .hstat .k, .hstat .s { min-width: 0; }
+  .hstat .s { margin-top: 0; }
+
+  /* the next-action card: statement over full-width action, never side by
+     side. .hn-txt's row basis is a WIDTH on desktop and would become a
+     340px HEIGHT once the container turns into a column — that is what put
+     a 300px hole between the statement and its button. */
+  .home-next { flex-direction: column; align-items: stretch; gap: var(--space-3); padding: var(--space-4); }
+  .hn-txt { flex: 0 1 auto; }
+  .hn-go { width: 100%; min-height: 44px; }
+  .hn-label { -webkit-line-clamp: 3; }
 
   /* --- tab strips wrap rather than scroll inside themselves --- */
   .tabs-secondary, .study-tabs {

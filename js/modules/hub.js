@@ -401,16 +401,6 @@
   }
 
   /* ---------- views ---------- */
-  function masteredCount() {
-    var n = 0;
-    SUBJECTS.forEach(function (sid) {
-      LEAVES[sid].forEach(function (l) {
-        var p = store.peekProgress(sid, l.ref);
-        if (p && p.check && p.check.every(Boolean)) n++;
-      });
-    });
-    return n;
-  }
 
   /* rank ladder shared by the home profile band and the Governor's Seat */
   var RANKS = [[1, "Novice"], [3, "Apprentice"], [5, "Scholar"], [8, "Adept"],
@@ -430,29 +420,99 @@
     return new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
   }
 
+  /* ---------- what the front page actually measures (Cat 7 Phase C) ----------
+     Home led with `0% covered · 0/355 spec points · 0 mastered` for an account
+     at Level 53 with 1,652 sessions and a 36-day streak (audit HOME-1/G-29).
+     Every one of those figures was TRUE — all the progress records were
+     `status:"none"` — and every one of them told the app's most active user
+     they had done nothing, because they measure a checklist the user does not
+     tick rather than the work the user actually does.
+
+     These three measure the work. Coverage keeps its place on the subject
+     cards, where it is a property of a subject rather than a headline. */
+  function hoursThisWeek() {
+    var cut = Date.now() - 7 * 864e5;
+    var secs = KOS.sessions.all().reduce(function (a, s) {
+      if (s.type === "media" || s.ts < cut) return a;      /* leisure is the rest streak's, not study's */
+      return a + (s.dur || 0);
+    }, 0);
+    return secs / 3600;
+  }
+  function sessionsThisWeek() {
+    var cut = Date.now() - 7 * 864e5;
+    return KOS.sessions.all().filter(function (s) {
+      return s.type !== "media" && s.ts >= cut;
+    }).length;
+  }
+
+  /* ---------- "what should I do next" ----------
+     The one statement the front page leads with. It reads the surfaces that
+     already exist — the focus machine, the SM-2 queue, the merged countdowns,
+     the generated directives, the last topic — and picks the first that has
+     something to say. It creates nothing and writes nothing; every branch
+     hands off to a view that already owns the work. */
+  function nextAction() {
+    /* 1 — a session is already running. Nothing outranks finishing it. */
+    if (KOS.focus && KOS.focus.state && KOS.focus.state() !== "idle") {
+      return { kicker: "In progress", label: "You have a focus session running",
+        why: "Pick it back up where you left it.",
+        cta: "◉ Return to the session", go: function () { KOS.show("focus"); }, live: true };
+    }
+    /* 2 — the review queue. Overdue recall is the most perishable thing here. */
+    var due = KOS.srs.dueCount();
+    if (due) {
+      return { kicker: "Due today", label: KOS.ui.num(due) + " card" + (due === 1 ? "" : "s") + " ready for review",
+        why: "Recall decays on a schedule — this is the queue SM-2 built for today.",
+        cta: "Start reviewing →", go: function () { KOS.show("due"); } };
+    }
+    /* 3 — anything dated and close. countdowns() is the merged read over the
+       calendar and the assignment tracker, so this cannot disagree with the
+       Countdowns panel further down the page. */
+    var soon = (KOS.calendar.countdowns ? KOS.calendar.countdowns(null, 1) : [])[0];
+    if (soon && soon.days <= 7) {
+      return { kicker: soon.days === 0 ? "Today" : soon.days === 1 ? "Tomorrow" : "In " + soon.days + " days",
+        label: soon.title, why: soon.meta,
+        cta: "Open the calendar →", go: function () { KOS.show("calendar"); } };
+    }
+    /* 4 — the first directive still unsealed */
+    var open = (KOS.todo.autoItems() || []).filter(function (a) { return !KOS.todo.isChecked(a.key); })[0];
+    if (open) {
+      return { kicker: "Today's directives", label: open.label,
+        why: "First of today's generated list.", cta: "Go →", go: open.go };
+    }
+    /* 5 — carry on where the reading stopped */
+    for (var i = 0; i < SUBJECTS.length; i++) {
+      var sid = SUBJECTS[i], last = store.state.ui.lastRef[sid];
+      if (last && BYREF[sid][last]) {
+        return { kicker: "Where you left off", label: last + " " + BYREF[sid][last].title,
+          why: KOS_DATA[sid].name, cta: "Continue →",
+          go: (function (s, r) { return function () { KOS.show("ref", { subject: s, ref: r }); }; })(sid, last) };
+      }
+    }
+    /* 6 — a genuinely clear board */
+    return { kicker: "Clear", label: "Nothing is waiting",
+      why: "No cards due, no deadlines inside a week, every directive sealed.",
+      cta: "◉ Begin a focus session", go: function () { KOS.show("focus"); } };
+  }
+  KOS.homeNextAction = nextAction;
+
   KOS.views.home = function (main) {
     hideTree();
-    var totals = { done: 0, total: 0 };
-    SUBJECTS.forEach(function (sid) {
-      var st = subjectStats(sid);
-      totals.done += st.done; totals.total += st.total;
-    });
-    var pct = totals.total ? Math.round(100 * totals.done / totals.total) : 0;
     var stks = KOS.sessions.streaks();
     var dueN = KOS.srs.dueCount();
     var g = store.state.governor;
     var li = KOS.governor.levelInfo(g.xp);
     var hpInfo = KOS.governor.hpStateInfo();
 
-    /* header — the day, not the brand (the topbar already carries the mark) */
-    var fxActive = KOS.focus && KOS.focus.state() !== "idle";
+    /* header — the day, not the brand (the topbar already carries the mark).
+       The focus CTA used to sit on this row and compete with the greeting for
+       width at 390px (audit HOME-8); it is part of the next-action card now,
+       which is where a call to action belongs anyway. */
     main.appendChild(el("div", { class: "home-hero" }, [
-      el("div", {}, [
+      el("div", { class: "hh-txt" }, [
         el("span", { class: "hh-kicker", text: todayLine() }),
         el("h1", { text: greeting() })
-      ]),
-      el("button", { class: "btn primary hh-focus" + (fxActive ? " live" : ""), onclick: function () { KOS.show("focus"); } },
-        [fxActive ? "◉ Return to the session" : "◉ Begin a focus session"])
+      ])
     ]));
 
     /* governor state banner — recovery nudge when HP is low */
@@ -467,17 +527,37 @@
       ]));
     }
 
+    /* ---- the decision surface ----
+       "What should I do next" is the question a front page exists to answer,
+       and Home did not answer it: it opened with four figures about a
+       checklist and left the reader to work out the rest. One statement, one
+       reason, one action — and the action is the page's only primary button,
+       so there is never a question about where to press. */
+    var next = nextAction();
+    main.appendChild(el("section", { class: "home-next" + (next.live ? " live" : ""),
+      "aria-label": "What to do next" }, [
+      el("div", { class: "hn-txt" }, [
+        el("span", { class: "hn-kicker", text: next.kicker }),
+        el("h2", { class: "hn-label", text: next.label }),
+        next.why ? el("p", { class: "hn-why", text: next.why }) : null
+      ].filter(Boolean)),
+      el("button", { class: "btn primary hn-go", text: next.cta, onclick: next.go })
+    ]));
+
     /* ---- the profile band: who you are today ---- */
     var banner = KOS.governor.bannerCss ? KOS.governor.bannerCss() : null;
     var band = el("section", { class: "home-id" + (banner ? " has-banner" : ""), "aria-label": "Profile" });
-    if (banner) KOS.governor.applyBanner(band);
+    /* the band carries text at BOTH ends, so it takes the full scrim rather
+       than the default one that fades out on the right (audit HOME-2) */
+    if (banner) KOS.governor.applyBanner(band, { scrim: "full" });
     var week = [];
     var activeDates = {};
     KOS.sessions.all().forEach(function (s) { if (s.type !== "media") activeDates[s.date] = true; });
     for (var i = 6; i >= 0; i--) {
       var d0 = new Date(Date.now() - i * 864e5);
       var iso = d0.getFullYear() + "-" + ("0" + (d0.getMonth() + 1)).slice(-2) + "-" + ("0" + d0.getDate()).slice(-2);
-      week.push({ on: !!activeDates[iso], today: i === 0 });
+      week.push({ on: !!activeDates[iso], today: i === 0,
+        label: i === 0 ? "Today" : d0.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short" }) });
     }
     /* the ONE identity record — the Governor's Seat and the topbar popover
        render from this same call, so the three surfaces can never drift */
@@ -502,9 +582,16 @@
           el("span", { class: "to-next", text: (li.need - li.into) + " XP to Lv " + (li.level + 1) })
         ]),
         el("div", { class: "hi-week" }, [
-          el("span", { class: "week-dots" }, week.map(function (w) {
-            return el("i", { class: (w.on ? "on" : "") + (w.today && !w.on ? " today" : "") });
-          })),
+          /* audit HOME-6: seven pips with nothing saying what they were. The
+             row now names itself, and each pip carries its own date. */
+          el("span", { class: "hi-week-l", text: "Last 7 days" }),
+          el("span", { class: "week-dots", role: "img",
+            "aria-label": week.filter(function (w) { return w.on; }).length +
+              " of the last 7 days had a study session" },
+            week.map(function (w) {
+              return el("i", { class: (w.on ? "on" : "") + (w.today && !w.on ? " today" : ""),
+                title: w.label + (w.on ? " — studied" : " — nothing logged") });
+            })),
           el("span", { class: "streak-chip" + (stks.all ? " lit" : ""), title: "Days in a row with a real study session" }, [
             el("span", { class: "fl", text: "炎" }),
             el("span", { text: stks.all + "-day study" })
@@ -516,38 +603,71 @@
         ])
       ].filter(Boolean))
     ]));
-    var ringWrap = el("div", { class: "home-ring" });
-    var ringCv = el("canvas", { "aria-label": "Overall completion" });
-    ringWrap.appendChild(ringCv);
-    function bandStat(v, k, onclick) {
-      return el("div", { class: "hstat" + (onclick ? " click" : "") , onclick: onclick || null }, [
+    /* ---- three honest figures (audit HOME-1 / G-29) ----
+       Study streak, cards due and hours logged this week: each one moves the
+       moment the user does something, and each one is generated BY the user
+       rather than by a checklist they may never tick. `sub` says what the
+       number means so a zero is an answer rather than an accusation. */
+    function bandStat(v, k, sub, onclick) {
+      return el("div", { class: "hstat" + (onclick ? " click" : ""), onclick: onclick || null,
+        role: onclick ? "button" : null, tabindex: onclick ? "0" : null,
+        onkeydown: onclick ? function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onclick(); } } : null }, [
         el("div", { class: "v", text: String(v) }),
-        el("div", { class: "k", text: k })
+        el("div", { class: "k", text: k }),
+        el("div", { class: "s", text: sub })
       ]);
     }
-    band.appendChild(el("div", { class: "hi-stats" }, [
-      ringWrap,
-      bandStat(totals.done + " / " + totals.total, "Spec points"),
-      bandStat(masteredCount(), "Mastered"),
-      bandStat(dueN, dueN === 1 ? "Card due" : "Cards due", function () { KOS.show("due"); })
+    var hrs = hoursThisWeek(), sessN = sessionsThisWeek();
+    band.appendChild(el("div", { class: "hi-stats", "aria-label": "This week" }, [
+      bandStat(stks.all, stks.all === 1 ? "Day streak" : "Day streak",
+        stks.all ? "consecutive study days" : "study today to start one"),
+      bandStat(KOS.ui.num(dueN), dueN === 1 ? "Card due" : "Cards due",
+        dueN ? "ready to review now" : "nothing due today", function () { KOS.show("due"); }),
+      bandStat(hrs >= 10 ? Math.round(hrs) : Math.round(hrs * 10) / 10, "Hours this week",
+        sessN ? sessN + (sessN === 1 ? " session" : " sessions") + " in seven days" : "no sessions in seven days")
     ]));
     main.appendChild(band);
 
-    /* ---- today's path + the horizon ---- */
-    var todayRow = el("div", { class: "home-today" });
-    var pathCard = el("section", { class: "path-card" });
-    pathCard.appendChild(KOS.todo.panel());
-    todayRow.appendChild(pathCard);
-    var side = el("div", { class: "home-side" });
-    side.appendChild(KOS.calendar.countdownWidget(null));
-    /* Build 6.4 — urgent assignments, DERIVED from the one record. The card
-       is absent entirely when nothing is due, so Home stays quiet. */
-    if (KOS.assignmentsUrgentCard) {
-      var asgCard = KOS.assignmentsUrgentCard();
-      if (asgCard) side.appendChild(asgCard);
+    /* ---- today's path + the horizon ----
+       audit HOME-4: with nothing on either, these were two card-sized boxes
+       side by side spending ~280px of the fold saying "nothing here". A panel
+       with nothing in it collapses to one line with the action that would put
+       something in it; a panel with content is unchanged. Whichever survives
+       takes the full width rather than sitting beside an empty column. */
+    var hasDirectives = (KOS.todo.autoItems() || []).length > 0 ||
+      ((store.state.reminders && store.state.reminders.items) || []).some(function (r) { return !r.done; });
+    var counts = KOS.calendar.countdowns ? KOS.calendar.countdowns(null, 4).length : 0;
+    var asgCard = KOS.assignmentsUrgentCard ? KOS.assignmentsUrgentCard() : null;
+    var hasHorizon = counts > 0 || !!asgCard;
+
+    if (!hasDirectives && !hasHorizon) {
+      /* one quiet line, not two empty boxes */
+      main.appendChild(el("div", { class: "home-quiet" }, [
+        KOS.ui.emptyState({ compact: true, mark: "澄",
+          title: "Nothing scheduled",
+          body: "No directives, no countdowns, no assignments due. Add a deadline or start a session.",
+          action: el("button", { class: "btn", text: "Calendar →", onclick: function () { KOS.show("calendar"); } })
+        })
+      ]));
+    } else {
+      var todayRow = el("div", { class: "home-today" +
+        (hasDirectives && hasHorizon ? "" : " one-up") });
+      if (hasDirectives) {
+        var pathCard = el("section", { class: "path-card" });
+        pathCard.appendChild(KOS.todo.panel());
+        todayRow.appendChild(pathCard);
+      }
+      if (hasHorizon) {
+        var side = el("div", { class: "home-side" });
+        if (counts) side.appendChild(KOS.calendar.countdownWidget(null));
+        /* Build 6.4 — urgent assignments, DERIVED from the one record. The
+           card is absent entirely when nothing is due, so Home stays quiet. */
+        if (asgCard) side.appendChild(asgCard);
+        todayRow.appendChild(side);
+      }
+      main.appendChild(todayRow);
     }
-    todayRow.appendChild(side);
-    main.appendChild(todayRow);
 
     /* ---- the desks: three subjects + the collection ---- */
     var cards = el("div", { class: "home-cards" });
@@ -590,8 +710,18 @@
       }
       cards.appendChild(card);
     });
-    /* the collection desk */
-    cards.appendChild(el("div", { class: "subj-card med-home-card", style: "--accent:var(--accent)",
+    /* ---- the collection desk ----
+       audit HOME-5: it sat beside three subject cards in a different shape —
+       no ring, no track, no Continue — so the row read as three cards plus a
+       banner. It is the same component now: the same top row with a ring, the
+       same meta line, the same progress track and the same Continue action.
+       The figures arrive asynchronously (the vault is IndexedDB), so the card
+       renders complete and fills in; it never reflows on arrival because the
+       ring and the track are already in the layout. */
+    var medRing = el("canvas", { class: "mini-ring" });
+    var medMeta = el("div", { class: "m", text: "Anime · books · visual novels · games — what you watch, read and play." });
+    var medTrack = el("span", { class: "subj-fill", style: "width:0%" });
+    var medCard = el("div", { class: "subj-card med-home-card", style: "--accent:var(--accent)",
       role: "button", tabindex: "0",
       onclick: function () { KOS.show("matrix"); },
       onkeydown: function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); KOS.show("matrix"); } }
@@ -600,17 +730,67 @@
         el("div", {}, [
           el("h3", {}, [el("span", { class: "kanji-inline", text: "蒐" }), " Collection"]),
           el("span", { class: "b", text: "The other half of the ledger" })
-        ])
+        ]),
+        medRing
       ]),
-      el("div", { class: "m", text: "Anime · books · visual novels · games — what you watch, read and play, with its own rest streak." })
-    ]));
+      medMeta,
+      el("div", { class: "subj-track", "aria-label": "Share of the library completed" }, [medTrack])
+    ]);
+    cards.appendChild(medCard);
+    /* The figures come from a FULL-TABLE cursor scan (mediadb.stats walks
+       every entry — ~1,900 on a real account), so it waits until the card is
+       actually on screen rather than running on Home's cold boot. Same
+       IntersectionObserver idiom the vaults use for their batches
+       (invariant #8), and the same consequence: with no observer the card
+       keeps its honest static description instead of blocking the page. */
+    function fillCollectionCard() {
+      if (!KOS.mediadb || !KOS.mediadb.stats) return;
+      KOS.mediadb.stats(function (err, agg) {
+        if (err || !agg || !medCard.isConnected) return;
+        var done = 0, going = 0;
+        Object.keys(agg.modules).forEach(function (m) {
+          done += agg.modules[m].completed || 0;
+          going += agg.modules[m].inProgress || 0;
+        });
+        var pctDone = agg.total ? Math.round(100 * done / agg.total) : 0;
+        medMeta.textContent = KOS.ui.num(done) + "/" + KOS.ui.num(agg.total) + " completed · " +
+          KOS.ui.num(going) + " in progress" + (stks.rest ? " · 休 " + stks.rest + "-day rest streak" : "");
+        medTrack.style.width = pctDone + "%";
+        miniRing(medRing, pctDone, tokenColor("--accent", "#5D6BA8"));
+        /* the same Continue affordance the subject cards carry: the vault
+           with something actually open in it */
+        var best = null;
+        Object.keys(agg.modules).forEach(function (m) {
+          if (!best || agg.modules[m].inProgress > agg.modules[best].inProgress) best = m;
+        });
+        if (best && agg.modules[best].inProgress) {
+          var NAMES = { anime: "Anime", books: "Books", vn: "Visual Novels", game: "Games" };
+          medCard.appendChild(el("button", {
+            class: "continue mini", style: "--accent:var(--accent)",
+            onclick: function (e) { e.stopPropagation(); KOS.show(best); }
+          }, [
+            el("span", { class: "d", text: "Continue" }),
+            el("b", { text: NAMES[best] + " · " + agg.modules[best].inProgress + " in progress" })
+          ]));
+        }
+      });
+    }
     main.appendChild(cards);
+    if (typeof window.IntersectionObserver === "function") {
+      var medObs = new window.IntersectionObserver(function (entries) {
+        if (!entries.some(function (e) { return e.isIntersecting; })) return;
+        medObs.disconnect();
+        fillCollectionCard();
+      /* a generous margin: the point is to get the scan OFF the render pass,
+         not to make the reader scroll for a figure that is one row below the
+         fold on most desktops */
+      }, { root: document.getElementById("main"), rootMargin: "900px" });
+      medObs.observe(medCard);
+    }
 
     /* struggling topics across all subjects (FR-3.3) */
     var ragPanel = KOS.rag.panel(null);
     if (ragPanel) { ragPanel.classList.add("home-rag"); main.appendChild(ragPanel); }
-
-    bigRing(ringCv, pct);
   };
 
   /* canvas rings read their colours from the live theme tokens */
@@ -618,32 +798,14 @@
     var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     return v || fallback;
   }
-  function bigRing(canvas, pct) {
-    var dpr = window.devicePixelRatio || 1, size = 108;
-    canvas.width = size * dpr; canvas.height = size * dpr;
-    canvas.style.width = size + "px"; canvas.style.height = size + "px";
-    var ctx = canvas.getContext("2d");
-    if (!ctx || !ctx.scale) return;
-    ctx.scale(dpr, dpr);
-    var cx = size / 2, cy = size / 2, r = 44;
-    ctx.lineWidth = 8; ctx.lineCap = "round";
-    ctx.strokeStyle = tokenColor("--well", "#E7DFCC");
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
-    if (pct > 0) {
-      var grad = ctx.createLinearGradient(0, 0, size, size);
-      grad.addColorStop(0, tokenColor("--accent", "#5D6BA8"));
-      grad.addColorStop(1, tokenColor("--accent2", "#A97F2F"));
-      ctx.strokeStyle = grad;
-      ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct / 100); ctx.stroke();
-    }
-    ctx.fillStyle = tokenColor("--text", "#332C20");
-    ctx.font = "600 22px Fraunces, Georgia, serif";
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(pct + "%", cx, cy - 5);
-    ctx.fillStyle = tokenColor("--muted", "#97896D");
-    ctx.font = "8px 'IBM Plex Mono', monospace";
-    ctx.fillText("COVERED", cx, cy + 14);
-  }
+  /* bigRing is retired (Cat 7 Phase C · audit HOME-1/HOME-2). It painted
+     "N% / COVERED" in 22px and 8px canvas text directly onto the profile
+     banner: at 0% it was the front page's largest element telling an active
+     user they had done nothing, and its label was routinely swallowed by the
+     artwork behind it. Coverage now lives on the subject cards, where it is a
+     property of a subject rather than a headline, and every hero figure sits
+     on a real surface instead of on an image. miniRing stays — it is the
+     subject cards' ring, and now the Collection card's. */
   function miniRing(canvas, pct, color) {
     var dpr = window.devicePixelRatio || 1, size = 52;
     canvas.width = size * dpr; canvas.height = size * dpr;

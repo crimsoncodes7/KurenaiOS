@@ -51,7 +51,7 @@ node tools/smoke39.test.js # Phase 2 Live2D binding: closed release gate (no SDK
 node tools/smoke41.test.js # Category 7 staleness guard: the monotonic __seq on the state document, the reproduced 8 Aug 2026 incident (a stale device with one real edit must not clobber a newer cloud copy), the refusal raising a conflict instead of an error, both resolveStale outcomes, an undisturbed two-device round trip, and a restore still outranking the guard
 node tools/smoke40.test.js # Category 7 Phase A: the note pager scrolling only on a reader-initiated page turn (B-04), the lazy area rooting on #main and refilling while the sentinel stays in range (B-05), Mangaka on the shared lazy area with author search and a filtering A–Z rail (B-06), #app dvh-with-vh-fallback and the phone tier's tab-bar clearance
 node tools/smoke42.test.js # Category 7 Phase B: the five-breakpoint contract (only 1240/1080/860/700/560, no width bands, no narrower-tier-above-wider inversions), the Dialog primitive (role/aria-modal/name-from-heading, focus trap, scroll lock, focus restore, Escape, danger-safe confirmations) and its source contract, the three Tabs variants, EmptyState/StatTile zero suppression, the scroll-affordance contract, locale numbers, cover loading state and the skip link
-node tools/smoke43.test.js # Category 7 Phase C (Study): the spine as the ONE section list (inherited bar + subsection tally, active-topic reveal, dismissible overlay drawer at ≤860), content-first geometry (one header row, one navigation layer, nothing between header and content), the single state surface (Topic Status in the inspector, mastery once, material counts once, header/field over one store value), compact note-page navigation (stepper + disclosure, B-04 scroll rule), flashcard/quiz keyboard control incl. text-field and self-removal guards, and the REF-5/7/10 + SUBJ-4/5/6 fixes
+node tools/smoke43.test.js # Category 7 Phase C (Study + Home): the spine as the ONE section list (inherited bar + subsection tally, active-topic reveal, dismissible overlay drawer at ≤860), content-first geometry (one header row, one navigation layer, nothing between header and content), the single state surface (Topic Status in the inspector, mastery once, material counts once, header/field over one store value), compact note-page navigation (stepper + disclosure, B-04 scroll rule), flashcard/quiz keyboard control incl. text-field and self-removal guards, the REF-5/7/10 + SUBJ-4/5/6 fixes, and Home (activity-based headline figures against an active-but-unticked account, the next-action decision surface and its priority order, collapsing empty Directives/Countdowns, the Collection card as the same component, the mandatory hero scrim, labelled week pips, and the vault staying closed on Home's render pass)
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
@@ -129,7 +129,7 @@ green on 2026-07-13; all 17 on 2026-07-16; all 18 plus the phone/tablet CDP
 audit on 2026-07-17; all 19 on 2026-07-17; all 38 on 2026-08-07; all 39 plus
 the visual audit on 2026-08-07; all 40 on 2026-08-08; all 42 plus the visual audit and a
 480-cell responsive sweep on 2026-08-08; all 43 plus a 108-cell Study sweep
-(9 widths × 2 themes) and Dawn/Dusk screenshots on 2026-08-08.
+(9 widths × 2 themes) and Dawn/Dusk screenshots on 2026-08-08; all 43 again after the Home pass, with a 192-cell sweep and the visual audit, on 2026-08-08.
 
 **Edge Functions** (Build 4c, `supabase/functions/`): deploy with
 `supabase functions deploy <name>`; secrets via `supabase secrets set` only
@@ -431,6 +431,36 @@ Collected from every build. If a change would break one of these, stop and say s
     and must refuse to grade a card that is still face-down. Shortcuts are
     printed in the UI (a legend under the card, the number on each grading
     button and each quiz option), not documented elsewhere.
+
+**Home (Category 7 Phase C)**
+54. **Home measures activity, not an unticked checklist.** The headline
+    figures are study streak · cards due · hours this week, each carrying a
+    line that makes a zero an ANSWER rather than an accusation. Coverage and
+    spec-point tallies belong to the subject cards, not the hero — the front
+    page once told an account at Level 53 with 1,652 sessions that it was
+    `0% covered · 0 mastered`. Any new hero figure must move when the user
+    does something.
+55. **One decision surface, one primary button.** `nextAction()` answers
+    "what next" in priority order — running session · cards due · anything
+    dated inside a week · the first unsealed directive · where you left off ·
+    a clear board — by READING surfaces that already exist (it shares
+    `KOS.calendar.countdowns()` with the panel below it, so the two cannot
+    disagree) and writing nothing. `.home-next` is the page's only
+    `.btn.primary`; do not put a second call to action on the greeting row.
+56. **No text on a banner may depend on the banner.** A host that carries
+    text at both ends takes `applyBanner(node, {scrim:"full"})`, and any
+    figure sitting over artwork carries its own `--bg1` surface. Never style
+    text for "dark artwork" merely because a banner exists — `bannerIsDark()`
+    returns true for every custom image, which is a scrim declaration, not a
+    measurement of the picture.
+57. **An empty panel collapses; it does not reserve a card.** Home's
+    Directives and Countdowns fall back to one compact `KOS.ui.emptyState`
+    line carrying the action that would fill them, and a single populated
+    panel takes the full width (`.home-today.one-up`). The Collection card is
+    the `.subj-card` component — same ring, track, meta line and Continue —
+    and its `mediadb.stats` full-table scan is gated on an
+    IntersectionObserver: Home must not open the media vault on its render
+    pass.
 
 **Calendar & the event model (Build 6.6)**
 41. `KOS.calendar.normalise()` is the SINGLE schema gate for an event — every
