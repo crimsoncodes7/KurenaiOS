@@ -77,7 +77,13 @@ step("canonical tokens exist and the legacy names alias them", async () => {
 });
 step("all 23 lab themes have :root[data-theme] blocks matching the catalog", async () => {
   const themes = KOS.governor.catalog().filter(c => c.kind === "theme");
-  if (themes.length !== 23) throw new Error("23 themes expected, got " + themes.length);
+  if (themes.length !== 25) throw new Error("25 themes expected (23 paid + 2 free), got " + themes.length);
+  /* an unpinned install must follow the device, in CSS so there is no
+     light-palette flash before scripts run (audit G-06) */
+  if (!/@media \(prefers-color-scheme: dark\)/.test(css))
+    throw new Error("no prefers-color-scheme rule — an unpinned install cannot follow the device");
+  if (!/:root:not\(\[data-theme\]\)[^{]*\{[^}]*--bg0/.test(css.replace(/\s+/g, " ")))
+    throw new Error("the system-dark rule does not target an unpinned :root");
   for (const t of themes) {
     if (!css.includes(':root[data-theme="' + t.theme + '"]')) throw new Error("no CSS block for " + t.theme);
   }

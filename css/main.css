@@ -3802,6 +3802,77 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
    tokens; every derived surface recomputes via color-mix.
    MUST target :root — derived tokens are computed there.
    ============================================================ */
+/* ============================================================
+   Atelier Dawn / Atelier Dusk — the two FREE themes, and the
+   system default.
+
+   Every other theme is a 140-gold shop unlockable, which meant a
+   new user whose device is in dark mode got a bright parchment app
+   and had to grind currency to escape it (audit G-06). These two
+   cost nothing and are always owned.
+
+   The contract:
+     no data-theme (or an empty one) = FOLLOW THE SYSTEM
+     data-theme="atelier-dawn"       = pinned light
+     data-theme="atelier-dusk"       = pinned dark
+   applyCosmetics() writes "" for an unset/unknown theme, so the
+   media query below is what an untouched install gets. It is pure
+   CSS on purpose — it applies before any script runs, so a dark-mode
+   device never flashes the light palette on load.
+   ============================================================ */
+
+/* Atelier Dusk — the Dawn identity after dark: warm ink ground,
+   the same dusk-iris / brass / sage, lifted for a dark field.
+   text 13.48 : text2 8.64 : muted 4.61 against every surface. */
+:root[data-theme="atelier-dusk"] {
+  --bg0: #161310;
+  --bg1: #1E1A15;
+  --panel: #26211A;
+  --text: #F3EBDC;
+  --text2: #C5BEB0;
+  --muted: #90897E;
+  --accent: #8E9BD8;
+  --accent2: #D8AC5A;
+  --accent3: #9DBE95;
+  --good: #8FC07C;
+  --warning: #E3B45C;
+  --danger: #E2836A;
+  --radius: 12px;
+}
+/* Atelier Dawn — the base :root values, pinned explicitly, so someone on a
+   dark device can choose to stay light. */
+:root[data-theme="atelier-dawn"] {
+  --bg0: #EFE7D6;
+  --bg1: #F8F3E6;
+  --panel: #FDFAF1;
+  --text: #332C20;
+  --text2: #5E5442;
+  --muted: #726751;
+  --accent: #5D6BA8;
+  --accent2: #A97F2F;
+  --accent3: #7D9B76;
+  --good: #6F9A5E;
+  --warning: #C0912F;
+  --danger: #B5573F;
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]), :root[data-theme=""] {
+    --bg0: #161310;
+    --bg1: #1E1A15;
+    --panel: #26211A;
+    --text: #F3EBDC;
+    --text2: #C5BEB0;
+    --muted: #90897E;
+    --accent: #8E9BD8;
+    --accent2: #D8AC5A;
+    --accent3: #9DBE95;
+    --good: #8FC07C;
+    --warning: #E3B45C;
+    --danger: #E2836A;
+  }
+}
+
 /* Spectral Rose — Blue-black lacquer, wine red, cyan rim-light and ember orange. */
 :root[data-theme="spectral-rose"] {
   --bg0: #07090F;

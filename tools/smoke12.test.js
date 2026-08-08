@@ -443,7 +443,16 @@ step("catalog: rebalanced prices + the new kinds exist; cosmetics apply their cl
    "seal-sakura", "seal-rai", "seal-hoshi", "frame-amethyst"].forEach(id => {
     if (!KOS.governor.item(id)) throw new Error("missing item " + id);
   });
-  if (cat.filter(c => c.kind === "theme").length !== 23) throw new Error("23 lab themes expected");
+  /* 23 lab themes at 140 gold, plus the two FREE Atelier themes (audit G-06:
+     dark mode must not cost currency). Free means price 0 AND owned without
+     a purchase record. */
+  const themes = cat.filter(c => c.kind === "theme");
+  const paid = themes.filter(c => c.price === 140), free = themes.filter(c => c.price === 0);
+  if (paid.length !== 23) throw new Error("23 paid lab themes expected, got " + paid.length);
+  if (free.length !== 2) throw new Error("2 free themes expected, got " + free.length);
+  ["theme-atelier-dawn", "theme-atelier-dusk"].forEach(id => {
+    if (!KOS.governor.owns(id)) throw new Error(id + " must be owned without buying it");
+  });
   if (!cat.filter(c => c.kind === "theme").every(c => Array.isArray(c.sw) && c.sw.length === 3)) throw new Error("theme swatches missing");
   if (cat.filter(c => c.kind === "shelfskin").length !== 3) throw new Error("3 shelf skins expected");
   if (cat.filter(c => c.kind === "shrinestyle").length !== 3) throw new Error("3 shrine styles expected");

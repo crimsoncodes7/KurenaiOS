@@ -1069,12 +1069,13 @@ controls always carry a name. Status changes are announced.
 | B-06 — Mangaka renders the whole library | **Fixed** | 144,276px → 9,970px at 900 authors; smoke40. |
 | G-16 — the phone tier clips instead of reflowing | **Fixed** | 0 overflowing elements at 390px on all five views (`tools/phone_overflow.mjs`). |
 | **GOV-1 — the Governor seat clips at 390px** | **Fixed later** | Phase A validated this against an *empty* account, where the seat happens to fit. With the real account it still overflowed 114px and clipped 136px. Fixed in `a3b0016`: 8 → 0 overflowing. |
+| G-06 — dark mode is paywalled and OS preference ignored | **Fixed** | Two FREE themes (Atelier Dawn / Atelier Dusk, price 0, owned without purchase), and an unpinned install now follows `prefers-color-scheme` in pure CSS so a dark device never flashes the light palette before scripts run. The 23 shop themes are unchanged. |
 | G-08 — the three-level type hierarchy exists only in the default theme | **Fixed** | Every one of the 23 dark themes now defines its own `--text2` and `--muted`, derived from that theme's own text hue against its own surfaces, each clearing 4.5:1 on ground/paper/raised. No more shared blue-grey on warm themes. |
 | G-09 — default-theme secondary text fails AA | **Fixed (light) / partial (structure)** | `--muted` #97896D → #726751: 4.52 / 5.02 / 5.33. The hierarchy stays compressed (text2 : muted ≈ 1.34) because the Atelier surfaces span only ~4% luminance; moving `--text2` makes it worse, so opening it further needs a deliberate surface change, deferred as a design decision. |
 | **The 8 Aug data-loss incident** | **Fixed** | Not in the original audit — found in production after Phase A. A dormant device with one real edit still overwrote a newer cloud copy wholesale. A monotonic `__seq` staleness guard now refuses the push and raises a conflict. Covered by smoke41 and by `tools/cloud_staleness_live.mjs` **against the real Supabase database, two independent devices, end to end**. |
 
-**Phase B in progress** — the theme-system pass is done (G-08, G-09). Next:
-free/system dark mode, breakpoint consolidation, shared primitives.
+**Phase B in progress** — the theme-system pass and free/system dark mode are done
+(G-06, G-08, G-09). Next: breakpoint consolidation, then shared primitives.
 
 **Lesson carried forward:** an empty test account hides most layout failures.
 Density seeding is now part of verifying any responsive fix — GOV-1 survived a
