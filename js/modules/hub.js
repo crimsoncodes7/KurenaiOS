@@ -1353,23 +1353,27 @@
           var article = el("article", { class: "notes-article" });
           var foot = el("div", { class: "note-pager-foot" });
           var cur = 0;
-          var showPage = function (i) {
+          /* `moved` is true only when the READER changed page (a pill or a
+             prev/next button). Scrolling the article into view on the first
+             mount landed them mid-article, with the title, the topic-status
+             band and the study tabs already scrolled off the top. */
+          var showPage = function (i, moved) {
             cur = Math.max(0, Math.min(pages.length - 1, i));
             pager.querySelectorAll(".note-page-tab").forEach(function (b, j) {
               b.classList.toggle("active", j === cur); });
             article.innerHTML = KOS.content.renderBlocks(pages[cur].blocks);
             KOS.content.typeset(article);
-            if (article.scrollIntoView) article.scrollIntoView({ block: "nearest" });
+            if (moved && article.scrollIntoView) article.scrollIntoView({ block: "nearest" });
             foot.innerHTML = "";
             if (cur > 0) foot.appendChild(el("button", { class: "btn", text: "‹ " + pages[cur - 1].title,
-              onclick: function () { showPage(cur - 1); } }));
+              onclick: function () { showPage(cur - 1, true); } }));
             foot.appendChild(el("span", { class: "note-pager-count", text: (cur + 1) + " / " + pages.length }));
             if (cur < pages.length - 1) foot.appendChild(el("button", { class: "btn", text: pages[cur + 1].title + " ›",
-              onclick: function () { showPage(cur + 1); } }));
+              onclick: function () { showPage(cur + 1, true); } }));
           };
           pages.forEach(function (pg, i) {
             pager.appendChild(el("button", { class: "note-page-tab", role: "tab", "data-i": i,
-              onclick: function () { showPage(i); } }, [(i + 1) + ". " + pg.title]));
+              onclick: function () { showPage(i, true); } }, [(i + 1) + ". " + pg.title]));
           });
           panel.appendChild(pager);
           panel.appendChild(article);
