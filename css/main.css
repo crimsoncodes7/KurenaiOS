@@ -255,7 +255,10 @@ small { font-size: 12.5px; }
 /* ============================================================
    App frame
    ============================================================ */
-#app { position: relative; z-index: 1; height: 100vh; display: flex; flex-direction: column; }
+/* 100vh is the fallback for engines without dynamic viewport units; 100dvh
+   wins where it is supported, so the layout tracks a mobile browser's
+   collapsing address bar instead of running under it. */
+#app { position: relative; z-index: 1; height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
 
 /* ---------- topbar: the desk's brass rail ---------- */
 #topbar {
@@ -7344,4 +7347,78 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
   .cal-d-row { flex-direction: column; gap: 1px; }
   .cal-d-k { flex: none; }
   .cdr-when { flex: 0 0 62px; }
+}
+
+/* ============================================================
+   Category 7 Phase A — the phone tier reflows instead of clipping
+
+   Machine-measured at 390×844 (tools/phone_overflow.mjs), the audited
+   views placed content past the right edge of the viewport. #app is
+   overflow-hidden, so document.scrollWidth never grew and nothing looked
+   wrong to a scrollWidth check — the content was simply amputated and
+   unreachable. Everything below reflows: one column, wrapping rows,
+   controls that fill the width. Nothing here hides overflow to make the
+   measurement go away, and nothing drops below 11px.
+
+   This block is deliberately LAST in the file so it settles the cascade
+   against the six earlier max-width:700px blocks. Consolidating those is
+   Phase B.
+   ============================================================ */
+@media (max-width: 700px) {
+  /* the bottom tab bar is fixed, so #main must reserve its height (measured
+     64px) plus the home-indicator inset — otherwise the last row of every
+     page sits under it */
+  :root { --tabbar-h: 64px; }
+  #main { padding-block-end: calc(var(--tabbar-h) + var(--space-5) + env(safe-area-inset-bottom)); }
+
+  /* --- subject: the desk band stacks instead of scrolling sideways ---
+     .subject-units is a flex row of 160px-minimum stat cells inside an
+     overflow-x:auto box. On a phone that hid Papers 2–3 behind a sideways
+     scroll nobody discovers. One column, each stat full width. */
+  .subject-units { flex-direction: column; overflow-x: visible; }
+  .unit-lead { min-width: 0; padding: 14px 16px; }
+  .ul-txt { min-width: 0; }
+  .unit-stat {
+    min-width: 0; padding: 13px 16px;
+    border-left: none; border-top: 1px solid var(--line2);
+  }
+  /* the value can use the full row now, so it no longer needs truncating */
+  .unit-stat strong { white-space: normal; overflow: visible; }
+
+  /* --- home: let the single-column grid tracks actually shrink ---
+     A grid item's default min-width:auto is its min-content, so .path-card
+     and .home-side stayed 400px wide inside a 366px track and spilled. */
+  .home-today > *, .home-grid > *, .subject-grid > * { min-width: 0; }
+  .todo-item, .dl-item, .rem-sum-h, .rem-sum-stats, .todo-h { min-width: 0; flex-wrap: wrap; }
+  .todo-item > *, .dl-item > * { min-width: 0; }
+
+  /* --- tab strips wrap rather than scroll inside themselves --- */
+  .tabs-secondary, .study-tabs {
+    display: flex; flex-wrap: wrap; max-width: 100%;
+    overflow-x: visible;
+  }
+  .study-tabs .study-tab { flex: 0 1 auto; min-width: 0; }
+  .gov-head .gov-tabs { width: 100%; overflow-x: visible; }
+
+  /* --- assistant: the control rail wraps, the presence card reflows ---
+     .asst-tablist was width:max-content in a sideways scroller (532px of
+     tabs in a 380px window); .asst-presence held 490px of content in a
+     354px box with overflow:hidden, which is what cut "Voice on" and
+     "Ready when you are" off mid-phrase. */
+  .asst-tabs, .asst-tabs.is-collapsed { overflow-x: visible; }
+  .asst-tablist { flex-wrap: wrap; width: auto; }
+  .asst-tab-group { flex-wrap: wrap; }
+  .asst-tabs .study-tab, .asst-tabs.is-collapsed .study-tab { min-width: 0; }
+  .asst-tab-text { overflow: visible; white-space: normal; }
+  .asst-presence { grid-template-columns: minmax(0, 1fr) 84px; height: auto; min-height: 98px; }
+  .asst-presence-copy { min-width: 0; }
+  .asst-presence-copy h3 { overflow-wrap: anywhere; }
+  .asst-presence .asst-status-line { max-width: 100%; overflow-wrap: anywhere; }
+  /* the decorative wash bled 110px past its card on purpose; on a phone
+     that is 113px past the viewport, so pull it in */
+  .asst-presence-wash { inset: -60px -16px auto; }
+
+  /* --- governor: the seat hero wraps instead of holding a fixed row --- */
+  .gov-seat-hero { flex-wrap: wrap; }
+  .gov-seat-hero > * { min-width: 0; }
 }
