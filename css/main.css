@@ -45,7 +45,14 @@
   --panel: #FDFAF1;
   --text: #332C20;
   --text2: #5E5442;
-  --muted: #97896D;
+  /* Category 7 / G-09: was #97896D — 3.10:1 on --bg1, and this token carries
+     every field label, empty state and sub-line at 9–13px across the whole
+     app, so the default theme failed WCAG AA everywhere. Darkened until it
+     clears 4.5:1 on ALL THREE light surfaces (ground, paper, raised). The
+     cost is that secondary and tertiary text sit closer together than they
+     did — the Atelier palette's surfaces are only 4% apart in luminance, so
+     an accessible tertiary has nowhere lighter to go. */
+  --muted: #726751;
   --accent: #5D6BA8;   /* dusk iris — the ink of the house       */
   --accent2: #A97F2F;  /* brass — gold leaf, currency, warmth     */
   --accent3: #7D9B76;  /* sage — the quiet green of the fields    */
