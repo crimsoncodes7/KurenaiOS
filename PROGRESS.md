@@ -3388,3 +3388,64 @@ cancellation, syntax tokens, character hit areas, sidebar collapse and project
 creation. The release gate includes smoke1–38, the Chrome visual audit, desktop
 and mobile interaction checks and an offline PWA pass. Service-worker version:
 `kos-assistant-character-1`.
+
+---
+
+## CATEGORY 7 — UI/UX AUDIT AND PHASE A (8 August 2026)
+
+**The audit.** `KURENAIOS_FULL_UI_UX_AUDIT.md` — 30 views exercised against a
+real signed-in account (1,880 media entries, 1,652 sessions, Level 53), at four
+viewports in both themes. 12 functional bugs, 30 UI/UX findings, a 35-screen
+redesign matrix, a seven-phase roadmap. Evidence in `audit-evidence/`
+(gitignored, 161 screenshots + probe JSON).
+
+**Phase A — complete and verified.** `main` at `dc44fe4`. Release gate is now
+**41 suites**, all green.
+
+- **B-01/B-02/B-07 — cloud sync hijacking navigation.** `state.ui` and the
+  Collection view preferences are per-device now, excluded from both the pushed
+  document and the dirty hash by ONE shared filter. `rerenderCurrent` redraws
+  the view on screen instead of routing to the remote document's. A page view is
+  no longer a change, so it no longer pushes.
+- **B-03** cosmetics re-apply after a pull; **B-04** a topic opens at the top;
+  **B-05** the lazy area roots on `#main` and keeps filling; **B-06** Mangaka
+  rides the shared lazy area (144,276px → 9,970px at 900 authors) with author
+  search and an A–Z rail.
+- **G-16** the phone tier reflows: 0 overflowing elements at 390px across home,
+  subject, focus, governor and assistant.
+- **GOV-1** needed a second pass (`a3b0016`). Phase A measured it on an EMPTY
+  account, where the Governor seat happens to fit; with real data it still
+  overflowed 114px. Density seeding is now part of verifying a responsive fix.
+
+**The 8 August data-loss incident — fixed.** Not an audit finding; it happened
+in production after Phase A. A phone unopened for weeks was launched and the
+laptop's level 53 (12,476 gold, 72,312 XP, 1,664 sessions, avatar, banner, the
+whole Budget Planner) was replaced by its stale snapshot. Everything in
+`kos_state` regressed together; the Collection survived because the media vault
+is per-entry in IndexedDB. Phase A had closed the trigger (opening the app can
+no longer push) but not the class: one real edit still clobbered.
+
+The state document now carries a monotonic `__seq`. A device whose document
+descends from an older ancestor **refuses to push** and raises a conflict with
+an explicit two-way resolution (`resolveStale`), surfaced on the Archive card.
+This is NOT field-level merging — invariant #33 stands; it is a refusal to
+overwrite. A refused push also holds the state PULL for that cycle, or the pull
+would "resolve" the conflict by discarding this device's edits. Explicit user
+decisions still outrank it: first-link upload, "keep this device",
+`resolveStale("device")`, and a restore re-baseline.
+
+Verified by `tools/smoke41.test.js` (the incident included as a regression test)
+and by `tools/cloud_staleness_live.mjs` — two independent devices against the
+REAL Supabase database, end to end.
+
+**Recovery note.** The lost state was recovered from a browser profile that had
+not yet re-synced, read without booting the app (booting would have pulled the
+regressed copy over it). Rescued document in `recovery/` (gitignored — personal
+data). The user re-imported it and both devices are correct.
+
+**Next: Phase B** — shared design system and layout foundations. Consolidate the
+21 breakpoints to the five declared tiers, split `main.css` into layers, fix the
+colour contract (`--muted` is 3.10:1 on the default theme; all 23 dark themes
+set `--text2 === --text`), ship a FREE dark theme and follow
+`prefers-color-scheme`, and build the shared primitives (Dialog with real focus
+management, Tabs, Card, StatTile, EmptyState, PageHeader).

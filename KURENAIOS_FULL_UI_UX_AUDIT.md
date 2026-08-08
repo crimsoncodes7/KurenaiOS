@@ -1052,6 +1052,29 @@ controls always carry a name. Status changes are announced.
 
 ---
 
+## 10a. Remediation status (updated 8 August 2026)
+
+**Phase A is complete and verified.** Merged as
+[PR #1](https://github.com/crimsoncodes7/KurenaiOS/pull/1) and
+[PR #2](https://github.com/crimsoncodes7/KurenaiOS/pull/2); `main` is at
+`dc44fe4`. The release gate is now **41 suites**, all green.
+
+| Finding | Status | How it was verified |
+|---|---|---|
+| B-01 / B-02 — sync hijacks navigation and clobbers `state.ui` | **Fixed** | Per-device keys excluded from the payload and the dirty hash by one shared filter; `rerenderCurrent` redraws the on-screen view. smoke17 step 4b. |
+| B-07 — every page view dirties the cloud document | **Fixed** | Same filter. A page view no longer pushes. |
+| B-03 — cosmetics not re-applied after a pull | **Fixed** | `applyCosmetics()` called from the pull path; smoke17 asserts it with a spy. |
+| B-04 — topic opens 579px down the page | **Fixed** | `scrollTop` 643 → 0; smoke40. |
+| B-05 — vault lazy loader stalls | **Fixed** | Observer roots on `#main` and refills while the sentinel is in range; smoke40. The originally reported stall could not be reproduced, but both defects were real. |
+| B-06 — Mangaka renders the whole library | **Fixed** | 144,276px → 9,970px at 900 authors; smoke40. |
+| G-16 — the phone tier clips instead of reflowing | **Fixed** | 0 overflowing elements at 390px on all five views (`tools/phone_overflow.mjs`). |
+| **GOV-1 — the Governor seat clips at 390px** | **Fixed later** | Phase A validated this against an *empty* account, where the seat happens to fit. With the real account it still overflowed 114px and clipped 136px. Fixed in `a3b0016`: 8 → 0 overflowing. |
+| **The 8 Aug data-loss incident** | **Fixed** | Not in the original audit — found in production after Phase A. A dormant device with one real edit still overwrote a newer cloud copy wholesale. A monotonic `__seq` staleness guard now refuses the push and raises a conflict. Covered by smoke41 and by `tools/cloud_staleness_live.mjs` **against the real Supabase database, two independent devices, end to end**. |
+
+**Lesson carried forward:** an empty test account hides most layout failures.
+Density seeding is now part of verifying any responsive fix — GOV-1 survived a
+whole phase because nobody measured it with real data.
+
 ## 11. Prioritised Remediation Roadmap
 
 ### Phase A — Critical bugs and broken layouts
