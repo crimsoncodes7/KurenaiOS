@@ -33,6 +33,9 @@
   <span class="petal p4"></span><span class="petal p5"></span><span class="petal p6"></span>
 </div>
 <div id="app">
+  <!-- audit G-12/U-05: reaching page content meant tabbing past 13 chrome
+       controls. #main already carried tabindex="-1"; only the link was missing. -->
+  <a class="skip-link" href="#main">Skip to content</a>
   <header id="topbar">
     <div class="topbar-left">
       <button class="brand" id="brand-home" type="button" title="Home" aria-label="Go to Home">

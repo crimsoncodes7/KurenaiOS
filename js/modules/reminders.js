@@ -157,7 +157,7 @@
           el("button", { class: "btn primary", text: "Save", onclick: save })
         ])
       ]));
-      document.body.appendChild(overlay);
+      KOS.ui.openDialog(overlay);
       nameIn.focus();
     }
 

@@ -689,7 +689,7 @@
       ]));
       overlay.appendChild(node);
       overlay.addEventListener("click", function (e) { if (e.target === overlay) close(); });
-      document.body.appendChild(overlay);
+      KOS.ui.openDialog(overlay);
       return overlay;
     }
 
@@ -749,7 +749,7 @@
           el("button", { class: "btn primary", text: "Save", onclick: save })
         ])
       ]));
-      document.body.appendChild(overlay);
+      KOS.ui.openDialog(overlay);
       input.focus();
     }
     function removeFlow(rec) {

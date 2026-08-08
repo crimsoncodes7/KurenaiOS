@@ -589,7 +589,7 @@
       ])
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     mins.focus();
   }
 
@@ -774,7 +774,7 @@
       results
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     titleIn.focus();
   }
   /* exposed for the Matrix home / other modules to reuse */
@@ -923,29 +923,31 @@
     var heroHolder = el("div", { class: "vh-holder" });
     main.appendChild(heroHolder);
 
-    /* ---- the Physical/Digital tab split (3i) — navigation only ---- */
-    var tabBar = el("div", { class: "bk-tabs", role: "tablist", "aria-label": "Books lens" });
-    function tabBtn(id, kanji, label, hint) {
-      var b = el("button", { class: "bk-tab" + (p.tab === id ? " active" : ""), role: "tab",
-        "aria-selected": p.tab === id ? "true" : "false", "data-tab": id, title: hint,
-        onclick: function () {
-          if (p.tab === id) return;
-          p.tab = id;
-          store.save();
-          tabBar.querySelectorAll(".bk-tab").forEach(function (x) {
-            x.classList.toggle("active", x.dataset.tab === id);
-            x.setAttribute("aria-selected", x.dataset.tab === id ? "true" : "false");
-          });
-          syncToolbar();
-          refresh();
-        } }, [
-        el("span", { class: "bk-tab-k", "aria-hidden": "true", text: kanji }),
-        el("span", {}, [el("b", { text: label }), el("span", { class: "sub bk-tab-hint", text: hint })])
-      ]);
-      return b;
+    /* ---- the Physical/Digital tab split (3i) — navigation only ----
+       Category 7 Phase B: this was the app's THIRD tab idiom (audit G-23);
+       it now builds through KOS.ui.tabs's "card" variant, which is the same
+       two-line-with-a-kanji shape it always had, shared. The .bk-tabs class
+       stays on the container so the Books-specific rules still apply. */
+    var LENSES = [
+      ["digital", "読", "Digital", "reading progress — every tracked series"],
+      ["physical", "蔵", "Physical Vault", "owned volumes only — the real shelf"]
+    ];
+    var tabBar;
+    function buildLenses() {
+      return KOS.ui.tabs(LENSES.map(function (t) {
+        return { label: t[2], glyph: t[1], hint: t[3], active: p.tab === t[0], className: "bk-tab",
+          onSelect: function () {
+            if (p.tab === t[0]) return;
+            p.tab = t[0];
+            store.save();
+            var fresh = buildLenses();
+            tabBar.replaceChildren.apply(tabBar, Array.prototype.slice.call(fresh.childNodes));
+            syncToolbar();
+            refresh();
+          } };
+      }), { variant: "card", label: "Books lens", className: "bk-tabs" });
     }
-    tabBar.appendChild(tabBtn("digital", "読", "Digital", "reading progress — every tracked series"));
-    tabBar.appendChild(tabBtn("physical", "蔵", "Physical Vault", "owned volumes only — the real shelf"));
+    tabBar = buildLenses();
     main.appendChild(tabBar);
 
     /* toolbar — the shared pieces come from the medview toolkit */

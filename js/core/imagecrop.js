@@ -370,7 +370,7 @@
       saveBtn
     ]));
     overlay.appendChild(modal);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     overlay.cropperApi = {
       close: function () { close(false); },
       reset: restore,

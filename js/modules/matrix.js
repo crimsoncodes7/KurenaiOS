@@ -125,7 +125,14 @@
         ]));
         strip.appendChild(card);
       });
-      stripWrap.appendChild(strip);
+      /* audit MTX-1/U-29: this is a real overflow-x scroller, but it had no
+         arrows and no edge fade, so the last card was simply sliced by the
+         container edge and read as a rendering bug. The shared scroller
+         primitive gives it fades, arrows and ← → keys — and marks it
+         data-scroller, which is what tells the responsive probe this
+         sideways scroll is declared rather than accidental. */
+      stripWrap.appendChild(KOS.ui.scroller(strip, { label: "Currently consuming",
+        prevLabel: "Scroll to earlier titles", nextLabel: "Scroll to later titles" }));
       if (current.length > 24) stripWrap.appendChild(el("p", { class: "sub", text: "Showing the 24 most recently touched of " + current.length + " in progress — the full set lives in each module." }));
     });
 

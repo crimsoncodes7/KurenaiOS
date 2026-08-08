@@ -651,7 +651,7 @@
       ])
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     statusIn.focus();
     return overlay;
   }
@@ -766,7 +766,7 @@
     holder.innerHTML = "";
     var wasOpen = !!popNode;
     var btn = el("button", { class: "hud hud-" + state, "aria-haspopup": "dialog", "aria-expanded": "false",
-      title: "Behavioural Governor — HP " + g.hp + " · Level " + li.level + " · " + g.gold + " gold",
+      title: "Behavioural Governor — HP " + g.hp + " · Level " + li.level + " · " + KOS.ui.num(g.gold) + " gold",
       onclick: function () { if (popNode) closeProfilePopover(); else openProfilePopover(); } }, [
       avatarNode(34),
       el("span", { class: "hud-col" }, [
@@ -775,7 +775,7 @@
           el("i", { class: "hud-state-dot", "aria-hidden": "true" }),
           el("span", { text: hpStateInfo().label }),
           el("span", { "aria-hidden": "true", text: "·" }),
-          el("span", { class: "hud-gold", text: "◈ " + g.gold })
+          el("span", { class: "hud-gold", text: "◈ " + KOS.ui.num(g.gold) })
         ])
       ])
     ]);

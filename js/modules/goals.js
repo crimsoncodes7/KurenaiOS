@@ -432,7 +432,7 @@
       ]),
       body, footer
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     titleIn.focus();
   }
   KOS.goalEditor = goalEditor;

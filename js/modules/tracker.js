@@ -152,7 +152,7 @@
         } }) : null
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     topic.focus();
   }
 

@@ -339,12 +339,12 @@
       var vitals = el("div", { class: "vital-stack gov-instruments" }, [
         el("div", { class: "vital" }, [statTile({ cls: "hp", label: "HP", value: displayHp + " / 100", pct: displayHp,
           barCls: "hud-hp", hint: hpPreview === "live" ? displayState.desc : "UI preview · actual HP " + p.hp + "/100", warn: hpCls !== "healthy" })]),
-        el("div", { class: "vital" }, [statTile({ cls: "xp", label: "XP", value: p.xpInto + " / " + p.xpNeed,
-          pct: p.xpPct, barCls: "hud-xp", hint: p.xpToNext + " to level " + (p.level + 1) })]),
-        el("div", { class: "vital" }, [statTile({ cls: "gold", label: "Gold", value: "◈ " + p.gold,
+        el("div", { class: "vital" }, [statTile({ cls: "xp", label: "XP", value: KOS.ui.num(p.xpInto) + " / " + KOS.ui.num(p.xpNeed),
+          pct: p.xpPct, barCls: "hud-xp", hint: KOS.ui.num(p.xpToNext) + " to level " + (p.level + 1) })]),
+        el("div", { class: "vital" }, [statTile({ cls: "gold", label: "Gold", value: "◈ " + KOS.ui.num(p.gold),
           pct: cheapest ? 100 * p.gold / cheapest.price : 100, barCls: "hud-gold",
-          hint: cheapest ? (p.gold >= cheapest.price ? cheapest.name + " is affordable" : (cheapest.price - p.gold) + " to " + cheapest.name) : "Catalogue complete" })]),
-        el("div", { class: "vital" }, [statTile({ cls: "due", label: "Review queue", value: String(dueCount),
+          hint: cheapest ? (p.gold >= cheapest.price ? cheapest.name + " is affordable" : KOS.ui.num(cheapest.price - p.gold) + " to " + cheapest.name) : "Catalogue complete" })]),
+        el("div", { class: "vital" }, [statTile({ cls: "due", label: "Review queue", value: KOS.ui.num(dueCount),
           pct: Math.max(0, 100 - Math.min(100, dueCount * 3)), barCls: "hud-neutral", hint: dueCount ? "Ready in Review" : "Queue clear" })]),
         el("div", { class: "vital" }, [statTile({ cls: "streak", label: "Study streak", value: stks.all + (stks.all === 1 ? " day" : " days"),
           pct: Math.min(100, stks.all / 30 * 100), barCls: "hud-neutral", hint: stks.rest ? stks.rest + " rest day" + (stks.rest === 1 ? "" : "s") + " protected" : "Build from one completed session" })])
@@ -501,7 +501,7 @@
         el("div", { class: "tre-purse" }, [
           el("span", { class: "tre-coin", "aria-hidden": "true", text: "◈" }),
           el("div", {}, [
-            el("div", { class: "tre-amt", text: String(g.gold) }),
+            el("div", { class: "tre-amt", text: KOS.ui.num(g.gold) }),
             el("div", { class: "tre-lbl", text: "gold in the purse" })
           ])
         ]),
@@ -624,14 +624,14 @@
           el("b", { text: it.name })
         ]),
         owned ? el("span", { class: "shop-owned" + (active ? " on" : ""), text: active ? "Active" : "Owned" })
-              : el("span", { class: "shop-price" + (afford ? "" : " short"), text: "◈ " + it.price })
+              : el("span", { class: "shop-price" + (afford ? "" : " short"), text: "◈ " + KOS.ui.num(it.price) })
       ]));
       card.appendChild(el("p", { class: "sub", text: it.desc }));
       if (it.kind === "lab") card.appendChild(el("p", { class: "shop-access-note", text: "Core revision stays free. This unlock adds an interactive practice surface." }));
 
       var foot = el("div", { class: "shop-card-f" });
       if (!owned) {
-        var buyBtn = el("button", { class: "btn gold", text: afford ? "Buy — ◈ " + it.price : "◈ " + (it.price - g.gold) + " more needed",
+        var buyBtn = el("button", { class: "btn gold", text: afford ? "Buy — ◈ " + KOS.ui.num(it.price) : "◈ " + KOS.ui.num(it.price - g.gold) + " more needed",
           onclick: function () {
             var r = KOS.governor.buy(it.id);
             KOS.ui.toast(r.msg, !r.ok);

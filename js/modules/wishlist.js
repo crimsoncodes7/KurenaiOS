@@ -728,7 +728,7 @@
       ])
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     title.focus();
   }
 
@@ -900,7 +900,7 @@
         ])
       ]);
       overlay.appendChild(box);
-      document.body.appendChild(overlay);
+      KOS.ui.openDialog(overlay);
       amount.focus();
     }
 

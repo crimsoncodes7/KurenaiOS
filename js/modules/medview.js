@@ -36,17 +36,36 @@
 
   /* ================= shared display bits ================= */
   /* cover image with lazy load + kanji placeholder fallback (offline or
-     broken URL) — the glyph is the module's kanji */
+     broken URL) — the glyph is the module's kanji.
+
+     Category 7 Phase B (audit G-24/U-15/VLT-2): the placeholder used to
+     appear only on `error` and when coverUrl was empty, so with
+     loading="lazy" a 1,100-item grid opened as a field of empty boxes that
+     read as broken rather than loading. The glyph is now painted from the
+     first frame and the image cross-fades over it on load; on error the
+     image simply never arrives and the glyph is already there. */
   function cover(e, kanji) {
     var box = el("div", { class: "med-cover" });
-    function ph() { return el("span", { class: "med-cover-ph", "aria-hidden": "true", text: kanji }); }
+    function ph(behind) {
+      return el("span", { class: "med-cover-ph" + (behind ? " behind" : ""), "aria-hidden": "true", text: kanji });
+    }
     if (e.coverUrl) {
+      var mark = ph(true);
       var img = KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop);
-      img.addEventListener("error", function () {
-        box.removeChild(img);
-        box.appendChild(ph());
-      });
+      img.classList.add("is-loading");
+      box.classList.add("is-loading");
+      function settled(loaded) {
+        box.classList.remove("is-loading");
+        img.classList.remove("is-loading");
+        if (loaded && mark.parentNode) mark.parentNode.removeChild(mark);
+        if (!loaded && img.parentNode) img.parentNode.removeChild(img);
+      }
+      img.addEventListener("load", function () { settled(true); });
+      img.addEventListener("error", function () { settled(false); });
+      box.appendChild(mark);
       box.appendChild(img);
+      /* a cached image can finish before the listeners attach */
+      if (img.complete && img.naturalWidth) settled(true);
     } else {
       box.appendChild(ph());
     }
@@ -182,10 +201,15 @@
     return pills;
   }
 
-  /* the standard vault empty state — message + centred action buttons */
+  /* the standard vault empty state — message + centred action buttons.
+     Category 7 Phase B: the composition is unchanged (.med-empty and
+     .fc-empty still carry it, and eight call sites still pass the same two
+     arguments), but the text now goes through KOS.ui.emptyState so the
+     vaults share one empty-state shape with the rest of the app rather
+     than each page inventing its own. */
   function emptyState(message, buttons) {
     return el("div", { class: "med-empty" }, [
-      el("p", { class: "fc-empty", text: message }),
+      KOS.ui.emptyState({ body: message, className: "med-empty-inner" }),
       el("div", { class: "lab-controls", style: "justify-content:center" }, buttons || [])
     ]);
   }
@@ -468,7 +492,7 @@
         ])
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     if (opts.focus) opts.focus.focus();
     return overlay;
   }
@@ -645,7 +669,7 @@
       ]),
       input, list
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     input.focus();
     run();
     return overlay;
@@ -925,7 +949,7 @@
       }
 
       overlay.appendChild(box);
-      document.body.appendChild(overlay);
+      KOS.ui.openDialog(overlay);
     });
   }
 
@@ -1025,7 +1049,7 @@
         } })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     setTimeout(function () { nameIn.focus(); }, 30);
   }
 
@@ -1063,7 +1087,7 @@
         el("button", { class: "btn primary", text: "Done", onclick: function () { overlay.close(); done && done(); } })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     fill();
   }
 

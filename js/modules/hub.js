@@ -779,7 +779,7 @@
           el("button", { class: "btn primary", text: "Save note", onclick: function () { notes[key] = ta.value.trim(); store.save(); noteOverlay.remove(); KOS.ui.toast(notes[key] ? "Comparison note saved." : "Comparison note cleared."); } })
         ])
       ]));
-      document.body.appendChild(noteOverlay); ta.focus();
+      KOS.ui.openDialog(noteOverlay); ta.focus();
     }
     var swap = el("button", { class: "btn", text: "⇄ Swap", onclick: function () { var v = selA.value; selA.value = selB.value; selB.value = v; update(); } });
     var modes = [["overview", "Overview"], ["specification", "Specification"], ["notes", "Notes"], ["terms", "Key terms"], ["exam", "Exam focus"], ["progress", "Progress"]];
@@ -800,7 +800,7 @@
         el("button", { class: "btn", text: "✎ Comparison note", onclick: comparisonNote })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     update();
   }
 
@@ -868,7 +868,13 @@
         el("small", { text: ratioText(u.done, u.total) + " secure · " + pctText(upct) })
       ]));
     });
-    main.appendChild(uwrap);
+    /* the unit band is a deliberate sideways scroller on desktop (the phone
+       tier stacks it). Until Phase B it scrolled with no affordance at all,
+       so Papers 2–3 were unreachable in practice at 880–1100px — the same
+       defect as Collection's cover strip (audit SUBJ-3/MTX-1). */
+    main.appendChild(KOS.ui.scroller(uwrap, { label: "Course units",
+      prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units",
+      className: "subject-units-scroller" }));
 
     /* the two-column workspace: sections on the left, context on the right */
     var grid = el("div", { class: "subject-grid" });

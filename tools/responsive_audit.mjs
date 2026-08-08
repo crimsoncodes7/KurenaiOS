@@ -286,12 +286,18 @@ const PROBE = String.raw`(() => {
     if ((n.textContent || "").trim()) return false;
     return !n.querySelector("a, button, input, select, textarea, [tabindex]");
   };
+  /* A DECLARED horizontal scroller is not amputated content. [data-scroller]
+     is set only by KOS.ui.scroller, which guarantees edge fades, arrow
+     controls and arrow-key access — so the content past the edge is
+     reachable and says so. A bare overflow-x:auto still fails: that is the
+     sideways scroll nobody discovers (audit SUBJ-3/MTX-1). */
+  const declaredScroll = n => !!(n.closest && n.closest("[data-scroller]"));
   document.querySelectorAll("#app *").forEach(n => {
     const s = getComputedStyle(n);
     if (s.display === "none" || s.visibility === "hidden" || +s.opacity === 0) return;
     const r = n.getBoundingClientRect();
     if (!r.width || !r.height) return;
-    if (r.right > vw + 0.5 && !decorative(n)) out.push({ sel: label(n), over: Math.round(r.right - vw), w: Math.round(r.width) });
+    if (r.right > vw + 0.5 && !decorative(n) && !declaredScroll(n)) out.push({ sel: label(n), over: Math.round(r.right - vw), w: Math.round(r.width) });
     const text = (n.textContent || "").trim();
     if (text && n.children.length === 0 && /hidden|clip/.test(s.overflowX)
         && !n.classList.contains("sr-only")

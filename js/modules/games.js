@@ -478,7 +478,7 @@
       ])
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     ta.focus();
   }
   KOS.games.bulkAdd = bulkAddModal;
@@ -655,7 +655,7 @@
       body
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     render();
   }
 

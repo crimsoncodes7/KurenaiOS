@@ -307,7 +307,7 @@
         el("button", { class: "btn primary", text: "Save", onclick: save })
       ].filter(Boolean))
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     title.focus();
     return overlay;
   }
@@ -446,7 +446,7 @@
       ]),
       body
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     repaint();
     return overlay;
   }
