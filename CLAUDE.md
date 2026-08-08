@@ -48,6 +48,7 @@ node tools/smoke36.test.js # Shared media record folio: sectioned Anime/Books/VN
 node tools/smoke37.test.js # Study overview + topic shell: the 2×4 subject analytics grid, one tile shape, the full-width action card below it, countdowns kept separate, nothing sticky; statistic consistency (formats, empty states, one colour ramp, quiz-best, no "Not started" beside a ticked check); the one Topic Status component; inspector collapse + tab counts sharing the inspector's numbers; full tab names and the retired Overview/Assignments switcher
 node tools/smoke38.test.js # Collection Goals v2 + Shrine Hall of Fame: automatic/manual measures, structured editor and status views, activity-only anti-farming receipts, featured rank one, ranked filters/sort, crop-aware branded share card
 node tools/smoke39.test.js # Phase 2 Live2D binding: closed release gate (no SDK/Core/model, inert with no runtime, deploy + gitignore blocks), rig-contract mirror (6 motions/4 reactions/fps budgets), seam integration against a stub runtime, write-only ownership, every failure mode falling back to the Phase 1 PNG, frame governing + hidden/offscreen pausing + teardown, and the Krita redraw scaffold vs layer-map.json
+node tools/smoke41.test.js # Category 7 staleness guard: the monotonic __seq on the state document, the reproduced 8 Aug 2026 incident (a stale device with one real edit must not clobber a newer cloud copy), the refusal raising a conflict instead of an error, both resolveStale outcomes, an undisturbed two-device round trip, and a restore still outranking the guard
 node tools/smoke40.test.js # Category 7 Phase A: the note pager scrolling only on a reader-initiated page turn (B-04), the lazy area rooting on #main and refilling while the sentinel stays in range (B-05), Mangaka on the shared lazy area with author search and a filtering A–Z rail (B-06), #app dvh-with-vh-fallback and the phone tier's tab-bar clearance
 ```
 
@@ -105,11 +106,11 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 40 suites are the release gate (smoke17 the
+the current test inventory. All 41 suites are the release gate (smoke17 the
 Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
 Build 4c games integrations, smoke37 the Study overview/topic-shell
 refinement, smoke38 Collection Goals v2 and Shrine Hall of Fame, smoke39 the
-Phase 2 Live2D binding and its closed release gate, smoke40 the Category 7
+Phase 2 Live2D binding and its closed release gate, smoke41 the cloud staleness guard, smoke40 the Category 7
 Phase A bug fixes). Suites 1–16 plus the running-Chrome visual audit were verified
 green on 2026-07-13; all 17 on 2026-07-16; all 18 plus the phone/tablet CDP
 audit on 2026-07-17; all 19 on 2026-07-17; all 38 on 2026-08-07; all 39 plus

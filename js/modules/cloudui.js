@@ -173,6 +173,44 @@
         body.appendChild(bothWrap);
       }
 
+      /* The staleness conflict: this device has been away long enough that
+         its copy no longer descends from the cloud's, and it has edits of
+         its own. Nothing has been overwritten — the engine stopped and is
+         asking. Deliberately worded around what the user will LOSE. */
+      var stale = KOS.cloudsync.staleStatus && KOS.cloudsync.staleStatus();
+      if (stale) {
+        var behind = Math.max(1, stale.remoteSeq - stale.localSeq);
+        var staleWrap = el("div", { class: "cloud-link cloud-stale" });
+        staleWrap.appendChild(el("p", { class: "sub", text:
+          "This device is behind your cloud copy — another device has saved " + behind +
+          " time" + (behind === 1 ? "" : "s") + " since this one last caught up, and this device has changes of its own. " +
+          "Uploading now would replace the newer copy wholesale, so nothing has been sent. Choose which to keep:" }));
+        function staleBtn(choice, label, cls) {
+          var b = el("button", { class: "btn " + cls, text: label, onclick: function () {
+            KOS.ui.confirm({
+              title: label + "?",
+              body: choice === "cloud"
+                ? "The cloud copy replaces this device's study progress, Governor state, planner and settings. Anything changed on THIS device since it fell behind is discarded. The media vault is unaffected — it syncs per entry."
+                : "This device's copy overwrites the newer cloud copy. Anything saved on your other device since this one fell behind is discarded. Export a backup first if you are unsure. The media vault is unaffected.",
+              confirm: choice === "cloud" ? "Use the cloud copy" : "Overwrite the cloud",
+              danger: true
+            }, function () {
+              b.disabled = true;
+              KOS.cloudsync.resolveStale(choice, function (err) {
+                if (err) { b.disabled = false; KOS.ui.toast("Could not resolve (nothing was overwritten — retry any time): " + err.message, true); }
+                render();
+              });
+            });
+          } });
+          return b;
+        }
+        staleWrap.appendChild(el("div", { class: "cloud-btns" }, [
+          staleBtn("cloud", "Use the cloud copy (recommended)", "gold"),
+          staleBtn("device", "Keep this device's copy", "")
+        ]));
+        body.appendChild(staleWrap);
+      }
+
       var row = el("div", { class: "cloud-btns" });
       var syncBtn = el("button", { class: "btn primary", text: "Sync now", onclick: function () {
         syncBtn.disabled = true;
