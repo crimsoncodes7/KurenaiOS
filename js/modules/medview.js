@@ -18,7 +18,8 @@
   "use strict";
   var el = KOS.ui.el;
 
-  var BATCH = 60;   // lazy-render batch size (the 3a scale rule)
+  var BATCH = 60;       // lazy-render batch size (the 3a scale rule)
+  var IO_MARGIN = 600;  // how far past the scroll container we render ahead
   /* display order for pills + editor status dropdowns — deliberately NOT
      mediadb.STATUSES (which is schema order, planned first) */
   var STATUSES = ["inProgress", "planned", "onHold", "completed", "dropped"];
@@ -236,6 +237,33 @@
       rendered = end;
       if (rendered >= results.length && io) { io.disconnect(); io = null; }
     }
+    /* the scroll container the observer must measure against: #main, not the
+       viewport — the whole app scrolls inside it. */
+    function scrollRoot() {
+      var m = document.getElementById("main");
+      return m && holder.ownerDocument && m.contains(holder) ? m : null;
+    }
+    /* IntersectionObserver fires on a TRANSITION. Flick to the bottom and the
+       sentinel lands inside the 600px margin and STAYS there: one batch is
+       appended, no boundary is ever crossed again, and the list looks like it
+       ends (the vault stopped dead at 300 of 692). So after a batch, keep
+       appending while the sentinel is still in range — measured for real, not
+       assumed — until it clears or the results run out. */
+    function fillWhileVisible(myGen) {
+      var root = scrollRoot();
+      var guard = 0;
+      while (myGen === gen && rendered < results.length && ++guard <= 200) {
+        var sRect = sentinel.getBoundingClientRect();
+        var rRect = root ? root.getBoundingClientRect()
+          : { top: 0, bottom: (window.innerHeight || document.documentElement.clientHeight || 0) };
+        /* jsdom and other layout-less hosts report an all-zero rect for
+           everything; treat that as "cannot measure" and stop rather than
+           rendering the entire vault. */
+        if (!sRect.height && !sRect.bottom && !rRect.bottom) return;
+        if (sRect.top > rRect.bottom + IO_MARGIN) return;   // clear of the margin
+        renderBatch(myGen);
+      }
+    }
     /* re-render the current results without a re-query (rank moves etc.) */
     function repaint() {
       var rows = results;
@@ -252,8 +280,11 @@
       }
       io = new IntersectionObserver(function (ents) {
         if (myGen !== gen) return;
-        if (ents.some(function (x) { return x.isIntersecting; })) renderBatch(myGen);
-      }, { root: null, rootMargin: "600px" });
+        if (ents.some(function (x) { return x.isIntersecting; })) {
+          renderBatch(myGen);
+          fillWhileVisible(myGen);
+        }
+      }, { root: scrollRoot(), rootMargin: IO_MARGIN + "px" });
       io.observe(sentinel);
     }
     function start(rows) {
