@@ -34,6 +34,9 @@ mkdir -p "$DIST/js"
 # everything under js/ is runtime (data, content, core, engines, modules,
 # labs, vendor, env.local.js) — copy wholesale
 cp -R js/ "$DIST/js/"
+# env.local.js is the one intentional deployment configuration. The checked-in
+# example is setup documentation, not a runtime asset.
+rm -f "$DIST/js/env.example.js"
 
 # belt-and-braces: nothing development-only may have slipped in
 for banned in tools node_modules supabase Context "Phase 3 Context" .git .idea .claude; do

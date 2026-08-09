@@ -42,6 +42,7 @@ function assert(cond, msg) { if (!cond) throw new Error(msg); }
 const html = read("index.html");
 const sw = read("sw.js");
 const css = read("css/main.css");
+const deploy = read("tools/deploy_pages.sh");
 
 console.log("== manifest + icons ==");
 step("manifest is valid JSON with the required install fields", () => {
@@ -117,6 +118,11 @@ step("the precache derivation matches every local script/stylesheet in index.htm
     if (f === "js/env.local.js") continue;
     assert(fs.existsSync(path.join(ROOT, f)), f + " referenced but missing on disk");
   }
+});
+step("production staging keeps the live env and excludes its setup template", () => {
+  assert(/cp -R js\/ "\$DIST\/js\/"/.test(deploy), "runtime js staging missing");
+  assert(deploy.includes('rm -f "$DIST/js/env.example.js"'),
+    "env.example.js can leak into production staging");
 });
 
 console.log("== page runtime inert without a SW ==");
