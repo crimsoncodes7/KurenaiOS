@@ -1497,6 +1497,19 @@ amputation or tab-bar overlap; 46 phone/tablet device states without horizontal
 overflow; and the specialised 34-capture visual audit. Dawn and Dusk were also
 reviewed manually at 1920, 1440, 820 and 390.
 
+**Release — shipped 9 August 2026.** Phase G was fast-forwarded onto `main`;
+production commit `06893d22ddef02fe04b8514e8f9bc177866878d1` was pushed and
+deployed through the established Cloudflare Pages direct-upload gate. The
+preflight additionally excluded the non-runtime `js/env.example.js` template,
+leaving 153 allowlisted runtime files and service-worker version
+`kos-cat7-phase-g-1`. The production alias and immutable deployment serve
+identical shell assets. Live QA passed routing/history/deep links, grouped
+desktop and canonical mobile search (Enter and click), mobile More, dialog
+Escape/focus restoration, and representative 390/820 layouts. A deployed
+72-cell Dawn/Dusk matrix at 1920/1440/820/390 reported zero overflow or
+amputated text; the deployed 34-capture specialised visual audit also passed.
+Final open counts: **P0 0 · P1 0 · P2 0 · P3 0**.
+
 ---
 
 ## 12. Recommended Implementation Order

@@ -1845,11 +1845,13 @@ app never blocks on it and runs unchanged with no configuration at all.
 
 ## Verification
 
-- `tools/smoke18.test.js` (9 steps): manifest validity + real PNGs, install
+- `tools/smoke18.test.js` (10 steps): manifest validity + real PNGs, install
   metadata, SW parses with all five handlers, skipWaiting only in the
   message handler, no API host in the CDN cache list, non-GET pass-through,
-  precache derivation matches every local tag in index.html, pwa.js inert in
-  jsdom, phone-tier CSS contract. All 18 suites green 2026-07-17.
+  precache derivation matches every local tag in index.html, production staging
+  keeps `env.local.js` but excludes its setup template, pwa.js inert in jsdom,
+  phone-tier CSS contract. All 18 suites green 2026-07-17; the tenth release
+  hygiene step was added with the Category 7 deployment on 2026-08-09.
 - Desktop PWA behaviours (registration, offline shell, update flow) verified
   on localhost Chrome; **localhost testing is NOT proof of iPhone Safari
   behaviour** — see the manual checklist below, which runs against the
@@ -4320,7 +4322,8 @@ neighbour.
 
 Phase G started from the exact integrated A–F checkpoint
 `main@c65be20` after that commit was pushed to `origin/main`. The work stayed
-isolated on `ui/cat7-phase-g-final`; it is not merged or deployed. The
+isolated on `ui/cat7-phase-g-final` through commit `a5cfe92`, then was
+fast-forwarded onto `main`. The
 pre-implementation inventory is preserved in
 `CATEGORY7_PHASE_G_FINDINGS.md` (P0 0 · P1 1 · P2 8 · P3 6 at baseline).
 
@@ -4365,5 +4368,27 @@ pre-implementation inventory is preserved in
   820 and 390. No Phase A–F navigation, search, routing, accessibility, sync,
   reward or data contract changed.
 
-**Phase G is release-ready pending branch integration.** Deployment remains a
-separate explicit operation.
+### Final integration and production release
+
+- `main` was fast-forwarded from `c65be20` to the Phase G commit `a5cfe92`.
+  The deployment preflight then found one non-runtime setup file,
+  `js/env.example.js`, in `dist/`; `06893d2` excludes that template and pins
+  the allowlist in smoke18. Final staging contains 153 runtime files / 31 MB,
+  the intentional ignored `js/env.local.js`, and no audit, test, documentation,
+  secret, Live2D/Krita or `art-source/` material.
+- Production commit `06893d22ddef02fe04b8514e8f9bc177866878d1` was pushed to
+  `origin/main` and deployed through `tools/deploy_pages.sh` to Cloudflare
+  Pages. Immutable deployment: `https://bb17097f.kurenai-os.pages.dev`;
+  production alias: `https://kurenai-os.pages.dev`.
+- The alias and immutable deployment serve identical HTML, CSS and service
+  worker assets. `sw.js` reports `kos-cat7-phase-g-1`; an older installed shell
+  surfaced the safe Update ready prompt and switched cleanly after acceptance.
+- Live production QA passed Home and eight representative routes, Back/Forward,
+  deep-link refresh, invalid-route fallback, grouped desktop search, mobile
+  search by Enter and click, query-preserving close/reopen, mobile More,
+  dialog Escape/focus restoration and the 390/820 compositions. A deployed
+  72-cell matrix (nine surfaces × four widths × Dawn/Dusk) reported zero
+  overflow/amputation; the deployed specialised 34-capture visual audit also
+  passed.
+
+**Category 7 A–G is fully integrated, deployed and production-verified.**
