@@ -845,6 +845,26 @@ step("calendar chips clear 24px with the spacing the exception requires", () => 
     "the decision not to use 44px in a month cell is undocumented");
 });
 
+step("the completion checkboxes and the phone day header clear 24px", () => {
+  /* The Phase F touch pass measured a tree that had no phone Calendar
+     composition yet, and these two are an <input> and a <button> rather
+     than the icon-button family it covered — all three sat at 20–22px at
+     phone width until the E+F integration measured them together. */
+  assert(/\.todo-tick, \.rem-check \{[^}]*width: 24px[^}]*height: 24px/.test(cssRules),
+    "the completion checkboxes are back under the 24px floor");
+  assert(/\.rem-check\.sm \{[^}]*width: 24px/.test(cssRules), "the sub-task check is under 24px");
+  assert(/\.cal-phone-date \{[^}]*min-height: 24px/.test(cssRules),
+    "the phone day header is under the 24px floor");
+  const coarse = cssRules.match(/@media \(pointer: coarse\) \{[\s\S]*?\n\}/g) || [];
+  assert(coarse.some(b => /\.cal-phone-date \{ min-height: 44px/.test(b)),
+    "the phone day header does not take the full 44 on a touch device");
+  /* and the expander must not grow sideways into a neighbour (invariant #69) */
+  const expander = cssRules.match(/\.rem-check::before \{[^}]*\}/);
+  assert(expander, "the reminder check has no hit expander");
+  assert(/left: 0; right: 0/.test(expander[0]) && !/width:/.test(expander[0]),
+    "the hit expander grows horizontally — it must only grow within its own column");
+});
+
 step("the four topic progress checks are a chip, not a 16px box", () => {
   assert(/label\.chk\.ts-chk \{[^}]*min-height: max\(var\(--control-h-sm\), 32px\)/.test(cssRules),
     "the progress checks lost their chip-sized hit area");

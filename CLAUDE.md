@@ -53,8 +53,8 @@ node tools/smoke40.test.js # Category 7 Phase A: the note pager scrolling only o
 node tools/smoke42.test.js # Category 7 Phase B: the five-breakpoint contract (only 1240/1080/860/700/560, no width bands, no narrower-tier-above-wider inversions), the Dialog primitive (role/aria-modal/name-from-heading, focus trap, scroll lock, focus restore, Escape, danger-safe confirmations) and its source contract, the three Tabs variants, EmptyState/StatTile zero suppression, the scroll-affordance contract, locale numbers, cover loading state and the skip link
 node tools/smoke44.test.js # Category 7 Phase D (Collection): the one vault toolbar (six controls, facets behind Filters ▾, commands behind Actions ▾, one primary, zero network on render), the one hero (three-step backdrop, unconditional scrim, no .vh-painted), KOS.ui.menu as a popover not a dialog (ARIA, roving focus, Escape + focus restore, below --z-modal), the genre/tag/rare facet split with counts, Mangaka (bounded author cards, four real filters, letter dividers, lazy batch), the Overview (one small-multiples row, no total printed twice, zero tiles suppressed, no distribution from one rating), chart readability (axis, gridlines, 11px floor, wrapped labels) and the one progress grammar
 node tools/smoke45.test.js # Category 7 Phase F accessibility/interaction/routing: hash routes over pushState (every view, deep links, browser Back/Forward, a `_nav` redraw pushing nothing, invalid routes failing to Home), the one polite + one assertive live region and the sync chip's announcement policy, accessible names across 29 views AND eight modal forms, no ARIA button holding an interactive descendant, Space on role="button", el() omitting a null attribute, the Phase B dialog contract re-asserted, menus dismissing without locking scroll, cross-domain search (grouping, combobox ARIA, keyboard, correct routing, nothing private) and the touch-target contract
+node tools/smoke46.test.js # Category 7 Phase E responsive/mobile shell: single-column Focus and two-row minimised dock; one-line active-revealing section nav; four phone destinations + More; same-node global-search sheet and canonical shortcut/cancel seams; one safe-area clearance; compact Reminders/vault disclosure; phone Calendar density/agenda and live breakpoint recomposition; deterministic real-Ref responsive fixture
 node tools/smoke43.test.js # Category 7 Phase C (Study + Home): the spine as the ONE section list (inherited bar + subsection tally, active-topic reveal, dismissible overlay drawer at ≤860), content-first geometry (one header row, one navigation layer, nothing between header and content), the single state surface (Topic Status in the inspector, mastery once, material counts once, header/field over one store value), compact note-page navigation (stepper + disclosure, B-04 scroll rule), flashcard/quiz keyboard control incl. text-field and self-removal guards, the REF-5/7/10 + SUBJ-4/5/6 fixes, and Home (activity-based headline figures against an active-but-unticked account, the next-action decision surface and its priority order, collapsing empty Directives/Countdowns, the Collection card as the same component, the mandatory hero scrim, labelled week pips, and the vault staying closed on Home's render pass)
-node tools/smoke45.test.js # Category 7 Phase E: single-column Focus and two-row minimised dock; one-line active-revealing section nav; four phone destinations + More; same-node global-search sheet and canonical shortcut/cancel seams; one safe-area clearance; compact Reminders/vault disclosure; phone Calendar density/agenda and live breakpoint recomposition; deterministic real-Ref responsive fixture
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
@@ -586,7 +586,10 @@ Collected from every build. If a change would break one of these, stop and say s
     `setAttribute` stringifies — that shipped `title="null"` on every
     tab and menu button without a hint.
 69. **Hit areas grow by raising the VISUAL floor, not by an invisible
-    44px square.** Icon-only controls take 32px and the full 44 under
+    44px square.** Where an expander IS warranted (a lone checkbox in a
+    tall row), it grows only in the direction that has room — a
+    `left: 0; right: 0` pseudo with a height, never a width that reaches
+    across to the label or the row's own action. Icon-only controls take 32px and the full 44 under
     `pointer: coarse`, which is what WCAG 2.5.5 is about. A blanket 44px
     pseudo-element is forbidden: `.xbtn` pairs sit 2px apart and the
     quick-edit row packs a select against "+1", so overlapping targets
@@ -632,7 +635,12 @@ Collected from every build. If a change would break one of these, stop and say s
     the pending result sequence, the listbox and the combobox's ARIA state are
     all invalidated in ONE place, and the query survives a reopen. The
     presenter owns no ranking, scope, route or result copy: the sheet searches
-    the same eight domains the desktop box does (invariant #71).
+    the same eight domains the desktop box does (invariant #71). A presenter gets
+    exactly TWO seams and must not reach past them: `dismissSearch` and
+    `onSearchChosen`. It must never intercept the result click or the
+    Enter key ahead of the controller — that is a race, and Enter loses
+    it: closing empties the option list before `choose` can read the
+    highlighted row, so the sheet shuts and nothing navigates.
 74. **Calendar changes composition, not data, at 700.** Phone Month is a
     density overview into the existing day sheet; phone Week is the same
     seven days/items/editors in an agenda. Crossing the breakpoint in place

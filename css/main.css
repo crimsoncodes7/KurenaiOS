@@ -8569,3 +8569,28 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
    meant to cover the chrome stops doing so. */
 :root { --z-topbar: 80; }
 #topbar { position: relative; z-index: var(--z-topbar); }
+
+/* ---- Phase E+F integration: the three targets the combined pass found ----
+   Phase F's touch pass measured the tree before Phase E's phone
+   compositions existed, so `.cal-phone-date` was never in it; and the two
+   completion checkboxes are <input>/<button> rather than the icon-button
+   family that pass covered. All three sat under 24px at phone width.
+
+   The visual floor is the guaranteed part (WCAG 2.2 §2.5.8 asks 24×24).
+   The hit expander is an enhancement, and it grows the target ONLY
+   vertically — the row it sits in has room, and any horizontal growth
+   would reach across to the label or the row's own action. Invariant #69:
+   never buy a hit area by overlapping a neighbouring control. */
+.todo-tick, .rem-check { width: 24px; height: 24px; }
+.rem-check.sm { width: 24px; height: 24px; font-size: 11px; }
+.cal-phone-date { min-height: 24px; }
+@media (pointer: coarse) {
+  /* the day header is a full-width row button inside a 61px head — it can
+     take the whole 44 without changing the phone agenda's density */
+  .cal-phone-date { min-height: 44px; }
+  .rem-check { position: relative; }
+  .rem-check::before {
+    content: ""; position: absolute; left: 0; right: 0;
+    top: 50%; height: 44px; transform: translateY(-50%);
+  }
+}

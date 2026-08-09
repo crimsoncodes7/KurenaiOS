@@ -4213,3 +4213,102 @@ before either parallel Phase E/F branch.
   responsive matrices after renumbering. Phase E is not merged into `main`.
 
 **Phase E is complete.**
+
+---
+
+## CATEGORY 7 — E + F INTEGRATION (2026-08-09)
+
+Phases E and F were built in parallel from the same Phase A–D tip
+(`60d6832`). This is the pass that put them on `main` together.
+
+### The foundation had to land first
+
+`main` was `dc44fe4`, the merge of PR #2 — which took `ui/cat7-cleanup`
+at `a3b0016`. **Six commits landed on that branch afterwards and never
+reached `main`**: the free dark themes and the three-level text
+hierarchy, the breakpoint consolidation, the shared UI primitives, the
+Study redesign, the Home pass and the Collection vault shell. Both E and
+F were built on that tip and neither could be integrated without it, so
+Phases B–D were merged first; the resulting tree is byte-identical to
+`60d6832`.
+
+### The seam that actually needed work
+
+Phase E moves the ONE `#searchbox` into a bottom sheet and moves it back —
+no cloned input, no cloned result list, no second controller. What it
+could not do from outside was retract the controller's state, and it
+closed by INTERCEPTING the result click and the Enter key ahead of it.
+
+That was a race, and **Enter lost it**: closing ran
+`restoreSearchbox → dismissSearch`, which emptied the option list before
+`choose()` could read the highlighted row — so on a phone the sheet
+closed and *nothing navigated*. Click survived only because an event path
+is captured at dispatch. Found by driving the seam rather than reading
+it.
+
+Two seams replace the race, and they are the only two a presenter gets:
+
+- **`KOS.hub.dismissSearch({preserveQuery})`** — the one dismissal path.
+  Hiding the panel with a class left `aria-expanded="true"` over a list
+  that was gone, `aria-activedescendant` naming a removed option, the
+  announced count stale, and an in-flight `KOS.search.run` answer free to
+  repaint after dismissal. It bumps the sequence guard, empties the
+  listbox, retracts the combobox ARIA and clears the count. Escape,
+  outside-click and `choose()` all route through it.
+- **`KOS.hub.onSearchChosen(fn)`** — the controller announces that a
+  result was picked: dismiss, tell the presenter, change route **last**,
+  so the navigation owns the post-route focus.
+
+The sheet's eyebrow also still read "Find a topic", from before the box
+searched eight domains.
+
+### What the combined pass found that neither phase could
+
+Three interactive targets under 24px at phone width, invisible to both
+phases alone: `.todo-tick` and `.rem-check` (22px — an `<input>` and a
+`<button>`, outside the icon-button family Phase F's touch pass covered)
+and `.cal-phone-date` (20px — a Phase E composition that did not exist
+when Phase F measured). Raised to a 24px floor, with the phone day header
+taking the full 44 under `pointer: coarse` since its head has 41px of
+slack. The reminder check's expander grows **only vertically**
+(`left: 0; right: 0` plus a height) — a horizontal expander would reach
+the label, and invariant #69 forbids buying a hit area by overlapping a
+neighbour.
+
+### Verification
+
+- **46 smoke suites green.** Phase F keeps `smoke45`; Phase E's suite was
+  renumbered to `smoke46` (header, run line and result strings). Neither
+  test was lost. smoke45 gained four steps — the two seams, the
+  dismissal contract, and the three targets.
+- **192-cell core matrix: 0 overflowing, 0 amputated.** Phase E's work
+  cleared the Focus setup overflow that persisted through Phase F.
+- **912-cell breakpoint-edge matrix** (24 views × 19 widths × 2 themes):
+  0 overflowing, 0 amputated. Re-run after the touch-target change:
+  **0 worse, 0 better** against the pre-change baseline.
+- **`phone_overflow.mjs` across 14 views:** 0 overflowing, 0 amputated,
+  0px tab-bar overlap on every one.
+- **Visual audit passes** (36 captures).
+- **Live browser, desktop and phone.** Desktop: five domains in one
+  query, arrow-key traversal with exactly one selected option, Escape
+  retracting ARIA while keeping the query, Enter routing to
+  `#/ref/compsci/4.1.1.1`; Back/Forward across four sections; a
+  `KOS.rerender()` adding no entry and moving no URL; invalid and
+  malformed routes falling to Home; a true refresh restoring a deep link
+  with `scrollTop 0`. Phone: one `#search` and one `#search-results`
+  throughout, the sheet carrying all five domains, Enter and click both
+  routing, Escape restoring the box to the topbar with the query intact
+  and the listbox emptied, reopen rebuilding, More → Governor routing,
+  the vault Filters menu opening as a popover (no scroll lock) and
+  dismissing on Escape.
+- **Adjacent tap regions: zero overlaps** in page content on Home,
+  Reminders, Calendar, Anime, Focus and Habits under `pointer: coarse`.
+
+### Not fixed here, and why
+
+- `.asst-presence-wash` extends 22px past the viewport inside an
+  `overflow: hidden` parent. It is a decorative radial wash with no text;
+  deliberate bleed is the one sanctioned use of `hidden`. No text node in
+  that panel is clipped.
+
+**Category 7 Phases A–F are integrated on `main`. Phase G has not begun.**

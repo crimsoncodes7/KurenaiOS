@@ -1263,6 +1263,21 @@ its first run. The same step found nothing wrong with the modal forms until it
 was pointed at modals specifically, because `KOS.show` never renders one:
 **the surface a test walks is the only surface it can defend.**
 
+**Phases E and F integrated (2026-08-09).** Both were built in parallel from
+the Phase A–D tip; `main` carried only Phase A until this pass, so Phases B–D
+were merged first. The release gate is now **46 suites** — Phase F keeps
+smoke45, Phase E's suite became smoke46 — plus the visual audit, a 192-cell
+core matrix, a 912-cell breakpoint-edge matrix and the phone probe across 14
+views, all at zero overflow and zero amputated text.
+
+| Finding | Status | How it was verified |
+|---|---|---|
+| **The phone search sheet swallowed Enter** | **Fixed at integration** | Phase E's presenter closed by intercepting the result click and the Enter key ahead of Phase F's controller. That is a race, and Enter lost it — closing emptied the option list before `choose()` could read the highlighted row, so the sheet shut and nothing navigated. Two seams replace it: `KOS.hub.dismissSearch({preserveQuery})` and `KOS.hub.onSearchChosen(fn)`. Driven live on a phone viewport: Enter and click both route, the sheet closes, the box returns to the topbar. |
+| **Dismissing the sheet left the combobox lying** | **Fixed at integration** | Hiding the panel with a class left `aria-expanded="true"` over a list that was gone, `aria-activedescendant` naming a removed option, the announced count stale, and an in-flight vault answer free to repaint. One dismissal path now retracts all of it; `preserveQuery` keeps the query for a reopen. |
+| **CHR-1/U-25 on a phone** | **Held** | The sheet is the same controller: one `#search`, one `#search-results`, moved rather than cloned, carrying all five matching domains. Its eyebrow no longer describes a specification-only search. |
+| **G-13 — three targets under 24px neither phase could see** | **Fixed at integration** | `.todo-tick` and `.rem-check` (22px) sit outside the icon-button family Phase F's pass covered; `.cal-phone-date` (20px) is a Phase E composition that did not exist when Phase F measured. All three now clear 24px, with the day header taking the full 44 under `pointer: coarse`. The expander grows only vertically — invariant #69 forbids buying a hit area by overlapping a neighbour. |
+| **FOC-1 — the Focus setup overflowed by 365px at 390px** | **Fixed** | Carried through Phase F unchanged (it was Phase E's). The integrated core matrix reports **0 overflowing elements** across all 192 cells. |
+
 ## 11. Prioritised Remediation Roadmap
 
 ### Phase A — Critical bugs and broken layouts

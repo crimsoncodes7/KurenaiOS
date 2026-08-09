@@ -148,7 +148,10 @@ See CLAUDE.md invariants 64–71 before touching semantics, focus or routing.
 - **A placeholder is not a name.** `el()` now omits `null`/`undefined` attribute
   values, so `title: x || null` is safe.
 - **`KOS.search.run(q, cb)`** is the cross-domain search; it is a pure domain layer
-  and it must never reach a token, kv record, session or audit row.
+  and it must never reach a token, kv record, session or audit row. A
+  PRESENTER (Phase E's phone sheet) gets exactly two seams —
+  `KOS.hub.dismissSearch({preserveQuery})` and `KOS.hub.onSearchChosen(fn)` —
+  and must never intercept the result click or Enter ahead of the controller.
 - Hit areas grow by raising the visual floor (32px, 44 under `pointer: coarse`),
   never by an invisible 44px pseudo-element over clustered controls.
 
@@ -238,12 +241,12 @@ an autonomous cycle must batch all providers into one ledger entry through
   heroes use the shared Build 5 geometry; Governor Status keeps its special
   profile-banner composition.
 
-## Tests — all FORTY-FIVE suites must pass
+## Tests — all FORTY-SIX suites must pass
 
 ```sh
-for i in "" {2..45}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..46}; do node "tools/smoke${i}.test.js"; done
 ```
-smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–45 print "SMOKE-N PASS …"
+smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–46 print "SMOKE-N PASS …"
 (smoke10 prints "10 passed, 0 failed"). Collection suites need `npm i fake-indexeddb`
 in addition to jsdom. Per-suite coverage table: PROGRESS.md snapshot section.
 
