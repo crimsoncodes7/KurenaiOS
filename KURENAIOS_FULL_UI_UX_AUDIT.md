@@ -1337,6 +1337,34 @@ topbar; the spec-spine drawer.
 - Search is reachable on phones.
 - `#app` uses `100dvh` with a `100vh` fallback.
 
+**Outcome — complete.** Phase E keeps the five Phase B tiers and changes
+composition only where shrinking would make content unreadable. Canonical
+routes, search ranking/scope and interaction semantics remain owned by the
+existing controllers.
+
+| Finding | Status | Remediation and evidence |
+|---|---|---|
+| **FOC-1 / G-16 — Focus setup clips at 390px** | **Fixed** | The compact grid can shrink below a long assignment option; modes and fields become one full-width column. The measured dense fixture fell from 39 overflowing nodes per theme (worst +366px) to 0. The live minimised dock also becomes two rows and keeps every coarse-pointer control inside 390px. |
+| **G-18 / G-19 — viewport and bottom-bar clearance** | **Fixed / retained** | `#app` keeps `100vh` followed by `100dvh`; one `--tabbar-h` plus `safe-area-inset-bottom` clears `#main`, dialogs and toasts. The stale tree-closed 136px reserve is gone. Every recorded compact overlap value reported 0. |
+| **G-20 — seven compressed phone destinations** | **Fixed** | Home, Study, Focus and Collection remain visible; More discloses the canonical Governor, Assistant and Archive controls. Five labels render at 11px with no ellipsis, and a failed enhancement leaves all seven originals reachable. |
+| **G-21 / CHR-2 — search disappears on phones** | **Fixed (presentation)** | A phone trigger moves the one existing `#searchbox` into the shared Dialog surface, then restores that same node. Existing search listeners, result activation and routing stay canonical; Phase F owns the async/ARIA dismiss implementation. |
+| **G-22 — section navigation wraps to three rows** | **Fixed** | The native labelled `<nav>` remains intact inside one declared, arrowed, edge-faded scroller; the active destination is centred after every rebuild. It is one row at 390/820 without taking ownership of Phase F's keyboard semantics. |
+| **Calendar / Reminders / vault compact composition** | **Fixed** | Phone Month is a density overview into the existing day sheet; Week is a seven-day agenda and recomposes safely across orientation changes. The real Reminders taxonomy and four real vault filter rails move into responsive sheets rather than being cloned or miniaturised. |
+
+**Verification:** smoke1–45 green, including new smoke45 (19 Phase E
+contracts); 1,120 dense responsive cells — 192 core + 912 breakpoint-edge +
+16 omitted-view — at 0 overflow, 0 amputated text and 0 tab-bar overlap;
+phone/tablet and running-Chrome visual audits green; 271 screenshots covering
+the matrices, omitted views, device emulation, visual audit and live open-state
+interactions. The responsive Ref fixture now opens a deterministic code-heavy
+leaf rather than mutable profile history.
+
+**Phase F handoff:** export the canonical
+`KOS.hub.dismissSearch({preserveQuery:true})` seam so closing the moved search
+surface invalidates pending results and clears combobox/listbox state. Both
+parallel branches created `smoke45`; preserve both suites and renumber one
+during integration.
+
 ### Phase F — Accessibility and interaction refinement
 **Areas:** touch targets, labels, tab order, announcements, keyboard shortcuts,
 routing.

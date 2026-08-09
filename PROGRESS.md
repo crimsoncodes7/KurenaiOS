@@ -3955,3 +3955,82 @@ exactly the asymmetry VLT-4 describes — seeding all four hid it).
   shared lazy area, not to this page.
 
 **Phase D is complete.**
+
+---
+
+## Category 7 Phase E — responsive / mobile polish (2026-08-09)
+
+Phase E completed against the functional Phase A–D tip
+`60d683258bb7b8da87d6b28b66fe453e6c5436fd`, isolated on
+`ui/cat7-phase-e-mobile`. The recorded `main` at the start of the phase was
+`dc44fe4fce0433fec20e405d1de49cebedd754ae`; the A–D tip is not yet an
+ancestor of that branch, so integration must land the agreed foundation
+before either parallel Phase E/F branch.
+
+### Responsive shell
+
+- Phone navigation is four primary destinations plus More. More activates
+  the original Governor, Assistant and Archive rail controls, so it cannot
+  fork route state. All JS-dependent hiding is gated by
+  `.mobile-shell-ready`; without the enhancement, the seven canonical routes,
+  desktop search and side filters remain usable.
+- Global search remains one node and one controller. The phone sheet moves
+  and restores `#searchbox`, reuses its results, closes before canonical result
+  activation and exposes `KOS.mobileShell.openSearch()` for the Phase F
+  shortcut owner. No ranking, scope, history or result logic moved into the
+  responsive layer.
+- The section nav is one non-wrapping, edge-faded, arrowed scroller which
+  reveals its active item after every rebuild while preserving the native
+  navigation landmark.
+- One `--tabbar-h` contract clears `#main` and toasts above the bottom safe
+  area. `100vh`/`100dvh` remains the viewport fallback pair; the obsolete
+  tree-closed double-clearance is removed.
+
+### Purposeful compact composition
+
+- Focus setup now shrinks through long option text, becomes one full-width
+  column on phones, and keeps both mode cards visible. The minimised running
+  dock uses two rows so 44px coarse-pointer controls stay inside 390px; the
+  running stage and completion review retain their existing compositions.
+- Calendar Month becomes a readable density overview and Week a seven-day
+  agenda at 700px. A mounted Calendar recomposes in both directions on an
+  orientation change, defers while a dialog is live, then restores an
+  equivalent control or `#main` after cancel, save or delete.
+- Reminders and all four vaults move their existing taxonomy/filter rails into
+  compact Dialog sheets. They are moved and restored, never copied.
+- The audit's Ref route is now a deterministic code-heavy Computer Science
+  leaf; this exposed and fixed a real 390px code-block overflow the old
+  mutable fixture never measured.
+
+### Verification
+
+- **45 smoke suites green.** `tools/smoke45.test.js` adds 19 durable Phase E
+  checks for Focus reflow/dock, navigation and More, same-node search,
+  no-JS fallback, safe-area clearance, responsive disclosure, real Ref
+  coverage and live Calendar breakpoint/dialog transitions.
+- **1,120 dense responsive cells green:** 192 core (24 views × 4 widths × 2
+  themes), 912 breakpoint-edge (24 × 19 × 2), and 16 omitted-view cells (4 ×
+  2 × 2). Every matrix reports 0 overflow, 0 amputated text, 0 nonzero tab-bar
+  overlap, 0px document-width delta and no missing/zero-node cell.
+- `phone_overflow.mjs` targeted Focus, Subject, Home, Governor, Assistant,
+  Calendar, Reminders and all four vaults at 0 overflow/cut/overlap. The
+  phone/tablet device audit covered 46 view/device states; the specialised
+  visual audit passed all 36 captures.
+- **271 screenshots** cover the 192-cell core, 16 omitted views, 14 device
+  captures, 36 specialised visual captures and 13 open/running interaction
+  states (More, search, sheets, Calendar, Ref, Focus and Assistant).
+
+### Parallel integration contract
+
+- Phase E intentionally leaves `js/core/ui.js`, `js/main.js`, `js/modules/hub.js`
+  and search behaviour untouched. Phase F must export
+  `KOS.hub.dismissSearch({preserveQuery:true})`, invalidate its async result
+  sequence and clear combobox/listbox state; `mobile-shell.js` already prefers
+  that seam and otherwise uses the pre-Phase-F fallback.
+- Both branches independently used the next free number, `smoke45`. Preserve
+  both tests by renumbering one after the first branch lands.
+- Recommended order: land the Phase A–D foundation, merge Phase F, then merge
+  Phase E and reconcile the narrow search seam. Run the combined full gate and
+  responsive matrices after renumbering. Phase E is not merged into `main`.
+
+**Phase E is complete.**
