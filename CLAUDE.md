@@ -54,6 +54,7 @@ node tools/smoke42.test.js # Category 7 Phase B: the five-breakpoint contract (o
 node tools/smoke44.test.js # Category 7 Phase D (Collection): the one vault toolbar (six controls, facets behind Filters ▾, commands behind Actions ▾, one primary, zero network on render), the one hero (three-step backdrop, unconditional scrim, no .vh-painted), KOS.ui.menu as a popover not a dialog (ARIA, roving focus, Escape + focus restore, below --z-modal), the genre/tag/rare facet split with counts, Mangaka (bounded author cards, four real filters, letter dividers, lazy batch), the Overview (one small-multiples row, no total printed twice, zero tiles suppressed, no distribution from one rating), chart readability (axis, gridlines, 11px floor, wrapped labels) and the one progress grammar
 node tools/smoke45.test.js # Category 7 Phase F accessibility/interaction/routing: hash routes over pushState (every view, deep links, browser Back/Forward, a `_nav` redraw pushing nothing, invalid routes failing to Home), the one polite + one assertive live region and the sync chip's announcement policy, accessible names across 29 views AND eight modal forms, no ARIA button holding an interactive descendant, Space on role="button", el() omitting a null attribute, the Phase B dialog contract re-asserted, menus dismissing without locking scroll, cross-domain search (grouping, combobox ARIA, keyboard, correct routing, nothing private) and the touch-target contract
 node tools/smoke43.test.js # Category 7 Phase C (Study + Home): the spine as the ONE section list (inherited bar + subsection tally, active-topic reveal, dismissible overlay drawer at ≤860), content-first geometry (one header row, one navigation layer, nothing between header and content), the single state surface (Topic Status in the inspector, mastery once, material counts once, header/field over one store value), compact note-page navigation (stepper + disclosure, B-04 scroll rule), flashcard/quiz keyboard control incl. text-field and self-removal guards, the REF-5/7/10 + SUBJ-4/5/6 fixes, and Home (activity-based headline figures against an active-but-unticked account, the next-action decision surface and its priority order, collapsing empty Directives/Countdowns, the Collection card as the same component, the mandatory hero scrim, labelled week pips, and the vault staying closed on Home's render pass)
+node tools/smoke45.test.js # Category 7 Phase E: single-column Focus and two-row minimised dock; one-line active-revealing section nav; four phone destinations + More; same-node global-search sheet and canonical shortcut/cancel seams; one safe-area clearance; compact Reminders/vault disclosure; phone Calendar density/agenda and live breakpoint recomposition; deterministic real-Ref responsive fixture
 ```
 
 **Live integration** (Category 6, needs migrations applied + ai-chat deployed):
@@ -131,7 +132,8 @@ refinement, smoke38 Collection Goals v2 and Shrine Hall of Fame, smoke39 the
 Phase 2 Live2D binding and its closed release gate, smoke41 the cloud staleness guard, smoke40 the Category 7
 Phase A bug fixes, smoke42 the Phase B breakpoint contract and UI primitives,
 smoke43 the Phase C Study redesign, smoke44 the Phase D Collection,
-smoke45 the Phase F accessibility/interaction/routing layer).
+smoke45 the Phase F accessibility/interaction/routing layer, smoke46 the
+Phase E responsive/mobile contracts).
 Suites 1–16 plus the running-Chrome visual audit were verified
 green on 2026-07-13; all 17 on 2026-07-16; all 18 plus the phone/tablet CDP
 audit on 2026-07-17; all 19 on 2026-07-17; all 38 on 2026-08-07; all 39 plus
@@ -142,7 +144,10 @@ audit, on 2026-08-08; all 44 after the Phase D Collection pass, with a
 192-cell whole-app sweep, an 88-cell Collection sweep and Dawn/Dusk
 screenshots at 1920/1440/820/390, on 2026-08-09; all 45 after the Phase F
 accessibility pass, with the visual audit and a 192-cell sweep diffed against
-the Phase D tree at 0 worse / 0 better, on 2026-08-09.
+the Phase D tree at 0 worse / 0 better, on 2026-08-09; and all 46 after the
+E+F integration on 2026-08-09, alongside the 192-cell core matrix, the
+912-cell breakpoint-edge matrix, the 16-cell omitted-view matrix, the
+phone/tablet and visual audits, and the live interaction-state pass.
 
 **Edge Functions** (Build 4c, `supabase/functions/`): deploy with
 `supabase functions deploy <name>`; secrets via `supabase secrets set` only
@@ -407,7 +412,11 @@ Collected from every build. If a change would break one of these, stop and say s
     `.study-tab`, `.dh-*` — so they add behaviour, not a fifth card surface.
     A horizontal scroller must be declared through `KOS.ui.scroller`; the
     responsive probe counts an undeclared sideways scroll as unreachable
-    content.
+    content. The one navigation-landmark exception is the compact `#subnav`:
+    keep the native `<nav aria-label="Section">` intact inside one external
+    `[data-scroller]` shell with fades/arrows and active reveal. Passing the
+    landmark itself to `scroller()` would replace its role with `group` and
+    intercept the arrow keys Phase F owns; never wrap or enhance it twice.
 
 **Study: the spine and the topic shell (Category 7 Phase C)**
 51. **The spec spine is the ONLY section list in Study.** The subject desk's
@@ -606,6 +615,35 @@ Collected from every build. If a change would break one of these, stop and say s
     per-domain `role="group"` wrappers so the arrow keys walk results and
     never land on a heading; an async answer re-checks that the query it
     answers is still the one in the box.
+
+**Responsive/mobile presentation (Category 7 Phase E)**
+72. **Compact presentation reuses canonical controls.** `mobile-shell.js`
+    moves the ONE `#searchbox`, the ONE Reminders/vault side rail and the
+    existing section controls into `KOS.ui.openDialog` surfaces, then restores
+    those same nodes. More activates the original Governor/Assistant/Archive
+    rail buttons; it never forks routing. Every CSS rule that hides one of
+    those originals is gated by `.mobile-shell-ready`, so a missing/failed
+    enhancement leaves all seven routes, global search and filters reachable.
+73. **Search behaviour remains owned by the canonical controller.** The phone
+    presenter exposes `KOS.mobileShell.openSearch()` and returns whether it
+    handled the request; it reacts after the canonical `/` shortcut rather
+    than creating a second shortcut. Closing goes through
+    `KOS.hub.dismissSearch({preserveQuery:true})` — Phase F's cancel seam — so
+    the pending result sequence, the listbox and the combobox's ARIA state are
+    all invalidated in ONE place, and the query survives a reopen. The
+    presenter owns no ranking, scope, route or result copy: the sheet searches
+    the same eight domains the desktop box does (invariant #71).
+74. **Calendar changes composition, not data, at 700.** Phone Month is a
+    density overview into the existing day sheet; phone Week is the same
+    seven days/items/editors in an agenda. Crossing the breakpoint in place
+    rerenders the current Calendar without history. If a dialog is open, wait
+    for it to close, then recompose and restore an equivalent control (or
+    `#main`) so its callback and focus never point at detached DOM.
+75. **One phone clearance, modern viewport units.** `#app` keeps `100vh` then
+    `100dvh`; `#main` reserves the single `--tabbar-h` plus the bottom safe
+    area. Do not restore the retired tree-closed extra padding or add a second
+    safe-area reserve. The minimised Focus dock is two rows at phone width and
+    page content clears its measured height.
 
 **Calendar & the event model (Build 6.6)**
 41. `KOS.calendar.normalise()` is the SINGLE schema gate for an event — every

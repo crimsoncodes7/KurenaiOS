@@ -597,7 +597,7 @@ button.tree-open-btn { display: none; }
 }
 .sec-head:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
 .sec-head .ref { font-family: var(--mono); font-size: 10.5px; color: var(--accent); flex: none; }
-.sec-head .sec-title { min-width: 0; flex: 1 1 auto; }
+.sec-head .sec-title { min-width: 0; flex: 1 1 0; }
 .sec-head .arr { font-size: 9px; color: var(--muted); transition: transform .18s; flex: none; }
 .sec.open > .sec-head .arr { transform: rotate(90deg); }
 /* the retired main-column ledger's progress bar, inherited by the spine
@@ -2848,7 +2848,9 @@ body.fx-minimised .fx-dock { display: flex; }
    Focus setup page + Tasks & Habits
    ============================================================ */
 .fx-setup { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 20px; align-items: start; }
-@media (max-width: 1080px) { .fx-setup { grid-template-columns: 1fr; } }
+/* minmax(0,1fr) is structural: a long assignment option must not establish
+   a 700px implicit minimum for the whole compact Focus setup. */
+@media (max-width: 1080px) { .fx-setup { grid-template-columns: minmax(0, 1fr); } }
 .fx-setup-main { padding: 22px 24px; }
 .fx-setup-side { display: flex; flex-direction: column; gap: 14px; }
 .fx-mode-k {
@@ -2868,6 +2870,19 @@ body.fx-minimised .fx-dock { display: flex; }
 .fx-deal { padding: 16px 18px; }
 .fx-deal h4 { margin: 0 0 12px; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .fx-start { margin-top: 6px; }
+@media (max-width: 700px) {
+  /* Focus setup is one deliberate phone flow: choose a mode, link the
+     work, state the objective, then start. The economy stays below it. */
+  .fx-setup-main, .fx-setup-side { min-width: 0; }
+  .fx-setup-main { padding: 18px 16px; }
+  .fx-modes { grid-template-columns: minmax(0, 1fr); }
+  .fx-mode-card, .fx-mode-t { min-width: 0; }
+  .fx-custom .cal-field, .fx-num { width: 100%; min-width: 0; }
+  .fx-link-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .fx-link-row > .cal-field, .fx-link-row .status-sel { width: 100%; min-width: 0; }
+  .fx-obj-field { max-width: none; }
+  .fx-start { width: 100%; }
+}
 
 /* the stage, dressed */
 .fx-stage::before {
@@ -4221,6 +4236,36 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .med-form > .med-field { grid-column: 1 / -1; }
   .fc-card { min-height: 290px; }
   .hi-stats { width: 100%; justify-content: space-between; }
+
+  /* Tablet/phone section navigation is one declared scroller, never a
+     second row of global chrome. The native nav landmark stays intact. */
+  .subnav-scroller { position: relative; flex: none; min-width: 0; width: 100%; }
+  .subnav-scroller::before, .subnav-scroller::after {
+    content: ""; position: absolute; top: 0; bottom: 0; width: 42px;
+    pointer-events: none; opacity: 1; transition: opacity .18s; z-index: 2;
+  }
+  .subnav-scroller::before { left: 0; background: linear-gradient(90deg, var(--bg0), transparent); }
+  .subnav-scroller::after { right: 0; background: linear-gradient(270deg, var(--bg0), transparent); }
+  .subnav-scroller.at-start::before, .subnav-scroller.at-end::after { opacity: 0; }
+  .subnav-scroller.no-scroll .u-scroller-arrow { display: none; }
+  .subnav-scroller.at-start .u-scroller-arrow.prev,
+  .subnav-scroller.at-end .u-scroller-arrow.next { opacity: 0; pointer-events: none; }
+  .subnav-scroller #subnav {
+    width: 100%; overflow-x: auto; flex-wrap: nowrap;
+    scroll-behavior: smooth; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .subnav-scroller #subnav::-webkit-scrollbar { display: none; }
+  .subnav-scroller .subnav-item, .subnav-scroller .subnav-sep { flex: 0 0 auto; }
+  .subnav-scroller .subnav-item .lbl { white-space: nowrap; }
+  body.focus-mode:not(.fx-minimised) .subnav-scroller { display: none; }
+
+  /* Tall filter rails are explicit tablet disclosures. Their real nodes
+     move into openDialog surfaces, retaining every listener and count. */
+  .mobile-shell-ready .mobile-disclosure-trigger { display: inline-flex; align-items: center; justify-content: center; width: fit-content; margin-bottom: var(--space-3); }
+  .mobile-shell-ready .reminders-disclosure-trigger { width: 100%; }
+  .mobile-shell-ready .rem-grid > .rem-side,
+  .mobile-shell-ready .med-layout > .med-filter-rail { display: none; }
+  .mobile-shell-ready .rem-workspace-tabs { display: none; }
 }
 @media (max-width: 560px) {
   :root {
@@ -4229,7 +4274,6 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
     --hero-pad-inline: 16px;
     --modal-gutter: 20px;
   }
-  #searchbox { display: none; }
   .pn { max-width: 100%; }
   .pn-row { flex-direction: column; }
   .dh-actions { width: 100%; }
@@ -5620,6 +5664,24 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .profile-editor textarea { resize: vertical; min-height: 96px; }
 .modal-foot { display: flex; gap: var(--space-3); justify-content: flex-end; }
 
+/* Category 7 Phase E — responsive disclosure controls are injected beside
+   their canonical content and have no desktop presence. The dialogs move
+   existing nodes rather than cloning stateful controls. */
+.mobile-more, .mobile-search-trigger, .mobile-disclosure-trigger { display: none; }
+.mobile-shell-overlay .eyebrow {
+  display: block; margin-bottom: 3px; color: var(--accent);
+  font: 700 9px var(--mono); letter-spacing: .16em; text-transform: uppercase;
+}
+.mobile-sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); }
+.mobile-sheet-head h2 { margin: 0; font-size: 22px; }
+.mobile-sheet-close { flex: none; }
+.mobile-compact-sheet { --modal-max: 480px; }
+.mobile-sheet-slot { min-width: 0; }
+.mobile-sheet-slot .rem-side, .mobile-sheet-slot .med-filter-rail {
+  display: flex; position: static !important; width: 100%; max-height: none;
+}
+.mobile-sheet-slot .med-filter-rail { border: 0; box-shadow: none; }
+
 /* ============================================================
    Build 4b — phone adaptation (≤700px). The desktop experience
    above is untouched; this tier re-homes the shell for touch:
@@ -5642,6 +5704,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
     padding: env(safe-area-inset-top) max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left));
     height: calc(var(--topbar-h) + env(safe-area-inset-top));
   }
+  .topbar-right { gap: 6px; padding-right: 46px; }
+  .mobile-shell-ready #searchbox { display: none; }
   #hud { min-width: 0; }
 
   /* --- the rail becomes a bottom tab bar --- */
@@ -5663,7 +5727,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
     background: var(--bg1);
     z-index: 60;
   }
-  #rail .rail-item {
+  #rail .rail-item, #rail .mobile-more {
     flex: 1 1 0;
     min-width: 0;
     flex-direction: column;
@@ -5672,15 +5736,26 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
     padding: 5px 2px !important;
     border-radius: 10px;
   }
-  #rail .rail-item .glyph { width: 30px; height: 30px; font-size: 15px; }
-  #rail .rail-item .lbl {
+  #rail :is(.rail-item, .mobile-more) .glyph {
+    width: 30px; height: 30px; flex: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 9px; color: var(--muted); font-family: var(--jp); font-size: 15px;
+  }
+  #rail :is(.rail-item, .mobile-more) .lbl {
     display: block !important;
-    font-size: 9.5px;
+    font-size: 11px;
     letter-spacing: .02em;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .mobile-shell-ready #rail .rail-item[data-section="governor"],
+  .mobile-shell-ready #rail .rail-item[data-section="assistant"],
+  .mobile-shell-ready #rail .rail-item[data-section="system"] { display: none; }
+  .mobile-shell-ready #rail .mobile-more { display: flex; color: var(--text2); font-weight: 500; position: relative; }
+  #rail .mobile-more.active { color: var(--text); }
+  #rail .mobile-more.active .glyph {
+    color: var(--bg1);
+    background: linear-gradient(150deg, color-mix(in srgb, var(--accent) 92%, #fff), color-mix(in srgb, var(--accent) 80%, #000));
+    box-shadow: var(--shadow-sm);
   }
   #rail .rail-item .pc, #rail-toggle { display: none !important; }
   /* the rail is a bottom tab bar here, so the user panel can't sit in it.
@@ -5693,22 +5768,51 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
     z-index: 70;
     margin: 0; padding: 0; border: none; width: auto;
   }
-  #rail .rail-foot .hud { padding: 3px; border-radius: 999px; }
+  #rail .rail-foot .hud {
+    width: 42px; max-width: 42px; min-height: 42px;
+    justify-content: center; padding: 3px; border-radius: 999px;
+  }
   #rail .rail-foot .hud-col { display: none; }
-  .rail-item.active::after {
+  .rail-item.active::after, .mobile-more.active::after {
+    content: ""; position: absolute;
     left: 20%; right: 20%; top: -6px; bottom: auto;
     width: auto; height: 3px;
+    background: var(--accent);
     border-radius: 0 0 3px 3px;
   }
-  /* content never hides behind the bar */
-  #main { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
-  /* …nor behind the floating "Spec spine" pill (audit SUBJ-4). Phase B fixed
-     the pill's text wrap; the pill itself is still fixed over the page, and
-     with only the tab bar's clearance the last card on the subject desk sat
-     underneath it. A pixel probe cannot see this — it overlaps vertically
-     without ever crossing the viewport's right edge. */
-  #cols.tree-closed #main { padding-bottom: calc(136px + env(safe-area-inset-bottom)); }
   body.fx-minimised #cols { padding-bottom: 0; }
+
+  /* The minimised timer is a compact dashboard, not one ever-shrinking
+     toolbar. Metadata occupies the first row; every action keeps a real
+     touch target on the second row, including populated Due/End states. */
+  body.fx-minimised .fx-dock {
+    top: calc(8px + env(safe-area-inset-top));
+    display: grid;
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+    width: min(calc(100vw - 24px), 520px);
+    max-width: calc(100vw - 24px);
+    gap: 6px 10px;
+    padding: 8px 10px;
+    border-radius: 18px;
+  }
+  .fx-dock-ctl {
+    grid-column: 1 / -1;
+    min-width: 0;
+    margin-left: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .fx-dock-ctl .mini-btn { min-width: 44px; min-height: 44px; }
+  body.fx-minimised #cols {
+    padding-top: calc(104px + env(safe-area-inset-top));
+  }
+
+  /* Source code is reading content on a phone, not a hidden desktop canvas.
+     Preserve indentation and line breaks while allowing long APIs/strings
+     to wrap inside the card instead of establishing a 450px inline box. */
+  .n-code pre { white-space: pre-wrap; overflow-x: hidden; }
+  .n-code code { white-space: inherit; overflow-wrap: anywhere; word-break: break-word; }
 
   /* Build 6.5 — the stage carries more rows now (context, objective,
      progress, eligibility, the working row). On a phone it scrolls as one
@@ -5751,10 +5855,6 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   }
   .topic-head button.tree-open-btn, .dh-actions button.tree-open-btn { min-height: 44px; }
 
-  /* --- subnav scrolls sideways instead of wrapping the stage --- */
-  #subnav { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  #subnav::-webkit-scrollbar { display: none; }
-
   /* --- the topic header reflows rather than squeezing (Cat 7 Phase C) ---
      Three columns in 366px left the title wrapping in a 150px track with the
      spec path stacked five lines beside it. Two rows: identity, then the
@@ -5784,6 +5884,42 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   }
   .confirm-ov { align-items: flex-end; }
 
+  /* Phone-only search and More are true bottom sheets. Search reparents the
+     one global #searchbox; results keep hub.js's canonical logic. */
+  .mobile-shell-ready .mobile-search-trigger {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; flex: none; border: 1px solid var(--line2);
+    border-radius: 11px; background: var(--panel); color: var(--text2);
+    font-size: 19px; box-shadow: var(--shadow-sm);
+  }
+  .mobile-search-sheet, .mobile-nav-sheet { --modal-max: 560px; }
+  .mobile-search-sheet #searchbox { display: block; width: 100%; max-width: none; }
+  .mobile-search-sheet #search-results {
+    position: static; max-height: min(52dvh, 430px); margin-top: 8px;
+    border-radius: var(--radius-card); box-shadow: none;
+  }
+  .mobile-search-slot { min-width: 0; }
+  .mobile-sheet-list { display: grid; gap: var(--space-2); }
+  .mobile-sheet-destination {
+    display: grid; grid-template-columns: 42px minmax(0, 1fr) auto;
+    align-items: center; gap: var(--space-3); min-height: 58px; width: 100%;
+    padding: 9px 11px; border: 1px solid var(--line2); border-radius: var(--radius-control);
+    background: var(--panel); color: var(--text); text-align: left;
+  }
+  .mobile-sheet-destination.is-current { border-color: var(--accent); background: var(--wash-accent); }
+  .mobile-sheet-glyph {
+    display: grid; place-items: center; width: 42px; height: 42px;
+    border-radius: 12px; background: var(--well); color: var(--accent); font: 18px var(--jp);
+  }
+  .mobile-sheet-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .mobile-sheet-copy b { font: 600 16px var(--serif); }
+  .mobile-sheet-copy span { color: var(--muted); font-size: 12px; line-height: 1.35; }
+  .mobile-sheet-current { color: var(--accent); font: 700 9px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+
+  /* One safe-area-aware clearance contract: content and transient status
+     sit above the fixed bar exactly once. */
+  .toast { bottom: calc(var(--tabbar-h) + var(--space-3) + env(safe-area-inset-bottom)); }
+
   /* --- forms and the mobile keyboard --- */
   input, select, textarea { font-size: 16px; }   /* stops iOS focus-zoom */
 
@@ -5804,7 +5940,12 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 /* Build 4b — phone topbar: the HUD keeps avatar + level + gold, drops the
    wide bar column; the sync chip stays one line and never collides. */
 @media (max-width: 700px) {
-  .sync-chip { font-size: 9px; letter-spacing: .08em; padding: 2px 7px; gap: 4px; }
+  /* The full sync sentence remains in the button/title; the phone topbar
+     presents its existing state dot so search/assistant/profile never collide. */
+  .sync-chip {
+    width: 34px; height: 34px; justify-content: center; gap: 0;
+    padding: 0; border-radius: 11px; font-size: 0; letter-spacing: 0;
+  }
   .hud-col { min-width: 0; }
   .hud-bars { display: none; }
   .nav-arrows .nav-fwd { display: none; }
@@ -7878,13 +8019,41 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
 @media (max-width: 700px) {
   .cal-nav { gap: 6px; }
   .cal-nav .cal-title { font-size: 18px; min-width: 0; flex: 1 1 100%; order: -1; }
-  .cal-cell { min-height: 72px; padding: 4px 3px 5px; }
+  /* Month is a glanceable density map on phones; full titles disclose in
+     the existing day sheet instead of being crushed into 44px columns. */
+  .cal-cell { min-height: 58px; padding: 4px 3px 5px; }
   .cal-cell-h { min-height: 20px; }
   .cal-daynum { width: 20px; height: 20px; font-size: 11px; }
   .cal-todaytag { display: none; }
   .cal-add { display: none; }
-  .cal-ev { font-size: 9.5px; padding: 2px 5px; }
-  .cal-ev-time { display: none; }
+  .cal-stack { align-items: center; }
+  .cal-day-summary {
+    display: grid; place-items: center; width: 24px; height: 22px; padding: 0;
+    border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--line2));
+    border-radius: var(--radius-pill); background: var(--wash-accent);
+    color: var(--accent); font: 700 10px var(--mono);
+  }
+  .cal-day-summary:hover { border-color: var(--accent); }
+
+  /* Week becomes a one-column agenda: the desktop's seven time columns are
+     useful at 820px, but unreadable at 390px. */
+  .cal-phone-week { display: grid; gap: var(--space-3); }
+  .cal-phone-day {
+    overflow: hidden; border: 1px solid var(--line2); border-radius: var(--radius-card);
+    background: var(--panel);
+  }
+  .cal-phone-day.today { border-color: color-mix(in srgb, var(--accent) 55%, var(--line2)); }
+  .cal-phone-day-head {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+    padding: 8px 10px; border-bottom: 1px solid var(--line2); background: var(--well);
+  }
+  .cal-phone-date { display: flex; align-items: baseline; gap: 8px; color: var(--text); text-align: left; }
+  .cal-phone-date span { color: var(--accent); font: 700 9px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+  .cal-phone-date b { font: 600 16px var(--serif); }
+  .cal-phone-day-items { display: grid; gap: 4px; padding: 8px; }
+  .cal-phone-day-items .cal-ev { min-height: 34px; padding: 6px 8px; font-size: 12px; }
+  .cal-phone-day-items .cal-ev-t { white-space: normal; }
+  .cal-phone-empty { margin: 2px 4px; }
   .cal-week { --cw-gutter: 38px; }
   .cw-body { max-height: 54vh; }
   .cal-fgrid.two, .cal-fgrid.three { grid-template-columns: minmax(0, 1fr); }

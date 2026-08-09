@@ -53,6 +53,9 @@ const VIEWS = String(flag("views",
   "home,subject,ref,review,assignments,tracker,focus,reminders,calendar,tasks," +
   "matrix,anime,books,vn,game,mangaka,shrine,wishlist,goals,mediasync," +
   "governor,assistant,data,help")).split(",");
+/* A fixed code-heavy leaf makes Ref screenshots reproducible and keeps the
+   phone probe honest; profile.lastRef is mutable navigation history. */
+const REF_FIXTURE = { subject: "compsci", ref: "4.2.1.3" };
 
 /* ---------------- CDP plumbing ---------------- */
 const endpoint = process.env.KOS_CDP || "http://127.0.0.1:9222/json";
@@ -425,9 +428,11 @@ for (const theme of THEMES) {
     await sleep(250);
     for (const view of VIEWS) {
       const arg = view === "subject" ? '"compsci"'
-        : view === "ref" ? '{subject:"compsci",ref:(KOS.store.state.ui.lastRef||"4.5.4.2")}' : "";
+        : view === "ref" ? JSON.stringify(REF_FIXTURE) : "";
+      const treeSetup = (view === "subject" || view === "ref")
+        ? `KOS.store.state.ui.treeClosed = ${width <= 860}; ` : "";
       try {
-        await evaluate(`KOS.show(${JSON.stringify(view)}${arg ? ", " + arg : ""})`);
+        await evaluate(`(() => { ${treeSetup}KOS.show(${JSON.stringify(view)}${arg ? ", " + arg : ""}); return true; })()`);
       } catch (e) { continue; }
       await sleep(view === "mangaka" || view === "matrix" ? 900 : 420);
       let r;
