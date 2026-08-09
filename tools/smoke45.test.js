@@ -387,6 +387,55 @@ step("no focusable control in any view lacks an accessible name", async () => {
   assert(!bad.length, bad.length + " unnamed control(s): " + [...new Set(bad)].join(" | "));
 });
 
+/* The views are only half the app — most FORMS live in a modal, and
+   KOS.show never renders one. This step opens the real editors and holds
+   them to the same rule; it is how the VN route rows were caught, where
+   every route repeated an unnamed checkbox and an unnamed text field. */
+step("no control inside a modal form lacks an accessible name", async () => {
+  const bad = [];
+  function auditOpenModal(label) {
+    const ovs = $$(".modal-ov");
+    if (!ovs.length) { bad.push(label + ": did not open"); return; }
+    const ov = ovs[ovs.length - 1];
+    ov.querySelectorAll('input:not([type="hidden"]), select, textarea, button, a[href]').forEach(n => {
+      if (!reallyFocusable(n)) return;
+      if (!accName(n)) bad.push(label + " · " + n.tagName.toLowerCase() + "." +
+        (String(n.className).split(/\s+/)[0] || "-") +
+        (n.placeholder ? " [ph:" + n.placeholder.slice(0, 20) + "]" : ""));
+    });
+    ov.remove();
+    document.body.classList.remove("modal-open");
+  }
+
+  KOS.ui.confirm({ title: "Sure?", body: "b" }, noop, noop);
+  auditOpenModal("confirm");
+
+  KOS.calendar.eventModal(null, KOS.srs.todayISO(), noop);
+  await tick(30);
+  auditOpenModal("calendar event");
+
+  for (const mod of ["anime", "books", "vn", "game"]) {
+    KOS.show(mod); await tick(140);
+    const rows = await p(cb => KOS.mediadb.query({ module: mod }, cb));
+    const entry = rows[0];
+    /* a VN with routes and chapters, so the per-row controls actually render */
+    if (mod === "vn") {
+      entry.routes = [{ name: "Common", cleared: true }, { name: "True", cleared: false }];
+      entry.chapters = [{ name: "Chapter 1", status: "completed", notes: "" }];
+      await p(cb => KOS.mediadb.put(entry, cb));
+    }
+    KOS.mediaEditor(entry, noop);
+    await tick(80);
+    auditOpenModal(mod + " editor");
+  }
+
+  KOS.show("tracker"); await tick(60);
+  const logBtn = $$("#main button").find(b => /Log entry|Log exam|Log paper/i.test(b.textContent));
+  if (logBtn) { click(logBtn); await tick(60); auditOpenModal("tracker log"); }
+
+  assert(!bad.length, bad.length + " unnamed control(s) in modal forms: " + [...new Set(bad)].join(" | "));
+});
+
 step("no ARIA button contains an interactive descendant", async () => {
   const bad = [];
   for (const v of VIEWS) {
@@ -691,6 +740,26 @@ step("a query with no answer says what was searched", async () => {
   input.value = "";
   input.dispatchEvent(new window.Event("input", { bubbles: true }));
   await tick(60);
+});
+
+step("the results panel is not trapped under the page", () => {
+  /* #topbar carries backdrop-filter, which makes it a STACKING CONTEXT —
+     so #search-results' own z-index could never lift it above #cols, and
+     the panel rendered visible only in the gaps between the page's cards.
+     The topbar has to be a positioned element on the shared scale for the
+     panel's z-index to mean anything. Verified in Chrome by hit-testing
+     five points down the open panel; asserted here as the rule that keeps
+     it true. */
+  assert(/#topbar \{[^}]*position: relative[^}]*z-index: var\(--z-topbar\)/.test(cssRules),
+    "#topbar is not positioned, so its backdrop-filter traps the search results underneath the page");
+  const scale = {};
+  (cssRules.match(/--z-[a-z]+:\s*\d+/g) || []).forEach(d => {
+    const [k, v] = d.split(":"); scale[k.trim()] = +v;
+  });
+  assert(scale["--z-topbar"] > scale["--z-stage"],
+    "the topbar must sit above the stage it is chrome for");
+  assert(scale["--z-topbar"] < scale["--z-menu"] && scale["--z-topbar"] < scale["--z-modal"],
+    "the topbar must stay below menus and modals");
 });
 
 step("a slow vault answer cannot overwrite a newer keystroke", () => {

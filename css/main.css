@@ -8298,7 +8298,15 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
   width: 100%;
 }
 .med-title { color: #FBF7EE; }          /* the card body sits on a scrim */
-.shrine-title-btn { font: inherit; color: inherit; }
+/* The Shrine title is a button INSIDE its <h3> (the heading stays a
+   heading), so the two-line clamp has to move onto the button: a
+   -webkit-box with one inline-block child clamps to one "line" and lets
+   the text inside it wrap forever, which grew the ranked cards from 323
+   to 407px and tripped the visual audit's 360px bound. */
+.shrine-body h3 > .shrine-title-btn {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; font: inherit; color: inherit;
+}
 /* the lift used to follow the card's own focus; the title carries it now */
 .med-card:focus-within { transform: translateY(-4px); box-shadow: var(--shadow-md); }
 .med-row:focus-within { background: var(--bg1); }
@@ -8378,3 +8386,17 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
   padding: 0; background: none; border: 0;
 }
 .subj-card:focus-within { border-color: color-mix(in srgb, var(--accent) 45%, var(--line2)); }
+
+/* ---- the search dropdown was trapped under the page (F7) ----
+   #topbar carries `backdrop-filter: blur(10px)`, and a backdrop-filter
+   makes an element a STACKING CONTEXT. That scoped #search-results'
+   z-index: 60 inside the topbar, and because the topbar is static and
+   comes first in the DOM, all of #cols painted over it: the results
+   panel was visible only in the gaps between the page's cards. Making
+   the topbar a positioned element on the shared scale lifts the whole
+   of it — chrome above content, which is what it is — and leaves the
+   panel's own z-index doing its real job inside. Slots between
+   --z-stage (70) and the assistant drawer (90), so nothing that is
+   meant to cover the chrome stops doing so. */
+:root { --z-topbar: 80; }
+#topbar { position: relative; z-index: var(--z-topbar); }

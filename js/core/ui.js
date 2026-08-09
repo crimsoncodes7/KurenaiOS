@@ -708,7 +708,17 @@
         if (panel.contains(ev.target) || btn.contains(ev.target)) return;
         closeOpenMenu(false);
       }
+      /* Phase F: the scroll listener is capture-phase on window, so it sees
+         #main's scroll too — which is right, because the panel is fixed and
+         would detach from its button. But focusing a control SCROLLS IT
+         INTO VIEW, so a keyboard user tabbing to this button and pressing
+         Enter could have the resulting scroll arrive just after the panel
+         opened and dismiss it again. Ignore dismissals until the open has
+         settled; a deliberate scroll is always later than that. */
+      var settled = false;
+      setTimeout(function () { settled = true; }, 0);
       function onDismiss(ev) {
+        if (!settled) return;
         if (ev && ev.type === "scroll" && panel.contains(ev.target)) return;
         closeOpenMenu(false);
       }

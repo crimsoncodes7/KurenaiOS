@@ -170,14 +170,15 @@
           : "none yet — add the routes as you meet them (this is what drives a VN's progress)" })
       ]));
       e.routes.forEach(function (r) {
-        var done = el("input", { type: "checkbox" });
+        var done = el("input", { type: "checkbox", "aria-label": "Cleared: " + r.name });
         done.checked = r.cleared;
         done.addEventListener("change", function () {
           r.cleared = done.checked;
           r.completedAt = done.checked ? (r.completedAt || KOS.srs.todayISO()) : null;
           renderRoutes();
         });
-        var name = el("input", { type: "text", class: "todo-in vn-route-name", value: r.name });
+        var name = el("input", { type: "text", class: "todo-in vn-route-name", value: r.name,
+          "aria-label": "Route name" });
         name.addEventListener("change", function () { r.name = name.value.trim() || r.name; });
         routesWrap.appendChild(el("div", { class: "vn-route-row" + (r.cleared ? " cleared" : "") }, [
           el("label", { class: "vn-route-done" }, [done]),
@@ -222,14 +223,16 @@
           : "optional — for VNs with chapters/arcs the route list doesn't capture; define your own, or leave empty" })
       ]));
       e.chapters.forEach(function (c) {
-        var st = el("select", { class: "status-sel vn-ch-status" }, STATUSES.map(function (s) {
+        var st = el("select", { class: "status-sel vn-ch-status", "aria-label": "Status: " + c.name }, STATUSES.map(function (s) {
           return el("option", { value: s, text: KOS.media.STATUS_LABEL[s] });
         }));
         st.value = c.status;
         st.addEventListener("change", function () { c.status = st.value; renderChapters(); });
-        var name = el("input", { type: "text", class: "todo-in vn-route-name", value: c.name });
+        var name = el("input", { type: "text", class: "todo-in vn-route-name", value: c.name,
+          "aria-label": "Chapter name" });
         name.addEventListener("change", function () { c.name = name.value.trim() || c.name; });
-        var note = el("input", { type: "text", class: "todo-in vn-ch-note", value: c.notes, placeholder: "notes…" });
+        var note = el("input", { type: "text", class: "todo-in vn-ch-note", value: c.notes, placeholder: "notes…",
+          "aria-label": "Notes on " + c.name });
         note.addEventListener("change", function () { c.notes = note.value; });
         chaptersWrap.appendChild(el("div", { class: "vn-route-row vn-ch-row" + (c.status === "completed" ? " cleared" : "") }, [
           name, st, note,
