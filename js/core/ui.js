@@ -29,6 +29,11 @@
     t.className = "toast show" + (bad ? " bad" : "");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { t.className = "toast"; }, 2600);
+    /* Phase F: #toast is the VISIBLE half and is aria-hidden; the spoken
+       half goes through the one live region, so the same sentence twice
+       running still announces twice and a failure interrupts rather than
+       queueing behind a confirmation. */
+    if (KOS.a11y) KOS.a11y.announce(msg, { assertive: !!bad });
   }
 
   var savedTimer = null;

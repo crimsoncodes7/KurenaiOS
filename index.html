@@ -50,9 +50,14 @@
     </div>
     <div id="searchbox">
       <span class="glyph" aria-hidden="true">⌕</span>
-      <input id="search" type="search" placeholder="Search the specification… ( / )"
-             autocomplete="off" aria-label="Search the specification database">
-      <div id="search-results" role="listbox"></div>
+      <!-- Phase F: a real combobox over every domain the user authored or
+           collected, not the specification alone (audit CHR-1 / U-25) -->
+      <input id="search" type="search" placeholder="Search everything… ( / )"
+             autocomplete="off" role="combobox" aria-expanded="false"
+             aria-controls="search-results" aria-autocomplete="list"
+             aria-label="Search KurenaiOS — specification, collection, reminders, assignments, calendar, notes">
+      <div id="search-results" role="listbox" aria-label="Search results"></div>
+      <span id="search-count" class="sr-only" aria-live="polite"></span>
     </div>
     <div class="topbar-right">
       <button id="assistant-trigger" class="assistant-trigger" type="button"
@@ -61,7 +66,11 @@
         <img src="assets/assistant/logo/whispering-bloom-emblem-production.png" alt="" aria-hidden="true">
         <span class="at-dot" aria-hidden="true"></span>
       </button>
-      <button id="sync-status" class="sync-chip" type="button" hidden aria-live="polite"></button>
+      <!-- Phase F: NOT a live region. Its label changes on every cycle
+           (Syncing… → Synced → Changes pending), so announcing every
+           change made it the noisiest thing in the app while saying
+           nothing; cloudui.js announces the transitions that matter. -->
+      <button id="sync-status" class="sync-chip" type="button" hidden></button>
     </div>
   </header>
 
@@ -113,7 +122,9 @@
   </div>
 </div>
 
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<!-- the toast is the VISIBLE notice only; KOS.a11y owns the spoken copy
+     (Phase F), so this node must not be a second live region -->
+<div id="toast" class="toast" aria-hidden="true"></div>
 
 <!-- data (generated from the official specification PDFs) -->
 <script src="js/data/compsci.js"></script>
@@ -124,6 +135,12 @@
 <!-- core -->
 <script src="js/core/store.js"></script>
 <script src="js/core/ui.js"></script>
+<!-- Category 7 Phase F: the announcement/interaction layer, then the
+     history router that wraps KOS.show. Both must follow ui.js — a11y.js
+     reads KOS.ui.topDialog and router.js captures KOS.show. -->
+<script src="js/core/a11y.js"></script>
+<script src="js/core/router.js"></script>
+<script src="js/core/search.js"></script>
 <script src="js/core/imagecrop.js"></script>
 <script src="js/core/charts.js"></script>
 <script src="js/core/content.js"></script>

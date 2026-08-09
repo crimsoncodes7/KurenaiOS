@@ -45,7 +45,10 @@
     var p = prefs();
     if (arg && arg.section) { p.section = arg.section; p.listId = null; p.tag = null; }
 
-    var selectedId = null;
+    /* Phase F: global search opens a specific reminder. The section is
+       widened to "all" by the caller so a completed or undated reminder is
+       still in the list it is about to be selected in. */
+    var selectedId = arg && arg.id != null ? arg.id : null;
 
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [

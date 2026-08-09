@@ -2075,7 +2075,6 @@
   var input = document.getElementById("search");
   var resultsEl = document.getElementById("search-results");
   var selIdx = -1;
-  var matches = [];
 
   /* The one shared spec-search: the topbar box and the assistant's
      search tool (Category 6) both call THIS, so ranking and snippets can
@@ -2111,66 +2110,138 @@
     return specHits.concat(fcHits).slice(0, 30);
   }
 
-  function runSearch(q) {
-    resultsEl.innerHTML = "";
-    selIdx = -1;
-    if (q.trim().length < 2) { resultsEl.classList.remove("open"); return; }
-    matches = searchSpec(q);
-    if (!matches.length) {
-      resultsEl.appendChild(el("div", { class: "sr-empty",
-        text: "No spec point matches \u201C" + q + "\u201D across the three subjects." }));
-      resultsEl.classList.add("open");
-      return;
+  /* ---- the topbar listbox (Category 7 Phase F) ----
+     The ranking and the domains live in core/search.js; this is only the
+     control. It is a real combobox: the input owns `aria-expanded` and
+     `aria-activedescendant`, every result is a `role="option"` with an id,
+     and the domain headings are `role="group"` wrappers rather than fake
+     options \u2014 so \u2193 walks results and never lands on a heading.
+
+     `KOS.search.run` calls back TWICE (memory first, IndexedDB second), so
+     every callback re-checks that the query it answers is still the one in
+     the box; a slow vault read can never overwrite a newer keystroke. */
+  var options = [];          // flat list of the rendered option nodes
+  var seq = 0;               // guards against a stale async answer
+
+  function setExpanded(on) {
+    resultsEl.classList.toggle("open", !!on);
+    input.setAttribute("aria-expanded", String(!!on));
+    if (!on) {
+      input.removeAttribute("aria-activedescendant");
+      selIdx = -1;
     }
-    matches.forEach(function (m, i) {
-      resultsEl.appendChild(el("div", {
-        class: "sr-item", role: "option", "data-i": i,
-        onclick: function () { go(i); }
-      }, [
-        el("span", { class: "sr-ref", style: "color:" + HEX[m.subject], text: m.ref }),
-        el("span", { text: m.title }),
-        m.fcHit ? el("span", { class: "sr-fc", text: "Flashcard match" }) : null,
-        el("span", { class: "sr-sub", text: KOS_DATA[m.subject].name }),
-        el("span", { class: "sr-snip", text: m.snippet })
-      ]));
-    });
-    resultsEl.classList.add("open");
   }
 
-  function go(i) {
-    var m = matches[i];
-    if (!m) return;
-    resultsEl.classList.remove("open");
+  function paint(groups, q, done) {
+    resultsEl.innerHTML = "";
+    options = [];
+    selIdx = -1;
+    input.removeAttribute("aria-activedescendant");
+    var total = 0;
+    groups.forEach(function (g) {
+      var wrap = el("div", { class: "sr-group", role: "group", "aria-label": g.label });
+      wrap.appendChild(el("div", { class: "sr-group-h", "aria-hidden": "true" }, [
+        el("span", { text: g.label }),
+        el("span", { class: "sr-group-n", text: String(g.items.length) })
+      ]));
+      g.items.forEach(function (it) {
+        var id = "sr-opt-" + (++optSeq);
+        var node = el("div", { class: "sr-item", role: "option", id: id, "aria-selected": "false" }, [
+          el("span", { class: "sr-item-main" }, [
+            el("span", { class: "sr-item-t", text: it.title }),
+            it.sub ? el("span", { class: "sr-sub", text: it.sub }) : null
+          ].filter(Boolean)),
+          it.meta ? el("span", { class: "sr-snip", text: it.meta }) : null
+        ].filter(Boolean));
+        node.addEventListener("click", function () { choose(node); });
+        node._open = it.open;
+        options.push(node);
+        wrap.appendChild(node);
+        total++;
+      });
+      resultsEl.appendChild(wrap);
+    });
+    if (!total) {
+      resultsEl.appendChild(el("div", { class: "sr-empty" }, [
+        el("b", { text: "Nothing matches \u201C" + q + "\u201D." }),
+        el("span", { text: done
+          ? "Searched the three specifications, your topic notes, the Collection, reminders, assignments, the calendar, the planner and your goals."
+          : "Still searching the Collection\u2026" })
+      ]));
+    }
+    setExpanded(true);
+    /* announce the count, not the results \u2014 the list is right there, and
+       reading eight titles over the user's typing helps nobody */
+    if (done) {
+      var counter = document.getElementById("search-count");
+      if (counter) {
+        counter.textContent = total
+          ? total + " result" + (total === 1 ? "" : "s") + " in " + groups.length +
+            " section" + (groups.length === 1 ? "" : "s") + ". Use the arrow keys to review."
+          : "No results.";
+      }
+    }
+  }
+  var optSeq = 0;
+
+  function runSearch(q) {
+    var mine = ++seq;
+    if (q.trim().length < (KOS.search ? KOS.search.MIN_LEN : 2)) {
+      resultsEl.innerHTML = "";
+      options = [];
+      setExpanded(false);
+      return;
+    }
+    KOS.search.run(q, function (groups, done) {
+      if (mine !== seq) return;                 /* a newer keystroke owns the box */
+      paint(groups, q, done);
+    });
+  }
+
+  function choose(node) {
+    if (!node || typeof node._open !== "function") return;
+    setExpanded(false);
+    resultsEl.innerHTML = "";
+    options = [];
     input.value = "";
-    KOS.show("ref", { subject: m.subject, ref: m.ref });
+    node._open();
   }
 
   function moveSel(delta) {
-    var items = resultsEl.querySelectorAll(".sr-item");
-    if (!items.length) return;
-    selIdx = (selIdx + delta + items.length) % items.length;
-    items.forEach(function (it, i) { it.classList.toggle("sel", i === selIdx); });
-    if (items[selIdx].scrollIntoView) items[selIdx].scrollIntoView({ block: "nearest" });
+    if (!options.length) return;
+    selIdx = (selIdx + delta + options.length) % options.length;
+    options.forEach(function (n, i) {
+      var on = i === selIdx;
+      n.classList.toggle("sel", on);
+      n.setAttribute("aria-selected", String(on));
+    });
+    var cur = options[selIdx];
+    input.setAttribute("aria-activedescendant", cur.id);
+    if (cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
   }
 
   input.addEventListener("input", function () { runSearch(input.value); });
   input.addEventListener("keydown", function (e) {
     if (e.key === "ArrowDown") { e.preventDefault(); moveSel(1); }
     else if (e.key === "ArrowUp") { e.preventDefault(); moveSel(-1); }
-    else if (e.key === "Enter" && selIdx >= 0) { e.preventDefault(); go(selIdx); }
-    else if (e.key === "Escape") { resultsEl.classList.remove("open"); input.blur(); }
+    else if (e.key === "Home" && options.length) { e.preventDefault(); selIdx = -1; moveSel(1); }
+    else if (e.key === "End" && options.length) { e.preventDefault(); selIdx = 0; moveSel(-1); }
+    else if (e.key === "Enter" && selIdx >= 0) { e.preventDefault(); choose(options[selIdx]); }
+    else if (e.key === "Escape") { e.preventDefault(); setExpanded(false); input.blur(); }
   });
   document.addEventListener("click", function (e) {
-    if (!document.getElementById("searchbox").contains(e.target)) {
-      resultsEl.classList.remove("open");
-    }
+    if (!document.getElementById("searchbox").contains(e.target)) setExpanded(false);
   });
   document.addEventListener("keydown", function (e) {
-    if (e.key === "/" && document.activeElement !== input &&
-        !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) {
-      e.preventDefault();
-      input.focus();
-    }
+    if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
+    var a = document.activeElement;
+    if (a === input || !a) return;
+    /* "/" is a character in a text field and a shortcut everywhere else —
+       contenteditable counts as a text field (the assistant composer) */
+    if (/INPUT|TEXTAREA|SELECT/.test(a.tagName) || a.isContentEditable) return;
+    if (KOS.ui.topDialog && KOS.ui.topDialog()) return;   /* a modal owns the keyboard */
+    e.preventDefault();
+    input.focus();
   });
 
   /* ---------- shared helpers (canonical copies live in core/ui.js) ---------- */
