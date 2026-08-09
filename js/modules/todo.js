@@ -135,7 +135,12 @@
       if (KOS.remindersSummaryCard) wrap.appendChild(KOS.remindersSummaryCard());
     }
     function row(done, label, onTick, onGo, onDel, kind, reward) {
-      var cb = el("input", { type: "checkbox", class: "todo-tick", onchange: function () { onTick(cb.checked); } });
+      /* the tick sits beside its label rather than inside one, so it needs
+         the directive's own text as its name — "checkbox, unchecked" told
+         a screen-reader user nothing about which directive they were on */
+      var cb = el("input", { type: "checkbox", class: "todo-tick",
+        "aria-label": "Seal directive: " + label,
+        onchange: function () { onTick(cb.checked); } });
       cb.checked = done;
       return el("div", { class: "todo-item " + kind + (done ? " done" : "") }, [
         cb,
@@ -272,6 +277,7 @@
       });
       habCol.appendChild(list);
       var input = el("input", { type: "text", class: "todo-in", placeholder: "Add a daily habit…",
+        "aria-label": "New daily habit",
         onkeydown: function (e) { if (e.key === "Enter") submit(); } });
       function submit() {
         if (!input.value.trim()) return;

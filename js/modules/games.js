@@ -485,9 +485,15 @@
 
   /* ================= cards ================= */
   function gridCard(e, rerender) {
-    var card = el("div", { class: "med-card gm-card", role: "button", tabindex: "0",
-      onclick: function () { gamesEditor(e, rerender); },
-      onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); gamesEditor(e, rerender); } }
+    /* Phase F: the card is NOT a button. It contained the favourite
+       toggle, a status <select> and "+1" — an ARIA button may not hold
+       interactive descendants, and a keyboard user who pressed Space on
+       it scrolled the page. The card keeps its pointer shortcut; the
+       TITLE is the real control, so the tab order reads
+       favourite → title → status → +1 and a screen reader announces the
+       entry by name instead of "button". */
+    var card = el("div", { class: "med-card gm-card",
+      onclick: function () { gamesEditor(e, rerender); }
     }, [
       cover(e),
       el("button", { class: "med-fav" + (e.favourite ? " on" : ""), title: "Favourite — appears in the Shrine",
@@ -498,7 +504,8 @@
           ev.target.classList.toggle("on", e.favourite);
         } }),
       el("div", { class: "med-card-body" }, [
-        el("div", { class: "med-title", title: e.title, text: e.title }),
+        el("button", { type: "button", class: "med-title", title: e.title, text: e.title,
+          onclick: function (ev) { ev.stopPropagation(); gamesEditor(e, rerender); } }),
         e.developer ? el("div", { class: "bk-author", text: e.developer }) : null,
         el("div", { class: "med-meta" }, [
           platformChip(e),

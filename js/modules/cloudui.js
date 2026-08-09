@@ -39,6 +39,32 @@
         KOS.cloudsync.syncNow();
       }
     });
+    /* ---- what the chip is allowed to SAY (Phase F, audit U-21/G-25) ----
+       The chip's label changes on every cycle. Announcing each change made
+       a screen reader recite "Syncing… / Synced / Changes pending" over
+       whatever the user was actually doing — the audit's "a status that
+       always says pending says nothing", made audible.
+
+       Only two kinds of transition are worth interrupting for: entering a
+       state that needs the user (an error, a decision, a sign-out), and
+       LEAVING one — because "it recovered" is the answer to the question
+       the first announcement raised. Ordinary syncing→synced→pending churn
+       is silent; the chip is on screen for anyone who wants to look. */
+    var ATTENTION = { error: 1, attention: 1, signedOut: 1 };
+    var lastAnnounced = null;
+    function announceState(s) {
+      var prev = lastAnnounced;
+      if (s.state === prev) return;
+      var wasAttention = prev != null && ATTENTION[prev];
+      lastAnnounced = s.state;
+      if (ATTENTION[s.state]) {
+        KOS.a11y.announce("Cloud sync: " + (LABELS[s.state] || s.state) +
+          (s.detail ? " — " + s.detail : ""), { assertive: s.state === "error" });
+      } else if (wasAttention && s.state === "synced") {
+        KOS.a11y.announce("Cloud sync recovered — synced.");
+      }
+    }
+
     KOS.cloudsync.onStatus(function (s) {
       var localSave = document.querySelector(".save-wrap");
       if (s.state === "unconfigured") {
@@ -47,6 +73,7 @@
         return;
       }
       chip.hidden = false;
+      announceState(s);
       /* One persistence indicator at a time: once cloud status is meaningful,
          it replaces the redundant local "saved" label beside it. */
       if (localSave) localSave.hidden = true;
@@ -56,6 +83,12 @@
         (s.detail ? ": " + s.detail : "") +
         (s.lastSyncAt ? " · last synced " + new Date(s.lastSyncAt).toLocaleTimeString("en-GB") : "") +
         " (click for details)";
+      /* the visible word is the STATE; the button's name has to describe
+         what pressing it does, which is not the same sentence */
+      chip.setAttribute("aria-label", "Cloud sync: " + (LABELS[s.state] || s.state) + ". " +
+        (s.state === "error" ? "Activate to retry."
+          : s.state === "attention" || s.state === "signedOut" ? "Activate to open Account and Cloud Sync."
+          : "Activate to sync now."));
     });
   }
 
@@ -92,16 +125,35 @@
       if (!signedIn) {
         body.appendChild(el("p", { class: "sub", text:
           "Sign in to sync your study state, media vault and attachment list across devices. Signing out or staying offline never blocks the app — cloud sync is a replication layer, not a gate." }));
-        var email = el("input", { type: "email", class: "todo-in cloud-in", placeholder: "email", autocomplete: "username" });
-        var pw = el("input", { type: "password", class: "todo-in cloud-in", placeholder: "password (8+ characters)", autocomplete: "current-password" });
-        var msg = el("p", { class: "sub cloud-msg" });
+        var email = el("input", { type: "email", class: "todo-in cloud-in", "aria-label": "Email address", placeholder: "email", autocomplete: "username" });
+        var pw = el("input", { type: "password", class: "todo-in cloud-in", "aria-label": "Password", placeholder: "password (8+ characters)", autocomplete: "current-password" });
+        /* Phase F: the form's one message line carries both progress and
+           its validation failures. It is a status region so the failure is
+           heard, and it is wired to both fields with aria-describedby so a
+           screen reader reaching the field finds the reason there too. */
+        var msgId = "cloud-msg-" + Date.now();
+        var msg = el("p", { class: "sub cloud-msg", id: msgId, role: "status" });
+        email.setAttribute("aria-describedby", msgId);
+        pw.setAttribute("aria-describedby", msgId);
+        email.required = true;
+        pw.required = true;
         function busy(b, label) {
           inBtn.disabled = upBtn.disabled = b;
           msg.textContent = b ? label : "";
         }
         function submit(fn, verb) {
           var e = email.value.trim(), p = pw.value;
-          if (!e || !p) { msg.textContent = "Enter both an email address and a password."; return; }
+          if (!e || !p) {
+            msg.textContent = "Enter both an email address and a password.";
+            /* invalid state carried beyond colour, and focus put on the
+               field that has to change */
+            email.setAttribute("aria-invalid", String(!e));
+            pw.setAttribute("aria-invalid", String(!p));
+            (!e ? email : pw).focus();
+            return;
+          }
+          email.removeAttribute("aria-invalid");
+          pw.removeAttribute("aria-invalid");
           busy(true, verb + "…");
           fn(e, p, function (err) {
             busy(false, "");

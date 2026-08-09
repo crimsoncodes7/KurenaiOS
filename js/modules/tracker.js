@@ -75,8 +75,8 @@
 
     var topic = el("input", { type: "text", class: "cal-in", placeholder: "e.g. Quadratics / Data structures" });
     var paper = el("input", { type: "text", class: "cal-in", placeholder: "e.g. Paper 1 · June 2024" });
-    var marks = el("input", { type: "number", min: 0, class: "cal-in fx-num", placeholder: "got" });
-    var max = el("input", { type: "number", min: 1, class: "cal-in fx-num", placeholder: "out of" });
+    var marks = el("input", { type: "number", min: 0, class: "cal-in fx-num", "aria-label": "Marks awarded", placeholder: "got" });
+    var max = el("input", { type: "number", min: 1, class: "cal-in fx-num", "aria-label": "Marks available", placeholder: "out of" });
     var grade = el("input", { type: "text", class: "cal-in fx-num", placeholder: "e.g. B / 6" });
     var date = el("input", { type: "date", class: "cal-in" });
     var well = el("textarea", { class: "note-area", rows: 2, placeholder: "Areas that went well…" });
@@ -186,7 +186,7 @@
     ]));
 
     var ctl = el("div", { class: "trk-ctl" });
-    var subjSel = el("select", { class: "status-sel", onchange: function () { filterSubj = subjSel.value; render(); } }, [
+    var subjSel = el("select", { class: "status-sel", "aria-label": "Filter by subject", onchange: function () { filterSubj = subjSel.value; render(); } }, [
       el("option", { value: "", text: "All subjects" }),
       el("option", { value: "compsci", text: SUBJ.compsci }),
       el("option", { value: "maths", text: SUBJ.maths }),
@@ -256,9 +256,10 @@
           el("span", { class: "trk-score" + tone, text: p != null ? e.marks + "/" + e.max + " · " + p + "%" : "—" }),
           el("span", { class: "trk-grade", text: e.grade || "" }),
           el("label", { class: "trk-rev", title: "Reviewed?", onclick: function (ev) { ev.stopPropagation(); } }, [revCb]),
-          el("span", { class: "mini-btn", text: "✎", role: "button", "aria-label": "Edit", onclick: function (ev) {
-            ev.stopPropagation(); editorModal(kind, e, render);
-          } })
+          /* Phase F: was a <span role="button"> with no tabindex — named,
+             but unreachable without a mouse. A real button needs neither. */
+          el("button", { type: "button", class: "mini-btn", text: "✎", "aria-label": "Edit this entry",
+            onclick: function (ev) { ev.stopPropagation(); editorModal(kind, e, render); } })
         ]);
         row.appendChild(head);
 

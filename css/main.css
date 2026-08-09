@@ -8268,3 +8268,135 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
   to   { background-position: -60% 0; }
 }
 @media (prefers-reduced-motion: reduce) { .med-cover.is-loading::after { animation: none; } }
+
+/* ============================================================
+   CATEGORY 7 · PHASE F — ACCESSIBILITY AND INTERACTION
+   ------------------------------------------------------------
+   One appended block, deliberately. Phase F's job is semantics,
+   focus, keyboard and routing; the only CSS it owns is what those
+   fixes cannot work without. Everything here is either (a) the
+   styling a control needs now that it is a real <button> instead
+   of a div, (b) a hit area, or (c) a focus affordance. No layout,
+   no breakpoints, no component redesign — those belong to E and G.
+
+   HIT AREAS. WCAG 2.5.5 asks for 44x44 and WCAG 2.2's 2.5.8 asks
+   for 24x24 with a spacing exception. Where 44 fits, 44 is used.
+   Where it cannot — a calendar month cell shows three or four
+   chips inside ~90px of height, so 44px per chip would show one —
+   the visual control clears 24px and the row is the target. The
+   audit's own instruction: do not solve this by inflating every
+   control.
+   ============================================================ */
+
+/* ---- controls that became real buttons (F1) ----
+   The global `button` reset already strips chrome; these add back
+   the block behaviour the div had, so nothing moves visually. */
+.med-title, .med-row-title, .shrine-title-btn, .mk-work, .msch-row {
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  width: 100%;
+}
+.med-title { color: #FBF7EE; }          /* the card body sits on a scrim */
+/* The Shrine title is a button INSIDE its <h3> (the heading stays a
+   heading), so the two-line clamp has to move onto the button: a
+   -webkit-box with one inline-block child clamps to one "line" and lets
+   the text inside it wrap forever, which grew the ranked cards from 323
+   to 407px and tripped the visual audit's 360px bound. */
+.shrine-body h3 > .shrine-title-btn {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; font: inherit; color: inherit;
+}
+/* the lift used to follow the card's own focus; the title carries it now */
+.med-card:focus-within { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.med-row:focus-within { background: var(--bg1); }
+
+/* the reminders list row is a container again, so its navigating
+   half needs the grid the row used to own (F1 — no button in a button) */
+.rem-side-item > .rsi-main {
+  grid-column: 1 / 4;
+  display: grid; grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center; gap: 9px;
+  width: 100%; text-align: left; font: inherit; color: inherit;
+}
+
+/* ---- grouped search results (F7) ---- */
+.sr-group + .sr-group { border-top: 1px solid var(--line2); margin-top: 4px; padding-top: 4px; }
+.sr-group-h {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  padding: 6px 12px 3px;
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700;
+}
+.sr-group-n { font-family: var(--mono); font-size: 11px; }
+.sr-item { cursor: pointer; }
+.sr-item-main { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.sr-item-t { font-weight: 600; }
+.sr-empty b { display: block; color: var(--text2); margin-bottom: 3px; }
+.sr-empty span { display: block; font-size: 12.5px; }
+
+/* ---- hit areas (F2) ----
+   Deliberately NOT a blanket pseudo-element expansion. `.xbtn`
+   pairs sit 2px apart in the reminders rail and the quick-edit row
+   packs a select against "+1"; growing every icon to a 44px
+   invisible square would overlap its neighbour and hand taps to the
+   wrong control — a worse failure than a small target, because it
+   is silent. So: raise the VISUAL floor everywhere, take the full
+   44 where the pointer is a finger (which is what 2.5.5 is about),
+   and leave `.u-hit-44` as an opt-in for a control that stands alone. */
+.icon-btn, .mini-btn, .xbtn, .med-fav {
+  min-width: max(var(--icon-btn-size-sm), 32px);
+  min-height: max(var(--icon-btn-size-sm), 32px);
+}
+.med-fav { width: 32px; height: 32px; }
+@media (pointer: coarse) {
+  .icon-btn, .mini-btn, .xbtn, .med-fav { min-width: 44px; min-height: 44px; }
+  .med-fav { width: 44px; height: 44px; }
+  .sr-item { min-height: 44px; }
+}
+.u-hit-44 { position: relative; }
+.u-hit-44::after {
+  content: ""; position: absolute; z-index: 0;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: max(100%, 44px); height: max(100%, 44px);
+}
+/* a calendar month cell cannot give each chip 44px and still show a
+   day's events — four chips would become one. The chip clears the
+   24px floor of WCAG 2.2's 2.5.8 and gains the vertical spacing that
+   rule's exception is written for; the whole chip is the target. */
+.cal-ev { min-height: 24px; align-items: center; }
+.cal-cell .cal-ev + .cal-ev { margin-top: 3px; }
+.cal-more { min-height: 24px; }
+/* the four topic progress checks and the confidence pills */
+.ctl-row label.chk.ts-chk { min-height: max(var(--control-h-sm), 32px); }
+
+/* ---- focus (F3/F9) ---- */
+/* #main takes focus after a navigation so the next Tab starts in the
+   page rather than back at the brand mark; that is a programmatic
+   focus and must not paint a ring */
+#main:focus { outline: none; }
+#main:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+/* a hidden or collapsed surface must not hold a tab stop */
+[hidden] { display: none !important; }
+
+/* the Home/Collection desk cards became containers with their title as
+   the control (F1) — the heading button must not look like a button */
+.subj-card-open {
+  font: inherit; color: inherit; text-align: left;
+  padding: 0; background: none; border: 0;
+}
+.subj-card:focus-within { border-color: color-mix(in srgb, var(--accent) 45%, var(--line2)); }
+
+/* ---- the search dropdown was trapped under the page (F7) ----
+   #topbar carries `backdrop-filter: blur(10px)`, and a backdrop-filter
+   makes an element a STACKING CONTEXT. That scoped #search-results'
+   z-index: 60 inside the topbar, and because the topbar is static and
+   comes first in the DOM, all of #cols painted over it: the results
+   panel was visible only in the gaps between the page's cards. Making
+   the topbar a positioned element on the shared scale lifts the whole
+   of it — chrome above content, which is what it is — and leaves the
+   panel's own z-index doing its real job inside. Slots between
+   --z-stage (70) and the assistant drawer (90), so nothing that is
+   meant to cover the chrome stops doing so. */
+:root { --z-topbar: 80; }
+#topbar { position: relative; z-index: var(--z-topbar); }

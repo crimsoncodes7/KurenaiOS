@@ -3955,3 +3955,182 @@ exactly the asymmetry VLT-4 describes — seeding all four hid it).
   shared lazy area, not to this page.
 
 **Phase D is complete.**
+
+---
+
+## CATEGORY 7 · PHASE F — Accessibility, interaction and routing (2026-08-09)
+
+Built on `ui/cat7-cleanup` (`60d6832`) in parallel with Phase E's mobile work,
+under one hard constraint: **change no layout.** A 192-cell responsive sweep
+against the Phase D tree reports **0 worse, 0 better**, which is the evidence
+that the constraint held.
+
+The release gate is now **45 suites**, all green, plus the live-Chrome visual
+audit.
+
+### The browser Back button now navigates KurenaiOS
+
+`KOS.show` kept a private `navHist`/`navFwd` pair and never touched the History
+API, so the OS Back gesture **left the installed app** and nothing in
+KurenaiOS was linkable, bookmarkable or restorable — a refresh landed on
+whatever `state.ui.view` happened to say.
+
+`js/core/router.js` **wraps** `KOS.show` rather than editing it, so rendering —
+rail state, subnav, scroll reset, menu close — stays in exactly one place.
+
+- **Hash routes**, not path routes: `#/review`, `#/subject/maths`,
+  `#/ref/compsci/4.1.1.1`. `index.html` must keep working from `file://`
+  (CLAUDE.md's first line) and production is a static Cloudflare Pages
+  deployment with no rewrite rules. A path route would throw a SecurityError
+  in one environment and 404 on refresh in the other.
+- **One stack.** `KOS.back()`/`KOS.forward()` call `history.back()`/
+  `history.forward()`. The topbar arrows, Alt+←/→, the OS gesture and the
+  browser chrome are the same history; `canBack`/`canForward` derive from a
+  stamped index, so a cold deep link honestly reports nothing behind it.
+- **A redraw is not a navigation.** A render carrying `_nav` — which
+  `KOS.rerender()` and therefore every cloud pull passes — pushes no entry,
+  moves no URL, moves no focus and announces nothing.
+- **Args are remembered, not merely encoded.** Five views encode an argument
+  because theirs is part of the page's identity (`subject`, `ref`, `governor`,
+  `sims`, `assistant`). The Focus setup's `{assignmentId}` and a stats filter
+  are held against their history index instead, so an in-session Back restores
+  the full argument while a cold deep link still resolves to something
+  sensible. Transient modal state is deliberately not encoded.
+
+Verified in Chrome against a seeded account: four navigations across Study, a
+topic, Calendar and a vault, then Back ×3 and Forward, each landing on the
+right view and the right URL; a **true reload** of `#/ref/compsci/4.1.1.2`
+restored the topic with `#main.scrollTop === 0` and the Back arrow correctly
+disabled.
+
+### The app can be heard
+
+`#toast` was the only live region in the app, and it was also the visible
+toast — saves, validation failures, destructive-action results and sync
+transitions were all silent.
+
+`js/core/a11y.js` owns one polite region and one assertive one. The toast
+mirrors into it (and is now `aria-hidden`, so nothing is announced twice); the
+region is cleared before it is refilled, so the same sentence twice running
+announces twice rather than being swallowed as a no-op.
+
+**The sync chip stopped shouting.** It was `aria-live="polite"` on a button
+whose label changes every cycle — a screen reader recited "Syncing… / Synced /
+Changes pending" over whatever the user was doing. It is no longer a live
+region. It announces entering a state that needs the user (error, decision,
+sign-out) and *leaving* one, because "it recovered" answers the question the
+first announcement raised. Its accessible name describes what pressing it
+does, which is not the same sentence as its label.
+
+### A card that contains a `<select>` is not a button
+
+The single most repeated defect in the app: every vault card, the list row,
+the assignment row, both Shrine cards and both Home desk cards carried
+`role="button"` while holding a favourite toggle, a status `<select>` and
+"+1". An ARIA button may not have interactive descendants — a screen reader
+flattens it, and Tab walks into the children of a "button".
+
+The card keeps its pointer shortcut; the **title** is the control. Verified
+live: `role=null tabindex=null`, and the tab order reads
+`Toggle favourite | Vinland Saga 15 | Status | Score out of 10`.
+
+Where a node genuinely was a leaf it became a real `<button>` instead — the
+vault search result (which had **no keyboard activation at all**) and the
+Mangaka work tile. The tracker's edit chip was a `<span role="button">` with
+no tabindex: named, and unreachable without a mouse.
+
+Ten call sites bound Enter only, so **Space scrolled the page** instead of
+activating a control whose role promises it. `KOS.a11y.activate` binds both.
+
+### Names
+
+Every focusable control in all 29 views, the global chrome, the ref page and
+eight modal forms now has an accessible name. Twelve had only a placeholder,
+which is not a name — it disappears exactly when the name is needed.
+
+`el()` was shipping **`title="null"` app-wide**: `title: opts.hint || null` is
+the house idiom and `setAttribute` stringifies, so every tab and every menu
+button without a hint carried a literal "null" as a tooltip and in its
+accessible description. One guard in `el()` fixed every call site at once.
+
+### Search over what the user actually owns
+
+The box searched the specification and nothing else — on the real account,
+one field over 355 spec points and no way to reach 1,880 collection entries,
+the reminders, the assignments, the calendar or a single topic note.
+
+`js/core/search.js` is the domain half (no DOM, so the assistant's search tool
+can share the ranking) and covers eight domains: the three specifications,
+topic notes, the Collection, reminders, assignments, the calendar, personal
+flashcards, the planner and goals.
+
+- **Nothing private is searchable** — provider tokens, media kv, the Supabase
+  session, `push.log`, the session ledger and the assistant audit trail are
+  out by construction. A search box is a disclosure surface.
+- **The vault is not loaded to be searched.** It goes through `mediadb`'s
+  indexed cursor and is capped per domain, so 1,880 entries never reach the
+  DOM (invariant #8, applied to search).
+- **A real combobox**: `aria-expanded`, `aria-controls`,
+  `aria-activedescendant`, results as `role="option"` inside per-domain
+  `role="group"` wrappers so ↓ walks results and never lands on a heading.
+  The count is announced, not the results. A slow vault answer re-checks that
+  its query is still the one in the box.
+
+Verified live: one query returned five grouped domains, and choosing a result
+reached Reminders, the correct topic and the owning vault respectively.
+
+**And the panel was trapped under the page.** `#topbar` carries
+`backdrop-filter`, which makes it a stacking context — so `#search-results`'
+`z-index: 60` could never lift it above `#cols`, and the dropdown rendered
+visible only in the gaps between the page's cards. Pre-existing, and invisible
+while the box only returned spec points nobody used. The topbar is now
+positioned on the shared `--z-*` scale.
+
+### Targets
+
+Icon-only controls take a 32px visual floor and the full 44 under
+`pointer: coarse`, which is what WCAG 2.5.5 is about.
+
+Deliberately **not** a blanket 44px pseudo-element: `.xbtn` pairs sit 2px
+apart and the quick-edit row packs a select against "+1", so invisible 44px
+squares would overlap and hand taps to the wrong control — a worse failure
+than a small target, because it is silent. Calendar chips take WCAG 2.2
+§2.5.8's 24px-plus-spacing rule instead; 44px per chip would show one event
+per day cell. The reasoning is written beside the rule.
+
+### Verification
+
+- **All 45 suites green**, including the new `tools/smoke45.test.js`
+  (43 steps, six areas: history · live regions · names and semantics · the
+  Phase B dialog contract re-asserted · search · targets).
+- **`tools/visual_audit.mjs` passes** — it caught a real regression on the way:
+  the Shrine title is a button inside its `<h3>`, and the two-line clamp lived
+  on the h3, so a `-webkit-box` with one inline-block child clamped to a single
+  "line" and let the text wrap forever (323 → 407px cards).
+- **192-cell responsive sweep** (24 views × 4 widths × 2 themes, dense
+  account) diffed against the Phase D tree: **0 worse, 0 better**.
+- **Live Chrome**, seeded: keyboard traversal of the chrome and Home with zero
+  unnamed stops and zero `title="null"`; Back/Forward across four sections; a
+  cold deep-link reload; grouped search with arrow keys and Enter; the menu,
+  the record editor and a destructive prompt driven by keyboard alone.
+
+**The smoke suite seeds before it audits.** The by-hand pass found the vault
+cards and missed the two on Home — because Home's desk cards only grow their
+"Continue" button once there is somewhere to continue to, and an empty account
+has nowhere. smoke45 caught both on its first run. Its modal step, added
+after, is what caught the VN route rows, where every route repeated an unnamed
+checkbox and an unnamed text field: **the surface a test walks is the only
+surface it can defend.**
+
+### Recorded for Phase E, not fixed here
+
+- **`#searchbox` is `display: none` below 560px with no replacement entry
+  point** (G-21 / CHR-2). This now costs more than it did: the box is the
+  app's main way to reach 1,880 collection entries, five domains of personal
+  records and the specification. The fix is a presentation decision — a
+  full-screen sheet, or a magnifier that expands the topbar — and belongs with
+  the mobile topbar work.
+- The Focus Timer setup still overflows by 365px at 390px (39 elements, both
+  themes). Confirmed identical on the Phase D tree by the same sweep.
+
+**Phase F is complete.**

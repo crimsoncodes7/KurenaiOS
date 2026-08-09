@@ -135,12 +135,37 @@ horizontal scroller, use the primitive — see CLAUDE.md invariants 47–50.
 - **Five breakpoints only** (1240/1080/860/700/560), written widest-first
   within a component.
 
+## Accessibility and interaction (Category 7 Phase F)
+See CLAUDE.md invariants 64–71 before touching semantics, focus or routing.
+- **`KOS.a11y.announce(msg, {assertive})`** is the only route to a live region.
+  `#toast` is the visible half and is `aria-hidden`; never add a second one, and
+  never make a control (like the sync chip) a live region — its label changes on
+  every cycle.
+- **A card holding a `<select>` or a button is not an ARIA button.** Give the card
+  a pointer `onclick` and make its TITLE a real `<button>`. A leaf is a real
+  `<button>`, not `role="button"` + `tabindex`. If a div must keep the role, use
+  **`KOS.a11y.activate(node, fn)`** — the role promises Space too.
+- **A placeholder is not a name.** `el()` now omits `null`/`undefined` attribute
+  values, so `title: x || null` is safe.
+- **`KOS.search.run(q, cb)`** is the cross-domain search; it is a pure domain layer
+  and it must never reach a token, kv record, session or audit row.
+- Hit areas grow by raising the visual floor (32px, 44 under `pointer: coarse`),
+  never by an invisible 44px pseudo-element over clustered controls.
+
 ## Navigation
-`KOS.show(viewId, arg)` records a history stack; `KOS.back()`/`KOS.forward()` (and
-`KOS.canBack()`/`KOS.canForward()`) drive the topbar **‹ Back** / **Forward ›** buttons
-(and Alt+← / Alt+→ / Backspace). A fresh `KOS.show` clears the forward trail, like a
-browser. Don't replace `#main` directly — always route through `KOS.show` so history,
-forward trail and rail state stay correct.
+`KOS.show(viewId, arg)` renders; `js/core/router.js` WRAPS it and owns the URL and
+the history stack (Category 7 Phase F). Routes are hash routes — `#/review`,
+`#/subject/maths`, `#/ref/compsci/4.1.1.1` — because `index.html` must keep working
+from `file://` and production is a static host. `KOS.back()`/`KOS.forward()` call
+`history.back()`/`history.forward()`, so the topbar **‹ ›** buttons, Alt+← / Alt+→ /
+Backspace, the OS Back gesture and the browser chrome are ONE stack. `main.js` ends
+with `KOS.router.boot()`, which opens the URL's view if there is one and otherwise
+restores the stored last view.
+
+A render carrying `_nav` — which `KOS.rerender()` and therefore every cloud pull
+passes — pushes no history entry, moves no URL, moves no focus and announces
+nothing. Don't replace `#main` directly, and don't edit `KOS.show` to add routing:
+wrap it, so rendering stays in one place. See CLAUDE.md invariants 64–65.
 
 Study owns the subject dashboards, the **Review** workspace and Exams & Papers.
 Review composes Due Today and Card Stats under a secondary tab bar; the `due` and
@@ -213,12 +238,12 @@ an autonomous cycle must batch all providers into one ledger entry through
   heroes use the shared Build 5 geometry; Governor Status keeps its special
   profile-banner composition.
 
-## Tests — all FORTY-TWO suites must pass
+## Tests — all FORTY-FIVE suites must pass
 
 ```sh
-for i in "" {2..42}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..45}; do node "tools/smoke${i}.test.js"; done
 ```
-smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–42 print "SMOKE-N PASS …"
+smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–45 print "SMOKE-N PASS …"
 (smoke10 prints "10 passed, 0 failed"). Collection suites need `npm i fake-indexeddb`
 in addition to jsdom. Per-suite coverage table: PROGRESS.md snapshot section.
 

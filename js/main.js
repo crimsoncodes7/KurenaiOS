@@ -107,17 +107,10 @@
   if (KOS.cloudsync) KOS.cloudsync.start();
 
   KOS.refreshRailCounters();
-  var ui = KOS.store.state.ui;
-  var view = ui.view || "home";
-  if (view === "ref") {
-    var sid = ui.subject, ref = ui.lastRef && ui.lastRef[sid];
-    if (sid && ref) KOS.show("ref", { subject: sid, ref: ref });
-    else KOS.show("home");
-  } else if (view === "subject") {
-    KOS.show("subject", ui.subject || "compsci");
-  } else if (KOS.views[view]) {
-    KOS.show(view);
-  } else {
-    KOS.show("home");
-  }
+  /* Category 7 Phase F: the router owns the opening view. A URL wins (a
+     deep link, a bookmark, a refresh, a PWA launch); with no hash it
+     restores the stored last view exactly as this block used to, then
+     stamps that route onto the current history entry so the very first
+     Back is already inside the app rather than out of it. */
+  KOS.router.boot();
 })();

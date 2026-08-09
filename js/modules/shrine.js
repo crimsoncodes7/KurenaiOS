@@ -968,18 +968,14 @@
       });
       var first = favourites[0], firstMod = KOS.media.module(first.module);
       var firstMeta = shrineMeta(first);
+      /* Phase F: the rank-one feature carries its own "Create share card"
+         and "Edit entry" buttons, so it was an ARIA button wrapping two
+         real ones. It keeps the pointer shortcut and drops the role — the
+         keyboard path is the Edit button that was always there. */
       var feature = el("article", {
         class: "wl-hero wl-hero-feature shrine-feature" + (first.coverUrl ? " has-banner" : ""),
         style: "--accent:" + (firstMod.accent || "var(--accent2)"),
-        tabindex: "0",
-        role: "button",
-        onclick: function () { openEntry(first); },
-        onkeydown: function (ev) {
-          if (ev.key === "Enter") {
-            ev.preventDefault();
-            openEntry(first);
-          }
-        }
+        onclick: function () { openEntry(first); }
       }, [
         el("div", { class: "wl-hero-badge shrine-feature-rank", text: "◆ Rank 01 · Hall of Fame" }),
         !first.coverUrl ? el("span", { class: "wl-hero-ph", text: firstMod.kanji }) : null,
@@ -1016,23 +1012,19 @@
         var ranked = el("div", { class: "shrine-ranked-grid" });
         favourites.slice(1).forEach(function (entry, offset) {
           var rank = offset + 2, mod = KOS.media.module(entry.module), meta = shrineMeta(entry);
+          /* Phase F: a ranked card holds its own "Share card" button, so
+             the card is not a button; its title is. */
           ranked.appendChild(el("article", {
             class: "shrine-card shrine-rank-card" + (rank <= 3 ? " top" : ""),
-            role: "button",
-            tabindex: "0",
-            onclick: function () { openEntry(entry); },
-            onkeydown: function (ev) {
-              if (ev.key === "Enter") {
-                ev.preventDefault();
-                openEntry(entry);
-              }
-            }
+            onclick: function () { openEntry(entry); }
           }, [
             el("span", { class: "shrine-rank", text: "#" + rank }),
             cover(entry, mod, "shrine-rank-cover"),
             el("div", { class: "shrine-body" }, [
               el("span", { class: "shrine-overline", text: mod.label }),
-              el("h3", { title: entry.title, text: entry.title }),
+              el("h3", {}, [el("button", { type: "button", class: "shrine-title-btn",
+                title: entry.title, text: entry.title,
+                onclick: function (ev) { ev.stopPropagation(); openEntry(entry); } })]),
               el("div", { class: "shrine-row-meta" }, [
                 meta[0] ? el("span", { text: meta[0] }) : null,
                 meta[1] ? el("span", { text: meta[1] }) : null

@@ -238,9 +238,15 @@
 
   /* ---------------- cards ---------------- */
   function gridCard(e, mod, rerender) {
-    var card = el("div", { class: "med-card", role: "button", tabindex: "0",
-      onclick: function () { editorModal(e, rerender); },
-      onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); editorModal(e, rerender); } }
+    /* Phase F: the card is NOT a button. It contained the favourite
+       toggle, a status <select> and "+1" — an ARIA button may not hold
+       interactive descendants, and a keyboard user who pressed Space on
+       it scrolled the page. The card keeps its pointer shortcut; the
+       TITLE is the real control, so the tab order reads
+       favourite → title → status → +1 and a screen reader announces the
+       entry by name instead of "button". */
+    var card = el("div", { class: "med-card",
+      onclick: function () { editorModal(e, rerender); }
     }, [
       cover(e, mod),
       el("button", { class: "med-fav" + (e.favourite ? " on" : ""), title: "Favourite — appears in the Shrine",
@@ -251,7 +257,8 @@
           ev.target.classList.toggle("on", e.favourite);
         } }),
       el("div", { class: "med-card-body" }, [
-        el("div", { class: "med-title", title: e.title, text: e.title }),
+        el("button", { type: "button", class: "med-title", title: e.title, text: e.title,
+          onclick: function (ev) { ev.stopPropagation(); editorModal(e, rerender); } }),
         el("div", { class: "med-meta" }, [
           airingChip(e),
           el("span", { class: "med-prog", text: progressText(e) }),

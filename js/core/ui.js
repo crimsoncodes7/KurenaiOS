@@ -12,6 +12,12 @@
         else if (k === "html") node.innerHTML = attrs[k];
         else if (k.slice(0, 2) === "on") node.addEventListener(k.slice(2), attrs[k]);
         else if (k === "style") node.style.cssText = attrs[k];
+        /* Phase F: `title: opts.hint || null` is the house idiom for an
+           optional attribute, and setAttribute stringifies — so every tab
+           and menu button without a hint was shipping title="null", which
+           shows as a tooltip and joins the accessible description. An
+           absent value now means an absent attribute. */
+        else if (attrs[k] === null || attrs[k] === undefined) { /* omit */ }
         else node.setAttribute(k, attrs[k]);
       });
     }
@@ -29,6 +35,11 @@
     t.className = "toast show" + (bad ? " bad" : "");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { t.className = "toast"; }, 2600);
+    /* Phase F: #toast is the VISIBLE half and is aria-hidden; the spoken
+       half goes through the one live region, so the same sentence twice
+       running still announces twice and a failure interrupts rather than
+       queueing behind a confirmation. */
+    if (KOS.a11y) KOS.a11y.announce(msg, { assertive: !!bad });
   }
 
   var savedTimer = null;
@@ -697,7 +708,17 @@
         if (panel.contains(ev.target) || btn.contains(ev.target)) return;
         closeOpenMenu(false);
       }
+      /* Phase F: the scroll listener is capture-phase on window, so it sees
+         #main's scroll too — which is right, because the panel is fixed and
+         would detach from its button. But focusing a control SCROLLS IT
+         INTO VIEW, so a keyboard user tabbing to this button and pressing
+         Enter could have the resulting scroll arrive just after the panel
+         opened and dismiss it again. Ignore dismissals until the open has
+         settled; a deliberate scroll is always later than that. */
+      var settled = false;
+      setTimeout(function () { settled = true; }, 0);
       function onDismiss(ev) {
+        if (!settled) return;
         if (ev && ev.type === "scroll" && panel.contains(ev.target)) return;
         closeOpenMenu(false);
       }

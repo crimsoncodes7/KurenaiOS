@@ -118,10 +118,8 @@
           var box = el("div", { class: "mx-air-list" });
           list.forEach(function (x) {
             var open = function () { KOS.mediaEditor(x.entry, function () { KOS.show("matrix", undefined, { _nav: true }); }); };
-            box.appendChild(el("div", { class: "mx-air-card", role: "button", tabindex: "0",
-              title: "Episode " + x.airing.episode + " airs " + new Date(x.airing.airingAt * 1000).toLocaleString(),
-              onclick: open,
-              onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); open(); } }
+            box.appendChild(KOS.a11y.activate(el("div", { class: "mx-air-card", role: "button", tabindex: "0",
+              title: "Episode " + x.airing.episode + " airs " + new Date(x.airing.airingAt * 1000).toLocaleString()
             }, [
               x.entry.coverUrl
                 ? el("span", { class: "mx-air-cover" }, [KOS.imageCrop.image(x.entry.coverUrl,
@@ -134,7 +132,7 @@
                   el("span", { class: "sub", text: " · EP " + x.airing.episode })
                 ])
               ])
-            ]));
+            ]), open));
           });
           airWrap.appendChild(box);
         });
@@ -162,10 +160,8 @@
           var prog = KOS.media.progressText(e);
           var pct = KOS.media.progressPct(e);
           var open = function () { KOS.mediaEditor(e, function () { KOS.show("matrix", undefined, { _nav: true }); }); };
-          var card = el("div", { class: "med-strip-card", role: "button", tabindex: "0",
-            title: e.title + (prog ? " — " + prog : ""),
-            onclick: open,
-            onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); open(); } }
+          var card = KOS.a11y.activate(el("div", { class: "med-strip-card", role: "button", tabindex: "0",
+            title: e.title + (prog ? " — " + prog : "")
           }, [
             /* the shared cover, so the kanji placeholder is painted from
                the first frame here too (audit G-24/U-15) */
@@ -173,7 +169,7 @@
             el("span", { class: "med-strip-mod", text: mod.kanji, title: mod.label }),
             el("span", { class: "med-strip-t", text: e.title }),
             prog ? el("span", { class: "med-strip-p", text: prog }) : null
-          ].filter(Boolean));
+          ].filter(Boolean)), open);
           if (pct !== null) card.appendChild(el("span", { class: "med-strip-track" }, [
             el("span", { style: "width:" + pct + "%" })
           ]));

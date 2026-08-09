@@ -211,7 +211,7 @@
       KOS.anilist.getConnection(function (err, conn) {
         if (err) { connBody.appendChild(el("p", { class: "sub", text: "Could not read the connection store: " + err.message })); return; }
 
-        var idIn = el("input", { type: "text", class: "todo-in", placeholder: "AniList Client ID (a short number)", value: conn.clientId || "" });
+        var idIn = el("input", { type: "text", class: "todo-in", "aria-label": "AniList Client ID", placeholder: "AniList Client ID (a short number)", value: conn.clientId || "" });
         var connectBtn = el("button", { class: "btn primary", text: "1 · Connect AniList ↗", onclick: function () {
           var id = idIn.value.trim();
           if (!id) { KOS.ui.toast("Paste your Client ID first — from anilist.co/settings/developer.", true); return; }
@@ -222,7 +222,7 @@
         } });
         idIn.addEventListener("change", function () { KOS.anilist.setClientId(idIn.value, function () {}); });
 
-        var tokIn = el("input", { type: "password", class: "todo-in", placeholder: "2 · Paste the access token AniList showed you" });
+        var tokIn = el("input", { type: "password", class: "todo-in", "aria-label": "AniList access token", placeholder: "2 · Paste the access token AniList showed you" });
         var verifyBtn = el("button", { class: "btn", text: "Save & verify", onclick: function () {
           var tok = tokIn.value.trim();
           if (!tok) { KOS.ui.toast("Paste the token first.", true); return; }
@@ -376,7 +376,7 @@
           vndbBody.appendChild(vnStatus);
         } else {
           vndbBody.appendChild(facts([["Status", "Not connected"], ["Account", "Connect VNDB to begin"], ["Last successful sync", "—"], ["Items imported", "—"], ["Sync mode", "Update & add"]]));
-          var tokIn = el("input", { type: "password", class: "todo-in", placeholder: "Paste your VNDB token (from vndb.org/u/tokens)" });
+          var tokIn = el("input", { type: "password", class: "todo-in", "aria-label": "VNDB personal token", placeholder: "Paste your VNDB token (from vndb.org/u/tokens)" });
           var verifyBtn = el("button", { class: "btn primary", text: "Save & verify", onclick: function () {
             var tok = tokIn.value.trim();
             if (!tok) { KOS.ui.toast("Paste the token first — generate one at vndb.org/u/tokens.", true); return; }
@@ -418,7 +418,7 @@
     function renderAuto() {
       autoBody.innerHTML = "";
       KOS.autosync.enabled(function (e0, on) {
-        var toggle = el("input", { type: "checkbox" });
+        var toggle = el("input", { type: "checkbox", "aria-label": "Autonomous sync every 15 minutes" });
         toggle.checked = on;
         toggle.addEventListener("change", function () {
           KOS.autosync.setEnabled(toggle.checked, function () {

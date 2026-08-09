@@ -737,7 +737,8 @@
       ? el("span", { class: "med-row-cover" }, [KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy" }, e.coverCrop)])
       : el("span", { class: "med-row-cover med-cover-ph", "aria-hidden": "true", text: mod.kanji });
     var main = el("div", { class: "med-row-main" }, [
-      el("span", { class: "med-row-title", text: e.title, title: e.title }),
+      el("button", { type: "button", class: "med-row-title", text: e.title, title: e.title,
+        onclick: function (ev) { ev.stopPropagation(); opts.open(); } }),
       (opts.genres || opts.subline) ? el("span", { class: "med-row-genres", text: opts.subline || opts.genres }) : null
     ].filter(Boolean));
     var side = el("div", { class: "med-row-side" },
@@ -751,10 +752,10 @@
             ev.stopPropagation(); opts.onBump();
           } }) : null
         ].filter(Boolean)));
-    return el("div", { class: "med-row", role: "button", tabindex: "0",
-      onclick: opts.open,
-      onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); opts.open(); } }
-    }, [
+    /* Phase F: same rule as the grid card — the row holds a quick-edit
+       select, a push-retry chip and "+1", so it cannot be a button. The
+       title is. */
+    return el("div", { class: "med-row", onclick: opts.open }, [
       el("span", { class: "med-row-fav" + (e.favourite ? " on" : ""), text: e.favourite ? "♥" : "" }),
       thumb, main, side
     ]);
@@ -814,7 +815,11 @@
         if (err) return;
         list.innerHTML = "";
         rows.slice(0, 40).forEach(function (e) {
-          list.appendChild(el("div", { class: "msch-row", role: "button", tabindex: "0",
+          /* Phase F: a leaf row with no controls inside it is a real
+             <button>, not a div wearing role="button" — it had no keyboard
+             activation at all, so the vault search could not be used
+             without a mouse. */
+          list.appendChild(el("button", { type: "button", class: "msch-row",
             onclick: function () { overlay.close(); onPick(e); } }, [
             e.coverUrl ? el("span", { class: "msch-cover" }, [
               KOS.imageCrop.image(e.coverUrl, { alt: "" }, e.coverCrop)
