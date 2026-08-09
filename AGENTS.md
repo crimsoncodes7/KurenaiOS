@@ -241,12 +241,12 @@ an autonomous cycle must batch all providers into one ledger entry through
   heroes use the shared Build 5 geometry; Governor Status keeps its special
   profile-banner composition.
 
-## Tests — all FORTY-SIX suites must pass
+## Tests — all FORTY-SEVEN suites must pass
 
 ```sh
-for i in "" {2..46}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..47}; do node "tools/smoke${i}.test.js"; done
 ```
-smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–46 print "SMOKE-N PASS …"
+smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–47 print "SMOKE-N PASS …"
 (smoke10 prints "10 passed, 0 failed"). Collection suites need `npm i fake-indexeddb`
 in addition to jsdom. Per-suite coverage table: PROGRESS.md snapshot section.
 

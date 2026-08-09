@@ -172,7 +172,7 @@
     }
 
     /* ---------------- toolbar + list ---------------- */
-    var searchIn = el("input", { type: "search", class: "todo-in rem-search", placeholder: "Search reminders, notes, tags…",
+    var searchIn = el("input", { type: "search", class: "todo-in rem-search", placeholder: "Search reminders…",
       "aria-label": "Search reminders" });
     var sortSel = el("select", { class: "status-sel", "aria-label": "Sort reminders" },
       R().SORTS.map(function (s) { return el("option", { value: s.v, text: s.label }); }));

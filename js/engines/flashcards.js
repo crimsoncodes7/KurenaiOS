@@ -67,7 +67,13 @@
     opts = opts || {};
     holder.innerHTML = "";
     if (!cards || !cards.length) {
-      holder.appendChild(el("p", { class: "fc-empty", text: opts.emptyText || "No cards here yet." }));
+      holder.appendChild(KOS.ui.emptyState({
+        compact: true,
+        className: "flashcards-empty",
+        mark: "札",
+        title: "No cards here yet",
+        body: opts.emptyText || "Add a custom card to begin this deck."
+      }));
       return;
     }
 

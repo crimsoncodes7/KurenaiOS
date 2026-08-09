@@ -54,6 +54,7 @@ node tools/smoke42.test.js # Category 7 Phase B: the five-breakpoint contract (o
 node tools/smoke44.test.js # Category 7 Phase D (Collection): the one vault toolbar (six controls, facets behind Filters ▾, commands behind Actions ▾, one primary, zero network on render), the one hero (three-step backdrop, unconditional scrim, no .vh-painted), KOS.ui.menu as a popover not a dialog (ARIA, roving focus, Escape + focus restore, below --z-modal), the genre/tag/rare facet split with counts, Mangaka (bounded author cards, four real filters, letter dividers, lazy batch), the Overview (one small-multiples row, no total printed twice, zero tiles suppressed, no distribution from one rating), chart readability (axis, gridlines, 11px floor, wrapped labels) and the one progress grammar
 node tools/smoke45.test.js # Category 7 Phase F accessibility/interaction/routing: hash routes over pushState (every view, deep links, browser Back/Forward, a `_nav` redraw pushing nothing, invalid routes failing to Home), the one polite + one assertive live region and the sync chip's announcement policy, accessible names across 29 views AND eight modal forms, no ARIA button holding an interactive descendant, Space on role="button", el() omitting a null attribute, the Phase B dialog contract re-asserted, menus dismissing without locking scroll, cross-domain search (grouping, combobox ARIA, keyboard, correct routing, nothing private) and the touch-target contract
 node tools/smoke46.test.js # Category 7 Phase E responsive/mobile shell: single-column Focus and two-row minimised dock; one-line active-revealing section nav; four phone destinations + More; same-node global-search sheet and canonical shortcut/cancel seams; one safe-area clearance; compact Reminders/vault disclosure; phone Calendar density/agenda and live breakpoint recomposition; deterministic real-Ref responsive fixture
+node tools/smoke47.test.js # Category 7 Phase G final visual consistency: chart evidence thresholds and 11px labels; compact shared empty states and zero suppression; Gold as a locale-formatted balance without a meter; theme-derived shadows; phone control composition; Shrine fallback/action polish; Phase G service-worker version
 node tools/smoke43.test.js # Category 7 Phase C (Study + Home): the spine as the ONE section list (inherited bar + subsection tally, active-topic reveal, dismissible overlay drawer at ≤860), content-first geometry (one header row, one navigation layer, nothing between header and content), the single state surface (Topic Status in the inspector, mastery once, material counts once, header/field over one store value), compact note-page navigation (stepper + disclosure, B-04 scroll rule), flashcard/quiz keyboard control incl. text-field and self-removal guards, the REF-5/7/10 + SUBJ-4/5/6 fixes, and Home (activity-based headline figures against an active-but-unticked account, the next-action decision surface and its priority order, collapsing empty Directives/Countdowns, the Collection card as the same component, the mandatory hero scrim, labelled week pips, and the vault staying closed on Home's render pass)
 ```
 
@@ -125,7 +126,7 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 45 suites are the release gate (smoke17 the
+the current test inventory. All 47 suites are the release gate (smoke17 the
 Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
 Build 4c games integrations, smoke37 the Study overview/topic-shell
 refinement, smoke38 Collection Goals v2 and Shrine Hall of Fame, smoke39 the
@@ -133,7 +134,8 @@ Phase 2 Live2D binding and its closed release gate, smoke41 the cloud staleness 
 Phase A bug fixes, smoke42 the Phase B breakpoint contract and UI primitives,
 smoke43 the Phase C Study redesign, smoke44 the Phase D Collection,
 smoke45 the Phase F accessibility/interaction/routing layer, smoke46 the
-Phase E responsive/mobile contracts).
+Phase E responsive/mobile contracts, smoke47 the Phase G visual-consistency
+and release-quality contracts).
 Suites 1–16 plus the running-Chrome visual audit were verified
 green on 2026-07-13; all 17 on 2026-07-16; all 18 plus the phone/tablet CDP
 audit on 2026-07-17; all 19 on 2026-07-17; all 38 on 2026-08-07; all 39 plus
@@ -652,6 +654,24 @@ Collected from every build. If a change would break one of these, stop and say s
     area. Do not restore the retired tree-closed extra padding or add a second
     safe-area reserve. The minimised Focus dock is two rows at phone width and
     page content clears its measured height.
+
+**Final visual consistency (Category 7 Phase G)**
+76. **Charts require enough evidence to say something.** A chart needs roughly
+    three meaningful data points or an explanatory low-data state. Card Stats
+    uses the stricter product rule: at least three tracked cards AND three
+    reviews. Keep useful figures visible while the evidence accumulates; do
+    not substitute a decorative chart for an honest explanation.
+77. **Zero is rendered only when it helps a decision.** Summary rows suppress
+    zero-only supporting facts and use `KOS.ui.statTile`; compact empty
+    subsections use `KOS.ui.emptyState`. Preserve a genuine zero when it is the
+    primary fact (for example a total the page is about), not as visual filler.
+78. **A balance is not progress.** Gold and other spendable balances are
+    locale-formatted holdings with affordability/context copy and no meter.
+    Progress bars remain bounded advancement toward a real target.
+79. **Elevation belongs to the theme.** Shared shadow tokens derive from
+    `--bg0` through `--shadow-ink`; controls and raised surfaces consume those
+    tokens instead of embedding one-off black shadows. Dawn and Dusk must keep
+    equivalent hierarchy without pretending to have identical ink.
 
 **Calendar & the event model (Build 6.6)**
 41. `KOS.calendar.normalise()` is the SINGLE schema gate for an event — every

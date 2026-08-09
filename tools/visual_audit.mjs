@@ -629,12 +629,14 @@ const goalComposition = await evaluate(`(() => {
     overviewDelta: Math.round(Math.abs(root.width - overview.width)),
     commandDelta: Math.round(Math.abs(root.width - command.width)),
     summary: document.querySelectorAll('.goal-summary-metric').length,
+    zeroSummary: [...document.querySelectorAll('.goal-summary-metric b')].some(n => Number(n.textContent) === 0),
     tabs: document.querySelectorAll('.goal-tabs .study-tab').length,
     alignedCards: cards.every(r => r.width >= 330)
   };
 })()`);
 assert(goalComposition.overviewDelta <= 2 && goalComposition.commandDelta <= 2 &&
-  goalComposition.summary === 4 && goalComposition.tabs === 3 && goalComposition.alignedCards,
+  goalComposition.summary >= 1 && goalComposition.summary <= 4 && !goalComposition.zeroSummary &&
+  goalComposition.tabs === 3 && goalComposition.alignedCards,
   `Collection Goals composition is incomplete: ${JSON.stringify(goalComposition)}`);
 await screenshot("/tmp/kos-goals-1440.png");
 await clickText(".goal-commandbar", "New goal");

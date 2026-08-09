@@ -78,22 +78,37 @@
       if (c.meta.due && c.meta.due <= today) { due++; if (c.meta.due < today) overdue++; }
     });
 
-    main.appendChild(el("div", { class: "stat-strip" }, [
-      stat(cards.length, "Cards in scope"),
-      stat(tracked.length, "In the schedule"),
-      stat(views, "Total reviews"),
-      stat(due, "Due now"),
-      stat(overdue, "Overdue"),
-      stat(tracked.length ? (efSum / tracked.length).toFixed(2) : "—", "Avg ease"),
-      stat(views ? Math.round(100 * lapses / views) + "%" : "—", "Lapse rate")
-    ]));
-    function stat(v, k) {
-      return el("div", { class: "stat-card" }, [
-        el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k })]);
+    if (!tracked.length) {
+      var scopeTile = KOS.ui.statTile({ value: cards.length, label: "Cards in scope", suppressZero: true });
+      if (scopeTile) main.appendChild(el("div", { class: "stat-strip cardstats-stat-strip" }, [scopeTile]));
+      main.appendChild(KOS.ui.emptyState({
+        compact: true,
+        className: "cardstats-empty",
+        mark: "記",
+        title: "No review history in this scope",
+        body: "Rate some cards from a topic's Flashcards tab; the scheduling charts appear once there is enough evidence to read."
+      }));
+      return;
     }
 
-    if (!tracked.length) {
-      main.appendChild(el("p", { class: "fc-empty", text: "No review data in this scope yet — rate some cards on a topic's Flashcards tab and the charts fill in." }));
+    main.appendChild(el("div", { class: "stat-strip cardstats-stat-strip" }, [
+      KOS.ui.statTile({ value: cards.length, label: "Cards in scope", suppressZero: true }),
+      KOS.ui.statTile({ value: tracked.length, label: "In the schedule", suppressZero: true }),
+      KOS.ui.statTile({ value: views, label: "Total reviews", suppressZero: true }),
+      KOS.ui.statTile({ value: due, label: "Due now", suppressZero: true }),
+      KOS.ui.statTile({ value: overdue, label: "Overdue", suppressZero: true }),
+      KOS.ui.statTile({ value: (efSum / tracked.length).toFixed(2), label: "Average ease" }),
+      KOS.ui.statTile({ value: views ? Math.round(100 * lapses / views) + "%" : null, label: "Lapse rate", suppressZero: true })
+    ].filter(Boolean)));
+
+    if (tracked.length < 3 || views < 3) {
+      main.appendChild(KOS.ui.emptyState({
+        compact: true,
+        className: "cardstats-empty cardstats-lowdata",
+        mark: "芽",
+        title: "The trend is still taking shape",
+        body: "Keep rating cards in this scope. Charts appear after at least three scheduled cards and three reviews, so a single result is never presented as a pattern."
+      }));
       return;
     }
 

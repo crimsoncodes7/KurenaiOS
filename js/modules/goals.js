@@ -510,16 +510,19 @@
       (list || []).forEach(function (g) { (groups[g._status] || groups.active).push(g); });
       var active = groups.active, avg = active.length ? Math.round(active.reduce(function (n, g) { return n + g._pct; }, 0) / active.length) : 0;
       var dueSoon = active.filter(function (g) { return g.deadline && g.deadline >= todayISO() && (new Date(g.deadline + "T12:00:00") - new Date(todayISO() + "T12:00:00")) / 86400000 <= 14; }).length;
-      body.appendChild(el("section", { class: "goal-overview", "aria-label": "Goal summary" }, [
+      var summaryMetrics = [];
+      if (active.length) summaryMetrics.push(summaryMetric(active.length, "Active"));
+      if (dueSoon) summaryMetrics.push(summaryMetric(dueSoon, "Due soon"));
+      if (groups.completed.length) summaryMetrics.push(summaryMetric(groups.completed.length, "Completed"));
+      if (groups.failed.length) summaryMetrics.push(summaryMetric(groups.failed.length, "Failed / expired"));
+      body.appendChild(el("section", { class: "goal-overview" + (summaryMetrics.length ? "" : " no-metrics"), "aria-label": "Goal summary" }, [
         el("div", { class: "goal-overview-lead" }, [
           el("span", { class: "goal-overview-mark", "aria-hidden": "true", text: "標" }),
           el("div", {}, [el("b", { text: active.length ? active.length + " intention" + (active.length === 1 ? " in motion" : "s in motion") : "No active intention" }),
             el("span", { text: active.length ? "Average progress is " + avg + "% across the current campaign." : "Create one outcome and choose whether the vault or you will update it." })])
         ]),
-        el("div", { class: "goal-summary-metrics" }, [
-          summaryMetric(active.length, "Active"), summaryMetric(dueSoon, "Due soon"), summaryMetric(groups.completed.length, "Completed"), summaryMetric(groups.failed.length, "Failed / expired")
-        ])
-      ]));
+        summaryMetrics.length ? el("div", { class: "goal-summary-metrics", style: "--goal-metric-count:" + summaryMetrics.length }, summaryMetrics) : null
+      ].filter(Boolean)));
       function summaryMetric(value, label) { return el("span", { class: "goal-summary-metric" }, [el("b", { text: String(value) }), el("small", { text: label })]); }
 
       var tabs = el("div", { class: "study-tabs goal-tabs", role: "tablist", "aria-label": "Goal status" });
@@ -537,11 +540,14 @@
         var copy = pref.goalsTab === "active" ? "No active goals. Create a measurable target or a manual intention."
           : pref.goalsTab === "completed" ? "Completed goals will collect here with their final progress intact."
             : "No goals have failed or expired.";
-        body.appendChild(el("div", { class: "goal-empty-v2" }, [
-          el("span", { class: "goal-empty-mark", "aria-hidden": "true", text: pref.goalsTab === "completed" ? "✓" : pref.goalsTab === "failed" ? "◷" : "標" }),
-          el("div", {}, [el("b", { text: pref.goalsTab === "active" ? "Choose the next finish line" : "Nothing in this view" }), el("p", { text: copy })]),
-          pref.goalsTab === "active" ? el("button", { class: "btn", text: "Create a goal", onclick: function () { goalEditor(null, rerender); } }) : null
-        ].filter(Boolean)));
+        body.appendChild(KOS.ui.emptyState({
+          compact: true,
+          className: "goal-empty-v2",
+          mark: pref.goalsTab === "completed" ? "✓" : pref.goalsTab === "failed" ? "◷" : "標",
+          title: pref.goalsTab === "active" ? "Choose the next finish line" : "Nothing in this view",
+          body: copy,
+          action: pref.goalsTab === "active" ? el("button", { class: "btn", text: "Create a goal", onclick: function () { goalEditor(null, rerender); } }) : null
+        }));
         return;
       }
       var grid = el("div", { class: "goal-grid-v2" });

@@ -4311,4 +4311,59 @@ neighbour.
   deliberate bleed is the one sanctioned use of `hidden`. No text node in
   that panel is clipped.
 
-**Category 7 Phases A–F are integrated on `main`. Phase G has not begun.**
+**Category 7 Phases A–F are integrated on `main`; Phase G is complete on
+`ui/cat7-phase-g-final` and awaits integration.**
+
+---
+
+## Category 7 Phase G — final visual consistency + release quality (2026-08-09)
+
+Phase G started from the exact integrated A–F checkpoint
+`main@c65be20` after that commit was pushed to `origin/main`. The work stayed
+isolated on `ui/cat7-phase-g-final`; it is not merged or deployed. The
+pre-implementation inventory is preserved in
+`CATEGORY7_PHASE_G_FINDINGS.md` (P0 0 · P1 1 · P2 8 · P3 6 at baseline).
+
+### Closed visual-consistency work
+
+- Card Stats now keeps its useful headline fact, suppresses zero-only
+  supporting tiles, and requires three tracked cards plus three reviews
+  before charting. Until then it gives a compact explanation instead of
+  presenting low evidence as a trend.
+- Tracker and Goals suppress meaningless zero summaries; Personal Deck,
+  Seasonal, provider profiles, Shrine and Governor use the shared compact
+  `EmptyState` rather than page-specific oversized shells.
+- Gold is a locale-formatted spendable balance with affordability context,
+  never a progress bar. Gold Shop no longer prints `0 affordable now` or an
+  em-dash fact when no useful secondary fact exists.
+- Audited chart labels and visible microcopy use the practical 11px floor
+  where the composition permits it. Focus economy and reward copy use the UI
+  typeface rather than decorative monospace.
+- Governor/Tracker controls deliberately form compact phone grids. Shrine's
+  hall-note action is visually discoverable and a missing feature cover gets
+  a theme-safe kanji treatment.
+- Shared shadow levels derive from `--bg0` through `--shadow-ink`; bespoke
+  button/drawer shadows now consume the elevation tokens. Service-worker
+  cache version: `kos-cat7-phase-g-1`.
+
+### Durable contracts and verification
+
+- `tools/smoke47.test.js` adds 18 Phase G checks covering chart evidence,
+  label size, compact/zero states, provider privacy copy, Gold/Shop facts,
+  intrinsic stat grids, phone controls, Shrine fallbacks/actions, shadow
+  tokens and the Phase G cache key. smoke3, smoke15 and smoke38 fixtures were
+  aligned to the stronger final contracts; the visual harness now accepts
+  only meaningful Goals summary metrics.
+- **47/47 smoke suites green.**
+- **1,192 dense responsive cells green:** 192 core, 912 breakpoint-edge,
+  16 omitted-view and 72 Phase G target cells; zero overflow and zero
+  amputated text throughout.
+- `phone_overflow.mjs`: 16 target views at zero overflow, text amputation and
+  tab-bar overlap. `mobile_audit.mjs`: 46 phone/tablet states with no
+  horizontal overflow. `visual_audit.mjs`: all 34 specialised captures pass.
+- Dawn and Dusk were reviewed with populated and empty states at 1920, 1440,
+  820 and 390. No Phase A–F navigation, search, routing, accessibility, sync,
+  reward or data contract changed.
+
+**Phase G is release-ready pending branch integration.** Deployment remains a
+separate explicit operation.

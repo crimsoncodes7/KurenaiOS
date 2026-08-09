@@ -558,13 +558,17 @@
             (airing.at && known.length ? " · airing data as of " + new Date(airing.at).toLocaleTimeString() : "")
           : "";
         if (!list.length) {
-          holder.appendChild(el("div", { class: "med-empty" }, [
-            el("p", { class: "fc-empty", text: "Nothing from " + meta.label + " " + sel.year + " in the vault. Sync your AniList (season data rides along automatically), or run enrichment on imported entries — season can't be filled in by hand here." }),
-            el("div", { class: "lab-controls", style: "justify-content:center" }, [
+          holder.appendChild(KOS.ui.emptyState({
+            compact: true,
+            className: "seasonal-empty",
+            mark: "季",
+            title: "No " + meta.label + " " + sel.year + " titles in this vault",
+            body: "Season data arrives with AniList sync or enrichment; it cannot be entered by hand here.",
+            action: el("div", { class: "lab-controls seasonal-empty-actions" }, [
               el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
               el("button", { class: "btn gold", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("anime", render); } })
             ])
-          ]));
+          }));
           return;
         }
         list.forEach(function (e) { holder.appendChild(gridCard(e, mod, render)); });

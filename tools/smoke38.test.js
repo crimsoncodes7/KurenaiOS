@@ -172,7 +172,9 @@ step("Goals renders summary, status views, useful cards and the integrity statem
   KOS.store.state.media.goalsTab = "active";
   KOS.show("goals");
   await waitFor(() => document.querySelector(".goal-overview"));
-  assert(document.querySelectorAll(".goal-summary-metric").length === 4, "summary metrics missing");
+  const summary = [...document.querySelectorAll(".goal-summary-metric")];
+  assert(summary.length && summary.length <= 4, "meaningful summary metrics missing");
+  assert(summary.every(node => Number(node.querySelector("b").textContent) > 0), "a zero-value summary metric returned");
   assert(document.querySelectorAll(".goal-tabs .study-tab").length === 3, "status tabs missing");
   assert(document.querySelector(".goal-card-v2"), "useful goal card missing");
   assert(/never duplicates Governor rewards/.test(document.querySelector(".goal-integrity").textContent), "anti-farming rule not explained");

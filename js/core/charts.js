@@ -248,7 +248,7 @@
       big.style.fontFamily = "var(--serif)";
       s.appendChild(big);
       if (opts.centreSub) {
-        var sub = svgNode("text", { x: C, y: C + 17, "text-anchor": "middle", "font-size": "8.5", "letter-spacing": "1", text: opts.centreSub.toUpperCase() });
+        var sub = svgNode("text", { x: C, y: C + 19, "text-anchor": "middle", "font-size": String(FONT), "letter-spacing": ".7", text: opts.centreSub.toUpperCase() });
         paint(sub, "fill", LABEL);
         s.appendChild(sub);
       }

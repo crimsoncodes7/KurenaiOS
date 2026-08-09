@@ -1473,6 +1473,30 @@ remaining POLISH screens.
 - A full smoke-suite run plus the probe script pass at four viewports × two
   themes with zero regressions.
 
+**Outcome — Phase G is complete.**
+
+The final sweep began with a written, pre-implementation inventory in
+`CATEGORY7_PHASE_G_FINDINGS.md`: P0 0 · P1 1 · P2 8 · P3 6. Every recorded
+item is now closed; no Phase A–F architecture, routing, search, accessibility,
+sync, reward or data contract was reopened.
+
+| Area | Result |
+|---|---|
+| Charts / low data | ✓ Card Stats waits for three tracked cards and three reviews, keeps meaningful figures visible, and explains what evidence is missing; chart labels use the shared 11px floor |
+| Empty and zero states | ✓ Card Stats, Tracker, Goals, flashcards/Personal Deck, Seasonal, provider profiles, Shrine and Governor use the compact shared `EmptyState`; zero-only supporting tiles collapse |
+| Numbers | ✓ user-facing summary values use the shared locale formatter; Gold is a balance with affordability context, never a progress meter; Shop suppresses zero-affordability and em-dash facts |
+| Typography | ✓ audited microcopy has a practical 11px floor where space permits; Focus economy/reward prose returns to the UI face rather than decorative monospace |
+| Controls / icons | ✓ compact workspace controls compose deliberately on phones; Shrine's hall-note action is visible and missing cover art has a theme-safe kanji fallback |
+| Surfaces | ✓ the elevation scale derives from `--bg0`; bespoke button/drawer shadows use tokens and obsolete one-off empty-state shells were removed |
+| Regression guard | ✓ `smoke47` pins the Phase G contracts and the service-worker cache key is `kos-cat7-phase-g-1` |
+
+**Verification:** 47/47 smoke suites; 1,192 dense responsive cells across the
+core, breakpoint-edge, omitted-view and Phase G target matrices with zero
+overflow or amputated text; 16 targeted phone views with zero overflow,
+amputation or tab-bar overlap; 46 phone/tablet device states without horizontal
+overflow; and the specialised 34-capture visual audit. Dawn and Dusk were also
+reviewed manually at 1920, 1440, 820 and 390.
+
 ---
 
 ## 12. Recommended Implementation Order

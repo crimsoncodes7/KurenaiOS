@@ -208,25 +208,28 @@
         .filter(function (e) { return e.kind === kind && (!filterSubj || e.subject === filterSubj); })
         .sort(function (a, b) { return sortAsc ? (a.date < b.date ? -1 : 1) : (a.date > b.date ? -1 : 1); });
 
-      /* summary strip */
+      /* summary strip: secondary zero/unknown values carry no decision
+         value, so the shared tile contract drops them. */
       var withPct = rows.filter(function (e) { return pct(e) != null; });
       var avg = withPct.length ? Math.round(withPct.reduce(function (a, e) { return a + pct(e); }, 0) / withPct.length) : null;
       var unreviewed = rows.filter(function (e) { return !e.reviewed; }).length;
-      holder.appendChild(el("div", { class: "stat-strip" }, [
-        stat(rows.length, kind === "exam" ? "Exams logged" : "Papers logged"),
-        stat(avg != null ? avg + "%" : "—", "Average score"),
-        stat(unreviewed, "Not yet reviewed"),
-        stat(rows.filter(function (e) { return pct(e) != null && pct(e) < 60; }).length, "Below 60%")
-      ]));
-      function stat(v, k) {
-        return el("div", { class: "stat-card" }, [
-          el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k })]);
-      }
-
       if (!rows.length) {
-        holder.appendChild(el("p", { class: "fc-empty", text: "Nothing logged yet — “+ Log entry” after your next " + (kind === "exam" ? "assessment" : "paper") + "." }));
+        holder.appendChild(KOS.ui.emptyState({
+          compact: true,
+          className: "tracker-empty",
+          mark: kind === "exam" ? "試" : "紙",
+          title: "Nothing logged yet",
+          body: "Use “+ Log entry” after your next " + (kind === "exam" ? "assessment" : "practice paper") + "."
+        }));
         return;
       }
+      var below = rows.filter(function (e) { return pct(e) != null && pct(e) < 60; }).length;
+      holder.appendChild(el("div", { class: "stat-strip tracker-stat-strip" }, [
+        KOS.ui.statTile({ value: rows.length, label: kind === "exam" ? "Exams logged" : "Papers logged" }),
+        avg == null ? null : KOS.ui.statTile({ value: avg + "%", label: "Average score" }),
+        KOS.ui.statTile({ value: unreviewed, label: "Not yet reviewed", suppressZero: true }),
+        KOS.ui.statTile({ value: below, label: "Below 60%", suppressZero: true })
+      ].filter(Boolean)));
 
       rows.forEach(function (e) {
         var p = pct(e);

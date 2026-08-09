@@ -136,12 +136,12 @@
        Same dimensions, label type, value type, bar treatment and spacing,
        whether it carries a bar or not. */
     function statTile(o) {
-      return el("div", { class: "gstat" + (o.cls ? " gstat-" + o.cls : "") + (o.warn ? " is-warn" : "") }, [
+      return el("div", { class: "gstat" + (o.cls ? " gstat-" + o.cls : "") + (o.warn ? " is-warn" : "") + (o.bar === false ? " no-meter" : "") }, [
         el("div", { class: "gstat-top" }, [
           el("span", { class: "gstat-k", text: o.label }),
           el("span", { class: "gstat-v", text: o.value })
         ]),
-        el("div", { class: "gstat-bar hud-bar " + (o.barCls || "hud-neutral") },
+        o.bar === false ? null : el("div", { class: "gstat-bar hud-bar " + (o.barCls || "hud-neutral") },
           [el("span", { style: "width:" + (o.pct == null ? 0 : Math.max(0, Math.min(100, o.pct))) + "%" })]),
         el("div", { class: "gstat-h", text: o.hint || "" })
       ]);
@@ -341,8 +341,7 @@
           barCls: "hud-hp", hint: hpPreview === "live" ? displayState.desc : "UI preview · actual HP " + p.hp + "/100", warn: hpCls !== "healthy" })]),
         el("div", { class: "vital" }, [statTile({ cls: "xp", label: "XP", value: KOS.ui.num(p.xpInto) + " / " + KOS.ui.num(p.xpNeed),
           pct: p.xpPct, barCls: "hud-xp", hint: KOS.ui.num(p.xpToNext) + " to level " + (p.level + 1) })]),
-        el("div", { class: "vital" }, [statTile({ cls: "gold", label: "Gold", value: "◈ " + KOS.ui.num(p.gold),
-          pct: cheapest ? 100 * p.gold / cheapest.price : 100, barCls: "hud-gold",
+        el("div", { class: "vital" }, [statTile({ cls: "gold", label: "Gold", value: "◈ " + KOS.ui.num(p.gold), bar: false,
           hint: cheapest ? (p.gold >= cheapest.price ? cheapest.name + " is affordable" : KOS.ui.num(cheapest.price - p.gold) + " to " + cheapest.name) : "Catalogue complete" })]),
         el("div", { class: "vital" }, [statTile({ cls: "due", label: "Review queue", value: KOS.ui.num(dueCount),
           pct: Math.max(0, 100 - Math.min(100, dueCount * 3)), barCls: "hud-neutral", hint: dueCount ? "Ready in Review" : "Queue clear" })]),
@@ -398,13 +397,13 @@
       /* — meaningful milestones only; progress noise and sync live in filters — */
       var led = el("div", { class: "ledger" });
       var recent = meaningfulSessions.slice(-5).reverse();
-      if (!recent.length) led.appendChild(el("div", { class: "gov-empty compact" }, [
-        el("span", { class: "gov-empty-mark", "aria-hidden": "true", text: "◇" }),
-        el("div", {}, [
-          el("b", { text: "Your first milestone is waiting" }),
-          el("p", { text: "Complete a focus session, review, task, paper, or collection title." })
-        ])
-      ]));
+      if (!recent.length) led.appendChild(KOS.ui.emptyState({
+        compact: true,
+        className: "gov-empty",
+        mark: "◇",
+        title: "Your first milestone is waiting",
+        body: "Complete a focus session, review, task, paper, or collection title."
+      }));
       recent.forEach(function (s) { led.appendChild(ledgerRow(s)); });
       var ledKids = [led];
       ledKids.push(el("button", { class: "led-more", onclick: function () { KOS.show("governor", "history"); } },
@@ -497,6 +496,11 @@
       panel.appendChild(shop);
 
       /* — treasury strip — */
+      var treasuryFacts = [treFact(ownedN + " / " + cat.length, "unlocked")];
+      if (affordable.length) treasuryFacts.push(treFact(KOS.ui.num(affordable.length), "affordable now"));
+      treasuryFacts.push(cheapest
+        ? treFact("◈ " + KOS.ui.num(cheapest.price), "next: " + cheapest.name)
+        : treFact("Complete", "all wares owned"));
       var treasury = el("div", { class: "treasury" + (suspended ? " is-suspended" : "") }, [
         el("div", { class: "tre-purse" }, [
           el("span", { class: "tre-coin", "aria-hidden": "true", text: "◈" }),
@@ -505,11 +509,7 @@
             el("div", { class: "tre-lbl", text: "gold in the purse" })
           ])
         ]),
-        el("div", { class: "tre-facts" }, [
-          treFact(ownedN + " / " + cat.length, "unlocked"),
-          treFact(String(affordable.length), "affordable now"),
-          treFact(cheapest ? "◈ " + cheapest.price : "—", cheapest ? "next: " + cheapest.name : "everything owned")
-        ])
+        el("div", { class: "tre-facts" }, treasuryFacts)
       ]);
       function treFact(v, k) {
         return el("div", { class: "tre-fact" }, [el("b", { text: v }), el("span", { text: k })]);
@@ -1004,11 +1004,14 @@
         ]);
       }
       function emptyLog(title, copy) {
-        return el("div", { class: "gov-empty gov-log-empty" }, [
-          el("span", { class: "gov-empty-mark", "aria-hidden": "true", text: "◇" }),
-          el("div", {}, [el("b", { text: title }), el("p", { text: copy })]),
-          !all.length ? el("button", { class: "btn primary", text: "Open Review", onclick: function () { KOS.show("due"); } }) : null
-        ].filter(Boolean));
+        return KOS.ui.emptyState({
+          compact: !!all.length,
+          className: "gov-empty gov-log-empty",
+          mark: "◇",
+          title: title,
+          body: copy,
+          action: !all.length ? el("button", { class: "btn primary", text: "Open Review", onclick: function () { KOS.show("due"); } }) : null
+        });
       }
       function historyRow(e) {
         var info = activityInfo(e), m = e.metrics || {};

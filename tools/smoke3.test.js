@@ -164,7 +164,7 @@ step("Study Review and Productivity own the intended navigation", () => {
   if (!document.querySelector('.rail-item[data-section="study"]').classList.contains("active")) throw new Error("Study rail not active");
 
   click($$(".review-tabs .study-tab").find(b => b.textContent.trim() === "Card Stats"));
-  if (!$$(".cs-chart svg").length) throw new Error("Review Card Stats pane missing");
+  if (!$$(".cs-chart svg").length && !$(".cardstats-empty")) throw new Error("Review Card Stats pane missing");
   if (!$$(".review-tabs .study-tab").find(b => b.textContent.trim() === "Card Stats").classList.contains("active")) throw new Error("stats tab inactive");
 
   KOS.show("due");
@@ -407,6 +407,12 @@ step("ref page carries the confidence picker + data verdict", () => {
 });
 
 console.log("== card stats (FR-1.6) ==");
+/* Phase G deliberately refuses to draw a trend from one scheduled card.
+   This dashboard step is the populated-data case, so give the topic three
+   independent scheduled cards rather than relying on repeated ratings of
+   one card to impersonate a distribution. */
+KOS.store.state.srs["maths:2.3:1"] = { ef: 2.3, ivl: 4, reps: 2, due: KOS.srs.addDays(today, 2), last: today, views: 2, lapses: 1, lastRating: 1 };
+KOS.store.state.srs["maths:2.3:2"] = { ef: 2.7, ivl: 8, reps: 3, due: KOS.srs.addDays(today, 5), last: today, views: 2, lapses: 0, lastRating: 2 };
 step("dashboard renders stat strip + SVG charts", () => {
   KOS.show("cardstats");
   if ($$(".stat-card").length < 6) throw new Error("stat strip thin");

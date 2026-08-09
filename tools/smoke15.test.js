@@ -327,7 +327,7 @@ step("Part B: hero carries a proportionate portrait, access preview and the abou
   if (!id.querySelector(".id-about-txt")) throw new Error("about block missing from the hero");
 });
 
-step("Part B5: every stat tile is the same shape — label, value and a bar", async () => {
+step("Part B5: every stat tile is the same shape; bounded instruments alone carry bars", async () => {
   const main = document.getElementById("main");
   const tiles = [...main.querySelectorAll(".gstat")];
   if (tiles.length < 8) throw new Error("expected five instruments + three cadence tiles, got " + tiles.length);
@@ -335,10 +335,15 @@ step("Part B5: every stat tile is the same shape — label, value and a bar", as
     if (!t.querySelector(".gstat-k")) throw new Error("a tile has no label");
     if (!t.querySelector(".gstat-v")) throw new Error("a tile has no value");
   }
-  /* the five instruments are the bar-carrying variant and stay inside .b-vitals */
+  /* HP/XP/queue/streak are bounded measures. Gold is a balance and Phase G
+     removed its semantically false progress bar. */
   const vitals = [...main.querySelectorAll(".b-vitals .vital .gstat")];
   if (vitals.length !== 5) throw new Error("five instruments expected, got " + vitals.length);
-  if (vitals.some(v => !v.querySelector(".gstat-bar > span"))) throw new Error("a vital tile has no progress bar");
+  const gold = vitals.find(v => v.classList.contains("gstat-gold"));
+  if (!gold || !gold.classList.contains("no-meter") || gold.querySelector(".gstat-bar"))
+    throw new Error("Gold is not the one balance-only instrument");
+  if (vitals.filter(v => v !== gold).some(v => !v.querySelector(".gstat-bar > span")))
+    throw new Error("a bounded vital tile has no progress bar");
 });
 
 step("Part C: routine sync is logged but kept out of the ledger and the cadence count", async () => {

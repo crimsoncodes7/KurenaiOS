@@ -944,20 +944,19 @@
         return;
       }
       if (!favourites.length) {
-        main.appendChild(el("div", { class: "shrine-empty" }, [
-          el("span", { class: "shrine-empty-mark", "aria-hidden": "true", text: "祠" }),
-          el("div", {}, [
-            el("h3", { text: current.module ? "No favourites in this wing" : "Your Hall of Fame is waiting" }),
-            el("p", { text: current.module ? "Try another media type, or mark a title as a favourite." : "Mark any Collection title as a favourite and it will be ranked here automatically." })
-          ]),
-          current.module
+        main.appendChild(KOS.ui.emptyState({
+          className: "shrine-empty",
+          mark: "祠",
+          title: current.module ? "No favourites in this wing" : "Your Hall of Fame is waiting",
+          body: current.module ? "Try another media type, or mark a title as a favourite." : "Mark any Collection title as a favourite and it will be ranked here automatically.",
+          action: current.module
             ? el("button", { class: "btn", text: "Show all media", onclick: function () {
               current.module = "";
               store.save();
               KOS.show("shrine", undefined, { _nav: true });
             } })
             : el("button", { class: "btn primary", text: "Open Collection", onclick: function () { KOS.show("matrix"); } })
-        ]));
+        }));
         return;
       }
 

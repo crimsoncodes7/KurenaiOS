@@ -71,9 +71,11 @@
   --wash-danger: color-mix(in srgb, var(--danger) 9%, var(--bg1));
   --glass-fill: color-mix(in srgb, var(--accent) 8%, transparent);
   --glass-edge: color-mix(in srgb, var(--accent) 26%, transparent);
-  --shadow-sm: 0 1px 2px rgba(46, 36, 18, 0.05), 0 4px 14px rgba(46, 36, 18, 0.05);
-  --shadow-md: 0 2px 4px rgba(46, 36, 18, 0.06), 0 12px 32px rgba(46, 36, 18, 0.08);
-  --shadow-lg: 0 4px 10px rgba(46, 36, 18, 0.08), 0 24px 60px rgba(46, 36, 18, 0.14);
+  --shadow-ink: color-mix(in srgb, var(--bg0) 68%, #000);
+  --shadow-sm: 0 1px 2px color-mix(in srgb, var(--shadow-ink) 8%, transparent), 0 4px 14px color-mix(in srgb, var(--shadow-ink) 8%, transparent);
+  --shadow-md: 0 2px 4px color-mix(in srgb, var(--shadow-ink) 10%, transparent), 0 12px 32px color-mix(in srgb, var(--shadow-ink) 13%, transparent);
+  --shadow-lg: 0 4px 10px color-mix(in srgb, var(--shadow-ink) 13%, transparent), 0 24px 60px color-mix(in srgb, var(--shadow-ink) 20%, transparent);
+  --shadow-control: 0 1px 2px color-mix(in srgb, var(--shadow-ink) 10%, transparent);
 
   /* — the code slab: fixed dark ink on every theme, light or dark — */
   --code-bg: #292317;
@@ -740,7 +742,7 @@ button.tree-open-btn { display: none; }
   font-size: 13.5px;
   font-weight: 500;
   transition: all .15s;
-  box-shadow: 0 1px 2px rgba(46,36,18,.04);
+  box-shadow: var(--shadow-control);
 }
 .btn:hover:not(:disabled) { color: var(--text); border-color: color-mix(in srgb, var(--text) 30%, transparent); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
 .btn:disabled { opacity: .45; cursor: default; }
@@ -3699,14 +3701,6 @@ body.fx-minimised .fx-dock { display: flex; }
 }
 .shrine-card-btn:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent) 55%, var(--line2)); background: var(--wash-accent); }
 .shrine-count { margin: 10px 2px 0; }
-.shrine-empty {
-  min-height: 118px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px;
-  padding: 18px 20px; border: 1px dashed var(--line); border-radius: var(--radius); background: var(--panel);
-}
-.shrine-empty-mark { color: var(--accent2); font: 32px var(--jp); }
-.shrine-empty h3 { margin: 0 0 3px; font: 600 17px var(--serif); }
-.shrine-empty p { margin: 0; max-width: 60ch; color: var(--muted); font-size: 12px; }
-
 /* ---- Shrine collector card ---- */
 .shrine-card-modal { --modal-max: 900px; max-height: calc(100dvh - 32px); overflow-y: auto; }
 .shrine-modal-close { margin-left: auto; }
@@ -3730,8 +3724,6 @@ body.fx-minimised .fx-dock { display: flex; }
   .shrine-note-btn { margin-left: 0; }
   .shrine-toolbar { align-items: stretch; flex-direction: column; }
   .shrine-sort { justify-content: space-between; }
-  .shrine-empty { grid-template-columns: auto 1fr; }
-  .shrine-empty .btn { grid-column: 1 / -1; justify-self: start; }
 }
 @media (max-width: 560px) {
   .shrine-ranked-grid { grid-template-columns: 1fr; }
@@ -6956,22 +6948,6 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .gov-head .study-tabs { background: color-mix(in srgb, var(--panel) 88%, transparent); box-shadow: inset 0 0 0 1px var(--line2); }
 .gov-head .study-tab { min-height: 38px; padding-inline: 18px; }
 
-/* shared empty state */
-.gov-empty {
-  min-height: 190px; display: flex; align-items: center; justify-content: center; gap: 16px;
-  padding: 26px; border: 1px dashed var(--line); border-radius: 14px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 4%, transparent), transparent 55%);
-  color: var(--text2);
-}
-.gov-empty.compact { min-height: 138px; justify-content: flex-start; }
-.gov-empty-mark {
-  width: 46px; height: 46px; flex: none; display: grid; place-items: center;
-  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius: 50%;
-  color: var(--accent); background: var(--wash-accent); font-family: var(--serif); font-size: 24px;
-}
-.gov-empty b { display: block; color: var(--text); font-family: var(--serif); font-size: 18px; font-weight: 600; }
-.gov-empty p { margin: 4px 0 0; max-width: 48ch; font-size: 13px; line-height: 1.5; }
-
 /* A — Status: identity stage, equal instruments, compact signal row */
 .gov-status { align-items: stretch; }
 .gov-status > .bento-card { border-color: var(--line2); box-shadow: none; }
@@ -8593,4 +8569,120 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
     content: ""; position: absolute; left: 0; right: 0;
     top: 50%; height: 44px; transform: translateY(-50%);
   }
+}
+
+/* ============================================================
+   Category 7 · Phase G — final visual consistency
+
+   Local polish only: honest low-data summaries, readable micro type,
+   purposeful compact compositions and token-driven surfaces. The
+   interaction and accessibility contracts from Phases E/F stay intact.
+   ============================================================ */
+
+/* A page-specific grid prevents seven Card Stats tiles from becoming a
+   clipped flex row inside the app shell. Other stat strips keep their
+   existing fluid treatment. */
+.cardstats-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(138px, 100%), 1fr));
+}
+.cardstats-stat-strip .stat-card { min-width: 0; }
+.cardstats-stat-strip .stat-card:only-child { width: 100%; max-width: 220px; justify-self: start; }
+.cardstats-empty, .tracker-empty, .flashcards-empty, .seasonal-empty { margin-block: var(--section-gap); }
+.seasonal-empty { grid-column: 1 / -1; width: 100%; }
+
+/* A statistic label is prose, not engraving-sized ornament. */
+.stat-card .k, .stat-tile .k,
+.goal-summary-metric small,
+.goal-integrity, .wl-tabcount,
+.trk-sub, .trk-block b,
+.cal-dow, .cal-field, .cal-ev, .cal-ev-re, .cal-ev-pri,
+.gstat-k, .id-side-stat .iss-k, .hl-scale .hl-t,
+.gov-seat-hero .rank, .gov-instruments .gstat-h,
+.asst-drawer-kicker, .asst-drawer-context small,
+.asst-receipt-label, .asst-composer-hint, .asst-tab-group-label,
+.asst-section-kicker, .asst-safety-notes p, .asst-audit-meta,
+.asst-project-open span:nth-child(2), .asst-recent-title,
+.asst-tool .asst-event-title, .asst-tool-step-copy,
+.asst-voice-credit {
+  font-size: 11px;
+}
+.asst-presence .asst-status-line,
+.shrine-row-meta, .shrine-row-score, .shrine-card-btn,
+.shop-owned, .tre-lbl, .tre-fact span, .shop-rail-item .sri-n,
+.shop-dept small, .shop-kind, .gov-history-stat small,
+.gov-rec-progress > span,
+.fx-rev-block h4, .asg-block h4, .asg-urgent-row .au-m,
+.rem-side-item .rsi-n, .rem-i-block h4, .rem-sum-row .rsr-d,
+.ap-hstat span, .ap-fetched, .ap-fav-t,
+.hud-profile-meta, .hud-profile-meta .hud-gold,
+.wl-priority-pill, .wl-sum-h, .wl-allowance-main .k,
+.wl-meter-copy b, .wl-queue-count, .wl-chip,
+.goal-type-label, .goal-deadline, .goal-form-section-head span, .goal-date-note {
+  font-size: 11px;
+}
+
+/* Reward copy is readable UI prose; only genuine identifiers remain mono. */
+.fx-deal h4 { font-family: var(--sans); font-size: 11px; }
+.fx-deal-list li strong, .fx-deal-foot { font-family: var(--sans); font-variant-numeric: tabular-nums; }
+
+/* Gold is a balance, not progress towards an arbitrary ceiling. */
+.gstat.no-meter { grid-template-rows: auto auto; }
+
+/* Suppressed zero metrics leave a variable-width campaign summary. */
+.goal-summary-metrics {
+  grid-template-columns: repeat(var(--goal-metric-count, 1), minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line2);
+}
+.goal-overview.no-metrics { grid-template-columns: minmax(0, 1fr); }
+.goal-summary-metric { border: 0; background: var(--panel); }
+
+/* The note belongs with Shrine actions and should read as a control. */
+.shrine-note-btn {
+  border-color: color-mix(in srgb, var(--accent2) 46%, var(--line2));
+  background: var(--wash-brass);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+.shrine-feature:not(.has-banner) {
+  background:
+    radial-gradient(circle at 84% 44%, color-mix(in srgb, var(--accent) 15%, transparent), transparent 30%),
+    linear-gradient(135deg, var(--surface-card), var(--well));
+}
+.shrine-feature:not(.has-banner) > .wl-hero-ph {
+  position: absolute;
+  right: clamp(24px, 9vw, 118px);
+  top: 50%;
+  width: 150px;
+  height: 150px;
+  transform: translateY(-50%);
+  border-color: color-mix(in srgb, var(--accent) 24%, transparent);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  color: color-mix(in srgb, var(--accent) 46%, var(--muted));
+  font-size: 74px;
+}
+.shrine-feature-body { position: relative; z-index: 1; }
+
+/* Elevation follows the active theme instead of a one-off warm shadow. */
+.btn { box-shadow: var(--shadow-control); }
+.asst-drawer { box-shadow: var(--shadow-lg); }
+
+@media (max-width: 700px) {
+  .gov-head .gov-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .gov-head .gov-tabs .study-tab { width: 100%; justify-content: center; }
+  .dash-head > .study-tabs[aria-label="Record type"] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+  .dash-head > .study-tabs[aria-label="Record type"] .study-tab { width: 100%; justify-content: center; }
+  .goal-summary-metrics { grid-template-columns: repeat(auto-fit, minmax(min(112px, 100%), 1fr)); }
+  .empty-state.compact.seasonal-empty { flex-direction: column; align-items: stretch; }
+  .seasonal-empty .empty-state-action { width: 100%; margin-left: 0; }
+  .seasonal-empty-actions, .seasonal-empty-actions .btn { width: 100%; }
+  .shrine-feature:not(.has-banner) > .wl-hero-ph { right: 16px; width: 96px; height: 96px; font-size: 48px; opacity: .58; }
 }

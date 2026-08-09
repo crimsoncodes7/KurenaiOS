@@ -364,12 +364,12 @@
       KOS.anilist.getConnection(function (err, conn) {
         if (err || !conn.token || !conn.viewer) {
           body.innerHTML = "";
-          body.appendChild(el("div", { class: "med-empty" }, [
-            el("p", { class: "fc-empty", text: "Connect your AniList first — the profile view reads the account behind the sync." }),
-            el("div", { class: "lab-controls", style: "justify-content:center" }, [
-              el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
-            ])
-          ]));
+          body.appendChild(KOS.ui.emptyState({
+            mark: "映",
+            title: "Connect AniList to open your profile",
+            body: "The profile uses the same account as Sync & Import. Its token stays in this browser on this device.",
+            action: el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
+          }));
           return;
         }
         visualKey = "profile.anilist." + conn.viewer.id;
