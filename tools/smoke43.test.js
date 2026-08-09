@@ -627,7 +627,13 @@ step("the Collection card is the same component as the subject cards", () => {
   assert(med.querySelector(".subj-card-top canvas.mini-ring"), "no completion ring");
   assert(med.querySelector(".subj-track .subj-fill"), "no progress track");
   assert(med.querySelector(".m").textContent.trim(), "no meta line");
-  assert(med.getAttribute("role") === "button" && med.tabIndex === 0, "it is not keyboard reachable");
+  /* Phase F strengthened the shared-card contract: the container may grow
+     interactive descendants, so it must not impersonate a button. The title
+     is the named keyboard control instead. */
+  assert(med.getAttribute("role") !== "button" && !med.hasAttribute("tabindex"),
+    "the card container is still an ARIA button");
+  const open = med.querySelector("button.subj-card-open");
+  assert(open && open.textContent.trim(), "the Collection title is not a named keyboard control");
 });
 
 step("Home does not open the media vault on its render pass", () => {
