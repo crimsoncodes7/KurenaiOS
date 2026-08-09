@@ -1444,7 +1444,11 @@
   }
 
   function buildThreadArea(compact) {
-    var scroller = el("div", { class: "asst-thread", tabindex: "0", "aria-label": "Conversation" });
+    /* Phase F: the thread is tabbable so it can be SCROLLED from the
+       keyboard, which is right — but a focus stop with no role announced
+       itself as nothing. role="log" is what a growing conversation is. */
+    var scroller = el("div", { class: "asst-thread", tabindex: "0", role: "log",
+      "aria-label": "Conversation", "aria-live": "polite", "aria-relevant": "additions" });
     var composer = buildComposer(compact);
     function emptyState() {
       var prompts = compact ? [

@@ -138,16 +138,17 @@
     function row(a) {
       var overdue = A().isOverdue(a);
       var next = A().nextSubtask(a);
+      /* Phase F: the row carries a status <select> and its own buttons,
+         so it cannot be an ARIA button; the title is the control. */
       var node = el("div", { class: "asg-row" + (overdue ? " overdue" : "") + " st-" + a.status + " pr-" + a.priority,
-        role: "button", tabindex: "0",
-        onclick: function (ev) { if (!ev.target.closest("button, select")) detailModal(a.id, refresh); },
-        onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); detailModal(a.id, refresh); } } });
+        onclick: function (ev) { if (!ev.target.closest("button, select")) detailModal(a.id, refresh); } });
 
       node.appendChild(el("div", { class: "asg-row-main" }, [
         el("div", { class: "asg-row-top" }, [
           a.priority ? el("span", { class: "asg-prio", title: A().PRIORITIES[a.priority].label,
             text: A().PRIORITIES[a.priority].short }) : null,
-          el("span", { class: "asg-title", text: a.title, title: a.title }),
+          el("button", { type: "button", class: "asg-title", text: a.title, title: a.title,
+            onclick: function (ev) { ev.stopPropagation(); detailModal(a.id, refresh); } }),
           statusPill(a)
         ].filter(Boolean)),
         el("div", { class: "asg-row-meta" }, [
@@ -221,7 +222,7 @@
     /* related topics — free-form "sid:ref", validated against the spec tree */
     var chosenTopics = (a.topics || []).slice();
     var topicWrap = el("div", { class: "asg-topics" });
-    var topicIn = el("input", { type: "text", class: "todo-in", placeholder: "e.g. compsci 4.1.1.1 — Enter to add",
+    var topicIn = el("input", { type: "text", class: "todo-in", "aria-label": "Link a spec topic", placeholder: "e.g. compsci 4.1.1.1 — Enter to add",
       onkeydown: function (e) { if (e.key === "Enter") { e.preventDefault(); addTopic(); } } });
     function addTopic() {
       var raw = topicIn.value.trim().replace(/\s+/g, " ");

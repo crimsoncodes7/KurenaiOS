@@ -102,11 +102,18 @@
       var ls = R().lists();
       if (!ls.length) listWrap.appendChild(el("p", { class: "sub rem-side-empty", text: "A list is a container — Uni, Home, Errands." }));
       ls.forEach(function (l) {
-        listWrap.appendChild(el("button", { class: "rem-side-item" + (p.listId === l.id ? " active" : ""),
-          onclick: function () { p.listId = l.id; p.tag = null; p.section = "all"; KOS.store.save(); draw(); } }, [
-          el("span", { class: "rsi-dot", "aria-hidden": "true" }),
-          el("span", { class: "rsi-l", text: l.name }),
-          el("span", { class: "rsi-n", text: String(c.lists[l.id] || 0) }),
+        /* Phase F: this row used to be a <button> containing two more
+           <button>s (rename, delete). A button inside a button is invalid
+           and browsers disagree about what the inner ones even are — the
+           row is now a container, and the three controls are siblings. */
+        listWrap.appendChild(el("div", { class: "rem-side-item" + (p.listId === l.id ? " active" : "") }, [
+          el("button", { type: "button", class: "rsi-main",
+            "aria-current": p.listId === l.id ? "true" : null,
+            onclick: function () { p.listId = l.id; p.tag = null; p.section = "all"; KOS.store.save(); draw(); } }, [
+            el("span", { class: "rsi-dot", "aria-hidden": "true" }),
+            el("span", { class: "rsi-l", text: l.name }),
+            el("span", { class: "rsi-n", text: String(c.lists[l.id] || 0) })
+          ]),
           el("span", { class: "rsi-ctl" }, [
             el("button", { class: "xbtn", text: "✎", title: "Rename list", "aria-label": "Rename list " + l.name,
               onclick: function (ev) { ev.stopPropagation(); promptList(l); } }),
@@ -178,6 +185,9 @@
 
     var quickIn = el("input", { type: "text", class: "todo-in rem-quick-in",
       placeholder: "Add a reminder…  (⏎ to save)",
+      /* a placeholder is not a name: it disappears the moment there is
+         text in the field, which is exactly when a name is needed */
+      "aria-label": "New reminder",
       onkeydown: function (e) { if (e.key === "Enter") quickAdd(); } });
     function quickAdd() {
       var v = quickIn.value.trim();

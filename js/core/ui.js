@@ -12,6 +12,12 @@
         else if (k === "html") node.innerHTML = attrs[k];
         else if (k.slice(0, 2) === "on") node.addEventListener(k.slice(2), attrs[k]);
         else if (k === "style") node.style.cssText = attrs[k];
+        /* Phase F: `title: opts.hint || null` is the house idiom for an
+           optional attribute, and setAttribute stringifies — so every tab
+           and menu button without a hint was shipping title="null", which
+           shows as a tooltip and joins the accessible description. An
+           absent value now means an absent attribute. */
+        else if (attrs[k] === null || attrs[k] === undefined) { /* omit */ }
         else node.setAttribute(k, attrs[k]);
       });
     }

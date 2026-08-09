@@ -190,7 +190,7 @@
           } })
         ]));
       });
-      var newName = el("input", { type: "text", class: "todo-in vn-route-name", placeholder: "Route name — “Kurisu”, “True End”…" });
+      var newName = el("input", { type: "text", class: "todo-in vn-route-name", "aria-label": "New route name", placeholder: "Route name — “Kurisu”, “True End”…" });
       function addRoute(ev) {
         ev.preventDefault();
         if (!newName.value.trim()) { KOS.ui.toast("Name the route first.", true); return; }
@@ -240,7 +240,7 @@
           } })
         ]));
       });
-      var newName = el("input", { type: "text", class: "todo-in vn-route-name", placeholder: "Chapter name — “Chapter 1”, “Answer arc”…" });
+      var newName = el("input", { type: "text", class: "todo-in vn-route-name", "aria-label": "New chapter name", placeholder: "Chapter name — “Chapter 1”, “Answer arc”…" });
       function addChapter(ev) {
         ev.preventDefault();
         if (!newName.value.trim()) { KOS.ui.toast("Name the chapter first.", true); return; }
@@ -289,8 +289,8 @@
         row.appendChild(formHolder);
         quotesWrap.appendChild(row);
       });
-      var qText = el("textarea", { class: "note-area vn-quote-in", rows: 2, placeholder: "“The universe has a beginning, but no end.” — the line itself" });
-      var qCtx = el("input", { type: "text", class: "todo-in", placeholder: "context / route (optional)" });
+      var qText = el("textarea", { class: "note-area vn-quote-in", rows: 2, "aria-label": "Quote text", placeholder: "“The universe has a beginning, but no end.” — the line itself" });
+      var qCtx = el("input", { type: "text", class: "todo-in", "aria-label": "Quote context or route (optional)", placeholder: "context / route (optional)" });
       quotesWrap.appendChild(el("div", { class: "vn-quote-add" }, [
         qText, qCtx,
         el("button", { class: "btn", text: "❝ Log quote", onclick: function (ev) {
@@ -414,9 +414,15 @@
   /* ================= cards ================= */
   function gridCard(e, rerender) {
     var rp = routeProgress(e);
-    var card = el("div", { class: "med-card vn-card", role: "button", tabindex: "0",
-      onclick: function () { vnEditor(e, rerender); },
-      onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); vnEditor(e, rerender); } }
+    /* Phase F: the card is NOT a button. It contained the favourite
+       toggle, a status <select> and "+1" — an ARIA button may not hold
+       interactive descendants, and a keyboard user who pressed Space on
+       it scrolled the page. The card keeps its pointer shortcut; the
+       TITLE is the real control, so the tab order reads
+       favourite → title → status → +1 and a screen reader announces the
+       entry by name instead of "button". */
+    var card = el("div", { class: "med-card vn-card",
+      onclick: function () { vnEditor(e, rerender); }
     }, [
       cover(e),
       el("button", { class: "med-fav" + (e.favourite ? " on" : ""), title: "Favourite — appears in the Shrine",
@@ -427,7 +433,8 @@
           ev.target.classList.toggle("on", e.favourite);
         } }),
       el("div", { class: "med-card-body" }, [
-        el("div", { class: "med-title", title: e.title, text: e.title }),
+        el("button", { type: "button", class: "med-title", title: e.title, text: e.title,
+          onclick: function (ev) { ev.stopPropagation(); vnEditor(e, rerender); } }),
         e.developer ? el("div", { class: "bk-author", text: e.developer }) : null,
         el("div", { class: "med-meta" }, [
           cwChip(e),

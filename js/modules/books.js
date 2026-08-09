@@ -784,9 +784,15 @@
 
   /* ================= cards ================= */
   function gridCard(e, rerender) {
-    var card = el("div", { class: "med-card bk-card", role: "button", tabindex: "0",
-      onclick: function () { booksEditor(e, rerender); },
-      onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); booksEditor(e, rerender); } }
+    /* Phase F: the card is NOT a button. It contained the favourite
+       toggle, a status <select> and "+1" — an ARIA button may not hold
+       interactive descendants, and a keyboard user who pressed Space on
+       it scrolled the page. The card keeps its pointer shortcut; the
+       TITLE is the real control, so the tab order reads
+       favourite → title → status → +1 and a screen reader announces the
+       entry by name instead of "button". */
+    var card = el("div", { class: "med-card bk-card",
+      onclick: function () { booksEditor(e, rerender); }
     }, [
       cover(e),
       el("button", { class: "med-fav" + (e.favourite ? " on" : ""), title: "Favourite — appears in the Shrine",
@@ -797,7 +803,8 @@
           ev.target.classList.toggle("on", e.favourite);
         } }),
       el("div", { class: "med-card-body" }, [
-        el("div", { class: "med-title", title: e.title, text: e.title }),
+        el("button", { type: "button", class: "med-title", title: e.title, text: e.title,
+          onclick: function (ev) { ev.stopPropagation(); booksEditor(e, rerender); } }),
         e.author ? el("div", { class: "bk-author", text: e.author }) : null,
         el("div", { class: "med-meta" }, [
           formatChip(e),
@@ -1340,10 +1347,10 @@
     function workTile(e) {
       var o = ownership(e);
       function open() { booksEditor(e, function () { KOS.show("mangaka", undefined, { _nav: true }); }); }
-      return el("div", { class: "mk-work", role: "button", tabindex: "0", title: e.title,
-        onclick: open,
-        onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); open(); } }
-      }, [
+      /* Phase F: a leaf tile is a real button (Enter AND Space, one
+         accessible name, no invented role) */
+      return el("button", { type: "button", class: "mk-work", title: e.title,
+        "aria-label": e.title, onclick: open }, [
         e.coverUrl
           ? el("span", { class: "mk-work-cover" }, [KOS.imageCrop.image(e.coverUrl,
               { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)])

@@ -1317,9 +1317,9 @@
     });
     if (!items.length) wrap.appendChild(el("p", { class: "sub", style: "margin:4px 0 10px", text: "No resources saved for this subject yet — textbook PDFs, PMT pages, reference sheets, video playlists…" }));
 
-    var name = el("input", { type: "text", class: "todo-in", placeholder: "Resource name" });
-    var url = el("input", { type: "text", class: "todo-in", placeholder: "https://… or file path" });
-    var refIn = el("input", { type: "text", class: "todo-in res-refin", placeholder: "topic ref (optional)" });
+    var name = el("input", { type: "text", class: "todo-in", placeholder: "Resource name", "aria-label": "Resource name" });
+    var url = el("input", { type: "text", class: "todo-in", placeholder: "https://… or file path", "aria-label": "Resource link or file path" });
+    var refIn = el("input", { type: "text", class: "todo-in res-refin", placeholder: "topic ref (optional)", "aria-label": "Topic reference (optional)" });
     wrap.appendChild(el("div", { class: "res-add" }, [
       name, url, refIn,
       el("button", { class: "btn", text: "+ Add", onclick: function () {

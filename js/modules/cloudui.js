@@ -125,16 +125,35 @@
       if (!signedIn) {
         body.appendChild(el("p", { class: "sub", text:
           "Sign in to sync your study state, media vault and attachment list across devices. Signing out or staying offline never blocks the app — cloud sync is a replication layer, not a gate." }));
-        var email = el("input", { type: "email", class: "todo-in cloud-in", placeholder: "email", autocomplete: "username" });
-        var pw = el("input", { type: "password", class: "todo-in cloud-in", placeholder: "password (8+ characters)", autocomplete: "current-password" });
-        var msg = el("p", { class: "sub cloud-msg" });
+        var email = el("input", { type: "email", class: "todo-in cloud-in", "aria-label": "Email address", placeholder: "email", autocomplete: "username" });
+        var pw = el("input", { type: "password", class: "todo-in cloud-in", "aria-label": "Password", placeholder: "password (8+ characters)", autocomplete: "current-password" });
+        /* Phase F: the form's one message line carries both progress and
+           its validation failures. It is a status region so the failure is
+           heard, and it is wired to both fields with aria-describedby so a
+           screen reader reaching the field finds the reason there too. */
+        var msgId = "cloud-msg-" + Date.now();
+        var msg = el("p", { class: "sub cloud-msg", id: msgId, role: "status" });
+        email.setAttribute("aria-describedby", msgId);
+        pw.setAttribute("aria-describedby", msgId);
+        email.required = true;
+        pw.required = true;
         function busy(b, label) {
           inBtn.disabled = upBtn.disabled = b;
           msg.textContent = b ? label : "";
         }
         function submit(fn, verb) {
           var e = email.value.trim(), p = pw.value;
-          if (!e || !p) { msg.textContent = "Enter both an email address and a password."; return; }
+          if (!e || !p) {
+            msg.textContent = "Enter both an email address and a password.";
+            /* invalid state carried beyond colour, and focus put on the
+               field that has to change */
+            email.setAttribute("aria-invalid", String(!e));
+            pw.setAttribute("aria-invalid", String(!p));
+            (!e ? email : pw).focus();
+            return;
+          }
+          email.removeAttribute("aria-invalid");
+          pw.removeAttribute("aria-invalid");
           busy(true, verb + "…");
           fn(e, p, function (err) {
             busy(false, "");
