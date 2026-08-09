@@ -113,10 +113,9 @@
   }
 
   /* ---------------- little shared bits (toolkit: medview.js) ---------------- */
-  function progressText(e, mod) {
-    var c = e.progress.current || 0, t = e.progress.total;
-    return c + (t ? "/" + t : "") + " " + mod.unit;
-  }
+  /* one grammar for progress across the whole app (audit MTX-6/U-30) —
+     "36 / 96 ep", never a second local spacing convention */
+  function progressText(e) { return KOS.media.progressText(e); }
   function cover(e, mod) { return KOS.medview.cover(e, mod.kanji); }
   /* the 3f airing badge — only exists when the live cache knows the entry */
   function airingChip(e) {
@@ -255,7 +254,7 @@
         el("div", { class: "med-title", title: e.title, text: e.title }),
         el("div", { class: "med-meta" }, [
           airingChip(e),
-          el("span", { class: "med-prog", text: progressText(e, mod) }),
+          el("span", { class: "med-prog", text: progressText(e) }),
           KOS.medview.pushChip(e, rerender)
         ]),
         el("div", { class: "med-meta med-quickrow" }, [
@@ -279,7 +278,7 @@
     return KOS.medview.listRow(e, mod, rerender, {
       genres: e.genres.slice(0, 3).join(" · "),
       chips: [airingChip(e)],
-      prog: progressText(e, mod),
+      prog: progressText(e),
       onBump: e.status === "inProgress" ? function () { bumpProgress(e, rerender); } : null,
       open: function () { editorModal(e, rerender); }
     });
@@ -318,18 +317,33 @@
     var layoutBtn = mv.layoutToggle(p, function () { refresh(); });
 
     var mainCol = el("div", { class: "med-main" });
-    mainCol.appendChild(el("div", { class: "med-toolbar" }, [
-      search, genreSel, tagSel, sortSel, layoutBtn,
-      el("button", { class: "btn", text: KOS.anime.SEASON_META[KOS.anime.currentSeason().season].kanji + " Seasonal",
-        title: "Everything airing this season, with countdowns", onclick: function () { KOS.show("seasonal"); } }),
-      el("button", { class: "btn", text: "＠ Profile", title: "Your AniList profile — stats, favourites, activity",
-        onclick: function () { KOS.show("aniprofile"); } }),
-      el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("anime", mod); } }),
-      el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-      el("button", { class: "btn gold", text: "⊕ Find new", title: "Search all of AniList — not your vault — and add with one click",
-        onclick: function () { KOS.mediaSearch.open("anime", refreshAll); } }),
-      el("button", { class: "btn primary", text: "+ Add", onclick: function () { editorModal(null, refreshAll); } })
-    ]));
+    /* the shared toolbar (Category 7 Phase D): search + sort + layout
+       visible, facets behind Filters ▾, commands behind Actions ▾ */
+    var bar = mv.toolbar({
+      label: "Anime vault controls",
+      search: search, sort: sortSel, layout: layoutBtn,
+      filters: [
+        mv.selFacet("Genre", genreSel, refresh),
+        mv.selFacet("Tag", tagSel, refresh)
+      ],
+      onClear: refresh,
+      actions: [
+        { heading: "This season" },
+        { label: "Seasonal watching", glyph: KOS.anime.SEASON_META[KOS.anime.currentSeason().season].kanji,
+          hint: "Everything airing now, with countdowns", onSelect: function () { KOS.show("seasonal"); } },
+        { heading: "This vault" },
+        { label: "The numbers", glyph: "◫", hint: "Composition, taste and pace",
+          onSelect: function () { mv.statsModal("anime", mod); } },
+        { label: "Find new titles…", glyph: "⊕", hint: "Search all of AniList, not your vault",
+          onSelect: function () { KOS.mediaSearch.open("anime", refreshAll); } },
+        { heading: "AniList" },
+        { label: "Your profile", glyph: "＠", hint: "Stats, favourites, activity",
+          onSelect: function () { KOS.show("aniprofile"); } },
+        { label: "Sync & Import", glyph: "⇅", onSelect: function () { KOS.show("mediasync"); } }
+      ],
+      primary: el("button", { class: "btn primary", text: "+ Add", onclick: function () { editorModal(null, refreshAll); } })
+    });
+    mainCol.appendChild(bar.root);
     main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
 
     /* a mutation (add/edit/quick-edit) can change list/status membership, so
@@ -341,11 +355,17 @@
       return p.layout === "list" ? listRow(e, mod, refreshAll) : gridCard(e, mod, refreshAll);
     });
 
-    /* dropdown option fill from the real index keys */
-    KOS.mediadb.distinct("genres", function (err, gs) { if (!err) mv.fillSel(genreSel, gs, "All genres"); });
-    KOS.mediadb.distinct("tags", function (err, ts) { if (!err) mv.fillSel(tagSel, ts, "All tags"); });
+    /* Facet fill from the vault's OWN rows, with counts (audit VLT-8):
+       a facet you cannot size is a facet you cannot use, and `distinct`
+       walks every module's index rather than this one's. */
+    KOS.mediadb.query({ module: "anime" }, function (err, rows) {
+      if (err) return;
+      mv.fillFacetSel(genreSel, mv.tallyFacet(rows, "genres"), "All genres");
+      mv.fillFacetSel(tagSel, mv.tallyFacet(rows, "tags"), "All tags", { genreLabel: "Common tags", tagLabel: "Other tags" });
+    });
 
     function refresh() {
+      bar.sync();
       /* claim the render generation before the query so a slow result for a
          filter you already left can never paint over the current one */
       var token = area.begin();
@@ -380,9 +400,9 @@
       });
     }
 
+    /* the facet selects are wired by mv.selFacet inside the toolbar — a
+       second listener here would run every query twice */
     search.addEventListener("input", KOS.ui.debounce(refresh, 220));
-    genreSel.addEventListener("change", refresh);
-    tagSel.addEventListener("change", refresh);
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
     function mountHero() { mv.heroCard(heroHolder, "anime", mod, function () { refreshAll(); mountHero(); }); }

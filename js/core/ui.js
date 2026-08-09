@@ -569,11 +569,173 @@
     return wrap;
   }
 
+  /* ============================================================
+     MENU BUTTON  (audit VLT-3 / U-13, Category 7 Phase D)
+
+     Books stacked seventeen controls in three rows before a single cover;
+     Anime eleven, Games nine, VN eleven. Nothing had priority, so nothing
+     was discoverable — "Profile" sat beside "+ Add", "Seasonal" beside
+     "List". The fix is not smaller buttons: it is that a vault shows the
+     three controls you use on every visit (search, sort, layout) and puts
+     the rest behind two named groups.
+
+     This is the primitive those groups are made of, and it is deliberately
+     ONE implementation for both shapes a group needs:
+
+       items:   a real `role="menu"` of commands (the Actions ▾ group) with
+                arrow/Home/End roving focus and type-ahead-free simplicity.
+       content: a labelled panel of arbitrary controls (the Filters ▾
+                group, which holds selects — a select is not a menuitem and
+                pretending otherwise lies to a screen reader).
+
+     Both forms share the button contract (`aria-haspopup`, `aria-expanded`),
+     the dismissal contract (Escape, outside pointer, scroll of an ancestor,
+     Tab out) and focus restoration to the button. The panel is
+     position:fixed and flipped to stay on screen, because #app is
+     overflow:hidden and an absolutely-positioned panel would be clipped.
+
+     It is NOT a dialog: openDialog (invariant #49) traps focus and locks
+     body scroll, which is correct for a modal and wrong for a menu you
+     dismiss by looking away. Modals still go through openDialog.
+     ============================================================ */
+  var openMenu = null;
+  function closeOpenMenu(restoreFocus) {
+    if (!openMenu) return;
+    var m = openMenu;
+    openMenu = null;
+    document.removeEventListener("keydown", m.onKey, true);
+    document.removeEventListener("pointerdown", m.onDown, true);
+    window.removeEventListener("resize", m.onDismiss, true);
+    window.removeEventListener("scroll", m.onDismiss, true);
+    if (m.panel.parentNode) m.panel.parentNode.removeChild(m.panel);
+    m.btn.setAttribute("aria-expanded", "false");
+    m.btn.classList.remove("is-open");
+    if (restoreFocus && document.body.contains(m.btn)) m.btn.focus();
+  }
+  KOS.ui.closeMenu = function () { closeOpenMenu(false); };
+
+  function menu(opts) {
+    opts = opts || {};
+    var btn = el("button", {
+      type: "button",
+      class: "btn menu-btn" + (opts.className ? " " + opts.className : ""),
+      title: opts.hint || null,
+      "aria-haspopup": opts.items ? "menu" : "true",
+      "aria-expanded": "false"
+    }, [
+      el("span", { class: "menu-btn-lbl", text: opts.label || "More" }),
+      opts.badgeId || opts.badge != null
+        ? el("span", { class: "menu-btn-n", id: opts.badgeId || null,
+            text: opts.badge != null ? String(opts.badge) : "" })
+        : null,
+      el("span", { class: "menu-btn-caret", "aria-hidden": "true", text: "▾" })
+    ].filter(Boolean));
+
+    function place(panel) {
+      var r = btn.getBoundingClientRect();
+      var vw = window.innerWidth, vh = window.innerHeight;
+      panel.style.visibility = "hidden";
+      panel.style.left = "0px"; panel.style.top = "0px";
+      document.body.appendChild(panel);
+      var pw = panel.offsetWidth, ph = panel.offsetHeight;
+      var left = opts.align === "start" ? r.left : r.right - pw;
+      left = Math.max(8, Math.min(left, vw - pw - 8));
+      var top = r.bottom + 6;
+      if (top + ph > vh - 8) top = Math.max(8, r.top - ph - 6);
+      panel.style.left = Math.round(left) + "px";
+      panel.style.top = Math.round(top) + "px";
+      panel.style.visibility = "";
+    }
+
+    function open() {
+      if (openMenu && openMenu.btn === btn) { closeOpenMenu(true); return; }
+      closeOpenMenu(false);
+      var panel = el("div", { class: "menu-panel" + (opts.panelClass ? " " + opts.panelClass : "") });
+      var focusables = [];
+      if (opts.items) {
+        panel.setAttribute("role", "menu");
+        panel.setAttribute("aria-label", opts.label || "Menu");
+        (opts.items || []).filter(Boolean).forEach(function (it) {
+          if (it.sep) { panel.appendChild(el("div", { class: "menu-sep", role: "separator" })); return; }
+          if (it.heading) { panel.appendChild(el("div", { class: "menu-heading", text: it.heading })); return; }
+          var item = el("button", { type: "button", role: "menuitem", tabindex: "-1",
+            class: "menu-item" + (it.className ? " " + it.className : ""),
+            onclick: function (ev) { closeOpenMenu(false); if (it.onSelect) it.onSelect(ev); } }, [
+            it.glyph ? el("span", { class: "menu-item-k", "aria-hidden": "true", text: it.glyph }) : null,
+            el("span", { class: "menu-item-txt" }, [
+              el("span", { class: "menu-item-lbl", text: it.label }),
+              it.hint ? el("span", { class: "menu-item-hint", text: it.hint }) : null
+            ].filter(Boolean))
+          ].filter(Boolean));
+          focusables.push(item);
+          panel.appendChild(item);
+        });
+      } else {
+        panel.setAttribute("role", "group");
+        panel.setAttribute("aria-label", opts.label || "Options");
+        if (opts.content) panel.appendChild(opts.content);
+        if (opts.render) opts.render(panel, function () { closeOpenMenu(true); });
+      }
+
+      function onKey(ev) {
+        if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); closeOpenMenu(true); return; }
+        if (ev.key === "Tab") {
+          /* let focus leave, but do not leave a floating panel behind */
+          setTimeout(function () {
+            if (openMenu && !panel.contains(document.activeElement) && document.activeElement !== btn) closeOpenMenu(false);
+          }, 0);
+          return;
+        }
+        if (!focusables.length) return;
+        var i = focusables.indexOf(document.activeElement);
+        if (ev.key === "ArrowDown") { ev.preventDefault(); focusables[(i + 1 + focusables.length) % focusables.length].focus(); }
+        else if (ev.key === "ArrowUp") { ev.preventDefault(); focusables[(i - 1 + focusables.length) % focusables.length].focus(); }
+        else if (ev.key === "Home") { ev.preventDefault(); focusables[0].focus(); }
+        else if (ev.key === "End") { ev.preventDefault(); focusables[focusables.length - 1].focus(); }
+      }
+      function onDown(ev) {
+        if (panel.contains(ev.target) || btn.contains(ev.target)) return;
+        closeOpenMenu(false);
+      }
+      function onDismiss(ev) {
+        if (ev && ev.type === "scroll" && panel.contains(ev.target)) return;
+        closeOpenMenu(false);
+      }
+      openMenu = { btn: btn, panel: panel, onKey: onKey, onDown: onDown, onDismiss: onDismiss };
+      place(panel);
+      btn.setAttribute("aria-expanded", "true");
+      btn.classList.add("is-open");
+      document.addEventListener("keydown", onKey, true);
+      document.addEventListener("pointerdown", onDown, true);
+      window.addEventListener("resize", onDismiss, true);
+      window.addEventListener("scroll", onDismiss, true);
+      if (focusables.length) focusables[0].focus();
+      else {
+        var first = panel.querySelector("input, select, textarea, button, [tabindex]:not([tabindex='-1'])");
+        if (first) first.focus();
+      }
+    }
+
+    btn.addEventListener("click", function (ev) { ev.preventDefault(); ev.stopPropagation(); open(); });
+    btn.addEventListener("keydown", function (ev) {
+      if (ev.key === "ArrowDown" && !openMenu) { ev.preventDefault(); open(); }
+    });
+    btn.setBadge = function (n) {
+      var b = btn.querySelector(".menu-btn-n");
+      if (!b) return;
+      b.textContent = n ? String(n) : "";
+      b.classList.toggle("hidden", !n);
+    };
+    btn.closeMenu = function () { if (openMenu && openMenu.btn === btn) closeOpenMenu(false); };
+    return btn;
+  }
+
   KOS.ui.pageHeader = pageHeader;
   KOS.ui.sectionHeader = sectionHeader;
   KOS.ui.emptyState = emptyState;
   KOS.ui.statTile = statTile;
   KOS.ui.scroller = scroller;
+  KOS.ui.menu = menu;
 
   function renderSubnav(sec, viewId, arg) {
     var nav = document.getElementById("subnav");
@@ -614,6 +776,13 @@
       navFwd = [];
     }
     navCur = { viewId: viewId, arg: arg };
+
+    /* A menu panel is position:fixed on document.body, so clearing #main
+       does not remove it: without this, navigating with a menu open left a
+       floating popover over the new page, still wired to controls that no
+       longer exist. (Found by smoke11, where a stale Filters panel from a
+       previous mount kept answering queries for the current one.) */
+    closeOpenMenu(false);
 
     var main = document.getElementById("main");
     main.innerHTML = "";

@@ -433,9 +433,53 @@
   function renameList(module, from, to, cb) { rewriteLists(module, from, String(to || "").trim(), cb); }
   function deleteList(module, name, cb) { rewriteLists(module, name, null, cb); }
 
+  /* ---------------- progress, said one way (audit MTX-6 / U-30) ----------------
+     The same quantity was printed four ways on one page: "69 / 76",
+     "13 ch", "7/8 vol", "14 / 26 ch". One helper, one grammar:
+
+       total known    →  "36 / 96 ch"
+       total unknown  →  "36 ch"
+       games          →  "71 hr"          (playtime is the progress axis)
+       nothing yet    →  ""               (callers decide what absence means)
+
+     `long: true` spells the unit out for prose ("36 of 96 chapters"). This
+     is display formatting only — it reads the entry, never writes it, and
+     every surface that shows progress goes through it so two cards can
+     never disagree about spacing again. */
+  function progressText(e, opts) {
+    opts = opts || {};
+    if (!e) return "";
+    var mod = module_(e.module);
+    if (e.module === "game") {
+      if (e.playtimeHours == null) return "";
+      return opts.long
+        ? e.playtimeHours + " " + (e.playtimeHours === 1 ? "hour" : "hours") + " played"
+        : e.playtimeHours + " hr";
+    }
+    var p = e.progress || {};
+    var cur = p.current || 0, total = p.total || null;
+    var unit = opts.long ? (mod.unitName || mod.unit) : (p.unit || mod.unit);
+    /* "ep" / "ch" / "hr" are abbreviations and never take an s; "route" is
+       a whole word and "2 / 2 route" is simply wrong */
+    if (!opts.long && unit.length > 3 && (total || cur) !== 1) unit = mod.unitName || unit;
+    if (!cur && !total) return "";
+    if (opts.long) return total ? cur + " of " + total + " " + unit : cur + " " + unit;
+    return total ? cur + " / " + total + " " + unit : cur + " " + unit;
+  }
+  /* the 0–100 completion of an entry, or null where there is nothing to
+     complete against (a game, or a series with no known total) */
+  function progressPct(e) {
+    if (!e || e.module === "game") return null;
+    var p = e.progress || {};
+    if (!p.total) return null;
+    return Math.max(0, Math.min(100, Math.round(100 * (p.current || 0) / p.total)));
+  }
+
   KOS.media = {
     MODULES: MODULES,
     module: module_,
+    progressText: progressText,
+    progressPct: progressPct,
     customLists: customLists,
     registerList: registerList,
     renameList: renameList,

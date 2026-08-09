@@ -3795,3 +3795,163 @@ smoke5/smoke6 owning their own database, which is how the coupling surfaced.
 
 **Phase C is complete. Next: Phase D** — the vault views and their shared
 shell, Collection Overview, Mangaka.
+
+---
+
+## Category 7 Phase D — the Collection (Mangaka · the vault shell · the Overview)
+
+Phase D took the three surfaces the audit ranked hardest in the Collection,
+in the order they were asked for. The shared work landed first and paid out
+four times: there is no per-vault answer to any problem below.
+
+### 1 · Mangaka — FULL OVERHAUL (MNG-1 / MNG-2)
+
+Phase A had already stopped this page building the whole library; that fixed
+the page height and not the page. A prolific author still printed all 28 of
+their works inline, so sixty lazy rows were still hundreds of covers, and the
+only ways through 882 names were a text search and a letter.
+
+- **The author card is bounded.** Eight works, then `Show all N works` — one
+  row costs one row whoever the author is.
+- **Real filtering**, which the page had none of: format, reading status, the
+  physical shelf, and a "prolific only" threshold (2/3/5/10+ works), which is
+  the question a mangaka directory actually answers — *who do I collect?*
+- **Sort by what the page is about**: A–Z, most works, most volumes owned,
+  most chapters read.
+- **Sticky letter dividers in the flow.** A jump rail says where you can go;
+  a divider says where you are. It hides itself under any ranking other than
+  A–Z rather than lying about position.
+- **Filtered figures are honest.** Filtering the works recomputes each
+  author's own line, so "12 works · 40 volumes owned" always describes the
+  works you can see. Figures that carry nothing (`£0`, `0 ch read`) are
+  dropped rather than printed.
+- The name and its figures stopped running together (`Hiroya Oku2 works`).
+
+Measured against the dense account — **1,107 series, 732 authors**:
+
+| | audit | now |
+|---|---|---|
+| initial `scrollHeight` | 142,062px | **10,850px** |
+| initial DOM nodes | 12,833 | **1,220** |
+| initial `<img>` | 1,107 | **106** |
+| authors mounted at once | 882 | **60** (refills on scroll) |
+
+### 2 · One vault shell across Anime · Books · VN · Games
+
+**The toolbar (VLT-3 / U-13).** Books stacked seventeen controls in three rows
+before a single cover; Anime eleven, VN eleven, Games nine — with no grouping
+logic, so "＠ Profile" sat beside "+ Add" and "Seasonal" beside "☰ List".
+There is now one arrangement, and it is the same object in all four:
+
+```
+[ search .............. ] [ sort ] [ layout ] [ Filters ▾ ] [ Actions ▾ ] [ + Add ]
+```
+
+Six controls, measured — a smoke44 step fails the build on a seventh. The
+module facets (genre, tag, format, mood, shelf, platform, developer, tier,
+DNF) moved into **Filters ▾**, which carries a badge counting what is actually
+applied, so a filtered vault says so with the panel shut. Everything else is a
+command, not a filter, and lives in **Actions ▾** behind real headings. The
+rail keeps status and custom lists: they are the two axes every module shares
+and the primary way a vault is navigated.
+
+**`KOS.ui.menu` is the new shared primitive** those groups are made of, in two
+shapes — a real `role="menu"` of commands, and a labelled panel of controls
+(a `<select>` is not a menuitem, and pretending otherwise lies to a screen
+reader). Both share the button contract, the dismissal contract (Escape,
+outside pointer, scroll, Tab out) and focus restoration. It is deliberately
+**not** a dialog: `openDialog` traps focus and locks body scroll, which is
+right for a modal and wrong for a popover you dismiss by looking away.
+
+*Found while testing:* a menu panel is `position: fixed` on `document.body`,
+so clearing `#main` did not remove it — navigating with one open left a
+floating popover over the new page, still wired to controls that no longer
+existed. `KOS.show` now closes it.
+
+**The hero (VLT-4 / VLT-5 / U-14).** One component had three levels of finish
+because only AniList exposes a banner and the other three modules had no
+designed answer to its absence: Anime got a full-bleed banner, Books and VN a
+mostly-empty pale gradient with a small floated cover, Games a kanji
+placeholder in an empty panel. There is now one composition and a three-step
+backdrop — a banner, else the entry's **own cover blown up and blurred**, else
+a deterministic gradient in the module's accent hue-shifted by the title —
+each followed by the same scrim, unconditionally. The cover plate stands on
+every hero. The light `.vh-painted` treatment is retired, which also removed a
+second set of text/chip/button rules. Nothing here fetches, so the games and
+VN vaults still emit zero network requests.
+
+The hero's two *configuration* actions (choose the spotlight, position the
+banner) moved into the same ⋯ grammar, so they stop competing with "Open
+entry".
+
+**Card placeholders (VLT-11 / U-15).** Seventy identical grey 遊 tiles read as
+unfinished, because a placeholder identical for every title says nothing about
+any title. The mark now sits on a wash derived from the title (the same hash
+the book spines use), and a cover still loading shimmers instead of sitting
+still. Both are arithmetic: no network, no canvas, stable across visits.
+
+**The genre facet (VLT-8 / G-31 / U-26).** VNDB content tags are written into
+`genres` by the sync mapper and sat beside real genres in one 64-option
+alphabetical list. The taxonomy cannot be fixed at the data layer (invariant
+#29), so it is fixed where it is read: **Genres**, then **Tags**, then **Rare
+tags**, each option carrying its own count. Nothing is hidden — a one-title
+tag is still reachable.
+
+**Also:** long titles clamp to two lines with a tooltip (VLT-6); `.med-quick`
+wraps instead of overflowing a 128px Seasonal card by 8px (VLT-10); a custom
+list named `—— ☆ ——` renders as something you can read and aim at (VLT-7).
+
+### 3 · Collection Overview — PARTIAL REDESIGN
+
+- **MTX-2/U-18** — four near-identical "X by status" bar charts, two carrying
+  a single bar, became **one small-multiples row** on a shared scale with one
+  legend. The comparison was always the point; four cards each showing a
+  quarter of it was not.
+- **MTX-3** — the four module totals appeared **four times** on one page (KPI
+  row, whole-vault donut, medium donut, module cards). Each module's totals
+  are now its own card's job; the KPI row carries only the cross-media figures
+  no card can say; one donut survives, in Analytics.
+- **MTX-5/U-17** — zero tiles suppressed, and "Score distribution" refuses to
+  draw a distribution from one rated title. It says what is missing instead.
+- **The long tail moved behind an Analytics tab**, so the overview is one
+  screen again.
+
+**Chart readability (MTX-4 / U-19)** was fixed in `core/charts.js`, so it pays
+out on every chart in the app: a value axis with gridlines and its own labels,
+an **11px label floor**, a `<title>` on every mark, and category labels that
+wrap rather than being cut to nine characters. `KOS.charts.smallMultiples` is
+new. `KOS.media.progressText`/`progressPct` are the one progress grammar
+(MTX-6/U-30) — "36 / 96 ch", never a second local spacing convention.
+
+### Verification
+
+- **44 suites green**, smoke44 new (36 steps). Six older suites were updated,
+  not weakened: they now drive the Actions/Filters groups and the hero's
+  Spotlight menu — the real control path — rather than clicking a button that
+  no longer sits loose in a row.
+- **192-cell responsive sweep** (24 views × 4 widths × 2 themes): 0 overflowing
+  elements everywhere except the pre-existing Focus Timer setup.
+- **88-cell Collection sweep** at 1920/1440/820/390 in Dawn and Dusk with the
+  dense account: 0 overflowing, 0 amputated.
+- Screenshots at all four widths in both themes, plus the Analytics tab, the
+  open Filters and Actions panels, and Mangaka under filter.
+
+**The measurement tool was part of the surface again.** `responsive_audit.mjs`
+seeded 460 entries on a flat four-way rotation with 40 author names — which is
+not the library the audit measured and not the one these views have to
+survive. It now seeds the real shape: **692 anime · 1,107 book series · 11 VNs
+· 70 games**, 732 distinct authors, a facet carrying 64 mixed genre-and-tag
+values, and a banner on **anime only** (which is the real situation, and
+exactly the asymmetry VLT-4 describes — seeding all four hid it).
+
+### Still open, still recorded
+
+- `#subnav` wraps to three rows at 390px — global navigation, Phase E.
+- The Focus Timer setup overflows by 366px at 390px — pre-existing, Phase D's
+  scope did not include it.
+- Mangaka's page still grows as you scroll (420 authors ≈ 68,000px), exactly
+  as the vault grids do. The initial render is what the audit measured and
+  what was fixed; a windowing renderer that *unmounts* rows is a change to the
+  shared lazy area, not to this page.
+
+**Phase D is complete.**

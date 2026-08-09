@@ -247,40 +247,88 @@ const SEED = String.raw`(async () => {
 
   KOS.store.save();
 
-  /* ---- media vault: dense, with real artwork and long titles ---- */
+  /* ---- media vault: the REAL account's shape, not a token sample ----
+     Category 7 Phase D. The seeder used to write 460 entries on a flat
+     4-way module rotation with 40 author names — which is not the library
+     the audit measured, and not the one the vault views have to survive.
+     The real account is 692 anime · 1,107 book series · 11 VNs · 70 games,
+     with 882 distinct authors and a genre facet carrying 64 mixed
+     genre-and-tag values. Mangaka's whole failure mode (MNG-1) only exists
+     above ~800 authors, and the vault toolbars only look cluttered once
+     the facets are full. Seed the real shape.                            */
+  const SURNAMES = ["Aida","Arakawa","Asano","Endo","Fujimoto","Furudate","Hara","Hirano","Horikoshi",
+    "Ichikawa","Inoue","Isayama","Ito","Kamome","Kishimoto","Kubo","Maruyama","Matsumoto","Mizukami",
+    "Mori","Nagabe","Nakamura","Nihei","Oda","Ohba","Okada","Ono","Otomo","Sakurai","Sato","Shiina",
+    "Sonoda","Sugimoto","Takahashi","Tanaka","Tatsuki","Toriyama","Tsutsui","Urasawa","Watase","Yamada",
+    "Yazawa","Yokoyama","Yoshida","Zaiya"];
+  const GIVEN = ["Aki","Chika","Daisuke","Eri","Fumi","Gen","Haruko","Isamu","Junji","Kaori","Kenji",
+    "Mari","Naoki","Rei","Sana","Taku","Umi","Yuki","Zen","Ayame"];
+  /* 882 distinct author strings, a couple deliberately very long */
+  const AUTHORS = [];
+  for (let s = 0; s < SURNAMES.length; s++) {
+    for (let g = 0; g < GIVEN.length; g++) {
+      AUTHORS.push(SURNAMES[s] + " " + GIVEN[g]);
+      if (AUTHORS.length >= 882) break;
+    }
+    if (AUTHORS.length >= 882) break;
+  }
+  AUTHORS[7] = "A Very Long Mangaka Name That Refuses To Wrap Politely, With A Studio Credit Attached";
+  /* the 64-value genre facet the audit found: real genres plus VNDB-style
+     tags, most of which occur once or twice */
+  const GENRES = ["Action","Adventure","Comedy","Drama","Fantasy","Horror","Mecha","Mystery",
+    "Psychological","Romance","Sci-Fi","Slice of Life","Sports","Supernatural","Thriller"];
+  const TAGS = [];
+  for (let t = 0; t < 49; t++) TAGS.push("Protagonist with a Tragic Past " + (t + 1));
+  const FACET = GENRES.concat(TAGS);
+  const PLAN = [["anime", 692], ["books", 1107], ["vn", 11], ["game", 70]];
+
   const existing = await new Promise(r => KOS.mediadb.count(null, (e, n) => r(n || 0)));
-  if (existing < 400) {
-    const mods = ["anime", "books", "vn", "game"];
+  if (existing < 1800) {
     const rows = [];
-    for (let i = 0; i < 460; i++) {
-      const module = mods[i % 4];
-      const long = i % 7 === 0;
-      rows.push({
-        module,
-        title: long ? LONG + " " + (i + 1) : "Collection entry " + (i + 1),
-        coverUrl: i % 6 === 5 ? "" : ART[i % ART.length],
-        coverCrop: { x: 50, y: 38, zoom: 1.15 },
-        status: ["planned", "inProgress", "completed", "onHold", "dropped"][i % 5],
-        score: i % 9 === 0 ? 0 : 1 + (i % 10),
-        favourite: i % 23 === 0,
-        genres: ["Adventure", "Comedy", "Slice of Life", "Psychological Horror in a Small Coastal Town"].slice(0, 1 + (i % 4)),
-        customLists: i % 11 === 0 ? ["—— ☆ ——"] : [],
-        syncSource: "manual",
-        progress: { current: i % 40, total: module === "game" ? null : 40 + (i % 60), unit: module === "game" ? "hr" : "ep" },
-        author: module === "books" ? "A Very Long Mangaka Name That Wraps " + (i % 40) : "",
-        format: module === "books" ? ["manga", "lightNovel", "oneShot"][i % 3] : "",
-        playtimeHours: module === "game" ? (i % 90) : null,
-        physical: module === "books" && i % 5 === 0
-          ? { owned: true, volumes: Array.from({ length: 3 + (i % 5) }, (_, v) => ({ number: v + 1, condition: "good", purchaseDate: iso(today - v * DAY), price: 8.99, coverUrl: ART[v % ART.length], coverCrop: null })) }
-          : { owned: false, volumes: [] },
-        routes: module === "vn" ? [{ name: "Common route", cleared: true }, { name: "True end", cleared: i % 2 === 0 }] : [],
-        notes: i % 8 === 0 ? "A long personal note about this entry that keeps going for a while so the editor has to wrap it properly." : ""
-      });
+    let i = 0;
+    for (const [module, count] of PLAN) {
+      for (let k = 0; k < count; k++, i++) {
+        const long = i % 7 === 0;
+        /* author distribution is Zipf-ish: a few prolific names, a long
+           tail of one-work authors — which is what makes an A–Z rail and a
+           "≥ N works" filter worth having */
+        const authorIx = module === "books"
+          ? (k % 5 === 0 ? k % 40 : Math.min(AUTHORS.length - 1, 40 + Math.floor(k / 1.3)))
+          : -1;
+        rows.push({
+          module,
+          title: long ? LONG + " " + (i + 1) : "Collection entry " + (i + 1),
+          coverUrl: i % 6 === 5 ? "" : ART[i % ART.length],
+          coverCrop: { x: 50, y: 38, zoom: 1.15 },
+          status: ["planned", "inProgress", "completed", "onHold", "dropped"][i % 5],
+          score: i % 9 === 0 ? 0 : 1 + (i % 10),
+          favourite: i % 23 === 0,
+          genres: [FACET[i % FACET.length], FACET[(i * 7) % FACET.length], FACET[(i * 13) % FACET.length]]
+            .slice(0, 1 + (i % 3)),
+          customLists: i % 11 === 0 ? ["—— ☆ ——"] : (i % 17 === 0 ? ["Comfort reads"] : []),
+          syncSource: module === "game" ? "manual" : (i % 3 === 0 ? "manual" : "anilist"),
+          progress: { current: i % 40, total: module === "game" ? null : 40 + (i % 60), unit: module === "game" ? "hr" : "ep" },
+          author: authorIx >= 0 ? AUTHORS[authorIx % AUTHORS.length] : "",
+          format: module === "books" ? ["manga", "lightNovel", "oneShot"][i % 3] : "",
+          playtimeHours: module === "game" ? (i % 90) : null,
+          physical: module === "books" && k % 5 === 0
+            ? { owned: true, volumes: Array.from({ length: 3 + (k % 5) }, (_, v) => ({ number: v + 1, condition: "good", purchaseDate: iso(today - v * DAY), price: 8.99, coverUrl: ART[v % ART.length], coverCrop: null })) }
+            : { owned: false, volumes: [] },
+          routes: module === "vn" ? [{ name: "Common route", cleared: true }, { name: "True end", cleared: i % 2 === 0 }] : [],
+          notes: i % 8 === 0 ? "A long personal note about this entry that keeps going for a while so the editor has to wrap it properly." : ""
+        });
+      }
     }
-    await new Promise(r => KOS.mediadb.bulkUpsert(rows, { source: "manual" }, () => r()));
-    for (const m of mods) {
-      await new Promise(r => KOS.mediadb.setKV("hero." + m, { entryId: null, banner: ART[0], crop: { x: 50, y: 45, zoom: 1.2 } }, () => r()));
+    /* bulkUpsert in slices — one 1,880-row transaction is a very different
+       thing from the app's own sync batches and can time the store out */
+    for (let s = 0; s < rows.length; s += 250) {
+      const slice = rows.slice(s, s + 250);
+      await new Promise(r => KOS.mediadb.bulkUpsert(slice, { source: "manual" }, () => r()));
     }
+    /* ONLY anime gets a banner — that is the real situation (AniList is the
+       only provider that exposes one) and it is exactly the asymmetry the
+       audit's VLT-4 describes. Seeding all four hid it. */
+    await new Promise(r => KOS.mediadb.setKV("hero.anime", { entryId: null, banner: ART[0], crop: { x: 50, y: 45, zoom: 1.2 } }, () => r()));
   }
   const n = await new Promise(r => KOS.mediadb.count(null, (e, c) => r(c || 0)));
   /* store.save() is debounced 120ms and the harness reloads the page the
@@ -289,8 +337,14 @@ const SEED = String.raw`(async () => {
      lost, and every "dense account" measurement after it ran against a
      default store. flush() writes through synchronously. */
   KOS.store.flush();
+  const authors = await new Promise(r => KOS.mediadb.query({ module: "books" }, (e, rs) => {
+    const set = {};
+    (rs || []).forEach(x => { if ((x.author || "").trim()) set[x.author.trim()] = 1; });
+    r(Object.keys(set).length);
+  }));
   return { sessions: S.sessions.length, progress: Object.keys(S.progress).length,
-    media: n, secure: Object.values(S.progress).filter(p => p.status === "done").length };
+    media: n, authors: authors,
+    secure: Object.values(S.progress).filter(p => p.status === "done").length };
 })()`;
 
 if (DO_SEED) {

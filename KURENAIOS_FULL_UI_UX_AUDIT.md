@@ -1178,6 +1178,41 @@ the seed was silently lost. Both fixed (`store.flush()`, correct statuses, plus
 SM-2 metadata and RAG ratings). The measurement tool is part of the surface
 under test.
 
+**Phase D (Collection) — complete.** The release gate is now **44 suites**,
+all green, plus a 192-cell whole-app sweep and an 88-cell Collection sweep
+(4 widths × 2 themes) at zero overflowing elements, and screenshots at
+1920/1440/820/390 in Dawn and Dusk against the dense account.
+
+| Finding | Status | How it was verified |
+|---|---|---|
+| **MNG-1 — Mangaka renders 882 authors and 1,107 series at once** | **Fixed** | Phase A put it on the lazy area, which fixed the page height and not the page: a prolific author still printed all 28 works inline. The author card is bounded at 8 works with `Show all N` behind it. Against the dense account (1,107 series / 732 authors): **142,062px → 10,850px**, **12,833 → 1,220 nodes**, **1,107 → 106 `<img>`**, 60 authors mounted. smoke44 E. |
+| **MNG-2 — no search, no index, no filter** | **Fixed** | Search and the A–Z rail landed in Phase A. Phase D added the filtering the page never had — format, reading status, the physical shelf, and a "prolific only" threshold, which is the question a mangaka directory answers — plus sort by works / volumes / chapters, and **sticky letter dividers in the flow** (a rail says where you can go; a divider says where you are). Filtering recomputes each author's own figures, so the meta line always describes the works you can see. |
+| **VLT-3 / U-13 — 17 controls before content on Books (11 Anime, 11 VN, 9 Games)** | **Fixed** | One toolbar: `search · sort · layout · Filters ▾ · Actions ▾ · + Add`. Six controls, and smoke44 A fails the build on a seventh. Facets moved into Filters ▾ with a badge counting what is applied; commands into Actions ▾ under real headings. |
+| **VLT-4 / U-14 — three levels of hero finish** | **Fixed** | One composition, one three-step backdrop — banner, else the entry's own cover blown up and blurred, else a deterministic gradient in the module's accent hue-shifted by the title. The light `.vh-painted` treatment is retired. Nothing here fetches, so games/VN still emit zero network. |
+| **VLT-5 — hero text on artwork with no scrim** | **Fixed** | The scrim is unconditional on every path, and there is one text colour rather than one per backdrop. Invariant #56's rule, applied to the Collection. |
+| **VLT-6 — long titles wrap to three lines over the cover** | **Fixed** | Two-line clamp with a tooltip, on the grid cards and the Mangaka work tiles. |
+| **VLT-7 — decorative Unicode list names are invisible lines** | **Fixed** | The name is preserved exactly (it is the user's and it round-trips to AniList); the row gains "unnamed list" and a count. |
+| **VLT-8 / G-31 / U-26 — a 64-option facet mixing genres and VNDB tags** | **Fixed** | Fixed where it is READ, not in the data (invariant #29): Genres, then Tags, then Rare tags, each option carrying its count. Nothing is hidden — a one-title tag is still reachable. |
+| **VLT-10 — `.med-quickrow` overflows a 128px card by 8px** | **Fixed** | The quick-edit row wraps and its controls shrink; a 118px select + a 52px score is 175px whatever the card is. |
+| **VLT-11 — Games is 70 identical grey tiles** | **Fixed** | The placeholder mark sits on a wash derived from the title (the same hash the book spines use), and a loading cover shimmers. A placeholder identical for every title says nothing about any title. |
+| **VLT-2 / U-15 — covers show nothing while loading** | **Held, extended** | Phase B painted the kanji from the first frame; Phase D added the shimmer and routed the Overview's strip through the same shared `cover()`. |
+| **VLT-9 — the editor exposes a raw CDN URL and shows an unrated score as 0** | **Not fixed** | Out of this phase's three named surfaces (the editor folio is smoke36's). Recorded. |
+| **MTX-1 / U-29 — the cover strip has no scroll affordance** | **Held** | Still on `KOS.ui.scroller`; re-asserted after the Overview rewrite. |
+| **MTX-2 / U-18 — four near-identical status charts, two donuts** | **Fixed** | One small-multiples row on a shared scale with one legend, and one donut (in Analytics). smoke44 F asserts every panel's axis tops out at the same value. |
+| **MTX-3 — the four module totals appear four times** | **Fixed** | Each module's totals are its own card's job; the KPI row carries only the cross-media figures no card can say. smoke44 F fails if a per-module total reappears in the KPI row. |
+| **MTX-4 / U-19 — no axes, no gridlines, ~7px labels** | **Fixed** | In `core/charts.js`, so it pays out on every chart in the app: a value axis with gridlines and labels, an **11px floor**, a `<title>` on every mark, and category labels that wrap rather than being cut to nine characters. |
+| **MTX-5 — a "distribution" drawn from one rated title; a zero tile** | **Fixed** | Zero tiles suppressed via `KOS.ui.statTile`; the score card refuses to draw below five ratings and says what is missing instead. |
+| **MTX-6 / U-30 — four progress formats on one page** | **Fixed** | `KOS.media.progressText` / `progressPct` are the one grammar; the vault views, the hero and the Overview all read them. |
+| **An open menu survived a view change (not in the original audit)** | **Fixed** | A menu panel is `position: fixed` on `document.body`, so clearing `#main` did not remove it: navigating with one open left a floating popover over the new page, still wired to controls that no longer existed. Found by smoke11, fixed in `KOS.show`. |
+
+**Lesson carried forward, fourth instance — and again it was the harness.**
+`responsive_audit.mjs` seeded 460 entries on a flat four-way module rotation
+with 40 author names, and gave **all four** vaults a hero banner. That is not
+the library the audit measured (692 anime · 1,107 books · 11 VNs · 70 games,
+882 authors), and the banner seeding hid VLT-4 entirely — the asymmetry it
+describes only exists because AniList is the one provider that exposes a
+banner. Both fixed. A seeder that flatters the app is worse than no seeder.
+
 ## 11. Prioritised Remediation Roadmap
 
 ### Phase A — Critical bugs and broken layouts
@@ -1277,6 +1312,18 @@ vault shell fix pays out four times.
 - Collection Overview fits one screen at 1440 with the analytics tail behind a tab.
 - Profile pages explain the missing-token state and offer reconnect inline.
 - Governor settings sit outside the hero; no zero-value tiles remain.
+
+**Outcome — the Collection third of Phase D is complete** (Mangaka, the four
+vaults and their shared shell, Collection Overview). Focus setup, the
+AniList/VNDB profiles and Governor Status/Gold Shop remain.
+
+| Criterion | Result |
+|---|---|
+| One hero component across all four vaults, designed fallback, mandatory scrim | ✓ one composition, a three-step backdrop, the scrim unconditional — smoke44 B |
+| No vault shows more than six controls above the grid | ✓ exactly six on all four; smoke44 A fails on a seventh |
+| Covers show the kanji placeholder while loading | ✓ held from Phase B, plus a shimmer and a title-derived wash (VLT-11) |
+| Collection Overview fits one screen at 1440 with the analytics tail behind a tab | ✓ Overview / Analytics; the tail is one tab away |
+| Mangaka usable at scale | ✓ 142,062px → 10,850px, 12,833 → 1,220 nodes, with filters, sort, A–Z and letter dividers |
 
 ### Phase E — Responsive / mobile polish
 **Areas:** every remaining view at 820 and 390 px; the bottom bar; the mobile

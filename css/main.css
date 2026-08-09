@@ -176,6 +176,7 @@
   --z-tree: 40;
   --z-rail: 60;
   --z-stage: 70;
+  --z-menu: 110;
   --z-modal: 120;
   --z-fullscreen: 200;
   --z-toast: 300;
@@ -3162,13 +3163,57 @@ body.fx-minimised .fx-dock { display: flex; }
   background-size: cover;
   background-position: center 30%;
 }
-.vault-hero.has-banner { color: #F6F1E6; }
-.vault-hero.vh-painted {
+/* Category 7 Phase D — ONE hero, three backdrops (audit VLT-4/VLT-5/U-14).
+   The spotlight always reads as the same component: dark scrimmed art,
+   light text, a cover plate on the right. What varies is only what is
+   BEHIND the scrim — a banner, the blown-up cover, or a generated
+   gradient — never the finish. The old `.vh-painted` light treatment is
+   retired: it was the "half-built" look the audit found on three of the
+   four vaults, and it forced a second set of text/chip/button rules. */
+.vault-hero { color: #F6F1E6; }
+.vault-hero.vh-fallback {
   background:
-    radial-gradient(130% 170% at 100% 0%, color-mix(in srgb, var(--vh-accent, var(--accent)) 26%, transparent), transparent 55%),
-    radial-gradient(100% 140% at 0% 100%, color-mix(in srgb, var(--vh-accent, var(--accent)) 12%, transparent), transparent 60%),
-    var(--bg1);
+    linear-gradient(112deg,
+      hsl(var(--vh-hue, 30) 26% 17%) 0%,
+      color-mix(in srgb, var(--vh-accent, var(--accent)) 42%, #171310) 62%,
+      color-mix(in srgb, var(--vh-accent, var(--accent)) 18%, #12100C) 100%);
 }
+/* the entry's own cover, blown up behind the scrim — real art for a
+   module that has no banner source at all (VN, Games, most Books) */
+.vh-art {
+  position: absolute; inset: 0; z-index: 0;
+  overflow: hidden;
+  display: grid; place-items: center;
+}
+.vh-art > img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+  filter: blur(26px) saturate(1.25);
+  transform: scale(1.28);
+  opacity: .82;
+}
+/* the watermark sits inboard of the cover plate rather than under it —
+   two copies of the same kanji stacked read as a rendering fault */
+.vh-art-mark {
+  font-family: var(--jp);
+  font-size: clamp(120px, 20vw, 240px);
+  line-height: 1;
+  color: rgba(246,241,230,.07);
+  justify-self: end;
+  margin-inline-end: 27%;
+  user-select: none;
+}
+@media (max-width: 860px) { .vh-art-mark { margin-inline-end: 6%; } }
+/* the scrim is not optional — invariant #56. Hero text must never depend
+   on which image happens to be spotlighted (audit VLT-5). */
+.vh-scrim {
+  position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(100deg,
+    rgba(16,14,10,.92) 0%, rgba(16,14,10,.74) 40%,
+    rgba(16,14,10,.34) 72%, rgba(16,14,10,.16) 100%);
+}
+@media (prefers-reduced-motion: reduce) { .vh-art > img { filter: blur(20px); } }
 .vh-body {
   position: relative; z-index: 1;
   display: flex; flex-direction: column; justify-content: center; gap: 8px;
@@ -3176,53 +3221,49 @@ body.fx-minimised .fx-dock { display: flex; }
   max-width: 640px;
   min-width: 0;
 }
-.vh-kicker { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .3em; text-transform: uppercase; }
-.vault-hero.has-banner .vh-kicker { color: rgba(246,241,230,.8); }
-.vault-hero.vh-painted .vh-kicker { color: var(--muted); }
+.vh-kicker { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: rgba(246,241,230,.8); }
 .vh-kicker .vh-mod { letter-spacing: .18em; opacity: .75; }
 .vh-title { margin: 0; font-size: var(--type-hero-title); font-weight: 580; line-height: 1.12; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.vh-line { margin: 0; font-size: 14.5px; }
-.vault-hero.has-banner .vh-line { color: rgba(246,241,230,.85); }
-.vault-hero.vh-painted .vh-line { color: var(--text2); }
+.vh-line { margin: 0; font-size: 14.5px; color: rgba(246,241,230,.85); }
 .vh-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
 .vh-chip {
-  font-family: var(--mono); font-size: 10.5px;
+  font-family: var(--mono); font-size: 11px;
   padding: 3px 11px; border-radius: 999px;
-  border: 1px solid;
+  border: 1px solid rgba(246,241,230,.35);
+  color: rgba(246,241,230,.92);
+  background: rgba(16,14,10,.35);
 }
-.vault-hero.has-banner .vh-chip { color: rgba(246,241,230,.92); border-color: rgba(246,241,230,.35); background: rgba(16,14,10,.35); }
-.vault-hero.vh-painted .vh-chip { color: var(--text2); border-color: var(--line); background: var(--panel); }
-.vh-track { height: 5px; max-width: 340px; border-radius: 999px; overflow: hidden; margin-top: 4px; background: rgba(127,127,127,.28); }
-.vault-hero.vh-painted .vh-track { background: color-mix(in srgb, var(--text) 10%, transparent); }
+.vh-track { height: 5px; max-width: 340px; border-radius: 999px; overflow: hidden; margin-top: 4px; background: rgba(246,241,230,.22); }
 .vh-track i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent2), color-mix(in srgb, var(--accent2) 60%, #fff)); }
 .vh-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-.vault-hero.has-banner .btn.ghost { color: #F6F1E6; border-color: rgba(246,241,230,.4); background: rgba(16,14,10,.25); }
-.vault-hero.has-banner .btn.ghost:hover { border-color: rgba(246,241,230,.8); color: #fff; }
-.vh-cover {
-  flex: none;
+.vault-hero .btn.ghost { color: #F6F1E6; border-color: rgba(246,241,230,.4); background: rgba(16,14,10,.25); }
+.vault-hero .btn.ghost:hover { border-color: rgba(246,241,230,.8); color: #fff; }
+.vault-hero .vh-menu { color: #F6F1E6; border-color: rgba(246,241,230,.4); background: rgba(16,14,10,.25); }
+.vault-hero .vh-menu:hover, .vault-hero .vh-menu.is-open { border-color: rgba(246,241,230,.8); color: #fff; }
+.vh-cover, .vh-ph {
+  position: relative; z-index: 1;
+  flex: none; order: 2;
   width: 150px;
   align-self: center;
   margin: 22px 34px 22px auto;
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border-radius: 10px;
-  box-shadow: 0 14px 34px rgba(40,30,14,.3);
+  box-shadow: 0 14px 34px rgba(12,9,5,.45);
   transform: rotate(1.8deg);
-  order: 2;
 }
 .vh-cover > img { width: 100%; height: 100%; display: block; }
+/* the plate for an entry with no cover at all: the module's own hue, lit
+   enough to read as a deliberate placeholder rather than a hole */
 .vh-ph {
-  flex: none; order: 2;
-  width: 150px; aspect-ratio: 2 / 3;
-  align-self: center;
-  margin: 22px 34px 22px auto;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--jp); font-size: 56px;
-  color: color-mix(in srgb, var(--vh-accent, var(--accent)) 55%, var(--bg1));
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--vh-accent, var(--accent)) 14%, var(--bg1));
-  border: 1px solid color-mix(in srgb, var(--vh-accent, var(--accent)) 30%, transparent);
-  transform: rotate(1.8deg);
+  color: rgba(246,241,230,.72);
+  background:
+    linear-gradient(155deg,
+      color-mix(in srgb, var(--vh-accent, var(--accent)) 78%, #F6F1E6) 0%,
+      color-mix(in srgb, var(--vh-accent, var(--accent)) 92%, #100D08) 100%);
+  border: 1px solid rgba(246,241,230,.24);
 }
 @media (max-width: 860px) {
   .vh-cover, .vh-ph { display: none; }
@@ -3232,6 +3273,22 @@ body.fx-minimised .fx-dock { display: flex; }
 .med-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 .med-toolbar .med-search { flex: 1 1 200px; min-width: 150px; border-radius: 999px; }
 .med-count { margin: 2px 0 14px; font-family: var(--mono); font-size: 11px; }
+
+/* ---- the one vault toolbar (Category 7 Phase D, audit VLT-3/U-13) ----
+   Six controls, one row: search takes the slack, sort and layout are the
+   two everyday choices, then the two groups and the single primary. */
+.med-toolbar.mvt { gap: 8px; margin-bottom: 10px; }
+.med-toolbar.mvt .med-search { flex: 1 1 240px; }
+.med-toolbar.mvt > .btn.primary { margin-inline-start: auto; }
+.mvt-filters-btn.has-filters { border-color: var(--accent); color: var(--accent); }
+.mvt-filters { display: flex; flex-direction: column; gap: 10px; }
+.mvt-filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.mvt-facet { margin: 0; }
+.mvt-facet select, .mvt-facet input { width: 100%; }
+.mvt-toggle { display: flex; align-items: center; gap: 8px; min-height: var(--control-h-sm); font-size: 13px; color: var(--text2); }
+.mvt-toggle input { width: 18px; height: 18px; flex: none; }
+.mvt-filters-foot { display: flex; justify-content: flex-end; border-top: 1px solid var(--line); padding-top: 9px; }
+.mvt-clear:disabled { opacity: .45; cursor: default; }
 
 /* ---- the grid: overlay cards (AniList's own pattern) ---- */
 .med-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--grid-gap); }
@@ -3313,8 +3370,11 @@ body.fx-minimised .fx-dock { display: flex; }
 .med-quickrow { margin-top: 2px; max-height: 0; opacity: 0; overflow: hidden; pointer-events: none; transition: max-height .2s, opacity .2s; }
 .med-card:hover .med-quickrow, .med-card:focus-within .med-quickrow,
 .med-row .med-quickrow { max-height: 40px; opacity: 1; pointer-events: auto; overflow: visible; }
-.med-quick { display: inline-flex; align-items: center; gap: 5px; }
-.med-qsel { min-height: var(--control-h-xs); font-size: 10.5px; padding: 3px 6px; max-width: 118px; }
+/* audit VLT-10: the quick-edit row overflowed a 128px Seasonal card by 8px
+   in 23 places, because a 118px select plus a 52px score plus the gap is
+   175px whatever the card is. It wraps and shrinks now. */
+.med-quick { display: inline-flex; align-items: center; gap: 5px; flex-wrap: wrap; max-width: 100%; min-width: 0; }
+.med-qsel { min-height: var(--control-h-xs); font-size: 10.5px; padding: 3px 6px; max-width: 118px; min-width: 0; flex: 1 1 auto; }
 .med-qscore { min-height: var(--control-h-xs); font-size: 10.5px; padding: 3px 4px; width: 52px; text-align: center; font-family: var(--mono); }
 .med-row .med-qsel { max-width: 104px; }
 .med-push-fail { --chip: var(--danger); cursor: pointer; border: none; font: inherit; font-weight: 700; }
@@ -3781,11 +3841,27 @@ body.fx-minimised .fx-dock { display: flex; }
 .mk-jump-key:hover, .mk-jump-key:focus-visible { border-color: var(--accent); color: var(--text); outline: none; }
 .mk-jump-key.off { opacity: .3; cursor: default; }
 .mk-jump-key.active { color: var(--bg1); border-color: var(--accent); background: var(--accent); }
-.mk-wall { display: flex; flex-direction: column; gap: 16px; }
+.mk-wall { display: flex; flex-direction: column; gap: 14px; }
 .mk-card { padding: 14px 16px; }
+/* the letter divider that rides IN the flow — a jump rail says where you
+   can go, a divider says where you are (Category 7 Phase D) */
+.mk-letter {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: center; gap: 10px;
+  margin: 6px 0 -4px;
+  padding: 4px 0;
+  font-family: var(--serif); font-size: 13px; font-weight: 700;
+  letter-spacing: .1em; color: var(--muted);
+  background: linear-gradient(var(--bg0) 68%, transparent);
+}
+.mk-letter::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.mk-wall > .mk-letter:first-child { margin-top: 0; }
 .mk-h { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.mk-h-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .mk-mark { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 700; font-size: 17px; color: #fff; background: radial-gradient(circle at 30% 28%, color-mix(in srgb, var(--spine) 80%, white), var(--spine)); }
-.mk-name { font-family: var(--serif); font-size: 16px; font-weight: 600; }
+.mk-name { font-family: var(--serif); font-size: 16px; font-weight: 600; line-height: 1.25; }
+.mk-meta { font-size: 11.5px; line-height: 1.4; }
+.mk-more { align-self: flex-start; margin-top: 10px; font-size: 12.5px; }
 .mk-works { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
 .mk-work { display: flex; gap: 9px; align-items: center; cursor: pointer; padding: 6px; border-radius: 9px; border: 1px solid transparent; transition: all .15s; }
 .mk-work:hover, .mk-work:focus-visible { border-color: var(--line2); background: var(--panel); outline: none; }
@@ -3793,7 +3869,10 @@ body.fx-minimised .fx-dock { display: flex; }
 .mk-work-cover img { width: 100%; height: 100%; display: block; }
 .mk-ph { flex: 0 0 34px; width: 34px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 17px; border-radius: 4px; background: color-mix(in srgb, var(--spine, var(--accent)) 20%, var(--panel)); }
 .mk-work-body { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.mk-work-t { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* two lines, then an ellipsis — a one-line clamp lost the volume number on
+   every long light-novel title (audit VLT-6's rule, applied here) */
+.mk-work-t { font-size: 12.5px; font-weight: 600; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.mk-work-m { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---- games ---- */
 .gm-plat { --chip: var(--c-maths); }
@@ -4776,7 +4855,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 /* ---- banner edge fix: no dark border on image banners; a soft inset ring
    instead of a hard 1px line that reads as bleed at the corners ---- */
 .image-banner,
-.vault-hero.has-banner,
+.vault-hero,
 .home-id.has-banner,
 .ap-head.has-banner,
 .wl-hero.has-banner { border: none; box-shadow: var(--shadow-md), inset 0 0 0 1px rgba(255,255,255,.06); }
@@ -7920,6 +7999,52 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
 .section-header .sub { margin: 2px 0 0; max-width: 68ch; color: var(--muted); font-size: 12.5px; }
 .section-header-actions { display: flex; align-items: center; gap: var(--space-2); margin-left: auto; }
 
+/* ---- menu button + popover (audit VLT-3/U-13, Category 7 Phase D) ----
+   The container for "everything this page can also do". It is a popover,
+   not a modal: it sits below --z-modal, it does not lock scroll, and it
+   dismisses the moment you look elsewhere. */
+.menu-btn { display: inline-flex; align-items: center; gap: 6px; }
+.menu-btn-caret { font-size: 9px; opacity: .65; transition: transform .15s; }
+.menu-btn.is-open { border-color: var(--accent); color: var(--accent); }
+.menu-btn.is-open .menu-btn-caret { transform: rotate(180deg); }
+.menu-btn-n {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  min-width: 17px; padding: 0 5px; border-radius: var(--radius-pill);
+  color: var(--bg1); background: var(--accent);
+}
+.menu-btn-n:empty, .menu-btn-n.hidden { display: none; }
+.menu-panel {
+  position: fixed; z-index: var(--z-menu);
+  min-width: 216px; max-width: min(94vw, 420px);
+  max-height: min(68vh, 560px); overflow-y: auto;
+  padding: var(--space-2);
+  background: var(--surface-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-lg);
+}
+.menu-panel-wide { min-width: min(94vw, 440px); padding: var(--space-3); }
+.menu-heading {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); padding: var(--space-2) var(--space-2) 4px;
+}
+.menu-sep { height: 1px; margin: var(--space-2) var(--space-1); background: var(--line); }
+.menu-item {
+  display: flex; align-items: flex-start; gap: 10px; width: 100%;
+  min-height: var(--control-h-sm);
+  padding: 7px var(--space-2);
+  border: none; border-radius: var(--radius-control);
+  background: none; color: var(--text); text-align: start;
+  font-size: 13.5px; cursor: pointer;
+}
+.menu-item:hover, .menu-item:focus-visible { background: var(--well); outline: none; }
+.menu-item:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.menu-item-k { flex: none; width: 18px; text-align: center; color: var(--accent2); font-size: 13px; line-height: 1.5; }
+.menu-item-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.menu-item-lbl { line-height: 1.35; }
+.menu-item-hint { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+.menu-item.danger { color: var(--danger); }
+
 /* ---- scroll affordance (audit MTX-1/U-29/SUBJ-3) ----
    A horizontal scroller has to say that it scrolls. Edge fades appear only
    on the side that has more content; the arrows are aria-hidden from the
@@ -8084,3 +8209,62 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
   .gov-seat-hero { flex-wrap: wrap; }
   .gov-seat-hero > * { min-width: 0; }
 }
+
+/* ============================================================
+   Category 7 Phase D — Collection Overview (audit MTX-2/MTX-3/MTX-4)
+   ============================================================ */
+.mx-tabbar { margin: var(--space-3) 0 var(--space-4); }
+.mx-pane { display: flex; flex-direction: column; gap: var(--section-gap); }
+.mx-analytics-note { margin: 0; }
+/* small multiples: one card, N panels, one shared scale and one legend —
+   replacing four cards that each carried a quarter of the comparison */
+.cs-multi { display: flex; flex-direction: column; gap: var(--space-3); }
+.cs-multi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-3); }
+.cs-multi-panel { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cs-multi-h { display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap; }
+.cs-multi-h b { font-size: 13px; font-weight: 600; }
+.cs-multi-h .sub { font-size: 11px; }
+.cs-multi-panel svg { width: 100%; height: auto; }
+/* .legend is a column by default (it sits beside a donut); one legend
+   shared by a ROW of panels has to read as a row */
+.cs-multi-legend { flex-direction: row; flex-wrap: wrap; gap: 6px 18px; padding-top: var(--space-3); border-top: 1px solid var(--line); }
+.cs-multi-note { margin: 0; }
+
+/* audit VLT-7: a custom list named "—— ☆ ——" rendered as a thin line you
+   could neither read nor aim at. The name survives (it is the user's, and
+   it round-trips to AniList); the row gains something to read. */
+.fr-row-deco .fr-row-lbl { display: flex; align-items: baseline; gap: 6px; }
+.fr-row-deco-mark { flex: none; max-width: 62px; overflow: hidden; text-overflow: ellipsis; opacity: .7; }
+.fr-row-deco em { font-style: italic; color: var(--muted); font-size: 11.5px; }
+
+/* ---- cover placeholders that carry information (audit VLT-11 / U-15) ----
+   Seventy identical grey 遊 tiles read as unfinished, not as "no cover":
+   a placeholder identical for every title says nothing about any title.
+   The mark now sits on a wash derived from the title itself (--ph-hue,
+   set by medview.cover from the same hash the book spines use), so an
+   unillustrated vault has the texture of a shelf. Pure arithmetic — no
+   network, no canvas, stable across visits. */
+.med-cover.no-art {
+  background: linear-gradient(158deg,
+    color-mix(in srgb, hsl(var(--ph-hue, 30) 44% 54%) 15%, var(--well)) 0%,
+    color-mix(in srgb, hsl(var(--ph-hue, 30) 42% 40%) 26%, var(--well)) 100%);
+}
+.med-cover.no-art .med-cover-ph {
+  color: color-mix(in srgb, hsl(var(--ph-hue, 30) 40% 38%) 62%, var(--text));
+  opacity: .42;
+}
+/* and while the image is still on its way, the box says "loading" rather
+   than sitting still and looking broken */
+.med-cover.is-loading::after {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%,
+    color-mix(in srgb, var(--text) 8%, transparent) 50%, transparent 70%);
+  background-size: 260% 100%;
+  animation: med-cover-shimmer 1.5s ease-in-out infinite;
+}
+@keyframes med-cover-shimmer {
+  from { background-position: 160% 0; }
+  to   { background-position: -60% 0; }
+}
+@media (prefers-reduced-motion: reduce) { .med-cover.is-loading::after { animation: none; } }

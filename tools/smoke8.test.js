@@ -53,6 +53,27 @@ for (const src of scripts) {
 const KOS = window.KOS;
 if (KOS.autosync) KOS.autosync.stop();   // no timer-driven pulls polluting netLog mid-suite (3j)
 
+
+/* Category 7 Phase D: the vault toolbars keep search + sort + layout
+   visible and put every COMMAND behind the ⋯ Actions group (audit VLT-3).
+   This opens that group and activates an item by label, so these steps
+   still exercise the real control path rather than a shortcut. */
+function vaultAction(re) {
+  const main = document.getElementById("main");
+  const btn = main.querySelector(".mvt-actions-btn");
+  if (!btn) throw new Error("no Actions group in the toolbar");
+  btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  const panel = document.querySelector(".menu-panel");
+  if (!panel) throw new Error("the Actions menu did not open");
+  const item = [...panel.querySelectorAll("[role=menuitem]")].find(b => re.test(b.textContent));
+  if (!item) {
+    const labels = [...panel.querySelectorAll(".menu-item-lbl")].map(n => n.textContent);
+    KOS.ui.closeMenu();
+    throw new Error("no Actions item matching " + re + " — have: " + JSON.stringify(labels));
+  }
+  item.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+}
+
 const steps = [];
 function step(name, fn) { steps.push([name, fn]); }
 function p(fn) { return new Promise((res, rej) => fn((err, out) => err ? rej(err instanceof Error ? err : new Error(err.message || String(err))) : res(out))); }
@@ -154,8 +175,8 @@ step("parseBulkTitles: trims, skips blanks, dedupes paste + vault (case-insensit
 step("bulk add UI: drafts created, ONE session for the whole paste, gold minted once", async () => {
   KOS.show("game");
   const main = document.getElementById("main");
-  await waitFor(() => [...main.querySelectorAll("button")].some(b => /Bulk add/.test(b.textContent)), 4000);
-  [...main.querySelectorAll("button")].find(b => /Bulk add/.test(b.textContent)).click();
+  await waitFor(() => main.querySelector(".mvt-actions-btn"), 4000);
+  vaultAction(/Paste a list/);
   await tick(30);
   const modal = document.querySelector(".gm-bulk-modal");
   if (!modal) throw new Error("bulk modal did not open");
@@ -334,9 +355,15 @@ step("Matrix home: Games is a live module card with stats, plus its status chart
   if (!gm) throw new Error("Games card missing");
   if (!/Manual-first · live/.test(gm.textContent)) throw new Error("badge wrong: " + gm.textContent);
   if (!/tracked/.test(gm.textContent) || !/hours logged/.test(gm.textContent)) throw new Error("stats line wrong");
-  if (!/Games by status/.test(main.textContent)) throw new Error("games status chart missing");
-  /* navigation to the vault now lives on the module card + subnav */
-  if (!/Playing now/.test(main.textContent)) throw new Error("games stat missing from the strip");
+  /* Phase D (audit MTX-2): the four per-module "X by status" charts became
+     ONE small-multiples row on a shared scale. Games is a panel in it. */
+  const multi = main.querySelector(".cs-multi");
+  if (!multi) throw new Error("the by-status comparison is missing");
+  if (![...multi.querySelectorAll(".cs-multi-h b")].some(b => /Games/.test(b.textContent)))
+    throw new Error("games panel missing from the comparison");
+  /* and the KPI row carries the cross-media figures, not per-module ones
+     the module cards already print (MTX-3) */
+  if (!/On the go/.test(main.textContent)) throw new Error("the cross-media in-progress figure is missing");
 });
 step("Shrine: a favourite game routes to the games editor", async () => {
   const rows = await p(cb => KOS.mediadb.query({ module: "game", search: "hades" }, cb));

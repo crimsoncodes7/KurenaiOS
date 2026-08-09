@@ -51,6 +51,7 @@ node tools/smoke39.test.js # Phase 2 Live2D binding: closed release gate (no SDK
 node tools/smoke41.test.js # Category 7 staleness guard: the monotonic __seq on the state document, the reproduced 8 Aug 2026 incident (a stale device with one real edit must not clobber a newer cloud copy), the refusal raising a conflict instead of an error, both resolveStale outcomes, an undisturbed two-device round trip, and a restore still outranking the guard
 node tools/smoke40.test.js # Category 7 Phase A: the note pager scrolling only on a reader-initiated page turn (B-04), the lazy area rooting on #main and refilling while the sentinel stays in range (B-05), Mangaka on the shared lazy area with author search and a filtering A–Z rail (B-06), #app dvh-with-vh-fallback and the phone tier's tab-bar clearance
 node tools/smoke42.test.js # Category 7 Phase B: the five-breakpoint contract (only 1240/1080/860/700/560, no width bands, no narrower-tier-above-wider inversions), the Dialog primitive (role/aria-modal/name-from-heading, focus trap, scroll lock, focus restore, Escape, danger-safe confirmations) and its source contract, the three Tabs variants, EmptyState/StatTile zero suppression, the scroll-affordance contract, locale numbers, cover loading state and the skip link
+node tools/smoke44.test.js # Category 7 Phase D (Collection): the one vault toolbar (six controls, facets behind Filters ▾, commands behind Actions ▾, one primary, zero network on render), the one hero (three-step backdrop, unconditional scrim, no .vh-painted), KOS.ui.menu as a popover not a dialog (ARIA, roving focus, Escape + focus restore, below --z-modal), the genre/tag/rare facet split with counts, Mangaka (bounded author cards, four real filters, letter dividers, lazy batch), the Overview (one small-multiples row, no total printed twice, zero tiles suppressed, no distribution from one rating), chart readability (axis, gridlines, 11px floor, wrapped labels) and the one progress grammar
 node tools/smoke43.test.js # Category 7 Phase C (Study + Home): the spine as the ONE section list (inherited bar + subsection tally, active-topic reveal, dismissible overlay drawer at ≤860), content-first geometry (one header row, one navigation layer, nothing between header and content), the single state surface (Topic Status in the inspector, mastery once, material counts once, header/field over one store value), compact note-page navigation (stepper + disclosure, B-04 scroll rule), flashcard/quiz keyboard control incl. text-field and self-removal guards, the REF-5/7/10 + SUBJ-4/5/6 fixes, and Home (activity-based headline figures against an active-but-unticked account, the next-action decision surface and its priority order, collapsing empty Directives/Countdowns, the Collection card as the same component, the mandatory hero scrim, labelled week pips, and the vault staying closed on Home's render pass)
 ```
 
@@ -72,9 +73,13 @@ node tools/responsive_audit.mjs --diff before.json        # prove a change regre
 node tools/gen_icons.mjs        # regenerate the icon set from the brand seal
 ```
 `responsive_audit.mjs` is the one to reach for on any responsive change:
-`--seed` installs 533 collection entries with real cover art and long titles,
-600 sessions, 120 progress records and a full calendar/planner/goals before it
-measures anything. **An empty account hides layout failures** — GOV-1 survived a
+`--seed` installs the REAL account shape — 692 anime · 1,107 book series ·
+11 VNs · 70 games (1,880 entries) with real cover art and long titles, 732
+distinct authors, a genre facet carrying 64 mixed genre-and-tag values, 600
+sessions, 120 progress records and a full calendar/planner/goals — before it
+measures anything. It seeds a hero banner on **anime only**, because AniList
+is the one provider that exposes one; seeding all four hid audit VLT-4 for a
+whole phase. **An empty account hides layout failures** — GOV-1 survived a
 whole phase because nobody measured it with real data, and the probe still
 cannot see a floating control that overlaps content vertically (SUBJ-4), so
 screenshots remain part of the check.
@@ -118,18 +123,22 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 43 suites are the release gate (smoke17 the
+the current test inventory. All 44 suites are the release gate (smoke17 the
 Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
 Build 4c games integrations, smoke37 the Study overview/topic-shell
 refinement, smoke38 Collection Goals v2 and Shrine Hall of Fame, smoke39 the
 Phase 2 Live2D binding and its closed release gate, smoke41 the cloud staleness guard, smoke40 the Category 7
 Phase A bug fixes, smoke42 the Phase B breakpoint contract and UI primitives,
-smoke43 the Phase C Study redesign). Suites 1–16 plus the running-Chrome visual audit were verified
+smoke43 the Phase C Study redesign, smoke44 the Phase D Collection).
+Suites 1–16 plus the running-Chrome visual audit were verified
 green on 2026-07-13; all 17 on 2026-07-16; all 18 plus the phone/tablet CDP
 audit on 2026-07-17; all 19 on 2026-07-17; all 38 on 2026-08-07; all 39 plus
 the visual audit on 2026-08-07; all 40 on 2026-08-08; all 42 plus the visual audit and a
 480-cell responsive sweep on 2026-08-08; all 43 plus a 108-cell Study sweep
-(9 widths × 2 themes) and Dawn/Dusk screenshots on 2026-08-08; all 43 again after the Home pass, with a 192-cell sweep and the visual audit, on 2026-08-08.
+(9 widths × 2 themes) and Dawn/Dusk screenshots on 2026-08-08; all 43 again after the Home pass, with a 192-cell sweep and the visual
+audit, on 2026-08-08; all 44 after the Phase D Collection pass, with a
+192-cell whole-app sweep, an 88-cell Collection sweep and Dawn/Dusk
+screenshots at 1920/1440/820/390, on 2026-08-09.
 
 **Edge Functions** (Build 4c, `supabase/functions/`): deploy with
 `supabase functions deploy <name>`; secrets via `supabase secrets set` only
@@ -461,6 +470,53 @@ Collected from every build. If a change would break one of these, stop and say s
     and its `mediadb.stats` full-table scan is gated on an
     IntersectionObserver: Home must not open the media vault on its render
     pass.
+
+**The Collection: one vault shell (Category 7 Phase D)**
+58. **A vault shows six controls above its grid and no more:** search ·
+    sort · layout · `Filters ▾` · `Actions ▾` · one primary. Every module
+    FACET (genre, tag, format, mood, shelf, platform, developer, tier, DNF)
+    goes in the Filters group, which badges how many are applied so a
+    filtered vault says so with the panel shut; every COMMAND goes in the
+    Actions group under a heading. Build it with `KOS.medview.toolbar` —
+    a seventh child of `.med-toolbar.mvt` fails smoke44. The filter rail
+    keeps status and custom lists: the two axes every module shares.
+59. **`KOS.ui.menu` is the grouping primitive, and it is NOT a dialog.**
+    Two shapes only: `items` (a real `role="menu"` of commands, roving
+    focus) and `content` (a labelled `role="group"` panel — a `<select>`
+    is not a menuitem). It sits on `--z-menu` (below `--z-modal`), never
+    locks body scroll, and dismisses on Escape / outside pointer / scroll
+    / Tab-out with focus restored to its button. Modals still go through
+    `KOS.ui.openDialog` (invariant #49). Because the panel is
+    `position: fixed` on `document.body`, `KOS.show` closes any open menu
+    — clearing `#main` does not.
+60. **One spotlight hero, three backdrops, one scrim.** `medview.heroCard`
+    is the only hero: a banner, else the entry's OWN cover blown up and
+    blurred, else a deterministic gradient in the module's accent
+    hue-shifted by the title — each followed by the same scrim,
+    unconditionally, with one text colour (invariant #56's rule). The
+    cover plate stands on every hero. No module gets its own finish, and
+    no fallback may add a network path: the games and VN vaults still emit
+    zero requests (invariants #12/#20/#30). `.vh-painted` is retired.
+61. **A placeholder must distinguish one title from the next.** Cover
+    marks and hero gradients take a deterministic hue from the title
+    (`medview.titleHue`, the hash the book spines use) — 70 identical grey
+    tiles read as unfinished. Arithmetic only: no canvas (cross-origin
+    covers taint it), no network, and the same title always lands on the
+    same colour.
+62. **A taxonomy problem is fixed where it is READ.** VNDB content tags
+    live in `genres` by design (invariant #29), so the facet select groups
+    them — Genres · Tags · Rare tags, each option carrying its count via
+    `medview.fillFacetSel`. Never hide a value to shorten a list, and
+    never invent a second taxonomy field to fix a display problem.
+63. **One progress grammar, one chart grammar.** `KOS.media.progressText`
+    (and `progressPct`) is the only place progress is formatted — "36 / 96
+    ch", "71 hr", "" for nothing yet; it reads and writes nothing. Every
+    chart carries a value axis with gridlines, a `<title>` on each mark
+    and an **11px label floor**; a label that will not fit wraps rather
+    than being truncated. A comparison of the same categories across
+    modules is ONE `KOS.charts.smallMultiples` card on a shared scale, not
+    one card per module. A statistic with too little data behind it says
+    so instead of being drawn (five ratings before a distribution).
 
 **Calendar & the event model (Build 6.6)**
 41. `KOS.calendar.normalise()` is the SINGLE schema gate for an event — every

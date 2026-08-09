@@ -486,17 +486,32 @@
     var rail = mv.filterRail("vn", function () { refresh(); });
 
     var mainCol = el("div", { class: "med-main" });
-    mainCol.appendChild(el("div", { class: "med-toolbar" }, [
-      search, genreSel, devSel, sortSel, layoutBtn,
-      el("button", { class: "btn", text: "❝ Personal deck", title: "Quote-born flashcards live here", onclick: function () { KOS.show("personaldeck"); } }),
-      el("button", { class: "btn", text: "＠ Profile", title: "Your VNDB profile — labels, length votes, list stats",
-        onclick: function () { KOS.show("vndbprofile"); } }),
-      el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("vn", mod()); } }),
-      el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-      el("button", { class: "btn gold", text: "⊕ Find new", title: "Search all of VNDB — not your vault — and add with one click",
-        onclick: function () { KOS.mediaSearch.open("vn", refreshAll); } }),
-      el("button", { class: "btn primary", text: "+ Add", onclick: function () { vnEditor(null, refreshAll); } })
-    ]));
+    /* the shared toolbar (Category 7 Phase D) — the same six controls the
+       other three vaults show, in the same order */
+    var bar = mv.toolbar({
+      label: "Visual novel vault controls",
+      search: search, sort: sortSel, layout: layoutBtn,
+      filters: [
+        mv.selFacet("Genre or tag", genreSel, refresh),
+        mv.selFacet("Developer", devSel, refresh)
+      ],
+      onClear: refresh,
+      actions: [
+        { heading: "This vault" },
+        { label: "The numbers", glyph: "◫", hint: "Composition, taste and pace",
+          onSelect: function () { mv.statsModal("vn", mod()); } },
+        { label: "Find new titles…", glyph: "⊕", hint: "Search all of VNDB, not your vault",
+          onSelect: function () { KOS.mediaSearch.open("vn", refreshAll); } },
+        { heading: "Elsewhere" },
+        { label: "Personal deck", glyph: "❝", hint: "The flashcards your quotes became",
+          onSelect: function () { KOS.show("personaldeck"); } },
+        { label: "Your VNDB profile", glyph: "＠", hint: "Labels, length votes, list stats",
+          onSelect: function () { KOS.show("vndbprofile"); } },
+        { label: "Sync & Import", glyph: "⇅", onSelect: function () { KOS.show("mediasync"); } }
+      ],
+      primary: el("button", { class: "btn primary", text: "+ Add", onclick: function () { vnEditor(null, refreshAll); } })
+    });
+    mainCol.appendChild(bar.root);
     main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
 
     function refreshAll() { rail.reload(); refresh(); }
@@ -506,19 +521,21 @@
       return p.layout === "list" ? listRow(e, refreshAll) : gridCard(e, refreshAll);
     });
 
-    /* dropdown fills — genres from vn rows, developers from the v4 index */
+    /* Facet fills. VNDB content tags are written into `genres` by the sync
+       mapper (invariant #29 — they are not auto-filled from anywhere else
+       and never will be), so this one select genuinely carries both. The
+       audit's 64-option soup (VLT-8/G-31) is fixed by SPLITTING THE
+       DISPLAY rather than the data: real genres first, common tags next,
+       rare tags last, each option carrying its own count. */
     KOS.mediadb.query({ module: "vn" }, function (err, rows) {
       if (err) return;
-      var gs = {}, ds = {};
-      rows.forEach(function (r) {
-        r.genres.forEach(function (g) { gs[g] = true; });
-        if (r.developer) ds[r.developer] = true;
-      });
-      mv.fillSel(genreSel, Object.keys(gs).sort(), "All genres");
-      mv.fillSel(devSel, Object.keys(ds).sort(), "All developers");
+      mv.fillFacetSel(genreSel, mv.tallyFacet(rows, "genres"), "All genres and tags");
+      mv.fillFacetSel(devSel, mv.tallyFacet(rows, "developer"), "All developers",
+        { genreLabel: "Developers", tagLabel: "Developers", rareBelow: 0 });
     });
 
     function refresh() {
+      bar.sync();
       /* claim the render generation before the query so a slow result for a
          filter you already left can never paint over the current one */
       var token = area.begin();
@@ -554,8 +571,8 @@
       });
     }
 
+    /* the facet selects are wired by mv.selFacet inside the toolbar */
     search.addEventListener("input", KOS.ui.debounce(refresh, 220));
-    [genreSel, devSel].forEach(function (s) { s.addEventListener("change", refresh); });
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
     function mountHero() { mv.heroCard(heroHolder, "vn", mod(), function () { refreshAll(); mountHero(); }); }

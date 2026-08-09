@@ -89,19 +89,44 @@ step("every gameapi call fails cleanly through the callback, zero network", asyn
   assert(netLog.length === net0, "a signed-out gameapi call emitted network traffic");
 });
 
+
+/* Category 7 Phase D: the games vault keeps search + sort + layout visible
+   and puts every COMMAND (bulk add, IGDB search, Steam, stats, sync) behind
+   the ⋯ Actions group — audit VLT-3. These helpers read and drive that
+   group, so the steps still exercise the real control path. */
+function actionLabels() {
+  const btn = window.document.querySelector("#main .mvt-actions-btn");
+  if (!btn) throw new Error("no Actions group in the games toolbar");
+  btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  const panel = window.document.querySelector(".menu-panel");
+  if (!panel) throw new Error("the Actions menu did not open");
+  const labels = [...panel.querySelectorAll(".menu-item-lbl")].map(n => n.textContent);
+  KOS.ui.closeMenu();
+  return labels;
+}
+function vaultAction(re) {
+  const btn = window.document.querySelector("#main .mvt-actions-btn");
+  btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  const panel = window.document.querySelector(".menu-panel");
+  const item = [...panel.querySelectorAll("[role=menuitem]")].find(b => re.test(b.textContent));
+  if (!item) { KOS.ui.closeMenu(); throw new Error("no Actions item matching " + re); }
+  item.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+}
+
 /* ============ 2 · the vault UI stays manual-first ============ */
 console.log("== games vault: new actions, manual baseline ==");
 
 step("the toolbar renders Find new + Steam; signed-out Find new toasts, no fetch", async () => {
   KOS.show("game");
   await tick(80);
+  const acts = actionLabels();
+  assert(acts.some(t => /Find new/.test(t)), "IGDB search missing from the games Actions menu: " + JSON.stringify(acts));
+  assert(acts.some(t => /Steam/.test(t)), "Steam import missing from the games Actions menu");
+  assert(acts.some(t => /Paste a list/.test(t)), "manual bulk paste-in must remain");
   const btns = [...window.document.querySelectorAll("#main button")].map(b => b.textContent);
-  assert(btns.some(t => t.includes("Find new")), "⊕ Find new missing from the games toolbar");
-  assert(btns.some(t => t.includes("Steam")), "◆ Steam missing from the games toolbar");
-  assert(btns.some(t => t.includes("Bulk add")), "manual Bulk add must remain");
-  assert(btns.some(t => t.includes("+ Add")), "manual + Add must remain");
+  assert(btns.some(t => t.includes("+ Add")), "manual + Add must remain visible — it is the baseline");
   const net0 = netLog.length;
-  [...window.document.querySelectorAll("#main button")].find(b => b.textContent.includes("Find new")).click();
+  vaultAction(/Find new/);
   await tick(30);
   assert(netLog.length === net0, "signed-out Find new fetched something");
   assert(!window.document.querySelector(".msch-modal"), "search modal should not open signed-out");
@@ -109,7 +134,7 @@ step("the toolbar renders Find new + Steam; signed-out Find new toasts, no fetch
 
 step("the Steam modal opens signed-out with an explanation, not a request", async () => {
   const net0 = netLog.length;
-  [...window.document.querySelectorAll("#main button")].find(b => b.textContent.includes("Steam")).click();
+  vaultAction(/Steam/);
   await tick(30);
   const modal = window.document.querySelector(".gm-steam-modal");
   assert(modal, "Steam modal missing");

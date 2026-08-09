@@ -55,6 +55,27 @@ if (KOS.autosync) KOS.autosync.stop();   // no timer-driven pulls polluting netL
 /* fast waits so debounce/backoff are observable without real seconds */
 KOS.mediapush._config({ debounce: 40, retryWait: 30 });
 
+
+/* Category 7 Phase D: the vault toolbars keep search + sort + layout
+   visible and put every COMMAND behind the ⋯ Actions group (audit VLT-3).
+   This opens that group and activates an item by label, so these steps
+   still exercise the real control path rather than a shortcut. */
+function vaultAction(re) {
+  const main = document.getElementById("main");
+  const btn = main.querySelector(".mvt-actions-btn");
+  if (!btn) throw new Error("no Actions group in the toolbar");
+  btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  const panel = document.querySelector(".menu-panel");
+  if (!panel) throw new Error("the Actions menu did not open");
+  const item = [...panel.querySelectorAll("[role=menuitem]")].find(b => re.test(b.textContent));
+  if (!item) {
+    const labels = [...panel.querySelectorAll(".menu-item-lbl")].map(n => n.textContent);
+    KOS.ui.closeMenu();
+    throw new Error("no Actions item matching " + re + " — have: " + JSON.stringify(labels));
+  }
+  item.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+}
+
 const steps = [];
 function step(name, fn) { steps.push([name, fn]); }
 function p(fn) { return new Promise((res, rej) => fn((err, out) => err ? rej(err instanceof Error ? err : new Error(err.message || String(err))) : res(out))); }
@@ -262,8 +283,8 @@ step("AniList search-and-add: create-then-mirror with syncSource + lastSyncedAt"
   netLog = [];
   KOS.show("anime");
   const main = document.getElementById("main");
-  await waitFor(() => [...main.querySelectorAll("button")].some(b => /Find new/.test(b.textContent)), 4000);
-  [...main.querySelectorAll("button")].find(b => /Find new/.test(b.textContent)).click();
+  await waitFor(() => main.querySelector(".mvt-actions-btn"), 4000);
+  vaultAction(/Find new/);
   await tick(30);
   const modal = document.querySelector(".msch-modal");
   if (!modal) throw new Error("search modal did not open");

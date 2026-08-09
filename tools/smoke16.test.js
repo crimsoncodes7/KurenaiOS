@@ -77,6 +77,26 @@ function cropEq(actual, expected, label) {
     if (a[key] !== e[key]) throw new Error(`${label || "crop"}.${key}: expected ${e[key]}, got ${a[key]}`);
   }
 }
+
+/* Category 7 Phase D: the hero's two CONFIGURATION actions (choose the
+   spotlight, position its banner) moved into the same ⋯ grammar the vault
+   toolbars use, so they stop competing with "Open entry" for attention.
+   This drives them through that menu — the real control path. */
+function heroMenu(hero, re) {
+  const btn = hero.querySelector(".vh-menu");
+  if (!btn) throw new Error("the hero has no Spotlight menu");
+  btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  const panel = document.querySelector(".menu-panel");
+  if (!panel) throw new Error("the Spotlight menu did not open");
+  const item = [...panel.querySelectorAll("[role=menuitem]")].find(b => re.test(b.textContent));
+  if (!item) {
+    const labels = [...panel.querySelectorAll(".menu-item-lbl")].map(n => n.textContent);
+    KOS.ui.closeMenu();
+    throw new Error("no hero action matching " + re + " — have: " + JSON.stringify(labels));
+  }
+  item.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+}
+
 function button(root, text) {
   const hit = [...root.querySelectorAll("button")].find(b => b.textContent.trim() === text);
   if (!hit) throw new Error(`button not found: ${text}`);
@@ -467,7 +487,7 @@ step("Collection hero repositions the remote banner without copying or replacing
   if (bg.style.getPropertyValue("--crop-x") !== "38%" || bg.style.getPropertyValue("--crop-zoom") !== "1.45") {
     throw new Error("persisted hero crop was not rendered");
   }
-  button(hero, "✎ Banner").click();
+  heroMenu(hero, /banner/i);
   const overlay = [...document.querySelectorAll(".cropper-ov")].pop();
   if (!overlay) throw new Error("intentional hero action did not launch the shared cropper");
   loadPreview(overlay);
