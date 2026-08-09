@@ -675,15 +675,18 @@
       var d = KOS_DATA[sid], st = subjectStats(sid);
       var cov = KOS.content.coverage(sid, LEAVES[sid]);
       var last = store.state.ui.lastRef[sid];
+      /* Phase F: this card grows a "Continue" button when the subject has
+         a last-opened topic, so an ARIA button was wrapping a real one.
+         The card keeps its pointer shortcut; the subject NAME is the
+         control, which is also what a screen reader should read out. */
       var card = el("div", {
         class: "subj-card", style: "--accent:" + COLORS[sid],
-        role: "button", tabindex: "0",
-        onclick: function () { KOS.show("subject", sid); },
-        onkeydown: function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); KOS.show("subject", sid); } }
+        onclick: function (e) { if (!e.target.closest("button, a, select")) KOS.show("subject", sid); }
       }, [
         el("div", { class: "subj-card-top" }, [
           el("div", {}, [
-            el("h3", { text: d.name }),
+            el("h3", {}, [el("button", { type: "button", class: "subj-card-open", text: d.name,
+              onclick: function (e) { e.stopPropagation(); KOS.show("subject", sid); } })]),
             el("span", { class: "b", text: d.board })
           ]),
           (function () { var c = el("canvas", { class: "mini-ring" }); setTimeout(function () {
@@ -721,14 +724,17 @@
     var medRing = el("canvas", { class: "mini-ring" });
     var medMeta = el("div", { class: "m", text: "Anime · books · visual novels · games — what you watch, read and play." });
     var medTrack = el("span", { class: "subj-fill", style: "width:0%" });
+    /* Phase F: it is the same component as the subject cards, so it takes
+       the same semantics — a container with the title as its control,
+       because it grows its own Continue button (see above). */
     var medCard = el("div", { class: "subj-card med-home-card", style: "--accent:var(--accent)",
-      role: "button", tabindex: "0",
-      onclick: function () { KOS.show("matrix"); },
-      onkeydown: function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); KOS.show("matrix"); } }
+      onclick: function (e) { if (!e.target.closest("button, a, select")) KOS.show("matrix"); }
     }, [
       el("div", { class: "subj-card-top" }, [
         el("div", {}, [
-          el("h3", {}, [el("span", { class: "kanji-inline", text: "蒐" }), " Collection"]),
+          el("h3", {}, [el("button", { type: "button", class: "subj-card-open",
+            onclick: function (e) { e.stopPropagation(); KOS.show("matrix"); } },
+            [el("span", { class: "kanji-inline", "aria-hidden": "true", text: "蒐" }), " Collection"])]),
           el("span", { class: "b", text: "The other half of the ledger" })
         ]),
         medRing

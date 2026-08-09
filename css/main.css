@@ -8370,3 +8370,11 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
 #main:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
 /* a hidden or collapsed surface must not hold a tab stop */
 [hidden] { display: none !important; }
+
+/* the Home/Collection desk cards became containers with their title as
+   the control (F1) — the heading button must not look like a button */
+.subj-card-open {
+  font: inherit; color: inherit; text-align: left;
+  padding: 0; background: none; border: 0;
+}
+.subj-card:focus-within { border-color: color-mix(in srgb, var(--accent) 45%, var(--line2)); }
