@@ -108,6 +108,27 @@ async function clickText(scope, text) {
   assert(ok, `Button not found: ${scope} / ${text}`);
 }
 
+
+/* Category 7 Phase D: the hero's two CONFIGURATION actions (choose the
+   spotlight, position its banner) live in the same ⋯ grammar the vault
+   toolbars use, so they stop competing with "Open entry". Drive them
+   through that menu — the real control path. */
+async function clickHeroMenuItem(text) {
+  const ok = await evaluate(`(() => {
+    const btn = document.querySelector('.vault-hero .vh-menu');
+    if (!btn) return "no menu button";
+    btn.click();
+    const panel = document.querySelector('.menu-panel');
+    if (!panel) return "menu did not open";
+    const item = [...panel.querySelectorAll('[role=menuitem]')]
+      .find(x => new RegExp(${JSON.stringify(text)}, "i").test(x.textContent));
+    if (!item) return "no item: " + [...panel.querySelectorAll('.menu-item-lbl')].map(n => n.textContent).join(" | ");
+    item.click();
+    return true;
+  })()`);
+  assert(ok === true, `Hero menu item not reached (${text}): ${ok}`);
+}
+
 async function setRange(label, value) {
   const ok = await evaluate(`(() => {
     const input = document.querySelector('input[aria-label=${JSON.stringify(label)}]');
@@ -398,7 +419,7 @@ const hero = await evaluate(`(() => {
   return { h: h.getBoundingClientRect().height, x: img.style.getPropertyValue('--crop-x'), y: img.style.getPropertyValue('--crop-y'), z: img.style.getPropertyValue('--crop-zoom') };
 })()`);
 assert(hero.h >= 235 && hero.x === "64%" && hero.y === "36%" && hero.z === "1.3", `Collection hero geometry/crop mismatch: ${JSON.stringify(hero)}`);
-await clickText(".vault-hero", "Banner");
+await clickHeroMenuItem("banner");
 await waitFor("document.querySelector('.cropper-ov') && !document.querySelector('.cropper-foot .primary').disabled", "Collection banner cropper");
 ratio = await evaluate(`(() => { const r = document.querySelector('.cropper-preview').getBoundingClientRect(); return r.width / r.height; })()`);
 assert(Math.abs(ratio - 3.2) < 0.08, `Hero preview ratio is ${ratio}`);
@@ -578,9 +599,14 @@ await evaluate(`(async () => {
       coverCrop: { x: 81, y: 31, zoom: 1.4 }, progress: { current: 46, total: 46, unit: "hr" } })
   ];
   KOS.store.state.goals = { v: 2, nextId: 1, items: [], completionLedger: {} };
-  KOS.goals.add({ title: "Finish a hundred-title season", description: "A compact campaign across every vault.", type: "titles-completed", target: 100, deadline: "2026-09-30" });
+  /* Targets sit ABOVE what the seeded account has already achieved. These
+     fixtures were written against a small vault; on the dense account
+     (379 completed titles, 13k episodes) a 100-title goal auto-completes
+     the moment it is created — correct behaviour from the goals engine,
+     and it emptied the "active" tab this step is composing. */
+  KOS.goals.add({ title: "Finish a thousand-title season", description: "A compact campaign across every vault.", type: "titles-completed", target: 1000, deadline: "2026-09-30" });
   KOS.goals.add({ title: "Complete The Long Shelf", description: "Follow the linked reading progress automatically.", type: "finish-series", linkedEntryId: entries[1].id, notes: "Read with no deadline pressure." });
-  KOS.goals.add({ title: "Watch five hundred episodes", type: "episodes-watched", target: 500, deadline: "2026-10-15" });
+  KOS.goals.add({ title: "Watch fifty thousand episodes", type: "episodes-watched", target: 50000, deadline: "2026-10-15" });
   KOS.goals.add({ title: "Keep the month below £120", description: "A planner-aware ceiling, settled at month end.", type: "spend-below", target: 120, startDate: "2026-08-01", deadline: "2026-08-31" });
   KOS.goals.add({ title: "Write three short reflections", description: "A manual intention for the part data cannot measure.", type: "custom-manual", target: 3, current: 1 });
   KOS.store.state.media.goalsTab = "active";

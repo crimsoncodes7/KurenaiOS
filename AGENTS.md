@@ -120,6 +120,21 @@ Core loads in this order (all before engines/modules): `store.js` → `ui.js` �
   + `KOS.focus.tick()` and fake tab-switches by redefining
   `document.visibilityState`. Award assertions are exact — pause counts matter.
 
+## Shared UI primitives (Category 7 Phase B)
+Before writing a modal, a tab strip, an empty state, a stat tile or a
+horizontal scroller, use the primitive — see CLAUDE.md invariants 47–50.
+- **`KOS.ui.openDialog(overlay, opts)`** is the only route a modal takes into
+  the document (`role`, `aria-modal`, name-from-heading, focus trap, scroll
+  lock, focus restore, Escape). `document.body.appendChild(overlay)` fails
+  smoke42. A `danger` prompt focuses Cancel and never confirms on Enter.
+- **`KOS.ui.tabs(items, {variant})`** — `primary` (section nav), `workspace`
+  (tablist), `card` (the Books lens). `KOS.workspaceTabs` is an adapter over it.
+- **`emptyState` · `statTile` · `scroller` · `pageHeader` · `sectionHeader` ·
+  `num`** — all emit the EXISTING class names, so they add behaviour rather
+  than a new surface. Reuse, don't fork.
+- **Five breakpoints only** (1240/1080/860/700/560), written widest-first
+  within a component.
+
 ## Navigation
 `KOS.show(viewId, arg)` records a history stack; `KOS.back()`/`KOS.forward()` (and
 `KOS.canBack()`/`KOS.canForward()`) drive the topbar **‹ Back** / **Forward ›** buttons
@@ -198,14 +213,21 @@ an autonomous cycle must batch all providers into one ledger entry through
   heroes use the shared Build 5 geometry; Governor Status keeps its special
   profile-banner composition.
 
-## Tests — all THIRTY-NINE suites must pass
+## Tests — all FORTY-TWO suites must pass
 
 ```sh
-for i in "" {2..39}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..42}; do node "tools/smoke${i}.test.js"; done
 ```
-smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–39 print "SMOKE-N PASS …"
+smoke/2/3 print "ALL SMOKE TESTS PASSED"; smoke4–42 print "SMOKE-N PASS …"
 (smoke10 prints "10 passed, 0 failed"). Collection suites need `npm i fake-indexeddb`
 in addition to jsdom. Per-suite coverage table: PROGRESS.md snapshot section.
+
+Any responsive or shared-component change also runs through
+`node tools/responsive_audit.mjs --seed` (see CLAUDE.md). It seeds a DENSE
+account before measuring — an empty one hides layout failures — and its JSON
+output diffs run-to-run, which is how a refactor is shown to have changed
+nothing. It cannot see a floating control that overlaps content vertically, so
+take the screenshots too.
 
 Crop/hero/Goals/Shrine changes also run through `node tools/visual_audit.mjs` against the
 local app in Chrome on CDP port 9222; the script header has the launch contract.

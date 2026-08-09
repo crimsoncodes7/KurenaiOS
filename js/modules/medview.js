@@ -36,17 +36,47 @@
 
   /* ================= shared display bits ================= */
   /* cover image with lazy load + kanji placeholder fallback (offline or
-     broken URL) — the glyph is the module's kanji */
+     broken URL) — the glyph is the module's kanji.
+
+     Category 7 Phase B (audit G-24/U-15/VLT-2): the placeholder used to
+     appear only on `error` and when coverUrl was empty, so with
+     loading="lazy" a 1,100-item grid opened as a field of empty boxes that
+     read as broken rather than loading. The glyph is now painted from the
+     first frame and the image cross-fades over it on load; on error the
+     image simply never arrives and the glyph is already there. */
+  /* Category 7 Phase D, audit VLT-11: the Games vault was "70 identical
+     grey 遊 tiles — monotonous, reads as unfinished". A placeholder that is
+     the same for every title carries no information at all, so it looks
+     like a rendering failure rather than a missing cover. The mark now
+     sits on a two-stop wash derived deterministically from the title
+     (the same hash the book spines use), which gives an unillustrated
+     vault the texture of a shelf and makes one title distinguishable from
+     the next at a glance. It is arithmetic — no network, no canvas, and
+     the same title always lands on the same colour. */
   function cover(e, kanji) {
     var box = el("div", { class: "med-cover" });
-    function ph() { return el("span", { class: "med-cover-ph", "aria-hidden": "true", text: kanji }); }
+    box.style.setProperty("--ph-hue", String(titleHue(e.title)));
+    function ph(behind) {
+      return el("span", { class: "med-cover-ph" + (behind ? " behind" : ""), "aria-hidden": "true", text: kanji });
+    }
+    if (!e.coverUrl) box.classList.add("no-art");
     if (e.coverUrl) {
+      var mark = ph(true);
       var img = KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop);
-      img.addEventListener("error", function () {
-        box.removeChild(img);
-        box.appendChild(ph());
-      });
+      img.classList.add("is-loading");
+      box.classList.add("is-loading");
+      function settled(loaded) {
+        box.classList.remove("is-loading");
+        img.classList.remove("is-loading");
+        if (loaded && mark.parentNode) mark.parentNode.removeChild(mark);
+        if (!loaded && img.parentNode) img.parentNode.removeChild(img);
+      }
+      img.addEventListener("load", function () { settled(true); });
+      img.addEventListener("error", function () { settled(false); box.classList.add("no-art"); });
+      box.appendChild(mark);
       box.appendChild(img);
+      /* a cached image can finish before the listeners attach */
+      if (img.complete && img.naturalWidth) settled(true);
     } else {
       box.appendChild(ph());
     }
@@ -128,6 +158,58 @@
     sel.value = values.indexOf(cur) !== -1 ? cur : "";
   }
 
+  /* ---- the genre facet, split (audit VLT-8 / G-31 / U-26) ----
+     One select carried 64 options because VNDB content tags are written
+     into `genres` by the sync mapper and sit beside real genres in the same
+     alphabetical list — "Action", "Adventure", "Protagonist with a Tragic
+     Past", "Comedy". The taxonomy is not fixable at the data layer (the
+     tags ARE genres as far as the schema is concerned, and invariant #29
+     forbids inventing new ones), so it is fixed where it is read: real
+     genres first, tags after, rare tags last, each option carrying its own
+     count so the size of a facet is visible before you choose it.
+     Nothing is hidden — a one-title tag is still reachable.              */
+  var CANON_GENRES = ["Action", "Adventure", "Comedy", "Drama", "Ecchi", "Fantasy", "Horror",
+    "Mahou Shoujo", "Mecha", "Music", "Mystery", "Psychological", "Romance", "Sci-Fi",
+    "Slice of Life", "Sports", "Supernatural", "Thriller"];
+  var RARE_BELOW = 5;
+  function fillFacetSel(sel, counts, blank, opts) {
+    opts = opts || {};
+    var cur = sel.value;
+    sel.innerHTML = "";
+    sel.appendChild(el("option", { value: "", text: blank }));
+    var names = Object.keys(counts || {});
+    var genres = [], tags = [], rare = [];
+    names.forEach(function (n) {
+      if (CANON_GENRES.indexOf(n) !== -1) genres.push(n);
+      else if ((counts[n] || 0) >= (opts.rareBelow || RARE_BELOW)) tags.push(n);
+      else rare.push(n);
+    });
+    function byCount(a, b) { return (counts[b] || 0) - (counts[a] || 0) || (a < b ? -1 : 1); }
+    genres.sort(byCount); tags.sort(byCount); rare.sort();
+    function group(label, list) {
+      if (!list.length) return;
+      var g = el("optgroup", { label: label + " (" + list.length + ")" });
+      list.forEach(function (n) {
+        g.appendChild(el("option", { value: n, text: n + " · " + (counts[n] || 0) }));
+      });
+      sel.appendChild(g);
+    }
+    group(opts.genreLabel || "Genres", genres);
+    group(opts.tagLabel || "Tags", tags);
+    group("Rare tags", rare);
+    sel.value = names.indexOf(cur) !== -1 ? cur : "";
+  }
+  /* tally a facet across a module's rows: {value: count} */
+  function tallyFacet(rows, key) {
+    var out = {};
+    (rows || []).forEach(function (r) {
+      var v = r[key];
+      if (Array.isArray(v)) v.forEach(function (x) { if (x) out[x] = (out[x] || 0) + 1; });
+      else if (v) out[v] = (out[v] || 0) + 1;
+    });
+    return out;
+  }
+
   /* the vault search box */
   function searchInput(ariaLabel) {
     return el("input", { type: "search", class: "todo-in med-search",
@@ -138,7 +220,9 @@
      (books: Rating / vn: Routes cleared / games: Playtime) */
   function sortSelect(pref, labels) {
     labels = labels || {};
-    var sel = el("select", { class: "status-sel", "aria-label": "Sort" }, [
+    /* .med-sort marks this as the toolbar's own control rather than a
+       module facet — the facets all live behind Filters ▾ (smoke44 A) */
+    var sel = el("select", { class: "status-sel med-sort", "aria-label": "Sort" }, [
       ["updated", "Recently updated"], ["title", "Title A–Z"],
       ["score", labels.score || "Score"], ["progress", labels.progress || "Progress"]
     ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
@@ -157,6 +241,109 @@
         onChange();
       } });
     return btn;
+  }
+
+  /* ================= the one vault toolbar (Category 7 Phase D) =================
+     audit VLT-3 / U-13. Books put SEVENTEEN controls in three rows before a
+     single cover; Anime eleven, VN eleven, Games nine — with no grouping
+     logic at all, so "＠ Profile" sat beside "+ Add" and "Seasonal" beside
+     "☰ List". Four vaults, four accidental arrangements of the same idea.
+
+     One arrangement now, and it is the same object in all four:
+
+       [ search .................. ] [ sort ] [ layout ] [ Filters ▾ ] [ ⋯ ] [ + Add ]
+
+     What stays visible is what you touch on an ordinary visit. The module
+     facets (genre, tag, format, mood, shelf, platform, developer, tier,
+     DNF) move into the Filters group, which carries a badge counting how
+     many are actually applied — so a filtered vault says so even when the
+     panel is shut. Everything else (Stats, Sync, Find new, Seasonal,
+     Profile, Mangaka, Bulk add, reading sessions) is a command, not a
+     filter, and lives in the ⋯ menu behind real headings.
+
+     The rail keeps status and custom lists: those are the two axes EVERY
+     module shares, they carry live counts, and they are the primary way
+     this vault is navigated. This toolbar owns the rest.
+
+     opts: { search, sort, layout, filters: [{label, node, active, clear}],
+             actions: [{label, glyph, hint, onSelect} | {heading} | {sep}],
+             primary, label, onClear }
+     Returns { root, sync } — call sync() after any facet changes so the
+     badge and the "clear" affordance stay honest.                        */
+  function toolbar(opts) {
+    opts = opts || {};
+    var facets = (opts.filters || []).filter(Boolean);
+
+    var clearBtn = el("button", { type: "button", class: "btn subtle mvt-clear", text: "Clear filters",
+      onclick: function () {
+        facets.forEach(function (f) { if (f.clear) f.clear(); });
+        sync();
+        if (opts.onClear) opts.onClear();
+      } });
+
+    var panel = el("div", { class: "mvt-filters" }, [
+      el("div", { class: "mvt-filters-grid" }, facets.map(function (f) {
+        return el("label", { class: "med-field mvt-facet" }, [
+          el("span", { class: "k", text: f.label }), f.node
+        ]);
+      })),
+      el("div", { class: "mvt-filters-foot" }, [clearBtn])
+    ]);
+
+    var filtersBtn = facets.length
+      ? KOS.ui.menu({ label: "Filters", className: "mvt-filters-btn", align: "start",
+          hint: "Narrow this vault by " + facets.map(function (f) { return f.label.toLowerCase(); }).join(", "),
+          badge: "", content: panel, panelClass: "menu-panel-wide" })
+      : null;
+
+    var actionsBtn = (opts.actions || []).filter(Boolean).length
+      ? KOS.ui.menu({ label: opts.actionsLabel || "Actions", className: "mvt-actions-btn",
+          hint: "Everything else this vault can do", items: opts.actions })
+      : null;
+
+    var root = el("div", { class: "med-toolbar mvt" + (opts.className ? " " + opts.className : ""),
+      role: "group", "aria-label": opts.label || "Vault controls" }, [
+      opts.search || null,
+      opts.sort || null,
+      opts.layout || null,
+      filtersBtn,
+      actionsBtn,
+      opts.primary || null
+    ].filter(Boolean));
+
+    function activeCount() {
+      return facets.filter(function (f) { return f.active && f.active(); }).length;
+    }
+    function sync() {
+      var n = activeCount();
+      if (filtersBtn) {
+        filtersBtn.setBadge(n);
+        filtersBtn.classList.toggle("has-filters", !!n);
+        filtersBtn.setAttribute("title", n
+          ? n + (n === 1 ? " filter applied" : " filters applied")
+          : "Narrow this vault");
+      }
+      clearBtn.disabled = !n;
+    }
+    sync();
+    return { root: root, sync: sync, filtersBtn: filtersBtn, actionsBtn: actionsBtn };
+  }
+
+  /* the value-or-nothing helpers a caller passes as a facet */
+  function selFacet(label, sel, onChange) {
+    sel.addEventListener("change", onChange);
+    return { label: label, node: sel,
+      active: function () { return !!sel.value; },
+      clear: function () { sel.value = ""; } };
+  }
+  function toggleFacet(label, get, set, onChange, text) {
+    var box = el("input", { type: "checkbox" });
+    box.checked = !!get();
+    box.addEventListener("change", function () { set(box.checked); onChange(); });
+    return { label: label,
+      node: el("span", { class: "mvt-toggle" }, [box, el("span", { text: text || "" })]),
+      active: get,
+      clear: function () { box.checked = false; set(false); } };
   }
 
   /* status pill row: All + the five statuses; extra = [[label, applyFn]]
@@ -182,10 +369,15 @@
     return pills;
   }
 
-  /* the standard vault empty state — message + centred action buttons */
+  /* the standard vault empty state — message + centred action buttons.
+     Category 7 Phase B: the composition is unchanged (.med-empty and
+     .fc-empty still carry it, and eight call sites still pass the same two
+     arguments), but the text now goes through KOS.ui.emptyState so the
+     vaults share one empty-state shape with the rest of the app rather
+     than each page inventing its own. */
   function emptyState(message, buttons) {
     return el("div", { class: "med-empty" }, [
-      el("p", { class: "fc-empty", text: message }),
+      KOS.ui.emptyState({ body: message, className: "med-empty-inner" }),
       el("div", { class: "lab-controls", style: "justify-content:center" }, buttons || [])
     ]);
   }
@@ -468,7 +660,7 @@
         ])
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     if (opts.focus) opts.focus.focus();
     return overlay;
   }
@@ -645,7 +837,7 @@
       ]),
       input, list
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     input.focus();
     run();
     return overlay;
@@ -677,6 +869,59 @@
     }
   }
 
+  /* ---- the hero backdrop (audit VLT-4 / VLT-5 / U-14) ----
+     Three levels of finish existed for one component: Anime got a real
+     full-bleed AniList banner, Books and VN a mostly-empty pale gradient
+     with a small floated cover, Games a kanji placeholder in an empty
+     panel — because only AniList exposes a banner, and the other three
+     modules had no designed answer to its absence. The app looked
+     half-built exactly where the art was missing.
+
+     There is now ONE composition and a three-step fallback for its
+     backdrop, in order of what the entry actually has:
+
+       1. a banner (uploaded, or AniList's — invariant #30 is untouched);
+       2. the entry's OWN COVER, blown up and blurred behind the scrim —
+          real art, always available, and unmistakably about this title;
+       3. a deterministic two-stop gradient in the module's accent, hue-
+          shifted by the title so a vault of unillustrated games is not
+          seventy identical grey tiles.
+
+     Every step is followed by the same scrim, unconditionally. Hero text
+     never depends on what the artwork happens to be (invariant #56) —
+     bannerIsDark()'s lesson from Home, applied here.
+
+     Nothing here fetches: step 2 uses the cover already in the record and
+     step 3 is arithmetic, so the games and VN vaults keep emitting zero
+     network requests (invariants #12/#20/#30).                          */
+  var HERO_SCRIM = "linear-gradient(100deg, rgba(16,14,10,.92) 0%, rgba(16,14,10,.74) 40%, rgba(16,14,10,.34) 72%, rgba(16,14,10,.16) 100%)";
+  /* a stable hue for a title — the same string always lands on the same
+     colour, so a spotlight does not change character when you revisit it */
+  function titleHue(s) {
+    var h = 0, str = String(s || "");
+    for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 360;
+    return h;
+  }
+  function heroBackdrop(hero, e, mod, banner, crop) {
+    hero.style.setProperty("--vh-accent", mod.accent || "var(--accent)");
+    hero.style.setProperty("--vh-hue", String(titleHue(e.title)));
+    if (banner) {
+      hero.classList.add("has-banner");
+      KOS.imageCrop.background(hero, banner, crop, { overlay: HERO_SCRIM });
+      return;
+    }
+    hero.classList.add("vh-fallback");
+    if (e.coverUrl) {
+      hero.classList.add("vh-fromcover");
+      hero.appendChild(el("span", { class: "vh-art", "aria-hidden": "true" }, [
+        KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)
+      ]));
+    } else {
+      hero.appendChild(el("span", { class: "vh-art vh-art-mark", "aria-hidden": "true", text: mod.kanji }));
+    }
+    hero.appendChild(el("span", { class: "vh-scrim", "aria-hidden": "true" }));
+  }
+
   function heroCard(holder, modId, mod, rerender) {
     holder.innerHTML = "";
     KOS.mediadb.getKV(heroKey(modId), function (err, pref) {
@@ -686,29 +931,74 @@
         if (!e) return;   // empty vault — no hero
         var remoteBanner = (e.extra && e.extra.bannerImage) || null;
         var banner = pref.banner || remoteBanner;
-        var hero = el("div", { class: "vault-hero" + (banner ? " has-banner" : ""), role: "region", "aria-label": "Spotlight" });
-        if (banner) KOS.imageCrop.background(hero, banner, pref.crop, {
-          overlay: "linear-gradient(100deg, rgba(16,14,10,.9) 0%, rgba(16,14,10,.66) 42%, rgba(16,14,10,.22) 75%, rgba(16,14,10,.08) 100%)"
-        });
-        var pct = e.progress && e.progress.total
-          ? Math.min(100, Math.round(100 * (e.progress.current || 0) / e.progress.total)) : null;
+        var hero = el("div", { class: "vault-hero", role: "region", "aria-label": "Spotlight" });
+        heroBackdrop(hero, e, mod, banner, pref.crop);
+
+        function pickSpotlight() {
+          heroPicker(modId, mod.kanji, function (picked) {
+            KOS.mediadb.setKV(heroKey(modId), { entryId: picked.id, banner: null, crop: null }, function () {
+              /* synced AniList entries that predate the banner field:
+                 one read-only lookup, saved into extra so it sticks */
+              if (picked.syncSource === "anilist" && picked.externalIds && picked.externalIds.anilistId
+                  && !(picked.extra && picked.extra.bannerImage)) {
+                KOS.anilist.fetchBanner(picked.externalIds.anilistId, function (err2, url) {
+                  if (!err2 && url) {
+                    picked.extra = picked.extra || {};
+                    picked.extra.bannerImage = url;
+                    KOS.mediadb.put(picked, function () { rerender && rerender(); });
+                    return;
+                  }
+                  rerender && rerender();
+                });
+              } else { rerender && rerender(); }
+            });
+          });
+        }
+        function editBanner() {
+          KOS.imageCrop.open({
+            title: "Position the spotlight banner",
+            description: "This preview matches the shared Collection hero. Drag the focal point so it stays useful at narrower widths. With no banner the cover art is used instead.",
+            source: banner || "", originalSource: remoteBanner,
+            originalLabel: "Use title banner", crop: pref.crop,
+            aspect: 3.2, allowUpload: true,
+            fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 520 * 1024, quality: 0.82 },
+            removeLabel: remoteBanner ? "Use automatic banner" : "Use the cover art",
+            onRemove: function () {
+              KOS.mediadb.setKV(heroKey(modId), { entryId: e.id, banner: null, crop: null }, function () {
+                KOS.ui.toast(remoteBanner ? "Using the title banner." : "Using the cover art.");
+                rerender && rerender();
+              });
+            },
+            onSave: function (result) {
+              var custom = remoteBanner && result.source === remoteBanner ? null : result.source;
+              KOS.mediadb.setKV(heroKey(modId), { entryId: e.id, banner: custom, crop: result.crop }, function () {
+                KOS.ui.toast("Banner position saved.");
+                rerender && rerender();
+              });
+            }
+          });
+        }
+
+        var pct = KOS.media.progressPct(e);
+        var prog = KOS.media.progressText(e);
         var body = el("div", { class: "vh-body" }, [
           el("div", { class: "vh-kicker" }, [
             el("span", { text: "Spotlight" }),
             el("span", { class: "vh-mod", text: "/ " + mod.label })
           ]),
-          el("h2", { class: "vh-title", text: e.title }),
+          el("h2", { class: "vh-title", title: e.title, text: e.title }),
           el("p", { class: "vh-line", text: heroLine(e, mod) }),
           el("div", { class: "vh-meta" }, [
             el("span", { class: "med-chip", style: "--chip:" + (KOS.media.STATUS_COLOR[e.status] || "#888"),
               text: KOS.media.STATUS_LABEL[e.status] }),
-            e.progress && e.progress.total
-              ? el("span", { class: "vh-chip", text: (e.progress.current || 0) + " / " + e.progress.total + " " + mod.unitName })
-              : (e.module === "game" && e.playtimeHours != null
-                  ? el("span", { class: "vh-chip", text: e.playtimeHours + " hr logged" }) : null),
+            prog ? el("span", { class: "vh-chip", text: prog }) : null,
             e.score ? el("span", { class: "vh-chip", text: "★ " + e.score }) : null
           ].filter(Boolean)),
           pct !== null ? el("div", { class: "vh-track" }, [el("i", { style: "width:" + pct + "%" })]) : null,
+          /* Two actions and a group. "Spotlight" and "Banner" configure the
+             hero rather than acting on the title, so they sit in the same
+             ⋯ grammar the toolbar uses instead of competing with "Open
+             entry" for attention (audit VLT-3's rule, applied here too). */
           el("div", { class: "vh-actions" }, [
             e.status === "inProgress" && e.module !== "game"
               ? el("button", { class: "btn primary", text: "▶ +1 " + mod.unit, onclick: function () {
@@ -717,64 +1007,21 @@
             el("button", { class: "btn ghost", text: "Open entry", onclick: function () {
               KOS.mediaEditor(e, function () { rerender && rerender(); });
             } }),
-            el("button", { class: "btn ghost", text: "☆ Spotlight", title: "Choose a different spotlight",
-              onclick: function () {
-              heroPicker(modId, mod.kanji, function (picked) {
-                KOS.mediadb.setKV(heroKey(modId), { entryId: picked.id, banner: null, crop: null }, function () {
-                  /* synced AniList entries that predate the banner field:
-                     one read-only lookup, saved into extra so it sticks */
-                  if (picked.syncSource === "anilist" && picked.externalIds && picked.externalIds.anilistId
-                      && !(picked.extra && picked.extra.bannerImage)) {
-                    KOS.anilist.fetchBanner(picked.externalIds.anilistId, function (err2, url) {
-                      if (!err2 && url) {
-                        picked.extra = picked.extra || {};
-                        picked.extra.bannerImage = url;
-                        KOS.mediadb.put(picked, function () { rerender && rerender(); });
-                        return;
-                      }
-                      rerender && rerender();
-                    });
-                  } else { rerender && rerender(); }
-                });
-              });
-            } }),
-            el("button", { class: "btn ghost", text: "✎ Banner",
-              title: "Upload or reposition this spotlight banner", onclick: function () {
-                KOS.imageCrop.open({
-                  title: "Position the spotlight banner",
-                  description: "This preview matches the shared Collection hero. Drag the focal point so it stays useful at narrower widths.",
-                  source: banner || "", originalSource: remoteBanner,
-                  originalLabel: "Use title banner", crop: pref.crop,
-                  aspect: 3.2, allowUpload: true,
-                  fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 520 * 1024, quality: 0.82 },
-                  removeLabel: remoteBanner ? "Use automatic banner" : "Remove banner",
-                  onRemove: function () {
-                    KOS.mediadb.setKV(heroKey(modId), { entryId: e.id, banner: null, crop: null }, function () {
-                      KOS.ui.toast(remoteBanner ? "Using the title banner." : "Custom banner removed.");
-                      rerender && rerender();
-                    });
-                  },
-                  onSave: function (result) {
-                    var custom = remoteBanner && result.source === remoteBanner ? null : result.source;
-                    KOS.mediadb.setKV(heroKey(modId), { entryId: e.id, banner: custom, crop: result.crop }, function () {
-                      KOS.ui.toast("Banner position saved.");
-                      rerender && rerender();
-                    });
-                  }
-                });
-              } })
+            KOS.ui.menu({ label: "Spotlight", className: "btn ghost vh-menu",
+              hint: "Choose what this hero shows, and the art behind it",
+              items: [
+                { label: "Choose a different title…", glyph: "☆", onSelect: pickSpotlight },
+                { label: banner ? "Reposition the banner…" : "Add a banner image…", glyph: "✎",
+                  hint: banner ? null : "Without one, the cover art is used", onSelect: editBanner }
+              ] })
           ].filter(Boolean))
         ].filter(Boolean));
-        if (!banner) {
-          /* no banner: a painted backdrop in the module's hue with the cover
-             standing on the right like a book on a stand */
-          hero.classList.add("vh-painted");
-          hero.style.setProperty("--vh-accent", mod.accent || "var(--accent)");
-          if (e.coverUrl) hero.appendChild(el("span", { class: "vh-cover" }, [
-            KOS.imageCrop.image(e.coverUrl, { alt: "" }, e.coverCrop)
-          ]));
-          else hero.appendChild(el("span", { class: "vh-ph", "aria-hidden": "true", text: mod.kanji }));
-        }
+
+        /* the cover plate stands on every hero now, banner or not — it is
+           the module's identity and the thing you recognise a title by */
+        hero.appendChild(e.coverUrl
+          ? el("span", { class: "vh-cover" }, [KOS.imageCrop.image(e.coverUrl, { alt: "" }, e.coverCrop)])
+          : el("span", { class: "vh-ph", "aria-hidden": "true", text: mod.kanji }));
         hero.appendChild(body);
         holder.appendChild(hero);
       }
@@ -925,7 +1172,7 @@
       }
 
       overlay.appendChild(box);
-      document.body.appendChild(overlay);
+      KOS.ui.openDialog(overlay);
     });
   }
 
@@ -945,9 +1192,25 @@
       statusBox, listBox
     ]);
 
+    /* audit VLT-7: AniList custom lists whose names are pure decoration
+       ("—— ☆ ——", "▬▬▬") arrive through the sync mapper like any other
+       list, and rendered as near-invisible thin lines in the rail — a row
+       you cannot read is a row you cannot choose. The name is preserved
+       exactly (it is the user's, and it round-trips to AniList), but the
+       row says what it is and how many titles are on it. */
+    function isDecorative(name) {
+      return !/[0-9A-Za-zÀ-ɏ぀-ヿ一-鿿]/.test(String(name || ""));
+    }
     function rowBtn(label, active, count, onClick, cls) {
-      return el("button", { class: "fr-row" + (active ? " active" : "") + (cls ? " " + cls : ""), onclick: onClick }, [
-        el("span", { class: "fr-row-lbl", text: label }),
+      var deco = !!cls && cls.indexOf("fr-listrow") !== -1 && isDecorative(label);
+      return el("button", {
+        class: "fr-row" + (active ? " active" : "") + (cls ? " " + cls : "") + (deco ? " fr-row-deco" : ""),
+        title: deco ? "An imported list whose name is decoration: " + label : null,
+        onclick: onClick
+      }, [
+        el("span", { class: "fr-row-lbl" }, deco
+          ? [el("span", { class: "fr-row-deco-mark", text: label }), el("em", { text: "unnamed list" })]
+          : [document.createTextNode(label)]),
         count != null ? el("span", { class: "fr-row-n", text: String(count) }) : null
       ].filter(Boolean));
     }
@@ -1025,7 +1288,7 @@
         } })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     setTimeout(function () { nameIn.focus(); }, 30);
   }
 
@@ -1063,7 +1326,7 @@
         el("button", { class: "btn primary", text: "Done", onclick: function () { overlay.close(); done && done(); } })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     fill();
   }
 
@@ -1116,6 +1379,14 @@
     cover: cover,
     coverPositionControl: coverPositionControl,
     fillSel: fillSel,
+    fillFacetSel: fillFacetSel,
+    tallyFacet: tallyFacet,
+    CANON_GENRES: CANON_GENRES,
+    toolbar: toolbar,
+    selFacet: selFacet,
+    toggleFacet: toggleFacet,
+    titleHue: titleHue,
+    heroBackdrop: heroBackdrop,
     searchInput: searchInput,
     sortSelect: sortSelect,
     layoutToggle: layoutToggle,

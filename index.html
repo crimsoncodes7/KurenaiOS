@@ -33,6 +33,9 @@
   <span class="petal p4"></span><span class="petal p5"></span><span class="petal p6"></span>
 </div>
 <div id="app">
+  <!-- audit G-12/U-05: reaching page content meant tabbing past 13 chrome
+       controls. #main already carried tabindex="-1"; only the link was missing. -->
+  <a class="skip-link" href="#main">Skip to content</a>
   <header id="topbar">
     <div class="topbar-left">
       <button class="brand" id="brand-home" type="button" title="Home" aria-label="Go to Home">
@@ -98,6 +101,10 @@
     </nav>
 
     <aside id="tree" class="hidden" aria-label="Topic tree"></aside>
+    <!-- Cat 7 Phase C: at ≤860 the spine is an overlay drawer. The scrim is
+         how it can be dismissed by tapping the page it is covering; above
+         that tier it is display:none and the spine is an ordinary column. -->
+    <button id="tree-scrim" type="button" tabindex="-1" aria-label="Close the spec spine"></button>
 
     <div id="stage">
       <nav id="subnav" aria-label="Section"></nav>

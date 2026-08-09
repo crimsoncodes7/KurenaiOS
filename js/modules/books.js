@@ -219,12 +219,13 @@
       ? el("span", { class: "med-chip bk-dnf", title: e.dnf.reason || "Did not finish", text: "DNF" })
       : null;
   }
+  /* the shared grammar (audit MTX-6/U-30), plus the volume half Books
+     alone tracks — "36 / 96 ch · 7 / 8 vol", spaced like everything else */
   function progressText(e) {
-    var c = e.progress.current || 0, t = e.progress.total;
-    var s = c + (t ? "/" + t : "") + " ch";
+    var s = KOS.media.progressText(e) || "0 ch";
     if (e.progress.volumes != null) {
       var tv = totalVolumes(e);
-      s += " · " + e.progress.volumes + (tv.n ? "/" + tv.n : "") + " vol";
+      s += " · " + e.progress.volumes + (tv.n ? " / " + tv.n : "") + " vol";
     }
     return s;
   }
@@ -589,7 +590,7 @@
       ])
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     mins.focus();
   }
 
@@ -774,7 +775,7 @@
       results
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     titleIn.focus();
   }
   /* exposed for the Matrix home / other modules to reuse */
@@ -923,29 +924,31 @@
     var heroHolder = el("div", { class: "vh-holder" });
     main.appendChild(heroHolder);
 
-    /* ---- the Physical/Digital tab split (3i) — navigation only ---- */
-    var tabBar = el("div", { class: "bk-tabs", role: "tablist", "aria-label": "Books lens" });
-    function tabBtn(id, kanji, label, hint) {
-      var b = el("button", { class: "bk-tab" + (p.tab === id ? " active" : ""), role: "tab",
-        "aria-selected": p.tab === id ? "true" : "false", "data-tab": id, title: hint,
-        onclick: function () {
-          if (p.tab === id) return;
-          p.tab = id;
-          store.save();
-          tabBar.querySelectorAll(".bk-tab").forEach(function (x) {
-            x.classList.toggle("active", x.dataset.tab === id);
-            x.setAttribute("aria-selected", x.dataset.tab === id ? "true" : "false");
-          });
-          syncToolbar();
-          refresh();
-        } }, [
-        el("span", { class: "bk-tab-k", "aria-hidden": "true", text: kanji }),
-        el("span", {}, [el("b", { text: label }), el("span", { class: "sub bk-tab-hint", text: hint })])
-      ]);
-      return b;
+    /* ---- the Physical/Digital tab split (3i) — navigation only ----
+       Category 7 Phase B: this was the app's THIRD tab idiom (audit G-23);
+       it now builds through KOS.ui.tabs's "card" variant, which is the same
+       two-line-with-a-kanji shape it always had, shared. The .bk-tabs class
+       stays on the container so the Books-specific rules still apply. */
+    var LENSES = [
+      ["digital", "読", "Digital", "reading progress — every tracked series"],
+      ["physical", "蔵", "Physical Vault", "owned volumes only — the real shelf"]
+    ];
+    var tabBar;
+    function buildLenses() {
+      return KOS.ui.tabs(LENSES.map(function (t) {
+        return { label: t[2], glyph: t[1], hint: t[3], active: p.tab === t[0], className: "bk-tab",
+          onSelect: function () {
+            if (p.tab === t[0]) return;
+            p.tab = t[0];
+            store.save();
+            var fresh = buildLenses();
+            tabBar.replaceChildren.apply(tabBar, Array.prototype.slice.call(fresh.childNodes));
+            syncToolbar();
+            refresh();
+          } };
+      }), { variant: "card", label: "Books lens", className: "bk-tabs" });
     }
-    tabBar.appendChild(tabBtn("digital", "読", "Digital", "reading progress — every tracked series"));
-    tabBar.appendChild(tabBtn("physical", "蔵", "Physical Vault", "owned volumes only — the real shelf"));
+    tabBar = buildLenses();
     main.appendChild(tabBar);
 
     /* toolbar — the shared pieces come from the medview toolkit */
@@ -982,26 +985,50 @@
     syncToolbar();
 
     var rail = mv.filterRail("books", function () { refresh(); });
-    var dnfBtn = el("button", { class: "btn", title: "Show only did-not-finish books", text: "✕ DNF", onclick: function () {
-      filt.dnf = !filt.dnf;
-      dnfBtn.classList.toggle("primary", filt.dnf);
-      refresh();
-    } });
-
     var mainCol = el("div", { class: "med-main" });
-    mainCol.appendChild(el("div", { class: "med-toolbar" }, [
-      search, fmtSel, genreSel, moodSel, shelfSel, sortSel, layoutBtn, dnfBtn,
-      el("button", { class: "btn", text: "作 Mangaka", title: "Every author you own or track, aggregated", onclick: function () { KOS.show("mangaka"); } }),
-      el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("books", mod()); } }),
-      el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-      el("button", { class: "btn", text: "⏱ Reading session", title: "A timed reading session on the Focus Timer's clock — logs to the reading heatmap and rest streak, never HP or the study streak",
-        onclick: function () { openReadingSession(); } }),
-      el("button", { class: "btn gold", text: "⊕ Find new", title: "Search all of AniList's manga database — not your vault — and add with one click",
-        onclick: function () { KOS.mediaSearch.open("books", refreshAll); } }),
-      el("button", { class: "btn gold", text: "◫ Find book / ISBN", title: "Look a book up by title or ISBN (type or scan the barcode) — Open Library, with Google Books as fallback — and prefill the add form",
-        onclick: function () { openLookup(p.tab === "physical", refreshAll); } }),
-      el("button", { class: "btn primary", text: "+ Add", onclick: function () { booksEditor(null, refreshAll); } })
-    ]));
+    /* the shared toolbar (Category 7 Phase D). This is the vault the audit
+       measured at SEVENTEEN controls in three rows before a single cover
+       (VLT-3/U-13): the lens cards, then search + five selects + layout,
+       then eight action chips with no grouping at all. Six controls now,
+       one row, and every one of those actions is still one click away —
+       DNF joins the facets because it is a filter, Mangaka / reading
+       sessions / lookups / sync join the ⋯ menu because they are not. */
+    var bar = mv.toolbar({
+      label: "Books vault controls",
+      search: search, sort: sortSel, layout: layoutBtn,
+      filters: [
+        mv.selFacet("Format", fmtSel, refresh),
+        mv.selFacet("Genre", genreSel, refresh),
+        mv.selFacet("Mood", moodSel, refresh),
+        mv.selFacet("Shelf", shelfSel, refresh),
+        mv.toggleFacet("Did not finish",
+          function () { return filt.dnf; },
+          function (v) { filt.dnf = v; },
+          function () { refresh(); },
+          "Only books you set down")
+      ],
+      onClear: function () { refresh(); },
+      actions: [
+        { heading: "Read" },
+        { label: "Start a reading session", glyph: "⏱",
+          hint: "The Focus Timer's clock — feeds the rest streak, never HP",
+          onSelect: function () { openReadingSession(); } },
+        { label: "Mangaka", glyph: "作", hint: "Every author on your shelves",
+          onSelect: function () { KOS.show("mangaka"); } },
+        { heading: "Add to the vault" },
+        { label: "Find new titles…", glyph: "⊕", hint: "Search AniList's manga database",
+          onSelect: function () { KOS.mediaSearch.open("books", refreshAll); } },
+        { label: "Look up a book or ISBN…", glyph: "◫",
+          hint: "Open Library, or scan the barcode",
+          onSelect: function () { openLookup(p.tab === "physical", refreshAll); } },
+        { heading: "This vault" },
+        { label: "The numbers", glyph: "◫", hint: "Composition, taste and pace",
+          onSelect: function () { mv.statsModal("books", mod()); } },
+        { label: "Sync & Import", glyph: "⇅", onSelect: function () { KOS.show("mediasync"); } }
+      ],
+      primary: el("button", { class: "btn primary", text: "+ Add", onclick: function () { booksEditor(null, refreshAll); } })
+    });
+    mainCol.appendChild(bar.root);
     main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
 
     function refreshAll() { rail.reload(); refresh(); }
@@ -1016,9 +1043,7 @@
     KOS.mediadb.distinct("shelves", function (err, ss) { if (!err) mv.fillSel(shelfSel, ss, "All shelves"); });
     KOS.mediadb.query({ module: "books" }, function (err, rows) {
       if (err) return;
-      var gs = {};
-      rows.forEach(function (r) { r.genres.forEach(function (g) { gs[g] = true; }); });
-      mv.fillSel(genreSel, Object.keys(gs).sort(), "All genres");
+      mv.fillFacetSel(genreSel, mv.tallyFacet(rows, "genres"), "All genres");
     });
 
     /* ---- shelf ranking (3i): drag / ▲▼ within a selected shelf ---- */
@@ -1072,6 +1097,7 @@
     }
 
     function refresh() {
+      bar.sync();
       var lay = curLayout();
       var physical = p.tab === "physical";
       var opts = {
@@ -1147,8 +1173,8 @@
       });
     }
 
+    /* the facet selects are wired by mv.selFacet inside the toolbar */
     search.addEventListener("input", KOS.ui.debounce(refresh, 220));
-    [fmtSel, genreSel, moodSel, shelfSel].forEach(function (s) { s.addEventListener("change", refresh); });
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
     function mountHero() { mv.heroCard(heroHolder, "books", mod(), function () { refreshAll(); mountHero(); }); }
@@ -1156,21 +1182,47 @@
     refresh();
   };
 
-  /* ================= Mangaka pages ================= */
-  /* NAME-BASED grouping, deliberately: entries group on the author string,
+  /* ================= Mangaka (Category 7 Phase D full overhaul) =================
+     NAME-BASED grouping, deliberately: entries group on the author string,
      whether it arrived from AniList staff data or was typed by hand. Two
      spellings of the same person are two groups — accepted limitation,
      not entity resolution.
 
-     SCALE: this page used to build every author and every work in one
-     synchronous pass. On a real library that was ~882 author cards, 1,107
-     <img> elements and a 142,000px scroll height — a direct violation of
-     the vault rule that no view renders everything at once. It rides the
-     shared lazy area now (one AUTHOR per lazy row), with a name search and
-     an A–Z jump rail so a long list stays reachable without scrolling. */
+     SCALE, the original sin (audit MNG-1). This page used to build every
+     author and every work in one synchronous pass: ~882 author cards,
+     1,107 <img> elements, 12,833 DOM nodes and a 142,062px scroll height,
+     against the vault rule that no view renders everything at once
+     (invariant #8). Phase A put it on the shared lazy area, one AUTHOR per
+     lazy row, which fixed the page height but not the page: a prolific
+     author still printed all 28 of their works inline, so sixty lazy rows
+     were still hundreds of covers, and the only ways through 882 names
+     were a text search and a letter.
+
+     What this rewrite adds, on top of the lazy area:
+
+       · a BOUNDED author card — the eight most relevant works, with the
+         rest one click away, so one row costs one row whoever the author
+         is (an author with 28 works was a 900px slab);
+       · real FILTERING (audit MNG-2): format, status, physically-owned,
+         and a "prolific only" threshold that is the actual question this
+         page answers — who do I collect?
+       · sort by what the page is about: name, works, volumes owned,
+         chapters read;
+       · sticky LETTER DIVIDERS in the flow, so a long scroll always says
+         where it is, which a jump rail alone cannot do;
+       · the shared toolbar (search + sort + Filters ▾ + ⋯), so this page
+         is not a fifth arrangement of the same controls.
+
+     Everything the filters touch also recomputes the author's own figures,
+     so "12 works · 40 vols owned" always describes the works you can see
+     rather than the ones the filter removed.                             */
   var MK_UNATTRIBUTED = "— unattributed —";
+  var MK_SHOWN = 8;             // works printed before "show all"
   function mkVols(list) {
     return list.reduce(function (n, e) { return n + (e.physical ? e.physical.volumes.length : 0); }, 0);
+  }
+  function mkChapters(list) {
+    return list.reduce(function (n, e) { return n + (e.progress.current || 0); }, 0);
   }
   /* the jump letter for an author name: A–Z, "#" for everything else */
   function mkLetter(name) {
@@ -1181,135 +1233,266 @@
   KOS.views.mangaka = function (main) {
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
+    var mv = KOS.medview;
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "Collection · 作" }),
-        el("h1", { text: "Mangaka" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "Every author on your shelves — their works, side by side." })
-        ])
-      ])
-    ]));
+    main.appendChild(KOS.ui.pageHeader({
+      kicker: "Collection · 作",
+      title: "Mangaka",
+      sub: "Every author on your shelves — who you actually collect, and what of theirs you have."
+    }));
 
-    if (KOS.medview.unavailable(main)) return;
+    if (mv.unavailable(main)) return;
 
-    var search = el("input", { type: "search", class: "todo-in med-search", placeholder: "Search authors…",
-      "aria-label": "Search authors" });
-    /* the jump rail can only mean something in name order, so the page
-       defaults to A–Z (it is an author directory) and hides the rail when
-       the reader picks the old most-volumes ranking instead. */
-    var sortSel = el("select", { class: "todo-in med-sort", "aria-label": "Sort authors" }, [
-      el("option", { value: "name", text: "A–Z" }),
-      el("option", { value: "volumes", text: "Most volumes" })
-    ]);
-    var jump = el("div", { class: "mk-jump", role: "navigation", "aria-label": "Jump to letter" });
-    var toolbar = el("div", { class: "med-toolbar mk-toolbar" }, [search, sortSel]);
-    main.appendChild(toolbar);
+    /* ---- state ---- */
+    var filt = { format: "", status: "", owned: false, min: "" };
+    var sortBy = "name";
+    var activeLetter = "";
+    var groups = {}, allNames = [], totalSeries = 0, shown = [];
+    var expanded = {};            // author name -> works fully printed
+
+    /* ---- controls, through the shared toolbar ---- */
+    var search = el("input", { type: "search", class: "todo-in med-search",
+      placeholder: "Search authors…", "aria-label": "Search authors" });
+    var sortSel = el("select", { class: "status-sel med-sort", "aria-label": "Sort authors" }, [
+      ["name", "A–Z"], ["works", "Most works"], ["volumes", "Most volumes owned"],
+      ["chapters", "Most chapters read"]
+    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+    sortSel.addEventListener("change", function () { sortBy = sortSel.value; paint(); });
+
+    var fmtSel = el("select", { class: "status-sel", "aria-label": "Filter by format" }, [
+      ["", "All formats"], ["manga", "Manga"], ["lightNovel", "Light novels"], ["oneShot", "One-shots"]
+    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+    var stSel = el("select", { class: "status-sel", "aria-label": "Filter by reading status" },
+      [el("option", { value: "", text: "Any status" })].concat(mv.STATUSES.map(function (s) {
+        return el("option", { value: s, text: KOS.media.STATUS_LABEL[s] });
+      })));
+    var minSel = el("select", { class: "status-sel", "aria-label": "Minimum works by this author" }, [
+      ["", "Any number of works"], ["2", "2 or more works"], ["3", "3 or more works"],
+      ["5", "5 or more works"], ["10", "10 or more works"]
+    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+
+    var facets = [
+      mv.selFacet("Format", fmtSel, function () { filt.format = fmtSel.value; paint(); }),
+      mv.selFacet("Reading status", stSel, function () { filt.status = stSel.value; paint(); }),
+      mv.selFacet("Prolific only", minSel, function () { filt.min = minSel.value; paint(); }),
+      mv.toggleFacet("The physical shelf",
+        function () { return filt.owned; },
+        function (v) { filt.owned = v; },
+        function () { paint(); },
+        "Only authors you own volumes of")
+    ];
+    /* one clear path, whether it is pressed inside the Filters panel or
+       from the empty state — the facet controls own their own reset */
+    function clearFacets() {
+      facets.forEach(function (f) { if (f.clear) f.clear(); });
+      filt = { format: "", status: "", owned: false, min: "" };
+    }
+
+    var bar = mv.toolbar({
+      label: "Mangaka controls",
+      className: "mk-toolbar",
+      search: search,
+      sort: sortSel,
+      filters: facets,
+      onClear: function () { filt = { format: "", status: "", owned: false, min: "" }; paint(); },
+      actions: [
+        { heading: "Go to" },
+        { label: "Books vault", glyph: "本", hint: "The series list this page is built from",
+          onSelect: function () { KOS.show("books"); } },
+        { label: "The numbers", glyph: "◫", hint: "Books, in charts",
+          onSelect: function () { mv.statsModal("books", KOS.media.module("books")); } },
+        { sep: true },
+        { label: "Sync & Import", glyph: "⇅", onSelect: function () { KOS.show("mediasync"); } }
+      ]
+    });
+    main.appendChild(bar.root);
+
+    /* the jump rail can only mean something in name order, so it hides
+       itself under any other ranking rather than lying about position */
+    var jump = el("div", { class: "mk-jump", role: "group", "aria-label": "Jump to letter" });
     main.appendChild(jump);
 
-    /* one lazy row = one author card */
-    var area = KOS.medview.resultsArea(main, function (name) { return authorCard(name); });
+    /* one lazy row = one author card (or a letter divider before it) */
+    var area = mv.resultsArea(main, function (name, i) {
+      var card = authorCard(name);
+      if (sortBy !== "name") return card;
+      var letter = mkLetter(name);
+      if (i > 0 && mkLetter(shown[i - 1]) === letter) return card;
+      var frag = document.createDocumentFragment();
+      frag.appendChild(el("div", { class: "mk-letter", "aria-hidden": "true" }, [
+        el("span", { text: letter })
+      ]));
+      frag.appendChild(card);
+      return frag;
+    });
     area.holder.className = "mk-wall";
 
-    var groups = {}, allNames = [], total = 0;
+    /* ---- the works that survive the current filters, for one author ---- */
+    function worksOf(name) {
+      return (groups[name] || []).filter(function (e) {
+        if (filt.format && e.format !== filt.format) return false;
+        if (filt.status && e.status !== filt.status) return false;
+        if (filt.owned && !(e.physical && e.physical.volumes.length)) return false;
+        return true;
+      });
+    }
+
+    function workTile(e) {
+      var o = ownership(e);
+      function open() { booksEditor(e, function () { KOS.show("mangaka", undefined, { _nav: true }); }); }
+      return el("div", { class: "mk-work", role: "button", tabindex: "0", title: e.title,
+        onclick: open,
+        onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); open(); } }
+      }, [
+        e.coverUrl
+          ? el("span", { class: "mk-work-cover" }, [KOS.imageCrop.image(e.coverUrl,
+              { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)])
+          : el("span", { class: "med-cover-ph mk-ph", "aria-hidden": "true",
+              style: "--spine:" + spineColor(e.title), text: "本" }),
+        el("div", { class: "mk-work-body" }, [
+          el("span", { class: "mk-work-t", text: e.title }),
+          el("span", { class: "sub mk-work-m", text: [
+            KOS.media.STATUS_LABEL[e.status],
+            o.ownedVols ? o.ownedVols + " vols" : null,
+            e.score ? "★ " + starText(e.score) : null
+          ].filter(Boolean).join(" · ") })
+        ])
+      ]);
+    }
 
     function authorCard(name) {
-      var works = groups[name];
+      var works = worksOf(name);
       var owned = mkVols(works);
-      var chapters = works.reduce(function (n, e) { return n + (e.progress.current || 0); }, 0);
+      var chapters = mkChapters(works);
       var spent = works.reduce(function (n, e) {
         return n + (e.physical ? e.physical.volumes.reduce(function (s, v) { return s + (v.price || 0); }, 0) : 0);
       }, 0);
       var scored = works.filter(function (e) { return e.score; });
       var avg = scored.length ? scored.reduce(function (s, e) { return s + e.score; }, 0) / scored.length : 0;
+      var open = !!expanded[name];
+      var visible = open ? works : works.slice(0, MK_SHOWN);
 
-      return el("div", { class: "mk-card", "data-letter": mkLetter(name) }, [
+      /* the meta line prints only figures that carry something — a "£0"
+         or "0 ch read" beside a name is noise, not information */
+      var meta = [
+        works.length + (works.length === 1 ? " work" : " works"),
+        owned ? owned + (owned === 1 ? " volume owned" : " volumes owned") : null,
+        chapters ? chapters + " ch read" : null,
+        spent ? "£" + spent.toFixed(0) + " spent" : null,
+        avg ? "★ " + starText(Math.round(avg)) : null
+      ].filter(Boolean).join(" · ");
+
+      var wall = el("div", { class: "mk-works" }, visible.map(workTile));
+      var card = el("div", { class: "mk-card", "data-letter": mkLetter(name) }, [
         el("div", { class: "mk-h" }, [
-          el("span", { class: "mk-mark", "aria-hidden": "true", style: "--spine:" + spineColor(name), text: name === MK_UNATTRIBUTED ? "?" : name.slice(0, 1) }),
-          el("div", {}, [
+          el("span", { class: "mk-mark", "aria-hidden": "true", style: "--spine:" + spineColor(name),
+            text: name === MK_UNATTRIBUTED ? "?" : name.slice(0, 1) }),
+          el("div", { class: "mk-h-txt" }, [
             el("b", { class: "mk-name", text: name }),
-            el("span", { class: "sub", text: works.length + (works.length === 1 ? " work" : " works") +
-              " · " + owned + " vols owned" + (spent ? " · £" + spent.toFixed(0) : "") +
-              " · " + chapters + " ch read" + (avg ? " · ★ " + starText(Math.round(avg)) : "") })
+            el("span", { class: "sub mk-meta", text: meta })
           ])
         ]),
-        el("div", { class: "mk-works" }, works.map(function (e) {
-          var o = ownership(e);
-          function open() { booksEditor(e, function () { KOS.show("mangaka", undefined, { _nav: true }); }); }
-          return el("div", { class: "mk-work", role: "button", tabindex: "0",
-            onclick: open,
-            onkeydown: function (ev) { if (ev.key === "Enter") { ev.preventDefault(); open(); } }
-          }, [
-            e.coverUrl
-              ? el("span", { class: "mk-work-cover" }, [KOS.imageCrop.image(e.coverUrl,
-                  { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)])
-              : el("span", { class: "med-cover-ph mk-ph", "aria-hidden": "true", style: "--spine:" + spineColor(e.title), text: "本" }),
-            el("div", { class: "mk-work-body" }, [
-              el("span", { class: "mk-work-t", text: e.title }),
-              el("span", { class: "sub", text: KOS.media.STATUS_LABEL[e.status] +
-                (o.ownedVols ? " · " + o.ownedVols + " vols" : "") +
-                (e.score ? " · ★ " + starText(e.score) : "") })
-            ])
-          ]);
-        }))
+        wall
       ]);
+      if (works.length > MK_SHOWN) {
+        var more = el("button", { class: "btn subtle mk-more", type: "button",
+          text: open ? "Show fewer" : "Show all " + works.length + " works",
+          "aria-expanded": String(open),
+          onclick: function () {
+            expanded[name] = !expanded[name];
+            var nowOpen = !!expanded[name];
+            wall.replaceChildren.apply(wall,
+              (nowOpen ? works : works.slice(0, MK_SHOWN)).map(workTile));
+            more.textContent = nowOpen ? "Show fewer" : "Show all " + works.length + " works";
+            more.setAttribute("aria-expanded", String(nowOpen));
+          } });
+        card.appendChild(more);
+      }
+      return card;
     }
 
     /* The rail FILTERS to a letter rather than scrolling to it. Scrolling
-       would mean mounting every author above the target — on a real library
-       that is the whole 900-card wall again, which is the bug this view was
-       rewritten to fix. Filtering keeps the DOM bounded and still reaches
-       any author in one tap. Tapping the active letter clears it. */
-    var activeLetter = "";
+       would mean mounting every author above the target — on a real
+       library that is the whole 732-card wall again, which is the bug this
+       view exists to have fixed. Filtering keeps the DOM bounded and still
+       reaches any author in one tap. Tapping the active letter clears it. */
     function jumpTo(letter) {
       activeLetter = activeLetter === letter ? "" : letter;
       main.scrollTop = 0;
       paint();
     }
 
+    function activeFilters() {
+      return !!(filt.format || filt.status || filt.owned || filt.min);
+    }
+
     function paint() {
+      bar.sync();
       var q = search.value.trim().toLowerCase();
-      var byName = sortSel.value !== "volumes";
+      var byName = sortBy === "name";
       if (!byName) activeLetter = "";          // a ranked list has no alphabet
+
+      var minWorks = parseInt(filt.min, 10) || 0;
       var names = allNames.filter(function (n) {
         if (q && n.toLowerCase().indexOf(q) === -1) return false;
         if (activeLetter && mkLetter(n) !== activeLetter) return false;
+        var w = worksOf(n);
+        if (!w.length) return false;           // every work filtered away
+        if (minWorks && w.length < minWorks) return false;
         return true;
       });
       names.sort(function (a, b) {
-        /* the unattributed bucket sinks to the bottom either way */
+        /* the unattributed bucket sinks to the bottom of every ordering */
         if (a === MK_UNATTRIBUTED) return 1;
         if (b === MK_UNATTRIBUTED) return -1;
         if (byName) return a.localeCompare(b);
-        return mkVols(groups[b]) - mkVols(groups[a]) || (a < b ? -1 : 1);
-      });
-      /* the alphabet reflects the SEARCH, not the letter already chosen —
-         otherwise picking one letter would grey out every other one */
-      var letters = {};
-      allNames.forEach(function (n) {
-        if (!q || n.toLowerCase().indexOf(q) !== -1) letters[mkLetter(n)] = true;
+        if (sortBy === "works") return worksOf(b).length - worksOf(a).length || a.localeCompare(b);
+        if (sortBy === "chapters") return mkChapters(worksOf(b)) - mkChapters(worksOf(a)) || a.localeCompare(b);
+        return mkVols(worksOf(b)) - mkVols(worksOf(a)) || a.localeCompare(b);
       });
 
+      /* the alphabet reflects the SEARCH and the filters, not the letter
+         already chosen — otherwise picking one letter would grey out
+         every other one */
+      var letters = {};
+      allNames.forEach(function (n) {
+        if (q && n.toLowerCase().indexOf(q) === -1) return;
+        var w = worksOf(n);
+        if (!w.length || (minWorks && w.length < minWorks)) return;
+        letters[mkLetter(n)] = true;
+      });
       jump.classList.toggle("hidden", !byName);
       jump.innerHTML = "";
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("").forEach(function (L) {
         var key = el("button", { class: "mk-jump-key" + (letters[L] ? "" : " off") +
             (activeLetter === L ? " active" : ""),
           type: "button", text: L, "aria-pressed": String(activeLetter === L),
+          "aria-label": L === "#" ? "Names outside A to Z" : "Authors starting with " + L,
           onclick: function () { jumpTo(L); } });
         /* el() would setAttribute("disabled", false) — which still disables */
         key.disabled = !letters[L];
         jump.appendChild(key);
       });
 
-      var filtered = !!(q || activeLetter);
+      var seriesShown = names.reduce(function (n, x) { return n + worksOf(x).length; }, 0);
+      var filtered = !!(q || activeLetter || activeFilters());
       area.countLine.textContent = names.length + (names.length === 1 ? " author" : " authors") +
-        " · " + total + (total === 1 ? " series" : " series") +
-        (activeLetter ? " · " + activeLetter : "") + (filtered ? " (filtered)" : "");
+        " · " + seriesShown + (seriesShown === 1 ? " series" : " series") +
+        (filtered ? " of " + totalSeries + " (filtered" + (activeLetter ? " · " + activeLetter : "") + ")" : "");
+
+      shown = names;
       if (!names.length) {
         area.clear();
-        area.holder.appendChild(KOS.medview.emptyState("No author matches that search.", []));
+        area.holder.appendChild(mv.emptyState(
+          activeFilters()
+            ? "No author has a work matching these filters."
+            : "No author matches that search.",
+          filtered ? [el("button", { class: "btn", text: "Clear everything", onclick: function () {
+            search.value = "";
+            activeLetter = "";
+            clearFacets();
+            paint();
+          } })] : []));
         return;
       }
       area.start(names);
@@ -1321,16 +1504,13 @@
         area.clear();
         area.countLine.textContent = "";
         jump.classList.add("hidden");
-        toolbar.classList.add("hidden");
-        area.holder.appendChild(el("div", { class: "med-empty" }, [
-          el("p", { class: "fc-empty", text: "No books tracked yet — the author pages build themselves from the vault." }),
-          el("div", { class: "lab-controls", style: "justify-content:center" }, [
-            el("button", { class: "btn primary", text: "本 Open the Books vault", onclick: function () { KOS.show("books"); } })
-          ])
-        ]));
+        bar.root.classList.add("hidden");
+        area.holder.appendChild(mv.emptyState(
+          "No books tracked yet — the author pages build themselves from the vault.",
+          [el("button", { class: "btn primary", text: "本 Open the Books vault", onclick: function () { KOS.show("books"); } })]));
         return;
       }
-      total = rows.length;
+      totalSeries = rows.length;
       groups = {};
       rows.forEach(function (e) {
         var a = (e.author || "").trim() || MK_UNATTRIBUTED;
@@ -1341,10 +1521,5 @@
     });
 
     search.addEventListener("input", KOS.ui.debounce(paint, 220));
-    sortSel.addEventListener("change", paint);
-
-    main.appendChild(el("div", { class: "lab-controls", style: "margin-top:14px" }, [
-      el("button", { class: "btn", text: "← Books vault", onclick: function () { KOS.show("books"); } })
-    ]));
   };
 })();

@@ -45,7 +45,14 @@
   --panel: #FDFAF1;
   --text: #332C20;
   --text2: #5E5442;
-  --muted: #97896D;
+  /* Category 7 / G-09: was #97896D — 3.10:1 on --bg1, and this token carries
+     every field label, empty state and sub-line at 9–13px across the whole
+     app, so the default theme failed WCAG AA everywhere. Darkened until it
+     clears 4.5:1 on ALL THREE light surfaces (ground, paper, raised). The
+     cost is that secondary and tertiary text sit closer together than they
+     did — the Atelier palette's surfaces are only 4% apart in luminance, so
+     an accessible tertiary has nowhere lighter to go. */
+  --muted: #726751;
   --accent: #5D6BA8;   /* dusk iris — the ink of the house       */
   --accent2: #A97F2F;  /* brass — gold leaf, currency, warmth     */
   --accent3: #7D9B76;  /* sage — the quiet green of the fields    */
@@ -81,10 +88,37 @@
   /* — shared geometry: the Kurenai design-system foundation —
      Spacing follows a 4px cadence. Page chrome and wide content use the
      layout tokens below; prose can still opt into --content-readable.
-     Core media-query tiers (custom properties cannot drive @media rules):
-       1240px workspace · 1080px compact rail · 860px compact · 560px small.
-     Component-specific 1100/1000/900/760/700px queries remain where content,
-     rather than the app shell, determines the collapse point. */
+
+     THE FIVE BREAKPOINTS (Category 7 Phase B). Custom properties cannot
+     drive @media rules, so these five widths are the contract and the only
+     max-widths allowed in this file (tools/smoke42.test.js fails the build
+     on a sixth). The audit found 21 distinct thresholds against a
+     documented four; drift, not design, produced 1180/1120/1100/1050/1040/
+     1000/900/850/840/820/760/680/620/520/480/460.
+
+       1240  workspace   wide desktop → standard desktop. Optional side
+                         surfaces fold: inspectors, help aside, second
+                         columns, 4-up analytics grids. Page padding tightens.
+       1080  compact rail standard desktop → laptop. The SHELL compacts —
+                         rail to icons, search narrows, brand sub-line drops
+                         — and two-column page bodies become one.
+       860   compact     laptop → tablet. The spec tree becomes an overlay,
+                         the topbar sheds labels, three-column workspaces
+                         become one, hero geometry and page titles shrink.
+       700   phone       tablet → phone. The rail becomes a bottom tab bar,
+                         modals become sheets, inputs hold 16px, safe-area
+                         insets apply. This is the Build 4b tier.
+       560   small       small phone. Dense grids and identity blocks go to
+                         a single column; the search box drops.
+
+     Order matters as much as the numbers: within one component, write the
+     tiers widest-first so the narrower always wins. Half the Governor seat's
+     phone rules and 24 assistant declarations were dead on arrival because
+     they sat above their wider-tier siblings.
+
+     A component that genuinely needs its own collapse point should reflow
+     intrinsically (auto-fit/minmax, flex-wrap, min-width: 0) rather than
+     earn a sixth breakpoint. `overflow: hidden` is not a collapse point. */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -137,6 +171,15 @@
   --hero-pad-block: 26px;
   --hero-pad-inline: 30px;
   --stat-min-w: 108px;
+  /* one layer scale, so "which of these two is on top" stops being a
+     question answered by grepping for z-index (audit B-10/G-26) */
+  --z-tree: 40;
+  --z-rail: 60;
+  --z-stage: 70;
+  --z-menu: 110;
+  --z-modal: 120;
+  --z-fullscreen: 200;
+  --z-toast: 300;
   --modal-max: 860px;
   --modal-gutter: 6vw;
   --modal-pad-block: var(--space-5);
@@ -500,6 +543,13 @@ small { font-size: 12.5px; }
   background: color-mix(in srgb, var(--bg1) 55%, transparent);
 }
 #tree.hidden { display: none; }
+/* Above 860 the spine is a column: the scrim does not exist and the page
+   header's opener is unnecessary, because the collapsed spine already has
+   its own rail. At ≤860 both switch on and the floating pill switches off.
+   `.btn` is declared later in this file and would otherwise win the display
+   back, so the hide is written as a compound selector rather than moved. */
+#tree-scrim { display: none; }
+button.tree-open-btn { display: none; }
 #cols.tree-closed #tree { width: var(--tree-w-compact); padding: 12px 7px; overflow: hidden; }
 .tree-reopen { display: none; }
 #cols.tree-closed #tree > .tree-subject-h,
@@ -550,6 +600,16 @@ small { font-size: 12.5px; }
 .sec-head .sec-title { min-width: 0; flex: 1 1 auto; }
 .sec-head .arr { font-size: 9px; color: var(--muted); transition: transform .18s; flex: none; }
 .sec.open > .sec-head .arr { transform: rotate(90deg); }
+/* the retired main-column ledger's progress bar, inherited by the spine
+   (Cat 7 Phase C · audit SUBJ-1). It sits on its own line under the title so
+   a long section name never has to compete with it for width. */
+.sec-head { flex-wrap: wrap; row-gap: 4px; }
+.sec-head-bar { flex: 1 1 100%; order: 3; height: 3px; }
+.sec-head .pc, .sec-head .arr { order: 2; }
+/* the section that owns the topic on screen is marked, so the spine can
+   answer "where am I" without the reader hunting for the active leaf */
+.sec.here > .sec-head { background: var(--wash-accent); }
+.sec.here > .sec-head .sec-title { color: var(--text); }
 .sec-kids { display: none; padding-left: 6px; }
 .sec.open > .sec-kids { display: block; }
 .grp-h {
@@ -562,7 +622,10 @@ small { font-size: 12.5px; }
   text-transform: uppercase;
   color: var(--muted);
 }
-.grp-h .grp-arr { font-size: 9px; transition: transform .15s; }
+.grp-h .grp-arr { font-size: 9px; transition: transform .15s; flex: none; }
+.grp-h .grp-t { min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; }
+/* the ledger's one genuinely extra reading — the per-subsection tally */
+.grp-h .grp-pc { flex: none; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0; }
 .grp-h.closed .grp-arr { transform: rotate(-90deg); }
 .grp-kids { padding-left: 8px; }
 .leaf {
@@ -770,7 +833,10 @@ small { font-size: 12.5px; }
   opacity: 0;
   pointer-events: none;
   transition: opacity .25s, transform .25s;
-  z-index: 200;
+  /* above every modal and every full-screen surface: "Focus session logged
+     — award forfeited" used to render under the review modal's scrim, which
+     is the one moment the message matters most (audit B-10/G-26) */
+  z-index: var(--z-toast);
   max-width: min(620px, 90vw);
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
@@ -783,9 +849,12 @@ small { font-size: 12.5px; }
   backdrop-filter: blur(3px);
   display: flex; align-items: center; justify-content: center;
   padding: 4vh calc(var(--modal-gutter) / 2);
-  z-index: 120;
+  z-index: var(--z-modal);
   animation: ov-in .18s ease;
 }
+/* the scroll lock openDialog applies: the page behind a modal must not
+   scroll under the scrim, and must keep its position when the modal closes */
+body.modal-open #main { overflow: hidden; }
 @keyframes ov-in { from { opacity: 0; } }
 .modal {
   background: var(--bg1);
@@ -840,6 +909,44 @@ small { font-size: 12.5px; }
 .page-h h1 { font-size: var(--type-page-title); margin: 2px 0 0; line-height: 1.12; }
 .page-h .pap { font-size: 12px; color: var(--muted); display: block; margin-top: 5px; letter-spacing: .04em; }
 
+/* ---- the topic header: ONE row (Cat 7 Phase C, audit REF-1) ----
+   Crumbs, seal + title + board line, and a 170px status band used to stack
+   to 308px of chrome before the study tabs had even started. This is one
+   row: the crumb path is the meta line's first clause, and the only control
+   that survives above the fold is the status dropdown. */
+.topic-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-2);
+}
+.topic-head .seal { min-width: 42px; height: 42px; font-size: 11.5px; }
+.topic-head .th-txt { min-width: 0; }
+/* a topic title is a topic, not a page: one step below the page-title scale,
+   which is what buys the row back for the content underneath it */
+.topic-head h1 { margin: 0; font-size: var(--type-hero-title, 1.5rem); line-height: 1.1; }
+.th-meta {
+  margin: 3px 0 0;
+  font-size: 11.5px; color: var(--muted); letter-spacing: .03em;
+  /* long spec paths are normal here — two lines, then ellipsis, never a
+     third line pushing the content down */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.th-ctl { display: flex; align-items: center; gap: var(--space-2); flex: none; }
+.th-ctl .status-sel { min-height: var(--control-h-sm); }
+/* the glyph restates the selected status as colour, so the row reads at a
+   glance without opening the dropdown */
+.th-status {
+  width: 10px; height: 10px; border-radius: 50%; flex: none;
+  background: var(--line);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text) 5%, transparent);
+}
+.th-status.st-started { background: var(--warning); }
+.th-status.st-paused { background: var(--muted); }
+.th-status.st-done { background: var(--good); }
+
 /* ---- Topic Status: one component, three labelled fields ----
    Status, the four progress checks and the confidence rating were three
    control groups sharing a flex row separated by hairlines. They are one
@@ -855,10 +962,19 @@ small { font-size: 12.5px; }
 }
 .ctl-row label.chk { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text2); cursor: pointer; }
 .ctl-row label.chk:hover { color: var(--text); }
-.ctl-row input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+/* audit REF-5: 16px was below any usable hit target, and these four are the
+   most-pressed controls on the page */
+.ctl-row input[type=checkbox] { accent-color: var(--accent); width: 20px; height: 20px; cursor: pointer; flex: none; }
 .ctl-sep { width: 1px; align-self: stretch; background: var(--line2); margin: 0 4px; }
 
+/* In its inspector home the component is the panel's first section rather
+   than a free-standing card: no second border inside a bordered aside, no
+   outer margin, and the head sits flush with the inspector's own head. */
 .topic-status { display: block; padding: 0; overflow: hidden; background: var(--surface-card); }
+.study-inspector .topic-status {
+  margin: 0; border: none; border-radius: 0; background: none;
+  border-bottom: 1px solid var(--line2);
+}
 .ts-head {
   display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
   padding: 10px var(--space-4);
@@ -907,14 +1023,30 @@ small { font-size: 12.5px; }
   background: var(--wash-accent);
 }
 /* the picker brings its own label; the field already has one. The three
-   dots stay a row and the "data says" read-out drops to its own line, so a
-   narrow column never squeezes the two together. */
-.ts-field-conf .rag-picker { display: flex; flex-wrap: wrap; gap: 7px; }
+   controls stay a row and the "data says" read-out drops to its own line, so
+   a narrow column never squeezes the two together. */
+.ts-field-conf .rag-picker { display: flex; flex-wrap: wrap; gap: 6px; }
 .ts-field-conf .rag-picker-l { display: none; }
-.ts-field-conf .rag-pick { width: 22px; height: 22px; }
 .ts-field-conf .rag-auto { flex: 1 0 100%; margin-left: 0; }
 
-@media (max-width: 1000px) {
+/* ---- the component inside the inspector (Cat 7 Phase C) ----
+   One narrow column, so the three fields stack and the mastery readout —
+   now the page's ONLY one — gets the whole width of the head. */
+.study-inspector .ts-body {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3) 14px;
+}
+.study-inspector .ts-head {
+  flex-direction: column; align-items: flex-start; gap: 6px;
+  padding: 12px var(--space-3) 11px;
+}
+.study-inspector .ts-mastery { flex: 1 1 100%; width: 100%; gap: 8px; }
+.study-inspector .ts-pct { font-size: 26px; }
+.study-inspector .ts-checkgrid { grid-template-columns: minmax(0, 1fr); }
+.study-inspector .ts-field-conf .rag-picker { gap: 5px; }
+
+@media (max-width: 1080px) {
   .ts-body { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
 }
 @media (max-width: 560px) {
@@ -984,11 +1116,48 @@ small { font-size: 12.5px; }
 /* ============================================================
    Home — the desk at dawn
    ============================================================ */
-.home-hero { margin: 2px 0 var(--section-gap); display: flex; align-items: flex-end; justify-content: space-between; gap: var(--grid-gap); flex-wrap: wrap; }
+.home-hero { margin: 2px 0 var(--space-4); display: flex; align-items: flex-end; justify-content: space-between; gap: var(--grid-gap); flex-wrap: wrap; }
 .home-hero h1 { font-size: var(--type-page-title); margin: 0; font-weight: 550; }
+.hh-txt { min-width: 0; }
 .hh-kicker { display: block; font-size: 11.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 4px; }
 .hh-focus { padding: 10px 22px; font-size: 14.5px; }
 .hh-focus.live { background: linear-gradient(150deg, color-mix(in srgb, var(--accent2) 92%, #fff), color-mix(in srgb, var(--accent2) 82%, #000)); }
+
+/* ============================================================
+   The decision surface  (Cat 7 Phase C · audit HOME-1)
+
+   Home opened with four figures about a checklist and left the reader to
+   work out what to do. One statement, one reason, one action — and it is
+   the page's only primary button, so there is never a question about where
+   to press. It sits above the identity band because who you are is context
+   for what to do next, not the other way round.
+   ============================================================ */
+.home-next {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-4); flex-wrap: wrap;
+  padding: var(--space-4) var(--space-5);
+  margin: 0 0 var(--section-gap);
+  border: 1px solid var(--surface-border);
+  border-left: 4px solid var(--accent, var(--kurenai));
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-sm);
+}
+.home-next.live { border-left-color: var(--accent2); background: var(--wash-brass); }
+.hn-txt { min-width: 0; flex: 1 1 340px; }
+.hn-kicker {
+  display: block; font-size: var(--type-label); letter-spacing: .18em;
+  text-transform: uppercase; color: var(--muted); font-weight: 700;
+}
+.home-next.live .hn-kicker { color: var(--accent2); }
+.hn-label {
+  margin: 3px 0 0; font-family: var(--serif);
+  font-size: 20px; font-weight: 600; line-height: 1.25;
+  /* a directive or a deadline title can run long — two lines, then ellipsis */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.hn-why { margin: 4px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--text2); }
+.hn-go { flex: none; padding: 10px 22px; font-size: 14.5px; }
 .kanji-inline { font-family: var(--jp); color: var(--accent); margin-right: 6px; }
 .kanji-big { font-family: var(--jp); font-size: 60px; color: var(--accent); line-height: 1; margin-bottom: 8px; }
 
@@ -1016,13 +1185,38 @@ small { font-size: 12.5px; }
 .hi-txt .lvl-bar { width: 190px; }
 .hi-week { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 9px; }
 .hi-week .week-dots { display: inline-flex; gap: 5px; margin: 0; }
-.hi-stats { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.hi-stats .home-ring { flex: none; margin-right: 10px; }
-.hstat { min-width: 96px; text-align: center; padding: 4px 14px; border-left: 1px solid var(--line2); }
-.hstat.click { cursor: pointer; border-radius: 10px; }
-.hstat.click:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
-.hstat .v { font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--text); }
-.hstat .k { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 1px; }
+/* audit HOME-6: the seven pips had nothing saying what they were */
+.hi-week-l { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+
+/* ---- the three figures, on their OWN surface (audit HOME-2) ----
+   These used to be bare text over the banner artwork, on the side the
+   band's gradient deliberately leaves transparent — so "SPEC POINTS" was
+   routinely printed straight through a kanji watermark, and legibility was
+   a property of whichever image the user had uploaded. The cluster carries
+   its own translucent panel now: the artwork is still visible through it,
+   but no figure on this page depends on the artwork for contrast. */
+.hi-stats {
+  display: flex; align-items: stretch; gap: 2px; flex-wrap: wrap;
+  padding: var(--space-2);
+  border-radius: var(--radius-card);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  background: color-mix(in srgb, var(--bg1) 88%, transparent);
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-sm);
+}
+.hstat {
+  min-width: 118px; text-align: center;
+  padding: 6px 14px 7px;
+  border-radius: var(--radius-control);
+  display: flex; flex-direction: column; gap: 1px; justify-content: center;
+}
+.hstat + .hstat { border-left: 1px solid var(--line2); }
+.hstat.click { cursor: pointer; }
+.hstat.click:hover { background: color-mix(in srgb, var(--text) 5%, transparent); }
+.hstat .v { font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.hstat .k { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+/* a zero is an answer here, not an accusation — so say what it means */
+.hstat .s { font-size: 10.5px; line-height: 1.3; color: var(--text2); margin-top: 2px; }
 .home-rag { margin-top: 18px; }
 .path-card .todo-panel { height: 100%; }
 .home-side { display: flex; flex-direction: column; gap: 16px; }
@@ -1059,9 +1253,16 @@ small { font-size: 12.5px; }
 @keyframes breathe { 50% { transform: scale(1.08); } }
 
 .home-today { display: grid; grid-template-columns: 1.3fr 1fr; gap: var(--grid-gap); margin-bottom: var(--section-gap); align-items: stretch; }
+/* whichever panel survives when the other has nothing takes the full width,
+   rather than sitting beside an empty column (audit HOME-4) */
+.home-today.one-up { grid-template-columns: minmax(0, 1fr); }
 .home-today .todo-panel, .home-side .dl-widget { height: 100%; }
 .home-side { height: 100%; }
-@media (max-width: 1100px) { .home-today { grid-template-columns: 1fr; } }
+/* both empty: one quiet line where two card-sized boxes used to spend ~280px
+   of the fold saying nothing */
+.home-quiet { margin-bottom: var(--section-gap); }
+.home-quiet .empty-state { border: 1px dashed var(--line2); border-radius: var(--radius-card); padding: var(--space-3) var(--space-4); }
+@media (max-width: 1240px) { .home-today { grid-template-columns: 1fr; } }
 
 .home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--grid-gap); }
 .subj-card {
@@ -1149,28 +1350,24 @@ small { font-size: 12.5px; }
 .stat-card .v, .stat-tile .v { font-family: var(--serif); font-size: 21px; font-weight: 600; }
 .stat-card .k, .stat-tile .k { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 1px; }
 
-/* section ledger — full-width accordion rows */
-.sec-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
-.sec-card { padding: 0; overflow: hidden; transition: border-color .15s; }
-.sec-card:hover { border-color: var(--line); }
-.sec-card-h { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 12px 18px; }
-.sec-card-h .ref { font-family: var(--mono); font-size: 11px; color: var(--accent, var(--kurenai)); flex: none; min-width: 34px; }
-.sec-card-h .ttl { font-weight: 600; font-size: 14.5px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sec-card-h .sec-bar { flex: 1; max-width: 220px; margin-left: auto; }
-.sec-card-h .pc { font-family: var(--mono); font-size: 11.5px; color: var(--muted); flex: none; min-width: 46px; text-align: right; }
-.sec-card-h .arr { flex: none; font-size: 10px; color: var(--muted); transition: transform .18s; }
-.sec-card.open .sec-card-h .arr { transform: rotate(180deg); }
-.sec-card.low .bar-fill { background: var(--danger); }
-.sec-card.mid .bar-fill { background: var(--warning); }
-.sec-card.high .bar-fill { background: var(--good); }
-.sec-sub { padding: 4px 18px 14px 66px; display: grid; gap: 8px; border-top: 1px dashed var(--line2); }
-.bar-row.dim { color: var(--muted); font-size: 12px; grid-template-columns: 1fr; }
-.bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 90px 44px; gap: 10px; align-items: center; font-size: 12.5px; }
-.bar-row .nm { color: var(--text2); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bar-row .nm:hover { color: var(--text); }
-.bar-row .pc { font-family: var(--mono); font-size: 10.5px; color: var(--muted); text-align: right; }
+/* ---- the section ledger is GONE (Cat 7 Phase C · audit SUBJ-1) ----
+   `.sec-grid` / `.sec-card` rendered the spec tree's list a second time,
+   ~400px to its right, with the same 14 sections and the same counts. The
+   spine is the one section list now and it inherited the ledger's progress
+   bar (.sec-head-bar) and per-subsection tally (.grp-pc).
+
+   `.bar-track` / `.bar-fill` and the .low/.mid/.high ramp on them survive —
+   they are the shared bar geometry and the ONE performance ramp
+   (invariant #26d), read by the spine, the analytics tiles and the unit
+   band alike. */
 .bar-track { height: 5px; border-radius: 999px; background: color-mix(in srgb, var(--text) 8%, transparent); overflow: hidden; }
 .bar-fill { display: block; height: 100%; border-radius: 999px; background: var(--accent, var(--kurenai)); transition: width .5s cubic-bezier(.2,.7,.3,1); }
+.bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 90px 44px; gap: 10px; align-items: center; font-size: 12.5px; }
+.bar-row .nm { color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row .pc { font-family: var(--mono); font-size: 10.5px; color: var(--muted); text-align: right; }
+.sec-card.low .bar-fill, .sec-head-bar.low .bar-fill { background: var(--danger); }
+.sec-card.mid .bar-fill, .sec-head-bar.mid .bar-fill { background: var(--warning); }
+.sec-card.high .bar-fill, .sec-head-bar.high .bar-fill { background: var(--good); }
 
 /* the desk band: board summary + one column per paper, one panel */
 .subject-units {
@@ -1205,11 +1402,14 @@ small { font-size: 12.5px; }
 .unit-stat > span { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .unit-stat strong { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .unit-stat small { font-size: 11.5px; color: var(--text2); }
+/* the one ramp again — a paper's bar means what a section's bar means */
+.unit-stat.low .insp-track i { background: var(--danger); }
+.unit-stat.mid .insp-track i { background: var(--warning); }
+.unit-stat.high .insp-track i { background: var(--good); }
 
-/* subject workspace: sections left, context right.
+/* subject workspace: the desk on the left, dates and recommendations right.
    The context column is deliberately NOT sticky — it scrolls with the page,
-   so the analytics read as part of the document rather than as chrome that
-   follows you down it. */
+   so nothing here reads as chrome that follows you down it. */
 .subject-grid { display: grid; grid-template-columns: minmax(0, 1fr) var(--sidebar-context-w); gap: var(--layout-gap); align-items: start; }
 .subject-main { min-width: 0; }
 .subject-side { position: static; display: flex; flex-direction: column; gap: var(--space-3); }
@@ -1220,20 +1420,25 @@ small { font-size: 12.5px; }
 .side-div { height: 1px; background: var(--line2); margin: var(--space-2) 0 var(--space-1); }
 
 /* ---- the subject analytics panel: eight tiles, one shape ----
-   A balanced 2 x 4 grid. Every tile is label / value / context / track, and
-   the track is only drawn when it carries the same quantity as the value
-   above it — an absent bar keeps its row so the rows stay on one baseline. */
+   Every tile is label / value / context / track, and the track is only drawn
+   when it carries the same quantity as the value above it — an absent bar
+   keeps its row so the rows stay on one baseline.
+
+   Cat 7 Phase C moved the panel out of the 300px context column and into the
+   desk's main column, where the eight tiles get four across instead of two
+   and their captions stop wrapping to three lines. */
 .subj-analytics {
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-sm);
   padding: var(--space-4);
+  margin: 0 0 var(--section-gap);
 }
 .sa-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); }
 .sa-h b { font-family: var(--serif); font-size: 15px; font-weight: 600; }
 .sa-h .sub { font-size: 11px; color: var(--muted); }
-.sa-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.sa-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); }
 .sa-tile {
   display: grid; grid-template-rows: auto auto 1fr auto; gap: 2px;
   min-width: 0;
@@ -1262,15 +1467,33 @@ small { font-size: 12.5px; }
 .sa-tile.due .v { color: var(--accent2); }
 /* the one empty state: an em dash and a sentence saying why it is empty */
 .sa-tile.empty .v { color: var(--muted); font-family: var(--serif); }
-.sa-foot { margin: var(--space-3) 0 0; font-size: 10.5px; line-height: 1.5; color: var(--muted); }
+/* audit SUBJ-6: the definition of mastery vs secure was a dense paragraph of
+   body text under the grid, which reads as content rather than as a
+   footnote. The line that carries information every time stays visible; the
+   definition you need once sits behind the disclosure. */
+.sa-foot { margin: var(--space-3) 0 0; font-size: 11px; line-height: 1.5; color: var(--muted); }
+.sa-foot > summary {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2);
+  cursor: pointer; list-style: none;
+  padding: 6px 0 0; border-top: 1px solid var(--line2);
+}
+.sa-foot > summary::-webkit-details-marker { display: none; }
+.sa-foot-fact { color: var(--text2); }
+.sa-foot-more { color: var(--accent, var(--kurenai)); white-space: nowrap; }
+.sa-foot[open] .sa-foot-more::after { content: " ▴"; }
+.sa-foot:not([open]) .sa-foot-more::after { content: " ▾"; }
+.sa-foot > p { margin: 8px 0 0; line-height: 1.55; }
 
-/* ---- the full-width action card under the grid ---- */
+/* ---- the full-width action card: the desk's first element ---- */
 .continue-action {
   display: flex; align-items: center; gap: var(--space-3);
   width: 100%; text-align: left;
   padding: 13px 14px;
   border-radius: var(--radius-card);
 }
+.subject-main > .continue-action { margin: 0 0 var(--section-gap); }
+/* section headers inside the desk keep the shared primitive's rhythm */
+.subject-sh { margin-top: var(--section-gap); }
 .continue-action .ca-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .continue-action b { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
 .continue-action .ca-meta { font-size: 11px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1283,9 +1506,9 @@ small { font-size: 12.5px; }
 
 @media (max-width: 1240px) {
   .subject-grid { grid-template-columns: 1fr; }
-  .sa-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 860px) { .sa-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .sa-grid { grid-template-columns: minmax(0, 1fr); } }
 
 /* practice zone */
 .practice-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: var(--grid-gap); }
@@ -1378,17 +1601,84 @@ small { font-size: 12.5px; }
   box-shadow: var(--shadow-sm);
 }
 .study-tab.active::after { content: none; }
-.study-panel { padding-top: var(--section-gap); }
+.study-panel { padding-top: var(--space-3); }
+/* the content column's leading edge belongs to the page shell, not to the
+   typography: the first block's own top margin used to push the first word
+   of revision material 18px further down on every topic. Inside the article
+   the renderer's rhythm is untouched. */
+.study-panel > .notes-article > *:first-child,
+.study-panel > .split .cb > *:first-child { margin-top: 0; }
 
-/* The topic strip carries eight destinations with their full names, so it
-   wraps onto a second row rather than hiding "Files" behind a silent
-   horizontal scroll. Every tab in it is the same height and the same
-   padding whether or not it carries a count chip. */
-.study-tabs-topic {
-  display: flex; flex-wrap: wrap; overflow: visible;
-  max-width: 100%; width: 100%;
+/* ============================================================
+   The ONE study navigation layer  (Cat 7 Phase C · audit REF-6)
+
+   The topic page carried three stacked switchers — an assistant action
+   strip, a tab strip that wrapped and orphaned "Files" onto a row of its
+   own, and up to seven note-page pills that wrapped again. One bar now, one
+   row high at every width, stuck to the top of the scroller so the tabs
+   remain reachable however far into a topic you have read.
+
+   It is a DECLARED scroller (invariant #50) rather than a wrap: wrapping is
+   what cost the page its second and third rows, and a declared scroll keeps
+   the bar exactly one row tall on a 390px phone as well as on a 1920px
+   desktop.
+   ============================================================ */
+.study-nav {
+  position: sticky; top: 0; z-index: 5;
+  padding: var(--space-1) 0 var(--space-2);
+  background: linear-gradient(var(--bg0) 78%, transparent);
+  border-bottom: 1px solid var(--line2);
 }
-.study-tabs-topic .study-tab { padding: 8px 14px; flex: 0 0 auto; }
+.study-nav-row { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.study-tabs-scroller { flex: 1 1 auto; min-width: 0; }
+.study-tabs-scroller::before, .study-tabs-scroller::after { width: 28px; }
+/* the generic scroller reserves a thin scrollbar gutter; on a one-row tab
+   strip that gutter is 20px of pure height, and the arrows plus the edge
+   fades are already the affordance the Phase B contract asks for */
+.study-tabs-scroller > .u-scroller-track { scrollbar-width: none; }
+.study-tabs-scroller > .u-scroller-track::-webkit-scrollbar { display: none; }
+.study-tabs-topic {
+  display: flex; flex-wrap: nowrap; gap: 2px;
+  max-width: 100%; width: 100%;
+  /* the shared strip carries a 10px top margin for pages that set it under a
+     heading; this one is the first thing in its own bar */
+  margin: 0;
+}
+.study-tabs-topic .study-tab { padding: 7px 13px; flex: 0 0 auto; white-space: nowrap; }
+
+/* the note-page control: a stepper, not a second row of pills */
+.study-nav-pages { flex: none; }
+.note-stepper {
+  display: flex; align-items: center; gap: 4px;
+  padding: 2px 4px;
+  border: 1px solid var(--line2);
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+}
+.np-step {
+  width: var(--icon-btn-size-sm); height: var(--icon-btn-size-sm);
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: var(--text2); font-size: 13px; line-height: 1;
+}
+.np-step:hover:not(:disabled) { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+.np-step:disabled { opacity: .3; cursor: default; }
+.np-all {
+  display: inline-flex; align-items: baseline; gap: 6px; min-width: 0;
+  font-size: 11.5px;
+  padding: 4px 8px; min-height: var(--control-h-sm);
+  border-radius: var(--radius-pill);
+  color: var(--text2);
+}
+.np-count { font-family: var(--mono); font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+/* the page name is the useful half but the first thing that can go: it is
+   still in the tooltip, in the disclosed list and in the footer pager */
+.np-title { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-caret { font-size: 8px; color: var(--muted); flex: none; }
+.np-all:hover { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+.np-all.on { color: var(--accent, var(--kurenai)); background: var(--wash-accent); }
+@media (max-width: 1080px) { .np-title { display: none; } }
+.study-nav-pagelist:empty { display: none; }
 
 /* Review is a shared Study workspace. Its switcher sits in the page header,
    matching the Collection workspaces while retaining the selected surface. */
@@ -1476,7 +1766,10 @@ small { font-size: 12.5px; }
 }
 
 /* notes sub-pager */
-.note-pager { display: flex; gap: 7px; flex-wrap: wrap; margin: 0 0 20px; padding-bottom: 14px; border-bottom: 1px solid var(--line2); }
+/* the full page list, revealed from the nav bar's "All pages" control — the
+   default reading state is the stepper, so this costs nothing until asked for */
+.note-pager { display: flex; gap: 7px; flex-wrap: wrap; margin: var(--space-2) 0 0; padding: var(--space-2) 0 0; border-top: 1px solid var(--line2); }
+.note-pager[hidden] { display: none; }
 .note-page-tab {
   border: 1px solid var(--line2);
   background: var(--bg1);
@@ -1748,7 +2041,34 @@ small { font-size: 12.5px; }
 .fc-rate { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
 .fc-life { text-align: center; font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 14px; }
 .fc-r { min-width: 86px; justify-content: center; }
-.fc-r-hint { display: block; font-size: 9.5px; color: var(--muted); letter-spacing: .04em; }
+/* audit REF-10: 9.5px sub-labels ("blanked — retest now") were decorative,
+   not legible. 11px is the floor Phase B set for anything the primitives
+   emit, and the grading buttons are wide enough to carry it. */
+.fc-r-hint { display: block; font-size: 11px; color: var(--muted); letter-spacing: .02em; line-height: 1.25; }
+.fc-r-top { display: inline-flex; align-items: center; gap: 6px; }
+/* the number key that grades this card, on the control it grades */
+.fc-r-key, .fc-keys kbd, .qz-keys kbd {
+  font-family: var(--mono); font-size: 10px; line-height: 1;
+  min-width: 16px; padding: 3px 4px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line2); border-radius: 4px;
+  background: var(--panel); color: var(--muted);
+}
+.fc-keys, .qz-keys {
+  margin: 12px 0 0; text-align: center;
+  font-size: 11px; color: var(--muted);
+}
+.qz-keys { text-align: left; }
+.fc-keys kbd, .qz-keys kbd { margin: 0 1px; }
+/* the option's number, so 1–9 is discoverable rather than documented */
+.qz-opt { display: flex; align-items: baseline; gap: 10px; }
+.qz-opt-key {
+  flex: none; font-family: var(--mono); font-size: 10px; color: var(--muted);
+  min-width: 16px; padding: 2px 4px; text-align: center;
+  border: 1px solid var(--line2); border-radius: 4px;
+}
+.qz-opt-t { min-width: 0; }
+.qz-opt:disabled .qz-opt-key { opacity: .5; }
 .empty-state, .med-empty, .due-clear {
   min-height: 160px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1956,7 +2276,7 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
   .b-streak { grid-column: span 4; } .b-exams { grid-column: span 8; }
   .b-heat, .b-ledger { grid-column: span 12; }
 }
-@media (max-width: 760px) { .bento > * { grid-column: 1 / -1 !important; } }
+@media (max-width: 860px) { .bento > * { grid-column: 1 / -1 !important; } }
 
 /* identity */
 .id-wrap { display: flex; align-items: center; gap: 20px; flex: 1; }
@@ -2119,8 +2439,11 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
 /* deadline countdown widget */
 .dl-widget { padding: 18px; }
 .sec-grid + .dl-widget, .stat-strip + .dl-widget { margin-top: 18px; }
-.dl-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+.dl-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); margin-bottom: 10px; }
 .dl-h b { font-family: var(--serif); font-size: 16px; font-weight: 600; }
+/* in the ~300px context column a two-part header cannot sit side by side —
+   the title wrapped to three lines around its own caption */
+.rag-panel .dl-h { flex-direction: column; align-items: flex-start; gap: 2px; }
 .dl-item { display: flex; align-items: center; gap: 14px; padding: 9px 10px; border-radius: 10px; border: 1px solid transparent; }
 .dl-item:hover { background: color-mix(in srgb, var(--text) 3%, transparent); }
 .dl-days { display: flex; flex-direction: column; align-items: center; min-width: 52px; border-radius: 10px; padding: 6px 8px; border: 1px solid var(--line2); background: var(--panel); }
@@ -2132,7 +2455,14 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
 .dl-item.warm .dl-days b { color: var(--accent2); }
 .dl-item.cool .dl-days b { color: var(--text2); }
 .dl-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.dl-title { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* audit SUBJ-5: a single nowrap line threw away 286px of a real deadline
+   title at 1440. Two lines, then ellipsis — the row grows by one line rather
+   than the title losing most of itself. */
+.dl-title {
+  font-size: 13.5px; font-weight: 600; line-height: 1.3;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+}
 .dl-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); }
 
 /* calendar — the base layer. Every coloured surface reads ONE custom
@@ -2423,15 +2753,37 @@ body.fx-minimised .fx-dock { display: flex; }
 .rag-g { background: var(--good); }
 .rag-picker { display: inline-flex; align-items: center; gap: 7px; }
 .rag-picker-l { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-.rag-pick { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line); background: transparent; padding: 0; opacity: .45; transition: all .15s; }
-.rag-pick:hover { opacity: .8; transform: scale(1.1); }
-.rag-pick.rag-r { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 25%, transparent); }
-.rag-pick.rag-a { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 25%, transparent); }
-.rag-pick.rag-g { border-color: var(--good); background: color-mix(in srgb, var(--good) 25%, transparent); }
-.rag-pick.on { opacity: 1; }
-.rag-pick.on.rag-r { background: var(--danger); }
-.rag-pick.on.rag-a { background: var(--warning); }
-.rag-pick.on.rag-g { background: var(--good); }
+/* audit REF-7: three unlabelled pale circles, near-invisible on the cream
+   default theme and unreadable to anyone who had not already learnt them.
+   Each control says what it means; the dot survives as the colour cue. */
+.rag-pick {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: var(--control-h-sm);
+  padding: 4px 10px 4px 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line2);
+  background: var(--panel);
+  color: var(--text2);
+  font-size: 11.5px;
+  opacity: 1;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.rag-pick-dot {
+  width: 11px; height: 11px; flex: none; border-radius: 50%;
+  border: 1.5px solid var(--line);
+  background: transparent;
+}
+.rag-pick:hover { border-color: var(--line); color: var(--text); }
+.rag-pick.rag-r .rag-pick-dot { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 25%, transparent); }
+.rag-pick.rag-a .rag-pick-dot { border-color: var(--warning); background: color-mix(in srgb, var(--warning) 25%, transparent); }
+.rag-pick.rag-g .rag-pick-dot { border-color: var(--good); background: color-mix(in srgb, var(--good) 25%, transparent); }
+.rag-pick.on { color: var(--text); font-weight: 600; }
+.rag-pick.on.rag-r { border-color: var(--danger); background: var(--wash-danger); }
+.rag-pick.on.rag-a { border-color: color-mix(in srgb, var(--warning) 50%, transparent); background: var(--wash-brass); }
+.rag-pick.on.rag-g { border-color: color-mix(in srgb, var(--good) 50%, transparent); background: color-mix(in srgb, var(--good) 10%, transparent); }
+.rag-pick.on.rag-r .rag-pick-dot { background: var(--danger); }
+.rag-pick.on.rag-a .rag-pick-dot { background: var(--warning); }
+.rag-pick.on.rag-g .rag-pick-dot { background: var(--good); }
 .rag-auto { display: inline-flex; align-items: center; gap: 6px; margin-left: 4px; }
 .rag-why { font-family: var(--mono); font-size: 10px; color: var(--muted); }
 .rag-disagree { color: var(--warning); }
@@ -2488,15 +2840,15 @@ body.fx-minimised .fx-dock { display: flex; }
 .help-aside-shortcuts { display: flex; flex-direction: column; gap: 9px; }
 .help-aside-shortcuts > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--text2); font-size: 12px; }
 .help-aside-shortcuts kbd { padding: 2px 6px; border: 1px solid var(--line2); border-radius: 5px; background: var(--well); color: var(--text); font-family: var(--mono); font-size: 10px; white-space: nowrap; }
-@media (max-width: 1180px) { .help-wrap { grid-template-columns: 200px minmax(0, 760px); grid-template-areas: "nav search" "nav content"; } .help-aside { display: none; } }
-@media (max-width: 820px) { .help-wrap { grid-template-columns: 1fr; grid-template-areas: "search" "content"; gap: 18px; } .help-nav { display: none; } .help-content { max-width: none; } .help-block-h { font-size: 22px; } }
+@media (max-width: 1240px) { .help-wrap { grid-template-columns: 200px minmax(0, 760px); grid-template-areas: "nav search" "nav content"; } .help-aside { display: none; } }
+@media (max-width: 860px) { .help-wrap { grid-template-columns: 1fr; grid-template-areas: "search" "content"; gap: 18px; } .help-nav { display: none; } .help-content { max-width: none; } .help-block-h { font-size: 22px; } }
 @media (max-width: 560px) { .help-row-t { font-size: 16px; } .help-row-body p { font-size: 15px; line-height: 1.65; } }
 
 /* ============================================================
    Focus setup page + Tasks & Habits
    ============================================================ */
 .fx-setup { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 20px; align-items: start; }
-@media (max-width: 1000px) { .fx-setup { grid-template-columns: 1fr; } }
+@media (max-width: 1080px) { .fx-setup { grid-template-columns: 1fr; } }
 .fx-setup-main { padding: 22px 24px; }
 .fx-setup-side { display: flex; flex-direction: column; gap: 14px; }
 .fx-mode-k {
@@ -2662,7 +3014,7 @@ body.fx-minimised .fx-dock { display: flex; }
 
 /* tasks & habits */
 .tasks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--layout-gap); align-items: start; }
-@media (max-width: 1000px) { .tasks-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1080px) { .tasks-grid { grid-template-columns: 1fr; } }
 .tasks-col { padding: 18px 20px; }
 .tasks-h { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 18px; }
 .tasks-h .tk {
@@ -2761,7 +3113,7 @@ body.fx-minimised .fx-dock { display: flex; }
    Backup & Restore
    ============================================================ */
 .data-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: var(--layout-gap); align-items: start; }
-@media (max-width: 1000px) { .data-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1080px) { .data-grid { grid-template-columns: 1fr; } }
 .data-card { padding: var(--card-pad) var(--space-6); }
 .data-card h3 { margin: 0 0 var(--space-4); font-size: var(--type-section-title); }
 .data-action { display: flex; align-items: flex-start; gap: var(--space-4); padding: 10px 0; border-top: 1px solid var(--line2); flex-wrap: wrap; }
@@ -2811,13 +3163,57 @@ body.fx-minimised .fx-dock { display: flex; }
   background-size: cover;
   background-position: center 30%;
 }
-.vault-hero.has-banner { color: #F6F1E6; }
-.vault-hero.vh-painted {
+/* Category 7 Phase D — ONE hero, three backdrops (audit VLT-4/VLT-5/U-14).
+   The spotlight always reads as the same component: dark scrimmed art,
+   light text, a cover plate on the right. What varies is only what is
+   BEHIND the scrim — a banner, the blown-up cover, or a generated
+   gradient — never the finish. The old `.vh-painted` light treatment is
+   retired: it was the "half-built" look the audit found on three of the
+   four vaults, and it forced a second set of text/chip/button rules. */
+.vault-hero { color: #F6F1E6; }
+.vault-hero.vh-fallback {
   background:
-    radial-gradient(130% 170% at 100% 0%, color-mix(in srgb, var(--vh-accent, var(--accent)) 26%, transparent), transparent 55%),
-    radial-gradient(100% 140% at 0% 100%, color-mix(in srgb, var(--vh-accent, var(--accent)) 12%, transparent), transparent 60%),
-    var(--bg1);
+    linear-gradient(112deg,
+      hsl(var(--vh-hue, 30) 26% 17%) 0%,
+      color-mix(in srgb, var(--vh-accent, var(--accent)) 42%, #171310) 62%,
+      color-mix(in srgb, var(--vh-accent, var(--accent)) 18%, #12100C) 100%);
 }
+/* the entry's own cover, blown up behind the scrim — real art for a
+   module that has no banner source at all (VN, Games, most Books) */
+.vh-art {
+  position: absolute; inset: 0; z-index: 0;
+  overflow: hidden;
+  display: grid; place-items: center;
+}
+.vh-art > img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+  filter: blur(26px) saturate(1.25);
+  transform: scale(1.28);
+  opacity: .82;
+}
+/* the watermark sits inboard of the cover plate rather than under it —
+   two copies of the same kanji stacked read as a rendering fault */
+.vh-art-mark {
+  font-family: var(--jp);
+  font-size: clamp(120px, 20vw, 240px);
+  line-height: 1;
+  color: rgba(246,241,230,.07);
+  justify-self: end;
+  margin-inline-end: 27%;
+  user-select: none;
+}
+@media (max-width: 860px) { .vh-art-mark { margin-inline-end: 6%; } }
+/* the scrim is not optional — invariant #56. Hero text must never depend
+   on which image happens to be spotlighted (audit VLT-5). */
+.vh-scrim {
+  position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(100deg,
+    rgba(16,14,10,.92) 0%, rgba(16,14,10,.74) 40%,
+    rgba(16,14,10,.34) 72%, rgba(16,14,10,.16) 100%);
+}
+@media (prefers-reduced-motion: reduce) { .vh-art > img { filter: blur(20px); } }
 .vh-body {
   position: relative; z-index: 1;
   display: flex; flex-direction: column; justify-content: center; gap: 8px;
@@ -2825,53 +3221,49 @@ body.fx-minimised .fx-dock { display: flex; }
   max-width: 640px;
   min-width: 0;
 }
-.vh-kicker { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .3em; text-transform: uppercase; }
-.vault-hero.has-banner .vh-kicker { color: rgba(246,241,230,.8); }
-.vault-hero.vh-painted .vh-kicker { color: var(--muted); }
+.vh-kicker { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: rgba(246,241,230,.8); }
 .vh-kicker .vh-mod { letter-spacing: .18em; opacity: .75; }
 .vh-title { margin: 0; font-size: var(--type-hero-title); font-weight: 580; line-height: 1.12; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.vh-line { margin: 0; font-size: 14.5px; }
-.vault-hero.has-banner .vh-line { color: rgba(246,241,230,.85); }
-.vault-hero.vh-painted .vh-line { color: var(--text2); }
+.vh-line { margin: 0; font-size: 14.5px; color: rgba(246,241,230,.85); }
 .vh-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
 .vh-chip {
-  font-family: var(--mono); font-size: 10.5px;
+  font-family: var(--mono); font-size: 11px;
   padding: 3px 11px; border-radius: 999px;
-  border: 1px solid;
+  border: 1px solid rgba(246,241,230,.35);
+  color: rgba(246,241,230,.92);
+  background: rgba(16,14,10,.35);
 }
-.vault-hero.has-banner .vh-chip { color: rgba(246,241,230,.92); border-color: rgba(246,241,230,.35); background: rgba(16,14,10,.35); }
-.vault-hero.vh-painted .vh-chip { color: var(--text2); border-color: var(--line); background: var(--panel); }
-.vh-track { height: 5px; max-width: 340px; border-radius: 999px; overflow: hidden; margin-top: 4px; background: rgba(127,127,127,.28); }
-.vault-hero.vh-painted .vh-track { background: color-mix(in srgb, var(--text) 10%, transparent); }
+.vh-track { height: 5px; max-width: 340px; border-radius: 999px; overflow: hidden; margin-top: 4px; background: rgba(246,241,230,.22); }
 .vh-track i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent2), color-mix(in srgb, var(--accent2) 60%, #fff)); }
 .vh-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-.vault-hero.has-banner .btn.ghost { color: #F6F1E6; border-color: rgba(246,241,230,.4); background: rgba(16,14,10,.25); }
-.vault-hero.has-banner .btn.ghost:hover { border-color: rgba(246,241,230,.8); color: #fff; }
-.vh-cover {
-  flex: none;
+.vault-hero .btn.ghost { color: #F6F1E6; border-color: rgba(246,241,230,.4); background: rgba(16,14,10,.25); }
+.vault-hero .btn.ghost:hover { border-color: rgba(246,241,230,.8); color: #fff; }
+.vault-hero .vh-menu { color: #F6F1E6; border-color: rgba(246,241,230,.4); background: rgba(16,14,10,.25); }
+.vault-hero .vh-menu:hover, .vault-hero .vh-menu.is-open { border-color: rgba(246,241,230,.8); color: #fff; }
+.vh-cover, .vh-ph {
+  position: relative; z-index: 1;
+  flex: none; order: 2;
   width: 150px;
   align-self: center;
   margin: 22px 34px 22px auto;
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border-radius: 10px;
-  box-shadow: 0 14px 34px rgba(40,30,14,.3);
+  box-shadow: 0 14px 34px rgba(12,9,5,.45);
   transform: rotate(1.8deg);
-  order: 2;
 }
 .vh-cover > img { width: 100%; height: 100%; display: block; }
+/* the plate for an entry with no cover at all: the module's own hue, lit
+   enough to read as a deliberate placeholder rather than a hole */
 .vh-ph {
-  flex: none; order: 2;
-  width: 150px; aspect-ratio: 2 / 3;
-  align-self: center;
-  margin: 22px 34px 22px auto;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--jp); font-size: 56px;
-  color: color-mix(in srgb, var(--vh-accent, var(--accent)) 55%, var(--bg1));
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--vh-accent, var(--accent)) 14%, var(--bg1));
-  border: 1px solid color-mix(in srgb, var(--vh-accent, var(--accent)) 30%, transparent);
-  transform: rotate(1.8deg);
+  color: rgba(246,241,230,.72);
+  background:
+    linear-gradient(155deg,
+      color-mix(in srgb, var(--vh-accent, var(--accent)) 78%, #F6F1E6) 0%,
+      color-mix(in srgb, var(--vh-accent, var(--accent)) 92%, #100D08) 100%);
+  border: 1px solid rgba(246,241,230,.24);
 }
 @media (max-width: 860px) {
   .vh-cover, .vh-ph { display: none; }
@@ -2881,6 +3273,22 @@ body.fx-minimised .fx-dock { display: flex; }
 .med-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 .med-toolbar .med-search { flex: 1 1 200px; min-width: 150px; border-radius: 999px; }
 .med-count { margin: 2px 0 14px; font-family: var(--mono); font-size: 11px; }
+
+/* ---- the one vault toolbar (Category 7 Phase D, audit VLT-3/U-13) ----
+   Six controls, one row: search takes the slack, sort and layout are the
+   two everyday choices, then the two groups and the single primary. */
+.med-toolbar.mvt { gap: 8px; margin-bottom: 10px; }
+.med-toolbar.mvt .med-search { flex: 1 1 240px; }
+.med-toolbar.mvt > .btn.primary { margin-inline-start: auto; }
+.mvt-filters-btn.has-filters { border-color: var(--accent); color: var(--accent); }
+.mvt-filters { display: flex; flex-direction: column; gap: 10px; }
+.mvt-filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.mvt-facet { margin: 0; }
+.mvt-facet select, .mvt-facet input { width: 100%; }
+.mvt-toggle { display: flex; align-items: center; gap: 8px; min-height: var(--control-h-sm); font-size: 13px; color: var(--text2); }
+.mvt-toggle input { width: 18px; height: 18px; flex: none; }
+.mvt-filters-foot { display: flex; justify-content: flex-end; border-top: 1px solid var(--line); padding-top: 9px; }
+.mvt-clear:disabled { opacity: .45; cursor: default; }
 
 /* ---- the grid: overlay cards (AniList's own pattern) ---- */
 .med-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--grid-gap); }
@@ -2892,7 +3300,9 @@ body.fx-minimised .fx-dock { display: flex; }
   transition: transform .18s cubic-bezier(.2,.7,.3,1), box-shadow .18s;
 }
 .med-card:hover, .med-card:focus-visible { transform: translateY(-4px); box-shadow: var(--shadow-md); outline: none; }
-.med-cover { aspect-ratio: 2 / 3; background: var(--well); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+/* position: relative anchors the loading placeholder that sits behind the
+   image until it decodes (audit G-24) */
+.med-cover { position: relative; aspect-ratio: 2 / 3; background: var(--well); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .med-cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
 .med-card:hover .med-cover img { transform: scale(1.03); }
 .med-cover-ph { font-family: var(--jp); font-size: 44px; color: var(--muted); opacity: .55; user-select: none; }
@@ -2960,8 +3370,11 @@ body.fx-minimised .fx-dock { display: flex; }
 .med-quickrow { margin-top: 2px; max-height: 0; opacity: 0; overflow: hidden; pointer-events: none; transition: max-height .2s, opacity .2s; }
 .med-card:hover .med-quickrow, .med-card:focus-within .med-quickrow,
 .med-row .med-quickrow { max-height: 40px; opacity: 1; pointer-events: auto; overflow: visible; }
-.med-quick { display: inline-flex; align-items: center; gap: 5px; }
-.med-qsel { min-height: var(--control-h-xs); font-size: 10.5px; padding: 3px 6px; max-width: 118px; }
+/* audit VLT-10: the quick-edit row overflowed a 128px Seasonal card by 8px
+   in 23 places, because a 118px select plus a 52px score plus the gap is
+   175px whatever the card is. It wraps and shrinks now. */
+.med-quick { display: inline-flex; align-items: center; gap: 5px; flex-wrap: wrap; max-width: 100%; min-width: 0; }
+.med-qsel { min-height: var(--control-h-xs); font-size: 10.5px; padding: 3px 6px; max-width: 118px; min-width: 0; flex: 1 1 auto; }
 .med-qscore { min-height: var(--control-h-xs); font-size: 10.5px; padding: 3px 4px; width: 52px; text-align: center; font-family: var(--mono); }
 .med-row .med-qsel { max-width: 104px; }
 .med-push-fail { --chip: var(--danger); cursor: pointer; border: none; font: inherit; font-weight: 700; }
@@ -3115,8 +3528,8 @@ body.fx-minimised .fx-dock { display: flex; }
 .sync-history > summary { padding: 10px 0; color: var(--text2); cursor: pointer; font-size: 12px; font-weight: 600; }
 .sync-history > summary::marker { color: var(--accent); }
 .sync-history .sub:last-child { margin-bottom: 0; }
-@media (max-width: 840px) { .integration-grid { grid-template-columns: 1fr; } }
-@media (max-width: 480px) { .integration-facts { grid-template-columns: 1fr; } .integration-facts > div:nth-child(even) { padding-left: 0; border-left: 0; } }
+@media (max-width: 860px) { .integration-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .integration-facts { grid-template-columns: 1fr; } .integration-facts > div:nth-child(even) { padding-left: 0; border-left: 0; } }
 
 /* ---- matrix home ---- */
 .med-streaks { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -3139,7 +3552,12 @@ body.fx-minimised .fx-dock { display: flex; }
 .med-strip-track span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
 .med-mods { margin-top: 18px; }
 .med-mod-card { cursor: pointer; }
+/* audit HOME-5: the Collection desk sat beside three subject cards in a
+   different shape — no ring, no track, no Continue — so the row read as
+   three cards plus a banner. It is the same component now; this rule only
+   keeps its kanji mark from inheriting a subject hue. */
 .med-home-card { position: relative; }
+.med-home-card .kanji-inline { color: var(--accent); }
 
 .collection-crumbs { margin-bottom: var(--space-2); }
 .collection-workspace-tabs { margin-bottom: var(--section-gap); }
@@ -3292,21 +3710,22 @@ body.fx-minimised .fx-dock { display: flex; }
 .shrine-card-actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .shrine-description-modal { --modal-max: 520px; }
 .shrine-description-input { width: 100%; resize: vertical; }
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .shrine-head { align-items: flex-start; }
   .shrine-note-btn { margin-left: 0; }
   .shrine-toolbar { align-items: stretch; flex-direction: column; }
   .shrine-sort { justify-content: space-between; }
-  .shrine-stage { grid-template-columns: minmax(0, 1fr); }
   .shrine-empty { grid-template-columns: auto 1fr; }
   .shrine-empty .btn { grid-column: 1 / -1; justify-self: start; }
 }
-@media (max-width: 460px) {
+@media (max-width: 560px) {
   .shrine-ranked-grid { grid-template-columns: 1fr; }
   .shrine-rank-card { grid-template-rows: 154px minmax(0, 1fr); }
   .shrine-card-actions .btn { flex: 1 1 120px; }
 }
-@media (min-width: 761px) and (max-width: 1100px) {
+/* the ranked stage needs a full column before the shell compacts: it was two
+   bespoke queries (a 761–1100 band plus a ≤760 repeat) saying one thing */
+@media (max-width: 1080px) {
   .shrine-stage { grid-template-columns: minmax(0, 1fr); }
 }
 
@@ -3320,21 +3739,12 @@ body.fx-minimised .fx-dock { display: flex; }
 .bk-dual-own, .bk-dual-read { position: absolute; left: 0; display: block; }
 .bk-dual-own { top: 0; height: 3px; background: linear-gradient(90deg, var(--accent2), #E8CF96); }
 .bk-dual-read { bottom: 0; height: 3px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #fff)); }
-.bk-tabs { display: flex; gap: 8px; margin: 2px 0 12px; }
-.bk-tab {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 16px 9px 12px;
-  border: 1px solid var(--line2); border-radius: 12px;
-  background: var(--bg1);
-  color: var(--text2); cursor: pointer; text-align: left;
-  transition: all .15s;
-}
-.bk-tab:hover { border-color: var(--line); }
-.bk-tab.active { color: var(--text); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: var(--wash-brass); }
-.bk-tab-k { font-family: var(--jp); font-size: 20px; color: var(--accent2); }
-.bk-tab > span:last-child { display: flex; flex-direction: column; gap: 1px; }
-.bk-tab b { font-size: 13.5px; }
-.bk-tab-hint { font-size: 10.5px; color: var(--muted); }
+/* The Books lens switcher was the app's third tab idiom (audit G-23). It is
+   the shared .tabs-cards / .tab-card primitive now, which carries exactly
+   the styling that used to live here — .bk-tabs and .bk-tab remain as hooks
+   on the same nodes so existing selectors and tests still resolve. The one
+   deliberate change: the hint moved 10.5px → 11px, the type floor §8 asks
+   for. */
 .bk-stars { display: flex; align-items: center; gap: 2px; height: 34px; cursor: pointer; border-radius: 8px; padding: 0 4px; }
 .bk-star { position: relative; font-size: 20px; line-height: 1; color: var(--line); transition: color .15s; user-select: none; }
 .bk-star.full { color: var(--accent2); }
@@ -3431,11 +3841,27 @@ body.fx-minimised .fx-dock { display: flex; }
 .mk-jump-key:hover, .mk-jump-key:focus-visible { border-color: var(--accent); color: var(--text); outline: none; }
 .mk-jump-key.off { opacity: .3; cursor: default; }
 .mk-jump-key.active { color: var(--bg1); border-color: var(--accent); background: var(--accent); }
-.mk-wall { display: flex; flex-direction: column; gap: 16px; }
+.mk-wall { display: flex; flex-direction: column; gap: 14px; }
 .mk-card { padding: 14px 16px; }
+/* the letter divider that rides IN the flow — a jump rail says where you
+   can go, a divider says where you are (Category 7 Phase D) */
+.mk-letter {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: center; gap: 10px;
+  margin: 6px 0 -4px;
+  padding: 4px 0;
+  font-family: var(--serif); font-size: 13px; font-weight: 700;
+  letter-spacing: .1em; color: var(--muted);
+  background: linear-gradient(var(--bg0) 68%, transparent);
+}
+.mk-letter::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.mk-wall > .mk-letter:first-child { margin-top: 0; }
 .mk-h { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.mk-h-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .mk-mark { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 700; font-size: 17px; color: #fff; background: radial-gradient(circle at 30% 28%, color-mix(in srgb, var(--spine) 80%, white), var(--spine)); }
-.mk-name { font-family: var(--serif); font-size: 16px; font-weight: 600; }
+.mk-name { font-family: var(--serif); font-size: 16px; font-weight: 600; line-height: 1.25; }
+.mk-meta { font-size: 11.5px; line-height: 1.4; }
+.mk-more { align-self: flex-start; margin-top: 10px; font-size: 12.5px; }
 .mk-works { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
 .mk-work { display: flex; gap: 9px; align-items: center; cursor: pointer; padding: 6px; border-radius: 9px; border: 1px solid transparent; transition: all .15s; }
 .mk-work:hover, .mk-work:focus-visible { border-color: var(--line2); background: var(--panel); outline: none; }
@@ -3443,7 +3869,10 @@ body.fx-minimised .fx-dock { display: flex; }
 .mk-work-cover img { width: 100%; height: 100%; display: block; }
 .mk-ph { flex: 0 0 34px; width: 34px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 17px; border-radius: 4px; background: color-mix(in srgb, var(--spine, var(--accent)) 20%, var(--panel)); }
 .mk-work-body { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.mk-work-t { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* two lines, then an ellipsis — a one-line clamp lost the volume number on
+   every long light-novel title (audit VLT-6's rule, applied here) */
+.mk-work-t { font-size: 12.5px; font-weight: 600; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.mk-work-m { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---- games ---- */
 .gm-plat { --chip: var(--c-maths); }
@@ -3512,8 +3941,8 @@ body.fx-minimised .fx-dock { display: flex; }
 .profile-workspace-tabs { flex: 0 1 auto; margin: 0; align-self: center; }
 .dash-head .workspace-header-tabs,
 .dash-head .profile-workspace-tabs { max-width: min(100%, 470px); }
-@media (max-width: 1120px) { .ap-analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 680px) { .ap-analytics-grid { grid-template-columns: 1fr; } .ap-fetched { width: 100%; margin-left: 0; } .workspace-header-tabs, .profile-workspace-tabs { width: 100%; } }
+@media (max-width: 1240px) { .ap-analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .ap-analytics-grid { grid-template-columns: 1fr; } .ap-fetched { width: 100%; margin-left: 0; } .workspace-header-tabs, .profile-workspace-tabs { width: 100%; } }
 .ap-favs { display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px; }
 .ap-fav { flex: 0 0 92px; display: flex; flex-direction: column; gap: 5px; }
 .ap-fav img, .ap-fav .med-cover-ph { width: 92px; height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line2); display: flex; align-items: center; justify-content: center; font-size: 26px; }
@@ -3568,14 +3997,14 @@ body.fx-minimised .fx-dock { display: flex; }
 .cmp-actions { display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: 8px; padding-top: var(--space-4); }
 .cmp-note-modal { width: min(580px, calc(100vw - 32px)); }
 .cmp-note-modal .note-area { width: 100%; min-height: 180px; resize: vertical; }
-@media (max-width: 1040px) { .cmp-modal .modal-h { align-items: stretch; } .cmp-selectors { flex-basis: 100%; order: 3; } .cmp-row-cells, .cmp-sticky-head { grid-template-columns: 1fr; } .cmp-cell { border-left: 0; border-top: 1px solid var(--surface-border); } .cmp-cell:first-child { border-top: 0; } }
+@media (max-width: 1080px) { .cmp-modal .modal-h { align-items: stretch; } .cmp-selectors { flex-basis: 100%; order: 3; } .cmp-row-cells, .cmp-sticky-head { grid-template-columns: 1fr; } .cmp-cell { border-left: 0; border-top: 1px solid var(--surface-border); } .cmp-cell:first-child { border-top: 0; } }
 @media (max-width: 560px) { .cmp-selectors { grid-template-columns: 1fr; } .cmp-selectors .btn { width: 100%; } }
 
 /* ============================================================
    円 Budget Planner — allowance panel + hero + rows (Sol)
    ============================================================ */
 .wl-top { display: grid; grid-template-columns: minmax(0, 1fr) clamp(320px, 28vw, 410px); gap: var(--grid-gap); align-items: stretch; margin: 4px 0 var(--section-gap); }
-@media (max-width: 1100px) { .wl-top { grid-template-columns: 1fr; } }
+@media (max-width: 1240px) { .wl-top { grid-template-columns: 1fr; } }
 .wl-hero-wrap { min-width: 0; display: flex; }
 .wl-hero-wrap .wl-hero { flex: 1; margin-bottom: 0; }
 .wl-hero {
@@ -3696,7 +4125,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .wl-onlist { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid color-mix(in srgb, var(--accent2) 40%, transparent); border-radius: 10px; background: var(--wash-brass); grid-column: 1 / -1; }
 .wl-onlist-h { color: var(--accent2); font-size: 12px; font-weight: 700; }
 .wl-onlist-chip { background: var(--panel); color: var(--text2); }
-@media (max-width: 1050px) {
+@media (max-width: 1080px) {
   .wl-toolbar { grid-template-columns: 1fr auto; }
   .wl-tabs { grid-column: 1 / -1; }
   .wl-row { grid-template-columns: auto 42px minmax(0, 1fr) max-content; }
@@ -3768,7 +4197,25 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   }
   #topbar { gap: 10px; padding: 0 12px; }
   .brand .name { display: none; }
+  /* the spine is an overlay drawer from here down, so it gets a drawer's
+     contract: a scrim that dims and dismisses, and a stacking order above
+     the page but below modals (--z-modal) */
   #tree { position: fixed; left: var(--rail-w-compact); top: var(--topbar-h); bottom: 0; width: min(86vw, 340px); z-index: 40; box-shadow: var(--shadow-lg); background: var(--bg1); }
+  #cols:not(.tree-closed) #tree:not(.hidden) ~ #tree-scrim {
+    display: block;
+    position: fixed; inset: var(--topbar-h) 0 0 0;
+    z-index: 39;
+    border: none; border-radius: 0;
+    background: color-mix(in srgb, var(--text) 26%, transparent);
+    animation: tree-scrim-in .18s ease both;
+  }
+  @keyframes tree-scrim-in { from { opacity: 0; } }
+  /* the closed spine has no presence at all here: no 32px rail (there is no
+     column to sit in) and no floating pill (audit SUBJ-4). The page header
+     carries the opener instead. */
+  #cols.tree-closed #tree { display: none; }
+  #cols.tree-closed button.tree-open-btn { display: inline-flex; align-items: center; gap: 6px; }
+  .topic-head button.tree-open-btn { min-height: var(--control-h-sm); padding-inline: 10px; font-size: 12px; }
   .cmp-grid { grid-template-columns: 1fr; }
   .cal-form, .med-form { grid-template-columns: 1fr; }
   .med-form > .med-field { grid-column: 1 / -1; }
@@ -3795,14 +4242,85 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
    tokens; every derived surface recomputes via color-mix.
    MUST target :root — derived tokens are computed there.
    ============================================================ */
+/* ============================================================
+   Atelier Dawn / Atelier Dusk — the two FREE themes, and the
+   system default.
+
+   Every other theme is a 140-gold shop unlockable, which meant a
+   new user whose device is in dark mode got a bright parchment app
+   and had to grind currency to escape it (audit G-06). These two
+   cost nothing and are always owned.
+
+   The contract:
+     no data-theme (or an empty one) = FOLLOW THE SYSTEM
+     data-theme="atelier-dawn"       = pinned light
+     data-theme="atelier-dusk"       = pinned dark
+   applyCosmetics() writes "" for an unset/unknown theme, so the
+   media query below is what an untouched install gets. It is pure
+   CSS on purpose — it applies before any script runs, so a dark-mode
+   device never flashes the light palette on load.
+   ============================================================ */
+
+/* Atelier Dusk — the Dawn identity after dark: warm ink ground,
+   the same dusk-iris / brass / sage, lifted for a dark field.
+   text 13.48 : text2 8.64 : muted 4.61 against every surface. */
+:root[data-theme="atelier-dusk"] {
+  --bg0: #161310;
+  --bg1: #1E1A15;
+  --panel: #26211A;
+  --text: #F3EBDC;
+  --text2: #C5BEB0;
+  --muted: #90897E;
+  --accent: #8E9BD8;
+  --accent2: #D8AC5A;
+  --accent3: #9DBE95;
+  --good: #8FC07C;
+  --warning: #E3B45C;
+  --danger: #E2836A;
+  --radius: 12px;
+}
+/* Atelier Dawn — the base :root values, pinned explicitly, so someone on a
+   dark device can choose to stay light. */
+:root[data-theme="atelier-dawn"] {
+  --bg0: #EFE7D6;
+  --bg1: #F8F3E6;
+  --panel: #FDFAF1;
+  --text: #332C20;
+  --text2: #5E5442;
+  --muted: #726751;
+  --accent: #5D6BA8;
+  --accent2: #A97F2F;
+  --accent3: #7D9B76;
+  --good: #6F9A5E;
+  --warning: #C0912F;
+  --danger: #B5573F;
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]), :root[data-theme=""] {
+    --bg0: #161310;
+    --bg1: #1E1A15;
+    --panel: #26211A;
+    --text: #F3EBDC;
+    --text2: #C5BEB0;
+    --muted: #90897E;
+    --accent: #8E9BD8;
+    --accent2: #D8AC5A;
+    --accent3: #9DBE95;
+    --good: #8FC07C;
+    --warning: #E3B45C;
+    --danger: #E2836A;
+  }
+}
+
 /* Spectral Rose — Blue-black lacquer, wine red, cyan rim-light and ember orange. */
 :root[data-theme="spectral-rose"] {
   --bg0: #07090F;
   --bg1: #111923;
   --panel: #21131B;
   --text: #FFF6F4;
-  --text2: #FFF6F4;
-  --muted: #7E899A;
+  --text2: #C9C4C5;
+  --muted: #828286;
   --accent: #D82D57;
   --accent2: #22D7E8;
   --accent3: #FF8A3D;
@@ -3817,8 +4335,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #101A20;
   --panel: #17272C;
   --text: #EEF5F2;
-  --text2: #EEF5F2;
-  --muted: #7E899A;
+  --text2: #BEC7C5;
+  --muted: #838F8F;
   --accent: #6F9E98;
   --accent2: #DDEBE7;
   --accent3: #A65E58;
@@ -3833,8 +4351,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #0B1640;
   --panel: #12255A;
   --text: #F5F7FF;
-  --text2: #F5F7FF;
-  --muted: #7E899A;
+  --text2: #C2C8DA;
+  --muted: #8691AE;
   --accent: #9B8DFF;
   --accent2: #55C7FF;
   --accent3: #F052B7;
@@ -3849,8 +4367,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #15101B;
   --panel: #241A2A;
   --text: #FFF5EF;
-  --text2: #FFF5EF;
-  --muted: #7E899A;
+  --text2: #CEC4C3;
+  --muted: #8E8489;
   --accent: #E67F74;
   --accent2: #87AAFF;
   --accent3: #A66FD2;
@@ -3865,8 +4383,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #17131D;
   --panel: #241C2A;
   --text: #F4EBF2;
-  --text2: #F4EBF2;
-  --muted: #7E899A;
+  --text2: #C5BCC5;
+  --muted: #8D858F;
   --accent: #B985A0;
   --accent2: #6F83AC;
   --accent3: #D9A8BC;
@@ -3881,8 +4399,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #0A151B;
   --panel: #10232B;
   --text: #F2FAFA;
-  --text2: #F2FAFA;
-  --muted: #7E899A;
+  --text2: #BFCACB;
+  --muted: #7E8B8F;
   --accent: #EF8997;
   --accent2: #6EC5DE;
   --accent3: #D6B05C;
@@ -3897,8 +4415,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #0D151B;
   --panel: #152129;
   --text: #F0F2F1;
-  --text2: #F0F2F1;
-  --muted: #7E899A;
+  --text2: #BFC3C4;
+  --muted: #82898C;
   --accent: #DDE7E9;
   --accent2: #5DD7E8;
   --accent3: #E7A2B1;
@@ -3913,8 +4431,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #0D1820;
   --panel: #162631;
   --text: #F0F8FA;
-  --text2: #F0F8FA;
-  --muted: #7E899A;
+  --text2: #BFC9CD;
+  --muted: #828E94;
   --accent: #79BAD3;
   --accent2: #DCEBF0;
   --accent3: #C83E53;
@@ -3929,8 +4447,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #07121C;
   --panel: #0E2434;
   --text: #F4FBFF;
-  --text2: #F4FBFF;
-  --muted: #7E899A;
+  --text2: #C0CBD1;
+  --muted: #7E8C96;
   --accent: #FF2F84;
   --accent2: #3BE3FF;
   --accent3: #8B5CFF;
@@ -3945,8 +4463,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #101613;
   --panel: #18221D;
   --text: #EDF1EC;
-  --text2: #EDF1EC;
-  --muted: #7E899A;
+  --text2: #BDC2BD;
+  --muted: #828A84;
   --accent: #BF3B48;
   --accent2: #769383;
   --accent3: #C6D0C8;
@@ -3961,8 +4479,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #0B1218;
   --panel: #131E26;
   --text: #EEEFEA;
-  --text2: #EEEFEA;
-  --muted: #7E899A;
+  --text2: #BDC0BE;
+  --muted: #818788;
   --accent: #D8DAD7;
   --accent2: #94B0A4;
   --accent3: #697E91;
@@ -3977,8 +4495,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #131522;
   --panel: #211C31;
   --text: #FFF0F7;
-  --text2: #FFF0F7;
-  --muted: #7E899A;
+  --text2: #CCBFCA;
+  --muted: #8E8492;
   --accent: #D64087;
   --accent2: #B79753;
   --accent3: #7454AF;
@@ -3993,8 +4511,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #052536;
   --panel: #073B4D;
   --text: #F3E8E1;
-  --text2: #F3E8E1;
-  --muted: #7E899A;
+  --text2: #BEC1C0;
+  --muted: #94A3A6;
   --accent: #42C6D0;
   --accent2: #E99A78;
   --accent3: #83A8FF;
@@ -4009,8 +4527,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #0B1622;
   --panel: #122536;
   --text: #F2F9FB;
-  --text2: #F2F9FB;
-  --muted: #7E899A;
+  --text2: #C0C9CF;
+  --muted: #808E97;
   --accent: #6BB5D1;
   --accent2: #C73B50;
   --accent3: #D9EAF0;
@@ -4025,8 +4543,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #090706;
   --panel: #17100E;
   --text: #F7E8DB;
-  --text2: #F7E8DB;
-  --muted: #7E899A;
+  --text2: #C5B7AD;
+  --muted: #867C74;
   --accent: #E53228;
   --accent2: #FF6650;
   --accent3: #80645A;
@@ -4041,8 +4559,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #080A14;
   --panel: #11162A;
   --text: #FAFCFF;
-  --text2: #FAFCFF;
-  --muted: #7E899A;
+  --text2: #C6C8CF;
+  --muted: #7D818D;
   --accent: #3348C9;
   --accent2: #52D9FF;
   --accent3: #C8D3FF;
@@ -4057,8 +4575,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #0B1510;
   --panel: #14251B;
   --text: #F0E8D5;
-  --text2: #F0E8D5;
-  --muted: #7E899A;
+  --text2: #BEBCAB;
+  --muted: #888B7D;
   --accent: #4D8D67;
   --accent2: #A6A15D;
   --accent3: #D16E67;
@@ -4073,8 +4591,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #081528;
   --panel: #20101B;
   --text: #F8EAF0;
-  --text2: #F8EAF0;
-  --muted: #7E899A;
+  --text2: #C7B9C0;
+  --muted: #8B7C84;
   --accent: #D9546E;
   --accent2: #FF8AA1;
   --accent3: #76DFFF;
@@ -4089,8 +4607,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #12100B;
   --panel: #211A0D;
   --text: #F2E7D2;
-  --text2: #F2E7D2;
-  --muted: #7E899A;
+  --text2: #C3B9A6;
+  --muted: #8C8372;
   --accent: #F0B92C;
   --accent2: #B98936;
   --accent3: #AAA0C5;
@@ -4105,8 +4623,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #0D1532;
   --panel: #1C214A;
   --text: #F1EBF7;
-  --text2: #F1EBF7;
-  --muted: #7E899A;
+  --text2: #C1BED0;
+  --muted: #8B8BA4;
   --accent: #A586C7;
   --accent2: #D0A6DA;
   --accent3: #B86D91;
@@ -4121,8 +4639,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #12070C;
   --panel: #24101A;
   --text: #FFF1F0;
-  --text2: #FFF1F0;
-  --muted: #7E899A;
+  --text2: #CEBEC0;
+  --muted: #8E7D81;
   --accent: #D83D68;
   --accent2: #F19AB4;
   --accent3: #D1A95B;
@@ -4137,8 +4655,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #080605;
   --panel: #130B09;
   --text: #F1E8DD;
-  --text2: #F1E8DD;
-  --muted: #7E899A;
+  --text2: #BFB6AD;
+  --muted: #827A73;
   --accent: #E32636;
   --accent2: #FF7448;
   --accent3: #D7C9BC;
@@ -4153,8 +4671,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   --bg1: #071728;
   --panel: #0E2B43;
   --text: #F2FAFF;
-  --text2: #F2FAFF;
-  --muted: #7E899A;
+  --text2: #BFCBD5;
+  --muted: #8194A2;
   --accent: #5DB9E7;
   --accent2: #92E4FF;
   --accent3: #B8A9F2;
@@ -4337,7 +4855,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 /* ---- banner edge fix: no dark border on image banners; a soft inset ring
    instead of a hard 1px line that reads as bleed at the corners ---- */
 .image-banner,
-.vault-hero.has-banner,
+.vault-hero,
 .home-id.has-banner,
 .ap-head.has-banner,
 .wl-hero.has-banner { border: none; box-shadow: var(--shadow-md), inset 0 0 0 1px rgba(255,255,255,.06); }
@@ -4381,7 +4899,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 
 /* Discord-style avatar page */
 .av-grid { display: grid; grid-template-columns: var(--sidebar-context-w) minmax(0, 1fr); gap: var(--layout-gap); align-items: start; }
-@media (max-width: 900px) { .av-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1080px) { .av-grid { grid-template-columns: 1fr; } }
 .av-preview {
   position: sticky; top: 10px;
   border: 1px solid var(--line2); border-radius: 16px;
@@ -4545,13 +5063,13 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   padding: 12px 18px; border-top: 1px solid var(--line2); background: var(--bg1);
 }
 .goal-modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
-@media (max-width: 820px) {
+@media (max-width: 860px) {
   .goal-overview { grid-template-columns: minmax(0, 1fr); }
   .goal-summary-metric:first-child { border-left: 0; }
   .goal-commandbar { align-items: stretch; flex-wrap: wrap; }
   .goal-integrity { order: 3; flex: 1 1 100%; margin-left: 0; text-align: left; }
 }
-@media (max-width: 620px) {
+@media (max-width: 700px) {
   .goal-summary-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .goal-summary-metric:nth-child(odd) { border-left: 0; }
   .goal-summary-metric:nth-child(n+3) { border-top: 1px solid var(--line2); }
@@ -4578,7 +5096,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
    Vault filter rail (AniList-style) + custom lists (Build 3k)
    ============================================================ */
 .med-layout { display: grid; grid-template-columns: var(--sidebar-filter-w) minmax(0, 1fr); gap: var(--layout-gap); align-items: start; }
-@media (max-width: 900px) { .med-layout { grid-template-columns: 1fr; } .med-filter-rail { position: static !important; } }
+@media (max-width: 860px) { .med-layout { grid-template-columns: 1fr; } .med-filter-rail { position: static !important; } }
 .med-main { min-width: 0; }
 .med-filter-rail {
   position: sticky; top: 12px;
@@ -4684,26 +5202,9 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   padding: 26px 28px;
   width: 100%;
 }
-/* Phone: the seat's three columns are avatar | identity | access panel, and
-   the third is `auto` — it does not shrink, so at 390px it pushed the rank,
-   the level, the quote and the lore past the card's `overflow: hidden` and
-   they were clipped, not scrollable (audit GOV-1). Empty accounts never
-   showed it: the rank string is short and the lore absent, so the row
-   happened to fit. Stack the three instead. */
-@media (max-width: 700px) {
-  .b-id .id-wrap {
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: start;
-    gap: var(--space-4);
-    padding: var(--space-5) var(--space-4);
-  }
-  .b-id .id-txt, .b-id .id-face, .b-id .id-access { width: 100%; min-width: 0; }
-  .id-txt .rank { letter-spacing: .18em; word-break: break-word; }
-  .id-txt h2 { font-size: 22px; }
-  /* the seat's personality line is worth two rows on a phone — its desktop
-     single-line ellipsis cut it mid-sentence at 390px */
-  .b-id .id-status > span:last-child { white-space: normal; overflow: visible; text-overflow: clip; }
-}
+/* (the ≤700px identity-stack rules that used to sit here moved down beside
+   the rest of the seat's responsive cluster — see "the seat, by tier" below.
+   Sitting above the ≤860 and ≤1080 blocks, half of them never applied.) */
 .id-face { position: relative; flex: none; align-self: center; }
 .id-face .gov-avatar {
   box-shadow: 0 0 0 5px color-mix(in srgb, var(--bg1) 78%, transparent), var(--shadow-md);
@@ -4820,7 +5321,9 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 }
 .gstat-mini { min-height: 0; gap: 6px; padding: 11px 13px; grid-template-rows: auto auto; }
 .gstat-mini .gstat-v { margin-left: 0; font-family: var(--serif); font-size: 17px; font-weight: 600; }
-@media (max-width: 620px) { .heat-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* (a ≤620px .heat-stats rule lived here and was dead: the Governor's own
+   ≤860 and ≤560 rules are later in the file and both matched first.
+   Removed with the breakpoint consolidation — behaviour is unchanged.) */
 
 /* ---- Part C: the ledger ---- */
 .b-ledger { grid-column: span 4; display: flex; flex-direction: column; }
@@ -4837,12 +5340,16 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .log-note { margin: -6px 0 12px; max-width: 68ch; }
 .log-cat.is-routine .log-cat-k { color: var(--muted); background: color-mix(in srgb, var(--text) 7%, transparent); }
 
+/* ---- the seat, by tier: 1240 · 1080 · 860 · 700, widest first so the
+     narrower tier always wins. Ordering this cluster correctly is what makes
+     the ≤700 identity stack below actually apply — it used to sit ABOVE the
+     ≤1080/≤860 rules and lose to them at 390px. ---- */
 @media (max-width: 1240px) {
   .b-id, .b-heat { grid-column: span 12; }
   .b-vitals, .b-ledger { grid-column: span 6; }
   .vital-stack { grid-template-columns: repeat(3, 1fr); }
 }
-@media (max-width: 1000px) {
+@media (max-width: 1080px) {
   .b-id .id-wrap { grid-template-columns: auto minmax(0, 1fr); gap: 20px; }
   .id-side {
     grid-column: 1 / -1;
@@ -4852,10 +5359,30 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   }
   .b-id.banner-dark .id-side { border-top-color: rgba(255,255,255,.2); }
 }
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .vital-stack { grid-template-columns: 1fr; }
   .b-id .id-wrap { grid-template-columns: 1fr; justify-items: start; padding: 20px; }
   .id-side { grid-template-columns: repeat(2, 1fr); }
+}
+/* Phone: the seat's three columns are avatar | identity | access panel, and
+   the third is `auto` — it does not shrink, so at 390px it pushed the rank,
+   the level, the quote and the lore past the card's `overflow: hidden` and
+   they were clipped, not scrollable (audit GOV-1). Empty accounts never
+   showed it: the rank string is short and the lore absent, so the row
+   happened to fit. Stack the three instead. */
+@media (max-width: 700px) {
+  .b-id .id-wrap {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-4);
+  }
+  .b-id .id-txt, .b-id .id-face, .b-id .id-access { width: 100%; min-width: 0; }
+  .id-txt .rank { letter-spacing: .18em; word-break: break-word; }
+  .id-txt h2 { font-size: 22px; }
+  /* the seat's personality line is worth two rows on a phone — its desktop
+     single-line ellipsis cut it mid-sentence at 390px */
+  .b-id .id-status > span:last-child { white-space: normal; overflow: visible; text-overflow: clip; }
 }
 
 /* ============================================================
@@ -4951,7 +5478,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .shop-card .shop-sw-dot { width: 12px; height: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
 .shop-earn { margin: 0; max-width: 74ch; }
 
-@media (max-width: 1000px) {
+@media (max-width: 1080px) {
   .shop-body { grid-template-columns: 1fr; }
   .shop-rail { position: static; flex-direction: row; overflow-x: auto; scrollbar-width: none; }
   .shop-rail::-webkit-scrollbar { display: none; }
@@ -5068,7 +5595,19 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .hi-status:hover { border-color: var(--accent); color: var(--text); }
 .hi-status > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hi-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); flex: none; }
-.home-id.has-banner .hi-status { background: rgba(0,0,0,.3); border-color: rgba(255,255,255,.22); color: #F4EFE2; }
+/* Cat 7 Phase C: the band used to force a dark pill with pale text whenever a
+   banner existed — a guess that only held for dark artwork. Home's scrim is
+   built from --bg1 and covers the whole band, so the surface under this pill
+   is a known token in both themes and the ordinary treatment is correct. The
+   pill needs a solid ground rather than a translucent tint, because the tint
+   sampled the artwork through the scrim. */
+.home-id.has-banner .hi-status { background: color-mix(in srgb, var(--bg1) 82%, transparent); }
+/* same reasoning for the streak chips and the XP bar: a translucent tint
+   samples the artwork through the scrim, so under a banner they take a
+   solid --bg1 ground. No text on this band depends on the image. */
+.home-id.has-banner .streak-chip { background: color-mix(in srgb, var(--bg1) 80%, transparent); }
+.home-id.has-banner .streak-chip.lit { background: color-mix(in srgb, var(--accent2) 14%, var(--bg1)); }
+.home-id.has-banner .hud-bar { background: color-mix(in srgb, var(--bg1) 70%, transparent); }
 
 /* the shared status/about editor */
 .profile-editor { --modal-max: 520px; }
@@ -5163,6 +5702,12 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   }
   /* content never hides behind the bar */
   #main { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  /* …nor behind the floating "Spec spine" pill (audit SUBJ-4). Phase B fixed
+     the pill's text wrap; the pill itself is still fixed over the page, and
+     with only the tab bar's clearance the last card on the subject desk sat
+     underneath it. A pixel probe cannot see this — it overlaps vertically
+     without ever crossing the viewport's right edge. */
+  #cols.tree-closed #main { padding-bottom: calc(136px + env(safe-area-inset-bottom)); }
   body.fx-minimised #cols { padding-bottom: 0; }
 
   /* Build 6.5 — the stage carries more rows now (context, objective,
@@ -5186,48 +5731,45 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .fx-review-modal .fx-rev-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   /* --- the spec tree becomes a drawer ---
-     Open: a fixed panel under the topbar (the ≤860 tier already floats
-     it; here it pins to the left edge and gains a scrim). Closed: the
-     existing .tree-reopen control renders as a floating "Spec spine"
-     pill above the tab bar. The stored ui.treeClosed drives both — no
-     new state. */
+     Open: a fixed panel pinned to the left edge under the topbar, over the
+     ≤860 tier's scrim. Closed: nothing at all — the opener lives in the page
+     header (see .tree-open-btn). The floating "Spec spine" pill that used to
+     stand in for it is retired: Phase B fixed its text wrap, but it stayed a
+     fixed control printing over whatever paragraph happened to be beneath it
+     (audit SUBJ-4, and the reason a right-edge pixel probe never saw it).
+     The stored ui.treeClosed still drives both — no new state. */
   #tree {
     left: 0;
     top: calc(var(--topbar-h) + env(safe-area-inset-top));
     width: min(88vw, 330px);
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
   }
-  #cols:not(.tree-closed) #tree:not(.hidden) {
-    box-shadow: 0 0 0 100vmax color-mix(in srgb, var(--text) 26%, transparent), var(--shadow-lg);
+  /* the ≤860 tier's scrim element covers this now, and unlike the old
+     100vmax box-shadow it can actually be tapped to close the drawer */
+  #cols:not(.tree-closed) #tree:not(.hidden) ~ #tree-scrim {
+    inset: calc(var(--topbar-h) + env(safe-area-inset-top)) 0 0 0;
   }
-  #cols.tree-closed #tree {
-    position: fixed;
-    width: auto;
-    top: auto;
-    bottom: calc(66px + env(safe-area-inset-bottom));
-    left: 10px;
-    padding: 0;
-    border: none;
-    background: none;
-    overflow: visible;
-    box-shadow: none;
-  }
-  #cols.tree-closed #tree > .tree-reopen {
-    flex-direction: row;
-    gap: 7px;
-    padding: 9px 14px;
-    border-radius: var(--radius-pill);
-    background: var(--panel);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow-md);
-    color: var(--text2);
-    font-size: 12px;
-  }
-  #cols.tree-closed #tree .tr-lbl { writing-mode: horizontal-tb; }
+  .topic-head button.tree-open-btn, .dh-actions button.tree-open-btn { min-height: 44px; }
 
   /* --- subnav scrolls sideways instead of wrapping the stage --- */
   #subnav { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   #subnav::-webkit-scrollbar { display: none; }
+
+  /* --- the topic header reflows rather than squeezing (Cat 7 Phase C) ---
+     Three columns in 366px left the title wrapping in a 150px track with the
+     spec path stacked five lines beside it. Two rows: identity, then the
+     controls full width. */
+  .topic-head {
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: var(--space-2);
+  }
+  .topic-head .th-ctl { grid-column: 1 / -1; }
+  .topic-head .th-ctl .status-sel { flex: 1; min-height: 44px; }
+  .th-meta { -webkit-line-clamp: 3; }
+
+  /* the study nav keeps its one row; the page control loses its title and
+     the bar stops sticking (a 390px viewport cannot spare 46px of it) */
+  .study-nav { position: static; }
 
   /* --- modals become bottom sheets --- */
   .modal-ov { align-items: flex-end; padding: 0; }
@@ -5767,9 +6309,16 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .asst-audit-row.st-failed .asst-audit-dot, .asst-audit-row.st-rejected .asst-audit-dot { background: var(--danger); }
 .asst-audit-row.st-awaiting_confirmation .asst-audit-dot { background: var(--warning); }
 
-/* Compact layout keeps the presence visible but gives conversation priority. */
+/* Compact layout keeps the presence visible but gives conversation priority.
+
+   These two blocks are the DRAWER-era assistant rules. The Category 6.1
+   workspace rewrite added a second, later generation of both the plain and
+   the responsive rules (see "the workspace, by tier" further down), which
+   silently won every declaration the two generations shared — 24 of them.
+   The dead declarations are removed here rather than left to be resurrected
+   by the next person who reorders this file; what remains is the part the
+   drawer still owns and the workspace generation does not restate. */
 @media (max-width: 1080px) {
-  .asst-chat-layout { grid-template-columns: minmax(0, 1fr) 230px; }
   .asst-presence { padding-inline: 11px; }
   .asst-route-row { grid-template-columns: minmax(145px, .7fr) repeat(2, minmax(145px, 1fr)); }
   .asst-route-row .asst-field:last-child { grid-column: 2 / -1; }
@@ -5777,24 +6326,15 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 
 @media (max-width: 860px) {
   .asst-head-promise { display: none; }
-  .asst-shell { grid-template-columns: minmax(0, 1fr); gap: 14px; }
-  .asst-tabs { position: static; flex-direction: row; gap: 7px; padding: 6px; overflow-x: auto; border-radius: 13px; }
-  .asst-tab-group { flex-direction: row; flex: none; }
-  .asst-tab-group + .asst-tab-group { padding-left: 7px; border-left: 1px solid var(--line2); }
-  .asst-tab-group-label { display: none; }
-  .asst-tabs .study-tab { width: auto; min-height: 38px; padding-inline: 13px; }
+  .asst-tabs { position: static; gap: 7px; }
+  .asst-tab-group { flex: none; }
   .asst-tabs .study-tab.active { box-shadow: none; }
-  .asst-chat-layout { grid-template-columns: minmax(0, 1fr); }
-  .asst-presence { grid-row: 1; display: grid; grid-template-columns: 1fr 150px; grid-template-rows: auto 1fr auto; gap: 5px 12px;
-    width: 100%; height: 148px; padding: 13px 16px; }
-  .asst-presence-copy { grid-column: 1; }
-  .asst-presence .asst-mascot { grid-column: 2; grid-row: 1 / 4; flex-direction: column; }
-  .asst-presence .asst-mascot-frame { width: 110px; height: 105px; }
-  .asst-presence .asst-mascot-img { width: 145%; height: 145%; margin: -4% 0 0 -22%; object-position: top center; }
+  .asst-presence { width: 100%; }
+  .asst-presence .asst-mascot { flex-direction: column; }
   .asst-safety-notes { grid-column: 1; grid-row: 2; flex-direction: row; }
   .asst-safety-notes > div { flex: 1; padding: 5px 3px; }
-  .asst-presence-foot { grid-column: 1; grid-row: 3; }
-  .asst-chat-main { height: min(690px, calc(100dvh - 300px)); min-height: 560px; }
+  .asst-presence-foot { grid-row: 3; }
+  .asst-chat-main { min-height: 560px; }
   .asst-route-row { grid-template-columns: 1fr 1fr; }
   .asst-route-row .asst-field:last-child { grid-column: auto; }
   .asst-route-label { grid-column: 1 / -1; }
@@ -5810,19 +6350,11 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .asst-drawer-context { display: none; }
   .asst-drawer-presence .asst-mascot { width: 100%; }
   .asst-drawer .asst-thread { padding-top: 6px; }
-  .asst-head { margin-bottom: 12px; padding-bottom: 12px; }
-  .asst-head-emblem { width: 52px; height: 52px; }
-  .asst-head .dh-sub { font-size: 12px; }
   .asst-head h1 { font-size: clamp(25px, 8vw, 32px); }
-  .asst-tabs { margin-inline: calc(var(--page-pad-inline) * -1); padding-inline: var(--page-pad-inline); border-right: 0; border-left: 0; border-radius: 0; }
-  .asst-chat-toolbar { padding: 11px 12px 9px; }
+  .asst-tabs { margin-inline: calc(var(--page-pad-inline) * -1); padding-inline: var(--page-pad-inline); border-right: 0; border-left: 0; }
   .asst-chat-toolbar .btn { min-width: 44px; padding-inline: 10px; font-size: 0; }
   .asst-chat-toolbar .btn::after { content: "＋"; font-size: 20px; }
-  .asst-chat-main { height: max(560px, calc(100dvh - 270px)); min-height: 0; border-radius: 15px; }
-  .asst-chat-main .asst-thread-wrap { padding: 0 8px 9px; }
-  .asst-presence { grid-template-columns: 1fr 96px; height: 126px; border-radius: 15px; }
   .asst-presence-copy h3 { font-size: 17px; }
-  .asst-presence .asst-mascot-frame { width: 82px; height: 80px; }
   .asst-presence .asst-status-line { max-width: 100px; font-size: 9px; }
   .asst-safety-notes > div:nth-child(2) { display: none; }
   .asst-safety-notes p { font-size: 9.5px; }
@@ -5838,10 +6370,8 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .asst-richtext :where(th, td) { padding: 7px 8px; }
   .asst-code-block pre { padding: 11px 12px; }
   .asst-tool { margin-left: 10px; }
-  .asst-composer { padding: 8px; border-radius: 15px; }
   .asst-composer-foot { align-items: flex-end; }
   .asst-composer-hint { display: none; }
-  .asst-send { min-width: 96px; }
   .asst-confirm-head { flex-direction: column; }
   .asst-confirm-btns .btn { flex: 1; }
   .asst-history-row { align-items: flex-start; flex-direction: column; }
@@ -6009,7 +6539,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 .asst-voice-about p { max-width: 78ch; margin: 8px 0 1px; color: var(--muted); font-size: 11px; line-height: 1.45; }
 .asst-voice-about a { color: var(--accent); }
 
-@media (max-width: 1120px) {
+@media (max-width: 1240px) {
   .asst-shell { grid-template-columns: 228px minmax(0, 1fr); }
   .asst-shell.is-side-collapsed { grid-template-columns: 64px minmax(0, 1fr); }
   .asst-chat-layout { grid-template-columns: minmax(0,1fr) 210px; }
@@ -6017,7 +6547,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .asst-voice-row { grid-template-columns: 1fr 1fr; }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 860px) {
   .asst-shell, .asst-shell.is-side-collapsed { display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; height: auto; }
   .asst-tabs, .asst-tabs.is-collapsed { display: block; height: auto; padding: 5px; overflow-x: auto; border-radius: 12px; }
   .asst-side-brand, .asst-new-chat, .asst-side-section { display: none !important; }
@@ -6647,14 +7177,14 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .heat-stats { grid-template-columns: 1fr; }
   .heat-stats .gstat-mini { min-height: 66px; }
 }
-@media (max-width: 1050px) {
+@media (max-width: 1080px) {
   .avatar-studio.av-grid { grid-template-columns: 300px minmax(0, 1fr); }
   .av-media { grid-template-columns: 1fr; }
   .shop-body { grid-template-columns: 1fr; }
   .shop-rail { position: static; flex-direction: row; overflow-x: auto; }
   .shop-rail-item { flex: none; grid-template-columns: 22px auto auto; }
 }
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .gov-head { align-items: stretch; gap: 18px; }
   .gov-head .gov-tabs { width: 100%; overflow-x: auto; }
   .gov-workspace { padding-top: 14px; }
@@ -6696,7 +7226,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .tre-facts { width: 100%; margin-left: 0; }
   .shop-lock-note { align-items: flex-start; flex-wrap: wrap; }
 }
-@media (max-width: 520px) {
+@media (max-width: 560px) {
   .gov-seat-hero .id-wrap { grid-template-columns: 70px minmax(0, 1fr); }
   .gov-seat-hero .id-face .gov-avatar { width: 70px !important; height: 70px !important; }
   .gov-seat-hero h2 { font-size: 31px; }
@@ -6841,7 +7371,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 @media (max-width: 1080px) {
   .att-body { grid-template-columns: 200px minmax(0, 1fr); }
 }
-@media (max-width: 820px) {
+@media (max-width: 860px) {
   .att-body { grid-template-columns: minmax(0, 1fr); }
   .att-files { position: static; max-height: 300px; }
   .att-pdf { height: min(70vh, 720px); min-height: 340px; }
@@ -6990,7 +7520,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
 /* the countdown rows became buttons when assignments joined them */
 button.dl-item { width: 100%; text-align: left; cursor: pointer; }
 
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .asg-row { grid-template-columns: minmax(0, 1fr); }
   .asg-row-side { justify-content: space-between; }
   .asg-search { min-width: 0; }
@@ -7084,7 +7614,7 @@ button.dl-item { width: 100%; text-align: left; cursor: pointer; }
 .bk-range-submit { display: flex; align-items: flex-end; }
 .bk-range-submit .btn { white-space: nowrap; }
 
-@media (max-width: 850px) {
+@media (max-width: 860px) {
   .bk-vol-actions { grid-template-columns: 1fr; }
   .bk-range-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
@@ -7370,6 +7900,210 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
 }
 
 /* ============================================================
+   Category 7 Phase B — shared primitives
+
+   The audit's §9.13: "repeated components that should be primitives —
+   three tab implementations, four card surfaces, at least three stat-tile
+   variants, two hero patterns, and per-view empty states."
+
+   These are the shared ones. They deliberately do NOT restyle the good
+   surfaces that already exist (the Focus completion review, the Calendar
+   event modal, the media record editor) — those are the references these
+   were written against. Existing class names are untouched so no view has
+   to be rewritten to benefit; a view opts in by building through
+   KOS.ui.<primitive> instead of hand-rolling the markup again.
+   ============================================================ */
+
+/* ---- skip link (audit G-12/U-05) ----
+   13 chrome tab stops stood between a keyboard user and the page. Visible
+   only on focus, so it costs the pointer user nothing. */
+.skip-link {
+  position: fixed;
+  top: 8px; left: 8px;
+  z-index: calc(var(--z-toast) + 1);
+  padding: 10px 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px; font-weight: 600; text-decoration: none;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-160%);
+  transition: transform .16s ease;
+}
+.skip-link:focus-visible, .skip-link:focus { transform: translateY(0); outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---- tabs: one component, three variants (audit G-23/U-12) ----
+   .subnav-item and .study-tab already carry the app's tab styling; the
+   primitive emits those exact classes, so only the third idiom — the
+   bespoke Books "Digital / Physical Vault" cards — needs a home here. */
+.tabs-cards { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 2px 0 var(--space-3); }
+.tab-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 16px 9px 12px;
+  border: 1px solid var(--line2); border-radius: var(--radius-card);
+  background: var(--bg1);
+  color: var(--text2); cursor: pointer; text-align: left;
+  font: inherit;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.tab-card:hover { border-color: var(--line); }
+.tab-card.active { color: var(--text); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: var(--wash-brass); }
+.tab-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tab-card-k { font-family: var(--jp); font-size: 20px; color: var(--accent2); }
+.tab-card-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.tab-card b { font-size: 13.5px; }
+.tab-card-hint { font-size: 11px; color: var(--muted); }
+
+/* ---- empty state (audit U-20) ----
+   The full form is for a page whose only content is the absence. `compact`
+   is one line with an inline action — what a page with other content on it
+   should use, so an empty screen stops looking larger than a full one. */
+.empty-state-mark { font-family: var(--jp); font-size: 30px; color: var(--accent2); line-height: 1; }
+.empty-state-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.empty-state-txt b { font: 600 15px var(--serif); color: var(--text); }
+.empty-state-txt p { margin: 0; max-width: 62ch; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+.empty-state.compact {
+  min-height: 0;
+  flex-direction: row; align-items: center; justify-content: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+}
+.empty-state.compact .empty-state-mark { font-size: 20px; }
+.empty-state.compact .empty-state-txt b { font-size: 13.5px; }
+.empty-state.compact .empty-state-action { margin-left: auto; }
+/* the vault variant sits inside .med-empty, which already supplies the box */
+.med-empty .empty-state { min-height: 0; padding: 0; }
+.med-empty .empty-state-txt p { max-width: 58ch; font-size: 13.5px; text-align: center; }
+
+/* ---- stat tile (audit U-17) ----
+   KOS.ui.statTile emits the existing .stat-card markup (invariant #26); only
+   the modifiers are new. `.is-zero` mutes a figure that is genuinely zero
+   and worth keeping; a figure that is zero and NOT worth keeping is
+   suppressed in JS and never reaches the DOM. The tone names are the same
+   low/mid/high ramp hub.js's tone() uses, so a colour means one thing. */
+.stat-card.is-zero .v { color: var(--muted); }
+.stat-card.tone-low .v { color: var(--danger); }
+.stat-card.tone-mid .v { color: var(--warning); }
+.stat-card.tone-high .v { color: var(--good); }
+.stat-card-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+/* ---- section header (audit §8 "Section headers") ---- */
+.section-header {
+  display: flex; align-items: flex-end; gap: var(--space-4); flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+.section-header-txt { min-width: 0; }
+.section-header h2 { margin: 0; font-family: var(--serif); font-size: var(--type-section-title); font-weight: 550; }
+.section-header .sub { margin: 2px 0 0; max-width: 68ch; color: var(--muted); font-size: 12.5px; }
+.section-header-actions { display: flex; align-items: center; gap: var(--space-2); margin-left: auto; }
+
+/* ---- menu button + popover (audit VLT-3/U-13, Category 7 Phase D) ----
+   The container for "everything this page can also do". It is a popover,
+   not a modal: it sits below --z-modal, it does not lock scroll, and it
+   dismisses the moment you look elsewhere. */
+.menu-btn { display: inline-flex; align-items: center; gap: 6px; }
+.menu-btn-caret { font-size: 9px; opacity: .65; transition: transform .15s; }
+.menu-btn.is-open { border-color: var(--accent); color: var(--accent); }
+.menu-btn.is-open .menu-btn-caret { transform: rotate(180deg); }
+.menu-btn-n {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  min-width: 17px; padding: 0 5px; border-radius: var(--radius-pill);
+  color: var(--bg1); background: var(--accent);
+}
+.menu-btn-n:empty, .menu-btn-n.hidden { display: none; }
+.menu-panel {
+  position: fixed; z-index: var(--z-menu);
+  min-width: 216px; max-width: min(94vw, 420px);
+  max-height: min(68vh, 560px); overflow-y: auto;
+  padding: var(--space-2);
+  background: var(--surface-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-lg);
+}
+.menu-panel-wide { min-width: min(94vw, 440px); padding: var(--space-3); }
+.menu-heading {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); padding: var(--space-2) var(--space-2) 4px;
+}
+.menu-sep { height: 1px; margin: var(--space-2) var(--space-1); background: var(--line); }
+.menu-item {
+  display: flex; align-items: flex-start; gap: 10px; width: 100%;
+  min-height: var(--control-h-sm);
+  padding: 7px var(--space-2);
+  border: none; border-radius: var(--radius-control);
+  background: none; color: var(--text); text-align: start;
+  font-size: 13.5px; cursor: pointer;
+}
+.menu-item:hover, .menu-item:focus-visible { background: var(--well); outline: none; }
+.menu-item:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.menu-item-k { flex: none; width: 18px; text-align: center; color: var(--accent2); font-size: 13px; line-height: 1.5; }
+.menu-item-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.menu-item-lbl { line-height: 1.35; }
+.menu-item-hint { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+.menu-item.danger { color: var(--danger); }
+
+/* ---- scroll affordance (audit MTX-1/U-29/SUBJ-3) ----
+   A horizontal scroller has to say that it scrolls. Edge fades appear only
+   on the side that has more content; the arrows are aria-hidden from the
+   tab order because the track itself is focusable and answers ← →. */
+.u-scroller { position: relative; min-width: 0; }
+.u-scroller-track {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.u-scroller-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: var(--radius-control); }
+.u-scroller::before, .u-scroller::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 42px;
+  pointer-events: none; opacity: 1; transition: opacity .18s; z-index: 2;
+}
+.u-scroller::before { left: 0; background: linear-gradient(90deg, var(--bg0), transparent); }
+.u-scroller::after { right: 0; background: linear-gradient(270deg, var(--bg0), transparent); }
+.u-scroller.at-start::before, .u-scroller.at-end::after { opacity: 0; }
+.u-scroller-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  z-index: 3;
+  display: grid; place-items: center;
+  width: var(--icon-btn-size); height: var(--icon-btn-size);
+  border: 1px solid var(--line); border-radius: var(--radius-pill);
+  background: var(--panel); color: var(--text2);
+  font-size: 16px; line-height: 1; cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: opacity .18s, color .15s, border-color .15s;
+}
+.u-scroller-arrow:hover { color: var(--text); border-color: var(--accent); }
+.u-scroller-arrow.prev { left: 2px; }
+.u-scroller-arrow.next { right: 2px; }
+.u-scroller.at-start .u-scroller-arrow.prev,
+.u-scroller.at-end .u-scroller-arrow.next { opacity: 0; pointer-events: none; }
+.u-scroller.no-scroll .u-scroller-arrow { display: none; }
+/* a finger scrolls directly; the arrows are for the pointer */
+@media (pointer: coarse) { .u-scroller-arrow { display: none; } }
+/* the two adopters keep their own margins/borders on the track, so the
+   wrapper carries only the affordance */
+.subject-units-scroller { margin: 0 0 var(--section-gap); }
+.subject-units-scroller .subject-units { margin: 0; }
+.subject-units-scroller::before, .subject-units-scroller::after { border-radius: var(--radius-card); }
+
+/* ---- loading state for cover art (audit G-24/U-15/VLT-2) ----
+   medview.cover() showed the module kanji on error and when there was no
+   URL, but nothing at all while loading — so a 1,100-item grid opened as a
+   field of empty boxes that read as broken. The placeholder is now present
+   from the first paint and the image cross-fades over it. */
+.med-cover img { transition: transform .3s, opacity .28s ease; }
+.med-cover img.is-loading { opacity: 0; }
+.med-cover-ph.behind {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) { .med-cover img { transition: none; } }
+
+/* ============================================================
    Category 7 Phase A — the phone tier reflows instead of clipping
 
    Machine-measured at 390×844 (tools/phone_overflow.mjs), the audited
@@ -7412,12 +8146,45 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
   .todo-item, .dl-item, .rem-sum-h, .rem-sum-stats, .todo-h { min-width: 0; flex-wrap: wrap; }
   .todo-item > *, .dl-item > * { min-width: 0; }
 
+  /* --- home hero: reflow, do not squeeze (Cat 7 Phase C) ---
+     The three figures wrapped 2-then-1 in a 330px band, leaving a hole and
+     a stat on its own row. Each becomes a full-width ROW instead: the
+     number reads left, its name and the sentence that makes a zero honest
+     read right. Nothing is dropped to make it fit. */
+  .home-id { flex-direction: column; align-items: stretch; gap: var(--space-4); }
+  .hi-main { min-width: 0; }
+  .hi-stats { flex-direction: column; gap: 0; }
+  .hstat {
+    flex-direction: row; align-items: baseline; gap: var(--space-3);
+    text-align: left; min-width: 0; min-height: 44px; padding: 8px 12px;
+  }
+  .hstat + .hstat { border-left: none; border-top: 1px solid var(--line2); }
+  .hstat .v { flex: none; min-width: 68px; }
+  .hstat .k, .hstat .s { min-width: 0; }
+  .hstat .s { margin-top: 0; }
+
+  /* the next-action card: statement over full-width action, never side by
+     side. .hn-txt's row basis is a WIDTH on desktop and would become a
+     340px HEIGHT once the container turns into a column — that is what put
+     a 300px hole between the statement and its button. */
+  .home-next { flex-direction: column; align-items: stretch; gap: var(--space-3); padding: var(--space-4); }
+  .hn-txt { flex: 0 1 auto; }
+  .hn-go { width: 100%; min-height: 44px; }
+  .hn-label { -webkit-line-clamp: 3; }
+
   /* --- tab strips wrap rather than scroll inside themselves --- */
   .tabs-secondary, .study-tabs {
     display: flex; flex-wrap: wrap; max-width: 100%;
     overflow-x: visible;
   }
   .study-tabs .study-tab { flex: 0 1 auto; min-width: 0; }
+  /* …except the topic strip, which is the ONE study navigation layer and is
+     already inside a declared scroller with arrows and edge fades. Wrapping
+     it here is what put three rows of tabs on a 390px phone. */
+  .study-tabs.study-tabs-topic {
+    flex-wrap: nowrap; overflow-x: auto;
+  }
+  .study-tabs-topic .study-tab { flex: 0 0 auto; }
   .gov-head .gov-tabs { width: 100%; overflow-x: visible; }
 
   /* --- assistant: the control rail wraps, the presence card reflows ---
@@ -7442,3 +8209,62 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
   .gov-seat-hero { flex-wrap: wrap; }
   .gov-seat-hero > * { min-width: 0; }
 }
+
+/* ============================================================
+   Category 7 Phase D — Collection Overview (audit MTX-2/MTX-3/MTX-4)
+   ============================================================ */
+.mx-tabbar { margin: var(--space-3) 0 var(--space-4); }
+.mx-pane { display: flex; flex-direction: column; gap: var(--section-gap); }
+.mx-analytics-note { margin: 0; }
+/* small multiples: one card, N panels, one shared scale and one legend —
+   replacing four cards that each carried a quarter of the comparison */
+.cs-multi { display: flex; flex-direction: column; gap: var(--space-3); }
+.cs-multi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-3); }
+.cs-multi-panel { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cs-multi-h { display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap; }
+.cs-multi-h b { font-size: 13px; font-weight: 600; }
+.cs-multi-h .sub { font-size: 11px; }
+.cs-multi-panel svg { width: 100%; height: auto; }
+/* .legend is a column by default (it sits beside a donut); one legend
+   shared by a ROW of panels has to read as a row */
+.cs-multi-legend { flex-direction: row; flex-wrap: wrap; gap: 6px 18px; padding-top: var(--space-3); border-top: 1px solid var(--line); }
+.cs-multi-note { margin: 0; }
+
+/* audit VLT-7: a custom list named "—— ☆ ——" rendered as a thin line you
+   could neither read nor aim at. The name survives (it is the user's, and
+   it round-trips to AniList); the row gains something to read. */
+.fr-row-deco .fr-row-lbl { display: flex; align-items: baseline; gap: 6px; }
+.fr-row-deco-mark { flex: none; max-width: 62px; overflow: hidden; text-overflow: ellipsis; opacity: .7; }
+.fr-row-deco em { font-style: italic; color: var(--muted); font-size: 11.5px; }
+
+/* ---- cover placeholders that carry information (audit VLT-11 / U-15) ----
+   Seventy identical grey 遊 tiles read as unfinished, not as "no cover":
+   a placeholder identical for every title says nothing about any title.
+   The mark now sits on a wash derived from the title itself (--ph-hue,
+   set by medview.cover from the same hash the book spines use), so an
+   unillustrated vault has the texture of a shelf. Pure arithmetic — no
+   network, no canvas, stable across visits. */
+.med-cover.no-art {
+  background: linear-gradient(158deg,
+    color-mix(in srgb, hsl(var(--ph-hue, 30) 44% 54%) 15%, var(--well)) 0%,
+    color-mix(in srgb, hsl(var(--ph-hue, 30) 42% 40%) 26%, var(--well)) 100%);
+}
+.med-cover.no-art .med-cover-ph {
+  color: color-mix(in srgb, hsl(var(--ph-hue, 30) 40% 38%) 62%, var(--text));
+  opacity: .42;
+}
+/* and while the image is still on its way, the box says "loading" rather
+   than sitting still and looking broken */
+.med-cover.is-loading::after {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%,
+    color-mix(in srgb, var(--text) 8%, transparent) 50%, transparent 70%);
+  background-size: 260% 100%;
+  animation: med-cover-shimmer 1.5s ease-in-out infinite;
+}
+@keyframes med-cover-shimmer {
+  from { background-position: 160% 0; }
+  to   { background-position: -60% 0; }
+}
+@media (prefers-reduced-motion: reduce) { .med-cover.is-loading::after { animation: none; } }

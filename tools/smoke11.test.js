@@ -82,6 +82,27 @@ const KOS = window.KOS;
 if (KOS.autosync) KOS.autosync.stop();   // no timer-driven pulls polluting netLog mid-suite (3j)
 const today = KOS.srs.todayISO();
 
+
+/* Category 7 Phase D: the module facets (format, genre, mood, shelf, DNF)
+   moved out of the toolbar row and into the Filters ▾ group — the audit's
+   VLT-3 fix. They are real controls in a real popover, so these steps open
+   the group the way a reader would rather than reaching past it. */
+function openFilters() {
+  const btn = document.getElementById("main").querySelector(".mvt-filters-btn");
+  if (!btn) throw new Error("no Filters group in the toolbar");
+  if (!document.querySelector(".menu-panel")) {
+    btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  }
+  const panel = document.querySelector(".menu-panel");
+  if (!panel) throw new Error("the Filters panel did not open");
+  return panel;
+}
+function facet(ariaLabel) {
+  const sel = openFilters().querySelector("[aria-label='" + ariaLabel + "']");
+  if (!sel) throw new Error("no facet labelled " + ariaLabel);
+  return sel;
+}
+
 const steps = [];
 function step(name, fn) { steps.push([name, fn]); }
 function p(fn) { return new Promise((res, rej) => fn((err, out) => err ? rej(err instanceof Error ? err : new Error(err.message || String(err))) : res(out))); }
@@ -376,8 +397,7 @@ step("lens switch tears the previous lens down — no stale rows, no stale obser
   if (main.querySelectorAll(".bk-shelves").length !== 1) throw new Error("more than one shelf holder mounted");
 
   /* category switching AFTER a lens switch still works */
-  const fmt = [...main.querySelectorAll(".status-sel")].find(s => s.getAttribute("aria-label") === "Filter by format");
-  if (!fmt) throw new Error("format filter missing");
+  const fmt = facet("Filter by format");
   fmt.value = "lightNovel";
   fmt.dispatchEvent(new window.Event("change", { bubbles: true }));
   await new Promise(r => setTimeout(r, 150));
@@ -434,12 +454,12 @@ step("selecting a shelf in list layout unlocks ranking; ▼ persists the new ord
   KOS.store.state.media.books = { layout: "list", sort: "title", tab: "digital", physLayout: "shelf" };
   KOS.show("books");
   const main = document.getElementById("main");
-  const shelfSel = main.querySelector("select[aria-label='Filter by shelf']");
+  const shelfSel = facet("Filter by shelf");
   await waitFor(() => shelfSel.options.length >= 2, 4000);
   shelfSel.value = "ranked";
   shelfSel.dispatchEvent(new window.Event("change"));
   await waitFor(() => main.querySelectorAll(".bk-rank-row").length === 3, 5000);
-  if (!/rank this shelf/.test(main.querySelector(".med-count").textContent)) throw new Error("no ranking hint");
+  if (!/rank this shelf/.test(main.querySelector(".med-count").textContent)) throw new Error("no ranking hint: " + main.querySelector(".med-count").textContent);
   if (!main.querySelector("select[aria-label='Sort']").disabled) throw new Error("sort not locked while a shelf is ranked");
   let rows = [...main.querySelectorAll(".bk-rank-row")];
   if (!/Alpha/.test(rows[0].textContent)) throw new Error("initial order unexpected");
@@ -459,7 +479,7 @@ step("selecting a shelf in list layout unlocks ranking; ▼ persists the new ord
   /* the saved order survives a full re-render */
   KOS.show("books");
   const main2 = document.getElementById("main");
-  const sel2 = main2.querySelector("select[aria-label='Filter by shelf']");
+  const sel2 = facet("Filter by shelf");
   await waitFor(() => sel2.options.length >= 2, 4000);
   sel2.value = "ranked";
   sel2.dispatchEvent(new window.Event("change"));

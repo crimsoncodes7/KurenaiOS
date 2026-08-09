@@ -478,7 +478,7 @@
       ])
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     ta.focus();
   }
   KOS.games.bulkAdd = bulkAddModal;
@@ -655,7 +655,7 @@
       body
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     render();
   }
 
@@ -695,24 +695,40 @@
     var rail = mv.filterRail("game", function () { refresh(); });
 
     var mainCol = el("div", { class: "med-main" });
-    mainCol.appendChild(el("div", { class: "med-toolbar" }, [
-      search, platSel, genreSel, tierSel, sortSel, layoutBtn,
-      el("button", { class: "btn gold", text: "▤ Bulk add", title: "Paste a list of titles — one per line — and each becomes a draft entry",
-        onclick: function () { bulkAddModal(refreshAll); } }),
-      el("button", { class: "btn", text: "⊕ Find new", title: "Search IGDB and add games with cover, release date and genres (needs cloud sign-in)",
-        onclick: function () {
-          if (!KOS.gameapi.ready()) {
-            KOS.ui.toast("Game search runs through your cloud account — sign in from Archive → Account & Cloud Sync first. Manual entry keeps working regardless.", true);
-            return;
-          }
-          KOS.mediaSearch.open("game", refreshAll);
-        } }),
-      el("button", { class: "btn", text: "◆ Steam", title: "Link your Steam account (verified server-side) and import your owned library",
-        onclick: function () { steamModal(refreshAll); } }),
-      el("button", { class: "btn", text: "◫ Stats", title: "This vault, in numbers", onclick: function () { mv.statsModal("game", mod()); } }),
-      el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-      el("button", { class: "btn primary", text: "+ Add", onclick: function () { gamesEditor(null, refreshAll); } })
-    ]));
+    /* the shared toolbar (Category 7 Phase D). Games had nine controls in
+       two rows with Bulk add, Find new, Steam, Stats and Sync all shouting
+       at the same volume; they are commands, and they live in ⋯ now. */
+    var bar = mv.toolbar({
+      label: "Games vault controls",
+      search: search, sort: sortSel, layout: layoutBtn,
+      filters: [
+        mv.selFacet("Platform", platSel, refresh),
+        mv.selFacet("Genre", genreSel, refresh),
+        mv.selFacet("Completion", tierSel, refresh)
+      ],
+      onClear: refresh,
+      actions: [
+        { heading: "Add to the vault" },
+        { label: "Paste a list…", glyph: "▤", hint: "One title per line — each becomes a draft",
+          onSelect: function () { bulkAddModal(refreshAll); } },
+        { label: "Find new titles…", glyph: "⊕", hint: "Search IGDB (needs cloud sign-in)",
+          onSelect: function () {
+            if (!KOS.gameapi.ready()) {
+              KOS.ui.toast("Game search runs through your cloud account — sign in from Archive → Account & Cloud Sync first. Manual entry keeps working regardless.", true);
+              return;
+            }
+            KOS.mediaSearch.open("game", refreshAll);
+          } },
+        { label: "Steam library…", glyph: "◆", hint: "Link Steam (verified server-side) and import what you own",
+          onSelect: function () { steamModal(refreshAll); } },
+        { heading: "This vault" },
+        { label: "The numbers", glyph: "◫", hint: "Platforms, hours, completion",
+          onSelect: function () { mv.statsModal("game", mod()); } },
+        { label: "Sync & Import", glyph: "⇅", onSelect: function () { KOS.show("mediasync"); } }
+      ],
+      primary: el("button", { class: "btn primary", text: "+ Add", onclick: function () { gamesEditor(null, refreshAll); } })
+    });
+    mainCol.appendChild(bar.root);
     main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
 
     function refreshAll() { rail.reload(); refresh(); }
@@ -722,15 +738,14 @@
       return p.layout === "list" ? listRow(e, refreshAll) : gridCard(e, refreshAll);
     });
 
-    /* genre dropdown fill from game rows only */
+    /* genre facet from game rows only, with counts (audit VLT-8) */
     KOS.mediadb.query({ module: "game" }, function (err, rows) {
       if (err) return;
-      var gs = {};
-      rows.forEach(function (r) { r.genres.forEach(function (x) { gs[x] = true; }); });
-      mv.fillSel(genreSel, Object.keys(gs).sort(), "All genres");
+      mv.fillFacetSel(genreSel, mv.tallyFacet(rows, "genres"), "All genres");
     });
 
     function refresh() {
+      bar.sync();
       /* claim the render generation before the query so a slow result for a
          filter you already left can never paint over the current one */
       var token = area.begin();
@@ -768,7 +783,7 @@
     }
 
     search.addEventListener("input", KOS.ui.debounce(refresh, 220));
-    [platSel, genreSel, tierSel].forEach(function (s) { s.addEventListener("change", refresh); });
+    /* the facet selects are wired by mv.selFacet inside the toolbar */
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
     function mountHero() { mv.heroCard(heroHolder, "game", mod(), function () { refreshAll(); mountHero(); }); }

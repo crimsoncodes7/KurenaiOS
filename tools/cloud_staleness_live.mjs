@@ -19,9 +19,17 @@
    the Supabase JS client itself is not exercised here. RLS, auth and the
    client library are covered by tools/cloud_integration.mjs.
 
-   Cleanup: the kos_state row is deleted. The auth user cannot delete
-   itself without a service-role key — remove it from the dashboard
-   (Authentication → Users) if you want a spotless list.                  */
+   ⚠ THIS RUN CREATES A THROW-AWAY AUTH USER, AND EVERY RUN CREATES ANOTHER.
+   Its kos_state row IS deleted automatically at the end. The AUTH USER
+   ITSELF CANNOT BE: deleting a user requires a service-role key, and this
+   repo deliberately contains none anywhere (smoke19/smoke22 assert its
+   absence, and CLAUDE.md forbids adding one). GoTrue does not permit a user
+   to delete itself with its own access token either. So the account is left
+   behind BY DESIGN, and the run prints exactly which one to remove.
+
+   Prune them at: Supabase dashboard → Authentication → Users.
+   They are harmless — each owns no rows once the run finishes — but they
+   accumulate one per run, so clear them out periodically.                */
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -218,8 +226,32 @@ await rest(`/rest/v1/kos_state?user_id=eq.${userId}`, { method: "DELETE" }, toke
 const left = await cloudRow();
 ok("test row cleaned up", !left);
 
+/* The cleanup notice prints on success AND on failure — a failed run leaves
+   an account behind exactly like a passing one, and that is the run you are
+   least likely to remember to tidy up after. */
+function cleanupNotice() {
+  const bar = "─".repeat(72);
+  console.log("\n" + bar);
+  console.log("MANUAL CLEANUP REQUIRED — this run created one auth user:");
+  console.log("");
+  console.log("    " + email);
+  console.log("");
+  console.log("Its kos_state row has been deleted; the account itself cannot be");
+  console.log("removed from here (that needs a service-role key, which this repo");
+  console.log("deliberately does not contain). Delete it by hand at:");
+  console.log("");
+  console.log("    " + URLBASE.replace(/^https:\/\/([^.]+)\..*$/, "https://supabase.com/dashboard/project/$1") + "/auth/users");
+  console.log("");
+  console.log("Every run of this script adds one. Prune them periodically.");
+  console.log(bar);
+}
+
 console.log("");
-if (failures) { console.log(`LIVE STALENESS: ${failures} FAILURE(S)`); process.exit(1); }
+if (failures) {
+  console.log(`LIVE STALENESS: ${failures} FAILURE(S)`);
+  cleanupNotice();
+  process.exit(1);
+}
 console.log("LIVE STALENESS PASS — the guard holds against the real database.");
-console.log("(the throw-away auth user " + email + " remains; delete it from the dashboard if you like)");
+cleanupNotice();
 process.exit(0);

@@ -26,6 +26,12 @@
       ]);
       holder.appendChild(head);
 
+      /* audit REF-8: no keyboard support existed in this engine either. The
+         number keys answer the FIRST QUESTION STILL OPEN, which is the only
+         unambiguous target on a page of stacked questions — and it is also
+         the one the reader is looking at, because answered questions lock
+         and reveal their explanation. */
+      var cards = [];
       var list = el("div", {});
       items.forEach(function (item, qi) {
         var card = el("div", { class: "qz-card" });
@@ -33,7 +39,7 @@
         var opts = el("div", { class: "qz-opts" });
         var locked = false;
         item.opts.forEach(function (opt, oi) {
-          var btn = el("button", { class: "qz-opt", html: KOS.content.inline(opt), onclick: function () {
+          var btn = el("button", { class: "qz-opt", onclick: function () {
             if (locked) return;
             locked = true;
             answered++;
@@ -48,13 +54,44 @@
             KOS.content.typeset(why);
             if (answered === items.length) finish();
           }});
+          btn.appendChild(el("span", { class: "qz-opt-key", "aria-hidden": "true", text: String(oi + 1) }));
+          btn.appendChild(el("span", { class: "qz-opt-t", html: KOS.content.inline(opt) }));
           opts.appendChild(btn);
         });
         card.appendChild(opts);
+        cards.push({ card: card, opts: opts, open: function () { return !locked; } });
         list.appendChild(card);
       });
       holder.appendChild(list);
+      holder.appendChild(el("p", { class: "qz-keys" }, [
+        el("kbd", { text: "1" }), "–", el("kbd", { text: String(Math.min(9, items[0].opts.length)) }),
+        " answers the first question still open"
+      ]));
       KOS.content.typeset(list);
+
+      /* self-removing, exactly like the flashcard engine's: the panel this
+         lives in is replaced wholesale on a tab change, so the listener has
+         to notice it has been orphaned rather than wait to be torn down */
+      function onKey(e) {
+        if (!holder.ownerDocument || !holder.ownerDocument.contains(holder)) {
+          document.removeEventListener("keydown", onKey);
+          return;
+        }
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        var t = e.target;
+        if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName || ""))) return;
+        if (!(e.key >= "1" && e.key <= "9")) return;
+        var live = cards.filter(function (c) { return c.open(); })[0];
+        if (!live) return;
+        var pick = live.opts.querySelectorAll(".qz-opt")[Number(e.key) - 1];
+        if (!pick) return;
+        e.preventDefault();
+        pick.click();
+        if (live.card.scrollIntoView) live.card.scrollIntoView({ block: "nearest" });
+      }
+      if (typeof document !== "undefined" && document.addEventListener) {
+        document.addEventListener("keydown", onKey);
+      }
 
       var result = el("div", { class: "qz-result", style: "display:none" });
       holder.appendChild(result);

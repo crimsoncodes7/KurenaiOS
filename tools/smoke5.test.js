@@ -329,8 +329,14 @@ step("books vault renders without obsolete bottom stats; dedicated Stats remains
   await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
   if (!main.querySelector(".med-toolbar")) throw new Error("no toolbar");
   if (!main.querySelector(".med-filter-rail")) throw new Error("no filter rail");
-  const toolbarText = [...main.querySelectorAll(".med-toolbar .btn")].map(b => b.textContent);
-  if (!toolbarText.some(t => /DNF/.test(t))) throw new Error("no DNF toggle");
+  /* Category 7 Phase D: DNF is a FILTER, so it moved into the Filters
+     group with the other facets rather than sitting loose in the row */
+  const filtersBtn = main.querySelector(".mvt-filters-btn");
+  if (!filtersBtn) throw new Error("no Filters group");
+  filtersBtn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  const panel = document.querySelector(".menu-panel");
+  if (!panel || !/did not finish/i.test(panel.textContent)) throw new Error("no DNF toggle");
+  KOS.ui.closeMenu();
   if (!main.querySelector(".bk-dual")) throw new Error("no owned-vs-read bar");
   if (!main.querySelector(".bk-author")) throw new Error("no author line");
   if (main.querySelector(".bk-stats, .bk-stats .stat-strip")) throw new Error("obsolete vault stats still mounted");
@@ -380,7 +386,10 @@ step("mangaka page groups by author with aggregate stats", async () => {
   const oku = cards.find(c => /Hiroya Oku/.test(c.textContent));
   if (!oku) throw new Error("author group missing");
   if (oku.querySelectorAll(".mk-work").length !== 2) throw new Error("works not grouped");
-  if (!/2 works · 3 vols owned/.test(oku.textContent)) throw new Error("aggregate stats wrong: " + oku.textContent.slice(0, 120));
+  /* Phase D spells the unit out and gives the meta line its own node, so
+     the name and the figures stop running together ("Hiroya Oku2 works") */
+  const meta = oku.querySelector(".mk-meta").textContent;
+  if (!/2 works · 3 volumes owned/.test(meta)) throw new Error("aggregate stats wrong: " + meta);
 });
 step("matrix home: Books is a live module card (all four live since 3e)", async () => {
   KOS.show("matrix");

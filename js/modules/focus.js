@@ -603,7 +603,7 @@
         el("button", { class: "btn primary", text: "Save", onclick: save })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     input.focus();
   }
 
@@ -630,7 +630,7 @@
         el("button", { class: "btn primary", text: "Keep", onclick: save })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     input.focus();
   }
 
@@ -1020,7 +1020,7 @@
         el("button", { class: "btn primary", text: "Save review", onclick: save })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     var first = overlay.querySelector(".fx-rev-choice, .fx-rev-reflect");
     if (first) first.focus();
     return overlay;

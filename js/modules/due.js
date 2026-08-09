@@ -32,18 +32,23 @@
        alongside the three subjects, never inside them */
     var bySubject = { compsci: 0, maths: 0, it: 0, personal: 0 };
     due.forEach(function (c) { if (bySubject[c.sid] !== undefined) bySubject[c.sid]++; });
-    main.appendChild(el("div", { class: "stat-strip" }, [
-      stat(due.length, "Cards due"),
-      stat(overdue, "Overdue"),
-      stat(bySubject.compsci, "Computer Science"),
-      stat(bySubject.maths, "Mathematics"),
-      stat(bySubject.it, "IT"),
-      stat(bySubject.personal, "Personal")
-    ]));
-    function stat(v, k) {
-      return el("div", { class: "stat-card" }, [
-        el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k })]);
-    }
+    /* Category 7 Phase B (audit REV-1/U-17): this strip showed six cards all
+       reading 0 on a real account — five of the six carrying no information
+       whatever. Due and Overdue always show, because "0 due" IS the answer
+       to the question the page is asking. The four per-subject splits are
+       suppressed at zero, so the strip only ever grows to explain a number
+       that is actually there. Built through the shared stat tile. */
+    var tiles = [
+      KOS.ui.statTile({ label: "Cards due", value: due.length, emptyText: "None" }),
+      KOS.ui.statTile({ label: "Overdue", value: overdue, emptyText: "None",
+        tone: overdue ? "low" : null })
+    ].concat([
+      ["Computer Science", bySubject.compsci], ["Mathematics", bySubject.maths],
+      ["IT", bySubject.it], ["Personal", bySubject.personal]
+    ].map(function (s) {
+      return KOS.ui.statTile({ label: s[0], value: s[1], suppressZero: true });
+    })).filter(Boolean);
+    main.appendChild(el("div", { class: "stat-strip" }, tiles));
 
     /* the personal deck's study surface lives one click away — new personal
        cards only enter the SM-2 schedule once first rated there */

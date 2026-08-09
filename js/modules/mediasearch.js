@@ -268,7 +268,7 @@
       results
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     input.focus();
   }
 

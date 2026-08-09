@@ -704,7 +704,7 @@
       el("label", { class: "field shrine-message-field" }, [el("span", { text: "Message on card" }), message]),
       el("div", { class: "shrine-card-actions" }, [shareButton, saveButton, copyButton].filter(Boolean))
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
 
     function renderNotice(info) {
       notice.innerHTML = "";
@@ -869,7 +869,7 @@
         } })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     input.focus();
   }
   function shrineFilter(label, value, current) {

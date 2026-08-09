@@ -669,7 +669,7 @@
         } })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     return overlay;
   }
 
@@ -758,7 +758,7 @@
         } })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     return overlay;
   }
 
@@ -785,7 +785,7 @@
         el("button", { class: "btn", text: "Close", onclick: overlay.close })
       ])
     ]));
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     return overlay;
   }
 
@@ -1130,7 +1130,7 @@
     syncAllDay();
     syncTypeHue();
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     title.focus();
     return overlay;
   }

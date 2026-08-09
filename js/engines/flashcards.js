@@ -90,8 +90,12 @@
     var rateRow = el("div", { class: "fc-rate", style: "visibility:hidden" },
       RATE_META.map(function (r, i) {
         return el("button", { class: "btn fc-r fc-r-" + r.cls, "data-rate": i,
+          "aria-keyshortcuts": r.key,
           onclick: function (e) { e.stopPropagation(); rate(i); } }, [
-          el("b", { text: r.label }),
+          el("span", { class: "fc-r-top" }, [
+            el("kbd", { class: "fc-r-key", "aria-hidden": "true", text: r.key }),
+            el("b", { text: r.label })
+          ]),
           el("span", { class: "fc-r-hint", text: KOS.srs.RATINGS[i].hint })
         ]);
       }));
@@ -105,6 +109,15 @@
         renderInfo();
       } })
     ]);
+    /* audit REF-8: the engine had no keyboard support at all — no flip, no
+       grading — so a review session was a mouse-only exercise. The keys are
+       printed under the card rather than hidden in a help page, because a
+       shortcut nobody can see is a shortcut nobody uses. */
+    var keyHint = el("p", { class: "fc-keys" }, [
+      el("kbd", { text: "Space" }), " flip · ",
+      el("kbd", { text: "1" }), el("kbd", { text: "2" }), el("kbd", { text: "3" }), el("kbd", { text: "4" }),
+      " grade · ", el("kbd", { text: "→" }), " reveal, then Good"
+    ]);
     var lifeStats = el("div", { class: "fc-life" });
 
     holder.appendChild(meter);
@@ -112,7 +125,9 @@
     holder.appendChild(rateRow);
     holder.appendChild(infoWrap);
     holder.appendChild(ctlRow);
+    holder.appendChild(keyHint);
     holder.appendChild(lifeStats);
+    bindKeys();
 
     function cur() { return cards[queue[0]]; }
 
@@ -209,6 +224,36 @@
       for (var i = a.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+    }
+
+    /* The listener rides `document` so the keys work without hunting for
+       focus, and removes ITSELF the first time it fires after the holder has
+       left the page — openTab() replaces panel.innerHTML wholesale, so there
+       is no teardown callback to hang it on and a plain listener would
+       accumulate one dead session per tab switch. */
+    function bindKeys() {
+      if (typeof document === "undefined" || !document.addEventListener) return;
+      document.addEventListener("keydown", onKey);
+    }
+    function onKey(e) {
+      if (!holder.ownerDocument || !holder.ownerDocument.contains(holder)) {
+        document.removeEventListener("keydown", onKey);
+        return;
+      }
+      if (finished || e.metaKey || e.ctrlKey || e.altKey) return;
+      /* never steal a key from someone writing a custom card, a note or a
+         self-mark — the manage panel lives in this same holder */
+      var t = e.target;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName || ""))) return;
+      var k = e.key;
+      if (k === " " || k === "Spacebar" || k === "Enter") { e.preventDefault(); flip(); return; }
+      if (k === "ArrowLeft") { if (flipped) { e.preventDefault(); flip(); } return; }
+      if (k === "ArrowRight") { e.preventDefault(); flipped ? rate(2) : flip(); return; }
+      if (k >= "1" && k <= "4") {
+        if (!flipped) return;              /* grading a face-down card is a misclick, not an intent */
+        e.preventDefault();
+        rate(Number(k) - 1);
       }
     }
     show();

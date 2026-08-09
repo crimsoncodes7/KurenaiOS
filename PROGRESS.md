@@ -3388,3 +3388,570 @@ cancellation, syntax tokens, character hit areas, sidebar collapse and project
 creation. The release gate includes smoke1–38, the Chrome visual audit, desktop
 and mobile interaction checks and an offline PWA pass. Service-worker version:
 `kos-assistant-character-1`.
+
+---
+
+## CATEGORY 7 — UI/UX AUDIT AND PHASE A (8 August 2026)
+
+**The audit.** `KURENAIOS_FULL_UI_UX_AUDIT.md` — 30 views exercised against a
+real signed-in account (1,880 media entries, 1,652 sessions, Level 53), at four
+viewports in both themes. 12 functional bugs, 30 UI/UX findings, a 35-screen
+redesign matrix, a seven-phase roadmap. Evidence in `audit-evidence/`
+(gitignored, 161 screenshots + probe JSON).
+
+**Phase A — complete and verified.** `main` at `dc44fe4`. Release gate is now
+**41 suites**, all green.
+
+- **B-01/B-02/B-07 — cloud sync hijacking navigation.** `state.ui` and the
+  Collection view preferences are per-device now, excluded from both the pushed
+  document and the dirty hash by ONE shared filter. `rerenderCurrent` redraws
+  the view on screen instead of routing to the remote document's. A page view is
+  no longer a change, so it no longer pushes.
+- **B-03** cosmetics re-apply after a pull; **B-04** a topic opens at the top;
+  **B-05** the lazy area roots on `#main` and keeps filling; **B-06** Mangaka
+  rides the shared lazy area (144,276px → 9,970px at 900 authors) with author
+  search and an A–Z rail.
+- **G-16** the phone tier reflows: 0 overflowing elements at 390px across home,
+  subject, focus, governor and assistant.
+- **GOV-1** needed a second pass (`a3b0016`). Phase A measured it on an EMPTY
+  account, where the Governor seat happens to fit; with real data it still
+  overflowed 114px. Density seeding is now part of verifying a responsive fix.
+
+**The 8 August data-loss incident — fixed.** Not an audit finding; it happened
+in production after Phase A. A phone unopened for weeks was launched and the
+laptop's level 53 (12,476 gold, 72,312 XP, 1,664 sessions, avatar, banner, the
+whole Budget Planner) was replaced by its stale snapshot. Everything in
+`kos_state` regressed together; the Collection survived because the media vault
+is per-entry in IndexedDB. Phase A had closed the trigger (opening the app can
+no longer push) but not the class: one real edit still clobbered.
+
+The state document now carries a monotonic `__seq`. A device whose document
+descends from an older ancestor **refuses to push** and raises a conflict with
+an explicit two-way resolution (`resolveStale`), surfaced on the Archive card.
+This is NOT field-level merging — invariant #33 stands; it is a refusal to
+overwrite. A refused push also holds the state PULL for that cycle, or the pull
+would "resolve" the conflict by discarding this device's edits. Explicit user
+decisions still outrank it: first-link upload, "keep this device",
+`resolveStale("device")`, and a restore re-baseline.
+
+Verified by `tools/smoke41.test.js` (the incident included as a regression test)
+and by `tools/cloud_staleness_live.mjs` — two independent devices against the
+REAL Supabase database, end to end.
+
+**Recovery note.** The lost state was recovered from a browser profile that had
+not yet re-synced, read without booting the app (booting would have pulled the
+regressed copy over it). Rescued document in `recovery/` (gitignored — personal
+data). The user re-imported it and both devices are correct.
+
+## CATEGORY 7 — PHASE B: THE SHARED FOUNDATIONS (8 August 2026)
+
+Release gate is now **42 suites**, all green, plus the live-Chrome visual audit.
+
+### The colour contract (landed first)
+
+`--muted` on the default theme went #97896D → #726751 (3.10 → 4.52/5.02/5.33),
+every one of the 23 dark themes gained its own `--text2` and `--muted` derived
+from that theme's own text hue rather than one shared blue-grey, and dark mode
+stopped costing 140 gold: Atelier Dawn and Atelier Dusk are free and owned
+without purchase, and an unpinned install follows `prefers-color-scheme` in pure
+CSS so a dark device never flashes the light palette before scripts run.
+
+### Breakpoint consolidation
+
+**Five tiers, and only five: 1240 workspace · 1080 compact rail · 860 compact ·
+700 phone · 560 small.** The token block declared four; the stylesheet used 21
+(1240, 1180, 1120, 1100, 1080, 1050, 1040, 1000, 900, 860, 850, 840, 820, 760,
+700, 680, 620, 560, 520, 480, 460), because every component that needed a
+collapse point invented one. 66 width queries now resolve to those five, no
+`min-width` bands remain, and `tools/smoke42.test.js` fails the build on a sixth.
+The tiers — and the rule that a component needing its own point must reflow
+intrinsically (`auto-fit`/`minmax`, `flex-wrap`, `min-width: 0`) rather than earn
+a breakpoint — are documented in the token block itself.
+
+**Ordering turned out to matter as much as the numbers.** Three clusters were
+written narrowest-first, so the narrow rules lost to their own wider siblings
+and never applied at all:
+
+- the Governor seat's ≤700 identity stack — the GOV-1 fix itself — sat above the
+  ≤1080 and ≤860 rules, so its `minmax(0,1fr)` and padding were dead;
+- a ≤620 `.heat-stats` rule was unreachable behind the Governor's own later
+  rules and was removed, not re-pointed;
+- the assistant carries two generations of CSS, the drawer-era rules and the
+  Category 6.1 workspace rewrite, and **24 declarations** in the older
+  generation were silently overridden by the newer one.
+
+All 30 inversions are gone and smoke42 asserts none returns.
+
+**Not done, deliberately: the `main.css` layer split.** It would relocate ~50
+media blocks across 7,700 lines, which is exactly the operation that resurrects
+dead rules. With the tier contract and the inversion check now enforced, a later
+split is safe and cheap to verify; doing it before the contract existed would
+have been the risky order.
+
+### Shared primitives
+
+- **Dialog.** All 33 modals were bare divs on a scrim — no `role`, no
+  `aria-modal`, no name, no focus trap, no scroll lock, no focus restoration.
+  `KOS.ui.openDialog` is the one way a modal enters the document; a source
+  contract in smoke42 fails the build if a new one appends itself directly. The
+  accessible name is taken from the modal's own visible heading, so it is right
+  by construction. Teardown runs however the overlay leaves — `remove()`,
+  `removeChild`, or a subtree replacement. **A destructive prompt is an
+  `alertdialog`, opens with Cancel focused, and ignores Enter**; two keystrokes
+  used to delete. The visual design of every modal is untouched: the Focus
+  completion review and the Calendar event modal were the references, not the
+  targets.
+- **Tabs.** `.subnav-item`, `.study-tab` and the bespoke Books "Digital /
+  Physical Vault" cards were three components doing one job; they are three
+  *variants* of one now — primary, workspace, card — because the jobs genuinely
+  differ. The section strip stays site navigation with `aria-current`; the
+  workspace switcher is a real tablist.
+- **EmptyState** with a compact form that does not reserve a card-sized box;
+  the eight vault call sites route through it.
+- **StatTile** that suppresses a zero carrying no information. Review showed six
+  cards all reading `0` to an active user; it shows Due and Overdue always —
+  "0 due" *is* the answer — plus whichever subject splits are non-zero.
+- **Scroller.** The two deliberate horizontal scrollers, Collection's cover
+  strip and the subject unit band, had no arrows and no edge fade, so the last
+  card was sliced by the container edge and read as a rendering bug. They now
+  have position-aware fades, arrow controls, ← → keys and `data-scroller` —
+  which is the marker the responsive probe honours. An *undeclared* sideways
+  scroll still counts as unreachable content, because it is.
+- One `--z-*` layer scale (toast above modals — "award forfeited" used to render
+  under the scrim at the one moment it matters), `KOS.ui.num()` locale
+  formatting on the HUD/instruments/shop, a visible-on-focus skip link, and
+  covers that paint the module kanji from the first frame instead of opening as
+  a field of empty boxes.
+
+`KOS.ui.pageHeader` / `sectionHeader` exist and emit the existing `.dh-*`
+classes; per-page adoption belongs with the page work in Phases C–E.
+
+### Verification
+
+`tools/responsive_audit.mjs` is new and is the Phase A lesson made permanent: it
+**seeds a dense account first** (533 collection entries with real cover art and
+long titles, 600 sessions, 120 progress records, a full calendar, reminders,
+assignments, planner and goals), then sweeps a width list rather than one phone
+width, in both themes, reporting per-element overflow, amputated text and
+tab-bar overlap as diffable JSON.
+
+- Breakpoint consolidation: 480 cells (24 views × 10 widths × 2 themes),
+  **0 worse, 0 better** against the pre-change baseline — a pure refactor.
+- After the primitives: **0 overflowing elements in all 480 cells**, down from
+  1,562, all of which were the two undeclared scrollers.
+- Screenshots at 1920 / 1440 / 820 / 390 in Atelier Dawn and Atelier Dusk.
+- smoke1–42 and `tools/visual_audit.mjs` green.
+
+**Lesson carried forward, second instance.** The pixel probe is necessary and
+not sufficient. It reported the subject desk clean at 390px while the
+"Spec spine" pill — still 32px wide from its desktop rule — wrapped its label
+into two lines that printed on top of the section list (SUBJ-4). Overlapping
+content vertically is invisible to a right-edge check. Screenshots at every
+viewport stay part of verifying a responsive change.
+
+Service-worker version: `kos-cat7-phase-b-1`.
+
+**Next: Phase C** — the ref page shell, the subject desk and Home. Those are the
+structural redesigns Phase B deliberately did not start.
+
+---
+
+## Category 7 · Phase C (part 1) — the Study redesign
+
+**Scope:** the subject desk (`subject`) and the topic shell (`ref`), redesigned
+together because they share the spec spine, the progress derivations and the
+inspector. Home is the remaining Phase C item and is untouched here. The ref
+page's **content renderer was classified KEEP by the audit and is unchanged** —
+this is the information architecture, navigation, page shell, state surfaces
+and responsive behaviour around it.
+
+### The subject desk
+
+The page rendered its own primary navigation twice: the spec spine on the left
+and a "Sections" ledger about 400px to its right, same 14 sections, same counts,
+same drill-down (audit SUBJ-1). Deciding what the spine is *for* resolved the
+whole page.
+
+- **The spine is the only section list.** It inherited both things the ledger
+  did that it did not: a per-section progress bar (`.sec-head-bar`, on the one
+  shared `low/mid/high` ramp) and the per-subsection tally the ledger revealed
+  on expand (`.grp-pc`). `.sec-grid` / `.sec-card` are gone from the desk.
+- **The main column is now a desk**, reading top to bottom as one sentence:
+  where you were (the continue card, promoted to lead — it is the only element
+  on the page that is an instruction rather than a report) → what the course is
+  (the board/paper band) → how you are doing (the eight analytics tiles, which
+  get **four across** in the main column instead of two in a 300px rail) → what
+  you can do about it (practice zone, resources). The context column keeps only
+  what is genuinely not a subject statistic: countdowns and flagged topics.
+- **SUBJ-2**: the spec-point total appeared four times under four labels. Twice
+  now, each doing a different job — the spine header (navigation context) and
+  the "Topics secure" tile (the statistic). The board band's lead states the
+  board's identity instead.
+- **SUBJ-6**: the mastery-vs-secure definition is a `<details>`; the line that
+  carries information every time (deep-content coverage) stays visible.
+
+### The topic shell
+
+`571px → 161px` from `#main`'s top edge before the first word of revision
+content, measured against the dense account at 1440×900 — **135px below the
+topic header**, and 133–136 across 1240/1440/1920.
+
+- **One header row.** Crumbs, seal + title + board line and a 170px Topic Status
+  band were three stacked blocks costing 308px. The crumb path is the meta
+  line's first clause, and the only control that stays above the fold is the
+  status dropdown — the one that is used constantly rather than occasionally.
+- **The inspector is the page's single state surface.** The Topic Status
+  component moved into it whole (status · the four checks · confidence, with the
+  one live mastery readout in its head). Its own duplicate "Mastery" section is
+  gone (REF-3) and so is its "Materials" list (REF-4) — the counts stay on the
+  tab chips, where the number is what decides whether you press the tab. The
+  header control and the inspector field are two DOM nodes over one store value,
+  kept in step by `syncStatusControls()`.
+- **One study navigation layer** (REF-6). Three switchers became one: the
+  assistant strip moved into the inspector, the tab strip is a single row inside
+  a declared `KOS.ui.scroller` stuck to the top of the reader, and the note-page
+  pills became a `‹ 3 / 7 · Title ›` stepper in that same bar with the full page
+  list behind a disclosure. One row at every width from 390 to 1920.
+- **Keyboard control of both engines** (REF-8, which had *zero* `keydown`
+  handlers in `js/engines/`). Flashcards: `Space`/`Enter` flip, `1–4` grade,
+  `→` reveal-then-Good, `←` hide. Quiz: `1–9` answers the first question still
+  open. Printed in the UI, not documented elsewhere. Both refuse to act on a
+  face-down card, refuse to steal a key from a text field, and **remove their
+  own listener once their panel is replaced** — `openTab()` wipes
+  `panel.innerHTML` wholesale, so there is no teardown callback and a plain
+  listener would accumulate one dead session per tab switch.
+- REF-5 (checks 16 → 20px), REF-7 (confidence is three labelled controls —
+  struggling · shaky · solid — with `aria-pressed`, not three pale circles) and
+  REF-10 (rating sub-labels 9.5 → 11px).
+
+### Three defects found by inspection, not by the audit
+
+1. **The spine covered the page at 701–860.** `#tree` goes `position: fixed` at
+   ≤860 but the default-closed rule only ran at ≤700, so for a 160px band the
+   spine simply covered the page it navigates — no scrim, nothing to dismiss it.
+   Both thresholds are 860 now, and the drawer gained a scrim that dismisses on
+   tap and on Escape (and leaves Escape alone above the tier, and never takes it
+   from an open modal).
+2. **Opening a topic did not reveal it in the spine.** The active leaf sat
+   inside a collapsed section, so `.leaf.active` was `display:none` and the
+   existing `scrollIntoView` was a no-op. The owning section opens itself and is
+   marked `.here`; the scroll is `block:"nearest"` so it stops yanking the list
+   when the topic is already visible.
+3. **SUBJ-4 was not actually fixed.** Phase B fixed the pill's text *wrap* and
+   closed the finding; the pill was still a `position: fixed` control printing
+   over whatever paragraph was beneath it — which is exactly what a right-edge
+   pixel probe cannot see. The floating pill is retired: at ≤860 the closed
+   spine has no presence at all and the page header carries a real
+   `☰ Spec spine` button, which cannot overlap anything.
+
+### Verification
+
+- **43 suites green.** New: `tools/smoke43.test.js` (31 steps) covering the
+  spine contract, content-first geometry, the single state surface, the note
+  pager, engine keyboard control and the touch-target/label fixes. Updated:
+  smoke37 (nine steps asserted the layout the audit asked us to change; they now
+  assert the new contract while keeping every consistency claim) and smoke15.
+  smoke2, smoke24, smoke32, smoke34, smoke40 and smoke42 pass unchanged.
+- **108-cell responsive sweep** of the Study surfaces (9 widths × 2 themes ×
+  6 views): **0 overflowing, 0 amputated**. Full 192-cell sweep clean apart from
+  the pre-existing Focus Timer overflow below.
+- Screenshots at 1920 / 1440 / 820 / 390 in Atelier Dawn and Atelier Dusk
+  against the dense account, plus the drawer/scrim states at 820.
+
+### Open, and deliberately not fixed here
+
+- **`#subnav` wraps to three rows at 390px**, eating ~100px above every page in
+  the app — the largest remaining "chrome before content" cost on both Study
+  surfaces. The fix is to route it through `KOS.ui.scroller` (an undeclared
+  sideways scroll fails the probe by design), which changes global navigation on
+  all 24 views. It belongs with the Home/global chrome work, not as a drive-by.
+- **The Focus Timer setup overflows by 366px at 390px** (39 elements, both
+  themes). Confirmed pre-existing by running the same sweep against the Phase B
+  tree.
+
+### Lesson carried forward, third instance — and this one was in the harness
+
+`tools/responsive_audit.mjs` had two defects that between them meant the "dense
+account" was not dense. It seeded `status: "completed"`, which is not a value
+the app's `none|started|paused|done` vocabulary knows — so every Study surface
+read **0/156 secure**, which is the very figure the audit quoted for SUBJ-2. And
+its `store.save()` is debounced 120ms while the harness reloads the page the
+moment seeding resolves, so on a *re-seed* (media already present, no awaits
+left to burn the timer) the whole localStorage half of the seed was silently
+lost and the sweep measured a default store. Both fixed — `store.flush()`,
+correct statuses, plus SM-2 metadata, RAG ratings and custom cards, and the seed
+now reports its secure count so a silent regression is visible in the log.
+
+The measurement tool is part of the surface under test.
+
+**Next: Phase C part 2** — Home.
+
+---
+
+## Category 7 · Phase C (part 2) — the Home partial redesign
+
+**Scope:** `home` only. A *partial* redesign as the audit prescribed — the
+composition (greeting → identity band → today's row → the desks) is kept and
+the visual identity is untouched; what changed is **what the page measures and
+what it asks you to decide**.
+
+### The headline was true and useless
+
+The front page led with `0% covered · 0/355 spec points · 0 mastered · 0 cards
+due` for an account at Level 53 with 1,652 sessions and a 36-day streak
+(HOME-1 / G-29). Every figure was accurate — all 253 progress records were
+`status:"none"` — and together they told the app's most active user they had
+done nothing, because they measured a checklist the user does not tick rather
+than the work the user actually does.
+
+Three figures now, all generated BY the user: **study streak · cards due ·
+hours this week**, each with a line saying what it means so a zero reads as an
+answer ("nothing due today") rather than an accusation. Coverage was not
+deleted — it moved to the subject cards, where it is a property of a subject
+rather than a headline. The 108px `N% / COVERED` canvas ring is retired: it was
+the page's largest element, it read 0%, and its label was routinely painted
+straight through the banner artwork.
+
+### "What should I do next" is now a surface, not an inference
+
+One statement, one reason, one action, directly under the greeting. It picks
+the most perishable thing first — a running session → cards due → anything
+dated inside a week → the first unsealed directive → where you left off → a
+genuinely clear board — and every branch hands off to the view that already
+owns the work. `nextAction()` reads only surfaces that already exist
+(`KOS.calendar.countdowns()` is the same merged read the Countdowns panel
+below uses, so the two cannot disagree) and writes nothing.
+
+The focus CTA moved out of the greeting row into that card, which is where a
+call to action belongs and which is what stopped the greeting and the button
+competing for width at 390px (HOME-8). The page now has **exactly one primary
+button**.
+
+### Legibility stopped being a property of someone's wallpaper
+
+HOME-2 was the sharpest finding. Home's banner scrim is a gradient that goes
+transparent on the right — and the four figures sat on the right, so a kanji
+watermark was printing straight through "SPEC POINTS". Two changes, both
+mandatory rather than best-effort:
+
+- `applyBanner` gained a third scrim, `full`, for hosts that carry text at
+  **both** ends. Governor Status keeps its dark ink scrim; the default keeps
+  its one-sided fade for hosts whose right side carries no text.
+- The figures gained their own translucent `--bg1` panel. The artwork still
+  shows through it; no figure depends on the artwork for contrast.
+
+The status pill, streak chips and XP bar also lost an `rgba(0,0,0,.3)`
+treatment that assumed dark artwork whenever *any* banner existed — a guess
+that only held for dark images.
+
+### Empty states stopped costing a fold
+
+Directives and Countdowns were two card-sized boxes side by side spending
+~280px saying "nothing here" (HOME-4). Both empty → one 64px line with the
+action that would fill them, **240px reclaimed**. One empty → the other takes
+the full width (`.home-today.one-up`) instead of sitting beside a hole.
+
+### The Collection card joined the row it was in
+
+It sat beside three subject cards in a different shape — no ring, no track, no
+Continue — so the row read as three cards plus a banner (HOME-5). It is the
+same component now, with real figures: `95/466 completed · 94 in progress · 休
+1-day rest streak`, a 20% ring and track, and a Continue pointing at the vault
+that actually has something open in it.
+
+Its figures come from one `mediadb.stats` pass — a full-table cursor scan,
+~1,900 rows on a real account — so it is **gated on an IntersectionObserver**.
+Home used to force the media vault open during boot; it no longer opens
+IndexedDB on its render pass at all. That also keeps the migration fixtures in
+smoke5/smoke6 owning their own database, which is how the coupling surfaced.
+
+### Also
+
+- The seven pips are titled "Last 7 days", each carries its own date, and the
+  group is announced as "N of the last 7 days had a study session" (HOME-6).
+- HOME-7 was already resolved — the quote pill became the profile-status
+  editor in an earlier build — and is now pinned by a test so it stays a real
+  control rather than drifting back to a decorative focus stop.
+- The "Cards due" figure is keyboard-reachable (`role="button"`, `tabindex`,
+  Enter/Space), which it was not when it was a bare clickable `div`.
+
+### Verification
+
+- **43 suites green.** smoke43 grew a Home section (12 steps, 43 total);
+  smoke2's `.home-ring canvas` assertion now defends the decision surface
+  instead of the retired ring.
+- **192-cell responsive sweep**, 24 views × 8 widths × 2 themes: 0 overflowing
+  on every view except the pre-existing Focus Timer setup (below).
+- Screenshots at 1920 / 1440 / 820 / 390 in Dawn and Dusk against the dense
+  account, plus the all-empty composition at 1440.
+- `tools/visual_audit.mjs` green.
+
+### Still open, still recorded, still not this phase's work
+
+- **`#subnav` wraps to three rows at 390px** (~100px above every page). Needs
+  `KOS.ui.scroller` on global navigation across 24 views.
+- **The Focus Timer setup overflows by 366px at 390px** (39 elements, both
+  themes). Confirmed pre-existing against the Phase B tree.
+
+**Phase C is complete. Next: Phase D** — the vault views and their shared
+shell, Collection Overview, Mangaka.
+
+---
+
+## Category 7 Phase D — the Collection (Mangaka · the vault shell · the Overview)
+
+Phase D took the three surfaces the audit ranked hardest in the Collection,
+in the order they were asked for. The shared work landed first and paid out
+four times: there is no per-vault answer to any problem below.
+
+### 1 · Mangaka — FULL OVERHAUL (MNG-1 / MNG-2)
+
+Phase A had already stopped this page building the whole library; that fixed
+the page height and not the page. A prolific author still printed all 28 of
+their works inline, so sixty lazy rows were still hundreds of covers, and the
+only ways through 882 names were a text search and a letter.
+
+- **The author card is bounded.** Eight works, then `Show all N works` — one
+  row costs one row whoever the author is.
+- **Real filtering**, which the page had none of: format, reading status, the
+  physical shelf, and a "prolific only" threshold (2/3/5/10+ works), which is
+  the question a mangaka directory actually answers — *who do I collect?*
+- **Sort by what the page is about**: A–Z, most works, most volumes owned,
+  most chapters read.
+- **Sticky letter dividers in the flow.** A jump rail says where you can go;
+  a divider says where you are. It hides itself under any ranking other than
+  A–Z rather than lying about position.
+- **Filtered figures are honest.** Filtering the works recomputes each
+  author's own line, so "12 works · 40 volumes owned" always describes the
+  works you can see. Figures that carry nothing (`£0`, `0 ch read`) are
+  dropped rather than printed.
+- The name and its figures stopped running together (`Hiroya Oku2 works`).
+
+Measured against the dense account — **1,107 series, 732 authors**:
+
+| | audit | now |
+|---|---|---|
+| initial `scrollHeight` | 142,062px | **10,850px** |
+| initial DOM nodes | 12,833 | **1,220** |
+| initial `<img>` | 1,107 | **106** |
+| authors mounted at once | 882 | **60** (refills on scroll) |
+
+### 2 · One vault shell across Anime · Books · VN · Games
+
+**The toolbar (VLT-3 / U-13).** Books stacked seventeen controls in three rows
+before a single cover; Anime eleven, VN eleven, Games nine — with no grouping
+logic, so "＠ Profile" sat beside "+ Add" and "Seasonal" beside "☰ List".
+There is now one arrangement, and it is the same object in all four:
+
+```
+[ search .............. ] [ sort ] [ layout ] [ Filters ▾ ] [ Actions ▾ ] [ + Add ]
+```
+
+Six controls, measured — a smoke44 step fails the build on a seventh. The
+module facets (genre, tag, format, mood, shelf, platform, developer, tier,
+DNF) moved into **Filters ▾**, which carries a badge counting what is actually
+applied, so a filtered vault says so with the panel shut. Everything else is a
+command, not a filter, and lives in **Actions ▾** behind real headings. The
+rail keeps status and custom lists: they are the two axes every module shares
+and the primary way a vault is navigated.
+
+**`KOS.ui.menu` is the new shared primitive** those groups are made of, in two
+shapes — a real `role="menu"` of commands, and a labelled panel of controls
+(a `<select>` is not a menuitem, and pretending otherwise lies to a screen
+reader). Both share the button contract, the dismissal contract (Escape,
+outside pointer, scroll, Tab out) and focus restoration. It is deliberately
+**not** a dialog: `openDialog` traps focus and locks body scroll, which is
+right for a modal and wrong for a popover you dismiss by looking away.
+
+*Found while testing:* a menu panel is `position: fixed` on `document.body`,
+so clearing `#main` did not remove it — navigating with one open left a
+floating popover over the new page, still wired to controls that no longer
+existed. `KOS.show` now closes it.
+
+**The hero (VLT-4 / VLT-5 / U-14).** One component had three levels of finish
+because only AniList exposes a banner and the other three modules had no
+designed answer to its absence: Anime got a full-bleed banner, Books and VN a
+mostly-empty pale gradient with a small floated cover, Games a kanji
+placeholder in an empty panel. There is now one composition and a three-step
+backdrop — a banner, else the entry's **own cover blown up and blurred**, else
+a deterministic gradient in the module's accent hue-shifted by the title —
+each followed by the same scrim, unconditionally. The cover plate stands on
+every hero. The light `.vh-painted` treatment is retired, which also removed a
+second set of text/chip/button rules. Nothing here fetches, so the games and
+VN vaults still emit zero network requests.
+
+The hero's two *configuration* actions (choose the spotlight, position the
+banner) moved into the same ⋯ grammar, so they stop competing with "Open
+entry".
+
+**Card placeholders (VLT-11 / U-15).** Seventy identical grey 遊 tiles read as
+unfinished, because a placeholder identical for every title says nothing about
+any title. The mark now sits on a wash derived from the title (the same hash
+the book spines use), and a cover still loading shimmers instead of sitting
+still. Both are arithmetic: no network, no canvas, stable across visits.
+
+**The genre facet (VLT-8 / G-31 / U-26).** VNDB content tags are written into
+`genres` by the sync mapper and sat beside real genres in one 64-option
+alphabetical list. The taxonomy cannot be fixed at the data layer (invariant
+#29), so it is fixed where it is read: **Genres**, then **Tags**, then **Rare
+tags**, each option carrying its own count. Nothing is hidden — a one-title
+tag is still reachable.
+
+**Also:** long titles clamp to two lines with a tooltip (VLT-6); `.med-quick`
+wraps instead of overflowing a 128px Seasonal card by 8px (VLT-10); a custom
+list named `—— ☆ ——` renders as something you can read and aim at (VLT-7).
+
+### 3 · Collection Overview — PARTIAL REDESIGN
+
+- **MTX-2/U-18** — four near-identical "X by status" bar charts, two carrying
+  a single bar, became **one small-multiples row** on a shared scale with one
+  legend. The comparison was always the point; four cards each showing a
+  quarter of it was not.
+- **MTX-3** — the four module totals appeared **four times** on one page (KPI
+  row, whole-vault donut, medium donut, module cards). Each module's totals
+  are now its own card's job; the KPI row carries only the cross-media figures
+  no card can say; one donut survives, in Analytics.
+- **MTX-5/U-17** — zero tiles suppressed, and "Score distribution" refuses to
+  draw a distribution from one rated title. It says what is missing instead.
+- **The long tail moved behind an Analytics tab**, so the overview is one
+  screen again.
+
+**Chart readability (MTX-4 / U-19)** was fixed in `core/charts.js`, so it pays
+out on every chart in the app: a value axis with gridlines and its own labels,
+an **11px label floor**, a `<title>` on every mark, and category labels that
+wrap rather than being cut to nine characters. `KOS.charts.smallMultiples` is
+new. `KOS.media.progressText`/`progressPct` are the one progress grammar
+(MTX-6/U-30) — "36 / 96 ch", never a second local spacing convention.
+
+### Verification
+
+- **44 suites green**, smoke44 new (36 steps). Six older suites were updated,
+  not weakened: they now drive the Actions/Filters groups and the hero's
+  Spotlight menu — the real control path — rather than clicking a button that
+  no longer sits loose in a row.
+- **192-cell responsive sweep** (24 views × 4 widths × 2 themes): 0 overflowing
+  elements everywhere except the pre-existing Focus Timer setup.
+- **88-cell Collection sweep** at 1920/1440/820/390 in Dawn and Dusk with the
+  dense account: 0 overflowing, 0 amputated.
+- Screenshots at all four widths in both themes, plus the Analytics tab, the
+  open Filters and Actions panels, and Mangaka under filter.
+
+**The measurement tool was part of the surface again.** `responsive_audit.mjs`
+seeded 460 entries on a flat four-way rotation with 40 author names — which is
+not the library the audit measured and not the one these views have to
+survive. It now seeds the real shape: **692 anime · 1,107 book series · 11 VNs
+· 70 games**, 732 distinct authors, a facet carrying 64 mixed genre-and-tag
+values, and a banner on **anime only** (which is the real situation, and
+exactly the asymmetry VLT-4 describes — seeding all four hid it).
+
+### Still open, still recorded
+
+- `#subnav` wraps to three rows at 390px — global navigation, Phase E.
+- The Focus Timer setup overflows by 366px at 390px — pre-existing, Phase D's
+  scope did not include it.
+- Mangaka's page still grows as you scroll (420 authors ≈ 68,000px), exactly
+  as the vault grids do. The initial render is what the audit measured and
+  what was fixed; a windowing renderer that *unmounts* rows is a change to the
+  shared lazy area, not to this page.
+
+**Phase D is complete.**

@@ -222,11 +222,15 @@ step("sim deep-link from notes (Simulate tab)", () => {
 });
 
 console.log("== home & dashboards ==");
-step("home renders rings, coverage and resume", () => {
+step("home renders its decision surface, cards, coverage and resume", () => {
   KOS.show("home");
-  if (!$(".home-ring canvas")) throw new Error("no overall ring");
+  /* Cat 7 Phase C: the "N% COVERED" hero ring is retired — it was the front
+     page's largest element and it read 0% for an active account (audit
+     HOME-1). Coverage kept its place on the subject cards below. */
+  if (!$(".home-next .hn-label")) throw new Error("no next-action statement");
+  if (!$(".home-next .btn.primary")) throw new Error("the next action has no button");
   /* 3 subject cards + the Collection desk card */
-  if ($(".subj-card").length < 4) throw new Error("subject+collection cards missing");
+  if ($$(".subj-card").length < 4) throw new Error("subject+collection cards missing");
   if (!$(".med-home-card")) throw new Error("Collection Matrix home card missing");
   if (!$$(".subj-card").some(c => c.textContent.includes("deep-content"))) throw new Error("coverage stat missing");
 });

@@ -77,7 +77,13 @@ step("canonical tokens exist and the legacy names alias them", async () => {
 });
 step("all 23 lab themes have :root[data-theme] blocks matching the catalog", async () => {
   const themes = KOS.governor.catalog().filter(c => c.kind === "theme");
-  if (themes.length !== 23) throw new Error("23 themes expected, got " + themes.length);
+  if (themes.length !== 25) throw new Error("25 themes expected (23 paid + 2 free), got " + themes.length);
+  /* an unpinned install must follow the device, in CSS so there is no
+     light-palette flash before scripts run (audit G-06) */
+  if (!/@media \(prefers-color-scheme: dark\)/.test(css))
+    throw new Error("no prefers-color-scheme rule — an unpinned install cannot follow the device");
+  if (!/:root:not\(\[data-theme\]\)[^{]*\{[^}]*--bg0/.test(css.replace(/\s+/g, " ")))
+    throw new Error("the system-dark rule does not target an unpinned :root");
   for (const t of themes) {
     if (!css.includes(':root[data-theme="' + t.theme + '"]')) throw new Error("no CSS block for " + t.theme);
   }
@@ -110,9 +116,14 @@ step("topic page: .study-grid holds the tab bar and the .study-inspector", async
   if (!grid.querySelector(".study-tabs")) throw new Error("tab bar not inside the grid");
   const insp = grid.querySelector(".study-inspector");
   if (!insp) throw new Error("no .study-inspector");
-  for (const h of ["Mastery", "Recall record", "Next review"]) {
+  /* Cat 7 Phase C: the inspector became the page's single STATE surface, so
+     its standalone "Mastery" section is gone — the one live mastery readout
+     is the Topic Status component's head, which now lives in here. "Recall
+     record" and "Next review" are unchanged. */
+  for (const h of ["Topic status", "Recall record", "Next review"]) {
     if (!insp.textContent.includes(h)) throw new Error("inspector missing section: " + h);
   }
+  if (!insp.querySelector(".topic-status .ts-pct")) throw new Error("no live mastery readout in the inspector");
 });
 step("inspector collapse toggles .insp-closed and persists ui.inspectorOpen", async () => {
   const main = document.getElementById("main");

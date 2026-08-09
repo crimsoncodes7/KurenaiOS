@@ -225,6 +225,12 @@
        body[data-theme="<id>"] blocks in main.css. sw = shop swatch preview.
        The retired kin/shinku/aoi/sumi ids fall back to the default theme in
        applyCosmetics(); owned copies simply stop being applicable. */
+    /* The two FREE themes (audit G-06). Every other theme is 140 gold, which
+       left a user whose device is in dark mode with a bright parchment app
+       and no way out but grinding. price 0 => owns() is true without buying,
+       and an unset theme follows prefers-color-scheme in CSS. */
+    { id: "theme-atelier-dawn", kind: "theme", name: "Atelier Dawn", price: 0, desc: "The house light: warm parchment, sepia ink, dusk iris and brass.", theme: "atelier-dawn", sw: ["#5D6BA8", "#A97F2F", "#7D9B76"] },
+    { id: "theme-atelier-dusk", kind: "theme", name: "Atelier Dusk", price: 0, desc: "The same room after dark: warm ink ground, the same three accents lifted.", theme: "atelier-dusk", sw: ["#8E9BD8", "#D8AC5A", "#9DBE95"] },
     { id: "theme-spectral-rose", kind: "theme", name: "Spectral Rose", price: 140, desc: "Blue-black lacquer, wine red, cyan rim-light and ember orange.", theme: "spectral-rose", sw: ["#D82D57", "#22D7E8", "#FF8A3D"] },
     { id: "theme-verdigris-duel", kind: "theme", name: "Verdigris Duel", price: 140, desc: "Charcoal, oxidised teal, fog white and restrained rust.", theme: "verdigris-duel", sw: ["#6F9E98", "#DDEBE7", "#A65E58"] },
     { id: "theme-sakura-skyline", kind: "theme", name: "Sakura Skyline", price: 140, desc: "Deep indigo city-night with periwinkle, electric blue and sakura pink.", theme: "sakura-skyline", sw: ["#9B8DFF", "#55C7FF", "#F052B7"] },
@@ -290,7 +296,13 @@
 
   function catalog() { return CATALOG.slice(); }
   function item(id) { return CATALOG.find(function (c) { return c.id === id; }); }
-  function owns(id) { return G().owned.indexOf(id) !== -1; }
+  /* a price-0 catalogue entry is owned by everyone, always — the free themes
+     must not depend on a purchase record that a fresh install has never made */
+  function owns(id) {
+    var c = item(id);
+    if (c && c.price === 0) return true;
+    return G().owned.indexOf(id) !== -1;
+  }
   function buy(id) {
     var g = G(), it = item(id);
     if (!it) return { ok: false, msg: "Unknown item." };
@@ -514,10 +526,21 @@
     if (!g.banner) return false;
     if (g.banner === "custom" && g.bannerImg) {
       KOS.imageCrop.background(node, g.bannerImg, g.bannerCrop, {
-        /* Home carries dark Atelier ink, while Governor Status declares
-           banner-dark and therefore needs a genuinely dark contrast scrim. */
+        /* Three scrims, because the three hosts have genuinely different
+           jobs. Governor Status declares banner-dark and needs a dark ink
+           scrim; the default lets the artwork run free on the right, which
+           suits a host whose right-hand side carries no text.
+
+           `full` is Home's (Cat 7 Phase C · audit HOME-2): the band carries
+           text at BOTH ends, and the default gradient went transparent
+           exactly where the figures sat, so "SPEC POINTS" was printed
+           through a kanji watermark and legibility depended on whichever
+           image the user happened to upload. A readable page cannot be a
+           property of someone's wallpaper. */
         overlay: opts.darkScrim
           ? "linear-gradient(100deg, rgba(16,14,10,.9) 0%, rgba(16,14,10,.67) 52%, rgba(16,14,10,.32) 100%)"
+          : opts.scrim === "full"
+          ? "linear-gradient(100deg, color-mix(in srgb, var(--bg1) 93%, transparent) 0%, color-mix(in srgb, var(--bg1) 74%, transparent) 45%, color-mix(in srgb, var(--bg1) 82%, transparent) 100%)"
           : "linear-gradient(100deg, color-mix(in srgb, var(--bg1) 88%, transparent) 30%, color-mix(in srgb, var(--bg1) 45%, transparent) 70%, transparent)"
       });
     } else {
@@ -639,7 +662,7 @@
       ])
     ]);
     overlay.appendChild(box);
-    document.body.appendChild(overlay);
+    KOS.ui.openDialog(overlay);
     statusIn.focus();
     return overlay;
   }
@@ -754,7 +777,7 @@
     holder.innerHTML = "";
     var wasOpen = !!popNode;
     var btn = el("button", { class: "hud hud-" + state, "aria-haspopup": "dialog", "aria-expanded": "false",
-      title: "Behavioural Governor — HP " + g.hp + " · Level " + li.level + " · " + g.gold + " gold",
+      title: "Behavioural Governor — HP " + g.hp + " · Level " + li.level + " · " + KOS.ui.num(g.gold) + " gold",
       onclick: function () { if (popNode) closeProfilePopover(); else openProfilePopover(); } }, [
       avatarNode(34),
       el("span", { class: "hud-col" }, [
@@ -763,7 +786,7 @@
           el("i", { class: "hud-state-dot", "aria-hidden": "true" }),
           el("span", { text: hpStateInfo().label }),
           el("span", { "aria-hidden": "true", text: "·" }),
-          el("span", { class: "hud-gold", text: "◈ " + g.gold })
+          el("span", { class: "hud-gold", text: "◈ " + KOS.ui.num(g.gold) })
         ])
       ])
     ]);
