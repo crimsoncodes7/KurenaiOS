@@ -2204,13 +2204,48 @@
     });
   }
 
+  /* ---- the ONE dismissal path (Category 7 E+F integration) ----
+     Phase E's phone presenter MOVES this same #searchbox into a bottom
+     sheet and moves it back on close — there is no second search input,
+     no second result list and no second controller. What it cannot do
+     from outside is retract the controller's state, and hiding the panel
+     with a class does not: `aria-expanded` would still say "true" over a
+     list that is gone, `aria-activedescendant` would still name a removed
+     option, and an in-flight `KOS.search.run` answer (the vault read is
+     asynchronous) would repaint the panel after it had been dismissed.
+
+     So dismissal lives here, once, and both presentations call it.
+     `preserveQuery` is what the phone sheet wants: closing the sheet is
+     not the same act as abandoning the search, so reopening it should
+     find the query still there. */
+  function dismissSearch(opts) {
+    opts = opts || {};
+    seq++;                                  /* any pending answer is now stale */
+    options = [];
+    resultsEl.innerHTML = "";
+    setExpanded(false);                     /* clears aria-expanded + activedescendant + selIdx */
+    if (!opts.preserveQuery) input.value = "";
+    var counter = document.getElementById("search-count");
+    if (counter) counter.textContent = "";
+  }
+
+  /* A presentation layer (Phase E's phone sheet) needs to know that a
+     result was chosen, so it can dismiss itself before the route changes.
+     It used to find that out by intercepting the click and the Enter key
+     ahead of this controller — which raced it: whichever listener ran
+     first won, and on Enter the sheet's close emptied `options` before
+     this function could read it, so the sheet closed and nothing
+     navigated. The controller announces the decision instead. */
+  var chosenListeners = [];
+  function onSearchChosen(fn) { if (typeof fn === "function") chosenListeners.push(fn); }
+
   function choose(node) {
     if (!node || typeof node._open !== "function") return;
-    setExpanded(false);
-    resultsEl.innerHTML = "";
-    options = [];
-    input.value = "";
-    node._open();
+    dismissSearch();                        /* a chosen result abandons the query */
+    chosenListeners.forEach(function (fn) {
+      try { fn(); } catch (e) { /* a presenter must not block navigation */ }
+    });
+    node._open();                           /* …and the route change is last */
   }
 
   function moveSel(delta) {
@@ -2233,10 +2268,10 @@
     else if (e.key === "Home" && options.length) { e.preventDefault(); selIdx = -1; moveSel(1); }
     else if (e.key === "End" && options.length) { e.preventDefault(); selIdx = 0; moveSel(-1); }
     else if (e.key === "Enter" && selIdx >= 0) { e.preventDefault(); choose(options[selIdx]); }
-    else if (e.key === "Escape") { e.preventDefault(); setExpanded(false); input.blur(); }
+    else if (e.key === "Escape") { e.preventDefault(); dismissSearch({ preserveQuery: true }); input.blur(); }
   });
   document.addEventListener("click", function (e) {
-    if (!document.getElementById("searchbox").contains(e.target)) setExpanded(false);
+    if (!document.getElementById("searchbox").contains(e.target)) dismissSearch({ preserveQuery: true });
   });
   document.addEventListener("keydown", function (e) {
     if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -2363,5 +2398,9 @@
 
   var debounce = KOS.ui.debounce;
 
-  KOS.hub = { LEAVES: LEAVES, BYREF: BYREF, COLORS: COLORS, HEX: HEX, esc: esc, search: searchSpec };
+  KOS.hub = { LEAVES: LEAVES, BYREF: BYREF, COLORS: COLORS, HEX: HEX, esc: esc, search: searchSpec,
+    /* the two seams a search PRESENTER needs, and the only two it gets:
+       dismissSearch retracts this controller's async and ARIA state,
+       onSearchChosen says a result was picked (before the route changes) */
+    dismissSearch: dismissSearch, onSearchChosen: onSearchChosen };
 })();

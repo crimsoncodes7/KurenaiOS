@@ -207,15 +207,20 @@ step("a preserved mobile query repaints and result activation closes before rout
   assert($("#search-results").classList.contains("open") && $("#search-results .sr-item"),
     "the populated canonical result list did not open");
   let dismissOpts = null;
+  /* Phase F supplies a real dismissSearch since the E+F integration, so the
+     spy has to WRAP it and put it back — deleting it would strip a live API
+     for every step after this one. */
+  const realDismiss = KOS.hub.dismissSearch;
   KOS.hub.dismissSearch = opts => {
     dismissOpts = opts;
-    $("#search-results").classList.remove("open");
+    if (typeof realDismiss === "function") realDismiss(opts);
+    else $("#search-results").classList.remove("open");
   };
   key("Escape", input);
   await tick();
   assert(dismissOpts && dismissOpts.preserveQuery === true,
     "closing the presentation bypassed the canonical async/ARIA cancel seam");
-  delete KOS.hub.dismissSearch;
+  if (realDismiss) KOS.hub.dismissSearch = realDismiss; else delete KOS.hub.dismissSearch;
   click(trigger);
   await tick(10);
   assert($("#search-results").classList.contains("open") && $("#search-results .sr-item"),

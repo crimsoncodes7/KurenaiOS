@@ -742,6 +742,63 @@ step("a query with no answer says what was searched", async () => {
   await tick(60);
 });
 
+/* ---- the E+F seam ----
+   Phase E's phone presenter MOVES this same #searchbox into a sheet. It
+   used to close by intercepting the result click and the Enter key ahead
+   of this controller, which raced it — and Enter lost: closing emptied
+   the option list before `choose` could read it, so the sheet closed and
+   nothing navigated. The controller announces the decision instead.
+   These steps are the ones that would have caught it. */
+step("one canonical search controller, two presentations", () => {
+  const shell = src("js/modules/mobile-shell.js");
+  const hub = src("js/modules/hub.js");
+  /* moved, never cloned: the presenter must not build its own input or list */
+  assert(/slot\.appendChild\(searchbox\)/.test(shell),
+    "the phone sheet does not move the canonical search node into itself");
+  assert(!/createElement\(["']input["']\)|el\(\s*["']input["']/.test(shell),
+    "the phone shell builds a search input of its own — there must be exactly one");
+  assert(/KOS\.hub\.dismissSearch\(\{ preserveQuery: true \}\)/.test(shell),
+    "the presenter does not close through the canonical cancel seam");
+  assert(/KOS\.hub\.onSearchChosen/.test(shell),
+    "the presenter still races the controller instead of being told a result was chosen");
+  assert(/dismissSearch: dismissSearch, onSearchChosen: onSearchChosen/.test(hub),
+    "the controller does not expose exactly the two presenter seams");
+  /* and the sheet must not still describe a specification-only search.
+     A comment ABOUT retired copy is not the copy — strip comments first,
+     the same rule the stylesheet assertions follow. */
+  const shellCode = shell.replace(/\/\*[\s\S]*?\*\//g, "");
+  assert(!/Find a topic/.test(shellCode),
+    "the phone sheet still describes the box as finding a topic — Phase F made it eight domains");
+});
+
+step("dismissSearch retracts async, ARIA and selection state", async () => {
+  const input = document.getElementById("search");
+  const list = document.getElementById("search-results");
+  input.value = "Lantern";
+  input.dispatchEvent(new window.Event("input", { bubbles: true }));
+  await tick(200);
+  key("ArrowDown", input);
+  await tick(20);
+  assert(input.getAttribute("aria-activedescendant"), "setup: nothing was highlighted");
+  assert(list.querySelectorAll('[role="option"]').length, "setup: no options");
+
+  KOS.hub.dismissSearch({ preserveQuery: true });
+  assert(input.getAttribute("aria-expanded") === "false", "the combobox still reports itself open");
+  assert(!input.getAttribute("aria-activedescendant"),
+    "aria-activedescendant still names an option that no longer exists");
+  assert(!list.children.length, "the listbox was hidden rather than emptied");
+  assert(input.value === "Lantern", "preserveQuery did not preserve the query");
+  const counter = document.getElementById("search-count");
+  assert(!counter.textContent, "the announced result count outlived the results");
+
+  /* the sequence guard: an answer already in flight must not repaint */
+  KOS.hub.dismissSearch();
+  assert(input.value === "", "a plain dismiss should abandon the query");
+  await tick(300);
+  assert(!list.children.length && input.getAttribute("aria-expanded") === "false",
+    "a stale asynchronous answer repainted the panel after it was dismissed");
+});
+
 step("the results panel is not trapped under the page", () => {
   /* #topbar carries backdrop-filter, which makes it a STACKING CONTEXT —
      so #search-results' own z-index could never lift it above #cols, and

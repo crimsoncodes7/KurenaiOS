@@ -250,7 +250,11 @@
     slot.appendChild(searchbox);
     var box = el("section", { class: "modal mobile-search-sheet", "data-dialog-box": "true" }, [
       el("div", { class: "mobile-sheet-head" }, [
-        el("div", {}, [el("span", { class: "eyebrow", text: "Find a topic" }), el("h2", { text: "Search" })]),
+        /* "Find a topic" described the box as it was before Phase F, when
+           it searched the specification and nothing else. The sheet is the
+           same controller, so it reaches the same eight domains. */
+        el("div", {}, [el("span", { class: "eyebrow", text: "Everything you've studied and collected" }),
+          el("h2", { text: "Search" })]),
         close
       ]),
       slot
@@ -281,17 +285,19 @@
   KOS.mobileShell = KOS.mobileShell || {};
   KOS.mobileShell.openSearch = openSearch;
   searchTrigger.addEventListener("click", openSearch);
-  searchResults.addEventListener("click", function (event) {
-    /* Close before hub.js activates the result. This lets the canonical
-       navigation path choose the post-route focus instead of a delayed
-       dialog teardown restoring the old trigger over it. */
-    if (activeSearchOverlay && event.target.closest(".sr-item")) activeSearchOverlay.close();
-  }, true);
-  searchInput.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" && searchResults.querySelector(".sr-item.sel") && activeSearchOverlay) {
-      activeSearchOverlay.close();
-    }
-  }, true);
+  /* The sheet used to close by INTERCEPTING the result click and the Enter
+     key ahead of the canonical controller. That was a race, and Enter lost
+     it: closing ran restoreSearchbox → dismissSearch, which emptied the
+     controller's option list before it could read the highlighted row, so
+     the sheet closed and nothing navigated. The controller now announces
+     the decision and this closes on being told — one order, both input
+     methods, and the route change still happens last so it owns the
+     post-navigation focus. */
+  if (KOS.hub && typeof KOS.hub.onSearchChosen === "function") {
+    KOS.hub.onSearchChosen(function () {
+      if (activeSearchOverlay) activeSearchOverlay.close();
+    });
+  }
   function searchShortcutState(event) {
     var target = event.target;
     var typing = target && (/INPUT|TEXTAREA|SELECT/.test(target.tagName) || target.isContentEditable);
