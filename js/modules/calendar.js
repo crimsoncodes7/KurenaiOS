@@ -1244,7 +1244,9 @@
         } })
       ]));
 
-      if (mode === "month") renderMonth(grid, y, mo, t, render);
+      var phoneLayout = window.matchMedia && window.matchMedia("(max-width: 700px)").matches;
+      if (mode === "month") renderMonth(grid, y, mo, t, render, phoneLayout);
+      else if (phoneLayout) renderPhoneWeek(grid, weekStart, t, render);
       else renderWeek(grid, weekStart, t, render);
 
       grid.appendChild(legend());
@@ -1254,7 +1256,7 @@
   };
 
   /* ---------------- month grid ---------------- */
-  function renderMonth(host, y, mo, t, onChanged) {
+  function renderMonth(host, y, mo, t, onChanged, phoneLayout) {
     var first = new Date(y, mo, 1);
     var startD = new Date(y, mo, 1 - ((first.getDay() + 6) % 7));
     var days = [];
@@ -1291,20 +1293,71 @@
 
       /* a "+1 more" costs exactly as much room as the chip it hides, so the
          cap only bites from the second hidden item onwards */
-      var show = chips.length <= MONTH_CHIPS + 1 ? chips.length : MONTH_CHIPS;
-      chips.slice(0, show).forEach(function (c) { stack.appendChild(c); });
-      if (chips.length > show) {
-        var extra = chips.length - show;
+      if (phoneLayout && chips.length) {
+        /* Seven readable titles do not fit into 390px. The phone month is an
+           overview: density stays visible, and one clear button discloses
+           every full title in the existing day sheet. */
         stack.appendChild(el("button", {
-          class: "cal-more", type: "button", text: "+" + extra + " more",
-          "aria-label": extra + " more on " + prettyDate(dISO),
+          class: "cal-day-summary", type: "button", text: String(chips.length),
+          "aria-label": chips.length + (chips.length === 1 ? " item" : " items") + " on " + prettyDate(dISO),
           onclick: function (e) { e.stopPropagation(); daySheet(dISO, onChanged); }
         }));
+      } else {
+        var show = chips.length <= MONTH_CHIPS + 1 ? chips.length : MONTH_CHIPS;
+        chips.slice(0, show).forEach(function (c) { stack.appendChild(c); });
+        if (chips.length > show) {
+          var extra = chips.length - show;
+          stack.appendChild(el("button", {
+            class: "cal-more", type: "button", text: "+" + extra + " more",
+            "aria-label": extra + " more on " + prettyDate(dISO),
+            onclick: function (e) { e.stopPropagation(); daySheet(dISO, onChanged); }
+          }));
+        }
       }
       cell.appendChild(stack);
       g.appendChild(cell);
     });
     host.appendChild(g);
+  }
+
+  /* The phone's Week choice is an agenda, not seven 44px time columns.
+     It uses the same event/assignment/reminder buttons and the same day
+     sheet/editor paths as the desktop grid; only the composition changes. */
+  function renderPhoneWeek(host, weekStart, t, onChanged) {
+    var agenda = el("div", { class: "cal-phone-week" });
+    for (var i = 0; i < 7; i++) {
+      (function () {
+        var dt = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i);
+        var dISO = isoOf(dt);
+        var items = dayItems(dISO);
+        var rows = [];
+        items.events.forEach(function (ev) { rows.push(eventChip(ev, dISO, onChanged)); });
+        items.assignments.forEach(function (a) { rows.push(assignmentChip(a, onChanged)); });
+        items.reminders.forEach(function (r) { rows.push(reminderChip(r)); });
+        var list = el("div", { class: "cal-phone-day-items" });
+        if (rows.length) rows.forEach(function (row) { list.appendChild(row); });
+        else list.appendChild(el("p", { class: "sub cal-phone-empty", text: "Nothing scheduled." }));
+        agenda.appendChild(el("section", { class: "cal-phone-day" + (dISO === t ? " today" : "") }, [
+          el("div", { class: "cal-phone-day-head" }, [
+            el("button", {
+              type: "button", class: "cal-phone-date",
+              "aria-label": "Open " + prettyDate(dISO),
+              onclick: function () { daySheet(dISO, onChanged); }
+            }, [
+              el("span", { text: DOW[(dt.getDay() + 6) % 7] }),
+              el("b", { text: dt.getDate() + " " + MONTHS[dt.getMonth()].slice(0, 3) })
+            ]),
+            el("button", {
+              type: "button", class: "mini-btn", text: "+",
+              "aria-label": "New event on " + prettyDate(dISO),
+              onclick: function () { eventModal(null, dISO, onChanged); }
+            })
+          ]),
+          list
+        ]));
+      })();
+    }
+    host.appendChild(agenda);
   }
 
   /* ---------------- week grid ----------------

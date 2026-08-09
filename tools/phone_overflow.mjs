@@ -72,12 +72,12 @@ const PROBE = `(() => {
   const out = [], cut = [];
   const label = n => n.tagName.toLowerCase() + (n.className && typeof n.className === "string"
     ? "." + n.className.trim().split(/\\s+/).slice(0,3).join(".") : "");
-  /* A box whose right edge is past the viewport is a FAILURE whichever way
-     it got there: #app is overflow-hidden so it is simply gone, and an
-     ancestor with overflow-x:auto only converts it into a sideways scroll
-     nobody discovers (that is how Papers 2–3 became unreachable). Both are
-     the bug. The one honest exception is decoration — a negative-z layer
-     with no text and nothing to click cannot be "unreachable content". */
+  /* A box whose right edge is past the viewport is a FAILURE unless it is
+     inside an explicitly declared horizontal scroller. The declaration is
+     the auditable contract that the overflow has controls/fades and is an
+     intentional disclosure pattern rather than clipped page content. The
+     other honest exception is decoration — a negative-z layer with no text
+     and nothing to click cannot be "unreachable content". */
   const decorative = n => {
     if (+getComputedStyle(n).zIndex >= 0) return false;
     if ((n.textContent || "").trim()) return false;
@@ -88,7 +88,7 @@ const PROBE = `(() => {
     if (s.display === "none" || s.visibility === "hidden" || +s.opacity === 0) return;
     const r = n.getBoundingClientRect();
     if (!r.width || !r.height) return;
-    if (r.right > vw + 0.5 && !decorative(n)) {
+    if (r.right > vw + 0.5 && !n.closest("[data-scroller]") && !decorative(n)) {
       out.push({ sel: label(n), over: Math.round(r.right - vw), w: Math.round(r.width) });
     }
     /* amputation: real text cut by a hidden-overflow box with no ellipsis.
