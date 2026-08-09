@@ -52,6 +52,7 @@ node tools/smoke41.test.js # Category 7 staleness guard: the monotonic __seq on 
 node tools/smoke40.test.js # Category 7 Phase A: the note pager scrolling only on a reader-initiated page turn (B-04), the lazy area rooting on #main and refilling while the sentinel stays in range (B-05), Mangaka on the shared lazy area with author search and a filtering A–Z rail (B-06), #app dvh-with-vh-fallback and the phone tier's tab-bar clearance
 node tools/smoke42.test.js # Category 7 Phase B: the five-breakpoint contract (only 1240/1080/860/700/560, no width bands, no narrower-tier-above-wider inversions), the Dialog primitive (role/aria-modal/name-from-heading, focus trap, scroll lock, focus restore, Escape, danger-safe confirmations) and its source contract, the three Tabs variants, EmptyState/StatTile zero suppression, the scroll-affordance contract, locale numbers, cover loading state and the skip link
 node tools/smoke44.test.js # Category 7 Phase D (Collection): the one vault toolbar (six controls, facets behind Filters ▾, commands behind Actions ▾, one primary, zero network on render), the one hero (three-step backdrop, unconditional scrim, no .vh-painted), KOS.ui.menu as a popover not a dialog (ARIA, roving focus, Escape + focus restore, below --z-modal), the genre/tag/rare facet split with counts, Mangaka (bounded author cards, four real filters, letter dividers, lazy batch), the Overview (one small-multiples row, no total printed twice, zero tiles suppressed, no distribution from one rating), chart readability (axis, gridlines, 11px floor, wrapped labels) and the one progress grammar
+node tools/smoke45.test.js # Category 7 Phase F accessibility/interaction/routing: hash routes over pushState (every view, deep links, browser Back/Forward, a `_nav` redraw pushing nothing, invalid routes failing to Home), the one polite + one assertive live region and the sync chip's announcement policy, accessible names across 29 views AND eight modal forms, no ARIA button holding an interactive descendant, Space on role="button", el() omitting a null attribute, the Phase B dialog contract re-asserted, menus dismissing without locking scroll, cross-domain search (grouping, combobox ARIA, keyboard, correct routing, nothing private) and the touch-target contract
 node tools/smoke43.test.js # Category 7 Phase C (Study + Home): the spine as the ONE section list (inherited bar + subsection tally, active-topic reveal, dismissible overlay drawer at ≤860), content-first geometry (one header row, one navigation layer, nothing between header and content), the single state surface (Topic Status in the inspector, mastery once, material counts once, header/field over one store value), compact note-page navigation (stepper + disclosure, B-04 scroll rule), flashcard/quiz keyboard control incl. text-field and self-removal guards, the REF-5/7/10 + SUBJ-4/5/6 fixes, and Home (activity-based headline figures against an active-but-unticked account, the next-action decision surface and its priority order, collapsing empty Directives/Countdowns, the Collection card as the same component, the mandatory hero scrim, labelled week pips, and the vault staying closed on Home's render pass)
 ```
 
@@ -123,13 +124,14 @@ python3 tools/gen_data.py --format-existing
 **Current status & backlog**: see the historical "SNAPSHOT — 2026-07-05" and
 the Build 4.0 / Build 5 / Build 4a / Build 4b addenda at the end of
 `PROGRESS.md` — prioritised backlog, user-owed manual steps, rough edges and
-the current test inventory. All 44 suites are the release gate (smoke17 the
+the current test inventory. All 45 suites are the release gate (smoke17 the
 Build 4a cloud-sync engine, smoke18 the Build 4b PWA layer, smoke19 the
 Build 4c games integrations, smoke37 the Study overview/topic-shell
 refinement, smoke38 Collection Goals v2 and Shrine Hall of Fame, smoke39 the
 Phase 2 Live2D binding and its closed release gate, smoke41 the cloud staleness guard, smoke40 the Category 7
 Phase A bug fixes, smoke42 the Phase B breakpoint contract and UI primitives,
-smoke43 the Phase C Study redesign, smoke44 the Phase D Collection).
+smoke43 the Phase C Study redesign, smoke44 the Phase D Collection,
+smoke45 the Phase F accessibility/interaction/routing layer).
 Suites 1–16 plus the running-Chrome visual audit were verified
 green on 2026-07-13; all 17 on 2026-07-16; all 18 plus the phone/tablet CDP
 audit on 2026-07-17; all 19 on 2026-07-17; all 38 on 2026-08-07; all 39 plus
@@ -138,7 +140,9 @@ the visual audit on 2026-08-07; all 40 on 2026-08-08; all 42 plus the visual aud
 (9 widths × 2 themes) and Dawn/Dusk screenshots on 2026-08-08; all 43 again after the Home pass, with a 192-cell sweep and the visual
 audit, on 2026-08-08; all 44 after the Phase D Collection pass, with a
 192-cell whole-app sweep, an 88-cell Collection sweep and Dawn/Dusk
-screenshots at 1920/1440/820/390, on 2026-08-09.
+screenshots at 1920/1440/820/390, on 2026-08-09; all 45 after the Phase F
+accessibility pass, with the visual audit and a 192-cell sweep diffed against
+the Phase D tree at 0 worse / 0 better, on 2026-08-09.
 
 **Edge Functions** (Build 4c, `supabase/functions/`): deploy with
 `supabase functions deploy <name>`; secrets via `supabase secrets set` only
@@ -518,6 +522,91 @@ Collected from every build. If a change would break one of these, stop and say s
     one card per module. A statistic with too little data behind it says
     so instead of being drawn (five ratings before a distribution).
 
+**Accessibility, interaction and routing (Category 7 Phase F)**
+64. **The BROWSER owns the history stack.** `js/core/router.js` WRAPS
+    `KOS.show` — it never edits it, so rendering (rail state, subnav,
+    scroll reset, menu close) stays in exactly one place. Routes are
+    HASH routes (`#/ref/compsci/4.1.1.1`) because `index.html` must keep
+    working from `file://` and production is a static host with no
+    rewrite rules; a path route throws in one environment and 404s on
+    refresh in the other. `KOS.back()`/`KOS.forward()` call
+    `history.back()`/`history.forward()`, so the topbar arrows, Alt+←/→,
+    the OS gesture and the browser chrome are ONE stack — two stacks that
+    can disagree is how the in-app arrows started lying after a sync.
+    Only five views encode an argument, because only theirs is part of
+    the page's IDENTITY: `subject`, `ref`, `governor`, `sims`,
+    `assistant`. Richer non-linkable arguments (the Focus setup's
+    `{assignmentId}`, a stats filter) are remembered against their
+    history index instead, so an in-session Back restores the full
+    argument while a cold deep link still resolves. Transient modal state
+    is deliberately never encoded.
+65. **A REDRAW IS NOT A NAVIGATION.** A render carrying `_nav` — which is
+    what `KOS.rerender()` and therefore every cloud pull passes — never
+    pushes a history entry, never moves the URL, never moves focus and
+    never announces. A background sync must leave the stack, the address
+    bar and the reader's scroll position exactly as they were. An unknown
+    view id, an unknown subject or a `ref` route missing half its
+    identity all fall back to Home and REPLACE the bad URL rather than
+    leaving it in the address bar.
+66. **`KOS.a11y.announce` is the ONLY way anything reaches a live
+    region.** There is one polite region and one assertive one, both
+    injected by `js/core/a11y.js`; `#toast` is the VISIBLE half and is
+    `aria-hidden`, so a message is never announced twice. The region is
+    cleared before it is refilled, so the same sentence twice running
+    announces twice. Reserve `assertive` for something the user must act
+    on. Do NOT make a control a live region: the sync chip's label
+    changes every cycle, and announcing each change recited
+    "Syncing/Synced/Changes pending" over whatever the user was doing —
+    it now speaks only when entering a state that needs the user, or when
+    leaving one.
+67. **An ARIA button may not contain an interactive descendant.** A card
+    that holds a favourite toggle, a status `<select>` and "+1" is NOT a
+    button — a screen reader flattens it and Tab walks inside. The card
+    keeps its pointer `onclick`; its TITLE becomes a real `<button>`, so
+    the order reads favourite → title → status → +1 and the entry
+    announces by name. Where a node genuinely IS a leaf, use a real
+    `<button>` rather than `role="button"` + `tabindex`. If a div must
+    keep the role, route it through `KOS.a11y.activate(node, fn)` — the
+    role promises Space as well as Enter, and Space's default is a page
+    scroll.
+68. **A placeholder is not an accessible name** — it disappears exactly
+    when the name is needed. Neither is a control's visible STATE a
+    description of its action ("Synced" does not say what pressing it
+    does). `el()` omits an attribute whose value is `null`/`undefined`,
+    because `title: opts.hint || null` is the house idiom and
+    `setAttribute` stringifies — that shipped `title="null"` on every
+    tab and menu button without a hint.
+69. **Hit areas grow by raising the VISUAL floor, not by an invisible
+    44px square.** Icon-only controls take 32px and the full 44 under
+    `pointer: coarse`, which is what WCAG 2.5.5 is about. A blanket 44px
+    pseudo-element is forbidden: `.xbtn` pairs sit 2px apart and the
+    quick-edit row packs a select against "+1", so overlapping targets
+    would hand taps to the wrong control — a worse failure than a small
+    one, because it is silent. Where a dense grid makes 44 impossible
+    (a calendar month cell shows three or four chips), meet WCAG 2.2
+    §2.5.8's 24px floor WITH spacing, and write the reason beside the
+    rule.
+70. **A stacking context traps its children.** `#topbar` carries
+    `backdrop-filter`, which makes it one, so `#search-results`' own
+    z-index could never lift it above `#cols` — the panel rendered
+    visible only in the gaps between the page's cards. The topbar sits on
+    the shared `--z-*` scale (`--z-topbar: 80`, between `--z-stage` and
+    the assistant drawer). Before giving a floating surface a z-index,
+    check what its ancestors do; and never hard-code the number.
+71. **Global search is a DISCLOSURE surface.** `js/core/search.js` is the
+    domain half and knows nothing about the DOM. It covers what the user
+    authored or collected — the three specifications, topic notes, the
+    Collection, reminders, assignments, the calendar, personal
+    flashcards, the planner and goals — and NOTHING private: provider
+    tokens, media kv, the Supabase session, `push.log`, the session
+    ledger and the assistant audit trail stay out by construction. The
+    Collection is read through `mediadb`'s indexed cursor and capped per
+    domain, so a 1,880-entry vault never reaches the DOM (invariant #8's
+    rule, applied to search). Results are `role="option"` inside
+    per-domain `role="group"` wrappers so the arrow keys walk results and
+    never land on a heading; an async answer re-checks that the query it
+    answers is still the one in the box.
+
 **Calendar & the event model (Build 6.6)**
 41. `KOS.calendar.normalise()` is the SINGLE schema gate for an event — every
     write goes through it, so an unlisted field cannot enter the store. The
@@ -653,7 +742,8 @@ All JS is loaded via `<script src="...">` in `index.html` in strict dependency o
 ### Load order (from `index.html`)
 
 1. **Data** — `js/data/{compsci,maths,it,intel}.js` populate `window.KOS_DATA.*`
-2. **Core** — `store.js`, `ui.js`, `imagecrop.js`, `charts.js`, `content.js`,
+2. **Core** — `store.js`, `ui.js`, `a11y.js`, `router.js`, `search.js`,
+   `imagecrop.js`, `charts.js`, `content.js`,
    then `srs.js`, `sessions.js`, `governor.js`, `mediadb.js`, `anilist.js`,
    `vndb.js`, `bookapi.js`, `media.js`, `mediapush.js`, `autosync.js`,
    `cloud.js`, `cloudsync.js` (Build 4a — both feature-check lazily; the
@@ -661,6 +751,10 @@ All JS is loaded via `<script src="...">` in `index.html` in strict dependency o
    load with `defer` in `<head>`, so the smoke loader regex skips them and a
    missing env file 404s harmlessly). `imagecrop.js` must follow `ui.js` (it
    uses `KOS.ui.el`) and precede every renderer/editor that consumes it.
+   `a11y.js`, `router.js` and `search.js` (Category 7 Phase F) must also
+   follow `ui.js`: a11y reads `KOS.ui.topDialog`, and router CAPTURES
+   `KOS.show` to wrap it. `main.js` ends with `KOS.router.boot()`, which
+   owns the opening view.
 3. **Deep content** — `js/data/content/*.js` populate `window.KOS_CONTENT["subject:ref"]`
 4. **Engines** — `js/engines/{flashcards,quiz}.js`
 5. **Modules** — `js/modules/hub.js` + `due.js`, `calendar.js`, `todo.js`, `governor-ui.js`, `tracker.js`, `rag.js`, `cardstats.js`, `attachments.js`, `help.js`, `focus.js`, `cloudui.js` (the topbar sync chip + the Archive "Account & Cloud Sync" card), then `medview.js` (the shared vault-view toolkit: cover/lazy list/pills/empty states, the editor shell, quickEdit + push chip — every vault view builds on it), the four vault views `anime.js`, `books.js`, `vn.js`, `games.js` (each registers its editor in `KOS.mediaEditors` — dispatch lives in core/media.js, so their relative order after medview.js is free), `aniprofile.js`, `vndbprofile.js`, `wishlist.js` (registers a `KOS.mediaEditorHooks` entry for "on your wishlist" surfacing), `goals.js`, `matrix.js`, `shrine.js`, `mediasync.js`, `mediasearch.js`. `hub.js` also owns the Compare Topics workspace: it is read-only over deep content/progress except `state.study.compareNotes`, which is a pair-keyed personal note and therefore rides normal state export/import.
@@ -740,7 +834,10 @@ IndexedDB kurenai-os-media (v7) ── mediadb.js owns schema + indexes + bulkUp
 | `KOS.cloud` | Supabase client + email/password auth (Build 4a): `configured`, `available`, `signUp/signIn/signOut`, `init`, `onAuth`, `userId` |
 | `KOS.cloudsync` | The multi-device sync engine (Build 4a): `start`, `syncNow`, `noteChange`, `noteRestore`, `migrateUp`, `resolveBoth`, `uploadBinaries`, `downloadFile`, `onStatus` — see invariants 31–36 |
 | `KOS.content` | `get(sid,ref)`, `has(sid,ref)`, `renderBlocks(blocks)`, `coverage(sid,leaves)` |
-| `KOS.show(viewId, arg)` | Clears `#main`, calls `KOS.views[viewId](main, arg)`, updates rail active state, saves |
+| `KOS.show(viewId, arg)` | Clears `#main`, calls `KOS.views[viewId](main, arg)`, updates rail active state, saves — then the router (which wraps it) pushes the route and moves focus, unless the render carries `_nav` |
+| `KOS.a11y` | Announcements and interaction semantics (Phase F): `announce(msg,{assertive})`, `activate(node,fn)` (Enter **and** Space on a `role="button"`), `focusView(viewId)` |
+| `KOS.router` | The history layer (Phase F): `boot()`, `routeFor(viewId,arg)`, `parse(hash)`, `depth()`, `maxDepth()` — see invariants 64–65 |
+| `KOS.search` | Cross-domain search (Phase F): `run(q, cb)` — `cb(groups, done)` fires twice, memory first then IndexedDB. Pure domain layer, no DOM; see invariant 71 |
 | `KOS.views` | Registry of view render functions; each module registers itself here |
 | `KOS_DATA` | Spec tree data (generated — do not hand-edit `compsci/maths/it.js`) |
 | `KOS_CONTENT` | Deep revision content keyed by `"subject:ref"` (hand-authored in `js/data/content/`) |
