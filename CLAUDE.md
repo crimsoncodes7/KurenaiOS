@@ -13,8 +13,8 @@ chronological diary here.
 - Release source checkpoint: `f81f2962dacfa07431355234737c8fbaa4070b7f`
 - Runtime release: `06893d22ddef02fe04b8514e8f9bc177866878d1`
 - Release tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-cat7-phase-g-1`
-- Required smoke gate: 47 / 47 suites.
+- Service-worker version: `kos-egress-1`
+- Required smoke gate: 48 / 48 suites.
 
 ## Run, test and deploy
 
@@ -24,7 +24,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 -m http.server 8765
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..47}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..48}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -209,6 +209,18 @@ source comments and audit notes refer to it.
     service-role key. Cloud sessions and sync metadata stay out of backups.
 36. Attachment metadata syncs automatically; binary upload is explicit. Only an
     attachment delete removes the remote object.
+36a. A no-op merge never restamps `updatedAt`. No provider offers a since-cursor,
+    so autosync re-reads whole lists and every row re-enters `bulkUpsert`; `merge()`
+    compares material fields and keeps the stored timestamp when nothing moved.
+    Without it the entire vault reads as dirty, re-uploads and echoes back. A real
+    change must still restamp.
+36b. An idle cycle never downloads the state document. `fetchStateHead` reads `__seq`
+    and `updated_at` through a json-path select and fetches the document only when
+    those scalars justify it. It fails soft in both directions and latches the
+    fallback, so a backend without the probe wastes one request per session.
+36c. Background cycles are safety nets, not the sync path: cloudsync 15 min, autosync
+    30 min. A real local change schedules a cycle through `noteChange` and focus
+    triggers one; do not shorten the timers to make sync feel faster.
 
 ### PWA, responsive foundations and shared primitives (37–50)
 

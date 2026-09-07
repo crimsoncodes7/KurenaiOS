@@ -189,9 +189,17 @@ step("the compact reminder hint keeps the existing search control readable", () 
     "the phone reminder placeholder is crowded again");
 });
 
-step("the release cache version identifies the final Category 7 shell", () => {
-  assert(/VERSION\s*=\s*"kos-cat7-phase-g-1"/.test(read("sw.js")),
-    "the service worker would keep the pre-Phase-G shell cache");
+step("the release cache version is deliberate and matches the recorded baseline", () => {
+  // Invariant 38 requires VERSION to be bumped for every asset deployment, so
+  // pinning one literal here would fail on each release. What must hold is that
+  // the shipped version is deliberate and is the one CLAUDE.md records, so the
+  // shell cache can never quietly go stale or drift from the documentation.
+  const m = /VERSION\s*=\s*"([^"]+)"/.exec(read("sw.js"));
+  assert(m && m[1].trim(), "sw.js has no release cache VERSION");
+  const doc = /Service-worker version:\s*`([^`]+)`/.exec(read("CLAUDE.md"));
+  assert(doc, "CLAUDE.md no longer records the service-worker version");
+  assert(doc[1] === m[1],
+    "sw.js VERSION (" + m[1] + ") and the CLAUDE.md baseline (" + doc[1] + ") disagree");
 });
 
 (async () => {

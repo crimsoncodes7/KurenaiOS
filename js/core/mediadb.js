@@ -323,6 +323,38 @@
     return { units: units, statusAdvanced: advanced };
   }
 
+  /* ---------------- material equality (the bulkUpsert no-op test) ----------
+     normalise() stamps `updatedAt: now` on every row it touches, which is
+     right for a real edit and wrong for a pull. A provider re-sends the
+     WHOLE list every cycle, so an unchanged entry came back through
+     merge() with a fresh timestamp and looked edited to cloud sync's
+     dirtiness check (entry.updatedAt vs meta.cleanLocal) — the entire
+     vault pushed to Supabase every autosync cycle, then echoed straight
+     back on the next pull, forever, for nothing.
+
+     This answers "did anything the user can see actually move?" over
+     every persisted field except the three that move on their own:
+     updatedAt (the field being decided), lastSyncedAt (both provider
+     mappers stamp Date.now() on every run) and reward (the derived
+     watermark, absorbed immediately after the test). Keys are sorted at
+     every level because merge() re-adds `id` at the end of the incoming
+     row while the stored copy carries it from IndexedDB — same content,
+     different insertion order. Arrays keep their order: route and volume
+     sequence is meaningful. */
+  var VOLATILE = { updatedAt: true, lastSyncedAt: true, reward: true };
+  function materialJSON(e) {
+    return JSON.stringify(e, function (k, v) {
+      if (VOLATILE[k]) return undefined;
+      if (v && typeof v === "object" && !Array.isArray(v)) {
+        var out = {};
+        Object.keys(v).sort().forEach(function (kk) { if (!VOLATILE[kk]) out[kk] = v[kk]; });
+        return out;
+      }
+      return v;
+    });
+  }
+  function sameMaterial(a, b) { return materialJSON(a) === materialJSON(b); }
+
   function normalise(e) {
     e = e || {};
     var now = Date.now();
@@ -834,6 +866,10 @@
           if (d) rewards.push({ entryId: inc.id, title: inc.title, module: inc.module,
                                 units: d.units, statusAdvanced: d.statusAdvanced, status: inc.status });
         }
+        /* a merge that changed nothing keeps the stored timestamp, so the
+           row stays clean for cloud sync (and stops a no-op pull
+           reshuffling the "recently updated" sort) — see sameMaterial */
+        if (sameMaterial(old, inc)) inc.updatedAt = old.updatedAt;
         inc.reward = rewardSnapshot(inc);
         var rq = os.put(inc);
         rq.onsuccess = function () { updated++; next(); };

@@ -33,7 +33,14 @@
   "use strict";
   window.KOS = window.KOS || {};
 
-  var INTERVAL = 15 * 60 * 1000;   // pull cycle while the app is open
+  /* Each cycle re-reads the WHOLE remote list (neither AniList nor VNDB
+     offers a since-cursor), and every row it returns goes through the
+     bulkUpsert merge. That is cheap now that a no-op merge leaves
+     updatedAt alone (mediadb sameMaterial) — before it dirtied the entire
+     vault four times an hour and pushed it all to the cloud. Half-hourly
+     still catches a mal-sync episode tick well inside a viewing session,
+     while halving the provider traffic; "Sync now" remains immediate. */
+  var INTERVAL = 30 * 60 * 1000;   // pull cycle while the app is open
   var BOOT_DELAY = 8000;           // after boot — clear of the 4 s dedupe pass
   var PULL_GAP = 2500;             // between AniList anime and manga pulls (30 req/min)
   var DRAIN_WAIT = 20000;          // max wait for retried pushes to leave the queue
