@@ -52,7 +52,15 @@
 
   /* ---------------- tunables (test seams via _config) ---------------- */
   var PUSH_DEBOUNCE = 4000;        // quiet period after a local change
-  var INTERVAL = 5 * 60 * 1000;    // background cycle while the app is open
+  /* The background cycle is a SAFETY NET, not the sync path: a real local
+     change already schedules a cycle through noteChange (4 s debounce),
+     and returning to the tab triggers one via focus/visibilitychange. Its
+     only job is catching a change made on another device while this tab
+     sits open and untouched, so it can be infrequent — at 5 minutes it
+     was 288 no-op cycles a day per open tab, against a free-tier egress
+     quota. Fifteen keeps an idle second device current without paying a
+     copy of the account for the privilege. */
+  var INTERVAL = 15 * 60 * 1000;   // background cycle while the app is open
   var MIN_PULL_GAP = 60 * 1000;    // focus/visibility cycles at most this often
   var BOOT_DELAY = 3000;           // after boot (env.local.js is deferred)
   var PAGE = 500;                  // pull page size
@@ -269,6 +277,13 @@
       fetchState: function (cb) {
         run(c().from("kos_state").select("state_json, updated_at").maybeSingle(), cb, "State pull");
       },
+      /* the two scalars the guard and the pull actually decide on, without
+         the document hanging off them — see fetchStateHead */
+      fetchStateMeta: function (cb) {
+        /* explicit alias: the column comes back as `seq` rather than
+           depending on how the backend names a json-path selection */
+        run(c().from("kos_state").select("updated_at, seq:state_json->__seq").maybeSingle(), cb, "State probe");
+      },
       upsertState: function (json, cb) {
         run(c().from("kos_state")
           .upsert({ user_id: uid(), state_json: json }, { onConflict: "user_id" })
@@ -363,6 +378,45 @@
     var n = doc && doc.__seq;
     return typeof n === "number" && isFinite(n) && n > 0 ? n : 0;
   }
+
+  /* ---------------- the cheap look at the cloud copy ----------------
+     The state document is by far the largest thing this account stores
+     (every session, every progress record, the whole planner), and BOTH
+     readers of it decide on a scalar: the staleness guard compares
+     __seq, the pull compares updated_at. Downloading the document to
+     read one number cost this account a full copy on every cycle of
+     every open tab — the single biggest source of egress in the app.
+
+     So: ask for the scalars, and fetch the document only once they say
+     it is worth having. cb(err, {updated_at, seq, row}) where `row` is
+     the full record when we happened to read it anyway and null when we
+     did not. Fails soft in both directions — an api without the probe
+     (the smoke fakes) or a backend that rejects the JSON-path select
+     falls back to the full read, so behaviour is identical and only the
+     byte count changes. */
+  var probeUnavailable = false;   // latched on first refusal, per session
+  function fetchStateHead(cb) {
+    var a = api();
+    function full(cb2) {
+      a.fetchState(function (err, row) {
+        if (err) { cb2(err); return; }
+        cb2(null, row ? { updated_at: row.updated_at, seq: docSeq(row.state_json), row: row } : null);
+      });
+    }
+    if (probeUnavailable || typeof a.fetchStateMeta !== "function") { full(cb); return; }
+    a.fetchStateMeta(function (err, row) {
+      if (err) {
+        /* latch, so a backend that will not serve the json path costs one
+           wasted request per session rather than one per cycle */
+        probeUnavailable = true;
+        full(cb);
+        return;
+      }
+      var n = row ? Number(row.seq != null ? row.seq : row.__seq) : 0;
+      cb(null, row ? { updated_at: row.updated_at,
+                       seq: isFinite(n) && n > 0 ? n : 0, row: null } : null);
+    });
+  }
   function pushState(meta, done, opts) {
     var s = JSON.stringify(syncableState(KOS.store.state));
     var h = hashStr(s);
@@ -387,13 +441,24 @@
 
     /* we are about to overwrite the cloud copy — one cheap read first,
        and only on a cycle that actually has something to push */
-    api().fetchState(function (errF, row) {
+    fetchStateHead(function (errF, head) {
       if (errF) { done(errF); return; }
-      var remoteSeq = docSeq(row && row.state_json);
+      var remoteSeq = head ? head.seq : 0;
       var localSeq = +meta.state.seq || 0;
-      if (row && remoteSeq > localSeq) {
-        stalePending = { localSeq: localSeq, remoteSeq: remoteSeq, row: row };
-        done(null);          // declining to push is not an error
+      if (head && remoteSeq > localSeq) {
+        /* a genuine conflict, which is rare — now the document is worth
+           reading in full, because resolveStale("cloud") applies it */
+        if (head.row) {
+          stalePending = { localSeq: localSeq, remoteSeq: remoteSeq, row: head.row };
+          done(null);        // declining to push is not an error
+          return;
+        }
+        api().fetchState(function (e2, row) {
+          if (e2) { done(e2); return; }
+          if (!row) { upload(); return; }
+          stalePending = { localSeq: localSeq, remoteSeq: remoteSeq, row: row };
+          done(null);
+        });
         return;
       }
       upload();
@@ -583,11 +648,19 @@
        stop. Hold the state document still until the user chooses; media and
        attachments are per-entry and keep syncing regardless. */
     if (stalePending) { done(null, false); return; }
-    api().fetchState(function (err, row) {
+    /* the common case by far: nothing new since our last pull, answered
+       by a timestamp instead of by a copy of the whole document */
+    fetchStateHead(function (err, head) {
       if (err) { done(err); return; }
-      if (!row) { done(null, false); return; }
-      if (tsMs(row.updated_at) <= tsMs(meta.state.remoteTs)) { done(null, false); return; }
-      applyRemoteState(row, meta, done);
+      if (!head) { done(null, false); return; }
+      if (tsMs(head.updated_at) <= tsMs(meta.state.remoteTs)) { done(null, false); return; }
+      if (head.row) { applyRemoteState(head.row, meta, done); return; }
+      api().fetchState(function (e2, row) {
+        if (e2) { done(e2); return; }
+        if (!row) { done(null, false); return; }
+        if (tsMs(row.updated_at) <= tsMs(meta.state.remoteTs)) { done(null, false); return; }
+        applyRemoteState(row, meta, done);
+      });
     });
   }
 
