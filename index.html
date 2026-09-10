@@ -131,6 +131,9 @@
 <script src="js/data/maths.js"></script>
 <script src="js/data/it.js"></script>
 <script src="js/data/it-f201-spec.js"></script>
+<!-- the integrated weekly plan, imported once from Notion; a SEED that
+     js/core/pacing.js copies into state.pacing on first run -->
+<script src="js/data/pacing.js"></script>
 <script src="js/data/intel.js"></script>
 <!-- core -->
 <script src="js/core/store.js"></script>
@@ -150,6 +153,10 @@
 <script src="js/core/reminders.js"></script>
 <!-- Build 6.4: the Assignment Tracker canonical model -->
 <script src="js/core/assignments.js"></script>
+<!-- the integrated weekly plan: schema gate, one-time seed and the
+     school-vs-personal alignment derivations (reads study progress, writes
+     none, and never touches the Governor) -->
+<script src="js/core/pacing.js"></script>
 <script src="js/core/governor.js"></script>
 <!-- Build 3a: Collection Matrix core (IndexedDB store → AniList client → domain) -->
 <script src="js/core/mediadb.js"></script>
@@ -212,6 +219,7 @@
 <script src="js/modules/attachments.js"></script>
 <script src="js/modules/help.js"></script>
 <script src="js/modules/focus.js"></script>
+<script src="js/modules/pacing.js"></script>
 <script src="js/modules/cloudui.js"></script>
 <!-- Category 6 Phase E: the Kurenai Assistant surfaces (drawer + page +
      contextual actions) over the Phase A–D services -->

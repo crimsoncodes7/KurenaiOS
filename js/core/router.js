@@ -41,20 +41,35 @@
 
   /* ---- the route table ----
      Everything not listed here is `#/<viewId>` with no argument. Only the
-     five views whose argument is part of the page's IDENTITY appear. */
+     views whose argument is part of the page's IDENTITY appear. */
   var ENCODE = {
     ref: function (a) { return a && a.subject && a.ref ? [a.subject, a.ref] : null; },
     subject: function (a) { return typeof a === "string" && a ? [a] : null; },
     governor: function (a) { return typeof a === "string" && a ? [a] : null; },
     sims: function (a) { return typeof a === "string" && a ? [a] : null; },
-    assistant: function (a) { return a && typeof a.tab === "string" && a.tab ? [a.tab] : null; }
+    assistant: function (a) { return a && typeof a.tab === "string" && a.tab ? [a.tab] : null; },
+    /* Pacing has two identities and they are mutually exclusive: a WEEK
+       (`#/pacing/2026-12-14` — a link to "the week of the mocks" has to
+       survive being sent, bookmarked and reopened) or a whole-term tab
+       (`#/pacing/braid`, which spans every week and so carries none). They
+       never collide because a week is always an ISO date. */
+    pacing: function (a) {
+      if (typeof a === "string" && a) return [a];
+      if (!a) return null;
+      if (a.tab && a.tab !== "week") return [a.tab];
+      return a.wb ? [a.wb] : null;
+    }
   };
   var DECODE = {
     ref: function (p) { return p.length >= 2 ? { subject: p[0], ref: p.slice(1).join("/") } : null; },
     subject: function (p) { return p[0] || null; },
     governor: function (p) { return p[0] || null; },
     sims: function (p) { return p[0] || null; },
-    assistant: function (p) { return p[0] ? { tab: p[0] } : null; }
+    assistant: function (p) { return p[0] ? { tab: p[0] } : null; },
+    pacing: function (p) {
+      if (!p[0]) return null;
+      return /^\d{4}-\d{2}-\d{2}$/.test(p[0]) ? { wb: p[0], tab: "week" } : { tab: p[0] };
+    }
   };
 
   function routeFor(viewId, arg) {

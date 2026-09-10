@@ -24,6 +24,44 @@ Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
+## Unreleased on `main`
+
+**Pacing — the integrated weekly timeline (Productivity → Pacing).** Staged
+locally; NOT deployed.
+
+- The school scheme of work, both personal curriculums and IT F201 were imported
+  once from Notion into `state.pacing` (191 rows across 16 weeks, plus the week
+  hub's school/personal offset). Notion is not read again; the store is the
+  source of truth and rides localStorage, the standard full backup and the cloud
+  state document.
+- 144 of the 146 personal-curriculum topics are linked to existing generated
+  specification leaves. Two Computer Science rows are deliberately unlinked
+  because AQA 7517 names neither as a topic of its own: *Bitwise manipulation &
+  masks* and *Linked lists*.
+- The page reads study progress through those links and writes none; it logs no
+  session and performs no network request.
+- Two readings, one route: **Week** (`#/pacing/YYYY-MM-DD`) is the term ribbon
+  over one week in three subject columns; **Braid** (`#/pacing/braid`) is the
+  same evidence as a commit graph — a class spine per subject, my planned weeks
+  ticked beneath it, and one packed branch per specification point the two
+  share. Every branch is repeated as a button, which is the accessible route.
+- The plan is fully editable: weeks and rows can be created, edited and deleted,
+  with a searchable specification picker, derived week numbers, week moves that
+  take their rows with them, and a cascade delete that says what it would take.
+- Also fixed here: the phone tab bar's **More** entry never had `align-items`,
+  so its 余 glyph pinned left of its label while the other four centred.
+- Shared header clean-up that came out of the same review:
+  `KOS.ui.pageHeader({sub})` now emits the canonical `.dh-sub > span.board`
+  (14px/`--muted`) instead of a bare `<p>` that inherited body type — which
+  also brings Mangaka and Collection Overview into line; and Reminders and
+  Habits no longer restate the Productivity section nav in their own headers,
+  where it was the same three destinations twice, 60px apart.
+- Gate at this point: **49 / 49 smoke suites**, plus the responsive matrix
+  (208 cells across both Pacing tabs, zero findings) and the visual audit.
+
+Before this ships: bump `VERSION` in `sw.js`, update the service-worker version
+recorded in `CLAUDE.md` to match, then stage and deploy.
+
 ## Delivered product
 
 ### Curriculum and study

@@ -92,6 +92,14 @@ classification in writing. Do not touch unrelated `art-source/`/Krita work.
   without a penalty.
 - Calendar recurrence is computed from one event. Assignment/reminder calendar
   chips and countdowns are derived reads, never copied events.
+- The integrated weekly plan (`js/core/pacing.js`) is a one-time import that now
+  lives in `state.pacing`. It reads study progress through linked spec leaves and
+  writes none, performs no network request, and never logs a session. A plan row
+  with no linked leaf stays unlinked rather than pointing at a near-enough one.
+- Plan writes go through `KOS.pacing`: a row always belongs to an existing week,
+  its week number is derived from that week, a week move re-points its rows, and
+  a week delete refuses to take rows with it unless asked. The braid draws one
+  branch per shared spec point and nothing it cannot evidence.
 - Event writes pass through `KOS.calendar.normalise()`; alerts remain per-event.
 
 ### Collection and sync
@@ -128,10 +136,10 @@ Install test-only dependencies once:
 npm install jsdom fake-indexeddb
 ```
 
-All 47 smoke suites are the release gate:
+All 49 smoke suites are the release gate:
 
 ```sh
-for i in "" {2..47}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..49}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Also run:

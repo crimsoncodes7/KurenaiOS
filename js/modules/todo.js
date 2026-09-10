@@ -223,12 +223,10 @@
         el("div", { class: "dh-sub" }, [
           el("span", { class: "board", text: "The small things you do every day. Reminders have their own page." })
         ])
-      ]),
-      KOS.workspaceTabs([
-        ["Reminders", "reminders", undefined, "reminders"],
-        ["Habits", "tasks", undefined, "tasks"],
-        ["Calendar", "calendar", undefined, "calendar"]
-      ], "tasks", "Productivity pages", "rem-workspace-tabs")
+      ])
+      /* No in-page copy of the section nav. Reminders, Habits and Calendar
+         are already the Productivity strip directly above this header, so
+         this was the same three destinations offered twice, 60px apart. */
     ]));
 
     var grid = el("div", { class: "tasks-grid one-col" });

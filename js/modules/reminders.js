@@ -57,12 +57,10 @@
         el("div", { class: "dh-sub" }, [
           el("span", { class: "board", text: "Everything you've promised yourself — scheduled, labelled and never farmed for XP." })
         ])
-      ]),
-      KOS.workspaceTabs([
-        ["Reminders", "reminders", undefined, "reminders"],
-        ["Habits", "tasks", undefined, "tasks"],
-        ["Calendar", "calendar", undefined, "calendar"]
-      ], "reminders", "Productivity pages", "rem-workspace-tabs")
+      ])
+      /* No in-page copy of the section nav. Reminders, Habits and Calendar
+         are already the Productivity strip directly above this header, so
+         this was the same three destinations offered twice, 60px apart. */
     ]));
 
     var grid = el("div", { class: "rem-grid" });

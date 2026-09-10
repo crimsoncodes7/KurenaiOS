@@ -121,6 +121,31 @@
       lastConfig: { mode: "pomodoro", workMin: 25, breakMin: 5, subject: "", ref: "" }
     },
 
+    /* ---- The integrated weekly plan (core/pacing.js) ----
+       School scheme of work, both personal curriculums and IT F201 in ONE
+       week-indexed plan, imported once from Notion (js/data/pacing.js is
+       the seed; `seeded` makes that a one-time copy). Rows link to the
+       generated specification leaves they cover, which is what lets the
+       Pacing view compare what class is teaching against what my own plan
+       has already been through.
+
+       No progress lives here. A row's coverage is read from state.progress
+       through those leaf refs, so pacing can never disagree with the topic
+       page it links to, and pacing writes nothing to the Governor. The only
+       stored per-row state is a note. Rides the normal state export. */
+    pacing: {
+      v: 1,
+      seeded: false,
+      importedOn: null,
+      nextId: 1,
+      offset: { schoolMinusPersonal: 1 },
+      weeks: [],
+      /* {wb:"YYYY-MM-DD", label, schoolWk|null, personalWk|null, note} */
+      entries: []
+      /* {id, source:"school"|"personal", subject, wk, wb, kind, area, paper,
+          title, detail, refs:[specRef], note} */
+    },
+
     /* ---- Build 2c: tracking completion ---- */
     tracker: {
       nextId: 1,

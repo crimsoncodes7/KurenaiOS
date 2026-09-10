@@ -51,6 +51,10 @@
      seed sample calendar, apply HP day-tick, wrap the gated lab views (they
      are all registered by now), paint the HUD, then fire deadline reminders */
   KOS.calendar.seedSamples();
+  /* the integrated weekly plan: a one-time copy of js/data/pacing.js into
+     state.pacing. A no-op on every run after the first, so a user's edits
+     (and anything a cloud pull brought in) are never overwritten. */
+  KOS.pacing.ensureSeeded();
   KOS.governor.tick();
   KOS.governor.applyCosmetics();
   KOS.governor.installGates();

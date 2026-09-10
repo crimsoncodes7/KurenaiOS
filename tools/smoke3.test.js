@@ -173,8 +173,13 @@ step("Study Review and Productivity own the intended navigation", () => {
   if (!document.querySelector('.rail-item[data-section="productivity"]').classList.contains("active")) throw new Error("Productivity rail not active");
   const productivityTabs = $$("#subnav .subnav-item").map(b => b.textContent.trim());
   /* Build 6.2: Reminders became a page of its own, so Tasks & Habits is now
-     just Habits and Reminders sits beside it */
-  if (productivityTabs.join("|") !== "Focus Timer|Reminders|Habits|Calendar") throw new Error("productivity tabs: " + productivityTabs.join("|"));
+     just Habits and Reminders sits beside it.
+     Pacing (the integrated weekly plan) joined the section afterwards — it is
+     a time surface, so it belongs beside the Calendar rather than under Study.
+     This stays an exact match on purpose: the Productivity section's list of
+     destinations is a deliberate decision, not something a page may join by
+     registering itself. */
+  if (productivityTabs.join("|") !== "Focus Timer|Reminders|Habits|Calendar|Pacing") throw new Error("productivity tabs: " + productivityTabs.join("|"));
   KOS.show("tracker");
   if (!$(".dash-head > .workspace-header-tabs")) throw new Error("record tabs are not in the header");
 });

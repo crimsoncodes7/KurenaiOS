@@ -50,12 +50,15 @@ const SHOTS = flag("shots", null);
 const WIDTHS = String(flag("widths", "1920,1440,820,390")).split(",").map(Number);
 const THEMES = String(flag("themes", "atelier-dawn,atelier-dusk")).split(",");
 const VIEWS = String(flag("views",
-  "home,subject,ref,review,assignments,tracker,focus,reminders,calendar,tasks," +
+  "home,subject,ref,review,assignments,tracker,focus,reminders,calendar,tasks,pacing,pacing-braid," +
   "matrix,anime,books,vn,game,mangaka,shrine,wishlist,goals,mediasync," +
   "governor,assistant,data,help")).split(",");
 /* A fixed code-heavy leaf makes Ref screenshots reproducible and keeps the
    phone probe honest; profile.lastRef is mutable navigation history. */
 const REF_FIXTURE = { subject: "compsci", ref: "4.2.1.3" };
+/* pseudo-views: an id in VIEWS that resolves to a real view plus the
+   argument that selects a genuinely different page to measure */
+const TAB_VIEWS = { "pacing-braid": ["pacing", '{ tab: "braid" }'] };
 
 /* ---------------- CDP plumbing ---------------- */
 const endpoint = process.env.KOS_CDP || "http://127.0.0.1:9222/json";
@@ -427,12 +430,18 @@ for (const theme of THEMES) {
       { width, height: width <= 700 ? 844 : 1000, deviceScaleFactor: 1, mobile: width <= 700 });
     await sleep(250);
     for (const view of VIEWS) {
-      const arg = view === "subject" ? '"compsci"'
-        : view === "ref" ? JSON.stringify(REF_FIXTURE) : "";
-      const treeSetup = (view === "subject" || view === "ref")
+      /* a few entries are a view PLUS an argument that makes it a different
+         page to measure — the Pacing braid is a whole-term diagram, not the
+         week surface, and only one of the two can be the default */
+      const call = TAB_VIEWS[view] || [view, null];
+      const viewId = call[0];
+      const arg = call[1] != null ? call[1]
+        : viewId === "subject" ? '"compsci"'
+        : viewId === "ref" ? JSON.stringify(REF_FIXTURE) : "";
+      const treeSetup = (viewId === "subject" || viewId === "ref")
         ? `KOS.store.state.ui.treeClosed = ${width <= 860}; ` : "";
       try {
-        await evaluate(`(() => { ${treeSetup}KOS.show(${JSON.stringify(view)}${arg ? ", " + arg : ""}); return true; })()`);
+        await evaluate(`(() => { ${treeSetup}KOS.show(${JSON.stringify(viewId)}${arg ? ", " + arg : ""}); return true; })()`);
       } catch (e) { continue; }
       await sleep(view === "mangaka" || view === "matrix" ? 900 : 420);
       let r;

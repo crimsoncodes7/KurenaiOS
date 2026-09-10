@@ -308,7 +308,7 @@
     tracker: "study", personaldeck: "study", assignments: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
     focus: "productivity", calendar: "productivity", tasks: "productivity",
-    reminders: "productivity",
+    reminders: "productivity", pacing: "productivity",
     matrix: "collection", anime: "collection", books: "collection",
     vn: "collection", game: "collection", seasonal: "collection",
     mangaka: "collection", wishlist: "collection", shrine: "collection",
@@ -333,7 +333,8 @@
       ["Focus Timer", "focus"],
       ["Reminders", "reminders"],
       ["Habits", "tasks"],
-      ["Calendar", "calendar"]
+      ["Calendar", "calendar"],
+      ["Pacing", "pacing"]
     ],
     collection: [
       ["Overview", "matrix"],
@@ -461,7 +462,11 @@
       el("div", { class: "dh-txt" }, [
         opts.kicker ? el("div", { class: "dh-kicker", text: opts.kicker }) : null,
         el("h1", { text: opts.title || "" }),
-        opts.sub ? el("p", { class: "dh-sub", text: opts.sub }) : null
+        /* the canonical sub-line is .dh-sub > span.board — 14px/--muted, the
+           treatment every hand-built page header already uses. The builder
+           was emitting a bare <p>, which inherited body type and read a
+           size and a shade darker than the pages beside it. */
+        opts.sub ? el("div", { class: "dh-sub" }, [el("span", { class: "board", text: opts.sub })]) : null
       ].filter(Boolean)),
       opts.actions && opts.actions.length
         ? el("div", { class: "dh-actions" }, opts.actions.filter(Boolean)) : null

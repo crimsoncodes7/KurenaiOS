@@ -13,8 +13,8 @@ chronological diary here.
 - Release source checkpoint: `10f321bb1be4668e23a0749706f928c8877d1a48`
 - Runtime release: `10f321bb1be4668e23a0749706f928c8877d1a48`
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-egress-1`
-- Required smoke gate: 48 / 48 suites.
+- Service-worker version: `kos-pacing-1`
+- Required smoke gate: 49 / 49 suites.
 
 ## Run, test and deploy
 
@@ -24,7 +24,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 -m http.server 8765
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..48}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..49}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -83,7 +83,8 @@ non-navigation redraw path.
 ### Persistence
 
 - `KOS.store.state` in `localStorage`: study state, UI, economy, sessions,
-  calendar/reminders/assignments, planner/goals and Assistant preferences.
+  calendar/reminders/assignments, planner/goals, the integrated weekly plan
+  and Assistant preferences.
 - `kurenai-os-media` IndexedDB: Collection records, non-token media preferences
   and provider credentials in its kv store.
 - `kurenai-os-files` IndexedDB: topic attachments.
@@ -102,6 +103,7 @@ non-navigation redraw path.
 | Study content and engines | `content.js`, `hub.js`, `js/engines/` |
 | SM-2, sessions and rewards | `srs.js`, `sessions.js`, `governor.js` |
 | Calendar/reminders/assignments/Focus | matching modules in `js/modules/` |
+| Integrated weekly plan and pacing | `js/core/pacing.js`, `js/modules/pacing.js` |
 | Collection schema and sync | `mediadb.js`, `media*.js`, provider clients |
 | Vault presentation/editors | `medview.js`, four vault modules, `KOS.mediaEditors` |
 | Cloud replication | `cloud.js`, `cloudsync.js`, `cloudui.js` |
@@ -254,6 +256,19 @@ source comments and audit notes refer to it.
     `pageHeader`, `sectionHeader` and `num`. Horizontal overflow must be declared.
     The compact section `<nav>` is the sole scroller exception: preserve its nav
     landmark inside one external scroller shell.
+50a. A page description is `.dh-sub > span.board` — 14px on `--muted` — and
+    `KOS.ui.pageHeader({sub})` emits exactly that. It is one line, not a
+    paragraph: rules a reader needs once belong in Help & Guide, not in prose
+    the page re-teaches on every open.
+50b. A page's in-page workspace switcher rides the page header's action slot
+    (`pageHeader({actions})`, or the second child of `.dash-head`), as Planner
+    and Sync do. Never restate the SECTION nav in-page — Reminders, Habits and
+    Calendar are already the Productivity strip, and offering the same three
+    destinations twice 60px apart is the drift the tabs primitive exists to
+    stop. Week-scoped actions belong with the week, not in the page header.
+50c. Three figures do not need three card-sized boxes. `statTile` is for a
+    genuine metric strip; a short set of week/page facts belongs on the owning
+    section header's sub-line, still under the invariant 77 zero rule.
 
 ### Category 7 Study and Collection (51–63)
 
@@ -320,6 +335,41 @@ source comments and audit notes refer to it.
 79. Elevation is theme-derived through `--shadow-ink`/shared shadow tokens; Dawn
     and Dusk keep equivalent hierarchy without hard-coded black shadows.
 
+### The integrated weekly plan (80–83)
+
+80. `js/data/pacing.js` is a SEED, not a feed. It was imported once from the four
+    Notion databases (school scheme of work, both personal curriculums, IT F201)
+    plus the week hub that carries the alignment; `KOS.pacing.ensureSeeded()`
+    copies it into `state.pacing` once and is a no-op afterwards, so a user edit
+    or a cloud pull is never overwritten by the file that shipped. Nothing in
+    this domain performs a network request, and Notion is never read again.
+81. `KOS.pacing.normalise()` is the schema gate. A plan row's `refs` are
+    generated specification leaves and are dropped if the leaf does not exist.
+    An EMPTY `refs` array is a deliberate statement that the published
+    specification does not name that topic — never back-fill a near-enough leaf,
+    because the plan would then open the wrong topic page.
+82. Pacing stores no progress, mastery or confidence. Coverage is READ from
+    `state.progress` through the linked leaves, so the plan row and the topic
+    page cannot disagree; the only per-row state it owns is a note. Pacing is
+    logistics like the Budget Planner: zero Governor traffic, zero sessions.
+83. Ahead/aligned/behind/unplanned is set arithmetic over linked refs, measured
+    from FIRST contact in the personal plan, and a week whose class rows carry
+    no refs makes no claim at all rather than an empty verdict.
+84. The plan is fully editable through `KOS.pacing`. A row always belongs to a
+    week that exists, and its `wk` number is DERIVED from that week on every
+    write (school rows take the school number, personal rows the personal one)
+    rather than carried. Moving a week re-points its rows in the same write;
+    deleting a week that still holds rows refuses unless the caller passes
+    `cascade`. Deletes ask through `KOS.ui.confirm({danger:true})` and Delete
+    never shares a control group with Save.
+85. The braid is the alignment evidence as topology, not a second dataset: one
+    branch per shared spec point, packed into commit-graph depths, with a
+    non-scrolling key column so a lane always says whose it is. The diagram is
+    one `role="img"`; every branch is repeated as a real button beneath it,
+    which is the keyboard and screen-reader route. No shared refs draws no
+    diagram. The legend names every mark, so the tab carries no explanatory
+    header — the long version is a Help & Guide entry.
+
 ## Extension notes
 
 ### Deep content and labs
@@ -340,7 +390,11 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
 ### Navigation hierarchy
 
 - Study: subjects, Review and Exams & Papers.
-- Productivity: Focus, Calendar, Reminders and Tasks & Habits.
+- Productivity: Focus, Calendar, Reminders, Tasks & Habits and Pacing.
+  Pacing has two identities in one route and they cannot collide, because a
+  week is always an ISO date: `#/pacing/YYYY-MM-DD` is the week surface and
+  `#/pacing/braid` is the whole-term branch graph, which spans every week and
+  so carries none.
 - Collection: Overview and four vaults, Shrine, Planner and Sync.
 - Review retains `due` and `cardstats` compatibility routes.
 - Planner and Sync use `KOS.collectionWorkspaceTabs()`; transitions still call
@@ -361,6 +415,9 @@ AI/chatbot classification in writing.
 ## Files to edit deliberately
 
 - Generated specifications: change parsers, then regenerate—never hand-edit output.
+- `js/data/pacing.js`: the one-time weekly-plan import. Editing it changes nothing
+  for an existing install (the store is already seeded); change `state.pacing`, or
+  reset the `seeded` flag deliberately.
 - Authored content: `js/data/content/*.js`; examiner guidance: `js/data/intel.js`.
 - Shared visual behaviour: tokens/primitives in `css/main.css` and `js/core/ui.js`
   before adding view-local variants.

@@ -249,8 +249,12 @@ step("the slash shortcut opens the phone search surface instead of a hidden inpu
 });
 
 step("the responsive audit opens a real Computer Science topic", () => {
+  /* `viewId` is the RESOLVED view — the audit's loop variable now carries
+     pseudo-views (pacing-braid) that resolve to a view plus an argument, so
+     the fixture is read off the resolved id. The contract is unchanged: the
+     Ref screenshot must be a fixed leaf, never mutable profile history. */
   assert(/const REF_FIXTURE = \{ subject: "compsci", ref: "4\.2\.1\.3" \}/.test(auditSrc) &&
-    /view === "ref" \? JSON\.stringify\(REF_FIXTURE\)/.test(auditSrc),
+    /viewId === "ref" \? JSON\.stringify\(REF_FIXTURE\)/.test(auditSrc),
     "the Ref fixture is mutable profile history or still captures Subject instead");
   assert(/KOS\.store\.state\.ui\.treeClosed = \$\{width <= 860\}/.test(auditSrc),
     "compact Study/Ref screenshots can be replaced by a stale open drawer state");
