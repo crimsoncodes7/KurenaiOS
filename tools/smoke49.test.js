@@ -107,7 +107,9 @@ step("all four Notion databases and the week hub arrived intact", () => {
 
 step("the week spine carries the school/personal offset the hub recorded", () => {
   const ws = KOS.pacing.weeks();
-  assert(ws.length === 16, "week count " + ws.length);
+  /* 16 from the hub + w/c 21 Dec, added when the personal plan moved a week
+     later (the final personal week is carried over the mocks) */
+  assert(ws.length === 17, "week count " + ws.length);
   assert(ws[0].wb < ws[ws.length - 1].wb, "weeks are not in date order");
   const paired = ws.filter(w => w.schoolWk != null && w.personalWk != null);
   assert(paired.length, "no week carries both numbers");

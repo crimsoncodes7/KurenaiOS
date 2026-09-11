@@ -268,6 +268,39 @@ step("the topic page's tab bar is static — it no longer covers the text it int
   assert(!/\.study-nav\s*\{[^}]*position:\s*sticky/s.test(css), "the study nav is sticky again");
 });
 
+/* ==================== E · the plan shift ==================== */
+console.log("== E · the personal plan moved a week later ==");
+
+step("the seed carries the shift: no personal rows on w/c 7 Sept, the final week on w/c 21 Dec, school rows untouched", () => {
+  const seed = window.KOS_PACING;
+  const personal = seed.entries.filter(e => e.source === "personal");
+  assert(!personal.some(e => e.wb === "2026-09-07"), "personal rows still on w/c 7 Sept");
+  assert(!personal.some(e => e.wb === "2026-10-26" || e.wb === "2026-12-14"), "a personal row landed on half term or the mock week");
+  assert(personal.filter(e => e.wb === "2026-12-21").length === 10, "the old final week did not land on w/c 21 Dec");
+  assert(seed.weeks.some(w => w.wb === "2026-12-21" && w.personalWk === 14), "no w/c 21 Dec week in the seed");
+  personal.forEach(e => { const w = seed.weeks.find(w => w.wb === e.wb); assert(w && w.personalWk === e.wk, "wk out of step with its week: " + e.id); });
+  assert(seed.entries.filter(e => e.source === "school" && e.wb === "2026-08-31").length === 3, "school rows moved");
+});
+
+step("an already-seeded install gets the same move exactly once", () => {
+  KOS.store.state.pacing = { v: 1, seeded: true, importedOn: "2026-09-09", nextId: 3, offset: { schoolMinusPersonal: 1 },
+    weeks: window.KOS_PACING.weeks.filter(w => w.wb !== "2026-12-21").map(w => Object.assign({}, w)),
+    entries: [
+      { id: "p1", source: "personal", subject: "maths", wk: 1, wb: "2026-09-07", title: "first", refs: [] },
+      { id: "p2", source: "personal", subject: "maths", wk: 13, wb: "2026-12-07", title: "last", refs: [] },
+      { id: "p3", source: "school", subject: "maths", wk: 2, wb: "2026-09-07", title: "class", refs: [] }
+    ] };
+  assert(KOS.pacing.ensureSeeded() === true, "the migration reported no change");
+  const s = KOS.store.state.pacing;
+  const byId = id => s.entries.find(e => e.id === id);
+  assert(byId("p1").wb === "2026-09-14" && byId("p1").wk === 2, "first personal row did not move to w/c 14 Sept");
+  assert(byId("p2").wb === "2026-12-21" && byId("p2").wk === 14, "final personal row did not move over the mocks to w/c 21 Dec");
+  assert(byId("p3").wb === "2026-09-07" && byId("p3").wk === 2, "a school row moved");
+  assert(s.weeks.some(w => w.wb === "2026-12-21"), "w/c 21 Dec was not added");
+  assert(s.migrations && s.migrations.personalShift1 === true, "the migration flag was not set");
+  assert(KOS.pacing.ensureSeeded() === false && byId("p1").wb === "2026-09-14", "the migration applied twice");
+});
+
 /* ---- run ---- */
 let pass = 0;
 for (const [name, fn] of steps) {

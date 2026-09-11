@@ -13,7 +13,7 @@ chronological diary here.
 - Release source checkpoint: `10f321bb1be4668e23a0749706f928c8877d1a48`
 - Runtime release: `10f321bb1be4668e23a0749706f928c8877d1a48`
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-banks-1`
+- Service-worker version: `kos-banks-2`
 - Required smoke gate: 50 / 50 suites.
 
 ## Run, test and deploy

@@ -112,9 +112,46 @@
      from then on state.pacing is authoritative and re-running this is a
      no-op, so a user's edits (and a cloud pull carrying them) are never
      overwritten by the file that shipped with the build. */
+  /* ---------------- one-time plan moves ----------------
+     The seed is copied once, so a change of plan for an EXISTING install has
+     to be carried as a migration flagged inside state.pacing (it then travels
+     with the state document, so a second device applies it once too).
+     personalShift1 (2026-09-11): every personal row moves one plan-week
+     later — half term and the mock week stay skipped, so the old final week
+     (w/c 7 Dec) lands on a new w/c 21 Dec. School rows are untouched. */
+  var PERSONAL_SHIFT_1 = {
+    "2026-09-07": "2026-09-14", "2026-09-14": "2026-09-21", "2026-09-21": "2026-09-28",
+    "2026-09-28": "2026-10-05", "2026-10-05": "2026-10-12", "2026-10-12": "2026-10-19",
+    "2026-10-19": "2026-11-02", "2026-11-02": "2026-11-09", "2026-11-09": "2026-11-16",
+    "2026-11-16": "2026-11-23", "2026-11-23": "2026-11-30", "2026-11-30": "2026-12-07",
+    "2026-12-07": "2026-12-21"
+  };
+  function applyMigrations(s) {
+    s.migrations = (s.migrations && typeof s.migrations === "object") ? s.migrations : {};
+    if (s.migrations.personalShift1) return false;
+    if (!weekAt("2026-09-07") || !weekAt("2026-12-07")) { s.migrations.personalShift1 = true; return false; } /* not this plan */
+    if (!weekAt("2026-12-21")) {
+      s.weeks.push(normaliseWeek({ wb: "2026-12-21", label: "w/c 21 Dec", schoolWk: null, personalWk: 14,
+        note: "Personal plan only — the final personal week, carried over the mocks." }));
+    }
+    /* move the LATEST weeks first so a row is never shifted twice */
+    var moved = 0;
+    Object.keys(PERSONAL_SHIFT_1).sort().reverse().forEach(function (from) {
+      var to = PERSONAL_SHIFT_1[from], week = weekAt(to);
+      if (!week) return;
+      s.entries.forEach(function (e) {
+        if (e.source !== "personal" || e.wb !== from) return;
+        e.wb = to; e.wk = weekNumberFor(week, "personal"); moved++;
+      });
+    });
+    s.migrations.personalShift1 = true;
+    KOS.store.save();
+    return moved > 0;
+  }
+
   function ensureSeeded() {
     var s = P();
-    if (s.seeded) return false;
+    if (s.seeded) return applyMigrations(s);
     var seed = window.KOS_PACING;
     if (!seed || !Array.isArray(seed.weeks) || !Array.isArray(seed.entries)) return false;
     s.v = SCHEMA;
@@ -124,6 +161,8 @@
     s.weeks = seed.weeks.map(normaliseWeek).filter(function (w) { return w.wb; });
     s.entries = seed.entries.map(normalise).filter(function (e) { return e.id && e.wb && e.subject; });
     s.nextId = nextFreeId(s);
+    /* a fresh seed already carries the move; mark it so it never re-applies */
+    s.migrations = { personalShift1: true };
     KOS.store.save();
     return true;
   }
