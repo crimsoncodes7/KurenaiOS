@@ -485,7 +485,7 @@
     ];
 
     function renderShop() {
-      var suspended = KOS.governor.hpState() !== "healthy";
+      var suspended = false;   /* HP no longer suspends the shop (governor.js HP_STATE) */
       var cat = KOS.governor.catalog();
       var ownedN = cat.filter(function (c) { return KOS.governor.owns(c.id); }).length;
       var unowned = cat.filter(function (c) { return !KOS.governor.owns(c.id); });
@@ -515,16 +515,6 @@
         return el("div", { class: "tre-fact" }, [el("b", { text: v }), el("span", { text: k })]);
       }
       shop.appendChild(treasury);
-      if (suspended) {
-        shop.appendChild(el("div", { class: "gov-banner bad shop-lock-note" }, [
-          el("span", { class: "shop-lock-icon", "aria-hidden": "true", text: "◇" }),
-          el("div", {}, [
-            el("b", { text: "Purchases are paused, not lost." }),
-            el("span", { text: " HP is " + state.label + ". The shop and purchased labs reopen at 60 HP; essential study tools stay available." })
-          ]),
-          el("button", { class: "btn", text: "View recovery", onclick: function () { KOS.show("governor", "status"); } })
-        ]));
-      }
 
       /* The treasury is a catalogue first: open with every department visible
          and let the user narrow the view only when they choose a filter. */

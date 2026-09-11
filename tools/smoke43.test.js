@@ -193,7 +193,9 @@ step("the page carries ONE study navigation layer, above the content", () => {
      first word of content; it is a side-of-desk affordance now */
   assert(!col.querySelector(".asst-ctx"), "the assistant strip is back on the content path");
   assert($(".study-inspector .asst-ctx"), "the assistant actions were dropped rather than moved");
-  assert(/\.study-nav\s*\{[^}]*position:\s*sticky/s.test(css), "the nav bar does not stay reachable while reading");
+  /* the bar is static by decision: a sticky strip sat over the first line
+     of every paragraph the reader scrolled to */
+  assert(!/\.study-nav\s*\{[^}]*position:\s*sticky/s.test(css), "the nav bar is sticky again and covers the text it introduces");
 });
 
 step("nothing between the header and the content but that one bar", () => {

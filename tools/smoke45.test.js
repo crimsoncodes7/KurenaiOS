@@ -286,6 +286,11 @@ step("#toast is the visible half only — it is not a second live region", () =>
 
 step("a toast announces, and the same sentence twice announces twice", async () => {
   const pol = document.getElementById("kos-live-polite");
+  /* main.js runs the calendar's reminder pass 900ms after boot, and the seed
+     calendar carries alerts that fall due today; on a slower boot that pass
+     lands inside this step and its toasts overwrite the region under test.
+     Run the pass now so its keys are already marked notified. */
+  KOS.calendar.checkReminders(); await tick(120);
   KOS.ui.toast("Saved to the vault.");
   await tick(80);
   assert(pol.textContent === "Saved to the vault.", "nothing was announced: " + JSON.stringify(pol.textContent));

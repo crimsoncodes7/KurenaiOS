@@ -30,7 +30,7 @@
   window.KOS = window.KOS || {};
 
   /* ---------------- live regions ---------------- */
-  var politeEl = null, assertiveEl = null, clearTimer = null;
+  var politeEl = null, assertiveEl = null;
   var lastMsg = "", lastAt = 0;
 
   function region(id, live, roleName) {
@@ -69,8 +69,10 @@
     ensure();
     var target = opts.assertive ? assertiveEl : politeEl;
     target.textContent = "";
-    clearTimeout(clearTimer);
-    clearTimer = setTimeout(function () { target.textContent = msg; }, 40);
+    /* one pending refill per region: an assertive interruption must not
+       cancel a polite confirmation that was still waiting for its frame */
+    clearTimeout(target._kosRefill);
+    target._kosRefill = setTimeout(function () { target.textContent = msg; }, 40);
   }
 
   /* ---------------- role="button" activation ----------------

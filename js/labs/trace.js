@@ -6,8 +6,15 @@
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
 
-  var GOLD = "#F2C46D", CRIM = "#FF2E44", JADE = "#45d6a8", BLUE = "#7b9ef8",
-      INKC = "#120d1b", LINE = "#3a2d52", TEXT = "#ece7f4", MUTE = "#a89dbf", FAINT = "#6f6488";
+  /* theme-derived ink (see KOS.labPalette in worked.js); refreshed on every
+     mount so a canvas drawn after a theme switch uses the new tokens */
+  var GOLD, CRIM, JADE, BLUE, INKC, LINE, TEXT, MUTE, FAINT, JADEWASH;
+  function refreshPalette() {
+    var P = KOS.labPalette();
+    GOLD = P.gold; CRIM = P.crim; JADE = P.jade; BLUE = P.blue; INKC = P.ink;
+    LINE = P.line; TEXT = P.text; MUTE = P.mute; FAINT = P.faint; JADEWASH = P.alpha(P.jade, .1);
+  }
+  refreshPalette();
 
   /* shared animation clock */
   var animItems = [];   // {obj, key, to, speed}
@@ -214,7 +221,7 @@
       }
       items.forEach(function (it, i) {
         if (it.y > -CH - 5) {
-          box(X, it.y, CW, CH, JADE, "rgba(69,214,168,.08)");
+          box(X, it.y, CW, CH, JADE, JADEWASH);
           cellText(it.v, X, it.y, CW, CH);
         }
       });
@@ -316,7 +323,7 @@
         var s = slots[i];
         if (s) {
           ctx.save(); ctx.globalAlpha = s.a;
-          box(x, Y, CW, CH, JADE, "rgba(69,214,168,.08)");
+          box(x, Y, CW, CH, JADE, JADEWASH);
           cellText(s.v, x, Y, CW, CH);
           ctx.restore();
         }
@@ -419,7 +426,7 @@
       arrow(24, Y - 34, nodes[0].x + 18, Y - 4, BLUE);
       label("head", 24, Y - 46, BLUE);
       nodes.forEach(function (n, i) {
-        box(n.x, Y, NW, NH, JADE, "rgba(69,214,168,.06)");
+        box(n.x, Y, NW, NH, JADE, JADEWASH);
         ctx.beginPath(); ctx.strokeStyle = LINE;
         ctx.moveTo(n.x + NW - 20, Y); ctx.lineTo(n.x + NW - 20, Y + NH); ctx.stroke();
         cellText(n.v, n.x, Y, NW - 20, NH);
@@ -579,6 +586,7 @@
   ];
 
   KOS.views.trace = function (main) {
+    refreshPalette();
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
@@ -624,6 +632,7 @@
     has: function (tab) { return !!LABFN[tab]; },
     mount: function (tab, panel) {
       currentDraw = null; flashes = []; animItems = [];   // isolate from any prior canvas
+      refreshPalette();
       if (LABFN[tab]) LABFN[tab](panel);
     }
   };

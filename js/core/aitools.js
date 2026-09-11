@@ -895,7 +895,7 @@
   });
 
   def("governor_list_shop", {
-    desc: "The gold-shop catalog with prices and owned state (labs suspend while HP is strained; cosmetics stay buyable).",
+    desc: "The gold-shop catalog with prices and owned state (HP never suspends the shop).",
     category: "governor", tier: "read", read: true, params: {},
     run: function (args, cb) {
       cb(null, { gold: KOS.store.state.governor.gold, hpState: KOS.governor.hpState(),

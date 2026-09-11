@@ -13,8 +13,8 @@ chronological diary here.
 - Release source checkpoint: `10f321bb1be4668e23a0749706f928c8877d1a48`
 - Runtime release: `10f321bb1be4668e23a0749706f928c8877d1a48`
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-pacing-1`
-- Required smoke gate: 49 / 49 suites.
+- Service-worker version: `kos-banks-1`
+- Required smoke gate: 50 / 50 suites.
 
 ## Run, test and deploy
 
@@ -24,7 +24,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 -m http.server 8765
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..49}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..50}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -119,8 +119,12 @@ source comments and audit notes refer to it.
 
 1. Streaks, XP, HP and gold flow from `KOS.sessions.log()` only. Never write them
    directly.
-2. HP/gold gate only labs, simulations and the shop. Specification, notes,
-   flashcards, quizzes, exam questions and Focus never lock.
+2. Gold gates only labs and simulations (one-time unlocks). HP gates NOTHING:
+   it is a wellbeing signal (state label, drains, the recovery checklist, and a
+   halved restore trickle while Critical) — low HP used to suspend labs, sims
+   and the shop, and study material behind a health bar was the wrong trade.
+   Specification, notes, flashcards, quizzes, exam questions and Focus never
+   lock.
 3. Media/leisure never changes HP and feeds only the separate rest streak. Reading
    sessions do not take distraction penalties.
 4. Study streak, rest streak and the HP day-activity test are separate derivations
@@ -274,8 +278,9 @@ source comments and audit notes refer to it.
 
 51. The specification spine is Study's only section list. It owns expansion,
     current-location marking and the compact overlay drawer.
-52. Topic pages are content-first: one header, one sticky study-nav row and one
-    inspector as the sole state surface. Do not duplicate counts/mastery.
+52. Topic pages are content-first: one header, one static study-nav row (it was
+    sticky and covered the text it introduced) and one inspector as the sole
+    state surface. Do not duplicate counts/mastery.
 53. Home asks “what next?” from canonical recommendations and keeps empty states
     compact; do not restore decorative fold-filling panels.
 54. Study and Home use shared derivations and preserve navigation/focus on redraw.
@@ -386,6 +391,20 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
   does not set its editable value.
 - New generator `random()` output must be safe for `solve()`; guard all degenerate
   cases in validation.
+- Past-paper question banks live in `js/data/content/bank-*.js`, load AFTER the
+  base content file they extend, and add through `KOS.content.extend(key, patch)`
+  (flashcards/quiz/exam concatenate, notes append, sims/gens union). Items are
+  re-written from the Topic Practice compilation, never copied; `src` names the
+  paper an item is modelled on, `level: "AS"` flags AS-only items, and a
+  multi-part item is `{src, ctx, parts: [{q, marks, ms}]}` — the exam engine
+  logs ONE session per item however many parts it has. IT content is untouched
+  by the banks.
+- Additional generators register through `KOS.worked.register(gen, refs)` from
+  `js/labs/worked-extra.js`; additional sims live in `js/labs/sims-maths.js` and
+  `js/labs/sims-cs.js` and use the shared `KOS.sims.canvas` / `KOS.sims.COL`.
+- Lab canvases take every colour from `KOS.labPalette()` (theme tokens resolved
+  once per `data-theme`), never from a fixed hex palette — the old dark ink was
+  invisible on Atelier Dawn.
 
 ### Navigation hierarchy
 

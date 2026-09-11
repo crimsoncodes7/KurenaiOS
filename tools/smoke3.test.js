@@ -97,12 +97,14 @@ step("day-tick drains for a missed day", () => {
   KOS.governor.tick();
   if (g.hp !== 80 - 45) throw new Error("hp=" + g.hp);
 });
-step("gating: strained locks sims + purchased labs, buy blocked", () => {
+step("gating: HP never locks — owned labs open and the shop sells while strained; gold still gates", () => {
   const g = KOS.store.state.governor;
   g.hp = 45; g.owned = ["trace"];
-  if (KOS.governor.simAccess("tl-stack").ok) throw new Error("strained should suspend owned lab");
+  if (!KOS.governor.simAccess("tl-stack").ok) throw new Error("low HP must not suspend an owned lab");
   g.gold = 500;
-  if (KOS.governor.buy("oop").ok) throw new Error("shop should be suspended");
+  const bought = KOS.governor.buy("oop");
+  if (!bought.ok) throw new Error("the shop must stay open while strained: " + bought.msg);
+  g.gold = 500;
   g.hp = 90;
   const acc = KOS.governor.simAccess("tl-stack");
   if (!acc.ok) throw new Error("owned lab should open when healthy");
@@ -243,10 +245,11 @@ step("core revision never locks at 0 HP", () => {
     click($$(".study-tab").find(b => b.dataset.tab === t));
     if ($(".gov-lock")) throw new Error(t + " got locked!");
   }
-  // but the sim tab IS suspended
+  // and the sim tab is NOT suspended either — HP is a signal, not a lock
   if (tabs.includes("sim")) {
     click($$(".study-tab").find(b => b.dataset.tab === "sim"));
-    if (!$(".gov-lock")) throw new Error("sim tab not suspended at 0 HP");
+    const lock = $(".gov-lock");
+    if (lock && /HP/.test(lock.textContent)) throw new Error("sim tab suspended at 0 HP");
   }
 });
 

@@ -6,6 +6,57 @@
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
 
+  /* ---------- shared lab palette (theme-derived) ----------
+     Canvases cannot read CSS custom properties, so every lab used to paint
+     a fixed dark palette — invisible ink on Atelier Dawn. KOS.labPalette()
+     resolves the current theme's tokens once per theme and hands back plain
+     colour strings; `alpha(hex, a)` makes the translucent fills. The cache
+     clears when data-theme changes (the same attribute pwa.js watches). */
+  var PAL_CACHE = null, PAL_KEY = null;
+  function cssVar(name) {
+    try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); } catch (e) { return ""; }
+  }
+  function hexToRgb(h) {
+    var m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(h || "");
+    if (!m) return null;
+    var x = m[1]; if (x.length === 3) x = x[0] + x[0] + x[1] + x[1] + x[2] + x[2];
+    var n = parseInt(x, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function alpha(hex, a) {
+    var rgb = hexToRgb(hex);
+    if (!rgb) { var m = /rgba?\(([^)]+)\)/.exec(hex || ""); if (m) rgb = m[1].split(",").slice(0, 3).map(Number); }
+    if (!rgb) return hex;
+    return "rgba(" + rgb.join(",") + "," + a + ")";
+  }
+  function pick(name, fallback) {
+    var v = cssVar(name);
+    return /^#|^rgb/.test(v) ? v : fallback;
+  }
+  KOS.labPalette = function () {
+    /* keyed on the theme attribute as well as observed: a redraw in the same
+       tick as the theme switch must not paint with the previous palette */
+    var key = document.documentElement.getAttribute("data-theme") || "";
+    if (PAL_CACHE && PAL_KEY === key) return PAL_CACHE;
+    PAL_KEY = key;
+    var text = pick("--text", "#332C20"), bg = pick("--panel", "#FDFAF1");
+    PAL_CACHE = {
+      ink: bg, text: text,
+      mute: pick("--muted", "#726751"), faint: alpha(text, 0.45),
+      line: alpha(text, 0.18), grid: alpha(text, 0.08),
+      crim: pick("--danger", "#B5573F"), gold: pick("--accent2", "#A97F2F"),
+      jade: pick("--good", "#6F9A5E"), blue: pick("--accent", "#5D6BA8"),
+      vio: pick("--warning", "#C0912F"), sage: pick("--accent3", "#7D9B76"),
+      alpha: alpha
+    };
+    return PAL_CACHE;
+  };
+  KOS.labPalette.reset = function () { PAL_CACHE = null; };
+  try {
+    if (window.MutationObserver) new MutationObserver(function () { PAL_CACHE = null; })
+      .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  } catch (e) { /* jsdom without observers: palette simply stays cached */ }
+
   /* ---------- numeric helpers ---------- */
   function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = b; b = a % b; a = t; } return a || 1; }
   function frac(n, d) {
@@ -799,8 +850,20 @@
   /* ---------- shared mount so notes pages can embed a generator ---------- */
   function mountGenerator(panel, g) {
     panel.appendChild(KOS.ui.el("p", { class: "sub", style: "margin-top:0", text: g.blurb }));
-    panel.appendChild(KOS.ui.el("div", { class: "specref", style: "font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-bottom:10px",
-      text: (g.subject === "maths" ? "Edexcel 9MA0 \u00B7 " : "AQA 7517 \u00B7 ") + g.ref }));
+    /* the spec line doubles as the way back to the topic page: GENWIRE knows
+       which leaf (or leaves) this generator is mounted on */
+    var wired = Object.keys(GENWIRE).filter(function (k) { return GENWIRE[k].indexOf(g.id) >= 0; });
+    var specLine = KOS.ui.el("div", { class: "specref", style: "display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px" }, [
+      KOS.ui.el("span", { text: (g.subject === "maths" ? "Edexcel 9MA0 \u00B7 " : "AQA 7517 \u00B7 ") + g.ref })
+    ]);
+    wired.slice(0, 2).forEach(function (k) {
+      var sid = k.split(":")[0], ref = k.split(":").slice(1).join(":");
+      var leaf = KOS.hub && KOS.hub.BYREF[sid] && KOS.hub.BYREF[sid][ref];
+      if (!leaf) return;
+      specLine.appendChild(KOS.ui.el("button", { class: "linkish", text: "open " + ref + " " + leaf.title.slice(0, 40) + (leaf.title.length > 40 ? "\u2026" : "") + " \u2192",
+        onclick: function () { KOS.show("ref", { subject: sid, ref: ref }); } }));
+    });
+    panel.appendChild(specLine);
 
     var fields = {};
     var controls = KOS.ui.el("div", { class: "lab-controls" });
@@ -815,6 +878,8 @@
         if (inp.w) f.style.width = inp.w + "px";
       }
       fields[inp.k] = f;
+      /* Enter in any field regenerates — no reaching for the button */
+      f.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); run(); } });
       controls.appendChild(KOS.ui.el("label", {}, [inp.label, f]));
     });
     controls.appendChild(KOS.ui.el("button", { class: "btn primary", text: "Generate working", onclick: run }));
@@ -904,6 +969,14 @@
   };
 
   KOS.worked = {
+    /* extension seam: labs/worked-extra.js adds generators after this file
+       has loaded. `refs` are the "subject:ref" keys the generator should
+       surface on (GENWIRE), since a generator's own `ref` is a label. */
+    register: function (gen, refs) {
+      if (!gen || !gen.id || GENS.some(function (g) { return g.id === gen.id; })) return;
+      GENS.push(gen);
+      (refs || []).forEach(function (k) { (GENWIRE[k] = GENWIRE[k] || []).push(gen.id); });
+    },
     byIds: function (ids) { return (ids || []).map(function (id) {
       return GENS.find(function (g) { return g.id === id; }); }).filter(Boolean); },
     forRef: function (sid, ref) {
@@ -932,9 +1005,12 @@
     var savedGen = GENS.find(function (g) { return g.id === saved; }) || GENS[0];
     var curCat = savedGen.cat;
 
-    var catRow = el("div", { class: "cat-pills" });
+    var catRow = el("div", { class: "cat-pills", style: "margin:0" });
     var tabs = el("div", { class: "lab-tabs" });
     var panel = el("div", { class: "lab-panel lab-wrap" });
+    var query = "";
+    var search = el("input", { type: "search", placeholder: "Search generators\u2026", "aria-label": "Search worked example generators" });
+    search.oninput = function () { query = search.value.trim().toLowerCase(); buildTabs(); };
 
     CATS.forEach(function (c) {
       catRow.appendChild(el("button", {
@@ -947,13 +1023,18 @@
         }
       }, [c[1]]));
     });
-    main.appendChild(catRow);
+    main.appendChild(el("div", { class: "sim-toolbar" }, [catRow, search]));
     main.appendChild(tabs);
     main.appendChild(panel);
 
     function buildTabs() {
       tabs.innerHTML = "";
-      var gens = GENS.filter(function (g) { return g.cat === curCat; });
+      /* a search spans every paper; the category pills apply when it is empty */
+      var gens = GENS.filter(function (g) {
+        if (query) return (g.title + " " + g.blurb + " " + g.ref).toLowerCase().indexOf(query) >= 0;
+        return g.cat === curCat;
+      });
+      if (!gens.length) { tabs.appendChild(el("span", { class: "sim-msg", text: "No generator matches \u2014 try a shorter word." })); panel.innerHTML = ""; return; }
       var cur = gens.find(function (g) { return g.id === store.state.worked.last; }) || gens[0];
       gens.forEach(function (g) {
         tabs.appendChild(el("button", {

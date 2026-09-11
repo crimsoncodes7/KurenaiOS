@@ -148,7 +148,7 @@
     svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.id = "oop-svg";
     var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-    defs.innerHTML = '<marker id="tri" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11 z" fill="none" stroke="#e2b23f" stroke-width="1.6"/></marker>';
+    defs.innerHTML = '<marker id="tri" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11 z" fill="none" stroke="var(--accent2)" stroke-width="1.6"/></marker>';
     svg.appendChild(defs);
     stage.appendChild(svg);
     wrap.appendChild(stage);
@@ -332,7 +332,7 @@
         var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         var midY = (y1 + y2) / 2;
         path.setAttribute("d", "M" + x1 + "," + y1 + " C" + x1 + "," + midY + " " + x2 + "," + midY + " " + x2 + "," + y2);
-        path.setAttribute("stroke", "#e2b23f");
+        path.setAttribute("stroke", "var(--accent2)");
         path.setAttribute("stroke-width", "1.8");
         path.setAttribute("fill", "none");
         path.setAttribute("marker-end", "url(#tri)");

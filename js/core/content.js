@@ -238,8 +238,27 @@
     }
   });
 
+  /* Expansion files (js/data/content/bank-*.js) add to an entry rather than
+     replace it: practice arrays concatenate, notes pages append, sims/gens
+     union. The past-paper bank lives in its own files so the authored base
+     stays readable and a bank file can be regenerated on its own. */
+  function extend(key, patch) {
+    var e = window.KOS_CONTENT[key] = window.KOS_CONTENT[key] || {};
+    ["flashcards", "quiz", "exam"].forEach(function (k) {
+      if (patch[k] && patch[k].length) e[k] = (e[k] || []).concat(patch[k]);
+    });
+    if (patch.notes && patch.notes.length) e.notes = (e.notes || []).concat(patch.notes);
+    ["sims", "gens"].forEach(function (k) {
+      if (!patch[k]) return;
+      e[k] = e[k] || [];
+      patch[k].forEach(function (id) { if (e[k].indexOf(id) < 0) e[k].push(id); });
+    });
+    return e;
+  }
+
   KOS.content = {
     get: function (sid, ref) { return window.KOS_CONTENT[sid + ":" + ref] || null; },
+    extend: extend,
     has: function (sid, ref) { return !!window.KOS_CONTENT[sid + ":" + ref]; },
     renderBlocks: renderBlocks,
     splitPages: splitPages,

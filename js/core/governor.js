@@ -19,9 +19,13 @@
 
   /* ================= HP ================= */
   var HP_STATE = [
+    /* HP is a wellbeing signal, not a lock: nothing in the app closes on low
+       HP any more (it used to suspend labs, sims and the shop — study material
+       behind a health bar was the wrong trade). Critical still halves the
+       restore trickle, and the recovery checklist is how you climb back. */
     { id: "healthy",  min: 60, label: "Healthy",  desc: "Everything open." },
-    { id: "strained", min: 30, label: "Strained", desc: "Labs, sims and the gold shop are suspended until HP recovers. Core revision never locks." },
-    { id: "critical", min: 0,  label: "Critical", desc: "Recovery Mode: clear the checklist to climb back to Strained. Core revision never locks." }
+    { id: "strained", min: 30, label: "Strained", desc: "Nothing locks — but the drains are catching up with you. Clear a few due cards or finish a session to recover." },
+    { id: "critical", min: 0,  label: "Critical", desc: "Recovery Mode: HP restores at half rate until the checklist lifts you back to Strained. Nothing locks." }
   ];
   function hpState() {
     var hp = G().hp;
@@ -307,7 +311,6 @@
     var g = G(), it = item(id);
     if (!it) return { ok: false, msg: "Unknown item." };
     if (owns(id)) return { ok: false, msg: "Already owned." };
-    if (hpState() !== "healthy" && it.kind === "lab") return { ok: false, msg: "The shop is suspended while HP is " + hpStateInfo().label + "." };
     if (g.gold < it.price) return { ok: false, msg: "Not enough gold — " + (it.price - g.gold) + " more needed." };
     g.gold -= it.price;
     g.owned.push(id);
@@ -328,24 +331,23 @@
   };
   var VIEW_ITEM = { trace: "trace", oop: "oop" };
 
-  /* Can this sim mount right now? {ok} or {ok:false, why:"hp"|"gold", item} */
+  /* Can this sim mount right now? {ok} or {ok:false, why:"gold", item}.
+     HP never gates (see HP_STATE); only the one-time gold unlock does. */
   function simAccess(simId) {
-    if (hpState() !== "healthy") return { ok: false, why: "hp" };
     var itemId = SIM_ITEM[simId];
     if (itemId && !owns(itemId)) return { ok: false, why: "gold", item: item(itemId) };
     return { ok: true };
   }
   function viewAccess(viewId) {
-    if (viewId === "sims") return hpState() !== "healthy" ? { ok: false, why: "hp" } : { ok: true };
-    if (hpState() !== "healthy") return { ok: false, why: "hp" };
+    if (viewId === "sims") return { ok: true };
     var itemId = VIEW_ITEM[viewId];
     if (itemId && !owns(itemId)) return { ok: false, why: "gold", item: item(itemId) };
     return { ok: true };
   }
 
   /* Wrap the lab views once everything is registered (called from main.js).
-     The sims view additionally gates per-sim inside its own tabs, so we gate
-     the whole view only on HP and rely on simAccess for gold. */
+     The sims view gates per-sim inside its own tabs on the gold unlock alone;
+     the "hp" branch below is kept only so an old access verdict cannot throw. */
   function lockPanel(main, access, backLabel) {
     var el = KOS.ui.el;
     var isHp = access.why === "hp";

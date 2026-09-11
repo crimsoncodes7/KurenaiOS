@@ -68,8 +68,16 @@
     if (ctx && ctx.scale) ctx.scale(dpr, dpr);
     return { c: c, ctx: ctx, W: W, H: h };
   }
-  var COL = { ink:"#120d1b", line:"#3a2d52", text:"#ece7f4", mute:"#a89dbf", faint:"#6f6488",
-              crim:"#FF2E44", gold:"#F2C46D", jade:"#45d6a8", blue:"#7b9ef8", vio:"#c77bf2" };
+  /* COL resolves against the live theme on every read (KOS.labPalette caches
+     per theme), so a canvas repainted after a theme switch picks up the new
+     ink instead of the old fixed dark palette. */
+  var COL = {};
+  ["ink","line","grid","text","mute","faint","crim","gold","jade","blue","vio","sage"].forEach(function (k) {
+    Object.defineProperty(COL, k, { get: function () { return KOS.labPalette()[k]; } });
+  });
+  function wash(hex, a) { return KOS.labPalette().alpha(hex, a); }
+  KOS.sims.canvas = dprCanvas;
+  KOS.sims.COL = COL;
 
   /* =================== 1. LOGIC LAB =================== */
   KOS.sims.register({
@@ -407,7 +415,7 @@
         // states
         m.states.forEach(function (st, i) {
           ctx.beginPath(); ctx.arc(cxs[i], cy, R, 0, 7);
-          ctx.fillStyle = st === cur ? "rgba(232,66,90,.16)" : COL.ink; ctx.fill();
+          ctx.fillStyle = st === cur ? wash(COL.crim, .16) : COL.ink; ctx.fill();
           ctx.lineWidth = 2; ctx.strokeStyle = st === cur ? COL.crim : COL.blue; ctx.stroke();
           if (m.accept.indexOf(st) !== -1) {
             ctx.beginPath(); ctx.arc(cxs[i], cy, R - 6, 0, 7); ctx.stroke();
@@ -493,7 +501,7 @@
         var a = +sa.value, b = +sb.value, c = +sc.value, d = +sd.value;
         ctx.clearRect(0, 0, cv.W, cv.H);
         // grid + axes
-        ctx.strokeStyle = "#241b35"; ctx.lineWidth = 1;
+        ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
         for (var gx = -XR; gx <= XR; gx++) { ctx.beginPath(); ctx.moveTo(px(gx), 0); ctx.lineTo(px(gx), cv.H); ctx.stroke(); }
         for (var gy = -YR; gy <= YR; gy++) { ctx.beginPath(); ctx.moveTo(0, py(gy)); ctx.lineTo(cv.W, py(gy)); ctx.stroke(); }
         ctx.strokeStyle = COL.faint; ctx.lineWidth = 1.4;
@@ -872,7 +880,7 @@
           var active = hi && hi.indexOf(k) !== -1;
           ctx.strokeStyle = active ? COL.gold : COL.line;
           ctx.lineWidth = active ? 2.4 : 1.5;
-          ctx.fillStyle = active ? "rgba(226,178,63,.08)" : COL.ink;
+          ctx.fillStyle = active ? wash(COL.gold, .12) : COL.ink;
           ctx.fillRect(b.x, b.y, b.w, b.h);
           ctx.strokeRect(b.x, b.y, b.w, b.h);
           ctx.fillStyle = COL.faint;
@@ -972,7 +980,7 @@
         /* CAST */
         if (castChk.checked) {
           ctx.font = "700 16px 'SF Mono',monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-          ctx.fillStyle = "rgba(226,178,63,.5)";
+          ctx.fillStyle = wash(COL.gold, .5);
           ctx.fillText("A", cx + R * 0.62, cy - R * 0.62);
           ctx.fillText("S", cx - R * 0.62, cy - R * 0.62);
           ctx.fillText("T", cx - R * 0.62, cy + R * 0.62);
@@ -984,7 +992,7 @@
         ctx.beginPath(); ctx.arc(cx, cy, 26, 0, -theta, theta > 0); ctx.stroke();
         /* secondary solution point */
         var s2 = secondary() * Math.PI / 180;
-        ctx.fillStyle = "rgba(199,123,242,.65)";
+        ctx.fillStyle = wash(COL.vio, .65);
         ctx.beginPath(); ctx.arc(cx + R * Math.cos(s2), cy - R * Math.sin(s2), 6, 0, 7); ctx.fill();
         /* radius + projections */
         ctx.strokeStyle = COL.text; ctx.lineWidth = 1.8;
@@ -1079,7 +1087,7 @@
         var ctx = cv.ctx; if (!ctx || !ctx.clearRect) return;
         ctx.clearRect(0, 0, cv.W, cv.H);
         /* grid + axes */
-        ctx.strokeStyle = "#241b35"; ctx.lineWidth = 1;
+        ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
         for (var gx = -XR; gx <= XR; gx++) { ctx.beginPath(); ctx.moveTo(px(gx), 0); ctx.lineTo(px(gx), cv.H); ctx.stroke(); }
         ctx.strokeStyle = COL.faint; ctx.lineWidth = 1.4;
         ctx.beginPath(); ctx.moveTo(0, py(0)); ctx.lineTo(cv.W, py(0)); ctx.stroke();
@@ -1091,8 +1099,8 @@
           var y = f(xOf(sx));
           if (!isFinite(y)) continue;
           var yc = Math.max(-YR * 1.5, Math.min(YR * 1.5, y));
-          ctx.fillStyle = y >= 0 ? "rgba(69,214,168,.28)"
-            : useAbs ? "rgba(69,214,168,.28)" : "rgba(232,66,90,.30)";
+          ctx.fillStyle = y >= 0 ? wash(COL.jade, .28)
+            : useAbs ? wash(COL.jade, .28) : wash(COL.crim, .30);
           var top = useAbs ? py(Math.abs(yc)) : Math.min(py(0), py(yc));
           var bot = useAbs ? py(0) : Math.max(py(0), py(yc));
           ctx.fillRect(sx, top, 2, Math.max(1, bot - top));
@@ -1529,7 +1537,7 @@
         });
         NODES.forEach(function (n) {
           ctx.beginPath(); ctx.arc(n.x, n.y, 22, 0, 7);
-          ctx.fillStyle = n.id === current ? COL.crim : visited[n.id] ? "rgba(69,214,168,.18)" : COL.ink;
+          ctx.fillStyle = n.id === current ? COL.crim : visited[n.id] ? wash(COL.jade, .18) : COL.ink;
           ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = visited[n.id] ? COL.jade : COL.blue; ctx.stroke();
           ctx.fillStyle = COL.text; ctx.font = "600 14px 'SF Mono',monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
           ctx.fillText(n.l, n.x, n.y);
@@ -1598,7 +1606,7 @@
         if (!keys.length) { ctx.fillStyle = COL.faint; ctx.fillText("empty dictionary", 20, y + 20); return; }
         keys.forEach(function (k, i) {
           var ry = y + i * (rh + 4), on = k === hot;
-          ctx.fillStyle = on ? "rgba(69,214,168,.16)" : COL.ink; ctx.fillRect(x, ry, kw, rh);
+          ctx.fillStyle = on ? wash(COL.jade, .16) : COL.ink; ctx.fillRect(x, ry, kw, rh);
           ctx.strokeStyle = on ? COL.jade : COL.line; ctx.strokeRect(x, ry, kw, rh);
           ctx.fillStyle = on ? COL.ink : COL.line; ctx.fillRect(x + kw + 30, ry, vw, rh);
           ctx.strokeStyle = on ? COL.jade : COL.line; ctx.strokeRect(x + kw + 30, ry, vw, rh);
@@ -1636,7 +1644,7 @@
         var ox = cv.W / 2, oy = cv.H / 2, U = 34; // pixels per unit
         function px(x) { return ox + x * U; } function py(y) { return oy - y * U; }
         // grid + axes
-        ctx.strokeStyle = "rgba(58,45,82,.5)"; ctx.lineWidth = 1;
+        ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
         for (var gx = -12; gx <= 12; gx++) { ctx.beginPath(); ctx.moveTo(px(gx), 0); ctx.lineTo(px(gx), cv.H); ctx.stroke(); }
         for (var gy = -6; gy <= 6; gy++) { ctx.beginPath(); ctx.moveTo(0, py(gy)); ctx.lineTo(cv.W, py(gy)); ctx.stroke(); }
         ctx.strokeStyle = COL.faint; ctx.lineWidth = 1.4;
@@ -1653,10 +1661,10 @@
         }
         var sum = [A[0] + B[0], A[1] + B[1]], ka = [k * A[0], k * A[1]], conv = [(1 - L) * A[0] + L * B[0], (1 - L) * A[1] + L * B[1]];
         // parallelogram guide
-        ctx.strokeStyle = "rgba(123,158,248,.35)"; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+        ctx.strokeStyle = wash(COL.blue, .35); ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(px(A[0]), py(A[1])); ctx.lineTo(px(sum[0]), py(sum[1])); ctx.lineTo(px(B[0]), py(B[1])); ctx.stroke();
         ctx.setLineDash([]);
-        vec(ka, "rgba(226,178,63,.6)", "k·a");
+        vec(ka, wash(COL.gold, .6), "k·a");
         vec(A, COL.jade, "a"); vec(B, COL.blue, "b"); vec(sum, COL.crim, "a+b");
         ctx.fillStyle = COL.vio; ctx.beginPath(); ctx.arc(px(conv[0]), py(conv[1]), 4, 0, 7); ctx.fill();
         var dot = A[0] * B[0] + A[1] * B[1], magA = Math.sqrt(A[0]*A[0]+A[1]*A[1]), magB = Math.sqrt(B[0]*B[0]+B[1]*B[1]);
@@ -1738,39 +1746,102 @@
   });
 
   /* =================== Simulations view =================== */
+  /* ---------- Simulations view ----------
+     Was a single wall of pill tabs; with ~45 sims that stopped being a
+     navigation. Now: a category strip + search over a card grid, and an
+     opened sim gets its own header (back, spec ref, "open topic page") with
+     the rest of its area offered underneath. Deep links (#/sims/<id>) and the
+     per-sim gold gate are unchanged. */
+  function simCategory(s) {
+    if (s.subject === "compsci") return "cs";
+    return /^S/.test(String(s.ref || "")) ? "applied" : "pure";
+  }
+  var SIM_CATS = [["all", "All"], ["cs", "Computer Science"], ["pure", "Pure Maths"], ["applied", "Stats & Mechanics"]];
+  function specLabel(s) { return (s.subject === "maths" ? "Edexcel 9MA0 \u00B7 " : "AQA 7517 \u00B7 ") + s.ref; }
+  function leafTitle(s) {
+    var leaf = KOS.hub && KOS.hub.BYREF[s.subject] && KOS.hub.BYREF[s.subject][s.ref];
+    return leaf ? leaf.title : "";
+  }
+
   KOS.views.sims = function (main, openId) {
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "Simulations" }),
-      el("p", { class: "sub", text: "Interactive models for the ideas that are easier to see than to read. Each one is linked from its spec point's Simulate tab." })
-    ]));
     var withMount = REG.filter(function (s) { return s.mount; });
-    var tabs = el("div", { class: "lab-tabs" });
+    var opened = openId && KOS.sims.get(openId) && KOS.sims.get(openId).mount ? KOS.sims.get(openId) : null;
+    var st = KOS.store.state.ui = KOS.store.state.ui || {};
+    var cat = st.simCat || "all", query = "";
+
+    if (!opened) {
+      main.appendChild(el("div", { class: "lab-h" }, [
+        el("h1", { text: "Simulations" }),
+        el("p", { class: "sub", text: withMount.length + " interactive models for the ideas that are easier to see than to read. Each one is also mounted on its spec point\u2019s Simulations tab." })
+      ]));
+      var search = el("input", { type: "search", placeholder: "Search simulations\u2026", "aria-label": "Search simulations" });
+      var pills = el("div", { class: "cat-pills", style: "margin:0" });
+      SIM_CATS.forEach(function (c) {
+        pills.appendChild(el("button", { class: "cat-pill" + (c[0] === cat ? " active" : ""), onclick: function () {
+          cat = c[0]; st.simCat = cat; KOS.store.save();
+          pills.querySelectorAll(".cat-pill").forEach(function (b, i) { b.classList.toggle("active", SIM_CATS[i][0] === cat); });
+          renderGrid();
+        } }, [c[1]]));
+      });
+      main.appendChild(el("div", { class: "sim-toolbar" }, [pills, search]));
+      var grid = el("div", { class: "sim-grid" });
+      var empty = el("div", { class: "sim-msg", style: "display:none", text: "Nothing matches \u2014 try a shorter word." });
+      main.appendChild(grid); main.appendChild(empty);
+      search.oninput = function () { query = search.value.trim().toLowerCase(); renderGrid(); };
+      function renderGrid() {
+        grid.innerHTML = "";
+        /* a search spans every category; the pills apply when it is empty */
+        var shown = withMount.filter(function (s) {
+          if (query) return (s.title + " " + s.desc + " " + s.ref + " " + leafTitle(s)).toLowerCase().indexOf(query) >= 0;
+          return cat === "all" || simCategory(s) === cat;
+        });
+        empty.style.display = shown.length ? "none" : "";
+        shown.forEach(function (s) {
+          var acc = KOS.governor ? KOS.governor.simAccess(s.id) : { ok: true };
+          grid.appendChild(el("button", { class: "sim-card" + (acc.ok ? "" : " locked"), onclick: function () { KOS.show("sims", s.id); } }, [
+            el("b", { text: (acc.ok ? "" : "\u25C8 ") + s.title }),
+            el("span", { text: s.desc.length > 150 ? s.desc.slice(0, 147).replace(/\s+\S*$/, "") + "\u2026" : s.desc }),
+            el("span", { class: "specref", text: specLabel(s) + (leafTitle(s) ? " \u2014 " + leafTitle(s) : "") })
+          ]));
+        });
+      }
+      renderGrid();
+      return;
+    }
+
+    /* an opened sim */
+    var s = opened;
+    var head = el("div", { class: "sim-open-head" }, [
+      el("div", { style: "display:flex;gap:10px;align-items:center;flex-wrap:wrap" }, [
+        el("button", { class: "btn", text: "\u2190 All simulations", onclick: function () { KOS.show("sims"); } }),
+        el("h2", { text: s.title })
+      ]),
+      el("div", { style: "display:flex;gap:8px;align-items:center;flex-wrap:wrap" }, [
+        el("span", { class: "specref", text: specLabel(s) }),
+        leafTitle(s) ? el("button", { class: "btn", text: "Open topic page \u2192", onclick: function () { KOS.show("ref", { subject: s.subject, ref: s.ref }); } }) : null
+      ])
+    ]);
+    main.appendChild(head);
     var panel = el("div", { class: "lab-panel lab-wrap" });
-    var current = openId && KOS.sims.get(openId) && KOS.sims.get(openId).mount ? openId : withMount[0].id;
-    withMount.forEach(function (s) {
-      var locked = KOS.governor && !KOS.governor.simAccess(s.id).ok;
-      tabs.appendChild(el("button", { class: "lab-tab" + (s.id === current ? " active" : ""),
-        onclick: function () {
-          current = s.id;
-          tabs.querySelectorAll(".lab-tab").forEach(function (b, i) {
-            b.classList.toggle("active", withMount[i].id === current); });
-          open(s);
-        } }, [(locked ? "◈ " : "") + s.title]));
-    });
-    main.appendChild(tabs);
     main.appendChild(panel);
-    function open(s) {
-      panel.innerHTML = "";
-      /* gold-locked sims stay locked inside this view too, not just at entry */
-      var acc = KOS.governor ? KOS.governor.simAccess(s.id) : { ok: true };
-      if (!acc.ok) { KOS.governor.lockPanel(panel, acc); return; }
+    var acc = KOS.governor ? KOS.governor.simAccess(s.id) : { ok: true };
+    if (!acc.ok) { KOS.governor.lockPanel(panel, acc); }
+    else {
       panel.appendChild(el("p", { class: "sub", style: "margin-top:0", text: s.desc }));
-      panel.appendChild(el("div", { style: "font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-bottom:12px",
-        text: (s.subject === "maths" ? "Edexcel 9MA0 · " : "AQA 7517 · ") + s.ref }));
       s.mount(panel);
     }
-    open(KOS.sims.get(current));
+    /* siblings from the same area, so a reader can move sideways without the grid */
+    var kin = withMount.filter(function (o) { return o.id !== s.id && simCategory(o) === simCategory(s); });
+    if (kin.length) {
+      var row = el("div", { class: "lab-tabs", style: "margin-top:18px" });
+      kin.forEach(function (o) {
+        var a2 = KOS.governor ? KOS.governor.simAccess(o.id) : { ok: true };
+        row.appendChild(el("button", { class: "lab-tab", onclick: function () { KOS.show("sims", o.id); } }, [(a2.ok ? "" : "\u25C8 ") + o.title]));
+      });
+      main.appendChild(el("div", { class: "specref", style: "margin-top:16px", text: "More in " + SIM_CATS.filter(function (c) { return c[0] === simCategory(s); })[0][1] }));
+      main.appendChild(row);
+    }
   };
 })();

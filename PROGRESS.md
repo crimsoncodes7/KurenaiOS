@@ -59,6 +59,35 @@ locally; NOT deployed.
 - Gate at this point: **49 / 49 smoke suites**, plus the responsive matrix
   (208 cells across both Pacing tabs, zero findings) and the visual audit.
 
+## Past-paper question banks and the labs expansion (September 2026)
+
+- Every CS (AQA 7517) and Maths (Edexcel 9MA0) leaf gained a bank of exam
+  items, quiz questions and flashcards re-written from the Topic Practice
+  compilation of past papers — 17 `bank-*.js` files loaded through the new
+  `KOS.content.extend`. Totals now: CS 2597 cards / 1734 quiz / 923 exam items
+  (1074 parts); Maths 1553 cards / 1025 quiz / 565 exam items (918 parts).
+  Most leaves also carry a "Past-paper patterns" notes page distilling the
+  mark-scheme phrasing. IT is untouched.
+- The exam engine renders multi-part items with a provenance line, lettered
+  parts, tariff filter chips, shuffle, per-part reveal and mark buttons, and a
+  single self-mark log per item; the MCQ engine offers "Retry the N missed".
+- 27 new simulations (15 maths: trapezium rule, cobweb, Newton–Raphson,
+  tangent/first principles, sectors, sequences, normal curve, binomial test,
+  sampling, scatter/regression, projectiles, v–t graphs, vectors, inclined
+  plane, moments beam; 12 CS: Turing machine, BNF checker, Big-O curves,
+  BFS/DFS, floating-point bits, character codes, error checking, ADC sampling,
+  bitmap lab, compression, ciphers, subnetting) and 23 new worked-example
+  generators, all wired to their topic pages.
+- The Simulations view is a categorised, searchable card grid with an open
+  state (back, spec ref, open-topic link, siblings); the Worked Example Engine
+  gained search, Enter-to-generate and topic links; lab canvases now take their
+  ink from the theme (`KOS.labPalette`) instead of a fixed dark palette.
+- The topic page's study-nav row is static rather than sticky.
+- HP no longer suspends anything: labs, simulations and the gold shop stay
+  open at any HP (gold unlocks unchanged). HP keeps its state label, drains,
+  recovery checklist and the halved restore trickle while Critical.
+- Gate: **50 / 50 smoke suites** (smoke50 covers the banks and labs).
+
 Before this ships: bump `VERSION` in `sw.js`, update the service-worker version
 recorded in `CLAUDE.md` to match, then stage and deploy.
 

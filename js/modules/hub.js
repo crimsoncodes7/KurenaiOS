@@ -521,7 +521,7 @@
       main.appendChild(el("div", { class: "gov-banner " + (hpS === "critical" ? "bad" : "warn") }, [
         el("span", { html: hpS === "critical"
           ? "<b>HP Critical.</b> Recovery Mode is the fastest way back — clear a few due cards and tick today's list."
-          : "<b>HP Strained.</b> Labs, sims and the shop are suspended until 60 HP. Core revision stays open." }),
+          : "<b>HP Strained.</b> Nothing is locked — but the daily drains are winning. A session or a few due cards turns it round." }),
         el("button", { class: "btn", text: hpS === "critical" ? "Open Recovery →" : "Governor →",
           onclick: function () { KOS.show("governor"); } })
       ]));
@@ -836,6 +836,8 @@
   /* labs reachable per subject now the rail entries are gone */
   var PRACTICE = {
     compsci: [
+      ["Simulations", "Turing machine, BNF, subnets, floating point, compression, ciphers and more", function () { KOS.store.state.ui.simCat = "cs"; KOS.show("sims"); }, null],
+      ["Worked Examples", "RPN conversion, file sizes, parity, subnetting and Big-O, your numbers", function () { KOS.store.state.worked.last = "rpn"; KOS.show("worked"); }, null],
       ["Trace Lab", "Stacks, queues, lists & trees animated with trace tables", function () { KOS.show("trace"); }, { view: "trace" }],
       ["OOP Sandbox", "Drag class blocks, draw inheritance, read the C#", function () { KOS.show("oop"); }, { view: "oop" }],
       ["Logic Lab", "Boolean expressions with live truth tables", function () { KOS.sims.open("logic-lab"); }, { sim: "logic-lab" }],
@@ -844,6 +846,7 @@
     ],
     maths: [
       ["Worked Examples", "Mark-scheme walkthroughs by paper, your numbers", function () { KOS.show("worked"); }, null],
+      ["Simulations", "Trapezium rule, cobweb diagrams, normal curves, projectiles, moments and more", function () { KOS.store.state.ui.simCat = "pure"; KOS.show("sims"); }, null],
       ["Function Transformer", "y = a·f(bx + c) + d with exam wording written for you", function () { KOS.sims.open("fn-transform"); }, { sim: "fn-transform" }]
     ],
     it: []

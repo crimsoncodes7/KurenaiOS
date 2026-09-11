@@ -1617,8 +1617,7 @@ body.modal-open #main { overflow: hidden; }
    The topic page carried three stacked switchers — an assistant action
    strip, a tab strip that wrapped and orphaned "Files" onto a row of its
    own, and up to seven note-page pills that wrapped again. One bar now, one
-   row high at every width, stuck to the top of the scroller so the tabs
-   remain reachable however far into a topic you have read.
+   row high at every width, sitting in normal flow above the content.
 
    It is a DECLARED scroller (invariant #50) rather than a wrap: wrapping is
    what cost the page its second and third rows, and a declared scroll keeps
@@ -1626,9 +1625,11 @@ body.modal-open #main { overflow: hidden; }
    desktop.
    ============================================================ */
 .study-nav {
-  position: sticky; top: 0; z-index: 5;
+  /* static, not sticky: a pinned bar sat over the first line of every
+     paragraph you scrolled to and cost 46px of reading height; the tabs
+     are one scroll-to-top away and the inspector carries the page list */
+  position: static;
   padding: var(--space-1) 0 var(--space-2);
-  background: linear-gradient(var(--bg0) 78%, transparent);
   border-bottom: 1px solid var(--line2);
 }
 .study-nav-row { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
@@ -2144,6 +2145,49 @@ body.modal-open #main { overflow: hidden; }
 .qz-ms li { margin: 5px 0; }
 .answerline { width: 100%; min-height: 90px; resize: vertical; margin: 8px 0; }
 
+/* --- exam bank: provenance, shared stems, lettered parts, one-tap marks --- */
+.qz-head-exam { flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.qz-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.qz-filter { display: flex; flex-wrap: wrap; gap: 4px; }
+.qz-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 28px; padding: 3px 10px; border-radius: 999px;
+  background: var(--panel); border: 1px solid var(--line2); color: var(--text2);
+  font-family: var(--mono); font-size: 11px; cursor: pointer;
+}
+.qz-chip .tab-n { font-size: 10px; }
+.qz-chip:hover { border-color: var(--accent2); color: var(--text); }
+.qz-chip.on { border-color: var(--accent2); color: var(--text); background: var(--wash-brass); }
+.qz-exam-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-bottom: 10px; }
+.qz-exam-top .qz-num { color: var(--accent, var(--kurenai)); font-size: 15px; }
+.qz-src { font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: .02em; }
+.qz-total { margin-left: auto; }
+.qz-stem { font-size: 14.5px; line-height: 1.65; color: var(--text); padding: 10px 14px; margin-bottom: 12px;
+  border-left: 3px solid color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 5%, var(--bg1)); border-radius: 0 10px 10px 0; }
+.qz-stem > p:first-child { margin-top: 0; } .qz-stem > p:last-child { margin-bottom: 0; }
+.qz-stem-code .n-code { margin-top: 0; }
+.qz-part + .qz-part { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line2); }
+.qz-part-q { margin-bottom: 8px; }
+.qz-part-l { font-family: var(--mono); color: var(--accent2); font-weight: 700; }
+.qz-selfmark { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.qz-self-l { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.qz-self-max { font-family: var(--mono); font-size: 12px; color: var(--text2); }
+.qz-markbtns { display: flex; flex-wrap: wrap; gap: 4px; }
+.qz-markbtn {
+  min-width: 32px; min-height: 32px; padding: 0 8px; border-radius: 8px;
+  background: var(--panel); border: 1px solid var(--line2); color: var(--text2);
+  font-family: var(--mono); font-size: 13px; cursor: pointer;
+}
+.qz-markbtn:hover { border-color: var(--accent2); color: var(--text); }
+.qz-markbtn.on { background: color-mix(in srgb, var(--good) 14%, var(--bg1)); border-color: var(--good); color: color-mix(in srgb, var(--good) 70%, var(--text)); font-weight: 700; }
+.qz-note { margin: 10px 0 0; padding-top: 8px; border-top: 1px dashed color-mix(in srgb, var(--accent2) 35%, transparent); color: var(--text2); font-size: 13px; }
+.qz-note::before { content: "Examiner: "; font-family: var(--mono); font-size: 10.5px; color: var(--accent2); letter-spacing: .04em; text-transform: uppercase; }
+.qz-exam-foot { margin-top: 12px; align-items: center; gap: 12px; }
+.qz-logged { font-family: var(--mono); font-size: 12px; color: color-mix(in srgb, var(--good) 70%, var(--text)); }
+.qz-tally { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 4px; min-height: 1.2em; }
+.qz-tally b { color: var(--accent2); font-size: 14px; }
+@media (pointer: coarse) { .qz-markbtn { min-width: 44px; min-height: 44px; } .qz-chip { min-height: 36px; } }
+
 /* ============================================================
    Labs shared
    ============================================================ */
@@ -2187,6 +2231,38 @@ canvas.labcanvas { width: 100%; background: var(--panel); border: 1px solid var(
 .sim-launch b { font-family: var(--serif); font-size: 15px; }
 .sim-launch span { font-size: 12.5px; color: var(--text2); }
 .sim-msg { font-size: 13px; color: var(--muted); margin: 8px 0; }
+/* shared sim widgets (labs/sims-maths.js, sims-cs.js): a labelled range
+   slider with its live value, a mono read-out strip and a compact table */
+.sim-slider { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--text2); }
+.sim-slider span b { font-family: var(--mono); color: var(--text); font-weight: 600; }
+.sim-slider input[type=range] { width: 150px; accent-color: var(--accent); }
+.sim-read { margin-top: 12px; font-family: var(--mono); font-size: 12.5px; background: var(--bg1); border: 1px solid var(--line2); border-radius: 10px; padding: 11px 15px; line-height: 1.75; overflow-wrap: anywhere; }
+.sim-read sub { font-size: 9px; }
+.sim-tablewrap { overflow-x: auto; margin-top: 10px; }
+.sim-table td, .sim-table th { font-family: var(--mono); font-size: 12px; text-align: center; white-space: nowrap; }
+.sim-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 14px; }
+.sim-card { display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 14px 16px; border: 1px solid var(--line2); border-radius: var(--radius); background: var(--bg1); box-shadow: var(--shadow-sm); transition: transform .15s, box-shadow .15s; min-height: 118px; }
+.sim-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.sim-card b { font-family: var(--serif); font-size: 15px; line-height: 1.25; }
+.sim-card span { font-size: 12.5px; color: var(--text2); line-height: 1.4; }
+.sim-card .specref { margin-top: auto; }
+.sim-card.locked { opacity: .7; }
+.sim-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0 4px; }
+.sim-toolbar input[type=search] { width: 220px; }
+.sim-open-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin: 12px 0; }
+.sim-open-head h2 { margin: 0; font-size: 20px; }
+@media (max-width: 700px) { .sim-slider input[type=range] { width: 130px; } .sim-toolbar input[type=search] { width: 100%; } }
+.sim-table tr.live td { background: var(--wash-brass) !important; color: var(--accent2); }
+.bitmap-grid { display: grid; gap: 2px; padding: 4px; background: var(--well); border-radius: 8px; width: max-content; }
+.bitmap-px { width: 28px; height: 28px; border: 1px solid var(--line2); border-radius: 3px; padding: 0; cursor: pointer; }
+.bitmap-px:hover { outline: 2px solid var(--accent); outline-offset: -1px; }
+.bitmap-swatch { width: 40px; height: 30px; border: 2px solid var(--line2); border-radius: 6px; padding: 0; font-family: var(--mono); font-size: 9px; color: #fff; text-shadow: 0 0 3px #000; }
+.bitmap-swatch.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--wash-accent); }
+.subnet-net { color: var(--accent); font-weight: 700; }
+.subnet-host { color: var(--muted); }
+.logic-sw.flipped { border-color: var(--danger); background: var(--wash-danger); }
+.linkish { background: none; border: 0; padding: 0; font: inherit; font-family: var(--mono); font-size: 10.5px; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.linkish:hover { color: var(--text); }
 
 /* ============================================================
    The Behavioural Governor
@@ -5865,9 +5941,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   .topic-head .th-ctl .status-sel { flex: 1; min-height: 44px; }
   .th-meta { -webkit-line-clamp: 3; }
 
-  /* the study nav keeps its one row; the page control loses its title and
-     the bar stops sticking (a 390px viewport cannot spare 46px of it) */
-  .study-nav { position: static; }
+  /* the study nav keeps its one row; the page control loses its title */
 
   /* --- modals become bottom sheets --- */
   .modal-ov { align-items: flex-end; padding: 0; }

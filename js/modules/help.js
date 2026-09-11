@@ -48,7 +48,7 @@
       ["Today's directives", "The auto-generated daily list on the home page: due cards, near deadlines and today's study blocks. Ticks earn XP. Your own reminders are reported underneath, read-only \u2014 manage them on the Reminders page."],
     ]],
     ["The Behavioural Governor", [
-      ["HP", "Health drains on days with zero study and when the due-card backlog piles up (past " + (KOS.governor ? KOS.governor.BACKLOG_LIMIT : 30) + "). Below 60 the enrichment layer (labs, sims, shop) suspends; below 30 you're in Recovery Mode. Core revision — spec, notes, cards, quizzes, exam Qs — never locks, ever."],
+      ["HP", "Health drains on days with zero study and when the due-card backlog piles up (past " + (KOS.governor ? KOS.governor.BACKLOG_LIMIT : 30) + "). Below 60 you're Strained and below 30 you're in Recovery Mode, where HP restores at half rate — but nothing locks: labs, sims and the shop stay open at any HP, and core revision — spec, notes, cards, quizzes, exam Qs — never locks, ever."],
       ["Gold", "Earned from sessions, streak milestones, quiz scores ≥80% and clearing the due queue. Spent in the Governor's shop on permanent lab/sim unlocks and cosmetics (themes, kanji seals, avatar frames, bookshelf skins for the Books Physical tab, Shrine card styles). Prices were rebalanced in 3j around real earning rates — a big lab is about a week of steady study, small cosmetics two or three days."],
       ["XP & level", "A pure progress meter — it gates nothing except the avatar seal library, which unlocks by level. The HUD in the topbar shows avatar, level, gold, HP and XP at a glance; click it for the full panel."],
       ["Avatar", "Pick a procedural seal or upload your own image (auto-cropped to a circle and compressed before storing)."],

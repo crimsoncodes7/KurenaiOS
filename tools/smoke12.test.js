@@ -474,14 +474,14 @@ step("catalog: rebalanced prices + the new kinds exist; cosmetics apply their cl
   await waitFor(() => main.querySelector(".shrine-hall"), 4000);
   if (!main.querySelector(".shrine-hall").classList.contains("shrine-neon")) throw new Error("shrine style class not applied");
 });
-step("boundaries hold: cosmetics buyable while strained, labs suspended, HP untouched", async () => {
+step("boundaries hold: cosmetics AND labs buyable while strained, HP untouched", async () => {
   const g = KOS.store.state.governor;
   const hp0 = g.hp;
   g.hp = 45;   // strained
   let r = KOS.governor.buy("seal-sakura");
   if (!r.ok) throw new Error("cosmetics must stay buyable while strained: " + r.msg);
   r = KOS.governor.buy("logic-lab");
-  if (r.ok) throw new Error("labs must be suspended while strained");
+  if (!r.ok && !/Already owned/.test(r.msg)) throw new Error("labs must stay buyable while strained: " + r.msg);
   g.hp = hp0;
   KOS.store.save();
   /* shop UI shows the new groups */
