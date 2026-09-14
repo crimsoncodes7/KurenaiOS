@@ -10,10 +10,10 @@ chronological diary here.
 
 - Category 7 A–G is integrated, deployed and production-verified.
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `10f321bb1be4668e23a0749706f928c8877d1a48`
-- Runtime release: `10f321bb1be4668e23a0749706f928c8877d1a48`
+- Release source checkpoint: `57388e28707c49b15b8882b708d986e1f47bacc0`
+- Runtime release: `57388e28707c49b15b8882b708d986e1f47bacc0`
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-banks-2`
+- Service-worker version: `kos-focus-distraction-toggle-1`
 - Required smoke gate: 50 / 50 suites.
 
 ## Run, test and deploy
