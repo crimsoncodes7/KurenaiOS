@@ -118,7 +118,8 @@
     focus: {
       active: null,                    // running-session snapshot (survives reload → restored paused)
       nextId: 1,
-      lastConfig: { mode: "pomodoro", workMin: 25, breakMin: 5, subject: "", ref: "" }
+      lastConfig: { mode: "pomodoro", workMin: 25, breakMin: 5, subject: "", ref: "" },
+      penalizeDistractions: true       // tab-switch HP nick, opt-out in Focus Timer setup
     },
 
     /* ---- The integrated weekly plan (core/pacing.js) ----

@@ -459,7 +459,15 @@
   /* unannounced tab-switch during a running WORK phase = distraction.
      Reading sessions are exempt WHOLESALE (3i): no logging, no HP nick —
      the Collection Matrix contract forbids this module's activities from
-     ever touching HP, and rest doesn't owe anyone its attention. */
+     ever touching HP, and rest doesn't owe anyone its attention.
+
+     The HP nick itself is opt-out (F().penalizeDistractions, toggled in
+     setup): switching to look something up — a video, an AI chat, a
+     reference site — is not the same failure mode this deterrent was built
+     for, and the browser can never tell one destination from another, so
+     the honest fix is to let the user say whether the friction applies to
+     them at all rather than fake a site-by-site distinction it can't make.
+     The switch is still counted either way, just never charged when off. */
   document.addEventListener("visibilitychange", function () {
     /* Build 6.5 — the page going away fires this too. Charging HP for a
        refresh, a closed tab or an OS-level navigation is a penalty for
@@ -471,14 +479,17 @@
     }
     if (document.visibilityState === "hidden") {
       S.distractions.push(now());
-      if (S.distractions.length > DISTRACT_FREE) KOS.governor.drainHp(DISTRACT_HP);
+      var charge = F().penalizeDistractions !== false && S.distractions.length > DISTRACT_FREE;
+      if (charge) KOS.governor.drainHp(DISTRACT_HP);
       pendingDistractToast = true;
       store.save();
     } else if (pendingDistractToast) {
       pendingDistractToast = false;
       var n = S.distractions.length;
+      var willCharge = F().penalizeDistractions !== false;
       KOS.ui.toast("Distraction #" + n + " logged" +
-        (n > DISTRACT_FREE ? " · −" + DISTRACT_HP + " HP" : " — first one's free"), n > DISTRACT_FREE);
+        (!willCharge ? " — HP penalty is off" : n > DISTRACT_FREE ? " · −" + DISTRACT_HP + " HP" : " — first one's free"),
+        willCharge && n > DISTRACT_FREE);
       render();
     }
   });
@@ -716,7 +727,8 @@
         ])
       : el("div", { class: "fx-stats" }, [
           el("span", { text: "pauses " + S.pauses + " (1 free)" }),
-          el("span", { text: "tab switches " + S.distractions.length + " (" + DISTRACT_FREE + " free)" }),
+          el("span", { text: "tab switches " + S.distractions.length +
+            (F().penalizeDistractions === false ? " (no penalty)" : " (" + DISTRACT_FREE + " free)") }),
           (S.marks || []).length ? el("span", { text: "marked " + S.marks.length }) : null
         ].filter(Boolean)));
 
@@ -742,7 +754,9 @@
     }
     stageEl.appendChild(el("p", { class: "fx-note", text: reading
       ? "Put the screen down and read. The clock logs to your reading heatmap and rest streak when it ends — HP and the study streak are never touched."
-      : "Leaving the tab mid-focus counts as a distraction. Pausing is honest — the first is free. A refresh costs nothing." }));
+      : F().penalizeDistractions === false
+        ? "Leaving the tab mid-focus is logged but costs nothing — the HP penalty is off. A refresh costs nothing either way."
+        : "Leaving the tab mid-focus counts as a distraction. Pausing is honest — the first is free. A refresh costs nothing." }));
 
     /* ---- docked bar ---- */
     dockEl.innerHTML = "";
@@ -1153,6 +1167,20 @@
       el("span", { text: "Objective (optional)" }), objIn
     ]));
 
+    /* Build 6.6 — the distraction penalty is opt-out, not fixed. A persisted
+       preference (not part of this one session's cfg), so it carries into
+       the next setup screen the same way lastConfig does. */
+    var penIn = el("input", { type: "checkbox", id: "fxpen" });
+    penIn.checked = F().penalizeDistractions !== false;
+    penIn.addEventListener("change", function () {
+      F().penalizeDistractions = penIn.checked;
+      store.save();
+      drawDeal();
+    });
+    setup.appendChild(el("label", { class: "fx-rev-sub fx-pen-field", for: "fxpen" }, [
+      penIn, el("span", { text: "Penalize tab-switches away from the app (−" + DISTRACT_HP + " HP after the first)" })
+    ]));
+
     setup.appendChild(el("button", { class: "btn primary fx-start", text: "◉ Start focus session", onclick: function () {
       var w = Math.max(1, Math.min(240, parseInt(work.value || "25", 10)));
       var b = Math.max(0, Math.min(60, parseInt(brk.value || "0", 10)));
@@ -1189,7 +1217,9 @@
       [
         ["One completed " + mins + "-minute cycle", "+" + a.xp + " XP · +" + a.gold + " gold · +" + a.hp + " HP"],
         ["Each pause after the first", "−15% (" + twoPauses.xp + " XP at two)"],
-        ["Each tab-switch after the first", "−" + DISTRACT_HP + " HP, charged as it happens"],
+        ["Each tab-switch after the first", F().penalizeDistractions === false
+          ? "free — penalty is off"
+          : "−" + DISTRACT_HP + " HP, charged as it happens"],
         ["Marking a distraction yourself", "free — recorded, never charged"],
         ["Ending before a full cycle", "logged in full, award forfeited"]
       ].forEach(function (row) {

@@ -2992,6 +2992,7 @@ body.fx-minimised .fx-dock { display: flex; }
 /* setup: the objective sits with the links, not above them */
 .fx-obj-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; max-width: 560px; }
 .fx-obj-in { width: 100%; }
+.fx-pen-field { margin-bottom: 18px; max-width: 560px; }
 .fx-deal-list li strong { text-align: right; }
 .fx-deal-foot { margin: 12px 0 0; font-size: 11.5px; line-height: 1.6; color: var(--muted); }
 
