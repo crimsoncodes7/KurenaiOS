@@ -91,7 +91,17 @@
   }
 
   /* ---- unified card enumeration ---- */
+  /* the effective deck: the user's fork of the topic when there is one
+     (core/edits.js), else the shipped cards. A forked card keeps the SM-2
+     key it shipped with, so editing its wording never resets its schedule;
+     `edited` marks a card whose topic carries a fork at all. */
   function curriculumCards(sid, ref) {
+    if (window.KOS.edits) {
+      var forked = KOS.edits.has(sid, ref, "flashcards");
+      return KOS.edits.material(sid, ref, "flashcards").map(function (c) {
+        return { key: c.k, id: c.id, sid: sid, ref: ref, q: c.q, a: c.a, custom: false, edited: forked };
+      });
+    }
     var entry = window.KOS_CONTENT[sid + ":" + ref];
     var out = [];
     if (entry && entry.flashcards) {
@@ -117,7 +127,11 @@
   /* every card in the OS (all subjects, both origins) */
   function allCards() {
     var out = [];
-    Object.keys(window.KOS_CONTENT).forEach(function (k) {
+    var keys = Object.keys(window.KOS_CONTENT);
+    if (window.KOS.edits) {
+      KOS.edits.topics("flashcards").forEach(function (k) { if (keys.indexOf(k) === -1) keys.push(k); });
+    }
+    keys.forEach(function (k) {
       var i = k.indexOf(":");
       out = out.concat(curriculumCards(k.slice(0, i), k.slice(i + 1)));
     });

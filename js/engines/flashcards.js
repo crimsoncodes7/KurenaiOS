@@ -5,9 +5,11 @@
      the core review engine over any card list (per-topic or the global due
      queue). 4-point rating: Again requeues the card into THIS session and
      resets its long-term schedule; Hard/Good/Easy graduate it.
-   KOS.flashcards.mount(holder, sid, ref)
-     the per-topic tab: session over curriculum + custom cards, plus the
-     manage panel (add / edit / delete custom cards, per-card metrics).      */
+   KOS.flashcards.mount(holder, sid, ref, {onEdit})
+     the per-topic tab: session over the effective deck (the curriculum's
+     cards, or the user's fork of them, plus custom cards) and the deck
+     browser with per-card SM-2 metrics. Editing lives in the study editor
+     (modules/editor.js); onEdit opens it.                                  */
 (function () {
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
@@ -265,85 +267,124 @@
     show();
   }
 
-  /* ---------------- custom-card form ---------------- */
+  /* ---------------- custom-card form ----------------
+     Used only where the study editor is not available (the Personal Deck,
+     which has no topic page): a topic's own deck edits through the editor. */
   function cardForm(sid, ref, existing, onDone) {
     var q = el("textarea", { class: "note-area fc-form-q", rows: 2, placeholder: "Question — what future-you gets asked" });
     var a = el("textarea", { class: "note-area fc-form-a", rows: 2, placeholder: "Answer — the wording that earns the mark" });
     if (existing) { q.value = existing.q; a.value = existing.a; }
-    var form = el("div", { class: "fc-form" }, [
-      el("div", { class: "fc-form-h", text: existing ? "Edit card" : "New custom card — " + sid + " · " + ref }),
+    return el("div", { class: "fc-form" }, [
+      el("div", { class: "fc-form-h", text: existing ? "Edit card" : "New card" }),
       q, a,
       el("div", { class: "lab-controls" }, [
-        el("button", { class: "btn primary", text: existing ? "Save changes" : "+ Add card", onclick: function () {
+        el("button", { class: "btn primary", type: "button", text: existing ? "Save changes" : "+ Add card", onclick: function () {
           if (!q.value.trim() || !a.value.trim()) { KOS.ui.toast("Both a question and an answer are needed.", true); return; }
           if (existing) KOS.srs.updateCustom(existing.id, q.value.trim(), a.value.trim());
           else KOS.srs.addCustom(sid, ref, q.value.trim(), a.value.trim());
-          KOS.ui.toast(existing ? "Card updated." : "Card added — it joins this topic's deck and the SM-2 schedule.");
+          KOS.ui.toast(existing ? "Card updated." : "Card added — it joins this deck and the SM-2 schedule.");
           onDone();
         } }),
-        el("button", { class: "btn", text: "Cancel", onclick: onDone })
+        el("button", { class: "btn", type: "button", text: "Cancel", onclick: onDone })
       ])
     ]);
-    return form;
   }
 
-  /* ---------------- manage panel (browse + CRUD + metrics) ---------------- */
-  function managePanel(holder, sid, ref, rerender) {
+  /* ---------------- the deck browser ----------------
+     Every card in the topic's deck, one row each, with its SM-2 history a
+     tap away. On a topic page nothing is edited here: the study editor
+     (modules/editor.js) is the one place a card's wording changes, and
+     "Edit deck" opens it — so a card never has two competing edit
+     surfaces. A deck with no topic page (the Personal Deck) keeps its own
+     custom-card form. */
+  function managePanel(holder, sid, ref, rerender, opts) {
     var cards = KOS.srs.cardsFor(sid, ref);
+    var forked = KOS.edits && KOS.edits.has(sid, ref, "flashcards");
+    /* a topic page edits through the study editor (opts.onEdit, or it is
+       already open: opts.editing); only a deck with no page of its own
+       keeps the inline form */
+    var inlineCrud = !(opts && (opts.onEdit || opts.editing));
     var wrap = el("div", { class: "fc-manage" });
-    wrap.appendChild(el("div", { class: "fc-manage-h" }, [
-      el("b", { text: cards.length + (cards.length === 1 ? " card" : " cards") + " in this deck" }),
-      el("span", { class: "sub", text: "Curriculum cards are fixed; your custom cards can be edited or deleted. ⓘ shows each card's SM-2 history." })
-    ]));
+    var head = el("div", { class: "fc-manage-h" }, [
+      el("div", { class: "fc-manage-t" }, [
+        el("b", { text: cards.length + (cards.length === 1 ? " card" : " cards") + " in this deck" }),
+        el("span", { class: "sub", text: forked
+          ? "This deck is your edited version of the curriculum's."
+          : "Curriculum cards and your own, with each card's review history." })
+      ]),
+      opts && opts.onEdit && !opts.editing ? el("button", { class: "btn primary", type: "button", text: "✎ Edit deck", onclick: opts.onEdit }) : null
+    ]);
+    wrap.appendChild(head);
     var addHolder = el("div", {});
-    var addBtn = el("button", { class: "btn primary", text: "+ New custom card", onclick: function () {
-      addHolder.innerHTML = "";
-      addHolder.appendChild(cardForm(sid, ref, null, rerender));
-      addBtn.style.display = "none";
-    } });
-    wrap.appendChild(addBtn);
-    wrap.appendChild(addHolder);
-
-    cards.forEach(function (c) {
-      var row = el("div", { class: "fc-row" + (c.custom ? " custom" : "") });
-      var detail = el("div", { class: "fc-row-detail", style: "display:none" });
-      row.appendChild(el("div", { class: "fc-row-top" }, [
-        el("span", { class: "fc-row-q", html: KOS.content.inline(c.q) }),
-        c.custom ? el("span", { class: "fc-custom", text: c.ai ? "AI · Custom" : "Custom" }) : el("span", { class: "fc-curr", text: "Curriculum" }),
-        el("button", { class: "mini-btn", text: "ⓘ", "aria-label": "Card metrics", onclick: function () {
-          detail.style.display = detail.style.display === "none" ? "" : "none";
-        } }),
-        c.custom ? el("button", { class: "mini-btn", text: "✎", "aria-label": "Edit card", onclick: function () {
-          detail.style.display = "";
-          detail.innerHTML = "";
-          detail.appendChild(cardForm(sid, ref, c, rerender));
-        } }) : null,
-        c.custom ? el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete card", onclick: function () {
-          KOS.ui.confirm({ title: "Delete this card?", body: "The card and its review history go with it.", danger: true, confirm: "Delete" }, function () {
-            KOS.srs.deleteCustom(c.id);
-            KOS.ui.toast("Card deleted.");
-            rerender();
-          });
-        } }) : null
-      ]));
-      row.appendChild(el("div", { class: "fc-row-a", html: KOS.content.inline(c.a) }));
+    if (inlineCrud) {
+      var addBtn = el("button", { class: "btn primary", type: "button", text: "+ New card", onclick: function () {
+        addHolder.innerHTML = "";
+        addHolder.appendChild(cardForm(sid, ref, null, rerender));
+        addBtn.hidden = true;
+      } });
+      head.appendChild(addBtn);
+      wrap.appendChild(addHolder);
+    }
+    if (!cards.length) {
+      wrap.appendChild(KOS.ui.emptyState({ compact: true, mark: "札", title: "No cards yet",
+        body: inlineCrud ? "Add the first card above." : "Edit the deck to write the first card." }));
+      holder.appendChild(wrap);
+      return;
+    }
+    var list = el("ol", { class: "fc-list", "aria-label": "Cards in this deck" });
+    cards.forEach(function (c, i) {
+      var m = KOS.srs.peek(c.key);
+      var detail = el("div", { class: "fc-row-detail", hidden: true });
+      var info = el("button", { class: "fc-row-info", type: "button", "aria-expanded": "false",
+        "aria-label": "Review history for card " + (i + 1), title: "Review history",
+        onclick: function () {
+          var open = detail.hidden;
+          detail.hidden = !open;
+          info.setAttribute("aria-expanded", String(open));
+          info.classList.toggle("on", open);
+        } }, [m && m.views ? m.views + " review" + (m.views === 1 ? "" : "s") : "new", el("span", { class: "fc-row-caret", "aria-hidden": "true", text: "▾" })]);
+      var badge = c.custom
+        ? el("span", { class: "fc-custom", text: c.ai ? "AI · Custom" : "Custom" })
+        : el("span", { class: "fc-curr", text: forked ? "Edited" : "Curriculum" });
+      var row = el("li", { class: "fc-row" + (c.custom ? " custom" : "") }, [
+        el("span", { class: "fc-row-n", "aria-hidden": "true", text: String(i + 1) }),
+        el("div", { class: "fc-row-main" }, [
+          el("div", { class: "fc-row-q", html: KOS.content.inline(c.q) }),
+          el("div", { class: "fc-row-a", html: KOS.content.inline(c.a) })
+        ]),
+        el("div", { class: "fc-row-side" }, [
+          badge,
+          info,
+          m && m.due ? el("span", { class: "fc-row-due", text: dueLabel(m) }) : null,
+          inlineCrud && c.custom ? el("button", { class: "mini-btn", type: "button", text: "✎", "aria-label": "Edit card", onclick: function () {
+            detail.hidden = false; detail.innerHTML = ""; detail.appendChild(cardForm(sid, ref, c, rerender));
+          } }) : null,
+          inlineCrud && c.custom ? el("button", { class: "mini-btn danger", type: "button", text: "✕", "aria-label": "Delete card", onclick: function () {
+            KOS.ui.confirm({ title: "Delete this card?", body: "The card and its review history go with it.", danger: true, confirm: "Delete" }, function () {
+              KOS.srs.deleteCustom(c.id); KOS.ui.toast("Card deleted."); rerender();
+            });
+          } }) : null
+        ].filter(Boolean)),
+        detail
+      ]);
       detail.appendChild(metricsPanel(c));
-      row.appendChild(detail);
-      wrap.appendChild(row);
+      list.appendChild(row);
       KOS.content.typeset(row);
     });
+    wrap.appendChild(list);
     holder.appendChild(wrap);
   }
 
   /* ---------------- per-topic mount ---------------- */
-  function mount(holder, sid, ref) {
+  function mount(holder, sid, ref, opts) {
+    opts = opts || {};
     holder.innerHTML = "";
     var cards = KOS.srs.cardsFor(sid, ref);
     var mode = "study";
 
-    var bar = el("div", { class: "fc-modebar" }, [
-      el("button", { class: "btn fc-mode active", text: "Study", onclick: function () { mode = "study"; render(); } }),
-      el("button", { class: "btn fc-mode", text: "⚙ Manage cards (" + cards.length + ")", onclick: function () { mode = "manage"; render(); } })
+    var bar = el("div", { class: "fc-modebar", role: "tablist", "aria-label": "Flashcards" }, [
+      el("button", { class: "btn fc-mode active", role: "tab", type: "button", text: "Study", onclick: function () { mode = "study"; render(); } }),
+      el("button", { class: "btn fc-mode", role: "tab", type: "button", text: "Deck (" + cards.length + ")", onclick: function () { mode = "manage"; render(); } })
     ]);
     var body = el("div", {});
     holder.appendChild(bar);
@@ -352,17 +393,19 @@
     function render() {
       cards = KOS.srs.cardsFor(sid, ref);
       bar.querySelectorAll(".fc-mode").forEach(function (b, i) {
-        b.classList.toggle("active", (i === 0) === (mode === "study"));
-        if (i === 1) b.textContent = "⚙ Manage cards (" + cards.length + ")";
+        var on = (i === 0) === (mode === "study");
+        b.classList.toggle("active", on);
+        b.setAttribute("aria-selected", String(on));
+        if (i === 1) b.textContent = "Deck (" + cards.length + ")";
       });
       body.innerHTML = "";
       if (mode === "study") {
         var holder2 = el("div", { class: "fc-wrap-inner" });
         body.appendChild(holder2);
         session(holder2, cards, { sid: sid, ref: ref, type: "flashcards",
-          emptyText: "No cards on this topic yet — add your own under ⚙ Manage cards." });
+          emptyText: "No cards on this topic yet — press Edit to write the first one." });
       } else {
-        managePanel(body, sid, ref, render);
+        managePanel(body, sid, ref, render, opts);
       }
     }
     render();

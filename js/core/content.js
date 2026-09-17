@@ -13,6 +13,13 @@
 
    Block types:
    "plain string"                          paragraph
+   {p:"text"}                              paragraph (the editable form — a
+                                           block may also carry an `id`,
+                                           which the renderer ignores and the
+                                           cloud merge keys on)
+   {md:"# full markdown…"}                 a Markdown document fragment
+                                           (headings, lists, fences, tables,
+                                           quotes, links) — see markdown()
    {h:"Sub-heading"}
    {ul:[..]} {ol:[..]}                     lists (items can embed `code` spans with backticks)
    {kv:[["Term","Definition"],..]}         definition pairs
@@ -47,11 +54,135 @@
      Italic is matched conservatively so it can't capture arithmetic like
      "6*3" or "p * q": the opening * must sit on a word boundary and hug a
      non-space, the closing * must hug a non-space — a lone/spaced * never pairs. */
+  /* Maths is lifted out first: `$a*b$` and `$$x_1$$` are KaTeX's to render
+     (typeset() runs on the finished DOM), and the emphasis rules below
+     must never see them. Links take a protocol allowlist — the editor lets
+     the user type anything. */
+  function safeHref(raw) {
+    var href = String(raw || "").trim();
+    if (!href || /[\u0000-\u001f\u007f]/.test(href)) return null;
+    if (href.charAt(0) === "#" || href.charAt(0) === "/" || href.indexOf("./") === 0) return href;
+    try {
+      var u = new URL(href, window.location.href);
+      return /^(https?:|mailto:)$/.test(u.protocol) ? u.href : null;
+    } catch (e) { return null; }
+  }
   function inline(s) {
-    return esc(s)
+    var math = [];
+    var src = String(s == null ? "" : s).replace(/\$\$[\s\S]+?\$\$|\$[^$\n]+?\$/g, function (m) {
+      math.push(m);
+      return "\u0003" + (math.length - 1) + "\u0004";
+    });
+    var out = esc(src)
       .replace(/`([^`]+)`/g, "<code>$1</code>")
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-      .replace(/(?<![A-Za-z0-9)*])\*(?!\s)([^*\n]+?)(?<!\s)\*(?![A-Za-z0-9(*])/g, "<em>$1</em>");
+      .replace(/(?<![A-Za-z0-9)*])\*(?!\s)([^*\n]+?)(?<!\s)\*(?![A-Za-z0-9(*])/g, "<em>$1</em>")
+      .replace(/~~([^~]+)~~/g, "<s>$1</s>")
+      .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (m, t, h) {
+        /* esc() ran already, so undo it on the href before validating */
+        var href = safeHref(h.replace(/&amp;/g, "&").replace(/&quot;/g, '"'));
+        return href ? '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + t + "</a>" : m;
+      });
+    return out.replace(/\u0003(\d+)\u0004/g, function (_, i) { return esc(math[+i]); });
+  }
+
+  /* ---------------- Markdown ----------------
+     A small block-level Markdown for the {md} block and the editor: ATX
+     headings, fenced code (through highlightCode), block quotes, bullet
+     and numbered lists, pipe tables, rules and paragraphs, with inline()
+     for everything inside. Raw HTML stays visible text. Returns HTML. */
+  function markdown(src) {
+    var lines = String(src == null ? "" : src).replace(/\r\n?/g, "\n").split("\n");
+    var html = "", at = 0;
+    function isBlockStart(i) {
+      var l = lines[i] || "";
+      if (!l.trim()) return true;
+      return /^\s{0,3}(```+|~~~+)/.test(l) || /^\s{0,3}#{1,6}\s+/.test(l) || /^\s{0,3}>/.test(l) ||
+        /^\s{0,3}([-+*]|\d+[.)])\s+/.test(l) || /^\s{0,3}((\*\s*){3,}|(-\s*){3,}|(_\s*){3,})$/.test(l) ||
+        (i + 1 < lines.length && l.indexOf("|") >= 0 && isDivider(lines[i + 1]));
+    }
+    function cells(l) {
+      var t = l.trim().replace(/^\|/, "").replace(/\|$/, "");
+      return t.split("|").map(function (c) { return c.trim(); });
+    }
+    function isDivider(l) {
+      var c = cells(l || "");
+      return c.length > 0 && c.every(function (x) { return /^:?-{3,}:?$/.test(x); });
+    }
+    while (at < lines.length) {
+      var line = lines[at], t = line.trim(), m;
+      if (!t) { at++; continue; }
+      m = line.match(/^\s{0,3}(```+|~~~+)\s*([^\s]*)\s*$/);
+      if (m) {
+        var fence = m[1], code = [];
+        at++;
+        while (at < lines.length && !(new RegExp("^\\s{0,3}" + fence.charAt(0) + "{" + fence.length + ",}\\s*$").test(lines[at]))) { code.push(lines[at]); at++; }
+        if (at < lines.length) at++;
+        html += '<figure class="n-code">' + '<button class="n-copy" type="button" aria-label="Copy code to clipboard">Copy</button>' +
+          (m[2] ? '<span class="n-lang">' + esc(m[2]) + "</span>" : "") +
+          "<pre><code>" + highlightCode(code.join("\n"), m[2]) + "</code></pre></figure>";
+        continue;
+      }
+      if (t.indexOf("$$") === 0 && t.length === 2) {
+        /* a display-maths block on its own lines — hand it to KaTeX whole */
+        var tex = [];
+        at++;
+        while (at < lines.length && lines[at].trim() !== "$$") { tex.push(lines[at]); at++; }
+        if (at < lines.length) at++;
+        html += '<p class="n-math">$$' + esc(tex.join("\n")) + "$$</p>";
+        continue;
+      }
+      m = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+      if (m) {
+        var lvl = Math.min(6, m[1].length + 2);
+        html += "<h" + lvl + ' class="n-h n-h' + m[1].length + '">' + inline(m[2]) + "</h" + lvl + ">";
+        at++; continue;
+      }
+      if (/^\s{0,3}((\*\s*){3,}|(-\s*){3,}|(_\s*){3,})$/.test(line)) { html += "<hr>"; at++; continue; }
+      if (at + 1 < lines.length && line.indexOf("|") >= 0 && isDivider(lines[at + 1])) {
+        var head = cells(line);
+        html += '<div class="n-tablewrap">' + COPY_BTN + '<table class="n-table"><thead><tr>' +
+          head.map(function (h) { return "<th>" + inline(h) + "</th>"; }).join("") + "</tr></thead><tbody>";
+        at += 2;
+        while (at < lines.length && lines[at].trim() && lines[at].indexOf("|") >= 0) {
+          var row = cells(lines[at]);
+          while (row.length < head.length) row.push("");
+          html += "<tr>" + row.slice(0, head.length).map(function (c) { return "<td>" + inline(c) + "</td>"; }).join("") + "</tr>";
+          at++;
+        }
+        html += "</tbody></table></div>";
+        continue;
+      }
+      if (/^\s{0,3}>/.test(line)) {
+        var q = [];
+        while (at < lines.length && /^\s{0,3}>/.test(lines[at])) { q.push(lines[at].replace(/^\s{0,3}>\s?/, "")); at++; }
+        html += '<blockquote class="n-quote">' + markdown(q.join("\n")) + "</blockquote>";
+        continue;
+      }
+      m = line.match(/^\s{0,3}([-+*]|\d+[.)])\s+(.+)$/);
+      if (m) {
+        var ordered = /^\d/.test(m[1]);
+        html += ordered ? "<ol>" : "<ul>";
+        while (at < lines.length) {
+          m = lines[at].match(/^\s{0,3}([-+*]|\d+[.)])\s+(.+)$/);
+          if (!m || /^\d/.test(m[1]) !== ordered) break;
+          var item = m[2], task = item.match(/^\[([ xX])\]\s+(.*)$/);
+          html += task
+            ? '<li class="n-task' + (task[1] !== " " ? " done" : "") + '"><span class="n-tick" aria-hidden="true">' + (task[1] !== " " ? "☑" : "☐") + "</span> " + inline(task[2]) + "</li>"
+            : "<li>" + inline(item) + "</li>";
+          at++;
+        }
+        html += ordered ? "</ol>" : "</ul>";
+        continue;
+      }
+      var para = [line];
+      at++;
+      while (at < lines.length && !isBlockStart(at)) { para.push(lines[at]); at++; }
+      html += "<p>" + para.map(function (l, i) {
+        return inline(l.replace(/\s+$/, "")) + (i < para.length - 1 ? (/\s{2}$/.test(l) ? "<br>" : " ") : "");
+      }).join("") + "</p>";
+    }
+    return html;
   }
 
   function highlightCode(src, lang) {
@@ -94,11 +225,26 @@
     return pages;
   }
 
+  /* a block carrying an `id` (an edited topic) is wrapped so the editor
+     can point at it; the wrapper is display:contents and changes no layout */
   function renderBlocks(blocks) {
-    var html = "";
+    var total = "";
     (blocks || []).forEach(function (b) {
+      var html = renderOne(b);
+      if (b && typeof b === "object" && b.id != null && html) {
+        total += '<div class="n-blk" data-bid="' + esc(String(b.id)) + '">' + html + "</div>";
+      } else total += html;
+    });
+    return total;
+  }
+  function renderOne(b) {
+    var html = "";
+    (function () {
       if (typeof b === "string") { html += "<p>" + inline(b) + "</p>"; return; }
+      if (!b || typeof b !== "object") return;
       if (b.page) { return; } /* page divider — handled by splitPages, not rendered */
+      if (b.p != null) { html += "<p>" + inline(b.p) + "</p>"; return; }
+      if (b.md != null) { html += '<div class="n-md">' + markdown(b.md) + "</div>"; return; }
       if (b.h) { html += '<h4 class="n-h">' + inline(b.h) + "</h4>"; return; }
       if (b.ul) { html += "<ul>" + b.ul.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ul>"; return; }
       if (b.ol) { html += "<ol>" + b.ol.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ol>"; return; }
@@ -168,7 +314,7 @@
             (s.n ? '<div class="sn">' + inline(s.n) + "</div>" : "") + "</div>";
         }).join("") + "</div>"; return;
       }
-    });
+    })();
     return html;
   }
 
@@ -264,6 +410,8 @@
     splitPages: splitPages,
     typeset: typeset,
     inline: inline,
+    markdown: markdown,
+    CALLOUT_META: CALLOUT_META,
     highlight: highlightCode,
     coverage: function (sid, leaves) {
       var n = 0;

@@ -26,6 +26,55 @@ https://bb17097f.kurenai-os.pages.dev.
 
 ## Unreleased on `main`
 
+**The editable curriculum — every topic tab edits in place.** Staged locally;
+NOT deployed.
+
+- `js/core/edits.js` forks a topic's material per kind (Specification, Notes,
+  Flashcards, Quiz, Exam questions) into `state.edits`; readers take the
+  effective material through `KOS.content.get()` and `KOS.srs.curriculumCards()`.
+  Shipped files are never written; Reset to curriculum restores them exactly.
+  Forked flashcards keep their SM-2 keys. Rows carry ids (deterministic for
+  shipped rows) so the cloud merge folds two devices' forks of one topic.
+- `js/modules/editor.js` is the study editor: an Edit control on the tab row
+  opens it in the inspector's column (sticky beside the live page); block
+  editor for Notes/Spec covering every renderer block type plus a new Markdown
+  block and page breaks; row editors for cards, MCQs and multi-part exam items;
+  formatting help; live re-render; per-device `ui.editing` survives redraws.
+- `content.js` gains `{p}`/`{md}` blocks, a Markdown renderer (headings,
+  fences, tables, lists, quotes, safe links) and math-safe inline markup.
+- Study UI: the note-page stepper/disclosure is replaced by one numbered page
+  strip in a declared scroller with chevrons; the article footer and the
+  topic's previous/next are one shared card shape; the flashcard "Manage"
+  panel is a clean deck browser with per-card history and hands off to the
+  editor. Notes/Quiz/Exam tabs always exist with empty states that open the
+  editor. `smoke51` covers the layer; service-worker version
+  `kos-study-editor-1`; gate 51 suites.
+
+**Cloud sync — devices merge instead of overwriting.** Staged locally; NOT
+deployed.
+
+- The state document was whole-document last-write-wins, then last-write-wins
+  behind a guard that refused a stale push and asked which copy to keep. Both
+  are gone. `js/core/cloudmerge.js` is a pure three-way merge against the last
+  document this device and the cloud agreed on (`cloudsync.base.<uid>` kv):
+  records by id with additions from both sides kept and deletions honoured,
+  same-record edits combined field by field on `updatedAt`, gold/XP/HP additive
+  against the base, owned cosmetics unioned, keyed maps per key. Per-device id
+  collisions are detected and the local record re-keyed with its references
+  rewritten.
+- The push is a compare-and-set on `__seq` (`update … where state_json->>__seq
+  = expected`); a lost race fetches, merges and retries. A pull onto a device
+  with unsynced edits merges and pushes in the same cycle.
+- First link never asks: an empty device adopts, an empty account receives, two
+  histories merge with no base. The "Upload local data", "Keep this device" and
+  "Use the cloud copy" dialogs and the `attention` chip state are removed.
+- `focus.active` joined `state.ui` as per-device. A successful push broadcasts a
+  data-free "changed" note on a Realtime channel (`kos-sync-<uid>`) so other
+  open devices pull within seconds; timers stay the safety net.
+- `smoke41` is now the merge suite (the 8 Aug 2026 incident stays as a
+  regression test, expecting a merge with nothing lost); `smoke17`/`smoke48`
+  fakes model the compare-and-set. Service-worker version `kos-cloud-merge-1`.
+
 **Pacing — the integrated weekly timeline (Productivity → Pacing).** Staged
 locally; NOT deployed.
 
@@ -126,7 +175,8 @@ recorded in `CLAUDE.md` to match, then stage and deploy.
 ### Cloud, PWA and Assistant
 
 - Optional Supabase replication for state, media, tombstones and attachment
-  metadata/binaries, while local writes remain authoritative.
+  metadata/binaries, while local writes remain authoritative. The state
+  document merges three-way across devices; media rows are per-entry.
 - Installable PWA with safe update prompts, derived shell precache and strict API
   cache exclusions.
 - Kurenai Assistant provider layer, constrained tools, orchestration,
@@ -201,15 +251,17 @@ The numbered suites form one release gate:
   orchestration, memory, surfaces and live-integration contracts.
 - `smoke29.test.js`–`smoke41.test.js`: Governor refinement, reminders,
   assignments, Focus, Calendar, shared media, static/Live2D character contracts
-  and cloud conflict handling.
+  and the cloud three-way merge (smoke41).
 - `smoke42.test.js`–`smoke47.test.js`: Category 7 shared foundations, Study,
   Collection, accessibility/routing, responsive integration and Phase G release
   consistency.
+- `smoke48.test.js`–`smoke51.test.js`: free-tier egress, the later Pacing and
+  labs/bank work, and the editable curriculum / study editor.
 
 Run all suites with:
 
 ```sh
-for i in "" {2..47}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..51}; do node "tools/smoke${i}.test.js"; done
 ```
 
 ## Remaining work and external gates

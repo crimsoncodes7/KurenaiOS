@@ -1518,12 +1518,15 @@
     /* every label is the full noun the rest of the OS uses — the strip mixed
        full words ("Specification", "Flashcards") with clipped ones ("Exam Qs",
        "Simulate", "Worked") and read as two different families of control */
+    /* the five editable kinds are always reachable — an empty tab is where
+       you add the material (the study editor); counts print only when
+       there is something to count (invariant 77) */
     var TABDEFS = [
       ["spec", "Specification", true, null],
-      ["notes", "Notes", !!mats.notes, mats.notes > 1 ? mats.notes : null],
-      ["cards", "Flashcards", mats.cards || !!content, mats.cards],
-      ["quiz", "Quiz", mats.quiz, mats.quiz],
-      ["exam", "Exam questions", mats.exam, mats.exam],
+      ["notes", "Notes", true, mats.notes > 1 ? mats.notes : null],
+      ["cards", "Flashcards", true, mats.cards || null],
+      ["quiz", "Quiz", true, mats.quiz || null],
+      ["exam", "Exam questions", true, mats.exam || null],
       ["worked", "Worked examples", mats.worked, mats.worked],
       ["sim", "Simulations", mats.sim, mats.sim],
       ["files", "Files", true, null]
@@ -1532,6 +1535,14 @@
     var tabBar = el("div", { class: "study-tabs study-tabs-topic", role: "tablist" });
     var panel = el("div", { class: "study-panel" });
     var curTab = (content && content.notes && content.notes.length) ? "notes" : "spec";
+    /* the study editor (modules/editor.js) — the tab → editable kind map,
+       and the per-device memory of an open editor so a redraw (a tab
+       becoming available after its first block, a breakpoint change)
+       reopens it on the same tab */
+    var EDIT_KIND = { spec: "spec", notes: "notes", cards: "flashcards", quiz: "quiz", exam: "exam" };
+    var editing = store.state.ui.editing;
+    if (editing && editing.sid === sid && editing.ref === ref && editing.tab && EDIT_KIND[editing.tab]) curTab = editing.tab;
+    else editing = null;
 
     TABDEFS.forEach(function (t) {
       tabBar.appendChild(el("button", {
@@ -1566,8 +1577,13 @@
     navRow.appendChild(KOS.ui.scroller(tabBar, { label: "Study material",
       prevLabel: "Scroll to earlier tabs", nextLabel: "Scroll to later tabs",
       className: "study-tabs-scroller" }));
-    navRow.appendChild(pagerSlot);
-    var pagesSlot = el("div", { class: "study-nav-pagelist" });
+    /* the one Edit control for the page: it edits whatever tab is open,
+       and reads "Done" while the editor is up */
+    var editBtn = el("button", { class: "btn study-edit", type: "button", "aria-pressed": "false",
+      onclick: function () { editing ? closeEditor() : openEditor(); } }, [
+      el("span", { class: "study-edit-i", "aria-hidden": "true", text: "✎" }), el("span", { class: "study-edit-t", text: "Edit" })]);
+    navRow.appendChild(editBtn);
+    var pagesSlot = el("div", { class: "study-nav-pagelist" }, [pagerSlot]);
     var studyNav = el("div", { class: "study-nav" }, [navRow, pagesSlot]);
 
     /* Build 4.0 — study workspace: content column + collapsible inspector.
@@ -1586,11 +1602,87 @@
     var asstStrip = KOS.assistant && KOS.assistant.contextActions
       ? KOS.assistant.contextActions("ref", { subject: sid, ref: ref, title: leaf.title })
       : null;
-    studyGrid.appendChild(buildInspector(studyGrid, sid, ref, ctl, asstStrip));
+    var inspector = buildInspector(studyGrid, sid, ref, ctl, asstStrip);
+    studyGrid.appendChild(inspector);
+    var editorHost = el("div", { class: "study-editor-host", hidden: true });
+    studyGrid.appendChild(editorHost);
     main.appendChild(studyGrid);
 
+    /* ---------- the study editor ---------- */
+    var editorCtl = null;
+    function paintEditBtn() {
+      var kind = EDIT_KIND[curTab];
+      editBtn.hidden = !kind;
+      editBtn.setAttribute("aria-pressed", String(!!editing));
+      editBtn.classList.toggle("on", !!editing);
+      editBtn.querySelector(".study-edit-t").textContent = editing ? "Done" : "Edit";
+      editBtn.classList.toggle("forked", !!(kind && KOS.edits.has(sid, ref, kind)));
+      editBtn.title = editing ? "Close the editor" : (kind ? "Edit the " + KOS.editor.KIND_LABEL[kind].toLowerCase() + " on this topic" : "");
+    }
+    function openEditor() {
+      var kind = EDIT_KIND[curTab];
+      if (!kind || !KOS.editor) return;
+      editing = { sid: sid, ref: ref, tab: curTab };
+      store.state.ui.editing = editing;
+      store.save();
+      studyGrid.classList.add("editing");
+      studyGrid.classList.remove("insp-closed");
+      inspector.hidden = true;
+      editorHost.hidden = false;
+      editorCtl = KOS.editor.mount(editorHost, {
+        sid: sid, ref: ref, kind: kind,
+        onChange: function (k, hint) {
+          /* the page beside the editor IS the preview */
+          if (hint && hint.focusOnly) {
+            /* a selection: turn to the page that holds the block if the
+               open page does not, then point at it */
+            if (hint.id && !panel.querySelector('.n-blk[data-bid="' + String(hint.id).replace(/"/g, "") + '"]')) openTab({ keep: true, reveal: hint.id });
+            else revealBlock(hint.id);
+            return;
+          }
+          content = KOS.content.get(sid, ref);
+          openTab({ keep: true, reveal: hint && hint.id });
+          paintEditBtn();
+          KOS.refreshRailCounters && KOS.refreshRailCounters();
+        },
+        onClose: closeEditor
+      });
+      paintEditBtn();
+      KOS.a11y && KOS.a11y.announce && KOS.a11y.announce("Editing " + KOS.editor.KIND_LABEL[kind] + ".");
+    }
+    function closeEditor() {
+      editing = null;
+      store.state.ui.editing = null;
+      store.save();
+      if (editorCtl) editorCtl.destroy();
+      editorCtl = null;
+      editorHost.hidden = true;
+      inspector.hidden = false;
+      studyGrid.classList.remove("editing");
+      studyGrid.classList.toggle("insp-closed", store.state.ui.inspectorOpen === false);
+      paintEditBtn();
+      editBtn.focus();
+    }
+    /* scroll the rendered block into view and mark it, so a selection in
+       the editor points at the paragraph it edits */
+    function revealBlock(id) {
+      if (!id) return;
+      panel.querySelectorAll(".n-blk-sel").forEach(function (n) { n.classList.remove("n-blk-sel"); });
+      var target = panel.querySelector('.n-blk[data-bid="' + String(id).replace(/"/g, "") + '"]');
+      if (!target) return;
+      target.classList.add("n-blk-sel");
+      if (target.scrollIntoView) target.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+
     var firstMount = true;
-    function openTab() {
+    var notePage = 0;                       // survives a re-render while editing
+    function openTab(o) {
+      o = o || {};
+      content = KOS.content.get(sid, ref);
+      if (editorCtl && !o.keep) editorCtl.setKind(EDIT_KIND[curTab] || editorCtl.kind());
+      if (editing && !EDIT_KIND[curTab]) closeEditor();
+      else if (editing) { editing.tab = curTab; store.state.ui.editing = editing; }
+      paintEditBtn();
       /* callout slide-in only on the first render of this page,
          not on every tab switch */
       panel.classList.toggle("first-mount", firstMount);
@@ -1609,23 +1701,27 @@
       /* the note-page control lives in the nav bar, outside `panel`, so it
          has to be cleared here too or it would survive a tab change */
       pagerSlot.innerHTML = "";
-      pagesSlot.innerHTML = "";
       panel.innerHTML = "";
       if (curTab === "spec") {
         var split = el("div", { class: "split" });
+        var specFork = KOS.edits.has(sid, ref, "spec") || editing ? KOS.edits.material(sid, ref, "spec") : null;
+        var specL = el("div", { class: "cb speccontent" + (specFork ? " notes-article" : ""),
+          html: specFork ? KOS.content.renderBlocks(specFork.content) : renderSpecContent(leaf.content) });
         split.appendChild(el("div", { class: "colcard" }, [
-          el("div", { class: "ch", text: d.labelL }),
-          el("div", { class: "cb speccontent", html: renderSpecContent(leaf.content) })
+          el("div", { class: "ch", text: d.labelL }), specL
         ]));
         var right = el("div", {});
-        if (leaf.info.length) {
+        if (specFork ? specFork.info.length : leaf.info.length) {
+          var specR = el("div", { class: "cb guide" + (specFork ? " notes-article" : ""),
+            html: specFork ? KOS.content.renderBlocks(specFork.info) : renderSpecInfo(leaf.info) });
           right.appendChild(el("div", { class: "colcard" }, [
-            el("div", { class: "ch", text: d.labelR }),
-            el("div", { class: "cb guide", html: renderSpecInfo(leaf.info) })
+            el("div", { class: "ch", text: d.labelR }), specR
           ]));
         }
         split.appendChild(right);
         panel.appendChild(split);
+        if (specFork) { KOS.content.typeset(specL); KOS.content.typeset(split); }
+        if (o.reveal) revealBlock(o.reveal);
         renderIntel(panel);
         panel.appendChild(el("div", { class: "colcard", style: "margin-top:18px" }, [
           el("div", { class: "ch", text: "Your notes on this spec point" }),
@@ -1639,93 +1735,108 @@
         ]));
       }
       else if (curTab === "notes") {
-        var pages = KOS.content.splitPages(content.notes);
-        if (pages.length > 1) {
-          /* ---------- compact note-page navigation (audit REF-6) ----------
-             Seven page pills wrapped to two rows directly under a tab strip
-             that had already wrapped to two rows. The default state is now a
-             one-line stepper in the study nav bar — ‹ 3 / 7 · Title › — which
-             is all a reader turning pages in order needs. The full list is
-             one press away behind "All pages" for the reader who wants to
-             jump, and it is still the same row of .note-page-tab buttons. */
-          var pager = el("div", { class: "note-pager", role: "tablist",
-            "aria-label": "Note pages", hidden: true });
-          var article = el("article", { class: "notes-article" });
-          var foot = el("div", { class: "note-pager-foot" });
-          var cur = 0;
-
-          var stepPrev = el("button", { class: "np-step", "aria-label": "Previous note page",
-            onclick: function () { showPage(cur - 1, true); } }, ["‹"]);
-          var stepNext = el("button", { class: "np-step", "aria-label": "Next note page",
-            onclick: function () { showPage(cur + 1, true); } }, ["›"]);
-          /* the readout IS the disclosure — one control instead of a
-             separate "All pages" button beside it, which is 70px the tab
-             strip would rather have */
-          var stepNow = el("span", { class: "np-count" });
-          var stepTitle = el("span", { class: "np-title" });
-          var pagesBtn = el("button", { class: "np-all", "aria-expanded": "false",
-            "aria-controls": "note-pagelist",
-            onclick: function () {
-              var open = pager.hidden;
-              pager.hidden = !open;
-              pagesBtn.setAttribute("aria-expanded", String(open));
-              pagesBtn.classList.toggle("on", open);
-            } }, [stepNow, stepTitle, el("span", { class: "np-caret", "aria-hidden": "true", text: "▾" })]);
-          pager.id = "note-pagelist";
-          pagerSlot.appendChild(el("div", { class: "note-stepper" },
-            [stepPrev, pagesBtn, stepNext]));
-          pagesSlot.appendChild(pager);
-
-          /* `moved` is true only when the READER changed page (a pill, the
-             stepper or a prev/next button). Scrolling the article into view
-             on the first mount landed them mid-article, with the title and
-             the study tabs already scrolled off the top (audit REF-2/B-04). */
-          var showPage = function (i, moved) {
-            cur = Math.max(0, Math.min(pages.length - 1, i));
-            pager.querySelectorAll(".note-page-tab").forEach(function (b, j) {
-              var on = j === cur;
-              b.classList.toggle("active", on);
-              b.setAttribute("aria-selected", String(on));
-            });
-            article.innerHTML = KOS.content.renderBlocks(pages[cur].blocks);
-            KOS.content.typeset(article);
-            if (moved && article.scrollIntoView) article.scrollIntoView({ block: "nearest" });
-            stepNow.textContent = (cur + 1) + " / " + pages.length;
-            stepTitle.textContent = pages[cur].title;
-            pagesBtn.title = "Page " + (cur + 1) + " of " + pages.length + " — " +
-              pages[cur].title + " · choose a page";
-            stepPrev.disabled = cur === 0;
-            stepNext.disabled = cur === pages.length - 1;
-            foot.innerHTML = "";
-            if (cur > 0) foot.appendChild(el("button", { class: "btn", text: "‹ " + pages[cur - 1].title,
-              onclick: function () { showPage(cur - 1, true); } }));
-            foot.appendChild(el("span", { class: "note-pager-count", text: (cur + 1) + " / " + pages.length }));
-            if (cur < pages.length - 1) foot.appendChild(el("button", { class: "btn", text: pages[cur + 1].title + " ›",
-              onclick: function () { showPage(cur + 1, true); } }));
-          };
-          pages.forEach(function (pg, i) {
-            pager.appendChild(el("button", { class: "note-page-tab", role: "tab", "data-i": i,
-              onclick: function () { showPage(i, true); } }, [(i + 1) + ". " + pg.title]));
-          });
-          panel.appendChild(article);
-          panel.appendChild(foot);
-          showPage(0);
+        /* while editing, render the editable shape (id-bearing blocks) even
+           before the first change, so a selection can point at its block */
+        var noteBlocks = editing && !KOS.edits.has(sid, ref, "notes")
+          ? KOS.edits.material(sid, ref, "notes")
+          : (content && content.notes ? content.notes : []);
+        if (!noteBlocks.length) {
+          panel.appendChild(KOS.ui.emptyState({
+            compact: true, mark: "註", title: "No notes on this topic yet",
+            body: "Write your own — paragraphs, Markdown, callouts, code, worked examples — and they stay with this topic on every device.",
+            action: editing ? null : el("button", { class: "btn primary", type: "button", text: "✎ Write notes", onclick: openEditor })
+          }));
         } else {
-          var n = el("article", { class: "notes-article", html: KOS.content.renderBlocks(content.notes) });
-          panel.appendChild(n);
-          KOS.content.typeset(n);
+          var pages = KOS.content.splitPages(noteBlocks);
+          var article = el("article", { class: "notes-article" });
+          var cur = Math.max(0, Math.min(pages.length - 1, o.keep ? notePage : 0));
+          if (o.reveal) {
+            /* show the page that holds the block the editor is on */
+            pages.forEach(function (pg, i) { if (pg.blocks.some(function (b) { return b && b.id === o.reveal; })) cur = i; });
+          }
+          if (pages.length > 1) {
+            /* ---------- page navigation ----------
+               One strip under the tabs: every page as a numbered pill in a
+               declared scroller (never a wrap — that was the old wall of
+               pills), stepped by chevrons at each end. The article footer
+               repeats the neighbours as two proper cards, the same shape as
+               the topic's own previous/next below them. */
+            var strip = el("div", { class: "note-pages", role: "tablist", "aria-label": "Note pages" });
+            var stepPrev = el("button", { class: "np-step", type: "button", "aria-label": "Previous page",
+              onclick: function () { showPage(cur - 1, true); } }, ["‹"]);
+            var stepNext = el("button", { class: "np-step", type: "button", "aria-label": "Next page",
+              onclick: function () { showPage(cur + 1, true); } }, ["›"]);
+            var pills = [];
+            pages.forEach(function (pg, i) {
+              var b = el("button", { class: "np-pill", role: "tab", type: "button", "data-i": i,
+                onclick: function () { showPage(i, true); } }, [
+                el("span", { class: "np-n", text: String(i + 1) }),
+                el("span", { class: "np-t", text: pg.title })
+              ]);
+              pills.push(b);
+              strip.appendChild(b);
+            });
+            var foot = el("nav", { class: "note-foot", "aria-label": "Note pages" });
+            pagerSlot.innerHTML = "";
+            pagerSlot.appendChild(el("div", { class: "note-pages-row" }, [
+              stepPrev,
+              KOS.ui.scroller(strip, { label: "Note pages", prevLabel: "Scroll to earlier pages", nextLabel: "Scroll to later pages", className: "note-pages-scroller" }),
+              stepNext
+            ]));
+            var showPage = function (i, moved) {
+              cur = Math.max(0, Math.min(pages.length - 1, i));
+              notePage = cur;
+              pills.forEach(function (b, j) {
+                var on = j === cur;
+                b.classList.toggle("active", on);
+                b.setAttribute("aria-selected", String(on));
+                if (on && b.scrollIntoView) b.scrollIntoView({ block: "nearest", inline: "nearest" });
+              });
+              article.innerHTML = KOS.content.renderBlocks(pages[cur].blocks);
+              KOS.content.typeset(article);
+              if (moved && article.scrollIntoView) article.scrollIntoView({ block: "start", behavior: "smooth" });
+              stepPrev.disabled = cur === 0;
+              stepNext.disabled = cur === pages.length - 1;
+              foot.innerHTML = "";
+              foot.appendChild(cur > 0 ? el("button", { class: "pn pn-page", type: "button", onclick: function () { showPage(cur - 1, true); } }, [
+                el("span", { class: "d", text: "‹ Previous page" }),
+                el("span", { class: "pn-t", text: pages[cur - 1].title })
+              ]) : el("span", { class: "pn-gap" }));
+              foot.appendChild(el("span", { class: "note-foot-count", text: "Page " + (cur + 1) + " of " + pages.length }));
+              foot.appendChild(cur < pages.length - 1 ? el("button", { class: "pn pn-page pn-next", type: "button", onclick: function () { showPage(cur + 1, true); } }, [
+                el("span", { class: "d", text: "Next page ›" }),
+                el("span", { class: "pn-t", text: pages[cur + 1].title })
+              ]) : el("span", { class: "pn-gap" }));
+            };
+            panel.appendChild(article);
+            panel.appendChild(foot);
+            showPage(cur);
+          } else {
+            notePage = 0;
+            article.innerHTML = KOS.content.renderBlocks(noteBlocks);
+            panel.appendChild(article);
+            KOS.content.typeset(article);
+          }
+          if (o.reveal) revealBlock(o.reveal);
         }
       }
       else if (curTab === "cards") {
         var fcHolder = el("div", { class: "fc-wrap" });
         panel.appendChild(fcHolder);
-        KOS.flashcards.mount(fcHolder, sid, ref);
+        KOS.flashcards.mount(fcHolder, sid, ref, { onEdit: openEditor, editing: !!editing });
       }
       else if (curTab === "quiz") {
+        var customN = KOS.srs.customQuizFor(sid, ref).length;
         if (content && content.quiz && content.quiz.length) {
           var qHolder = el("div", {});
           panel.appendChild(qHolder);
           KOS.quiz.mountMCQ(qHolder, sid, ref, content.quiz);
+        } else if (!customN) {
+          panel.appendChild(KOS.ui.emptyState({
+            compact: true, mark: "問", title: "No quiz on this topic yet",
+            body: "Write multiple-choice questions with an explanation for each — they score and schedule like the curriculum's.",
+            action: editing ? null : el("button", { class: "btn primary", type: "button", text: "✎ Write questions", onclick: openEditor })
+          }));
         }
         /* Category 6 — custom/AI questions render as their OWN clearly
            labelled block (never mixed into curriculum), each deletable */
@@ -1754,9 +1865,17 @@
         }
       }
       else if (curTab === "exam") {
-        var eHolder = el("div", {});
-        panel.appendChild(eHolder);
-        KOS.quiz.mountExam(eHolder, sid, ref, content.exam);
+        if (content && content.exam && content.exam.length) {
+          var eHolder = el("div", {});
+          panel.appendChild(eHolder);
+          KOS.quiz.mountExam(eHolder, sid, ref, content.exam);
+        } else {
+          panel.appendChild(KOS.ui.emptyState({
+            compact: true, mark: "試", title: "No exam questions on this topic yet",
+            body: "Add exam-style questions with marks and a mark scheme — single or multi-part — and self-mark them like the past papers.",
+            action: editing ? null : el("button", { class: "btn primary", type: "button", text: "✎ Write questions", onclick: openEditor })
+          }));
+        }
       }
       else if (curTab === "worked") {
         gens.forEach(function (g, i) {
@@ -1828,23 +1947,26 @@
     }
 
     openTab();
+    if (editing) openEditor();          // reopened after a redraw
 
     /* prev / next */
     var prev = LEAVES[sid][leaf.idx - 1], next = LEAVES[sid][leaf.idx + 1];
-    var nav = el("div", { class: "pn-row" }, [
-      prev ? navBtn(prev, "← Previous") : el("span"),
-      next ? navBtn(next, "Next →") : el("span")
+    var nav = el("nav", { class: "pn-row", "aria-label": "Neighbouring topics" }, [
+      prev ? navBtn(prev, "‹ Previous topic") : el("span", { class: "pn-gap" }),
+      next ? navBtn(next, "Next topic ›") : el("span", { class: "pn-gap" })
     ]);
     function navBtn(target, label) {
       var tp = store.peekProgress(sid, target.ref);
       var tStatus = (tp && tp.status) || "none";
       return el("button", {
-        class: "pn", onclick: function () { KOS.show("ref", { subject: sid, ref: target.ref }); }
+        class: "pn pn-topic", type: "button", onclick: function () { KOS.show("ref", { subject: sid, ref: target.ref }); }
       }, [
         el("span", { class: "d", text: label }),
-        el("span", { class: "st st-" + tStatus, text: STATUS_GLYPH[tStatus] + " ",
-          "aria-label": tStatus }),
-        target.ref + " " + target.title
+        el("span", { class: "pn-t" }, [
+          el("span", { class: "st st-" + tStatus, text: STATUS_GLYPH[tStatus], "aria-label": tStatus, title: tStatus }),
+          el("span", { class: "pn-ref", text: target.ref }),
+          el("span", { class: "pn-title", text: target.title })
+        ])
       ]);
     }
     main.appendChild(nav);

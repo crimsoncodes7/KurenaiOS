@@ -228,13 +228,23 @@ step("per-topic flashcards tab: SM-2 buttons + manage + custom add", () => {
   click($(".fc-card"));
   const rates = $$(".fc-rate .fc-r");
   if (rates.length !== 4) throw new Error("rating buttons: " + rates.length);
-  // manage mode
+  // the deck browser: every card, and the one route to editing — the study
+  // editor (a topic page never carries two edit surfaces for a card)
   click($$(".fc-mode")[1]);
-  if (!$$(".fc-row").length) throw new Error("manage rows missing");
-  click($$(".btn.primary").find(b => b.textContent.includes("New custom card")));
-  $(".fc-form-q").value = "QQ"; $(".fc-form-a").value = "AA";
-  click($$(".fc-form .btn.primary")[0]);
-  if (!$$(".fc-row.custom").length) throw new Error("custom row not added");
+  if (!$$(".fc-row").length) throw new Error("deck rows missing");
+  const editBtn = $$(".fc-manage .btn.primary").find(b => /Edit deck/.test(b.textContent));
+  if (!editBtn) throw new Error("the deck browser does not hand off to the editor");
+  click(editBtn);
+  if (!$(".study-editor")) throw new Error("the study editor did not open");
+  click($$(".study-editor .btn.primary").find(b => /Add card/.test(b.textContent)));
+  const tas = $$(".study-editor .ed-row:not(.custom) textarea");
+  const q = tas[tas.length - 2], a = tas[tas.length - 1];
+  q.value = "QQ"; q.dispatchEvent(new window.Event("input", { bubbles: true }));
+  a.value = "AA"; a.dispatchEvent(new window.Event("input", { bubbles: true }));
+  const fork = KOS.edits.get("compsci", "4.2.3.1");
+  if (!fork || !fork.flashcards.some(c => c.q === "QQ" || c.a === "AA" || c.q === "")) throw new Error("the added card did not fork the deck");
+  click($(".study-editor .ed-done"));
+  if ($(".study-editor")) throw new Error("the editor did not close");
 });
 step("core revision never locks at 0 HP", () => {
   KOS.store.state.governor.hp = 0;

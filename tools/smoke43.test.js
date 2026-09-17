@@ -260,40 +260,41 @@ step("ticking a check moves every surface that reads the same derivation", () =>
 /* ============ D · compact note-page navigation ============ */
 console.log("== D · note pages ==");
 
-step("a paginated topic opens on a stepper, not a row of pills", () => {
+step("a paginated topic opens on one page strip in the nav — never a wrapping wall of pills", () => {
   assert(PAGED, "no multi-page topic in the deep content — this suite cannot see the pager");
   KOS.show("ref", PAGED);
-  const stepper = $(".study-nav .note-stepper");
-  assert(stepper, "no compact page stepper in the nav bar");
-  assert($(".np-count").textContent === "1 / " + $$(".note-page-tab").length,
-    "the stepper does not say where you are: " + $(".np-count").textContent);
-  const pager = $(".note-pager");
-  assert(pager && pager.hidden, "the full page list is not collapsed by default");
-  assert($(".np-all").getAttribute("aria-expanded") === "false", "the disclosure is not announced as closed");
+  const strip = $(".study-nav .note-pages");
+  assert(strip, "no page strip in the nav bar");
+  const pills = $$(".np-pill");
+  assert(pills.length > 1, "expected several page pills, got " + pills.length);
+  assert(pills[0].classList.contains("active") && pills[0].getAttribute("aria-selected") === "true",
+    "the first page is not marked current");
+  assert(strip.closest(".u-scroller"), "the strip is not a declared scroller (invariant #50)");
+  pills.forEach((b, i) => assert(b.querySelector(".np-n").textContent === String(i + 1), "pill " + i + " is not numbered"));
 });
 
-step("the disclosure reveals the full page list, and it still turns pages", () => {
-  click($(".np-all"));
-  assert(!$(".note-pager").hidden, "the page list did not open");
-  assert($(".np-all").getAttribute("aria-expanded") === "true", "the disclosure state is not announced");
-  const tabs = $$(".note-page-tab");
-  assert(tabs.length > 1, "expected several page tabs, got " + tabs.length);
-  click(tabs[1]);
-  assert(tabs[1].classList.contains("active"), "the page did not turn");
-  assert(tabs[1].getAttribute("aria-selected") === "true", "the turned page is not announced");
-  assert($(".np-count").textContent.startsWith("2 / "), "the stepper did not follow the list");
+step("a pill turns the page, and the footer repeats the neighbours as cards", () => {
+  const pills = $$(".np-pill");
+  click(pills[1]);
+  assert(pills[1].classList.contains("active"), "the page did not turn");
+  assert(pills[1].getAttribute("aria-selected") === "true", "the turned page is not announced");
+  assert(!pills[0].classList.contains("active"), "two pages read as current");
+  const foot = $(".note-foot");
+  assert(foot, "no footer pager under the article");
+  assert(foot.querySelectorAll(".pn-page").length === 2, "the footer does not offer both neighbours from a middle page");
+  assert(/Page 2 of/.test($(".note-foot-count").textContent), "the footer count is wrong: " + $(".note-foot-count").textContent);
 });
 
-step("the stepper turns pages and stops at both ends", () => {
+step("the chevrons turn pages and stop at both ends", () => {
   KOS.show("ref", PAGED);
-  const total = $$(".note-page-tab").length;
+  const total = $$(".np-pill").length;
   const [prev, next] = $$(".np-step");
   assert(prev.disabled, "the back step is live on the first page");
   click(next);
-  assert($(".np-count").textContent === "2 / " + total, "the forward step did not turn the page");
+  assert($$(".np-pill")[1].classList.contains("active"), "the forward step did not turn the page");
   assert(!prev.disabled, "the back step stayed disabled off the first page");
   for (let i = 2; i < total; i++) click(next);
-  assert($(".np-count").textContent === total + " / " + total, "could not reach the last page");
+  assert($$(".np-pill")[total - 1].classList.contains("active"), "could not reach the last page");
   assert(next.disabled, "the forward step is live on the last page");
 });
 
@@ -313,11 +314,11 @@ step("B-04 holds: only a READER-initiated page turn scrolls (Phase A)", () => {
 
 step("the page control is cleared when you leave the Notes tab", () => {
   KOS.show("ref", PAGED);
-  assert($(".note-stepper"), "no stepper on the Notes tab");
+  assert($(".note-pages"), "no page strip on the Notes tab");
   const spec = $$(".study-tabs-topic .study-tab").find(b => b.dataset.tab === "spec");
   click(spec);
-  assert(!$(".note-stepper"), "the note stepper survived a tab change — it lives outside the panel");
-  assert(!$(".note-page-tab"), "the page list survived a tab change");
+  assert(!$(".note-pages"), "the page strip survived a tab change — it lives outside the panel");
+  assert(!$(".np-pill"), "the page list survived a tab change");
 });
 
 /* ============ E · keyboard control of the engines (audit REF-8) ============ */

@@ -94,7 +94,7 @@ step("enriched ref defaults to Notes tab with rendered blocks", () => {
     if ($(".n-code .k")) sawCode = true;
   };
   scan();
-  $$(".note-page-tab").forEach(t => { click(t); scan(); });
+  $$(".np-pill").forEach(t => { click(t); scan(); });
   if (!sawTable) throw new Error("comparison table missing");
   if (!sawMnemonic) throw new Error("mnemonic callout missing");
   if (!sawCode) throw new Error("code highlighting missing");
@@ -119,24 +119,28 @@ step("notes pager: splitPages + sectioned rendering", () => {
   });
   try {
     KOS.show("ref", { subject: "compsci", ref: "4.2.3.1" });
-    const pager = $(".note-pager");
-    if (!pager) throw new Error("note-pager not rendered");
-    const tabs = $$(".note-page-tab");
+    const pager = $(".note-pages");
+    if (!pager) throw new Error("note page strip not rendered");
+    const tabs = $$(".np-pill");
     if (tabs.length !== 3) throw new Error("expected 3 page tabs, got " + tabs.length);
     if (!$(".notes-article")) throw new Error("article missing");
     click(tabs[2]); // jump to "Exam technique"
     if (!tabs[2].classList.contains("active")) throw new Error("page tab did not activate");
   } finally { window.KOS_CONTENT[KEY] = orig; }
 });
-step("plain ref (no content) shows spec + files only", () => {
-  // F200.1.1 is a leaf with no deep KOS_CONTENT entry (the old fixture
-  // it:F201.2.1 was later enriched by Gemini, so it now has study tabs).
-  // Build 2c: every ref carries a Files tab (attachments), so plain = 2 tabs.
+step("plain ref (no content) shows the five editable tabs + files, no worked/sim", () => {
+  // F200.1.1 is a leaf with no deep KOS_CONTENT entry. Since the study
+  // editor every topic carries the five editable kinds (an empty tab is
+  // where you add material), plus Files; worked examples and simulations
+  // appear only when something is wired to the ref.
   KOS.show("ref", { subject: "it", ref: "F200.1.1" });
   const tabs = $$(".study-tab").map(t => t.dataset.tab);
-  if (tabs.length !== 2 || tabs[0] !== "spec" || tabs[1] !== "files")
+  if (tabs.join(",") !== "spec,notes,cards,quiz,exam,files")
     throw new Error("unexpected tabs on plain ref: " + tabs.join(","));
   if (!$(".speccontent")) throw new Error("spec missing");
+  if ($$(".study-tab .tab-n").length) throw new Error("an empty tab printed a zero count");
+  click($$(".study-tab").find(t => t.dataset.tab === "notes"));
+  if (!$(".empty-state")) throw new Error("an empty Notes tab did not offer the editor");
 });
 
 console.log("== flashcards engine ==");

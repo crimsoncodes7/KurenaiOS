@@ -147,6 +147,13 @@
           title, detail, refs:[specRef], note} */
     },
 
+    /* ---- the editable curriculum (core/edits.js) ----
+       One fork per topic and kind — notes, spec, flashcards, quiz, exam —
+       replacing the shipped material for that topic while it exists. The
+       shipped files are never written; deleting the fork restores them.
+       Rides the normal state export and the cloud document. */
+    edits: { v: 1, topics: {} },
+
     /* ---- Build 2c: tracking completion ---- */
     tracker: {
       nextId: 1,

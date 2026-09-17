@@ -13,8 +13,8 @@ chronological diary here.
 - Release source checkpoint: `57388e28707c49b15b8882b708d986e1f47bacc0`
 - Runtime release: `57388e28707c49b15b8882b708d986e1f47bacc0`
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-focus-distraction-toggle-1`
-- Required smoke gate: 50 / 50 suites.
+- Service-worker version: `kos-study-editor-1`
+- Required smoke gate: 51 / 51 suites.
 
 ## Run, test and deploy
 
@@ -24,7 +24,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 -m http.server 8765
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..50}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..51}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -101,12 +101,13 @@ non-navigation redraw path.
 | Hash URL/history | `js/core/router.js` |
 | Cross-domain search | `js/core/search.js`; presentation in `hub.js`/`mobile-shell.js` |
 | Study content and engines | `content.js`, `hub.js`, `js/engines/` |
+| User edits to the curriculum and the study editor | `js/core/edits.js`, `js/modules/editor.js` |
 | SM-2, sessions and rewards | `srs.js`, `sessions.js`, `governor.js` |
 | Calendar/reminders/assignments/Focus | matching modules in `js/modules/` |
 | Integrated weekly plan and pacing | `js/core/pacing.js`, `js/modules/pacing.js` |
 | Collection schema and sync | `mediadb.js`, `media*.js`, provider clients |
 | Vault presentation/editors | `medview.js`, four vault modules, `KOS.mediaEditors` |
-| Cloud replication | `cloud.js`, `cloudsync.js`, `cloudui.js` |
+| Cloud replication | `cloud.js`, `cloudmerge.js`, `cloudsync.js`, `cloudui.js` |
 | Assistant | `assistant-*.js` services and `js/modules/assistant.js` |
 | Shared image placement | `js/core/imagecrop.js` |
 
@@ -207,10 +208,29 @@ source comments and audit notes refer to it.
     succeeds independently; signed-out/offline use remains complete.
 32. `syncId` and `fileId` are the cross-device identities. Every local deletion
     records a tombstone; applying a remote deletion never requeues it.
-33. Remote timestamps are server-generated. Sync is push-then-pull and state uses
-    deliberate whole-document LWW, not client-clock or field-level merging.
-34. Empty remote state cannot overwrite meaningful local state. First-link and
-    restore/rebaseline paths require explicit confirmation and preserve tombstones.
+33. Remote timestamps are server-generated and no client ever compares wall
+    clocks. Sync is push-then-pull. The state document is reconciled by a
+    THREE-WAY MERGE (`js/core/cloudmerge.js`) against the last document this
+    device and the cloud agreed on (`cloudsync.base.<uid>` kv): records merge
+    by id (additions from both sides survive, a deletion on either side wins,
+    a record edited on both keeps the later `updatedAt` field by field), gold,
+    XP and HP are additive against the base, owned cosmetics union, keyed maps
+    merge per key. Same-leaf edit wars go to the local side. The push is a
+    compare-and-set on `__seq`; a lost race fetches the cloud copy, merges and
+    retries. The engine never asks the user which copy to keep.
+33a. Ids are per-device counters, so two devices can mint the same id for two
+    records. The merge detects that (same id, absent from base, different
+    origin), re-keys the LOCAL record past every id in play and rewrites every
+    reference it knows (`RECORDS[].refs`). Adding a record array or a new
+    cross-reference to the state means adding it there.
+33b. `focus.active` is per-device like `state.ui`: a running timer is a live
+    process, not data, and must never land on another device.
+34. Empty remote state cannot overwrite meaningful local state. First link is
+    automatic in every case (adopt an empty device, upload to an empty account,
+    merge two histories with no base); a restore/rebaseline is the only
+    unconditional overwrite and it preserves tombstones. A successful push
+    broadcasts a data-free "changed" note on a Realtime channel so other open
+    devices pull within seconds; the timers remain the safety net.
 35. The publishable key is public; RLS is the boundary. Never commit/log a token or
     service-role key. Cloud sessions and sync metadata stay out of backups.
 36. Attachment metadata syncs automatically; binary upload is explicit. Only an
@@ -298,6 +318,31 @@ source comments and audit notes refer to it.
     second schema field.
 63. `KOS.media.progressText/progressPct` own media progress formatting. Charts use
     labelled axes/marks, an 11px label floor and honest low-data states.
+
+### The editable curriculum (86–89)
+
+86. Curriculum files (`js/data/content/*.js`, the generated specifications) are
+    never written at runtime. A user edit FORKS one topic and one kind
+    (`notes`, `spec`, `flashcards`, `quiz`, `exam`) into
+    `state.edits.topics["sid:ref"]` through `KOS.edits.set()`, and every reader
+    takes the EFFECTIVE material: `KOS.content.get()/has()` and
+    `KOS.srs.curriculumCards()` consult `KOS.edits` first. `reset()` deletes the
+    fork and the shipped material returns exactly.
+87. A forked flashcard keeps the SM-2 key it shipped with (`sid:ref:i`) through
+    every edit, reorder or neighbour deletion; a card added in the editor gets
+    `sid:ref:<rowId>`. Rewording never resets a schedule.
+88. Every fork row carries an `id`: shipped rows a DETERMINISTIC `s<i>`, new
+    rows a random string. The cloud merge keys nested record arrays on it, so
+    two devices forking the same topic fold the shared rows and keep both
+    devices' additions. Ids are never shown or referenced.
+89. The study editor (`KOS.editor.mount`) is the ONLY surface that changes a
+    topic's material; the page beside it is the preview, re-rendered through
+    `openTab({keep, reveal})`. `state.ui.editing` remembers an open editor per
+    device so a redraw reopens it. Content blocks may carry an `id`, which the
+    renderer wraps in `.n-blk[data-bid]` (display:contents) and otherwise
+    ignores; `{p}` and `{md}` are renderer block types. Notes/Quiz/Exam tabs are
+    always present on a topic — an empty tab is where material is added —
+    and a zero count is never printed (invariant 77).
 
 ### Accessibility, routing and search (64–71)
 
