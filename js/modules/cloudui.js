@@ -4,8 +4,9 @@
 
    Authentication gates CLOUD SYNC ONLY — nothing here ever blocks the app.
    The chip is subtle and always present once sync is configured; it shows
-   real sync state (dirty units, in-flight cycle, link decisions pending,
-   errors with retry), never bare network connectivity. Unconfigured
+   real sync state (dirty units, in-flight cycle, errors with retry), never
+   bare network connectivity. Nothing here ever asks which copy to keep:
+   two devices' edits merge (core/cloudmerge.js) and the card only reports. Unconfigured
    installs hide the chip entirely and the Archive card explains the setup
    instead.                                                                 */
 (function () {
@@ -19,7 +20,6 @@
     offline: "Offline",
     syncing: "Syncing…",
     pending: "Changes pending",
-    attention: "Action needed",
     error: "Error — tap to retry",
     synced: "Synced"
   };
@@ -33,7 +33,7 @@
       if (s.state === "error") {
         KOS.ui.toast("Cloud sync: " + (KOS.cloudsync.lastError() || "unknown error") + " — retrying…", true);
         KOS.cloudsync.retry();
-      } else if (s.state === "attention" || s.state === "signedOut") {
+      } else if (s.state === "signedOut") {
         KOS.show("data");
       } else {
         KOS.cloudsync.syncNow();
@@ -50,7 +50,7 @@
        LEAVING one — because "it recovered" is the answer to the question
        the first announcement raised. Ordinary syncing→synced→pending churn
        is silent; the chip is on screen for anyone who wants to look. */
-    var ATTENTION = { error: 1, attention: 1, signedOut: 1 };
+    var ATTENTION = { error: 1, signedOut: 1 };
     var lastAnnounced = null;
     function announceState(s) {
       var prev = lastAnnounced;
@@ -87,7 +87,7 @@
          what pressing it does, which is not the same sentence */
       chip.setAttribute("aria-label", "Cloud sync: " + (LABELS[s.state] || s.state) + ". " +
         (s.state === "error" ? "Activate to retry."
-          : s.state === "attention" || s.state === "signedOut" ? "Activate to open Account and Cloud Sync."
+          : s.state === "signedOut" ? "Activate to open Account and Cloud Sync."
           : "Activate to sync now."));
     });
   }
@@ -172,95 +172,16 @@
 
       body.appendChild(el("p", { class: "sub", text: "Signed in as " + KOS.cloud.userEmail() + " · " + statusLine(s) }));
 
-      var link = KOS.cloudsync.linkStatus();
-      if (link === "localOnly") {
-        var upWrap = el("div", { class: "cloud-link" });
-        upWrap.appendChild(el("p", { class: "sub", text:
-          "This device has data; your cloud account is empty. Upload your local data to sync it across devices — nothing is sent until you confirm." }));
-        var migBtn = el("button", { class: "btn gold", text: "Upload local data to this account…", onclick: function () {
-          KOS.ui.confirm({
-            title: "Upload your local data?",
-            body: "Everything local — study progress, Governor state, the media vault and your attachment list — will be uploaded to this account so other devices can sync it. Attachment FILES upload separately via “Sync files now”. Nothing local is changed or deleted.",
-            confirm: "Upload"
-          }, function () {
-            migBtn.disabled = true;
-            migBtn.textContent = "Uploading…";
-            KOS.cloudsync.migrateUp(function (err, rep) {
-              migBtn.disabled = false;
-              migBtn.textContent = "Upload local data to this account…";
-              if (err) KOS.ui.toast("Upload failed (local data is untouched — retry any time): " + err.message, true);
-              render();
-            });
-          });
-        } });
-        upWrap.appendChild(migBtn);
-        body.appendChild(upWrap);
-      } else if (link === "both") {
-        var bothWrap = el("div", { class: "cloud-link" });
-        bothWrap.appendChild(el("p", { class: "sub", text:
-          "This device AND your cloud account both hold data. Media entries merge automatically (matched per entry, newest copy wins, manual layers kept). The study/Governor state is one document, so choose which copy to keep:" }));
-        function resolveBtn(choice, label, cls) {
-          var b = el("button", { class: "btn " + cls, text: label, onclick: function () {
-            KOS.ui.confirm({
-              title: label + "?",
-              body: choice === "cloud"
-                ? "The cloud copy of study progress, Governor state, planner and settings replaces this device's copy. The media vault still merges — nothing in it is lost."
-                : "This device's study progress, Governor state, planner and settings will overwrite the cloud copy. The media vault still merges — nothing in it is lost.",
-              confirm: "Merge",
-              danger: choice === "cloud"
-            }, function () {
-              b.disabled = true;
-              KOS.cloudsync.resolveBoth(choice, function (err) {
-                if (err) { b.disabled = false; KOS.ui.toast("Merge failed (nothing was lost — retry any time): " + err.message, true); }
-                render();
-              });
-            });
-          } });
-          return b;
-        }
-        bothWrap.appendChild(el("div", { class: "cloud-btns" }, [
-          resolveBtn("device", "Keep this device's state", "gold"),
-          resolveBtn("cloud", "Use the cloud copy", "")
-        ]));
-        body.appendChild(bothWrap);
-      }
-
-      /* The staleness conflict: this device has been away long enough that
-         its copy no longer descends from the cloud's, and it has edits of
-         its own. Nothing has been overwritten — the engine stopped and is
-         asking. Deliberately worded around what the user will LOSE. */
-      var stale = KOS.cloudsync.staleStatus && KOS.cloudsync.staleStatus();
-      if (stale) {
-        var behind = Math.max(1, stale.remoteSeq - stale.localSeq);
-        var staleWrap = el("div", { class: "cloud-link cloud-stale" });
-        staleWrap.appendChild(el("p", { class: "sub", text:
-          "This device is behind your cloud copy — another device has saved " + behind +
-          " time" + (behind === 1 ? "" : "s") + " since this one last caught up, and this device has changes of its own. " +
-          "Uploading now would replace the newer copy wholesale, so nothing has been sent. Choose which to keep:" }));
-        function staleBtn(choice, label, cls) {
-          var b = el("button", { class: "btn " + cls, text: label, onclick: function () {
-            KOS.ui.confirm({
-              title: label + "?",
-              body: choice === "cloud"
-                ? "The cloud copy replaces this device's study progress, Governor state, planner and settings. Anything changed on THIS device since it fell behind is discarded. The media vault is unaffected — it syncs per entry."
-                : "This device's copy overwrites the newer cloud copy. Anything saved on your other device since this one fell behind is discarded. Export a backup first if you are unsure. The media vault is unaffected.",
-              confirm: choice === "cloud" ? "Use the cloud copy" : "Overwrite the cloud",
-              danger: true
-            }, function () {
-              b.disabled = true;
-              KOS.cloudsync.resolveStale(choice, function (err) {
-                if (err) { b.disabled = false; KOS.ui.toast("Could not resolve (nothing was overwritten — retry any time): " + err.message, true); }
-                render();
-              });
-            });
-          } });
-          return b;
-        }
-        staleWrap.appendChild(el("div", { class: "cloud-btns" }, [
-          staleBtn("cloud", "Use the cloud copy (recommended)", "gold"),
-          staleBtn("device", "Keep this device's copy", "")
-        ]));
-        body.appendChild(staleWrap);
+      /* the last time this device had to combine its own edits with
+         another device's — evidence that nothing was lost, on request */
+      var lm = KOS.cloudsync.lastMerge && KOS.cloudsync.lastMerge();
+      if (lm && lm.stats && (lm.stats.added || lm.stats.deleted || lm.stats.conflicts)) {
+        var st = lm.stats, bits = [];
+        if (st.added) bits.push(st.added + " item" + (st.added === 1 ? "" : "s") + " combined");
+        if (st.deleted) bits.push(st.deleted + " removal" + (st.deleted === 1 ? "" : "s") + " honoured");
+        if (st.conflicts) bits.push(st.conflicts + " same-field edit" + (st.conflicts === 1 ? "" : "s") + " settled");
+        body.appendChild(el("p", { class: "sub cloud-merge", text:
+          "Last merge with another device at " + new Date(lm.at).toLocaleTimeString("en-GB") + ": " + bits.join(", ") + "." }));
       }
 
       var row = el("div", { class: "cloud-btns" });
@@ -297,7 +218,7 @@
       body.appendChild(row);
 
       body.appendChild(el("p", { class: "sub", text:
-        "How it syncs: study/Governor state, the media vault and attachment DETAILS sync automatically (last write wins on the state document, with one guard: a device that has fallen behind will not overwrite a newer copy — it asks you instead). Attachment FILES upload only via “Sync files now” — large files use bandwidth and storage, so that stays deliberate; files never uploaded remain on this device only. Cloud sync complements backups, it doesn't replace them." }));
+        "How it syncs: study/Governor state, the media vault and attachment DETAILS sync automatically and merge across devices — edits made on two devices combine (records by id, gold and XP by what each earned), a deletion on either device wins, and nothing ever asks you which copy to keep. Attachment FILES upload only via “Sync files now” — large files use bandwidth and storage, so that stays deliberate; files never uploaded remain on this device only. Cloud sync complements backups, it doesn't replace them." }));
     }
 
     render();
@@ -306,7 +227,7 @@
       KOS.cloudsync.onStatus(function (s) {
         /* re-render only while the card is on screen and something moved */
         if (!card.isConnected) return;
-        var key = s.state + "|" + s.detail + "|" + (s.pendingLink || "");
+        var key = s.state + "|" + s.detail;
         if (key === last) return;
         last = key;
         render();

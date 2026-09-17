@@ -1,15 +1,19 @@
 /* Kurenai OS — core/cloudsync.js
-   The multi-device sync engine (Build 4a). Supabase is an ADDITIONAL
-   replication layer: localStorage + IndexedDB remain the primary write path,
-   every feature keeps working signed out, offline, or with no configuration
-   at all. A failed sync never touches the successful local save.
+   The multi-device sync engine (Build 4a, merged in Category 8). Supabase
+   is an ADDITIONAL replication layer: localStorage + IndexedDB remain the
+   primary write path, every feature keeps working signed out, offline, or
+   with no configuration at all. A failed sync never touches the
+   successful local save.
 
    THE MODEL — three sync units mirroring the three local layers:
    - kos_state:  the whole KOS.store.state document, one row per user.
-                 Document-level last-write-wins (mirrors the R3 export
-                 architecture): concurrent edits to unrelated fields on two
-                 devices can overwrite each other — a documented, deliberate
-                 trade-off, stated in Help.
+                 Reconciled by a THREE-WAY MERGE (core/cloudmerge.js)
+                 against the last document this device and the cloud
+                 agreed on, so edits made on two devices combine instead
+                 of outvoting each other. The upload is a compare-and-set
+                 on the document's sequence number: if the cloud moved
+                 since we last saw it, we merge its copy into ours and try
+                 again. No device ever asks which copy to keep.
    - kos_media:  one row per vault entry, keyed by the entry's syncId
                  (mediadb v8). Per-entry last-write-wins.
    - kos_files:  attachment METADATA (auto-synced). Binary content uploads
@@ -33,6 +37,12 @@
    an updated_at equal to the recorded one is by construction the same
    write → no-op; a genuinely newer remote row simply applies.
 
+   PROMPTNESS — a real local change schedules a cycle after a short quiet
+   period; a successful push also broadcasts a one-line "changed" note on
+   a Realtime channel for the account, and every other open device pulls
+   within a couple of seconds of hearing it. The timers behind that are a
+   safety net, not the sync path.
+
    REWARD NEUTRALITY — this engine NEVER calls KOS.sessions.log or
    KOS.media.logActivity and never schedules a mediapush. Pull-applies go
    through mediadb.put/add, which absorb the reward watermark, so progress
@@ -40,12 +50,13 @@
    across the fleet). Deletions applied from remote use skipTombstone so a
    pulled deletion can't re-queue itself.
 
-   FIRST LINK — on the first sign-in of an account this engine classifies
-   local/remote emptiness and NEVER auto-destroys either side: local-only
-   data waits for an explicit upload confirmation; remote-only data adopts
-   automatically (local side empty = nothing to lose); data on both sides
-   merges media per-entry and asks explicitly which state document to keep.
-   An empty remote can never silently replace non-empty local data.        */
+   FIRST LINK — the first sign-in of an account on a device needs no
+   decision from the user. An empty device adopts the account; an empty
+   account receives the device; when both hold data the media vault merges
+   per entry (matched by external id or title, so the same show tracked on
+   two devices becomes ONE row) and the state documents merge with no
+   common ancestor. An empty remote can never replace non-empty local
+   data.                                                                    */
 (function () {
   "use strict";
   window.KOS = window.KOS || {};
@@ -63,12 +74,14 @@
   var INTERVAL = 15 * 60 * 1000;   // background cycle while the app is open
   var MIN_PULL_GAP = 60 * 1000;    // focus/visibility cycles at most this often
   var BOOT_DELAY = 3000;           // after boot (env.local.js is deferred)
+  var REALTIME_DEBOUNCE = 1500;    // quiet period after another device says "changed"
   var PAGE = 500;                  // pull page size
   var UPSERT_CHUNK = 50;           // media rows per upsert batch
   var QUIET = false;               // suppress toasts (tests)
 
   var BUCKET = "kos-attachments";
   var META_PREFIX = "cloudsync.meta.";            // + userId → the account's sync meta
+  var BASE_PREFIX = "cloudsync.base.";            // + userId → the last document agreed with the cloud
   var RESTORE_FLAG = "cloudsync.restorePending";  // set by store.importFull
   var DELETES_KEY = "cloudsync.pendingDeletes";       // owned by mediadb
   var FILE_DELETES_KEY = "cloudsync.filesPendingDeletes"; // owned by attachments
@@ -79,7 +92,6 @@
   var debounceTimer = null;
   var intervalTimer = null;
   var pendingHint = false;
-  var linkPending = null;          // {kind:"localOnly"|"both", remoteStateRow} while user input is needed
   var lastError = null;
   var lastSyncAt = null;
   var started = false;
@@ -89,10 +101,9 @@
 
   /* ---------------- status model ---------------- */
   var statusListeners = [];
-  var status = { state: "unconfigured", detail: "", lastSyncAt: null, pendingLink: null };
+  var status = { state: "unconfigured", detail: "", lastSyncAt: null };
   function setStatus(state, detail) {
-    status = { state: state, detail: detail || "", lastSyncAt: lastSyncAt,
-               pendingLink: linkPending ? linkPending.kind : null };
+    status = { state: state, detail: detail || "", lastSyncAt: lastSyncAt };
     statusListeners.forEach(function (fn) {
       try { fn(status); } catch (e) { console.warn("cloudsync status listener failed", e); }
     });
@@ -144,9 +155,16 @@
 
      media.shrine.description is the user's hall NOTE — content, not a view
      preference — so it keeps syncing; only shrine's module/sort filters
-     are per-device.                                                      */
+     are per-device.
+
+     focus.active is the RUNNING TIMER of this device — the one thing in
+     the document that is a live process rather than data. Syncing it made
+     a second device wake up holding a paused copy of a session the first
+     device was still running, and completing that copy would have paid
+     the session twice.                                                   */
   var DEVICE_PATHS = [
     ["ui"],
+    ["focus", "active"],
     ["media", "layout"], ["media", "sort"],
     ["media", "books"], ["media", "vn"], ["media", "game"],
     ["media", "wishlist"],
@@ -256,6 +274,21 @@
   function saveMeta(meta, cb) {
     KOS.mediadb.setKV(META_PREFIX + uid(), meta, function () { cb && cb(null); });
   }
+  /* The merge base: the last state document this device and the cloud
+     agreed on (what we last pushed, or what we last pulled), stored as the
+     cloud sees it — no per-device keys, no __seq. Kept out of the meta
+     record because it is by far the largest thing in the kv store and only
+     changes when the cloud copy does. A missing base is not an error: the
+     merge then runs without a common ancestor (cloudmerge's no-base rules)
+     and the next successful push or pull writes one. */
+  function loadBase(cb) {
+    KOS.mediadb.getKV(BASE_PREFIX + uid(), function (err, b) {
+      cb(!err && b && typeof b === "object" && "progress" in b ? b : null);
+    });
+  }
+  function saveBase(doc, cb) {
+    KOS.mediadb.setKV(BASE_PREFIX + uid(), doc, function () { cb && cb(null); });
+  }
 
   /* ---------------- the Supabase boundary ----------------
      Every remote call goes through this one object; tests replace it whole
@@ -284,10 +317,41 @@
            depending on how the backend names a json-path selection */
         run(c().from("kos_state").select("updated_at, seq:state_json->__seq").maybeSingle(), cb, "State probe");
       },
-      upsertState: function (json, cb) {
-        run(c().from("kos_state")
-          .upsert({ user_id: uid(), state_json: json }, { onConflict: "user_id" })
-          .select("updated_at").single(), cb, "State push");
+      /* Compare-and-set. `expected` is the __seq we believe the cloud
+         document carries: 0 = "there is no document yet", a positive
+         number = "it is at this sequence", null = "overwrite regardless"
+         (an explicit user decision: a restore, or the first upload).
+         cb(err, row) — row is NULL when the cloud has moved on (a
+         concurrent write from another device), which is not an error:
+         the caller merges the newer copy and tries again. The check is
+         the database's own row filter, so two devices racing to push can
+         never both win. */
+      upsertState: function (json, expected, cb) {
+        var t = c().from("kos_state");
+        if (expected === null || expected === undefined) {
+          run(t.upsert({ user_id: uid(), state_json: json }, { onConflict: "user_id" })
+            .select("updated_at").single(), cb, "State push");
+          return;
+        }
+        if (expected === 0) {
+          t.insert({ user_id: uid(), state_json: json }).select("updated_at").single()
+            .then(function (res) {
+              if (res.error) {
+                /* 23505 = unique_violation: the row exists after all */
+                if (String(res.error.code) === "23505" || /duplicate key/i.test(String(res.error.message))) { cb(null, null); return; }
+                cb(apiErr(res.error, "State push failed.")); return;
+              }
+              cb(null, res.data);
+            }).catch(function (e) { cb(apiErr(e, "State push failed — network?")); });
+          return;
+        }
+        run(t.update({ state_json: json })
+          .eq("user_id", uid()).eq("state_json->>__seq", String(expected))
+          .select("updated_at"),
+          function (err, rows) {
+            if (err) { cb(err); return; }
+            cb(null, rows && rows.length ? rows[0] : null);
+          }, "State push");
       },
       fetchMediaSince: function (sinceIso, offset, cb) {
         var q = c().from("kos_media").select("entry_id, module, data_json, deleted, updated_at");
@@ -351,29 +415,27 @@
      the authority for whether a push actually happens. */
   var cleanStateHash = null;
   function syncableHash() { return hashStr(JSON.stringify(syncableState(KOS.store.state))); }
+  function validDoc(doc) { return !!(doc && typeof doc === "object" && "progress" in doc); }
 
-  /* ---------------- the staleness guard ----------------
-     Whole-document LWW is deliberate (invariant #33) and this does NOT
-     bolt field-level merging onto it. It answers a narrower question:
-     is the document we are about to upload a DESCENDANT of the one
-     already in the cloud, or a fork of an older ancestor?
-
-     Every push stamps a monotonic __seq. A pull records the seq it
-     received. If our seq is behind the cloud's, this device edited a
-     copy that never saw the cloud's newer writes — pushing would
-     silently destroy them. That is how a phone left unopened for weeks
-     replaced a laptop's level 53 (12,476 gold, 1,664 sessions, avatar,
-     banner and the whole planner) with its own stale snapshot on
-     8 Aug 2026. We refuse the push and ask instead.
+  /* ---------------- the sequence ----------------
+     Every push stamps a monotonic __seq and every pull records the seq it
+     received. The upload is conditional on the cloud still being at the
+     seq we last saw (upsertState's compare-and-set), which is what makes
+     a concurrent write from another device DETECTABLE instead of silently
+     outvoted — the fault behind the 8 Aug 2026 incident, where a phone
+     left unopened for weeks replaced a laptop's level 53 with its own
+     stale snapshot. Detection used to end in a dialog; now it ends in a
+     merge (cloudmerge.js) and a retry.
 
      __seq lives on the pushed document only. It never enters app state
      (replaceState would persist it and it would then feed the dirty
      hash), and it is not a clock — no client ever compares wall time. */
-  var stalePending = null;   // {localSeq, remoteSeq, row} while unresolved
-  /* set by the paths that have already ASKED the user to overwrite the
-     cloud (first-link upload, "keep this device", a restore, resolving a
-     staleness conflict). The guard only polices the automatic path. */
+  /* set by the paths that have already DECIDED to overwrite the cloud (a
+     restore, the first upload of a device onto an empty account). */
   var forceNextPush = false;
+  /* set by every push phase that sent something; the cycle's end tells
+     the other devices once, not once per table */
+  var pushedThisCycle = false;
   function docSeq(doc) {
     var n = doc && doc.__seq;
     return typeof n === "number" && isFinite(n) && n > 0 ? n : 0;
@@ -381,11 +443,10 @@
 
   /* ---------------- the cheap look at the cloud copy ----------------
      The state document is by far the largest thing this account stores
-     (every session, every progress record, the whole planner), and BOTH
-     readers of it decide on a scalar: the staleness guard compares
-     __seq, the pull compares updated_at. Downloading the document to
-     read one number cost this account a full copy on every cycle of
-     every open tab — the single biggest source of egress in the app.
+     (every session, every progress record, the whole planner), and the
+     pull decides on a scalar: updated_at. Downloading the document to
+     read one value cost this account a full copy on every cycle of every
+     open tab — the single biggest source of egress in the app.
 
      So: ask for the scalars, and fetch the document only once they say
      it is worth having. cb(err, {updated_at, seq, row}) where `row` is
@@ -417,52 +478,105 @@
                        seq: isFinite(n) && n > 0 ? n : 0, row: null } : null);
     });
   }
+
+  /* ---------------- the merge ----------------
+     Reconcile a cloud document into this device: three-way against the
+     stored base, this device's values restored for the per-device keys,
+     the result written to the store and drawn. After this the local
+     document is a DESCENDANT of the cloud copy and may be pushed over it.
+     cb(mergedSyncable, stats). */
+  function mergeRemoteIn(incoming, base, cb) {
+    var mine = deviceSnapshot(KOS.store.state);
+    var localSync = syncableState(KOS.store.state);
+    var res = KOS.cloudmerge.merge(base, localSync, incoming);
+    KOS.store.replaceState(res.doc);
+    restoreDevice(KOS.store.state, mine);
+    KOS.store.save();
+    rerenderCurrent();
+    cb(syncableState(KOS.store.state), res.stats);
+  }
+  var lastMerge = null;   // {at, stats} — the most recent reconciliation, for the UI
+  function noteMerge(stats) {
+    lastMerge = { at: Date.now(), stats: stats };
+    if (stats && (stats.added || stats.conflicts)) {
+      toast("Cloud sync: combined this device's changes with your other device's.");
+    }
+  }
+
   function pushState(meta, done, opts) {
     var s = JSON.stringify(syncableState(KOS.store.state));
     var h = hashStr(s);
-    if (meta.state.lastPushedHash === h) { cleanStateHash = h; stalePending = null; done(null); return; }
+    if (meta.state.lastPushedHash === h) { cleanStateHash = h; done(null); return; }
+    var force = forceNextPush || !!(opts && opts.force);
+    forceNextPush = false;
+    var attempts = 0;
 
-    function upload() {
+    function landed(doc, row) {
+      meta.state.seq = doc.__seq;
+      meta.state.lastPushedHash = h;
+      cleanStateHash = h;
+      meta.state.remoteTs = row && row.updated_at ? row.updated_at : meta.state.remoteTs;
+      delete doc.__seq;
+      pushedThisCycle = true;
+      saveBase(doc, function () { done(null); });
+    }
+    function upload(expected, seq) {
       var doc = JSON.parse(s);
-      doc.__seq = (+meta.state.seq || 0) + 1;
-      api().upsertState(doc, function (err, row) {
+      doc.__seq = seq;
+      api().upsertState(doc, expected, function (err, row) {
         if (err) { done(err); return; }
-        meta.state.seq = doc.__seq;
-        meta.state.lastPushedHash = h;
-        cleanStateHash = h;
-        stalePending = null;
-        meta.state.remoteTs = row && row.updated_at ? row.updated_at : meta.state.remoteTs;
-        done(null);
+        if (!row) { conflict(); return; }
+        landed(doc, row);
       });
     }
-    /* an explicit user decision (first-link upload, "keep this device",
-       restore, or resolving a staleness conflict) is authoritative */
-    if (forceNextPush || (opts && opts.force)) { forceNextPush = false; upload(); return; }
-
-    /* we are about to overwrite the cloud copy — one cheap read first,
-       and only on a cycle that actually has something to push */
-    fetchStateHead(function (errF, head) {
-      if (errF) { done(errF); return; }
-      var remoteSeq = head ? head.seq : 0;
-      var localSeq = +meta.state.seq || 0;
-      if (head && remoteSeq > localSeq) {
-        /* a genuine conflict, which is rare — now the document is worth
-           reading in full, because resolveStale("cloud") applies it */
-        if (head.row) {
-          stalePending = { localSeq: localSeq, remoteSeq: remoteSeq, row: head.row };
-          done(null);        // declining to push is not an error
-          return;
-        }
-        api().fetchState(function (e2, row) {
-          if (e2) { done(e2); return; }
-          if (!row) { upload(); return; }
-          stalePending = { localSeq: localSeq, remoteSeq: remoteSeq, row: row };
-          done(null);
-        });
+    /* the cloud moved under us: take its copy in, then try again */
+    function conflict() {
+      if (++attempts > 4) {
+        done(new Error("The cloud copy kept changing while this device was syncing — it will retry."));
         return;
       }
-      upload();
-    });
+      api().fetchState(function (err, row) {
+        if (err) { done(err); return; }
+        if (!row) { upload(0, (+meta.state.seq || 0) + 1); return; }
+        var incoming = row.state_json;
+        var remoteSeq = docSeq(incoming);
+        if (!validDoc(incoming)) { upload(null, remoteSeq + 1); return; }
+        if (!stateMeaningful(incoming) && stateMeaningful(KOS.store.state)) {
+          /* an empty document is never worth merging INTO real data —
+             the guard below applies on the pull side too */
+          meta.state.seq = remoteSeq;
+          upload(null, remoteSeq + 1);
+          return;
+        }
+        if ("__seq" in incoming) delete incoming.__seq;
+        loadBase(function (base) {
+          mergeRemoteIn(incoming, base, function (mergedSync, stats) {
+            noteMerge(stats);
+            meta.state.seq = remoteSeq;
+            meta.state.remoteTs = row.updated_at;
+            s = JSON.stringify(mergedSync);
+            h = hashStr(s);
+            /* the cloud copy is now our common ancestor */
+            saveBase(incoming, function () {
+              upload(remoteSeq === 0 ? null : remoteSeq, remoteSeq + 1);
+            });
+          });
+        });
+      });
+    }
+
+    if (force) {
+      /* an explicit decision still lands AFTER whatever the cloud holds,
+         so the other device recognises it as newer */
+      fetchStateHead(function (err, head) {
+        if (err) { done(err); return; }
+        var remoteSeq = head ? head.seq : 0;
+        upload(null, Math.max(remoteSeq, +meta.state.seq || 0) + 1);
+      });
+      return;
+    }
+    var localSeq = +meta.state.seq || 0;
+    upload(localSeq, localSeq + 1);
   }
 
   /* ---------------- push: media entries ---------------- */
@@ -494,6 +608,7 @@
             if (local) meta.media[r.entry_id] = { remoteTs: r.updated_at, cleanLocal: local.updatedAt };
           });
           pushed += slice.length;
+          pushedThisCycle = true;
           chunk();
         });
       })();
@@ -513,6 +628,7 @@
         (res || []).forEach(function (r) {
           meta.media[r.entry_id] = { remoteTs: r.updated_at, deleted: true };
         });
+        pushedThisCycle = true;
         var pushedIds = {};
         q.forEach(function (t) { pushedIds[t.syncId] = true; });
         /* re-read: a delete may have queued while the request flew */
@@ -556,6 +672,7 @@
           var prev = meta.files[r.file_id] || {};
           if (local) meta.files[r.file_id] = { remoteTs: r.updated_at, cleanLocal: local.updatedAt, uploaded: !!prev.uploaded };
         });
+        pushedThisCycle = true;
         done(null);
       });
     });
@@ -573,6 +690,7 @@
         (res || []).forEach(function (r) {
           meta.files[r.file_id] = { remoteTs: r.updated_at, deleted: true };
         });
+        pushedThisCycle = true;
         /* deliberate deletion semantics: a user deletion also removes the
            uploaded binary — best-effort; the tombstone row is the truth */
         var paths = q.filter(function (t) { return t.name; })
@@ -610,9 +728,13 @@
       if (KOS.rerender) KOS.rerender();
     } catch (e) { console.warn("cloudsync: rerender after remote apply failed", e); }
   }
+  /* Take a cloud document in. done(err, applied, merged): `merged` is
+     true when this device held unsynced changes of its own, which were
+     three-way merged with the cloud copy rather than replaced by it — the
+     caller then pushes the result. */
   function applyRemoteState(row, meta, done) {
     var incoming = row.state_json;
-    if (!incoming || typeof incoming !== "object" || !("progress" in incoming)) {
+    if (!validDoc(incoming)) {
       done(new Error("The cloud copy of the app state looks invalid — not applied."));
       return;
     }
@@ -621,44 +743,60 @@
       console.warn("cloudsync: remote state is empty while local has data — refusing to apply.");
       meta.state.remoteTs = row.updated_at;   // acknowledged, not applied; the next push overwrites it
       meta.state.lastPushedHash = null; cleanStateHash = null; forceNextPush = true;
-      done(null, false);
+      done(null, false, false);
       return;
     }
-    /* per-device keys are this device's alone. New clients never push them,
-       but a document written by an older client still carries them — take
-       the local values back either way, so the remote copy can never win. */
-    var mine = deviceSnapshot(KOS.store.state);
     /* __seq is the sync engine's own bookkeeping — record it, then keep it
        out of app state so it can never feed the dirty hash back to itself */
-    meta.state.seq = docSeq(incoming);
+    var remoteSeq = docSeq(incoming);
     if ("__seq" in incoming) delete incoming.__seq;
-    KOS.store.replaceState(incoming);
-    restoreDevice(KOS.store.state, mine);
-    KOS.store.save();
-    meta.state.remoteTs = row.updated_at;
-    meta.state.lastPushedHash = cleanStateHash = syncableHash();
-    stalePending = null;          // we are level with the cloud again
-    rerenderCurrent();
-    done(null, true);
+    var localHash = syncableHash();
+    /* dirty = this device holds edits the cloud has not seen. With no
+       recorded hash (first link) the answer is "whatever is meaningful". */
+    var dirty = meta.state.lastPushedHash != null
+      ? meta.state.lastPushedHash !== localHash
+      : stateMeaningful(KOS.store.state);
+    loadBase(function (base) {
+      if (!dirty) {
+        /* per-device keys are this device's alone. New clients never push
+           them, but a document written by an older client still carries
+           them — take the local values back either way. */
+        var mine = deviceSnapshot(KOS.store.state);
+        KOS.store.replaceState(incoming);
+        restoreDevice(KOS.store.state, mine);
+        KOS.store.save();
+        meta.state.seq = remoteSeq;
+        meta.state.remoteTs = row.updated_at;
+        meta.state.lastPushedHash = cleanStateHash = syncableHash();
+        saveBase(incoming, function () {
+          rerenderCurrent();
+          done(null, true, false);
+        });
+        return;
+      }
+      mergeRemoteIn(incoming, base, function (mergedSync, stats) {
+        noteMerge(stats);
+        meta.state.seq = remoteSeq;
+        meta.state.remoteTs = row.updated_at;
+        /* the merged document descends from the cloud copy and is dirty
+           against it — the push that follows uploads it */
+        meta.state.lastPushedHash = null; cleanStateHash = null;
+        saveBase(incoming, function () { done(null, true, true); });
+      });
+    });
   }
   function pullState(meta, done) {
-    /* A refused push leaves a conflict standing. Pulling now would "resolve"
-       it by adopting the cloud copy and silently dropping this device's
-       divergent edits — the very kind of quiet loss the guard exists to
-       stop. Hold the state document still until the user chooses; media and
-       attachments are per-entry and keep syncing regardless. */
-    if (stalePending) { done(null, false); return; }
     /* the common case by far: nothing new since our last pull, answered
        by a timestamp instead of by a copy of the whole document */
     fetchStateHead(function (err, head) {
       if (err) { done(err); return; }
-      if (!head) { done(null, false); return; }
-      if (tsMs(head.updated_at) <= tsMs(meta.state.remoteTs)) { done(null, false); return; }
+      if (!head) { done(null, false, false); return; }
+      if (tsMs(head.updated_at) <= tsMs(meta.state.remoteTs)) { done(null, false, false); return; }
       if (head.row) { applyRemoteState(head.row, meta, done); return; }
       api().fetchState(function (e2, row) {
         if (e2) { done(e2); return; }
-        if (!row) { done(null, false); return; }
-        if (tsMs(row.updated_at) <= tsMs(meta.state.remoteTs)) { done(null, false); return; }
+        if (!row) { done(null, false, false); return; }
+        if (tsMs(row.updated_at) <= tsMs(meta.state.remoteTs)) { done(null, false, false); return; }
         applyRemoteState(row, meta, done);
       });
     });
@@ -822,11 +960,11 @@
 
   /* the "both sides have data" merge: media per-entry (adopt-or-insert with
      external-id and title fallbacks so the same show tracked on two devices
-     becomes ONE row, not two), files by fileId, state doc by explicit user
-     choice. The one place local client time meets server time is the
-     newer-copy decision for a matched pair — a one-time, first-link-only
-     comparison, documented in Help. */
-  function firstLinkMerge(stateChoice, meta, done) {
+     becomes ONE row, not two), files by fileId, and the state documents
+     three-way merged with no common ancestor. The one place local client
+     time meets server time is the newer-copy decision for a matched media
+     pair — a one-time, first-link-only comparison, documented in Help. */
+  function firstLinkMerge(stateRow, meta, done) {
     KOS.mediadb.query({}, function (err, locals) {
       if (err) { done(err); return; }
       var bySync = {}, byExt = { anilist: {}, mal: {}, vndb: {} }, byTitleMod = {};
@@ -903,20 +1041,26 @@
         meta.cursor.media = maxTs;
         pullFiles(meta, function (e6) {
           if (e6) { done(e6); return; }
-          if (stateChoice === "cloud" && linkPending && linkPending.stateRow) {
-            applyRemoteState(linkPending.stateRow, meta, function (e7) {
-              if (e7) { done(e7); return; }
+          var incoming = stateRow && stateRow.state_json;
+          if (validDoc(incoming) && stateMeaningful(incoming)) {
+            if ("__seq" in incoming) delete incoming.__seq;
+            /* no base: the two documents have never met */
+            mergeRemoteIn(incoming, null, function (mergedSync, stats) {
+              noteMerge(stats);
+              meta.state.remoteTs = stateRow.updated_at;
+              meta.state.lastPushedHash = null; cleanStateHash = null; forceNextPush = true;
               meta.linked = true;
-              done(null);
+              saveBase(incoming, function () { done(null); });
             });
-          } else {
-            /* keep this device's state: leave the hash null so the push
-               phase uploads it over the cloud copy */
-            meta.state.lastPushedHash = null; cleanStateHash = null; forceNextPush = true;
-            if (linkPending && linkPending.stateRow) meta.state.remoteTs = linkPending.stateRow.updated_at;
-            meta.linked = true;
-            done(null);
+            return;
           }
+          /* nothing meaningful in the cloud document: this device's copy
+             is the account's copy — leave the hash null so the push phase
+             uploads it */
+          meta.state.lastPushedHash = null; cleanStateHash = null; forceNextPush = true;
+          if (stateRow) meta.state.remoteTs = stateRow.updated_at;
+          meta.linked = true;
+          done(null);
         });
       }
     });
@@ -988,21 +1132,16 @@
     if (running) { queuedCycle = true; cb(null, null); return; }
     running = true;
     lastError = null;
+    pushedThisCycle = false;
     setStatus("syncing");
 
     function finish(err, summary) {
       running = false;
       lastCycleEnd = Date.now();
+      if (pushedThisCycle) { pushedThisCycle = false; rtAnnounce(); }
       if (err) {
         lastError = err;
         setStatus("error", err.message);
-      } else if (linkPending) {
-        setStatus("attention", linkPending.kind === "localOnly"
-          ? "Local data is ready to upload — confirm from Archive → Cloud Sync."
-          : "Data exists locally AND in the cloud — choose how to merge from Archive → Cloud Sync.");
-      } else if (stalePending) {
-        setStatus("attention", "This device is behind the cloud copy and has its own changes — " +
-          "choose which to keep from Archive → Cloud Sync. Nothing has been overwritten.");
       } else {
         pendingHint = false;
         lastSyncAt = Date.now();
@@ -1023,8 +1162,8 @@
       function main() {
         KOS.mediadb.getKV(RESTORE_FLAG, function (eR, restorePending) {
           /* A restore is the user declaring this backup authoritative for
-             the account, so it outranks the staleness guard — the restored
-             document is allowed to land on top of a newer cloud copy. */
+             the account, so it is not merged — the restored document is
+             allowed to land on top of a newer cloud copy unconditionally. */
           if (restorePending) forceNextPush = true;
           function afterReconcile(eRec) {
             if (eRec) { saveMeta(meta, function () { finish(eRec); }); return; }
@@ -1038,18 +1177,25 @@
                     if (e4) { saveMeta(meta, function () { finish(e4); }); return; }
                     pushFiles(meta, function (e5) {
                       if (e5) { saveMeta(meta, function () { finish(e5); }); return; }
-                      pullState(meta, function (e6) {
+                      pullState(meta, function (e6, applied, merged) {
                         if (e6) { saveMeta(meta, function () { finish(e6); }); return; }
-                        pullMedia(meta, function (e7, mOut) {
-                          if (e7) { saveMeta(meta, function () { finish(e7); }); return; }
-                          pullFiles(meta, function (e8, fOut) {
-                            var summary = {
-                              applied: (mOut ? mOut.applied : 0) + (fOut ? fOut.applied : 0),
-                              deleted: (mOut ? mOut.deleted : 0) + (fOut ? fOut.deleted : 0)
-                            };
-                            saveMeta(meta, function () { finish(e8 || null, summary); });
+                        /* a pull that had to merge leaves the merged document
+                           dirty against the cloud — send it now, not next cycle */
+                        function afterState(e6b) {
+                          if (e6b) { saveMeta(meta, function () { finish(e6b); }); return; }
+                          pullMedia(meta, function (e7, mOut) {
+                            if (e7) { saveMeta(meta, function () { finish(e7); }); return; }
+                            pullFiles(meta, function (e8, fOut) {
+                              var summary = {
+                                applied: (mOut ? mOut.applied : 0) + (fOut ? fOut.applied : 0),
+                                deleted: (mOut ? mOut.deleted : 0) + (fOut ? fOut.deleted : 0)
+                              };
+                              saveMeta(meta, function () { finish(e8 || null, summary); });
+                            });
                           });
-                        });
+                        }
+                        if (merged) pushState(meta, afterState);
+                        else afterState(null);
                       });
                     });
                   });
@@ -1062,17 +1208,18 @@
         });
       }
 
-      if (meta.linked) { linkPending = null; main(); return; }
+      if (meta.linked) { main(); return; }
 
-      /* first sign-in of this account on this device */
+      /* first sign-in of this account on this device — every outcome is
+         automatic, and none of them can lose data: adopting fills an
+         empty device, uploading fills an empty account, and merging
+         combines (media per entry, state three-way with no ancestor) */
       assessLink(meta, function (eA, res) {
         if (eA) { finish(eA); return; }
         if (res.kind === "fresh") {
-          linkPending = null;
           meta.linked = true;
           saveMeta(meta, function () { main(); });
         } else if (res.kind === "remoteOnly") {
-          linkPending = null;
           adoptRemote(meta, function (eB) {
             if (eB) { finish(eB); return; }
             saveMeta(meta, function () {
@@ -1081,101 +1228,39 @@
               main();
             });
           });
+        } else if (res.kind === "localOnly") {
+          /* validate through the R3 serializer first — the same gate the
+             backup export uses — then let the idempotent push do the rest */
+          KOS.store.snapshotFull(function (eS, snapshot) {
+            if (eS) { finish(eS); return; }
+            if (!snapshot || !validDoc(snapshot.state)) {
+              finish(new Error("The local data failed validation — nothing was uploaded."));
+              return;
+            }
+            meta.linked = true;
+            meta.state.lastPushedHash = null; cleanStateHash = null; forceNextPush = true;
+            saveMeta(meta, function () {
+              toast("Local data uploaded — this account now syncs across devices.");
+              main();
+            });
+          });
         } else {
-          /* localOnly / both — explicit user action required; nothing is
-             uploaded or overwritten until they choose */
-          linkPending = { kind: res.kind, stateRow: res.stateRow || null };
-          finish(null);
+          firstLinkMerge(res.stateRow || null, meta, function (eM) {
+            if (eM) { finish(eM); return; }
+            saveMeta(meta, function () {
+              toast("Merged with your cloud data — media combined per entry, study state combined.");
+              main();
+            });
+          });
         }
       });
     });
   }
 
   /* ---------------- explicit user actions ---------------- */
-  /* first-time migration: validate via the R3 serializer, then link and let
-     the normal (idempotent) push machinery upload everything */
-  function migrateUp(cb) {
-    if (!linkPending || linkPending.kind !== "localOnly") { cb(new Error("No pending upload.")); return; }
-    KOS.store.snapshotFull(function (err, snapshot) {
-      if (err) { cb(err); return; }
-      if (!snapshot || !snapshot.state || typeof snapshot.state !== "object" || !("progress" in snapshot.state)) {
-        cb(new Error("The local data snapshot failed validation — nothing was uploaded."));
-        return;
-      }
-      loadMeta(function (e0, meta) {
-        if (e0) { cb(e0); return; }
-        meta.linked = true;
-        meta.state.lastPushedHash = null; cleanStateHash = null; forceNextPush = true;   // force the state push
-        linkPending = null;
-        saveMeta(meta, function () {
-          cycle("migrate", function (e1) {
-            if (e1) { cb(e1); return; }
-            toast("Local data uploaded — this account now syncs across devices.");
-            cb(null, {
-              entries: snapshot.mediaEntries.length,
-              attachments: snapshot.attachments.length
-            });
-          });
-        });
-      });
-    });
-  }
-  /* the "both sides have data" resolution; stateChoice "device"|"cloud" */
-  function resolveBoth(stateChoice, cb) {
-    if (!linkPending || linkPending.kind !== "both") { cb(new Error("No pending merge.")); return; }
-    loadMeta(function (e0, meta) {
-      if (e0) { cb(e0); return; }
-      firstLinkMerge(stateChoice === "cloud" ? "cloud" : "device", meta, function (e1) {
-        if (e1) { cb(e1); return; }
-        linkPending = null;
-        saveMeta(meta, function () {
-          cycle("merge", function (e2) {
-            if (e2) { cb(e2); return; }
-            toast("Merged — media combined per entry, study state " +
-              (stateChoice === "cloud" ? "taken from the cloud copy." : "kept from this device."));
-            cb(null);
-          });
-        });
-      });
-    });
-  }
-
-  /* The staleness resolution. "cloud" takes the newer cloud copy and drops
-     this device's divergent edits; "device" forces this device's copy over
-     it. Both are explicit user decisions — the engine never picks. */
-  function resolveStale(choice, cb) {
-    cb = cb || function () {};
-    if (!stalePending) { cb(new Error("Nothing is out of step.")); return; }
-    var pend = stalePending;
-    loadMeta(function (e0, meta) {
-      if (e0) { cb(e0); return; }
-      if (choice === "device") {
-        /* adopt the cloud's position in the sequence so our push lands
-           after it, then upload unconditionally */
-        meta.state.seq = pend.remoteSeq;
-        meta.state.lastPushedHash = null; cleanStateHash = null; forceNextPush = true;
-        stalePending = null;
-        saveMeta(meta, function () {
-          cycle("resolve-stale-device", function (e1) {
-            if (e1) { cb(e1); return; }
-            toast("This device's copy is now the cloud copy.");
-            cb(null);
-          });
-        });
-        return;
-      }
-      /* "cloud": apply the copy we were shown, discarding local divergence */
-      applyRemoteState(pend.row, meta, function (e1, applied) {
-        if (e1) { cb(e1); return; }
-        stalePending = null;
-        saveMeta(meta, function () {
-          toast(applied ? "Cloud copy restored — this device is back in step."
-                        : "The cloud copy could not be applied; nothing changed.");
-          cb(applied ? null : new Error("The cloud copy could not be applied."));
-        });
-      });
-    });
-  }
+  /* Kept for callers that predate automatic linking: there is no pending
+     decision any more, so this is simply a cycle. */
+  function migrateUp(cb) { cycle("migrate", function (err) { cb && cb(err || null, err ? null : {}); }); }
 
   /* explicit binary upload — "Sync files now". cb(err, report). */
   function uploadBinaries(cb) {
@@ -1273,6 +1358,58 @@
   function syncNow(cb) { cycle("manual", cb); }
   function retry(cb) { lastError = null; cycle("retry", cb); }
 
+  /* ---------------- the Realtime nudge ----------------
+     One broadcast channel per account. A device that has just pushed
+     sends a one-line "changed" note; every other device on the channel
+     schedules a cycle, so a change made on the laptop is on the phone in
+     a couple of seconds instead of at the next timer or tab focus. The
+     note carries no data (a device id and a time), so a stranger who
+     guessed the channel name would learn only that something synced —
+     the tables behind it stay behind RLS. Everything here is guarded:
+     without the channel API, or when the socket cannot connect, the
+     timers and focus triggers carry on exactly as before. */
+  var rtChannel = null;
+  var rtTimer = null;
+  var deviceId = Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+  function rtSchedule() {
+    if (rtTimer) clearTimeout(rtTimer);
+    rtTimer = setTimeout(function () { rtTimer = null; cycle("realtime"); }, REALTIME_DEBOUNCE);
+  }
+  function rtStart() {
+    if (rtChannel || _api || !uid()) return;
+    var c = KOS.cloud && KOS.cloud.client && KOS.cloud.client();
+    if (!c || typeof c.channel !== "function") return;
+    try {
+      var ch = c.channel("kos-sync-" + uid(), { config: { broadcast: { self: false } } });
+      ch.on("broadcast", { event: "changed" }, function (msg) {
+        var payload = msg && msg.payload;
+        if (payload && payload.device === deviceId) return;
+        rtSchedule();
+      });
+      ch.subscribe();
+      rtChannel = ch;
+    } catch (e) {
+      rtChannel = null;
+    }
+  }
+  function rtStop() {
+    if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
+    if (!rtChannel) return;
+    try {
+      var c = KOS.cloud.client();
+      if (c && typeof c.removeChannel === "function") c.removeChannel(rtChannel);
+      else rtChannel.unsubscribe();
+    } catch (e) { /* the socket is already gone */ }
+    rtChannel = null;
+  }
+  function rtAnnounce() {
+    if (!rtChannel) return;
+    try {
+      var r = rtChannel.send({ type: "broadcast", event: "changed", payload: { device: deviceId, at: Date.now() } });
+      if (r && typeof r.catch === "function") r.catch(function () {});
+    } catch (e) { /* best effort */ }
+  }
+
   function start() {
     if (started) return;
     started = true;
@@ -1283,15 +1420,15 @@
       }
       KOS.cloud.onAuth(function (event) {
         if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
-          if (uid()) cycle("auth");
+          if (uid()) { rtStart(); cycle("auth"); }
         } else if (event === "SIGNED_OUT") {
-          linkPending = null;
+          rtStop();
           cleanStateHash = null;   // next account's cleanliness is unknown
           setStatus("signedOut");
         }
       });
       KOS.cloud.init(function (e0, session) {
-        if (session) cycle("boot");
+        if (session) { rtStart(); cycle("boot"); }
         else setStatus("signedOut");
       });
       intervalTimer = setInterval(function () { cycle("interval"); }, INTERVAL);
@@ -1312,6 +1449,7 @@
   function stop() {
     if (intervalTimer) { clearInterval(intervalTimer); intervalTimer = null; }
     if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+    rtStop();
     started = false;
   }
 
@@ -1323,16 +1461,16 @@
     noteChange: noteChange,
     noteRestore: noteRestore,
     migrateUp: migrateUp,
-    resolveBoth: resolveBoth,
-    resolveStale: resolveStale,
     uploadBinaries: uploadBinaries,
     downloadFile: downloadFile,
     onStatus: onStatus,
     getStatus: function () { return status; },
-    linkStatus: function () { return linkPending ? linkPending.kind : null; },
-    /* null, or {localSeq, remoteSeq} while this device is behind the cloud
-       and holding changes of its own. The UI offers the two resolutions. */
-    staleStatus: function () { return stalePending ? { localSeq: stalePending.localSeq, remoteSeq: stalePending.remoteSeq } : null; },
+    /* Linking is automatic now; nothing is ever pending. Kept so callers
+       written against the decision-era API keep working. */
+    linkStatus: function () { return null; },
+    /* {at, stats:{added, deleted, conflicts}} for the last time this device
+       had to combine its own changes with another device's, or null */
+    lastMerge: function () { return lastMerge; },
     lastError: function () { return lastError ? lastError.message : null; },
     lastSync: function () { return lastSyncAt; },
     isRunning: function () { return running; },

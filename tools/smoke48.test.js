@@ -18,12 +18,13 @@
 
    2 · AN IDLE CYCLE MUST NOT DOWNLOAD THE STATE DOCUMENT (cloudsync).
        The document holds every session, every progress record and the
-       whole planner, and both of its readers decide on a scalar — the
-       staleness guard on __seq, the pull on updated_at. Fetching those
-       two through a json-path select instead of the document turned the
-       common case (nothing changed) from a full copy of the account into
-       a few bytes. The guard, the genuine pull and the fail-soft
-       fallback all still have to work, so all three are asserted.        */
+       whole planner, and the pull decides on a scalar — updated_at — while
+       the push is a compare-and-set that reads nothing at all when it
+       wins. Fetching the scalars through a json-path select instead of
+       the document turned the common case (nothing changed) from a full
+       copy of the account into a few bytes. A lost push (the cloud moved)
+       costs exactly one document read and merges; the genuine pull and
+       the fail-soft fallback still have to work, so all are asserted.    */
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
@@ -135,7 +136,13 @@ const api = {
     if (sv.probeBroken) { cb(new Error("json path unsupported")); return; }
     cb(null, sv.state ? { updated_at: sv.state.updated_at, seq: sv.state.state_json.__seq } : null);
   },
-  upsertState: (json, cb) => { sv.state = { state_json: clone(json), updated_at: stamp() }; cb(null, { updated_at: sv.state.updated_at }); },
+  upsertState: (json, expected, cb) => {
+    if (expected !== null && expected !== undefined) {
+      const cur = sv.state ? (sv.state.state_json.__seq || 0) : 0;
+      if (expected === 0 ? !!sv.state : cur !== expected) { cb(null, null); return; }
+    }
+    sv.state = { state_json: clone(json), updated_at: stamp() }; cb(null, { updated_at: sv.state.updated_at });
+  },
   fetchMediaSince: (i, o, cb) => cb(null, []), upsertMedia: (r, cb) => cb(null, []),
   countMedia: cb => cb(null, 0), listMediaIds: (o, cb) => cb(null, []),
   fetchFilesSince: (i, o, cb) => cb(null, []), upsertFiles: (r, cb) => cb(null, []),
@@ -176,24 +183,20 @@ step("a genuinely newer cloud copy is still downloaded and applied", async () =>
   assert(KOS.store.state.governor.gold === 4242, "a newer cloud copy failed to apply — the probe broke the pull");
 });
 
-step("the staleness guard still detects a fork through the probe", async () => {
+step("a fork costs exactly one document read, and merges", async () => {
   const ahead = clone(sv.state.state_json);
-  ahead.governor.gold = 9999;
+  ahead.governor.gold = 9999;                   // the other device earned
   ahead.__seq = (ahead.__seq || 0) + 5;
   sv.state = { state_json: ahead, updated_at: stamp() };
-  KOS.store.state.governor.xp = 61234;          // a divergent local edit
+  const xpBefore = KOS.store.state.governor.xp;
+  KOS.store.state.governor.xp = xpBefore + 1234;   // a divergent local edit
   KOS.store.save();
+  sv.calls.fetchState = 0;
   await sync();
-  const stale = KOS.cloudsync.staleStatus();
-  assert(stale, "the guard stopped seeing a stale device — the 8 Aug 2026 incident is live again");
-  assert(stale.remoteSeq > stale.localSeq, "the guard reported a fork it cannot describe");
-  assert(sv.state.state_json.governor.gold === 9999, "the cloud copy was overwritten while the conflict stood");
-});
-
-step("the conflict still resolves onto the document the guard captured", async () => {
-  await p(cb => KOS.cloudsync.resolveStale("cloud", cb));
-  assert(KOS.store.state.governor.gold === 9999, "resolveStale('cloud') did not apply the cloud copy");
-  assert(!KOS.cloudsync.staleStatus(), "the conflict outlived its resolution");
+  assert(sv.state.state_json.governor.gold === 9999, "the other device's gold was outvoted — the 8 Aug 2026 incident is live again");
+  assert(sv.state.state_json.governor.xp === xpBefore + 1234, "this device's xp did not reach the cloud");
+  assert(KOS.store.state.governor.gold === 9999, "the cloud's gold did not combine locally");
+  assert(sv.calls.fetchState === 1, "the fork should cost exactly one document read, cost " + sv.calls.fetchState);
 });
 
 step("a backend that refuses the json path degrades once, not every cycle", async () => {

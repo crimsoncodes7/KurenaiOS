@@ -328,7 +328,7 @@ step("the chip announces attention and recovery, and nothing in between", () => 
   const m = cloudUiSrc.match(/var ATTENTION = \{([^}]*)\}/);
   assert(m, "the chip has no announcement policy");
   const attention = m[1];
-  for (const s of ["error", "attention", "signedOut"]) {
+  for (const s of ["error", "signedOut"]) {
     assert(attention.indexOf(s) !== -1, s + " should be announced");
   }
   for (const s of ["syncing", "pending"]) {

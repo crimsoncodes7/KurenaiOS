@@ -24,13 +24,15 @@
        flagged deleted.
    8.  Empty-remote-state guard: a newer-but-empty remote state NEVER
        replaces meaningful local state; the next cycle overwrites remote.
-   9.  State LWW: a newer meaningful remote state applies locally.
-   10. First link, localOnly: nothing uploads until migrateUp confirms;
-       migration is idempotent (second cycle uploads nothing new).
+   9.  A newer meaningful remote state applies locally when this device
+       holds nothing unsynced (the merge is smoke41's subject).
+   10. First link, localOnly: the device uploads automatically on its
+       first cycle; the upload is idempotent (second cycle uploads
+       nothing new).
    11. First link, remoteOnly: local empty device adopts the account.
    12. First link, both: media merges per entry (external-id match adopts
-       the remote syncId — ONE row, not two; newer copy wins) and the
-       "keep this device" state choice pushes local state over remote.
+       the remote syncId — ONE row, not two; newer copy wins) and the two
+       state documents combine — no decision is asked.
    13. Attachments: metadata pushes automatically; binaries upload ONLY via
        uploadBinaries; a second run uploads zero (no duplicates); deleting
        locally tombstones the row and removes the storage object.
@@ -99,8 +101,13 @@ function makeApi(sv) {
   sv.stamp = stamp;
   return {
     fetchState: cb => cb(null, sv.state ? clone(sv.state) : null),
-    upsertState: (json, cb) => {
+    /* compare-and-set on __seq, as the real row filter behaves */
+    upsertState: (json, expected, cb) => {
       sv.calls.upsertState++;
+      if (expected !== null && expected !== undefined) {
+        const cur = sv.state ? (sv.state.state_json.__seq || 0) : 0;
+        if (expected === 0 ? !!sv.state : cur !== expected) { cb(null, null); return; }
+      }
       sv.state = { state_json: clone(json), updated_at: stamp() };
       cb(null, { updated_at: sv.state.updated_at });
     },
@@ -276,7 +283,7 @@ step("an empty remote state NEVER clobbers meaningful local state", async () => 
   assert(server.state.state_json.progress["compsci:4.1.1.1"], "local state did not re-push over the empty doc");
 });
 
-step("a newer MEANINGFUL remote state applies locally (document LWW)", async () => {
+step("a newer MEANINGFUL remote state applies locally (nothing unsynced here)", async () => {
   const remoteDoc = JSON.parse(JSON.stringify(KOS.store.state));
   remoteDoc.progress["maths:remote-marker"] = { status: "started", check: [false, false, false, false], note: "from device B" };
   server.state = { state_json: remoteDoc, updated_at: server.stamp() };
@@ -287,14 +294,12 @@ step("a newer MEANINGFUL remote state applies locally (document LWW)", async () 
 /* ============ 3 · first-link matrix ============ */
 console.log("== first link: localOnly / remoteOnly / both ==");
 
-step("localOnly: nothing uploads until migrateUp; migration idempotent", async () => {
+step("localOnly: the device uploads automatically; the upload is idempotent", async () => {
   const sv2 = makeServer();
   KOS.cloudsync._config({ api: makeApi(sv2), session: { userId: "user-2", email: "two@test" } });
   await sync();
-  assert(KOS.cloudsync.linkStatus() === "localOnly", "expected localOnly, got " + KOS.cloudsync.linkStatus());
-  assert(sv2.media.size === 0 && !sv2.state, "data uploaded WITHOUT explicit confirmation");
-  const rep = await p(cb => KOS.cloudsync.migrateUp(cb));
-  assert(rep && typeof rep.entries === "number", "migration report missing");
+  assert(KOS.cloudsync.linkStatus() === null, "a decision was left pending: " + KOS.cloudsync.linkStatus());
+  assert(KOS.cloudsync.getStatus().state === "synced", "status after the first cycle: " + KOS.cloudsync.getStatus().state);
   const localCount = (await p(cb => KOS.mediadb.query({}, cb))).length;
   assert([...sv2.media.values()].filter(r => !r.deleted).length === localCount, "server rows ≠ local rows after migration");
   assert(sv2.state && sv2.state.state_json.progress["compsci:4.1.1.1"], "state doc not uploaded");
@@ -324,7 +329,7 @@ step("remoteOnly: an empty device adopts the account", async () => {
   assert(book && book.module === "books", "book row not adopted");
 });
 
-step("both: media merges per entry (adopt, no duplicate), device state wins on 'device'", async () => {
+step("both: media merges per entry (adopt, no duplicate) and the state documents combine", async () => {
   window.localStorage.clear();
   KOS.store.reset();
   await clearVault();
@@ -341,16 +346,16 @@ step("both: media merges per entry (adopt, no duplicate), device state wins on '
       progress: { current: 20, total: 24 }, externalIds: { anilistId: 9253 }, syncSource: "anilist" } });
   KOS.cloudsync._config({ api: api4, session: { userId: "user-4", email: "four@test" } });
   await sync();
-  assert(KOS.cloudsync.linkStatus() === "both", "expected both, got " + KOS.cloudsync.linkStatus());
-  await p(cb => KOS.cloudsync.resolveBoth("device", cb));
+  assert(KOS.cloudsync.linkStatus() === null, "a decision was left pending: " + KOS.cloudsync.linkStatus());
   const matches = (await p(cb => KOS.mediadb.query({ module: "anime", search: "steins" }, cb)));
   assert(matches.length === 1, "merge duplicated the entry: " + matches.length);
   assert(matches[0].syncId === "remote-sg", "remote identity not adopted: " + matches[0].syncId);
   assert(matches[0].progress.current === 20, "newer remote copy did not win: " + matches[0].progress.current);
   assert(matches[0].id === localRec.id, "merge replaced the local row instead of updating it");
   assert(KOS.store.state.progress["compsci:device-marker"], "device state lost");
-  assert(!KOS.store.state.progress["maths:cloud-marker"], "cloud state applied despite 'device' choice");
-  assert(sv4.state.state_json.progress["compsci:device-marker"], "device state not pushed over cloud copy");
+  assert(KOS.store.state.progress["maths:cloud-marker"], "the cloud's state did not combine into this device");
+  assert(sv4.state.state_json.progress["compsci:device-marker"] && sv4.state.state_json.progress["maths:cloud-marker"],
+    "the combined state did not reach the cloud");
   window.__sv4 = sv4;   // later steps continue on this account
 });
 
@@ -434,15 +439,13 @@ console.log("== per-device keys: ui + Collection view prefs ==");
 
 const sv5 = makeServer();
 step("the pushed state document carries no ui / view-preference keys", async () => {
-  /* seed a meaningful remote so the first link classifies as "both" and the
-     "keep this device" choice links us without a separate upload dialog */
+  /* seed a meaningful remote so the first link classifies as "both" and
+     exercises the automatic combine */
   const api5 = makeApi(sv5);   // also installs sv5.stamp
   sv5.state = { state_json: { v: 1, progress: { "compsci:seed": { status: "done", check: [true, true, true, true], note: "" } }, sessions: [] },
                 updated_at: sv5.stamp() };
   KOS.cloudsync._config({ api: api5, session: { userId: "user-5", email: "five@test" } });
-  await sync();
-  assert(KOS.cloudsync.linkStatus() === "both", "expected 'both', got " + KOS.cloudsync.linkStatus());
-  await p(cb => KOS.cloudsync.resolveBoth("device", cb));
+  await sync();                 // both sides hold data — they combine, automatically
   KOS.store.state.ui.view = "anime";
   KOS.store.state.ui.subject = "maths";
   KOS.store.state.media = { layout: "list", sort: "title",

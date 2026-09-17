@@ -25,12 +25,17 @@
   /* resume past the highest persisted id — restarting at 1 every boot
      minted ids that collide with stored entries (max, not last+1, because
      pre-fix logs may already hold such collisions out of order) */
-  var nextId = 1 + store.state.sessions.reduce(function (a, e) {
-    return Math.max(a, e.id || 0);
-  }, 0);
+  function maxId(list) {
+    return list.reduce(function (a, e) { return Math.max(a, e.id || 0); }, 0);
+  }
+  var nextId = 1 + maxId(store.state.sessions);
 
   function log(entry) {
     var list = store.state.sessions;
+    /* a cloud pull or merge can land entries with ids past the counter
+       this boot started from — re-seed from the ledger itself, every time,
+       so a merged fleet never mints a duplicate */
+    nextId = Math.max(nextId, 1 + maxId(list));
     var e = {
       id: nextId++,
       ts: Date.now(),
