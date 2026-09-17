@@ -7,17 +7,18 @@ architecture and safety rules remain in `CLAUDE.md` and `AGENTS.md`.
 ## Current state
 
 **Category 7 Phases A–G is complete, integrated, deployed and
-production-verified.**
+production-verified. The cloud three-way merge and the editable curriculum /
+study editor are deployed on top of it (17 September 2026).**
 
 | Item | Current value |
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `06893d22ddef02fe04b8514e8f9bc177866878d1` |
+| Runtime release commit | `420388f` (editor + cloud merge), immutable https://692bebd3.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-cat7-phase-g-1` |
-| Smoke gate | 47 / 47 suites passing |
+| Service-worker cache | `kos-study-editor-1` |
+| Smoke gate | 51 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
 Production deployment is separate from Git push and is performed only through
@@ -26,8 +27,8 @@ https://bb17097f.kurenai-os.pages.dev.
 
 ## Unreleased on `main`
 
-**The editable curriculum — every topic tab edits in place.** Staged locally;
-NOT deployed.
+**The editable curriculum — every topic tab edits in place.** Deployed
+17 September 2026 (`420388f`).
 
 - `js/core/edits.js` forks a topic's material per kind (Specification, Notes,
   Flashcards, Quiz, Exam questions) into `state.edits`; readers take the
@@ -50,8 +51,8 @@ NOT deployed.
   editor. `smoke51` covers the layer; service-worker version
   `kos-study-editor-1`; gate 51 suites.
 
-**Cloud sync — devices merge instead of overwriting.** Staged locally; NOT
-deployed.
+**Cloud sync — devices merge instead of overwriting.** Deployed 17 September
+2026 (`9bdec2f`).
 
 - The state document was whole-document last-write-wins, then last-write-wins
   behind a guard that refused a stale push and asked which copy to keep. Both
