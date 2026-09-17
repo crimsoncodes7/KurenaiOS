@@ -34,7 +34,7 @@
 
   /* ---------------- block vocabulary ---------------- */
   var TYPES = [
-    { t: "p",        label: "Paragraph",       hint: "Plain text with inline markup and $maths$" },
+    { t: "p",        label: "Paragraph",       hint: "Plain text with inline markup and $maths$; a new line is a line break" },
     { t: "md",       label: "Markdown",        hint: "A whole fragment: headings, lists, fences, tables, quotes" },
     { t: "h",        label: "Heading",         hint: "A sub-heading inside the page" },
     { t: "ul",       label: "Bullet list",     hint: "One item per line" },
@@ -156,6 +156,7 @@
   }
 
   var HELP = [
+    ["↵ new line", "line break · a blank line starts a new paragraph"],
     ["`code`", "inline code"], ["**bold**", "bold"], ["*italic*", "italic"], ["~~struck~~", "strikethrough"],
     ["[text](https://…)", "link"], ["$x^2$", "inline maths (KaTeX)"], ["$$\\frac{a}{b}$$", "display maths"],
     ["# Heading", "Markdown heading (Markdown block)"], ["- item / 1. item", "lists (Markdown block)"],

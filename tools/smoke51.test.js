@@ -214,6 +214,13 @@ step("the Markdown renderer covers the block vocabulary and stays safe", () => {
   assert(/<a href="https:\/\/example.com\/" target="_blank" rel="noopener">ok<\/a>/.test(out), "the safe link was not linked: " + out);
   assert(out.indexOf("javascript:") === -1 || out.indexOf('href="javascript:') === -1, "a javascript: link was emitted");
   assert(/<p class="n-math">\$\$x_1 \+ x_2\$\$<\/p>/.test(out), "display maths block missing");
+  /* a typed new line is a line break — five equations on five lines stay
+     five lines; a blank line still starts a new paragraph */
+  const lines = KOS.content.markdown("$v = u + at$;\n$s = ut + \\frac{1}{2}at^2$;\n\nnext para");
+  assert(/<p>\$v = u \+ at\$;<br>\$s = ut \+ \\frac\{1\}\{2\}at\^2\$;<\/p><p>next para<\/p>/.test(lines),
+    "new lines inside a paragraph were not kept as line breaks: " + lines);
+  const pblock = KOS.content.renderBlocks([{ p: "line one\nline two" }]);
+  assert(pblock === "<p>line one<br>line two</p>", "a {p} block lost its line break: " + pblock);
   const inline = KOS.content.inline("cost $5 and $x_1$ *em* ~~gone~~");
   assert(inline.indexOf("<em>em</em>") !== -1 && inline.indexOf("<s>gone</s>") !== -1, "inline emphasis/strike missing: " + inline);
   assert(inline.indexOf("$5 and $") === -1 || true, "n/a");

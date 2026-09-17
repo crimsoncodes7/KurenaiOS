@@ -14,7 +14,7 @@ chronological diary here.
 - Runtime release: `420388f` — immutable deployment
   https://692bebd3.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-study-editor-1`
+- Service-worker version: `kos-study-editor-2`
 - Required smoke gate: 51 / 51 suites.
 
 ## Run, test and deploy

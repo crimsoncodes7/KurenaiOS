@@ -86,6 +86,9 @@
     return out.replace(/\u0003(\d+)\u0004/g, function (_, i) { return esc(math[+i]); });
   }
 
+  /* paragraph text: inline markup, and a typed new line is a line break */
+  function para(s) { return inline(s).replace(/\n/g, "<br>"); }
+
   /* ---------------- Markdown ----------------
      A small block-level Markdown for the {md} block and the editor: ATX
      headings, fenced code (through highlightCode), block quotes, bullet
@@ -178,8 +181,13 @@
       var para = [line];
       at++;
       while (at < lines.length && !isBlockStart(at)) { para.push(lines[at]); at++; }
+      /* a new line IS a line break here — this is a notebook, not a
+         manuscript: someone listing five equations one per line means
+         five lines, and strict Markdown's "single newline = space" rule
+         quietly ran them together. A blank line still starts a new
+         paragraph. */
       html += "<p>" + para.map(function (l, i) {
-        return inline(l.replace(/\s+$/, "")) + (i < para.length - 1 ? (/\s{2}$/.test(l) ? "<br>" : " ") : "");
+        return inline(l.replace(/\s+$/, "")) + (i < para.length - 1 ? "<br>" : "");
       }).join("") + "</p>";
     }
     return html;
@@ -240,10 +248,10 @@
   function renderOne(b) {
     var html = "";
     (function () {
-      if (typeof b === "string") { html += "<p>" + inline(b) + "</p>"; return; }
+      if (typeof b === "string") { html += "<p>" + para(b) + "</p>"; return; }
       if (!b || typeof b !== "object") return;
       if (b.page) { return; } /* page divider — handled by splitPages, not rendered */
-      if (b.p != null) { html += "<p>" + inline(b.p) + "</p>"; return; }
+      if (b.p != null) { html += "<p>" + para(b.p) + "</p>"; return; }
       if (b.md != null) { html += '<div class="n-md">' + markdown(b.md) + "</div>"; return; }
       if (b.h) { html += '<h4 class="n-h">' + inline(b.h) + "</h4>"; return; }
       if (b.ul) { html += "<ul>" + b.ul.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ul>"; return; }

@@ -17,7 +17,7 @@ study editor are deployed on top of it (17 September 2026).**
 | Runtime release commit | `420388f` (editor + cloud merge), immutable https://692bebd3.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-study-editor-1` |
+| Service-worker cache | `kos-study-editor-2` |
 | Smoke gate | 51 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
@@ -49,7 +49,7 @@ https://bb17097f.kurenai-os.pages.dev.
   panel is a clean deck browser with per-card history and hands off to the
   editor. Notes/Quiz/Exam tabs always exist with empty states that open the
   editor. `smoke51` covers the layer; service-worker version
-  `kos-study-editor-1`; gate 51 suites.
+  `kos-study-editor-2`; gate 51 suites.
 
 **Cloud sync — devices merge instead of overwriting.** Deployed 17 September
 2026 (`9bdec2f`).
