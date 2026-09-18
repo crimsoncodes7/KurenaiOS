@@ -113,7 +113,7 @@ step("first mount does NOT scroll the article into view", async () => {
   try {
     KOS.store.state.ui.tab = "notes";
     KOS.show("ref", target);
-    await waitFor(() => main().querySelector(".note-pages"), 4000);
+    await waitFor(() => main().querySelector(".reader-nav"), 4000);
     assert(main().querySelector(".notes-article"), "the paginated notes did not render");
     assert(calls.indexOf("notes-article") === -1,
       "the article scrolled itself into view on first mount (calls: " + JSON.stringify(calls) + ")");
@@ -121,18 +121,19 @@ step("first mount does NOT scroll the article into view", async () => {
   } finally { window.Element.prototype.scrollIntoView = realSIV; }
 });
 
-step("clicking a note-page pill DOES scroll to the section", async () => {
-  const tabs = main().querySelectorAll(".np-pill");
-  assert(tabs.length > 1, "expected more than one note page tab, got " + tabs.length);
+step("choosing a note page DOES scroll to the section", async () => {
+  const picker = main().querySelector(".reader-page-select");
+  assert(picker && picker.options.length > 1, "expected more than one named note page");
   const calls = [];
   const realSIV = window.Element.prototype.scrollIntoView;
   window.Element.prototype.scrollIntoView = function () { calls.push(this.className); };
   try {
-    tabs[1].click();
+    picker.value = "1";
+    picker.dispatchEvent(new window.Event("change", { bubbles: true }));
     assert(calls.indexOf("notes-article") !== -1,
       "turning to a note page did not scroll to it (calls: " + JSON.stringify(calls) + ")");
-    assert(main().querySelectorAll(".np-pill")[1].classList.contains("active"),
-      "the pill did not become active — the page did not actually turn");
+    assert(main().querySelector(".reader-page-select").value === "1",
+      "the named page picker did not retain the page that was chosen");
   } finally { window.Element.prototype.scrollIntoView = realSIV; }
 });
 

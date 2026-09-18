@@ -914,8 +914,8 @@ body.modal-open #main { overflow: hidden; }
 /* ---- the topic header: ONE row (Cat 7 Phase C, audit REF-1) ----
    Crumbs, seal + title + board line, and a 170px status band used to stack
    to 308px of chrome before the study tabs had even started. This is one
-   row: the crumb path is the meta line's first clause, and the only control
-   that survives above the fold is the status dropdown. */
+   row: the crumb path is the meta line's first clause. Topic state now has
+   one intentional home in the Inspector, rather than a second readout here. */
 .topic-head {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -937,17 +937,6 @@ body.modal-open #main { overflow: hidden; }
   overflow: hidden;
 }
 .th-ctl { display: flex; align-items: center; gap: var(--space-2); flex: none; }
-.th-ctl .status-sel { min-height: var(--control-h-sm); }
-/* the glyph restates the selected status as colour, so the row reads at a
-   glance without opening the dropdown */
-.th-status {
-  width: 10px; height: 10px; border-radius: 50%; flex: none;
-  background: var(--line);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text) 5%, transparent);
-}
-.th-status.st-started { background: var(--warning); }
-.th-status.st-paused { background: var(--muted); }
-.th-status.st-done { background: var(--good); }
 
 /* ---- Topic Status: one component, three labelled fields ----
    Status, the four progress checks and the confidence rating were three
@@ -1096,25 +1085,25 @@ body.modal-open #main { overflow: hidden; }
 .intel-card dt { font-weight: 700; color: var(--text); margin-top: 8px; }
 .intel-card dd { margin: 1px 0 0; }
 
-/* prev / next — two equal cards, direction label over the destination.
-   The same shape serves the topic's neighbours (.pn-topic) and a note's
-   neighbouring pages (.pn-page), so the reader learns one control. */
-.pn-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: 34px; }
+/* Neighbouring topics and note pages are continuation choices, not tabs.
+   Their quiet directional edge makes the reading path clear without giving
+   either action the weight of a primary button. */
+.pn-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: 38px; }
 .pn {
   display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
   min-width: 0; width: 100%;
   text-align: left;
-  padding: 12px 16px;
+  padding: 13px 15px;
   border: 1px solid var(--line2);
-  border-radius: var(--radius);
-  background: var(--bg1);
+  border-radius: var(--radius-card);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--surface-card) 92%, var(--wash-accent)), var(--surface-card));
   color: var(--text2);
   font-size: 13.5px;
   line-height: 1.35;
-  transition: color .15s, border-color .15s, box-shadow .15s, transform .15s;
-  box-shadow: var(--shadow-sm);
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--accent, var(--kurenai)) 38%, transparent);
+  transition: color .15s, border-color .15s, box-shadow .15s, transform .15s, background .15s;
 }
-.pn:hover { color: var(--text); border-color: var(--line); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.pn:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent, var(--kurenai)) 52%, var(--line2)); transform: translateY(-1px); box-shadow: inset 3px 0 0 var(--accent, var(--kurenai)), var(--shadow-md); }
 .pn .d { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .pn-t { display: flex; align-items: baseline; gap: 8px; min-width: 0; max-width: 100%; }
 .pn-t .st { flex: none; font-size: 11px; color: var(--muted); }
@@ -1122,7 +1111,8 @@ body.modal-open #main { overflow: hidden; }
 .pn-t .st-started, .pn-t .st-paused { color: var(--accent, var(--kurenai)); }
 .pn-ref { flex: none; font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
 .pn-title { font-weight: 600; color: var(--text); min-width: 0; overflow-wrap: anywhere; }
-.pn-next, .pn-row .pn:last-child { align-items: flex-end; text-align: right; }
+.pn-next, .pn-row .pn:last-child { align-items: flex-end; text-align: right; box-shadow: inset -3px 0 0 color-mix(in srgb, var(--accent, var(--kurenai)) 38%, transparent); }
+.pn-next:hover, .pn-row .pn:last-child:hover { box-shadow: inset -3px 0 0 var(--accent, var(--kurenai)), var(--shadow-md); }
 .pn-gap { display: block; }
 @media (max-width: 560px) {
   .pn-row { grid-template-columns: 1fr; }
@@ -1627,27 +1617,23 @@ body.modal-open #main { overflow: hidden; }
 .study-panel > .split .cb > *:first-child { margin-top: 0; }
 
 /* ============================================================
-   The ONE study navigation layer  (Cat 7 Phase C · audit REF-6)
+   Topic navigator
 
-   The topic page carried three stacked switchers — an assistant action
-   strip, a tab strip that wrapped and orphaned "Files" onto a row of its
-   own, and up to seven note-page pills that wrapped again. One bar now, one
-   row high at every width, sitting in normal flow above the content.
-
-   It is a DECLARED scroller (invariant #50) rather than a wrap: wrapping is
-   what cost the page its second and third rows, and a declared scroll keeps
-   the bar exactly one row tall on a 390px phone as well as on a 1920px
-   desktop.
+   The material switcher and the note reader are two levels of the same
+   desk-like navigator: material sits in a quiet inset tray; pages use a
+   direct reader control. They deliberately do not imitate each other — tabs
+   change a workspace, whereas page controls advance through one document.
    ============================================================ */
 .study-nav {
-  /* static, not sticky: a pinned bar sat over the first line of every
-     paragraph you scrolled to and cost 46px of reading height; the tabs
-     are one scroll-to-top away and the inspector carries the page list */
   position: static;
-  padding: var(--space-1) 0 var(--space-2);
-  border-bottom: 1px solid var(--line2);
+  padding: 7px;
+  border: 1px solid var(--line2);
+  border-left: 3px solid color-mix(in srgb, var(--accent, var(--kurenai)) 72%, var(--line2));
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--well) 72%, var(--surface-card));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--bg1) 68%, transparent);
 }
-.study-nav-row { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.study-nav-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .study-tabs-scroller { flex: 1 1 auto; min-width: 0; }
 .study-tabs-scroller::before, .study-tabs-scroller::after { width: 28px; }
 /* the generic scroller reserves a thin scrollbar gutter; on a one-row tab
@@ -1656,70 +1642,103 @@ body.modal-open #main { overflow: hidden; }
 .study-tabs-scroller > .u-scroller-track { scrollbar-width: none; }
 .study-tabs-scroller > .u-scroller-track::-webkit-scrollbar { display: none; }
 .study-tabs-topic {
-  display: flex; flex-wrap: nowrap; gap: 2px;
+  display: flex; flex-wrap: nowrap; gap: 4px;
   max-width: 100%; width: 100%;
-  /* the shared strip carries a 10px top margin for pages that set it under a
-     heading; this one is the first thing in its own bar */
   margin: 0;
 }
-.study-tabs-topic .study-tab { padding: 7px 13px; flex: 0 0 auto; white-space: nowrap; }
+.study-tabs-topic .study-tab {
+  min-height: 34px;
+  padding: 6px 11px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 12.5px;
+  letter-spacing: .01em;
+  box-shadow: none;
+}
+.study-tabs-topic .study-tab:hover { background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text); }
+.study-tabs-topic .study-tab.active {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent, var(--kurenai)) 32%, var(--line2));
+  background: var(--surface-card);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--text) 12%, transparent);
+}
+.study-tabs-topic .study-tab .tab-n {
+  display: grid; place-items: center;
+  min-width: 18px; height: 18px; padding: 0 4px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--text) 7%, transparent);
+  color: var(--muted);
+  font: 10px/1 var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.study-tabs-topic .study-tab.active .tab-n { background: var(--wash-accent); color: var(--accent, var(--kurenai)); }
 
-/* ---- note pages: one strip under the tabs ----
-   Every page as a numbered pill in a DECLARED scroller (invariant #50), so
-   it never wraps into the wall of pills the audit removed, stepped by a
-   chevron at each end. */
+/* ---- note pages: one direct reader control ---- */
 .study-nav-pages { min-width: 0; }
 .study-nav-pages:empty { display: none; }
-.note-pages-row { display: flex; align-items: center; gap: var(--space-1); min-width: 0; margin-top: var(--space-2); }
-.note-pages-scroller { flex: 1 1 auto; min-width: 0; }
-.note-pages-scroller::before, .note-pages-scroller::after { width: 22px; }
-.note-pages-scroller > .u-scroller-track { scrollbar-width: none; }
-.note-pages-scroller > .u-scroller-track::-webkit-scrollbar { display: none; }
-.note-pages { display: flex; flex-wrap: nowrap; gap: 4px; padding: 2px 0; }
-.np-pill {
-  display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;
-  min-height: var(--control-h-sm);
-  padding: 4px 12px 4px 6px;
-  border: 1px solid var(--line2);
-  border-radius: var(--radius-pill);
-  background: var(--bg1);
+.reader-nav {
+  display: grid;
+  grid-template-columns: auto auto minmax(148px, 1fr) auto;
+  align-items: center;
+  gap: 5px;
+  margin: 7px 1px 0;
+  padding-top: 7px;
+  border-top: 1px solid var(--line2);
+}
+.reader-label {
+  padding: 0 6px 0 2px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.reader-step {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  min-height: 30px;
+  padding: 4px 9px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
   color: var(--text2);
-  font-size: 12.5px; font-weight: 500; white-space: nowrap;
-  transition: color .15s, border-color .15s, background .15s;
+  font-size: 11.5px;
+  font-weight: 600;
 }
-.np-pill:hover { color: var(--text); border-color: var(--line); }
-.np-n {
-  display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
-  font-family: var(--mono); font-size: 10.5px; font-variant-numeric: tabular-nums;
-  background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--muted);
+.reader-step:hover:not(:disabled) { border-color: var(--line2); background: var(--surface-card); color: var(--text); }
+.reader-step:disabled { opacity: .34; cursor: default; }
+.reader-step-arrow { font-size: 16px; line-height: .8; color: var(--accent, var(--kurenai)); }
+.reader-page-select {
+  min-width: 0; width: 100%; height: 30px;
+  padding: 3px 26px 3px 9px;
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  background: var(--surface-card);
+  color: var(--text);
+  font: 500 11.5px var(--sans);
+  text-overflow: ellipsis;
 }
-.np-pill.active { color: var(--bg1); background: var(--text); border-color: var(--text); font-weight: 600; }
-.np-pill.active .np-n { background: color-mix(in srgb, var(--bg1) 22%, transparent); color: inherit; }
-.np-step {
-  flex: none;
-  width: var(--icon-btn-size-sm); height: var(--icon-btn-size-sm);
-  display: grid; place-items: center;
-  border: 1px solid var(--line2); border-radius: 50%;
-  background: var(--bg1);
-  color: var(--text2); font-size: 15px; line-height: 1;
-}
-.np-step:hover:not(:disabled) { color: var(--text); border-color: var(--line); }
-.np-step:disabled { opacity: .3; cursor: default; }
+.reader-page-select:hover { border-color: color-mix(in srgb, var(--accent, var(--kurenai)) 45%, var(--line2)); }
+.reader-page-select:focus-visible, .reader-step:focus-visible { outline: 2px solid var(--accent, var(--kurenai)); outline-offset: 2px; }
 @media (max-width: 700px) {
-  .np-pill .np-t { display: none; }
-  .np-pill { padding: 4px 6px; }
-  .np-pill.active .np-t { display: inline; }
-  .np-pill.active { padding-right: 12px; }
+  .reader-nav { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .reader-label { display: none; }
+  .reader-step { min-width: 34px; padding-inline: 7px; }
+  .reader-step-text { display: none; }
 }
 .study-nav-pagelist:empty { display: none; }
-/* the article footer repeats the neighbours as the shared prev/next card */
+/* the article footer gives the reader the next decision at the natural
+   stopping point, using the same navigator-card language as topic changes. */
 .note-foot {
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--space-3);
   max-width: var(--content-readable);
-  margin: 28px 0 4px; padding-top: 16px; border-top: 1px solid var(--line2);
+  margin: 32px 0 4px; padding-top: 16px; border-top: 1px solid var(--line2);
 }
 .note-foot-count { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
-.pn-page { padding: 10px 14px; }
+.pn-page { min-height: 68px; padding: 11px 13px; }
 @media (max-width: 560px) {
   .note-foot { grid-template-columns: 1fr; }
   .note-foot-count { order: -1; }
@@ -1728,12 +1747,16 @@ body.modal-open #main { overflow: hidden; }
 /* the Edit control on the study nav */
 .study-edit {
   flex: none; display: inline-flex; align-items: center; gap: 6px;
-  min-height: var(--control-h-sm); padding: 4px 12px;
-  border-radius: var(--radius-pill);
+  min-height: 34px; padding: 5px 11px;
+  border: 1px solid var(--line2);
+  border-radius: 9px;
+  background: var(--surface-card);
+  color: var(--text2);
   position: relative;
 }
+.study-edit:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent, var(--kurenai)) 50%, var(--line2)); background: var(--wash-accent); }
 .study-edit-i { font-size: 13px; line-height: 1; }
-.study-edit.on { background: var(--text); color: var(--bg1); border-color: var(--text); }
+.study-edit.on { background: var(--accent, var(--kurenai)); color: var(--bg1); border-color: var(--accent, var(--kurenai)); }
 /* a small mark when the open tab is the user's edited version */
 .study-edit.forked::after {
   content: ""; position: absolute; top: 4px; right: 6px; width: 6px; height: 6px; border-radius: 50%;
@@ -6123,7 +6146,6 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
     row-gap: var(--space-2);
   }
   .topic-head .th-ctl { grid-column: 1 / -1; }
-  .topic-head .th-ctl .status-sel { flex: 1; min-height: 44px; }
   .th-meta { -webkit-line-clamp: 3; }
 
   /* the study nav keeps its one row; the page control loses its title */

@@ -12,10 +12,10 @@
      B · content first — one header row, one navigation layer, and the first
          word of revision material within 140px of the topic header
      C · one state surface — the Topic Status component lives in the
-         inspector, mastery and the material counts each appear once, and the
-         header's status control is the same store value as the field
-     D · compact note-page navigation — a stepper by default, the full page
-         list behind a disclosure, and B-04's scroll rule still honoured
+         inspector, and neither a status dropdown nor status glyph is repeated
+         in the header
+     D · compact note-page navigation — a direct previous / page picker / next
+         reader control, with B-04's scroll rule still honoured
      E · keyboard control of the flashcard and quiz engines (audit REF-8),
          including the guards that stop them stealing keys from a text field
          and the self-removal that stops them accumulating per tab switch
@@ -179,8 +179,7 @@ step("the topic header is ONE row and absorbs the crumb path", () => {
   const meta = head.querySelector(".th-meta").textContent;
   assert(meta.includes(window.KOS_DATA[SID].name), "the meta line dropped the subject the crumbs carried");
   assert(meta.includes(window.KOS_DATA[SID].board), "the meta line dropped the board");
-  /* the one control used constantly rather than occasionally stays above */
-  assert(head.querySelector(".th-ctl .status-sel"), "the compact status control is not in the header");
+  assert(!head.querySelector(".status-sel, .th-status"), "topic status is duplicated in the header");
 });
 
 step("the page carries ONE study navigation layer, above the content", () => {
@@ -226,32 +225,28 @@ step("the Topic Status component lives in the inspector", () => {
   assert(ctl.querySelector(".ts-field-conf .rag-picker"), "confidence went missing");
 });
 
-step("the header control and the inspector field are ONE store value", () => {
+step("the Inspector is the only topic-status control", () => {
   KOS.store.state.progress = {};
   KOS.show("ref", { subject: SID, ref: REF });
-  const head = $("#th-status"), field = $("#ts-status");
-  assert(head && field, "expected both status controls");
-  assert(head.value === "none" && field.value === "none", "the controls did not open in step");
-  head.value = "paused";
-  head.dispatchEvent(new window.Event("change", { bubbles: true }));
-  assert(KOS.store.getProgress(SID, REF).status === "paused", "the header control did not write");
-  assert(field.value === "paused", "the inspector field did not follow the header");
+  const field = $("#ts-status");
+  assert(field, "the Inspector status control is missing");
+  assert(!$("#th-status") && !$(".th-status"), "the removed header status UI is back");
+  assert(field.value === "none", "the Inspector control did not open at the stored value");
+  field.value = "paused";
+  field.dispatchEvent(new window.Event("change", { bubbles: true }));
+  assert(KOS.store.getProgress(SID, REF).status === "paused", "the Inspector control did not write");
   field.value = "started";
   field.dispatchEvent(new window.Event("change", { bubbles: true }));
-  assert(head.value === "started", "the header did not follow the inspector field");
-  /* and the header's colour cue moves with them */
-  assert($(".th-status").className === "th-status st-started",
-    "the header glyph did not follow: " + $(".th-status").className);
+  assert(KOS.store.getProgress(SID, REF).status === "started", "the Inspector control did not update a second time");
 });
 
-step("ticking a check moves every surface that reads the same derivation", () => {
+step("ticking a check updates the Inspector and spec spine", () => {
   KOS.store.state.progress = {};
   KOS.show("ref", { subject: SID, ref: REF });
   const box = $$(".ts-checkgrid input[type=checkbox]")[0];
   box.checked = true;
   box.dispatchEvent(new window.Event("change", { bubbles: true }));
   assert($(".ts-pct").textContent === "25%", "mastery: " + $(".ts-pct").textContent);
-  assert($("#th-status").value === "started", "the header status did not follow the check");
   assert($("#ts-status").value === "started", "the inspector status did not follow the check");
   const active = document.getElementById("tree").querySelector(".leaf.active .st");
   assert(active.className.includes("st-started"), "the spine did not follow the check");
@@ -260,41 +255,38 @@ step("ticking a check moves every surface that reads the same derivation", () =>
 /* ============ D · compact note-page navigation ============ */
 console.log("== D · note pages ==");
 
-step("a paginated topic opens on one page strip in the nav — never a wrapping wall of pills", () => {
+step("a paginated topic opens on one direct reader control in the nav", () => {
   assert(PAGED, "no multi-page topic in the deep content — this suite cannot see the pager");
   KOS.show("ref", PAGED);
-  const strip = $(".study-nav .note-pages");
-  assert(strip, "no page strip in the nav bar");
-  const pills = $$(".np-pill");
-  assert(pills.length > 1, "expected several page pills, got " + pills.length);
-  assert(pills[0].classList.contains("active") && pills[0].getAttribute("aria-selected") === "true",
-    "the first page is not marked current");
-  assert(strip.closest(".u-scroller"), "the strip is not a declared scroller (invariant #50)");
-  pills.forEach((b, i) => assert(b.querySelector(".np-n").textContent === String(i + 1), "pill " + i + " is not numbered"));
+  const reader = $(".study-nav .reader-nav");
+  const select = $(".reader-page-select");
+  assert(reader && select, "no reader control in the nav bar");
+  assert(select.options.length > 1, "expected several named pages, got " + select.options.length);
+  assert(select.value === "0" && /^Page 1 —/.test(select.options[0].textContent), "the first page is not selected and named");
+  assert(!$(".np-pill"), "the retired wall of page pills returned");
 });
 
-step("a pill turns the page, and the footer repeats the neighbours as cards", () => {
-  const pills = $$(".np-pill");
-  click(pills[1]);
-  assert(pills[1].classList.contains("active"), "the page did not turn");
-  assert(pills[1].getAttribute("aria-selected") === "true", "the turned page is not announced");
-  assert(!pills[0].classList.contains("active"), "two pages read as current");
+step("the page picker turns the page, and the footer repeats the neighbours as cards", () => {
+  const select = $(".reader-page-select");
+  select.value = "1";
+  select.dispatchEvent(new window.Event("change", { bubbles: true }));
+  assert(select.value === "1", "the page picker did not turn the page");
   const foot = $(".note-foot");
   assert(foot, "no footer pager under the article");
   assert(foot.querySelectorAll(".pn-page").length === 2, "the footer does not offer both neighbours from a middle page");
   assert(/Page 2 of/.test($(".note-foot-count").textContent), "the footer count is wrong: " + $(".note-foot-count").textContent);
 });
 
-step("the chevrons turn pages and stop at both ends", () => {
+step("the reader controls turn pages and stop at both ends", () => {
   KOS.show("ref", PAGED);
-  const total = $$(".np-pill").length;
-  const [prev, next] = $$(".np-step");
+  const total = $(".reader-page-select").options.length;
+  const [prev, next] = $$(".reader-step");
   assert(prev.disabled, "the back step is live on the first page");
   click(next);
-  assert($$(".np-pill")[1].classList.contains("active"), "the forward step did not turn the page");
+  assert($(".reader-page-select").value === "1", "the forward step did not turn the page");
   assert(!prev.disabled, "the back step stayed disabled off the first page");
   for (let i = 2; i < total; i++) click(next);
-  assert($$(".np-pill")[total - 1].classList.contains("active"), "could not reach the last page");
+  assert($(".reader-page-select").value === String(total - 1), "could not reach the last page");
   assert(next.disabled, "the forward step is live on the last page");
 });
 
@@ -307,18 +299,18 @@ step("B-04 holds: only a READER-initiated page turn scrolls (Phase A)", () => {
     assert(calls.indexOf("notes-article") === -1,
       "the article scrolled itself into view on first mount: " + JSON.stringify(calls));
     calls.length = 0;
-    click($$(".np-step")[1]);
+    click($$(".reader-step")[1]);
     assert(calls.indexOf("notes-article") !== -1, "turning a page did not scroll to it");
   } finally { window.Element.prototype.scrollIntoView = real; }
 });
 
 step("the page control is cleared when you leave the Notes tab", () => {
   KOS.show("ref", PAGED);
-  assert($(".note-pages"), "no page strip on the Notes tab");
+  assert($(".reader-nav"), "no reader control on the Notes tab");
   const spec = $$(".study-tabs-topic .study-tab").find(b => b.dataset.tab === "spec");
   click(spec);
-  assert(!$(".note-pages"), "the page strip survived a tab change — it lives outside the panel");
-  assert(!$(".np-pill"), "the page list survived a tab change");
+  assert(!$(".reader-nav"), "the reader control survived a tab change — it lives outside the panel");
+  assert(!$(".reader-page-select"), "the page picker survived a tab change");
 });
 
 /* ============ E · keyboard control of the engines (audit REF-8) ============ */

@@ -275,9 +275,9 @@ step("a Completed topic explains its 100% instead of contradicting the boxes", (
   assert($(".topic-status .ts-pct").textContent === "100%", "mastery did not follow the status");
   assert($(".topic-status .ts-checks").textContent === "marked completed",
     "the header still prints a contradictory ratio: " + $(".topic-status .ts-checks").textContent);
-  /* the header's compact control is the same store value as the component's
-     field, so the two can never disagree about the status */
-  assert($("#th-status").value === "done", "the header status control did not follow");
+  /* Topic state has one home: the Inspector. The header deliberately carries
+     neither a duplicate dropdown nor a status glyph. */
+  assert(!$("#th-status") && !$(".th-status"), "a duplicate header status control returned");
   /* and once the boxes catch up, the ordinary ratio returns */
   $$(".ts-checkgrid input[type=checkbox]").forEach(b => {
     if (b.checked) return;

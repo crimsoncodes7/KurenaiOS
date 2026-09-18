@@ -270,13 +270,13 @@ step("a page break makes a page; selecting a block marks it; Done closes and cle
   type($(".ed-block.sel textarea"), "ON PAGE TWO");
   await tick(400);
   const basePages = KOS.content.splitPages(SHIPPED.notes).length;
-  const pills = $$(".np-pill");
-  assert(pills.length === basePages + 1, "the page break did not add a page to the strip: " + pills.length + " vs " + (basePages + 1));
-  assert(pills[pills.length - 1].classList.contains("active") && /ON PAGE TWO/.test($(".notes-article").textContent),
-    "the page holding the edited block is not the one shown: active=" + pills.findIndex(p => p.classList.contains("active")) + " text=" + $(".notes-article").textContent.slice(0, 80) + " fork=" + JSON.stringify(KOS.edits.get(SID, REF).notes.slice(-3)));
+  const picker = $(".reader-page-select");
+  assert(picker && picker.options.length === basePages + 1, "the page break did not add a page to the picker: " + (picker && picker.options.length) + " vs " + (basePages + 1));
+  assert(picker.value === String(picker.options.length - 1) && /ON PAGE TWO/.test($(".notes-article").textContent),
+    "the page holding the edited block is not the one shown: selected=" + picker.value + " text=" + $(".notes-article").textContent.slice(0, 80) + " fork=" + JSON.stringify(KOS.edits.get(SID, REF).notes.slice(-3)));
   /* select the first block: the article turns to page one and marks it */
   click($$(".ed-block-h")[0]);
-  assert($$(".np-pill")[0].classList.contains("active"), "selecting a block on page one did not turn to it");
+  assert($(".reader-page-select").value === "0", "selecting a block on page one did not turn to it");
   assert($(".notes-article .n-blk-sel"), "the selected block is not marked in the article");
   click($(".ed-done"));
   assert(!$(".study-editor"), "Done did not close the editor");

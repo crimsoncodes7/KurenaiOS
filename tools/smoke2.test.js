@@ -94,7 +94,13 @@ step("enriched ref defaults to Notes tab with rendered blocks", () => {
     if ($(".n-code .k")) sawCode = true;
   };
   scan();
-  $$(".np-pill").forEach(t => { click(t); scan(); });
+  const pagePicker = $(".reader-page-select");
+  if (!pagePicker) throw new Error("note page picker missing");
+  [...pagePicker.options].forEach((_, i) => {
+    pagePicker.value = String(i);
+    pagePicker.dispatchEvent(new window.Event("change", { bubbles: true }));
+    scan();
+  });
   if (!sawTable) throw new Error("comparison table missing");
   if (!sawMnemonic) throw new Error("mnemonic callout missing");
   if (!sawCode) throw new Error("code highlighting missing");
@@ -119,13 +125,13 @@ step("notes pager: splitPages + sectioned rendering", () => {
   });
   try {
     KOS.show("ref", { subject: "compsci", ref: "4.2.3.1" });
-    const pager = $(".note-pages");
-    if (!pager) throw new Error("note page strip not rendered");
-    const tabs = $$(".np-pill");
-    if (tabs.length !== 3) throw new Error("expected 3 page tabs, got " + tabs.length);
+    const pager = $(".reader-nav"), picker = $(".reader-page-select");
+    if (!pager || !picker) throw new Error("note page reader not rendered");
+    if (picker.options.length !== 3) throw new Error("expected 3 named pages, got " + picker.options.length);
     if (!$(".notes-article")) throw new Error("article missing");
-    click(tabs[2]); // jump to "Exam technique"
-    if (!tabs[2].classList.contains("active")) throw new Error("page tab did not activate");
+    picker.value = "2"; // jump to "Exam technique"
+    picker.dispatchEvent(new window.Event("change", { bubbles: true }));
+    if (picker.value !== "2") throw new Error("page picker did not activate the chosen page");
   } finally { window.KOS_CONTENT[KEY] = orig; }
 });
 step("plain ref (no content) shows the five editable tabs + files, no worked/sim", () => {

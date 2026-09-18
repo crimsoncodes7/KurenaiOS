@@ -1364,9 +1364,8 @@
        used to sit between the title and the tabs as a 170px band, and the
        inspector then printed the same mastery figure again 280px lower
        (audit REF-1, REF-3). The component is unchanged; only its address is.
-       The one control that is used constantly rather than occasionally — the
-       status dropdown — stays in the header, reading from the same store and
-       repainting through the same hooks. */
+       The Inspector is now the one place where topic state is read or changed,
+       leaving the header free to identify the material being studied. */
     var p = store.getProgress(sid, ref);
     var masteryHooks = [];
     function syncMastery() { masteryHooks.forEach(function (f) { f(); }); }
@@ -1385,14 +1384,13 @@
     }
     masteryHooks.push(paintStatus);
 
-    /* the header's compact status control and the component's field are the
-       SAME <select> moved by CSS?  No — they are two elements over one store
-       value, kept in step by syncStatusControls(). Two DOM nodes, one truth. */
+    /* Topic status lives only in the Inspector. Keeping this as a collection
+       leaves the sync path robust if that control gains a second legitimate
+       home later, without reintroducing a header-level duplicate. */
     var statusSelects = [];
     function syncStatusControls() {
       var v = store.getProgress(sid, ref).status;
       statusSelects.forEach(function (s) { s.value = v; });
-      headStatus.className = "th-status st-" + v;
     }
     function statusSelect(id, label) {
       var s = el("select", {
@@ -1414,11 +1412,11 @@
     }
 
     /* ---------- one header row (audit REF-1) ----------
-       Crumbs + seal + title + board line + status used to be three stacked
+       Crumbs + seal + title + board line used to be three stacked
        blocks costing 138px before the status band even began. They are one
        row: the path the crumbs carried becomes the meta line's first clause,
-       which is where a reader looks for it anyway. */
-    var headStatus = el("span", { class: "th-status" });
+       which is where a reader looks for it anyway. Topic state belongs wholly
+       to the Inspector rather than duplicating a dot and dropdown here. */
     var metaBits = [d.name].concat(leaf.path).concat([d.board]);
     if (leaf.section.paper) metaBits.push(paperLabel(sid, leaf.section.paper));
     if (content) metaBits.push("deep revision content");
@@ -1429,10 +1427,7 @@
         el("p", { class: "pap th-meta", text: metaBits.join(" · ") })
       ]),
       el("div", { class: "th-ctl" }, [
-        treeOpenButton(),
-        headStatus,
-        el("label", { class: "sr-only", for: "th-status", text: "Topic status" }),
-        statusSelect("th-status", "Topic status")
+        treeOpenButton()
       ])
     ]));
 
@@ -1756,42 +1751,37 @@
           }
           if (pages.length > 1) {
             /* ---------- page navigation ----------
-               One strip under the tabs: every page as a numbered pill in a
-               declared scroller (never a wrap — that was the old wall of
-               pills), stepped by chevrons at each end. The article footer
-               repeats the neighbours as two proper cards, the same shape as
-               the topic's own previous/next below them. */
-            var strip = el("div", { class: "note-pages", role: "tablist", "aria-label": "Note pages" });
-            var stepPrev = el("button", { class: "np-step", type: "button", "aria-label": "Previous page",
-              onclick: function () { showPage(cur - 1, true); } }, ["‹"]);
-            var stepNext = el("button", { class: "np-step", type: "button", "aria-label": "Next page",
-              onclick: function () { showPage(cur + 1, true); } }, ["›"]);
-            var pills = [];
+               A reader needs one calm, direct way to move through a note:
+               previous / named current page / next. The previous wall of
+               numbered pills repeated the article footer and made pages read
+               like tabs competing with the material tabs above. */
+            var stepPrev = el("button", { class: "reader-step reader-prev", type: "button",
+              "aria-label": "Previous note page", onclick: function () { showPage(cur - 1, true); } }, [
+              el("span", { class: "reader-step-arrow", "aria-hidden": "true", text: "‹" }),
+              el("span", { class: "reader-step-text", text: "Previous" })
+            ]);
+            var pageSelect = el("select", { class: "reader-page-select", "aria-label": "Choose note page",
+              onchange: function () { showPage(Number(pageSelect.value), true); } });
             pages.forEach(function (pg, i) {
-              var b = el("button", { class: "np-pill", role: "tab", type: "button", "data-i": i,
-                onclick: function () { showPage(i, true); } }, [
-                el("span", { class: "np-n", text: String(i + 1) }),
-                el("span", { class: "np-t", text: pg.title })
-              ]);
-              pills.push(b);
-              strip.appendChild(b);
+              pageSelect.appendChild(el("option", { value: String(i), text: "Page " + (i + 1) + " — " + pg.title }));
             });
+            var stepNext = el("button", { class: "reader-step reader-next", type: "button",
+              "aria-label": "Next note page", onclick: function () { showPage(cur + 1, true); } }, [
+              el("span", { class: "reader-step-text", text: "Next" }),
+              el("span", { class: "reader-step-arrow", "aria-hidden": "true", text: "›" })
+            ]);
             var foot = el("nav", { class: "note-foot", "aria-label": "Note pages" });
             pagerSlot.innerHTML = "";
-            pagerSlot.appendChild(el("div", { class: "note-pages-row" }, [
+            pagerSlot.appendChild(el("div", { class: "reader-nav" }, [
+              el("span", { class: "reader-label", text: "Note pages" }),
               stepPrev,
-              KOS.ui.scroller(strip, { label: "Note pages", prevLabel: "Scroll to earlier pages", nextLabel: "Scroll to later pages", className: "note-pages-scroller" }),
+              pageSelect,
               stepNext
             ]));
             var showPage = function (i, moved) {
               cur = Math.max(0, Math.min(pages.length - 1, i));
               notePage = cur;
-              pills.forEach(function (b, j) {
-                var on = j === cur;
-                b.classList.toggle("active", on);
-                b.setAttribute("aria-selected", String(on));
-                if (on && b.scrollIntoView) b.scrollIntoView({ block: "nearest", inline: "nearest" });
-              });
+              pageSelect.value = String(cur);
               article.innerHTML = KOS.content.renderBlocks(pages[cur].blocks);
               KOS.content.typeset(article);
               if (moved && article.scrollIntoView) article.scrollIntoView({ block: "start", behavior: "smooth" });
