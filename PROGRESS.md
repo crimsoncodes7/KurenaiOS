@@ -14,10 +14,10 @@ study editor are deployed on top of it (17 September 2026).**
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `420388f` (editor + cloud merge), immutable https://692bebd3.kurenai-os.pages.dev |
+| Runtime release commit | `7e6d64f` (topic navigator), immutable https://22c8091f.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-study-editor-2` |
+| Service-worker cache | `kos-topic-nav-1` |
 | Smoke gate | 51 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
@@ -26,6 +26,19 @@ Production deployment is separate from Git push and is performed only through
 https://bb17097f.kurenai-os.pages.dev.
 
 ## Unreleased on `main`
+
+**Topic navigator — one control language, one status surface.** Deployed
+18 September 2026 (`7e6d64f`).
+
+- The topic page's material tabs, note-page pills and Edit pill were three
+  competing systems. They are now one navigator: material tabs in a quiet
+  inset tray with count chips; note pages as a direct Previous / named page /
+  Next reader control (a `<select>`, so every page is one keystroke away with
+  no wrap and no scroller); Edit as the one distinct utility action. The
+  neighbour cards carry a directional accent edge instead of a card shadow.
+- The header's status dot + dropdown duplicated the Inspector, which already
+  owns status, progress checks and confidence. The Inspector is now the sole
+  status surface. Service-worker version `kos-topic-nav-1`; gate 51 suites.
 
 **The editable curriculum — every topic tab edits in place.** Deployed
 17 September 2026 (`420388f`).

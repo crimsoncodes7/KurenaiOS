@@ -10,11 +10,11 @@ chronological diary here.
 
 - Category 7 A–G is integrated, deployed and production-verified.
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `420388f` (cloud merge + the editable curriculum)
-- Runtime release: `420388f` — immutable deployment
-  https://692bebd3.kurenai-os.pages.dev
+- Release source checkpoint: `7e6d64f` (topic navigator redesign)
+- Runtime release: `7e6d64f` — immutable deployment
+  https://22c8091f.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-study-editor-2`
+- Service-worker version: `kos-topic-nav-1`
 - Required smoke gate: 51 / 51 suites.
 
 ## Run, test and deploy
