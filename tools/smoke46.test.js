@@ -181,6 +181,17 @@ step("compact subnav is one declared scroller without changing the nav landmark"
 
 console.log("== E4: one global search, reachable on phones ==");
 
+step("the user panel rides the topbar on phones and returns to the rail above 700px", () => {
+  const foot = $("#hud").closest(".rail-foot");
+  assert(foot && foot.parentNode === $(".topbar-right"), "on a phone the ONE #hud node must sit in .topbar-right (not float fixed over the page)");
+  assert(!/position:\s*fixed/.test(css.split("#rail .rail-foot {")[1] || ""), "the phone rail-foot must not be position:fixed any more");
+  const phone = window.matchMedia("(max-width: 700px)");
+  phone.setMatches(false);
+  assert(foot.parentNode === $("#rail"), "above 700px the panel must return to the rail");
+  phone.setMatches(true);
+  assert(foot.parentNode === $(".topbar-right"), "crossing back must move it again");
+});
+
 step("mobile search moves and restores the exact existing searchbox", async () => {
   const trigger = $("#mobile-search-trigger");
   const searchbox = $("#searchbox");

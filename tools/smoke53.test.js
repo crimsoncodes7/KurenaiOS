@@ -158,6 +158,9 @@ step("a Planner item reaching its release day lands once; sync and system housek
   assert(w.length === 1 && w[0].id === "wish:" + it.id + ":" + today && /Vol\. 14 is out/.test(w[0].title), "wishlist item wrong: " + JSON.stringify(w));
   assert(!N().KINDS.sync && !N().KINDS.system, "sync/system must not be notification kinds");
   assert(N().push({ id: "sync:1", kind: "sync", title: "Auto-sync" }) === false, "a sync line must be refused");
+  /* rows an earlier build wrote with a kind this one no longer knows are purged on read */
+  KOS.store.state.notify.items.push({ id: "sync:old", kind: "sync", title: "Auto-sync brought the vault up to date", ts: Date.now() });
+  assert(!N().all().some(i => i.id === "sync:old") && !KOS.store.state.notify.items.some(i => i.id === "sync:old"), "a stale sync row survived");
   const autoSrc = fs.readFileSync(path.join(ROOT, "js/core/autosync.js"), "utf8");
   assert(!/KOS\.notify\.push/.test(autoSrc), "autosync must not push to the feed");
 });

@@ -408,9 +408,19 @@
   var mainObserver = new MutationObserver(enhanceCompactSurfaces);
   mainObserver.observe(main, { childList: true, subtree: true });
 
+  /* the user panel (#rail .rail-foot, the ONE #hud node) rides the topbar
+     on phones, because the rail is a bottom tab bar there; the same node
+     returns to the rail above 700px */
+  var railFoot = rail.querySelector(".rail-foot");
+  function placeUserPanel() {
+    if (!railFoot) return;
+    if (phone.matches) { if (railFoot.parentNode !== topbarRight) topbarRight.appendChild(railFoot); }
+    else if (railFoot.parentNode !== rail) rail.appendChild(railFoot);
+  }
   function syncShell() {
     var phoneChanged = lastPhoneMatch !== phone.matches;
     lastPhoneMatch = phone.matches;
+    placeUserPanel();
     if (productivityLabel) productivityLabel.textContent = phone.matches ? "Focus" : "Productivity";
     if (!phone.matches) {
       if (activeMoreOverlay) activeMoreOverlay.close();

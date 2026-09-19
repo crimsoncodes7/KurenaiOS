@@ -14,7 +14,7 @@ chronological diary here.
 - Runtime release: `a5195a8` — immutable deployment
   https://70aefb39.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-notify-2`
+- Service-worker version: `kos-notify-3`
 - Required smoke gate: 53 / 53 suites.
 
 ## Run, test and deploy

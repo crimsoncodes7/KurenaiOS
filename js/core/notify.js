@@ -66,16 +66,20 @@
 
   /* ---------------- the ledger ---------------- */
   function all() {
-    return N().items.slice().sort(function (a, b) { return b.ts - a.ts; });
+    var n = N();
+    if (n.items.some(function (it) { return !it || !KINDS[it.kind]; })) { prune(n); store.save(); }
+    return n.items.slice().sort(function (a, b) { return b.ts - a.ts; });
   }
   function isRead(item) { return !!N().read[item.id]; }
   function unread() {
     var n = N();
-    return n.items.filter(function (it) { return !n.read[it.id]; }).length;
+    return all().filter(function (it) { return !n.read[it.id]; }).length;
   }
   function prune(n) {
     var floor = Date.now() - RETAIN;
-    n.items = n.items.filter(function (it) { return it && it.ts >= floor; });
+    /* rows of a kind this build no longer knows (the sync/system lines an
+       earlier build wrote) leave with the old ones */
+    n.items = n.items.filter(function (it) { return it && KINDS[it.kind] && it.ts >= floor; });
     if (n.items.length > CAP) {
       n.items.sort(function (a, b) { return b.ts - a.ts; });
       n.items.length = CAP;

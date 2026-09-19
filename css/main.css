@@ -6063,7 +6063,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
     padding: env(safe-area-inset-top) max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left));
     height: calc(var(--topbar-h) + env(safe-area-inset-top));
   }
-  .topbar-right { gap: 6px; padding-right: 46px; }
+  .topbar-right { gap: 6px; }
   .mobile-shell-ready #searchbox { display: none; }
   #hud { min-width: 0; }
 
@@ -6084,12 +6084,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
        containing block for its fixed-position descendants, which trapped the
        user panel inside the tab bar instead of letting it sit in the topbar */
     background: var(--bg1);
-    /* one above the topbar: the tab bar never overlaps it, but the user
-       panel below is this bar's fixed descendant and so can never paint
-       above anything the bar itself sits under — and the topbar (a blurred
-       translucent bar) was painting over the panel. Still below the
-       assistant drawer (90), menus and modals. */
-    z-index: calc(var(--z-topbar) + 1);
+    z-index: 60;
   }
   #rail .rail-item, #rail .mobile-more {
     flex: 1 1 0;
@@ -6130,20 +6125,19 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   }
   #rail .rail-item .pc, #rail-toggle { display: none !important; }
   /* the rail is a bottom tab bar here, so the user panel can't sit in it.
-     position:fixed frees it from that parent and returns it to the topbar
-     corner it used to occupy — same node, same popover, reachable on phones. */
-  #rail .rail-foot {
-    position: fixed;
-    top: calc(env(safe-area-inset-top) + 7px);
-    right: max(10px, env(safe-area-inset-right));
-    z-index: 1;
+     mobile-shell.js MOVES the node into .topbar-right (and back above
+     700px) — same node, same popover, and it scrolls, blurs and stacks
+     with the topbar instead of floating fixed over the page (a fixed
+     panel stayed put while iOS rubber-banded the page under it). */
+  .topbar-right .rail-foot {
+    position: static; flex: none;
     margin: 0; padding: 0; border: none; width: auto;
   }
-  #rail .rail-foot .hud {
-    width: 42px; max-width: 42px; min-height: 42px;
+  .topbar-right .rail-foot .hud {
+    width: 40px; max-width: 40px; min-height: 40px;
     justify-content: center; padding: 3px; border-radius: 999px;
   }
-  #rail .rail-foot .hud-col { display: none; }
+  .topbar-right .rail-foot .hud-col { display: none; }
   .rail-item.active::after, .mobile-more.active::after {
     content: ""; position: absolute;
     left: 20%; right: 20%; top: -6px; bottom: auto;

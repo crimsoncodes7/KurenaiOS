@@ -19,7 +19,7 @@ AniList mirror and the notification centre followed on 19 September 2026
 | Runtime release commit | `a5195a8` (notification centre + phone header fixes), immutable https://70aefb39.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-notify-2` |
+| Service-worker cache | `kos-notify-3` |
 | Smoke gate | 53 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
