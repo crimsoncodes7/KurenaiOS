@@ -435,6 +435,69 @@ step("the ordinary two-device round trip raises nothing", async () => {
   }
 });
 
+step("two ticked progress checks survive every direction of a two-device day", async () => {
+  /* the report: "I ticked two boxes, the next day they were unticked". Walk
+     the real store path (setCheck) through every cloud direction a second
+     device can introduce and assert the ticks are never lost. */
+  const KEY = "compsci:4.2.1.3";
+  const ticks = doc => ((doc.progress || {})[KEY] || { check: [] }).check.join();
+  await beLaptop();
+  KOS.store.setCheck("compsci", "4.2.1.3", 0, true);
+  KOS.store.setCheck("compsci", "4.2.1.3", 1, true);
+  const st = KOS.store.state.progress[KEY];
+  assert(st.check.join() === "true,true,false,false" && st.status === "started", "setCheck did not record the ticks");
+
+  /* 1 · the phone pushed an unrelated change BEFORE the laptop's push: the
+     laptop loses the compare-and-set race, merges and retries */
+  const phone1 = clone(cloudDoc());                 // the phone's copy predates the ticks
+  phone1.governor.gold += 5;
+  phone1.__seq = remoteSeq() + 1;
+  sv.state = { state_json: phone1, updated_at: stamp() };
+  await sync();
+  assert(ticks(cloudDoc()) === "true,true,false,false", "1: the ticks lost the push race: " + ticks(cloudDoc()));
+  assert(KOS.store.state.governor.gold === phone1.governor.gold, "1: the phone's gold was not merged in");
+
+  /* 2 · the phone, still holding its stale base and stale local copy, runs
+     ITS cycle: it merges the cloud (with the ticks) against its base the
+     way the engine does, and pushes the result with one more edit */
+  const phoneBase = clone(phone1); delete phoneBase.__seq;
+  const phoneLocal = clone(phoneBase);
+  phoneLocal.progress["maths:phone-edit"] = { status: "started", check: [false, false, false, false], note: "" };
+  const cloudNow = clone(cloudDoc()); delete cloudNow.__seq;
+  const phoneMerged = KOS.cloudmerge.merge(phoneBase, phoneLocal, cloudNow).doc;
+  assert(ticks(phoneMerged) === "true,true,false,false", "2: the phone's merge dropped the ticks: " + ticks(phoneMerged));
+  phoneMerged.__seq = remoteSeq() + 1;
+  sv.state = { state_json: phoneMerged, updated_at: stamp() };
+
+  /* 3 · the laptop is CLEAN (nothing changed since its push) and pulls the
+     phone's newer copy — the wholesale adopt path */
+  await sync();
+  assert(KOS.store.state.progress[KEY].check.join() === "true,true,false,false", "3: adopting the phone's copy unticked the boxes");
+  assert(KOS.store.state.progress["maths:phone-edit"], "3: the phone's edit did not arrive");
+
+  /* 4 · the next day: the laptop reopens with the ticks, the phone has
+     pushed twice more without touching the topic — merge, adopt, merge */
+  for (let day = 0; day < 2; day++) {
+    const next = clone(cloudDoc());
+    next.governor.xp += 100;
+    next.__seq = next.__seq + 1;
+    sv.state = { state_json: next, updated_at: stamp() };
+    KOS.store.state.progress["it:day" + day] = { status: "started", check: [false, false, false, false], note: "" };
+    KOS.store.save();
+    await sync();
+    assert(ticks(cloudDoc()) === "true,true,false,false" && KOS.store.state.progress[KEY].check.join() === "true,true,false,false",
+      "4: day " + day + " lost the ticks: cloud " + ticks(cloudDoc()));
+  }
+  /* 5 · and a stale phone with NO base (fresh install adopting the account)
+     must still not erase them */
+  await p(cb => KOS.mediadb.setKV(baseKey, null, cb));
+  const fresh = clone(cloudDoc()); fresh.__seq = fresh.__seq + 1;
+  sv.state = { state_json: fresh, updated_at: stamp() };
+  await sync();
+  assert(ticks(cloudDoc()) === "true,true,false,false", "5: a no-base cycle lost the ticks");
+  assert(KOS.cloudsync.getStatus().state === "synced", "the day did not end synced");
+});
+
 step("an explicit restore re-baseline still overwrites a newer cloud copy", async () => {
   const laptop = await beLaptop();
   await bePhone(laptop);
