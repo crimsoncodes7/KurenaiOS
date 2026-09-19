@@ -16,7 +16,7 @@ AniList mirror and the notification centre followed on 19 September 2026
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `bf28dbe` (pacing ticks and carry-over), immutable https://1c1a21d2.kurenai-os.pages.dev |
+| Runtime release commit | `37ed66d` (pacing ticks, carry-over, lesson list), immutable https://e3afdf5f.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-pacing-tick-2` |
@@ -30,7 +30,7 @@ https://bb17097f.kurenai-os.pages.dev.
 ## Unreleased on `main`
 
 **Pacing — my rows are ticked off, the unticked carry over, and the plan
-links out.** Deployed 19 September 2026 (`bf28dbe`).
+links out.** Deployed 19 September 2026 (`bf28dbe`, `37ed66d`).
 
 - A personal plan row carries a tick (`done`/`doneAt`, zero Governor
   traffic). An unticked row whose week has ended carries into every later
