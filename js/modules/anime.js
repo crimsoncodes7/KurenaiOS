@@ -77,14 +77,19 @@
   /* In-memory airing cache — live data, deliberately NOT in the vault.
      Refreshed whenever the Anime module / Seasonal view / Matrix home
      loads (TTL guards rapid navigation against the 30 req/min limit);
-     the ⟳ button forces. Candidates: what is actually being WATCHED —
-     a planned title's countdown is noise next to the shows in progress,
-     and the Seasonal view only lists those anyway. */
+     the ⟳ button forces. Candidates: synced/linked entries that could
+     plausibly be airing — inProgress, or planned from the last year — so
+     the Seasonal view (every status) can count down a planned title too;
+     the overview's schedule and the notification feed read the
+     in-progress rows only. */
   var TTL = 10 * 60 * 1000;
   var airing = { at: 0, byId: {} };
-  function airingCandidates(rows) {
+  function airingCandidates(rows, now) {
+    var yr = currentSeason(now).year;
     return rows.filter(function (e) {
-      return e.status === "inProgress" && e.externalIds && e.externalIds.anilistId;
+      if (!e.externalIds || !e.externalIds.anilistId) return false;
+      if (e.status === "inProgress") return true;
+      return e.status === "planned" && e.extra && e.extra.seasonYear >= yr - 1;
     }).slice(0, 150).map(function (e) { return e.externalIds.anilistId; });
   }
   function refreshAiring(force, cb) {
@@ -93,12 +98,15 @@
     if (!KOS.mediadb.available()) { cb(null, airing.byId, true); return; }
     KOS.mediadb.query({ module: "anime" }, function (err, rows) {
       if (err) { cb(err, airing.byId, true); return; }
-      var ids = airingCandidates(rows);
+      var ids = airingCandidates(rows, new Date());
       if (!ids.length) { airing.at = Date.now(); airing.byId = {}; cb(null, {}, false); return; }
       KOS.anilist.fetchAiring(ids, function (err2, byId) {
         if (err2) { cb(err2, airing.byId, true); return; }
         airing.at = Date.now();
         airing.byId = byId;
+        /* the notification centre remembers the next episode of every
+           watched title, so the moment it airs is announced */
+        if (KOS.notify) KOS.notify.recordAiring(byId, rows);
         cb(null, byId, false);
       });
     });
@@ -458,15 +466,17 @@
   KOS.anime.watchHeatmapCard = watchHeatmapCard;
 
   /* ================= Seasonal Watching (Build 3f + 3j picker) ================= */
-  /* What you are WATCHING from one season — defaulting to the current one
-     (device date mapped onto AniList's enum by calendar quarter), with a
-     season + year picker (3j) to walk any past or future season: the same
-     view, the same extra.season/seasonYear data the sync already carries,
-     just a different filter value. Only titles in progress appear: a
-     planned title is not "seasonal watching", and the countdowns only
-     mean something for the shows you are actually following. The palette
-     follows the SELECTED season via the s-* CSS classes, and the hero
-     carries that season's scenery (SEASON_META.art). */
+  /* The vault filtered to ONE season — every status, defaulting to the
+     current season (device date mapped onto AniList's enum by calendar
+     quarter), with a season + year picker (3j) to walk any past or future
+     season: the same view, the same extra.season/seasonYear data the sync
+     already carries, just a different filter value. Watching first with
+     its countdowns, then the rest A–Z — the overview's schedule is the
+     watching-only surface, this page is the season as a whole. The
+     palette follows the SELECTED season via the s-* CSS classes, and the
+     hero carries that season's scenery: the shipped art
+     (SEASON_META.art) or a picture of your own, kept in the media kv
+     store as "hero.season.<SEASON>" (invariant 30's home for hero art). */
   var SEASON_ORDER = ["WINTER", "SPRING", "SUMMER", "FALL"];
   KOS.views.seasonal = function (main) {
     document.getElementById("tree").classList.add("hidden");
@@ -482,17 +492,82 @@
     var heroArt = el("img", { class: "season-art", alt: "", "aria-hidden": "true", decoding: "async", sizes: "100vw" });
     var heroCredit = el("span", { class: "season-credit" });
     var heroCount = el("span", { class: "season-hero-count" });
-    wrap.appendChild(el("div", { class: "lab-h season-hero" }, [
-      heroArt,
-      el("div", { class: "season-hero-scrim", "aria-hidden": "true" }),
-      el("div", { class: "season-hero-body" }, [
-        el("span", { class: "dh-kicker season-hero-kicker", text: "Seasonal watching" }),
-        heroTitle,
-        el("p", { class: "sub", text: "What you're watching this season, with live countdowns to the next episode." }),
-        heroCount
-      ]),
-      heroCredit
+    var heroNode = el("div", { class: "lab-h season-hero" });
+    /* the art menu: your own picture (upload or URL, positioned with the
+       shared cropper — invariant 26c) or back to the shipped scenery */
+    var artMenu = KOS.ui.menu({ label: "Art", className: "btn ghost season-art-btn", hint: "Change this season's picture",
+      items: [
+        { label: "Choose a picture…", glyph: "✎", hint: "Upload or paste a URL, then position it", onSelect: function () { editArt(); } },
+        { label: "Use the shipped scenery", glyph: "↺", onSelect: function () { setCustomArt(null); } }
+      ] });
+    heroNode.appendChild(heroArt);
+    heroNode.appendChild(el("div", { class: "season-hero-scrim", "aria-hidden": "true" }));
+    heroNode.appendChild(el("div", { class: "season-hero-body" }, [
+      el("span", { class: "dh-kicker season-hero-kicker", text: "Seasonal watching" }),
+      heroTitle,
+      el("p", { class: "sub", text: "Everything you have from the season — what you're watching first, with live countdowns to the next episode." }),
+      heroCount
     ]));
+    heroNode.appendChild(el("div", { class: "season-hero-tools" }, [heroCredit, artMenu]));
+    wrap.appendChild(heroNode);
+
+    var customArt = {};   // SEASON → { source, crop } | null, read from kv on first use
+    function artKey(season) { return "hero.season." + season; }
+    function loadCustomArt(season, cb) {
+      if (customArt[season] !== undefined) { cb(customArt[season]); return; }
+      KOS.mediadb.getKV(artKey(season), function (err, v) {
+        customArt[season] = (!err && v && v.source) ? { source: v.source, crop: KOS.imageCrop.normalise(v.crop) } : null;
+        cb(customArt[season]);
+      });
+    }
+    function setCustomArt(v) {
+      customArt[sel.season] = v;
+      var done = function () { heroArt.removeAttribute("data-season"); paintArt(); };
+      if (v) KOS.mediadb.setKV(artKey(sel.season), v, done);
+      else KOS.mediadb.delKV(artKey(sel.season), done);
+    }
+    function editArt() {
+      var meta = SEASON_META[sel.season];
+      var cur = customArt[sel.season];
+      KOS.imageCrop.open({
+        title: "Picture for " + meta.label,
+        description: "A wide picture works best — it sits behind the season title on every " + meta.label + " page.",
+        source: cur ? cur.source : "", crop: cur ? cur.crop : null,
+        aspect: 16 / 6, allowUrl: true, allowUpload: true,
+        fileOptions: { maxWidth: 1800, maxHeight: 700, maxBytes: 700 * 1024, quality: 0.84 },
+        removeLabel: "Back to the shipped scenery",
+        onRemove: cur ? function () { setCustomArt(null); } : null,
+        onSave: function (result) { setCustomArt({ source: result.source, crop: result.crop }); }
+      });
+    }
+    /* paints whichever art the season has: yours from kv (through the
+       shared crop vars), else the shipped scenery — its 850px sample as
+       the hero's background at once, so the full frame (up to 2.5 MB)
+       fades in over a picture, not a void */
+    function paintArt() {
+      var meta = SEASON_META[sel.season];
+      if (heroArt.getAttribute("data-season") === sel.season) return;
+      heroArt.setAttribute("data-season", sel.season);
+      loadCustomArt(sel.season, function (custom) {
+        if (custom) {
+          heroArt.removeAttribute("srcset");
+          heroArt.style.objectPosition = "";
+          heroArt.src = custom.source;
+          KOS.imageCrop.apply(heroArt, custom.crop);
+          heroNode.style.setProperty("--season-art", "url(\"" + custom.source + "\")");
+          heroNode.style.setProperty("--season-art-pos", custom.crop.x + "% " + custom.crop.y + "%");
+          heroCredit.textContent = "your picture";
+          return;
+        }
+        heroArt.classList.remove("crop-media");
+        heroArt.srcset = meta.artSmall + " 850w, " + meta.art + " " + meta.artWidth + "w";
+        heroArt.src = meta.artSmall;
+        heroArt.style.objectPosition = meta.focus || "50% 50%";
+        heroNode.style.setProperty("--season-art", "url(\"" + meta.artSmall + "\")");
+        heroNode.style.setProperty("--season-art-pos", meta.focus || "50% 50%");
+        heroCredit.textContent = meta.credit ? "art · " + meta.credit : "";
+      });
+    }
 
     if (KOS.medview.unavailable(wrap)) return;
 
@@ -522,17 +597,7 @@
       heroTitle.innerHTML = "";
       heroTitle.appendChild(el("span", { class: "kanji-inline season-kanji", text: meta.kanji }));
       heroTitle.appendChild(document.createTextNode(" " + meta.label + " " + sel.year));
-      if (meta.art && heroArt.getAttribute("data-season") !== sel.season) {
-        heroArt.setAttribute("data-season", sel.season);
-        heroArt.srcset = meta.artSmall + " 850w, " + meta.art + " " + meta.artWidth + "w";
-        heroArt.src = meta.artSmall;
-        heroArt.style.objectPosition = meta.focus || "50% 50%";
-        /* the 850px sample paints as the hero's background at once, so the
-           full frame (up to 2.5 MB) fades in over a picture, not a void */
-        heroArt.parentNode.style.setProperty("--season-art", "url(\"" + meta.artSmall + "\")");
-        heroArt.parentNode.style.setProperty("--season-art-pos", meta.focus || "50% 50%");
-        heroCredit.textContent = meta.credit ? "art · " + meta.credit : "";
-      }
+      paintArt();
       var isNow = sel.season === currentSeason().season && sel.year === currentSeason().year;
       todayBtn.style.display = isNow ? "none" : "";
       render();
@@ -576,18 +641,22 @@
         holder.innerHTML = "";
         if (err) { refreshedLine.textContent = "Query failed: " + err.message; return; }
         var seasonal = rows.filter(function (e) {
-          return e.status === "inProgress" && e.extra && e.extra.season === sel.season && e.extra.seasonYear === sel.year;
+          return e.extra && e.extra.season === sel.season && e.extra.seasonYear === sel.year;
         });
-        /* airing entries first, soonest episode first; the rest A–Z
-           (past seasons naturally have nothing airing → pure A–Z) */
+        /* airing entries first, soonest episode first; then the rest of
+           what is being watched, then everything else A–Z (past seasons
+           naturally have nothing airing → watching, then A–Z) */
         var known = airingList(seasonal).map(function (x) { return x.entry; });
         var knownIds = {};
         known.forEach(function (e) { knownIds[e.id] = true; });
-        var rest = seasonal.filter(function (e) { return !knownIds[e.id]; })
-          .sort(function (a, b) { return a.titleLower < b.titleLower ? -1 : 1; });
-        var list = known.concat(rest);
+        var byTitle = function (a, b) { return a.titleLower < b.titleLower ? -1 : 1; };
+        var watching = seasonal.filter(function (e) { return !knownIds[e.id] && e.status === "inProgress"; }).sort(byTitle);
+        var rest = seasonal.filter(function (e) { return !knownIds[e.id] && e.status !== "inProgress"; }).sort(byTitle);
+        var list = known.concat(watching, rest);
+        var nWatching = known.length + watching.length;
         heroCount.textContent = list.length
-          ? "Watching " + list.length + (list.length === 1 ? " title" : " titles") +
+          ? list.length + (list.length === 1 ? " title" : " titles") + " from the season" +
+            (nWatching ? " · watching " + nWatching : "") +
             (known.length ? " · " + known.length + " with a next episode scheduled" : "")
           : "";
         refreshedLine.textContent = airing.at && known.length
@@ -598,8 +667,8 @@
             compact: true,
             className: "seasonal-empty",
             mark: "季",
-            title: "Nothing from " + meta.label + " " + sel.year + " in progress",
-            body: "This view lists the titles you are watching from the season — set one to Watching on AniList (or here) and it appears.",
+            title: "No " + meta.label + " " + sel.year + " titles in this vault",
+            body: "Season data arrives with the AniList sync; whatever you have listed from a season — watching, planned or finished — appears here.",
             action: el("div", { class: "lab-controls seasonal-empty-actions" }, [
               el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
               el("button", { class: "btn gold", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("anime", render); } })

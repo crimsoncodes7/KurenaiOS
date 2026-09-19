@@ -316,7 +316,7 @@
     aniprofile: "collection", vndbprofile: "collection", mediasync: "collection",
     governor: "governor",
     assistant: "assistant",
-    data: "system", help: "system"
+    data: "system", help: "system", notifications: "system"
   };
   /* subnav entries per section: [label, viewId, arg, pcId] — null = divider */
   var SUBNAV = {
@@ -348,6 +348,7 @@
       ["Sync", "mediasync"]
     ],
     system: [
+      ["Notifications", "notifications"],
       ["Backup & Restore", "data"],
       ["Help & Guide", "help"]
     ]

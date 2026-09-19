@@ -14,8 +14,9 @@ chronological diary here.
 - Runtime release: `b482f68` — immutable deployment
   https://8dec4238.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-collection-mirror-1`
-- Required smoke gate: 52 / 52 suites.
+- Service-worker version: `kos-notify-1` (unreleased on `main`; the deployed
+  runtime is still `kos-collection-mirror-1`)
+- Required smoke gate: 53 / 53 suites.
 
 ## Run, test and deploy
 
@@ -25,7 +26,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 -m http.server 8765
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..52}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..53}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -374,11 +375,40 @@ source comments and audit notes refer to it.
     boot pass folds pre-existing duplicates.
 94. The display title is AniList's English title, romaji when there is
     none (`KOS.anilist.pickTitle`); both spellings ride in `extra` and
-    `mediadb.query({search})` matches either plus the author. Airing
-    candidates and the Seasonal view cover `inProgress` titles only; the
-    Seasonal hero carries one credited piece of scenery per season
-    (`KOS.anime.SEASON_META[].art`, hot-linked, small sample as the
-    background while the full frame loads).
+    `mediadb.query({search})` matches either plus the author. The
+    overview's schedule reads `inProgress` titles only; the Seasonal view
+    lists EVERY status of the season, watching first. Its hero carries one
+    credited piece of scenery per season (`KOS.anime.SEASON_META[].art`,
+    hot-linked, small sample as the background while the full frame loads)
+    or the user's own picture from media kv `hero.season.<SEASON>` (source
+    + crop, through `KOS.imageCrop`; per device like every hero pick).
+
+### The notification centre (95–98)
+
+95. `state.notify` is ONE ledger of things that happened (`items`, natural
+    string ids `kind:record:occurrence`, capped at 200 and 45 days) plus
+    `read` and `airing` keyed maps. Nothing in it re-derives a due date:
+    the calendar, reminder and assignment tickers keep their own alert
+    rules and once-only `notified`/`alerted` maps (invariant 42) and hand
+    each FIRED alert to `KOS.notify.push()`, whose id is the ticker's own
+    key, so the feed can never disagree with the toast or repeat it.
+96. The two things nobody else watched are watched here: an episode airing
+    (`KOS.notify.recordAiring` remembers every WATCHED title's next episode
+    from the airing cache; `tick()` announces it once it has aired, even
+    after the cache moved on) and a Planner item reaching its release day.
+    Airing data is still never written to the vault (invariant 23).
+97. The bell in the global header (`#notify-mount`, a `KOS.ui.menu`
+    popover) shows the five most recent items; the whole feed is the
+    `notifications` view under Archive. Read state syncs with the state
+    document (cloudmerge knows `notify.items` as a natural-key array).
+98. Device alerts are a per-device opt-in: `state.ui.notifyDevice` AND a
+    granted Notification permission, requested from a user gesture on the
+    page. They fire only for an item that is new AND fresh on this device
+    while the page is not in front, through the service-worker
+    registration when one controls the page (an installed phone app) and
+    the constructor otherwise; `sw.js` `notificationclick` focuses a client
+    and posts `kos-open`, which `pwa.js` routes through `KOS.show()`. There
+    is no push server and the page says so; a closed app stays quiet.
 
 ### Accessibility, routing and search (64–71)
 

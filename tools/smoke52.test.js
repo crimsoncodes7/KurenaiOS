@@ -310,7 +310,7 @@ step("Find new refuses a local-only add for anime/books when AniList declines; V
   netScript = null;
   await p(cb => KOS.mediadb.delKV("anilist.token", cb));
 });
-step("Seasonal: only in-progress titles of the season, with the season's art and credit", async () => {
+step("Seasonal: every status of the season (watching first), with the season's art and credit", async () => {
   await clearVault();
   const cur = KOS.anime.currentSeason();
   await add(pulled("anime", 1, "Watching", "inProgress", { extra: { season: cur.season, seasonYear: cur.year } }));
@@ -318,7 +318,7 @@ step("Seasonal: only in-progress titles of the season, with the season's art and
   KOS.show("seasonal");
   await waitFor(() => main().querySelector(".med-card"), 4000);
   const titles = [...main().querySelectorAll(".med-title")].map(t => t.textContent);
-  assert(titles.join("|") === "Watching", "seasonal must list what is being watched: " + titles.join(", "));
+  assert(titles.join("|") === "Watching|Planned", "seasonal lists the whole season, watching first: " + titles.join(", "));
   const meta = KOS.anime.SEASON_META[cur.season];
   const art = main().querySelector(".season-hero .season-art");
   assert(art && art.srcset.indexOf(meta.art) !== -1 && art.getAttribute("src") === meta.artSmall, "season art missing");

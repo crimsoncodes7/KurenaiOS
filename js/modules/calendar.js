@@ -503,9 +503,14 @@
     });
     store.save();
     fired.forEach(function (f) {
-      KOS.ui.toast("⏰ " + f.ev.title + " — " +
-        (f.days === 0 ? "today" + (f.ev.time ? " at " + f.ev.time : "") :
-          f.days + (f.days === 1 ? " day" : " days") + " away"), f.days <= 1);
+      var when = f.days === 0 ? "today" + (f.ev.time ? " at " + f.ev.time : "") :
+        f.days + (f.days === 1 ? " day" : " days") + " away";
+      KOS.ui.toast("⏰ " + f.ev.title + " — " + when, f.days <= 1);
+      /* the same fired alert lands in the notification centre, keyed by
+         the ticker's own once-only key, so the two never disagree */
+      if (KOS.notify) KOS.notify.push({ id: "cal:" + f.ev.id + ":" + f.date + ":" + f.minutes, kind: "calendar",
+        title: f.ev.title, body: (f.ev.type === "exam" ? "Exam" : f.ev.type === "deadline" ? "Deadline" : "Event") + " · " + when,
+        view: "calendar", arg: f.date });
     });
     return fired;
   }

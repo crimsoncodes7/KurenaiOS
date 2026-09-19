@@ -19,7 +19,7 @@ AniList mirror followed on 19 September 2026 (`b482f68`).**
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-collection-mirror-1` |
-| Smoke gate | 52 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
+| Smoke gate | 53 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
 Production deployment is separate from Git push and is performed only through
@@ -27,6 +27,29 @@ Production deployment is separate from Git push and is performed only through
 https://bb17097f.kurenai-os.pages.dev.
 
 ## Unreleased on `main`
+
+**The notification centre, seasonal art of your own, the favicon.**
+Implemented 19 September 2026.
+
+- `js/core/notify.js` is one ledger (`state.notify`) for everything the app
+  used to only toast: fired calendar, reminder and assignment alerts (handed
+  over by their own tickers, keyed by their once-only keys), an episode
+  airing for a watched title (remembered from the airing cache and announced
+  once it has aired), a Planner item reaching its release day, an autosync
+  that brought new entries. Read state syncs through the state document.
+- `js/modules/notifications.js`: the bell in the global header with an
+  unread badge and a five-row popover, and the full page under Archive with
+  section filters, day groups, Mark all as read and the device-alert opt-in.
+  Device alerts show as system notifications on a Mac or an installed phone
+  app while Kurenai is open (no push server); `sw.js` opens what a tapped
+  one is about.
+- Seasonal lists every status of the season (watching first) — the overview
+  schedule stays watching-only. The hero's scenery can be replaced with your
+  own picture (upload or URL, positioned with the shared cropper, kept in
+  media kv `hero.season.<SEASON>`), and the scrim now covers the art edge to
+  edge. `icons/favicon.svg` gives the browser tab the 紅 seal.
+  `smoke53` covers the layer; service-worker version `kos-notify-1`; gate
+  53 suites.
 
 **The Collection mirror — Anime and digital Books are 1:1 with AniList.**
 Deployed 19 September 2026 (`b482f68`).
@@ -302,11 +325,13 @@ The numbered suites form one release gate:
   labs/bank work, and the editable curriculum / study editor.
 - `smoke52.test.js`: the Collection AniList mirror — mirror pulls, duplicate
   folding, the cloud identity match, English titles and the UI contracts.
+- `smoke53.test.js`: the notification centre — the ledger, every source, the
+  bell and the page, device alerts, the favicon and the seasonal user art.
 
 Run all suites with:
 
 ```sh
-for i in "" {2..52}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..53}; do node "tools/smoke${i}.test.js"; done
 ```
 
 ## Remaining work and external gates

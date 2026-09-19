@@ -173,9 +173,12 @@
             /* quiet cycles stay quiet — only genuinely new ground toasts
                (the reward sessions already toasted their own take) */
             if ((added || rewarded) && KOS.ui) {
-              KOS.ui.toast("Auto-sync: " + (added ? added + " new entr" + (added === 1 ? "y" : "ies") : "") +
+              var line = (added ? added + " new entr" + (added === 1 ? "y" : "ies") : "") +
                 (added && rewarded ? ", " : "") +
-                (rewarded ? rewarded + " advanced elsewhere" : "") + " — vault is current.");
+                (rewarded ? rewarded + " advanced elsewhere" : "");
+              KOS.ui.toast("Auto-sync: " + line + " — vault is current.");
+              if (KOS.notify) KOS.notify.push({ id: "sync:" + report.ts, kind: "sync",
+                title: "Auto-sync brought the vault up to date", body: line, ts: report.ts, view: "mediasync" });
             }
             cb(null, report);
           });

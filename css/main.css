@@ -686,6 +686,7 @@ button.tree-open-btn { display: none; }
 .med-card,
 .mx-now-card,
 .mx-ep,
+.nt-device,
 .mk-card,
 .wl-budget,
 .wl-row,
@@ -3869,6 +3870,69 @@ body.fx-minimised .fx-dock { display: flex; }
 .collection-crumbs { margin-bottom: var(--space-2); }
 .collection-workspace-tabs { margin-bottom: var(--section-gap); }
 
+/* ---- the notification centre (core/notify.js + modules/notifications.js) ---- */
+.notify-bell { position: relative; width: 36px; height: 36px; padding: 0; justify-content: center; flex: none; border-radius: 12px; color: var(--text2); }
+.notify-bell:hover, .notify-bell.is-open { color: var(--text); }
+.notify-bell-glyph { display: inline-flex; line-height: 0; }
+.notify-badge {
+  position: absolute; top: -5px; right: -5px; min-width: 17px; height: 17px; padding: 0 4px;
+  border-radius: 999px; border: 2px solid var(--panel);
+  background: var(--danger); color: #fff;
+  font-family: var(--mono); font-size: 9.5px; font-weight: 700; line-height: 13px; text-align: center;
+  opacity: 0; transform: scale(.6); transition: opacity .15s, transform .15s;
+}
+.notify-badge.is-on { opacity: 1; transform: scale(1); }
+.menu-panel.notify-panel { width: min(94vw, 380px); padding: 0; overflow: hidden; }
+.nt-pop-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px 8px; }
+.nt-pop-h b { font-family: var(--serif); font-size: 17px; }
+.nt-link { background: none; border: 0; padding: 4px 6px; color: var(--accent); font-size: 12.5px; font-weight: 600; cursor: pointer; border-radius: 6px; }
+.nt-link:hover { background: var(--well); }
+.nt-pop-empty { margin: 4px 14px 12px; }
+.nt-pop-list { display: flex; flex-direction: column; padding: 0 6px 6px; }
+.nt-pop-all { display: block; width: 100%; padding: 11px; border: 0; border-top: 1px solid var(--line2); background: var(--well); color: var(--accent); font-weight: 600; font-size: 13px; cursor: pointer; }
+.nt-pop-all:hover { background: color-mix(in srgb, var(--accent) 10%, var(--well)); }
+.nt-row {
+  position: relative; display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 9px 12px; border: 1px solid transparent; border-radius: 11px; background: transparent; cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.nt-row:hover { background: var(--well); }
+.nt-row.is-unread { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.nt-row.is-unread .nt-title { color: var(--text); }
+.nt-cover { flex: none; width: 40px; height: 56px; border-radius: 6px; overflow: hidden; background: var(--well); }
+.nt-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.nt-glyph { flex: none; width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--jp); font-size: 17px; background: var(--well); color: var(--text2); }
+.nt-k-calendar { color: var(--c-maths, var(--accent)); }
+.nt-k-airing { color: var(--good); }
+.nt-k-reminder, .nt-k-assignment { color: var(--warning); }
+.nt-k-wishlist { color: var(--accent2, var(--accent)); }
+.nt-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.nt-title { font-size: 14px; font-weight: 600; color: var(--text2); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.nt-meta { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.nt-ago { font-family: var(--mono); font-size: 10.5px; white-space: nowrap; }
+.nt-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.nt-row.is-compact { padding: 8px 8px; }
+.nt-row.is-compact .nt-cover { width: 34px; height: 48px; }
+.nt-row.is-compact .nt-glyph { width: 34px; height: 34px; font-size: 15px; }
+.nt-row.is-compact .nt-title { font-size: 13px; -webkit-line-clamp: 1; }
+.nt-row.is-compact .nt-line { display: none; }
+/* the page */
+.nt-device { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; padding: var(--space-3) var(--space-4); margin-bottom: var(--space-4); }
+.nt-device-txt { flex: 1 1 320px; min-width: 0; }
+.nt-device-txt b { font-family: var(--serif); font-size: 15px; }
+.nt-device-txt .sub { margin: 3px 0 0; }
+.nt-tabs { margin-bottom: var(--space-3); }
+.nt-list { display: flex; flex-direction: column; gap: 4px; max-width: var(--content-wide); }
+.nt-day { margin: 14px 0 4px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.nt-day:first-child { margin-top: 0; }
+.nt-list .nt-row { border-color: var(--line2); background: var(--surface-card); }
+.nt-list .nt-row.is-unread { border-color: color-mix(in srgb, var(--accent) 35%, var(--line2)); background: color-mix(in srgb, var(--accent) 6%, var(--surface-card)); }
+.nt-foot { margin-top: var(--space-4); }
+@media (max-width: 700px) {
+  .notify-bell { width: 40px; height: 40px; }
+  .menu-panel.notify-panel { width: calc(100vw - 16px); }
+}
+
 /* airing soon — the section header's Seasonal link (the schedule itself
    is .mx-sched, with the rest of the overview rules) */
 .mx-air-season { font-size: 12px; min-height: 32px; }
@@ -4182,15 +4246,18 @@ body.fx-minimised .fx-dock { display: flex; }
   padding: var(--hero-pad-block) var(--hero-pad-inline);
   margin-bottom: var(--section-gap);
   border: 1px solid color-mix(in srgb, var(--season) 35%, transparent);
+  /* the sample paints within the PADDING box: with the default border-box
+     clip it also painted under the 1px translucent border, and that ring
+     of raw art around the scrim read as a misaligned overlay */
   background:
-    var(--season-art, none) var(--season-art-pos, center) / cover no-repeat,
-    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--season) 13%, transparent), transparent 55%), var(--bg1);
+    var(--season-art, none) var(--season-art-pos, center) / cover no-repeat padding-box,
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--season) 13%, transparent), transparent 55%) padding-box, var(--bg1) padding-box;
   box-shadow: var(--shadow-md);
   color: #FBF7EC;
 }
 .season-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 0; }
 .season-hero-scrim {
-  position: absolute; inset: 0; z-index: 1;
+  position: absolute; inset: -1px; z-index: 1;
   background:
     linear-gradient(180deg, rgba(16,14,10,.18) 0%, rgba(16,14,10,.34) 45%, rgba(16,14,10,.86) 100%),
     linear-gradient(100deg, color-mix(in srgb, var(--season) 42%, rgba(16,14,10,.6)) 0%, transparent 60%);
@@ -4201,8 +4268,11 @@ body.fx-minimised .fx-dock { display: flex; }
 .season-hero .sub { color: rgba(251,247,236,.82); text-shadow: 0 1px 6px rgba(0,0,0,.5); }
 .season-hero-count { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: rgba(251,247,236,.9); margin-top: 6px; }
 .season-hero-count:empty { display: none; }
-.season-credit { position: absolute; right: 12px; bottom: 8px; z-index: 2; font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; color: rgba(251,247,236,.55); }
-@media (max-width: 700px) { .season-credit { top: 10px; bottom: auto; } }
+.season-hero-tools { position: absolute; right: 10px; bottom: 8px; z-index: 3; display: flex; align-items: center; gap: 10px; }
+.season-credit { font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; color: rgba(251,247,236,.55); }
+.season-art-btn { min-height: 28px; padding: 3px 10px; font-size: 11.5px; color: rgba(251,247,236,.85); border-color: rgba(251,247,236,.22); background: rgba(16,14,10,.35); backdrop-filter: blur(4px); }
+.season-art-btn:hover { color: #fff; border-color: rgba(251,247,236,.5); }
+@media (max-width: 700px) { .season-hero-tools { top: 10px; bottom: auto; } }
 .season-kanji { font-family: var(--jp); color: color-mix(in srgb, var(--season) 55%, #FBF7EC); }
 .season-picker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .season-picker .status-sel, .season-picker .todo-in { width: auto; }

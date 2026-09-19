@@ -60,6 +60,9 @@
   KOS.governor.installGates();
   KOS.refreshHUD();
   setTimeout(function () { KOS.calendar.checkReminders(); }, 900);
+  /* the notification centre's own watchers (aired episodes, release days):
+     once after boot, then every minute alongside the alert tickers */
+  if (KOS.notify) setTimeout(function () { KOS.notify.tick(); setInterval(KOS.notify.tick, 60000); }, 5000);
   /* re-check reminders + HP drift every 30 min while the app stays open */
   setInterval(function () {
     KOS.governor.tick();

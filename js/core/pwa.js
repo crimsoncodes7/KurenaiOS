@@ -93,6 +93,11 @@
     /* SW sync event → run a cloud cycle in this page */
     navigator.serviceWorker.addEventListener("message", function (e) {
       if (e.data && e.data.type === "kos-cloud-sync" && KOS.cloudsync) KOS.cloudsync.syncNow();
+      /* a tapped device notification (sw.js notificationclick) opens what
+         it was about — through KOS.show like every other navigation */
+      if (e.data && e.data.type === "kos-open" && e.data.view && KOS.views && KOS.views[e.data.view]) {
+        KOS.show(e.data.view, e.data.arg == null ? undefined : e.data.arg);
+      }
     });
     /* register the background-sync tag while changes are pending/erroring */
     if (KOS.cloudsync && KOS.cloudsync.onStatus) {

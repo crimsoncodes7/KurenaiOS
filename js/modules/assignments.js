@@ -483,6 +483,8 @@
     KOS.assignments.checkAlerts().forEach(function (f) {
       var when = f.minutes === 0 ? "due now" : (A().ALERTS.find(function (x) { return x.v === f.minutes; }) || {}).label || "due soon";
       KOS.ui.toast("課 " + f.assignment.title + " — " + when, f.minutes === 0);
+      if (KOS.notify) KOS.notify.push({ id: "asg:" + f.assignment.id + ":" + f.assignment.due + ":" + (f.assignment.dueTime || "") + ":" + f.minutes,
+        kind: "assignment", title: f.assignment.title, body: "Assignment · " + when, view: "assignments" });
     });
   }
   setTimeout(function () { tick(); setInterval(tick, 60000); }, 7000);

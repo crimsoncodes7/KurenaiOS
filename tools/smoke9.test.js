@@ -191,10 +191,9 @@ step("a null in fresh sync extra never beats stored data; fresh non-null wins", 
 
 /* ============ 3 · airing countdown ============ */
 console.log("== airing ==");
-step("candidates: what is being WATCHED, with ids only; caps at 150", async () => {
-  /* the mirror release narrowed this to inProgress — a planned title's
-     countdown is noise beside the shows actually being followed, and the
-     Seasonal view lists only those */
+step("candidates: inProgress + recent planned with ids only; caps at 150", async () => {
+  /* the Seasonal view lists every status, so a recently planned title
+     gets a countdown too; the overview's schedule filters to watching */
   const rows = [
     { status: "inProgress", externalIds: { anilistId: 1 } },
     { status: "inProgress", externalIds: {} },                                        // no id
@@ -203,7 +202,7 @@ step("candidates: what is being WATCHED, with ids only; caps at 150", async () =
     { status: "completed", externalIds: { anilistId: 4 } }
   ];
   const ids = KOS.anime.airingCandidates(rows, new window.Date());
-  if (ids.join(",") !== "1") throw new Error("candidate set: " + ids.join(","));
+  if (ids.join(",") !== "1,2") throw new Error("candidate set: " + ids.join(","));
   const many = [];
   for (let i = 0; i < 300; i++) many.push({ status: "inProgress", externalIds: { anilistId: i + 10 } });
   if (KOS.anime.airingCandidates(many, new window.Date()).length !== 150) throw new Error("cap missing");
@@ -232,7 +231,7 @@ step("refreshAiring(force) bypasses the TTL; cache is memory-only (vault untouch
 
 /* ============ 4 · Seasonal Watching ============ */
 console.log("== seasonal ==");
-step("seasonal view: current-season WATCHING entries only, palette class, season art, no-season entries absent", async () => {
+step("seasonal view: current-season entries of every status, watching first, palette class, season art, no-season entries absent", async () => {
   await p(cb => KOS.mediadb.add({ module: "anime", title: "Old Classic", status: "inProgress",
     externalIds: { anilistId: 4181 }, extra: { season: "FALL", seasonYear: 2008 } }, cb));
   await p(cb => KOS.mediadb.add({ module: "anime", title: "Hand Tracked No Season", status: "inProgress" }, cb));
@@ -248,7 +247,11 @@ step("seasonal view: current-season WATCHING entries only, palette class, season
   if (!new RegExp(meta.label + " " + cur.year).test(wrap.textContent)) throw new Error("season header wrong");
   const titles = [...main.querySelectorAll(".med-card .med-title")].map(x => x.textContent);
   if (!titles.some(t => /Frieren/.test(t))) throw new Error("current-season entry missing");
-  if (titles.some(t => /Old Classic|Hand Tracked|Planned This Season/.test(t))) throw new Error("non-current/no-season/planned entries leaked in: " + titles.join(", "));
+  if (titles.some(t => /Old Classic|Hand Tracked/.test(t))) throw new Error("non-current/no-season entries leaked in: " + titles.join(", "));
+  if (!titles.some(t => /Planned This Season/.test(t))) throw new Error("a planned title from the season must appear on the Seasonal page");
+  if (titles.indexOf("Planned This Season") < titles.findIndex(t => /Frieren/.test(t))) throw new Error("watching titles must come before the rest");
+  /* the art can be replaced: the menu is there, and the kv key is the contract */
+  if (![...wrap.querySelectorAll("button")].some(b => /^Art/.test(b.textContent.trim()))) throw new Error("the season art menu is missing");
   /* the hero carries the selected season's scenery, credited */
   const art = wrap.querySelector(".season-hero .season-art");
   if (!art || art.getAttribute("src") !== meta.artSmall || art.getAttribute("srcset").indexOf(meta.art) === -1) throw new Error("season art missing from the hero");

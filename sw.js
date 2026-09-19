@@ -23,7 +23,7 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-collection-mirror-1";
+var VERSION = "kos-notify-1";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 
@@ -106,6 +106,25 @@ self.addEventListener("activate", function (e) {
 
 self.addEventListener("message", function (e) {
   if (e.data && e.data.type === "SKIP_WAITING") self.skipWaiting();
+});
+
+/* A tapped device notification (core/notify.js shows them through this
+   registration so an installed phone app gets them): focus an open
+   client and hand it the view to show, or open one on the route. */
+self.addEventListener("notificationclick", function (e) {
+  e.notification.close();
+  var data = (e.notification && e.notification.data) || {};
+  e.waitUntil((async function () {
+    var clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    var hash = data.view ? "#/" + data.view + (data.arg != null && typeof data.arg !== "object" ? "/" + data.arg : "") : "";
+    if (clients.length) {
+      var c = clients[0];
+      try { await c.focus(); } catch (err) { /* focus can be refused */ }
+      c.postMessage({ type: "kos-open", view: data.view || null, arg: data.arg == null ? null : data.arg });
+      return;
+    }
+    if (self.clients.openWindow) await self.clients.openWindow("./" + hash);
+  })());
 });
 
 /* Background Sync (progressive enhancement — correctness never depends on
