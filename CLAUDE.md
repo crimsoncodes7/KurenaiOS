@@ -14,7 +14,8 @@ chronological diary here.
 - Runtime release: `b26abb3` — immutable deployment
   https://ac8e8075.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-notify-3`
+- Service-worker version: `kos-pacing-tick-1` (unreleased on `main`; the
+  deployed runtime is still `kos-notify-3`)
 - Required smoke gate: 53 / 53 suites.
 
 ## Run, test and deploy
@@ -467,8 +468,27 @@ source comments and audit notes refer to it.
     because the plan would then open the wrong topic page.
 82. Pacing stores no progress, mastery or confidence. Coverage is READ from
     `state.progress` through the linked leaves, so the plan row and the topic
-    page cannot disagree; the only per-row state it owns is a note. Pacing is
-    logistics like the Budget Planner: zero Governor traffic, zero sessions.
+    page cannot disagree; the per-row state it owns is a note and, on a
+    PERSONAL row, the tick (`done`/`doneAt`, `KOS.pacing.setDone`) — "I did
+    the week's item", the plan's own bookkeeping, never a claim about
+    mastery. Class rows never take a tick. Pacing is logistics like the
+    Budget Planner: zero Governor traffic, zero sessions.
+82a. An unticked personal row whose week has ENDED (before today's plan
+    week) CARRIES OVER: `carriedInto(wb)` derives it into every later week
+    with `weeksLate`, marked behind, until it is ticked or moved
+    (`updateEntry({wb})`, the "→ here" action). The record itself never
+    changes weeks — carry-over is a read, like recurrence (invariant 43).
+    The week we are in carries nothing forward yet; a future week never
+    carries anything.
+82b. The plan lends itself to the rest of the app by READS only: class
+    milestones (Mock, Assessment, NEA Milestone) stand in
+    `KOS.calendar.countdowns()` as kind `pacing`, dated by their week, never
+    written as events (invariant 44); Home carries the week's tickable card
+    (`KOS.pacingHomeCard`, capped at the fold) and "Behind on the plan" in
+    the next-action ladder after dated countdowns; the week page lists
+    assignments due inside the week; "Remind me" creates one real reminder
+    (due the week's Sunday, tagged `pacing`) — a link by text, not a copy;
+    the rollover notice `pace:carry:<wb>` is one notification per plan week.
 83. Ahead/aligned/behind/unplanned is set arithmetic over linked refs, measured
     from FIRST contact in the personal plan, and a week whose class rows carry
     no refs makes no claim at all rather than an empty verdict.

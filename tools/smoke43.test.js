@@ -554,6 +554,8 @@ step("the decision surface picks the most perishable thing first", () => {
   KOS.store.state.srs = {};
   KOS.store.state.calendar = { v: 2, nextId: 1, seeded: true, events: [], notified: {} };
   KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
+  /* the weekly plan feeds the ladder too (class milestones, carry-over) — emptied here */
+  if (KOS.store.state.pacing) KOS.store.state.pacing.entries = [];
   KOS.store.state.ui.lastRef.compsci = REF;
   KOS.show("home");
   assert($(".hn-kicker").textContent === "Where you left off",
@@ -587,6 +589,7 @@ step("empty Directives and Countdowns collapse to one line, not two boxes", () =
   KOS.store.state.calendar = { v: 2, nextId: 1, seeded: true, events: [], notified: {} };
   KOS.store.state.reminders = { v: 2, nextId: 1, migrated: true, items: [], lists: [], rewardLog: {} };
   KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
+  if (KOS.store.state.pacing) KOS.store.state.pacing.entries = [];
   KOS.show("home");
   assert(!$(".home-today"), "the two-column row is still rendered with nothing in it");
   const quiet = $(".home-quiet");

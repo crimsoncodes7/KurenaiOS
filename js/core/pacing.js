@@ -18,7 +18,12 @@
    Budget Planner is (invariant 5a): it tells you what the week holds, it
    does not pay you for it. A second status field next to the four canonical
    checks is exactly the drift invariant 27 exists to stop, so there is not
-   one — the only per-row state pacing stores is the row's own note.
+   one — the per-row state pacing stores is the row's own note and, for a
+   PERSONAL row, its tick: "I did this week's item" (done/doneAt). The tick
+   is a logistics fact about the plan, not a claim about mastery — the
+   topic page still owns that — and an unticked row from a week that has
+   ended CARRIES OVER: it is derived into every later week (never moved,
+   never copied) and marked behind until it is ticked or rescheduled.
 
    ALIGNMENT is the claim this module exists to make, and the reason the
    three Notion databases had to become one store: for a given week and
@@ -103,7 +108,10 @@
          would be the worse failure. */
       refs: (Array.isArray(e.refs) ? e.refs : []).map(str)
         .filter(function (r) { return r && (!indexReady(subject) || leafOf(subject, r)); }),
-      note: str(e.note)
+      note: str(e.note),
+      /* the tick belongs to MY rows only — class does its own work */
+      done: e.source === "personal" && !!e.done,
+      doneAt: e.source === "personal" && e.done && isFinite(e.doneAt) ? e.doneAt : null
     };
   }
 
@@ -260,6 +268,17 @@
     s.entries = s.entries.filter(function (e) { return e.wb !== wb; });
     KOS.store.save();
     return { removed: true, entries: rows.length };
+  }
+
+  /* the tick. Zero Governor traffic, zero study-record writes: this is
+     "I did the week's item", the plan's own bookkeeping. */
+  function setDone(id, val) {
+    var e = entryById(id);
+    if (!e || e.source !== "personal") return null;
+    e.done = !!val;
+    e.doneAt = e.done ? Date.now() : null;
+    KOS.store.save();
+    return e;
   }
 
   /* ---------------- reads ---------------- */
@@ -460,6 +479,91 @@
     return out;
   }
 
+  /* ---------------- CARRY-OVER ----------------
+     An unticked personal row whose week has ENDED is not finished with:
+     it is derived into every later week until it is ticked or moved. The
+     row itself never changes weeks (its history is where it was planned),
+     which is why this is a read, not a migration — the same rule the
+     calendar uses for recurrence (invariant 43). "Ended" is measured
+     against today's plan week, so a row from the week we are in is still
+     just this week's work, and a future week never carries anything. */
+  function weekEnd(wb) { return KOS.srs ? KOS.srs.addDays(wb, 6) : wb; }
+  function carriedInto(wb, subject) {
+    var now = currentWeek();
+    var here = indexOfWb(wb);
+    if (!now || here === -1) return [];
+    var nowIdx = indexOfWb(now.wb);
+    return P().entries.filter(function (e) {
+      if (e.source !== "personal" || e.done) return false;
+      if (subject && e.subject !== subject) return false;
+      var from = indexOfWb(e.wb);
+      return from !== -1 && from < here && from < nowIdx;
+    }).map(function (e) {
+      var from = indexOfWb(e.wb);
+      return { entry: e, fromWb: e.wb, weeksLate: here - from };
+    }).sort(function (a, b) { return a.fromWb < b.fromWb ? -1 : a.fromWb > b.fromWb ? 1 : 0; });
+  }
+  /* one week of MY plan in numbers: rows planned there, ticked, still open,
+     and what has carried into it from earlier weeks */
+  function weekStatus(wb, subject) {
+    var rows = entriesFor(wb, subject, "personal");
+    var done = rows.filter(function (e) { return e.done; }).length;
+    var carried = carriedInto(wb, subject);
+    return { planned: rows.length, done: done, open: rows.length - done,
+      carried: carried.length, behind: carried.length > 0 };
+  }
+  /* everything I owe THIS week: the week's own open rows plus what has
+     carried in — the list Home ticks through */
+  function dueThisWeek() {
+    var now = currentWeek();
+    if (!now) return { week: null, rows: [], carried: [], done: [] };
+    var rows = entriesFor(now.wb, null, "personal");
+    return { week: now,
+      rows: rows.filter(function (e) { return !e.done; }),
+      done: rows.filter(function (e) { return e.done; }),
+      carried: carriedInto(now.wb) };
+  }
+
+  /* ---------------- what the plan lends other surfaces ----------------
+     Class milestones — a mock, an assessment, an NEA milestone — are dated
+     by the week they fall in, so they can stand in the Countdown rail
+     beside calendar exams and assignment deadlines. DERIVED from the
+     school rows (invariant 44's rule: never written as events). */
+  var MILESTONE_KINDS = { "Mock": "Mock", "Assessment": "Assessment", "NEA Milestone": "NEA milestone" };
+  function classMilestones(subject, limit) {
+    var today = KOS.srs ? KOS.srs.todayISO() : new Date().toISOString().slice(0, 10);
+    var out = [];
+    P().entries.forEach(function (e) {
+      if (e.source !== "school" || !MILESTONE_KINDS[e.kind]) return;
+      if (subject && e.subject !== subject) return;
+      var end = weekEnd(e.wb);
+      if (end < today) return;                       /* the week has passed */
+      var days = Math.max(0, KOS.srs ? KOS.srs.daysBetween(today, e.wb) : 0);
+      out.push({ entry: e, days: days, date: e.wb, label: MILESTONE_KINDS[e.kind],
+        inWeek: e.wb <= today });
+    });
+    out.sort(function (a, b) { return a.days - b.days || a.entry.title.localeCompare(b.entry.title); });
+    return limit ? out.slice(0, limit) : out;
+  }
+
+  /* the week rolled over with work left: one line in the notification
+     centre per plan week, never a second one, never a device alert for an
+     old week (its moment is the week beginning) */
+  function noteRollover() {
+    if (!KOS.notify) return false;
+    var now = currentWeek();
+    if (!now) return false;
+    var carried = carriedInto(now.wb);
+    if (!carried.length) return false;
+    var p = now.wb.split("-");
+    return KOS.notify.push({ id: "pace:carry:" + now.wb, kind: "pacing",
+      title: carried.length + (carried.length === 1 ? " plan topic" : " plan topics") + " carried over into this week",
+      body: "Unticked from earlier weeks — tick them off or move them: " +
+        carried.slice(0, 3).map(function (c) { return c.entry.title; }).join(", ") + (carried.length > 3 ? "…" : ""),
+      ts: new Date(+p[0], +p[1] - 1, +p[2], 8, 0, 0, 0).getTime(),
+      view: "pacing", arg: now.wb });
+  }
+
   /* per-week load, for the term ribbon. A count of planned rows — a fact
      the cell can be labelled with, not a score. */
   function load(wb) {
@@ -522,6 +626,13 @@
     maxLoad: maxLoad,
     setWeekNote: setWeekNote,
     setEntryNote: setEntryNote,
+    setDone: setDone,
+    weekEnd: weekEnd,
+    carriedInto: carriedInto,
+    weekStatus: weekStatus,
+    dueThisWeek: dueThisWeek,
+    classMilestones: classMilestones,
+    noteRollover: noteRollover,
     addEntry: addEntry,
     updateEntry: updateEntry,
     removeEntry: removeEntry,

@@ -44,7 +44,8 @@
     reminder:   { label: "Reminders",  glyph: "🔔", section: "productivity", view: "reminders" },
     assignment: { label: "Assignments", glyph: "課", section: "study", view: "assignments" },
     airing:     { label: "Airing",     glyph: "映", section: "collection", view: "anime" },
-    wishlist:   { label: "Planner",    glyph: "購", section: "collection", view: "wishlist" }
+    wishlist:   { label: "Planner",    glyph: "購", section: "collection", view: "wishlist" },
+    pacing:     { label: "Pacing",     glyph: "暦", section: "productivity", view: "pacing" }
   };
 
   function N() {
@@ -179,6 +180,7 @@
   function tick() {
     try { tickAiring(); } catch (e) { /* never break the app for a feed line */ }
     try { tickWishlist(); } catch (e2) { /* ditto */ }
+    try { if (KOS.pacing && KOS.pacing.noteRollover) KOS.pacing.noteRollover(); } catch (e3) { /* ditto */ }
   }
 
   /* ---------------- device alerts ---------------- */

@@ -472,7 +472,19 @@
     if (soon && soon.days <= 7) {
       return { kicker: soon.days === 0 ? "Today" : soon.days === 1 ? "Tomorrow" : "In " + soon.days + " days",
         label: soon.title, why: soon.meta,
-        cta: "Open the calendar →", go: function () { KOS.show("calendar"); } };
+        cta: soon.kind === "pacing" ? "Open the week →" : "Open the calendar →",
+        go: function () { if (soon.kind === "pacing") KOS.show("pacing", { wb: soon.entry.wb }); else KOS.show("calendar"); } };
+    }
+    /* 3b — the weekly plan is behind: unticked rows carried in from earlier
+       weeks. Read from the plan; ticking them off happens on the card below
+       or on the Pacing page. */
+    if (KOS.pacing && KOS.pacing.dueThisWeek) {
+      var owe = KOS.pacing.dueThisWeek();
+      if (owe.carried.length) {
+        return { kicker: "Behind on the plan", label: owe.carried.length + " topic" + (owe.carried.length === 1 ? "" : "s") + " carried over from earlier weeks",
+          why: owe.carried.slice(0, 3).map(function (c) { return c.entry.title; }).join(" · "),
+          cta: "Open the week →", go: function () { KOS.show("pacing", { wb: owe.week.wb }); } };
+      }
     }
     /* 4 — the first directive still unsealed */
     var open = (KOS.todo.autoItems() || []).filter(function (a) { return !KOS.todo.isChecked(a.key); })[0];
@@ -639,7 +651,9 @@
       ((store.state.reminders && store.state.reminders.items) || []).some(function (r) { return !r.done; });
     var counts = KOS.calendar.countdowns ? KOS.calendar.countdowns(null, 4).length : 0;
     var asgCard = KOS.assignmentsUrgentCard ? KOS.assignmentsUrgentCard() : null;
-    var hasHorizon = counts > 0 || !!asgCard;
+    /* the weekly plan, tickable in place — absent when the week holds nothing */
+    var planCard = KOS.pacingHomeCard ? KOS.pacingHomeCard() : null;
+    var hasHorizon = counts > 0 || !!asgCard || !!planCard;
 
     if (!hasDirectives && !hasHorizon) {
       /* one quiet line, not two empty boxes */
@@ -660,6 +674,7 @@
       }
       if (hasHorizon) {
         var side = el("div", { class: "home-side" });
+        if (planCard) side.appendChild(planCard);
         if (counts) side.appendChild(KOS.calendar.countdownWidget(null));
         /* Build 6.4 — urgent assignments, DERIVED from the one record. The
            card is absent entirely when nothing is due, so Home stays quiet. */

@@ -687,6 +687,7 @@ button.tree-open-btn { display: none; }
 .mx-now-card,
 .mx-ep,
 .nt-device,
+.pace-home,
 .mk-card,
 .wl-budget,
 .wl-row,
@@ -9303,6 +9304,56 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
   color: var(--muted);
 }
 .pace-topic-note { flex: 0 0 auto; font-size: 11px; color: var(--accent2); }
+
+/* ---- my rows are a TICK beside a BUTTON: the tick is the plan's own
+   bookkeeping, the button is the row; neither is inside the other ---- */
+.pace-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.pace-row .pace-topic { margin-bottom: 0; }
+.pace-tick { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 28px; min-height: 40px; cursor: pointer; }
+.pace-tick input { width: 17px; height: 17px; margin: 0; accent-color: var(--good); cursor: pointer; }
+.pace-row.is-done .pace-topic { opacity: .62; }
+.pace-row.is-done .pace-topic-t b { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text) 45%, transparent); }
+.pace-row.is-done .pace-topic-dot { color: var(--good); }
+/* carried over: the row is BEHIND — the warning wash the alignment tags
+   already use for "class reached it first" */
+.pace-carried {
+  margin: 0 0 8px; padding: 8px 8px 3px;
+  border: 1px solid color-mix(in srgb, var(--warning) 42%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--warning) 7%, transparent);
+}
+.pace-carried-k { display: flex; align-items: center; gap: 8px; margin: 0 0 6px 2px; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--warning); }
+.pace-row.is-carried .pace-topic { border-color: color-mix(in srgb, var(--warning) 40%, var(--line2)); }
+.pace-row.is-carried .pace-topic-t .sub { color: var(--warning); }
+.pace-move { flex: 0 0 auto; font-size: 10.5px; padding: 3px 8px; white-space: nowrap; }
+.pace-wk.is-behind .pace-wk-n::after { content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 4px; border-radius: 50%; background: var(--warning); vertical-align: middle; }
+.pace-due.is-done { opacity: .6; }
+.pace-dlg-done { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; font-size: 13px; }
+.pace-dlg-done input { width: 17px; height: 17px; accent-color: var(--good); }
+
+/* ---- the Home card ---- */
+.pace-home { padding: var(--space-3) var(--space-4); }
+.pace-home .dl-h { flex-wrap: wrap; align-items: center; }
+.pace-home-behind { margin-left: 8px; vertical-align: middle; }
+.pace-home-sub { flex: 1 1 auto; font-size: 11.5px; }
+.pace-home-list { display: flex; flex-direction: column; gap: 4px; }
+.pace-home-row { display: flex; align-items: center; gap: 6px; }
+.pace-home-row .pace-tick { min-height: 34px; }
+.pace-home-t {
+  flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; text-align: left;
+  padding: 5px 9px; border: 1px solid var(--line2); border-left: 3px solid var(--pace-hue, var(--accent)); border-radius: 8px; background: var(--panel);
+  cursor: pointer;
+}
+.pace-home-t:hover { background: var(--well); border-color: var(--line); border-left-color: var(--pace-hue, var(--accent)); }
+.pace-home-t b { font-size: 12.5px; font-weight: 600; line-height: 1.3; }
+.pace-home-t .sub { font-size: 11px; color: var(--muted); }
+.pace-home-row.is-done .pace-home-t { opacity: .6; }
+.pace-home-row.is-done .pace-home-t b { text-decoration: line-through; }
+.pace-home-row.is-carried .pace-home-t { border-color: color-mix(in srgb, var(--warning) 40%, var(--line2)); background: color-mix(in srgb, var(--warning) 6%, var(--panel)); }
+.pace-home-row.is-carried .pace-home-t .sub { color: var(--warning); }
+.pace-home-class { margin: 10px 0 0; font-size: 11.5px; }
+.pace-home-more { align-self: flex-start; margin: 2px 0 0 34px; padding: 4px 8px; border: 0; background: none; color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; }
+.pace-home-more:hover { background: var(--well); }
 
 /* the join: class on one side, my plan on the other, this in between */
 .pace-align {

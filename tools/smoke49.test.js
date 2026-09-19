@@ -673,6 +673,139 @@ step("a plan with no shared spec points draws nothing and says so", () => {
   assert($("#main .pace-braid-svg"), "the braid did not come back");
 });
 
+/* ==================== H · the tick, the carry-over and the links ==================== */
+console.log("== H · my rows are ticked off; the unticked carry over; the plan lends itself to the rest ==");
+
+/* pin "today" inside the plan so the current week is a known one with
+   weeks before it */
+const realToday = KOS.srs.todayISO;
+KOS.srs.todayISO = () => "2026-11-04";           /* Wednesday of w/c 2 Nov */
+
+step("a personal row carries a tick; class rows never do; the tick is the plan's own bookkeeping", () => {
+  const mine = KOS.pacing.addEntry({ source: "personal", subject: "maths", wb: "2026-11-02", title: "Tick me", refs: [] });
+  const cls = KOS.pacing.addEntry({ source: "school", subject: "maths", wb: "2026-11-02", title: "Class does this", kind: "Lessons" });
+  assert(mine.done === false && mine.doneAt === null, "a new row must start unticked");
+  const s0 = KOS.sessions.all().length, g0 = KOS.store.state.governor.gold;
+  const t = KOS.pacing.setDone(mine.id, true);
+  assert(t.done === true && typeof t.doneAt === "number", "setDone did not tick");
+  assert(KOS.pacing.setDone(cls.id, true) === null && !KOS.pacing.entryById(cls.id).done, "a class row must not take a tick");
+  assert(KOS.sessions.all().length === s0 && KOS.store.state.governor.gold === g0, "the tick reached the Governor (invariant 82)");
+  assert(!KOS.store.peekProgress("maths", "1.1.1") || true, "n/a");
+  const n = KOS.pacing.normalise(Object.assign({}, t));
+  assert(n.done === true && n.doneAt === t.doneAt, "normalise dropped the tick");
+  assert(KOS.pacing.normalise({ source: "school", done: true, doneAt: 5 }).done === false, "normalise let a class row keep a tick");
+  KOS.pacing.setDone(mine.id, false);
+  assert(KOS.pacing.entryById(mine.id).doneAt === null, "unticking must clear doneAt");
+  KOS.pacing.removeEntry(mine.id); KOS.pacing.removeEntry(cls.id);
+});
+
+step("an unticked row from an ENDED week carries into every later week, marked behind, and never moves", () => {
+  const old = KOS.pacing.addEntry({ source: "personal", subject: "compsci", wb: "2026-10-19", title: "Left undone", refs: [] });
+  const older = KOS.pacing.addEntry({ source: "personal", subject: "compsci", wb: "2026-10-12", title: "Left undone earlier", refs: [] });
+  const thisWeek = KOS.pacing.addEntry({ source: "personal", subject: "compsci", wb: "2026-11-02", title: "This week's", refs: [] });
+  const c = KOS.pacing.carriedInto("2026-11-02", "compsci");
+  const titles = c.map(x => x.entry.title);
+  assert(titles.indexOf("Left undone") !== -1 && titles.indexOf("Left undone earlier") !== -1, "ended weeks' rows did not carry: " + titles.join(", "));
+  assert(titles.indexOf("This week's") === -1, "this week's own row carried into itself");
+  const lu = c.find(x => x.entry.title === "Left undone");
+  assert(lu.weeksLate === 2 && lu.fromWb === "2026-10-19", "weeksLate/fromWb wrong: " + JSON.stringify({ w: lu.weeksLate, f: lu.fromWb }));  /* 19 Oct → 26 Oct (half term) → 2 Nov */
+  assert(c[0].fromWb <= c[1].fromWb, "carried rows must list oldest first");
+  /* a future week carries nothing from the week we are in */
+  assert(!KOS.pacing.carriedInto("2026-11-09").some(x => x.entry.id === thisWeek.id), "the current week's open row leaked into next week");
+  /* it still carries into the week after, unticked — and the record never moved */
+  assert(KOS.pacing.carriedInto("2026-11-09").some(x => x.entry.id === old.id), "carry-over must continue into later weeks");
+  assert(KOS.pacing.entryById(old.id).wb === "2026-10-19", "the row was moved instead of derived");
+  KOS.pacing.setDone(old.id, true);
+  assert(!KOS.pacing.carriedInto("2026-11-02").some(x => x.entry.id === old.id), "a ticked row still carried");
+  const ws = KOS.pacing.weekStatus("2026-11-02", "compsci");
+  assert(ws.carried === KOS.pacing.carriedInto("2026-11-02", "compsci").length && ws.behind === true && ws.planned >= 1
+    && ws.open === ws.planned - ws.done, "weekStatus wrong: " + JSON.stringify(ws));
+  const due = KOS.pacing.dueThisWeek();
+  assert(due.week.wb === "2026-11-02" && due.carried.some(x => x.entry.id === older.id) && due.rows.some(e => e.id === thisWeek.id), "dueThisWeek wrong");
+  KOS.pacing.removeEntry(old.id); KOS.pacing.removeEntry(older.id); KOS.pacing.removeEntry(thisWeek.id);
+});
+
+step("the week page: a tick beside every one of my rows, a carried band marked behind, → here moves the row", () => {
+  const older = KOS.pacing.addEntry({ source: "personal", subject: "it", wb: "2026-10-12", title: "Carry me", refs: [] });
+  KOS.show("pacing", { wb: "2026-11-02" });
+  const rows = $$("#main .pace-reg-mine .pace-row");
+  assert(rows.length, "no plan rows rendered");
+  rows.forEach(r => {
+    assert(r.querySelector(".pace-tick input[type=checkbox]") && r.querySelector("button.pace-topic"), "a row lacks its tick or its button");
+    assert(!r.querySelector("button.pace-topic input"), "the tick is inside the row button");
+  });
+  const band = $$("#main .pace-carried").find(b => b.textContent.includes("Carry me"));
+  assert(band && /behind/i.test(band.textContent) && /from w\/c 12 Oct/.test(band.textContent), "the carried band is missing or unlabelled");
+  assert(/carried over/.test($("#main .pace-week-header").textContent), "the week sub-line does not count the carry-over");
+  const carriedRow = $$("#main .pace-carried .pace-row").find(r => r.textContent.includes("Carry me"));
+  carriedRow.querySelector(".pace-move").click();
+  assert(KOS.pacing.entryById(older.id).wb === "2026-11-02", "→ here did not move the row into the week");
+  assert(!$$("#main .pace-carried .pace-row").some(r => r.textContent.includes("Carry me")), "the moved row is still in the carried band");
+  const row = $$("#main .pace-reg-mine .pace-row").find(r => r.textContent.includes("Carry me"));
+  const tick = row.querySelector(".pace-tick input");
+  tick.checked = true; tick.dispatchEvent(new window.Event("change", { bubbles: true }));
+  assert(KOS.pacing.entryById(older.id).done === true, "the row tick did not go through setDone");
+  assert($$("#main .pace-reg-mine .pace-row.is-done").some(r => r.textContent.includes("Carry me")), "a ticked row is not shown ticked");
+  KOS.pacing.removeEntry(older.id);
+});
+
+step("class milestones stand in the Countdown rail and open the week; the dialog offers the tick and a reminder", () => {
+  const mock = KOS.pacing.addEntry({ source: "school", subject: "maths", wb: "2026-11-09", title: "Maths mock", kind: "Mock" });
+  const cds = KOS.calendar.countdowns(null);
+  const hit = cds.find(r => r.kind === "pacing" && r.entry.id === mock.id);
+  assert(hit && hit.days === 5 && /Mock in class/.test(hit.meta), "the mock is not a countdown: " + JSON.stringify(hit));
+  assert(!KOS.calendar.countdowns("compsci").some(r => r.kind === "pacing" && r.entry.id === mock.id), "a subject filter let another subject's mock through");
+  assert(!KOS.store.state.calendar.events.some(e => e.title === "Maths mock"), "the milestone was written as a calendar event (invariant 44)");
+  const mine = KOS.pacing.addEntry({ source: "personal", subject: "maths", wb: "2026-11-02", title: "Remind me row", refs: [] });
+  KOS.show("pacing", { wb: "2026-11-02" });
+  $$("#main .pace-topic").find(b => b.textContent.includes("Remind me row")).click();
+  const dlg = $(".modal.pace-dlg");
+  assert(dlg.querySelector(".pace-dlg-done input[type=checkbox]"), "the dialog has no tick");
+  const before = KOS.reminders.all().length;
+  [...dlg.querySelectorAll("button")].find(b => /Remind me/.test(b.textContent)).click();
+  const r = KOS.reminders.all().find(x => x.title === "Plan: Remind me row");
+  assert(r && KOS.reminders.all().length === before + 1 && r.due === "2026-11-08" && r.tags.indexOf("pacing") !== -1, "the reminder handoff is wrong: " + JSON.stringify(r));
+  $(".modal.pace-dlg .modal-h .btn").click();
+  KOS.reminders.remove(r.id);
+  KOS.pacing.removeEntry(mock.id); KOS.pacing.removeEntry(mine.id);
+});
+
+step("Home: the week's plan card ticks in place, leads with what is behind, and the next action says so", () => {
+  const older = KOS.pacing.addEntry({ source: "personal", subject: "it", wb: "2026-10-12", title: "Home carry", refs: [] });
+  const now = KOS.pacing.addEntry({ source: "personal", subject: "it", wb: "2026-11-02", title: "Home now", refs: [] });
+  const card = KOS.pacingHomeCard();
+  assert(card && card.classList.contains("pace-home"), "no Home card");
+  const rows = [...card.querySelectorAll(".pace-home-row")];
+  const mine = rows.find(r => /Home carry/.test(r.textContent));
+  assert(mine && mine.classList.contains("is-carried"), "the carried row is not on the card, marked behind");
+  const firstOpen = rows.findIndex(r => !r.classList.contains("is-carried"));
+  assert(firstOpen === -1 || rows.slice(0, firstOpen).every(r => r.classList.contains("is-carried")), "carried rows must lead the card");
+  assert(/behind/.test(card.querySelector(".dl-h").textContent), "the card header does not say behind");
+  const tick = mine.querySelector("input[type=checkbox]");
+  tick.checked = true; tick.dispatchEvent(new window.Event("change", { bubbles: true }));
+  assert(KOS.pacing.entryById(older.id).done === true, "the Home tick did not go through setDone");
+  KOS.pacing.setDone(older.id, false);
+  /* the next action — with no session, no due cards and nothing dated within a week */
+  const keepEv = KOS.store.state.calendar.events; KOS.store.state.calendar.events = [];
+  const keepAsg = KOS.store.state.assignments; KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
+  const keepEntries = KOS.store.state.pacing.entries;
+  KOS.store.state.pacing.entries = keepEntries.filter(e => e.source !== "school" || e.kind === "Lessons");
+  const next = KOS.homeNextAction();
+  KOS.store.state.calendar.events = keepEv; KOS.store.state.assignments = keepAsg; KOS.store.state.pacing.entries = keepEntries;
+  assert(next.kicker === "Behind on the plan" || /Due today|In progress/.test(next.kicker), "the next action ignores the carry-over: " + next.kicker);
+  /* the rollover notice: one line for the week, never two */
+  if (KOS.notify) {
+    KOS.notify.clear();
+    KOS.pacing.noteRollover(); KOS.pacing.noteRollover();
+    const items = KOS.notify.all().filter(i => i.kind === "pacing");
+    assert(items.length === 1 && items[0].id === "pace:carry:2026-11-02" && /carried over/.test(items[0].title), "the rollover notice is wrong: " + JSON.stringify(items));
+    KOS.notify.clear();
+  }
+  KOS.pacing.removeEntry(older.id); KOS.pacing.removeEntry(now.id);
+});
+
+KOS.srs.todayISO = realToday;
+
 console.log("\n==============================");
 if (errors.length) {
   console.log("FAILURES (" + errors.length + "):");

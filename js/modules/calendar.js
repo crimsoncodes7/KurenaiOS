@@ -434,6 +434,18 @@
         });
       });
     }
+    /* the third canonical read: class milestones the weekly plan dates by
+       week — a mock, an assessment, an NEA milestone (derived, never an event) */
+    if (KOS.pacing && KOS.pacing.classMilestones) {
+      KOS.pacing.classMilestones(sid).forEach(function (m) {
+        rows.push({
+          kind: "pacing", key: "pc" + m.entry.id, entry: m.entry,
+          days: m.days, date: m.date, title: m.entry.title,
+          meta: m.label + " in class" + (m.entry.subject ? " · " + m.entry.subject : "") +
+            " · " + (m.inWeek ? "this week" : "w/c " + prettyDate(m.date))
+        });
+      });
+    }
     rows.sort(function (a, b) { return a.days - b.days || a.title.localeCompare(b.title); });
     return limit ? rows.slice(0, limit) : rows;
   }
@@ -1160,6 +1172,7 @@
         class: "dl-item " + tone, type: "button", title: row.title + " — " + row.meta,
         onclick: function () {
           if (row.kind === "assignment") openAssignment(row.assignment, null);
+          else if (row.kind === "pacing") KOS.show("pacing", { wb: row.entry.wb });
           else eventDetail(row.ev, row.date, null);
         }
       }, [

@@ -19,7 +19,7 @@ AniList mirror and the notification centre followed on 19 September 2026
 | Runtime release commit | `b26abb3` (notification centre + phone header fixes), immutable https://ac8e8075.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-notify-3` |
+| Service-worker cache | `kos-pacing-tick-1` |
 | Smoke gate | 53 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
@@ -28,6 +28,24 @@ Production deployment is separate from Git push and is performed only through
 https://bb17097f.kurenai-os.pages.dev.
 
 ## Unreleased on `main`
+
+**Pacing — my rows are ticked off, the unticked carry over, and the plan
+links out.** Implemented 19 September 2026.
+
+- A personal plan row carries a tick (`done`/`doneAt`, zero Governor
+  traffic). An unticked row whose week has ended carries into every later
+  week — derived, never moved — in a "Carried over · N behind" band with its
+  origin week and how many weeks late, a "→ here" action to reschedule it,
+  and a marker on the term ribbon. The week sub-line counts ticks and
+  carry-overs.
+- Links: class mocks, assessments and NEA milestones stand in the Countdown
+  rail (Home, subject desks, the next-action ladder) dated by their week;
+  Home carries a tickable "This week's plan" card that leads with what is
+  behind and a "Behind on the plan" next action; the week page lists
+  assignments due inside the week under each subject; a row's dialog offers
+  the tick and "Remind me by the week's end" (a real reminder, tagged
+  `pacing`); the week rolling over with work left is one notification.
+  Invariants 82/82a/82b; smoke49 §H; service-worker `kos-pacing-tick-1`.
 
 **The notification centre, seasonal art of your own, the favicon.**
 Deployed 19 September 2026 (`8dfe2d1`).

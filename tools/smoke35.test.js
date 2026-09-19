@@ -63,6 +63,9 @@ function reset() {
   KOS.store.state.calendar = { nextId: 1, seeded: true, events: [], notified: {}, v: 2 };
   KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
   KOS.store.state.reminders = { v: 1, nextId: 1, items: [], lists: [], rewardLog: {}, migrated: true };
+  /* the weekly plan's class milestones are the countdown rail's third read
+     (pacing tick release); this suite is about the calendar's own stores */
+  if (KOS.store.state.pacing) KOS.store.state.pacing.entries = [];
 }
 function closeModals() { $$(".modal-ov").forEach(n => n.remove()); }
 function labelled(text) {

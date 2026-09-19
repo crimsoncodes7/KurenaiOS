@@ -227,6 +227,24 @@
 
     var picker = refPicker(function () { return subjSel.value; }, e.refs || []);
 
+    /* the tick and the reminder handoff — MY rows only. The tick is the
+       plan's own bookkeeping (KOS.pacing.setDone); the reminder is a real
+       reminder in the Reminders store, due the Sunday the week ends, that
+       carries the row's title — one canonical record, linked by text, never
+       a second copy of the plan (invariant 27). */
+    var doneBox = el("input", { type: "checkbox" });
+    doneBox.checked = !!e.done;
+    var doneField = field("Ticked off", el("label", { class: "chk pace-dlg-done" }, [doneBox, " I did this"]),
+      creating ? null : (e.done && e.doneAt ? "ticked " + new Date(e.doneAt).toLocaleDateString() : "an unticked row carries over once its week has ended"));
+    var remindBtn = creating ? null : el("button", { type: "button", class: "btn", text: "🔔 Remind me by the week's end",
+      onclick: function () {
+        if (!KOS.reminders) return;
+        var r = KOS.reminders.add({ title: "Plan: " + e.title, due: KOS.pacing.weekEnd(e.wb), dueTime: "18:00",
+          tags: ["pacing", e.subject], alerts: [1440],
+          notes: "From the weekly plan — " + ((KOS.pacing.weekAt(e.wb) || {}).label || e.wb) + " · Pacing #" + e.id });
+        KOS.ui.toast(r ? "Reminder set for " + KOS.pacing.weekEnd(e.wb) + "." : "Could not add the reminder.", !r);
+      } });
+
     var kindField = field("Type", kindSel);
     var areaField = field("Area or strand", area);
     var paperField = field("Paper", paper);
@@ -235,6 +253,8 @@
       kindField.hidden = !school;
       areaField.hidden = school;
       paperField.hidden = school;
+      doneField.hidden = school;
+      if (remindBtn) remindBtn.hidden = school;
     }
     onShape();
 
@@ -292,7 +312,9 @@
         paper: sourceSel.value === "school" ? "" : paper.value.trim(),
         detail: detail.value.trim(),
         note: note.value,
-        refs: picker.value()
+        refs: picker.value(),
+        done: sourceSel.value === "personal" && doneBox.checked,
+        doneAt: sourceSel.value === "personal" && doneBox.checked ? (e.done && e.doneAt ? e.doneAt : Date.now()) : null
       };
       var saved = creating ? KOS.pacing.addEntry(data) : KOS.pacing.updateEntry(e.id, data);
       if (!saved) { KOS.ui.toast("That could not be saved — check the week and subject.", true); return; }
@@ -319,14 +341,17 @@
       ]),
       field("Title", title),
       field("Detail", detail),
+      doneField,
       linked,
       el("h3", { class: "pace-dlg-h", text: creating ? "Specification points" : "Change the links" }),
       picker.node,
       el("h3", { class: "pace-dlg-h", text: "Your note" }),
       note,
       el("div", { class: "lab-controls pace-dlg-actions" }, [
+        remindBtn,
+        el("span", { style: "flex:1" }),
         el("button", { class: "btn primary", text: creating ? "Add row" : "Save changes", onclick: save })
-      ]),
+      ].filter(Boolean)),
       /* Delete is deliberately not in the same control group as Save */
       creating ? null : el("div", { class: "pace-dlg-danger" }, [
         el("button", { class: "btn danger", text: "Delete this row", onclick: function () {
@@ -722,6 +747,79 @@
   /* ============================================================
      THE VIEW
      ============================================================ */
+  /* ============================================================
+     THE HOME CARD — this week's plan, tickable in place
+     What I owe this week (the week's own open rows plus what has carried
+     in, marked behind), what I have ticked, and what class is doing. Reads
+     the same derivations as the Pacing page; the ticks go through the same
+     KOS.pacing.setDone. Returns null when the plan has nothing for the
+     week, so Home stays quiet (invariant 53).
+     ============================================================ */
+  function homeCard() {
+    if (!KOS.pacing || !KOS.pacing.weeks().length) return null;
+    var d = KOS.pacing.dueThisWeek();
+    if (!d.week) return null;
+    var classRows = KOS.pacing.entriesFor(d.week.wb, null, "school");
+    if (!d.rows.length && !d.carried.length && !d.done.length && !classRows.length) return null;
+    var card = el("section", { class: "pace-home", "aria-label": "This week's plan" });
+    function paint() {
+      d = KOS.pacing.dueThisWeek();
+      card.innerHTML = "";
+      var total = d.rows.length + d.done.length;
+      card.appendChild(el("div", { class: "dl-h" }, [
+        el("b", {}, [
+          "This week's plan",
+          d.carried.length ? el("span", { class: "pace-tag tone-behind pace-home-behind", text: d.carried.length + " behind" }) : null
+        ].filter(Boolean)),
+        el("span", { class: "sub pace-home-sub", text: (total ? d.done.length + " of " + total + " ticked" : "nothing planned") + " · " + d.week.label }),
+        el("button", { class: "mini-btn", text: "Pacing →", onclick: function () { KOS.show("pacing", { wb: d.week.wb }); } })
+      ]));
+      var list = el("div", { class: "pace-home-list" });
+      function row(e, carry) {
+        var tick = el("input", { type: "checkbox", "aria-label": "Tick off " + e.title,
+          onchange: function () { KOS.pacing.setDone(e.id, tick.checked); paint(); } });
+        tick.checked = !!e.done;
+        var from = carry ? (KOS.pacing.weekAt(carry.fromWb) || {}).label || carry.fromWb : null;
+        return el("div", { class: "pace-home-row" + (e.done ? " is-done" : "") + (carry ? " is-carried" : ""),
+          style: "--pace-hue:" + HUE[e.subject] }, [
+          el("label", { class: "pace-tick" }, [tick]),
+          el("button", { type: "button", class: "pace-home-t",
+            onclick: function () {
+              var first = e.refs && e.refs[0];
+              if (first) KOS.show("ref", { subject: e.subject, ref: first });
+              else KOS.show("pacing", { wb: e.wb });
+            } }, [
+            el("b", { text: e.title }),
+            el("span", { class: "sub", text: (SUBJ.filter(function (x) { return x.id === e.subject; })[0] || {}).short
+              + (carry ? " · from " + from + " · " + carry.weeksLate + (carry.weeksLate === 1 ? " week" : " weeks") + " behind" : "") })
+          ])
+        ]);
+      }
+      /* everything behind, then the week's open rows up to a fold — Home is
+         a front page, the full week lives on Pacing */
+      var OPEN_CAP = 6;
+      d.carried.forEach(function (c) { list.appendChild(row(c.entry, c)); });
+      d.rows.slice(0, OPEN_CAP).forEach(function (e) { list.appendChild(row(e, null)); });
+      var more = Math.max(0, d.rows.length - OPEN_CAP);
+      if (more || d.done.length) {
+        list.appendChild(el("button", { type: "button", class: "pace-home-more",
+          onclick: function () { KOS.show("pacing", { wb: d.week.wb }); } }, [
+          el("span", { text: [more ? more + " more this week" : null, d.done.length ? d.done.length + " ticked" : null].filter(Boolean).join(" · ") + " →" })
+        ]));
+      }
+      if (!list.childNodes.length) list.appendChild(el("p", { class: "sub", text: "Nothing planned for this week." }));
+      card.appendChild(list);
+      if (classRows.length) {
+        card.appendChild(el("p", { class: "sub pace-home-class", text: "In class: " + classRows.map(function (e) {
+          return (SUBJ.filter(function (x) { return x.id === e.subject; })[0] || {}).short + " — " + e.title;
+        }).join(" · ") }));
+      }
+    }
+    paint();
+    return card;
+  }
+  KOS.pacingHomeCard = homeCard;
+
   KOS.views.pacing = function (main, arg) {
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
@@ -783,6 +881,7 @@
         var brk = KOS.pacing.isBreak(w);
         var mock = KOS.pacing.isMock(w);
         var now = todayWeek && todayWeek.wb === w.wb;
+        var behind = now && KOS.pacing.weekStatus(w.wb).carried;
         var bars = el("span", { class: "pace-wk-bars", "aria-hidden": "true" },
           SUBJ.map(function (s) {
             var h = Math.round(100 * (l[s.id] || 0) / peak);
@@ -794,10 +893,11 @@
           + (w.personalWk ? ", my week " + w.personalWk : "")
           + " — " + l.total + " topic" + (l.total === 1 ? "" : "s") + " planned"
           + (brk ? ", half term" : "") + (mock ? ", mock week" : "")
-          + (now ? ", the week we are in" : "");
+          + (now ? ", the week we are in" : "")
+          + (behind ? ", " + behind + " carried over" : "");
         var btn = el("button", { type: "button",
           class: "pace-wk" + (selected && selected.wb === w.wb ? " active" : "")
-            + (brk ? " is-break" : "") + (mock ? " is-mock" : "") + (now ? " is-now" : ""),
+            + (brk ? " is-break" : "") + (mock ? " is-mock" : "") + (now ? " is-now" : "") + (behind ? " is-behind" : ""),
           "aria-label": label,
           onclick: function () { KOS.show("pacing", { wb: w.wb }); } }, [
           el("span", { class: "pace-wk-n", "aria-hidden": "true", text: brk ? "—" : weekTag(w) }),
@@ -892,35 +992,100 @@
             : "No class content to compare against." }));
       }
 
-      /* register 2 — my own curriculum */
+      /* register 2 — my own curriculum. Every row is a tick (the plan's own
+         bookkeeping) beside a button (the row, its dialog, its topic pages)
+         — two controls side by side, never one inside the other. */
+      var carried = KOS.pacing.carriedInto(selected.wb, sid);
       var mineBox = el("div", { class: "pace-reg pace-reg-mine" }, [
         el("div", { class: "pace-reg-head" }, [
           el("p", { class: "pace-reg-k", text: "My plan" }), addBtn("personal")
         ])
       ]);
-      if (!myRows.length) {
+      if (carried.length) {
+        var band = el("div", { class: "pace-carried", role: "group",
+          "aria-label": carried.length + " carried over from earlier weeks" }, [
+          el("p", { class: "pace-carried-k" }, [
+            el("span", { text: "Carried over" }),
+            el("span", { class: "pace-tag tone-behind", text: carried.length + " behind" })
+          ])
+        ]);
+        carried.forEach(function (c) { band.appendChild(planRow(c.entry, c)); });
+        mineBox.appendChild(band);
+      }
+      if (!myRows.length && !carried.length) {
         mineBox.appendChild(el("p", { class: "sub pace-reg-none", text:
           KOS.pacing.isBreak(selected) ? "Half term — nothing scheduled." : "Nothing scheduled." }));
       } else {
-        myRows.forEach(function (e) {
-          var cov = KOS.pacing.coverage(e);
-          var tone = topicTone(cov);
-          mineBox.appendChild(el("button", { type: "button", class: "pace-topic tone-" + tone,
-            "aria-label": e.title + " — " + TONE_WORD[tone],
-            onclick: function () { entryDialog(e, null, redraw); } }, [
-            el("span", { class: "pace-topic-dot", "aria-hidden": "true", text: TONE_GLYPH[tone] }),
-            el("span", { class: "pace-topic-t" }, [
-              el("b", { text: e.title }),
-              el("span", { class: "sub", text: [e.area, e.paper].filter(Boolean).join(" · ") })
-            ]),
-            el("span", { class: "pace-topic-n", "aria-hidden": "true",
-              text: cov.refs ? cov.done + "/" + cov.refs : "—" }),
-            e.note ? el("span", { class: "pace-topic-note", "aria-hidden": "true", text: "✎" }) : null
-          ].filter(Boolean)));
-        });
+        myRows.forEach(function (e) { mineBox.appendChild(planRow(e, null)); });
       }
       col.appendChild(mineBox);
+
+      /* the other things due inside this week that touch the subject:
+         assignments (read from their one store, linked by date) */
+      if (KOS.assignments && KOS.assignments.all) {
+        var end = KOS.pacing.weekEnd(selected.wb);
+        var due = KOS.assignments.all().filter(function (a) {
+          return a.subject === sid && a.due && a.due >= selected.wb && a.due <= end;
+        }).sort(function (a, b) { return a.due < b.due ? -1 : 1; });
+        if (due.length) {
+          var dueBox = el("div", { class: "pace-reg pace-reg-due" }, [
+            el("div", { class: "pace-reg-head" }, [el("p", { class: "pace-reg-k", text: "Due this week" })])
+          ]);
+          due.forEach(function (a) {
+            var open = KOS.assignments.isOpen ? KOS.assignments.isOpen(a) : a.status !== "complete";
+            dueBox.appendChild(el("button", { type: "button", class: "pace-class pace-due" + (open ? "" : " is-done"),
+              onclick: function () { KOS.show("assignments"); } }, [
+              el("span", { class: "pace-class-mark", "aria-hidden": "true", text: "課" }),
+              el("span", { class: "pace-class-t" }, [
+                el("b", { text: a.title }),
+                el("span", { class: "sub", text: "Assignment · due " + shortDate(a.due) + (open ? "" : " · done") })
+              ])
+            ]));
+          });
+          col.appendChild(dueBox);
+        }
+      }
       return col;
+    }
+
+    /* one row of MY plan; `carry` is set when it is showing in a later week
+       than the one it was planned for */
+    function planRow(e, carry) {
+      var cov = KOS.pacing.coverage(e);
+      var tone = e.done ? "ticked" : topicTone(cov);
+      var tick = el("input", { type: "checkbox", "aria-label": "Tick off " + e.title,
+        onchange: function () {
+          KOS.pacing.setDone(e.id, tick.checked);
+          KOS.ui.toast(tick.checked ? "Ticked off." : "Unticked — it will carry over if the week ends.");
+          redraw();
+        } });
+      tick.checked = !!e.done;
+      var from = carry ? (KOS.pacing.weekAt(carry.fromWb) || {}).label || carry.fromWb : null;
+      var sub = carry
+        ? "from " + from + " · " + carry.weeksLate + (carry.weeksLate === 1 ? " week" : " weeks") + " behind"
+        : [e.area, e.paper].filter(Boolean).join(" · ");
+      return el("div", { class: "pace-row" + (e.done ? " is-done" : "") + (carry ? " is-carried" : "") }, [
+        el("label", { class: "pace-tick", title: e.done ? "Ticked off" : "Tick off when done" }, [tick]),
+        el("button", { type: "button", class: "pace-topic tone-" + (tone === "ticked" ? "done" : tone),
+          "aria-label": e.title + " — " + (e.done ? "ticked off" : TONE_WORD[tone]) + (carry ? ", carried over, " + carry.weeksLate + " weeks behind" : ""),
+          onclick: function () { entryDialog(e, null, redraw); } }, [
+          el("span", { class: "pace-topic-dot", "aria-hidden": "true", text: e.done ? "✓" : TONE_GLYPH[tone] }),
+          el("span", { class: "pace-topic-t" }, [
+            el("b", { text: e.title }),
+            sub ? el("span", { class: "sub", text: sub }) : null
+          ].filter(Boolean)),
+          el("span", { class: "pace-topic-n", "aria-hidden": "true",
+            text: cov.refs ? cov.done + "/" + cov.refs : "—" }),
+          e.note ? el("span", { class: "pace-topic-note", "aria-hidden": "true", text: "✎" }) : null
+        ].filter(Boolean)),
+        carry ? el("button", { type: "button", class: "mini-btn pace-move", title: "Move this row into " + selected.label,
+          "aria-label": "Move " + e.title + " into " + selected.label,
+          onclick: function () {
+            KOS.pacing.updateEntry(e.id, { wb: selected.wb });
+            KOS.ui.toast("Moved into " + selected.label + ".");
+            redraw();
+          } }, [el("span", { "aria-hidden": "true", text: "→ here" })]) : null
+      ].filter(Boolean));
     }
 
     /* ---------------- the week ---------------- */
@@ -933,6 +1098,7 @@
          dropped (invariant 77); the primary count stays even at zero,
          because "nothing planned" is the answer to the question. */
       var load = KOS.pacing.load(selected.wb);
+      var ws = KOS.pacing.weekStatus(selected.wb);
       var classPoints = 0, reached = 0;
       SUBJ.forEach(function (s) {
         var a = KOS.pacing.alignment(selected.wb, s.id);
@@ -948,6 +1114,8 @@
           selected.personalWk ? "My week " + selected.personalWk : null,
           KOS.pacing.isBreak(selected) ? "Half term" : null,
           load.total + " topic" + (load.total === 1 ? "" : "s") + " planned",
+          ws.done ? ws.done + " of " + ws.planned + " ticked off" : null,
+          ws.carried ? ws.carried + " carried over" : null,
           classPoints ? classPoints + " spec point" + (classPoints === 1 ? "" : "s") + " in class" : null,
           reached ? reached + " my plan has reached" : null
         ].filter(Boolean).join(" · "),
