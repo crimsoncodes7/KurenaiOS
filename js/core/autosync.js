@@ -177,8 +177,6 @@
                 (added && rewarded ? ", " : "") +
                 (rewarded ? rewarded + " advanced elsewhere" : "");
               KOS.ui.toast("Auto-sync: " + line + " — vault is current.");
-              if (KOS.notify) KOS.notify.push({ id: "sync:" + report.ts, kind: "sync",
-                title: "Auto-sync brought the vault up to date", body: line, ts: report.ts, view: "mediasync" });
             }
             cb(null, report);
           });

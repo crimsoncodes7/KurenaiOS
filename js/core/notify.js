@@ -1,8 +1,9 @@
 /* Kurenai OS — core/notify.js
-   The notification centre's domain layer: ONE feed for everything the app
-   would otherwise only toast — calendar alerts, reminders, assignment
-   alerts, an episode airing for a title being watched, a Budget Planner
-   item reaching its release day, and provider/cloud events worth a line.
+   The notification centre's domain layer: ONE feed for the things that are
+   about YOU — calendar alerts, reminders, assignment alerts, an episode
+   airing for a title being watched, a Budget Planner item reaching its
+   release day. Housekeeping (sync cycles, cloud state, repairs) is not a
+   notification: it stays on its own page and in the toast.
 
    Shape of the contract (the same honesty as the alert tickers it joins):
    - The feed is a LEDGER of things that happened, `state.notify.items`,
@@ -43,9 +44,7 @@
     reminder:   { label: "Reminders",  glyph: "🔔", section: "productivity", view: "reminders" },
     assignment: { label: "Assignments", glyph: "課", section: "study", view: "assignments" },
     airing:     { label: "Airing",     glyph: "映", section: "collection", view: "anime" },
-    wishlist:   { label: "Planner",    glyph: "購", section: "collection", view: "wishlist" },
-    sync:       { label: "Sync",       glyph: "⇅", section: "collection", view: "mediasync" },
-    system:     { label: "System",     glyph: "蔵", section: "system", view: "data" }
+    wishlist:   { label: "Planner",    glyph: "購", section: "collection", view: "wishlist" }
   };
 
   function N() {

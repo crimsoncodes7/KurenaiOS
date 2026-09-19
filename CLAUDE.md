@@ -14,7 +14,7 @@ chronological diary here.
 - Runtime release: `8dfe2d1` — immutable deployment
   https://6c99c409.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-notify-1`
+- Service-worker version: `kos-notify-2`
 - Required smoke gate: 53 / 53 suites.
 
 ## Run, test and deploy
@@ -384,9 +384,11 @@ source comments and audit notes refer to it.
 
 ### The notification centre (95–98)
 
-95. `state.notify` is ONE ledger of things that happened (`items`, natural
-    string ids `kind:record:occurrence`, capped at 200 and 45 days) plus
-    `read` and `airing` keyed maps. Nothing in it re-derives a due date:
+95. `state.notify` is ONE ledger of things that happened TO THE USER
+    (`items`, natural string ids `kind:record:occurrence`, capped at 200
+    and 45 days) plus `read` and `airing` keyed maps. Kinds are calendar,
+    reminder, assignment, airing and wishlist only: sync cycles, cloud
+    state and repairs are housekeeping, never notifications. Nothing in it re-derives a due date:
     the calendar, reminder and assignment tickers keep their own alert
     rules and once-only `notified`/`alerted` maps (invariant 42) and hand
     each FIRED alert to `KOS.notify.push()`, whose id is the ticker's own

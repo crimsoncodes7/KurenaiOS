@@ -82,9 +82,9 @@ step("push dedupes on the deterministic id; read state and the unread count foll
 });
 step("the ledger is capped at 200 and drops rows older than 45 days (and their read marks)", () => {
   N().clear();
-  N().push({ id: "old", kind: "system", title: "old", ts: Date.now() - 60 * 86400000 });
+  N().push({ id: "old", kind: "reminder", title: "old", ts: Date.now() - 60 * 86400000 });
   assert(N().all().length === 0, "a 60-day-old row must not be kept");
-  for (let i = 0; i < 230; i++) N().push({ id: "c:" + i, kind: "system", title: "row " + i, ts: Date.now() - i * 1000 });
+  for (let i = 0; i < 230; i++) N().push({ id: "c:" + i, kind: "reminder", title: "row " + i, ts: Date.now() - i * 1000 });
   assert(N().all().length === 200, "cap: " + N().all().length);
   assert(N().all()[0].id === "c:0" && !N().all().some(r => r.id === "c:229"), "the cap keeps the newest");
   N().clear();
@@ -150,14 +150,16 @@ step("an episode airing: the cache is remembered per watched title and announced
   const animeSrc = fs.readFileSync(path.join(ROOT, "js/modules/anime.js"), "utf8");
   assert(/KOS\.notify\.recordAiring\(byId, rows\)/.test(animeSrc), "refreshAiring does not hand the cache to the feed");
 });
-step("a Planner item reaching its release day lands once; an autosync with new entries lands once", () => {
+step("a Planner item reaching its release day lands once; sync and system housekeeping are NOT notifications", () => {
   const today = KOS.srs.todayISO();
   const it = KOS.wishlist.add({ module: "books", title: "Frieren Vol. 14", status: "waitingForRelease", releaseDate: today });
   N().tick(); N().tick();
   const w = N().all().filter(i => i.kind === "wishlist");
   assert(w.length === 1 && w[0].id === "wish:" + it.id + ":" + today && /Vol\. 14 is out/.test(w[0].title), "wishlist item wrong: " + JSON.stringify(w));
+  assert(!N().KINDS.sync && !N().KINDS.system, "sync/system must not be notification kinds");
+  assert(N().push({ id: "sync:1", kind: "sync", title: "Auto-sync" }) === false, "a sync line must be refused");
   const autoSrc = fs.readFileSync(path.join(ROOT, "js/core/autosync.js"), "utf8");
-  assert(/KOS\.notify\.push\(\{ id: "sync:" \+ report\.ts/.test(autoSrc), "autosync does not report new entries to the feed");
+  assert(!/KOS\.notify\.push/.test(autoSrc), "autosync must not push to the feed");
 });
 
 /* ============ 3 · the surfaces ============ */

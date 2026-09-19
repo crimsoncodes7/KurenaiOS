@@ -19,7 +19,7 @@ AniList mirror and the notification centre followed on 19 September 2026
 | Runtime release commit | `8dfe2d1` (notification centre), immutable https://6c99c409.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-notify-1` |
+| Service-worker cache | `kos-notify-2` |
 | Smoke gate | 53 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
@@ -36,8 +36,9 @@ Deployed 19 September 2026 (`8dfe2d1`).
   used to only toast: fired calendar, reminder and assignment alerts (handed
   over by their own tickers, keyed by their once-only keys), an episode
   airing for a watched title (remembered from the airing cache and announced
-  once it has aired), a Planner item reaching its release day, an autosync
-  that brought new entries. Read state syncs through the state document.
+  once it has aired), a Planner item reaching its release day. Housekeeping
+  (sync, cloud) is deliberately not a notification. Read state syncs
+  through the state document.
 - `js/modules/notifications.js`: the bell in the global header with an
   unread badge and a five-row popover, and the full page under Archive with
   section filters, day groups, Mark all as read and the device-alert opt-in.

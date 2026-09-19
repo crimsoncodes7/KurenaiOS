@@ -3778,7 +3778,10 @@ body.fx-minimised .fx-dock { display: flex; }
 .integration-intro { display: flex; align-items: center; gap: var(--space-3); max-width: 720px; margin: 0 0 var(--section-gap); }
 .integration-intro p { margin: 0; }
 .integration-rule { width: 34px; height: 1px; flex: none; background: var(--accent); }
-.integration-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap); align-items: start; margin-bottom: var(--section-gap); }
+/* the two provider panels stretch to one height, so AniList and VNDB read
+   as a pair however much either has to say */
+.integration-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gap); align-items: stretch; margin-bottom: var(--section-gap); }
+.integration-grid > .sync-card { display: flex; flex-direction: column; }
 .sync-card { padding: 0; overflow: hidden; }
 .sync-head {
   display: flex; align-items: center; gap: 13px;
@@ -6081,7 +6084,12 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
        containing block for its fixed-position descendants, which trapped the
        user panel inside the tab bar instead of letting it sit in the topbar */
     background: var(--bg1);
-    z-index: 60;
+    /* one above the topbar: the tab bar never overlaps it, but the user
+       panel below is this bar's fixed descendant and so can never paint
+       above anything the bar itself sits under — and the topbar (a blurred
+       translucent bar) was painting over the panel. Still below the
+       assistant drawer (90), menus and modals. */
+    z-index: calc(var(--z-topbar) + 1);
   }
   #rail .rail-item, #rail .mobile-more {
     flex: 1 1 0;
@@ -6128,7 +6136,7 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
     position: fixed;
     top: calc(env(safe-area-inset-top) + 7px);
     right: max(10px, env(safe-area-inset-right));
-    z-index: 70;
+    z-index: 1;
     margin: 0; padding: 0; border: none; width: auto;
   }
   #rail .rail-foot .hud {
@@ -6308,7 +6316,6 @@ a.wl-chip.wl-retail:hover { color: var(--accent2); border-color: color-mix(in sr
   }
   .hud-col { min-width: 0; }
   .hud-bars { display: none; }
-  .nav-arrows .nav-fwd { display: none; }
 }
 .sync-chip { white-space: nowrap; flex: none; }
 
