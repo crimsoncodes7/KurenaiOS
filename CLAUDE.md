@@ -10,12 +10,11 @@ chronological diary here.
 
 - Category 7 A–G is integrated, deployed and production-verified.
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `b26abb3` (phone user panel in the topbar)
-- Runtime release: `b26abb3` — immutable deployment
-  https://ac8e8075.kurenai-os.pages.dev
+- Release source checkpoint: `bf28dbe` (pacing ticks and carry-over)
+- Runtime release: `bf28dbe` — immutable deployment
+  https://1c1a21d2.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-pacing-tick-1` (unreleased on `main`; the
-  deployed runtime is still `kos-notify-3`)
+- Service-worker version: `kos-pacing-tick-1`
 - Required smoke gate: 53 / 53 suites.
 
 ## Run, test and deploy
