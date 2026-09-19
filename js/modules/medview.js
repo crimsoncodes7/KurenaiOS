@@ -688,16 +688,22 @@
      having. One implementation, used by all the module views. Status
      changes log a session ("status", same as the editors); score-only
      changes just save+push (the editors don't log those either). */
-  function quickEdit(e, rerender) {
+  function quickSave(e, rerender) {
     var before = KOS.mediapush.snapshot(e);
-    function saved(action) {
+    return function saved(action) {
       KOS.mediadb.put(e, function (err, rec) {
         if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
         if (action) KOS.media.logActivity(rec, action);
         if (KOS.mediapush.snapshot(rec) !== before) KOS.mediapush.schedule(rec);
         rerender && rerender(rec);
       });
-    }
+    };
+  }
+  /* the status half on its own — the grid card's hover row holds this
+     beside "+1", with the score moved to the cover's top-left corner
+     (quickScore) so the row no longer overflows and clips the +1 */
+  function quickStatus(e, rerender) {
+    var saved = quickSave(e, rerender);
     var sel = el("select", { class: "status-sel med-qsel", "aria-label": "Status",
       title: "Change status — " + (e.module === "game"
         ? "saved locally (games have no live sync)"
@@ -715,9 +721,15 @@
       if (e.status === "completed" && !e.dates.finished) e.dates.finished = today;
       saved("status");
     });
-    var score = el("input", { type: "number", class: "todo-in med-qscore", min: "0", max: "10",
-      step: "0.5", value: e.score ? String(e.score) : "", placeholder: "★",
-      "aria-label": "Score out of 10" });
+    return sel;
+  }
+  /* the score half: a number field that saves on change (and pushes when
+     the entry is synced). opts.corner marks the grid card's top-left pill */
+  function quickScore(e, rerender, opts) {
+    var saved = quickSave(e, rerender);
+    var score = el("input", { type: "number", class: "todo-in med-qscore" + (opts && opts.corner ? " med-score-corner" : ""),
+      min: "0", max: "10", step: "0.5", value: e.score ? String(e.score) : "", placeholder: "★",
+      title: "Score out of 10", "aria-label": "Score out of 10" });
     score.addEventListener("click", function (ev) { ev.stopPropagation(); });
     score.addEventListener("keydown", function (ev) { ev.stopPropagation(); });
     score.addEventListener("change", function (ev) {
@@ -725,7 +737,23 @@
       e.score = Math.max(0, Math.min(10, parseFloat(score.value) || 0));
       saved(null);
     });
-    return el("span", { class: "med-quick" }, [sel, score]);
+    return score;
+  }
+  function quickEdit(e, rerender) {
+    return el("span", { class: "med-quick" }, [quickStatus(e, rerender), quickScore(e, rerender)]);
+  }
+  /* the grid card's hover row: status + "+1" on one line, nothing else —
+     onBump null (not in progress) leaves the status alone on the row */
+  function quickRow(e, rerender, opts) {
+    opts = opts || {};
+    return el("div", { class: "med-meta med-quickrow" }, [
+      quickStatus(e, rerender),
+      opts.onBump ? el("button", { class: "mini-btn med-plus", text: "+1 " + (opts.unit || ""),
+        title: opts.title || "Log the next one", onclick: function (ev) {
+          ev.stopPropagation();
+          opts.onBump();
+        } }) : null
+    ].filter(Boolean));
   }
 
   /* the shared list-view row — a robust flex layout so nullable chips never
@@ -1410,6 +1438,9 @@
     saveEntry: saveEntry,
     deleteEntry: deleteEntry,
     quickEdit: quickEdit,
+    quickStatus: quickStatus,
+    quickScore: quickScore,
+    quickRow: quickRow,
     pushChip: pushChip
   };
 })();

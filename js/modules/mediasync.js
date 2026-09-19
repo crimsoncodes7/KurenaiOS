@@ -78,6 +78,10 @@
     if (mode !== "replace") return {};
     return { replace: { module: module, source: source, protect: KOS.media.protectedCardIds(module) } };
   }
+  /* the AniList contract: Anime and the digital half of Books MIRROR the
+     AniList list, every pull — manual "Sync now" and the autosync cycle
+     alike. There is no mode to pick (KOS.media.mirrorOpts). */
+  var mirrorOpts = KOS.media.mirrorOpts;
   function confirmReplace(mode, sourceName, proceed) {
     if (mode !== "replace") { proceed(); return; }
     KOS.ui.confirm({ title: "Replace from " + sourceName + "?", danger: true, confirm: "Replace",
@@ -123,8 +127,8 @@
         if (err || !conn.token || !conn.viewer) { cb(new Error("AniList isn't connected — set it up in Sync & Import.")); return; }
         KOS.anilist.syncList(conn.token, conn.viewer.id, module, function (err3, mapped) {
           if (err3) { cb(err3); return; }
-          progress("Mapped " + mapped.length + " entries — writing to the vault…");
-          KOS.mediadb.bulkUpsert(mapped, replaceOpts(mode, module, "anilist"), finish);
+          progress("Mapped " + mapped.length + " entries — mirroring into the vault…");
+          KOS.mediadb.bulkUpsert(mapped, mirrorOpts(module), finish);
         });
       });
       return;
@@ -240,7 +244,7 @@
         } });
 
         if (conn.token && conn.viewer) {
-          var meta = facts([["Status", "Connected"], ["Account", conn.viewer.name], ["Last successful sync", "Checking…"], ["Items imported", "Checking…"], ["Sync mode", "Update & add"]]);
+          var meta = facts([["Status", "Connected"], ["Account", conn.viewer.name], ["Last successful sync", "Checking…"], ["Items imported", "Checking…"], ["Sync mode", "Mirror — 1:1 with AniList"]]);
           meta.querySelectorAll("dd")[2].setAttribute("data-last-sync", "");
           meta.querySelectorAll("dd")[3].setAttribute("data-imported", "");
           connBody.appendChild(meta);
@@ -248,20 +252,16 @@
           connBody.appendChild(el("div", { class: "med-conn-ok" }, [
             el("span", { class: "med-chip", style: "--chip:#45d6a8", text: "Connected" }),
             el("b", { text: conn.viewer.name }),
-            el("span", { class: "sub", text: " · AniList user #" + conn.viewer.id + " · read-only by design" })
+            el("span", { class: "sub", text: " · AniList user #" + conn.viewer.id + " · the vault mirrors this list" })
           ]));
           var syncStatus = el("p", { class: "sub med-sync-status" });
-          var aniMode = modePicker();
           /* one button per media type — same query pattern, type: ANIME vs
              MANGA; manga rows land in the Books module with author/format/
              volume data mapped from the richer MANGA response */
           function syncButton(label, module, noun) {
             var btn = el("button", { class: "btn primary", text: "⇅ Sync now — " + label, onclick: function () {
-              var mode = aniMode.value();
-              confirmReplace(mode, "AniList (" + noun + ")", function () {
               btn.disabled = true;
               runSync("anilist", module, {
-                mode: mode,
                 onProgress: function (msg) { syncNote(syncStatus, msg); }
               }, function (err3, res) {
                 btn.disabled = false;
@@ -272,15 +272,16 @@
                 }
                 syncNote(syncStatus, "Done — " + doneWording(res) +
                   (res.rewards && res.rewards.length ? ", " + res.rewards.length + " advanced elsewhere (rewarded)" : "") +
-                  " (matched by AniList id, no duplicates" +
-                  (module === "books" ? "; physical vault records untouched" : "") + ").");
+                  " (mirrored 1:1 by AniList id" +
+                  (module === "books" ? "; the physical shelf is untouched" : "") + ").");
                 KOS.ui.toast("AniList " + noun + " sync complete: " + (res.added + res.updated) + " entries.");
                 renderEnrich();
               });
-            }); } });
+            } });
             return btn;
           }
-          connBody.appendChild(aniMode.root);
+          connBody.appendChild(el("p", { class: "sub med-mirror-note",
+            text: "Anime and the digital half of Books are a 1:1 mirror of your AniList lists: a title removed there is removed here on the next pull, duplicates fold into one row, and only physical volumes stay outside AniList's reach." }));
           connBody.appendChild(el("div", { class: "lab-controls" }, [
             syncButton("Anime", "anime", "anime"),
             syncButton("Manga (Books)", "books", "manga"),
@@ -412,7 +413,7 @@
     /* ================= 2½ · autonomous sync (Build 3j) ================= */
     var autoBody = el("div", {});
     main.appendChild(panel("Autonomous sync", "環", [
-      info("Once connected, nothing here needs pressing: local edits push out by themselves (debounced, since 3d), and the app PULLS your AniList (anime + manga) and VNDB lists every 15 minutes, on coming back online, and when the tab wakes past the interval — so updates made elsewhere (mal-sync marking an episode watched, edits on the sites) appear here on their own. Progress a pull discovers was made elsewhere earns the normal XP/gold trickle, sized to what actually advanced — echoes of this app's own pushes are recognised by a per-entry watermark and never rewarded twice. Pulls are plain update-and-add: replace mode stays a manual-only choice. Still last-write-wins: whichever side wrote most recently overwrites the other."),
+      info("Once connected, nothing here needs pressing: local edits push out by themselves (debounced, since 3d), and the app PULLS your AniList (anime + manga) and VNDB lists every 15 minutes, on coming back online, and when the tab wakes past the interval — so updates made elsewhere (mal-sync marking an episode watched, edits on the sites) appear here on their own. Progress a pull discovers was made elsewhere earns the normal XP/gold trickle, sized to what actually advanced — echoes of this app's own pushes are recognised by a per-entry watermark and never rewarded twice. AniList pulls mirror the list 1:1 (what AniList no longer carries is removed; the physical shelf survives); VNDB pulls are plain update-and-add. Still last-write-wins: whichever side wrote most recently overwrites the other."),
       autoBody
     ], { tag: "Hands-free · both directions" }));
     function renderAuto() {

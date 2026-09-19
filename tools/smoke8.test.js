@@ -341,11 +341,13 @@ step("Matrix home: dummy in-progress game appears in the consuming strip with th
      inProgress) is the live test entry */
   KOS.show("matrix");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-strip-card").length > 0, 4000);
-  const gameCard = [...main.querySelectorAll(".med-strip-card")].find(c => /Slay the Spire/.test(c.textContent));
+  await waitFor(() => main.querySelectorAll(".mx-now-card").length > 0, 4000);
+  const gameCard = [...main.querySelectorAll(".mx-now-card")].find(c => /Slay the Spire/.test(c.textContent));
   if (!gameCard) throw new Error("game missing from the consuming strip");
   if (!/11 hr/.test(gameCard.textContent)) throw new Error("hr unit not shown: " + gameCard.textContent);
   if (!/遊/.test(gameCard.textContent)) throw new Error("module kanji badge missing");
+  /* the on-the-go card carries the everyday +1 for a medium with a unit */
+  if (!gameCard.querySelector(".mx-now-plus")) throw new Error("the +1 hr quick action is missing from the card");
 });
 step("Matrix home: Games is a live module card with stats, plus its status chart + quick action", async () => {
   const main = document.getElementById("main");
@@ -356,14 +358,17 @@ step("Matrix home: Games is a live module card with stats, plus its status chart
   if (!/Manual-first · live/.test(gm.textContent)) throw new Error("badge wrong: " + gm.textContent);
   if (!/tracked/.test(gm.textContent) || !/hours logged/.test(gm.textContent)) throw new Error("stats line wrong");
   /* Phase D (audit MTX-2): the four per-module "X by status" charts became
-     ONE small-multiples row on a shared scale. Games is a panel in it. */
+     ONE small-multiples row on a shared scale. Games is a panel in it —
+     on the Analytics tab since the mirror release, with the KPI row. */
+  [...main.querySelectorAll(".mx-tabs .study-tab")].find(t => /Analytics/.test(t.textContent)).click();
+  await waitFor(() => main.querySelector(".cs-multi"), 4000);
   const multi = main.querySelector(".cs-multi");
   if (!multi) throw new Error("the by-status comparison is missing");
   if (![...multi.querySelectorAll(".cs-multi-h b")].some(b => /Games/.test(b.textContent)))
     throw new Error("games panel missing from the comparison");
   /* and the KPI row carries the cross-media figures, not per-module ones
      the module cards already print (MTX-3) */
-  if (!/On the go/.test(main.textContent)) throw new Error("the cross-media in-progress figure is missing");
+  if (!/In progress/.test(main.querySelector(".stat-strip").textContent)) throw new Error("the cross-media in-progress figure is missing");
 });
 step("Shrine: a favourite game routes to the games editor", async () => {
   const rows = await p(cb => KOS.mediadb.query({ module: "game", search: "hades" }, cb));

@@ -135,6 +135,13 @@
     return d.year + "-" + p(d.month || 1) + "-" + p(d.day || 1);
   }
   function mediaType(module) { return module === "anime" ? "ANIME" : "MANGA"; }
+  /* The vault's display title is the ENGLISH title where AniList has one,
+     romaji otherwise — the romaji-first rule made the vault unsearchable
+     by the name the user actually knows a series by. Both spellings ride
+     in `extra` so search matches either (mediadb.query). */
+  function pickTitle(t) {
+    return (t && (t.english || t.romaji || t.native)) || "Untitled";
+  }
 
   /* AniList's MANGA-type format enum → the Books module's format axis
      (verified live 2026-07-02: MANGA / NOVEL / ONE_SHOT are what the API
@@ -163,7 +170,7 @@
     var out = {
       module: module,
       customLists: customLists || [],
-      title: (m.title && (m.title.romaji || m.title.english)) || "Untitled",
+      title: pickTitle(m.title),
       status: STATUS_MAP[en.status] || "planned",
       progress: {
         current: en.progress || 0,
@@ -183,6 +190,7 @@
         seasonYear: m.seasonYear || null,
         studio: (m.studios && m.studios.nodes && m.studios.nodes[0] && m.studios.nodes[0].name) || null,
         titleEnglish: (m.title && m.title.english) || null,
+        titleRomaji: (m.title && m.title.romaji) || null,
         volumes: m.volumes || null
       }
     };
@@ -305,8 +313,9 @@
       cb(null, (data && data.Page && data.Page.media || []).map(function (m) {
         return {
           anilistId: m.id, malId: m.idMal || null,
-          title: (m.title && (m.title.romaji || m.title.english)) || "Untitled",
+          title: pickTitle(m.title),
           titleEnglish: (m.title && m.title.english) || null,
+          titleRomaji: (m.title && m.title.romaji) || null,
           coverUrl: (m.coverImage && m.coverImage.large) || null,
           format: m.format || null,
           year: m.seasonYear || (m.startDate && m.startDate.year) || null,
@@ -375,6 +384,8 @@
      is not consumed by looking here. cb(err, data) with the raw aliased
      shape; the profile view owns presentation. */
   function profileQuery() {
+    /* every media title asks for { romaji english } — the profile view
+       picks the English name like the vault does */
     return "query ($userId: Int!) {" +
       " Viewer { id name about(asHtml: false) avatar { large } bannerImage siteUrl createdAt unreadNotificationCount" +
       "  statistics {" +
@@ -389,18 +400,18 @@
       " followers: Page(perPage: 12) { pageInfo { total } followers(userId: $userId, sort: ID_DESC) { id name avatar { medium } } }" +
       " following: Page(perPage: 12) { pageInfo { total } following(userId: $userId, sort: ID_DESC) { id name avatar { medium } } }" +
       " activity: Page(perPage: 20) { activities(userId: $userId, sort: ID_DESC) { __typename" +
-      "  ... on ListActivity { id status progress createdAt media { title { romaji } coverImage { medium } } }" +
+      "  ... on ListActivity { id status progress createdAt media { title { romaji english } coverImage { medium } } }" +
       "  ... on TextActivity { id text(asHtml: false) createdAt }" +
       "  ... on MessageActivity { id message(asHtml: false) createdAt messenger { name } } } }" +
       " notifications: Page(perPage: 15) { notifications(resetNotificationCount: false) { __typename" +
-      "  ... on AiringNotification { id episode contexts createdAt media { title { romaji } } }" +
+      "  ... on AiringNotification { id episode contexts createdAt media { title { romaji english } } }" +
       "  ... on FollowingNotification { id context createdAt user { name } }" +
       "  ... on ActivityLikeNotification { id context createdAt user { name } }" +
       "  ... on ActivityReplyNotification { id context createdAt user { name } }" +
       "  ... on ActivityMentionNotification { id context createdAt user { name } }" +
       "  ... on ActivityMessageNotification { id context createdAt user { name } }" +
       "  ... on ThreadCommentLikeNotification { id context createdAt user { name } }" +
-      "  ... on RelatedMediaAdditionNotification { id context createdAt media { title { romaji } } } } } }";
+      "  ... on RelatedMediaAdditionNotification { id context createdAt media { title { romaji english } } } } } }";
   }
   function fetchProfileBundle(token, userId, cb) {
     gql(profileQuery(), { userId: userId }, token, function (err, data) {
@@ -477,7 +488,7 @@
           var rec = {
             anilistId: m.id || null,
             malId: m.idMal || null,
-            title: (m.title && (m.title.romaji || m.title.english)) || null,
+            title: pickTitle(m.title),
             coverUrl: (m.coverImage && (m.coverImage.extraLarge || m.coverImage.large)) || null,
             genres: m.genres || [],
             total: module === "anime" ? (m.episodes || null) : (m.chapters || null),
@@ -486,6 +497,7 @@
               seasonYear: m.seasonYear || null,
               studio: (m.studios && m.studios.nodes && m.studios.nodes[0] && m.studios.nodes[0].name) || null,
               titleEnglish: (m.title && m.title.english) || null,
+              titleRomaji: (m.title && m.title.romaji) || null,
               volumes: m.volumes || null
             }
           };
@@ -507,6 +519,7 @@
   }
 
   KOS.anilist = {
+    pickTitle: pickTitle,
     fetchBanner: fetchBanner,
     ENDPOINT: ENDPOINT,
     PIN_URL: PIN_URL,

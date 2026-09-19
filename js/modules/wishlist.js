@@ -425,6 +425,15 @@
     var it = get(id);
     if (!it) { done && done(new Error("Wishlist item not found.")); return; }
     if (!collectionAvailable()) { done && done(new Error("Collection storage is unavailable.")); return; }
+    /* Anime and digital Books mirror AniList 1:1: a planned row made here
+       would be removed by the next pull. Books still join the Collection
+       through the purchase handoff, which puts the volume on the shelf. */
+    if (it.linkedEntryId == null && (it.module === "anime" || it.module === "books")) {
+      done && done(new Error(it.module === "anime"
+        ? "Anime mirrors your AniList list — plan it there and the next sync brings it over."
+        : "Digital reading mirrors AniList — plan it there; a confirmed purchase here still puts the volume on your shelf."));
+      return;
+    }
     if (it.linkedEntryId != null) {
       KOS.mediadb.get(it.linkedEntryId, function (err, entry) {
         if (err || !entry) { done && done(err || new Error("The linked collection entry is missing.")); return; }

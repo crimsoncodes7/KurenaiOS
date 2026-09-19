@@ -347,6 +347,16 @@
     });
   }
 
+  /* the AniList contract: Anime and the digital half of Books MIRROR the
+     AniList list on every pull — manual "Sync now" and the autosync cycle
+     alike. There is no mode to pick: what AniList no longer carries goes,
+     duplicates fold into one row, and only the physical shelf is outside
+     its reach (mediadb.bulkUpsert, replace.mirror). */
+  function mirrorOpts(module) {
+    return { replace: { module: module, source: "anilist", mirror: true,
+      protect: protectedCardIds(module) } };
+  }
+
   /* entry ids referenced by personal flashcards (quote→card, 3c) — the
      replace-mode wipe must never delete an entry a card points back to */
   function protectedCardIds(module) {
@@ -499,6 +509,8 @@
     logSyncRewards: logSyncRewards,
     logSyncRewardBatch: logSyncRewardBatch,
     dedupeVault: dedupeVault,
+    mergeRows: mergeCluster,
+    mirrorOpts: mirrorOpts,
     protectedCardIds: protectedCardIds
   };
 })();

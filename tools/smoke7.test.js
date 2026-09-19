@@ -294,7 +294,7 @@ step("AniList search-and-add: create-then-mirror with syncSource + lastSyncedAt"
   input.dispatchEvent(new window.Event("input", { bubbles: true }));
   await waitFor(() => modal.querySelectorAll(".msch-row").length > 0, 3000);
   const row = modal.querySelector(".msch-row");
-  if (!/CLANNAD/.test(row.textContent) || !/TV · 2007/.test(row.textContent)) throw new Error("result meta: " + row.textContent.slice(0, 80));
+  if (!/Clannad/i.test(row.textContent) || !/TV · 2007/.test(row.textContent)) throw new Error("result meta: " + row.textContent.slice(0, 80));
   row.querySelector(".msch-add").click();
   await tick(20);
   const planned = [...row.querySelectorAll(".msch-status")].find(b => /Plan to watch/.test(b.textContent));

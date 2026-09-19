@@ -40,7 +40,8 @@
       score: 0, genres: r.genres || [],
       externalIds: { anilistId: r.anilistId, malId: r.malId },
       coverUrl: r.coverUrl,
-      extra: { format: r.format, seasonYear: r.year, titleEnglish: r.titleEnglish, volumes: r.volumes }
+      extra: { format: r.format, seasonYear: r.year, titleEnglish: r.titleEnglish,
+               titleRomaji: r.titleRomaji || null, volumes: r.volumes }
     };
     if (module === "books") {
       entry.progress.totalVolumes = r.volumes || null;
@@ -129,6 +130,15 @@
     KOS.mediadb.getByExternal(idIndex, idValue, function (e0, existing) {
       if (existing) { cb(null, { existing: existing }); return; }
       remoteCreate(module, result, status, function (remoteOk, failNote) {
+        /* Anime and digital Books mirror AniList 1:1 — a title that could
+           not be created THERE is not added here (the next pull would only
+           remove it again). VN keeps the local fallback: VNDB's CORS wall
+           blocks every browser write, so local-first is its only path. */
+        if (!remoteOk && module !== "vn") {
+          cb(new Error((failNote || "AniList did not accept the entry.") +
+            " Nothing was added — the vault mirrors your AniList list, so add it there or reconnect and retry."));
+          return;
+        }
         var entry = module === "vn" ? localFromVndb(result, status) : localFromAniList(result, module, status);
         if (remoteOk) {
           entry.syncSource = module === "vn" ? "vndb" : "anilist";
@@ -149,7 +159,7 @@
   function addResult(module, result, status, statusNote, onAdded) {
     if (module !== "game") statusNote.textContent = "Creating on " + (module === "vn" ? "VNDB" : "AniList") + "…";
     createFromResult(module, result, status, function (err, out) {
-      if (err) { statusNote.textContent = "Local save failed: " + err.message; return; }
+      if (err) { statusNote.textContent = err.message; KOS.ui.toast(err.message, true); return; }
       statusNote.textContent = "";
       if (out.existing) {
         KOS.ui.toast("“" + out.existing.title + "” is already in your vault (" + KOS.media.STATUS_LABEL[out.existing.status] + ").");

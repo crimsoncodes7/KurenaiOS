@@ -579,6 +579,14 @@ step("collection_sync_provider rides the ONE extracted runner (stubbed transport
   KOS.anilist.getConnection = realGetConn; KOS.anilist.syncList = realSync;
   assert(!r.err, "sync failed: " + (r.err && r.err.message));
   assert(r.result.added + r.result.updated >= 1, "sync must touch the vault");
+  /* the AniList pull MIRRORS the list: the hand-made "Frieren" row (no
+     AniList id) is gone, the synced one is what remains — later steps use it */
+  assert(r.result.removed >= 1, "the mirror pull must remove the manual anime row the list does not carry");
+  const gone = await ex("collection_get_entry", { entryId: animeId });
+  assert(gone.err, "the manual anime row survived a mirror pull");
+  const mirrored = await new Promise(res => KOS.mediadb.getByExternal("anilist", 154587, (e, row) => res(row)));
+  assert(mirrored && mirrored.syncSource === "anilist", "the mirrored row is missing");
+  animeId = mirrored.id;
   const logged = sessions().slice(s0).filter(e => e.metrics && e.metrics.action === "sync-reward");
   assert(logged.length <= 1, "sync must log AT MOST one reward session (got " + logged.length + ")");
   const ts = await new Promise(res => KOS.mediadb.getKV("anilist.lastSync.anime", (e, v) => res(v)));

@@ -432,10 +432,14 @@ step("a horizontal scroller declares itself and is reachable by keyboard", () =>
     "the fades do not react to scroll position, so they lie at the ends");
 });
 
-step("the two deliberate scrollers in the app use it", () => {
+step("the deliberate scroller in the app uses it; the Collection strip became a grid", () => {
   const matrix = fs.readFileSync(path.join(ROOT, "js/modules/matrix.js"), "utf8");
   const hub = fs.readFileSync(path.join(ROOT, "js/modules/hub.js"), "utf8");
-  assert(/KOS\.ui\.scroller\(strip/.test(matrix), "the Collection cover strip has no affordance (audit MTX-1)");
+  /* the mirror release replaced the Collection cover strip (audit MTX-1's
+     scroller) with a wrapping grid of on-the-go cards — no sideways
+     scroll to declare any more */
+  assert(!/med-strip/.test(matrix) && /mx-now-grid/.test(matrix), "the Collection overview should lay the on-the-go cards out as a grid, not a strip");
+  assert(/\.mx-now-grid\s*\{[^}]*display:\s*grid/.test(css), "the on-the-go grid is not a grid");
   assert(/KOS\.ui\.scroller\(uwrap/.test(hub), "the subject unit band has no affordance (audit SUBJ-3)");
 });
 

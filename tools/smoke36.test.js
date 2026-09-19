@@ -62,10 +62,41 @@ function inspectEditor(name, open, entry, expected) {
   close(modal);
 }
 
+/* the AniList MIRROR editors (mirror release): Anime always, Books when the
+   row is AniList's. Identity is read-only, there is no Delete, list state
+   and the personal layer still edit. */
+function inspectMirrorEditor(name, open, entry, expected, readOnly) {
+  open(entry, noop);
+  const modal = document.querySelector(".med-record-modal");
+  assert(modal, name + " did not open the shared record modal");
+  assert(modal.classList.contains("med-mirror-modal"), name + " is not marked as a mirror record");
+  const ids = [...modal.querySelectorAll(":scope > .med-form > [data-edit-section]")].map(n => n.dataset.editSection);
+  ["identity", "progress", "source"].forEach(id => assert(ids.includes(id), name + " is missing the " + id + " section"));
+  const actualLabels = labels(modal);
+  expected.forEach(label => assert(actualLabels.includes(label), name + " is missing field: " + label));
+  readOnly.forEach(label => {
+    const field = [...modal.querySelectorAll(".med-field")].find(f => f.querySelector(".k").textContent.trim() === label);
+    assert(field && field.querySelector(".med-ro") && !field.querySelector("input, select, textarea"), name + ": " + label + " must be read-only (AniList's)");
+  });
+  assert(!modal.querySelector(".med-delete-actions .danger"), name + " must not offer Delete — removal happens on AniList");
+  assert(modal.querySelector(".med-save-actions .btn.primary"), name + " has no Save action");
+  assert(/mirror/i.test(modal.querySelector(".med-source-info").textContent), name + " does not say it mirrors AniList");
+  close(modal);
+}
+
 try {
   assert(KOS.medview && KOS.medview.editorSection && KOS.medview.sourceInfo, "shared editor helpers are not exported");
-  inspectEditor("Anime", KOS.mediaEditors.anime, { id: 901, module: "anime", title: "Example" },
-    ["Title", "Cover URL", "Status", "episodes done", "episodes total", "Score /10", "Ownership", "Started", "Finished", "Favourite ♥", "Genres", "Tags", "Custom lists", "Notes"]);
+  inspectMirrorEditor("Anime", KOS.mediaEditors.anime, { id: 901, module: "anime", title: "Example", genres: ["Drama"], dates: { started: "2026-01-01", finished: null } },
+    ["Title", "Genres", "Status", "Episodes seen", "Score /10", "Favourite ♥", "Tags", "Cover position", "Custom lists", "Notes"],
+    ["Title", "Genres", "Started"]);
+  /* an empty AniList fact is omitted, not printed as a dash (invariant 77) */
+  assert(!labels(document.querySelector(".med-record-modal") || document.body).includes("Finished"), "an empty read-only fact was printed");
+  assert(KOS.mediaEditors.anime(null, noop) === null && !document.querySelector(".med-record-modal"),
+    "Anime must refuse a manual add — the vault mirrors AniList");
+  inspectMirrorEditor("Books (AniList row)", KOS.booksEditor, { id: 905, module: "books", title: "Example", author: "Abe", format: "manga",
+      genres: ["Drama"], progress: { current: 1, total: 60, totalVolumes: 7 }, syncSource: "anilist", externalIds: { anilistId: 1 } },
+    ["Title", "Author / mangaka", "Status", "Chapters read / 60", "Volumes read / 7", "Rating", "DNF — did not finish", "Favourite ♥", "Mood", "Shelves", "Tags", "Notes"],
+    ["Title", "Author / mangaka", "Format", "Chapters", "Volumes", "Genres"]);
   inspectEditor("Books", KOS.booksEditor, { id: 902, module: "books", title: "Example" },
     ["Title", "Author / mangaka", "Cover URL", "Status", "Chapters read", "Chapters total", "Volumes read", "Volumes total", "Rating", "DNF — did not finish", "Started", "Finished", "Favourite ♥", "Notes"]);
   inspectEditor("Visual Novels", KOS.vnEditor, { id: 903, module: "vn", title: "Example" },

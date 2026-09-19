@@ -191,7 +191,10 @@ step("a null in fresh sync extra never beats stored data; fresh non-null wins", 
 
 /* ============ 3 · airing countdown ============ */
 console.log("== airing ==");
-step("candidates: inProgress + recent planned with ids only; caps at 150", async () => {
+step("candidates: what is being WATCHED, with ids only; caps at 150", async () => {
+  /* the mirror release narrowed this to inProgress — a planned title's
+     countdown is noise beside the shows actually being followed, and the
+     Seasonal view lists only those */
   const rows = [
     { status: "inProgress", externalIds: { anilistId: 1 } },
     { status: "inProgress", externalIds: {} },                                        // no id
@@ -200,7 +203,7 @@ step("candidates: inProgress + recent planned with ids only; caps at 150", async
     { status: "completed", externalIds: { anilistId: 4 } }
   ];
   const ids = KOS.anime.airingCandidates(rows, new window.Date());
-  if (ids.join(",") !== "1,2") throw new Error("candidate set: " + ids.join(","));
+  if (ids.join(",") !== "1") throw new Error("candidate set: " + ids.join(","));
   const many = [];
   for (let i = 0; i < 300; i++) many.push({ status: "inProgress", externalIds: { anilistId: i + 10 } });
   if (KOS.anime.airingCandidates(many, new window.Date()).length !== 150) throw new Error("cap missing");
@@ -229,10 +232,12 @@ step("refreshAiring(force) bypasses the TTL; cache is memory-only (vault untouch
 
 /* ============ 4 · Seasonal Watching ============ */
 console.log("== seasonal ==");
-step("seasonal view: current-season entries only, palette class, no-season entries absent", async () => {
+step("seasonal view: current-season WATCHING entries only, palette class, season art, no-season entries absent", async () => {
   await p(cb => KOS.mediadb.add({ module: "anime", title: "Old Classic", status: "inProgress",
     externalIds: { anilistId: 4181 }, extra: { season: "FALL", seasonYear: 2008 } }, cb));
   await p(cb => KOS.mediadb.add({ module: "anime", title: "Hand Tracked No Season", status: "inProgress" }, cb));
+  await p(cb => KOS.mediadb.add({ module: "anime", title: "Planned This Season", status: "planned",
+    externalIds: { anilistId: 4182 }, extra: { season: cur.season, seasonYear: cur.year } }, cb));
   KOS.show("seasonal");
   const main = document.getElementById("main");
   await waitFor(() => main.querySelectorAll(".med-card").length > 0, 4000);
@@ -243,22 +248,28 @@ step("seasonal view: current-season entries only, palette class, no-season entri
   if (!new RegExp(meta.label + " " + cur.year).test(wrap.textContent)) throw new Error("season header wrong");
   const titles = [...main.querySelectorAll(".med-card .med-title")].map(x => x.textContent);
   if (!titles.some(t => /Frieren/.test(t))) throw new Error("current-season entry missing");
-  if (titles.some(t => /Old Classic|Hand Tracked/.test(t))) throw new Error("non-current/no-season entries leaked in: " + titles.join(", "));
-  if (!/appear here/.test(wrap.textContent)) throw new Error("the accepted limitation must be stated");
+  if (titles.some(t => /Old Classic|Hand Tracked|Planned This Season/.test(t))) throw new Error("non-current/no-season/planned entries leaked in: " + titles.join(", "));
+  /* the hero carries the selected season's scenery, credited */
+  const art = wrap.querySelector(".season-hero .season-art");
+  if (!art || art.getAttribute("src") !== meta.artSmall || art.getAttribute("srcset").indexOf(meta.art) === -1) throw new Error("season art missing from the hero");
+  if (!new RegExp(meta.credit).test(wrap.querySelector(".season-credit").textContent)) throw new Error("the artist credit is missing");
   if (![...main.querySelectorAll("button")].some(b => /Refresh airing/.test(b.textContent))) throw new Error("manual refresh missing");
 });
 
 /* ============ 5 · Matrix home: airing soon ============ */
 console.log("== matrix ==");
-step("airing-soon strip renders beside the consuming strip (not instead of it)", async () => {
+step("airing schedule renders by day beside the on-the-go cards (not instead of them)", async () => {
   KOS.show("matrix");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".mx-air-card").length > 0, 4000);
-  const row = main.querySelector(".mx-air-card");
+  await waitFor(() => main.querySelectorAll(".mx-ep").length > 0, 4000);
+  const row = main.querySelector(".mx-ep");
   if (!/Frieren/.test(row.textContent)) throw new Error("airing entry missing");
   if (!/1d 1h/.test(row.textContent) || !/EP 13/.test(row.textContent)) throw new Error("countdown/episode missing: " + row.textContent);
-  await waitFor(() => main.querySelectorAll(".med-strip-card").length > 0, 4000);
-  if (!main.querySelector(".med-strip-card")) throw new Error("consuming strip was replaced — it must coexist");
+  /* the schedule buckets by local day: an episode 1d 1h out is Tomorrow (or the day after, across a midnight) */
+  const dayHead = row.closest(".mx-day").querySelector(".mx-day-h b").textContent;
+  if (!/Tomorrow|day/.test(dayHead)) throw new Error("day bucket header wrong: " + dayHead);
+  await waitFor(() => main.querySelectorAll(".mx-now-card").length > 0, 4000);
+  if (!main.querySelector(".mx-now-card")) throw new Error("on-the-go cards were replaced — they must coexist");
   if (![...main.querySelectorAll("button")].some(b => /Seasonal view/.test(b.textContent))) throw new Error("seasonal link missing");
 });
 
@@ -319,7 +330,8 @@ step("connected: one-request bundle renders identity, stats, favourites, follows
   if (!/Anime formats/.test(txt) || !/Manga formats/.test(txt) || !main.querySelector(".ap-analytics-grid")) throw new Error("analytics tab missing both media types");
   clickTab("Favourites");
   txt = main.textContent;
-  if (!/Sousou no Frieren/.test(txt) || !/Berserk/.test(txt)) throw new Error("media favourites missing");
+  /* favourites print the English title where AniList has one */
+  if (!/Frieren/.test(txt) || /Sousou no Frieren/.test(txt) || !/Berserk/.test(txt)) throw new Error("media favourites missing or not English-first");
   if (!/Evan Call/.test(txt) || !/MADHOUSE/.test(txt)) throw new Error("staff/studio favourites missing");
   clickTab("Social");
   txt = main.textContent;

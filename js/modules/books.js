@@ -249,14 +249,33 @@
   function bumpChapter(e, done) { KOS.medview.bumpUnit(e, "progress", done); }
 
   /* ================= the editor modal (shared medview shell) ================= */
+  /* Is this row the digital half's business — i.e. AniList's? Such a row
+     is a MIRROR: bibliographic identity, totals and genres are shown, not
+     edited, and there is no Delete (remove it on AniList and the next
+     pull mirrors that). Reading state still edits and pushes back; the
+     physical shelf and the personal layer are always yours. */
+  function mirrored(e) {
+    return !!(e && (e.syncSource === "anilist" || (e.externalIds && e.externalIds.anilistId)));
+  }
+  KOS.books.mirrored = mirrored;
+
   function booksEditor(entry, onSaved) {
     /* a lookup-prefilled draft (3i) arrives as an entry with no id — still
-       a NEW entry: shows "Add", logs "added" on save */
+       a NEW entry: shows "Add", logs "added" on save. New entries are the
+       PHYSICAL vault's: a hand-made book must go on the shelf with at
+       least one volume, because the digital half is AniList's alone. */
     var mv = KOS.medview;
     var isNew = !entry || entry.id == null;
     var e = mv.editDraft(entry, "books");
+    var mirror = mirrored(e);
+    if (isNew && !e.physical) e.physical = { owned: true, volumes: [] };
     var pushBefore = KOS.mediapush.snapshot(e);
     var field = mv.field, splitList = mv.splitList;
+    /* a read-only AniList fact — omitted when AniList has none (invariant 77:
+       an empty supporting fact is not printed as a dash) */
+    function ro(label, text, cls) {
+      return text ? field(label, el("div", { class: "med-ro", text: String(text) }), cls) : null;
+    }
 
     /* --- identity + reading state --- */
     var title = el("input", { type: "text", class: "todo-in", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Series title" });
@@ -442,25 +461,31 @@
     renderPhys();
 
     function save() {
-      if (!title.value.trim()) { KOS.ui.toast("A title is needed.", true); return; }
+      if (!mirror && !title.value.trim()) { KOS.ui.toast("A title is needed.", true); return; }
+      if (isNew && !(e.physical && e.physical.volumes.length)) {
+        KOS.ui.toast("Put at least one volume on the shelf — the physical vault is what a hand-made book is for; digital reading lives on AniList.", true);
+        return;
+      }
       var oldStatus = e.status;
-      e.title = title.value.trim();
-      e.author = author.value.trim();
-      e.format = fmt.value;
+      if (!mirror) {
+        e.title = title.value.trim();
+        e.author = author.value.trim();
+        e.format = fmt.value;
+        e.progress.total = chTot.value === "" ? null : Math.max(0, parseInt(chTot.value, 10) || 0) || null;
+        e.progress.totalVolumes = vlTot.value === "" ? null : Math.max(0, parseInt(vlTot.value, 10) || 0) || null;
+        e.dates.started = started.value || null;
+        e.dates.finished = finished.value || null;
+        e.genres = splitList(genres.value);
+      }
       e.status = status.value;
       e.progress.current = Math.max(0, parseInt(chCur.value, 10) || 0);
-      e.progress.total = chTot.value === "" ? null : Math.max(0, parseInt(chTot.value, 10) || 0) || null;
       e.progress.volumes = vlCur.value === "" ? null : Math.max(0, parseInt(vlCur.value, 10) || 0);
-      e.progress.totalVolumes = vlTot.value === "" ? null : Math.max(0, parseInt(vlTot.value, 10) || 0) || null;
       e.score = Math.max(0, Math.min(10, stars.value()));
-      e.dates.started = started.value || null;
-      e.dates.finished = finished.value || null;
       e.dnf = { isDnf: dnfBox.checked, reason: dnfBox.checked ? dnfReason.value.trim() : "" };
-      e.genres = splitList(genres.value);
       e.tags = splitList(tags.value);
       e.mood = splitList(mood.value);
       e.shelves = splitList(shelves.value);
-      e.coverUrl = coverPosition.sourceFor();
+      e.coverUrl = coverPosition.sourceFor() || (mirror ? e.coverUrl : null);
       e.coverCrop = coverPosition.cropFor(e.coverUrl);
       e.favourite = fav.checked;
       e.notes = notes.value;
@@ -471,39 +496,63 @@
       });
     }
 
+    var x = e.extra || {};
     var overlay = mv.editorModal({
-      isNew: isNew, label: "Books", className: "bk-modal",
-      subtitle: e.syncSource === "anilist" ? "synced from AniList — a Sync overwrites reading state, keeps your vault/notes/shelves" : e.syncSource === "import" ? "from XML import" : "manual entry",
+      isNew: isNew, label: "Books", className: "bk-modal" + (mirror ? " med-mirror-modal" : ""),
+      subtitle: mirror ? "mirrored from AniList — reading state pushes back; the shelf and your notes are yours"
+        : e.syncSource === "import" ? "from XML import" : "physical vault entry",
       form: [
-        mv.editorSection("identity", "Identity & artwork", "The bibliographic details used across the collection.", [
-          field("Title", title, "med-span-2"),
-          field("Author / mangaka", author),
-          field("Format", fmt)
+        mirror
+          ? mv.editorSection("identity", "Record", "As AniList has it. Change the title or artwork there and the next pull brings it over.", [
+              ro("Title", e.title, "med-span-2"),
+              x.titleRomaji && x.titleRomaji !== e.title ? ro("Romaji", x.titleRomaji, "med-span-2") : null,
+              ro("Author / mangaka", e.author),
+              ro("Format", KOS.media.FORMAT_LABEL[e.format] || e.format),
+              ro("Chapters", e.progress.total != null ? String(e.progress.total) : null),
+              ro("Volumes", e.progress.totalVolumes != null ? String(e.progress.totalVolumes) : null),
+              ro("Genres", e.genres.join(", "), "med-span-2"),
+              ro("Started", e.dates.started),
+              ro("Finished", e.dates.finished)
+            ])
+          : mv.editorSection("identity", "Identity & artwork", "The bibliographic details used across the collection.", [
+              field("Title", title, "med-span-2"),
+              field("Author / mangaka", author),
+              field("Format", fmt)
+            ]),
+        mv.editorSection("artwork", "Cover", mirror
+          ? "AniList's artwork; only its position (or a local replacement image) is yours."
+          : "The series default; individual physical volumes can override it.", [
+          field(mirror ? "Cover position" : "Cover URL", el("div", { class: "image-field" }, [mirror ? null : coverU, coverPosition.node].filter(Boolean)), "med-span-2")
         ]),
-        mv.editorSection("artwork", "Cover", "The series default; individual physical volumes can override it.", [
-          field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]), "med-span-2")
-        ]),
-        mv.editorSection("progress", "Reading progress", "Reading state is separate from what you physically own.", [
+        mv.editorSection("progress", mirror ? "Reading state" : "Reading progress", mirror
+          ? "Yours to change — pushed to AniList when you save."
+          : "Reading state is separate from what you physically own.", [
           field("Status", status),
-          field("Chapters read", chCur),
-          field("Chapters total", chTot),
-          field("Volumes read", vlCur),
-          field("Volumes total", vlTot),
+          field("Chapters read" + (mirror && e.progress.total ? " / " + e.progress.total : ""), chCur),
+          mirror ? null : field("Chapters total", chTot),
+          field("Volumes read" + (mirror && e.progress.totalVolumes ? " / " + e.progress.totalVolumes : ""), vlCur),
+          mirror ? null : field("Volumes total", vlTot),
           field("Rating", stars),
           field("DNF — did not finish", el("span", { class: "med-favwrap" }, [dnfBox])),
           field("Reason", dnfReason, "bk-grow")
         ]),
-        mv.editorSection("dates", "Dates & favourite", "Reading dates and Shrine placement.", [
-          field("Started", started),
-          field("Finished", finished),
-          field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
-        ]),
+        mirror
+          ? mv.editorSection("dates", "Favourite", "Shrine placement — not on AniList.", [
+              field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
+            ])
+          : mv.editorSection("dates", "Dates & favourite", "Reading dates and Shrine placement.", [
+              field("Started", started),
+              field("Finished", finished),
+              field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
+            ]),
         mv.editorSection("ownership", "Physical ownership", "Volumes on your shelf are tracked independently from reading progress.", [
           comparePanel(),
           physWrap
         ], { raw: true }),
-        mv.editorSection("taxonomy", "Taxonomy & shelves", "What it is, how it feels and where you organise it.", [
-          field("Genres", genres),
+        mv.editorSection("taxonomy", mirror ? "Mood, shelves & tags" : "Taxonomy & shelves", mirror
+          ? "Your own axes — AniList has no field for them."
+          : "What it is, how it feels and where you organise it.", [
+          mirror ? null : field("Genres", genres),
           field("Mood", mood),
           field("Shelves", shelves),
           field("Tags", tags)
@@ -512,18 +561,20 @@
           field("Custom lists", mv.customListChips(e), "med-span-2")
         ]),
         mv.editorSection("source", "Source & sync", "Where this record came from and what may refresh.", [
-          mv.sourceInfo(e, e.syncSource === "anilist" ? "AniList" : e.syncSource === "import" ? "XML import" : "Local record")
+          mv.sourceInfo(e, mirror ? "AniList" : e.syncSource === "import" ? "XML import" : "Local record",
+            mirror ? "A 1:1 mirror of your AniList manga list: removed there means removed here on the next pull — unless volumes are on the shelf, which AniList cannot see. Status, chapters, volumes and rating push back within seconds." : null)
         ]),
         mv.editorSection("notes", "Notes", "Your private reading notes and edition context.", [
           field("Notes", notes, "med-span-2")
         ])
       ],
       onSave: save,
-      onDelete: function () {
+      /* a mirrored row has no Delete: that is AniList's call */
+      onDelete: mirror ? null : function () {
         mv.deleteEntry(e, "Delete “" + e.title + "” — including its physical vault records?",
           function () { overlay.close(); }, onSaved);
       },
-      focus: title
+      focus: mirror ? status : title
     });
     return overlay;
   }
@@ -795,6 +846,9 @@
       onclick: function () { booksEditor(e, rerender); }
     }, [
       cover(e),
+      /* score in the cover's top-left corner (♥ has the right); the hover
+         row is status + "+1" on one line */
+      KOS.medview.quickScore(e, rerender, { corner: true }),
       el("button", { class: "med-fav" + (e.favourite ? " on" : ""), title: "Favourite — appears in the Shrine",
         "aria-label": "Toggle favourite", text: "♥", onclick: function (ev) {
           ev.stopPropagation();
@@ -810,19 +864,14 @@
           formatChip(e),
           dnfChip(e),
           el("span", { class: "med-prog", text: progressText(e) }),
-          e.score ? el("span", { class: "med-score", text: "★ " + starText(e.score) }) : null,
           KOS.medview.pushChip(e, rerender)
         ]),
         e.physical && e.physical.volumes.length ? el("div", { class: "bk-owned-line",
           text: "📚 " + e.physical.volumes.length + " vol" + (e.physical.volumes.length === 1 ? "" : "s") + " owned" }) : null,
-        el("div", { class: "med-meta med-quickrow" }, [
-          KOS.medview.quickEdit(e, rerender),
-          e.status === "inProgress" ? el("button", { class: "mini-btn med-plus", text: "+1 ch",
-            title: "Log the next chapter", onclick: function (ev) {
-              ev.stopPropagation();
-              bumpChapter(e, rerender);
-            } }) : null
-        ])
+        KOS.medview.quickRow(e, rerender, {
+          unit: "ch", title: "Log the next chapter",
+          onBump: e.status === "inProgress" ? function () { bumpChapter(e, rerender); } : null
+        })
       ])
     ]);
     var bar = dualBar(e);
@@ -920,7 +969,7 @@
         el("span", { class: "dh-kicker", text: "Collection · 本" }),
         el("h1", { text: "Books" }),
         el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "What you're reading and what's on the shelf — one entry, both lives." })
+          el("span", { class: "board", text: "What you're reading, mirrored from AniList, and what's on the shelf — one entry, both lives." })
         ])
       ])
     ]));
@@ -937,7 +986,7 @@
        two-line-with-a-kanji shape it always had, shared. The .bk-tabs class
        stays on the container so the Books-specific rules still apply. */
     var LENSES = [
-      ["digital", "読", "Digital", "reading progress — every tracked series"],
+      ["digital", "読", "Digital", "your AniList manga list, mirrored"],
       ["physical", "蔵", "Physical Vault", "owned volumes only — the real shelf"]
     ];
     var tabBar;
@@ -951,6 +1000,7 @@
             var fresh = buildLenses();
             tabBar.replaceChildren.apply(tabBar, Array.prototype.slice.call(fresh.childNodes));
             syncToolbar();
+            syncPrimary();
             refresh();
           } };
       }), { variant: "card", label: "Books lens", className: "bk-tabs" });
@@ -1023,22 +1073,34 @@
         { label: "Mangaka", glyph: "作", hint: "Every author on your shelves",
           onSelect: function () { KOS.show("mangaka"); } },
         { heading: "Add to the vault" },
-        { label: "Find new titles…", glyph: "⊕", hint: "Search AniList's manga database",
+        { label: "Find new titles…", glyph: "⊕", hint: "Search AniList's manga database — added to your list there, then mirrored",
           onSelect: function () { KOS.mediaSearch.open("books", refreshAll); } },
         { label: "Look up a book or ISBN…", glyph: "◫",
-          hint: "Open Library, or scan the barcode",
-          onSelect: function () { openLookup(p.tab === "physical", refreshAll); } },
+          hint: "Open Library, or scan the barcode — goes on the physical shelf",
+          onSelect: function () { openLookup(true, refreshAll); } },
         { heading: "This vault" },
         { label: "The numbers", glyph: "◫", hint: "Composition, taste and pace",
           onSelect: function () { mv.statsModal("books", mod()); } },
         { label: "Sync & Import", glyph: "⇅", onSelect: function () { KOS.show("mediasync"); } }
       ],
-      primary: el("button", { class: "btn primary", text: "+ Add", onclick: function () { booksEditor(null, refreshAll); } })
+      /* the primary action follows the lens: the digital half is AniList's
+         (Find new creates there first), the physical half is hand-made */
+      primary: el("button", { class: "btn primary", text: "+ Add", onclick: function () {
+        if (p.tab === "physical") booksEditor(null, refreshAll);
+        else KOS.mediaSearch.open("books", refreshAll);
+      } })
     });
     mainCol.appendChild(bar.root);
     main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
 
     function refreshAll() { rail.reload(); refresh(); }
+    function syncPrimary() {
+      var btn = bar.root.querySelector(".btn.primary");
+      if (!btn) return;
+      btn.textContent = p.tab === "physical" ? "+ Add to shelf" : "⊕ Find new";
+      btn.title = p.tab === "physical" ? "A hand-made book with its volumes" : "Search AniList — the title is added to your list there, then mirrored here";
+    }
+    syncPrimary();
 
     /* countLine + holder + sentinel + the lazy batch renderer (makeItem is
        hoisted — the shelf-ranking block below defines it) */
@@ -1117,8 +1179,10 @@
         dnf: filt.dnf || undefined,
         search: search.value.trim() || undefined, sort: sortSel.value
       };
-      /* the Physical lens IS a filter on the same vault: owned volumes only */
+      /* the Physical lens IS a filter on the same vault: owned volumes only.
+         The Digital lens is the AniList mirror: AniList-sourced rows only */
       if (physical) opts.owned = true;
+      else opts.source = "anilist";
       /* claim the render generation BEFORE the query: switching lens mid-flight
          (or typing in search) must not let the older query paint the newer
          lens — and it tears down the previous lens's lazy observer at once,
@@ -1153,12 +1217,14 @@
               filtered
                 ? "Nothing matches this filter."
                 : physical
-                  ? "No physical volumes recorded yet — open any series and add what you own (the range tool takes a whole box set in one go), or scan a barcode with ◫ Find book."
-                  : "The Books vault is empty. Sync your AniList manga list, import an XML export, look a book up by ISBN, or add a series by hand.",
-              [
+                  ? "No physical volumes recorded yet — add a book to the shelf (the range tool takes a whole box set in one go), or scan a barcode with ◫ Find book."
+                  : "The digital shelf mirrors your AniList manga list. Connect AniList and the whole list lands in one sync.",
+              physical ? [
+                el("button", { class: "btn gold", text: "◫ Find book / ISBN", onclick: function () { openLookup(true, refreshAll); } }),
+                el("button", { class: "btn", text: "+ Add to shelf", onclick: function () { booksEditor(null, refreshAll); } })
+              ] : [
                 el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-                el("button", { class: "btn gold", text: "◫ Find book / ISBN", onclick: function () { openLookup(physical, refreshAll); } }),
-                el("button", { class: "btn", text: "+ Add manually", onclick: function () { booksEditor(null, refreshAll); } })
+                el("button", { class: "btn", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("books", refreshAll); } })
               ]));
             return;
           }

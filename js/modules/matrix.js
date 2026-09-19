@@ -26,46 +26,41 @@
        to draw a distribution from one rated title; it says so instead.
      · MTX-6 — progress is printed through KOS.media.progressText.
      · The long tail moved behind an Analytics tab, so the overview is one
-       screen again.                                                      */
+       screen again.
+
+   Collection mirror release — the overview is "what next?" only: an
+   airing SCHEDULE grouped by day (watching titles only), the on-the-go
+   cards with their +1, and the four vault doors. The figures and the
+   status comparison joined Analytics; the streak chips went (the
+   Governor page owns streaks); the Overview/Analytics switcher rides the
+   page header's action slot like Planner and Sync.                     */
 (function () {
   "use strict";
   var el = KOS.ui.el;
+
+  /* the schedule's day buckets — local-time calendar days from now */
+  function dayLabel(airingAtSecs, now) {
+    var d = new Date(airingAtSecs * 1000);
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var that = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var diff = Math.round((that - today) / 86400000);
+    if (diff <= 0) return { key: "0", label: "Today", sub: d.toLocaleDateString(undefined, { day: "numeric", month: "short" }) };
+    if (diff === 1) return { key: "1", label: "Tomorrow", sub: d.toLocaleDateString(undefined, { day: "numeric", month: "short" }) };
+    if (diff < 7) return { key: String(diff), label: d.toLocaleDateString(undefined, { weekday: "long" }), sub: d.toLocaleDateString(undefined, { day: "numeric", month: "short" }) };
+    return { key: "9" + ("00" + diff).slice(-3), label: d.toLocaleDateString(undefined, { day: "numeric", month: "short" }), sub: d.toLocaleDateString(undefined, { weekday: "short" }) };
+  }
+  function clock(secs) {
+    return new Date(secs * 1000).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+  }
 
   KOS.views.matrix = function (main) {
     document.getElementById("tree").classList.add("hidden");
     document.getElementById("cols").classList.add("no-tree");
 
-    main.appendChild(KOS.ui.pageHeader({
-      kicker: "蒐 · Personal archive",
-      title: "The Collection",
-      sub: "The other half of the ledger — what you watch, read and play. Rest, kept honestly."
-    }));
-
-    if (KOS.medview.unavailable(main)) return;
-
-    /* ---- streak pair: study vs rest, deliberately side by side and
-       visually distinct so they never read as one number ---- */
-    var rest = KOS.sessions.restStreak();
-    var study = KOS.sessions.streak(null);
-    main.appendChild(el("div", { class: "med-streaks" }, [
-      el("div", { class: "streak-chip med-rest" + (rest ? " lit" : ""),
-        title: "Consecutive days with at least one Collection Matrix log — independent of the study streak" }, [
-        el("span", { class: "fl", text: "休" }),
-        el("span", { text: rest + (rest === 1 ? " day rest streak" : " day rest streak") })
-      ]),
-      el("div", { class: "streak-chip" + (study ? " lit" : ""), title: "The study streak, for contrast — media logs never feed it" }, [
-        el("span", { class: "fl", text: "炎" }),
-        el("span", { text: study + (study === 1 ? " day study streak" : " day study streak") })
-      ])
-    ]));
-
-    /* ---- the two panes ---- */
+    /* ---- the two panes: the switcher rides the page header's action
+       slot, aligned with the title the way Planner and Sync do it ---- */
     var tab = "overview";
-    var tabBar = el("div", { class: "mx-tabbar" });
-    main.appendChild(tabBar);
-    var pane = el("div", { class: "mx-pane" });
-    main.appendChild(pane);
-
+    var tabBar = el("div", { class: "mx-tabbar profile-workspace-tabs" });
     function buildTabs() {
       return KOS.ui.tabs([
         { label: "Overview", active: tab === "overview", onSelect: function () { setTab("overview"); } },
@@ -82,6 +77,18 @@
     }
     tabBar.appendChild(buildTabs());
 
+    main.appendChild(KOS.ui.pageHeader({
+      kicker: "蒐 · Personal archive",
+      title: "The Collection",
+      sub: "The other half of the ledger — what you watch, read and play.",
+      actions: [tabBar]
+    }));
+
+    if (KOS.medview.unavailable(main)) return;
+
+    var pane = el("div", { class: "mx-pane" });
+    main.appendChild(pane);
+
     /* ONE aggregate pass, reused by both panes — KOS.mediadb.stats walks
        every row in the vault, and doing that again on each tab switch is
        a full-table scan the user pays for with a stutter */
@@ -97,44 +104,71 @@
       if (tab === "overview") renderOverview();
       else renderAnalytics();
     }
+    function openEntry(e) {
+      KOS.mediaEditor(e, function () { KOS.show("matrix", undefined, { _nav: true }); });
+    }
 
     /* ================= overview ================= */
+    /* Three things, in the order the day asks them: what airs next, what
+       is on the go, and the four doors into the vaults. The inventory
+       figures and the status comparison live on Analytics now — a
+       headline strip of 1,940 / 25,195 was decoration on a page whose job
+       is "what next?". */
     function renderOverview() {
-      /* ---- airing soon (3f) — live countdowns, beside (never replacing)
-         the consuming strip. Renders nothing while empty/offline. ---- */
-      var airWrap = el("div", { class: "mx-airing" });
+      /* ---- airing schedule (3f) — live countdowns, grouped by day, for
+         the titles being WATCHED. Renders nothing while empty/offline. ---- */
+      var airWrap = el("section", { class: "mx-airing" });
       pane.appendChild(airWrap);
       function renderAiring() {
-        KOS.mediadb.query({ module: "anime" }, function (err, rows) {
+        KOS.mediadb.query({ module: "anime", status: "inProgress" }, function (err, rows) {
           if (err || !document.body.contains(airWrap)) return;
-          var list = KOS.anime.airingList(rows).slice(0, 8);
+          var list = KOS.anime.airingList(rows).slice(0, 12);
           airWrap.innerHTML = "";
           if (!list.length) return;
-          airWrap.appendChild(el("h3", { class: "n-h" }, [
-            "Airing soon",
-            el("button", { class: "mini-btn mx-air-season", text: KOS.anime.SEASON_META[KOS.anime.currentSeason().season].kanji + " Seasonal view",
-              onclick: function () { KOS.show("seasonal"); } })
-          ]));
-          var box = el("div", { class: "mx-air-list" });
+          var meta = KOS.anime.SEASON_META[KOS.anime.currentSeason().season];
+          airWrap.appendChild(KOS.ui.sectionHeader({
+            title: "Airing soon",
+            sub: list.length + (list.length === 1 ? " episode" : " episodes") + " scheduled across what you're watching",
+            actions: [el("button", { class: "btn mx-air-season", text: meta.kanji + " Seasonal view",
+              onclick: function () { KOS.show("seasonal"); } })]
+          }));
+          /* bucket by local day, keep AniList's soonest-first order inside */
+          var now = new Date(), days = [], byKey = {};
           list.forEach(function (x) {
-            var open = function () { KOS.mediaEditor(x.entry, function () { KOS.show("matrix", undefined, { _nav: true }); }); };
-            box.appendChild(KOS.a11y.activate(el("div", { class: "mx-air-card", role: "button", tabindex: "0",
-              title: "Episode " + x.airing.episode + " airs " + new Date(x.airing.airingAt * 1000).toLocaleString()
-            }, [
-              x.entry.coverUrl
-                ? el("span", { class: "mx-air-cover" }, [KOS.imageCrop.image(x.entry.coverUrl,
-                    { alt: "", loading: "lazy" }, x.entry.coverCrop)])
-                : el("span", { class: "mx-air-cover med-cover-ph", "aria-hidden": "true", text: "映" }),
-              el("span", { class: "mx-air-body" }, [
-                el("span", { class: "mx-air-title", text: x.entry.title }),
-                el("span", { class: "mx-air-when" }, [
-                  el("b", { class: "mx-air-count", text: KOS.anime.fmtCountdown(x.airing.timeUntilAiring) }),
-                  el("span", { class: "sub", text: " · EP " + x.airing.episode })
-                ])
-              ])
-            ]), open));
+            var d = dayLabel(x.airing.airingAt, now);
+            if (!byKey[d.key]) { byKey[d.key] = { meta: d, items: [] }; days.push(byKey[d.key]); }
+            byKey[d.key].items.push(x);
           });
-          airWrap.appendChild(box);
+          var sched = el("div", { class: "mx-sched" });
+          days.forEach(function (day) {
+            var col = el("div", { class: "mx-day" + (day.meta.key === "0" ? " is-today" : "") }, [
+              el("div", { class: "mx-day-h" }, [
+                el("b", { text: day.meta.label }),
+                el("span", { class: "sub", text: day.meta.sub })
+              ])
+            ]);
+            day.items.forEach(function (x) {
+              var e = x.entry, a = x.airing;
+              var seen = e.progress.current || 0;
+              var behind = a.episode - 1 - seen;   // episodes aired but unseen
+              col.appendChild(KOS.a11y.activate(el("div", { class: "mx-ep", role: "button", tabindex: "0",
+                title: e.title + " — episode " + a.episode + " airs " + new Date(a.airingAt * 1000).toLocaleString()
+              }, [
+                el("span", { class: "mx-ep-cover" }, [KOS.medview.cover(e, "映")]),
+                el("span", { class: "mx-ep-body" }, [
+                  el("span", { class: "mx-ep-title", text: e.title }),
+                  el("span", { class: "mx-ep-line" }, [
+                    el("b", { class: "mx-ep-n", text: "EP " + a.episode }),
+                    el("span", { class: "mx-ep-at", text: clock(a.airingAt) }),
+                    behind > 0 ? el("span", { class: "mx-ep-behind", text: behind + " to catch up" }) : null
+                  ].filter(Boolean))
+                ]),
+                el("span", { class: "mx-ep-count" + (a.timeUntilAiring <= 0 ? " is-now" : ""), text: KOS.anime.fmtCountdown(a.timeUntilAiring) })
+              ]), function () { openEntry(e); }));
+            });
+            sched.appendChild(col);
+          });
+          airWrap.appendChild(sched);
         });
       }
       renderAiring();
@@ -142,66 +176,101 @@
         if (!err && !fromCache && document.body.contains(airWrap)) renderAiring();
       });
 
-      /* ---- currently consuming — all modules, most recent first ---- */
-      var stripWrap = el("div", {});
-      pane.appendChild(stripWrap);
-      KOS.mediadb.query({ status: "inProgress", sort: "updated" }, function (err, current) {
-        if (err || !document.body.contains(stripWrap)) return;
-        stripWrap.appendChild(el("h3", { class: "n-h", text: "Currently consuming" }));
-        if (!current.length) {
-          stripWrap.appendChild(KOS.ui.emptyState({ compact: true,
-            body: "Nothing in progress yet — sync your AniList or add something to the vault.",
-            action: el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }) }));
-          return;
-        }
-        var strip = el("div", { class: "med-strip" });
-        current.slice(0, 24).forEach(function (e) {
-          var mod = KOS.media.module(e.module);
-          var prog = KOS.media.progressText(e);
-          var pct = KOS.media.progressPct(e);
-          var open = function () { KOS.mediaEditor(e, function () { KOS.show("matrix", undefined, { _nav: true }); }); };
-          var card = KOS.a11y.activate(el("div", { class: "med-strip-card", role: "button", tabindex: "0",
-            title: e.title + (prog ? " — " + prog : "")
-          }, [
-            /* the shared cover, so the kanji placeholder is painted from
-               the first frame here too (audit G-24/U-15) */
-            el("span", { class: "med-strip-cover" }, [KOS.medview.cover(e, mod.kanji)]),
-            el("span", { class: "med-strip-mod", text: mod.kanji, title: mod.label }),
-            el("span", { class: "med-strip-t", text: e.title }),
-            prog ? el("span", { class: "med-strip-p", text: prog }) : null
-          ].filter(Boolean)), open);
-          if (pct !== null) card.appendChild(el("span", { class: "med-strip-track" }, [
-            el("span", { style: "width:" + pct + "%" })
-          ]));
-          strip.appendChild(card);
+      /* ---- on the go — every medium, most recently touched first; each
+         card carries the everyday +1 where the medium has a unit ---- */
+      var nowWrap = el("section", { class: "mx-now" });
+      pane.appendChild(nowWrap);
+      function renderNow() {
+        KOS.mediadb.query({ status: "inProgress", sort: "updated" }, function (err, current) {
+          if (err || !document.body.contains(nowWrap)) return;
+          nowWrap.innerHTML = "";
+          var perMod = {};
+          current.forEach(function (e) { var id = KOS.media.module(e.module).id; perMod[id] = (perMod[id] || 0) + 1; });
+          nowWrap.appendChild(KOS.ui.sectionHeader({
+            title: "Currently consuming",
+            sub: current.length
+              ? current.length + " in progress" + (current.length > 12 ? " · the 12 most recently touched" : "")
+              : null,
+            actions: KOS.media.MODULES.filter(function (mod) { return perMod[mod.id]; }).map(function (mod) {
+              return el("button", { class: "mx-now-chip", style: "--accent:" + mod.accent,
+                title: "Open the " + mod.label + " vault",
+                onclick: function () { KOS.show(mod.id); } }, [
+                el("span", { class: "kanji-inline", "aria-hidden": "true", text: mod.kanji }),
+                el("span", { text: perMod[mod.id] + " " + mod.label.toLowerCase() })
+              ]);
+            })
+          }));
+          if (!current.length) {
+            nowWrap.appendChild(KOS.ui.emptyState({ compact: true,
+              body: "Nothing in progress — sync your AniList, or start something from a vault.",
+              action: el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }) }));
+            return;
+          }
+          var grid = el("div", { class: "mx-now-grid" });
+          current.slice(0, 12).forEach(function (e) {
+            var mod = KOS.media.module(e.module);
+            var prog = KOS.media.progressText(e);
+            var pct = KOS.media.progressPct(e);
+            var bumpMode = mod.id === "anime" || mod.id === "books" ? "progress" : mod.id === "game" ? "hours" : null;
+            var card = el("div", { class: "mx-now-card", style: "--accent:" + mod.accent,
+              onclick: function () { openEntry(e); } }, [
+              el("span", { class: "mx-now-cover" }, [KOS.medview.cover(e, mod.kanji)]),
+              el("span", { class: "mx-now-body" }, [
+                el("span", { class: "mx-now-kind" }, [
+                  el("span", { class: "kanji-inline", "aria-hidden": "true", text: mod.kanji }),
+                  el("span", { text: mod.id === "books" && e.format ? (KOS.media.FORMAT_LABEL[e.format] || mod.label) : mod.label }),
+                  KOS.anime.airingInfo(e) ? el("span", { class: "mx-now-air", text: "EP " + KOS.anime.airingInfo(e).episode + " in " + KOS.anime.fmtCountdown(KOS.anime.airingInfo(e).timeUntilAiring) }) : null
+                ].filter(Boolean)),
+                el("button", { type: "button", class: "mx-now-title", text: e.title, title: e.title,
+                  onclick: function (ev) { ev.stopPropagation(); openEntry(e); } }),
+                el("span", { class: "mx-now-foot" }, [
+                  prog ? el("span", { class: "mx-now-prog", text: prog }) : null,
+                  bumpMode ? el("button", { class: "mini-btn med-plus mx-now-plus", text: "+1 " + mod.unit,
+                    title: "Log the next " + mod.unitName.replace(/s$/, ""), onclick: function (ev) {
+                      ev.stopPropagation();
+                      KOS.medview.bumpUnit(e, bumpMode, function () { renderNow(); });
+                    } }) : null
+                ].filter(Boolean)),
+                pct !== null ? el("span", { class: "mx-now-track" }, [el("span", { style: "width:" + pct + "%" })]) : null
+              ].filter(Boolean))
+            ]);
+            grid.appendChild(card);
+          });
+          nowWrap.appendChild(grid);
         });
-        /* audit MTX-1/U-29: a real overflow-x scroller with no arrows and
-           no edge fade, so the last card was sliced by the container edge
-           and read as a rendering bug. The shared primitive gives it fades,
-           arrows and ← → keys — and marks it data-scroller, which is what
-           tells the responsive probe this sideways scroll is declared. */
-        stripWrap.appendChild(KOS.ui.scroller(strip, { label: "Currently consuming",
-          prevLabel: "Scroll to earlier titles", nextLabel: "Scroll to later titles" }));
-        if (current.length > 24) stripWrap.appendChild(el("p", { class: "sub", text: "Showing the 24 most recently touched of " + current.length + " in progress — the full set lives in each module." }));
-      });
+      }
+      renderNow();
 
       if (aggErr || !agg) return;
+      pane.appendChild(moduleCards());
+    }
+
+    /* ================= analytics ================= */
+    function renderAnalytics() {
+      if (aggErr || !agg) {
+        pane.appendChild(KOS.ui.emptyState({ body: "Could not read the vault." }));
+        return;
+      }
+      if (!agg.total) {
+        pane.appendChild(KOS.ui.emptyState({
+          title: "Nothing to analyse yet",
+          body: "Charts appear here once the vault has titles in it.",
+          action: el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }) }));
+        return;
+      }
       var m = modules();
 
-      /* ---- the headline row (audit MTX-3 / MTX-5 / U-17) ----
-         Seven tiles, one of which read "0 playing now" — and the four
-         module totals were repeated in the KPI row, the whole-vault donut,
-         the medium donut AND the module cards: the same four numbers four
-         times on one page. These tiles now carry only what no module card
-         can say — the cross-media figures — and each is suppressed when it
-         is zero. */
+      /* ---- the headline figures (audit MTX-3 / MTX-5 / U-17) ----
+         Only what no module card can say — the cross-media figures — and
+         each is suppressed when it is zero. They moved here from the
+         overview: inventory is analysis, not "what next?". */
       var inProgressAll = m.anime.inProgress + m.books.inProgress + m.vn.inProgress + m.game.inProgress;
-      pane.appendChild(el("div", { class: "stat-strip" }, [
-        KOS.ui.statTile({ value: agg.total, label: "Entries in the vault" }),
-        KOS.ui.statTile({ value: inProgressAll, label: "On the go", sub: "across every medium", suppressZero: true }),
-        KOS.ui.statTile({ value: m.anime.episodes, label: "Episodes logged", suppressZero: true }),
+      pane.appendChild(el("div", { class: "stat-strip mx-stats" }, [
+        KOS.ui.statTile({ value: agg.total, label: "Titles in the vault" }),
+        KOS.ui.statTile({ value: inProgressAll, label: "In progress", sub: "across every medium", suppressZero: true }),
+        KOS.ui.statTile({ value: m.anime.episodes, label: "Episodes watched", suppressZero: true }),
         KOS.ui.statTile({ value: m.books.episodes, label: "Chapters read", suppressZero: true }),
-        KOS.ui.statTile({ value: m.books.volumesOwned || 0, label: "Volumes owned", suppressZero: true }),
+        KOS.ui.statTile({ value: m.books.volumesOwned || 0, label: "Volumes on the shelf", suppressZero: true }),
         KOS.ui.statTile({ value: Math.round(m.game.episodes || 0), label: "Hours played", suppressZero: true }),
         KOS.ui.statTile({ value: agg.favourites, label: "In the Shrine", suppressZero: true })
       ].filter(Boolean)));
@@ -222,22 +291,6 @@
           KOS.charts.smallMultiples(groups)));
       }
 
-      pane.appendChild(moduleCards());
-    }
-
-    /* ================= analytics ================= */
-    function renderAnalytics() {
-      if (aggErr || !agg) {
-        pane.appendChild(KOS.ui.emptyState({ body: "Could not read the vault." }));
-        return;
-      }
-      if (!agg.total) {
-        pane.appendChild(KOS.ui.emptyState({
-          title: "Nothing to analyse yet",
-          body: "Charts appear here once the vault has titles in it.",
-          action: el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }) }));
-        return;
-      }
       var grid = el("div", { class: "cs-grid" });
 
       /* ONE donut. "The whole vault by status" and "vault by medium" were

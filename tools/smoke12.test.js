@@ -497,8 +497,10 @@ step("seasonal view defaults to today and re-filters on picker changes", async (
   await p(cb => KOS.mediadb.add({ module: "anime", title: "Spring 2026 Show", status: "inProgress",
     progress: { current: 1, total: 12 }, externalIds: { anilistId: 9101 }, syncSource: "anilist",
     extra: { season: "SPRING", seasonYear: 2026 } }, cb));
-  await p(cb => KOS.mediadb.add({ module: "anime", title: "Fall 2023 Show", status: "completed",
-    progress: { current: 12, total: 12 }, externalIds: { anilistId: 9102 }, syncSource: "anilist",
+  /* a past season's WATCHING title — the view lists what is in progress
+     from the selected season, whichever season that is (mirror release) */
+  await p(cb => KOS.mediadb.add({ module: "anime", title: "Fall 2023 Show", status: "inProgress",
+    progress: { current: 6, total: 12 }, externalIds: { anilistId: 9102 }, syncSource: "anilist",
     extra: { season: "FALL", seasonYear: 2023 } }, cb));
   /* the season the view derives from the device date, so the test derives it the same way */
   const cur = KOS.anime.currentSeason();

@@ -445,10 +445,18 @@ step("Mangaka still mounts one lazy batch, not the whole directory", async () =>
 /* ============ F · the Overview ============ */
 console.log("== F: Collection Overview (MTX-2 / MTX-3 / MTX-5) ==");
 
-step("the four 'X by status' charts became one shared-scale comparison", async () => {
+/* the mirror release moved the figures and the status comparison to the
+   Analytics tab — the overview is "what next?" only — so these steps open
+   Analytics first */
+async function openAnalytics() {
   KOS.show("matrix");
+  await waitFor(() => main().querySelector(".mx-tabs"), 6000);
+  click([...main().querySelectorAll(".mx-tabs .study-tab")].find(t => /Analytics/.test(t.textContent)));
   await waitFor(() => main().querySelector(".stat-strip"), 6000);
   await tick(80);
+}
+step("the four 'X by status' charts became one shared-scale comparison", async () => {
+  await openAnalytics();
   assert(!/by status", "the founding module/.test(matrixSrc), "the per-module status charts are back");
   const multi = main().querySelector(".cs-multi");
   assert(multi, "no small-multiples row");
@@ -466,10 +474,8 @@ step("the four 'X by status' charts became one shared-scale comparison", async (
   assert(new Set(tops).size === 1, "the panels are not on one scale: " + JSON.stringify(tops));
 });
 
-step("no total is printed twice on the overview", async () => {
-  KOS.show("matrix");
-  await waitFor(() => main().querySelector(".stat-strip"), 6000);
-  await tick(80);
+step("no total is printed twice on the analytics figures", async () => {
+  await openAnalytics();
   const agg = await p(cb => KOS.mediadb.stats(cb));
   /* the whole-vault total belongs to exactly one tile */
   const tiles = [...main().querySelectorAll(".stat-strip .stat-card .v")].map(n => n.textContent.replace(/,/g, ""));
@@ -481,15 +487,17 @@ step("no total is printed twice on the overview", async () => {
     assert(!tiles.includes(total) || total === String(agg.total),
       "the KPI row repeats " + id + "'s total, which its card already carries");
   });
-  /* one donut, not two of the same numbers */
-  assert(main().querySelectorAll(".donut-wrap").length === 0,
-    "the overview still draws a donut of totals it has already printed");
+  /* one donut — the medium cut — beside the figures, not two of the same numbers */
+  assert(main().querySelectorAll(".donut-wrap").length === 1,
+    "analytics should draw exactly one donut of the vault by medium");
+  /* and the overview itself prints no figures at all */
+  click(main().querySelectorAll(".mx-tabs .study-tab")[0]);
+  await waitFor(() => main().querySelector(".med-mod-card"), 4000);
+  assert(!main().querySelector(".stat-strip"), "the KPI row is back on the overview");
 });
 
 step("zero-value tiles are suppressed", async () => {
-  KOS.show("matrix");
-  await waitFor(() => main().querySelector(".stat-strip"), 6000);
-  await tick(80);
+  await openAnalytics();
   const zeros = [...main().querySelectorAll(".stat-strip .stat-card .v")]
     .filter(n => n.textContent.trim() === "0");
   assert(zeros.length === 0, zeros.length + " tiles read 0 on an account with 1,000+ entries");
@@ -502,12 +510,15 @@ step("the analytics tail is one tab away, and holds the long tail", async () => 
   const tabs = [...main().querySelectorAll(".mx-tabs .study-tab")];
   assert(tabs.length === 2, "expected Overview / Analytics, got " + tabs.length);
   assert(tabs[0].getAttribute("aria-selected") === "true", "the page does not open on the overview");
+  /* the switcher rides the page header's action slot (invariant 50b) */
+  assert(main().querySelector(".dash-head .dh-actions .mx-tabs"), "the switcher is not in the page header");
   click(tabs[1]);
   await waitFor(() => main().querySelector(".cs-grid"), 4000);
   assert(main().querySelector(".donut-wrap"), "the medium donut did not move to Analytics");
-  assert(!main().querySelector(".cs-multi"), "the overview comparison leaked into Analytics");
+  assert(main().querySelector(".cs-multi"), "the status comparison belongs to Analytics now");
   click(main().querySelectorAll(".mx-tabs .study-tab")[0]);
-  await waitFor(() => main().querySelector(".cs-multi"), 4000);
+  await waitFor(() => main().querySelector(".med-mod-card"), 4000);
+  assert(!main().querySelector(".cs-multi"), "the comparison leaked back onto the overview");
 });
 
 step("a distribution is not drawn from one rated title (MTX-5)", async () => {

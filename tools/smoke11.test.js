@@ -317,15 +317,20 @@ step("setShelfOrder/getShelfOrders round-trip through the media kv store", async
 console.log("== tab split ==");
 let idOwned, idDigital, ranked = [];
 step("seed: one dual-tracked series, one digital-only, three shelved", async () => {
+  /* the Digital lens is the AniList mirror (mirror release), so the
+     reading-side fixtures are AniList-sourced; Berserk is tracked both
+     ways and shows in both lenses */
   const owned = await p(cb => KOS.mediadb.add({ module: "books", title: "Berserk", author: "Kentarou Miura",
-    status: "inProgress", progress: { current: 40, total: 380 },
+    status: "inProgress", progress: { current: 40, total: 380 }, syncSource: "anilist", externalIds: { anilistId: 30002 },
     physical: { owned: true, volumes: [{ number: 1 }, { number: 2, condition: "worn" }] } }, cb));
   idOwned = owned.id;
   const dig = await p(cb => KOS.mediadb.add({ module: "books", title: "Frieren",
-    status: "inProgress", progress: { current: 10, total: 60 } }, cb));
+    status: "inProgress", progress: { current: 10, total: 60 }, syncSource: "anilist", externalIds: { anilistId: 118586 } }, cb));
   idDigital = dig.id;
+  let n = 0;
   for (const t of ["Alpha", "Beta", "Gamma"]) {
-    const r = await p(cb => KOS.mediadb.add({ module: "books", title: t, shelves: ["ranked"] }, cb));
+    const r = await p(cb => KOS.mediadb.add({ module: "books", title: t, shelves: ["ranked"],
+      syncSource: "anilist", externalIds: { anilistId: 90000 + (++n) } }, cb));
     ranked.push(r.id);
   }
 });

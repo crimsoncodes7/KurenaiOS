@@ -1158,7 +1158,7 @@
   }
 
   def("collection_add_entry", {
-    desc: "Create a manual vault entry (normalise is the schema gate). For synced sources use collection_search_external + collection_add_from_external instead.",
+    desc: "Create a manual vault entry (normalise is the schema gate). Anime and digital Books MIRROR AniList: a manual row there is removed by the next pull — use collection_search_external + collection_add_from_external so it is created on AniList first.",
     category: "collection", tier: "reversible", read: false,
     params: (function () {
       var p = {
@@ -1202,7 +1202,10 @@
         KOS.mediadb.add(draft, function (err, rec) {
           if (err) { cb(err); return; }
           KOS.media.logActivity(rec, "added");
-          cb(null, { id: rec.id, title: rec.title, module: rec.module, status: rec.status },
+          cb(null, { id: rec.id, title: rec.title, module: rec.module, status: rec.status,
+              note: (rec.module === "anime" || rec.module === "books")
+                ? "This vault mirrors AniList: the row stays until the next AniList pull, which removes what the list does not carry."
+                : undefined },
             { label: "remove the created entry", run: function (ucb) { KOS.mediadb.remove(rec.id, function () { ucb(null); }); } });
         });
       });
@@ -1281,6 +1284,9 @@
     run: function (args, cb) {
       KOS.mediadb.get(args.entryId, function (err, entry) {
         if (err || !entry) { cb(fail("No collection entry with id " + args.entryId + ".")); return; }
+        if (entry.syncSource === "anilist") {
+          cb(fail("“" + entry.title + "” mirrors AniList — remove it from the AniList list and the next pull removes it here.")); return;
+        }
         KOS.mediadb.remove(args.entryId, function (err2) {
           if (err2) { cb(err2); return; }
           cb(null, { id: args.entryId, deleted: true, title: entry.title });
@@ -1409,7 +1415,7 @@
   });
 
   def("collection_sync_provider", {
-    desc: "Run a manual provider pull now (update-and-add mode only — replace mode stays in the Sync & Import page). Rewards flow through the one watermark-filtered sync session.",
+    desc: "Run a manual provider pull now. AniList pulls MIRROR the list 1:1 (rows the list no longer carries are removed, the physical shelf excepted); VNDB pulls update-and-add. Rewards flow through the one watermark-filtered sync session.",
     category: "collection", tier: "consequential", read: false,
     params: {
       source: { type: "string", enum: ["anilist", "vndb"], required: true },
@@ -1418,7 +1424,7 @@
     run: function (args, cb) {
       KOS.mediasync.run(args.source, args.module, { mode: "update" }, function (err, res) {
         if (err) { cb(err); return; }
-        cb(null, { added: res.added, updated: res.updated,
+        cb(null, { added: res.added, updated: res.updated, removed: res.removed || 0,
           rewardedElsewhereProgress: (res.rewards || []).length });
       });
     }

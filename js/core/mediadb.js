@@ -564,6 +564,17 @@
     if (opts.status) return { rq: os.index("status").openCursor(window.IDBKeyRange.only(opts.status)), used: ["status"] };
     return { rq: os.openCursor(), used: [] };
   }
+  /* search matches the display title AND the other spelling AniList
+     carries (extra.titleRomaji / titleEnglish) — the vault shows the
+     English name since the title switch, but "Sousou no Frieren" must
+     still find Frieren, and vice versa */
+  function titleMatches(v, needle) {
+    if (v.titleLower.indexOf(needle) !== -1) return true;
+    var x = v.extra || {};
+    return !!((x.titleRomaji && String(x.titleRomaji).toLowerCase().indexOf(needle) !== -1) ||
+      (x.titleEnglish && String(x.titleEnglish).toLowerCase().indexOf(needle) !== -1) ||
+      (v.author && String(v.author).toLowerCase().indexOf(needle) !== -1));
+  }
   var SORTS = {
     title: function (a, b) { return a.titleLower < b.titleLower ? -1 : a.titleLower > b.titleLower ? 1 : 0; },
     updated: function (a, b) { return b.updatedAt - a.updatedAt; },
@@ -602,7 +613,8 @@
         if (ok && opts.owned && !(v.physical && v.physical.volumes.length)) ok = false;
         if (ok && opts.dnf && !(v.dnf && v.dnf.isDnf)) ok = false;
         if (ok && opts.favourite && !v.favourite) ok = false;
-        if (ok && needle && v.titleLower.indexOf(needle) === -1) ok = false;
+        if (ok && opts.source && v.syncSource !== opts.source) ok = false;
+        if (ok && needle && !titleMatches(v, needle)) ok = false;
         if (ok) out.push(v);
         cur.continue();
       };
@@ -704,6 +716,47 @@
     );
   }
 
+  /* the physical half of a Books row — the ONE thing the AniList mirror
+     never touches (the shelf is not on AniList, so AniList cannot own it) */
+  function hasPhysical(e) {
+    return !!(e.module === "books" && e.physical && e.physical.volumes && e.physical.volumes.length);
+  }
+  /* fold the LOCAL layer of a duplicate row into its survivor before the
+     duplicate is deleted: personal flags and notes union, the shelf and
+     the VN tracking layer move across when the survivor has none */
+  function foldLocal(into, from) {
+    into.favourite = into.favourite || from.favourite;
+    if (from.notes && String(from.notes).trim() && from.notes !== into.notes) {
+      into.notes = into.notes && String(into.notes).trim() ? into.notes + "\n\n" + from.notes : from.notes;
+    }
+    ["tags", "mood", "shelves", "customLists", "contentWarnings"].forEach(function (k) {
+      into[k] = (into[k] || []).concat(from[k] || []).filter(function (x, i, a) { return x && a.indexOf(x) === i; });
+    });
+    if (from.physical && from.physical.volumes && from.physical.volumes.length) {
+      if (!into.physical || !into.physical.volumes.length) into.physical = from.physical;
+      else {
+        var have = {};
+        into.physical.volumes.forEach(function (v) { have[v.number] = true; });
+        from.physical.volumes.forEach(function (v) { if (!have[v.number]) into.physical.volumes.push(v); });
+        into.physical.volumes.sort(function (a, b) { return a.number - b.number; });
+      }
+    }
+    ["routes", "chapters", "quotes"].forEach(function (k) {
+      if ((!into[k] || !into[k].length) && from[k] && from[k].length) into[k] = from[k];
+    });
+    if (from.dnf && from.dnf.isDnf && !(into.dnf && into.dnf.isDnf)) into.dnf = from.dnf;
+    if (!into.coverCrop && from.coverCrop && from.coverUrl === into.coverUrl) {
+      into.coverCrop = from.coverCrop; into.coverCropSource = from.coverCropSource || from.coverUrl;
+    }
+    Object.keys(from.externalIds || {}).forEach(function (k) {
+      if (into.externalIds[k] == null && from.externalIds[k] != null) into.externalIds[k] = from.externalIds[k];
+    });
+    Object.keys(from.extra || {}).forEach(function (k) {
+      if (into.extra[k] == null && from.extra[k] != null) into.extra[k] = from.extra[k];
+    });
+    into.createdAt = Math.min(into.createdAt || Date.now(), from.createdAt || Date.now());
+  }
+
   /* ---------------- bulk upsert (sync/import) ----------------
      Updates existing rows instead of duplicating: matched by VNDB id,
      then AniList id, then MAL id (XML imports only carry the latter until
@@ -732,6 +785,18 @@
      session — the caller decides (syncs log ONE proportional session via
      KOS.media.logSyncRewards; XML imports deliberately ignore the list).
 
+     opts.replace.mirror = true is the AniList 1:1 contract (Anime and the
+     digital half of Books): the module MIRRORS the provider list. The
+     sweep covers every row of the module whatever its syncSource — a row
+     the list no longer carries is removed, hand-built data or not, with
+     two exceptions: a Books row with physical volumes (the shelf is not
+     on AniList, so it stays), and a Books row with no external identity
+     at all (a shelf-only record never claimed by any provider). Rows
+     sharing an anilistId/malId are DUPLICATES: the later row's local
+     layer folds into the first (foldLocal) and it is deleted, so the
+     upsert lands on exactly one row. An EMPTY incoming list never mirrors
+     — a bad pull must not empty the vault.
+
      cb(err, {added, updated, removed, kept, rewards}).                   */
   function bulkUpsert(list, opts, cb) {
     opts = opts || {};
@@ -743,6 +808,7 @@
       /* identity sets of the incoming list (raw, pre-normalise — only the
          fields the mappers emit), for the replace pass and title claims */
       var incVndb = {}, incAni = {}, incMal = {}, incTitle = {};
+      var malToAni = {};   // the incoming list pairs the two ids — a MAL-only row is the same title
       var anyVn = false;
       (list || []).forEach(function (r) {
         if (!r) return;
@@ -750,6 +816,7 @@
         if (x.vndbId != null) incVndb[x.vndbId] = true;
         if (x.anilistId != null) incAni[x.anilistId] = true;
         if (x.malId != null) incMal[x.malId] = true;
+        if (x.anilistId != null && x.malId != null) malToAni[x.malId] = x.anilistId;
         if (r.title) incTitle[String(r.title).toLowerCase()] = true;
         if (r.module === "vn") anyVn = true;
       });
@@ -924,13 +991,50 @@
       function replacePass(next) {
         var rp = opts.replace;
         if (!rp || !rp.module || !rp.source) { next(); return; }
+        var mirror = !!rp.mirror;
+        if (mirror && !(list || []).length) { next(); return; }   // never mirror an empty pull
         var protect = {};
         (rp.protect || []).forEach(function (id) { protect[id] = true; });
+        var seenExt = {};   // mirror: "a<anilistId>" / "m<malId>" → surviving row
         var cur = os.index("module").openCursor(window.IDBKeyRange.only(rp.module));
         cur.onsuccess = function (e) {
           var c = e.target.result;
           if (!c) { next(); return; }
           var v = c.value;
+          if (mirror) {
+            var ids = v.externalIds || {};
+            var keys = [];
+            if (ids.anilistId != null) keys.push("a" + ids.anilistId);
+            if (ids.malId != null) {
+              keys.push("m" + ids.malId);
+              if (ids.anilistId == null && malToAni[ids.malId] != null) keys.push("a" + malToAni[ids.malId]);
+            }
+            var surv = null;
+            keys.forEach(function (k) { if (!surv && seenExt[k]) surv = seenExt[k]; });
+            if (surv && surv.id !== v.id) {
+              /* a second row for the same media: fold and drop it — the
+                 incoming upsert then lands on the survivor alone */
+              foldLocal(surv, v);
+              os.put(surv);
+              if (v.syncId) tombstones.push({ syncId: v.syncId, module: v.module, ts: Date.now() });
+              c.delete(); removed++;
+              c.continue();
+              return;
+            }
+            keys.forEach(function (k) { seenExt[k] = v; });
+            var identified = keys.length || v.syncSource === "anilist" || v.syncSource === "import";
+            var inList = (ids.anilistId != null && incAni[ids.anilistId]) || (ids.malId != null && incMal[ids.malId]);
+            if (!inList) {
+              if (rp.module === "books" && (hasPhysical(v) || !identified)) kept++;
+              else if (protect[v.id]) kept++;
+              else {
+                if (v.syncId) tombstones.push({ syncId: v.syncId, module: v.module, ts: Date.now() });
+                c.delete(); removed++;
+              }
+            }
+            c.continue();
+            return;
+          }
           if (v.syncSource === rp.source) {
             var x = v.externalIds || {};
             var inIncoming = (x.vndbId != null && incVndb[x.vndbId]) ||
@@ -1097,6 +1201,7 @@
     getBySyncId: getBySyncId,
     genSyncId: genSyncId,
     recordTombstones: recordTombstones,
+    hasPhysical: hasPhysical,
     count: count,
     stats: stats,
     distinct: distinct,

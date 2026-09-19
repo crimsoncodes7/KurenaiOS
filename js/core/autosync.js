@@ -16,9 +16,10 @@
      (laptops sleep; timers don't fire while suspended).
 
    Contract with the rest of the system:
-   - pulls run bulkUpsert in plain update-and-add mode — NEVER replace;
-     the manual layer (routes, chapters, quotes, physical, …) survives by
-     the same merge rules as a manual sync.
+   - AniList pulls MIRROR (bulkUpsert replace.mirror — the 1:1 contract
+     for Anime and digital Books; the physical shelf survives), VNDB pulls
+     run plain update-and-add so the VN manual layer (routes, chapters,
+     quotes, …) survives by the same merge rules as a manual sync.
    - rewards ride the 3j watermark: what a pull discovers was done
      elsewhere logs ONE proportional session per module via
      KOS.media.logSyncRewards — echoes of our own pushes are silent.
@@ -103,7 +104,7 @@
   function pullAnilistModule(conn, module, report, cb) {
     KOS.anilist.syncList(conn.token, conn.viewer.id, module, function (err, mapped) {
       if (err) { authFail("anilist", err); report.errors.push("anilist/" + module + ": " + err.message); cb(null); return; }
-      KOS.mediadb.bulkUpsert(mapped, {}, function (err2, res) {
+      KOS.mediadb.bulkUpsert(mapped, KOS.media.mirrorOpts(module), function (err2, res) {
         if (err2) { report.errors.push("anilist/" + module + " write: " + err2.message); cb(null); return; }
         KOS.mediadb.setKV("anilist.lastSync." + module, Date.now(), function () {});
         cb(res);

@@ -97,6 +97,32 @@
     }, 4000);
   }
 
+  /* ---- one-time AniList duplicate fold ----
+     Vaults that grew two rows per title (two devices each pulling AniList,
+     then the cloud unioning both) fold once here; from now on the mirror
+     pull and the cloud pull's identity match keep it at one. Same shape as
+     the VN repair: delayed, fails soft, the Sync & Import button remains. */
+  if (KOS.mediadb.available()) {
+    setTimeout(function () {
+      KOS.mediadb.getKV("maint.dedupeAnilist", function (err, done) {
+        if (err || done) return;
+        var removed = 0, titles = [];
+        KOS.media.dedupeVault("anime", function (e1, repA) {
+          if (repA) { removed += repA.removed; titles = titles.concat(repA.titles); }
+          KOS.media.dedupeVault("books", function (e2, repB) {
+            if (repB) { removed += repB.removed; titles = titles.concat(repB.titles); }
+            if (e1 || e2) return;
+            KOS.mediadb.setKV("maint.dedupeAnilist", { ts: Date.now(), removed: removed, titles: titles }, function () {});
+            if (removed) {
+              KOS.ui.toast("Vault repair: folded " + titles.length + " duplicated title" + (titles.length === 1 ? "" : "s") +
+                " into one row each (" + removed + " removed, your notes and shelf kept).");
+            }
+          });
+        });
+      });
+    }, 5000);
+  }
+
   /* ---- autonomous two-way sync (Build 3j) ----
      Pulls AniList/VNDB on a paced loop + on reconnect, so updates made
      elsewhere (mal-sync) land here by themselves; local edits already

@@ -367,16 +367,20 @@ step("rest streak spans consecutive days, independent of subject sessions", asyn
 
 /* ============ 5 · views ============ */
 console.log("== views ==");
-step("matrix home renders: streak pair, consuming strip, module cards", async () => {
+step("matrix home renders: on-the-go cards, module cards, tabs in the header — no streak pair, no stat strip", async () => {
   KOS.show("matrix");
   const main = document.getElementById("main");
   /* 3f adds async airing queries ahead of the strip query — wait, don't race */
-  await waitFor(() => main.querySelector(".med-strip-card") && main.querySelectorAll(".med-mod-card").length === 4, 4000);
-  if (!main.querySelector(".med-streaks")) throw new Error("no streak pair");
-  if (!main.querySelector(".med-strip-card")) throw new Error("no consuming strip");
+  await waitFor(() => main.querySelector(".mx-now-card") && main.querySelectorAll(".med-mod-card").length === 4, 4000);
+  /* the mirror release: streak chips left (the Governor page owns
+     streaks), the figures moved to Analytics, the switcher rides the
+     page header's action slot like Planner and Sync */
+  if (main.querySelector(".med-streaks")) throw new Error("the streak pair is back on the overview");
+  if (!main.querySelector(".mx-now-card")) throw new Error("no on-the-go cards");
   if (main.querySelector(".soon-card")) throw new Error("no module should be a placeholder since 3e");
   if (main.querySelectorAll(".med-mod-card").length !== 4) throw new Error("expected 4 live module cards");
-  if (!main.querySelector(".stat-strip")) throw new Error("no stats");
+  if (main.querySelector(".stat-strip")) throw new Error("the stat strip belongs to Analytics now");
+  if (!main.querySelector(".dash-head .dh-actions .mx-tabs")) throw new Error("the Overview/Analytics switcher must ride the page header's action slot");
 });
 step("anime vault renders + lazy fallback paints all cards in jsdom", async () => {
   KOS.show("anime");

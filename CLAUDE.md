@@ -14,8 +14,9 @@ chronological diary here.
 - Runtime release: `7e6d64f` — immutable deployment
   https://22c8091f.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-topic-nav-1`
-- Required smoke gate: 51 / 51 suites.
+- Service-worker version: `kos-collection-mirror-1` (unreleased on `main`; the
+  deployed runtime is still `kos-topic-nav-1`)
+- Required smoke gate: 52 / 52 suites.
 
 ## Run, test and deploy
 
@@ -25,7 +26,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 -m http.server 8765
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..51}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..52}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -344,6 +345,41 @@ source comments and audit notes refer to it.
     ignores; `{p}` and `{md}` are renderer block types. Notes/Quiz/Exam tabs are
     always present on a topic — an empty tab is where material is added —
     and a zero count is never printed (invariant 77).
+
+### The AniList mirror (90–94)
+
+90. Anime and the DIGITAL half of Books are a 1:1 mirror of the AniList lists.
+    Every AniList pull — "Sync now" and the autosync cycle alike — runs
+    `bulkUpsert` with `KOS.media.mirrorOpts(module)` (`replace.mirror`): a
+    row the list no longer carries is removed whatever its `syncSource`,
+    rows sharing an `anilistId`/`malId` fold into the first (local layer
+    unioned by `foldLocal`), removals record cloud tombstones, and an EMPTY
+    pull never mirrors. There is no import mode to choose for AniList.
+91. The physical shelf is outside AniList's reach: a Books row with volumes
+    survives the mirror, and a Books row with no provider identity at all
+    (shelf-only, hand-made) is never touched. The Books Digital lens lists
+    `syncSource === "anilist"` rows only; the Physical lens lists owned
+    volumes whatever the source.
+92. Anime and mirrored Books rows have no manual create, no metadata edit
+    and no Delete in the app: the editor shows AniList's facts read-only
+    (`.med-ro`, empty facts omitted) and edits only list state (pushed back)
+    plus the personal layer (favourite, notes, tags, mood, shelves, lists,
+    cover position). "Find new" creates on AniList FIRST and refuses a
+    local-only row when AniList declines; a hand-made book must carry a
+    volume. VN keeps its local fallback because VNDB blocks browser writes.
+93. The cloud media pull matches a remote row with no local `syncId` by
+    provider identity (`vndbId`, `anilistId`, `malId`), folds it with
+    `KOS.media.mergeRows`, keeps the lexically smaller `syncId` (so every
+    device converges) and tombstones the loser. Two devices each pulling
+    AniList must never yield two rows. A one-time `maint.dedupeAnilist`
+    boot pass folds pre-existing duplicates.
+94. The display title is AniList's English title, romaji when there is
+    none (`KOS.anilist.pickTitle`); both spellings ride in `extra` and
+    `mediadb.query({search})` matches either plus the author. Airing
+    candidates and the Seasonal view cover `inProgress` titles only; the
+    Seasonal hero carries one credited piece of scenery per season
+    (`KOS.anime.SEASON_META[].art`, hot-linked, small sample as the
+    background while the full frame loads).
 
 ### Accessibility, routing and search (64–71)
 

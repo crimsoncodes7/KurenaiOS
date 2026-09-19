@@ -151,6 +151,9 @@ step("seed media, reminders, assignments, calendar events and a topic note", asy
         status: ["planned", "inProgress", "completed"][i % 3],
         favourite: i % 4 === 0,
         author: module === "books" ? "Aoyama " + (k % 3) : "",
+        /* the Books Digital lens is the AniList mirror: it lists AniList rows */
+        syncSource: module === "books" ? "anilist" : "manual",
+        externalIds: module === "books" ? { anilistId: 7000 + i } : {},
         playtimeHours: module === "game" ? 10 + i : null,
         progress: { current: i % 12, total: module === "game" ? null : 24 },
         routes: module === "vn" ? [{ name: "Common", cleared: true }] : []

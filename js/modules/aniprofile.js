@@ -36,12 +36,12 @@
     if (n.__typename === "AiringNotification") {
       var c = n.contexts || ["Episode ", " of ", " aired."];
       return (c[0] || "") + n.episode + (c[1] || "") +
-        ((n.media && n.media.title && n.media.title.romaji) || "an anime") + (c[2] || "");
+        ((n.media && n.media.title && KOS.anilist.pickTitle(n.media.title)) || "an anime") + (c[2] || "");
     }
     var who = (n.user && n.user.name) || "";
     var what = n.context || " sent a notification.";
     if (n.__typename === "RelatedMediaAdditionNotification") {
-      return ((n.media && n.media.title && n.media.title.romaji) || "A related title") + (n.context || " was added to the site.");
+      return ((n.media && n.media.title && KOS.anilist.pickTitle(n.media.title)) || "A related title") + (n.context || " was added to the site.");
     }
     if (who || n.context) return who + what;
     return "Site notification (" + n.__typename.replace(/Notification$/, "") + ")";
@@ -52,7 +52,7 @@
       /* status is a human string ("watched episode"), progress a string
          range ("5 - 8") — both verified live */
       return (a.status || "updated") + (a.progress ? " " + a.progress : "") + " of " +
-        ((a.media && a.media.title && a.media.title.romaji) || "a title");
+        ((a.media && a.media.title && KOS.anilist.pickTitle(a.media.title)) || "a title");
     }
     if (a.__typename === "TextActivity") return (a.text || "").slice(0, 160) || "posted a status";
     if (a.__typename === "MessageActivity") {
@@ -73,7 +73,7 @@
   function favStrip(nodes, kind) {
     var strip = el("div", { class: "ap-favs" });
     nodes.forEach(function (n) {
-      var title = kind === "media" ? ((n.title && (n.title.romaji || n.title.english)) || "?")
+      var title = kind === "media" ? ((n.title && KOS.anilist.pickTitle(n.title)) || "?")
         : (n.name && n.name.full) || n.name || "?";
       var img = kind === "media" ? (n.coverImage && n.coverImage.large)
         : kind === "person" ? (n.image && n.image.large) : null;

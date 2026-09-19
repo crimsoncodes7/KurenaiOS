@@ -1,5 +1,11 @@
 /* Kurenai OS — modules/anime.js
-   The Anime module (Build 3a, deepened in 3f). Full CRUD, grid/list,
+   The Anime module (Build 3a, deepened in 3f). A 1:1 MIRROR of the
+   AniList anime list since the Collection mirror release: no manual
+   add, no title/cover/metadata editing, no delete — every pull mirrors
+   the list (mediadb.bulkUpsert replace.mirror), and the only writes the
+   vault makes are list state (status, progress, score) which push back
+   to AniList, plus the personal layer AniList has no field for
+   (favourite, notes, tags, custom lists, cover position). Grid/list,
    filter by status/genre/tag, title search — plus, since 3f:
    - Seasonal Watching: the vault filtered to the CURRENT season, computed
      from the device date via calendar quarters onto AniList's own enum
@@ -32,11 +38,28 @@
   /* Calendar quarters onto AniList's season enum — their own convention. */
   var SEASONS = ["WINTER", "WINTER", "WINTER", "SPRING", "SPRING", "SPRING",
                  "SUMMER", "SUMMER", "SUMMER", "FALL", "FALL", "FALL"];
+  /* Each season carries one piece of scenery art for the Seasonal hero —
+     found by browsing for the picture that best says the season, hot-
+     linked from safebooru (which serves cross-origin) in two sizes so a
+     phone loads the 850px sample and a desktop the full frame. `credit`
+     names the artist as tagged there. */
   var SEASON_META = {
-    WINTER: { label: "Winter", kanji: "冬", cls: "s-winter" },
-    SPRING: { label: "Spring", kanji: "春", cls: "s-spring" },
-    SUMMER: { label: "Summer", kanji: "夏", cls: "s-summer" },
-    FALL:   { label: "Fall",   kanji: "秋", cls: "s-fall" }
+    WINTER: { label: "Winter", kanji: "冬", cls: "s-winter", credit: "niko_p",
+      art: "https://safebooru.org/images/1323/c3ac6320262aea767e893d98837f904aac931a67.jpg",
+      artSmall: "https://safebooru.org/samples/1323/sample_c3ac6320262aea767e893d98837f904aac931a67.jpg",
+      artWidth: 1519, focus: "50% 60%" },
+    SPRING: { label: "Spring", kanji: "春", cls: "s-spring", credit: "kagumanikusu",
+      art: "https://safebooru.org/images/2416/000c9d43d083a39e792be2a913cee24a023d333a.png",
+      artSmall: "https://safebooru.org/samples/2416/sample_000c9d43d083a39e792be2a913cee24a023d333a.jpg",
+      artWidth: 1535, focus: "50% 40%" },
+    SUMMER: { label: "Summer", kanji: "夏", cls: "s-summer", credit: "liuying_jp",
+      art: "https://safebooru.org/images/3947/927599d841985b79557210bea2e2c4ad99999f3d.jpg",
+      artSmall: "https://safebooru.org/samples/3947/sample_927599d841985b79557210bea2e2c4ad99999f3d.jpg",
+      artWidth: 1920, focus: "50% 35%" },
+    FALL:   { label: "Fall",   kanji: "秋", cls: "s-fall", credit: "kamo_nasus",
+      art: "https://safebooru.org/images/3140/eb447f39a1d0b6843f08aabcb6a26aaa67fadea1.png",
+      artSmall: "https://safebooru.org/samples/3140/sample_eb447f39a1d0b6843f08aabcb6a26aaa67fadea1.jpg",
+      artWidth: 1920, focus: "50% 45%" }
   };
   function currentSeason(date) {
     var d = date || new Date();
@@ -54,16 +77,14 @@
   /* In-memory airing cache — live data, deliberately NOT in the vault.
      Refreshed whenever the Anime module / Seasonal view / Matrix home
      loads (TTL guards rapid navigation against the 30 req/min limit);
-     the ⟳ button forces. Candidates: synced/linked entries that could
-     plausibly be airing — inProgress, or planned from the last year. */
+     the ⟳ button forces. Candidates: what is actually being WATCHED —
+     a planned title's countdown is noise next to the shows in progress,
+     and the Seasonal view only lists those anyway. */
   var TTL = 10 * 60 * 1000;
   var airing = { at: 0, byId: {} };
-  function airingCandidates(rows, now) {
-    var yr = currentSeason(now).year;
+  function airingCandidates(rows) {
     return rows.filter(function (e) {
-      if (!e.externalIds || !e.externalIds.anilistId) return false;
-      if (e.status === "inProgress") return true;
-      return e.status === "planned" && e.extra && e.extra.seasonYear >= yr - 1;
+      return e.status === "inProgress" && e.externalIds && e.externalIds.anilistId;
     }).slice(0, 150).map(function (e) { return e.externalIds.anilistId; });
   }
   function refreshAiring(force, cb) {
@@ -72,7 +93,7 @@
     if (!KOS.mediadb.available()) { cb(null, airing.byId, true); return; }
     KOS.mediadb.query({ module: "anime" }, function (err, rows) {
       if (err) { cb(err, airing.byId, true); return; }
-      var ids = airingCandidates(rows, new Date());
+      var ids = airingCandidates(rows);
       if (!ids.length) { airing.at = Date.now(); airing.byId = {}; cb(null, {}, false); return; }
       KOS.anilist.fetchAiring(ids, function (err2, byId) {
         if (err2) { cb(err2, airing.byId, true); return; }
@@ -129,106 +150,96 @@
   /* +1 episode — the everyday logging action (shared bump, mode "progress") */
   function bumpProgress(e, done) { KOS.medview.bumpUnit(e, "progress", done); }
 
-  /* ---------------- the editor modal (create + edit) ---------------- */
-  /* built on the shared medview editor shell — the working copy is a
-     NORMALISED clone (aligned with books/vn/games; audit A11) */
+  /* ---------------- the record editor (mirror) ----------------
+     AniList owns the record: title, artwork, episode count, genres and
+     dates are shown, not edited, and there is no Delete — removing a
+     title happens on AniList and the next pull mirrors it. What CAN be
+     changed is list state (status, episodes seen, score — pushed back)
+     and the personal layer AniList has no field for. */
   function editorModal(entry, onSaved) {
     var mv = KOS.medview;
-    var isNew = !entry || entry.id == null;
+    if (!entry || entry.id == null) {
+      KOS.ui.toast("Anime is a 1:1 mirror of AniList — add the title there, or use Find new titles.", true);
+      return null;
+    }
     var e = mv.editDraft(entry, "anime");
     var pushBefore = KOS.mediapush.snapshot(e);
     var mod = KOS.media.module(e.module);
     var field = mv.field, splitList = mv.splitList;
 
-    var title = el("input", { type: "text", class: "todo-in", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Title" });
     var status = el("select", { class: "status-sel" }, STATUSES.map(function (s) {
       return el("option", { value: s, text: KOS.media.STATUS_LABEL[s] });
     }));
     status.value = e.status;
-    var cur = el("input", { type: "number", class: "todo-in med-num", min: "0", value: String(e.progress.current || 0) });
-    var tot = el("input", { type: "number", class: "todo-in med-num", min: "0", placeholder: "?", value: e.progress.total != null ? String(e.progress.total) : "" });
+    var cur = el("input", { type: "number", class: "todo-in med-num", min: "0", max: e.progress.total != null ? String(e.progress.total) : null, value: String(e.progress.current || 0) });
     var score = el("input", { type: "number", class: "todo-in med-num", min: "0", max: "10", step: "0.5", value: String(e.score || 0) });
-    var own = el("select", { class: "status-sel" }, [["digital", "Digital"], ["physical", "Physical"], ["steam", "Steam"], ["unset", "—"]].map(function (o) {
-      return el("option", { value: o[0], text: o[1] });
-    }));
-    own.value = e.ownership;
-    var started = el("input", { type: "date", class: "todo-in", value: e.dates.started || "" });
-    var finished = el("input", { type: "date", class: "todo-in", value: e.dates.finished || "" });
-    var genres = el("input", { type: "text", class: "todo-in", value: e.genres.join(", "), placeholder: "Drama, Romance…" });
     var tags = el("input", { type: "text", class: "todo-in", value: e.tags.join(", "), placeholder: "comfort, rewatch…" });
-    var coverU = el("input", { type: "url", class: "todo-in", value: e.coverUrl || "", placeholder: "https://… (filled by sync/enrichment)" });
-    var coverPosition = mv.coverPositionControl(e, coverU);
+    /* the cover URL is AniList's; only its POSITION (and an optional local
+       replacement image, display intent per invariant 26c) is yours */
+    var coverU = el("input", { type: "hidden", value: e.coverUrl || "" });
+    var coverPosition = mv.coverPositionControl(e, coverU, { allowUpload: true });
     var fav = el("input", { type: "checkbox" });
     fav.checked = e.favourite;
     var notes = el("textarea", { class: "note-area", rows: 3, placeholder: "Notes…" });
     notes.value = e.notes || "";
 
+    /* a read-only AniList fact — omitted when AniList has none (invariant 77:
+       an empty supporting fact is not printed as a dash) */
+    function ro(label, text, cls) {
+      return text ? field(label, el("div", { class: "med-ro", text: String(text) }), cls) : null;
+    }
     function save() {
-      if (!title.value.trim()) { KOS.ui.toast("A title is needed.", true); return; }
       var oldStatus = e.status;
-      e.title = title.value.trim();
       e.status = status.value;
       e.progress.current = Math.max(0, parseInt(cur.value, 10) || 0);
-      e.progress.total = tot.value === "" ? null : Math.max(0, parseInt(tot.value, 10) || 0) || null;
+      if (e.progress.total) e.progress.current = Math.min(e.progress.total, e.progress.current);
       e.score = Math.max(0, Math.min(10, parseFloat(score.value) || 0));
-      e.ownership = own.value;
-      e.dates.started = started.value || null;
-      e.dates.finished = finished.value || null;
-      e.genres = splitList(genres.value);
       e.tags = splitList(tags.value);
-      e.coverUrl = coverPosition.sourceFor();
+      e.coverUrl = coverPosition.sourceFor() || e.coverUrl;
       e.coverCrop = coverPosition.cropFor(e.coverUrl);
       e.favourite = fav.checked;
       e.notes = notes.value;
       mv.saveEntry(e, {
-        isNew: isNew, pushBefore: pushBefore,
+        isNew: false, pushBefore: pushBefore,
         activity: function (rec) { return oldStatus !== rec.status ? "status" : null; },
         close: function () { overlay.close(); }, onSaved: onSaved
       });
     }
 
+    var x = e.extra || {};
     var overlay = mv.editorModal({
-      isNew: isNew, label: mod.label,
-      subtitle: e.syncSource === "anilist" ? "synced from AniList — a Sync now overwrites list state, keeps your notes/tags" : e.syncSource === "import" ? "from XML import" : "manual entry",
+      isNew: false, label: mod.label, className: "med-mirror-modal",
+      subtitle: "mirrored from AniList — status, episodes and score push back; everything else is AniList's",
       form: [
-        mv.editorSection("identity", "Identity & artwork", "The title and the image used across your vault.", [
-          field("Title", title, "med-span-2"),
-          field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]), "med-span-2")
+        mv.editorSection("identity", "Record", "As AniList has it. Change the title or artwork there and the next pull brings it over.", [
+          ro("Title", e.title, "med-span-2"),
+          x.titleRomaji && x.titleRomaji !== e.title ? ro("Romaji", x.titleRomaji, "med-span-2") : null,
+          ro("Format", x.format),
+          ro("Season", x.season ? x.season.charAt(0) + x.season.slice(1).toLowerCase() + (x.seasonYear ? " " + x.seasonYear : "") : null),
+          ro("Studio", x.studio),
+          ro("Genres", e.genres.join(", "), "med-span-2"),
+          ro("Started", e.dates.started),
+          ro("Finished", e.dates.finished)
         ]),
-        mv.editorSection("progress", "Progress", "Your list state, episode count and rating.", [
+        mv.editorSection("progress", "List state", "Yours to change — pushed to AniList when you save.", [
           field("Status", status),
-          field(mod.unitName + " done", cur),
-          field(mod.unitName + " total", tot),
+          field("Episodes seen" + (e.progress.total ? " / " + e.progress.total : ""), cur),
           field("Score /10", score)
         ]),
-        mv.editorSection("ownership", "Ownership", "How you have it and whether it belongs in the Shrine.", [
-          field("Ownership", own),
-          field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
-        ]),
-        mv.editorSection("dates", "Dates", "When watching started and finished.", [
-          field("Started", started),
-          field("Finished", finished)
-        ]),
-        mv.editorSection("taxonomy", "Genres & tags", "Comma-separated labels used by filters and search.", [
-          field("Genres", genres, "med-span-2"),
-          field("Tags", tags, "med-span-2")
-        ]),
-        mv.editorSection("lists", "Lists", "Your personal collection groupings.", [
-          field("Custom lists", mv.customListChips(e), "med-span-2")
-        ]),
-        mv.editorSection("source", "Source & sync", "Where this record came from and what may refresh.", [
-          mv.sourceInfo(e, e.syncSource === "anilist" ? "AniList" : e.syncSource === "import" ? "XML import" : "Local record")
-        ]),
-        mv.editorSection("notes", "Notes", "Your private thoughts, reminders and viewing context.", [
+        mv.editorSection("personal", "Your layer", "Not on AniList — kept here, on every device.", [
+          field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav])),
+          field("Tags", tags),
+          field("Cover position", el("div", { class: "image-field" }, [coverPosition.node]), "med-span-2"),
+          field("Custom lists", mv.customListChips(e), "med-span-2"),
           field("Notes", notes, "med-span-2")
+        ]),
+        mv.editorSection("source", "Source & sync", "Where this record comes from.", [
+          mv.sourceInfo(e, "AniList", "A 1:1 mirror: removed on AniList means removed here on the next pull. Status, progress and score push back within seconds of a change.")
         ])
       ],
       onSave: save,
-      onDelete: function () {
-        mv.deleteEntry(e, "Delete “" + e.title + "” from the collection?",
-          function () { overlay.close(); }, onSaved);
-      },
-      focus: title
+      onDelete: null,
+      focus: status
     });
     return overlay;
   }
@@ -245,10 +256,13 @@
        TITLE is the real control, so the tab order reads
        favourite → title → status → +1 and a screen reader announces the
        entry by name instead of "button". */
+    /* the score rides the cover's top-left corner (the ♥ has the right);
+       the hover row is status + "+1", one line, never clipped */
     var card = el("div", { class: "med-card",
       onclick: function () { editorModal(e, rerender); }
     }, [
       cover(e, mod),
+      KOS.medview.quickScore(e, rerender, { corner: true }),
       el("button", { class: "med-fav" + (e.favourite ? " on" : ""), title: "Favourite — appears in the Shrine",
         "aria-label": "Toggle favourite", text: "♥", onclick: function (ev) {
           ev.stopPropagation();
@@ -264,14 +278,10 @@
           el("span", { class: "med-prog", text: progressText(e) }),
           KOS.medview.pushChip(e, rerender)
         ]),
-        el("div", { class: "med-meta med-quickrow" }, [
-          KOS.medview.quickEdit(e, rerender),
-          e.status === "inProgress" ? el("button", { class: "mini-btn med-plus", text: "+1 " + mod.unit,
-            title: "Log the next " + mod.unitName.replace(/s$/, ""), onclick: function (ev) {
-              ev.stopPropagation();
-              bumpProgress(e, rerender);
-            } }) : null
-        ])
+        KOS.medview.quickRow(e, rerender, {
+          unit: mod.unit, title: "Log the next " + mod.unitName.replace(/s$/, ""),
+          onBump: e.status === "inProgress" ? function () { bumpProgress(e, rerender); } : null
+        })
       ])
     ]);
     if (e.progress.total) {
@@ -304,7 +314,7 @@
         el("span", { class: "dh-kicker", text: "Collection · 映" }),
         el("h1", { text: "Anime" }),
         el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "What you're watching, what's waiting, and what the season is doing." })
+          el("span", { class: "board", text: "Your AniList anime list, mirrored — what you're watching, what's waiting, and what the season is doing." })
         ])
       ])
     ]));
@@ -348,7 +358,9 @@
           onSelect: function () { KOS.show("aniprofile"); } },
         { label: "Sync & Import", glyph: "⇅", onSelect: function () { KOS.show("mediasync"); } }
       ],
-      primary: el("button", { class: "btn primary", text: "+ Add", onclick: function () { editorModal(null, refreshAll); } })
+      /* the one way in is AniList: Find new titles creates THERE first */
+      primary: el("button", { class: "btn primary", text: "⊕ Find new", title: "Search all of AniList — the title is added to your AniList list, then mirrored here",
+        onclick: function () { KOS.mediaSearch.open("anime", refreshAll); } })
     });
     mainCol.appendChild(bar.root);
     main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
@@ -396,10 +408,10 @@
           area.holder.appendChild(mv.emptyState(
             search.value || rail.status() || rail.customList() || genreSel.value || tagSel.value
               ? "Nothing matches this filter."
-              : "The vault is empty. Connect your AniList (or import its XML export) and 650 entries land in one sync — or add titles by hand.",
+              : "The vault is a mirror of your AniList anime list. Connect AniList and the whole list lands in one sync.",
             [
               el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-              el("button", { class: "btn", text: "+ Add manually", onclick: function () { editorModal(null, refreshAll); } })
+              el("button", { class: "btn", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("anime", refreshAll); } })
             ]));
           return;
         }
@@ -446,14 +458,15 @@
   KOS.anime.watchHeatmapCard = watchHeatmapCard;
 
   /* ================= Seasonal Watching (Build 3f + 3j picker) ================= */
-  /* The vault filtered to ONE season — defaulting to the current one
+  /* What you are WATCHING from one season — defaulting to the current one
      (device date mapped onto AniList's enum by calendar quarter), with a
      season + year picker (3j) to walk any past or future season: the same
      view, the same extra.season/seasonYear data the sync already carries,
-     just a different filter value. Entries with no season data (manual,
-     unenriched, unlinked) don't appear here: accepted limitation, stated
-     in the header, not worked around. The palette follows the SELECTED
-     season via the s-* CSS classes — token-system modes, not skins. */
+     just a different filter value. Only titles in progress appear: a
+     planned title is not "seasonal watching", and the countdowns only
+     mean something for the shows you are actually following. The palette
+     follows the SELECTED season via the s-* CSS classes, and the hero
+     carries that season's scenery (SEASON_META.art). */
   var SEASON_ORDER = ["WINTER", "SPRING", "SUMMER", "FALL"];
   KOS.views.seasonal = function (main) {
     document.getElementById("tree").classList.add("hidden");
@@ -466,9 +479,19 @@
     main.appendChild(wrap);
 
     var heroTitle = el("h1", {});
+    var heroArt = el("img", { class: "season-art", alt: "", "aria-hidden": "true", decoding: "async", sizes: "100vw" });
+    var heroCredit = el("span", { class: "season-credit" });
+    var heroCount = el("span", { class: "season-hero-count" });
     wrap.appendChild(el("div", { class: "lab-h season-hero" }, [
-      heroTitle,
-      el("p", { class: "sub", text: "Your vault, one season at a time — live countdowns on anything airing. Only entries with season data from AniList appear here." })
+      heroArt,
+      el("div", { class: "season-hero-scrim", "aria-hidden": "true" }),
+      el("div", { class: "season-hero-body" }, [
+        el("span", { class: "dh-kicker season-hero-kicker", text: "Seasonal watching" }),
+        heroTitle,
+        el("p", { class: "sub", text: "What you're watching this season, with live countdowns to the next episode." }),
+        heroCount
+      ]),
+      heroCredit
     ]));
 
     if (KOS.medview.unavailable(wrap)) return;
@@ -499,6 +522,17 @@
       heroTitle.innerHTML = "";
       heroTitle.appendChild(el("span", { class: "kanji-inline season-kanji", text: meta.kanji }));
       heroTitle.appendChild(document.createTextNode(" " + meta.label + " " + sel.year));
+      if (meta.art && heroArt.getAttribute("data-season") !== sel.season) {
+        heroArt.setAttribute("data-season", sel.season);
+        heroArt.srcset = meta.artSmall + " 850w, " + meta.art + " " + meta.artWidth + "w";
+        heroArt.src = meta.artSmall;
+        heroArt.style.objectPosition = meta.focus || "50% 50%";
+        /* the 850px sample paints as the hero's background at once, so the
+           full frame (up to 2.5 MB) fades in over a picture, not a void */
+        heroArt.parentNode.style.setProperty("--season-art", "url(\"" + meta.artSmall + "\")");
+        heroArt.parentNode.style.setProperty("--season-art-pos", meta.focus || "50% 50%");
+        heroCredit.textContent = meta.credit ? "art · " + meta.credit : "";
+      }
       var isNow = sel.season === currentSeason().season && sel.year === currentSeason().year;
       todayBtn.style.display = isNow ? "none" : "";
       render();
@@ -542,7 +576,7 @@
         holder.innerHTML = "";
         if (err) { refreshedLine.textContent = "Query failed: " + err.message; return; }
         var seasonal = rows.filter(function (e) {
-          return e.extra && e.extra.season === sel.season && e.extra.seasonYear === sel.year;
+          return e.status === "inProgress" && e.extra && e.extra.season === sel.season && e.extra.seasonYear === sel.year;
         });
         /* airing entries first, soonest episode first; the rest A–Z
            (past seasons naturally have nothing airing → pure A–Z) */
@@ -552,18 +586,20 @@
         var rest = seasonal.filter(function (e) { return !knownIds[e.id]; })
           .sort(function (a, b) { return a.titleLower < b.titleLower ? -1 : 1; });
         var list = known.concat(rest);
-        refreshedLine.textContent = list.length
-          ? list.length + (list.length === 1 ? " title" : " titles") + " from " + meta.label + " " + sel.year +
-            " in your vault" + (known.length ? " · " + known.length + " with a known next episode" : "") +
-            (airing.at && known.length ? " · airing data as of " + new Date(airing.at).toLocaleTimeString() : "")
+        heroCount.textContent = list.length
+          ? "Watching " + list.length + (list.length === 1 ? " title" : " titles") +
+            (known.length ? " · " + known.length + " with a next episode scheduled" : "")
+          : "";
+        refreshedLine.textContent = airing.at && known.length
+          ? "Airing data as of " + new Date(airing.at).toLocaleTimeString()
           : "";
         if (!list.length) {
           holder.appendChild(KOS.ui.emptyState({
             compact: true,
             className: "seasonal-empty",
             mark: "季",
-            title: "No " + meta.label + " " + sel.year + " titles in this vault",
-            body: "Season data arrives with AniList sync or enrichment; it cannot be entered by hand here.",
+            title: "Nothing from " + meta.label + " " + sel.year + " in progress",
+            body: "This view lists the titles you are watching from the season — set one to Watching on AniList (or here) and it appears.",
             action: el("div", { class: "lab-controls seasonal-empty-actions" }, [
               el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
               el("button", { class: "btn gold", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("anime", render); } })

@@ -874,15 +874,16 @@ await waitFor("document.querySelector('.fx-link-row')", "prefilled focus timer")
 assert(await evaluate(`(() => { const s = document.querySelectorAll('.fx-link-row select'); return s[0].value === 'compsci' && !!s[1].value; })()`),
   "Focus Topic A did not prefill the selected subject/topic");
 
-/* Matrix strip clipping and adjacent-page regression pass. */
-await auditView("matrix", undefined, ".med-strip-card");
+/* Matrix on-the-go card clipping (the cover strip became a grid of wide
+   cards in the mirror release) and adjacent-page regression pass. */
+await auditView("matrix", undefined, ".mx-now-card");
 const stripClip = await evaluate(`(() => {
-  const f = document.querySelector('.med-strip-cover'), title = document.querySelector('.med-strip-t');
+  const f = document.querySelector('.mx-now-cover'), title = document.querySelector('.mx-now-title');
   const fr = f.getBoundingClientRect(), tr = title.getBoundingClientRect();
-  return { overflow: getComputedStyle(f).overflow, aspect: fr.width / fr.height, separated: fr.bottom <= tr.top + 1 };
+  return { overflow: getComputedStyle(f).overflow, aspect: fr.width / fr.height, beside: fr.right <= tr.left + 1 };
 })()`);
-assert(stripClip.overflow === "hidden" && Math.abs(stripClip.aspect - 2 / 3) < 0.02 && stripClip.separated,
-  `Matrix strip cover is not independently clipped: ${JSON.stringify(stripClip)}`);
+assert(stripClip.overflow === "hidden" && Math.abs(stripClip.aspect - 2 / 3) < 0.02 && stripClip.beside,
+  `Matrix on-the-go cover is not independently clipped beside its title: ${JSON.stringify(stripClip)}`);
 
 for (const [view, arg, selector] of [
   ["home", undefined, ".home-id"],

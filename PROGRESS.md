@@ -18,7 +18,7 @@ study editor are deployed on top of it (17 September 2026).**
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-topic-nav-1` |
-| Smoke gate | 51 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
+| Smoke gate | 52 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
 Production deployment is separate from Git push and is performed only through
@@ -26,6 +26,34 @@ Production deployment is separate from Git push and is performed only through
 https://bb17097f.kurenai-os.pages.dev.
 
 ## Unreleased on `main`
+
+**The Collection mirror — Anime and digital Books are 1:1 with AniList.**
+Implemented 19 September 2026, not yet deployed.
+
+- Every AniList pull (Sync now and the autosync cycle) mirrors the list:
+  `bulkUpsert` `replace.mirror` removes what AniList no longer carries (the
+  "deleted on AniList but still here" ghosts), folds rows that share an
+  AniList/MAL id into one, records tombstones, and refuses to act on an empty
+  pull. The physical shelf and shelf-only hand-made books are untouched.
+- The cross-device duplicate source is closed: the cloud media pull matches a
+  remote row by provider identity when no local `syncId` matches, folds the
+  two with a deterministic survivor and tombstones the loser; a one-time boot
+  pass (`maint.dedupeAnilist`) folds what already accumulated.
+- No manual add, metadata edit or Delete for Anime and mirrored Books: the
+  record editor shows AniList's facts read-only and edits list state (pushed
+  back) plus the personal layer. "Find new" creates on AniList first. The
+  Books Digital lens lists AniList rows only; the Physical lens keeps its
+  full CRUD and "+ Add to shelf".
+- Titles are English-first (`KOS.anilist.pickTitle`), search matches either
+  spelling; the vault card carries the score in the cover's top-left corner
+  and a one-line status + "+1" hover row that no longer clips.
+- Seasonal view lists in-progress titles only, under a credited scenery hero
+  per season. The Collection overview is "what next?" only: an airing
+  schedule grouped by day, on-the-go cards with their +1, the four vault
+  doors; the figures and the status comparison moved to Analytics; the
+  streak chips went; the Overview/Analytics switcher rides the page header.
+  `smoke52` covers the layer; service-worker version
+  `kos-collection-mirror-1`; gate 52 suites.
 
 **Topic navigator — one control language, one status surface.** Deployed
 18 September 2026 (`7e6d64f`).
@@ -271,11 +299,13 @@ The numbered suites form one release gate:
   consistency.
 - `smoke48.test.js`–`smoke51.test.js`: free-tier egress, the later Pacing and
   labs/bank work, and the editable curriculum / study editor.
+- `smoke52.test.js`: the Collection AniList mirror — mirror pulls, duplicate
+  folding, the cloud identity match, English titles and the UI contracts.
 
 Run all suites with:
 
 ```sh
-for i in "" {2..51}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..52}; do node "tools/smoke${i}.test.js"; done
 ```
 
 ## Remaining work and external gates

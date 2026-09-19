@@ -836,9 +836,56 @@
         }
         next();
       }
-      if (local) { rec.id = local.id; KOS.mediadb.put(rec, saved); }
-      else { delete rec.id; KOS.mediadb.add(rec, saved); }
+      if (local) { rec.id = local.id; KOS.mediadb.put(rec, saved); return; }
+      /* No row carries this syncId — but the same MEDIA may already be
+         here under another one. Two devices that each pulled AniList (or
+         VNDB) minted two syncIds for one title, and applying the remote
+         row as an addition is exactly how the vault grew duplicates. Match
+         by provider identity instead, fold the two into one row and keep
+         the lexically smaller syncId — a tie-break every device computes
+         the same way, so both converge on one cloud row; the loser is
+         tombstoned so its cloud copy is deleted rather than re-pulled. */
+      findByProviderId(rec, function (dup) {
+        if (!dup) { delete rec.id; KOS.mediadb.add(rec, saved); return; }
+        var remote = KOS.mediadb.normalise(rec);
+        remote.updatedAt = rec.updatedAt || remote.updatedAt;
+        var merged = KOS.media.mergeRows([dup, remote]);
+        var winner = dup.syncId < row.entry_id ? dup.syncId : row.entry_id;
+        var loser = winner === dup.syncId ? row.entry_id : dup.syncId;
+        merged.id = dup.id;
+        merged.syncId = winner;
+        KOS.mediadb.put(merged, function (e3, recSaved) {
+          if (e3 || !recSaved) { next(); return; }
+          out.applied++;
+          /* either way the merged row differs from what the cloud holds,
+             so it is left DIRTY (no cleanLocal) and pushes next cycle; the
+             losing remote row is remembered as deleted so its echo is
+             ignored */
+          meta.media[row.entry_id] = winner === row.entry_id
+            ? { remoteTs: row.updated_at, cleanLocal: null }
+            : { remoteTs: row.updated_at, deleted: true };
+          KOS.mediadb.recordTombstones([{ syncId: loser, module: recSaved.module, ts: Date.now() }], function () { next(); });
+        });
+      });
     });
+  }
+  /* the provider identity a vault row is matched on across devices —
+     the same order bulkUpsert uses (VNDB, AniList, MAL) */
+  function findByProviderId(rec, cb) {
+    var x = rec.externalIds || {};
+    var tries = [];
+    if (x.vndbId != null) tries.push(["vndb", x.vndbId]);
+    if (x.anilistId != null) tries.push(["anilist", x.anilistId]);
+    if (x.malId != null) tries.push(["mal", x.malId]);
+    (function step() {
+      var t = tries.shift();
+      if (!t) { cb(null); return; }
+      KOS.mediadb.getByExternal(t[0], t[1], function (err, hit) {
+        if (!err && hit && hit.module === (rec.module === "manga" || rec.module === "ln" ? "books" : rec.module) &&
+            hit.syncId && hit.syncId !== rec.syncId) { cb(hit); return; }
+        step();
+      });
+    })();
   }
   function pullMedia(meta, done) {
     var out = { applied: 0, deleted: 0 };

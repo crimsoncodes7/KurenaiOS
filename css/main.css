@@ -684,8 +684,8 @@ button.tree-open-btn { display: none; }
 .data-card,
 .cs-chart,
 .med-card,
-.med-strip-card,
-.mx-air-card,
+.mx-now-card,
+.mx-ep,
 .mk-card,
 .wl-budget,
 .wl-row,
@@ -3670,16 +3670,37 @@ body.fx-minimised .fx-dock { display: flex; }
 @media (max-width: 860px) { .med-row-genres { display: none; } .med-row-side .med-quick { display: none; } }
 
 /* ---- inline quick-edit + push chips ---- */
-.med-quickrow { margin-top: 2px; max-height: 0; opacity: 0; overflow: hidden; pointer-events: none; transition: max-height .2s, opacity .2s; }
+/* The hover row is ONE line — status + "+1" — since the score moved to the
+   cover's top-left corner: the old 118px select + 52px score + 44px "+1"
+   wrapped inside a 40px max-height and the "+1" was the line that got
+   clipped. Nothing wraps now, so nothing is cut. */
+.med-quickrow { margin-top: 2px; max-height: 0; opacity: 0; overflow: hidden; pointer-events: none; transition: max-height .2s, opacity .2s; flex-wrap: nowrap; }
 .med-card:hover .med-quickrow, .med-card:focus-within .med-quickrow,
-.med-row .med-quickrow { max-height: 40px; opacity: 1; pointer-events: auto; overflow: visible; }
-/* audit VLT-10: the quick-edit row overflowed a 128px Seasonal card by 8px
-   in 23 places, because a 118px select plus a 52px score plus the gap is
-   175px whatever the card is. It wraps and shrinks now. */
+.med-row .med-quickrow { max-height: 44px; opacity: 1; pointer-events: auto; overflow: visible; }
+.med-quickrow .med-plus { flex: none; white-space: nowrap; }
 .med-quick { display: inline-flex; align-items: center; gap: 5px; flex-wrap: wrap; max-width: 100%; min-width: 0; }
 .med-qsel { min-height: var(--control-h-xs); font-size: 10.5px; padding: 3px 6px; max-width: 118px; min-width: 0; flex: 1 1 auto; }
 .med-qscore { min-height: var(--control-h-xs); font-size: 10.5px; padding: 3px 4px; width: 52px; text-align: center; font-family: var(--mono); }
 .med-row .med-qsel { max-width: 104px; }
+/* the corner score: a pill mirroring the ♥ on the other side. Empty scores
+   only show on hover/focus so an unrated grid does not carry 60 stars. */
+.med-score-corner {
+  position: absolute; top: 8px; left: 8px; z-index: 2;
+  width: 44px; height: 28px; min-height: 0; padding: 0 6px 0 4px;
+  border-radius: 999px; border: 1px solid rgba(255,255,255,.14);
+  background: rgba(20,16,10,.62); color: #EFC77E;
+  font-family: var(--mono); font-size: 12px; font-weight: 700; text-align: center;
+  backdrop-filter: blur(4px); -moz-appearance: textfield; appearance: textfield;
+  transition: opacity .15s, border-color .15s;
+}
+.med-score-corner::-webkit-outer-spin-button, .med-score-corner::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.med-score-corner::placeholder { color: rgba(239,199,126,.7); }
+.med-score-corner:placeholder-shown { opacity: 0; }
+.med-card:hover .med-score-corner, .med-card:focus-within .med-score-corner, .med-score-corner:focus { opacity: 1; }
+.med-score-corner:hover, .med-score-corner:focus { border-color: rgba(239,199,126,.7); outline: none; }
+@media (pointer: coarse) { .med-score-corner:placeholder-shown { opacity: 1; } }
+/* the mirror editor's read-only values: the same field grammar, no input */
+.med-ro { min-height: var(--control-h-sm); display: flex; align-items: center; font-size: 13.5px; color: var(--text2); padding: 4px 0; border-bottom: 1px dashed var(--line2); }
 .med-push-fail { --chip: var(--danger); cursor: pointer; border: none; font: inherit; font-weight: 700; }
 .med-push-fail:hover { filter: brightness(1.15); }
 .med-push-pending { --chip: var(--muted); opacity: .8; }
@@ -3835,24 +3856,7 @@ body.fx-minimised .fx-dock { display: flex; }
 @media (max-width: 560px) { .integration-facts { grid-template-columns: 1fr; } .integration-facts > div:nth-child(even) { padding-left: 0; border-left: 0; } }
 
 /* ---- matrix home ---- */
-.med-streaks { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 .med-rest.lit { border-color: color-mix(in srgb, var(--c-maths) 50%, transparent); color: var(--c-maths); background: color-mix(in srgb, var(--c-maths) 8%, var(--bg1)); }
-.med-strip { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 14px; scrollbar-width: thin; }
-.med-strip-card {
-  position: relative; flex: 0 0 112px; cursor: pointer;
-  overflow: hidden;
-  display: flex; flex-direction: column;
-  transition: transform .15s, box-shadow .15s;
-}
-.med-strip-card:hover, .med-strip-card:focus-visible { transform: translateY(-3px); box-shadow: var(--shadow-md); outline: none; }
-.med-strip-cover { position: relative; display: block; width: 100%; aspect-ratio: 2 / 3; overflow: hidden; flex: none; }
-.med-strip-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.med-strip-card .med-cover-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 30px; }
-.med-strip-mod { position: absolute; top: 6px; left: 6px; font-family: var(--jp); font-size: 11px; background: rgba(20,16,10,.6); color: #EFC77E; border-radius: 6px; padding: 2px 6px; backdrop-filter: blur(3px); }
-.med-strip-t { font-size: 11px; font-weight: 600; line-height: 1.3; padding: 7px 9px 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.6em; }
-.med-strip-p { font-family: var(--mono); font-size: 9.5px; color: var(--muted); padding: 0 9px 8px; }
-.med-strip-track { display: block; height: 3px; background: var(--well); }
-.med-strip-track span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
 .med-mods { margin-top: 18px; }
 .med-mod-card { cursor: pointer; }
 /* audit HOME-5: the Collection desk sat beside three subject cards in a
@@ -3865,23 +3869,9 @@ body.fx-minimised .fx-dock { display: flex; }
 .collection-crumbs { margin-bottom: var(--space-2); }
 .collection-workspace-tabs { margin-bottom: var(--section-gap); }
 
-/* airing soon — cover cards */
-.mx-airing .n-h { display: flex; align-items: center; gap: 10px; }
-.mx-air-season { font-size: 10px; }
-.mx-air-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-3); margin: 10px 0 var(--section-gap); }
-.mx-air-card {
-  display: flex; align-items: center; gap: 12px;
-  padding: 8px 12px 8px 8px;
-  cursor: pointer;
-  transition: transform .15s, border-color .15s;
-}
-.mx-air-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--good) 45%, var(--line2)); }
-.mx-air-cover { flex: none; width: 38px; height: 54px; overflow: hidden; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 17px; background: var(--well); }
-.mx-air-cover > img { width: 100%; height: 100%; display: block; }
-.mx-air-body { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.mx-air-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mx-air-when { display: flex; align-items: baseline; gap: 2px; }
-.mx-air-count { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--good); }
+/* airing soon — the section header's Seasonal link (the schedule itself
+   is .mx-sched, with the rest of the overview rules) */
+.mx-air-season { font-size: 12px; min-height: 32px; }
 
 /* ---- the Shrine ---- */
 .shrine-head { align-items: flex-end; }
@@ -4182,17 +4172,38 @@ body.fx-minimised .fx-dock { display: flex; }
 .season-view.s-spring { --season: #6F9A5E; }
 .season-view.s-summer { --season: #C0912F; }
 .season-view.s-fall   { --season: #B5573F; }
+/* the seasonal hero carries the season's scenery: art behind, a season-
+   tinted scrim for legibility, the title in front — the same reading
+   surface the vault heroes use, keyed to the SELECTED season */
 .season-hero {
-  position: relative;
-  display: flex; flex-direction: column; justify-content: center;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  min-height: clamp(220px, 32vw, 340px);
   padding: var(--hero-pad-block) var(--hero-pad-inline);
   margin-bottom: var(--section-gap);
   border: 1px solid color-mix(in srgb, var(--season) 35%, transparent);
-  background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--season) 13%, transparent), transparent 55%), var(--bg1);
+  background:
+    var(--season-art, none) var(--season-art-pos, center) / cover no-repeat,
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--season) 13%, transparent), transparent 55%), var(--bg1);
   box-shadow: var(--shadow-md);
+  color: #FBF7EC;
 }
-.season-hero h1 { margin: 0 0 4px; font-size: var(--type-hero-title); }
-.season-kanji { font-family: var(--jp); color: var(--season); }
+.season-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 0; }
+.season-hero-scrim {
+  position: absolute; inset: 0; z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(16,14,10,.18) 0%, rgba(16,14,10,.34) 45%, rgba(16,14,10,.86) 100%),
+    linear-gradient(100deg, color-mix(in srgb, var(--season) 42%, rgba(16,14,10,.6)) 0%, transparent 60%);
+}
+.season-hero-body { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 4px; max-width: var(--content-readable); }
+.season-hero-kicker { color: rgba(251,247,236,.78); }
+.season-hero h1 { margin: 0; font-size: var(--type-hero-title); color: #FBF7EC; text-shadow: 0 1px 10px rgba(0,0,0,.55); }
+.season-hero .sub { color: rgba(251,247,236,.82); text-shadow: 0 1px 6px rgba(0,0,0,.5); }
+.season-hero-count { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: rgba(251,247,236,.9); margin-top: 6px; }
+.season-hero-count:empty { display: none; }
+.season-credit { position: absolute; right: 12px; bottom: 8px; z-index: 2; font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; color: rgba(251,247,236,.55); }
+@media (max-width: 700px) { .season-credit { top: 10px; bottom: auto; } }
+.season-kanji { font-family: var(--jp); color: color-mix(in srgb, var(--season) 55%, #FBF7EC); }
 .season-picker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .season-picker .status-sel, .season-picker .todo-in { width: auto; }
 .season-yr { max-width: 92px; }
@@ -8643,9 +8654,72 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
 /* ============================================================
    Category 7 Phase D — Collection Overview (audit MTX-2/MTX-3/MTX-4)
    ============================================================ */
-.mx-tabbar { margin: var(--space-3) 0 var(--space-4); }
+.mx-tabbar { margin: 0; }
 .mx-pane { display: flex; flex-direction: column; gap: var(--section-gap); }
 .mx-analytics-note { margin: 0; }
+.mx-stats { margin-top: 0; }
+
+/* ---- the airing schedule: one column per day ---- */
+.mx-sched { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-3); align-items: start; }
+.mx-day { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.mx-day-h { display: flex; align-items: baseline; gap: 8px; padding: 0 2px 4px; border-bottom: 1px solid var(--line2); }
+.mx-day-h b { font-family: var(--serif); font-size: 15px; font-weight: 600; }
+.mx-day.is-today .mx-day-h b { color: var(--good); }
+.mx-ep {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px 7px 7px;
+  cursor: pointer; transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+.mx-ep:hover, .mx-ep:focus-visible { transform: translateY(-2px); border-color: color-mix(in srgb, var(--good) 45%, var(--line2)); box-shadow: var(--shadow-sm); outline: none; }
+.mx-ep-cover { flex: none; width: 40px; height: 56px; border-radius: 6px; overflow: hidden; background: var(--well); }
+.mx-ep-cover .med-cover { aspect-ratio: auto; width: 100%; height: 100%; }
+.mx-ep-cover .med-cover-ph { font-size: 16px; }
+.mx-ep-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.mx-ep-title { font-size: 13px; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mx-ep-line { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+.mx-ep-n { color: var(--text2); font-weight: 700; }
+.mx-ep-behind { color: var(--warning); }
+.mx-ep-count { flex: none; font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--good); white-space: nowrap; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--good) 12%, transparent); }
+.mx-ep-count.is-now { animation: mx-pulse 1.6s ease-in-out infinite; }
+@keyframes mx-pulse { 50% { opacity: .55; } }
+
+/* ---- on the go: wide cards with the everyday +1 ---- */
+.mx-now-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 28px; padding: 3px 11px 3px 8px; border-radius: 999px;
+  font-size: 12px; color: var(--text2);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line2));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.mx-now-chip:hover { border-color: var(--accent); color: var(--text); }
+.mx-now-chip .kanji-inline { color: var(--accent); font-size: 13px; }
+.mx-now-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-3); }
+.mx-now-card {
+  position: relative; display: flex; gap: 12px; align-items: stretch;
+  padding: 9px;
+  cursor: pointer; overflow: hidden;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+.mx-now-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); opacity: .85; }
+.mx-now-card:hover, .mx-now-card:focus-within { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 45%, var(--line2)); box-shadow: var(--shadow-md); }
+.mx-now-cover { flex: none; width: 60px; border-radius: 8px; overflow: hidden; background: var(--well); align-self: flex-start; }
+.mx-now-cover .med-cover { aspect-ratio: 2 / 3; }
+.mx-now-cover .med-cover-ph { font-size: 22px; }
+.mx-now-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.mx-now-kind { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.mx-now-kind .kanji-inline { color: var(--accent); font-size: 12px; letter-spacing: 0; }
+.mx-now-air { margin-left: auto; color: var(--good); text-transform: none; letter-spacing: .02em; white-space: nowrap; }
+.mx-now-title { text-align: left; font-size: 14px; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mx-now-title:hover { color: var(--accent); }
+.mx-now-foot { display: flex; align-items: center; gap: 8px; margin-top: auto; }
+.mx-now-prog { font-family: var(--mono); font-size: 11px; color: var(--text2); }
+.mx-now-plus { margin-left: auto; padding: 3px 10px; font-size: 11.5px; }
+.mx-now-track { display: block; height: 3px; border-radius: 2px; background: var(--well); overflow: hidden; }
+.mx-now-track > span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #fff)); }
+@media (max-width: 700px) {
+  .mx-sched, .mx-now-grid { grid-template-columns: 1fr; }
+  .mx-now-air { display: none; }
+}
 /* small multiples: one card, N panels, one shared scale and one legend —
    replacing four cards that each carried a quarter of the comparison */
 .cs-multi { display: flex; flex-direction: column; gap: var(--space-3); }
