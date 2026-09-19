@@ -9,16 +9,17 @@ architecture and safety rules remain in `CLAUDE.md` and `AGENTS.md`.
 **Category 7 Phases A–G is complete, integrated, deployed and
 production-verified. The cloud three-way merge and the editable curriculum /
 study editor are deployed on top of it (17 September 2026); the Collection
-AniList mirror followed on 19 September 2026 (`b482f68`).**
+AniList mirror and the notification centre followed on 19 September 2026
+(`b482f68`, `8dfe2d1`).**
 
 | Item | Current value |
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `b482f68` (Collection AniList mirror), immutable https://8dec4238.kurenai-os.pages.dev |
+| Runtime release commit | `8dfe2d1` (notification centre), immutable https://6c99c409.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-collection-mirror-1` |
+| Service-worker cache | `kos-notify-1` |
 | Smoke gate | 53 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
@@ -29,7 +30,7 @@ https://bb17097f.kurenai-os.pages.dev.
 ## Unreleased on `main`
 
 **The notification centre, seasonal art of your own, the favicon.**
-Implemented 19 September 2026.
+Deployed 19 September 2026 (`8dfe2d1`).
 
 - `js/core/notify.js` is one ledger (`state.notify`) for everything the app
   used to only toast: fired calendar, reminder and assignment alerts (handed

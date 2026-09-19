@@ -10,12 +10,11 @@ chronological diary here.
 
 - Category 7 A–G is integrated, deployed and production-verified.
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `b482f68` (the Collection AniList mirror)
-- Runtime release: `b482f68` — immutable deployment
-  https://8dec4238.kurenai-os.pages.dev
+- Release source checkpoint: `8dfe2d1` (the notification centre)
+- Runtime release: `8dfe2d1` — immutable deployment
+  https://6c99c409.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-notify-1` (unreleased on `main`; the deployed
-  runtime is still `kos-collection-mirror-1`)
+- Service-worker version: `kos-notify-1`
 - Required smoke gate: 53 / 53 suites.
 
 ## Run, test and deploy
