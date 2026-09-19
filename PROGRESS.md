@@ -16,7 +16,7 @@ AniList mirror and the notification centre followed on 19 September 2026
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `8dfe2d1` (notification centre), immutable https://6c99c409.kurenai-os.pages.dev |
+| Runtime release commit | `a5195a8` (notification centre + phone header fixes), immutable https://70aefb39.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-notify-2` |

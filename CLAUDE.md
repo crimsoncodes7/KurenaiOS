@@ -10,9 +10,9 @@ chronological diary here.
 
 - Category 7 A–G is integrated, deployed and production-verified.
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `8dfe2d1` (the notification centre)
-- Runtime release: `8dfe2d1` — immutable deployment
-  https://6c99c409.kurenai-os.pages.dev
+- Release source checkpoint: `a5195a8` (phone header + notification scope)
+- Runtime release: `a5195a8` — immutable deployment
+  https://70aefb39.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
 - Service-worker version: `kos-notify-2`
 - Required smoke gate: 53 / 53 suites.
