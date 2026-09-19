@@ -19,7 +19,7 @@ AniList mirror and the notification centre followed on 19 September 2026
 | Runtime release commit | `bf28dbe` (pacing ticks and carry-over), immutable https://1c1a21d2.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-pacing-tick-1` |
+| Service-worker cache | `kos-pacing-tick-2` |
 | Smoke gate | 53 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
@@ -45,7 +45,10 @@ links out.** Deployed 19 September 2026 (`bf28dbe`).
   assignments due inside the week under each subject; a row's dialog offers
   the tick and "Remind me by the week's end" (a real reminder, tagged
   `pacing`); the week rolling over with work left is one notification.
-  Invariants 82/82a/82b; smoke49 §H; service-worker `kos-pacing-tick-1`.
+- A class row now lists the week's lessons one per line (`lessonsOf` splits
+  the scheme of work's own semicolon list; assessments and NEA items are
+  toned) instead of one run-on line. Invariants 82/82a/82b; smoke49 §H;
+  service-worker `kos-pacing-tick-2`.
 
 **The notification centre, seasonal art of your own, the favicon.**
 Deployed 19 September 2026 (`8dfe2d1`).

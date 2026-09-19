@@ -14,7 +14,7 @@ chronological diary here.
 - Runtime release: `bf28dbe` — immutable deployment
   https://1c1a21d2.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-pacing-tick-1`
+- Service-worker version: `kos-pacing-tick-2`
 - Required smoke gate: 53 / 53 suites.
 
 ## Run, test and deploy

@@ -810,9 +810,15 @@
       if (!list.childNodes.length) list.appendChild(el("p", { class: "sub", text: "Nothing planned for this week." }));
       card.appendChild(list);
       if (classRows.length) {
-        card.appendChild(el("p", { class: "sub pace-home-class", text: "In class: " + classRows.map(function (e) {
-          return (SUBJ.filter(function (x) { return x.id === e.subject; })[0] || {}).short + " — " + e.title;
-        }).join(" · ") }));
+        card.appendChild(el("div", { class: "pace-home-class" }, [
+          el("span", { class: "pace-home-class-k", text: "In class" })
+        ].concat(classRows.map(function (e) {
+          var n = KOS.pacing.lessonsOf(e).length;
+          return el("span", { class: "pace-home-class-row", style: "--pace-hue:" + HUE[e.subject] }, [
+            el("b", { text: (SUBJ.filter(function (x) { return x.id === e.subject; })[0] || {}).short }),
+            el("span", { text: e.title + (n > 1 ? " · " + n + " lessons" : "") })
+          ]);
+        }))));
       }
     }
     paint();
@@ -957,17 +963,33 @@
         classBox.appendChild(el("p", { class: "sub pace-reg-none", text: "Nothing scheduled." }));
       } else {
         classRows.forEach(function (e) {
-          classBox.appendChild(el("button", { type: "button",
-            class: "pace-class" + (e.kind === "Mock" ? " is-mock" : "")
-              + (e.kind === "Assessment" ? " is-assess" : ""),
-            onclick: function () { entryDialog(e, null, redraw); } }, [
-            el("span", { class: "pace-class-mark", "aria-hidden": "true",
-              text: KIND_MARK[e.kind] || "授" }),
-            el("span", { class: "pace-class-t" }, [
-              el("b", { text: e.title }),
-              el("span", { class: "sub", text: e.kind })
+          /* the row is the week's heading; the lessons under it are the
+             scheme of work's own list, one per line, so the week can be
+             read at a glance instead of as one run-on sentence */
+          var lessons = KOS.pacing.lessonsOf(e);
+          var block = el("div", { class: "pace-class-block" + (e.kind === "Mock" ? " is-mock" : "") + (e.kind === "Assessment" ? " is-assess" : "") }, [
+            el("button", { type: "button",
+              class: "pace-class" + (e.kind === "Mock" ? " is-mock" : "")
+                + (e.kind === "Assessment" ? " is-assess" : ""),
+              onclick: function () { entryDialog(e, null, redraw); } }, [
+              el("span", { class: "pace-class-mark", "aria-hidden": "true",
+                text: KIND_MARK[e.kind] || "授" }),
+              el("span", { class: "pace-class-t" }, [
+                el("b", { text: e.title }),
+                el("span", { class: "sub", text: e.kind + (lessons.length > 1 ? " · " + lessons.length + " lessons" : "") })
+              ])
             ])
-          ]));
+          ]);
+          if (lessons.length) {
+            block.appendChild(el("ol", { class: "pace-lessons", "aria-label": "Lessons this week" },
+              lessons.map(function (l, i) {
+                return el("li", { class: "pace-lesson is-" + l.tone }, [
+                  el("span", { class: "pace-lesson-n", "aria-hidden": "true", text: String(i + 1) }),
+                  el("span", { class: "pace-lesson-t", text: l.text })
+                ]);
+              })));
+          }
+          classBox.appendChild(block);
         });
       }
       col.appendChild(classBox);

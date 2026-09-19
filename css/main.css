@@ -9288,6 +9288,24 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
   background: color-mix(in srgb, var(--pace-hue, var(--accent)) 14%, transparent);
   color: color-mix(in srgb, var(--pace-hue, var(--accent)) 72%, var(--text));
 }
+/* the week's lessons, one per line under the class row */
+.pace-class-block { margin-bottom: 7px; }
+.pace-class-block .pace-class { margin-bottom: 0; }
+.pace-class-block .pace-class:has(+ .pace-lessons) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.pace-lessons {
+  list-style: none; margin: 0; padding: 4px 6px 5px 6px;
+  border: 1px solid var(--line2); border-top: 0; border-radius: 0 0 9px 9px;
+  background: color-mix(in srgb, var(--panel) 60%, transparent);
+}
+.pace-lesson { display: flex; align-items: baseline; gap: 8px; padding: 3px 4px; font-size: 12px; line-height: 1.35; color: var(--text2); }
+.pace-lesson + .pace-lesson { border-top: 1px dashed color-mix(in srgb, var(--line2) 70%, transparent); }
+.pace-lesson-n { flex: 0 0 18px; font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: right; }
+.pace-lesson-t { min-width: 0; }
+.pace-lesson.is-assess .pace-lesson-t { color: var(--warning); font-weight: 600; }
+.pace-lesson.is-assess .pace-lesson-n { color: var(--warning); }
+.pace-lesson.is-nea .pace-lesson-t { color: color-mix(in srgb, var(--pace-hue, var(--accent)) 70%, var(--text)); }
+.pace-class-block.is-mock .pace-lessons { border-color: color-mix(in srgb, var(--danger) 46%, transparent); }
+.pace-class-block.is-assess .pace-lessons { border-color: color-mix(in srgb, var(--warning) 38%, transparent); }
 .pace-class.is-assess { border-color: color-mix(in srgb, var(--warning) 38%, transparent); }
 .pace-class.is-mock {
   border-color: color-mix(in srgb, var(--danger) 46%, transparent);
@@ -9351,7 +9369,10 @@ button.dl-item:focus-visible { outline: 2px solid var(--accent); outline-offset:
 .pace-home-row.is-done .pace-home-t b { text-decoration: line-through; }
 .pace-home-row.is-carried .pace-home-t { border-color: color-mix(in srgb, var(--warning) 40%, var(--line2)); background: color-mix(in srgb, var(--warning) 6%, var(--panel)); }
 .pace-home-row.is-carried .pace-home-t .sub { color: var(--warning); }
-.pace-home-class { margin: 10px 0 0; font-size: 11.5px; }
+.pace-home-class { margin: 10px 0 0; display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; }
+.pace-home-class-k { font-size: 10.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+.pace-home-class-row { display: flex; gap: 8px; align-items: baseline; padding-left: 8px; border-left: 2px solid var(--pace-hue, var(--accent)); color: var(--text2); }
+.pace-home-class-row b { flex: 0 0 auto; font-size: 10.5px; letter-spacing: .04em; color: var(--muted); }
 .pace-home-more { align-self: flex-start; margin: 2px 0 0 34px; padding: 4px 8px; border: 0; background: none; color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; }
 .pace-home-more:hover { background: var(--well); }
 

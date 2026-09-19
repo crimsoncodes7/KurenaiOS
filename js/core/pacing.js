@@ -524,6 +524,24 @@
       carried: carriedInto(now.wb) };
   }
 
+  /* A class row's `detail` is the scheme of work's own list of the week's
+     lessons, one per period, separated by semicolons ("Normalisation
+     Practice; SQL – Simple Queries; …"). Split it so the week reads as
+     lessons rather than one run-on line; a detail with no separators is
+     one lesson. Nothing is stored — the row's text is the source. */
+  function lessonsOf(entry) {
+    var text = str(entry && entry.detail).trim();
+    if (!text) return [];
+    return text.split(/;\s*|\n+/).map(function (t) {
+      return t.trim().replace(/[.\s]+$/, "");
+    }).filter(Boolean).map(function (t) {
+      var caps = (t.match(/[A-Z]/g) || []).length, letters = (t.match(/[A-Za-z]/g) || []).length;
+      var assess = /\b(ASSESSMENT|TEST|MOCK|EXAM)\b/.test(t) || (letters >= 8 && caps / letters > 0.6);
+      var nea = /\bNEA\b/.test(t) || /coursework/i.test(t);
+      return { text: t, tone: assess ? "assess" : nea ? "nea" : "lesson" };
+    });
+  }
+
   /* ---------------- what the plan lends other surfaces ----------------
      Class milestones — a mock, an assessment, an NEA milestone — are dated
      by the week they fall in, so they can stand in the Countdown rail
@@ -618,6 +636,7 @@
     entriesFor: entriesFor,
     leafOf: leafOf,
     leavesOf: leavesOf,
+    lessonsOf: lessonsOf,
     coverage: coverage,
     alignment: alignment,
     alignmentLine: alignmentLine,

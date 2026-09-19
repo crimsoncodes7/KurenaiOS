@@ -804,6 +804,19 @@ step("Home: the week's plan card ticks in place, leads with what is behind, and 
   KOS.pacing.removeEntry(older.id); KOS.pacing.removeEntry(now.id);
 });
 
+step("a class row lists the week's lessons one per line, from the scheme of work's own text", () => {
+  const ls = KOS.pacing.lessonsOf({ detail: "SQL – DDL Commands; Client Server Record Locks; DATABASE TEST; NEA (Analysis Checklist)." });
+  assert(ls.length === 4 && ls[0].text === "SQL – DDL Commands" && ls[3].text === "NEA (Analysis Checklist)", "detail did not split on semicolons: " + JSON.stringify(ls));
+  assert(ls[2].tone === "assess" && ls[3].tone === "nea" && ls[0].tone === "lesson", "lesson tones wrong: " + ls.map(l => l.tone).join(","));
+  assert(KOS.pacing.lessonsOf({ detail: "" }).length === 0 && KOS.pacing.lessonsOf({ detail: "One thing." }).length === 1, "edge cases");
+  KOS.show("pacing", { wb: "2026-11-02" });
+  const block = $$("#main .pace-class-block").find(b => b.querySelector(".pace-lessons"));
+  assert(block, "no class block carries its lesson list");
+  assert(block.querySelector("button.pace-class") && !block.querySelector("button.pace-class .pace-lessons"), "the lesson list must sit beside the row button, not inside it");
+  const items = block.querySelectorAll(".pace-lessons .pace-lesson");
+  assert(items.length > 1 && /lessons/.test(block.querySelector(".pace-class .sub").textContent), "the row does not count its lessons");
+});
+
 KOS.srs.todayISO = realToday;
 
 console.log("\n==============================");
