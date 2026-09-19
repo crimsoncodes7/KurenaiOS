@@ -8,16 +8,17 @@ architecture and safety rules remain in `CLAUDE.md` and `AGENTS.md`.
 
 **Category 7 Phases A–G is complete, integrated, deployed and
 production-verified. The cloud three-way merge and the editable curriculum /
-study editor are deployed on top of it (17 September 2026).**
+study editor are deployed on top of it (17 September 2026); the Collection
+AniList mirror followed on 19 September 2026 (`b482f68`).**
 
 | Item | Current value |
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `7e6d64f` (topic navigator), immutable https://22c8091f.kurenai-os.pages.dev |
+| Runtime release commit | `b482f68` (Collection AniList mirror), immutable https://8dec4238.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-topic-nav-1` |
+| Service-worker cache | `kos-collection-mirror-1` |
 | Smoke gate | 52 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
@@ -28,7 +29,7 @@ https://bb17097f.kurenai-os.pages.dev.
 ## Unreleased on `main`
 
 **The Collection mirror — Anime and digital Books are 1:1 with AniList.**
-Implemented 19 September 2026, not yet deployed.
+Deployed 19 September 2026 (`b482f68`).
 
 - Every AniList pull (Sync now and the autosync cycle) mirrors the list:
   `bulkUpsert` `replace.mirror` removes what AniList no longer carries (the
