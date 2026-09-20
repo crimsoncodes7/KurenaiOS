@@ -71,15 +71,16 @@
     var tv = totalVolumes(e);
     var ownedVols = e.physical ? e.physical.volumes.length : 0;
     var ownedPct = tv.n ? Math.min(100, Math.round(100 * ownedVols / tv.n)) : null;
-    var readPct = null, readOpen = false;
+    var readPct = null, readOpen = false, readTitle = null;
     if (e.progress.total) readPct = Math.min(100, Math.round(100 * (e.progress.current || 0) / e.progress.total));
     else if (tv.n && e.progress.volumes != null) readPct = Math.min(100, Math.round(100 * e.progress.volumes / tv.n));
     else {
-      /* a series still releasing: the shared half-full rule (KOS.media.progressFill) */
+      /* volumes read, or a series still releasing: the shared rule
+         (KOS.media.progressFill) so the card and this panel agree */
       var fill = KOS.media.progressFill(e);
-      if (fill) { readPct = fill.pct; readOpen = fill.open; }
+      if (fill) { readPct = fill.pct; readOpen = fill.open; readTitle = fill.title; }
     }
-    return { ownedVols: ownedVols, totalVols: tv.n, est: tv.est, ownedPct: ownedPct, readPct: readPct, readOpen: readOpen };
+    return { ownedVols: ownedVols, totalVols: tv.n, est: tv.est, ownedPct: ownedPct, readPct: readPct, readOpen: readOpen, readTitle: readTitle };
   }
 
   /* Deterministic spine colour: same series → same colour every session.
@@ -236,22 +237,6 @@
   }
   function cover(e) { return KOS.medview.cover(e, mod().kanji); }
 
-  /* the owned-vs-read payoff bar: gold = volumes on the shelf, crimson =
-     chapters actually read */
-  function dualBar(e) {
-    var o = ownership(e);
-    if (o.ownedPct == null && o.readPct == null) return null;
-    var readNote = o.readPct == null ? "read progress unknown"
-      : o.readOpen ? "Read: " + KOS.media.progressText(e) + " — still releasing, no final count yet"
-      : "Read: " + o.readPct + "%";
-    var wrap = el("div", { class: "subj-track med-track bk-dual", role: "img", "aria-label": readNote, title:
-      (o.ownedPct != null ? "Owned: " + o.ownedVols + "/" + o.totalVols + (o.est ? " vols (estimated from chapters)" : " vols") : "Nothing owned") +
-      " · " + readNote });
-    wrap.appendChild(el("span", { class: "bk-dual-own", style: "width:" + (o.ownedPct || 0) + "%" }));
-    wrap.appendChild(el("span", { class: "subj-fill bk-dual-read" + (o.readOpen ? " open" : ""), style: "width:" + (o.readPct || 0) + "%" }));
-    return wrap;
-  }
-
   /* +1 chapter — the everyday logging action, mirroring anime's +1 ep
      (shared bump, mode "progress") */
   function bumpChapter(e, done) { KOS.medview.bumpUnit(e, "progress", done); }
@@ -356,7 +341,7 @@
           : "no volumes recorded", "own"));
       wrap.appendChild(row("Read", o.readPct,
         o.readPct == null ? "progress unknown"
-          : o.readOpen ? KOS.media.progressText(e) + " · still releasing"
+          : o.readTitle ? o.readTitle
           : o.readPct + "%", "read" + (o.readOpen ? " open" : "")));
       return wrap;
     }
@@ -884,7 +869,11 @@
         })
       ])
     ]);
-    var bar = dualBar(e);
+    /* the SAME bar every vault card draws (KOS.media.progressBar): read
+       progress by chapter, or by volume for a series read that way; the
+       owned-vs-read comparison is the editor's, and the owned count is
+       already printed above */
+    var bar = KOS.media.progressBar(e);
     if (bar) card.appendChild(bar);
     return card;
   }

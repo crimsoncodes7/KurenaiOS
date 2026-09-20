@@ -4146,18 +4146,6 @@ body.fx-minimised .fx-dock { display: flex; }
 .bk-fmt { --chip: var(--accent2); }
 .bk-dnf { --chip: #9A8F7B; text-decoration: line-through; text-decoration-thickness: 1px; }
 .bk-owned-line { font-family: var(--mono); font-size: 10px; color: #EFC77E; }
-/* the Books card bar IS the shared .med-track (same placement, same
-   accent fill as Anime/VN, so the three vaults can never differ) — the
-   read half is the full fill, the owned half a thin gold line across its
-   top. It used to be its own 3px line along the rounded bottom edge in
-   the unlifted accent, which read as near-black on the card gradient. */
-.bk-dual { height: 6px; }
-.bk-dual-own { position: absolute; left: 0; top: 0; z-index: 1; height: 2px; display: block; background: linear-gradient(90deg, var(--accent2), #E8CF96); }
-.bk-dual-read { position: absolute; left: 0; bottom: 0; height: 100%; }
-.bk-dual-read.open {
-  -webkit-mask-image: linear-gradient(90deg, #000 55%, transparent);
-  mask-image: linear-gradient(90deg, #000 55%, transparent);
-}
 /* The Books lens switcher was the app's third tab idiom (audit G-23). It is
    the shared .tabs-cards / .tab-card primitive now, which carries exactly
    the styling that used to live here — .bk-tabs and .bk-tab remain as hooks

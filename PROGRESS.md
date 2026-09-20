@@ -19,7 +19,7 @@ AniList mirror and the notification centre followed on 19 September 2026
 | Runtime release commit | `8b6c513` (VN progress sources, VNDB relay, list mirror, card bars), immutable https://5096e6e7.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-vn-progress-2` |
+| Service-worker cache | `kos-vn-progress-3` |
 | Smoke gate | 54 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
@@ -65,6 +65,11 @@ VNDB write relay; half-full bars for series still releasing.** Deployed
   is the shared `.med-track` fill (it was a 3px line in the unlifted accent,
   near-black on the card gradient) and every card fill lifts the accent
   toward white. The VN card no longer prints the quote count.
+- Follow-up: a Books row read by the VOLUME (light novels — no chapter
+  count, volumes read) now fills the bar against the series' volume count,
+  or half-full/open without one; the Books card appends the identical
+  shared `progressBar` at the same 4px as Anime and VN (the owned-vs-read
+  comparison stays in the editor).
 - `smoke54` covers the layer; gate 54/54.
 
 **Pure Mathematics P1–P10 rewritten to full A-level depth, with diagrams

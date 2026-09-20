@@ -14,7 +14,7 @@ chronological diary here.
 - Runtime release: `79e7c1b` — immutable deployment
   https://5096e6e7.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-vn-progress-2`
+- Service-worker version: `kos-vn-progress-3`
 - Required smoke gate: 54 / 54 suites.
 
 ## Run, test and deploy
@@ -331,7 +331,10 @@ source comments and audit notes refer to it.
 63. `KOS.media.progressText/progressPct/progressFill` own media progress
     formatting and the bar: a known total is the fraction, a series still
     releasing (`current > 0`, no total) is a half-full `open` bar whose title
-    says so, nothing started is no bar. Charts use labelled axes/marks, an
+    says so, a Books row read by the volume (no chapters, `volumes > 0`)
+    counts volumes against the series' volume count the same way, nothing
+    started is no bar. `progressBar()` is the ONE card bar — every vault
+    card appends it, none draws its own. Charts use labelled axes/marks, an
     11px label floor and honest low-data states.
 
 ### The editable curriculum (86–89)

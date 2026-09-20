@@ -336,11 +336,23 @@ step("anime and books cards draw the half-full bar for a series still releasing"
   await waitFor(() => [...main().querySelectorAll(".bk-card")].some(c => /Berserk/.test(c.textContent)), 5000);
   const bk = [...main().querySelectorAll(".bk-card")].find(c => /Berserk/.test(c.textContent));
   assert(bk, "Berserk card");
-  const readBar = bk.querySelector(".bk-dual-read");
-  assert(readBar && readBar.classList.contains("open") && readBar.style.width === "50%", "releasing manga: half-full open read bar");
-  assert(bk.querySelector(".bk-dual").classList.contains("med-track") && readBar.classList.contains("subj-fill"),
-    "the books bar is the shared med-track fill, like anime");
-  assert(/still releasing/.test(bk.querySelector(".bk-dual").title), "the bar's title says why");
+  const readBar = bk.querySelector(".med-track");
+  assert(readBar && readBar.classList.contains("open") && readBar.querySelector(".subj-fill").style.width === "50%", "releasing manga: half-full open bar");
+  assert(readBar.className === "subj-track med-track open", "the books bar is the IDENTICAL shared component: " + readBar.className);
+  assert(/still releasing/.test(readBar.title), "the bar's title says why");
+  /* light novels read by the volume: volumes are the progress */
+  const ln = KOS.mediadb.normalise({ module: "books", title: "ln", format: "lightNovel", progress: { current: 0, total: null, volumes: 2, totalVolumes: 10 } });
+  let lf = KOS.media.progressFill(ln);
+  assert(lf && lf.pct === 20 && !lf.open && lf.title === "2 / 10 vol", "volumes against a known count: " + JSON.stringify(lf));
+  const ln2 = KOS.mediadb.normalise({ module: "books", title: "ln2", progress: { current: 0, total: null, volumes: 1 }, extra: { volumes: 4 } });
+  lf = KOS.media.progressFill(ln2);
+  assert(lf && lf.pct === 25, "AniList's volume count in extra counts too");
+  const ln3 = KOS.mediadb.normalise({ module: "books", title: "ln3", progress: { current: 0, total: null, volumes: 7 } });
+  lf = KOS.media.progressFill(ln3);
+  assert(lf && lf.pct === 50 && lf.open && /7 vol — still releasing/.test(lf.title), "volumes with no count: open bar: " + JSON.stringify(lf));
+  assert(KOS.media.progressFill(KOS.mediadb.normalise({ module: "books", title: "none", progress: { current: 0, total: null, volumes: 0 } })) === null, "nothing read → no bar");
+  const own = KOS.books.ownership(ln3);
+  assert(own.readPct === 50 && own.readOpen && /7 vol/.test(own.readTitle), "the editor's compare panel agrees with the card");
   const o = KOS.books.ownership(KOS.mediadb.normalise({ module: "books", title: "x", progress: { current: 10, total: 100 } }));
   assert(o.readPct === 10 && o.readOpen === false, "a known total is still the honest fraction");
 });

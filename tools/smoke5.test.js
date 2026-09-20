@@ -337,7 +337,7 @@ step("books vault renders without obsolete bottom stats; dedicated Stats remains
   const panel = document.querySelector(".menu-panel");
   if (!panel || !/did not finish/i.test(panel.textContent)) throw new Error("no DNF toggle");
   KOS.ui.closeMenu();
-  if (!main.querySelector(".bk-dual")) throw new Error("no owned-vs-read bar");
+  if (!main.querySelector(".bk-card .med-track")) throw new Error("no progress bar on the card");
   if (!main.querySelector(".bk-author")) throw new Error("no author line");
   if (main.querySelector(".bk-stats, .bk-stats .stat-strip")) throw new Error("obsolete vault stats still mounted");
   KOS.medview.statsModal("books", KOS.media.module("books"));

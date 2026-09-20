@@ -514,6 +514,15 @@
     var p = e.progress || {};
     var pct = progressPct(e);
     if (pct !== null) return { pct: pct, open: false, title: progressText(e) };
+    /* Books read by the VOLUME (light novels): no chapter count, but
+       volumes read are the progress — against the series' volume count
+       when AniList knows it, half full and open when it doesn't */
+    if (e.module === "books" && !(p.current > 0) && p.volumes > 0) {
+      var tv = p.totalVolumes || (e.extra && e.extra.volumes) || null;
+      var vt = p.volumes + (tv ? " / " + tv : "") + " vol";
+      if (tv) return { pct: Math.max(0, Math.min(100, Math.round(100 * p.volumes / tv))), open: false, title: vt };
+      return { pct: 50, open: true, title: vt + " — still releasing, no final count yet" };
+    }
     if (!(p.current > 0)) return null;
     var why = p.unit === "hr" ? " — VNDB has no length estimate to compare against yet" : " — still releasing, no final count yet";
     return { pct: 50, open: true, title: progressText(e) + why };
