@@ -16,7 +16,7 @@ AniList mirror and the notification centre followed on 19 September 2026
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `e9c6350` (Pure Maths notes at full depth), immutable https://e725a6e1.kurenai-os.pages.dev |
+| Runtime release commit | `79e7c1b` (VN progress sources, VNDB relay, open bars), immutable https://da200191.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-vn-progress-1` |
@@ -29,8 +29,9 @@ https://bb17097f.kurenai-os.pages.dev.
 
 ## Unreleased on `main`
 
-**Collection — VN progress by routes, chapters or a percentage; the VNDB
-write relay; half-full bars for series still releasing.**
+**Collection — VN progress by routes, chapters, hours or a percentage; the
+VNDB write relay; half-full bars for series still releasing.** Deployed
+20 September 2026 (`79e7c1b`); `vndb-ulist` deployed to Supabase.
 
 - A VN's progress is derived from ONE source, chosen in the editor's
   "What counts" (`progressMode`) or picked automatically from what the

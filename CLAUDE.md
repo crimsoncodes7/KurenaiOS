@@ -10,9 +10,9 @@ chronological diary here.
 
 - Category 7 A–G is integrated, deployed and production-verified.
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `e9c6350` (Pure Maths P1–P10 at full depth)
-- Runtime release: `e9c6350` — immutable deployment
-  https://e725a6e1.kurenai-os.pages.dev
+- Release source checkpoint: `79e7c1b` (VN progress sources, VNDB relay, open bars)
+- Runtime release: `79e7c1b` — immutable deployment
+  https://da200191.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
 - Service-worker version: `kos-vn-progress-1`
 - Required smoke gate: 54 / 54 suites.
