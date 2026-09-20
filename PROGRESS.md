@@ -16,10 +16,10 @@ AniList mirror and the notification centre followed on 19 September 2026
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `37ed66d` (pacing ticks, carry-over, lesson list), immutable https://e3afdf5f.kurenai-os.pages.dev |
+| Runtime release commit | `e9c6350` (Pure Maths notes at full depth), immutable https://e725a6e1.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-pacing-tick-2` |
+| Service-worker cache | `kos-pure-notes-1` |
 | Smoke gate | 53 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
@@ -28,6 +28,27 @@ Production deployment is separate from Git push and is performed only through
 https://bb17097f.kurenai-os.pages.dev.
 
 ## Unreleased on `main`
+
+**Pure Mathematics P1–P10 rewritten to full A-level depth, with diagrams
+and self-marking past-paper practice.** Deployed 20 September 2026
+(`e9c6350`).
+
+- Every Pure sub-topic (1.1 through 10.5) is now paged notes in
+  `js/data/content/maths-pure-p1.js` … `maths-pure-p10.js`: overview,
+  concept pages in the specification's order, worked examples modelled on
+  the Edexcel papers with M1/A1/B1 pills and a note on why each mark is
+  earned or lost, fx-991CW routes, and an exam-toolkit page (command
+  words, misconceptions, mnemonics). Prose is short lines and lists. The
+  outline entries in `maths-pure.js` are gone; the file is deleted.
+- `js/core/figures.js` renders declarative SVG diagrams from theme tokens
+  (graphs with π axes, shaded areas, cobweb/staircase paths, triangles,
+  vectors, trapezium strips) in notes and inside worked steps.
+- `js/core/content.js` renders the worked-example card and derives each
+  section's exam items from its exam-tagged cards
+  (`KOS.content.examFromWorked`), so a question is authored once; the
+  4.1 bank was re-verified against the real papers and two bank-a items
+  corrected. Statistics and Mechanics (S1–S9) are unchanged — next.
+- Service-worker `kos-pure-notes-1`; smoke gate 53/53.
 
 **Pacing — my rows are ticked off, the unticked carry over, and the plan
 links out.** Deployed 19 September 2026 (`bf28dbe`, `37ed66d`).
