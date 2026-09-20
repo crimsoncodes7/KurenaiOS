@@ -8,21 +8,43 @@ window.KOS_CONTENT = window.KOS_CONTENT || {};
 X("maths:4.1", {
   notes: [
     { page: "Past-paper patterns" },
-    { h: "Binomial expansion — positive integer $n$ (AS) and rational $n$ (A-level)" },
-    "**AS**: expand $(2 - x)^9$ or $(2 + \\tfrac34 x)^5$ to the first three or four terms in ascending powers — **take out the 2** correctly or use $\\binom{n}{r}a^{n-r}b^r$ with the powers of 2; find a **constant** from a given coefficient (\"the coefficient of $x^3$ is three times the coefficient of $x$\"); find the coefficient of $x^2$ in a **product** $(a + bx)(\\ldots)$ — two cross terms; use $x = 0.01$ to **estimate** $1.92^5$. **A-level**: $(1 + 8x)^{1/2}$, $(9 - x)^{1/2}$, $(4 + 5x)^{1/2}$, $(1 + 9x)^{-2}$ — **take out the constant** to get $(1 + \\ldots)^n$, expand to $x^2$ or $x^3$, state the **validity** $|x| < \\tfrac{a}{b}$, then **substitute a small $x$** to approximate $\\sqrt 2$, $\\sqrt 5$ or $\\sqrt 6$, and say why a proposed $x$ is **invalid** (outside the range) or whether the estimate is an **over/under-estimate** (sign of the first omitted term).",
-    { callout: { t: "memorise", body: "$(1 + x)^n = 1 + nx + \\dfrac{n(n-1)}{2!}x^2 + \\dfrac{n(n-1)(n-2)}{3!}x^3 + \\ldots$, valid for $|x| < 1$. For $(a + bx)^n$ write $a^n\\left(1 + \\dfrac{b}{a}x\\right)^n$, valid for $|x| < \\left|\\dfrac ab\\right|$." }}
+    { h: "Binomial expansion — every question set, June 2018 to June 2025" },
+    "The worked solutions to all of these are on the earlier pages. This page is the **index**: which shape was set when, and how the marks split, so you can see the pattern and pick what to drill.",
+    { table: { head: ["Paper", "Bracket", "Asked for", "Marks"], rows: [
+      ["AS Specimen Q7", "$\\left(1 + \\frac3x\\right)^2$, $\\left(1 + \\frac{3x}{4}\\right)^6$", "expand both; coefficient of $x$ in the product", "2 + 4 + 2"],
+      ["AS 2018 Q11", "$\\left(2 - \\frac{x}{16}\\right)^9$", "three terms; $(a + bx)(\\ldots)$ has first two terms $128$, $36x$ — find $a$, $b$", "4 + 2 + 2"],
+      ["AS 2019 Q8", "$\\left(2 + \\frac{3x}{4}\\right)^6$", "three terms; explain how to estimate $1.925^6$", "4 + 1"],
+      ["AS 2020 Q6", "$(1 + kx)^{10}$", "four terms in $k$; coefficient of $x^3$ is 3 × coefficient of $x$", "3 + 3"],
+      ["A-level Oct 2020 P2 Q4", "$(a + 2x)^7$", "coefficient of $x^4$ is $15\\,120$ — find $a$", "3"],
+      ["AS Nov 2021 Q8", "$(2 + ax)^8$", "a term is $3402x^5$ — find $a$; constant term of $\\left(1 + \\frac{1}{x^4}\\right)(\\ldots)$", "4 + 3"],
+      ["AS 2022 Q6", "$\\left(3 - \\frac{2x}{9}\\right)^8$", "four terms; coefficient of $x^2$ in $\\frac{x - 1}{2x}(\\ldots)$", "4 + 2"],
+      ["AS 2023 Q14", "$(5 + 8x^2)\\left(3 - \\frac12 x\\right)^6$", "coefficient of $x^5$ only", "5"],
+      ["AS 2024 Q6", "$(1 + ax)^{12} = 1 - \\frac{15}{2}x + kx^2$", "show $a = -\\frac58$; find $k$; estimate $\\left(\\frac{17}{16}\\right)^{12}$", "2 + 2 + 2"],
+      ["AS 2025 Q14", "$(1 + kx)^8$, $\\left(a - \\frac2x\\right)f(x)$", "$p$ in terms of $k$; pairs $(a, k)$ from $-\\frac2x - 21 - 90x$", "2 + 5"],
+      ["Specimen P1 Q2", "$(4 + 5x)^{\\frac12}$", "show $2 + \\frac54 x + kx^2$; $\\sqrt2$ with $x = \\frac{1}{10}$ as $\\frac pq$; why valid", "4 + 4"],
+      ["2018 P1 Q11", "$\\sqrt{\\dfrac{1 + 4x}{1 - x}}$", "show $1 + \\frac52 x - \\frac58 x^2$; why not $x = \\frac12$; $\\sqrt6$ with $x = \\frac{1}{11}$", "6 + 1 + 3"],
+      ["2019 P1 Q4", "$\\dfrac{1}{\\sqrt{4 - x}}$", "three terms; which offered $x$ is invalid; which is most accurate", "4 + 1 + 1"],
+      ["Oct 2020 P1 Q1", "$(1 + 8x)^{\\frac12}$", "four terms; explain how $x = \\frac{1}{32}$ gives $\\sqrt5$", "3 + 2"],
+      ["Oct 2021 P1 Q9", "$\\dfrac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)}$", "partial fractions (repeated factor, show $A = 0$); expand to $x^2$; validity", "4 + 7"],
+      ["2022 P2 Q7", "$\\sqrt{4 - 9x}$", "four terms; over/under-estimate of $\\sqrt3$ at $x = \\frac19$, no calculation", "4 + 1"],
+      ["2023 P2 Q13", "$(3 + x)^{-2}$", "three terms; estimate $\\int_{0.2}^{0.4}\\frac{6x}{(3 + x)^2}\\,dx$; exact value $a\\ln b + c$", "4 + 4 + 5"],
+      ["2024 P1 Q2", "$(1 - 9x)^{\\frac12}$", "four terms; why $x = -\\frac29$ must not be used for $\\sqrt3$", "3 + 1"]
+    ] } },
+    { callout: { t: "tip", h: "What the pattern says", body: "**AS**: always a positive-integer bracket with a constant $a \\neq 1$ or an unknown $k$, three or four terms, then a follow-on — a product with a linear or $\\frac1x$ factor, a constant from a given coefficient, or an estimate. **A-level**: always a square root or negative power with $a \\neq 1$ (so the $a^n$ B1 is on every paper), three or four terms, then either an approximation question about a surd (validity, choice of $x$, over/under) or a combination — a product of two series, a partial-fraction decomposition, or an integral. The validity mark has appeared in some form on **every** A-level sitting." } }
   ],
   flashcards: [
-    ["Expand $(2 - x)^9$ up to the $x^2$ term.", "$512 - 9 \\cdot 256 x + 36 \\cdot 128 x^2 = 512 - 2304x + 4608x^2$."],
+    ["Expand $\\left(2 - \\dfrac{x}{16}\\right)^9$ to the $x^2$ term.", "$512 - 144x + 18x^2 + \\ldots$"],
     ["Coefficient of $x^3$ in $(1 + kx)^{10}$?", "$\\binom{10}{3}k^3 = 120k^3$."],
     ["$(1 + kx)^{10}$: the $x^3$ coefficient is three times the $x$ coefficient. Find $k$.", "$120k^3 = 30k \\Rightarrow k^2 = \\tfrac14 \\Rightarrow k = \\pm\\tfrac12$ ($k \\ne 0$)."],
-    ["Expand $(1 + 8x)^{1/2}$ to the $x^2$ term and state the validity.", "$1 + 4x - 8x^2 + \\ldots$, valid for $|x| < \\tfrac18$."],
-    ["Expand $(9 - x)^{1/2}$ to the $x^2$ term.", "$3\\left(1 - \\dfrac{x}{9}\\right)^{1/2} = 3 - \\dfrac{x}{6} - \\dfrac{x^2}{216} + \\ldots$, $|x| < 9$."],
-    ["Using $(9 - x)^{1/2}$ with $x = 1$, estimate $\\sqrt 8$ and say whether it is an over- or under-estimate.", "$3 - \\tfrac16 - \\tfrac{1}{216} \\approx 2.8287$; the next term is negative so it is an overestimate ($\\sqrt8 = 2.8284$)."],
-    ["Expand $(1 + 9x)^{-2}$ to the $x^2$ term; why is $x = 0.2$ invalid?", "$1 - 18x + 243x^2 + \\ldots$; valid only for $|x| < \\tfrac19$, and $0.2 > \\tfrac19$."],
+    ["Coefficient of $x^4$ in $(a + 2x)^7$ is $15\\,120$. Find $a$.", "$560a^3 = 15\\,120 \\Rightarrow a^3 = 27 \\Rightarrow a = 3$."],
+    ["Expand $(1 + 8x)^{1/2}$ to the $x^3$ term and state the validity.", "$1 + 4x - 8x^2 + 32x^3 + \\ldots$, valid for $|x| < \\tfrac18$."],
+    ["Expand $\\sqrt{4 - 9x}$ to the $x^2$ term.", "$2\\left(1 - \\tfrac94 x\\right)^{1/2} = 2 - \\tfrac94 x - \\tfrac{81}{64}x^2 + \\ldots$, $|x| < \\tfrac49$."],
+    ["Using $\\sqrt{4 - 9x}$ with $x = \\tfrac19$ to estimate $\\sqrt3$: over- or under-estimate?", "Overestimate — every term after the first is negative and $x > 0$, so the omitted terms are negative."],
+    ["Expand $(1 - 9x)^{1/2}$ to the $x^2$ term; why is $x = -\\tfrac29$ not allowed?", "$1 - \\tfrac92 x - \\tfrac{81}{8}x^2 + \\ldots$; valid only for $|x| < \\tfrac19$, and $\\tfrac29 > \\tfrac19$."],
     ["Coefficient of $x^2$ in $(3 + 2x)(1 - 4x + 10x^2)$?", "$3 \\times 10 + 2 \\times(-4) = 22$."],
-    ["Why substitute $x = 0.01$ into $(2 + \\tfrac34 x)^5$ to estimate $2.0075^5$… what value estimates $1.92^5$?", "$x$ with $2 + \\tfrac34 x = 1.92 \\Rightarrow x = -\\tfrac{8}{75} \\approx -0.107$; small enough for the truncated series to be accurate."],
-    ["$(4 + 5x)^{1/2}$ to the $x^2$ term?", "$2\\left(1 + \\tfrac54 x\\right)^{1/2} = 2 + \\tfrac54 x - \\tfrac{25}{64}x^2$, valid $|x| < \\tfrac45$."]
+    ["Which $x$ estimates $1.925^6$ from $\\left(2 + \\tfrac34 x\\right)^6$?", "$2 + \\tfrac34 x = 1.925 \\Rightarrow x = -0.1$; substitute into $64 + 144x + 135x^2$."],
+    ["$(4 + 5x)^{1/2}$ to the $x^2$ term?", "$2\\left(1 + \\tfrac54 x\\right)^{1/2} = 2 + \\tfrac54 x - \\tfrac{25}{64}x^2$, valid $|x| < \\tfrac45$."],
+    ["$\\dfrac{1}{\\sqrt{4 - x}}$ to the $x^2$ term?", "$\\tfrac12\\left(1 - \\tfrac x4\\right)^{-1/2} = \\tfrac12 + \\tfrac{1}{16}x + \\tfrac{3}{256}x^2 + \\ldots$, $|x| < 4$."]
   ],
   quiz: [
     { q: "$\\binom{9}{2} =$", opts: ["18", "36", "72", "81"], ans: 1, why: "$\\dfrac{9 \\times 8}{2}$." },
@@ -30,34 +52,47 @@ X("maths:4.1", {
     { q: "$(1 + 3x)^{-1}$ is valid for:", opts: ["$|x| < 3$", "$|x| < \\tfrac13$", "all $x$", "$x > 0$"], ans: 1, why: "$|3x| < 1$." },
     { q: "$(8 + x)^{1/3}$ starts with the constant:", opts: ["8", "2", "$\\tfrac13$", "1"], ans: 1, why: "$8^{1/3}(1 + \\tfrac x8)^{1/3}$." },
     { q: "Coefficient of $x$ in $(2 + x)^5$:", opts: ["5", "80", "16", "10"], ans: 1, why: "$5 \\times 2^4$." },
-    { q: "If the first omitted term is positive, the truncated series gives:", opts: ["an overestimate", "an underestimate", "the exact value", "no information"], ans: 1, why: "Missing positive contribution." },
+    { q: "If the omitted terms are all positive, the truncated series gives:", opts: ["an overestimate", "an underestimate", "the exact value", "no information"], ans: 1, why: "Positive contributions are missing." },
     { q: "Coefficient of $x^2$ in $(1 + x)(1 + 4x + 6x^2)$:", opts: ["6", "10", "4", "24"], ans: 1, why: "$6 + 4$." }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2020 P1 Q6", ctx: "$f(x) = (1 + kx)^{10}$, where $k$ is a non-zero constant.",
       parts: [
-        { q: "Find the first four terms, in ascending powers of $x$, of the binomial expansion of $f(x)$, giving each term in its simplest form in terms of $k$.", marks: 3, ms: ["M1: uses $\\binom{10}{r}$ with $(kx)^r$", "A1: $1 + 10kx + 45k^2x^2$", "A1: $+ 120k^3x^3$"] },
+        { q: "Find the first four terms, in ascending powers of $x$, of the binomial expansion of $f(x)$, writing each coefficient as simply as possible.", marks: 3, ms: ["M1: uses $\\binom{10}{r}$ with $(kx)^r$", "A1: $1 + 10kx + 45k^2x^2$", "A1: $+ 120k^3x^3$"] },
         { q: "Given that the coefficient of $x^3$ is three times the coefficient of $x$, find the possible values of $k$.", marks: 3, ms: ["M1: $120k^3 = 3 \\times 10k$", "A1: $k^2 = \\tfrac14$", "A1: $k = \\pm\\tfrac12$"] }
       ] },
-    { src: "Edexcel 2024 P1 Q2", ctx: "$f(x) = (1 + 9x)^{-2}$, $|x| < \\tfrac19$.",
+    { src: "Edexcel Oct 2020 P2 Q4", ctx: "In the binomial expansion of $(a + 2x)^7$, where $a$ is a constant, the coefficient of $x^4$ is $15\\,120$.",
       parts: [
-        { q: "Find the first four terms, in ascending powers of $x$, of the binomial expansion of $f(x)$.", marks: 3, ms: ["M1: $1 + (-2)(9x) + \\dfrac{(-2)(-3)}{2}(9x)^2 + \\dfrac{(-2)(-3)(-4)}{6}(9x)^3$", "A1: $1 - 18x + 243x^2$", "A1: $- 2916x^3$"] },
-        { q: "A student substitutes $x = 0.2$ into the expansion to estimate $f(0.2)$. Explain why this is not valid.", marks: 1, ms: ["B1: the expansion is only valid for $|x| < \\tfrac19$ and $0.2 > \\tfrac19$"] }
+        { q: "Find the value of $a$.", marks: 3, ms: ["M1: $\\binom{7}{4}a^3(2x)^4 = 560a^3x^4$", "M1: $560a^3 = 15\\,120 \\Rightarrow a^3 = 27$", "A1: $a = 3$"] }
       ] },
-    { src: "Edexcel 2022 P1 Q7", ctx: "$g(x) = (9 - x)^{1/2}$.",
+    { src: "Edexcel 2024 P1 Q2", ctx: "$f(x) = (1 - 9x)^{\\frac12}$.",
       parts: [
-        { q: "Find the first three terms, in ascending powers of $x$, of the binomial expansion of $g(x)$, giving each coefficient in its simplest form.", marks: 4, ms: ["M1: $3\\left(1 - \\dfrac x9\\right)^{1/2}$", "M1: $1 + \\tfrac12\\left(-\\dfrac x9\\right) + \\dfrac{\\frac12 \\cdot(-\\frac12)}{2}\\left(-\\dfrac x9\\right)^2$", "A1: $3 - \\dfrac{x}{6}$", "A1: $- \\dfrac{x^2}{216}$"] },
-        { q: "Use $x = 1$ in your expansion to find an approximation for $\\sqrt 8$, and state with a reason whether it is an overestimate or an underestimate.", marks: 2, ms: ["M1: $3 - \\tfrac16 - \\tfrac{1}{216} = 2.8287$ (4 d.p.)", "A1: overestimate, because the next term, $-\\dfrac{x^3}{3888}$, is negative"] }
+        { q: "Find, in ascending powers of $x$, the first four terms of the binomial expansion of $f(x)$, giving each term in simplest form.", marks: 3, ms: ["M1: $1 + \\tfrac12(-9x) + \\dfrac{\\frac12(-\\frac12)}{2!}(-9x)^2 + \\dfrac{\\frac12(-\\frac12)(-\\frac32)}{3!}(-9x)^3$ — correct structure for term 3 or 4", "A1: correct unsimplified expansion (brackets correct)", "A1: $1 - \\dfrac92 x - \\dfrac{81}{8}x^2 - \\dfrac{729}{16}x^3$"] },
+        { q: "Give a reason why $x = -\\dfrac29$ should not be used in the expansion to find an approximation to $\\sqrt3$.", marks: 1, ms: ["B1: the expansion is valid for $|x| < \\tfrac19$ and $-\\tfrac29$ is outside this range"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2019 P1 Q8", ctx: "$\\left(2 + \\dfrac{3x}{4}\\right)^5$.",
+    { src: "Edexcel 2022 P2 Q7", ctx: "$g(x) = \\sqrt{4 - 9x}$.",
       parts: [
-        { q: "Find the first three terms, in ascending powers of $x$, of the binomial expansion, giving each term in its simplest form.", marks: 3, ms: ["M1: $2^5 + 5 \\cdot 2^4 \\cdot \\dfrac{3x}{4} + 10 \\cdot 2^3 \\cdot \\left(\\dfrac{3x}{4}\\right)^2$", "A1: $32 + 60x$", "A1: $+ 45x^2$"] },
-        { q: "Use your expansion, with a suitable value of $x$, to estimate $1.94^5$ to 3 decimal places.", marks: 2, ms: ["M1: $2 + \\tfrac34 x = 1.94 \\Rightarrow x = -0.08$", "A1: $32 - 4.8 + 0.288 = 27.488$"] }
+        { q: "Find the first four terms, in ascending powers of $x$, of the binomial expansion of $g(x)$, writing each term in simplest form.", marks: 4, ms: ["B1: $2\\left(1 - \\dfrac{9x}{4}\\right)^{\\frac12}$", "M1: attempt at the expansion of $(1 + ax)^{\\frac12}$ with the correct structure for term 3 or 4", "A1: correct expansion of $\\left(1 - \\dfrac{9x}{4}\\right)^{\\frac12}$, may be unsimplified", "A1: $2 - \\dfrac94 x - \\dfrac{81}{64}x^2 - \\dfrac{729}{512}x^3$"] },
+        { q: "A student uses this expansion with $x = \\dfrac19$ to find an approximation for $\\sqrt3$. Using the answer to part (a) and without doing any calculations, state whether this approximation will be an overestimate or an underestimate of $\\sqrt3$, giving a brief reason.", marks: 1, ms: ["B1: overestimate, since all terms after the first are negative (for $x > 0$)"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2022 P1 Q6", ctx: "$\\left(2 - \\dfrac{x}{9}\\right)^8$.",
+    { level: "AS", src: "Edexcel AS 2019 P1 Q8", ctx: "$\\left(2 + \\dfrac{3x}{4}\\right)^6$.",
       parts: [
-        { q: "Find the first four terms, in ascending powers of $x$, of the binomial expansion, giving each term in its simplest form.", marks: 4, ms: ["M1: correct use of $\\binom8r$ and powers of 2", "A1: $256 - \\dfrac{1024}{9}x$", "A1: $+ \\dfrac{1792}{81}x^2$", "A1: $- \\dfrac{1792}{729}x^3$"] },
-        { q: "Hence find the coefficient of $x^2$ in the expansion of $(3 + 9x)\\left(2 - \\dfrac{x}{9}\\right)^8$.", marks: 2, ms: ["M1: $3 \\times \\dfrac{1792}{81} + 9 \\times \\left(-\\dfrac{1024}{9}\\right)$", "A1: $\\dfrac{1792}{27} - 1024 = -\\dfrac{25856}{27}$"] }
+        { q: "Find the first 3 terms, in ascending powers of $x$, of the binomial expansion, giving each term in its simplest form.", marks: 4, ms: ["B1: $2^6 = 64$", "M1: $\\binom{6}{1}2^5\\left(\\dfrac{3x}{4}\\right) + \\binom{6}{2}2^4\\left(\\dfrac{3x}{4}\\right)^2$", "A1: $+ 144x$", "A1: $+ 135x^2$"] },
+        { q: "Explain how you could use your expansion to estimate the value of $1.925^6$. You do not need to perform the calculation.", marks: 1, ms: ["B1ft: substitute $x = -0.1$ (from $2 + \\tfrac34 x = 1.925$) into the expansion from part (a)"] }
+      ] },
+    { level: "AS", src: "Edexcel AS 2022 P1 Q6", ctx: "$\\left(3 - \\dfrac{2x}{9}\\right)^8$.",
+      parts: [
+        { q: "Find the first four terms, in ascending powers of $x$, of the binomial expansion, giving each term in simplest form.", marks: 4, ms: ["B1: $3^8$ or $6561$", "M1: correct structure for the 2nd, 3rd or 4th term — $\\binom{8}{r}3^{8-r}\\left(-\\dfrac{2x}{9}\\right)^r$", "A1: a correct simplified 2nd or 4th term", "A1: $6561 - 3888x + 1008x^2 - \\dfrac{448}{3}x^3$"] },
+        { q: "$f(x) = \\left(\\dfrac{x - 1}{2x}\\right)\\left(3 - \\dfrac{2x}{9}\\right)^8$. Find the coefficient of $x^2$ in the series expansion of $f(x)$, giving your answer as a simplified fraction.", marks: 2, ms: ["M1: $\\dfrac12 \\times 1008 + \\left(-\\dfrac{1}{2}\\right) \\times \\left(-\\dfrac{448}{3}\\right)$", "A1: $\\dfrac{1736}{3}$"] }
+      ] },
+    { level: "AS", src: "Edexcel AS 2023 P1 Q14", ctx: "$(5 + 8x^2)\\left(3 - \\dfrac12 x\\right)^6$.",
+      parts: [
+        { q: "Find, in simplest form, the coefficient of $x^5$ in the expansion.", marks: 5, ms: ["M1: $\\binom{6}{5}3\\left(-\\dfrac12 x\\right)^5$ or $\\binom{6}{3}27\\left(-\\dfrac12 x\\right)^3$", "A1: $-\\dfrac{9}{16}x^5$ or $-\\dfrac{135}{2}x^3$", "M1: the other required term", "M1: $5 \\times \\left(-\\dfrac{9}{16}\\right) + 8 \\times \\left(-\\dfrac{135}{2}\\right)$", "A1: $-\\dfrac{8685}{16}$"] }
+      ] },
+    { src: "Edexcel Oct 2021 P1 Q9", ctx: "$f(x) = \\dfrac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)} \\equiv \\dfrac{A}{5x + 2} + \\dfrac{B}{(5x + 2)^2} + \\dfrac{C}{1 - 2x}$.",
+      parts: [
+        { q: "(i) Find the value of $B$ and the value of $C$. (ii) Show that $A = 0$.", marks: 4, ms: ["M1: $50x^2 + 38x + 9 \\equiv A(5x + 2)(1 - 2x) + B(1 - 2x) + C(5x + 2)^2$ and substitutes $x = \\tfrac12$ or $x = -\\tfrac25$", "A1: $B = 1$, $C = 2$", "M1: a third equation, e.g. $x = 0$: $9 = 2A + B + 4C$", "A1*: $A = 0$ with the argument shown"] },
+        { q: "(i) Use binomial expansions to show that $f(x) = p + qx + rx^2 + \\ldots$ where $p$, $q$, $r$ are simplified fractions to be found. (ii) Find the range of values of $x$ for which this expansion is valid.", marks: 7, ms: ["M1: $(2 + 5x)^{-2} = \\dfrac14\\left(1 + \\dfrac{5x}{2}\\right)^{-2}$", "M1: expansion structure with $n = -2$", "A1: $\\dfrac14 - \\dfrac54 x + \\dfrac{75}{16}x^2$", "M1: $2(1 - 2x)^{-1} = 2 + 4x + 8x^2$", "dM1: adds the expansions", "A1: $\\dfrac94 + \\dfrac{11}{4}x + \\dfrac{203}{16}x^2$", "B1: $|x| < \\dfrac25$"] }
       ] }
   ]
 });

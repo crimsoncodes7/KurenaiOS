@@ -466,7 +466,7 @@ X("maths:2.10", {
   notes: [
     { page: "Past-paper patterns" },
     { h: "Partial fractions — set-up for integration and binomials" },
-    "Three forms: **two distinct linear factors** $\\dfrac{A}{x+1} + \\dfrac{B}{x+3}$; a **repeated factor** $\\dfrac{A}{x-1} + \\dfrac{B}{(x-1)^2}$ (Oct 2021 — the follow-on was a binomial expansion with validity $|x| < 1$); and an **improper fraction** $Ax + B + \\dfrac{C}{x+1} + \\dfrac{D}{x+3}$ (2025 — divide first, or compare coefficients of the highest power). Substitution of the roots finds the constants over linear factors; the repeated-factor $A$ and improper-fraction $A, B$ need **coefficient comparison**.",
+    "Three forms: **two distinct linear factors** $\\dfrac{A}{x+1} + \\dfrac{B}{x+3}$; a **repeated factor** $\\dfrac{A}{x-1} + \\dfrac{B}{(x-1)^2}$ (Oct 2021 — the follow-on was a binomial expansion with validity $|x| < \\tfrac25$); and an **improper fraction** $Ax + B + \\dfrac{C}{x+1} + \\dfrac{D}{x+3}$ (2025 — divide first, or compare coefficients of the highest power). Substitution of the roots finds the constants over linear factors; the repeated-factor $A$ and improper-fraction $A, B$ need **coefficient comparison**.",
     { callout: { t: "tip", body: "Check your constants by substituting one further value (e.g. $x = 0$) into the identity before integrating — a wrong constant costs every later mark." }}
   ],
   flashcards: [
@@ -488,12 +488,12 @@ X("maths:2.10", {
     { q: "$\\int \\dfrac{3}{x+2}\\,dx =$", opts: ["$3\\ln|x+2| + c$", "$\\dfrac{3}{(x+2)^2}$", "$\\ln|3x + 6|$", "$\\dfrac{-3}{x+2}$"], ans: 0, why: "Standard log integral." }
   ],
   exam: [
-    { src: "Edexcel 2025 P1 Q7", q: "Given that $\\dfrac{2x^3 + 9x^2 + 12x + 7}{(x + 1)(x + 3)} \\equiv Ax + B + \\dfrac{C}{x + 1} + \\dfrac{D}{x + 3}$, find the values of the constants $A$, $B$, $C$ and $D$.", marks: 4,
-      ms: ["M1: multiplies out: $2x^3 + 9x^2 + 12x + 7 \\equiv (Ax + B)(x^2 + 4x + 3) + C(x + 3) + D(x + 1)$", "A1: compares $x^3$: $A = 2$; $x^2$: $4A + B = 9 \\Rightarrow B = 1$", "M1: substitutes $x = -1$: $2 \\cdot(-1) + 9 - 12 + 7 = 2C \\Rightarrow C = 1$", "A1: $x = -3$: $-54 + 81 - 36 + 7 = -2D \\Rightarrow D = 1$"] },
-    { src: "Edexcel Oct 2021 P1 Q9", ctx: "$f(x) = \\dfrac{3x + 4}{(1 - x)(1 + 2x)^2}$… express in partial fractions and expand.",
+    { src: "Edexcel 2025 P2 Q7", q: "Given that $\\dfrac{3x^3 - 8x^2 - 6x - 11}{(x + 1)(x - 3)} \\equiv Ax + B + \\dfrac{C}{x + 1} + \\dfrac{D}{x - 3}$, find the values of the constants $A$, $B$, $C$ and $D$.", marks: 4,
+      ms: ["M1: $3x^3 - 8x^2 - 6x - 11 \\equiv (Ax + B)(x^2 - 2x - 3) + C(x - 3) + D(x + 1)$", "A1: compares $x^3$: $A = 3$; $x^2$: $-2A + B = -8 \\Rightarrow B = -2$", "M1: substitutes $x = -1$: $-16 = -4C \\Rightarrow C = 4$", "A1: $x = 3$: $-20 = 4D \\Rightarrow D = -5$"] },
+    { src: "Edexcel Oct 2021 P1 Q9", ctx: "$f(x) = \\dfrac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)} \\equiv \\dfrac{A}{5x + 2} + \\dfrac{B}{(5x + 2)^2} + \\dfrac{C}{1 - 2x}$ (the binomial follow-on is under 4.1).",
       parts: [
-        { q: "Express $\\dfrac{3x + 4}{(1 - x)(1 + 2x)^2}$ in the form $\\dfrac{A}{1 - x} + \\dfrac{B}{1 + 2x} + \\dfrac{C}{(1 + 2x)^2}$.", marks: 4, ms: ["M1: $3x + 4 \\equiv A(1+2x)^2 + B(1-x)(1+2x) + C(1-x)$", "A1: $x = 1$: $7 = 9A \\Rightarrow A = \\tfrac79$", "A1: $x = -\\tfrac12$: $\\tfrac52 = \\tfrac32 C \\Rightarrow C = \\tfrac53$", "A1: compares $x^2$: $0 = 4A - 2B \\Rightarrow B = \\tfrac{14}{9}$"] },
-        { q: "State the range of values of $x$ for which the binomial expansion of $f(x)$ is valid.", marks: 1, ms: ["B1: $|x| < \\tfrac12$"] }
+        { q: "(i) Find the value of $B$ and the value of $C$. (ii) Show that $A = 0$.", marks: 4, ms: ["M1: $50x^2 + 38x + 9 \\equiv A(5x + 2)(1 - 2x) + B(1 - 2x) + C(5x + 2)^2$; substitutes $x = \\tfrac12$ or $x = -\\tfrac25$", "A1: $B = 1$ and $C = 2$", "M1: a third equation for $A$ — $x = 0$: $9 = 2A + B + 4C$, or compare $x^2$: $50 = -10A + 25C$", "A1*: $A = 0$ with the argument shown (three answers with no working score M1 A1 M0 A0)"] },
+        { q: "State the range of values of $x$ for which the binomial expansion of $f(x)$ is valid.", marks: 1, ms: ["B1: $|x| < \\tfrac25$ — the tighter of $|x| < \\tfrac25$ (from $(2 + 5x)^{-2}$) and $|x| < \\tfrac12$"] }
       ] },
     { src: "Edexcel 2018 P1 Q11", ctx: "$f(x) = \\dfrac{4x + 6}{(x + 2)(x + 4)}$, $x > 0$.",
       parts: [

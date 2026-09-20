@@ -1985,10 +1985,12 @@ body.modal-open #main { overflow: hidden; }
   font-family: var(--serif);
   font-size: var(--type-section-title);
   font-weight: 600;
+  line-height: 1.3;
   margin: var(--section-gap-lg) 0 var(--space-3);
-  display: flex; align-items: baseline; gap: 10px;
 }
-.n-h::before { content: "✦"; font-size: 11px; color: var(--accent2); transform: translateY(-2px); }
+/* the star is inline, not a flex item: a heading that carries inline
+   maths is several spans, and flex laid each one out as its own column */
+.n-h::before { content: "✦"; display: inline-block; font-size: 11px; color: var(--accent2); margin-right: 10px; vertical-align: 3px; }
 .notes-article .n-h:first-child, h3.n-h:first-child { margin-top: 0; }
 
 /* key-value ledger */
@@ -2023,6 +2025,9 @@ body.modal-open #main { overflow: hidden; }
 .n-task.done { color: var(--muted); text-decoration: line-through; }
 .n-tick { color: var(--accent, var(--kurenai)); text-decoration: none; display: inline-block; }
 .n-math { text-align: center; margin: 12px 0; overflow-x: auto; }
+/* a display equation wider than the column scrolls inside its own line
+   rather than pushing the page sideways (phones, long expansions) */
+.notes-article .katex-display { overflow-x: auto; overflow-y: hidden; padding: 2px 0; margin: 10px 0; }
 .notes-article hr { border: 0; border-top: 1px solid var(--line2); margin: 18px 0; }
 .notes-article a { color: var(--accent, var(--kurenai)); text-decoration: underline; text-underline-offset: 2px; }
 .n-code { margin: 14px 0 20px; position: relative; font-family: var(--sans); }
@@ -2054,10 +2059,10 @@ body.modal-open #main { overflow: hidden; }
 .n-code:hover .n-copy, .n-call:hover > .n-copy, .n-tablewrap:hover > .n-copy,
 .n-kv:hover > .n-copy, .n-steps:hover > .n-copy, .n-copy:focus-visible { opacity: 1; }
 .n-copy.copied { color: #fff; opacity: 1; }
-.n-call > .n-copy, .n-tablewrap > .n-copy, .n-kv > .n-copy, .n-steps > .n-copy {
+.n-call > .n-copy, .n-tablewrap > .n-copy, .n-kv > .n-copy, .n-steps > .n-copy, .n-worked > .n-copy {
   background: var(--panel); border-color: var(--line2); color: var(--muted);
 }
-.n-call > .n-copy.copied, .n-tablewrap > .n-copy.copied, .n-kv > .n-copy.copied, .n-steps > .n-copy.copied { color: var(--good); }
+.n-call > .n-copy.copied, .n-tablewrap > .n-copy.copied, .n-kv > .n-copy.copied, .n-steps > .n-copy.copied, .n-worked > .n-copy.copied { color: var(--good); }
 .n-code code { background: none; border: none; padding: 0; color: var(--code-ink); font-family: var(--mono); font-size: 12.5px; line-height: 1.7; }
 .n-code .k { color: #9FB4E8; } .n-code .t { color: #8CC7A6; }
 .n-code .s { color: #D9BB7B; } .n-code .c { color: #8B8474; font-style: italic; }
@@ -2082,13 +2087,16 @@ body.modal-open #main { overflow: hidden; }
    miscon, memorise) earn a tinted wash. Plain reading stays plain. */
 .n-call { margin: 18px 0; position: relative; border-left: 2px solid var(--line); padding: 2px 0 2px 18px; }
 .n-call-h {
-  display: flex; align-items: center; gap: 8px;
+  display: block; line-height: 1.5;
   font-family: var(--sans);
   font-size: 11px; letter-spacing: .13em; text-transform: uppercase; font-weight: 700;
   color: var(--muted);
   margin-bottom: 4px;
 }
-.n-call-i { font-size: 12px; }
+.n-call-i { font-size: 12px; display: inline-block; margin-right: 8px; vertical-align: -1px; }
+/* the heading is set in small caps by text-transform; maths inside it
+   must keep its case — an uppercase n is a different variable */
+.n-call-h .katex { text-transform: none; letter-spacing: 0; }
 .n-call-b { font-size: 15.5px; }
 .n-call-b p:last-child, .n-call-b ul:last-child { margin-bottom: 0; }
 
@@ -2146,9 +2154,11 @@ body.modal-open #main { overflow: hidden; }
 .n-diagram .nd-t { display: block; color: var(--muted); font-size: 12px; }
 
 /* inline figures */
-.n-fig { margin: 14px 0 20px; text-align: center; }
+.n-fig { margin: 14px 0 22px; text-align: center; }
 .n-fig svg { max-width: 100%; height: auto; }
-.n-fig figcaption { font-size: 12.5px; color: var(--muted); margin-top: 6px; font-style: italic; }
+.n-fig figcaption { font-family: var(--sans); font-size: 12.5px; line-height: 1.5; color: var(--muted); margin-top: 8px; font-style: italic; max-width: 520px; margin-inline: auto; }
+.nw-body .n-fig { margin: 10px 0 8px; }
+.nw-q .n-fig { margin: 10px 0 4px; }
 
 /* callout first-mount slide-in */
 @keyframes callout-in { from { transform: translateX(-14px); opacity: 0; } }
@@ -2157,20 +2167,35 @@ body.modal-open #main { overflow: hidden; }
 .first-mount .n-call:nth-of-type(3) { animation-delay: .1s; }
 .first-mount .n-call:nth-of-type(4) { animation-delay: .15s; }
 
-/* worked-example card (nw-*) */
-.n-worked { margin: 16px 0 22px; overflow: hidden; font-family: var(--sans); }
-.nw-head { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-bottom: 1px solid var(--line2); }
-.nw-tag { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; border-radius: 999px; padding: 2px 10px; }
-.nw-tag.example { color: var(--accent); background: var(--wash-accent); }
-.nw-tag.variation { color: var(--accent3); background: var(--wash-sage); }
-.nw-tag.exam { color: var(--accent2); background: var(--wash-brass); }
-.nw-tag.check { color: var(--good); background: color-mix(in srgb, var(--good) 10%, transparent); }
-.nw-title { font-weight: 600; font-size: 14.5px; }
-.nw-body { padding: 14px 18px 16px; }
-.nw-steps { display: grid; gap: 0; }
-.nw-step { display: flex; gap: 13px; padding: 7px 0; }
+/* worked-example card (nw-*)
+   question → numbered working → answer. Every step may carry an Edexcel
+   mark pill on its right; the note beneath the working says why the mark
+   is earned or where it is usually lost. */
+.n-worked { position: relative; margin: 18px 0 26px; overflow: hidden; font-family: var(--sans); }
+.nw-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 11px 16px; border-bottom: 1px solid var(--line2); }
+.nw-tag { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+.n-worked-example .nw-tag { color: var(--accent); background: var(--wash-accent); }
+.n-worked-variation .nw-tag { color: var(--accent3); background: var(--wash-sage); }
+.n-worked-exam .nw-tag { color: var(--accent2); background: var(--wash-brass); }
+.n-worked-check .nw-tag { color: var(--good); background: color-mix(in srgb, var(--good) 10%, transparent); }
+.nw-title { font-weight: 600; font-size: 14.5px; flex: 1 1 auto; min-width: 0; }
+.nw-src { font-size: 12px; color: var(--muted); font-family: var(--mono); letter-spacing: .02em; white-space: nowrap; }
+.nw-q {
+  padding: 13px 18px 12px;
+  font-family: var(--serif);
+  font-size: 15.5px;
+  line-height: 1.65;
+  background: color-mix(in srgb, var(--text) 3%, transparent);
+  border-bottom: 1px solid var(--line2);
+}
+.nw-q p { margin: 0 0 8px; }
+.nw-q > :last-child, .nw-q p:last-child { margin-bottom: 0; }
+.nw-steps { list-style: none; margin: 0; padding: 12px 16px 6px; counter-reset: nwstep; }
+.nw-step { display: flex; align-items: flex-start; gap: 13px; min-width: 0; padding: 8px 0 9px; counter-increment: nwstep; border-bottom: 1px dashed var(--line2); }
+.nw-step:last-child { border-bottom: none; }
 .nw-num {
   flex: none;
+  margin-top: 2px;
   font-family: var(--mono); font-size: 10.5px;
   color: var(--muted);
   width: 24px; height: 24px;
@@ -2178,19 +2203,44 @@ body.modal-open #main { overflow: hidden; }
   border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
 }
-.nw-m { font-size: 14.5px; }
-.nw-n { font-size: 12.5px; color: var(--muted); font-style: italic; }
+.nw-num::before { content: counter(nwstep); }
+.nw-body { flex: 1 1 auto; min-width: 0; padding: 0; }
+.nw-sh { font-weight: 650; font-size: 13.5px; color: var(--text2); margin: 2px 0 4px; }
+.nw-m { font-size: 15px; line-height: 1.7; color: color-mix(in srgb, var(--text) 92%, var(--bg1)); }
+.nw-m .katex-display { margin: 6px 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+.nw-n { font-size: 13px; line-height: 1.5; color: var(--muted); margin-top: 5px; }
+.nw-mk {
+  flex: none;
+  margin-top: 3px;
+  font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  color: var(--accent2);
+  background: var(--wash-brass);
+  border: 1px solid color-mix(in srgb, var(--accent2) 35%, transparent);
+  border-radius: 6px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
 .nw-result {
-  margin-top: 12px;
+  margin: 4px 16px 16px;
   padding: 11px 15px;
   border-radius: 10px;
   background: var(--wash-sage);
   border: 1px solid color-mix(in srgb, var(--accent3) 30%, transparent);
-  display: flex; gap: 10px; align-items: baseline;
+  display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap;
 }
-.nw-rlabel { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--accent3); }
-.nw-rval { font-weight: 600; }
-.nw-sh { font-weight: 650; font-size: 13px; color: var(--text2); margin: 10px 0 2px; }
+.nw-rlabel { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--accent3); white-space: nowrap; }
+.nw-rval { font-weight: 600; font-size: 15px; min-width: 0; }
+.n-worked > .n-copy { top: 9px; right: 10px; }
+.n-worked:hover > .n-copy { opacity: 1; }
+@media (max-width: 560px) {
+  .nw-steps { padding: 10px 12px 4px; }
+  .nw-step { gap: 10px; flex-wrap: wrap; }
+  .nw-num { order: -2; }
+  .nw-mk { order: -1; margin-top: 0; }
+  .nw-body { flex-basis: 100%; }
+  .nw-q { padding: 12px 14px; }
+  .nw-result { margin: 4px 12px 14px; }
+}
 
 /* ============================================================
    Flashcards

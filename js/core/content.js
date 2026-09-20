@@ -27,6 +27,15 @@
    {code:{lang:"csharp", src:"...", cap:"caption"}}
    {callout:{t:"def|tip|warn|miscon|mnemonic|memorise|formula", h:"", body:[blocks]}}
    {steps:[{h,m,n},..]}                    inline worked walkthrough
+   {fig:{x,y,axes,items,cap}}               declarative diagram (core/figures.js)
+   {worked:{tag,title,src,q,steps:[{h,m,n,mk,fig}],result}}
+                                           worked example card: tag is
+                                           example|exam|variation|check, q the
+                                           question (string or blocks), mk an
+                                           Edexcel mark code on a step. A
+                                           content file may derive its exam
+                                           items from these cards with
+                                           KOS.content.examFromWorked(notes)
    {diagram:"sim-id"}                      "Open interactive diagram →" link to a sim
 */
 (function () {
@@ -258,7 +267,7 @@
       if (b.ol) { html += "<ol>" + b.ol.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ol>"; return; }
       if (b.kv) {
         html += '<dl class="n-kv">' + COPY_BTN + b.kv.map(function (p) {
-          return "<dt>" + inline(p[0]) + "</dt><dd>" + inline(p[1]) + "</dd>";
+          return "<dt>" + inline(p[0]) + "</dt><dd>" + para(p[1]) + "</dd>";
         }).join("") + "</dl>"; return;
       }
       if (b.table) {
@@ -293,21 +302,34 @@
           "</span></button>"; return;
       }
       if (b.worked) {
+        /* A worked example: the question, numbered steps of real working
+           (each may carry an Edexcel mark — M1/A1/B1 — as `mk`, and a note
+           `n` saying why the step earns it), and the answer. `m` is
+           paragraph text so one step can hold several lines of algebra. */
         var w = b.worked;
         var tag = w.tag || "example";
         var tagLabel = { example: "Worked example", exam: "Exam-style", variation: "Variation", check: "Check" }[tag] || "Worked example";
         html += '<figure class="n-worked n-worked-' + esc(tag) + '">' + COPY_BTN +
           '<figcaption class="nw-head"><span class="nw-tag">' + esc(tagLabel) + "</span>" +
-          (w.title ? '<span class="nw-title">' + inline(w.title) + "</span>" : "") + "</figcaption>" +
+          (w.title ? '<span class="nw-title">' + inline(w.title) + "</span>" : "") +
+          (w.src ? '<span class="nw-src">' + inline(w.src) + "</span>" : "") + "</figcaption>" +
+          (w.q ? '<div class="nw-q">' + renderBlocks(typeof w.q === "string" ? [w.q] : w.q) + "</div>" : "") +
           '<ol class="nw-steps">' + (w.steps || []).map(function (s) {
-            if (typeof s === "string") return '<li class="nw-step"><span class="nw-num"></span><div class="nw-body"><div class="nw-m">' + inline(s) + "</div></div></li>";
-            return '<li class="nw-step"><span class="nw-num"></span><div class="nw-body">' +
+            if (typeof s === "string") s = { m: s };
+            return '<li class="nw-step"><span class="nw-num" aria-hidden="true"></span><div class="nw-body">' +
               (s.h ? '<div class="nw-sh">' + inline(s.h) + "</div>" : "") +
-              (s.m != null ? '<div class="nw-m">' + inline(s.m) + "</div>" : "") +
-              (s.n ? '<div class="nw-n">' + inline(s.n) + "</div>" : "") + "</div></li>";
+              (s.m != null ? '<div class="nw-m">' + para(s.m) + "</div>" : "") +
+              (s.fig && window.KOS.figures ? KOS.figures.render(s.fig) : "") +
+              (s.n ? '<div class="nw-n">' + inline(s.n) + "</div>" : "") + "</div>" +
+              (s.mk ? '<span class="nw-mk" title="Mark">' + esc(s.mk) + "</span>" : "") + "</li>";
           }).join("") + "</ol>" +
           (w.result ? '<div class="nw-result"><span class="nw-rlabel">Answer</span><span class="nw-rval">' + inline(w.result) + "</span></div>" : "") +
           "</figure>"; return;
+      }
+      if (b.fig) {
+        /* a declarative diagram — core/figures.js turns the spec into
+           theme-coloured SVG; a missing engine degrades to nothing */
+        html += window.KOS.figures ? KOS.figures.render(b.fig) : ""; return;
       }
       if (b.svg) {
         html += '<figure class="n-fig">' + (b.svg.src || "") +
@@ -410,9 +432,42 @@
     return e;
   }
 
+  /* The deep maths files carry their past-paper practice as `worked`
+     cards with the paper named in `src` ("AS June 2022 · P1 Q3 · 6 marks")
+     and mark codes on every step. examFromWorked() turns those cards into
+     the exam-item schema the Exam questions tab self-marks against, so a
+     question is authored once: the card is the model answer, the item is
+     the practice. Only exam-tagged cards with a plain-string question and
+     a mark count in `src` qualify. */
+  function examFromWorked(notes) {
+    var out = [];
+    (notes || []).forEach(function (b) {
+      var w = b && b.worked;
+      if (!w || w.tag !== "exam" || typeof w.q !== "string" || !w.src) return;
+      var mm = /(\d+)\s*marks?/.exec(w.src);
+      if (!mm) return;
+      var marks = parseInt(mm[1], 10);
+      var lvl = /^AS\b/.test(w.src) ? "AS" : null;
+      var src = "Edexcel " + w.src.replace(/^(AS|A-level)\s*/, "").replace(/\s*·\s*\d+\s*marks?\s*$/, "");
+      var ms = (w.steps || []).map(function (st) {
+        /* a mark-scheme bullet is inline text: the card's display-size
+           fractions become inline fractions */
+        var line = (st.h ? "**" + st.h + "** " : "") + String(st.m || "").replace(/\n+/g, "; ").replace(/\\dfrac/g, "\\frac").replace(/\\displaystyle\s*/g, "");
+        if (st.mk) line += " [" + st.mk + "]";
+        return line;
+      }).filter(function (l) { return l.trim(); });
+      if (w.result) ms.push("**Answer:** " + w.result);
+      var item = { q: w.q, marks: marks, ms: ms, src: src };
+      if (lvl) item.level = lvl;
+      out.push(item);
+    });
+    return out;
+  }
+
   KOS.content = {
     get: function (sid, ref) { return window.KOS_CONTENT[sid + ":" + ref] || null; },
     extend: extend,
+    examFromWorked: examFromWorked,
     has: function (sid, ref) { return !!window.KOS_CONTENT[sid + ":" + ref]; },
     renderBlocks: renderBlocks,
     splitPages: splitPages,
