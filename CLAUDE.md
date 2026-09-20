@@ -14,7 +14,7 @@ chronological diary here.
 - Runtime release: `79e7c1b` — immutable deployment
   https://da200191.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-vn-progress-1`
+- Service-worker version: `kos-vn-progress-2`
 - Required smoke gate: 54 / 54 suites.
 
 ## Run, test and deploy
@@ -154,8 +154,11 @@ source comments and audit notes refer to it.
    credential. Browser origins have different IndexedDB databases.
 8. Vaults and search never render/read an unbounded collection: use indexes,
    cursor caps and 60-entry lazy batches.
-9. Pull sync owns list state but preserves the manual layer, local crop/source
-   pairs and unioned custom lists. Non-null fresh `extra` fields accrete.
+9. Pull sync owns list state but preserves the manual layer and local
+   crop/source pairs. Custom lists: a list AniList HAS (the mirror passes
+   every AniList list name, `mirrorOpts(module, names)`) follows the pull —
+   membership removed there is removed here; a list only this app has
+   unions. Non-null fresh `extra` fields accrete.
 10. VN and Game progress is derived; do not store a parallel progress value.
     A VN counts ONE source — `mediadb.vnSource()`: `progressMode` when set,
     else routes, then chapters, then `playtimeHours` against VNDB's length

@@ -223,7 +223,11 @@
       " } } } } }";
   }
 
-  /* Pull the whole list for one media type. cb(err, mappedEntries[]).
+  /* Pull the whole list for one media type. cb(err, mappedEntries[],
+     customListNames[]) — the names are EVERY custom list AniList has for
+     this media type, so the mirror can treat membership in them as
+     AniList's to give and take (a title dropped from a list there leaves
+     it here), while a list that exists only in this app is untouched.
      Custom lists duplicate entries (status:null lists) → dedupe by entry id. */
   function syncList(token, userId, module, cb) {
     gql(listQuery(module), { userId: userId, type: mediaType(module) }, token, function (err, data) {
@@ -234,8 +238,10 @@
          list is a group flagged isCustomList — its name is the list name;
          the same entry also appears in its status group). */
       var lists = {};   // entryId -> [customListName]
+      var names = [];   // every custom list AniList has for this type
       coll.lists.forEach(function (list) {
         if (!list.isCustomList || !list.name) return;
+        if (names.indexOf(list.name) === -1) names.push(list.name);
         (list.entries || []).forEach(function (en) {
           if (!en) return;
           (lists[en.id] = lists[en.id] || []).push(list.name);
@@ -249,7 +255,7 @@
           mapped.push(mapListEntry(en, module, lists[en.id] || []));
         });
       });
-      cb(null, mapped);
+      cb(null, mapped, names);
     });
   }
 

@@ -19,7 +19,7 @@ AniList mirror and the notification centre followed on 19 September 2026
 | Runtime release commit | `79e7c1b` (VN progress sources, VNDB relay, open bars), immutable https://da200191.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-vn-progress-1` |
+| Service-worker cache | `kos-vn-progress-2` |
 | Smoke gate | 54 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
@@ -59,6 +59,12 @@ VNDB write relay; half-full bars for series still releasing.** Deployed
   half-full bar whose fill fades out and whose title says why; nothing
   started is no bar. Anime cards, the Books dual bar and compare panel,
   VN cards, the vault hero and the Overview "now" cards all read it.
+- Follow-up (same day): AniList-owned custom lists now MIRROR — `syncList`
+  reports every AniList list name and the merge lets AniList give and take
+  membership in those, while app-only lists still union. The Books card bar
+  is the shared `.med-track` fill (it was a 3px line in the unlifted accent,
+  near-black on the card gradient) and every card fill lifts the accent
+  toward white. The VN card no longer prints the quote count.
 - `smoke54` covers the layer; gate 54/54.
 
 **Pure Mathematics P1–P10 rewritten to full A-level depth, with diagrams

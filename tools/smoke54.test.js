@@ -280,6 +280,7 @@ step("a chapter-counting VN gets +1 ch on its card; the last chapter completes t
   const routed = cards.find(c => /Ever17/.test(c.textContent));
   assert(kin && routed, "cards missing");
   assert(/2 \/ 4 ch/.test(kin.querySelector(".med-prog").textContent), "card prints the chapter count: " + kin.querySelector(".med-prog").textContent);
+  assert(!/❝/.test(routed.textContent) && !/❝/.test(kin.textContent), "the quote count is not a card fact");
   assert(kin.querySelector(".med-track") && kin.querySelector(".med-track .subj-fill").style.width === "50%", "chapter bar at 50%");
   assert(!routed.querySelector(".med-plus"), "a routed VN has no +1");
   const plus = kin.querySelector(".med-plus");
@@ -337,9 +338,46 @@ step("anime and books cards draw the half-full bar for a series still releasing"
   assert(bk, "Berserk card");
   const readBar = bk.querySelector(".bk-dual-read");
   assert(readBar && readBar.classList.contains("open") && readBar.style.width === "50%", "releasing manga: half-full open read bar");
+  assert(bk.querySelector(".bk-dual").classList.contains("med-track") && readBar.classList.contains("subj-fill"),
+    "the books bar is the shared med-track fill, like anime");
   assert(/still releasing/.test(bk.querySelector(".bk-dual").title), "the bar's title says why");
   const o = KOS.books.ownership(KOS.mediadb.normalise({ module: "books", title: "x", progress: { current: 10, total: 100 } }));
   assert(o.readPct === 10 && o.readOpen === false, "a known total is still the honest fraction");
+});
+
+/* ============ 3b · AniList-owned custom lists mirror ============ */
+console.log("== custom lists ==");
+step("a title dropped from an AniList list leaves that list here; a list only this app has still unions", async () => {
+  const row = await p(cb => KOS.mediadb.add({ module: "books", title: "Listed", status: "inProgress", format: "manga",
+    externalIds: { anilistId: 41000 }, syncSource: "anilist",
+    customLists: ["Currently Reading", "Owned Novels", "My Local Shelf"] }, cb));
+  function pulledBook(lists) {
+    return { module: "books", title: "Listed", status: "inProgress", customLists: lists,
+      progress: { current: 3, total: null }, score: 0, genres: [], dates: { started: null, finished: null },
+      externalIds: { anilistId: 41000, malId: null }, coverUrl: null, syncSource: "anilist", lastSyncedAt: Date.now(), extra: {} };
+  }
+  /* AniList now has it on Owned Novels only; its lists are these three */
+  await p(cb => KOS.mediadb.bulkUpsert([pulledBook(["Owned Novels"])],
+    KOS.media.mirrorOpts("books", ["Currently Reading", "Owned Novels", "Reading Novels"]), cb));
+  let e = await p(cb => KOS.mediadb.get(row.id, cb));
+  assert(e.customLists.indexOf("Currently Reading") === -1, "removed on AniList must leave here: " + e.customLists.join(","));
+  assert(e.customLists.indexOf("Owned Novels") !== -1, "AniList membership kept");
+  assert(e.customLists.indexOf("My Local Shelf") !== -1, "a list AniList doesn't have unions as before");
+  /* re-added on AniList → back here */
+  await p(cb => KOS.mediadb.bulkUpsert([pulledBook(["Owned Novels", "Currently Reading"])],
+    KOS.media.mirrorOpts("books", ["Currently Reading", "Owned Novels", "Reading Novels"]), cb));
+  e = await p(cb => KOS.mediadb.get(row.id, cb));
+  assert(e.customLists.indexOf("Currently Reading") !== -1, "re-added on AniList must return");
+  /* without the names (a caller that doesn't know AniList's lists) the old union rule holds */
+  await p(cb => KOS.mediadb.bulkUpsert([pulledBook([])], KOS.media.mirrorOpts("books"), cb));
+  e = await p(cb => KOS.mediadb.get(row.id, cb));
+  assert(e.customLists.length === 3, "no names → union, nothing dropped: " + e.customLists.join(","));
+  /* syncList hands the names to its caller */
+  const src = read("js/core/anilist.js");
+  assert(/cb\(null, mapped, names\)/.test(src), "syncList reports AniList's list names");
+  assert(/mirrorOpts\(module, listNames\)/.test(read("js/core/autosync.js")) && /mirrorOpts\(module, listNames\)/.test(read("js/modules/mediasync.js")),
+    "both pull paths pass the names");
+  await p(cb => KOS.mediadb.remove(row.id, cb));
 });
 
 /* ============ 4 · the VNDB write relay ============ */

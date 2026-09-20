@@ -3696,6 +3696,9 @@ body.fx-minimised .fx-dock { display: flex; }
 .med-plus { align-self: flex-start; padding: 4px 11px; font-size: 12px; }
 .med-track { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; margin: 0; height: 4px; background: rgba(18,14,8,.5); }
 .med-track .bar-fill, .med-track > * { height: 100%; }
+/* the card fill lifts the theme accent toward white: a 4px line over the
+   card's dark gradient needs more light than the page-level track does */
+.med-track .subj-fill { background: linear-gradient(90deg, var(--accent, var(--kurenai)), color-mix(in srgb, var(--accent, var(--kurenai)) 45%, #fff)); }
 /* a series still releasing has no total to count against: the bar sits
    half full and its fill fades out instead of stopping (KOS.media.progressFill) */
 .subj-track.open .subj-fill {
@@ -4143,10 +4146,14 @@ body.fx-minimised .fx-dock { display: flex; }
 .bk-fmt { --chip: var(--accent2); }
 .bk-dnf { --chip: #9A8F7B; text-decoration: line-through; text-decoration-thickness: 1px; }
 .bk-owned-line { font-family: var(--mono); font-size: 10px; color: #EFC77E; }
-.bk-dual { position: relative; height: 7px; background: rgba(18,14,8,.5); overflow: hidden; }
-.bk-dual-own, .bk-dual-read { position: absolute; left: 0; display: block; }
-.bk-dual-own { top: 0; height: 3px; background: linear-gradient(90deg, var(--accent2), #E8CF96); }
-.bk-dual-read { bottom: 0; height: 3px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #fff)); }
+/* the Books card bar IS the shared .med-track (same placement, same
+   accent fill as Anime/VN, so the three vaults can never differ) — the
+   read half is the full fill, the owned half a thin gold line across its
+   top. It used to be its own 3px line along the rounded bottom edge in
+   the unlifted accent, which read as near-black on the card gradient. */
+.bk-dual { height: 6px; }
+.bk-dual-own { position: absolute; left: 0; top: 0; z-index: 1; height: 2px; display: block; background: linear-gradient(90deg, var(--accent2), #E8CF96); }
+.bk-dual-read { position: absolute; left: 0; bottom: 0; height: 100%; }
 .bk-dual-read.open {
   -webkit-mask-image: linear-gradient(90deg, #000 55%, transparent);
   mask-image: linear-gradient(90deg, #000 55%, transparent);

@@ -102,9 +102,9 @@
      completes, so the Governor ledger gets one background-sync entry. cb(result|null) — errors
      resolve null so the cycle continues with the other pulls. */
   function pullAnilistModule(conn, module, report, cb) {
-    KOS.anilist.syncList(conn.token, conn.viewer.id, module, function (err, mapped) {
+    KOS.anilist.syncList(conn.token, conn.viewer.id, module, function (err, mapped, listNames) {
       if (err) { authFail("anilist", err); report.errors.push("anilist/" + module + ": " + err.message); cb(null); return; }
-      KOS.mediadb.bulkUpsert(mapped, KOS.media.mirrorOpts(module), function (err2, res) {
+      KOS.mediadb.bulkUpsert(mapped, KOS.media.mirrorOpts(module, listNames), function (err2, res) {
         if (err2) { report.errors.push("anilist/" + module + " write: " + err2.message); cb(null); return; }
         KOS.mediadb.setKV("anilist.lastSync." + module, Date.now(), function () {});
         cb(res);

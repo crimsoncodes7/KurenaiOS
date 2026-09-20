@@ -930,9 +930,15 @@
         inc.physical = old.physical || inc.physical;
         inc.mood = (old.mood && old.mood.length) ? old.mood : inc.mood;
         inc.shelves = (old.shelves && old.shelves.length) ? old.shelves : inc.shelves;
-        /* custom lists UNION (3k): a locally-added list and an AniList-synced
-           list both survive — a pull never drops a membership you made. */
-        inc.customLists = (old.customLists || []).concat(inc.customLists || [])
+        /* custom lists: a list AniList HAS (opts.replace.lists names them
+           all) is AniList's to give and take — membership follows the pull,
+           so a title removed from a list there leaves it here. A list that
+           exists only in this app unions as before (3k): a pull never
+           drops a membership you made somewhere AniList cannot see. */
+        var owned = opts.replace && opts.replace.mirror && Array.isArray(opts.replace.lists) ? opts.replace.lists : null;
+        inc.customLists = (old.customLists || [])
+          .filter(function (n) { return !owned || owned.indexOf(n) === -1; })
+          .concat(inc.customLists || [])
           .filter(function (s, i, a) { return s && a.indexOf(s) === i; });
         if (old.dnf && old.dnf.isDnf) inc.dnf = old.dnf;
         inc.author = inc.author || old.author || "";

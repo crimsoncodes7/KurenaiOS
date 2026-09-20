@@ -361,8 +361,9 @@
      alike. There is no mode to pick: what AniList no longer carries goes,
      duplicates fold into one row, and only the physical shelf is outside
      its reach (mediadb.bulkUpsert, replace.mirror). */
-  function mirrorOpts(module) {
+  function mirrorOpts(module, listNames) {
     return { replace: { module: module, source: "anilist", mirror: true,
+      lists: Array.isArray(listNames) ? listNames : null,
       protect: protectedCardIds(module) } };
   }
 

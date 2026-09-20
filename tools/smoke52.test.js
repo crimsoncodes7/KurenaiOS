@@ -175,8 +175,8 @@ step("KOS.media.mirrorOpts is what BOTH pull paths hand bulkUpsert", () => {
   assert(o.replace && o.replace.mirror === true && o.replace.module === "books" && o.replace.source === "anilist", "mirrorOpts shape");
   const sync = fs.readFileSync(path.join(ROOT, "js/modules/mediasync.js"), "utf8");
   const auto = fs.readFileSync(path.join(ROOT, "js/core/autosync.js"), "utf8");
-  assert(/bulkUpsert\(mapped, mirrorOpts\(module\)/.test(sync), "the manual AniList sync does not mirror");
-  assert(/bulkUpsert\(mapped, KOS\.media\.mirrorOpts\(module\)/.test(auto), "the autosync AniList pull does not mirror");
+  assert(/bulkUpsert\(mapped, mirrorOpts\(module(, listNames)?\)/.test(sync), "the manual AniList sync does not mirror");
+  assert(/bulkUpsert\(mapped, KOS\.media\.mirrorOpts\(module(, listNames)?\)/.test(auto), "the autosync AniList pull does not mirror");
   assert(!/aniMode/.test(sync), "the AniList panel still offers an import-mode choice — there is nothing to choose");
 });
 step("the autosync cycle mirrors too: a title removed on AniList disappears on the next background pull", async () => {

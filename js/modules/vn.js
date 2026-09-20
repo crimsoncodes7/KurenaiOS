@@ -152,7 +152,6 @@
     if (cp.total && src !== "chapters") bits.push(cp.done + "/" + cp.total + " ch");
     var cg = cgText(e);
     if (cg) bits.push(cg);
-    if (e.quotes && e.quotes.length) bits.push("❝ " + e.quotes.length);
     var len = lengthText(e.extra);
     if (len && src !== "time") bits.push(len);   // the hours already measure against it
     return bits.join(" · ");

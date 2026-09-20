@@ -125,10 +125,10 @@
       progress("Pulling your " + (module === "books" ? "manga" : "anime") + " list…");
       KOS.anilist.getConnection(function (err, conn) {
         if (err || !conn.token || !conn.viewer) { cb(new Error("AniList isn't connected — set it up in Sync & Import.")); return; }
-        KOS.anilist.syncList(conn.token, conn.viewer.id, module, function (err3, mapped) {
+        KOS.anilist.syncList(conn.token, conn.viewer.id, module, function (err3, mapped, listNames) {
           if (err3) { cb(err3); return; }
           progress("Mapped " + mapped.length + " entries — mirroring into the vault…");
-          KOS.mediadb.bulkUpsert(mapped, mirrorOpts(module), finish);
+          KOS.mediadb.bulkUpsert(mapped, mirrorOpts(module, listNames), finish);
         });
       });
       return;

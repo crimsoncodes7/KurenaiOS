@@ -244,11 +244,11 @@
     var readNote = o.readPct == null ? "read progress unknown"
       : o.readOpen ? "Read: " + KOS.media.progressText(e) + " — still releasing, no final count yet"
       : "Read: " + o.readPct + "%";
-    var wrap = el("div", { class: "bk-dual", title:
+    var wrap = el("div", { class: "subj-track med-track bk-dual", role: "img", "aria-label": readNote, title:
       (o.ownedPct != null ? "Owned: " + o.ownedVols + "/" + o.totalVols + (o.est ? " vols (estimated from chapters)" : " vols") : "Nothing owned") +
       " · " + readNote });
     wrap.appendChild(el("span", { class: "bk-dual-own", style: "width:" + (o.ownedPct || 0) + "%" }));
-    wrap.appendChild(el("span", { class: "bk-dual-read" + (o.readOpen ? " open" : ""), style: "width:" + (o.readPct || 0) + "%" }));
+    wrap.appendChild(el("span", { class: "subj-fill bk-dual-read" + (o.readOpen ? " open" : ""), style: "width:" + (o.readPct || 0) + "%" }));
     return wrap;
   }
 
