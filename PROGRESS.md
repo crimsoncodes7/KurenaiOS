@@ -16,7 +16,7 @@ AniList mirror and the notification centre followed on 19 September 2026
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `8b6c513` (VN progress sources, VNDB relay, list mirror, card bars), immutable https://5096e6e7.kurenai-os.pages.dev |
+| Runtime release commit | `b467dc6` (VN progress sources, VNDB relay, list mirror, card bars), immutable https://a6725a56.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-vn-progress-3` |
