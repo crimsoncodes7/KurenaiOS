@@ -19,8 +19,8 @@ AniList mirror and the notification centre followed on 19 September 2026
 | Runtime release commit | `e9c6350` (Pure Maths notes at full depth), immutable https://e725a6e1.kurenai-os.pages.dev |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-pure-notes-1` |
-| Smoke gate | 53 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
+| Service-worker cache | `kos-vn-progress-1` |
+| Smoke gate | 54 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
 Production deployment is separate from Git push and is performed only through
@@ -28,6 +28,37 @@ Production deployment is separate from Git push and is performed only through
 https://bb17097f.kurenai-os.pages.dev.
 
 ## Unreleased on `main`
+
+**Collection — VN progress by routes, chapters or a percentage; the VNDB
+write relay; half-full bars for series still releasing.**
+
+- A VN's progress is derived from ONE source, chosen in the editor's
+  "What counts" (`progressMode`) or picked automatically from what the
+  entry carries: routes cleared, then chapters/parts completed, then
+  hours played against VNDB's length estimate (`playtimeHours` vs
+  `extra.lengthMinutes`, or the 1–5 length bucket as a rough figure),
+  then a percentage the user sets (`progressPercent`). A kinetic novel
+  counts by chapters and gets "+1 ch" on its card (the last chapter
+  completes it); a first playthrough of an unstructured title logs hours
+  and gets "+1 hr"; the percentage is the last resort. The derived
+  `progress` carries its `unit` and an `estimate` flag; the shared
+  `progressText` prints "2 / 4 ch", "12 / ~40 hr" and "40%". The source
+  survives a VNDB pull, folds through `mergeRows`/`foldLocal` and counts
+  as local data.
+- VNDB still refuses `PATCH` from browsers (re-verified 20 September
+  2026), so the write goes through a new `vndb-ulist` Edge Function
+  (JWT-verified; the user's own token rides the one request and is never
+  stored) whenever the user is signed in to cloud sync. `KOS.cloud.invoke`
+  is the shared Edge Function call (ex `gameapi`). Signed out, the direct
+  PATCH is still tried and its failure names the sign-in that fixes it.
+  The token needs "modify my list" on vndb.org; Sync & Import says which
+  it has.
+- `KOS.media.progressFill/progressBar`: a known total is the honest
+  fraction; a series still releasing (progress made, no total) is a
+  half-full bar whose fill fades out and whose title says why; nothing
+  started is no bar. Anime cards, the Books dual bar and compare panel,
+  VN cards, the vault hero and the Overview "now" cards all read it.
+- `smoke54` covers the layer; gate 54/54.
 
 **Pure Mathematics P1–P10 rewritten to full A-level depth, with diagrams
 and self-marking past-paper practice.** Deployed 20 September 2026
@@ -371,11 +402,13 @@ The numbered suites form one release gate:
   folding, the cloud identity match, English titles and the UI contracts.
 - `smoke53.test.js`: the notification centre — the ledger, every source, the
   bell and the page, device alerts, the favicon and the seasonal user art.
+- `smoke54.test.js`: VN progress sources, the VNDB write relay and the
+  open-ended progress bar.
 
 Run all suites with:
 
 ```sh
-for i in "" {2..53}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..54}; do node "tools/smoke${i}.test.js"; done
 ```
 
 ## Remaining work and external gates

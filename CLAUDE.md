@@ -14,8 +14,8 @@ chronological diary here.
 - Runtime release: `e9c6350` — immutable deployment
   https://e725a6e1.kurenai-os.pages.dev
 - Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-pure-notes-1`
-- Required smoke gate: 53 / 53 suites.
+- Service-worker version: `kos-vn-progress-1`
+- Required smoke gate: 54 / 54 suites.
 
 ## Run, test and deploy
 
@@ -25,7 +25,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 -m http.server 8765
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..53}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..54}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -156,8 +156,13 @@ source comments and audit notes refer to it.
    cursor caps and 60-entry lazy batches.
 9. Pull sync owns list state but preserves the manual layer, local crop/source
    pairs and unioned custom lists. Non-null fresh `extra` fields accrete.
-10. VN and Game progress is derived from routes/playtime; do not store a parallel
-    progress value.
+10. VN and Game progress is derived; do not store a parallel progress value.
+    A VN counts ONE source — `mediadb.vnSource()`: `progressMode` when set,
+    else routes, then chapters, then `playtimeHours` against VNDB's length
+    (`vnLengthHours`: `extra.lengthMinutes`, else the 1–5 bucket as a rough
+    figure; the derived total is flagged `estimate`), then `progressPercent`
+    — and the derived `progress` carries its `unit` (`route`/`ch`/`hr`/`%`).
+    Games derive from playtime.
 11. Upsert identity order is VNDB id, AniList id, MAL id. Title claiming is VN-only
     and only for id-less exact-title rows.
 12. Push only AniList-owned Anime/Books or VNDB-owned VNs. Games never push and the
@@ -171,7 +176,10 @@ source comments and audit notes refer to it.
     a push followed by its echo earns nothing.
 18. VNDB Kana `/ulist` identity is the top-level `id`, not `vn.id`; use
     `api.vndb.org/kana` only.
-19. Browser VNDB PATCH is CORS-blocked. Do not retry it as if it were transient.
+19. Browser VNDB PATCH is CORS-blocked (re-verified 2026-09-20). Signed in to
+    cloud sync, `setUlist` relays through the `vndb-ulist` Edge Function
+    (the user's token rides the one request, never stored); signed out it is
+    the direct PATCH, whose failure is never retried as if transient.
 20. The browser never talks to Steam. Edge Functions verify OpenID, own SteamID,
     require a review stage and gap-fill only; the manual Games baseline survives.
 21. Book lookup uses Open Library first and Google Books only as fallback.
@@ -317,8 +325,11 @@ source comments and audit notes refer to it.
 61. Placeholder hue is deterministic from title, with no canvas/network work.
 62. Taxonomy display groups the fields where they are read; it does not invent a
     second schema field.
-63. `KOS.media.progressText/progressPct` own media progress formatting. Charts use
-    labelled axes/marks, an 11px label floor and honest low-data states.
+63. `KOS.media.progressText/progressPct/progressFill` own media progress
+    formatting and the bar: a known total is the fraction, a series still
+    releasing (`current > 0`, no total) is a half-full `open` bar whose title
+    says so, nothing started is no bar. Charts use labelled axes/marks, an
+    11px label floor and honest low-data states.
 
 ### The editable curriculum (86–89)
 

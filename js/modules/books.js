@@ -71,10 +71,15 @@
     var tv = totalVolumes(e);
     var ownedVols = e.physical ? e.physical.volumes.length : 0;
     var ownedPct = tv.n ? Math.min(100, Math.round(100 * ownedVols / tv.n)) : null;
-    var readPct = null;
+    var readPct = null, readOpen = false;
     if (e.progress.total) readPct = Math.min(100, Math.round(100 * (e.progress.current || 0) / e.progress.total));
     else if (tv.n && e.progress.volumes != null) readPct = Math.min(100, Math.round(100 * e.progress.volumes / tv.n));
-    return { ownedVols: ownedVols, totalVols: tv.n, est: tv.est, ownedPct: ownedPct, readPct: readPct };
+    else {
+      /* a series still releasing: the shared half-full rule (KOS.media.progressFill) */
+      var fill = KOS.media.progressFill(e);
+      if (fill) { readPct = fill.pct; readOpen = fill.open; }
+    }
+    return { ownedVols: ownedVols, totalVols: tv.n, est: tv.est, ownedPct: ownedPct, readPct: readPct, readOpen: readOpen };
   }
 
   /* Deterministic spine colour: same series → same colour every session.
@@ -236,11 +241,14 @@
   function dualBar(e) {
     var o = ownership(e);
     if (o.ownedPct == null && o.readPct == null) return null;
+    var readNote = o.readPct == null ? "read progress unknown"
+      : o.readOpen ? "Read: " + KOS.media.progressText(e) + " — still releasing, no final count yet"
+      : "Read: " + o.readPct + "%";
     var wrap = el("div", { class: "bk-dual", title:
       (o.ownedPct != null ? "Owned: " + o.ownedVols + "/" + o.totalVols + (o.est ? " vols (estimated from chapters)" : " vols") : "Nothing owned") +
-      " · " + (o.readPct != null ? "Read: " + o.readPct + "%" : "read progress unknown") });
+      " · " + readNote });
     wrap.appendChild(el("span", { class: "bk-dual-own", style: "width:" + (o.ownedPct || 0) + "%" }));
-    wrap.appendChild(el("span", { class: "bk-dual-read", style: "width:" + (o.readPct || 0) + "%" }));
+    wrap.appendChild(el("span", { class: "bk-dual-read" + (o.readOpen ? " open" : ""), style: "width:" + (o.readPct || 0) + "%" }));
     return wrap;
   }
 
@@ -347,7 +355,9 @@
           ? o.ownedVols + "/" + o.totalVols + " vols" + (o.est ? " (est.)" : "") + " · " + o.ownedPct + "%"
           : "no volumes recorded", "own"));
       wrap.appendChild(row("Read", o.readPct,
-        o.readPct != null ? o.readPct + "%" : "progress unknown", "read"));
+        o.readPct == null ? "progress unknown"
+          : o.readOpen ? KOS.media.progressText(e) + " · still releasing"
+          : o.readPct + "%", "read" + (o.readOpen ? " open" : "")));
       return wrap;
     }
 

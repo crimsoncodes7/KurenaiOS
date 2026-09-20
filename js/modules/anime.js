@@ -292,11 +292,10 @@
         })
       ])
     ]);
-    if (e.progress.total) {
-      card.appendChild(el("div", { class: "subj-track med-track" }, [
-        el("span", { class: "subj-fill", style: "width:" + Math.min(100, Math.round(100 * (e.progress.current || 0) / e.progress.total)) + "%" })
-      ]));
-    }
+    /* the shared bar — half full and fading when the series is still
+       releasing (no total yet), the honest fraction otherwise */
+    var track = KOS.media.progressBar(e);
+    if (track) card.appendChild(track);
     return card;
   }
   function listRow(e, mod, rerender) {

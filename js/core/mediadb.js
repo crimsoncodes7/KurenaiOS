@@ -50,10 +50,23 @@
        cgGallery: { totalKnown: n|null, unlockedCount: n },  counter only,
                   never actual CG artwork (copyright; VNDB doesn't expose it)
        quotes:  [{ text, context, loggedAt: ms }],
+       chapters: [{ name, status, notes }],   user-defined parts (Build 3j)
+       progressMode: null|"routes"|"chapters"|"time"|"percent",
+       progressPercent: 0–100|null,
+       playtimeHours: n|null   (shared with Games; a VN's hours played)
        externalIds.vndbId: "v123"|null
-       For module:"vn" with routes, progress is DERIVED: current = routes
-       cleared, total = routes.length — so the cross-media UI reads VNs
-       with zero special-casing.
+       For module:"vn", progress is DERIVED from ONE of four sources —
+       the routes list (cleared / named), the chapters list (completed /
+       named), hours played against VNDB's length estimate, or a
+       percentage the user sets — chosen by progressMode, or when that
+       is null by what the entry carries (routes, chapters, time, then
+       the percentage). A kinetic novel counts by chapters; a first
+       playthrough with no structure counts its hours against the
+       crowd-sourced length (extra.lengthMinutes, or the 1–5 length
+       bucket as a rough figure, flagged `estimate`); the percentage is
+       for when nothing else fits. The derived shape is the shared one
+       plus `unit` ("route"|"ch"|"hr"|"%"), so the cross-media UI reads
+       VNs with zero special-casing.
 
        -- Build 3e, Games. MANUAL-ENTRY ONLY, permanently by design: Steam's
           data API blocks browser CORS (no workaround), and Steam OpenID
@@ -240,8 +253,9 @@
 
   /* one manual VN chapter/part record (Build 3j) — a user-defined layer
      PARALLEL to routes, never nested in them and never derived from VNDB
-     (which has no structured chapter data). status reuses the shared enum;
-     chapters do NOT drive progress — routes keep that job. */
+     (which has no structured chapter data). status reuses the shared enum.
+     Chapters drive progress when they are the entry's progress source
+     (see vnProgress). */
   function normChapter(c) {
     c = c || {};
     return {
@@ -270,14 +284,52 @@
       loggedAt: typeof q.loggedAt === "number" ? q.loggedAt : Date.now()
     };
   }
-  /* VN progress is derived from the manual routes list — one shape the
-     cross-media UI already understands */
-  function vnProgress(routes) {
-    return {
-      current: routes.filter(function (r) { return r.cleared; }).length,
-      total: routes.length || null,
-      volumes: null, totalVolumes: null
-    };
+  /* VN progress is derived from ONE source the user builds by hand — one
+     shape the cross-media UI already understands. Which source: the
+     entry's progressMode, or when unset the first thing it carries. */
+  var VN_MODES = ["routes", "chapters", "time", "percent"];
+  function vnSource(e) {
+    if (VN_MODES.indexOf(e.progressMode) !== -1) return e.progressMode;
+    if (e.routes && e.routes.length) return "routes";
+    if (e.chapters && e.chapters.length) return "chapters";
+    if (e.playtimeHours != null) return "time";
+    if (e.progressPercent != null) return "percent";
+    return null;
+  }
+  /* VNDB's length for a VN, in hours: the crowd-sourced play time when
+     the title has votes, else a rough midpoint of its 1–5 length bucket
+     (very short <2 h · short 2–10 · medium 10–30 · long 30–50 · very
+     long 50+), flagged as the rougher figure. null when VNDB has neither. */
+  var BUCKET_HOURS = { 1: 1, 2: 6, 3: 20, 4: 40, 5: 60 };
+  function vnLengthHours(e) {
+    var x = (e && e.extra) || {};
+    if (x.lengthMinutes) return { hours: Math.round(x.lengthMinutes / 60 * 10) / 10, rough: false };
+    if (BUCKET_HOURS[x.length]) return { hours: BUCKET_HOURS[x.length], rough: true };
+    return null;
+  }
+  function vnProgress(e) {
+    var src = vnSource(e), cur = 0, total = null, unit = "route", estimate = false;
+    if (src === "time") {
+      var len = vnLengthHours(e);
+      cur = e.playtimeHours || 0;
+      total = len ? len.hours : null;
+      estimate = !!len;          // every VNDB length is an estimate, rough or not
+      unit = "hr";
+    } else if (src === "routes") {
+      cur = (e.routes || []).filter(function (r) { return r.cleared; }).length;
+      total = (e.routes || []).length || null;
+    } else if (src === "chapters") {
+      cur = (e.chapters || []).filter(function (c) { return c.status === "completed"; }).length;
+      total = (e.chapters || []).length || null;
+      unit = "ch";
+    } else if (src === "percent") {
+      cur = e.progressPercent || 0;
+      total = 100;
+      unit = "%";
+    }
+    var out = { current: cur, total: total, volumes: null, totalVolumes: null, unit: unit };
+    if (estimate) out.estimate = true;
+    return out;
   }
   /* Game progress derives from playtimeHours the same way (Build 3e):
      hours are the one honest unit a manual-only module can log, and
@@ -439,6 +491,11 @@
       /* Build 3j — user-defined VN chapters/parts, parallel to routes
          (benign [] elsewhere; never drives progress) */
       chapters: (Array.isArray(e.chapters) ? e.chapters : []).map(normChapter),
+      /* which of routes / chapters / a set percentage counts as the VN's
+         progress (null = whichever it carries, routes first) */
+      progressMode: VN_MODES.indexOf(e.progressMode) !== -1 ? e.progressMode : null,
+      progressPercent: (typeof e.progressPercent === "number" && !isNaN(e.progressPercent))
+        ? Math.max(0, Math.min(100, Math.round(e.progressPercent))) : null,
       /* Build 3j — the reward watermark. null = never initialised. */
       reward: (e.reward && typeof e.reward === "object") ? {
         progress: e.reward.progress != null ? e.reward.progress : 0,
@@ -460,7 +517,7 @@
         ? { state: "failed", error: String(e.push.error || ""), ts: e.push.ts || null }
         : null
     };
-    if (out.module === "vn" && out.routes.length) out.progress = vnProgress(out.routes);
+    if (out.module === "vn") out.progress = vnProgress(out);
     if (out.module === "game") out.progress = gameProgress(out.playtimeHours);
     out.titleLower = out.title.toLowerCase();   // search key, derived
     if (e.id != null) out.id = e.id;
@@ -703,6 +760,8 @@
       (e.physical && ((e.physical.volumes && e.physical.volumes.length) || e.physical.owned)) ||
       (e.routes && e.routes.length) ||
       (e.chapters && e.chapters.length) ||
+      e.progressPercent != null || !!e.progressMode ||
+      (e.module === "vn" && e.playtimeHours != null) ||
       (e.quotes && e.quotes.length) ||
       (e.cgGallery && (e.cgGallery.totalKnown != null || e.cgGallery.unlockedCount > 0)) ||
       (e.contentWarnings && e.contentWarnings.length) ||
@@ -744,6 +803,9 @@
     ["routes", "chapters", "quotes"].forEach(function (k) {
       if ((!into[k] || !into[k].length) && from[k] && from[k].length) into[k] = from[k];
     });
+    if (into.progressMode == null && from.progressMode) into.progressMode = from.progressMode;
+    if (into.progressPercent == null && from.progressPercent != null) into.progressPercent = from.progressPercent;
+    if (into.playtimeHours == null && from.playtimeHours != null) into.playtimeHours = from.playtimeHours;
     if (from.dnf && from.dnf.isDnf && !(into.dnf && into.dnf.isDnf)) into.dnf = from.dnf;
     if (!into.coverCrop && from.coverCrop && from.coverUrl === into.coverUrl) {
       into.coverCrop = from.coverCrop; into.coverCropSource = from.coverCropSource || from.coverUrl;
@@ -882,6 +944,9 @@
            surviving routes so a sync can't zero a route count. */
         inc.routes = old.routes && old.routes.length ? old.routes : inc.routes;
         inc.chapters = old.chapters && old.chapters.length ? old.chapters : inc.chapters;
+        if (inc.progressMode == null) inc.progressMode = old.progressMode || null;
+        if (inc.progressPercent == null) inc.progressPercent = old.progressPercent != null ? old.progressPercent : null;
+        if (inc.module === "vn" && inc.playtimeHours == null) inc.playtimeHours = old.playtimeHours != null ? old.playtimeHours : null;
         inc.quotes = old.quotes && old.quotes.length ? old.quotes : inc.quotes;
         inc.contentWarnings = (old.contentWarnings && old.contentWarnings.length)
           ? old.contentWarnings : inc.contentWarnings;
@@ -889,7 +954,7 @@
           inc.cgGallery = old.cgGallery;
         }
         inc.developer = inc.developer || old.developer || "";
-        if (inc.module === "vn" && inc.routes.length) inc.progress = vnProgress(inc.routes);
+        if (inc.module === "vn") inc.progress = vnProgress(inc);
         /* Games (3e): every axis is manual — no sync exists to supply them,
            so whatever the stored row holds always survives a merge (this
            only ever fires if a future source starts carrying steamAppIds) */
@@ -1187,6 +1252,9 @@
     normQuote: normQuote,
     normChapter: normChapter,
     vnProgress: vnProgress,
+    vnSource: vnSource,
+    vnLengthHours: vnLengthHours,
+    VN_MODES: VN_MODES,
     gameProgress: gameProgress,
     STATUS_RANK: STATUS_RANK,
     rewardSnapshot: rewardSnapshot,

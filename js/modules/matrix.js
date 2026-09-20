@@ -210,7 +210,7 @@
           current.slice(0, 12).forEach(function (e) {
             var mod = KOS.media.module(e.module);
             var prog = KOS.media.progressText(e);
-            var pct = KOS.media.progressPct(e);
+            var fill = KOS.media.progressFill(e);
             var bumpMode = mod.id === "anime" || mod.id === "books" ? "progress" : mod.id === "game" ? "hours" : null;
             var card = el("div", { class: "mx-now-card", style: "--accent:" + mod.accent,
               onclick: function () { openEntry(e); } }, [
@@ -231,7 +231,7 @@
                       KOS.medview.bumpUnit(e, bumpMode, function () { renderNow(); });
                     } }) : null
                 ].filter(Boolean)),
-                pct !== null ? el("span", { class: "mx-now-track" }, [el("span", { style: "width:" + pct + "%" })]) : null
+                fill ? el("span", { class: "mx-now-track" + (fill.open ? " open" : ""), title: fill.title }, [el("span", { style: "width:" + fill.pct + "%" })]) : null
               ].filter(Boolean))
             ]);
             grid.appendChild(card);

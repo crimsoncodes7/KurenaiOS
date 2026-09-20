@@ -25,28 +25,11 @@
     return new Error("Sign in to cloud sync first (Archive → Account & Cloud Sync) — game search and Steam import authenticate through your account.");
   }
 
-  /* invoke an Edge Function; normalise supabase-js's error shapes into one
-     (err, data) callback with a human message and the HTTP body's error
-     text when the function provided one */
+  /* the shared Edge Function call (KOS.cloud.invoke) with this module's
+     wording for the signed-out case */
   function invoke(name, body, cb) {
     if (!ready()) { cb(notReadyError()); return; }
-    var client = KOS.cloud.client();
-    client.functions.invoke(name, { body: body || {} }).then(function (res) {
-      if (!res.error) { cb(null, res.data); return; }
-      var ctx = res.error.context;
-      if (ctx && typeof ctx.json === "function") {
-        ctx.json().then(function (payload) {
-          cb(new Error((payload && payload.error) || res.error.message || "The server function failed."),
-            payload || null);
-        }).catch(function () {
-          cb(new Error(res.error.message || "The server function failed."));
-        });
-      } else {
-        cb(new Error(res.error.message || "The server function failed — network?"));
-      }
-    }).catch(function (e) {
-      cb(new Error((e && e.message) || "The server function is unreachable — network?"));
-    });
+    KOS.cloud.invoke(name, body, cb);
   }
 
   /* ---------------- IGDB search ---------------- */

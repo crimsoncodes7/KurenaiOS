@@ -428,3 +428,9 @@ verify_jwt = true
 # Category 6: the external-provider AI proxy — always JWT-authenticated.
 [functions.ai-chat]
 verify_jwt = true
+
+# The VNDB write relay: the browser's POST becomes VNDB's PATCH (their CORS
+# policy never allows PATCH from a page). JWT-authenticated so it is never
+# an open proxy; the user's VNDB token rides in the body for one request.
+[functions.vndb-ulist]
+verify_jwt = true

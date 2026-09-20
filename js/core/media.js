@@ -258,6 +258,15 @@
       (r.quotes || []).forEach(function (q) {
         if (!(out.quotes || []).some(function (x) { return x.text === q.text; })) out.quotes.push(q);
       });
+      /* the VN progress source: a chosen mode survives, the higher
+         percentage wins (like the CG counter) */
+      if (out.progressMode == null && r.progressMode) out.progressMode = r.progressMode;
+      if (r.progressPercent != null && (out.progressPercent == null || r.progressPercent > out.progressPercent)) {
+        out.progressPercent = r.progressPercent;
+      }
+      if (r.module === "vn" && r.playtimeHours != null && (out.playtimeHours == null || r.playtimeHours > out.playtimeHours)) {
+        out.playtimeHours = r.playtimeHours;
+      }
       ["contentWarnings", "tags", "genres", "mood", "shelves"].forEach(function (k) {
         (r[k] || []).forEach(function (v) { if (out[k].indexOf(v) === -1) out[k].push(v); });
       });
@@ -450,12 +459,15 @@
        total known    →  "36 / 96 ch"
        total unknown  →  "36 ch"
        games          →  "71 hr"          (playtime is the progress axis)
+       VN percentage  →  "40%"            (unit "%" — a set figure, not a count)
+       VN time        →  "12 / ~40 hr"     (hours against VNDB's length estimate)
        nothing yet    →  ""               (callers decide what absence means)
 
      `long: true` spells the unit out for prose ("36 of 96 chapters"). This
      is display formatting only — it reads the entry, never writes it, and
      every surface that shows progress goes through it so two cards can
      never disagree about spacing again. */
+  var LONG_UNIT = { ep: "episodes", ch: "chapters", route: "routes", hr: "hours" };
   function progressText(e, opts) {
     opts = opts || {};
     if (!e) return "";
@@ -468,13 +480,18 @@
     }
     var p = e.progress || {};
     var cur = p.current || 0, total = p.total || null;
-    var unit = opts.long ? (mod.unitName || mod.unit) : (p.unit || mod.unit);
+    if (p.unit === "%") return cur ? (opts.long ? cur + "% through" : cur + "%") : "";
+    /* the entry's own unit when it carries one (a VN counting chapters),
+       else the module's */
+    var unit = p.unit || mod.unit;
+    if (opts.long) unit = LONG_UNIT[unit] || mod.unitName || unit;
     /* "ep" / "ch" / "hr" are abbreviations and never take an s; "route" is
        a whole word and "2 / 2 route" is simply wrong */
-    if (!opts.long && unit.length > 3 && (total || cur) !== 1) unit = mod.unitName || unit;
+    else if (unit.length > 3 && (total || cur) !== 1) unit = LONG_UNIT[unit] || unit;
     if (!cur && !total) return "";
-    if (opts.long) return total ? cur + " of " + total + " " + unit : cur + " " + unit;
-    return total ? cur + " / " + total + " " + unit : cur + " " + unit;
+    var tot = total ? (p.estimate ? "~" : "") + total : null;
+    if (opts.long) return total ? cur + " of " + tot + " " + unit : cur + " " + unit;
+    return total ? cur + " / " + tot + " " + unit : cur + " " + unit;
   }
   /* the 0–100 completion of an entry, or null where there is nothing to
      complete against (a game, or a series with no known total) */
@@ -484,12 +501,40 @@
     if (!p.total) return null;
     return Math.max(0, Math.min(100, Math.round(100 * (p.current || 0) / p.total)));
   }
+  /* what a progress BAR should show: {pct, open} or null for no bar.
+     A known total gives the honest fraction. A series still releasing has
+     no total to count against, yet "36 ep in" is progress the card should
+     not hide — so the bar sits half full, flagged `open` (the fill fades
+     at its end instead of stopping) and its title says why. Nothing
+     started → no bar. One rule so anime, books, VN, the hero and the
+     rows can never disagree about it. */
+  function progressFill(e) {
+    if (!e || e.module === "game") return null;
+    var p = e.progress || {};
+    var pct = progressPct(e);
+    if (pct !== null) return { pct: pct, open: false, title: progressText(e) };
+    if (!(p.current > 0)) return null;
+    var why = p.unit === "hr" ? " — VNDB has no length estimate to compare against yet" : " — still releasing, no final count yet";
+    return { pct: 50, open: true, title: progressText(e) + why };
+  }
+  /* the bar itself, in the shared .subj-track grammar; cls is the
+     placement class (med-track on a card, vh-track on the hero) */
+  function progressBar(e, cls) {
+    var f = progressFill(e);
+    if (!f) return null;
+    return KOS.ui.el("div", { class: "subj-track " + (cls || "med-track") + (f.open ? " open" : ""),
+      title: f.title, role: "img", "aria-label": f.title }, [
+      KOS.ui.el("span", { class: "subj-fill", style: "width:" + f.pct + "%" })
+    ]);
+  }
 
   KOS.media = {
     MODULES: MODULES,
     module: module_,
     progressText: progressText,
     progressPct: progressPct,
+    progressFill: progressFill,
+    progressBar: progressBar,
     customLists: customLists,
     registerList: registerList,
     renameList: renameList,

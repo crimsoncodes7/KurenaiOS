@@ -270,7 +270,7 @@
         el("span", { class: "sub", text: "searches the whole " + serviceName + " database, not your vault — picking a status " +
           (module === "game"
             ? "adds the entry locally (IGDB holds no personal list; everything stays hand-editable)"
-            : "creates the entry " + (module === "vn" ? "on VNDB (browser writes are currently blocked by VNDB's CORS policy — it will fall back to a local add)" : "on your AniList") + " and mirrors it here") }),
+            : "creates the entry " + (module === "vn" ? "on VNDB (through the cloud relay when you're signed in — browser writes are currently blocked by VNDB's CORS policy — else it falls back to a local add)" : "on your AniList") + " and mirrors it here") }),
         el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
       ]),
       input,

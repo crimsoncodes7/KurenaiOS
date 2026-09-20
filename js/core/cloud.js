@@ -127,6 +127,42 @@
   function userId() { return session && session.user ? session.user.id : null; }
   function userEmail() { return session && session.user ? (session.user.email || "") : ""; }
 
+  /* Invoke an Edge Function as the signed-in user. ONE normalisation of
+     supabase-js's error shapes into cb(err, data): err.message carries the
+     function's own `error` text when it sent one, and err.status the HTTP
+     status (so a caller can key off 401/403/429 without re-parsing).
+     Signed-out is an error, never a request — the functions all require
+     the JWT. (Ex gameapi.js; the VNDB write relay needs it too.) */
+  function signedIn() { return !!(available() && userId()); }
+  function invoke(name, body, cb) {
+    if (!signedIn()) {
+      cb(configured()
+        ? new Error("Sign in to cloud sync first (Archive → Account & Cloud Sync).")
+        : new Error("Cloud sync isn't configured on this device (see Archive → Account & Cloud Sync)."));
+      return;
+    }
+    var c = getClient();
+    c.functions.invoke(name, { body: body || {} }).then(function (res) {
+      if (!res.error) { cb(null, res.data); return; }
+      var ctx = res.error.context;
+      var status = ctx && typeof ctx.status === "number" ? ctx.status : null;
+      function fail(msg, payload) {
+        var err = new Error(msg || res.error.message || "The server function failed.");
+        err.status = status;
+        err.payload = payload || null;
+        cb(err, payload || null);
+      }
+      if (ctx && typeof ctx.json === "function") {
+        ctx.json().then(function (payload) { fail(payload && payload.error, payload); })
+          .catch(function () { fail(null); });
+      } else {
+        fail(res.error.message || "The server function failed — network?");
+      }
+    }).catch(function (e) {
+      cb(new Error((e && e.message) || "The server function is unreachable — network?"));
+    });
+  }
+
   KOS.cloud = {
     configured: configured,
     available: available,
@@ -138,6 +174,8 @@
     onAuth: onAuth,
     userId: userId,
     userEmail: userEmail,
+    signedIn: signedIn,
+    invoke: invoke,
     /* test seam — smoke17 injects a fake session without a real client */
     _setSession: function (s) { session = s || null; }
   };

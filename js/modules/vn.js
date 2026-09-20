@@ -4,8 +4,17 @@
    layer that makes the module worth having is MANUAL, built up per VN:
 
    - Routes: VNDB has no clean structured route data for most titles, so
-     the route list is the user's own — name it, clear it, date it. A VN's
-     "progress" IS its routes cleared (derived in mediadb.normalise).
+     the route list is the user's own — name it, clear it, date it.
+   - Progress source: a VN's "progress" is derived (mediadb.normalise)
+     from ONE of routes cleared, chapters/parts completed, hours played
+     against VNDB's length estimate, or a percentage the user sets —
+     because a kinetic novel (Higurashi) has no routes and counts by
+     chapter, a first playthrough of an unstructured title (Danganronpa-
+     likes) can only say how long it has been and let VNDB's crowd-sourced
+     length answer "how far", and a percentage is the last resort for a VN
+     you already know. `progressMode` picks explicitly; unset, the entry
+     counts whatever it carries, routes first. Chapters get the card's
+     "+1 ch", hours its "+1 hr".
    - CG gallery: an honest counter — "X of Y unlocked" — never actual CG
      artwork (copyright, and VNDB doesn't expose galleries anyway).
    - Content warnings: a manual axis, deliberately not auto-filled from
@@ -59,10 +68,66 @@
     if (extra.length) return LENGTH_LABEL[extra.length] || null;
     return null;
   }
+  /* which source is counting (routes | chapters | percent | null) — the
+     one definition lives in mediadb so the card, the editor and the
+     derived progress can never disagree */
+  function progressSource(e) { return KOS.mediadb.vnSource(e); }
+  /* VNDB's length for the editor: what the hours are measured against */
+  function lengthNote(e) {
+    var len = KOS.mediadb.vnLengthHours(e);
+    if (!len) return "VNDB has no length for this title yet — hours still show, with nothing to measure against until it does";
+    if (len.rough) return "VNDB only rates it “" + (LENGTH_LABEL[e.extra.length] || "") + "” (~" + len.hours + " h as a rough figure) — no play-time votes yet";
+    return "measured against VNDB's crowd-sourced play time, ~" + len.hours + " h";
+  }
+  /* what is counting, in words, for the editor's sub-line */
+  function progressNote(e) {
+    var src = progressSource(e);
+    if (src === "routes") { var rp = routeProgress(e); return "Counting routes — " + rp.cleared + " of " + rp.total + " cleared"; }
+    if (src === "chapters") { var cp = chapterProgress(e); return "Counting chapters — " + cp.done + " of " + cp.total + " completed"; }
+    if (src === "time") {
+      var len = KOS.mediadb.vnLengthHours(e);
+      return "Counting hours played — " + (e.playtimeHours || 0) + (len ? " of ~" + len.hours + " h" : " h, no VNDB length to compare against");
+    }
+    if (src === "percent") return "Counting the percentage you set — " + (e.progressPercent || 0) + "%";
+    return "Nothing counts yet — add routes or chapters as you meet them, log hours played, or set a percentage";
+  }
+  /* "+1 hr" for a VN counting time — the shared hours bump games use */
+  function bumpHour(e, done) { KOS.medview.bumpUnit(e, "hours", done); }
+  /* "+1 ch" for a VN counting chapters: the first chapter not yet completed
+     is completed, mirroring anime's +1 ep (a finished last chapter completes
+     the entry). Logs one deliberate act; never pushes — VNDB has no
+     progress concept and the push snapshot is status|score only. */
+  function bumpChapter(e, done) {
+    var next = (e.chapters || []).find(function (c) { return c.status !== "completed"; });
+    if (!next) { done && done(e); return; }
+    next.status = "completed";
+    var finished = e.chapters.every(function (c) { return c.status === "completed"; });
+    var today = KOS.srs.todayISO();
+    if (finished) {
+      e.status = "completed";
+      if (!e.dates.finished) e.dates.finished = today;
+    } else if (e.status === "planned" || e.status === "onHold") {
+      e.status = "inProgress";
+      if (!e.dates.started) e.dates.started = today;
+    }
+    var before = KOS.mediapush.snapshot(e);
+    KOS.mediadb.put(e, function (err, rec) {
+      if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
+      KOS.media.logActivity(rec, finished ? "completed" : "chapter");
+      if (KOS.mediapush.snapshot(rec) !== before) KOS.mediapush.schedule(rec);   // a completion is a status change
+      done && done(rec);
+    });
+  }
 
   KOS.vn = {
     routeProgress: routeProgress,
     chapterProgress: chapterProgress,
+    progressSource: progressSource,
+    progressNote: progressNote,
+    lengthNote: lengthNote,
+    bumpChapter: bumpChapter,
+    bumpHour: bumpHour,
+    quickBump: quickBump,
     cgText: cgText,
     lengthText: lengthText
   };
@@ -77,16 +142,19 @@
   }
   function cover(e) { return KOS.medview.cover(e, mod().kanji); }
   function metaLine(e) {
-    var bits = [];
+    /* the counting source first, in the shared grammar; the other list
+       still shows as a fact ("2/5 routes") when it exists */
+    var src = progressSource(e);
+    var bits = [KOS.media.progressText(e)].filter(Boolean);
     var rp = routeProgress(e);
-    if (rp.total) bits.push(rp.cleared + "/" + rp.total + " routes");
+    if (rp.total && src !== "routes") bits.push(rp.cleared + "/" + rp.total + " routes");
     var cp = chapterProgress(e);
-    if (cp.total) bits.push(cp.done + "/" + cp.total + " ch");
+    if (cp.total && src !== "chapters") bits.push(cp.done + "/" + cp.total + " ch");
     var cg = cgText(e);
     if (cg) bits.push(cg);
     if (e.quotes && e.quotes.length) bits.push("❝ " + e.quotes.length);
     var len = lengthText(e.extra);
-    if (len) bits.push(len);
+    if (len && src !== "time") bits.push(len);   // the hours already measure against it
     return bits.join(" · ");
   }
 
@@ -129,6 +197,7 @@
     var clearedAtOpen = routeProgress(e).cleared;
     var quotesAtOpen = e.quotes.length;
     var chaptersDoneAtOpen = chapterProgress(e).done;
+    var hoursAtOpen = e.playtimeHours || 0;
 
     /* --- identity + list state --- */
     var title = el("input", { type: "text", class: "todo-in", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Title" });
@@ -167,7 +236,7 @@
         el("b", { text: "Routes" }),
         el("span", { class: "sub", text: rp.total
           ? rp.cleared + " of " + rp.total + " cleared — your own list; VNDB doesn't know a VN's routes"
-          : "none yet — add the routes as you meet them (this is what drives a VN's progress)" })
+          : "none yet — add the routes as you meet them; a kinetic novel can leave this empty" })
       ]));
       e.routes.forEach(function (r) {
         var done = el("input", { type: "checkbox", "aria-label": "Cleared: " + r.name });
@@ -203,15 +272,58 @@
         newName,
         el("button", { class: "btn", text: "+ Add route", onclick: addRoute })
       ]));
+      syncProgressUI();
     }
+
+    /* --- the progress source ---
+       Which of the three counts: routes, chapters, or a percentage. Unset
+       ("automatic") takes whatever the entry carries, routes first. The
+       percentage field shows only while it is the thing counting, so a
+       routed VN never carries an idle slider. */
+    var modeSel = el("select", { class: "status-sel", "aria-label": "What counts as progress" }, [
+      ["", "Automatic — routes, chapters, hours, then a percentage"],
+      ["routes", "Routes cleared"],
+      ["chapters", "Chapters / parts completed"],
+      ["time", "Hours played vs VNDB's length"],
+      ["percent", "A percentage I set"]
+    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+    modeSel.value = e.progressMode || "";
+    var pctIn = el("input", { type: "number", class: "todo-in med-num", min: "0", max: "100", step: "1",
+      value: e.progressPercent != null ? String(e.progressPercent) : "", placeholder: "0–100",
+      "aria-label": "How far through, as a percentage" });
+    var pctField = field("How far through (%)", pctIn);
+    var hoursIn = el("input", { type: "number", class: "todo-in med-num", min: "0", step: "0.5",
+      value: e.playtimeHours != null ? String(e.playtimeHours) : "", placeholder: "0",
+      "aria-label": "Hours played" });
+    var hoursField = field("Hours played", hoursIn);
+    var lengthNoteEl = el("p", { class: "sub vn-prog-note vn-len-note med-span-2" });
+    var progressNoteEl = el("p", { class: "sub vn-prog-note med-span-2" });
+    function readProgressFields() {
+      e.progressMode = modeSel.value || null;
+      e.progressPercent = pctIn.value === "" ? null : Math.max(0, Math.min(100, parseInt(pctIn.value, 10) || 0));
+      var h = parseFloat(hoursIn.value);
+      e.playtimeHours = hoursIn.value === "" || isNaN(h) ? null : Math.max(0, h);
+    }
+    function syncProgressUI() {
+      readProgressFields();
+      var src = progressSource(e);
+      pctField.hidden = !(src === "percent" || modeSel.value === "percent");
+      var timing = src === "time" || modeSel.value === "time";
+      hoursField.hidden = !timing;
+      lengthNoteEl.hidden = !timing;
+      lengthNoteEl.textContent = lengthNote(e);
+      progressNoteEl.textContent = progressNote(e);
+    }
+    modeSel.addEventListener("change", syncProgressUI);
+    pctIn.addEventListener("input", syncProgressUI);
+    hoursIn.addEventListener("input", syncProgressUI);
     renderRoutes();
 
     /* --- chapters/parts (Build 3j — manual, parallel to routes) ---
        For VNs with internal structure the routes list doesn't capture:
        the user names their own chapters/arcs/parts, each with the shared
        status enum and a note. Independent of routes (not nested), never
-       auto-filled from VNDB, never drives progress. Most VNs simply
-       leave this empty. */
+       auto-filled from VNDB. A kinetic novel counts its progress here. */
     var chaptersWrap = el("div", { class: "vn-routes vn-chapters" });
     function renderChapters() {
       chaptersWrap.innerHTML = "";
@@ -220,7 +332,7 @@
         el("b", { text: "Chapters / parts" }),
         el("span", { class: "sub", text: cp.total
           ? cp.done + " of " + cp.total + " completed — your own division, independent of the routes above"
-          : "optional — for VNs with chapters/arcs the route list doesn't capture; define your own, or leave empty" })
+          : "for VNs with chapters/arcs the route list doesn't capture — a kinetic novel counts progress by these" })
       ]));
       e.chapters.forEach(function (c) {
         var st = el("select", { class: "status-sel vn-ch-status", "aria-label": "Status: " + c.name }, STATUSES.map(function (s) {
@@ -255,6 +367,7 @@
         newName,
         el("button", { class: "btn", text: "+ Add chapter", onclick: addChapter })
       ]));
+      syncProgressUI();
     }
     renderChapters();
 
@@ -311,6 +424,7 @@
       var oldStatus = e.status;
       e.title = title.value.trim();
       e.developer = developer.value.trim();
+      readProgressFields();
       var vid = vndbId.value.trim();
       e.externalIds.vndbId = vid ? (/^v\d+$/i.test(vid) ? vid.toLowerCase() : "v" + vid.replace(/\D/g, "")) || null : null;
       e.status = status.value;
@@ -337,6 +451,7 @@
           if (oldStatus !== rec.status) return "status";
           if (routeProgress(rec).cleared > clearedAtOpen) return "route";
           if (chapterProgress(rec).done > chaptersDoneAtOpen) return "chapter";
+          if ((rec.playtimeHours || 0) > hoursAtOpen) return "progress";
           if (rec.quotes.length > quotesAtOpen) return "quote";
           return null;
         },
@@ -353,10 +468,16 @@
           field("Developer", developer),
           field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]))
         ]),
-        mv.editorSection("progress", "Progress", "Status and route completion are the primary progress record.", [
+        mv.editorSection("progress", "Progress", "Status, and whichever of routes, chapters, hours played or a set percentage counts as this VN's progress.", [
           field("Status", status),
           field("Score /10", score),
-          routesWrap
+          field("What counts", modeSel),
+          hoursField,
+          pctField,
+          lengthNoteEl,
+          progressNoteEl,
+          routesWrap,
+          chaptersWrap
         ]),
         mv.editorSection("ownership", "Ownership", "How you own it and whether it belongs in the Shrine.", [
           field("Ownership", own),
@@ -366,8 +487,7 @@
           field("Started", started),
           field("Finished", finished)
         ]),
-        mv.editorSection("structure", "Chapters & gallery", "Optional detail that stays independent of route progress.", [
-          chaptersWrap,
+        mv.editorSection("structure", "CG gallery", "A counter only; no artwork is stored.", [
           el("div", { class: "vn-cg" }, [
             el("div", { class: "vn-sec-h" }, [
               el("b", { text: "CG gallery" }),
@@ -415,8 +535,20 @@
   KOS.mediaEditors.vn = vnEditor;
 
   /* ================= cards ================= */
+  /* the card's everyday log action, by what counts: "+1 ch" where a
+     chapter is the unit, "+1 hr" where hours are; routes are named and a
+     percentage is set in the editor, so those get none. null = no button. */
+  function quickBump(e) {
+    if (e.status !== "inProgress") return null;
+    var src = progressSource(e);
+    if (src === "chapters" && (e.chapters || []).some(function (c) { return c.status !== "completed"; })) {
+      return { unit: "ch", title: "Complete the next chapter", run: bumpChapter };
+    }
+    if (src === "time") return { unit: "hr", title: "Log another hour played", run: bumpHour };
+    return null;
+  }
   function gridCard(e, rerender) {
-    var rp = routeProgress(e);
+    var bump = quickBump(e);
     /* Phase F: the card is NOT a button. It contained the favourite
        toggle, a status <select> and "+1" — an ARIA button may not hold
        interactive descendants, and a keyboard user who pressed Space on
@@ -441,25 +573,26 @@
         e.developer ? el("div", { class: "bk-author", text: e.developer }) : null,
         el("div", { class: "med-meta" }, [
           cwChip(e),
-          el("span", { class: "med-prog", text: metaLine(e) || "no routes yet" }),
+          el("span", { class: "med-prog", text: metaLine(e) || "nothing tracked yet" }),
           KOS.medview.pushChip(e, rerender)
         ]),
-        el("div", { class: "med-meta med-quickrow" }, [
-          KOS.medview.quickEdit(e, rerender)
-        ])
+        KOS.medview.quickRow(e, rerender, {
+          unit: bump ? bump.unit : "", title: bump ? bump.title : "",
+          onBump: bump ? function () { bump.run(e, rerender); } : null
+        })
       ])
     ]);
-    if (rp.total) {
-      card.appendChild(el("div", { class: "subj-track med-track" }, [
-        el("span", { class: "subj-fill", style: "width:" + rp.pct + "%" })
-      ]));
-    }
+    /* the shared bar reads the derived progress, whichever source counts */
+    var track = KOS.media.progressBar(e);
+    if (track) card.appendChild(track);
     return card;
   }
   function listRow(e, rerender) {
+    var bump = quickBump(e);
     return KOS.medview.listRow(e, mod(), rerender, {
       subline: e.developer || e.genres.slice(0, 2).join(" · "),
       prog: metaLine(e),
+      onBump: bump ? function () { bump.run(e, rerender); } : null,
       open: function () { vnEditor(e, rerender); }
     });
   }
@@ -491,7 +624,7 @@
     var search = mv.searchInput("Search visual novel titles");
     var genreSel = el("select", { class: "status-sel", "aria-label": "Filter by genre" });
     var devSel = el("select", { class: "status-sel", "aria-label": "Filter by developer" });
-    var sortSel = mv.sortSelect(p.sort, { progress: "Routes cleared" });
+    var sortSel = mv.sortSelect(p.sort, { progress: "Progress" });
     var layoutBtn = mv.layoutToggle(p, function () { refresh(); });
     var rail = mv.filterRail("vn", function () { refresh(); });
 

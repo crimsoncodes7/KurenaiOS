@@ -33,14 +33,20 @@
    with {vote (10–100), labels/labels_set/labels_unset (virtual labels 0
    and 7 cannot be set; "Voted" follows the vote field automatically)},
    answering 204 No Content; needs a token with "listwrite". VERIFIED
-   LIVE 2026-07-03: the endpoint is real (tokenless PATCH → clean 401),
-   **but VNDB's CORS preflight only allows POST, GET, OPTIONS — even
-   when asked for PATCH** — so browsers refuse to send the write from
-   any web page, file:// included. setUlist() is implemented to the
-   documented shape regardless (it starts working with zero changes if
-   VNDB ever adds PATCH to access-control-allow-methods); the caller
-   surfaces the specific explanation, never a generic "you're offline".
-   Reads remain the only thing that currently works from the browser.  */
+   LIVE 2026-07-03 and again 2026-09-20: the endpoint is real (tokenless
+   PATCH → clean 401), **but VNDB's CORS preflight only allows POST, GET,
+   OPTIONS — even when asked for PATCH** — so browsers refuse to send the
+   write from any web page, file:// included.
+
+   THE RELAY: setUlist() therefore goes through the `vndb-ulist` Edge
+   Function whenever the user is signed in to cloud sync — the browser
+   POSTs {vndbId, token, body} to our own server, which sends VNDB the
+   PATCH. The user's VNDB token rides along for that one request and is
+   never stored server-side; the Supabase JWT is what keeps the relay
+   from being an open proxy. Signed out, the direct PATCH is still tried
+   (it starts working with zero changes if VNDB ever allows PATCH) and
+   its failure names the sign-in that would fix it, never a generic
+   "you're offline".                                                      */
 (function () {
   "use strict";
   window.KOS = window.KOS || {};
@@ -103,7 +109,7 @@
            message: (e && e.name === "AbortError")
              ? "VNDB request timed out — check your connection and retry."
              : isWrite
-             ? "VNDB blocked the write at the browser level: their CORS policy allows only POST/GET/OPTIONS (verified 2026-07-03), so browser pages can't send the PATCH their API requires — this is on VNDB's side, not your token or connection. Your change is saved locally and reads keep working; if VNDB opens up PATCH, pushes start working automatically."
+             ? "VNDB blocks list writes from browser pages (their CORS policy allows only POST/GET/OPTIONS, not the PATCH their API needs). Sign in to cloud sync (Archive → Account & Cloud Sync) and pushes go through the server relay instead; your change is saved locally either way."
              : "Could not reach VNDB — you look offline. (The API does allow file:// pages, so a local server isn't the issue; everything keeps working offline, covers and metadata just wait.)" });
     });
   }
@@ -131,7 +137,7 @@
       if (err) { cb(err); return; }
       if (!data || !data.id) { cb({ kind: "http", message: "No user returned for that token." }); return; }
       if ((data.permissions || []).indexOf("listread") === -1) {
-        cb({ kind: "auth", message: "That token can't read your list — regenerate it at vndb.org/u/tokens with “access to my list” ticked (write access is NOT needed and best left off)." });
+        cb({ kind: "auth", message: "That token can't read your list — regenerate it at vndb.org/u/tokens with “access to my list” ticked (and “modify my list” if you want edits here pushed back)." });
         return;
       }
       KOS.mediadb.setKV("vndb.user", data, function () { cb(null, data); });
@@ -253,7 +259,36 @@
       body.vote = Math.max(10, Math.min(100, Math.round(fields.score * 10)));
     }
     if (!Object.keys(body).length) { cb(null); return; }
+    if (KOS.cloud && KOS.cloud.signedIn && KOS.cloud.signedIn()) {
+      relayUlist(token, vndbId, body, cb);
+      return;
+    }
     api("/ulist/" + vndbId, body, token, function (err) { cb(err || null); }, "PATCH");
+  }
+  /* the server hop (see the header). The relay answers VNDB's own status
+     for 401/403/429 so the error KINDS stay the ones mediapush already
+     handles; everything else is "http" (retried like a transient), and a
+     relay that cannot be reached is a plain network error. */
+  function relayUlist(token, vndbId, body, cb) {
+    KOS.cloud.invoke("vndb-ulist", { vndbId: vndbId, token: token, body: body }, function (err) {
+      if (!err) { cb(null); return; }
+      var st = err.status;
+      if (st === 401 || st === 403) {
+        var upstream = err.payload && err.payload.upstream;
+        cb({ kind: "auth", message: upstream
+          ? "VNDB refused the write: the token needs the listwrite permission — regenerate it at vndb.org/u/tokens with “modify my list” ticked, then reconnect from Sync & Import."
+          : "The cloud session has expired — sign in again (Archive → Account & Cloud Sync) to push to VNDB." });
+        return;
+      }
+      if (st === 429) {
+        cb({ kind: "ratelimit", retryAfter: (err.payload && err.payload.retryAfter) || 30,
+             message: "Rate limited by VNDB — resuming shortly." });
+        return;
+      }
+      cb({ kind: st ? "http" : "network", message: st
+        ? "VNDB relay: " + (err.message || "HTTP " + st)
+        : "Couldn't reach the VNDB relay — " + (err.message || "network?") });
+    });
   }
 
   /* ---------------- profile-level reads (Build 3j) ----------------

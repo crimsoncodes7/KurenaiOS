@@ -321,7 +321,7 @@ step("VN vault renders without obsolete bottom stats; dedicated Stats remains", 
   const card = main.querySelector(".vn-card") || main.querySelector(".vn-row");
   if (!card || !/Ever17/.test(card.textContent)) throw new Error("entry card missing");
   if (!/KID/.test(card.textContent)) throw new Error("developer line missing");
-  if (!/1\/2 routes/.test(card.textContent)) throw new Error("route progress missing: " + card.textContent.slice(0, 120));
+  if (!/1 \/ 2 routes/.test(card.textContent)) throw new Error("route progress missing: " + card.textContent.slice(0, 120));
   if (main.querySelector(".vn-stats, .vn-stats .stat-card")) throw new Error("obsolete VN stats still mounted");
   KOS.medview.statsModal("vn", KOS.media.module("vn"));
   await waitFor(() => document.querySelector(".stats-modal"), 3000);

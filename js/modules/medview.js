@@ -879,10 +879,20 @@
   /* mount the hero into `holder`. mod = KOS.media.module(modId); rerender
      re-runs the view's refresh so progress bumps show everywhere. */
   /* the one human sentence under the spotlight title */
+  /* the entry's own unit, spelt out — a VN counting chapters says
+     "chapters", one on a percentage speaks in percent */
+  var LONG_UNIT = { ep: "episodes", ch: "chapters", route: "routes", hr: "hours" };
   function heroLine(e, mod) {
     var cur = (e.progress && e.progress.current) || 0;
     var total = e.progress && e.progress.total;
-    var unit = mod.unitName || mod.unit || "units";
+    var unit = LONG_UNIT[e.progress && e.progress.unit] || mod.unitName || mod.unit || "units";
+    if (e.progress && e.progress.unit === "%") {
+      if (e.status === "completed") return "Finished" + (e.score ? " — you gave it ★ " + e.score + "." : ".");
+      if (e.status === "inProgress") return cur ? cur + "% through" + (cur >= 90 ? " — nearly there." : ".") : "Just started.";
+      if (e.status === "onHold") return "Resting at " + cur + "%.";
+      if (e.status === "dropped") return "Set down at " + cur + "%.";
+      return "Waiting on the shelf.";
+    }
     if (e.module === "game") {
       if (e.status === "completed") return "Finished" + (e.score ? " — you gave it ★ " + e.score + "." : ".");
       if (e.playtimeHours) return e.playtimeHours + " hours in" + (e.status === "inProgress" ? " — the save file is waiting." : ".");
@@ -891,7 +901,8 @@
     switch (e.status) {
       case "inProgress":
         if (total) {
-          var left = Math.max(0, total - cur);
+          var left = Math.max(0, Math.round((total - cur) * 10) / 10);
+          if (e.progress.estimate) return cur + " " + unit + " in — about " + left + " to go by VNDB's estimate.";
           return cur + " " + unit + " in — " + (left === 0 ? "the last one is next." : left + " to go.");
         }
         return cur ? cur + " " + unit + " so far." : "Just started.";
@@ -1012,7 +1023,6 @@
           });
         }
 
-        var pct = KOS.media.progressPct(e);
         var prog = KOS.media.progressText(e);
         var body = el("div", { class: "vh-body" }, [
           el("div", { class: "vh-kicker" }, [
@@ -1027,16 +1037,27 @@
             prog ? el("span", { class: "vh-chip", text: prog }) : null,
             e.score ? el("span", { class: "vh-chip", text: "★ " + e.score }) : null
           ].filter(Boolean)),
-          pct !== null ? el("div", { class: "vh-track" }, [el("i", { style: "width:" + pct + "%" })]) : null,
+          KOS.media.progressBar(e, "vh-track"),
           /* Two actions and a group. "Spotlight" and "Banner" configure the
              hero rather than acting on the title, so they sit in the same
              ⋯ grammar the toolbar uses instead of competing with "Open
              entry" for attention (audit VLT-3's rule, applied here too). */
           el("div", { class: "vh-actions" }, [
-            e.status === "inProgress" && e.module !== "game"
+            /* the everyday log action. A VN has no unit to bump unless it
+               counts chapters (routes are named, a percentage is set in the
+               editor) — bumpUnit's progress.current would only be
+               re-derived away, rewarding nothing. */
+            e.status === "inProgress" && e.module !== "game" && e.module !== "vn"
               ? el("button", { class: "btn primary", text: "▶ +1 " + mod.unit, onclick: function () {
                   bumpUnit(e, "progress", function () { rerender && rerender(); });
-                } }) : null,
+                } })
+            : e.module === "vn" && KOS.vn && KOS.vn.quickBump(e)
+              ? (function (bump) {
+                  return el("button", { class: "btn primary", text: "▶ +1 " + bump.unit, onclick: function () {
+                    bump.run(e, function () { rerender && rerender(); });
+                  } });
+                })(KOS.vn.quickBump(e))
+            : null,
             el("button", { class: "btn ghost", text: "Open entry", onclick: function () {
               KOS.mediaEditor(e, function () { rerender && rerender(); });
             } }),

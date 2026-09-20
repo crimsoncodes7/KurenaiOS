@@ -321,7 +321,7 @@
     /* ================= 2 · VNDB connection (Build 3c) ================= */
     var vndbBody = el("div", {});
     providerGrid.appendChild(panel("VNDB", "選", [
-      info("One-time setup, simpler than AniList: generate a personal token at " + KOS.vndb.TOKEN_URL.replace("https://", "") + " (tick “access to my list”; for write-back also tick “modify my list”) and paste it below. Treat the token like a password; it lives in the media store here, never in the backup JSON. Reads verified working from file://; pushes are currently blocked by VNDB's own CORS policy regardless of token permissions — see Write activity below."),
+      info("One-time setup, simpler than AniList: generate a personal token at " + KOS.vndb.TOKEN_URL.replace("https://", "") + " (tick “access to my list” and, for write-back, “modify my list”) and paste it below. Treat the token like a password; it lives in the media store here, never in the backup JSON. Reads work straight from the page; pushes need you signed in to cloud sync, because VNDB's CORS policy blocks browser writes and the server relays them instead — see Write activity below."),
       vndbBody
     ], { tag: "Visual novels", className: "integration-provider integration-vndb" }));
 
@@ -339,7 +339,8 @@
           vndbBody.appendChild(el("div", { class: "med-conn-ok" }, [
             el("span", { class: "med-chip", style: "--chip:#45d6a8", text: "Connected" }),
             el("b", { text: conn.user.username }),
-            el("span", { class: "sub", text: " · VNDB " + conn.user.id + " · read-only by design" })
+            el("span", { class: "sub", text: " · VNDB " + conn.user.id +
+              ((conn.user.permissions || []).indexOf("listwrite") !== -1 ? " · read & write" : " · read-only token (no “modify my list”)") })
           ]));
           var vnStatus = el("p", { class: "sub med-sync-status" });
           var vnMode = modePicker();
@@ -690,7 +691,7 @@
     /* ================= 6 · write activity (Build 3d) ================= */
     var wlogBody = el("div", {});
     main.appendChild(panel("Write activity", "跡", [
-      info("Every automatic push of status/progress/score to AniList or VNDB lands here (newest first, last 200). Writes are last-write-wins with no conflict detection — an edit made on the site between local edits is simply overwritten by the next push, and a pull sync overwrites local list state the same way. Note: VNDB pushes currently fail from the browser — VNDB's CORS policy only allows POST/GET/OPTIONS, so the PATCH their API requires never leaves the page (verified 2026-07-03; not a token problem)."),
+      info("Every automatic push of status/progress/score to AniList or VNDB lands here (newest first, last 200). Writes are last-write-wins with no conflict detection — an edit made on the site between local edits is simply overwritten by the next push, and a pull sync overwrites local list state the same way. Note: VNDB's CORS policy only allows POST/GET/OPTIONS, so the PATCH their API requires can never leave a browser page (verified 2026-07-03, again 2026-09-20) — VNDB pushes therefore go through the server relay, which needs you signed in to cloud sync and a token with “modify my list” ticked."),
       wlogBody
     ], { tag: "The push paper trail" }));
     function renderWriteLog() {

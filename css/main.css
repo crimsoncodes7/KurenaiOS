@@ -3589,7 +3589,7 @@ body.fx-minimised .fx-dock { display: flex; }
   background: rgba(16,14,10,.35);
 }
 .vh-track { height: 5px; max-width: 340px; border-radius: 999px; overflow: hidden; margin-top: 4px; background: rgba(246,241,230,.22); }
-.vh-track i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent2), color-mix(in srgb, var(--accent2) 60%, #fff)); }
+.vh-track i, .vh-track .subj-fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent2), color-mix(in srgb, var(--accent2) 60%, #fff)); }
 .vh-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .vault-hero .btn.ghost { color: #F6F1E6; border-color: rgba(246,241,230,.4); background: rgba(16,14,10,.25); }
 .vault-hero .btn.ghost:hover { border-color: rgba(246,241,230,.8); color: #fff; }
@@ -3696,6 +3696,13 @@ body.fx-minimised .fx-dock { display: flex; }
 .med-plus { align-self: flex-start; padding: 4px 11px; font-size: 12px; }
 .med-track { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; margin: 0; height: 4px; background: rgba(18,14,8,.5); }
 .med-track .bar-fill, .med-track > * { height: 100%; }
+/* a series still releasing has no total to count against: the bar sits
+   half full and its fill fades out instead of stopping (KOS.media.progressFill) */
+.subj-track.open .subj-fill {
+  border-radius: 999px 0 0 999px;
+  -webkit-mask-image: linear-gradient(90deg, #000 55%, transparent);
+  mask-image: linear-gradient(90deg, #000 55%, transparent);
+}
 .med-sentinel { height: 2px; }
 .med-empty { grid-column: 1 / -1; }
 
@@ -4140,6 +4147,10 @@ body.fx-minimised .fx-dock { display: flex; }
 .bk-dual-own, .bk-dual-read { position: absolute; left: 0; display: block; }
 .bk-dual-own { top: 0; height: 3px; background: linear-gradient(90deg, var(--accent2), #E8CF96); }
 .bk-dual-read { bottom: 0; height: 3px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #fff)); }
+.bk-dual-read.open {
+  -webkit-mask-image: linear-gradient(90deg, #000 55%, transparent);
+  mask-image: linear-gradient(90deg, #000 55%, transparent);
+}
 /* The Books lens switcher was the app's third tab idiom (audit G-23). It is
    the shared .tabs-cards / .tab-card primitive now, which carries exactly
    the styling that used to live here — .bk-tabs and .bk-tab remain as hooks
@@ -4170,6 +4181,7 @@ body.fx-minimised .fx-dock { display: flex; }
 .bk-compare-fill { display: block; height: 100%; border-radius: 4px; transition: width .3s; }
 .bk-compare-fill.own { background: linear-gradient(90deg, var(--accent2), #E4C98D); }
 .bk-compare-fill.read { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #fff)); }
+.bk-compare-fill.open { -webkit-mask-image: linear-gradient(90deg, #000 55%, transparent); mask-image: linear-gradient(90deg, #000 55%, transparent); }
 .bk-compare-v { flex: 0 0 auto; font-size: 11px; color: var(--muted); font-family: var(--mono); }
 .bk-isbn-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
 .bk-isbn-in { flex: 1; font-family: var(--mono); }
@@ -8120,6 +8132,8 @@ button.dl-item { width: 100%; text-align: left; cursor: pointer; }
 .med-edit-grid > .vn-chapters,
 .med-edit-grid > .vn-cg,
 .med-edit-grid > .vn-quotes { grid-column: 1 / -1; }
+.med-edit-grid > .vn-prog-note { margin: -4px 0 0; }
+.med-edit-grid > [hidden] { display: none; }
 .med-edit-notes .med-edit-index { border-left-color: color-mix(in srgb, var(--accent) 54%, var(--line2)); }
 .med-edit-notes textarea { min-height: 112px; line-height: 1.6; resize: vertical; }
 .med-source-info { min-width: 0; display: flex; align-items: flex-start; gap: 11px; padding: 11px 12px; border: 1px solid var(--line2); border-radius: var(--radius-control); background: var(--well); }

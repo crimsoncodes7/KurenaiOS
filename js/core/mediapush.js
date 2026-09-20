@@ -26,10 +26,12 @@
    - RETRY — reuses the same error-kind contract the read clients built:
      ratelimit waits Retry-After, transient errors back off, auth errors
      fail immediately with the client's specific wording (VNDB's names
-     the listwrite permission). VNDB write network-failures are NOT
-     retried: the known cause is VNDB's own CORS policy blocking PATCH
-     from browsers (verified 2026-07-03) and a retry loop against a
-     policy wall is noise.
+     the listwrite permission). A VNDB write goes through the server
+     relay when the user is signed in to cloud sync (vndb.js); SIGNED
+     OUT it is the direct PATCH, whose network failure is VNDB's own
+     CORS policy blocking PATCH from browsers (verified 2026-07-03,
+     re-verified 2026-09-20) and is NOT retried — a retry loop against a
+     policy wall is noise. Relay network failures retry like any other.
    - LAST-WRITE-WINS, stated plainly: there is no conflict detection. An
      edit made on the AniList/VNDB site between local edits is simply
      overwritten by the next push (and vice versa via pull sync). This is
@@ -157,10 +159,11 @@
         setTimeout(function () { attempt(entry, service, tries + 1); }, (err.retryAfter + 1) * 1000);
         return;
       }
-      /* VNDB write network errors are the CORS wall — one attempt is the
-         honest number. Other transient failures get MAX_RETRIES. */
+      /* a signed-out VNDB write's network error is the CORS wall — one
+         attempt is the honest number. Other transient failures (and the
+         relay's) get MAX_RETRIES. */
       var retriable = err.kind === "network" || err.kind === "http";
-      if (service === "vndb" && err.kind === "network") retriable = false;
+      if (service === "vndb" && err.kind === "network" && !vndbRelayed()) retriable = false;
       if (retriable && tries < MAX_RETRIES) {
         setTimeout(function () { attempt(entry, service, tries + 1); }, RETRY_WAIT);
         return;
@@ -198,8 +201,9 @@
       });
     });
   }
-  /* VNDB's CORS wall makes every browser write fail identically — the
-     full toast fires once per session, later failures just set the chip */
+  function vndbRelayed() { return !!(KOS.cloud && KOS.cloud.signedIn && KOS.cloud.signedIn()); }
+  /* VNDB's CORS wall makes every signed-out browser write fail identically
+     — the full toast fires once per session, later failures just set the chip */
   var vndbCorsToasted = false;
   function fail(entry, service, err) {
     var id = entry.id;
@@ -210,8 +214,9 @@
         appendLog({ ts: Date.now(), entryId: id, title: e.title, service: service,
                     fields: fieldNames(e, service), ok: false, error: err.message || "" }, function () {
           delete pending[id];
-          var quiet = service === "vndb" && err.kind === "network" && vndbCorsToasted;
-          if (service === "vndb" && err.kind === "network") vndbCorsToasted = true;
+          var wall = service === "vndb" && err.kind === "network" && !vndbRelayed();
+          var quiet = wall && vndbCorsToasted;
+          if (wall) vndbCorsToasted = true;
           if (!quiet && KOS.ui && KOS.ui.toast) {
             KOS.ui.toast("Couldn't sync “" + e.title + "” to " + (service === "anilist" ? "AniList" : "VNDB") +
               " — tap the ⚠ on its card to see why and retry.", true);
