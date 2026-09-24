@@ -3,13 +3,83 @@
   "use strict";
   window.KOS = window.KOS || {};
 
+  /* ============================================================
+     HOOKS AND STATE  (UI rebuild M1)
+
+     Behaviour and tests find the DOM through data-ui / data-state /
+     data-intent, never through a presentation class (docs/ui-rebuild/
+     view-contracts.md §0.1). Legacy markup still carries classes, so these
+     helpers derive the attributes from them through the tables in
+     js/core/ui-hooks.js. Each attribute is a space-separated token list,
+     matched with [data-ui~="name"].
+     ============================================================ */
+  function tokens(v) { return v ? String(v).trim().split(/\s+/).filter(Boolean) : []; }
+  function derived(cls) {
+    var hooks = [], states = [], intents = [];
+    var H = KOS.ui.LEGACY_HOOKS || {}, S = KOS.ui.LEGACY_STATE || [], I = KOS.ui.LEGACY_INTENT || [];
+    tokens(cls).forEach(function (c) {
+      if (Object.prototype.hasOwnProperty.call(H, c)) hooks = hooks.concat(H[c]);
+      if (S.indexOf(c) !== -1) states.push(c);
+      if (I.indexOf(c) !== -1) intents.push(c);
+    });
+    return { "data-ui": hooks, "data-state": states, "data-intent": intents };
+  }
+  /* move a node's derived attributes from what oldCls implied to what newCls
+     implies, leaving any token that was set explicitly untouched */
+  function syncHooks(node, oldCls, newCls) {
+    if (!node || node.nodeType !== 1) return node;
+    var was = derived(oldCls), now = derived(newCls);
+    ["data-ui", "data-state", "data-intent"].forEach(function (attr) {
+      var drop = was[attr].filter(function (t) { return now[attr].indexOf(t) === -1; });
+      var have = tokens(node.getAttribute(attr)).filter(function (t) { return drop.indexOf(t) === -1; });
+      now[attr].forEach(function (t) { if (have.indexOf(t) === -1) have.push(t); });
+      if (have.length) node.setAttribute(attr, have.join(" "));
+      else node.removeAttribute(attr);
+    });
+    return node;
+  }
+  /* className = … for legacy code: sets the class and keeps the hooks true */
+  function setClass(node, cls) {
+    var old = node.getAttribute("class") || "";
+    node.setAttribute("class", cls);   /* setAttribute: SVG's className is not a string */
+    return syncHooks(node, old, cls);
+  }
+  /* classList.toggle(word, on) for a state word: the class (for the legacy
+     stylesheet) and the data-state token move together. Returns the state. */
+  function state(node, word, on) {
+    if (!node) return false;
+    var old = node.getAttribute("class") || "";
+    var val = node.classList.toggle(word, on === undefined ? undefined : !!on);
+    syncHooks(node, old, node.getAttribute("class") || "");
+    if (val && (KOS.ui.LEGACY_STATE || []).indexOf(word) === -1) {
+      /* a state word the table does not list still reaches data-state */
+      var have = tokens(node.getAttribute("data-state"));
+      if (have.indexOf(word) === -1) { have.push(word); node.setAttribute("data-state", have.join(" ")); }
+    } else if (!val) {
+      var rest = tokens(node.getAttribute("data-state")).filter(function (t) { return t !== word; });
+      if (rest.length) node.setAttribute("data-state", rest.join(" ")); else node.removeAttribute("data-state");
+    }
+    return val;
+  }
+  function hasState(node, word) { return !!node && tokens(node.getAttribute("data-state")).indexOf(word) !== -1; }
+  /* markup that arrived through innerHTML: derive hooks for the subtree */
+  function hookify(root) {
+    if (!root || !root.querySelectorAll) return root;
+    if (root.nodeType === 1 && root.hasAttribute("class")) syncHooks(root, "", root.getAttribute("class"));
+    root.querySelectorAll("[class]").forEach(function (n) { syncHooks(n, "", n.getAttribute("class")); });
+    return root;
+  }
+  /* the selector for a hook — for code that queries: KOS.ui.hook("vault.card") */
+  function hook(name) { return '[data-ui~="' + name + '"]'; }
+
   function el(tag, attrs, children) {
     var node = document.createElement(tag);
+    var cls = null, html = false;
     if (attrs) {
       Object.keys(attrs).forEach(function (k) {
-        if (k === "class") node.className = attrs[k];
+        if (k === "class") { node.className = attrs[k]; cls = attrs[k]; }
         else if (k === "text") node.textContent = attrs[k];
-        else if (k === "html") node.innerHTML = attrs[k];
+        else if (k === "html") { node.innerHTML = attrs[k]; html = true; }
         else if (k.slice(0, 2) === "on") node.addEventListener(k.slice(2), attrs[k]);
         else if (k === "style") node.style.cssText = attrs[k];
         /* Phase F: `title: opts.hint || null` is the house idiom for an
@@ -21,6 +91,9 @@
         else node.setAttribute(k, attrs[k]);
       });
     }
+    /* after the loop, so an explicit data-ui/data-state is extended, not lost */
+    if (cls) syncHooks(node, "", cls);
+    if (html) hookify(node);
     (children || []).forEach(function (c) {
       if (c === null || c === undefined) return;
       node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
@@ -32,9 +105,9 @@
   function toast(msg, bad) {
     var t = document.getElementById("toast");
     t.textContent = msg;
-    t.className = "toast show" + (bad ? " bad" : "");
+    setClass(t, "toast show" + (bad ? " bad" : ""));
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { t.className = "toast"; }, 2600);
+    toastTimer = setTimeout(function () { setClass(t, "toast"); }, 2600);
     /* Phase F: #toast is the VISIBLE half and is aria-hidden; the spoken
        half goes through the one live region, so the same sentence twice
        running still announces twice and a failure interrupts rather than
@@ -46,9 +119,9 @@
   function flashSaved() {
     var s = document.getElementById("save-dot");
     if (!s) return;
-    s.classList.add("pulse");
+    KOS.ui.state(s, "pulse", true);
     clearTimeout(savedTimer);
-    savedTimer = setTimeout(function () { s.classList.remove("pulse"); }, 900);
+    savedTimer = setTimeout(function () { KOS.ui.state(s, "pulse", false); }, 900);
   }
 
   /* the canonical HTML escaper — every hand-built HTML string goes through
@@ -110,14 +183,14 @@
 
   function openDialog(overlay, opts) {
     opts = opts || {};
-    var box = overlay.querySelector(".modal, .confirm-modal, [data-dialog-box]") || overlay;
+    var box = overlay.querySelector("[data-ui~='ui.dialog'], [data-ui~='ui.confirm'], [data-dialog-box]") || overlay;
     var restoreTo = document.activeElement;
 
     box.setAttribute("role", box.getAttribute("role") || "dialog");
     box.setAttribute("aria-modal", "true");
     if (!box.hasAttribute("tabindex")) box.setAttribute("tabindex", "-1");
     if (!box.getAttribute("aria-labelledby") && !box.getAttribute("aria-label")) {
-      var head = opts.labelledBy || box.querySelector(".modal-h b, .confirm-title, .modal-h h2, .modal-h h3, h2, h3");
+      var head = opts.labelledBy || box.querySelector("[data-ui~='ui.dialog-head'] b, [data-ui~='ui.dialog-title'], [data-ui~='ui.dialog-head'] h2, [data-ui~='ui.dialog-head'] h3, h2, h3");
       if (head) {
         if (!head.id) head.id = "kos-dlg-h" + (++dlgSeq);
         box.setAttribute("aria-labelledby", head.id);
@@ -129,6 +202,7 @@
        its scroll position when the dialog closes (that is why this is a
        class and a counter, not an inline style stashed per dialog) */
     document.body.classList.add("modal-open");
+    document.documentElement.setAttribute("data-scroll-lock", "");
 
     function onKey(e) {
       if (dialogStack[dialogStack.length - 1] !== rec) return;   /* topmost only */
@@ -161,7 +235,10 @@
       if (i === -1) return;
       dialogStack.splice(i, 1);
       document.removeEventListener("keydown", onKey, true);
-      if (!dialogStack.length) document.body.classList.remove("modal-open");
+      if (!dialogStack.length) {
+        document.body.classList.remove("modal-open");
+        document.documentElement.removeAttribute("data-scroll-lock");
+      }
       if (restoreTo && restoreTo.focus && document.contains(restoreTo)) {
         try { restoreTo.focus(); } catch (e) { /* detached input */ }
       }
@@ -191,7 +268,7 @@
     if (!target) {
       /* never the destructive button — see U-04. A dialog that opens with
          Delete focused is one keystroke from data loss. */
-      var list = focusablesIn(box).filter(function (n) { return !n.classList.contains("danger"); });
+      var list = focusablesIn(box).filter(function (n) { return !n.matches('[data-intent~="danger"]'); });
       target = list[0] || box;
     }
     try { target.focus(); } catch (e) { /* jsdom detached */ }
@@ -254,7 +331,8 @@
   }
 
   KOS.ui = { el: el, toast: toast, flashSaved: flashSaved, esc: esc, debounce: debounce,
-    confirm: confirmModal, openDialog: openDialog, topDialog: topDialog, num: num };
+    confirm: confirmModal, openDialog: openDialog, topDialog: topDialog, num: num,
+    setClass: setClass, state: state, hasState: hasState, hookify: hookify, hook: hook };
 
   // ---- view registry: each module registers render functions ----
   KOS.views = {};
@@ -574,9 +652,9 @@
     function sync() {
       var max = node.scrollWidth - node.clientWidth;
       var atStart = node.scrollLeft <= 1, atEnd = node.scrollLeft >= max - 1;
-      wrap.classList.toggle("at-start", atStart || max <= 1);
-      wrap.classList.toggle("at-end", atEnd || max <= 1);
-      wrap.classList.toggle("no-scroll", max <= 1);
+      KOS.ui.state(wrap, "at-start", atStart || max <= 1);
+      KOS.ui.state(wrap, "at-end", atEnd || max <= 1);
+      KOS.ui.state(wrap, "no-scroll", max <= 1);
     }
     node.addEventListener("scroll", sync, { passive: true });
     if (typeof window.ResizeObserver === "function") { try { new window.ResizeObserver(sync).observe(node); } catch (e) { /* jsdom */ } }
@@ -626,7 +704,7 @@
     window.removeEventListener("scroll", m.onDismiss, true);
     if (m.panel.parentNode) m.panel.parentNode.removeChild(m.panel);
     m.btn.setAttribute("aria-expanded", "false");
-    m.btn.classList.remove("is-open");
+    KOS.ui.state(m.btn, "is-open", false);
     if (restoreFocus && document.body.contains(m.btn)) m.btn.focus();
   }
   KOS.ui.closeMenu = function () { closeOpenMenu(false); };
@@ -731,7 +809,7 @@
       openMenu = { btn: btn, panel: panel, onKey: onKey, onDown: onDown, onDismiss: onDismiss };
       place(panel);
       btn.setAttribute("aria-expanded", "true");
-      btn.classList.add("is-open");
+      KOS.ui.state(btn, "is-open", true);
       document.addEventListener("keydown", onKey, true);
       document.addEventListener("pointerdown", onDown, true);
       window.addEventListener("resize", onDismiss, true);
@@ -748,7 +826,7 @@
       if (ev.key === "ArrowDown" && !openMenu) { ev.preventDefault(); open(); }
     });
     btn.setBadge = function (n) {
-      var b = btn.querySelector(".menu-btn-n");
+      var b = btn.querySelector("[data-ui~='ui.menu-count']");
       if (!b) return;
       b.textContent = n ? String(n) : "";
       b.classList.toggle("hidden", !n);
@@ -764,13 +842,49 @@
   KOS.ui.scroller = scroller;
   KOS.ui.menu = menu;
 
+  /* ============================================================
+     THE SPEC SPINE'S PRESENCE  (UI rebuild M1)
+
+     Thirty-odd views each hid the spine with the same two class writes, and
+     the Study views undid them by hand. One helper now owns it, and the
+     state is an attribute — #cols[data-tree="none"|"open"|"closed"] — so
+     readers never depend on a presentation class. The legacy classes
+     (#tree.hidden, #cols.no-tree, #cols.tree-closed) are still written
+     alongside until the stylesheet that reads them is retired.
+
+       KOS.shell.tree("none")    this view has no spine
+       KOS.shell.tree("open")    the spine is shown and expanded
+       KOS.shell.tree("closed")  the spine is present but collapsed
+       KOS.shell.tree()          the current mode
+     ============================================================ */
+  KOS.shell = KOS.shell || {};
+  KOS.shell.tree = function (mode) {
+    var cols = document.getElementById("cols");
+    var tree = document.getElementById("tree");
+    if (mode === undefined) return (cols && cols.getAttribute("data-tree")) || "none";
+    if (mode !== "none" && mode !== "open" && mode !== "closed") mode = "none";
+    var none = mode === "none";
+    if (tree) {
+      tree.classList.toggle("hidden", none);
+      tree.hidden = none;
+    }
+    if (cols) {
+      cols.classList.toggle("no-tree", none);
+      /* a hidden spine keeps its collapsed/expanded look for when it returns */
+      if (!none) cols.classList.toggle("tree-closed", mode === "closed");
+      cols.setAttribute("data-tree", mode);
+    }
+    return mode;
+  };
+
   function renderSubnav(sec, viewId, arg) {
     var nav = document.getElementById("subnav");
     if (!nav) return;
     var items = SUBNAV[sec];
     nav.innerHTML = "";
-    if (!items) { nav.classList.add("hidden"); return; }
+    if (!items) { nav.classList.add("hidden"); nav.hidden = true; return; }
     nav.classList.remove("hidden");
+    nav.hidden = false;
     /* which entry is lit: the view itself, or the owning subject for ref pages */
     var activeView = viewId, activeArg = arg;
     if (viewId === "ref" && arg) { activeView = "subject"; activeArg = arg.subject; }
@@ -821,8 +935,8 @@
     /* exactly one rail section lit: the one owning this view. Views outside
        any section (none today) highlight nothing. */
     var sec = SECTION_OF[viewId] || null;
-    document.querySelectorAll(".rail-item").forEach(function (b) {
-      b.classList.toggle("active", !!sec && b.dataset.section === sec);
+    document.querySelectorAll("[data-ui~='shell.rail-item']").forEach(function (b) {
+      KOS.ui.state(b, "active", !!sec && b.dataset.section === sec);
     });
     renderSubnav(sec, viewId, arg);
     if (KOS.views[viewId]) KOS.views[viewId](main, arg);

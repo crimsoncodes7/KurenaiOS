@@ -98,8 +98,7 @@
   }
 
   KOS.views.aniprofile = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     main.appendChild(KOS.collectionCrumbs("Sync", "AniList"));
     var workspaceTabs = KOS.collectionWorkspaceTabs("sync", "aniprofile");
@@ -232,8 +231,8 @@
         bar.appendChild(el("button", { class: "study-tab" + (t[0] === curTab ? " active" : ""), role: "tab", "data-tab": t[0],
           onclick: function () {
             curTab = t[0];
-            bar.querySelectorAll(".study-tab").forEach(function (b) {
-              b.classList.toggle("active", b.dataset.tab === curTab); });
+            bar.querySelectorAll("[data-ui~='ui.tab']").forEach(function (b) {
+              KOS.ui.state(b, "active", b.dataset.tab === curTab); });
             renderTab();
           } }, [t[1]]));
       });

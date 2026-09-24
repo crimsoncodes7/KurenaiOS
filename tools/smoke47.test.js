@@ -13,10 +13,11 @@ const { JSDOM } = require("jsdom");
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
 const fs = require("fs");
 const path = require("path");
+const { readCss } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const read = f => fs.readFileSync(path.join(ROOT, f), "utf8");
-const css = read("css/main.css");
+const css = readCss();
 
 const dom = new JSDOM(html, { url: "http://localhost/index.html", runScripts: "outside-only", pretendToBeVisual: true });
 const { window } = dom;
@@ -59,49 +60,49 @@ console.log("== A · honest low-data composition ==");
 
 step("Card Stats keeps one useful scope figure and one shared low-data state", () => {
   KOS.show("cardstats");
-  const strip = main().querySelector(".cardstats-stat-strip");
+  const strip = main().querySelector("[data-ui~='review.stats-strip']");
   assert(strip, "Card Stats lost its page-specific responsive metric grid");
-  assert(strip.querySelectorAll(".stat-card").length === 1,
+  assert(strip.querySelectorAll("[data-ui~='ui.stat']").length === 1,
     "a fresh Card Stats view renders zero/em-dash tiles again");
-  assert(main().querySelector(".cardstats-empty.empty-state.compact"),
+  assert(main().querySelector("[data-ui~='review.stats-empty'][data-ui~='ui.empty'][data-state~='compact']"),
     "Card Stats does not use the compact EmptyState contract");
-  assert(!main().querySelector(".cs-chart"), "Card Stats drew charts without review evidence");
+  assert(!main().querySelector("[data-ui~='chart.chart']"), "Card Stats drew charts without review evidence");
 });
 
 step("Card Stats never presents one review as a trend", () => {
   const first = KOS.srs.allCards()[0];
   KOS.srs.rate(first.key, 2);
   KOS.show("cardstats");
-  assert(main().querySelector(".cardstats-lowdata"), "one review is not identified as low data");
-  assert(!main().querySelector(".cs-chart"), "one review produced a dashboard of charts");
+  assert(main().querySelector("[data-ui~='review.stats-lowdata']"), "one review is not identified as low data");
+  assert(!main().querySelector("[data-ui~='chart.chart']"), "one review produced a dashboard of charts");
 });
 
 step("Exams & Papers collapses an empty summary instead of printing four zero tiles", () => {
   KOS.show("tracker");
-  assert(main().querySelector(".tracker-empty.empty-state.compact"), "tracker empty state is bespoke");
-  assert(!main().querySelector(".tracker-stat-strip"), "tracker prints a zero summary before any record exists");
+  assert(main().querySelector("[data-ui~='tracker.empty'][data-ui~='ui.empty'][data-state~='compact']"), "tracker empty state is bespoke");
+  assert(!main().querySelector("[data-ui~='tracker.strip']"), "tracker prints a zero summary before any record exists");
 });
 
 step("Goals suppresses the whole metric strip when every summary count is zero", async () => {
   KOS.show("goals");
-  assert(await waitFor(() => main().querySelector(".goal-overview")), "Goals did not render");
-  assert(main().querySelector(".goal-overview.no-metrics"), "zero Goals summary is not marked compact");
-  assert(!main().querySelector(".goal-summary-metric"), "Goals restored a zero-value summary tile");
-  assert(main().querySelector(".goal-empty-v2.empty-state.compact"), "Goals empty tab bypasses EmptyState");
+  assert(await waitFor(() => main().querySelector("[data-ui~='goal.overview']")), "Goals did not render");
+  assert(main().querySelector("[data-ui~='goal.overview'][data-ui~='goal.no-metrics']"), "zero Goals summary is not marked compact");
+  assert(!main().querySelector("[data-ui~='goal.metric']"), "Goals restored a zero-value summary tile");
+  assert(main().querySelector("[data-ui~='goal.empty'][data-ui~='ui.empty'][data-state~='compact']"), "Goals empty tab bypasses EmptyState");
 });
 
 console.log("== B · one empty-state grammar ==");
 
 step("Personal Deck uses the shared compact absence treatment", () => {
   KOS.show("personaldeck");
-  assert(main().querySelector(".flashcards-empty.empty-state.compact"),
+  assert(main().querySelector("[data-ui~='fc.empty'][data-ui~='ui.empty'][data-state~='compact']"),
     "the empty deck is still a lone paragraph");
 });
 
 step("Seasonal uses a compact state with both existing next actions", async () => {
   KOS.show("seasonal");
-  assert(await waitFor(() => main().querySelector(".seasonal-empty")), "Seasonal did not render its empty state");
-  const empty = main().querySelector(".seasonal-empty.empty-state.compact");
+  assert(await waitFor(() => main().querySelector("[data-ui~='anime.season-empty']")), "Seasonal did not render its empty state");
+  const empty = main().querySelector("[data-ui~='anime.season-empty'][data-ui~='ui.empty'][data-state~='compact']");
   assert(empty, "Seasonal still reserves a full med-empty card");
   assert(empty.querySelectorAll("button").length === 2, "Seasonal lost Sync or Find new");
 });
@@ -118,17 +119,17 @@ console.log("== C · numbers, charts and typography ==");
 
 step("Gold is a locale-formatted balance without a progress bar", () => {
   KOS.show("governor");
-  const gold = main().querySelector(".gstat-gold");
+  const gold = main().querySelector("[data-ui~='gov.stat'][data-kind='gold']");
   assert(gold, "Governor Gold instrument missing");
-  assert(gold.classList.contains("no-meter"), "Gold is not marked as a balance-only instrument");
-  assert(!gold.querySelector(".gstat-bar"), "Gold still appears as a progress bar");
-  assert(gold.querySelector(".gstat-v").textContent.includes(KOS.ui.num(KOS.governor.profile().gold)),
+  assert(gold.matches('[data-state~="no-meter"]'), "Gold is not marked as a balance-only instrument");
+  assert(!gold.querySelector("[data-ui~='gov.vital-bar']"), "Gold still appears as a progress bar");
+  assert(gold.querySelector("[data-ui~='gov.vital-v']").textContent.includes(KOS.ui.num(KOS.governor.profile().gold)),
     "Gold bypasses the shared number formatter");
 });
 
 step("Gold Shop omits zero affordability and em-dash completion facts", () => {
   KOS.show("governor", "shop");
-  const copy = main().querySelector(".tre-facts").textContent;
+  const copy = main().querySelector("[data-ui~='gov.treasury-facts']").textContent;
   assert(!/0\s*affordable now|—/.test(copy), "Gold Shop restored a zero/em-dash treasury fact: " + copy);
   assert(/next:|all wares owned/.test(copy), "Gold Shop gives no useful next state");
 });

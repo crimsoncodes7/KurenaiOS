@@ -66,7 +66,7 @@
     }
 
     KOS.cloudsync.onStatus(function (s) {
-      var localSave = document.querySelector(".save-wrap");
+      var localSave = document.querySelector("[data-ui~='archive.cloud']");
       if (s.state === "unconfigured") {
         chip.hidden = true;
         if (localSave) localSave.hidden = false;
@@ -77,7 +77,7 @@
       /* One persistence indicator at a time: once cloud status is meaningful,
          it replaces the redundant local "saved" label beside it. */
       if (localSave) localSave.hidden = true;
-      chip.className = "sync-chip sync-" + s.state;
+      KOS.ui.setClass(chip, "sync-chip sync-" + s.state);
       chip.textContent = LABELS[s.state] || s.state;
       chip.title = "Cloud sync — " + (LABELS[s.state] || s.state) +
         (s.detail ? ": " + s.detail : "") +

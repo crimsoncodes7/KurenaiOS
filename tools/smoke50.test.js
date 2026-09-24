@@ -18,9 +18,10 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
+const { readCss } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-const css = fs.readFileSync(path.join(ROOT, "css/main.css"), "utf8");
+const css = readCss();
 const dom = new JSDOM(html, { url: "http://localhost/index.html", runScripts: "outside-only", pretendToBeVisual: true });
 const { window } = dom;
 const { document } = window;
@@ -151,28 +152,28 @@ console.log("== B · the exam engine ==");
 
 step("a multi-part item renders its stem, lettered parts, provenance and one self-mark log", () => {
   KOS.show("ref", { subject: "maths", ref: "S5.2" });
-  const tab = $$(".study-nav button, .study-nav .tab, .study-nav [role=tab]").find(b => /Exam questions/.test(b.textContent));
+  const tab = $$("[data-ui~='topic.nav'] button, [data-ui~='topic.nav'] [data-ui~='part.tab'], [data-ui~='topic.nav'] [role=tab]").find(b => /Exam questions/.test(b.textContent));
   assert(tab, "no Exam questions tab on the topic page");
   click(tab);
-  const items = $$(".qz-exam-top").length;
+  const items = $$("[data-ui~='quiz.exam-top']").length;
   assert(items >= 5, "the bank's exam items did not render: " + items);
-  assert($$(".qz-src").some(s => /modelled on Edexcel/.test(s.textContent)), "no provenance line");
-  assert($$(".qz-part-l").some(l => /^\(a\)/.test(l.textContent.trim())), "parts are not lettered");
-  const chips = $$(".qz-chip");
+  assert($$("[data-ui~='quiz.src']").some(s => /modelled on Edexcel/.test(s.textContent)), "no provenance line");
+  assert($$("[data-ui~='quiz.part-l']").some(l => /^\(a\)/.test(l.textContent.trim())), "parts are not lettered");
+  const chips = $$("[data-ui~='quiz.chip']");
   assert(chips.length >= 3, "no tariff filter chips");
   const before = KOS.store.state.sessions.length;
-  const log = $$(".qz-selfmark button, .qz-exam-foot button").find(b => /Log self-mark/.test(b.textContent));
+  const log = $$("[data-ui~='quiz.selfmark'] button, [data-ui~='quiz.exam-foot'] button").find(b => /Log self-mark/.test(b.textContent));
   assert(log, "no per-item self-mark control");
   click(log);
   assert(KOS.store.state.sessions.length === before + 1, "logging one item did not produce exactly one session");
 });
 
 step("the tariff chips filter the items shown", () => {
-  const all = $$(".qz-exam-top").length;
-  const chip = $$(".qz-chip").find(c => /6\+/.test(c.textContent));
+  const all = $$("[data-ui~='quiz.exam-top']").length;
+  const chip = $$("[data-ui~='quiz.chip']").find(c => /6\+/.test(c.textContent));
   assert(chip, "no 6+ marks chip");
   click(chip);
-  const shown = $$(".qz-exam-top").length;
+  const shown = $$("[data-ui~='quiz.exam-top']").length;
   assert(shown >= 1 && shown < all, "the 6+ filter did not narrow the list (" + shown + " of " + all + ")");
 });
 
@@ -228,27 +229,27 @@ step("new generators are wired to their topic pages and mount there", () => {
     assert(KOS.worked.forRef(sid, ref).some(g => g.id === id), id + " is not wired to " + sid + ":" + ref);
   }
   KOS.show("ref", { subject: "maths", ref: "9.4" });
-  const tab = $$(".study-nav button, .study-nav .tab, .study-nav [role=tab]").find(b => /Worked/.test(b.textContent));
+  const tab = $$("[data-ui~='topic.nav'] button, [data-ui~='topic.nav'] [data-ui~='part.tab'], [data-ui~='topic.nav'] [role=tab]").find(b => /Worked/.test(b.textContent));
   assert(tab, "no Worked tab on 9.4");
   click(tab);
-  assert($$(".step").length >= 1, "the trapezium generator did not mount on its topic page");
+  assert($$("[data-ui~='part.step']").length >= 1, "the trapezium generator did not mount on its topic page");
 });
 
 step("the Simulations view is a categorised, searchable grid with a deep-linkable open state", () => {
   KOS.show("sims");
-  assert($$(".sim-card").length >= 45, "the grid does not list the sims");
-  const pill = $$(".cat-pill").find(b => /Stats & Mechanics/.test(b.textContent));
+  assert($$("[data-ui~='lab.sim-card']").length >= 45, "the grid does not list the sims");
+  const pill = $$("[data-ui~='lab.category']").find(b => /Stats & Mechanics/.test(b.textContent));
   assert(pill, "no category pills"); click(pill);
-  const n = $$(".sim-card").length;
+  const n = $$("[data-ui~='lab.sim-card']").length;
   assert(n >= 8 && n < 20, "the Stats & Mechanics filter did not narrow the grid: " + n);
-  const search = $(".sim-toolbar input[type=search]");
+  const search = $("[data-ui~='lab.toolbar'] input[type=search]");
   search.value = "turing"; search.dispatchEvent(new window.Event("input", { bubbles: true }));
-  const hits = $$(".sim-card");
+  const hits = $$("[data-ui~='lab.sim-card']");
   assert(hits.length >= 1 && hits.length <= 4 && hits.some(c => /Turing Machine/.test(c.textContent)), "search did not surface the Turing machine (" + hits.length + " cards)");
   KOS.show("sims", "turing-machine");
-  assert($(".sim-open-head") && /Turing/.test($(".sim-open-head h2").textContent), "the open state has no header");
-  assert($$(".sim-open-head button").some(b => /All simulations/.test(b.textContent)), "no way back to the grid");
-  assert($$(".sim-open-head button").some(b => /Open topic page/.test(b.textContent)), "no link to the topic page");
+  assert($("[data-ui~='lab.sim-head']") && /Turing/.test($("[data-ui~='lab.sim-head'] h2").textContent), "the open state has no header");
+  assert($$("[data-ui~='lab.sim-head'] button").some(b => /All simulations/.test(b.textContent)), "no way back to the grid");
+  assert($$("[data-ui~='lab.sim-head'] button").some(b => /Open topic page/.test(b.textContent)), "no link to the topic page");
 });
 
 step("lab canvases take their ink from the theme, not a fixed dark palette", () => {

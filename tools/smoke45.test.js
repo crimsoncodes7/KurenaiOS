@@ -30,10 +30,11 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
+const { readCss } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const src = f => fs.readFileSync(path.join(ROOT, f), "utf8");
-const css = src("css/main.css");
+const css = readCss();
 const cssRules = css.replace(/\/\*[\s\S]*?\*\//g, "");
 const uiSrc = src("js/core/ui.js");
 const routerSrc = src("js/core/router.js");
@@ -402,7 +403,7 @@ step("no focusable control in any view lacks an accessible name", async () => {
 step("no control inside a modal form lacks an accessible name", async () => {
   const bad = [];
   function auditOpenModal(label) {
-    const ovs = $$(".modal-ov");
+    const ovs = $$("[data-ui~='ui.dialog-overlay']");
     if (!ovs.length) { bad.push(label + ": did not open"); return; }
     const ov = ovs[ovs.length - 1];
     ov.querySelectorAll('input:not([type="hidden"]), select, textarea, button, a[href]').forEach(n => {
@@ -412,7 +413,7 @@ step("no control inside a modal form lacks an accessible name", async () => {
         (n.placeholder ? " [ph:" + n.placeholder.slice(0, 20) + "]" : ""));
     });
     ov.remove();
-    document.body.classList.remove("modal-open");
+    document.body.classList.remove("modal-open"); document.documentElement.removeAttribute("data-scroll-lock");
   }
 
   KOS.ui.confirm({ title: "Sure?", body: "b" }, noop, noop);
@@ -462,11 +463,11 @@ step("no ARIA button contains an interactive descendant", async () => {
 step("the vault card is not a button, and its title is", async () => {
   for (const v of ["anime", "books", "vn", "game"]) {
     KOS.show(v); await tick(120);
-    const card = main().querySelector(".med-card");
+    const card = main().querySelector("[data-ui~='vault.card']");
     assert(card, v + ": no card rendered");
     assert(card.getAttribute("role") !== "button", v + ": the card is still an ARIA button");
     assert(!card.hasAttribute("tabindex"), v + ": the card is still a tab stop");
-    const title = card.querySelector("button.med-title");
+    const title = card.querySelector("button[data-ui~='vault.title']");
     assert(title, v + ": the title is not a control");
     assert(accName(title), v + ": the title control has no name");
   }
@@ -492,8 +493,8 @@ step("role=\"button\" honours Space as well as Enter", async () => {
     /* the probe genuinely activates things — several of these open an
        editor. Clear them, or the next step inherits a dialog that owns
        Escape and body scroll. */
-    $$(".modal-ov").forEach(o => o.remove());
-    document.body.classList.remove("modal-open");
+    $$("[data-ui~='ui.dialog-overlay']").forEach(o => o.remove());
+    document.body.classList.remove("modal-open"); document.documentElement.removeAttribute("data-scroll-lock");
   }
   assert(!bad.length, "role=button promises Space: " + [...new Set(bad)].join(" | "));
 });
@@ -515,7 +516,7 @@ step("an absent attribute value produces no attribute", async () => {
 });
 
 step("decorative ornament is hidden and unfocusable", async () => {
-  const petals = document.querySelector(".bg-flora");
+  const petals = document.querySelector("[data-ui~='shell.backdrop']");
   assert(petals && petals.getAttribute("aria-hidden") === "true", "the petals are exposed to the a11y tree");
   assert(!petals.querySelector(FOCUSABLE), "a petal is a tab stop");
   KOS.show("home"); await tick(60);
@@ -566,14 +567,14 @@ step("a dialog is named, modal, trapped and restores focus", async () => {
   KOS.ui.confirm({ title: "Discard the draft?", body: "It is not saved." },
     () => { settled = true; }, () => { settled = false; });
   await tick(20);
-  const box = document.querySelector(".confirm-modal");
+  const box = document.querySelector("[data-ui~='ui.confirm']");
   assert(box, "no dialog opened");
   assert(box.getAttribute("aria-modal") === "true", "not aria-modal");
   assert(box.getAttribute("aria-labelledby") || box.getAttribute("aria-label"), "the dialog has no name");
-  assert(document.body.classList.contains("modal-open"), "the page behind is not scroll-locked");
+  assert(document.documentElement.hasAttribute("data-scroll-lock"), "the page behind is not scroll-locked");
   key("Escape");
   await tick(20);
-  assert(!document.querySelector(".confirm-modal"), "Escape did not close the dialog");
+  assert(!document.querySelector("[data-ui~='ui.confirm']"), "Escape did not close the dialog");
   assert(document.activeElement === trigger, "focus did not return to the control that opened it");
 });
 
@@ -582,10 +583,10 @@ step("a danger dialog opens on Cancel and refuses Enter", async () => {
   KOS.ui.confirm({ title: "Delete everything?", danger: true, confirm: "Delete" },
     () => { outcome = "deleted"; }, () => { outcome = "cancelled"; });
   await tick(20);
-  const box = document.querySelector(".confirm-modal");
+  const box = document.querySelector("[data-ui~='ui.confirm']");
   assert(box.getAttribute("role") === "alertdialog", "a destructive prompt is not an alertdialog");
-  assert(document.activeElement && document.activeElement.classList.contains("btn") &&
-    !document.activeElement.classList.contains("danger"),
+  assert(document.activeElement && document.activeElement.matches("button") &&
+    !document.activeElement.matches('[data-intent~="danger"]'),
     "the destructive button has focus — two keystrokes would delete");
   key("Enter");
   await tick(20);
@@ -598,31 +599,31 @@ step("a danger dialog opens on Cancel and refuses Enter", async () => {
 
 step("a menu is a menu: Escape closes it and focus goes back to its button", async () => {
   KOS.show("anime"); await tick(120);
-  const btn = $$(".menu-btn").find(b => /Filters|Actions/.test(b.textContent));
+  const btn = $$("[data-ui~='ui.menu-button']").find(b => /Filters|Actions/.test(b.textContent));
   assert(btn, "no grouped menu on the vault toolbar");
   btn.focus();
   click(btn);
   await tick(20);
-  const panel = document.querySelector(".menu-panel");
+  const panel = document.querySelector("[data-ui~='ui.menu-panel']");
   assert(panel, "the menu did not open");
   assert(btn.getAttribute("aria-expanded") === "true", "the button does not report it is open");
-  assert(!document.body.classList.contains("modal-open"),
+  assert(!document.documentElement.hasAttribute("data-scroll-lock"),
     "a menu locked body scroll — that is dialog behaviour, and wrong here");
   assert(panel.getAttribute("role") === "menu" || panel.getAttribute("role") === "group",
     "the panel has no grouping role");
   key("Escape");
   await tick(20);
-  assert(!document.querySelector(".menu-panel"), "Escape did not dismiss the menu");
+  assert(!document.querySelector("[data-ui~='ui.menu-panel']"), "Escape did not dismiss the menu");
   assert(document.activeElement === btn, "focus did not return to the menu button");
 });
 
 step("navigating away destroys an open menu rather than orphaning it", async () => {
   KOS.show("anime"); await tick(120);
-  const btn = $$(".menu-btn")[0];
+  const btn = $$("[data-ui~='ui.menu-button']")[0];
   click(btn); await tick(20);
-  assert(document.querySelector(".menu-panel"), "setup: the menu did not open");
+  assert(document.querySelector("[data-ui~='ui.menu-panel']"), "setup: the menu did not open");
   KOS.show("home"); await tick(40);
-  assert(!document.querySelector(".menu-panel"),
+  assert(!document.querySelector("[data-ui~='ui.menu-panel']"),
     "a fixed-position menu survived the view change, still wired to controls that no longer exist");
 });
 
@@ -730,7 +731,7 @@ step("choosing a result reaches the domain it came from", async () => {
   await tick(80);
   assert(["anime", "books", "vn", "game"].indexOf(KOS.store.state.ui.view) !== -1,
     "a Collection result did not reach a vault (" + KOS.store.state.ui.view + ")");
-  const ov = document.querySelector(".modal-ov");
+  const ov = document.querySelector("[data-ui~='ui.dialog-overlay']");
   if (ov) ov.remove();
 });
 
@@ -739,7 +740,7 @@ step("a query with no answer says what was searched", async () => {
   input.value = "zzzzqqqqxxxx";
   input.dispatchEvent(new window.Event("input", { bubbles: true }));
   await tick(150);
-  const empty = document.querySelector("#search-results .sr-empty");
+  const empty = document.querySelector("#search-results [data-ui~='search.empty']");
   assert(empty, "no zero-result state");
   const txt = empty.textContent.toLowerCase();
   for (const domain of ["collection", "reminders", "assignments", "calendar"]) {
@@ -879,7 +880,7 @@ step("the four topic progress checks are a chip, not a 16px box", () => {
 });
 
 step("the skip link still reaches the content", () => {
-  const skip = document.querySelector('a[href="#main"], .skip-link');
+  const skip = document.querySelector('a[href="#main"], [data-ui~="shell.skip-link"]');
   assert(skip, "the skip link is gone");
   assert(main().getAttribute("tabindex") === "-1", "#main cannot receive focus");
 });

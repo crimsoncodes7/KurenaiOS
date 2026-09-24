@@ -83,14 +83,14 @@ function cropEq(actual, expected, label) {
    toolbars use, so they stop competing with "Open entry" for attention.
    This drives them through that menu — the real control path. */
 function heroMenu(hero, re) {
-  const btn = hero.querySelector(".vh-menu");
+  const btn = hero.querySelector("[data-ui~='vault.hero-menu']");
   if (!btn) throw new Error("the hero has no Spotlight menu");
   btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
-  const panel = document.querySelector(".menu-panel");
+  const panel = document.querySelector("[data-ui~='ui.menu-panel']");
   if (!panel) throw new Error("the Spotlight menu did not open");
   const item = [...panel.querySelectorAll("[role=menuitem]")].find(b => re.test(b.textContent));
   if (!item) {
-    const labels = [...panel.querySelectorAll(".menu-item-lbl")].map(n => n.textContent);
+    const labels = [...panel.querySelectorAll("[data-ui~='ui.menu-item']")].map(n => n.textContent);
     KOS.ui.closeMenu();
     throw new Error("no hero action matching " + re + " — have: " + JSON.stringify(labels));
   }
@@ -103,7 +103,7 @@ function button(root, text) {
   return hit;
 }
 function loadPreview(overlay, naturalWidth, naturalHeight) {
-  const img = overlay.querySelector(".cropper-preview img");
+  const img = overlay.querySelector("[data-ui~='crop.preview'] img");
   if (!img) throw new Error("crop preview image missing");
   if (naturalWidth && naturalHeight) {
     Object.defineProperties(img, {
@@ -146,7 +146,7 @@ console.log("== render helpers ==");
 
 step("image() applies one reusable class and focal/zoom CSS variables", async () => {
   const img = KOS.imageCrop.image("https://images.example/cover.jpg", { alt: "Cover" }, { x: 23, y: 78, zoom: 1.75 });
-  if (!img.classList.contains("crop-media")) throw new Error("shared crop-media class missing");
+  if (!img.matches('[data-state~="crop-media"]')) throw new Error("shared crop-media class missing");
   if (img.getAttribute("src") !== "https://images.example/cover.jpg") throw new Error("source URL was rewritten");
   if (img.style.getPropertyValue("--crop-x") !== "23%") throw new Error("x CSS variable missing");
   if (img.style.getPropertyValue("--crop-y") !== "78%") throw new Error("y CSS variable missing");
@@ -166,10 +166,10 @@ step("background() owns one replaceable child layer and preserves host content",
   KOS.imageCrop.background(host, "https://images.example/one.jpg", { x: 11, y: 66, zoom: 1.4 }, {
     overlay: "linear-gradient(#0008,#0000)", className: "test-layer"
   });
-  let layer = host.querySelector(".image-crop-bg.test-layer");
-  if (!host.classList.contains("image-crop-host") || !layer) throw new Error("background layer contract missing");
+  let layer = host.querySelector("[data-ui~='crop.bg'].test-layer");
+  if (!host.matches('[data-state~="image-crop-host"]') || !layer) throw new Error("background layer contract missing");
   if (layer !== host.firstElementChild) throw new Error("background layer must sit behind host content");
-  if (!layer.querySelector(".image-crop-shade")) throw new Error("requested scrim missing");
+  if (!layer.querySelector("[data-ui~='crop.shade']")) throw new Error("requested scrim missing");
   cropEq({
     x: Number(layer.querySelector("img").style.getPropertyValue("--crop-x").replace("%", "")),
     y: Number(layer.querySelector("img").style.getPropertyValue("--crop-y").replace("%", "")),
@@ -177,10 +177,10 @@ step("background() owns one replaceable child layer and preserves host content",
   }, { x: 11, y: 66, zoom: 1.4 }, "background vars");
 
   KOS.imageCrop.background(host, "https://images.example/two.jpg", null);
-  if (host.querySelectorAll(":scope > .image-crop-bg").length !== 1) throw new Error("background calls accumulated layers");
+  if (host.querySelectorAll(":scope > [data-ui~='crop.bg']").length !== 1) throw new Error("background calls accumulated layers");
   if (!host.contains(content)) throw new Error("background replacement removed real host content");
   KOS.imageCrop.clearBackground(host);
-  if (host.querySelector(".image-crop-bg") || host.classList.contains("image-crop-host")) throw new Error("clearBackground left crop chrome behind");
+  if (host.querySelector("[data-ui~='crop.bg']") || host.matches('[data-state~="image-crop-host"]')) throw new Error("clearBackground left crop chrome behind");
   if (!host.contains(content)) throw new Error("clearBackground removed real host content");
 });
 
@@ -237,7 +237,7 @@ step("modal converts a focal click through cover-fit and zoom source geometry", 
     aspect: 3.2, allowUpload: false,
     onSave: result => { saved = result; }, onCancel: () => { cancelled++; }
   });
-  const preview = overlay.querySelector(".cropper-preview");
+  const preview = overlay.querySelector("[data-ui~='crop.preview']");
   if (!/aspect-ratio:\s*3\.2/.test(preview.getAttribute("style") || "")) {
     throw new Error("final aspect ratio not reflected in preview: " + (preview.getAttribute("style") || "<none>"));
   }
@@ -287,7 +287,7 @@ step("cancel discards working state and URL entry reports a changed source only 
 
   let result = null;
   overlay = KOS.imageCrop.open({ allowUpload: false, allowUrl: true, onSave: value => { result = value; } });
-  const url = overlay.querySelector(".cropper-url");
+  const url = overlay.querySelector("[data-ui~='crop.url']");
   url.value = "https://images.example/from-url.jpg";
   button(overlay, "Use URL").click();
   loadPreview(overlay);
@@ -324,14 +324,14 @@ step("a failed replacement upload leaves an already-loaded source saveable", asy
   loadPreview(overlay);
   const save = button(overlay, "Save image");
   if (save.disabled) throw new Error("valid existing source did not begin saveable");
-  const fileInput = overlay.querySelector(".cropper-file");
+  const fileInput = overlay.querySelector("[data-ui~='crop.file']");
   Object.defineProperty(fileInput, "files", {
     configurable: true,
     value: [new window.File(["not an image"], "notes.txt", { type: "text/plain" })]
   });
   fileInput.dispatchEvent(new window.Event("change", { bubbles: true }));
   if (save.disabled) throw new Error("failed replacement invalidated the already-loaded source");
-  if (!/Choose an image file/i.test(overlay.querySelector(".cropper-status").textContent)) {
+  if (!/Choose an image file/i.test(overlay.querySelector("[data-ui~='crop.status']").textContent)) {
     throw new Error("replacement error was not retained for the user");
   }
   cropEq(overlay.cropperApi.getValue().crop, { x: 42, y: 58, zoom: 1.25 }, "crop after failed replacement");
@@ -348,7 +348,7 @@ step("cover control centres a typed URL and Use saved cover restores its source/
   if (control.sourceFor() !== input.value) throw new Error("sourceFor ignored the newly typed URL");
   if (control.cropFor(input.value) !== null) throw new Error("saved crop leaked onto newly typed artwork");
   button(control.node, "⌖ Position cover…").click();
-  const overlay = [...document.querySelectorAll(".cropper-ov")].pop();
+  const overlay = [...document.querySelectorAll("[data-ui~='crop.ov']")].pop();
   if (!overlay) throw new Error("cover control did not launch the shared cropper");
   if (overlay.cropperApi.getValue().source !== input.value) throw new Error("typed URL was not used as the crop candidate");
   cropEq(overlay.cropperApi.getValue().crop, { x: 50, y: 50, zoom: 1 }, "new URL centre");
@@ -383,7 +383,7 @@ step("masked local cover stays usable through sourceFor without exposing its dat
     throw new Error("typed replacement did not supersede the masked source at centred default");
   }
   button(control.node, "⌖ Position cover…").click();
-  const overlay = [...document.querySelectorAll(".cropper-ov")].pop();
+  const overlay = [...document.querySelectorAll("[data-ui~='crop.ov']")].pop();
   cropEq(overlay.cropperApi.getValue().crop, { x: 50, y: 50, zoom: 1 }, "masked replacement centre");
   loadPreview(overlay);
   button(overlay, "Use saved cover").click();
@@ -480,15 +480,15 @@ step("Collection hero repositions the remote banner without copying or replacing
   const holder = document.createElement("div");
   document.body.appendChild(holder);
   KOS.medview.heroCard(holder, "anime", KOS.media.module("anime"), noop);
-  if (!await waitFor(() => holder.querySelector(".vault-hero"), 2000)) throw new Error("Collection hero did not render");
-  const hero = holder.querySelector(".vault-hero");
-  const bg = hero.querySelector(":scope > .image-crop-bg img");
+  if (!await waitFor(() => holder.querySelector("[data-ui~='vault.hero']"), 2000)) throw new Error("Collection hero did not render");
+  const hero = holder.querySelector("[data-ui~='vault.hero']");
+  const bg = hero.querySelector(":scope > [data-ui~='crop.bg'] img");
   if (!bg || bg.getAttribute("src") !== "https://cdn.example/banner-attribution.jpg") throw new Error("remote title banner was not used as the hero source");
   if (bg.style.getPropertyValue("--crop-x") !== "38%" || bg.style.getPropertyValue("--crop-zoom") !== "1.45") {
     throw new Error("persisted hero crop was not rendered");
   }
   heroMenu(hero, /banner/i);
-  const overlay = [...document.querySelectorAll(".cropper-ov")].pop();
+  const overlay = [...document.querySelectorAll("[data-ui~='crop.ov']")].pop();
   if (!overlay) throw new Error("intentional hero action did not launch the shared cropper");
   loadPreview(overlay);
   range(overlay, "Horizontal position", 47);
@@ -513,7 +513,7 @@ step("Governor avatar/banner store metadata and render consistently from existin
   cropEq(KOS.store.state.governor.bannerCrop, { x: 17, y: 83, zoom: 1.6 }, "Governor banner");
   const bannerHost = document.createElement("div");
   if (!KOS.governor.applyBanner(bannerHost)) throw new Error("custom Governor banner did not apply");
-  const bannerImg = bannerHost.querySelector(".image-crop-bg img");
+  const bannerImg = bannerHost.querySelector("[data-ui~='crop.bg'] img");
   if (!bannerImg || bannerImg.style.getPropertyValue("--crop-y") !== "83%") throw new Error("Governor banner crop not rendered");
 
   const overlay = KOS.governor.editAvatar();
@@ -540,8 +540,8 @@ step("wishlist cover metadata uses localStorage state and the shared hero render
   cropEq(item.coverCrop, { x: 88.89, y: 12.22, zoom: 1.556 }, "wishlist cover");
   KOS.show("wishlist");
   await tick(40);
-  const hero = document.querySelector(".wl-hero.has-banner");
-  const img = hero && hero.querySelector(":scope > .image-crop-bg img");
+  const hero = document.querySelector("[data-ui~='plan.hero'][data-state~='has-banner']");
+  const img = hero && hero.querySelector(":scope > [data-ui~='crop.bg'] img");
   if (!img || img.style.getPropertyValue("--crop-x") !== "88.89%") throw new Error("wishlist hero ignored its saved cover crop");
 
   await tick(160);
@@ -591,7 +591,7 @@ step("full backup/restore preserves local, entry, volume, hero and profile crop 
     } catch (e) {
       errors.push(`STEP "${name}": ${e.stack.split("\n").slice(0, 3).join(" | ")}`);
       console.log("FAIL  " + name);
-      document.querySelectorAll(".cropper-ov").forEach(node => node.remove());
+      document.querySelectorAll("[data-ui~='crop.ov']").forEach(node => node.remove());
     }
   }
   console.log("");

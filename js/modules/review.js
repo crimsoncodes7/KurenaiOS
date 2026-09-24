@@ -17,8 +17,7 @@
       ? ["The queue", "Due Today", "Clear the cards that are ready now, then use the ledger to see how the schedule is holding up."]
       : ["The memory ledger", "Card Statistics", "Inspect review volume, scheduling health, and where the lapses live."];
 
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var tabs = KOS.workspaceTabs([
       ["Due Today", "review", { tab: "due" }, "due"],
       ["Card Stats", "review", { tab: "stats" }, "stats"]

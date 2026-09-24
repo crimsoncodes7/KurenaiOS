@@ -8,9 +8,10 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
+const { readCss } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-const css = fs.readFileSync(path.join(ROOT, "css/main.css"), "utf8");
+const css = readCss();
 const src = name => fs.readFileSync(path.join(ROOT, "js/modules", name + ".js"), "utf8");
 const dom = new JSDOM(html, { url: "http://localhost/index.html", runScripts: "outside-only", pretendToBeVisual: true });
 const { window } = dom;
@@ -37,7 +38,7 @@ if (KOS.autosync) KOS.autosync.stop();
 
 function assert(ok, message) { if (!ok) throw new Error(message); }
 function labels(modal) {
-  return [...modal.querySelectorAll(".med-field > .k")].map(n => n.textContent.trim()).filter(Boolean);
+  return [...modal.querySelectorAll("[data-ui~='ui.field'] > [data-ui~='part.label']")].map(n => n.textContent.trim()).filter(Boolean);
 }
 function close(modal) {
   const button = modal.querySelector("button[aria-label='Close']");
@@ -45,20 +46,20 @@ function close(modal) {
 }
 function inspectEditor(name, open, entry, expected) {
   open(entry, noop);
-  const modal = document.querySelector(".med-record-modal");
+  const modal = document.querySelector("[data-ui~='vault.editor']");
   assert(modal, name + " did not open the shared record modal");
-  const sections = [...modal.querySelectorAll(":scope > .med-form > [data-edit-section]")];
+  const sections = [...modal.querySelectorAll(":scope > [data-ui~='ui.form'] > [data-edit-section]")];
   const ids = sections.map(n => n.dataset.editSection);
   ["identity", "progress", "ownership", "dates", "taxonomy", "lists", "source", "notes"].forEach(id =>
     assert(ids.includes(id), name + " is missing the " + id + " section"));
   assert(ids[ids.length - 1] === "notes", name + " Notes is not the final full-width section");
-  assert(sections[sections.length - 1].querySelector(".med-span-2 textarea"), name + " Notes is not full width");
-  assert(modal.querySelector(".med-source-info"), name + " has no human-readable source/sync summary");
+  assert(sections[sections.length - 1].querySelector("[data-ui~='vault.span-2'] textarea"), name + " Notes is not full width");
+  assert(modal.querySelector("[data-ui~='vault.source']"), name + " has no human-readable source/sync summary");
   const actualLabels = labels(modal);
   expected.forEach(label => assert(actualLabels.includes(label), name + " is missing field: " + label));
-  assert(modal.querySelector(".med-delete-actions .danger"), name + " edit mode has no separated Delete action");
-  assert(modal.querySelector(".med-save-actions .btn.primary"), name + " edit mode has no separated Save action");
-  assert(!modal.querySelector(".med-delete-actions .btn.primary"), name + " Save leaked into the destructive action group");
+  assert(modal.querySelector("[data-ui~='vault.delete-actions'] [data-intent~='danger']"), name + " edit mode has no separated Delete action");
+  assert(modal.querySelector("[data-ui~='vault.save-actions'] button[data-intent~='primary']"), name + " edit mode has no separated Save action");
+  assert(!modal.querySelector("[data-ui~='vault.delete-actions'] button[data-intent~='primary']"), name + " Save leaked into the destructive action group");
   close(modal);
 }
 
@@ -67,20 +68,20 @@ function inspectEditor(name, open, entry, expected) {
    and the personal layer still edit. */
 function inspectMirrorEditor(name, open, entry, expected, readOnly) {
   open(entry, noop);
-  const modal = document.querySelector(".med-record-modal");
+  const modal = document.querySelector("[data-ui~='vault.editor']");
   assert(modal, name + " did not open the shared record modal");
-  assert(modal.classList.contains("med-mirror-modal"), name + " is not marked as a mirror record");
-  const ids = [...modal.querySelectorAll(":scope > .med-form > [data-edit-section]")].map(n => n.dataset.editSection);
+  assert(modal.matches('[data-ui~="anime.mirror-dialog"]'), name + " is not marked as a mirror record");
+  const ids = [...modal.querySelectorAll(":scope > [data-ui~='ui.form'] > [data-edit-section]")].map(n => n.dataset.editSection);
   ["identity", "progress", "source"].forEach(id => assert(ids.includes(id), name + " is missing the " + id + " section"));
   const actualLabels = labels(modal);
   expected.forEach(label => assert(actualLabels.includes(label), name + " is missing field: " + label));
   readOnly.forEach(label => {
-    const field = [...modal.querySelectorAll(".med-field")].find(f => f.querySelector(".k").textContent.trim() === label);
-    assert(field && field.querySelector(".med-ro") && !field.querySelector("input, select, textarea"), name + ": " + label + " must be read-only (AniList's)");
+    const field = [...modal.querySelectorAll("[data-ui~='ui.field']")].find(f => f.querySelector("[data-ui~='part.label']").textContent.trim() === label);
+    assert(field && field.querySelector("[data-ui~='vault.ro']") && !field.querySelector("input, select, textarea"), name + ": " + label + " must be read-only (AniList's)");
   });
-  assert(!modal.querySelector(".med-delete-actions .danger"), name + " must not offer Delete — removal happens on AniList");
-  assert(modal.querySelector(".med-save-actions .btn.primary"), name + " has no Save action");
-  assert(/mirror/i.test(modal.querySelector(".med-source-info").textContent), name + " does not say it mirrors AniList");
+  assert(!modal.querySelector("[data-ui~='vault.delete-actions'] [data-intent~='danger']"), name + " must not offer Delete — removal happens on AniList");
+  assert(modal.querySelector("[data-ui~='vault.save-actions'] button[data-intent~='primary']"), name + " has no Save action");
+  assert(/mirror/i.test(modal.querySelector("[data-ui~='vault.source']").textContent), name + " does not say it mirrors AniList");
   close(modal);
 }
 
@@ -90,8 +91,8 @@ try {
     ["Title", "Genres", "Status", "Episodes seen", "Score /10", "Favourite ♥", "Tags", "Cover position", "Custom lists", "Notes"],
     ["Title", "Genres", "Started"]);
   /* an empty AniList fact is omitted, not printed as a dash (invariant 77) */
-  assert(!labels(document.querySelector(".med-record-modal") || document.body).includes("Finished"), "an empty read-only fact was printed");
-  assert(KOS.mediaEditors.anime(null, noop) === null && !document.querySelector(".med-record-modal"),
+  assert(!labels(document.querySelector("[data-ui~='vault.editor']") || document.body).includes("Finished"), "an empty read-only fact was printed");
+  assert(KOS.mediaEditors.anime(null, noop) === null && !document.querySelector("[data-ui~='vault.editor']"),
     "Anime must refuse a manual add — the vault mirrors AniList");
   inspectMirrorEditor("Books (AniList row)", KOS.booksEditor, { id: 905, module: "books", title: "Example", author: "Abe", format: "manga",
       genres: ["Drama"], progress: { current: 1, total: 60, totalVolumes: 7 }, syncSource: "anilist", externalIds: { anilistId: 1 } },
@@ -105,11 +106,11 @@ try {
     ["Title", "Developer", "Publisher", "Cover URL", "Status", "Completion tier", "Playtime (hours)", "Score /10", "Backlog priority", "Platform", "Ownership", "Started", "Finished", "Genres", "Tags", "Custom lists", "Steam App ID (optional)", "Notes"]);
 
   KOS.booksEditor(null, noop);
-  const bookModal = document.querySelector(".bk-modal");
-  assert(bookModal.querySelector(".bk-range-grid"), "Books has no compact physical range grid");
+  const bookModal = document.querySelector("[data-ui~='books.dialog']");
+  assert(bookModal.querySelector("[data-ui~='books.range']"), "Books has no compact physical range grid");
   ["From volume", "To volume", "Condition", "Purchase date", "Price each"].forEach(label =>
     assert(labels(bookModal).includes(label), "Physical Vault range is missing label: " + label));
-  assert(bookModal.querySelector(".bk-range-submit .btn"), "Physical Vault has no explicit Add range action");
+  assert(bookModal.querySelector("[data-ui~='books.range-submit'] button"), "Physical Vault has no explicit Add range action");
   close(bookModal);
 
   assert(/\.med-record-modal\s*>\s*\.med-form\s*\{[^}]*overflow-y:\s*auto/s.test(css), "record body is not internally scrollable");

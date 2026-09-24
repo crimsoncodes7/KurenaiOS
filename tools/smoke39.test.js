@@ -37,6 +37,7 @@ const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
+const { readCss } = require("./lib/css");
 
 const ROOT = path.resolve(__dirname, "..");
 const LIVE2D_SRC = path.join(ROOT, "art-source/assistant/live2d");
@@ -450,7 +451,7 @@ step("destroy() detaches every listener and observer, exactly once", async () =>
    The six flat PNGs carry the fallback, so the fallback has to feel alive
    on its own. These assert the CSS contract that gives them presence and,
    crucially, that it yields the moment a live renderer mounts. */
-const css = fs.readFileSync(path.join(ROOT, "css/main.css"), "utf8");
+const css = readCss();
 
 step("the static renders breathe, sway and bloom on coprime cycles", () => {
   for (const kf of ["asstBreath", "asstSway", "asstBloom"]) {

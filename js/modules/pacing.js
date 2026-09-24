@@ -511,7 +511,7 @@
       n.setAttribute("viewBox", "0 0 " + w + " " + h);
       n.setAttribute("width", String(w));
       n.setAttribute("height", String(h));
-      n.setAttribute("class", cls);
+      KOS.ui.setClass(n, cls);
       return n;
     }
 
@@ -567,7 +567,7 @@
       ws.forEach(function (w) {
         var hit = S("rect", { x: PAD_L + idx[w.wb] * COL, y: 0, width: COL, height: H, rx: 6 });
         hit.style.fill = "transparent";
-        hit.setAttribute("class", "pace-braid-hit");
+        KOS.ui.setClass(hit, "pace-braid-hit");
         hit.addEventListener("click", function () { onPickWeek(w); });
         hit.appendChild(S("title", { text: "Open " + w.label }));
         svg.appendChild(hit);
@@ -673,7 +673,7 @@
         node.style.strokeWidth = String(Math.min(3, 1.3 + link.refs.length * 0.45));
         node.style.strokeLinecap = "round";
         node.style.opacity = ".85";
-        node.setAttribute("class", "pace-braid-link tone-" + b.tone);
+        KOS.ui.setClass(node, "pace-braid-link tone-" + b.tone);
         node.appendChild(S("title", { text:
           link.refs.length + " spec point" + (link.refs.length === 1 ? "" : "s") + " · my plan "
           + (link.lead > 0 ? Math.abs(link.lead) + " week" + (Math.abs(link.lead) === 1 ? "" : "s") + " before class"
@@ -715,7 +715,7 @@
         c.style.fill = hue;
         c.style.stroke = "var(--bg1)";
         c.style.strokeWidth = "2";
-        c.setAttribute("class", "pace-braid-node");
+        KOS.ui.setClass(c, "pace-braid-node");
         c.appendChild(S("title", { text: meta.name + " · In class · "
           + (KOS.pacing.weekAt(wb) || {}).label + " · " + n + " row" + (n === 1 ? "" : "s") }));
         svg.appendChild(c);
@@ -726,7 +726,7 @@
         c.style.fill = "var(--bg1)";
         c.style.stroke = hue;
         c.style.strokeWidth = "2";
-        c.setAttribute("class", "pace-braid-node");
+        KOS.ui.setClass(c, "pace-braid-node");
         c.appendChild(S("title", { text: meta.name + " · My plan · "
           + (KOS.pacing.weekAt(wb) || {}).label + " · " + n + " row" + (n === 1 ? "" : "s") }));
         svg.appendChild(c);
@@ -827,8 +827,7 @@
   KOS.pacingHomeCard = homeCard;
 
   KOS.views.pacing = function (main, arg) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     KOS.pacing.ensureSeeded();
 

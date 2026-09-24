@@ -917,7 +917,7 @@
           KOS.ui.el("div", { class: "sm", text: st.m }),
           st.n ? KOS.ui.el("div", { class: "sn", text: st.n }) : null
         ]);
-        if (i === 0) d.classList.add("revealed");
+        if (i === 0) KOS.ui.state(d, "revealed", true);
         return d;
       });
       var ansEl = KOS.ui.el("div", { class: "answerline", style: "display:none", text: "\u25B8 " + result.answer });
@@ -927,7 +927,7 @@
         while (n-- > 0 && revealed < stepEls.length - 1) {
           revealed++;
           stepEls[revealed].style.display = "";
-          stepEls[revealed].classList.add("revealed");
+          KOS.ui.state(stepEls[revealed], "revealed", true);
         }
         if (revealed >= stepEls.length - 1) {
           ansEl.style.display = "";
@@ -993,8 +993,7 @@
   var CATS = [["pure", "Pure Maths"], ["applied", "Stats & Mechanics"], ["cs", "Computer Science"]];
 
   KOS.views.worked = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     main.appendChild(el("div", { class: "lab-h" }, [
       el("h1", { text: "Worked Example Engine" }),
@@ -1017,8 +1016,8 @@
         class: "cat-pill" + (c[0] === curCat ? " active" : ""),
         onclick: function () {
           curCat = c[0];
-          catRow.querySelectorAll(".cat-pill").forEach(function (b, i) {
-            b.classList.toggle("active", CATS[i][0] === curCat); });
+          catRow.querySelectorAll("[data-ui~='lab.category']").forEach(function (b, i) {
+            KOS.ui.state(b, "active", CATS[i][0] === curCat); });
           buildTabs();
         }
       }, [c[1]]));
@@ -1041,8 +1040,8 @@
           class: "lab-tab" + (g === cur ? " active" : ""),
           onclick: function () {
             store.state.worked.last = g.id; store.save();
-            tabs.querySelectorAll(".lab-tab").forEach(function (b, i) {
-              b.classList.toggle("active", gens[i] === g); });
+            tabs.querySelectorAll("[data-ui~='lab.tab']").forEach(function (b, i) {
+              KOS.ui.state(b, "active", gens[i] === g); });
             openGen(g);
           }
         }, [g.title]));

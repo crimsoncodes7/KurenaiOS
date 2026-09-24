@@ -37,7 +37,7 @@
       el("span", { class: "sync-info-caret", text: "▾" })
     ]);
     sum.addEventListener("click", function () {
-      var open = wrap.classList.toggle("open");
+      var open = KOS.ui.state(wrap, "open");
       sum.setAttribute("aria-expanded", open ? "true" : "false");
     });
     wrap.appendChild(sum);
@@ -95,7 +95,7 @@
   }
   function syncNote(node, text, isError) {
     node.textContent = text;
-    node.classList.toggle("is-error", !!isError);
+    KOS.ui.state(node, "is-error", !!isError);
   }
 
   /* ---------------- the ONE sync runner (Category 6 extraction) ----------
@@ -153,8 +153,7 @@
   KOS.mediasync = { run: runSync };
 
   KOS.views.mediasync = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     main.appendChild(KOS.collectionCrumbs("Sync", "Sync & Import"));
     var workspaceTabs = KOS.collectionWorkspaceTabs("sync", "mediasync");

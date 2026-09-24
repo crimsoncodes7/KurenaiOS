@@ -34,6 +34,7 @@ window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true; window.__kosAutoConfirm = true;
 
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
+const { readCss } = require("./lib/css");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;
 
@@ -62,7 +63,7 @@ async function waitFor(cond, ms) {
   while (Date.now() < deadline) { if (cond()) return true; await tick(25); }
   return cond();
 }
-const css = fs.readFileSync(path.join(ROOT, "css", "main.css"), "utf8");
+const css = readCss();
 
 /* ============ 1 · the Linear Void colour system ============ */
 console.log("== colour system ==");
@@ -111,10 +112,10 @@ step("topic page: .study-grid holds the tab bar and the .study-inspector", async
   KOS.show("ref", { subject: sid, ref });
   await tick(30);
   const main = document.getElementById("main");
-  const grid = main.querySelector(".study-grid");
+  const grid = main.querySelector("[data-ui~='study.grid']");
   if (!grid) throw new Error("no .study-grid");
-  if (!grid.querySelector(".study-tabs")) throw new Error("tab bar not inside the grid");
-  const insp = grid.querySelector(".study-inspector");
+  if (!grid.querySelector("[data-ui~='ui.tabs']")) throw new Error("tab bar not inside the grid");
+  const insp = grid.querySelector("[data-ui~='topic.inspector']");
   if (!insp) throw new Error("no .study-inspector");
   /* Cat 7 Phase C: the inspector became the page's single STATE surface, so
      its standalone "Mastery" section is gone — the one live mastery readout
@@ -123,18 +124,18 @@ step("topic page: .study-grid holds the tab bar and the .study-inspector", async
   for (const h of ["Topic status", "Recall record", "Next review"]) {
     if (!insp.textContent.includes(h)) throw new Error("inspector missing section: " + h);
   }
-  if (!insp.querySelector(".topic-status .ts-pct")) throw new Error("no live mastery readout in the inspector");
+  if (!insp.querySelector("[data-ui~='topic.status'] [data-ui~='topic.status-pct']")) throw new Error("no live mastery readout in the inspector");
 });
 step("inspector collapse toggles .insp-closed and persists ui.inspectorOpen", async () => {
   const main = document.getElementById("main");
-  const grid = main.querySelector(".study-grid");
-  const toggle = grid.querySelector(".insp-toggle");
+  const grid = main.querySelector("[data-ui~='study.grid']");
+  const toggle = grid.querySelector("[data-ui~='topic.inspector-toggle']");
   if (!toggle) throw new Error("no collapse toggle");
   toggle.click();
-  if (!grid.classList.contains("insp-closed")) throw new Error("collapse class not applied");
+  if (!grid.matches('[data-state~="insp-closed"]')) throw new Error("collapse class not applied");
   if (KOS.store.state.ui.inspectorOpen !== false) throw new Error("collapsed state not persisted");
   toggle.click();
-  if (grid.classList.contains("insp-closed")) throw new Error("re-open failed");
+  if (grid.matches('[data-state~="insp-closed"]')) throw new Error("re-open failed");
   if (KOS.store.state.ui.inspectorOpen !== true) throw new Error("open state not persisted");
 });
 step("collapsed state survives a re-render (reads ui.inspectorOpen)", async () => {
@@ -142,14 +143,14 @@ step("collapsed state survives a re-render (reads ui.inspectorOpen)", async () =
   const key = Object.keys(window.KOS_CONTENT)[0];
   KOS.show("ref", { subject: key.slice(0, key.indexOf(":")), ref: key.slice(key.indexOf(":") + 1) });
   await tick(30);
-  const grid = document.getElementById("main").querySelector(".study-grid");
-  if (!grid.classList.contains("insp-closed")) throw new Error("persisted collapse ignored on render");
+  const grid = document.getElementById("main").querySelector("[data-ui~='study.grid']");
+  if (!grid.matches('[data-state~="insp-closed"]')) throw new Error("persisted collapse ignored on render");
   KOS.store.state.ui.inspectorOpen = true;
 });
 step("subject overview: per-paper .subject-units breakdown renders", async () => {
   KOS.show("subject", "compsci");
   await tick(30);
-  const units = document.getElementById("main").querySelectorAll(".subject-units .unit-stat");
+  const units = document.getElementById("main").querySelectorAll("[data-ui~='study.units'] [data-ui~='study.unit']");
   if (units.length < 2) throw new Error("expected >=2 unit cards, got " + units.length);
   if (!/secure/.test(units[0].textContent)) throw new Error("unit card lacks the done/total line");
 });
@@ -166,31 +167,31 @@ step("seed: two anime entries (one carries extra.bannerImage from sync mapping)"
 });
 step("auto-spotlight: with nothing chosen the hero shows the in-progress entry, with its banner", async () => {
   KOS.show("anime");
-  await waitFor(() => document.querySelector(".vault-hero"), 3000);
-  const hero = document.querySelector(".vault-hero");
+  await waitFor(() => document.querySelector("[data-ui~='vault.hero']"), 3000);
+  const hero = document.querySelector("[data-ui~='vault.hero']");
   if (!hero) throw new Error("no hero rendered");
   if (!/Hero Pick/.test(hero.textContent)) throw new Error("auto-pick should prefer the in-progress entry");
-  if (!hero.classList.contains("has-banner")) throw new Error("extra.bannerImage should give has-banner");
+  if (!hero.matches('[data-state~="has-banner"]')) throw new Error("extra.bannerImage should give has-banner");
   if (!/Spotlight/i.test(hero.textContent)) throw new Error("kicker missing");
 });
 step("kv selection: hero.<module> pins the spotlight across re-renders", async () => {
   await p(cb => KOS.mediadb.setKV("hero.anime", { entryId: idB, banner: null }, cb));
   KOS.show("anime");
   await waitFor(() => {
-    const h = document.querySelector(".vault-hero");
+    const h = document.querySelector("[data-ui~='vault.hero']");
     return h && /Other Show/.test(h.textContent);
   }, 3000);
-  const hero = document.querySelector(".vault-hero");
+  const hero = document.querySelector("[data-ui~='vault.hero']");
   if (!/Other Show/.test(hero.textContent)) throw new Error("kv-pinned entry not spotlighted");
-  if (hero.classList.contains("has-banner")) throw new Error("no banner anywhere → no has-banner class");
+  if (hero.matches('[data-state~="has-banner"]')) throw new Error("no banner anywhere → no has-banner class");
 });
 step("overlay card contract: .med-card still carries cover + body (+track when total known)", async () => {
-  await waitFor(() => document.querySelector(".med-card"), 3000);
-  const card = document.querySelector(".med-card");
-  if (!card.querySelector(".med-cover")) throw new Error("cover missing");
-  if (!card.querySelector(".med-card-body")) throw new Error("body missing");
-  if (!card.querySelector(".med-title")) throw new Error("title missing");
-  if (!document.querySelector(".med-card .med-track")) throw new Error("progress track missing on a totalled entry");
+  await waitFor(() => document.querySelector("[data-ui~='vault.card']"), 3000);
+  const card = document.querySelector("[data-ui~='vault.card']");
+  if (!card.querySelector("[data-ui~='vault.cover']")) throw new Error("cover missing");
+  if (!card.querySelector("[data-ui~='vault.card-body']")) throw new Error("body missing");
+  if (!card.querySelector("[data-ui~='vault.title']")) throw new Error("title missing");
+  if (!document.querySelector("[data-ui~='vault.card'] [data-ui~='media.bar-track']")) throw new Error("progress track missing on a totalled entry");
 });
 step("AniList banner plumbing: query requests bannerImage; mapping lands in extra", async () => {
   /* the list query string itself must ask for the field (verified live:
@@ -211,9 +212,9 @@ step("games/VN discipline: rendering their vaults (hero included) fires ZERO net
   await p(cb => KOS.mediadb.put({ module: "vn", title: "Some VN", status: "inProgress" }, cb));
   netLog = [];
   KOS.show("game");
-  await waitFor(() => document.querySelector(".vault-hero"), 3000);
+  await waitFor(() => document.querySelector("[data-ui~='vault.hero']"), 3000);
   KOS.show("vn");
-  await waitFor(() => document.querySelector(".vault-hero"), 3000);
+  await waitFor(() => document.querySelector("[data-ui~='vault.hero']"), 3000);
   await tick(120);
   if (netLog.length) throw new Error("network fired from games/VN vault: " + netLog.map(n => n.url).join(", "));
 });
@@ -223,12 +224,12 @@ console.log("== planner top row ==");
 step(".wl-top: the hero is ALWAYS present (placeholder when nothing is waiting)", async () => {
   KOS.show("wishlist");
   await tick(40);
-  const top = document.getElementById("main").querySelector(".wl-top");
+  const top = document.getElementById("main").querySelector("[data-ui~='plan.top']");
   if (!top) throw new Error("no .wl-top row");
-  const hero = top.querySelector(".wl-hero");
+  const hero = top.querySelector("[data-ui~='plan.hero']");
   if (!hero) throw new Error("hero missing from the top row");
   if (!/Release desk/i.test(hero.textContent)) throw new Error("hero badge text");
-  if (!hero.classList.contains("wl-hero-empty")) throw new Error("empty vault should show the placeholder hero");
+  if (!hero.matches('[data-state~="wl-hero-empty"]')) throw new Error("empty vault should show the placeholder hero");
 });
 step("budget summary panel: allowance ledger keeps committed, spent and remaining distinct", async () => {
   KOS.wishlist.add({ module: "books", title: "Test Vol 1", price: 10, status: "wantToBuy" });
@@ -236,14 +237,14 @@ step("budget summary panel: allowance ledger keeps committed, spent and remainin
   KOS.show("wishlist", undefined, { _nav: true });
   await tick(40);
   const main = document.getElementById("main");
-  const lines = [...main.querySelectorAll(".wl-budget .wl-ledger-line")];
+  const lines = [...main.querySelectorAll("[data-ui~='plan.budget'] [data-ui~='plan.ledger-line']")];
   if (lines.length !== 3) throw new Error("expected 3 decision ledger lines, got " + lines.length);
   if (!/Committed/.test(lines[0].textContent) || !/30/.test(lines[0].textContent)) throw new Error("committed planner value wrong");
   if (!/Spent/.test(lines[1].textContent)) throw new Error("spent line missing");
   if (!/Remaining/.test(lines[2].textContent)) throw new Error("remaining line missing");
-  if (!main.querySelector(".wl-budget-edit") || main.querySelector(".wl-limit")) throw new Error("budget must use the edit action, not a visible numeric input");
-  const hero = main.querySelector(".wl-hero");
-  if (hero.classList.contains("wl-hero-empty")) throw new Error("real waiting item should replace the placeholder");
+  if (!main.querySelector("[data-ui~='plan.budget-edit']") || main.querySelector(".wl-limit")) throw new Error("budget must use the edit action, not a visible numeric input");
+  const hero = main.querySelector("[data-ui~='plan.hero']");
+  if (hero.matches('[data-state~="wl-hero-empty"]')) throw new Error("real waiting item should replace the placeholder");
   if (!/Waited Game/.test(hero.textContent)) throw new Error("next-to-drop pick wrong");
 });
 
@@ -253,13 +254,13 @@ step("status tab renders the seat: identity, vitals, cadence, ledger", async () 
   KOS.show("governor");
   await tick(60);
   const main = document.getElementById("main");
-  const bento = main.querySelector(".bento");
+  const bento = main.querySelector("[data-ui~='gov.bento']");
   if (!bento) throw new Error("no .bento grid");
   for (const cls of [".b-id", ".b-vitals", ".b-heat", ".b-ledger"]) {
     if (!bento.querySelector(cls)) throw new Error("bento card missing: " + cls);
   }
-  if (!/Level \d/.test(bento.querySelector(".b-id").textContent)) throw new Error("identity level missing");
-  if (bento.querySelectorAll(".b-vitals .vital").length !== 5) throw new Error("five command instruments expected");
+  if (!/Level \d/.test(bento.querySelector("[data-ui~='gov.bento-id']").textContent)) throw new Error("identity level missing");
+  if (bento.querySelectorAll("[data-ui~='gov.b-vitals'] [data-ui~='gov.vital']").length !== 5) throw new Error("five command instruments expected");
   /* the overview's widgets (directives, countdowns, streak card) must NOT
      live here any more — they belong to Home */
   if (bento.querySelector(".b-edicts") || bento.querySelector(".b-exams") || bento.querySelector(".b-streak"))
@@ -279,7 +280,7 @@ step("prescriptive recovery dispatch appears full-width when HP is strained", as
   g.hp = 45;
   KOS.show("governor", undefined, { _nav: true });
   await tick(60);
-  const rec = document.getElementById("main").querySelector(".bento .gov-recovery.b-wide");
+  const rec = document.getElementById("main").querySelector("[data-ui~='gov.bento'] [data-ui~='gov.recovery'][data-ui~='gov.bento-wide']");
   if (!rec) throw new Error("recovery checklist missing from the bento while strained");
   g.hp = hp0;
   KOS.store.save();
@@ -288,9 +289,9 @@ step("shop cards carry swatch previews for every theme", async () => {
   KOS.show("governor", "shop", { _nav: true });
   await tick(60);
   const main = document.getElementById("main");
-  const sw = main.querySelectorAll(".shop-sw");
+  const sw = main.querySelectorAll("[data-ui~='shop.swatch']");
   if (sw.length < 23) throw new Error(">=23 swatch rows expected (themes + banners), got " + sw.length);
-  if (sw[0].querySelectorAll(".shop-sw-dot").length !== 3) throw new Error("3 dots per theme");
+  if (sw[0].querySelectorAll("[data-ui~='shop.sw-dot']").length !== 3) throw new Error("3 dots per theme");
 });
 
 /* ============ 6 · Governor v5 — the Seat rebuilt ============
@@ -302,47 +303,47 @@ step("Part A: the page switcher lives in the header, all four pages reachable", 
   KOS.show("governor");
   await tick(60);
   const main = document.getElementById("main");
-  const tabs = main.querySelector(".dash-head > .gov-tabs");
+  const tabs = main.querySelector("[data-ui~='ui.page-head'] > [data-ui~='gov.tabs']");
   if (!tabs) throw new Error("switcher is not in the page header");
-  const labels = [...tabs.querySelectorAll(".study-tab")].map(b => b.textContent.trim());
+  const labels = [...tabs.querySelectorAll("[data-ui~='ui.tab']")].map(b => b.textContent.trim());
   if (labels.join("|") !== "Status|Gold Shop|Avatar|Session Log")
     throw new Error("wrong tabs: " + labels.join("|"));
   /* the data-tab hook every consumer of this switcher uses */
-  if ([...tabs.querySelectorAll(".study-tab")].some(b => !b.dataset.tab))
+  if ([...tabs.querySelectorAll("[data-ui~='ui.tab']")].some(b => !b.dataset.tab))
     throw new Error("data-tab hook missing from a tab");
-  if (!tabs.querySelector(".study-tab.active")) throw new Error("no active tab marked");
+  if (!tabs.querySelector("[data-ui~='ui.tab'][data-state~='active']")) throw new Error("no active tab marked");
 });
 
 step("Part B: hero carries a proportionate portrait, access preview and the about block without duplicate telemetry", async () => {
   KOS.governor.setProfileText({ status: "Grinding paper 1", about: "A quote.\nAnd a second line." });
   KOS.show("governor", undefined, { _nav: true });
   await tick(60);
-  const id = document.getElementById("main").querySelector(".b-id");
-  const face = id.querySelector(".id-face .gov-avatar");
+  const id = document.getElementById("main").querySelector("[data-ui~='gov.bento-id']");
+  const face = id.querySelector("[data-ui~='gov.face'] [data-ui~='gov.avatar']");
   if (!face) throw new Error("hero portrait missing");
   if (!/112px/.test(face.getAttribute("style") || "")) throw new Error("hero portrait has the wrong scale: " + face.getAttribute("style"));
-  if (!id.querySelector(".id-access .hp-preview")) throw new Error("the access-state preview is missing");
+  if (!id.querySelector("[data-ui~='gov.id-access'] [data-ui~='gov.hp-preview']")) throw new Error("the access-state preview is missing");
   if (id.querySelector(".id-side")) throw new Error("duplicate stat rail leaked back into the hero");
-  if (!id.querySelector(".id-status")) throw new Error("status line missing from the hero");
-  if (!id.querySelector(".id-about-txt")) throw new Error("about block missing from the hero");
+  if (!id.querySelector("[data-ui~='gov.id-status']")) throw new Error("status line missing from the hero");
+  if (!id.querySelector("[data-ui~='gov.about']")) throw new Error("about block missing from the hero");
 });
 
 step("Part B5: every stat tile is the same shape; bounded instruments alone carry bars", async () => {
   const main = document.getElementById("main");
-  const tiles = [...main.querySelectorAll(".gstat")];
+  const tiles = [...main.querySelectorAll("[data-ui~='gov.stat']")];
   if (tiles.length < 8) throw new Error("expected five instruments + three cadence tiles, got " + tiles.length);
   for (const t of tiles) {
-    if (!t.querySelector(".gstat-k")) throw new Error("a tile has no label");
-    if (!t.querySelector(".gstat-v")) throw new Error("a tile has no value");
+    if (!t.querySelector("[data-ui~='gov.vital-label']")) throw new Error("a tile has no label");
+    if (!t.querySelector("[data-ui~='gov.vital-v']")) throw new Error("a tile has no value");
   }
   /* HP/XP/queue/streak are bounded measures. Gold is a balance and Phase G
      removed its semantically false progress bar. */
-  const vitals = [...main.querySelectorAll(".b-vitals .vital .gstat")];
+  const vitals = [...main.querySelectorAll("[data-ui~='gov.b-vitals'] [data-ui~='gov.vital'] [data-ui~='gov.stat']")];
   if (vitals.length !== 5) throw new Error("five instruments expected, got " + vitals.length);
-  const gold = vitals.find(v => v.classList.contains("gstat-gold"));
-  if (!gold || !gold.classList.contains("no-meter") || gold.querySelector(".gstat-bar"))
+  const gold = vitals.find(v => v.getAttribute("data-kind") === "gold");
+  if (!gold || !gold.matches('[data-state~="no-meter"]') || gold.querySelector("[data-ui~='gov.vital-bar']"))
     throw new Error("Gold is not the one balance-only instrument");
-  if (vitals.filter(v => v !== gold).some(v => !v.querySelector(".gstat-bar > span")))
+  if (vitals.filter(v => v !== gold).some(v => !v.querySelector("[data-ui~='gov.vital-bar'] > span")))
     throw new Error("a bounded vital tile has no progress bar");
 });
 
@@ -357,22 +358,22 @@ step("Part C: routine sync is logged but kept out of the ledger and the cadence 
   KOS.show("governor", undefined, { _nav: true });
   await tick(60);
   const main = document.getElementById("main");
-  const led = [...main.querySelectorAll(".b-ledger .led-row .lt")].map(n => n.textContent);
+  const led = [...main.querySelectorAll("[data-ui~='gov.b-ledger'] [data-ui~='gov.ledger-row'] [data-ui~='part.lead']")].map(n => n.textContent);
   if (led.some(t => /sync/i.test(t))) throw new Error("routine sync leaked into the ledger: " + led.join(" | "));
-  if (!main.querySelector(".b-ledger .led-more")) throw new Error("no route from the ledger to the full log");
+  if (!main.querySelector("[data-ui~='gov.b-ledger'] [data-ui~='gov.ledger-more']")) throw new Error("no route from the ledger to the full log");
 });
 
 step("Part C: System history coalesces sync runs into one line per provider per day", async () => {
   KOS.show("governor", "history", { _nav: true });
   await tick(60);
   const main = document.getElementById("main");
-  const syncTab = main.querySelector('.log-filterbar .log-cat[data-cat="system"]');
+  const syncTab = main.querySelector('[data-ui~="gov.log-filter"] [data-ui~="gov.log-category"][data-cat="system"]');
   if (!syncTab) throw new Error("no System history category");
   /* All activity excludes routine */
-  const everything = [...main.querySelectorAll(".gov-log .led-row .lt")].map(n => n.textContent);
+  const everything = [...main.querySelectorAll("[data-ui~='gov.log'] [data-ui~='gov.ledger-row'] [data-ui~='part.lead']")].map(n => n.textContent);
   if (everything.some(t => /sync completed/i.test(t))) throw new Error("Everything must exclude routine sync");
   syncTab.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
-  const rows = [...main.querySelectorAll(".gov-log .led-row")];
+  const rows = [...main.querySelectorAll("[data-ui~='gov.log'] [data-ui~='gov.ledger-row']")];
   if (!rows.length) throw new Error("sync history rendered nothing");
   if (rows.length >= 6) throw new Error("six syncs should collapse, got " + rows.length + " rows");
   if (!/sync completed.*entries updated/i.test(rows[0].textContent))
@@ -386,21 +387,21 @@ step("Part D: one identity record — Governor, Home and the topbar popover agre
 
   KOS.show("governor", undefined, { _nav: true });
   await tick(60);
-  const govAbout = document.getElementById("main").querySelector(".id-about-txt").textContent;
+  const govAbout = document.getElementById("main").querySelector("[data-ui~='gov.about']").textContent;
 
   KOS.show("home", undefined, { _nav: true });
   await tick(60);
-  const homeStatus = document.getElementById("main").querySelector(".hi-status");
+  const homeStatus = document.getElementById("main").querySelector("[data-ui~='home.status']");
   if (!homeStatus || !homeStatus.textContent.includes("Reading Fate"))
     throw new Error("Home profile band does not show the shared status");
 
   const pop = KOS.governor.openProfilePopover();
-  const popAbout = pop.querySelector(".pc-about p").textContent;
-  const popStatus = pop.querySelector(".pc-status").textContent;
+  const popAbout = pop.querySelector("[data-ui~='gov.profile-about'] p").textContent;
+  const popStatus = pop.querySelector("[data-ui~='gov.profile-status']").textContent;
   if (popAbout !== govAbout) throw new Error("popover about differs from the Governor hero");
   if (popStatus !== p.status) throw new Error("popover status differs from profile()");
   KOS.governor.closeProfilePopover();
-  if (document.querySelector(".profile-pop")) throw new Error("popover did not close");
+  if (document.querySelector("[data-ui~='gov.profile-pop']")) throw new Error("popover did not close");
 });
 
 step("Part D: the writer trims and caps, so no surface has to defend itself", () => {

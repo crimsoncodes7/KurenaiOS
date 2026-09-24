@@ -88,12 +88,12 @@ const today = KOS.srs.todayISO();
    VLT-3 fix. They are real controls in a real popover, so these steps open
    the group the way a reader would rather than reaching past it. */
 function openFilters() {
-  const btn = document.getElementById("main").querySelector(".mvt-filters-btn");
+  const btn = document.getElementById("main").querySelector("[data-ui~='vault.filters-button']");
   if (!btn) throw new Error("no Filters group in the toolbar");
-  if (!document.querySelector(".menu-panel")) {
+  if (!document.querySelector("[data-ui~='ui.menu-panel']")) {
     btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   }
-  const panel = document.querySelector(".menu-panel");
+  const panel = document.querySelector("[data-ui~='ui.menu-panel']");
   if (!panel) throw new Error("the Filters panel did not open");
   return panel;
 }
@@ -338,20 +338,20 @@ step("digital tab (default): both series show; physical tab: owned only, bookshe
   KOS.store.state.media.books = { layout: "grid", sort: "title", tab: "digital", physLayout: "shelf" };
   KOS.show("books");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".bk-card").length >= 2, 5000);
-  const tabs = main.querySelectorAll(".bk-tab");
+  await waitFor(() => main.querySelectorAll("[data-ui~='books.card']").length >= 2, 5000);
+  const tabs = main.querySelectorAll("[data-ui~='books.lens']");
   if (tabs.length !== 2) throw new Error("tab count: " + tabs.length);
-  if (!tabs[0].classList.contains("active")) throw new Error("digital not default");
-  const titles = [...main.querySelectorAll(".med-title")].map(x => x.textContent).join(" ");
+  if (!tabs[0].matches('[data-state~="active"]')) throw new Error("digital not default");
+  const titles = [...main.querySelectorAll("[data-ui~='vault.title']")].map(x => x.textContent).join(" ");
   if (!/Berserk/.test(titles) || !/Frieren/.test(titles)) throw new Error("digital tab hides entries: " + titles);
   /* → physical */
   tabs[1].click();
-  await waitFor(() => main.querySelectorAll(".bk-shelf-series").length === 1, 5000);
-  const series = main.querySelectorAll(".bk-shelf-series");
+  await waitFor(() => main.querySelectorAll("[data-ui~='books.series']").length === 1, 5000);
+  const series = main.querySelectorAll("[data-ui~='books.series']");
   if (series.length !== 1 || !/Berserk/.test(series[0].textContent)) throw new Error("physical lens wrong");
-  if (main.querySelectorAll(".bk-spine").length !== 2) throw new Error("volume-level detail missing");
-  if (/Frieren/.test(main.querySelector(".bk-shelves").textContent)) throw new Error("digital-only series on the physical shelf");
-  if (!/with owned volumes/.test(main.querySelector(".med-count").textContent)) throw new Error("count line not lens-aware");
+  if (main.querySelectorAll("[data-ui~='books.spine']").length !== 2) throw new Error("volume-level detail missing");
+  if (/Frieren/.test(main.querySelector("[data-ui~='books.shelves']").textContent)) throw new Error("digital-only series on the physical shelf");
+  if (!/with owned volumes/.test(main.querySelector("[data-ui~='vault.count']").textContent)) throw new Error("count line not lens-aware");
 });
 /* The reported bug: switching Digital → Physical left the Digital list's lazy
    IntersectionObserver live against the OLD result set, so the next batch was
@@ -368,11 +368,11 @@ step("lens switch tears the previous lens down — no stale rows, no stale obser
   KOS.store.state.media.books = { layout: "grid", sort: "title", tab: "digital", physLayout: "shelf" };
   KOS.show("books");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
+  await waitFor(() => main.querySelectorAll("[data-ui~='books.card']").length > 0, 5000);
 
-  const tabs = main.querySelectorAll(".bk-tab");
+  const tabs = main.querySelectorAll("[data-ui~='books.lens']");
   tabs[1].click();                                  // → Physical (shelf layout)
-  await waitFor(() => main.querySelectorAll(".bk-shelf-series").length === 1, 5000);
+  await waitFor(() => main.querySelectorAll("[data-ui~='books.series']").length === 1, 5000);
 
   /* scroll the sentinel into view exactly as a real browser would: any
      observer still bound to the Digital results now tries to append them */
@@ -380,33 +380,33 @@ step("lens switch tears the previous lens down — no stale rows, no stale obser
   fireSentinels();
   await new Promise(r => setTimeout(r, 120));
 
-  const holder = main.querySelector(".bk-shelves");
+  const holder = main.querySelector("[data-ui~='books.shelves']");
   if (!holder) throw new Error("physical lens did not mount its shelf holder");
-  if (main.querySelectorAll(".bk-card").length)
+  if (main.querySelectorAll("[data-ui~='books.card']").length)
     throw new Error("digital grid cards are still mounted under the Physical lens");
   if (/Filler Series/.test(holder.textContent))
     throw new Error("stale digital rows were appended into the shelf");
-  if (main.querySelectorAll(".med-grid").length)
+  if (main.querySelectorAll("[data-ui~='vault.grid']").length)
     throw new Error("a digital grid holder is still mounted");
 
   /* and back again, repeatedly, must stay stable */
   for (let k = 0; k < 3; k++) {
-    main.querySelectorAll(".bk-tab")[0].click();
-    await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
-    main.querySelectorAll(".bk-tab")[1].click();
-    await waitFor(() => main.querySelectorAll(".bk-shelf-series").length === 1, 5000);
+    main.querySelectorAll("[data-ui~='books.lens']")[0].click();
+    await waitFor(() => main.querySelectorAll("[data-ui~='books.card']").length > 0, 5000);
+    main.querySelectorAll("[data-ui~='books.lens']")[1].click();
+    await waitFor(() => main.querySelectorAll("[data-ui~='books.series']").length === 1, 5000);
     fireSentinels();
   }
   await new Promise(r => setTimeout(r, 120));
-  if (main.querySelectorAll(".bk-card").length) throw new Error("repeat switching leaked digital cards");
-  if (main.querySelectorAll(".bk-shelves").length !== 1) throw new Error("more than one shelf holder mounted");
+  if (main.querySelectorAll("[data-ui~='books.card']").length) throw new Error("repeat switching leaked digital cards");
+  if (main.querySelectorAll("[data-ui~='books.shelves']").length !== 1) throw new Error("more than one shelf holder mounted");
 
   /* category switching AFTER a lens switch still works */
   const fmt = facet("Filter by format");
   fmt.value = "lightNovel";
   fmt.dispatchEvent(new window.Event("change", { bubbles: true }));
   await new Promise(r => setTimeout(r, 150));
-  if (main.querySelectorAll(".bk-card").length) throw new Error("filtering after a lens switch resurrected the grid");
+  if (main.querySelectorAll("[data-ui~='books.card']").length) throw new Error("filtering after a lens switch resurrected the grid");
 
   for (const id of bulk) await p(cb => KOS.mediadb.remove(id, cb));
   fmt.value = "";
@@ -417,16 +417,16 @@ step("an empty lens mounts nothing but its empty state", async () => {
   KOS.store.state.media.books = { layout: "grid", sort: "title", tab: "digital", physLayout: "shelf" };
   KOS.show("books");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
+  await waitFor(() => main.querySelectorAll("[data-ui~='books.card']").length > 0, 5000);
   const search = main.querySelector('input[type="search"]');
   search.value = "zzzz-no-such-series-zzzz";
   search.dispatchEvent(new window.Event("input", { bubbles: true }));
-  await waitFor(() => !!main.querySelector(".med-empty"), 5000);
+  await waitFor(() => !!main.querySelector("[data-ui~='vault.empty']"), 5000);
   await new Promise(r => setTimeout(r, 120));
-  if (main.querySelectorAll(".bk-card").length) throw new Error("rows survived under the empty state");
+  if (main.querySelectorAll("[data-ui~='books.card']").length) throw new Error("rows survived under the empty state");
   search.value = "";
   search.dispatchEvent(new window.Event("input", { bubbles: true }));
-  await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
+  await waitFor(() => main.querySelectorAll("[data-ui~='books.card']").length > 0, 5000);
 });
 
 step("a pre-3i saved 'shelf' layout migrates to the Physical tab", async () => {
@@ -441,18 +441,18 @@ step("owned-vs-read comparison lives in the editor — reachable from either tab
     KOS.booksEditor(e, null);
     res();
   });
-  const modal = document.querySelector(".bk-modal");
+  const modal = document.querySelector("[data-ui~='books.dialog']");
   if (!modal) throw new Error("editor did not open");
-  const cmp = modal.querySelector(".bk-compare");
+  const cmp = modal.querySelector("[data-ui~='books.compare']");
   if (!cmp) throw new Error("comparison panel missing from the entry detail");
-  if (cmp.querySelectorAll(".bk-compare-row").length !== 2) throw new Error("owned + read rows expected");
+  if (cmp.querySelectorAll("[data-ui~='books.compare-row']").length !== 2) throw new Error("owned + read rows expected");
   if (!/Read/.test(cmp.textContent) || !/Owned/.test(cmp.textContent)) throw new Error("labels missing");
   modal.querySelector("button[aria-label='Close']").click();
   /* digital-only entry still carries the panel (with the hint state) */
   const d = await p(cb => KOS.mediadb.get(idDigital, cb));
   KOS.booksEditor(d, null);
-  const modal2 = document.querySelector(".bk-modal");
-  if (!modal2.querySelector(".bk-compare")) throw new Error("panel missing on digital-only entry");
+  const modal2 = document.querySelector("[data-ui~='books.dialog']");
+  if (!modal2.querySelector("[data-ui~='books.compare']")) throw new Error("panel missing on digital-only entry");
   modal2.querySelector("button[aria-label='Close']").click();
 });
 step("selecting a shelf in list layout unlocks ranking; ▼ persists the new order", async () => {
@@ -463,17 +463,17 @@ step("selecting a shelf in list layout unlocks ranking; ▼ persists the new ord
   await waitFor(() => shelfSel.options.length >= 2, 4000);
   shelfSel.value = "ranked";
   shelfSel.dispatchEvent(new window.Event("change"));
-  await waitFor(() => main.querySelectorAll(".bk-rank-row").length === 3, 5000);
-  if (!/rank this shelf/.test(main.querySelector(".med-count").textContent)) throw new Error("no ranking hint: " + main.querySelector(".med-count").textContent);
+  await waitFor(() => main.querySelectorAll("[data-ui~='books.rank-row']").length === 3, 5000);
+  if (!/rank this shelf/.test(main.querySelector("[data-ui~='vault.count']").textContent)) throw new Error("no ranking hint: " + main.querySelector("[data-ui~='vault.count']").textContent);
   if (!main.querySelector("select[aria-label='Sort']").disabled) throw new Error("sort not locked while a shelf is ranked");
-  let rows = [...main.querySelectorAll(".bk-rank-row")];
+  let rows = [...main.querySelectorAll("[data-ui~='books.rank-row']")];
   if (!/Alpha/.test(rows[0].textContent)) throw new Error("initial order unexpected");
   rows[0].querySelector("button[aria-label^='Move'][aria-label$='down']").click();
   await waitFor(() => {
-    const r = [...main.querySelectorAll(".bk-rank-row")];
+    const r = [...main.querySelectorAll("[data-ui~='books.rank-row']")];
     return r.length === 3 && /Beta/.test(r[0].textContent);
   }, 3000);
-  rows = [...main.querySelectorAll(".bk-rank-row")];
+  rows = [...main.querySelectorAll("[data-ui~='books.rank-row']")];
   if (!/Beta/.test(rows[0].textContent) || !/Alpha/.test(rows[1].textContent)) throw new Error("▼ did not move the row");
   /* the DOM repaints synchronously; the kv write commits async — poll it */
   const want = [ranked[1], ranked[0], ranked[2]].join();
@@ -488,8 +488,8 @@ step("selecting a shelf in list layout unlocks ranking; ▼ persists the new ord
   await waitFor(() => sel2.options.length >= 2, 4000);
   sel2.value = "ranked";
   sel2.dispatchEvent(new window.Event("change"));
-  await waitFor(() => main2.querySelectorAll(".bk-rank-row").length === 3, 5000);
-  if (!/Beta/.test([...main2.querySelectorAll(".bk-rank-row")][0].textContent)) throw new Error("order lost on re-render");
+  await waitFor(() => main2.querySelectorAll("[data-ui~='books.rank-row']").length === 3, 5000);
+  if (!/Beta/.test([...main2.querySelectorAll("[data-ui~='books.rank-row']")][0].textContent)) throw new Error("order lost on re-render");
 });
 
 /* ============ 8 · lookup modal end-to-end ============ */
@@ -497,23 +497,23 @@ console.log("== lookup modal ==");
 step("no BarcodeDetector (jsdom) → the degradation note shows, manual ISBN stays", async () => {
   fetchRoutes = [{ match: "openlibrary.org", respond: okJson(OL_BODY) }];
   KOS.books.openLookup(true, null);
-  const modal = document.querySelector(".bk-lookup");
+  const modal = document.querySelector("[data-ui~='books.lookup']");
   if (!modal) throw new Error("lookup modal missing");
-  if (!modal.querySelector(".bk-scan-none")) throw new Error("no capability-degradation note");
+  if (!modal.querySelector("[data-ui~='books.scan-none']")) throw new Error("no capability-degradation note");
   if ([...modal.querySelectorAll("button")].some(b => /Scan barcode/.test(b.textContent))) throw new Error("scan button offered without the API");
-  if (!modal.querySelector(".bk-isbn-in")) throw new Error("manual ISBN input missing");
+  if (!modal.querySelector("[data-ui~='books.isbn-in']")) throw new Error("manual ISBN input missing");
 });
 step("ISBN → result row (Open Library) → + Use prefills the add form, physical intent = vol 1", async () => {
-  const modal = document.querySelector(".bk-lookup");
-  modal.querySelector(".bk-isbn-in").value = "978-1-974700-52-3";
+  const modal = document.querySelector("[data-ui~='books.lookup']");
+  modal.querySelector("[data-ui~='books.isbn-in']").value = "978-1-974700-52-3";
   [...modal.querySelectorAll("button")].find(b => b.textContent === "Look up").click();
-  await waitFor(() => modal.querySelectorAll(".msch-row").length === 1, 4000);
-  const row = modal.querySelector(".msch-row");
-  if (!/Open Library/.test(row.querySelector(".bk-src-chip").textContent)) throw new Error("source chip wrong");
-  row.querySelector(".msch-add").click();
-  await waitFor(() => document.querySelector(".bk-modal"), 4000);
-  if (document.querySelector(".bk-lookup")) throw new Error("lookup modal left open under the editor");
-  const ed = document.querySelector(".bk-modal");
+  await waitFor(() => modal.querySelectorAll("[data-ui~='msearch.row']").length === 1, 4000);
+  const row = modal.querySelector("[data-ui~='msearch.row']");
+  if (!/Open Library/.test(row.querySelector("[data-ui~='books.src-chip']").textContent)) throw new Error("source chip wrong");
+  row.querySelector("[data-ui~='msearch.add']").click();
+  await waitFor(() => document.querySelector("[data-ui~='books.dialog']"), 4000);
+  if (document.querySelector("[data-ui~='books.lookup']")) throw new Error("lookup modal left open under the editor");
+  const ed = document.querySelector("[data-ui~='books.dialog']");
   if (ed.querySelector("input[placeholder='Series title']").value !== "鬼滅の刃 1") throw new Error("title not prefilled");
   if (!/Koyoharu Gotoge/.test(ed.querySelector("input[placeholder^='Author']").value)) throw new Error("author not prefilled");
   if (!/covers\.openlibrary\.org/.test(ed.querySelector("input[type='url']").value)) throw new Error("cover not prefilled");
@@ -543,14 +543,14 @@ console.log("== heatmap ==");
 step("reading sessions surface on the existing reading heatmap with zero extra wiring", async () => {
   KOS.store.state.media.books = { layout: "grid", sort: "updated", tab: "digital", physLayout: "shelf" };
   KOS.medview.statsModal("books", KOS.media.module("books"));
-  await waitFor(() => document.querySelector(".stats-modal"), 5000);
-  const modal = document.querySelector(".stats-modal");
-  const card = [...modal.querySelectorAll(".cs-chart")].find(c => /Activity/.test(c.textContent));
+  await waitFor(() => document.querySelector("[data-ui~='vault.stats']"), 5000);
+  const modal = document.querySelector("[data-ui~='vault.stats']");
+  const card = [...modal.querySelectorAll("[data-ui~='chart.chart']")].find(c => /Activity/.test(c.textContent));
   if (!card) throw new Error("activity heatmap missing from the stats modal");
   const mLogs = card.textContent.match(/(\d+) reading logs/);
   /* 2 reading sessions + the add + any bump = at least 3 media logs today */
   if (!mLogs || parseInt(mLogs[1], 10) < 3) throw new Error("heatmap not counting reading sessions: " + (mLogs && mLogs[0]));
-  const ov = modal.closest(".modal-ov"); if (ov) ov.remove();
+  const ov = modal.closest("[data-ui~='ui.dialog-overlay']"); if (ov) ov.remove();
 });
 
 /* ============ runner ============ */

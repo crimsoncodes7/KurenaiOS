@@ -66,7 +66,7 @@ const setVis = v => {
 const G = () => KOS.store.state.governor;
 const lastSession = () => KOS.sessions.all()[KOS.sessions.all().length - 1];
 /* close whatever overlay is on screen without saving anything */
-const closeOverlay = () => { const ov = $(".modal-ov"); if (ov) ov.remove(); };
+const closeOverlay = () => { const ov = $("[data-ui~='ui.dialog-overlay']"); if (ov) ov.remove(); };
 
 G().hp = 60;
 
@@ -109,32 +109,32 @@ console.log("== setup ==");
 let asg = null;
 step("setup renders one calm form: modes, duration, links, one objective", () => {
   KOS.show("focus");
-  assert($$(".fx-mode-card").length === 2, "mode cards: " + $$(".fx-mode-card").length);
-  assert($$(".fx-link-row .cal-field").length === 3, "subject/topic/assignment fields expected");
-  assert($$(".fx-obj-in").length === 1, "exactly one objective input");
-  assert($$(".fx-start").length === 1, "one start button");
+  assert($$("[data-ui~='focus.mode']").length === 2, "mode cards: " + $$("[data-ui~='focus.mode']").length);
+  assert($$("[data-ui~='focus.link-row'] [data-ui~='cal.field']").length === 3, "subject/topic/assignment fields expected");
+  assert($$("[data-ui~='focus.obj-in']").length === 1, "exactly one objective input");
+  assert($$("[data-ui~='focus.start']").length === 1, "one start button");
   /* nothing is invented to fill the column: the side rail is the deal and
      the record, and nothing else */
-  assert($$(".fx-setup-side > *").length === 2, "side panels: " + $$(".fx-setup-side > *").length);
+  assert($$("[data-ui~='focus.setup-side'] > *").length === 2, "side panels: " + $$("[data-ui~='focus.setup-side'] > *").length);
 });
 
 step("the deal states the real award for the duration on screen", () => {
-  const deal = $(".fx-deal-list").textContent;
+  const deal = $("[data-ui~='focus.deal-list']").textContent;
   assert(/\+35 XP/.test(deal) && /\+5 gold/.test(deal) && /\+6 HP/.test(deal), "pomodoro deal: " + deal);
   assert(/−15%/.test(deal), "the pause penalty must be stated: " + deal);
   assert(/−2 HP/.test(deal), "the tab-switch penalty must be stated: " + deal);
   assert(/forfeited/.test(deal), "the early-end rule must be stated: " + deal);
   assert(/free/.test(deal), "self-marking must be stated as free: " + deal);
   /* refreshing costs nothing — said before it is relied on */
-  assert(/Refreshing/.test($(".fx-deal-foot").textContent), "the refresh promise is missing");
+  assert(/Refreshing/.test($("[data-ui~='focus.deal-foot']").textContent), "the refresh promise is missing");
 });
 
 step("choosing Custom + a longer interval re-quotes the deal", () => {
   click(byText(".fx-mode-card", /Custom/));
-  const work = $(".fx-custom .fx-num");
+  const work = $("[data-ui~='focus.custom'] [data-ui~='ui.number-input']");
   work.value = "50";
   work.dispatchEvent(new window.Event("input", { bubbles: true }));
-  const deal = $(".fx-deal-list").textContent;
+  const deal = $("[data-ui~='focus.deal-list']").textContent;
   const a = KOS.governor.focusAward({ complete: true, mins: 50, pauses: 0 });
   assert(a.xp === 60 && a.gold === 7, "50-min award: " + JSON.stringify(a));
   assert(deal.indexOf("+" + a.xp + " XP") !== -1, "deal did not follow the duration: " + deal);
@@ -146,19 +146,19 @@ step("an open assignment is offered, and a deep link preselects it", () => {
     subtasks: [{ id: 9001, text: "Draft the traversal section", done: false }] });
   assert(asg, "assignment fixture failed");
   KOS.show("focus", { assignmentId: asg.id });
-  const sel = $(".fx-link-row select[aria-label='Link to an assignment']");
+  const sel = $("[data-ui~='focus.link-row'] select[aria-label='Link to an assignment']");
   assert(sel && sel.value === String(asg.id), "assignment not preselected: " + (sel && sel.value));
-  assert($(".fx-link-row select").value === "compsci", "subject not carried from the assignment");
+  assert($("[data-ui~='focus.link-row'] select").value === "compsci", "subject not carried from the assignment");
 });
 
 /* ============ 3 · starting, and the running stage ============ */
 console.log("== running ==");
 
 step("the form starts a session carrying subject, topic, assignment and objective", () => {
-  $(".fx-obj-in").value = "  Finish the traversal section  ";
-  const refSel = $$(".fx-link-row select")[1];
+  $("[data-ui~='focus.obj-in']").value = "  Finish the traversal section  ";
+  const refSel = $$("[data-ui~='focus.link-row'] select")[1];
   refSel.value = "4.2.3.1";
-  click($(".fx-start"));
+  click($("[data-ui~='focus.start']"));
   const s = KOS.focus.session();
   assert(s, "no session started");
   assert(s.subject === "compsci" && s.ref === "4.2.3.1", "context lost: " + s.subject + "/" + s.ref);
@@ -168,29 +168,29 @@ step("the form starts a session carrying subject, topic, assignment and objectiv
 });
 
 step("the stage shows the context, the objective and the session's progress", () => {
-  assert(/4\.2\.3\.1/.test($(".fx-topic").textContent), "topic context missing");
-  assert(/Trees NEA writeup/.test($(".fx-context").textContent), "assignment chip missing");
-  assert(/Finish the traversal section/.test($(".fx-objective").textContent), "objective missing from the stage");
-  assert($(".fx-progress"), "session progress missing");
-  assert($(".fx-clock"), "the clock must still be there");
+  assert(/4\.2\.3\.1/.test($("[data-ui~='focus.topic']").textContent), "topic context missing");
+  assert(/Trees NEA writeup/.test($("[data-ui~='focus.context']").textContent), "assignment chip missing");
+  assert(/Finish the traversal section/.test($("[data-ui~='focus.objective']").textContent), "objective missing from the stage");
+  assert($("[data-ui~='focus.progress']"), "session progress missing");
+  assert($("[data-ui~='focus.clock']"), "the clock must still be there");
 });
 
 step("reward eligibility is live, and honest before the first cycle", () => {
   const e = KOS.focus.eligibility();
   assert(e.forfeited, "no cycle banked yet — ending must read as a forfeit");
-  const box = $(".fx-elig");
+  const box = $("[data-ui~='focus.elig']");
   assert(box && /forfeits/.test(box.textContent), "eligibility copy: " + (box && box.textContent));
-  assert(box.classList.contains("warn"), "the forfeit state must be visually distinct");
+  assert(box.matches('[data-state~="warn"]'), "the forfeit state must be visually distinct");
 });
 
 step("quick notes are kept on the session and survive as data, not DOM", () => {
-  const input = $(".fx-note-in");
+  const input = $("[data-ui~='focus.note-in']");
   input.value = "BFS uses a queue, DFS a stack";
   input.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   KOS.focus.addNote("check the mark scheme wording");
   assert(KOS.focus.notes().length === 2, "notes: " + KOS.focus.notes().length);
   assert(KOS.store.state.focus.active.notes.length === 2, "notes are not in the persisted snapshot");
-  assert($(".fx-notes"), "the kept-notes disclosure is missing");
+  assert($("[data-ui~='focus.notes']"), "the kept-notes disclosure is missing");
   KOS.focus.removeNote(1);
   assert(KOS.focus.notes().length === 1, "removeNote did not remove");
   assert(!KOS.focus.addNote("   "), "an empty note must not be kept");
@@ -293,7 +293,7 @@ step("completing banks a full cycle: the session is logged and paid before any r
   assert(entry.type === "focus" && entry.metrics.complete === true, "entry: " + JSON.stringify(entry.metrics));
   assert(awarded > 0, "the award was not paid");
   assert(KOS.focus.state() === "idle", "the session did not clear");
-  assert(!document.body.classList.contains("focus-mode"), "the chrome was not restored");
+  assert(!document.documentElement.hasAttribute("data-focus"), "the chrome was not restored");
 });
 
 step("the record carries the session's own working data", () => {
@@ -309,14 +309,14 @@ step("the record carries the session's own working data", () => {
 });
 
 step("the review opens over a record that already exists, and reports the real award", () => {
-  const rev = $(".fx-review-modal");
+  const rev = $("[data-ui~='focus.review-modal']");
   assert(rev, "the completion review did not open");
-  const facts = $(".fx-rev-facts").textContent;
+  const facts = $("[data-ui~='focus.rev-facts']").textContent;
   assert(/Focused/.test(facts) && /25 min/.test(facts), "duration missing: " + facts);
   assert(/Pauses/.test(facts) && /Tab switches/.test(facts), "pauses/tab-switches missing: " + facts);
   assert(/Self-marked/.test(facts), "self-marks missing from the review");
   assert(/Recovered/.test(facts), "the reload recovery is part of the honest record");
-  const award = $(".fx-rev-award").textContent;
+  const award = $("[data-ui~='focus.rev-award']").textContent;
   assert(award.indexOf("+" + awarded + " XP") !== -1, "review award " + award + " ≠ paid " + awarded);
 });
 
@@ -324,7 +324,7 @@ step("dismissing the review changes nothing — the session already counted", ()
   const g = G();
   const xp0 = g.xp, n0 = KOS.sessions.all().length;
   click(byText(".fx-review-modal .btn", /^Close$/));
-  assert(!$(".fx-review-modal"), "the review did not close");
+  assert(!$("[data-ui~='focus.review-modal']"), "the review did not close");
   assert(g.xp === xp0 && KOS.sessions.all().length === n0, "closing the review moved the ledger");
   assert(entry.metrics.objectiveResult === undefined, "a dismissed review must annotate nothing");
   /* the effort still reached the assignment: that is the session, not the review */
@@ -352,8 +352,8 @@ step("objective result and reflection annotate the SAME entry, with no second aw
   const g = G();
   const xp0 = g.xp, n0 = KOS.sessions.all().length;
   click(byText(".fx-rev-choice", /^Partly$/));
-  assert($(".fx-rev-choice.active"), "the chosen result is not shown as chosen");
-  $(".fx-rev-reflect").value = "Lost ten minutes finding the spec wording.";
+  assert($("[data-ui~='focus.review-choice'][data-state~='active']"), "the chosen result is not shown as chosen");
+  $("[data-ui~='focus.rev-reflect']").value = "Lost ten minutes finding the spec wording.";
   click(byText(".fx-review-modal .btn.primary", /Save review/));
   assert(e.metrics.objectiveResult === "partly", "result: " + e.metrics.objectiveResult);
   assert(/Lost ten minutes/.test(e.metrics.reflection), "reflection not recorded");
@@ -365,10 +365,10 @@ step("the review can move the linked assignment on, through its own API", () => 
   const before = KOS.assignments.get(asg.id);
   const mins0 = before.actualMins;
   runSession();
-  const sub = $(".fx-rev-subs input[type=checkbox]");
+  const sub = $("[data-ui~='focus.rev-subs'] input[type=checkbox]");
   assert(sub, "an open subtask should be offered");
   sub.checked = true;
-  const status = $(".fx-review-modal select[aria-label='Assignment status']");
+  const status = $("[data-ui~='focus.review-modal'] select[aria-label='Assignment status']");
   assert(status.value === before.status, "the status control should start where the record is");
   status.value = "inProgress";
   click(byText(".fx-review-modal .btn.primary", /Save review/));
@@ -382,7 +382,7 @@ step("the review can move the linked assignment on, through its own API", () => 
 step("notes file onto the topic note by appending — never overwriting", () => {
   KOS.store.setNote("compsci", "4.2.3.1", "Existing revision note.");
   runSession();
-  const dest = $(".fx-review-modal select[aria-label='Where to file these notes']");
+  const dest = $("[data-ui~='focus.review-modal'] select[aria-label='Where to file these notes']");
   assert(dest, "no destination control");
   assert([...dest.options].some(o => o.value === "topic"), "the topic destination is missing");
   assert([...dest.options].some(o => o.value === "assignment"), "the assignment destination is missing");
@@ -398,7 +398,7 @@ step("notes file onto the topic note by appending — never overwriting", () => 
 
 step("notes can go to the assignment instead", () => {
   runSession();
-  const dest = $(".fx-review-modal select[aria-label='Where to file these notes']");
+  const dest = $("[data-ui~='focus.review-modal'] select[aria-label='Where to file these notes']");
   dest.value = "assignment";
   dest.dispatchEvent(new window.Event("change", { bubbles: true }));
   click(byText(".fx-review-modal .btn.primary", /Save review/));
@@ -407,9 +407,9 @@ step("notes can go to the assignment instead", () => {
 
 step("with no objective the review skips the question rather than padding the modal", () => {
   runSession({ objective: "" });
-  assert($(".fx-review-modal"), "the review should still open");
-  assert(!$(".fx-rev-choice"), "an objective result was asked for without an objective");
-  assert($(".fx-rev-reflect"), "the reflection is always worth asking for");
+  assert($("[data-ui~='focus.review-modal']"), "the review should still open");
+  assert(!$("[data-ui~='focus.review-choice']"), "an objective result was asked for without an objective");
+  assert($("[data-ui~='focus.rev-reflect']"), "the reflection is always worth asking for");
   closeOverlay();
 });
 
@@ -439,7 +439,7 @@ step("review:false ends identically but silently — the assistant's path", () =
   const g = G();
   const xp0 = g.xp;
   KOS.focus.endComplete({ review: false });
-  assert(!$(".fx-review-modal"), "review:false must suppress the modal");
+  assert(!$("[data-ui~='focus.review-modal']"), "review:false must suppress the modal");
   assert(lastSession().metrics.complete === true, "the session was not logged");
   assert(g.xp > xp0, "review:false must still pay the award");
 });
@@ -449,7 +449,7 @@ console.log("== recorded once, read everywhere ==");
 
 step("the topic's own inspector counts the focus minutes", () => {
   KOS.show("ref", { subject: "compsci", ref: "4.2.3.1" });
-  const insp = $(".study-inspector");
+  const insp = $("[data-ui~='topic.inspector']");
   assert(insp, "the study inspector is missing");
   const line = [...insp.querySelectorAll("li")].find(li => /Sessions here/.test(li.textContent));
   assert(line, "the inspector does not report sessions");
@@ -458,7 +458,7 @@ step("the topic's own inspector counts the focus minutes", () => {
 
 step("the Governor chronicle shows the objective, its result and where the notes went", () => {
   KOS.show("governor", "history");
-  const rows = $$(".gov-log-event");
+  const rows = $$("[data-ui~='gov.log-event']");
   assert(rows.length, "no history rows");
   const focusRow = rows.find(r => /Focus session/.test(r.textContent));
   assert(focusRow, "focus sessions are missing from the chronicle");

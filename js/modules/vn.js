@@ -564,7 +564,7 @@
           ev.stopPropagation();
           e.favourite = !e.favourite;
           KOS.mediadb.put(e, function () {});
-          ev.target.classList.toggle("on", e.favourite);
+          KOS.ui.state(ev.target, "on", e.favourite);
         } }),
       el("div", { class: "med-card-body" }, [
         el("button", { type: "button", class: "med-title", title: e.title, text: e.title,
@@ -598,8 +598,7 @@
 
   /* ================= the VN view ================= */
   KOS.views.vn = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var p = prefs();
     var mv = KOS.medview;
 
@@ -689,7 +688,7 @@
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
         if (!area.current(token)) return;
-        area.holder.className = p.layout === "list" ? "med-list" : "med-grid";
+        KOS.ui.setClass(area.holder, p.layout === "list" ? "med-list" : "med-grid");
         if (err) {
           area.clear();
           area.countLine.textContent = "Query failed: " + err.message;

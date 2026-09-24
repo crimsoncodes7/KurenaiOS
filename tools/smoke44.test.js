@@ -32,9 +32,10 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
+const { readCss } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-const css = fs.readFileSync(path.join(ROOT, "css/main.css"), "utf8");
+const css = readCss();
 /* a rule and a comment about a retired rule are different things — strip
    comments before asserting that something is gone from the stylesheet */
 const cssRules = css.replace(/\/\*[\s\S]*?\*\//g, "");
@@ -135,9 +136,9 @@ console.log("== A: the shared vault toolbar (VLT-3 / U-13) ==");
 async function openVault(id) {
   networkCalls = [];
   KOS.show(id);
-  await waitFor(() => main().querySelector(".med-toolbar.mvt"), 6000);
+  await waitFor(() => main().querySelector("[data-ui~='vault.toolbar'][data-ui~='vault.tools']"), 6000);
   await tick(60);
-  return main().querySelector(".med-toolbar.mvt");
+  return main().querySelector("[data-ui~='vault.toolbar'][data-ui~='vault.tools']");
 }
 
 step("every vault builds its toolbar from the shared primitive", async () => {
@@ -154,18 +155,18 @@ step("no vault shows more than six controls above the grid", async () => {
     const bar = await openVault(v);
     const n = bar.children.length;
     assert(n <= 6, v + " shows " + n + " controls above the grid (the ceiling is six)");
-    assert(bar.querySelector(".med-search"), v + " lost its search box");
-    assert(bar.querySelector(".btn.primary"), v + " lost its one primary action");
-    assert(bar.querySelectorAll(".btn.primary").length === 1,
-      v + " has " + bar.querySelectorAll(".btn.primary").length + " primary actions; a view gets one");
+    assert(bar.querySelector("[data-ui~='vault.search']"), v + " lost its search box");
+    assert(bar.querySelector("button[data-intent~='primary']"), v + " lost its one primary action");
+    assert(bar.querySelectorAll("button[data-intent~='primary']").length === 1,
+      v + " has " + bar.querySelectorAll("button[data-intent~='primary']").length + " primary actions; a view gets one");
   }
 });
 
 step("the facets moved into Filters ▾ and the commands into Actions ▾", async () => {
   for (const v of VAULTS) {
     const bar = await openVault(v);
-    const filters = bar.querySelector(".mvt-filters-btn");
-    const actions = bar.querySelector(".mvt-actions-btn");
+    const filters = bar.querySelector("[data-ui~='vault.filters-button']");
+    const actions = bar.querySelector("[data-ui~='vault.toolbar-actions-btn']");
     assert(filters, v + " has no Filters group");
     assert(actions, v + " has no Actions group");
     assert(filters.getAttribute("aria-haspopup") && filters.getAttribute("aria-expanded") === "false",
@@ -173,28 +174,28 @@ step("the facets moved into Filters ▾ and the commands into Actions ▾", asyn
     /* the selects must be IN the group, not loose in the row */
     /* the sort control is the toolbar's own (.med-sort); anything else is
        a module facet and belongs in the group */
-    assert(!bar.querySelector(":scope > select:not(.med-sort)"),
+    assert(!bar.querySelector(":scope > select:not([data-ui~='vault.sort'])"),
       v + " still puts a facet select directly in the toolbar");
   }
 });
 
 step("the Filters badge counts what is actually applied", async () => {
   const bar = await openVault("books");
-  const btn = bar.querySelector(".mvt-filters-btn");
-  assert(btn.querySelector(".menu-btn-n").textContent === "", "a fresh vault claims filters are applied");
+  const btn = bar.querySelector("[data-ui~='vault.filters-button']");
+  assert(btn.querySelector("[data-ui~='ui.menu-count']").textContent === "", "a fresh vault claims filters are applied");
   click(btn);
-  const panel = $(".menu-panel");
+  const panel = $("[data-ui~='ui.menu-panel']");
   assert(panel, "the Filters panel did not open");
   const sel = panel.querySelector("select");
   sel.value = sel.options[1].value;
   sel.dispatchEvent(new window.Event("change", { bubbles: true }));
-  await waitFor(() => btn.querySelector(".menu-btn-n").textContent === "1", 3000);
-  assert(btn.classList.contains("has-filters"), "a filtered vault does not say so with the panel shut");
+  await waitFor(() => btn.querySelector("[data-ui~='ui.menu-count']").textContent === "1", 3000);
+  assert(btn.matches('[data-state~="has-filters"]'), "a filtered vault does not say so with the panel shut");
   /* and clearing puts it back */
-  const clear = $(".mvt-clear");
+  const clear = $("[data-ui~='vault.toolbar-clear']");
   assert(clear && !clear.disabled, "Clear filters is disabled while a filter is applied");
   click(clear);
-  await waitFor(() => btn.querySelector(".menu-btn-n").textContent === "", 3000);
+  await waitFor(() => btn.querySelector("[data-ui~='ui.menu-count']").textContent === "", 3000);
   KOS.ui.closeMenu();
 });
 
@@ -214,24 +215,24 @@ console.log("== B: one spotlight hero, three backdrops (VLT-4 / VLT-5) ==");
 step("every vault mounts the same hero component", async () => {
   for (const v of VAULTS) {
     await openVault(v);
-    await waitFor(() => main().querySelector(".vault-hero"), 4000);
-    const hero = main().querySelector(".vault-hero");
+    await waitFor(() => main().querySelector("[data-ui~='vault.hero']"), 4000);
+    const hero = main().querySelector("[data-ui~='vault.hero']");
     assert(hero, v + " has no spotlight hero");
-    assert(hero.querySelector(".vh-title") && hero.querySelector(".vh-actions"),
+    assert(hero.querySelector("[data-ui~='vault.hero-title']") && hero.querySelector("[data-ui~='vault.hero-actions']"),
       v + "'s hero is a different composition");
     /* the cover plate stands on every hero now, banner or not */
-    assert(hero.querySelector(".vh-cover, .vh-ph"), v + "'s hero has no cover plate");
+    assert(hero.querySelector("[data-ui~='vault.hero-cover'], [data-ui~='vault.hero-placeholder']"), v + "'s hero has no cover plate");
   }
 });
 
 step("a hero without a banner still carries artwork and a scrim", async () => {
   await openVault("game");                       // games have no banner source, ever
-  await waitFor(() => main().querySelector(".vault-hero"), 4000);
-  const hero = main().querySelector(".vault-hero");
-  assert(hero.classList.contains("vh-fallback"),
+  await waitFor(() => main().querySelector("[data-ui~='vault.hero']"), 4000);
+  const hero = main().querySelector("[data-ui~='vault.hero']");
+  assert(hero.matches('[data-state~="vh-fallback"]'),
     "the games hero claims a banner it cannot have");
-  assert(hero.querySelector(".vh-art"), "the fallback hero has no artwork layer");
-  assert(hero.querySelector(".vh-scrim"), "the fallback hero has no scrim — VLT-5");
+  assert(hero.querySelector("[data-ui~='vault.hero-art']"), "the fallback hero has no artwork layer");
+  assert(hero.querySelector("[data-ui~='vault.hero-scrim']"), "the fallback hero has no scrim — VLT-5");
   assert(/--vh-hue/.test(hero.getAttribute("style") || ""),
     "the fallback gradient is not derived from the title");
 });
@@ -255,9 +256,9 @@ console.log("== C: KOS.ui.menu is a popover, not a modal ==");
 
 step("an Actions menu is a real menu with real menuitems", async () => {
   const bar = await openVault("anime");
-  const btn = bar.querySelector(".mvt-actions-btn");
+  const btn = bar.querySelector("[data-ui~='vault.toolbar-actions-btn']");
   click(btn);
-  const panel = $(".menu-panel");
+  const panel = $("[data-ui~='ui.menu-panel']");
   assert(panel, "the menu did not open");
   assert(panel.getAttribute("role") === "menu", "the panel is not a menu");
   assert(panel.querySelectorAll("[role=menuitem]").length >= 3, "the menu has no items");
@@ -267,22 +268,22 @@ step("an Actions menu is a real menu with real menuitems", async () => {
 });
 
 step("arrow keys move through the menu and Escape restores focus", () => {
-  const panel = $(".menu-panel");
+  const panel = $("[data-ui~='ui.menu-panel']");
   const items = [...panel.querySelectorAll("[role=menuitem]")];
   key("ArrowDown");
   assert(document.activeElement === items[1], "ArrowDown does not move to the next item");
   key("End");
   assert(document.activeElement === items[items.length - 1], "End does not reach the last item");
   key("Escape");
-  assert(!$(".menu-panel"), "Escape left the menu open");
-  assert(document.activeElement.classList.contains("mvt-actions-btn"),
+  assert(!$("[data-ui~='ui.menu-panel']"), "Escape left the menu open");
+  assert(document.activeElement.matches('[data-ui~="vault.toolbar-actions-btn"]'),
     "focus was not restored to the button that opened the menu");
 });
 
 step("a Filters panel is a labelled group, not a menu of selects", async () => {
   const bar = await openVault("books");
-  click(bar.querySelector(".mvt-filters-btn"));
-  const panel = $(".menu-panel");
+  click(bar.querySelector("[data-ui~='vault.filters-button']"));
+  const panel = $("[data-ui~='ui.menu-panel']");
   assert(panel.getAttribute("role") === "group", "a panel of selects claims to be a menu");
   assert(panel.getAttribute("aria-label"), "the panel has no accessible name");
   assert(panel.querySelectorAll("select").length >= 2, "the facets did not make it into the panel");
@@ -334,10 +335,10 @@ step("the facet select keeps a selection that still exists, and drops one that d
 
 step("the vault fills its facet from its OWN rows", async () => {
   await openVault("game");
-  const bar = main().querySelector(".med-toolbar.mvt");
-  click(bar.querySelector(".mvt-filters-btn"));
-  await waitFor(() => $(".menu-panel select optgroup"), 4000);
-  const values = [...$(".menu-panel").querySelectorAll("select")]
+  const bar = main().querySelector("[data-ui~='vault.toolbar'][data-ui~='vault.tools']");
+  click(bar.querySelector("[data-ui~='vault.filters-button']"));
+  await waitFor(() => $("[data-ui~='ui.menu-panel'] select optgroup"), 4000);
+  const values = [...$("[data-ui~='ui.menu-panel']").querySelectorAll("select")]
     .map(s => [...s.options].map(o => o.value)).flat();
   const gameRows = await p(cb => KOS.mediadb.query({ module: "game" }, cb));
   const gameGenres = new Set();
@@ -359,28 +360,28 @@ step("an author card is bounded, however many works the author has", async () =>
   }
   main().getBoundingClientRect = () => ({ top: 0, bottom: 800, height: 800, left: 0, right: 900, width: 900 });
   KOS.show("mangaka");
-  await waitFor(() => main().querySelectorAll(".mk-card").length > 0, 6000);
-  const card = [...main().querySelectorAll(".mk-card")]
-    .find(c => /Aida Prolific/.test(c.querySelector(".mk-name").textContent));
+  await waitFor(() => main().querySelectorAll("[data-ui~='mangaka.card']").length > 0, 6000);
+  const card = [...main().querySelectorAll("[data-ui~='mangaka.card']")]
+    .find(c => /Aida Prolific/.test(c.querySelector("[data-ui~='mangaka.name']").textContent));
   assert(card, "the prolific author is not in the first batch");
-  const tiles = card.querySelectorAll(".mk-work").length;
+  const tiles = card.querySelectorAll("[data-ui~='mangaka.work']").length;
   assert(tiles <= 8, "an author card printed " + tiles + " works inline");
-  const more = card.querySelector(".mk-more");
+  const more = card.querySelector("[data-ui~='mangaka.more']");
   assert(more && /Show all 30 works/.test(more.textContent),
     "there is no way to see the rest: " + (more && more.textContent));
   click(more);
-  assert(card.querySelectorAll(".mk-work").length === 30, "expanding did not print the rest");
+  assert(card.querySelectorAll("[data-ui~='mangaka.work']").length === 30, "expanding did not print the rest");
   assert(more.getAttribute("aria-expanded") === "true", "the disclosure does not report its state");
   click(more);
-  assert(card.querySelectorAll(".mk-work").length === 8, "collapsing did not fold it back");
+  assert(card.querySelectorAll("[data-ui~='mangaka.work']").length === 8, "collapsing did not fold it back");
 });
 
 step("the page has real filters, not just a search box (MNG-2)", async () => {
-  const bar = main().querySelector(".med-toolbar.mvt.mk-toolbar");
+  const bar = main().querySelector("[data-ui~='vault.toolbar'][data-ui~='vault.tools'][data-ui~='mangaka.toolbar']");
   assert(bar, "Mangaka does not use the shared toolbar");
-  click(bar.querySelector(".mvt-filters-btn"));
-  const panel = $(".menu-panel");
-  const labels = [...panel.querySelectorAll(".mvt-facet .k")].map(n => n.textContent);
+  click(bar.querySelector("[data-ui~='vault.filters-button']"));
+  const panel = $("[data-ui~='ui.menu-panel']");
+  const labels = [...panel.querySelectorAll("[data-ui~='vault.facet'] [data-ui~='part.label']")].map(n => n.textContent);
   assert(labels.length >= 4, "Mangaka offers " + labels.length + " filters: " + JSON.stringify(labels));
   assert(labels.some(l => /format/i.test(l)), "no format filter");
   assert(labels.some(l => /status/i.test(l)), "no reading-status filter");
@@ -390,21 +391,21 @@ step("the page has real filters, not just a search box (MNG-2)", async () => {
 });
 
 step("filtering the works also recomputes the author's own figures", async () => {
-  const bar = main().querySelector(".med-toolbar.mvt.mk-toolbar");
-  click(bar.querySelector(".mvt-filters-btn"));
-  const panel = $(".menu-panel");
+  const bar = main().querySelector("[data-ui~='vault.toolbar'][data-ui~='vault.tools'][data-ui~='mangaka.toolbar']");
+  click(bar.querySelector("[data-ui~='vault.filters-button']"));
+  const panel = $("[data-ui~='ui.menu-panel']");
   const fmt = [...panel.querySelectorAll("select")]
     .find(s => [...s.options].some(o => o.value === "lightNovel"));
   assert(fmt, "no format select in the panel");
   fmt.value = "lightNovel";
   fmt.dispatchEvent(new window.Event("change", { bubbles: true }));
   KOS.ui.closeMenu();
-  await waitFor(() => /filtered/.test(main().querySelector(".med-count").textContent), 4000);
-  const card = [...main().querySelectorAll(".mk-card")][0];
-  const meta = card.querySelector(".mk-meta").textContent;
+  await waitFor(() => /filtered/.test(main().querySelector("[data-ui~='vault.count']").textContent), 4000);
+  const card = [...main().querySelectorAll("[data-ui~='mangaka.card']")][0];
+  const meta = card.querySelector("[data-ui~='mangaka.meta']").textContent;
   const claimed = parseInt(/(\d+) works?/.exec(meta)[1], 10);
-  assert(claimed === card.querySelectorAll(".mk-work").length ||
-    card.querySelector(".mk-more"),
+  assert(claimed === card.querySelectorAll("[data-ui~='mangaka.work']").length ||
+    card.querySelector("[data-ui~='mangaka.more']"),
     "the meta line counts works the filter removed: " + meta);
   /* every visible work really is a light novel */
   fmt.value = "";
@@ -412,11 +413,11 @@ step("filtering the works also recomputes the author's own figures", async () =>
 
 step("the meta line separates the name from its figures", async () => {
   KOS.show("mangaka");
-  await waitFor(() => main().querySelector(".mk-card"), 6000);
-  const card = main().querySelector(".mk-card");
-  assert(card.querySelector(".mk-h-txt"), "the name and meta share one inline run");
-  const name = card.querySelector(".mk-name").textContent;
-  const meta = card.querySelector(".mk-meta").textContent;
+  await waitFor(() => main().querySelector("[data-ui~='mangaka.card']"), 6000);
+  const card = main().querySelector("[data-ui~='mangaka.card']");
+  assert(card.querySelector("[data-ui~='mangaka.h-txt']"), "the name and meta share one inline run");
+  const name = card.querySelector("[data-ui~='mangaka.name']").textContent;
+  const meta = card.querySelector("[data-ui~='mangaka.meta']").textContent;
   assert(!/\d/.test(name.slice(-1)) || !/^\d/.test(meta),
     "the name and the figure count run together: " + name + meta);
   assert(/works?/.test(meta), "the meta line does not say how many works: " + meta);
@@ -427,8 +428,8 @@ step("the meta line separates the name from its figures", async () => {
 
 step("a long scroll always says which letter it is in", async () => {
   KOS.show("mangaka");
-  await waitFor(() => main().querySelector(".mk-card"), 6000);
-  const dividers = main().querySelectorAll(".mk-letter");
+  await waitFor(() => main().querySelector("[data-ui~='mangaka.card']"), 6000);
+  const dividers = main().querySelectorAll("[data-ui~='mangaka.letter']");
   assert(dividers.length >= 2, "no letter dividers in the flow — only " + dividers.length);
   assert(/position:\s*sticky/.test(/\.mk-letter \{[^}]*\}/s.exec(css)[0]),
     "the divider scrolls away with the list it labels");
@@ -436,10 +437,10 @@ step("a long scroll always says which letter it is in", async () => {
 
 step("Mangaka still mounts one lazy batch, not the whole directory", async () => {
   KOS.show("mangaka");
-  await waitFor(() => main().querySelector(".mk-card"), 6000);
-  const cards = main().querySelectorAll(".mk-card").length;
+  await waitFor(() => main().querySelector("[data-ui~='mangaka.card']"), 6000);
+  const cards = main().querySelectorAll("[data-ui~='mangaka.card']").length;
   assert(cards <= 60, "Mangaka mounted " + cards + " author cards at once");
-  assert(main().querySelector(".med-sentinel"), "the view left the shared lazy area");
+  assert(main().querySelector("[data-ui~='vault.sentinel']"), "the view left the shared lazy area");
 });
 
 /* ============ F · the Overview ============ */
@@ -450,19 +451,19 @@ console.log("== F: Collection Overview (MTX-2 / MTX-3 / MTX-5) ==");
    Analytics first */
 async function openAnalytics() {
   KOS.show("matrix");
-  await waitFor(() => main().querySelector(".mx-tabs"), 6000);
-  click([...main().querySelectorAll(".mx-tabs .study-tab")].find(t => /Analytics/.test(t.textContent)));
-  await waitFor(() => main().querySelector(".stat-strip"), 6000);
+  await waitFor(() => main().querySelector("[data-ui~='coll.tabs']"), 6000);
+  click([...main().querySelectorAll("[data-ui~='coll.tabs'] [data-ui~='ui.tab']")].find(t => /Analytics/.test(t.textContent)));
+  await waitFor(() => main().querySelector("[data-ui~='ui.stat-strip']"), 6000);
   await tick(80);
 }
 step("the four 'X by status' charts became one shared-scale comparison", async () => {
   await openAnalytics();
   assert(!/by status", "the founding module/.test(matrixSrc), "the per-module status charts are back");
-  const multi = main().querySelector(".cs-multi");
+  const multi = main().querySelector("[data-ui~='chart.multi']");
   assert(multi, "no small-multiples row");
-  const panels = multi.querySelectorAll(".cs-multi-panel");
+  const panels = multi.querySelectorAll("[data-ui~='chart.multi-panel']");
   assert(panels.length >= 3, "only " + panels.length + " media in the comparison");
-  assert(multi.querySelectorAll(".cs-multi-legend").length === 1,
+  assert(multi.querySelectorAll("[data-ui~='chart.multi-legend']").length === 1,
     "the row does not share one legend");
   /* the shared scale is the point: every panel's axis must top out the same */
   /* the AXIS labels are the end-anchored ones; the others are bar values */
@@ -478,7 +479,7 @@ step("no total is printed twice on the analytics figures", async () => {
   await openAnalytics();
   const agg = await p(cb => KOS.mediadb.stats(cb));
   /* the whole-vault total belongs to exactly one tile */
-  const tiles = [...main().querySelectorAll(".stat-strip .stat-card .v")].map(n => n.textContent.replace(/,/g, ""));
+  const tiles = [...main().querySelectorAll("[data-ui~='ui.stat-strip'] [data-ui~='ui.stat'] [data-ui~='part.value']")].map(n => n.textContent.replace(/,/g, ""));
   assert(tiles.filter(t => t === String(agg.total)).length === 1,
     "the vault total appears " + tiles.filter(t => t === String(agg.total)).length + " times in the KPI row");
   /* and the per-module totals belong to the module cards, not the KPI row */
@@ -488,37 +489,37 @@ step("no total is printed twice on the analytics figures", async () => {
       "the KPI row repeats " + id + "'s total, which its card already carries");
   });
   /* one donut — the medium cut — beside the figures, not two of the same numbers */
-  assert(main().querySelectorAll(".donut-wrap").length === 1,
+  assert(main().querySelectorAll("[data-ui~='chart.donut-wrap']").length === 1,
     "analytics should draw exactly one donut of the vault by medium");
   /* and the overview itself prints no figures at all */
-  click(main().querySelectorAll(".mx-tabs .study-tab")[0]);
-  await waitFor(() => main().querySelector(".med-mod-card"), 4000);
-  assert(!main().querySelector(".stat-strip"), "the KPI row is back on the overview");
+  click(main().querySelectorAll("[data-ui~='coll.tabs'] [data-ui~='ui.tab']")[0]);
+  await waitFor(() => main().querySelector("[data-ui~='coll.module-card']"), 4000);
+  assert(!main().querySelector("[data-ui~='ui.stat-strip']"), "the KPI row is back on the overview");
 });
 
 step("zero-value tiles are suppressed", async () => {
   await openAnalytics();
-  const zeros = [...main().querySelectorAll(".stat-strip .stat-card .v")]
+  const zeros = [...main().querySelectorAll("[data-ui~='ui.stat-strip'] [data-ui~='ui.stat'] [data-ui~='part.value']")]
     .filter(n => n.textContent.trim() === "0");
   assert(zeros.length === 0, zeros.length + " tiles read 0 on an account with 1,000+ entries");
 });
 
 step("the analytics tail is one tab away, and holds the long tail", async () => {
   KOS.show("matrix");
-  await waitFor(() => main().querySelector(".mx-tabs"), 6000);
+  await waitFor(() => main().querySelector("[data-ui~='coll.tabs']"), 6000);
   await tick(80);
-  const tabs = [...main().querySelectorAll(".mx-tabs .study-tab")];
+  const tabs = [...main().querySelectorAll("[data-ui~='coll.tabs'] [data-ui~='ui.tab']")];
   assert(tabs.length === 2, "expected Overview / Analytics, got " + tabs.length);
   assert(tabs[0].getAttribute("aria-selected") === "true", "the page does not open on the overview");
   /* the switcher rides the page header's action slot (invariant 50b) */
-  assert(main().querySelector(".dash-head .dh-actions .mx-tabs"), "the switcher is not in the page header");
+  assert(main().querySelector("[data-ui~='ui.page-head'] [data-ui~='ui.page-actions'] [data-ui~='coll.tabs']"), "the switcher is not in the page header");
   click(tabs[1]);
-  await waitFor(() => main().querySelector(".cs-grid"), 4000);
-  assert(main().querySelector(".donut-wrap"), "the medium donut did not move to Analytics");
-  assert(main().querySelector(".cs-multi"), "the status comparison belongs to Analytics now");
-  click(main().querySelectorAll(".mx-tabs .study-tab")[0]);
-  await waitFor(() => main().querySelector(".med-mod-card"), 4000);
-  assert(!main().querySelector(".cs-multi"), "the comparison leaked back onto the overview");
+  await waitFor(() => main().querySelector("[data-ui~='chart.grid']"), 4000);
+  assert(main().querySelector("[data-ui~='chart.donut-wrap']"), "the medium donut did not move to Analytics");
+  assert(main().querySelector("[data-ui~='chart.multi']"), "the status comparison belongs to Analytics now");
+  click(main().querySelectorAll("[data-ui~='coll.tabs'] [data-ui~='ui.tab']")[0]);
+  await waitFor(() => main().querySelector("[data-ui~='coll.module-card']"), 4000);
+  assert(!main().querySelector("[data-ui~='chart.multi']"), "the comparison leaked back onto the overview");
 });
 
 step("a distribution is not drawn from one rated title (MTX-5)", async () => {
@@ -527,11 +528,11 @@ step("a distribution is not drawn from one rated title (MTX-5)", async () => {
   for (const e of rows) { if (e.score) { e.score = 0; await p(cb => KOS.mediadb.put(e, cb)); } }
   const one = rows[0]; one.score = 8; await p(cb => KOS.mediadb.put(one, cb));
   KOS.show("matrix");
-  await waitFor(() => main().querySelector(".mx-tabs"), 6000);
+  await waitFor(() => main().querySelector("[data-ui~='coll.tabs']"), 6000);
   await tick(80);
-  click(main().querySelectorAll(".mx-tabs .study-tab")[1]);
-  await waitFor(() => main().querySelector(".cs-grid"), 4000);
-  const card = [...main().querySelectorAll(".cs-chart")]
+  click(main().querySelectorAll("[data-ui~='coll.tabs'] [data-ui~='ui.tab']")[1]);
+  await waitFor(() => main().querySelector("[data-ui~='chart.grid']"), 4000);
+  const card = [...main().querySelectorAll("[data-ui~='chart.chart']")]
     .find(c => /Score distribution/.test(c.textContent));
   assert(card, "the score card vanished entirely");
   assert(!card.querySelector("svg"), "a distribution was drawn from one rated title");
@@ -625,7 +626,7 @@ step("the vault views print progress through it, not a local convention", () => 
 /* ============ housekeeping ============ */
 step("no view left an open menu behind", () => {
   KOS.ui.closeMenu();
-  assert(!$(".menu-panel"), "a menu panel survived the run");
+  assert(!$("[data-ui~='ui.menu-panel']"), "a menu panel survived the run");
 });
 
 /* ---- run ---- */

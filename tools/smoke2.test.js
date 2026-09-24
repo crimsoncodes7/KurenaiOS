@@ -61,40 +61,40 @@ step("every entry's ref exists in spec data", () => {
 console.log("== tree structure ==");
 step("4.9.4 leaves nested under collapsible group", () => {
   KOS.show("subject", "compsci");
-  const grp = $$("#tree .grp-h").find(g => g.textContent.includes("4.9.4"));
+  const grp = $$("#tree [data-ui~='study.spine-group']").find(g => g.textContent.includes("4.9.4"));
   // open 4.9 section first
-  const sec = $$("#tree .sec-head").find(h => h.textContent.includes("4.9"));
+  const sec = $$("#tree [data-ui~='ui.section-head']").find(h => h.textContent.includes("4.9"));
   click(sec);
-  const grp2 = $$("#tree .grp-h").find(g => g.textContent.includes("4.9.4 ·"));
+  const grp2 = $$("#tree [data-ui~='study.spine-group']").find(g => g.textContent.includes("4.9.4 ·"));
   if (!grp2) throw new Error("TCP/IP group header missing");
   const kids = grp2.nextElementSibling;
-  if (!kids.querySelector(".leaf")) throw new Error("group has no nested leaves");
+  if (!kids.querySelector("[data-ui~='study.spine-leaf']")) throw new Error("group has no nested leaves");
   click(grp2); // collapse
   if (kids.style.display !== "none") throw new Error("group didn't collapse");
   click(grp2);
 });
 step("deep-content badge shows on enriched leaves", () => {
-  const sec = $$("#tree .sec-head").find(h => h.textContent.startsWith("4.2"));
+  const sec = $$("#tree [data-ui~='ui.section-head']").find(h => h.textContent.startsWith("4.2"));
   click(sec);
-  const leaf = $$("#tree .leaf").find(l => l.textContent.includes("4.2.3.1"));
-  if (!leaf.querySelector(".deep")) throw new Error("no ◆ badge on stacks leaf");
+  const leaf = $$("#tree [data-ui~='study.spine-leaf']").find(l => l.textContent.includes("4.2.3.1"));
+  if (!leaf.querySelector("[data-ui~='study.spine-deep']")) throw new Error("no ◆ badge on stacks leaf");
 });
 
 console.log("== study page tabs ==");
 step("enriched ref defaults to Notes tab with rendered blocks", () => {
   KOS.show("ref", { subject: "compsci", ref: "4.2.3.1" });
-  const tabs = $$(".study-tab").map(t => t.textContent);
+  const tabs = $$("[data-ui~='ui.tab']").map(t => t.textContent);
   if (tabs.length < 6) throw new Error("tabs: " + tabs.join(","));
-  if (!$(".notes-article")) throw new Error("notes article not rendered");
+  if (!$("[data-ui~='topic.notes']")) throw new Error("notes article not rendered");
   // notes may be paginated; gather block-type presence across every page
   let sawTable = false, sawMnemonic = false, sawCode = false;
   const scan = () => {
-    if ($(".n-table")) sawTable = true;
-    if ($(".n-call-mnemonic")) sawMnemonic = true;
-    if ($(".n-code .k")) sawCode = true;
+    if ($("[data-ui~='content.table']")) sawTable = true;
+    if ($("[data-ui~='content.callout'][data-kind='mnemonic']")) sawMnemonic = true;
+    if ($("[data-ui~='content.code'] [data-ui~='part.label']")) sawCode = true;
   };
   scan();
-  const pagePicker = $(".reader-page-select");
+  const pagePicker = $("[data-ui~='topic.reader-page-select']");
   if (!pagePicker) throw new Error("note page picker missing");
   [...pagePicker.options].forEach((_, i) => {
     pagePicker.value = String(i);
@@ -106,9 +106,9 @@ step("enriched ref defaults to Notes tab with rendered blocks", () => {
   if (!sawCode) throw new Error("code highlighting missing");
 });
 step("spec tab still shows split + personal notes", () => {
-  click($$(".study-tab").find(t => t.dataset.tab === "spec"));
-  if (!$(".speccontent")) throw new Error("spec content missing");
-  if (!$(".note-area")) throw new Error("personal note area missing");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "spec"));
+  if (!$("[data-ui~='topic.spec']")) throw new Error("spec content missing");
+  if (!$("[data-ui~='ui.note-area']")) throw new Error("personal note area missing");
 });
 step("notes pager: splitPages + sectioned rendering", () => {
   // pure function: no markers -> 1 page; markers -> N named pages
@@ -125,10 +125,10 @@ step("notes pager: splitPages + sectioned rendering", () => {
   });
   try {
     KOS.show("ref", { subject: "compsci", ref: "4.2.3.1" });
-    const pager = $(".reader-nav"), picker = $(".reader-page-select");
+    const pager = $("[data-ui~='topic.pager']"), picker = $("[data-ui~='topic.reader-page-select']");
     if (!pager || !picker) throw new Error("note page reader not rendered");
     if (picker.options.length !== 3) throw new Error("expected 3 named pages, got " + picker.options.length);
-    if (!$(".notes-article")) throw new Error("article missing");
+    if (!$("[data-ui~='topic.notes']")) throw new Error("article missing");
     picker.value = "2"; // jump to "Exam technique"
     picker.dispatchEvent(new window.Event("change", { bubbles: true }));
     if (picker.value !== "2") throw new Error("page picker did not activate the chosen page");
@@ -140,27 +140,27 @@ step("plain ref (no content) shows the five editable tabs + files, no worked/sim
   // where you add material), plus Files; worked examples and simulations
   // appear only when something is wired to the ref.
   KOS.show("ref", { subject: "it", ref: "F200.1.1" });
-  const tabs = $$(".study-tab").map(t => t.dataset.tab);
+  const tabs = $$("[data-ui~='ui.tab']").map(t => t.dataset.tab);
   if (tabs.join(",") !== "spec,notes,cards,quiz,exam,files")
     throw new Error("unexpected tabs on plain ref: " + tabs.join(","));
-  if (!$(".speccontent")) throw new Error("spec missing");
-  if ($$(".study-tab .tab-n").length) throw new Error("an empty tab printed a zero count");
-  click($$(".study-tab").find(t => t.dataset.tab === "notes"));
-  if (!$(".empty-state")) throw new Error("an empty Notes tab did not offer the editor");
+  if (!$("[data-ui~='topic.spec']")) throw new Error("spec missing");
+  if ($$("[data-ui~='ui.tab'] [data-ui~='ui.tab-count']").length) throw new Error("an empty tab printed a zero count");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "notes"));
+  if (!$("[data-ui~='ui.empty']")) throw new Error("an empty Notes tab did not offer the editor");
 });
 
 console.log("== flashcards engine ==");
 step("flip + rate-through completes a session", () => {
   KOS.show("ref", { subject: "maths", ref: "S5.2" });
-  click($$(".study-tab").find(t => t.dataset.tab === "cards"));
-  const card = $(".fc-card");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "cards"));
+  const card = $("[data-ui~='fc.card']");
   if (!card) throw new Error("no card");
-  const total = $$(".fc-pip").length;
+  const total = $$("[data-ui~='fc.pip']").length;
   for (let i = 0; i < total; i++) {
-    click($(".fc-card"));                       // flip
-    click($$(".fc-rate .btn")[1]);              // knew it
+    click($("[data-ui~='fc.card']"));                       // flip
+    click($$("[data-ui~='fc.rate'] button")[1]);              // knew it
   }
-  if (!$(".fc-front").textContent.includes("Session complete")) throw new Error("session didn't finish");
+  if (!$("[data-ui~='fc.front']").textContent.includes("Session complete")) throw new Error("session didn't finish");
   const st = KOS.flashcards.stats("maths", "S5.2");
   if (st.right < total) throw new Error("stats not recorded");
 });
@@ -168,67 +168,67 @@ step("flip + rate-through completes a session", () => {
 console.log("== quiz engine ==");
 step("MCQ instant feedback + scoring", () => {
   KOS.show("ref", { subject: "compsci", ref: "4.2.2.1" });
-  click($$(".study-tab").find(t => t.dataset.tab === "quiz"));
-  const cards = $$(".qz-card");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "quiz"));
+  const cards = $$("[data-ui~='quiz.card']");
   if (cards.length < 4) throw new Error("quiz too small");
-  cards.forEach(c => click(c.querySelectorAll(".qz-opt")[0])); // answer everything with option A
-  if (!$(".qz-result") || $(".qz-result").style.display === "none") throw new Error("no result");
-  if (!$$(".qz-why").length) throw new Error("no explanations");
+  cards.forEach(c => click(c.querySelectorAll("[data-ui~='quiz.option']")[0])); // answer everything with option A
+  if (!$("[data-ui~='quiz.result']") || $("[data-ui~='quiz.result']").style.display === "none") throw new Error("no result");
+  if (!$$("[data-ui~='quiz.why']").length) throw new Error("no explanations");
   const st = KOS.quiz.stats("compsci", "4.2.2.1");
   if (st.attempts < 1) throw new Error("attempt not logged");
 });
 step("exam Q reveals mark scheme", () => {
-  click($$(".study-tab").find(t => t.dataset.tab === "exam"));
-  click($$(".btn.primary").find(b => b.textContent.includes("Reveal")));
-  if (!$(".qz-ms").textContent.includes("Mark scheme")) throw new Error("mark scheme hidden");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "exam"));
+  click($$("button[data-intent~='primary']").find(b => b.textContent.includes("Reveal")));
+  if (!$("[data-ui~='quiz.ms']").textContent.includes("Mark scheme")) throw new Error("mark scheme hidden");
 });
 
 console.log("== worked engine ==");
 step("category pills separate CS from maths", () => {
   KOS.show("worked");
-  const pills = $$(".cat-pill").map(p => p.textContent);
+  const pills = $$("[data-ui~='lab.category']").map(p => p.textContent);
   if (!pills.includes("Computer Science") || !pills.includes("Pure Maths")) throw new Error(pills.join(","));
-  click($$(".cat-pill").find(p => p.textContent === "Computer Science"));
-  const tabs = $$(".lab-tab").map(t => t.textContent).join(" ");
+  click($$("[data-ui~='lab.category']").find(p => p.textContent === "Computer Science"));
+  const tabs = $$("[data-ui~='lab.tab']").map(t => t.textContent).join(" ");
   if (/Quadratic|suvat/.test(tabs)) throw new Error("maths leaked into CS tab: " + tabs);
   if (!/binary|two's|Floating/i.test(tabs)) throw new Error("CS gens missing: " + tabs);
 });
 step("worked tab embeds generator on ref page", () => {
   KOS.show("ref", { subject: "maths", ref: "2.3" });
-  click($$(".study-tab").find(t => t.dataset.tab === "worked"));
-  if (!$(".answerline")) throw new Error("embedded generator produced no answer");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "worked"));
+  if (!$("[data-ui~='lab.answer-line']")) throw new Error("embedded generator produced no answer");
 });
 
 console.log("== simulations ==");
 step("logic lab parses and builds truth table", () => {
   KOS.show("sims", "logic-lab");
-  if (!$(".logic-tt")) throw new Error("truth table missing");
-  const rows = $$(".logic-tt tbody tr").length;
+  if (!$("[data-ui~='lab.truth-table']")) throw new Error("truth table missing");
+  const rows = $$("[data-ui~='lab.truth-table'] tbody tr").length;
   if (rows !== 8) throw new Error("A.B+¬C should give 8 rows, got " + rows);
-  click($$(".logic-sw")[0]); // toggle A
-  if (!$(".logic-tt tr.live")) throw new Error("live row not highlighted");
+  click($$("[data-ui~='lab.logic-switch']")[0]); // toggle A
+  if (!$("[data-ui~='lab.truth-table'] tr[data-state~='live']")) throw new Error("live row not highlighted");
 });
 step("fsm lab steps and accepts", () => {
   KOS.show("sims", "fsm-lab");
-  const stepBtn = $$(".btn").find(b => b.textContent === "Step");
-  const input = $(".lab-controls input");
+  const stepBtn = $$("button").find(b => b.textContent === "Step");
+  const input = $("[data-ui~='lab.controls'] input");
   input.value = "11";
   input.dispatchEvent(new window.Event("input", { bubbles: true }));
   click(stepBtn); click(stepBtn);
-  const v = $$(".sim-msg").map(m => m.textContent).join(" ");
+  const v = $$("[data-ui~='lab.message']").map(m => m.textContent).join(" ");
   if (!v.includes("ACCEPTED")) throw new Error("even-1s machine should accept '11': " + v);
 });
 step("fn-transform mounts with equation readout", () => {
   KOS.show("sims", "fn-transform");
-  if (!$(".fn-eq").textContent.includes("f(")) throw new Error("equation missing");
-  if (!$(".fn-desc")) throw new Error("description missing");
+  if (!$("[data-ui~='lab.fn-eq']").textContent.includes("f(")) throw new Error("equation missing");
+  if (!$("[data-ui~='lab.fn-desc']")) throw new Error("description missing");
 });
 step("sim deep-link from notes (Simulate tab)", () => {
   KOS.show("ref", { subject: "compsci", ref: "4.6.2.1" });
-  const simTab = $$(".study-tab").find(t => t.dataset.tab === "sim");
+  const simTab = $$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "sim");
   if (!simTab) throw new Error("no Simulate tab on Boolean");
   click(simTab);
-  if (!$(".logic-tt") && !$(".logic-switches")) throw new Error("logic lab not embedded");
+  if (!$("[data-ui~='lab.truth-table']") && !$("[data-ui~='lab.logic-switches']")) throw new Error("logic lab not embedded");
 });
 
 console.log("== home & dashboards ==");
@@ -237,18 +237,18 @@ step("home renders its decision surface, cards, coverage and resume", () => {
   /* Cat 7 Phase C: the "N% COVERED" hero ring is retired — it was the front
      page's largest element and it read 0% for an active account (audit
      HOME-1). Coverage kept its place on the subject cards below. */
-  if (!$(".home-next .hn-label")) throw new Error("no next-action statement");
-  if (!$(".home-next .btn.primary")) throw new Error("the next action has no button");
+  if (!$("[data-ui~='home.next'] [data-ui~='home.next-label']")) throw new Error("no next-action statement");
+  if (!$("[data-ui~='home.next'] button[data-intent~='primary']")) throw new Error("the next action has no button");
   /* 3 subject cards + the Collection desk card */
-  if ($$(".subj-card").length < 4) throw new Error("subject+collection cards missing");
-  if (!$(".med-home-card")) throw new Error("Collection Matrix home card missing");
-  if (!$$(".subj-card").some(c => c.textContent.includes("deep-content"))) throw new Error("coverage stat missing");
+  if ($$("[data-ui~='home.desk']").length < 4) throw new Error("subject+collection cards missing");
+  if (!$("[data-ui~='home.collection-desk']")) throw new Error("Collection Matrix home card missing");
+  if (!$$("[data-ui~='home.desk']").some(c => c.textContent.includes("deep-content"))) throw new Error("coverage stat missing");
 });
 step("subject dash keeps deep-content coverage in the analytics panel", () => {
   KOS.show("subject", "maths");
-  const panel = $(".subj-analytics");
+  const panel = $("[data-ui~='study.analytics']");
   if (!panel) throw new Error("analytics panel missing");
-  if (!panel.querySelector(".sa-foot").textContent.includes("Deep revision content"))
+  if (!panel.querySelector("[data-ui~='study.analytics-foot']").textContent.includes("Deep revision content"))
     throw new Error("deep-content coverage dropped");
 });
 

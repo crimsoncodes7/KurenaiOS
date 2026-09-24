@@ -326,47 +326,47 @@ console.log("== views ==");
 step("books vault renders without obsolete bottom stats; dedicated Stats remains", async () => {
   KOS.show("books");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".bk-card").length > 0, 5000);
-  if (!main.querySelector(".med-toolbar")) throw new Error("no toolbar");
-  if (!main.querySelector(".med-filter-rail")) throw new Error("no filter rail");
+  await waitFor(() => main.querySelectorAll("[data-ui~='books.card']").length > 0, 5000);
+  if (!main.querySelector("[data-ui~='vault.toolbar']")) throw new Error("no toolbar");
+  if (!main.querySelector("[data-ui~='vault.filter-rail']")) throw new Error("no filter rail");
   /* Category 7 Phase D: DNF is a FILTER, so it moved into the Filters
      group with the other facets rather than sitting loose in the row */
-  const filtersBtn = main.querySelector(".mvt-filters-btn");
+  const filtersBtn = main.querySelector("[data-ui~='vault.filters-button']");
   if (!filtersBtn) throw new Error("no Filters group");
   filtersBtn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
-  const panel = document.querySelector(".menu-panel");
+  const panel = document.querySelector("[data-ui~='ui.menu-panel']");
   if (!panel || !/did not finish/i.test(panel.textContent)) throw new Error("no DNF toggle");
   KOS.ui.closeMenu();
-  if (!main.querySelector(".bk-card .med-track")) throw new Error("no progress bar on the card");
-  if (!main.querySelector(".bk-author")) throw new Error("no author line");
-  if (main.querySelector(".bk-stats, .bk-stats .stat-strip")) throw new Error("obsolete vault stats still mounted");
+  if (!main.querySelector("[data-ui~='books.card'] [data-ui~='media.bar-track']")) throw new Error("no progress bar on the card");
+  if (!main.querySelector("[data-ui~='books.author']")) throw new Error("no author line");
+  if (main.querySelector(".bk-stats, .bk-stats [data-ui~='ui.stat-strip']")) throw new Error("obsolete vault stats still mounted");
   KOS.medview.statsModal("books", KOS.media.module("books"));
-  await waitFor(() => document.querySelector(".stats-modal"), 3000);
-  if (!document.querySelector(".stats-modal")) throw new Error("stats modal did not open");
-  const smv = document.querySelector(".stats-modal").closest(".modal-ov"); if (smv) smv.remove();
+  await waitFor(() => document.querySelector("[data-ui~='vault.stats']"), 3000);
+  if (!document.querySelector("[data-ui~='vault.stats']")) throw new Error("stats modal did not open");
+  const smv = document.querySelector("[data-ui~='vault.stats']").closest("[data-ui~='ui.dialog-overlay']"); if (smv) smv.remove();
 });
 step("shelf layout: one spine per owned volume, deterministic colour, condition mark", async () => {
   KOS.store.state.media.books.layout = "shelf";
   KOS.show("books");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".bk-spine").length > 0, 5000);
-  const spines = main.querySelectorAll(".bk-spine");
+  await waitFor(() => main.querySelectorAll("[data-ui~='books.spine']").length > 0, 5000);
+  const spines = main.querySelectorAll("[data-ui~='books.spine']");
   if (spines.length !== 20) throw new Error("spines: " + spines.length);
   const c = KOS.books.spineColor("Berserk");
   if (!spines[0].getAttribute("style").includes(c)) throw new Error("spine colour not deterministic in DOM");
-  if (!main.querySelector(".bk-spine-cond.worn")) throw new Error("worn vol 3 not marked");
+  if (!main.querySelector("[data-ui~='books.spine-cond'][data-state~='worn']")) throw new Error("worn vol 3 not marked");
   KOS.store.state.media.books.layout = "grid";
 });
 step("editor modal: shared sections, stars, compact range tool save end-to-end", async () => {
   const saved = await new Promise((res) => {
     KOS.booksEditor(null, res);
-    const modal = document.querySelector(".bk-modal");
+    const modal = document.querySelector("[data-ui~='books.dialog']");
     if (!modal) { res(null); return; }
-    if (!modal.querySelector(".bk-stars")) { res(null); return; }
+    if (!modal.querySelector("[data-ui~='books.stars']")) { res(null); return; }
     modal.querySelector("input[placeholder='Series title']").value = "Frieren";
-    if (!modal.classList.contains("med-record-modal")) { res(null); return; }
+    if (!modal.matches('[data-ui~="vault.editor"]')) { res(null); return; }
     if (!modal.querySelector("[data-edit-section='progress']") || !modal.querySelector("[data-edit-section='ownership']")) { res(null); return; }
-    const nums = [...modal.querySelectorAll(".bk-range-grid .med-num")];
+    const nums = [...modal.querySelectorAll("[data-ui~='books.range'] [data-ui~='vault.num']")];
     nums[0].value = "1"; nums[1].value = "12";
     [...modal.querySelectorAll("button")].find(b => b.textContent === "Add range").click();
     [...modal.querySelectorAll("button")].find(b => b.textContent === "Add to collection").click();
@@ -381,30 +381,30 @@ step("mangaka page groups by author with aggregate stats", async () => {
     physical: { volumes: [{ number: 1 }, { number: 2 }, { number: 3 }] } }, cb));
   KOS.show("mangaka");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".mk-card").length > 0, 5000);
-  const cards = [...main.querySelectorAll(".mk-card")];
+  await waitFor(() => main.querySelectorAll("[data-ui~='mangaka.card']").length > 0, 5000);
+  const cards = [...main.querySelectorAll("[data-ui~='mangaka.card']")];
   const oku = cards.find(c => /Hiroya Oku/.test(c.textContent));
   if (!oku) throw new Error("author group missing");
-  if (oku.querySelectorAll(".mk-work").length !== 2) throw new Error("works not grouped");
+  if (oku.querySelectorAll("[data-ui~='mangaka.work']").length !== 2) throw new Error("works not grouped");
   /* Phase D spells the unit out and gives the meta line its own node, so
      the name and the figures stop running together ("Hiroya Oku2 works") */
-  const meta = oku.querySelector(".mk-meta").textContent;
+  const meta = oku.querySelector("[data-ui~='mangaka.meta']").textContent;
   if (!/2 works · 3 volumes owned/.test(meta)) throw new Error("aggregate stats wrong: " + meta);
 });
 step("matrix home: Books is a live module card (all four live since 3e)", async () => {
   KOS.show("matrix");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-mod-card").length >= 3, 5000);
-  const live = [...main.querySelectorAll(".med-mod-card")].map(c => c.textContent).join(" ");
+  await waitFor(() => main.querySelectorAll("[data-ui~='coll.module-card']").length >= 3, 5000);
+  const live = [...main.querySelectorAll("[data-ui~='coll.module-card']")].map(c => c.textContent).join(" ");
   if (!/Books/.test(live) || !/Dual-tracked · live/.test(live)) throw new Error("Books card not live");
-  if (main.querySelectorAll(".soon-card").length !== 0) throw new Error("no placeholders should remain since 3e");
+  if (main.querySelectorAll("[data-ui~='coll.soon-card']").length !== 0) throw new Error("no placeholders should remain since 3e");
   if (!/vols owned/.test(live)) throw new Error("Books card missing vault stats");
 });
 step("mediasync: manga import copy + three enrichment blocks (anime, books, vn since 3c)", async () => {
   KOS.show("mediasync");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-enrich-block").length === 3, 3000);
-  if (main.querySelectorAll(".med-enrich-block").length !== 3) throw new Error("enrichment blocks");
+  await waitFor(() => main.querySelectorAll("[data-ui~='sync.enrich']").length === 3, 3000);
+  if (main.querySelectorAll("[data-ui~='sync.enrich']").length !== 3) throw new Error("enrichment blocks");
   if (!/manga lands in Books/.test(main.textContent)) throw new Error("import copy not updated");
   if (!/MAL ids/.test(main.textContent)) throw new Error("stale AniList-id copy");
 });
@@ -414,12 +414,12 @@ step("shrine routes a Books favourite through the Books editor", async () => {
   await p(cb => KOS.mediadb.put(e, cb));
   KOS.show("shrine");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".shrine-feature,.shrine-rank-card").length > 0, 5000);
-  const card = [...main.querySelectorAll(".shrine-feature,.shrine-rank-card")].find(c => /Berserk/.test(c.textContent));
+  await waitFor(() => main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']").length > 0, 5000);
+  const card = [...main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']")].find(c => /Berserk/.test(c.textContent));
   if (!card) throw new Error("Books favourite not in the Shrine");
   card.click();
   await tick(60);
-  const modal = document.querySelector(".bk-modal");
+  const modal = document.querySelector("[data-ui~='books.dialog']");
   if (!modal) throw new Error("Shrine opened the wrong editor for a Books entry");
   modal.querySelector("button[aria-label='Close']").click();
 });

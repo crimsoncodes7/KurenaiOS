@@ -47,6 +47,7 @@ window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true; window.__kosAutoConfirm = true;
 if (!window.AbortController) window.AbortController = class { constructor() { this.signal = {}; } abort() {} };
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
+const { byName } = require("./lib/ui-query");
 window.indexedDB = indexedDB; window.IDBKeyRange = IDBKeyRange;
 window.fetch = () => Promise.reject(new Error("network disabled in this suite"));
 
@@ -271,7 +272,7 @@ step("dated reminders reach the calendar grid but NEVER the deadline countdowns"
   if (!R().forDate(t).some(i => i.id === it.id)) throw new Error("forDate did not surface the reminder");
   KOS.show("calendar");
   await tick(60);
-  const remCells = $$(".cal-ev.cal-rem").map(n => n.textContent);
+  const remCells = $$("[data-ui~='cal.event'][data-ui~='cal.rem']").map(n => n.textContent);
   if (!remCells.some(x => /Calendar visible/.test(x))) throw new Error("the reminder did not render on the grid");
   /* the hard part: it must not have become a Countdown */
   const dl = KOS.calendar.deadlines().map(d => d.ev.title);
@@ -282,29 +283,29 @@ step("Home shows a READ-ONLY summary that links to the page", async () => {
   R().add({ title: "home digest", due: KOS.srs.addDays(KOS.srs.todayISO(), -1) });
   KOS.show("home");
   await tick(80);
-  const card = $(".rem-sum");
+  const card = $("[data-ui~='rem.sum']");
   if (!card) throw new Error("no reminders summary on Home");
-  if (card.querySelectorAll("input, textarea, .rem-check, .todo-tick").length)
+  if (card.querySelectorAll("input, textarea, [data-ui~='rem.check'], [data-ui~='habit.tick']").length)
     throw new Error("Home exposed a mutation control — it must report, not manage");
-  if (!card.querySelector(".mini-btn")) throw new Error("no link through to the Reminders page");
+  if (!byName(card, /^Manage/)) throw new Error("no link through to the Reminders page");
   if (!/overdue/.test(card.textContent)) throw new Error("the digest does not report the overdue count");
 });
 step("the dedicated page renders sections, lists, tags, list and inspector", async () => {
   KOS.show("reminders");
   await tick(80);
-  if ($$(".rem-side-group").length < 3) throw new Error("sections / lists / tags are not three separate groups");
-  const groups = $$(".rem-side-group h4").map(h => h.textContent.replace("＋", "").trim());
+  if ($$("[data-ui~='rem.side-group']").length < 3) throw new Error("sections / lists / tags are not three separate groups");
+  const groups = $$("[data-ui~='rem.side-group'] h4").map(h => h.textContent.replace("＋", "").trim());
   if (!groups.includes("Smart sections") || !groups.includes("Lists") || !groups.includes("Tags"))
     throw new Error("sidebar groups: " + groups.join("|"));
-  if ($$(".rem-side-item.sec-today").length !== 1) throw new Error("the Today section is missing");
-  if (!$(".rem-items")) throw new Error("no list column");
-  if (!$(".rem-insp")) throw new Error("no side inspector");
+  if ($$("[data-ui~='rem.side-item'][data-section='today']").length !== 1) throw new Error("the Today section is missing");
+  if (!$("[data-ui~='rem.items']")) throw new Error("no list column");
+  if (!$("[data-ui~='rem.insp']")) throw new Error("no side inspector");
   /* selecting a row opens the inspector with the full field set */
-  const row = $(".rem-row");
+  const row = $("[data-ui~='rem.row']");
   if (!row) throw new Error("no reminder rows rendered");
   click(row);
   await tick(40);
-  const labels = $$(".rem-insp-body .med-field > span, .rem-insp-body .rem-i-block h4").map(n => n.textContent.trim());
+  const labels = $$("[data-ui~='rem.insp-body'] [data-ui~='ui.field'] > span, [data-ui~='rem.insp-body'] [data-ui~='rem.i-block'] h4").map(n => n.textContent.trim());
   ["Reminder", "Due date", "Priority", "List", "Repeat", "Alerts", "Notes", "Sub-tasks"].forEach(f => {
     if (!labels.some(l => l.indexOf(f) === 0)) throw new Error("inspector is missing " + f + " — got " + labels.join("|"));
   });
@@ -312,11 +313,11 @@ step("the dedicated page renders sections, lists, tags, list and inspector", asy
 step("completing from the list updates the row without a full navigation", async () => {
   KOS.show("reminders");
   await tick(60);
-  const before = $$(".rem-row").length;
-  const check = $(".rem-row .rem-check");
+  const before = $$("[data-ui~='rem.row']").length;
+  const check = $("[data-ui~='rem.row'] [data-ui~='rem.check']");
   click(check);
   await tick(60);
-  if ($$(".rem-row").length === before && $(".rem-side-item.sec-completed .rsi-n").textContent === "0")
+  if ($$("[data-ui~='rem.row']").length === before && $("[data-ui~='rem.side-item'][data-section='completed'] [data-ui~='rem.section-count']").textContent === "0")
     throw new Error("completing did not move the item out of the open sections");
 });
 

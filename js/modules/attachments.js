@@ -637,7 +637,7 @@
     function previewNode(rec, full) {
       var url = URL.createObjectURL(rec.blob);
       if (!full) objUrl = url;
-      var host = el("div", { class: "att-preview" + (full ? " is-full" : "") + " fit-" + fit });
+      var host = el("div", { class: "att-preview" + (full ? " is-full" : "") + " fit-" + fit, "data-fit": fit });
 
       if (rec.mime.indexOf("image/") === 0) {
         var img = el("img", { class: "att-img", src: url, alt: rec.name });

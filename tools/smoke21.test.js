@@ -181,7 +181,7 @@ step("topbar search UI still rides the shared KOS.hub.search", async () => {
   input.value = "stack";
   input.dispatchEvent(new window.Event("input", { bubbles: true }));
   await tick(30);
-  const items = window.document.querySelectorAll("#search-results .sr-item");
+  const items = window.document.querySelectorAll("#search-results [data-ui~='search.result']");
   assert(items.length > 0, "topbar search rendered nothing after the extraction");
   window.document.getElementById("search-results").classList.remove("open");
 });
@@ -329,15 +329,15 @@ step("the topic Quiz tab renders the custom block separately with an AI badge", 
   KOS.ai.chat = realChat;
   KOS.show("ref", { subject: SID, ref: REF });
   await tick(80);
-  const tab = [...window.document.querySelectorAll(".study-tab")].find(b => b.dataset.tab === "quiz");
+  const tab = [...window.document.querySelectorAll("[data-ui~='ui.tab']")].find(b => b.dataset.tab === "quiz");
   assert(tab, "quiz tab missing even with custom questions present");
   tab.click();
   await tick(50);
-  const block = window.document.querySelector(".quiz-custom");
+  const block = window.document.querySelector("[data-ui~='topic.custom-quiz']");
   assert(block, "custom quiz block missing");
-  const badge = [...window.document.querySelectorAll(".quiz-custom-manage .fc-custom")];
+  const badge = [...window.document.querySelectorAll("[data-ui~='topic.custom-quiz-manage'] [data-ui~='fc.custom']")];
   assert(badge.length === 2 && badge.every(b => /AI/.test(b.textContent)), "AI badge missing on custom questions");
-  const delBtns = window.document.querySelectorAll(".quiz-custom-manage .mini-btn.danger");
+  const delBtns = window.document.querySelectorAll("[data-ui~='topic.custom-quiz-manage'] button[data-intent~='danger']");
   delBtns[0].click();
   await tick(30);
   assert(KOS.srs.customQuizFor(SID, REF).length === 1, "in-tab delete must work");

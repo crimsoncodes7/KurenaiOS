@@ -472,7 +472,7 @@
       panel.appendChild(palRow);
       var gridEl = el("div", { class: "bitmap-grid", style: "grid-template-columns:repeat(" + N + ", 28px)" });
       panel.appendChild(el("div", { style: "display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start" }, [gridEl, el("div", { style: "flex:1;min-width:220px" }, [readoutHolder()])]));
-      var read = panel.querySelector(".sim-read");
+      var read = panel.querySelector("[data-ui~='lab.readout']");
       res.onchange = render;
       function readoutHolder() { return readout(); }
       function render() {

@@ -158,7 +158,7 @@
     function show() {
       var c = cur();
       flipped = false;
-      stage.classList.remove("flipped");
+      KOS.ui.state(stage, "flipped", false);
       front.innerHTML = '<span class="fc-kind">Q · ' + queue.length + " left of " + total + "</span>" +
         badgeHtml(c) +
         "<div>" + KOS.content.inline(c.q) + "</div>" +
@@ -177,7 +177,7 @@
     function flip() {
       if (finished) return;
       flipped = !flipped;
-      stage.classList.toggle("flipped", flipped);
+      KOS.ui.state(stage, "flipped", flipped);
       rateRow.style.visibility = flipped ? "visible" : "hidden";
     }
     function rate(r) {
@@ -203,7 +203,7 @@
     }
     function finish() {
       finished = true;
-      stage.classList.remove("flipped");
+      KOS.ui.state(stage, "flipped", false);
       rateRow.style.visibility = "hidden";
       infoWrap.style.display = "none";
       var pct = total ? Math.round(100 * (counts.good + counts.easy) / (counts.good + counts.easy + counts.hard + counts.again)) : 0;
@@ -212,7 +212,7 @@
         (counts.again === 0 ? " — clean sweep ★" : " · " + counts.again + " needed a retest") + "</div>" +
         '<span class="fc-hint">every card is rescheduled — check Due Today tomorrow</span>';
       KOS.content.typeset(stage);
-      meter.querySelectorAll(".fc-pip").forEach(function (p) { p.classList.add("done"); });
+      meter.querySelectorAll("[data-ui~='fc.pip']").forEach(function (p) { KOS.ui.state(p, "done", true); });
       /* FR-3.2 — one session log entry per completed review batch */
       KOS.sessions.log({
         type: opts.type || "flashcards",
@@ -341,7 +341,7 @@
           var open = detail.hidden;
           detail.hidden = !open;
           info.setAttribute("aria-expanded", String(open));
-          info.classList.toggle("on", open);
+          KOS.ui.state(info, "on", open);
         } }, [m && m.views ? m.views + " review" + (m.views === 1 ? "" : "s") : "new", el("span", { class: "fc-row-caret", "aria-hidden": "true", text: "▾" })]);
       var badge = c.custom
         ? el("span", { class: "fc-custom", text: c.ai ? "AI · Custom" : "Custom" })
@@ -392,9 +392,9 @@
 
     function render() {
       cards = KOS.srs.cardsFor(sid, ref);
-      bar.querySelectorAll(".fc-mode").forEach(function (b, i) {
+      bar.querySelectorAll("[data-ui~='fc.mode']").forEach(function (b, i) {
         var on = (i === 0) === (mode === "study");
-        b.classList.toggle("active", on);
+        KOS.ui.state(b, "active", on);
         b.setAttribute("aria-selected", String(on));
         if (i === 1) b.textContent = "Deck (" + cards.length + ")";
       });

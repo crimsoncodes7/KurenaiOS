@@ -41,6 +41,7 @@ window.confirm = () => true;
 window.fetch = () => Promise.resolve({ ok: true, status: 200, headers: { get: () => null },
   json: () => Promise.resolve({}), text: () => Promise.resolve("") });
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
+const { readCss } = require("./lib/css");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;
 window.IntersectionObserver = function () {
@@ -60,7 +61,7 @@ const steps = [];
 function step(name, fn) { steps.push([name, fn]); }
 const tick = ms => new Promise(r => setTimeout(r, ms || 0));
 function assert(cond, msg) { if (!cond) throw new Error(msg); }
-const css = fs.readFileSync(path.join(ROOT, "css", "main.css"), "utf8");
+const css = readCss();
 const el = KOS.ui.el;
 
 /* ============ 1 · the five breakpoints ============ */
@@ -168,7 +169,7 @@ function openTestDialog(opts) {
 
 step("a dialog is a real dialog: role, aria-modal and an accessible name", () => {
   const ov = openTestDialog({ title: "Edit the record" });
-  const box = ov.querySelector(".modal");
+  const box = ov.querySelector("[data-ui~='ui.dialog']");
   assert(box.getAttribute("role") === "dialog", "role is " + box.getAttribute("role"));
   assert(box.getAttribute("aria-modal") === "true", "aria-modal missing");
   const id = box.getAttribute("aria-labelledby");
@@ -179,11 +180,11 @@ step("a dialog is a real dialog: role, aria-modal and an accessible name", () =>
 });
 
 step("opening a dialog locks the page behind it and closing releases it", () => {
-  assert(!document.body.classList.contains("modal-open"), "the lock leaked from an earlier step");
+  assert(!document.documentElement.hasAttribute("data-scroll-lock"), "the lock leaked from an earlier step");
   const ov = openTestDialog();
-  assert(document.body.classList.contains("modal-open"), "the page behind is still scrollable");
+  assert(document.documentElement.hasAttribute("data-scroll-lock"), "the page behind is still scrollable");
   ov.remove();
-  assert(!document.body.classList.contains("modal-open"), "the lock survived the close");
+  assert(!document.documentElement.hasAttribute("data-scroll-lock"), "the lock survived the close");
   assert(/body\.modal-open[^{]*\{[^}]*overflow: hidden/.test(css),
     "modal-open has no scroll-lock rule in the stylesheet");
 });
@@ -192,24 +193,24 @@ step("nested dialogs hold the lock until the last one closes", () => {
   const a = openTestDialog({ title: "Outer" });
   const b = openTestDialog({ title: "Inner" });
   b.remove();
-  assert(document.body.classList.contains("modal-open"),
+  assert(document.documentElement.hasAttribute("data-scroll-lock"),
     "closing the inner dialog released the lock while the outer one is still open");
   a.remove();
-  assert(!document.body.classList.contains("modal-open"), "the lock survived both closes");
+  assert(!document.documentElement.hasAttribute("data-scroll-lock"), "the lock survived both closes");
 });
 
 step("focus moves into the dialog and never onto the destructive button", () => {
   const ov = openTestDialog();
-  const box = ov.querySelector(".modal");
+  const box = ov.querySelector("[data-ui~='ui.dialog']");
   assert(box.contains(document.activeElement), "focus stayed outside the dialog");
-  assert(!document.activeElement.classList.contains("danger"),
+  assert(!document.activeElement.matches('[data-intent~="danger"]'),
     "the dialog opened with the destructive button focused (audit U-04)");
   ov.remove();
 });
 
 step("Tab wraps inside the dialog instead of escaping to the page behind", () => {
   const ov = openTestDialog();
-  const box = ov.querySelector(".modal");
+  const box = ov.querySelector("[data-ui~='ui.dialog']");
   const controls = [...box.querySelectorAll("input, button")];
   controls[controls.length - 1].focus();
   const fwd = new window.KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
@@ -242,10 +243,10 @@ step("Escape closes a dialog", () => {
 
 step("teardown runs even when the overlay is removed by its parent", () => {
   const ov = openTestDialog();
-  assert(document.body.classList.contains("modal-open"), "not locked");
+  assert(document.documentElement.hasAttribute("data-scroll-lock"), "not locked");
   ov.parentNode.removeChild(ov);
   return tick(20).then(() => {
-    assert(!document.body.classList.contains("modal-open"),
+    assert(!document.documentElement.hasAttribute("data-scroll-lock"),
       "removeChild bypassed teardown and left the page locked");
   });
 });
@@ -255,14 +256,14 @@ step("a danger confirmation focuses Cancel and Enter does not confirm", () => {
   window.__kosAutoConfirm = false;
   let yes = 0, no = 0;
   KOS.ui.confirm({ title: "Delete this record?", danger: true }, () => yes++, () => no++);
-  const box = document.querySelector(".confirm-modal");
+  const box = document.querySelector("[data-ui~='ui.confirm']");
   assert(box, "the confirmation did not open");
   assert(box.getAttribute("role") === "alertdialog", "a destructive prompt should be an alertdialog");
   assert(document.activeElement.textContent === "Cancel",
     "focus is on '" + document.activeElement.textContent + "', not Cancel (audit G-11)");
   document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   assert(yes === 0, "Enter confirmed a destructive dialog — two keystrokes deleted data");
-  assert(document.querySelector(".confirm-modal"), "Enter closed the dialog anyway");
+  assert(document.querySelector("[data-ui~='ui.confirm']"), "Enter closed the dialog anyway");
   document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   assert(no === 1 && yes === 0, "Escape did not cancel cleanly (yes=" + yes + " no=" + no + ")");
 });
@@ -270,7 +271,7 @@ step("a danger confirmation focuses Cancel and Enter does not confirm", () => {
 step("a safe confirmation still takes Enter", () => {
   let yes = 0;
   KOS.ui.confirm({ title: "Apply the change?" }, () => yes++, noop);
-  assert(!document.activeElement.classList.contains("danger"), "unexpected danger button");
+  assert(!document.activeElement.matches('[data-intent~="danger"]'), "unexpected danger button");
   document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   assert(yes === 1, "Enter no longer confirms a non-destructive dialog");
   window.__kosAutoConfirm = true;
@@ -331,38 +332,38 @@ console.log("== the Tabs primitive ==");
 step("the primitive offers exactly the three documented variants", () => {
   const mk = v => KOS.ui.tabs([{ label: "One", active: true, onSelect: noop },
     { label: "Two", onSelect: noop }], { variant: v, label: "Test" });
-  assert(mk("primary").querySelectorAll(".subnav-item").length === 2, "primary variant broken");
-  assert(mk("workspace").querySelectorAll(".study-tab").length === 2, "workspace variant broken");
-  assert(mk("card").querySelectorAll(".tab-card").length === 2, "card variant broken");
+  assert(mk("primary").querySelectorAll("[data-ui~='shell.subnav-item']").length === 2, "primary variant broken");
+  assert(mk("workspace").querySelectorAll("[data-ui~='ui.tab']").length === 2, "workspace variant broken");
+  assert(mk("card").querySelectorAll("[data-ui~='ui.tab-card']").length === 2, "card variant broken");
 });
 
 step("workspace tabs are a real tablist; the section strip is navigation", () => {
   const ws = KOS.ui.tabs([{ label: "A", active: true, onSelect: noop }], { variant: "workspace", label: "Pages" });
   assert(ws.getAttribute("role") === "tablist", "workspace tabs are not a tablist");
-  assert(ws.querySelector(".study-tab").getAttribute("aria-selected") === "true", "aria-selected missing");
+  assert(ws.querySelector("[data-ui~='ui.tab']").getAttribute("aria-selected") === "true", "aria-selected missing");
   const nav = KOS.ui.tabs([{ label: "A", active: true, onSelect: noop }], { variant: "primary", label: "Section" });
   assert(nav.getAttribute("role") !== "tablist",
     "the section strip is site navigation, not a tablist — it must not claim tab semantics");
-  assert(nav.querySelector(".subnav-item").getAttribute("aria-current") === "page",
+  assert(nav.querySelector("[data-ui~='shell.subnav-item']").getAttribute("aria-current") === "page",
     "the active section is not marked aria-current");
 });
 
 step("KOS.workspaceTabs is an adapter over the primitive, not a second one", () => {
   const node = KOS.workspaceTabs([["Review", "review"], ["Assignments", "assignments"]], "review", "Study pages");
-  assert(node.classList.contains("study-tabs"), "the workspace class changed");
+  assert(node.matches('[data-ui~="ui.tabs"]'), "the workspace class changed");
   assert(node.getAttribute("role") === "tablist", "not a tablist");
-  const tabs = node.querySelectorAll(".study-tab");
-  assert(tabs.length === 2 && tabs[0].classList.contains("active"), "active tab not marked");
+  const tabs = node.querySelectorAll("[data-ui~='ui.tab']");
+  assert(tabs.length === 2 && tabs[0].matches('[data-state~="active"]'), "active tab not marked");
   assert(tabs[0].textContent === "Review", "label lost");
 });
 
 step("the section subnav is built by the primitive and keeps its counter ids", () => {
   KOS.show("subject", "compsci");
   const nav = document.getElementById("subnav");
-  assert(nav.querySelectorAll(".subnav-item").length >= 6, "the section strip is empty");
+  assert(nav.querySelectorAll("[data-ui~='shell.subnav-item']").length >= 6, "the section strip is empty");
   assert(nav.querySelector("#pc-compsci"), "the per-subject counter slot is gone");
-  assert(nav.querySelector(".subnav-item.active"), "no active section entry");
-  assert(nav.querySelector(".subnav-sep"), "the strip's divider is gone");
+  assert(nav.querySelector("[data-ui~='shell.subnav-item'][data-state~='active']"), "no active section entry");
+  assert(nav.querySelector("[data-ui~='ui.tab-sep']"), "the strip's divider is gone");
 });
 
 step("the Books lens cards are the third variant, not a fourth idiom", () => {
@@ -378,28 +379,28 @@ console.log("== EmptyState · StatTile · scrollers · numbers ==");
 
 step("the empty state has a compact form that does not reserve a card", () => {
   const full = KOS.ui.emptyState({ mark: "澄", title: "Queue clear", body: "Nothing is due." });
-  assert(full.classList.contains("empty-state"), "wrong class");
-  assert(full.querySelector(".empty-state-mark").textContent === "澄", "the mark is missing");
+  assert(full.matches('[data-ui~="ui.empty"]'), "wrong class");
+  assert(full.querySelector("[data-ui~='ui.empty-mark']").textContent === "澄", "the mark is missing");
   const compact = KOS.ui.emptyState({ title: "No reminders", compact: true,
     action: el("button", { class: "btn", text: "Add" }) });
-  assert(compact.classList.contains("compact"), "no compact modifier");
-  assert(compact.querySelector(".empty-state-action .btn"), "the inline action is missing");
+  assert(compact.matches('[data-state~="compact"]'), "no compact modifier");
+  assert(compact.querySelector("[data-ui~='ui.empty-action'] button"), "the inline action is missing");
   assert(/\.empty-state\.compact[^{]*\{[^}]*min-height: 0/.test(css),
     "the compact form still reserves a card-sized box (audit U-20)");
 });
 
 step("the vault empty state routes through the shared one", () => {
   const node = KOS.medview.emptyState("Nothing here yet.", []);
-  assert(node.classList.contains("med-empty"), "the vault class changed");
-  assert(node.querySelector(".empty-state"), "the vault still builds its own empty state");
+  assert(node.matches('[data-ui~="vault.empty"]'), "the vault class changed");
+  assert(node.querySelector("[data-ui~='ui.empty']"), "the vault still builds its own empty state");
   assert(/Nothing here yet\./.test(node.textContent), "the message was lost");
 });
 
 step("a stat tile is a .stat-card and suppresses a zero that carries nothing", () => {
   const kept = KOS.ui.statTile({ label: "Cards due", value: 0, emptyText: "None" });
-  assert(kept.classList.contains("stat-card"), "the primitive invented a fifth card surface");
-  assert(kept.classList.contains("is-zero"), "a zero is not marked");
-  assert(kept.querySelector(".v").textContent === "None", "emptyText ignored");
+  assert(kept.matches('[data-ui~="ui.stat"]'), "the primitive invented a fifth card surface");
+  assert(kept.matches('[data-state~="is-zero"]'), "a zero is not marked");
+  assert(kept.querySelector("[data-ui~='part.value']").textContent === "None", "emptyText ignored");
   assert(KOS.ui.statTile({ label: "IT", value: 0, suppressZero: true }) === null,
     "a zero-value split tile was rendered anyway (audit U-17)");
   assert(KOS.ui.statTile({ label: "IT", value: 3, suppressZero: true }),
@@ -408,12 +409,12 @@ step("a stat tile is a .stat-card and suppresses a zero that carries nothing", (
 
 step("Review no longer shows six tiles all reading zero", () => {
   KOS.show("due");
-  const cards = [...document.getElementById("main").querySelectorAll(".stat-strip .stat-card")];
+  const cards = [...document.getElementById("main").querySelectorAll("[data-ui~='ui.stat-strip'] [data-ui~='ui.stat']")];
   assert(cards.length >= 2, "the summary strip vanished entirely");
-  const labels = cards.map(c => c.querySelector(".k").textContent);
+  const labels = cards.map(c => c.querySelector("[data-ui~='part.label']").textContent);
   assert(labels.indexOf("Cards due") !== -1 && labels.indexOf("Overdue") !== -1,
     "the two figures the page is actually about are missing: " + labels.join(", "));
-  const zeros = cards.filter(c => /^(0|None)$/.test(c.querySelector(".v").textContent));
+  const zeros = cards.filter(c => /^(0|None)$/.test(c.querySelector("[data-ui~='part.value']").textContent));
   assert(zeros.length <= 2,
     zeros.length + " zero tiles on an empty account — the per-subject splits should suppress");
 });
@@ -424,7 +425,7 @@ step("a horizontal scroller declares itself and is reachable by keyboard", () =>
   assert(wrap.getAttribute("data-scroller") === "true",
     "the scroller is not declared — tools/responsive_audit.mjs counts an undeclared "
     + "sideways scroll as unreachable content, and it is right to");
-  assert(wrap.querySelectorAll(".u-scroller-arrow").length === 2, "no arrow controls");
+  assert(wrap.querySelectorAll("[data-ui~='ui.scroller-arrow']").length === 2, "no arrow controls");
   assert(track.getAttribute("tabindex") === "0", "the track cannot be focused");
   assert(track.getAttribute("aria-label") === "Currently consuming", "the scroller is unlabelled");
   assert(/\.u-scroller::(before|after)/.test(css), "no edge fades");
@@ -454,17 +455,17 @@ step("large numbers are locale-formatted", () => {
 
 step("covers show the module mark while loading, not an empty box", () => {
   const box = KOS.medview.cover({ coverUrl: "https://example.invalid/x.jpg", coverCrop: null }, "書");
-  const ph = box.querySelector(".med-cover-ph");
+  const ph = box.querySelector("[data-ui~='vault.cover-placeholder']");
   assert(ph, "no placeholder at first paint — a lazy grid opens as empty boxes (audit G-24)");
-  assert(ph.classList.contains("behind"), "the placeholder is not layered behind the image");
-  assert(box.querySelector("img.is-loading"), "the image is not held transparent while it loads");
+  assert(ph.matches('[data-state~="behind"]'), "the placeholder is not layered behind the image");
+  assert(box.querySelector("img[data-state~='is-loading']"), "the image is not held transparent while it loads");
   assert(/\.med-cover \{[^}]*position: relative/.test(css),
     ".med-cover is not positioned, so the placeholder cannot sit behind the image");
 });
 
 /* ============ 5 · the skip link ============ */
 step("a visible-on-focus skip link reaches the content", () => {
-  const link = document.querySelector(".skip-link");
+  const link = document.querySelector("[data-ui~='shell.skip-link']");
   assert(link, "no skip link (audit G-12/U-05)");
   assert(link.getAttribute("href") === "#main", "the skip link does not target #main");
   const target = document.getElementById("main");

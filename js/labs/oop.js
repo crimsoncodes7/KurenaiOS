@@ -105,8 +105,7 @@
   var stage, svg, codePre;
 
   KOS.views.oop = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     basingFrom = null;
 
     main.appendChild(el("div", { class: "lab-h" }, [
@@ -162,7 +161,7 @@
     buildStage();
 
     function buildStage() {
-      stage.querySelectorAll(".cls-card").forEach(function (n) { n.remove(); });
+      stage.querySelectorAll("[data-ui~='lab.oop-class']").forEach(function (n) { n.remove(); });
       if (!model().classes.length) {
         // seed a tiny inheritance example on first visit
         if (!model().seeded) {
@@ -190,7 +189,7 @@
       var nameIn = el("input", { value: c.name, "aria-label": "Class name", oninput: function () {
         c.name = nameIn.value; store.save(); refresh();
       }});
-      var abst = el("span", { class: "abst", title: "Toggle abstract",
+      var abst = el("span", { class: "abst", "data-ui": "lab.oop-abstract", title: "Toggle abstract",
         text: c.abstract ? "✦ abstract" : "✧ concrete",
         onclick: function () { c.abstract = !c.abstract; abst.textContent = c.abstract ? "✦ abstract" : "✧ concrete"; store.save(); refresh(); } });
       var head = el("div", { class: "cls-h" }, [
@@ -267,8 +266,8 @@
           return;
         }
         basingFrom = c.id;
-        document.querySelectorAll(".cls-card").forEach(function (k) {
-          k.classList.toggle("basing", +k.dataset.cid !== c.id);
+        document.querySelectorAll("[data-ui~='lab.oop-class']").forEach(function (k) {
+          KOS.ui.state(k, "basing", +k.dataset.cid !== c.id);
         });
         KOS.ui.toast("Now click the class " + c.name + " should inherit from. (Click ⇡ again to cancel.)");
       }}));
@@ -293,12 +292,12 @@
       });
       function endBasing() {
         basingFrom = null;
-        document.querySelectorAll(".cls-card").forEach(function (k) { k.classList.remove("basing"); });
+        document.querySelectorAll("[data-ui~='lab.oop-class']").forEach(function (k) { KOS.ui.state(k, "basing", false); });
       }
 
       // dragging via the header
       head.addEventListener("pointerdown", function (e) {
-        if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.classList.contains("abst")) return;
+        if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.matches('[data-ui~="lab.oop-abstract"]')) return;
         e.preventDefault();
         var startX = e.clientX - c.x, startY = e.clientY - c.y;
         function move(ev) {

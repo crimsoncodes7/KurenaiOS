@@ -382,7 +382,7 @@
     connectedMascots().forEach(function (m) { m.update(); });
     preloadNext(state);
     updateTrigger();
-    var status = document.querySelectorAll(".asst-status-line");
+    var status = document.querySelectorAll("[data-ui~='asst.status']");
     status.forEach(function (n) { n.textContent = S.statusText; });
     announce(S.statusText);
     if (!options.silentAudio) scheduleStateCue(state, epoch);
@@ -400,15 +400,28 @@
   }
 
   /* ---- the mascot component (one implementation, two sizes) ---- */
+  /* The mascot OWNS data-state: it is the visual state (idle, thinking,
+     success …) that the stylesheet and the Live2D seam key off. Its render
+     flags therefore ride their own boolean attributes rather than joining
+     data-state (UI rebuild M1): the legacy class, for the stylesheet, and
+     data-loading / data-img-failed / data-live-renderer / data-live-loading /
+     data-reacting, for behaviour and tests. */
+  var MASCOT_FLAGS = { "is-loading": "data-loading", "img-failed": "data-img-failed",
+    "has-live-renderer": "data-live-renderer", "is-live-loading": "data-live-loading",
+    "is-reacting": "data-reacting" };
+  function mascotFlag(node, word, on) {
+    node.classList.toggle(word, !!on);
+    if (on) node.setAttribute(MASCOT_FLAGS[word], ""); else node.removeAttribute(MASCOT_FLAGS[word]);
+  }
   function mascotNode(size) {
     var staticImageFailed = false;
     var img = el("img", { class: "asst-mascot-img", alt: "" });
     img.addEventListener("error", function () {
       staticImageFailed = true;
-      if (!node.classList.contains("has-live-renderer")) node.classList.add("img-failed");
-      node.classList.remove("is-loading");
+      if (!node.hasAttribute("data-live-renderer")) mascotFlag(node, "img-failed", true);
+      mascotFlag(node, "is-loading", false);
     });
-    img.addEventListener("load", function () { staticImageFailed = false; node.classList.remove("is-loading", "img-failed"); });
+    img.addEventListener("load", function () { staticImageFailed = false; mascotFlag(node, "is-loading", false); mascotFlag(node, "img-failed", false); });
     var liveHost = el("div", { class: "asst-live2d-host", "aria-hidden": "true" });
     var glyph = el("span", { class: "asst-mascot-fallback", "aria-hidden": "true", text: "紅" });
     var status = el("p", { class: "asst-status-line", role: "status" });
@@ -446,8 +459,8 @@
       liveHost.replaceChildren();
       liveState = nextState || "static";
       node.setAttribute("data-renderer", liveState);
-      node.classList.remove("has-live-renderer", "is-live-loading");
-      if (staticImageFailed) node.classList.add("img-failed");
+      mascotFlag(node, "has-live-renderer", false); mascotFlag(node, "is-live-loading", false);
+      if (staticImageFailed) mascotFlag(node, "img-failed", true);
     }
     function updateLive() {
       if (!liveRenderer || typeof liveRenderer.setState !== "function") return;
@@ -461,7 +474,7 @@
       var token = liveToken, factory = rendererFactory;
       liveState = "loading";
       node.setAttribute("data-renderer", liveState);
-      node.classList.add("is-live-loading");
+      mascotFlag(node, "is-live-loading", true);
       var candidate;
       try {
         candidate = factory({
@@ -481,28 +494,28 @@
         liveRenderer = renderer;
         liveState = "live";
         node.setAttribute("data-renderer", liveState);
-        node.classList.remove("is-live-loading", "img-failed");
-        node.classList.add("has-live-renderer");
+        mascotFlag(node, "is-live-loading", false); mascotFlag(node, "img-failed", false);
+        mascotFlag(node, "has-live-renderer", true);
         updateLive();
       }).catch(function () { if (token === liveToken) clearLive("failed"); });
     }
     function showReaction(kind) {
       clearTimeout(reactionTimer);
-      node.classList.remove("is-reacting");
+      mascotFlag(node, "is-reacting", false);
       void node.offsetWidth;
-      node.classList.add("is-reacting");
+      mascotFlag(node, "is-reacting", true);
       node.setAttribute("data-reaction", kind);
       if (liveRenderer && typeof liveRenderer.react === "function") {
         try { liveRenderer.react(kind); } catch (e) { clearLive("failed"); }
       }
-      reactionTimer = window.setTimeout(function () { node.classList.remove("is-reacting"); node.removeAttribute("data-reaction"); }, 360);
+      reactionTimer = window.setTimeout(function () { mascotFlag(node, "is-reacting", false); node.removeAttribute("data-reaction"); }, 360);
     }
     function update() {
       var st = MASCOT_STATES[S.visual] || MASCOT_STATES.idle;
-      node.classList.remove("img-failed");
+      mascotFlag(node, "img-failed", false);
       node.setAttribute("data-state", S.visual);
       var nextSrc = ASSET_BASE + st.image;
-      if (img.getAttribute("src") !== nextSrc) { node.classList.add("is-loading"); img.src = nextSrc; }
+      if (img.getAttribute("src") !== nextSrc) { mascotFlag(node, "is-loading", true); img.src = nextSrc; }
       img.alt = size === "large" ? ("Kurenai, full-body assistant — " + st.label) : "";
       status.textContent = S.statusText;
       updateLive();
@@ -810,8 +823,8 @@
   function updateTrigger() {
     var t = document.getElementById("assistant-trigger");
     if (!t) return;
-    t.classList.toggle("is-busy", S.busy && !S.pending);
-    t.classList.toggle("is-confirm", !!S.pending);
+    KOS.ui.state(t, "is-busy", S.busy && !S.pending);
+    KOS.ui.state(t, "is-confirm", !!S.pending);
     t.setAttribute("aria-expanded", S.open ? "true" : "false");
     t.title = S.pending ? "Kurenai is waiting for your confirmation"
       : S.busy ? "Kurenai is working…" : "Kurenai assistant";
@@ -850,7 +863,7 @@
       ta.disabled = lock;
       sendBtn.disabled = lock;
       cancelBtn.style.display = lock ? "" : "none";
-      sendBtn.classList.toggle("is-working", lock);
+      KOS.ui.state(sendBtn, "is-working", lock);
     }
     refresh();
     var wrap = el("div", { class: "asst-composer" }, [
@@ -1200,7 +1213,7 @@
       else if (keywords[lower]) kind = "keyword";
       else if (/^(true|false|null|none|undefined|nan)$/i.test(token)) kind = "constant";
       else if (/^\s*\(/.test(source.slice(pattern.lastIndex))) kind = "function";
-      if (kind) code.appendChild(el("span", { class: "tok tok-" + kind, text: token }));
+      if (kind) code.appendChild(el("span", { class: "tok tok-" + kind, "data-kind": kind, text: token }));
       else code.appendChild(document.createTextNode(token));
       at = pattern.lastIndex;
     }
@@ -1326,7 +1339,7 @@
           if (!match || /^\d/.test(match[1]) !== ordered) break;
           var itemText = match[2], task = itemText.match(/^\[([ xX])\]\s+(.*)$/), li = el("li");
           if (task) {
-            li.className = "asst-task-item";
+            KOS.ui.setClass(li, "asst-task-item");
             li.appendChild(el("input", { type: "checkbox", disabled: "", "aria-label": task[1].toLowerCase() === "x" ? "Completed" : "Not completed" }));
             if (task[1].toLowerCase() === "x") li.firstChild.checked = true;
             appendInline(li, task[2]);
@@ -1345,12 +1358,12 @@
   function typesetAssistantMath(root) {
     function apply() {
       if (!window.katex) return false;
-      Array.prototype.forEach.call(root.querySelectorAll(".asst-math-source"), function (node) {
+      Array.prototype.forEach.call(root.querySelectorAll("[data-ui~='asst.math-source']"), function (node) {
         if (node._asstMathRendered) return;
         try {
           window.katex.render(node._asstMath, node, { displayMode: node._asstMathDisplay, throwOnError: false, trust: false, strict: "ignore" });
           node._asstMathRendered = true;
-          node.classList.add("is-rendered");
+          KOS.ui.state(node, "is-rendered", true);
         } catch (e) { /* malformed maths remains readable in its source form */ }
       });
       return true;
@@ -1527,10 +1540,11 @@
       }
     });
     document.body.classList.add("asst-drawer-open");
+    document.documentElement.setAttribute("data-assistant-drawer", "open");
     document.body.appendChild(drawerScrim);
     document.body.appendChild(drawerEl);
     updateTrigger();
-    var ta = drawerEl.querySelector(".asst-composer-in");
+    var ta = drawerEl.querySelector("[data-ui~='asst.composer']");
     if (ta) ta.focus();
   }
   /* closing NEVER cancels — the request (and any pending confirmation)
@@ -1541,6 +1555,7 @@
     if (drawerEl) { drawerEl.remove(); drawerEl = null; }
     if (drawerScrim) { drawerScrim.remove(); drawerScrim = null; }
     document.body.classList.remove("asst-drawer-open");
+    document.documentElement.removeAttribute("data-assistant-drawer");
     updateTrigger();
     var t = document.getElementById("assistant-trigger");
     if (lastFocus && lastFocus.isConnected) lastFocus.focus();
@@ -1590,7 +1605,7 @@
   if (KOS.mediaEditorHooks) {
     KOS.mediaEditorHooks.push(function (entry, overlay) {
       if (!entry || entry.id == null || !overlay) return;
-      var form = overlay.querySelector(".med-form");
+      var form = overlay.querySelector("[data-ui~='ui.form']");
       if (!form) return;
       var strip = contextActions("entry", { module: entry.module, entryId: entry.id, title: entry.title });
       if (strip) form.insertBefore(strip, form.firstChild);
@@ -1693,7 +1708,7 @@
     var projectList = el("div", { class: "asst-project-list" });
     var addProject = el("button", { class: "mini-btn asst-side-add", type: "button", text: "+", "aria-label": "Create project", title: "Create project" });
     addProject.addEventListener("click", function () {
-      if (projectList.querySelector(".asst-project-new")) return;
+      if (projectList.querySelector("[data-ui~='asst.project-new']")) return;
       var input = el("input", { class: "asst-project-new", type: "text", maxlength: "48", placeholder: "Project name", "aria-label": "Project name" });
       function commit() {
         if (!createProject(input.value)) return;
@@ -1770,7 +1785,7 @@
 
     nav.addEventListener("keydown", function (e) {
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"].indexOf(e.key) < 0) return;
-      var tabs = Array.prototype.slice.call(nav.querySelectorAll(".study-tab"));
+      var tabs = Array.prototype.slice.call(nav.querySelectorAll("[data-ui~='ui.tab']"));
       var current = tabs.indexOf(document.activeElement);
       if (current < 0) return;
       e.preventDefault();
@@ -2196,8 +2211,7 @@
   }
 
   KOS.views.assistant = function (main, arg) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var tab = (arg && arg.tab) || "chat";
     if (!PAGE_TABS.some(function (t) { return t[3] === tab; })) tab = "chat";
     var heading = el("h1", { id: "asst-page-title", tabindex: "-1", text: "Kurenai Assistant" });

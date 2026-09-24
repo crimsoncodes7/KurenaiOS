@@ -110,9 +110,9 @@
       "aria-valuemin": "0", "aria-valuemax": "5" });
     var out = el("span", { class: "bk-stars-val" });
     function paint() {
-      wrap.querySelectorAll(".bk-star").forEach(function (st, i) {
+      wrap.querySelectorAll("[data-ui~='books.star']").forEach(function (st, i) {
         var lit = val - i * 2;   // 2 half-units per star
-        st.className = "bk-star" + (lit >= 2 ? " full" : lit === 1 ? " half" : "");
+        KOS.ui.setClass(st, "bk-star" + (lit >= 2 ? " full" : lit === 1 ? " half" : ""));
       });
       out.textContent = val ? (val / 2).toFixed(1) + " / 5" : "unrated";
       wrap.setAttribute("aria-valuenow", String(val / 2));
@@ -849,7 +849,7 @@
           ev.stopPropagation();
           e.favourite = !e.favourite;
           KOS.mediadb.put(e, function () {});
-          ev.target.classList.toggle("on", e.favourite);
+          KOS.ui.state(ev.target, "on", e.favourite);
         } }),
       el("div", { class: "med-card-body" }, [
         el("button", { type: "button", class: "med-title", title: e.title, text: e.title,
@@ -956,8 +956,7 @@
 
   /* ================= the Books view ================= */
   KOS.views.books = function (main, arg) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var p = prefs();
     if (arg && (arg.tab === "physical" || arg.tab === "digital")) { p.tab = arg.tab; store.save(); }
     var filt = { status: null, dnf: false };
@@ -1094,7 +1093,7 @@
 
     function refreshAll() { rail.reload(); refresh(); }
     function syncPrimary() {
-      var btn = bar.root.querySelector(".btn.primary");
+      var btn = bar.root.querySelector('button[data-intent~="primary"]');
       if (!btn) return;
       btn.textContent = p.tab === "physical" ? "+ Add to shelf" : "⊕ Find new";
       btn.title = p.tab === "physical" ? "A hand-made book with its volumes" : "Search AniList — the title is added to your list there, then mirrored here";
@@ -1140,18 +1139,18 @@
       ]);
       wrap.addEventListener("dragstart", function (ev) {
         dragIdx = idx;
-        wrap.classList.add("dragging");
+        KOS.ui.state(wrap, "dragging", true);
         if (ev.dataTransfer) {
           ev.dataTransfer.effectAllowed = "move";
           try { ev.dataTransfer.setData("text/plain", String(e.id)); } catch (_) { /* older engines */ }
         }
       });
-      wrap.addEventListener("dragend", function () { wrap.classList.remove("dragging"); dragIdx = null; });
-      wrap.addEventListener("dragover", function (ev) { ev.preventDefault(); wrap.classList.add("dragover"); });
-      wrap.addEventListener("dragleave", function () { wrap.classList.remove("dragover"); });
+      wrap.addEventListener("dragend", function () { KOS.ui.state(wrap, "dragging", false); dragIdx = null; });
+      wrap.addEventListener("dragover", function (ev) { ev.preventDefault(); KOS.ui.state(wrap, "dragover", true); });
+      wrap.addEventListener("dragleave", function () { KOS.ui.state(wrap, "dragover", false); });
       wrap.addEventListener("drop", function (ev) {
         ev.preventDefault();
-        wrap.classList.remove("dragover");
+        KOS.ui.state(wrap, "dragover", false);
         if (dragIdx != null && dragIdx !== idx) moveRank(dragIdx, idx);
         dragIdx = null;
       });
@@ -1205,7 +1204,7 @@
           /* shelf skin (3j): a purchased Gold Shop cosmetic sets one extra
              class on the shelf layout — the default look is its absence */
           var skin = lay === "shelf" && KOS.governor.shelfSkin && KOS.governor.shelfSkin();
-          area.holder.className = lay === "list" ? "med-list" : lay === "shelf" ? "bk-shelves" + (skin ? " " + skin : "") : "med-grid";
+          KOS.ui.setClass(area.holder, lay === "list" ? "med-list" : lay === "shelf" ? "bk-shelves" + (skin ? " " + skin : "") : "med-grid");
           var filtered = rail.status() || rail.customList() || filt.dnf || fmtSel.value || genreSel.value || moodSel.value || shelfSel.value || search.value;
           area.countLine.textContent = rowsOrdered.length + " series" +
             (physical ? " with owned volumes" : "") + (filtered ? " (filtered)" : "") +
@@ -1303,8 +1302,7 @@
     return c >= "A" && c <= "Z" ? c : "#";
   }
   KOS.views.mangaka = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var mv = KOS.medview;
 
     main.appendChild(KOS.ui.pageHeader({
@@ -1397,7 +1395,7 @@
       frag.appendChild(card);
       return frag;
     });
-    area.holder.className = "mk-wall";
+    KOS.ui.setClass(area.holder, "mk-wall");
 
     /* ---- the works that survive the current filters, for one author ---- */
     function worksOf(name) {

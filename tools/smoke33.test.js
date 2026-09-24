@@ -27,6 +27,7 @@ window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true; window.__kosAutoConfirm = true;
 if (!window.AbortController) window.AbortController = class { constructor() { this.signal = {}; } abort() {} };
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
+const { byName } = require("./lib/ui-query");
 window.indexedDB = indexedDB; window.IDBKeyRange = IDBKeyRange;
 window.fetch = () => Promise.reject(new Error("network disabled in this suite"));
 window.URL.createObjectURL = () => "blob:stub/1";
@@ -189,13 +190,13 @@ step("the deadline appears on the Calendar without ever becoming an event", asyn
   if (!A().forDate(T()).some(x => x.id === a.id)) throw new Error("forDate did not surface it");
   KOS.show("calendar");
   await tick(70);
-  if (!$$(".cal-ev.cal-asg").some(n => /Calendar visible/.test(n.textContent)))
+  if (!$$("[data-ui~='cal.event'][data-ui~='cal.asg']").some(n => /Calendar visible/.test(n.textContent)))
     throw new Error("the deadline did not render on the grid");
   /* and an assignment hidden from the calendar stays off it */
   A().update(a.id, { showInCalendar: false });
   KOS.show("calendar", undefined, { _nav: true });
   await tick(70);
-  if ($$(".cal-ev.cal-asg").some(n => /Calendar visible/.test(n.textContent)))
+  if ($$("[data-ui~='cal.event'][data-ui~='cal.asg']").some(n => /Calendar visible/.test(n.textContent)))
     throw new Error("calendar visibility is not honoured");
 });
 
@@ -205,7 +206,15 @@ step("only assignments marked major reach the Countdown rail", () => {
   const major = A().add({ title: "Major deadline", subject: "compsci", due: KOS.srs.addDays(T(), 6), showInCountdown: true });
   const rail = A().countdownItems().map(x => x.assignment.title);
   if (rail.join() !== "Major deadline") throw new Error("countdown rail: " + rail.join());
-  const widget = KOS.calendar.countdownWidget(null);
+  /* The widget shows the four NEAREST countdowns, and the seeded weekly plan
+     contributes its class milestones (invariant 82b). In a week that holds
+     four of them they take every slot and this check fails on the calendar
+     date alone, so the plan's milestones are set aside for this one read. */
+  const milestones = KOS.pacing.classMilestones;
+  KOS.pacing.classMilestones = () => [];
+  let widget;
+  try { widget = KOS.calendar.countdownWidget(null); }
+  finally { KOS.pacing.classMilestones = milestones; }
   if (!/Major deadline/.test(widget.textContent)) throw new Error("the widget did not merge the assignment");
   if (/Ordinary work/.test(widget.textContent)) throw new Error("ordinary work must not become a major countdown");
   /* completing it retires it from the rail */
@@ -223,7 +232,7 @@ step("urgent assignments surface on Home, overdue first", async () => {
   if (u.indexOf("Due in a fortnight") !== -1) throw new Error("a fortnight away is not urgent");
   KOS.show("home");
   await tick(90);
-  const card = $(".asg-urgent");
+  const card = $("[data-ui~='asg.urgent']");
   if (!card) throw new Error("no urgent card on Home");
   if (!/Was due/.test(card.textContent)) throw new Error("Home card does not show the overdue item");
 });
@@ -233,7 +242,7 @@ step("Home stays quiet when nothing is urgent", async () => {
   A().add({ title: "Far away", subject: "maths", due: KOS.srs.addDays(T(), 30) });
   KOS.show("home", undefined, { _nav: true });
   await tick(90);
-  if ($(".asg-urgent")) throw new Error("the urgent card appeared with nothing urgent");
+  if ($("[data-ui~='asg.urgent']")) throw new Error("the urgent card appeared with nothing urgent");
 });
 
 step("a focus session can link to an assignment and banks its effort", () => {
@@ -257,7 +266,7 @@ step("related topics are navigable", async () => {
   const a = A().add({ title: "Topic linked", subject: sid, topics: [{ subject: sid, ref }] });
   KOS.assignmentDetail(a.id);
   await tick(60);
-  const link = $$(".asg-topic.link").find(n => new RegExp(ref.replace(/\./g, "\\.")).test(n.textContent));
+  const link = $$("button[data-ui~='asg.topic']").find(n => new RegExp(ref.replace(/\./g, "\\.")).test(n.textContent));
   if (!link) throw new Error("no navigable topic link in the detail view");
   click(link);
   await tick(60);
@@ -275,7 +284,7 @@ step("the tracker is reached from the Study subnav, not a desk tab strip", async
   await tick(80);
   if ($(".subject-workspace-tabs")) throw new Error("the desk tab switcher is back");
   if (KOS.sectionOf("assignments") !== "study") throw new Error("assignments must belong to Study");
-  const entry = [...document.querySelectorAll("#subnav .subnav-item")]
+  const entry = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")]
     .find(b => b.textContent.trim() === "Assignments");
   if (!entry) throw new Error("Assignments is not in the Study subnav");
   click(entry);
@@ -290,32 +299,32 @@ step("the page lists title, subject, deadline, status, progress, priority and ne
   A().subAdd(a.id, "outline"); A().subAdd(a.id, "write");
   KOS.show("assignments");
   await tick(90);
-  const row = $(".asg-row");
+  const row = $("[data-ui~='asg.row']");
   if (!row) throw new Error("no rows rendered");
   const txt = row.textContent;
   ["Shown fully", "CS", "In progress", "outline"].forEach(bit => {
     if (txt.indexOf(bit) === -1) throw new Error("the row omits " + bit + ": " + txt);
   });
-  if (!row.querySelector(".asg-track")) throw new Error("no progress bar");
-  if (!row.querySelector(".asg-prio")) throw new Error("no priority mark");
-  if (!row.querySelector(".asg-status")) throw new Error("no status pill");
+  if (!row.querySelector("[data-ui~='asg.track']")) throw new Error("no progress bar");
+  if (!row.querySelector("[data-ui~='asg.priority']")) throw new Error("no priority mark");
+  if (!row.querySelector("[data-ui~='asg.status']")) throw new Error("no status pill");
 });
 
 step("the page filters and the full detail view both work", async () => {
   KOS.show("assignments", { subject: "" });
   await tick(90);
-  const sels = $$(".asg-tools .status-sel");
+  const sels = $$("[data-ui~='asg.tools'] [data-ui~='ui.status-select']");
   if (sels.length !== 4) throw new Error("expected subject/status/due/sort filters, got " + sels.length);
-  const row = $(".asg-row");
-  click(row.querySelector(".mini-btn"));
+  const row = $("[data-ui~='asg.row']");
+  click(byName(row, /^Open$/));
   await tick(60);
-  const modal = $(".asg-detail-modal");
+  const modal = $("[data-ui~='asg.detail-modal']");
   if (!modal) throw new Error("the detail view did not open");
   ["Progress", "Priority", "Estimated", "Actual", "Deadline", "Subtasks"].forEach(h => {
     if (modal.textContent.indexOf(h) === -1) throw new Error("detail is missing " + h);
   });
-  if (!modal.querySelector(".asg-d-actions .btn")) throw new Error("no status transitions offered");
-  const ov = $(".modal-ov");
+  if (!modal.querySelector("[data-ui~='asg.detail-actions'] button")) throw new Error("no status transitions offered");
+  const ov = $("[data-ui~='ui.dialog-overlay']");
   if (ov) ov.remove();
 });
 
@@ -340,7 +349,7 @@ step("deleting removes the record AND every surface derived from it", async () =
     throw new Error("deleting an assignment touched real calendar events");
   KOS.show("calendar", undefined, { _nav: true });
   await tick(70);
-  if ($$(".cal-ev.cal-asg").some(n => /Delete me/.test(n.textContent))) throw new Error("the grid still shows it");
+  if ($$("[data-ui~='cal.event'][data-ui~='cal.asg']").some(n => /Delete me/.test(n.textContent))) throw new Error("the grid still shows it");
 });
 
 step("records survive a reload of the page", async () => {
@@ -348,12 +357,12 @@ step("records survive a reload of the page", async () => {
   A().add({ title: "Persist me", subject: "maths", due: KOS.srs.addDays(T(), 2) });
   KOS.show("assignments");
   await tick(80);
-  const before = $$(".asg-row").length;
+  const before = $$("[data-ui~='asg.row']").length;
   KOS.show("home", undefined, { _nav: true });
   await tick(50);
   KOS.show("assignments", undefined, { _nav: true });
   await tick(80);
-  if ($$(".asg-row").length !== before) throw new Error("rows did not survive a re-render");
+  if ($$("[data-ui~='asg.row']").length !== before) throw new Error("rows did not survive a re-render");
   if (!A().all().some(x => x.title === "Persist me")) throw new Error("the record did not persist");
 });
 

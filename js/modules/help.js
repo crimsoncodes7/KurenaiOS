@@ -119,8 +119,7 @@
   function slug(value) { return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
 
   KOS.views.help = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [
         el("span", { class: "dh-kicker", text: "The manual" }),
@@ -165,15 +164,15 @@
       if (window.history && window.history.replaceState) window.history.replaceState(null, "", "#" + id);
     }
     function openRow(row, head, id) {
-      row.classList.add("open"); head.setAttribute("aria-expanded", "true"); setDeepLink(id);
+      KOS.ui.state(row, "open", true); head.setAttribute("aria-expanded", "true"); setDeepLink(id);
     }
 
     SECTIONS.forEach(function (sec, si) {
       var secId = "help-" + slug(sec[0]);
       nav.appendChild(el("button", { class: "help-nav-item" + (si === 0 ? " active" : ""), "data-si": String(si), "aria-current": si === 0 ? "true" : "false",
         onclick: function () {
-          nav.querySelectorAll(".help-nav-item").forEach(function (b) { b.classList.remove("active"); b.setAttribute("aria-current", "false"); });
-          this.classList.add("active"); this.setAttribute("aria-current", "true"); contextTitle.textContent = sec[0]; setDeepLink(secId);
+          nav.querySelectorAll("[data-ui~='help.nav-item']").forEach(function (b) { KOS.ui.state(b, "active", false); b.setAttribute("aria-current", "false"); });
+          KOS.ui.state(this, "active", true); this.setAttribute("aria-current", "true"); contextTitle.textContent = sec[0]; setDeepLink(secId);
           var target = document.getElementById(secId);
           if (target && target.scrollIntoView) target.scrollIntoView({ block: "start", behavior: "smooth" });
         } }, [sec[0]]));
@@ -188,7 +187,7 @@
         var body = el("div", { class: "help-row-body", id: rowId + "-detail" }, [el("p", { text: item[1] })]);
         var row = el("article", { class: "help-row", id: rowId, "data-q": (item[0] + " " + item[1]).toLowerCase() });
         var head = el("button", { class: "help-row-head", "aria-expanded": "false", onclick: function () {
-          var open = row.classList.toggle("open");
+          var open = KOS.ui.state(row, "open");
           head.setAttribute("aria-expanded", String(open));
           if (open) setDeepLink(rowId);
         } }, [
@@ -208,15 +207,15 @@
 
     search.addEventListener("input", KOS.ui.debounce(function () {
       var q = search.value.trim().toLowerCase();
-      list.querySelectorAll(".help-row").forEach(function (r) {
+      list.querySelectorAll("[data-ui~='help.row']").forEach(function (r) {
         var hit = !q || r.dataset.q.indexOf(q) !== -1;
         r.style.display = hit ? "" : "none";
-        r.classList.toggle("open", !!q && hit);
-        var head = r.querySelector(".help-row-head");
+        KOS.ui.state(r, "open", !!q && hit);
+        var head = r.querySelector("[data-ui~='help.row-head']");
         if (head) head.setAttribute("aria-expanded", String(!!q && hit));
       });
-      list.querySelectorAll(".help-block").forEach(function (b) {
-        var any = [].some.call(b.querySelectorAll(".help-row"), function (r) { return r.style.display !== "none"; });
+      list.querySelectorAll("[data-ui~='help.block']").forEach(function (b) {
+        var any = [].some.call(b.querySelectorAll("[data-ui~='help.row']"), function (r) { return r.style.display !== "none"; });
         b.style.display = any ? "" : "none";
       });
     }, 150));
@@ -228,8 +227,8 @@
     if (location.hash && location.hash.indexOf("#help-") === 0) {
       var linked = document.getElementById(location.hash.slice(1));
       if (linked) {
-        var linkedRow = linked.classList.contains("help-row") ? linked : null;
-        if (linkedRow) openRow(linkedRow, linkedRow.querySelector(".help-row-head"), linkedRow.id);
+        var linkedRow = linked.matches('[data-ui~="help.row"]') ? linked : null;
+        if (linkedRow) openRow(linkedRow, linkedRow.querySelector("[data-ui~='help.row-head']"), linkedRow.id);
         setTimeout(function () { linked.scrollIntoView({ block: "start" }); }, 0);
       }
     }

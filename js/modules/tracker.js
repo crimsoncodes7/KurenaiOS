@@ -158,8 +158,7 @@
 
   /* ---------------- the view ---------------- */
   KOS.views.tracker = function (main, openKind) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     var kind = openKind === "paper" ? "paper" : "exam";
     var filterSubj = "";
@@ -169,7 +168,7 @@
       bar.appendChild(el("button", { class: "study-tab" + (k === kind ? " active" : ""), role: "tab", "data-tab": k,
         onclick: function () {
           kind = k;
-          bar.querySelectorAll(".study-tab").forEach(function (b) { b.classList.toggle("active", b.dataset.tab === kind); });
+          bar.querySelectorAll("[data-ui~='ui.tab']").forEach(function (b) { KOS.ui.state(b, "active", b.dataset.tab === kind); });
           render();
         } }, [KINDS[k]]));
     });
@@ -240,7 +239,7 @@
         var revCb = el("input", { type: "checkbox", title: "Reviewed", onchange: function (ev) {
           ev.stopPropagation();
           update(e.id, { reviewed: revCb.checked });
-          row.classList.toggle("reviewed", revCb.checked);
+          KOS.ui.state(row, "reviewed", revCb.checked);
         }, onclick: function (ev) { ev.stopPropagation(); } });
         revCb.checked = e.reviewed;
 

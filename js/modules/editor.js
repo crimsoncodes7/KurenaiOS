@@ -305,7 +305,7 @@
           blocks.splice(typeof at === "function" ? at() : at, 0, nb);
           selected = nb.id;
           commitNow(nb.id); redraw();
-          var ta = list.querySelector('.ed-block.sel textarea, .ed-block.sel input, .ed-block.sel select');
+          var ta = list.querySelector('[data-ui~="editor.block"][data-state~="sel"] textarea, [data-ui~="editor.block"][data-state~="sel"] input, [data-ui~="editor.block"][data-state~="sel"] select');
           if (ta) ta.focus();
         } }, [T.label]);
       })));
@@ -315,7 +315,7 @@
       list.innerHTML = "";
       if (!blocks.length) list.appendChild(el("p", { class: "ed-empty", text: opts.emptyText || "Nothing here yet — add the first block." }));
       blocks.forEach(function (b, i) { list.appendChild(row(b, i)); });
-      var sel = list.querySelector(".ed-block.sel");
+      var sel = list.querySelector("[data-ui~='editor.block'][data-state~='sel']");
       if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: "nearest" });
     }
     wrap.appendChild(list);
@@ -366,7 +366,7 @@
         custom.forEach(function (c) {
           var q = c.q, a = c.a, t2 = null;
           function saveCustom() { clearTimeout(t2); t2 = setTimeout(function () { KOS.srs.updateCustom(c.id, q, a); onSave(); }, 250); }
-          list.appendChild(el("div", { class: "ed-row custom" }, [
+          list.appendChild(el("div", { class: "ed-row custom", "data-kind": "custom" }, [
             el("div", { class: "ed-row-h" }, [
               el("b", { text: c.ai ? "AI · Custom" : "Custom" }),
               iconBtn("Delete custom card", "✕", function () {
@@ -384,7 +384,7 @@
     wrap.appendChild(list);
     wrap.appendChild(el("button", { class: "btn primary ed-add", type: "button", text: "+ Add card", onclick: function () {
       cards.push({ q: "", a: "" }); save(); cards = KOS.edits.material(sid, ref, "flashcards"); redraw();
-      var last = list.querySelectorAll(".ed-row:not(.custom) textarea"); if (last.length) last[last.length - 2].focus();
+      var last = list.querySelectorAll("[data-ui~='editor.row']:not([data-kind='custom']) textarea"); if (last.length) last[last.length - 2].focus();
     } }));
     redraw();
     return wrap;
@@ -556,7 +556,7 @@
     function paintState() {
       var forked = KOS.edits.has(sid, ref, kind);
       state.textContent = forked ? "Edited · saved on this device and your account" : "Curriculum version — edits fork it for this topic";
-      state.className = "ed-state" + (forked ? " on" : "");
+      KOS.ui.setClass(state, "ed-state" + (forked ? " on" : ""));
       resetBtn.hidden = !forked;
     }
     function render() {

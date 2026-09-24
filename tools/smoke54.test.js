@@ -241,30 +241,30 @@ console.log("== editor + card ==");
 step("the editor's What-counts select and percentage field save; the field hides while something else counts", async () => {
   const e = await p(cb => KOS.mediadb.get(idKinetic, cb));
   KOS.vnEditor(e, null);
-  const modal = document.querySelector(".vn-modal");
+  const modal = document.querySelector("[data-ui~='vn.editor']");
   assert(modal, "editor did not open");
   const sel = modal.querySelector("select[aria-label='What counts as progress']");
   const pctIn = modal.querySelector("input[aria-label='How far through, as a percentage']");
   assert(sel && pctIn, "controls missing");
   assert(sel.value === "", "automatic by default");
-  assert(pctIn.closest(".med-field").hidden === true, "percentage hidden while chapters count");
-  assert(/Counting chapters — 2 of 4/.test(modal.querySelector(".vn-prog-note:not(.vn-len-note)").textContent), "note names the source: " + modal.querySelector(".vn-prog-note:not(.vn-len-note)").textContent);
+  assert(pctIn.closest("[data-ui~='ui.field']").hidden === true, "percentage hidden while chapters count");
+  assert(/Counting chapters — 2 of 4/.test(modal.querySelector("[data-ui~='vn.progress-note']:not([data-ui~='vn.length-note'])").textContent), "note names the source: " + modal.querySelector("[data-ui~='vn.progress-note']:not([data-ui~='vn.length-note'])").textContent);
   const hoursIn = modal.querySelector("input[aria-label='Hours played']");
-  assert(hoursIn && hoursIn.closest(".med-field").hidden === true, "hours hidden while chapters count");
+  assert(hoursIn && hoursIn.closest("[data-ui~='ui.field']").hidden === true, "hours hidden while chapters count");
   sel.value = "time";
   sel.dispatchEvent(new window.Event("change", { bubbles: true }));
-  assert(hoursIn.closest(".med-field").hidden === false, "hours show once chosen");
-  assert(/VNDB has no length/.test(modal.querySelector(".vn-len-note").textContent), "the length note says VNDB has none for this title");
+  assert(hoursIn.closest("[data-ui~='ui.field']").hidden === false, "hours show once chosen");
+  assert(/VNDB has no length/.test(modal.querySelector("[data-ui~='vn.length-note']").textContent), "the length note says VNDB has none for this title");
   sel.value = "percent";
   sel.dispatchEvent(new window.Event("change", { bubbles: true }));
-  assert(pctIn.closest(".med-field").hidden === false, "percentage shows once chosen");
+  assert(pctIn.closest("[data-ui~='ui.field']").hidden === false, "percentage shows once chosen");
   pctIn.value = "65";
   pctIn.dispatchEvent(new window.Event("input", { bubbles: true }));
-  assert(/65%/.test(modal.querySelector(".vn-prog-note:not(.vn-len-note)").textContent), "note follows the field");
+  assert(/65%/.test(modal.querySelector("[data-ui~='vn.progress-note']:not([data-ui~='vn.length-note'])").textContent), "note follows the field");
   /* chapters live in the Progress section now, beside routes */
-  assert(modal.querySelector(".med-edit-body .vn-chapters"), "chapters section present");
+  assert(modal.querySelector("[data-ui~='vault.editor-body'] [data-ui~='vn.chapters']"), "chapters section present");
   [...modal.querySelectorAll("button")].find(b => /^Save/.test(b.textContent.trim())).click();
-  await waitFor(() => !document.querySelector(".vn-modal"), 3000);
+  await waitFor(() => !document.querySelector("[data-ui~='vn.editor']"), 3000);
   const after = await p(cb => KOS.mediadb.get(idKinetic, cb));
   assert(after.progressMode === "percent" && after.progressPercent === 65, "saved: " + after.progressMode + "/" + after.progressPercent);
   assert(after.progress.current === 65 && after.progress.unit === "%", "progress re-derived on save");
@@ -274,16 +274,16 @@ step("the editor's What-counts select and percentage field save; the field hides
 
 step("a chapter-counting VN gets +1 ch on its card; the last chapter completes the entry; a routed VN gets none", async () => {
   KOS.show("vn");
-  await waitFor(() => main().querySelectorAll(".vn-card").length >= 3, 5000);
-  const cards = [...main().querySelectorAll(".vn-card")];
+  await waitFor(() => main().querySelectorAll("[data-ui~='vn.card']").length >= 3, 5000);
+  const cards = [...main().querySelectorAll("[data-ui~='vn.card']")];
   const kin = cards.find(c => /Higurashi/.test(c.textContent));
   const routed = cards.find(c => /Ever17/.test(c.textContent));
   assert(kin && routed, "cards missing");
-  assert(/2 \/ 4 ch/.test(kin.querySelector(".med-prog").textContent), "card prints the chapter count: " + kin.querySelector(".med-prog").textContent);
+  assert(/2 \/ 4 ch/.test(kin.querySelector("[data-ui~='vault.card-progress']").textContent), "card prints the chapter count: " + kin.querySelector("[data-ui~='vault.card-progress']").textContent);
   assert(!/❝/.test(routed.textContent) && !/❝/.test(kin.textContent), "the quote count is not a card fact");
-  assert(kin.querySelector(".med-track") && kin.querySelector(".med-track .subj-fill").style.width === "50%", "chapter bar at 50%");
-  assert(!routed.querySelector(".med-plus"), "a routed VN has no +1");
-  const plus = kin.querySelector(".med-plus");
+  assert(kin.querySelector("[data-ui~='media.bar-track']") && kin.querySelector("[data-ui~='media.bar-track'] [data-ui~='media.bar-fill']").style.width === "50%", "chapter bar at 50%");
+  assert(!routed.querySelector("[data-ui~='vault.plus']"), "a routed VN has no +1");
+  const plus = kin.querySelector("[data-ui~='vault.plus']");
   assert(plus && /\+1 ch/.test(plus.textContent), "+1 ch missing on the kinetic novel");
   const sessions0 = KOS.store.state.sessions.length;
   plus.click();
@@ -314,7 +314,7 @@ step("a known total gives the fraction; still releasing gives half full and open
   assert(f(KOS.mediadb.normalise({ module: "game", title: "d", playtimeHours: 9 })) === null, "games have no bar");
   assert(f(KOS.mediadb.normalise({ module: "vn", title: "e" })) === null, "an untracked VN has no bar");
   const bar = KOS.media.progressBar(KOS.mediadb.normalise({ module: "anime", title: "a", progress: { current: 30, total: null } }));
-  assert(bar.classList.contains("med-track") && bar.classList.contains("open") && bar.querySelector(".subj-fill").style.width === "50%", "progressBar draws the open bar");
+  assert(bar.matches('[data-ui~="media.bar-track"]') && bar.matches('[data-state~="open"]') && bar.querySelector("[data-ui~='media.bar-fill']").style.width === "50%", "progressBar draws the open bar");
   assert(bar.getAttribute("role") === "img" && /still releasing/.test(bar.getAttribute("aria-label")), "the bar says why it is half");
 });
 
@@ -326,19 +326,20 @@ step("anime and books cards draw the half-full bar for a series still releasing"
   await p(cb => KOS.mediadb.add({ module: "books", title: "Berserk", status: "inProgress", format: "manga",
     progress: { current: 370, total: null, volumes: null, totalVolumes: null }, externalIds: { anilistId: 30002 }, syncSource: "anilist" }, cb));
   KOS.show("anime");
-  await waitFor(() => main().querySelectorAll(".med-card").length >= 2, 5000);
-  let cards = [...main().querySelectorAll(".med-card")];
+  await waitFor(() => main().querySelectorAll("[data-ui~='vault.card']").length >= 2, 5000);
+  let cards = [...main().querySelectorAll("[data-ui~='vault.card']")];
   const op = cards.find(c => /One Piece/.test(c.textContent));
   const fin = cards.find(c => /Finished Show/.test(c.textContent));
-  assert(op && op.querySelector(".med-track.open") && op.querySelector(".subj-fill").style.width === "50%", "releasing anime: half-full open bar");
-  assert(fin && fin.querySelector(".med-track") && !fin.querySelector(".med-track.open") && fin.querySelector(".subj-fill").style.width === "100%", "finished anime: full honest bar");
+  assert(op && op.querySelector("[data-ui~='media.bar-track'][data-state~='open']") && op.querySelector("[data-ui~='media.bar-fill']").style.width === "50%", "releasing anime: half-full open bar");
+  assert(fin && fin.querySelector("[data-ui~='media.bar-track']") && !fin.querySelector("[data-ui~='media.bar-track'][data-state~='open']") && fin.querySelector("[data-ui~='media.bar-fill']").style.width === "100%", "finished anime: full honest bar");
   KOS.show("books");
-  await waitFor(() => [...main().querySelectorAll(".bk-card")].some(c => /Berserk/.test(c.textContent)), 5000);
-  const bk = [...main().querySelectorAll(".bk-card")].find(c => /Berserk/.test(c.textContent));
+  await waitFor(() => [...main().querySelectorAll("[data-ui~='books.card']")].some(c => /Berserk/.test(c.textContent)), 5000);
+  const bk = [...main().querySelectorAll("[data-ui~='books.card']")].find(c => /Berserk/.test(c.textContent));
   assert(bk, "Berserk card");
-  const readBar = bk.querySelector(".med-track");
-  assert(readBar && readBar.classList.contains("open") && readBar.querySelector(".subj-fill").style.width === "50%", "releasing manga: half-full open bar");
-  assert(readBar.className === "subj-track med-track open", "the books bar is the IDENTICAL shared component: " + readBar.className);
+  const readBar = bk.querySelector("[data-ui~='media.bar-track']");
+  assert(readBar && readBar.matches('[data-state~="open"]') && readBar.querySelector("[data-ui~='media.bar-fill']").style.width === "50%", "releasing manga: half-full open bar");
+  assert(readBar.getAttribute("data-ui") === "media.bar media.bar-track" && readBar.getAttribute("data-state") === "open",
+    "the books bar is the IDENTICAL shared component: " + readBar.getAttribute("data-ui") + " / " + readBar.getAttribute("data-state"));
   assert(/still releasing/.test(readBar.title), "the bar's title says why");
   /* light novels read by the volume: volumes are the progress */
   const ln = KOS.mediadb.normalise({ module: "books", title: "ln", format: "lightNovel", progress: { current: 0, total: null, volumes: 2, totalVolumes: 10 } });

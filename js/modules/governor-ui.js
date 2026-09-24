@@ -77,8 +77,7 @@
   }
 
   KOS.views.governor = function (main, openTab) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var g = store.state.governor;
     var li = KOS.governor.levelInfo(g.xp);
     var state = KOS.governor.hpStateInfo();
@@ -92,7 +91,7 @@
     var govTabs = KOS.workspaceTabs(TABS.map(function (t) { return [t[1], "governor", t[0], t[0]]; }),
       cur, "Governor pages", "gov-tabs");
     /* keep the data-tab hook every consumer of this switcher has used */
-    govTabs.querySelectorAll(".study-tab").forEach(function (b, i) { b.dataset.tab = TABS[i][0]; });
+    govTabs.querySelectorAll("[data-ui~='ui.tab']").forEach(function (b, i) { b.dataset.tab = TABS[i][0]; });
 
     var head = el("div", { class: "dash-head gov-head" }, [
       el("div", { class: "dh-txt" }, [
@@ -136,7 +135,8 @@
        Same dimensions, label type, value type, bar treatment and spacing,
        whether it carries a bar or not. */
     function statTile(o) {
-      return el("div", { class: "gstat" + (o.cls ? " gstat-" + o.cls : "") + (o.warn ? " is-warn" : "") + (o.bar === false ? " no-meter" : "") }, [
+      return el("div", { class: "gstat" + (o.cls ? " gstat-" + o.cls : "") + (o.warn ? " is-warn" : "") + (o.bar === false ? " no-meter" : ""),
+        "data-kind": o.cls || null }, [
         el("div", { class: "gstat-top" }, [
           el("span", { class: "gstat-k", text: o.label }),
           el("span", { class: "gstat-v", text: o.value })
@@ -252,7 +252,7 @@
         : hpCls === "strained"
           ? { label: "Strained", desc: "Labs, simulations, and purchases are paused. Core study remains open." }
           : { label: "Critical", desc: "Recovery mode is visible. Core study remains open." };
-      var bento = el("div", { class: "bento gov-status gov-" + hpCls });
+      var bento = el("div", { class: "bento gov-status gov-" + hpCls, "data-hp": hpCls });
       panel.appendChild(bento);
       var stks = KOS.sessions.streaks();
       var dayMs = 864e5;
@@ -575,15 +575,15 @@
 
       function setDepartment(id) {
         activeDept = id;
-        deptBar.querySelectorAll(".shop-dept").forEach(function (b) {
+        deptBar.querySelectorAll("[data-ui~='shop.dept']").forEach(function (b) {
           var on = b.dataset.dept === activeDept;
-          b.classList.toggle("active", on);
+          KOS.ui.state(b, "active", on);
           b.setAttribute("aria-selected", on ? "true" : "false");
         });
-        sections.querySelectorAll(".shop-sec").forEach(function (sec) {
+        sections.querySelectorAll("[data-ui~='shop.section']").forEach(function (sec) {
           sec.hidden = activeDept !== "all" && sec.dataset.domain !== activeDept;
         });
-        rail.querySelectorAll(".shop-rail-item").forEach(function (b) {
+        rail.querySelectorAll("[data-ui~='shop.rail-item']").forEach(function (b) {
           b.hidden = activeDept !== "all" && b.dataset.domain !== activeDept;
         });
       }
@@ -735,7 +735,7 @@
       var preview = el("aside", { class: "av-preview identity-stage", "aria-label": "Live Governor profile preview" });
       var pvBanner = el("div", { class: "av-pv-banner" + (bannerCss && KOS.governor.bannerIsDark() ? " dark" : "") });
       if (bannerCss) KOS.governor.applyBanner(pvBanner, { darkScrim: true });
-      else pvBanner.classList.add("plain");
+      else KOS.ui.state(pvBanner, "plain", true);
       pvBanner.appendChild(el("span", { class: "av-stage-label", text: "Live identity" }));
       preview.appendChild(pvBanner);
       preview.appendChild(el("div", { class: "av-pv-body" }, [
@@ -788,7 +788,7 @@
             has: !!KOS.governor.bannerCss(),
             thumb: (function () {
               var t = el("span", { class: "av-mc-band" });
-              if (!KOS.governor.applyBanner(t, { darkScrim: true })) t.classList.add("plain");
+              if (!KOS.governor.applyBanner(t, { darkScrim: true })) KOS.ui.state(t, "plain", true);
               return t;
             })(),
             edit: function () {
@@ -929,9 +929,9 @@
 
       function setCat(id) {
         cur2 = id; visible = 30;
-        band.querySelectorAll(".log-cat").forEach(function (b) {
+        band.querySelectorAll("[data-ui~='gov.log-category']").forEach(function (b) {
           var on = b.dataset.cat === cur2;
-          b.classList.toggle("active", on);
+          KOS.ui.state(b, "active", on);
           b.setAttribute("aria-selected", on ? "true" : "false");
         });
         draw();
@@ -1032,7 +1032,7 @@
           facts.length ? el("dl", {}, facts.map(function (f) { return el("div", {}, [el("dt", { text: f[0] }), el("dd", { text: f[1] })]); })) : el("span", { class: "sub", text: "No extra metrics were recorded for this event." })
         ]);
         details.appendChild(detailBox);
-        details.addEventListener("toggle", function () { details.querySelector(".gov-event-chevron").textContent = details.open ? "−" : "+"; });
+        details.addEventListener("toggle", function () { details.querySelector("[data-ui~='gov.event-chevron']").textContent = details.open ? "−" : "+"; });
         return details;
       }
       draw();

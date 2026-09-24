@@ -49,8 +49,7 @@
 
   /* ================= the page ================= */
   KOS.views.assignments = function (main, arg) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var p = prefs();
     if (typeof arg === "string") p.subject = arg;
     else if (arg && arg.subject !== undefined) p.subject = arg.subject;
@@ -214,7 +213,7 @@
         onclick: function () {
           var i = chosenAlerts.indexOf(al.v);
           if (i === -1) chosenAlerts.push(al.v); else chosenAlerts.splice(i, 1);
-          b.classList.toggle("on", chosenAlerts.indexOf(al.v) !== -1);
+          KOS.ui.state(b, "on", chosenAlerts.indexOf(al.v) !== -1);
         } });
       alertBox.appendChild(b);
     });

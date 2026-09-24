@@ -136,11 +136,11 @@
       (Array.isArray(idx) ? idx : [idx]).forEach(function (i) {
         var sp = spans[i];
         if (!sp) return;
-        sp.classList.remove("hl");
+        KOS.ui.state(sp, "hl", false);
         void sp.offsetWidth; /* restart the transition if already lit */
-        sp.classList.add("hl");
+        KOS.ui.state(sp, "hl", true);
         clearTimeout(timers[i]);
-        timers[i] = setTimeout(function () { sp.classList.remove("hl"); }, ms || 500);
+        timers[i] = setTimeout(function () { KOS.ui.state(sp, "hl", false); }, ms || 500);
       });
     }
     return { el: pre, hl: hl };
@@ -587,8 +587,7 @@
 
   KOS.views.trace = function (main) {
     refreshPalette();
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     main.appendChild(el("div", { class: "lab-h" }, [
       el("h1", { text: "Data Structure Trace Lab" }),
@@ -605,8 +604,8 @@
         onclick: function () {
           current = t[0];
           store.state.trace.tab = current; store.save();
-          tabs.querySelectorAll(".lab-tab").forEach(function (b, i) {
-            b.classList.toggle("active", TABS[i][0] === current);
+          tabs.querySelectorAll("[data-ui~='lab.tab']").forEach(function (b, i) {
+            KOS.ui.state(b, "active", TABS[i][0] === current);
           });
           open(t);
         }

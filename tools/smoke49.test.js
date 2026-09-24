@@ -52,6 +52,7 @@ window.confirm = () => true;
 window.fetch = () => Promise.resolve({ ok: true, status: 200, headers: { get: () => null },
   json: () => Promise.resolve({}), text: () => Promise.resolve("") });
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
+const { readCss } = require("./lib/css");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;
 window.IntersectionObserver = function () { return { observe: noop, unobserve: noop, disconnect: noop }; };
@@ -213,13 +214,13 @@ step("rendering, opening a row and saving a note pay nothing", () => {
   const g0 = JSON.stringify(KOS.store.state.governor);
   const s0 = KOS.store.state.sessions.length;
   KOS.show("pacing", { wb: "2026-11-02" });
-  const topic = $(".pace-topic");
+  const topic = $("[data-ui~='pace.row']");
   assert(topic, "no plan rows rendered");
   topic.click();
-  const ta = $(".modal.pace-dlg textarea");
+  const ta = $("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] textarea");
   assert(ta, "the row dialog has no note field");
   ta.value = "carry this over";
-  [...$$(".modal.pace-dlg .btn.primary")].pop().click();
+  [...$$("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] button[data-intent~='primary']")].pop().click();
   assert(KOS.store.state.sessions.length === s0, "a session was logged");
   assert(JSON.stringify(KOS.store.state.governor) === g0, "the Governor moved");
 });
@@ -286,21 +287,23 @@ step("the page header carries the switcher and the week header carries the actio
   KOS.show("pacing", { wb: "2026-11-02" });
   /* the two readings live in the header's action slot, where Planner and
      Sync put theirs — not in a second strip under the title */
-  const tabs = $("#main .page-header .dh-actions .pace-tabs");
+  const tabs = $("#main [data-ui~='ui.page-header'] [data-ui~='ui.page-actions'] [data-ui~='pace.tabs']");
   assert(tabs, "the Week/Braid switcher is not in the page header's action slot");
-  assert(tabs.classList.contains("profile-workspace-tabs"), "the switcher does not use the shared header-tab treatment");
-  assert(!$("#main > .pace-tabs"), "a second tab strip is still under the title");
+  assert(tabs.matches('[data-ui~="ui.workspace-tabs"]'), "the switcher does not use the shared header-tab treatment");
+  assert(!$("#main > [data-ui~='pace.tabs']"), "a second tab strip is still under the title");
 
   /* every week-scoped action sits with the week it acts on */
-  const acts = $$("#main .pace-week-header .section-header-actions .btn").map(b => b.textContent.trim());
+  const acts = $$("#main [data-ui~='pace.week-header'] [data-ui~='ui.section-actions'] button").map(b => b.textContent.trim());
   assert(acts.indexOf("+ Add row") !== -1, "Add row is not with the week: " + acts.join(", "));
   assert(acts.indexOf("Edit week") !== -1, "Edit week is not with the week: " + acts.join(", "));
-  assert(!$$("#main .page-header .dh-actions .btn").length, "week actions are still in the page header");
+  /* the Week/Braid switcher's own tabs are the only controls allowed there */
+  assert(!$$("#main [data-ui~='ui.page-header'] [data-ui~='ui.page-actions'] button")
+    .filter(b => !b.closest("[data-ui~='pace.tabs']")).length, "week actions are still in the page header");
 });
 
 step("the page description uses the shared sub-line treatment", () => {
   KOS.show("pacing", { wb: "2026-11-02" });
-  const sub = $("#main .page-header .dh-sub .board");
+  const sub = $("#main [data-ui~='ui.page-header'] [data-ui~='ui.page-sub'] [data-ui~='part.board']");
   assert(sub, "the page description is not the canonical .dh-sub > .board");
   assert(sub.textContent.length < 90, "the description is a paragraph again: " + sub.textContent);
   assert(!/week N/.test(sub.textContent), "the offset rule belongs in Help & Guide, not the header");
@@ -311,7 +314,7 @@ step("the braid does not re-teach itself above the diagram", () => {
   const heads = $$("#main h2").map(h => h.textContent.trim());
   assert(heads.indexOf("The braid") === -1, "the explanatory header is back: " + heads.join(", "));
   assert(heads.indexOf("Every merge, in words") !== -1, "the merges section lost its label");
-  assert($$("#main .pace-legend-k").length === 4, "the legend that replaced the prose is missing");
+  assert($$("#main [data-ui~='pace.legend-k']").length === 4, "the legend that replaced the prose is missing");
 });
 
 step("Pacing is a Productivity destination whose route carries the week or the tab", () => {
@@ -328,50 +331,50 @@ step("Pacing is a Productivity destination whose route carries the week or the t
   assert(b && b.arg.tab === "braid" && !b.arg.wb, "the braid route did not parse back: " + JSON.stringify(b));
   assert(KOS.router.routeFor("pacing") === "#/pacing", "the bare route is wrong");
   KOS.show("focus");
-  assert($$("#subnav .subnav-item").some(b => b.textContent.trim() === "Pacing"),
+  assert($$("#subnav [data-ui~='shell.subnav-item']").some(b => b.textContent.trim() === "Pacing"),
     "Pacing is not in the Productivity nav strip");
 });
 
 step("a deep link opens that week; an unknown week falls back to today's", () => {
   KOS.show("pacing", { wb: "2026-12-14" });
-  assert($("#main .section-header h2").textContent.includes("14 Dec"), "the deep link opened the wrong week");
+  assert($("#main [data-ui~='ui.section-header'] h2").textContent.includes("14 Dec"), "the deep link opened the wrong week");
   KOS.show("pacing", { wb: "1999-01-01" });
-  assert($("#main .section-header h2").textContent === KOS.pacing.currentWeek().label,
+  assert($("#main [data-ui~='ui.section-header'] h2").textContent === KOS.pacing.currentWeek().label,
     "an unknown week did not fall back to the current one");
 });
 
 step("one page header, three subject columns, two registers each", () => {
   KOS.show("pacing", { wb: "2026-11-02" });
-  assert($$("#main .page-header").length === 1, "not exactly one page header");
+  assert($$("#main [data-ui~='ui.page-header']").length === 1, "not exactly one page header");
   assert($("#main h1").textContent === "Pacing", "the page is not named");
-  const cols = $$("#main .pace-col");
+  const cols = $$("#main [data-ui~='pace.col']");
   assert(cols.length === 3, "subject columns: " + cols.length);
   cols.forEach(c => {
-    assert(c.querySelector(".pace-reg-class"), c.getAttribute("data-subject") + " has no class register");
-    assert(c.querySelector(".pace-reg-mine"), c.getAttribute("data-subject") + " has no personal register");
+    assert(c.querySelector("[data-ui~='pace.reg-class']"), c.getAttribute("data-subject") + " has no class register");
+    assert(c.querySelector("[data-ui~='pace.reg-mine']"), c.getAttribute("data-subject") + " has no personal register");
     assert(c.getAttribute("aria-label"), "a column has no accessible name");
   });
 });
 
 step("the term ribbon declares its horizontal scroll", () => {
-  const wrap = $("#main .u-scroller.pace-ribbon-wrap");
+  const wrap = $("#main [data-ui~='ui.scroller'][data-ui~='pace.ribbon-wrap']");
   assert(wrap, "the ribbon is not inside the shared scroller");
   assert(wrap.getAttribute("data-scroller") === "true", "the scroll is undeclared");
-  const cells = $$("#main .pace-wk:not(.pace-wk-add)");
+  const cells = $$("#main [data-ui~='pace.wk']:not([data-ui~='pace.wk-add'])");
   assert(cells.length === KOS.pacing.weeks().length, "ribbon cells: " + cells.length);
-  assert($$("#main .pace-wk-add").length === 1, "the ribbon lost its add-a-week cell");
+  assert($$("#main [data-ui~='pace.wk-add']").length === 1, "the ribbon lost its add-a-week cell");
   cells.forEach(c => {
     assert(c.tagName === "BUTTON", "a ribbon cell is not a native button");
     assert((c.getAttribute("aria-label") || "").indexOf("Week beginning") === 0,
       "a ribbon cell has no real accessible name: " + c.getAttribute("aria-label"));
   });
-  assert($$("#main .pace-wk[aria-current]").length === 1, "the selected week is not marked");
-  assert($$("#main .pace-wk.is-mock").length === 1 && $$("#main .pace-wk.is-break").length === 1,
+  assert($$("#main [data-ui~='pace.wk'][aria-current]").length === 1, "the selected week is not marked");
+  assert($$("#main [data-ui~='pace.wk'][data-state~='is-mock']").length === 1 && $$("#main [data-ui~='pace.wk'][data-state~='is-break']").length === 1,
     "the mock and half-term weeks are not flagged in the ribbon");
 });
 
 step("plan rows are native buttons, not ARIA cards", () => {
-  const rows = $$("#main .pace-topic, #main .pace-class");
+  const rows = $$("#main [data-ui~='pace.row'], #main [data-ui~='pace.class']");
   assert(rows.length, "no rows rendered");
   rows.forEach(r => {
     assert(r.tagName === "BUTTON", "a row is a " + r.tagName + ", not a button");
@@ -381,31 +384,31 @@ step("plan rows are native buttons, not ARIA cards", () => {
 
 step("the row dialog goes through the one dialog route and links to the topic page", () => {
   KOS.show("pacing", { wb: "2026-11-02" });
-  const row = $$("#main .pace-topic").find(b => /\d\/\d/.test(b.textContent));
+  const row = $$("#main [data-ui~='pace.row']").find(b => /\d\/\d/.test(b.textContent));
   assert(row, "no row with linked spec points");
   row.click();
-  const box = $(".modal.pace-dlg");
+  const box = $("[data-ui~='ui.dialog'][data-ui~='pace.dlg']");
   assert(box, "no dialog opened");
   assert(box.getAttribute("role") === "dialog" && box.getAttribute("aria-modal") === "true",
     "the dialog is not a dialog");
   assert(box.getAttribute("aria-labelledby"), "the dialog has no accessible name");
-  const refs = $$(".modal.pace-dlg .pace-dlg-ref");
+  const refs = $$("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] [data-ui~='pace.dlg-ref']");
   assert(refs.length, "the dialog lists no spec points");
   refs[0].click();
   assert(window.location.hash.indexOf("#/ref/") === 0, "the spec point did not open the topic page: " + window.location.hash);
-  assert(!$(".modal.pace-dlg"), "the dialog stayed open behind the topic page");
+  assert(!$("[data-ui~='ui.dialog'][data-ui~='pace.dlg']"), "the dialog stayed open behind the topic page");
 });
 
 step("a row with no spec point says so rather than linking somewhere near", () => {
   const row = KOS.pacing.entries().find(e => e.source === "personal" && !e.refs.length);
   const wk = KOS.pacing.weekAt(row.wb);
   KOS.show("pacing", { wb: wk.wb });
-  const btn = $$("#main .pace-topic").find(b => b.textContent.includes(row.title));
+  const btn = $$("#main [data-ui~='pace.row']").find(b => b.textContent.includes(row.title));
   assert(btn, "the unlinked row did not render");
   btn.click();
-  assert($(".modal.pace-dlg .empty-state.pace-nolink"), "no honest empty state for an unlinked row");
-  assert(!$$(".modal.pace-dlg .pace-dlg-ref").length, "an unlinked row offered a spec point anyway");
-  $(".modal.pace-dlg .modal-h .btn").click();
+  assert($("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] [data-ui~='ui.empty'][data-ui~='pace.nolink']"), "no honest empty state for an unlinked row");
+  assert(!$$("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] [data-ui~='pace.dlg-ref']").length, "an unlinked row offered a spec point anyway");
+  $("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] [data-ui~='ui.dialog-head'] button").click();
 });
 
 step("the week summary is a sub-line, and suppresses zero-only supporting facts", () => {
@@ -415,20 +418,20 @@ step("the week summary is a sub-line, and suppresses zero-only supporting facts"
   assert(!$("#main .pace-stats"), "the stat-card row came back");
 
   KOS.show("pacing", { wb: "2026-10-26" });            /* half term: nothing planned */
-  const quiet = $("#main .pace-week-header .sub").textContent;
+  const quiet = $("#main [data-ui~='pace.week-header'] [data-ui~='part.sub']").textContent;
   assert(/0 topics planned/.test(quiet), "the primary count vanished at zero: " + quiet);
   assert(!/spec points? in class/.test(quiet), "a zero supporting fact was printed: " + quiet);
   assert(!/my plan has reached/.test(quiet), "a zero supporting fact was printed: " + quiet);
   assert(/Half term/.test(quiet), "half term is no longer named");
 
   KOS.show("pacing", { wb: "2026-11-02" });
-  const full = $("#main .pace-week-header .sub").textContent;
+  const full = $("#main [data-ui~='pace.week-header'] [data-ui~='part.sub']").textContent;
   ["School week 9", "My week 8", "topics planned", "spec points in class", "my plan has reached"]
     .forEach(f => assert(full.indexOf(f) !== -1, "a busy week dropped “" + f + "”: " + full));
 });
 
 step("the styles are theme-derived and stay inside the five breakpoints", () => {
-  const css = read("css/main.css");
+  const css = readCss();
   const block = css.slice(css.indexOf("PACING — the integrated weekly timeline"));
   assert(block, "the Pacing style block is missing");
   const hex = block.match(/#[0-9a-fA-F]{3,8}\b/g);
@@ -524,22 +527,22 @@ step("a week can be added, moved and deleted, and its rows follow", () => {
 
 step("the editor creates, edits and deletes through the one dialog route", () => {
   KOS.show("pacing", { wb: "2026-11-02" });
-  const adds = $$("#main .pace-add");
+  const adds = $$("#main [data-ui~='pace.add']");
   assert(adds.length === 6, "expected an add control in each of the six registers, found " + adds.length);
   adds.forEach(b => assert(b.getAttribute("aria-label"), "an add control has no accessible name"));
 
   /* the second control is the CS column's "My plan" register */
   adds[1].click();
-  const dlg = $(".modal.pace-dlg");
+  const dlg = $("[data-ui~='ui.dialog'][data-ui~='pace.dlg']");
   assert(dlg && dlg.getAttribute("role") === "dialog" && dlg.getAttribute("aria-modal") === "true",
     "the add dialog is not a dialog");
-  assert(dlg.querySelector(".pace-pick"), "the editor has no specification picker");
-  const titleField = [...dlg.querySelectorAll("label.cal-field")]
+  assert(dlg.querySelector("[data-ui~='pace.picker']"), "the editor has no specification picker");
+  const titleField = [...dlg.querySelectorAll("label[data-ui~='cal.field']")]
     .find(l => l.querySelector("span").textContent === "Title");
   assert(titleField, "the editor has no Title field");
   titleField.querySelector("input").value = "Made by the editor";
-  dlg.querySelectorAll(".pace-pick-row input")[0].click();
-  [...dlg.querySelectorAll(".pace-dlg-actions .btn")].pop().click();
+  dlg.querySelectorAll("[data-ui~='pace.pick-row'] input")[0].click();
+  [...dlg.querySelectorAll("[data-ui~='pace.dlg-actions'] button")].pop().click();
   const made = KOS.pacing.entries().find(e => e.title === "Made by the editor");
   assert(made, "the editor did not save the row");
   assert(made.refs.length === 1, "the picked spec point was not saved");
@@ -547,40 +550,40 @@ step("the editor creates, edits and deletes through the one dialog route", () =>
     "the editor lost the register it was opened from");
 
   KOS.show("pacing", { wb: "2026-11-02" });
-  const row = $$("#main .pace-topic").find(b => b.textContent.includes("Made by the editor"));
+  const row = $$("#main [data-ui~='pace.row']").find(b => b.textContent.includes("Made by the editor"));
   assert(row, "the new row did not render");
   row.click();
-  const edit = $(".modal.pace-dlg");
-  assert(edit.querySelector(".pace-dlg-refs"), "an existing row does not show its linked topic pages");
-  const danger = edit.querySelector(".pace-dlg-danger .btn.danger");
+  const edit = $("[data-ui~='ui.dialog'][data-ui~='pace.dlg']");
+  assert(edit.querySelector("[data-ui~='pace.dlg-refs']"), "an existing row does not show its linked topic pages");
+  const danger = edit.querySelector("[data-ui~='pace.dlg-danger'] button[data-intent~='danger']");
   assert(danger, "the editor has no delete");
-  assert(!edit.querySelector(".pace-dlg-actions .btn.danger"),
+  assert(!edit.querySelector("[data-ui~='pace.dlg-actions'] button[data-intent~='danger']"),
     "Delete shares a control group with Save");
 
   /* deliberately NOT auto-confirmed: deleting a plan row has to go through
      the real danger dialog, which is the one that focuses Cancel and
      refuses to confirm on Enter */
   danger.click();
-  const ask = $(".modal-ov.confirm-ov .confirm-modal.danger");
+  const ask = $("[data-ui~='ui.dialog-overlay'][data-ui~='ui.confirm-overlay'] [data-ui~='ui.confirm'][data-intent~='danger']");
   assert(ask, "deleting a row did not ask");
-  assert(document.activeElement === ask.querySelector(".confirm-foot .btn:not(.danger)"),
+  assert(document.activeElement === ask.querySelector("[data-ui~='ui.confirm-foot'] button:not([data-intent~='danger'])"),
     "the danger dialog did not put focus on Cancel");
   assert(KOS.pacing.entries().some(e => e.title === "Made by the editor"),
     "the row was deleted before the question was answered");
-  ask.querySelector(".confirm-foot .btn.danger").click();
+  ask.querySelector("[data-ui~='ui.confirm-foot'] button[data-intent~='danger']").click();
   assert(!KOS.pacing.entries().some(e => e.title === "Made by the editor"), "the row was not deleted");
-  assert(!$(".modal.pace-dlg"), "the editor stayed open behind the delete");
+  assert(!$("[data-ui~='ui.dialog'][data-ui~='pace.dlg']"), "the editor stayed open behind the delete");
 });
 
 step("the specification picker never renders the whole specification", () => {
   KOS.show("pacing", { wb: "2026-11-02" });
-  $$("#main .pace-add")[1].click();
-  const dlg = $(".modal.pace-dlg");
-  const rows = dlg.querySelectorAll(".pace-pick-row").length;
+  $$("#main [data-ui~='pace.add']")[1].click();
+  const dlg = $("[data-ui~='ui.dialog'][data-ui~='pace.dlg']");
+  const rows = dlg.querySelectorAll("[data-ui~='pace.pick-row']").length;
   assert(rows > 0 && rows <= 40, "the picker drew " + rows + " rows of a 156-leaf subject");
-  assert(/showing 40 of \d+ matches/.test(dlg.querySelector(".pace-pick-count").textContent),
-    "the picker does not say what it left out: " + dlg.querySelector(".pace-pick-count").textContent);
-  dlg.querySelector(".modal-h .btn").click();
+  assert(/showing 40 of \d+ matches/.test(dlg.querySelector("[data-ui~='pace.pick-count']").textContent),
+    "the picker does not say what it left out: " + dlg.querySelector("[data-ui~='pace.pick-count']").textContent);
+  dlg.querySelector("[data-ui~='ui.dialog-head'] button").click();
 });
 
 /* ==================== G · the braid ==================== */
@@ -607,7 +610,7 @@ step("a branch exists only where the two registers share a linked spec point", (
 
 step("branches pack into commit-graph lanes instead of stacking", () => {
   KOS.show("pacing", { tab: "braid" });
-  const svg = $("#main .pace-braid-svg");
+  const svg = $("#main [data-ui~='pace.braid-svg']");
   assert(svg, "the braid did not render");
   const model = KOS.pacing.braid();
   const total = model.lanes.reduce((a, l) => a + l.links.length, 0);
@@ -620,14 +623,14 @@ step("branches pack into commit-graph lanes instead of stacking", () => {
 
 step("the lane names do not scroll away from their branches", () => {
   KOS.show("pacing", { tab: "braid" });
-  const keys = $("#main .pace-braid-keys");
+  const keys = $("#main [data-ui~='pace.braid-keys']");
   assert(keys, "the braid has no fixed key column");
   assert(keys.getAttribute("aria-hidden") === "true", "the decorative key column is exposed twice");
-  assert(!$("#main .pace-braid-wrap").contains(keys), "the key column is inside the scroller it exists to escape");
+  assert(!$("#main [data-ui~='pace.braid-wrap']").contains(keys), "the key column is inside the scroller it exists to escape");
   const names = [...keys.querySelectorAll("text")].map(t => t.textContent);
   ["Computer Science", "Mathematics", "IT · Data Analytics", "In class", "My plan"]
     .forEach(n => assert(names.indexOf(n) !== -1, "the key column does not name " + n));
-  assert(keys.getAttribute("height") === $("#main .pace-braid-svg").getAttribute("height"),
+  assert(keys.getAttribute("height") === $("#main [data-ui~='pace.braid-svg']").getAttribute("height"),
     "the key column and the graph are different heights, so the rows cannot line up");
 });
 
@@ -635,24 +638,24 @@ step("every arc is repeated as a real button, and the diagram is one image", () 
   KOS.show("pacing", { tab: "braid" });
   const model = KOS.pacing.braid();
   const total = model.lanes.reduce((a, l) => a + l.links.length, 0);
-  assert($$("#main .pace-merge").length === total,
-    "merge buttons " + $$("#main .pace-merge").length + " ≠ branches " + total);
-  $$("#main .pace-merge").forEach(b => {
+  assert($$("#main [data-ui~='pace.merge']").length === total,
+    "merge buttons " + $$("#main [data-ui~='pace.merge']").length + " ≠ branches " + total);
+  $$("#main [data-ui~='pace.merge']").forEach(b => {
     assert(b.tagName === "BUTTON", "a merge row is not a native button");
     assert(/spec point/.test(b.getAttribute("aria-label") || ""), "a merge row has no real accessible name");
   });
-  const svg = $("#main .pace-braid-svg");
+  const svg = $("#main [data-ui~='pace.braid-svg']");
   assert(svg.getAttribute("role") === "img" && svg.getAttribute("aria-label"),
     "the diagram is not a named image");
   assert(/listed as buttons below/.test(svg.getAttribute("aria-label")),
     "the image does not point at its text alternative");
-  assert($("#main .u-scroller.pace-braid-wrap[data-scroller]"), "the braid's horizontal scroll is undeclared");
+  assert($("#main [data-ui~='ui.scroller'][data-ui~='pace.braid-wrap'][data-scroller]"), "the braid's horizontal scroll is undeclared");
 });
 
 step("mine and class week numbers are never mixed up", () => {
   KOS.show("pacing", { tab: "braid" });
-  const btn = $$("#main .pace-merge")[0];
-  const sub = btn.querySelector(".sub").textContent;
+  const btn = $$("#main [data-ui~='pace.merge']")[0];
+  const sub = btn.querySelector("[data-ui~='part.sub']").textContent;
   const m = /mine W(\d+) → class W(\d+)/.exec(sub);
   assert(m, "the merge row does not name both week numbers: " + sub);
   const model = KOS.pacing.braid();
@@ -666,11 +669,11 @@ step("a plan with no shared spec points draws nothing and says so", () => {
   const keep = KOS.store.state.pacing.entries;
   KOS.store.state.pacing.entries = keep.map(e => Object.assign({}, e, { refs: [] }));
   KOS.show("pacing", { tab: "braid" });
-  assert(!$("#main .pace-braid-svg"), "an evidence-free braid still drew a diagram");
-  assert($("#main .empty-state"), "an evidence-free braid drew nothing and explained nothing");
+  assert(!$("#main [data-ui~='pace.braid-svg']"), "an evidence-free braid still drew a diagram");
+  assert($("#main [data-ui~='ui.empty']"), "an evidence-free braid drew nothing and explained nothing");
   KOS.store.state.pacing.entries = keep;
   KOS.show("pacing", { tab: "braid" });
-  assert($("#main .pace-braid-svg"), "the braid did not come back");
+  assert($("#main [data-ui~='pace.braid-svg']"), "the braid did not come back");
 });
 
 /* ==================== H · the tick, the carry-over and the links ==================== */
@@ -728,24 +731,24 @@ step("an unticked row from an ENDED week carries into every later week, marked b
 step("the week page: a tick beside every one of my rows, a carried band marked behind, → here moves the row", () => {
   const older = KOS.pacing.addEntry({ source: "personal", subject: "it", wb: "2026-10-12", title: "Carry me", refs: [] });
   KOS.show("pacing", { wb: "2026-11-02" });
-  const rows = $$("#main .pace-reg-mine .pace-row");
+  const rows = $$("#main [data-ui~='pace.reg-mine'] [data-ui~='pace.plan-row']");
   assert(rows.length, "no plan rows rendered");
   rows.forEach(r => {
-    assert(r.querySelector(".pace-tick input[type=checkbox]") && r.querySelector("button.pace-topic"), "a row lacks its tick or its button");
-    assert(!r.querySelector("button.pace-topic input"), "the tick is inside the row button");
+    assert(r.querySelector("[data-ui~='pace.tick'] input[type=checkbox]") && r.querySelector("button[data-ui~='pace.row']"), "a row lacks its tick or its button");
+    assert(!r.querySelector("button[data-ui~='pace.row'] input"), "the tick is inside the row button");
   });
-  const band = $$("#main .pace-carried").find(b => b.textContent.includes("Carry me"));
+  const band = $$("#main [data-ui~='pace.carried']").find(b => b.textContent.includes("Carry me"));
   assert(band && /behind/i.test(band.textContent) && /from w\/c 12 Oct/.test(band.textContent), "the carried band is missing or unlabelled");
-  assert(/carried over/.test($("#main .pace-week-header").textContent), "the week sub-line does not count the carry-over");
-  const carriedRow = $$("#main .pace-carried .pace-row").find(r => r.textContent.includes("Carry me"));
-  carriedRow.querySelector(".pace-move").click();
+  assert(/carried over/.test($("#main [data-ui~='pace.week-header']").textContent), "the week sub-line does not count the carry-over");
+  const carriedRow = $$("#main [data-ui~='pace.carried'] [data-ui~='pace.plan-row']").find(r => r.textContent.includes("Carry me"));
+  carriedRow.querySelector("[data-ui~='pace.move']").click();
   assert(KOS.pacing.entryById(older.id).wb === "2026-11-02", "→ here did not move the row into the week");
-  assert(!$$("#main .pace-carried .pace-row").some(r => r.textContent.includes("Carry me")), "the moved row is still in the carried band");
-  const row = $$("#main .pace-reg-mine .pace-row").find(r => r.textContent.includes("Carry me"));
-  const tick = row.querySelector(".pace-tick input");
+  assert(!$$("#main [data-ui~='pace.carried'] [data-ui~='pace.plan-row']").some(r => r.textContent.includes("Carry me")), "the moved row is still in the carried band");
+  const row = $$("#main [data-ui~='pace.reg-mine'] [data-ui~='pace.plan-row']").find(r => r.textContent.includes("Carry me"));
+  const tick = row.querySelector("[data-ui~='pace.tick'] input");
   tick.checked = true; tick.dispatchEvent(new window.Event("change", { bubbles: true }));
   assert(KOS.pacing.entryById(older.id).done === true, "the row tick did not go through setDone");
-  assert($$("#main .pace-reg-mine .pace-row.is-done").some(r => r.textContent.includes("Carry me")), "a ticked row is not shown ticked");
+  assert($$("#main [data-ui~='pace.reg-mine'] [data-ui~='pace.plan-row'][data-state~='is-done']").some(r => r.textContent.includes("Carry me")), "a ticked row is not shown ticked");
   KOS.pacing.removeEntry(older.id);
 });
 
@@ -758,14 +761,14 @@ step("class milestones stand in the Countdown rail and open the week; the dialog
   assert(!KOS.store.state.calendar.events.some(e => e.title === "Maths mock"), "the milestone was written as a calendar event (invariant 44)");
   const mine = KOS.pacing.addEntry({ source: "personal", subject: "maths", wb: "2026-11-02", title: "Remind me row", refs: [] });
   KOS.show("pacing", { wb: "2026-11-02" });
-  $$("#main .pace-topic").find(b => b.textContent.includes("Remind me row")).click();
-  const dlg = $(".modal.pace-dlg");
-  assert(dlg.querySelector(".pace-dlg-done input[type=checkbox]"), "the dialog has no tick");
+  $$("#main [data-ui~='pace.row']").find(b => b.textContent.includes("Remind me row")).click();
+  const dlg = $("[data-ui~='ui.dialog'][data-ui~='pace.dlg']");
+  assert(dlg.querySelector("[data-ui~='pace.dlg-done'] input[type=checkbox]"), "the dialog has no tick");
   const before = KOS.reminders.all().length;
   [...dlg.querySelectorAll("button")].find(b => /Remind me/.test(b.textContent)).click();
   const r = KOS.reminders.all().find(x => x.title === "Plan: Remind me row");
   assert(r && KOS.reminders.all().length === before + 1 && r.due === "2026-11-08" && r.tags.indexOf("pacing") !== -1, "the reminder handoff is wrong: " + JSON.stringify(r));
-  $(".modal.pace-dlg .modal-h .btn").click();
+  $("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] [data-ui~='ui.dialog-head'] button").click();
   KOS.reminders.remove(r.id);
   KOS.pacing.removeEntry(mock.id); KOS.pacing.removeEntry(mine.id);
 });
@@ -774,13 +777,13 @@ step("Home: the week's plan card ticks in place, leads with what is behind, and 
   const older = KOS.pacing.addEntry({ source: "personal", subject: "it", wb: "2026-10-12", title: "Home carry", refs: [] });
   const now = KOS.pacing.addEntry({ source: "personal", subject: "it", wb: "2026-11-02", title: "Home now", refs: [] });
   const card = KOS.pacingHomeCard();
-  assert(card && card.classList.contains("pace-home"), "no Home card");
-  const rows = [...card.querySelectorAll(".pace-home-row")];
+  assert(card && card.matches('[data-ui~="pace.home"]'), "no Home card");
+  const rows = [...card.querySelectorAll("[data-ui~='pace.home-row']")];
   const mine = rows.find(r => /Home carry/.test(r.textContent));
-  assert(mine && mine.classList.contains("is-carried"), "the carried row is not on the card, marked behind");
-  const firstOpen = rows.findIndex(r => !r.classList.contains("is-carried"));
-  assert(firstOpen === -1 || rows.slice(0, firstOpen).every(r => r.classList.contains("is-carried")), "carried rows must lead the card");
-  assert(/behind/.test(card.querySelector(".dl-h").textContent), "the card header does not say behind");
+  assert(mine && mine.matches('[data-state~="is-carried"]'), "the carried row is not on the card, marked behind");
+  const firstOpen = rows.findIndex(r => !r.matches('[data-state~="is-carried"]'));
+  assert(firstOpen === -1 || rows.slice(0, firstOpen).every(r => r.matches('[data-state~="is-carried"]')), "carried rows must lead the card");
+  assert(/behind/.test(card.querySelector("[data-ui~='cal.countdown-head']").textContent), "the card header does not say behind");
   const tick = mine.querySelector("input[type=checkbox]");
   tick.checked = true; tick.dispatchEvent(new window.Event("change", { bubbles: true }));
   assert(KOS.pacing.entryById(older.id).done === true, "the Home tick did not go through setDone");
@@ -810,11 +813,11 @@ step("a class row lists the week's lessons one per line, from the scheme of work
   assert(ls[2].tone === "assess" && ls[3].tone === "nea" && ls[0].tone === "lesson", "lesson tones wrong: " + ls.map(l => l.tone).join(","));
   assert(KOS.pacing.lessonsOf({ detail: "" }).length === 0 && KOS.pacing.lessonsOf({ detail: "One thing." }).length === 1, "edge cases");
   KOS.show("pacing", { wb: "2026-11-02" });
-  const block = $$("#main .pace-class-block").find(b => b.querySelector(".pace-lessons"));
+  const block = $$("#main [data-ui~='pace.class-block']").find(b => b.querySelector("[data-ui~='pace.lessons']"));
   assert(block, "no class block carries its lesson list");
-  assert(block.querySelector("button.pace-class") && !block.querySelector("button.pace-class .pace-lessons"), "the lesson list must sit beside the row button, not inside it");
-  const items = block.querySelectorAll(".pace-lessons .pace-lesson");
-  assert(items.length > 1 && /lessons/.test(block.querySelector(".pace-class .sub").textContent), "the row does not count its lessons");
+  assert(block.querySelector("button[data-ui~='pace.class']") && !block.querySelector("button[data-ui~='pace.class'] [data-ui~='pace.lessons']"), "the lesson list must sit beside the row button, not inside it");
+  const items = block.querySelectorAll("[data-ui~='pace.lessons'] [data-ui~='pace.lesson']");
+  assert(items.length > 1 && /lessons/.test(block.querySelector("[data-ui~='pace.class'] [data-ui~='part.sub']").textContent), "the row does not count its lessons");
 });
 
 KOS.srs.todayISO = realToday;

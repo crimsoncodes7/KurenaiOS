@@ -95,19 +95,19 @@ step("every gameapi call fails cleanly through the callback, zero network", asyn
    the ⋯ Actions group — audit VLT-3. These helpers read and drive that
    group, so the steps still exercise the real control path. */
 function actionLabels() {
-  const btn = window.document.querySelector("#main .mvt-actions-btn");
+  const btn = window.document.querySelector("#main [data-ui~='vault.toolbar-actions-btn']");
   if (!btn) throw new Error("no Actions group in the games toolbar");
   btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
-  const panel = window.document.querySelector(".menu-panel");
+  const panel = window.document.querySelector("[data-ui~='ui.menu-panel']");
   if (!panel) throw new Error("the Actions menu did not open");
-  const labels = [...panel.querySelectorAll(".menu-item-lbl")].map(n => n.textContent);
+  const labels = [...panel.querySelectorAll("[data-ui~='ui.menu-item']")].map(n => n.textContent);
   KOS.ui.closeMenu();
   return labels;
 }
 function vaultAction(re) {
-  const btn = window.document.querySelector("#main .mvt-actions-btn");
+  const btn = window.document.querySelector("#main [data-ui~='vault.toolbar-actions-btn']");
   btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
-  const panel = window.document.querySelector(".menu-panel");
+  const panel = window.document.querySelector("[data-ui~='ui.menu-panel']");
   const item = [...panel.querySelectorAll("[role=menuitem]")].find(b => re.test(b.textContent));
   if (!item) { KOS.ui.closeMenu(); throw new Error("no Actions item matching " + re); }
   item.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
@@ -129,14 +129,14 @@ step("the toolbar renders Find new + Steam; signed-out Find new toasts, no fetch
   vaultAction(/Find new/);
   await tick(30);
   assert(netLog.length === net0, "signed-out Find new fetched something");
-  assert(!window.document.querySelector(".msch-modal"), "search modal should not open signed-out");
+  assert(!window.document.querySelector("[data-ui~='msearch.dialog']"), "search modal should not open signed-out");
 });
 
 step("the Steam modal opens signed-out with an explanation, not a request", async () => {
   const net0 = netLog.length;
   vaultAction(/Steam/);
   await tick(30);
-  const modal = window.document.querySelector(".gm-steam-modal");
+  const modal = window.document.querySelector("[data-ui~='games.steam']");
   assert(modal, "Steam modal missing");
   assert(/cloud account|sign in/i.test(modal.textContent), "signed-out explanation missing");
   assert(netLog.length === net0, "signed-out Steam modal fetched something");

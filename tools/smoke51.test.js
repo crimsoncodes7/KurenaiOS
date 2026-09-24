@@ -124,8 +124,8 @@ step("content.has() counts a topic with only a fork; a fork on an empty topic re
   KOS.edits.set(bare.sid, bare.ref, "notes", [{ p: "first words" }]);
   assert(KOS.content.has(bare.sid, bare.ref), "a forked topic is not counted as having content");
   KOS.show("ref", { subject: bare.sid, ref: bare.ref });
-  click($$(".study-tab").find(t => t.dataset.tab === "notes"));
-  assert(/first words/.test($(".notes-article").textContent), "the fork on a bare topic did not render");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "notes"));
+  assert(/first words/.test($("[data-ui~='topic.notes']").textContent), "the fork on a bare topic did not render");
   KOS.edits.reset(bare.sid, bare.ref);
 });
 
@@ -162,14 +162,14 @@ step("the MCQ engine mounts the fork; an exam fork round-trips its parts", () =>
   quiz.push({ q: "FORKED QUESTION", opts: ["a", "b", "c"], ans: 2, why: "because" });
   KOS.edits.set(SID, REF, "quiz", quiz);
   KOS.show("ref", { subject: SID, ref: REF });
-  click($$(".study-tab").find(t => t.dataset.tab === "quiz"));
-  assert(/FORKED QUESTION/.test($(".study-panel").textContent), "the quiz fork did not mount");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "quiz"));
+  assert(/FORKED QUESTION/.test($("[data-ui~='study.panel']").textContent), "the quiz fork did not mount");
   const exam = [{ q: "single", marks: 2, ms: ["m1", "m2"] },
                 { ctx: "shared stem", parts: [{ q: "(a)", marks: 1, ms: ["x"] }, { q: "(b)", marks: 3, ms: ["y", "z"] }], src: "AQA 2023" }];
   KOS.edits.set(SID, REF, "exam", exam);
-  click($$(".study-tab").find(t => t.dataset.tab === "exam"));
-  assert(/shared stem/.test($(".study-panel").textContent) && $$(".qz-exam").length === 2, "the exam fork did not mount as two items");
-  assert($(".qz-multi"), "the multi-part item is not rendered as one");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "exam"));
+  assert(/shared stem/.test($("[data-ui~='study.panel']").textContent) && $$("[data-ui~='quiz.exam']").length === 2, "the exam fork did not mount as two items");
+  assert($("[data-ui~='quiz.multi']"), "the multi-part item is not rendered as one");
 });
 
 /* ============ 5 · the specification ============ */
@@ -185,10 +185,10 @@ step("generated lines convert to blocks and a spec fork renders as blocks", () =
   spec.content.unshift({ callout: { t: "memorise", h: "My reminder", body: [{ md: "**remember** this" }] } });
   KOS.edits.set(SID, REF, "spec", spec);
   KOS.show("ref", { subject: SID, ref: REF });
-  click($$(".study-tab").find(t => t.dataset.tab === "spec"));
-  assert($(".speccontent .n-call-memorise"), "the spec fork did not render its callout");
-  assert($(".speccontent .n-blk"), "spec blocks are not wrapped for the editor");
-  assert($(".note-area"), "the personal note area disappeared from a forked spec");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "spec"));
+  assert($("[data-ui~='topic.spec'] [data-ui~='content.callout'][data-kind='memorise']"), "the spec fork did not render its callout");
+  assert($("[data-ui~='topic.spec'] [data-ui~='topic.note-block']"), "spec blocks are not wrapped for the editor");
+  assert($("[data-ui~='ui.note-area']"), "the personal note area disappeared from a forked spec");
 });
 
 /* ============ 6 · Markdown and inline ============ */
@@ -231,57 +231,57 @@ console.log("== 7 · the editor ==");
 step("Edit opens the panel; a new block forks the topic and the page re-renders live", async () => {
   fresh();
   KOS.show("ref", { subject: SID, ref: REF });
-  click($$(".study-tab").find(t => t.dataset.tab === "notes"));
-  const edit = $(".study-edit");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "notes"));
+  const edit = $("[data-ui~='topic.edit-bar']");
   assert(edit && !edit.hidden, "no Edit control on the Notes tab");
   click(edit);
-  assert($(".study-editor"), "the editor did not open");
-  assert($(".study-grid").classList.contains("editing"), "the grid did not enter editing mode");
-  assert($(".study-inspector").hidden, "the inspector is still up beside the editor");
+  assert($("[data-ui~='editor.root']"), "the editor did not open");
+  assert($("[data-ui~='study.grid']").matches('[data-state~="editing"]'), "the grid did not enter editing mode");
+  assert($("[data-ui~='topic.inspector']").hidden, "the inspector is still up beside the editor");
   assert(KOS.store.state.ui.editing && KOS.store.state.ui.editing.tab === "notes", "ui.editing was not recorded");
   assert(edit.getAttribute("aria-pressed") === "true" && /Done/.test(edit.textContent), "the control does not read as pressed / Done");
-  const before = $$(".ed-block").length;
+  const before = $$("[data-ui~='editor.block']").length;
   assert(before === SHIPPED.notes.length, "the block list does not show every shipped block: " + before);
   /* add a paragraph at the end */
-  const menus = $$(".ed-addmenu");
-  const addBtn = [...menus[menus.length - 1].querySelectorAll(".ed-addbtn")].find(b => b.textContent === "Paragraph");
+  const menus = $$("[data-ui~='editor.addmenu']");
+  const addBtn = [...menus[menus.length - 1].querySelectorAll("[data-ui~='editor.add']")].find(b => b.textContent === "Paragraph");
   click(addBtn);
-  assert($$(".ed-block").length === before + 1, "the block was not added to the list");
+  assert($$("[data-ui~='editor.block']").length === before + 1, "the block was not added to the list");
   assert(KOS.edits.has(SID, REF, "notes"), "adding a block did not fork the topic");
-  const ta = $(".ed-block.sel textarea");
+  const ta = $("[data-ui~='editor.block'][data-state~='sel'] textarea");
   assert(ta, "the new block did not open for editing");
   type(ta, "LIVE PREVIEW TEXT with $x^2$");
   await tick(400);
   const fork = KOS.edits.get(SID, REF).notes;
   assert(fork[fork.length - 1].p === "LIVE PREVIEW TEXT with $x^2$", "the keystrokes were not saved");
-  assert(/LIVE PREVIEW TEXT/.test($(".notes-article").textContent), "the page did not re-render with the edit");
-  assert($('.notes-article .n-blk[data-bid="' + fork[fork.length - 1].id + '"]'), "the rendered block is not addressable");
-  assert($(".study-editor"), "the re-render closed the editor");
+  assert(/LIVE PREVIEW TEXT/.test($("[data-ui~='topic.notes']").textContent), "the page did not re-render with the edit");
+  assert($('[data-ui~="topic.notes"] [data-ui~="topic.note-block"][data-bid="' + fork[fork.length - 1].id + '"]'), "the rendered block is not addressable");
+  assert($("[data-ui~='editor.root']"), "the re-render closed the editor");
 });
 
 step("a page break makes a page; selecting a block marks it; Done closes and clears the state", async () => {
-  const menus = $$(".ed-addmenu");
-  const pageBtn = [...menus[menus.length - 1].querySelectorAll(".ed-addbtn")].find(b => b.textContent === "Page break");
+  const menus = $$("[data-ui~='editor.addmenu']");
+  const pageBtn = [...menus[menus.length - 1].querySelectorAll("[data-ui~='editor.add']")].find(b => b.textContent === "Page break");
   click(pageBtn);
-  type($(".ed-block.sel input"), "Second page");
+  type($("[data-ui~='editor.block'][data-state~='sel'] input"), "Second page");
   await tick(400);
-  const paraBtn = [...$$(".ed-addmenu").pop().querySelectorAll(".ed-addbtn")].find(b => b.textContent === "Paragraph");
+  const paraBtn = [...$$("[data-ui~='editor.addmenu']").pop().querySelectorAll("[data-ui~='editor.add']")].find(b => b.textContent === "Paragraph");
   click(paraBtn);
-  type($(".ed-block.sel textarea"), "ON PAGE TWO");
+  type($("[data-ui~='editor.block'][data-state~='sel'] textarea"), "ON PAGE TWO");
   await tick(400);
   const basePages = KOS.content.splitPages(SHIPPED.notes).length;
-  const picker = $(".reader-page-select");
+  const picker = $("[data-ui~='topic.reader-page-select']");
   assert(picker && picker.options.length === basePages + 1, "the page break did not add a page to the picker: " + (picker && picker.options.length) + " vs " + (basePages + 1));
-  assert(picker.value === String(picker.options.length - 1) && /ON PAGE TWO/.test($(".notes-article").textContent),
-    "the page holding the edited block is not the one shown: selected=" + picker.value + " text=" + $(".notes-article").textContent.slice(0, 80) + " fork=" + JSON.stringify(KOS.edits.get(SID, REF).notes.slice(-3)));
+  assert(picker.value === String(picker.options.length - 1) && /ON PAGE TWO/.test($("[data-ui~='topic.notes']").textContent),
+    "the page holding the edited block is not the one shown: selected=" + picker.value + " text=" + $("[data-ui~='topic.notes']").textContent.slice(0, 80) + " fork=" + JSON.stringify(KOS.edits.get(SID, REF).notes.slice(-3)));
   /* select the first block: the article turns to page one and marks it */
-  click($$(".ed-block-h")[0]);
-  assert($(".reader-page-select").value === "0", "selecting a block on page one did not turn to it");
-  assert($(".notes-article .n-blk-sel"), "the selected block is not marked in the article");
-  click($(".ed-done"));
-  assert(!$(".study-editor"), "Done did not close the editor");
+  click($$("[data-ui~='editor.block-h']")[0]);
+  assert($("[data-ui~='topic.reader-page-select']").value === "0", "selecting a block on page one did not turn to it");
+  assert($("[data-ui~='topic.notes'] [data-state~='n-blk-sel']"), "the selected block is not marked in the article");
+  click($("[data-ui~='editor.done']"));
+  assert(!$("[data-ui~='editor.root']"), "Done did not close the editor");
   assert(!KOS.store.state.ui.editing, "ui.editing was not cleared");
-  assert(!$(".study-inspector").hidden, "the inspector did not return");
+  assert(!$("[data-ui~='topic.inspector']").hidden, "the inspector did not return");
   assert(KOS.edits.has(SID, REF, "notes"), "closing the editor discarded the fork");
   /* per-device: ui is never in the cloud document */
   KOS.store.state.ui.editing = { sid: SID, ref: REF, tab: "notes" };
@@ -293,19 +293,19 @@ step("a page break makes a page; selecting a block marks it; Done closes and cle
 step("the editor reopens on a redraw and follows the tab; Reset restores the curriculum", async () => {
   KOS.store.state.ui.editing = { sid: SID, ref: REF, tab: "notes" };
   KOS.show("ref", { subject: SID, ref: REF });
-  assert($(".study-editor") && /Notes/.test($(".ed-title").textContent), "the editor did not reopen after a redraw");
-  click($$(".study-tab").find(t => t.dataset.tab === "cards"));
-  assert(/Flashcards/.test($(".ed-title").textContent), "the editor did not follow the tab: " + $(".ed-title").textContent);
-  assert($$(".study-editor .ed-row").length >= SHIPPED.flashcards.length, "the card editor does not list the deck");
-  click($$(".study-tab").find(t => t.dataset.tab === "notes"));
-  assert(!$(".ed-reset").hidden, "Reset is hidden on a forked tab");
-  click($(".ed-reset"));
+  assert($("[data-ui~='editor.root']") && /Notes/.test($("[data-ui~='editor.title']").textContent), "the editor did not reopen after a redraw");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "cards"));
+  assert(/Flashcards/.test($("[data-ui~='editor.title']").textContent), "the editor did not follow the tab: " + $("[data-ui~='editor.title']").textContent);
+  assert($$("[data-ui~='editor.root'] [data-ui~='editor.row']").length >= SHIPPED.flashcards.length, "the card editor does not list the deck");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "notes"));
+  assert(!$("[data-ui~='editor.reset']").hidden, "Reset is hidden on a forked tab");
+  click($("[data-ui~='editor.reset']"));
   await tick(50);
   assert(!KOS.edits.has(SID, REF, "notes"), "Reset did not remove the fork");
-  assert($$(".ed-block").length === SHIPPED.notes.length, "the block list did not return to the shipped notes");
-  assert(!/LIVE PREVIEW TEXT/.test($(".notes-article").textContent), "the page still shows the discarded edit");
-  click($$(".study-tab").find(t => t.dataset.tab === "files"));
-  assert(!$(".study-editor"), "the editor stayed open on a tab that has nothing to edit");
+  assert($$("[data-ui~='editor.block']").length === SHIPPED.notes.length, "the block list did not return to the shipped notes");
+  assert(!/LIVE PREVIEW TEXT/.test($("[data-ui~='topic.notes']").textContent), "the page still shows the discarded edit");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "files"));
+  assert(!$("[data-ui~='editor.root']"), "the editor stayed open on a tab that has nothing to edit");
   assert(!KOS.store.state.ui.editing, "ui.editing survived leaving an editable tab");
 });
 

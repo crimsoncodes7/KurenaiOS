@@ -211,8 +211,8 @@ step("anime view fetches airing once, paints EP badges; TTL suppresses a refetch
   KOS.show("anime");
   const main = document.getElementById("main");
   await waitFor(() => airingCalls() >= 1, 4000);
-  await waitFor(() => [...main.querySelectorAll(".an-airing")].length > 0, 4000);
-  const chip = main.querySelector(".an-airing");
+  await waitFor(() => [...main.querySelectorAll("[data-ui~='anime.airing']")].length > 0, 4000);
+  const chip = main.querySelector("[data-ui~='anime.airing']");
   if (!/EP 13 · 1d 1h/.test(chip.textContent)) throw new Error("badge text: " + chip.textContent);
   if (!/airs/.test(chip.title)) throw new Error("full air date missing from tooltip");
   const calls = airingCalls();
@@ -239,13 +239,13 @@ step("seasonal view: current-season entries of every status, watching first, pal
     externalIds: { anilistId: 4182 }, extra: { season: cur.season, seasonYear: cur.year } }, cb));
   KOS.show("seasonal");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-card").length > 0, 4000);
-  const wrap = main.querySelector(".season-view");
+  await waitFor(() => main.querySelectorAll("[data-ui~='vault.card']").length > 0, 4000);
+  const wrap = main.querySelector("[data-ui~='anime.season']");
   if (!wrap) throw new Error("season container missing");
   const meta = KOS.anime.SEASON_META[cur.season];
-  if (!wrap.classList.contains(meta.cls)) throw new Error("palette class missing: " + wrap.className);
+  if (!meta || wrap.getAttribute("data-season") !== cur.season) throw new Error("season palette missing: " + wrap.getAttribute("data-season"));
   if (!new RegExp(meta.label + " " + cur.year).test(wrap.textContent)) throw new Error("season header wrong");
-  const titles = [...main.querySelectorAll(".med-card .med-title")].map(x => x.textContent);
+  const titles = [...main.querySelectorAll("[data-ui~='vault.card'] [data-ui~='vault.title']")].map(x => x.textContent);
   if (!titles.some(t => /Frieren/.test(t))) throw new Error("current-season entry missing");
   if (titles.some(t => /Old Classic|Hand Tracked/.test(t))) throw new Error("non-current/no-season entries leaked in: " + titles.join(", "));
   if (!titles.some(t => /Planned This Season/.test(t))) throw new Error("a planned title from the season must appear on the Seasonal page");
@@ -253,9 +253,9 @@ step("seasonal view: current-season entries of every status, watching first, pal
   /* the art can be replaced: the menu is there, and the kv key is the contract */
   if (![...wrap.querySelectorAll("button")].some(b => /^Art/.test(b.textContent.trim()))) throw new Error("the season art menu is missing");
   /* the hero carries the selected season's scenery, credited */
-  const art = wrap.querySelector(".season-hero .season-art");
+  const art = wrap.querySelector("[data-ui~='anime.season-hero'] [data-ui~='anime.season-art']");
   if (!art || art.getAttribute("src") !== meta.artSmall || art.getAttribute("srcset").indexOf(meta.art) === -1) throw new Error("season art missing from the hero");
-  if (!new RegExp(meta.credit).test(wrap.querySelector(".season-credit").textContent)) throw new Error("the artist credit is missing");
+  if (!new RegExp(meta.credit).test(wrap.querySelector("[data-ui~='anime.season-credit']").textContent)) throw new Error("the artist credit is missing");
   if (![...main.querySelectorAll("button")].some(b => /Refresh airing/.test(b.textContent))) throw new Error("manual refresh missing");
 });
 
@@ -264,15 +264,15 @@ console.log("== matrix ==");
 step("airing schedule renders by day beside the on-the-go cards (not instead of them)", async () => {
   KOS.show("matrix");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".mx-ep").length > 0, 4000);
-  const row = main.querySelector(".mx-ep");
+  await waitFor(() => main.querySelectorAll("[data-ui~='coll.airing-ep']").length > 0, 4000);
+  const row = main.querySelector("[data-ui~='coll.airing-ep']");
   if (!/Frieren/.test(row.textContent)) throw new Error("airing entry missing");
   if (!/1d 1h/.test(row.textContent) || !/EP 13/.test(row.textContent)) throw new Error("countdown/episode missing: " + row.textContent);
   /* the schedule buckets by local day: an episode 1d 1h out is Tomorrow (or the day after, across a midnight) */
-  const dayHead = row.closest(".mx-day").querySelector(".mx-day-h b").textContent;
+  const dayHead = row.closest("[data-ui~='coll.airing-day']").querySelector("[data-ui~='coll.day-h'] b").textContent;
   if (!/Tomorrow|day/.test(dayHead)) throw new Error("day bucket header wrong: " + dayHead);
-  await waitFor(() => main.querySelectorAll(".mx-now-card").length > 0, 4000);
-  if (!main.querySelector(".mx-now-card")) throw new Error("on-the-go cards were replaced — they must coexist");
+  await waitFor(() => main.querySelectorAll("[data-ui~='coll.now-card']").length > 0, 4000);
+  if (!main.querySelector("[data-ui~='coll.now-card']")) throw new Error("on-the-go cards were replaced — they must coexist");
   if (![...main.querySelectorAll("button")].some(b => /Seasonal view/.test(b.textContent))) throw new Error("seasonal link missing");
 });
 
@@ -285,13 +285,13 @@ step("anime activity heatmap lives in the stats modal, counting ONLY anime logs"
   KOS.sessions.log({ type: "media", subject: null, ref: null, dur: null,
     metrics: { module: "books", entryId: 1, title: "Berserk", action: "progress" } });
   KOS.medview.statsModal("anime", KOS.media.module("anime"));
-  await waitFor(() => document.querySelector(".stats-modal"), 4000);
-  const modal = document.querySelector(".stats-modal");
-  const card = [...modal.querySelectorAll(".cs-chart")].find(c => /Activity/.test(c.textContent));
+  await waitFor(() => document.querySelector("[data-ui~='vault.stats']"), 4000);
+  const modal = document.querySelector("[data-ui~='vault.stats']");
+  const card = [...modal.querySelectorAll("[data-ui~='chart.chart']")].find(c => /Activity/.test(c.textContent));
   if (!card) throw new Error("activity heatmap missing from the stats modal");
   if (!/2 watch logs/.test(card.textContent)) throw new Error("books log leaked into the anime count: " + card.textContent.slice(0, 80));
   if (!card.querySelector("svg rect")) throw new Error("not rendered via KOS.charts.heatmap SVG");
-  const ov = modal.closest(".modal-ov"); if (ov) ov.remove();
+  const ov = modal.closest("[data-ui~='ui.dialog-overlay']"); if (ov) ov.remove();
 });
 
 /* ============ 7 · AniList profile ============ */
@@ -308,7 +308,7 @@ step("connected: one-request bundle renders identity, stats, favourites, follows
   const before = netLog.filter(r => /unreadNotificationCount/.test(r.q)).length;
   KOS.show("aniprofile");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".ap-head").length > 0, 4000);
+  await waitFor(() => main.querySelectorAll("[data-ui~='profile.head']").length > 0, 4000);
   const reqs = netLog.filter(r => /unreadNotificationCount/.test(r.q));
   if (reqs.length !== before + 1) throw new Error("profile must be ONE request, saw " + (reqs.length - before));
   const req = reqs[reqs.length - 1];
@@ -318,19 +318,19 @@ step("connected: one-request bundle renders identity, stats, favourites, follows
   /* 3j: the bundle renders across five tabs off the SAME single fetch —
      the header + Overview first, then each tab's slice after a click */
   function clickTab(name) {
-    [...main.querySelectorAll(".ap-tabs .study-tab")].find(b => b.textContent === name).click();
+    [...main.querySelectorAll("[data-ui~='profile.tabs'] [data-ui~='ui.tab']")].find(b => b.textContent === name).click();
   }
   let txt = main.textContent;
   if (!/crimson/.test(txt)) throw new Error("name missing");
-  if (!main.querySelector(".ap-avatar")) throw new Error("avatar missing");
-  if (!main.querySelector(".ap-head.has-banner")) throw new Error("banner missing");
+  if (!main.querySelector("[data-ui~='profile.avatar']")) throw new Error("avatar missing");
+  if (!main.querySelector("[data-ui~='profile.head'][data-state~='has-banner']")) throw new Error("banner missing");
   if (!/A-level grind \+ anime\./.test(txt)) throw new Error("about missing");
   if (!/3 unread/.test(txt)) throw new Error("unread count missing");
   if (!/162/.test(txt) || !/2100/.test(txt) || !/35\.0/.test(txt)) throw new Error("anime stats missing (incl. days watched 50400min → 35.0)");
   if (!/3200/.test(txt) || !/210/.test(txt)) throw new Error("manga stats missing");
   clickTab("Analytics");
   txt = main.textContent;
-  if (!/Anime formats/.test(txt) || !/Manga formats/.test(txt) || !main.querySelector(".ap-analytics-grid")) throw new Error("analytics tab missing both media types");
+  if (!/Anime formats/.test(txt) || !/Manga formats/.test(txt) || !main.querySelector("[data-ui~='profile.analytics']")) throw new Error("analytics tab missing both media types");
   clickTab("Favourites");
   txt = main.textContent;
   /* favourites print the English title where AniList has one */
@@ -358,7 +358,7 @@ step("profile cache: re-entering within TTL is free; ⟳ forces a refetch", asyn
   const before = count();
   KOS.show("home");
   KOS.show("aniprofile");
-  await waitFor(() => document.querySelectorAll(".ap-head").length > 0, 4000);
+  await waitFor(() => document.querySelectorAll("[data-ui~='profile.head']").length > 0, 4000);
   if (count() !== before) throw new Error("cache miss on quick re-entry");
   const btn = [...document.querySelectorAll("#main button")].find(b => /⟳ Refresh/.test(b.textContent));
   btn.click();
@@ -366,23 +366,23 @@ step("profile cache: re-entering within TTL is free; ⟳ forces a refetch", asyn
   if (count() !== before + 1) throw new Error("force refresh did not refetch");
 });
 step("nav: Sync reaches AniList and history returns to the Sync tab", async () => {
-  const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");
+  const rb = [...document.querySelectorAll("#rail [data-ui~='shell.rail-item']")].find(b => b.dataset.section === "collection");
   if (!rb) throw new Error("collection rail button missing");
   rb.click();
   await tick(60);
-  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /^Sync$/.test(b.textContent.trim()));
+  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Sync$/.test(b.textContent.trim()));
   if (!sn) throw new Error("Sync entry missing");
   sn.click();
   await tick(60);
-  const anilist = [...document.querySelectorAll(".collection-workspace-tabs button")].find(b => /^AniList$/.test(b.textContent.trim()));
+  const anilist = [...document.querySelectorAll("[data-ui~='coll.workspace-tabs'] button")].find(b => /^AniList$/.test(b.textContent.trim()));
   if (!anilist) throw new Error("AniList Sync tab missing");
   anilist.click();
   await tick(60);
   if (!/AniList Profile/.test(document.getElementById("main").textContent)) throw new Error("navigation failed");
-  if (!document.querySelector("#subnav .subnav-item.active")?.textContent.includes("Sync")) throw new Error("Sync nav was not active");
+  if (!document.querySelector("#subnav [data-ui~='shell.subnav-item'][data-state~='active']")?.textContent.includes("Sync")) throw new Error("Sync nav was not active");
   KOS.back();
   await tick(60);
-  if (!document.querySelector(".collection-workspace-tabs .study-tab.active")?.textContent.includes("Sync & Import")) throw new Error("back did not restore Sync & Import tab");
+  if (!document.querySelector("[data-ui~='coll.workspace-tabs'] [data-ui~='ui.tab'][data-state~='active']")?.textContent.includes("Sync & Import")) throw new Error("back did not restore Sync & Import tab");
   KOS.forward();
   await tick(60);
   if (!/AniList Profile/.test(document.getElementById("main").textContent)) throw new Error("forward navigation failed");

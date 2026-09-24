@@ -743,8 +743,7 @@
 
   /* ---------------- the view ---------------- */
   KOS.views.wishlist = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     var w = data();
     var pref = prefs();
@@ -1119,13 +1118,13 @@
     /* HTML5 drag reordering within the active tab (List only) */
     function enableDrag(list) {
       var dragEl = null;
-      list.querySelectorAll(".wl-row.draggable").forEach(function (row) {
+      list.querySelectorAll("[data-ui~='plan.row'][data-state~='draggable']").forEach(function (row) {
         row.addEventListener("dragstart", function (ev) {
-          dragEl = row; row.classList.add("dragging");
+          dragEl = row; KOS.ui.state(row, "dragging", true);
           ev.dataTransfer.effectAllowed = "move";
           try { ev.dataTransfer.setData("text/plain", row.dataset.id); } catch (e) {}
         });
-        row.addEventListener("dragend", function () { row.classList.remove("dragging"); dragEl = null; commitOrder(list); });
+        row.addEventListener("dragend", function () { KOS.ui.state(row, "dragging", false); dragEl = null; commitOrder(list); });
         row.addEventListener("dragover", function (ev) {
           ev.preventDefault();
           if (!dragEl || dragEl === row) return;
@@ -1136,7 +1135,7 @@
       });
     }
     function commitOrder(list) {
-      var ids = Array.prototype.map.call(list.querySelectorAll(".wl-row"), function (r) { return Number(r.dataset.id); });
+      var ids = Array.prototype.map.call(list.querySelectorAll("[data-ui~='plan.row']"), function (r) { return Number(r.dataset.id); });
       reorder(tab, ids);
     }
 
@@ -1228,7 +1227,7 @@
     if (!entry || entry.id == null || !overlay) return;
     var linked = forEntry(entry.id);
     if (!linked.length) return;
-    var form = overlay.querySelector(".med-form");
+    var form = overlay.querySelector("[data-ui~='ui.form']");
     if (!form) return;
     form.insertBefore(wishlistBanner(linked, overlay), form.firstChild);
   });

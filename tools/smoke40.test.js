@@ -42,6 +42,7 @@ window.fetch = () => Promise.resolve({ ok: true, status: 200, headers: { get: ()
   json: () => Promise.resolve({}), text: () => Promise.resolve("") });
 
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
+const { readCss } = require("./lib/css");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;
 
@@ -79,7 +80,7 @@ async function waitFor(cond, ms) {
   return cond();
 }
 function assert(cond, msg) { if (!cond) throw new Error(msg); }
-const css = fs.readFileSync(path.join(ROOT, "css", "main.css"), "utf8");
+const css = readCss();
 const main = () => document.getElementById("main");
 
 /* ============ 1 · B-04: opening a topic starts at the top ============ */
@@ -109,30 +110,30 @@ step("first mount does NOT scroll the article into view", async () => {
   const target = window.__pagedRef;
   const calls = [];
   const realSIV = window.Element.prototype.scrollIntoView;
-  window.Element.prototype.scrollIntoView = function (opts) { calls.push(this.className); };
+  window.Element.prototype.scrollIntoView = function (opts) { calls.push(this.getAttribute("data-ui") || ""); };
   try {
     KOS.store.state.ui.tab = "notes";
     KOS.show("ref", target);
-    await waitFor(() => main().querySelector(".reader-nav"), 4000);
-    assert(main().querySelector(".notes-article"), "the paginated notes did not render");
-    assert(calls.indexOf("notes-article") === -1,
+    await waitFor(() => main().querySelector("[data-ui~='topic.pager']"), 4000);
+    assert(main().querySelector("[data-ui~='topic.notes']"), "the paginated notes did not render");
+    assert(!calls.some(c => c.split(" ").includes("topic.notes")),
       "the article scrolled itself into view on first mount (calls: " + JSON.stringify(calls) + ")");
     assert(main().scrollTop === 0, "#main.scrollTop is " + main().scrollTop + " right after opening the topic");
   } finally { window.Element.prototype.scrollIntoView = realSIV; }
 });
 
 step("choosing a note page DOES scroll to the section", async () => {
-  const picker = main().querySelector(".reader-page-select");
+  const picker = main().querySelector("[data-ui~='topic.reader-page-select']");
   assert(picker && picker.options.length > 1, "expected more than one named note page");
   const calls = [];
   const realSIV = window.Element.prototype.scrollIntoView;
-  window.Element.prototype.scrollIntoView = function () { calls.push(this.className); };
+  window.Element.prototype.scrollIntoView = function () { calls.push(this.getAttribute("data-ui") || ""); };
   try {
     picker.value = "1";
     picker.dispatchEvent(new window.Event("change", { bubbles: true }));
-    assert(calls.indexOf("notes-article") !== -1,
+    assert(calls.some(c => c.split(" ").includes("topic.notes")),
       "turning to a note page did not scroll to it (calls: " + JSON.stringify(calls) + ")");
-    assert(main().querySelector(".reader-page-select").value === "1",
+    assert(main().querySelector("[data-ui~='topic.reader-page-select']").value === "1",
       "the named page picker did not retain the page that was chosen");
   } finally { window.Element.prototype.scrollIntoView = realSIV; }
 });
@@ -149,6 +150,7 @@ function makeArea(host, rectFor) {
   const area = KOS.medview.resultsArea(host, (row, i) => {
     const d = document.createElement("div");
     d.className = "med-card";
+    d.setAttribute("data-ui", "vault.card");
     d.textContent = String(row);
     return d;
   });
@@ -227,50 +229,50 @@ step("seed a large Books library", async () => {
 step("the view mounts one lazy batch of authors, not 900", async () => {
   main().getBoundingClientRect = () => ({ top: 0, bottom: 800, height: 800, left: 0, right: 400, width: 400 });
   KOS.show("mangaka");
-  await waitFor(() => main().querySelectorAll(".mk-card").length > 0, 6000);
-  const cards = main().querySelectorAll(".mk-card").length;
+  await waitFor(() => main().querySelectorAll("[data-ui~='mangaka.card']").length > 0, 6000);
+  const cards = main().querySelectorAll("[data-ui~='mangaka.card']").length;
   assert(cards <= 60, "Mangaka mounted " + cards + " author cards at once (the lazy batch is 60)");
-  assert(main().querySelector(".med-sentinel"), "no lazy sentinel — the view is not on the shared area");
-  const count = main().querySelector(".med-count");
+  assert(main().querySelector("[data-ui~='vault.sentinel']"), "no lazy sentinel — the view is not on the shared area");
+  const count = main().querySelector("[data-ui~='vault.count']");
   assert(count && /900 authors/.test(count.textContent), "unexpected count line: " + (count && count.textContent));
 });
 
 step("the author search box filters the directory", async () => {
-  const search = main().querySelector(".mk-toolbar .med-search");
+  const search = main().querySelector("[data-ui~='mangaka.toolbar'] [data-ui~='vault.search']");
   assert(search, "no author search box");
   search.value = "uthor 12";
   search.dispatchEvent(new window.Event("input"));
-  await waitFor(() => /\(filtered\)/.test(main().querySelector(".med-count").textContent), 3000);
-  const names = [...main().querySelectorAll(".mk-name")].map(n => n.textContent);
+  await waitFor(() => /\(filtered\)/.test(main().querySelector("[data-ui~='vault.count']").textContent), 3000);
+  const names = [...main().querySelectorAll("[data-ui~='mangaka.name']")].map(n => n.textContent);
   assert(names.length, "the search matched nothing");
   assert(names.every(n => n.toLowerCase().indexOf("uthor 12") !== -1),
     "the search let a non-matching author through: " + JSON.stringify(names.slice(0, 5)));
   search.value = "";
   search.dispatchEvent(new window.Event("input"));
-  await waitFor(() => !/\(filtered\)/.test(main().querySelector(".med-count").textContent), 3000);
+  await waitFor(() => !/\(filtered\)/.test(main().querySelector("[data-ui~='vault.count']").textContent), 3000);
 });
 
 /* The rail FILTERS rather than scrolls: scrolling to Z would mean mounting
    every author above it, i.e. the whole wall this view was rewritten to
    avoid. Reachability is the requirement; a bounded DOM is the constraint. */
 step("the A–Z rail reaches a late letter without mounting the whole wall", async () => {
-  const keys = main().querySelectorAll(".mk-jump-key");
+  const keys = main().querySelectorAll("[data-ui~='mangaka.jump']");
   assert(keys.length === 27, "expected A–Z plus #, got " + keys.length);
   const live = [...keys].filter(k => !k.disabled);
   assert(live.length >= 20, "only " + live.length + " letters are reachable");
   const z = [...keys].find(k => k.textContent === "Z");
   assert(z && !z.disabled, "Z should have authors in this library");
   z.click();
-  await waitFor(() => /· Z/.test(main().querySelector(".med-count").textContent), 3000);
-  const names = [...main().querySelectorAll(".mk-name")].map(n => n.textContent);
+  await waitFor(() => /· Z/.test(main().querySelector("[data-ui~='vault.count']").textContent), 3000);
+  const names = [...main().querySelectorAll("[data-ui~='mangaka.name']")].map(n => n.textContent);
   assert(names.length, "the Z filter matched nothing");
   assert(names.every(n => n.charAt(0) === "Z"), "a non-Z author survived the letter filter");
-  assert(main().querySelectorAll(".mk-card").length <= 60,
-    "the letter jump mounted " + main().querySelectorAll(".mk-card").length + " cards");
+  assert(main().querySelectorAll("[data-ui~='mangaka.card']").length <= 60,
+    "the letter jump mounted " + main().querySelectorAll("[data-ui~='mangaka.card']").length + " cards");
   /* tapping the active letter again clears it */
-  main().querySelectorAll(".mk-jump-key")[25].click();
-  await waitFor(() => !/· Z/.test(main().querySelector(".med-count").textContent), 3000);
-  assert(main().querySelectorAll(".mk-card").length <= 60, "clearing the letter mounted the whole wall");
+  main().querySelectorAll("[data-ui~='mangaka.jump']")[25].click();
+  await waitFor(() => !/· Z/.test(main().querySelector("[data-ui~='vault.count']").textContent), 3000);
+  assert(main().querySelectorAll("[data-ui~='mangaka.card']").length <= 60, "clearing the letter mounted the whole wall");
 });
 
 /* ============ 4 · viewport + the bottom tab bar ============ */

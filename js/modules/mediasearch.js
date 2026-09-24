@@ -209,7 +209,7 @@
               onclick: function () {
                 pickerHolder.innerHTML = "";
                 addResult(module, r, s, statusNote, function (rec) {
-                  row.classList.add("msch-added");
+                  KOS.ui.state(row, "msch-added", true);
                   addBtn.textContent = "✓ In vault";
                   addBtn.disabled = true;
                   onAdded && onAdded(rec);

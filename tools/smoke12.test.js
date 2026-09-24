@@ -322,27 +322,27 @@ step("editor CRUD: add a chapter in the modal, save → persisted + a 'chapter' 
   const e = await p(cb => KOS.mediadb.get(idVn, cb));
   KOS.vnEditor(e, null);
   await tick(30);
-  const modal = document.querySelector(".vn-modal");
+  const modal = document.querySelector("[data-ui~='vn.editor']");
   if (!modal) throw new Error("editor did not open");
-  const chWrap = modal.querySelector(".vn-chapters");
+  const chWrap = modal.querySelector("[data-ui~='vn.chapters']");
   if (!chWrap) throw new Error("chapters section missing");
   /* chapter names live in input values, not text nodes */
-  const rows = [...chWrap.querySelectorAll(".vn-ch-row")];
-  if (!rows.some(r => r.querySelector(".vn-route-name").value === "Legend")) throw new Error("existing chapters not rendered");
+  const rows = [...chWrap.querySelectorAll("[data-ui~='vn.ch-row']")];
+  if (!rows.some(r => r.querySelector("[data-ui~='vn.route-name']").value === "Legend")) throw new Error("existing chapters not rendered");
   /* complete "Turn" via its status select */
-  const turnRow = rows.find(r => r.querySelector(".vn-route-name").value === "Turn");
-  const st = turnRow.querySelector(".vn-ch-status");
+  const turnRow = rows.find(r => r.querySelector("[data-ui~='vn.route-name']").value === "Turn");
+  const st = turnRow.querySelector("[data-ui~='vn.chapter-status']");
   st.value = "completed";
   st.dispatchEvent(new window.Event("change", { bubbles: true }));
   await tick(10);
   /* add a new chapter */
-  const nameIn = [...modal.querySelectorAll(".vn-chapters .vn-route-add .vn-route-name")].pop();
+  const nameIn = [...modal.querySelectorAll("[data-ui~='vn.chapters'] [data-ui~='vn.route-add'] [data-ui~='vn.route-name']")].pop();
   nameIn.value = "Banquet";
-  [...modal.querySelectorAll(".vn-chapters button")].find(b => /Add chapter/.test(b.textContent)).click();
+  [...modal.querySelectorAll("[data-ui~='vn.chapters'] button")].find(b => /Add chapter/.test(b.textContent)).click();
   await tick(10);
   const s0 = sessionCount();
   [...modal.querySelectorAll("button")].find(b => b.textContent === "Save changes").click();
-  await waitFor(() => !document.querySelector(".vn-modal"), 3000);
+  await waitFor(() => !document.querySelector("[data-ui~='vn.editor']"), 3000);
   const after = await p(cb => KOS.mediadb.get(idVn, cb));
   if (after.chapters.length !== 3) throw new Error("added chapter not saved: " + after.chapters.length);
   if (!after.chapters.some(c => c.name === "Banquet" && c.status === "planned")) throw new Error("new chapter shape");
@@ -380,22 +380,22 @@ step("AniList profile: tabs render from ONE cached fetch — switching never ref
   netLog = [];
   KOS.show("aniprofile");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelector(".ap-tabs"), 4000);
+  await waitFor(() => main.querySelector("[data-ui~='profile.tabs']"), 4000);
   const fetches = () => netLog.filter(r => /Viewer/.test((r.body && r.body.query) || "")).length;
   if (fetches() !== 1) throw new Error("expected exactly 1 profile fetch, got " + fetches());
   if (!/Anime overview/.test(main.textContent)) throw new Error("Overview tab not default");
-  if (/Followers & following/.test(main.querySelector(".ap-pane").textContent)) throw new Error("Social content leaked into Overview");
+  if (/Followers & following/.test(main.querySelector("[data-ui~='profile.pane']").textContent)) throw new Error("Social content leaked into Overview");
   function clickTab(name) {
-    [...main.querySelectorAll(".ap-tabs .study-tab")].find(b => b.textContent === name).click();
+    [...main.querySelectorAll("[data-ui~='profile.tabs'] [data-ui~='ui.tab']")].find(b => b.textContent === name).click();
   }
   clickTab("Favourites");
-  if (!/Clannad/.test(main.querySelector(".ap-pane").textContent)) throw new Error("Favourites tab content");
+  if (!/Clannad/.test(main.querySelector("[data-ui~='profile.pane']").textContent)) throw new Error("Favourites tab content");
   clickTab("Social");
-  if (!/3 followers · 5 following/.test(main.querySelector(".ap-pane").textContent)) throw new Error("Social tab content");
+  if (!/3 followers · 5 following/.test(main.querySelector("[data-ui~='profile.pane']").textContent)) throw new Error("Social tab content");
   clickTab("Activity");
-  if (!/watched episode 5 - 8 of Frieren/.test(main.querySelector(".ap-pane").textContent)) throw new Error("Activity tab content");
+  if (!/watched episode 5 - 8 of Frieren/.test(main.querySelector("[data-ui~='profile.pane']").textContent)) throw new Error("Activity tab content");
   clickTab("Notifications");
-  if (!/Episode 7 of Frieren aired\./.test(main.querySelector(".ap-pane").textContent)) throw new Error("Notifications tab content");
+  if (!/Episode 7 of Frieren aired\./.test(main.querySelector("[data-ui~='profile.pane']").textContent)) throw new Error("Notifications tab content");
   if (fetches() !== 1) throw new Error("tab switching refetched: " + fetches());
   netScript = null;
 });
@@ -420,7 +420,7 @@ step("VNDB profile: labels/lengthvotes/site stats render; the API's gaps are sta
   const main = document.getElementById("main");
   await waitFor(() => /List labels/.test(main.textContent), 4000);
   if (!/crimson/.test(main.textContent)) throw new Error("identity missing");
-  const labels = main.querySelectorAll(".vp-label-stats .stat-card");
+  const labels = main.querySelectorAll("[data-ui~='profile.label-stats'] [data-ui~='ui.stat']");
   if (labels.length !== 3) throw new Error("expected 3 label statistics, got " + labels.length);
   if (![...labels].some(l => /Waiting/.test(l.textContent) && /custom/.test(l.textContent))) throw new Error("custom label not marked");
   if (!/Length votes/.test(main.textContent)) throw new Error("length-vote stats missing");
@@ -471,8 +471,8 @@ step("catalog: rebalanced prices + the new kinds exist; cosmetics apply their cl
   await p(cb => KOS.mediadb.put(fav, cb));
   KOS.show("shrine");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelector(".shrine-hall"), 4000);
-  if (!main.querySelector(".shrine-hall").classList.contains("shrine-neon")) throw new Error("shrine style class not applied");
+  await waitFor(() => main.querySelector("[data-ui~='shrine.hall']"), 4000);
+  if (main.querySelector("[data-ui~='shrine.hall']").getAttribute("data-skin") !== "shrine-neon") throw new Error("shrine style class not applied");
 });
 step("boundaries hold: cosmetics AND labs buyable while strained, HP untouched", async () => {
   const g = KOS.store.state.governor;
@@ -509,13 +509,13 @@ step("seasonal view defaults to today and re-filters on picker changes", async (
     extra: { season: cur.season, seasonYear: cur.year } }, cb));
   KOS.show("seasonal");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelector(".season-picker"), 4000);
+  await waitFor(() => main.querySelector("[data-ui~='anime.season-picker']"), 4000);
   await waitFor(() => /Current Season Show/.test(main.textContent), 4000);
   if (!/Current Season Show/.test(main.textContent)) throw new Error("current season not the default");
   if (/Fall 2023 Show/.test(main.textContent)) throw new Error("other seasons leaked into the default view");
   /* jump to Fall 2023 via the selects */
-  const seasonSel = main.querySelector(".season-picker .status-sel");
-  const yearIn = main.querySelector(".season-yr");
+  const seasonSel = main.querySelector("[data-ui~='anime.season-picker'] [data-ui~='ui.status-select']");
+  const yearIn = main.querySelector("[data-ui~='anime.season-yr']");
   seasonSel.value = "FALL";
   seasonSel.dispatchEvent(new window.Event("change", { bubbles: true }));
   yearIn.value = "2023";
@@ -523,7 +523,7 @@ step("seasonal view defaults to today and re-filters on picker changes", async (
   await waitFor(() => /Fall 2023 Show/.test(main.textContent), 4000);
   if (!/Fall 2023 Show/.test(main.textContent)) throw new Error("picker did not re-filter");
   if (/Current Season Show/.test(main.textContent)) throw new Error("old season still shown");
-  if (!main.querySelector(".season-view").classList.contains("s-fall")) throw new Error("palette class must follow the selection");
+  if (main.querySelector("[data-ui~='anime.season']").getAttribute("data-season") !== "FALL") throw new Error("palette class must follow the selection");
   /* Today resets */
   [...main.querySelectorAll("button")].find(b => /Today/.test(b.textContent)).click();
   await waitFor(() => /Current Season Show/.test(main.textContent), 4000);

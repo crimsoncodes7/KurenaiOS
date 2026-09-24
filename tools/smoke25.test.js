@@ -93,7 +93,7 @@ step("editing the model input persists on `input` (before any blur) to config AN
   KOS.ai.setRouting("crud", "ollama", "");
   KOS.show("assistant", { tab: "settings" });
   await tick(60);
-  const rows = [...doc.querySelectorAll(".asst-route-row")];
+  const rows = [...doc.querySelectorAll("[data-ui~='asst.route-row']")];
   const crudRow = rows.find(r => /Simple data requests/.test(r.textContent));
   assert(crudRow, "the crud settings row must render");
   const modelInput = crudRow.querySelector("input");
@@ -114,7 +114,7 @@ step("navigating away without blurring does NOT lose the typed model", async () 
   KOS.ai.setRouting("crud", "ollama", "");
   KOS.show("assistant", { tab: "settings" });
   await tick(60);
-  const crudRow = [...doc.querySelectorAll(".asst-route-row")].find(r => /Simple data requests/.test(r.textContent));
+  const crudRow = [...doc.querySelectorAll("[data-ui~='asst.route-row']")].find(r => /Simple data requests/.test(r.textContent));
   const modelInput = crudRow.querySelector("input");
   modelInput.value = "qwen3:4b-instruct";
   modelInput.dispatchEvent(new window.Event("input", { bubbles: true }));

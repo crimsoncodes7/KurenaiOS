@@ -173,9 +173,9 @@
         onclick: function () {
           cur = cur === b ? null : b;             // click again to clear
           setManual(sid, ref, cur);
-          wrap.querySelectorAll(".rag-pick").forEach(function (x) {
-            x.classList.remove("on"); x.setAttribute("aria-pressed", "false"); });
-          if (cur) { btn.classList.add("on"); btn.setAttribute("aria-pressed", "true"); }
+          wrap.querySelectorAll("[data-ui~='rag.pick']").forEach(function (x) {
+            KOS.ui.state(x, "on", false); x.setAttribute("aria-pressed", "false"); });
+          if (cur) { KOS.ui.state(btn, "on", true); btn.setAttribute("aria-pressed", "true"); }
           renderAuto();
         } }, [
         el("span", { class: "rag-pick-dot", "aria-hidden": "true" }),

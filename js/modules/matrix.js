@@ -54,8 +54,7 @@
   }
 
   KOS.views.matrix = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     /* ---- the two panes: the switcher rides the page header's action
        slot, aligned with the title the way Planner and Sync do it ---- */

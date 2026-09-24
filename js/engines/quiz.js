@@ -45,9 +45,9 @@
             answered++;
             var ok = oi === item.ans;
             if (ok) correct++; else missed.push(item);
-            btn.classList.add(ok ? "right" : "wrong");
-            opts.children[item.ans].classList.add("right");
-            opts.querySelectorAll(".qz-opt").forEach(function (b) { b.disabled = true; });
+            KOS.ui.state(btn, ok ? "right" : "wrong", true);
+            KOS.ui.state(opts.children[item.ans], "right", true);
+            opts.querySelectorAll("[data-ui~='quiz.option']").forEach(function (b) { b.disabled = true; });
             var why = el("div", { class: "qz-why " + (ok ? "ok" : "no"),
               html: (ok ? "✓ Correct. " : "✕ Not quite. ") + KOS.content.inline(item.why || "") });
             card.appendChild(why);
@@ -83,7 +83,7 @@
         if (!(e.key >= "1" && e.key <= "9")) return;
         var live = cards.filter(function (c) { return c.open(); })[0];
         if (!live) return;
-        var pick = live.opts.querySelectorAll(".qz-opt")[Number(e.key) - 1];
+        var pick = live.opts.querySelectorAll("[data-ui~='quiz.option']")[Number(e.key) - 1];
         if (!pick) return;
         e.preventDefault();
         pick.click();
@@ -162,7 +162,7 @@
       });
       tools.appendChild(chips);
       tools.appendChild(el("button", { class: "qz-chip", type: "button", "aria-pressed": "false", text: "Shuffle",
-        onclick: function (e) { shuffled = !shuffled; e.currentTarget.setAttribute("aria-pressed", String(shuffled)); e.currentTarget.classList.toggle("on", shuffled); render(); } }));
+        onclick: function (e) { shuffled = !shuffled; e.currentTarget.setAttribute("aria-pressed", String(shuffled)); KOS.ui.state(e.currentTarget, "on", shuffled); render(); } }));
       head.appendChild(tools);
       holder.appendChild(head);
       var list = el("div", {});
@@ -220,7 +220,7 @@
           for (var m = 0; m <= part.marks; m++) (function (m) {
             grp.appendChild(el("button", { class: "qz-markbtn", type: "button", text: String(m), "aria-pressed": "false", onclick: function () {
               chosen = m;
-              grp.querySelectorAll(".qz-markbtn").forEach(function (b) { var on = Number(b.textContent) === m; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+              grp.querySelectorAll("[data-ui~='quiz.markbtn']").forEach(function (b) { var on = Number(b.textContent) === m; KOS.ui.state(b, "on", on); b.setAttribute("aria-pressed", String(on)); });
               onMark(m);
             }}));
           })(m);
@@ -243,7 +243,7 @@
           shown = shown.slice();
           for (var i = shown.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = shown[i]; shown[i] = shown[j]; shown[j] = t; }
         }
-        chips.querySelectorAll(".qz-chip").forEach(function (b) { var on = b.dataset.f === filter; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+        chips.querySelectorAll("[data-ui~='quiz.chip']").forEach(function (b) { var on = b.dataset.f === filter; KOS.ui.state(b, "on", on); b.setAttribute("aria-pressed", String(on)); });
         if (!shown.length) { list.appendChild(el("p", { class: "sub", text: "No questions at that tariff." })); return; }
         shown.forEach(function (n) {
           var it = n.item;

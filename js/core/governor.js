@@ -374,8 +374,7 @@
         /* the plain sims view with no target is HP-gated only */
         if (v === "sims" && !arg) acc = viewAccess("sims");
         if (!acc.ok) {
-          document.getElementById("tree").classList.add("hidden");
-          document.getElementById("cols").classList.add("no-tree");
+          KOS.shell.tree("none");
           lockPanel(main, acc);
           return;
         }
@@ -479,7 +478,7 @@
     var tid = (g.theme === "kurenai" || !known) ? "" : g.theme;
     document.documentElement.dataset.theme = tid;
     document.body.dataset.theme = tid;   /* legacy hook, harmless */
-    var mark = document.querySelector("#topbar .brand .kanji");
+    var mark = document.querySelector("#topbar [data-ui~='shell.brand'] [data-ui~='shell.brand-mark']");
     if (mark) mark.textContent = SEAL_GLYPHS[g.seal] || "紅";
   }
   function setTheme(themeId) { G().theme = themeId; store.save(); applyCosmetics(); }
@@ -677,7 +676,7 @@
     opts = opts || {};
     var card = el("div", { class: "profile-card hp-" + p.hpState });
     var band = el("div", { class: "pc-banner" });
-    if (!applyBanner(band, { darkScrim: true })) band.classList.add("plain");
+    if (!applyBanner(band, { darkScrim: true })) KOS.ui.state(band, "plain", true);
     card.appendChild(band);
     var body = el("div", { class: "pc-body" });
     body.appendChild(el("div", { class: "pc-identity-row" }, [
@@ -727,17 +726,17 @@
     popNode = null;
     document.removeEventListener("keydown", onPopKey, true);
     document.removeEventListener("mousedown", onPopOutside, true);
-    var btn = document.querySelector("#hud .hud");
+    var btn = document.querySelector("#hud [data-ui~='gov.hud']");
     if (btn) btn.setAttribute("aria-expanded", "false");
   }
   function onPopKey(e) { if (e.key === "Escape") closeProfilePopover(); }
   function onPopOutside(e) {
     if (!popNode) return;
     if (popNode.contains(e.target)) return;
-    if (e.target.closest && e.target.closest("#hud .hud")) return;
+    if (e.target.closest && e.target.closest("#hud [data-ui~='gov.hud']")) return;
     /* a modal opened FROM the popover (the profile editor) must not close it
        out from under itself before its own click handler runs */
-    if (e.target.closest && e.target.closest(".modal-ov")) return;
+    if (e.target.closest && e.target.closest("[data-ui~='ui.dialog-overlay']")) return;
     closeProfilePopover();
   }
   function openProfilePopover() {
@@ -749,7 +748,7 @@
       onChange: function () { openProfilePopover(); }
     }));
     document.body.appendChild(popNode);
-    var btn = document.querySelector("#hud .hud");
+    var btn = document.querySelector("#hud [data-ui~='gov.hud']");
     if (btn) {
       btn.setAttribute("aria-expanded", "true");
       /* anchor to whichever corner the chip actually sits in: at the foot of

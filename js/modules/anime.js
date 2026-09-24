@@ -276,7 +276,7 @@
           ev.stopPropagation();
           e.favourite = !e.favourite;
           KOS.mediadb.put(e, function () {});
-          ev.target.classList.toggle("on", e.favourite);
+          KOS.ui.state(ev.target, "on", e.favourite);
         } }),
       el("div", { class: "med-card-body" }, [
         el("button", { type: "button", class: "med-title", title: e.title, text: e.title,
@@ -310,8 +310,7 @@
 
   /* ---------------- the view ---------------- */
   KOS.views.anime = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var mod = KOS.media.module("anime");
     var p = prefs();
     var mv = KOS.medview;
@@ -402,7 +401,7 @@
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
         if (!area.current(token)) return;
-        area.holder.className = p.layout === "list" ? "med-list" : "med-grid";
+        KOS.ui.setClass(area.holder, p.layout === "list" ? "med-list" : "med-grid");
         if (err) {
           area.clear();
           area.countLine.textContent = "Query failed: " + err.message;
@@ -478,8 +477,7 @@
      store as "hero.season.<SEASON>" (invariant 30's home for hero art). */
   var SEASON_ORDER = ["WINTER", "SPRING", "SUMMER", "FALL"];
   KOS.views.seasonal = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var mod = KOS.media.module("anime");
     var now = currentSeason();
     var sel = { season: now.season, year: now.year };   // default: today
@@ -558,7 +556,7 @@
           heroCredit.textContent = "your picture";
           return;
         }
-        heroArt.classList.remove("crop-media");
+        KOS.ui.state(heroArt, "crop-media", false);
         heroArt.srcset = meta.artSmall + " 850w, " + meta.art + " " + meta.artWidth + "w";
         heroArt.src = meta.artSmall;
         heroArt.style.objectPosition = meta.focus || "50% 50%";
@@ -592,7 +590,8 @@
       seasonSel.value = sel.season;
       yearIn.value = String(sel.year);
       var meta = SEASON_META[sel.season];
-      wrap.className = "season-view " + meta.cls;
+      KOS.ui.setClass(wrap, "season-view " + meta.cls);
+      wrap.setAttribute("data-season", sel.season);
       heroTitle.innerHTML = "";
       heroTitle.appendChild(el("span", { class: "kanji-inline season-kanji", text: meta.kanji }));
       heroTitle.appendChild(document.createTextNode(" " + meta.label + " " + sel.year));

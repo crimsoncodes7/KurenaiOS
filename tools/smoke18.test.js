@@ -28,6 +28,7 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
+const { readCss, stylesheets } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const read = f => fs.readFileSync(path.join(ROOT, f), "utf8");
 
@@ -41,7 +42,7 @@ function assert(cond, msg) { if (!cond) throw new Error(msg); }
 
 const html = read("index.html");
 const sw = read("sw.js");
-const css = read("css/main.css");
+const css = readCss();
 const deploy = read("tools/deploy_pages.sh");
 
 console.log("== manifest + icons ==");
@@ -110,7 +111,8 @@ step("the precache derivation matches every local script/stylesheet in index.htm
   for (const tag of html.matchAll(/<script src="([^"]+)"><\/script>/g)) {
     assert(derived.has(tag[1]), tag[1] + " missed by the sw precache regex");
   }
-  assert(derived.has("css/main.css"), "stylesheet missed");
+  /* every local stylesheet index.html links, whatever the layer is split into */
+  stylesheets().forEach((href) => assert(derived.has(href), href + " missed by the sw precache regex"));
   assert(derived.has("js/vendor/supabase.js"), "deferred vendor script missed");
   assert(derived.has("js/env.local.js"), "deferred env script missed (its 404 is tolerated at install)");
   /* and each derived file (except the gitignored env) exists on disk */

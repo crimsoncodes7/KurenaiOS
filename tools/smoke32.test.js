@@ -29,6 +29,7 @@ window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true; window.__kosAutoConfirm = true;
 if (!window.AbortController) window.AbortController = class { constructor() { this.signal = {}; } abort() {} };
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
+const { readCss } = require("./lib/css");
 window.indexedDB = indexedDB; window.IDBKeyRange = IDBKeyRange;
 window.fetch = () => Promise.reject(new Error("network disabled in this suite"));
 
@@ -54,7 +55,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const click = n => n.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
 const p = fn => new Promise((res, rej) => fn((e, v) => e ? rej(e) : res(v)));
 const tick = ms => new Promise(r => setTimeout(r, ms || 40));
-const btn = re => $$(".att-stage .mini-btn, .att-stage .btn").find(b => re.test(b.textContent));
+const btn = re => $$("[data-ui~='attach.stage'] button, [data-ui~='attach.stage'] button").find(b => re.test(b.textContent));
 
 function mkFile(name, mime, bytes) {
   return new window.File([new Uint8Array(bytes || [1, 2, 3, 4])], name, { type: mime });
@@ -84,73 +85,73 @@ step("seed: a PDF, an image, a text file and an unsupported type", async () => {
 
 step("the tab renders a selectable list, one entry per file", async () => {
   await mount();
-  const files = $$(".att-file");
+  const files = $$("[data-ui~='attach.file']");
   if (files.length !== 4) throw new Error("expected 4 list entries, got " + files.length);
   if (!files.every(f => f.getAttribute("role") === "option")) throw new Error("entries are not a listbox option set");
-  const sel = files.filter(f => f.classList.contains("selected"));
+  const sel = files.filter(f => f.matches('[data-state~="selected"]'));
   if (sel.length !== 1) throw new Error("exactly one file should be selected on mount, got " + sel.length);
   if (sel[0].getAttribute("aria-selected") !== "true") throw new Error("selection is not exposed to assistive tech");
 });
 
 step("selecting a file opens THAT file's preview", async () => {
-  const pdfRow = $$(".att-file").find(f => /markscheme\.pdf/.test(f.textContent));
+  const pdfRow = $$("[data-ui~='attach.file']").find(f => /markscheme\.pdf/.test(f.textContent));
   click(pdfRow);
   await tick();
-  if (!$$(".att-file").find(f => /markscheme\.pdf/.test(f.textContent)).classList.contains("selected")) throw new Error("clicking did not select");
-  if ($$(".att-file.selected").length !== 1) throw new Error("selection is not exclusive");
-  if (!/markscheme\.pdf/.test($(".att-stage-name").textContent)) throw new Error("the stage shows a different file");
-  if (!$(".att-preview .att-pdf")) throw new Error("no PDF frame for a PDF");
+  if (!$$("[data-ui~='attach.file']").find(f => /markscheme\.pdf/.test(f.textContent)).matches('[data-state~="selected"]')) throw new Error("clicking did not select");
+  if ($$("[data-ui~='attach.file'][data-state~='selected']").length !== 1) throw new Error("selection is not exclusive");
+  if (!/markscheme\.pdf/.test($("[data-ui~='attach.stage-name']").textContent)) throw new Error("the stage shows a different file");
+  if (!$("[data-ui~='attach.preview'] [data-ui~='attach.pdf']")) throw new Error("no PDF frame for a PDF");
 
-  click($$(".att-file").find(f => /diagram\.png/.test(f.textContent)));
+  click($$("[data-ui~='attach.file']").find(f => /diagram\.png/.test(f.textContent)));
   await tick();
-  if (!$(".att-preview .att-img")) throw new Error("no image element for an image");
-  if ($(".att-preview .att-pdf")) throw new Error("the previous PDF frame survived the switch");
+  if (!$("[data-ui~='attach.preview'] [data-ui~='attach.img']")) throw new Error("no image element for an image");
+  if ($("[data-ui~='attach.preview'] [data-ui~='attach.pdf']")) throw new Error("the previous PDF frame survived the switch");
 });
 
 step("an unsupported type shows metadata plus Open/Download, not a broken frame", async () => {
-  click($$(".att-file").find(f => /worksheet\.docx/.test(f.textContent)));
+  click($$("[data-ui~='attach.file']").find(f => /worksheet\.docx/.test(f.textContent)));
   await tick();
-  if ($(".att-preview")) throw new Error("an unpreviewable file must not mount a preview frame");
-  const card = $(".att-unusable");
+  if ($("[data-ui~='attach.preview']")) throw new Error("an unpreviewable file must not mount a preview frame");
+  const card = $("[data-ui~='attach.unusable']");
   if (!card) throw new Error("no explanatory card for the unsupported type");
-  if (!/Word/.test($(".att-meta").textContent)) throw new Error("the type is not reported in the metadata");
-  if (!card.querySelector(".btn")) throw new Error("no Open/Download action offered");
+  if (!/Word/.test($("[data-ui~='attach.meta']").textContent)) throw new Error("the type is not reported in the metadata");
+  if (!card.querySelector("button")) throw new Error("no Open/Download action offered");
   if (!/Open/.test(card.textContent) || !/Download/.test(card.textContent)) throw new Error("card actions: " + card.textContent);
 });
 
 /* ============ B · preview controls ============ */
 console.log("== B · preview controls ==");
 step("fit width / fit page / zoom each change how the document is laid out", async () => {
-  click($$(".att-file").find(f => /diagram\.png/.test(f.textContent)));
+  click($$("[data-ui~='attach.file']").find(f => /diagram\.png/.test(f.textContent)));
   await tick();
-  if (!$(".att-preview.fit-width")) throw new Error("fit width is not the default");
+  if (!$("[data-ui~='attach.preview'][data-fit='width']")) throw new Error("fit width is not the default");
 
   click(btn(/Fit page/));
   await tick();
-  if (!$(".att-preview.fit-page")) throw new Error("Fit page did not apply");
+  if (!$("[data-ui~='attach.preview'][data-fit='page']")) throw new Error("Fit page did not apply");
 
-  click($$(".att-bar .mini-btn").find(b => b.textContent === "+"));
+  click($$("[data-ui~='attach.bar'] button").find(b => b.textContent === "+"));
   await tick();
-  if (!$(".att-preview.fit-zoom")) throw new Error("zooming did not switch the fit mode");
-  if ($(".att-zoom").textContent === "100%") throw new Error("zoom level did not change");
-  if (!($(".att-img").getAttribute("style") || "").includes("width")) throw new Error("zoom did not size the image");
+  if (!$("[data-ui~='attach.preview'][data-fit='zoom']")) throw new Error("zooming did not switch the fit mode");
+  if ($("[data-ui~='attach.zoom']").textContent === "100%") throw new Error("zoom level did not change");
+  if (!($("[data-ui~='attach.img']").getAttribute("style") || "").includes("width")) throw new Error("zoom did not size the image");
 
-  click($$(".att-bar .mini-btn").find(b => b.textContent === "−"));
+  click($$("[data-ui~='attach.bar'] button").find(b => b.textContent === "−"));
   await tick();
-  if ($(".att-zoom").textContent !== "100%") throw new Error("zoom out did not step back: " + $(".att-zoom").textContent);
+  if ($("[data-ui~='attach.zoom']").textContent !== "100%") throw new Error("zoom out did not step back: " + $("[data-ui~='attach.zoom']").textContent);
 });
 
 step("a PDF's fit mode rides the viewer fragment, and the toolbar is never suppressed", async () => {
-  click($$(".att-file").find(f => /markscheme\.pdf/.test(f.textContent)));
+  click($$("[data-ui~='attach.file']").find(f => /markscheme\.pdf/.test(f.textContent)));
   await tick();
-  const src = () => $(".att-pdf").getAttribute("src");
+  const src = () => $("[data-ui~='attach.pdf']").getAttribute("src");
   click(btn(/Fit width/));                       // the previous step left zoom mode on
   await tick();
   if (!/#view=FitH$/.test(src())) throw new Error("fit width should request FitH, got " + src());
   click(btn(/Fit page/));
   await tick();
   if (!/#view=Fit$/.test(src())) throw new Error("fit page should request Fit, got " + src());
-  click($$(".att-bar .mini-btn").find(b => b.textContent === "+"));
+  click($$("[data-ui~='attach.bar'] button").find(b => b.textContent === "+"));
   await tick();
   if (!/#zoom=\d+$/.test(src())) throw new Error("zoom should request a zoom fragment, got " + src());
   if (/toolbar=0/.test(src())) throw new Error("the embedded PDF toolbar must never be suppressed");
@@ -161,25 +162,25 @@ step("collapse hides the preview and keeps everything else; expand restores it",
   if (!collapse) throw new Error("no collapse control");
   click(collapse);
   await tick();
-  if ($(".att-preview")) throw new Error("collapse did not remove the preview");
-  if (!$(".att-collapsed")) throw new Error("no indication that the preview is hidden");
-  if (!$(".att-notes")) throw new Error("collapsing the preview also hid the notes");
-  if (!$(".att-meta")) throw new Error("collapsing the preview also hid the metadata");
+  if ($("[data-ui~='attach.preview']")) throw new Error("collapse did not remove the preview");
+  if (!$("[data-state~='att-collapsed']")) throw new Error("no indication that the preview is hidden");
+  if (!$("[data-ui~='attach.notes']")) throw new Error("collapsing the preview also hid the notes");
+  if (!$("[data-ui~='attach.meta']")) throw new Error("collapsing the preview also hid the metadata");
   click(btn(/Expand/));
   await tick();
-  if (!$(".att-preview")) throw new Error("expand did not bring the preview back");
+  if (!$("[data-ui~='attach.preview']")) throw new Error("expand did not bring the preview back");
 });
 
 step("full screen opens an overlay with its own preview and closes cleanly", async () => {
   click(btn(/Full screen/));
   await tick();
-  const fs2 = $(".att-fs");
+  const fs2 = $("[data-ui~='attach.fs']");
   if (!fs2) throw new Error("no full-screen overlay");
-  if (!fs2.querySelector(".att-preview.is-full")) throw new Error("the overlay has no preview");
-  if (!fs2.querySelector(".att-fs-bar")) throw new Error("the overlay has no control bar");
+  if (!fs2.querySelector("[data-ui~='attach.preview'][data-state~='is-full']")) throw new Error("the overlay has no preview");
+  if (!fs2.querySelector("[data-ui~='attach.fs-bar']")) throw new Error("the overlay has no control bar");
   document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   await tick();
-  if ($(".att-fs")) throw new Error("Escape did not close the overlay");
+  if ($("[data-ui~='attach.fs']")) throw new Error("Escape did not close the overlay");
 });
 
 step("open externally and download are both offered and both act", async () => {
@@ -197,21 +198,22 @@ step("open externally and download are both offered and both act", async () => {
 /* ============ C · layout ============ */
 console.log("== C · layout ==");
 step("notes sit BENEATH the preview, inside the stage", async () => {
-  const kids = [...$(".att-stage").children].map(n => n.className.split(" ")[0]);
-  const iPrev = kids.findIndex(c => c === "att-preview" || c === "att-unusable" || c === "att-collapsed");
-  const iNotes = kids.indexOf("att-notes");
+  const kids = [...$("[data-ui~='attach.stage']").children]
+    .map(n => [n.getAttribute("data-ui"), n.getAttribute("data-state")].filter(Boolean).join(" "));
+  const iPrev = kids.findIndex(k => /(^| )(attach\.preview|attach\.unusable|att-collapsed)( |$)/.test(k));
+  const iNotes = kids.findIndex(k => /(^| )attach\.notes( |$)/.test(k));
   if (iNotes === -1) throw new Error("the notes field is not in the stage: " + kids.join(","));
   if (iPrev === -1 || iNotes < iPrev) throw new Error("notes must come after the preview: " + kids.join(","));
 });
 
 step("the inspector still collapses, and the file list is its own column", () => {
-  const css = fs.readFileSync(path.join(ROOT, "css/main.css"), "utf8");
+  const css = readCss();
   if (!/\.study-grid\.insp-closed/.test(css)) throw new Error("the inspector collapse rule is gone");
   if (!/\.att-body\s*{[^}]*grid-template-columns/.test(css)) throw new Error("the Files tab is not a two-column layout");
 });
 
 step("no fixed pixel height on the PDF frame — that is what clipped its toolbar", () => {
-  const css = fs.readFileSync(path.join(ROOT, "css/main.css"), "utf8");
+  const css = readCss();
   const rule = css.match(/\.att-pdf\s*{([^}]*)}/);
   if (!rule) throw new Error(".att-pdf has no rule");
   const height = (rule[1].match(/(?:^|[;\s])height:\s*([^;]+)/) || [])[1] || "";
@@ -223,16 +225,16 @@ step("no fixed pixel height on the PDF frame — that is what clipped its toolba
 /* ============ D · metadata + actions ============ */
 console.log("== D · metadata and actions ==");
 step("every required metadata field is shown", async () => {
-  click($$(".att-file").find(f => /markscheme\.pdf/.test(f.textContent)));
+  click($$("[data-ui~='attach.file']").find(f => /markscheme\.pdf/.test(f.textContent)));
   await tick();
-  if (!/markscheme\.pdf/.test($(".att-stage-name").textContent)) throw new Error("filename missing");
-  const meta = $(".att-meta").textContent;
+  if (!/markscheme\.pdf/.test($("[data-ui~='attach.stage-name']").textContent)) throw new Error("filename missing");
+  const meta = $("[data-ui~='attach.meta']").textContent;
   ["Type", "Size", "Added", "Topic"].forEach(k => {
     if (meta.indexOf(k) === -1) throw new Error("metadata is missing " + k + ": " + meta);
   });
   if (!/PDF/.test(meta)) throw new Error("file type not reported");
   if (!new RegExp(REF).test(meta)) throw new Error("linked topic not reported: " + meta);
-  if (!$(".att-notes textarea")) throw new Error("notes field missing");
+  if (!$("[data-ui~='attach.notes'] textarea")) throw new Error("notes field missing");
 });
 
 step("rename keeps the record's identity — id, fileId and notes all survive", async () => {
@@ -258,19 +260,19 @@ step("replace swaps the binary but keeps identity, topic and notes", async () =>
 
 step("the stage offers rename, replace and remove", async () => {
   await mount();
-  const labels = $$(".att-actions .mini-btn").map(b => b.textContent);
+  const labels = $$("[data-ui~='attach.actions'] button").map(b => b.textContent);
   ["Rename", "Replace", "Remove"].forEach(a => {
     if (!labels.some(l => l.indexOf(a) !== -1)) throw new Error("missing action " + a + " — got " + labels.join("|"));
   });
 });
 
 step("remove deletes the record and the selection falls back safely", async () => {
-  const n0 = $$(".att-file").length;
-  click($$(".att-actions .mini-btn").find(b => /Remove/.test(b.textContent)));
+  const n0 = $$("[data-ui~='attach.file']").length;
+  click($$("[data-ui~='attach.actions'] button").find(b => /Remove/.test(b.textContent)));
   await tick(140);
-  const n1 = $$(".att-file").length;
+  const n1 = $$("[data-ui~='attach.file']").length;
   if (n1 !== n0 - 1) throw new Error(`remove: ${n0} -> ${n1}`);
-  if ($$(".att-file.selected").length !== 1) throw new Error("after a delete the tab must reselect something");
+  if ($$("[data-ui~='attach.file'][data-state~='selected']").length !== 1) throw new Error("after a delete the tab must reselect something");
 });
 
 /* ============ E · persistence ============ */
@@ -278,7 +280,7 @@ console.log("== E · persistence ==");
 step("records persist in IndexedDB across a fresh mount", async () => {
   const before = await p(cb => KOS.attach.list(SID, REF, cb));
   await mount();
-  const rows = $$(".att-file").length;
+  const rows = $$("[data-ui~='attach.file']").length;
   if (rows !== before.length) throw new Error(`reload shows ${rows} of ${before.length}`);
 });
 
@@ -308,8 +310,8 @@ step("restore returns every field a file carries, including renames and notes", 
   if (!pdf.blob) throw new Error("restore produced no binary");
   /* and the restored set drives the tab exactly like a live one */
   await mount();
-  if ($$(".att-file").length !== 2) throw new Error("the restored files do not render");
-  if (!$$(".att-file").some(f => /renamed-paper\.pdf/.test(f.textContent))) throw new Error("a restored rename is missing");
+  if ($$("[data-ui~='attach.file']").length !== 2) throw new Error("the restored files do not render");
+  if (!$$("[data-ui~='attach.file']").some(f => /renamed-paper\.pdf/.test(f.textContent))) throw new Error("a restored rename is missing");
 });
 
 step("an unencodable attachment fails the export fast instead of hanging it", async () => {
@@ -326,23 +328,23 @@ step("a record with no binary is reported as living elsewhere, not as broken", a
   await p(cb => KOS.attach.putRemoteMeta({ fileId: "elsewhere-1", subject: SID, ref: REF,
     name: "on-another-device.pdf", mime: "application/pdf", size: 4096, note: "", updatedAt: Date.now() }, cb));
   await mount();
-  click($$(".att-file").find(f => /on-another-device/.test(f.textContent)));
+  click($$("[data-ui~='attach.file']").find(f => /on-another-device/.test(f.textContent)));
   await tick();
-  if ($(".att-preview")) throw new Error("a blob-less record must not mount a preview");
-  const card = $(".att-unusable");
+  if ($("[data-ui~='attach.preview']")) throw new Error("a blob-less record must not mount a preview");
+  const card = $("[data-ui~='attach.unusable']");
   if (!card || !/another device/i.test(card.textContent)) throw new Error("no honest explanation: " + (card && card.textContent));
-  if (!$$(".att-bar .mini-btn").some(b => /cloud/i.test(b.textContent))) throw new Error("no cloud download offered");
+  if (!$$("[data-ui~='attach.bar'] button").some(b => /cloud/i.test(b.textContent))) throw new Error("no cloud download offered");
 });
 
 step("a stored-but-empty record is called out as damaged, distinctly from a synced one", async () => {
   const id = await p(cb => KOS.attach.add(SID, REF, mkFile("truncated.pdf", "application/pdf", []), cb));
   await mount();
-  const row = $$(".att-file").find(f => /truncated\.pdf/.test(f.textContent));
+  const row = $$("[data-ui~='attach.file']").find(f => /truncated\.pdf/.test(f.textContent));
   if (!row) throw new Error("the damaged record is not listed");
-  if (!row.classList.contains("degraded")) throw new Error("the list does not flag it");
+  if (!row.matches('[data-state~="degraded"]')) throw new Error("the list does not flag it");
   click(row);
   await tick();
-  const card = $(".att-unusable");
+  const card = $("[data-ui~='attach.unusable']");
   if (!card || !/empty/i.test(card.textContent)) throw new Error("damaged state not explained: " + (card && card.textContent));
   if (/another device/i.test(card.textContent)) throw new Error("a damaged file must not be confused with a synced-elsewhere one");
   await p(cb => KOS.attach.remove(id, cb));
@@ -350,16 +352,16 @@ step("a stored-but-empty record is called out as damaged, distinctly from a sync
 
 step("an empty topic shows an empty state, not a broken stage", async () => {
   await mount("maths", "9.9.9");
-  if ($$(".att-file").length) throw new Error("a topic with no files listed some");
-  if (!$(".att-empty")) throw new Error("no empty state in the list");
-  if (!$(".att-stage-empty")) throw new Error("no empty state on the stage");
-  if ($(".att-preview")) throw new Error("an empty topic mounted a preview");
+  if ($$("[data-ui~='attach.file']").length) throw new Error("a topic with no files listed some");
+  if (!$("[data-ui~='attach.empty']")) throw new Error("no empty state in the list");
+  if (!$("[data-ui~='attach.stage-empty']")) throw new Error("no empty state on the stage");
+  if ($("[data-ui~='attach.preview']")) throw new Error("an empty topic mounted a preview");
 });
 
 step("object URLs are released rather than leaked as the selection moves", async () => {
   await mount();
   revoked = [];
-  for (const f of $$(".att-file").slice(0, 3)) { click(f); await tick(); }
+  for (const f of $$("[data-ui~='attach.file']").slice(0, 3)) { click(f); await tick(); }
   if (!revoked.length) throw new Error("switching files never revoked a previous object URL");
 });
 

@@ -62,14 +62,14 @@ KOS.mediapush._config({ debounce: 40, retryWait: 30 });
    still exercise the real control path rather than a shortcut. */
 function vaultAction(re) {
   const main = document.getElementById("main");
-  const btn = main.querySelector(".mvt-actions-btn");
+  const btn = main.querySelector("[data-ui~='vault.toolbar-actions-btn']");
   if (!btn) throw new Error("no Actions group in the toolbar");
   btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
-  const panel = document.querySelector(".menu-panel");
+  const panel = document.querySelector("[data-ui~='ui.menu-panel']");
   if (!panel) throw new Error("the Actions menu did not open");
   const item = [...panel.querySelectorAll("[role=menuitem]")].find(b => re.test(b.textContent));
   if (!item) {
-    const labels = [...panel.querySelectorAll(".menu-item-lbl")].map(n => n.textContent);
+    const labels = [...panel.querySelectorAll("[data-ui~='ui.menu-item']")].map(n => n.textContent);
     KOS.ui.closeMenu();
     throw new Error("no Actions item matching " + re + " — have: " + JSON.stringify(labels));
   }
@@ -283,21 +283,21 @@ step("AniList search-and-add: create-then-mirror with syncSource + lastSyncedAt"
   netLog = [];
   KOS.show("anime");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelector(".mvt-actions-btn"), 4000);
+  await waitFor(() => main.querySelector("[data-ui~='vault.toolbar-actions-btn']"), 4000);
   vaultAction(/Find new/);
   await tick(30);
-  const modal = document.querySelector(".msch-modal");
+  const modal = document.querySelector("[data-ui~='msearch.dialog']");
   if (!modal) throw new Error("search modal did not open");
   if (!/searches the whole AniList database, not your vault/.test(modal.textContent)) throw new Error("vault-vs-database distinction not stated");
-  const input = modal.querySelector(".msch-in");
+  const input = modal.querySelector("[data-ui~='msearch.input']");
   input.value = "clannad";
   input.dispatchEvent(new window.Event("input", { bubbles: true }));
-  await waitFor(() => modal.querySelectorAll(".msch-row").length > 0, 3000);
-  const row = modal.querySelector(".msch-row");
+  await waitFor(() => modal.querySelectorAll("[data-ui~='msearch.row']").length > 0, 3000);
+  const row = modal.querySelector("[data-ui~='msearch.row']");
   if (!/Clannad/i.test(row.textContent) || !/TV · 2007/.test(row.textContent)) throw new Error("result meta: " + row.textContent.slice(0, 80));
-  row.querySelector(".msch-add").click();
+  row.querySelector("[data-ui~='msearch.add']").click();
   await tick(20);
-  const planned = [...row.querySelectorAll(".msch-status")].find(b => /Plan to watch/.test(b.textContent));
+  const planned = [...row.querySelectorAll("[data-ui~='msearch.status']")].find(b => /Plan to watch/.test(b.textContent));
   if (!planned) throw new Error("status picker with module wording missing");
   const sessionsBefore = KOS.store.state.sessions.length;
   planned.click();
@@ -310,7 +310,7 @@ step("AniList search-and-add: create-then-mirror with syncSource + lastSyncedAt"
   if (!mut || mut.body.variables.mediaId !== 2167 || mut.body.variables.status !== "PLANNING") throw new Error("remote create not sent correctly");
   const s = KOS.store.state.sessions[KOS.store.state.sessions.length - 1];
   if (KOS.store.state.sessions.length !== sessionsBefore + 1 || s.type !== "media" || s.metrics.action !== "added") throw new Error("add must log through logActivity");
-  document.querySelector(".msch-modal button[aria-label='Close']").click();
+  document.querySelector("[data-ui~='msearch.dialog'] button[aria-label='Close']").click();
   netScript = null;
 });
 step("re-adding the same result dedupes against the vault by external id", async () => {
@@ -320,7 +320,7 @@ step("re-adding the same result dedupes against the vault by external id", async
     res();
   });
   /* drive addResult directly — the dedupe lives in the add flow */
-  const modal = document.querySelector(".msch-modal");
+  const modal = document.querySelector("[data-ui~='msearch.dialog']");
   modal.querySelector("button[aria-label='Close']").click();
   const existing = await p(cb => KOS.mediadb.getByExternal("anilist", 2167, cb));
   if (!existing) throw new Error("fixture");
@@ -353,16 +353,16 @@ step("VN search-and-add falls back to a LOCAL add when the remote create fails (
     return Promise.resolve(mockResponse(200, {}));
   };
   KOS.mediaSearch.open("vn", null);
-  const modal = document.querySelector(".msch-modal");
+  const modal = document.querySelector("[data-ui~='msearch.dialog']");
   if (!/browser writes are currently blocked by VNDB/.test(modal.textContent)) throw new Error("CORS caveat not stated in the modal");
-  const input = modal.querySelector(".msch-in");
+  const input = modal.querySelector("[data-ui~='msearch.input']");
   input.value = "steins";
   input.dispatchEvent(new window.Event("input", { bubbles: true }));
-  await waitFor(() => modal.querySelectorAll(".msch-row").length > 0, 3000);
-  const row = modal.querySelector(".msch-row");
-  row.querySelector(".msch-add").click();
+  await waitFor(() => modal.querySelectorAll("[data-ui~='msearch.row']").length > 0, 3000);
+  const row = modal.querySelector("[data-ui~='msearch.row']");
+  row.querySelector("[data-ui~='msearch.add']").click();
   await tick(20);
-  [...row.querySelectorAll(".msch-status")].find(b => /Wishlist/.test(b.textContent)).click();
+  [...row.querySelectorAll("[data-ui~='msearch.status']")].find(b => /Wishlist/.test(b.textContent)).click();
   await waitFor(() => /In vault/.test(row.textContent), 3000);
   const created = await p(cb => KOS.mediadb.getByExternal("vndb", "v2002", cb));
   if (!created) throw new Error("local fallback entry missing");
@@ -380,11 +380,11 @@ step("cards carry the quick-edit cluster; status change saves, logs and pushes",
   netLog = [];
   KOS.show("anime");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-card").length > 0, 4000);
-  const card = [...main.querySelectorAll(".med-card")].find(c => /Frieren/.test(c.textContent));
+  await waitFor(() => main.querySelectorAll("[data-ui~='vault.card']").length > 0, 4000);
+  const card = [...main.querySelectorAll("[data-ui~='vault.card']")].find(c => /Frieren/.test(c.textContent));
   if (!card) throw new Error("card missing");
-  const sel = card.querySelector(".med-qsel");
-  const score = card.querySelector(".med-qscore");
+  const sel = card.querySelector("[data-ui~='vault.qsel']");
+  const score = card.querySelector("[data-ui~='vault.quick-score']");
   if (!sel || !score) throw new Error("quick-edit cluster missing");
   const sessionsBefore = KOS.store.state.sessions.length;
   sel.value = "completed";
@@ -402,9 +402,9 @@ step("score-only quick-edit saves + pushes WITHOUT a session log", async () => {
   netLog = [];
   KOS.show("anime");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-card").length > 0, 4000);
-  const card = [...main.querySelectorAll(".med-card")].find(c => /Frieren/.test(c.textContent));
-  const score = card.querySelector(".med-qscore");
+  await waitFor(() => main.querySelectorAll("[data-ui~='vault.card']").length > 0, 4000);
+  const card = [...main.querySelectorAll("[data-ui~='vault.card']")].find(c => /Frieren/.test(c.textContent));
+  const score = card.querySelector("[data-ui~='vault.quick-score']");
   const sessionsBefore = KOS.store.state.sessions.length;
   score.value = "7.5";
   score.dispatchEvent(new window.Event("change", { bubbles: true }));
@@ -429,10 +429,10 @@ console.log("== write log panel ==");
 step("Sync & Import shows the write activity with entries from this run", async () => {
   KOS.show("mediasync");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-wlog-row").length > 0, 4000);
+  await waitFor(() => main.querySelectorAll("[data-ui~='sync.log-row']").length > 0, 4000);
   if (!/Write activity/.test(main.textContent)) throw new Error("panel missing");
   if (!/last-write-wins/.test(main.textContent)) throw new Error("limitation not stated");
-  const rows = main.querySelectorAll(".med-wlog-row");
+  const rows = main.querySelectorAll("[data-ui~='sync.log-row']");
   if (!rows.length) throw new Error("no log rows rendered");
   if (![...rows].some(r => /Frieren/.test(r.textContent))) throw new Error("known push missing from the panel");
 });

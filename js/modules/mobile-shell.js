@@ -19,7 +19,7 @@
   var searchbox = document.getElementById("searchbox");
   var searchInput = document.getElementById("search");
   var searchResults = document.getElementById("search-results");
-  var topbarRight = document.querySelector(".topbar-right");
+  var topbarRight = document.querySelector("[data-ui~='shell.header-actions']");
   if (!rail || !subnav || !main || !searchbox || !searchInput || !searchResults || !topbarRight) return;
 
   function listenMedia(query, fn) {
@@ -51,17 +51,18 @@
   function syncSubnavEdges() {
     if (!subnavWrap || !subnavWrap.isConnected) return;
     var max = subnav.scrollWidth - subnav.clientWidth;
-    subnavWrap.classList.toggle("at-start", subnav.scrollLeft <= 1 || max <= 1);
-    subnavWrap.classList.toggle("at-end", subnav.scrollLeft >= max - 1 || max <= 1);
-    subnavWrap.classList.toggle("no-scroll", max <= 1);
-    subnavWrap.classList.toggle("hidden", subnav.classList.contains("hidden"));
+    KOS.ui.state(subnavWrap, "at-start", subnav.scrollLeft <= 1 || max <= 1);
+    KOS.ui.state(subnavWrap, "at-end", subnav.scrollLeft >= max - 1 || max <= 1);
+    KOS.ui.state(subnavWrap, "no-scroll", max <= 1);
+    subnavWrap.classList.toggle("hidden", subnav.hidden);
+    subnavWrap.hidden = subnav.hidden;
   }
 
   function revealActiveSubnav() {
     var later = window.requestAnimationFrame || function (fn) { return setTimeout(fn, 0); };
     later(function () {
       if (!subnavWrap || !subnavWrap.isConnected) return;
-      var active = subnav.querySelector(".subnav-item.active");
+      var active = subnav.querySelector("[data-ui~='shell.subnav-item'][data-state~='active']");
       if (active) {
         var left = active.offsetLeft;
         var right = left + active.offsetWidth;
@@ -131,7 +132,7 @@
     item.button = rail.querySelector('[data-section="' + item.section + '"]');
     return item;
   });
-  var productivityLabel = rail.querySelector('[data-section="productivity"] .lbl');
+  var productivityLabel = rail.querySelector('[data-section="productivity"] [data-ui~="shell.rail-label"]');
   var activeMoreOverlay = null;
 
   var moreButton = el("button", {
@@ -145,13 +146,13 @@
     el("span", { class: "glyph", "aria-hidden": "true", text: "余" }),
     el("span", { class: "lbl", text: "More" })
   ]);
-  rail.insertBefore(moreButton, rail.querySelector(".rail-foot"));
+  rail.insertBefore(moreButton, rail.querySelector("[data-ui~='shell.rail-foot']"));
 
   function updateMoreState() {
     var active = hiddenRail.some(function (item) {
-      return item.button && item.button.classList.contains("active");
+      return item.button && item.button.matches('[data-state~="active"]');
     });
-    moreButton.classList.toggle("active", active);
+    KOS.ui.state(moreButton, "active", active);
     if (active) moreButton.setAttribute("aria-current", "page");
     else moreButton.removeAttribute("aria-current");
   }
@@ -162,7 +163,7 @@
     var list = el("div", { class: "mobile-sheet-list" });
     hiddenRail.forEach(function (item) {
       if (!item.button) return;
-      var current = item.button.classList.contains("active");
+      var current = item.button.matches('[data-state~="active"]');
       var destinationAttrs = {
         type: "button",
         class: "mobile-sheet-destination" + (current ? " is-current" : ""),
@@ -238,7 +239,7 @@
     if (KOS.hub && typeof KOS.hub.dismissSearch === "function") {
       KOS.hub.dismissSearch({ preserveQuery: true });
     } else {
-      searchResults.classList.remove("open");
+      KOS.ui.state(searchResults, "open", false);
     }
   }
 
@@ -365,7 +366,7 @@
 
   function enhanceReminderDisclosure(grid) {
     if (grid.dataset.compactDisclosure) return;
-    var side = grid.querySelector(":scope > .rem-side");
+    var side = grid.querySelector(":scope > [data-ui~='rem.side']");
     if (!side) return;
     grid.dataset.compactDisclosure = "true";
     var trigger = el("button", {
@@ -383,8 +384,8 @@
 
   function enhanceVaultDisclosure(layout) {
     if (layout.dataset.compactDisclosure) return;
-    var side = layout.querySelector(":scope > .med-filter-rail");
-    var mainCol = layout.querySelector(":scope > .med-main");
+    var side = layout.querySelector(":scope > [data-ui~='vault.filter-rail']");
+    var mainCol = layout.querySelector(":scope > [data-ui~='vault.main']");
     if (!side || !mainCol) return;
     layout.dataset.compactDisclosure = "true";
     var trigger = el("button", {
@@ -402,8 +403,8 @@
 
   function enhanceCompactSurfaces() {
     if (activeCompactSheet && !activeCompactSheet.origin.isConnected) activeCompactSheet.overlay.close();
-    main.querySelectorAll(".rem-grid").forEach(enhanceReminderDisclosure);
-    main.querySelectorAll(".med-layout").forEach(enhanceVaultDisclosure);
+    main.querySelectorAll("[data-ui~='rem.layout']").forEach(enhanceReminderDisclosure);
+    main.querySelectorAll("[data-ui~='vault.layout']").forEach(enhanceVaultDisclosure);
   }
   var mainObserver = new MutationObserver(enhanceCompactSurfaces);
   mainObserver.observe(main, { childList: true, subtree: true });
@@ -411,7 +412,7 @@
   /* the user panel (#rail .rail-foot, the ONE #hud node) rides the topbar
      on phones, because the rail is a bottom tab bar there; the same node
      returns to the rail above 700px */
-  var railFoot = rail.querySelector(".rail-foot");
+  var railFoot = rail.querySelector("[data-ui~='shell.rail-foot']");
   function placeUserPanel() {
     if (!railFoot) return;
     if (phone.matches) { if (railFoot.parentNode !== topbarRight) topbarRight.appendChild(railFoot); }
@@ -490,4 +491,5 @@
      above has mounted successfully. A missing/failed module therefore
      leaves the original filters visible and usable. */
   document.body.classList.add("mobile-shell-ready");
+  document.documentElement.setAttribute("data-shell", "ready");
 })();

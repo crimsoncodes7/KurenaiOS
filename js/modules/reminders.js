@@ -40,8 +40,7 @@
   }
 
   KOS.views.reminders = function (main, arg) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var p = prefs();
     if (arg && arg.section) { p.section = arg.section; p.listId = null; p.tag = null; }
 
@@ -81,7 +80,7 @@
       secWrap.appendChild(el("h4", { text: "Smart sections" }));
       R().SECTIONS.forEach(function (s) {
         var on = p.section === s.id && p.listId == null && !p.tag;
-        secWrap.appendChild(el("button", { class: "rem-side-item sec-" + s.id + (on ? " active" : ""),
+        secWrap.appendChild(el("button", { class: "rem-side-item sec-" + s.id + (on ? " active" : ""), "data-section": s.id,
           onclick: function () { p.section = s.id; p.listId = null; p.tag = null; KOS.store.save(); draw(); } }, [
           el("span", { class: "rsi-g", "aria-hidden": "true", text: s.glyph }),
           el("span", { class: "rsi-l", text: s.label }),

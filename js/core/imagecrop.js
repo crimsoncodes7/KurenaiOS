@@ -48,7 +48,7 @@
   }
   function apply(node, crop) {
     if (!node) return node;
-    node.classList.add("crop-media");
+    KOS.ui.state(node, "crop-media", true);
     return setVars(node, crop);
   }
   function image(source, attrs, crop) {
@@ -64,7 +64,7 @@
     opts = opts || {};
     clearBackground(host);
     if (!source) return null;
-    host.classList.add("image-crop-host");
+    KOS.ui.state(host, "image-crop-host", true);
     var cls = "image-crop-bg" + (opts.className ? " " + opts.className : "");
     var layer = el("span", { class: cls, "aria-hidden": "true" });
     layer.appendChild(image(String(source), { alt: "", draggable: "false" }, crop));
@@ -79,10 +79,10 @@
   function clearBackground(host) {
     if (!host) return;
     var old = Array.prototype.slice.call(host.children || []).find(function (child) {
-      return child.classList && child.classList.contains("image-crop-bg");
+      return child.getAttribute && (" " + (child.getAttribute("data-ui") || "") + " ").indexOf(" crop.bg ") !== -1;
     });
     if (old) old.remove();
-    host.classList.remove("image-crop-host");
+    KOS.ui.state(host, "image-crop-host", false);
   }
 
   /* Resize an upload as a whole image so localStorage/IndexedDB stays sane.
@@ -379,7 +379,7 @@
       getValue: function () { return { source: source, crop: normalise(crop) }; }
     };
     setSource(source, false);
-    var focus = sourceControls.querySelector("button, input:not(.cropper-file)") || zoomR.input;
+    var focus = sourceControls.querySelector("button, input:not([data-ui~='crop.file'])") || zoomR.input;
     if (focus) focus.focus();
     return overlay;
   }

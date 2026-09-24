@@ -166,7 +166,7 @@
         if (raw === "") { Object.keys(fields).forEach(function (b) { if (+b !== fromBase) fields[b].value = ""; }); work.innerHTML = ""; return; }
         var n = parseInt(raw, fromBase);
         var valid = raw.split("").every(function (ch) { return parseInt(ch, fromBase) < fromBase && !isNaN(parseInt(ch, fromBase)); });
-        if (!valid || isNaN(n)) { work.innerHTML = "<div class='n-call n-call-warn'>“" + raw + "” isn't a valid base-" + fromBase + " number.</div>"; return; }
+        if (!valid || isNaN(n)) { work.innerHTML = "<div class='n-call n-call-warn'>“" + raw + "” isn't a valid base-" + fromBase + " number.</div>"; KOS.ui.hookify(work); return; }
         BASES.forEach(function (b) {
           if (b[1] !== fromBase) fields[b[1]].value = n.toString(b[1]).toUpperCase();
         });

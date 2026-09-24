@@ -73,6 +73,7 @@ window.fetch = (url) => {
 };
 
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
+const { readCss } = require("./lib/css");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;
 
@@ -142,7 +143,7 @@ function signIn() {
   KOS.cloud.userId = () => "user-a";
   KOS.cloud.configured = () => true;
 }
-function drawer() { return doc.querySelector(".asst-drawer"); }
+function drawer() { return doc.querySelector("[data-ui~='asst.drawer']"); }
 function untilIdle() {
   return new Promise(resolve => {
     const iv = setInterval(() => { if (!ORCH.isBusy()) { clearInterval(iv); resolve(); } }, 10);
@@ -192,7 +193,7 @@ step("all six character states map to unique full-body RGBA assets and 22 local 
   });
   assert(fs.existsSync(path.join(ROOT, "assets/assistant/logo/whispering-bloom-emblem.png")), "emblem missing");
   assert(fs.existsSync(path.join(ROOT, "assets/assistant/logo/whispering-bloom-wordmark.png")), "wordmark missing");
-  const css = read("css/main.css");
+  const css = readCss();
   assert(/prefers-reduced-motion[\s\S]{0,200}asst-mascot-img/.test(css) || /prefers-reduced-motion[\s\S]{0,200}transition: none/.test(css),
     "reduced-motion contract missing for the mascot");
   assert(/prefers-reduced-motion[\s\S]{0,120}\.assistant-trigger/.test(css), "reduced-motion contract missing for the trigger");
@@ -208,19 +209,19 @@ step("explicit state changes; success auto-returns; image failure falls back", a
   doc.body.appendChild(node);
   A.setVisual("thinking");
   assert(node.getAttribute("data-state") === "thinking", "state attr must follow");
-  assert(node.querySelector(".asst-status-line").textContent === "Thinking…", "status text must follow");
+  assert(node.querySelector("[data-ui~='asst.status']").textContent === "Thinking…", "status text must follow");
   A.setVisual("working", "Running study_generate_flashcards…");
-  assert(/study_generate_flashcards/.test(node.querySelector(".asst-status-line").textContent),
+  assert(/study_generate_flashcards/.test(node.querySelector("[data-ui~='asst.status']").textContent),
     "the REAL operation name must be usable as status");
   A.MASCOT_STATES.success.autoReturnMs = 40;
   A.setVisual("success");
   assert(node.getAttribute("data-state") === "success", "success state missing");
   await tick(120);
   assert(node.getAttribute("data-state") === "idle", "success must auto-return to idle");
-  const img = node.querySelector(".asst-mascot-img");
+  const img = node.querySelector("[data-ui~='asst.mascot-img']");
   img.dispatchEvent(new window.Event("error"));
-  assert(node.classList.contains("img-failed"), "image failure must mark the node");
-  assert(node.querySelector(".asst-status-line").textContent.length > 0, "text status must survive image failure");
+  assert(node.hasAttribute("data-img-failed"), "image failure must mark the node");
+  assert(node.querySelector("[data-ui~='asst.status']").textContent.length > 0, "text status must survive image failure");
   node.remove();
 });
 
@@ -246,7 +247,7 @@ step("optional live renderer mirrors explicit state and fails safely to static a
   A.character.setLifecycle("idle", { force: true, releaseConfirmation: true, silentAudio: true });
   assert(A.character.installRenderer(ctx => {
     factoryCalls += 1;
-    assert(ctx.size === "large" && ctx.maxFps === 60 && ctx.host.classList.contains("asst-live2d-host"),
+    assert(ctx.size === "large" && ctx.maxFps === 60 && ctx.host.matches('[data-ui~="asst.live2d-host"]'),
       "renderer factory needs the bounded surface contract");
     ctx.host.appendChild(doc.createElement("canvas"));
     return {
@@ -256,9 +257,9 @@ step("optional live renderer mirrors explicit state and fails safely to static a
     };
   }), "renderer factory should install");
   await tick(20);
-  assert(node.classList.contains("has-live-renderer") && node.getAttribute("data-renderer") === "live",
+  assert(node.hasAttribute("data-live-renderer") && node.getAttribute("data-renderer") === "live",
     "a ready renderer must replace the visual while retaining the PNG fallback");
-  assert(node.querySelector(".asst-live2d-host canvas"), "renderer must receive its own host");
+  assert(node.querySelector("[data-ui~='asst.live2d-host'] canvas"), "renderer must receive its own host");
   A.character.setLifecycle("thinking", { force: true, releaseConfirmation: true, silentAudio: true });
   assert(states[states.length - 1] === "thinking", "renderer state must come from explicit lifecycle only");
 
@@ -271,12 +272,12 @@ step("optional live renderer mirrors explicit state and fails safely to static a
   assert(reactions[reactions.length - 1] === "head", "renderer must receive the existing reaction event");
 
   A.character.removeRenderer();
-  assert(!node.classList.contains("has-live-renderer") && node.getAttribute("data-renderer") === "static" && destroyed === 1,
+  assert(!node.hasAttribute("data-live-renderer") && node.getAttribute("data-renderer") === "static" && destroyed === 1,
     "removing a renderer must synchronously restore static art and release resources");
 
   A.character.installRenderer(() => Promise.reject(new Error("model unavailable")));
   await tick(20);
-  assert(node.getAttribute("data-renderer") === "failed" && !node.classList.contains("has-live-renderer"),
+  assert(node.getAttribute("data-renderer") === "failed" && !node.hasAttribute("data-live-renderer"),
     "renderer load failure must remain on the static fallback");
 
   const oldMatchMedia = window.matchMedia;
@@ -332,7 +333,7 @@ step("local audio settles, prioritises lifecycle and enforces shared cooldowns",
   A.character.stopAudio();
   const mascot = A.mascotNode("large");
   doc.body.appendChild(mascot);
-  const frame = mascot.querySelector(".asst-mascot-frame");
+  const frame = mascot.querySelector("[data-ui~='asst.mascot-frame']");
   frame.dispatchEvent(new window.Event("pointerenter"));
   await tick(250);
   frame.dispatchEvent(new window.Event("pointerleave"));
@@ -366,7 +367,7 @@ step("trigger + open/close/toggle with focus contract; Escape closes", async () 
   A.open();
   assert(drawer(), "drawer must open");
   assert(trigger.getAttribute("aria-expanded") === "true", "aria-expanded must track");
-  assert(doc.activeElement === drawer().querySelector(".asst-composer-in"), "focus must land in the composer");
+  assert(doc.activeElement === drawer().querySelector("[data-ui~='asst.composer']"), "focus must land in the composer");
   drawer().dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   assert(!drawer(), "Escape must close the drawer");
   assert(doc.activeElement === trigger, "focus must return to the trigger");
@@ -376,18 +377,18 @@ step("trigger + open/close/toggle with focus contract; Escape closes", async () 
 
 step("draft survives close/reopen; Enter submits; duplicate submission refused", async () => {
   A.open();
-  const ta = drawer().querySelector(".asst-composer-in");
+  const ta = drawer().querySelector("[data-ui~='asst.composer']");
   ta.value = "half-typed thought";
   ta.dispatchEvent(new window.Event("input", { bubbles: true }));
   A.close();
   A.open();
-  assert(drawer().querySelector(".asst-composer-in").value === "half-typed thought", "draft must survive");
-  drawer().querySelector(".asst-composer-in").value = "";
+  assert(drawer().querySelector("[data-ui~='asst.composer']").value === "half-typed thought", "draft must survive");
+  drawer().querySelector("[data-ui~='asst.composer']").value = "";
   A.state().draft = "";
 
   chatScript = [(req, cb) => setTimeout(() => cb(null, { text: "done", toolCalls: [], provider: "stub", model: "stub" }), 150)];
   chatLog = [];
-  const ta2 = drawer().querySelector(".asst-composer-in");
+  const ta2 = drawer().querySelector("[data-ui~='asst.composer']");
   ta2.value = "first";
   ta2.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   await tick(20);
@@ -413,7 +414,7 @@ step("closing the drawer does NOT cancel; Stop does", async () => {
   chatScript = [(req, cb) => setTimeout(() => cb(null, { text: "never shown", toolCalls: [], provider: "stub", model: "stub" }), 400)];
   A.submit("cancel me");
   await tick(20);
-  drawer().querySelector(".asst-cancel").click();
+  drawer().querySelector("[data-ui~='asst.cancel']").click();
   assert(!ORCH.isBusy(), "Stop must cancel");
   assert(/Cancelled/.test(A.state().statusText), "status must say cancelled");
   await tick(450);
@@ -432,7 +433,7 @@ step("confirmation card: canonical object, Decline protects, Confirm executes", 
   A.open();
   A.submit("delete drawer victim");
   await tick(60);
-  const card = drawer().querySelector(".asst-confirm-card");
+  const card = drawer().querySelector("[data-ui~='asst.confirm']");
   assert(card, "the confirmation card must render");
   assert(/collection_delete_entry/.test(card.textContent) && /Drawer Victim/.test(card.textContent),
     "the card must show the action and the resolved target");
@@ -451,7 +452,7 @@ step("confirmation card: canonical object, Decline protects, Confirm executes", 
   ];
   A.submit("delete it for real");
   await tick(60);
-  const card2 = drawer().querySelector(".asst-confirm-card");
+  const card2 = drawer().querySelector("[data-ui~='asst.confirm']");
   [...card2.querySelectorAll("button")].find(b => /Confirm/.test(b.textContent)).click();
   await untilIdle();
   const gone = await new Promise(r => KOS.mediadb.get(victimId, (e, x) => r(x)));
@@ -470,7 +471,7 @@ step("an expired card cannot execute", async () => {
   A.open();
   A.submit("delete expiry victim");
   await tick(120);   // past expiry
-  const card = drawer().querySelector(".asst-confirm-card");
+  const card = drawer().querySelector("[data-ui~='asst.confirm']");
   [...card.querySelectorAll("button")].find(b => /Confirm/.test(b.textContent)).click();
   await untilIdle();
   const still = await new Promise(r => KOS.mediadb.get(add.id, (e, x) => r(x)));
@@ -488,24 +489,24 @@ console.log("== shared surfaces + contextual actions ==");
 step("the dedicated page renders the SAME thread as the drawer", async () => {
   KOS.show("assistant");
   await tick(40);
-  const pageThread = doc.querySelector(".asst-page .asst-thread");
+  const pageThread = doc.querySelector("[data-ui~='asst.page'] [data-ui~='asst.thread']");
   assert(pageThread, "page chat must render");
   assert(/slow reply/.test(pageThread.textContent), "the page must show the drawer's conversation (one state)");
-  assert(doc.querySelectorAll(".asst-tabs .study-tab").length === 6, "six page tabs expected");
+  assert(doc.querySelectorAll("[data-ui~='asst.nav'] [data-ui~='ui.tab']").length === 6, "six page tabs expected");
 });
 
 step("topic contextual actions submit through the shared path with live context", async () => {
   const ref = KOS.hub.LEAVES.compsci[0];
   KOS.show("ref", { subject: "compsci", ref: ref.ref });
   await tick(60);
-  const strip = doc.querySelector(".asst-ctx");
+  const strip = doc.querySelector("[data-ui~='asst.ctx']");
   assert(strip, "the topic page must carry the contextual strip");
-  const btns = [...strip.querySelectorAll(".asst-ctx-btn")].map(b => b.textContent);
+  const btns = [...strip.querySelectorAll("[data-ui~='asst.ctx-btn']")].map(b => b.textContent);
   assert(btns.includes("Ask Kurenai") && btns.includes("Make flashcards") && btns.includes("Make a quiz"),
     "expected the three topic actions, got " + btns.join(","));
   chatScript = [say("Here's the topic explained.")];
   chatLog = [];
-  [...strip.querySelectorAll(".asst-ctx-btn")].find(b => b.textContent === "Ask Kurenai").click();
+  [...strip.querySelectorAll("[data-ui~='asst.ctx-btn']")].find(b => b.textContent === "Ask Kurenai").click();
   await tick(30);
   assert(drawer(), "the action must surface the drawer");
   assert(chatLog.length === 1, "the action must ride the ONE submission path");
@@ -524,11 +525,11 @@ step("the vault editor hook adds an assistant action through the same path", asy
     { module: "anime", title: "Hook Show", status: "inProgress" }, (e, res) => r(res)));
   const overlay = KOS.mediaEditor({ id: add.id, module: "anime", title: "Hook Show" }, null);
   await tick(40);
-  const strip = overlay && overlay.querySelector ? overlay.querySelector(".asst-ctx") : null;
+  const strip = overlay && overlay.querySelector ? overlay.querySelector("[data-ui~='asst.ctx']") : null;
   assert(strip, "the editor must carry the assistant strip");
   chatScript = [say("Here's where you are.")];
   chatLog = [];
-  [...strip.querySelectorAll(".asst-ctx-btn")][0].click();
+  [...strip.querySelectorAll("[data-ui~='asst.ctx-btn']")][0].click();
   await tick(30);
   assert(chatLog.length === 1 && chatLog[0].request.messages.some(m => /Hook Show/.test(m.content)),
     "the entry context must ride the shared path");
@@ -556,27 +557,27 @@ step("history: create/list/open/rename/delete via KOS.ai.convo, synced with the 
 
   KOS.show("assistant", { tab: "history" });
   await tick(80);
-  let rows = doc.querySelectorAll(".asst-history-row");
+  let rows = doc.querySelectorAll("[data-ui~='asst.history-row']");
   assert(rows.length === 1, "history must list the conversation, got " + rows.length);
-  assert(rows[0].classList.contains("current"), "the open conversation must be marked current");
+  assert(rows[0].matches('[data-state~="current"]'), "the open conversation must be marked current");
 
   rows[0].querySelector("[aria-label='Rename conversation']").click();
-  const input = doc.querySelector(".asst-history-rename input");
+  const input = doc.querySelector("[data-ui~='asst.history-rename'] input");
   input.value = "Renamed thread";
-  doc.querySelector(".asst-history-rename button").click();
+  doc.querySelector("[data-ui~='asst.history-rename'] button").click();
   await tick(60);
   assert(db.tables.kos_assistant_conversations[0].title === "Renamed thread", "rename must ride KOS.ai.convo");
 
   /* resume from history back into chat */
-  rows = doc.querySelectorAll(".asst-history-row");
+  rows = doc.querySelectorAll("[data-ui~='asst.history-row']");
   [...rows[0].querySelectorAll("button")].find(b => b.textContent === "Open").click();
   await tick(80);
-  assert(/First saved reply/.test(doc.querySelector(".asst-thread").textContent),
+  assert(/First saved reply/.test(doc.querySelector("[data-ui~='asst.thread']").textContent),
     "resume must reload the stored messages into the shared thread");
 
   KOS.show("assistant", { tab: "history" });
   await tick(80);
-  doc.querySelector(".asst-history-row [aria-label='Delete conversation']").click();
+  doc.querySelector("[data-ui~='asst.history-row'] [aria-label='Delete conversation']").click();
   await tick(80);
   assert(db.tables.kos_assistant_conversations.length === 0, "delete must remove the conversation");
   assert(A.state().conversationId === null, "deleting the current conversation must reset the thread");
@@ -585,7 +586,7 @@ step("history: create/list/open/rename/delete via KOS.ai.convo, synced with the 
 step("settings: routing + fallback ride the real service; no key material anywhere", async () => {
   KOS.show("assistant", { tab: "settings" });
   await tick(60);
-  const rows = doc.querySelectorAll(".asst-route-row");
+  const rows = doc.querySelectorAll("[data-ui~='asst.route-row']");
   assert(rows.length >= 5, "routing rows expected");
   const tutorSel = rows[0].querySelector("select");
   tutorSel.value = "deepseek";
@@ -601,7 +602,7 @@ step("settings: routing + fallback ride the real service; no key material anywhe
   fbSel.value = "";
   fbSel.dispatchEvent(new window.Event("change", { bubbles: true }));
   assert(KOS.ai.config().fallback.tutor === null, "fallback must clear");
-  const pageHtml = doc.querySelector(".asst-page").innerHTML;
+  const pageHtml = doc.querySelector("[data-ui~='asst.page']").innerHTML;
   assert(!/sk-[A-Za-z0-9]|API[_ ]?KEY|SUPABASE_/.test(pageHtml), "no key material may appear in the page");
   assert(!/key/i.test(JSON.stringify(KOS.store.state.assistant.routing)), "no keys in persisted assistant state");
 });
@@ -609,20 +610,20 @@ step("settings: routing + fallback ride the real service; no key material anywhe
 step("memory tab: add/edit/delete via KOS.ai.memory with origin labels", async () => {
   KOS.show("assistant", { tab: "memory" });
   await tick(60);
-  const ta = doc.querySelector(".asst-memory-add textarea");
+  const ta = doc.querySelector("[data-ui~='asst.memory-add'] textarea");
   ta.value = "Prefers evening review sessions";
-  doc.querySelector(".asst-memory-add button").click();
+  doc.querySelector("[data-ui~='asst.memory-add'] button").click();
   await tick(60);
-  let rowEls = doc.querySelectorAll(".asst-memory-row");
+  let rowEls = doc.querySelectorAll("[data-ui~='asst.memory-row']");
   assert(rowEls.length === 1 && /evening review/.test(rowEls[0].textContent), "memory add via UI failed");
   assert(/you asked/.test(rowEls[0].textContent), "origin must be shown");
   rowEls[0].querySelector("[aria-label='Edit memory']").click();
-  const eta = doc.querySelector(".asst-memory-edit textarea");
+  const eta = doc.querySelector("[data-ui~='asst.memory-edit'] textarea");
   eta.value = "Prefers late-evening review sessions";
-  doc.querySelector(".asst-memory-edit button").click();
+  doc.querySelector("[data-ui~='asst.memory-edit'] button").click();
   await tick(60);
-  assert(/late-evening/.test(doc.querySelector(".asst-memory-row").textContent), "memory edit failed");
-  doc.querySelector(".asst-memory-row [aria-label='Delete memory']").click();
+  assert(/late-evening/.test(doc.querySelector("[data-ui~='asst.memory-row']").textContent), "memory edit failed");
+  doc.querySelector("[data-ui~='asst.memory-row'] [aria-label='Delete memory']").click();
   await tick(60);
   assert(db.tables.kos_assistant_memory.length === 0, "memory delete failed");
 });
@@ -630,7 +631,7 @@ step("memory tab: add/edit/delete via KOS.ai.memory with origin labels", async (
 step("permissions tab: consequential can never be offered auto-run", async () => {
   KOS.show("assistant", { tab: "permissions" });
   await tick(80);
-  const rows = [...doc.querySelectorAll(".asst-perm-row")];
+  const rows = [...doc.querySelectorAll("[data-ui~='asst.perm-row']")];
   assert(rows.length >= 60, "all registered tools must be listed, got " + rows.length);
   const conseq = rows.find(r => /collection_delete_entry/.test(r.textContent));
   const opts = [...conseq.querySelectorAll("option")].map(o => o.textContent);
@@ -654,11 +655,11 @@ step("activity tab: lifecycle rows render; NO delete control", async () => {
   ], "cloud") });
   KOS.show("assistant", { tab: "activity" });
   await tick(60);
-  const rows = doc.querySelectorAll(".asst-audit-row");
+  const rows = doc.querySelectorAll("[data-ui~='asst.audit-row']");
   assert(rows.length === 3, "audit rows expected");
   assert(/executed/.test(rows[0].textContent) && /rejected/.test(rows[1].textContent) && /failed/.test(rows[2].textContent),
     "statuses must render");
-  const btns = doc.querySelectorAll(".asst-audit button, .asst-audit .mini-btn");
+  const btns = doc.querySelectorAll("[data-ui~='asst.audit'] button, [data-ui~='asst.audit'] button");
   assert(btns.length === 0, "the audit list must offer NO controls (undeletable by design)");
   A._config({ auditReader: null });
 });
@@ -673,7 +674,7 @@ step("provider text renders inertly — no HTML injection", async () => {
   A.submit("reply with html");
   await untilIdle();
   await tick(30);
-  const bubbles = drawer().querySelectorAll(".asst-assistant .asst-bubble");
+  const bubbles = drawer().querySelectorAll("[data-ui~='asst.assistant'] [data-ui~='asst.bubble']");
   const last = bubbles[bubbles.length - 1];
   assert(last.querySelector("img") === null && last.querySelector("script") === null,
     "provider HTML must never become live DOM");
@@ -689,7 +690,7 @@ step("tool rows use one inert, progressively disclosed summary", async () => {
   A.submit("check subjects");
   await untilIdle();
   await tick(30);
-  const group = drawer().querySelector("details.asst-tool");
+  const group = drawer().querySelector("details[data-ui~='asst.tool']");
   assert(group && group.querySelector("summary"), "tool activity must collapse into a native disclosure");
   assert(group.querySelectorAll("button").length === 0, "tool history must not expose action controls");
   assert(Array.from(group.querySelectorAll("*")).every(n => !n.onclick),

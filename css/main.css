@@ -1221,6 +1221,10 @@ body.modal-open #main { overflow: hidden; }
 }
 .hstat + .hstat { border-left: 1px solid var(--line2); }
 .hstat.click { cursor: pointer; }
+/* UI rebuild M1: the clickable fact is a <button>; the UA font shorthand on
+   buttons would reset line-height and spacing, so it inherits like the div
+   it replaced. */
+button.hstat { font: inherit; letter-spacing: inherit; word-spacing: inherit; }
 .hstat.click:hover { background: color-mix(in srgb, var(--text) 5%, transparent); }
 .hstat .v { font-family: var(--serif); font-size: 24px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
 .hstat .k { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }

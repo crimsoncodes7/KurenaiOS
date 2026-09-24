@@ -65,8 +65,8 @@
     /* an icon button: the primitive's label becomes the accessible name,
        the bell glyph is drawn, and the unread count rides a badge */
     bell.setAttribute("aria-label", "Notifications");
-    bell.querySelector(".menu-btn-lbl").classList.add("sr-only");
-    bell.querySelector(".menu-btn-caret").remove();
+    bell.querySelector("[data-ui~='ui.menu-label']").classList.add("sr-only");
+    bell.querySelector("[data-ui~='ui.menu-caret']").remove();
     bell.insertBefore(el("span", { class: "notify-bell-glyph", "aria-hidden": "true" }, [
       (function () {
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -83,7 +83,7 @@
     function paint() {
       var n = KOS.notify.unread();
       badge.textContent = n > 9 ? "9+" : String(n);
-      badge.classList.toggle("is-on", n > 0);
+      KOS.ui.state(badge, "is-on", n > 0);
       bell.setAttribute("aria-label", n ? "Notifications, " + n + " unread" : "Notifications");
     }
     KOS.notify.onChange(paint);
@@ -94,8 +94,7 @@
   /* ---------------- the page ---------------- */
   var FILTERS = [["all", "All"], ["study", "Study"], ["productivity", "Productivity"], ["collection", "Collection"]];
   KOS.views.notifications = function (main, arg) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var filter = arg && typeof arg === "string" && FILTERS.some(function (f) { return f[0] === arg; }) ? arg : "all";
 
     var markAll = el("button", { class: "btn", text: "✓ Mark all as read", onclick: function () { KOS.notify.markAllRead(); } });

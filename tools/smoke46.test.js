@@ -14,9 +14,11 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
+const { byName } = require("./lib/ui-query");
+const { readCss } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-const css = fs.readFileSync(path.join(ROOT, "css/main.css"), "utf8");
+const css = readCss();
 const cssRules = css.replace(/\/\*[\s\S]*?\*\//g, "");
 const src = f => fs.readFileSync(path.join(ROOT, f), "utf8");
 const shellSrc = src("js/modules/mobile-shell.js");
@@ -120,14 +122,14 @@ step("the Phase E module loads before main binds the canonical rail", () => {
   const shellAt = html.indexOf('src="js/modules/mobile-shell.js"');
   const mainAt = html.indexOf('src="js/main.js"');
   assert(shellAt !== -1 && shellAt < mainAt, "mobile-shell.js is missing or loads after main.js");
-  assert($$("#rail > .rail-item").length === 7, "a canonical desktop rail destination was removed");
+  assert($$("#rail > [data-ui~='shell.rail-item']").length === 7, "a canonical desktop rail destination was removed");
 });
 
 step("phone navigation is four primary destinations plus More, with no cloned routes", () => {
   const more = $("#mobile-more");
   assert(more, "the More destination was not mounted");
-  assert(!more.classList.contains("rail-item"), "main.js will incorrectly bind More as a canonical rail route");
-  assert($("[data-section=productivity] .lbl").textContent === "Focus",
+  assert(!more.matches('[data-ui~="shell.rail-item"]'), "main.js will incorrectly bind More as a canonical rail route");
+  assert($("[data-section=productivity] [data-ui~='shell.rail-label']").textContent === "Focus",
     "the phone bar still tries to squeeze the word Productivity");
   ["governor", "assistant", "system"].forEach(section => {
     assert(new RegExp('data-section="' + section + '"').test(html), section + " was hidden by deletion");
@@ -143,18 +145,18 @@ step("phone navigation is four primary destinations plus More, with no cloned ro
 step("More is a focus-managed surface over the three hidden original buttons", async () => {
   const more = $("#mobile-more");
   click(more);
-  const sheet = $(".mobile-nav-sheet");
+  const sheet = $("[data-ui~='shell.mobile-nav-sheet']");
   assert(sheet && sheet.getAttribute("role") === "dialog", "More did not use openDialog");
-  assert(document.body.classList.contains("modal-open"), "More does not lock background scroll");
-  const labels = $$(".mobile-sheet-destination b").map(node => node.textContent);
+  assert(document.documentElement.hasAttribute("data-scroll-lock"), "More does not lock background scroll");
+  const labels = $$("[data-ui~='shell.mobile-sheet-destination'] b").map(node => node.textContent);
   assert(labels.join("|") === "Governor|Assistant|Archive", "More routes are " + labels.join(", "));
   assert(sheet.contains(document.activeElement), "focus did not enter More");
-  click($(".mobile-sheet-destination"));
+  click($("[data-ui~='shell.mobile-sheet-destination']"));
   await tick();
   assert(KOS.currentNav().viewId === "governor", "More bypassed the Governor's canonical landing");
-  assert(!$(".mobile-nav-sheet") && !document.body.classList.contains("modal-open"),
+  assert(!$("[data-ui~='shell.mobile-nav-sheet']") && !document.documentElement.hasAttribute("data-scroll-lock"),
     "More did not close after navigation");
-  assert(more.classList.contains("active") && more.getAttribute("aria-current") === "page",
+  assert(more.matches('[data-state~="active"]') && more.getAttribute("aria-current") === "page",
     "More does not reflect the current hidden section");
 });
 
@@ -163,7 +165,7 @@ step("compact subnav is one declared scroller without changing the nav landmark"
   await tick(20);
   const nav = $("#subnav");
   const wrap = nav.parentElement;
-  assert(wrap.classList.contains("subnav-scroller") && wrap.dataset.scroller === "true",
+  assert(wrap.matches('[data-ui~="shell.subnav-scroller"]') && wrap.dataset.scroller === "true",
     "the compact section strip is an undeclared raw scroller");
   assert(nav.tagName === "NAV" && nav.getAttribute("aria-label") === "Section",
     "the native Section nav landmark was replaced");
@@ -173,7 +175,7 @@ step("compact subnav is one declared scroller without changing the nav landmark"
     "the compact strip can still wrap");
   KOS.show("wishlist");
   await tick(20);
-  assert($("#subnav .subnav-item.active .lbl").textContent === "Planner",
+  assert($("#subnav [data-ui~='shell.subnav-item'][data-state~='active'] [data-ui~='part.text']").textContent === "Planner",
     "a rebuilt Collection strip lost its active destination");
   assert(/\.sec-head \.sec-title \{ min-width: 0; flex: 1 1 0; \}/.test(css),
     "a long spine title can still orphan its count/arrow onto another flex line");
@@ -182,14 +184,14 @@ step("compact subnav is one declared scroller without changing the nav landmark"
 console.log("== E4: one global search, reachable on phones ==");
 
 step("the user panel rides the topbar on phones and returns to the rail above 700px", () => {
-  const foot = $("#hud").closest(".rail-foot");
-  assert(foot && foot.parentNode === $(".topbar-right"), "on a phone the ONE #hud node must sit in .topbar-right (not float fixed over the page)");
+  const foot = $("#hud").closest("[data-ui~='shell.rail-foot']");
+  assert(foot && foot.parentNode === $("[data-ui~='shell.header-actions']"), "on a phone the ONE #hud node must sit in .topbar-right (not float fixed over the page)");
   assert(!/position:\s*fixed/.test(css.split("#rail .rail-foot {")[1] || ""), "the phone rail-foot must not be position:fixed any more");
   const phone = window.matchMedia("(max-width: 700px)");
   phone.setMatches(false);
   assert(foot.parentNode === $("#rail"), "above 700px the panel must return to the rail");
   phone.setMatches(true);
-  assert(foot.parentNode === $(".topbar-right"), "crossing back must move it again");
+  assert(foot.parentNode === $("[data-ui~='shell.header-actions']"), "crossing back must move it again");
 });
 
 step("mobile search moves and restores the exact existing searchbox", async () => {
@@ -199,7 +201,7 @@ step("mobile search moves and restores the exact existing searchbox", async () =
   trigger.focus();
   click(trigger);
   assert($("#searchbox") === searchbox, "mobile search cloned the canonical node");
-  assert(searchbox.closest(".mobile-search-sheet"), "the canonical searchbox did not enter the sheet");
+  assert(searchbox.closest("[data-ui~='shell.search-sheet']"), "the canonical searchbox did not enter the sheet");
   assert(document.activeElement === $("#search"), "the search input was not focused on open");
   assert(trigger.getAttribute("aria-expanded") === "true", "the search trigger does not expose its state");
   key("Escape", document.activeElement);
@@ -215,7 +217,7 @@ step("a preserved mobile query repaints and result activation closes before rout
   const input = $("#search");
   input.value = "binary";
   input.dispatchEvent(new window.Event("input", { bubbles: true }));
-  assert($("#search-results").classList.contains("open") && $("#search-results .sr-item"),
+  assert($("#search-results").matches('[data-state~="open"]') && $("#search-results [data-ui~='search.result']"),
     "the populated canonical result list did not open");
   let dismissOpts = null;
   /* Phase F supplies a real dismissSearch since the E+F integration, so the
@@ -234,10 +236,10 @@ step("a preserved mobile query repaints and result activation closes before rout
   if (realDismiss) KOS.hub.dismissSearch = realDismiss; else delete KOS.hub.dismissSearch;
   click(trigger);
   await tick(10);
-  assert($("#search-results").classList.contains("open") && $("#search-results .sr-item"),
+  assert($("#search-results").matches('[data-state~="open"]') && $("#search-results [data-ui~='search.result']"),
     "reopening search left a preserved query with stale hidden results");
-  click($("#search-results .sr-item"));
-  assert(!$(".mobile-search-sheet"), "result navigation left a delayed search teardown");
+  click($("#search-results [data-ui~='search.result']"));
+  assert(!$("[data-ui~='shell.search-sheet']"), "result navigation left a delayed search teardown");
   assert(KOS.currentNav().viewId === "ref", "mobile result activation bypassed canonical search routing");
   assert(/KOS\.mobileShell\.openSearch = openSearch/.test(shellSrc),
     "Phase F has no narrow seam for its canonical shortcut to open the phone presentation");
@@ -248,13 +250,13 @@ step("a preserved mobile query repaints and result activation closes before rout
 step("the slash shortcut opens the phone search surface instead of a hidden input", async () => {
   click($("#mobile-more"));
   key("/", document.body);
-  assert($(".mobile-nav-sheet") && !$(".mobile-search-sheet"),
+  assert($("[data-ui~='shell.mobile-nav-sheet']") && !$("[data-ui~='shell.search-sheet']"),
     "slash stacked Search over an existing dialog");
   key("Escape", document.activeElement);
   await tick();
   key("/", document.body);
   await tick();
-  assert($(".mobile-search-sheet") && document.activeElement === $("#search"),
+  assert($("[data-ui~='shell.search-sheet']") && document.activeElement === $("#search"),
     "slash focused an invisible topbar input");
   key("Escape", document.activeElement);
 });
@@ -298,12 +300,12 @@ step("bottom labels are readable words, never ellipsis", () => {
 step("Reminders' tall taxonomy moves into and back out of one dialog", async () => {
   KOS.show("reminders");
   await tick(30);
-  const trigger = $(".reminders-disclosure-trigger");
-  const side = $(".rem-side");
-  const grid = $(".rem-grid");
+  const trigger = $("[data-ui~='rem.disclosure-trigger']");
+  const side = $("[data-ui~='rem.side']");
+  const grid = $("[data-ui~='rem.layout']");
   assert(trigger && side && side.parentNode === grid, "Reminders was not enhanced for compact disclosure");
   click(trigger);
-  assert(side.closest(".mobile-compact-sheet"), "the real Reminders taxonomy did not move into the dialog");
+  assert(side.closest("[data-ui~='shell.compact-sheet']"), "the real Reminders taxonomy did not move into the dialog");
   assert(trigger.getAttribute("aria-expanded") === "true", "the Reminders trigger stayed collapsed");
   key("Escape", document.activeElement);
   await tick();
@@ -312,7 +314,8 @@ step("Reminders' tall taxonomy moves into and back out of one dialog", async () 
 });
 
 step("all four vaults share the same compact status/list disclosure seam", () => {
-  assert(/main\.querySelectorAll\("\.med-layout"\)\.forEach\(enhanceVaultDisclosure\)/.test(shellSrc),
+  /* the one seam: every vault layout, found by its hook, not a module list */
+  assert(/main\.querySelectorAll\("\[data-ui~='vault\.layout'\]"\)\.forEach\(enhanceVaultDisclosure\)/.test(shellSrc),
     "vault disclosure is module-specific");
   assert(/\.mobile-shell-ready \.rem-grid > \.rem-side,[\s\S]*\.mobile-shell-ready \.med-layout > \.med-filter-rail \{ display: none; \}/.test(css),
     "compact side rails hide without a successfully mounted disclosure module");
@@ -329,21 +332,21 @@ step("phone Month is a density overview with every day available in the day shee
   KOS.store.state.ui.calMode = "month";
   KOS.show("calendar");
   await tick();
-  const summary = $(".cal-day-summary");
+  const summary = $("[data-ui~='cal.day-summary']");
   assert(summary, "phone Month still paints unreadable event-title chips");
   assert(/daySheet\(dISO, onChanged\)/.test(calendarSrc), "the phone density control has no full-detail path");
   click(summary);
-  assert($(".cal-day-modal"), "a month's density control did not open the existing day sheet");
-  $(".cal-day-modal").closest(".modal-ov").remove();
+  assert($("[data-ui~='cal.day-modal']"), "a month's density control did not open the existing day sheet");
+  $("[data-ui~='cal.day-modal']").closest("[data-ui~='ui.dialog-overlay']").remove();
 });
 
 step("phone Week is a seven-day agenda, not seven squeezed time columns", async () => {
   KOS.store.state.ui.calMode = "week";
   KOS.show("calendar");
   await tick();
-  assert($(".cal-phone-week"), "the phone still renders the desktop time grid");
-  assert($$(".cal-phone-day").length === 7, "the phone agenda lost a day");
-  assert(!$(".cal-week"), "desktop Week columns survived in the phone composition");
+  assert($("[data-ui~='cal.phone-week']"), "the phone still renders the desktop time grid");
+  assert($$("[data-ui~='cal.phone-day']").length === 7, "the phone agenda lost a day");
+  assert(!$("[data-ui~='cal.week']"), "desktop Week columns survived in the phone composition");
 });
 
 step("a mounted Calendar recomposes across the phone breakpoint in both directions", async () => {
@@ -351,30 +354,30 @@ step("a mounted Calendar recomposes across the phone breakpoint in both directio
   assert(phoneMql, "mobile-shell did not subscribe to the sanctioned phone tier");
   phoneMql.setMatches(false);
   await tick(20);
-  assert($(".cal-week") && !$(".cal-phone-week"),
+  assert($("[data-ui~='cal.week']") && !$("[data-ui~='cal.phone-week']"),
     "orientation to tablet left the phone agenda frozen in place");
   phoneMql.setMatches(true);
   await tick(20);
-  assert($(".cal-phone-week") && !$(".cal-week"),
+  assert($("[data-ui~='cal.phone-week']") && !$("[data-ui~='cal.week']"),
     "orientation to phone left the desktop time columns frozen in place");
 });
 
 step("Calendar defers orientation redraw until its dialog closes and restores useful focus", async () => {
   const phoneMql = mediaQueries.get("(max-width: 700px)");
-  const opener = $(".cal-phone-date");
+  const opener = $("[data-ui~='cal.phone-date']");
   opener.focus();
   click(opener);
-  assert($(".cal-day-modal"), "the phone Calendar day dialog did not open");
+  assert($("[data-ui~='cal.day-modal']"), "the phone Calendar day dialog did not open");
   phoneMql.setMatches(false);
   await tick(20);
-  assert($(".cal-day-modal") && $(".cal-phone-week") && !$(".cal-week"),
+  assert($("[data-ui~='cal.day-modal']") && $("[data-ui~='cal.phone-week']") && !$("[data-ui~='cal.week']"),
     "orientation destroyed an open editor or recomposed behind its stale callback");
   key("Escape", document.activeElement);
   await tick(30);
-  assert(!$(".cal-day-modal") && $(".cal-week") && !$(".cal-phone-week"),
+  assert(!$("[data-ui~='cal.day-modal']") && $("[data-ui~='cal.week']") && !$("[data-ui~='cal.phone-week']"),
     "the deferred Calendar composition did not apply after dialog close");
   assert(document.activeElement && document.activeElement.isConnected && document.activeElement !== document.body &&
-    (document.activeElement.classList.contains("cw-day") || document.activeElement === $("#main")),
+    (document.activeElement.matches('[data-ui~="cal.day"]') || document.activeElement === $("#main")),
     "deferred Calendar recomposition discarded the dialog's restored focus");
   phoneMql.setMatches(true);
 });
@@ -382,18 +385,18 @@ step("Calendar defers orientation redraw until its dialog closes and restores us
 step("Calendar Save keeps a connected focus target after a deferred breakpoint crossing", async () => {
   const phoneMql = mediaQueries.get("(max-width: 700px)");
   await tick(20);
-  const add = $(".cal-phone-day .mini-btn");
+  const add = byName($("[data-ui~='cal.phone-day']"), /^New event on /);
   click(add);
-  const editor = $(".cal-ev-modal");
+  const editor = $("[data-ui~='cal.ev-modal']");
   assert(editor, "the phone Calendar event editor did not open");
   editor.querySelector('input[type="text"]').value = "Orientation focus contract";
   phoneMql.setMatches(false);
   await tick(20);
-  assert($(".cal-ev-modal") && $(".cal-phone-week") && !$(".cal-week"),
+  assert($("[data-ui~='cal.ev-modal']") && $("[data-ui~='cal.phone-week']") && !$("[data-ui~='cal.week']"),
     "orientation recomposed behind the live event editor");
-  click($$(".cal-ev-modal button").find(button => button.textContent.trim() === "Add event"));
+  click($$("[data-ui~='cal.ev-modal'] button").find(button => button.textContent.trim() === "Add event"));
   await tick(30);
-  assert(!$(".cal-ev-modal") && $(".cal-week") && !$(".cal-phone-week"),
+  assert(!$("[data-ui~='cal.ev-modal']") && $("[data-ui~='cal.week']") && !$("[data-ui~='cal.phone-week']"),
     "saving did not apply the deferred Calendar composition");
   assert(document.activeElement && document.activeElement.isConnected && document.activeElement !== document.body,
     "saving after a deferred breakpoint crossing left focus on the document body");

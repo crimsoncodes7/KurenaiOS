@@ -22,9 +22,10 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
+const { readCss } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-const css = fs.readFileSync(path.join(ROOT, "css/main.css"), "utf8");
+const css = readCss();
 const dom = new JSDOM(html, { url: "http://localhost/index.html", runScripts: "outside-only", pretendToBeVisual: true });
 const { window } = dom;
 const { document } = window;
@@ -66,31 +67,31 @@ console.log("== A · subject overview ==");
    The claim the suite defends is unchanged: one balanced grid, no hole. */
 step("the desk carries the analytics grid, four across, with no hole", () => {
   KOS.show("subject", SID);
-  const main = $(".subject-main");
+  const main = $("[data-ui~='study.subject-main']");
   assert(main, "no desk column");
-  const panel = main.querySelector(".subj-analytics");
+  const panel = main.querySelector("[data-ui~='study.analytics']");
   assert(panel, "no analytics panel on the desk");
-  assert(!$(".subject-side .subj-analytics"), "the analytics are still in the context column");
-  const tiles = panel.querySelectorAll(".sa-grid > .sa-tile");
+  assert(!$("[data-ui~='study.subject-side'] [data-ui~='study.analytics']"), "the analytics are still in the context column");
+  const tiles = panel.querySelectorAll("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile']");
   assert(tiles.length === 8, "expected 8 tiles, got " + tiles.length);
   assert(/\.sa-grid\s*\{[^}]*grid-template-columns:\s*repeat\(4,/s.test(css),
     "the grid is not four columns — 8 tiles must divide evenly");
 });
 
 step("every tile is the same shape: label, value, context, one track", () => {
-  $$(".sa-grid > .sa-tile").forEach(t => {
-    const k = t.querySelector(".k"), v = t.querySelector(".v"), s = t.querySelector(".s");
+  $$("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile']").forEach(t => {
+    const k = t.querySelector("[data-ui~='part.label']"), v = t.querySelector("[data-ui~='part.value']"), s = t.querySelector("[data-ui~='part.caption']");
     assert(k && k.textContent.trim(), "a tile has no label");
     assert(v && v.textContent.trim(), "a tile has no value");
     assert(s && s.textContent.trim(), "a tile has no line of context");
-    assert(t.querySelector(".sa-track"), "a tile has no track row — rows would fall off the baseline");
+    assert(t.querySelector("[data-ui~='study.analytics-track']"), "a tile has no track row — rows would fall off the baseline");
   });
 });
 
 step("the eight statistics are the named ones, each labelled once", () => {
   const want = ["Mastery", "Topics secure", "Topics started", "Cards due",
     "Cards reviewed", "Quiz best", "Exam questions", "Study streak"];
-  const got = $$(".sa-grid > .sa-tile .k").map(n => n.textContent.trim());
+  const got = $$("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile'] [data-ui~='part.label']").map(n => n.textContent.trim());
   assert(got.join("|") === want.join("|"), "tile labels: " + got.join("|"));
 });
 
@@ -101,14 +102,14 @@ step("the eight statistics are the named ones, each labelled once", () => {
 step("Continue where you left off is the desk's FIRST element", () => {
   KOS.store.state.ui.lastRef[SID] = REF;
   KOS.show("subject", SID);
-  const main = $(".subject-main");
-  const card = main.querySelector(".continue-action");
+  const main = $("[data-ui~='study.subject-main']");
+  const card = main.querySelector("[data-ui~='study.continue']");
   assert(card, "no action card");
   assert(main.firstElementChild === card, "the action card does not lead the desk");
   const kids = [...main.children];
-  assert(kids.indexOf(card) < kids.indexOf(main.querySelector(".subj-analytics")),
+  assert(kids.indexOf(card) < kids.indexOf(main.querySelector("[data-ui~='study.analytics']")),
     "the action card is not above the analytics");
-  assert(card.querySelector(".d").textContent === "Continue where you left off", "wrong kicker");
+  assert(card.querySelector("[data-ui~='part.detail']").textContent === "Continue where you left off", "wrong kicker");
   assert(card.textContent.includes(REF), "the card does not name the topic");
   assert(/\.continue-action\s*\{[^}]*width:\s*100%/s.test(css), "the action card is not full width");
   click(card);
@@ -118,9 +119,9 @@ step("Continue where you left off is the desk's FIRST element", () => {
 step("a never-opened subject still gets an action card, with an honest kicker", () => {
   delete KOS.store.state.ui.lastRef.it;
   KOS.show("subject", "it");
-  const card = $(".subject-main .continue-action");
+  const card = $("[data-ui~='study.subject-main'] [data-ui~='study.continue']");
   assert(card, "the empty state dropped the card entirely");
-  assert(card.querySelector(".d").textContent === "Start here", "empty state kept the Continue wording");
+  assert(card.querySelector("[data-ui~='part.detail']").textContent === "Start here", "empty state kept the Continue wording");
 });
 
 /* Countdowns are dates, not subject analytics. With the analytics moved to
@@ -128,10 +129,10 @@ step("a never-opened subject still gets an action card, with an honest kicker", 
    statistic — so the ruled break has nothing left to separate and is gone. */
 step("countdowns stay out of the analytics block", () => {
   KOS.show("subject", SID);
-  const side = $(".subject-side");
-  assert(side.querySelector(".dl-widget"), "no countdown widget");
-  assert(!$(".subj-analytics .dl-widget"), "countdowns leaked into the analytics panel");
-  assert(!side.querySelector(".subj-analytics"), "the analytics are back in the date column");
+  const side = $("[data-ui~='study.subject-side']");
+  assert(side.querySelector("[data-ui~='cal.countdowns']"), "no countdown widget");
+  assert(!$("[data-ui~='study.analytics'] [data-ui~='cal.countdowns']"), "countdowns leaked into the analytics panel");
+  assert(!side.querySelector("[data-ui~='study.analytics']"), "the analytics are back in the date column");
 });
 
 /* audit SUBJ-1: the page rendered the spec tree's section list a second time,
@@ -141,11 +142,11 @@ step("the section list appears exactly once, in the spine", () => {
   assert(!$("#main .sec-grid"), "the main-column section ledger is back");
   assert(!$("#main .sec-card"), "a duplicate section row survives in the main column");
   const spine = document.getElementById("tree");
-  const heads = spine.querySelectorAll(".sec-head");
+  const heads = spine.querySelectorAll("[data-ui~='ui.section-head']");
   assert(heads.length >= 8, "the spine lost its section list (" + heads.length + " rows)");
   /* it inherited what the ledger did that the spine did not: a bar and,
      one level down, the per-subsection tally */
-  assert(spine.querySelector(".sec-head .sec-head-bar .bar-fill"),
+  assert(spine.querySelector("[data-ui~='ui.section-head'] [data-ui~='ui.section-bar'] [data-ui~='study.bar-fill']"),
     "the spine did not inherit the ledger's progress bar");
 });
 
@@ -160,7 +161,7 @@ console.log("== B · statistic consistency ==");
 
 step("percentages are whole numbers with a %; part-of-whole is always A / B", () => {
   KOS.show("subject", SID);
-  const vals = $$(".sa-grid > .sa-tile .v").map(n => n.textContent.trim());
+  const vals = $$("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile'] [data-ui~='part.value']").map(n => n.textContent.trim());
   vals.forEach(v => {
     if (v.includes("%")) assert(/^\d+%$/.test(v), "malformed percentage: " + v);
     if (v.includes("/")) assert(/^\d+ \/ \d+$/.test(v), "malformed ratio: " + v);
@@ -169,17 +170,17 @@ step("percentages are whole numbers with a %; part-of-whole is always A / B", ()
      longer restates the subject-wide secure ratio — audit SUBJ-2 counted
      that one figure four times on a single screen, and it belongs to the
      spine header (as navigation context) and to one analytics tile. */
-  const band = $(".unit-stat small").textContent;
+  const band = $("[data-ui~='study.unit'] small").textContent;
   assert(/^\d+ \/ \d+ secure · \d+%$/.test(band), "the desk band does not use the shared formats: " + band);
-  assert(!/secure/.test($(".unit-lead").textContent), "the board lead restates the secure ratio again");
+  assert(!/secure/.test($("[data-ui~='study.unit-lead']").textContent), "the board lead restates the secure ratio again");
 });
 
 step("a bar is only drawn when it carries the same quantity as its value", () => {
   KOS.show("subject", SID);
-  $$(".sa-grid > .sa-tile").forEach(t => {
-    const v = t.querySelector(".v").textContent.trim();
-    const track = t.querySelector(".sa-track");
-    const drawn = !track.classList.contains("na");
+  $$("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile']").forEach(t => {
+    const v = t.querySelector("[data-ui~='part.value']").textContent.trim();
+    const track = t.querySelector("[data-ui~='study.analytics-track']");
+    const drawn = !track.matches('[data-state~="na"]');
     const ratioOrPct = /%/.test(v) || / \/ /.test(v);
     if (drawn) assert(ratioOrPct, "a bar was drawn for a bare count: " + v);
   });
@@ -188,10 +189,10 @@ step("a bar is only drawn when it carries the same quantity as its value", () =>
 step("one empty state everywhere: an em dash plus a sentence saying why", () => {
   KOS.store.state.study = { fc: {}, quiz: {} };
   KOS.show("subject", "maths");
-  const quiz = $$(".sa-grid > .sa-tile").find(t => t.querySelector(".k").textContent === "Quiz best");
-  assert(quiz.classList.contains("empty"), "an unattempted quiz tile is not marked empty");
-  assert(quiz.querySelector(".v").textContent === "—", "empty value is not an em dash");
-  assert(quiz.querySelector(".s").textContent === "no quiz attempts yet", "empty state does not explain itself");
+  const quiz = $$("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile']").find(t => t.querySelector("[data-ui~='part.label']").textContent === "Quiz best");
+  assert(quiz.matches('[data-state~="empty"]'), "an unattempted quiz tile is not marked empty");
+  assert(quiz.querySelector("[data-ui~='part.value']").textContent === "—", "empty value is not an em dash");
+  assert(quiz.querySelector("[data-ui~='part.caption']").textContent === "no quiz attempts yet", "empty state does not explain itself");
 });
 
 step("colour semantics come from ONE ramp, shared with the section ledger", () => {
@@ -206,10 +207,10 @@ step("'Quiz best' really is the best score, not the last one", () => {
   KOS.store.state.study = { fc: {}, quiz: {} };
   KOS.store.state.study.quiz[SID + ":" + REF] = { attempts: 3, best: 90, lastPct: 40 };
   KOS.show("subject", SID);
-  const tile = $$(".sa-grid > .sa-tile").find(t => t.querySelector(".k").textContent === "Quiz best");
-  assert(tile.querySelector(".v").textContent === "90%", "subject page shows " + tile.querySelector(".v").textContent + ", not the best");
+  const tile = $$("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile']").find(t => t.querySelector("[data-ui~='part.label']").textContent === "Quiz best");
+  assert(tile.querySelector("[data-ui~='part.value']").textContent === "90%", "subject page shows " + tile.querySelector("[data-ui~='part.value']").textContent + ", not the best");
   KOS.show("ref", { subject: SID, ref: REF });
-  const row = $$(".study-inspector .insp-list li").find(li => li.querySelector("span").textContent === "Quiz best");
+  const row = $$("[data-ui~='topic.inspector'] [data-ui~='topic.inspector-list'] li").find(li => li.querySelector("span").textContent === "Quiz best");
   assert(row.querySelector("strong").textContent === "90%", "the inspector disagrees with the subject page");
 });
 
@@ -230,21 +231,21 @@ console.log("== C · topic status ==");
 
 step("status, the four checks and confidence are ONE headed component", () => {
   KOS.show("ref", { subject: SID, ref: REF });
-  const c = $(".topic-status");
+  const c = $("[data-ui~='topic.status']");
   assert(c, "no Topic Status component");
-  assert(c.classList.contains("ctl-row"), "the component dropped the shared control-row contract");
-  assert(c.querySelector(".ts-head .ts-k").textContent === "Topic status", "the component is unheaded");
-  assert(c.querySelector(".ts-field-status .status-sel"), "the status dropdown is not a labelled field");
-  const checks = c.querySelectorAll(".ts-checkgrid label.chk input[type=checkbox]");
+  assert(c.matches('[data-ui~="topic.control-row"]'), "the component dropped the shared control-row contract");
+  assert(c.querySelector("[data-ui~='topic.status-head'] [data-ui~='topic.status-k']").textContent === "Topic status", "the component is unheaded");
+  assert(c.querySelector("[data-ui~='topic.status-field-status'] [data-ui~='ui.status-select']"), "the status dropdown is not a labelled field");
+  const checks = c.querySelectorAll("[data-ui~='topic.checkgrid'] label.chk input[type=checkbox]");
   assert(checks.length === 4, "expected the four progress checks, got " + checks.length);
-  assert(c.querySelector(".ts-field-conf .rag-picker"), "confidence is not part of the component");
-  const labels = [...c.querySelectorAll(".ts-field > .ts-lbl")].map(n => n.textContent.trim());
+  assert(c.querySelector("[data-ui~='topic.status-field-conf'] [data-ui~='rag.picker']"), "confidence is not part of the component");
+  const labels = [...c.querySelectorAll("[data-ui~='topic.status-field'] > [data-ui~='topic.status-lbl']")].map(n => n.textContent.trim());
   assert(labels.join("|") === "Status|Progress checks|Confidence", "field labels: " + labels.join("|"));
   assert(!c.querySelector(".ctl-sep"), "the loose hairline separators are back");
 });
 
 step("the four checks read as the full phrases, in order", () => {
-  const got = [...$$(".ts-checkgrid label.chk")].map(n => n.textContent.trim());
+  const got = [...$$("[data-ui~='topic.checkgrid'] label.chk")].map(n => n.textContent.trim());
   assert(got.join("|") === "Covered in class|Studied it|Done exam questions|Fully understood",
     "check labels: " + got.join("|"));
 });
@@ -252,15 +253,15 @@ step("the four checks read as the full phrases, in order", () => {
 step("the component's mastery readout is live, and the status follows a check", () => {
   KOS.store.state.progress = {};
   KOS.show("ref", { subject: SID, ref: REF });
-  const c = $(".topic-status");
-  assert(c.querySelector(".ts-pct").textContent === "0%", "opening readout is wrong");
-  const box = c.querySelectorAll(".ts-checkgrid input[type=checkbox]")[0];
+  const c = $("[data-ui~='topic.status']");
+  assert(c.querySelector("[data-ui~='topic.status-pct']").textContent === "0%", "opening readout is wrong");
+  const box = c.querySelectorAll("[data-ui~='topic.checkgrid'] input[type=checkbox]")[0];
   box.checked = true;
   box.dispatchEvent(new window.Event("change", { bubbles: true }));
-  assert(c.querySelector(".ts-pct").textContent === "25%", "mastery did not repaint: " + c.querySelector(".ts-pct").textContent);
-  assert(c.querySelector(".ts-checks").textContent === "1 / 4 checks", "check count did not repaint");
-  assert(c.querySelector(".ts-field-status .status-sel").value === "started", "the dropdown did not follow the check");
-  assert(box.parentNode.classList.contains("on"), "the ticked chip does not read as ticked");
+  assert(c.querySelector("[data-ui~='topic.status-pct']").textContent === "25%", "mastery did not repaint: " + c.querySelector("[data-ui~='topic.status-pct']").textContent);
+  assert(c.querySelector("[data-ui~='topic.checks']").textContent === "1 / 4 checks", "check count did not repaint");
+  assert(c.querySelector("[data-ui~='topic.status-field-status'] [data-ui~='ui.status-select']").value === "started", "the dropdown did not follow the check");
+  assert(box.parentNode.matches('[data-state~="on"]'), "the ticked chip does not read as ticked");
 });
 
 /* Marking a topic Completed makes it 100% by definition, which can outrun the
@@ -269,21 +270,21 @@ step("the component's mastery readout is live, and the status follows a check", 
    undo) — instead both readouts explain the figure rather than printing a
    ratio that contradicts it. */
 step("a Completed topic explains its 100% instead of contradicting the boxes", () => {
-  const sel = $(".topic-status .ts-field-status .status-sel");
+  const sel = $("[data-ui~='topic.status'] [data-ui~='topic.status-field-status'] [data-ui~='ui.status-select']");
   sel.value = "done";
   sel.dispatchEvent(new window.Event("change", { bubbles: true }));
-  assert($(".topic-status .ts-pct").textContent === "100%", "mastery did not follow the status");
-  assert($(".topic-status .ts-checks").textContent === "marked completed",
-    "the header still prints a contradictory ratio: " + $(".topic-status .ts-checks").textContent);
+  assert($("[data-ui~='topic.status'] [data-ui~='topic.status-pct']").textContent === "100%", "mastery did not follow the status");
+  assert($("[data-ui~='topic.status'] [data-ui~='topic.checks']").textContent === "marked completed",
+    "the header still prints a contradictory ratio: " + $("[data-ui~='topic.status'] [data-ui~='topic.checks']").textContent);
   /* Topic state has one home: the Inspector. The header deliberately carries
      neither a duplicate dropdown nor a status glyph. */
   assert(!$("#th-status") && !$(".th-status"), "a duplicate header status control returned");
   /* and once the boxes catch up, the ordinary ratio returns */
-  $$(".ts-checkgrid input[type=checkbox]").forEach(b => {
+  $$("[data-ui~='topic.checkgrid'] input[type=checkbox]").forEach(b => {
     if (b.checked) return;
     b.checked = true; b.dispatchEvent(new window.Event("change", { bubbles: true }));
   });
-  assert($(".topic-status .ts-checks").textContent === "4 / 4 checks", "the ratio did not return");
+  assert($("[data-ui~='topic.status'] [data-ui~='topic.checks']").textContent === "4 / 4 checks", "the ratio did not return");
 });
 
 /* ============ D · the inspector ============ */
@@ -291,20 +292,20 @@ console.log("== D · inspector ==");
 
 step("the inspector collapses, says so, and persists the choice", () => {
   KOS.show("ref", { subject: SID, ref: REF });
-  const grid = $(".study-grid");
-  const toggle = grid.querySelector(".insp-toggle");
+  const grid = $("[data-ui~='study.grid']");
+  const toggle = grid.querySelector("[data-ui~='topic.inspector-toggle']");
   assert(toggle, "no collapse control");
-  assert(grid.querySelector(".study-inspector .insp-spine"), "the collapsed rail has no readable spine");
+  assert(grid.querySelector("[data-ui~='topic.inspector'] [data-ui~='topic.inspector-spine']"), "the collapsed rail has no readable spine");
   click(toggle);
-  assert(grid.classList.contains("insp-closed"), "collapse did not apply");
+  assert(grid.matches('[data-state~="insp-closed"]'), "collapse did not apply");
   assert(toggle.getAttribute("aria-expanded") === "false", "collapse is not announced");
   assert(KOS.store.state.ui.inspectorOpen === false, "collapsed state not persisted");
   click(toggle);
-  assert(!grid.classList.contains("insp-closed"), "re-open failed");
+  assert(!grid.matches('[data-state~="insp-closed"]'), "re-open failed");
   assert(KOS.store.state.ui.inspectorOpen === true, "open state not persisted");
   KOS.store.state.ui.inspectorOpen = false;
   KOS.show("ref", { subject: SID, ref: REF });
-  assert($(".study-grid").classList.contains("insp-closed"), "persisted collapse ignored on render");
+  assert($("[data-ui~='study.grid']").matches('[data-state~="insp-closed"]'), "persisted collapse ignored on render");
   KOS.store.state.ui.inspectorOpen = true;
 });
 
@@ -315,14 +316,14 @@ step("the inspector collapses, says so, and persists the choice", () => {
 step("each material count appears exactly once, on its tab chip", () => {
   KOS.show("ref", { subject: SID, ref: REF });
   const chip = name => {
-    const tab = $$(".study-tabs-topic .study-tab").find(b => b.textContent.startsWith(name));
-    const n = tab && tab.querySelector(".tab-n");
+    const tab = $$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']").find(b => b.textContent.startsWith(name));
+    const n = tab && tab.querySelector("[data-ui~='ui.tab-count']");
     return n ? Number(n.textContent) : null;
   };
   ["Flashcards", "Quiz", "Exam questions", "Simulations"].forEach(name => {
     assert(chip(name) !== null, "no count chip on the " + name + " tab");
   });
-  const insp = $(".study-inspector").textContent;
+  const insp = $("[data-ui~='topic.inspector']").textContent;
   assert(!/Materials/.test(insp), "the inspector still restates the material counts");
   assert(!/Quiz questions/.test(insp), "a Materials row survived in the inspector");
 });
@@ -335,14 +336,14 @@ step("mastery is printed exactly once, and it is live", () => {
   KOS.store.state.progress = {};
   KOS.show("ref", { subject: SID, ref: REF });
   assert(!$(".insp-mastery"), "the inspector's duplicate mastery block is back");
-  assert($$(".ts-pct").length === 1, "expected one mastery readout, found " + $$(".ts-pct").length);
-  const read = () => $(".ts-pct").textContent;
+  assert($$("[data-ui~='topic.status-pct']").length === 1, "expected one mastery readout, found " + $$("[data-ui~='topic.status-pct']").length);
+  const read = () => $("[data-ui~='topic.status-pct']").textContent;
   assert(read() === "0%", "the readout opened at " + read());
-  const box = $$(".ts-checkgrid input[type=checkbox]")[0];
+  const box = $$("[data-ui~='topic.checkgrid'] input[type=checkbox]")[0];
   box.checked = true;
   box.dispatchEvent(new window.Event("change", { bubbles: true }));
   assert(read() === "25%", "the readout did not follow the check: " + read());
-  assert($(".study-inspector .topic-status"), "the state component is not in the inspector");
+  assert($("[data-ui~='topic.inspector'] [data-ui~='topic.status']"), "the state component is not in the inspector");
 });
 
 /* ============ E · tabs and controls ============ */
@@ -350,7 +351,7 @@ console.log("== E · tabs and controls ==");
 
 step("every study tab carries its full name", () => {
   KOS.show("ref", { subject: SID, ref: REF });
-  const names = $$(".study-tabs-topic .study-tab").map(b => b.firstChild.textContent.trim());
+  const names = $$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']").map(b => b.firstChild.textContent.trim());
   ["Specification", "Notes", "Flashcards", "Quiz", "Exam questions", "Simulations", "Files"]
     .forEach(n => assert(names.includes(n), "missing tab: " + n + " (got " + names.join(", ") + ")"));
   assert(!names.some(n => n === "Exam Qs" || n === "Simulate" || n === "Worked"), "a clipped label survived: " + names.join(", "));
@@ -365,28 +366,28 @@ step("count chips are one geometry, and the strip is one declared-scroller row",
   assert(/\.study-tab \.tab-n[^{]*\{[^}]*min-width:\s*20px[^}]*height:\s*18px/s.test(css),
     "the count chip has no fixed geometry");
   assert(/\.study-tabs-topic\s*\{[^}]*flex-wrap:\s*nowrap/s.test(css), "the topic strip wraps again");
-  const wrap = $(".study-tabs-topic").closest("[data-scroller]");
+  const wrap = $("[data-ui~='topic.tabs']").closest("[data-scroller]");
   assert(wrap, "the topic strip scrolls sideways without declaring itself a scroller");
-  assert(wrap.querySelector(".u-scroller-arrow"), "the declared scroller has no arrow affordance");
-  const heights = new Set($$(".study-tabs-topic .study-tab").map(b => window.getComputedStyle(b).minHeight));
+  assert(wrap.querySelector("[data-ui~='ui.scroller-arrow']"), "the declared scroller has no arrow affordance");
+  const heights = new Set($$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']").map(b => window.getComputedStyle(b).minHeight));
   assert(heights.size === 1, "tabs do not share one height: " + [...heights].join(", "));
 });
 
 step("the selected tab is announced, and switching keeps exactly one selected", () => {
-  const tabs = $$(".study-tabs-topic .study-tab");
+  const tabs = $$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']");
   assert(tabs.filter(b => b.getAttribute("aria-selected") === "true").length === 1, "no single selected tab");
   click(tabs.find(b => b.dataset.tab === "quiz"));
-  const now = $$(".study-tabs-topic .study-tab");
-  assert(now.filter(b => b.classList.contains("active")).length === 1, "more than one active tab");
+  const now = $$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']");
+  assert(now.filter(b => b.matches('[data-state~="active"]')).length === 1, "more than one active tab");
   assert(now.find(b => b.dataset.tab === "quiz").getAttribute("aria-selected") === "true", "aria-selected did not move");
 });
 
 step("the Overview/Assignments switcher is gone; the tracker keeps its subnav entry", () => {
   KOS.show("subject", SID);
   assert(!$(".subject-workspace-tabs"), "the desk tab switcher is back");
-  assert(!$(".subject-side .stat-strip"), "the old seven-tile stat strip is back");
+  assert(!$("[data-ui~='study.subject-side'] [data-ui~='ui.stat-strip']"), "the old seven-tile stat strip is back");
   assert(KOS.sectionOf("assignments") === "study", "assignments must stay owned by Study");
-  const entry = $$("#subnav .subnav-item").find(b => b.textContent.trim() === "Assignments");
+  const entry = $$("#subnav [data-ui~='shell.subnav-item']").find(b => b.textContent.trim() === "Assignments");
   assert(entry, "Assignments is not in the Study subnav");
   click(entry);
   assert(KOS.store.state.ui.view === "assignments", "the subnav entry did not open the tracker");

@@ -78,8 +78,7 @@
   }
 
   KOS.views.vndbprofile = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     main.appendChild(KOS.collectionCrumbs("Sync", "VNDB"));
     var workspaceTabs = KOS.collectionWorkspaceTabs("sync", "vndbprofile");

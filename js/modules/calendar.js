@@ -586,6 +586,7 @@
       " — " + TYPE_LABEL[ev.type] + (recurring ? ", " + describeRecur(ev).toLowerCase() : "");
     return el("button", {
       class: "cal-ev " + hueClass(ev) + (ev.allDay || !ev.time ? " allday" : "") + (opts.block ? " block" : ""),
+      "data-block": opts.block ? "" : null,
       type: "button",
       title: label + (ev.location ? " · " + ev.location : ""),
       "aria-label": label,
@@ -879,8 +880,8 @@
         title: c.label, "aria-label": c.label, "aria-pressed": d.colour === c.v ? "true" : "false",
         onclick: function () {
           d.colour = c.v;
-          colourRow.querySelectorAll(".cal-sw").forEach(function (x) { x.classList.remove("on"); x.setAttribute("aria-pressed", "false"); });
-          b.classList.add("on"); b.setAttribute("aria-pressed", "true");
+          colourRow.querySelectorAll("[data-ui~='cal.swatch']").forEach(function (x) { KOS.ui.state(x, "on", false); x.setAttribute("aria-pressed", "false"); });
+          KOS.ui.state(b, "on", true); b.setAttribute("aria-pressed", "true");
           syncTypeHue();
         }
       });
@@ -901,7 +902,7 @@
           } else d.alerts.splice(i, 1);
           d.alerts.sort(function (x, y) { return x - y; });
           var nowOn = d.alerts.indexOf(a.v) !== -1;
-          b.classList.toggle("on", nowOn);
+          KOS.ui.state(b, "on", nowOn);
           b.setAttribute("aria-pressed", nowOn ? "true" : "false");
         }
       });
@@ -944,7 +945,7 @@
 
     /* ---- validation surface ---- */
     var errBox = el("div", { class: "cal-errs", hidden: true, role: "alert" });
-    function markBad(node, bad) { if (node) node.classList.toggle("bad", !!bad); }
+    function markBad(node, bad) { if (node) KOS.ui.state(node, "bad", !!bad); }
 
     /* ---- progressive disclosure ---- */
     function disclosure(label, hint, content, open) {
@@ -952,7 +953,7 @@
       var btn = el("button", {
         type: "button", class: "cal-disc-h", "aria-expanded": open ? "true" : "false",
         onclick: function () {
-          var isOpen = wrap.classList.toggle("open");
+          var isOpen = KOS.ui.state(wrap, "open");
           btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
         }
       }, [
@@ -970,7 +971,7 @@
     function syncAllDay() {
       var on = allDay.checked;
       start.disabled = on; end.disabled = on;
-      timeFields.classList.toggle("allday", on);
+      KOS.ui.state(timeFields, "allday", on);
       if (on) { start.value = ""; end.value = ""; }
     }
     allDay.onchange = syncAllDay;
@@ -1043,7 +1044,7 @@
       }
     }
     function syncTypeHue() {
-      box.className = "modal cal-modal cal-ev-modal " + hueClass({ type: type.value, colour: d.colour });
+      KOS.ui.setClass(box, "modal cal-modal cal-ev-modal " + hueClass({ type: type.value, colour: d.colour }));
     }
     type.onchange = function () { condSection(); syncTypeHue(); };
 
@@ -1200,8 +1201,7 @@
      fresh visit always starts on today.                                  */
   var sessionFocus = null;
   KOS.views.calendar = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var ui = store.state.ui;
     var mode = ui.calMode === "week" ? "week" : "month";
     var focus = sessionFocus || new Date();
@@ -1450,7 +1450,7 @@
         class: "cw-col" + (d.iso === t ? " today" : "") + (((d.dt.getDay() + 6) % 7) >= 5 ? " wknd" : ""),
         style: "height:" + (hours.length * PX) + "px",
         onclick: function (e) {
-          if (e.target !== col && !e.target.classList.contains("cw-slot")) return;
+          if (e.target !== col && !e.target.matches('[data-ui~="cal.w-slot"]')) return;
           /* clicking empty space opens the editor at that hour — the most
              common thing anyone wants from a week grid */
           var rect = col.getBoundingClientRect();
@@ -1461,7 +1461,7 @@
         }
       });
       hours.forEach(function (h, idx) {
-        col.appendChild(el("div", { class: "cw-slot", style: "top:" + (idx * PX) + "px;height:" + PX + "px" }));
+        col.appendChild(el("div", { class: "cw-slot", "data-ui": "cal.w-slot", style: "top:" + (idx * PX) + "px;height:" + PX + "px" }));
       });
       layoutTimed(d.items.events.filter(function (ev) { return !ev.allDay && ev.time; }))
         .forEach(function (p) {

@@ -32,8 +32,7 @@
   KOS.review = KOS.review || {};
   KOS.review.renderStats = function (main, arg, opts) {
     opts = opts || {};
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var sid = arg && arg.subject ? arg.subject : null;
     var ref = arg && arg.ref ? arg.ref : null;
 

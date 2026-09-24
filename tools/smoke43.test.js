@@ -29,9 +29,10 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
+const { readCss } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-const css = fs.readFileSync(path.join(ROOT, "css/main.css"), "utf8");
+const css = readCss();
 const hubSrc = fs.readFileSync(path.join(ROOT, "js/modules/hub.js"), "utf8");
 const dom = new JSDOM(html, { url: "http://localhost/index.html", runScripts: "outside-only", pretendToBeVisual: true });
 const { window } = dom;
@@ -93,11 +94,11 @@ console.log("== A · the spec spine ==");
 step("the spine inherited the retired ledger's bar and subsection tally", () => {
   KOS.show("subject", SID);
   const tree = document.getElementById("tree");
-  const bars = tree.querySelectorAll(".sec-head .sec-head-bar .bar-fill");
+  const bars = tree.querySelectorAll("[data-ui~='ui.section-head'] [data-ui~='ui.section-bar'] [data-ui~='study.bar-fill']");
   assert(bars.length >= 8, "the spine has no per-section progress bars (" + bars.length + ")");
   /* the ledger's one genuinely extra reading was the per-SUBSECTION tally it
      revealed on expand; deleting the ledger must not have deleted that */
-  const gp = tree.querySelectorAll(".grp-h .grp-pc");
+  const gp = tree.querySelectorAll("[data-ui~='study.spine-group'] [data-ui~='study.spine-group-pct']");
   assert(gp.length >= 1, "no per-subsection tally on the spine's group rows");
   assert(/^\d+ \/ \d+$/.test(gp[0].textContent.trim()),
     "the group tally does not use the shared A / B format: " + gp[0].textContent);
@@ -105,9 +106,9 @@ step("the spine inherited the retired ledger's bar and subsection tally", () => 
 
 step("the bar carries the same quantity as the count printed beside it", () => {
   KOS.show("subject", SID);
-  const head = document.getElementById("tree").querySelector(".sec-head");
-  const pc = head.querySelector(".pc").textContent.trim().split(" / ").map(Number);
-  const width = head.querySelector(".sec-head-bar .bar-fill").style.width;
+  const head = document.getElementById("tree").querySelector("[data-ui~='ui.section-head']");
+  const pc = head.querySelector("[data-ui~='part.percent']").textContent.trim().split(" / ").map(Number);
+  const width = head.querySelector("[data-ui~='ui.section-bar'] [data-ui~='study.bar-fill']").style.width;
   const want = pc[1] ? Math.round(100 * pc[0] / pc[1]) : 0;
   assert(width === want + "%", "bar says " + width + ", the count beside it says " + want + "%");
 });
@@ -120,12 +121,12 @@ step("opening a topic reveals it in the spine instead of hiding it", () => {
   KOS.store.state.ui.openSections = {};
   KOS.show("ref", { subject: SID, ref: REF });
   const tree = document.getElementById("tree");
-  const active = tree.querySelector(".leaf.active");
+  const active = tree.querySelector("[data-ui~='study.spine-leaf'][data-state~='active']");
   assert(active, "no active leaf in the spine");
-  const sec = active.closest(".sec");
-  assert(sec && sec.classList.contains("open"), "the owning section did not open itself");
-  assert(sec.classList.contains("here"), "the owning section is not marked as the one you are in");
-  assert(KOS.store.state.ui.openSections[SID][sec.querySelector(".ref").textContent] === true,
+  const sec = active.closest("[data-ui~='part.section']");
+  assert(sec && sec.matches('[data-state~="open"]'), "the owning section did not open itself");
+  assert(sec.matches('[data-state~="here"]'), "the owning section is not marked as the one you are in");
+  assert(KOS.store.state.ui.openSections[SID][sec.querySelector("[data-ui~='part.ref']").textContent] === true,
     "the reveal did not go through the stored openSections");
 });
 
@@ -138,20 +139,20 @@ step("the spine is a dismissible drawer on the tiers where it is an overlay", ()
   mediaWidth = 820;
   KOS.store.state.ui.treeClosed = null;
   KOS.show("subject", SID);
-  assert(document.getElementById("cols").classList.contains("tree-closed"),
+  assert((document.getElementById("cols").getAttribute("data-tree") === "closed"),
     "at 820 the spine still defaults to open, covering the page");
   /* the page header carries the opener, so nothing floats over the content */
-  const opener = $("#main .tree-open-btn");
+  const opener = $("#main [data-ui~='study.spine-open']");
   assert(opener, "no in-page opener for the drawer");
   click(opener);
-  assert(!document.getElementById("cols").classList.contains("tree-closed"), "the opener did not open the drawer");
+  assert(!(document.getElementById("cols").getAttribute("data-tree") === "closed"), "the opener did not open the drawer");
   const scrim = document.getElementById("tree-scrim");
   assert(scrim, "the drawer has no scrim element");
   click(scrim);
-  assert(document.getElementById("cols").classList.contains("tree-closed"), "tapping the scrim did not close the drawer");
+  assert((document.getElementById("cols").getAttribute("data-tree") === "closed"), "tapping the scrim did not close the drawer");
   click(opener);
   key("Escape");
-  assert(document.getElementById("cols").classList.contains("tree-closed"), "Escape did not close the drawer");
+  assert((document.getElementById("cols").getAttribute("data-tree") === "closed"), "Escape did not close the drawer");
   mediaWidth = 1440;
   KOS.store.state.ui.treeClosed = false;
 });
@@ -161,7 +162,7 @@ step("above the overlay tier Escape is left alone", () => {
   KOS.store.state.ui.treeClosed = false;
   KOS.show("subject", SID);
   key("Escape");
-  assert(!document.getElementById("cols").classList.contains("tree-closed"),
+  assert(!(document.getElementById("cols").getAttribute("data-tree") === "closed"),
     "Escape collapsed the spine on a viewport where it is an ordinary column");
 });
 
@@ -171,27 +172,27 @@ console.log("== B · content first ==");
 step("the topic header is ONE row and absorbs the crumb path", () => {
   KOS.show("ref", { subject: SID, ref: REF });
   const main = document.getElementById("main");
-  assert(!main.querySelector(".crumbs"), "the separate crumb row is back");
-  const head = main.querySelector(".topic-head");
+  assert(!main.querySelector("[data-ui~='ui.crumbs']"), "the separate crumb row is back");
+  const head = main.querySelector("[data-ui~='topic.head']");
   assert(head && main.firstElementChild === head, "the topic header does not lead the page");
-  assert(head.querySelector(".seal"), "no ref seal");
+  assert(head.querySelector("[data-ui~='gov.seal']"), "no ref seal");
   assert(head.querySelector("h1"), "no title");
-  const meta = head.querySelector(".th-meta").textContent;
+  const meta = head.querySelector("[data-ui~='topic.head-meta']").textContent;
   assert(meta.includes(window.KOS_DATA[SID].name), "the meta line dropped the subject the crumbs carried");
   assert(meta.includes(window.KOS_DATA[SID].board), "the meta line dropped the board");
-  assert(!head.querySelector(".status-sel, .th-status"), "topic status is duplicated in the header");
+  assert(!head.querySelector("[data-ui~='ui.status-select'], .th-status"), "topic status is duplicated in the header");
 });
 
 step("the page carries ONE study navigation layer, above the content", () => {
   KOS.show("ref", { subject: SID, ref: REF });
-  const col = $(".study-col");
-  const nav = col.querySelector(".study-nav");
+  const col = $("[data-ui~='study.col']");
+  const nav = col.querySelector("[data-ui~='topic.nav']");
   assert(nav && col.firstElementChild === nav, "the nav bar does not lead the content column");
-  assert(nav.querySelector(".study-tabs-topic"), "the tab strip is not in the bar");
+  assert(nav.querySelector("[data-ui~='topic.tabs']"), "the tab strip is not in the bar");
   /* the assistant strip used to sit on the path between the title and the
      first word of content; it is a side-of-desk affordance now */
-  assert(!col.querySelector(".asst-ctx"), "the assistant strip is back on the content path");
-  assert($(".study-inspector .asst-ctx"), "the assistant actions were dropped rather than moved");
+  assert(!col.querySelector("[data-ui~='asst.ctx']"), "the assistant strip is back on the content path");
+  assert($("[data-ui~='topic.inspector'] [data-ui~='asst.ctx']"), "the assistant actions were dropped rather than moved");
   /* the bar is static by decision: a sticky strip sat over the first line
      of every paragraph the reader scrolled to */
   assert(!/\.study-nav\s*\{[^}]*position:\s*sticky/s.test(css), "the nav bar is sticky again and covers the text it introduces");
@@ -200,12 +201,12 @@ step("the page carries ONE study navigation layer, above the content", () => {
 step("nothing between the header and the content but that one bar", () => {
   KOS.show("ref", { subject: SID, ref: REF });
   const main = document.getElementById("main");
-  const kids = [...main.children].map(n => n.className);
+  const kids = [...main.children].map(n => n.getAttribute("data-ui") || n.tagName.toLowerCase());
   assert(kids.length === 3, "the page has " + kids.length + " top-level blocks: " + kids.join(" | "));
-  assert(/topic-head/.test(kids[0]), "first block is " + kids[0]);
-  assert(/study-grid/.test(kids[1]), "second block is " + kids[1]);
+  assert(/(^| )topic\.head( |$)/.test(kids[0]), "first block is " + kids[0]);
+  assert(/(^| )study\.grid( |$)/.test(kids[1]), "second block is " + kids[1]);
   /* the 170px Topic Status band that used to sit here is in the inspector */
-  assert(!main.firstElementChild.nextElementSibling.classList.contains("topic-status"),
+  assert(!main.firstElementChild.nextElementSibling.matches('[data-ui~="topic.status"]'),
     "the status band is back between the header and the content");
 });
 
@@ -214,15 +215,15 @@ console.log("== C · one state surface ==");
 
 step("the Topic Status component lives in the inspector", () => {
   KOS.show("ref", { subject: SID, ref: REF });
-  const insp = $(".study-inspector");
-  const ctl = insp.querySelector(".topic-status");
+  const insp = $("[data-ui~='topic.inspector']");
+  const ctl = insp.querySelector("[data-ui~='topic.status']");
   assert(ctl, "the state component is not in the inspector");
   assert(insp.firstElementChild.nextElementSibling.firstElementChild === ctl ||
-         insp.querySelector(".insp-body").firstElementChild === ctl,
+         insp.querySelector("[data-ui~='topic.inspector-body']").firstElementChild === ctl,
     "the state component is not the inspector's first section");
-  assert(ctl.querySelector(".ts-field-status .status-sel"), "the status field went missing in the move");
-  assert(ctl.querySelectorAll(".ts-checkgrid input[type=checkbox]").length === 4, "the four checks went missing");
-  assert(ctl.querySelector(".ts-field-conf .rag-picker"), "confidence went missing");
+  assert(ctl.querySelector("[data-ui~='topic.status-field-status'] [data-ui~='ui.status-select']"), "the status field went missing in the move");
+  assert(ctl.querySelectorAll("[data-ui~='topic.checkgrid'] input[type=checkbox]").length === 4, "the four checks went missing");
+  assert(ctl.querySelector("[data-ui~='topic.status-field-conf'] [data-ui~='rag.picker']"), "confidence went missing");
 });
 
 step("the Inspector is the only topic-status control", () => {
@@ -243,13 +244,13 @@ step("the Inspector is the only topic-status control", () => {
 step("ticking a check updates the Inspector and spec spine", () => {
   KOS.store.state.progress = {};
   KOS.show("ref", { subject: SID, ref: REF });
-  const box = $$(".ts-checkgrid input[type=checkbox]")[0];
+  const box = $$("[data-ui~='topic.checkgrid'] input[type=checkbox]")[0];
   box.checked = true;
   box.dispatchEvent(new window.Event("change", { bubbles: true }));
-  assert($(".ts-pct").textContent === "25%", "mastery: " + $(".ts-pct").textContent);
+  assert($("[data-ui~='topic.status-pct']").textContent === "25%", "mastery: " + $("[data-ui~='topic.status-pct']").textContent);
   assert($("#ts-status").value === "started", "the inspector status did not follow the check");
-  const active = document.getElementById("tree").querySelector(".leaf.active .st");
-  assert(active.className.includes("st-started"), "the spine did not follow the check");
+  const active = document.getElementById("tree").querySelector("[data-ui~='study.spine-leaf'][data-state~='active'] [data-ui~='part.status']");
+  assert(active.getAttribute("data-status") === "started", "the spine did not follow the check");
 });
 
 /* ============ D · compact note-page navigation ============ */
@@ -258,8 +259,8 @@ console.log("== D · note pages ==");
 step("a paginated topic opens on one direct reader control in the nav", () => {
   assert(PAGED, "no multi-page topic in the deep content — this suite cannot see the pager");
   KOS.show("ref", PAGED);
-  const reader = $(".study-nav .reader-nav");
-  const select = $(".reader-page-select");
+  const reader = $("[data-ui~='topic.nav'] [data-ui~='topic.pager']");
+  const select = $("[data-ui~='topic.reader-page-select']");
   assert(reader && select, "no reader control in the nav bar");
   assert(select.options.length > 1, "expected several named pages, got " + select.options.length);
   assert(select.value === "0" && /^Page 1 —/.test(select.options[0].textContent), "the first page is not selected and named");
@@ -267,50 +268,50 @@ step("a paginated topic opens on one direct reader control in the nav", () => {
 });
 
 step("the page picker turns the page, and the footer repeats the neighbours as cards", () => {
-  const select = $(".reader-page-select");
+  const select = $("[data-ui~='topic.reader-page-select']");
   select.value = "1";
   select.dispatchEvent(new window.Event("change", { bubbles: true }));
   assert(select.value === "1", "the page picker did not turn the page");
-  const foot = $(".note-foot");
+  const foot = $("[data-ui~='topic.note-foot']");
   assert(foot, "no footer pager under the article");
-  assert(foot.querySelectorAll(".pn-page").length === 2, "the footer does not offer both neighbours from a middle page");
-  assert(/Page 2 of/.test($(".note-foot-count").textContent), "the footer count is wrong: " + $(".note-foot-count").textContent);
+  assert(foot.querySelectorAll("[data-ui~='topic.page']").length === 2, "the footer does not offer both neighbours from a middle page");
+  assert(/Page 2 of/.test($("[data-ui~='topic.note-count']").textContent), "the footer count is wrong: " + $("[data-ui~='topic.note-count']").textContent);
 });
 
 step("the reader controls turn pages and stop at both ends", () => {
   KOS.show("ref", PAGED);
-  const total = $(".reader-page-select").options.length;
-  const [prev, next] = $$(".reader-step");
+  const total = $("[data-ui~='topic.reader-page-select']").options.length;
+  const [prev, next] = $$("[data-ui~='topic.reader-step']");
   assert(prev.disabled, "the back step is live on the first page");
   click(next);
-  assert($(".reader-page-select").value === "1", "the forward step did not turn the page");
+  assert($("[data-ui~='topic.reader-page-select']").value === "1", "the forward step did not turn the page");
   assert(!prev.disabled, "the back step stayed disabled off the first page");
   for (let i = 2; i < total; i++) click(next);
-  assert($(".reader-page-select").value === String(total - 1), "could not reach the last page");
+  assert($("[data-ui~='topic.reader-page-select']").value === String(total - 1), "could not reach the last page");
   assert(next.disabled, "the forward step is live on the last page");
 });
 
 step("B-04 holds: only a READER-initiated page turn scrolls (Phase A)", () => {
   const calls = [];
   const real = window.Element.prototype.scrollIntoView;
-  window.Element.prototype.scrollIntoView = function () { calls.push(this.className); };
+  window.Element.prototype.scrollIntoView = function () { calls.push(this.getAttribute("data-ui") || ""); };
   try {
     KOS.show("ref", PAGED);
-    assert(calls.indexOf("notes-article") === -1,
+    assert(!calls.some(c => c.split(" ").includes("topic.notes")),
       "the article scrolled itself into view on first mount: " + JSON.stringify(calls));
     calls.length = 0;
-    click($$(".reader-step")[1]);
-    assert(calls.indexOf("notes-article") !== -1, "turning a page did not scroll to it");
+    click($$("[data-ui~='topic.reader-step']")[1]);
+    assert(calls.some(c => c.split(" ").includes("topic.notes")), "turning a page did not scroll to it");
   } finally { window.Element.prototype.scrollIntoView = real; }
 });
 
 step("the page control is cleared when you leave the Notes tab", () => {
   KOS.show("ref", PAGED);
-  assert($(".reader-nav"), "no reader control on the Notes tab");
-  const spec = $$(".study-tabs-topic .study-tab").find(b => b.dataset.tab === "spec");
+  assert($("[data-ui~='topic.pager']"), "no reader control on the Notes tab");
+  const spec = $$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']").find(b => b.dataset.tab === "spec");
   click(spec);
-  assert(!$(".reader-nav"), "the reader control survived a tab change — it lives outside the panel");
-  assert(!$(".reader-page-select"), "the page picker survived a tab change");
+  assert(!$("[data-ui~='topic.pager']"), "the reader control survived a tab change — it lives outside the panel");
+  assert(!$("[data-ui~='topic.reader-page-select']"), "the page picker survived a tab change");
 });
 
 /* ============ E · keyboard control of the engines (audit REF-8) ============ */
@@ -318,87 +319,87 @@ console.log("== E · engine keyboard control ==");
 
 function openCards() {
   KOS.show("ref", { subject: SID, ref: REF });
-  click($$(".study-tabs-topic .study-tab").find(b => b.dataset.tab === "cards"));
+  click($$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']").find(b => b.dataset.tab === "cards"));
 }
 
 step("Space flips the flashcard, in both directions", () => {
   openCards();
-  const card = $(".fc-card");
+  const card = $("[data-ui~='fc.card']");
   assert(card, "no flashcard mounted");
-  assert(!card.classList.contains("flipped"), "the card opened face-up");
+  assert(!card.matches('[data-state~="flipped"]'), "the card opened face-up");
   key(" ");
-  assert(card.classList.contains("flipped"), "Space did not flip the card");
+  assert(card.matches('[data-state~="flipped"]'), "Space did not flip the card");
   key(" ");
-  assert(!card.classList.contains("flipped"), "Space did not flip it back");
+  assert(!card.matches('[data-state~="flipped"]'), "Space did not flip it back");
 });
 
 step("1–4 grade a revealed card, and are ignored on a face-down one", () => {
   openCards();
-  const before = $(".fc-front").textContent;
+  const before = $("[data-ui~='fc.front']").textContent;
   key("3");
-  assert($(".fc-front").textContent === before, "a face-down card was graded by a stray keypress");
+  assert($("[data-ui~='fc.front']").textContent === before, "a face-down card was graded by a stray keypress");
   key(" ");
   key("3");
-  assert($(".fc-front").textContent !== before, "1–4 did not grade the revealed card");
+  assert($("[data-ui~='fc.front']").textContent !== before, "1–4 did not grade the revealed card");
 });
 
 step("→ reveals, then grades Good; ← hides the answer again", () => {
   openCards();
-  const card = $(".fc-card");
+  const card = $("[data-ui~='fc.card']");
   key("ArrowRight");
-  assert(card.classList.contains("flipped"), "→ did not reveal the answer");
+  assert(card.matches('[data-state~="flipped"]'), "→ did not reveal the answer");
   key("ArrowLeft");
-  assert(!card.classList.contains("flipped"), "← did not hide the answer");
+  assert(!card.matches('[data-state~="flipped"]'), "← did not hide the answer");
   key("ArrowRight");
-  const before = $(".fc-front").textContent;
+  const before = $("[data-ui~='fc.front']").textContent;
   key("ArrowRight");
-  assert($(".fc-front").textContent !== before, "→ on a revealed card did not advance");
+  assert($("[data-ui~='fc.front']").textContent !== before, "→ on a revealed card did not advance");
 });
 
 step("the keys are printed under the card, not buried in a help page", () => {
   openCards();
-  const hint = $(".fc-keys");
+  const hint = $("[data-ui~='fc.keys']");
   assert(hint, "no keyboard legend");
   assert(/Space/.test(hint.textContent) && /flip/.test(hint.textContent), "the legend does not name the flip key");
-  const rate = $(".fc-r .fc-r-key");
+  const rate = $("[data-ui~='fc.r'] [data-ui~='fc.r-key']");
   assert(rate && rate.textContent === "1", "the grading buttons do not carry their number key");
-  assert($(".fc-r").getAttribute("aria-keyshortcuts") === "1", "the shortcut is not exposed to assistive tech");
+  assert($("[data-ui~='fc.r']").getAttribute("aria-keyshortcuts") === "1", "the shortcut is not exposed to assistive tech");
 });
 
 step("the engine never steals a key from a text field", () => {
   openCards();
-  const card = $(".fc-card");
+  const card = $("[data-ui~='fc.card']");
   const ta = document.createElement("textarea");
-  $(".fc-wrap").appendChild(ta);
+  $("[data-ui~='fc.wrap']").appendChild(ta);
   ta.dispatchEvent(new window.KeyboardEvent("keydown", { key: " ", bubbles: true, cancelable: true }));
-  assert(!card.classList.contains("flipped"), "Space in a textarea flipped the card");
+  assert(!card.matches('[data-state~="flipped"]'), "Space in a textarea flipped the card");
   ta.remove();
 });
 
 step("the listener removes itself once its panel is gone", () => {
   openCards();
-  const dead = $(".fc-card");
+  const dead = $("[data-ui~='fc.card']");
   /* leaving the tab replaces panel.innerHTML wholesale — there is no
      teardown callback, so the listener has to notice it has been orphaned */
-  click($$(".study-tabs-topic .study-tab").find(b => b.dataset.tab === "spec"));
+  click($$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']").find(b => b.dataset.tab === "spec"));
   key(" ");
-  assert(!dead.classList.contains("flipped"), "an orphaned card still answers the keyboard");
+  assert(!dead.matches('[data-state~="flipped"]'), "an orphaned card still answers the keyboard");
   assert(!document.contains(dead), "the old card is somehow still in the document");
 });
 
 step("1–9 answer the first quiz question still open", () => {
   KOS.show("ref", { subject: SID, ref: REF });
-  click($$(".study-tabs-topic .study-tab").find(b => b.dataset.tab === "quiz"));
-  const cards = $$(".qz-card");
+  click($$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']").find(b => b.dataset.tab === "quiz"));
+  const cards = $$("[data-ui~='quiz.card']");
   assert(cards.length > 1, "expected several quiz questions, got " + cards.length);
-  assert(cards[0].querySelector(".qz-opt .qz-opt-key").textContent === "1",
+  assert(cards[0].querySelector("[data-ui~='quiz.option'] [data-ui~='quiz.option-key']").textContent === "1",
     "the options do not carry their number key");
   key("1");
-  assert(cards[0].querySelector(".qz-why"), "the first question was not answered");
-  assert(!cards[1].querySelector(".qz-why"), "a second question was answered by one keypress");
+  assert(cards[0].querySelector("[data-ui~='quiz.why']"), "the first question was not answered");
+  assert(!cards[1].querySelector("[data-ui~='quiz.why']"), "a second question was answered by one keypress");
   key("1");
-  assert(cards[1].querySelector(".qz-why"), "the key did not move on to the next open question");
-  assert(cards[0].querySelectorAll(".qz-why").length === 1, "an answered question was answered twice");
+  assert(cards[1].querySelector("[data-ui~='quiz.why']"), "the key did not move on to the next open question");
+  assert(cards[0].querySelectorAll("[data-ui~='quiz.why']").length === 1, "an answered question was answered twice");
 });
 
 /* ============ F · targets and labels ============ */
@@ -413,9 +414,9 @@ step("the four progress checks are a usable size (REF-5)", () => {
 
 step("confidence says what it means (REF-7)", () => {
   KOS.show("ref", { subject: SID, ref: REF });
-  const picks = $$(".rag-picker .rag-pick");
+  const picks = $$("[data-ui~='rag.picker'] [data-ui~='rag.pick']");
   assert(picks.length === 3, "expected three confidence controls, got " + picks.length);
-  const words = picks.map(p => p.querySelector(".rag-pick-l").textContent);
+  const words = picks.map(p => p.querySelector("[data-ui~='rag.option-label']").textContent);
   assert(words.join("|") === "struggling|shaky|solid", "confidence labels: " + words.join("|"));
   picks.forEach(p => {
     assert(p.getAttribute("aria-pressed") === "false", "the pressed state is not announced");
@@ -447,9 +448,9 @@ step("only one spine opener is reachable at a time", () => {
   assert(/#cols\.tree-closed button\.tree-open-btn \{ display: inline-flex/.test(tier),
     "the opener never switches on for the overlay tiers");
   KOS.show("ref", { subject: SID, ref: REF });
-  assert($$("#main .tree-open-btn").length === 1, "the topic page renders more than one opener");
+  assert($$("#main [data-ui~='study.spine-open']").length === 1, "the topic page renders more than one opener");
   KOS.show("subject", SID);
-  assert($$("#main .tree-open-btn").length === 1, "the subject desk renders more than one opener");
+  assert($$("#main [data-ui~='study.spine-open']").length === 1, "the subject desk renders more than one opener");
 });
 
 step("the floating spec-spine pill is retired, not merely re-widthed (SUBJ-4)", () => {
@@ -465,10 +466,10 @@ step("the floating spec-spine pill is retired, not merely re-widthed (SUBJ-4)", 
 
 step("the desk's own analytics footnote collapses (SUBJ-6)", () => {
   KOS.show("subject", SID);
-  const foot = $(".sa-foot");
+  const foot = $("[data-ui~='study.analytics-foot']");
   assert(foot && foot.tagName === "DETAILS", "the dense explanatory paragraph is back as body text");
   assert(!foot.open, "the definition is open by default");
-  assert(/Deep revision content/.test(foot.querySelector(".sa-foot-fact").textContent),
+  assert(/Deep revision content/.test(foot.querySelector("[data-ui~='study.analytics-foot-fact']").textContent),
     "the line that carries information every time was hidden with the definition");
 });
 
@@ -506,45 +507,61 @@ function activeButUnticked() {
 step("the headline figures describe activity, not an unticked checklist", () => {
   activeButUnticked();
   KOS.show("home");
-  const tiles = $$(".hi-stats .hstat");
+  const tiles = $$("[data-ui~='home.facts'] [data-ui~='home.fact']");
   assert(tiles.length === 3, "expected three headline figures, got " + tiles.length);
-  const labels = tiles.map(t => t.querySelector(".k").textContent);
+  const labels = tiles.map(t => t.querySelector("[data-ui~='part.label']").textContent);
   assert(labels.join("|") === "Day streak|Cards due|Hours this week", "headline figures: " + labels.join("|"));
   /* the retired ones, by name: they read 0 for this account */
-  const hero = $(".home-id").textContent;
+  const hero = $("[data-ui~='home.id']").textContent;
   assert(!/Spec points/.test(hero), "the hero still leads with a spec-point tally");
   assert(!/Mastered/.test(hero), "the hero still leads with a mastered count");
   assert(!$(".home-ring"), "the 0%-COVERED ring is back on the hero");
   /* and at least one of the three is genuinely non-zero for this account */
-  const values = tiles.map(t => t.querySelector(".v").textContent);
+  const values = tiles.map(t => t.querySelector("[data-ui~='part.value']").textContent);
   assert(values.some(v => v !== "0" && v !== "0.0"), "every headline figure still reads zero: " + values.join("|"));
+});
+
+step("a headline figure that goes somewhere is a native button; the rest are not controls", () => {
+  KOS.show("home");
+  const tiles = $$("[data-ui~='home.facts'] [data-ui~='home.fact']");
+  const due = tiles.find(t => /Card/.test(t.querySelector("[data-ui~='part.label']").textContent));
+  assert(due && due.tagName === "BUTTON" && due.getAttribute("type") === "button",
+    "the Cards due figure is not a native button");
+  assert(!due.hasAttribute("role") && !due.hasAttribute("tabindex"),
+    "the figure still carries the role/tabindex a div needed");
+  tiles.filter(t => t !== due).forEach(t => {
+    assert(t.tagName !== "BUTTON" && !t.hasAttribute("role") && !t.hasAttribute("tabindex"),
+      "a figure that goes nowhere is exposed as a control");
+  });
+  due.click();
+  assert(KOS.store.state.ui.view === "due", "the Cards due figure no longer opens Due Today");
 });
 
 step("every headline figure explains what it means, so a zero is an answer", () => {
   KOS.show("home");
-  $$(".hi-stats .hstat").forEach(t => {
-    const s = t.querySelector(".s");
+  $$("[data-ui~='home.facts'] [data-ui~='home.fact']").forEach(t => {
+    const s = t.querySelector("[data-ui~='part.caption']");
     assert(s && s.textContent.trim(), "a headline figure carries no line of context");
   });
   /* coverage kept its place — on the subject cards, where it belongs */
-  assert($$(".subj-card").some(c => /deep-content/.test(c.textContent)),
+  assert($$("[data-ui~='home.desk']").some(c => /deep-content/.test(c.textContent)),
     "coverage was dropped rather than demoted to the subject cards");
 });
 
 step("the page leads with one decision, one reason and one primary action", () => {
   KOS.show("home");
   const main = document.getElementById("main");
-  const next = main.querySelector(".home-next");
+  const next = main.querySelector("[data-ui~='home.next']");
   assert(next, "no decision surface");
   assert(main.children[1] === next, "the decision surface is not directly under the greeting");
-  assert(next.querySelector(".hn-kicker").textContent.trim(), "the statement has no kicker");
-  assert(next.querySelector(".hn-label").textContent.trim(), "the statement is empty");
-  assert(next.querySelector(".hn-why").textContent.trim(), "the statement gives no reason");
+  assert(next.querySelector("[data-ui~='home.next-kicker']").textContent.trim(), "the statement has no kicker");
+  assert(next.querySelector("[data-ui~='home.next-label']").textContent.trim(), "the statement is empty");
+  assert(next.querySelector("[data-ui~='home.next-why']").textContent.trim(), "the statement gives no reason");
   /* exactly one primary button on the page: there is never a question about
      where to press. The old focus CTA shared the greeting row with the h1. */
-  assert(main.querySelectorAll(".btn.primary").length === 1,
-    "expected one primary action, found " + main.querySelectorAll(".btn.primary").length);
-  assert(!main.querySelector(".home-hero .btn"), "the greeting row is competing with a CTA again");
+  assert(main.querySelectorAll("button[data-intent~='primary']").length === 1,
+    "expected one primary action, found " + main.querySelectorAll("button[data-intent~='primary']").length);
+  assert(!main.querySelector("[data-ui~='home.hero'] button"), "the greeting row is competing with a CTA again");
 });
 
 step("the decision surface picks the most perishable thing first", () => {
@@ -558,9 +575,9 @@ step("the decision surface picks the most perishable thing first", () => {
   if (KOS.store.state.pacing) KOS.store.state.pacing.entries = [];
   KOS.store.state.ui.lastRef.compsci = REF;
   KOS.show("home");
-  assert($(".hn-kicker").textContent === "Where you left off",
-    "with nothing pressing it should offer to continue, got: " + $(".hn-kicker").textContent);
-  assert($(".hn-label").textContent.indexOf(REF) === 0, "it did not name the topic");
+  assert($("[data-ui~='home.next-kicker']").textContent === "Where you left off",
+    "with nothing pressing it should offer to continue, got: " + $("[data-ui~='home.next-kicker']").textContent);
+  assert($("[data-ui~='home.next-label']").textContent.indexOf(REF) === 0, "it did not name the topic");
 
   /* now make a card due — recall decay outranks carrying on */
   const card = KOS.srs.cardsFor(SID, REF)[0];
@@ -568,9 +585,9 @@ step("the decision surface picks the most perishable thing first", () => {
   KOS.store.state.srs[card.key] = { ef: 2.5, ivl: 1, reps: 1, due: "2000-01-01",
     last: "1999-12-31", views: 1, lapses: 0, lastRating: 2 };
   KOS.show("home");
-  assert($(".hn-kicker").textContent === "Due today", "a due card did not take priority");
-  assert(/ready for review/.test($(".hn-label").textContent), "wrong statement: " + $(".hn-label").textContent);
-  $(".hn-go").click();
+  assert($("[data-ui~='home.next-kicker']").textContent === "Due today", "a due card did not take priority");
+  assert(/ready for review/.test($("[data-ui~='home.next-label']").textContent), "wrong statement: " + $("[data-ui~='home.next-label']").textContent);
+  $("[data-ui~='home.next-go']").click();
   assert(KOS.store.state.ui.view === "due", "the action did not reach the review queue");
 });
 
@@ -579,8 +596,8 @@ step("a running session outranks everything", () => {
   KOS.focus.state = () => "running";
   try {
     KOS.show("home");
-    assert($(".hn-kicker").textContent === "In progress", "a running session was not the first answer");
-    assert($(".home-next").classList.contains("live"), "the running state is not marked");
+    assert($("[data-ui~='home.next-kicker']").textContent === "In progress", "a running session was not the first answer");
+    assert($("[data-ui~='home.next']").matches('[data-state~="live"]'), "the running state is not marked");
   } finally { KOS.focus.state = real; }
 });
 
@@ -591,13 +608,13 @@ step("empty Directives and Countdowns collapse to one line, not two boxes", () =
   KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
   if (KOS.store.state.pacing) KOS.store.state.pacing.entries = [];
   KOS.show("home");
-  assert(!$(".home-today"), "the two-column row is still rendered with nothing in it");
-  const quiet = $(".home-quiet");
+  assert(!$("[data-ui~='home.today']"), "the two-column row is still rendered with nothing in it");
+  const quiet = $("[data-ui~='home.quiet']");
   assert(quiet, "no collapsed row");
-  assert(quiet.querySelector(".empty-state.compact"), "the collapsed row is not the compact empty state");
-  assert(quiet.querySelector(".empty-state-action .btn"), "the collapsed row offers no way to fix it");
-  assert(!$(".path-card"), "the directives box survived");
-  assert(!$(".dl-widget"), "the countdowns box survived");
+  assert(quiet.querySelector("[data-ui~='ui.empty'][data-state~='compact']"), "the collapsed row is not the compact empty state");
+  assert(quiet.querySelector("[data-ui~='ui.empty-action'] button"), "the collapsed row offers no way to fix it");
+  assert(!$("[data-ui~='home.path-card']"), "the directives box survived");
+  assert(!$("[data-ui~='cal.countdowns']"), "the countdowns box survived");
 });
 
 step("one populated panel takes the full width rather than sitting beside a hole", () => {
@@ -609,28 +626,28 @@ step("one populated panel takes the full width rather than sitting beside a hole
       time: "09:00", dur: 60, subject: SID, colour: "", recur: "", alerts: [], alerted: {},
       showInCountdown: true, notes: "" }] };
   KOS.show("home");
-  const row = $(".home-today");
+  const row = $("[data-ui~='home.today']");
   assert(row, "the row disappeared with content on it");
-  assert(row.classList.contains("one-up"), "a single populated panel did not take the full width");
-  assert($(".dl-widget"), "the countdown panel is missing");
-  assert(!$(".path-card"), "an empty directives box is back beside it");
+  assert(row.matches('[data-state~="one-up"]'), "a single populated panel did not take the full width");
+  assert($("[data-ui~='cal.countdowns']"), "the countdown panel is missing");
+  assert(!$("[data-ui~='home.path-card']"), "an empty directives box is back beside it");
 });
 
 step("the Collection card is the same component as the subject cards", () => {
   KOS.show("home");
-  const med = $(".med-home-card");
+  const med = $("[data-ui~='home.collection-desk']");
   assert(med, "no Collection card");
-  assert(med.classList.contains("subj-card"), "it is not the subject-card component");
+  assert(med.matches('[data-ui~="home.desk"]'), "it is not the subject-card component");
   /* the four things it lacked: a ring, a track, a meta line and a Continue */
-  assert(med.querySelector(".subj-card-top canvas.mini-ring"), "no completion ring");
-  assert(med.querySelector(".subj-track .subj-fill"), "no progress track");
-  assert(med.querySelector(".m").textContent.trim(), "no meta line");
+  assert(med.querySelector("[data-ui~='study.subject-card-top'] canvas[data-ui~='home.ring']"), "no completion ring");
+  assert(med.querySelector("[data-ui~='media.bar'] [data-ui~='media.bar-fill']"), "no progress track");
+  assert(med.querySelector("[data-ui~='part.meta']").textContent.trim(), "no meta line");
   /* Phase F strengthened the shared-card contract: the container may grow
      interactive descendants, so it must not impersonate a button. The title
      is the named keyboard control instead. */
   assert(med.getAttribute("role") !== "button" && !med.hasAttribute("tabindex"),
     "the card container is still an ARIA button");
-  const open = med.querySelector("button.subj-card-open");
+  const open = med.querySelector("button[data-ui~='home.desk-open']");
   assert(open && open.textContent.trim(), "the Collection title is not a named keyboard control");
 });
 
@@ -644,17 +661,17 @@ step("Home does not open the media vault on its render pass", () => {
   assert(/IntersectionObserver/.test(hubSrc.slice(hubSrc.indexOf("fillCollectionCard"))),
     "the Collection card's scan is not gated on visibility");
   KOS.show("home");
-  assert(/Anime · books · visual novels · games/.test($(".med-home-card .m").textContent),
+  assert(/Anime · books · visual novels · games/.test($("[data-ui~='home.collection-desk'] [data-ui~='part.meta']").textContent),
     "the card fetched its figures during render");
 });
 
 step("the seven pips say what they are (HOME-6)", () => {
   KOS.show("home");
-  assert($(".hi-week-l").textContent === "Last 7 days", "the pip row is still unlabelled");
-  const dots = $$(".week-dots i");
+  assert($("[data-ui~='home.week-l']").textContent === "Last 7 days", "the pip row is still unlabelled");
+  const dots = $$("[data-ui~='habit.week-dots'] i");
   assert(dots.length === 7, "expected seven pips, got " + dots.length);
   dots.forEach(d => assert(d.getAttribute("title"), "a pip carries no date"));
-  assert(/of the last 7 days/.test($(".week-dots").getAttribute("aria-label")),
+  assert(/of the last 7 days/.test($("[data-ui~='habit.week-dots']").getAttribute("aria-label")),
     "the row is not announced to assistive tech");
 });
 
@@ -674,7 +691,7 @@ step("the hero's text never depends on the banner artwork (HOME-2)", () => {
 step("the status pill is a real control, not a decorative focus stop (HOME-7)", () => {
   KOS.store.state.governor.status = "Deep work until noon";
   KOS.show("home");
-  const pill = $(".hi-status");
+  const pill = $("[data-ui~='home.status']");
   if (!pill) return;                       /* no status set — nothing to check */
   assert(pill.tagName === "BUTTON", "the status pill is not a button");
   assert(pill.getAttribute("title"), "a focusable control with no accessible name");

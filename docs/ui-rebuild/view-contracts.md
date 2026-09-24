@@ -29,6 +29,9 @@ Each view section uses the same fields.
 
 ### 0.1 Hook conventions (they apply everywhere)
 
+§M records how M1 put these in place on the legacy markup, and where the
+delivered names and attributes differ from this section.
+
 - **`data-ui="<domain>.<part>"`** gives structural identity. Names are lower
   kebab-case and dot-namespaced by domain: `shell`, `ui`, `home`, `study`, `topic`,
   `review`, `focus`, `cal`, `rem`, `asg`, `habit`, `pace`, `coll`, `vault`,
@@ -1214,36 +1217,113 @@ styling: they take a `variant`, and the CSS maps variants to `k-` classes.
 
 ---
 
-## M. The M1 migration mechanics
+## M. The M1 migration, as delivered (2026-09-24)
 
-1. **Query helper.** Add `tools/lib/ui-query.js`, with `ui(root, name)` /
-   `uiAll(root, name)` → `[data-ui="name"]`, and `byName(root, role, name)` for
-   buttons and fields by accessible name. Tests stop matching `.btn`,
-   `.primary`, `.danger`, `.mini-btn`, `.k`, `.v`, `.sub` and other generic
-   styling classes. They use a feature hook or an accessible name instead.
-2. **Emit hooks on the current DOM.** Every `← legacy` pair above becomes a
-   `data-ui` attribute added beside the existing class in M1. It is mechanical,
-   and the old look is unchanged. The M2+ rebuild then emits the same hooks
-   without the classes.
-3. **State to attributes.** In M1 each state class in §0.1 is set together with
-   its attribute replacement, and every reader (tests, `mobile-shell.js`,
-   `ui.js` `openDialog`, `governor.js` `#hud .hud`, cloudui `.save-wrap`,
-   `oop.js` `.cls-card`, `assistant.js` `.asst-status-line`) switches to the
-   attribute. In M2 the classes disappear.
-4. **Tests that read `main.css`** (smoke15, 18, 24, 29, 31, 32, 36, 37, 39, 40,
-   42–47, 49, 50, 52) are split in M1:
-   - **Contract assertions** (canonical token names, the five breakpoints,
-     widest-first tiers, z-tokens, `--shadow-ink`, the 11px floor, 16px phone
-     inputs, 32/44px hit areas, `--ev-hue`, the three subject hues) move to a
-     helper that reads `css/**/*.css`. Until M2 that is `main.css`; from M3 the
-     new files are expected to satisfy them.
-   - **Legacy-selector assertions** (a specific old rule exists) are rewritten
-     as behavioural or computed checks, or deleted when all they pinned was
-     the old visual design. Each deletion is listed in the M1 commit message.
-5. **Guards that ride along (added in M2):** `smoke55` (legacy vocabulary, inline
-   style, colour literals, breakpoints, depth budget, no CSS selecting
-   `[data-ui]`) and `smoke56` (render purity plus action dispatch parity against
-   spies recorded in M1).
+M1 kept the old presentation exactly as it was. Its stylesheet, classes and
+markup are untouched, apart from the one additive `button.hstat` rule noted
+below. A before/after screenshot comparison of every view at 1440 and 390 px,
+in Dawn and Dusk, found only run-to-run rendering noise. What changed is what
+logic and tests hold on to.
+
+1. **The bridge: `js/core/ui-hooks.js`.** It loads right after `ui.js`. It
+   was generated once, in M1, and from here only shrinks. It holds three
+   tables:
+   - `LEGACY_HOOKS`: legacy class → hook name, **one class to one hook**, so a
+     test that told two classes apart can still tell their hooks apart;
+   - `LEGACY_STATE`: state words mirrored into `data-state`;
+   - `LEGACY_INTENT`: `primary` and `danger`, mirrored into `data-intent`.
+
+   `KOS.ui.el()` derives the attributes from a node's classes when it
+   creates the node. `KOS.ui.setClass()` replaces every `className =` write,
+   and is SVG-safe. `KOS.ui.state(node, word, on)` replaces every
+   `classList` toggle of a state word. `KOS.ui.hookify(root)` covers markup
+   that arrives through `innerHTML` (the note renderer and lab truth tables).
+   Each rebuilt view (M4–M12) emits its hooks directly and removes its rows
+   from the tables; they are empty at M14.
+2. **Where the names differ from this document, the table wins.** It is the
+   complete list, about 690 rows. The contract sections name the hooks by
+   role; the table resolves every legacy class, including the ones only a test
+   ever touched. A view's contract section is brought in line with the table
+   when that view is rebuilt.
+3. **Hooks are token lists.** Always match them with `~=`
+   (`[data-ui~="vault.card"]`), because one element can carry several hooks.
+   `KOS.ui.hook(name)` returns that selector.
+4. **Generic parts.** The short structural classes shared across components
+   became a `part.*` vocabulary: `k` → `part.label`, `v` → `part.value`,
+   `s` → `part.caption`, `sub` → `part.sub`, `pc` → `part.percent`,
+   `ref` → `part.ref`, `st` → `part.status` and so on. A test reads them
+   inside their owner: `[data-ui~="ui.stat"] [data-ui~="part.value"]`.
+5. **State in M1 is `data-state`.** Legacy state classes are mirrored into
+   `data-state` tokens. The ARIA-first mapping in §0.1 (`aria-current`,
+   `aria-selected`, `aria-pressed`) is applied when each view is rebuilt,
+   where the control's real role is designed rather than inferred.
+6. **Variants became data attributes, not hooks or state.**
+   - Callout kind, syntax-token kind, Governor stat kind and editor row kind
+     use `data-kind`.
+   - Other variants have their own attribute: `data-season` (Seasonal
+     palette), `data-skin` (Shrine card style), `data-fit` (attachment preview
+     fit), `data-hp` (Governor status), `data-block` (a calendar event drawn
+     as a week block), `data-single` (a one-entry Shrine hall), `data-status`
+     (spine leaf status), `data-section` (Reminders smart sections).
+7. **Page-level state lives on `<html>`**, which the old classes on `body`
+   and `#cols` did not:
+   - `data-scroll-lock` (open modal);
+   - `data-focus="stage|minimised"` (Focus session);
+   - `data-shell="ready"` (mobile shell enhanced, inv. 72);
+   - `data-assistant-drawer="open"`.
+
+   The spine is `#cols[data-tree="none|open|closed"]`, owned by
+   `KOS.shell.tree(mode)`, which replaced 34 copies of the two-line
+   hide-the-spine write.
+8. **One element owns its `data-state`: the assistant mascot.** Its value is
+   the visual state (`idle`, `thinking`, `success` …), which the stylesheet
+   and the Live2D seam match exactly. Its render flags are therefore boolean
+   attributes: `data-loading`, `data-img-failed`, `data-live-renderer`,
+   `data-live-loading`, `data-reacting`. Any future element whose
+   `data-state` is a single owned value follows the same pattern.
+9. **App code reads no presentation class.** Every class query in `js/`
+   became a hook, state or intent selector. This covers `mobile-shell.js`,
+   `openDialog`, the governor HUD and brand mark, cloudui, OOP, the assistant,
+   the quiz and flashcard engines, labs and help. The last few structural reads
+   gained explicit hooks: `ui.field-label`, `cal.w-slot`, `lab.oop-abstract`,
+   `data-kind="custom"` and `files-tab` as state.
+10. **Tests query hooks.** `tools/lib/ui-query.js` provides `hook`, `ui`,
+    `uiAll`, `hasHook`, `hasState` and `byName`/`allByName` (accessible name).
+    1,795 selector strings and `classList.contains` checks across the suites
+    were converted mechanically, class by class. `.btn`/`.mini-btn` became the
+    element (`button`), and every conversion where that could pick a different
+    button was checked by hand. Three did (the Calendar phone "+", "Manage →",
+    the assignment row's "Open"), and those use `byName`. `className`-based
+    assertions (child order, exact class strings, scroll-spy targets) now read
+    hooks and data attributes.
+11. **What still names a legacy class in the tests, deliberately:**
+    - negative "the retired X is not back" checks for classes the app no
+      longer produces at all (`.home-ring`, `.np-pill`, `.th-status`,
+      `.insp-mastery`, `.subject-workspace-tabs`, `.cal-thresh`, `.med-streaks`
+      and others). These stay true and harmless;
+    - third-party output (`.katex`);
+    - a class a test adds to its own fixture (`.test-layer`);
+    - source-text regexes that check an obsolete component is not constructed.
+
+    `smoke55` (M2) bans the legacy vocabulary from `index.html`, `js/` and
+    `css/`, not from the tests.
+12. **Stylesheet assertions.** No suite reads `css/main.css` by name any more.
+    `tools/lib/css.js` (`readCss()`, `stylesheets()`) joins every local sheet
+    `index.html` links, in cascade order. The assertions were **not** split or
+    deleted in M1: the legacy layer is still live, and they still protect it.
+    [css-assertions.md](css-assertions.md) classifies all 153 (98 pin a legacy
+    selector, 55 pin a design contract) as the worklist for M2, when
+    `main.css` goes.
+13. **Home's weekly facts.** The clickable fact (Cards due) is a native
+    `<button>`. The two facts that go nowhere are no longer exposed as
+    controls. A one-line additive rule (`button.hstat { font: inherit; … }`)
+    keeps its rendering identical to the `div` it replaced, and smoke43 pins
+    the behaviour.
+14. **Carried to M2:** `smoke55` (legacy vocabulary, inline style, colour
+    literals, breakpoints, depth budget, no CSS selecting `[data-ui]`) and
+    `smoke56` (render purity, plus action-dispatch parity). The parity
+    baseline is recorded from this M1 build, where every view still renders
+    its legacy markup, before any view is rebuilt.
 
 ## Appendix: view index
 

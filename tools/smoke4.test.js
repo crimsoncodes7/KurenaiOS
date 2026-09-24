@@ -371,44 +371,44 @@ step("matrix home renders: on-the-go cards, module cards, tabs in the header —
   KOS.show("matrix");
   const main = document.getElementById("main");
   /* 3f adds async airing queries ahead of the strip query — wait, don't race */
-  await waitFor(() => main.querySelector(".mx-now-card") && main.querySelectorAll(".med-mod-card").length === 4, 4000);
+  await waitFor(() => main.querySelector("[data-ui~='coll.now-card']") && main.querySelectorAll("[data-ui~='coll.module-card']").length === 4, 4000);
   /* the mirror release: streak chips left (the Governor page owns
      streaks), the figures moved to Analytics, the switcher rides the
      page header's action slot like Planner and Sync */
   if (main.querySelector(".med-streaks")) throw new Error("the streak pair is back on the overview");
-  if (!main.querySelector(".mx-now-card")) throw new Error("no on-the-go cards");
-  if (main.querySelector(".soon-card")) throw new Error("no module should be a placeholder since 3e");
-  if (main.querySelectorAll(".med-mod-card").length !== 4) throw new Error("expected 4 live module cards");
-  if (main.querySelector(".stat-strip")) throw new Error("the stat strip belongs to Analytics now");
-  if (!main.querySelector(".dash-head .dh-actions .mx-tabs")) throw new Error("the Overview/Analytics switcher must ride the page header's action slot");
+  if (!main.querySelector("[data-ui~='coll.now-card']")) throw new Error("no on-the-go cards");
+  if (main.querySelector("[data-ui~='coll.soon-card']")) throw new Error("no module should be a placeholder since 3e");
+  if (main.querySelectorAll("[data-ui~='coll.module-card']").length !== 4) throw new Error("expected 4 live module cards");
+  if (main.querySelector("[data-ui~='ui.stat-strip']")) throw new Error("the stat strip belongs to Analytics now");
+  if (!main.querySelector("[data-ui~='ui.page-head'] [data-ui~='ui.page-actions'] [data-ui~='coll.tabs']")) throw new Error("the Overview/Analytics switcher must ride the page header's action slot");
 });
 step("anime vault renders + lazy fallback paints all cards in jsdom", async () => {
   KOS.show("anime");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-card").length > 0, 5000);
-  const cards = main.querySelectorAll(".med-card");
+  await waitFor(() => main.querySelectorAll("[data-ui~='vault.card']").length > 0, 5000);
+  const cards = main.querySelectorAll("[data-ui~='vault.card']");
   if (!cards.length) throw new Error("no cards rendered");
-  if (!main.querySelector(".med-toolbar")) throw new Error("no toolbar");
+  if (!main.querySelector("[data-ui~='vault.toolbar']")) throw new Error("no toolbar");
 });
 step("shrine renders favourites ranked, module-agnostic", async () => {
   KOS.show("shrine");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".shrine-feature,.shrine-rank-card").length > 0, 5000);
-  const cards = main.querySelectorAll(".shrine-feature,.shrine-rank-card");
+  await waitFor(() => main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']").length > 0, 5000);
+  const cards = main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']");
   if (cards.length !== 1) throw new Error("expected the 1 favourite, saw " + cards.length);
-  if (!main.querySelector(".shrine-feature-rank,.shrine-rank")) throw new Error("no rank badge");
+  if (!main.querySelector("[data-ui~='shrine.feature-rank'],[data-ui~='shrine.rank']")) throw new Error("no rank badge");
 });
 step("mediasync renders all eight panels (AniList, VNDB, autosync, XML, maintenance, enrichment, games, write activity)", async () => {
   KOS.show("mediasync");
   await tick(60);
   const main = document.getElementById("main");
-  if (main.querySelectorAll(".med-panel").length !== 8) throw new Error("panel count");   // +1 in 3j: Autonomous sync
+  if (main.querySelectorAll("[data-ui~='sync.panel']").length !== 8) throw new Error("panel count");   // +1 in 3j: Autonomous sync
   if (!/anilist\.co\/settings\/developer/.test(main.textContent)) throw new Error("setup steps missing");
   if (!/last-write-wins/.test(main.textContent)) throw new Error("write-back limitation not stated");
 });
 step("integration overview covers disconnected, connected, loading, success and failure states", async () => {
   let main = document.getElementById("main");
-  if (main.querySelectorAll(".integration-provider").length !== 2) throw new Error("provider overview missing");
+  if (main.querySelectorAll("[data-ui~='sync.provider']").length !== 2) throw new Error("provider overview missing");
   if (!/Not connected/.test(main.textContent)) throw new Error("disconnected state missing");
   await p(cb => KOS.mediadb.setKV("anilist.clientId", "42", cb));
   await p(cb => KOS.mediadb.setKV("anilist.token", "test-token", cb));
@@ -424,7 +424,7 @@ step("integration overview covers disconnected, connected, loading, success and 
   anime.click();
   if (!/Pulling your anime list/.test(main.textContent)) throw new Error("loading state missing");
   await waitFor(() => /Service unavailable for test/.test(main.textContent), 4000);
-  if (!main.querySelector(".med-sync-status.is-error")) throw new Error("failure state not styled");
+  if (!main.querySelector("[data-ui~='sync.status'][data-state~='is-error']")) throw new Error("failure state not styled");
   KOS.anilist.syncList = (_token, _id, _module, cb) => setTimeout(() => cb(null, []), 10);
   anime.click();
   await waitFor(() => /Done — 0 added, 0 updated/.test(main.textContent), 4000);
@@ -433,7 +433,7 @@ step("integration overview covers disconnected, connected, loading, success and 
 step("OS home shows the live Collection Matrix card (not Coming soon)", async () => {
   KOS.show("home");
   await tick(30);
-  const card = document.querySelector(".med-home-card");
+  const card = document.querySelector("[data-ui~='home.collection-desk']");
   if (!card) throw new Error("no collection card on home");
   if (!/Collection/.test(card.textContent)) throw new Error("collection card unlabelled");
 });
@@ -536,15 +536,15 @@ step("the HUD lives in the rail foot, not the topbar, and opens the profile", ()
   const hud = document.getElementById("hud");
   if (!hud) throw new Error("#hud is missing");
   if (document.querySelectorAll("#hud").length !== 1) throw new Error("#hud must be unique");
-  if (!hud.closest(".rail-foot")) throw new Error("#hud is not in the rail foot");
-  if (hud.closest(".topbar-right")) throw new Error("#hud is still in the topbar");
-  if (document.querySelector(".rail-foot .rail-brand")) throw new Error("the old brand/spec-point footer is still there");
+  if (!hud.closest("[data-ui~='shell.rail-foot']")) throw new Error("#hud is not in the rail foot");
+  if (hud.closest("[data-ui~='shell.header-actions']")) throw new Error("#hud is still in the topbar");
+  if (document.querySelector("[data-ui~='shell.rail-foot'] .rail-brand")) throw new Error("the old brand/spec-point footer is still there");
   KOS.refreshHUD();
-  const btn = document.querySelector("#hud .hud");
+  const btn = document.querySelector("#hud [data-ui~='gov.hud']");
   if (!btn) throw new Error("the HUD chip did not render");
   if (btn.getAttribute("aria-haspopup") !== "dialog") throw new Error("the chip must advertise its popover");
   btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
-  if (!document.querySelector(".profile-pop .profile-card")) throw new Error("clicking the panel did not open the profile");
+  if (!document.querySelector("[data-ui~='gov.profile-pop'] [data-ui~='gov.profile-card']")) throw new Error("clicking the panel did not open the profile");
   KOS.governor.closeProfilePopover();
 });
 

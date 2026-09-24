@@ -215,19 +215,19 @@ step("reverse surfacing: opening the vault entry injects the 'on your wishlist' 
   const entry = await p(cb => KOS.mediadb.get(linkedEntryId, cb));
   KOS.mediaEditor(entry, null);
   await tick(30);
-  const banner = document.querySelector(".med-modal .wl-onlist");
+  const banner = document.querySelector("[data-ui~='vault.dialog'] [data-ui~='plan.on-list']");
   if (!banner) throw new Error("no wl-onlist banner injected into the editor");
   if (!/on your wishlist/i.test(banner.textContent)) throw new Error("banner text");
   if (!/Hollow Knight \(physical\)/.test(banner.textContent)) throw new Error("banner must name the linked item");
-  const ov = document.querySelector(".modal-ov");
+  const ov = document.querySelector("[data-ui~='ui.dialog-overlay']");
   if (ov) ov.remove();
 });
 step("no banner when the entry is not on the wishlist", async () => {
   const entry = await p(cb => KOS.mediadb.add({ module: "game", title: "Unwished Game" }, cb));
   KOS.mediaEditor(entry, null);
   await tick(30);
-  if (document.querySelector(".med-modal .wl-onlist")) throw new Error("banner appeared for an unlinked entry");
-  const ov = document.querySelector(".modal-ov");
+  if (document.querySelector("[data-ui~='vault.dialog'] [data-ui~='plan.on-list']")) throw new Error("banner appeared for an unlinked entry");
+  const ov = document.querySelector("[data-ui~='ui.dialog-overlay']");
   if (ov) ov.remove();
 });
 step("purchased unlinked Book creates a physical-vault record with its source and crop", async () => {
@@ -286,12 +286,12 @@ step("KOS.show('wishlist') builds the allowance ledger, tabs, queue and history 
   KOS.show("wishlist");
   await tick(40);
   const main = document.getElementById("main");
-  if (!main.querySelector(".wl-budget")) throw new Error("no budget bar");
-  if (!main.querySelector(".wl-budget-edit")) throw new Error("no Edit monthly budget action");
+  if (!main.querySelector("[data-ui~='plan.budget']")) throw new Error("no budget bar");
+  if (!main.querySelector("[data-ui~='plan.budget-edit']")) throw new Error("no Edit monthly budget action");
   if (main.querySelector(".wl-limit")) throw new Error("monthly budget must not be an always-visible input");
-  if (main.querySelectorAll(".wl-tabs .study-tab").length !== 3) throw new Error("expected 3 tabs");
-  if (!main.querySelector(".wl-row")) throw new Error("want-to-buy list empty");
-  if (!main.querySelector(".wl-history")) throw new Error("purchase history state missing");
+  if (main.querySelectorAll("[data-ui~='plan.tabs'] [data-ui~='ui.tab']").length !== 3) throw new Error("expected 3 tabs");
+  if (!main.querySelector("[data-ui~='plan.row']")) throw new Error("want-to-buy list empty");
+  if (!main.querySelector("[data-ui~='plan.history']")) throw new Error("purchase history state missing");
 });
 step("ticking a checkbox updates the live Remaining figure (pure simulation)", async () => {
   KOS.wishlist.setBudget({ monthlyLimit: 100 });
@@ -299,22 +299,22 @@ step("ticking a checkbox updates the live Remaining figure (pure simulation)", a
   KOS.show("wishlist");
   await tick(40);
   const main = document.getElementById("main");
-  const remBefore = main.querySelector(".wl-bn-rem b").textContent;
-  const scenarioRow = [...main.querySelectorAll(".wl-row")].find(row => /Scenario Checkbox/.test(row.textContent));
-  const check = scenarioRow && scenarioRow.querySelector(".wl-check");
+  const remBefore = main.querySelector("[data-ui~='plan.bn-rem'] b").textContent;
+  const scenarioRow = [...main.querySelectorAll("[data-ui~='plan.row']")].find(row => /Scenario Checkbox/.test(row.textContent));
+  const check = scenarioRow && scenarioRow.querySelector("[data-ui~='plan.check']");
   if (!check) throw new Error("no checkbox on the want-to-buy tab");
   check.checked = true;
   check.dispatchEvent(new window.Event("change"));
   await tick(10);
-  const remAfter = main.querySelector(".wl-bn-rem b").textContent;
+  const remAfter = main.querySelector("[data-ui~='plan.bn-rem'] b").textContent;
   if (remBefore === remAfter) throw new Error("Remaining did not react to the simulation");
 });
 step("Edit monthly budget uses a modal and saves into the existing budget state", async () => {
   KOS.show("wishlist");
   await tick(30);
-  document.querySelector(".wl-budget-edit").click();
+  document.querySelector("[data-ui~='plan.budget-edit']").click();
   await tick(20);
-  const modal = document.querySelector(".wl-budget-modal");
+  const modal = document.querySelector("[data-ui~='plan.budget-dialog']");
   if (!modal) throw new Error("budget modal did not open");
   if (modal.querySelector('input[type="text"]')) throw new Error("currency should lock once planner values exist");
   if (!/never relabelled/i.test(modal.textContent)) throw new Error("locked-currency explanation missing");
@@ -330,7 +330,7 @@ step("waiting-for-release tab shows the release-aware next-to-drop hero", async 
   KOS.store.state.wishlist._tab = "waitingForRelease";
   KOS.show("wishlist");
   await tick(40);
-  const hero = document.getElementById("main").querySelector(".wl-hero");
+  const hero = document.getElementById("main").querySelector("[data-ui~='plan.hero']");
   if (!hero) throw new Error("no next-to-drop hero");
   if (!/Next to drop|Release day|Final release reminder/i.test(hero.textContent)) throw new Error("release-aware hero badge text");
   if (!/View Release Desk/.test(hero.textContent)) throw new Error("next-to-drop title missing");
@@ -362,22 +362,22 @@ step("a full planner flow fires ZERO governor traffic and zero network", async (
 
 /* ============ 8 · nav ============ */
 step("nav: Collection keeps vaults primary and reaches the Budget Planner through Planner", async () => {
-  const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");
+  const rb = [...document.querySelectorAll("#rail [data-ui~='shell.rail-item']")].find(b => b.dataset.section === "collection");
   if (!rb) throw new Error("collection rail button missing");
   rb.click();
   await tick(60);
-  const labels = [...document.querySelectorAll("#subnav .subnav-item")].map(b => b.textContent.trim());
+  const labels = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].map(b => b.textContent.trim());
   ["Overview", "Anime", "Books", "Visual Novels", "Games", "Shrine", "Planner", "Sync"].forEach(label => {
     if (!labels.includes(label)) throw new Error("primary Collection destination missing: " + label);
   });
   if (labels.some(label => /Budget Planner|Goals|AniList|VNDB|Sync & Import/.test(label))) throw new Error("utility route leaked into primary Collection navigation");
-  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /^Planner$/.test(b.textContent.trim()));
+  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Planner$/.test(b.textContent.trim()));
   if (!sn) throw new Error("Planner entry missing");
   sn.click();
   await tick(60);
   if (!/Budget/.test(document.getElementById("main").textContent)) throw new Error("navigation failed");
-  if (!document.querySelector("#subnav .subnav-item.active")?.textContent.includes("Planner")) throw new Error("Planner nav state was not retained");
-  if (!document.querySelector(".collection-workspace-tabs .study-tab.active")?.textContent.includes("Budget Planner")) throw new Error("Planner secondary tab missing");
+  if (!document.querySelector("#subnav [data-ui~='shell.subnav-item'][data-state~='active']")?.textContent.includes("Planner")) throw new Error("Planner nav state was not retained");
+  if (!document.querySelector("[data-ui~='coll.workspace-tabs'] [data-ui~='ui.tab'][data-state~='active']")?.textContent.includes("Budget Planner")) throw new Error("Planner secondary tab missing");
 });
 step("backup coverage: wishlist rides the localStorage state (exportJSON serialises it)", async () => {
   const raw = JSON.parse(JSON.stringify(KOS.store.state));
@@ -427,7 +427,7 @@ step("the view renders Active/Completed/Failed tabs and goal cards", async () =>
   KOS.show("goals");
   await tick(60);
   const main = document.getElementById("main");
-  if (main.querySelectorAll(".goal-tabs .study-tab").length !== 3) throw new Error("expected 3 goal tabs");
+  if (main.querySelectorAll("[data-ui~='goal.tabs'] [data-ui~='ui.tab']").length !== 3) throw new Error("expected 3 goal tabs");
   if (!/Goals/.test(main.textContent)) throw new Error("goals view did not render");
 });
 step("Goals fires ZERO governor traffic and zero network", async () => {
@@ -447,13 +447,13 @@ step("Goals fires ZERO governor traffic and zero network", async () => {
   if (netLog.length !== 0) throw new Error("Goals emitted network: " + netLog.map(r => r.url).join(", "));
 });
 step("nav: Planner secondary tab reaches Goals; goals ride the serialised backup", async () => {
-  const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");
+  const rb = [...document.querySelectorAll("#rail [data-ui~='shell.rail-item']")].find(b => b.dataset.section === "collection");
   rb.click();
   await tick(60);
-  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /^Planner$/.test(b.textContent.trim()));
+  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Planner$/.test(b.textContent.trim()));
   sn.click();
   await tick(60);
-  const goals = [...document.querySelectorAll(".collection-workspace-tabs button")].find(b => /^Goals$/.test(b.textContent.trim()));
+  const goals = [...document.querySelectorAll("[data-ui~='coll.workspace-tabs'] button")].find(b => /^Goals$/.test(b.textContent.trim()));
   if (!goals) throw new Error("Goals secondary tab missing");
   goals.click();
   await tick(60);

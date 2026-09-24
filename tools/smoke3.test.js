@@ -155,25 +155,25 @@ step("todo: auto items from due queue + deadline; manual persists; tick logs ses
 console.log("== views render ==");
 step("due view renders with a mixed queue", () => {
   KOS.show("due");
-  if (!$(".fc-card") && !$(".due-clear")) throw new Error("due view empty");
-  if (!$$(".stat-card").length) throw new Error("no summary strip");
+  if (!$("[data-ui~='fc.card']") && !$("[data-ui~='review.due-clear']")) throw new Error("due view empty");
+  if (!$$("[data-ui~='ui.stat']").length) throw new Error("no summary strip");
 });
 step("Study Review and Productivity own the intended navigation", () => {
   KOS.show("review");
-  const reviewTabs = $$(".review-tabs .study-tab").map(b => b.textContent.trim());
+  const reviewTabs = $$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").map(b => b.textContent.trim());
   if (reviewTabs.join("|") !== "Due Today|Card Stats") throw new Error("review tabs: " + reviewTabs.join("|"));
-  if (!$(".dash-head > .review-tabs")) throw new Error("Review tabs are not in the header");
-  if (!document.querySelector('.rail-item[data-section="study"]').classList.contains("active")) throw new Error("Study rail not active");
+  if (!$("[data-ui~='ui.page-head'] > [data-ui~='review.tabs']")) throw new Error("Review tabs are not in the header");
+  if (!document.querySelector('[data-ui~="shell.rail-item"][data-section="study"]').matches('[data-state~="active"]')) throw new Error("Study rail not active");
 
-  click($$(".review-tabs .study-tab").find(b => b.textContent.trim() === "Card Stats"));
-  if (!$$(".cs-chart svg").length && !$(".cardstats-empty")) throw new Error("Review Card Stats pane missing");
-  if (!$$(".review-tabs .study-tab").find(b => b.textContent.trim() === "Card Stats").classList.contains("active")) throw new Error("stats tab inactive");
+  click($$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").find(b => b.textContent.trim() === "Card Stats"));
+  if (!$$("[data-ui~='chart.chart'] svg").length && !$("[data-ui~='review.stats-empty']")) throw new Error("Review Card Stats pane missing");
+  if (!$$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").find(b => b.textContent.trim() === "Card Stats").matches('[data-state~="active"]')) throw new Error("stats tab inactive");
 
   KOS.show("due");
-  if (!$$(".review-tabs .study-tab").find(b => b.textContent.trim() === "Due Today").classList.contains("active")) throw new Error("due compatibility route lost its tab");
+  if (!$$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").find(b => b.textContent.trim() === "Due Today").matches('[data-state~="active"]')) throw new Error("due compatibility route lost its tab");
   KOS.show("focus");
-  if (!document.querySelector('.rail-item[data-section="productivity"]').classList.contains("active")) throw new Error("Productivity rail not active");
-  const productivityTabs = $$("#subnav .subnav-item").map(b => b.textContent.trim());
+  if (!document.querySelector('[data-ui~="shell.rail-item"][data-section="productivity"]').matches('[data-state~="active"]')) throw new Error("Productivity rail not active");
+  const productivityTabs = $$("#subnav [data-ui~='shell.subnav-item']").map(b => b.textContent.trim());
   /* Build 6.2: Reminders became a page of its own, so Tasks & Habits is now
      just Habits and Reminders sits beside it.
      Pacing (the integrated weekly plan) joined the section afterwards — it is
@@ -183,82 +183,82 @@ step("Study Review and Productivity own the intended navigation", () => {
      registering itself. */
   if (productivityTabs.join("|") !== "Focus Timer|Reminders|Habits|Calendar|Pacing") throw new Error("productivity tabs: " + productivityTabs.join("|"));
   KOS.show("tracker");
-  if (!$(".dash-head > .workspace-header-tabs")) throw new Error("record tabs are not in the header");
+  if (!$("[data-ui~='ui.page-head'] > [data-ui~='ui.header-tabs']")) throw new Error("record tabs are not in the header");
 });
 step("governor view: all four tabs render", () => {
   KOS.show("governor");
   for (const t of ["status", "shop", "avatar", "history"]) {
-    click($$(".study-tab").find(b => b.dataset.tab === t));
-    if (!$(".study-panel").children.length) throw new Error(t + " tab empty");
+    click($$("[data-ui~='ui.tab']").find(b => b.dataset.tab === t));
+    if (!$("[data-ui~='study.panel']").children.length) throw new Error(t + " tab empty");
   }
-  click($$(".study-tab").find(b => b.dataset.tab === "shop"));
-  if (!$$(".shop-card").length) throw new Error("no shop cards");
-  click($$(".study-tab").find(b => b.dataset.tab === "avatar"));
-  if ($$(".seal-card").length !== 5) throw new Error("seal count: " + $$(".seal-card").length);
+  click($$("[data-ui~='ui.tab']").find(b => b.dataset.tab === "shop"));
+  if (!$$("[data-ui~='shop.card']").length) throw new Error("no shop cards");
+  click($$("[data-ui~='ui.tab']").find(b => b.dataset.tab === "avatar"));
+  if ($$("[data-ui~='gov.seal-card']").length !== 5) throw new Error("seal count: " + $$("[data-ui~='gov.seal-card']").length);
 });
 /* Build 6.6 rebuilt both views: the month trims to whole weeks (35 or 42
    cells, never a trailing empty row) and the week is a real time grid, not
    seven tall month cells. */
 step("calendar view renders month grid + sample events", () => {
   KOS.show("calendar");
-  const cells = $$(".cal-cell").length;
+  const cells = $$("[data-ui~='cal.cell']").length;
   if (cells !== 35 && cells !== 42) throw new Error("cells: " + cells);
-  if (!$$(".cal-ev").length) throw new Error("no events painted");
-  if (!$(".cal-cell.today")) throw new Error("today is not marked on the grid");
+  if (!$$("[data-ui~='cal.event']").length) throw new Error("no events painted");
+  if (!$("[data-ui~='cal.cell'][data-state~='today']")) throw new Error("today is not marked on the grid");
   // week mode is the time grid: seven day columns, an all-day band, an hour gutter
-  click($$(".cal-mode").find(b => b.textContent === "Week"));
-  if (!$(".cal-week")) throw new Error("week view did not render the time grid");
-  if ($$(".cw-col").length !== 7) throw new Error("week columns: " + $$(".cw-col").length);
-  if ($$(".cw-band-col").length !== 7) throw new Error("no all-day band");
-  if (!$$(".cw-hour").length) throw new Error("no hour gutter");
-  click($$(".cal-mode").find(b => b.textContent === "Month"));
-  if (!$$(".cal-cell").length) throw new Error("month view did not come back");
+  click($$("[data-ui~='cal.mode']").find(b => b.textContent === "Week"));
+  if (!$("[data-ui~='cal.week']")) throw new Error("week view did not render the time grid");
+  if ($$("[data-ui~='cal.w-col']").length !== 7) throw new Error("week columns: " + $$("[data-ui~='cal.w-col']").length);
+  if ($$("[data-ui~='cal.w-band-col']").length !== 7) throw new Error("no all-day band");
+  if (!$$("[data-ui~='cal.w-hour']").length) throw new Error("no hour gutter");
+  click($$("[data-ui~='cal.mode']").find(b => b.textContent === "Month"));
+  if (!$$("[data-ui~='cal.cell']").length) throw new Error("month view did not come back");
 });
 step("home renders today panel + countdowns + streak chips + HUD", () => {
   KOS.show("home");
-  if (!$(".todo-panel")) throw new Error("no todo panel");
-  if (!$(".dl-widget")) throw new Error("no countdown widget");
-  if ($(".streak-chip").length < 2) throw new Error("streak chips: " + $(".streak-chip").length);
-  if (!$("#hud .hud")) throw new Error("HUD missing");
+  if (!$("[data-ui~='habit.panel']")) throw new Error("no todo panel");
+  if (!$("[data-ui~='cal.countdowns']")) throw new Error("no countdown widget");
+  if ($("[data-ui~='home.streak']").length < 2) throw new Error("streak chips: " + $("[data-ui~='home.streak']").length);
+  if (!$("#hud [data-ui~='gov.hud']")) throw new Error("HUD missing");
 });
 step("per-topic flashcards tab: SM-2 buttons + manage + custom add", () => {
   KOS.show("ref", { subject: "compsci", ref: "4.2.3.1" });
-  click($$(".study-tab").find(t => t.dataset.tab === "cards"));
-  if (!$(".fc-card")) throw new Error("no card");
-  click($(".fc-card"));
-  const rates = $$(".fc-rate .fc-r");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "cards"));
+  if (!$("[data-ui~='fc.card']")) throw new Error("no card");
+  click($("[data-ui~='fc.card']"));
+  const rates = $$("[data-ui~='fc.rate'] [data-ui~='fc.r']");
   if (rates.length !== 4) throw new Error("rating buttons: " + rates.length);
   // the deck browser: every card, and the one route to editing — the study
   // editor (a topic page never carries two edit surfaces for a card)
-  click($$(".fc-mode")[1]);
-  if (!$$(".fc-row").length) throw new Error("deck rows missing");
-  const editBtn = $$(".fc-manage .btn.primary").find(b => /Edit deck/.test(b.textContent));
+  click($$("[data-ui~='fc.mode']")[1]);
+  if (!$$("[data-ui~='fc.row']").length) throw new Error("deck rows missing");
+  const editBtn = $$("[data-ui~='fc.manage'] button[data-intent~='primary']").find(b => /Edit deck/.test(b.textContent));
   if (!editBtn) throw new Error("the deck browser does not hand off to the editor");
   click(editBtn);
-  if (!$(".study-editor")) throw new Error("the study editor did not open");
-  click($$(".study-editor .btn.primary").find(b => /Add card/.test(b.textContent)));
-  const tas = $$(".study-editor .ed-row:not(.custom) textarea");
+  if (!$("[data-ui~='editor.root']")) throw new Error("the study editor did not open");
+  click($$("[data-ui~='editor.root'] button[data-intent~='primary']").find(b => /Add card/.test(b.textContent)));
+  const tas = $$("[data-ui~='editor.root'] [data-ui~='editor.row']:not([data-kind='custom']) textarea");
   const q = tas[tas.length - 2], a = tas[tas.length - 1];
   q.value = "QQ"; q.dispatchEvent(new window.Event("input", { bubbles: true }));
   a.value = "AA"; a.dispatchEvent(new window.Event("input", { bubbles: true }));
   const fork = KOS.edits.get("compsci", "4.2.3.1");
   if (!fork || !fork.flashcards.some(c => c.q === "QQ" || c.a === "AA" || c.q === "")) throw new Error("the added card did not fork the deck");
-  click($(".study-editor .ed-done"));
-  if ($(".study-editor")) throw new Error("the editor did not close");
+  click($("[data-ui~='editor.root'] [data-ui~='editor.done']"));
+  if ($("[data-ui~='editor.root']")) throw new Error("the editor did not close");
 });
 step("core revision never locks at 0 HP", () => {
   KOS.store.state.governor.hp = 0;
   KOS.show("ref", { subject: "compsci", ref: "4.2.3.1" });
-  const tabs = $$(".study-tab").map(t => t.dataset.tab);
+  const tabs = $$("[data-ui~='ui.tab']").map(t => t.dataset.tab);
   for (const t of ["notes", "cards", "quiz", "exam"]) {
     if (!tabs.includes(t)) throw new Error(t + " tab missing");
-    click($$(".study-tab").find(b => b.dataset.tab === t));
-    if ($(".gov-lock")) throw new Error(t + " got locked!");
+    click($$("[data-ui~='ui.tab']").find(b => b.dataset.tab === t));
+    if ($("[data-ui~='gov.lock']")) throw new Error(t + " got locked!");
   }
   // and the sim tab is NOT suspended either — HP is a signal, not a lock
   if (tabs.includes("sim")) {
-    click($$(".study-tab").find(b => b.dataset.tab === "sim"));
-    const lock = $(".gov-lock");
+    click($$("[data-ui~='ui.tab']").find(b => b.dataset.tab === "sim"));
+    const lock = $("[data-ui~='gov.lock']");
     if (lock && /HP/.test(lock.textContent)) throw new Error("sim tab suspended at 0 HP");
   }
 });
@@ -272,9 +272,9 @@ step("start custom session -> running, chrome hidden, stage + dock built", () =>
   KOS.store.state.governor.hp = 50;
   KOS.focus.start({ mode: "custom", workMin: 25, breakMin: 5, subject: "compsci", ref: "4.2.3.1" });
   if (KOS.focus.state() !== "running") throw new Error("state: " + KOS.focus.state());
-  if (!document.body.classList.contains("focus-mode")) throw new Error("focus-mode class missing");
-  if (!$(".fx-stage .fx-clock")) throw new Error("stage clock missing");
-  if (!$(".fx-dock")) throw new Error("dock missing");
+  if (!document.documentElement.hasAttribute("data-focus")) throw new Error("focus-mode class missing");
+  if (!$("[data-ui~='focus.stage'] [data-ui~='focus.clock']")) throw new Error("stage clock missing");
+  if (!$("[data-ui~='focus.dock']")) throw new Error("dock missing");
   if (!KOS.focus.activeId()) throw new Error("no active id");
 });
 step("attribution: entries logged mid-session carry the focusId", () => {
@@ -319,8 +319,8 @@ step("complete: real dur + activity summary logged, award paid with pause penalt
   const gold0 = g.gold, xp0 = g.xp;
   KOS.focus.endComplete();                                    // confirm() stubbed true -> block ticked
   if (KOS.focus.state() !== "idle") throw new Error("session not cleared");
-  if (document.body.classList.contains("focus-mode")) throw new Error("chrome not restored");
-  if ($(".fx-stage")) throw new Error("stage not removed");
+  if (document.documentElement.hasAttribute("data-focus")) throw new Error("chrome not restored");
+  if ($("[data-ui~='focus.stage']")) throw new Error("stage not removed");
   const e = KOS.sessions.all()[KOS.sessions.all().length - 1];
   if (e.type !== "focus" || e.dur !== 1500) throw new Error("entry: " + e.type + " dur=" + e.dur);
   if (!e.metrics.complete || e.metrics.pauses !== 2 || e.metrics.distractions !== 2) throw new Error(JSON.stringify(e.metrics));
@@ -345,8 +345,8 @@ step("early stop: still logs (incomplete), award forfeited", () => {
 });
 step("focus start view renders modes + link selects; reload restore is paused", () => {
   KOS.show("focus");
-  if ($$(".fx-mode-card").length !== 2) throw new Error("mode cards: " + $$(".fx-mode-card").length);
-  if (!$(".fx-start")) throw new Error("start button missing");
+  if ($$("[data-ui~='focus.mode']").length !== 2) throw new Error("mode cards: " + $$("[data-ui~='focus.mode']").length);
+  if (!$("[data-ui~='focus.start']")) throw new Error("start button missing");
   // simulate a reload restore: plant a running snapshot and re-eval focus.js
   const f = KOS.store.state.focus;
   f.active = { id: "f99", mode: "custom", workMin: 25, breakMin: 0, subject: null, ref: null,
@@ -358,7 +358,7 @@ step("focus start view renders modes + link selects; reload restore is paused", 
   const ws = KOS.focus.workSeconds();
   if (ws < 305 || ws > 315) throw new Error("restored workSeconds: " + ws);
   KOS.focus.endEarly();                                       // clean up for the exit checks
-  if (document.body.classList.contains("focus-mode")) throw new Error("chrome stuck after cleanup");
+  if (document.documentElement.hasAttribute("data-focus")) throw new Error("chrome stuck after cleanup");
 });
 
 console.log("== tracker (Build 2c: FR-3.4/3.5) ==");
@@ -376,14 +376,14 @@ step("add exam entry -> stored, session-logged, awarded", () => {
 });
 step("tracker view renders rows, reviewed toggle + update persist", () => {
   KOS.show("tracker");
-  if ($$(".study-tab").length !== 2) throw new Error("kind tabs: " + $$(".study-tab").length);
-  if (!$$(".trk-row").length) throw new Error("no rows");
+  if ($$("[data-ui~='ui.tab']").length !== 2) throw new Error("kind tabs: " + $$("[data-ui~='ui.tab']").length);
+  if (!$$("[data-ui~='tracker.row']").length) throw new Error("no rows");
   const e = KOS.store.state.tracker.entries[0];
   KOS.tracker.update(e.id, { reviewed: true, grade: "C" });
   if (!KOS.store.state.tracker.entries[0].reviewed || KOS.store.state.tracker.entries[0].grade !== "C") throw new Error("update lost");
   // paper tab is empty for now
-  click($$(".study-tab").find(t => t.dataset.tab === "paper"));
-  if ($$(".trk-row").length) throw new Error("paper tab should be empty");
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "paper"));
+  if ($$("[data-ui~='tracker.row']").length) throw new Error("paper tab should be empty");
 });
 
 console.log("== RAG flagging (FR-3.3) ==");
@@ -410,17 +410,17 @@ step("worst() + recommended-next panel on home", () => {
   const w = KOS.rag.worst(null, 6);
   if (!w.some(t => t.sid === "maths" && t.ref === "2.3")) throw new Error("flagged topic missing from worst()");
   KOS.show("home");
-  if (!$(".rag-panel")) throw new Error("no recommended-next panel");
-  if (!$$(".rag-item").length) throw new Error("no flagged items");
+  if (!$("[data-ui~='rag.panel']")) throw new Error("no recommended-next panel");
+  if (!$$("[data-ui~='rag.item']").length) throw new Error("no flagged items");
 });
 step("ref page carries the confidence picker + data verdict", () => {
   KOS.show("ref", { subject: "maths", ref: "2.3" });
-  if (!$(".rag-picker")) throw new Error("picker missing");
-  if ($$(".rag-pick").length !== 3) throw new Error("pick buttons: " + $$(".rag-pick").length);
-  click($$(".rag-pick")[2]);                                    // set green manually
+  if (!$("[data-ui~='rag.picker']")) throw new Error("picker missing");
+  if ($$("[data-ui~='rag.pick']").length !== 3) throw new Error("pick buttons: " + $$("[data-ui~='rag.pick']").length);
+  click($$("[data-ui~='rag.pick']")[2]);                                    // set green manually
   if (KOS.rag.manual("maths", "2.3") !== "g") throw new Error("manual not set via picker");
-  if (!$(".rag-disagree")) throw new Error("disagreement indicator missing");
-  click($$(".rag-pick")[2]);                                    // click again clears
+  if (!$("[data-ui~='rag.disagree']")) throw new Error("disagreement indicator missing");
+  click($$("[data-ui~='rag.pick']")[2]);                                    // click again clears
   if (KOS.rag.manual("maths", "2.3") !== null) throw new Error("clear failed");
 });
 
@@ -433,39 +433,39 @@ KOS.store.state.srs["maths:2.3:1"] = { ef: 2.3, ivl: 4, reps: 2, due: KOS.srs.ad
 KOS.store.state.srs["maths:2.3:2"] = { ef: 2.7, ivl: 8, reps: 3, due: KOS.srs.addDays(today, 5), last: today, views: 2, lapses: 0, lastRating: 2 };
 step("dashboard renders stat strip + SVG charts", () => {
   KOS.show("cardstats");
-  if ($$(".stat-card").length < 6) throw new Error("stat strip thin");
-  if ($$(".cs-chart svg").length < 4) throw new Error("charts: " + $$(".cs-chart svg").length);
-  if (!$$(".cs-chart svg rect").length) throw new Error("no bars drawn");
+  if ($$("[data-ui~='ui.stat']").length < 6) throw new Error("stat strip thin");
+  if ($$("[data-ui~='chart.chart'] svg").length < 4) throw new Error("charts: " + $$("[data-ui~='chart.chart'] svg").length);
+  if (!$$("[data-ui~='chart.chart'] svg rect").length) throw new Error("no bars drawn");
 });
 step("subject scope adds the per-topic breakdown, drill-down to topic", () => {
   KOS.show("cardstats", { subject: "maths" });
-  if (!$(".cs-topics")) throw new Error("per-topic table missing");
-  if (!$$(".cs-topics tbody tr").length) throw new Error("no topic rows");
+  if (!$("[data-ui~='chart.topics']")) throw new Error("per-topic table missing");
+  if (!$$("[data-ui~='chart.topics'] tbody tr").length) throw new Error("no topic rows");
   KOS.show("cardstats", { subject: "maths", ref: "2.3" });
-  if (!$$(".cs-chart svg").length) throw new Error("topic-scope charts missing");
+  if (!$$("[data-ui~='chart.chart'] svg").length) throw new Error("topic-scope charts missing");
 });
 
 console.log("== resources (FR-2.8) + attachments (FR-2.5) ==");
 step("resource table CRUD on the subject dashboard", () => {
   KOS.show("subject", "maths");
-  if (!$(".res-table")) throw new Error("resource table missing");
-  const ins = $$(".res-add .todo-in");
+  if (!$("[data-ui~='study.resources']")) throw new Error("resource table missing");
+  const ins = $$("[data-ui~='study.resource-add'] [data-ui~='ui.quick-add']");
   ins[0].value = "PMT pure notes"; ins[1].value = "https://example.org/pmt";
-  click($$(".res-add .btn")[0]);
-  if (!$$(".res-row").length) throw new Error("row not added");
+  click($$("[data-ui~='study.resource-add'] button")[0]);
+  if (!$$("[data-ui~='study.resource-row']").length) throw new Error("row not added");
   if (KOS.store.state.resources.items.length !== 1) throw new Error("not stored");
-  click($(".res-row .mini-btn.danger"));                        // confirm stubbed true
+  click($("[data-ui~='study.resource-row'] button[data-intent~='danger']"));                        // confirm stubbed true
   if (KOS.store.state.resources.items.length !== 0) throw new Error("delete failed");
 });
 step("files tab present on every ref; degrades without IndexedDB", () => {
   KOS.show("ref", { subject: "it", ref: "F200.1.1" });
-  const ft = $$(".study-tab").find(t => t.dataset.tab === "files");
+  const ft = $$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "files");
   if (!ft) throw new Error("files tab missing");
   click(ft);
   if (KOS.attach.available()) {
-    if (!$$(".lab-controls .btn.primary").length) throw new Error("upload control missing");
+    if (!$$("[data-ui~='lab.controls'] button[data-intent~='primary']").length) throw new Error("upload control missing");
   } else {
-    if (!$(".att-unavail")) throw new Error("no graceful fallback without IndexedDB");
+    if (!$("[data-ui~='attach.unavail']")) throw new Error("no graceful fallback without IndexedDB");
   }
 });
 
@@ -485,8 +485,8 @@ step("early-stopped focus sessions don't keep a streak alive", () => {
 console.log("== help view ==");
 step("help & guide renders every section", () => {
   KOS.show("help");
-  if ($(".help-row").length < 15) throw new Error("help rows: " + $(".help-row").length);
-  if (!$(".help-nav-item")) throw new Error("help nav missing");
+  if ($("[data-ui~='help.row']").length < 15) throw new Error("help rows: " + $("[data-ui~='help.row']").length);
+  if (!$("[data-ui~='help.nav-item']")) throw new Error("help nav missing");
 });
 
 setTimeout(() => {

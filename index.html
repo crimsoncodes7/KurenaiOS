@@ -30,18 +30,18 @@
 <script defer src="js/env.local.js"></script>
 </head>
 <body>
-<div class="bg-flora" aria-hidden="true">
+<div class="bg-flora" data-ui="shell.backdrop" aria-hidden="true">
   <span class="petal p1"></span><span class="petal p2"></span><span class="petal p3"></span>
   <span class="petal p4"></span><span class="petal p5"></span><span class="petal p6"></span>
 </div>
 <div id="app">
   <!-- audit G-12/U-05: reaching page content meant tabbing past 13 chrome
        controls. #main already carried tabindex="-1"; only the link was missing. -->
-  <a class="skip-link" href="#main">Skip to content</a>
+  <a class="skip-link" data-ui="shell.skip-link" href="#main">Skip to content</a>
   <header id="topbar">
     <div class="topbar-left">
-      <button class="brand" id="brand-home" type="button" title="Home" aria-label="Go to Home">
-        <span class="kanji" aria-hidden="true">紅</span>
+      <button class="brand" data-ui="shell.brand" id="brand-home" type="button" title="Home" aria-label="Go to Home">
+        <span class="kanji" data-ui="shell.brand-mark" aria-hidden="true">紅</span>
         <span class="name">Kurenai</span>
         <span class="sub">study atelier</span>
       </button>
@@ -61,7 +61,7 @@
       <div id="search-results" role="listbox" aria-label="Search results"></div>
       <span id="search-count" class="sr-only" aria-live="polite"></span>
     </div>
-    <div class="topbar-right">
+    <div class="topbar-right" data-ui="shell.header-actions">
       <!-- the notification centre's bell — notifications.js mounts the
            button here (KOS.ui.menu popover: the five most recent, then the
            whole feed under Archive) -->
@@ -76,46 +76,46 @@
            (Syncing… → Synced → Changes pending), so announcing every
            change made it the noisiest thing in the app while saying
            nothing; cloudui.js announces the transitions that matter. -->
-      <button id="sync-status" class="sync-chip" type="button" hidden></button>
+      <button id="sync-status" class="sync-chip" data-ui="shell.sync-chip" type="button" hidden></button>
     </div>
   </header>
 
-  <div id="cols">
+  <div id="cols" data-tree="none">
     <nav id="rail" aria-label="Primary">
       <button id="rail-toggle" aria-label="Collapse sidebar" title="Collapse / expand sidebar">‹</button>
-      <button class="rail-item" data-section="home" data-view="home">
-        <span class="glyph" aria-hidden="true">灯</span><span class="lbl">Home</span>
+      <button class="rail-item" data-ui="shell.rail-item" data-section="home" data-view="home">
+        <span class="glyph" aria-hidden="true">灯</span><span class="lbl" data-ui="shell.rail-label part.text">Home</span>
       </button>
-      <button class="rail-item" data-section="study" data-view="subject">
-        <span class="glyph" aria-hidden="true">学</span><span class="lbl">Study</span><span class="pc" id="pc-due"></span>
+      <button class="rail-item" data-ui="shell.rail-item" data-section="study" data-view="subject">
+        <span class="glyph" aria-hidden="true">学</span><span class="lbl" data-ui="shell.rail-label part.text">Study</span><span class="pc" id="pc-due"></span>
       </button>
-      <button class="rail-item" data-section="productivity" data-view="focus">
-        <span class="glyph" aria-hidden="true">整</span><span class="lbl">Productivity</span>
+      <button class="rail-item" data-ui="shell.rail-item" data-section="productivity" data-view="focus">
+        <span class="glyph" aria-hidden="true">整</span><span class="lbl" data-ui="shell.rail-label part.text">Productivity</span>
       </button>
-      <button class="rail-item" data-section="collection" data-view="matrix">
-        <span class="glyph" aria-hidden="true">蒐</span><span class="lbl">Collection</span>
+      <button class="rail-item" data-ui="shell.rail-item" data-section="collection" data-view="matrix">
+        <span class="glyph" aria-hidden="true">蒐</span><span class="lbl" data-ui="shell.rail-label part.text">Collection</span>
       </button>
-      <button class="rail-item" data-section="governor" data-view="governor">
-        <span class="glyph" aria-hidden="true">守</span><span class="lbl">Governor</span>
+      <button class="rail-item" data-ui="shell.rail-item" data-section="governor" data-view="governor">
+        <span class="glyph" aria-hidden="true">守</span><span class="lbl" data-ui="shell.rail-label part.text">Governor</span>
       </button>
-      <button class="rail-item" data-section="assistant" data-view="assistant">
-        <span class="glyph" aria-hidden="true">助</span><span class="lbl">Assistant</span>
+      <button class="rail-item" data-ui="shell.rail-item" data-section="assistant" data-view="assistant">
+        <span class="glyph" aria-hidden="true">助</span><span class="lbl" data-ui="shell.rail-label part.text">Assistant</span>
       </button>
-      <button class="rail-item" data-section="system" data-view="data">
-        <span class="glyph" aria-hidden="true">蔵</span><span class="lbl">Archive</span>
+      <button class="rail-item" data-ui="shell.rail-item" data-section="system" data-view="data">
+        <span class="glyph" aria-hidden="true">蔵</span><span class="lbl" data-ui="shell.rail-label part.text">Archive</span>
       </button>
 
       <!-- the user panel, Discord-style: the profile lives at the foot of the
            rail and opens the same profile popover the identity record feeds.
            #hud is the same node the governor HUD has always painted into —
            it simply lives here now instead of the topbar. -->
-      <div class="rail-foot">
+      <div class="rail-foot" data-ui="shell.rail-foot">
         <div id="hud"></div>
         <span id="node-count" class="sr-only" aria-live="polite"></span>
       </div>
     </nav>
 
-    <aside id="tree" class="hidden" aria-label="Topic tree"></aside>
+    <aside id="tree" class="hidden" hidden aria-label="Topic tree"></aside>
     <!-- Cat 7 Phase C: at ≤860 the spine is an overlay drawer. The scrim is
          how it can be dismissed by tapping the page it is covering; above
          that tier it is display:none and the spine is an ordinary column. -->
@@ -130,7 +130,7 @@
 
 <!-- the toast is the VISIBLE notice only; KOS.a11y owns the spoken copy
      (Phase F), so this node must not be a second live region -->
-<div id="toast" class="toast" aria-hidden="true"></div>
+<div id="toast" class="toast" data-ui="shell.toast" aria-hidden="true"></div>
 
 <!-- data (generated from the official specification PDFs) -->
 <script src="js/data/compsci.js"></script>
@@ -144,6 +144,9 @@
 <!-- core -->
 <script src="js/core/store.js"></script>
 <script src="js/core/ui.js"></script>
+<!-- UI rebuild M1: the legacy-class → data-ui/data-state bridge. It must
+     follow ui.js (it extends KOS.ui) and precede every view. -->
+<script src="js/core/ui-hooks.js"></script>
 <!-- Category 7 Phase F: the announcement/interaction layer, then the
      history router that wraps KOS.show. Both must follow ui.js — a11y.js
      reads KOS.ui.topDialog and router.js captures KOS.show. -->

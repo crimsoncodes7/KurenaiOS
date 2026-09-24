@@ -10,8 +10,7 @@
   KOS.review = KOS.review || {};
   KOS.review.renderDue = function (main, opts) {
     opts = opts || {};
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     var due = KOS.srs.dueCards();
     var overdue = due.filter(function (c) { return c.overdue > 0; }).length;
@@ -93,8 +92,7 @@
      this view just picks the sub-deck. */
   var REF_LABEL = { vn: "Visual novel quotes" };
   KOS.views.personaldeck = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [
@@ -115,8 +113,8 @@
       refs.forEach(function (r, i) {
         var b = el("button", { class: "study-tab" + (i === 0 ? " active" : ""), role: "tab",
           onclick: function () {
-            pills.querySelectorAll(".study-tab").forEach(function (x) { x.classList.remove("active"); });
-            b.classList.add("active");
+            pills.querySelectorAll("[data-ui~='ui.tab']").forEach(function (x) { KOS.ui.state(x, "active", false); });
+            KOS.ui.state(b, "active", true);
             mountRef(r.ref);
           } }, [(REF_LABEL[r.ref] || r.ref) + " (" + r.count + ")"]);
         pills.appendChild(b);

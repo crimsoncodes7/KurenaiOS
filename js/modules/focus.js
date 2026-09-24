@@ -657,6 +657,8 @@
 
   function enterMode() {
     document.body.classList.add("focus-mode");
+    /* the hook for "a session owns the screen": stage | minimised */
+    document.documentElement.setAttribute("data-focus", "stage");
     minimised = false;
     stageEl = el("div", { class: "fx-stage", role: "dialog", "aria-label": "Focus session" });
     dockEl = el("div", { class: "fx-dock" });
@@ -666,6 +668,7 @@
   }
   function exitMode() {
     document.body.classList.remove("focus-mode", "fx-minimised");
+    document.documentElement.removeAttribute("data-focus");
     if (stageEl) { stageEl.remove(); stageEl = null; }
     if (dockEl) { dockEl.remove(); dockEl = null; }
     document.title = "Kurenai OS — Study Atelier";
@@ -673,6 +676,8 @@
   function setMinimised(v) {
     minimised = v;
     document.body.classList.toggle("fx-minimised", v);
+    if (document.documentElement.hasAttribute("data-focus"))
+      document.documentElement.setAttribute("data-focus", v ? "minimised" : "stage");
   }
 
   function render() {
@@ -685,7 +690,7 @@
 
     /* ---- full stage ---- */
     stageEl.innerHTML = "";
-    stageEl.className = "fx-stage fx-" + phaseCls + (reading ? " fx-reading" : "");
+    KOS.ui.setClass(stageEl, "fx-stage fx-" + phaseCls + (reading ? " fx-reading" : ""));
     stageEl.appendChild(el("div", { class: "fx-kanji", "aria-hidden": "true", text: onBreak ? "息" : reading ? "読書" : "集中" }));
     stageEl.appendChild(el("div", { class: "fx-phase", text: phaseName }));
     stageEl.appendChild(el("div", { class: "fx-clock", text: fmt(phaseTarget() - phaseElapsed()) }));
@@ -760,7 +765,7 @@
 
     /* ---- docked bar ---- */
     dockEl.innerHTML = "";
-    dockEl.className = "fx-dock fx-" + phaseCls;
+    KOS.ui.setClass(dockEl, "fx-dock fx-" + phaseCls);
     dockEl.appendChild(el("span", { class: "fx-dot", "aria-hidden": "true" }));
     dockEl.appendChild(el("span", { class: "fx-dock-clock", text: fmt(phaseTarget() - phaseElapsed()) }));
     dockEl.appendChild(el("span", { class: "fx-dock-phase", text: phaseName }));
@@ -787,13 +792,13 @@
     var remain = fmt(phaseTarget() - phaseElapsed());
     var pct = Math.min(100, Math.round(100 * phaseElapsed() / phaseTarget()));
     if (stageEl) {
-      var c = stageEl.querySelector(".fx-clock");
+      var c = stageEl.querySelector("[data-ui~='focus.clock']");
       if (c) c.textContent = remain;
-      var f = stageEl.querySelector(".fx-fill");
+      var f = stageEl.querySelector("[data-ui~='focus.fill']");
       if (f) f.style.width = pct + "%";
     }
     if (dockEl) {
-      var dc = dockEl.querySelector(".fx-dock-clock");
+      var dc = dockEl.querySelector("[data-ui~='focus.dock-clock']");
       if (dc) dc.textContent = remain;
     }
     document.title = (S ? remain + " · " : "") + "Kurenai OS — Study Atelier";
@@ -890,8 +895,8 @@
       OBJ_RESULTS.forEach(function (o) {
         var b = el("button", { class: "fx-rev-choice", text: o.label, onclick: function () {
           result = result === o.v ? null : o.v;
-          btns.querySelectorAll(".fx-rev-choice").forEach(function (x) { x.classList.remove("active"); });
-          if (result) b.classList.add("active");
+          btns.querySelectorAll("[data-ui~='focus.review-choice']").forEach(function (x) { KOS.ui.state(x, "active", false); });
+          if (result) KOS.ui.state(b, "active", true);
         } });
         btns.appendChild(b);
       });
@@ -1035,15 +1040,14 @@
       ])
     ]));
     KOS.ui.openDialog(overlay);
-    var first = overlay.querySelector(".fx-rev-choice, .fx-rev-reflect");
+    var first = overlay.querySelector("[data-ui~='focus.review-choice'], [data-ui~='focus.rev-reflect']");
     if (first) first.focus();
     return overlay;
   }
 
   /* ---------------- start view (rail: Focus) ---------------- */
   KOS.views.focus = function (main, arg) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
 
     main.appendChild(el("div", { class: "dash-head" }, [
       el("div", { class: "dh-txt" }, [
@@ -1089,8 +1093,8 @@
     function modeCard(id, kanji, title, desc) {
       var c = el("button", { class: "fx-mode-card" + (mode === id ? " active" : ""), onclick: function () {
         mode = id;
-        modeRow.querySelectorAll(".fx-mode-card").forEach(function (b) { b.classList.remove("active"); });
-        c.classList.add("active");
+        modeRow.querySelectorAll("[data-ui~='focus.mode']").forEach(function (b) { KOS.ui.state(b, "active", false); });
+        KOS.ui.state(c, "active", true);
         customFields.style.display = id === "custom" ? "" : "none";
         drawDeal();                     // the quoted award follows the choice
       } }, [

@@ -169,7 +169,7 @@
         switches.innerHTML = "";
         names.forEach(function (n) {
           var sw = el("button", { class: "logic-sw" + (env[n] ? " on" : ""),
-            onclick: function () { env[n] = !env[n]; sw.classList.toggle("on", env[n]); sw.querySelector("b").textContent = env[n] ? "1" : "0"; renderTable(); } },
+            onclick: function () { env[n] = !env[n]; KOS.ui.state(sw, "on", env[n]); sw.querySelector("b").textContent = env[n] ? "1" : "0"; renderTable(); } },
             [el("span", { text: n }), el("b", { text: env[n] ? "1" : "0" })]);
           switches.appendChild(sw);
         });
@@ -177,7 +177,7 @@
       }
       function renderTable() {
         var out = evalNode(ast, env);
-        lamp.className = "logic-lamp " + (out ? "on" : "off");
+        KOS.ui.setClass(lamp, "logic-lamp " + (out ? "on" : "off"));
         lamp.innerHTML = "<b>Q = " + (out ? "1" : "0") + "</b>";
         var rows = [];
         var n = names.length;
@@ -199,6 +199,7 @@
               '<td class="' + (r.q ? "q1" : "q0") + '">' + r.q + "</td></tr>";
           }).join("") + "</tbody></table>";
         tblWrap.innerHTML = "<h4 class='n-h'>Truth table — live row highlighted</h4>" + html;
+        KOS.ui.hookify(tblWrap);
       }
       build();
     }
@@ -612,12 +613,12 @@
           } else {
             var top = stackCol.firstElementChild;
             if (top) {
-              top.querySelector(".pr").textContent = e.expr;
-              top.classList.add("returning");
+              top.querySelector("[data-ui~='lab.register']").textContent = e.expr;
+              KOS.ui.state(top, "returning", true);
               (function (node) { setTimeout(function () { node.remove(); }, 380); })(top);
             }
             var parent = stackCol.children[1];
-            if (parent) parent.querySelector(".pr").textContent = "received " + e.value + " from callee";
+            if (parent) parent.querySelector("[data-ui~='lab.register']").textContent = "received " + e.value + " from callee";
             msg.textContent = "POP — returns " + e.value;
             result.textContent = "last value returned: " + e.value;
           }
@@ -712,8 +713,8 @@
             el("button", { class: "btn primary", text: "▶ Add (watch the carry)", onclick: function () {
               clearInterval(addTimer);
               var col = 7, carry = 0;
-              rRow.querySelectorAll(".bit").forEach(function (b) { b.textContent = "0"; b.classList.remove("on", "live"); });
-              carryRow.querySelectorAll(".cbit").forEach(function (c) { c.textContent = ""; });
+              rRow.querySelectorAll("[data-ui~='lab.bit']").forEach(function (b) { b.textContent = "0"; KOS.ui.state(b, "on", false); KOS.ui.state(b, "live", false); });
+              carryRow.querySelectorAll("[data-ui~='lab.cbit']").forEach(function (c) { c.textContent = ""; });
               out.textContent = "";
               addTimer = setInterval(function () {
                 if (col < 0) {
@@ -728,9 +729,9 @@
                 carry = s >> 1;
                 var cell = rRow.children[col];
                 cell.textContent = String(s & 1);
-                cell.classList.toggle("on", !!(s & 1));
-                cell.classList.add("live");
-                setTimeout(function () { cell.classList.remove("live"); }, 380);
+                KOS.ui.state(cell, "on", !!(s & 1));
+                KOS.ui.state(cell, "live", true);
+                setTimeout(function () { KOS.ui.state(cell, "live", false); }, 380);
                 if (carry && col > 0) carryRow.children[col - 1].textContent = "1";
                 col--;
               }, 420);
@@ -1740,6 +1741,7 @@
         }).join("");
         tbl.innerHTML = "<h4 class='n-h' style='margin:0 0 6px'>" + sel.value + " truth table</h4>" +
           "<table class='n-table logic-tt'><thead><tr>" + head + "</tr></thead><tbody>" + body + "</tbody></table>";
+        KOS.ui.hookify(tbl);
       }
       draw();
     }
@@ -1764,8 +1766,7 @@
   }
 
   KOS.views.sims = function (main, openId) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var withMount = REG.filter(function (s) { return s.mount; });
     var opened = openId && KOS.sims.get(openId) && KOS.sims.get(openId).mount ? KOS.sims.get(openId) : null;
     var st = KOS.store.state.ui = KOS.store.state.ui || {};
@@ -1781,7 +1782,7 @@
       SIM_CATS.forEach(function (c) {
         pills.appendChild(el("button", { class: "cat-pill" + (c[0] === cat ? " active" : ""), onclick: function () {
           cat = c[0]; st.simCat = cat; KOS.store.save();
-          pills.querySelectorAll(".cat-pill").forEach(function (b, i) { b.classList.toggle("active", SIM_CATS[i][0] === cat); });
+          pills.querySelectorAll("[data-ui~='lab.category']").forEach(function (b, i) { KOS.ui.state(b, "active", SIM_CATS[i][0] === cat); });
           renderGrid();
         } }, [c[1]]));
       });

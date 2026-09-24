@@ -288,7 +288,7 @@
       }
       if (b.callout) {
         var m = CALLOUT_META[b.callout.t] || CALLOUT_META.tip;
-        html += '<aside class="n-call n-call-' + b.callout.t + '">' + COPY_BTN +
+        html += '<aside class="n-call n-call-' + b.callout.t + '" data-kind="' + esc(b.callout.t) + '">' + COPY_BTN +
           '<div class="n-call-h"><span class="n-call-i">' + m.icon + "</span>" +
           inline(b.callout.h || m.label) + "</div>" +
           '<div class="n-call-b">' + renderBlocks(
@@ -373,22 +373,22 @@
   /* {diagram} buttons are emitted as HTML strings, so handle clicks by
      delegation — sims may not be registered yet at render time. */
   document.addEventListener("click", function (e) {
-    var btn = e.target && e.target.closest ? e.target.closest(".n-diagram") : null;
+    var btn = e.target && e.target.closest ? e.target.closest("[data-ui~='content.diagram']") : null;
     if (btn && window.KOS.sims) KOS.sims.open(btn.dataset.sim);
   });
 
   /* copy-to-clipboard on rendered code blocks (delegated) */
   document.addEventListener("click", function (e) {
-    var cp = e.target && e.target.closest ? e.target.closest(".n-copy") : null;
+    var cp = e.target && e.target.closest ? e.target.closest("[data-ui~='content.copy']") : null;
     if (!cp) return;
-    var box = cp.closest(".n-code,.n-call,.n-tablewrap,.n-kv,.n-steps,.n-worked");
+    var box = cp.closest("[data-ui~='content.code'],[data-ui~='content.callout'],[data-ui~='content.table-wrap'],[data-ui~='content.kv'],[data-ui~='content.steps'],[data-ui~='content.worked']");
     if (!box) return;
     /* read the LIVE element's innerText (a detached clone has no layout, so
        its innerText collapses to one line — the old bug). Hide the button
        during the read so the "Copy" label is excluded; tables keep their
        tab/newline structure, lists keep line breaks. */
     var text;
-    var codeEl = box.classList.contains("n-code") ? box.querySelector("code") : null;
+    var codeEl = box.matches('[data-ui~="content.code"]') ? box.querySelector("code") : null;
     if (codeEl) {
       text = codeEl.textContent.trim();
     } else {
@@ -397,9 +397,9 @@
       cp.style.display = "";
     }
     function done() {
-      cp.classList.add("copied");
+      KOS.ui.state(cp, "copied", true);
       cp.textContent = "Copied";
-      setTimeout(function () { cp.classList.remove("copied"); cp.textContent = "Copy"; }, 1400);
+      setTimeout(function () { KOS.ui.state(cp, "copied", false); cp.textContent = "Copy"; }, 1400);
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(done, fallback);

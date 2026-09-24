@@ -67,9 +67,9 @@ function reset() {
      (pacing tick release); this suite is about the calendar's own stores */
   if (KOS.store.state.pacing) KOS.store.state.pacing.entries = [];
 }
-function closeModals() { $$(".modal-ov").forEach(n => n.remove()); }
+function closeModals() { $$("[data-ui~='ui.dialog-overlay']").forEach(n => n.remove()); }
 function labelled(text) {
-  return $$(".cal-field").find(l => (l.querySelector("span") || {}).textContent === text);
+  return $$("[data-ui~='cal.field']").find(l => (l.querySelector("span") || {}).textContent === text);
 }
 
 /* ============ 1 · the retired global setting ============ */
@@ -229,7 +229,7 @@ step("the widget renders merged rows the user can open", async () => {
   const w = C().countdownWidget(null);
   if (!/widget exam/.test(w.textContent) || !/widget essay/.test(w.textContent))
     throw new Error("the widget did not merge both stores");
-  if (!w.querySelectorAll("button.dl-item").length) throw new Error("countdown rows are not openable");
+  if (!w.querySelectorAll("button[data-ui~='cal.countdown-item']").length) throw new Error("countdown rows are not openable");
 });
 
 /* ============ 4 · the grid ============ */
@@ -239,17 +239,17 @@ step("month: whole weeks, a marked today, and one chip per record", async () => 
   C().addEvent({ title: "grid weekly", date: KOS.srs.addDays(T(), -14), type: "lesson", recur: "weekly", time: "10:00" });
   KOS.show("calendar");
   await tick(70);
-  const cells = $$(".cal-cell").length;
+  const cells = $$("[data-ui~='cal.cell']").length;
   if (cells !== 35 && cells !== 42) throw new Error("the month is not whole weeks: " + cells);
-  const todayCell = $(".cal-cell.today");
+  const todayCell = $("[data-ui~='cal.cell'][data-state~='today']");
   if (!todayCell) throw new Error("today is not distinguished");
-  if (!todayCell.querySelector(".cal-daynum")) throw new Error("today has no day number");
-  if (!$$(".cal-ev").some(n => /grid weekly/.test(n.textContent)))
+  if (!todayCell.querySelector("[data-ui~='cal.daynum']")) throw new Error("today has no day number");
+  if (!$$("[data-ui~='cal.event']").some(n => /grid weekly/.test(n.textContent)))
     throw new Error("the recurring lesson did not paint");
-  if (!$$(".cal-ev .cal-ev-re").length) throw new Error("a recurring occurrence carries no repeat mark");
+  if (!$$("[data-ui~='cal.event'] [data-ui~='cal.ev-re']").length) throw new Error("a recurring occurrence carries no repeat mark");
   /* legibility: the title is its own truncating element, not raw text */
-  const chip = $$(".cal-ev").find(n => /grid weekly/.test(n.textContent));
-  if (!chip.querySelector(".cal-ev-t")) throw new Error("the chip title is not a truncation target");
+  const chip = $$("[data-ui~='cal.event']").find(n => /grid weekly/.test(n.textContent));
+  if (!chip.querySelector("[data-ui~='cal.ev-t']")) throw new Error("the chip title is not a truncation target");
   if (!chip.getAttribute("title")) throw new Error("the chip carries no hover detail");
   if (!chip.getAttribute("aria-label")) throw new Error("the chip is unlabelled for screen readers");
 });
@@ -261,16 +261,16 @@ step("day overflow collapses into a sheet that lists everything", async () => {
   KOS.reminders.add({ title: "busy reminder", due: T() });
   KOS.show("calendar", undefined, { _nav: true });
   await tick(70);
-  const todayCell = $(".cal-cell.today");
-  const more = todayCell.querySelector(".cal-more");
+  const todayCell = $("[data-ui~='cal.cell'][data-state~='today']");
+  const more = todayCell.querySelector("[data-ui~='cal.more']");
   if (!more) throw new Error("eight items in one cell produced no overflow control");
-  if (todayCell.querySelectorAll(".cal-ev").length > 4) throw new Error("the cell rendered everything anyway");
+  if (todayCell.querySelectorAll("[data-ui~='cal.event']").length > 4) throw new Error("the cell rendered everything anyway");
   if (!/^\+\d+ more$/.test(more.textContent)) throw new Error("overflow copy: " + more.textContent);
   click(more);
   await tick(60);
-  const sheet = $(".cal-day-modal");
+  const sheet = $("[data-ui~='cal.day-modal']");
   if (!sheet) throw new Error("the day sheet did not open");
-  const rows = [...sheet.querySelectorAll(".cal-day-row")];
+  const rows = [...sheet.querySelectorAll("[data-ui~='cal.day-row']")];
   if (rows.length !== 8) throw new Error("the sheet dropped items: " + rows.length);
   if (!rows.some(r => /busy assignment/.test(r.textContent))) throw new Error("the assignment is missing from the sheet");
   if (!rows.some(r => /busy reminder/.test(r.textContent))) throw new Error("the reminder is missing from the sheet");
@@ -282,9 +282,9 @@ step("a single extra item is shown rather than hidden behind '+1 more'", async (
   for (let i = 0; i < 4; i++) C().addEvent({ title: "four " + i, date: T(), type: "personal" });
   KOS.show("calendar", undefined, { _nav: true });
   await tick(70);
-  const cell = $(".cal-cell.today");
-  if (cell.querySelector(".cal-more")) throw new Error("a '+1 more' hid exactly one chip for no gain");
-  if (cell.querySelectorAll(".cal-ev").length !== 4) throw new Error("chips: " + cell.querySelectorAll(".cal-ev").length);
+  const cell = $("[data-ui~='cal.cell'][data-state~='today']");
+  if (cell.querySelector("[data-ui~='cal.more']")) throw new Error("a '+1 more' hid exactly one chip for no gain");
+  if (cell.querySelectorAll("[data-ui~='cal.event']").length !== 4) throw new Error("chips: " + cell.querySelectorAll("[data-ui~='cal.event']").length);
 });
 
 step("clicking a chip opens the detail, not the editor", async () => {
@@ -293,16 +293,16 @@ step("clicking a chip opens the detail, not the editor", async () => {
     paper: "Paper 2", room: "Hall", durationMins: 90, subject: "maths" });
   KOS.show("calendar", undefined, { _nav: true });
   await tick(70);
-  click($$(".cal-ev").find(n => /read me/.test(n.textContent)));
+  click($$("[data-ui~='cal.event']").find(n => /read me/.test(n.textContent)));
   await tick(50);
-  const card = $(".cal-detail-modal");
+  const card = $("[data-ui~='cal.detail-modal']");
   if (!card) throw new Error("no detail card");
   if (card.querySelector("input, textarea, select")) throw new Error("the detail card is an editor in disguise");
   if (!/09:00–10:30/.test(card.textContent)) throw new Error("the time range is not shown");
   if (!/Paper 2/.test(card.textContent) || !/Hall/.test(card.textContent))
     throw new Error("exam detail is missing from the card");
-  const foot = card.querySelector(".cal-modal-foot");
-  if (!foot.querySelector(".cal-foot-del")) throw new Error("no delete on the detail card");
+  const foot = card.querySelector("[data-ui~='cal.modal-foot']");
+  if (!foot.querySelector("[data-ui~='cal.delete']")) throw new Error("no delete on the detail card");
   if (![...foot.querySelectorAll("button")].some(b => b.textContent === "Edit")) throw new Error("no way through to editing");
   closeModals();
 });
@@ -315,12 +315,12 @@ step("week is a time grid: an all-day band, an hour gutter, placed blocks", asyn
   KOS.store.state.ui.calMode = "week";
   KOS.show("calendar", undefined, { _nav: true });
   await tick(70);
-  if (!$(".cal-week")) throw new Error("no time grid");
-  if ($$(".cw-col").length !== 7) throw new Error("columns: " + $$(".cw-col").length);
-  const band = [...$$(".cw-band-col")].map(n => n.textContent).join(" ");
+  if (!$("[data-ui~='cal.week']")) throw new Error("no time grid");
+  if ($$("[data-ui~='cal.w-col']").length !== 7) throw new Error("columns: " + $$("[data-ui~='cal.w-col']").length);
+  const band = [...$$("[data-ui~='cal.w-band-col']")].map(n => n.textContent).join(" ");
   if (!/whole day/.test(band)) throw new Error("an all-day event did not reach the band");
   if (/timed/.test(band)) throw new Error("a timed event was dumped in the all-day band");
-  const blocks = $$(".cal-ev.block");
+  const blocks = $$("[data-ui~='cal.event'][data-block]");
   if (blocks.length !== 2) throw new Error("timed blocks: " + blocks.length);
   if (!blocks.every(b => b.style.top && b.style.height)) throw new Error("blocks are not placed by time");
   /* overlapping events share the column instead of hiding each other */
@@ -335,8 +335,8 @@ step("assignments and reminders ride the grid without becoming events", async ()
   KOS.reminders.add({ title: "derived reminder", due: T() });
   KOS.show("calendar", undefined, { _nav: true });
   await tick(70);
-  if (!$$(".cal-ev.cal-asg").some(n => /derived work/.test(n.textContent))) throw new Error("no assignment chip");
-  if (!$$(".cal-ev.cal-rem").some(n => /derived reminder/.test(n.textContent))) throw new Error("no reminder chip");
+  if (!$$("[data-ui~='cal.event'][data-ui~='cal.asg']").some(n => /derived work/.test(n.textContent))) throw new Error("no assignment chip");
+  if (!$$("[data-ui~='cal.event'][data-ui~='cal.rem']").some(n => /derived reminder/.test(n.textContent))) throw new Error("no reminder chip");
   if (KOS.store.state.calendar.events.length !== evs) throw new Error("the grid wrote shadow events");
   if (C().deadlines().length) throw new Error("a derived item entered the calendar's own deadlines()");
 });
@@ -348,25 +348,25 @@ step("core fields are visible, the rest is disclosed", async () => {
   closeModals();
   C().eventModal(null, T(), null);
   await tick(40);
-  const modal = $(".cal-ev-modal");
+  const modal = $("[data-ui~='cal.ev-modal']");
   if (!modal) throw new Error("the editor did not open");
   ["Title", "Date", "Start", "End", "Type", "Colour"].forEach(k => {
     if (!labelled(k)) throw new Error("core field missing: " + k);
   });
   if (!modal.querySelector('input[type="checkbox"]')) throw new Error("no all-day control");
-  const discs = [...modal.querySelectorAll(".cal-disc")];
+  const discs = [...modal.querySelectorAll("[data-ui~='cal.disclosure']")];
   if (discs.length < 2) throw new Error("no progressive disclosure");
-  const closed = discs.filter(d => !d.classList.contains("open"));
+  const closed = discs.filter(d => !d.matches('[data-state~="open"]'));
   if (!closed.length) throw new Error("everything is expanded — that is not disclosure");
   closed.forEach(d => {
-    if (d.querySelector(".cal-disc-h").getAttribute("aria-expanded") !== "false")
+    if (d.querySelector("[data-ui~='cal.disc-h']").getAttribute("aria-expanded") !== "false")
       throw new Error("a collapsed section lies about its state");
   });
   /* opening one reveals its fields */
   const details = discs.find(d => /Details/.test(d.textContent));
-  click(details.querySelector(".cal-disc-h"));
-  if (!details.classList.contains("open")) throw new Error("a section did not open");
-  if (details.querySelector(".cal-disc-h").getAttribute("aria-expanded") !== "true")
+  click(details.querySelector("[data-ui~='cal.disc-h']"));
+  if (!details.matches('[data-state~="open"]')) throw new Error("a section did not open");
+  if (details.querySelector("[data-ui~='cal.disc-h']").getAttribute("aria-expanded") !== "true")
     throw new Error("aria-expanded did not follow");
   ["Subject", "Topic ref", "Location", "Description"].forEach(k => {
     if (!labelled(k)) throw new Error("detail field missing: " + k);
@@ -379,7 +379,7 @@ step("each type discloses ONLY its own conditional section", async () => {
   closeModals();
   C().eventModal(null, T(), null);
   await tick(40);
-  const type = $(".cal-ev-modal").querySelector("select");
+  const type = $("[data-ui~='cal.ev-modal']").querySelector("select");
   const set = v => { type.value = v; type.onchange(); };
 
   set("exam");
@@ -391,20 +391,20 @@ step("each type discloses ONLY its own conditional section", async () => {
   set("deadline");
   if (!labelled("Priority") || !labelled("Status")) throw new Error("deadline fields missing");
   if (labelled("Paper")) throw new Error("exam fields survived a type change");
-  const countdown = [...$(".cal-ev-modal").querySelectorAll(".cal-check")]
+  const countdown = [...$("[data-ui~='cal.ev-modal']").querySelectorAll("[data-ui~='cal.check']")]
     .find(l => /Countdown/.test(l.textContent));
   if (!countdown || countdown.hidden) throw new Error("no countdown-visibility control on a deadline");
 
   set("study");
   if (!labelled("Intended duration (min)")) throw new Error("no intended duration");
   if (!labelled("Linked assignment")) throw new Error("no linked-assignment control");
-  if (![...$(".cal-ev-modal").querySelectorAll("button")].some(b => /focus session/i.test(b.textContent)))
+  if (![...$("[data-ui~='cal.ev-modal']").querySelectorAll("button")].some(b => /focus session/i.test(b.textContent)))
     throw new Error("no focus-session shortcut on a study block");
 
   set("personal");
   if (labelled("Paper") || labelled("Priority") || labelled("Intended duration (min)"))
     throw new Error("a plain event still shows a conditional section");
-  const cdRow = [...$(".cal-ev-modal").querySelectorAll(".cal-check")].find(l => /Countdown/.test(l.textContent));
+  const cdRow = [...$("[data-ui~='cal.ev-modal']").querySelectorAll("[data-ui~='cal.check']")].find(l => /Countdown/.test(l.textContent));
   if (cdRow && !cdRow.hidden) throw new Error("countdown visibility offered on a type that never counts down");
   closeModals();
 });
@@ -415,7 +415,7 @@ step("the linked assignment is a LINK — the block copies nothing", async () =>
   closeModals();
   C().eventModal(null, T(), null);
   await tick(40);
-  const modal = $(".cal-ev-modal");
+  const modal = $("[data-ui~='cal.ev-modal']");
   const type = modal.querySelector("select");
   type.value = "study"; type.onchange();
   const sel = labelled("Linked assignment").querySelector("select");
@@ -423,7 +423,7 @@ step("the linked assignment is a LINK — the block copies nothing", async () =>
   if (![...sel.options].some(o => /linkable work/.test(o.textContent))) throw new Error("the assignment is not listed");
   sel.value = String(a.id);
   modal.querySelector('input[type="text"]').value = "study block";
-  click([...modal.querySelectorAll(".cal-modal-foot button")].find(b => /Add event/.test(b.textContent)));
+  click([...modal.querySelectorAll("[data-ui~='cal.modal-foot'] button")].find(b => /Add event/.test(b.textContent)));
   await tick(40);
   const ev = KOS.store.state.calendar.events.find(e => e.title === "study block");
   if (!ev) throw new Error("the block did not save");
@@ -440,21 +440,21 @@ step("dates and times are validated before anything is written", async () => {
   closeModals();
   C().eventModal(null, T(), null);
   await tick(40);
-  const modal = $(".cal-ev-modal");
-  const save = [...modal.querySelectorAll(".cal-modal-foot button")].find(b => /Add event/.test(b.textContent));
+  const modal = $("[data-ui~='cal.ev-modal']");
+  const save = [...modal.querySelectorAll("[data-ui~='cal.modal-foot'] button")].find(b => /Add event/.test(b.textContent));
   const before = KOS.store.state.calendar.events.length;
 
   click(save);                                        // no title
-  if ($(".cal-errs").hidden) throw new Error("an empty title saved silently");
+  if ($("[data-ui~='cal.errs']").hidden) throw new Error("an empty title saved silently");
   if (KOS.store.state.calendar.events.length !== before) throw new Error("an invalid event was written");
-  if (!modal.querySelector(".cal-in.bad")) throw new Error("the offending field is not marked");
+  if (!modal.querySelector("[data-ui~='ui.input'][data-state~='bad']")) throw new Error("the offending field is not marked");
 
   modal.querySelector('input[type="text"]').value = "valid title";
   const times = modal.querySelectorAll('input[type="time"]');
   times[0].value = "14:00"; times[1].value = "13:00";
   click(save);
-  if ($(".cal-errs").hidden) throw new Error("an end before its start saved");
-  if (!/after the start/.test($(".cal-errs").textContent)) throw new Error("the message does not say what is wrong");
+  if ($("[data-ui~='cal.errs']").hidden) throw new Error("an end before its start saved");
+  if (!/after the start/.test($("[data-ui~='cal.errs']").textContent)) throw new Error("the message does not say what is wrong");
   if (KOS.store.state.calendar.events.length !== before) throw new Error("a backwards time range was written");
 
   times[1].value = "15:00";
@@ -471,13 +471,13 @@ step("an all-day event drops its times, and an end alone is refused", async () =
   closeModals();
   C().eventModal(null, T(), null);
   await tick(40);
-  const modal = $(".cal-ev-modal");
-  const save = [...modal.querySelectorAll(".cal-modal-foot button")].find(b => /Add event/.test(b.textContent));
+  const modal = $("[data-ui~='cal.ev-modal']");
+  const save = [...modal.querySelectorAll("[data-ui~='cal.modal-foot'] button")].find(b => /Add event/.test(b.textContent));
   modal.querySelector('input[type="text"]').value = "end only";
   const times = modal.querySelectorAll('input[type="time"]');
   times[1].value = "16:00";
   click(save);
-  if ($(".cal-errs").hidden) throw new Error("an end time without a start was accepted");
+  if ($("[data-ui~='cal.errs']").hidden) throw new Error("an end time without a start was accepted");
 
   const allDay = modal.querySelector('input[type="checkbox"]');
   allDay.checked = true; allDay.onchange();
@@ -496,21 +496,21 @@ step("the same modal edits, and Delete stays away from Save", async () => {
   closeModals();
   C().eventModal(ev, null, null);
   await tick(40);
-  const modal = $(".cal-ev-modal");
+  const modal = $("[data-ui~='cal.ev-modal']");
   if (!/Edit event/.test(modal.textContent)) throw new Error("the editor did not open in edit mode");
   if (modal.querySelector('input[type="text"]').value !== "editable") throw new Error("fields were not populated");
   /* a section with content is disclosed already — the user should not hunt */
-  const details = [...modal.querySelectorAll(".cal-disc")].find(d => /Details/.test(d.textContent));
-  if (!details.classList.contains("open")) throw new Error("a populated section opened closed");
+  const details = [...modal.querySelectorAll("[data-ui~='cal.disclosure']")].find(d => /Details/.test(d.textContent));
+  if (!details.matches('[data-state~="open"]')) throw new Error("a populated section opened closed");
 
-  const foot = modal.querySelector(".cal-modal-foot");
+  const foot = modal.querySelector("[data-ui~='cal.modal-foot']");
   const buttons = [...foot.querySelectorAll("button")];
-  const del = foot.querySelector(".cal-foot-del");
+  const del = foot.querySelector("[data-ui~='cal.delete']");
   if (!del) throw new Error("no delete in the editor");
   if (buttons.indexOf(del) !== 0) throw new Error("delete is not separated to the far side of the footer");
   const save = buttons.find(b => /Save changes/.test(b.textContent));
   if (buttons.indexOf(save) !== buttons.length - 1) throw new Error("save is not the last, primary action");
-  if (!save.classList.contains("primary")) throw new Error("save is not the primary action");
+  if (!save.matches('[data-intent~="primary"]')) throw new Error("save is not the primary action");
   if (!buttons.some(b => b.textContent === "Cancel")) throw new Error("no cancel");
 
   modal.querySelector('input[type="text"]').value = "edited";
@@ -528,9 +528,9 @@ step("cancelling an edit leaves the record untouched", async () => {
   closeModals();
   C().eventModal(ev, null, null);
   await tick(40);
-  const modal = $(".cal-ev-modal");
+  const modal = $("[data-ui~='cal.ev-modal']");
   modal.querySelector('input[type="text"]').value = "thrown away";
-  click([...modal.querySelectorAll(".cal-modal-foot button")].find(b => b.textContent === "Cancel"));
+  click([...modal.querySelectorAll("[data-ui~='cal.modal-foot'] button")].find(b => b.textContent === "Cancel"));
   await tick(30);
   if (JSON.stringify(C().getEvent(ev.id)) !== before) throw new Error("a cancelled edit still wrote");
   closeModals();

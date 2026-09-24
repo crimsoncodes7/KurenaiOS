@@ -23,6 +23,7 @@
       if (k === "text") n.textContent = attrs[k];
       else n.setAttribute(k, attrs[k]);
     });
+    if (attrs["class"]) KOS.ui.hookify(n);
     return n;
   }
   /* resolve a paint that may be a css var() — attach via style so it works */

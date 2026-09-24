@@ -111,6 +111,8 @@ non-navigation redraw path.
 | Cloud replication | `cloud.js`, `cloudmerge.js`, `cloudsync.js`, `cloudui.js` |
 | Assistant | `assistant-*.js` services and `js/modules/assistant.js` |
 | Shared image placement | `js/core/imagecrop.js` |
+| Behavioural hooks (`data-ui`/`data-state`/`data-intent`) for logic and tests | `KOS.ui` helpers in `js/core/ui.js`; legacy-class bridge `js/core/ui-hooks.js` (UI rebuild M1, see `docs/ui-rebuild/`) |
+| Spec-spine presence (`#cols[data-tree]`) | `KOS.shell.tree()` in `js/core/ui.js` |
 
 ## Invariants
 

@@ -60,14 +60,14 @@ if (KOS.autosync) KOS.autosync.stop();   // no timer-driven pulls polluting netL
    still exercise the real control path rather than a shortcut. */
 function vaultAction(re) {
   const main = document.getElementById("main");
-  const btn = main.querySelector(".mvt-actions-btn");
+  const btn = main.querySelector("[data-ui~='vault.toolbar-actions-btn']");
   if (!btn) throw new Error("no Actions group in the toolbar");
   btn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
-  const panel = document.querySelector(".menu-panel");
+  const panel = document.querySelector("[data-ui~='ui.menu-panel']");
   if (!panel) throw new Error("the Actions menu did not open");
   const item = [...panel.querySelectorAll("[role=menuitem]")].find(b => re.test(b.textContent));
   if (!item) {
-    const labels = [...panel.querySelectorAll(".menu-item-lbl")].map(n => n.textContent);
+    const labels = [...panel.querySelectorAll("[data-ui~='ui.menu-item']")].map(n => n.textContent);
     KOS.ui.closeMenu();
     throw new Error("no Actions item matching " + re + " — have: " + JSON.stringify(labels));
   }
@@ -175,10 +175,10 @@ step("parseBulkTitles: trims, skips blanks, dedupes paste + vault (case-insensit
 step("bulk add UI: drafts created, ONE session for the whole paste, gold minted once", async () => {
   KOS.show("game");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelector(".mvt-actions-btn"), 4000);
+  await waitFor(() => main.querySelector("[data-ui~='vault.toolbar-actions-btn']"), 4000);
   vaultAction(/Paste a list/);
   await tick(30);
-  const modal = document.querySelector(".gm-bulk-modal");
+  const modal = document.querySelector("[data-ui~='games.bulk']");
   if (!modal) throw new Error("bulk modal did not open");
   if (!/one title per line/i.test(modal.textContent)) throw new Error("instructions missing");
   const ta = modal.querySelector("textarea");
@@ -186,7 +186,7 @@ step("bulk add UI: drafts created, ONE session for the whole paste, gold minted 
   const sessionsBefore = KOS.store.state.sessions.length;
   const goldBefore = KOS.store.state.governor.gold;
   [...modal.querySelectorAll("button")].find(b => /Create drafts/.test(b.textContent)).click();
-  await waitFor(() => !document.querySelector(".gm-bulk-modal"), 4000);
+  await waitFor(() => !document.querySelector("[data-ui~='games.bulk']"), 4000);
   const rows = await p(cb => KOS.mediadb.query({ module: "game" }, cb));
   const titles = rows.map(r => r.title).sort().join("|");
   if (!/Celeste/.test(titles) || !/Hades/.test(titles) || !/Outer Wilds/.test(titles)) throw new Error("drafts missing: " + titles);
@@ -205,13 +205,13 @@ step("bulk add UI: drafts created, ONE session for the whole paste, gold minted 
 step("re-pasting the same list adds nothing (vault dedupe)", async () => {
   const before = await p(cb => KOS.mediadb.count("game", cb));
   KOS.games.bulkAdd(null);
-  const modal = document.querySelector(".gm-bulk-modal");
+  const modal = document.querySelector("[data-ui~='games.bulk']");
   modal.querySelector("textarea").value = "Hades\nOuter Wilds\nCeleste";
   [...modal.querySelectorAll("button")].find(b => /Create drafts/.test(b.textContent)).click();
   await tick(200);
   const after = await p(cb => KOS.mediadb.count("game", cb));
   if (after !== before) throw new Error("dupes created: " + before + " → " + after);
-  const still = document.querySelector(".gm-bulk-modal");
+  const still = document.querySelector("[data-ui~='games.bulk']");
   if (!still || !/already in the vault/.test(still.textContent)) throw new Error("skip explanation missing");
   still.querySelector("button[aria-label='Close']").click();
 });
@@ -221,23 +221,23 @@ console.log("== editor & actions ==");
 step("editor: fleshing out a draft saves every axis; steam link is a working store URL", async () => {
   const e = await p(cb => KOS.mediadb.get(hadesId, cb));
   KOS.gamesEditor(e, null);
-  const modal = document.querySelector(".gm-modal");
+  const modal = document.querySelector("[data-ui~='games.editor']");
   if (!modal) throw new Error("editor did not open");
   if (!/manual entry — games have no live sync/.test(modal.textContent)) throw new Error("honesty line missing");
   modal.querySelector("input[placeholder='Developer']").value = "Supergiant Games";
   modal.querySelector("input[placeholder='Publisher']").value = "Supergiant Games";
   const hours = modal.querySelector("input[title*='no API exists']");
   hours.value = "35";
-  const steamIn = modal.querySelector(".gm-steamid");
+  const steamIn = modal.querySelector("[data-ui~='games.steamid']");
   steamIn.value = "1145360";
   steamIn.dispatchEvent(new window.Event("input", { bubbles: true }));
-  const link = modal.querySelector(".gm-steamlink a");
+  const link = modal.querySelector("[data-ui~='games.steam-link'] a");
   if (!link || link.href !== "https://store.steampowered.com/app/1145360/") throw new Error("store link: " + (link && link.href));
   const statusSel = modal.querySelectorAll("select")[0];
   statusSel.value = "inProgress";
   const sessionsBefore = KOS.store.state.sessions.length;
   [...modal.querySelectorAll("button")].find(b => b.textContent === "Save changes").click();
-  await waitFor(() => !document.querySelector(".gm-modal"), 3000);
+  await waitFor(() => !document.querySelector("[data-ui~='games.editor']"), 3000);
   const back = await p(cb => KOS.mediadb.get(hadesId, cb));
   if (back.developer !== "Supergiant Games" || back.playtimeHours !== 35 ||
       back.externalIds.steamAppId !== 1145360 || back.status !== "inProgress") {
@@ -250,7 +250,7 @@ step("editor: fleshing out a draft saves every axis; steam link is a working sto
 step("tier change logs a 'tier' session and nudges status to completed", async () => {
   const e = await p(cb => KOS.mediadb.get(hadesId, cb));
   KOS.gamesEditor(e, null);
-  const modal = document.querySelector(".gm-modal");
+  const modal = document.querySelector("[data-ui~='games.editor']");
   const tierSel = [...modal.querySelectorAll("select")].find(s => [...s.options].some(o => o.value === "platinum"));
   tierSel.value = "storyComplete";
   tierSel.dispatchEvent(new window.Event("change", { bubbles: true }));
@@ -258,7 +258,7 @@ step("tier change logs a 'tier' session and nudges status to completed", async (
   if (statusSel.value !== "completed") throw new Error("tier→status nudge missing");
   const sessionsBefore = KOS.store.state.sessions.length;
   [...modal.querySelectorAll("button")].find(b => b.textContent === "Save changes").click();
-  await waitFor(() => !document.querySelector(".gm-modal"), 3000);
+  await waitFor(() => !document.querySelector("[data-ui~='games.editor']"), 3000);
   const back = await p(cb => KOS.mediadb.get(hadesId, cb));
   if (back.completionTier !== "storyComplete" || back.status !== "completed") throw new Error("tier not saved");
   if (!back.dates.finished) throw new Error("finished date not defaulted");
@@ -270,8 +270,8 @@ step("+1 hr bump: playtime + derived progress up, 'progress' session, HP + netwo
     status: "inProgress", playtimeHours: 10 }, cb));
   KOS.show("game");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-card").length > 0, 4000);
-  const card = [...main.querySelectorAll(".med-card")].find(c => /Slay the Spire/.test(c.textContent));
+  await waitFor(() => main.querySelectorAll("[data-ui~='vault.card']").length > 0, 4000);
+  const card = [...main.querySelectorAll("[data-ui~='vault.card']")].find(c => /Slay the Spire/.test(c.textContent));
   if (!card) throw new Error("card missing");
   const plus = [...card.querySelectorAll("button")].find(b => /\+1 hr/.test(b.textContent));
   if (!plus) throw new Error("+1 hr affordance missing on an in-progress card");
@@ -290,9 +290,9 @@ step("+1 hr bump: playtime + derived progress up, 'progress' session, HP + netwo
 step("quick-edit on a game card saves + logs, and never attempts a push", async () => {
   KOS.show("game");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-card").length > 0, 4000);
-  const card = [...main.querySelectorAll(".med-card")].find(c => /Celeste/.test(c.textContent));
-  const sel = card.querySelector(".med-qsel");
+  await waitFor(() => main.querySelectorAll("[data-ui~='vault.card']").length > 0, 4000);
+  const card = [...main.querySelectorAll("[data-ui~='vault.card']")].find(c => /Celeste/.test(c.textContent));
+  const sel = card.querySelector("[data-ui~='vault.qsel']");
   if (!sel) throw new Error("quick-edit missing");
   if (!/saved locally/.test(sel.title)) throw new Error("tooltip must not promise a push for games: " + sel.title);
   const net0 = netLog.length;
@@ -318,12 +318,12 @@ console.log("== analytics ==");
 step("vault page removes bottom statistics/charts and keeps dedicated Stats", async () => {
   KOS.show("game");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelector(".med-toolbar"), 4000);
+  await waitFor(() => main.querySelector("[data-ui~='vault.toolbar']"), 4000);
   if (main.querySelector(".gm-stats, .gm-charts")) throw new Error("obsolete game analytics still mounted");
   KOS.medview.statsModal("game", KOS.media.module("game"));
-  await waitFor(() => document.querySelector(".stats-modal"), 3000);
-  if (!document.querySelector(".stats-modal")) throw new Error("dedicated stats did not open");
-  document.querySelector(".stats-modal").closest(".modal-ov").remove();
+  await waitFor(() => document.querySelector("[data-ui~='vault.stats']"), 3000);
+  if (!document.querySelector("[data-ui~='vault.stats']")) throw new Error("dedicated stats did not open");
+  document.querySelector("[data-ui~='vault.stats']").closest("[data-ui~='ui.dialog-overlay']").remove();
 });
 step("backlogWeeks: bulk-add counts by its count, tier reaches count as done", async () => {
   const weeks = KOS.games.backlogWeeks(2);
@@ -341,34 +341,34 @@ step("Matrix home: dummy in-progress game appears in the consuming strip with th
      inProgress) is the live test entry */
   KOS.show("matrix");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".mx-now-card").length > 0, 4000);
-  const gameCard = [...main.querySelectorAll(".mx-now-card")].find(c => /Slay the Spire/.test(c.textContent));
+  await waitFor(() => main.querySelectorAll("[data-ui~='coll.now-card']").length > 0, 4000);
+  const gameCard = [...main.querySelectorAll("[data-ui~='coll.now-card']")].find(c => /Slay the Spire/.test(c.textContent));
   if (!gameCard) throw new Error("game missing from the consuming strip");
   if (!/11 hr/.test(gameCard.textContent)) throw new Error("hr unit not shown: " + gameCard.textContent);
   if (!/遊/.test(gameCard.textContent)) throw new Error("module kanji badge missing");
   /* the on-the-go card carries the everyday +1 for a medium with a unit */
-  if (!gameCard.querySelector(".mx-now-plus")) throw new Error("the +1 hr quick action is missing from the card");
+  if (!gameCard.querySelector("[data-ui~='coll.now-plus']")) throw new Error("the +1 hr quick action is missing from the card");
 });
 step("Matrix home: Games is a live module card with stats, plus its status chart + quick action", async () => {
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-mod-card").length >= 4, 4000);
-  if (main.querySelector(".soon-card")) throw new Error("a placeholder card remains");
-  const gm = [...main.querySelectorAll(".med-mod-card")].find(c => /Games/.test(c.textContent));
+  await waitFor(() => main.querySelectorAll("[data-ui~='coll.module-card']").length >= 4, 4000);
+  if (main.querySelector("[data-ui~='coll.soon-card']")) throw new Error("a placeholder card remains");
+  const gm = [...main.querySelectorAll("[data-ui~='coll.module-card']")].find(c => /Games/.test(c.textContent));
   if (!gm) throw new Error("Games card missing");
   if (!/Manual-first · live/.test(gm.textContent)) throw new Error("badge wrong: " + gm.textContent);
   if (!/tracked/.test(gm.textContent) || !/hours logged/.test(gm.textContent)) throw new Error("stats line wrong");
   /* Phase D (audit MTX-2): the four per-module "X by status" charts became
      ONE small-multiples row on a shared scale. Games is a panel in it —
      on the Analytics tab since the mirror release, with the KPI row. */
-  [...main.querySelectorAll(".mx-tabs .study-tab")].find(t => /Analytics/.test(t.textContent)).click();
-  await waitFor(() => main.querySelector(".cs-multi"), 4000);
-  const multi = main.querySelector(".cs-multi");
+  [...main.querySelectorAll("[data-ui~='coll.tabs'] [data-ui~='ui.tab']")].find(t => /Analytics/.test(t.textContent)).click();
+  await waitFor(() => main.querySelector("[data-ui~='chart.multi']"), 4000);
+  const multi = main.querySelector("[data-ui~='chart.multi']");
   if (!multi) throw new Error("the by-status comparison is missing");
-  if (![...multi.querySelectorAll(".cs-multi-h b")].some(b => /Games/.test(b.textContent)))
+  if (![...multi.querySelectorAll("[data-ui~='chart.multi-h'] b")].some(b => /Games/.test(b.textContent)))
     throw new Error("games panel missing from the comparison");
   /* and the KPI row carries the cross-media figures, not per-module ones
      the module cards already print (MTX-3) */
-  if (!/In progress/.test(main.querySelector(".stat-strip").textContent)) throw new Error("the cross-media in-progress figure is missing");
+  if (!/In progress/.test(main.querySelector("[data-ui~='ui.stat-strip']").textContent)) throw new Error("the cross-media in-progress figure is missing");
 });
 step("Shrine: a favourite game routes to the games editor", async () => {
   const rows = await p(cb => KOS.mediadb.query({ module: "game", search: "hades" }, cb));
@@ -377,21 +377,21 @@ step("Shrine: a favourite game routes to the games editor", async () => {
   await p(cb => KOS.mediadb.put(e, cb));
   KOS.show("shrine");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".shrine-feature,.shrine-rank-card").length > 0, 4000);
-  const card = [...main.querySelectorAll(".shrine-feature,.shrine-rank-card")].find(c => /Hades/.test(c.textContent));
+  await waitFor(() => main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']").length > 0, 4000);
+  const card = [...main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']")].find(c => /Hades/.test(c.textContent));
   if (!card) throw new Error("game not enshrined");
   if (!/Games/.test(card.textContent)) throw new Error("module chip missing");
   card.click();
   await tick(30);
-  const modal = document.querySelector(".gm-modal");
+  const modal = document.querySelector("[data-ui~='games.editor']");
   if (!modal) throw new Error("mediaEditor chain did not route to the games editor");
   modal.querySelector("button[aria-label='Close']").click();
 });
 step("Sync & Import: Games panel states the manual baseline + server-verified Steam (4c); the browser never calls Steam directly", async () => {
   KOS.show("mediasync");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-panel").length >= 8, 4000);
-  if (main.querySelectorAll(".med-panel").length !== 8) throw new Error("panel count");   // 8 since 3j (Autonomous sync)
+  await waitFor(() => main.querySelectorAll("[data-ui~='sync.panel']").length >= 8, 4000);
+  if (main.querySelectorAll("[data-ui~='sync.panel']").length !== 8) throw new Error("panel count");   // 8 since 3j (Autonomous sync)
   const txt = main.textContent;
   if (!/Games/.test(txt) || !/Manual baseline/.test(txt)) throw new Error("games panel missing");
   /* the 3e browser conclusion must still be stated, along with the 4c fix:
@@ -404,11 +404,11 @@ step("Sync & Import: Games panel states the manual baseline + server-verified St
   if (netLog.some(r => /steamcommunity|steampowered/i.test(r.url))) throw new Error("the browser called Steam directly: " + netLog.map(r => r.url).join(", "));
 });
 step("nav: Collection section + subnav reaches the Games vault", async () => {
-  const rb = [...document.querySelectorAll("#rail .rail-item")].find(b => b.dataset.section === "collection");
+  const rb = [...document.querySelectorAll("#rail [data-ui~='shell.rail-item']")].find(b => b.dataset.section === "collection");
   if (!rb) throw new Error("collection rail button missing");
   rb.click();
   await tick(60);
-  const sn = [...document.querySelectorAll("#subnav .subnav-item")].find(b => /^Games/.test(b.textContent));
+  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Games/.test(b.textContent));
   if (!sn) throw new Error("subnav item missing");
   sn.click();
   await tick(60);

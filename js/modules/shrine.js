@@ -890,8 +890,7 @@
   }
 
   KOS.views.shrine = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     var current = prefs();
     main.appendChild(el("div", { class: "dash-head shrine-head" }, [
       el("div", { class: "dh-txt" }, [
@@ -963,6 +962,7 @@
       var style = KOS.governor.shrineStyle && KOS.governor.shrineStyle();
       var hall = el("section", {
         class: "shrine-hall" + (favourites.length === 1 ? " one" : "") + (style ? " " + style : ""),
+        "data-skin": style || null, "data-single": favourites.length === 1 ? "" : null,
         "aria-label": "Ranked Hall of Fame"
       });
       var first = favourites[0], firstMod = KOS.media.module(first.module);

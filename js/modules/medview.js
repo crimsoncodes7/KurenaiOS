@@ -59,20 +59,20 @@
     function ph(behind) {
       return el("span", { class: "med-cover-ph" + (behind ? " behind" : ""), "aria-hidden": "true", text: kanji });
     }
-    if (!e.coverUrl) box.classList.add("no-art");
+    if (!e.coverUrl) KOS.ui.state(box, "no-art", true);
     if (e.coverUrl) {
       var mark = ph(true);
       var img = KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop);
-      img.classList.add("is-loading");
-      box.classList.add("is-loading");
+      KOS.ui.state(img, "is-loading", true);
+      KOS.ui.state(box, "is-loading", true);
       function settled(loaded) {
-        box.classList.remove("is-loading");
-        img.classList.remove("is-loading");
+        KOS.ui.state(box, "is-loading", false);
+        KOS.ui.state(img, "is-loading", false);
         if (loaded && mark.parentNode) mark.parentNode.removeChild(mark);
         if (!loaded && img.parentNode) img.parentNode.removeChild(img);
       }
       img.addEventListener("load", function () { settled(true); });
-      img.addEventListener("error", function () { settled(false); box.classList.add("no-art"); });
+      img.addEventListener("error", function () { settled(false); KOS.ui.state(box, "no-art", true); });
       box.appendChild(mark);
       box.appendChild(img);
       /* a cached image can finish before the listeners attach */
@@ -318,7 +318,7 @@
       var n = activeCount();
       if (filtersBtn) {
         filtersBtn.setBadge(n);
-        filtersBtn.classList.toggle("has-filters", !!n);
+        KOS.ui.state(filtersBtn, "has-filters", !!n);
         filtersBtn.setAttribute("title", n
           ? n + (n === 1 ? " filter applied" : " filters applied")
           : "Narrow this vault");
@@ -353,14 +353,14 @@
     var pills = el("div", { class: "study-tabs med-pills", role: "tablist" });
     function pill(label, apply) {
       var b = el("button", { class: "study-tab", role: "tab", onclick: function () {
-        pills.querySelectorAll(".study-tab").forEach(function (x) { x.classList.remove("active"); });
-        b.classList.add("active");
+        pills.querySelectorAll("[data-ui~='ui.tab']").forEach(function (x) { KOS.ui.state(x, "active", false); });
+        KOS.ui.state(b, "active", true);
         apply();
       } }, [label]);
       return b;
     }
     var all = pill("All", function () { onPick(null); });
-    all.classList.add("active");
+    KOS.ui.state(all, "active", true);
     pills.appendChild(all);
     STATUSES.forEach(function (s) {
       pills.appendChild(pill(KOS.media.STATUS_LABEL[s], function () { onPick(s); }));
@@ -550,7 +550,7 @@
      calField() is the calendar/tracker forms' label.cal-field > bare span */
   function field(label, input, cls) {
     return el("label", { class: "med-field" + (cls ? " " + cls : "") },
-      [el("span", { class: "k", text: label }), input]);
+      [el("span", { class: "k", "data-ui": "ui.field-label", text: label }), input]);
   }
 
   /* One information grammar for every media editor. A section owns a real
@@ -950,13 +950,13 @@
     hero.style.setProperty("--vh-accent", mod.accent || "var(--accent)");
     hero.style.setProperty("--vh-hue", String(titleHue(e.title)));
     if (banner) {
-      hero.classList.add("has-banner");
+      KOS.ui.state(hero, "has-banner", true);
       KOS.imageCrop.background(hero, banner, crop, { overlay: HERO_SCRIM });
       return;
     }
-    hero.classList.add("vh-fallback");
+    KOS.ui.state(hero, "vh-fallback", true);
     if (e.coverUrl) {
-      hero.classList.add("vh-fromcover");
+      KOS.ui.state(hero, "vh-fromcover", true);
       hero.appendChild(el("span", { class: "vh-art", "aria-hidden": "true" }, [
         KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)
       ]));

@@ -285,18 +285,18 @@ step("personal cards ride the normal SM-2 schedule and the due queue", async () 
 step("the Personal Deck view mounts the standard flashcard engine over the bucket", async () => {
   KOS.show("personaldeck");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelector(".fc-card"), 3000);
-  if (!main.querySelector(".fc-card")) throw new Error("no session stage");
+  await waitFor(() => main.querySelector("[data-ui~='fc.card']"), 3000);
+  if (!main.querySelector("[data-ui~='fc.card']")) throw new Error("no session stage");
   if (!/Personal Deck/.test(main.textContent)) throw new Error("view header");
 });
 step("Due Today shows the Personal column and the deck launcher", async () => {
   KOS.show("due");
   const main = document.getElementById("main");
   await waitFor(() => /Personal/.test(main.textContent), 2000);
-  const cards = [...main.querySelectorAll(".stat-card")];
+  const cards = [...main.querySelectorAll("[data-ui~='ui.stat']")];
   const personal = cards.find(c => /Personal/.test(c.textContent));
   if (!personal) throw new Error("no Personal stat");
-  if (personal.querySelector(".v").textContent !== "1") throw new Error("count: " + personal.querySelector(".v").textContent);
+  if (personal.querySelector("[data-ui~='part.value']").textContent !== "1") throw new Error("count: " + personal.querySelector("[data-ui~='part.value']").textContent);
   if (![...main.querySelectorAll("button")].some(b => /Personal deck/.test(b.textContent))) throw new Error("no deck launcher");
 });
 
@@ -317,37 +317,37 @@ console.log("== views ==");
 step("VN vault renders without obsolete bottom stats; dedicated Stats remains", async () => {
   KOS.show("vn");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".vn-card, .vn-row").length > 0, 5000);
-  const card = main.querySelector(".vn-card") || main.querySelector(".vn-row");
+  await waitFor(() => main.querySelectorAll("[data-ui~='vn.card']").length > 0, 5000);
+  const card = main.querySelector("[data-ui~='vn.card']");
   if (!card || !/Ever17/.test(card.textContent)) throw new Error("entry card missing");
   if (!/KID/.test(card.textContent)) throw new Error("developer line missing");
   if (!/1 \/ 2 routes/.test(card.textContent)) throw new Error("route progress missing: " + card.textContent.slice(0, 120));
-  if (main.querySelector(".vn-stats, .vn-stats .stat-card")) throw new Error("obsolete VN stats still mounted");
+  if (main.querySelector(".vn-stats, .vn-stats [data-ui~='ui.stat']")) throw new Error("obsolete VN stats still mounted");
   KOS.medview.statsModal("vn", KOS.media.module("vn"));
-  await waitFor(() => document.querySelector(".stats-modal"), 3000);
-  if (!document.querySelector(".stats-modal")) throw new Error("dedicated stats did not open");
-  document.querySelector(".stats-modal").closest(".modal-ov").remove();
+  await waitFor(() => document.querySelector("[data-ui~='vault.stats']"), 3000);
+  if (!document.querySelector("[data-ui~='vault.stats']")) throw new Error("dedicated stats did not open");
+  document.querySelector("[data-ui~='vault.stats']").closest("[data-ui~='ui.dialog-overlay']").remove();
 });
 step("VN editor opens with routes, CG counter, quote log and warnings", async () => {
   const main = document.getElementById("main");
-  (main.querySelector(".vn-card") || main.querySelector(".vn-row")).click();
+  main.querySelector("[data-ui~='vn.card']").click();
   await tick(60);
-  const modal = document.querySelector(".vn-modal");
+  const modal = document.querySelector("[data-ui~='vn.editor']");
   if (!modal) throw new Error("editor did not open");
   if (!modal.querySelector("[data-edit-section='progress']") || !modal.querySelector("[data-edit-section='notes']")) throw new Error("shared editor sections missing");
-  if (!modal.querySelector(".vn-route-row")) throw new Error("routes section");
+  if (!modal.querySelector("[data-ui~='vn.route-row']")) throw new Error("routes section");
   if (!/CG gallery/.test(modal.textContent)) throw new Error("CG section");
-  if (!modal.querySelector(".vn-quote")) throw new Error("quote log");
+  if (!modal.querySelector("[data-ui~='vn.quote']")) throw new Error("quote log");
   if (![...modal.querySelectorAll("button")].some(b => /flashcard/.test(b.textContent))) throw new Error("send-to-flashcards action");
   modal.querySelector("button[aria-label='Close']").click();
 });
 step("Matrix home: VN module card is live (Games live too since 3e)", async () => {
   KOS.show("matrix");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".med-mod-card, .soon-card").length >= 4, 5000);
-  const live = [...main.querySelectorAll(".med-mod-card")];
+  await waitFor(() => main.querySelectorAll("[data-ui~='coll.module-card'], [data-ui~='coll.soon-card']").length >= 4, 5000);
+  const live = [...main.querySelectorAll("[data-ui~='coll.module-card']")];
   if (!live.some(c => /Visual Novels/.test(c.textContent) && /VNDB-synced/.test(c.textContent))) throw new Error("VN card not live");
-  if (main.querySelectorAll(".soon-card").length) throw new Error("no placeholders should remain since 3e");
+  if (main.querySelectorAll("[data-ui~='coll.soon-card']").length) throw new Error("no placeholders should remain since 3e");
   if (!live.some(c => /Games/.test(c.textContent) && /Manual-first/.test(c.textContent))) throw new Error("Games card not live");
 });
 step("the Shrine routes a VN favourite to the VN editor", async () => {
@@ -356,12 +356,12 @@ step("the Shrine routes a VN favourite to the VN editor", async () => {
   await p(cb => KOS.mediadb.put(e, cb));
   KOS.show("shrine");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll(".shrine-feature,.shrine-rank-card").length > 0, 5000);
-  const card = [...main.querySelectorAll(".shrine-feature,.shrine-rank-card")].find(c => /Ever17/.test(c.textContent));
+  await waitFor(() => main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']").length > 0, 5000);
+  const card = [...main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']")].find(c => /Ever17/.test(c.textContent));
   if (!card) throw new Error("VN favourite not in the Shrine");
   card.click();
   await tick(60);
-  const modal = document.querySelector(".vn-modal");
+  const modal = document.querySelector("[data-ui~='vn.editor']");
   if (!modal) throw new Error("Shrine opened the wrong editor for a VN entry");
   modal.querySelector("button[aria-label='Close']").click();
 });

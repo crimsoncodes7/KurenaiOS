@@ -298,7 +298,7 @@
 
   /* ---------------- modal editor ---------------- */
   function field(label, input, cls) {
-    return el("label", { class: "med-field" + (cls ? " " + cls : "") }, [el("span", { class: "k", text: label }), input]);
+    return el("label", { class: "med-field" + (cls ? " " + cls : "") }, [el("span", { class: "k", "data-ui": "ui.field-label", text: label }), input]);
   }
   function section(title, copy, kids) {
     return el("section", { class: "goal-form-section" }, [
@@ -388,7 +388,7 @@
       currentField.hidden = d.auto;
       filterWrap.hidden = !d.filter;
       linkWrap.hidden = !d.linked;
-      targetField.querySelector(".k").textContent = d.inverse ? "Spending cap" : "Target";
+      targetField.querySelector('[data-ui~="ui.field-label"]').textContent = d.inverse ? "Spending cap" : "Target";
       targetIn.step = d.inverse ? "0.01" : "1";
       if (d.id === "spend-below" && !deadlineIn.value) deadlineIn.value = monthEndISO();
     }
@@ -487,8 +487,7 @@
   }
 
   KOS.views.goals = function (main) {
-    document.getElementById("tree").classList.add("hidden");
-    document.getElementById("cols").classList.add("no-tree");
+    KOS.shell.tree("none");
     main.appendChild(KOS.collectionCrumbs("Planner", "Goals"));
     var workspaceTabs = KOS.collectionWorkspaceTabs("planner", "goals");
     workspaceTabs.classList.add("profile-workspace-tabs");

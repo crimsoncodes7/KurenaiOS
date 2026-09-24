@@ -25,6 +25,7 @@ window.__kosAutoConfirm = true;
 window.fetch = () => Promise.resolve({ ok: true, status: 200, headers: { get: () => null }, json: () => Promise.resolve({}), text: () => Promise.resolve("") });
 
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
+const { readCss } = require("./lib/css");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;
 
@@ -51,16 +52,16 @@ step("one shared controller drives drawer and page", async () => {
   const trigger = doc.getElementById("assistant-trigger");
   trigger.focus();
   A.open();
-  const drawer = doc.querySelector(".asst-drawer");
+  const drawer = doc.querySelector("[data-ui~='asst.drawer']");
   assert(drawer && drawer.getAttribute("aria-modal") === "true", "drawer must be a modal dialog");
-  const input = drawer.querySelector(".asst-composer-in");
+  const input = drawer.querySelector("[data-ui~='asst.composer']");
   input.value = "shared draft";
   input.dispatchEvent(new window.Event("input", { bubbles: true }));
   KOS.show("assistant", { tab: "chat" });
   await tick(20);
   assert(A.state() === shared, "page must not create a second controller");
-  assert(doc.querySelector(".asst-page .asst-composer-in").value === "shared draft", "draft must move across surfaces");
-  assert(doc.querySelectorAll(".asst-tabs .study-tab").length === 6, "six compatible destinations expected");
+  assert(doc.querySelector("[data-ui~='asst.page'] [data-ui~='asst.composer']").value === "shared draft", "draft must move across surfaces");
+  assert(doc.querySelectorAll("[data-ui~='asst.nav'] [data-ui~='ui.tab']").length === 6, "six compatible destinations expected");
   A.close();
 });
 
@@ -75,9 +76,9 @@ step("provider text stays inert and visually belongs to Kurenai", async () => {
   A.submit("render safely");
   await tick(30);
   assert(!doc.getElementById("smoke29-x") && !window.pwned, "provider HTML must never execute");
-  const bubble = [...doc.querySelectorAll(".asst-assistant .asst-bubble")].pop();
+  const bubble = [...doc.querySelectorAll("[data-ui~='asst.assistant'] [data-ui~='asst.bubble']")].pop();
   assert(bubble && bubble.textContent === payload, "provider output must render through textContent");
-  assert(bubble.closest(".asst-assistant").querySelector(".asst-message-mark"), "assistant hierarchy needs a bloom identity mark");
+  assert(bubble.closest("[data-ui~='asst.assistant']").querySelector("[data-ui~='asst.message-mark']"), "assistant hierarchy needs a bloom identity mark");
   ORCH.send = originalSend;
 });
 
@@ -91,14 +92,14 @@ step("substantive replies reveal incrementally and stop completes received text"
   A.newConversation();
   A.submit("show streaming");
   await tick(55);
-  const partial = [...doc.querySelectorAll(".asst-assistant .asst-bubble")].pop();
+  const partial = [...doc.querySelectorAll("[data-ui~='asst.assistant'] [data-ui~='asst.bubble']")].pop();
   assert(partial && partial.textContent.length > 0 && partial.textContent.length < payload.length,
     "long provider text should be visibly partial while streaming");
-  assert(partial.closest(".asst-assistant").classList.contains("is-streaming") && partial.querySelector(".asst-stream-caret"),
+  assert(partial.closest("[data-ui~='asst.assistant']").matches('[data-state~="is-streaming"]') && partial.querySelector("[data-ui~='asst.stream-caret']"),
     "streaming reply needs a quiet visual caret");
   A.cancel();
   await tick(20);
-  const complete = [...doc.querySelectorAll(".asst-assistant .asst-bubble")].pop();
+  const complete = [...doc.querySelectorAll("[data-ui~='asst.assistant'] [data-ui~='asst.bubble']")].pop();
   assert(complete.textContent === payload.trim() && !A.state().streaming, "stop should reveal the received text and clear streaming state");
   ORCH.send = originalSend;
 });
@@ -134,18 +135,18 @@ step("assistant Markdown, tables and maths render cleanly without widening trust
     "$$\\pi \\text{ radians} = 180^\\circ$$"
   ].join("\n"));
   doc.body.appendChild(rich);
-  assert(rich.classList.contains("asst-richtext") && rich.querySelector("h2"), "Markdown heading should become semantic DOM");
+  assert(rich.matches('[data-ui~="asst.richtext"]') && rich.querySelector("h2"), "Markdown heading should become semantic DOM");
   assert(rich.querySelector("strong") && rich.querySelector("em") && rich.querySelector("ul"), "inline emphasis and lists should render");
-  assert(rich.querySelector(".asst-table-wrap table thead") && rich.querySelector("tbody td"), "GFM table should render in a scroll wrapper");
-  assert(rich.querySelector("blockquote") && rich.querySelector(".asst-code-block pre code").textContent.includes("Math.PI"), "quotes and fenced code should render");
-  assert(rich.querySelector(".tok-keyword") && rich.querySelector(".tok-function"), "fenced code should distinguish syntax roles");
+  assert(rich.querySelector("[data-ui~='asst.table'] table thead") && rich.querySelector("tbody td"), "GFM table should render in a scroll wrapper");
+  assert(rich.querySelector("blockquote") && rich.querySelector("[data-ui~='asst.code'] pre code").textContent.includes("Math.PI"), "quotes and fenced code should render");
+  assert(rich.querySelector("[data-ui~='code.token'][data-kind='keyword']") && rich.querySelector("[data-ui~='code.token'][data-kind='function']"), "fenced code should distinguish syntax roles");
   assert(rich.querySelector('a[href^="https://example.com"]'), "safe web links should be clickable");
   assert(![...rich.querySelectorAll("a")].some(a => /^javascript:/i.test(a.getAttribute("href") || "")), "unsafe URL protocols must never become links");
   assert(rich.querySelectorAll("img").length === 0, "provider Markdown must not fetch remote images");
   assert(rich.textContent.includes("<script>") && window.__mdPwned === undefined, "raw HTML must stay inert text");
   assert(katexCalls.length >= 4 && katexCalls.every(call => call.options.trust === false && call.options.throwOnError === false),
     "all maths must pass through non-trusting KaTeX options");
-  assert(rich.querySelector(".asst-math-display.is-rendered .katex"), "display maths should render through KaTeX");
+  assert(rich.querySelector("[data-ui~='asst.math-display'][data-state~='is-rendered'] .katex"), "display maths should render through KaTeX");
   rich.remove();
   delete window.katex;
   const malformed = A.renderMarkdown("Before\n\n$$unclosed\n\nAfter");
@@ -167,9 +168,9 @@ step("tool activity leads with human copy and keeps the id secondary", async () 
   await tick(30);
   KOS.show("assistant", { tab: "chat" });
   await tick(20);
-  const tool = [...doc.querySelectorAll(".asst-tool")].pop();
+  const tool = [...doc.querySelectorAll("[data-ui~='asst.tool']")].pop();
   assert(tool && /Reading your subjects/.test(tool.textContent), "primary activity copy must be human-readable");
-  assert(tool.querySelector(".asst-technical-id").textContent === "study_list_subjects", "raw id should remain secondary for diagnosis");
+  assert(tool.querySelector("[data-ui~='asst.technical-id']").textContent === "study_list_subjects", "raw id should remain secondary for diagnosis");
   assert(A.toolActivity("study_list_subjects") === "Reading your subjects", "display-label API drifted");
   ORCH.send = originalSend;
 });
@@ -205,14 +206,14 @@ step("the exact canonical confirmation object is reviewed and confirmed", async 
   A.open();
   A.submit("delete the example");
   await tick(25);
-  const card = doc.querySelector(".asst-drawer .asst-confirm-card");
+  const card = doc.querySelector("[data-ui~='asst.drawer'] [data-ui~='asst.confirm']");
   assert(card && A.state().pending === canonical, "UI must retain the canonical object by identity");
   assert(/Delete entry/.test(card.textContent) && /anime “Example”/.test(card.textContent), "review card needs human action and target");
-  assert(card.querySelector(".asst-confirm-args").textContent.includes('"entryId": 29'), "exact canonical args must remain reviewable");
+  assert(card.querySelector("[data-ui~='asst.confirm-args']").textContent.includes('"entryId": 29'), "exact canonical args must remain reviewable");
   [...card.querySelectorAll("button")].find(button => /Confirm/.test(button.textContent)).click();
   await tick(30);
   assert(confirmedId === canonical.confirmationId, "only the canonical confirmation id may be submitted");
-  assert(doc.querySelector(".asst-receipt") && /Verified action complete/.test(doc.querySelector(".asst-receipt").textContent), "verified receipt hierarchy missing");
+  assert(doc.querySelector("[data-ui~='asst.receipt']") && /Verified action complete/.test(doc.querySelector("[data-ui~='asst.receipt']").textContent), "verified receipt hierarchy missing");
   A.close();
   ORCH.send = originalSend;
   ORCH.confirm = originalConfirm;
@@ -223,9 +224,9 @@ step("theme inheritance and clean assets cover light and dark modes", async () =
     doc.documentElement.dataset.theme = theme;
     KOS.show("assistant", { tab: "chat" });
     await tick(15);
-    assert(doc.documentElement.dataset.theme === theme && doc.querySelector(".asst-page"), theme + " assistant render failed");
+    assert(doc.documentElement.dataset.theme === theme && doc.querySelector("[data-ui~='asst.page']"), theme + " assistant render failed");
   }
-  const css = read("css/main.css");
+  const css = readCss();
   assert(/\.asst-page, \.asst-drawer[\s\S]{0,500}var\(--panel\)/.test(css), "assistant must inherit canonical theme tokens");
   assert(/prefers-reduced-motion[\s\S]{0,300}assistant-trigger/.test(css), "reduced-motion trigger coverage missing");
   assert(/prefers-reduced-motion[\s\S]{0,300}asst-mascot-img/.test(css), "reduced-motion mascot coverage missing");
@@ -239,28 +240,28 @@ step("theme inheritance and clean assets cover light and dark modes", async () =
     assert(mascot.readUInt8(25) === 6, `full-body asset must carry RGBA alpha: ${file}`);
   });
   assert(emblem.readUInt8(25) === 6, "production emblem must carry RGBA alpha");
-  const zones = doc.querySelectorAll(".asst-mascot .asst-hit-zone");
-  assert(zones.length >= 3 && [...zones].some(zone => zone.classList.contains("hit-flower")),
+  const zones = doc.querySelectorAll("[data-ui~='asst.mascot'] [data-ui~='asst.hit-zone']");
+  assert(zones.length >= 3 && [...zones].some(zone => zone.getAttribute("data-reaction") === "flower"),
     "full-body character needs reusable percentage hit areas");
 });
 
 step("workspace rail collapses and exposes real project organisation", async () => {
   KOS.show("assistant", { tab: "chat" });
   await tick(20);
-  doc.querySelector(".asst-side-collapse").click();
+  doc.querySelector("[data-ui~='asst.nav-collapse']").click();
   await tick(20);
-  assert(doc.querySelector(".asst-shell.is-side-collapsed") && doc.querySelector(".asst-tabs.is-collapsed"),
+  assert(doc.querySelector("[data-ui~='asst.shell'][data-state~='is-side-collapsed']") && doc.querySelector("[data-ui~='asst.nav'][data-state~='is-collapsed']"),
     "collapse control should give the conversation more width");
-  doc.querySelector(".asst-side-collapse").click();
+  doc.querySelector("[data-ui~='asst.nav-collapse']").click();
   await tick(20);
-  doc.querySelector(".asst-side-add").click();
-  const input = doc.querySelector(".asst-project-new");
+  doc.querySelector("[data-ui~='asst.nav-add']").click();
+  const input = doc.querySelector("[data-ui~='asst.project-new']");
   input.value = "Computer Science";
   input.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
   await tick(20);
-  assert([...doc.querySelectorAll(".asst-project-open")].some(button => /Computer Science/.test(button.textContent)),
+  assert([...doc.querySelectorAll("[data-ui~='asst.project-open']")].some(button => /Computer Science/.test(button.textContent)),
     "created project should appear in the workspace rail");
-  assert([...doc.querySelector(".asst-project-picker").options].some(option => option.textContent === "Computer Science"),
+  assert([...doc.querySelector("[data-ui~='asst.project-picker']").options].some(option => option.textContent === "Computer Science"),
     "the current conversation should be assigned to the new project");
 });
 
@@ -268,8 +269,8 @@ step("drawer and assistant tabs keep keyboard focus predictable", async () => {
   const trigger = doc.getElementById("assistant-trigger");
   trigger.focus();
   A.open();
-  const drawer = doc.querySelector(".asst-drawer");
-  const composer = drawer.querySelector(".asst-composer-in");
+  const drawer = doc.querySelector("[data-ui~='asst.drawer']");
+  const composer = drawer.querySelector("[data-ui~='asst.composer']");
   assert(doc.activeElement === composer, "drawer opening must focus the composer");
   const focusable = [...drawer.querySelectorAll("button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])")];
   focusable[focusable.length - 1].focus();
@@ -279,9 +280,9 @@ step("drawer and assistant tabs keep keyboard focus predictable", async () => {
   assert(doc.activeElement === trigger, "closing must restore trigger focus");
   KOS.show("assistant", { tab: "chat" });
   await tick(20);
-  const tabs = [...doc.querySelectorAll(".asst-tabs .study-tab")];
+  const tabs = [...doc.querySelectorAll("[data-ui~='asst.nav'] [data-ui~='ui.tab']")];
   tabs[0].focus();
-  doc.querySelector(".asst-tabs").dispatchEvent(new window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+  doc.querySelector("[data-ui~='asst.nav']").dispatchEvent(new window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
   assert(doc.activeElement === tabs[1], "ArrowRight should move to the next assistant tab");
 });
 

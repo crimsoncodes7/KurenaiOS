@@ -171,24 +171,24 @@ step("completion receipts are idempotent and never duplicate Governor rewards", 
 step("Goals renders summary, status views, useful cards and the integrity statement", async () => {
   KOS.store.state.media.goalsTab = "active";
   KOS.show("goals");
-  await waitFor(() => document.querySelector(".goal-overview"));
-  const summary = [...document.querySelectorAll(".goal-summary-metric")];
+  await waitFor(() => document.querySelector("[data-ui~='goal.overview']"));
+  const summary = [...document.querySelectorAll("[data-ui~='goal.metric']")];
   assert(summary.length && summary.length <= 4, "meaningful summary metrics missing");
   assert(summary.every(node => Number(node.querySelector("b").textContent) > 0), "a zero-value summary metric returned");
-  assert(document.querySelectorAll(".goal-tabs .study-tab").length === 3, "status tabs missing");
-  assert(document.querySelector(".goal-card-v2"), "useful goal card missing");
-  assert(/never duplicates Governor rewards/.test(document.querySelector(".goal-integrity").textContent), "anti-farming rule not explained");
+  assert(document.querySelectorAll("[data-ui~='goal.tabs'] [data-ui~='ui.tab']").length === 3, "status tabs missing");
+  assert(document.querySelector("[data-ui~='goal.card']"), "useful goal card missing");
+  assert(/never duplicates Governor rewards/.test(document.querySelector("[data-ui~='goal.integrity']").textContent), "anti-farming rule not explained");
 });
 
 step("the create/edit modal is internally structured and full-field", () => {
   KOS.goalEditor(null, () => {});
-  const modal = document.querySelector(".goal-modal-v2");
+  const modal = document.querySelector("[data-ui~='goal.editor']");
   assert(modal, "goal modal missing");
-  const heads = [...modal.querySelectorAll(".goal-form-section-head b")].map(node => node.textContent);
+  const heads = [...modal.querySelectorAll("[data-ui~='goal.form-section'] b")].map(node => node.textContent);
   assert(heads.join("|") === "Identity|Measure|Schedule|Notes", "modal sections wrong: " + heads.join("|"));
-  assert(modal.querySelector(".goal-editor-body"), "internal scrolling body missing");
-  assert(modal.querySelector(".goal-modal-foot"), "separate action rail missing");
-  modal.closest(".modal-ov").close();
+  assert(modal.querySelector("[data-ui~='goal.editor-body']"), "internal scrolling body missing");
+  assert(modal.querySelector("[data-ui~='goal.modal-foot']"), "separate action rail missing");
+  modal.closest("[data-ui~='ui.dialog-overlay']").close();
 });
 
 step("goals and the anti-farming ledger ride the normal state backup", () => {
@@ -204,25 +204,25 @@ console.log("== Shrine Hall of Fame + share card ==");
 step("Shrine renders a featured #1 and a smaller ranked remainder", async () => {
   KOS.store.state.media.shrine = { module: "", sort: "score", description: "Only the works I would defend." };
   KOS.show("shrine");
-  await waitFor(() => document.querySelector(".shrine-feature"));
-  assert(/Clockwork Route/.test(document.querySelector(".shrine-feature").textContent), "score-sorted #1 is wrong");
-  assert(/Rank 01/.test(document.querySelector(".shrine-feature-rank").textContent), "featured rank unclear");
-  assert(document.querySelectorAll(".shrine-ranked-grid .shrine-rank-card").length === 2, "ranked remainder wrong");
-  assert(document.querySelector(".shrine-stage .shrine-ledger"), "Hall ledger is not beside rank one");
-  assert(document.querySelectorAll(".shrine-ledger-lines .shrine-ledger-line").length === 3, "Hall statistics missing");
-  assert(document.querySelector(".shrine-feature.wl-hero.wl-hero-feature .wl-hero-body"), "rank one does not share the Budget Planner hero structure");
-  assert(document.querySelectorAll(".shrine-rank-card .shrine-row-foot").length === 2, "ranked cards lack score/action footers");
-  assert(document.querySelectorAll(".shrine-filter").length === 5, "media-type filters missing");
-  assert(document.querySelector(".shrine-sort select"), "sort control missing");
-  assert(/Only the works/.test(document.querySelector(".shrine-description").textContent), "optional hall note missing");
+  await waitFor(() => document.querySelector("[data-ui~='shrine.feature']"));
+  assert(/Clockwork Route/.test(document.querySelector("[data-ui~='shrine.feature']").textContent), "score-sorted #1 is wrong");
+  assert(/Rank 01/.test(document.querySelector("[data-ui~='shrine.feature-rank']").textContent), "featured rank unclear");
+  assert(document.querySelectorAll("[data-ui~='shrine.ranked'] [data-ui~='shrine.rank-card']").length === 2, "ranked remainder wrong");
+  assert(document.querySelector("[data-ui~='shrine.stage'] [data-ui~='shrine.ledger']"), "Hall ledger is not beside rank one");
+  assert(document.querySelectorAll("[data-ui~='shrine.ledger-lines'] [data-ui~='shrine.ledger-line']").length === 3, "Hall statistics missing");
+  assert(document.querySelector("[data-ui~='shrine.feature'][data-ui~='plan.hero'][data-ui~='plan.hero-feature'] [data-ui~='plan.hero-body']"), "rank one does not share the Budget Planner hero structure");
+  assert(document.querySelectorAll("[data-ui~='shrine.rank-card'] [data-ui~='shrine.row-foot']").length === 2, "ranked cards lack score/action footers");
+  assert(document.querySelectorAll("[data-ui~='shrine.filter']").length === 5, "media-type filters missing");
+  assert(document.querySelector("[data-ui~='shrine.sort'] select"), "sort control missing");
+  assert(/Only the works/.test(document.querySelector("[data-ui~='shrine.description']").textContent), "optional hall note missing");
 });
 
 step("a single-item filtered wing keeps the featured layout without an empty grid", async () => {
-  const gameFilter = [...document.querySelectorAll(".shrine-filter")].find(button => button.textContent === "Games");
+  const gameFilter = [...document.querySelectorAll("[data-ui~='shrine.filter']")].find(button => button.textContent === "Games");
   gameFilter.click();
-  await waitFor(() => document.querySelector(".shrine-hall.one"));
-  assert(document.querySelector(".shrine-feature"), "single item was not featured");
-  assert(!document.querySelector(".shrine-ranked-grid"), "single item left an empty ranked grid");
+  await waitFor(() => document.querySelector("[data-ui~='shrine.hall'][data-single]"));
+  assert(document.querySelector("[data-ui~='shrine.feature']"), "single item was not featured");
+  assert(!document.querySelector("[data-ui~='shrine.ranked']"), "single item left an empty ranked grid");
 });
 
 step("share renderer includes identity fields and applies stored crop metadata", () => {
@@ -252,10 +252,10 @@ step("share renderer includes identity fields and applies stored crop metadata",
 
 step("share modal starts with a useful default message", async () => {
   KOS.shrineCard(Object.assign({}, game, { coverUrl: "" }), 1);
-  await waitFor(() => document.querySelector(".shrine-message"));
-  const value = document.querySelector(".shrine-message").value;
+  await waitFor(() => document.querySelector("[data-ui~='shrine.message']"));
+  const value = document.querySelector("[data-ui~='shrine.message']").value;
   assert(/Clockwork Route/.test(value) && /Hall of Fame/.test(value), "default share message is not useful");
-  document.querySelector(".shrine-card-modal").closest(".modal-ov").close();
+  document.querySelector("[data-ui~='shrine.share-dialog']").closest("[data-ui~='ui.dialog-overlay']").close();
 });
 
 (async () => {

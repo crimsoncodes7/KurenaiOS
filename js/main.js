@@ -1,7 +1,7 @@
 /* Kurenai OS — main.js: wire the rail, boot to the last view. */
 (function () {
   "use strict";
-  document.querySelectorAll(".rail-item").forEach(function (btn) {
+  document.querySelectorAll("[data-ui~='shell.rail-item']").forEach(function (btn) {
     btn.addEventListener("click", function () {
       var landing = KOS.sectionLanding(btn.dataset.section);
       KOS.show(landing[0], landing[1]);
