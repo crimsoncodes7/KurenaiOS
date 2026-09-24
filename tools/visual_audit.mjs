@@ -115,14 +115,14 @@ async function clickText(scope, text) {
    through that menu — the real control path. */
 async function clickHeroMenuItem(text) {
   const ok = await evaluate(`(() => {
-    const btn = document.querySelector('.vault-hero .vh-menu');
+    const btn = document.querySelector('[data-ui~="vault.hero"] [data-ui~="vault.hero-menu"]');
     if (!btn) return "no menu button";
     btn.click();
-    const panel = document.querySelector('.menu-panel');
+    const panel = document.querySelector('[data-ui~="ui.menu-panel"]');
     if (!panel) return "menu did not open";
     const item = [...panel.querySelectorAll('[role=menuitem]')]
       .find(x => new RegExp(${JSON.stringify(text)}, "i").test(x.textContent));
-    if (!item) return "no item: " + [...panel.querySelectorAll('.menu-item-lbl')].map(n => n.textContent).join(" | ");
+    if (!item) return "no item: " + [...panel.querySelectorAll('[data-ui~="ui.menu-item"]')].map(n => n.textContent).join(" | ");
     item.click();
     return true;
   })()`);
@@ -152,7 +152,7 @@ async function auditView(view, arg, selector) {
   }))()`);
   if (size.mainScroll > size.mainClient + 1) {
     size.debug = await evaluate(`(() => {
-      const goal = document.querySelector('.goal-overview'), workspace = document.querySelector('.goals-workspace');
+      const goal = document.querySelector('[data-ui~="goal.overview"]'), workspace = document.querySelector('[data-ui~="goal.workspace"]');
       return goal ? {
         innerWidth, mobileRule: matchMedia('(max-width: 820px)').matches,
         columns: getComputedStyle(goal).gridTemplateColumns,
@@ -166,7 +166,7 @@ async function auditView(view, arg, selector) {
       const main = document.getElementById("main"), mr = main.getBoundingClientRect();
       return [...main.querySelectorAll("*")].map(node => {
         const r = node.getBoundingClientRect();
-        return { node: node.tagName.toLowerCase() + (node.className ? "." + String(node.className).trim().replace(/\\s+/g, ".") : ""),
+        return { node: node.tagName.toLowerCase() + (node.getAttribute("data-ui") ? "[" + node.getAttribute("data-ui") + "]" : ""),
           left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width),
           client: node.clientWidth, scroll: node.scrollWidth };
       }).filter(x => x.right > mr.right + 1 || x.left < mr.left - 1).slice(0, 8);
@@ -233,20 +233,20 @@ assert(seeded?.entryId, "Could not seed the live media entry");
 /* Governor avatar: final-ratio preview, source-aware focal click, failed
    replacement recovery, reset/cancel isolation, and real save. */
 await evaluate(`KOS.show("governor", "avatar")`);
-await waitFor("document.querySelector('.av-grid')", "Governor avatar page");
-await clickText(".av-mc", "Edit");
-await waitFor("document.querySelector('.cropper-ov') && !document.querySelector('.cropper-foot .primary').disabled", "loaded avatar cropper");
-let ratio = await evaluate(`(() => { const r = document.querySelector('.cropper-preview').getBoundingClientRect(); return r.width / r.height; })()`);
+await waitFor("document.querySelector('[data-ui~=\"gov.avatar-studio\"]')", "Governor avatar page");
+await clickText("[data-ui~='gov.avatar-mc']", "Edit");
+await waitFor("document.querySelector('[data-ui~=\"crop.ov\"]') && !document.querySelector('[data-ui~=\"crop.foot\"] [data-intent~=\"primary\"]').disabled", "loaded avatar cropper");
+let ratio = await evaluate(`(() => { const r = document.querySelector('[data-ui~="crop.preview"]').getBoundingClientRect(); return r.width / r.height; })()`);
 assert(Math.abs(ratio - 1) < 0.03, `Avatar preview ratio is ${ratio}`);
 await setRange("Zoom", 2);
 await setRange("Horizontal position", 20);
 await setRange("Vertical position", 80);
 const focal = await evaluate(`(() => {
-  const p = document.querySelector('.cropper-preview'), r = p.getBoundingClientRect();
+  const p = document.querySelector('[data-ui~="crop.preview"]'), r = p.getBoundingClientRect();
   const init = { bubbles: true, clientX: r.left + r.width * .8, clientY: r.top + r.height * .2 };
   p.dispatchEvent(new MouseEvent("pointerdown", init));
   p.dispatchEvent(new MouseEvent("pointerup", init));
-  return document.querySelector('.cropper-ov').cropperApi.getValue().crop;
+  return document.querySelector('[data-ui~="crop.ov"]').cropperApi.getValue().crop;
 })()`);
 assert(Math.abs(focal.x - 38.75) < 0.8 && Math.abs(focal.y - 50) < 0.8,
   `Focal click did not invert cover/zoom geometry: ${JSON.stringify(focal)}`);
@@ -255,47 +255,49 @@ await setRange("Horizontal position", 63);
 await setRange("Vertical position", 24);
 await pause(260);
 await screenshot("/tmp/kos-cropper-avatar-1440.png");
-await clickText(".cropper-foot", "Save image");
-await waitFor("!document.querySelector('.cropper-ov')", "avatar crop save");
+await clickText("[data-ui~='crop.foot']", "Save image");
+await waitFor("!document.querySelector('[data-ui~=\"crop.ov\"]')", "avatar crop save");
 let savedAvatar = await evaluate(`KOS.store.state.governor.avatar.crop`);
 assert(savedAvatar.x === 63 && savedAvatar.y === 24 && savedAvatar.zoom === 1.72, "Avatar crop did not persist from the UI");
 
-await clickText(".av-mc", "Edit");
-await waitFor("document.querySelector('.cropper-ov') && !document.querySelector('.cropper-foot .primary').disabled", "reopened avatar cropper");
+await clickText("[data-ui~='gov.avatar-mc']", "Edit");
+await waitFor("document.querySelector('[data-ui~=\"crop.ov\"]') && !document.querySelector('[data-ui~=\"crop.foot\"] [data-intent~=\"primary\"]').disabled", "reopened avatar cropper");
 const uploadRecovery = await evaluate(`(() => {
-  const input = document.querySelector('.cropper-file');
+  const input = document.querySelector('[data-ui~="crop.file"]');
   const transfer = new DataTransfer();
   transfer.items.add(new File(["not an image"], "bad.txt", { type: "text/plain" }));
   Object.defineProperty(input, "files", { configurable: true, value: transfer.files });
   input.dispatchEvent(new Event("change", { bubbles: true }));
   return {
-    disabled: document.querySelector('.cropper-foot .primary').disabled,
-    status: document.querySelector('.cropper-status').textContent
+    disabled: document.querySelector('[data-ui~="crop.foot"] [data-intent~="primary"]').disabled,
+    status: document.querySelector('[data-ui~="crop.status"]').textContent
   };
 })()`);
 assert(!uploadRecovery.disabled && /image file/i.test(uploadRecovery.status), "Failed upload invalidated the existing source");
 await setRange("Zoom", 2.6);
-await clickText(".cropper-small-actions", "Reset changes");
-const resetCrop = await evaluate(`document.querySelector('.cropper-ov').cropperApi.getValue().crop`);
+await clickText("[data-ui~='crop.small-actions']", "Reset changes");
+const resetCrop = await evaluate(`document.querySelector('[data-ui~="crop.ov"]').cropperApi.getValue().crop`);
 assert(resetCrop.x === 63 && resetCrop.y === 24 && resetCrop.zoom === 1.72, "Reset did not restore the saved crop");
 await setRange("Horizontal position", 5);
-await clickText(".cropper-foot", "Cancel");
-await waitFor("!document.querySelector('.cropper-ov')", "avatar crop cancel");
+await clickText("[data-ui~='crop.foot']", "Cancel");
+await waitFor("!document.querySelector('[data-ui~=\"crop.ov\"]')", "avatar crop cancel");
 savedAvatar = await evaluate(`KOS.store.state.governor.avatar.crop`);
 assert(savedAvatar.x === 63 && savedAvatar.y === 24, "Cancel mutated the saved avatar crop");
 
 /* Home and Governor share the source/crop, but use surface-aware contrast. */
-await auditView("home", undefined, ".home-id .image-crop-bg");
+await auditView("home", undefined, "[data-ui~='home.id'] [data-ui~='crop.bg']");
 let homeVars = await evaluate(`(() => {
-  const img = document.querySelector('.home-id .image-crop-bg img');
-  return { x: img.style.getPropertyValue('--crop-x'), y: img.style.getPropertyValue('--crop-y'), zoom: img.style.getPropertyValue('--crop-zoom'), h: document.querySelector('.home-id').getBoundingClientRect().height };
+  const img = document.querySelector('[data-ui~="home.id"] [data-ui~="crop.bg"] img');
+  return { x: img.style.getPropertyValue('--crop-x'), y: img.style.getPropertyValue('--crop-y'), zoom: img.style.getPropertyValue('--crop-zoom'), h: document.querySelector('[data-ui~="home.id"]').getBoundingClientRect().height };
 })()`);
 assert(homeVars.x === "72%" && homeVars.y === "38%" && homeVars.zoom === "1.25", "Home banner did not use saved crop metadata");
 assert(homeVars.h >= 235, `Home hero is below shared desktop height (${homeVars.h})`);
 
 await evaluate(`KOS.show("governor", "status")`);
-await waitFor("document.querySelector('.b-id.banner-dark .image-crop-shade')", "Governor status banner");
-const govContrast = await evaluate(`document.querySelector('.b-id .image-crop-shade').style.background`);
+/* the dark-banner variant is asserted by the scrim it produces (below),
+   not by the legacy class that used to select it */
+await waitFor("document.querySelector('[data-ui~=\"gov.bento-id\"] [data-ui~=\"crop.shade\"]')", "Governor status banner");
+const govContrast = await evaluate(`document.querySelector('[data-ui~="gov.bento-id"] [data-ui~="crop.shade"]').style.background`);
 assert(/rgba\(16, 14, 10/.test(govContrast), `Governor did not receive the dark contrast scrim: ${govContrast}`);
 await screenshot("/tmp/kos-governor-banner-1440.png");
 
@@ -310,22 +312,22 @@ await evaluate(`(() => {
   KOS.sessions.log({ type: "media", metrics: { title: "Higurashi", action: "completed" } });
   KOS.sessions.log({ type: "tracker", subject: "compsci", ref: "Paper 1", metrics: { marks: 64, max: 80 } });
   KOS.sessions.log({ type: "media", metrics: { module: "anime", action: "sync-reward", entries: 14, advances: 2 } });
-  document.querySelector('.toast')?.style.setProperty('display', 'none');
+  document.getElementById('toast')?.style.setProperty('display', 'none');
 })()`);
-await auditView("governor", "status", ".gov-status");
+await auditView("governor", "status", "[data-ui~='gov.status']");
 await screenshot("/tmp/kos-governor-status-light-1440.png");
 await evaluate(`(() => { KOS.store.state.governor.theme = "spectral-rose"; KOS.governor.applyCosmetics(); })()`);
-await auditView("governor", "status", ".gov-status");
+await auditView("governor", "status", "[data-ui~='gov.status']");
 const governorRefine = await evaluate(`(() => {
-  const head = document.querySelector('.gov-head'), hero = document.querySelector('.gov-seat-hero');
-  const face = hero.querySelector('.id-face .gov-avatar');
+  const head = document.querySelector('[data-ui~="gov.head"]'), hero = document.querySelector('[data-ui~="gov.seat"]');
+  const face = hero.querySelector('[data-ui~="gov.face"] [data-ui~="gov.avatar"]');
   return {
     gap: Math.round(hero.getBoundingClientRect().top - head.getBoundingClientRect().bottom),
     face: Math.round(face.getBoundingClientRect().width),
-    access: !!hero.querySelector('.id-access .hp-preview'),
-    cap: getComputedStyle(document.querySelector('.b-vitals'), '::before').content,
-    idleAssistantDot: getComputedStyle(document.querySelector('.assistant-trigger .at-dot')).opacity,
-    saveLabels: document.querySelectorAll('.save-wrap').length
+    access: !!hero.querySelector('[data-ui~="gov.id-access"] [data-ui~="gov.hp-preview"]'),
+    cap: getComputedStyle(document.querySelector('[data-ui~="gov.b-vitals"]'), '::before').content,
+    idleAssistantDot: getComputedStyle(document.querySelector('#assistant-trigger [data-ui~="asst.trigger-dot"]')).opacity,
+    saveLabels: document.querySelectorAll('[data-ui~="archive.cloud"]').length
   };
 })()`);
 assert(governorRefine.gap <= 30 && governorRefine.face === 112 && governorRefine.access &&
@@ -333,8 +335,8 @@ assert(governorRefine.gap <= 30 && governorRefine.face === 112 && governorRefine
   governorRefine.idleAssistantDot === '0' && governorRefine.saveLabels === 0,
   `Governor header/hero/topbar refinement regressed: ${JSON.stringify(governorRefine)}`);
 const cadenceComposition = await evaluate(`(() => {
-  const plot = document.querySelector('.heat-svg').getBoundingClientRect();
-  const stats = [...document.querySelectorAll('.heat-stats .gstat-mini')].map(x => x.getBoundingClientRect());
+  const plot = document.querySelector('[data-ui~="chart.heatmap"]').getBoundingClientRect();
+  const stats = [...document.querySelectorAll('[data-ui~="gov.heat-stats"] [data-ui~="gov.stat-mini"]')].map(x => x.getBoundingClientRect());
   return { plotRight: Math.round(plot.right), statsLeft: Math.round(stats[0].left),
     stacked: stats.every((r, i) => !i || r.top >= stats[i - 1].bottom - 1) };
 })()`);
@@ -345,33 +347,33 @@ await evaluate(`document.getElementById("main").scrollTop = 470`);
 await pause(120);
 await screenshot("/tmp/kos-governor-ledger-dark-1440.png");
 await evaluate(`(() => { KOS.store.state.governor.hp = 40; KOS.store.save(); KOS.show("governor", "status"); })()`);
-await waitFor("document.querySelector('.gov-recovery .gov-rec-go')", "Governor recovery dispatch");
+await waitFor("document.querySelector('[data-ui~=\"gov.recovery\"] [data-ui~=\"gov.rec-go\"]')", "Governor recovery dispatch");
 await evaluate(`document.getElementById("main").scrollTop = document.getElementById("main").scrollHeight`);
 await pause(120);
 await screenshot("/tmp/kos-governor-recovery-dark-1440.png");
 await evaluate(`(() => { KOS.store.state.governor.hp = 100; KOS.store.save(); })()`);
-await auditView("governor", "history", ".gov-history");
-assert(await evaluate(`!document.querySelector('.gov-history-head') && document.querySelector('.gov-head h1')?.textContent === 'Session Log'`),
+await auditView("governor", "history", "[data-ui~='gov.history']");
+assert(await evaluate(`!document.querySelector('.gov-history-head') && document.querySelector('[data-ui~="gov.head"] h1')?.textContent === 'Session Log'`),
   "Session Log still has a duplicate internal hero/title");
 const historyComposition = await evaluate(`(() => {
-  const root = document.querySelector('.gov-history').getBoundingClientRect();
-  const stats = document.querySelector('.gov-history-stats').getBoundingClientRect();
-  const filters = document.querySelector('.log-filterbar').getBoundingClientRect();
-  const group = document.querySelector('.gov-day-group');
+  const root = document.querySelector('[data-ui~="gov.history"]').getBoundingClientRect();
+  const stats = document.querySelector('[data-ui~="gov.history-stats"]').getBoundingClientRect();
+  const filters = document.querySelector('[data-ui~="gov.log-filter"]').getBoundingClientRect();
+  const group = document.querySelector('[data-ui~="gov.day-group"]');
   return { statsDelta: Math.round(Math.abs(root.width - stats.width)),
     filterDelta: Math.round(Math.abs(root.width - filters.width)),
-    grouped: !!group?.querySelector(':scope > .led-day + .gov-day-events') };
+    grouped: !!group?.querySelector(':scope > [data-ui~="gov.ledger-day"] + [data-ui~="gov.day-events"]') };
 })()`);
 assert(historyComposition.statsDelta <= 2 && historyComposition.filterDelta <= 2 && historyComposition.grouped,
   `Session Log overview and date groups are misaligned: ${JSON.stringify(historyComposition)}`);
 await screenshot("/tmp/kos-governor-history-dark-1440.png");
-await auditView("governor", "avatar", ".avatar-studio");
+await auditView("governor", "avatar", "[data-ui~='gov.avatar-studio']");
 const avatarAlignment = await evaluate(`(() => {
-  const preview = document.querySelector('.identity-stage').getBoundingClientRect();
-  const profile = document.querySelector('.av-controls .av-sec').getBoundingClientRect();
-  const avatar = document.querySelector('.av-pv-avatar').getBoundingClientRect();
-  const status = document.querySelector('.av-pv-status')?.getBoundingClientRect();
-  const controls = document.querySelector('.av-controls').getBoundingClientRect();
+  const preview = document.querySelector('[data-ui~="gov.identity-stage"]').getBoundingClientRect();
+  const profile = document.querySelector('[data-ui~="gov.avatar-controls"] [data-ui~="gov.avatar-section"]').getBoundingClientRect();
+  const avatar = document.querySelector('[data-ui~="gov.avatar-preview-avatar"]').getBoundingClientRect();
+  const status = document.querySelector('[data-ui~="gov.avatar-preview-status"]')?.getBoundingClientRect();
+  const controls = document.querySelector('[data-ui~="gov.avatar-controls"]').getBoundingClientRect();
   return { topDelta: Math.round(Math.abs(preview.top - profile.top)),
     heightDelta: Math.round(Math.abs(preview.height - controls.height)),
     statusBeside: !status || (status.left >= avatar.right - 2 && Math.abs(status.bottom - avatar.bottom) < 20),
@@ -380,15 +382,15 @@ const avatarAlignment = await evaluate(`(() => {
 assert(avatarAlignment.topDelta <= 2 && avatarAlignment.heightDelta <= 2 && avatarAlignment.statusBeside && !avatarAlignment.duplicateHead,
   `Avatar editor is not aligned like one profile workspace: ${JSON.stringify(avatarAlignment)}`);
 await screenshot("/tmp/kos-governor-avatar-dark-1440.png");
-await auditView("governor", "shop", ".shop-depts");
+await auditView("governor", "shop", "[data-ui~='shop.depts']");
 const shopRefine = await evaluate(`(() => ({
-  activeDepartment: document.querySelector('.shop-dept[aria-selected="true"]')?.dataset.dept,
-  hiddenDepartments: [...document.querySelectorAll('.shop-sec')].filter(s => s.hidden).length,
+  activeDepartment: document.querySelector('[data-ui~="shop.dept"][aria-selected="true"]')?.dataset.dept,
+  hiddenDepartments: [...document.querySelectorAll('[data-ui~="shop.section"]')].filter(s => s.hidden).length,
   fakeThemeOverlays: document.querySelectorAll('.sp-theme-shell').length,
   fakeBannerOverlays: document.querySelectorAll('.sp-banner-card').length,
-  maxActionGap: Math.max(...[...document.querySelectorAll('.shop-card')].map(card => {
-    const desc = card.querySelector('.shop-access-note') || card.querySelector('.sub');
-    const foot = card.querySelector('.shop-card-f');
+  maxActionGap: Math.max(...[...document.querySelectorAll('[data-ui~="shop.card"]')].map(card => {
+    const desc = card.querySelector('[data-ui~="shop.access-note"]') || card.querySelector('[data-ui~="part.sub"]');
+    const foot = card.querySelector('[data-ui~="shop.card-foot"]');
     return desc && foot ? Math.round(foot.getBoundingClientRect().top - desc.getBoundingClientRect().bottom) : 0;
   }))
 }))()`);
@@ -396,7 +398,7 @@ assert(shopRefine.activeDepartment === 'all' && shopRefine.hiddenDepartments ===
   shopRefine.fakeThemeOverlays === 0 && shopRefine.fakeBannerOverlays === 0 && shopRefine.maxActionGap <= 18,
   `Shop previews/actions remain disconnected: ${JSON.stringify(shopRefine)}`);
 await screenshot("/tmp/kos-governor-shop-dark-1440.png");
-await clickText(".shop-depts", "All wares");
+await clickText("[data-ui~='shop.depts']", "All wares");
 await evaluate(`document.getElementById('main').scrollTop = document.getElementById('shop-sec-themes').offsetTop - 90`);
 await pause(120);
 await screenshot("/tmp/kos-governor-themes-dark-1440.png");
@@ -404,45 +406,45 @@ await evaluate(`document.getElementById('main').scrollTop = document.getElementB
 await pause(120);
 await screenshot("/tmp/kos-governor-banners-dark-1440.png");
 await viewport(390, 844);
-await auditView("governor", "status", ".gov-status");
+await auditView("governor", "status", "[data-ui~='gov.status']");
 await screenshot("/tmp/kos-governor-status-mobile-390.png");
-await auditView("governor", "history", ".gov-history");
+await auditView("governor", "history", "[data-ui~='gov.history']");
 await screenshot("/tmp/kos-governor-history-mobile-390.png");
 await viewport(1440, 900);
 await evaluate(`(() => { KOS.store.state.governor.theme = "kurenai"; KOS.governor.applyCosmetics(); })()`);
 
 /* Collection hero and nested cover editor. */
 await evaluate(`KOS.show("anime")`);
-await waitFor("document.querySelector('.vault-hero .image-crop-bg img')", "Collection hero", 8000);
+await waitFor("document.querySelector('[data-ui~=\"vault.hero\"] [data-ui~=\"crop.bg\"] img')", "Collection hero", 8000);
 const hero = await evaluate(`(() => {
-  const h = document.querySelector('.vault-hero'), img = h.querySelector('.image-crop-bg img');
+  const h = document.querySelector('[data-ui~="vault.hero"]'), img = h.querySelector('[data-ui~="crop.bg"] img');
   return { h: h.getBoundingClientRect().height, x: img.style.getPropertyValue('--crop-x'), y: img.style.getPropertyValue('--crop-y'), z: img.style.getPropertyValue('--crop-zoom') };
 })()`);
 assert(hero.h >= 235 && hero.x === "64%" && hero.y === "36%" && hero.z === "1.3", `Collection hero geometry/crop mismatch: ${JSON.stringify(hero)}`);
 await clickHeroMenuItem("banner");
-await waitFor("document.querySelector('.cropper-ov') && !document.querySelector('.cropper-foot .primary').disabled", "Collection banner cropper");
-ratio = await evaluate(`(() => { const r = document.querySelector('.cropper-preview').getBoundingClientRect(); return r.width / r.height; })()`);
+await waitFor("document.querySelector('[data-ui~=\"crop.ov\"]') && !document.querySelector('[data-ui~=\"crop.foot\"] [data-intent~=\"primary\"]').disabled", "Collection banner cropper");
+ratio = await evaluate(`(() => { const r = document.querySelector('[data-ui~="crop.preview"]').getBoundingClientRect(); return r.width / r.height; })()`);
 assert(Math.abs(ratio - 3.2) < 0.08, `Hero preview ratio is ${ratio}`);
 await setRange("Zoom", 1.4);
 await setRange("Horizontal position", 77);
 await setRange("Vertical position", 29);
-await evaluate(`document.querySelector('.toast')?.classList.remove('show')`);
+await evaluate(`document.getElementById('toast')?.style.setProperty('display', 'none')`);
 await pause(260);
 await screenshot("/tmp/kos-cropper-hero-1440.png");
-await clickText(".cropper-foot", "Save image");
-await waitFor("!document.querySelector('.cropper-ov') && document.querySelector('.vault-hero')", "Collection banner save");
+await clickText("[data-ui~='crop.foot']", "Save image");
+await waitFor("!document.querySelector('[data-ui~=\"crop.ov\"]') && document.querySelector('[data-ui~=\"vault.hero\"]')", "Collection banner save");
 const heroSaved = await evaluate(`new Promise((resolve, reject) => KOS.mediadb.getKV("hero.anime", (err, pref) => err ? reject(err) : KOS.mediadb.get(window.__cropAudit.entryId, (e2, row) => e2 ? reject(e2) : resolve({ pref, remote: row.extra.bannerImage }))))`);
 assert(heroSaved.pref.banner === null && heroSaved.pref.crop.x === 77 && heroSaved.remote === banner,
   "Remote hero source/attribution was not preserved with its crop");
 
-await clickText(".vault-hero", "Open entry");
-await waitFor("document.querySelector('.modal-ov:not(.cropper-ov)')", "media editor");
-await clickText(".modal-ov:not(.cropper-ov)", "Position cover");
-await waitFor("document.querySelectorAll('.modal-ov').length === 2", "nested cover cropper");
+await clickText("[data-ui~='vault.hero']", "Open entry");
+await waitFor("document.querySelector('[data-ui~=\"ui.dialog-overlay\"]:not([data-ui~=\"crop.ov\"])')", "media editor");
+await clickText("[data-ui~='ui.dialog-overlay']:not([data-ui~='crop.ov'])", "Position cover");
+await waitFor("document.querySelectorAll('[data-ui~=\"ui.dialog-overlay\"]').length === 2", "nested cover cropper");
 await evaluate(`document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }))`);
-await waitFor("!document.querySelector('.cropper-ov') && document.querySelector('.modal-ov:not(.cropper-ov)')", "scoped cropper Escape");
-await clickText(".modal-ov:not(.cropper-ov)", "Cancel");
-await waitFor("!document.querySelector('.modal-ov')", "media editor cancel");
+await waitFor("!document.querySelector('[data-ui~=\"crop.ov\"]') && document.querySelector('[data-ui~=\"ui.dialog-overlay\"]:not([data-ui~=\"crop.ov\"])')", "scoped cropper Escape");
+await clickText("[data-ui~='ui.dialog-overlay']:not([data-ui~='crop.ov'])", "Cancel");
+await waitFor("!document.querySelector('[data-ui~=\"ui.dialog-overlay\"]')", "media editor cancel");
 
 /* Connected-profile views are rendered against local deterministic API
    fixtures so their real edit actions can be exercised without credentials. */
@@ -464,17 +466,17 @@ await evaluate(`(async () => {
   });
   KOS.show("aniprofile");
 })()`);
-await waitFor("document.querySelector('.ap-head .image-crop-bg img') && [...document.querySelectorAll('#main button')].some(b => b.textContent.includes('Banner'))", "AniList profile fixture");
+await waitFor("document.querySelector('[data-ui~=\"profile.head\"] [data-ui~=\"crop.bg\"] img') && [...document.querySelectorAll('#main button')].some(b => b.textContent.includes('Banner'))", "AniList profile fixture");
 const aniProfileVars = await evaluate(`(() => {
-  const b = document.querySelector('.ap-head .image-crop-bg img'), a = document.querySelector('.ap-avatar img');
+  const b = document.querySelector('[data-ui~="profile.head"] [data-ui~="crop.bg"] img'), a = document.querySelector('[data-ui~="profile.avatar"] img');
   return { bx: b.style.getPropertyValue('--crop-x'), by: b.style.getPropertyValue('--crop-y'), ax: a.style.getPropertyValue('--crop-x') };
 })()`);
 assert(aniProfileVars.bx === "19%" && aniProfileVars.by === "61%" && aniProfileVars.ax === "71%", "AniList profile crops did not render");
 await clickText("#main", "Banner");
-await waitFor("document.querySelector('.cropper-ov') && !document.querySelector('.cropper-foot .primary').disabled", "AniList banner cropper");
+await waitFor("document.querySelector('[data-ui~=\"crop.ov\"]') && !document.querySelector('[data-ui~=\"crop.foot\"] [data-intent~=\"primary\"]').disabled", "AniList banner cropper");
 await setRange("Horizontal position", 42);
-await clickText(".cropper-foot", "Save image");
-await waitFor("!document.querySelector('.cropper-ov')", "AniList banner save");
+await clickText("[data-ui~='crop.foot']", "Save image");
+await waitFor("!document.querySelector('[data-ui~=\"crop.ov\"]')", "AniList banner save");
 const aniSaved = await evaluate(`new Promise((resolve, reject) => KOS.mediadb.getKV("profile.anilist.7", (err, value) => err ? reject(err) : resolve(value)))`);
 assert(aniSaved.banner.source === null && aniSaved.banner.crop.x === 42, "AniList crop/remote source pairing did not persist");
 
@@ -490,21 +492,21 @@ await evaluate(`(async () => {
   KOS.vndb.fetchSiteStats = cb => cb(null, {});
   KOS.show("vndbprofile");
 })()`);
-await waitFor("document.querySelector('.vp-head .image-crop-bg img') && document.querySelector('.vp-head .ap-avatar img')", "VNDB profile fixture");
+await waitFor("document.querySelector('[data-ui~=\"profile.vndb-head\"] [data-ui~=\"crop.bg\"] img') && document.querySelector('[data-ui~=\"profile.vndb-head\"] [data-ui~=\"profile.avatar\"] img')", "VNDB profile fixture");
 await clickText("#main", "Avatar");
-await waitFor("document.querySelector('.cropper-ov') && !document.querySelector('.cropper-foot .primary').disabled", "VNDB avatar cropper");
+await waitFor("document.querySelector('[data-ui~=\"crop.ov\"]') && !document.querySelector('[data-ui~=\"crop.foot\"] [data-intent~=\"primary\"]').disabled", "VNDB avatar cropper");
 await setRange("Vertical position", 47);
-await clickText(".cropper-foot", "Save image");
-await waitFor("!document.querySelector('.cropper-ov')", "VNDB avatar save");
+await clickText("[data-ui~='crop.foot']", "Save image");
+await waitFor("!document.querySelector('[data-ui~=\"crop.ov\"]')", "VNDB avatar save");
 const vndbSaved = await evaluate(`new Promise((resolve, reject) => KOS.mediadb.getKV("profile.vndb.u7", (err, value) => err ? reject(err) : resolve(value)))`);
 assert(vndbSaved.avatar.source === avatar && vndbSaved.avatar.crop.y === 47, "VNDB local source/crop did not persist");
 
 /* Collection hierarchy: archive stays compact; workspaces preserve their routes/history. */
-await auditView("wishlist", undefined, ".collection-workspace-tabs");
+await auditView("wishlist", undefined, "[data-ui~='coll.workspace-tabs']");
 const collectionNav = await evaluate(`(() => ({
-  labels: [...document.querySelectorAll("#subnav .subnav-item")].map(b => b.textContent.trim()),
-  active: document.querySelector("#subnav .subnav-item.active")?.textContent.trim(),
-  planner: [...document.querySelectorAll(".collection-workspace-tabs button")].map(b => b.textContent.trim())
+  labels: [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].map(b => b.textContent.trim()),
+  active: document.querySelector("#subnav [data-ui~='shell.subnav-item'][data-state~='active']")?.textContent.trim(),
+  planner: [...document.querySelectorAll("[data-ui~='coll.workspace-tabs'] button")].map(b => b.textContent.trim())
 }))()`);
 assert(JSON.stringify(collectionNav.labels) === JSON.stringify(["Overview", "Anime", "Books", "Visual Novels", "Games", "Shrine", "Planner", "Sync"]),
   `Collection primary navigation is overcrowded: ${JSON.stringify(collectionNav.labels)}`);
@@ -530,14 +532,14 @@ const plannerHeroId = await evaluate(`(() => {
   KOS.show("wishlist");
   return hero.id;
 })()`);
-await waitFor("document.querySelector('.wl-hero-feature .image-crop-bg img') && document.querySelectorAll('.wl-budget .wl-ledger-line').length === 3", "Budget Planner feature and allowance ledger");
+await waitFor("document.querySelector('[data-ui~=\"plan.hero-feature\"] [data-ui~=\"crop.bg\"] img') && document.querySelectorAll('[data-ui~=\"plan.budget\"] [data-ui~=\"plan.ledger-line\"]').length === 3", "Budget Planner feature and allowance ledger");
 const plannerWide = await evaluate(`(() => {
-  const hero = document.querySelector('.wl-hero'), cover = hero.querySelector('.image-crop-bg img'), budget = document.querySelector('.wl-budget'), row = document.querySelector('.wl-row');
+  const hero = document.querySelector('[data-ui~="plan.hero"]'), cover = hero.querySelector('[data-ui~="crop.bg"] img'), budget = document.querySelector('[data-ui~="plan.budget"]'), row = document.querySelector('[data-ui~="plan.row"]');
   return {
     heroH: Math.round(hero.getBoundingClientRect().height), heroW: Math.round(hero.getBoundingClientRect().width), budgetW: Math.round(budget.getBoundingClientRect().width),
     crop: [cover.style.getPropertyValue('--crop-x'), cover.style.getPropertyValue('--crop-y'), cover.style.getPropertyValue('--crop-zoom')],
-    visibleBudgetInput: !!document.querySelector('.wl-budget .wl-limit'), modalAction: !!document.querySelector('.wl-budget-edit'),
-    rows: document.querySelectorAll('.wl-row').length, charts: document.querySelectorAll('.wl-history .cs-chart').length,
+    visibleBudgetInput: !!document.querySelector('[data-ui~="plan.budget"] .wl-limit'), modalAction: !!document.querySelector('[data-ui~="plan.budget-edit"]'),
+    rows: document.querySelectorAll('[data-ui~="plan.row"]').length, charts: document.querySelectorAll('[data-ui~="plan.history"] [data-ui~="chart.chart"]').length,
     rowOverflow: row.scrollWidth > row.clientWidth
   };
 })()`);
@@ -546,22 +548,22 @@ assert(plannerWide.heroH >= 390 && plannerWide.heroW > plannerWide.budgetW &&
   !plannerWide.visibleBudgetInput && plannerWide.modalAction && plannerWide.rows >= 2 && plannerWide.charts === 2 && !plannerWide.rowOverflow,
   `Budget Planner wide layout or crop/ledger contract failed: ${JSON.stringify(plannerWide)}`);
 const selectionChanged = await evaluate(`(() => {
-  const before = document.querySelector('.wl-bn-rem b').textContent;
-  const check = document.querySelector('.wl-check');
+  const before = document.querySelector('[data-ui~="plan.bn-rem"] b').textContent;
+  const check = document.querySelector('[data-ui~="plan.check"]');
   check.checked = true; check.dispatchEvent(new Event('change', { bubbles: true }));
-  return { before, after: document.querySelector('.wl-bn-rem b').textContent };
+  return { before, after: document.querySelector('[data-ui~="plan.bn-rem"] b').textContent };
 })()`);
 assert(selectionChanged.before !== selectionChanged.after, `Planner selection did not update remaining allowance: ${JSON.stringify(selectionChanged)}`);
-await clickText(".wl-budget", "Edit monthly budget");
-await waitFor("document.querySelector('.wl-budget-modal')", "Budget Planner budget editor");
-await clickText(".wl-budget-modal", "Cancel");
-await waitFor("!document.querySelector('.wl-budget-modal')", "Budget Planner budget editor cancel");
+await clickText("[data-ui~='plan.budget']", "Edit monthly budget");
+await waitFor("document.querySelector('[data-ui~=\"plan.budget-dialog\"]')", "Budget Planner budget editor");
+await clickText("[data-ui~='plan.budget-dialog']", "Cancel");
+await waitFor("!document.querySelector('[data-ui~=\"plan.budget-dialog\"]')", "Budget Planner budget editor cancel");
 await screenshot("/tmp/kos-planner-1440.png");
-await evaluate(`(() => { const main = document.getElementById('main'), queue = document.querySelector('.wl-queue'); main.scrollTo({ top: main.scrollTop + queue.getBoundingClientRect().top - 22, behavior: 'instant' }); })()`);
+await evaluate(`(() => { const main = document.getElementById('main'), queue = document.querySelector('[data-ui~="plan.queue"]'); main.scrollTo({ top: main.scrollTop + queue.getBoundingClientRect().top - 22, behavior: 'instant' }); })()`);
 await pause(160);
 await screenshot("/tmp/kos-planner-queue-1440.png");
 await evaluate(`document.getElementById('main').scrollTo({ top: 0, behavior: 'instant' })`);
-await clickText(".wl-hero", "Confirm purchase");
+await clickText("[data-ui~='plan.hero']", "Confirm purchase");
 await waitFor(`KOS.wishlist.get(${plannerHeroId})?.status === 'purchased' && KOS.wishlist.get(${plannerHeroId})?.linkedEntryId != null`, "Planner purchase and Collection handoff", 7000);
 const plannerPurchase = await evaluate(`new Promise((resolve, reject) => {
   const item = KOS.wishlist.get(${plannerHeroId});
@@ -614,23 +616,23 @@ await evaluate(`(async () => {
   KOS.store.state.governor.theme = "spectral-rose";
   KOS.governor.applyCosmetics();
   KOS.store.save();
-  document.querySelector('.toast')?.style.setProperty('display', 'none');
+  document.getElementById('toast')?.style.setProperty('display', 'none');
   window.__collectionAudit = { entries };
 })()`);
 
-await auditView("goals", undefined, ".goal-overview");
-await waitFor("document.querySelectorAll('.goal-card-v2').length >= 4", "Collection Goals campaign");
+await auditView("goals", undefined, "[data-ui~='goal.overview']");
+await waitFor("document.querySelectorAll('[data-ui~=\"goal.card\"]').length >= 4", "Collection Goals campaign");
 const goalComposition = await evaluate(`(() => {
-  const root = document.querySelector('.goals-workspace').getBoundingClientRect();
-  const overview = document.querySelector('.goal-overview').getBoundingClientRect();
-  const command = document.querySelector('.goal-commandbar').getBoundingClientRect();
-  const cards = [...document.querySelectorAll('.goal-card-v2')].map(c => c.getBoundingClientRect());
+  const root = document.querySelector('[data-ui~="goal.workspace"]').getBoundingClientRect();
+  const overview = document.querySelector('[data-ui~="goal.overview"]').getBoundingClientRect();
+  const command = document.querySelector('[data-ui~="goal.commandbar"]').getBoundingClientRect();
+  const cards = [...document.querySelectorAll('[data-ui~="goal.card"]')].map(c => c.getBoundingClientRect());
   return {
     overviewDelta: Math.round(Math.abs(root.width - overview.width)),
     commandDelta: Math.round(Math.abs(root.width - command.width)),
-    summary: document.querySelectorAll('.goal-summary-metric').length,
-    zeroSummary: [...document.querySelectorAll('.goal-summary-metric b')].some(n => Number(n.textContent) === 0),
-    tabs: document.querySelectorAll('.goal-tabs .study-tab').length,
+    summary: document.querySelectorAll('[data-ui~="goal.metric"]').length,
+    zeroSummary: [...document.querySelectorAll('[data-ui~="goal.metric"] b')].some(n => Number(n.textContent) === 0),
+    tabs: document.querySelectorAll('[data-ui~="goal.tabs"] [data-ui~="ui.tab"]').length,
     alignedCards: cards.every(r => r.width >= 330)
   };
 })()`);
@@ -639,22 +641,22 @@ assert(goalComposition.overviewDelta <= 2 && goalComposition.commandDelta <= 2 &
   goalComposition.tabs === 3 && goalComposition.alignedCards,
   `Collection Goals composition is incomplete: ${JSON.stringify(goalComposition)}`);
 await screenshot("/tmp/kos-goals-1440.png");
-await clickText(".goal-commandbar", "New goal");
-await waitFor("document.querySelector('.goal-modal-v2 .goal-editor-body')", "Collection Goal editor");
+await clickText("[data-ui~='goal.commandbar']", "New goal");
+await waitFor("document.querySelector('[data-ui~=\"goal.editor\"] [data-ui~=\"goal.editor-body\"]')", "Collection Goal editor");
 const goalModal = await evaluate(`(() => {
-  const modal = document.querySelector('.goal-modal-v2'), body = modal.querySelector('.goal-editor-body');
-  const sections = [...modal.querySelectorAll('.goal-form-section')];
+  const modal = document.querySelector('[data-ui~="goal.editor"]'), body = modal.querySelector('[data-ui~="goal.editor-body"]');
+  const sections = [...modal.querySelectorAll('[data-ui~="goal.form-group"]')];
   const identity = sections[0].getBoundingClientRect();
   const description = sections[0].querySelector('textarea').getBoundingClientRect();
   const measure = sections[1].getBoundingClientRect();
-  const lastVisibleMeasureField = sections[1].querySelector('.goal-target-field').getBoundingClientRect();
-  return { sections: modal.querySelectorAll('.goal-form-section').length,
+  const lastVisibleMeasureField = sections[1].querySelector('[data-ui~="goal.target-field"]').getBoundingClientRect();
+  return { sections: modal.querySelectorAll('[data-ui~="goal.form-group"]').length,
     internalScroll: body.scrollHeight >= body.clientHeight,
     sectionsUnclipped: sections.every(section => section.scrollHeight <= section.clientHeight + 1),
     identityComplete: description.bottom <= identity.bottom + 1,
     measureComplete: lastVisibleMeasureField.bottom <= measure.bottom + 1,
-    deleteSeparated: !modal.querySelector('.goal-modal-delete'),
-    actions: modal.querySelectorAll('.goal-modal-actions .btn').length };
+    deleteSeparated: !modal.querySelector('[data-ui~="goal.delete"]'),
+    actions: modal.querySelectorAll('[data-ui~="goal.modal-actions"] button').length };
 })()`);
 assert(goalModal.sections === 4 && goalModal.internalScroll && goalModal.sectionsUnclipped &&
   goalModal.identityComplete && goalModal.measureComplete && goalModal.deleteSeparated && goalModal.actions === 2,
@@ -662,25 +664,25 @@ assert(goalModal.sections === 4 && goalModal.internalScroll && goalModal.section
 await pause(260);
 await screenshot("/tmp/kos-goal-editor-1440.png");
 await evaluate(`(() => {
-  const modal = document.querySelector('.goal-modal-v2');
-  const select = modal.querySelector('.goal-type-field select');
+  const modal = document.querySelector('[data-ui~="goal.editor"]');
+  const select = modal.querySelector('[data-ui~="goal.type-field"] select');
   select.value = 'specific-title';
   select.dispatchEvent(new Event('change', { bubbles: true }));
-  const body = modal.querySelector('.goal-editor-body');
-  body.scrollTop = modal.querySelectorAll('.goal-form-section')[1].offsetTop - 12;
+  const body = modal.querySelector('[data-ui~="goal.editor-body"]');
+  body.scrollTop = modal.querySelectorAll('[data-ui~="goal.form-group"]')[1].offsetTop - 12;
 })()`);
 await pause(120);
 const linkedMeasure = await evaluate(`(() => {
-  const section = document.querySelectorAll('.goal-form-section')[1];
-  const link = section.querySelector('.goal-link-wrap');
+  const section = document.querySelectorAll('[data-ui~="goal.form-group"]')[1];
+  const link = section.querySelector('[data-ui~="goal.link-wrap"]');
   const sr = section.getBoundingClientRect(), lr = link.getBoundingClientRect();
   return { visible: !link.hidden, unclipped: section.scrollHeight <= section.clientHeight + 1, linkInside: lr.bottom <= sr.bottom + 1 };
 })()`);
 assert(linkedMeasure.visible && linkedMeasure.unclipped && linkedMeasure.linkInside,
   `Dynamic linked-title measure is clipped: ${JSON.stringify(linkedMeasure)}`);
 await screenshot("/tmp/kos-goal-editor-linked-1440.png");
-await clickText(".goal-modal-actions", "Cancel");
-await waitFor("!document.querySelector('.goal-modal-v2')", "Collection Goal editor close");
+await clickText("[data-ui~='goal.modal-actions']", "Cancel");
+await waitFor("!document.querySelector('[data-ui~=\"goal.editor\"]')", "Collection Goal editor close");
 
 await evaluate(`(() => {
   window.__goalCampaignBackup = JSON.stringify(KOS.store.state.goals);
@@ -688,10 +690,10 @@ await evaluate(`(() => {
   KOS.store.state.goals.items = [manual];
   KOS.show('goals', undefined, { _nav: true });
 })()`);
-await waitFor("document.querySelectorAll('.goal-card-v2').length === 1", "single-goal campaign");
+await waitFor("document.querySelectorAll('[data-ui~=\"goal.card\"]').length === 1", "single-goal campaign");
 const singleGoal = await evaluate(`(() => {
-  const grid = document.querySelector('.goal-grid-v2').getBoundingClientRect();
-  const card = document.querySelector('.goal-card-v2').getBoundingClientRect();
+  const grid = document.querySelector('[data-ui~="goal.grid"]').getBoundingClientRect();
+  const card = document.querySelector('[data-ui~="goal.card"]').getBoundingClientRect();
   return { grid: Math.round(grid.width), card: Math.round(card.width), height: Math.round(card.height) };
 })()`);
 assert(singleGoal.card < singleGoal.grid * .62 && singleGoal.height < 300,
@@ -703,26 +705,26 @@ await evaluate(`(() => {
   KOS.store.save();
 })()`);
 
-await auditView("shrine", undefined, ".shrine-feature");
-await waitFor("document.querySelectorAll('.shrine-rank-card').length >= 3", "Shrine ranked collection");
+await auditView("shrine", undefined, "[data-ui~='shrine.feature']");
+await waitFor("document.querySelectorAll('[data-ui~=\"shrine.rank-card\"]').length >= 3", "Shrine ranked collection");
 const shrineComposition = await evaluate(`(() => {
-  const feature = document.querySelector('.shrine-feature').getBoundingClientRect();
-  const stage = document.querySelector('.shrine-stage').getBoundingClientRect();
-  const ledger = document.querySelector('.shrine-ledger').getBoundingClientRect();
-  const grid = document.querySelector('.shrine-ranked-grid').getBoundingClientRect();
-  const crop = document.querySelector('.shrine-feature .image-crop-bg img');
-  const body = document.querySelector('.shrine-feature-body').getBoundingClientRect();
+  const feature = document.querySelector('[data-ui~="shrine.feature"]').getBoundingClientRect();
+  const stage = document.querySelector('[data-ui~="shrine.stage"]').getBoundingClientRect();
+  const ledger = document.querySelector('[data-ui~="shrine.ledger"]').getBoundingClientRect();
+  const grid = document.querySelector('[data-ui~="shrine.ranked"]').getBoundingClientRect();
+  const crop = document.querySelector('[data-ui~="shrine.feature"] [data-ui~="crop.bg"] img');
+  const body = document.querySelector('[data-ui~="shrine.feature-body"]').getBoundingClientRect();
   return {
-    rank: document.querySelector('.shrine-feature-rank').textContent,
-    score: document.querySelector('.shrine-feature .shrine-score').textContent,
-    filters: document.querySelectorAll('.shrine-filter').length,
+    rank: document.querySelector('[data-ui~="shrine.feature-rank"]').textContent,
+    score: document.querySelector('[data-ui~="shrine.feature"] [data-ui~="shrine.score"]').textContent,
+    filters: document.querySelectorAll('[data-ui~="shrine.filter"]').length,
     featureHeight: Math.round(feature.height),
-    plannerGeometry: document.querySelector('.shrine-feature').classList.contains('wl-hero-feature') && feature.height >= 390 && feature.height <= 540,
+    plannerGeometry: document.querySelector('[data-ui~="shrine.feature"]').matches('[data-ui~="plan.hero-feature"]') && feature.height >= 390 && feature.height <= 540,
     contentLeft: body.left - feature.left < feature.width * .16,
     ledgerBeside: ledger.left >= feature.right - 1 && Math.abs(ledger.height - feature.height) <= 2,
     stageContains: stage.width >= feature.width + ledger.width,
-    ledgerMetrics: document.querySelectorAll('.shrine-ledger-lines .shrine-ledger-line').length,
-    featureWider: feature.width > [...document.querySelectorAll('.shrine-rank-card')][0].getBoundingClientRect().width * 2,
+    ledgerMetrics: document.querySelectorAll('[data-ui~="shrine.ledger-lines"] [data-ui~="shrine.ledger-line"]').length,
+    featureWider: feature.width > [...document.querySelectorAll('[data-ui~="shrine.rank-card"]')][0].getBoundingClientRect().width * 2,
     gridBelow: grid.top >= feature.bottom,
     crop: [crop.style.getPropertyValue('--crop-x'), crop.style.getPropertyValue('--crop-y'), crop.style.getPropertyValue('--crop-zoom')]
   };
@@ -734,127 +736,127 @@ assert(/Rank 01/.test(shrineComposition.rank) && /^10/.test(shrineComposition.sc
   `Shrine Hall of Fame composition/crop failed: ${JSON.stringify(shrineComposition)}`);
 await screenshot("/tmp/kos-shrine-1440.png");
 await evaluate(`(() => {
-  const main = document.getElementById('main'), grid = document.querySelector('.shrine-ranked-grid');
+  const main = document.getElementById('main'), grid = document.querySelector('[data-ui~="shrine.ranked"]');
   main.scrollTo({ top: main.scrollTop + grid.getBoundingClientRect().top - 124, behavior: 'instant' });
 })()`);
 await pause(140);
-const rankedCards = await evaluate(`(() => [...document.querySelectorAll('.shrine-rank-card')].map(card => ({
-  cover: !!card.querySelector('.shrine-rank-cover'),
-  score: !!card.querySelector('.shrine-row-score b'),
-  action: !!card.querySelector('.shrine-card-btn'),
+const rankedCards = await evaluate(`(() => [...document.querySelectorAll('[data-ui~="shrine.rank-card"]')].map(card => ({
+  cover: !!card.querySelector('[data-ui~="shrine.rank-cover"]'),
+  score: !!card.querySelector('[data-ui~="shrine.row-score"] b'),
+  action: !!card.querySelector('[data-ui~="shrine.card-button"]'),
   height: Math.round(card.getBoundingClientRect().height)
 })))()`);
 assert(rankedCards.length >= 3 && rankedCards.every(card => card.cover && card.score && card.action && card.height < 360),
   `Ranked Shrine cards are incomplete or oversized: ${JSON.stringify(rankedCards)}`);
 await screenshot("/tmp/kos-shrine-ranked-1440.png");
 await evaluate("document.getElementById('main').scrollTop = 0");
-await clickText(".shrine-feature-actions", "Create share card");
-await waitFor("document.querySelector('.shrine-card-img') && document.querySelector('.shrine-message').value.includes('Clockwork Gardens')", "Shrine share card");
+await clickText("[data-ui~='shrine.feature-actions']", "Create share card");
+await waitFor("document.querySelector('[data-ui~=\"shrine.card-image\"]') && document.querySelector('[data-ui~=\"shrine.message\"]').value.includes('Clockwork Gardens')", "Shrine share card");
 const shareCard = await evaluate(`(() => {
-  const img = document.querySelector('.shrine-card-img').getBoundingClientRect();
-  return { ratio: img.width / img.height, buttons: document.querySelectorAll('.shrine-card-actions .btn').length,
-    defaultMessage: document.querySelector('.shrine-message').value };
+  const img = document.querySelector('[data-ui~="shrine.card-image"]').getBoundingClientRect();
+  return { ratio: img.width / img.height, buttons: document.querySelectorAll('[data-ui~="shrine.card-actions"] button').length,
+    defaultMessage: document.querySelector('[data-ui~="shrine.message"]').value };
 })()`);
 assert(Math.abs(shareCard.ratio - 1536 / 1024) < .03 && shareCard.buttons >= 2 && /Hall of Fame/.test(shareCard.defaultMessage),
   `Shrine share card is incomplete: ${JSON.stringify(shareCard)}`);
 await pause(260);
 await screenshot("/tmp/kos-shrine-share-card-1440.png");
-await evaluate("document.querySelector('.shrine-card-modal').closest('.modal-ov').close()");
+await evaluate("document.querySelector('[data-ui~=\"shrine.share-dialog\"]').closest('[data-ui~=\"ui.dialog-overlay\"]').close()");
 
 await viewport(390, 844);
-await auditView("goals", undefined, ".goal-overview");
-assert(await evaluate("document.querySelectorAll('.goal-grid-v2 .goal-card-v2').length >= 4"), "Goal cards disappeared at phone width");
-await evaluate("document.querySelector('.toast')?.classList.remove('show')");
+await auditView("goals", undefined, "[data-ui~='goal.overview']");
+assert(await evaluate("document.querySelectorAll('[data-ui~=\"goal.grid\"] [data-ui~=\"goal.card\"]').length >= 4"), "Goal cards disappeared at phone width");
+await evaluate("document.getElementById('toast')?.style.setProperty('display', 'none')");
 await screenshot("/tmp/kos-goals-mobile-390.png");
 await evaluate(`(() => {
-  const main = document.getElementById('main'), cards = document.querySelector('.goal-grid-v2');
+  const main = document.getElementById('main'), cards = document.querySelector('[data-ui~="goal.grid"]');
   main.scrollTo({ top: main.scrollTop + cards.getBoundingClientRect().top - 12, behavior: 'instant' });
 })()`);
 await pause(120);
-await evaluate("document.querySelector('.toast')?.classList.remove('show')");
+await evaluate("document.getElementById('toast')?.style.setProperty('display', 'none')");
 await screenshot("/tmp/kos-goals-cards-mobile-390.png");
-await auditView("shrine", undefined, ".shrine-feature");
+await auditView("shrine", undefined, "[data-ui~='shrine.feature']");
 const shrinePhone = await evaluate(`(() => {
-  const feature = document.querySelector('.shrine-feature').getBoundingClientRect();
-  const body = document.querySelector('.shrine-feature-body').getBoundingClientRect();
-  const cover = document.querySelector('.shrine-feature .image-crop-bg').getBoundingClientRect();
+  const feature = document.querySelector('[data-ui~="shrine.feature"]').getBoundingClientRect();
+  const body = document.querySelector('[data-ui~="shrine.feature-body"]').getBoundingClientRect();
+  const cover = document.querySelector('[data-ui~="shrine.feature"] [data-ui~="crop.bg"]').getBoundingClientRect();
   return { plannerOverlay: body.left - feature.left < 36 && Math.abs(cover.height - feature.height) <= 2,
     featureW: Math.round(feature.width), mainW: document.getElementById('main').clientWidth };
 })()`);
 assert(shrinePhone.plannerOverlay && shrinePhone.featureW <= shrinePhone.mainW,
   `Shrine phone layout does not match the Planner hero: ${JSON.stringify(shrinePhone)}`);
 await evaluate(`(() => {
-  const main = document.getElementById('main'), feature = document.querySelector('.shrine-feature');
+  const main = document.getElementById('main'), feature = document.querySelector('[data-ui~="shrine.feature"]');
   main.scrollTo({ top: main.scrollTop + feature.getBoundingClientRect().top - 12, behavior: 'instant' });
-  document.querySelector('.toast')?.classList.remove('show');
+  document.getElementById('toast')?.style.setProperty('display', 'none');
 })()`);
 await pause(120);
-await evaluate("document.querySelector('.toast')?.classList.remove('show')");
+await evaluate("document.getElementById('toast')?.style.setProperty('display', 'none')");
 await screenshot("/tmp/kos-shrine-mobile-390.png");
 await viewport(1440, 900);
 await evaluate(`(() => { KOS.store.state.governor.theme = "kurenai"; KOS.governor.applyCosmetics(); })()`);
 
 await evaluate("KOS.show('mediasync')");
-await waitFor("document.querySelector('.integration-provider')", "Sync workspace");
+await waitFor("document.querySelector('[data-ui~=\"sync.provider\"]')", "Sync workspace");
 const integrations = await evaluate(`(() => ({
-  providers: document.querySelectorAll('.integration-provider').length,
-  facts: [...document.querySelectorAll('.integration-facts')].map(x => x.textContent),
-  nested: document.querySelectorAll('.integration-provider .colcard').length
+  providers: document.querySelectorAll('[data-ui~="sync.provider"]').length,
+  facts: [...document.querySelectorAll('[data-ui~="sync.provider-facts"]')].map(x => x.textContent),
+  nested: document.querySelectorAll('[data-ui~="sync.provider"] [data-ui~="ui.colcard"]').length
 }))()`);
 assert(integrations.providers === 2 && integrations.facts.every(text => /Status/.test(text) && /Sync mode/.test(text)) && integrations.nested === 0,
   `Integration overview composition is incomplete: ${JSON.stringify(integrations)}`);
 await screenshot("/tmp/kos-integrations-1440.png");
-await clickText(".collection-workspace-tabs", "AniList");
-await waitFor("document.querySelector('.ap-head')", "AniList profile from Sync");
-assert(await evaluate("document.querySelector('#subnav .subnav-item.active')?.textContent.trim() === 'Sync'"),
+await clickText("[data-ui~='coll.workspace-tabs']", "AniList");
+await waitFor("document.querySelector('[data-ui~=\"profile.head\"]')", "AniList profile from Sync");
+assert(await evaluate("document.querySelector('#subnav [data-ui~=\"shell.subnav-item\"][data-state~=\"active\"]')?.textContent.trim() === 'Sync'"),
   "AniList profile did not retain Sync as active");
 await evaluate("KOS.back()");
-await waitFor("document.querySelector('.collection-workspace-tabs .study-tab.active')?.textContent.includes('Sync & Import')", "back to Sync & Import");
+await waitFor("document.querySelector('[data-ui~=\"coll.workspace-tabs\"] [data-ui~=\"ui.tab\"][data-state~=\"active\"]')?.textContent.includes('Sync & Import')", "back to Sync & Import");
 await evaluate("KOS.forward()");
-await waitFor("document.querySelector('.ap-head')", "forward to AniList profile");
+await waitFor("document.querySelector('[data-ui~=\"profile.head\"]')", "forward to AniList profile");
 
 /* Study comparison: cross-subject data, aligned modes and pair notes use the
    actual modal rather than treating two reference articles as a layout test. */
 await evaluate("KOS.show('subject', 'compsci')");
-await waitFor("document.querySelector('.subject-grid')", "Study dashboard for comparison");
+await waitFor("document.querySelector('[data-ui~=\"study.subject-grid\"]')", "Study dashboard for comparison");
 await clickText("#main", "Compare topics");
-await waitFor("document.querySelector('.cmp-modal .cmp-sticky-head')", "Compare Topics workspace");
+await waitFor("document.querySelector('[data-ui~=\"study.compare-dialog\"] [data-ui~=\"study.compare-sticky-head\"]')", "Compare Topics workspace");
 let comparison = await evaluate(`(() => ({
-  selectors: document.querySelectorAll('.cmp-selectors select').length,
-  summaries: document.querySelectorAll('.cmp-sticky-head .cmp-topic').length,
-  modes: [...document.querySelectorAll('.cmp-tabs button')].map(b => b.textContent.trim()),
-  rows: document.querySelectorAll('.cmp-row').length
+  selectors: document.querySelectorAll('[data-ui~="study.compare-selectors"] select').length,
+  summaries: document.querySelectorAll('[data-ui~="study.compare-sticky-head"] [data-ui~="study.compare-topic"]').length,
+  modes: [...document.querySelectorAll('[data-ui~="study.compare-tabs"] button')].map(b => b.textContent.trim()),
+  rows: document.querySelectorAll('[data-ui~="study.compare-row"]').length
 }))()`);
 assert(comparison.selectors === 2 && comparison.summaries === 2 && comparison.rows > 0 &&
   JSON.stringify(comparison.modes) === JSON.stringify(["Overview", "Specification", "Notes", "Key terms", "Exam focus", "Progress"]),
   `Compare Topics workspace is incomplete: ${JSON.stringify(comparison)}`);
 await evaluate(`(() => {
-  const select = document.querySelectorAll('.cmp-selectors select')[1];
+  const select = document.querySelectorAll('[data-ui~="study.compare-selectors"] select')[1];
   const option = [...select.options].find(o => o.value.startsWith('maths:'));
   if (!option) return false;
   select.value = option.value;
   select.dispatchEvent(new Event('change', { bubbles: true }));
   return true;
 })()`);
-await waitFor("[...document.querySelectorAll('.cmp-topic .sub')].some(x => x.textContent.includes('Mathematics'))", "cross-subject comparison");
-await clickText(".cmp-tabs", "Key terms");
-await waitFor("document.querySelector('.cmp-row')", "key terms comparison row");
-await clickText(".cmp-actions", "Comparison note");
-await waitFor("document.querySelector('.cmp-note-modal .note-area')", "comparison note editor");
-await evaluate(`(() => { const ta = document.querySelector('.cmp-note-modal .note-area'); ta.value = 'Audit: compare the evidence before revision.'; ta.dispatchEvent(new Event('input', { bubbles: true })); })()`);
-await clickText(".cmp-note-modal", "Save note");
-await waitFor("!document.querySelector('.cmp-note-modal')", "saved comparison note");
+await waitFor("[...document.querySelectorAll('[data-ui~=\"study.compare-topic\"] [data-ui~=\"part.sub\"]')].some(x => x.textContent.includes('Mathematics'))", "cross-subject comparison");
+await clickText("[data-ui~='study.compare-tabs']", "Key terms");
+await waitFor("document.querySelector('[data-ui~=\"study.compare-row\"]')", "key terms comparison row");
+await clickText("[data-ui~='study.compare-actions']", "Comparison note");
+await waitFor("document.querySelector('[data-ui~=\"study.compare-note-dialog\"] [data-ui~=\"ui.note-area\"]')", "comparison note editor");
+await evaluate(`(() => { const ta = document.querySelector('[data-ui~="study.compare-note-dialog"] [data-ui~="ui.note-area"]'); ta.value = 'Audit: compare the evidence before revision.'; ta.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+await clickText("[data-ui~='study.compare-note-dialog']", "Save note");
+await waitFor("!document.querySelector('[data-ui~=\"study.compare-note-dialog\"]')", "saved comparison note");
 assert(await evaluate("Object.values(KOS.store.state.study.compareNotes || {}).includes('Audit: compare the evidence before revision.')"),
   "Comparison note did not persist in study state");
 await evaluate(`(() => {
-  const [a, b] = document.querySelectorAll('.cmp-selectors select');
+  const [a, b] = document.querySelectorAll('[data-ui~="study.compare-selectors"] select');
   a.value = 'compsci:4.1.1.1'; a.dispatchEvent(new Event('change', { bubbles: true }));
   b.value = 'compsci:4.1.1.2'; b.dispatchEvent(new Event('change', { bubbles: true }));
 })()`);
-await clickText(".cmp-tabs", "Notes");
-await waitFor("document.querySelector('.cmp-notes')", "long structured note comparison");
+await clickText("[data-ui~='study.compare-tabs']", "Notes");
+await waitFor("document.querySelector('[data-ui~=\"study.compare-notes\"]')", "long structured note comparison");
 const longNotes = await evaluate(`(() => {
-  const body = document.querySelector('.cmp-body'), row = document.querySelector('.cmp-row');
+  const body = document.querySelector('[data-ui~="study.compare-body"]'), row = document.querySelector('[data-ui~="study.compare-row"]');
   body.scrollTop = body.scrollHeight;
   return { client: body.clientHeight, scroll: body.scrollHeight, top: body.scrollTop,
     rowClient: row.clientHeight, rowScroll: row.scrollHeight };
@@ -862,23 +864,23 @@ const longNotes = await evaluate(`(() => {
 assert(longNotes.scroll > longNotes.client && longNotes.top > 0 && longNotes.rowClient === longNotes.rowScroll,
   `Long comparison notes are clipped instead of scrolling: ${JSON.stringify(longNotes)}`);
 await screenshot("/tmp/kos-compare-topics-1440.png");
-await clickText(".cmp-actions", "Open Topic A");
-await waitFor("document.querySelector('#main .page-h')", "open Topic A");
-assert(await evaluate("document.querySelector('#main .page-h h1')?.textContent.includes('Data types')"), "Open Topic A did not open the selected reference");
+await clickText("[data-ui~='study.compare-actions']", "Open Topic A");
+await waitFor("document.querySelector('#main [data-ui~=\"topic.head\"]')", "open Topic A");
+assert(await evaluate("document.querySelector('#main [data-ui~=\"topic.head\"] h1')?.textContent.includes('Data types')"), "Open Topic A did not open the selected reference");
 await evaluate("KOS.show('subject', 'compsci')");
-await waitFor("document.querySelector('.subject-grid')", "return to Study dashboard");
+await waitFor("document.querySelector('[data-ui~=\"study.subject-grid\"]')", "return to Study dashboard");
 await clickText("#main", "Compare topics");
-await waitFor("document.querySelector('.cmp-modal')", "comparison workspace for focus action");
-await clickText(".cmp-actions", "Focus Topic A");
-await waitFor("document.querySelector('.fx-link-row')", "prefilled focus timer");
-assert(await evaluate(`(() => { const s = document.querySelectorAll('.fx-link-row select'); return s[0].value === 'compsci' && !!s[1].value; })()`),
+await waitFor("document.querySelector('[data-ui~=\"study.compare-dialog\"]')", "comparison workspace for focus action");
+await clickText("[data-ui~='study.compare-actions']", "Focus Topic A");
+await waitFor("document.querySelector('[data-ui~=\"focus.link-row\"]')", "prefilled focus timer");
+assert(await evaluate(`(() => { const s = document.querySelectorAll('[data-ui~="focus.link-row"] select'); return s[0].value === 'compsci' && !!s[1].value; })()`),
   "Focus Topic A did not prefill the selected subject/topic");
 
 /* Matrix on-the-go card clipping (the cover strip became a grid of wide
    cards in the mirror release) and adjacent-page regression pass. */
-await auditView("matrix", undefined, ".mx-now-card");
+await auditView("matrix", undefined, "[data-ui~='coll.now-card']");
 const stripClip = await evaluate(`(() => {
-  const f = document.querySelector('.mx-now-cover'), title = document.querySelector('.mx-now-title');
+  const f = document.querySelector('[data-ui~="coll.now-cover"]'), title = document.querySelector('[data-ui~="coll.now-title"]');
   const fr = f.getBoundingClientRect(), tr = title.getBoundingClientRect();
   return { overflow: getComputedStyle(f).overflow, aspect: fr.width / fr.height, beside: fr.right <= tr.left + 1 };
 })()`);
@@ -886,59 +888,59 @@ assert(stripClip.overflow === "hidden" && Math.abs(stripClip.aspect - 2 / 3) < 0
   `Matrix on-the-go cover is not independently clipped beside its title: ${JSON.stringify(stripClip)}`);
 
 for (const [view, arg, selector] of [
-  ["home", undefined, ".home-id"],
-  ["subject", "compsci", ".subject-grid"],
-  ["help", undefined, ".help-wrap"],
-  ["matrix", undefined, ".med-mods"],
-  ["mediasync", undefined, ".collection-workspace-tabs"],
-  ["governor", "status", ".gov-status"],
+  ["home", undefined, "[data-ui~='home.id']"],
+  ["subject", "compsci", "[data-ui~='study.subject-grid']"],
+  ["help", undefined, "[data-ui~='help.wrap']"],
+  ["matrix", undefined, "[data-ui~='coll.modules']"],
+  ["mediasync", undefined, "[data-ui~='coll.workspace-tabs']"],
+  ["governor", "status", "[data-ui~='gov.status']"],
   ["data", undefined, "#main"]
 ]) await auditView(view, arg, selector);
 
-const dataActionButtons = await evaluate(`(() => [...document.querySelectorAll('.data-action .btn')].map(b => ({
+const dataActionButtons = await evaluate(`(() => [...document.querySelectorAll('[data-ui~="archive.data-action"] button')].map(b => ({
   width: Math.round(b.getBoundingClientRect().width), client: b.clientHeight, scroll: b.scrollHeight,
   whiteSpace: getComputedStyle(b).whiteSpace, text: b.textContent.trim() })))()`);
 assert(dataActionButtons.length === 4 && dataActionButtons.every(b => b.width === 280 && b.client === b.scroll && b.whiteSpace === 'nowrap'),
   `Backup actions are inconsistent or wrap their labels: ${JSON.stringify(dataActionButtons)}`);
 await screenshot("/tmp/kos-backup-1440.png");
 
-await auditView("subject", "maths", ".tree-subject-h");
-const sectionCounts = await evaluate(`(() => [...document.querySelectorAll('#tree .sec-head')].map(head => {
-  const pc = head.querySelector('.pc'), arr = head.querySelector('.arr');
+await auditView("subject", "maths", "[data-ui~='study.spine-subject']");
+const sectionCounts = await evaluate(`(() => [...document.querySelectorAll('#tree [data-ui~="ui.section-head"]')].map(head => {
+  const pc = head.querySelector('[data-ui~="part.percent"]'), arr = head.querySelector('[data-ui~="part.arrow"]');
   return pc && arr ? { countRight: Math.round(pc.getBoundingClientRect().right), arrowLeft: Math.round(arr.getBoundingClientRect().left), arrowRight: Math.round(arr.getBoundingClientRect().right) } : null;
 }).filter(Boolean))()`);
 assert(sectionCounts.length > 1 && sectionCounts.every(x => x.arrowLeft - x.countRight >= 0) &&
   new Set(sectionCounts.map(x => x.arrowRight)).size === 1,
   `Subject section counts are not consistently anchored beside their arrows: ${JSON.stringify(sectionCounts)}`);
 
-await auditView("help", undefined, ".help-wrap");
+await auditView("help", undefined, "[data-ui~='help.wrap']");
 const helpWide = await evaluate(`(() => {
-  const wrap = document.querySelector('.help-wrap'), content = document.querySelector('.help-content');
+  const wrap = document.querySelector('[data-ui~="help.wrap"]'), content = document.querySelector('[data-ui~="help.content"]');
   return { columns: getComputedStyle(wrap).gridTemplateColumns.split(' ').length,
-    aside: !!document.querySelector('.help-aside'), width: Math.round(content.getBoundingClientRect().width),
-    search: Math.round(document.querySelector('.help-search-shell').getBoundingClientRect().width) };
+    aside: !!document.querySelector('[data-ui~="help.aside"]'), width: Math.round(content.getBoundingClientRect().width),
+    search: Math.round(document.querySelector('[data-ui~="help.search-shell"]').getBoundingClientRect().width) };
 })()`);
 assert(helpWide.columns === 3 && helpWide.aside && helpWide.width <= 760 && Math.abs(helpWide.search - helpWide.width) <= 2,
   `Help documentation layout is not a readable wide-screen workspace: ${JSON.stringify(helpWide)}`);
 await screenshot("/tmp/kos-help-1440.png");
-await evaluate(`(() => { const s = document.querySelector('.help-search'); s.value = 'Focus Timer'; s.dispatchEvent(new Event('input', { bubbles: true })); })()`);
-await waitFor("document.querySelectorAll('.help-row[style*=none]').length > 0 && document.querySelector('.help-row.open')", "Help search results");
-await clickText(".help-row.open", "Open Focus Timer");
-await waitFor("document.querySelector('.fx-setup')", "related Help link");
+await evaluate(`(() => { const s = document.querySelector('[data-ui~="help.search"]'); s.value = 'Focus Timer'; s.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+await waitFor("document.querySelectorAll('[data-ui~=\"help.row\"][style*=none]').length > 0 && document.querySelector('[data-ui~=\"help.row\"][data-state~=\"open\"]')", "Help search results");
+await clickText("[data-ui~='help.row'][data-state~='open']", "Open Focus Timer");
+await waitFor("document.querySelector('[data-ui~=\"focus.setup\"]')", "related Help link");
 
 await viewport(980, 800);
 for (const [view, arg, selector] of [
-  ["home", undefined, ".home-id"],
-  ["subject", "compsci", ".subject-grid"],
-  ["matrix", undefined, ".med-mods"],
-  ["wishlist", undefined, ".wl-queue"],
-  ["mediasync", undefined, ".integration-provider"],
-  ["governor", "status", ".gov-status"],
+  ["home", undefined, "[data-ui~='home.id']"],
+  ["subject", "compsci", "[data-ui~='study.subject-grid']"],
+  ["matrix", undefined, "[data-ui~='coll.modules']"],
+  ["wishlist", undefined, "[data-ui~='plan.queue']"],
+  ["mediasync", undefined, "[data-ui~='sync.provider']"],
+  ["governor", "status", "[data-ui~='gov.status']"],
   ["data", undefined, "#main"]
 ]) await auditView(view, arg, selector);
-await auditView("wishlist", undefined, ".wl-queue");
+await auditView("wishlist", undefined, "[data-ui~='plan.queue']");
 const plannerNarrow = await evaluate(`(() => {
-  const top = document.querySelector('.wl-top'), rows = [...document.querySelectorAll('.wl-row')];
+  const top = document.querySelector('[data-ui~="plan.top"]'), rows = [...document.querySelectorAll('[data-ui~="plan.row"]')];
   return { columns: getComputedStyle(top).gridTemplateColumns.split(' ').length,
     doc: document.documentElement.scrollWidth, viewport: innerWidth,
     rows: rows.map(row => ({ scroll: row.scrollWidth, client: row.clientWidth })) };
@@ -947,27 +949,27 @@ assert(plannerNarrow.columns === 1 && plannerNarrow.doc <= plannerNarrow.viewpor
   plannerNarrow.rows.every(row => row.scroll <= row.client),
   `Narrow Budget Planner has a horizontal or queue-row overflow: ${JSON.stringify(plannerNarrow)}`);
 await screenshot("/tmp/kos-planner-980.png");
-await auditView("help", undefined, ".help-wrap");
-const helpNarrow = await evaluate(`(() => ({ aside: getComputedStyle(document.querySelector('.help-aside')).display,
-  nav: getComputedStyle(document.querySelector('.help-nav')).display,
+await auditView("help", undefined, "[data-ui~='help.wrap']");
+const helpNarrow = await evaluate(`(() => ({ aside: getComputedStyle(document.querySelector('[data-ui~="help.aside"]')).display,
+  nav: getComputedStyle(document.querySelector('[data-ui~="help.nav"]')).display,
   scroll: document.documentElement.scrollWidth, viewport: innerWidth }))()`);
 assert(helpNarrow.aside === 'none' && helpNarrow.nav !== 'none' && helpNarrow.scroll <= helpNarrow.viewport + 1,
   `Compact Help workspace does not adapt cleanly: ${JSON.stringify(helpNarrow)}`);
 await evaluate("KOS.show('subject', 'compsci')");
-await waitFor("document.querySelector('.subject-grid')", "narrow Study dashboard");
+await waitFor("document.querySelector('[data-ui~=\"study.subject-grid\"]')", "narrow Study dashboard");
 await clickText("#main", "Compare topics");
-await waitFor("document.querySelector('.cmp-modal')", "narrow Compare Topics workspace");
+await waitFor("document.querySelector('[data-ui~=\"study.compare-dialog\"]')", "narrow Compare Topics workspace");
 const narrowCompare = await evaluate(`(() => {
-  const modal = document.querySelector('.cmp-modal'), body = document.querySelector('.cmp-body');
+  const modal = document.querySelector('[data-ui~="study.compare-dialog"]'), body = document.querySelector('[data-ui~="study.compare-body"]');
   return { viewport: innerWidth, doc: document.documentElement.scrollWidth, modal: modal.scrollWidth, modalClient: modal.clientWidth,
-    cols: getComputedStyle(document.querySelector('.cmp-row-cells')).gridTemplateColumns, bodyOverflow: getComputedStyle(body).overflowY };
+    cols: getComputedStyle(document.querySelector('[data-ui~="study.compare-row-cells"]')).gridTemplateColumns, bodyOverflow: getComputedStyle(body).overflowY };
 })()`);
 assert(narrowCompare.doc <= narrowCompare.viewport + 1 && narrowCompare.modal <= narrowCompare.modalClient + 1 &&
   narrowCompare.cols.split(' ').length === 1 && narrowCompare.bodyOverflow === 'auto',
   `Narrow comparison workspace overflows or keeps unreadable columns: ${JSON.stringify(narrowCompare)}`);
-await clickText(".cmp-modal", "Close");
+await clickText("[data-ui~='study.compare-dialog']", "Close");
 await evaluate(`KOS.show("anime")`);
-await waitFor("document.querySelector('.vault-hero')", "narrow Collection hero");
+await waitFor("document.querySelector('[data-ui~=\"vault.hero\"]')", "narrow Collection hero");
 await screenshot("/tmp/kos-anime-hero-980.png");
 
 /* Actual full backup/restore in the browser, followed by rendered checks. */
@@ -1005,30 +1007,30 @@ await waitFor(`performance.timeOrigin > ${reloadOrigin} && document.readyState =
 const afterReload = await evaluate(`KOS.store.state.governor.avatar.crop`);
 assert(afterReload.x === 63 && afterReload.y === 24 && afterReload.zoom === 1.72, "Avatar crop did not survive reload");
 await evaluate(`KOS.show("home")`);
-await waitFor("document.querySelector('.home-id .image-crop-bg img')", "post-reload Home banner");
-const reloadBanner = await evaluate(`(() => { const i = document.querySelector('.home-id .image-crop-bg img'); return [i.style.getPropertyValue('--crop-x'), i.style.getPropertyValue('--crop-y')]; })()`);
+await waitFor("document.querySelector('[data-ui~=\"home.id\"] [data-ui~=\"crop.bg\"] img')", "post-reload Home banner");
+const reloadBanner = await evaluate(`(() => { const i = document.querySelector('[data-ui~="home.id"] [data-ui~="crop.bg"] img'); return [i.style.getPropertyValue('--crop-x'), i.style.getPropertyValue('--crop-y')]; })()`);
 assert(reloadBanner[0] === "72%" && reloadBanner[1] === "38%", "Banner crop did not render after reload/restore");
 
 /* Assistant Phase 1: real full-body art, equal-height collapsible workspace,
    bounded composer and responsive character/conversation geometry. */
 await viewport(1440, 900);
 await evaluate(`KOS.show("assistant", { tab: "chat" })`);
-await waitFor("document.querySelector('.asst-presence .asst-mascot-img')?.naturalWidth === 1024", "Assistant full-body character");
+await waitFor("document.querySelector('[data-ui~=\"asst.presence\"] [data-ui~=\"asst.mascot-img\"]')?.naturalWidth === 1024", "Assistant full-body character");
 await pause(360);
-const assistantWasCollapsed = await evaluate(`document.querySelector('.asst-shell').classList.contains('is-side-collapsed')`);
+const assistantWasCollapsed = await evaluate(`document.querySelector('[data-ui~="asst.shell"]').matches('[data-state~="is-side-collapsed"]')`);
 if (assistantWasCollapsed) {
-  await evaluate(`document.querySelector('.asst-side-collapse').click()`);
+  await evaluate(`document.querySelector('[data-ui~="asst.nav-collapse"]').click()`);
   await pause(260);
 }
 const assistantWide = await evaluate(`(() => {
-  const shell = document.querySelector('.asst-shell'), side = document.querySelector('.asst-tabs'), page = document.querySelector('.asst-page');
-  const chat = document.querySelector('.asst-chat-main'), presence = document.querySelector('.asst-presence');
-  const composer = document.querySelector('.asst-composer-in'), image = document.querySelector('.asst-presence .asst-mascot-img');
+  const shell = document.querySelector('[data-ui~="asst.shell"]'), side = document.querySelector('[data-ui~="asst.nav"]'), page = document.querySelector('[data-ui~="asst.page"]');
+  const chat = document.querySelector('[data-ui~="asst.chat-main"]'), presence = document.querySelector('[data-ui~="asst.presence"]');
+  const composer = document.querySelector('[data-ui~="asst.composer"]'), image = document.querySelector('[data-ui~="asst.presence"] [data-ui~="asst.mascot-img"]');
   return {
     shellHeight: Math.round(shell.getBoundingClientRect().height), sideHeight: Math.round(side.getBoundingClientRect().height),
     pageHeight: Math.round(page.getBoundingClientRect().height), chatWidth: Math.round(chat.getBoundingClientRect().width),
     pairedHeights: [Math.round(chat.getBoundingClientRect().height), Math.round(presence.getBoundingClientRect().height)],
-    image: [image.naturalWidth, image.naturalHeight], hitAreas: presence.querySelectorAll('.asst-hit-zone').length,
+    image: [image.naturalWidth, image.naturalHeight], hitAreas: presence.querySelectorAll('[data-ui~="asst.hit-zone"]').length,
     composerMin: Math.round(composer.getBoundingClientRect().height), composerMax: parseFloat(getComputedStyle(composer).maxHeight),
     overflow: document.documentElement.scrollWidth - innerWidth
   };
@@ -1038,18 +1040,18 @@ assert(Math.abs(assistantWide.shellHeight - assistantWide.sideHeight) <= 1 && Ma
   assistantWide.hitAreas === 3 && assistantWide.composerMin <= 72 && assistantWide.composerMax <= 180 && assistantWide.overflow <= 1,
   `Assistant desktop composition failed: ${JSON.stringify(assistantWide)}`);
 await screenshot("/tmp/kos-assistant-1440.png");
-await evaluate(`document.querySelector('.asst-side-collapse').click()`);
+await evaluate(`document.querySelector('[data-ui~="asst.nav-collapse"]').click()`);
 await pause(260);
 const assistantCollapsed = await evaluate(`(() => ({
-  collapsed: document.querySelector('.asst-shell').classList.contains('is-side-collapsed'),
-  chatWidth: Math.round(document.querySelector('.asst-chat-main').getBoundingClientRect().width)
+  collapsed: document.querySelector('[data-ui~="asst.shell"]').matches('[data-state~="is-side-collapsed"]'),
+  chatWidth: Math.round(document.querySelector('[data-ui~="asst.chat-main"]').getBoundingClientRect().width)
 }))()`);
 assert(assistantCollapsed.collapsed && assistantCollapsed.chatWidth > assistantWide.chatWidth,
   `Assistant collapse did not return space to the conversation: ${JSON.stringify(assistantCollapsed)}`);
 await screenshot("/tmp/kos-assistant-collapsed-1440.png");
 const assistantStateSwap = await evaluate(`(() => {
   KOS.assistant.character.setLifecycle('success', { requestId: 'visual-audit', claim: true, releaseConfirmation: true, silentAudio: true });
-  const src = document.querySelector('.asst-presence .asst-mascot-img').getAttribute('src');
+  const src = document.querySelector('[data-ui~="asst.presence"] [data-ui~="asst.mascot-img"]').getAttribute('src');
   KOS.assistant.character.setLifecycle('idle', { requestId: 'visual-audit', releaseConfirmation: true, silentAudio: true });
   return src;
 })()`);
@@ -1057,14 +1059,14 @@ assert(assistantStateSwap.endsWith("/mascot/states/success.png"), `Assistant sta
 
 await viewport(390, 844);
 await evaluate(`KOS.show("assistant", { tab: "chat" })`);
-await waitFor("document.querySelector('.asst-page-chat .asst-mascot-img')?.naturalWidth === 1024", "mobile Assistant character");
+await waitFor("document.querySelector('#asst-page-panel [data-ui~=\"asst.mascot-img\"]')?.naturalWidth === 1024", "mobile Assistant character");
 await pause(360);
 const assistantPhone = await evaluate(`(() => {
-  const layout = document.querySelector('.asst-chat-layout'), presence = document.querySelector('.asst-presence');
+  const layout = document.querySelector('[data-ui~="asst.chat-layout"]'), presence = document.querySelector('[data-ui~="asst.presence"]');
   KOS.assistant.open();
-  const drawer = document.querySelector('.asst-drawer'), focused = document.activeElement?.classList.contains('asst-composer-in');
+  const drawer = document.querySelector('[data-ui~="asst.drawer"]'), focused = document.activeElement?.matches('[data-ui~="asst.composer"]');
   const result = { columns: getComputedStyle(layout).gridTemplateColumns.split(' ').length,
-    doc: document.documentElement.scrollWidth, viewport: innerWidth, characterHeight: Math.round(presence.querySelector('.asst-mascot-frame').getBoundingClientRect().height),
+    doc: document.documentElement.scrollWidth, viewport: innerWidth, characterHeight: Math.round(presence.querySelector('[data-ui~="asst.mascot-frame"]').getBoundingClientRect().height),
     drawerWidth: Math.round(drawer.getBoundingClientRect().width), focused };
   KOS.assistant.close();
   return result;

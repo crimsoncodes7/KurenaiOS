@@ -16,9 +16,10 @@
 
    The table was generated once, in M1, from the hook names in
    docs/ui-rebuild/view-contracts.md and every legacy class that the smoke
-   suites or the app code queried at that point. From here it only
-   shrinks: a rebuilt view deletes its rows. Never add a row — new markup
-   writes its hooks itself.                                             */
+   suites or the app code queried at that point (M2 completed it with the
+   classes tools/visual_audit.mjs queried). From here it only shrinks: a
+   rebuilt view deletes its rows. Never add a row — new markup writes its
+   hooks itself.                                             */
 (function () {
   "use strict";
 
@@ -711,7 +712,72 @@
     "wl-row"                       : "plan.row",
     "wl-tabs"                      : "plan.tabs",
     "wl-top"                       : "plan.top",
-    "workspace-header-tabs"        : "ui.header-tabs"
+    "workspace-header-tabs"        : "ui.header-tabs",
+
+    /* M2: the classes tools/visual_audit.mjs queried. M1 generated the
+       table from the smoke suites and the app code and did not scan the
+       browser audit, so these are that generation completed, not new
+       markup vocabulary. They leave with their views like every row. */
+    "arr"                          : "part.arrow",
+    "asst-chat-layout"             : "asst.chat-layout",
+    "asst-chat-main"               : "asst.chat-main",
+    "asst-presence"                : "asst.presence",
+    "at-dot"                       : "asst.trigger-dot",
+    "av-pv-avatar"                 : "gov.avatar-preview-avatar",
+    "av-pv-status"                 : "gov.avatar-preview-status",
+    "av-sec"                       : "gov.avatar-section",
+    "cmp-actions"                  : "study.compare-actions",
+    "cmp-body"                     : "study.compare-body",
+    "cmp-modal"                    : "study.compare-dialog",
+    "cmp-note-modal"               : "study.compare-note-dialog",
+    "cmp-notes"                    : "study.compare-notes",
+    "cmp-row"                      : "study.compare-row",
+    "cmp-row-cells"                : "study.compare-row-cells",
+    "cmp-selectors"                : "study.compare-selectors",
+    "cmp-sticky-head"              : "study.compare-sticky-head",
+    "cmp-tabs"                     : "study.compare-tabs",
+    "cmp-topic"                    : "study.compare-topic",
+    "colcard"                      : "ui.colcard",
+    "cropper-small-actions"        : "crop.small-actions",
+    "data-action"                  : "archive.data-action",
+    "fx-setup"                     : "focus.setup",
+    "goal-commandbar"              : "goal.commandbar",
+    "goal-form-section"            : "goal.form-group",
+    "goal-grid-v2"                 : "goal.grid",
+    "goal-link-wrap"               : "goal.link-wrap",
+    "goal-modal-actions"           : "goal.modal-actions",
+    "goal-modal-delete"            : "goal.delete",
+    "goal-target-field"            : "goal.target-field",
+    "goal-type-field"              : "goal.type-field",
+    "goals-workspace"              : "goal.workspace",
+    "gov-history"                  : "gov.history",
+    "gstat-mini"                   : "gov.stat-mini",
+    "heat-stats"                   : "gov.heat-stats",
+    "help-aside"                   : "help.aside",
+    "help-content"                 : "help.content",
+    "help-nav"                     : "help.nav",
+    "help-search"                  : "help.search",
+    "help-search-shell"            : "help.search-shell",
+    "help-wrap"                    : "help.wrap",
+    "integration-facts"            : "sync.provider-facts",
+    "med-mods"                     : "coll.modules",
+    "mx-now-cover"                 : "coll.now-cover",
+    "mx-now-title"                 : "coll.now-title",
+    "shop-access-note"             : "shop.access-note",
+    "shop-card-f"                  : "shop.card-foot",
+    "shop-depts"                   : "shop.depts",
+    "shrine-card-actions"          : "shrine.card-actions",
+    "shrine-card-btn"              : "shrine.card-button",
+    "shrine-card-img"              : "shrine.card-image",
+    "shrine-feature-actions"       : "shrine.feature-actions",
+    "shrine-feature-body"          : "shrine.feature-body",
+    "shrine-rank-cover"            : "shrine.rank-cover",
+    "shrine-row-score"             : "shrine.row-score",
+    "shrine-score"                 : "shrine.score",
+    "subject-grid"                 : "study.subject-grid",
+    "tree-subject-h"               : "study.spine-subject",
+    "vp-head"                      : "profile.vndb-head",
+    "wl-queue"                     : "plan.queue"
   };
 
   /* legacy state classes mirrored into data-state */
