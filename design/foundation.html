@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kurenai Foundation</title>
+<!-- KurenaiOS — design/foundation.html (UI rebuild M3)
+     The design specimen for sign-off. It loads ONLY the rebuild's layers
+     (css/tokens.css, css/base.css) and draws everything else from their
+     tokens. Its own <style> holds the specimen chrome (fd-*) and PROPOSALS
+     for the primitives M4/M5 will write into css/layout.css and
+     css/components.css (k-*); those proposals are not app CSS yet.
+     Built from docs/ui-rebuild/view-contracts.md and CLAUDE.md alone: no
+     legacy stylesheet, screenshot or mockup was consulted.
+     tools/foundation_artifact.mjs packages it for the review link. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Atkinson+Hyperlegible+Next:ital,wght@0,400..700;1,400..700&family=Atkinson+Hyperlegible+Mono:wght@400..600&display=swap">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<style>
+/* Unlayered on purpose: a host page may add its own unlayered reset, and
+   the specimen's ground must still be the token ground. */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-text);
+  font-size: var(--fs-16);
+  line-height: var(--leading-body);
+  margin: 0;
+}
+
+/* ================= proposals: layout primitives (css/layout.css, M4) ================= */
+.k-stack { display: flex; flex-direction: column; gap: var(--stack-gap, var(--space-5)); }
+.k-cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cluster-gap, var(--space-3)); }
+.k-grid { display: grid; gap: var(--grid-gap, var(--space-5)); grid-template-columns: repeat(auto-fit, minmax(min(var(--grid-min, 16rem), 100%), 1fr)); }
+.k-sidebar { display: flex; flex-wrap: wrap; gap: var(--sidebar-gap, var(--space-7)); }
+.k-sidebar > :first-child { flex-basis: var(--sidebar-w, 16rem); flex-grow: 1; }
+.k-sidebar > :last-child { flex-basis: 0; flex-grow: 999; min-inline-size: min(60%, 100%); }
+.k-switcher { display: flex; flex-wrap: wrap; gap: var(--switch-gap, var(--space-4)); }
+.k-switcher > * { flex-grow: 1; flex-basis: calc((var(--switch-at, 36rem) - 100%) * 999); }
+.k-center { box-sizing: content-box; max-inline-size: var(--center-max, var(--measure)); margin-inline: auto; }
+
+/* ================= proposals: primitives (css/components.css, M5) ================= */
+.k-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-block-size: var(--hit); padding-inline: var(--space-4);
+  border: var(--border-width) solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface-1); color: var(--text);
+  font-size: var(--fs-14); font-weight: var(--weight-semibold); line-height: 1;
+  transition: background var(--dur-1) var(--ease-standard), border-color var(--dur-1) var(--ease-standard);
+}
+.k-button:hover { background: var(--surface-2); }
+.k-button--primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.k-button--primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+.k-button--quiet { background: transparent; border-color: transparent; color: var(--text-muted); }
+.k-button--quiet:hover { background: var(--surface-2); color: var(--text); }
+.k-button--danger { color: var(--danger); border-color: color-mix(in oklab, var(--danger) 55%, var(--border-default)); }
+.k-button--danger:hover { background: var(--danger-soft); }
+.k-button--sm { padding-inline: var(--space-3); font-size: var(--fs-12); }
+.k-button:disabled { opacity: 0.5; }
+.k-button[data-demo="focus"] { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
+@media (pointer: coarse) { .k-button { min-block-size: var(--hit-coarse); } }
+
+.k-field { display: flex; flex-direction: column; gap: var(--space-2); min-inline-size: 0; }
+.k-field > label, .k-label { font-size: var(--fs-14); font-weight: var(--weight-semibold); }
+.k-hint { font-size: var(--fs-12); color: var(--text-muted); }
+.k-error { font-size: var(--fs-12); color: var(--danger); font-weight: var(--weight-semibold); }
+.k-input {
+  inline-size: 100%; min-block-size: var(--hit); padding-inline: var(--space-4); padding-block: var(--space-2);
+  border: var(--border-width) solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface-3); color: var(--text); font-size: var(--fs-14);
+}
+textarea.k-input { min-block-size: calc(var(--hit) * 2.5); line-height: var(--leading-body); }
+.k-input[aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 var(--border-width) var(--danger); }
+.k-check { display: inline-flex; align-items: center; gap: var(--space-3); min-block-size: var(--hit); font-size: var(--fs-14); }
+.k-switch { display: inline-flex; align-items: center; gap: var(--space-3); min-block-size: var(--hit); font-size: var(--fs-14); }
+.k-switch-track {
+  inline-size: var(--space-9); block-size: var(--space-6); border-radius: var(--radius-pill);
+  background: var(--surface-2); border: var(--border-width) solid var(--border-strong);
+  position: relative; transition: background var(--dur-2) var(--ease-standard);
+}
+.k-switch-track::after {
+  content: ""; position: absolute; inset-block: var(--space-1); inset-inline-start: var(--space-1);
+  inline-size: var(--space-5); border-radius: var(--radius-pill); background: var(--text-muted);
+  transition: transform var(--dur-2) var(--ease-standard);
+}
+.k-switch[aria-checked="true"] .k-switch-track { background: var(--accent); border-color: var(--accent); }
+.k-switch[aria-checked="true"] .k-switch-track::after { background: var(--on-accent); transform: translateX(calc(var(--space-9) - var(--space-5) - var(--space-2) - var(--border-width) * 2)); }
+
+.k-chip {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  min-block-size: var(--hit-dense); padding-inline: var(--space-3); border-radius: var(--radius-xs);
+  background: var(--surface-2); color: var(--text-muted);
+  font-size: var(--fs-12); font-weight: var(--weight-semibold); white-space: nowrap;
+}
+.k-chip--good { background: var(--good-soft); color: var(--good); }
+.k-chip--warn { background: var(--warn-soft); color: var(--warn); }
+.k-chip--danger { background: var(--danger-soft); color: var(--danger); }
+.k-chip--info { background: var(--info-soft); color: var(--info); }
+.k-chip--subject { background: color-mix(in oklab, var(--chip-hue) 14%, var(--surface-1)); color: var(--chip-hue); }
+
+.k-tabs { display: flex; gap: var(--space-1); border-block-end: var(--border-width) solid var(--border-subtle); overflow-x: auto; scrollbar-width: none; }
+.k-tab {
+  display: inline-flex; align-items: center; gap: var(--space-2); flex: 0 0 auto;
+  min-block-size: var(--hit); padding-inline: var(--space-4);
+  color: var(--text-muted); font-size: var(--fs-14); font-weight: var(--weight-semibold);
+}
+.k-tab:hover { color: var(--text); }
+.k-tab[aria-selected="true"], .k-tab[aria-current="page"] { color: var(--text); box-shadow: inset 0 calc(var(--thread) * -1) 0 var(--accent); }
+.k-tab-count { font-family: var(--font-mono); font-size: var(--fs-11); color: var(--text-muted); }
+
+.k-bar { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--space-3); font-size: var(--fs-12); }
+.k-bar-track { block-size: var(--space-2); border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+.k-bar-fill { block-size: 100%; inline-size: var(--bar, 0%); background: var(--bar-hue, var(--accent)); border-radius: inherit; }
+.k-bar--open .k-bar-fill {
+  inline-size: 50%;
+  background: repeating-linear-gradient(90deg, var(--bar-hue, var(--accent)) 0 var(--space-3), transparent var(--space-3) var(--space-4));
+}
+.k-bar-value { font-family: var(--font-mono); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+.k-card { background: var(--surface-1); border: var(--border-width) solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-5); }
+.k-kicker { font-size: var(--fs-11); font-weight: var(--weight-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--text-muted); }
+.k-page-sub { font-size: var(--fs-14); color: var(--text-muted); }
+.k-empty { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-5); border: var(--border-width) dashed var(--border-default); border-radius: var(--radius-md); color: var(--text-muted); font-size: var(--fs-14); }
+.k-empty-mark { font-family: var(--font-mark); font-size: var(--fs-23); color: var(--text-faint); }
+
+/* ================= specimen chrome (fd-*) ================= */
+.fd-wrap { max-inline-size: 84rem; margin-inline: auto; padding-inline: var(--gutter); padding-block: var(--space-8) var(--space-12); }
+.fd-head { display: grid; gap: var(--space-5); padding-block-end: var(--space-8); border-block-end: var(--border-width) solid var(--border-subtle); }
+.fd-head h1 { font-size: var(--fs-41); max-inline-size: 18ch; }
+.fd-lead { font-size: var(--fs-19); color: var(--text-muted); max-inline-size: 60ch; }
+.fd-dyes { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+.fd-dye { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: var(--space-3); padding: var(--space-3) var(--space-4) var(--space-3) var(--space-3); border-radius: var(--radius-sm); background: var(--surface-1); border: var(--border-width) solid var(--border-subtle); }
+.fd-dye b { grid-row: span 2; font-family: var(--font-mark); font-size: var(--fs-34); line-height: 1; inline-size: var(--space-11); block-size: var(--space-11); display: grid; place-items: center; border-radius: var(--radius-xs); }
+.fd-dye small { font-family: var(--font-mono); font-size: var(--fs-12); color: var(--text-muted); }
+.fd-dye--beni b { background: var(--beni-500); color: var(--ai-0); }
+.fd-dye--ai b { background: var(--ai-850); color: var(--ai-50); }
+.fd-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.fd-seg { display: inline-flex; padding: var(--space-1); gap: var(--space-1); border-radius: var(--radius-sm); background: var(--surface-2); }
+.fd-seg button { min-block-size: var(--hit); padding-inline: var(--space-4); border-radius: var(--radius-xs); font-size: var(--fs-14); font-weight: var(--weight-semibold); color: var(--text-muted); }
+.fd-seg button[aria-pressed="true"] { background: var(--surface-3); color: var(--text); box-shadow: var(--elev-1); }
+.fd-meta { font-family: var(--font-mono); font-size: var(--fs-12); color: var(--text-muted); }
+
+.fd-body { display: grid; grid-template-columns: 12rem minmax(0, 1fr); gap: var(--space-9); padding-block-start: var(--space-8); }
+.fd-toc { position: sticky; inset-block-start: var(--space-7); align-self: start; display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--fs-14); }
+.fd-toc a { color: var(--text-muted); text-decoration: none; padding-block: var(--space-2); padding-inline-start: var(--space-4); border-inline-start: var(--thread) solid var(--border-subtle); }
+.fd-toc a:hover { color: var(--text); border-inline-start-color: var(--accent); }
+.fd-main { display: flex; flex-direction: column; gap: var(--space-11); min-inline-size: 0; }
+.fd-sec { display: flex; flex-direction: column; gap: var(--space-6); scroll-margin-block-start: var(--space-7); }
+.fd-sec > header { display: flex; flex-direction: column; gap: var(--space-2); max-inline-size: 64ch; }
+.fd-sec > header p { color: var(--text-muted); }
+.fd-sub { font-family: var(--font-display); font-size: var(--fs-16); font-weight: var(--weight-semibold); }
+
+/* palette */
+.fd-themes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr)); gap: var(--space-5); }
+.fd-theme { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-md); background: var(--bg); color: var(--text); border: var(--border-width) solid var(--border-subtle); }
+.fd-theme h3 { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.fd-theme h3 small { font-family: var(--font-text); font-size: var(--fs-12); color: var(--text-muted); font-weight: var(--weight-regular); }
+.fd-roles { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: var(--space-3); list-style: none; padding: 0; margin: 0; }
+.fd-role { display: grid; gap: var(--space-1); font-size: var(--fs-12); }
+.fd-role i { display: block; block-size: var(--space-9); border-radius: var(--radius-xs); background: var(--c); border: var(--border-width) solid var(--border-subtle); }
+.fd-role code { font-size: var(--fs-12); }
+.fd-role span { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--fs-11); }
+.fd-contrast { inline-size: 100%; font-size: var(--fs-12); font-variant-numeric: tabular-nums; }
+.fd-contrast td, .fd-contrast th { padding: var(--space-2) var(--space-3); }
+.fd-contrast td:not(:first-child), .fd-contrast th:not(:first-child) { text-align: end; font-family: var(--font-mono); }
+.fd-contrast [data-pass="no"] { color: var(--danger); font-weight: var(--weight-bold); }
+.fd-contrast .fd-sample { font-family: var(--font-text); font-weight: var(--weight-semibold); }
+.fd-ramp { display: grid; grid-template-columns: repeat(auto-fit, minmax(4.25rem, 1fr)); border-radius: var(--radius-sm); overflow: hidden; border: var(--border-width) solid var(--border-subtle); }
+.fd-ramp div { min-block-size: var(--space-11); padding: var(--space-2); display: flex; flex-direction: column; justify-content: flex-end; font-family: var(--font-mono); font-size: var(--fs-11); background: var(--c); color: var(--ink); }
+.fd-pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: var(--space-3); }
+.fd-pair { display: grid; grid-template-columns: 1fr 1fr; border-radius: var(--radius-sm); overflow: hidden; border: var(--border-width) solid var(--border-subtle); font-size: var(--fs-12); }
+.fd-pair div { padding: var(--space-3); display: grid; gap: var(--space-1); }
+.fd-pair div:first-child { background: var(--ai-50); color: var(--c1); }
+.fd-pair div:last-child { background: var(--ai-850); color: var(--c2); }
+.fd-pair b { font-size: var(--fs-14); }
+.fd-pair span { font-family: var(--font-mono); font-size: var(--fs-11); }
+.fd-cal { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: var(--space-3); }
+.fd-cal div { border-radius: var(--radius-xs); padding: var(--space-2) var(--space-3); font-size: var(--fs-12); font-weight: var(--weight-semibold);
+  background: color-mix(in oklab, oklch(var(--cal-l) var(--cal-c) var(--h)) 16%, var(--surface-1));
+  box-shadow: inset var(--thread) 0 0 oklch(var(--cal-l) var(--cal-c) var(--h)); color: var(--text); }
+
+/* type */
+.fd-scale { display: flex; flex-direction: column; }
+.fd-step { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: var(--space-5); align-items: baseline; padding-block: var(--space-3); border-block-end: var(--border-width) solid var(--border-subtle); }
+.fd-step > span { font-family: var(--font-mono); font-size: var(--fs-11); color: var(--text-muted); }
+.fd-step > p { margin: 0; overflow-wrap: anywhere; }
+.fd-families { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr)); gap: var(--space-5); }
+.fd-family { display: flex; flex-direction: column; gap: var(--space-3); }
+.fd-family .fd-glyphs { font-size: var(--fs-28); line-height: var(--leading-display); }
+.fd-family p { margin: 0; font-size: var(--fs-14); color: var(--text-muted); }
+
+/* space & shape */
+.fd-space { display: flex; flex-direction: column; gap: var(--space-2); }
+.fd-space div { display: grid; grid-template-columns: 6rem 3rem 1fr; align-items: center; gap: var(--space-4); font-family: var(--font-mono); font-size: var(--fs-12); color: var(--text-muted); }
+.fd-space i { display: block; block-size: var(--space-4); inline-size: var(--s); background: var(--accent); border-radius: var(--radius-xs); }
+.fd-shapes { display: flex; flex-wrap: wrap; gap: var(--space-5); align-items: end; }
+.fd-shape { display: grid; gap: var(--space-2); justify-items: center; font-family: var(--font-mono); font-size: var(--fs-11); color: var(--text-muted); }
+.fd-shape i { display: block; inline-size: var(--space-11); block-size: var(--space-10); border: var(--thread) solid var(--text); border-radius: var(--r); }
+.fd-hit i { inline-size: var(--s); block-size: var(--s); border-radius: var(--radius-sm); border: var(--border-width) dashed var(--accent); display: grid; place-items: center; background: var(--accent-soft); }
+
+/* elevation */
+.fd-elev { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: var(--space-6); padding: var(--space-7); border-radius: var(--radius-md); background: var(--bg); }
+.fd-elev div { block-size: var(--space-12); border-radius: var(--radius-md); background: var(--surface-1); box-shadow: var(--e); display: grid; place-items: center; font-family: var(--font-mono); font-size: var(--fs-12); color: var(--text-muted); }
+.fd-elev div[data-top] { background: var(--surface-3); }
+.fd-z { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: var(--space-2); list-style: none; padding: 0; font-size: var(--fs-12); }
+.fd-z li { display: flex; justify-content: space-between; padding: var(--space-2) var(--space-3); background: var(--surface-1); border-radius: var(--radius-xs); border: var(--border-width) solid var(--border-subtle); }
+.fd-z b { font-family: var(--font-mono); }
+
+/* primitives demo */
+.fd-demo { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-6); border-radius: var(--radius-md); background: var(--surface-1); border: var(--border-width) solid var(--border-subtle); }
+.fd-demo > .k-kicker { margin-block-end: var(--space-1); }
+.fd-block { padding: var(--space-3) var(--space-4); border-radius: var(--radius-xs); background: var(--accent-soft); color: var(--accent-strong); font-family: var(--font-mono); font-size: var(--fs-12); border: var(--border-width) dashed color-mix(in oklab, var(--accent) 45%, transparent); }
+
+/* ================= the sample page (sp-*), composed at real widths ================= */
+.fd-frames { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-8); justify-items: start; }
+.fd-frame { inline-size: 100%; }
+.fd-frame { display: flex; flex-direction: column; gap: var(--space-3); min-inline-size: 0; }
+.fd-frame-label { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: var(--fs-12); color: var(--text-muted); }
+.fd-viewport { position: relative; overflow: hidden; border-radius: var(--radius-md); border: var(--border-width) solid var(--border-default); box-shadow: var(--elev-3); background: var(--bg); }
+.fd-viewport > .sp-app { transform-origin: 0 0; position: absolute; inset-block-start: 0; inset-inline-start: 0; }
+
+.sp-app { container: app / inline-size; background: var(--bg); color: var(--text); font-size: var(--fs-16); --sp-gutter: var(--space-9); }
+.sp-top { display: flex; align-items: center; gap: var(--space-5); block-size: var(--topbar-h); padding-inline: var(--space-5); border-block-end: var(--border-width) solid var(--border-subtle); background: var(--surface-1); }
+.sp-brand { display: flex; align-items: center; gap: var(--space-3); font-family: var(--font-display); font-weight: var(--weight-bold); font-size: var(--fs-16); }
+.sp-brand b { font-family: var(--font-mark); font-size: var(--fs-23); color: var(--accent); line-height: 1; }
+.sp-search { flex: 1; max-inline-size: 30rem; display: flex; align-items: center; gap: var(--space-3); min-block-size: var(--hit); padding-inline: var(--space-4); border-radius: var(--radius-sm); background: var(--surface-2); color: var(--text-faint); font-size: var(--fs-14); }
+.sp-search kbd { margin-inline-start: auto; font-size: var(--fs-11); }
+.sp-actions { margin-inline-start: auto; display: flex; align-items: center; gap: var(--space-2); }
+.sp-icon { inline-size: var(--hit); block-size: var(--hit); display: grid; place-items: center; border-radius: var(--radius-sm); color: var(--text-muted); position: relative; font-size: var(--fs-16); }
+.sp-icon sup { position: absolute; inset-block-start: var(--space-1); inset-inline-end: var(--space-1); min-inline-size: var(--space-5); padding-inline: var(--space-1); border-radius: var(--radius-pill); background: var(--accent); color: var(--on-accent); font-size: var(--fs-11); font-weight: var(--weight-bold); line-height: var(--space-5); text-align: center; }
+.sp-cols { display: grid; grid-template-columns: var(--rail-w) 15.5rem minmax(0, 1fr); min-block-size: 58rem; }
+.sp-rail { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-4) var(--space-3); background: var(--surface-1); border-inline-end: var(--border-width) solid var(--border-subtle); }
+.sp-rail a { display: grid; grid-template-columns: var(--space-7) 1fr auto; align-items: center; gap: var(--space-3); min-block-size: var(--hit); padding-inline: var(--space-3); border-radius: var(--radius-sm); color: var(--text-muted); text-decoration: none; font-size: var(--fs-14); font-weight: var(--weight-semibold); }
+.sp-rail a b { font-family: var(--font-mark); font-size: var(--fs-19); font-weight: var(--weight-regular); text-align: center; }
+.sp-rail a em { font-style: normal; font-family: var(--font-mono); font-size: var(--fs-11); color: var(--accent-strong); }
+.sp-rail a[aria-current="page"] { color: var(--text); background: var(--surface-2); box-shadow: inset var(--thread) 0 0 var(--accent); }
+.sp-rail a[aria-current="page"] b { color: var(--accent); }
+.sp-hud { margin-block-start: auto; display: grid; gap: var(--space-1); padding: var(--space-3); border-radius: var(--radius-sm); background: var(--surface-2); font-size: var(--fs-12); }
+.sp-hud strong { font-family: var(--font-display); font-size: var(--fs-14); }
+.sp-hud span { font-family: var(--font-mono); color: var(--text-muted); }
+.sp-spine { padding: var(--space-5) var(--space-4); border-inline-end: var(--border-width) solid var(--border-subtle); display: flex; flex-direction: column; gap: var(--space-2); font-size: var(--fs-14); }
+.sp-spine h2 { font-size: var(--fs-12); font-family: var(--font-text); font-weight: var(--weight-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--text-muted); margin-block-end: var(--space-2); }
+.sp-spine ol { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.sp-spine li { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: baseline; padding: var(--space-2) var(--space-3); border-radius: var(--radius-xs); color: var(--text-muted); }
+.sp-spine li code { font-size: var(--fs-11); color: var(--text-faint); }
+.sp-spine li[aria-current="true"] { color: var(--text); background: var(--accent-soft); box-shadow: inset var(--thread) 0 0 var(--accent); }
+.sp-spine li[aria-current="true"] code { color: var(--accent-strong); }
+.sp-spine li[data-status="done"] code::after { content: " ✓"; color: var(--good); }
+.sp-stage { display: flex; flex-direction: column; min-inline-size: 0; }
+.sp-subnav { display: flex; gap: var(--space-1); padding-inline: var(--sp-gutter); border-block-end: var(--border-width) solid var(--border-subtle); overflow: hidden; }
+.sp-main { display: grid; grid-template-columns: minmax(0, 1fr) 19rem; gap: var(--space-8); padding: var(--space-8) var(--sp-gutter) var(--space-11); }
+.sp-head { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--space-2); }
+.sp-head h1 { font-size: var(--fs-34); }
+.sp-head h1 code { font-family: var(--font-mono); font-size: 0.7em; font-weight: var(--weight-medium); color: var(--accent-strong); margin-inline-end: var(--space-3); letter-spacing: 0; }
+.sp-spine-open { display: none; }
+.sp-article { display: flex; flex-direction: column; gap: var(--space-5); max-inline-size: var(--measure); }
+.sp-article p { margin: 0; }
+.sp-article pre { margin: 0; padding: var(--space-4) var(--space-5); border-radius: var(--radius-sm); background: var(--surface-2); font-size: var(--fs-14); line-height: var(--leading-body); }
+.sp-callout { padding: var(--space-4) var(--space-5); border-radius: var(--radius-sm); background: var(--info-soft); box-shadow: inset var(--thread) 0 0 var(--info); font-size: var(--fs-14); }
+.sp-callout b { color: var(--info); }
+.sp-ops { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; padding: 0; margin: 0; }
+.sp-ops code { display: inline-block; padding: var(--space-1) var(--space-3); border-radius: var(--radius-xs); background: var(--surface-1); border: var(--border-width) solid var(--border-subtle); font-size: var(--fs-14); }
+.sp-inspector { display: flex; flex-direction: column; gap: var(--space-6); align-self: start; padding: var(--space-6); border-radius: var(--radius-md); background: var(--surface-1); border: var(--border-width) solid var(--border-subtle); }
+.sp-inspector h2 { font-size: var(--fs-16); font-family: var(--font-display); }
+.sp-facts { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-4); font-size: var(--fs-14); margin: 0; }
+.sp-facts dt { color: var(--text-muted); }
+.sp-facts dd { margin: 0; text-align: end; font-weight: var(--weight-semibold); }
+.sp-checks { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+.sp-checks label { display: flex; align-items: center; gap: var(--space-3); min-block-size: var(--hit); padding-inline: var(--space-3); border-radius: var(--radius-sm); border: var(--border-width) solid var(--border-default); font-size: var(--fs-14); }
+.sp-rag { display: flex; gap: var(--space-2); }
+.sp-rag button { flex: 1; min-block-size: var(--hit); border-radius: var(--radius-sm); border: var(--border-width) solid var(--border-default); font-size: var(--fs-12); font-weight: var(--weight-bold); color: var(--text-muted); }
+.sp-rag button[aria-checked="true"] { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+.sp-tabbar { display: none; }
+
+/* the five tiers, widest first — as container queries, so each frame
+   composes at its own width inside one page */
+@container app (max-width: 1240px) {
+  .sp-main { grid-template-columns: minmax(0, 1fr); }
+  .sp-inspector { max-inline-size: var(--measure); }
+}
+@container app (max-width: 1080px) {
+  .sp-cols { grid-template-columns: var(--rail-w-compact) 15.5rem minmax(0, 1fr); }
+  .sp-rail a { grid-template-columns: 1fr; justify-items: center; }
+  .sp-rail a span, .sp-rail a em, .sp-hud { display: none; }
+  .sp-app { --sp-gutter: var(--space-8); }
+}
+@container app (max-width: 860px) {
+  .sp-cols { grid-template-columns: var(--rail-w-compact) minmax(0, 1fr); }
+  .sp-spine { display: none; }
+  .sp-spine-open { display: inline-flex; align-self: flex-start; }
+  .sp-app { --sp-gutter: var(--space-7); }
+}
+@container app (max-width: 700px) {
+  .sp-app { --sp-gutter: var(--space-5); }
+  .sp-cols { grid-template-columns: minmax(0, 1fr); min-block-size: 0; padding-block-end: var(--tabbar-h); }
+  .sp-rail, .sp-subnav, .sp-search span, .sp-search kbd { display: none; }
+  .sp-search { flex: 0 0 auto; inline-size: var(--hit-coarse); padding: 0; justify-content: center; margin-inline-start: auto; }
+  .sp-actions { margin-inline-start: 0; }
+  .sp-main { padding-block-start: var(--space-6); gap: var(--space-6); }
+  .sp-head h1 { font-size: var(--fs-28); }
+  .sp-tabbar { display: grid; grid-template-columns: repeat(5, 1fr); position: absolute; inset-inline: 0; inset-block-end: 0; block-size: var(--tabbar-h); background: var(--surface-1); border-block-start: var(--border-width) solid var(--border-subtle); }
+  .sp-tabbar a { display: grid; place-content: center; justify-items: center; gap: var(--space-1); color: var(--text-muted); text-decoration: none; font-size: var(--fs-11); font-weight: var(--weight-semibold); }
+  .sp-tabbar a b { font-family: var(--font-mark); font-size: var(--fs-19); font-weight: var(--weight-regular); line-height: 1; }
+  .sp-tabbar a[aria-current="page"] { color: var(--text); box-shadow: inset 0 var(--thread) 0 var(--accent); }
+  .sp-tabbar a[aria-current="page"] b { color: var(--accent); }
+}
+@container app (max-width: 560px) {
+  .sp-checks { grid-template-columns: 1fr; }
+  .sp-top { padding-inline: var(--space-4); gap: var(--space-3); }
+}
+
+/* the specimen at phone width */
+@media (max-width: 860px) {
+  .fd-body { grid-template-columns: minmax(0, 1fr); }
+  .fd-toc { position: static; flex-direction: row; flex-wrap: wrap; gap: var(--space-2); }
+  .fd-toc a { border-inline-start: 0; border-block-end: var(--thread) solid var(--border-subtle); padding-inline: var(--space-2); }
+}
+@media (max-width: 560px) {
+  .fd-head h1 { font-size: var(--fs-34); }
+  .fd-step { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+}
+</style>
+</head>
+<body>
+<div class="fd-wrap">
+
+<header class="fd-head">
+  <p class="k-kicker">KurenaiOS · UI rebuild M3 · design spec v1, for sign-off</p>
+  <h1>Kurenai Foundation</h1>
+  <p class="fd-lead">The tokens and element defaults every rebuilt view will be drawn from. Two dyes make the whole palette: safflower crimson for the one thing that matters on a surface, and indigo for everything else.</p>
+  <div class="fd-dyes" aria-label="The two dyes">
+    <div class="fd-dye fd-dye--beni"><b lang="ja">紅</b><span>beni · safflower</span><small>--beni-500 · the accent</small></div>
+    <div class="fd-dye fd-dye--ai"><b lang="ja">藍</b><span>ai · indigo</span><small>--ai-* · every neutral</small></div>
+  </div>
+  <div class="fd-bar">
+    <div class="fd-seg" role="group" aria-label="Specimen theme">
+      <button type="button" data-set-theme="follow" aria-pressed="true">Follow device</button>
+      <button type="button" data-set-theme="atelier-dawn" aria-pressed="false">Dawn</button>
+      <button type="button" data-set-theme="atelier-dusk" aria-pressed="false">Dusk</button>
+    </div>
+    <p class="fd-meta" id="fd-state">css/tokens.css · css/base.css</p>
+  </div>
+</header>
+
+<div class="fd-body">
+  <nav class="fd-toc" aria-label="Specimen sections">
+    <a href="#palette">Palette</a>
+    <a href="#type">Type</a>
+    <a href="#space">Space and shape</a>
+    <a href="#elevation">Elevation</a>
+    <a href="#controls">Controls</a>
+    <a href="#layout">Layout</a>
+    <a href="#sample">Sample page</a>
+    <a href="#decisions">For sign-off</a>
+  </nav>
+
+  <main class="fd-main">
+
+  <!-- ================= palette ================= -->
+  <section class="fd-sec" id="palette" aria-labelledby="h-palette">
+    <header>
+      <h2 id="h-palette">Palette</h2>
+      <p>Dawn is indigo ink on undyed paper; Dusk is the indigo vat. The ink of one is the ground of the other. The accent is the only saturated colour on a surface, so it always marks where you are or what to do next. Semantic colours (good, warn, danger, info) are a separate set and never borrow the accent.</p>
+    </header>
+
+    <div class="fd-themes">
+      <article class="fd-theme" data-theme="atelier-dawn" data-panel>
+        <h3>Atelier Dawn <small>default · :root</small></h3>
+        <ul class="fd-roles" data-roles></ul>
+        <table class="fd-contrast" data-contrast><caption class="sr-only">Contrast in Dawn</caption></table>
+      </article>
+      <article class="fd-theme" data-theme="atelier-dusk" data-panel>
+        <h3>Atelier Dusk <small>[data-theme="atelier-dusk"]</small></h3>
+        <ul class="fd-roles" data-roles></ul>
+        <table class="fd-contrast" data-contrast><caption class="sr-only">Contrast in Dusk</caption></table>
+      </article>
+    </div>
+
+    <h3 class="fd-sub">Ramps</h3>
+    <div class="fd-ramp" aria-label="ai, the indigo neutrals" data-ramp="ai" data-steps="0 25 50 100 150 200 300 400 500 600 700 750 800 850 900 1000"></div>
+    <div class="fd-ramp" aria-label="beni, the safflower crimson" data-ramp="beni" data-steps="50 100 200 300 400 500 600 700 800 950"></div>
+
+    <h3 class="fd-sub">Semantic and subject hues, paper step and vat step</h3>
+    <div class="fd-pairs">
+      <div class="fd-pair" style="--c1: var(--matsu-700); --c2: var(--matsu-300)"><div><b>Good</b><span>matsu · pine</span></div><div><b>Good</b><span>--good</span></div></div>
+      <div class="fd-pair" style="--c1: var(--ukon-700); --c2: var(--ukon-300)"><div><b>Warn</b><span>ukon · turmeric</span></div><div><b>Warn</b><span>--warn</span></div></div>
+      <div class="fd-pair" style="--c1: var(--shu-700); --c2: var(--shu-300)"><div><b>Danger</b><span>shu · vermilion</span></div><div><b>Danger</b><span>--danger</span></div></div>
+      <div class="fd-pair" style="--c1: var(--gunjo-700); --c2: var(--gunjo-300)"><div><b>Info</b><span>gunjo · ultramarine</span></div><div><b>Focus</b><span>--focus-ring</span></div></div>
+      <div class="fd-pair" style="--c1: var(--kin-700); --c2: var(--kin-300)"><div><b>◈ 12,476</b><span>kin · the Governor's gold</span></div><div><b>◈ 12,476</b><span>--gold</span></div></div>
+      <div class="fd-pair" style="--c1: var(--compsci-700); --c2: var(--compsci-300)"><div><b>Computer Science</b><span>jade</span></div><div><b>AQA 7517</b><span>--subject-compsci</span></div></div>
+      <div class="fd-pair" style="--c1: var(--maths-700); --c2: var(--maths-300)"><div><b>Mathematics</b><span>blue</span></div><div><b>Edexcel 9MA0</b><span>--subject-maths</span></div></div>
+      <div class="fd-pair" style="--c1: var(--it-700); --c2: var(--it-300)"><div><b>IT · Data Analytics</b><span>violet</span></div><div><b>OCR AAQ</b><span>--subject-it</span></div></div>
+    </div>
+
+    <h3 class="fd-sub">Calendar categories (--ev-hue), drawn from tokens only</h3>
+    <div class="fd-cal">
+      <div style="--h: var(--cal-clay)">09:00 · Exam</div>
+      <div style="--h: var(--cal-brass)">23:59 · Deadline</div>
+      <div style="--h: var(--cal-jade)">14:00 · Study block</div>
+      <div style="--h: var(--cal-sky)">Lesson</div>
+      <div style="--h: var(--cal-plum)">Personal</div>
+      <div style="--h: var(--cal-iris)">Iris</div>
+      <div style="--h: var(--cal-sage)">Sage</div>
+      <div style="--h: var(--cal-slate)">Slate</div>
+    </div>
+  </section>
+
+  <!-- ================= type ================= -->
+  <section class="fd-sec" id="type" aria-labelledby="h-type">
+    <header>
+      <h2 id="h-type">Type</h2>
+      <p>A minor-third scale on a 4px grid, from an 11px floor to 41. The text and mono faces are Atkinson Hyperlegible: a study app lives on glyphs that are easy to confuse (1, l, I; 0, O; ×, x), and this family was drawn to tell them apart. Bricolage Grotesque sets headings, with restraint.</p>
+    </header>
+
+    <div class="fd-families">
+      <div class="fd-family">
+        <span class="k-kicker">Display · --font-display</span>
+        <p class="fd-glyphs" style="font-family: var(--font-display); font-weight: var(--weight-semibold)">Where am I in Computer Science?</p>
+        <p>Bricolage Grotesque, 400–700. Headings, page titles, big figures.</p>
+      </div>
+      <div class="fd-family">
+        <span class="k-kicker">Text · --font-text</span>
+        <p class="fd-glyphs" style="font-family: var(--font-text)">Il1 | O0 | rn m | 6 due</p>
+        <p>Atkinson Hyperlegible Next, 400–700 with italics. Everything you read.</p>
+      </div>
+      <div class="fd-family">
+        <span class="k-kicker">Mono · --font-mono</span>
+        <p class="fd-glyphs" style="font-family: var(--font-mono)">4.2.3.1 · O(n log n)</p>
+        <p>Atkinson Hyperlegible Mono, 400–600. Spec refs, code, tabular figures.</p>
+      </div>
+      <div class="fd-family">
+        <span class="k-kicker">Marks · --font-mark</span>
+        <p class="fd-glyphs" lang="ja" style="font-family: var(--font-mark)">紅 灯 学 整 蒐 守 助 蔵</p>
+        <p>The system mincho (Hiragino, Yu, Noto Serif JP). No webfont: eight glyphs do not justify one.</p>
+      </div>
+    </div>
+
+    <div class="fd-scale">
+      <div class="fd-step"><span>41 · display</span><p style="font: var(--weight-semibold) var(--fs-41)/var(--leading-display) var(--font-display); letter-spacing: var(--tracking-display)">203 cards due</p></div>
+      <div class="fd-step"><span>34 · h1</span><p style="font: var(--weight-semibold) var(--fs-34)/var(--leading-display) var(--font-display); letter-spacing: var(--tracking-display)">4.2.3.1 Stacks</p></div>
+      <div class="fd-step"><span>28 · h1 phone</span><p style="font: var(--weight-semibold) var(--fs-28)/var(--leading-display) var(--font-display); letter-spacing: var(--tracking-display)">Fundamentals of data structures</p></div>
+      <div class="fd-step"><span>23 · h2</span><p style="font: var(--weight-semibold) var(--fs-23)/var(--leading-heading) var(--font-display)">This week in the plan</p></div>
+      <div class="fd-step"><span>19 · h3, lead</span><p style="font: var(--weight-semibold) var(--fs-19)/var(--leading-heading) var(--font-display)">Next: clear the queue before the mock</p></div>
+      <div class="fd-step"><span>16 · body</span><p style="font-size: var(--fs-16)">A stack is a last-in, first-out structure: the item most recently pushed is the first one popped. Push and pop both work at the top, which a single pointer tracks.</p></div>
+      <div class="fd-step"><span>14 · small, page sub</span><p style="font-size: var(--fs-14); color: var(--text-muted)">AQA 7517 · Paper 1 · started three days ago</p></div>
+      <div class="fd-step"><span>12 · caption</span><p style="font-size: var(--fs-12); color: var(--text-muted)">Next review Thursday · interval 6 days · ease 2.3</p></div>
+      <div class="fd-step"><span>11 · label floor</span><p class="k-kicker">Continue where you left off</p></div>
+    </div>
+    <p class="k-page-sub">Line heights: 1.2 display, 1.35 headings, 1.55 body. Weights 400 / 500 / 600 / 700. Display sizes track −0.02em; capital labels +0.04em. Running text stops at 68ch.</p>
+  </section>
+
+  <!-- ================= space & shape ================= -->
+  <section class="fd-sec" id="space" aria-labelledby="h-space">
+    <header>
+      <h2 id="h-space">Space and shape</h2>
+      <p>Every margin, padding and gap is a step of this ramp (smoke55 rejects any other px length). Corners are cut paper, not pills: small radii, one per role.</p>
+    </header>
+    <div class="fd-space" data-space></div>
+
+    <h3 class="fd-sub">Radii</h3>
+    <div class="fd-shapes">
+      <div class="fd-shape" style="--r: var(--radius-xs)"><i></i>xs · 2 · chips</div>
+      <div class="fd-shape" style="--r: var(--radius-sm)"><i></i>sm · 4 · controls</div>
+      <div class="fd-shape" style="--r: var(--radius-md)"><i></i>md · 6 · panels</div>
+      <div class="fd-shape" style="--r: var(--radius-lg)"><i></i>lg · 10 · sheets</div>
+      <div class="fd-shape" style="--r: var(--radius-pill)"><i></i>pill · counts only</div>
+    </div>
+
+    <h3 class="fd-sub">Hit areas (invariant 69)</h3>
+    <div class="fd-shapes fd-hit">
+      <div class="fd-shape" style="--s: var(--hit-dense)"><i></i>24 · dense calendar only</div>
+      <div class="fd-shape" style="--s: var(--hit)"><i></i>32 · mouse</div>
+      <div class="fd-shape" style="--s: var(--hit-coarse)"><i></i>44 · finger</div>
+    </div>
+  </section>
+
+  <!-- ================= elevation ================= -->
+  <section class="fd-sec" id="elevation" aria-labelledby="h-elev">
+    <header>
+      <h2 id="h-elev">Elevation</h2>
+      <p>Shadow ink is mixed from each theme's darkest indigo, never black, so Dawn and Dusk keep one hierarchy (invariant 79). In Dusk a raised surface also gets lighter, because a shadow on indigo reads weakly.</p>
+    </header>
+    <div class="fd-themes">
+      <div class="fd-elev" data-theme="atelier-dawn">
+        <div style="--e: var(--elev-0)">elev-0</div><div style="--e: var(--elev-1)">elev-1</div><div style="--e: var(--elev-2)">elev-2</div><div style="--e: var(--elev-3)" data-top>elev-3</div><div style="--e: var(--elev-4)" data-top>elev-4</div>
+      </div>
+      <div class="fd-elev" data-theme="atelier-dusk">
+        <div style="--e: var(--elev-0)">elev-0</div><div style="--e: var(--elev-1)">elev-1</div><div style="--e: var(--elev-2)">elev-2</div><div style="--e: var(--elev-3)" data-top>elev-3</div><div style="--e: var(--elev-4)" data-top>elev-4</div>
+      </div>
+    </div>
+    <h3 class="fd-sub">Stacking (invariant 70)</h3>
+    <ol class="fd-z" data-z role="list"></ol>
+  </section>
+
+  <!-- ================= controls ================= -->
+  <section class="fd-sec" id="controls" aria-labelledby="h-controls">
+    <header>
+      <h2 id="h-controls">Controls</h2>
+      <p>Proposals for the primitives M5 writes into css/components.css, drawn only from tokens. A region has at most one primary button. A selected tab and the current place in a list share one mark: the safflower thread.</p>
+    </header>
+
+    <div class="fd-demo">
+      <span class="k-kicker">Buttons · intents primary, default, quiet, danger · sizes md, sm</span>
+      <div class="k-cluster">
+        <button type="button" class="k-button k-button--primary">Start reviewing</button>
+        <button type="button" class="k-button">Add resource</button>
+        <button type="button" class="k-button k-button--quiet">Skip for now</button>
+        <button type="button" class="k-button k-button--danger">Delete topic notes</button>
+        <button type="button" class="k-button" data-demo="focus">Focused</button>
+        <button type="button" class="k-button" disabled>Disabled</button>
+      </div>
+      <div class="k-cluster">
+        <button type="button" class="k-button k-button--primary k-button--sm">Save</button>
+        <button type="button" class="k-button k-button--sm">+1 ep</button>
+        <button type="button" class="k-button k-button--quiet k-button--sm">Cancel</button>
+      </div>
+    </div>
+
+    <div class="fd-demo">
+      <span class="k-kicker">Fields · label, control, hint, error (P-17)</span>
+      <div class="k-grid" style="--grid-min: 15rem">
+        <div class="k-field">
+          <label for="fd-title">Assignment title</label>
+          <input class="k-input" id="fd-title" type="text" value="NEA — Analysis section">
+          <span class="k-hint" id="fd-title-hint">Shown on the calendar and in countdowns.</span>
+        </div>
+        <div class="k-field">
+          <label for="fd-due">Due</label>
+          <input class="k-input" id="fd-due" type="date" value="2026-09-21" aria-invalid="true" aria-describedby="fd-due-err">
+          <span class="k-error" id="fd-due-err">⚠ The due date is before the date set. Pick a later day.</span>
+        </div>
+        <div class="k-field">
+          <label for="fd-status">Status</label>
+          <select class="k-input" id="fd-status"><option>Not started</option><option selected>In progress</option><option>Submitted</option></select>
+        </div>
+        <div class="k-field">
+          <label for="fd-note">Note</label>
+          <textarea class="k-input" id="fd-note">Revisit the worked example: write the justification out in full.</textarea>
+        </div>
+      </div>
+      <div class="k-cluster" style="--cluster-gap: var(--space-6)">
+        <label class="k-check" for="fd-c1"><input type="checkbox" id="fd-c1" checked> Notes read</label>
+        <label class="k-check" for="fd-c2"><input type="checkbox" id="fd-c2"> Quiz passed</label>
+        <label class="k-check" for="fd-r1"><input type="radio" name="fd-r" id="fd-r1" checked> Weekly</label>
+        <label class="k-check" for="fd-r2"><input type="radio" name="fd-r" id="fd-r2"> Daily</label>
+        <button type="button" class="k-switch" role="switch" aria-checked="true" id="fd-switch"><span class="k-switch-track" aria-hidden="true"></span> Device alerts</button>
+      </div>
+    </div>
+
+    <div class="fd-demo">
+      <span class="k-kicker">Tabs · chips · the progress bar · empty state</span>
+      <div class="k-tabs" role="tablist" aria-label="Topic material">
+        <button type="button" class="k-tab" role="tab" aria-selected="true">Notes</button>
+        <button type="button" class="k-tab" role="tab" aria-selected="false">Spec</button>
+        <button type="button" class="k-tab" role="tab" aria-selected="false">Flashcards <span class="k-tab-count">6</span></button>
+        <button type="button" class="k-tab" role="tab" aria-selected="false">Quiz</button>
+        <button type="button" class="k-tab" role="tab" aria-selected="false">Exam</button>
+        <button type="button" class="k-tab" role="tab" aria-selected="false">Files</button>
+      </div>
+      <div class="k-cluster">
+        <span class="k-chip k-chip--good">Secure</span>
+        <span class="k-chip k-chip--warn">Amber</span>
+        <span class="k-chip k-chip--danger">Overdue 2d</span>
+        <span class="k-chip k-chip--info">Synced</span>
+        <span class="k-chip">Planned</span>
+        <span class="k-chip k-chip--subject" style="--chip-hue: var(--subject-compsci)">Computer Science</span>
+        <span class="k-chip k-chip--subject" style="--chip-hue: var(--subject-maths)">Mathematics</span>
+        <span class="k-chip k-chip--subject" style="--chip-hue: var(--subject-it)">IT</span>
+      </div>
+      <div class="k-grid" style="--grid-min: 14rem">
+        <div class="k-stack" style="--stack-gap: var(--space-2)">
+          <span class="k-label">Specification</span>
+          <div class="k-bar"><div class="k-bar-track"><div class="k-bar-fill" style="--bar: 62%; --bar-hue: var(--subject-compsci)"></div></div><span class="k-bar-value">62%</span></div>
+        </div>
+        <div class="k-stack" style="--stack-gap: var(--space-2)">
+          <span class="k-label">Frieren, still airing</span>
+          <div class="k-bar k-bar--open" title="Series still releasing: 7 episodes, no total yet"><div class="k-bar-track"><div class="k-bar-fill"></div></div><span class="k-bar-value">7 ep</span></div>
+        </div>
+      </div>
+      <div class="k-empty"><span class="k-empty-mark" lang="ja" aria-hidden="true">澄</span><span>Queue clear. Nothing is due until Thursday.</span></div>
+    </div>
+  </section>
+
+  <!-- ================= layout ================= -->
+  <section class="fd-sec" id="layout" aria-labelledby="h-layout">
+    <header>
+      <h2 id="h-layout">Layout primitives</h2>
+      <p>Proposals for css/layout.css (M4). A div is allowed only as one of these; views compose them to at most four levels between a section and its content (smoke55's depth budget).</p>
+    </header>
+    <div class="k-grid" style="--grid-min: 17rem">
+      <div class="fd-demo"><span class="k-kicker">k-stack · vertical rhythm</span>
+        <div class="k-stack" style="--stack-gap: var(--space-3)"><div class="fd-block">Next action</div><div class="fd-block">Today's path</div><div class="fd-block">Desks</div></div></div>
+      <div class="fd-demo"><span class="k-kicker">k-cluster · wraps a row</span>
+        <div class="k-cluster"><div class="fd-block">push</div><div class="fd-block">pop</div><div class="fd-block">peek</div><div class="fd-block">isEmpty</div><div class="fd-block">isFull</div></div></div>
+      <div class="fd-demo"><span class="k-kicker">k-grid · auto-fit, no breakpoint</span>
+        <div class="k-grid" style="--grid-min: 5rem; --grid-gap: var(--space-3)"><div class="fd-block">CS</div><div class="fd-block">Maths</div><div class="fd-block">IT</div><div class="fd-block">Vault</div></div></div>
+      <div class="fd-demo"><span class="k-kicker">k-sidebar · content + inspector</span>
+        <div class="k-sidebar" style="--sidebar-w: 7rem; --sidebar-gap: var(--space-3)"><div class="fd-block">inspector</div><div class="fd-block">topic content</div></div></div>
+      <div class="fd-demo"><span class="k-kicker">k-switcher · row until it cannot</span>
+        <div class="k-switcher" style="--switch-at: 20rem; --switch-gap: var(--space-3)"><div class="fd-block">Focus</div><div class="fd-block">Break</div><div class="fd-block">Review</div></div></div>
+      <div class="fd-demo"><span class="k-kicker">k-center · the reading measure</span>
+        <div class="k-center" style="--center-max: 12rem"><div class="fd-block">68ch of notes, centred</div></div></div>
+    </div>
+  </section>
+
+  <!-- ================= sample page ================= -->
+  <section class="fd-sec" id="sample" aria-labelledby="h-sample">
+    <header>
+      <h2 id="h-sample">Sample page: a topic (V-03)</h2>
+      <p>One page composed at 1440 and at 390 from the tokens and the proposals above, following the topic-page contract: one header, one static study-nav row, one inspector as the only state surface. The frames respond to the five tiers as container queries, so both widths render on this page.</p>
+    </header>
+    <div class="fd-frames">
+      <div class="fd-frame"><div class="fd-frame-label"><span>1440 × 900 · desktop</span><span data-scale-label></span></div><div class="fd-viewport" data-viewport="1440"></div></div>
+      <div class="fd-frame"><div class="fd-frame-label"><span>390 × 844 · phone</span></div><div class="fd-viewport" data-viewport="390"></div></div>
+    </div>
+
+    <template id="sp-template">
+      <div class="sp-app">
+        <header class="sp-top">
+          <span class="sp-brand"><b lang="ja">紅</b>Kurenai</span>
+          <span class="sp-search" role="img" aria-label="Search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span>Search everything…</span><kbd>/</kbd></span>
+          <span class="sp-actions"><span class="sp-icon" role="img" aria-label="Notifications, 2 unread"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg><sup>2</sup></span><span class="sp-icon" role="img" aria-label="Assistant"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><path d="M12 9.5C12 5 9 3 12 3s0 2 0 6.5zM14.5 12c4.5 0 6.5-3 6.5 0s-2 0-6.5 0zM12 14.5c0 4.5 3 6.5 0 6.5s0-2 0-6.5zM9.5 12C5 12 3 15 3 12s2 0 6.5 0z"/></svg></span></span>
+        </header>
+        <div class="sp-cols">
+          <nav class="sp-rail" aria-label="Primary">
+            <a href="#sample"><b lang="ja">灯</b><span>Home</span></a>
+            <a href="#sample" aria-current="page"><b lang="ja">学</b><span>Study</span><em>12</em></a>
+            <a href="#sample"><b lang="ja">整</b><span>Productivity</span></a>
+            <a href="#sample"><b lang="ja">蒐</b><span>Collection</span></a>
+            <a href="#sample"><b lang="ja">守</b><span>Governor</span></a>
+            <a href="#sample"><b lang="ja">助</b><span>Assistant</span></a>
+            <a href="#sample"><b lang="ja">蔵</b><span>Archive</span></a>
+            <div class="sp-hud"><strong>Crimson · Lv 18</strong><span>74 HP · ◈ 12,476</span></div>
+          </nav>
+          <aside class="sp-spine" aria-label="Topic tree">
+            <h2>4.2 Data structures</h2>
+            <ol>
+              <li data-status="done"><code>4.2.1.1</code>Data structures</li>
+              <li data-status="done"><code>4.2.1.2</code>Arrays</li>
+              <li><code>4.2.1.3</code>Fields, records and files</li>
+              <li><code>4.2.2.1</code>Queues</li>
+              <li aria-current="true"><code>4.2.3.1</code>Stacks</li>
+              <li><code>4.2.4.1</code>Graphs</li>
+              <li><code>4.2.5.1</code>Trees</li>
+              <li><code>4.2.6.1</code>Hash tables</li>
+            </ol>
+          </aside>
+          <div class="sp-stage">
+            <nav class="sp-subnav" aria-label="Section">
+              <a class="k-tab" href="#sample" aria-current="page">Computer Science</a>
+              <a class="k-tab" href="#sample">Mathematics</a>
+              <a class="k-tab" href="#sample">IT · Data Analytics</a>
+              <a class="k-tab" href="#sample">Review <span class="k-tab-count">12</span></a>
+              <a class="k-tab" href="#sample">Exams &amp; Papers</a>
+            </nav>
+            <main class="sp-main">
+              <header class="sp-head">
+                <span class="k-kicker">Computer Science · 4.2.3 Stacks</span>
+                <h1><code>4.2.3.1</code>Stacks</h1>
+                <p class="k-page-sub">AQA 7517 · Paper 1 · started three days ago</p>
+                <button type="button" class="k-button k-button--sm sp-spine-open">Spec spine</button>
+                <div class="k-tabs" role="tablist" aria-label="Topic material">
+                  <button type="button" class="k-tab" role="tab" aria-selected="true">Notes</button>
+                  <button type="button" class="k-tab" role="tab" aria-selected="false">Spec</button>
+                  <button type="button" class="k-tab" role="tab" aria-selected="false">Flashcards <span class="k-tab-count">6</span></button>
+                  <button type="button" class="k-tab" role="tab" aria-selected="false">Quiz</button>
+                  <button type="button" class="k-tab" role="tab" aria-selected="false">Exam</button>
+                  <button type="button" class="k-tab" role="tab" aria-selected="false">Files</button>
+                </div>
+              </header>
+              <article class="sp-article">
+                <p>A stack is a <strong>last-in, first-out</strong> (LIFO) structure: the item pushed most recently is the first one popped. Every operation works at one end, the top, which a single pointer tracks.</p>
+                <ul class="sp-ops" role="list"><li><code>push</code></li><li><code>pop</code></li><li><code>peek</code> or <code>top</code></li><li><code>isEmpty</code></li><li><code>isFull</code></li></ul>
+                <pre><code>PROCEDURE push(item)
+  IF top = maxSize − 1 THEN
+    OUTPUT "Stack full"
+  ELSE
+    top ← top + 1
+    items[top] ← item
+  ENDIF
+ENDPROCEDURE</code></pre>
+                <p class="sp-callout"><b>Exam focus.</b> Check for a full stack <em>before</em> you push, and for an empty one before you pop. Mark schemes award the check separately.</p>
+                <p>Stacks hold the return addresses of subroutine calls, which is why unbounded recursion ends in a stack overflow.</p>
+              </article>
+              <aside class="sp-inspector" aria-labelledby="sp-insp-h">
+                <h2 id="sp-insp-h">This topic</h2>
+                <dl class="sp-facts">
+                  <dt>Status</dt><dd>Started</dd>
+                  <dt>Cards due</dt><dd>6 today</dd>
+                  <dt>Next review</dt><dd>Thursday</dd>
+                  <dt>Linked work</dt><dd>NEA analysis · Fri</dd>
+                </dl>
+                <div class="k-stack" style="--stack-gap: var(--space-3)">
+                  <span class="k-label">Progress checks</span>
+                  <div class="sp-checks">
+                    <label><input type="checkbox" checked> Notes</label>
+                    <label><input type="checkbox" checked> Spec</label>
+                    <label><input type="checkbox"> Quiz</label>
+                    <label><input type="checkbox"> Exam</label>
+                  </div>
+                </div>
+                <div class="k-stack" style="--stack-gap: var(--space-3)">
+                  <span class="k-label">Confidence</span>
+                  <div class="sp-rag" role="radiogroup" aria-label="Confidence">
+                    <button type="button" role="radio" aria-checked="false">Red</button>
+                    <button type="button" role="radio" aria-checked="true">Amber</button>
+                    <button type="button" role="radio" aria-checked="false">Green</button>
+                  </div>
+                </div>
+                <button type="button" class="k-button k-button--primary">Review 6 cards</button>
+              </aside>
+            </main>
+          </div>
+        </div>
+        <nav class="sp-tabbar" aria-label="Primary">
+          <a href="#sample"><b lang="ja">灯</b>Home</a>
+          <a href="#sample" aria-current="page"><b lang="ja">学</b>Study</a>
+          <a href="#sample"><b lang="ja">整</b>Focus</a>
+          <a href="#sample"><b lang="ja">蒐</b>Collection</a>
+          <a href="#sample"><b>⋯</b>More</a>
+        </nav>
+      </div>
+    </template>
+  </section>
+
+  <!-- ================= decisions ================= -->
+  <section class="fd-sec" id="decisions" aria-labelledby="h-decisions">
+    <header>
+      <h2 id="h-decisions">For sign-off</h2>
+      <p>What this spec commits the rebuild to. Each line is a decision you can reject on its own.</p>
+    </header>
+    <div class="k-grid" style="--grid-min: 18rem">
+      <div class="k-card k-stack" style="--stack-gap: var(--space-3)"><span class="k-kicker">Palette</span><p>Beni and ai: indigo neutrals, one safflower accent, Dusk as the indigo vat. Semantic colours are separate, and danger is vermilion, not the accent. Dawn and Dusk text roles reach AA on every surface (table above). Faint text is 3:1 and only for placeholders and disabled states.</p></div>
+      <div class="k-card k-stack" style="--stack-gap: var(--space-3)"><span class="k-kicker">Type</span><p>Bricolage Grotesque for headings; Atkinson Hyperlegible Next and Mono for text and data; the system mincho for the kanji marks. The families load from Google Fonts. index.html gains the link in M4 once you approve.</p></div>
+      <div class="k-card k-stack" style="--stack-gap: var(--space-3)"><span class="k-kicker">The thread</span><p>One mark for "you are here": a 2px safflower line on the current rail item, spine leaf and selected tab. Nothing else uses it.</p></div>
+      <div class="k-card k-stack" style="--stack-gap: var(--space-3)"><span class="k-kicker">Shape and space</span><p>Radii 2 / 4 / 6 / 10, a pill only for counts. The spacing ramp 0–80 is the only source of lengths; hit areas are 32, or 44 on touch.</p></div>
+      <div class="k-card k-stack" style="--stack-gap: var(--space-3)"><span class="k-kicker">Tiers</span><p>1240 folds the inspector under the content, 1080 compacts the rail to marks, 860 turns the spine into a drawer, 700 moves the rail to a bottom tab bar, and 560 drops to one column.</p></div>
+      <div class="k-card k-stack" style="--stack-gap: var(--space-3)"><span class="k-kicker">Not yet</span><p>The component and layout CSS here is a proposal: M4 (shell) and M5 (primitives) write it into the app. Shop themes stay on the default until M13; their ids already re-resolve through the scoped [data-theme] blocks.</p></div>
+    </div>
+  </section>
+
+  </main>
+</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.documentElement, body = document.body;
+
+  /* ---------- theme: follow the device (or the host's stamp), or pin one ---------- */
+  var mode = "follow";
+  try { mode = localStorage.getItem("kos-foundation-theme") || "follow"; } catch (e) { /* storage refused */ }
+  var dark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  function resolved() {
+    if (mode !== "follow") return mode;
+    var host = root.getAttribute("data-theme");
+    if (host === "dark") return "atelier-dusk";
+    if (host === "light") return "atelier-dawn";
+    return dark && dark.matches ? "atelier-dusk" : "atelier-dawn";
+  }
+  function apply() {
+    var t = resolved();
+    body.setAttribute("data-theme", t);
+    document.querySelectorAll(".fd-viewport .sp-app").forEach(function (a) { a.setAttribute("data-theme", t); });
+    document.querySelectorAll("[data-set-theme]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-set-theme") === mode));
+    });
+    document.getElementById("fd-state").textContent =
+      (t === "atelier-dusk" ? "Atelier Dusk" : "Atelier Dawn") + (mode === "follow" ? " · following the device" : " · pinned");
+  }
+  document.querySelectorAll("[data-set-theme]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      mode = b.getAttribute("data-set-theme");
+      try { localStorage.setItem("kos-foundation-theme", mode); } catch (e) { /* storage refused */ }
+      apply();
+    });
+  });
+  if (dark && dark.addEventListener) dark.addEventListener("change", apply);
+  if (window.MutationObserver) new MutationObserver(apply).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+
+  /* ---------- colour maths: resolve any CSS colour through a canvas ---------- */
+  var cv = document.createElement("canvas"); cv.width = cv.height = 1;
+  var cx = cv.getContext("2d", { willReadFrequently: true });
+  function rgb(css) {
+    cx.clearRect(0, 0, 1, 1); cx.fillStyle = "#000"; cx.fillStyle = css; cx.fillRect(0, 0, 1, 1);
+    var d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2]];
+  }
+  function hex(c) { return "#" + c.map(function (v) { return v.toString(16).padStart(2, "0"); }).join("").toUpperCase(); }
+  function lum(c) {
+    return c.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); })
+      .reduce(function (a, v, i) { return a + v * [0.2126, 0.7152, 0.0722][i]; }, 0);
+  }
+  function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function token(el, name) { return getComputedStyle(el).getPropertyValue(name).trim(); }
+
+  /* ---------- the two theme panels ---------- */
+  var ROLES = [
+    ["--bg", "ground"], ["--surface-1", "panel"], ["--surface-2", "well"], ["--surface-3", "overlay"],
+    ["--border-subtle", "hairline"], ["--border-default", "border"], ["--border-strong", "control edge"],
+    ["--text", "ink"], ["--text-muted", "secondary, page sub"], ["--text-faint", "placeholder"],
+    ["--accent", "the one accent"], ["--accent-strong", "accent as text"], ["--accent-soft", "accent wash"],
+    ["--focus-ring", "focus"], ["--good", "good"], ["--warn", "warn"], ["--danger", "danger"], ["--info", "info"], ["--gold", "gold"]
+  ];
+  var TEXT = [
+    ["--text", "Ink", 4.5], ["--text-muted", "Secondary", 4.5], ["--accent-strong", "Accent text", 4.5],
+    ["--good", "Good", 4.5], ["--warn", "Warn", 4.5], ["--danger", "Danger", 4.5], ["--info", "Info", 4.5],
+    ["--gold", "Gold", 4.5], ["--subject-compsci", "CS", 4.5], ["--subject-maths", "Maths", 4.5], ["--subject-it", "IT", 4.5],
+    ["--text-faint", "Faint (UI 3:1)", 3], ["--border-strong", "Control edge (UI 3:1)", 3], ["--focus-ring", "Focus (UI 3:1)", 3]
+  ];
+  var GROUNDS = ["--bg", "--surface-1", "--surface-2", "--surface-3"];
+  document.querySelectorAll("[data-panel]").forEach(function (panel) {
+    var list = panel.querySelector("[data-roles]");
+    ROLES.forEach(function (r) {
+      var li = document.createElement("li"); li.className = "fd-role";
+      var c = rgb(token(panel, r[0]));
+      li.innerHTML = '<i style="--c: var(' + r[0] + ')"></i><code>' + r[0] + "</code><span>" + hex(c) + " · " + r[1] + "</span>";
+      list.appendChild(li);
+    });
+    var table = panel.querySelector("[data-contrast]");
+    var grounds = GROUNDS.map(function (g) { return rgb(token(panel, g)); });
+    var head = "<thead><tr><th scope=\"col\">Role on</th>" + GROUNDS.map(function (g) { return "<th scope=\"col\">" + g.replace("--", "") + "</th>"; }).join("") + "</tr></thead>";
+    var rows = TEXT.map(function (t) {
+      var c = rgb(token(panel, t[0]));
+      return "<tr><th scope=\"row\" class=\"fd-sample\" style=\"color: var(" + t[0] + ")\">" + t[1] + "</th>" + grounds.map(function (g) {
+        var v = ratio(c, g);
+        return "<td data-pass=\"" + (v >= t[2] ? "yes" : "no") + "\">" + v.toFixed(1) + "</td>";
+      }).join("") + "</tr>";
+    }).join("");
+    table.insertAdjacentHTML("beforeend", head + "<tbody>" + rows + "</tbody>");
+  });
+
+  /* ---------- ramps, space, z ---------- */
+  document.querySelectorAll("[data-ramp]").forEach(function (ramp) {
+    var name = ramp.getAttribute("data-ramp");
+    ramp.getAttribute("data-steps").split(" ").forEach(function (s) {
+      var c = rgb(token(root, "--" + name + "-" + s));
+      var d = document.createElement("div");
+      d.style.setProperty("--c", "var(--" + name + "-" + s + ")");
+      d.style.setProperty("--ink", lum(c) > 0.35 ? "var(--ai-850)" : "var(--ai-25)");
+      d.innerHTML = "<b>" + s + "</b>" + hex(c);
+      ramp.appendChild(d);
+    });
+  });
+  var space = document.querySelector("[data-space]");
+  for (var i = 1; i <= 12; i++) {
+    var row = document.createElement("div");
+    row.innerHTML = "<span>--space-" + i + "</span><span>" + token(root, "--space-" + i) + "</span><i style=\"--s: var(--space-" + i + ")\"></i>";
+    space.appendChild(row);
+  }
+  var z = document.querySelector("[data-z]");
+  ["base", "stage", "sticky", "topbar", "drawer", "tabbar", "menu", "modal", "toast"].forEach(function (n) {
+    var li = document.createElement("li");
+    li.innerHTML = "<span>--z-" + n + "</span><b>" + token(root, "--z-" + n) + "</b>";
+    z.appendChild(li);
+  });
+
+  /* ---------- the sample page at 1440 and 390 ---------- */
+  var tpl = document.getElementById("sp-template");
+  var frames = [].slice.call(document.querySelectorAll("[data-viewport]")).map(function (vp) {
+    var w = +vp.getAttribute("data-viewport");
+    var app = tpl.content.firstElementChild.cloneNode(true);
+    app.style.inlineSize = w + "px";
+    vp.appendChild(app);
+    return { vp: vp, app: app, w: w };
+  });
+  function fit() {
+    frames.forEach(function (f) {
+      var avail = f.vp.parentElement.clientWidth;
+      var s = Math.min(1, avail / f.w);
+      var h = Math.max(f.app.scrollHeight, f.w === 390 ? 844 : 900);
+      f.app.style.blockSize = h + "px";
+      f.app.style.transform = "scale(" + s + ")";
+      f.vp.style.inlineSize = Math.round(f.w * s) + "px";
+      f.vp.style.blockSize = Math.round(h * s) + "px";
+      var lab = f.vp.parentElement.querySelector("[data-scale-label]");
+      if (lab) lab.textContent = s < 1 ? "shown at " + Math.round(s * 100) + "%" : "";
+    });
+  }
+  apply();
+  fit();
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(document.querySelector(".fd-frames"));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+})();
+</script>
+</body>
+</html>

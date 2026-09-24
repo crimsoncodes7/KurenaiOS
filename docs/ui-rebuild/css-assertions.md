@@ -60,6 +60,36 @@ on: smoke47 "no stylesheet sets text below the 11px floor" (invariant 63,
 replacing the "final polish block" list) and smoke55's colour-literal, raw
 px, breakpoint and legacy-vocabulary guards.
 
+## What M3 switched on
+
+M3 wrote `css/tokens.css` and `css/base.css`, so every contract those two
+layers own stopped waiting (32 waits → 24). Where the new palette renamed
+a token, the assertion was re-pointed, as planned:
+
+- smoke15 "canonical tokens": now requires the rebuild's semantic names
+  (`--bg`, `--surface-1..3`, `--border-*`, `--text-muted`, `--on-accent`,
+  `--focus-ring`, `--warn`, `--info`, `--elev-*` …), and — replacing the
+  four fixed alias checks — requires that **every custom property the
+  JavaScript reads and does not set itself is defined by the tokens
+  layer**, through a bridge of aliases that may hold no literal value.
+  `--kurenai: var(--accent)` is still checked; `--faint` now aliases
+  `--text-faint`.
+- smoke15 "an unpinned install follows the device": `--bg0` → `--bg`, plus
+  a new check that the device-following Dusk block and the pinned
+  `atelier-dusk` block are identical.
+- smoke47 "surface elevation": `--shadow-ink` must derive from each theme's
+  `--shadow-base`, and `--elev-1..4` (was `--shadow-sm/md/lg`) must use it.
+- smoke42, smoke44, smoke45 (tiers documented, the `--z-*` scale) and the
+  skip-link contract passed as written.
+
+smoke55 gained two refinements: KaTeX's own classes (`.katex`,
+`.katex-display`) join the kept names, and a colour function built only
+from tokens (`oklch(var(--cal-l) var(--cal-c) var(--ev-hue))`) is derived
+rather than a literal. Components contracts that still name a raw value —
+`font-size: 16px` (smoke18:151, smoke42:147) and `min-height: 44px`
+(smoke45:843) — are re-pointed at `--fs-16` and `--hit-coarse` when M5
+writes `css/components.css`, because smoke55 bans raw px there.
+
 Line numbers in the first column are as of the M1 commit.
 
 | Suite:line | Kind (M1) | Legacy classes named | Assertion message | M2 disposition |

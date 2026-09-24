@@ -34,7 +34,7 @@ window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true; window.__kosAutoConfirm = true;
 
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
-const { readCss, pending } = require("./lib/css");
+const { readCss, layerCss, pending } = require("./lib/css");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;
 
@@ -68,16 +68,43 @@ const css = readCss();
 /* ============ 1 · the Linear Void colour system ============ */
 console.log("== colour system ==");
 step("canonical tokens exist and the legacy names alias them", async () => {
-  /* design contract, owned by the tokens layer (M3 re-points the names
-     where the new palette renames them) */
+  /* design contract, owned by the tokens layer. M3 re-pointed it at the
+     rebuild's semantic names (--bg, --surface-*, --border-*, --text-muted
+     …); the pre-rebuild names survive only as the tokens layer's bridge */
   if (pending("tokens", "canonical colour tokens and their aliases")) return;
-  for (const tok of ["--bg0:", "--bg1:", "--panel:", "--text:", "--accent:", "--accent2:", "--accent3:", "--good:", "--warning:", "--danger:", "--radius:"]) {
-    if (!css.includes(tok)) throw new Error("missing canonical token " + tok);
-  }
-  if (!/--kurenai:\s*var\(--accent\)/.test(css)) throw new Error("--kurenai must alias --accent");
-  if (!/--gold:\s*var\(--accent2\)/.test(css)) throw new Error("--gold must alias --accent2");
-  if (!/--bad:\s*var\(--danger\)/.test(css)) throw new Error("--bad must alias --danger");
-  if (!/--faint:\s*var\(--muted\)/.test(css)) throw new Error("--faint must alias --muted");
+  const tokens = layerCss("tokens");
+  const defined = new Set([...tokens.matchAll(/(--[\w-]+)\s*:/g)].map(m => m[1]));
+  const canonical = ["--bg", "--surface-1", "--surface-2", "--surface-3", "--border-subtle", "--border-default",
+    "--border-strong", "--text", "--text-muted", "--accent", "--on-accent", "--focus-ring", "--good", "--warn",
+    "--danger", "--info", "--gold", "--subject-compsci", "--subject-maths", "--subject-it", "--radius-md",
+    "--shadow-ink", "--elev-0", "--elev-4", "--z-modal", "--space-0", "--space-12", "--fs-11", "--fs-41",
+    "--font-display", "--font-text", "--font-mono"];
+  const missing = canonical.filter(t => !defined.has(t));
+  if (missing.length) throw new Error("missing canonical token(s) " + missing.join(", "));
+  /* every custom property the JavaScript reads, and does not set itself,
+     must resolve — the legacy names through the bridge */
+  const jsFiles = [];
+  (function walk(dir) {
+    for (const f of fs.readdirSync(path.join(ROOT, dir))) {
+      const rel = dir + "/" + f;
+      if (fs.statSync(path.join(ROOT, rel)).isDirectory()) { if (!/vendor|data$/.test(rel)) walk(rel); }
+      else if (/\.js$/.test(f)) jsFiles.push(fs.readFileSync(path.join(ROOT, rel), "utf8"));
+    }
+  })("js");
+  const js = jsFiles.join("\n");
+  const reads = new Set([...js.matchAll(/var\((--[\w-]+)/g), ...js.matchAll(/(?:pick|tokenColor|cssVar|getPropertyValue)\(\s*["'](--[\w-]+)/g)]
+    .map(m => m[1]).filter(n => !n.endsWith("-")));
+  const sets = new Set([...js.matchAll(/setProperty\(\s*["'](--[\w-]+)/g), ...js.matchAll(/["';\s{](--[\w-]+)\s*:/g)].map(m => m[1]));
+  ["--c-cs", "--c-maths", "--c-it"].forEach(n => reads.add(n));      /* figures.js builds "var(--c-" + subject */
+  const unresolved = [...reads].filter(n => !sets.has(n) && !defined.has(n));
+  if (unresolved.length) throw new Error("the JavaScript reads undefined token(s): " + unresolved.join(", "));
+  /* the bridge aliases; it never holds a second literal value */
+  const bridge = tokens.slice(tokens.indexOf("THE BRIDGE"), tokens.indexOf("---------- 6"));
+  if (!bridge) throw new Error("the legacy bridge block is missing");
+  const literal = [...bridge.matchAll(/(--[\w-]+):\s*(#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\()/g)].map(m => m[1]);
+  if (literal.length) throw new Error("bridge entries hold literal colours instead of aliases: " + literal.join(", "));
+  if (!/--kurenai:\s*var\(--accent\)/.test(tokens)) throw new Error("--kurenai must alias --accent");
+  if (!/--faint:\s*var\(--text-faint\)/.test(tokens)) throw new Error("--faint must alias the faint text role");
 });
 step("all 23 lab themes have :root[data-theme] blocks matching the catalog", async () => {
   const themes = KOS.governor.catalog().filter(c => c.kind === "theme");
@@ -88,8 +115,16 @@ step("all 23 lab themes have :root[data-theme] blocks matching the catalog", asy
   if (!pending("tokens", "an unpinned install follows the device (Dawn/Dusk)")) {
   if (!/@media \(prefers-color-scheme: dark\)/.test(css))
     throw new Error("no prefers-color-scheme rule — an unpinned install cannot follow the device");
-  if (!/:root:not\(\[data-theme\]\)[^{]*\{[^}]*--bg0/.test(css.replace(/\s+/g, " ")))
+  if (!/:root:not\(\[data-theme\]\)[^{]*\{[^}]*--bg:/.test(css.replace(/\s+/g, " ")))
     throw new Error("the system-dark rule does not target an unpinned :root");
+  /* the device-following Dusk and the pinned Dusk are one palette written
+     twice (a media query cannot share a block); they may not drift */
+  const tokens = layerCss("tokens").replace(/\/\*[\s\S]*?\*\//g, "");
+  const body = (re) => { const m = re.exec(tokens); return m ? m[1].replace(/\s+/g, " ").trim() : null; };
+  const unpinned = body(/:root:not\(\[data-theme\]\), :root\[data-theme=""\] \{([^}]*)\}/);
+  const pinned = body(/:root\[data-theme="atelier-dusk"\], \[data-theme="atelier-dusk"\] \{([^}]*)\}/);
+  if (!unpinned || !pinned) throw new Error("a Dusk block is missing");
+  if (unpinned !== pinned) throw new Error("the device-following Dusk block drifted from atelier-dusk");
   }
   /* the blocks must override on :root (html), not body — derived tokens are
      computed at :root and would never re-resolve otherwise */

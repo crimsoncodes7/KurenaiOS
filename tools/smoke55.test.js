@@ -48,9 +48,11 @@ const LEGACY = JSON.parse(read(LEGACY_FILE));
 const LEGACY_SET = new Set(LEGACY.classes);
 const MIGRATION = JSON.parse(read(MIGRATION_FILE));
 
-/* the two utility names PLAN §3.2 keeps in base.css: shared, meaningful
-   and referenced from JS far beyond any one view */
-const ALLOW = new Set(["sr-only", "skip-link"]);
+/* the two utility names PLAN §3.2 keeps in base.css (shared, meaningful
+   and referenced from JS far beyond any one view), and KaTeX's own */
+const ALLOW = new Set(["sr-only", "skip-link",
+  /* third-party output the base layer harmonises (KaTeX renders it) */
+  "katex", "katex-display"]);
 const TIERS = [1240, 1080, 860, 700, 560];
 const COLOUR_LAYERS = new Set([LAYERS.tokens, LAYERS.themes]);
 const MOCKUPS = ["kurenai-os-mockup.html", "kurenai-os-direction-lab-v3.html", "kurenaios_ui_overhaul_concept.html"];
@@ -95,7 +97,6 @@ const hookSelectors = (src) => selectors(src).filter((s) => /\[\s*data-ui\b/.tes
 const NAMED = ["black", "white", "red", "green", "blue", "yellow", "orange", "purple", "pink", "gray", "grey",
   "silver", "gold", "navy", "teal", "maroon", "olive", "lime", "aqua", "fuchsia", "crimson", "ivory", "beige",
   "tan", "brown", "coral", "salmon", "khaki", "plum", "orchid", "indigo", "violet", "turquoise", "lavender"];
-const COLOUR_FN = /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\(/i;
 /* colour literals in declaration values */
 function colourLiterals(src) {
   const text = stripCss(src);
@@ -104,7 +105,12 @@ function colourLiterals(src) {
     const value = m[2];
     const hex = value.match(/#[0-9a-f]{3,8}\b/gi);
     if (hex) out.push(...hex);
-    if (COLOUR_FN.test(value)) out.push(value.trim().slice(0, 40));
+    /* a colour function built only from tokens (oklch(var(--cal-l)
+       var(--cal-c) var(--ev-hue)), the calendar and placeholder hues) is
+       derived, not a literal: flag it only when a channel is a number */
+    for (const fn of value.matchAll(/\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\(([^()]*(?:\([^()]*\)[^()]*)*)\)/gi)) {
+      if (/\d/.test(fn[1].replace(/var\([^()]*\)/g, ""))) out.push(fn[0].slice(0, 40));
+    }
     /* a custom property's NAME (var(--gold)) is not a colour */
     const bare = value.toLowerCase().replace(/--[\w-]+/g, "");
     const named = bare.match(new RegExp("\\b(" + NAMED.join("|") + ")\\b", "g"));
@@ -377,6 +383,10 @@ step("each guard rejects a fixture built to trip it", () => {
     "the colour guard missed a literal: " + colours.join(", "));
   assert(!colourLiterals(".k-a { color: var(--gold); background: color-mix(in srgb, var(--accent) 40%, transparent); }").length,
     "the colour guard flags a token reference");
+  assert(!colourLiterals(".k-ev { background: oklch(var(--cal-l) var(--cal-c) var(--ev-hue)); }").length,
+    "the colour guard flags a colour built only from tokens");
+  assert(colourLiterals(".k-ev { background: oklch(60% var(--cal-c) 30); }").length,
+    "the colour guard misses a colour function with a literal channel");
   assert(rawPx(fixtureCss).join() === "12px", "the raw px guard is off: " + rawPx(fixtureCss).join());
   assert(badBreakpoints(fixtureCss).length === 2, "the breakpoint guard missed the 900px tier or the min-width band");
   assert(layerProblems("@layer views {\n.k-a { gap: 0; }\n}\n.k-b { gap: 0; }", "views", false).length,

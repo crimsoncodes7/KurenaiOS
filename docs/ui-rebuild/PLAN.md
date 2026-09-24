@@ -227,6 +227,37 @@ unaffected); `sw.js` `VERSION` is unchanged because nothing deploys before
 M14. `tools/mobile_audit.mjs` still toggles the retired `.tree-closed`
 class and queries `.confirm-ov`, a drift that predates M2.
 
+### M3 as delivered (2026-09-24) — awaiting sign-off
+
+- **`css/tokens.css`**: the "beni and ai" palette (safflower crimson and
+  indigo, the two dyes of the workshop the app is named after). Indigo
+  neutral ramp `--ai-0..1000`, safflower `--beni-*`, semantic hues (pine
+  good, turmeric warn, vermilion danger, ultramarine info and focus, gold
+  for the Governor), the three subject hues in their jade/blue/violet
+  families, calendar hue angles for `--ev-hue`. Dawn on `:root` and
+  `[data-theme="atelier-dawn"]`, Dusk on `[data-theme="atelier-dusk"]` and,
+  for an unpinned install on a dark device, `:root:not([data-theme])` /
+  `:root[data-theme=""]` (the default id stamps an empty attribute). Every
+  theme block also matches a scoped element, so a theme can be previewed
+  inside a page. Type (Bricolage Grotesque, Atkinson Hyperlegible Next and
+  Mono; the system mincho for the kanji marks), the 11–41 scale, spacing
+  `--space-0..12`, hit areas, radii, `--shadow-ink` and `--elev-0..4`, the
+  `--z-*` scale, motion, and the five tiers documented and applied
+  widest-first. A labelled bridge aliases the pre-rebuild token names the
+  JavaScript still reads (charts, figures, labs); it empties by M14.
+- **`css/base.css`**: reset, element defaults, focus ring, `.sr-only` and
+  `.skip-link`, touch-target baselines, `#app` 100vh → 100dvh, 16px phone
+  inputs, KaTeX harmonisation, reduced motion. The whole (still unstyled)
+  app now draws its ground, ink and type from the tokens.
+- **`design/foundation.html`**: the specimen — both palettes with live
+  hex values and a WCAG contrast table (every text role passes AA on every
+  surface in both themes), ramps, type, space, radii, hit areas, elevation,
+  the z-scale, control and layout-primitive proposals, and the topic page
+  composed at 1440 and 390 through container queries at the five tiers.
+  `tools/foundation_artifact.mjs` packages it for the review link.
+- The fonts are not yet linked from `index.html` (smoke55 still holds the
+  M2 line); M4 adds the link after sign-off.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

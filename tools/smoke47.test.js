@@ -160,10 +160,13 @@ step("no stylesheet sets text below the 11px floor", () => {
 });
 
 step("surface elevation derives from the active background tokens", () => {
-  if (pending("tokens", "--shadow-ink and the --shadow-* scale (invariant 79)")) return;
-  assert(/--shadow-ink:\s*color-mix\([^;]*var\(--bg0\)/.test(css), "shadow ink is not derived from --bg0");
-  ["sm", "md", "lg"].forEach(size => assert(new RegExp("--shadow-" + size + ":[^;]*var\\(--shadow-ink\\)").test(css),
-    "--shadow-" + size + " bypasses the theme-derived shadow ink"));
+  if (pending("tokens", "--shadow-ink and the --elev-* scale (invariant 79)")) return;
+  /* M3 re-point: the ink derives from each theme's own darkest neutral
+     (--shadow-base), and the scale is --elev-1..4 */
+  assert(/--shadow-ink:\s*color-mix\([^;]*var\(--shadow-base\)/.test(css), "shadow ink is not derived from a theme token");
+  assert((css.match(/--shadow-base:\s*var\(--/g) || []).length >= 2, "Dawn and Dusk do not each name their shadow base");
+  [1, 2, 3, 4].forEach(n => assert(new RegExp("--elev-" + n + ":[^;]*var\\(--shadow-ink\\)").test(css),
+    "--elev-" + n + " bypasses the theme-derived shadow ink"));
   /* the Assistant drawer's "no literal shadow" is general now: smoke55
      bans colour literals outside the tokens and themes layers */
 });
