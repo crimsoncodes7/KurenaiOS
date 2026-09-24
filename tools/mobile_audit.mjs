@@ -66,7 +66,7 @@ const OVERFLOW_PROBE = `(() => {
       if (r.width > 5 && (r.right > iw + 4 || r.left < -4) && !bad.some(b => el.contains(b.node))) {
         const path = [];
         let n = el;
-        while (n && n.id !== "main" && path.length < 4) { path.unshift(n.className ? n.tagName.toLowerCase() + "." + String(n.className).split(" ")[0] : n.tagName.toLowerCase()); n = n.parentElement; }
+        while (n && n.id !== "main" && path.length < 4) { path.unshift(n.getAttribute("data-ui") ? n.tagName.toLowerCase() + "[" + n.getAttribute("data-ui") + "]" : n.tagName.toLowerCase()); n = n.parentElement; }
         bad.push({ sel: path.join(">"), right: Math.round(r.right), left: Math.round(r.left), w: Math.round(r.width) });
         if (bad.length >= 4) break;
       }
@@ -117,16 +117,17 @@ for (const dev of DEVICES) {
 await send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 3, mobile: true });
 await evaluate(`KOS.show("subject", "compsci"), "ok"`);
 await sleep(500);
-await evaluate(`(KOS.store.state.ui.treeClosed = false, KOS.store.save(), document.getElementById("cols").classList.remove("tree-closed"), "open")`);
+/* the spine's state is #cols[data-tree], owned by KOS.shell.tree() (UI rebuild M1) */
+await evaluate(`(KOS.store.state.ui.treeClosed = false, KOS.store.save(), KOS.shell.tree("open"), "open")`);
 await sleep(400);
 let shot = await send("Page.captureScreenshot", { format: "jpeg", quality: 70 });
 await writeFile("/tmp/kos-mobile/iphone-tree-drawer.jpg", Buffer.from(shot.data, "base64"));
-await evaluate(`(KOS.store.state.ui.treeClosed = true, document.getElementById("cols").classList.add("tree-closed"), "closed")`);
+await evaluate(`(KOS.store.state.ui.treeClosed = true, KOS.shell.tree("closed"), "closed")`);
 await evaluate(`(KOS.ui.confirm({ title: "Sheet check", body: "This confirm renders as a bottom sheet on phones.", confirm: "Looks right" }, () => {}), "confirm-open")`);
 await sleep(400);
 shot = await send("Page.captureScreenshot", { format: "jpeg", quality: 70 });
 await writeFile("/tmp/kos-mobile/iphone-confirm-sheet.jpg", Buffer.from(shot.data, "base64"));
-await evaluate(`(document.querySelector(".confirm-ov .btn:not(.primary), .confirm-ov button")?.click(), "closed")`);
+await evaluate(`(document.querySelector('[data-ui~="ui.confirm-overlay"] button:not([data-intent~="primary"]), [data-ui~="ui.confirm-overlay"] button')?.click(), "closed")`);
 
 console.log("");
 if (findings.length) {
