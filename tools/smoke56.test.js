@@ -246,7 +246,7 @@ async function main() {
 
   /* ---------------- run ---------------- */
   const migration = fs.existsSync(MIGRATION) ? JSON.parse(fs.readFileSync(MIGRATION, "utf8")) : {};
-  const migrated = new Set(migration.views || []);
+  const migrated = new Set(Object.keys(migration.views || {}));
   const baseline = RECORD ? null : JSON.parse(fs.readFileSync(BASELINE, "utf8"));
   const record = { recordedFrom: null, clock: null, surfaces: {} };
 

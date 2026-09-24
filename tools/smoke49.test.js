@@ -52,7 +52,7 @@ window.confirm = () => true;
 window.fetch = () => Promise.resolve({ ok: true, status: 200, headers: { get: () => null },
   json: () => Promise.resolve({}), text: () => Promise.resolve("") });
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
-const { readCss } = require("./lib/css");
+const { layerCss, pending } = require("./lib/css");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;
 window.IntersectionObserver = function () { return { observe: noop, unobserve: noop, disconnect: noop }; };
@@ -431,9 +431,11 @@ step("the week summary is a sub-line, and suppresses zero-only supporting facts"
 });
 
 step("the styles are theme-derived and stay inside the five breakpoints", () => {
-  const css = readCss();
-  const block = css.slice(css.indexOf("PACING — the integrated weekly timeline"));
-  assert(block, "the Pacing style block is missing");
+  /* M2: Pacing's styles move from a marked block of the deleted legacy
+     stylesheet to the Productivity view layer (M8); the contract is the
+     same, read from that file */
+  if (pending("views/productivity", "Pacing's theme-derived styles inside the five tiers")) return;
+  const block = layerCss("views/productivity");
   const hex = block.match(/#[0-9a-fA-F]{3,8}\b/g);
   assert(!hex, "hard-coded colour(s) in the Pacing block: " + (hex || []).join(", "));
   const widths = [...new Set([...block.matchAll(/max-width:\s*(\d+)px/g)].map(m => +m[1]))];

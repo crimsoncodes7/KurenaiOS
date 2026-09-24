@@ -34,7 +34,7 @@ window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true; window.__kosAutoConfirm = true;
 
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
-const { readCss } = require("./lib/css");
+const { readCss, pending } = require("./lib/css");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;
 
@@ -68,6 +68,9 @@ const css = readCss();
 /* ============ 1 · the Linear Void colour system ============ */
 console.log("== colour system ==");
 step("canonical tokens exist and the legacy names alias them", async () => {
+  /* design contract, owned by the tokens layer (M3 re-points the names
+     where the new palette renames them) */
+  if (pending("tokens", "canonical colour tokens and their aliases")) return;
   for (const tok of ["--bg0:", "--bg1:", "--panel:", "--text:", "--accent:", "--accent2:", "--accent3:", "--good:", "--warning:", "--danger:", "--radius:"]) {
     if (!css.includes(tok)) throw new Error("missing canonical token " + tok);
   }
@@ -80,17 +83,22 @@ step("all 23 lab themes have :root[data-theme] blocks matching the catalog", asy
   const themes = KOS.governor.catalog().filter(c => c.kind === "theme");
   if (themes.length !== 25) throw new Error("25 themes expected (23 paid + 2 free), got " + themes.length);
   /* an unpinned install must follow the device, in CSS so there is no
-     light-palette flash before scripts run (audit G-06) */
+     light-palette flash before scripts run (audit G-06) — Dawn/Dusk live
+     in the tokens layer */
+  if (!pending("tokens", "an unpinned install follows the device (Dawn/Dusk)")) {
   if (!/@media \(prefers-color-scheme: dark\)/.test(css))
     throw new Error("no prefers-color-scheme rule — an unpinned install cannot follow the device");
   if (!/:root:not\(\[data-theme\]\)[^{]*\{[^}]*--bg0/.test(css.replace(/\s+/g, " ")))
     throw new Error("the system-dark rule does not target an unpinned :root");
-  for (const t of themes) {
-    if (!css.includes(':root[data-theme="' + t.theme + '"]')) throw new Error("no CSS block for " + t.theme);
   }
   /* the blocks must override on :root (html), not body — derived tokens are
      computed at :root and would never re-resolve otherwise */
   if (css.includes('body[data-theme="')) throw new Error("theme blocks must target :root, not body");
+  /* the shop themes are token overrides in the themes layer (M13) */
+  if (pending("themes", "a :root[data-theme] block for every catalog theme")) return;
+  for (const t of themes) {
+    if (!css.includes(':root[data-theme="' + t.theme + '"]')) throw new Error("no CSS block for " + t.theme);
+  }
 });
 step("applyCosmetics: valid theme lands on <html>; retired ids fall back to default", async () => {
   const g = KOS.store.state.governor;

@@ -30,7 +30,7 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
-const { readCss } = require("./lib/css");
+const { readCss, pending } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const src = f => fs.readFileSync(path.join(ROOT, f), "utf8");
@@ -516,9 +516,8 @@ step("an absent attribute value produces no attribute", async () => {
 });
 
 step("decorative ornament is hidden and unfocusable", async () => {
-  const petals = document.querySelector("[data-ui~='shell.backdrop']");
-  assert(petals && petals.getAttribute("aria-hidden") === "true", "the petals are exposed to the a11y tree");
-  assert(!petals.querySelector(FOCUSABLE), "a petal is a tab stop");
+  /* M2 deleted the decorative petal backdrop (smoke55 keeps it gone), so
+     what remains of this step is the page's own ornament */
   KOS.show("home"); await tick(60);
   const bad = [];
   main().querySelectorAll('[tabindex="0"]').forEach(n => {
@@ -816,8 +815,10 @@ step("the results panel is not trapped under the page", () => {
      panel's z-index to mean anything. Verified in Chrome by hit-testing
      five points down the open panel; asserted here as the rule that keeps
      it true. */
-  assert(/#topbar \{[^}]*position: relative[^}]*z-index: var\(--z-topbar\)/.test(cssRules),
-    "#topbar is not positioned, so its backdrop-filter traps the search results underneath the page");
+  if (!pending("layout", "#topbar is a positioned layer on the --z scale"))
+    assert(/#topbar \{[^}]*position: relative[^}]*z-index: var\(--z-topbar\)/.test(cssRules),
+      "#topbar is not positioned, so its backdrop-filter traps the search results underneath the page");
+  if (pending("tokens", "the topbar's place on the --z scale")) return;
   const scale = {};
   (cssRules.match(/--z-[a-z]+:\s*\d+/g) || []).forEach(d => {
     const [k, v] = d.split(":"); scale[k.trim()] = +v;
@@ -838,47 +839,30 @@ step("a slow vault answer cannot overwrite a newer keystroke", () => {
 console.log("== F · targets a finger can hit ==");
 
 step("icon-only controls clear the visual floor, and 44 where the pointer is a finger", () => {
-  assert(/\.icon-btn, \.mini-btn, \.xbtn, \.med-fav \{[\s\S]{0,200}min-height: max\(var\(--icon-btn-size-sm\), 32px\)/.test(cssRules),
-    "the icon controls have no 32px visual floor");
+  /* M2: the legacy .icon-btn/.mini-btn/.xbtn/.med-fav list is gone; the
+     floor itself (invariant 69) is the components layer's contract */
+  if (pending("components", "the 32px control floor and the 44px coarse-pointer target")) return;
+  assert(/min-(height|block-size):\s*(max\([^;]*)?32px/.test(cssRules),
+    "the controls have no 32px visual floor");
   const coarse = cssRules.match(/@media \(pointer: coarse\) \{[\s\S]*?\n\}/g) || [];
   assert(coarse.some(b => /min-height: 44px/.test(b)),
     "no 44px target under pointer: coarse — which is what WCAG 2.5.5 is actually about");
 });
 
-step("calendar chips clear 24px with the spacing the exception requires", () => {
-  assert(/\.cal-ev \{[^}]*min-height: 24px/.test(cssRules), "the calendar chip has no 24px floor");
-  assert(/\.cal-cell \.cal-ev \+ \.cal-ev \{[^}]*margin-top/.test(cssRules),
-    "chips are not spaced, so the 2.5.8 exception does not apply");
+step("the calendar chip's 24px exception is documented where its rule is", () => {
+  /* M2: the .cal-ev/.cal-cell geometry went with the legacy stylesheet;
+     the documented exception is the Productivity layer's contract (M8) */
+  if (pending("views/productivity", "the calendar chip's documented 24px exception")) return;
   /* and the reason 44 is not used here is recorded where the rule is */
   assert(/44px per chip would show one/.test(css) || /cannot give each chip 44px/.test(css),
     "the decision not to use 44px in a month cell is undocumented");
 });
 
-step("the completion checkboxes and the phone day header clear 24px", () => {
-  /* The Phase F touch pass measured a tree that had no phone Calendar
-     composition yet, and these two are an <input> and a <button> rather
-     than the icon-button family it covered — all three sat at 20–22px at
-     phone width until the E+F integration measured them together. */
-  assert(/\.todo-tick, \.rem-check \{[^}]*width: 24px[^}]*height: 24px/.test(cssRules),
-    "the completion checkboxes are back under the 24px floor");
-  assert(/\.rem-check\.sm \{[^}]*width: 24px/.test(cssRules), "the sub-task check is under 24px");
-  assert(/\.cal-phone-date \{[^}]*min-height: 24px/.test(cssRules),
-    "the phone day header is under the 24px floor");
-  const coarse = cssRules.match(/@media \(pointer: coarse\) \{[\s\S]*?\n\}/g) || [];
-  assert(coarse.some(b => /\.cal-phone-date \{ min-height: 44px/.test(b)),
-    "the phone day header does not take the full 44 on a touch device");
-  /* and the expander must not grow sideways into a neighbour (invariant #69) */
-  const expander = cssRules.match(/\.rem-check::before \{[^}]*\}/);
-  assert(expander, "the reminder check has no hit expander");
-  assert(/left: 0; right: 0/.test(expander[0]) && !/width:/.test(expander[0]),
-    "the hit expander grows horizontally — it must only grow within its own column");
-});
-
-step("the four topic progress checks are a chip, not a 16px box", () => {
-  assert(/label\.chk\.ts-chk \{[^}]*min-height: max\(var\(--control-h-sm\), 32px\)/.test(cssRules),
-    "the progress checks lost their chip-sized hit area");
-});
-
+/* UI rebuild M2: "the completion checkboxes and the phone day header clear
+   24px" pinned .todo-tick/.rem-check/.cal-phone-date rules and is retired
+   with them; the 32px/44px floors above are the surviving contract. */
+/* UI rebuild M2: "the four topic progress checks are a chip" pinned the
+   legacy label.chk.ts-chk rule and is retired with it. */
 step("the skip link still reaches the content", () => {
   const skip = document.querySelector('a[href="#main"], [data-ui~="shell.skip-link"]');
   assert(skip, "the skip link is gone");

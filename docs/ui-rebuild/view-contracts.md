@@ -1324,6 +1324,8 @@ logic and tests hold on to.
     `smoke56` (render purity, plus action-dispatch parity). The parity
     baseline is recorded from this M1 build, where every view still renders
     its legacy markup, before any view is rebuilt.
+    *Delivered in M2*, with the baseline recorded from the M1 tree before
+    the purge; see [PLAN.md](PLAN.md) "M2 as delivered".
 
 ## Appendix: view index
 

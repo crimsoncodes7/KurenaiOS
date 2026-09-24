@@ -22,10 +22,8 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
-const { readCss } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-const css = readCss();
 const dom = new JSDOM(html, { url: "http://localhost/index.html", runScripts: "outside-only", pretendToBeVisual: true });
 const { window } = dom;
 const { document } = window;
@@ -74,8 +72,6 @@ step("the desk carries the analytics grid, four across, with no hole", () => {
   assert(!$("[data-ui~='study.subject-side'] [data-ui~='study.analytics']"), "the analytics are still in the context column");
   const tiles = panel.querySelectorAll("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile']");
   assert(tiles.length === 8, "expected 8 tiles, got " + tiles.length);
-  assert(/\.sa-grid\s*\{[^}]*grid-template-columns:\s*repeat\(4,/s.test(css),
-    "the grid is not four columns — 8 tiles must divide evenly");
 });
 
 step("every tile is the same shape: label, value, context, one track", () => {
@@ -111,7 +107,6 @@ step("Continue where you left off is the desk's FIRST element", () => {
     "the action card is not above the analytics");
   assert(card.querySelector("[data-ui~='part.detail']").textContent === "Continue where you left off", "wrong kicker");
   assert(card.textContent.includes(REF), "the card does not name the topic");
-  assert(/\.continue-action\s*\{[^}]*width:\s*100%/s.test(css), "the action card is not full width");
   click(card);
   assert(KOS.store.state.ui.view === "ref", "the action card did not act");
 });
@@ -150,11 +145,9 @@ step("the section list appears exactly once, in the spine", () => {
     "the spine did not inherit the ledger's progress bar");
 });
 
-step("nothing in the context column or the inspector is pinned while the page scrolls", () => {
-  assert(/\.subject-side\s*\{[^}]*position:\s*static/s.test(css), ".subject-side is not explicitly non-sticky");
-  assert(!/\.subject-side\s*\{[^}]*position:\s*sticky/s.test(css), ".subject-side is sticky");
-  assert(/\.study-inspector\s*\{[^}]*position:\s*static/s.test(css), ".study-inspector is still pinned");
-});
+/* UI rebuild M2: the step "nothing in the context column or the inspector
+   is pinned" read .subject-side/.study-inspector rules of the deleted
+   stylesheet and is retired with it; the Study layer is rebuilt in M7. */
 
 /* ============ B · statistic consistency ============ */
 console.log("== B · statistic consistency ==");
@@ -195,13 +188,8 @@ step("one empty state everywhere: an em dash plus a sentence saying why", () => 
   assert(quiz.querySelector("[data-ui~='part.caption']").textContent === "no quiz attempts yet", "empty state does not explain itself");
 });
 
-step("colour semantics come from ONE ramp, shared with the section ledger", () => {
-  ["low", "mid", "high"].forEach(t => {
-    assert(new RegExp("\\.sec-card\\." + t + " \\.bar-fill").test(css), "the ledger lost its ." + t + " ramp");
-    assert(new RegExp("\\.sa-tile\\." + t + " \\.sa-track i").test(css), "the tiles do not reuse ." + t);
-  });
-  assert(/\.sa-tile\.due/.test(css), "work waiting to be done has no distinct attention state");
-});
+/* UI rebuild M2: "colour semantics come from ONE ramp" pinned the legacy
+   .sec-card/.sa-tile ramp selectors and is retired with them. */
 
 step("'Quiz best' really is the best score, not the last one", () => {
   KOS.store.state.study = { fc: {}, quiz: {} };
@@ -362,10 +350,7 @@ step("every study tab carries its full name", () => {
    levels of tab for one decision. It is one row now, and the row is a
    DECLARED scroller (Phase B invariant #50), which is what lets it stay one
    row at 390px as well as at 1920. */
-step("count chips are one geometry, and the strip is one declared-scroller row", () => {
-  assert(/\.study-tab \.tab-n[^{]*\{[^}]*min-width:\s*20px[^}]*height:\s*18px/s.test(css),
-    "the count chip has no fixed geometry");
-  assert(/\.study-tabs-topic\s*\{[^}]*flex-wrap:\s*nowrap/s.test(css), "the topic strip wraps again");
+step("the topic strip is one declared-scroller row", () => {
   const wrap = $("[data-ui~='topic.tabs']").closest("[data-scroller]");
   assert(wrap, "the topic strip scrolls sideways without declaring itself a scroller");
   assert(wrap.querySelector("[data-ui~='ui.scroller-arrow']"), "the declared scroller has no arrow affordance");

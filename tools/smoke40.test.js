@@ -42,7 +42,7 @@ window.fetch = () => Promise.resolve({ ok: true, status: 200, headers: { get: ()
   json: () => Promise.resolve({}), text: () => Promise.resolve("") });
 
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
-const { readCss } = require("./lib/css");
+const { readCss, pending } = require("./lib/css");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;
 
@@ -279,6 +279,7 @@ step("the A–Z rail reaches a late letter without mounting the whole wall", asy
 console.log("== viewport units and phone-tier tab-bar clearance ==");
 
 step("#app uses dvh with a vh fallback", async () => {
+  if (pending("layout", "#app's 100vh then 100dvh (invariant 75)")) return;
   const block = css.match(/#app\s*\{[^}]*\}/);
   assert(block, "no #app rule found");
   assert(/height:\s*100vh/.test(block[0]), "#app lost its 100vh fallback: " + block[0]);
@@ -288,6 +289,7 @@ step("#app uses dvh with a vh fallback", async () => {
 });
 
 step("the phone tier reserves room below #main for the bottom tab bar", async () => {
+  if (pending("layout", "the phone tier's tab-bar clearance below #main")) return;
   const phone = css.match(/@media \(max-width:\s*700px\)\s*\{[\s\S]*$/);
   assert(phone, "no phone tier found");
   assert(/#main\s*\{[^}]*padding-block-end/.test(phone[0]) ||

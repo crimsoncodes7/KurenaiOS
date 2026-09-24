@@ -1,0 +1,12 @@
+/* KurenaiOS — css/themes.css · @layer themes
+   The 23 shop themes as semantic-token overrides only, on
+   :root[data-theme="<id>"] (M13). Until then every theme id renders as the
+   default.
+
+   Empty since the M2 purge; see docs/ui-rebuild/PLAN.md §3.2.
+
+   Convention for every layer file: its rules sit inside ONE @layer block,
+   and the block's contents are not indented, so line-anchored tooling
+   (tools/lib/css.js, the smoke suites) reads them like top-level rules. */
+@layer themes {
+}

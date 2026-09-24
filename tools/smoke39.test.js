@@ -37,7 +37,7 @@ const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
-const { readCss } = require("./lib/css");
+const { layerCss, pending } = require("./lib/css");
 
 const ROOT = path.resolve(__dirname, "..");
 const LIVE2D_SRC = path.join(ROOT, "art-source/assistant/live2d");
@@ -450,75 +450,96 @@ step("destroy() detaches every listener and observer, exactly once", async () =>
 /* ============ 7. static presence (Phase 1.5) ============
    The six flat PNGs carry the fallback, so the fallback has to feel alive
    on its own. These assert the CSS contract that gives them presence and,
-   crucially, that it yields the moment a live renderer mounts. */
-const css = readCss();
+   crucially, that it yields the moment a live renderer mounts.
+
+   UI rebuild M2: the contract is written against what outlives the legacy
+   stylesheet — the keyframe names, the --asst-* motion variables and the
+   mascot's own attributes (data-state, data-reacting, data-live-renderer;
+   view-contracts §M.8) — never a class. It waits for the Assistant view
+   layer, css/views/assistant.css (M12). The JavaScript and rig-contract
+   halves stay live. */
+const mascotCss = () => layerCss("views/assistant").replace(/\/\*[\s\S]*?\*\//g, "");
+const waitMascot = () => pending("views/assistant", "the mascot's static-presence motion");
+const rulesWith = (source, re) => (source.match(/[^{}]*\{[^{}]*\}/g) || []).filter((r) => re.test(r));
 
 step("the static renders breathe, sway and bloom on coprime cycles", () => {
+  if (waitMascot()) return;
+  const css = mascotCss();
   for (const kf of ["asstBreath", "asstSway", "asstBloom"]) {
     assert(css.includes("@keyframes " + kf), `missing @keyframes ${kf}`);
   }
-  assert(/\.asst-mascot-img\s*\{[^}]*animation:\s*asstBreath[^}]*asstSway/.test(css),
-    "the mascot image must run both breath and sway");
-  assert(/\.asst-mascot-frame::before\s*\{\s*animation:\s*asstBloom/.test(css),
+  const breath = rulesWith(css, /animation:[^;}]*asstBreath[^;}]*asstSway/);
+  assert(breath.length, "the mascot image must run both breath and sway");
+  assert(rulesWith(css, /::before\s*\{[^}]*animation:\s*asstBloom/).length,
     "the bloom must animate on the frame's ::before, not the image");
   /* Different periods are the whole point: equal ones would visibly loop. */
   const durs = ["--asst-breath-dur: 4.6s", "--asst-sway-dur: 11s", "--asst-bloom-dur: 7s"];
   for (const d of durs) assert(css.includes(d), `missing default ${d}`);
   const values = durs.map((d) => d.split(": ")[1]);
   assert(new Set(values).size === values.length, "the three cycles must not share a period");
-  assert(/\.asst-mascot-img\s*\{[^}]*transform-origin:\s*50%\s*100%/.test(css),
+  assert(breath.some((r) => /transform-origin:\s*50%\s*100%/.test(r)),
     "breathing must be anchored at her feet, matching object-position: bottom center");
 });
 
 step("each lifecycle state has its own posture and entry motion", () => {
+  if (waitMascot()) return;
+  const css = mascotCss();
   /* idle is the resting state and deliberately has NO entry animation. */
-  assert(!/\[data-state="idle"\]\s*\.asst-mascot-frame\s*\{\s*animation/.test(css),
+  assert(!rulesWith(css, /\[data-state="idle"\][^{]*\{[^}]*animation:\s*asstEnter/).length,
     "idle must not have an entry animation");
   const entries = {
     success: "asstEnterSuccess", error: "asstEnterError",
     confirmation: "asstEnterLean", thinking: "asstEnterSettle", working: "asstEnterSettle"
   };
   for (const [state, kf] of Object.entries(entries)) {
-    const re = new RegExp(`\\[data-state="${state}"\\]\\s*\\.asst-mascot-frame\\s*\\{\\s*animation:\\s*${kf}`);
-    assert(re.test(css), `${state} must enter with ${kf}`);
+    const re = new RegExp(`\\[data-state="${state}"\\][^{]*\\{[^}]*animation:\\s*${kf}`);
+    assert(rulesWith(css, re).length, `${state} must enter with ${kf}`);
     assert(css.includes("@keyframes " + kf), `missing @keyframes ${kf}`);
   }
   /* Every lifecycle state the controller can reach must be styled. */
-  const posture = [...css.matchAll(/\.asst-mascot\[data-state="(\w+)"\]\s*\{\s*\n?\s*--asst-/g)].map((m) => m[1]);
+  const posture = [...css.matchAll(/\[data-state="(\w+)"\][^{]*\{\s*--asst-/g)].map((m) => m[1]);
   for (const s of ["thinking", "working", "confirmation", "error"]) {
     assert(posture.includes(s), `${s} must retune the motion variables`);
   }
 });
 
 step("reactions ripple through the existing ring spans, inside the 0.36s window", () => {
-  assert(/\.asst-mascot\.is-reacting\s+\.asst-bloom-ring\s*\{\s*animation:\s*asstRipple\s+\.34s/.test(css),
-    "ring-one must ripple for 0.34s");
-  const two = /\.asst-mascot\.is-reacting\s+\.ring-two\s*\{\s*animation:\s*asstRipple\s+\.28s\s+[\w-]+\s+\.06s/.exec(css);
-  assert(two, "ring-two must ripple for 0.28s after a 0.06s delay");
-  /* showReaction() removes .is-reacting after 360ms; a ripple that outlived
-     the class would be cut off mid-flight. */
+  /* showReaction() clears the reaction after 360ms; a ripple that outlived
+     it would be cut off mid-flight. */
   assert(0.28 + 0.06 <= 0.36, "the staggered ripple must finish inside the reaction window");
   const js = fs.readFileSync(path.join(ROOT, "js/modules/assistant.js"), "utf8");
   assert(/removeAttribute\("data-reaction"\).*?\}, 360\)|360\)/.test(js.replace(/\n/g, " ")),
     "assistant.js must still clear the reaction after 360ms");
+  if (waitMascot()) return;
+  const css = mascotCss();
+  assert(rulesWith(css, /\[data-reacting\][^{]*\{\s*animation:\s*asstRipple\s+\.34s/).length,
+    "ring-one must ripple for 0.34s");
+  assert(rulesWith(css, /\[data-reacting\][^{]*\{\s*animation:\s*asstRipple\s+\.28s\s+[\w-]+\s+\.06s/).length,
+    "ring-two must ripple for 0.28s after a 0.06s delay");
   /* The nudge is last in the list so it deliberately wins over breath's
      translate for its duration, then hands it straight back. */
-  const nudge = /\.asst-mascot\.is-reacting\s+\.asst-mascot-img\s*\{\s*animation:([^;]+);/.exec(css);
-  assert(nudge, "a reaction must nudge the image");
-  assert(nudge[1].trim().endsWith("asstNudge .34s ease-out"),
+  const nudge = rulesWith(css, /\[data-reacting\][^{]*\{\s*animation:[^;]*asstNudge/)
+    .map((r) => /animation:([^;]+);/.exec(r)[1].trim());
+  assert(nudge.length, "a reaction must nudge the image");
+  assert(nudge.every((a) => a.endsWith("asstNudge .34s ease-out")),
     "asstNudge must be LAST in the animation list or breath will override it");
 });
 
 step("static life stands down for a live renderer and for reduced motion", () => {
-  const live = /\.asst-mascot\.has-live-renderer\s+\.asst-mascot-img,\s*\n?\s*\.asst-mascot\.has-live-renderer\s+\.asst-mascot-frame,\s*\n?\s*\.asst-mascot\.has-live-renderer\s+\.asst-mascot-frame::before\s*\{\s*animation:\s*none/.test(css);
-  assert(live, "a mounted renderer must stop all three static animation layers");
-
-  const reduced = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)",
-    css.indexOf(".asst-mascot")));
-  const block = reduced.slice(0, reduced.indexOf("\n}\n"));
-  for (const sel of [".asst-mascot-img", ".asst-mascot-frame"]) {
-    assert(block.includes(sel), `reduced motion must silence ${sel}`);
-  }
+  assert(contract.runtime.reducedMotion === "static-phase-1-png",
+    "the rig contract must still specify the static PNG for reduced motion");
+  if (waitMascot()) return;
+  const css = mascotCss();
+  /* image, frame and the frame's ::before bloom: all three layers stop */
+  const live = rulesWith(css, /\[data-live-renderer\][^{]*\{[^}]*animation:\s*none/);
+  assert(live.length && live.some((r) => /::before/.test(r)) && live.some((r) => /,/.test(r.split("{")[0])),
+    "a mounted renderer must stop all three static animation layers");
+  const at = css.indexOf("@media (prefers-reduced-motion: reduce)");
+  assert(at !== -1, "the mascot has no reduced-motion block");
+  let depth = 0, i = css.indexOf("{", at), j = i;
+  for (; j < css.length; j++) { if (css[j] === "{") depth++; else if (css[j] === "}" && --depth === 0) break; }
+  const block = css.slice(i, j);
+  assert(/animation:\s*none/.test(block), "reduced motion must silence the static animation");
   /* rig-contract says reduced motion is the static PNG, so the resting
      transforms have to be cleared too - animation:none alone would leave
      her mid-pose if a one-shot had filled backwards. */
@@ -526,8 +547,6 @@ step("static life stands down for a live renderer and for reduced motion", () =>
     && /rotate:\s*none\s*!important/.test(block)
     && /scale:\s*none\s*!important/.test(block),
     "reduced motion must clear translate/rotate/scale, not just animations");
-  assert(contract.runtime.reducedMotion === "static-phase-1-png",
-    "the rig contract must still specify the static PNG for reduced motion");
 });
 
 /* ============ 8. redraw scaffold ============ */

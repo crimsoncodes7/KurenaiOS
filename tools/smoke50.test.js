@@ -18,10 +18,8 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
-const { readCss } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-const css = readCss();
 const dom = new JSDOM(html, { url: "http://localhost/index.html", runScripts: "outside-only", pretendToBeVisual: true });
 const { window } = dom;
 const { document } = window;
@@ -265,9 +263,10 @@ step("lab canvases take their ink from the theme, not a fixed dark palette", () 
 /* ==================== D · the study nav ==================== */
 console.log("== D · the study nav ==");
 
-step("the topic page's tab bar is static — it no longer covers the text it introduces", () => {
-  assert(!/\.study-nav\s*\{[^}]*position:\s*sticky/s.test(css), "the study nav is sticky again");
-});
+/* UI rebuild M2: "the topic page's tab bar is static" was a negative
+   check on the legacy .study-nav rule. With the class gone it can no
+   longer fail, and smoke55 bans the legacy names from every new sheet;
+   the static study-nav row (invariant 52) is rebuilt and checked in M7. */
 
 /* ==================== E · the plan shift ==================== */
 console.log("== E · the personal plan moved a week later ==");

@@ -1,0 +1,12 @@
+/* KurenaiOS — css/views/study.css · @layer views
+   View compositions for Study: spine, subject desk, topic page, editor, engines, Review (M7).
+   A view file may use tokens and primitives; it may not restyle a
+   primitive's internals.
+
+   Empty since the M2 purge; see docs/ui-rebuild/PLAN.md §3.2.
+
+   Convention for every layer file: its rules sit inside ONE @layer block,
+   and the block's contents are not indented, so line-anchored tooling
+   (tools/lib/css.js, the smoke suites) reads them like top-level rules. */
+@layer views {
+}

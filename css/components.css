@@ -1,0 +1,13 @@
+/* KurenaiOS — css/components.css · @layer components
+   One block per KOS.ui primitive: tabs, page and section headers, empty
+   state, stat tile, scroller, menu, dialog and confirm, toast, buttons,
+   fields (16px on phones), chips, card, progress bar, crop host, chart
+   frame.
+
+   Empty since the M2 purge; see docs/ui-rebuild/PLAN.md §3.2.
+
+   Convention for every layer file: its rules sit inside ONE @layer block,
+   and the block's contents are not indented, so line-anchored tooling
+   (tools/lib/css.js, the smoke suites) reads them like top-level rules. */
+@layer components {
+}

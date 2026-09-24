@@ -29,8 +29,9 @@ var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 
 var CDN_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com", "cdn.jsdelivr.net"];
 
+/* Stylesheets are not listed here: every css/*.css layer the page links is
+   derived from index.html at install, like the scripts (UI rebuild M2). */
 var EXTRA_PRECACHE = [
-  "css/main.css",
   "manifest.webmanifest",
   "icons/icon-192.png",
   "icons/icon-512.png",

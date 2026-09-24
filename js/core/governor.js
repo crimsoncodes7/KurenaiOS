@@ -225,8 +225,10 @@
     { id: "trig-circle",      kind: "lab",   name: "Trig Circle",            price: 100, desc: "Unit circle explorer for the wave functions." },
     { id: "integration-area", kind: "lab",   name: "Integration Area",       price: 100, desc: "Definite integrals as signed area, live." },
     /* cosmetic: OS theme variants over the Linear Void default (Build 4.0).
-       23 palettes generated from tools/theme-lab-raw.json — the CSS lives in
-       body[data-theme="<id>"] blocks in main.css. sw = shop swatch preview.
+       23 palettes generated from tools/theme-lab-raw.json. Their CSS is
+       rebuilt as semantic-token overrides in css/themes.css (UI rebuild
+       M13); until then every id renders as the default. sw = shop swatch
+       preview.
        The retired kin/shinku/aoi/sumi ids fall back to the default theme in
        applyCosmetics(); owned copies simply stop being applicable. */
     /* The two FREE themes (audit G-06). Every other theme is 140 gold, which

@@ -163,6 +163,70 @@ Rebuild `index.html` and the chrome before any view:
 
 Out of scope (unchanged throughout): `store.js`, `mediadb.js` and every provider client, the cloud engine (`cloud*.js`), `router.js`, `search.js` ranking, `governor.js` economy, `sessions.js`, `srs.js`, `pacing.js` core, `edits.js`, generated data, authored content data, `supabase/`, Live2D files.
 
+### M2 as delivered (2026-09-24)
+
+Three commits on `refactor/ui-ux-overhaul`, in this order, so each step's
+evidence was taken before the next step could change it.
+
+1. **Render-purity baseline, from the untouched M1 tree** (`smoke56`).
+   `tools/lib/app-harness.js` boots the app deterministically (a fixed
+   clock that advances only with virtual timers, a seeded PRNG, no
+   background tickers, fake IndexedDB) and `tools/lib/seed.js` seeds a used
+   account through each domain's normaliser. For 42 surfaces (every view,
+   the args that select a different page, and the shell chrome) the suite
+   renders twice and diffs the store outside `state.ui` and the media DB,
+   then clicks each of 1,135 controls from a restored snapshot and records
+   what the click did: route, dialog, menu, store paths, media records,
+   announcement, toast, requests, errors. Controls are keyed by their own
+   `data-ui` hooks and accessible name; a rebuilt control may add hooks,
+   never lose them. Two recordings are byte-identical, and a deliberate
+   mis-wiring fails the suite. The baseline tolerates the render-time writes
+   the M1 tree already makes (lazy topic progress rows, `custom.quizzes`,
+   per-module `state.media` preferences, `todo.habits`, `goals.items`,
+   `assistant`, `worked.last`, the OOP sandbox seed); a view listed as
+   rebuilt must render with none (view-contracts §0.2.3). *Parity is
+   measured as effects rather than spied call lists*, so a rewritten view
+   that reaches the same service by a different helper still passes.
+2. **The visual audit on hooks.** `tools/visual_audit.mjs` drove the
+   browser through 365 legacy class tokens in 287 selector literals, which
+   M1's generation never scanned. They are hooks, state or intent now; the
+   five negative "retired X" checks keep their names, as M1 did for the
+   suites. **60 rows were added to `js/core/ui-hooks.js`**, in a labelled
+   block, for classes only the audit queried — M1's generation completed,
+   not new vocabulary; they leave with their views. The converted audit
+   passed against the M1 look before the purge, exactly as the original did.
+3. **Scorched earth.** `tools/ui-legacy-classes.json` was generated from
+   `main.css` first (**2,397** classes from rule preludes; the Phase 1
+   figure of ~2,416 counted comment and file-name noise), by
+   `tools/gen_legacy_classes.js`, which reads a Git revision so it stays
+   reproducible. Then: `css/main.css` and the three root mockups removed;
+   the petal backdrop (and its hook row), the Google Fonts link and its
+   preconnects removed from `index.html`; `sw.js` no longer lists the
+   stylesheet (every linked layer is derived at install); the deploy script
+   refuses a stray `main.css` and checks every linked sheet was staged.
+   Thirteen empty layer files are linked in cascade order — `tokens`,
+   `base`, `layout`, `components`, the eight `views/*` domains of §3.2,
+   `themes` — each wrapping one `@layer` block, with the order statement at
+   the top of `tokens.css`. The 153 stylesheet assertions were acted on as
+   [css-assertions.md](css-assertions.md) records: 49 contracts kept (they
+   wait for their layer through `pending()` in `tools/lib/css.js` and switch
+   on by themselves), 6 "contract" rows re-read as legacy and deleted, 25
+   legacy pins rewritten as selector-agnostic layer contracts, 73 deleted.
+   `smoke55` guards the purge, the frozen vocabulary, every sheet (k- or
+   the two kept utilities `.sr-only`/`.skip-link`, no `[data-ui]` selector,
+   colour literals only in tokens/themes, raw px only in tokens, the five
+   tiers), rebuilt markup and the depth budget, and proves each guard bites
+   on a fixture. `tools/ui-migration.json` lists the rebuilt files (the
+   thirteen sheets) and views (none yet).
+
+Consequences to know about until the layers are written: the app renders
+as unstyled semantic HTML; canvas text in the labs and the Shrine share
+card names Fraunces/IBM Plex Mono/Shippori Mincho and falls back to system
+families until M3 chooses the type (the Shrine's self-hosted fonts are
+unaffected); `sw.js` `VERSION` is unchanged because nothing deploys before
+M14. `tools/mobile_audit.mjs` still toggles the retired `.tree-closed`
+class and queries `.confirm-ov`, a drift that predates M2.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

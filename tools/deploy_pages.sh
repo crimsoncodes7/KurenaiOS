@@ -42,6 +42,12 @@ rm -f "$DIST/js/env.example.js"
 for banned in tools node_modules supabase Context "Phase 3 Context" .git .idea .claude; do
   if [ -e "$DIST/$banned" ]; then echo "ERROR: $banned leaked into dist" >&2; exit 1; fi
 done
+# UI rebuild M2: the legacy stylesheet is retired for good, and every layer
+# index.html links must be staged — a missing one 404s into an unstyled page
+if [ -e "$DIST/css/main.css" ]; then echo "ERROR: the retired css/main.css leaked into dist" >&2; exit 1; fi
+for sheet in $(grep -o '<link rel="stylesheet" href="css/[^"]*"' index.html | sed 's/.*href="//; s/"$//'); do
+  if [ ! -f "$DIST/$sheet" ]; then echo "ERROR: $sheet is linked by index.html but was not staged" >&2; exit 1; fi
+done
 if find "$DIST" -name "*.md" -o -name "*.py" -o -name "*.test.js" -o -name "package*.json" | grep -q .; then
   echo "ERROR: development files leaked into dist:" >&2
   find "$DIST" -name "*.md" -o -name "*.py" -o -name "*.test.js" -o -name "package*.json" >&2

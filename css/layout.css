@@ -1,0 +1,12 @@
+/* KurenaiOS — css/layout.css · @layer layout
+   The app shell grid (#topbar, #rail, #tree, #stage, #subnav, #main), the
+   phone composition from 700px down (invariant 40) and the layout
+   primitives (k-stack, k-cluster, k-grid, k-sidebar, k-switcher, k-center).
+
+   Empty since the M2 purge; see docs/ui-rebuild/PLAN.md §3.2.
+
+   Convention for every layer file: its rules sit inside ONE @layer block,
+   and the block's contents are not indented, so line-anchored tooling
+   (tools/lib/css.js, the smoke suites) reads them like top-level rules. */
+@layer layout {
+}

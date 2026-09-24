@@ -8,10 +8,8 @@
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
-const { readCss } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-const css = readCss();
 const src = name => fs.readFileSync(path.join(ROOT, "js/modules", name + ".js"), "utf8");
 const dom = new JSDOM(html, { url: "http://localhost/index.html", runScripts: "outside-only", pretendToBeVisual: true });
 const { window } = dom;
@@ -113,10 +111,8 @@ try {
   assert(bookModal.querySelector("[data-ui~='books.range-submit'] button"), "Physical Vault has no explicit Add range action");
   close(bookModal);
 
-  assert(/\.med-record-modal\s*>\s*\.med-form\s*\{[^}]*overflow-y:\s*auto/s.test(css), "record body is not internally scrollable");
-  assert(/\.med-edit-section\s*\{[^}]*grid-template-columns:\s*minmax\(132px, 160px\)\s+minmax\(0, 1fr\)/s.test(css), "desktop section index/body grid is missing");
-  assert(/\.med-edit-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,/s.test(css), "shared two-column field grid is missing");
-  assert(/@media \(max-width: 700px\)[\s\S]*?\.med-edit-grid\s*\{\s*grid-template-columns:\s*1fr/s.test(css), "mobile editor does not collapse to one column");
+  /* UI rebuild M2: the four .med-record-modal/.med-edit-* layout pins went
+     with the legacy stylesheet; the editor is rebuilt from V-18 in M9 */
 
   const moduleSource = ["anime", "books", "vn", "games"].map(src).join("\n");
   assert(!/class:\s*["'](?:bk-stats|vn-stats|gm-stats|gm-charts)/.test(moduleSource), "an obsolete bottom stats/chart component is still constructed");

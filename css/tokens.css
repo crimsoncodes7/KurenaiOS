@@ -1,0 +1,22 @@
+/* KurenaiOS — css/tokens.css · @layer tokens
+   Primitives (colour ramps, the three subject hues, calendar category hues)
+   and the semantic tokens every other layer reads: surfaces, borders, text,
+   accent, focus ring, elevation and --shadow-ink, the --z-* scale, radii,
+   type, spacing and motion. Dawn on :root, Dusk on
+   :root[data-theme="atelier-dusk"]. The five breakpoints (1240/1080/860/
+   700/560) are documented here. The only file, with themes.css, that may
+   hold a colour literal (smoke55).
+
+   The cascade order of the whole presentation layer is fixed by the
+   statement below, in the first stylesheet index.html links, so every
+   later file's block slots into its place whatever order it loads in.
+
+   Empty since the M2 purge; see docs/ui-rebuild/PLAN.md §3.2.
+
+   Convention for every layer file: its rules sit inside ONE @layer block,
+   and the block's contents are not indented, so line-anchored tooling
+   (tools/lib/css.js, the smoke suites) reads them like top-level rules. */
+@layer tokens, base, layout, components, views, themes;
+
+@layer tokens {
+}

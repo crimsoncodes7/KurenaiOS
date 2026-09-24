@@ -15,7 +15,7 @@ const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
 const { byName } = require("./lib/ui-query");
-const { readCss } = require("./lib/css");
+const { readCss, pending } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const css = readCss();
@@ -94,28 +94,13 @@ const step = (name, fn) => steps.push([name, fn]);
 
 console.log("== E1: Focus reflows instead of clipping ==");
 
-step("the compact Focus track can shrink below a long assignment option", () => {
-  assert(/@media \(max-width: 1080px\) \{ \.fx-setup \{ grid-template-columns: minmax\(0, 1fr\)/.test(css),
-    "compact .fx-setup still has an automatic min-content track");
-  assert(/\.fx-link-row \{ display: grid; grid-template-columns: minmax\(0, 1fr\)/.test(css),
-    "the phone links did not become a single shrinkable column");
-  assert(/\.fx-modes \{ grid-template-columns: minmax\(0, 1fr\)/.test(css),
-    "the phone mode cards still compete side by side");
-});
-
-step("Focus phone controls and the Start action use the full form width", () => {
-  assert(/\.fx-link-row > \.cal-field, \.fx-link-row \.status-sel \{ width: 100%; min-width: 0; \}/.test(css),
-    "linked Focus selects can still establish an off-screen width");
-  assert(/\.fx-obj-field \{ max-width: none; \}/.test(css), "the objective keeps its desktop cap");
-  assert(/\.fx-start \{ width: 100%; \}/.test(css), "Start is not the clear phone CTA");
-  assert(/body\.fx-minimised \.fx-dock \{[\s\S]*display: grid;[\s\S]*grid-template-columns: auto auto auto/.test(css),
-    "the populated minimised dock still competes in one shrinking row");
-  assert(/\.fx-dock-ctl \.mini-btn \{ min-width: 44px; min-height: 44px; \}/.test(css),
-    "the minimised phone controls cannot retain coarse-pointer targets");
-  assert(/body\.fx-minimised #cols \{[\s\S]*padding-top: calc\(104px \+ env\(safe-area-inset-top\)\)/.test(css),
-    "page content does not clear the two-row minimised dock");
-});
-
+/* UI rebuild M2: "the compact Focus track can shrink below a long
+   assignment option" pinned .fx-setup/.fx-link-row/.fx-modes rules of the
+   deleted stylesheet; Focus is rebuilt in M8. */
+/* UI rebuild M2: "Focus phone controls and the Start action use the full
+   form width" pinned .fx-* and body.fx-minimised rules; the 44px phone
+   targets survive as the components layer's coarse-pointer contract
+   (smoke45) and the dock clearance as the layout layer's (below). */
 console.log("== E2/E3: secondary and primary navigation ==");
 
 step("the Phase E module loads before main binds the canonical rail", () => {
@@ -134,12 +119,17 @@ step("phone navigation is four primary destinations plus More, with no cloned ro
   ["governor", "assistant", "system"].forEach(section => {
     assert(new RegExp('data-section="' + section + '"').test(html), section + " was hidden by deletion");
   });
-  assert(/\.mobile-shell-ready #rail \.rail-item\[data-section="governor"\],[\s\S]*\.mobile-shell-ready #rail \.rail-item\[data-section="assistant"\],[\s\S]*\.mobile-shell-ready #rail \.rail-item\[data-section="system"\] \{ display: none/.test(css),
-    "the three low-frequency destinations are not presentation-only hidden at the phone tier");
-  assert(/\.mobile-shell-ready #searchbox \{ display: none; \}/.test(css) &&
-    /\.mobile-shell-ready \.mobile-search-trigger \{/.test(css) &&
-    /\.mobile-shell-ready #rail \.mobile-more \{ display: flex/.test(css),
-    "a failed mobile-shell load can hide canonical search/nav without mounting replacements");
+  /* M2, invariant 72 without the legacy classes: the enhanced phone shell
+     is <html data-shell="ready">, and ANY rule that hides the canonical
+     search or a rail destination must be gated on it, so a failed
+     mobile-shell load leaves the unenhanced controls usable */
+  if (pending("layout", "phone-tier hiding is gated on data-shell=ready")) return;
+  assert(/\[data-shell="ready"\]/.test(css), "nothing in the stylesheet waits for the enhanced shell");
+  const hides = (css.match(/[^{}]*\{[^{}]*display:\s*none[^{}]*\}/g) || [])
+    .map(r => r.split("{")[0]).filter(sel => /#searchbox|#rail\b[^,]*data-section/.test(sel));
+  assert(hides.length, "the three low-frequency destinations are not presentation-only hidden at the phone tier");
+  assert(hides.every(sel => sel.split(",").every(part => !/#searchbox|data-section/.test(part) || /\[data-shell="ready"\]/.test(part))),
+    "a failed mobile-shell load can hide canonical search/nav without mounting replacements: " + hides.join(" | "));
 });
 
 step("More is a focus-managed surface over the three hidden original buttons", async () => {
@@ -171,14 +161,10 @@ step("compact subnav is one declared scroller without changing the nav landmark"
     "the native Section nav landmark was replaced");
   assert(!nav.hasAttribute("role") && !nav.hasAttribute("tabindex"),
     "responsive scrolling overwrote Phase F's navigation seam");
-  assert(/flex-wrap: nowrap/.test(css) && /\.subnav-item, \.subnav-scroller \.subnav-sep \{ flex: 0 0 auto/.test(css),
-    "the compact strip can still wrap");
   KOS.show("wishlist");
   await tick(20);
   assert($("#subnav [data-ui~='shell.subnav-item'][data-state~='active'] [data-ui~='part.text']").textContent === "Planner",
     "a rebuilt Collection strip lost its active destination");
-  assert(/\.sec-head \.sec-title \{ min-width: 0; flex: 1 1 0; \}/.test(css),
-    "a long spine title can still orphan its count/arrow onto another flex line");
 });
 
 console.log("== E4: one global search, reachable on phones ==");
@@ -186,7 +172,6 @@ console.log("== E4: one global search, reachable on phones ==");
 step("the user panel rides the topbar on phones and returns to the rail above 700px", () => {
   const foot = $("#hud").closest("[data-ui~='shell.rail-foot']");
   assert(foot && foot.parentNode === $("[data-ui~='shell.header-actions']"), "on a phone the ONE #hud node must sit in .topbar-right (not float fixed over the page)");
-  assert(!/position:\s*fixed/.test(css.split("#rail .rail-foot {")[1] || ""), "the phone rail-foot must not be position:fixed any more");
   const phone = window.matchMedia("(max-width: 700px)");
   phone.setMatches(false);
   assert(foot.parentNode === $("#rail"), "above 700px the panel must return to the rail");
@@ -273,30 +258,26 @@ step("the responsive audit opens a real Computer Science topic", () => {
     "compact Study/Ref screenshots can be replaced by a stale open drawer state");
   assert(/!n\.closest\("\[data-scroller\]"\)/.test(phoneAuditSrc),
     "the phone probe reports declared navigation disclosure as clipped page content");
-  assert(/\.n-code pre \{ white-space: pre-wrap; overflow-x: hidden; \}/.test(css) &&
-    /\.n-code code \{ white-space: inherit; overflow-wrap: anywhere; word-break: break-word; \}/.test(css),
-    "long Ref-page code still establishes a hidden desktop-width inline box on phones");
 });
 
 console.log("== E5/E6: safe shell and compact disclosure ==");
 
 step("the viewport and bottom clearance have one safe-area-aware contract", () => {
-  assert(/#app \{[^}]*height: 100vh; height: 100dvh/.test(cssRules), "#app lost its vh/dvh fallback pair");
-  assert(/--tabbar-h: 64px/.test(css) && /padding-block-end: calc\(var\(--tabbar-h\)[^;]*safe-area-inset-bottom/.test(css),
-    "#main does not reserve the bar and home indicator");
-  assert(!/#cols\.tree-closed #main\s*\{/.test(cssRules),
-    "the retired Spec-spine clearance still double-pads phone pages");
-  assert(/\.toast \{ bottom: calc\(var\(--tabbar-h\)[^;]*safe-area-inset-bottom/.test(css),
-    "toasts can still render behind the fixed phone bar");
+  if (!pending("layout", "#app's vh/dvh pair and #main's tab-bar clearance")) {
+    assert(/#app \{[^}]*height: 100vh; height: 100dvh/.test(cssRules), "#app lost its vh/dvh fallback pair");
+    assert(/--tabbar-h: 64px/.test(css) && /padding-block-end: calc\(var\(--tabbar-h\)[^;]*safe-area-inset-bottom/.test(css),
+      "#main does not reserve the bar and home indicator");
+  }
+  /* M2: the toast is rebuilt in M4/M5; whatever selects it, the components
+     layer must lift it over the bar and the home indicator */
+  if (!pending("components", "the toast clears the phone tab bar"))
+    assert(/bottom:\s*calc\(var\(--tabbar-h\)[^;]*safe-area-inset-bottom/.test(css),
+      "toasts can still render behind the fixed phone bar");
 });
 
-step("bottom labels are readable words, never ellipsis", () => {
-  const labelRule = css.match(/#rail :is\(\.rail-item, \.mobile-more\) \.lbl \{([^}]*)\}/);
-  assert(labelRule, "the shared phone label rule is missing");
-  assert(/font-size: 11px/.test(labelRule[1]), "phone nav labels are still miniaturised");
-  assert(!/text-overflow|overflow: hidden/.test(labelRule[1]), "phone nav labels still truncate");
-});
-
+/* UI rebuild M2: "bottom labels are readable words, never ellipsis" read
+   the legacy #rail .rail-item .lbl rule; the 11px floor is stylesheet-wide
+   now (smoke47) and the phone bar is rebuilt in M4. */
 step("Reminders' tall taxonomy moves into and back out of one dialog", async () => {
   KOS.show("reminders");
   await tick(30);
@@ -317,8 +298,6 @@ step("all four vaults share the same compact status/list disclosure seam", () =>
   /* the one seam: every vault layout, found by its hook, not a module list */
   assert(/main\.querySelectorAll\("\[data-ui~='vault\.layout'\]"\)\.forEach\(enhanceVaultDisclosure\)/.test(shellSrc),
     "vault disclosure is module-specific");
-  assert(/\.mobile-shell-ready \.rem-grid > \.rem-side,[\s\S]*\.mobile-shell-ready \.med-layout > \.med-filter-rail \{ display: none; \}/.test(css),
-    "compact side rails hide without a successfully mounted disclosure module");
   assert(/slot\.appendChild\(node\)/.test(shellSrc) && /origin\.insertBefore\(node/.test(shellSrc),
     "compact filters are cloned rather than moved and restored");
   assert(shellSrc.indexOf('classList.add("mobile-shell-ready")') > shellSrc.indexOf("syncShell();"),

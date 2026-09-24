@@ -180,38 +180,19 @@ step("Corner identity stays concise and the full profile anchors status beside t
   KOS.governor.closeProfilePopover();
 });
 
-step("Responsive and reduced-motion Governor rules are present", () => {
+step("the retired shop preview overlays stay retired", () => {
   const css = readCss();
-  /* The Governor's compact tier used to be a bespoke 760px query. Category 7
-     Phase B folded it into the sanctioned 860px "compact" tier — assert the
-     tier, not a magic number, so the next consolidation does not have to
-     rewrite this line again. smoke42 owns the "only five widths" rule. */
-  if (!/@media \(max-width: 860px\)[\s\S]*\.gov-seat-hero/.test(css)) throw new Error("mobile Governor rules missing");
-  if (!/@media \(prefers-reduced-motion: reduce\)[\s\S]*\.shop-card/.test(css)) throw new Error("reduced-motion rules missing");
-  /* Guard the rule that ACTUALLY renders, and guard its uniqueness: the
-     previous assertion matched a copy that a later rule overrode, so it
-     passed while the geometry it described had no effect. */
-  const heatRules = css.match(/^\.heat-svg svg \{[^}]*\}/gm) || [];
-  if (heatRules.length !== 1) throw new Error("expected exactly one .heat-svg svg rule, found " + heatRules.length);
-  if (!/width: 100% !important/.test(heatRules[0]) || !/max-width: 400px/.test(heatRules[0]) ||
-      !/display: block/.test(heatRules[0]) || !/margin: 0 auto 0 0/.test(heatRules[0]))
-    throw new Error("heatmap geometry rule changed: " + heatRules[0]);
-});
-
-step("Merged Governor classes retain their styling contracts and the assistant dot is state-only", () => {
-  const css = readCss();
-  for (const selector of [".gov-seat-hero .id-access", ".hp-preview", ".hud-profile-meta", ".pc-identity-row", ".av-pv-identity"])
-    if (!css.includes(selector)) throw new Error(`missing integration style ${selector}`);
-  if (!/\.gov-head \{ margin-bottom: 0; \}/.test(css) || !/\.gov-workspace \{[\s\S]*?padding-top: 18px;/.test(css))
-    throw new Error("Governor header-to-content spacing regressed");
-  const idleDot = css.match(/\.assistant-trigger \.at-dot \{[^}]*\}/);
-  if (!idleDot || !/opacity: 0/.test(idleDot[0]) || !/border: 2px solid transparent/.test(idleDot[0]))
-    throw new Error("idle assistant state dot is visible");
-  if (!/\.assistant-trigger\.is-busy \.at-dot \{[^}]*opacity: 1/.test(css) ||
-      !/\.assistant-trigger\.is-confirm \.at-dot \{[^}]*opacity: 1/.test(css))
-    throw new Error("assistant lifecycle states no longer reveal the dot");
   if (/sp-theme-shell|sp-banner-card/.test(css)) throw new Error("obsolete shop overlays survived");
 });
+
+/* UI rebuild M2: the two stylesheet steps that stood here pinned rules of
+   the deleted legacy stylesheet (.gov-seat-hero tiers, .shop-card motion,
+   the .heat-svg geometry, merged Governor selectors, the .at-dot states).
+   They are retired with it (docs/ui-rebuild/css-assertions.md); their one
+   negative check, the retired shop overlays, stays above. The idle
+   assistant dot is measured in a real browser by tools/visual_audit.mjs,
+   by hook; reduced motion and the five tiers are layer contracts
+   (smoke29, smoke42). */
 
 (async () => {
   let pass = 0;

@@ -113,6 +113,8 @@ non-navigation redraw path.
 | Shared image placement | `js/core/imagecrop.js` |
 | Behavioural hooks (`data-ui`/`data-state`/`data-intent`) for logic and tests | `KOS.ui` helpers in `js/core/ui.js`; legacy-class bridge `js/core/ui-hooks.js` (UI rebuild M1, see `docs/ui-rebuild/`) |
 | Spec-spine presence (`#cols[data-tree]`) | `KOS.shell.tree()` in `js/core/ui.js` |
+| Presentation layer (UI rebuild; one `@layer` per file, order declared in `tokens.css`) | `css/tokens.css`, `base.css`, `layout.css`, `components.css`, `css/views/*.css`, `themes.css`; `tools/lib/css.js` `pending()` gates each layer's design contracts |
+| Rebuild guards | `tools/smoke55.test.js` (legacy vocabulary `tools/ui-legacy-classes.json`, rebuilt files `tools/ui-migration.json`), `tools/smoke56.test.js` (render purity and control parity against `tools/baselines/render-purity.json`) |
 
 ## Invariants
 

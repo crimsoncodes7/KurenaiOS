@@ -112,7 +112,6 @@
     "b-wide"                       : "gov.bento-wide",
     "bar-fill"                     : "study.bar-fill",
     "bento"                        : "gov.bento",
-    "bg-flora"                     : "shell.backdrop",
     "bit"                          : "lab.bit",
     "bk-author"                    : "books.author",
     "bk-card"                      : "books.card",

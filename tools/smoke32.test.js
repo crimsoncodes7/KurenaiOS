@@ -29,7 +29,6 @@ window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true; window.__kosAutoConfirm = true;
 if (!window.AbortController) window.AbortController = class { constructor() { this.signal = {}; } abort() {} };
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
-const { readCss } = require("./lib/css");
 window.indexedDB = indexedDB; window.IDBKeyRange = IDBKeyRange;
 window.fetch = () => Promise.reject(new Error("network disabled in this suite"));
 
@@ -206,21 +205,10 @@ step("notes sit BENEATH the preview, inside the stage", async () => {
   if (iPrev === -1 || iNotes < iPrev) throw new Error("notes must come after the preview: " + kids.join(","));
 });
 
-step("the inspector still collapses, and the file list is its own column", () => {
-  const css = readCss();
-  if (!/\.study-grid\.insp-closed/.test(css)) throw new Error("the inspector collapse rule is gone");
-  if (!/\.att-body\s*{[^}]*grid-template-columns/.test(css)) throw new Error("the Files tab is not a two-column layout");
-});
-
-step("no fixed pixel height on the PDF frame — that is what clipped its toolbar", () => {
-  const css = readCss();
-  const rule = css.match(/\.att-pdf\s*{([^}]*)}/);
-  if (!rule) throw new Error(".att-pdf has no rule");
-  const height = (rule[1].match(/(?:^|[;\s])height:\s*([^;]+)/) || [])[1] || "";
-  if (/^\s*\d+px\s*$/.test(height)) throw new Error("the PDF frame is back on a fixed pixel height: " + height);
-  if (!/vh/.test(height)) throw new Error("the PDF frame height should be viewport-relative, got " + height);
-  if (/\.att-viewer\s+iframe\s*{[^}]*height:\s*\d+px/.test(css)) throw new Error("the old fixed-height viewer rule is back");
-});
+/* UI rebuild M2: two stylesheet steps retired with the legacy layer — the
+   .study-grid.insp-closed / .att-body grid rules, and the .att-pdf height
+   rule. The PDF frame's "never a fixed pixel height" survives in general
+   form: smoke55 bans raw px lengths outside the tokens layer. */
 
 /* ============ D · metadata + actions ============ */
 console.log("== D · metadata and actions ==");

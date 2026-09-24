@@ -13,7 +13,7 @@ const { JSDOM } = require("jsdom");
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
 const fs = require("fs");
 const path = require("path");
-const { readCss } = require("./lib/css");
+const { readCss, pending } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const read = f => fs.readFileSync(path.join(ROOT, f), "utf8");
@@ -142,44 +142,42 @@ step("every shared chart label keeps the 11px floor", () => {
   assert(!sizes.some(n => n < 11), "shared chart source contains a label below 11px: " + sizes.filter(n => n < 11));
 });
 
-step("the final polish block raises visible target microcopy to 11px", () => {
-  const block = css.slice(css.indexOf("Category 7 · Phase G"));
-  [".stat-card .k", ".goal-summary-metric small", ".cal-ev", ".gstat-k", ".asst-tab-group-label", ".fx-deal h4"]
-    .forEach(sel => assert(block.includes(sel), sel + " is not covered by the final type treatment"));
-  assert(/\.fx-deal-list li strong[^}]*font-family:\s*var\(--sans\)/s.test(block),
-    "Focus reward prose is still forced into mono");
+/* UI rebuild M2: the "final polish block" step listed legacy selectors
+   (.stat-card .k, .cal-ev, .gstat-k …) inside the deleted stylesheet. Its
+   requirement — no visible text under 11px (invariant 63) — outlives it,
+   so it is stated for the whole stylesheet instead: whatever the rebuild
+   names things, nothing may set a smaller font size. */
+step("no stylesheet sets text below the 11px floor", () => {
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  /* 0 is a deliberate "hide the text node", not a size */
+  const small = n => n > 0 && n < 11;
+  const px = [...rules.matchAll(/font-size:\s*([\d.]+)px/g)].map(m => +m[1]).filter(small);
+  const rem = [...rules.matchAll(/font-size:\s*([\d.]+)rem/g)].map(m => +m[1]).filter(n => small(n * 16));
+  const tokens = [...rules.matchAll(/--(?:font|text|fs)[\w-]*:\s*([\d.]+)(px|rem)\b/g)]
+    .map(m => (m[2] === "rem" ? +m[1] * 16 : +m[1])).filter(small);
+  assert(!px.length && !rem.length && !tokens.length,
+    "text below the 11px floor: " + px.map(n => n + "px").concat(rem.map(n => n + "rem"), tokens.map(n => n + "px (token)")).join(", "));
 });
 
 step("surface elevation derives from the active background tokens", () => {
+  if (pending("tokens", "--shadow-ink and the --shadow-* scale (invariant 79)")) return;
   assert(/--shadow-ink:\s*color-mix\([^;]*var\(--bg0\)/.test(css), "shadow ink is not derived from --bg0");
   ["sm", "md", "lg"].forEach(size => assert(new RegExp("--shadow-" + size + ":[^;]*var\\(--shadow-ink\\)").test(css),
     "--shadow-" + size + " bypasses the theme-derived shadow ink"));
-  assert(/\.asst-drawer\s*\{\s*box-shadow:\s*var\(--shadow-lg\)/.test(css.slice(css.indexOf("Category 7 · Phase G"))),
-    "the raised Assistant drawer keeps a literal shadow");
+  /* the Assistant drawer's "no literal shadow" is general now: smoke55
+     bans colour literals outside the tokens and themes layers */
 });
 
 console.log("== D · deliberate compact controls ==");
 
-step("Card Stats uses an intrinsic grid and no bespoke breakpoint", () => {
-  assert(/\.cardstats-stat-strip\s*\{[^}]*display:\s*grid[^}]*auto-fit[^}]*minmax/s.test(css),
-    "Card Stats is not intrinsically responsive");
-});
-
-step("phone Governor and tracker tab groups have intentional equal columns", () => {
-  const phase = css.slice(css.indexOf("Category 7 · Phase G"));
-  assert(/\.gov-head \.gov-tabs\s*\{[^}]*grid-template-columns:\s*repeat\(2/s.test(phase),
-    "Governor can regress to a 3+1 phone wrap");
-  assert(/Record type[^}]*grid-template-columns:\s*repeat\(2/s.test(phase),
-    "tracker kinds can regress to an uneven phone stack");
-});
-
-step("Shrine missing art and its hall-note action retain branded visual treatment", () => {
-  const phase = css.slice(css.indexOf("Category 7 · Phase G"));
-  assert(/\.shrine-note-btn\s*\{[^}]*wash-brass/s.test(phase), "hall note still reads as plain text");
-  assert(/\.shrine-feature:not\(\.has-banner\)[^{]*\{[^}]*radial-gradient/s.test(phase),
-    "a missing Shrine cover is still an empty hero");
-});
-
+/* UI rebuild M2: "Card Stats uses an intrinsic grid" pinned the legacy
+   .cardstats-stat-strip rule; no bespoke breakpoint is smoke42/smoke55's
+   stylesheet-wide rule. */
+/* UI rebuild M2: "phone Governor and tracker tab groups have intentional
+   equal columns" pinned rules of the deleted "Category 7 · Phase G" block. */
+/* UI rebuild M2: "Shrine missing art and its hall-note action retain
+   branded visual treatment" pinned .shrine-note-btn/.shrine-feature rules
+   of the deleted stylesheet; the Shrine is rebuilt in M10. */
 step("Governor and Shrine remaining empty surfaces use the shared primitive", () => {
   assert(/KOS\.ui\.emptyState/.test(read("js/modules/governor-ui.js")), "Governor keeps a bespoke absence panel");
   assert(/className:\s*"shrine-empty"/.test(read("js/modules/shrine.js")), "Shrine empty Hall bypasses EmptyState");

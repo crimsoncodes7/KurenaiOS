@@ -21,14 +21,15 @@
       the precache list cannot drift from the app.
    5. js/core/pwa.js is inert without a service worker (jsdom): KOS.pwa is
       exposed, supported() is false, requestPersistence never throws.
-   6. The phone tier exists in css/main.css: bottom-bar rail, tree drawer,
-      bottom-sheet modals, 16px inputs, safe-area insets, coarse-pointer
-      targets.                                                             */
+   6. The phone tier's design contract: bottom-bar rail and safe-area
+      insets (layout layer), 16px inputs and coarse-pointer targets
+      (components layer). Each waits for its layer (tools/lib/css.js
+      pending) since the M2 purge.                                         */
 
 const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
-const { readCss, stylesheets } = require("./lib/css");
+const { readCss, stylesheets, pending } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const read = f => fs.readFileSync(path.join(ROOT, f), "utf8");
 
@@ -141,13 +142,15 @@ step("pwa.js exposes KOS.pwa and stays inert in jsdom", () => {
 
 console.log("== phone tier CSS contract ==");
 step("the ≤700px tier re-homes the shell for touch", () => {
-  assert(/@media \(max-width: 700px\)[\s\S]*#rail \{[\s\S]*position: fixed/.test(css), "bottom-bar rail missing");
-  assert(css.includes("env(safe-area-inset-bottom)"), "safe-area bottom missing");
-  assert(css.includes("env(safe-area-inset-top)"), "safe-area top missing");
-  assert(/input, select, textarea \{ font-size: 16px; \}/.test(css), "16px inputs (iOS zoom guard) missing");
-  assert(/\.modal-ov \{ align-items: flex-end/.test(css), "bottom-sheet modals missing");
-  assert(/@media \(pointer: coarse\)/.test(css), "coarse-pointer targets missing");
-  assert(/\.sync-chip \{ white-space: nowrap/.test(css), "chip nowrap missing");
+  if (!pending("layout", "the phone shell: bottom-bar rail and safe-area insets")) {
+    assert(/@media \(max-width: 700px\)[\s\S]*#rail \{[\s\S]*position: fixed/.test(css), "bottom-bar rail missing");
+    assert(css.includes("env(safe-area-inset-bottom)"), "safe-area bottom missing");
+    assert(css.includes("env(safe-area-inset-top)"), "safe-area top missing");
+  }
+  if (!pending("components", "16px phone inputs and coarse-pointer targets")) {
+    assert(/input, select, textarea \{ font-size: 16px; \}/.test(css), "16px inputs (iOS zoom guard) missing");
+    assert(/@media \(pointer: coarse\)/.test(css), "coarse-pointer targets missing");
+  }
 });
 
 console.log("");

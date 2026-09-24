@@ -1,0 +1,19 @@
+{
+  "about": "What the UI rebuild has rebuilt on the new presentation layer (docs/ui-rebuild/PLAN.md). smoke55 holds every file listed here to the new vocabulary: k- classes only, no legacy class name, no static inline style, no colour literal outside the tokens and themes layers, no CSS selecting [data-ui]. Each view listed must render without writing data (smoke56) and within its wrapper-depth budget (smoke55). Each milestone appends what it rebuilt; at M14 the lists cover everything.",
+  "files": [
+    "css/tokens.css",
+    "css/base.css",
+    "css/layout.css",
+    "css/components.css",
+    "css/views/home.css",
+    "css/views/study.css",
+    "css/views/productivity.css",
+    "css/views/collection.css",
+    "css/views/governor.css",
+    "css/views/assistant.css",
+    "css/views/archive.css",
+    "css/views/labs.css",
+    "css/themes.css"
+  ],
+  "views": {}
+}
