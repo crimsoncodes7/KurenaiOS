@@ -881,6 +881,14 @@
     slot.hidden = !slot.children.length;
     return slot;
   };
+  /* a view that lays out its own full-height columns (the topic page) asks
+     for the stage without padding and without the sub-navigation row
+     (frame 8b); every navigation hands the stage back */
+  KOS.shell.bleed = function (on) {
+    var stage = document.getElementById("stage"), head = document.getElementById("stage-head");
+    if (stage) { if (on) stage.setAttribute("data-bleed", ""); else stage.removeAttribute("data-bleed"); }
+    if (head) head.hidden = !!on;
+  };
   KOS.shell.tree = function (mode) {
     var cols = document.getElementById("cols");
     var tree = document.getElementById("tree");
@@ -964,6 +972,7 @@
       KOS.ui.state(b, "active", lit);
       if (lit) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
+    KOS.shell.bleed(false);
     renderSubnav(sec, viewId, arg);
     KOS.shell.actions(null);
     if (KOS.views[viewId]) KOS.views[viewId](main, arg);

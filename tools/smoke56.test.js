@@ -55,7 +55,9 @@ const BASELINE = path.join(__dirname, "baselines", "render-purity.json");
    A rule with `"retire": true` excuses a control's ABSENCE, never a change
    in what it does: the approved design dropped it (a capped list, a panel
    the design folds elsewhere). With `"reachable": true` as well, some
-   control still on that surface must produce exactly its recorded effects.
+   control still on that surface must produce exactly its recorded effects;
+   `via` names the root to look in when that control lives outside the
+   replayed regions (the spine's subject switch, in #tree).
 
    `dropEffects` ({effect: pattern}) takes named side effects out of the
    contract on BOTH sides of the comparison (a spine the desk no longer
@@ -354,20 +356,23 @@ async function main() {
 
     /* every current control's effects, replayed once and only when a
        reachable retirement asks for them */
-    let current = null;
-    async function reachable(want) {
-      if (!current) {
-        current = [];
+    const current = {};
+    async function reachable(want, via) {
+      const regions = via ? [via] : surf.regions;
+      const id = regions.join(",");
+      if (!current[id]) {
+        current[id] = [];
         const seen = {};
-        for (const { key } of list) {
+        const pool = via ? (await render(surf.view, surf.arg), controlsIn(regions)) : list;
+        for (const { key } of pool) {
           const k = key.hooks + "|" + key.name;
           const o = seen[k] = (seen[k] || 0); seen[k]++;
-          current.push(await effectsOf(surf.view, surf.arg, surf.regions, key, o));
+          current[id].push(await effectsOf(surf.view, surf.arg, regions, key, o));
           actions++;
         }
       }
       const target = JSON.stringify(want.eff);
-      return current.some((e) => JSON.stringify(without(e, want.drops)) === target);
+      return current[id].some((e) => JSON.stringify(without(e, want.drops)) === target);
     }
     function retirement(c0, c) {
       return renames.find((r) => r.retire && applies(r, c0, surf.id) && applies(r, c, surf.id) &&
@@ -383,7 +388,7 @@ async function main() {
       if (!eff) {
         const r = retirement(c0, c);
         if (!r) { fail(`${label}: the control is gone (hooks and accessible name are the contract)`); continue; }
-        if (r.reachable && !(await reachable(contract(c, surf.id)))) fail(`${label}: retired as reachable, but nothing on the page still does ${JSON.stringify(contract(c, surf.id).eff)}`);
+        if (r.reachable && !(await reachable(contract(c, surf.id), r.via))) fail(`${label}: retired as reachable, but nothing on the page still does ${JSON.stringify(contract(c, surf.id).eff)}`);
         continue;
       }
       const want = contract(c, surf.id);

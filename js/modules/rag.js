@@ -168,45 +168,50 @@
      eye has to find. The band ids, the store field and the auto read-out are
      unchanged. */
   function picker(sid, ref) {
-    var wrap = el("span", { class: "rag-picker", role: "group",
+    /* Graphite (frame 8b): three lettered circles beside the status. Each
+       still says what it means — in its accessible name and tooltip — and
+       the pressed one is announced with aria-pressed (audit REF-7). What
+       the data says rides beneath as one quiet line. */
+    var wrap = el("span", { class: "k-rag", "data-ui": "rag.picker", role: "group",
       "aria-label": "Your confidence on this topic",
       title: "Your confidence on this topic (separate from completion status)" });
-    wrap.appendChild(el("span", { class: "rag-picker-l", text: "Confidence" }));
     var cur = manual(sid, ref);
+    var picks = el("span", { class: "k-rag-picks" });
     ["r", "a", "g"].forEach(function (b) {
-      var btn = el("button", { class: "rag-pick rag-" + b + (cur === b ? " on" : ""),
-        type: "button", "aria-pressed": String(cur === b),
+      var btn = el("button", { type: "button", class: "k-rag-pick", "data-ui": "rag.pick", "data-band": b,
+        "aria-pressed": String(cur === b),
         "aria-label": BANDS[b].label + " — " + BANDS[b].word,
         title: BANDS[b].label + " — " + BANDS[b].word + " (press again to clear)",
         onclick: function () {
-          cur = cur === b ? null : b;             // click again to clear
+          cur = cur === b ? null : b;             // press again to clear
           setManual(sid, ref, cur);
-          wrap.querySelectorAll("[data-ui~='rag.pick']").forEach(function (x) {
+          picks.querySelectorAll("[data-ui~='rag.pick']").forEach(function (x) {
             KOS.ui.state(x, "on", false); x.setAttribute("aria-pressed", "false"); });
           if (cur) { KOS.ui.state(btn, "on", true); btn.setAttribute("aria-pressed", "true"); }
           renderAuto();
         } }, [
-        el("span", { class: "rag-pick-dot", "aria-hidden": "true" }),
-        el("span", { class: "rag-pick-l", "aria-hidden": "true", text: BANDS[b].word })
+        el("span", { "aria-hidden": "true", text: BANDS[b].label.charAt(0) }),
+        el("span", { class: "sr-only", "data-ui": "rag.option-label", text: BANDS[b].word })
       ]);
-      wrap.appendChild(btn);
+      if (cur === b) KOS.ui.state(btn, "on", true);
+      picks.appendChild(btn);
     });
-    var autoEl = el("span", { class: "rag-auto" });
+    wrap.appendChild(picks);
+    var autoEl = el("span", { class: "k-rag-auto", "data-ui": "rag.auto" });
     function renderAuto() {
       autoEl.innerHTML = "";
       var a = auto(sid, ref);
-      if (!a) { autoEl.appendChild(el("span", { class: "rag-why", text: "no performance data yet" })); return; }
-      autoEl.appendChild(el("span", { class: "rag-why", text: "data says" }));
-      autoEl.appendChild(dot(a.band, a.reasons.join(" · ") || "looking solid"));
+      if (!a) { autoEl.textContent = "No performance data yet"; return; }
+      autoEl.appendChild(document.createTextNode("Data says "));
+      autoEl.appendChild(el("b", { "data-band": a.band, title: a.reasons.join(" · ") || "looking solid", text: BANDS[a.band].label }));
       var m = manual(sid, ref);
       if (m && m !== a.band) {
-        autoEl.appendChild(el("span", { class: "rag-why rag-disagree",
-          text: "≠ your " + BANDS[m].label.toLowerCase(), title: a.reasons.join(" · ") }));
+        autoEl.appendChild(el("span", { class: "k-rag-disagree", "data-ui": "rag.disagree",
+          text: " ≠ your " + BANDS[m].label.toLowerCase(), title: a.reasons.join(" · ") }));
       }
     }
     renderAuto();
-    wrap.appendChild(autoEl);
-    return wrap;
+    return { node: wrap, auto: autoEl };
   }
 
   KOS.rag = {

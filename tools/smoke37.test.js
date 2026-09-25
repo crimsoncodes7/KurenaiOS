@@ -220,16 +220,17 @@ step("status, the four checks and confidence are ONE headed component", () => {
   assert(c.matches('[data-ui~="topic.control-row"]'), "the component dropped the shared control-row contract");
   assert(c.querySelector("[data-ui~='topic.status-head'] [data-ui~='topic.status-k']").textContent === "Topic status", "the component is unheaded");
   assert(c.querySelector("[data-ui~='topic.status-field-status'] [data-ui~='ui.status-select']"), "the status dropdown is not a labelled field");
-  const checks = c.querySelectorAll("[data-ui~='topic.checkgrid'] label.chk input[type=checkbox]");
+  const checks = c.querySelectorAll("[data-ui~='topic.checkgrid'] [data-ui~='topic.check'] input[type=checkbox]");
   assert(checks.length === 4, "expected the four progress checks, got " + checks.length);
   assert(c.querySelector("[data-ui~='topic.status-field-conf'] [data-ui~='rag.picker']"), "confidence is not part of the component");
   const labels = [...c.querySelectorAll("[data-ui~='topic.status-field'] > [data-ui~='topic.status-lbl']")].map(n => n.textContent.trim());
-  assert(labels.join("|") === "Status|Progress checks|Confidence", "field labels: " + labels.join("|"));
+  /* Graphite (frame 8b): the status and the RAG circles share a row above the checks */
+  assert(labels.join("|") === "Status|Confidence|Progress checks", "field labels: " + labels.join("|"));
   assert(!c.querySelector(".ctl-sep"), "the loose hairline separators are back");
 });
 
 step("the four checks read as the full phrases, in order", () => {
-  const got = [...$$("[data-ui~='topic.checkgrid'] label.chk")].map(n => n.textContent.trim());
+  const got = [...$$("[data-ui~='topic.checkgrid'] [data-ui~='topic.check']")].map(n => n.textContent.trim());
   assert(got.join("|") === "Covered in class|Studied it|Done exam questions|Fully understood",
     "check labels: " + got.join("|"));
 });
@@ -346,12 +347,17 @@ step("every study tab carries its full name", () => {
    levels of tab for one decision. It is one row now, and the row is a
    DECLARED scroller (Phase B invariant #50), which is what lets it stay one
    row at 390px as well as at 1920. */
-step("the topic strip is one declared-scroller row", () => {
-  const wrap = $("[data-ui~='topic.tabs']").closest("[data-scroller]");
-  assert(wrap, "the topic strip scrolls sideways without declaring itself a scroller");
-  assert(wrap.querySelector("[data-ui~='ui.scroller-arrow']"), "the declared scroller has no arrow affordance");
-  const heights = new Set($$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']").map(b => window.getComputedStyle(b).minHeight));
-  assert(heights.size === 1, "tabs do not share one height: " + [...heights].join(", "));
+/* Graphite (frame 8b): the strip no longer scrolls sideways at all — the
+   first four tabs show, the rest fold behind "+N ▾", and the open tab always
+   shows wherever it sits. Nothing is unreachable and nothing scrolls. */
+step("the topic strip is one row: four tabs, the rest behind +N", () => {
+  const tabs = $$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']");
+  const folded = tabs.filter(b => b.hidden);
+  assert(tabs.slice(0, 4).every(b => !b.hidden), "one of the first four tabs is folded");
+  assert(folded.every(b => b.getAttribute("aria-selected") !== "true"), "the open tab was folded away");
+  const more = $("[data-ui~='topic.nav'] [data-ui~='ui.menu-button']");
+  assert(!folded.length || (more && more.textContent.indexOf("+" + folded.length) === 0), "the folded tabs are not offered behind +N");
+  assert(!$("[data-ui~='topic.tabs']").closest("[data-scroller]"), "the strip is a sideways scroller again");
 });
 
 step("the selected tab is announced, and switching keeps exactly one selected", () => {

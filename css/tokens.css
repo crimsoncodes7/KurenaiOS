@@ -203,6 +203,8 @@ color-scheme: dark;
 --watermark-size: 220px;
 --tile: 30px;
 --icon-btn: 38px;
+--icon-btn-sm: 28px;
+--box: 18px;
 --tabbar-h: 64px;
 
 /* ---------- Home (frame 7a) ---------- */
@@ -241,6 +243,25 @@ color-scheme: dark;
 --track-name: -0.025em;
 --track-figure: -0.015em;
 --track-label: 0.12em;
+--track-spine: 0.1em;
+--topic-step: 34px;
+--prose-w: 620px;
+--insp-row: 32px;
+--spine-bar: 3px;
+--spine-bar-h: 32px;
+--spine-dot: 9px;
+--rag-pick: 32px;
+--spine-ref-w: 28px;
+--spec-cols: 150px;
+--dot-wide: 22px;
+--dot-narrow: 8px;
+--code-bg: oklch(0.14 0.008 265);
+--syn-kw: oklch(0.76 0.13 320);
+--syn-fn: oklch(0.8 0.1 240);
+--syn-op: oklch(0.82 0.08 200);
+--syn-num: oklch(0.82 0.12 60);
+--syn-str: oklch(0.8 0.12 140);
+--syn-com: oklch(0.55 0.02 265);
 
 /* ---------- elevation (invariant 79) ----------
    Surfaces are flat; only floating layers (menus, dialogs, the share card)

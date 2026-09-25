@@ -370,6 +370,28 @@ the invariants and the hook contract still govern behaviour.
   sides (`dropEffects`) and replace a control's contract (`expect`); every
   rule keeps its `why`.
 
+### Step 3b as delivered — the spine and the topic page (frames 8b, 8c)
+
+- The spine (`renderTree`) is rebuilt: a subject switch (each pill opens that
+  subject's desk), a topic filter, the board line with the subject's
+  completion, section rows that only disclose, group rows, and the entries —
+  mastery as a vertical bar, the RAG band as a dot, ◆ where revision notes
+  exist. A closed spine is reopened from the ☰ in the topic header.
+- `KOS.views.ref` is rebuilt: the stage runs without padding or the
+  sub-navigation row (`KOS.shell.bleed`); the title with its ref chip, the
+  path and the neighbouring topics as round ‹ ›; one static study-nav (the
+  first four tabs, the rest behind "+N ▾", the Edit control, and on a paged
+  note "Page x of y — title" with page dots); the inspector runs the full
+  height beside the column. The spec tab is two cards with the examiner's
+  guidance as callouts (8c). The engines inside the other tabs (flashcards,
+  quiz, exam, files) and the note blocks are rebuilt in steps 3c–3d.
+- The Topic Status component keeps its contract in the inspector: status
+  and the RAG circles on one row, the four checks as custom boxes, and what
+  the data says as one quiet line beneath (`KOS.rag.picker` now returns
+  `{node, auto}`).
+- smoke56 `via` lets a reachable retirement look outside the replayed
+  regions (the spine's subject switch lives in `#tree`).
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

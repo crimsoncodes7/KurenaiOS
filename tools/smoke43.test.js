@@ -176,13 +176,16 @@ step("the topic header is ONE row and absorbs the crumb path", () => {
   KOS.show("ref", { subject: SID, ref: REF });
   const main = document.getElementById("main");
   assert(!main.querySelector("[data-ui~='ui.crumbs']"), "the separate crumb row is back");
+  /* Graphite (frame 8b): the header leads the content column; the inspector
+     runs the page's full height beside it */
   const head = main.querySelector("[data-ui~='topic.head']");
-  assert(head && main.firstElementChild === head, "the topic header does not lead the page");
+  assert(head && head.parentElement.matches("[data-ui~='study.col']") && head.parentElement.firstElementChild === head,
+    "the topic header does not lead the page");
   assert(head.querySelector("[data-ui~='gov.seal']"), "no ref seal");
   assert(head.querySelector("h1"), "no title");
   const meta = head.querySelector("[data-ui~='topic.head-meta']").textContent;
   assert(meta.includes(window.KOS_DATA[SID].name), "the meta line dropped the subject the crumbs carried");
-  assert(meta.includes(window.KOS_DATA[SID].board), "the meta line dropped the board");
+  assert(/Paper \d|NEA|Pure/.test(meta), "the path line dropped the paper");
   assert(!head.querySelector("[data-ui~='ui.status-select'], .th-status"), "topic status is duplicated in the header");
 });
 
@@ -190,7 +193,7 @@ step("the page carries ONE study navigation layer, above the content", () => {
   KOS.show("ref", { subject: SID, ref: REF });
   const col = $("[data-ui~='study.col']");
   const nav = col.querySelector("[data-ui~='topic.nav']");
-  assert(nav && col.firstElementChild === nav, "the nav bar does not lead the content column");
+  assert(nav && col.firstElementChild.nextElementSibling === nav, "the nav bar does not sit between the header and the content");
   assert(nav.querySelector("[data-ui~='topic.tabs']"), "the tab strip is not in the bar");
   /* the assistant strip used to sit on the path between the title and the
      first word of content; it is a side-of-desk affordance now */
@@ -202,14 +205,14 @@ step("the page carries ONE study navigation layer, above the content", () => {
 
 step("nothing between the header and the content but that one bar", () => {
   KOS.show("ref", { subject: SID, ref: REF });
-  const main = document.getElementById("main");
-  const kids = [...main.children].map(n => n.getAttribute("data-ui") || n.tagName.toLowerCase());
-  assert(kids.length === 3, "the page has " + kids.length + " top-level blocks: " + kids.join(" | "));
+  const col = $("[data-ui~='study.col']");
+  const kids = [...col.children].map(n => n.getAttribute("data-ui") || n.tagName.toLowerCase());
+  assert(kids.length === 3, "the column has " + kids.length + " blocks: " + kids.join(" | "));
   assert(/(^| )topic\.head( |$)/.test(kids[0]), "first block is " + kids[0]);
-  assert(/(^| )study\.grid( |$)/.test(kids[1]), "second block is " + kids[1]);
+  assert(/(^| )topic\.nav( |$)/.test(kids[1]), "second block is " + kids[1]);
+  assert(/(^| )study\.panel( |$)/.test(kids[2]), "third block is " + kids[2]);
   /* the 170px Topic Status band that used to sit here is in the inspector */
-  assert(!main.firstElementChild.nextElementSibling.matches('[data-ui~="topic.status"]'),
-    "the status band is back between the header and the content");
+  assert(!col.querySelector("[data-ui~='topic.status']"), "the status band is back between the header and the content");
 });
 
 /* ============ C · one state surface ============ */
@@ -265,7 +268,7 @@ step("a paginated topic opens on one direct reader control in the nav", () => {
   const select = $("[data-ui~='topic.reader-page-select']");
   assert(reader && select, "no reader control in the nav bar");
   assert(select.options.length > 1, "expected several named pages, got " + select.options.length);
-  assert(select.value === "0" && /^Page 1 —/.test(select.options[0].textContent), "the first page is not selected and named");
+  assert(select.value === "0" && /^Page 1 of \d+ — \S/.test(select.options[0].textContent), "the first page is not selected and named");
   assert(!$(".np-pill"), "the retired wall of page pills returned");
 });
 

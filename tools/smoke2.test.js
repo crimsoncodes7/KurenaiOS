@@ -71,7 +71,7 @@ step("4.9.4 leaves nested under collapsible group", () => {
   const kids = grp2.nextElementSibling;
   if (!kids.querySelector("[data-ui~='study.spine-leaf']")) throw new Error("group has no nested leaves");
   click(grp2); // collapse
-  if (kids.style.display !== "none") throw new Error("group didn't collapse");
+  if (!kids.hidden) throw new Error("group didn't collapse");
   click(grp2);
 });
 step("deep-content badge shows on enriched leaves", () => {

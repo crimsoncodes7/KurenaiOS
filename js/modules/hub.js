@@ -256,20 +256,21 @@
     if (scrim) scrim.addEventListener("click", function () { setTreeClosed(true); });
   })();
 
-  /* The opener for the overlay tiers. The floating "Spec spine" pill it
-     replaces was fixed over the page (audit SUBJ-4): giving #main bottom
-     clearance stops it covering the LAST row, but a fixed pill still prints
-     on top of whatever paragraph happens to be under it mid-scroll. An
-     opener that sits in the page header cannot overlap anything, and it puts
-     the control for the section list on the page the section list serves.
-     CSS hides it above 860, where the spine is an ordinary column. */
+  /* The opener for a closed spine. It sits in the topic header, so nothing
+     floats over the page (audit SUBJ-4); the layer shows it only while the
+     spine is closed or an overlay drawer. */
   function treeOpenButton() {
-    return el("button", { class: "btn tree-open-btn", type: "button",
-      "aria-label": "Show the spec spine",
-      onclick: function () { setTreeClosed(false); } }, [
-      el("span", { "aria-hidden": "true", text: "☰" }), " Spec spine"
-    ]);
+    return el("button", { type: "button", class: "k-iconbtn k-spine-open", "data-ui": "study.spine-open",
+      "aria-label": "Show the spec spine", title: "Show the spec spine",
+      onclick: function () { setTreeClosed(false); } }, [el("span", { "aria-hidden": "true", text: "☰" })]);
   }
+
+  /* ---------- the spec spine (Graphite frame 8b) ----------
+     A subject switch, a filter, the board line with the subject's completion,
+     then the sections: a section row is a disclosure (never a destination),
+     a group row one level down, and the sub-topics are the entries — each
+     with its mastery as a vertical bar and its RAG band as a dot. */
+  var spineQuery = "";
   function renderTree(sid, activeRef) {
     var tree = document.getElementById("tree");
     KOS.shell.tree("open");
@@ -277,34 +278,33 @@
     tree.innerHTML = "";
     var data = KOS_DATA[sid];
     var st = subjectStats(sid);
-    tree.style.setProperty("--accent", COLORS[sid]);
-
-    /* the slim reopen rail, shown only when the tree is collapsed */
-    tree.appendChild(el("button", { class: "tree-reopen", title: "Show the spec spine",
-      onclick: function () { setTreeClosed(false); } }, [
-      el("span", { class: "tr-arr", "aria-hidden": "true", text: "›" }),
-      el("span", { class: "tr-lbl", text: "Spec spine" })
-    ]));
-
-    /* the header: subject, board, a live completion bar, and the collapse control */
-    tree.appendChild(el("div", { class: "tree-subject-h" }, [
-      el("div", { class: "tsh-txt" }, [
-        el("span", { class: "t", text: data.name, style: "color:" + COLORS[sid] }),
-        el("span", { class: "b", text: data.board + " · " + ratioText(st.done, st.total) + " secure" }),
-        el("div", { class: "tree-progress", "aria-label": st.pct + "% complete" }, [
-          el("i", { style: "width:" + st.pct + "%" })
-        ])
-      ]),
-      el("button", { class: "tree-collapse", title: "Collapse the spec spine", "aria-label": "Collapse",
-        onclick: function () { setTreeClosed(true); } }, ["‹"])
-    ]));
+    tree.style.setProperty("--subj-c", SUBJ_HUE[sid]);
     var open = store.state.ui.openSections[sid] = store.state.ui.openSections[sid] || {};
 
-    /* the section that owns the topic on screen opens itself. Without this
-       the active leaf sits inside a collapsed section, .leaf.active is
-       display:none, and scrolling it into view below is a no-op — i.e. the
-       spine could not show you where you were, which is disqualifying for
-       the one control that now owns section navigation. */
+    tree.appendChild(el("div", { class: "k-spine-top" }, [
+      el("div", { class: "k-seg k-seg--fill k-spine-subjects", "data-ui": "study.spine-subjects", role: "group", "aria-label": "Subject" }, SUBJECTS.map(function (s) {
+        return el("button", { type: "button", class: "k-seg-item", "data-ui": "study.spine-subject-pick",
+          "aria-pressed": String(s === sid), "aria-label": KOS_DATA[s].name, text: SUBJ_SHORT[s],
+          onclick: function () { KOS.show("subject", s); } });
+      })),
+      el("button", { type: "button", class: "k-iconbtn k-spine-collapse", "data-ui": "study.spine-collapse",
+        "aria-label": "Collapse the spec spine", title: "Collapse the spec spine", text: "‹",
+        onclick: function () { setTreeClosed(true); } })
+    ]));
+    var filter = el("input", { type: "search", class: "k-spine-filter", "data-ui": "study.spine-filter",
+      placeholder: "Filter " + st.total + " topics", "aria-label": "Filter topics" });
+    filter.value = spineQuery;
+    tree.appendChild(el("label", { class: "k-spine-filter-wrap" }, [el("span", { "aria-hidden": "true", text: "⌕" }), filter]));
+    tree.appendChild(el("div", { class: "k-spine-board", "data-ui": "study.spine-subject" }, [
+      el("div", { class: "k-spine-board-row" }, [
+        el("span", { text: data.board }),
+        el("span", { class: "k-mono", text: ratioText(st.done, st.total) + " completed" })
+      ]),
+      el("span", { class: "k-bar", role: "img", "aria-label": st.pct + "% complete", style: "--p: " + st.pct + "%" }, [el("i")])
+    ]));
+
+    /* the section that owns the topic on screen opens itself, so the spine
+       can always say where you are */
     var activeSection = null;
     if (activeRef) {
       var actLeaf = BYREF[sid] && BYREF[sid][activeRef];
@@ -314,95 +314,108 @@
       }
     }
 
+    var list = el("div", { class: "k-spine-list", "data-ui": "study.spine-list" });
+    tree.appendChild(list);
     data.sections.forEach(function (sec) {
-      var secEl = el("div", { class: "sec" + (open[sec.ref] ? " open" : "") +
-        (sec.ref === activeSection ? " here" : "") });
+      var secEl = el("div", { class: "k-spine-sec", "data-ui": "part.section" });
       var sst = sectionStats(sid, sec);
-      var head = el("button", {
-        class: "sec-head", style: "--accent:" + COLORS[sid],
+      var head = el("button", { type: "button", class: "k-spine-head", "data-ui": "ui.section-head",
         "aria-expanded": open[sec.ref] ? "true" : "false",
         onclick: function () {
           open[sec.ref] = !open[sec.ref];
-          KOS.ui.state(secEl, "open", open[sec.ref]);
-          head.setAttribute("aria-expanded", open[sec.ref]);
+          KOS.ui.state(secEl, "open", !!open[sec.ref]);
+          head.setAttribute("aria-expanded", String(!!open[sec.ref]));
           store.save();
-        }
-      }, [
-        el("span", { class: "ref", text: sec.ref }),
-        el("span", { class: "sec-title", text: sec.title }),
-        /* the ledger's progress bar, inherited. Same tone() ramp, same
-           .bar-track/.bar-fill class names the ledger used, so the one
-           low/mid/high colour semantic is unchanged (invariant #26d). */
-        sst.total ? el("span", { class: "sec-head-bar bar-track " + tone(sst.pct),
-          "aria-hidden": "true" }, [el("span", { class: "bar-fill", style: "width:" + sst.pct + "%" })]) : null,
-        sst.total ? el("span", { class: "pc", text: ratioText(sst.done, sst.total) }) : null,
-        el("span", { class: "arr", text: "▸" })
-      ]);
+        } }, [
+        el("span", { class: "k-spine-ref", "data-ui": "part.ref", text: sec.ref }),
+        el("span", { class: "k-spine-title", text: sec.title }),
+        sst.total ? el("span", { class: "k-bar k-spine-bar", "data-ui": "ui.section-bar", "aria-hidden": "true" },
+          [el("i", { "data-ui": "study.bar-fill", style: "width:" + sst.pct + "%" })]) : null,
+        sst.total ? el("span", { class: "k-spine-pc", "data-ui": "part.percent", text: ratioText(sst.done, sst.total) }) : null,
+        el("span", { class: "k-spine-arr", "aria-hidden": "true" })
+      ].filter(Boolean));
+      KOS.ui.state(secEl, "open", !!open[sec.ref]);
+      KOS.ui.state(secEl, "here", sec.ref === activeSection);
       secEl.appendChild(head);
 
-      var kids = el("div", { class: "sec-kids" });
+      var kids = el("div", { class: "k-spine-kids" });
       if (sec.content && sec.content.length) appendLeaf(kids, sec);
       (sec.children || []).forEach(function (child) { appendNode(kids, child); });
       secEl.appendChild(kids);
-      tree.appendChild(secEl);
+      list.appendChild(secEl);
 
       function appendNode(parentEl, node) {
         var isLeaf = node.content && node.content.length;
         var hasKids = node.children && node.children.length;
         if (isLeaf && !hasKids) { appendLeaf(parentEl, node); return; }
-        if (hasKids) {
-          var gkey = "g:" + node.ref;
-          if (open[gkey] === undefined) open[gkey] = true;
-          var grpKids = el("div", { class: "grp-kids", style: open[gkey] ? "" : "display:none" });
-          /* the retired ledger's one genuinely extra reading was the
-             per-SUBSECTION tally it revealed on expand. It lives on the
-             group row now, so nothing was lost by deleting the ledger. */
-          var gst = sectionStats(sid, node);
-          var gbtn = el("button", { class: "grp-h", "aria-expanded": String(!!open[gkey]),
-            onclick: function () {
-              open[gkey] = !open[gkey];
-              grpKids.style.display = open[gkey] ? "" : "none";
-              KOS.ui.state(gbtn, "closed", !open[gkey]);
-              gbtn.setAttribute("aria-expanded", String(!!open[gkey]));
-              store.save();
-            } }, [
-            el("span", { class: "grp-arr", text: "▾" }),
-            el("span", { class: "grp-t", text: node.ref + " · " + node.title }),
-            gst.total ? el("span", { class: "grp-pc", text: ratioText(gst.done, gst.total) }) : null
-          ].filter(Boolean));
-          if (!open[gkey]) KOS.ui.state(gbtn, "closed", true);
-          parentEl.appendChild(gbtn);
-          if (isLeaf) appendLeaf(grpKids, node);
-          node.children.forEach(function (c) { appendNode(grpKids, c); });
-          parentEl.appendChild(grpKids);
-        }
+        if (!hasKids) return;
+        var gkey = "g:" + node.ref;
+        if (open[gkey] === undefined) open[gkey] = true;
+        var grpKids = el("div", { class: "k-spine-grpkids", hidden: open[gkey] ? null : "" });
+        var gst = sectionStats(sid, node);
+        var gbtn = el("button", { type: "button", class: "k-spine-grp", "data-ui": "study.spine-group", "aria-expanded": String(!!open[gkey]),
+          onclick: function () {
+            open[gkey] = !open[gkey];
+            grpKids.hidden = !open[gkey];
+            KOS.ui.state(gbtn, "closed", !open[gkey]);
+            gbtn.setAttribute("aria-expanded", String(!!open[gkey]));
+            store.save();
+          } }, [
+          el("span", { class: "k-spine-grp-arr", "aria-hidden": "true" }),
+          el("span", { class: "k-spine-grp-t", text: node.ref + " · " + node.title }),
+          gst.total ? el("span", { class: "k-mono", "data-ui": "study.spine-group-pct", text: ratioText(gst.done, gst.total) }) : null
+        ].filter(Boolean));
+        if (!open[gkey]) KOS.ui.state(gbtn, "closed", true);
+        parentEl.appendChild(gbtn);
+        if (isLeaf) appendLeaf(grpKids, node);
+        node.children.forEach(function (c) { appendNode(grpKids, c); });
+        parentEl.appendChild(grpKids);
       }
       function appendLeaf(parentEl, node) {
         var p = store.peekProgress(sid, node.ref);
         var status = (p && p.status) || "none";
-        var btn = el("button", {
-          class: "leaf" + (node.ref === activeRef ? " active" : ""),
-          style: "--accent:" + COLORS[sid],
-          onclick: function () { KOS.show("ref", { subject: sid, ref: node.ref }); }
-        }, [
-          el("span", { class: "spine", style: "--p:" + leafPercent(sid, node.ref) }),
-          el("span", { class: "body" }, [
-            el("span", { class: "lref" }, [
-              el("span", { text: node.ref }),
-              KOS.content.has(sid, node.ref) ? el("span", { class: "deep", text: "◆ notes", title: "Deep revision content available" }) : null
-            ]),
-            el("span", { class: "lt", text: node.title, title: node.title })
+        var band = KOS.rag.effective(sid, node.ref).band;
+        var btn = el("button", { type: "button", class: "k-spine-leaf", "data-ui": "study.spine-leaf",
+          "data-ref": node.ref, "aria-current": node.ref === activeRef ? "page" : null,
+          onclick: function () { KOS.show("ref", { subject: sid, ref: node.ref }); } }, [
+          el("span", { class: "k-spine-mastery", "aria-hidden": "true", style: "--p: " + leafPercent(sid, node.ref) + "%" }),
+          el("span", { class: "k-spine-leaf-txt" }, [
+            el("span", { class: "k-spine-leaf-t", "data-ui": "part.lead", text: node.title, title: node.title }),
+            el("span", { class: "k-spine-leaf-ref" }, [
+              node.ref,
+              KOS.content.has(sid, node.ref) ? el("span", { class: "k-spine-deep", "data-ui": "study.spine-deep", title: "Revision notes on this topic", text: "◆" }) : null
+            ].filter(Boolean))
           ]),
-          el("span", { class: "st st-" + status, "data-status": status, text: STATUS_GLYPH[status], "aria-label": status })
+          el("span", { class: "k-spine-dot", "data-ui": "part.status", "data-status": status, "data-band": band || null,
+            title: (band ? KOS.rag.BANDS[band].label + " · " : "") + (STATUS.filter(function (x) { return x[0] === status; })[0] || [status, status])[1] })
         ]);
+        if (node.ref === activeRef) KOS.ui.state(btn, "active", true);
         parentEl.appendChild(btn);
       }
     });
+
+    /* the filter narrows the entries in place: a section with a match opens,
+       one without hides; clearing it restores the stored disclosure */
+    function applyFilter() {
+      var q = spineQuery.trim().toLowerCase();
+      list.querySelectorAll("[data-ui~='part.section']").forEach(function (s) {
+        var hits = 0;
+        s.querySelectorAll("[data-ui~='study.spine-leaf']").forEach(function (lf) {
+          var on = !q || lf.textContent.toLowerCase().indexOf(q) !== -1;
+          lf.hidden = !on;
+          if (on) hits++;
+        });
+        s.hidden = !!q && !hits;
+        KOS.ui.state(s, "filtered", !!q);
+      });
+    }
+    filter.addEventListener("input", function () { spineQuery = filter.value; applyFilter(); });
+    if (spineQuery) applyFilter();
+
     if (activeRef) {
       var act = tree.querySelector("[data-ui~='study.spine-leaf'][data-state~='active']");
-      /* "nearest" — the spine only scrolls when the active leaf is actually
-         off its own view. `center` yanked the list on every navigation even
-         when the topic was already visible. Never touches #main. */
+      /* "nearest": the spine scrolls only when the active leaf is off its
+         own view; never touches #main */
       if (act && act.scrollIntoView) act.scrollIntoView({ block: "nearest" });
     }
   }
@@ -1647,57 +1660,54 @@
     name.focus();
   }
 
+  /* ---------- the topic page (Graphite frame 8b) ----------
+     Content first: the title with its ref, the path under it and the
+     neighbouring topics beside it; one static study-nav (the tabs, the Edit
+     control, and on a paged note the page control); the material; and the
+     inspector as the page's single state surface (invariant 52). */
+  var TAB_VISIBLE = 4;                     /* the rest sit behind "+N ▾" */
   KOS.views.ref = function (main, arg) {
     var sid = arg.subject, ref = arg.ref;
     var leaf = BYREF[sid][ref];
     if (!leaf) { KOS.show("subject", sid); return; }
     store.state.ui.lastRef[sid] = ref;
     store.save();
+    KOS.shell.bleed(true);
     renderTree(sid, ref);
     var d = KOS_DATA[sid];
-    main.style.setProperty("--accent", COLORS[sid]);
+    main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
     var content = KOS.content.get(sid, ref);
 
     /* ---------- the Topic Status component ----------
        Status, the four progress checks and the RAG confidence rating are one
-       labelled component, headed by a single live mastery readout.
-
-       Category 7 Phase C moves that whole component OFF the content path and
-       into the inspector, which becomes the page's single state surface. It
-       used to sit between the title and the tabs as a 170px band, and the
-       inspector then printed the same mastery figure again 280px lower
-       (audit REF-1, REF-3). The component is unchanged; only its address is.
-       The Inspector is now the one place where topic state is read or changed,
-       leaving the header free to identify the material being studied. */
+       labelled component under a single live mastery readout, and it lives
+       only in the inspector (audit REF-1, REF-3). */
     var p = store.getProgress(sid, ref);
     var masteryHooks = [];
     function syncMastery() { masteryHooks.forEach(function (f) { f(); }); }
 
-    var ctl = el("section", { class: "ctl-row topic-status", "aria-label": "Topic status" });
-    var tsPct = el("strong", { class: "ts-pct" });
-    var tsChecks = el("span", { class: "ts-checks" });
-    var tsBar = el("i");
+    var ctl = el("section", { class: "k-ts", "data-ui": "topic.control-row topic.status", "aria-label": "Topic status" });
+    var tsPct = el("strong", { class: "k-ts-pct", "data-ui": "topic.status-pct" });
+    var tsChecks = el("span", { class: "k-ts-checks", "data-ui": "topic.checks" });
+    var tsBar = el("span", { class: "k-bar k-bar--6", role: "img" }, [el("i")]);
     function paintStatus() {
       var t = topicStats(sid, ref);
       tsPct.textContent = pctText(t.mastery);
       tsChecks.textContent = t.checkText;
-      tsBar.style.width = t.mastery + "%";
+      tsBar.style.setProperty("--p", t.mastery + "%");
+      tsBar.setAttribute("aria-label", pctText(t.mastery) + " mastery");
       ["low", "mid", "high"].forEach(function (w) { KOS.ui.state(ctl, w, false); });
       KOS.ui.state(ctl, tone(t.mastery), true);
     }
     masteryHooks.push(paintStatus);
 
-    /* Topic status lives only in the Inspector. Keeping this as a collection
-       leaves the sync path robust if that control gains a second legitimate
-       home later, without reintroducing a header-level duplicate. */
     var statusSelects = [];
     function syncStatusControls() {
       var v = store.getProgress(sid, ref).status;
       statusSelects.forEach(function (s) { s.value = v; });
     }
     function statusSelect(id, label) {
-      var s = el("select", {
-        class: "status-sel", id: id, "aria-label": label,
+      var s = el("select", { class: "k-ts-select", "data-ui": "ui.status-select", id: id, "aria-label": label,
         onchange: function () {
           store.setStatus(sid, ref, s.value);
           renderTree(sid, ref);
@@ -1705,37 +1715,47 @@
           syncStatusControls();
           syncChecks();
           syncMastery();
-        }
-      }, STATUS.map(function (st) {
-        return el("option", { value: st[0], text: STATUS_GLYPH[st[0]] + "  " + st[1] });
+        } }, STATUS.map(function (st) {
+        return el("option", { value: st[0], text: STATUS_GLYPH[st[0]] + " " + st[1] });
       }));
       s.value = store.getProgress(sid, ref).status;
       statusSelects.push(s);
       return s;
     }
 
-    /* ---------- one header row (audit REF-1) ----------
-       Crumbs + seal + title + board line used to be three stacked
-       blocks costing 138px before the status band even began. They are one
-       row: the path the crumbs carried becomes the meta line's first clause,
-       which is where a reader looks for it anyway. Topic state belongs wholly
-       to the Inspector rather than duplicating a dot and dropdown here. */
-    var metaBits = [d.name].concat(leaf.path).concat([d.board]);
-    if (leaf.section.paper) metaBits.push(paperLabel(sid, leaf.section.paper));
-    if (content) metaBits.push("deep revision content");
-    main.appendChild(el("header", { class: "page-h topic-head" }, [
-      el("div", { class: "seal", text: leaf.ref }),
-      el("div", { class: "th-txt" }, [
-        el("h1", { text: leaf.title }),
-        el("p", { class: "pap th-meta", text: metaBits.join(" · ") })
+    /* ---------- the header: title and ref, the path, the neighbours ---------- */
+    var prevLeaf = LEAVES[sid][leaf.idx - 1], nextLeaf = LEAVES[sid][leaf.idx + 1];
+    function stepBtn(target, dir) {
+      return el("button", { type: "button", class: "k-iconbtn", "data-ui": "topic.pager-button topic." + dir,
+        "aria-label": (dir === "prev" ? "Previous topic: " : "Next topic: ") + (target ? target.ref + " " + target.title : "none"),
+        title: target ? target.ref + " " + target.title : null, disabled: target ? null : "",
+        text: dir === "prev" ? "‹" : "›",
+        onclick: function () { if (target) KOS.show("ref", { subject: sid, ref: target.ref }); } });
+    }
+    var path = [d.name].concat(leaf.path);
+    var pathLine = el("p", { class: "k-topic-path", "data-ui": "topic.head-meta" });
+    path.forEach(function (bit, i) {
+      if (i) pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "/" }));
+      pathLine.appendChild(document.createTextNode(bit));
+    });
+    if (leaf.section.paper) {
+      var note = (PAPER_NOTE[sid] || {})[paperLabel(sid, leaf.section.paper)];
+      pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "·" }));
+      pathLine.appendChild(document.createTextNode(note ? note[0] : paperLabel(sid, leaf.section.paper)));
+    }
+    var head = el("header", { class: "k-topic-head", "data-ui": "topic.head" }, [
+      el("div", { class: "k-topic-titles" }, [
+        el("div", { class: "k-topic-titlerow" }, [
+          el("h1", { class: "k-topic-title", text: leaf.title }),
+          el("span", { class: "k-topic-ref", "data-ui": "gov.seal", text: leaf.ref })
+        ]),
+        pathLine
       ]),
-      el("div", { class: "th-ctl" }, [
-        treeOpenButton()
-      ])
-    ]));
+      el("div", { class: "k-topic-steps" }, [treeOpenButton(), stepBtn(prevLeaf, "prev"), stepBtn(nextLeaf, "next")])
+    ]);
 
-    /* marking a topic Completed fills the checklist in the store; the boxes
-       have to say so, or the component shows 4/4 mastery beside empty boxes */
+    /* the four checks; marking a topic Completed fills them in the store,
+       so the boxes have to say so */
     var boxes = [];
     function syncChecks() {
       var cur = store.getProgress(sid, ref);
@@ -1744,48 +1764,46 @@
         KOS.ui.state(cb.parentNode, "on", cb.checked);
       });
     }
-    var checkGrid = el("div", { class: "ts-checkgrid" });
+    var checkGrid = el("div", { class: "k-ts-checkgrid", "data-ui": "topic.checkgrid" });
     CHECKS.forEach(function (label, i) {
-      var cb = el("input", { type: "checkbox", onchange: function () {
+      var cb = el("input", { type: "checkbox", class: "k-box", onchange: function () {
         store.setCheck(sid, ref, i, cb.checked);
         renderTree(sid, ref);
         KOS.refreshRailCounters();
         syncStatusControls();
         syncChecks();
         syncMastery();
-      }});
+      } });
       cb.checked = p.check[i];
       boxes.push(cb);
-      checkGrid.appendChild(el("label", { class: "chk ts-chk" + (cb.checked ? " on" : "") }, [cb, label]));
+      var row = el("label", { class: "k-ts-check", "data-ui": "topic.check" }, [cb, el("span", { text: label })]);
+      if (cb.checked) KOS.ui.state(row, "on", true);
+      checkGrid.appendChild(row);
     });
 
-    ctl.appendChild(el("div", { class: "ts-head" }, [
-      el("span", { class: "ts-k", text: "Topic status" }),
-      el("span", { class: "ts-mastery" }, [
-        tsPct, tsChecks,
-        el("span", { class: "insp-track ts-track" }, [tsBar])
-      ])
+    ctl.appendChild(el("div", { class: "k-ts-head", "data-ui": "topic.status-head" }, [
+      el("span", { class: "k-kicker", "data-ui": "topic.status-k", text: "Topic status" }),
+      tsChecks, tsPct
     ]));
-    ctl.appendChild(el("div", { class: "ts-body" }, [
-      el("div", { class: "ts-field ts-field-status" }, [
-        el("label", { class: "ts-lbl", for: "ts-status", text: "Status" }),
+    ctl.appendChild(tsBar);
+    var rag = KOS.rag.picker(sid, ref);
+    ctl.appendChild(el("div", { class: "k-ts-row" }, [
+      el("div", { class: "k-ts-field", "data-ui": "topic.status-field topic.status-field-status" }, [
+        el("label", { class: "sr-only", "data-ui": "topic.status-lbl", for: "ts-status", text: "Status" }),
         statusSelect("ts-status", "Topic status")
       ]),
-      el("div", { class: "ts-field ts-field-checks" }, [
-        el("span", { class: "ts-lbl", text: "Progress checks" }), checkGrid
-      ]),
-      /* RAG confidence (FR-3.3) — manual picker + what the data says */
-      el("div", { class: "ts-field ts-field-conf" }, [
-        el("span", { class: "ts-lbl", text: "Confidence" }), KOS.rag.picker(sid, ref)
+      el("div", { class: "k-ts-field", "data-ui": "topic.status-field topic.status-field-conf" }, [
+        el("span", { class: "sr-only", "data-ui": "topic.status-lbl", text: "Confidence" }), rag.node
       ])
     ]));
+    ctl.appendChild(el("div", { class: "k-ts-field", "data-ui": "topic.status-field" }, [
+      el("span", { class: "sr-only", "data-ui": "topic.status-lbl", text: "Progress checks" }), checkGrid
+    ]));
+    ctl.appendChild(rag.auto);
     paintStatus();
     syncStatusControls();
 
-    /* ---------- study tabs ---------- */
-    /* gens & sims: each is the content entry's own list merged with anything
-       wired to this ref in the labs (KOS.worked.forRef / KOS.sims.forRef), so
-       generators and sims reach topics the content files haven't enriched yet */
+    /* ---------- the study tabs ---------- */
     var gens = content ? KOS.worked.byIds(content.gens) : [];
     (KOS.worked.forRef ? KOS.worked.forRef(sid, ref) : []).forEach(function (g) {
       if (!gens.some(function (x) { return x.id === g.id; })) gens.push(g);
@@ -1795,15 +1813,8 @@
     (KOS.sims.forRef ? KOS.sims.forRef(sid, ref) : []).forEach(function (sm) {
       if (!sims.some(function (x) { return x.id === sm.id; })) sims.push(sm);
     });
-    /* flashcards: curriculum + user-created custom cards for this topic — the
-       tab shows whenever either exists so custom cards are reachable, and on
-       enriched topics regardless so new ones can be added (FR-1.1) */
     var customQuizCount = KOS.srs.customQuizFor(sid, ref).length;
-    /* ONE materials tally, printed ONCE — on the tab chips (audit REF-4).
-       It used to be printed twice: here, and again as an inspector
-       "Materials" list about 200px to the right, four identical numbers
-       under a different heading. The chip is the right home, because the
-       count is the thing that decides whether you press the tab. */
+    /* ONE materials tally, printed once — on the tabs (audit REF-4) */
     var mats = {
       cards: KOS.srs.cardsFor(sid, ref).length,
       notes: content && content.notes && content.notes.length
@@ -1813,12 +1824,9 @@
       worked: gens.length,
       sim: sims.length
     };
-    /* every label is the full noun the rest of the OS uses — the strip mixed
-       full words ("Specification", "Flashcards") with clipped ones ("Exam Qs",
-       "Simulate", "Worked") and read as two different families of control */
     /* the five editable kinds are always reachable — an empty tab is where
-       you add the material (the study editor); counts print only when
-       there is something to count (invariant 77) */
+       the material is added; a count prints only when there is one
+       (invariant 77) */
     var TABDEFS = [
       ["spec", "Specification", true, null],
       ["notes", "Notes", true, mats.notes > 1 ? mats.notes : null],
@@ -1830,79 +1838,79 @@
       ["files", "Files", true, null]
     ].filter(function (t) { return t[2]; });
 
-    var tabBar = el("div", { class: "study-tabs study-tabs-topic", role: "tablist" });
-    var panel = el("div", { class: "study-panel" });
+    var tabBar = el("div", { class: "k-topic-tabs", "data-ui": "ui.tabs topic.tabs", role: "tablist", "aria-label": "Study material" });
+    var panel = el("div", { class: "k-topic-panel", "data-ui": "study.panel", role: "tabpanel" });
     var curTab = (content && content.notes && content.notes.length) ? "notes" : "spec";
-    /* the study editor (modules/editor.js) — the tab → editable kind map,
-       and the per-device memory of an open editor so a redraw (a tab
-       becoming available after its first block, a breakpoint change)
-       reopens it on the same tab */
     var EDIT_KIND = { spec: "spec", notes: "notes", cards: "flashcards", quiz: "quiz", exam: "exam" };
     var editing = store.state.ui.editing;
     if (editing && editing.sid === sid && editing.ref === ref && editing.tab && EDIT_KIND[editing.tab]) curTab = editing.tab;
     else editing = null;
 
+    function selectTab(id) {
+      curTab = id;
+      paintTabs();
+      openTab();
+    }
     TABDEFS.forEach(function (t) {
-      tabBar.appendChild(el("button", {
-        class: "study-tab" + (t[0] === curTab ? " active" : ""), role: "tab",
-        "aria-selected": String(t[0] === curTab),
-        "data-tab": t[0],
-        onclick: function () {
-          curTab = t[0];
-          tabBar.querySelectorAll("[data-ui~='ui.tab']").forEach(function (b) {
-            var on = b.dataset.tab === curTab;
-            KOS.ui.state(b, "active", on);
-            b.setAttribute("aria-selected", String(on));
-          });
-          openTab();
-        }
-      }, [t[1], t[3] ? el("span", { class: "tab-n", text: String(t[3]) }) : null].filter(Boolean)));
+      tabBar.appendChild(el("button", { type: "button", class: "k-topic-tab", "data-ui": "ui.tab", role: "tab",
+        "data-tab": t[0], onclick: function () { selectTab(t[0]); } },
+        [t[1], t[3] ? el("span", { class: "k-mono", "data-ui": "ui.tab-count", text: String(t[3]) }) : null].filter(Boolean)));
+    });
+    /* the tabs past the fourth fold behind "+N ▾" — the open one always
+       shows, wherever it sits */
+    var moreSlot = el("span", { class: "k-topic-more" });
+    function paintTabs() {
+      var hidden = [];
+      tabBar.querySelectorAll("[data-ui~='ui.tab']").forEach(function (b, i) {
+        var on = b.dataset.tab === curTab;
+        KOS.ui.state(b, "active", on);
+        b.setAttribute("aria-selected", String(on));
+        b.setAttribute("tabindex", on ? "0" : "-1");
+        var folded = i >= TAB_VISIBLE && !on;
+        b.hidden = folded;
+        if (folded) hidden.push(b);
+      });
+      moreSlot.innerHTML = "";
+      if (hidden.length) {
+        moreSlot.appendChild(KOS.ui.menu({ label: "+" + hidden.length, className: "k-btn--quiet k-topic-more-btn", hint: "More study material",
+          items: hidden.map(function (b) {
+            return { label: b.firstChild.textContent + (b.querySelector("[data-ui~='ui.tab-count']") ? " · " + b.querySelector("[data-ui~='ui.tab-count']").textContent : ""),
+              onSelect: function () { selectTab(b.dataset.tab); } };
+          }) }));
+      }
+    }
+    tabBar.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      var ids = TABDEFS.map(function (t) { return t[0]; });
+      var i = ids.indexOf(curTab) + (e.key === "ArrowRight" ? 1 : -1);
+      if (i < 0 || i >= ids.length) return;
+      e.preventDefault();
+      selectTab(ids[i]);
+      var b = tabBar.querySelector('[data-tab="' + ids[i] + '"]');
+      if (b) b.focus();
     });
 
-    /* ---------- ONE study navigation layer (audit REF-6) ----------
-       The page carried three: an assistant action strip, a tab strip that
-       wrapped and orphaned "Files" on a row of its own, and a row of up to
-       seven note-page pills that wrapped again. That is 3 levels of tab and
-       ~240px of chrome for one decision.
-
-       There is one bar now. It sticks to the top of the scroller so the tabs
-       stay reachable however far down the topic you are, it is a DECLARED
-       horizontal scroller (Phase B invariant #50 — an undeclared sideways
-       scroll counts as unreachable content), and the note-page control lives
-       inside it at the right-hand end rather than as a second row. */
-    var navRow = el("div", { class: "study-nav-row" });
-    var pagerSlot = el("div", { class: "study-nav-pages" });
-    navRow.appendChild(KOS.ui.scroller(tabBar, { label: "Study material",
-      prevLabel: "Scroll to earlier tabs", nextLabel: "Scroll to later tabs",
-      className: "study-tabs-scroller" }));
-    /* the one Edit control for the page: it edits whatever tab is open,
-       and reads "Done" while the editor is up */
-    var editBtn = el("button", { class: "btn study-edit", type: "button", "aria-pressed": "false",
+    /* the one Edit control: it edits whatever tab is open, and reads Done
+       while the editor is up */
+    var editBtn = el("button", { type: "button", class: "k-btn k-btn--sm k-topic-edit", "data-ui": "topic.edit-bar", "aria-pressed": "false",
       onclick: function () { editing ? closeEditor() : openEditor(); } }, [
-      el("span", { class: "study-edit-i", "aria-hidden": "true", text: "✎" }), el("span", { class: "study-edit-t", text: "Edit" })]);
-    navRow.appendChild(editBtn);
-    var pagesSlot = el("div", { class: "study-nav-pagelist" }, [pagerSlot]);
-    var studyNav = el("div", { class: "study-nav" }, [navRow, pagesSlot]);
+      el("span", { "aria-hidden": "true", text: "✎" }), el("span", { "data-ui": "topic.edit", text: "Edit" })]);
+    var pagerSlot = el("div", { class: "k-topic-pages" });
+    var studyNav = el("div", { class: "k-topic-nav", "data-ui": "topic.nav" }, [
+      el("div", { class: "k-topic-tabrow" }, [tabBar, moreSlot, editBtn]),
+      pagerSlot
+    ]);
 
-    /* Build 4.0 — study workspace: content column + collapsible inspector.
-       The inspector carries the topic's live state; its open state persists
-       in ui.inspectorOpen. */
-    var studyGrid = el("div", { class: "study-grid" + (store.state.ui.inspectorOpen === false ? " insp-closed" : "") });
-    var studyCol = el("div", { class: "study-col" });
-    studyCol.appendChild(studyNav);
-    studyCol.appendChild(panel);
+    var studyGrid = el("div", { class: "k-topic", "data-ui": "study.grid" });
+    if (store.state.ui.inspectorOpen === false) KOS.ui.state(studyGrid, "insp-closed", true);
+    var studyCol = el("div", { class: "k-topic-col", "data-ui": "study.col" }, [head, studyNav, panel]);
     studyGrid.appendChild(studyCol);
-    /* Category 6 — the assistant's contextual actions for this topic
-       (shared submission path; nothing here calls a tool directly). They
-       were a strip directly above the tabs, i.e. on the path between the
-       title and the first word of revision content; they belong with the
-       page's other side-of-desk affordances. */
     var asstStrip = KOS.assistant && KOS.assistant.contextActions
       ? KOS.assistant.contextActions("ref", { subject: sid, ref: ref, title: leaf.title })
       : null;
     var inspector = buildInspector(studyGrid, sid, ref, ctl, asstStrip);
     studyGrid.appendChild(inspector);
-    var editorHost = el("div", { class: "study-editor-host", hidden: true });
+    var editorHost = el("div", { class: "k-topic-editor", hidden: "" });
     studyGrid.appendChild(editorHost);
     main.appendChild(studyGrid);
 
@@ -1932,8 +1940,6 @@
         onChange: function (k, hint) {
           /* the page beside the editor IS the preview */
           if (hint && hint.focusOnly) {
-            /* a selection: turn to the page that holds the block if the
-               open page does not, then point at it */
             if (hint.id && !panel.querySelector('[data-ui~="topic.note-block"][data-bid="' + String(hint.id).replace(/"/g, "") + '"]')) openTab({ keep: true, reveal: hint.id });
             else revealBlock(hint.id);
             return;
@@ -1971,6 +1977,14 @@
       KOS.ui.state(target, "n-blk-sel", true);
       if (target.scrollIntoView) target.scrollIntoView({ block: "center", behavior: "smooth" });
     }
+    function card(label, body, attrs) {
+      return el("section", Object.assign({ class: "k-card k-topic-card", "data-ui": "ui.colcard" }, attrs || {}), [
+        el("h2", { class: "k-kicker", text: label }), body
+      ]);
+    }
+    function writeBtn(text) {
+      return editing ? null : el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: text, onclick: openEditor });
+    }
 
     var firstMount = true;
     var notePage = 0;                       // survives a re-render while editing
@@ -1981,14 +1995,16 @@
       if (editing && !EDIT_KIND[curTab]) closeEditor();
       else if (editing) { editing.tab = curTab; store.state.ui.editing = editing; }
       paintEditBtn();
-      /* callout slide-in only on the first render of this page,
-         not on every tab switch */
       KOS.ui.state(panel, "first-mount", firstMount);
       firstMount = false;
-      /* Build 6.3 — a document preview needs width far more than the stats
-         rail does, so the Files tab folds the inspector using the SAME
-         insp-closed mechanism the toggle uses. ui.inspectorOpen is never
-         rewritten, so the user's own preference returns with the tab. */
+      var tabBtn = tabBar.querySelector('[data-tab="' + curTab + '"]');
+      if (tabBtn) {
+        if (!tabBtn.id) tabBtn.id = "k-tab-" + curTab;
+        panel.setAttribute("aria-labelledby", tabBtn.id);
+      }
+      /* Build 6.3 — a document preview needs the width far more than the
+         inspector does, so the Files tab folds it with the same state the
+         toggle uses; ui.inspectorOpen is never rewritten */
       if (curTab === "files") {
         KOS.ui.state(studyGrid, "files-tab", true);
         KOS.ui.state(studyGrid, "insp-closed", true);
@@ -1996,41 +2012,32 @@
         KOS.ui.state(studyGrid, "files-tab", false);
         KOS.ui.state(studyGrid, "insp-closed", store.state.ui.inspectorOpen === false);
       }
-      /* the note-page control lives in the nav bar, outside `panel`, so it
-         has to be cleared here too or it would survive a tab change */
+      /* the page control lives in the nav, outside the panel, so a tab
+         change clears it too */
       pagerSlot.innerHTML = "";
       panel.innerHTML = "";
       if (curTab === "spec") {
-        var split = el("div", { class: "split" });
         var specFork = KOS.edits.has(sid, ref, "spec") || editing ? KOS.edits.material(sid, ref, "spec") : null;
-        var specL = el("div", { class: "cb speccontent" + (specFork ? " notes-article" : ""),
+        var specL = el("div", { class: "k-prose k-spec", "data-ui": "topic.spec" + (specFork ? " topic.notes" : ""),
           html: specFork ? KOS.content.renderBlocks(specFork.content) : renderSpecContent(leaf.content) });
-        split.appendChild(el("div", { class: "colcard" }, [
-          el("div", { class: "ch", text: d.labelL }), specL
-        ]));
-        var right = el("div", {});
+        var split = el("div", { class: "k-spec-split" }, [card(d.labelL, specL)]);
+        var right = el("div", { class: "k-spec-side" });
         if (specFork ? specFork.info.length : leaf.info.length) {
-          var specR = el("div", { class: "cb guide" + (specFork ? " notes-article" : ""),
+          var specR = el("div", { class: "k-prose k-spec", "data-ui": specFork ? "topic.notes" : null,
             html: specFork ? KOS.content.renderBlocks(specFork.info) : renderSpecInfo(leaf.info) });
-          right.appendChild(el("div", { class: "colcard" }, [
-            el("div", { class: "ch", text: d.labelR }), specR
-          ]));
+          right.appendChild(card(d.labelR, specR));
         }
+        renderIntel(right);
         split.appendChild(right);
         panel.appendChild(split);
         if (specFork) { KOS.content.typeset(specL); KOS.content.typeset(split); }
         if (o.reveal) revealBlock(o.reveal);
-        renderIntel(panel);
-        panel.appendChild(el("div", { class: "colcard", style: "margin-top:18px" }, [
-          el("div", { class: "ch", text: "Your notes on this spec point" }),
-          el("div", { class: "cb" }, [(function () {
-            var ta = el("textarea", { class: "note-area",
-              placeholder: "Anything you want future-you to remember about " + leaf.ref + "…",
-              oninput: debounce(function () { store.setNote(sid, ref, ta.value); }, 350) });
-            ta.value = store.getProgress(sid, ref).note || "";
-            return ta;
-          })()])
-        ]));
+        var ta = el("textarea", { class: "k-input k-topic-note", "data-ui": "ui.note-area",
+          "aria-label": "Your notes on " + leaf.ref,
+          placeholder: "Anything you want future-you to remember about " + leaf.ref + "…",
+          oninput: debounce(function () { store.setNote(sid, ref, ta.value); }, 350) });
+        ta.value = store.getProgress(sid, ref).note || "";
+        panel.appendChild(card("Your notes on this spec point", ta));
       }
       else if (curTab === "notes") {
         /* while editing, render the editable shape (id-bearing blocks) even
@@ -2042,44 +2049,31 @@
           panel.appendChild(KOS.ui.emptyState({
             compact: true, mark: "註", title: "No notes on this topic yet",
             body: "Write your own — paragraphs, Markdown, callouts, code, worked examples — and they stay with this topic on every device.",
-            action: editing ? null : el("button", { class: "btn primary", type: "button", text: "✎ Write notes", onclick: openEditor })
+            action: writeBtn("✎ Write notes")
           }));
         } else {
           var pages = KOS.content.splitPages(noteBlocks);
-          var article = el("article", { class: "notes-article" });
+          var article = el("article", { class: "k-prose k-notes", "data-ui": "topic.notes" });
           var cur = Math.max(0, Math.min(pages.length - 1, o.keep ? notePage : 0));
           if (o.reveal) {
-            /* show the page that holds the block the editor is on */
             pages.forEach(function (pg, i) { if (pg.blocks.some(function (b) { return b && b.id === o.reveal; })) cur = i; });
           }
           if (pages.length > 1) {
-            /* ---------- page navigation ----------
-               A reader needs one calm, direct way to move through a note:
-               previous / named current page / next. The previous wall of
-               numbered pills repeated the article footer and made pages read
-               like tabs competing with the material tabs above. */
-            var stepPrev = el("button", { class: "reader-step reader-prev", type: "button",
-              "aria-label": "Previous note page", onclick: function () { showPage(cur - 1, true); } }, [
-              el("span", { class: "reader-step-arrow", "aria-hidden": "true", text: "‹" }),
-              el("span", { class: "reader-step-text", text: "Previous" })
-            ]);
-            var pageSelect = el("select", { class: "reader-page-select", "aria-label": "Choose note page",
+            /* one calm way through a note: previous / the named page /
+               next, and where you are in the whole */
+            var stepPrev = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "topic.reader-step",
+              "aria-label": "Previous note page", text: "‹", onclick: function () { showPage(cur - 1, true); } });
+            var pageSelect = el("select", { class: "k-topic-page-select", "data-ui": "topic.reader-page-select", "aria-label": "Choose note page",
               onchange: function () { showPage(Number(pageSelect.value), true); } });
             pages.forEach(function (pg, i) {
-              pageSelect.appendChild(el("option", { value: String(i), text: "Page " + (i + 1) + " — " + pg.title }));
+              pageSelect.appendChild(el("option", { value: String(i), text: "Page " + (i + 1) + " of " + pages.length + " — " + pg.title }));
             });
-            var stepNext = el("button", { class: "reader-step reader-next", type: "button",
-              "aria-label": "Next note page", onclick: function () { showPage(cur + 1, true); } }, [
-              el("span", { class: "reader-step-text", text: "Next" }),
-              el("span", { class: "reader-step-arrow", "aria-hidden": "true", text: "›" })
-            ]);
-            var foot = el("nav", { class: "note-foot", "aria-label": "Note pages" });
-            pagerSlot.innerHTML = "";
-            pagerSlot.appendChild(el("div", { class: "reader-nav" }, [
-              el("span", { class: "reader-label", text: "Note pages" }),
-              stepPrev,
-              pageSelect,
-              stepNext
+            var stepNext = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "topic.reader-step",
+              "aria-label": "Next note page", text: "›", onclick: function () { showPage(cur + 1, true); } });
+            var dots = el("span", { class: "k-topic-dots", "aria-hidden": "true" }, pages.map(function () { return el("span"); }));
+            var foot = el("nav", { class: "k-note-foot", "data-ui": "topic.note-foot", "aria-label": "Note pages" });
+            pagerSlot.appendChild(el("div", { class: "k-topic-reader", "data-ui": "topic.pager" }, [
+              el("span", { class: "k-kicker", text: "Note pages" }), stepPrev, pageSelect, stepNext, dots
             ]));
             var showPage = function (i, moved) {
               cur = Math.max(0, Math.min(pages.length - 1, i));
@@ -2091,16 +2085,17 @@
               if (moved && article.scrollIntoView) article.scrollIntoView({ block: "start", behavior: "smooth" });
               stepPrev.disabled = cur === 0;
               stepNext.disabled = cur === pages.length - 1;
+              [].forEach.call(dots.children, function (dt, j) { KOS.ui.state(dt, "on", j === cur); });
               foot.innerHTML = "";
-              foot.appendChild(cur > 0 ? el("button", { class: "pn pn-page", type: "button", onclick: function () { showPage(cur - 1, true); } }, [
-                el("span", { class: "d", text: "‹ Previous page" }),
-                el("span", { class: "pn-t", text: pages[cur - 1].title })
-              ]) : el("span", { class: "pn-gap" }));
-              foot.appendChild(el("span", { class: "note-foot-count", text: "Page " + (cur + 1) + " of " + pages.length }));
-              foot.appendChild(cur < pages.length - 1 ? el("button", { class: "pn pn-page pn-next", type: "button", onclick: function () { showPage(cur + 1, true); } }, [
-                el("span", { class: "d", text: "Next page ›" }),
-                el("span", { class: "pn-t", text: pages[cur + 1].title })
-              ]) : el("span", { class: "pn-gap" }));
+              foot.appendChild(cur > 0 ? el("button", { type: "button", class: "k-note-step", "data-ui": "topic.page", onclick: function () { showPage(cur - 1, true); } }, [
+                el("span", { class: "k-kicker", "data-ui": "part.detail", text: "‹ Previous page" }),
+                el("span", { class: "k-note-step-t", text: pages[cur - 1].title })
+              ]) : el("span"));
+              foot.appendChild(el("span", { class: "k-mono k-muted", "data-ui": "topic.note-count", text: "Page " + (cur + 1) + " of " + pages.length }));
+              foot.appendChild(cur < pages.length - 1 ? el("button", { type: "button", class: "k-note-step", "data-ui": "topic.page", "data-state": "next", onclick: function () { showPage(cur + 1, true); } }, [
+                el("span", { class: "k-kicker", "data-ui": "part.detail", text: "Next page ›" }),
+                el("span", { class: "k-note-step-t", text: pages[cur + 1].title })
+              ]) : el("span"));
             };
             panel.appendChild(article);
             panel.appendChild(foot);
@@ -2116,44 +2111,41 @@
         }
       }
       else if (curTab === "cards") {
-        var fcHolder = el("div", { class: "fc-wrap" });
+        var fcHolder = el("div", { class: "k-topic-engine", "data-ui": "fc.wrap" });
         panel.appendChild(fcHolder);
         KOS.flashcards.mount(fcHolder, sid, ref, { onEdit: openEditor, editing: !!editing });
       }
       else if (curTab === "quiz") {
         var customN = KOS.srs.customQuizFor(sid, ref).length;
         if (content && content.quiz && content.quiz.length) {
-          var qHolder = el("div", {});
+          var qHolder = el("div", { class: "k-topic-engine" });
           panel.appendChild(qHolder);
           KOS.quiz.mountMCQ(qHolder, sid, ref, content.quiz);
         } else if (!customN) {
           panel.appendChild(KOS.ui.emptyState({
             compact: true, mark: "問", title: "No quiz on this topic yet",
             body: "Write multiple-choice questions with an explanation for each — they score and schedule like the curriculum's.",
-            action: editing ? null : el("button", { class: "btn primary", type: "button", text: "✎ Write questions", onclick: openEditor })
+            action: writeBtn("✎ Write questions")
           }));
         }
-        /* Category 6 — custom/AI questions render as their OWN clearly
-           labelled block (never mixed into curriculum), each deletable */
+        /* custom/AI questions render as their OWN labelled block, never
+           mixed into the curriculum, each deletable */
         var customQ = KOS.srs.customQuizFor(sid, ref);
         if (customQ.length) {
-          var head = el("div", { class: "fc-manage-h", style: "margin-top:18px" }, [
-            el("b", { text: customQ.length + " custom question" + (customQ.length === 1 ? "" : "s") }),
-            el("span", { class: "sub", text: "generated by the assistant or added by you — editable and deletable, separate from the curriculum quiz" })
-          ]);
-          panel.appendChild(head);
-          var cqHolder = el("div", { class: "quiz-custom" });
+          panel.appendChild(el("div", { class: "k-sectionhead" }, [
+            el("h2", { text: customQ.length + " custom question" + (customQ.length === 1 ? "" : "s") }),
+            el("span", { class: "k-sectionhead-sub", text: "from the assistant or added by you — separate from the curriculum quiz" })
+          ]));
+          var cqHolder = el("div", { class: "k-topic-engine", "data-ui": "topic.custom-quiz" });
           panel.appendChild(cqHolder);
           KOS.quiz.mountMCQ(cqHolder, sid, ref, customQ);
-          var manage = el("div", { class: "fc-manage quiz-custom-manage" });
+          var manage = el("div", { class: "k-card k-card--tight", "data-ui": "fc.manage topic.custom-quiz-manage" });
           customQ.forEach(function (cq) {
-            manage.appendChild(el("div", { class: "fc-row custom" }, [
-              el("div", { class: "fc-row-top" }, [
-                el("span", { class: "fc-row-q", html: KOS.content.inline(cq.q) }),
-                el("span", { class: "fc-custom", text: cq.ai ? "AI · Custom" : "Custom" }),
-                el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete question",
-                  onclick: function () { KOS.srs.deleteCustomQuiz(cq.id); openTab(); } })
-              ])
+            manage.appendChild(el("div", { class: "k-card-row", "data-ui": "fc.row" }, [
+              el("span", { class: "k-card-row-k k-ellipsis", html: KOS.content.inline(cq.q) }),
+              el("span", { class: "k-chip", "data-ui": "fc.custom", "data-tone": cq.ai ? "bloom" : "muted", text: cq.ai ? "AI · Custom" : "Custom" }),
+              el("button", { type: "button", class: "k-btn k-btn--sm k-btn--danger", "data-intent": "danger", text: "✕", "aria-label": "Delete question",
+                onclick: function () { KOS.srs.deleteCustomQuiz(cq.id); openTab(); } })
             ]));
           });
           panel.appendChild(manage);
@@ -2161,175 +2153,132 @@
       }
       else if (curTab === "exam") {
         if (content && content.exam && content.exam.length) {
-          var eHolder = el("div", {});
+          var eHolder = el("div", { class: "k-topic-engine" });
           panel.appendChild(eHolder);
           KOS.quiz.mountExam(eHolder, sid, ref, content.exam);
         } else {
           panel.appendChild(KOS.ui.emptyState({
             compact: true, mark: "試", title: "No exam questions on this topic yet",
             body: "Add exam-style questions with marks and a mark scheme — single or multi-part — and self-mark them like the past papers.",
-            action: editing ? null : el("button", { class: "btn primary", type: "button", text: "✎ Write questions", onclick: openEditor })
+            action: writeBtn("✎ Write questions")
           }));
         }
       }
       else if (curTab === "worked") {
-        gens.forEach(function (g, i) {
-          var card = el("div", { class: "lab-panel", style: i ? "margin-top:16px" : "" });
-          card.appendChild(el("h3", { class: "n-h", style: "margin-top:0", text: g.title }));
-          panel.appendChild(card);
-          KOS.worked.mount(card, g);
+        gens.forEach(function (g) {
+          var box = el("section", { class: "k-card k-topic-lab", "aria-label": g.title }, [el("h2", { class: "k-card-title", text: g.title })]);
+          panel.appendChild(box);
+          KOS.worked.mount(box, g);
         });
       }
       else if (curTab === "files") {
         KOS.attach.mountTab(panel, sid, ref);
       }
       else if (curTab === "sim") {
-        sims.forEach(function (sm, i) {
-          /* the enrichment layer gates here; core tabs above never do */
+        sims.forEach(function (sm) {
+          /* the enrichment layer gates here; the core tabs never do */
           var acc = KOS.governor.simAccess(sm.id);
           if (!acc.ok) {
-            var lockCard = el("div", { class: "lab-panel", style: i ? "margin-top:16px" : "" });
+            var lockCard = el("section", { class: "k-card k-topic-lab" });
             KOS.governor.lockPanel(lockCard, acc);
             panel.appendChild(lockCard);
             return;
           }
           if (sm.mount) {
-            var card = el("div", { class: "lab-panel", style: i ? "margin-top:16px" : "" });
-            card.appendChild(el("h3", { class: "n-h", style: "margin-top:0", text: sm.title }));
-            card.appendChild(el("p", { class: "sub", text: sm.desc }));
-            panel.appendChild(card);
-            sm.mount(card);
+            var box = el("section", { class: "k-card k-topic-lab", "aria-label": sm.title }, [
+              el("h2", { class: "k-card-title", text: sm.title }),
+              el("p", { class: "k-card-meta", text: sm.desc })
+            ]);
+            panel.appendChild(box);
+            sm.mount(box);
           } else {
-            panel.appendChild(el("button", { class: "sim-launch", onclick: function () { KOS.sims.open(sm.id); } }, [
-              el("b", { text: sm.title + " →" }),
-              el("span", { text: sm.desc })
+            panel.appendChild(el("button", { type: "button", class: "k-card k-topic-simlink", onclick: function () { KOS.sims.open(sm.id); } }, [
+              el("span", { class: "k-card-title", text: sm.title + " →" }),
+              el("span", { class: "k-card-meta", text: sm.desc })
             ]));
           }
         });
       }
     }
 
+    /* the examiner's guidance on this spec point, as the spec tab's callouts */
     function renderIntel(into) {
       var intel = KOS_DATA.intel[sid + ":" + ref];
       if (!intel) return;
-      var iw = el("div", { class: "intel" });
+      function callout(kind, mark, title, body, hook) {
+        return el("aside", { class: "k-callout", "data-kind": kind, "data-ui": hook || null }, [
+          el("div", { class: "k-callout-head" }, [el("span", { class: "k-callout-mark", "aria-hidden": "true", text: mark }), title]),
+          body
+        ]);
+      }
       if (intel.defs && intel.defs.length) {
-        var dl = el("dl", { style: "margin:0" });
+        var dl = el("dl", { class: "k-callout-dl" });
         intel.defs.forEach(function (kv) {
           dl.appendChild(el("dt", { text: kv[0] }));
           dl.appendChild(el("dd", { text: kv[1] }));
         });
-        iw.appendChild(el("div", { class: "intel-card intel-defs" }, [
-          el("div", { class: "ih", text: "Definition box — wording the board rewards" }),
-          el("div", { class: "ib" }, [dl])
-        ]));
+        into.appendChild(callout("def", "❝", "Definition box — wording the board rewards", dl, "topic.intel-defs"));
       }
       if (intel.tips && intel.tips.length) {
-        iw.appendChild(el("div", { class: "intel-card intel-tips" }, [
-          el("div", { class: "ih", text: "Chief examiner intel — how marks are won" }),
-          el("div", { class: "ib" }, [el("ul", {}, intel.tips.map(function (t) {
-            return el("li", { text: t }); }))])
-        ]));
+        into.appendChild(callout("tip", "✦", "Chief examiner intel — how marks are won",
+          el("ul", {}, intel.tips.map(function (t) { return el("li", { text: t }); })), "topic.intel-tips"));
       }
       if (intel.pitfalls && intel.pitfalls.length) {
-        iw.appendChild(el("div", { class: "intel-card intel-pit" }, [
-          el("div", { class: "ih", text: "Pitfalls — where marks routinely die" }),
-          el("div", { class: "ib" }, [el("ul", {}, intel.pitfalls.map(function (t) {
-            return el("li", { text: t }); }))])
-        ]));
+        into.appendChild(callout("warn", "⚠", "Pitfalls — where marks routinely die",
+          el("ul", {}, intel.pitfalls.map(function (t) { return el("li", { text: t }); })), "topic.intel-pit"));
       }
-      into.appendChild(iw);
     }
 
+    paintTabs();
     openTab();
     if (editing) openEditor();          // reopened after a redraw
-
-    /* prev / next */
-    var prev = LEAVES[sid][leaf.idx - 1], next = LEAVES[sid][leaf.idx + 1];
-    var nav = el("nav", { class: "pn-row", "aria-label": "Neighbouring topics" }, [
-      prev ? navBtn(prev, "‹ Previous topic") : el("span", { class: "pn-gap" }),
-      next ? navBtn(next, "Next topic ›") : el("span", { class: "pn-gap" })
-    ]);
-    function navBtn(target, label) {
-      var tp = store.peekProgress(sid, target.ref);
-      var tStatus = (tp && tp.status) || "none";
-      return el("button", {
-        class: "pn pn-topic", type: "button", onclick: function () { KOS.show("ref", { subject: sid, ref: target.ref }); }
-      }, [
-        el("span", { class: "d", text: label }),
-        el("span", { class: "pn-t" }, [
-          el("span", { class: "st st-" + tStatus, "data-status": tStatus, text: STATUS_GLYPH[tStatus], "aria-label": tStatus, title: tStatus }),
-          el("span", { class: "pn-ref", text: target.ref }),
-          el("span", { class: "pn-title", text: target.title })
-        ])
-      ]);
-    }
-    main.appendChild(nav);
   };
 
   /* ---------- the study inspector ----------
-     Category 7 Phase C: this is now the page's SINGLE state surface.
-
-     Before, the page carried the same state twice — the Topic Status band
-     above the content printed mastery, and the inspector printed it again
-     280px to the right under its own heading (audit REF-3) — while the four
-     material counts appeared both on the tab chips and in an inspector
-     "Materials" list (REF-4). Both duplicates are gone. The inspector now
-     owns: the Topic Status component itself (status · the four checks ·
-     confidence, with the one live mastery readout in its head), the recall
-     record, the next review, and the assistant's contextual actions.
-
-     It still computes nothing of its own — every figure comes from
-     topicStats(), the same call the status component makes, so a number here
-     and a number in the header cannot drift (invariant #26d). */
+     The page's SINGLE state surface: the Topic Status component (status,
+     the four checks, confidence, under the one live mastery readout), the
+     recall record, the next review and the assistant's topic actions.
+     Every figure comes from topicStats(), the call the status component
+     makes, so nothing here can drift (invariant 26d). */
   function buildInspector(grid, sid, ref, statusComponent, asstStrip) {
-    var body = el("div", { class: "insp-body" });
-
-    /* --- state: the Topic Status component, in its new home --- */
+    var body = el("div", { class: "k-insp-body", "data-ui": "topic.inspector-body" });
     if (statusComponent) body.appendChild(statusComponent);
 
     function li(k, v, empty) {
-      return el("li", { class: empty ? "na" : "" }, [
+      return el("li", { "data-state": empty ? "na" : null }, [
         el("span", { text: k }), el("strong", { text: empty ? "—" : v })]);
     }
     function count(k, n) { return li(k, String(n), !n); }
+    function sec(title, items) {
+      return el("section", { class: "k-insp-sec", "aria-label": title }, [
+        el("h2", { class: "k-kicker", text: title }),
+        el("ul", { class: "k-insp-list", "data-ui": "topic.inspector-list" }, items)
+      ]);
+    }
 
     var t = topicStats(sid, ref);
     var qz = t.quiz;
-    body.appendChild(el("div", { class: "insp-sec" }, [
-      el("h5", { text: "Recall record" }),
-      el("ul", { class: "insp-list" }, [
-        count("Card views", t.seen),
-        li("Recall accuracy", t.accuracy == null ? "" : pctText(t.accuracy), t.accuracy == null),
-        count("Lapses", t.lapses),
-        li("Quiz best", qz && qz.best != null ? pctText(qz.best) : "", !(qz && qz.best != null)),
-        count("Quiz attempts", qz ? qz.attempts || 0 : 0),
-        count("Exam questions logged", t.examLogged)
-      ])
+    body.appendChild(sec("Recall record", [
+      count("Card views", t.seen),
+      li("Recall accuracy", t.accuracy == null ? "" : pctText(t.accuracy), t.accuracy == null),
+      count("Lapses", t.lapses),
+      li("Quiz best", qz && qz.best != null ? pctText(qz.best) : "", !(qz && qz.best != null)),
+      count("Quiz attempts", qz ? qz.attempts || 0 : 0),
+      count("Exam questions logged", t.examLogged)
     ]));
-
-    var nextTxt = t.due ? t.due + " due now"
-      : t.next ? t.next
-      : t.reviewed ? "all scheduled" : "";
-    body.appendChild(el("div", { class: "insp-sec" }, [
-      el("h5", { text: "Next review" }),
-      el("ul", { class: "insp-list" }, [
-        li("Review queue", nextTxt, !nextTxt),
-        li("Cards scheduled", ratioText(t.reviewed, t.cards), !t.cards),
-        li("Sessions here", t.sessions + (t.minutes ? " · " + t.minutes + " min" : ""), !t.sessions)
-      ])
+    var nextTxt = t.due ? t.due + " due now" : t.next ? t.next : t.reviewed ? "all scheduled" : "";
+    body.appendChild(sec("Next review", [
+      li("Review queue", nextTxt, !nextTxt),
+      li("Cards scheduled", ratioText(t.reviewed, t.cards), !t.cards),
+      li("Sessions here", t.sessions + (t.minutes ? " · " + t.minutes + " min" : ""), !t.sessions)
     ]));
-
-    /* the assistant's topic actions — off the content path, but still one
-       press away and still riding the one shared submission path */
     if (asstStrip) {
-      body.appendChild(el("div", { class: "insp-sec insp-asst" }, [
-        el("h5", { text: "Ask Kurenai" }), asstStrip
+      body.appendChild(el("section", { class: "k-insp-sec k-insp-asst", "aria-label": "Ask Kurenai" }, [
+        el("h2", { class: "k-kicker", text: "Ask Kurenai" }), asstStrip
       ]));
     }
 
-    var toggle = el("button", { class: "insp-toggle",
-      title: "Collapse / expand the study inspector",
+    var toggle = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "topic.inspector-toggle",
       onclick: function () {
         var closed = KOS.ui.state(grid, "insp-closed");
         store.state.ui.inspectorOpen = !closed;
@@ -2343,12 +2292,11 @@
     }
     paintToggle(grid.matches('[data-state~="insp-closed"]'));
 
-    return el("aside", { class: "study-inspector", "aria-label": "Study inspector" }, [
-      el("div", { class: "insp-head" }, [
-        el("b", { text: "Inspector" }),
-        /* the collapsed panel keeps a readable spine so it can be found and
-           re-opened without hunting for a naked chevron */
-        el("span", { class: "insp-spine", "aria-hidden": "true", text: "Inspector" }),
+    return el("aside", { class: "k-insp", "data-ui": "topic.inspector", "aria-label": "Study inspector" }, [
+      el("div", { class: "k-insp-head" }, [
+        el("span", { class: "k-insp-title", text: "Inspector" }),
+        /* the collapsed panel keeps a readable spine so it can be found */
+        el("span", { class: "k-insp-spine", "data-ui": "topic.inspector-spine", "aria-hidden": "true", text: "Inspector" }),
         toggle
       ]),
       body
@@ -2756,21 +2704,21 @@
     items.forEach(function (it, idx) {
       var s = it.text;
       if (/\bTo$/.test(s)) {                                 // garbled "X To" fragment → header
-        flush(); out += '<p class="spec-h">' + esc(s.replace(/\s*To$/, "")) + "</p>"; return;
+        flush(); out += '<p class="k-spec-h">' + esc(s.replace(/\s*To$/, "")) + "</p>"; return;
       }
       if (it.kind === "box") {                               // a □ heading if a sub-item follows
         var nx = items[idx + 1];
-        if (nx && (nx.kind === "bullet" || nx.kind === "sub2")) { flush(); out += '<p class="spec-h">' + esc(s) + "</p>"; return; }
+        if (nx && (nx.kind === "bullet" || nx.kind === "sub2")) { flush(); out += '<p class="k-spec-h">' + esc(s) + "</p>"; return; }
         buf.push("<li>" + esc(s) + "</li>"); return;
       }
       if (it.kind === "bullet") { buf.push("<li>" + esc(s) + "</li>"); return; }
-      if (it.kind === "sub2") { buf.push('<li class="spec-sub">' + esc(s) + "</li>"); return; }
+      if (it.kind === "sub2") { buf.push('<li class="k-spec-sub">' + esc(s) + "</li>"); return; }
       if (/\so\s/.test(s)) {                                 // garbled "A o B" merge → split
         s.split(/\s+o\s+/).forEach(function (p) { p = p.trim(); if (p) buf.push("<li>" + esc(p) + "</li>"); }); return;
       }
       var nx2 = items[idx + 1];                              // ":"-lead-in introducing a list → highlighted
       if (/:\s*$/.test(s) && nx2 && (nx2.kind === "bullet" || nx2.kind === "sub2")) {   // header (parity w/ IT spec tabs)
-        flush(); out += '<p class="spec-h">' + esc(s.replace(/:\s*$/, "")) + "</p>"; return;
+        flush(); out += '<p class="k-spec-h">' + esc(s.replace(/:\s*$/, "")) + "</p>"; return;
       }
       flush(); out += "<p>" + esc(s) + "</p>";               // plain intro line (CS/Maths)
     });
@@ -2796,7 +2744,7 @@
       var html = "";
       for (var i = 0; i < markers.length; i++) {
         var seg = text.slice(markers[i].idx + markers[i].len, i + 1 < markers.length ? markers[i + 1].idx : text.length).trim();
-        if (seg) html += '<p class="spec-h">' + markers[i].label + "</p>" + ul(seg);
+        if (seg) html += '<p class="k-spec-h">' + markers[i].label + "</p>" + ul(seg);
       }
       return html || "<p>" + esc(text) + "</p>";
     }
@@ -2805,12 +2753,12 @@
     function flush() { if (buf.length) { out += "<ul>" + buf.join("") + "</ul>"; buf = []; } }
     lines.forEach(function (raw) {
       var t = String(raw).trim();
-      if (/^to include:?$/i.test(t)) { flush(); out += '<p class="spec-h">To include</p>'; return; }
-      if (/^does not include:?$/i.test(t)) { flush(); out += '<p class="spec-h">Not included</p>'; return; }
+      if (/^to include:?$/i.test(t)) { flush(); out += '<p class="k-spec-h">To include</p>'; return; }
+      if (/^does not include:?$/i.test(t)) { flush(); out += '<p class="k-spec-h">Not included</p>'; return; }
       var it = specLine(raw);
       if (!it.text) return;
       if (it.kind === "none") { flush(); out += "<p>" + esc(it.text) + "</p>"; }
-      else buf.push((it.kind === "sub2" ? '<li class="spec-sub">' : "<li>") + esc(it.text) + "</li>");
+      else buf.push((it.kind === "sub2" ? '<li class="k-spec-sub">' : "<li>") + esc(it.text) + "</li>");
     });
     flush();
     return out;

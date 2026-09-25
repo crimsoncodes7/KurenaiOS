@@ -160,6 +160,58 @@
    "reachable": true,
    "from": ".",
    "why": "Graphite step 3 (Study desk, frame 8a): a desk control renamed with the design (the Continue card, a gated practice row's chip) must still do exactly what it did from some control on the desk."
+  },
+  {
+   "surface": "ref:.*",
+   "hooks": "topic.pager-button",
+   "from": "^‹ Previous topic.([A-Z]?\\d[\\d.]*\\d|[A-Z]?\\d)(.+)$",
+   "to": "Previous topic: $1 $2",
+   "why": "Graphite step 3b (topic page, frame 8b): the neighbouring topics are the round ‹ › beside the title, named in full."
+  },
+  {
+   "surface": "ref:.*",
+   "hooks": "topic.pager-button",
+   "from": "^Next topic ›.([A-Z]?\\d[\\d.]*\\d|[A-Z]?\\d)(.+)$",
+   "to": "Next topic: $1 $2",
+   "why": "Graphite step 3b (topic page, frame 8b): the neighbouring topics are the round ‹ › beside the title, named in full."
+  },
+  {
+   "surface": "ref:.*",
+   "hooks": "ui.tab",
+   "retire": true,
+   "from": ".",
+   "why": "Graphite step 3b (topic page, frame 8b): the first four tabs show and the rest fold behind \"+N ▾\" (a menu, outside the replayed regions); smoke37 proves every folded tab is offered there."
+  },
+  {
+   "surface": "ref:.*",
+   "hooks": "ui.scroller-arrow",
+   "retire": true,
+   "from": "tabs$",
+   "why": "Graphite step 3b (topic page, frame 8b): the tab strip no longer scrolls sideways, so it has no arrows."
+  },
+  {
+   "surface": "ref:.*",
+   "hooks": "shell.subnav-item",
+   "from": "^(Review|Assignments|Exams & Papers)$",
+   "retire": true,
+   "why": "Graphite step 3b (topic page, frame 8b): the topic page draws no sub-navigation row; the rail's Study opens the desk, whose row carries them."
+  },
+  {
+   "surface": "ref:.*",
+   "hooks": "shell.subnav-item",
+   "retire": true,
+   "reachable": true,
+   "from": ".",
+   "why": "Graphite step 3b (topic page, frame 8b): the subject pills became the spine's subject switch, which opens the same desk.",
+   "via": "#tree [data-ui~='study.spine-subjects']"
+  },
+  {
+   "surface": "ref:.*",
+   "hooks": "topic.page",
+   "retire": true,
+   "reachable": true,
+   "from": ".",
+   "why": "Graphite step 3b (topic page, frame 8b): the note foot's page buttons are topic.page alone (the pager-button hook is the header's neighbours)."
   }
  ]
 }
