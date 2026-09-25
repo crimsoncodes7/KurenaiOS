@@ -242,7 +242,10 @@ step("home renders its decision surface, cards, coverage and resume", () => {
   /* 3 subject cards + the Collection desk card */
   if ($$("[data-ui~='home.desk']").length < 4) throw new Error("subject+collection cards missing");
   if (!$("[data-ui~='home.collection-desk']")) throw new Error("Collection Matrix home card missing");
-  if (!$$("[data-ui~='home.desk']").some(c => c.textContent.includes("deep-content"))) throw new Error("coverage stat missing");
+  /* Graphite (frame 7a): a desk reports completion as its ring and its
+     "Topics done / total" row; deep-content coverage lives on the subject
+     desk's analytics, not the front page */
+  if (!$$("[data-ui~='home.desk'][data-sid]").every(c => /Topics\s*\d+ \/ \d+/.test(c.textContent))) throw new Error("topic completion missing from a desk");
 });
 step("subject dash keeps deep-content coverage in the analytics panel", () => {
   KOS.show("subject", "maths");

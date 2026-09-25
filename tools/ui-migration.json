@@ -16,5 +16,7 @@
     "css/views/labs.css",
     "css/themes.css"
   ],
-  "views": {}
+  "views": {
+    "home": {}
+  }
 }

@@ -316,6 +316,37 @@ the invariants and the hook contract still govern behaviour.
   profile chip gains an explicit name, a lens tab is named by its label);
   every recorded effect still matches.
 
+### Step 2 as delivered — Home (frame 7a)
+
+- `KOS.views.home` (`js/modules/hub.js`) is rebuilt on `k-` classes and
+  `css/views/home.css`, and is the first view listed under `views` in
+  `tools/ui-migration.json`: it renders without writing data (its habit read
+  no longer materialises `todo.habits`) and inside the depth budget.
+- The hero carries the user's banner behind the design's own scrim
+  (`applyBanner({ scrim: "hero" })`), the HP ring around the avatar, the
+  greeting with the streak, level and HP, and the daily goal — today's
+  generated directives, ticked in place (`KOS.todo.setChecked`), or the
+  recovery wins while Critical (nothing locks, invariant 2).
+- Routines and Reminders are read-only digests with their own links. Up next
+  is the canonical ladder (`nextAction`) with a Focus/Review switch; the
+  Focus side skips the due-cards rung (`nextAction({ skipDue: true })`) so the
+  two sides never say the same thing. Today and Upcoming collapse to one
+  quiet line when both are empty and a lone card takes the full width;
+  assignment rows open the one Assignment dialog in place.
+- Study hours replaces the headline tiles and the seven pips: the week's
+  chart (one `role="img"`, seven dated days), the streak and cards-due figures
+  beneath it, the subject split. The week's plan card (`KOS.pacingHomeCard`)
+  shows five rows, carried rows first, and counts the rest.
+- Continue: one desk per subject (ring, Topics done / total, the single
+  weakest topic from `KOS.rag.worst`, Continue) and the Collection desk, still
+  filled only once it is on screen (invariant 8).
+- Tests moved with the design, each with a note: smoke2/3/30/43/49. smoke56
+  gained surface-scoped rules and **retirements** — a retirement excuses a
+  control's absence only (a capped list, a panel folded elsewhere), never a
+  change in what it does, and a `reachable` one must still be matched by a
+  control on the page. Home's renames and retirements are in
+  `tools/baselines/render-purity.renames.json`.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

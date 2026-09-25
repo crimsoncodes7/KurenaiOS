@@ -287,7 +287,8 @@ step("Home shows a READ-ONLY summary that links to the page", async () => {
   if (!card) throw new Error("no reminders summary on Home");
   if (card.querySelectorAll("input, textarea, [data-ui~='rem.check'], [data-ui~='habit.tick']").length)
     throw new Error("Home exposed a mutation control — it must report, not manage");
-  if (!byName(card, /^Manage/)) throw new Error("no link through to the Reminders page");
+  /* Graphite (frame 7a): the card's link reads "All →" */
+  if (!byName(card, /^All/)) throw new Error("no link through to the Reminders page");
   if (!/overdue/.test(card.textContent)) throw new Error("the digest does not report the overdue count");
 });
 step("the dedicated page renders sections, lists, tags, list and inspector", async () => {

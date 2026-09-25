@@ -461,7 +461,8 @@
      the generated directives, the last topic — and picks the first that has
      something to say. It creates nothing and writes nothing; every branch
      hands off to a view that already owns the work. */
-  function nextAction() {
+  function nextAction(opts) {
+    opts = opts || {};
     /* 1 — a session is already running. Nothing outranks finishing it. */
     if (KOS.focus && KOS.focus.state && KOS.focus.state() !== "idle") {
       return { kicker: "In progress", label: "You have a focus session running",
@@ -469,7 +470,7 @@
         cta: "◉ Return to the session", go: function () { KOS.show("focus"); }, live: true };
     }
     /* 2 — the review queue. Overdue recall is the most perishable thing here. */
-    var due = KOS.srs.dueCount();
+    var due = opts.skipDue ? 0 : KOS.srs.dueCount();
     if (due) {
       return { kicker: "Due today", label: KOS.ui.num(due) + " card" + (due === 1 ? "" : "s") + " ready for review",
         why: "Recall decays on a schedule — this is the queue SM-2 built for today.",
@@ -518,264 +519,471 @@
   }
   KOS.homeNextAction = nextAction;
 
+  /* ---------- Home (Graphite frame 7a/7b) ----------
+     Reads only: every figure comes from a service that already owns it
+     (sessions, SRS, the directive list, habits, reminders, the calendar,
+     countdowns, the weekly plan, RAG, the media vault). The page writes
+     nothing on render; the controls hand off to the view that owns the
+     work, or tick through the owner's own API (a directive, a plan row). */
+  var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var SUBJ_HUE = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" };
+  var SUBJ_SHORT = { compsci: "CS", maths: "Maths", it: "IT" };
+  var homeMode = null;        /* the Up next switch, per page visit (UI-only state) */
+  var homeMins = 25;          /* the Up next focus length (UI-only state) */
+
+  function isoOf(d) {
+    return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+  }
+  function shortDay(iso) {
+    var d = new Date(iso + "T12:00:00");
+    return DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()];
+  }
+  function hm(ts) { var d = new Date(ts); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
+  function hoursOn(iso) {
+    return KOS.sessions.all().reduce(function (a, s) {
+      return s.type !== "media" && s.date === iso ? a + (s.dur || 0) : a;
+    }, 0) / 3600;
+  }
+  function fmtH(h) { return h >= 10 ? String(Math.round(h)) : String(Math.round(h * 10) / 10); }
+  function cardRow(k, v, bar) {
+    return el("div", { class: "k-card-row" }, [
+      el("span", { class: "k-kv-k", text: k }),
+      el("span", { class: "k-kv-v", text: v }),
+      bar == null ? null : el("span", { class: "k-bar k-kv-bar", style: "--p: " + Math.max(0, Math.min(100, bar)) + "%" }, [el("i")])
+    ].filter(Boolean));
+  }
+  function cardHead(title, meta, link, go, attrs) {
+    return el("div", Object.assign({ class: "k-card-head" }, attrs || {}), [
+      el("span", { class: "k-card-title", text: title }),
+      meta ? el("span", { class: "k-card-meta", text: meta }) : null,
+      link ? el("button", { type: "button", class: "k-link", text: link, onclick: go }) : null
+    ].filter(Boolean));
+  }
+
   KOS.views.home = function (main) {
     hideTree();
     var stks = KOS.sessions.streaks();
-    var dueN = KOS.srs.dueCount();
     var g = store.state.governor;
     var li = KOS.governor.levelInfo(g.xp);
-    var hpInfo = KOS.governor.hpStateInfo();
-
-    /* header — the day, not the brand (the topbar already carries the mark).
-       The focus CTA used to sit on this row and compete with the greeting for
-       width at 390px (audit HOME-8); it is part of the next-action card now,
-       which is where a call to action belongs anyway. */
-    main.appendChild(el("div", { class: "home-hero" }, [
-      el("div", { class: "hh-txt" }, [
-        el("span", { class: "hh-kicker", text: todayLine() }),
-        el("h1", { text: greeting() })
-      ])
-    ]));
-
-    /* governor state banner — recovery nudge when HP is low */
     var hpS = KOS.governor.hpState();
-    if (hpS !== "healthy") {
-      main.appendChild(el("div", { class: "gov-banner " + (hpS === "critical" ? "bad" : "warn") }, [
-        el("span", { html: hpS === "critical"
-          ? "<b>HP Critical.</b> Recovery Mode is the fastest way back — clear a few due cards and tick today's list."
-          : "<b>HP Strained.</b> Nothing is locked — but the daily drains are winning. A session or a few due cards turns it round." }),
-        el("button", { class: "btn", text: hpS === "critical" ? "Open Recovery →" : "Governor →",
-          onclick: function () { KOS.show("governor"); } })
-      ]));
-    }
-
-    /* ---- the decision surface ----
-       "What should I do next" is the question a front page exists to answer,
-       and Home did not answer it: it opened with four figures about a
-       checklist and left the reader to work out the rest. One statement, one
-       reason, one action — and the action is the page's only primary button,
-       so there is never a question about where to press. */
-    var next = nextAction();
-    main.appendChild(el("section", { class: "home-next" + (next.live ? " live" : ""),
-      "aria-label": "What to do next" }, [
-      el("div", { class: "hn-txt" }, [
-        el("span", { class: "hn-kicker", text: next.kicker }),
-        el("h2", { class: "hn-label", text: next.label }),
-        next.why ? el("p", { class: "hn-why", text: next.why }) : null
-      ].filter(Boolean)),
-      el("button", { class: "btn primary hn-go", text: next.cta, onclick: next.go })
-    ]));
-
-    /* ---- the profile band: who you are today ---- */
-    var banner = KOS.governor.bannerCss ? KOS.governor.bannerCss() : null;
-    var band = el("section", { class: "home-id" + (banner ? " has-banner" : ""), "aria-label": "Profile" });
-    /* the band carries text at BOTH ends, so it takes the full scrim rather
-       than the default one that fades out on the right (audit HOME-2) */
-    if (banner) KOS.governor.applyBanner(band, { scrim: "full" });
-    var week = [];
-    var activeDates = {};
-    KOS.sessions.all().forEach(function (s) { if (s.type !== "media") activeDates[s.date] = true; });
-    for (var i = 6; i >= 0; i--) {
-      var d0 = new Date(Date.now() - i * 864e5);
-      var iso = d0.getFullYear() + "-" + ("0" + (d0.getMonth() + 1)).slice(-2) + "-" + ("0" + d0.getDate()).slice(-2);
-      week.push({ on: !!activeDates[iso], today: i === 0,
-        label: i === 0 ? "Today" : d0.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short" }) });
-    }
-    /* the ONE identity record — the Governor's Seat and the topbar popover
-       render from this same call, so the three surfaces can never drift */
+    var hpInfo = KOS.governor.hpStateInfo();
     var prof = KOS.governor.profile();
-    band.appendChild(el("div", { class: "hi-main" }, [
-      KOS.governor.avatarNode(72),
-      el("div", { class: "hi-txt" }, [
-        el("span", { class: "rank", text: prof.rank }),
-        el("h2", { text: "Level " + prof.level }),
-        el("div", { class: "hi-state" }, [
-          el("b", { text: hpInfo.label }),
-          " · ◈ " + g.gold + " gold"
-        ]),
-        prof.status ? el("button", { class: "hi-status", title: "Edit your status and about",
-          onclick: function () { KOS.governor.editProfileText(function (err, r) { if (!(r && r.cancelled)) KOS.show("home"); }); } }, [
-          el("span", { class: "hi-status-dot", "aria-hidden": "true" }),
-          el("span", { text: prof.status })
-        ]) : null,
-        el("div", { class: "lvl-row" }, [
-          el("div", { class: "hud-bar hud-xp big lvl-bar" }, [
-            el("span", { style: "width:" + Math.round(100 * li.into / li.need) + "%" })]),
-          el("span", { class: "to-next", text: (li.need - li.into) + " XP to Lv " + (li.level + 1) })
-        ]),
-        el("div", { class: "hi-week" }, [
-          /* audit HOME-6: seven pips with nothing saying what they were. The
-             row now names itself, and each pip carries its own date. */
-          el("span", { class: "hi-week-l", text: "Last 7 days" }),
-          el("span", { class: "week-dots", role: "img",
-            "aria-label": week.filter(function (w) { return w.on; }).length +
-              " of the last 7 days had a study session" },
-            week.map(function (w) {
-              return el("i", { class: (w.on ? "on" : "") + (w.today && !w.on ? " today" : ""),
-                title: w.label + (w.on ? " — studied" : " — nothing logged") });
-            })),
-          el("span", { class: "streak-chip" + (stks.all ? " lit" : ""), title: "Days in a row with a real study session" }, [
-            el("span", { class: "fl", text: "炎" }),
-            el("span", { text: stks.all + "-day study" })
-          ]),
-          el("span", { class: "streak-chip med-rest" + (stks.rest ? " lit" : ""), title: "Days in a row with a Collection log — rest, kept separately" }, [
-            el("span", { class: "fl", text: "休" }),
-            el("span", { text: (stks.rest || 0) + "-day rest" })
-          ])
-        ])
-      ].filter(Boolean))
-    ]));
-    /* ---- three honest figures (audit HOME-1 / G-29) ----
-       Study streak, cards due and hours logged this week: each one moves the
-       moment the user does something, and each one is generated BY the user
-       rather than by a checklist they may never tick. `sub` says what the
-       number means so a zero is an answer rather than an accusation. */
-    /* A fact that goes somewhere is a real <button> (UI rebuild M1): it
-       used to be a div with role="button", a tabindex and a hand-rolled
-       Enter/Space handler, which is everything a button gives for free.
-       A fact that goes nowhere stays plain text — it is not a control. */
-    function bandStat(v, k, sub, onclick) {
-      return el(onclick ? "button" : "div", { class: "hstat" + (onclick ? " click" : ""),
-        type: onclick ? "button" : null, onclick: onclick || null }, [
-        el("span", { class: "v", text: String(v) }),
-        el("span", { class: "k", text: k }),
-        el("span", { class: "s", text: sub })
-      ]);
+    var today = KOS.srs.todayISO();
+    var dueCards = KOS.srs.dueCards();
+    var dueN = dueCards.length;
+
+    /* ================= the hero ================= */
+    var band = el("section", { class: "k-home-hero", "data-ui": "home.hero home.id", "aria-label": "Today" });
+    /* the banner is the user's; the scrim keeps the text legible whatever
+       the artwork (audit HOME-2) */
+    if (KOS.governor.bannerCss && KOS.governor.bannerCss()) KOS.governor.applyBanner(band, { scrim: "hero" });
+    var ring = el("span", { class: "k-home-ring", "data-hp": hpS, style: "--hp: " + Math.max(0, Math.min(100, g.hp)) + "%" },
+      [KOS.governor.avatarNode(94)]);
+    var greet = el("h1", { class: "k-home-greet" }, [greeting() + " "]);
+    if (stks.all) {
+      greet.appendChild(el("span", { class: "k-home-streak", "data-ui": "home.streak", text: stks.all + "-day streak" }));
+      greet.appendChild(document.createTextNode(", keep it going."));
+    } else {
+      greet.appendChild(document.createTextNode("Study today to start a streak."));
     }
-    var hrs = hoursThisWeek(), sessN = sessionsThisWeek();
-    band.appendChild(el("div", { class: "hi-stats", "aria-label": "This week" }, [
-      bandStat(stks.all, stks.all === 1 ? "Day streak" : "Day streak",
-        stks.all ? "consecutive study days" : "study today to start one"),
-      bandStat(KOS.ui.num(dueN), dueN === 1 ? "Card due" : "Cards due",
-        dueN ? "ready to review now" : "nothing due today", function () { KOS.show("due"); }),
-      bandStat(hrs >= 10 ? Math.round(hrs) : Math.round(hrs * 10) / 10, "Hours this week",
-        sessN ? sessN + (sessN === 1 ? " session" : " sessions") + " in seven days" : "no sessions in seven days")
-    ]));
+    var heroTxt = el("div", { class: "k-home-hero-txt" }, [
+      el("div", { class: "k-kicker", text: todayLine() }),
+      greet,
+      prof.status ? el("button", { type: "button", class: "k-home-quote", "data-ui": "home.status",
+        title: "Edit your status and about",
+        onclick: function () { KOS.governor.editProfileText(function (err, r) { if (!(r && r.cancelled)) KOS.rerender(); }); } },
+        ["“" + prof.status + "”"]) : null,
+      el("div", { class: "k-home-level" }, [
+        el("b", { text: "Level " + li.level + " · " + prof.rank }),
+        el("span", { class: "k-bar", role: "img", "aria-label": li.into + " of " + li.need + " XP to level " + (li.level + 1),
+          style: "--p: " + Math.round(100 * li.into / li.need) + "%" }, [el("i")]),
+        el("span", { class: "k-mono k-muted", text: (li.need - li.into) + " XP to " + (li.level + 1) }),
+        el("span", { class: "k-muted", "aria-hidden": "true", text: "·" }),
+        el("span", { class: "k-home-hp", "data-hp": hpS, text: "HP " + g.hp + " / 100 · " + hpInfo.label })
+      ])
+    ].filter(Boolean));
+
+    /* the daily goal is today's directive list (KOS.todo); in Critical the
+       same slot shows the recovery wins instead (invariant 2: nothing locks) */
+    var goal = el("div", { class: "k-home-goal", "data-ui": "habit.panel" });
+    if (hpS === "critical" && KOS.governor.recoveryTasks) {
+      var tasks = KOS.governor.recoveryTasks();
+      goal.appendChild(el("div", { class: "k-home-goal-head" }, [
+        el("span", { class: "k-kicker", text: "Recovery wins" }),
+        el("span", { class: "k-mono", text: tasks.filter(function (t) { return t.cur >= t.target; }).length + " / " + tasks.length })
+      ]));
+      tasks.forEach(function (t) {
+        var done = t.cur >= t.target;
+        goal.appendChild(el("button", { type: "button", class: "k-goal-item", "aria-pressed": String(done),
+          onclick: t.go }, [
+          el("span", { class: "k-goal-mark", "aria-hidden": "true", text: done ? "✓" : "" }),
+          el("span", { class: "k-goal-text", text: t.label + (t.target > 1 ? " (" + t.cur + "/" + t.target + ")" : "") })
+        ]));
+      });
+      goal.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary",
+        text: "Open Recovery →", onclick: function () { KOS.show("governor"); } }));
+    } else {
+      var autos = (KOS.todo.autoItems() || []);
+      var shown = autos.slice(0, 3);
+      goal.appendChild(el("div", { class: "k-home-goal-head" }, [
+        el("span", { class: "k-kicker", text: "Daily goal" }),
+        autos.length ? el("span", { class: "k-mono", text: autos.filter(function (a) { return KOS.todo.isChecked(a.key); }).length + " / " + autos.length }) : null
+      ].filter(Boolean)));
+      if (!shown.length) goal.appendChild(el("p", { class: "k-home-goal-note", text: "Nothing generated today — no due cards or near deadlines." }));
+      shown.forEach(function (a) {
+        var on = KOS.todo.isChecked(a.key);
+        goal.appendChild(el("button", { type: "button", class: "k-goal-item", "data-ui": "habit.tick", "aria-pressed": String(on),
+          "aria-label": (on ? "Unseal directive: " : "Seal directive: ") + a.label,
+          onclick: function () { KOS.todo.setChecked(a.key, !on, a.label); KOS.rerender(); } }, [
+          el("span", { class: "k-goal-mark", "aria-hidden": "true", text: on ? "✓" : "" }),
+          el("span", { class: "k-goal-text", text: a.label })
+        ]));
+      });
+      goal.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary",
+        text: "Start focus →", onclick: function () { KOS.show("focus"); } }));
+    }
+    band.appendChild(el("div", { class: "k-home-hero-body" }, [ring, heroTxt, goal]));
     main.appendChild(band);
 
-    /* ---- today's path + the horizon ----
-       audit HOME-4: with nothing on either, these were two card-sized boxes
-       side by side spending ~280px of the fold saying "nothing here". A panel
-       with nothing in it collapses to one line with the action that would put
-       something in it; a panel with content is unchanged. Whichever survives
-       takes the full width rather than sitting beside an empty column. */
-    var hasDirectives = (KOS.todo.autoItems() || []).length > 0 ||
-      ((store.state.reminders && store.state.reminders.items) || []).some(function (r) { return !r.done; });
-    var counts = KOS.calendar.countdowns ? KOS.calendar.countdowns(null, 4).length : 0;
-    var asgCard = KOS.assignmentsUrgentCard ? KOS.assignmentsUrgentCard() : null;
-    /* the weekly plan, tickable in place — absent when the week holds nothing */
-    var planCard = KOS.pacingHomeCard ? KOS.pacingHomeCard() : null;
-    var hasHorizon = counts > 0 || !!asgCard || !!planCard;
+    /* ================= Routines · Reminders ================= */
+    /* a pure read: todo.habits() materialises the array, and a render
+       never writes (smoke56 render purity) */
+    var habits = (store.state.todo && store.state.todo.habits) || [];
+    var weekStart = (function () { var d = new Date(today + "T12:00:00"); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; })();
+    var weekIsos = []; for (var wi = 0; wi < 7; wi++) { var wd = new Date(weekStart); wd.setDate(weekStart.getDate() + wi); weekIsos.push(isoOf(wd)); }
+    var routines = el("section", { class: "k-card", "data-ui": "home.routines", "aria-label": "Routines" }, [
+      cardHead("Routines", habits.length ? habits.slice(0, 4).filter(function (h) { return h.days[today]; }).length + " of " + Math.min(4, habits.length) + " today" : null,
+        "Habits →", function () { KOS.show("tasks"); })
+    ]);
+    if (!habits.length) {
+      routines.appendChild(KOS.ui.emptyState({ compact: true, body: "No routines yet — a habit is anything you want to keep daily." }));
+    } else {
+      var rgrid = el("div", { class: "k-routines" });
+      habits.slice(0, 4).forEach(function (h) {
+        var kept = weekIsos.filter(function (d) { return h.days[d]; }).length;
+        var row = el("div", { class: "k-check-row" }, [
+          el("span", { class: "k-dotcheck", "aria-hidden": "true", text: h.days[today] ? "✓" : "" }),
+          el("span", { class: "k-check-row-text", text: h.text }),
+          el("span", { class: "k-check-row-meta", text: kept + " of 7" + (h.days[today] ? " this week" : "") })
+        ]);
+        if (h.days[today]) KOS.ui.state(row, "done", true);
+        rgrid.appendChild(row);
+      });
+      routines.appendChild(rgrid);
+    }
+    /* Reminders: a read-only digest (Build 6.2) — management is its own page */
+    var remOpen = ((store.state.reminders && store.state.reminders.items) || []).filter(function (r) { return !r.done; })
+      .sort(function (a, b) { return (a.due || "9999") < (b.due || "9999") ? -1 : (a.due || "9999") > (b.due || "9999") ? 1 : 0; });
+    var remLate = remOpen.filter(function (r) { return r.due && r.due < today; }).length;
+    var reminders = el("section", { class: "k-card", "data-ui": "rem.sum", "aria-label": "Reminders" }, [
+      cardHead("Reminders", remOpen.length ? Math.min(2, remOpen.length) + " of " + remOpen.length + (remLate ? " · " + remLate + " overdue" : "") : null,
+        "All →", function () { KOS.show("reminders"); })
+    ]);
+    if (!remOpen.length) {
+      reminders.appendChild(KOS.ui.emptyState({ compact: true, body: "Nothing on the list." }));
+    } else {
+      remOpen.slice(0, 2).forEach(function (r) {
+        var when = !r.due ? "" : r.due === today ? "Today" : r.due === KOS.srs.addDays(today, 1) ? "Tomorrow" : r.due < today ? shortDay(r.due) : shortDay(r.due);
+        var row = el("div", { class: "k-check-row" }, [
+          el("span", { class: "k-boxcheck", "aria-hidden": "true" }),
+          el("span", { class: "k-check-row-text", text: r.title }),
+          when ? el("span", { class: "k-check-row-meta k-mono", text: when + (r.dueTime ? " " + r.dueTime : "") }) : null
+        ].filter(Boolean));
+        if (r.due && r.due < today) KOS.ui.state(row, "late", true);
+        else if (r.due === today) KOS.ui.state(row, "soon", true);
+        reminders.appendChild(row);
+      });
+    }
+    main.appendChild(el("div", { class: "k-home-pair-top" }, [routines, reminders]));
 
-    if (!hasDirectives && !hasHorizon) {
-      /* one quiet line, not two empty boxes */
-      main.appendChild(el("div", { class: "home-quiet" }, [
-        KOS.ui.emptyState({ compact: true, mark: "澄",
-          title: "Nothing scheduled",
-          body: "No directives, no countdowns, no assignments due. Add a deadline or start a session.",
-          action: el("button", { class: "btn", text: "Calendar →", onclick: function () { KOS.show("calendar"); } })
-        })
+    /* ================= Up next · Today/Upcoming · Study hours · plan ================= */
+    var mid = el("div", { class: "k-home-mid" });
+    var next = nextAction();
+    var running = !!next.live;
+    var mode = running ? "focus" : (homeMode || (dueN ? "review" : "focus"));
+    var upnext = el("section", { class: "k-card k-upnext", "data-ui": "home.next", "aria-label": "What to do next" });
+    if (running) KOS.ui.state(upnext, "live", true);
+    function paintUpNext() {
+      upnext.innerHTML = "";
+      var n = mode === "review" ? null : (running ? next : nextAction({ skipDue: true }));
+      var sw = KOS.ui.tabs([
+        { label: "Focus", active: mode === "focus", onSelect: function () { homeMode = mode = "focus"; paintUpNext(); } },
+        { label: "Review", active: mode === "review", onSelect: function () { homeMode = mode = "review"; paintUpNext(); } }
+      ], { variant: "workspace", label: "Up next" });
+      upnext.appendChild(el("div", { class: "k-upnext-head" }, [
+        el("span", { class: "k-kicker", "data-ui": "home.next-kicker", text: mode === "review" ? "Due today" : n.kicker }),
+        running ? null : sw
+      ].filter(Boolean)));
+      var go, cta;
+      if (mode === "review") {
+        var oldest = dueCards.length ? dueCards[0].overdue : 0;
+        upnext.appendChild(el("h2", { class: "k-upnext-title", "data-ui": "home.next-label",
+          text: dueN ? "Review " + KOS.ui.num(dueN) + " due card" + (dueN === 1 ? "" : "s") : "Nothing due to review" }));
+        upnext.appendChild(el("p", { class: "k-upnext-why", "data-ui": "home.next-why",
+          text: dueN ? "About " + Math.max(1, Math.round(dueN * 0.5)) + " minute" + (dueN > 2 ? "s" : "") + (oldest ? " · oldest is " + oldest + " day" + (oldest === 1 ? "" : "s") + " overdue" : " · all due today")
+            : "The queue is clear — SM-2 has nothing scheduled for today." }));
+        var bySid = {};
+        dueCards.forEach(function (c) { var sid = String(c.key).split(":")[0]; (bySid[sid] = bySid[sid] || []).push(c); });
+        SUBJECTS.forEach(function (sid) {
+          var list = bySid[sid];
+          if (!list) return;
+          var refs = {}; list.forEach(function (c) { var r = String(c.key).split(":")[1]; refs[r] = true; });
+          var topicNames = Object.keys(refs).slice(0, 2).map(function (r) { return BYREF[sid][r] ? r + " " + BYREF[sid][r].title : r; });
+          upnext.appendChild(cardRow(SUBJ_SHORT[sid], list.length + " due · " + topicNames.join(", "), Math.round(100 * list.length / dueN)));
+        });
+        if (dueN) upnext.appendChild(cardRow("Order", "Most overdue first"));
+        cta = "Start reviewing →"; go = function () { KOS.show("due"); };
+      } else {
+        upnext.appendChild(el("h2", { class: "k-upnext-title", "data-ui": "home.next-label", text: n.label }));
+        if (n.why) upnext.appendChild(el("p", { class: "k-upnext-why", "data-ui": "home.next-why", text: n.why }));
+        if (!running) {
+          var todayH = hoursOn(today), goalH = 2;
+          upnext.appendChild(cardRow("Session", homeMins + " min" + (homeMins === 25 ? " · 1 pomodoro" : homeMins === 50 ? " · 2 pomodoros" : " · deep work")));
+          upnext.appendChild(cardRow("Goal", fmtH(todayH) + " of " + goalH + "h today", Math.round(100 * todayH / goalH)));
+        }
+        cta = n.cta; go = n.go;
+      }
+      var foot = el("div", { class: "k-upnext-foot" });
+      if (mode === "focus" && !running) {
+        foot.appendChild(el("div", { class: "k-durations", role: "group", "aria-label": "Session length" },
+          [25, 50, 90].map(function (m) {
+            return el("button", { type: "button", class: "k-btn", "aria-pressed": String(m === homeMins), text: m + "m",
+              onclick: function () { homeMins = m; paintUpNext(); } });
+          })));
+      }
+      foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "home.next-go",
+        "data-intent": "primary", text: cta, onclick: go }));
+      upnext.appendChild(foot);
+    }
+    paintUpNext();
+    mid.appendChild(upnext);
+
+    /* Today and Upcoming — one row; a pair with nothing in it collapses to
+       one quiet line, and a lone populated card takes the full width */
+    var todayItems = [];
+    (KOS.calendar.eventsOn ? KOS.calendar.eventsOn(today) : []).forEach(function (e) {
+      todayItems.push({ title: e.title, sub: (e.type ? e.type.charAt(0).toUpperCase() + e.type.slice(1) : "") + (e.subject ? " · " + SUBJ_SHORT[e.subject] : "") + (e.ref ? " · " + e.ref : ""),
+        hue: SUBJ_HUE[e.subject] || "var(--muted)", when: e.time ? (e.time >= "18:00" ? "Tonight" : e.time) : "Today",
+        now: e.type === "exam" || e.type === "deadline", go: function () { KOS.show("calendar"); } });
+    });
+    (KOS.assignments && KOS.assignments.forDate ? KOS.assignments.forDate(today) : []).forEach(function (a) {
+      var as = a.assignment || a;
+      todayItems.push({ title: as.title, sub: "Assignment" + (as.subject ? " · " + SUBJ_SHORT[as.subject] : ""),
+        hue: SUBJ_HUE[as.subject] || "var(--muted)", when: as.dueTime || "Today", now: true,
+        go: function () { openAssignment(as.id); } });
+    });
+    /* an assignment row opens the one Assignment dialog in place, as the
+       tracker's own rows do; closing it redraws Home */
+    function openAssignment(id) {
+      if (KOS.assignmentDetail) KOS.assignmentDetail(id, function () { KOS.show("home", undefined, { _nav: true }); });
+      else KOS.show("assignments");
+    }
+    var counts = KOS.calendar.countdowns ? KOS.calendar.countdowns(null, 4) : [];
+    var urgent = (KOS.assignments && KOS.assignments.urgent ? KOS.assignments.urgent() : []).filter(function (a) { return KOS.assignments.isOverdue(a); });
+    var hasToday = todayItems.length > 0, hasUp = counts.length > 0 || urgent.length > 0;
+    if (!hasToday && !hasUp) {
+      mid.appendChild(el("div", { class: "k-home-quiet", "data-ui": "home.quiet" }, [
+        KOS.ui.emptyState({ compact: true, mark: "澄", title: "Nothing scheduled",
+          body: "No events today, no countdowns, no assignments due. Add a deadline or start a session.",
+          action: el("button", { type: "button", class: "k-btn", text: "Calendar →", onclick: function () { KOS.show("calendar"); } }) })
       ]));
     } else {
-      var todayRow = el("div", { class: "home-today" +
-        (hasDirectives && hasHorizon ? "" : " one-up") });
-      if (hasDirectives) {
-        var pathCard = el("section", { class: "path-card" });
-        pathCard.appendChild(KOS.todo.panel());
-        todayRow.appendChild(pathCard);
+      var pair = el("div", { class: "k-home-pair", "data-ui": "home.today" });
+      if (!(hasToday && hasUp)) KOS.ui.state(pair, "one-up", true);
+      if (hasToday) {
+        var tcard = el("section", { class: "k-card", "data-ui": "home.today-card", "aria-label": "Today" }, [
+          cardHead("Today", null, "Calendar →", function () { KOS.show("calendar"); })
+        ]);
+        todayItems.slice(0, 4).forEach(function (t) {
+          tcard.appendChild(el("button", { type: "button", class: "k-day-row", onclick: t.go }, [
+            el("span", { class: "k-day-bar", style: "--row-c: " + t.hue, "aria-hidden": "true" }),
+            el("span", { class: "k-day-txt" }, [
+              el("span", { class: "k-day-title", text: t.title }),
+              t.sub ? el("span", { class: "k-day-sub", text: t.sub }) : null
+            ].filter(Boolean)),
+            el("span", { class: "k-day-when", "data-state": t.now ? "now" : null, text: t.when })
+          ]));
+        });
+        pair.appendChild(tcard);
       }
-      if (hasHorizon) {
-        var side = el("div", { class: "home-side" });
-        if (planCard) side.appendChild(planCard);
-        if (counts) side.appendChild(KOS.calendar.countdownWidget(null));
-        /* Build 6.4 — urgent assignments, DERIVED from the one record. The
-           card is absent entirely when nothing is due, so Home stays quiet. */
-        if (asgCard) side.appendChild(asgCard);
-        todayRow.appendChild(side);
+      if (hasUp) {
+        var ucard = el("section", { class: "k-card", "data-ui": "cal.countdowns", "aria-label": "Upcoming" }, [
+          cardHead("Upcoming", urgent.length ? urgent.length + " overdue" : "nothing overdue", "Tracker →", function () { KOS.show("assignments"); })
+        ]);
+        urgent.slice(0, 2).forEach(function (a) {
+          var late = -KOS.assignments.daysLeft(a);
+          ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "asg.urgent cal.countdown-item",
+            onclick: function () { openAssignment(a.id); } }, [
+            el("span", { class: "k-days-dot", "data-state": "late", text: String(late) }),
+            el("span", { class: "k-day-txt" }, [
+              el("span", { class: "k-day-title", text: a.title }),
+              el("span", { class: "k-day-sub", text: late + " day" + (late === 1 ? "" : "s") + " overdue" + (a.subject ? " · " + a.subject : "") })
+            ])
+          ]));
+        });
+        counts.slice(0, Math.max(0, 3 - Math.min(2, urgent.length))).forEach(function (c) {
+          ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "cal.countdown-item" + (c.kind === "assignment" ? " asg.urgent" : ""),
+            onclick: function () {
+              if (c.kind === "pacing") KOS.show("pacing", { wb: c.entry.wb });
+              else if (c.kind === "assignment") openAssignment(c.assignment.id);
+              else KOS.show("calendar");
+            } }, [
+            el("span", { class: "k-days-dot", "data-state": c.days === 0 ? "now" : null, text: String(c.days) }),
+            el("span", { class: "k-day-txt" }, [
+              el("span", { class: "k-day-title", text: c.title }),
+              el("span", { class: "k-day-sub", text: (c.days === 0 ? "today" : "in " + c.days + " day" + (c.days === 1 ? "" : "s")) + " · " + c.meta })
+            ])
+          ]));
+        });
+        pair.appendChild(ucard);
       }
-      main.appendChild(todayRow);
+      mid.appendChild(pair);
     }
 
-    /* ---- the desks: three subjects + the collection ---- */
-    var cards = el("div", { class: "home-cards" });
+    /* Study hours — this week, Monday to Sunday */
+    var days = weekIsos.map(function (iso) { return { iso: iso, h: hoursOn(iso) }; });
+    var weekH = days.reduce(function (a, d) { return a + d.h; }, 0);
+    var lastWeekH = 0;
+    for (var lw = 1; lw <= 7; lw++) { var ld = new Date(weekStart); ld.setDate(weekStart.getDate() - lw); lastWeekH += hoursOn(isoOf(ld)); }
+    var weekSess = KOS.sessions.all().filter(function (s) { return s.type !== "media" && weekIsos.indexOf(s.date) !== -1; }).length;
+    var peak = Math.max(2, days.reduce(function (a, d) { return Math.max(a, d.h); }, 0));
+    var chart = el("div", { class: "k-hours-chart", "data-ui": "home.week", role: "img",
+      "aria-label": "Study hours this week: " + days.filter(function (d) { return d.iso <= today; }).map(function (d) { return shortDay(d.iso) + " " + fmtH(d.h) + "h"; }).join(", ") }, [
+      el("div", { class: "k-hours-goal", style: "--goal-y: " + Math.round(100 * 2 / peak) + "%" }, [el("span", { text: "goal 2h" })])
+    ].concat(days.map(function (d, i) {
+      var future = d.iso > today, isToday = d.iso === today;
+      return el("div", { class: "k-hours-day", "data-ui": "home.week-day", title: d.iso, "data-state": future ? "future" : isToday ? "today" : null }, [
+        future || !d.h ? null : el("span", { class: "k-hours-v", text: fmtH(d.h) }),
+        el("div", { class: "k-hours-bar", style: future ? null : "--h: calc(" + Math.round(100 * d.h / peak) + "% - var(--sp-24))" }),
+        el("span", { class: "k-hours-l", text: "MTWTFSS".charAt(i) })
+      ].filter(Boolean));
+    })));
+    var bySubj = { compsci: 0, maths: 0, it: 0 };
+    KOS.sessions.all().forEach(function (s) { if (s.type !== "media" && weekIsos.indexOf(s.date) !== -1 && bySubj[s.subject] != null) bySubj[s.subject] += (s.dur || 0) / 3600; });
+    var learnt = 0;
+    Object.keys(store.state.srs || {}).forEach(function (k) { var m = store.state.srs[k]; if (m && m.reps > 0) learnt++; });
+    var delta = weekH - lastWeekH;
+    function fact(v, label, cap, onclick) {
+      return el(onclick ? "button" : "div", { class: "k-hours-fact", "data-ui": "home.fact", type: onclick ? "button" : null,
+        "aria-label": onclick ? v + " " + cap.split(" · ")[0].toLowerCase() + " " + label : null, onclick: onclick || null }, [
+        el("span", { class: "k-hours-fact-top" }, [
+          el("span", { class: "k-hours-fact-v", "data-ui": "part.value", text: v }),
+          el("span", { class: "k-hours-fact-u", "data-ui": "part.label", text: label })
+        ]),
+        el("span", { class: "k-hours-fact-c", "data-ui": "part.caption", text: cap })
+      ]);
+    }
+    var hours = el("section", { class: "k-card k-hours", "aria-label": "Study hours" }, [
+      cardHead("Study hours", null, null, null),
+      el("div", { class: "k-hours-big" }, [
+        el("span", { class: "k-hours-n", text: fmtH(weekH) }),
+        el("span", { class: "k-hours-u", text: "hours" + (weekSess ? " · " + weekSess + " session" + (weekSess === 1 ? "" : "s") : " · no sessions yet") }),
+        lastWeekH || weekH ? el("span", { class: "k-hours-d", "data-state": delta < 0 ? "down" : null, text: (delta >= 0 ? "+" : "−") + fmtH(Math.abs(delta)) }) : null
+      ].filter(Boolean)),
+      chart,
+      el("div", { class: "k-hours-facts", "data-ui": "home.facts", "aria-label": "This week" }, [
+        fact(String(stks.all), stks.all === 1 ? "day" : "days", stks.all ? "Streak · consecutive study days" : "Streak · study today to start one", null),
+        fact(KOS.ui.num(dueN), "due", "Cards · " + KOS.ui.num(learnt) + " learnt", function () { KOS.show("due"); })
+      ]),
+      weekH ? el("div", {}, [
+        el("div", { class: "k-split-bar", "aria-hidden": "true" }, SUBJECTS.filter(function (sid) { return bySubj[sid] > 0; }).map(function (sid) {
+          return el("span", { style: "--f: " + bySubj[sid].toFixed(2) + "; --c: " + SUBJ_HUE[sid] });
+        })),
+        el("div", { class: "k-split-legend" }, SUBJECTS.filter(function (sid) { return bySubj[sid] > 0; }).map(function (sid) {
+          return el("span", { style: "--c: " + SUBJ_HUE[sid] }, [el("b", { text: SUBJ_SHORT[sid] }), fmtH(bySubj[sid]) + "h"]);
+        }))
+      ]) : null
+    ].filter(Boolean));
+    mid.appendChild(hours);
+
+    /* the week's plan, tickable in place (invariant 82b) */
+    var planCard = KOS.pacingHomeCard ? KOS.pacingHomeCard() : null;
+    if (planCard) mid.appendChild(planCard);
+    main.appendChild(mid);
+
+    /* ================= Continue: the four desks ================= */
+    var cont = el("section", { "aria-labelledby": "k-home-continue" }, [
+      el("div", { class: "k-continue-head" }, [
+        el("h2", { id: "k-home-continue", text: "Continue" }),
+        el("button", { type: "button", class: "k-link", text: "Study →", onclick: function () { KOS.show("subject", store.state.ui.subject || "compsci"); } })
+      ])
+    ]);
+    var desks = el("div", { class: "k-desks" });
     SUBJECTS.forEach(function (sid) {
       var d = KOS_DATA[sid], st = subjectStats(sid);
-      var cov = KOS.content.coverage(sid, LEAVES[sid]);
       var last = store.state.ui.lastRef[sid];
-      /* Phase F: this card grows a "Continue" button when the subject has
-         a last-opened topic, so an ARIA button was wrapping a real one.
-         The card keeps its pointer shortcut; the subject NAME is the
-         control, which is also what a screen reader should read out. */
-      var card = el("div", {
-        class: "subj-card", style: "--accent:" + COLORS[sid],
-        onclick: function (e) { if (!e.target.closest("button, a, select")) KOS.show("subject", sid); }
-      }, [
-        el("div", { class: "subj-card-top" }, [
-          el("div", {}, [
-            el("h3", {}, [el("button", { type: "button", class: "subj-card-open", text: d.name,
-              onclick: function (e) { e.stopPropagation(); KOS.show("subject", sid); } })]),
-            el("span", { class: "b", text: d.board })
+      var lastLeaf = last && BYREF[sid][last] ? BYREF[sid][last] : null;
+      var weak = (KOS.rag.worst(sid, 1) || [])[0];
+      var target = lastLeaf ? { ref: last, title: lastLeaf.title } : (LEAVES[sid][0] ? { ref: LEAVES[sid][0].ref, title: LEAVES[sid][0].title } : null);
+      desks.appendChild(el("article", { class: "k-desk", "data-ui": "home.desk", "data-sid": sid, style: "--desk-c: " + SUBJ_HUE[sid] }, [
+        el("div", { class: "k-desk-top", "data-ui": "study.subject-card-top" }, [
+          el("div", { class: "k-desk-name" }, [
+            el("h3", {}, [el("button", { type: "button", class: "k-desk-open", "data-ui": "home.desk-open", text: d.name,
+              onclick: function () { KOS.show("subject", sid); } })]),
+            el("div", { class: "k-desk-board" }, [
+              el("span", { text: d.board }),
+              stks[sid] ? el("span", { class: "k-chip", "data-ui": "home.streak", title: stks[sid] + "-day study streak in this subject", text: "炎 " + stks[sid] }) : null
+            ].filter(Boolean))
           ]),
-          (function () { var c = el("canvas", { class: "mini-ring" }); setTimeout(function () {
-            miniRing(c, st.pct, HEX[sid]); }, 0); return c; })()
+          el("span", { class: "k-desk-ring", "data-ui": "home.ring", role: "img", "aria-label": st.pct + "% complete", style: "--p: " + st.pct + "%" },
+            [el("span", { text: st.pct + "%" })])
         ]),
-        el("div", { class: "m", text: st.done + "/" + st.total + " completed · " + cov + " deep-content topics" +
-          (stks[sid] ? " · 炎 " + stks[sid] + "-day streak" : "") })
-      ]);
-      card.appendChild(el("div", {
-        class: "subj-track", "aria-label": st.pct + "% complete",
-        title: st.done + "/" + st.total + " spec points completed"
-      }, [el("span", { class: "subj-fill", style: "width:" + st.pct + "%" })]));
-      if (last && BYREF[sid][last]) {
-        card.appendChild(el("button", {
-          class: "continue mini", style: "--accent:" + COLORS[sid],
-          onclick: function (e) {
-            e.stopPropagation();
-            KOS.show("ref", { subject: sid, ref: last });
-          }
-        }, [
-          el("span", { class: "d", text: "Continue" }),
-          el("b", { text: last + " " + BYREF[sid][last].title })
-        ]));
-      }
-      cards.appendChild(card);
+        el("div", { class: "k-bar", "data-ui": "media.bar", title: st.done + " of " + st.total + " spec points completed",
+          style: "--p: " + Math.max(st.pct, st.done ? 1 : 0) + "%" }, [el("i", { "data-ui": "media.bar-fill" })]),
+        el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: "Topics" }), el("span", { class: "k-desk-row-v", text: st.done + " / " + st.total })]),
+        el("div", { class: "k-desk-row" }, [el("span", { class: "k-desk-row-k", text: "Weakest" }),
+          weak ? el("button", { type: "button", class: "k-desk-row-v", "data-ui": "rag.item", text: weak.ref + " " + weak.title,
+            onclick: function () { KOS.show("ref", { subject: sid, ref: weak.ref }); } })
+            : el("span", { class: "k-desk-row-v k-muted", text: "Nothing flagged" })]),
+        target ? el("div", { class: "k-desk-foot" }, [
+          el("div", { class: "k-desk-foot-txt" }, [
+            el("div", { class: "k-desk-foot-k", text: lastLeaf ? "Continue" : "Start" }),
+            el("div", { class: "k-desk-foot-v", text: target.ref + " " + target.title })
+          ]),
+          el("button", { type: "button", class: "k-desk-go", "aria-label": (lastLeaf ? "Continue " : "Start ") + target.ref + " " + target.title,
+            text: "→", onclick: function () { KOS.show("ref", { subject: sid, ref: target.ref }); } })
+        ]) : null
+      ].filter(Boolean)));
     });
-    /* ---- the collection desk ----
-       audit HOME-5: it sat beside three subject cards in a different shape —
-       no ring, no track, no Continue — so the row read as three cards plus a
-       banner. It is the same component now: the same top row with a ring, the
-       same meta line, the same progress track and the same Continue action.
-       The figures arrive asynchronously (the vault is IndexedDB), so the card
-       renders complete and fills in; it never reflows on arrival because the
-       ring and the track are already in the layout. */
-    var medRing = el("canvas", { class: "mini-ring" });
-    var medMeta = el("div", { class: "m", text: "Anime · books · visual novels · games — what you watch, read and play." });
-    var medTrack = el("span", { class: "subj-fill", style: "width:0%" });
-    /* Phase F: it is the same component as the subject cards, so it takes
-       the same semantics — a container with the title as its control,
-       because it grows its own Continue button (see above). */
-    var medCard = el("div", { class: "subj-card med-home-card", style: "--accent:var(--accent)",
-      onclick: function (e) { if (!e.target.closest("button, a, select")) KOS.show("matrix"); }
-    }, [
-      el("div", { class: "subj-card-top" }, [
-        el("div", {}, [
-          el("h3", {}, [el("button", { type: "button", class: "subj-card-open",
-            onclick: function (e) { e.stopPropagation(); KOS.show("matrix"); } },
-            [el("span", { class: "kanji-inline", "aria-hidden": "true", text: "蒐" }), " Collection"])]),
-          el("span", { class: "b", text: "The other half of the ledger" })
+
+    /* the Collection desk: the same component. Its figures come from a
+       FULL-TABLE scan (mediadb.stats), so it fills in once the card is on
+       screen rather than on Home's render pass (invariant 8) */
+    var medMeta = el("span", { "data-ui": "part.meta", text: "Anime · books · visual novels · games" });
+    var medRing = el("span", { class: "k-desk-ring", "data-ui": "home.ring", role: "img", "aria-label": "Library completion", style: "--p: 0%" }, [el("span", { text: "—" })]);
+    var medBar = el("div", { class: "k-bar", "data-ui": "media.bar", style: "--p: 0%" }, [el("i", { "data-ui": "media.bar-fill" })]);
+    var medRows = el("div", {});
+    var medFoot = el("div", {});
+    var medCard = el("article", { class: "k-desk", "data-ui": "home.desk home.collection-desk", style: "--desk-c: var(--collection-hue)" }, [
+      el("div", { class: "k-desk-top", "data-ui": "study.subject-card-top" }, [
+        el("div", { class: "k-desk-name" }, [
+          el("h3", {}, [el("button", { type: "button", class: "k-desk-open", "data-ui": "home.desk-open", "aria-label": "Collection",
+            onclick: function () { KOS.show("matrix"); } }, [el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: "蒐" }), "Collection"])]),
+          el("div", { class: "k-desk-board" }, [
+            medMeta,
+            stks.rest ? el("span", { class: "k-chip", "data-ui": "home.streak", title: stks.rest + "-day rest streak", text: "休 " + stks.rest }) : null
+          ].filter(Boolean))
         ]),
         medRing
       ]),
-      medMeta,
-      el("div", { class: "subj-track", "aria-label": "Share of the library completed" }, [medTrack])
+      medBar, medRows, medFoot
     ]);
-    cards.appendChild(medCard);
-    /* The figures come from a FULL-TABLE cursor scan (mediadb.stats walks
-       every entry — ~1,900 on a real account), so it waits until the card is
-       actually on screen rather than running on Home's cold boot. Same
-       IntersectionObserver idiom the vaults use for their batches
-       (invariant #8), and the same consequence: with no observer the card
-       keeps its honest static description instead of blocking the page. */
+    /* the airing episodes the notification centre already remembers
+       (invariant 96) — memory of the schedule, never written to the vault */
+    var airing = Object.keys((store.state.notify && store.state.notify.airing) || {}).map(function (k) { return store.state.notify.airing[k]; })
+      .filter(function (a) { return a && a.at * 1000 > Date.now(); }).sort(function (a, b) { return a.at - b.at; }).slice(0, 2);
+    airing.forEach(function (a) {
+      medRows.appendChild(el("div", { class: "k-desk-row" }, [
+        el("span", { class: "k-desk-cover", "aria-hidden": "true" }, [a.cover ? el("img", { src: a.cover, alt: "", loading: "lazy" }) : null].filter(Boolean)),
+        el("span", { class: "k-desk-row-v k-desk-row-v--start", text: a.title + " · Ep " + a.ep }),
+        el("span", { class: "k-desk-when", text: DOW[new Date(a.at * 1000).getDay()] + " " + hm(a.at * 1000) })
+      ]));
+    });
+    desks.appendChild(medCard);
+    cont.appendChild(desks);
+    main.appendChild(cont);
+
     function fillCollectionCard() {
       if (!KOS.mediadb || !KOS.mediadb.stats) return;
       KOS.mediadb.stats(function (err, agg) {
@@ -786,29 +994,38 @@
           going += agg.modules[m].inProgress || 0;
         });
         var pctDone = agg.total ? Math.round(100 * done / agg.total) : 0;
-        medMeta.textContent = KOS.ui.num(done) + "/" + KOS.ui.num(agg.total) + " completed · " +
-          KOS.ui.num(going) + " in progress" + (stks.rest ? " · 休 " + stks.rest + "-day rest streak" : "");
-        medTrack.style.width = pctDone + "%";
-        miniRing(medRing, pctDone, tokenColor("--accent", "#5D6BA8"));
-        /* the same Continue affordance the subject cards carry: the vault
-           with something actually open in it */
+        medMeta.textContent = KOS.ui.num(done) + " / " + KOS.ui.num(agg.total);
+        medRing.style.setProperty("--p", pctDone + "%");
+        medRing.firstChild.textContent = pctDone + "%";
+        medRing.setAttribute("aria-label", pctDone + "% of the library completed");
+        medBar.style.setProperty("--p", pctDone + "%");
         var best = null;
         Object.keys(agg.modules).forEach(function (m) {
           if (!best || agg.modules[m].inProgress > agg.modules[best].inProgress) best = m;
         });
+        if (!airing.length) {
+          ["anime", "books"].forEach(function (m) {
+            if (!agg.modules[m]) return;
+            medRows.appendChild(el("div", { class: "k-desk-row" }, [
+              el("span", { class: "k-desk-row-k", text: m === "anime" ? "Anime" : "Books" }),
+              el("span", { class: "k-desk-row-v", text: (agg.modules[m].inProgress || 0) + " in progress" })
+            ]));
+          });
+        }
         if (best && agg.modules[best].inProgress) {
           var NAMES = { anime: "Anime", books: "Books", vn: "Visual Novels", game: "Games" };
-          medCard.appendChild(el("button", {
-            class: "continue mini", style: "--accent:var(--accent)",
-            onclick: function (e) { e.stopPropagation(); KOS.show(best); }
-          }, [
-            el("span", { class: "d", text: "Continue" }),
-            el("b", { text: NAMES[best] + " · " + agg.modules[best].inProgress + " in progress" })
+          var VERB = { anime: "watching", books: "reading", vn: "reading", game: "playing" };
+          medFoot.appendChild(el("div", { class: "k-desk-foot" }, [
+            el("div", { class: "k-desk-foot-txt" }, [
+              el("div", { class: "k-desk-foot-k", text: "Continue " + VERB[best] }),
+              el("div", { class: "k-desk-foot-v", text: NAMES[best] + " · " + agg.modules[best].inProgress + " in progress" })
+            ]),
+            el("button", { type: "button", class: "k-desk-go", "aria-label": "Open " + NAMES[best], text: "→",
+              onclick: function () { KOS.show(best); } })
           ]));
         }
       });
     }
-    main.appendChild(cards);
     if (typeof window.IntersectionObserver === "function") {
       var medObs = new window.IntersectionObserver(function (entries) {
         if (!entries.some(function (e) { return e.isIntersecting; })) return;
@@ -817,13 +1034,9 @@
       /* a generous margin: the point is to get the scan OFF the render pass,
          not to make the reader scroll for a figure that is one row below the
          fold on most desktops */
-      }, { root: document.getElementById("main"), rootMargin: "900px" });
+      }, { root: document.getElementById("stage"), rootMargin: "900px" });
       medObs.observe(medCard);
     }
-
-    /* struggling topics across all subjects (FR-3.3) */
-    var ragPanel = KOS.rag.panel(null);
-    if (ragPanel) { ragPanel.classList.add("home-rag"); main.appendChild(ragPanel); }
   };
 
   /* canvas rings read their colours from the live theme tokens */

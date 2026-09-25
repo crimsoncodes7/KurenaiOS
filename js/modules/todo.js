@@ -294,6 +294,9 @@
     /* Home's "what next" reads the same tick state the panel renders, so the
        front page can never offer a directive the list already shows sealed */
     isChecked: isChecked,
+    /* seal or unseal a directive (Home's daily goal): the same path the
+       panel's checkbox takes, so the reward flows through sessions.log */
+    setChecked: setChecked,
     addManual: addManual,
     toggleManual: toggleManual,
     deleteManual: deleteManual,

@@ -1,5 +1,5 @@
 {
- "about": "Deliberate accessible-name changes of rebuilt controls (tools/smoke56.test.js). Each rule rewrites a baseline control's name before it is looked up; its recorded effects must still match exactly.",
+ "about": "Deliberate accessible-name changes and retirements of rebuilt controls (tools/smoke56.test.js). A rename rewrites a baseline control's name before it is looked up and its recorded effects must still match exactly; a retirement excuses only the control's absence, and a reachable one must still be matched by some control on the same surface.",
  "rules": [
   {
    "hooks": "shell.subnav-item",
@@ -18,6 +18,79 @@
    "from": "^.(Physical Vault|Digital).*$",
    "to": "$1",
    "why": "M4 primitives: a tab with a kanji mark is named by its label; the hint became the tooltip."
+  },
+  {
+   "surface": "home",
+   "hooks": "home.fact",
+   "from": "^([\\d,]+)Cards? due.*$",
+   "to": "$1 cards due",
+   "why": "Graphite step 2 (Home, frame 7a): the cards-due figure sits under the Study hours chart and is named as one phrase."
+  },
+  {
+   "surface": "home",
+   "from": "^Manage →$",
+   "to": "All →",
+   "why": "Graphite step 2 (Home, frame 7a): the Reminders card's link reads \"All →\"."
+  },
+  {
+   "surface": "home",
+   "hooks": "home.desk-open",
+   "from": "^蒐 Collection$",
+   "to": "Collection",
+   "why": "Graphite step 2 (Home, frame 7a): the desk's kanji is decorative (aria-hidden); the desk is named Collection."
+  },
+  {
+   "surface": "home",
+   "from": "^(.+?)(CS|Maths|IT)( · from w/c .+)?$",
+   "to": "$1",
+   "why": "Graphite step 2 (Home, frame 7a): a week's-plan row title is named by the title alone; the subject and the carried-from week are its own columns and tooltip."
+  },
+  {
+   "surface": "home",
+   "retire": true,
+   "from": "^Tick off ",
+   "why": "Graphite step 2 (Home, frame 7a): the week's plan shows five rows (behind first); the rest of the week is on Pacing, counted in the card's footer."
+  },
+  {
+   "surface": "home",
+   "retire": true,
+   "from": "(CS|Maths|IT)( · from w/c .+)?$",
+   "why": "Graphite step 2 (Home, frame 7a): a week's-plan row past the five-row cap (see above)."
+  },
+  {
+   "surface": "home",
+   "retire": true,
+   "reachable": true,
+   "from": "^\\d+ more this week →$",
+   "why": "Graphite step 2 (Home, frame 7a): the overflow count names a different number under the five-row cap; the week is still one press away (\"Pacing →\")."
+  },
+  {
+   "surface": "home",
+   "hooks": "cal.countdown-item",
+   "retire": true,
+   "from": ".",
+   "why": "Graphite step 2 (Home, frame 7a): Upcoming is three rows — overdue work first, then the nearest countdowns; the full horizon is Calendar's."
+  },
+  {
+   "surface": "home",
+   "retire": true,
+   "reachable": true,
+   "from": " · (overdue|Tomorrow|Today|\\d+ \\w+ · [\\d:]+)$",
+   "why": "Graphite step 2 (Home, frame 7a): the Assignments-due panel folded into Today/Upcoming; those rows open the same Assignment dialog."
+  },
+  {
+   "surface": "home",
+   "hooks": "rag.item",
+   "from": "^(\\S+ .+?)(your own Red rating|ease \\d|\\d+ overdue card).*$",
+   "to": "$1",
+   "why": "Graphite step 2 (Home, frame 7a): the struggling-topics panel became each desk's Weakest row, named by the topic."
+  },
+  {
+   "surface": "home",
+   "hooks": "rag.item",
+   "retire": true,
+   "from": ".",
+   "why": "Graphite step 2 (Home, frame 7a): one weakest topic per desk (KOS.rag.worst(sid, 1)); the full list is the subject page's."
   }
  ]
 }

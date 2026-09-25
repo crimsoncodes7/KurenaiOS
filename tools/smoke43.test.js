@@ -490,15 +490,17 @@ function activeButUnticked() {
 step("the headline figures describe activity, not an unticked checklist", () => {
   activeButUnticked();
   KOS.show("home");
+  /* Graphite (frame 7a): hours this week became the Study hours card's own
+     headline, so the facts beneath its chart are the streak and the cards */
   const tiles = $$("[data-ui~='home.facts'] [data-ui~='home.fact']");
-  assert(tiles.length === 3, "expected three headline figures, got " + tiles.length);
+  assert(tiles.length === 2, "expected two figures under the week, got " + tiles.length);
   const labels = tiles.map(t => t.querySelector("[data-ui~='part.label']").textContent);
-  assert(labels.join("|") === "Day streak|Cards due|Hours this week", "headline figures: " + labels.join("|"));
+  assert(/^days?\|due$/.test(labels.join("|")), "week figures: " + labels.join("|"));
   /* the retired ones, by name: they read 0 for this account */
   const hero = $("[data-ui~='home.id']").textContent;
   assert(!/Spec points/.test(hero), "the hero still leads with a spec-point tally");
   assert(!/Mastered/.test(hero), "the hero still leads with a mastered count");
-  assert(!$(".home-ring"), "the 0%-COVERED ring is back on the hero");
+  assert(!$("[data-ui~='home.hero'] [data-ui~='home.ring']"), "the 0%-COVERED ring is back on the hero");
   /* and at least one of the three is genuinely non-zero for this account */
   const values = tiles.map(t => t.querySelector("[data-ui~='part.value']").textContent);
   assert(values.some(v => v !== "0" && v !== "0.0"), "every headline figure still reads zero: " + values.join("|"));
@@ -507,7 +509,7 @@ step("the headline figures describe activity, not an unticked checklist", () => 
 step("a headline figure that goes somewhere is a native button; the rest are not controls", () => {
   KOS.show("home");
   const tiles = $$("[data-ui~='home.facts'] [data-ui~='home.fact']");
-  const due = tiles.find(t => /Card/.test(t.querySelector("[data-ui~='part.label']").textContent));
+  const due = tiles.find(t => /Card/.test(t.querySelector("[data-ui~='part.caption']").textContent));
   assert(due && due.tagName === "BUTTON" && due.getAttribute("type") === "button",
     "the Cards due figure is not a native button");
   assert(!due.hasAttribute("role") && !due.hasAttribute("tabindex"),
@@ -526,9 +528,12 @@ step("every headline figure explains what it means, so a zero is an answer", () 
     const s = t.querySelector("[data-ui~='part.caption']");
     assert(s && s.textContent.trim(), "a headline figure carries no line of context");
   });
-  /* coverage kept its place — on the subject cards, where it belongs */
-  assert($$("[data-ui~='home.desk']").some(c => /deep-content/.test(c.textContent)),
-    "coverage was dropped rather than demoted to the subject cards");
+  /* coverage kept its place — on the subject desks, where it belongs: the
+     ring and the Topics done / total row */
+  $$("[data-ui~='home.desk'][data-sid]").forEach(c => {
+    assert(c.querySelector("[data-ui~='home.ring'][role='img']"), "a subject desk lost its completion ring");
+    assert(/Topics\s*\d+ \/ \d+/.test(c.textContent), "coverage was dropped rather than demoted to the subject desks");
+  });
 });
 
 step("the page leads with one decision, one reason and one primary action", () => {
@@ -536,15 +541,21 @@ step("the page leads with one decision, one reason and one primary action", () =
   const main = document.getElementById("main");
   const next = main.querySelector("[data-ui~='home.next']");
   assert(next, "no decision surface");
-  assert(main.children[1] === next, "the decision surface is not directly under the greeting");
+  /* Graphite (frame 7a): the hero and the routines/reminders pair sit
+     above; Up next leads the working column beneath them */
+  assert(next.parentElement.firstElementChild === next, "the decision surface does not lead its column");
   assert(next.querySelector("[data-ui~='home.next-kicker']").textContent.trim(), "the statement has no kicker");
   assert(next.querySelector("[data-ui~='home.next-label']").textContent.trim(), "the statement is empty");
   assert(next.querySelector("[data-ui~='home.next-why']").textContent.trim(), "the statement gives no reason");
-  /* exactly one primary button on the page: there is never a question about
-     where to press. The old focus CTA shared the greeting row with the h1. */
-  assert(main.querySelectorAll("button[data-intent~='primary']").length === 1,
-    "expected one primary action, found " + main.querySelectorAll("button[data-intent~='primary']").length);
-  assert(!main.querySelector("[data-ui~='home.hero'] button"), "the greeting row is competing with a CTA again");
+  /* at most one primary per surface: the daily goal's "Start focus" in the
+     hero (frame 7a) and Up next's own action — never a third, and never on
+     the greeting line itself */
+  const primaries = [...main.querySelectorAll("button[data-intent~='primary']")];
+  assert(primaries.length === 2, "expected the goal's and Up next's primaries, found " + primaries.length);
+  assert(primaries.filter(b => next.contains(b)).length === 1, "Up next does not carry exactly one primary");
+  assert(primaries.filter(b => b.closest("[data-ui~='home.hero'] [data-ui~='habit.panel']")).length === 1,
+    "the hero's primary is not the daily goal's");
+  assert(!main.querySelector("[data-ui~='home.hero'] h1 button"), "the greeting line is competing with a CTA again");
 });
 
 step("the decision surface picks the most perishable thing first", () => {
@@ -569,7 +580,7 @@ step("the decision surface picks the most perishable thing first", () => {
     last: "1999-12-31", views: 1, lapses: 0, lastRating: 2 };
   KOS.show("home");
   assert($("[data-ui~='home.next-kicker']").textContent === "Due today", "a due card did not take priority");
-  assert(/ready for review/.test($("[data-ui~='home.next-label']").textContent), "wrong statement: " + $("[data-ui~='home.next-label']").textContent);
+  assert($("[data-ui~='home.next-label']").textContent === "Review 1 due card", "wrong statement: " + $("[data-ui~='home.next-label']").textContent);
   $("[data-ui~='home.next-go']").click();
   assert(KOS.store.state.ui.view === "due", "the action did not reach the review queue");
 });
@@ -622,7 +633,7 @@ step("the Collection card is the same component as the subject cards", () => {
   assert(med, "no Collection card");
   assert(med.matches('[data-ui~="home.desk"]'), "it is not the subject-card component");
   /* the four things it lacked: a ring, a track, a meta line and a Continue */
-  assert(med.querySelector("[data-ui~='study.subject-card-top'] canvas[data-ui~='home.ring']"), "no completion ring");
+  assert(med.querySelector("[data-ui~='study.subject-card-top'] [data-ui~='home.ring'][role='img']"), "no completion ring");
   assert(med.querySelector("[data-ui~='media.bar'] [data-ui~='media.bar-fill']"), "no progress track");
   assert(med.querySelector("[data-ui~='part.meta']").textContent.trim(), "no meta line");
   /* Phase F strengthened the shared-card contract: the container may grow
@@ -648,23 +659,25 @@ step("Home does not open the media vault on its render pass", () => {
     "the card fetched its figures during render");
 });
 
-step("the seven pips say what they are (HOME-6)", () => {
+step("the week chart says what it is (HOME-6)", () => {
+  /* Graphite (frame 7a): the seven pips became the Study hours chart; the
+     contract carries over — seven dated days, announced as one image */
   KOS.show("home");
-  assert($("[data-ui~='home.week-l']").textContent === "Last 7 days", "the pip row is still unlabelled");
-  const dots = $$("[data-ui~='habit.week-dots'] i");
-  assert(dots.length === 7, "expected seven pips, got " + dots.length);
-  dots.forEach(d => assert(d.getAttribute("title"), "a pip carries no date"));
-  assert(/of the last 7 days/.test($("[data-ui~='habit.week-dots']").getAttribute("aria-label")),
-    "the row is not announced to assistive tech");
+  const chart = $("[data-ui~='home.week']");
+  assert(chart && chart.getAttribute("role") === "img", "the week chart is not one image");
+  assert(/^Study hours this week/.test(chart.getAttribute("aria-label")), "the chart is not announced to assistive tech");
+  const days = $$("[data-ui~='home.week-day']");
+  assert(days.length === 7, "expected seven days, got " + days.length);
+  days.forEach(d => assert(/^\d{4}-\d\d-\d\d$/.test(d.getAttribute("title")), "a day carries no date"));
 });
 
 step("the hero's text never depends on the banner artwork (HOME-2)", () => {
   /* the figures used to be bare text on the side the band's gradient
      deliberately leaves transparent — legibility was a property of whichever
      image the user had uploaded */
-  assert(/scrim === "full"/.test(fs.readFileSync(path.join(ROOT, "js/core/governor.js"), "utf8")),
-    "the full-band scrim was removed from applyBanner");
-  assert(/applyBanner\(band, \{ scrim: "full" \}\)/.test(hubSrc), "Home no longer asks for the full scrim");
+  assert(/scrim === "hero"/.test(fs.readFileSync(path.join(ROOT, "js/core/governor.js"), "utf8")),
+    "the hero scrim was removed from applyBanner");
+  assert(/applyBanner\(band, \{ scrim: "hero" \}\)/.test(hubSrc), "Home no longer asks for its scrim");
 });
 
 step("the status pill is a real control, not a decorative focus stop (HOME-7)", () => {

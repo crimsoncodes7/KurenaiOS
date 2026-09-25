@@ -412,8 +412,11 @@ step("worst() + recommended-next panel on home", () => {
   const w = KOS.rag.worst(null, 6);
   if (!w.some(t => t.sid === "maths" && t.ref === "2.3")) throw new Error("flagged topic missing from worst()");
   KOS.show("home");
-  if (!$("[data-ui~='rag.panel']")) throw new Error("no recommended-next panel");
-  if (!$$("[data-ui~='rag.item']").length) throw new Error("no flagged items");
+  /* Graphite (frame 7a): the struggling-topics panel became each desk's
+     "Weakest" row, read from the same KOS.rag.worst() */
+  const weakest = $$("[data-ui~='home.desk'][data-sid='maths'] [data-ui~='rag.item']");
+  if (!weakest.length) throw new Error("no weakest topic on the Maths desk");
+  if (weakest[0].textContent.indexOf(KOS.rag.worst("maths", 1)[0].ref) !== 0) throw new Error("the desk does not name worst()'s topic");
 });
 step("ref page carries the confidence picker + data verdict", () => {
   KOS.show("ref", { subject: "maths", ref: "2.3" });

@@ -196,6 +196,33 @@ color-scheme: dark;
 --icon-btn: 38px;
 --tabbar-h: 64px;
 
+/* ---------- Home (frame 7a) ---------- */
+--home-hero-h: 196px;
+--home-hero-bg: oklch(0.2 0.03 235);
+--home-hero-scrim: linear-gradient(90deg, oklch(0.2 0.035 235) 34%, oklch(0.2 0.035 235 / 0.55) 50%, oklch(0.18 0.02 235 / 0.15) 62%, oklch(0.17 0.02 235 / 0.85) 76%, oklch(0.17 0.02 235) 100%);
+--home-hero-ink: oklch(0.8 0.05 235);
+--home-goal-ink: oklch(0.82 0.04 200);
+--home-ring-track: oklch(0.32 0.03 235);
+--home-xp-track: oklch(0.3 0.02 235);
+--home-avatar-ring: 104px;
+--home-avatar: 94px;
+--home-goal-w: 250px;
+--home-xp-w: 200px;
+--home-next-w: 340px;
+--home-chart-h: 96px;
+--desk-ring: 46px;
+--desk-ring-hole: 38px;
+--desk-arrow: 32px;
+--desk-row-h: 34px;
+--day-dot: 36px;
+--row-bar-w: 70px;
+--check: 20px;
+--check-sm: 16px;
+--ring-1-5: 1.5px;
+--kv-k-w: 62px;
+--desk-k-w: 58px;
+--collection-hue: oklch(0.7 0.14 18);
+
 /* ---------- elevation (invariant 79) ----------
    Surfaces are flat; only floating layers (menus, dialogs, the share card)
    cast a shadow. Its ink is derived from the theme's own deepest tone. */

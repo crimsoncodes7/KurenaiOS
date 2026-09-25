@@ -780,6 +780,17 @@ step("class milestones stand in the Countdown rail and open the week; the dialog
 step("Home: the week's plan card ticks in place, leads with what is behind, and the next action says so", () => {
   const older = KOS.pacing.addEntry({ source: "personal", subject: "it", wb: "2026-10-12", title: "Home carry", refs: [] });
   const now = KOS.pacing.addEntry({ source: "personal", subject: "it", wb: "2026-11-02", title: "Home now", refs: [] });
+  /* Graphite (frame 7a): the card is a front page — five rows at most,
+     everything behind first, and the rest counted in its footer */
+  const full = KOS.pacingHomeCard();
+  const fullRows = full.querySelectorAll("[data-ui~='pace.home-row']");
+  const d0 = KOS.pacing.dueThisWeek();
+  assert(fullRows.length === Math.min(5, d0.carried.length + d0.rows.length), "the card is not capped at five rows");
+  if (d0.carried.length + d0.rows.length > 5) assert(/\d+ more this week/.test(full.textContent), "the rows past the cap are not counted");
+  /* the rest of this step reads the two rows it made, so the seed's own
+     personal rows step aside (restored below) */
+  const keepSeed = KOS.store.state.pacing.entries;
+  KOS.store.state.pacing.entries = keepSeed.filter(e => e.source === "school" || e.id === older.id || e.id === now.id);
   const card = KOS.pacingHomeCard();
   assert(card && card.matches('[data-ui~="pace.home"]'), "no Home card");
   const rows = [...card.querySelectorAll("[data-ui~='pace.home-row']")];
@@ -792,6 +803,7 @@ step("Home: the week's plan card ticks in place, leads with what is behind, and 
   tick.checked = true; tick.dispatchEvent(new window.Event("change", { bubbles: true }));
   assert(KOS.pacing.entryById(older.id).done === true, "the Home tick did not go through setDone");
   KOS.pacing.setDone(older.id, false);
+  KOS.store.state.pacing.entries = keepSeed;
   /* the next action — with no session, no due cards and nothing dated within a week */
   const keepEv = KOS.store.state.calendar.events; KOS.store.state.calendar.events = [];
   const keepAsg = KOS.store.state.assignments; KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
