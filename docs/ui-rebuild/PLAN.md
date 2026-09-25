@@ -419,6 +419,25 @@ the invariants and the hook contract still govern behaviour.
   the notes beneath). The topic tabs now fold by the width available, so
   with the inspector folded every tab shows (8i).
 
+### Step 3d as delivered — note blocks and the editor (frames 8j, 8k)
+
+- `js/core/content.js` (now a rebuilt file) renders all fourteen block
+  types to the design: paragraph and Markdown in one reading measure, h3
+  headings, custom bullets and numbers, key terms and tables as ruled
+  cards, code with a language/caption/Copy head, the eight callouts, step
+  by step as a numbered rail, the worked example as Given/Step rows with
+  its marks and an answer box, the diagram link as a card, figures with
+  captions. Every block carries its hook explicitly (`content.*`).
+- The syntax highlighter is rewritten as one tokenising pass per language
+  (Python, pseudocode, C#, SQL, JavaScript): comments, strings, numbers,
+  keywords, calls, self/this and operators, each token escaped; a block
+  with no language stays plain.
+- `js/modules/editor.js` (rebuilt) sits LEFT of the live preview while
+  editing: a header naming the topic and the kind with its fork state, the
+  page chips (numbered like the reader, "+ page"), block rows with a grip,
+  a type chip, the summary and hover tools, the open block's form, and
+  "Add a block" as a filtered grid of every type.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

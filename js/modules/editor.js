@@ -123,28 +123,28 @@
 
   /* ---------------- small form helpers ---------------- */
   function field(label, control, hint) {
-    return el("label", { class: "ed-field" }, [
-      el("span", { class: "ed-lbl", text: label }),
+    return el("label", { class: "k-ed-field" }, [
+      el("span", { class: "k-ed-lbl", text: label }),
       control,
-      hint ? el("span", { class: "ed-hint", text: hint }) : null
+      hint ? el("span", { class: "k-ed-hint", text: hint }) : null
     ]);
   }
   function area(value, rows, oninput, placeholder) {
-    var ta = el("textarea", { class: "ed-ta", rows: rows || 3, placeholder: placeholder || "", oninput: function () { oninput(ta.value); } });
+    var ta = el("textarea", { class: "k-ed-ta", rows: rows || 3, placeholder: placeholder || "", oninput: function () { oninput(ta.value); } });
     ta.value = value == null ? "" : String(value);
     /* grow with the text so a long paragraph is never edited through a slit */
-    var grow = function () { ta.style.height = "auto"; ta.style.height = Math.min(480, ta.scrollHeight + 2) + "px"; };
+    var grow = function () { ta.style.setProperty("--ed-h", "auto"); ta.style.setProperty("--ed-h", Math.min(480, ta.scrollHeight + 2) + "px"); };
     ta.addEventListener("input", grow);
     setTimeout(grow, 0);
     return ta;
   }
   function input(value, oninput, placeholder, type) {
-    var i = el("input", { class: "ed-in", type: type || "text", placeholder: placeholder || "", oninput: function () { oninput(i.value); } });
+    var i = el("input", { class: "k-ed-in", type: type || "text", placeholder: placeholder || "", oninput: function () { oninput(i.value); } });
     i.value = value == null ? "" : String(value);
     return i;
   }
   function select(value, options, onchange) {
-    var s = el("select", { class: "ed-sel", onchange: function () { onchange(s.value); } },
+    var s = el("select", { class: "k-ed-sel", onchange: function () { onchange(s.value); } },
       options.map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
     s.value = value;
     return s;
@@ -152,7 +152,7 @@
   function lines(arr) { return (arr || []).join("\n"); }
   function splitLines(v) { return String(v).split("\n").map(function (x) { return x.replace(/\s+$/, ""); }).filter(function (x) { return x.trim(); }); }
   function iconBtn(label, glyph, onclick, cls) {
-    return el("button", { class: "ed-ib" + (cls ? " " + cls : ""), type: "button", "aria-label": label, title: label, onclick: onclick }, [glyph]);
+    return el("button", { class: "k-ed-ib", type: "button", "data-intent": cls === "danger" ? "danger" : null, "aria-label": label, title: label, onclick: onclick }, [glyph]);
   }
 
   var HELP = [
@@ -163,7 +163,7 @@
     ["```lang … ```", "fenced code (Markdown block)"], ["| a | b |", "pipe table (Markdown block)"], ["> quote", "block quote (Markdown block)"]
   ];
   function helpPanel() {
-    var d = el("details", { class: "ed-help" }, [
+    var d = el("details", { class: "k-ed-help" }, [
       el("summary", { text: "Formatting" }),
       el("dl", {}, HELP.reduce(function (acc, h) {
         acc.push(el("dt", {}, [el("code", { text: h[0] })]));
@@ -180,7 +180,7 @@
      added) so the form and the row summary redraw. */
   function blockForm(b, commit, rebuild) {
     var t = typeOf(b);
-    var f = el("div", { class: "ed-form" });
+    var f = el("div", { class: "k-ed-form" });
     if (t === "p") f.appendChild(field("Text", area(b.p, 3, function (v) { b.p = v; commit(); }, "Paragraph text — inline markup and $maths$ allowed")));
     else if (t === "md") f.appendChild(field("Markdown", area(b.md, 8, function (v) { b.md = v; commit(); }, "# Heading\n\nText with **bold**, lists, fences, tables…")));
     else if (t === "h") f.appendChild(field("Heading", input(b.h, function (v) { b.h = v; commit(); })));
@@ -218,11 +218,11 @@
         f.appendChild(field("Tag", select(b.worked.tag || "example", [["example", "Worked example"], ["exam", "Exam-style"], ["variation", "Variation"], ["check", "Check"]], function (v) { b.worked.tag = v; commit(); })));
         f.appendChild(field("Title", input(b.worked.title, function (v) { b.worked.title = v; commit(); })));
       }
-      var list = el("div", { class: "ed-steps" });
+      var list = el("div", { class: "k-ed-steps" });
       stepsArr.forEach(function (st, i) {
         if (typeof st === "string") stepsArr[i] = st = { h: "", m: "", n: st };
-        list.appendChild(el("div", { class: "ed-step" }, [
-          el("div", { class: "ed-step-h" }, [
+        list.appendChild(el("div", { class: "k-ed-step" }, [
+          el("div", { class: "k-ed-step-h" }, [
             el("b", { text: "Step " + (i + 1) }),
             iconBtn("Move step up", "▲", function () { if (i > 0) { stepsArr.splice(i - 1, 0, stepsArr.splice(i, 1)[0]); commit(); rebuild(); } }),
             iconBtn("Move step down", "▼", function () { if (i < stepsArr.length - 1) { stepsArr.splice(i + 1, 0, stepsArr.splice(i, 1)[0]); commit(); rebuild(); } }),
@@ -234,7 +234,7 @@
         ]));
       });
       f.appendChild(list);
-      f.appendChild(el("button", { class: "btn ed-add-step", type: "button", text: "+ Add step", onclick: function () { stepsArr.push({ h: "", m: "", n: "" }); commit(); rebuild(); } }));
+      f.appendChild(el("button", { class: "k-btn k-ed-add-step", type: "button", text: "+ Add step", onclick: function () { stepsArr.push({ h: "", m: "", n: "" }); commit(); rebuild(); } }));
       if (t === "worked") f.appendChild(field("Answer", input(b.worked.result, function (v) { b.worked.result = v; commit(); })));
     }
     else if (t === "diagram") {
@@ -260,8 +260,8 @@
      and re-renders the page; hint.id names the block to show. */
   function blockList(blocks, onSave, opts) {
     opts = opts || {};
-    var wrap = el("div", { class: "ed-blocks" });
-    var list = el("div", { class: "ed-list", role: "list" });
+    var wrap = el("div", { class: "k-ed-blocks" });
+    var list = el("div", { class: "k-ed-list", role: "list" });
     var selected = null;
     var saveTimer = null;
     function commit(id) {
@@ -272,33 +272,48 @@
 
     function row(b, i) {
       var isPage = typeOf(b) === "page";
-      var r = el("div", { class: "ed-block" + (isPage ? " ed-page" : "") + (b.id === selected ? " sel" : ""), role: "listitem", "data-bid": b.id });
-      var head = el("button", { class: "ed-block-h", type: "button", "aria-expanded": String(b.id === selected), onclick: function () {
+      var r = el("div", { class: "k-ed-block", "data-ui": "editor.block", "data-kind": isPage ? "page" : typeOf(b), "data-state": b.id === selected ? "sel" : null, role: "listitem", "data-bid": b.id });
+      var head = el("button", { class: "k-ed-block-h", "data-ui": "editor.block-h", type: "button", "aria-expanded": String(b.id === selected), onclick: function () {
         selected = b.id === selected ? null : b.id;
         redraw();
         if (selected) onSave({ id: selected, focusOnly: true });
       } }, [
-        el("span", { class: "ed-type", text: isPage ? "Page" : typeLabel(b) }),
-        el("span", { class: "ed-sum", text: summary(b) || "(empty)" })
+        el("span", { class: "k-ed-grip", "aria-hidden": "true", text: "⠿" }),
+        el("span", { class: "k-ed-type", text: isPage ? "Page" : typeLabel(b) }),
+        el("span", { class: "k-ed-sum", text: summary(b) || "(empty)" })
       ]);
-      var tools = el("div", { class: "ed-tools" }, [
+      var tools = el("div", { class: "k-ed-tools" }, [
         iconBtn("Move up", "▲", function () { if (i > 0) { blocks.splice(i - 1, 0, blocks.splice(i, 1)[0]); commitNow(b.id); redraw(); } }),
         iconBtn("Move down", "▼", function () { if (i < blocks.length - 1) { blocks.splice(i + 1, 0, blocks.splice(i, 1)[0]); commitNow(b.id); redraw(); } }),
         iconBtn("Duplicate", "⧉", function () { var c = JSON.parse(JSON.stringify(b)); c.id = KOS.edits.nextId(); blocks.splice(i + 1, 0, c); selected = c.id; commitNow(c.id); redraw(); }),
         iconBtn("Remove", "✕", function () { blocks.splice(i, 1); if (selected === b.id) selected = null; commitNow(); redraw(); }, "danger")
       ]);
-      r.appendChild(el("div", { class: "ed-block-row" }, [head, tools]));
+      r.appendChild(el("div", { class: "k-ed-block-row" }, [head, tools]));
       if (b.id === selected) {
         r.appendChild(blockForm(b, function () { commit(b.id); }, redraw));
         r.appendChild(addMenu(i + 1, "Add block after"));
       }
       return r;
     }
+    /* "Add a block" (frame 8k): every type the renderer knows, with a
+       filter for when you know its name */
     function addMenu(at, label) {
-      var d = el("details", { class: "ed-addmenu" });
-      d.appendChild(el("summary", { text: "+ " + (label || "Add block") }));
-      d.appendChild(el("div", { class: "ed-addgrid" }, TYPES.map(function (T) {
-        return el("button", { class: "ed-addbtn", type: "button", title: T.hint, onclick: function () {
+      var d = el("details", { class: "k-ed-addmenu", "data-ui": "editor.addmenu" });
+      d.appendChild(el("summary", { class: "k-ed-addsum", text: "+ " + (label || "Add block") }));
+      var grid = el("div", { class: "k-ed-addgrid" });
+      var q = el("input", { type: "search", class: "k-ed-addfilter", "aria-label": "Filter block types", placeholder: "type to filter" });
+      q.addEventListener("input", function () {
+        var v = q.value.trim().toLowerCase();
+        grid.querySelectorAll("[data-ui~='editor.add']").forEach(function (b) { b.hidden = !!v && b.textContent.toLowerCase().indexOf(v) === -1; });
+      });
+      q.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter") return;
+        var first = [].filter.call(grid.querySelectorAll("[data-ui~='editor.add']"), function (b) { return !b.hidden; })[0];
+        if (first) { e.preventDefault(); first.click(); }
+      });
+      d.appendChild(el("div", { class: "k-ed-addhead" }, [el("b", { text: "Add a block" }), q]));
+      TYPES.forEach(function (T) {
+        grid.appendChild(el("button", { class: "k-ed-addbtn", "data-ui": "editor.add", type: "button", title: T.hint, onclick: function () {
           var nb = fresh(T.t); nb.id = KOS.edits.nextId();
           /* the end-of-list menu is built once, so it asks where the end
              is now rather than where it was */
@@ -307,17 +322,41 @@
           commitNow(nb.id); redraw();
           var ta = list.querySelector('[data-ui~="editor.block"][data-state~="sel"] textarea, [data-ui~="editor.block"][data-state~="sel"] input, [data-ui~="editor.block"][data-state~="sel"] select');
           if (ta) ta.focus();
-        } }, [T.label]);
-      })));
+        } }, [T.label]));
+      });
+      d.appendChild(grid);
+      d.addEventListener("toggle", function () { if (d.open) q.focus(); });
       return d;
     }
+    /* the page chips: where each named page starts, one press to it */
+    var pages = el("div", { class: "k-ed-pages", "aria-label": "Pages" });
+    function paintPages() {
+      pages.innerHTML = "";
+      var marks = blocks.filter(function (b) { return typeOf(b) === "page"; });
+      if (!marks.length && !opts.pages) { pages.hidden = true; return; }
+      pages.hidden = false;
+      pages.appendChild(el("span", { class: "k-kicker", text: "Page" }));
+      /* blocks before the first page break are the reader's "Overview" page */
+      var lead = blocks.length && typeOf(blocks[0]) !== "page" ? blocks[0] : null;
+      if (lead) pages.appendChild(el("button", { type: "button", class: "k-ed-pagechip", "aria-pressed": String(lead.id === selected),
+        text: "1 · Overview", onclick: function () { selected = lead.id; redraw(); onSave({ id: lead.id, focusOnly: true }); } }));
+      marks.forEach(function (b, i) {
+        pages.appendChild(el("button", { type: "button", class: "k-ed-pagechip", "aria-pressed": String(b.id === selected),
+          text: (i + (lead ? 2 : 1)) + " · " + (b.page || "Untitled"), onclick: function () { selected = b.id; redraw(); onSave({ id: b.id, focusOnly: true }); } }));
+      });
+      pages.appendChild(el("button", { type: "button", class: "k-link", text: "+ page", onclick: function () {
+        var nb = fresh("page"); nb.id = KOS.edits.nextId(); blocks.push(nb); selected = nb.id; commitNow(nb.id); redraw();
+      } }));
+    }
     function redraw() {
+      paintPages();
       list.innerHTML = "";
-      if (!blocks.length) list.appendChild(el("p", { class: "ed-empty", text: opts.emptyText || "Nothing here yet — add the first block." }));
+      if (!blocks.length) list.appendChild(el("p", { class: "k-ed-empty", text: opts.emptyText || "Nothing here yet — add the first block." }));
       blocks.forEach(function (b, i) { list.appendChild(row(b, i)); });
       var sel = list.querySelector("[data-ui~='editor.block'][data-state~='sel']");
       if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: "nearest" });
     }
+    wrap.appendChild(pages);
     wrap.appendChild(list);
     wrap.appendChild(addMenu(function () { return blocks.length; }, "Add block at the end"));
     redraw();
@@ -326,7 +365,7 @@
 
   /* ---------------- row editors: flashcards / quiz / exam ---------------- */
   function rowTools(arr, i, commit, redraw, extra) {
-    return el("div", { class: "ed-tools" }, [
+    return el("div", { class: "k-ed-tools" }, [
       iconBtn("Move up", "▲", function () { if (i > 0) { arr.splice(i - 1, 0, arr.splice(i, 1)[0]); commit(); redraw(); } }),
       iconBtn("Move down", "▼", function () { if (i < arr.length - 1) { arr.splice(i + 1, 0, arr.splice(i, 1)[0]); commit(); redraw(); } }),
       iconBtn("Remove", "✕", function () {
@@ -339,20 +378,20 @@
 
   function flashcardEditor(sid, ref, onSave) {
     var cards = KOS.edits.material(sid, ref, "flashcards");
-    var wrap = el("div", { class: "ed-rows" });
-    var list = el("div", { class: "ed-list" });
+    var wrap = el("div", { class: "k-ed-rows" });
+    var list = el("div", { class: "k-ed-list" });
     var timer = null;
     function commit() { clearTimeout(timer); timer = setTimeout(save, 250); }
     function save() { clearTimeout(timer); KOS.edits.set(sid, ref, "flashcards", cards); onSave(); }
     function redraw() {
       list.innerHTML = "";
-      if (!cards.length) list.appendChild(el("p", { class: "ed-empty", text: "No curriculum cards on this topic yet — add one." }));
+      if (!cards.length) list.appendChild(el("p", { class: "k-ed-empty", text: "No curriculum cards on this topic yet — add one." }));
       cards.forEach(function (c, i) {
         var m = KOS.srs.peek(c.k);
-        list.appendChild(el("div", { class: "ed-row" }, [
-          el("div", { class: "ed-row-h" }, [
+        list.appendChild(el("div", { class: "k-ed-row", "data-ui": "editor.row" }, [
+          el("div", { class: "k-ed-row-h" }, [
             el("b", { text: "Card " + (i + 1) }),
-            el("span", { class: "ed-meta", text: m && m.views ? m.views + " review" + (m.views === 1 ? "" : "s") + " · due " + (m.due || "—") : "new" }),
+            el("span", { class: "k-ed-meta", text: m && m.views ? m.views + " review" + (m.views === 1 ? "" : "s") + " · due " + (m.due || "—") : "new" }),
             rowTools(cards, i, save, redraw, { removeBody: "The card and its review history leave this deck." })
           ]),
           area(c.q, 2, function (v) { c.q = v; commit(); }, "Question"),
@@ -362,12 +401,12 @@
       /* the older custom layer, still editable here so the deck has one editor */
       var custom = KOS.srs.cardsFor(sid, ref).filter(function (c) { return c.custom; });
       if (custom.length) {
-        list.appendChild(el("h5", { class: "ed-sub", text: "Your custom cards" }));
+        list.appendChild(el("h5", { class: "k-ed-sub", text: "Your custom cards" }));
         custom.forEach(function (c) {
           var q = c.q, a = c.a, t2 = null;
           function saveCustom() { clearTimeout(t2); t2 = setTimeout(function () { KOS.srs.updateCustom(c.id, q, a); onSave(); }, 250); }
-          list.appendChild(el("div", { class: "ed-row custom", "data-kind": "custom" }, [
-            el("div", { class: "ed-row-h" }, [
+          list.appendChild(el("div", { class: "k-ed-row", "data-ui": "editor.row", "data-state": "custom", "data-kind": "custom" }, [
+            el("div", { class: "k-ed-row-h" }, [
               el("b", { text: c.ai ? "AI · Custom" : "Custom" }),
               iconBtn("Delete custom card", "✕", function () {
                 KOS.ui.confirm({ title: "Delete this card?", body: "The card and its review history go with it.", danger: true, confirm: "Delete" }, function () {
@@ -382,7 +421,7 @@
       }
     }
     wrap.appendChild(list);
-    wrap.appendChild(el("button", { class: "btn primary ed-add", type: "button", text: "+ Add card", onclick: function () {
+    wrap.appendChild(el("button", { class: "k-btn k-btn--primary k-ed-add", "data-intent": "primary", type: "button", text: "+ Add card", onclick: function () {
       cards.push({ q: "", a: "" }); save(); cards = KOS.edits.material(sid, ref, "flashcards"); redraw();
       var last = list.querySelectorAll("[data-ui~='editor.row']:not([data-kind='custom']) textarea"); if (last.length) last[last.length - 2].focus();
     } }));
@@ -392,17 +431,17 @@
 
   function quizEditor(sid, ref, onSave) {
     var items = KOS.edits.material(sid, ref, "quiz");
-    var wrap = el("div", { class: "ed-rows" });
-    var list = el("div", { class: "ed-list" });
+    var wrap = el("div", { class: "k-ed-rows" });
+    var list = el("div", { class: "k-ed-list" });
     var timer = null;
     function commit() { clearTimeout(timer); timer = setTimeout(save, 250); }
     function save() { clearTimeout(timer); KOS.edits.set(sid, ref, "quiz", items); onSave(); }
     function optionRows(it, redrawItem) {
-      var box = el("div", { class: "ed-opts" });
+      var box = el("div", { class: "k-ed-opts" });
       it.opts.forEach(function (o, oi) {
         var radio = el("input", { type: "radio", name: "ed-ans-" + it.id, "aria-label": "Correct answer", onchange: function () { it.ans = oi; commit(); } });
         radio.checked = it.ans === oi;
-        box.appendChild(el("div", { class: "ed-opt" + (it.ans === oi ? " right" : "") }, [
+        box.appendChild(el("div", { class: "k-ed-opt", "data-state": it.ans === oi ? "right" : null }, [
           radio,
           input(o, function (v) { it.opts[oi] = v; commit(); }, "Option " + (oi + 1)),
           iconBtn("Remove option", "✕", function () {
@@ -411,22 +450,22 @@
           }, "danger")
         ]));
       });
-      if (it.opts.length < 6) box.appendChild(el("button", { class: "btn ed-add-step", type: "button", text: "+ Option", onclick: function () { it.opts.push(""); commit(); redrawItem(); } }));
+      if (it.opts.length < 6) box.appendChild(el("button", { class: "k-btn k-ed-add-step", type: "button", text: "+ Option", onclick: function () { it.opts.push(""); commit(); redrawItem(); } }));
       return box;
     }
     function redraw() {
       list.innerHTML = "";
-      if (!items.length) list.appendChild(el("p", { class: "ed-empty", text: "No quiz questions on this topic yet — add one." }));
+      if (!items.length) list.appendChild(el("p", { class: "k-ed-empty", text: "No quiz questions on this topic yet — add one." }));
       items.forEach(function (it, i) {
         if (!Array.isArray(it.opts)) it.opts = ["", ""];
         if (typeof it.ans !== "number") it.ans = 0;
-        var r = el("div", { class: "ed-row" });
+        var r = el("div", { class: "k-ed-row", "data-ui": "editor.row" });
         function redrawItem() { var n = el("div"); r.replaceWith(n); n.replaceWith(build()); }
         function build() {
-          r = el("div", { class: "ed-row" }, [
-            el("div", { class: "ed-row-h" }, [el("b", { text: "Q" + (i + 1) }), rowTools(items, i, save, redraw)]),
+          r = el("div", { class: "k-ed-row", "data-ui": "editor.row" }, [
+            el("div", { class: "k-ed-row-h" }, [el("b", { text: "Q" + (i + 1) }), rowTools(items, i, save, redraw)]),
             area(it.q, 2, function (v) { it.q = v; commit(); }, "Question"),
-            el("div", { class: "ed-lbl", text: "Options — tick the correct one" }),
+            el("div", { class: "k-ed-lbl", text: "Options — tick the correct one" }),
             optionRows(it, redrawItem),
             area(it.why, 2, function (v) { it.why = v; commit(); }, "Explanation shown after answering")
           ]);
@@ -436,14 +475,14 @@
       });
       var custom = KOS.srs.customQuizFor(sid, ref);
       if (custom.length) {
-        list.appendChild(el("h5", { class: "ed-sub", text: "Your custom questions" }));
+        list.appendChild(el("h5", { class: "k-ed-sub", text: "Your custom questions" }));
         custom.forEach(function (cq) {
           var patch = { q: cq.q, opts: cq.opts.slice(), ans: cq.ans, why: cq.why }, t2 = null;
           function saveCustom() { clearTimeout(t2); t2 = setTimeout(function () { var r2 = KOS.srs.updateCustomQuiz(cq.id, patch); if (r2 && r2.error) KOS.ui.toast(r2.error, true); else onSave(); }, 300); }
-          var box = el("div", { class: "ed-row custom" });
+          var box = el("div", { class: "k-ed-row", "data-ui": "editor.row", "data-state": "custom" });
           function paint() {
             box.innerHTML = "";
-            box.appendChild(el("div", { class: "ed-row-h" }, [
+            box.appendChild(el("div", { class: "k-ed-row-h" }, [
               el("b", { text: cq.ai ? "AI · Custom" : "Custom" }),
               iconBtn("Delete custom question", "✕", function () { KOS.srs.deleteCustomQuiz(cq.id); onSave(); redraw(); }, "danger")
             ]));
@@ -451,7 +490,7 @@
             patch.opts.forEach(function (o, oi) {
               var radio = el("input", { type: "radio", name: "ed-cans-" + cq.id, onchange: function () { patch.ans = oi; saveCustom(); } });
               radio.checked = patch.ans === oi;
-              box.appendChild(el("div", { class: "ed-opt" }, [radio, input(o, function (v) { patch.opts[oi] = v; saveCustom(); })]));
+              box.appendChild(el("div", { class: "k-ed-opt" }, [radio, input(o, function (v) { patch.opts[oi] = v; saveCustom(); })]));
             });
             box.appendChild(area(patch.why, 2, function (v) { patch.why = v; saveCustom(); }, "Explanation"));
           }
@@ -461,7 +500,7 @@
       }
     }
     wrap.appendChild(list);
-    wrap.appendChild(el("button", { class: "btn primary ed-add", type: "button", text: "+ Add question", onclick: function () {
+    wrap.appendChild(el("button", { class: "k-btn k-btn--primary k-ed-add", "data-intent": "primary", type: "button", text: "+ Add question", onclick: function () {
       items.push({ q: "", opts: ["", ""], ans: 0, why: "" }); save(); items = KOS.edits.material(sid, ref, "quiz"); redraw();
     } }));
     redraw();
@@ -470,8 +509,8 @@
 
   function examEditor(sid, ref, onSave) {
     var items = KOS.edits.material(sid, ref, "exam");
-    var wrap = el("div", { class: "ed-rows" });
-    var list = el("div", { class: "ed-list" });
+    var wrap = el("div", { class: "k-ed-rows" });
+    var list = el("div", { class: "k-ed-list" });
     var timer = null;
     /* the engine reads {q, marks, ms} or {ctx, parts:[{q, marks, ms}]};
        the editor always works on parts and flattens a lone part on save */
@@ -494,16 +533,16 @@
     function save() { clearTimeout(timer); KOS.edits.set(sid, ref, "exam", flatten()); onSave(); }
     function redraw() {
       list.innerHTML = "";
-      if (!items.length) list.appendChild(el("p", { class: "ed-empty", text: "No exam questions on this topic yet — add one." }));
+      if (!items.length) list.appendChild(el("p", { class: "k-ed-empty", text: "No exam questions on this topic yet — add one." }));
       items.forEach(function (it, i) {
         var parts = partsOf(it);
-        var r = el("div", { class: "ed-row" });
-        r.appendChild(el("div", { class: "ed-row-h" }, [el("b", { text: "Question " + (i + 1) }), rowTools(items, i, save, redraw)]));
+        var r = el("div", { class: "k-ed-row", "data-ui": "editor.row" });
+        r.appendChild(el("div", { class: "k-ed-row-h" }, [el("b", { text: "Question " + (i + 1) }), rowTools(items, i, save, redraw)]));
         r.appendChild(area(it.ctx, 2, function (v) { it.ctx = v; commit(); }, "Shared stem / context (optional for a multi-part question)"));
-        var pl = el("div", { class: "ed-steps" });
+        var pl = el("div", { class: "k-ed-steps" });
         parts.forEach(function (p, pi) {
-          pl.appendChild(el("div", { class: "ed-step" }, [
-            el("div", { class: "ed-step-h" }, [
+          pl.appendChild(el("div", { class: "k-ed-step" }, [
+            el("div", { class: "k-ed-step-h" }, [
               el("b", { text: parts.length > 1 ? "Part (" + String.fromCharCode(97 + pi) + ")" : "The question" }),
               parts.length > 1 ? iconBtn("Remove part", "✕", function () { parts.splice(pi, 1); commit(); redraw(); }, "danger") : null
             ]),
@@ -513,8 +552,8 @@
           ]));
         });
         r.appendChild(pl);
-        r.appendChild(el("div", { class: "ed-inline" }, [
-          el("button", { class: "btn ed-add-step", type: "button", text: "+ Add part", onclick: function () { parts.push({ q: "", marks: 1, ms: [] }); commit(); redraw(); } }),
+        r.appendChild(el("div", { class: "k-ed-inline" }, [
+          el("button", { class: "k-btn k-ed-add-step", type: "button", text: "+ Add part", onclick: function () { parts.push({ q: "", marks: 1, ms: [] }); commit(); redraw(); } }),
           field("Source", input(it.src, function (v) { it.src = v; commit(); }, "e.g. AQA 2023 Paper 1 Q4")),
           field("Level", select(it.level || "", [["", "A-level"], ["AS", "AS only"]], function (v) { it.level = v; commit(); }))
         ]));
@@ -522,7 +561,7 @@
       });
     }
     wrap.appendChild(list);
-    wrap.appendChild(el("button", { class: "btn primary ed-add", type: "button", text: "+ Add question", onclick: function () {
+    wrap.appendChild(el("button", { class: "k-btn k-btn--primary k-ed-add", "data-intent": "primary", type: "button", text: "+ Add question", onclick: function () {
       items.push({ q: "", marks: 2, ms: [] }); save(); items = KOS.edits.material(sid, ref, "exam"); redraw();
     } }));
     redraw();
@@ -534,10 +573,12 @@
     var sid = opts.sid, ref = opts.ref, kind = opts.kind || "notes";
     var onChange = opts.onChange || function () {};
     host.innerHTML = "";
-    var aside = el("aside", { class: "study-editor", "aria-label": "Study editor" });
-    var title = el("b", { class: "ed-title" });
-    var state = el("span", { class: "ed-state" });
-    var resetBtn = el("button", { class: "btn ed-reset", type: "button", text: "Reset to curriculum", onclick: function () {
+    var aside = el("aside", { class: "k-ed", "data-ui": "editor.root", "aria-label": "Study editor" });
+    var leaf = KOS.hub && KOS.hub.BYREF[sid] && KOS.hub.BYREF[sid][ref];
+    var where = el("span", { class: "k-ed-where", text: (leaf ? leaf.title + " · " : "") + ref });
+    var title = el("h2", { class: "k-ed-title", "data-ui": "editor.title" });
+    var state = el("span", { class: "k-ed-state" });
+    var resetBtn = el("button", { class: "k-btn k-ed-reset", "data-ui": "editor.reset", type: "button", text: "Reset to curriculum", onclick: function () {
       KOS.ui.confirm({ title: "Reset " + KIND_LABEL[kind] + " to the curriculum?", body: "Every edit you made to this tab on this topic is discarded and the shipped material comes back. Other tabs are untouched.", danger: true, confirm: "Reset" }, function () {
         KOS.edits.reset(sid, ref, kind);
         KOS.ui.toast(KIND_LABEL[kind] + " reset to the curriculum.");
@@ -545,9 +586,9 @@
         render();
       });
     } });
-    var closeBtn = el("button", { class: "btn primary ed-done", type: "button", text: "Done", onclick: function () { opts.onClose && opts.onClose(); } });
-    var head = el("div", { class: "ed-head" }, [el("div", { class: "ed-head-l" }, [title, state]), closeBtn]);
-    var body = el("div", { class: "ed-body" });
+    var closeBtn = el("button", { class: "k-btn k-btn--primary k-ed-done", "data-ui": "editor.done", "data-intent": "primary", type: "button", text: "Done", onclick: function () { opts.onClose && opts.onClose(); } });
+    var head = el("div", { class: "k-ed-head" }, [el("div", { class: "k-ed-head-l" }, [where, el("div", { class: "k-ed-titlerow" }, [title, state])]), closeBtn]);
+    var body = el("div", { class: "k-ed-body" });
     aside.appendChild(head);
     aside.appendChild(body);
     host.appendChild(aside);
@@ -555,16 +596,16 @@
 
     function paintState() {
       var forked = KOS.edits.has(sid, ref, kind);
-      state.textContent = forked ? "Edited · saved on this device and your account" : "Curriculum version — edits fork it for this topic";
-      KOS.ui.setClass(state, "ed-state" + (forked ? " on" : ""));
+      state.textContent = forked ? "Edited · saves as you type" : "Curriculum version · edits fork it";
+      KOS.ui.state(state, "on", forked);
       resetBtn.hidden = !forked;
     }
     function render() {
-      title.textContent = "Editing · " + KIND_LABEL[kind];
+      title.textContent = "Editing " + KIND_LABEL[kind];
       body.innerHTML = "";
       current = null;
       paintState();
-      var bar = el("div", { class: "ed-bar" }, [helpPanel(), resetBtn]);
+      var bar = el("div", { class: "k-ed-bar" }, [helpPanel(), resetBtn]);
       body.appendChild(bar);
       function saved(kind2, hint) { paintState(); onChange(kind2, hint || {}); }
       if (kind === "notes") {
@@ -577,10 +618,10 @@
       } else if (kind === "spec") {
         var spec = KOS.edits.material(sid, ref, "spec");
         var save = function (hint) { if (!hint.focusOnly) KOS.edits.set(sid, ref, "spec", spec); saved("spec", hint); };
-        body.appendChild(el("h5", { class: "ed-sub", text: "Specification content" }));
+        body.appendChild(el("h5", { class: "k-ed-sub", text: "Specification content" }));
         var a = blockList(spec.content, save, { emptyText: "No content — add a block." });
         body.appendChild(a.node);
-        body.appendChild(el("h5", { class: "ed-sub", text: "Guidance / examiner notes" }));
+        body.appendChild(el("h5", { class: "k-ed-sub", text: "Guidance / examiner notes" }));
         var b = blockList(spec.info, save, { emptyText: "No guidance — add a block." });
         body.appendChild(b.node);
         current = { select: function (id) { a.select(id); b.select(id); } };

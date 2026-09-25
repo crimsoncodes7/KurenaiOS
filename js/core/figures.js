@@ -307,7 +307,7 @@
       (clipped.length ? '<g clip-path="url(#' + id + 'c)">' + clipped.join("") + "</g>" : "") + free.join("");
     var alt = spec.alt || spec.cap || "diagram";
     var svg = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(alt) + '" style="width:100%;max-width:' + W + 'px;height:auto;display:block;margin:0 auto;overflow:visible">' + body + "</svg>";
-    return '<figure class="n-fig">' + svg + (spec.cap ? "<figcaption>" + (window.KOS.content ? KOS.content.inline(spec.cap) : esc(spec.cap)) + "</figcaption>" : "") + "</figure>";
+    return '<figure class="k-n-fig">' + svg + (spec.cap ? "<figcaption>" + (window.KOS.content ? KOS.content.inline(spec.cap) : esc(spec.cap)) + "</figcaption>" : "") + "</figure>";
   }
 
   KOS.figures = { render: render, compile: compile };

@@ -94,9 +94,10 @@ step("shipped notes come back as id-bearing blocks, strings as {p}, ids determin
 step("the renderer treats {p} and an id like the shipped forms, wrapping id-bearing blocks", () => {
   const html1 = KOS.content.renderBlocks(["plain", { h: "H" }]);
   const html2 = KOS.content.renderBlocks([{ p: "plain", id: "x1" }, { h: "H", id: "x2" }]);
-  assert(html1 === "<p>plain</p><h4 class=\"n-h\">H</h4>", "baseline render changed: " + html1);
-  assert(/<div class="n-blk" data-bid="x1"><p>plain<\/p><\/div>/.test(html2), "the {p} block did not render wrapped: " + html2);
-  assert(/data-bid="x2"><h4/.test(html2), "the heading did not render wrapped");
+  /* Graphite (frame 8j): a heading is an h3; the wrapper carries its hook */
+  assert(html1 === "<p>plain</p><h3 class=\"k-n-h\">H</h3>", "baseline render changed: " + html1);
+  assert(/<div class="k-blk" data-ui="topic.note-block" data-bid="x1"><p>plain<\/p><\/div>/.test(html2), "the {p} block did not render wrapped: " + html2);
+  assert(/data-bid="x2"><h3/.test(html2), "the heading did not render wrapped");
 });
 
 /* ============ 2 · set / reset / effective ============ */
@@ -207,18 +208,18 @@ step("the Markdown renderer covers the block vocabulary and stays safe", () => {
     "<script>alert(1)</script>", "", "[ok](https://example.com) [bad](javascript:alert(1))", "", "$$", "x_1 + x_2", "$$"
   ].join("\n");
   const out = KOS.content.markdown(md);
-  assert(/<h3 class="n-h n-h1">Title<\/h3>/.test(out), "heading missing: " + out.slice(0, 80));
+  assert(/<h3 class="k-n-h" data-level="1">Title<\/h3>/.test(out), "heading missing: " + out.slice(0, 80));
   assert(/<strong>bold<\/strong>/.test(out) && /<code>code<\/code>/.test(out), "inline markup missing");
   assert(out.indexOf("$a*b$") !== -1 && out.indexOf("<em>") === -1, "maths was mangled by the emphasis rule");
-  assert(/<ul><li>one<\/li><li class="n-task done">/.test(out), "lists / tasks missing");
+  assert(/<ul><li>one<\/li><li class="k-n-task" data-state="done">/.test(out), "lists / tasks missing");
   assert(/<ol><li>first<\/li><li>second<\/li><\/ol>/.test(out), "ordered list missing");
-  assert(/<table class="n-table"><thead><tr><th>h1<\/th>/.test(out), "table missing");
-  assert(/<blockquote class="n-quote"><p>quoted<\/p><\/blockquote>/.test(out), "quote missing");
-  assert(/<figure class="n-code">/.test(out) && /<span class="k">IF<\/span>/.test(out), "fenced code not highlighted");
+  assert(/<table class="k-n-table" data-ui="content.table"><thead><tr><th>h1<\/th>/.test(out), "table missing");
+  assert(/<blockquote class="k-n-quote"><p>quoted<\/p><\/blockquote>/.test(out), "quote missing");
+  assert(/<figure class="k-n-code" data-ui="content.code">/.test(out) && /<span class="k-t" data-t="kw">IF<\/span>/.test(out), "fenced code not highlighted");
   assert(out.indexOf("<script>") === -1 && out.indexOf("&lt;script&gt;") !== -1, "raw HTML was not escaped");
   assert(/<a href="https:\/\/example.com\/" target="_blank" rel="noopener">ok<\/a>/.test(out), "the safe link was not linked: " + out);
   assert(out.indexOf("javascript:") === -1 || out.indexOf('href="javascript:') === -1, "a javascript: link was emitted");
-  assert(/<p class="n-math">\$\$x_1 \+ x_2\$\$<\/p>/.test(out), "display maths block missing");
+  assert(/<p class="k-n-math">\$\$x_1 \+ x_2\$\$<\/p>/.test(out), "display maths block missing");
   /* a typed new line is a line break — five equations on five lines stay
      five lines; a blank line still starts a new paragraph */
   const lines = KOS.content.markdown("$v = u + at$;\n$s = ut + \\frac{1}{2}at^2$;\n\nnext para");

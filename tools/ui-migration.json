@@ -17,7 +17,9 @@
     "css/themes.css",
     "js/engines/flashcards.js",
     "js/engines/quiz.js",
-    "js/modules/attachments.js"
+    "js/modules/attachments.js",
+    "js/modules/editor.js",
+    "js/core/content.js"
   ],
   "views": {
     "home": {},

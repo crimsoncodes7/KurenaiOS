@@ -56,7 +56,16 @@
 
   /* shared copy affordance — injected into every content box; the delegated
      handler below copies the box's text minus this button. */
-  var COPY_BTN = '<button class="n-copy" type="button" aria-label="Copy to clipboard">Copy</button>';
+  var COPY_BTN = '<button class="k-n-copy" data-ui="content.copy" type="button" aria-label="Copy to clipboard">Copy</button>';
+  var CODE_COPY = '<button class="k-n-copy" data-ui="content.copy" type="button" aria-label="Copy code to clipboard">Copy</button>';
+  var LANG_NAME = { py: "Python", python: "Python", pseudo: "Pseudocode", cs: "C#", csharp: "C#", sql: "SQL", js: "JavaScript", javascript: "JavaScript" };
+  /* a code block's head: the language, its caption, and Copy (frame 8j) */
+  function codeFigure(src, lang, cap) {
+    return '<figure class="k-n-code" data-ui="content.code"><div class="k-n-code-head">' +
+      (lang ? '<span class="k-n-lang" data-ui="part.label">' + esc(LANG_NAME[lang] || lang) + "</span>" : "") +
+      (cap ? '<span class="k-n-code-cap">' + inline(cap) + "</span>" : "") + CODE_COPY + "</div>" +
+      "<pre><code>" + highlightCode(src, lang) + "</code></pre></figure>";
+  }
 
   var esc = KOS.ui.esc;   // the canonical escaper (core/ui.js)
   /* inline markup: `code`, **bold**, *italic*, →
@@ -130,9 +139,7 @@
         at++;
         while (at < lines.length && !(new RegExp("^\\s{0,3}" + fence.charAt(0) + "{" + fence.length + ",}\\s*$").test(lines[at]))) { code.push(lines[at]); at++; }
         if (at < lines.length) at++;
-        html += '<figure class="n-code">' + '<button class="n-copy" type="button" aria-label="Copy code to clipboard">Copy</button>' +
-          (m[2] ? '<span class="n-lang">' + esc(m[2]) + "</span>" : "") +
-          "<pre><code>" + highlightCode(code.join("\n"), m[2]) + "</code></pre></figure>";
+        html += codeFigure(code.join("\n"), m[2], null);
         continue;
       }
       if (t.indexOf("$$") === 0 && t.length === 2) {
@@ -141,19 +148,19 @@
         at++;
         while (at < lines.length && lines[at].trim() !== "$$") { tex.push(lines[at]); at++; }
         if (at < lines.length) at++;
-        html += '<p class="n-math">$$' + esc(tex.join("\n")) + "$$</p>";
+        html += '<p class="k-n-math">$$' + esc(tex.join("\n")) + "$$</p>";
         continue;
       }
       m = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
       if (m) {
         var lvl = Math.min(6, m[1].length + 2);
-        html += "<h" + lvl + ' class="n-h n-h' + m[1].length + '">' + inline(m[2]) + "</h" + lvl + ">";
+        html += "<h" + lvl + ' class="k-n-h" data-level="' + m[1].length + '">' + inline(m[2]) + "</h" + lvl + ">";
         at++; continue;
       }
       if (/^\s{0,3}((\*\s*){3,}|(-\s*){3,}|(_\s*){3,})$/.test(line)) { html += "<hr>"; at++; continue; }
       if (at + 1 < lines.length && line.indexOf("|") >= 0 && isDivider(lines[at + 1])) {
         var head = cells(line);
-        html += '<div class="n-tablewrap">' + COPY_BTN + '<table class="n-table"><thead><tr>' +
+        html += '<div class="k-n-tablewrap" data-ui="content.table-wrap">' + COPY_BTN + '<table class="k-n-table" data-ui="content.table"><thead><tr>' +
           head.map(function (h) { return "<th>" + inline(h) + "</th>"; }).join("") + "</tr></thead><tbody>";
         at += 2;
         while (at < lines.length && lines[at].trim() && lines[at].indexOf("|") >= 0) {
@@ -168,7 +175,7 @@
       if (/^\s{0,3}>/.test(line)) {
         var q = [];
         while (at < lines.length && /^\s{0,3}>/.test(lines[at])) { q.push(lines[at].replace(/^\s{0,3}>\s?/, "")); at++; }
-        html += '<blockquote class="n-quote">' + markdown(q.join("\n")) + "</blockquote>";
+        html += '<blockquote class="k-n-quote">' + markdown(q.join("\n")) + "</blockquote>";
         continue;
       }
       m = line.match(/^\s{0,3}([-+*]|\d+[.)])\s+(.+)$/);
@@ -180,7 +187,7 @@
           if (!m || /^\d/.test(m[1]) !== ordered) break;
           var item = m[2], task = item.match(/^\[([ xX])\]\s+(.*)$/);
           html += task
-            ? '<li class="n-task' + (task[1] !== " " ? " done" : "") + '"><span class="n-tick" aria-hidden="true">' + (task[1] !== " " ? "☑" : "☐") + "</span> " + inline(task[2]) + "</li>"
+            ? '<li class="k-n-task"' + (task[1] !== " " ? ' data-state="done"' : "") + '><span class="k-n-tick" aria-hidden="true">' + (task[1] !== " " ? "☑" : "☐") + "</span> " + inline(task[2]) + "</li>"
             : "<li>" + inline(item) + "</li>";
           at++;
         }
@@ -202,29 +209,44 @@
     return html;
   }
 
+  /* A small, honest syntax highlighter (frame 8j's "IDE colours"): one pass
+     over the source that classes comments, strings, numbers, keywords,
+     calls, self/this and operators per language, escaping every token. A
+     block with no language is left plain. */
+  var KW = {
+    python: "and as assert break class continue def del elif else except False finally for from global if import in is lambda None nonlocal not or pass raise return True try while with yield",
+    csharp: "public private protected class abstract virtual override static void new return if else while for foreach in null true false using namespace get set base try catch throw out int string bool double float char var object decimal long",
+    sql: "SELECT FROM WHERE ORDER BY GROUP INSERT INTO VALUES UPDATE SET DELETE CREATE TABLE PRIMARY FOREIGN KEY REFERENCES JOIN INNER LEFT ON AND OR NOT NULL IS LIKE ASC DESC AS DISTINCT INTEGER VARCHAR DECIMAL COUNT SUM AVG MIN MAX HAVING",
+    pseudo: "IF THEN ELSE ENDIF WHILE ENDWHILE REPEAT UNTIL FOR TO ENDFOR FUNCTION ENDFUNCTION PROCEDURE ENDPROCEDURE RETURN OUTPUT INPUT MOD DIV AND OR NOT TRUE FALSE NULL CALL",
+    javascript: "var let const function return if else while for in of new null true false this class extends try catch throw typeof undefined"
+  };
+  var LANG = { py: "python", python: "python", cs: "csharp", csharp: "csharp", sql: "sql", pseudo: "pseudo", js: "javascript", javascript: "javascript" };
+  var COMMENT = { python: "#", pseudo: "#", csharp: "//", javascript: "//", sql: "--" };
   function highlightCode(src, lang) {
-    var s = esc(src);
-    /* protect strings & comments with placeholders FIRST, so later keyword
-       spans (which contain quotes themselves) can't be re-matched. */
-    var vault = [];
-    function stash(cls, text) {
-      vault.push('<span class="' + cls + '">' + text + "</span>");
-      return "\u0001" + (vault.length - 1) + "\u0002";
+    var L = LANG[lang];
+    src = String(src == null ? "" : src);
+    if (!L) return esc(src);
+    var kw = {};
+    KW[L].split(" ").forEach(function (w) { kw[L === "sql" || L === "pseudo" ? w.toUpperCase() : w] = true; });
+    var c = COMMENT[L].replace(/[/-]/g, "\\$&");
+    var re = new RegExp("(" + c + "[^\\n]*)|(\"(?:[^\"\\\\\\n]|\\\\.)*\"|'(?:[^'\\\\\\n]|\\\\.)*')|(\\b\\d+(?:\\.\\d+)?\\b)|([A-Za-z_]\\w*)|(←|<-|==|!=|<=|>=|\\+=|-=|\\*=|\\/=|[-+*\\/=<>%])", "g");
+    var out = "", at = 0, m;
+    function tok(t, text) { return '<span class="k-t" data-t="' + t + '">' + esc(text) + "</span>"; }
+    while ((m = re.exec(src))) {
+      out += esc(src.slice(at, m.index));
+      if (m[1]) out += tok("com", m[1]);
+      else if (m[2]) out += tok("str", m[2]);
+      else if (m[3]) out += tok("num", m[3]);
+      else if (m[4]) {
+        var w = m[4], key = L === "sql" || L === "pseudo" ? w.toUpperCase() : w;
+        if (kw[key] && (L !== "pseudo" || w === w.toUpperCase())) out += tok("kw", w);
+        else if (w === "self" || w === "this") out += tok("self", w);
+        else if (src.charAt(re.lastIndex) === "(") out += tok("fn", w);
+        else out += esc(w);
+      } else out += tok("op", m[5]);
+      at = re.lastIndex;
     }
-    if (lang === "csharp" || lang === "cs") {
-      s = s.replace(/(\/\/[^\n]*)/g, function (m) { return stash("c", m); })
-           .replace(/(&quot;[^&]*?&quot;|"[^"]*")/g, function (m) { return stash("s", m); })
-           .replace(/\b(public|private|protected|class|abstract|virtual|override|static|void|new|return|if|else|while|for|foreach|in|null|true|false|using|namespace|get|set|this|base|try|catch|throw|out)\b/g, '<span class="k">$1</span>')
-           .replace(/\b(int|string|bool|double|float|char|var|object|decimal|long)\b/g, '<span class="t">$1</span>');
-    } else if (lang === "sql") {
-      s = s.replace(/(--[^\n]*)/g, function (m) { return stash("c", m); })
-           .replace(/('[^']*')/g, function (m) { return stash("s", m); })
-           .replace(/\b(SELECT|FROM|WHERE|ORDER BY|GROUP BY|INSERT INTO|VALUES|UPDATE|SET|DELETE|CREATE TABLE|PRIMARY KEY|FOREIGN KEY|REFERENCES|JOIN|INNER JOIN|ON|AND|OR|NOT|NULL|IS|LIKE|ASC|DESC|AS|DISTINCT|INTEGER|VARCHAR|DECIMAL)\b/g, '<span class="k">$&</span>');
-    } else if (lang === "pseudo") {
-      s = s.replace(/(#[^\n]*)/g, function (m) { return stash("c", m); })
-           .replace(/\b(IF|THEN|ELSE|ENDIF|WHILE|ENDWHILE|REPEAT|UNTIL|FOR|TO|ENDFOR|FUNCTION|ENDFUNCTION|PROCEDURE|ENDPROCEDURE|RETURN|OUTPUT|INPUT|MOD|DIV|AND|OR|NOT|TRUE|FALSE|NULL)\b/g, '<span class="k">$1</span>');
-    }
-    return s.replace(/\u0001(\d+)\u0002/g, function (_, i) { return vault[+i]; });
+    return out + esc(src.slice(at));
   }
 
   /* Split a notes block array into named pages at every {page:"Title"} marker.
@@ -249,7 +271,7 @@
     (blocks || []).forEach(function (b) {
       var html = renderOne(b);
       if (b && typeof b === "object" && b.id != null && html) {
-        total += '<div class="n-blk" data-bid="' + esc(String(b.id)) + '">' + html + "</div>";
+        total += '<div class="k-blk" data-ui="topic.note-block" data-bid="' + esc(String(b.id)) + '">' + html + "</div>";
       } else total += html;
     });
     return total;
@@ -261,45 +283,40 @@
       if (!b || typeof b !== "object") return;
       if (b.page) { return; } /* page divider — handled by splitPages, not rendered */
       if (b.p != null) { html += "<p>" + para(b.p) + "</p>"; return; }
-      if (b.md != null) { html += '<div class="n-md">' + markdown(b.md) + "</div>"; return; }
-      if (b.h) { html += '<h4 class="n-h">' + inline(b.h) + "</h4>"; return; }
+      if (b.md != null) { html += '<div class="k-n-md" data-ui="content.md">' + markdown(b.md) + "</div>"; return; }
+      if (b.h) { html += '<h3 class="k-n-h">' + inline(b.h) + "</h3>"; return; }
       if (b.ul) { html += "<ul>" + b.ul.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ul>"; return; }
       if (b.ol) { html += "<ol>" + b.ol.map(function (i) { return "<li>" + inline(i) + "</li>"; }).join("") + "</ol>"; return; }
       if (b.kv) {
-        html += '<dl class="n-kv">' + COPY_BTN + b.kv.map(function (p) {
+        html += '<dl class="k-n-kv" data-ui="content.kv">' + COPY_BTN + b.kv.map(function (p) {
           return "<dt>" + inline(p[0]) + "</dt><dd>" + para(p[1]) + "</dd>";
         }).join("") + "</dl>"; return;
       }
       if (b.table) {
-        html += '<div class="n-tablewrap">' + COPY_BTN + '<table class="n-table"><thead><tr>' +
+        html += '<div class="k-n-tablewrap" data-ui="content.table-wrap">' + COPY_BTN + '<table class="k-n-table" data-ui="content.table"><thead><tr>' +
           b.table.head.map(function (h) { return "<th>" + inline(h) + "</th>"; }).join("") +
           "</tr></thead><tbody>" +
           b.table.rows.map(function (r) {
             return "<tr>" + r.map(function (c) { return "<td>" + inline(c) + "</td>"; }).join("") + "</tr>";
           }).join("") + "</tbody></table></div>"; return;
       }
-      if (b.code) {
-        html += '<figure class="n-code">' +
-          '<button class="n-copy" type="button" aria-label="Copy code to clipboard">Copy</button>' +
-          (b.code.lang ? '<span class="n-lang">' + esc(b.code.lang) + "</span>" : "") +
-          '<pre><code>' + highlightCode(b.code.src, b.code.lang) + "</code></pre>" +
-          (b.code.cap ? "<figcaption>" + inline(b.code.cap) + "</figcaption>" : "") +
-          "</figure>"; return;
-      }
+      if (b.code) { html += codeFigure(b.code.src, b.code.lang, b.code.cap); return; }
       if (b.callout) {
         var m = CALLOUT_META[b.callout.t] || CALLOUT_META.tip;
-        html += '<aside class="n-call n-call-' + b.callout.t + '" data-kind="' + esc(b.callout.t) + '">' + COPY_BTN +
-          '<div class="n-call-h"><span class="n-call-i">' + m.icon + "</span>" +
+        html += '<aside class="k-callout" data-ui="content.callout" data-kind="' + esc(b.callout.t) + '">' + COPY_BTN +
+          '<div class="k-callout-head"><span class="k-callout-mark" aria-hidden="true">' + m.icon + "</span>" +
           inline(b.callout.h || m.label) + "</div>" +
-          '<div class="n-call-b">' + renderBlocks(
+          '<div class="k-callout-body">' + renderBlocks(
             typeof b.callout.body === "string" ? [b.callout.body] : b.callout.body) + "</div></aside>"; return;
       }
       if (b.diagram) {
         var sim = window.KOS.sims && KOS.sims.get(b.diagram);
-        html += '<button class="n-diagram" data-sim="' + esc(b.diagram) + '">' +
-          '<span class="nd-i">⬡</span><span><b>Open interactive diagram →</b>' +
-          (sim ? '<span class="nd-t">' + esc(sim.title) + "</span>" : "") +
-          "</span></button>"; return;
+        html += '<button type="button" class="k-n-diagram" data-ui="content.diagram" data-sim="' + esc(b.diagram) + '">' +
+          '<span class="k-n-diagram-art" aria-hidden="true"></span>' +
+          '<span class="k-n-diagram-txt"><span class="k-kicker">Interactive diagram</span>' +
+          "<b>" + esc(sim ? sim.title : "Open the diagram") + "</b>" +
+          (sim && sim.desc ? "<span>" + esc(sim.desc) + "</span>" : "") + "</span>" +
+          '<span class="k-n-diagram-go">Open simulation →</span></button>'; return;
       }
       if (b.worked) {
         /* A worked example: the question, numbered steps of real working
@@ -309,21 +326,21 @@
         var w = b.worked;
         var tag = w.tag || "example";
         var tagLabel = { example: "Worked example", exam: "Exam-style", variation: "Variation", check: "Check" }[tag] || "Worked example";
-        html += '<figure class="n-worked n-worked-' + esc(tag) + '">' + COPY_BTN +
-          '<figcaption class="nw-head"><span class="nw-tag">' + esc(tagLabel) + "</span>" +
-          (w.title ? '<span class="nw-title">' + inline(w.title) + "</span>" : "") +
-          (w.src ? '<span class="nw-src">' + inline(w.src) + "</span>" : "") + "</figcaption>" +
-          (w.q ? '<div class="nw-q">' + renderBlocks(typeof w.q === "string" ? [w.q] : w.q) + "</div>" : "") +
-          '<ol class="nw-steps">' + (w.steps || []).map(function (s) {
-            if (typeof s === "string") s = { m: s };
-            return '<li class="nw-step"><span class="nw-num" aria-hidden="true"></span><div class="nw-body">' +
-              (s.h ? '<div class="nw-sh">' + inline(s.h) + "</div>" : "") +
-              (s.m != null ? '<div class="nw-m">' + para(s.m) + "</div>" : "") +
-              (s.fig && window.KOS.figures ? KOS.figures.render(s.fig) : "") +
-              (s.n ? '<div class="nw-n">' + inline(s.n) + "</div>" : "") + "</div>" +
-              (s.mk ? '<span class="nw-mk" title="Mark">' + esc(s.mk) + "</span>" : "") + "</li>";
+        html += '<figure class="k-n-worked" data-ui="content.worked" data-kind="' + esc(tag) + '">' + COPY_BTN +
+          '<figcaption class="k-n-worked-head"><span class="k-chip" data-tone="teal">' + esc(tagLabel) + "</span>" +
+          (w.title ? '<span class="k-n-worked-title">' + inline(w.title) + "</span>" : "") +
+          (w.src ? '<span class="k-n-worked-src">' + inline(w.src) + "</span>" : "") + "</figcaption>" +
+          (w.q ? '<div class="k-n-wrow"><span class="k-n-wlabel">Given</span><div class="k-n-wbody">' + renderBlocks(typeof w.q === "string" ? [w.q] : w.q) + "</div></div>" : "") +
+          '<ol class="k-n-wsteps">' + (w.steps || []).map(function (st, i) {
+            if (typeof st === "string") st = { m: st };
+            return '<li class="k-n-wrow"><span class="k-n-wlabel">Step ' + (i + 1) + '</span><div class="k-n-wbody">' +
+              (st.h ? '<div class="k-n-wh">' + inline(st.h) + "</div>" : "") +
+              (st.m != null ? '<div class="k-n-wm">' + para(st.m) + "</div>" : "") +
+              (st.fig && window.KOS.figures ? KOS.figures.render(st.fig) : "") +
+              (st.n ? '<div class="k-n-wn">' + inline(st.n) + "</div>" : "") + "</div>" +
+              (st.mk ? '<span class="k-n-wmk" title="Mark">' + esc(st.mk) + "</span>" : "") + "</li>";
           }).join("") + "</ol>" +
-          (w.result ? '<div class="nw-result"><span class="nw-rlabel">Answer</span><span class="nw-rval">' + inline(w.result) + "</span></div>" : "") +
+          (w.result ? '<div class="k-n-answer"><b>Answer</b><span>' + inline(w.result) + "</span></div>" : "") +
           "</figure>"; return;
       }
       if (b.fig) {
@@ -332,16 +349,16 @@
         html += window.KOS.figures ? KOS.figures.render(b.fig) : ""; return;
       }
       if (b.svg) {
-        html += '<figure class="n-fig">' + (b.svg.src || "") +
+        html += '<figure class="k-n-fig">' + (b.svg.src || "") +
           (b.svg.cap ? "<figcaption>" + inline(b.svg.cap) + "</figcaption>" : "") + "</figure>"; return;
       }
       if (b.steps) {
-        html += '<div class="n-steps">' + COPY_BTN + b.steps.map(function (s, i) {
-          if (typeof s === "string") return '<div class="step revealed"><div class="sh">Step ' + (i + 1) + '</div><div class="sn">' + inline(s) + "</div></div>";
-          return '<div class="step revealed"><div class="sh">Step ' + (i + 1) +
-            (s.h ? " — " + inline(s.h) : "") + '</div>' +
-            (s.m != null ? '<div class="sm">' + esc(s.m) + "</div>" : "") +
-            (s.n ? '<div class="sn">' + inline(s.n) + "</div>" : "") + "</div>";
+        html += '<div class="k-n-steps" data-ui="content.steps">' + COPY_BTN + b.steps.map(function (st, i) {
+          if (typeof st === "string") st = { n: st };
+          return '<div class="k-n-step" data-ui="part.step" data-state="revealed"><span class="k-n-step-n" aria-hidden="true">' + (i + 1) + "</span>" +
+            '<div class="k-n-step-body"><div class="k-n-step-h"><span class="sr-only">Step ' + (i + 1) + (st.h ? ": " : "") + "</span>" + (st.h ? inline(st.h) : "") + "</div>" +
+            (st.m != null ? '<div class="k-n-step-m">' + esc(st.m) + "</div>" : "") +
+            (st.n ? '<div class="k-n-step-note">' + inline(st.n) + "</div>" : "") + "</div></div>";
         }).join("") + "</div>"; return;
       }
     })();
@@ -392,9 +409,9 @@
     if (codeEl) {
       text = codeEl.textContent.trim();
     } else {
-      cp.style.display = "none";
+      cp.hidden = true;
       text = (box.innerText || box.textContent || "").trim();
-      cp.style.display = "";
+      cp.hidden = false;
     }
     function done() {
       KOS.ui.state(cp, "copied", true);
@@ -407,7 +424,7 @@
     function fallback() {
       try {
         var ta = document.createElement("textarea");
-        ta.value = text; ta.style.cssText = "position:fixed;opacity:0";
+        ta.value = text; ta.className = "sr-only";
         document.body.appendChild(ta); ta.select();
         document.execCommand("copy"); ta.remove(); done();
       } catch (err) { KOS.ui && KOS.ui.toast("Copy failed — select the code manually.", true); }
