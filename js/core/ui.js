@@ -483,7 +483,7 @@
      ============================================================ */
   var TAB_SHAPE = {
     primary:   { list: "k-subnav", item: "k-seg-item", nav: true, hook: "shell.subnav-item", countHook: "part.percent" },
-    workspace: { list: "k-seg k-seg--quiet", item: "k-seg-item", hook: "ui.tab", listHook: "ui.tabs", countHook: "ui.tab-count" },
+    workspace: { list: "k-seg k-seg--quiet", item: "k-seg-item", hook: "ui.tab", listHook: "ui.tabs ui.workspace-tabs", countHook: "ui.tab-count" },
     card:      { list: "k-seg k-seg--quiet", item: "k-seg-item", hook: "ui.tab-card", listHook: "ui.tabs", countHook: "ui.tab-count" }
   };
   /* items: { label, short, hint, glyph, dot, active, onSelect, countId,

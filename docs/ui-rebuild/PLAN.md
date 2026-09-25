@@ -508,6 +508,24 @@ the invariants and the hook contract still govern behaviour.
   - Habits' on-arrival write dropped.
   - Countdown rows retired as reachable, now named by title, distance and kind.
 
+### Step 4e as delivered — Pacing (frames 10f, 10g)
+
+- `pacing.js` is a rebuilt file.
+- **Week view**:
+  - The ribbon is a tile per week, and its plan rows are segments: ticked, carried past their week, or still to come. The current week is inverted, and half term is hatched.
+  - The week is a hero. The week label stays its h2, the facts are its sub-line (invariant 50c), and its actions sit beside it (invariant 50b). The tick count and segment bar, plus "N behind", are on the right.
+  - Three subject cards on the subject's wash hold In class (with the scheme of work's lessons), the alignment line, and My plan (with the carried band). Each row is a tick beside a button.
+  - "Due this week" and the week's note sit at the foot.
+- **Braid**:
+  - The commit-graph model stays (invariant 85). Every paint is now a class, and each lane's hue rides `--lane-hue`.
+  - A tone legend sits in the card head.
+  - The merges read as rows: ref, titles and weeks, a tone chip, Open.
+- **Dialogs**: both editors share one k-dialog shell, with Delete in its own row apart from Save (invariant 84).
+- The workspace-tabs variant now carries `ui.workspace-tabs` itself.
+- smoke56 changes:
+  - `reachable()` restores the toast text it found, so replaying a page cannot silence a later control's repeated toast.
+  - Class rows are retired as reachable, because their sub-line now carries the refs and the due list moved.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

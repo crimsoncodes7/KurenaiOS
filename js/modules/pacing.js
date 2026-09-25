@@ -79,14 +79,38 @@
       : (w.schoolWk || w.personalWk);
     return n ? "W" + n : "—";
   }
-  /* the shared label.cal-field form idiom the calendar and tracker use */
+  /* the shared form idiom the calendar and tracker use: a label whose
+     first span names the control */
   function field(label, input, hint) {
-    return el("label", { class: "cal-field" }, [
-      el("span", { text: label }),
+    return el("label", { class: "k-field", "data-ui": "cal.field ui.field" }, [
+      el("span", { class: "k-field-label", text: label }),
       input,
-      hint ? el("small", { class: "sub pace-field-hint", text: hint }) : null
+      hint ? el("small", { class: "k-field-hint", text: hint }) : null
     ].filter(Boolean));
   }
+  function input(type, attrs) { return el("input", Object.assign({ type: type, class: "k-input", "data-ui": "ui.input" }, attrs || {})); }
+  function select(options, onchange) {
+    return el("select", { class: "k-input", onchange: onchange || null }, options.map(function (o) {
+      return el("option", { value: o[0], text: o[1] });
+    }));
+  }
+  /* one dialog shell for both editors: head, body, the save row, and the
+     danger row apart from it (invariant 84) */
+  function dialogShell(title, body, actions, danger) {
+    var overlay = el("div", { class: "k-dialog-overlay" });
+    overlay.close = function () { overlay.remove(); };
+    overlay.appendChild(el("div", { class: "k-dialog k-pace-dlg", "data-ui": "ui.dialog pace.dlg" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: title }),
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: function () { overlay.close(); } })
+      ]),
+      el("div", { class: "k-dialog-body k-pace-dlg-body" }, body.filter(Boolean)),
+      el("div", { class: "k-dialog-foot", "data-ui": "pace.dlg-actions" }, actions.filter(Boolean)),
+      danger ? el("div", { class: "k-pace-dlg-danger", "data-ui": "pace.dlg-danger" }, [danger]) : null
+    ].filter(Boolean)));
+    return overlay;
+  }
+  function dlgHead(text) { return el("h3", { class: "k-kicker k-pace-dlg-h", text: text }); }
 
   /* the row's state, entirely derived from the canonical study record */
   function topicTone(cov) {
@@ -111,11 +135,10 @@
     var chosen = (initial || []).slice();
     var CAP = 40;
 
-    var search = el("input", { type: "search", class: "cal-in",
-      placeholder: "Search the specification…", "aria-label": "Search specification points" });
-    var list = el("div", { class: "pace-pick-list", role: "group",
+    var search = input("search", { placeholder: "Search the specification…", "aria-label": "Search specification points" });
+    var list = el("div", { class: "k-pace-pick-list", role: "group",
       "aria-label": "Specification points for this row" });
-    var count = el("p", { class: "sub pace-pick-count" });
+    var count = el("p", { class: "k-field-hint", "data-ui": "pace.pick-count" });
 
     function leaves() {
       var sid = subjectOf();
@@ -123,18 +146,20 @@
       return KOS.hub.LEAVES[sid];
     }
     function row(leaf, on) {
-      var cb = el("input", { type: "checkbox", onchange: function () {
+      var cb = el("input", { type: "checkbox", class: "k-box", onchange: function () {
         var i = chosen.indexOf(leaf.ref);
         if (cb.checked && i === -1) chosen.push(leaf.ref);
         if (!cb.checked && i !== -1) chosen.splice(i, 1);
         render();
       } });
       cb.checked = !!on;
-      return el("label", { class: "pace-pick-row" + (on ? " is-on" : "") }, [
+      var r = el("label", { class: "k-pace-pick-row", "data-ui": "pace.pick-row" }, [
         cb,
-        el("span", { class: "pace-pick-id", text: leaf.ref }),
-        el("span", { class: "pace-pick-t", text: leaf.title })
+        el("span", { class: "k-mono k-pace-pick-id", text: leaf.ref }),
+        el("span", { class: "k-pace-pick-t", text: leaf.title })
       ]);
+      if (on) KOS.ui.state(r, "is-on", true);
+      return r;
     }
     function render() {
       var all = leaves();
@@ -169,7 +194,7 @@
     render();
 
     return {
-      node: el("div", { class: "pace-pick" }, [search, list, count]),
+      node: el("div", { class: "k-pace-pick", "data-ui": "pace.picker" }, [search, list, count]),
       refresh: render,
       value: function () { return chosen.slice(); }
     };
@@ -185,42 +210,32 @@
     defaults = defaults || {};
     var creating = !existing;
     var e = existing || {};
+    var overlay;
+    function close() { overlay.close(); }
 
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
-    function close() { overlay.remove(); }
-
-    var sourceSel = el("select", { class: "status-sel", onchange: onShape }, [
-      el("option", { value: "personal", text: "My plan" }),
-      el("option", { value: "school", text: "In class" })
-    ]);
+    var sourceSel = select([["personal", "My plan"], ["school", "In class"]], onShape);
     sourceSel.value = e.source || defaults.source || "personal";
 
-    var subjSel = el("select", { class: "status-sel", onchange: function () { picker.refresh(); } },
-      SUBJ.map(function (s) { return el("option", { value: s.id, text: s.name }); }));
+    var subjSel = select(SUBJ.map(function (s) { return [s.id, s.name]; }), function () { picker.refresh(); });
     subjSel.value = e.subject || defaults.subject || "compsci";
 
-    var weekSel = el("select", { class: "status-sel" }, KOS.pacing.weeks().map(function (w) {
-      return el("option", { value: w.wb, text: w.label });
-    }));
+    var weekSel = select(KOS.pacing.weeks().map(function (w) { return [w.wb, w.label]; }));
     weekSel.value = e.wb || defaults.wb || (KOS.pacing.weeks()[0] || {}).wb || "";
 
-    var title = el("input", { type: "text", class: "cal-in", placeholder: "e.g. Graph traversal: depth-first & breadth-first" });
+    var title = input("text", { placeholder: "e.g. Graph traversal: depth-first & breadth-first" });
     title.value = e.title || "";
 
-    var kindSel = el("select", { class: "status-sel" }, KINDS.map(function (k) {
-      return el("option", { value: k, text: k });
-    }));
+    var kindSel = select(KINDS.map(function (k) { return [k, k]; }));
     kindSel.value = e.kind || "Lessons";
 
-    var area = el("input", { type: "text", class: "cal-in", placeholder: "e.g. 4.3 Algorithms / Pure / TA2" });
+    var area = input("text", { placeholder: "e.g. 4.3 Algorithms / Pure / TA2" });
     area.value = e.area || "";
-    var paper = el("input", { type: "text", class: "cal-in", placeholder: "e.g. Paper 1" });
+    var paper = input("text", { placeholder: "e.g. Paper 1" });
     paper.value = e.paper || "";
 
-    var detail = el("textarea", { class: "note-area", rows: 2,
-      placeholder: "What the week actually covers…" });
+    var detail = el("textarea", { class: "k-input", rows: 2, placeholder: "What the week actually covers…" });
     detail.value = e.detail || "";
-    var note = el("textarea", { class: "note-area", rows: 3,
+    var note = el("textarea", { class: "k-input", rows: 3,
       "aria-label": "Your note for this plan row",
       placeholder: "What you actually want to do with this — a weak spot, a paper to sit, a resource…" });
     note.value = e.note || "";      /* the attribute is ignored; the property is not */
@@ -232,11 +247,11 @@
        reminder in the Reminders store, due the Sunday the week ends, that
        carries the row's title — one canonical record, linked by text, never
        a second copy of the plan (invariant 27). */
-    var doneBox = el("input", { type: "checkbox" });
+    var doneBox = el("input", { type: "checkbox", class: "k-box" });
     doneBox.checked = !!e.done;
-    var doneField = field("Ticked off", el("label", { class: "chk pace-dlg-done" }, [doneBox, " I did this"]),
+    var doneField = field("Ticked off", el("span", { class: "k-check", "data-ui": "pace.dlg-done" }, [doneBox, el("span", { text: "I did this" })]),
       creating ? null : (e.done && e.doneAt ? "ticked " + new Date(e.doneAt).toLocaleDateString() : "an unticked row carries over once its week has ended"));
-    var remindBtn = creating ? null : el("button", { type: "button", class: "btn", text: "🔔 Remind me by the week's end",
+    var remindBtn = creating ? null : el("button", { type: "button", class: "k-btn", text: "🔔 Remind me by the week's end",
       onclick: function () {
         if (!KOS.reminders) return;
         var r = KOS.reminders.add({ title: "Plan: " + e.title, due: KOS.pacing.weekEnd(e.wb), dueTime: "18:00",
@@ -256,48 +271,45 @@
       doneField.hidden = school;
       if (remindBtn) remindBtn.hidden = school;
     }
-    onShape();
 
     /* the read-only half: only worth drawing for a row that already exists
        and already links somewhere */
     var linked = null;
     if (!creating && e.refs && e.refs.length) {
       var cov = KOS.pacing.coverage(e);
-      linked = el("div", {}, [
-        el("h3", { class: "pace-dlg-h", text: "Linked topic pages" }),
-        el("div", { class: "pace-dlg-refs" }, KOS.pacing.leavesOf(e).map(function (l) {
+      linked = el("section", { class: "k-pace-dlg-sec" }, [
+        dlgHead("Linked topic pages"),
+        el("div", { class: "k-pace-dlg-refs", "data-ui": "pace.dlg-refs" }, KOS.pacing.leavesOf(e).map(function (l) {
           var p = KOS.store.peekProgress(e.subject, l.ref);
           var status = !p || p.status === "none" ? "Not started"
             : p.status === "done" ? "Completed"
             : p.status === "paused" ? "Paused" : "Started";
           var ticks = p ? (p.check || []).filter(Boolean).length : 0;
-          return el("button", { type: "button", class: "pace-dlg-ref",
+          return el("button", { type: "button", class: "k-pace-dlg-ref", "data-ui": "pace.dlg-ref",
             onclick: function () { close(); KOS.show("ref", { subject: e.subject, ref: l.ref }); } }, [
-            el("span", { class: "pace-dlg-ref-id", text: l.ref }),
-            el("span", { class: "pace-dlg-ref-t" }, [
+            el("span", { class: "k-mono k-pace-pick-id", text: l.ref }),
+            el("span", { class: "k-pace-dlg-ref-t" }, [
               el("b", { text: l.title }),
-              el("span", { class: "sub", text: status + " · " + ticks + " of 4 checks" })
+              el("span", { class: "k-muted", text: status + " · " + ticks + " of 4 checks" })
             ]),
-            el("span", { class: "pace-dlg-ref-go", "aria-hidden": "true", text: "→" })
+            el("span", { class: "k-muted", "aria-hidden": "true", text: "→" })
           ]);
         })),
-        el("p", { class: "sub pace-dlg-cov", text:
+        el("p", { class: "k-field-hint", text:
           cov.done + " of " + cov.refs + " marked complete · " + cov.checks + " of "
           + cov.maxChecks + " checks ticked, from the study record." })
       ]);
     } else if (!creating) {
-      linked = el("div", {}, [
-        el("h3", { class: "pace-dlg-h", text: "Linked topic pages" }),
-        KOS.ui.emptyState({
-          compact: true,
-          className: "pace-nolink",
-          mark: "空",
-          title: "No specification point matches this row",
-          body: "It was checked against all three published specifications and none of them "
-            + "names this as its own topic, so nothing is linked rather than something near enough. "
-            + "Link one below if you disagree."
-        })
-      ]);
+      var none = KOS.ui.emptyState({
+        compact: true,
+        mark: "空",
+        title: "No specification point matches this row",
+        body: "It was checked against all three published specifications and none of them "
+          + "names this as its own topic, so nothing is linked rather than something near enough. "
+          + "Link one below if you disagree."
+      });
+      none.setAttribute("data-ui", none.getAttribute("data-ui") + " pace.nolink");
+      linked = el("section", { class: "k-pace-dlg-sec" }, [dlgHead("Linked topic pages"), none]);
     }
 
     function save() {
@@ -323,52 +335,43 @@
       onSaved && onSaved(saved);
     }
 
-    overlay.appendChild(el("div", { class: "modal pace-dlg" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", { text: creating ? "Add a plan row" : e.title }),
-        el("button", { class: "btn", text: "✕ Close", style: "margin-left:auto", onclick: close })
-      ]),
-      creating ? null : el("div", { class: "pace-dlg-meta" }, [
-        el("span", { class: "pace-chip pace-chip-subj", "data-subject": e.subject, text: NAME[e.subject] || e.subject }),
-        el("span", { class: "pace-chip", text: (KOS.pacing.weekAt(e.wb) || {}).label || e.wb }),
-        el("span", { class: "pace-chip", text: e.source === "school" ? "In class" : "My plan" })
-      ]),
-      el("div", { class: "cal-form pace-dlg-form" }, [
-        field("Register", sourceSel),
-        field("Subject", subjSel),
-        field("Week", weekSel),
+    var metaChips = creating ? null : el("div", { class: "k-cluster" }, [
+      (function () { var c = el("span", { class: "k-chip", text: NAME[e.subject] || e.subject }); c.style.setProperty("--chip-c", HUE[e.subject] || "var(--text-2)"); return c; })(),
+      el("span", { class: "k-chip", text: (KOS.pacing.weekAt(e.wb) || {}).label || e.wb }),
+      el("span", { class: "k-chip", text: e.source === "school" ? "In class" : "My plan" })
+    ]);
+
+    overlay = dialogShell(creating ? "Add a plan row" : e.title, [
+      metaChips,
+      el("div", { class: "k-pace-fgrid" }, [
+        field("Register", sourceSel), field("Subject", subjSel), field("Week", weekSel),
         kindField, areaField, paperField
       ]),
       field("Title", title),
       field("Detail", detail),
       doneField,
       linked,
-      el("h3", { class: "pace-dlg-h", text: creating ? "Specification points" : "Change the links" }),
-      picker.node,
-      el("h3", { class: "pace-dlg-h", text: "Your note" }),
-      note,
-      el("div", { class: "lab-controls pace-dlg-actions" }, [
-        remindBtn,
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn primary", text: creating ? "Add row" : "Save changes", onclick: save })
-      ].filter(Boolean)),
-      /* Delete is deliberately not in the same control group as Save */
-      creating ? null : el("div", { class: "pace-dlg-danger" }, [
-        el("button", { class: "btn danger", text: "Delete this row", onclick: function () {
-          KOS.ui.confirm({
-            title: "Delete this plan row?",
-            body: "“" + e.title + "” will be removed from " + ((KOS.pacing.weekAt(e.wb) || {}).label || e.wb)
-              + ". Your study progress on the topics it links to is not touched.",
-            danger: true, confirm: "Delete row"
-          }, function () {
-            KOS.pacing.removeEntry(e.id);
-            KOS.ui.toast("Row deleted.");
-            close();
-            onSaved && onSaved(null);
-          });
-        } })
-      ])
-    ].filter(Boolean)));
+      el("section", { class: "k-pace-dlg-sec" }, [dlgHead(creating ? "Specification points" : "Change the links"), picker.node]),
+      el("section", { class: "k-pace-dlg-sec" }, [dlgHead("Your note"), note])
+    ], [
+      remindBtn,
+      el("button", { type: "button", class: "k-btn k-btn--primary k-spacer", "data-intent": "primary", text: creating ? "Add row" : "Save changes", onclick: save })
+    ],
+    /* Delete is deliberately not in the same control group as Save */
+    creating ? null : el("button", { type: "button", class: "k-btn k-btn--danger k-btn--sm", "data-intent": "danger", text: "Delete this row", onclick: function () {
+      KOS.ui.confirm({
+        title: "Delete this plan row?",
+        body: "“" + e.title + "” will be removed from " + ((KOS.pacing.weekAt(e.wb) || {}).label || e.wb)
+          + ". Your study progress on the topics it links to is not touched.",
+        danger: true, confirm: "Delete row"
+      }, function () {
+        KOS.pacing.removeEntry(e.id);
+        KOS.ui.toast("Row deleted.");
+        close();
+        onSaved && onSaved(null);
+      });
+    } }));
+    onShape();
     KOS.ui.openDialog(overlay);
     if (creating) title.focus();
   }
@@ -382,18 +385,18 @@
   function weekDialog(existing, onSaved) {
     var creating = !existing;
     var w = existing || {};
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
-    function close() { overlay.remove(); }
+    var overlay;
+    function close() { overlay.close(); }
 
-    var wb = el("input", { type: "date", class: "cal-in", "aria-label": "Week beginning" });
+    var wb = input("date", { "aria-label": "Week beginning" });
     wb.value = w.wb || "";
-    var label = el("input", { type: "text", class: "cal-in", placeholder: "e.g. w/c 7 Sept" });
+    var label = input("text", { placeholder: "e.g. w/c 7 Sept" });
     label.value = w.label || "";
-    var schoolWk = el("input", { type: "number", min: 1, class: "cal-in fx-num", placeholder: "—" });
+    var schoolWk = input("number", { min: 1, placeholder: "—" });
     if (w.schoolWk != null) schoolWk.value = String(w.schoolWk);
-    var personalWk = el("input", { type: "number", min: 1, class: "cal-in fx-num", placeholder: "—" });
+    var personalWk = input("number", { min: 1, placeholder: "—" });
     if (w.personalWk != null) personalWk.value = String(w.personalWk);
-    var note = el("textarea", { class: "note-area", rows: 3, "aria-label": "Note for this week",
+    var note = el("textarea", { class: "k-input", rows: 3, "aria-label": "Note for this week",
       placeholder: "What this week is really for…" });
     note.value = w.note || "";
 
@@ -418,39 +421,31 @@
       onSaved && onSaved(saved);
     }
 
-    overlay.appendChild(el("div", { class: "modal pace-dlg" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", { text: creating ? "Add a week" : "Edit " + (w.label || w.wb) }),
-        el("button", { class: "btn", text: "✕ Close", style: "margin-left:auto", onclick: close })
-      ]),
-      el("div", { class: "cal-form pace-dlg-form" }, [
+    overlay = dialogShell(creating ? "Add a week" : "Edit " + (w.label || w.wb), [
+      el("div", { class: "k-pace-fgrid" }, [
         field("Week beginning", wb, creating ? null : "Moving this date moves its " + rows + " row" + (rows === 1 ? "" : "s") + " with it."),
         field("Label", label),
         field("School week", schoolWk),
         field("My week", personalWk)
       ]),
-      field("Note", note),
-      el("div", { class: "lab-controls pace-dlg-actions" }, [
-        el("button", { class: "btn primary", text: creating ? "Add week" : "Save changes", onclick: save })
-      ]),
-      creating ? null : el("div", { class: "pace-dlg-danger" }, [
-        el("button", { class: "btn danger", text: "Delete this week", onclick: function () {
-          KOS.ui.confirm({
-            title: "Delete " + (w.label || w.wb) + "?",
-            body: rows
-              ? "This week holds " + rows + " plan row" + (rows === 1 ? "" : "s") + ". Deleting the week deletes "
-                + (rows === 1 ? "it" : "them") + " too. Your study progress is not touched."
-              : "This week holds no plan rows.",
-            danger: true, confirm: rows ? "Delete week and " + rows + " row" + (rows === 1 ? "" : "s") : "Delete week"
-          }, function () {
-            var res = KOS.pacing.removeWeek(w.wb, { cascade: true });
-            KOS.ui.toast(res.entries ? "Week and " + res.entries + " row" + (res.entries === 1 ? "" : "s") + " deleted." : "Week deleted.");
-            close();
-            onSaved && onSaved(null);
-          });
-        } })
-      ])
-    ].filter(Boolean)));
+      field("Note", note)
+    ], [
+      el("button", { type: "button", class: "k-btn k-btn--primary k-spacer", "data-intent": "primary", text: creating ? "Add week" : "Save changes", onclick: save })
+    ], creating ? null : el("button", { type: "button", class: "k-btn k-btn--danger k-btn--sm", "data-intent": "danger", text: "Delete this week", onclick: function () {
+      KOS.ui.confirm({
+        title: "Delete " + (w.label || w.wb) + "?",
+        body: rows
+          ? "This week holds " + rows + " plan row" + (rows === 1 ? "" : "s") + ". Deleting the week deletes "
+            + (rows === 1 ? "it" : "them") + " too. Your study progress is not touched."
+          : "This week holds no plan rows.",
+        danger: true, confirm: rows ? "Delete week and " + rows + " row" + (rows === 1 ? "" : "s") : "Delete week"
+      }, function () {
+        var res = KOS.pacing.removeWeek(w.wb, { cascade: true });
+        KOS.ui.toast(res.entries ? "Week and " + res.entries + " row" + (res.entries === 1 ? "" : "s") + " deleted." : "Week deleted.");
+        close();
+        onSaved && onSaved(null);
+      });
+    } }));
     KOS.ui.openDialog(overlay);
     (creating ? wb : label).focus();
   }
@@ -485,11 +480,6 @@
   var DEPTH_H = 15;          /* between branch depths                  */
   var LANE_PAD = 30;         /* below the deepest branch of a subject  */
   var CORNER = 7;
-  var LINK_TONE = {
-    ahead: "var(--good)",        /* my plan reached it first  */
-    same: "var(--accent)",       /* the same week             */
-    behind: "var(--warning)"     /* class reached it first    */
-  };
   function toneOf(lead) { return lead > 0 ? "ahead" : lead < 0 ? "behind" : "same"; }
 
   /* commit-graph lane packing: the lowest depth free at this branch's
@@ -502,17 +492,22 @@
     return ends.length - 1;
   }
 
+  /* Geometry is computed here; every paint is a class in the stylesheet,
+     with the subject's hue riding --lane-hue on each lane's group. */
   function braidSvg(model, todayWb, onPickWeek) {
     var S = KOS.charts.svgNode;
     var ws = model.weeks;
     var W = PAD_L + ws.length * COL + 26;
-    function svgTag(w, h, cls) {
-      var n = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      n.setAttribute("viewBox", "0 0 " + w + " " + h);
-      n.setAttribute("width", String(w));
-      n.setAttribute("height", String(h));
-      KOS.ui.setClass(n, cls);
+    function svgTag(w, h, cls, hook) {
+      var n = S("svg", { viewBox: "0 0 " + w + " " + h, width: String(w), height: String(h), "class": cls });
+      n.setAttribute("data-ui", hook);
       return n;
+    }
+    function group(parent, hue) {
+      var g = S("g", { "class": "k-braid-lane" });
+      g.style.setProperty("--lane-hue", hue);
+      parent.appendChild(g);
+      return g;
     }
 
     var idx = {};
@@ -545,7 +540,7 @@
     });
     var H = y + PAD_B;
 
-    var svg = svgTag(W, H, "pace-braid-svg");
+    var svg = svgTag(W, H, "k-braid", "pace.braid-svg");
     svg.setAttribute("role", "img");
 
     /* The lane names live in their OWN, non-scrolling svg. Inside the
@@ -553,21 +548,15 @@
        November, and a branch graph whose lanes are unlabelled is three
        anonymous tangles. Both svgs are laid out from the same `laid`
        table, so the rows cannot drift apart. */
-    var keys = svgTag(PAD_K, H, "pace-braid-keys");
+    var keys = svgTag(PAD_K, H, "k-braid k-braid-keys", "pace.braid-keys");
     keys.setAttribute("aria-hidden", "true");
 
-    /* Column click-targets go in FIRST, behind everything. On top they were
-       a transparent sheet over the whole diagram that swallowed every
-       branch's <title>, so the tooltips that name the spec points never
-       appeared. Behind, a click on empty canvas still reaches them and a
-       click on a mark still belongs to the mark. This is a convenience
-       either way — the merges list below is the real keyboard and
-       screen-reader route through the same edges. */
+    /* Column click-targets go in FIRST, behind everything, so a click on
+       a mark still belongs to the mark and its <title> still shows. The
+       merges list below is the real keyboard and screen-reader route. */
     if (onPickWeek) {
       ws.forEach(function (w) {
-        var hit = S("rect", { x: PAD_L + idx[w.wb] * COL, y: 0, width: COL, height: H, rx: 6 });
-        hit.style.fill = "transparent";
-        KOS.ui.setClass(hit, "pace-braid-hit");
+        var hit = S("rect", { x: PAD_L + idx[w.wb] * COL, y: 0, width: COL, height: H, rx: 6, "class": "k-braid-hit" });
         hit.addEventListener("click", function () { onPickWeek(w); });
         hit.appendChild(S("title", { text: "Open " + w.label }));
         svg.appendChild(hit);
@@ -577,82 +566,45 @@
     /* --- the week axis, labelled: a diagram without one is decoration --- */
     ws.forEach(function (w) {
       var isNow = todayWb === w.wb;
-      var t = S("text", { x: x(w.wb), y: 17, "text-anchor": "middle", "font-size": "11",
-        "font-weight": isNow ? "700" : "500", text: weekTag(w, "school") });
-      t.style.fill = isNow ? "var(--accent)" : "var(--text2)";
-      svg.appendChild(t);
-      var d = S("text", { x: x(w.wb), y: 31, "text-anchor": "middle", "font-size": "11",
-        text: shortDate(w.wb) });
-      d.style.fill = "var(--muted)";
-      svg.appendChild(d);
-      if (isNow) {
-        var rule = S("line", { x1: x(w.wb), y1: 36, x2: x(w.wb), y2: H - PAD_B });
-        rule.style.stroke = "var(--accent)";
-        rule.style.strokeWidth = "1";
-        rule.style.strokeDasharray = "3 4";
-        rule.style.opacity = ".5";
-        svg.appendChild(rule);
-      }
+      svg.appendChild(S("text", { x: x(w.wb), y: 17, "text-anchor": "middle",
+        "class": "k-braid-wk" + (isNow ? " k-braid-wk--now" : ""), text: weekTag(w, "school") }));
+      svg.appendChild(S("text", { x: x(w.wb), y: 31, "text-anchor": "middle", "class": "k-braid-date", text: shortDate(w.wb) }));
+      if (isNow) svg.appendChild(S("line", { x1: x(w.wb), y1: 36, x2: x(w.wb), y2: H - PAD_B, "class": "k-braid-now" }));
     });
 
     laid.forEach(function (L, li) {
       var lane = L.lane;
-      var hue = HUE[lane.subject];
       var meta = SUBJ.filter(function (s) { return s.id === lane.subject; })[0];
+      var g = group(svg, HUE[lane.subject]);
+      var gk = group(keys, HUE[lane.subject]);
 
-      [[svg, W, 10], [keys, PAD_K, 0]].forEach(function (pair) {
-        var band = S("rect", { x: 0, y: L.y0 - 4, width: pair[1], height: L.height - 10, rx: pair[2] });
-        band.style.fill = "var(--well)";
-        band.style.opacity = li % 2 ? ".5" : ".26";
-        pair[0].appendChild(band);
+      [[g, W, 10], [gk, PAD_K, 0]].forEach(function (pair) {
+        pair[0].appendChild(S("rect", { x: 0, y: L.y0 - 4, width: pair[1], height: L.height - 10, rx: pair[2],
+          "class": "k-braid-band" + (li % 2 ? " k-braid-band--alt" : "") }));
       });
 
-      var name = S("text", { x: 12, y: L.ySpine - 14, "font-size": "11", "font-weight": "700", text: meta.name });
-      name.style.fill = "var(--text)";
-      keys.appendChild(name);
-      var rule = S("rect", { x: 0, y: L.ySpine - 24, width: 3, height: 16, rx: 1.5 });
-      rule.style.fill = hue;
-      keys.appendChild(rule);
+      gk.appendChild(S("text", { x: 12, y: L.ySpine - 14, "class": "k-braid-name", text: meta.name }));
+      gk.appendChild(S("rect", { x: 0, y: L.ySpine - 24, width: 3, height: 16, rx: 1.5, "class": "k-braid-rule" }));
 
       /* the spine: the room's clock, one unbroken line */
-      var spine = S("line", { x1: 0, y1: L.ySpine, x2: W - 14, y2: L.ySpine });
-      spine.style.stroke = hue;
-      spine.style.strokeWidth = "2";
-      spine.style.opacity = ".55";
-      svg.appendChild(spine);
-      var spineLab = S("text", { x: 12, y: L.ySpine + 4, "font-size": "11", text: "In class" });
-      spineLab.style.fill = "var(--muted)";
-      keys.appendChild(spineLab);
-      var spineStub = S("line", { x1: PAD_K - 22, y1: L.ySpine, x2: PAD_K, y2: L.ySpine });
-      spineStub.style.stroke = hue;
-      spineStub.style.strokeWidth = "2";
-      spineStub.style.opacity = ".55";
-      keys.appendChild(spineStub);
+      g.appendChild(S("line", { x1: 0, y1: L.ySpine, x2: W - 14, y2: L.ySpine, "class": "k-braid-spine" }));
+      gk.appendChild(S("text", { x: 12, y: L.ySpine + 4, "class": "k-braid-lab", text: "In class" }));
+      gk.appendChild(S("line", { x1: PAD_K - 22, y1: L.ySpine, x2: PAD_K, y2: L.ySpine, "class": "k-braid-spine" }));
 
       /* my own row: ticks, not a second spine — my plan is discrete work,
          not a timetable that runs whether I show up or not */
-      var mineLab = S("text", { x: 12, y: L.yMine + 4, "font-size": "11", text: "My plan" });
-      mineLab.style.fill = "var(--muted)";
-      keys.appendChild(mineLab);
-      var mineStub = S("line", { x1: PAD_K - 22, y1: L.yMine, x2: PAD_K, y2: L.yMine });
-      mineStub.style.stroke = "var(--line)";
-      mineStub.style.strokeWidth = "1";
-      mineStub.style.strokeDasharray = "2 5";
-      keys.appendChild(mineStub);
-      var mineRule = S("line", { x1: 0, y1: L.yMine, x2: W - 14, y2: L.yMine });
-      mineRule.style.stroke = "var(--line)";
-      mineRule.style.strokeWidth = "1";
-      mineRule.style.strokeDasharray = "2 5";
-      svg.appendChild(mineRule);
+      gk.appendChild(S("text", { x: 12, y: L.yMine + 4, "class": "k-braid-lab", text: "My plan" }));
+      gk.appendChild(S("line", { x1: PAD_K - 22, y1: L.yMine, x2: PAD_K, y2: L.yMine, "class": "k-braid-mine" }));
+      g.appendChild(S("line", { x1: 0, y1: L.yMine, x2: W - 14, y2: L.yMine, "class": "k-braid-mine" }));
 
       /* --- branches, drawn under the nodes --- */
       L.branches.forEach(function (b) {
         var link = b.link;
         var yb = L.yMine + DEPTH_0 + b.depth * DEPTH_H;
-        var node;
+        var d;
         if (link.lead === 0) {
           /* a stub: the same column, so there is nothing to route around */
-          node = S("path", { d: "M" + b.xm + "," + L.yMine + " L" + b.xm + "," + L.ySpine });
+          d = "M" + b.xm + "," + L.yMine + " L" + b.xm + "," + L.ySpine;
         } else {
           var fromY = link.lead > 0 ? L.yMine : L.ySpine;
           var toY = link.lead > 0 ? L.ySpine : L.yMine;
@@ -660,39 +612,31 @@
           var yL = (xL === b.xm) === (link.lead > 0) ? fromY : toY;
           var yR = yL === fromY ? toY : fromY;
           var r = Math.min(CORNER, Math.max(2, (xR - xL) / 2 - 1));
-          node = S("path", { d:
-            "M" + xL + "," + yL +
+          d = "M" + xL + "," + yL +
             " L" + xL + "," + (yb - r) +
             " Q" + xL + "," + yb + " " + (xL + r) + "," + yb +
             " L" + (xR - r) + "," + yb +
             " Q" + xR + "," + yb + " " + xR + "," + (yb - r) +
-            " L" + xR + "," + yR });
+            " L" + xR + "," + yR;
         }
-        node.style.fill = "none";
-        node.style.stroke = LINK_TONE[b.tone];
-        node.style.strokeWidth = String(Math.min(3, 1.3 + link.refs.length * 0.45));
-        node.style.strokeLinecap = "round";
-        node.style.opacity = ".85";
-        KOS.ui.setClass(node, "pace-braid-link tone-" + b.tone);
+        var node = S("path", { d: d, "class": "k-braid-link", "data-tone": b.tone });
+        node.style.setProperty("--w", String(Math.min(3, 1.3 + link.refs.length * 0.45)));
         node.appendChild(S("title", { text:
           link.refs.length + " spec point" + (link.refs.length === 1 ? "" : "s") + " · my plan "
           + (link.lead > 0 ? Math.abs(link.lead) + " week" + (Math.abs(link.lead) === 1 ? "" : "s") + " before class"
             : link.lead < 0 ? Math.abs(link.lead) + " week" + (Math.abs(link.lead) === 1 ? "" : "s") + " after class"
             : "the same week as class")
           + " — " + link.refs.map(function (r) { return r.ref; }).join(", ") }));
-        svg.appendChild(node);
+        g.appendChild(node);
 
         /* where the branch RESOLVES: a merge into the spine, or my row
            finally picking up what class already taught */
         var tipX = link.lead > 0 ? b.xc : b.xm;
         var tipY = link.lead > 0 ? L.ySpine : L.yMine;
         if (link.lead !== 0) {
-          var tip = S("path", { d: link.lead > 0
+          g.appendChild(S("path", { "class": "k-braid-tip", "data-tone": b.tone, d: link.lead > 0
             ? "M" + (tipX - 4) + "," + (tipY + 7) + " L" + tipX + "," + (tipY + 1) + " L" + (tipX + 4) + "," + (tipY + 7) + " Z"
-            : "M" + (tipX - 4) + "," + (tipY - 7) + " L" + tipX + "," + (tipY - 1) + " L" + (tipX + 4) + "," + (tipY - 7) + " Z" });
-          tip.style.fill = LINK_TONE[b.tone];
-          tip.style.opacity = ".85";
-          svg.appendChild(tip);
+            : "M" + (tipX - 4) + "," + (tipY - 7) + " L" + tipX + "," + (tipY - 1) + " L" + (tipX + 4) + "," + (tipY - 7) + " Z" }));
         }
       });
 
@@ -700,36 +644,26 @@
       var byWb = {};
       lane.unplanned.forEach(function (u) { (byWb[u.wb] = byWb[u.wb] || []).push(u); });
       Object.keys(byWb).forEach(function (wb) {
-        var m = S("text", { x: x(wb), y: L.ySpine - 12, "text-anchor": "middle", "font-size": "11",
-          "font-weight": "600", text: "△" + byWb[wb].length });
-        m.style.fill = "var(--danger)";
+        var m = S("text", { x: x(wb), y: L.ySpine - 12, "text-anchor": "middle", "class": "k-braid-open", text: "△" + byWb[wb].length });
         m.appendChild(S("title", { text: byWb[wb].length + " spec point"
           + (byWb[wb].length === 1 ? "" : "s") + " class teaches that your plan does not schedule" }));
-        svg.appendChild(m);
+        g.appendChild(m);
       });
 
       /* --- the nodes: solid on the spine, ringed on my row --- */
       Object.keys(lane.classAt).forEach(function (wb) {
         var n = lane.classAt[wb];
-        var c = S("circle", { cx: x(wb), cy: L.ySpine, r: String(Math.min(8, 4.5 + n * 1.1)) });
-        c.style.fill = hue;
-        c.style.stroke = "var(--bg1)";
-        c.style.strokeWidth = "2";
-        KOS.ui.setClass(c, "pace-braid-node");
+        var c = S("circle", { cx: x(wb), cy: L.ySpine, r: String(Math.min(8, 4.5 + n * 1.1)), "class": "k-braid-node" });
         c.appendChild(S("title", { text: meta.name + " · In class · "
           + (KOS.pacing.weekAt(wb) || {}).label + " · " + n + " row" + (n === 1 ? "" : "s") }));
-        svg.appendChild(c);
+        g.appendChild(c);
       });
       Object.keys(lane.mineAt).forEach(function (wb) {
         var n = lane.mineAt[wb];
-        var c = S("circle", { cx: x(wb), cy: L.yMine, r: String(Math.min(7.5, 4 + n * 0.7)) });
-        c.style.fill = "var(--bg1)";
-        c.style.stroke = hue;
-        c.style.strokeWidth = "2";
-        KOS.ui.setClass(c, "pace-braid-node");
+        var c = S("circle", { cx: x(wb), cy: L.yMine, r: String(Math.min(7.5, 4 + n * 0.7)), "class": "k-braid-node k-braid-node--mine" });
         c.appendChild(S("title", { text: meta.name + " · My plan · "
           + (KOS.pacing.weekAt(wb) || {}).label + " · " + n + " row" + (n === 1 ? "" : "s") }));
-        svg.appendChild(c);
+        g.appendChild(c);
       });
     });
 
@@ -844,7 +778,8 @@
     var viewTabs = KOS.workspaceTabs([
       ["Week", "pacing", { wb: selected && selected.wb }, "week"],
       ["Braid", "pacing", { tab: "braid" }, "braid"]
-    ], tab, "Pacing views", "pace-tabs profile-workspace-tabs");
+    ], tab, "Pacing views", "k-pace-tabs");
+    viewTabs.setAttribute("data-ui", (viewTabs.getAttribute("data-ui") || "") + " pace.tabs");
 
     main.appendChild(KOS.ui.pageHeader({
       kicker: "The integrated week",
@@ -861,36 +796,33 @@
         title: "The plan is empty",
         body: "The weekly plan ships with the build and is copied in on first run. "
           + "Add a week to start one by hand, or restore a backup.",
-        action: el("button", { class: "btn primary", text: "+ Add a week",
+        action: el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "+ Add a week",
           onclick: function () { weekDialog(null, function () { KOS.rerender(); }); } })
       }));
       return;
     }
 
-    var body = el("div", { class: "pace-body" });
+    var body = el("div", { class: "k-pace" });
     if (tab === "braid") { main.appendChild(body); renderBraid(); return; }
 
     var ribbonHolder = el("div", {});
     main.appendChild(ribbonHolder);
     main.appendChild(body);
 
-    /* ---------------- the term ribbon ---------------- */
+    /* ---------------- the term ribbon ----------------
+       Graphite (frame 10f): a tile per week, its plan rows as segments —
+       ticked, carried past their week, or still to come */
     function buildRibbon() {
       ribbonHolder.innerHTML = "";
-      var peak = Math.max(1, KOS.pacing.maxLoad());
-      var track = el("div", { class: "pace-ribbon" });
+      var track = el("div", { class: "k-pace-ribbon" });
       weeks.forEach(function (w) {
         var l = KOS.pacing.load(w.wb);
         var brk = KOS.pacing.isBreak(w);
         var mock = KOS.pacing.isMock(w);
         var now = todayWeek && todayWeek.wb === w.wb;
         var behind = now && KOS.pacing.weekStatus(w.wb).carried;
-        var bars = el("span", { class: "pace-wk-bars", "aria-hidden": "true" },
-          SUBJ.map(function (s) {
-            var h = Math.round(100 * (l[s.id] || 0) / peak);
-            return el("span", { class: "pace-wk-bar" + (l[s.id] ? "" : " is-zero"),
-              style: "height:" + Math.max(l[s.id] ? 12 : 3, h) + "%;background:" + HUE[s.id] });
-          }));
+        var past = todayWeek && w.wb < todayWeek.wb;
+        var mine = KOS.pacing.entriesFor(w.wb, null, "personal");
         var label = "Week beginning " + longDate(w.wb)
           + (w.schoolWk ? " — school week " + w.schoolWk : "")
           + (w.personalWk ? ", my week " + w.personalWk : "")
@@ -898,92 +830,106 @@
           + (brk ? ", half term" : "") + (mock ? ", mock week" : "")
           + (now ? ", the week we are in" : "")
           + (behind ? ", " + behind + " carried over" : "");
-        var btn = el("button", { type: "button",
-          class: "pace-wk" + (selected && selected.wb === w.wb ? " active" : "")
-            + (brk ? " is-break" : "") + (mock ? " is-mock" : "") + (now ? " is-now" : "") + (behind ? " is-behind" : ""),
+        var segs = el("span", { class: "k-pace-wk-segs", "aria-hidden": "true" }, mine.slice(0, 8).map(function (e) {
+          var s = el("span", { class: "k-pace-wk-seg" });
+          if (e.done) KOS.ui.state(s, "done", true);
+          else if (past) KOS.ui.state(s, "missed", true);
+          return s;
+        }));
+        var btn = el("button", { type: "button", class: "k-pace-wk", "data-ui": "pace.wk",
           "aria-label": label,
           onclick: function () { KOS.show("pacing", { wb: w.wb }); } }, [
-          el("span", { class: "pace-wk-n", "aria-hidden": "true", text: brk ? "—" : weekTag(w) }),
-          bars,
-          el("span", { class: "pace-wk-d", "aria-hidden": "true", text: shortDate(w.wb) })
-        ]);
+          el("span", { class: "k-pace-wk-d k-mono", "aria-hidden": "true", text: brk ? "Half term" : "w/c " + shortDate(w.wb) }),
+          brk ? null : el("span", { class: "k-pace-wk-n", "aria-hidden": "true", text: weekTag(w) + (mock ? " · mock" : "") }),
+          brk ? null : segs
+        ].filter(Boolean));
         if (selected && selected.wb === w.wb) btn.setAttribute("aria-current", "true");
+        if (brk) KOS.ui.state(btn, "is-break", true);
+        if (mock) KOS.ui.state(btn, "is-mock", true);
+        if (now) KOS.ui.state(btn, "is-now", true);
+        if (behind) KOS.ui.state(btn, "is-behind", true);
         track.appendChild(btn);
       });
-      var add = el("button", { type: "button", class: "pace-wk pace-wk-add",
+      track.appendChild(el("button", { type: "button", class: "k-pace-wk k-pace-wk--add", "data-ui": "pace.wk pace.wk-add",
         "aria-label": "Add a week to the plan",
         onclick: function () { weekDialog(null, function (w) { KOS.show("pacing", { wb: w.wb }); }); } }, [
-        el("span", { class: "pace-wk-n", "aria-hidden": "true", text: "+" }),
-        el("span", { class: "pace-wk-d", "aria-hidden": "true", text: "Week" })
-      ]);
-      track.appendChild(add);
-      ribbonHolder.appendChild(KOS.ui.scroller(track, {
-        className: "pace-ribbon-wrap",
+        el("span", { class: "k-pace-wk-d", "aria-hidden": "true", text: "+ Week" })
+      ]));
+      var wrap = KOS.ui.scroller(track, {
+        className: "k-pace-ribbon-wrap",
         label: "The term, week by week",
         prevLabel: "Earlier weeks", nextLabel: "Later weeks"
-      }));
+      });
+      wrap.setAttribute("data-ui", (wrap.getAttribute("data-ui") || "") + " pace.ribbon-wrap");
+      ribbonHolder.appendChild(wrap);
     }
 
     /* ---------------- one subject column ---------------- */
+    function kicker(text, hue) {
+      var k = el("p", { class: "k-kicker k-pace-reg-k", text: text });
+      if (hue) KOS.ui.state(k, "hued", true);
+      return k;
+    }
     function subjectColumn(sid) {
       var meta = SUBJ.filter(function (s) { return s.id === sid; })[0];
       var classRows = KOS.pacing.entriesFor(selected.wb, sid, "school");
       var myRows = KOS.pacing.entriesFor(selected.wb, sid, "personal");
+      var carried = KOS.pacing.carriedInto(selected.wb, sid);
       var a = KOS.pacing.alignment(selected.wb, sid);
       var line = KOS.pacing.alignmentLine(a);
+      var ticked = myRows.filter(function (e) { return e.done; }).length;
 
-      var col = el("section", { class: "pace-col", "data-subject": sid,
-        style: "--pace-hue:" + HUE[sid], "aria-label": meta.name });
+      var col = el("section", { class: "k-card k-pace-col", "data-ui": "pace.col", "data-subject": sid, "aria-label": meta.name });
+      col.style.setProperty("--pace-hue", HUE[sid]);
 
-      col.appendChild(el("h3", { class: "pace-col-h" }, [
-        el("span", { class: "pace-col-rule", "aria-hidden": "true" }),
-        el("span", { class: "pace-col-name", text: meta.name })
-      ]));
+      col.appendChild(el("h3", { class: "k-pace-col-h" }, [
+        el("span", { class: "k-pace-col-dot", "aria-hidden": "true" }),
+        el("span", { class: "k-pace-col-name", text: meta.name }),
+        myRows.length ? el("span", { class: "k-pace-col-n k-mono", "aria-label": ticked + " of " + myRows.length + " ticked", text: ticked + " / " + myRows.length }) : null
+      ].filter(Boolean)));
 
       function addBtn(source) {
-        return el("button", { type: "button", class: "pace-add",
+        return el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "pace.add",
           "aria-label": "Add a " + (source === "school" ? "class" : "plan") + " row for "
-            + meta.name + ", " + selected.label,
+            + meta.name + ", " + selected.label, text: "+",
           onclick: function () {
             entryDialog(null, { wb: selected.wb, subject: sid, source: source },
               function () { redraw(); });
-          } }, [el("span", { "aria-hidden": "true", text: "+ Add" })]);
+          } });
       }
 
       /* register 1 — the room */
-      var classBox = el("div", { class: "pace-reg pace-reg-class" }, [
-        el("div", { class: "pace-reg-head" }, [
-          el("p", { class: "pace-reg-k", text: "In class" }), addBtn("school")
-        ])
+      var classBox = el("div", { class: "k-pace-reg", "data-ui": "pace.reg-class" }, [
+        el("div", { class: "k-pace-reg-head" }, [kicker("In class", true), addBtn("school")])
       ]);
       if (!classRows.length) {
-        classBox.appendChild(el("p", { class: "sub pace-reg-none", text: "Nothing scheduled." }));
+        classBox.appendChild(el("p", { class: "k-pace-none", text: "Nothing scheduled." }));
       } else {
         classRows.forEach(function (e) {
           /* the row is the week's heading; the lessons under it are the
-             scheme of work's own list, one per line, so the week can be
-             read at a glance instead of as one run-on sentence */
+             scheme of work's own list, one per line */
           var lessons = KOS.pacing.lessonsOf(e);
-          var block = el("div", { class: "pace-class-block" + (e.kind === "Mock" ? " is-mock" : "") + (e.kind === "Assessment" ? " is-assess" : "") }, [
-            el("button", { type: "button",
-              class: "pace-class" + (e.kind === "Mock" ? " is-mock" : "")
-                + (e.kind === "Assessment" ? " is-assess" : ""),
-              onclick: function () { entryDialog(e, null, redraw); } }, [
-              el("span", { class: "pace-class-mark", "aria-hidden": "true",
-                text: KIND_MARK[e.kind] || "授" }),
-              el("span", { class: "pace-class-t" }, [
-                el("b", { text: e.title }),
-                el("span", { class: "sub", text: e.kind + (lessons.length > 1 ? " · " + lessons.length + " lessons" : "") })
-              ])
+          var btn = el("button", { type: "button", class: "k-pace-row-btn", "data-ui": "pace.class",
+            onclick: function () { entryDialog(e, null, redraw); } }, [
+            el("span", { class: "k-pace-mark", "aria-hidden": "true", text: KIND_MARK[e.kind] || "授" }),
+            el("span", { class: "k-pace-row-t" }, [
+              el("b", { text: e.title }),
+              el("span", { class: "k-pace-row-m", "data-ui": "part.sub", text: e.kind + (lessons.length > 1 ? " · " + lessons.length + " lessons" : "")
+                + ((e.refs || []).length ? " · " + e.refs.join(" · ") : "") })
             ])
           ]);
+          if (e.kind === "Mock") KOS.ui.state(btn, "is-mock", true);
+          if (e.kind === "Assessment") KOS.ui.state(btn, "is-assess", true);
+          var block = el("div", { class: "k-pace-block", "data-ui": "pace.class-block" }, [btn]);
           if (lessons.length) {
-            block.appendChild(el("ol", { class: "pace-lessons", "aria-label": "Lessons this week" },
+            block.appendChild(el("ol", { class: "k-pace-lessons", "data-ui": "pace.lessons", "aria-label": "Lessons this week" },
               lessons.map(function (l, i) {
-                return el("li", { class: "pace-lesson is-" + l.tone }, [
-                  el("span", { class: "pace-lesson-n", "aria-hidden": "true", text: String(i + 1) }),
-                  el("span", { class: "pace-lesson-t", text: l.text })
+                var li = el("li", { class: "k-pace-lesson", "data-ui": "pace.lesson" }, [
+                  el("span", { class: "k-pace-lesson-n k-mono", "aria-hidden": "true", text: String(i + 1) }),
+                  el("span", { text: l.text })
                 ]);
+                KOS.ui.state(li, "is-" + l.tone, true);
+                return li;
               })));
           }
           classBox.appendChild(block);
@@ -991,21 +937,20 @@
       }
       col.appendChild(classBox);
 
-      /* the join between the two registers: the only thing here that is
-         neither plan — it is the comparison, and it is stated only when
-         the linked spec refs actually support it */
+      /* the join between the two registers: stated only when the linked
+         spec refs actually support it */
       if (line) {
-        col.appendChild(el("div", { class: "pace-align" }, [
-          el("p", { class: "pace-align-line", text: line }),
-          el("div", { class: "pace-align-tags" }, [
-            a.ahead ? el("span", { class: "pace-tag tone-ahead", text: a.ahead + " covered" }) : null,
-            a.aligned ? el("span", { class: "pace-tag tone-aligned", text: a.aligned + " this week" }) : null,
-            a.behind ? el("span", { class: "pace-tag tone-behind", text: a.behind + " later" }) : null,
-            a.unplanned ? el("span", { class: "pace-tag tone-unplanned", text: a.unplanned + " unplanned" }) : null
+        col.appendChild(el("div", { class: "k-pace-align" }, [
+          el("p", { class: "k-pace-align-line", text: line }),
+          el("div", { class: "k-cluster" }, [
+            a.ahead ? el("span", { class: "k-chip", "data-tone": "teal", text: a.ahead + " covered" }) : null,
+            a.aligned ? el("span", { class: "k-chip", "data-tone": "green", text: a.aligned + " this week" }) : null,
+            a.behind ? el("span", { class: "k-chip", "data-tone": "amber", text: a.behind + " later" }) : null,
+            a.unplanned ? el("span", { class: "k-chip", "data-tone": "crimson", text: a.unplanned + " unplanned" }) : null
           ].filter(Boolean))
         ]));
       } else {
-        col.appendChild(el("p", { class: "sub pace-align-quiet", text:
+        col.appendChild(el("p", { class: "k-pace-none", text:
           classRows.length
             ? "Class is on work with no single spec point this week — nothing to compare."
             : "No class content to compare against." }));
@@ -1014,56 +959,27 @@
       /* register 2 — my own curriculum. Every row is a tick (the plan's own
          bookkeeping) beside a button (the row, its dialog, its topic pages)
          — two controls side by side, never one inside the other. */
-      var carried = KOS.pacing.carriedInto(selected.wb, sid);
-      var mineBox = el("div", { class: "pace-reg pace-reg-mine" }, [
-        el("div", { class: "pace-reg-head" }, [
-          el("p", { class: "pace-reg-k", text: "My plan" }), addBtn("personal")
-        ])
+      var mineBox = el("div", { class: "k-pace-reg", "data-ui": "pace.reg-mine" }, [
+        el("div", { class: "k-pace-reg-head" }, [kicker("My plan"), addBtn("personal")])
       ]);
       if (carried.length) {
-        var band = el("div", { class: "pace-carried", role: "group",
+        var band = el("div", { class: "k-pace-carried", "data-ui": "pace.carried", role: "group",
           "aria-label": carried.length + " carried over from earlier weeks" }, [
-          el("p", { class: "pace-carried-k" }, [
+          el("p", { class: "k-pace-carried-k" }, [
             el("span", { text: "Carried over" }),
-            el("span", { class: "pace-tag tone-behind", text: carried.length + " behind" })
+            el("span", { class: "k-chip", "data-tone": "amber", text: carried.length + " behind" })
           ])
         ]);
         carried.forEach(function (c) { band.appendChild(planRow(c.entry, c)); });
         mineBox.appendChild(band);
       }
       if (!myRows.length && !carried.length) {
-        mineBox.appendChild(el("p", { class: "sub pace-reg-none", text:
+        mineBox.appendChild(el("p", { class: "k-pace-none", text:
           KOS.pacing.isBreak(selected) ? "Half term — nothing scheduled." : "Nothing scheduled." }));
       } else {
         myRows.forEach(function (e) { mineBox.appendChild(planRow(e, null)); });
       }
       col.appendChild(mineBox);
-
-      /* the other things due inside this week that touch the subject:
-         assignments (read from their one store, linked by date) */
-      if (KOS.assignments && KOS.assignments.all) {
-        var end = KOS.pacing.weekEnd(selected.wb);
-        var due = KOS.assignments.all().filter(function (a) {
-          return a.subject === sid && a.due && a.due >= selected.wb && a.due <= end;
-        }).sort(function (a, b) { return a.due < b.due ? -1 : 1; });
-        if (due.length) {
-          var dueBox = el("div", { class: "pace-reg pace-reg-due" }, [
-            el("div", { class: "pace-reg-head" }, [el("p", { class: "pace-reg-k", text: "Due this week" })])
-          ]);
-          due.forEach(function (a) {
-            var open = KOS.assignments.isOpen ? KOS.assignments.isOpen(a) : a.status !== "complete";
-            dueBox.appendChild(el("button", { type: "button", class: "pace-class pace-due" + (open ? "" : " is-done"),
-              onclick: function () { KOS.show("assignments"); } }, [
-              el("span", { class: "pace-class-mark", "aria-hidden": "true", text: "課" }),
-              el("span", { class: "pace-class-t" }, [
-                el("b", { text: a.title }),
-                el("span", { class: "sub", text: "Assignment · due " + shortDate(a.due) + (open ? "" : " · done") })
-              ])
-            ]));
-          });
-          col.appendChild(dueBox);
-        }
-      }
       return col;
     }
 
@@ -1072,7 +988,7 @@
     function planRow(e, carry) {
       var cov = KOS.pacing.coverage(e);
       var tone = e.done ? "ticked" : topicTone(cov);
-      var tick = el("input", { type: "checkbox", "aria-label": "Tick off " + e.title,
+      var tick = el("input", { type: "checkbox", class: "k-pace-tick-in", "aria-label": "Tick off " + e.title,
         onchange: function () {
           KOS.pacing.setDone(e.id, tick.checked);
           KOS.ui.toast(tick.checked ? "Ticked off." : "Unticked — it will carry over if the week ends.");
@@ -1082,29 +998,32 @@
       var from = carry ? (KOS.pacing.weekAt(carry.fromWb) || {}).label || carry.fromWb : null;
       var sub = carry
         ? "from " + from + " · " + carry.weeksLate + (carry.weeksLate === 1 ? " week" : " weeks") + " behind"
-        : [e.area, e.paper].filter(Boolean).join(" · ");
-      return el("div", { class: "pace-row" + (e.done ? " is-done" : "") + (carry ? " is-carried" : "") }, [
-        el("label", { class: "pace-tick", title: e.done ? "Ticked off" : "Tick off when done" }, [tick]),
-        el("button", { type: "button", class: "pace-topic tone-" + (tone === "ticked" ? "done" : tone),
-          "aria-label": e.title + " — " + (e.done ? "ticked off" : TONE_WORD[tone]) + (carry ? ", carried over, " + carry.weeksLate + " weeks behind" : ""),
-          onclick: function () { entryDialog(e, null, redraw); } }, [
-          el("span", { class: "pace-topic-dot", "aria-hidden": "true", text: e.done ? "✓" : TONE_GLYPH[tone] }),
-          el("span", { class: "pace-topic-t" }, [
-            el("b", { text: e.title }),
-            sub ? el("span", { class: "sub", text: sub }) : null
-          ].filter(Boolean)),
-          el("span", { class: "pace-topic-n", "aria-hidden": "true",
-            text: cov.refs ? cov.done + "/" + cov.refs : "—" }),
-          e.note ? el("span", { class: "pace-topic-note", "aria-hidden": "true", text: "✎" }) : null
+        : [(e.refs || []).join(" · "), e.area, e.paper].filter(Boolean).join(" · ");
+      var btn = el("button", { type: "button", class: "k-pace-row-btn", "data-ui": "pace.row",
+        "aria-label": e.title + " — " + (e.done ? "ticked off" : TONE_WORD[tone]) + (carry ? ", carried over, " + carry.weeksLate + " weeks behind" : ""),
+        onclick: function () { entryDialog(e, null, redraw); } }, [
+        el("span", { class: "k-pace-row-t" }, [
+          el("b", { text: e.title }),
+          sub ? el("span", { class: "k-pace-row-m", "data-ui": "part.sub", text: sub }) : null
         ].filter(Boolean)),
-        carry ? el("button", { type: "button", class: "mini-btn pace-move", title: "Move this row into " + selected.label,
-          "aria-label": "Move " + e.title + " into " + selected.label,
+        el("span", { class: "k-pace-cov k-mono", "aria-hidden": "true", title: TONE_WORD[tone === "ticked" ? "done" : tone],
+          text: (cov.refs ? cov.done + "/" + cov.refs : "—") + " " + TONE_GLYPH[tone === "ticked" ? "done" : tone] }),
+        e.note ? el("span", { class: "k-pace-row-m", "aria-hidden": "true", text: "✎" }) : null
+      ].filter(Boolean));
+      var row = el("div", { class: "k-pace-plan", "data-ui": "pace.plan-row" }, [
+        el("label", { class: "k-pace-tick", "data-ui": "pace.tick", title: e.done ? "Ticked off" : "Tick off when done" }, [tick]),
+        btn,
+        carry ? el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pace.move", title: "Move this row into " + selected.label,
+          "aria-label": "Move " + e.title + " into " + selected.label, text: "→ here",
           onclick: function () {
             KOS.pacing.updateEntry(e.id, { wb: selected.wb });
             KOS.ui.toast("Moved into " + selected.label + ".");
             redraw();
-          } }, [el("span", { "aria-hidden": "true", text: "→ here" })]) : null
+          } }) : null
       ].filter(Boolean));
+      if (e.done) KOS.ui.state(row, "is-done", true);
+      if (carry) KOS.ui.state(row, "is-carried", true);
+      return row;
     }
 
     /* ---------------- the week ---------------- */
@@ -1112,8 +1031,7 @@
       body.innerHTML = "";
       if (!selected) return;
 
-      /* The week in numbers, as a sub-line rather than a row of card-sized
-         boxes carrying one figure each. Zero-only SUPPORTING facts are
+      /* The week in numbers, as a sub-line. Zero-only SUPPORTING facts are
          dropped (invariant 77); the primary count stays even at zero,
          because "nothing planned" is the answer to the question. */
       var load = KOS.pacing.load(selected.wb);
@@ -1124,30 +1042,30 @@
         classPoints += a.classRefs.length;
         reached += a.ahead + a.aligned;
       });
+      var isNow = todayWeek && todayWeek.wb === selected.wb;
 
-      body.appendChild(KOS.ui.sectionHeader({
-        className: "pace-week-header",
+      var head = KOS.ui.sectionHeader({
+        className: "k-pace-weekhead",
         title: selected.label,
         sub: [
           selected.schoolWk ? "School week " + selected.schoolWk : null,
           selected.personalWk ? "My week " + selected.personalWk : null,
           KOS.pacing.isBreak(selected) ? "Half term" : null,
           load.total + " topic" + (load.total === 1 ? "" : "s") + " planned",
-          ws.done ? ws.done + " of " + ws.planned + " ticked off" : null,
           ws.carried ? ws.carried + " carried over" : null,
           classPoints ? classPoints + " spec point" + (classPoints === 1 ? "" : "s") + " in class" : null,
           reached ? reached + " my plan has reached" : null
         ].filter(Boolean).join(" · "),
         actions: [
-          el("button", { class: "btn", text: "+ Add row",
+          el("button", { type: "button", class: "k-btn k-btn--sm", text: "+ Add row",
             onclick: function () {
               entryDialog(null, { wb: selected.wb, subject: "compsci", source: "personal" }, redraw);
             } }),
           todayWeek && todayWeek.wb !== selected.wb
-            ? el("button", { class: "btn", text: "This week",
+            ? el("button", { type: "button", class: "k-btn k-btn--sm", text: "This week",
               onclick: function () { KOS.show("pacing", { wb: todayWeek.wb }); } })
             : null,
-          el("button", { class: "btn", text: "Edit week",
+          el("button", { type: "button", class: "k-btn k-btn--sm", text: "Edit week",
             onclick: function () {
               weekDialog(selected, function (w) {
                 if (!w) { KOS.show("pacing", { wb: (KOS.pacing.currentWeek() || {}).wb }); return; }
@@ -1156,14 +1074,61 @@
               });
             } })
         ].filter(Boolean)
-      }));
+      });
+      head.setAttribute("data-ui", head.getAttribute("data-ui") + " pace.week-header");
 
-      if (selected.note) {
-        body.appendChild(el("p", { class: "pace-week-note", text: selected.note }));
-      }
+      /* the week as a hero: whose week it is, how much is ticked, what is behind */
+      var segs = ws.planned ? el("span", { class: "k-pace-hero-segs", role: "img", "aria-label": ws.done + " of " + ws.planned + " ticked" },
+        Array.apply(null, { length: Math.min(ws.planned, 24) }).map(function (_, i) {
+          var s = el("span", { class: "k-pace-hero-seg" });
+          if (i < ws.done) KOS.ui.state(s, "done", true);
+          return s;
+        })) : null;
+      body.appendChild(el("section", { class: "k-pace-hero", "aria-label": selected.label }, [
+        el("p", { class: "k-kicker", text: isNow ? "This week" : todayWeek && selected.wb < todayWeek.wb ? "An earlier week" : "A week ahead" }),
+        head,
+        el("div", { class: "k-pace-hero-side" }, [
+          ws.planned ? el("span", { class: "k-pace-hero-count", text: ws.done + " of " + ws.planned + " ticked" }) : null,
+          segs,
+          ws.carried ? el("span", { class: "k-chip", "data-tone": "amber", text: ws.carried + " behind" }) : null
+        ].filter(Boolean))
+      ]));
 
-      body.appendChild(el("div", { class: "pace-grid" },
+      body.appendChild(el("div", { class: "k-pace-grid" },
         SUBJ.map(function (s) { return subjectColumn(s.id); })));
+
+      /* what else is due inside the week (assignments, from their one
+         store, linked by date) and the week's own note */
+      var foot = [];
+      if (KOS.assignments && KOS.assignments.all) {
+        var end = KOS.pacing.weekEnd(selected.wb);
+        var due = KOS.assignments.all().filter(function (x) {
+          return x.due && x.due >= selected.wb && x.due <= end;
+        }).sort(function (x, y) { return x.due < y.due ? -1 : 1; });
+        if (due.length) {
+          foot.push(el("section", { class: "k-card", "data-ui": "pace.reg-due", "aria-label": "Due this week" },
+            [el("h3", { class: "k-card-title", text: "Due this week" })].concat(due.map(function (x) {
+              var open = KOS.assignments.isOpen ? KOS.assignments.isOpen(x) : x.status !== "complete";
+              var r = el("button", { type: "button", class: "k-pace-due", onclick: function () { KOS.show("assignments"); } }, [
+                el("span", { class: "k-pace-due-bar", "aria-hidden": "true" }),
+                el("span", { class: "k-pace-row-t" }, [
+                  el("b", { text: x.title }),
+                  el("span", { class: "k-pace-row-m", text: shortDate(x.due) + (x.subject ? " · " + (SUBJ.filter(function (s) { return s.id === x.subject; })[0] || {}).short : "") + (open ? "" : " · done") })
+                ])
+              ]);
+              if (x.subject) r.style.setProperty("--pace-hue", HUE[x.subject]);
+              if (!open) KOS.ui.state(r, "is-done", true);
+              return r;
+            }))));
+        }
+      }
+      if (selected.note) {
+        foot.push(el("section", { class: "k-card", "aria-label": "Note for this week" }, [
+          el("h3", { class: "k-card-title", text: "Note for this week" }),
+          el("p", { class: "k-pace-note", text: selected.note })
+        ]));
+      }
+      if (foot.length) body.appendChild(el("div", { class: "k-pace-foot" }, foot));
     }
 
     /* ---------------- the braid ---------------- */
@@ -1172,60 +1137,64 @@
       var model = KOS.pacing.braid();
       var linked = model.lanes.reduce(function (a, l) { return a + l.links.length; }, 0);
 
-      /* No explanatory header: the legend below names every mark, and the
-         long version lives in Help & Guide. A page should not re-teach
-         itself every time it is opened. */
+      /* No explanatory header: the legend names every mark, and the long
+         version lives in Help & Guide. */
       if (!linked) {
         body.appendChild(KOS.ui.emptyState({
           mark: "枝",
           title: "Nothing to braid yet",
           body: "An arc is drawn only where a class row and one of my rows link to the SAME "
             + "specification point. Link some rows to spec points and the branches appear.",
-          action: el("button", { class: "btn primary", text: "Open this week",
+          action: el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Open this week",
             onclick: function () { KOS.show("pacing", { wb: (todayWeek || weeks[0]).wb }); } })
         }));
         return;
       }
 
-      body.appendChild(el("div", { class: "pace-legend" }, [
-        el("span", { class: "pace-legend-k tone-ahead", text: "I reached it first" }),
-        el("span", { class: "pace-legend-k tone-aligned", text: "Same week" }),
-        el("span", { class: "pace-legend-k tone-behind", text: "Class reached it first" }),
-        el("span", { class: "pace-legend-k tone-unplanned", text: "△ Class only — not in my plan" })
-      ]));
-
+      function key(tone, text) {
+        return el("span", { class: "k-pace-key", "data-ui": "pace.legend-k", "data-tone": tone, text: text });
+      }
       var parts = braidSvg(model, todayWeek && todayWeek.wb, function (w) {
         KOS.show("pacing", { wb: w.wb });
       });
-      var frame = el("div", { class: "pace-braid" }, [parts.body]);
-      body.appendChild(el("div", { class: "pace-braid-frame" }, [
-        el("div", { class: "pace-braid-keycol" }, [parts.keys]),
-        KOS.ui.scroller(frame, {
-          className: "pace-braid-wrap",
-          label: "Branch diagram of the term",
-          prevLabel: "Earlier weeks", nextLabel: "Later weeks"
-        })
+      var scroll = KOS.ui.scroller(el("div", { class: "k-pace-braid" }, [parts.body]), {
+        className: "k-pace-braid-wrap",
+        label: "Branch diagram of the term",
+        prevLabel: "Earlier weeks", nextLabel: "Later weeks"
+      });
+      scroll.setAttribute("data-ui", (scroll.getAttribute("data-ui") || "") + " pace.braid-wrap");
+      body.appendChild(el("section", { class: "k-card k-pace-braid-card", "aria-label": "Branch diagram" }, [
+        el("div", { class: "k-card-head" }, [
+          el("h2", { class: "k-card-title", text: "Branch diagram of the term" }),
+          el("div", { class: "k-pace-legend" }, [
+            key("ahead", "I reached it first"),
+            key("same", "Same week"),
+            key("behind", "Class reached it first"),
+            key("open", "△ Class only — not in my plan")
+          ])
+        ]),
+        el("div", { class: "k-pace-braid-frame" }, [el("div", { class: "k-pace-braid-keycol" }, [parts.keys]), scroll])
       ]));
 
       /* The list is not a caption. It is the keyboard and screen-reader
          route through the same edges, and the only one that can carry the
          spec-point names the arcs only have room to encode as thickness. */
-      body.appendChild(KOS.ui.sectionHeader({
-        className: "pace-merge-header",
-        title: "Every merge, in words",
-        sub: linked + " arc" + (linked === 1 ? "" : "s") + " across the term."
-      }));
-
+      var list = el("section", { class: "k-card k-pace-merges", "aria-label": "Every merge, in words" }, [
+        el("div", { class: "k-card-head" }, [
+          el("h2", { class: "k-card-title", text: "Every merge, in words" }),
+          el("span", { class: "k-card-meta", text: linked + " arc" + (linked === 1 ? "" : "s") + " across the term" })
+        ])
+      ]);
       model.lanes.forEach(function (lane) {
         if (!lane.links.length && !lane.unplanned.length) return;
         var meta = SUBJ.filter(function (s) { return s.id === lane.subject; })[0];
-        var box = el("section", { class: "pace-merge-lane", "data-subject": lane.subject,
-          style: "--pace-hue:" + HUE[lane.subject], "aria-label": meta.name + " merges" }, [
-          el("h3", { class: "pace-col-h" }, [
-            el("span", { class: "pace-col-rule", "aria-hidden": "true" }),
-            el("span", { class: "pace-col-name", text: meta.name })
+        var box = el("div", { class: "k-pace-merge-lane", "data-subject": lane.subject, role: "group", "aria-label": meta.name + " merges" }, [
+          el("h3", { class: "k-pace-col-h" }, [
+            el("span", { class: "k-pace-col-dot", "aria-hidden": "true" }),
+            el("span", { class: "k-pace-col-name", text: meta.name })
           ])
         ]);
+        box.style.setProperty("--pace-hue", HUE[lane.subject]);
         lane.links.slice().sort(function (p, q) { return p.toWb < q.toWb ? -1 : 1; }).forEach(function (link) {
           var tone = toneOf(link.lead);
           var from = KOS.pacing.weekAt(link.fromWb) || {}, to = KOS.pacing.weekAt(link.toWb) || {};
@@ -1234,32 +1203,34 @@
             : link.lead < 0
               ? Math.abs(link.lead) + " week" + (Math.abs(link.lead) === 1 ? "" : "s") + " after class"
               : "the same week as class";
-          box.appendChild(el("button", { type: "button", class: "pace-merge tone-" + tone,
+          box.appendChild(el("button", { type: "button", class: "k-pace-merge", "data-ui": "pace.merge", "data-tone": tone,
             "aria-label": link.refs.length + " spec point" + (link.refs.length === 1 ? "" : "s")
               + ", my plan " + (from.label || link.fromWb) + ", class " + (to.label || link.toWb)
               + ", " + when + ". Opens the class week.",
             onclick: function () { KOS.show("pacing", { wb: link.toWb }); } }, [
-            el("span", { class: "pace-merge-arc", "aria-hidden": "true",
-              text: link.lead > 0 ? "↗" : link.lead < 0 ? "↘" : "→" }),
-            el("span", { class: "pace-merge-t" }, [
+            el("span", { class: "k-mono k-pace-merge-ref", text: link.refs.map(function (r) { return r.ref; }).join(", ") }),
+            el("span", { class: "k-pace-row-t" }, [
               el("b", { text: link.refs.map(function (r) { return r.title; }).join(" · ") }),
-              el("span", { class: "sub", text: "mine " + weekTag(from, "personal")
-                + " → class " + weekTag(to, "school")
-                + " · " + when + " · " + link.refs.map(function (r) { return r.ref; }).join(", ") })
-            ])
+              el("span", { class: "k-pace-row-m", "data-ui": "part.sub", text: "mine " + weekTag(from, "personal")
+                + " → class " + weekTag(to, "school") + " · " + when })
+            ]),
+            el("span", { class: "k-chip k-pace-merge-tone", "data-tone": tone === "ahead" ? "teal" : tone === "same" ? "green" : "amber",
+              text: tone === "ahead" ? "I reached it first" : tone === "same" ? "Same week" : "Class reached it first" }),
+            el("span", { class: "k-muted", "aria-hidden": "true", text: "Open →" })
           ]));
         });
         if (lane.unplanned.length) {
           var byRef = {};
           lane.unplanned.forEach(function (u) { byRef[u.ref] = u; });
-          var list = Object.keys(byRef).map(function (r) { return byRef[r]; });
-          box.appendChild(el("p", { class: "sub pace-merge-open", text:
-            list.length + " spec point" + (list.length === 1 ? "" : "s")
+          var open = Object.keys(byRef).map(function (r) { return byRef[r]; });
+          box.appendChild(el("p", { class: "k-pace-none", text:
+            open.length + " spec point" + (open.length === 1 ? "" : "s")
             + " class teaches that my plan never schedules: "
-            + list.map(function (u) { return u.title + " (" + u.ref + ")"; }).join("; ") + "." }));
+            + open.map(function (u) { return u.title + " (" + u.ref + ")"; }).join("; ") + "." }));
         }
-        body.appendChild(box);
+        list.appendChild(box);
       });
+      body.appendChild(list);
     }
 
     /* A week or tab change is a NAVIGATION (KOS.show above), so this only

@@ -368,6 +368,14 @@
    "from": "^Calendar →$",
    "retire": true,
    "why": "Graphite step 4d (Calendar, frame 10e): the Countdowns card on the Calendar page no longer links to the page it is on."
+  },
+  {
+   "surface": "pacing.*",
+   "hooks": "pace.class",
+   "from": ".*",
+   "retire": true,
+   "reachable": true,
+   "why": "Graphite step 4e (Pacing, frame 10f): a class row's sub-line now carries its spec refs, and the assignments due in the week moved out of the subject columns into one \"Due this week\" card; each row still opens the same dialog or page."
   }
  ]
 }

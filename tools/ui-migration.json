@@ -28,7 +28,8 @@
     "js/modules/focus.js",
     "js/modules/reminders.js",
     "js/modules/todo.js",
-    "js/modules/calendar.js"
+    "js/modules/calendar.js",
+    "js/modules/pacing.js"
   ],
   "views": {
     "home": {},
@@ -42,6 +43,7 @@
     "focus": {},
     "reminders": {},
     "tasks": {},
-    "calendar": {}
+    "calendar": {},
+    "pacing": {}
   }
 }

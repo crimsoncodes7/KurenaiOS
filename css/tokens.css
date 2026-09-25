@@ -343,6 +343,16 @@ color-scheme: dark;
 --cal-cd-days-w: 44px;
 --cal-row-bar-w: 4px;
 --cal-kv-w: 110px;
+--pace-wk-w: 104px;
+--pace-seg-h: 4px;
+--pace-hero-seg-h: 8px;
+--pace-hero-segs-w: 280px;
+--pace-dot: 9px;
+--pace-tick: 18px;
+--pace-keycol-w: 116px;
+--pace-merge-ref-w: 90px;
+--pace-merge-tone-w: 170px;
+--pace-wash: oklch(0.27 0.05 80 / 0.55);
 
 /* ---------- elevation (invariant 79) ----------
    Surfaces are flat; only floating layers (menus, dialogs, the share card)
