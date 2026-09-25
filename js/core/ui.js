@@ -190,6 +190,10 @@
        positioned and legible. Rebuilt dialogs already carry these. */
     overlay.classList.add("k-dialog-overlay");
     if (box !== overlay) box.classList.add("k-dialog");
+    /* the hooks every dialog carries, however it was built */
+    function hook(n, h) { var v = n.getAttribute("data-ui") || ""; if ((" " + v + " ").indexOf(" " + h + " ") === -1) n.setAttribute("data-ui", (v + " " + h).trim()); }
+    hook(overlay, "ui.dialog-overlay");
+    if (box !== overlay) hook(box, "ui.dialog");
 
     box.setAttribute("role", box.getAttribute("role") || "dialog");
     box.setAttribute("aria-modal", "true");

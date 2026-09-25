@@ -262,6 +262,58 @@
     "nav": "#/review"
    },
    "why": "Graphite step 3e (Review, frame 9a): the way back opens the Review overview (the queue), not straight into a session."
+  },
+  {
+   "whenDialog": "^課 Assignment$",
+   "rewriteEffects": {
+    "dialog": [
+     "^課 Assignment$",
+     "Assignment"
+    ]
+   },
+   "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): the assignment dialog is named \"Assignment\" — its 課 mark is decorative."
+  },
+  {
+   "surface": "assignments",
+   "whenDialog": "Assignment",
+   "expect": {},
+   "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): on the tracker page an assignment opens in the panel beside the list, not in a dialog."
+  },
+  {
+   "surface": "tracker",
+   "from": "^Date ↕$",
+   "to": "Date ↓",
+   "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): the sort toggle says which way it sorts."
+  },
+  {
+   "surface": "tracker",
+   "retire": true,
+   "reachable": true,
+   "from": "✎$",
+   "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): a record row is no longer an ARIA button holding other controls (invariant 67); its title button opens the reflections."
+  },
+  {
+   "surface": "tracker",
+   "retire": true,
+   "from": "^Open .* →$",
+   "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): the reflections (and their topic link) are hidden until a row is opened; smoke3 covers the row."
+  },
+  {
+   "navTo": "^#/ref/",
+   "dropEffects": {
+    "state": "^(custom\\.quizzes\\[\\]$|progress\\.)"
+   },
+   "why": "Graphite step 3 (topic page, frame 8b): a topic page that is only looked at writes nothing (§0.2.3). The old page materialised the topic's progress record and the custom-quiz array on arrival; opening a topic no longer carries those writes."
+  },
+  {
+   "surface": "ref:.*",
+   "rewriteEffects": {
+    "state": [
+     "^(progress\\.[a-z]+:[A-Za-z0-9.]+?)\\.(rag|status|check\\[\\]|note)$",
+     "$1"
+    ]
+   },
+   "why": "Graphite step 3 (topic page, frame 8b): the progress record is created by the first real edit rather than on render, so a status, check or RAG pick now writes the whole record where it used to write one field of a record the render had already made."
   }
  ]
 }

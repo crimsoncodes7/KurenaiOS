@@ -455,6 +455,26 @@ the invariants and the hook contract still govern behaviour.
   distribution, and the per-topic breakdown for every subject in scope.
   Chart colours are theme tokens; the low-data rule (invariant 76) holds.
 
+### Step 3f/3g as delivered — Assignments and Exams & Papers (frames 9c–9e)
+
+- `assignments.js` and `tracker.js` are rebuilt files. Assignments is one
+  grouped list (Overdue / This week / Later / No deadline / Done) under four
+  pill filters; a row opens an inline panel, and the modal detail is the
+  same body (`detailBody`). The edit form is a `k-dialog`. The Home-only
+  urgent card is gone, because Home reads assignments itself.
+- Exams & Papers: kind tabs, a strip of figures, the trend, and a table
+  whose row title opens its detail in place. Logging is a dialog with kind
+  tabs and a live preview line.
+- Every Study view is now in `ui-migration.json`, so smoke56 holds them to
+  render purity. The topic page reads progress through `peekProgress` and
+  `customQuizFor` no longer materialises `custom.quizzes`. The first real
+  edit creates the record. Two parity rules record this: opening a topic
+  drops the old on-arrival writes, and a field write folds into its record.
+  `rewriteEffects` now normalises both sides of the comparison, the same way
+  `dropEffects` does.
+- `openDialog` stamps `ui.dialog-overlay`/`ui.dialog` on every dialog, so
+  rebuilt dialogs pass the modal audit and release the scroll lock.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

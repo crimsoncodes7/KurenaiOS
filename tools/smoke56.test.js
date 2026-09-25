@@ -59,6 +59,10 @@ const BASELINE = path.join(__dirname, "baselines", "render-purity.json");
    `via` names the root to look in when that control lives outside the
    replayed regions (the spine's subject switch, in #tree).
 
+   `whenDialog` narrows a rule to controls whose recorded effect opened a
+   dialog of that (pattern) name. `rewriteEffects` ({effect: [pattern,
+   replacement]}) renames an effect value on BOTH sides — a dialog renamed
+   with the design, or a field write folded into its record.
    `dropEffects` ({effect: pattern}) takes named side effects out of the
    contract on BOTH sides of the comparison (a spine the desk no longer
    draws writes openSections at a different depth, or not at all); `expect` replaces the recorded effects outright where a
@@ -272,6 +276,7 @@ async function main() {
   function applies(r, c, surfId) {
     if (r.surface && !new RegExp("^(?:" + r.surface + ")$").test(surfId)) return false;
     if (r.navTo && !(c.effects && c.effects.nav && new RegExp(r.navTo).test(c.effects.nav))) return false;
+    if (r.whenDialog && !(c.effects && c.effects.dialog && c.effects.dialog.some((d) => new RegExp(r.whenDialog).test(d)))) return false;
     return !(r.hooks && !c.key.hooks.split(" ").includes(r.hooks));
   }
   function renamed(c, surfId) {
@@ -294,16 +299,26 @@ async function main() {
     }
     return out;
   }
+  function rewrite(eff, rewrites) {
+    if (!eff || !rewrites.length) return eff;
+    const out = JSON.parse(JSON.stringify(eff));
+    for (const [k, re, to] of rewrites) if (Array.isArray(out[k])) out[k] = uniq(out[k].map((x) => x.replace(re, to)));
+    return out;
+  }
   function contract(c, surfId) {
     let eff = c.effects;
-    const drops = [];
+    const drops = [], rewrites = [];
     for (const r of renames) {
-      if (!(r.dropEffects || r.expect) || !applies(r, c, surfId)) continue;
+      if (!(r.dropEffects || r.expect || r.rewriteEffects) || !applies(r, c, surfId)) continue;
       if (r.from && !new RegExp(r.from).test(c.key.name)) continue;
       if (r.expect) { eff = r.expect; continue; }
+      if (r.rewriteEffects) {
+        for (const k of Object.keys(r.rewriteEffects)) rewrites.push([k, new RegExp(r.rewriteEffects[k][0]), r.rewriteEffects[k][1]]);
+        continue;
+      }
       for (const k of Object.keys(r.dropEffects)) drops.push([k, new RegExp(r.dropEffects[k])]);
     }
-    return { eff: without(eff, drops), drops };
+    return { eff: without(rewrite(eff, rewrites), drops), drops, rewrites };
   }
   const record = { recordedFrom: null, clock: null, surfaces: {} };
 
@@ -372,7 +387,7 @@ async function main() {
         }
       }
       const target = JSON.stringify(want.eff);
-      return current[id].some((e) => JSON.stringify(without(e, want.drops)) === target);
+      return current[id].some((e) => JSON.stringify(without(rewrite(e, want.rewrites), want.drops)) === target);
     }
     function retirement(c0, c) {
       return renames.find((r) => r.retire && applies(r, c0, surf.id) && applies(r, c, surf.id) &&
@@ -392,7 +407,7 @@ async function main() {
         continue;
       }
       const want = contract(c, surf.id);
-      const a = JSON.stringify(without(eff, want.drops)), b = JSON.stringify(want.eff);
+      const a = JSON.stringify(without(rewrite(eff, want.rewrites), want.drops)), b = JSON.stringify(want.eff);
       if (a !== b) fail(`${label}: effects changed\n      was ${b}\n      now ${a}`);
     }
   }

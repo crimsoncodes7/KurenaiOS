@@ -318,8 +318,9 @@ step("the page filters and the full detail view both work", async () => {
   const row = $("[data-ui~='asg.row']");
   click(byName(row, /^Open$/));
   await tick(60);
-  const modal = $("[data-ui~='asg.detail-modal']");
-  if (!modal) throw new Error("the detail view did not open");
+  /* Graphite (frame 9c): the detail is a panel beside the list */
+  const modal = $("[data-ui~='asg.detail']");
+  if (!modal || !/Shown fully/.test(modal.textContent)) throw new Error("the detail view did not open");
   ["Progress", "Priority", "Estimated", "Actual", "Deadline", "Subtasks"].forEach(h => {
     if (modal.textContent.indexOf(h) === -1) throw new Error("detail is missing " + h);
   });

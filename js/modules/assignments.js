@@ -1,6 +1,6 @@
 /* Kurenai OS — modules/assignments.js
    課 The Assignment Tracker (Build 6.4) — the Study workspace page, its
-   create/edit modal, and the read-only widgets the other surfaces mount.
+   create/edit dialog, and the detail the other surfaces open.
 
    Every widget here READS KOS.assignments. None of them writes a copy, so
    the derived surfaces (calendar chip, countdown row, Home card, focus link)
@@ -38,190 +38,325 @@
     var h = Math.floor(m / 60), r = m % 60;
     return h ? h + "h" + (r ? " " + r + "m" : "") : r + "m";
   }
-  function statusPill(a) {
+  function dueLine(a) {
+    if (!a.due) return { text: "No deadline", late: false };
+    var t = KOS.srs.todayISO(), d = KOS.srs.daysBetween(t, a.due);
+    if (A().isOverdue(a)) { var n = Math.max(1, -d); return { text: "Overdue · " + n + (n === 1 ? " day" : " days"), late: true }; }
+    if (d === 0) return { text: "Today" + (a.dueTime ? " · " + a.dueTime : ""), late: false, soon: true };
+    if (d === 1) return { text: "Tomorrow" + (a.dueTime ? " · " + a.dueTime : ""), late: false, soon: true };
+    if (d < 7) return { text: "in " + d + " days", late: false };
+    return { text: fmtDue(a), late: false };
+  }
+  function statusChip(a) {
     var s = A().STATUSES.find(function (x) { return x.v === a.status; }) || A().STATUSES[0];
-    return el("span", { class: "asg-status s-" + a.status, text: s.label });
+    var late = A().isOverdue(a);
+    var tone = late ? "crimson" : a.status === "inProgress" ? "amber" : a.status === "blocked" ? "red" : (a.status === "complete" || a.status === "submitted") ? "green" : "muted";
+    return el("span", { class: "k-chip", "data-ui": "asg.status", "data-tone": tone, text: late ? "Overdue" : s.label });
   }
   function progressBar(a) {
-    return el("span", { class: "asg-track", title: a.progress + "%" },
-      [el("i", { style: "width:" + a.progress + "%" })]);
+    return el("span", { class: "k-bar k-asg-track", "data-ui": "asg.track", role: "img", "aria-label": a.progress + "% done",
+      style: "--p: " + a.progress + "%; --bar-c: " + HUE(a.subject) }, [el("i")]);
   }
+  function HUE(sid) { return { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" }[sid] || "var(--muted)"; }
 
-  /* ================= the page ================= */
+  /* ================= the page (Graphite frame 9c) =================
+     The queue in groups — Overdue, This week, Later, No deadline, Done —
+     with the filters as pills above it, and the selected assignment's
+     detail in a panel beside the list rather than a dialog over it. */
+  var selectedId = null;
   KOS.views.assignments = function (main, arg) {
     KOS.shell.tree("none");
     var p = prefs();
     if (typeof arg === "string") p.subject = arg;
     else if (arg && arg.subject !== undefined) p.subject = arg.subject;
+    if (arg && arg.id != null) selectedId = arg.id;
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "課 · The work queue" }),
-        el("h1", { text: "Assignment Tracker" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "One record per assignment — the calendar, countdowns, Home and the focus timer all read it rather than keeping their own copy." })
-        ])
-      ]),
-      el("div", { class: "dh-actions" }, [
-        el("button", { class: "btn primary", text: "＋ New assignment", onclick: function () { editModal(null, refresh); } })
-      ])
+    var sub = el("span");
+    var head = KOS.ui.pageHeader({ kicker: "課 · The work queue", title: "Assignments", sub: " ",
+      actions: [el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "＋ New assignment",
+        onclick: function () { editModal(null, function (rec) { if (rec) selectedId = rec.id; refresh(); }); } })] });
+    var subSlot = head.querySelector("[data-ui~='part.board']");
+    if (subSlot) { subSlot.textContent = ""; subSlot.appendChild(sub); }
+
+    function pillSelect(label, value, options, onchange) {
+      var s = el("select", { class: "k-pill-select", "data-ui": "ui.status-select", "aria-label": label },
+        options.map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+      s.value = value;
+      s.addEventListener("change", function () { onchange(s.value); KOS.store.save(); refresh(); });
+      return s;
+    }
+    var tools = el("div", { class: "k-asg-tools", "data-ui": "asg.tools" }, [
+      pillSelect("Filter by subject", p.subject || "", [["", "All subjects"]].concat(Object.keys(window.KOS_DATA || {}).filter(function (k) { return KOS_DATA[k] && KOS_DATA[k].sections; }).map(function (sid) { return [sid, subjName(sid)]; })), function (v) { p.subject = v; }),
+      pillSelect("Filter by status", p.status || "", [["", "Any status"]].concat(A().STATUSES.map(function (s) { return [s.v, s.label]; })), function (v) { p.status = v; }),
+      pillSelect("Filter by deadline", p.due || "", A().DUE_FILTERS.map(function (d) { return [d.v, d.label]; }), function (v) { p.due = v; }),
+      pillSelect("Sort", p.sort || "due", A().SORTS.map(function (s) { return [s.v, "Sort: " + s.label.toLowerCase()]; }), function (v) { p.sort = v; })
+    ]);
+    var listEl = el("div", { class: "k-asg-list", "data-ui": "asg.list" });
+    var panel = el("aside", { class: "k-asg-panel", "data-ui": "asg.detail", "aria-label": "Assignment" });
+    main.appendChild(el("div", { class: "k-asg" }, [
+      el("div", { class: "k-asg-col" }, [head, tools, listEl]),
+      panel
     ]));
 
-    /* --- the stat band --- */
-    var band = el("div", { class: "asg-band" });
-    main.appendChild(band);
-
-    /* --- filters --- */
-    var subjSel = el("select", { class: "status-sel", "aria-label": "Filter by subject" },
-      [el("option", { value: "", text: "All subjects" })].concat(
-        Object.keys(window.KOS_DATA || {}).map(function (sid) {
-          return el("option", { value: sid, text: subjName(sid) });
-        })));
-    subjSel.value = p.subject || "";
-    var statusSel = el("select", { class: "status-sel", "aria-label": "Filter by status" },
-      [el("option", { value: "", text: "Any status" })].concat(
-        A().STATUSES.map(function (s) { return el("option", { value: s.v, text: s.label }); })));
-    statusSel.value = p.status || "";
-    var dueSel = el("select", { class: "status-sel", "aria-label": "Filter by deadline" },
-      A().DUE_FILTERS.map(function (d) { return el("option", { value: d.v, text: d.label }); }));
-    dueSel.value = p.due || "";
-    var sortSel = el("select", { class: "status-sel", "aria-label": "Sort" },
-      A().SORTS.map(function (s) { return el("option", { value: s.v, text: s.label }); }));
-    sortSel.value = p.sort || "due";
-    var searchIn = el("input", { type: "search", class: "todo-in asg-search", placeholder: "Search assignments…", "aria-label": "Search assignments" });
-
-    [subjSel, statusSel, dueSel, sortSel].forEach(function (s) {
-      s.addEventListener("change", function () {
-        p.subject = subjSel.value; p.status = statusSel.value;
-        p.due = dueSel.value; p.sort = sortSel.value;
-        KOS.store.save(); refresh();
-      });
-    });
-    searchIn.addEventListener("input", KOS.ui.debounce(function () { refresh(); }, 200));
-
-    main.appendChild(el("div", { class: "asg-tools" }, [searchIn, subjSel, statusSel, dueSel, sortSel]));
-
-    var countLine = el("p", { class: "sub asg-count" });
-    var listEl = el("div", { class: "asg-list" });
-    main.appendChild(countLine);
-    main.appendChild(listEl);
-
     function refresh() {
-      /* the band */
-      band.innerHTML = "";
       var c = A().counts(p.subject || null);
-      [["Open", c.open, ""], ["Overdue", c.overdue, c.overdue ? "bad" : ""],
-       ["In progress", c.inProgress, ""], ["Submitted", c.submitted, ""], ["Complete", c.complete, ""]]
-        .forEach(function (x) {
-          band.appendChild(el("div", { class: "asg-stat " + x[2] }, [
-            el("b", { text: String(x[1]) }), el("span", { text: x[0] })
-          ]));
-        });
+      var rowsAll = A().query({ subject: p.subject || null, sort: p.sort });
+      var week = rowsAll.filter(function (a) { return A().OPEN_STATUSES.indexOf(a.status) !== -1 && a.due && !A().isOverdue(a) && KOS.srs.daysBetween(KOS.srs.todayISO(), a.due) < 7; }).length;
+      sub.textContent = [c.overdue ? c.overdue + " overdue" : null, week ? week + " due in the next week" : null].filter(Boolean).join(", ") ||
+        (c.open ? c.open + " open, none due this week." : "Nothing open.");
+      if (sub.textContent.slice(-1) !== ".") sub.textContent += ".";
 
-      var rows = A().query({ subject: p.subject || null, status: p.status || null,
-        due: p.due || null, search: searchIn.value, sort: p.sort });
-      var filtered = !!(p.subject || p.status || p.due || searchIn.value.trim());
-      countLine.textContent = rows.length + (rows.length === 1 ? " assignment" : " assignments") + (filtered ? " (filtered)" : "");
-
+      var rows = A().query({ subject: p.subject || null, status: p.status || null, due: p.due || null, sort: p.sort });
+      var filtered = !!(p.subject || p.status || p.due);
       listEl.innerHTML = "";
       if (!rows.length) {
-        listEl.appendChild(KOS.medview.emptyState(
-          filtered ? "Nothing matches these filters."
+        listEl.appendChild(KOS.ui.emptyState({ compact: true, mark: "課",
+          body: filtered ? "Nothing matches these filters."
             : "No assignments yet. Add the next thing that's due and it appears on the calendar, in your countdowns and on Home.",
-          filtered ? [] : [el("button", { class: "btn primary", text: "＋ New assignment", onclick: function () { editModal(null, refresh); } })]));
+          action: filtered ? null : el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "＋ New assignment",
+            onclick: function () { editModal(null, function (rec) { if (rec) selectedId = rec.id; refresh(); }); } }) }));
+        selectedId = null;
+        paintPanel();
         return;
       }
-      rows.forEach(function (a) { listEl.appendChild(row(a)); });
+      var today = KOS.srs.todayISO();
+      var groups = [["Overdue", []], ["This week", []], ["Later", []], ["No deadline", []], ["Done", []]];
+      rows.forEach(function (a) {
+        if (a.status === "complete" || a.status === "submitted") groups[4][1].push(a);
+        else if (A().isOverdue(a)) groups[0][1].push(a);
+        else if (!a.due) groups[3][1].push(a);
+        else if (KOS.srs.daysBetween(today, a.due) < 7) groups[1][1].push(a);
+        else groups[2][1].push(a);
+      });
+      if (selectedId == null || !rows.some(function (a) { return a.id === selectedId; })) {
+        var first = groups.filter(function (g) { return g[1].length; })[0];
+        selectedId = first ? first[1][0].id : null;
+      }
+      groups.forEach(function (g, gi) {
+        if (!g[1].length) return;
+        listEl.appendChild(el("h2", { class: "k-asg-group", "data-state": gi === 0 ? "late" : null, text: g[0] + " · " + g[1].length }));
+        g[1].forEach(function (a) { listEl.appendChild(row(a)); });
+      });
+      paintPanel();
     }
 
     function row(a) {
-      var overdue = A().isOverdue(a);
+      var d = dueLine(a);
       var next = A().nextSubtask(a);
-      /* Phase F: the row carries a status <select> and its own buttons,
-         so it cannot be an ARIA button; the title is the control. */
-      var node = el("div", { class: "asg-row" + (overdue ? " overdue" : "") + " st-" + a.status + " pr-" + a.priority,
-        onclick: function (ev) { if (!ev.target.closest("button, select")) detailModal(a.id, refresh); } });
-
-      node.appendChild(el("div", { class: "asg-row-main" }, [
-        el("div", { class: "asg-row-top" }, [
-          a.priority ? el("span", { class: "asg-prio", title: A().PRIORITIES[a.priority].label,
-            text: A().PRIORITIES[a.priority].short }) : null,
-          el("button", { type: "button", class: "asg-title", text: a.title, title: a.title,
-            onclick: function (ev) { ev.stopPropagation(); detailModal(a.id, refresh); } }),
-          statusPill(a)
-        ].filter(Boolean)),
-        el("div", { class: "asg-row-meta" }, [
-          el("span", { class: "asg-chip subj", text: shortSubj(a.subject) }),
-          el("span", { class: "asg-chip type", text: A().typeLabel(a.type) }),
-          el("span", { class: "asg-chip due" + (overdue ? " overdue" : a.due === KOS.srs.todayISO() ? " today" : ""),
-            text: overdue ? "Overdue · " + fmtDue(a) : fmtDue(a) }),
-          a.showInCountdown ? el("span", { class: "asg-chip major", title: "Shows in Countdowns", text: "◈ major" }) : null,
-          (a.subtasks || []).length ? el("span", { class: "asg-chip", text: (a.subtasks.filter(function (s) { return s.done; }).length) + "/" + a.subtasks.length + " subtasks" }) : null
-        ].filter(Boolean)),
-        next ? el("div", { class: "asg-next" }, [
-          el("span", { class: "asg-next-k", text: "Next" }),
-          el("span", { text: next.text })
-        ]) : null
-      ].filter(Boolean)));
-
-      node.appendChild(el("div", { class: "asg-row-side" }, [
-        el("div", { class: "asg-prog" }, [progressBar(a), el("span", { class: "asg-pct", text: a.progress + "%" })]),
-        el("button", { class: "mini-btn", text: "Open", onclick: function () { detailModal(a.id, refresh); } })
-      ]));
+      var done = a.status === "complete" || a.status === "submitted";
+      var node = el("div", { class: "k-asg-row", "data-ui": "asg.row", style: "--c: " + HUE(a.subject),
+        "data-state": [a.id === selectedId ? "selected" : null, done ? "done" : null].filter(Boolean).join(" ") || null,
+        onclick: function (ev) { if (!ev.target.closest("button, select")) select(a.id); } }, [
+        el("span", { class: "k-asg-bar", "aria-hidden": "true" }),
+        el("div", { class: "k-asg-main" }, [
+          el("div", { class: "k-asg-titlerow" }, [
+            a.priority ? el("span", { class: "k-asg-prio", "data-ui": "asg.priority", title: A().PRIORITIES[a.priority].label + " priority",
+              text: A().PRIORITIES[a.priority].short }) : null,
+            el("button", { type: "button", class: "k-asg-title", "data-ui": "asg.title", text: a.title, title: a.title,
+              "aria-pressed": String(a.id === selectedId), onclick: function () { select(a.id); } }),
+            a.showInCountdown ? el("span", { class: "k-asg-major", title: "A major deadline — shows in Countdowns", text: "◈" }) : null
+          ].filter(Boolean)),
+          el("div", { class: "k-asg-sub" }, [shortSubj(a.subject) + " · " + A().typeLabel(a.type).replace(" / NEA", "") +
+            (next ? " · Next: " + next.text : "")])
+        ]),
+        el("div", { class: "k-asg-prog" }, [progressBar(a), el("span", { class: "k-mono k-muted", text: a.progress + "%" })]),
+        el("span", { class: "k-asg-due", "data-state": d.late ? "late" : d.soon ? "soon" : null, text: done ? A().STATUSES.find(function (x) { return x.v === a.status; }).label : d.text }),
+        statusChip(a),
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-asg-open", "aria-label": "Open", title: "Open " + a.title, text: "›",
+          onclick: function () { select(a.id); } })
+      ].filter(Boolean));
       return node;
+    }
+    function select(id) { selectedId = id; refresh(); }
+    function paintPanel() {
+      panel.innerHTML = "";
+      if (selectedId == null || !A().get(selectedId)) {
+        panel.appendChild(KOS.ui.emptyState({ compact: true, body: "Select an assignment to see its brief, subtasks and progress." }));
+        return;
+      }
+      detailBody(panel, selectedId, { onChange: refresh, onClose: function () { selectedId = null; paintPanel(); refresh(); } });
     }
 
     refresh();
   };
 
-  /* ================= create / edit modal ================= */
+  /* the one detail body — the page's panel and the dialog other surfaces
+     open (Home, Calendar, search) render the same thing */
+  function detailBody(host, id, o) {
+    o = o || {};
+    function repaint() {
+      var a = A().get(id);
+      host.innerHTML = "";
+      if (!a) { if (o.onGone) o.onGone(); return; }
+      var d = dueLine(a);
+      host.appendChild(el("div", { class: "k-asg-dhead" }, [
+        el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: "課" }),
+        el("span", { class: "k-kicker", text: "Assignment" }),
+        el("span", { class: "k-spacer" }),
+        el("button", { type: "button", class: "k-btn k-btn--sm", text: "✎ Edit", onclick: function () {
+          if (o.beforeEdit) o.beforeEdit();
+          editModal(id, function () { repaint(); o.onChange && o.onChange(); });
+        } }),
+        o.onClose ? el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close", text: "✕", onclick: o.onClose }) : null
+      ].filter(Boolean)));
+      host.appendChild(el("div", {}, [
+        el("h2", { class: "k-asg-dtitle", text: a.title }),
+        el("div", { class: "k-asg-chips" }, [
+          el("span", { class: "k-chip", style: "--chip-c: " + HUE(a.subject), text: subjName(a.subject) }),
+          el("span", { class: "k-chip", "data-tone": "muted", text: A().typeLabel(a.type) }),
+          a.priority ? el("span", { class: "k-chip", "data-tone": "amber", text: "Priority · " + A().PRIORITIES[a.priority].label }) : null,
+          a.showInCountdown ? el("span", { class: "k-chip", "data-tone": "crimson", text: "◈ major" }) : null,
+          el("span", { class: "k-chip", "data-tone": d.late ? "crimson" : "muted", title: "Deadline: " + fmtDue(a), text: d.late ? d.text : "Deadline · " + fmtDue(a) })
+        ].filter(Boolean))
+      ]));
+      host.appendChild(el("div", { class: "k-asg-stats" }, [
+        stat("Progress", a.progress + "%"),
+        stat("Estimated", fmtMins(a.estimateMins)),
+        stat("Actual", fmtMins(a.actualMins))
+      ]));
+      if (a.description) host.appendChild(block("Brief", el("p", { class: "k-asg-text", text: a.description })));
+
+      /* subtasks: tick, delete, add */
+      var subs = a.subtasks || [];
+      var subWrap = el("div", { class: "k-asg-subs" });
+      subs.forEach(function (s) {
+        var cb = el("input", { type: "checkbox", class: "k-box", "aria-label": (s.done ? "Untick " : "Tick ") + s.text,
+          onchange: function () { A().subToggle(id, s.id, cb.checked); repaint(); o.onChange && o.onChange(); } });
+        cb.checked = !!s.done;
+        subWrap.appendChild(el("div", { class: "k-asg-sub", "data-state": s.done ? "done" : null }, [
+          cb, el("span", { class: "k-asg-sub-t", text: s.text }),
+          el("button", { type: "button", class: "k-asg-x", "aria-label": "Delete subtask", text: "✕",
+            onclick: function () { A().subRemove(id, s.id); repaint(); o.onChange && o.onChange(); } })
+        ]));
+      });
+      var subIn = el("input", { type: "text", class: "k-asg-subin", "aria-label": "Add a subtask", placeholder: "+ Add a subtask…",
+        onkeydown: function (e) {
+          if (e.key === "Enter" && subIn.value.trim()) { A().subAdd(id, subIn.value.trim()); repaint(); o.onChange && o.onChange(); }
+        } });
+      subWrap.appendChild(subIn);
+      host.appendChild(el("section", { class: "k-asg-block", "aria-label": "Subtasks" }, [
+        el("div", { class: "k-asg-blockhead" }, [el("h3", { class: "k-kicker", text: "Subtasks" }),
+          subs.length ? el("span", { class: "k-mono k-muted", text: subs.filter(function (s) { return s.done; }).length + " / " + subs.length }) : null].filter(Boolean)),
+        subWrap
+      ]));
+
+      if ((a.topics || []).length) {
+        host.appendChild(block("Related topics", el("div", { class: "k-asg-chips" }, a.topics.map(function (t) {
+          return el("button", { type: "button", class: "k-chip", "data-ui": "asg.topic", style: "--chip-c: " + HUE(t.subject),
+            text: shortSubj(t.subject) + " " + t.ref, onclick: function () { if (o.onLeave) o.onLeave(); KOS.show("ref", { subject: t.subject, ref: t.ref }); } });
+        }))));
+      }
+
+      /* attachments — the existing store, under this assignment's ref */
+      var attWrap = el("div", { class: "k-asg-att" });
+      host.appendChild(block("Attachments", attWrap));
+      if (KOS.attach && KOS.attach.available && KOS.attach.available()) {
+        var fileIn = el("input", { type: "file", class: "sr-only", tabindex: "-1", "aria-hidden": "true", onchange: function () {
+          if (!fileIn.files[0]) return;
+          KOS.attach.add(a.subject || "_", A().attachRef(a), fileIn.files[0], function (err) {
+            if (err) KOS.ui.toast("Upload failed: " + err.message, true);
+            else { KOS.ui.toast("Attached."); repaint(); }
+            fileIn.value = "";
+          });
+        } });
+        attWrap.appendChild(fileIn);
+        A().attachmentsFor(a, function (err, rows) {
+          (rows || []).forEach(function (r) {
+            attWrap.appendChild(el("div", { class: "k-asg-sub" }, [
+              el("span", { class: "k-asg-sub-t", text: r.name }),
+              el("button", { type: "button", class: "k-asg-x", "aria-label": "Remove attachment", text: "✕",
+                onclick: function () { KOS.attach.remove(r.id, function () { repaint(); }); } })
+            ]));
+          });
+          attWrap.appendChild(el("button", { type: "button", class: "k-link", text: "⇪ Attach a file…", onclick: function () { fileIn.click(); } }));
+        });
+      } else {
+        attWrap.appendChild(el("p", { class: "k-muted", text: "File attachments need IndexedDB, which this context doesn't provide." }));
+      }
+      if (a.notes) host.appendChild(block("Notes", el("p", { class: "k-asg-text", text: a.notes })));
+
+      /* the way forward: focus on it, and the status transitions spelled out */
+      var actions = el("div", { class: "k-asg-actions", "data-ui": "asg.detail-actions" });
+      A().STATUSES.forEach(function (s) {
+        if (s.v === a.status) return;
+        var label = s.v === "complete" ? "✓ Complete" : s.v === "submitted" ? "⇪ Submitted"
+          : s.v === "notStarted" ? "↺ Reopen" : s.label;
+        if ((a.status === "complete" || a.status === "submitted") && s.v === "inProgress") label = "↺ Reopen";
+        actions.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", text: label,
+          onclick: function () { A().setStatus(id, s.v); repaint(); o.onChange && o.onChange(); } }));
+      });
+      host.appendChild(el("div", { class: "k-asg-foot" }, [
+        a.subject ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "◉ Focus on this", onclick: function () {
+          if (o.onLeave) o.onLeave();
+          KOS.show("focus", { assignmentId: id });
+        } }) : null,
+        actions
+      ].filter(Boolean)));
+    }
+    function stat(k, v) {
+      return el("div", { class: "k-asg-stat" }, [el("span", { text: k }), el("b", { text: v })]);
+    }
+    function block(h, node) {
+      return el("section", { class: "k-asg-block", "aria-label": h }, [el("h3", { class: "k-kicker", text: h }), node]);
+    }
+    repaint();
+    return { repaint: repaint };
+  }
+
+  /* ================= create / edit ================= */
   function editModal(id, done) {
     var existing = id != null ? A().get(id) : null;
     var a = existing || A().normalise({});
-    var overlay = KOS.medview.modalOverlay();
-    var f = KOS.medview.field;
+    var overlay = el("div", { class: "k-dialog-overlay" });
+    overlay.close = function () { overlay.remove(); };
+    function f(label, control, wide) {
+      return el("label", { class: "k-field" + (wide ? " k-field--wide" : "") }, [el("span", { class: "k-field-label", text: label }), control]);
+    }
+    function input(type, value, attrs) {
+      var i = el("input", Object.assign({ type: type, class: "k-input" }, attrs || {}));
+      i.value = value == null ? "" : String(value);
+      return i;
+    }
+    function select(options, value) {
+      var s = el("select", { class: "k-input" }, options.map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+      s.value = value;
+      return s;
+    }
 
-    var title = el("input", { type: "text", class: "todo-in", value: a.title || "", placeholder: "e.g. NEA writeup — analysis section" });
-    var subj = el("select", { class: "status-sel" },
-      [el("option", { value: "", text: "No subject" })].concat(
-        Object.keys(window.KOS_DATA || {}).map(function (sid) { return el("option", { value: sid, text: subjName(sid) }); })));
-    subj.value = a.subject || "";
-    var type = el("select", { class: "status-sel" }, A().TYPES.map(function (t) { return el("option", { value: t.v, text: t.label }); }));
-    type.value = a.type || "homework";
-    var desc = el("textarea", { class: "todo-in", rows: "2", placeholder: "What is actually being asked for?" });
+    var title = input("text", a.title || "", { placeholder: "e.g. NEA writeup — analysis section" });
+    var subj = select([["", "No subject"]].concat(Object.keys(window.KOS_DATA || {}).filter(function (k) { return KOS_DATA[k] && KOS_DATA[k].sections; }).map(function (sid) { return [sid, subjName(sid)]; })), a.subject || "");
+    var type = select(A().TYPES.map(function (t) { return [t.v, t.label]; }), a.type || "homework");
+    var desc = el("textarea", { class: "k-input", rows: "2", placeholder: "What is actually being asked for?" });
     desc.value = a.description || "";
-    var assigned = el("input", { type: "date", class: "todo-in", value: a.assigned || KOS.srs.todayISO() });
-    var due = el("input", { type: "date", class: "todo-in", value: a.due || "" });
-    var dueTime = el("input", { type: "time", class: "todo-in", value: a.dueTime || "" });
-    var status = el("select", { class: "status-sel" }, A().STATUSES.map(function (s) { return el("option", { value: s.v, text: s.label }); }));
-    status.value = a.status || "notStarted";
-    var priority = el("select", { class: "status-sel" }, A().PRIORITIES.map(function (x) { return el("option", { value: String(x.v), text: x.label }); }));
-    priority.value = String(a.priority || 0);
-    var progress = el("input", { type: "number", class: "todo-in", min: "0", max: "100", step: "5", value: String(a.progress || 0) });
-    var estimate = el("input", { type: "number", class: "todo-in", min: "0", step: "15", value: String(a.estimateMins || 0), title: "Minutes" });
-    var actual = el("input", { type: "number", class: "todo-in", min: "0", step: "15", value: String(a.actualMins || 0), title: "Minutes" });
-    var notes = el("textarea", { class: "todo-in", rows: "3", placeholder: "Notes, feedback, what to fix…" });
+    var assigned = input("date", a.assigned || KOS.srs.todayISO());
+    var due = input("date", a.due || "");
+    var dueTime = input("time", a.dueTime || "");
+    var status = select(A().STATUSES.map(function (s) { return [s.v, s.label]; }), a.status || "notStarted");
+    var priority = select(A().PRIORITIES.map(function (x) { return [String(x.v), x.label]; }), String(a.priority || 0));
+    var progress = input("number", a.progress || 0, { min: "0", max: "100", step: "5" });
+    var estimate = input("number", a.estimateMins || 0, { min: "0", step: "15", title: "Minutes" });
+    var actual = input("number", a.actualMins || 0, { min: "0", step: "15", title: "Minutes" });
+    var notes = el("textarea", { class: "k-input", rows: "3", placeholder: "Notes, feedback, what to fix…" });
     notes.value = a.notes || "";
+    var inCal = el("input", { type: "checkbox", class: "k-box" }); inCal.checked = a.showInCalendar !== false;
+    var inCd = el("input", { type: "checkbox", class: "k-box" }); inCd.checked = !!a.showInCountdown;
 
-    var inCal = el("input", { type: "checkbox" }); inCal.checked = a.showInCalendar !== false;
-    var inCd = el("input", { type: "checkbox" }); inCd.checked = !!a.showInCountdown;
-
-    var alertBox = el("div", { class: "asg-alerts" });
+    var alertBox = el("div", { class: "k-asg-chips", role: "group", "aria-label": "Alerts" });
     var chosenAlerts = (a.alerts || []).slice();
     A().ALERTS.forEach(function (al) {
-      var b = el("button", { type: "button", class: "asg-alert" + (chosenAlerts.indexOf(al.v) !== -1 ? " on" : ""), text: al.label,
+      var b = el("button", { type: "button", class: "k-qz-pill", "aria-pressed": String(chosenAlerts.indexOf(al.v) !== -1), text: al.label,
         onclick: function () {
           var i = chosenAlerts.indexOf(al.v);
           if (i === -1) chosenAlerts.push(al.v); else chosenAlerts.splice(i, 1);
-          KOS.ui.state(b, "on", chosenAlerts.indexOf(al.v) !== -1);
+          b.setAttribute("aria-pressed", String(chosenAlerts.indexOf(al.v) !== -1));
         } });
       alertBox.appendChild(b);
     });
 
-    /* related topics — free-form "sid:ref", validated against the spec tree */
+    /* related topics — "subject ref", validated against the spec tree */
     var chosenTopics = (a.topics || []).slice();
-    var topicWrap = el("div", { class: "asg-topics" });
-    var topicIn = el("input", { type: "text", class: "todo-in", "aria-label": "Link a spec topic", placeholder: "e.g. compsci 4.1.1.1 — Enter to add",
+    var topicWrap = el("div", { class: "k-asg-chips" });
+    var topicIn = input("text", "", { "aria-label": "Link a spec topic", placeholder: "e.g. compsci 4.1.1.1 — Enter to add",
       onkeydown: function (e) { if (e.key === "Enter") { e.preventDefault(); addTopic(); } } });
     function addTopic() {
       var raw = topicIn.value.trim().replace(/\s+/g, " ");
@@ -236,9 +371,9 @@
     function paintTopics() {
       topicWrap.innerHTML = "";
       chosenTopics.forEach(function (t, i) {
-        topicWrap.appendChild(el("span", { class: "asg-topic" }, [
-          el("span", { text: shortSubj(t.subject) + " " + t.ref }),
-          el("button", { type: "button", class: "xbtn", text: "✕", "aria-label": "Remove topic",
+        topicWrap.appendChild(el("span", { class: "k-chip", style: "--chip-c: " + HUE(t.subject) }, [
+          shortSubj(t.subject) + " " + t.ref,
+          el("button", { type: "button", class: "k-asg-x", "aria-label": "Remove topic", text: "✕",
             onclick: function () { chosenTopics.splice(i, 1); paintTopics(); } })
         ]));
       });
@@ -270,41 +405,41 @@
       if (!rec) { KOS.ui.toast("Could not save that assignment.", true); return; }
       overlay.close();
       KOS.ui.toast(existing ? "Assignment updated." : "Assignment added.");
-      done && done();
+      done && done(rec);
     }
 
-    overlay.appendChild(el("div", { class: "modal modal-lg asg-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", { text: existing ? "Edit assignment" : "New assignment" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", onclick: overlay.close })
+    overlay.appendChild(el("div", { class: "k-dialog k-asg-form", "data-ui": "ui.dialog asg.modal" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: existing ? "Edit assignment" : "New assignment" }),
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close", text: "✕", onclick: overlay.close })
       ]),
-      el("div", { class: "med-form" }, [
-        f("Title", title),
-        el("div", { class: "med-form-row" }, [f("Subject", subj), f("Type", type)]),
-        f("Description", desc),
-        el("div", { class: "med-form-row" }, [f("Assigned", assigned), f("Due date", due), f("Due time", dueTime)]),
-        el("div", { class: "med-form-row" }, [f("Status", status), f("Priority", priority), f("Progress %", progress)]),
-        el("div", { class: "med-form-row" }, [f("Estimated effort (min)", estimate), f("Actual effort (min)", actual)]),
-        el("div", { class: "asg-block" }, [el("h4", { text: "Related topics" }), topicWrap, topicIn]),
-        el("div", { class: "asg-block" }, [el("h4", { text: "Alerts" }), alertBox]),
-        el("div", { class: "asg-block" }, [
-          el("h4", { text: "Where it shows" }),
-          el("label", { class: "asg-check" }, [inCal, el("span", { text: "Show the deadline on the Calendar" })]),
-          el("label", { class: "asg-check" }, [inCd, el("span", { text: "Treat as a major deadline (shows in Countdowns)" })])
+      el("div", { class: "k-dialog-body k-asg-grid", "data-ui": "ui.form" }, [
+        f("Title", title, true),
+        f("Subject", subj), f("Type", type),
+        f("Description", desc, true),
+        f("Assigned", assigned), f("Due date", due), f("Due time", dueTime),
+        f("Status", status), f("Priority", priority), f("Progress %", progress),
+        f("Estimated effort (min)", estimate), f("Actual effort (min)", actual),
+        el("div", { class: "k-field k-field--wide" }, [el("span", { class: "k-field-label", text: "Related topics" }), topicWrap, topicIn]),
+        el("div", { class: "k-field k-field--wide" }, [el("span", { class: "k-field-label", text: "Alerts" }), alertBox]),
+        el("div", { class: "k-field k-field--wide" }, [
+          el("span", { class: "k-field-label", text: "Where it shows" }),
+          el("label", { class: "k-check" }, [inCal, el("span", { text: "Show the deadline on the Calendar" })]),
+          el("label", { class: "k-check" }, [inCd, el("span", { text: "Treat as a major deadline (shows in Countdowns)" })])
         ]),
-        f("Notes", notes)
+        f("Notes", notes, true)
       ]),
-      el("div", { class: "lab-controls med-modal-foot" }, [
-        existing ? el("button", { class: "btn danger", text: "Delete", onclick: function () {
+      el("div", { class: "k-dialog-foot" }, [
+        existing ? el("button", { type: "button", class: "k-btn k-btn--danger", "data-intent": "danger", text: "Delete", onclick: function () {
           KOS.ui.confirm({ title: "Delete this assignment?", danger: true, confirm: "Delete",
             body: "“" + existing.title + "” and everything derived from it — its calendar entry, countdown and Home card — go with it." },
             function () {
-              A().remove(existing.id, function () { overlay.close(); KOS.ui.toast("Assignment deleted."); done && done(); });
+              A().remove(existing.id, function () { overlay.close(); KOS.ui.toast("Assignment deleted."); done && done(null); });
             });
         } }) : null,
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Cancel", onclick: overlay.close }),
-        el("button", { class: "btn primary", text: "Save", onclick: save })
+        el("span", { class: "k-spacer" }),
+        el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: overlay.close }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Save", onclick: save })
       ].filter(Boolean))
     ]));
     KOS.ui.openDialog(overlay);
@@ -313,168 +448,25 @@
   }
   KOS.assignmentEditor = editModal;
 
-  /* ================= the full detail view ================= */
+  /* ================= the detail as a dialog =================
+     for the surfaces that are not the tracker: Home, Calendar, search */
   function detailModal(id, done) {
-    var a = A().get(id);
-    if (!a) return null;
-    var overlay = KOS.medview.modalOverlay();
-    var body = el("div", { class: "asg-detail" });
-
-    function repaint() {
-      a = A().get(id);
-      if (!a) { overlay.close(); done && done(); return; }
-      body.innerHTML = "";
-      var overdue = A().isOverdue(a);
-
-      body.appendChild(el("div", { class: "asg-d-head" }, [
-        el("div", {}, [
-          el("h3", { text: a.title }),
-          el("div", { class: "asg-d-sub" }, [
-            el("span", { text: shortSubj(a.subject) }), " · ",
-            el("span", { text: A().typeLabel(a.type) }), " · ",
-            el("span", { class: overdue ? "asg-late" : "", text: overdue ? "Overdue — " + fmtDue(a) : fmtDue(a) })
-          ])
-        ]),
-        statusPill(a)
-      ]));
-
-      /* status transitions, spelled out rather than hidden in a dropdown */
-      var actions = el("div", { class: "asg-d-actions" });
-      A().STATUSES.forEach(function (s) {
-        if (s.v === a.status) return;
-        var label = s.v === "complete" ? "✓ Complete" : s.v === "submitted" ? "⇪ Submitted"
-          : s.v === "notStarted" ? "↺ Reopen" : s.label;
-        if ((a.status === "complete" || a.status === "submitted") && s.v === "inProgress") label = "↺ Reopen";
-        actions.appendChild(el("button", { class: "btn" + (s.v === "complete" ? " primary" : ""), text: label,
-          onclick: function () { A().setStatus(id, s.v); repaint(); done && done(); } }));
-      });
-      body.appendChild(actions);
-
-      /* progress + effort */
-      body.appendChild(el("div", { class: "asg-d-grid" }, [
-        stat("Progress", a.progress + "%", progressBar(a)),
-        stat("Priority", A().PRIORITIES[a.priority].label),
-        stat("Estimated", fmtMins(a.estimateMins)),
-        stat("Actual", fmtMins(a.actualMins)),
-        stat("Assigned", a.assigned || "—"),
-        stat("Deadline", fmtDue(a))
-      ]));
-
-      if (a.description) body.appendChild(block("Description", el("p", { class: "asg-d-text", text: a.description })));
-
-      /* subtasks */
-      var subWrap = el("div", { class: "asg-subs" });
-      (a.subtasks || []).forEach(function (s) {
-        subWrap.appendChild(el("div", { class: "asg-sub" + (s.done ? " done" : "") }, [
-          el("button", { class: "rem-check sm" + (s.done ? " on" : ""), text: s.done ? "✓" : "",
-            "aria-label": (s.done ? "Untick " : "Tick ") + s.text,
-            onclick: function () { A().subToggle(id, s.id, !s.done); repaint(); done && done(); } }),
-          el("span", { class: "asg-sub-t", text: s.text }),
-          el("button", { class: "xbtn", text: "✕", "aria-label": "Delete subtask",
-            onclick: function () { A().subRemove(id, s.id); repaint(); done && done(); } })
-        ]));
-      });
-      var subIn = el("input", { type: "text", class: "todo-in", placeholder: "Add a subtask…",
-        onkeydown: function (e) {
-          if (e.key === "Enter" && subIn.value.trim()) { A().subAdd(id, subIn.value.trim()); repaint(); done && done(); }
-        } });
-      subWrap.appendChild(subIn);
-      body.appendChild(block("Subtasks", subWrap));
-
-      /* related topics — navigable */
-      if ((a.topics || []).length) {
-        var tw = el("div", { class: "asg-topics" });
-        a.topics.forEach(function (t) {
-          tw.appendChild(el("button", { class: "asg-topic link", text: shortSubj(t.subject) + " " + t.ref,
-            onclick: function () { overlay.close(); KOS.show("ref", { subject: t.subject, ref: t.ref }); } }));
-        });
-        body.appendChild(block("Related topics", tw));
-      }
-
-      /* attachments — the existing store, under this assignment's ref */
-      var attWrap = el("div", { class: "asg-att" });
-      body.appendChild(block("Attachments", attWrap));
-      if (KOS.attach && KOS.attach.available && KOS.attach.available()) {
-        var fileIn = el("input", { type: "file", style: "display:none", onchange: function () {
-          if (!fileIn.files[0]) return;
-          KOS.attach.add(a.subject || "_", A().attachRef(a), fileIn.files[0], function (err) {
-            if (err) KOS.ui.toast("Upload failed: " + err.message, true);
-            else { KOS.ui.toast("Attached."); repaint(); }
-            fileIn.value = "";
-          });
-        } });
-        attWrap.appendChild(fileIn);
-        A().attachmentsFor(a, function (err, rows) {
-          (rows || []).forEach(function (r) {
-            attWrap.appendChild(el("div", { class: "asg-att-row" }, [
-              el("span", { text: r.name }),
-              el("button", { class: "xbtn", text: "✕", "aria-label": "Remove attachment",
-                onclick: function () { KOS.attach.remove(r.id, function () { repaint(); }); } })
-            ]));
-          });
-          attWrap.appendChild(el("button", { class: "mini-btn", text: "⇪ Attach a file…", onclick: function () { fileIn.click(); } }));
-        });
-      } else {
-        attWrap.appendChild(el("p", { class: "sub", text: "File attachments need IndexedDB, which this context doesn't provide." }));
-      }
-
-      if (a.notes) body.appendChild(block("Notes", el("p", { class: "asg-d-text", text: a.notes })));
-
-      body.appendChild(el("div", { class: "lab-controls med-modal-foot" }, [
-        a.subject ? el("button", { class: "btn", text: "◉ Focus on this", onclick: function () {
-          overlay.close();
-          KOS.show("focus", { assignmentId: id });
-        } }) : null,
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "✎ Edit", onclick: function () { overlay.close(); editModal(id, done); } }),
-        el("button", { class: "btn", text: "Close", onclick: overlay.close })
-      ].filter(Boolean)));
-    }
-    function stat(k, v, extra) {
-      return el("div", { class: "asg-d-stat" }, [
-        el("span", { class: "k", text: k }), el("b", { text: v }), extra || null
-      ].filter(Boolean));
-    }
-    function block(h, node) {
-      return el("div", { class: "asg-block" }, [el("h4", { text: h }), node]);
-    }
-
-    overlay.appendChild(el("div", { class: "modal modal-lg asg-detail-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", { text: "課 Assignment" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", onclick: overlay.close })
-      ]),
-      body
-    ]));
-    KOS.ui.openDialog(overlay);
-    repaint();
+    if (!A().get(id)) return null;
+    var overlay = el("div", { class: "k-dialog-overlay" });
+    overlay.close = function () { overlay.remove(); };
+    var box = el("div", { class: "k-dialog k-asg-dialog", "data-ui": "ui.dialog asg.detail-modal", "aria-label": "Assignment" });
+    overlay.appendChild(box);
+    KOS.ui.openDialog(overlay, { label: "Assignment" });
+    detailBody(box, id, {
+      onChange: function () { done && done(); },
+      onClose: overlay.close,
+      onLeave: overlay.close,
+      beforeEdit: overlay.close,
+      onGone: function () { overlay.close(); done && done(); }
+    });
     return overlay;
   }
   KOS.assignmentDetail = detailModal;
-
-  /* ================= the derived widgets =================
-     Read-only views other surfaces mount. None of them writes. */
-
-  /* Home: urgent work. */
-  KOS.assignmentsUrgentCard = function () {
-    var rows = A().urgent(4);
-    if (!rows.length) return null;
-    var wrap = el("div", { class: "asg-urgent" });
-    wrap.appendChild(el("div", { class: "asg-urgent-h" }, [
-      el("b", { text: "Assignments due" }),
-      el("button", { class: "mini-btn", text: "Tracker →", onclick: function () { KOS.show("assignments"); } })
-    ]));
-    rows.forEach(function (a) {
-      var overdue = A().isOverdue(a);
-      wrap.appendChild(el("button", { class: "asg-urgent-row" + (overdue ? " overdue" : ""),
-        onclick: function () { KOS.assignmentDetail(a.id, function () { KOS.show("home", undefined, { _nav: true }); }); } }, [
-        el("span", { class: "au-t", text: a.title }),
-        el("span", { class: "au-m", text: shortSubj(a.subject) + " · " + (overdue ? "overdue" : fmtDue(a)) }),
-        el("span", { class: "asg-track sm" }, [el("i", { style: "width:" + a.progress + "%" })])
-      ]));
-    });
-    return wrap;
-  };
 
   /* the alert ticker — in-app only, same honesty as the calendar's */
   function tick() {

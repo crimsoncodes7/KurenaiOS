@@ -22,10 +22,18 @@
     "js/core/content.js",
     "js/modules/review.js",
     "js/modules/due.js",
-    "js/modules/cardstats.js"
+    "js/modules/cardstats.js",
+    "js/modules/assignments.js",
+    "js/modules/tracker.js"
   ],
   "views": {
     "home": {},
-    "subject": { "arg": "compsci" }
+    "subject": { "arg": "compsci" },
+    "ref": { "arg": { "subject": "compsci", "ref": "4.2.3.1" } },
+    "review": {},
+    "cardstats": {},
+    "assignments": {},
+    "tracker": {},
+    "personaldeck": {}
   }
 }

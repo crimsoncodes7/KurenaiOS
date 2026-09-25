@@ -255,7 +255,9 @@
     return { created: created };
   }
   function customQuizFor(sid, ref) {
-    return customQuizzes().filter(function (c) {
+    // a read: never materialise the array on a page that only looks
+    var list = (store.state.custom && store.state.custom.quizzes) || [];
+    return list.filter(function (c) {
       return (!sid || c.sid === sid) && (!ref || c.ref === ref);
     });
   }

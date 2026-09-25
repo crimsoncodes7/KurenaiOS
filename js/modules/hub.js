@@ -1681,7 +1681,12 @@
        Status, the four progress checks and the RAG confidence rating are one
        labelled component under a single live mastery readout, and it lives
        only in the inspector (audit REF-1, REF-3). */
-    var p = store.getProgress(sid, ref);
+    /* read without materialising a record: a topic page that has only been
+       looked at writes nothing (§0.2.3); setStatus/setCheck/setNote create it */
+    function prog() {
+      return store.peekProgress(sid, ref) || { status: "none", check: [false, false, false, false], note: "" };
+    }
+    var p = prog();
     var masteryHooks = [];
     function syncMastery() { masteryHooks.forEach(function (f) { f(); }); }
 
@@ -1702,7 +1707,7 @@
 
     var statusSelects = [];
     function syncStatusControls() {
-      var v = store.getProgress(sid, ref).status;
+      var v = prog().status;
       statusSelects.forEach(function (s) { s.value = v; });
     }
     function statusSelect(id, label) {
@@ -1717,7 +1722,7 @@
         } }, STATUS.map(function (st) {
         return el("option", { value: st[0], text: STATUS_GLYPH[st[0]] + " " + st[1] });
       }));
-      s.value = store.getProgress(sid, ref).status;
+      s.value = prog().status;
       statusSelects.push(s);
       return s;
     }
@@ -1757,7 +1762,7 @@
        so the boxes have to say so */
     var boxes = [];
     function syncChecks() {
-      var cur = store.getProgress(sid, ref);
+      var cur = prog();
       boxes.forEach(function (cb, i) {
         cb.checked = !!cur.check[i];
         KOS.ui.state(cb.parentNode, "on", cb.checked);
@@ -2049,7 +2054,7 @@
           "aria-label": "Your notes on " + leaf.ref,
           placeholder: "Anything you want future-you to remember about " + leaf.ref + "…",
           oninput: debounce(function () { store.setNote(sid, ref, ta.value); }, 350) });
-        ta.value = store.getProgress(sid, ref).note || "";
+        ta.value = prog().note || "";
         panel.appendChild(card("Your notes on this spec point", ta));
       }
       else if (curTab === "notes") {

@@ -187,7 +187,8 @@ step("Study Review and Productivity own the intended navigation", () => {
      registering itself. */
   if (productivityTabs.join("|") !== "Focus Timer|Reminders|Habits|Calendar|Pacing") throw new Error("productivity tabs: " + productivityTabs.join("|"));
   KOS.show("tracker");
-  if (!$("[data-ui~='ui.page-head'] > [data-ui~='ui.header-tabs']")) throw new Error("record tabs are not in the header");
+  /* Graphite (frame 9d): the record switch leads the row of filters under the header */
+  if (!$("[data-ui~='tracker.tools'] [data-ui~='tracker.kinds']")) throw new Error("the record switch is missing");
 });
 step("governor view: all four tabs render", () => {
   KOS.show("governor");
