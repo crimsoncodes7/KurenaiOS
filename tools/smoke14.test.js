@@ -291,7 +291,8 @@ step("KOS.show('wishlist') builds the allowance ledger, tabs, queue and history 
   if (!main.querySelector("[data-ui~='plan.budget']")) throw new Error("no budget bar");
   if (!main.querySelector("[data-ui~='plan.budget-edit']")) throw new Error("no Edit monthly budget action");
   if (main.querySelector(".wl-limit")) throw new Error("monthly budget must not be an always-visible input");
-  if (main.querySelectorAll("[data-ui~='plan.tabs'] [data-ui~='ui.tab']").length !== 3) throw new Error("expected 3 tabs");
+  /* UI rebuild (frame 11h): Cancelled is the queue's fourth tab */
+  if (main.querySelectorAll("[data-ui~='plan.tabs'] [data-ui~='plan.tab']").length !== 4) throw new Error("expected 4 tabs");
   if (!main.querySelector("[data-ui~='plan.row']")) throw new Error("want-to-buy list empty");
   if (!main.querySelector("[data-ui~='plan.history']")) throw new Error("purchase history state missing");
 });

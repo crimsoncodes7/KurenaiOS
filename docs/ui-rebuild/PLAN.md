@@ -610,6 +610,39 @@ the invariants and the hook contract still govern behaviour.
 - The Shrine reads its prefs without creating them. `persist` writes
   only a real change.
 
+### Step 5e as delivered — the Planner: Budget Planner and Goals (frame 11h)
+
+- `wishlist.js` and `goals.js` are rebuilt files. The Budget Planner / Goals
+  switch rides the page header's action slot (invariant 50b).
+- The release desk follows 11h:
+  - the cover with a module-coloured ring;
+  - a "Next to drop" pill;
+  - a countdown in days;
+  - Mark purchased, Edit and the price.
+- Other desk states (release day, final reminder, priority pick, awaiting a
+  date) print their line in place of the countdown. The empty desk
+  still carries `wl-hero-empty`.
+- The allowance card:
+  - The headline figure is what remains (`plan.bn-rem`), drawn on a
+    stacked bar of spent and on-paper.
+  - The ledger lists spent this month, committed / planned and on paper.
+  - "How these figures work" is retired. Each ledger line explains
+    itself (invariant 50a).
+- The queue:
+  - Cancelled joins the tabs, and a tab with nothing in it prints no count.
+  - Rows are one grid: tick or grip, rank, cover, title, vault link,
+    price, and actions.
+- Purchase history keeps the invariant 76 threshold, with a single
+  sentence instead of a card while there is too little to chart.
+- Module colours are the module tokens, not hex values.
+- Goals uses the same language as the Budget Planner:
+  - a summary band that drops zero figures;
+  - the status tabs;
+  - goal cards with the shared `k-bar`;
+  - the four-section editor, with Delete kept apart from Save.
+- Both pages read their prefs without creating them. The legacy `_tab`
+  is still honoured on read and folded in on the first real change.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

@@ -441,6 +441,20 @@ color-scheme: dark;
 --shr-swatch-h: 120px;
 --shr-dialog-w: 1060px;
 --fs-76: 76px;
+/* the Budget Planner (frame 11h) */
+--pl-allow-w: 340px;
+--pl-hero-min: 250px;
+--pl-cover-w: 132px;
+--pl-cover-h: 190px;
+--pl-search-w: 200px;
+--pl-lead-w: 22px;
+--pl-rank-w: 24px;
+--pl-thumb-col: 40px;
+--pl-thumb-w: 36px;
+--pl-thumb-h: 50px;
+--pl-aux-w: 140px;
+--pl-price-w: 80px;
+--pl-dialog-w: 720px;
 /* the share card (frame 11k). An exported image keeps its own palette
    whatever the app theme, so these are fixed values, not theme tokens;
    the canvas and the style swatches both read them. */

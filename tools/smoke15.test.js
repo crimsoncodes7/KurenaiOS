@@ -278,10 +278,13 @@ step("budget summary panel: allowance ledger keeps committed, spent and remainin
   await tick(40);
   const main = document.getElementById("main");
   const lines = [...main.querySelectorAll("[data-ui~='plan.budget'] [data-ui~='plan.ledger-line']")];
+  /* UI rebuild (frame 11h): spent, committed and on-paper are the ledger;
+     what remains is the card's headline figure (plan.bn-rem) */
   if (lines.length !== 3) throw new Error("expected 3 decision ledger lines, got " + lines.length);
-  if (!/Committed/.test(lines[0].textContent) || !/30/.test(lines[0].textContent)) throw new Error("committed planner value wrong");
-  if (!/Spent/.test(lines[1].textContent)) throw new Error("spent line missing");
-  if (!/Remaining/.test(lines[2].textContent)) throw new Error("remaining line missing");
+  if (!/Spent/.test(lines[0].textContent)) throw new Error("spent line missing");
+  if (!/Committed/.test(lines[1].textContent) || !/30/.test(lines[1].textContent)) throw new Error("committed planner value wrong");
+  if (!/On paper/.test(lines[2].textContent)) throw new Error("on-paper scenario line missing");
+  if (!main.querySelector("[data-ui~='plan.budget'] [data-ui~='plan.bn-rem'] b")) throw new Error("remaining headline missing");
   if (!main.querySelector("[data-ui~='plan.budget-edit']") || main.querySelector(".wl-limit")) throw new Error("budget must use the edit action, not a visible numeric input");
   const hero = main.querySelector("[data-ui~='plan.hero']");
   if (hero.matches('[data-state~="wl-hero-empty"]')) throw new Error("real waiting item should replace the placeholder");

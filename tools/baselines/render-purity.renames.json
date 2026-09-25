@@ -441,6 +441,66 @@
     ]
    },
    "why": "Graphite step 5d (frame 11g): the Shrine prefs record is created by the first real filter, sort or note change, so that change writes the record where it used to write one field of a record the render had already made."
+  },
+  {
+   "navTo": "^#/wishlist$",
+   "dropEffects": {
+    "state": "^media\\.wishlist$"
+   },
+   "why": "Graphite step 5e (Budget Planner, frame 11h): the Planner reads its tab/sort prefs without creating them (render purity); the first real change writes them, so opening the Planner no longer writes."
+  },
+  {
+   "surface": "wishlist",
+   "from": "^Confirm purchase$",
+   "to": "Mark purchased",
+   "why": "Graphite step 5e (Budget Planner, frame 11h): the release desk's purchase action reads \"Mark purchased\", as in the frame."
+  },
+  {
+   "surface": "wishlist",
+   "hooks": "plan.budget-edit",
+   "from": "^Edit monthly budget$",
+   "to": "Edit allowance",
+   "why": "Graphite step 5e (Budget Planner, frame 11h): the allowance card's action names the allowance (\"Set allowance\" before one exists)."
+  },
+  {
+   "surface": "wishlist",
+   "from": "^How these figures work$",
+   "retire": true,
+   "why": "Graphite step 5e (Budget Planner, frame 11h): the figures explain themselves on the ledger's own lines (spent, committed, on paper); the page no longer re-teaches its rules in a disclosure (invariant 50a)."
+  },
+  {
+   "surface": "wishlist",
+   "hooks": "ui.tab",
+   "from": "^(Want to buy|Waiting for release|Purchased|Cancelled)0$",
+   "to": "$1",
+   "why": "Graphite step 5e (Budget Planner, frame 11h): a queue tab with nothing in it prints no count (invariant 77)."
+  },
+  {
+   "surface": "wishlist",
+   "rewriteEffects": {
+    "dialog": [
+     "^Edit monthly budget$",
+     "Monthly allowance"
+    ]
+   },
+   "why": "Graphite step 5e (Budget Planner, frame 11h): the allowance dialog is titled \"Monthly allowance\"; it edits the same budget state."
+  },
+  {
+   "surface": "wishlist",
+   "rewriteEffects": {
+    "state": [
+     "^media\\.wishlist\\.(tab|sort)$",
+     "media.wishlist"
+    ]
+   },
+   "why": "Graphite step 5e (Budget Planner, frame 11h): the Planner prefs record is created by the first real tab or sort change, so that change writes the record where it used to write one field of a record the render had already made."
+  },
+  {
+   "navTo": "^#/goals$",
+   "dropEffects": {
+    "state": "^media\\.goalsTab$"
+   },
+   "why": "Graphite step 5e (Collection Goals, Planner language): Goals reads its status tab without normalising it into the store on render; a real tab change writes it."
   }
  ]
 }

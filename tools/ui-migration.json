@@ -36,7 +36,9 @@
     "js/modules/games.js",
     "js/modules/books.js",
     "js/modules/matrix.js",
-    "js/modules/shrine.js"
+    "js/modules/shrine.js",
+    "js/modules/wishlist.js",
+    "js/modules/goals.js"
   ],
   "views": {
     "home": {},
@@ -59,6 +61,8 @@
     "books": {},
     "mangaka": {},
     "matrix": {},
-    "shrine": {}
+    "shrine": {},
+    "wishlist": {},
+    "goals": {}
   }
 }
