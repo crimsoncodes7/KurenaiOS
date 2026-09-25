@@ -322,9 +322,11 @@ step("week is a time grid: an all-day band, an hour gutter, placed blocks", asyn
   if (/timed/.test(band)) throw new Error("a timed event was dumped in the all-day band");
   const blocks = $$("[data-ui~='cal.event'][data-block]");
   if (blocks.length !== 2) throw new Error("timed blocks: " + blocks.length);
-  if (!blocks.every(b => b.style.top && b.style.height)) throw new Error("blocks are not placed by time");
+  /* Graphite (frame 10e): geometry rides custom properties in hours
+     (--at, --span) and lanes (--lane, --lanes); the stylesheet owns the px */
+  if (!blocks.every(b => b.style.getPropertyValue("--at") !== "" && +b.style.getPropertyValue("--span") > 0)) throw new Error("blocks are not placed by time");
   /* overlapping events share the column instead of hiding each other */
-  if (!blocks.every(b => /calc\(/.test(b.style.width))) throw new Error("overlap was not packed into columns");
+  if (!blocks.every(b => +b.style.getPropertyValue("--lanes") === 2)) throw new Error("overlap was not packed into columns");
   KOS.store.state.ui.calMode = "month";
 });
 

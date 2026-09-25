@@ -4,6 +4,7 @@
    Three-column workspace: a sidebar of smart sections / lists / tags, the
    reminder list in the middle, and a side inspector on the right that owns
    every detail of the selected item (notes, sub-tasks, recurrence, alerts).
+   Graphite (frame 10c) groups the list by when: Overdue, Today, Upcoming.
    Lists and Tags stay visibly separate in the sidebar because they ARE
    separate: a list contains, a tag labels.                                 */
 (function () {
@@ -39,6 +40,15 @@
     return spec && spec.short ? spec.short : "";
   }
 
+  /* a list's dot: its stored colour is a calendar hue name, else one is
+     dealt from the calendar palette by id (invariant 46's hues) */
+  var LIST_HUES = ["jade", "brass", "iris", "clay", "sage", "plum", "sky", "slate"];
+  function listHue(l) {
+    var name = l && LIST_HUES.indexOf(l.colour) !== -1 ? l.colour : LIST_HUES[((l && l.id) || 0) % LIST_HUES.length];
+    return "var(--cal-" + name + ")";
+  }
+  var PRIO_TONE = { 1: "muted", 2: "amber", 3: "crimson" };
+
   KOS.views.reminders = function (main, arg) {
     KOS.shell.tree("none");
     var p = prefs();
@@ -49,72 +59,68 @@
        still in the list it is about to be selected in. */
     var selectedId = arg && arg.id != null ? arg.id : null;
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "祝 · The standing list" }),
-        el("h1", { text: "Reminders" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "Everything you've promised yourself — scheduled, labelled and never farmed for XP." })
-        ])
-      ])
-      /* No in-page copy of the section nav. Reminders, Habits and Calendar
-         are already the Productivity strip directly above this header, so
-         this was the same three destinations offered twice, 60px apart. */
-    ]));
+    /* No in-page copy of the section nav. Reminders, Habits and Calendar
+       are already the Productivity strip directly above this header. */
+    main.appendChild(KOS.ui.pageHeader({ kicker: "祝 · The standing list", title: "Reminders",
+      sub: "Everything you've promised yourself: scheduled, labelled and never farmed for XP." }));
 
-    var grid = el("div", { class: "rem-grid" });
+    /* Graphite (frame 10c): sections, lists and tags on the left, the list
+       grouped by when, and the selected reminder's detail on the right */
+    var grid = el("div", { class: "k-rem", "data-ui": "rem.layout" });
     main.appendChild(grid);
-    var side = el("nav", { class: "rem-side", "aria-label": "Sections, lists and tags" });
-    var mid = el("section", { class: "rem-main" });
-    var insp = el("aside", { class: "rem-insp", "aria-label": "Reminder detail" });
+    var side = el("nav", { class: "k-rem-side", "data-ui": "rem.side", "aria-label": "Sections, lists and tags" });
+    var mid = el("section", { class: "k-rem-main", "aria-label": "Reminders" });
+    var insp = el("aside", { class: "k-rem-insp", "data-ui": "rem.insp", "aria-label": "Reminder detail" });
     grid.appendChild(side);
     grid.appendChild(mid);
     grid.appendChild(insp);
 
     /* ---------------- sidebar ---------------- */
+    function sideItem(opts) {
+      return el("button", { type: "button", class: "k-rem-item", "data-ui": "rem.side-item", "data-section": opts.section || null,
+        "data-tone": opts.tone || null, "aria-current": opts.on ? "true" : null, onclick: opts.onclick }, [
+        el("span", { class: "k-rem-glyph", "aria-hidden": "true", text: opts.glyph }),
+        el("span", { class: "k-rem-item-l", text: opts.label }),
+        el("span", { class: "k-rem-n k-mono", "data-ui": "rem.section-count", text: opts.count ? String(opts.count) : "" })
+      ]);
+    }
     function renderSide() {
       side.innerHTML = "";
       var c = R().counts();
 
-      var secWrap = el("div", { class: "rem-side-group" });
-      secWrap.appendChild(el("h4", { text: "Smart sections" }));
+      var secWrap = el("div", { class: "k-rem-group", "data-ui": "rem.side-group" }, [el("h3", { class: "k-kicker", text: "Smart sections" })]);
       R().SECTIONS.forEach(function (s) {
-        var on = p.section === s.id && p.listId == null && !p.tag;
-        secWrap.appendChild(el("button", { class: "rem-side-item sec-" + s.id + (on ? " active" : ""), "data-section": s.id,
-          onclick: function () { p.section = s.id; p.listId = null; p.tag = null; KOS.store.save(); draw(); } }, [
-          el("span", { class: "rsi-g", "aria-hidden": "true", text: s.glyph }),
-          el("span", { class: "rsi-l", text: s.label }),
-          el("span", { class: "rsi-n", text: String(c.sections[s.id] || 0) })
-        ]));
+        var n = c.sections[s.id] || 0;
+        secWrap.appendChild(sideItem({ section: s.id, glyph: s.glyph, label: s.label, count: n,
+          tone: s.id === "overdue" && n ? "crimson" : null,
+          on: p.section === s.id && p.listId == null && !p.tag,
+          onclick: function () { p.section = s.id; p.listId = null; p.tag = null; KOS.store.save(); draw(); } }));
       });
       side.appendChild(secWrap);
 
       /* LISTS — containers. One per reminder. */
-      var listWrap = el("div", { class: "rem-side-group" });
-      listWrap.appendChild(el("h4", {}, [
-        el("span", { text: "Lists" }),
-        el("button", { class: "mini-btn", text: "＋", title: "New list", "aria-label": "New list",
-          onclick: function () { promptList(); } })
-      ]));
+      var listWrap = el("div", { class: "k-rem-group", "data-ui": "rem.side-group" }, [
+        el("h3", { class: "k-kicker k-rem-group-h" }, [
+          el("span", { text: "Lists" }),
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "＋", title: "New list", "aria-label": "New list",
+            onclick: function () { promptList(); } })
+        ])
+      ]);
       var ls = R().lists();
-      if (!ls.length) listWrap.appendChild(el("p", { class: "sub rem-side-empty", text: "A list is a container — Uni, Home, Errands." }));
+      if (!ls.length) listWrap.appendChild(el("p", { class: "k-rem-hint", text: "A list is a container — Uni, Home, Errands." }));
       ls.forEach(function (l) {
-        /* Phase F: this row used to be a <button> containing two more
-           <button>s (rename, delete). A button inside a button is invalid
-           and browsers disagree about what the inner ones even are — the
-           row is now a container, and the three controls are siblings. */
-        listWrap.appendChild(el("div", { class: "rem-side-item" + (p.listId === l.id ? " active" : "") }, [
-          el("button", { type: "button", class: "rsi-main",
-            "aria-current": p.listId === l.id ? "true" : null,
-            onclick: function () { p.listId = l.id; p.tag = null; p.section = "all"; KOS.store.save(); draw(); } }, [
-            el("span", { class: "rsi-dot", "aria-hidden": "true" }),
-            el("span", { class: "rsi-l", text: l.name }),
-            el("span", { class: "rsi-n", text: String(c.lists[l.id] || 0) })
-          ]),
-          el("span", { class: "rsi-ctl" }, [
-            el("button", { class: "xbtn", text: "✎", title: "Rename list", "aria-label": "Rename list " + l.name,
+        /* the row is a container: selecting, renaming and deleting are three
+           sibling buttons (a button inside a button is invalid) */
+        var main0 = sideItem({ glyph: "", label: l.name, count: c.lists[l.id] || 0, on: p.listId === l.id,
+          onclick: function () { p.listId = l.id; p.tag = null; p.section = "all"; KOS.store.save(); draw(); } });
+        main0.style.setProperty("--list-hue", listHue(l));
+        KOS.ui.state(main0, "list", true);
+        listWrap.appendChild(el("div", { class: "k-rem-list-row" }, [
+          main0,
+          el("span", { class: "k-rem-list-ctl" }, [
+            el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✎", title: "Rename list", "aria-label": "Rename list " + l.name,
               onclick: function (ev) { ev.stopPropagation(); promptList(l); } }),
-            el("button", { class: "xbtn", text: "✕", title: "Delete list", "aria-label": "Delete list " + l.name,
+            el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", title: "Delete list", "aria-label": "Delete list " + l.name,
               onclick: function (ev) {
                 ev.stopPropagation();
                 KOS.ui.confirm({ title: "Delete this list?", danger: true, confirm: "Delete",
@@ -130,69 +136,85 @@
       side.appendChild(listWrap);
 
       /* TAGS — cross-list labels. Many per reminder. */
-      var tagWrap = el("div", { class: "rem-side-group" });
-      tagWrap.appendChild(el("h4", {}, [el("span", { text: "Tags" })]));
+      var tagWrap = el("div", { class: "k-rem-group", "data-ui": "rem.side-group" }, [el("h3", { class: "k-kicker", text: "Tags" })]);
       var ts = R().tags();
-      if (!ts.length) tagWrap.appendChild(el("p", { class: "sub rem-side-empty", text: "A tag crosses lists — #urgent, #admin, #revision." }));
-      var chips = el("div", { class: "rem-tagcloud" });
+      if (!ts.length) tagWrap.appendChild(el("p", { class: "k-rem-hint", text: "A tag crosses lists — #urgent, #admin, #revision." }));
+      var chips = el("div", { class: "k-cluster k-rem-tags" });
       ts.forEach(function (t) {
-        chips.appendChild(el("button", { class: "rem-tag" + (p.tag === t.tag ? " active" : ""),
+        chips.appendChild(el("button", { type: "button", class: "k-chip k-rem-tag", "data-ui": "rem.tag", "data-tone": "teal",
+          "aria-pressed": String(p.tag === t.tag),
           onclick: function () { p.tag = p.tag === t.tag ? null : t.tag; p.listId = null; KOS.store.save(); draw(); } },
-          ["#" + t.tag, el("span", { class: "rt-n", text: String(c.tags[t.tag] || 0) })]));
+          ["#" + t.tag, el("span", { class: "k-mono", text: String(c.tags[t.tag] || 0) })]));
       });
       tagWrap.appendChild(chips);
       side.appendChild(tagWrap);
     }
 
     function promptList(existing) {
-      var overlay = KOS.medview.modalOverlay();
-      var nameIn = el("input", { type: "text", class: "todo-in", value: existing ? existing.name : "",
-        placeholder: "List name", onkeydown: function (e) { if (e.key === "Enter") save(); } });
+      var overlay = el("div", { class: "k-dialog-overlay" });
+      overlay.close = function () { overlay.remove(); };
+      var nameIn = el("input", { type: "text", class: "k-input", placeholder: "List name", "aria-label": "List name",
+        onkeydown: function (e) { if (e.key === "Enter") save(); } });
+      nameIn.value = existing ? existing.name : "";
       function save() {
         var v = nameIn.value.trim();
         if (!v) { KOS.ui.toast("A list needs a name.", true); return; }
         if (existing) R().renameList(existing.id, v); else R().addList(v);
         overlay.close(); draw();
       }
-      overlay.appendChild(el("div", { class: "modal modal-sm" }, [
-        el("div", { class: "modal-h" }, [el("b", { text: existing ? "Rename list" : "New list" }),
-          el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", onclick: overlay.close })]),
-        el("div", { class: "med-form" }, [KOS.medview.field("Name", nameIn)]),
-        el("div", { class: "lab-controls med-modal-foot" }, [
-          el("span", { style: "flex:1" }),
-          el("button", { class: "btn", text: "Cancel", onclick: overlay.close }),
-          el("button", { class: "btn primary", text: "Save", onclick: save })
+      overlay.appendChild(el("div", { class: "k-dialog", "data-ui": "ui.dialog" }, [
+        el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+          el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: existing ? "Rename list" : "New list" }),
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close", text: "✕", onclick: function () { overlay.close(); } })
+        ]),
+        el("div", { class: "k-dialog-body" }, [
+          el("label", { class: "k-field", "data-ui": "ui.field" }, [el("span", { class: "k-field-label", text: "Name" }), nameIn])
+        ]),
+        el("div", { class: "k-dialog-foot" }, [
+          el("button", { type: "button", class: "k-btn k-spacer", text: "Cancel", onclick: function () { overlay.close(); } }),
+          el("button", { type: "button", class: "k-btn k-btn--primary", text: "Save", onclick: save })
         ])
       ]));
       KOS.ui.openDialog(overlay);
       nameIn.focus();
     }
 
-    /* ---------------- toolbar + list ---------------- */
-    var searchIn = el("input", { type: "search", class: "todo-in rem-search", placeholder: "Search reminders…",
+    /* ---------------- quick add + tools + list ---------------- */
+    var searchIn = el("input", { type: "search", class: "k-pill-select k-rem-search", placeholder: "Search reminders…",
       "aria-label": "Search reminders" });
-    var sortSel = el("select", { class: "status-sel", "aria-label": "Sort reminders" },
-      R().SORTS.map(function (s) { return el("option", { value: s.v, text: s.label }); }));
-    var prioSel = el("select", { class: "status-sel", "aria-label": "Filter by priority" },
+    var sortSel = el("select", { class: "k-pill-select", "data-ui": "ui.status-select", "aria-label": "Sort reminders" },
+      R().SORTS.map(function (s) { return el("option", { value: s.v, text: "Sort: " + s.label.toLowerCase() }); }));
+    var prioSel = el("select", { class: "k-pill-select", "data-ui": "ui.status-select", "aria-label": "Filter by priority" },
       [el("option", { value: "", text: "Any priority" })].concat(
         R().PRIORITIES.slice(1).map(function (x) { return el("option", { value: String(x.v), text: x.label }); })));
+    sortSel.value = p.sort || "due";
+    prioSel.value = p.priority || "";
     searchIn.addEventListener("input", KOS.ui.debounce(function () { renderList(); }, 200));
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; KOS.store.save(); renderList(); });
     prioSel.addEventListener("change", function () { p.priority = prioSel.value; KOS.store.save(); renderList(); });
 
-    var quickIn = el("input", { type: "text", class: "todo-in rem-quick-in",
+    var quickIn = el("input", { type: "text", class: "k-rem-quick-in",
       placeholder: "Add a reminder…  (⏎ to save)",
       /* a placeholder is not a name: it disappears the moment there is
          text in the field, which is exactly when a name is needed */
       "aria-label": "New reminder",
       onkeydown: function (e) { if (e.key === "Enter") quickAdd(); } });
+    var quickList = el("select", { class: "k-rem-quick-list k-mono", "aria-label": "File it in a list" });
+    function fillQuickList() {
+      quickList.innerHTML = "";
+      quickList.appendChild(el("option", { value: "", text: "No list" }));
+      R().lists().forEach(function (l) { quickList.appendChild(el("option", { value: String(l.id), text: l.name })); });
+      quickList.value = p.listId != null ? String(p.listId) : "";
+      quickList.hidden = !R().lists().length;
+    }
     function quickAdd() {
       var v = quickIn.value.trim();
       if (!v) return;
       var patch = { title: v };
       /* adding while a list or a smart section is selected files it there —
          the obvious expectation, and it keeps the two concepts honest */
-      if (p.listId != null) patch.listId = p.listId;
+      if (quickList.value) patch.listId = parseInt(quickList.value, 10);
+      else if (p.listId != null) patch.listId = p.listId;
       if (p.tag) patch.tags = [p.tag];
       if (p.section === "today") patch.due = KOS.srs.todayISO();
       if (p.section === "upcoming") patch.due = KOS.srs.addDays(KOS.srs.todayISO(), 1);
@@ -201,8 +223,8 @@
       if (made) { selectedId = made.id; draw(); }
     }
 
-    var countLine = el("p", { class: "sub rem-count" });
-    var listHolder = el("div", { class: "rem-items" });
+    var listHolder = el("div", { class: "k-rem-items", "data-ui": "rem.items" });
+    var countLine = el("p", { class: "k-rem-count", role: "status" });
 
     function heading() {
       if (p.listId != null) return R().listName(p.listId) || "List";
@@ -212,18 +234,26 @@
 
     function renderMid() {
       mid.innerHTML = "";
-      mid.appendChild(el("div", { class: "rem-main-h" }, [
-        el("h2", { text: heading() }),
-        el("div", { class: "rem-tools" }, [searchIn, prioSel, sortSel])
+      fillQuickList();
+      mid.appendChild(el("h2", { class: "sr-only", text: heading() }));
+      mid.appendChild(el("div", { class: "k-rem-quick" }, [
+        el("button", { type: "button", class: "k-rem-quick-add", "data-ui": "rem.quick-add", "aria-label": "Add the reminder", text: "＋", onclick: quickAdd }),
+        quickIn, quickList
       ]));
-      mid.appendChild(el("div", { class: "rem-quick" }, [
-        quickIn, el("button", { class: "btn primary", text: "+ Add", onclick: quickAdd })
-      ]));
-      mid.appendChild(countLine);
+      mid.appendChild(el("div", { class: "k-cluster k-rem-tools", "data-ui": "rem.tools" }, [sortSel, prioSel, searchIn, countLine]));
       mid.appendChild(listHolder);
       renderList();
     }
 
+    /* the list grouped by when, in date order; any other sort is one run */
+    function groupOf(item) {
+      var t = KOS.srs.todayISO();
+      if (item.done) return "Completed";
+      if (R().isOverdue(item)) return "Overdue";
+      if (!item.due) return "No date";
+      if (item.due === t) return "Today";
+      return "Upcoming";
+    }
     function renderList() {
       listHolder.innerHTML = "";
       var rows = R().query({
@@ -231,79 +261,103 @@
         priority: p.priority, search: searchIn.value, sort: p.sort
       });
       var filtered = !!(searchIn.value.trim() || p.priority);
-      countLine.textContent = rows.length + (rows.length === 1 ? " reminder" : " reminders") +
-        (filtered ? " (filtered)" : "");
+      countLine.textContent = filtered ? rows.length + (rows.length === 1 ? " match" : " matches") : "";
 
       if (!rows.length) {
-        listHolder.appendChild(KOS.medview.emptyState(
-          filtered ? "Nothing matches this search or filter."
+        listHolder.appendChild(KOS.ui.emptyState({ mark: "祝", compact: true,
+          title: filtered ? "Nothing matches this search or filter."
             : p.section === "completed" ? "Nothing completed yet."
             : p.section === "overdue" ? "Nothing overdue — the list is under control."
-            : "Nothing here yet. Add a reminder above.",
-          []));
+            : "Nothing here yet. Add a reminder above." }));
         return;
       }
-      rows.forEach(function (item) { listHolder.appendChild(row(item)); });
+      var grouped = (p.sort || "due") === "due";
+      var last = null;
+      rows.forEach(function (item) {
+        if (grouped) {
+          var g = groupOf(item);
+          if (g !== last) {
+            listHolder.appendChild(el("h3", { class: "k-kicker k-rem-when", "data-tone": g === "Overdue" ? "crimson" : null, text: g }));
+            last = g;
+          }
+        }
+        listHolder.appendChild(row(item));
+      });
     }
 
     function row(item) {
       var overdue = R().isOverdue(item);
       var subs = item.subs || [];
       var doneSubs = subs.filter(function (s) { return s.done; }).length;
-      var node = el("div", { class: "rem-row" + (item.done ? " done" : "") + (overdue ? " overdue" : "") +
-        (selectedId === item.id ? " selected" : "") + " pr-" + item.priority,
-        onclick: function () { selectedId = item.id; renderList(); renderInsp(); } });
+      var node = el("div", { class: "k-rem-row", "data-ui": "rem.row",
+        onclick: function (ev) {
+          if (ev.target.closest("button")) return;
+          select(item.id);
+        } });
+      if (item.done) KOS.ui.state(node, "done", true);
+      if (overdue) KOS.ui.state(node, "overdue", true);
+      if (selectedId === item.id) KOS.ui.state(node, "selected", true);
 
-      var cb = el("button", { class: "rem-check" + (item.done ? " on" : ""),
+      var cb = el("button", { type: "button", class: "k-rem-check", "data-ui": "rem.check",
+        "aria-pressed": String(!!item.done),
         "aria-label": item.done ? "Mark “" + item.title + "” not done" : "Complete “" + item.title + "”",
-        text: item.done ? "✓" : "", onclick: function (ev) {
-          ev.stopPropagation();
+        text: item.done ? "✓" : "", onclick: function () {
           R().complete(item.id, !item.done);
           draw();
         } });
+      if (item.priority === 3 && !item.done) KOS.ui.state(cb, "urgent", true);
 
       var meta = [];
       var dueTxt = fmtDue(item);
-      if (dueTxt) meta.push(el("span", { class: "rem-chip due" + (overdue ? " overdue" : item.due === KOS.srs.todayISO() ? " today" : ""), text: dueTxt }));
-      if (item.recur) meta.push(el("span", { class: "rem-chip recur", text: "⟳ " + (R().RECUR.find(function (r) { return r.v === item.recur; }) || {}).label }));
+      if (dueTxt) meta.push(el("span", { class: "k-rem-due", "data-tone": overdue ? "crimson" : item.due === KOS.srs.todayISO() ? "amber" : null,
+        text: overdue ? "Overdue · " + dueTxt : dueTxt }));
+      if (item.recur) meta.push(el("span", { text: "⟳ " + (R().RECUR.find(function (r) { return r.v === item.recur; }) || {}).label }));
       if (item.listId != null && p.listId == null) {
         var ln = R().listName(item.listId);
-        if (ln) meta.push(el("span", { class: "rem-chip list", text: ln }));
+        if (ln) meta.push(el("span", { text: ln }));
       }
       (item.tags || []).forEach(function (t) {
         if (p.tag === t) return;
-        meta.push(el("span", { class: "rem-chip tag", text: "#" + t }));
+        meta.push(el("span", { class: "k-rem-tagtext", text: "#" + t }));
       });
-      if ((item.alerts || []).length) meta.push(el("span", { class: "rem-chip alert", text: "🔔 " + item.alerts.length }));
-      if (subs.length) meta.push(el("span", { class: "rem-chip subs", text: doneSubs + "/" + subs.length }));
-      if (item.notes) meta.push(el("span", { class: "rem-chip note", text: "note" }));
+      if ((item.alerts || []).length) meta.push(el("span", { text: "🔔 " + item.alerts.length }));
+      if (subs.length) meta.push(el("span", { class: "k-mono", text: doneSubs + "/" + subs.length }));
+      if (item.notes) meta.push(el("span", { text: "note" }));
+
+      var body = el("button", { type: "button", class: "k-rem-row-body", "data-ui": "rem.open",
+        "aria-label": item.title + (dueTxt ? ", " + dueTxt : ""), "aria-expanded": String(selectedId === item.id),
+        onclick: function () { select(item.id); } }, [
+        el("span", { class: "k-rem-title", text: item.title }),
+        meta.length ? el("span", { class: "k-rem-meta" }, meta.reduce(function (acc, m, i) {
+          if (i) acc.push(el("span", { "aria-hidden": "true", text: "·" }));
+          acc.push(m);
+          return acc;
+        }, [])) : null
+      ].filter(Boolean));
 
       node.appendChild(cb);
-      node.appendChild(el("div", { class: "rem-row-body" }, [
-        el("div", { class: "rem-row-top" }, [
-          item.priority ? el("span", { class: "rem-prio", title: R().PRIORITIES[item.priority].label, text: priorityMark(item.priority) }) : null,
-          el("span", { class: "rem-title", text: item.title })
-        ].filter(Boolean)),
-        meta.length ? el("div", { class: "rem-row-meta" }, meta) : null
-      ].filter(Boolean)));
-      node.appendChild(el("button", { class: "xbtn rem-del", text: "✕", "aria-label": "Delete “" + item.title + "”",
-        onclick: function (ev) {
-          ev.stopPropagation();
+      node.appendChild(body);
+      if (item.priority) node.appendChild(el("span", { class: "k-chip", "data-tone": PRIO_TONE[item.priority] || null, text: R().PRIORITIES[item.priority].label }));
+      node.appendChild(el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-rem-del", "data-ui": "rem.delete", text: "✕", "aria-label": "Delete “" + item.title + "”",
+        onclick: function () {
           KOS.ui.confirm({ title: "Delete this reminder?", body: "“" + item.title + "” and its sub-tasks.", danger: true, confirm: "Delete" },
             function () { R().remove(item.id); if (selectedId === item.id) selectedId = null; draw(); });
         } }));
       return node;
     }
+    function select(id) { selectedId = id; renderList(); renderInsp(); }
 
-    /* ---------------- the side inspector ---------------- */
+    /* ---------------- the detail panel ---------------- */
+    function field(label, control, wide) {
+      return el("label", { class: "k-field" + (wide ? " k-rem-wide" : ""), "data-ui": "ui.field" }, [el("span", { class: "k-field-label", text: label }), control]);
+    }
     function renderInsp() {
       insp.innerHTML = "";
       var item = selectedId != null ? R().get(selectedId) : null;
+      KOS.ui.state(insp, "empty", !item);
       if (!item) {
-        insp.appendChild(el("div", { class: "rem-insp-empty" }, [
-          el("span", { class: "rie-g", "aria-hidden": "true", text: "祝" }),
-          el("p", { class: "sub", text: "Select a reminder to edit its date, priority, list, tags, notes, sub-tasks, repeat and alerts." })
-        ]));
+        insp.appendChild(KOS.ui.emptyState({ mark: "祝", compact: true,
+          body: "Select a reminder to edit its date, priority, list, tags, notes, sub-tasks, repeat and alerts." }));
         return;
       }
 
@@ -312,49 +366,53 @@
         renderSide(); renderList(); renderInsp();
       }
 
-      var titleIn = el("input", { type: "text", class: "todo-in rem-i-title", value: item.title });
+      var titleIn = el("textarea", { class: "k-rem-i-title", rows: "2", maxlength: "300",
+        onkeydown: function (e) { if (e.key === "Enter") { e.preventDefault(); titleIn.blur(); } } });
+      titleIn.value = item.title;
       titleIn.addEventListener("change", function () {
         if (!titleIn.value.trim()) { titleIn.value = item.title; KOS.ui.toast("A reminder needs some text.", true); return; }
         commit({ title: titleIn.value });
       });
 
-      var dateIn = el("input", { type: "date", class: "todo-in", value: item.due || "" });
-      var timeIn = el("input", { type: "time", class: "todo-in", value: item.dueTime || "" });
+      var dateIn = el("input", { type: "date", class: "k-input" });
+      dateIn.value = item.due || "";
+      var timeIn = el("input", { type: "time", class: "k-input" });
+      timeIn.value = item.dueTime || "";
       timeIn.disabled = !item.due;
       dateIn.addEventListener("change", function () { commit({ due: dateIn.value || null, dueTime: dateIn.value ? item.dueTime : null }); });
       timeIn.addEventListener("change", function () { commit({ dueTime: timeIn.value || null }); });
 
-      var prio = el("select", { class: "status-sel" }, R().PRIORITIES.map(function (x) {
+      var prio = el("select", { class: "k-input" }, R().PRIORITIES.map(function (x) {
         return el("option", { value: String(x.v), text: x.label });
       }));
       prio.value = String(item.priority);
       prio.addEventListener("change", function () { commit({ priority: prio.value }); });
 
-      var listSel = el("select", { class: "status-sel" }, [el("option", { value: "", text: "No list" })].concat(
+      var listSel = el("select", { class: "k-input" }, [el("option", { value: "", text: "No list" })].concat(
         R().lists().map(function (l) { return el("option", { value: String(l.id), text: l.name }); })));
       listSel.value = item.listId != null ? String(item.listId) : "";
       listSel.addEventListener("change", function () { commit({ listId: listSel.value ? parseInt(listSel.value, 10) : null }); });
 
-      var tagIn = el("input", { type: "text", class: "todo-in", value: (item.tags || []).join(", "),
-        placeholder: "urgent, admin" });
+      var tagIn = el("input", { type: "text", class: "k-input", placeholder: "urgent, admin" });
+      tagIn.value = (item.tags || []).join(", ");
       tagIn.addEventListener("change", function () { commit({ tags: tagIn.value.split(",") }); });
 
-      var recurSel = el("select", { class: "status-sel" }, R().RECUR.map(function (r) {
-        return el("option", { value: r.v, text: r.label });
+      var recurSel = el("select", { class: "k-input" }, R().RECUR.map(function (r) {
+        return el("option", { value: r.v, text: r.v ? r.label : "Does not repeat" });
       }));
       recurSel.value = item.recur || "";
       recurSel.disabled = !item.due;
       recurSel.addEventListener("change", function () { commit({ recur: recurSel.value || null }); });
 
-      var notesIn = el("textarea", { class: "todo-in rem-i-notes", rows: "4", placeholder: "Notes…" });
+      var notesIn = el("textarea", { class: "k-input", rows: "3", placeholder: "Notes…" });
       notesIn.value = item.notes || "";
       notesIn.addEventListener("change", function () { commit({ notes: notesIn.value }); });
 
-      /* alerts — checkbox per offset, only meaningful once a date exists */
-      var alertBox = el("div", { class: "rem-alerts" });
+      /* alerts — one toggle per offset, only meaningful once a date exists */
+      var alertBox = el("div", { class: "k-cluster" });
       R().ALERTS.forEach(function (a) {
         var on = (item.alerts || []).indexOf(a.v) !== -1;
-        var b = el("button", { class: "rem-alert-chip" + (on ? " on" : ""), text: a.label,
+        var b = el("button", { type: "button", class: "k-qz-pill", "data-ui": "rem.alert", "aria-pressed": String(on), text: a.label,
           onclick: function () {
             var next = (item.alerts || []).slice();
             var i = next.indexOf(a.v);
@@ -366,58 +424,62 @@
       });
 
       /* sub-tasks */
-      var subWrap = el("div", { class: "rem-i-subs" });
+      var subWrap = el("div", { class: "k-rem-subs" });
       (item.subs || []).forEach(function (s) {
-        subWrap.appendChild(el("div", { class: "rem-i-sub" + (s.done ? " done" : "") }, [
-          el("button", { class: "rem-check sm" + (s.done ? " on" : ""), text: s.done ? "✓" : "",
+        var sub = el("div", { class: "k-rem-sub" }, [
+          el("button", { type: "button", class: "k-rem-box", "aria-pressed": String(!!s.done), text: s.done ? "✓" : "",
             "aria-label": (s.done ? "Untick " : "Tick ") + s.text,
             onclick: function () { R().subToggle(item.id, s.id, !s.done); renderList(); renderInsp(); } }),
-          el("span", { class: "rem-i-sub-t", text: s.text }),
-          el("button", { class: "xbtn", text: "✕", "aria-label": "Delete sub-task",
+          el("span", { class: "k-rem-sub-t", text: s.text }),
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Delete sub-task",
             onclick: function () { R().subRemove(item.id, s.id); renderList(); renderInsp(); } })
-        ]));
+        ]);
+        if (s.done) KOS.ui.state(sub, "done", true);
+        subWrap.appendChild(sub);
       });
-      var subIn = el("input", { type: "text", class: "todo-in", placeholder: "Add a sub-task…",
+      var subIn = el("input", { type: "text", class: "k-rem-sub-in", placeholder: "+ Add a sub-task…", "aria-label": "Add a sub-task",
         onkeydown: function (e) {
           if (e.key === "Enter" && subIn.value.trim()) { R().subAdd(item.id, subIn.value.trim()); renderList(); renderInsp(); }
         } });
-      subWrap.appendChild(el("div", { class: "rem-i-sub-add" }, [subIn]));
+      subWrap.appendChild(subIn);
 
       var rw = R().rewardState(item);
-      var rewardNote = item.done ? null : el("p", { class: "sub rem-reward-note", text:
+      var rewardNote = item.done ? null : el("p", { class: "k-rem-hint", text:
         rw.pays ? "Completing this pays the usual small trickle."
           : rw.reason === "daily-cap" ? "Today's reward cap is reached (" + R().REWARD_CAP + ") — completing still works, it just doesn't pay."
           : "Already paid for this one today — completing again doesn't pay." });
 
-      insp.appendChild(el("div", { class: "rem-insp-head" }, [
-        el("h3", { text: "Detail" }),
-        el("button", { class: "mini-btn", text: "✕", "aria-label": "Close detail",
+      var check = el("button", { type: "button", class: "k-rem-check", "data-ui": "rem.check", "aria-pressed": String(!!item.done),
+        "aria-label": item.done ? "Mark “" + item.title + "” not done" : "Complete “" + item.title + "”", text: item.done ? "✓" : "",
+        onclick: function () { R().complete(item.id, !item.done); draw(); } });
+      if (item.priority === 3 && !item.done) KOS.ui.state(check, "urgent", true);
+
+      insp.appendChild(el("div", { class: "k-rem-insp-head" }, [
+        el("h2", { class: "k-kicker", text: "Reminder" }),
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close detail",
           onclick: function () { selectedId = null; renderList(); renderInsp(); } })
       ]));
-      insp.appendChild(el("div", { class: "rem-insp-body" }, [
-        KOS.medview.field("Reminder", titleIn),
-        el("div", { class: "med-form-row" }, [
-          KOS.medview.field("Due date", dateIn),
-          KOS.medview.field("Time", timeIn)
+      insp.appendChild(el("div", { class: "k-rem-insp-body", "data-ui": "rem.insp-body" }, [
+        el("div", { class: "k-rem-i-top" }, [check,
+          el("label", { class: "k-field", "data-ui": "ui.field" }, [el("span", { class: "sr-only", text: "Reminder" }), titleIn])]),
+        el("div", { class: "k-rem-fields" }, [
+          field("Due date", dateIn), field("Time", timeIn),
+          field("List", listSel), field("Priority", prio),
+          field("Repeat", recurSel, true)
         ]),
-        el("div", { class: "med-form-row" }, [
-          KOS.medview.field("Priority", prio),
-          KOS.medview.field("List", listSel)
-        ]),
-        KOS.medview.field("Tags (comma separated)", tagIn),
-        KOS.medview.field("Repeat", recurSel),
-        el("div", { class: "rem-i-block" }, [
-          el("h4", { text: "Alerts" }),
-          item.due ? null : el("p", { class: "sub", text: "Give it a date first — an alert needs something to fire against." }),
+        el("section", { class: "k-rem-block", "data-ui": "rem.i-block" }, [
+          el("h3", { class: "k-field-label", text: "Alerts" }),
+          item.due ? null : el("p", { class: "k-rem-hint", text: "Give it a date first — an alert needs something to fire against." }),
           alertBox
         ].filter(Boolean)),
-        KOS.medview.field("Notes", notesIn),
-        el("div", { class: "rem-i-block" }, [el("h4", { text: "Sub-tasks" }), subWrap]),
+        field("Tags (comma separated)", tagIn),
+        field("Notes", notesIn),
+        el("section", { class: "k-rem-block", "data-ui": "rem.i-block" }, [el("h3", { class: "k-field-label", text: "Sub-tasks" }), subWrap]),
         rewardNote,
-        el("div", { class: "rem-i-foot" }, [
-          el("button", { class: "btn", text: item.done ? "↺ Mark not done" : "✓ Complete",
+        el("div", { class: "k-cluster k-rem-i-foot" }, [
+          el("button", { type: "button", class: "k-btn k-btn--sm", text: item.done ? "↺ Mark not done" : "✓ Complete",
             onclick: function () { R().complete(item.id, !item.done); draw(); } }),
-          el("button", { class: "btn danger", text: "Delete", onclick: function () {
+          el("button", { type: "button", class: "k-btn k-btn--sm k-btn--danger", text: "Delete", onclick: function () {
             KOS.ui.confirm({ title: "Delete this reminder?", body: "“" + item.title + "” and its sub-tasks.", danger: true, confirm: "Delete" },
               function () { R().remove(item.id); selectedId = null; draw(); });
           } })
@@ -427,40 +489,6 @@
 
     function draw() { renderSide(); renderMid(); renderInsp(); }
     draw();
-  };
-
-  /* ---------------- the read-only Home digest ----------------
-     Deliberately has NO mutation path: Home reports, Reminders manages. */
-  KOS.remindersSummaryCard = function () {
-    var s = R().summary(3);
-    var wrap = el("div", { class: "rem-sum" });
-    wrap.appendChild(el("div", { class: "rem-sum-h" }, [
-      el("b", { text: "Reminders" }),
-      el("button", { class: "mini-btn", text: "Manage →", onclick: function () { KOS.show("reminders"); } })
-    ]));
-    wrap.appendChild(el("div", { class: "rem-sum-stats" }, [
-      stat(s.overdue, "overdue", s.overdue ? "bad" : ""),
-      stat(s.today, "due today", ""),
-      stat(s.open, "open", "")
-    ]));
-    if (s.next.length) {
-      var list = el("div", { class: "rem-sum-list" });
-      s.next.forEach(function (i) {
-        list.appendChild(el("div", { class: "rem-sum-row" + (R().isOverdue(i) ? " overdue" : "") }, [
-          el("span", { class: "rsr-t", text: i.title }),
-          el("span", { class: "rsr-d", text: fmtDue(i) || "" })
-        ]));
-      });
-      wrap.appendChild(list);
-    } else {
-      wrap.appendChild(el("p", { class: "sub", text: s.open ? "Nothing dated — open the page to schedule." : "Nothing on the list." }));
-    }
-    function stat(v, k, cls) {
-      return el("div", { class: "rem-sum-stat " + cls }, [
-        el("b", { text: String(v) }), el("span", { text: k })
-      ]);
-    }
-    return wrap;
   };
 
   /* ---------------- alert ticker ----------------

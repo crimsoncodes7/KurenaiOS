@@ -291,11 +291,12 @@ step("Home shows a READ-ONLY summary that links to the page", async () => {
   if (!byName(card, /^All/)) throw new Error("no link through to the Reminders page");
   if (!/overdue/.test(card.textContent)) throw new Error("the digest does not report the overdue count");
 });
+/* Graphite (frame 10c): group headings are h3, and a zero count prints nothing (invariant 77) */
 step("the dedicated page renders sections, lists, tags, list and inspector", async () => {
   KOS.show("reminders");
   await tick(80);
   if ($$("[data-ui~='rem.side-group']").length < 3) throw new Error("sections / lists / tags are not three separate groups");
-  const groups = $$("[data-ui~='rem.side-group'] h4").map(h => h.textContent.replace("＋", "").trim());
+  const groups = $$("[data-ui~='rem.side-group'] h3").map(h => h.textContent.replace("＋", "").trim());
   if (!groups.includes("Smart sections") || !groups.includes("Lists") || !groups.includes("Tags"))
     throw new Error("sidebar groups: " + groups.join("|"));
   if ($$("[data-ui~='rem.side-item'][data-section='today']").length !== 1) throw new Error("the Today section is missing");
@@ -306,7 +307,7 @@ step("the dedicated page renders sections, lists, tags, list and inspector", asy
   if (!row) throw new Error("no reminder rows rendered");
   click(row);
   await tick(40);
-  const labels = $$("[data-ui~='rem.insp-body'] [data-ui~='ui.field'] > span, [data-ui~='rem.insp-body'] [data-ui~='rem.i-block'] h4").map(n => n.textContent.trim());
+  const labels = $$("[data-ui~='rem.insp-body'] [data-ui~='ui.field'] > span, [data-ui~='rem.insp-body'] [data-ui~='rem.i-block'] h3").map(n => n.textContent.trim());
   ["Reminder", "Due date", "Priority", "List", "Repeat", "Alerts", "Notes", "Sub-tasks"].forEach(f => {
     if (!labels.some(l => l.indexOf(f) === 0)) throw new Error("inspector is missing " + f + " — got " + labels.join("|"));
   });
@@ -318,7 +319,7 @@ step("completing from the list updates the row without a full navigation", async
   const check = $("[data-ui~='rem.row'] [data-ui~='rem.check']");
   click(check);
   await tick(60);
-  if ($$("[data-ui~='rem.row']").length === before && $("[data-ui~='rem.side-item'][data-section='completed'] [data-ui~='rem.section-count']").textContent === "0")
+  if ($$("[data-ui~='rem.row']").length === before && ($("[data-ui~='rem.side-item'][data-section='completed'] [data-ui~='rem.section-count']").textContent || "0") === "0")
     throw new Error("completing did not move the item out of the open sections");
 });
 

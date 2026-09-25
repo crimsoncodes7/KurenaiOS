@@ -293,6 +293,57 @@ color-scheme: dark;
 --att-badge: 34px;
 --att-preview-h: 70vh;
 
+/* ---------- Productivity (frames 10a–10g) ---------- */
+--fx-side-w: 340px;
+--fx-dial-w: 260px;
+--fx-dial: 240px;
+--fx-ring-w: 10px;
+--fx-stage-ring: 400px;
+--fx-stage-ring-w: 13px;
+--fx-stage-mid: 420px;
+--fx-stage-side: 320px;
+--fx-glow-w: 900px;
+--fx-glow-h: 600px;
+--fx-seg-w: 60px;
+--fx-seg-h: 5px;
+--fx-when-w: 110px;
+--fx-dur-w: 70px;
+--fx-result-w: 96px;
+--fx-row-bar-h: 22px;
+--fx-row-bar-w: 4px;
+--fx-switch-w: 34px;
+--fx-switch-h: 20px;
+--fs-58: 58px;
+--fs-96: 96px;
+--track-clock: -0.05em;
+--fx-wash: oklch(0.25 0.04 18);
+--fx-stage-glow: oklch(0.23 0.05 18);
+--fx-stage-track: oklch(0.26 0.02 18);
+--fx-stage-well: oklch(0.18 0.015 18);
+--fx-stage-seg: oklch(0.28 0.02 18);
+--fx-note-fill: oklch(1 0 0 / 0.06);
+--rem-side-w: 200px;
+--rem-insp-w: 320px;
+--rem-check: 20px;
+--rem-glyph-w: 18px;
+--hb-side-w: 360px;
+--hb-tick: 26px;
+--hb-days-w: 260px;
+--hb-streak-w: 90px;
+--hb-act-w: 36px;
+--hb-cell-h: 26px;
+--hb-heat-h: 130px;
+--dir-tick: 18px;
+--cal-side-w: 300px;
+--cal-cell-h: 104px;
+--cal-hour-h: 52px;
+--cal-gutter-w: 56px;
+--cal-dot: 5px;
+--cal-key-dot: 7px;
+--cal-cd-days-w: 44px;
+--cal-row-bar-w: 4px;
+--cal-kv-w: 110px;
+
 /* ---------- elevation (invariant 79) ----------
    Surfaces are flat; only floating layers (menus, dialogs, the share card)
    cast a shadow. Its ink is derived from the theme's own deepest tone. */
@@ -313,6 +364,7 @@ color-scheme: dark;
 --z-topbar: 30;
 --z-drawer: 40;
 --z-tabbar: 50;
+--z-focus: 60;
 --z-menu: 110;
 --z-modal: 120;
 --z-toast: 130;

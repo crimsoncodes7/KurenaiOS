@@ -102,58 +102,6 @@
     if (i !== -1) { t.manual.splice(i, 1); store.save(); }
   }
 
-  /* the panel rendered on the home dashboard */
-  function panel() {
-    var wrap = el("div", { class: "todo-panel" });
-    function render() {
-      wrap.innerHTML = "";
-      var autos = autoItems();
-      /* Build 6.2: the panel is the GENERATED directive list only. Reminders
-         are a managed store with their own page, so Home reports them
-         read-only underneath rather than offering a second editing surface. */
-      var doneN = autos.filter(function (a) { return isChecked(a.key); }).length;
-      var totalN = autos.length;
-
-      wrap.appendChild(el("div", { class: "todo-h" }, [
-        el("b", { text: "Today's directives" }),
-        el("span", { class: "todo-count", text: totalN ? doneN + " / " + totalN : "—" })
-      ]));
-
-      if (!totalN) wrap.appendChild(el("p", { class: "sub", text: "Nothing generated for today — no due cards, no near deadlines. Add a task below or take the win." }));
-
-      var listEl = el("div", { class: "todo-list" });
-      wrap.appendChild(listEl);
-      autos.forEach(function (a) {
-        listEl.appendChild(row(isChecked(a.key), a.label, function (val) {
-          setChecked(a.key, val, a.label); render();
-        }, a.go, null, "auto", a.reward));
-      });
-      if (totalN) wrap.appendChild(el("p", { class: "todo-foot", text:
-        doneN >= totalN ? "◆ All sealed — the streak lives on." : "◆ Seal every directive to keep the streak alive." }));
-
-      /* the read-only reminders digest — management lives on its own page */
-      if (KOS.remindersSummaryCard) wrap.appendChild(KOS.remindersSummaryCard());
-    }
-    function row(done, label, onTick, onGo, onDel, kind, reward) {
-      /* the tick sits beside its label rather than inside one, so it needs
-         the directive's own text as its name — "checkbox, unchecked" told
-         a screen-reader user nothing about which directive they were on */
-      var cb = el("input", { type: "checkbox", class: "todo-tick",
-        "aria-label": "Seal directive: " + label,
-        onchange: function () { onTick(cb.checked); } });
-      cb.checked = done;
-      return el("div", { class: "todo-item " + kind + (done ? " done" : "") }, [
-        cb,
-        el("span", { class: "todo-label", text: label,
-          onclick: onGo || function () {} , style: onGo ? "cursor:pointer" : "" }),
-        reward ? el("span", { class: "todo-reward", text: reward }) : (kind === "auto" ? el("span", { class: "todo-tag", text: "auto" }) : null),
-        onDel ? el("button", { class: "xbtn", text: "✕", "aria-label": "Delete task", onclick: onDel }) : null
-      ]);
-    }
-    render();
-    return wrap;
-  }
-
   /* ================= Tasks & Habits (the full page) =================
      Reminders with checkable sub-tasks, plus daily habit trackers.
      Rewards flow ONLY through the existing sessions.log "todo" path —
@@ -212,81 +160,191 @@
     if (i !== -1) { item.subs.splice(i, 1); store.save(); }
   }
 
+  /* the longest run of kept days a habit has ever had */
+  function habitBest(h) {
+    var keys = Object.keys(h.days || {}).filter(function (k) { return h.days[k]; }).sort();
+    var best = 0, run = 0, prev = null;
+    keys.forEach(function (d) {
+      run = prev && KOS.srs.addDays(prev, 1) === d ? run + 1 : 1;
+      if (run > best) best = run;
+      prev = d;
+    });
+    return best;
+  }
+  /* Monday of the week holding iso */
+  function mondayOf(iso) {
+    var p = iso.split("-"), dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    return KOS.srs.addDays(iso, -((dt.getDay() + 6) % 7));
+  }
+  function dayLabel(iso, opts) {
+    var p = iso.split("-");
+    return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString("en-GB", opts);
+  }
+
+  /* Graphite (frame 10d): the week as a grid — one row per habit, the
+     seven days, the streak — beside today's directives and twelve weeks
+     of keeping. Reads only: a render never creates the habits array. */
   KOS.views.tasks = function (main) {
     KOS.shell.tree("none");
+    /* No in-page copy of the section nav. Reminders, Habits and Calendar
+       are already the Productivity strip directly above this header. */
+    main.appendChild(KOS.ui.pageHeader({ kicker: "習 · The daily grain", title: "Habits",
+      sub: "The small things you do every day. Reminders have their own page." }));
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "習 · The daily grain" }),
-        el("h1", { text: "Habits" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "The small things you do every day. Reminders have their own page." })
-        ])
-      ])
-      /* No in-page copy of the section nav. Reminders, Habits and Calendar
-         are already the Productivity strip directly above this header, so
-         this was the same three destinations offered twice, 60px apart. */
-    ]));
-
-    var grid = el("div", { class: "tasks-grid one-col" });
+    var weekOffset = 0;
+    var grid = el("div", { class: "k-hb" });
     main.appendChild(grid);
-    var habCol = el("section", { class: "tasks-col" });
-    grid.appendChild(habCol);
+    var card = el("section", { class: "k-card k-hb-card", "data-ui": "habit.list", "aria-label": "Daily habits" });
+    var side = el("div", { class: "k-hb-side" });
+    grid.appendChild(card);
+    grid.appendChild(side);
+
+    function list() { return (T() && T().habits) || []; }
 
     function renderHabits() {
-      habCol.innerHTML = "";
-      habCol.appendChild(el("h3", { class: "tasks-h" }, [
-        el("span", { class: "tk", "aria-hidden": "true", text: "習" }), "Habits"
-      ]));
-      var hs = habits();
-      var list = el("div", { class: "habit-list" });
-      if (!hs.length) list.appendChild(el("p", { class: "sub", text: "A habit is anything you want to keep daily — ticking one pays the same small trickle as a to-do." }));
+      card.innerHTML = "";
+      var hs = list();
       var today = KOS.srs.todayISO();
+      var start = KOS.srs.addDays(mondayOf(today), -7 * weekOffset);
+      var days = [];
+      for (var i = 0; i < 7; i++) days.push(KOS.srs.addDays(start, i));
+      var keptToday = hs.filter(function (h) { return h.days[today]; }).length;
+
+      card.appendChild(el("div", { class: "k-hb-head" }, [
+        el("h2", { class: "k-card-title", text: "Daily habits" }),
+        hs.length ? el("span", { class: "k-chip", "data-tone": "teal", text: keptToday + " of " + hs.length + " today" }) : null,
+        el("span", { class: "k-hb-weeknav" }, [
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "habit.week-prev", "aria-label": "Previous week", text: "‹",
+            onclick: function () { weekOffset++; renderHabits(); } }),
+          el("span", { class: "k-hb-week", role: "status", text: "w/c " + dayLabel(start, { day: "numeric", month: "short" }) }),
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "habit.week-next", "aria-label": "Next week", text: "›",
+            disabled: weekOffset === 0 ? "" : null, onclick: function () { weekOffset = Math.max(0, weekOffset - 1); renderHabits(); } })
+        ])
+      ].filter(Boolean)));
+
+      var table = el("div", { class: "k-hb-table", role: "table", "aria-label": "Habits this week" });
+      table.appendChild(el("div", { class: "k-hb-row k-hb-cols", role: "row" }, [
+        el("span", { class: "k-kicker k-hb-name-h", role: "columnheader", text: "Habit" }),
+        el("span", { class: "k-hb-days", role: "columnheader", "aria-label": "Days" }, days.map(function (d) {
+          var day = el("span", { class: "k-hb-dayh" }, [
+            el("span", { class: "k-hb-dow", text: dayLabel(d, { weekday: "short" }) }),
+            el("span", { class: "k-mono", text: String(+d.slice(8)) })
+          ]);
+          if (d === today) KOS.ui.state(day, "today", true);
+          return day;
+        })),
+        el("span", { class: "k-kicker", role: "columnheader", text: "Streak" }),
+        el("span", { role: "columnheader", "aria-label": "Actions" })
+      ]));
+
       hs.forEach(function (h) {
-        var streak = habitStreak(h);
-        var week = [];
-        for (var i = 6; i >= 0; i--) {
-          var d = KOS.srs.addDays(today, -i);
-          week.push({ on: !!h.days[d], today: i === 0 });
-        }
+        var streak = habitStreak(h), best = habitBest(h);
         var doneToday = !!h.days[today];
-        var tick = el("button", { class: "habit-tick" + (doneToday ? " on" : ""),
-          "aria-label": doneToday ? "Undo today's tick" : "Tick off today",
-          text: doneToday ? "✓" : "○",
-          onclick: function () { tickHabit(h.id, !doneToday); renderHabits(); } });
-        list.appendChild(el("div", { class: "habit-row" + (doneToday ? " kept" : "") }, [
-          tick,
-          el("div", { class: "habit-main" }, [
-            el("span", { class: "habit-name", text: h.text }),
-            el("span", { class: "week-dots" }, week.map(function (w) {
-              return el("i", { class: (w.on ? "on" : "") + (w.today && !w.on ? " today" : "") });
-            }))
-          ]),
-          el("span", { class: "habit-streak" + (streak ? " lit" : "") }, [
-            el("b", { text: String(streak) }), streak === 1 ? " day" : " days"
-          ]),
-          el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete habit", onclick: function () {
+        var tick = el("button", { type: "button", class: "k-hb-tick", "data-ui": "habit.tick", "aria-pressed": String(doneToday),
+          "aria-label": doneToday ? "Undo today's tick for " + h.text : "Tick off " + h.text + " today",
+          text: doneToday ? "✓" : "",
+          onclick: function () { tickHabit(h.id, !doneToday); renderHabits(); renderHeat(); } });
+        var kept = days.filter(function (d) { return h.days[d]; }).length;
+        var cells = el("span", { class: "k-hb-days", "data-ui": "habit.week-dots", role: "img",
+          "aria-label": kept + " of 7 days kept this week" }, days.map(function (d) {
+          var c = el("span", { class: "k-hb-cell" });
+          if (h.days[d]) KOS.ui.state(c, "on", true);
+          if (d === today) KOS.ui.state(c, "today", true);
+          if (d > today) KOS.ui.state(c, "future", true);
+          return c;
+        }));
+        var del = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-hb-del", "data-ui": "habit.delete", text: "✕",
+          "aria-label": "Delete habit", title: "Delete “" + h.text + "”", onclick: function () {
             KOS.ui.confirm({ title: "Delete habit?", body: "“" + h.text + "” and its streak history go with it.", danger: true, confirm: "Delete" }, function () {
-              deleteHabit(h.id); renderHabits();
+              deleteHabit(h.id); renderHabits(); renderHeat();
             });
-          } })
+          } });
+        table.appendChild(el("div", { class: "k-hb-row", "data-ui": "habit.row", role: "row" }, [
+          el("span", { class: "k-hb-name", role: "cell" }, [tick, el("span", { class: "k-ellipsis", text: h.text })]),
+          el("span", { role: "cell" }, [cells]),
+          el("span", { class: "k-hb-streak", role: "cell" }, streak
+            ? [el("b", { text: "炎 " + streak }), best > streak ? el("span", { text: " · best " + best }) : null].filter(Boolean)
+            : [el("span", { text: best ? "best " + best : "—" })]),
+          el("span", { role: "cell" }, [del])
         ]));
       });
-      habCol.appendChild(list);
-      var input = el("input", { type: "text", class: "todo-in", placeholder: "Add a daily habit…",
+      card.appendChild(table);
+      if (!hs.length) card.appendChild(el("p", { class: "k-hb-hint", text: "A habit is anything you want to keep daily — ticking one pays the same small trickle as a to-do." }));
+
+      var input = el("input", { type: "text", class: "k-hb-add-in", placeholder: "Add a daily habit…",
         "aria-label": "New daily habit",
         onkeydown: function (e) { if (e.key === "Enter") submit(); } });
       function submit() {
         if (!input.value.trim()) return;
         addHabit(input.value.trim());
-        renderHabits();
+        renderHabits(); renderHeat();
+        var again = card.querySelector(".k-hb-add-in");
+        if (again) again.focus();
       }
-      habCol.appendChild(el("div", { class: "todo-add" }, [
-        input, el("button", { class: "btn", text: "+ Add", onclick: submit })
+      card.appendChild(el("div", { class: "k-hb-add" }, [
+        el("button", { type: "button", class: "k-hb-add-go", "data-ui": "habit.add", "aria-label": "Add the habit", text: "＋", onclick: submit }),
+        input
       ]));
     }
 
+    /* today's directives — the generated list, sealed here as on Home */
+    var dirCard = el("section", { class: "k-card", "data-ui": "habit.directives", "aria-label": "Today's directives" });
+    function renderDirectives() {
+      dirCard.innerHTML = "";
+      var autos = autoItems();
+      dirCard.appendChild(el("div", { class: "k-card-head" }, [
+        el("h2", { class: "k-card-title", text: "Today's directives" }),
+        el("span", { class: "k-card-meta", text: "from exams & deadlines" })
+      ]));
+      if (!autos.length) {
+        dirCard.appendChild(el("p", { class: "k-hb-hint", text: "Nothing generated for today — no due cards, no near deadlines." }));
+        return;
+      }
+      autos.forEach(function (a) {
+        var done = isChecked(a.key);
+        var row = el("div", { class: "k-hb-dir" }, [
+          el("button", { type: "button", class: "k-hb-dir-tick", "data-ui": "habit.seal", "aria-pressed": String(done),
+            "aria-label": (done ? "Unseal directive: " : "Seal directive: ") + a.label, text: done ? "✓" : "",
+            onclick: function () { setChecked(a.key, !done, a.label); renderDirectives(); } }),
+          el("button", { type: "button", class: "k-hb-dir-go k-ellipsis", text: a.label, onclick: a.go }),
+          el("span", { class: "k-mono k-hb-reward", text: a.reward })
+        ]);
+        if (done) KOS.ui.state(row, "done", true);
+        dirCard.appendChild(row);
+      });
+    }
+
+    /* twelve weeks of keeping: each day's share of habits kept */
+    var heatCard = el("section", { class: "k-card", "data-ui": "habit.heat", "aria-label": "Last 12 weeks" });
+    function renderHeat() {
+      heatCard.innerHTML = "";
+      heatCard.appendChild(el("h2", { class: "k-card-title", text: "Last 12 weeks" }));
+      var hs = list();
+      if (!hs.length) { heatCard.appendChild(el("p", { class: "k-hb-hint", text: "Keep a habit for a few days and the pattern shows here." })); return; }
+      var today = KOS.srs.todayISO();
+      var first = KOS.srs.addDays(mondayOf(today), -7 * 11);
+      var cells = [], keptDays = 0;
+      for (var i = 0; i < 84; i++) {
+        var d = KOS.srs.addDays(first, i);
+        var c = el("span", { class: "k-hb-heat-cell" });
+        if (d > today) KOS.ui.state(c, "future", true);
+        else {
+          var n = hs.filter(function (h) { return h.days[d]; }).length;
+          if (n) keptDays++;
+          c.style.setProperty("--lvl", Math.round(100 * n / hs.length) + "%");
+          c.title = dayLabel(d, { weekday: "short", day: "numeric", month: "short" }) + " · " + n + " of " + hs.length;
+        }
+        cells.push(c);
+      }
+      heatCard.appendChild(el("div", { class: "k-hb-heat", role: "img",
+        "aria-label": "Habits kept on " + keptDays + " of the last 84 days" }, cells));
+    }
+
+    side.appendChild(dirCard);
+    side.appendChild(heatCard);
     renderHabits();
+    renderDirectives();
+    renderHeat();
   };
 
   KOS.todo = {
@@ -306,6 +364,6 @@
     habitStreak: habitStreak,
     addSub: addSub,
     tickSub: tickSub,
-    panel: panel
+    habitBest: habitBest
   };
 })();

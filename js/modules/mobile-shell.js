@@ -371,7 +371,8 @@
     grid.dataset.compactDisclosure = "true";
     var trigger = el("button", {
       type: "button",
-      class: "btn mobile-disclosure-trigger reminders-disclosure-trigger",
+      class: "k-btn k-disclosure",
+      "data-ui": "rem.disclosure-trigger",
       text: "☷ Browse sections, lists & tags",
       "aria-haspopup": "dialog",
       "aria-expanded": "false",

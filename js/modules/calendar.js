@@ -538,9 +538,6 @@
     if (ev.allDay || !ev.time) return "All day";
     return ev.time + (ev.endTime ? "–" + ev.endTime : "");
   }
-  function hueClass(ev) {
-    return "t-" + ev.type + (ev.colour ? " c-" + ev.colour : "");
-  }
   function durationLabel(m) {
     if (!m) return "";
     var h = Math.floor(m / 60), r = m % 60;
@@ -570,123 +567,140 @@
   }
 
   /* ================================================================
-     the event chip
+     the event chip — Graphite (frame 10e): a dot and a title on a wash
+     of the event's hue. Every hue flows through --ev-hue (invariant 46):
+     the chip carries its type and, when chosen, its colour, and the
+     stylesheet turns those into the hue.
      ================================================================ */
+  function hueAttrs(node, ev) {
+    node.setAttribute("data-type", ev.type);
+    if (ev.colour) node.setAttribute("data-colour", ev.colour);
+    return node;
+  }
   function eventChip(ev, dateISO, onChanged, opts) {
     opts = opts || {};
     var recurring = (ev.recur || "none") !== "none";
-    var bits = [];
-    if (!ev.allDay && ev.time) bits.push(el("span", { class: "cal-ev-time", text: ev.time }));
-    bits.push(el("span", { class: "cal-ev-t", text: ev.title || "Untitled" }));
-    if (recurring) bits.push(el("span", { class: "cal-ev-re", "aria-hidden": "true", text: "↻" }));
+    var bits = [el("span", { class: "k-ev-dot", "aria-hidden": "true" })];
+    if (!ev.allDay && ev.time) bits.push(el("span", { class: "k-ev-time k-mono", text: ev.time }));
+    bits.push(el("span", { class: "k-ev-t", "data-ui": "cal.ev-t", text: ev.title || "Untitled" }));
+    if (recurring) bits.push(el("span", { class: "k-ev-mark", "data-ui": "cal.ev-re", "aria-hidden": "true", text: "↻" }));
     if (ev.type === "deadline" && ev.priority >= 2) {
-      bits.push(el("span", { class: "cal-ev-pri", "aria-hidden": "true", text: ev.priority === 3 ? "!!!" : "!!" }));
+      bits.push(el("span", { class: "k-ev-mark", "aria-hidden": "true", text: ev.priority === 3 ? "!!!" : "!!" }));
     }
     var label = (ev.allDay ? "All day" : (ev.time || "")) + " " + (ev.title || "Untitled") +
       " — " + TYPE_LABEL[ev.type] + (recurring ? ", " + describeRecur(ev).toLowerCase() : "");
-    return el("button", {
-      class: "cal-ev " + hueClass(ev) + (ev.allDay || !ev.time ? " allday" : "") + (opts.block ? " block" : ""),
+    var chip = el("button", {
+      class: "k-ev", "data-ui": "cal.event",
       "data-block": opts.block ? "" : null,
       type: "button",
       title: label + (ev.location ? " · " + ev.location : ""),
       "aria-label": label,
       onclick: function (e) { e.stopPropagation(); eventDetail(ev, dateISO, onChanged); }
     }, bits);
+    if (ev.allDay || !ev.time) KOS.ui.state(chip, "allday", true);
+    return hueAttrs(chip, ev);
   }
   /* an assignment's chip is DERIVED — clicking it goes to the assignment,
      never to a calendar record, because there is no calendar record */
   function assignmentChip(a, onChanged) {
-    return el("button", {
-      class: "cal-ev cal-asg" + (KOS.assignments.isOverdue(a) ? " overdue" : "") +
-        (a.status === "submitted" ? " handed-in" : ""),
+    var chip = el("button", {
+      class: "k-ev", "data-ui": "cal.event cal.asg", "data-type": "assignment",
       type: "button",
       title: "Assignment · " + a.title + " · " + KOS.assignments.statusLabel(a.status) +
         (a.dueTime ? " · " + a.dueTime : "") + " — manage in the tracker",
       "aria-label": "Assignment due: " + a.title,
       onclick: function (e) { e.stopPropagation(); openAssignment(a, onChanged); }
     }, [
-      el("span", { class: "cal-ev-time", "aria-hidden": "true", text: a.dueTime || "課" }),
-      el("span", { class: "cal-ev-t", text: a.title })
+      el("span", { class: "k-ev-dot", "aria-hidden": "true" }),
+      el("span", { class: "k-ev-time k-mono", "aria-hidden": "true", text: a.dueTime || "課" }),
+      el("span", { class: "k-ev-t", "data-ui": "cal.ev-t", text: a.title })
     ]);
+    if (KOS.assignments.isOverdue(a)) KOS.ui.state(chip, "overdue", true);
+    if (a.status === "submitted") KOS.ui.state(chip, "handed-in", true);
+    return chip;
   }
   function reminderChip(r) {
-    var overdue = KOS.reminders.isOverdue(r);
-    return el("button", {
-      class: "cal-ev cal-rem" + (overdue ? " overdue" : ""), type: "button",
+    var chip = el("button", {
+      class: "k-ev", "data-ui": "cal.event cal.rem", "data-type": "reminder", type: "button",
       title: "Reminder · " + r.title + (r.dueTime ? " · " + r.dueTime : "") + " — manage in Reminders",
       "aria-label": "Reminder: " + r.title,
       onclick: function (e) { e.stopPropagation(); KOS.show("reminders"); }
     }, [
-      el("span", { class: "cal-ev-time", text: r.dueTime || "◦" }),
-      el("span", { class: "cal-ev-t", text: r.title })
-    ]);
+      el("span", { class: "k-ev-dot", "aria-hidden": "true" }),
+      r.dueTime ? el("span", { class: "k-ev-time k-mono", text: r.dueTime }) : null,
+      el("span", { class: "k-ev-t", "data-ui": "cal.ev-t", text: r.title })
+    ].filter(Boolean));
+    if (KOS.reminders.isOverdue(r)) KOS.ui.state(chip, "overdue", true);
+    return chip;
+  }
+
+  /* ================================================================
+     dialogs — one shell for the day sheet, the detail and the editor
+     ================================================================ */
+  function dialog(hook, kicker, title, body, foot) {
+    var overlay = el("div", { class: "k-dialog-overlay" });
+    overlay.close = function () { overlay.remove(); };
+    var box = el("div", { class: "k-dialog k-cal-dialog", "data-ui": "ui.dialog " + hook }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("div", { class: "k-cal-dialog-t" }, [
+          kicker ? el("span", { class: "k-kicker", text: kicker }) : null,
+          el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: title })
+        ].filter(Boolean)),
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: function () { overlay.close(); } })
+      ])
+    ].concat(body).concat(foot ? [foot] : []));
+    overlay.appendChild(box);
+    overlay.box = box;
+    return overlay;
+  }
+  function foot(kids) {
+    return el("div", { class: "k-dialog-foot k-cal-foot", "data-ui": "cal.modal-foot" }, kids.filter(Boolean));
   }
 
   /* ================================================================
      the day sheet — the answer to day overflow
      ================================================================ */
-  function modalOverlay(onClose) {
-    if (KOS.medview && KOS.medview.modalOverlay) return KOS.medview.modalOverlay(onClose);
-    function close() { if (onClose) onClose(); document.removeEventListener("keydown", onEsc); overlay.remove(); }
-    function onEsc(e) { if (e.key === "Escape") close(); }
-    var overlay = el("div", { class: "modal-ov", onclick: function (e) { if (e.target === overlay) close(); } });
-    document.addEventListener("keydown", onEsc);
-    overlay.close = close;
-    return overlay;
-  }
-
   function daySheet(dateISO, onChanged) {
-    var overlay = modalOverlay();
-    var body = el("div", { class: "cal-day-body" });
-    function dayRow(cls, when, title, meta, go) {
-      return el("button", { class: "cal-day-row " + cls, type: "button", onclick: go }, [
-        el("span", { class: "cdr-when", text: when }),
-        el("span", { class: "cdr-body" }, [
-          el("span", { class: "cdr-t", text: title }),
-          el("span", { class: "cdr-m", text: meta })
+    var body = el("div", { class: "k-dialog-body k-cal-day-body" });
+    var overlay;
+    function dayRow(hue, when, title, meta, go) {
+      var row = el("button", { class: "k-cal-row", "data-ui": "cal.day-row", type: "button", onclick: go }, [
+        el("span", { class: "k-cal-row-bar", "aria-hidden": "true" }),
+        el("span", { class: "k-cal-row-body" }, [
+          el("span", { class: "k-cal-row-t", text: title }),
+          el("span", { class: "k-cal-row-m", text: when + (meta ? " · " + meta : "") })
         ])
       ]);
+      return hueAttrs(row, hue);
     }
-    function paint() {
-      body.innerHTML = "";
-      var d = dayItems(dateISO);
-      if (!d.events.length && !d.assignments.length && !d.reminders.length) {
-        body.appendChild(el("p", { class: "sub", text: "Nothing on this day yet." }));
-      }
-      d.events.forEach(function (ev) {
-        body.appendChild(dayRow(hueClass(ev), timeRange(ev), ev.title,
-          TYPE_LABEL[ev.type] + (ev.subject ? " · " + ev.subject : "") + (ev.location ? " · " + ev.location : "") +
-          ((ev.recur || "none") !== "none" ? " · " + describeRecur(ev).toLowerCase() : ""),
-          function () { overlay.close(); eventDetail(ev, dateISO, onChanged); }));
-      });
-      d.assignments.forEach(function (a) {
-        body.appendChild(dayRow("cal-asg", a.dueTime || "課", a.title,
-          "Assignment · " + KOS.assignments.statusLabel(a.status) + (a.subject ? " · " + a.subject : ""),
-          function () { overlay.close(); openAssignment(a, onChanged); }));
-      });
-      d.reminders.forEach(function (r) {
-        body.appendChild(dayRow("cal-rem", r.dueTime || "◦", r.title, "Reminder — manage in Reminders",
-          function () { overlay.close(); KOS.show("reminders"); }));
-      });
+    var d0 = dayItems(dateISO);
+    if (!d0.events.length && !d0.assignments.length && !d0.reminders.length) {
+      body.appendChild(el("p", { class: "k-muted", text: "Nothing on this day yet." }));
     }
-    paint();
+    d0.events.forEach(function (ev) {
+      body.appendChild(dayRow(ev, timeRange(ev), ev.title,
+        TYPE_LABEL[ev.type] + (ev.subject ? " · " + ev.subject : "") + (ev.location ? " · " + ev.location : "") +
+        ((ev.recur || "none") !== "none" ? " · " + describeRecur(ev).toLowerCase() : ""),
+        function () { overlay.close(); eventDetail(ev, dateISO, onChanged); }));
+    });
+    d0.assignments.forEach(function (a) {
+      body.appendChild(dayRow({ type: "assignment" }, a.dueTime || "Due", a.title,
+        "Assignment · " + KOS.assignments.statusLabel(a.status) + (a.subject ? " · " + a.subject : ""),
+        function () { overlay.close(); openAssignment(a, onChanged); }));
+    });
+    d0.reminders.forEach(function (r) {
+      body.appendChild(dayRow({ type: "reminder" }, r.dueTime || "Any time", r.title, "Reminder — manage in Reminders",
+        function () { overlay.close(); KOS.show("reminders"); }));
+    });
     var d = parseISO(dateISO);
-    overlay.appendChild(el("div", { class: "modal cal-day-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("span", { class: "modal-kicker", text: DOW_LONG[(d.getDay() + 6) % 7] }),
-        el("b", { text: d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear() }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: overlay.close })
-      ]),
-      body,
-      el("div", { class: "cal-modal-foot" }, [
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Close", onclick: overlay.close }),
-        el("button", { class: "btn primary", text: "+ New event", onclick: function () {
+    overlay = dialog("cal.day-modal", DOW_LONG[(d.getDay() + 6) % 7], d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear(),
+      [body], foot([
+        el("button", { type: "button", class: "k-btn k-spacer", text: "Close", onclick: function () { overlay.close(); } }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "+ New event", onclick: function () {
           overlay.close();
           eventModal(null, dateISO, onChanged);
         } })
-      ])
-    ]));
+      ]));
     KOS.ui.openDialog(overlay);
     return overlay;
   }
@@ -694,25 +708,27 @@
   /* ================================================================
      the event detail — reading is separate from editing
      ================================================================ */
-  function detailRow(k, v, cls) {
-    return el("div", { class: "cal-d-row" + (cls ? " " + cls : "") }, [
-      el("span", { class: "cal-d-k", text: k }),
-      typeof v === "string" ? el("span", { class: "cal-d-v", text: v }) : v
+  function detailRow(k, v) {
+    return el("div", { class: "k-cal-kv" }, [
+      el("dt", { text: k }),
+      el("dd", {}, [typeof v === "string" ? document.createTextNode(v) : v])
     ]);
+  }
+  function linkBtn(text, go) {
+    return el("button", { type: "button", class: "k-link", text: text, onclick: go });
   }
 
   function eventDetail(ev, dateISO, onChanged) {
-    var overlay = modalOverlay();
+    var overlay;
     var when = dateISO && occursOn(ev, dateISO) ? dateISO : (nextOccurrence(ev, today()) || ev.date);
-    var rows = el("div", { class: "cal-detail-body" });
+    var rows = el("dl", { class: "k-cal-kvs" });
 
     rows.appendChild(detailRow("When", prettyDate(when) + " · " + timeRange(ev)));
     if ((ev.recur || "none") !== "none") rows.appendChild(detailRow("Repeats", describeRecur(ev).replace(/^Repeats /, "")));
     if (ev.subject) rows.appendChild(detailRow("Subject", subjectName(ev.subject)));
     if (ev.ref) {
-      rows.appendChild(detailRow("Topic", el("button", {
-        class: "mini-btn", text: topicLabel(ev.subject, ev.ref),
-        onclick: function () { overlay.close(); KOS.show("ref", { subject: ev.subject, ref: ev.ref }); }
+      rows.appendChild(detailRow("Topic", linkBtn(topicLabel(ev.subject, ev.ref), function () {
+        overlay.close(); KOS.show("ref", { subject: ev.subject, ref: ev.ref });
       })));
     }
     if (ev.location) rows.appendChild(detailRow("Location", ev.location));
@@ -722,10 +738,8 @@
       if (ev.durationMins) rows.appendChild(detailRow("Duration", durationLabel(ev.durationMins)));
       if (ev.room) rows.appendChild(detailRow("Room", ev.room));
       if (ev.topics.length) {
-        rows.appendChild(detailRow("Related topics", el("span", { class: "cal-d-chips" }, ev.topics.map(function (t) {
-          return el("button", { class: "mini-btn", text: t.ref, onclick: function () {
-            overlay.close(); KOS.show("ref", { subject: t.subject || ev.subject, ref: t.ref });
-          } });
+        rows.appendChild(detailRow("Related topics", el("span", { class: "k-cluster" }, ev.topics.map(function (t) {
+          return linkBtn(t.ref, function () { overlay.close(); KOS.show("ref", { subject: t.subject || ev.subject, ref: t.ref }); });
         }))));
       }
     }
@@ -738,43 +752,32 @@
       if (ev.durationMins) rows.appendChild(detailRow("Intended", durationLabel(ev.durationMins)));
       var linked = ev.assignmentId != null && KOS.assignments ? KOS.assignments.get(ev.assignmentId) : null;
       if (linked) {
-        rows.appendChild(detailRow("Assignment", el("button", {
-          class: "mini-btn", text: linked.title,
-          onclick: function () { overlay.close(); openAssignment(linked, onChanged); }
-        })));
+        rows.appendChild(detailRow("Assignment", linkBtn(linked.title, function () { overlay.close(); openAssignment(linked, onChanged); })));
       }
     }
     if (ev.alerts.length) rows.appendChild(detailRow("Alerts", ev.alerts.map(alertLabel).join(", ")));
-    if (ev.description) rows.appendChild(el("p", { class: "cal-d-desc", text: ev.description }));
 
-    var actions = el("div", { class: "cal-d-actions" });
-    if (ev.type === "study" || ev.type === "lesson") {
-      actions.appendChild(el("button", { class: "btn jade", text: "Start a focus session", onclick: function () {
-        overlay.close();
-        KOS.show("focus", { subject: ev.subject || "", ref: ev.ref || "" });
-      } }));
-    }
-
-    overlay.appendChild(el("div", { class: "modal cal-detail-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("span", { class: "modal-kicker", text: TYPE_LABEL[ev.type] }),
-        el("b", { text: ev.title || "Untitled" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: overlay.close })
-      ]),
-      el("span", { class: "cal-d-swatch " + hueClass(ev), "aria-hidden": "true" }),
+    var body = el("div", { class: "k-dialog-body k-cal-detail" }, [
+      hueAttrs(el("span", { class: "k-cal-swatch-bar", "aria-hidden": "true" }), ev),
       rows,
-      actions.childNodes.length ? actions : null,
-      el("div", { class: "cal-modal-foot" }, [
-        el("button", { class: "btn danger cal-foot-del", text: "Delete", onclick: function () {
-          confirmDelete(ev, function () { overlay.close(); onChanged && onChanged(); });
-        } }),
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Close", onclick: overlay.close }),
-        el("button", { class: "btn primary", text: "Edit", onclick: function () {
-          overlay.close();
-          eventModal(ev, null, onChanged);
-        } })
-      ])
+      ev.description ? el("p", { class: "k-cal-desc", text: ev.description }) : null,
+      ev.type === "study" || ev.type === "lesson"
+        ? el("div", { class: "k-cluster" }, [el("button", { type: "button", class: "k-btn", text: "Start a focus session", onclick: function () {
+            overlay.close();
+            KOS.show("focus", { subject: ev.subject || "", ref: ev.ref || "" });
+          } })])
+        : null
+    ].filter(Boolean));
+
+    overlay = dialog("cal.detail-modal", TYPE_LABEL[ev.type], ev.title || "Untitled", [body], foot([
+      el("button", { type: "button", class: "k-btn k-btn--danger", "data-ui": "cal.delete", "data-intent": "danger", text: "Delete", onclick: function () {
+        confirmDelete(ev, function () { overlay.close(); onChanged && onChanged(); });
+      } }),
+      el("button", { type: "button", class: "k-btn k-spacer", text: "Close", onclick: function () { overlay.close(); } }),
+      el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Edit", onclick: function () {
+        overlay.close();
+        eventModal(ev, null, onChanged);
+      } })
     ]));
     KOS.ui.openDialog(overlay);
     return overlay;
@@ -782,26 +785,19 @@
 
   /* the fallback read-only card, used only when the tracker module is absent */
   function assignmentCard(a) {
-    var overlay = modalOverlay();
-    var rows = el("div", { class: "cal-detail-body" });
-    rows.appendChild(detailRow("Due", (a.due ? prettyDate(a.due) : "No deadline") + (a.dueTime ? " · " + a.dueTime : "")));
-    rows.appendChild(detailRow("Status", KOS.assignments.statusLabel(a.status)));
-    rows.appendChild(detailRow("Progress", a.progress + "%"));
-    if (a.subject) rows.appendChild(detailRow("Subject", subjectName(a.subject)));
-    if (a.description) rows.appendChild(el("p", { class: "cal-d-desc", text: a.description }));
-    rows.appendChild(el("p", { class: "sub", text: "This is an assignment, not a calendar event — it shows here because it is due on this day." }));
-    overlay.appendChild(el("div", { class: "modal cal-detail-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("span", { class: "modal-kicker", text: "Assignment" }),
-        el("b", { text: a.title }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: overlay.close })
-      ]),
-      el("span", { class: "cal-d-swatch cal-asg", "aria-hidden": "true" }),
+    var overlay;
+    var rows = el("dl", { class: "k-cal-kvs" }, [
+      detailRow("Due", (a.due ? prettyDate(a.due) : "No deadline") + (a.dueTime ? " · " + a.dueTime : "")),
+      detailRow("Status", KOS.assignments.statusLabel(a.status)),
+      detailRow("Progress", a.progress + "%"),
+      a.subject ? detailRow("Subject", subjectName(a.subject)) : null
+    ].filter(Boolean));
+    overlay = dialog("cal.detail-modal", "Assignment", a.title, [el("div", { class: "k-dialog-body k-cal-detail" }, [
       rows,
-      el("div", { class: "cal-modal-foot" }, [
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Close", onclick: overlay.close })
-      ])
+      a.description ? el("p", { class: "k-cal-desc", text: a.description }) : null,
+      el("p", { class: "k-muted", text: "This is an assignment, not a calendar event — it shows here because it is due on this day." })
+    ].filter(Boolean))], foot([
+      el("button", { type: "button", class: "k-btn k-spacer", text: "Close", onclick: function () { overlay.close(); } })
     ]));
     KOS.ui.openDialog(overlay);
     return overlay;
@@ -824,37 +820,37 @@
      the event editor — one modal, progressive disclosure, add and edit
      ================================================================ */
   function eventModal(existing, presetDate, onSaved) {
-    var overlay = modalOverlay();
-    var field = (KOS.medview && KOS.medview.calField) ||
-      function (label, input) { return el("label", { class: "cal-field" }, [el("span", { text: label }), input]); };
-
+    var overlay;
+    function field(label, input, wide) {
+      return el("label", { class: "k-field" + (wide ? " k-cal-span" : ""), "data-ui": "cal.field ui.field" }, [
+        el("span", { class: "k-field-label", text: label }), input
+      ]);
+    }
+    function input(type, attrs) { return el("input", Object.assign({ type: type, class: "k-input", "data-ui": "ui.input" }, attrs || {})); }
+    function select(options) {
+      return el("select", { class: "k-input" }, options.map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+    }
+    function check(box, text) {
+      return el("label", { class: "k-check", "data-ui": "cal.check" }, [box, el("span", { text: text })]);
+    }
     /* the working copy: a normalised draft, never the stored record — a
        cancelled edit must leave nothing behind */
     var d = normalise(existing ? JSON.parse(JSON.stringify(existing)) : { date: presetDate || today() });
     if (existing) d.id = existing.id;
 
     /* ---- controls ---- */
-    var title = el("input", { type: "text", class: "cal-in", placeholder: "What is it?", maxlength: 120 });
-    var date = el("input", { type: "date", class: "cal-in" });
-    var allDay = el("input", { type: "checkbox", class: "cal-check-in" });
-    var start = el("input", { type: "time", class: "cal-in" });
-    var end = el("input", { type: "time", class: "cal-in" });
-    var type = el("select", { class: "status-sel" }, TYPES.map(function (t) {
-      return el("option", { value: t.v, text: t.label });
-    }));
-    var subj = el("select", { class: "status-sel" }, [
-      el("option", { value: "", text: "No subject" }),
-      el("option", { value: "compsci", text: "Computer Science" }),
-      el("option", { value: "maths", text: "Mathematics" }),
-      el("option", { value: "it", text: "IT" })
-    ]);
-    var ref = el("input", { type: "text", class: "cal-in", placeholder: "e.g. 4.2.3.1" });
-    var location = el("input", { type: "text", class: "cal-in", placeholder: "Room, building, or link", maxlength: 120 });
-    var description = el("textarea", { class: "cal-in cal-area", rows: 3, placeholder: "Anything you want to remember about it" });
-    var recur = el("select", { class: "status-sel" }, RECUR.map(function (r) {
-      return el("option", { value: r.v, text: r.label });
-    }));
-    var until = el("input", { type: "date", class: "cal-in" });
+    var title = input("text", { placeholder: "What is it?", maxlength: 120 });
+    var date = input("date");
+    var allDay = el("input", { type: "checkbox", class: "k-box" });
+    var start = input("time");
+    var end = input("time");
+    var type = select(TYPES.map(function (t) { return [t.v, t.label]; }));
+    var subj = select([["", "No subject"], ["compsci", "Computer Science"], ["maths", "Mathematics"], ["it", "IT"]]);
+    var ref = input("text", { placeholder: "e.g. 4.2.3.1" });
+    var location = input("text", { placeholder: "Room, building, or link", maxlength: 120 });
+    var description = el("textarea", { class: "k-input", "data-ui": "ui.input", rows: 3, placeholder: "Anything you want to remember about it" });
+    var recur = select(RECUR.map(function (r) { return [r.v, r.label]; }));
+    var until = input("date");
 
     title.value = d.title;
     date.value = d.date;
@@ -874,9 +870,9 @@
     until.value = d.recurUntil || "";
 
     /* colour swatches — a category colour is a choice, not a hidden field */
-    var colourRow = el("div", { class: "cal-swatches" }, COLOURS.map(function (c) {
+    var colourRow = el("div", { class: "k-cluster k-cal-swatches", role: "group", "aria-label": "Colour" }, COLOURS.map(function (c) {
       var b = el("button", {
-        type: "button", class: "cal-sw" + (c.v ? " c-" + c.v : " sw-auto") + (d.colour === c.v ? " on" : ""),
+        type: "button", class: "k-cal-swatch", "data-ui": "cal.swatch", "data-colour": c.v || null,
         title: c.label, "aria-label": c.label, "aria-pressed": d.colour === c.v ? "true" : "false",
         onclick: function () {
           d.colour = c.v;
@@ -885,14 +881,16 @@
           syncTypeHue();
         }
       });
+      if (!c.v) KOS.ui.state(b, "auto", true);
+      if (d.colour === c.v) KOS.ui.state(b, "on", true);
       return b;
     }));
 
     /* alerts — multi-select chips, because "alerts" is genuinely plural */
-    var alertRow = el("div", { class: "cal-alerts" }, ALERTS.map(function (a) {
+    var alertRow = el("div", { class: "k-cluster", role: "group", "aria-label": "Alerts" }, ALERTS.map(function (a) {
       var on = d.alerts.indexOf(a.v) !== -1;
       var b = el("button", {
-        type: "button", class: "cal-alert" + (on ? " on" : ""), text: a.label,
+        type: "button", class: "k-qz-pill", "data-ui": "cal.alert", text: a.label,
         "aria-pressed": on ? "true" : "false",
         onclick: function () {
           var i = d.alerts.indexOf(a.v);
@@ -906,66 +904,66 @@
           b.setAttribute("aria-pressed", nowOn ? "true" : "false");
         }
       });
+      if (on) KOS.ui.state(b, "on", true);
       return b;
     }));
-    var countdownBox = el("input", { type: "checkbox", class: "cal-check-in" });
+    var countdownBox = el("input", { type: "checkbox", class: "k-box" });
     countdownBox.checked = d.showInCountdown;
-    var countdownRow = el("label", { class: "cal-check cal-countdown-row" }, [countdownBox, el("span", { text: "Show on the Countdown rail" })]);
+    var countdownRow = check(countdownBox, "Show on the Countdown rail");
 
     /* ---- conditional: exam ---- */
-    var paper = el("input", { type: "text", class: "cal-in", placeholder: "e.g. Paper 1", maxlength: 60 });
-    var duration = el("input", { type: "number", class: "cal-in", min: 0, max: 1440, step: 5, placeholder: "minutes" });
-    var room = el("input", { type: "text", class: "cal-in", placeholder: "e.g. Sports hall", maxlength: 60 });
-    var topicsIn = el("input", { type: "text", class: "cal-in", placeholder: "Comma-separated refs, e.g. 4.2.3.1, 4.3.1" });
+    var paper = input("text", { placeholder: "e.g. Paper 1", maxlength: 60 });
+    var duration = input("number", { min: 0, max: 1440, step: 5, placeholder: "minutes" });
+    var room = input("text", { placeholder: "e.g. Sports hall", maxlength: 60 });
+    var topicsIn = input("text", { placeholder: "Comma-separated refs, e.g. 4.2.3.1, 4.3.1" });
     paper.value = d.paper; room.value = d.room;
     duration.value = d.durationMins == null ? "" : String(d.durationMins);
     topicsIn.value = d.topics.map(function (t) { return t.ref; }).join(", ");
 
     /* ---- conditional: deadline ---- */
-    var priority = el("select", { class: "status-sel" }, PRIORITIES.map(function (p) {
-      return el("option", { value: String(p.v), text: p.label });
-    }));
-    var status = el("select", { class: "status-sel" }, statuses().map(function (s) {
-      return el("option", { value: s.v, text: s.label });
-    }));
+    var priority = select(PRIORITIES.map(function (p) { return [String(p.v), p.label]; }));
+    var status = select(statuses().map(function (s) { return [s.v, s.label]; }));
     priority.value = String(d.priority);
     status.value = d.status;
 
     /* ---- conditional: study block ---- */
-    var studyDur = el("input", { type: "number", class: "cal-in", min: 0, max: 1440, step: 5, placeholder: "minutes" });
+    var studyDur = input("number", { min: 0, max: 1440, step: 5, placeholder: "minutes" });
     studyDur.value = d.durationMins == null ? "" : String(d.durationMins);
     var linkable = (KOS.assignments && KOS.assignments.linkable) ? KOS.assignments.linkable() : [];
-    var assignSel = el("select", { class: "status-sel" },
-      [el("option", { value: "", text: linkable.length ? "Not linked" : "No open assignments yet" })]
-        .concat(linkable.map(function (a) {
-          return el("option", { value: String(a.id), text: a.title + (a.due ? " · due " + prettyDate(a.due) : "") });
-        })));
+    var assignSel = select([["", linkable.length ? "Not linked" : "No open assignments yet"]].concat(linkable.map(function (a) {
+      return [String(a.id), a.title + (a.due ? " · due " + prettyDate(a.due) : "")];
+    })));
     if (!linkable.length) assignSel.disabled = true;
     assignSel.value = d.assignmentId == null ? "" : String(d.assignmentId);
 
     /* ---- validation surface ---- */
-    var errBox = el("div", { class: "cal-errs", hidden: true, role: "alert" });
-    function markBad(node, bad) { if (node) KOS.ui.state(node, "bad", !!bad); }
+    var errBox = el("div", { class: "k-cal-errs", "data-ui": "cal.errs", hidden: "", role: "alert" });
+    function markBad(node, bad) {
+      if (!node) return;
+      KOS.ui.state(node, "bad", !!bad);
+      if (bad) node.setAttribute("aria-invalid", "true"); else node.removeAttribute("aria-invalid");
+    }
 
     /* ---- progressive disclosure ---- */
     function disclosure(label, hint, content, open) {
-      var body = el("div", { class: "cal-disc-body" }, [content]);
+      var body = el("div", { class: "k-cal-disc-body" }, [content]);
       var btn = el("button", {
-        type: "button", class: "cal-disc-h", "aria-expanded": open ? "true" : "false",
+        type: "button", class: "k-cal-disc-h", "data-ui": "cal.disc-h", "aria-expanded": open ? "true" : "false",
         onclick: function () {
           var isOpen = KOS.ui.state(wrap, "open");
           btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
         }
       }, [
-        el("span", { class: "cal-disc-caret", "aria-hidden": "true", text: "›" }),
+        el("span", { class: "k-cal-disc-caret", "aria-hidden": "true", text: "›" }),
         el("b", { text: label }),
-        el("span", { class: "cal-disc-hint", text: hint })
+        el("span", { class: "k-cal-disc-hint", text: hint })
       ]);
-      var wrap = el("div", { class: "cal-disc" + (open ? " open" : "") }, [btn, body]);
+      var wrap = el("section", { class: "k-cal-disc", "data-ui": "cal.disclosure" }, [btn, body]);
+      if (open) KOS.ui.state(wrap, "open", true);
       return wrap;
     }
 
-    var timeFields = el("div", { class: "cal-fgrid three" }, [
+    var timeFields = el("div", { class: "k-cal-fgrid k-cal-fgrid--3" }, [
       field("Date", date), field("Start", start), field("End", end)
     ]);
     function syncAllDay() {
@@ -976,75 +974,74 @@
     }
     allDay.onchange = syncAllDay;
 
-    var basics = el("div", { class: "cal-sec" }, [
-      el("div", { class: "cal-fgrid" }, [field("Title", title)]),
-      el("label", { class: "cal-check" }, [allDay, el("span", { text: "All day" })]),
+    var basics = el("div", { class: "k-cal-sec" }, [
+      field("Title", title, true),
+      check(allDay, "All day"),
       timeFields,
-      el("div", { class: "cal-fgrid two" }, [
+      el("div", { class: "k-cal-fgrid" }, [
         field("Type", type),
-        el("label", { class: "cal-field" }, [el("span", { text: "Colour" }), colourRow])
+        el("div", { class: "k-field", "data-ui": "cal.field ui.field" }, [el("span", { class: "k-field-label", text: "Colour" }), colourRow])
       ])
     ]);
 
     var detailsSec = disclosure("Details", "Subject, topic, location, description",
-      el("div", { class: "cal-fgrid two" }, [
+      el("div", { class: "k-cal-fgrid" }, [
         field("Subject", subj), field("Topic ref", ref),
         field("Location", location),
-        (function () { var f = field("Description", description); f.classList.add("cal-span"); return f; })()
+        field("Description", description, true)
       ]),
       !!(existing && (existing.subject || existing.ref || existing.location || existing.description)));
 
     var repeatSec = disclosure("Repeat & alerts", "How often, and when to be warned",
-      el("div", {}, [
-        el("div", { class: "cal-fgrid two" }, [field("Repeats", recur), field("Until (optional)", until)]),
-        el("label", { class: "cal-field cal-span" }, [el("span", { text: "Alerts" }), alertRow]),
+      el("div", { class: "k-cal-sec" }, [
+        el("div", { class: "k-cal-fgrid" }, [field("Repeats", recur), field("Until (optional)", until)]),
+        el("div", { class: "k-field", "data-ui": "cal.field ui.field" }, [el("span", { class: "k-field-label", text: "Alerts" }), alertRow]),
         countdownRow,
-        el("p", { class: "sub cal-note", text: "Alerts are set on this event, not globally — they fire while the app is open." })
+        el("p", { class: "k-field-hint", text: "Alerts are set on this event, not globally — they fire while the app is open." })
       ]),
       !!(existing && ((existing.recur && existing.recur !== "none") || (existing.alerts || []).length)));
 
     /* the type-specific section is rebuilt whenever the type changes, so the
        modal only ever shows the fields that mean something for this event */
-    var condHost = el("div", { class: "cal-cond" });
+    var condHost = el("div", { class: "k-cal-cond" });
     function condSection() {
       condHost.innerHTML = "";
       var t = type.value;
       countdownRow.hidden = COUNTDOWN_TYPES.indexOf(t) === -1;
       if (t === "exam") {
         condHost.appendChild(disclosure("Exam details", "Paper, duration, room, related topics",
-          el("div", { class: "cal-fgrid two" }, [
+          el("div", { class: "k-cal-fgrid" }, [
             field("Paper", paper), field("Duration (min)", duration), field("Room", room),
-            (function () { var f = field("Related topics", topicsIn); f.classList.add("cal-span"); return f; })()
+            field("Related topics", topicsIn, true)
           ]),
           !!(existing && existing.type === "exam" &&
             (existing.paper || existing.room || existing.durationMins || (existing.topics || []).length))));
       } else if (t === "deadline") {
         condHost.appendChild(disclosure("Deadline details", "Priority, status, countdown",
-          el("div", { class: "cal-fgrid two" }, [field("Priority", priority), field("Status", status)]),
+          el("div", { class: "k-cal-fgrid" }, [field("Priority", priority), field("Status", status)]),
           !!(existing && existing.type === "deadline")));
       } else if (t === "study") {
-        var assignField = field("Linked assignment", assignSel);
-        assignField.classList.add("cal-span");
+        var assignField = field("Linked assignment", assignSel, true);
         if (!linkable.length) {
-          assignField.appendChild(el("span", { class: "cal-hint",
+          assignField.appendChild(el("span", { class: "k-field-hint",
             text: "Nothing to link yet — open assignments appear here. The block links to the assignment; it never copies it." }));
         }
         condHost.appendChild(disclosure("Study block", "Intended length, linked work, focus",
-          el("div", {}, [
-            el("div", { class: "cal-fgrid two" }, [field("Intended duration (min)", studyDur)]),
-            el("div", { class: "cal-fgrid" }, [assignField]),
-            el("div", { class: "cal-shortcut" }, [
-              el("button", { class: "btn jade", type: "button", text: "Save and start a focus session", onclick: function () {
+          el("div", { class: "k-cal-sec" }, [
+            el("div", { class: "k-cal-fgrid" }, [field("Intended duration (min)", studyDur), assignField]),
+            el("div", { class: "k-cluster" }, [
+              el("button", { class: "k-btn", type: "button", text: "Save and start a focus session", onclick: function () {
                 save(function (rec) { KOS.show("focus", { subject: rec.subject || "", ref: rec.ref || "" }); });
               } }),
-              el("span", { class: "sub", text: "Saves the block first, then opens the timer with its subject and topic filled in." })
+              el("span", { class: "k-field-hint", text: "Saves the block first, then opens the timer with its subject and topic filled in." })
             ])
           ]),
           true));
       }
     }
     function syncTypeHue() {
-      KOS.ui.setClass(box, "modal cal-modal cal-ev-modal " + hueClass({ type: type.value, colour: d.colour }));
+      overlay.box.setAttribute("data-type", type.value);
+      if (d.colour) overlay.box.setAttribute("data-colour", d.colour); else overlay.box.removeAttribute("data-colour");
     }
     type.onchange = function () { condSection(); syncTypeHue(); };
 
@@ -1124,37 +1121,27 @@
       then && then(rec);
     }
 
-    var box = el("div", { class: "modal cal-modal cal-ev-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("span", { class: "modal-kicker", text: "Calendar" }),
-        el("b", { text: existing ? "Edit event" : "New event" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: overlay.close })
-      ]),
-      errBox,
-      basics,
-      condHost,
-      detailsSec,
-      repeatSec,
-      el("div", { class: "cal-modal-foot" }, [
-        existing ? el("button", { class: "btn danger cal-foot-del", text: "Delete", onclick: function () {
+    overlay = dialog("cal.ev-modal", "Calendar", existing ? "Edit event" : "New event",
+      [el("div", { class: "k-dialog-body k-cal-form" }, [errBox, basics, condHost, detailsSec, repeatSec])],
+      foot([
+        existing ? el("button", { type: "button", class: "k-btn k-btn--danger", "data-ui": "cal.delete", "data-intent": "danger", text: "Delete", onclick: function () {
           confirmDelete(existing, function () { overlay.close(); onSaved && onSaved(); });
         } }) : null,
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Cancel", onclick: overlay.close }),
-        el("button", { class: "btn primary", text: existing ? "Save changes" : "Add event", onclick: function () { save(); } })
-      ])
-    ]);
+        el("button", { type: "button", class: "k-btn k-spacer", text: "Cancel", onclick: function () { overlay.close(); } }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: existing ? "Save changes" : "Add event", onclick: function () { save(); } })
+      ]));
+    KOS.ui.state(overlay.box, "wide", true);
     condSection();
     syncAllDay();
     syncTypeHue();
-    overlay.appendChild(box);
     KOS.ui.openDialog(overlay);
     title.focus();
     return overlay;
   }
 
   /* ================================================================
-     the countdown widget (home + subject dash)
+     the countdown widget — Graphite (frame 10e): a mono day count
+     beside the title and its date, the nearest first
      ================================================================ */
   /* what pressing a countdown row does, wherever the row is drawn: an
      assignment opens its dialog, a plan milestone its week, an event its
@@ -1164,34 +1151,66 @@
     else if (row.kind === "pacing") KOS.show("pacing", { wb: row.entry.wb });
     else eventDetail(row.ev, row.date, done || null);
   }
-  function countdownWidget(sid) {
-    var list = countdowns(sid, 4);
-    var wrap = el("div", { class: "dl-widget" });
-    wrap.appendChild(el("div", { class: "dl-h" }, [
-      el("b", { text: "Countdowns" }),
-      el("button", { class: "mini-btn", text: "Calendar →", onclick: function () { KOS.show("calendar"); } })
+  function countdownWidget(sid, limit) {
+    var list = countdowns(sid, limit || 5);
+    var wrap = el("section", { class: "k-card k-cal-cd", "data-ui": "cal.countdowns", "aria-label": "Countdowns" });
+    wrap.appendChild(el("div", { class: "k-card-head", "data-ui": "cal.countdown-head" }, [
+      el("h2", { class: "k-card-title", text: "Countdowns" }),
+      el("span", { class: "k-card-meta", text: "The term ahead" })
     ]));
     if (!list.length) {
-      wrap.appendChild(el("p", { class: "sub", text: "No upcoming exams, deadlines or major assignments. Anything you mark for the countdown appears here." }));
+      wrap.appendChild(el("p", { class: "k-muted k-cal-cd-empty", text: "No upcoming exams, deadlines or major assignments. Anything you mark for the countdown appears here." }));
       return wrap;
     }
     list.forEach(function (row) {
-      var tone = row.days <= 3 ? "hot" : row.days <= 7 ? "warm" : "cool";
-      wrap.appendChild(el("button", {
-        class: "dl-item " + tone, type: "button", title: row.title + " — " + row.meta,
+      var item = el("button", {
+        class: "k-cal-cd-row", "data-ui": "cal.countdown-item", type: "button", title: row.title + " — " + row.meta,
+        "aria-label": row.title + ", " + (row.days === 0 ? "today" : "in " + row.days + (row.days === 1 ? " day" : " days")) + ", " + row.meta,
         onclick: function () { openCountdown(row); }
       }, [
-        el("span", { class: "dl-days" }, [
-          el("b", { text: String(row.days) }),
-          el("span", { text: row.days === 1 ? "day" : "days" })
+        el("span", { class: "k-cal-cd-days k-mono", "aria-label": row.days + (row.days === 1 ? " day" : " days") }, [
+          String(row.days), el("span", { "aria-hidden": "true", text: "d" })
         ]),
-        el("span", { class: "dl-body" }, [
-          el("span", { class: "dl-title", text: row.title }),
-          el("span", { class: "dl-meta", text: row.meta })
+        el("span", { class: "k-cal-cd-body" }, [
+          el("span", { class: "k-cal-row-t", text: row.title }),
+          el("span", { class: "k-cal-row-m", text: row.days === 0 ? "Today" : prettyDate(row.date) })
         ])
-      ]));
+      ]);
+      if (row.days <= 3) KOS.ui.state(item, "hot", true);
+      wrap.appendChild(item);
     });
     return wrap;
+  }
+
+  /* Today, from all three canonical stores: a hue bar, the title and when */
+  function todayCard(onChanged) {
+    var t = today(), d = parseISO(t);
+    var items = dayItems(t);
+    var card = el("section", { class: "k-card", "data-ui": "cal.today", "aria-label": "Today" }, [
+      el("p", { class: "k-cal-today-date", text: DOW_LONG[(d.getDay() + 6) % 7] + " " + d.getDate() + " " + MONTHS[d.getMonth()] }),
+      el("h2", { class: "k-card-title", text: "Today" })
+    ]);
+    function row(hue, title, meta, go) {
+      return hueAttrs(el("button", { type: "button", class: "k-cal-row", onclick: go }, [
+        el("span", { class: "k-cal-row-bar", "aria-hidden": "true" }),
+        el("span", { class: "k-cal-row-body" }, [el("span", { class: "k-cal-row-t", text: title }), el("span", { class: "k-cal-row-m", text: meta })])
+      ]), hue);
+    }
+    items.events.forEach(function (ev) {
+      card.appendChild(row(ev, ev.title, [timeRange(ev), ev.location, ev.durationMins ? durationLabel(ev.durationMins) : "", ev.ref ? ev.ref : ""].filter(Boolean).join(" · "),
+        function () { eventDetail(ev, t, onChanged); }));
+    });
+    items.assignments.forEach(function (a) {
+      card.appendChild(row({ type: "assignment" }, a.title, (a.dueTime || "Due today") + " · Assignment", function () { openAssignment(a, onChanged); }));
+    });
+    items.reminders.forEach(function (r) {
+      var ln = KOS.reminders.listName && r.listId != null ? KOS.reminders.listName(r.listId) : "";
+      card.appendChild(row({ type: "reminder" }, r.title, [r.dueTime || "Any time", ln].filter(Boolean).join(" · "), function () { KOS.show("reminders"); }));
+    });
+    if (!items.events.length && !items.assignments.length && !items.reminders.length) {
+      card.appendChild(el("p", { class: "k-muted k-cal-cd-empty", text: "Nothing scheduled today." }));
+    }
+    return card;
   }
 
   /* ================================================================
@@ -1210,27 +1229,18 @@
     var mode = ui.calMode === "week" ? "week" : "month";
     var focus = sessionFocus || new Date();
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "The term ahead" }),
-        el("h1", { text: "Calendar" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "Exams and deadlines here feed the countdowns and the daily list by themselves. Alerts are set on each event." })
-        ])
-      ])
-    ]));
-
-    var head = el("div", { class: "cal-head" });
-    var grid = el("div", { class: "cal-body" });
+    /* Graphite (frame 10e): the month itself is the page title */
+    var head = el("div", { class: "k-cal-head" });
+    var body = el("div", { class: "k-cal" });
     main.appendChild(head);
-    main.appendChild(grid);
+    main.appendChild(body);
 
     function setFocus(dt) { focus = sessionFocus = dt; render(); }
     function setMode(m) { mode = m; ui.calMode = m; store.save(); render(); }
 
     function render() {
       head.innerHTML = "";
-      grid.innerHTML = "";
+      body.innerHTML = "";
       var y = focus.getFullYear(), mo = focus.getMonth();
       var t = today();
 
@@ -1243,36 +1253,35 @@
           : weekStart.getDate() + " " + MONTHS[weekStart.getMonth()].slice(0, 3) + " – " +
             weekEnd.getDate() + " " + MONTHS[weekEnd.getMonth()].slice(0, 3) + " " + weekEnd.getFullYear());
 
-      head.appendChild(el("div", { class: "cal-nav" }, [
-        el("div", { class: "cal-step" }, [
-          el("button", { class: "mini-btn", text: "‹", "aria-label": "Previous " + mode, onclick: function () {
-            setFocus(mode === "month" ? new Date(y, mo - 1, 1) : new Date(y, mo, focus.getDate() - 7));
-          } }),
-          el("button", { class: "mini-btn", text: "›", "aria-label": "Next " + mode, onclick: function () {
-            setFocus(mode === "month" ? new Date(y, mo + 1, 1) : new Date(y, mo, focus.getDate() + 7));
-          } })
-        ]),
-        el("h2", { class: "cal-title", text: titleText }),
-        el("button", { class: "btn subtle", text: "Today", onclick: function () { setFocus(new Date()); } }),
-        el("span", { style: "flex:1" }),
-        el("div", { class: "cal-modes", role: "group", "aria-label": "Calendar view" }, [
-          el("button", { class: "cal-mode" + (mode === "month" ? " on" : ""), text: "Month",
-            "aria-pressed": mode === "month" ? "true" : "false", onclick: function () { setMode("month"); } }),
-          el("button", { class: "cal-mode" + (mode === "week" ? " on" : ""), text: "Week",
-            "aria-pressed": mode === "week" ? "true" : "false", onclick: function () { setMode("week"); } })
-        ]),
-        el("button", { class: "btn gold", text: "+ New event", onclick: function () {
-          eventModal(null, mode === "week" ? isoOf(weekStart) : null, render);
+      head.appendChild(el("h1", { class: "k-cal-title", text: titleText }));
+      head.appendChild(el("div", { class: "k-cluster k-cal-step" }, [
+        el("button", { type: "button", class: "k-iconbtn", text: "‹", "aria-label": "Previous " + mode, onclick: function () {
+          setFocus(mode === "month" ? new Date(y, mo - 1, 1) : new Date(y, mo, focus.getDate() - 7));
+        } }),
+        el("button", { type: "button", class: "k-iconbtn", text: "›", "aria-label": "Next " + mode, onclick: function () {
+          setFocus(mode === "month" ? new Date(y, mo + 1, 1) : new Date(y, mo, focus.getDate() + 7));
         } })
       ]));
+      head.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", text: "Today", onclick: function () { setFocus(new Date()); } }));
+      head.appendChild(el("div", { class: "k-seg k-seg--quiet k-spacer", role: "group", "aria-label": "Calendar view" }, [
+        el("button", { type: "button", class: "k-seg-item", "data-ui": "cal.mode", text: "Month",
+          "aria-pressed": mode === "month" ? "true" : "false", onclick: function () { setMode("month"); } }),
+        el("button", { type: "button", class: "k-seg-item", "data-ui": "cal.mode", text: "Week",
+          "aria-pressed": mode === "week" ? "true" : "false", onclick: function () { setMode("week"); } })
+      ]));
+      head.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "+ New event", onclick: function () {
+        eventModal(null, mode === "week" ? isoOf(weekStart) : null, render);
+      } }));
 
+      var board = el("section", { class: "k-card k-cal-board", "aria-label": titleText });
       var phoneLayout = window.matchMedia && window.matchMedia("(max-width: 700px)").matches;
-      if (mode === "month") renderMonth(grid, y, mo, t, render, phoneLayout);
-      else if (phoneLayout) renderPhoneWeek(grid, weekStart, t, render);
-      else renderWeek(grid, weekStart, t, render);
+      if (mode === "month") renderMonth(board, y, mo, t, render, phoneLayout);
+      else if (phoneLayout) renderPhoneWeek(board, weekStart, t, render);
+      else renderWeek(board, weekStart, t, render);
+      board.appendChild(legend());
 
-      grid.appendChild(legend());
-      grid.appendChild(countdownWidget(null));
+      body.appendChild(board);
+      body.appendChild(el("div", { class: "k-cal-side" }, [todayCard(render), countdownWidget(null)]));
     }
     render();
   };
@@ -1286,26 +1295,29 @@
     /* six rows are only needed when the month actually spills into one */
     if (days[35].getMonth() !== mo) days = days.slice(0, 35);
 
-    var g = el("div", { class: "cal-grid month" });
-    DOW.forEach(function (d, i) {
-      g.appendChild(el("div", { class: "cal-dow" + (i >= 5 ? " wknd" : ""), text: d }));
-    });
+    host.appendChild(el("div", { class: "k-cal-dows", "aria-hidden": "true" }, DOW.map(function (d) {
+      return el("span", { text: d });
+    })));
+    var g = el("div", { class: "k-cal-month", "data-ui": "cal.month" });
+    g.style.setProperty("--weeks", String(days.length / 7));
     days.forEach(function (dt) {
       var dISO = isoOf(dt);
       var isToday = dISO === t;
-      var wknd = ((dt.getDay() + 6) % 7) >= 5;
-      var stack = el("div", { class: "cal-stack" });
+      var stack = el("div", { class: "k-cal-stack" });
       var cell = el("div", {
-        class: "cal-cell" + (isToday ? " today" : "") + (wknd ? " wknd" : "") +
-          (dt.getMonth() !== mo ? " other" : "") + (dISO < t ? " past" : ""),
+        class: "k-cal-cell", "data-ui": "cal.cell",
         onclick: function (e) { if (e.target === cell || e.target === stack) eventModal(null, dISO, onChanged); }
       });
-      cell.appendChild(el("div", { class: "cal-cell-h" }, [
-        el("span", { class: "cal-daynum", text: String(dt.getDate()) }),
-        isToday ? el("span", { class: "cal-todaytag", text: "Today" }) : null,
-        el("button", { class: "cal-add", type: "button", text: "+", "aria-label": "New event on " + prettyDate(dISO),
+      if (isToday) KOS.ui.state(cell, "today", true);
+      if (((dt.getDay() + 6) % 7) >= 5) KOS.ui.state(cell, "wknd", true);
+      if (dt.getMonth() !== mo) KOS.ui.state(cell, "other", true);
+      if (dISO < t) KOS.ui.state(cell, "past", true);
+      cell.appendChild(el("div", { class: "k-cal-cell-h" }, [
+        el("span", { class: "k-cal-daynum k-mono", "data-ui": "cal.daynum", text: String(dt.getDate()) }),
+        isToday ? el("span", { class: "sr-only", text: "Today" }) : null,
+        el("button", { class: "k-cal-add", type: "button", text: "+", "aria-label": "New event on " + prettyDate(dISO),
           onclick: function (e) { e.stopPropagation(); eventModal(null, dISO, onChanged); } })
-      ]));
+      ].filter(Boolean)));
 
       var items = dayItems(dISO);
       var chips = [];
@@ -1320,7 +1332,7 @@
            overview: density stays visible, and one clear button discloses
            every full title in the existing day sheet. */
         stack.appendChild(el("button", {
-          class: "cal-day-summary", type: "button", text: String(chips.length),
+          class: "k-cal-count", "data-ui": "cal.day-summary", type: "button", text: String(chips.length),
           "aria-label": chips.length + (chips.length === 1 ? " item" : " items") + " on " + prettyDate(dISO),
           onclick: function (e) { e.stopPropagation(); daySheet(dISO, onChanged); }
         }));
@@ -1330,7 +1342,7 @@
         if (chips.length > show) {
           var extra = chips.length - show;
           stack.appendChild(el("button", {
-            class: "cal-more", type: "button", text: "+" + extra + " more",
+            class: "k-cal-more", "data-ui": "cal.more", type: "button", text: "+" + extra + " more",
             "aria-label": extra + " more on " + prettyDate(dISO),
             onclick: function (e) { e.stopPropagation(); daySheet(dISO, onChanged); }
           }));
@@ -1346,7 +1358,7 @@
      It uses the same event/assignment/reminder buttons and the same day
      sheet/editor paths as the desktop grid; only the composition changes. */
   function renderPhoneWeek(host, weekStart, t, onChanged) {
-    var agenda = el("div", { class: "cal-phone-week" });
+    var agenda = el("div", { class: "k-cal-agenda", "data-ui": "cal.phone-week" });
     for (var i = 0; i < 7; i++) {
       (function () {
         var dt = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i);
@@ -1356,13 +1368,13 @@
         items.events.forEach(function (ev) { rows.push(eventChip(ev, dISO, onChanged)); });
         items.assignments.forEach(function (a) { rows.push(assignmentChip(a, onChanged)); });
         items.reminders.forEach(function (r) { rows.push(reminderChip(r)); });
-        var list = el("div", { class: "cal-phone-day-items" });
+        var list = el("div", { class: "k-cal-agenda-items" });
         if (rows.length) rows.forEach(function (row) { list.appendChild(row); });
-        else list.appendChild(el("p", { class: "sub cal-phone-empty", text: "Nothing scheduled." }));
-        agenda.appendChild(el("section", { class: "cal-phone-day" + (dISO === t ? " today" : "") }, [
-          el("div", { class: "cal-phone-day-head" }, [
+        else list.appendChild(el("p", { class: "k-muted", text: "Nothing scheduled." }));
+        var day = el("section", { class: "k-cal-agenda-day", "data-ui": "cal.phone-day" }, [
+          el("div", { class: "k-cal-agenda-head" }, [
             el("button", {
-              type: "button", class: "cal-phone-date",
+              type: "button", class: "k-cal-agenda-date", "data-ui": "cal.phone-date",
               "aria-label": "Open " + prettyDate(dISO),
               onclick: function () { daySheet(dISO, onChanged); }
             }, [
@@ -1370,13 +1382,15 @@
               el("b", { text: dt.getDate() + " " + MONTHS[dt.getMonth()].slice(0, 3) })
             ]),
             el("button", {
-              type: "button", class: "mini-btn", text: "+",
+              type: "button", class: "k-iconbtn k-iconbtn--sm", text: "+",
               "aria-label": "New event on " + prettyDate(dISO),
               onclick: function () { eventModal(null, dISO, onChanged); }
             })
           ]),
           list
-        ]));
+        ]);
+        if (dISO === t) KOS.ui.state(day, "today", true);
+        agenda.appendChild(day);
       })();
     }
     host.appendChild(agenda);
@@ -1385,7 +1399,8 @@
   /* ---------------- week grid ----------------
      A real time grid: an all-day band, then hour rows with timed events laid
      out by their actual start and end. Overlapping events share the column
-     rather than hiding each other. */
+     rather than hiding each other. Geometry rides custom properties in
+     hours; the stylesheet owns the hour height (--cal-hour-h). */
   function renderWeek(host, weekStart, t, onChanged) {
     var days = [];
     for (var i = 0; i < 7; i++) {
@@ -1406,33 +1421,34 @@
     hi = Math.min(24 * 60, Math.max(hi, lo + 240));
     var hours = [];
     for (var m = lo; m < hi; m += 60) hours.push(m);
-    var PX = 52;    // pixels per hour
 
-    var wrap = el("div", { class: "cal-week" });
+    var wrap = el("div", { class: "k-cal-week", "data-ui": "cal.week" });
+    wrap.style.setProperty("--hours", String(hours.length));
 
     /* header row */
-    var headRow = el("div", { class: "cw-head" });
-    headRow.appendChild(el("div", { class: "cw-gutter-h" }));
+    var headRow = el("div", { class: "k-cw-row" }, [el("div", { class: "k-cw-gutter" })]);
     days.forEach(function (d) {
-      headRow.appendChild(el("button", {
-        class: "cw-day" + (d.iso === t ? " today" : "") + (((d.dt.getDay() + 6) % 7) >= 5 ? " wknd" : ""),
+      var b = el("button", {
+        class: "k-cw-day", "data-ui": "cal.day",
         type: "button", "aria-label": "Open " + prettyDate(d.iso),
         onclick: function () { daySheet(d.iso, onChanged); }
       }, [
-        el("span", { class: "cw-dow", text: DOW[(d.dt.getDay() + 6) % 7] }),
-        el("span", { class: "cw-num", text: String(d.dt.getDate()) })
-      ]));
+        el("span", { class: "k-cw-dow", text: DOW[(d.dt.getDay() + 6) % 7] }),
+        el("span", { class: "k-cw-num k-mono", text: String(d.dt.getDate()) })
+      ]);
+      if (d.iso === t) KOS.ui.state(b, "today", true);
+      headRow.appendChild(b);
     });
     wrap.appendChild(headRow);
 
     /* all-day band — always present so the layout does not jump */
-    var band = el("div", { class: "cw-band" });
-    band.appendChild(el("div", { class: "cw-gutter-h", text: "all day" }));
+    var band = el("div", { class: "k-cw-row k-cw-band" }, [el("div", { class: "k-cw-gutter", text: "all day" })]);
     days.forEach(function (d) {
       var col = el("div", {
-        class: "cw-band-col" + (d.iso === t ? " today" : ""),
+        class: "k-cw-band-col", "data-ui": "cal.w-band-col",
         onclick: function (e) { if (e.target === col) eventModal(null, d.iso, onChanged); }
       });
+      if (d.iso === t) KOS.ui.state(col, "today", true);
       d.items.events.filter(function (ev) { return ev.allDay || !ev.time; })
         .forEach(function (ev) { col.appendChild(eventChip(ev, d.iso, onChanged)); });
       d.items.assignments.forEach(function (a) { col.appendChild(assignmentChip(a, onChanged)); });
@@ -1442,49 +1458,48 @@
     wrap.appendChild(band);
 
     /* the time grid */
-    var body = el("div", { class: "cw-body" });
-    var gutter = el("div", { class: "cw-gutter" });
-    hours.forEach(function (h) {
-      gutter.appendChild(el("div", { class: "cw-hour", style: "height:" + PX + "px" }, [el("span", { text: hm(h) })]));
-    });
-    body.appendChild(gutter);
+    var grid = el("div", { class: "k-cw-row k-cw-body" });
+    grid.appendChild(el("div", { class: "k-cw-gutter k-cw-hours" }, hours.map(function (h) {
+      return el("div", { class: "k-cw-hour", "data-ui": "cal.w-hour" }, [el("span", { class: "k-mono", text: hm(h) })]);
+    })));
 
     days.forEach(function (d) {
       var col = el("div", {
-        class: "cw-col" + (d.iso === t ? " today" : "") + (((d.dt.getDay() + 6) % 7) >= 5 ? " wknd" : ""),
-        style: "height:" + (hours.length * PX) + "px",
+        class: "k-cw-col", "data-ui": "cal.w-col",
         onclick: function (e) {
-          if (e.target !== col && !e.target.matches('[data-ui~="cal.w-slot"]')) return;
+          if (e.target !== col) return;
           /* clicking empty space opens the editor at that hour — the most
              common thing anyone wants from a week grid */
           var rect = col.getBoundingClientRect();
-          var at = lo + Math.floor((e.clientY - rect.top) / PX) * 60;
+          var hourPx = rect.height / hours.length || 1;
+          var at = lo + Math.floor((e.clientY - rect.top) / hourPx) * 60;
           var pre = eventModal(null, d.iso, onChanged);
           var input = pre.querySelector('input[type="time"]');
           if (input) input.value = hm(Math.max(lo, Math.min(hi - 60, at)));
         }
       });
-      hours.forEach(function (h, idx) {
-        col.appendChild(el("div", { class: "cw-slot", "data-ui": "cal.w-slot", style: "top:" + (idx * PX) + "px;height:" + PX + "px" }));
-      });
+      if (d.iso === t) KOS.ui.state(col, "today", true);
+      if (((d.dt.getDay() + 6) % 7) >= 5) KOS.ui.state(col, "wknd", true);
       layoutTimed(d.items.events.filter(function (ev) { return !ev.allDay && ev.time; }))
         .forEach(function (p) {
           var chip = eventChip(p.ev, d.iso, onChanged, { block: true });
-          chip.style.top = ((p.start - lo) / 60 * PX) + "px";
-          chip.style.height = Math.max(18, (p.end - p.start) / 60 * PX - 2) + "px";
-          chip.style.left = "calc(" + (p.col * (100 / p.cols)) + "% + 2px)";
-          chip.style.width = "calc(" + (100 / p.cols) + "% - 4px)";
+          chip.style.setProperty("--at", String((p.start - lo) / 60));
+          chip.style.setProperty("--span", String(Math.max(0.35, (p.end - p.start) / 60)));
+          chip.style.setProperty("--lane", String(p.col));
+          chip.style.setProperty("--lanes", String(p.cols));
           col.appendChild(chip);
         });
       if (d.iso === t) {
         var nowM = nowMinutes();
         if (nowM >= lo && nowM <= hi) {
-          col.appendChild(el("div", { class: "cw-now", style: "top:" + ((nowM - lo) / 60 * PX) + "px", "aria-hidden": "true" }));
+          var now = el("div", { class: "k-cw-now", "aria-hidden": "true" });
+          now.style.setProperty("--at", String((nowM - lo) / 60));
+          col.appendChild(now);
         }
       }
-      body.appendChild(col);
+      grid.appendChild(col);
     });
-    wrap.appendChild(body);
+    wrap.appendChild(grid);
     host.appendChild(wrap);
   }
 
@@ -1516,12 +1531,12 @@
 
   /* ---------------- legend ---------------- */
   function legend() {
-    var wrap = el("div", { class: "cal-legend" });
+    var wrap = el("div", { class: "k-cal-legend", "aria-label": "Key" });
     TYPES.forEach(function (t) {
-      wrap.appendChild(el("span", { class: "cal-key t-" + t.v, text: t.label }));
+      wrap.appendChild(el("span", { class: "k-cal-key", "data-type": t.v, text: t.label }));
     });
-    wrap.appendChild(el("span", { class: "cal-key cal-asg", text: "Assignment" }));
-    wrap.appendChild(el("span", { class: "cal-key cal-rem", text: "Reminder" }));
+    wrap.appendChild(el("span", { class: "k-cal-key", "data-type": "assignment", text: "Assignment" }));
+    wrap.appendChild(el("span", { class: "k-cal-key", "data-type": "reminder", text: "Reminder" }));
     return wrap;
   }
 

@@ -475,6 +475,39 @@ the invariants and the hook contract still govern behaviour.
 - `openDialog` stamps `ui.dialog-overlay`/`ui.dialog` on every dialog, so
   rebuilt dialogs pass the modal audit and release the scroll lock.
 
+### Step 4a–4d as delivered — Focus, Reminders, Habits, Calendar (frames 10a–10e)
+
+- `focus.js`, `reminders.js`, `todo.js` and `calendar.js` are rebuilt files.
+- **Focus (10a/10b)**:
+  - The setup page is one hero card: a dial with −5/+5 beside the form. The form has a Pomodoro / Custom / Reading switcher, the links, the objective and the tab-switch switch.
+  - "From today's plan" fills the form from today's first unticked study block. It starts nothing.
+  - "Your record" and "The deal" sit beside the hero, with the last five sessions below. The deal is still quoted from `focusAward`.
+  - The stage has three columns around one ring: objective, context, stats and eligibility on the left; the clock in the middle; quick notes on the right. The cycles show as a segmented bar.
+  - The takeover has its own layer, `--z-focus`, because `--z-stage` is the page stage.
+- **Reminders (10c)**:
+  - Sections, lists and tags sit on the left, and the list is grouped by when.
+  - The detail panel is on the right, and the quick-add bar can file a reminder into a list.
+  - List dots use the calendar hues.
+  - The mobile-shell disclosure trigger now uses the new vocabulary (`k-disclosure`). It shows only at the compact tier, gated on `data-shell` (invariant 72).
+- **Habits (10d)**:
+  - The week is a grid: tick, habit, seven day cells, and the streak with its best. It pages back by week.
+  - Today's directives and a 12-week keeping heatmap sit beside it.
+  - The page reads `todo.habits` without creating it.
+  - `KOS.todo.panel()` and `KOS.remindersSummaryCard` were dead, because Home draws its own, so they are gone.
+- **Calendar (10e)**:
+  - The month is the page title. The grid is on a card with the legend, and Today and Countdowns sit beside it.
+  - Every hue comes from `--ev-hue` through `data-type` / `data-colour` (invariant 46).
+  - Week-grid geometry rides custom properties in hours (`--at`, `--span`, `--lane`, `--lanes`), and the stylesheet owns `--cal-hour-h`.
+  - The 24px chip exception is documented at its rule.
+- Shared additions:
+  - `k-pill-select` and the toggle pill `k-qz-pill` moved into components.
+  - `k-switch` exists.
+  - A dialog head's trailing icon button sits at the end.
+- New smoke56 rules:
+  - Focus and Reminders renames.
+  - Habits' on-arrival write dropped.
+  - Countdown rows retired as reachable, now named by title, distance and kind.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

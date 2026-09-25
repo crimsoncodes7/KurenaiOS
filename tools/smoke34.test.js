@@ -109,8 +109,9 @@ console.log("== setup ==");
 let asg = null;
 step("setup renders one calm form: modes, duration, links, one objective", () => {
   KOS.show("focus");
-  assert($$("[data-ui~='focus.mode']").length === 2, "mode cards: " + $$("[data-ui~='focus.mode']").length);
-  assert($$("[data-ui~='focus.link-row'] [data-ui~='cal.field']").length === 3, "subject/topic/assignment fields expected");
+  /* Graphite (frame 10a): Pomodoro, Custom and Reading share one switcher */
+  assert($$("[data-ui~='focus.mode']").length === 3, "mode cards: " + $$("[data-ui~='focus.mode']").length);
+  assert($$("[data-ui~='focus.link-row'] [data-ui~='ui.field']").length === 3, "subject/topic/assignment fields expected");
   assert($$("[data-ui~='focus.obj-in']").length === 1, "exactly one objective input");
   assert($$("[data-ui~='focus.start']").length === 1, "one start button");
   /* nothing is invented to fill the column: the side rail is the deal and
@@ -130,7 +131,7 @@ step("the deal states the real award for the duration on screen", () => {
 });
 
 step("choosing Custom + a longer interval re-quotes the deal", () => {
-  click(byText(".fx-mode-card", /Custom/));
+  click(byText("[data-ui~='focus.mode']", /Custom/));
   const work = $("[data-ui~='focus.custom'] [data-ui~='ui.number-input']");
   work.value = "50";
   work.dispatchEvent(new window.Event("input", { bubbles: true }));
@@ -323,7 +324,7 @@ step("the review opens over a record that already exists, and reports the real a
 step("dismissing the review changes nothing — the session already counted", () => {
   const g = G();
   const xp0 = g.xp, n0 = KOS.sessions.all().length;
-  click(byText(".fx-review-modal .btn", /^Close$/));
+  click(byText("[data-ui~='focus.review-modal'] .k-btn", /^Close$/));
   assert(!$("[data-ui~='focus.review-modal']"), "the review did not close");
   assert(g.xp === xp0 && KOS.sessions.all().length === n0, "closing the review moved the ledger");
   assert(entry.metrics.objectiveResult === undefined, "a dismissed review must annotate nothing");
@@ -351,10 +352,10 @@ step("objective result and reflection annotate the SAME entry, with no second aw
   const e = runSession();
   const g = G();
   const xp0 = g.xp, n0 = KOS.sessions.all().length;
-  click(byText(".fx-rev-choice", /^Partly$/));
+  click(byText("[data-ui~='focus.review-choice']", /^Partly$/));
   assert($("[data-ui~='focus.review-choice'][data-state~='active']"), "the chosen result is not shown as chosen");
   $("[data-ui~='focus.rev-reflect']").value = "Lost ten minutes finding the spec wording.";
-  click(byText(".fx-review-modal .btn.primary", /Save review/));
+  click(byText("[data-ui~='focus.review-modal'] .k-btn--primary", /Save review/));
   assert(e.metrics.objectiveResult === "partly", "result: " + e.metrics.objectiveResult);
   assert(/Lost ten minutes/.test(e.metrics.reflection), "reflection not recorded");
   assert(g.xp === xp0, "the review paid a second award");
@@ -371,7 +372,7 @@ step("the review can move the linked assignment on, through its own API", () => 
   const status = $("[data-ui~='focus.review-modal'] select[aria-label='Assignment status']");
   assert(status.value === before.status, "the status control should start where the record is");
   status.value = "inProgress";
-  click(byText(".fx-review-modal .btn.primary", /Save review/));
+  click(byText("[data-ui~='focus.review-modal'] .k-btn--primary", /Save review/));
   const after = KOS.assignments.get(asg.id);
   assert(after.subtasks[0].done === true, "the subtask was not ticked");
   assert(after.status === "inProgress", "status: " + after.status);
@@ -388,7 +389,7 @@ step("notes file onto the topic note by appending — never overwriting", () => 
   assert([...dest.options].some(o => o.value === "assignment"), "the assignment destination is missing");
   dest.value = "topic";
   dest.dispatchEvent(new window.Event("change", { bubbles: true }));
-  click(byText(".fx-review-modal .btn.primary", /Save review/));
+  click(byText("[data-ui~='focus.review-modal'] .k-btn--primary", /Save review/));
   const note = KOS.store.getProgress("compsci", "4.2.3.1").note;
   assert(/^Existing revision note\./.test(note), "the existing note was overwritten");
   assert(/Focus session/.test(note) && /queue vs stack/.test(note), "the session was not appended: " + note);
@@ -401,7 +402,7 @@ step("notes can go to the assignment instead", () => {
   const dest = $("[data-ui~='focus.review-modal'] select[aria-label='Where to file these notes']");
   dest.value = "assignment";
   dest.dispatchEvent(new window.Event("change", { bubbles: true }));
-  click(byText(".fx-review-modal .btn.primary", /Save review/));
+  click(byText("[data-ui~='focus.review-modal'] .k-btn--primary", /Save review/));
   assert(/queue vs stack/.test(KOS.assignments.get(asg.id).notes), "the note did not reach the assignment");
 });
 

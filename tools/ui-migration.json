@@ -24,7 +24,11 @@
     "js/modules/due.js",
     "js/modules/cardstats.js",
     "js/modules/assignments.js",
-    "js/modules/tracker.js"
+    "js/modules/tracker.js",
+    "js/modules/focus.js",
+    "js/modules/reminders.js",
+    "js/modules/todo.js",
+    "js/modules/calendar.js"
   ],
   "views": {
     "home": {},
@@ -34,6 +38,10 @@
     "cardstats": {},
     "assignments": {},
     "tracker": {},
-    "personaldeck": {}
+    "personaldeck": {},
+    "focus": {},
+    "reminders": {},
+    "tasks": {},
+    "calendar": {}
   }
 }

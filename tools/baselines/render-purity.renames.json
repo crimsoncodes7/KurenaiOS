@@ -314,6 +314,60 @@
     ]
    },
    "why": "Graphite step 3 (topic page, frame 8b): the progress record is created by the first real edit rather than on render, so a status, check or RAG pick now writes the whole record where it used to write one field of a record the render had already made."
+  },
+  {
+   "surface": "focus",
+   "hooks": "focus.mode",
+   "from": "^波Pomodoro.*$",
+   "to": "Pomodoro 25 / 5",
+   "why": "Graphite step 4a (Focus setup, frame 10a): the mode cards became one switcher, and each item is named by its label; the description moved to the dial caption."
+  },
+  {
+   "surface": "focus",
+   "hooks": "focus.mode",
+   "from": "^灯Custom.*$",
+   "to": "Custom",
+   "why": "Graphite step 4a (Focus setup, frame 10a): the mode cards became one switcher, and each item is named by its label."
+  },
+  {
+   "surface": "focus",
+   "hooks": "focus.start",
+   "from": "^◉ Start focus session$",
+   "to": "▶ Start focus",
+   "why": "Graphite step 4a (Focus setup, frame 10a): the start button reads \"▶ Start focus\"."
+  },
+  {
+   "surface": "reminders",
+   "from": "^\\+ Add$",
+   "to": "Add the reminder",
+   "why": "Graphite step 4b (Reminders, frame 10c): the quick-add bar leads with a ＋ button named \"Add the reminder\" instead of a trailing \"+ Add\"."
+  },
+  {
+   "navTo": "^#/tasks",
+   "dropEffects": {
+    "state": "^todo\\.habits\\[\\]$"
+   },
+   "why": "Graphite step 4c (Habits, frame 10d): the Habits page reads todo.habits without creating it (§0.2.3); the first habit added creates the array, so opening the page no longer writes."
+  },
+  {
+   "surface": "tasks",
+   "from": "^\\+ Add$",
+   "to": "Add the habit",
+   "why": "Graphite step 4c (Habits, frame 10d): the add row leads with a ＋ button named \"Add the habit\" instead of a trailing \"+ Add\"."
+  },
+  {
+   "surface": "calendar",
+   "hooks": "cal.countdown-item",
+   "from": ".*",
+   "retire": true,
+   "reachable": true,
+   "why": "Graphite step 4d (Calendar, frame 10e): a countdown row is named by its title, how far off it is and what it is, instead of its concatenated text; the same rows open the same records."
+  },
+  {
+   "surface": "calendar",
+   "from": "^Calendar →$",
+   "retire": true,
+   "why": "Graphite step 4d (Calendar, frame 10e): the Countdowns card on the Calendar page no longer links to the page it is on."
   }
  ]
 }
