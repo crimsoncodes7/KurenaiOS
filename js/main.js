@@ -32,7 +32,9 @@
   var railBtn = document.getElementById("rail-toggle");
   function applyRail() {
     var open = KOS.store.state.ui.railOpen !== false;
-    document.getElementById("cols").classList.toggle("rail-closed", !open);
+    /* the collapsed rail is tiles only; layout.css reads the attribute */
+    var cols = document.getElementById("cols");
+    if (open) cols.removeAttribute("data-rail"); else cols.setAttribute("data-rail", "compact");
     if (railBtn) {
       railBtn.textContent = open ? "‹" : "›";
       railBtn.setAttribute("aria-label", open ? "Collapse sidebar" : "Expand sidebar");
@@ -46,6 +48,19 @@
     });
   }
   applyRail();
+
+  /* the top bar's clock: time over date, refreshed on the minute */
+  var clockTime = document.querySelector("[data-ui~='shell.clock-time']");
+  var clockDate = document.querySelector("[data-ui~='shell.clock-date']");
+  function tickClock() {
+    if (!clockTime || !clockDate) return;
+    var d = new Date();
+    clockTime.textContent = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    clockDate.textContent = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()] + " " + d.getDate() + " " +
+      ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][d.getMonth()];
+  }
+  tickClock();
+  setInterval(tickClock, 20000);
 
   /* ---- Behavioural Governor boot sequence (Build 2a) ----
      seed sample calendar, apply HP day-tick, wrap the gated lab views (they

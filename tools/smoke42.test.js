@@ -155,7 +155,7 @@ step("the phone tier still re-homes the shell for touch", () => {
       "#main no longer reserves room for the tab bar");
   }
   if (!pending("components", "the iOS focus-zoom guard (16px phone inputs)"))
-    assert(phone.some(b => /input, select, textarea \{ font-size: 16px/.test(b)),
+    assert(phone.some(b => /input, select, textarea \{ font-size: (16px|max\(var\(--fs-16\), 1em\)|var\(--fs-16\))/.test(b)),
       "the iOS focus-zoom guard is gone");
 });
 
@@ -458,7 +458,8 @@ step("large numbers are locale-formatted", () => {
     "num() did not format: " + KOS.ui.num(12476));
   assert(KOS.ui.num(0) === "0", "zero formatted oddly: " + KOS.ui.num(0));
   const gov = fs.readFileSync(path.join(ROOT, "js/core/governor.js"), "utf8");
-  assert(/hud-gold", text: "◈ " \+ KOS\.ui\.num\(/.test(gov),
+  /* the Graphite profile chip prints the balance with the design's ◆ */
+  assert(/gov\.hud-gold", text: "◆ " \+ KOS\.ui\.num\(/.test(gov),
     "the HUD still prints a raw integer balance (audit U-27)");
 });
 

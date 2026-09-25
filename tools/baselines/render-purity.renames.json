@@ -1,0 +1,23 @@
+{
+ "about": "Deliberate accessible-name changes of rebuilt controls (tools/smoke56.test.js). Each rule rewrites a baseline control's name before it is looked up; its recorded effects must still match exactly.",
+ "rules": [
+  {
+   "hooks": "shell.subnav-item",
+   "from": "^(Computer Science|Mathematics|IT · Data Analytics)\\d+%$",
+   "to": "$1",
+   "why": "M4 shell: the subject pill is named by its label; the per-subject percentage no longer prints (the Graphite sub-nav shows a colour dot)."
+  },
+  {
+   "hooks": "gov.hud",
+   "from": "^Level (\\d+)(Healthy|Strained|Critical)·◈ (.+)$",
+   "to": "Your profile — Level $1, $2, $3 gold",
+   "why": "M4 shell: the rail profile chip has an explicit name instead of its concatenated text."
+  },
+  {
+   "hooks": "ui.tab-card",
+   "from": "^.(Physical Vault|Digital).*$",
+   "to": "$1",
+   "why": "M4 primitives: a tab with a kanji mark is named by its label; the hint became the tooltip."
+  }
+ ]
+}

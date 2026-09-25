@@ -34,6 +34,8 @@
      npm install jsdom fake-indexeddb   (one-time)
      node tools/smoke49.test.js                                           */
 const { JSDOM } = require("jsdom");
+/* a sub-navigation entry is named by its label; its mark and count are extras */
+const subnavName = (b) => (b.getAttribute("aria-label") || b.textContent).trim();
 const fs = require("fs");
 const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
@@ -331,7 +333,7 @@ step("Pacing is a Productivity destination whose route carries the week or the t
   assert(b && b.arg.tab === "braid" && !b.arg.wb, "the braid route did not parse back: " + JSON.stringify(b));
   assert(KOS.router.routeFor("pacing") === "#/pacing", "the bare route is wrong");
   KOS.show("focus");
-  assert($$("#subnav [data-ui~='shell.subnav-item']").some(b => b.textContent.trim() === "Pacing"),
+  assert($$("#subnav [data-ui~='shell.subnav-item']").some(b => subnavName(b) === "Pacing"),
     "Pacing is not in the Productivity nav strip");
 });
 

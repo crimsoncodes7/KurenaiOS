@@ -74,11 +74,13 @@ step("canonical tokens exist and the legacy names alias them", async () => {
   if (pending("tokens", "canonical colour tokens and their aliases")) return;
   const tokens = layerCss("tokens");
   const defined = new Set([...tokens.matchAll(/(--[\w-]+)\s*:/g)].map(m => m[1]));
-  const canonical = ["--bg", "--surface-1", "--surface-2", "--surface-3", "--border-subtle", "--border-default",
-    "--border-strong", "--text", "--text-muted", "--accent", "--on-accent", "--focus-ring", "--good", "--warn",
-    "--danger", "--info", "--gold", "--subject-compsci", "--subject-maths", "--subject-it", "--radius-md",
-    "--shadow-ink", "--elev-0", "--elev-4", "--z-modal", "--space-0", "--space-12", "--fs-11", "--fs-41",
-    "--font-display", "--font-text", "--font-mono"];
+  /* the Graphite roles and scales, as the design handoff names them */
+  const canonical = ["--bg", "--s1", "--s2", "--s3", "--line", "--text", "--text-2", "--muted",
+    "--crimson", "--crimson-ink", "--teal", "--amber", "--green", "--red", "--gold", "--bloom",
+    "--cs", "--maths", "--it", "--anime", "--books", "--vn", "--games",
+    "--accent", "--on-accent", "--focus-ring", "--shadow-ink", "--elev-0", "--elev-4", "--z-modal",
+    "--sp-4", "--sp-28", "--r-24", "--r-pill", "--fs-11", "--fs-13-5", "--fs-32",
+    "--font-ui", "--font-mono", "--font-kanji", "--font-read"];
   const missing = canonical.filter(t => !defined.has(t));
   if (missing.length) throw new Error("missing canonical token(s) " + missing.join(", "));
   /* every custom property the JavaScript reads, and does not set itself,
@@ -99,32 +101,26 @@ step("canonical tokens exist and the legacy names alias them", async () => {
   const unresolved = [...reads].filter(n => !sets.has(n) && !defined.has(n));
   if (unresolved.length) throw new Error("the JavaScript reads undefined token(s): " + unresolved.join(", "));
   /* the bridge aliases; it never holds a second literal value */
-  const bridge = tokens.slice(tokens.indexOf("THE BRIDGE"), tokens.indexOf("---------- 6"));
+  const bridge = tokens.slice(tokens.indexOf("THE BRIDGE"), tokens.indexOf("the five tiers, widest first"));
   if (!bridge) throw new Error("the legacy bridge block is missing");
   const literal = [...bridge.matchAll(/(--[\w-]+):\s*(#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\()/g)].map(m => m[1]);
   if (literal.length) throw new Error("bridge entries hold literal colours instead of aliases: " + literal.join(", "));
-  if (!/--kurenai:\s*var\(--accent\)/.test(tokens)) throw new Error("--kurenai must alias --accent");
-  if (!/--faint:\s*var\(--text-faint\)/.test(tokens)) throw new Error("--faint must alias the faint text role");
+  /* the brand name stays the brand colour even where --accent is retinted to a subject */
+  if (!/--kurenai:\s*var\(--crimson\)/.test(tokens)) throw new Error("--kurenai must alias --crimson");
+  if (!/--faint:\s*var\(--muted\)/.test(tokens)) throw new Error("--faint must alias the muted text role");
 });
 step("all 23 lab themes have :root[data-theme] blocks matching the catalog", async () => {
   const themes = KOS.governor.catalog().filter(c => c.kind === "theme");
   if (themes.length !== 25) throw new Error("25 themes expected (23 paid + 2 free), got " + themes.length);
-  /* an unpinned install must follow the device, in CSS so there is no
-     light-palette flash before scripts run (audit G-06) — Dawn/Dusk live
-     in the tokens layer */
-  if (!pending("tokens", "an unpinned install follows the device (Dawn/Dusk)")) {
-  if (!/@media \(prefers-color-scheme: dark\)/.test(css))
-    throw new Error("no prefers-color-scheme rule — an unpinned install cannot follow the device");
-  if (!/:root:not\(\[data-theme\]\)[^{]*\{[^}]*--bg:/.test(css.replace(/\s+/g, " ")))
-    throw new Error("the system-dark rule does not target an unpinned :root");
-  /* the device-following Dusk and the pinned Dusk are one palette written
-     twice (a media query cannot share a block); they may not drift */
-  const tokens = layerCss("tokens").replace(/\/\*[\s\S]*?\*\//g, "");
-  const body = (re) => { const m = re.exec(tokens); return m ? m[1].replace(/\s+/g, " ").trim() : null; };
-  const unpinned = body(/:root:not\(\[data-theme\]\), :root\[data-theme=""\] \{([^}]*)\}/);
-  const pinned = body(/:root\[data-theme="atelier-dusk"\], \[data-theme="atelier-dusk"\] \{([^}]*)\}/);
-  if (!unpinned || !pinned) throw new Error("a Dusk block is missing");
-  if (unpinned !== pinned) throw new Error("the device-following Dusk block drifted from atelier-dusk");
+  /* Graphite is the default and, until the light Dawn theme is designed,
+     the only theme: it paints :root with a dark colour scheme before any
+     script runs, so nothing flashes light. (The device-following Dawn/Dusk
+     pair of the rejected M3 spec is retired with it.) */
+  if (!pending("tokens", "Graphite paints :root before scripts run")) {
+    const tokens = layerCss("tokens").replace(/\/\*[\s\S]*?\*\//g, "");
+    const root = /:root \{([^}]*)\}/.exec(tokens);
+    if (!root || !/color-scheme:\s*dark/.test(root[1]) || !/--bg:\s*oklch\(/.test(root[1]))
+      throw new Error("the default theme does not paint :root");
   }
   /* the blocks must override on :root (html), not body — derived tokens are
      computed at :root and would never re-resolve otherwise */

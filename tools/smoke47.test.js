@@ -164,7 +164,9 @@ step("surface elevation derives from the active background tokens", () => {
   /* M3 re-point: the ink derives from each theme's own darkest neutral
      (--shadow-base), and the scale is --elev-1..4 */
   assert(/--shadow-ink:\s*color-mix\([^;]*var\(--shadow-base\)/.test(css), "shadow ink is not derived from a theme token");
-  assert((css.match(/--shadow-base:\s*var\(--/g) || []).length >= 2, "Dawn and Dusk do not each name their shadow base");
+  /* Graphite is the one designed theme: its shadow base is its own deepest
+     tone, which a later theme overrides like any other colour role */
+  assert(/--shadow-base:\s*oklch\(0\.1\d* /.test(css), "the shadow base is not the theme's deepest tone");
   [1, 2, 3, 4].forEach(n => assert(new RegExp("--elev-" + n + ":[^;]*var\\(--shadow-ink\\)").test(css),
     "--elev-" + n + " bypasses the theme-derived shadow ink"));
   /* the Assistant drawer's "no literal shadow" is general now: smoke55

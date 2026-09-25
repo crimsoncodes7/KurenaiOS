@@ -4,6 +4,8 @@
    and the hard rule that core revision never locks. Run:
      node tools/smoke3.test.js */
 const { JSDOM } = require("jsdom");
+/* a sub-navigation entry is named by its label; its mark and count are extras */
+const subnavName = (b) => (b.getAttribute("aria-label") || b.textContent).trim();
 const fs = require("fs");
 const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
@@ -173,7 +175,7 @@ step("Study Review and Productivity own the intended navigation", () => {
   if (!$$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").find(b => b.textContent.trim() === "Due Today").matches('[data-state~="active"]')) throw new Error("due compatibility route lost its tab");
   KOS.show("focus");
   if (!document.querySelector('[data-ui~="shell.rail-item"][data-section="productivity"]').matches('[data-state~="active"]')) throw new Error("Productivity rail not active");
-  const productivityTabs = $$("#subnav [data-ui~='shell.subnav-item']").map(b => b.textContent.trim());
+  const productivityTabs = $$("#subnav [data-ui~='shell.subnav-item']").map(b => subnavName(b));
   /* Build 6.2: Reminders became a page of its own, so Tasks & Habits is now
      just Habits and Reminders sits beside it.
      Pacing (the integrated weekly plan) joined the section afterwards — it is

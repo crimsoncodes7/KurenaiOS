@@ -148,7 +148,9 @@ step("the ≤700px tier re-homes the shell for touch", () => {
     assert(css.includes("env(safe-area-inset-top)"), "safe-area top missing");
   }
   if (!pending("components", "16px phone inputs and coarse-pointer targets")) {
-    assert(/input, select, textarea \{ font-size: 16px; \}/.test(css), "16px inputs (iOS zoom guard) missing");
+    /* the 16px floor is a token: --fs-16 (smoke55 bans raw px outside tokens) */
+    assert(/input, select, textarea \{ font-size: (16px|max\(var\(--fs-16\), 1em\)|var\(--fs-16\)); \}/.test(css) && /--fs-16:\s*16px/.test(css),
+      "16px inputs (iOS zoom guard) missing");
     assert(/@media \(pointer: coarse\)/.test(css), "coarse-pointer targets missing");
   }
 });

@@ -18,6 +18,8 @@
      npm install jsdom fake-indexeddb   (one-time)
      node tools/smoke8.test.js                                             */
 const { JSDOM } = require("jsdom");
+/* a sub-navigation entry is named by its label; its mark and count are extras */
+const subnavName = (b) => (b.getAttribute("aria-label") || b.textContent).trim();
 const fs = require("fs");
 const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
@@ -408,7 +410,7 @@ step("nav: Collection section + subnav reaches the Games vault", async () => {
   if (!rb) throw new Error("collection rail button missing");
   rb.click();
   await tick(60);
-  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Games/.test(b.textContent));
+  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Games/.test(subnavName(b)));
   if (!sn) throw new Error("subnav item missing");
   sn.click();
   await tick(60);

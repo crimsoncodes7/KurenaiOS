@@ -258,6 +258,64 @@ class and queries `.confirm-ov`, a drift that predates M2.
 - The fonts are not yet linked from `index.html` (smoke55 still holds the
   M2 line); M4 adds the link after sign-off.
 
+### The Graphite design (2026-09-25) — supersedes the M3 spec
+
+The M3 "beni and ai" spec was not approved. The product owner designed the
+interface in Claude Design instead, and every screen of that handoff
+("Graphite": `design_handoff_kurenaios_overhaul/README.md` and its
+`KurenaiOS Overhaul.dc.html`, frames 7a–14c) is approved and high-fidelity.
+From here the handoff is the visual source of truth; the view contracts,
+the invariants and the hook contract still govern behaviour.
+
+- **Order.** The handoff's order maps onto the milestones: (1) tokens, fonts,
+  shell and primitives = M3 + M4 + M5; (2) Home = M6; (3) Study = M7;
+  (4) Productivity = M8; (5) Collection = M9 + M10 (the 11b vault template
+  built once); (6) Governor, (8) Archive = M11; (7) Assistant = M12. The
+  light Dawn theme and the shop themes stay M13; release M14.
+- **Themes.** Graphite is dark and is the only designed theme. Until Dawn is
+  designed every theme id renders Graphite; invariant 26a ("Atelier Dawn is
+  the default") is amended at M14.
+- **Desktop first.** The handoff is 1280px and leaves mobile for a later
+  round; the phone composition (invariant 40) keeps working on the new
+  shell, restyled minimally, until its own design exists.
+- **Deviations kept on purpose.** Labels drawn at 10.5px in the mocks are set
+  at the 11px floor (invariant 63). The shell keeps Back/Forward beside the
+  search (an installed app has no browser chrome). The rejected
+  `design/foundation.html` and its packaging script are removed.
+
+### Step 1 as delivered — tokens, fonts, shell and primitives
+
+- `css/tokens.css`: Graphite in oklch exactly as the handoff tabulates it
+  (`--bg --s1 --s2 --s3 --line --text --text-2 --muted`, crimson and its
+  ink, teal, amber, green, red, gold, bloom, the three subject and four
+  medium hues), the handoff's type, spacing and radius scales named by
+  value, the shell's measures, `--shadow-ink`/`--elev-*` for floating layers
+  only, the `--z-*` scale, motion, the five tiers. The bridge of legacy
+  names the JavaScript reads now aliases the Graphite roles.
+- `index.html`: the four families (Onest, JetBrains Mono, Shippori Mincho,
+  Newsreader); the shell rebuilt — bloom logo, centred search pill with its
+  `/` key, clock over date, bell, assistant emblem, sync dot; the 212px
+  rail of kanji tiles (crimson gradient tile and 3px bar when lit), the
+  profile chip with an HP ring at its foot, a 72px tiles-only rail when
+  collapsed or beside the spec spine. index.html is listed in
+  `tools/ui-migration.json`.
+- `css/layout.css`, `css/components.css`: the shell, and the primitives —
+  page head, pill sub-navigation (the first group in a track, the rest loose
+  after a divider, with dots, kanji marks and live counts), quiet switcher,
+  card, row, kanji tile, pill buttons, chips, bars, stats, empty state,
+  scroller, menu, dialog, toast, fields, image crop.
+- `js/core/ui.js`, `governor.js`, `notifications.js`, `cloudui.js`,
+  `imagecrop.js`, `mobile-shell.js`, the search dropdown in `hub.js`: the
+  primitives and shell pieces emit `k-` classes and their hooks explicitly.
+  Sub-navigation entries are named by their plain label (a dot, a mark or a
+  count is not part of the name). A modal from a view not yet rebuilt gets
+  the dialog frame from `openDialog`, and bare buttons and fields default to
+  the ghost pill and the inset field, so every unrebuilt view stays usable.
+- `tools/baselines/render-purity.renames.json`: smoke56's list of deliberate
+  accessible-name changes (the subject pills lose their percentage, the
+  profile chip gains an explicit name, a lens tab is named by its label);
+  every recorded effect still matches.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

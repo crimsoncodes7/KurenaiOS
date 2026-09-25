@@ -285,7 +285,7 @@ step("the tracker is reached from the Study subnav, not a desk tab strip", async
   if ($(".subject-workspace-tabs")) throw new Error("the desk tab switcher is back");
   if (KOS.sectionOf("assignments") !== "study") throw new Error("assignments must belong to Study");
   const entry = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")]
-    .find(b => b.textContent.trim() === "Assignments");
+    .find(b => (b.getAttribute("aria-label") || b.textContent).trim() === "Assignments");
   if (!entry) throw new Error("Assignments is not in the Study subnav");
   click(entry);
   await tick(80);

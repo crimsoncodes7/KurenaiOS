@@ -158,8 +158,13 @@ function layerProblems(src, expected, isFirst) {
   return problems;
 }
 
+/* comments name classes in prose; they are not markup */
+function stripComments(src) {
+  return src.replace(/<!--[\s\S]*?-->/g, " ").replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:"'\\])\/\/[^\n]*/g, "$1");
+}
 /* markup: the string literals in class contexts of JS or HTML source */
 function classStrings(src) {
+  src = stripComments(src);
   const out = [];
   const ctx = /\bclass\s*:\s*|\bclassName\s*[+]?=\s*|\bsetClass\s*\([^,]+,\s*|\bclassList\.(?:add|remove|toggle|contains)\s*\(\s*|\bclass\s*=\s*/g;
   let m;
@@ -173,8 +178,12 @@ function classStrings(src) {
       else if ((ch === "," || ch === ";" || ch === "\n") && depth === 0) break;
       expr += ch;
     }
+    /* an HTML attribute (class="…") is one literal; a JS expression may
+       concatenate several */
+    const htmlAttr = /^class\s*=\s*$/.test(m[0]);
     for (const s of expr.matchAll(/"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)'|`((?:\\.|[^`\\])*)`/g)) {
       out.push(s[1] != null ? s[1] : s[2] != null ? s[2] : s[3]);
+      if (htmlAttr) break;
     }
   }
   return out;
@@ -188,6 +197,7 @@ function markupProblems(src) {
 }
 /* a static inline style is anything but custom properties */
 function staticStyles(src) {
+  src = stripComments(src);
   const out = [];
   for (const m of src.matchAll(/\bstyle\s*[:=]\s*(["'`])((?:\\.|(?!\1)[^\\])*)\1/g)) {
     const decls = m[2].split(";").map((d) => d.trim()).filter(Boolean);
@@ -228,10 +238,16 @@ step("nothing links, precaches or deploys the legacy stylesheet", () => {
   assert(/linked by index\.html but was not staged/.test(deploy), "the deploy script no longer checks every linked sheet is staged");
 });
 
-step("the page carries no petal backdrop and no Google Fonts", () => {
+step("the page carries no petal backdrop, and loads only the Graphite families", () => {
   const html = read("index.html");
   assert(!/bg-flora|class="petal/.test(html), "the decorative petal backdrop is back");
-  assert(!/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(html), "the Google Fonts link is back (M3 chooses the families)");
+  /* the approved design's four families (handoff README); the legacy
+     families and the rejected M3 specimen's may not come back */
+  const fonts = [...html.matchAll(/href="(https:\/\/fonts\.googleapis\.com\/css2\?[^"]+)"/g)].map(m => m[1]);
+  assert(fonts.length === 1, "expected one Google Fonts stylesheet, found " + fonts.length);
+  const families = [...fonts[0].matchAll(/family=([^:&]+)/g)].map(m => m[1].replace(/\+/g, " ")).sort();
+  assert(JSON.stringify(families) === JSON.stringify(["JetBrains Mono", "Newsreader", "Onest", "Shippori Mincho"]),
+    "the page loads " + families.join(", ") + " — the design specifies Onest, JetBrains Mono, Shippori Mincho and Newsreader");
   assert(!/"bg-flora"/.test(read("js/core/ui-hooks.js")), "the backdrop's hook row outlived the backdrop");
 });
 

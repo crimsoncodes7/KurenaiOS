@@ -42,7 +42,7 @@
   function mountBell() {
     var mount = document.getElementById("notify-mount");
     if (!mount || mount.firstChild) return;
-    var bell = KOS.ui.menu({ label: "Notifications", className: "notify-bell", panelClass: "notify-panel",
+    var bell = KOS.ui.menu({ label: "Notifications", className: "k-iconbtn", panelClass: "notify-panel k-bell-panel",
       hint: "Notifications", align: "end",
       render: function (panel, close) {
         var items = KOS.notify.all().slice(0, 5);
@@ -67,10 +67,11 @@
     bell.setAttribute("aria-label", "Notifications");
     bell.querySelector("[data-ui~='ui.menu-label']").classList.add("sr-only");
     bell.querySelector("[data-ui~='ui.menu-caret']").remove();
-    bell.insertBefore(el("span", { class: "notify-bell-glyph", "aria-hidden": "true" }, [
+    bell.setAttribute("data-ui", (bell.getAttribute("data-ui") || "") + " notify.bell");
+    bell.insertBefore(el("span", { class: "k-bell-glyph", "aria-hidden": "true" }, [
       (function () {
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("width", "18"); svg.setAttribute("height", "18");
+        svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("width", "17"); svg.setAttribute("height", "17");
         var p = document.createElementNS("http://www.w3.org/2000/svg", "path");
         p.setAttribute("d", "M12 3a6 6 0 0 0-6 6v3.2c0 .6-.2 1.2-.6 1.7L4 16h16l-1.4-2.1a3 3 0 0 1-.6-1.7V9a6 6 0 0 0-6-6zm-2.5 15a2.5 2.5 0 0 0 5 0h-5z");
         p.setAttribute("fill", "currentColor");
@@ -78,7 +79,7 @@
         return svg;
       })()
     ]), bell.firstChild);
-    var badge = el("span", { class: "notify-badge", "aria-hidden": "true" });
+    var badge = el("span", { class: "k-dot k-bell-badge", "data-ui": "notify.badge", "aria-hidden": "true" });
     bell.appendChild(badge);
     function paint() {
       var n = KOS.notify.unread();

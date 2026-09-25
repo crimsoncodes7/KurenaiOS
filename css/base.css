@@ -1,12 +1,12 @@
 /* KurenaiOS — css/base.css · @layer base
-   Element defaults for the whole app (UI rebuild M3, design spec v1):
-   a modern reset, the document's type and colour, the focus ring, the two
+   Element defaults for the whole app (UI rebuild, the Graphite design): a
+   modern reset, the document's type and colour, the focus ring, the two
    kept utilities (.sr-only, .skip-link), touch-target baselines
    (invariant 69), the viewport pair (invariant 75), 16px phone inputs
    (invariant 40), KaTeX harmonisation and reduced motion.
 
    Everything here selects ELEMENTS, never a component: a primitive's look
-   is css/components.css (M5). Every value is a token (smoke55: no colour
+   is css/components.css. Every value is a token (smoke55: no colour
    literal, no raw px length outside css/tokens.css).
 
    Convention for every layer file: its rules sit inside ONE @layer block,
@@ -17,104 +17,105 @@
 /* ---------- reset ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
-html {
--webkit-text-size-adjust: 100%;
-text-size-adjust: 100%;
-hanging-punctuation: first last;
-}
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 img, picture, video, canvas, svg { display: block; max-inline-size: 100%; }
 img, video { block-size: auto; }
 input, button, textarea, select { font: inherit; color: inherit; letter-spacing: inherit; }
-button { background: none; border: 0; padding: 0; cursor: pointer; }
+:where(button) { background: none; border: 0; padding: 0; cursor: pointer; text-align: inherit; }
 table { border-collapse: collapse; }
-ul[role="list"], ol[role="list"] { list-style: none; padding: 0; }
+ul, ol { padding-inline-start: var(--sp-20); }
 [hidden] { display: none !important; }
 
 /* ---------- the document ---------- */
+html, body { background: var(--bg); }
 body {
 min-block-size: 100vh;
-background: var(--bg);
 color: var(--text);
-font-family: var(--font-text);
-font-size: var(--fs-16);
-line-height: var(--leading-body);
+font-family: var(--font-ui);
+font-size: var(--fs-13-5);
+line-height: var(--lh-body);
 font-kerning: normal;
-font-variant-ligatures: common-ligatures;
 -webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
 }
 #app { height: 100vh; height: 100dvh; }
 
-h1, h2, h3, h4 {
-font-family: var(--font-display);
-font-weight: var(--weight-semibold);
-line-height: var(--leading-heading);
-text-wrap: balance;
-}
-h1 { font-size: var(--fs-34); line-height: var(--leading-display); letter-spacing: var(--tracking-display); }
-h2 { font-size: var(--fs-23); letter-spacing: var(--tracking-display); }
-h3 { font-size: var(--fs-19); }
-h4 { font-size: var(--fs-16); }
+h1, h2, h3, h4 { font-weight: var(--weight-semibold); line-height: var(--lh-snug); text-wrap: balance; }
+h1 { font-size: var(--fs-32); line-height: var(--lh-tight); letter-spacing: var(--track-h1); }
+h2 { font-size: var(--fs-20); letter-spacing: var(--track-head); }
+h3 { font-size: var(--fs-15); }
+h4 { font-size: var(--fs-13-5); }
 p, li, dd, figcaption { text-wrap: pretty; }
-p, ul, ol, dl, blockquote, pre, table, figure { margin-block-end: var(--space-4); }
-small { font-size: var(--fs-14); }
+small { font-size: var(--fs-12); }
+strong, b { font-weight: var(--weight-semibold); }
 
-a { color: var(--accent-strong); text-decoration-thickness: var(--border-width); text-underline-offset: 0.2em; }
-a:hover { text-decoration-thickness: var(--thread); }
+a { color: inherit; text-decoration-color: var(--line); text-underline-offset: 0.2em; }
+a:hover { text-decoration-color: currentColor; }
 
-code, kbd, samp, pre { font-family: var(--font-mono); font-size: 0.9375em; }
+code, kbd, samp, pre { font-family: var(--font-mono); font-size: 0.92em; }
 pre { overflow-x: auto; }
-kbd {
-padding-inline: var(--space-2);
-border: var(--border-width) solid var(--border-default);
-border-radius: var(--radius-xs);
-background: var(--surface-1);
-}
-hr { border: 0; border-block-start: var(--border-width) solid var(--border-subtle); }
+kbd { padding: 0 var(--sp-6); border-radius: var(--r-6); background: var(--s2); font-size: var(--fs-11); }
+hr { border: 0; border-block-start: var(--hairline) solid var(--line); }
 abbr[title] { text-decoration: underline dotted; }
 th { text-align: start; font-weight: var(--weight-semibold); }
-td, th { padding: var(--space-3) var(--space-4); border-block-end: var(--border-width) solid var(--border-subtle); }
-meter, progress { accent-color: var(--accent); }
+meter, progress { accent-color: var(--crimson); }
 
 /* the kanji marks read in the mincho they were drawn for */
-:lang(ja) { font-family: var(--font-mark); }
+:lang(ja) { font-family: var(--font-kanji); }
 
 ::selection { background: var(--selection); }
-::placeholder { color: var(--text-faint); opacity: 1; }
+::placeholder { color: var(--muted); opacity: 1; }
+* { scrollbar-color: var(--line) transparent; scrollbar-width: thin; }
 
 /* ---------- focus: one ring, everywhere ---------- */
-:focus-visible {
-outline: var(--focus-width) solid var(--focus-ring);
-outline-offset: var(--focus-offset);
-}
+:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 :focus:not(:focus-visible) { outline: none; }
 #main:focus { outline: none; }
 
+/* ---------- controls: the design's defaults ----------
+   An unstyled <button> is the ghost pill and a text field is the inset
+   field, at zero specificity: every component (and the rail, the top bar)
+   restyles them from a later layer, and markup a view has not rebuilt yet
+   still reads as controls. A button's intent (data-intent) picks the
+   crimson primary or the danger pill. */
+:where(button:not([class^="k-"]):not([class*=" k-"]):not([role="tab"]):not([role="menuitem"]):not([role="option"])) {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: var(--sp-6);
+padding: var(--sp-7) var(--sp-14);
+border-radius: var(--r-pill);
+box-shadow: inset 0 0 0 var(--hairline) var(--line);
+font-size: var(--fs-13);
+}
+:where(button:not([class^="k-"]):not([class*=" k-"])):hover { background: var(--s2); }
+:where(button[data-intent~="primary"]) { background: var(--crimson); color: var(--crimson-ink); box-shadow: none; font-weight: var(--weight-semibold); }
+:where(button[data-intent~="primary"]):hover { background: var(--crimson-hi); }
+:where(button[data-intent~="danger"]) { background: color-mix(in oklch, var(--red) 30%, transparent); color: var(--red-soft); box-shadow: none; font-weight: var(--weight-semibold); }
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]), select, textarea) {
+min-block-size: var(--hit);
+padding: var(--sp-8) var(--sp-12);
+border: 0;
+border-radius: var(--r-12);
+background: var(--s3);
+color: var(--text);
+font-size: var(--fs-13-5);
+}
+
 /* ---------- form elements ---------- */
-input, select, textarea { accent-color: var(--accent); }
+input, select, textarea { accent-color: var(--crimson); }
 textarea { resize: vertical; }
 fieldset { border: 0; padding: 0; min-inline-size: 0; }
-label { cursor: default; }
 :disabled { cursor: not-allowed; }
 
 /* ---------- touch targets (invariant 69) ----------
    Zero specificity, so any component can size itself up from here. An
    inline link inside prose is untouched: min-block-size has no effect on
    inline boxes. */
-:where(button, select, [role="button"], [role="tab"], [role="menuitem"],
-  input[type="button"], input[type="submit"], input[type="reset"],
-  input[type="text"], input[type="search"], input[type="email"], input[type="url"],
-  input[type="number"], input[type="date"], input[type="time"], input[type="password"]) {
-min-block-size: var(--hit);
-}
-:where(input[type="checkbox"], input[type="radio"]) {
-inline-size: var(--space-5);
-block-size: var(--space-5);
-}
 @media (pointer: coarse) {
 :where(button, select, [role="button"], [role="tab"], [role="menuitem"],
-  input[type="button"], input[type="submit"], input[type="reset"],
-  input[type="text"], input[type="search"], input[type="email"], input[type="url"],
-  input[type="number"], input[type="date"], input[type="time"], input[type="password"]) {
+  input[type="button"], input[type="submit"], input[type="text"], input[type="search"],
+  input[type="email"], input[type="number"], input[type="date"], input[type="time"]) {
 min-block-size: var(--hit-coarse);
 }
 }
@@ -122,10 +123,10 @@ min-block-size: var(--hit-coarse);
 /* ---------- utilities the plan keeps ---------- */
 .sr-only {
 position: absolute;
-inline-size: var(--border-width);
-block-size: var(--border-width);
+inline-size: var(--hairline);
+block-size: var(--hairline);
 padding: 0;
-margin: calc(var(--border-width) * -1);
+margin: calc(var(--hairline) * -1);
 overflow: hidden;
 clip: rect(0 0 0 0);
 white-space: nowrap;
@@ -133,27 +134,27 @@ border: 0;
 }
 .skip-link {
 position: fixed;
-inset-block-start: var(--space-3);
-inset-inline-start: var(--space-3);
+inset-block-start: var(--sp-8);
+inset-inline-start: var(--sp-8);
 z-index: var(--z-toast);
-padding: var(--space-3) var(--space-5);
-border-radius: var(--radius-sm);
-background: var(--text);
-color: var(--bg);
+padding: var(--sp-9) var(--sp-18);
+border-radius: var(--r-pill);
+background: var(--crimson);
+color: var(--crimson-ink);
 font-weight: var(--weight-semibold);
 text-decoration: none;
 transform: translateY(-200%);
-transition: transform var(--dur-2) var(--ease-standard);
+transition: transform var(--dur) var(--ease);
 }
 .skip-link:focus, .skip-link:focus-visible { transform: none; }
 
 /* ---------- KaTeX: third-party output, inheriting our ink ---------- */
 .katex { font-size: 1.05em; color: inherit; }
-.katex-display { margin-block: var(--space-5); overflow-x: auto; overflow-y: hidden; }
+.katex-display { margin-block: var(--sp-16); overflow-x: auto; overflow-y: hidden; }
 
 /* ---------- the phone tier ---------- */
 @media (max-width: 700px) {
-h1 { font-size: var(--fs-28); }
+h1 { font-size: var(--fs-26); }
 /* iOS zooms into any focused field under 16px (invariant 40) */
 input, select, textarea { font-size: max(var(--fs-16), 1em); }
 }

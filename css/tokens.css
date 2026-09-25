@@ -1,39 +1,30 @@
 /* KurenaiOS — css/tokens.css · @layer tokens
-   The design tokens every other layer reads (UI rebuild M3, design spec
-   v1 — docs/ui-rebuild/PLAN.md §3.2; specimen: design/foundation.html).
+   The design tokens every other layer reads: the approved "Graphite"
+   design (UI rebuild; the handoff's README is the source of every value —
+   docs/ui-rebuild/PLAN.md).
 
-   THE IDEA — beni and ai. 紅 kurenai is the crimson of the safflower dye;
-   藍 ai is indigo. They were the two great dyes of the workshop the app is
-   named after, so they are its whole palette: every neutral is an indigo
-   grey, and the one accent is safflower crimson.
-     Atelier Dawn (default)  indigo ink on undyed paper
-     Atelier Dusk            the indigo vat, lit by a safflower thread
-   The ink of Dawn is the ground of Dusk, and Dawn's paper is Dusk's text.
-   Semantic colour (good / warn / danger / info) is its own set and never
-   borrows the accent; the three subject hues keep their families (jade,
-   blue, violet — invariant 26).
+   Graphite is a dark, flat interface: surfaces step up in lightness from a
+   blue-leaning graphite ground, there are no borders on cards and no boxes
+   nested in boxes, and one crimson accent marks the primary action and
+   the current place. Colours are oklch, as the design specifies; a script
+   that needs a plain rgb() resolves them through a canvas (KOS.labPalette).
 
-   STRUCTURE (so a theme can be scoped to any element, not only <html>)
-     1  primitives on :root — ramps, hues, type, space, radii, z, motion
-     2  Dawn semantic roles on :root and [data-theme="atelier-dawn"]
-     3  Dusk for an unpinned install on a dark device (audit G-06)
-     4  Dusk semantic roles on [data-theme="atelier-dusk"]
-     5  derived tokens and the legacy bridge on :root and every
-        [data-theme], so they re-resolve wherever a theme is scoped
-     6  the five tiers, widest first
-   Blocks 3 and 4 must stay identical (smoke15 compares them). Shop themes
-   (M13) override block 2's roles in css/themes.css; nothing else may hold
-   a colour literal (smoke55).
+   THEMES. Graphite is the default and the only designed theme. A light
+   "Dawn" theme is planned; until it is designed, every theme id —
+   atelier-dawn, atelier-dusk and the shop themes — renders Graphite
+   (unknown ids fall back to the default, invariant 26b). css/themes.css
+   will override the colour roles below, and nothing else.
 
    THE FIVE BREAKPOINTS (invariant 47) — the only widths a media query may
    use, written widest-first (invariant 48):
-     1240 — wide workspace: the inspector column folds under the content
-     1080 — compact rail: the rail shows marks only
+     1240 — wide workspace: the topic inspector folds under the content
+     1080 — compact rail: the main rail shows its kanji tiles only
       860 — compact: the spec spine becomes an overlay drawer
       700 — phone: bottom tab bar, bottom sheets, 16px inputs
       560 — small phone: every grid collapses to one column
    Custom properties cannot appear in a media query, so --bp-* below are
-   documentation for scripts, not selectors.
+   documentation for scripts, not selectors. The design is desktop-first at
+   1280; the phone composition keeps the app usable until its own design.
 
    Convention for every layer file: its rules sit inside ONE @layer block,
    and the block's contents are not indented, so line-anchored tooling
@@ -42,137 +33,183 @@
 
 @layer tokens {
 
-/* ---------- 1 · primitives ---------- */
 :root {
-/* ai — indigo neutrals, 0 (paper) to 1000 (vat) */
---ai-0: #FFFFFF;
---ai-25: #F8FAFC;
---ai-50: #EEF1F5;
---ai-100: #E3E8EF;
---ai-150: #D7DDE6;
---ai-200: #C5CCD8;
---ai-300: #A4ADC4;
---ai-400: #7A8497;
---ai-500: #6E7896;
---ai-600: #525C70;
---ai-700: #323B59;
---ai-750: #232B45;
---ai-800: #1A2137;
---ai-850: #121829;
---ai-900: #0D1220;
---ai-1000: #080B14;
+color-scheme: dark;
 
-/* beni — safflower crimson; 500 is the traditional kurenai */
---beni-50: #FFF0F3;
---beni-100: #FFDCE4;
---beni-200: #FFB3C4;
---beni-300: #FF8FA7;
---beni-400: #FF7A96;
---beni-500: #D7003A;
---beni-600: #C8003A;
---beni-700: #B00034;
---beni-800: #86002A;
---beni-950: #2A0612;
+/* ---------- colour roles (Graphite) ---------- */
+--bg: oklch(0.165 0.008 265);
+--s1: oklch(0.2 0.009 265);
+--s2: oklch(0.235 0.01 265);
+--s3: oklch(0.14 0.008 265);
+--line: oklch(0.27 0.01 265);
+--text: oklch(0.95 0.005 265);
+--text-2: oklch(0.78 0.01 265);
+--muted: oklch(0.62 0.012 265);
 
-/* semantic hues: a deep step for paper, a light step for the vat */
---matsu-700: #1C7350;    /* good — pine */
---matsu-300: #5CCF9D;
---ukon-700: #8A5F00;     /* warn — turmeric */
---ukon-300: #E8BE55;
---shu-700: #B0330C;      /* danger — vermilion, never the accent */
---shu-300: #FF8A63;
---gunjo-700: #2F4FB0;    /* info and focus — ultramarine */
---gunjo-300: #9DB4FF;
---kin-700: #825C00;      /* the Governor's gold */
---kin-300: #E3B85A;
+--crimson: oklch(0.68 0.16 18);
+--crimson-ink: oklch(0.16 0.02 18);
+--crimson-hi: oklch(0.74 0.15 18);
+--crimson-lo: oklch(0.56 0.16 18);
+--crimson-glow: oklch(0.5 0.16 18 / 0.25);
+--crimson-soft: oklch(0.82 0.06 18);
+--red-soft: oklch(0.8 0.08 22);
+--teal: oklch(0.74 0.11 190);
+--amber: oklch(0.8 0.12 80);
+--green: oklch(0.72 0.13 150);
+--red: oklch(0.66 0.17 22);
+--gold: oklch(0.84 0.11 85);
+--bloom: oklch(0.8 0.08 350);
+--bloom-hi: oklch(0.84 0.08 350);
+--bloom-lo: oklch(0.66 0.1 350);
 
-/* the three subject hues (invariant 26): jade, blue, violet */
---compsci-700: #27725D;
---compsci-300: #5CC6A5;
---maths-700: #3A5EAB;
---maths-300: #8BA8F4;
---it-700: #7650A0;
---it-300: #C29CE8;
+/* the three subject hues (invariant 26) and the four media */
+--cs: oklch(0.74 0.11 190);
+--maths: oklch(0.72 0.12 270);
+--it: oklch(0.72 0.12 325);
+--anime: oklch(0.72 0.13 250);
+--books: oklch(0.78 0.11 70);
+--vn: oklch(0.72 0.14 330);
+--games: oklch(0.74 0.12 155);
+
+/* the one accent: crimson, retinted to the subject inside a study page
+   (KOS.show sets --accent on #main, invariant 26) */
+--accent: var(--crimson);
+--on-accent: var(--crimson-ink);
+--focus-ring: var(--crimson);
 
 /* calendar categories (invariant 46): hue angles for --ev-hue, drawn as
    oklch(var(--cal-l) var(--cal-c) var(--ev-hue)) */
+--cal-l: 0.74;
+--cal-c: 0.11;
 --cal-iris: 275;
 --cal-brass: 80;
---cal-sage: 145;
---cal-clay: 35;
+--cal-sage: 150;
+--cal-clay: 30;
 --cal-sky: 230;
 --cal-plum: 330;
---cal-jade: 170;
+--cal-jade: 190;
 --cal-slate: 255;
+/* placeholder covers (invariant 61): deterministic hue, fixed tone */
+--ph-l: 0.3;
+--ph-c: 0.05;
 
-/* type — three families; the kanji marks take the system mincho */
---font-display: "Bricolage Grotesque", "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, sans-serif;
---font-text: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
---font-mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
---font-mark: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Noto Serif CJK JP", serif;
+/* ---------- type ---------- */
+--font-ui: "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+--font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+--font-kanji: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+--font-read: "Newsreader", "Iowan Old Style", Georgia, serif;
 
-/* minor third on a 4px grid; 11 is the floor (invariant 63) */
---fs-11: 0.6875rem;
---fs-12: 0.75rem;
---fs-14: 0.875rem;
---fs-16: 1rem;
---fs-19: 1.1875rem;
---fs-23: 1.4375rem;
---fs-28: 1.75rem;
---fs-34: 2.125rem;
---fs-41: 2.5625rem;
---leading-display: 1.2;
---leading-heading: 1.35;
---leading-body: 1.55;
+/* 11 is the floor (invariant 63); 13.5 is body */
+--fs-11: 11px;
+--fs-11-5: 11.5px;
+--fs-12: 12px;
+--fs-12-5: 12.5px;
+--fs-13: 13px;
+--fs-13-5: 13.5px;
+--fs-14: 14px;
+--fs-15: 15px;
+--fs-16: 16px;
+--fs-17: 17px;
+--fs-20: 20px;
+--fs-22: 22px;
+--fs-26: 26px;
+--fs-32: 32px;
+--fs-40: 40px;
+--fs-52: 52px;
+--lh-tight: 1.1;
+--lh-snug: 1.25;
+--lh-body: 1.5;
+--lh-read: 1.65;
+--track-h1: -0.025em;
+--track-head: -0.02em;
+--track-kicker: 0.14em;
 --weight-regular: 400;
 --weight-medium: 500;
 --weight-semibold: 600;
 --weight-bold: 700;
---tracking-display: -0.02em;
---tracking-caps: 0.04em;
---measure: 68ch;
 
-/* space — every margin, padding and gap */
---space-0: 0;
---space-1: 2px;
---space-2: 4px;
---space-3: 8px;
---space-4: 12px;
---space-5: 16px;
---space-6: 20px;
---space-7: 24px;
---space-8: 32px;
---space-9: 40px;
---space-10: 48px;
---space-11: 64px;
---space-12: 80px;
---grid: 4px;
+/* ---------- space (the handoff's scale, named by value) ---------- */
+--sp-0: 0;
+--sp-2: 2px;
+--sp-4: 4px;
+--sp-6: 6px;
+--sp-7: 7px;
+--sp-8: 8px;
+--sp-9: 9px;
+--sp-10: 10px;
+--sp-12: 12px;
+--sp-14: 14px;
+--sp-16: 16px;
+--sp-18: 18px;
+--sp-20: 20px;
+--sp-22: 22px;
+--sp-24: 24px;
+--sp-26: 26px;
+--sp-28: 28px;
+--sp-32: 32px;
+--sp-40: 40px;
+--sp-48: 48px;
+--sp-64: 64px;
 
-/* hit areas (invariant 69): 32 for a mouse, 44 for a finger, 24 only for
-   the documented dense-calendar exception */
+/* ---------- shape ---------- */
+--r-6: 6px;
+--r-8: 8px;
+--r-9: 9px;
+--r-10: 10px;
+--r-12: 12px;
+--r-14: 14px;
+--r-16: 16px;
+--r-18: 18px;
+--r-22: 22px;
+--r-24: 24px;
+--r-26: 26px;
+--r-30: 30px;
+--r-pill: 999px;
+--hairline: 1px;
+--bar-4: 4px;
+--bar-6: 6px;
+--rail-mark: 3px;
+--focus-width: 2px;
+--focus-offset: 2px;
+
+/* hit areas (invariant 69) */
 --hit: 32px;
 --hit-coarse: 44px;
 --hit-dense: 24px;
 
-/* lines and corners — cut paper, not pills */
---border-width: 1px;
---focus-width: 2px;
---focus-offset: 2px;
---thread: 2px;
---radius-xs: 2px;
---radius-sm: 4px;
---radius-md: 6px;
---radius-lg: 10px;
---radius-pill: 999px;
-
-/* the shell's fixed measures */
---topbar-h: 56px;
---rail-w: 224px;
+/* ---------- the shell's measures ---------- */
+--topbar-h: 60px;
+--brand-w: 194px;
+--brand-logo: 34px;
+--search-w: 480px;
+--rail-w: 212px;
 --rail-w-compact: 72px;
+--spine-w: 284px;
+--inspector-w: 284px;
+--aside-w: 400px;
+--menu-w: 300px;
+--menu-max-h: 560px;
+--dialog-w: 520px;
+--toast-max: 560px;
+--watermark-size: 220px;
+--tile: 30px;
+--icon-btn: 38px;
 --tabbar-h: 64px;
---gutter: var(--space-9);
 
-/* stacking (invariant 70) */
+/* ---------- elevation (invariant 79) ----------
+   Surfaces are flat; only floating layers (menus, dialogs, the share card)
+   cast a shadow. Its ink is derived from the theme's own deepest tone. */
+--shadow-base: oklch(0.1 0.01 265);
+--shadow-ink: color-mix(in oklch, var(--shadow-base) 72%, transparent);
+--elev-0: none;
+--elev-1: 0 1px 2px var(--shadow-ink);
+--elev-2: 0 8px 24px -6px var(--shadow-ink);
+--elev-3: 0 20px 50px var(--shadow-ink);
+--elev-4: 0 30px 70px var(--shadow-ink);
+/* the lit rail tile's glow */
+--tile-lift: 0 1px 2px var(--shadow-ink), 0 4px 14px var(--crimson-glow);
+
+/* ---------- stacking (invariant 70) ---------- */
 --z-base: 0;
 --z-stage: 10;
 --z-sticky: 20;
@@ -183,14 +220,13 @@
 --z-modal: 120;
 --z-toast: 130;
 
-/* motion */
---ease-standard: cubic-bezier(0.2, 0, 0, 1);
---ease-exit: cubic-bezier(0.4, 0, 1, 1);
---dur-1: 120ms;
---dur-2: 200ms;
---dur-3: 320ms;
+/* ---------- motion: 150–200ms ease-out; drawers slide 240ms ---------- */
+--ease: cubic-bezier(0.2, 0, 0, 1);
+--dur-fast: 150ms;
+--dur: 200ms;
+--dur-drawer: 240ms;
 
-/* documentation only (see the header) */
+/* ---------- documentation only (see the header) ---------- */
 --bp-wide: 1240px;
 --bp-rail: 1080px;
 --bp-compact: 860px;
@@ -198,181 +234,73 @@
 --bp-small: 560px;
 }
 
-/* ---------- 2 · Atelier Dawn: indigo ink on undyed paper ---------- */
-:root, [data-theme="atelier-dawn"] {
-color-scheme: light;
---bg: var(--ai-50);
---surface-1: var(--ai-25);
---surface-2: var(--ai-100);
---surface-3: var(--ai-0);
---border-subtle: var(--ai-150);
---border-default: var(--ai-200);
---border-strong: var(--ai-400);
---text: var(--ai-850);
---text-muted: var(--ai-600);
---text-faint: var(--ai-400);
---accent: var(--beni-600);
---accent-strong: var(--beni-700);
---on-accent: var(--ai-0);
---focus-ring: var(--gunjo-700);
---good: var(--matsu-700);
---warn: var(--ukon-700);
---danger: var(--shu-700);
---info: var(--gunjo-700);
---gold: var(--kin-700);
---subject-compsci: var(--compsci-700);
---subject-maths: var(--maths-700);
---subject-it: var(--it-700);
---cal-l: 52%;
---cal-c: 0.13;
---ph-l: 90%;
---ph-c: 0.035;
---shadow-base: var(--ai-850);
---shadow-strength: 16%;
-}
-
-/* ---------- 3 · Dusk for an unpinned install on a dark device ----------
-   The default id stamps an empty data-theme, so both states count as
-   unpinned. Keep identical to block 4. */
-@media (prefers-color-scheme: dark) {
-:root:not([data-theme]), :root[data-theme=""] {
-color-scheme: dark;
---bg: var(--ai-850);
---surface-1: var(--ai-800);
---surface-2: var(--ai-900);
---surface-3: var(--ai-750);
---border-subtle: var(--ai-750);
---border-default: var(--ai-700);
---border-strong: var(--ai-500);
---text: var(--ai-50);
---text-muted: var(--ai-300);
---text-faint: var(--ai-500);
---accent: var(--beni-400);
---accent-strong: var(--beni-300);
---on-accent: var(--beni-950);
---focus-ring: var(--gunjo-300);
---good: var(--matsu-300);
---warn: var(--ukon-300);
---danger: var(--shu-300);
---info: var(--gunjo-300);
---gold: var(--kin-300);
---subject-compsci: var(--compsci-300);
---subject-maths: var(--maths-300);
---subject-it: var(--it-300);
---cal-l: 78%;
---cal-c: 0.11;
---ph-l: 30%;
---ph-c: 0.045;
---shadow-base: var(--ai-1000);
---shadow-strength: 55%;
-}
-}
-
-/* ---------- 4 · Atelier Dusk: the indigo vat ---------- */
-:root[data-theme="atelier-dusk"], [data-theme="atelier-dusk"] {
-color-scheme: dark;
---bg: var(--ai-850);
---surface-1: var(--ai-800);
---surface-2: var(--ai-900);
---surface-3: var(--ai-750);
---border-subtle: var(--ai-750);
---border-default: var(--ai-700);
---border-strong: var(--ai-500);
---text: var(--ai-50);
---text-muted: var(--ai-300);
---text-faint: var(--ai-500);
---accent: var(--beni-400);
---accent-strong: var(--beni-300);
---on-accent: var(--beni-950);
---focus-ring: var(--gunjo-300);
---good: var(--matsu-300);
---warn: var(--ukon-300);
---danger: var(--shu-300);
---info: var(--gunjo-300);
---gold: var(--kin-300);
---subject-compsci: var(--compsci-300);
---subject-maths: var(--maths-300);
---subject-it: var(--it-300);
---cal-l: 78%;
---cal-c: 0.11;
---ph-l: 30%;
---ph-c: 0.045;
---shadow-base: var(--ai-1000);
---shadow-strength: 55%;
-}
-
-/* ---------- 5 · derived tokens and the legacy bridge ---------- */
+/* ---------- derived tokens and the legacy bridge ----------
+   Re-declared on every [data-theme] too, so a scoped theme re-resolves. */
 :root, [data-theme] {
-/* tints: a wash of a role over the panel it sits on */
---accent-soft: color-mix(in oklab, var(--accent) 12%, var(--surface-1));
---good-soft: color-mix(in oklab, var(--good) 14%, var(--surface-1));
---warn-soft: color-mix(in oklab, var(--warn) 16%, var(--surface-1));
---danger-soft: color-mix(in oklab, var(--danger) 14%, var(--surface-1));
---info-soft: color-mix(in oklab, var(--info) 14%, var(--surface-1));
---selection: color-mix(in oklab, var(--accent) 24%, transparent);
+/* a chip's wash: an accent at ~18% over whatever sits behind it */
+--wash-crimson: color-mix(in oklch, var(--crimson) 18%, transparent);
+--wash-teal: color-mix(in oklch, var(--teal) 16%, transparent);
+--wash-amber: color-mix(in oklch, var(--amber) 16%, transparent);
+--wash-green: color-mix(in oklch, var(--green) 16%, transparent);
+--wash-red: color-mix(in oklch, var(--red) 16%, transparent);
+--wash-bloom: color-mix(in oklch, var(--bloom) 18%, transparent);
+--hover: var(--s2);
+--selection: color-mix(in oklch, var(--crimson) 32%, transparent);
+--kanji-watermark: oklch(1 0 0 / 0.05);
 
-/* elevation (invariant 79): shadow ink derives from the theme's darkest
-   neutral, so Dawn and Dusk keep one hierarchy and nothing is black */
---shadow-ink: color-mix(in oklab, var(--shadow-base) var(--shadow-strength), transparent);
---elev-0: none;
---elev-1: 0 1px 2px var(--shadow-ink);
---elev-2: 0 1px 2px var(--shadow-ink), 0 4px 10px -4px var(--shadow-ink);
---elev-3: 0 2px 4px var(--shadow-ink), 0 12px 28px -10px var(--shadow-ink);
---elev-4: 0 4px 8px var(--shadow-ink), 0 24px 56px -16px var(--shadow-ink);
-
-/* THE BRIDGE — legacy names the pre-rebuild JavaScript still reads
+/* THE BRIDGE — the pre-rebuild token names the JavaScript still reads
    (charts, figures, labs, inline styles). Aliases only, never a second
    value; it shrinks as views are rebuilt and is empty at M14. smoke15
    fails if the JS reads a name nothing defines. */
 --bg0: var(--bg);
---bg1: var(--surface-1);
---panel: var(--surface-1);
---surface-card: var(--surface-1);
---well: var(--surface-2);
---raise: var(--surface-3);
---text2: var(--text-muted);
---muted: var(--text-muted);
---faint: var(--text-faint);
---line: var(--border-default);
---line2: var(--border-subtle);
---kurenai: var(--accent);
---accent2: var(--gold);
---accent3: var(--good);
---warning: var(--warn);
---ok: var(--good);
---paused: var(--warn);
---glass-fill: color-mix(in oklab, var(--surface-1) 78%, transparent);
---glass-edge: var(--border-subtle);
---wash-brass: color-mix(in oklab, var(--gold) 16%, var(--surface-1));
---c-compsci: var(--subject-compsci);
---c-cs: var(--subject-compsci);
---c-maths: var(--subject-maths);
---c-it: var(--subject-it);
---sans: var(--font-text);
---serif: var(--font-display);
+--bg1: var(--s1);
+--panel: var(--s1);
+--surface-card: var(--s1);
+--well: var(--s2);
+--raise: var(--s2);
+--text2: var(--text-2);
+--faint: var(--muted);
+--line2: var(--line);
+--kurenai: var(--crimson);
+--accent2: var(--amber);
+--accent3: var(--green);
+--good: var(--green);
+--danger: var(--red);
+--warning: var(--amber);
+--ok: var(--green);
+--paused: var(--amber);
+--glass-fill: color-mix(in oklch, var(--s1) 80%, transparent);
+--glass-edge: var(--line);
+--wash-brass: var(--wash-amber);
+--c-compsci: var(--cs);
+--c-cs: var(--cs);
+--c-maths: var(--maths);
+--c-it: var(--it);
+--sans: var(--font-ui);
+--serif: var(--font-read);
 --mono: var(--font-mono);
---radius: var(--radius-md);
+--radius: var(--r-12);
 }
 
-/* ---------- 6 · the five tiers, widest first ---------- */
+/* ---------- the five tiers, widest first ---------- */
 @media (max-width: 1240px) {
-:root { --rail-w: 208px; }
+:root { --inspector-w: 100%; }
 }
 
 @media (max-width: 1080px) {
-:root { --gutter: var(--space-8); }
+:root { --rail-w: var(--rail-w-compact); --search-w: 360px; }
 }
 
 @media (max-width: 860px) {
-:root { --gutter: var(--space-7); }
+:root { --brand-w: auto; --search-w: 280px; }
 }
 
 @media (max-width: 700px) {
-:root { --gutter: var(--space-5); --topbar-h: 52px; }
+:root { --topbar-h: 56px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-:root { --dur-1: 0ms; --dur-2: 0ms; --dur-3: 0ms; }
+:root { --dur-fast: 0ms; --dur: 0ms; --dur-drawer: 0ms; }
 }
 
 }

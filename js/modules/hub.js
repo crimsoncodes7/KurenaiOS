@@ -187,12 +187,21 @@
     var total = SUBJECTS.reduce(function (a, s) { return a + LEAVES[s].length; }, 0);
     var nc = document.getElementById("node-count");
     if (nc) nc.textContent = total;
+    var n2 = KOS.srs ? KOS.srs.dueCount() : 0;
     var due = document.getElementById("pc-due");
-    if (due && KOS.srs) {
-      var n2 = KOS.srs.dueCount();
+    if (due) {
       due.textContent = n2 ? String(n2) : "";
       KOS.ui.state(due, "hot", n2 > 0);
     }
+    /* the sub-navigation's live counts (a zero prints nothing, invariant 77) */
+    function count(id, n) { var c = document.getElementById(id); if (c) c.textContent = n ? String(n) : ""; }
+    count("pc-review", n2);
+    if (KOS.assignments && KOS.assignments.urgent) count("pc-assign", KOS.assignments.urgent().length);
+    if (KOS.reminders && KOS.reminders.counts) {
+      var rc = KOS.reminders.counts().sections || {};
+      count("pc-rem", (rc.today || 0) + (rc.overdue || 0));
+    }
+    if (KOS.notify && KOS.notify.unread) count("pc-notify", KOS.notify.unread());
   }
   KOS.refreshRailCounters = refreshRailCounters;
 
@@ -2280,19 +2289,19 @@
     input.removeAttribute("aria-activedescendant");
     var total = 0;
     groups.forEach(function (g) {
-      var wrap = el("div", { class: "sr-group", role: "group", "aria-label": g.label });
-      wrap.appendChild(el("div", { class: "sr-group-h", "aria-hidden": "true" }, [
+      var wrap = el("div", { class: "k-sr-group", role: "group", "aria-label": g.label });
+      wrap.appendChild(el("div", { class: "k-sr-group-h", "aria-hidden": "true" }, [
         el("span", { text: g.label }),
-        el("span", { class: "sr-group-n", text: String(g.items.length) })
+        el("span", { class: "k-sr-group-n", text: String(g.items.length) })
       ]));
       g.items.forEach(function (it) {
         var id = "sr-opt-" + (++optSeq);
-        var node = el("div", { class: "sr-item", role: "option", id: id, "aria-selected": "false" }, [
-          el("span", { class: "sr-item-main" }, [
-            el("span", { class: "sr-item-t", text: it.title }),
-            it.sub ? el("span", { class: "sr-sub", text: it.sub }) : null
+        var node = el("div", { class: "k-sr-item", "data-ui": "search.result", role: "option", id: id, "aria-selected": "false" }, [
+          el("span", { class: "k-sr-main" }, [
+            el("span", { class: "k-sr-title", text: it.title }),
+            it.sub ? el("span", { class: "k-sr-sub", "data-ui": "search.result-sub", text: it.sub }) : null
           ].filter(Boolean)),
-          it.meta ? el("span", { class: "sr-snip", text: it.meta }) : null
+          it.meta ? el("span", { class: "k-sr-snip", text: it.meta }) : null
         ].filter(Boolean));
         node.addEventListener("click", function () { choose(node); });
         node._open = it.open;
@@ -2303,7 +2312,7 @@
       resultsEl.appendChild(wrap);
     });
     if (!total) {
-      resultsEl.appendChild(el("div", { class: "sr-empty" }, [
+      resultsEl.appendChild(el("div", { class: "k-sr-empty", "data-ui": "search.empty" }, [
         el("b", { text: "Nothing matches \u201C" + q + "\u201D." }),
         el("span", { text: done
           ? "Searched the three specifications, your topic notes, the Collection, reminders, assignments, the calendar, the planner and your goals."

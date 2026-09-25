@@ -65,11 +65,11 @@
     clearBackground(host);
     if (!source) return null;
     KOS.ui.state(host, "image-crop-host", true);
-    var cls = "image-crop-bg" + (opts.className ? " " + opts.className : "");
-    var layer = el("span", { class: cls, "aria-hidden": "true" });
+    var cls = "k-crop-bg" + (opts.className ? " " + opts.className : "");
+    var layer = el("span", { class: cls, "data-ui": "crop.bg", "aria-hidden": "true" });
     layer.appendChild(image(String(source), { alt: "", draggable: "false" }, crop));
     if (opts.overlay) {
-      var shade = el("span", { class: "image-crop-shade" });
+      var shade = el("span", { class: "k-crop-shade", "data-ui": "crop.shade" });
       shade.style.background = opts.overlay;
       layer.appendChild(shade);
     }

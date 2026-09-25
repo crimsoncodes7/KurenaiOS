@@ -842,10 +842,13 @@ step("icon-only controls clear the visual floor, and 44 where the pointer is a f
   /* M2: the legacy .icon-btn/.mini-btn/.xbtn/.med-fav list is gone; the
      floor itself (invariant 69) is the components layer's contract */
   if (pending("components", "the 32px control floor and the 44px coarse-pointer target")) return;
-  assert(/min-(height|block-size):\s*(max\([^;]*)?32px/.test(cssRules),
+  /* the floors are tokens (--hit 32px, --hit-coarse 44px): smoke55 bans a
+     raw px length outside css/tokens.css */
+  assert(/--hit:\s*32px/.test(cssRules) && /--hit-coarse:\s*44px/.test(cssRules), "the hit-area tokens are not 32px and 44px");
+  assert(/min-(height|block-size):\s*(max\([^;]*)?(32px|var\(--hit\))/.test(cssRules),
     "the controls have no 32px visual floor");
   const coarse = cssRules.match(/@media \(pointer: coarse\) \{[\s\S]*?\n\}/g) || [];
-  assert(coarse.some(b => /min-height: 44px/.test(b)),
+  assert(coarse.some(b => /min-(height|block-size): (44px|var\(--hit-coarse\))/.test(b)),
     "no 44px target under pointer: coarse — which is what WCAG 2.5.5 is actually about");
 });
 

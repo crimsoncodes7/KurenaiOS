@@ -20,6 +20,8 @@
 
    Run: node tools/smoke37.test.js                                        */
 const { JSDOM } = require("jsdom");
+/* a sub-navigation entry is named by its label; its mark and count are extras */
+const subnavName = (b) => (b.getAttribute("aria-label") || b.textContent).trim();
 const fs = require("fs");
 const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
@@ -372,7 +374,7 @@ step("the Overview/Assignments switcher is gone; the tracker keeps its subnav en
   assert(!$(".subject-workspace-tabs"), "the desk tab switcher is back");
   assert(!$("[data-ui~='study.subject-side'] [data-ui~='ui.stat-strip']"), "the old seven-tile stat strip is back");
   assert(KOS.sectionOf("assignments") === "study", "assignments must stay owned by Study");
-  const entry = $$("#subnav [data-ui~='shell.subnav-item']").find(b => b.textContent.trim() === "Assignments");
+  const entry = $$("#subnav [data-ui~='shell.subnav-item']").find(b => subnavName(b) === "Assignments");
   assert(entry, "Assignments is not in the Study subnav");
   click(entry);
   assert(KOS.store.state.ui.view === "assignments", "the subnav entry did not open the tracker");

@@ -14,6 +14,8 @@
      npm install jsdom fake-indexeddb   (one-time)
      node tools/smoke9.test.js                                             */
 const { JSDOM } = require("jsdom");
+/* a sub-navigation entry is named by its label; its mark and count are extras */
+const subnavName = (b) => (b.getAttribute("aria-label") || b.textContent).trim();
 const fs = require("fs");
 const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
@@ -370,7 +372,7 @@ step("nav: Sync reaches AniList and history returns to the Sync tab", async () =
   if (!rb) throw new Error("collection rail button missing");
   rb.click();
   await tick(60);
-  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Sync$/.test(b.textContent.trim()));
+  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Sync$/.test(subnavName(b)));
   if (!sn) throw new Error("Sync entry missing");
   sn.click();
   await tick(60);
@@ -379,7 +381,7 @@ step("nav: Sync reaches AniList and history returns to the Sync tab", async () =
   anilist.click();
   await tick(60);
   if (!/AniList Profile/.test(document.getElementById("main").textContent)) throw new Error("navigation failed");
-  if (!document.querySelector("#subnav [data-ui~='shell.subnav-item'][data-state~='active']")?.textContent.includes("Sync")) throw new Error("Sync nav was not active");
+  if (!document.querySelector("#subnav [data-ui~='shell.subnav-item'][data-state~='active']")?.getAttribute("aria-label").includes("Sync")) throw new Error("Sync nav was not active");
   KOS.back();
   await tick(60);
   if (!document.querySelector("[data-ui~='coll.workspace-tabs'] [data-ui~='ui.tab'][data-state~='active']")?.textContent.includes("Sync & Import")) throw new Error("back did not restore Sync & Import tab");

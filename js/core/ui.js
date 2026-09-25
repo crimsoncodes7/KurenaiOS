@@ -105,9 +105,9 @@
   function toast(msg, bad) {
     var t = document.getElementById("toast");
     t.textContent = msg;
-    setClass(t, "toast show" + (bad ? " bad" : ""));
+    t.setAttribute("data-state", "show" + (bad ? " bad" : ""));
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { setClass(t, "toast"); }, 2600);
+    toastTimer = setTimeout(function () { t.removeAttribute("data-state"); }, 2600);
     /* Phase F: #toast is the VISIBLE half and is aria-hidden; the spoken
        half goes through the one live region, so the same sentence twice
        running still announces twice and a failure interrupts rather than
@@ -185,6 +185,11 @@
     opts = opts || {};
     var box = overlay.querySelector("[data-ui~='ui.dialog'], [data-ui~='ui.confirm'], [data-dialog-box]") || overlay;
     var restoreTo = document.activeElement;
+    /* UI rebuild bridge: a modal built by a view that is not rebuilt yet
+       still arrives with legacy classes; give it the dialog frame so it is
+       positioned and legible. Rebuilt dialogs already carry these. */
+    overlay.classList.add("k-dialog-overlay");
+    if (box !== overlay) box.classList.add("k-dialog");
 
     box.setAttribute("role", box.getAttribute("role") || "dialog");
     box.setAttribute("aria-modal", "true");
@@ -292,7 +297,8 @@
     if (typeof opts === "string") opts = { body: opts };
     opts = opts || {};
     if (window.__kosAutoConfirm) { onYes && onYes(); return; }
-    var overlay = el("div", { class: "modal-ov confirm-ov", onclick: function (e) { if (e.target === overlay) close(false); } });
+    var overlay = el("div", { class: "k-dialog-overlay", "data-ui": "ui.dialog-overlay ui.confirm-overlay",
+      onclick: function (e) { if (e.target === overlay) close(false); } });
     var settled = false;
     function close(yes) {
       if (settled) return;
@@ -306,15 +312,17 @@
     function onKey(e) { if (e.key === "Enter" && !opts.danger) close(true); }
     document.addEventListener("keydown", onKey);
     overlay.close = function () { close(false); };
-    var cancelBtn = el("button", { class: "btn", text: opts.cancel || "Cancel", onclick: function () { close(false); } });
-    var confirmBtn = el("button", { class: "btn " + (opts.danger ? "danger" : "primary"),
+    var cancelBtn = el("button", { type: "button", class: "k-btn", "data-ui": "ui.confirm-no",
+      text: opts.cancel || "Cancel", onclick: function () { close(false); } });
+    var confirmBtn = el("button", { type: "button", class: "k-btn " + (opts.danger ? "k-btn--danger" : "k-btn--primary"),
+      "data-ui": "ui.confirm-yes", "data-intent": opts.danger ? "danger" : "primary",
       text: opts.confirm || (opts.danger ? "Delete" : "Confirm"), onclick: function () { close(true); } });
-    var title = el("h3", { class: "confirm-title", text: opts.title || (opts.danger ? "Are you sure?" : "Confirm") });
-    var box = el("div", { class: "modal confirm-modal" + (opts.danger ? " danger" : "") }, [
-      el("div", { class: "confirm-glyph", "aria-hidden": "true", text: opts.danger ? "⚠" : "?" }),
+    var title = el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: opts.title || (opts.danger ? "Are you sure?" : "Confirm") });
+    var box = el("div", { class: "k-dialog", "data-ui": "ui.confirm", "data-intent": opts.danger ? "danger" : null }, [
+      el("div", { class: "k-dialog-mark", lang: "ja", "aria-hidden": "true", text: opts.mark || (opts.danger ? "消" : "問") }),
       title,
-      opts.body ? el("p", { class: "confirm-body", text: opts.body }) : null,
-      el("div", { class: "confirm-foot" }, [cancelBtn, confirmBtn])
+      opts.body ? el("p", { class: "k-dialog-body", text: opts.body }) : null,
+      el("div", { class: "k-dialog-foot", "data-ui": "ui.confirm-foot" }, [el("span"), cancelBtn, confirmBtn])
     ].filter(Boolean));
     box.setAttribute("role", "alertdialog");
     overlay.appendChild(box);
@@ -396,39 +404,43 @@
     assistant: "assistant",
     data: "system", help: "system", notifications: "system"
   };
-  /* subnav entries per section: [label, viewId, arg, pcId] — null = divider */
+  /* subnav entries per section — null is the divider. The first group sits
+     in the pill track; the groups after a divider are loose pills.
+       label   the accessible name        short  the visible label
+       dot     a hue token for the dot    mark   a kanji before the label
+       count   the id of a live count     tone   "urgent" | "neutral" */
   var SUBNAV = {
     study: [
-      ["Computer Science", "subject", "compsci", "pc-compsci"],
-      ["Mathematics", "subject", "maths", "pc-maths"],
-      ["IT · Data Analytics", "subject", "it", "pc-it"],
+      { label: "Computer Science", short: "CS", view: "subject", arg: "compsci", dot: "var(--cs)", count: "pc-compsci", countHidden: true },
+      { label: "Mathematics", short: "Maths", view: "subject", arg: "maths", dot: "var(--maths)", count: "pc-maths", countHidden: true },
+      { label: "IT · Data Analytics", short: "IT", view: "subject", arg: "it", dot: "var(--it)", count: "pc-it", countHidden: true },
       null,
-      ["Review", "review"],
-      ["Assignments", "assignments"],
-      ["Exams & Papers", "tracker"],
+      { label: "Review", view: "review", count: "pc-review", tone: "neutral" },
+      { label: "Assignments", view: "assignments", count: "pc-assign", tone: "urgent" },
+      { label: "Exams & Papers", view: "tracker" }
     ],
     productivity: [
-      ["Focus Timer", "focus"],
-      ["Reminders", "reminders"],
-      ["Habits", "tasks"],
-      ["Calendar", "calendar"],
-      ["Pacing", "pacing"]
+      { label: "Focus Timer", view: "focus" },
+      { label: "Reminders", view: "reminders", count: "pc-rem", tone: "neutral" },
+      { label: "Habits", view: "tasks" },
+      { label: "Calendar", view: "calendar" },
+      { label: "Pacing", view: "pacing" }
     ],
     collection: [
-      ["Overview", "matrix"],
-      ["Anime", "anime"],
-      ["Books", "books"],
-      ["Visual Novels", "vn"],
-      ["Games", "game"],
-      ["Shrine", "shrine"],
+      { label: "Overview", view: "matrix" },
+      { label: "Anime", view: "anime", dot: "var(--anime)" },
+      { label: "Books", view: "books", dot: "var(--books)" },
+      { label: "Visual Novels", view: "vn", dot: "var(--vn)" },
+      { label: "Games", view: "game", dot: "var(--games)" },
       null,
-      ["Planner", "wishlist"],
-      ["Sync", "mediasync"]
+      { label: "Shrine", view: "shrine", mark: "祠" },
+      { label: "Planner", view: "wishlist", mark: "円" },
+      { label: "Sync", view: "mediasync", mark: "同" }
     ],
     system: [
-      ["Notifications", "notifications"],
-      ["Backup & Restore", "data"],
-      ["Help & Guide", "help"]
+      { label: "Notifications", view: "notifications", mark: "通", count: "pc-notify", tone: "urgent" },
+      { label: "Backup & Restore", view: "data", mark: "蔵" },
+      { label: "Help & Guide", view: "help", mark: "導" }
     ]
   };
   KOS.sectionOf = function (viewId) { return SECTION_OF[viewId] || null; };
@@ -466,45 +478,57 @@
      opts:  { variant, label, className }
      ============================================================ */
   var TAB_SHAPE = {
-    primary:   { list: "tabs-primary subnav-strip", item: "subnav-item", nav: true },
-    workspace: { list: "study-tabs", item: "study-tab" },
-    card:      { list: "tabs-cards", item: "tab-card" }
+    primary:   { list: "k-subnav", item: "k-seg-item", nav: true, hook: "shell.subnav-item", countHook: "part.percent" },
+    workspace: { list: "k-seg k-seg--quiet", item: "k-seg-item", hook: "ui.tab", listHook: "ui.tabs", countHook: "ui.tab-count" },
+    card:      { list: "k-seg k-seg--quiet", item: "k-seg-item", hook: "ui.tab-card", listHook: "ui.tabs", countHook: "ui.tab-count" }
   };
+  /* items: { label, short, hint, glyph, dot, active, onSelect, countId,
+     count, countTone, sep, className }. `short` is the visible label when
+     the design abbreviates (CS, Maths, IT); the full label stays the
+     accessible name. The primary variant puts its first group in the pill
+     track and every group after a `sep` as loose pills beside it. */
+  function tabItem(shape, it) {
+    var attrs = { type: "button", class: shape.item + (it.className ? " " + it.className : ""),
+      "data-ui": shape.hook, title: it.hint || null,
+      /* the name is the plain label: a kanji mark, a dot, an abbreviation
+         or a live count must not become part of it (the count is the
+         button's description instead) */
+      "aria-label": (shape.nav || it.glyph || (it.short && it.short !== it.label)) ? it.label : null,
+      "aria-describedby": it.countId || null,
+      onclick: function (ev) { if (it.onSelect) it.onSelect(ev); } };
+    if (!shape.nav) { attrs.role = "tab"; attrs["aria-selected"] = String(!!it.active); }
+    else if (it.active) attrs["aria-current"] = "page";
+    var btn = el("button", attrs);
+    if (it.active) KOS.ui.state(btn, "active", true);
+    if (it.dot) btn.appendChild(el("span", { class: "k-seg-dot", "aria-hidden": "true", style: "--dot: " + it.dot }));
+    if (it.glyph) btn.appendChild(el("span", { class: "k-seg-mark", lang: "ja", "aria-hidden": "true", text: it.glyph }));
+    btn.appendChild(el("span", { class: "k-seg-label", "data-ui": "part.text", text: it.short || it.label }));
+    if (it.countId || it.count != null) {
+      var c = el("span", { class: "k-seg-count", "data-ui": shape.countHook, "data-tone": it.countTone || null });
+      if (it.countId) c.id = it.countId;
+      if (it.count != null) c.textContent = String(it.count);
+      if (it.countHidden) c.hidden = true;
+      btn.appendChild(c);
+    }
+    return btn;
+  }
   KOS.ui.tabs = function (items, opts) {
     opts = opts || {};
     var shape = TAB_SHAPE[opts.variant] || TAB_SHAPE.workspace;
-    var attrs = { class: shape.list + (opts.className ? " " + opts.className : ""),
-      "aria-label": opts.label || "Sections" };
-    if (!shape.nav) attrs.role = "tablist";
-    return el("div", attrs, (items || []).map(function (it) {
-      if (!it || it.sep) return el("span", { class: "subnav-sep", "aria-hidden": "true" });
-      var btn = el("button", { type: "button",
-        class: shape.item + (it.active ? " active" : "") + (it.className ? " " + it.className : ""),
-        title: it.hint || null,
-        onclick: function (ev) { if (it.onSelect) it.onSelect(ev); } });
-      if (!shape.nav) {
-        btn.setAttribute("role", "tab");
-        btn.setAttribute("aria-selected", String(!!it.active));
-      } else if (it.active) {
-        btn.setAttribute("aria-current", "page");
+    var list = el("div", { class: shape.list + (opts.className ? " " + opts.className : ""),
+      "data-ui": shape.listHook || null, "aria-label": opts.label || "Sections", role: shape.nav ? null : "tablist" });
+    var track = shape.nav ? el("div", { class: "k-seg" }) : list;
+    if (shape.nav) list.appendChild(track);
+    var loose = false;
+    (items || []).forEach(function (it) {
+      if (!it || it.sep) {
+        (shape.nav ? list : track).appendChild(el("span", { class: "k-seg-sep", "data-ui": "ui.tab-sep", "aria-hidden": "true" }));
+        loose = shape.nav;
+        return;
       }
-      if (shape.item === "tab-card") {
-        if (it.glyph) btn.appendChild(el("span", { class: "tab-card-k", "aria-hidden": "true", text: it.glyph }));
-        btn.appendChild(el("span", { class: "tab-card-txt" }, [
-          el("b", { text: it.label }),
-          it.hint ? el("span", { class: "sub tab-card-hint", text: it.hint }) : null
-        ].filter(Boolean)));
-      } else {
-        btn.appendChild(el("span", { class: "lbl", text: it.label }));
-        if (it.countId || it.count != null) {
-          var c = el("span", { class: shape.nav ? "pc" : "tab-n" });
-          if (it.countId) c.id = it.countId;
-          if (it.count != null) c.textContent = String(it.count);
-          btn.appendChild(c);
-        }
-      }
-      return btn;
-    }));
+      (loose ? list : track).appendChild(tabItem(shape, it));
+    });
+    return list;
   };
 
   /* Shared compact workspace switcher. Planner, Sync and Study Review use the
@@ -537,78 +561,65 @@
      ============================================================ */
   function pageHeader(opts) {
     opts = opts || {};
-    return el("div", { class: "dash-head page-header" + (opts.className ? " " + opts.className : "") }, [
-      el("div", { class: "dh-txt" }, [
-        opts.kicker ? el("div", { class: "dh-kicker", text: opts.kicker }) : null,
+    return el("div", { class: "k-pagehead" + (opts.className ? " " + opts.className : ""), "data-ui": "ui.page-head ui.page-header" }, [
+      el("div", { class: "k-pagehead-txt" }, [
+        opts.kicker ? el("div", { class: "k-kicker", "data-ui": "ui.page-kicker", text: opts.kicker }) : null,
         el("h1", { text: opts.title || "" }),
-        /* the canonical sub-line is .dh-sub > span.board — 14px/--muted, the
-           treatment every hand-built page header already uses. The builder
-           was emitting a bare <p>, which inherited body type and read a
-           size and a shade darker than the pages beside it. */
-        opts.sub ? el("div", { class: "dh-sub" }, [el("span", { class: "board", text: opts.sub })]) : null
+        /* invariant 50a: one line on the muted role, no paragraph */
+        opts.sub ? el("div", { class: "k-pagehead-sub", "data-ui": "ui.page-sub" }, [el("span", { "data-ui": "part.board", text: opts.sub })]) : null
       ].filter(Boolean)),
       opts.actions && opts.actions.length
-        ? el("div", { class: "dh-actions" }, opts.actions.filter(Boolean)) : null
+        ? el("div", { class: "k-pagehead-actions", "data-ui": "ui.page-actions" }, opts.actions.filter(Boolean)) : null
     ].filter(Boolean));
   }
   function sectionHeader(opts) {
     opts = opts || {};
-    return el("div", { class: "section-header" + (opts.className ? " " + opts.className : "") }, [
-      el("div", { class: "section-header-txt" }, [
-        el("h2", { text: opts.title || "" }),
-        opts.sub ? el("p", { class: "sub", text: opts.sub }) : null
-      ].filter(Boolean)),
+    return el("div", { class: "k-sectionhead" + (opts.className ? " " + opts.className : ""), "data-ui": "ui.section-header" }, [
+      el("h2", { text: opts.title || "" }),
+      opts.sub ? el("span", { class: "k-sectionhead-sub", "data-ui": "part.sub", text: opts.sub }) : null,
       opts.actions && opts.actions.length
-        ? el("div", { class: "section-header-actions" }, opts.actions.filter(Boolean)) : null
+        ? el("div", { class: "k-sectionhead-actions", "data-ui": "ui.section-actions" }, opts.actions.filter(Boolean)) : null
     ].filter(Boolean));
   }
 
   /* ============================================================
      EMPTY STATE  (audit U-20 / REV-3 / REM-2)
-
-     "Empty states occupy card-sized boxes rather than collapsing" — the app
-     could look emptier when full than when it was blank. One builder, two
-     densities: `compact` is a single line with an inline action, which is
-     what a page with other content on it should use; the full form is for
-     a page whose ONLY content is the absence.
+     Two densities: `compact` is one quiet line with an inline action, for a
+     page that has other content; the full form is a card for a page whose
+     only content is the absence.
      ============================================================ */
   function emptyState(opts) {
     opts = opts || {};
-    var node = el("div", { class: "empty-state" + (opts.compact ? " compact" : "")
-      + (opts.className ? " " + opts.className : "") }, [
-      opts.mark ? el("span", { class: "empty-state-mark", "aria-hidden": "true", text: opts.mark }) : null,
-      el("div", { class: "empty-state-txt" }, [
+    var node = el("div", { class: "k-empty" + (opts.className ? " " + opts.className : ""), "data-ui": "ui.empty" }, [
+      opts.mark ? el("span", { class: "k-empty-mark", "data-ui": "ui.empty-mark", lang: "ja", "aria-hidden": "true", text: opts.mark }) : null,
+      el("div", { class: "k-empty-txt" }, [
         opts.title ? el("b", { text: opts.title }) : null,
         opts.body ? el("p", { text: opts.body }) : null
       ].filter(Boolean)),
-      opts.action ? el("div", { class: "empty-state-action" }, [opts.action]) : null
+      opts.action ? el("div", { class: "k-empty-action", "data-ui": "ui.empty-action" }, [opts.action]) : null
     ].filter(Boolean));
+    if (opts.compact) KOS.ui.state(node, "compact", true);
     return node;
   }
 
   /* ============================================================
-     STAT TILE  (audit U-17 / REV-1 / GOV-4 / MTX-5)
-
-     At least three "stat tile" variants existed, and the app happily
-     rendered six cards all reading 0 to an active user. `suppressZero`
-     lets a caller ask for the tile only when it carries information;
-     it returns null, so `.filter(Boolean)` drops it from the row.
+     STAT  (audit U-17 / REV-1 / GOV-4 / MTX-5)
+     A label over a figure. `suppressZero` returns null for a tile that
+     would only say 0, so `.filter(Boolean)` drops it (invariant 77).
      ============================================================ */
   function statTile(opts) {
     opts = opts || {};
     var zero = opts.value === 0 || opts.value === "0" || opts.value == null || opts.value === "";
     if (opts.suppressZero && zero) return null;
-    /* invariant #26: reuse the existing class names — .stat-card is what
-       every view, stylesheet rule and test already speaks. The primitive
-       adds behaviour (zero suppression, locale formatting, the shared
-       low/mid/high tone ramp), not a fifth card surface. */
-    return el("div", { class: "stat-card" + (opts.tone ? " tone-" + opts.tone : "")
-      + (zero ? " is-zero" : "") + (opts.className ? " " + opts.className : "") }, [
-      el("div", { class: "v", text: zero && opts.emptyText ? opts.emptyText
+    var node = el("div", { class: "k-stat" + (opts.className ? " " + opts.className : ""), "data-ui": "ui.stat",
+      "data-tone": opts.tone || null }, [
+      el("div", { class: "k-stat-label", "data-ui": "part.label", text: opts.label || "" }),
+      el("div", { class: "k-stat-value", "data-ui": "part.value", text: zero && opts.emptyText ? opts.emptyText
         : (typeof opts.value === "number" ? num(opts.value) : String(opts.value == null ? "—" : opts.value)) }),
-      el("div", { class: "k", text: opts.label || "" }),
-      opts.sub ? el("div", { class: "stat-card-sub", text: opts.sub }) : null
+      opts.sub ? el("div", { class: "k-stat-sub", text: opts.sub }) : null
     ].filter(Boolean));
+    if (zero) KOS.ui.state(node, "is-zero", true);
+    return node;
   }
 
   /* ============================================================
@@ -630,13 +641,13 @@
      ============================================================ */
   function scroller(node, opts) {
     opts = opts || {};
-    var wrap = el("div", { class: "u-scroller" + (opts.className ? " " + opts.className : ""),
-      "data-scroller": "true" });
-    var prev = el("button", { type: "button", class: "u-scroller-arrow prev", text: "‹",
-      "aria-label": opts.prevLabel || "Scroll left", tabindex: "-1" });
-    var next = el("button", { type: "button", class: "u-scroller-arrow next", text: "›",
-      "aria-label": opts.nextLabel || "Scroll right", tabindex: "-1" });
-    node.classList.add("u-scroller-track");
+    var wrap = el("div", { class: "k-scroller" + (opts.className ? " " + opts.className : ""),
+      "data-ui": "ui.scroller", "data-scroller": "true" });
+    var prev = el("button", { type: "button", class: "k-scroller-arrow", "data-ui": "ui.scroller-arrow", "data-edge": "start",
+      text: "‹", "aria-label": opts.prevLabel || "Scroll left", tabindex: "-1" });
+    var next = el("button", { type: "button", class: "k-scroller-arrow", "data-ui": "ui.scroller-arrow", "data-edge": "end",
+      text: "›", "aria-label": opts.nextLabel || "Scroll right", tabindex: "-1" });
+    node.classList.add("k-scroller-track");
     node.setAttribute("tabindex", "0");
     node.setAttribute("role", "group");
     if (opts.label) node.setAttribute("aria-label", opts.label);
@@ -713,17 +724,18 @@
     opts = opts || {};
     var btn = el("button", {
       type: "button",
-      class: "btn menu-btn" + (opts.className ? " " + opts.className : ""),
+      class: "k-btn" + (opts.className ? " " + opts.className : ""),
+      "data-ui": "ui.menu-button",
       title: opts.hint || null,
       "aria-haspopup": opts.items ? "menu" : "true",
       "aria-expanded": "false"
     }, [
-      el("span", { class: "menu-btn-lbl", text: opts.label || "More" }),
+      el("span", { "data-ui": "ui.menu-label", text: opts.label || "More" }),
       opts.badgeId || opts.badge != null
-        ? el("span", { class: "menu-btn-n", id: opts.badgeId || null,
+        ? el("span", { class: "k-menu-count", "data-ui": "ui.menu-count", id: opts.badgeId || null,
             text: opts.badge != null ? String(opts.badge) : "" })
         : null,
-      el("span", { class: "menu-btn-caret", "aria-hidden": "true", text: "▾" })
+      el("span", { class: "k-btn-caret", "data-ui": "ui.menu-caret", "aria-hidden": "true", text: "▾" })
     ].filter(Boolean));
 
     function place(panel) {
@@ -745,21 +757,21 @@
     function open() {
       if (openMenu && openMenu.btn === btn) { closeOpenMenu(true); return; }
       closeOpenMenu(false);
-      var panel = el("div", { class: "menu-panel" + (opts.panelClass ? " " + opts.panelClass : "") });
+      var panel = el("div", { class: "k-menu-panel" + (opts.panelClass ? " " + opts.panelClass : ""), "data-ui": "ui.menu-panel" });
       var focusables = [];
       if (opts.items) {
         panel.setAttribute("role", "menu");
         panel.setAttribute("aria-label", opts.label || "Menu");
         (opts.items || []).filter(Boolean).forEach(function (it) {
-          if (it.sep) { panel.appendChild(el("div", { class: "menu-sep", role: "separator" })); return; }
-          if (it.heading) { panel.appendChild(el("div", { class: "menu-heading", text: it.heading })); return; }
+          if (it.sep) { panel.appendChild(el("div", { class: "k-menu-sep", role: "separator" })); return; }
+          if (it.heading) { panel.appendChild(el("div", { class: "k-menu-heading", text: it.heading })); return; }
           var item = el("button", { type: "button", role: "menuitem", tabindex: "-1",
-            class: "menu-item" + (it.className ? " " + it.className : ""),
+            class: "k-menu-item" + (it.className ? " " + it.className : ""),
             onclick: function (ev) { closeOpenMenu(false); if (it.onSelect) it.onSelect(ev); } }, [
-            it.glyph ? el("span", { class: "menu-item-k", "aria-hidden": "true", text: it.glyph }) : null,
-            el("span", { class: "menu-item-txt" }, [
-              el("span", { class: "menu-item-lbl", text: it.label }),
-              it.hint ? el("span", { class: "menu-item-hint", text: it.hint }) : null
+            it.glyph ? el("span", { class: "k-menu-item-mark", lang: "ja", "aria-hidden": "true", text: it.glyph }) : null,
+            el("span", {}, [
+              el("span", { class: "k-menu-item-label", "data-ui": "ui.menu-item", text: it.label }),
+              it.hint ? el("span", { class: "k-menu-item-hint", text: it.hint }) : null
             ].filter(Boolean))
           ].filter(Boolean));
           focusables.push(item);
@@ -829,7 +841,7 @@
       var b = btn.querySelector("[data-ui~='ui.menu-count']");
       if (!b) return;
       b.textContent = n ? String(n) : "";
-      b.classList.toggle("hidden", !n);
+      b.hidden = !n;
     };
     btn.closeMenu = function () { if (openMenu && openMenu.btn === btn) closeOpenMenu(false); };
     return btn;
@@ -882,8 +894,7 @@
     if (!nav) return;
     var items = SUBNAV[sec];
     nav.innerHTML = "";
-    if (!items) { nav.classList.add("hidden"); nav.hidden = true; return; }
-    nav.classList.remove("hidden");
+    if (!items) { nav.hidden = true; return; }
     nav.hidden = false;
     /* which entry is lit: the view itself, or the owning subject for ref pages */
     var activeView = viewId, activeArg = arg;
@@ -897,10 +908,12 @@
        one component with three variants rather than three components */
     var strip = KOS.ui.tabs(items.map(function (it) {
       if (!it) return { sep: true };
-      return { label: it[0], countId: it[3] || null,
-        active: it[1] === activeView && (it[2] === undefined || it[2] === activeArg),
-        onSelect: function () { KOS.show(it[1], it[2]); } };
+      return { label: it.label, short: it.short, dot: it.dot, glyph: it.mark,
+        countId: it.count || null, countTone: it.tone || null, countHidden: !!it.countHidden,
+        active: it.view === activeView && (it.arg === undefined || it.arg === activeArg),
+        onSelect: function () { KOS.show(it.view, it.arg); } };
     }), { variant: "primary", label: "Section" });
+    nav.setAttribute("class", strip.getAttribute("class"));
     while (strip.firstChild) nav.appendChild(strip.firstChild);
     if (KOS.refreshRailCounters) KOS.refreshRailCounters();
   }
@@ -936,7 +949,9 @@
        any section (none today) highlight nothing. */
     var sec = SECTION_OF[viewId] || null;
     document.querySelectorAll("[data-ui~='shell.rail-item']").forEach(function (b) {
-      KOS.ui.state(b, "active", !!sec && b.dataset.section === sec);
+      var lit = !!sec && b.dataset.section === sec;
+      KOS.ui.state(b, "active", lit);
+      if (lit) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     renderSubnav(sec, viewId, arg);
     if (KOS.views[viewId]) KOS.views[viewId](main, arg);

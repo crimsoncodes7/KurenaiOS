@@ -77,7 +77,9 @@
       /* One persistence indicator at a time: once cloud status is meaningful,
          it replaces the redundant local "saved" label beside it. */
       if (localSave) localSave.hidden = true;
-      KOS.ui.setClass(chip, "sync-chip sync-" + s.state);
+      /* the design draws the chip as a status dot: teal synced, amber
+         in flight, red on error, muted when signed out or offline */
+      chip.setAttribute("data-sync", { synced: "ok", syncing: "busy", pending: "busy", error: "error" }[s.state] || "idle");
       chip.textContent = LABELS[s.state] || s.state;
       chip.title = "Cloud sync — " + (LABELS[s.state] || s.state) +
         (s.detail ? ": " + s.detail : "") +

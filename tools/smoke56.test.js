@@ -45,6 +45,11 @@ const { seedAccount } = require("./lib/seed");
 const { accessibleName, CONTROL } = require("./lib/ui-query");
 
 const BASELINE = path.join(__dirname, "baselines", "render-purity.json");
+/* Deliberate renames. A rebuilt control may change its accessible name only
+   by a rule here, each with the milestone and the reason; the baseline key
+   is rewritten before the control is looked up, and its effects must still
+   match exactly. */
+const RENAMES_FILE = path.join(__dirname, "baselines", "render-purity.renames.json");
 const MIGRATION = path.join(__dirname, "ui-migration.json");
 const RECORD = process.argv.includes("--record");
 
@@ -248,6 +253,16 @@ async function main() {
   const migration = fs.existsSync(MIGRATION) ? JSON.parse(fs.readFileSync(MIGRATION, "utf8")) : {};
   const migrated = new Set(Object.keys(migration.views || {}));
   const baseline = RECORD ? null : JSON.parse(fs.readFileSync(BASELINE, "utf8"));
+  const renames = fs.existsSync(RENAMES_FILE) ? JSON.parse(fs.readFileSync(RENAMES_FILE, "utf8")).rules : [];
+  function renamed(c) {
+    for (const r of renames) {
+      const hooks = c.key.hooks.split(" ");
+      if (r.hooks && !hooks.includes(r.hooks)) continue;
+      const re = new RegExp(r.from);
+      if (re.test(c.key.name)) return Object.assign({}, c, { key: Object.assign({}, c.key, { name: c.key.name.replace(re, r.to) }) });
+    }
+    return c;
+  }
   const record = { recordedFrom: null, clock: null, surfaces: {} };
 
   const all = SURFACES.map((s) => ({ id: s[0] + (s[1] == null ? "" : ":" + JSON.stringify(s[1])), view: s[0], arg: s[1], regions: REGIONS }))
@@ -297,7 +312,8 @@ async function main() {
     const newErr = out.render.errors.filter((e) => !base.render.errors.includes(e));
     if (newErr.length) fail(`${surf.id}: render errors ${newErr.join(" / ")}`);
 
-    for (const c of base.controls) {
+    for (const c0 of base.controls) {
+      const c = renamed(c0);
       const eff = await effectsOf(surf.view, surf.arg, surf.regions, c.key, c.occurrence);
       actions++;
       const label = `${surf.id} › ${c.key.hooks || c.key.tag} "${c.key.name}"`;

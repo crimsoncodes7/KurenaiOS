@@ -138,13 +138,13 @@
   var moreButton = el("button", {
     id: "mobile-more",
     type: "button",
-    class: "mobile-more",
+    class: "k-rail-item k-rail-more mobile-more",
     "aria-label": "More destinations",
     "aria-haspopup": "dialog",
     "aria-expanded": "false"
   }, [
-    el("span", { class: "glyph", "aria-hidden": "true", text: "余" }),
-    el("span", { class: "lbl", text: "More" })
+    el("span", { class: "k-rail-tile", lang: "ja", "aria-hidden": "true", text: "余" }),
+    el("span", { class: "k-rail-label lbl", text: "More" })
   ]);
   rail.insertBefore(moreButton, rail.querySelector("[data-ui~='shell.rail-foot']"));
 

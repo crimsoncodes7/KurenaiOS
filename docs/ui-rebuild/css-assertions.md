@@ -90,6 +90,25 @@ rather than a literal. Components contracts that still name a raw value —
 (smoke45:843) — are re-pointed at `--fs-16` and `--hit-coarse` when M5
 writes `css/components.css`, because smoke55 bans raw px there.
 
+## Graphite (step 1) re-points
+
+The M3 contracts were written against the rejected spec; with the Graphite
+tokens, layout and components written, every tokens, base, layout and
+components contract is live (distinct waits: 5, all owned by view and theme layers). Re-pointed:
+
+- smoke15 canonical tokens → the Graphite role names (`--s1..3`, `--line`,
+  `--text-2`, `--muted`, the named hues, `--sp-*`, `--r-*`, `--font-ui`
+  …); `--kurenai` aliases `--crimson`, `--faint` aliases `--muted`; the
+  device-following Dawn/Dusk pair is retired — Graphite paints `:root` with
+  a dark colour scheme before any script runs.
+- smoke18 and smoke42 16px phone inputs accept `max(var(--fs-16), 1em)` with
+  `--fs-16: 16px`; smoke45 accepts `var(--hit)` / `var(--hit-coarse)` with
+  those tokens at 32px and 44px; smoke47 checks `--shadow-base` is the
+  theme's deepest tone.
+- smoke55 now also checks the page loads exactly the four Graphite families,
+  ignores comments when scanning markup, and reads only the attribute value
+  of an HTML `class="…"`.
+
 Line numbers in the first column are as of the M1 commit.
 
 | Suite:line | Kind (M1) | Legacy classes named | Assertion message | M2 disposition |

@@ -13,6 +13,8 @@
      npm install jsdom fake-indexeddb   (one-time)
      node tools/smoke14.test.js                                            */
 const { JSDOM } = require("jsdom");
+/* a sub-navigation entry is named by its label; its mark and count are extras */
+const subnavName = (b) => (b.getAttribute("aria-label") || b.textContent).trim();
 const fs = require("fs");
 const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
@@ -366,17 +368,17 @@ step("nav: Collection keeps vaults primary and reaches the Budget Planner throug
   if (!rb) throw new Error("collection rail button missing");
   rb.click();
   await tick(60);
-  const labels = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].map(b => b.textContent.trim());
+  const labels = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].map(b => subnavName(b));
   ["Overview", "Anime", "Books", "Visual Novels", "Games", "Shrine", "Planner", "Sync"].forEach(label => {
     if (!labels.includes(label)) throw new Error("primary Collection destination missing: " + label);
   });
   if (labels.some(label => /Budget Planner|Goals|AniList|VNDB|Sync & Import/.test(label))) throw new Error("utility route leaked into primary Collection navigation");
-  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Planner$/.test(b.textContent.trim()));
+  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Planner$/.test(subnavName(b)));
   if (!sn) throw new Error("Planner entry missing");
   sn.click();
   await tick(60);
   if (!/Budget/.test(document.getElementById("main").textContent)) throw new Error("navigation failed");
-  if (!document.querySelector("#subnav [data-ui~='shell.subnav-item'][data-state~='active']")?.textContent.includes("Planner")) throw new Error("Planner nav state was not retained");
+  if (!document.querySelector("#subnav [data-ui~='shell.subnav-item'][data-state~='active']")?.getAttribute("aria-label").includes("Planner")) throw new Error("Planner nav state was not retained");
   if (!document.querySelector("[data-ui~='coll.workspace-tabs'] [data-ui~='ui.tab'][data-state~='active']")?.textContent.includes("Budget Planner")) throw new Error("Planner secondary tab missing");
 });
 step("backup coverage: wishlist rides the localStorage state (exportJSON serialises it)", async () => {
@@ -450,7 +452,7 @@ step("nav: Planner secondary tab reaches Goals; goals ride the serialised backup
   const rb = [...document.querySelectorAll("#rail [data-ui~='shell.rail-item']")].find(b => b.dataset.section === "collection");
   rb.click();
   await tick(60);
-  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Planner$/.test(b.textContent.trim()));
+  const sn = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].find(b => /^Planner$/.test(subnavName(b)));
   sn.click();
   await tick(60);
   const goals = [...document.querySelectorAll("[data-ui~='coll.workspace-tabs'] button")].find(b => /^Goals$/.test(b.textContent.trim()));

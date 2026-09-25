@@ -33,6 +33,7 @@ var CDN_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com", "cdn.jsdelivr.net"
    derived from index.html at install, like the scripts (UI rebuild M2). */
 var EXTRA_PRECACHE = [
   "manifest.webmanifest",
+  "assets/brand/kurenai-bloom.png",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/icon-maskable-512.png",

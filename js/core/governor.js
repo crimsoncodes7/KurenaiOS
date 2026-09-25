@@ -427,8 +427,8 @@
   /* Returns a DOM node for the current avatar at a given px size. */
   function avatarNode(size) {
     var el = KOS.ui.el, g = G();
-    var cls = "gov-avatar" + (g.avatar.frame ? " " + g.avatar.frame : "");
-    var node = el("span", { class: cls, style: "width:" + size + "px;height:" + size + "px" });
+    var node = el("span", { class: "k-avatar", "data-ui": "gov.avatar", "data-frame": g.avatar.frame || null,
+      style: "--avatar: " + size + "px" });
     if (g.avatar.kind === "custom" && g.avatar.img) {
       node.appendChild(KOS.imageCrop.image(g.avatar.img, { alt: "Your avatar" }, g.avatar.crop));
     } else {
@@ -744,7 +744,7 @@
   function openProfilePopover() {
     closeProfilePopover();
     var el = KOS.ui.el;
-    popNode = el("div", { class: "profile-pop", role: "dialog", "aria-label": "Your profile" });
+    popNode = el("div", { class: "k-menu-panel k-profile-pop", "data-ui": "gov.profile-pop", role: "dialog", "aria-label": "Your profile" });
     popNode.appendChild(profileCard({
       onNavigate: closeProfilePopover,
       onChange: function () { openProfilePopover(); }
@@ -779,17 +779,19 @@
     var state = hpState();
     holder.innerHTML = "";
     var wasOpen = !!popNode;
-    var btn = el("button", { class: "hud hud-" + state, "aria-haspopup": "dialog", "aria-expanded": "false",
+    /* the rail's profile chip: the avatar inside an HP ring (teal while
+       healthy, amber strained, crimson critical), level, state and gold */
+    var btn = el("button", { type: "button", class: "k-profile", "data-ui": "gov.hud", "data-hp": state,
+      "aria-haspopup": "dialog", "aria-expanded": "false",
       title: "Behavioural Governor — HP " + g.hp + " · Level " + li.level + " · " + KOS.ui.num(g.gold) + " gold",
+      "aria-label": "Your profile — Level " + li.level + ", " + hpStateInfo().label + ", " + KOS.ui.num(g.gold) + " gold",
       onclick: function () { if (popNode) closeProfilePopover(); else openProfilePopover(); } }, [
-      avatarNode(34),
-      el("span", { class: "hud-col" }, [
-        el("span", { class: "hud-profile-name", text: "Level " + li.level }),
-        el("span", { class: "hud-profile-meta" }, [
-          el("i", { class: "hud-state-dot", "aria-hidden": "true" }),
-          el("span", { text: hpStateInfo().label }),
-          el("span", { "aria-hidden": "true", text: "·" }),
-          el("span", { class: "hud-gold", text: "◈ " + KOS.ui.num(g.gold) })
+      el("span", { class: "k-profile-ring", style: "--hp: " + Math.max(0, Math.min(100, g.hp)) + "%" }, [avatarNode(32)]),
+      el("span", { class: "k-profile-txt" }, [
+        el("span", { class: "k-profile-name", "data-ui": "gov.hud-profile-name", text: "Level " + li.level }),
+        el("span", { class: "k-profile-meta", "data-ui": "gov.hud-profile-meta" }, [
+          el("span", { class: "k-profile-state", text: hpStateInfo().label }),
+          el("span", { class: "k-profile-gold", "data-ui": "gov.hud-gold", text: "◆ " + KOS.ui.num(g.gold) })
         ])
       ])
     ]);
