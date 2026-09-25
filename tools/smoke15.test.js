@@ -191,7 +191,8 @@ step("subject overview: per-paper .subject-units breakdown renders", async () =>
   await tick(30);
   const units = document.getElementById("main").querySelectorAll("[data-ui~='study.units'] [data-ui~='study.unit']");
   if (units.length < 2) throw new Error("expected >=2 unit cards, got " + units.length);
-  if (!/secure/.test(units[0].textContent)) throw new Error("unit card lacks the done/total line");
+  /* Graphite (frame 8a): "0 / 14 completed · 3 started" */
+  if (!/^\d+ \/ \d+ completed/.test(units[0].querySelector("[data-ui~='study.unit-foot']").textContent)) throw new Error("unit card lacks the done/total line");
 });
 
 /* ============ 3 · vault hero + overlay cards ============ */

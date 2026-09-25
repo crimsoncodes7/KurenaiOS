@@ -118,6 +118,14 @@
     return out.slice(0, limit || 6);
   }
 
+  /* one line on why a topic is flagged: its band, then the evidence (or
+     that the rating is the user's own) — "Red · 3 lapses on its cards" */
+  function why(t) {
+    var reasons = t.e.auto && t.e.auto.reasons.length ? t.e.auto.reasons.join(" · ")
+      : "your own rating";
+    return BANDS[t.e.band].label + " · " + reasons;
+  }
+
   function dot(bandId, title) {
     return el("span", { class: "rag-dot rag-" + bandId, title: title || BANDS[bandId].label });
   }
@@ -208,6 +216,7 @@
     auto: auto,
     effective: effective,
     worst: worst,
+    why: why,
     panel: panel,
     picker: picker,
     dot: dot

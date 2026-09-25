@@ -870,6 +870,17 @@
        KOS.shell.tree()          the current mode
      ============================================================ */
   KOS.shell = KOS.shell || {};
+  /* the page's actions on the sub-navigation row (Graphite frame 8a). Every
+     navigation clears the slot before the view renders; a view that has
+     actions puts them back. Nothing = hidden. */
+  KOS.shell.actions = function (nodes) {
+    var slot = document.getElementById("page-actions");
+    if (!slot) return null;
+    slot.innerHTML = "";
+    (nodes || []).filter(Boolean).forEach(function (n) { slot.appendChild(n); });
+    slot.hidden = !slot.children.length;
+    return slot;
+  };
   KOS.shell.tree = function (mode) {
     var cols = document.getElementById("cols");
     var tree = document.getElementById("tree");
@@ -954,6 +965,7 @@
       if (lit) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     renderSubnav(sec, viewId, arg);
+    KOS.shell.actions(null);
     if (KOS.views[viewId]) KOS.views[viewId](main, arg);
     KOS.store.state.ui.view = viewId;
     if (viewId === "subject") KOS.store.state.ui.subject = arg;

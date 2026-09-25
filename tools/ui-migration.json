@@ -17,6 +17,7 @@
     "css/themes.css"
   ],
   "views": {
-    "home": {}
+    "home": {},
+    "subject": { "arg": "compsci" }
   }
 }

@@ -48,12 +48,20 @@ const BASELINE = path.join(__dirname, "baselines", "render-purity.json");
 /* Deliberate renames. A rebuilt control may change its accessible name only
    by a rule here, each with the milestone and the reason; the baseline key
    is rewritten before the control is looked up, and its effects must still
-   match exactly. A rule may be scoped to one `surface` id.
+   match exactly. A rule selects controls by `surface` (an anchored
+   pattern over surface ids), `hooks`, `from` (the name) and `navTo` (a
+   pattern over the recorded navigation).
 
    A rule with `"retire": true` excuses a control's ABSENCE, never a change
    in what it does: the approved design dropped it (a capped list, a panel
    the design folds elsewhere). With `"reachable": true` as well, some
-   control still on that surface must produce exactly its recorded effects. */
+   control still on that surface must produce exactly its recorded effects.
+
+   `dropEffects` ({effect: pattern}) takes named side effects out of the
+   contract on BOTH sides of the comparison (a spine the desk no longer
+   draws writes openSections at a different depth, or not at all); `expect` replaces the recorded effects outright where a
+   control deliberately does something else now (an inline form became a
+   dialog). Both carry their `why` like every other rule. */
 const RENAMES_FILE = path.join(__dirname, "baselines", "render-purity.renames.json");
 const MIGRATION = path.join(__dirname, "ui-migration.json");
 const RECORD = process.argv.includes("--record");
@@ -74,7 +82,7 @@ const SURFACES = [
 ];
 /* regions whose controls belong to the surface; the shell's own chrome is
    one extra surface (#topbar, #rail) rendered on Home */
-const REGIONS = ["#subnav", "#main"];
+const REGIONS = ["#subnav", "#page-actions", "#main"];
 const SHELL_REGIONS = ["#topbar", "#rail"];
 /* Back/Forward replay the router's history stack, which one control's
    navigation leaves for the next; router.js owns them and smoke45 covers
@@ -260,16 +268,40 @@ async function main() {
   const baseline = RECORD ? null : JSON.parse(fs.readFileSync(BASELINE, "utf8"));
   const renames = fs.existsSync(RENAMES_FILE) ? JSON.parse(fs.readFileSync(RENAMES_FILE, "utf8")).rules : [];
   function applies(r, c, surfId) {
-    if (r.surface && r.surface !== surfId) return false;
+    if (r.surface && !new RegExp("^(?:" + r.surface + ")$").test(surfId)) return false;
+    if (r.navTo && !(c.effects && c.effects.nav && new RegExp(r.navTo).test(c.effects.nav))) return false;
     return !(r.hooks && !c.key.hooks.split(" ").includes(r.hooks));
   }
   function renamed(c, surfId) {
     for (const r of renames) {
-      if (r.retire || !applies(r, c, surfId)) continue;
+      if (r.retire || r.to == null || !applies(r, c, surfId)) continue;
       const re = new RegExp(r.from);
       if (re.test(c.key.name)) return Object.assign({}, c, { key: Object.assign({}, c.key, { name: c.key.name.replace(re, r.to) }) });
     }
     return c;
+  }
+  /* the effects a control is held to, after the deliberate changes that
+     apply to it; `drop` is applied to whatever it is compared with too */
+  function without(eff, drops) {
+    if (!eff || !drops.length) return eff;
+    const out = JSON.parse(JSON.stringify(eff));
+    for (const [k, re] of drops) {
+      if (!Array.isArray(out[k])) continue;
+      out[k] = out[k].filter((x) => !re.test(x));
+      if (!out[k].length) delete out[k];
+    }
+    return out;
+  }
+  function contract(c, surfId) {
+    let eff = c.effects;
+    const drops = [];
+    for (const r of renames) {
+      if (!(r.dropEffects || r.expect) || !applies(r, c, surfId)) continue;
+      if (r.from && !new RegExp(r.from).test(c.key.name)) continue;
+      if (r.expect) { eff = r.expect; continue; }
+      for (const k of Object.keys(r.dropEffects)) drops.push([k, new RegExp(r.dropEffects[k])]);
+    }
+    return { eff: without(eff, drops), drops };
   }
   const record = { recordedFrom: null, clock: null, surfaces: {} };
 
@@ -323,21 +355,22 @@ async function main() {
     /* every current control's effects, replayed once and only when a
        reachable retirement asks for them */
     let current = null;
-    async function reachable(effects) {
+    async function reachable(want) {
       if (!current) {
         current = [];
         const seen = {};
         for (const { key } of list) {
           const k = key.hooks + "|" + key.name;
           const o = seen[k] = (seen[k] || 0); seen[k]++;
-          current.push(JSON.stringify(await effectsOf(surf.view, surf.arg, surf.regions, key, o)));
+          current.push(await effectsOf(surf.view, surf.arg, surf.regions, key, o));
           actions++;
         }
       }
-      return current.includes(JSON.stringify(effects));
+      const target = JSON.stringify(want.eff);
+      return current.some((e) => JSON.stringify(without(e, want.drops)) === target);
     }
     function retirement(c0, c) {
-      return renames.find((r) => r.retire && applies(r, c0, surf.id) &&
+      return renames.find((r) => r.retire && applies(r, c0, surf.id) && applies(r, c, surf.id) &&
         (new RegExp(r.from).test(c0.key.name) || new RegExp(r.from).test(c.key.name)));
     }
 
@@ -350,10 +383,11 @@ async function main() {
       if (!eff) {
         const r = retirement(c0, c);
         if (!r) { fail(`${label}: the control is gone (hooks and accessible name are the contract)`); continue; }
-        if (r.reachable && !(await reachable(c.effects))) fail(`${label}: retired as reachable, but nothing on the page still does ${JSON.stringify(c.effects)}`);
+        if (r.reachable && !(await reachable(contract(c, surf.id)))) fail(`${label}: retired as reachable, but nothing on the page still does ${JSON.stringify(contract(c, surf.id).eff)}`);
         continue;
       }
-      const a = JSON.stringify(eff), b = JSON.stringify(c.effects);
+      const want = contract(c, surf.id);
+      const a = JSON.stringify(without(eff, want.drops)), b = JSON.stringify(want.eff);
       if (a !== b) fail(`${label}: effects changed\n      was ${b}\n      now ${a}`);
     }
   }

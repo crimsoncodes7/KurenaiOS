@@ -65,13 +65,15 @@ console.log("== A · subject overview ==");
 /* Cat 7 Phase C moved the analytics out of the 300px context column and into
    the desk's main column, where eight tiles get four across instead of two.
    The claim the suite defends is unchanged: one balanced grid, no hole. */
+/* Graphite (frame 8a): the desk is four rows — the hero beside where to go
+   next, the analytics beside the deadlines, the course units, practice
+   beside resources. The claims the suite defends carry over: one balanced
+   grid with no hole, an action card that leads, dates kept out of the
+   analytics, and the section list shown once. */
 step("the desk carries the analytics grid, four across, with no hole", () => {
   KOS.show("subject", SID);
-  const main = $("[data-ui~='study.subject-main']");
-  assert(main, "no desk column");
-  const panel = main.querySelector("[data-ui~='study.analytics']");
+  const panel = $("#main [data-ui~='study.analytics']");
   assert(panel, "no analytics panel on the desk");
-  assert(!$("[data-ui~='study.subject-side'] [data-ui~='study.analytics']"), "the analytics are still in the context column");
   const tiles = panel.querySelectorAll("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile']");
   assert(tiles.length === 8, "expected 8 tiles, got " + tiles.length);
 });
@@ -81,33 +83,28 @@ step("every tile is the same shape: label, value, context, one track", () => {
     const k = t.querySelector("[data-ui~='part.label']"), v = t.querySelector("[data-ui~='part.value']"), s = t.querySelector("[data-ui~='part.caption']");
     assert(k && k.textContent.trim(), "a tile has no label");
     assert(v && v.textContent.trim(), "a tile has no value");
-    assert(s && s.textContent.trim(), "a tile has no line of context");
+    /* the line of context rides the tooltip and the accessible text */
+    assert(s && s.textContent.trim() && t.getAttribute("title") === s.textContent, "a tile has no line of context");
     assert(t.querySelector("[data-ui~='study.analytics-track']"), "a tile has no track row — rows would fall off the baseline");
   });
 });
 
 step("the eight statistics are the named ones, each labelled once", () => {
-  const want = ["Mastery", "Topics secure", "Topics started", "Cards due",
-    "Cards reviewed", "Quiz best", "Exam questions", "Study streak"];
+  const want = ["Mastery", "Completed", "Started", "Cards due", "Reviewed", "Quiz best", "Exam Qs", "Streak"];
   const got = $$("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile'] [data-ui~='part.label']").map(n => n.textContent.trim());
   assert(got.join("|") === want.join("|"), "tile labels: " + got.join("|"));
 });
 
-/* The desk reads as one sentence: where you were → what the course is → how
-   you are doing → what you can do about it. The continue card is the only
-   element on the page that is an instruction rather than a report, so it
-   leads; everything after it is context for it. */
-step("Continue where you left off is the desk's FIRST element", () => {
+/* where you were leads: the action card shares the desk's first row with
+   the hero, above the analytics */
+step("Continue is on the desk's first row, above the analytics", () => {
   KOS.store.state.ui.lastRef[SID] = REF;
   KOS.show("subject", SID);
-  const main = $("[data-ui~='study.subject-main']");
-  const card = main.querySelector("[data-ui~='study.continue']");
-  assert(card, "no action card");
-  assert(main.firstElementChild === card, "the action card does not lead the desk");
-  const kids = [...main.children];
-  assert(kids.indexOf(card) < kids.indexOf(main.querySelector("[data-ui~='study.analytics']")),
-    "the action card is not above the analytics");
-  assert(card.querySelector("[data-ui~='part.detail']").textContent === "Continue where you left off", "wrong kicker");
+  const top = $("#main [data-ui~='study.desk-top']");
+  assert(top && top === $("#main").firstElementChild, "the desk does not open with its top row");
+  const card = top.querySelector("[data-ui~='study.continue']");
+  assert(card, "no action card on the first row");
+  assert(card.querySelector("[data-ui~='part.detail']").textContent === "Continue", "wrong kicker");
   assert(card.textContent.includes(REF), "the card does not name the topic");
   click(card);
   assert(KOS.store.state.ui.view === "ref", "the action card did not act");
@@ -116,33 +113,30 @@ step("Continue where you left off is the desk's FIRST element", () => {
 step("a never-opened subject still gets an action card, with an honest kicker", () => {
   delete KOS.store.state.ui.lastRef.it;
   KOS.show("subject", "it");
-  const card = $("[data-ui~='study.subject-main'] [data-ui~='study.continue']");
+  const card = $("[data-ui~='study.desk-top'] [data-ui~='study.continue']");
   assert(card, "the empty state dropped the card entirely");
   assert(card.querySelector("[data-ui~='part.detail']").textContent === "Start here", "empty state kept the Continue wording");
 });
 
-/* Countdowns are dates, not subject analytics. With the analytics moved to
-   the desk the context column holds only what genuinely is not a subject
-   statistic — so the ruled break has nothing left to separate and is gone. */
 step("countdowns stay out of the analytics block", () => {
   KOS.show("subject", SID);
-  const side = $("[data-ui~='study.subject-side']");
-  assert(side.querySelector("[data-ui~='cal.countdowns']"), "no countdown widget");
+  assert($("#main [data-ui~='cal.countdowns']"), "no deadlines card");
   assert(!$("[data-ui~='study.analytics'] [data-ui~='cal.countdowns']"), "countdowns leaked into the analytics panel");
-  assert(!side.querySelector("[data-ui~='study.analytics']"), "the analytics are back in the date column");
+  assert(!$("[data-ui~='cal.countdowns'] [data-ui~='study.analytics']"), "the analytics are inside the dates card");
 });
 
-/* audit SUBJ-1: the page rendered the spec tree's section list a second time,
-   ~400px to its right. The spine is the one section list now. */
-step("the section list appears exactly once, in the spine", () => {
+/* audit SUBJ-1: the page rendered the spec tree's section list a second time.
+   The desk now carries no spine at all (frame 8a): its course units are the
+   section list, and each opens the topic pages, where the spine is. */
+step("the section list appears exactly once", () => {
   KOS.show("subject", SID);
-  assert(!$("#main .sec-grid"), "the main-column section ledger is back");
-  assert(!$("#main .sec-card"), "a duplicate section row survives in the main column");
+  assert(KOS.shell.tree() === "none" || document.getElementById("tree").hidden, "the desk still shows the spine beside its units");
+  const units = $$("[data-ui~='study.units'] [data-ui~='study.unit']");
+  assert(units.length === window.KOS_DATA[SID].sections.length, "the units are not one per section (" + units.length + ")");
+  click(units[1]);
   const spine = document.getElementById("tree");
   const heads = spine.querySelectorAll("[data-ui~='ui.section-head']");
-  assert(heads.length >= 8, "the spine lost its section list (" + heads.length + " rows)");
-  /* it inherited what the ledger did that the spine did not: a bar and,
-     one level down, the per-subsection tally */
+  assert(heads.length >= 8, "the topic page's spine lost its section list (" + heads.length + " rows)");
   assert(spine.querySelector("[data-ui~='ui.section-head'] [data-ui~='ui.section-bar'] [data-ui~='study.bar-fill']"),
     "the spine did not inherit the ledger's progress bar");
 });
@@ -165,9 +159,9 @@ step("percentages are whole numbers with a %; part-of-whole is always A / B", ()
      longer restates the subject-wide secure ratio — audit SUBJ-2 counted
      that one figure four times on a single screen, and it belongs to the
      spine header (as navigation context) and to one analytics tile. */
-  const band = $("[data-ui~='study.unit'] small").textContent;
-  assert(/^\d+ \/ \d+ secure · \d+%$/.test(band), "the desk band does not use the shared formats: " + band);
-  assert(!/secure/.test($("[data-ui~='study.unit-lead']").textContent), "the board lead restates the secure ratio again");
+  /* the unit cards and the paper rows carry the shared formats */
+  $$("[data-ui~='study.unit-foot']").forEach(f => assert(/^\d+ \/ \d+ completed · \d+ started$/.test(f.textContent), "a unit card breaks the shared format: " + f.textContent));
+  $$("[data-ui~='study.paper'] .k-mono").forEach(p => assert(/^\d+%$/.test(p.textContent), "a paper row breaks the shared format: " + p.textContent));
 });
 
 step("a bar is only drawn when it carries the same quantity as its value", () => {

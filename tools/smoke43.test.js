@@ -91,8 +91,10 @@ const PAGED = (() => {
 /* ============ A · the spine owns section navigation ============ */
 console.log("== A · the spec spine ==");
 
+/* Graphite (frame 8a): the desk carries no spine; these read it on the
+   topic page, the one place it is drawn */
 step("the spine inherited the retired ledger's bar and subsection tally", () => {
-  KOS.show("subject", SID);
+  KOS.show("ref", { subject: SID, ref: REF });
   const tree = document.getElementById("tree");
   const bars = tree.querySelectorAll("[data-ui~='ui.section-head'] [data-ui~='ui.section-bar'] [data-ui~='study.bar-fill']");
   assert(bars.length >= 8, "the spine has no per-section progress bars (" + bars.length + ")");
@@ -105,7 +107,7 @@ step("the spine inherited the retired ledger's bar and subsection tally", () => 
 });
 
 step("the bar carries the same quantity as the count printed beside it", () => {
-  KOS.show("subject", SID);
+  KOS.show("ref", { subject: SID, ref: REF });
   const head = document.getElementById("tree").querySelector("[data-ui~='ui.section-head']");
   const pc = head.querySelector("[data-ui~='part.percent']").textContent.trim().split(" / ").map(Number);
   const width = head.querySelector("[data-ui~='ui.section-bar'] [data-ui~='study.bar-fill']").style.width;
@@ -139,7 +141,7 @@ step("the spine is a dismissible drawer on the tiers where it is an overlay", ()
       "the 860 tier no longer floats the spine — this suite's premise is stale");
   mediaWidth = 820;
   KOS.store.state.ui.treeClosed = null;
-  KOS.show("subject", SID);
+  KOS.show("ref", { subject: SID, ref: REF });
   assert((document.getElementById("cols").getAttribute("data-tree") === "closed"),
     "at 820 the spine still defaults to open, covering the page");
   /* the page header carries the opener, so nothing floats over the content */
@@ -161,7 +163,7 @@ step("the spine is a dismissible drawer on the tiers where it is an overlay", ()
 step("above the overlay tier Escape is left alone", () => {
   mediaWidth = 1440;
   KOS.store.state.ui.treeClosed = false;
-  KOS.show("subject", SID);
+  KOS.show("ref", { subject: SID, ref: REF });
   key("Escape");
   assert(!(document.getElementById("cols").getAttribute("data-tree") === "closed"),
     "Escape collapsed the spine on a viewport where it is an ordinary column");
@@ -437,7 +439,7 @@ step("only one spine opener is reachable at a time", () => {
   KOS.show("ref", { subject: SID, ref: REF });
   assert($$("#main [data-ui~='study.spine-open']").length === 1, "the topic page renders more than one opener");
   KOS.show("subject", SID);
-  assert($$("#main [data-ui~='study.spine-open']").length === 1, "the subject desk renders more than one opener");
+  assert($$("#main [data-ui~='study.spine-open']").length === 0, "the desk offers a spine it does not draw");
 });
 
 step("a closed spine takes no space on the overlay tiers (SUBJ-4)", () => {

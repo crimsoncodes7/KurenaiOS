@@ -450,7 +450,7 @@ step("the deliberate scroller in the app uses it; the Collection strip became a 
      scroller) with a wrapping grid of on-the-go cards — no sideways
      scroll to declare any more */
   assert(!/med-strip/.test(matrix) && /mx-now-grid/.test(matrix), "the Collection overview should lay the on-the-go cards out as a grid, not a strip");
-  assert(/KOS\.ui\.scroller\(uwrap/.test(hub), "the subject unit band has no affordance (audit SUBJ-3)");
+  assert(/KOS\.ui\.scroller\(units/.test(hub), "the subject unit band has no affordance (audit SUBJ-3)");
 });
 
 step("large numbers are locale-formatted", () => {

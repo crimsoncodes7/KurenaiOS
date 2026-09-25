@@ -91,6 +91,75 @@
    "retire": true,
    "from": ".",
    "why": "Graphite step 2 (Home, frame 7a): one weakest topic per desk (KOS.rag.worst(sid, 1)); the full list is the subject page's."
+  },
+  {
+   "navTo": "^#/(subject/|ref/)",
+   "dropEffects": {
+    "ui": "^openSections\\."
+   },
+   "why": "Graphite step 3 (Study desk, frame 8a): the desk draws no spine, so the section expansion a subject used to write on arrival (openSections) is now written by the topic page's spine, at the subject's depth — or not at all when a subject opens."
+  },
+  {
+   "surface": "subject:.*",
+   "from": "^⇆ Compare topics$",
+   "to": "⇆ Compare",
+   "why": "Graphite step 3 (Study desk, frame 8a): the page's actions sit on the sub-navigation row with the design's labels."
+  },
+  {
+   "surface": "subject:.*",
+   "from": "^◉ Start focus$",
+   "to": "Start focus",
+   "why": "Graphite step 3 (Study desk, frame 8a): the page's actions sit on the sub-navigation row with the design's labels."
+  },
+  {
+   "surface": "subject:.*",
+   "from": "^Deep revision content: .*What do these mean\\?$",
+   "to": "What do these mean?",
+   "why": "Graphite step 3 (Study desk, frame 8a): the definitions and the deep-content line open from the analytics header."
+  },
+  {
+   "surface": "subject:.*",
+   "from": "^\\+ Add$",
+   "expect": {
+    "dialog": [
+     "Add a resource"
+    ]
+   },
+   "why": "Graphite step 3 (Study desk, frame 8a): a resource is added through a small dialog instead of an inline form."
+  },
+  {
+   "surface": "subject:.*",
+   "hooks": "study.spine-open",
+   "retire": true,
+   "from": ".",
+   "why": "Graphite step 3 (Study desk, frame 8a): the desk carries no spine; the course units open the topic pages, where it is."
+  },
+  {
+   "surface": "subject:.*",
+   "hooks": "cal.countdown-item",
+   "retire": true,
+   "from": ".",
+   "why": "Graphite step 3 (Study desk, frame 8a): Deadlines shows four rows, overdue assignments first; the full horizon is Calendar's."
+  },
+  {
+   "surface": "subject:.*",
+   "hooks": "rag.item",
+   "retire": true,
+   "from": ".",
+   "why": "Graphite step 3 (Study desk, frame 8a): the flagged-topics panel became the one Weakest card (KOS.rag.worst(sid, 1))."
+  },
+  {
+   "surface": "subject:.*",
+   "from": "^Calendar →$",
+   "retire": true,
+   "why": "Graphite step 3 (Study desk, frame 8a): the dates card links to Assignments as drawn; Calendar stays one press away under Productivity."
+  },
+  {
+   "surface": "subject:.*",
+   "retire": true,
+   "reachable": true,
+   "from": ".",
+   "why": "Graphite step 3 (Study desk, frame 8a): a desk control renamed with the design (the Continue card, a gated practice row's chip) must still do exactly what it did from some control on the desk."
   }
  ]
 }

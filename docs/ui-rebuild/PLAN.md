@@ -347,6 +347,29 @@ the invariants and the hook contract still govern behaviour.
   control on the page. Home's renames and retirements are in
   `tools/baselines/render-purity.renames.json`.
 
+### Step 3a as delivered — the subject desk (frame 8a)
+
+- `KOS.views.subject` is rebuilt on `k-` classes (`css/views/study.css`) and
+  registered as a rebuilt view. Four rows: the hero (mastery ring, board and
+  streak, one row per paper) beside Continue and Weakest; the analytics
+  (eight tiles, their context on the tooltip and the accessible text, the
+  definitions behind "What do these mean?") beside Deadlines; the course
+  units; Practice beside Resources ("+ Add" is a dialog now).
+- **The desk carries no spine.** Frame 8a draws the full rail and no tree;
+  each course unit opens its section's topic page (the current topic, else
+  the first unfinished one), where the spine is. Invariant 51 is amended at
+  M14 to say so: the spine is the topic page's section list.
+- The shell gained a page-actions slot on the sub-navigation row
+  (`KOS.shell.actions`, cleared on every navigation); the desk's Compare and
+  Start focus sit there.
+- `KOS.calendar.openCountdown(row, done)` is the one routing for a countdown
+  row (Home, the desk, the widget); `KOS.rag.why(t)` is the one line on why a
+  topic is flagged. The dated row (`k-day-row`, `k-days-dot`) moved from the
+  Home sheet to the components layer.
+- smoke56 rules can now select by `navTo`, drop named side effects on both
+  sides (`dropEffects`) and replace a control's contract (`expect`); every
+  rule keeps its `why`.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

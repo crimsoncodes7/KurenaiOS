@@ -60,7 +60,8 @@ step("every entry's ref exists in spec data", () => {
 
 console.log("== tree structure ==");
 step("4.9.4 leaves nested under collapsible group", () => {
-  KOS.show("subject", "compsci");
+  /* Graphite (frame 8a): the spine is the topic page's; the desk has none */
+  KOS.show("ref", { subject: "compsci", ref: "4.2.3.1" });
   const grp = $$("#tree [data-ui~='study.spine-group']").find(g => g.textContent.includes("4.9.4"));
   // open 4.9 section first
   const sec = $$("#tree [data-ui~='ui.section-head']").find(h => h.textContent.includes("4.9"));

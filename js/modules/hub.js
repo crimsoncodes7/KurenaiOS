@@ -824,11 +824,7 @@
         });
         counts.slice(0, Math.max(0, 3 - Math.min(2, urgent.length))).forEach(function (c) {
           ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "cal.countdown-item" + (c.kind === "assignment" ? " asg.urgent" : ""),
-            onclick: function () {
-              if (c.kind === "pacing") KOS.show("pacing", { wb: c.entry.wb });
-              else if (c.kind === "assignment") openAssignment(c.assignment.id);
-              else KOS.show("calendar");
-            } }, [
+            onclick: function () { KOS.calendar.openCountdown(c, function () { KOS.show("home", undefined, { _nav: true }); }); } }, [
             el("span", { class: "k-days-dot", "data-state": c.days === 0 ? "now" : null, text: String(c.days) }),
             el("span", { class: "k-day-txt" }, [
               el("span", { class: "k-day-title", text: c.title }),
@@ -1295,159 +1291,161 @@
     update();
   }
 
-  KOS.views.subject = function (main, sid) {
-    renderTree(sid, null);
-    var d = KOS_DATA[sid], s = subjectStats(sid);
-    main.style.setProperty("--accent", COLORS[sid]);
+  /* ---------- the subject desk (Graphite frame 8a) ----------
+     Reads top to bottom as one sentence — what the course is and how far
+     you are through it (the hero, beside where to go next), how you are
+     doing (the analytics, beside the dates), the course itself (the units)
+     and what you can do about it (practice, resources). The desk carries no
+     spine: a unit card is the way into the topic pages, where the spine is
+     the section list (invariant 51 as amended by the Graphite design). */
+  var PAPER_NOTE = {
+    compsci: { "Paper 1": ["Paper 1", "Programming paper"], "Paper 2": ["Paper 2", "Theory paper"], "Paper 3": ["NEA", "Non-exam assessment"] },
+    maths: { "Pure (P1+P2)": ["Pure", "Papers 1 and 2"], "Paper 3": ["Paper 3", "Statistics and mechanics"] },
+    it: { "Examined unit": ["Exam", "Examined units"], "NEA unit": ["NEA", "Non-exam assessment units"] }
+  };
+  function unitTitle(title) {
+    var t = String(title).replace(/^Fundamentals of (the )?/i, "");
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
+  function leavesOf(sid, sec) {
+    return LEAVES[sid].filter(function (l) { return l.section === sec; });
+  }
 
-    /* header — the subject desk */
+  KOS.views.subject = function (main, sid) {
+    hideTree();
+    var d = KOS_DATA[sid], s = subjectStats(sid);
+    main.style.setProperty("--subj-c", SUBJ_HUE[sid]);
+    var today = KOS.srs.todayISO();
+
+    KOS.shell.actions([
+      el("button", { type: "button", class: "k-btn", "data-ui": "study.compare", text: "⇆ Compare",
+        onclick: function () { compareModal(sid); } }),
+      el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Start focus",
+        onclick: function () { KOS.show("focus"); } })
+    ]);
+
+    /* ================= the hero, and where to go next ================= */
     var papers = [];
     d.sections.forEach(function (sec) {
-      var lbl = sec.paper !== undefined ? paperLabel(sid, sec.paper) : null;
-      if (lbl && papers.indexOf(lbl) === -1) papers.push(lbl);
+      var lbl = sec.paper !== undefined ? paperLabel(sid, sec.paper) : d.board;
+      var p = papers.filter(function (x) { return x.lbl === lbl; })[0];
+      if (!p) papers.push(p = { lbl: lbl, leaves: [] });
+      p.leaves = p.leaves.concat(leavesOf(sid, sec));
     });
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "Subject desk" }),
-        el("h1", { text: d.name }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: d.board }),
-          el("span", { class: "papers", text: papers.join("  ·  ") })
+    var run = KOS.sessions.streak(sid);
+    var hero = el("section", { class: "k-subj-hero", "data-ui": "study.subject-hero", "aria-label": d.name }, [
+      el("span", { class: "k-subj-ring", role: "img", "aria-label": pctText(s.mastery) + " mastery", style: "--p: " + s.mastery + "%" }, [
+        el("span", { class: "k-subj-ring-in" }, [
+          el("b", { text: pctText(s.mastery) }),
+          el("small", { text: "mastery" })
         ])
       ]),
-      el("div", { class: "dh-actions" }, [
-        treeOpenButton(),
-        el("button", { class: "btn", text: "⇆ Compare topics", onclick: function () { compareModal(sid); } }),
-        el("button", { class: "btn primary", text: "◉ Start focus", onclick: function () { KOS.show("focus"); } })
-      ])
-    ]));
+      el("div", { class: "k-subj-id" }, [
+        el("div", { class: "k-kicker", text: "Subject desk" }),
+        el("h1", { class: "k-subj-name", text: d.name }),
+        el("div", { class: "k-subj-board" }, [
+          el("span", { text: d.board }),
+          run ? el("span", { class: "k-chip", style: "--chip-c: var(--subj-c)", title: run + "-day study streak in this subject",
+            text: "炎 " + run + "-day streak" }) : null
+        ].filter(Boolean))
+      ]),
+      el("div", { class: "k-subj-papers", "data-ui": "study.units-papers" }, papers.filter(function (p) { return p.leaves.length; }).map(function (p) {
+        var note = (PAPER_NOTE[sid] || {})[p.lbl] || [p.lbl, ""];
+        var m = Math.round(p.leaves.reduce(function (a, l) { return a + leafPercent(sid, l.ref); }, 0) / p.leaves.length);
+        return el("div", { class: "k-subj-paper", "data-ui": "study.paper" }, [
+          el("div", { class: "k-subj-paper-top" }, [
+            el("b", { text: note[0] }),
+            el("span", { class: "k-subj-paper-note", text: note[1] }),
+            el("span", { class: "k-mono", text: pctText(m) })
+          ]),
+          el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": note[0] + ": " + pctText(m) + " mastery", style: "--p: " + m + "%" }, [el("i")])
+        ]);
+      }))
+    ]);
 
-    /* The Overview/Assignments switcher is gone: the desk had a page-level
-       tab strip whose only other page is already a first-class Study subnav
-       entry, so the strip added a second navigation grammar for nothing.
-       Assignments remains one click away in the Study subnav. */
+    var side = el("div", { class: "k-subj-side" }, [continueCard(sid), weakestCard(sid)]);
+    main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
 
-    /* ---------- the desk ----------
-       Category 7 Phase C, audit SUBJ-1. This page used to render the spec
-       tree's list a second time, ~400px to its right: same 14 sections, same
-       counts, same drill-down. The spine on the left is now the only section
-       navigation in Study, so the main column is free to be what the page is
-       called — a desk. It reads top to bottom as one sentence:
+    /* ================= analytics, beside the dates ================= */
+    main.appendChild(el("div", { class: "k-subj-row" }, [subjectAnalytics(sid, s), deadlinesCard(sid, today)]));
 
-         where you were  →  what the course is  →  how you are doing  →
-         what you can do about it
-
-       The context column keeps only what is genuinely NOT subject analytics:
-       dates, and the flagged-topic recommendations. */
-    var grid = el("div", { class: "subject-grid" });
-    var colMain = el("div", { class: "subject-main" });
-    var colSide = el("aside", { class: "subject-side" });
-    grid.appendChild(colMain);
-    grid.appendChild(colSide);
-    main.appendChild(grid);
-
-    /* 1 · continue state — the first thing on the desk, because it is the
-       only element here that is an instruction rather than a report */
-    var cont = continueCard(sid);
-    if (cont) colMain.appendChild(cont);
-
-    /* 2 · the board band: board summary + one column per paper/unit */
-    var units = {};
+    /* ================= the course units ================= */
+    var lastRef = store.state.ui.lastRef[sid];
+    var lastSec = lastRef && BYREF[sid][lastRef] ? BYREF[sid][lastRef].section : null;
+    var units = el("div", { class: "k-units", "data-ui": "study.units" });
     d.sections.forEach(function (sec) {
-      var lbl = sec.paper !== undefined ? paperLabel(sid, sec.paper) : d.board;
-      var st = sectionStats(sid, sec);
-      if (!st.total) return;
-      units[lbl] = units[lbl] || { done: 0, total: 0, secs: [] };
-      units[lbl].done += st.done; units[lbl].total += st.total;
-      units[lbl].secs.push(sec.title);
-    });
-    var unitKeys = Object.keys(units);
-    var uwrap = el("div", { class: "subject-units", "aria-label": "Course units" });
-    /* the lead is the board's IDENTITY, not a fourth restatement of the
-       secure ratio (audit SUBJ-2 counted that figure four times on one
-       screen). The spine header carries it as navigation context and the
-       "Topics secure" tile carries it as a statistic; that is enough. */
-    uwrap.appendChild(el("div", { class: "unit-lead" }, [
-      el("span", { class: "ul-glyph", "aria-hidden": "true", text: d.name.slice(0, 1) }),
-      el("div", { class: "ul-txt" }, [
-        el("strong", { text: d.board }),
-        el("span", { text: unitKeys.length === 1 ? "1 unit" : unitKeys.length + " papers" }),
-        el("small", { text: s.total + " spec points across " + d.sections.length + " sections" })
-      ])
-    ]));
-    unitKeys.forEach(function (lbl) {
-      var u = units[lbl];
-      var upct = pctOf(u.done, u.total);
-      uwrap.appendChild(el("div", { class: "unit-stat " + tone(upct) }, [
-        el("span", { text: lbl }),
-        el("strong", { text: u.secs.length === 1 ? u.secs[0] : u.secs.length + " sections" }),
-        el("div", { class: "insp-track" }, [el("i", { style: "width:" + upct + "%" })]),
-        el("small", { text: ratioText(u.done, u.total) + " secure · " + pctText(upct) })
-      ]));
-    });
-    /* the unit band is a deliberate sideways scroller on desktop (the phone
-       tier stacks it). Until Phase B it scrolled with no affordance at all,
-       so Papers 2–3 were unreachable in practice at 880–1100px — the same
-       defect as Collection's cover strip (audit SUBJ-3/MTX-1). */
-    colMain.appendChild(KOS.ui.scroller(uwrap, { label: "Course units",
-      prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units",
-      className: "subject-units-scroller" }));
-
-    /* 3 · the analytics. It was in the 300px context column, so eight tiles
-       had to stack 2-up and their captions wrapped to three lines; in the
-       main column the same grid gets four across and reads at a glance. */
-    colMain.appendChild(subjectAnalytics(sid, s));
-
-    /* 4 · what you can do here — practice, then reference material */
-    var labs = PRACTICE[sid] || [];
-    if (labs.length) {
-      colMain.appendChild(KOS.ui.sectionHeader({ title: "Practice zone",
-        sub: "Labs and simulations wired to this subject", className: "subject-sh" }));
-      var pz = el("div", { class: "practice-row" });
-      labs.forEach(function (t) {
-        var acc = practiceAccess(t[3]);
-        pz.appendChild(el("button", { class: "practice-card" + (acc.ok ? "" : " gated"), onclick: t[2] }, [
-          el("b", { text: t[0] }),
-          el("span", { text: t[1] }),
-          acc.ok ? null : el("span", { class: "practice-lock",
-            text: acc.why === "hp" ? "朽 suspended — low HP" : "錠 locked · ◈ " + acc.item.price })
-        ]));
+      var ls = leavesOf(sid, sec);
+      if (!ls.length) return;
+      var done = 0, started = 0;
+      var segs = ls.map(function (l) {
+        var p = store.peekProgress(sid, l.ref);
+        var st = p && p.status === "done" ? "done" : p && p.status && p.status !== "none" ? "started" : null;
+        if (st === "done") done++; else if (st) started++;
+        return el("span", { "data-state": st });
       });
-      colMain.appendChild(pz);
+      var target = (lastSec === sec && lastRef) ? lastRef
+        : (ls.filter(function (l) { var p = store.peekProgress(sid, l.ref); return !p || p.status !== "done"; })[0] || ls[0]).ref;
+      var card = el("button", { type: "button", class: "k-unit", "data-ui": "study.unit",
+        "aria-label": sec.ref + " " + sec.title + ": " + done + " of " + ls.length + " completed",
+        onclick: function () { KOS.show("ref", { subject: sid, ref: target }); } }, [
+        el("span", { class: "k-unit-ref", text: sec.ref }),
+        el("span", { class: "k-unit-title", text: unitTitle(sec.title) }),
+        el("span", { class: "k-unit-segs", "aria-hidden": "true" }, segs),
+        el("span", { class: "k-unit-foot", "data-ui": "study.unit-foot" }, [el("b", { text: ratioText(done, ls.length) }), " completed · " + started + " started"])
+      ]);
+      if (lastSec === sec) KOS.ui.state(card, "current", true);
+      units.appendChild(card);
+    });
+    var paperNames = papers.filter(function (p) { return p.leaves.length; }).map(function (p) { return ((PAPER_NOTE[sid] || {})[p.lbl] || [p.lbl])[0]; });
+    main.appendChild(el("section", { class: "k-subj-units", "aria-labelledby": "k-units-h" }, [
+      el("div", { class: "k-sectionhead" }, [
+        el("h2", { id: "k-units-h", text: "Course units" }),
+        el("span", { class: "k-sectionhead-sub", text: units.children.length + " units · " +
+          (paperNames.length > 1 ? paperNames.slice(0, -1).join(", ") + " and " + paperNames[paperNames.length - 1] : paperNames[0] || d.board) })
+      ]),
+      KOS.ui.scroller(units, { label: "Course units", prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units" })
+    ]));
+
+    /* ================= practice, beside the resources ================= */
+    var labs = PRACTICE[sid] || [];
+    var bottom = el("div", { class: "k-subj-row k-subj-row--even" });
+    if (labs.length) {
+      bottom.appendChild(el("section", { class: "k-card", "data-ui": "study.practice", "aria-label": "Practice zone" }, [
+        cardHead("Practice zone", "Labs and simulations for this subject"),
+        el("div", { class: "k-practice" }, labs.map(function (t) {
+          var acc = practiceAccess(t[3]);
+          return el("button", { type: "button", class: "k-practice-row", "data-ui": "study.practice-item",
+            title: acc.ok ? null : "Unlocks for ◈ " + (acc.item ? acc.item.price : "") + " in the Gold Shop", onclick: t[2] }, [
+            el("span", { class: "k-practice-txt" }, [
+              el("span", { class: "k-practice-name" }, [t[0], acc.ok ? null : el("span", { class: "k-chip", "data-tone": "amber", text: "◆ gated" })].filter(Boolean)),
+              el("span", { class: "k-practice-desc", text: t[1] })
+            ]),
+            el("span", { class: "k-muted", "aria-hidden": "true", text: "→" })
+          ]);
+        }))
+      ]));
     }
-
-    /* resource link table (FR-2.8) */
-    colMain.appendChild(KOS.ui.sectionHeader({ title: "Resources & reference sheets",
-      sub: "Your own links for this subject", className: "subject-sh" }));
-    var resHolder = el("div", {});
-    colMain.appendChild(resHolder);
+    var resHolder = el("section", { class: "k-card", "data-ui": "study.resources", "aria-label": "Resources" });
+    bottom.appendChild(resHolder);
     renderResources(resHolder, sid);
-
-    /* --- the context column: dates and recommendations only ---
-       Countdowns are not subject analytics and must not read as a ninth
-       tile. Nothing here is sticky — the column scrolls with the page. */
-    colSide.appendChild(KOS.calendar.countdownWidget(sid));
-    var ragPanel = KOS.rag.panel(sid);
-    if (ragPanel) colSide.appendChild(ragPanel);
+    main.appendChild(bottom);
   };
 
-  /* ---------- the subject analytics panel (right column) ----------
-     Eight statistics genuinely exist for a subject, so the grid is the
-     balanced 2 x 4 the brief allows for — no filler tile invented to fill a
-     hole, and no hole left in the corner (the old strip was seven tiles in a
-     two-column grid). Every tile is the same shape: label, value, one line
-     of context, and a bar that is present only when it shows the same
-     quantity as the value above it. */
+  /* ---------- the analytics card ----------
+     Eight statistics genuinely exist for a subject: a balanced 4 × 2 with no
+     filler tile. Each tile is a label, a value and a bar that is present
+     only when it shows the same quantity as the value above it (invariant
+     26d); its line of context rides the tile's tooltip, and the definitions
+     sit behind "What do these mean?" (audit SUBJ-6). */
   function statTile(o) {
     var empty = o.empty === true;
     var bar = o.pct != null && !empty;
-    return el("div", { class: "sa-tile" + (empty ? " empty" : "") + (bar && o.tone ? " " + o.tone : "") +
-                              (o.flag ? " " + o.flag : "") }, [
-      el("span", { class: "k", text: o.k }),
-      el("strong", { class: "v", text: empty ? "—" : o.v }),
-      el("span", { class: "s", text: o.sub }),
-      el("div", { class: "insp-track sa-track" + (bar ? "" : " na"), "aria-hidden": "true" },
-        [el("i", { style: "width:" + (bar ? Math.max(0, Math.min(100, o.pct)) : 0) + "%" })])
+    return el("div", { class: "k-sa-tile", "data-ui": "study.analytics-tile", "data-state": empty ? "empty" : null, title: o.sub }, [
+      el("span", { class: "k-sa-k", "data-ui": "part.label", text: o.k }),
+      el("strong", { class: "k-sa-v", "data-ui": "part.value", text: empty ? "—" : o.v }),
+      el("span", { class: "sr-only", "data-ui": "part.caption", text: o.sub }),
+      el("span", { class: "k-bar", "data-ui": "study.analytics-track", "aria-hidden": "true",
+        "data-state": bar ? null : "na", style: bar ? "--p: " + Math.max(0, Math.min(100, o.pct)) + "%" + (o.c ? "; --bar-c: " + o.c : "") : null }, [el("i")])
     ]);
   }
 
@@ -1459,64 +1457,56 @@
     var deep = KOS.content.coverage(sid, LEAVES[sid]);
     var startedPct = pctOf(s.touched, s.total);
     var reviewedPct = pctOf(cards.reviewed, cards.total);
-
-    return el("section", { class: "subj-analytics", "aria-label": "Subject analytics" }, [
-      el("div", { class: "sa-h" }, [
-        el("b", { text: "Subject analytics" }),
-        el("span", { class: "sub", text: "this subject only" })
+    var help = el("details", { class: "k-sa-help", "data-ui": "study.analytics-foot" }, [
+      el("summary", { class: "k-link", text: "What do these mean?" }),
+      el("div", { class: "k-sa-help-body" }, [
+        el("p", { class: "k-sa-help-fact", "data-ui": "study.analytics-foot-fact", text: "Deep revision content: " +
+          (deep >= s.total ? "all " + s.total + " topics" : ratioText(deep, s.total) + " topics") }),
+        el("p", { text: "Mastery averages the four progress checks over every topic in the subject. " +
+          "Completed counts only the topics you have marked completed, so it moves in whole " +
+          "topics while mastery moves in quarters." })
+      ])
+    ]);
+    return el("section", { class: "k-card k-sa", "data-ui": "study.analytics", "aria-label": "Subject analytics" }, [
+      el("div", { class: "k-card-head" }, [
+        el("span", { class: "k-card-title", text: "Subject analytics" }),
+        el("span", { class: "k-card-meta", text: "this subject only" }),
+        help
       ]),
-      el("div", { class: "sa-grid" }, [
-        statTile({ k: "Mastery", v: pctText(s.mastery), pct: s.mastery, tone: tone(s.mastery),
+      el("div", { class: "k-sa-grid", "data-ui": "study.analytics-grid" }, [
+        statTile({ k: "Mastery", v: pctText(s.mastery), pct: s.mastery, c: "var(--subj-c)",
           sub: "progress checks across " + s.total + " topics" }),
-        statTile({ k: "Topics secure", v: ratioText(s.done, s.total), pct: s.pct, tone: tone(s.pct),
+        statTile({ k: "Completed", v: ratioText(s.done, s.total), pct: s.pct, c: "var(--green)",
           sub: pctText(s.pct) + " marked completed" }),
-        statTile({ k: "Topics started", v: ratioText(s.touched, s.total), pct: startedPct,
+        statTile({ k: "Started", v: ratioText(s.touched, s.total), pct: startedPct, c: "var(--amber)",
           sub: s.paused ? pctText(startedPct) + " opened · " + s.paused + " paused"
                         : pctText(startedPct) + " opened at least once" }),
-        statTile({ k: "Cards due", v: String(cards.due), empty: !cards.total,
-          flag: cards.due ? "due" : null,
+        statTile({ k: "Cards due", v: KOS.ui.num(cards.due), empty: !cards.total,
           sub: !cards.total ? "no flashcards in this subject yet"
              : cards.due ? "ready to review now" : "nothing due today" }),
-        statTile({ k: "Cards reviewed", v: ratioText(cards.reviewed, cards.total),
-          empty: !cards.total, pct: cards.total ? reviewedPct : null, tone: tone(reviewedPct),
+        statTile({ k: "Reviewed", v: ratioText(cards.reviewed, cards.total),
+          empty: !cards.total, pct: cards.total ? reviewedPct : null, c: "var(--subj-c)",
           sub: cards.total ? pctText(reviewedPct) + " of the deck is in the schedule"
                            : "study a topic's cards to begin" }),
         statTile({ k: "Quiz best", v: quiz.best == null ? "" : pctText(quiz.best),
-          empty: quiz.best == null, pct: quiz.best, tone: quiz.best == null ? null : tone(quiz.best),
+          empty: quiz.best == null, pct: quiz.best, c: "var(--subj-c)",
           sub: quiz.best == null ? "no quiz attempts yet"
              : quiz.attempts + (quiz.attempts === 1 ? " attempt" : " attempts") + " across " +
                quiz.topics + (quiz.topics === 1 ? " topic" : " topics") }),
-        statTile({ k: "Exam questions", v: String(exams), empty: !exams,
+        statTile({ k: "Exam Qs", v: String(exams), empty: !exams,
           sub: exams ? "self-marked and logged" : "none self-marked yet" }),
-        statTile({ k: "Study streak", v: run + (run === 1 ? " day" : " days"), empty: !run,
+        statTile({ k: "Streak", v: run + (run === 1 ? " day" : " days"), empty: !run,
           sub: run ? "consecutive days on this subject" : "study today to start one" })
-      ]),
-      /* The two ratios that look alike still need explaining — but a dense
-         paragraph of body text under a stat grid is read as content, not as
-         a footnote (audit SUBJ-6). The line that carries information every
-         time (deep-content coverage) stays visible; the definition, which
-         you need once and then never again, is behind a disclosure. */
-      el("details", { class: "sa-foot" }, [
-        el("summary", {}, [
-          el("span", { class: "sa-foot-fact", text: "Deep revision content: " +
-            (deep >= s.total ? "all " + s.total + " topics" : ratioText(deep, s.total) + " topics") }),
-          el("span", { class: "sa-foot-more", text: "What do these mean?" })
-        ]),
-        el("p", { text:
-          "Mastery averages the four progress checks over every topic in the subject. " +
-          "Secure counts only the topics you have marked completed, so it moves in whole " +
-          "topics while mastery moves in quarters." })
       ])
     ]);
   }
 
-  /* the full-width action card under the stat grid — one card, one action,
-     and a standardised empty state (a subject you have never opened still
-     gets a card, pointed at the first unfinished topic) */
+  /* where to go next — one card, one action, and an honest kicker for a
+     subject you have never opened (pointed at the first unfinished topic) */
   function continueCard(sid) {
     var last = store.state.ui.lastRef[sid];
     var leaf = last && BYREF[sid][last];
-    var kicker = "Continue where you left off";
+    var kicker = "Continue";
     if (!leaf) {
       leaf = LEAVES[sid].filter(function (l) {
         var p = store.peekProgress(sid, l.ref);
@@ -1526,21 +1516,75 @@
     }
     if (!leaf) return null;
     var pct = leafPercent(sid, leaf.ref);
-    return el("button", {
-      class: "continue continue-action",
-      onclick: function () { KOS.show("ref", { subject: sid, ref: leaf.ref }); }
-    }, [
-      el("span", { class: "ca-txt" }, [
-        el("span", { class: "d", text: kicker }),
-        el("b", { text: leaf.ref + " " + leaf.title }),
-        el("span", { class: "ca-meta", text: leaf.section.title }),
-        el("span", { class: "ca-foot" }, [
-          el("span", { class: "insp-track ca-track" }, [el("i", { style: "width:" + pct + "%" })]),
-          el("span", { class: "ca-pct", text: pctText(pct) + " mastery" })
-        ])
+    return el("button", { type: "button", class: "k-subj-next", "data-ui": "study.continue",
+      onclick: function () { KOS.show("ref", { subject: sid, ref: leaf.ref }); } }, [
+      el("span", { class: "k-subj-next-txt" }, [
+        el("span", { class: "k-kicker", "data-ui": "part.detail", text: kicker }),
+        el("span", { class: "k-subj-next-t" }, [el("span", { class: "k-mono", text: leaf.ref }), leaf.title]),
+        el("span", { class: "k-bar", role: "img", "aria-label": pctText(pct) + " mastery", style: "--p: " + pct + "%; --bar-c: var(--subj-c)" }, [el("i")])
       ]),
-      el("span", { class: "ca-go", "aria-hidden": "true", text: "→" })
+      el("span", { class: "k-subj-next-go", "data-state": "lit", "aria-hidden": "true", text: "→" })
     ]);
+  }
+  function weakestCard(sid) {
+    var w = (KOS.rag.worst(sid, 1) || [])[0];
+    if (!w) {
+      return el("div", { class: "k-subj-next", "data-ui": "study.weakest" }, [
+        el("span", { class: "k-subj-next-txt" }, [
+          el("span", { class: "k-kicker", text: "Weakest" }),
+          el("span", { class: "k-subj-next-t k-muted", text: "Nothing flagged" }),
+          el("span", { class: "k-subj-next-why", text: "Rate a topic or practise it and the weakest shows here." })
+        ])
+      ]);
+    }
+    return el("button", { type: "button", class: "k-subj-next", "data-ui": "study.weakest rag.item",
+      onclick: function () { KOS.show("ref", { subject: sid, ref: w.ref }); } }, [
+      el("span", { class: "k-subj-next-txt" }, [
+        el("span", { class: "k-kicker", text: "Weakest" }),
+        el("span", { class: "k-subj-next-t" }, [el("span", { class: "k-mono", "data-band": w.e.band, text: w.ref }), w.title]),
+        el("span", { class: "k-subj-next-why", text: KOS.rag.why(w) })
+      ]),
+      el("span", { class: "k-subj-next-go", "aria-hidden": "true", text: "→" })
+    ]);
+  }
+
+  /* the subject's dates: overdue work first, then the nearest countdowns —
+     all read from their one canonical store (invariant 44) */
+  function deadlinesCard(sid, today) {
+    var overdue = (KOS.assignments && KOS.assignments.urgent ? KOS.assignments.urgent() : []).filter(function (a) {
+      return a.subject === sid && KOS.assignments.isOverdue(a);
+    });
+    var counts = KOS.calendar.countdowns ? KOS.calendar.countdowns(sid, 4) : [];
+    var card = el("section", { class: "k-card", "data-ui": "cal.countdowns", "aria-label": "Deadlines" }, [
+      el("div", { class: "k-card-head" }, [
+        el("span", { class: "k-card-title", text: "Deadlines" }),
+        overdue.length ? el("span", { class: "k-card-meta", "data-state": "late", text: overdue.length + " overdue" }) : null,
+        el("button", { type: "button", class: "k-link", text: "Assignments →", onclick: function () { KOS.show("assignments"); } })
+      ].filter(Boolean))
+    ]);
+    var redraw = function () { KOS.rerender(); };
+    var rows = counts.slice(0, Math.max(2, 4 - overdue.length)).map(function (c) {
+      return { dot: String(c.days), state: c.days === 0 ? "now" : null, title: c.title,
+        sub: c.meta.replace(/ · (compsci|maths|it)\b/, "").replace(/ · this week$/, "") + (c.days === 0 ? " · today" : ""),
+        go: function () { KOS.calendar.openCountdown(c, redraw); } };
+    }).concat(overdue.slice(0, 2).map(function (a) {
+      return { dot: "!", state: "late", title: a.title, sub: "Assignment · overdue",
+        go: function () { if (KOS.assignmentDetail) KOS.assignmentDetail(a.id, redraw); } };
+    }));
+    if (!rows.length) {
+      card.appendChild(KOS.ui.emptyState({ compact: true, body: "No exams, deadlines or assignments dated for this subject." }));
+      return card;
+    }
+    rows.forEach(function (r) {
+      card.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "cal.countdown-item", onclick: r.go }, [
+        el("span", { class: "k-days-dot", "data-state": r.state, text: r.dot }),
+        el("span", { class: "k-day-txt" }, [
+          el("span", { class: "k-day-title", text: r.title }),
+          el("span", { class: "k-day-sub", text: r.sub })
+        ])
+      ]));
+    });
+    return card;
   }
 
   /* ---------- FR-2.8: per-subject resource links ---------- */
@@ -1548,40 +1592,59 @@
     holder.innerHTML = "";
     var R = store.state.resources;
     var items = R.items.filter(function (r) { return r.subject === sid; });
-    var wrap = el("div", { class: "res-table" });
+    holder.appendChild(el("div", { class: "k-card-head" }, [
+      el("span", { class: "k-card-title", text: "Resources" }),
+      el("span", { class: "k-card-meta", text: "subject-wide" }),
+      el("button", { type: "button", class: "k-link", "data-tone": "crimson", "data-ui": "study.resource-add", text: "+ Add",
+        onclick: function () { addResource(sid, function () { renderResources(holder, sid); }); } })
+    ]));
+    if (!items.length) {
+      holder.appendChild(KOS.ui.emptyState({ compact: true, body: "No resources saved yet — textbook PDFs, PMT pages, reference sheets, video playlists." }));
+      return;
+    }
     items.forEach(function (r) {
-      wrap.appendChild(el("div", { class: "res-row" }, [
-        el("a", { class: "res-name", href: r.url, target: "_blank", rel: "noopener", text: r.name, title: r.url }),
-        r.ref ? el("button", { class: "res-ref", text: r.ref, title: "Open the topic", onclick: function () {
-          KOS.show("ref", { subject: sid, ref: r.ref }); } }) : el("span", { class: "res-ref dim", text: "subject-wide" }),
-        el("span", { class: "res-url", text: r.url }),
-        el("button", { class: "mini-btn danger", text: "✕", "aria-label": "Delete resource", onclick: function () {
+      var host = "";
+      try { host = new URL(r.url).hostname.replace(/^www\./, ""); } catch (e) { host = r.url; }
+      holder.appendChild(el("div", { class: "k-res-row", "data-ui": "study.resource-row" }, [
+        el("a", { class: "k-res-name", href: r.url, target: "_blank", rel: "noopener", text: r.name, title: r.url }),
+        r.ref ? el("button", { type: "button", class: "k-chip", title: "Open the topic", text: r.ref,
+          onclick: function () { KOS.show("ref", { subject: sid, ref: r.ref }); } }) : null,
+        el("span", { class: "k-res-host", text: host + " ↗" }),
+        el("button", { type: "button", class: "k-res-del", "data-intent": "danger", "aria-label": "Delete resource " + r.name, text: "✕", onclick: function () {
           KOS.ui.confirm({ title: "Remove resource?", body: "“" + r.name + "” will be removed from the table.", danger: true, confirm: "Remove" }, function () {
             R.items.splice(R.items.indexOf(r), 1);
             store.save();
             renderResources(holder, sid);
           });
         } })
-      ]));
+      ].filter(Boolean)));
     });
-    if (!items.length) wrap.appendChild(el("p", { class: "sub", style: "margin:4px 0 10px", text: "No resources saved for this subject yet — textbook PDFs, PMT pages, reference sheets, video playlists…" }));
-
-    var name = el("input", { type: "text", class: "todo-in", placeholder: "Resource name", "aria-label": "Resource name" });
-    var url = el("input", { type: "text", class: "todo-in", placeholder: "https://… or file path", "aria-label": "Resource link or file path" });
-    var refIn = el("input", { type: "text", class: "todo-in res-refin", placeholder: "topic ref (optional)", "aria-label": "Topic reference (optional)" });
-    wrap.appendChild(el("div", { class: "res-add" }, [
-      name, url, refIn,
-      el("button", { class: "btn", text: "+ Add", onclick: function () {
-        if (!name.value.trim() || !url.value.trim()) { KOS.ui.toast("A name and a link are both needed.", true); return; }
-        var ref = refIn.value.trim();
-        if (ref && !BYREF[sid][ref]) { KOS.ui.toast("“" + ref + "” isn't a spec point in this subject — leave it blank for subject-wide.", true); return; }
-        R.items.push({ id: R.nextId++, subject: sid, ref: ref || null,
-          name: name.value.trim(), url: url.value.trim() });
-        store.save();
-        renderResources(holder, sid);
-      } })
+  }
+  function addResource(sid, done) {
+    var R = store.state.resources;
+    var name = el("input", { type: "text", class: "k-input", "aria-label": "Resource name", placeholder: "Resource name" });
+    var url = el("input", { type: "text", class: "k-input", "aria-label": "Resource link or file path", placeholder: "https://… or file path" });
+    var refIn = el("input", { type: "text", class: "k-input", "aria-label": "Topic reference (optional)", placeholder: "Topic ref (optional)" });
+    var overlay = el("div", { class: "k-dialog-overlay" });
+    function close() { overlay.remove(); }
+    overlay.appendChild(el("div", { class: "k-dialog", "data-ui": "ui.dialog" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Add a resource" })]),
+      el("div", { class: "k-dialog-body k-stack" }, [name, url, refIn]),
+      el("div", { class: "k-dialog-foot" }, [
+        el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: close }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Add", onclick: function () {
+          if (!name.value.trim() || !url.value.trim()) { KOS.ui.toast("A name and a link are both needed.", true); return; }
+          var ref = refIn.value.trim();
+          if (ref && !BYREF[sid][ref]) { KOS.ui.toast("“" + ref + "” isn't a spec point in this subject — leave it blank for subject-wide.", true); return; }
+          R.items.push({ id: R.nextId++, subject: sid, ref: ref || null, name: name.value.trim(), url: url.value.trim() });
+          store.save();
+          close();
+          done();
+        } })
+      ])
     ]));
-    holder.appendChild(wrap);
+    KOS.ui.openDialog(overlay, { label: "Add a resource" });
+    name.focus();
   }
 
   KOS.views.ref = function (main, arg) {

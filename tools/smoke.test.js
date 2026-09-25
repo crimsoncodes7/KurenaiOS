@@ -71,15 +71,18 @@ console.log("== hub views ==");
 step("home view", () => { KOS.show("home"); if (!$("[data-ui~='home.hero']")) throw new Error("no hero"); });
 for (const sid of ["compsci", "maths", "it"]) {
   step("subject dashboard: " + sid, () => {
+    /* Graphite (frame 8a): the desk is a hero and the course units; the
+       spine belongs to the topic pages the units open */
     KOS.show("subject", sid);
-    if (!$("[data-ui~='ui.page-head']")) throw new Error("no dash");
-    if ($$("#tree [data-ui~='part.section']").length < 5) throw new Error("tree sections missing: " + $$("#tree [data-ui~='part.section']").length);
+    if (!$("[data-ui~='study.subject-hero']")) throw new Error("no desk hero");
+    if ($$("[data-ui~='study.units'] [data-ui~='study.unit']").length < 5) throw new Error("course units missing: " + $$("[data-ui~='study.unit']").length);
   });
 }
 step("open a CS section & click a leaf", () => {
   KOS.show("subject", "compsci");
-  const sec = $$("#tree [data-ui~='ui.section-head']").find(h => h.textContent.includes("4.2"));
-  click(sec);
+  const unit = $$("[data-ui~='study.unit']").find(u => u.textContent.indexOf("4.2") === 0);
+  click(unit);
+  if (KOS.store.state.ui.view !== "ref") throw new Error("the 4.2 unit did not open a topic page");
   const leaf = $$("#tree [data-ui~='study.spine-leaf']").find(l => l.textContent.includes("4.2.3.1"));
   if (!leaf) throw new Error("stack leaf not in tree");
   click(leaf);

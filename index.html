@@ -115,7 +115,12 @@
     <button id="tree-scrim" type="button" tabindex="-1" aria-label="Close the spec spine"></button>
 
     <div id="stage">
-      <nav id="subnav" aria-label="Section"></nav>
+      <!-- the sub-navigation row: the section's pills, then the page's own
+           actions (KOS.shell.actions), right-aligned on the same line -->
+      <div id="stage-head" class="k-stage-head">
+        <nav id="subnav" aria-label="Section"></nav>
+        <div id="page-actions" class="k-page-actions" data-ui="shell.page-actions" hidden></div>
+      </div>
       <main id="main" tabindex="-1"></main>
     </div>
   </div>

@@ -454,9 +454,13 @@ console.log("== resources (FR-2.8) + attachments (FR-2.5) ==");
 step("resource table CRUD on the subject dashboard", () => {
   KOS.show("subject", "maths");
   if (!$("[data-ui~='study.resources']")) throw new Error("resource table missing");
-  const ins = $$("[data-ui~='study.resource-add'] [data-ui~='ui.quick-add']");
-  ins[0].value = "PMT pure notes"; ins[1].value = "https://example.org/pmt";
-  click($$("[data-ui~='study.resource-add'] button")[0]);
+  /* Graphite (frame 8a): "+ Add" opens a small form in a dialog */
+  click($("[data-ui~='study.resource-add']"));
+  const dlg = $("[data-ui~='ui.dialog']");
+  if (!dlg) throw new Error("the add dialog did not open");
+  dlg.querySelector("[aria-label='Resource name']").value = "PMT pure notes";
+  dlg.querySelector("[aria-label='Resource link or file path']").value = "https://example.org/pmt";
+  click(dlg.querySelector("button[data-intent~='primary']"));
   if (!$$("[data-ui~='study.resource-row']").length) throw new Error("row not added");
   if (KOS.store.state.resources.items.length !== 1) throw new Error("not stored");
   click($("[data-ui~='study.resource-row'] button[data-intent~='danger']"));                        // confirm stubbed true

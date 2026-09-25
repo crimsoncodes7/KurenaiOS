@@ -107,13 +107,18 @@ color-scheme: dark;
 --fs-13: 13px;
 --fs-13-5: 13.5px;
 --fs-14: 14px;
+--fs-14-5: 14.5px;
 --fs-15: 15px;
+--fs-15-5: 15.5px;
 --fs-16: 16px;
+--fs-16-5: 16.5px;
 --fs-17: 17px;
 --fs-20: 20px;
 --fs-22: 22px;
 --fs-26: 26px;
+--fs-27: 27px;
 --fs-32: 32px;
+--fs-38: 38px;
 --fs-40: 40px;
 --fs-52: 52px;
 --lh-tight: 1.1;
@@ -152,6 +157,7 @@ color-scheme: dark;
 --sp-64: 64px;
 
 /* ---------- shape ---------- */
+--r-2: 2px;
 --r-6: 6px;
 --r-8: 8px;
 --r-9: 9px;
@@ -160,14 +166,17 @@ color-scheme: dark;
 --r-14: 14px;
 --r-16: 16px;
 --r-18: 18px;
+--r-20: 20px;
 --r-22: 22px;
 --r-24: 24px;
 --r-26: 26px;
 --r-30: 30px;
 --r-pill: 999px;
 --hairline: 1px;
+--bar-3: 3px;
 --bar-4: 4px;
 --bar-6: 6px;
+--bar-7: 7px;
 --rail-mark: 3px;
 --focus-width: 2px;
 --focus-offset: 2px;
@@ -222,6 +231,16 @@ color-scheme: dark;
 --kv-k-w: 62px;
 --desk-k-w: 58px;
 --collection-hue: oklch(0.7 0.14 18);
+
+/* ---------- Study (frames 8a–9e) ---------- */
+--subj-side-w: 290px;
+--subj-ring: 132px;
+--subj-ring-hole: 114px;
+--subj-go: 34px;
+--unit-w: 196px;
+--track-name: -0.025em;
+--track-figure: -0.015em;
+--track-label: 0.12em;
 
 /* ---------- elevation (invariant 79) ----------
    Surfaces are flat; only floating layers (menus, dialogs, the share card)

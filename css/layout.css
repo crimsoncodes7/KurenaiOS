@@ -249,7 +249,10 @@ gap: var(--sp-20);
 padding: var(--sp-20) var(--sp-24) var(--sp-28);
 overflow-y: auto;
 }
-#subnav { align-self: flex-start; max-inline-size: 100%; }
+.k-stage-head { display: flex; align-items: center; gap: var(--sp-10); flex-wrap: wrap; min-inline-size: 0; }
+.k-stage-head:has(> #subnav[hidden]):has(> #page-actions[hidden]) { display: none; }
+#subnav { max-inline-size: 100%; }
+.k-page-actions { display: flex; align-items: center; gap: var(--sp-10); margin-inline-start: auto; }
 #main { display: flex; flex-direction: column; gap: var(--sp-20); min-inline-size: 0; }
 /* a view that lays out its own full-bleed columns (the topic page, the
    assistant) asks for the stage without padding */

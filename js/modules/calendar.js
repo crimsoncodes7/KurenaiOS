@@ -1156,6 +1156,14 @@
   /* ================================================================
      the countdown widget (home + subject dash)
      ================================================================ */
+  /* what pressing a countdown row does, wherever the row is drawn: an
+     assignment opens its dialog, a plan milestone its week, an event its
+     detail — the one routing for the widget, Home and the subject desk */
+  function openCountdown(row, done) {
+    if (row.kind === "assignment") openAssignment(row.assignment, done || null);
+    else if (row.kind === "pacing") KOS.show("pacing", { wb: row.entry.wb });
+    else eventDetail(row.ev, row.date, done || null);
+  }
   function countdownWidget(sid) {
     var list = countdowns(sid, 4);
     var wrap = el("div", { class: "dl-widget" });
@@ -1171,11 +1179,7 @@
       var tone = row.days <= 3 ? "hot" : row.days <= 7 ? "warm" : "cool";
       wrap.appendChild(el("button", {
         class: "dl-item " + tone, type: "button", title: row.title + " — " + row.meta,
-        onclick: function () {
-          if (row.kind === "assignment") openAssignment(row.assignment, null);
-          else if (row.kind === "pacing") KOS.show("pacing", { wb: row.entry.wb });
-          else eventDetail(row.ev, row.date, null);
-        }
+        onclick: function () { openCountdown(row); }
       }, [
         el("span", { class: "dl-days" }, [
           el("b", { text: String(row.days) }),
@@ -1539,6 +1543,7 @@
     seedSamples: seedSamples,
     checkReminders: checkReminders,
     countdownWidget: countdownWidget,
+    openCountdown: openCountdown,
     eventModal: eventModal,
     eventDetail: eventDetail,
     daySheet: daySheet,
