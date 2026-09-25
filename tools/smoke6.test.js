@@ -337,7 +337,8 @@ step("VN editor opens with routes, CG counter, quote log and warnings", async ()
   if (!modal.querySelector("[data-ui~='vn.route-row']")) throw new Error("routes section");
   if (!/CG gallery/.test(modal.textContent)) throw new Error("CG section");
   if (!modal.querySelector("[data-ui~='vn.quote']")) throw new Error("quote log");
-  if (![...modal.querySelectorAll("button")].some(b => /flashcard/.test(b.textContent))) throw new Error("send-to-flashcards action");
+  /* Graphite (frame 11e): the action reads "+ Add to Personal deck" */
+  if (![...modal.querySelectorAll("button")].some(b => /flashcard|Personal deck/.test(b.textContent))) throw new Error("send-to-flashcards action");
   modal.querySelector("button[aria-label='Close']").click();
 });
 step("Matrix home: VN module card is live (Games live too since 3e)", async () => {

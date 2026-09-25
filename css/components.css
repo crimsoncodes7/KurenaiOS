@@ -119,6 +119,9 @@ transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--
 .k-btn--quiet { box-shadow: none; color: var(--muted); }
 .k-btn--quiet:hover { color: var(--text); background: var(--s2); }
 .k-btn--sm { padding: var(--sp-6) var(--sp-14); font-size: var(--fs-12-5); }
+/* a compact disclosure (invariant 72): mobile-shell.js adds the trigger,
+   and only the compact tier shows it */
+.k-btn.k-disclosure { display: none; }
 .k-btn:disabled { opacity: 0.5; }
 .k-btn-caret { font-size: var(--fs-11); color: var(--muted); }
 .k-iconbtn { position: relative; inline-size: var(--icon-btn); block-size: var(--icon-btn); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: var(--s1); color: var(--text-2); }
@@ -291,6 +294,10 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 .k-box:checked::after { opacity: 1; }
 .k-check { display: inline-flex; align-items: center; gap: var(--sp-10); font-size: var(--fs-13-5); cursor: pointer; }
 .k-check input { inline-size: var(--sp-18); block-size: var(--sp-18); }
+
+@media (max-width: 860px) {
+:root[data-shell="ready"] .k-btn.k-disclosure { display: inline-flex; align-self: flex-start; }
+}
 
 /* ---------- the phone tier ---------- */
 @media (max-width: 700px) {

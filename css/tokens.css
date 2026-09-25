@@ -354,6 +354,49 @@ color-scheme: dark;
 --pace-merge-tone-w: 170px;
 --pace-wash: oklch(0.27 0.05 80 / 0.55);
 
+/* ---------- Collection (frames 11a–11k) ---------- */
+--st-inProgress: var(--anime);
+--st-completed: var(--green);
+--st-planned: var(--muted);
+--st-onHold: var(--amber);
+--st-dropped: var(--red);
+--mrail-w: 190px;
+--mcard-min: 184px;
+--mcard-ratio: 2 / 3.05;
+--mscore-w: 40px;
+--mscore-h: 30px;
+--mfav: 34px;
+--mdot: 7px;
+--vhero-h: 240px;
+--vhero-cover-w: 132px;
+--vhero-cover-h: 192px;
+--vhero-body-w: 600px;
+--vhero-bar-w: 340px;
+--vhero-mark: 130px;
+--fs-30: 30px;
+--mrow-cover-w: 40px;
+--mrow-cover-h: 56px;
+--msearch-w: 240px;
+--scard-cover-w: 72px;
+--scard-cover-h: 104px;
+--season-hero-h: 200px;
+--season-mark: 180px;
+--fs-42: 42px;
+--medit-w: 880px;
+--mcard-scrim: oklch(0.12 0.01 265 / 0.78);
+--mcard-scrim-deep: oklch(0.1 0.01 265 / 0.95);
+--mcard-glass: oklch(0.14 0.01 265 / 0.7);
+--mcard-edge: oklch(1 0 0 / 0.08);
+--mcard-track: oklch(1 0 0 / 0.1);
+--vhero-scrim-0: oklch(0.165 0.008 265);
+--vhero-scrim-1: oklch(0.165 0.008 265 / 0.9);
+--vhero-scrim-2: oklch(0.165 0.008 265 / 0.35);
+--vhero-scrim-3: oklch(0.165 0.008 265 / 0.15);
+--vhero-mark-c: oklch(1 0 0 / 0.06);
+--airing-bg: oklch(0.35 0.07 155 / 0.85);
+--airing-edge: oklch(0.72 0.13 155 / 0.6);
+--airing-ink: oklch(0.9 0.08 155);
+
 /* ---------- elevation (invariant 79) ----------
    Surfaces are flat; only floating layers (menus, dialogs, the share card)
    cast a shadow. Its ink is derived from the theme's own deepest tone. */

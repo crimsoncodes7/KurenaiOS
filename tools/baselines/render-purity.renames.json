@@ -376,6 +376,54 @@
    "retire": true,
    "reachable": true,
    "why": "Graphite step 4e (Pacing, frame 10f): a class row's sub-line now carries its spec refs, and the assignments due in the week moved out of the subject columns into one \"Due this week\" card; each row still opens the same dialog or page."
+  },
+  {
+   "hooks": "vault.hero-menu",
+   "from": "^Spotlight▾$",
+   "to": "Spotlight options",
+   "why": "Graphite step 5a (vault template, frame 11b): the spotlight's configuration menu is the ⋯ beside Open entry, named \"Spotlight options\"."
+  },
+  {
+   "surface": "anime|books|vn|game",
+   "from": "^⚙$",
+   "to": "Manage",
+   "why": "Graphite step 5a (frame 11b): the Lists heading's manage control reads \"Manage\"."
+  },
+  {
+   "surface": "anime|vn|game",
+   "from": "^☰ List$",
+   "to": "List",
+   "why": "Graphite step 5a (frame 11b): the layout toggle is a ▦ / ≡ pair; the list half is named \"List\"."
+  },
+  {
+   "surface": "seasonal",
+   "from": "^◎ Today$",
+   "retire": true,
+   "why": "Graphite step 5a (This season, frame 11j): \"Back to the current season\" is hidden (not just invisible) while the current season is showing, so there is nothing to press."
+  },
+  {
+   "surface": "seasonal",
+   "from": "^← Collection Matrix$",
+   "retire": true,
+   "reachable": true,
+   "why": "Graphite step 5a (frame 11j): the Overview is the first item of the Collection sub-nav directly above, so the page no longer repeats it."
+  },
+  {
+   "navTo": "^#/(vn|game)$",
+   "dropEffects": {
+    "state": "^media\\.(vn|game)$"
+   },
+   "why": "Graphite step 5a (vault template, frame 11b): the VN and Games vaults read their layout/sort prefs without creating them (§0.2.3); the first real change writes them, so opening a vault no longer writes."
+  },
+  {
+   "surface": "vn|game",
+   "rewriteEffects": {
+    "state": [
+     "^media\\.(vn|game)\\.(layout|sort)$",
+     "media.$1"
+    ]
+   },
+   "why": "Graphite step 5a (frame 11b): the VN and Games prefs record is created by the first real layout or sort change, so that change writes the record where it used to write one field of a record the render had already made."
   }
  ]
 }

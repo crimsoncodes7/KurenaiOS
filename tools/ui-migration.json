@@ -29,7 +29,11 @@
     "js/modules/reminders.js",
     "js/modules/todo.js",
     "js/modules/calendar.js",
-    "js/modules/pacing.js"
+    "js/modules/pacing.js",
+    "js/modules/medview.js",
+    "js/modules/anime.js",
+    "js/modules/vn.js",
+    "js/modules/games.js"
   ],
   "views": {
     "home": {},
@@ -44,6 +48,10 @@
     "reminders": {},
     "tasks": {},
     "calendar": {},
-    "pacing": {}
+    "pacing": {},
+    "anime": {},
+    "seasonal": {},
+    "vn": {},
+    "game": {}
   }
 }

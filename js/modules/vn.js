@@ -38,11 +38,18 @@
   var STATUSES = ["inProgress", "planned", "onHold", "completed", "dropped"];
   var LENGTH_LABEL = { 1: "very short", 2: "short", 3: "medium", 4: "long", 5: "very long" };
 
+  /* read without creating: the prefs attach to the store the first time
+     one actually changes (a render writes nothing, §0.2.3) */
   function prefs() {
-    var m = store.state.media = store.state.media || {};
-    m.vn = m.vn || { layout: "grid", sort: "updated" };
-    return m.vn;
+    var m = store.state.media;
+    return (m && m.vn) || { layout: "grid", sort: "updated" };
   }
+  function persist(p) {
+    var m = store.state.media = store.state.media || {};
+    m.vn = p;
+    store.save();
+  }
+
 
   /* ================= domain helpers (exposed as KOS.vn) ================= */
   function routeProgress(e) {
@@ -136,8 +143,7 @@
   var mod = function () { return KOS.media.module("vn"); };
   function cwChip(e) {
     return (e.contentWarnings && e.contentWarnings.length)
-      ? el("span", { class: "med-chip vn-cw", title: "Content warnings: " + e.contentWarnings.join(", "),
-          text: "⚠ " + e.contentWarnings.length })
+      ? KOS.medview.chip("⚠ " + e.contentWarnings.length, "crimson", { "data-ui": "vn.cw", title: "Content warnings: " + e.contentWarnings.join(", ") })
       : null;
   }
   function cover(e) { return KOS.medview.cover(e, mod().kanji); }
@@ -162,16 +168,16 @@
      no A-level subject and is not forced into one. Pre-filled but fully
      editable before saving, so the user shapes the recall prompt. */
   function quoteToCardForm(e, quote, onDone) {
-    var q = el("textarea", { class: "note-area fc-form-q", rows: 2 });
+    var q = el("textarea", { class: "k-input", "data-ui": "ui.note-area", rows: 2, "aria-label": "Front of the card" });
     q.value = "Complete the quote — " + e.title + (quote.context ? " (" + quote.context + ")" : "") +
       ": “" + quote.text.slice(0, Math.min(30, Math.ceil(quote.text.length / 3))) + "…”";
-    var a = el("textarea", { class: "note-area fc-form-a", rows: 2 });
+    var a = el("textarea", { class: "k-input", "data-ui": "ui.note-area", rows: 2, "aria-label": "Back of the card" });
     a.value = quote.text;
-    return el("div", { class: "fc-form vn-quote-form" }, [
-      el("div", { class: "fc-form-h", text: "Send to flashcards — lands in the Personal deck, not a subject" }),
+    return el("div", { class: "k-vn-qform", "data-ui": "vn.quote-form" }, [
+      el("p", { class: "k-field-hint", text: "Send to flashcards — lands in the Personal deck, not a subject" }),
       q, a,
-      el("div", { class: "lab-controls" }, [
-        el("button", { class: "btn primary", text: "+ Add to Personal deck", onclick: function (ev) {
+      el("div", { class: "k-cluster" }, [
+        el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-intent": "primary", text: "+ Add to Personal deck", onclick: function (ev) {
           ev.preventDefault();
           if (!q.value.trim() || !a.value.trim()) { KOS.ui.toast("Both sides are needed.", true); return; }
           KOS.srs.addCustom(KOS.srs.PERSONAL_SID, "vn", q.value.trim(), a.value.trim(),
@@ -179,7 +185,7 @@
           KOS.ui.toast("Card added to the Personal deck — study it from Due Today → Personal deck.");
           onDone();
         } }),
-        el("button", { class: "btn", text: "Cancel", onclick: function (ev) { ev.preventDefault(); onDone(); } })
+        el("button", { type: "button", class: "k-btn k-btn--sm", text: "Cancel", onclick: function (ev) { ev.preventDefault(); onDone(); } })
       ])
     ]);
   }
@@ -199,67 +205,70 @@
     var hoursAtOpen = e.playtimeHours || 0;
 
     /* --- identity + list state --- */
-    var title = el("input", { type: "text", class: "todo-in", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Title" });
-    var developer = el("input", { type: "text", class: "todo-in", value: e.developer, placeholder: "Developer (filled by sync when linked)" });
-    var vndbId = el("input", { type: "text", class: "todo-in med-num vn-id", value: e.externalIds.vndbId || "",
+    var title = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Title" });
+    var developer = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", value: e.developer, placeholder: "Developer (filled by sync when linked)" });
+    var vndbId = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add vault.num vn.id", value: e.externalIds.vndbId || "",
       placeholder: "v17", title: "The id from the VNDB page URL — linking it lets enrichment fill cover/developer/tags" });
-    var status = el("select", { class: "status-sel" }, STATUSES.map(function (s) {
+    var status = el("select", { class: "k-input", "data-ui": "ui.status-select" }, STATUSES.map(function (s) {
       return el("option", { value: s, text: KOS.media.STATUS_LABEL[s] });
     }));
     status.value = e.status;
-    var score = el("input", { type: "number", class: "todo-in med-num", min: "0", max: "10", step: "0.5", value: String(e.score || 0) });
-    var own = el("select", { class: "status-sel" }, [["digital", "Digital"], ["physical", "Physical"], ["steam", "Steam"], ["unset", "—"]].map(function (o) {
+    var score = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", max: "10", step: "0.5", value: String(e.score || 0) });
+    var own = el("select", { class: "k-input", "data-ui": "ui.status-select" }, [["digital", "Digital"], ["physical", "Physical"], ["steam", "Steam"], ["unset", "—"]].map(function (o) {
       return el("option", { value: o[0], text: o[1] });
     }));
     own.value = e.ownership;
-    var started = el("input", { type: "date", class: "todo-in", value: e.dates.started || "" });
-    var finished = el("input", { type: "date", class: "todo-in", value: e.dates.finished || "" });
-    var fav = el("input", { type: "checkbox" });
+    var started = el("input", { type: "date", class: "k-input", "data-ui": "ui.quick-add", value: e.dates.started || "" });
+    var finished = el("input", { type: "date", class: "k-input", "data-ui": "ui.quick-add", value: e.dates.finished || "" });
+    var fav = el("input", { type: "checkbox", class: "k-box" });
     fav.checked = e.favourite;
 
     /* --- taxonomy --- */
-    var genres = el("input", { type: "text", class: "todo-in", value: e.genres.join(", "), placeholder: "Mystery, Drama… (filled from VNDB content tags on sync)" });
-    var tags = el("input", { type: "text", class: "todo-in", value: e.tags.join(", "), placeholder: "replay, untranslated…" });
-    var warns = el("input", { type: "text", class: "todo-in", value: e.contentWarnings.join(", "), placeholder: "your own warnings — never auto-filled from VNDB tags" });
-    var coverU = el("input", { type: "url", class: "todo-in", value: e.coverUrl || "", placeholder: "https://… (filled by sync/enrichment)" });
+    var genres = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", value: e.genres.join(", "), placeholder: "Mystery, Drama… (filled from VNDB content tags on sync)" });
+    var tags = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", value: e.tags.join(", "), placeholder: "replay, untranslated…" });
+    var warns = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", value: e.contentWarnings.join(", "), placeholder: "your own warnings — never auto-filled from VNDB tags" });
+    var coverU = el("input", { type: "url", class: "k-input", "data-ui": "ui.quick-add", value: e.coverUrl || "", placeholder: "https://… (filled by sync/enrichment)" });
     var coverPosition = mv.coverPositionControl(e, coverU);
-    var notes = el("textarea", { class: "note-area", rows: 3, placeholder: "Notes…" });
+    var notes = el("textarea", { class: "k-input", "data-ui": "ui.note-area", rows: 3, placeholder: "Notes…" });
     notes.value = e.notes || "";
 
     /* --- routes (manual — VNDB gives no structured route data) --- */
-    var routesWrap = el("div", { class: "vn-routes" });
+    var routesWrap = el("div", { class: "k-vn-list k-medit-wide", "data-ui": "vn.routes" });
     function renderRoutes() {
       routesWrap.innerHTML = "";
       var rp = routeProgress(e);
-      routesWrap.appendChild(el("div", { class: "vn-sec-h" }, [
+      routesWrap.appendChild(el("div", { class: "k-vn-head" }, [
         el("b", { text: "Routes" }),
-        el("span", { class: "sub", text: rp.total
+        el("span", { class: "k-mono k-muted", text: rp.total ? "Cleared: " + rp.cleared + " / " + rp.total : "" }),
+        el("p", { class: "k-field-hint", "data-ui": "part.sub", text: rp.total
           ? rp.cleared + " of " + rp.total + " cleared — your own list; VNDB doesn't know a VN's routes"
           : "none yet — add the routes as you meet them; a kinetic novel can leave this empty" })
       ]));
       e.routes.forEach(function (r) {
-        var done = el("input", { type: "checkbox", "aria-label": "Cleared: " + r.name });
+        var done = el("input", { type: "checkbox", class: "k-vn-tick", "aria-label": "Cleared: " + r.name });
         done.checked = r.cleared;
         done.addEventListener("change", function () {
           r.cleared = done.checked;
           r.completedAt = done.checked ? (r.completedAt || KOS.srs.todayISO()) : null;
           renderRoutes();
         });
-        var name = el("input", { type: "text", class: "todo-in vn-route-name", value: r.name,
+        var name = el("input", { type: "text", class: "k-vn-name", "data-ui": "ui.quick-add vn.route-name", value: r.name,
           "aria-label": "Route name" });
         name.addEventListener("change", function () { r.name = name.value.trim() || r.name; });
-        routesWrap.appendChild(el("div", { class: "vn-route-row" + (r.cleared ? " cleared" : "") }, [
-          el("label", { class: "vn-route-done" }, [done]),
+        var rowR = el("div", { class: "k-vn-row", "data-ui": "vn.route-row" }, [
+          el("label", { class: "k-vn-tickwrap" }, [done]),
           name,
-          el("span", { class: "sub vn-route-date", text: r.cleared ? (r.completedAt || "") : "" }),
-          el("button", { class: "mini-btn vn-route-del", "aria-label": "Remove route " + r.name, text: "✕", onclick: function (ev) {
+          el("span", { class: "k-mono k-muted k-vn-date", text: r.cleared ? (r.completedAt || "") : "" }),
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Remove route " + r.name, text: "✕", onclick: function (ev) {
             ev.preventDefault();
             e.routes = e.routes.filter(function (x) { return x !== r; });
             renderRoutes();
           } })
-        ]));
+        ]);
+        if (r.cleared) KOS.ui.state(rowR, "cleared", true);
+        routesWrap.appendChild(rowR);
       });
-      var newName = el("input", { type: "text", class: "todo-in vn-route-name", "aria-label": "New route name", placeholder: "Route name — “Kurisu”, “True End”…" });
+      var newName = el("input", { type: "text", class: "k-vn-name", "data-ui": "ui.quick-add vn.route-name", "aria-label": "New route name", placeholder: "Route name — “Kurisu”, “True End”…" });
       function addRoute(ev) {
         ev.preventDefault();
         if (!newName.value.trim()) { KOS.ui.toast("Name the route first.", true); return; }
@@ -267,9 +276,9 @@
         renderRoutes();
       }
       newName.addEventListener("keydown", function (ev) { if (ev.key === "Enter") addRoute(ev); });
-      routesWrap.appendChild(el("div", { class: "vn-route-add" }, [
+      routesWrap.appendChild(el("div", { class: "k-vn-add", "data-ui": "vn.route-add" }, [
         newName,
-        el("button", { class: "btn", text: "+ Add route", onclick: addRoute })
+        el("button", { type: "button", class: "k-btn k-btn--sm", text: "+ Add route", onclick: addRoute })
       ]));
       syncProgressUI();
     }
@@ -279,7 +288,7 @@
        ("automatic") takes whatever the entry carries, routes first. The
        percentage field shows only while it is the thing counting, so a
        routed VN never carries an idle slider. */
-    var modeSel = el("select", { class: "status-sel", "aria-label": "What counts as progress" }, [
+    var modeSel = el("select", { class: "k-input", "data-ui": "ui.status-select", "aria-label": "What counts as progress" }, [
       ["", "Automatic — routes, chapters, hours, then a percentage"],
       ["routes", "Routes cleared"],
       ["chapters", "Chapters / parts completed"],
@@ -287,16 +296,16 @@
       ["percent", "A percentage I set"]
     ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
     modeSel.value = e.progressMode || "";
-    var pctIn = el("input", { type: "number", class: "todo-in med-num", min: "0", max: "100", step: "1",
+    var pctIn = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", max: "100", step: "1",
       value: e.progressPercent != null ? String(e.progressPercent) : "", placeholder: "0–100",
       "aria-label": "How far through, as a percentage" });
     var pctField = field("How far through (%)", pctIn);
-    var hoursIn = el("input", { type: "number", class: "todo-in med-num", min: "0", step: "0.5",
+    var hoursIn = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", step: "0.5",
       value: e.playtimeHours != null ? String(e.playtimeHours) : "", placeholder: "0",
       "aria-label": "Hours played" });
     var hoursField = field("Hours played", hoursIn);
-    var lengthNoteEl = el("p", { class: "sub vn-prog-note vn-len-note med-span-2" });
-    var progressNoteEl = el("p", { class: "sub vn-prog-note med-span-2" });
+    var lengthNoteEl = el("p", { class: "k-field-hint k-medit-wide", "data-ui": "part.sub vn.progress-note vn.length-note vault.span-2" });
+    var progressNoteEl = el("p", { class: "k-vn-counting k-medit-wide", "data-ui": "part.sub vn.progress-note vault.span-2" });
     function readProgressFields() {
       e.progressMode = modeSel.value || null;
       e.progressPercent = pctIn.value === "" ? null : Math.max(0, Math.min(100, parseInt(pctIn.value, 10) || 0));
@@ -323,38 +332,41 @@
        the user names their own chapters/arcs/parts, each with the shared
        status enum and a note. Independent of routes (not nested), never
        auto-filled from VNDB. A kinetic novel counts its progress here. */
-    var chaptersWrap = el("div", { class: "vn-routes vn-chapters" });
+    var chaptersWrap = el("div", { class: "k-vn-list k-medit-wide", "data-ui": "vn.routes vn.chapters" });
     function renderChapters() {
       chaptersWrap.innerHTML = "";
       var cp = chapterProgress(e);
-      chaptersWrap.appendChild(el("div", { class: "vn-sec-h" }, [
+      chaptersWrap.appendChild(el("div", { class: "k-vn-head" }, [
         el("b", { text: "Chapters / parts" }),
-        el("span", { class: "sub", text: cp.total
+        el("span", { class: "k-mono k-muted", text: cp.total ? "Completed: " + cp.done + " / " + cp.total : "" }),
+        el("p", { class: "k-field-hint", "data-ui": "part.sub", text: cp.total
           ? cp.done + " of " + cp.total + " completed — your own division, independent of the routes above"
           : "for VNs with chapters/arcs the route list doesn't capture — a kinetic novel counts progress by these" })
       ]));
       e.chapters.forEach(function (c) {
-        var st = el("select", { class: "status-sel vn-ch-status", "aria-label": "Status: " + c.name }, STATUSES.map(function (s) {
+        var st = el("select", { class: "k-pill-select", "data-ui": "ui.status-select vn.chapter-status", "aria-label": "Status: " + c.name }, STATUSES.map(function (s) {
           return el("option", { value: s, text: KOS.media.STATUS_LABEL[s] });
         }));
         st.value = c.status;
         st.addEventListener("change", function () { c.status = st.value; renderChapters(); });
-        var name = el("input", { type: "text", class: "todo-in vn-route-name", value: c.name,
+        var name = el("input", { type: "text", class: "k-vn-name", "data-ui": "ui.quick-add vn.route-name", value: c.name,
           "aria-label": "Chapter name" });
         name.addEventListener("change", function () { c.name = name.value.trim() || c.name; });
-        var note = el("input", { type: "text", class: "todo-in vn-ch-note", value: c.notes, placeholder: "notes…",
+        var note = el("input", { type: "text", class: "k-vn-name k-vn-note", "data-ui": "ui.quick-add vn.chapter-note", value: c.notes, placeholder: "notes…",
           "aria-label": "Notes on " + c.name });
         note.addEventListener("change", function () { c.notes = note.value; });
-        chaptersWrap.appendChild(el("div", { class: "vn-route-row vn-ch-row" + (c.status === "completed" ? " cleared" : "") }, [
+        var rowC = el("div", { class: "k-vn-row k-vn-row--ch", "data-ui": "vn.route-row vn.ch-row" }, [
           name, st, note,
-          el("button", { class: "mini-btn vn-route-del", "aria-label": "Remove chapter " + c.name, text: "✕", onclick: function (ev) {
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Remove chapter " + c.name, text: "✕", onclick: function (ev) {
             ev.preventDefault();
             e.chapters = e.chapters.filter(function (x) { return x !== c; });
             renderChapters();
           } })
-        ]));
+        ]);
+        if (c.status === "completed") KOS.ui.state(rowC, "cleared", true);
+        chaptersWrap.appendChild(rowC);
       });
-      var newName = el("input", { type: "text", class: "todo-in vn-route-name", "aria-label": "New chapter name", placeholder: "Chapter name — “Chapter 1”, “Answer arc”…" });
+      var newName = el("input", { type: "text", class: "k-vn-name", "data-ui": "ui.quick-add vn.route-name", "aria-label": "New chapter name", placeholder: "Chapter name — “Chapter 1”, “Answer arc”…" });
       function addChapter(ev) {
         ev.preventDefault();
         if (!newName.value.trim()) { KOS.ui.toast("Name the chapter first.", true); return; }
@@ -362,40 +374,40 @@
         renderChapters();
       }
       newName.addEventListener("keydown", function (ev) { if (ev.key === "Enter") addChapter(ev); });
-      chaptersWrap.appendChild(el("div", { class: "vn-route-add" }, [
+      chaptersWrap.appendChild(el("div", { class: "k-vn-add", "data-ui": "vn.route-add" }, [
         newName,
-        el("button", { class: "btn", text: "+ Add chapter", onclick: addChapter })
+        el("button", { type: "button", class: "k-btn k-btn--sm", text: "+ Add chapter", onclick: addChapter })
       ]));
       syncProgressUI();
     }
     renderChapters();
 
     /* --- CG gallery counter (numbers only, never artwork) --- */
-    var cgUn = el("input", { type: "number", class: "todo-in med-num", min: "0", value: String(e.cgGallery.unlockedCount || 0) });
-    var cgTot = el("input", { type: "number", class: "todo-in med-num", min: "0", placeholder: "?", value: e.cgGallery.totalKnown != null ? String(e.cgGallery.totalKnown) : "" });
+    var cgUn = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", value: String(e.cgGallery.unlockedCount || 0) });
+    var cgTot = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", placeholder: "?", value: e.cgGallery.totalKnown != null ? String(e.cgGallery.totalKnown) : "" });
 
     /* --- quote log --- */
-    var quotesWrap = el("div", { class: "vn-quotes" });
+    var quotesWrap = el("div", { class: "k-vn-list k-vn-quotes", "data-ui": "vn.quotes" });
     function renderQuotes() {
       quotesWrap.innerHTML = "";
-      quotesWrap.appendChild(el("div", { class: "vn-sec-h" }, [
+      quotesWrap.appendChild(el("div", { class: "k-vn-head" }, [
         el("b", { text: "Quote log" }),
-        el("span", { class: "sub", text: e.quotes.length
+        el("p", { class: "k-field-hint", "data-ui": "part.sub", text: e.quotes.length
           ? e.quotes.length + (e.quotes.length === 1 ? " line kept" : " lines kept") + " — any of them can become a flashcard"
           : "lines worth keeping — text, optional context, and a route to the flashcard system" })
       ]));
       e.quotes.slice().reverse().forEach(function (q) {
-        var row = el("div", { class: "vn-quote" });
+        var row = el("div", { class: "k-vn-quote", "data-ui": "vn.quote" });
         var formHolder = el("div", {});
-        row.appendChild(el("blockquote", { class: "vn-quote-text", text: "“" + q.text + "”" }));
-        row.appendChild(el("div", { class: "vn-quote-meta" }, [
-          el("span", { class: "sub", text: (q.context ? q.context + " · " : "") + new Date(q.loggedAt).toLocaleDateString() }),
-          el("button", { class: "mini-btn", text: "⇢ flashcard", title: "Send to the Personal deck (editable first)", onclick: function (ev) {
+        row.appendChild(el("blockquote", { class: "k-vn-quote-text", text: "“" + q.text + "”" }));
+        row.appendChild(el("div", { class: "k-vn-quote-meta" }, [
+          el("span", { text: (q.context ? q.context + " · " : "") + new Date(q.loggedAt).toLocaleDateString() }),
+          el("button", { type: "button", class: "k-link k-spacer", text: "+ Add to Personal deck", title: "Send to the Personal deck (editable first)", onclick: function (ev) {
             ev.preventDefault();
             formHolder.innerHTML = "";
             formHolder.appendChild(quoteToCardForm(e, q, function () { formHolder.innerHTML = ""; }));
           } }),
-          el("button", { class: "mini-btn danger", "aria-label": "Delete quote", text: "✕", onclick: function (ev) {
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Delete quote", text: "✕", onclick: function (ev) {
             ev.preventDefault();
             e.quotes = e.quotes.filter(function (x) { return x !== q; });
             renderQuotes();
@@ -404,11 +416,11 @@
         row.appendChild(formHolder);
         quotesWrap.appendChild(row);
       });
-      var qText = el("textarea", { class: "note-area vn-quote-in", rows: 2, "aria-label": "Quote text", placeholder: "“The universe has a beginning, but no end.” — the line itself" });
-      var qCtx = el("input", { type: "text", class: "todo-in", "aria-label": "Quote context or route (optional)", placeholder: "context / route (optional)" });
-      quotesWrap.appendChild(el("div", { class: "vn-quote-add" }, [
+      var qText = el("textarea", { class: "k-input", "data-ui": "ui.note-area vn.quote-in", rows: 2, "aria-label": "Quote text", placeholder: "“The universe has a beginning, but no end.” — the line itself" });
+      var qCtx = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", "aria-label": "Quote context or route (optional)", placeholder: "context / route (optional)" });
+      quotesWrap.appendChild(el("div", { class: "k-vn-qadd", "data-ui": "vn.quote-add" }, [
         qText, qCtx,
-        el("button", { class: "btn", text: "❝ Log quote", onclick: function (ev) {
+        el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-intent": "primary", text: "❝ Log quote", onclick: function (ev) {
           ev.preventDefault();
           if (!qText.value.trim()) { KOS.ui.toast("The quote text is needed.", true); return; }
           e.quotes.push(KOS.mediadb.normQuote({ text: qText.value.trim(), context: qCtx.value.trim() }));
@@ -459,13 +471,13 @@
     }
 
     var overlay = mv.editorModal({
-      isNew: isNew, label: "Visual Novels", className: "vn-modal",
+      isNew: isNew, label: "Visual Novels", hook: "vn.editor",
       subtitle: e.syncSource === "vndb" ? "synced from VNDB — a Sync overwrites list state, keeps your routes/quotes/CG/warnings" : "manual entry",
       form: [
         mv.editorSection("identity", "Identity & artwork", "The title, studio and cover used throughout the vault.", [
           field("Title", title, "med-span-2"),
           field("Developer", developer),
-          field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]))
+          field("Cover URL", el("div", { class: "k-stack k-medit-cover" }, [coverU, coverPosition.node]))
         ]),
         mv.editorSection("progress", "Progress", "Status, and whichever of routes, chapters, hours played or a set percentage counts as this VN's progress.", [
           field("Status", status),
@@ -480,23 +492,15 @@
         ]),
         mv.editorSection("ownership", "Ownership", "How you own it and whether it belongs in the Shrine.", [
           field("Ownership", own),
-          field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
+          field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
         ]),
         mv.editorSection("dates", "Dates", "When play started and finished.", [
           field("Started", started),
           field("Finished", finished)
         ]),
         mv.editorSection("structure", "CG gallery", "A counter only; no artwork is stored.", [
-          el("div", { class: "vn-cg" }, [
-            el("div", { class: "vn-sec-h" }, [
-              el("b", { text: "CG gallery" }),
-              el("span", { class: "sub", text: "A progress counter only; no artwork is stored." })
-            ]),
-            el("div", { class: "med-form-row" }, [
-              field("Unlocked", cgUn),
-              field("Total known", cgTot)
-            ])
-          ])
+          field("Unlocked", cgUn),
+          field("Total known", cgTot)
         ]),
         mv.editorSection("highlights", "Quote log", "Lines worth keeping can become personal flashcards.", [
           quotesWrap
@@ -512,7 +516,7 @@
         mv.editorSection("source", "Source & sync", "VNDB identity and fields that may refresh.", [
           mv.sourceInfo(e, e.syncSource === "vndb" ? "VNDB" : "Local record"),
           field("VNDB id", vndbId),
-          lengthText(e.extra) ? el("p", { class: "sub vn-length med-span-2", text: "VNDB length estimate · " + lengthText(e.extra) }) : null
+          lengthText(e.extra) ? el("p", { class: "k-field-hint k-medit-wide", "data-ui": "part.sub vault.span-2", text: "VNDB length estimate · " + lengthText(e.extra) }) : null
         ]),
         mv.editorSection("notes", "Notes", "Your private play notes and route context.", [
           field("Notes", notes, "med-span-2")
@@ -548,47 +552,19 @@
   }
   function gridCard(e, rerender) {
     var bump = quickBump(e);
-    /* Phase F: the card is NOT a button. It contained the favourite
-       toggle, a status <select> and "+1" — an ARIA button may not hold
-       interactive descendants, and a keyboard user who pressed Space on
-       it scrolled the page. The card keeps its pointer shortcut; the
-       TITLE is the real control, so the tab order reads
-       favourite → title → status → +1 and a screen reader announces the
-       entry by name instead of "button". */
-    var card = el("div", { class: "med-card vn-card",
-      onclick: function () { vnEditor(e, rerender); }
-    }, [
-      cover(e),
-      el("button", { class: "med-fav" + (e.favourite ? " on" : ""), title: "Favourite — appears in the Shrine",
-        "aria-label": "Toggle favourite", text: "♥", onclick: function (ev) {
-          ev.stopPropagation();
-          e.favourite = !e.favourite;
-          KOS.mediadb.put(e, function () {});
-          KOS.ui.state(ev.target, "on", e.favourite);
-        } }),
-      el("div", { class: "med-card-body" }, [
-        el("button", { type: "button", class: "med-title", title: e.title, text: e.title,
-          onclick: function (ev) { ev.stopPropagation(); vnEditor(e, rerender); } }),
-        e.developer ? el("div", { class: "bk-author", text: e.developer }) : null,
-        el("div", { class: "med-meta" }, [
-          cwChip(e),
-          el("span", { class: "med-prog", text: metaLine(e) || "nothing tracked yet" }),
-          KOS.medview.pushChip(e, rerender)
-        ]),
-        KOS.medview.quickRow(e, rerender, {
-          unit: bump ? bump.unit : "", title: bump ? bump.title : "",
-          onBump: bump ? function () { bump.run(e, rerender); } : null
-        })
-      ])
-    ]);
-    /* the shared bar reads the derived progress, whichever source counts */
-    var track = KOS.media.progressBar(e);
-    if (track) card.appendChild(track);
-    return card;
+    return KOS.medview.card(e, rerender, {
+      hook: "vn.card", kanji: mod().kanji,
+      chips: [cwChip(e), e.developer ? el("span", { class: "k-mcard-sub", "data-ui": "books.author", text: e.developer }) : null],
+      prog: metaLine(e) || "nothing tracked yet",
+      unit: bump ? bump.unit : "", bumpTitle: bump ? bump.title : "",
+      onBump: bump ? function () { bump.run(e, rerender); } : null,
+      open: function () { vnEditor(e, rerender); }
+    });
   }
   function listRow(e, rerender) {
     var bump = quickBump(e);
     return KOS.medview.listRow(e, mod(), rerender, {
+      hook: "vn.card",
       subline: e.developer || e.genres.slice(0, 2).join(" · "),
       prog: metaLine(e),
       onBump: bump ? function () { bump.run(e, rerender); } : null,
@@ -602,32 +578,20 @@
     var p = prefs();
     var mv = KOS.medview;
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "Collection · 選" }),
-        el("h1", { text: "Visual Novels" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "VNDB fills the covers and tags — the routes, quotes and warnings are yours." })
-        ])
-      ])
-    ]));
-
     if (mv.unavailable(main)) return;
 
-    /* Build 4.0: the per-module spotlight hero (medview.heroCard) */
-    var heroHolder = el("div", { class: "vh-holder" });
-    main.appendChild(heroHolder);
+    var page = mv.vaultPage(main, { kicker: "Collection · 選", title: "Visual Novels",
+      sub: "VNDB fills the covers and tags — the routes, quotes and warnings are yours." });
 
     /* toolbar — the shared pieces come from the medview toolkit */
     var search = mv.searchInput("Search visual novel titles");
-    var genreSel = el("select", { class: "status-sel", "aria-label": "Filter by genre" });
-    var devSel = el("select", { class: "status-sel", "aria-label": "Filter by developer" });
+    var genreSel = mv.facetSelect("Filter by genre");
+    var devSel = mv.facetSelect("Filter by developer");
     var sortSel = mv.sortSelect(p.sort, { progress: "Progress" });
-    var layoutBtn = mv.layoutToggle(p, function () { refresh(); });
+    var layoutBtn = mv.layoutToggle(p, function () { persist(p); refresh(); });
     var rail = mv.filterRail("vn", function () { refresh(); });
 
-    var mainCol = el("div", { class: "med-main" });
-    /* the shared toolbar (Category 7 Phase D) — the same six controls the
+    /* the shared toolbar (Category 7 Phase D) — the same controls the
        other three vaults show, in the same order */
     var bar = mv.toolbar({
       label: "Visual novel vault controls",
@@ -650,24 +614,21 @@
           onSelect: function () { KOS.show("vndbprofile"); } },
         { label: "Sync & Import", glyph: "⇅", onSelect: function () { KOS.show("mediasync"); } }
       ],
-      primary: el("button", { class: "btn primary", text: "+ Add", onclick: function () { vnEditor(null, refreshAll); } })
+      primary: mv.primaryButton("+ Add", null, function () { vnEditor(null, refreshAll); })
     });
-    mainCol.appendChild(bar.root);
-    main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
+    page.setBar(bar);
+    page.setRail(rail.root);
 
     function refreshAll() { rail.reload(); refresh(); }
 
-    /* countLine + holder + sentinel + the lazy batch renderer */
-    var area = mv.resultsArea(mainCol, function (e) {
+    var area = mv.resultsArea(page.mainCol, function (e) {
       return p.layout === "list" ? listRow(e, refreshAll) : gridCard(e, refreshAll);
-    });
+    }, { countHost: page.controls });
 
     /* Facet fills. VNDB content tags are written into `genres` by the sync
-       mapper (invariant #29 — they are not auto-filled from anywhere else
-       and never will be), so this one select genuinely carries both. The
-       audit's 64-option soup (VLT-8/G-31) is fixed by SPLITTING THE
-       DISPLAY rather than the data: real genres first, common tags next,
-       rare tags last, each option carrying its own count. */
+       mapper (invariant #29), so this one select genuinely carries both,
+       split for display: real genres first, common tags next, rare tags
+       last, each option carrying its own count (invariant 62). */
     KOS.mediadb.query({ module: "vn" }, function (err, rows) {
       if (err) return;
       mv.fillFacetSel(genreSel, mv.tallyFacet(rows, "genres"), "All genres and tags");
@@ -688,7 +649,7 @@
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
         if (!area.current(token)) return;
-        KOS.ui.setClass(area.holder, p.layout === "list" ? "med-list" : "med-grid");
+        area.layout(p.layout);
         if (err) {
           area.clear();
           area.countLine.textContent = "Query failed: " + err.message;
@@ -703,8 +664,8 @@
               ? "Nothing matches this filter."
               : "The VN vault is empty. Connect your VNDB (a personal token — one paste, no OAuth dance) or add a title by hand, then build its route list as you play.",
             [
-              el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-              el("button", { class: "btn", text: "+ Add manually", onclick: function () { vnEditor(null, refreshAll); } })
+              el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
+              el("button", { type: "button", class: "k-btn", text: "+ Add manually", onclick: function () { vnEditor(null, refreshAll); } })
             ]));
           return;
         }
@@ -714,9 +675,9 @@
 
     /* the facet selects are wired by mv.selFacet inside the toolbar */
     search.addEventListener("input", KOS.ui.debounce(refresh, 220));
-    sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
+    sortSel.addEventListener("change", function () { p.sort = sortSel.value; persist(p); refresh(); });
 
-    function mountHero() { mv.heroCard(heroHolder, "vn", mod(), function () { refreshAll(); mountHero(); }); }
+    function mountHero() { mv.heroCard(page.heroHolder, "vn", mod(), function () { refreshAll(); mountHero(); }); }
     mountHero();
     refresh();
   };

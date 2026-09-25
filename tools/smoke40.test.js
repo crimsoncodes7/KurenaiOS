@@ -82,6 +82,8 @@ async function waitFor(cond, ms) {
 function assert(cond, msg) { if (!cond) throw new Error(msg); }
 const css = readCss();
 const main = () => document.getElementById("main");
+/* Graphite shell: #stage is the scroll container #main sits in */
+const scroller = () => document.getElementById("stage") || main();
 
 /* ============ 1 · B-04: opening a topic starts at the top ============ */
 console.log("== B-04: the note pager scrolls only when the reader turns a page ==");
@@ -162,7 +164,7 @@ step("a sentinel that never leaves the root margin still renders the whole list"
   const host = document.createElement("div");
   main().innerHTML = "";
   main().appendChild(host);
-  main().getBoundingClientRect = () => ({ top: 0, bottom: 800, height: 800, left: 0, right: 400, width: 400 });
+  scroller().getBoundingClientRect = () => ({ top: 0, bottom: 800, height: 800, left: 0, right: 400, width: 400 });
   /* the sentinel is ALWAYS in range — one intersection callback, no further
      transitions. Before the fix this rendered exactly one batch. */
   const area = makeArea(host, () => ({ top: 10, bottom: 20, height: 10, left: 0, right: 400, width: 400 }));
@@ -175,10 +177,10 @@ step("a sentinel that never leaves the root margin still renders the whole list"
     "the list stalled at " + area.holder.children.length + " of " + rows.length);
 });
 
-step("the observer watches #main, not the viewport", async () => {
+step("the observer watches the stage that scrolls, not the viewport", async () => {
   const io = observers[observers.length - 1];
-  assert(io.opts.root === main(),
-    "the lazy observer's root is " + (io.opts.root === null ? "the viewport" : String(io.opts.root)) + ", not #main");
+  assert(io.opts.root === scroller(),
+    "the lazy observer's root is " + (io.opts.root === null ? "the viewport" : String(io.opts.root)) + ", not #stage");
   assert(/600/.test(String(io.opts.rootMargin)), "unexpected rootMargin: " + io.opts.rootMargin);
 });
 
@@ -186,7 +188,7 @@ step("a sentinel clear of the margin renders exactly one batch", async () => {
   const host = document.createElement("div");
   main().innerHTML = "";
   main().appendChild(host);
-  main().getBoundingClientRect = () => ({ top: 0, bottom: 800, height: 800, left: 0, right: 400, width: 400 });
+  scroller().getBoundingClientRect = () => ({ top: 0, bottom: 800, height: 800, left: 0, right: 400, width: 400 });
   /* far below the container + its 600px margin: one batch, then wait for the
      next real scroll — the lazy contract is intact, not defeated */
   const area = makeArea(host, () => ({ top: 5000, bottom: 5010, height: 10, left: 0, right: 400, width: 400 }));
@@ -201,7 +203,7 @@ step("the generation guard still drops a superseded batch", async () => {
   const host = document.createElement("div");
   main().innerHTML = "";
   main().appendChild(host);
-  main().getBoundingClientRect = () => ({ top: 0, bottom: 800, height: 800, left: 0, right: 400, width: 400 });
+  scroller().getBoundingClientRect = () => ({ top: 0, bottom: 800, height: 800, left: 0, right: 400, width: 400 });
   const area = makeArea(host, () => ({ top: 5000, bottom: 5010, height: 10, left: 0, right: 400, width: 400 }));
   area.start(Array.from({ length: 300 }, (_, i) => "old-" + i));
   const stale = observers[observers.length - 1];
@@ -227,7 +229,7 @@ step("seed a large Books library", async () => {
 });
 
 step("the view mounts one lazy batch of authors, not 900", async () => {
-  main().getBoundingClientRect = () => ({ top: 0, bottom: 800, height: 800, left: 0, right: 400, width: 400 });
+  scroller().getBoundingClientRect = () => ({ top: 0, bottom: 800, height: 800, left: 0, right: 400, width: 400 });
   KOS.show("mangaka");
   await waitFor(() => main().querySelectorAll("[data-ui~='mangaka.card']").length > 0, 6000);
   const cards = main().querySelectorAll("[data-ui~='mangaka.card']").length;

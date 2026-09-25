@@ -391,7 +391,8 @@
     layout.dataset.compactDisclosure = "true";
     var trigger = el("button", {
       type: "button",
-      class: "btn mobile-disclosure-trigger vault-disclosure-trigger",
+      class: "k-btn k-disclosure",
+      "data-ui": "vault.disclosure-trigger",
       text: "☷ Status & lists",
       "aria-haspopup": "dialog",
       "aria-expanded": "false",

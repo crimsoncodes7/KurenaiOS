@@ -24,16 +24,16 @@
      paste-in tool is the quick-start path instead). All four are real. */
   var MODULES = [
     { id: "anime", label: "Anime", kanji: "映", unit: "ep",
-      unitName: "episodes", real: true, accent: "#B85C50",
+      unitName: "episodes", real: true, accent: "var(--anime)",
       desc: "Watching, planned, completed — synced from AniList or tracked by hand." },
     { id: "books", label: "Books", kanji: "本", unit: "ch",
-      unitName: "chapters", real: true, accent: "#B08A3E",
+      unitName: "chapters", real: true, accent: "var(--books)",
       desc: "Manga & light novels — digital tracking and the physical vault on one entry: what you read via AniList, what you own volume by volume." },
     { id: "vn", label: "Visual Novels", kanji: "選", unit: "route",
-      unitName: "routes", real: true, accent: "#8A63A8",
+      unitName: "routes", real: true, accent: "var(--vn)",
       desc: "VNDB-synced metadata; routes, CG counter, content warnings and the quote log are yours to build." },
     { id: "game", label: "Games", kanji: "遊", unit: "hr",
-      unitName: "hours", real: true, accent: "#5E86A8",
+      unitName: "hours", real: true, accent: "var(--games)",
       desc: "Manual-first, permanently: completion tiers, platforms, playtime, backlog priority — pasted in bulk or added one by one; no API exists that a browser may use." }
   ];
   function module_(id) {
@@ -529,13 +529,18 @@
   }
   /* the bar itself, in the shared .subj-track grammar; cls is the
      placement class (med-track on a card, vh-track on the hero) */
+  /* the one card bar (invariant 63), on the shared k-bar: the fill width
+     rides --p, and an open bar (a series still releasing) is half-full */
   function progressBar(e, cls) {
     var f = progressFill(e);
     if (!f) return null;
-    return KOS.ui.el("div", { class: "subj-track " + (cls || "med-track") + (f.open ? " open" : ""),
+    var bar = KOS.ui.el("div", { class: "k-bar k-mbar" + (cls ? " " + cls : ""), "data-ui": "media.bar media.bar-track",
       title: f.title, role: "img", "aria-label": f.title }, [
-      KOS.ui.el("span", { class: "subj-fill", style: "width:" + f.pct + "%" })
+      KOS.ui.el("i", { "data-ui": "media.bar-fill" })
     ]);
+    bar.style.setProperty("--p", f.pct + "%");
+    if (f.open) KOS.ui.state(bar, "open", true);
+    return bar;
   }
 
   KOS.media = {

@@ -281,7 +281,7 @@ step("a chapter-counting VN gets +1 ch on its card; the last chapter completes t
   assert(kin && routed, "cards missing");
   assert(/2 \/ 4 ch/.test(kin.querySelector("[data-ui~='vault.card-progress']").textContent), "card prints the chapter count: " + kin.querySelector("[data-ui~='vault.card-progress']").textContent);
   assert(!/❝/.test(routed.textContent) && !/❝/.test(kin.textContent), "the quote count is not a card fact");
-  assert(kin.querySelector("[data-ui~='media.bar-track']") && kin.querySelector("[data-ui~='media.bar-track'] [data-ui~='media.bar-fill']").style.width === "50%", "chapter bar at 50%");
+  assert(kin.querySelector("[data-ui~='media.bar-track']") && kin.querySelector("[data-ui~='media.bar-track'] [data-ui~='media.bar-fill']") && kin.querySelector("[data-ui~='media.bar-track']").style.getPropertyValue("--p") === "50%", "chapter bar at 50%");
   assert(!routed.querySelector("[data-ui~='vault.plus']"), "a routed VN has no +1");
   const plus = kin.querySelector("[data-ui~='vault.plus']");
   assert(plus && /\+1 ch/.test(plus.textContent), "+1 ch missing on the kinetic novel");
@@ -314,10 +314,11 @@ step("a known total gives the fraction; still releasing gives half full and open
   assert(f(KOS.mediadb.normalise({ module: "game", title: "d", playtimeHours: 9 })) === null, "games have no bar");
   assert(f(KOS.mediadb.normalise({ module: "vn", title: "e" })) === null, "an untracked VN has no bar");
   const bar = KOS.media.progressBar(KOS.mediadb.normalise({ module: "anime", title: "a", progress: { current: 30, total: null } }));
-  assert(bar.matches('[data-ui~="media.bar-track"]') && bar.matches('[data-state~="open"]') && bar.querySelector("[data-ui~='media.bar-fill']").style.width === "50%", "progressBar draws the open bar");
+  assert(bar.matches('[data-ui~="media.bar-track"]') && bar.matches('[data-state~="open"]') && bar.querySelector("[data-ui~='media.bar-fill']") && bar.style.getPropertyValue("--p") === "50%", "progressBar draws the open bar");
   assert(bar.getAttribute("role") === "img" && /still releasing/.test(bar.getAttribute("aria-label")), "the bar says why it is half");
 });
 
+/* Graphite (frame 11b): the bar is the shared k-bar; its fill width rides --p */
 step("anime and books cards draw the half-full bar for a series still releasing", async () => {
   await p(cb => KOS.mediadb.add({ module: "anime", title: "One Piece", status: "inProgress",
     progress: { current: 1100, total: null }, externalIds: { anilistId: 21 }, syncSource: "anilist" }, cb));
@@ -330,14 +331,14 @@ step("anime and books cards draw the half-full bar for a series still releasing"
   let cards = [...main().querySelectorAll("[data-ui~='vault.card']")];
   const op = cards.find(c => /One Piece/.test(c.textContent));
   const fin = cards.find(c => /Finished Show/.test(c.textContent));
-  assert(op && op.querySelector("[data-ui~='media.bar-track'][data-state~='open']") && op.querySelector("[data-ui~='media.bar-fill']").style.width === "50%", "releasing anime: half-full open bar");
-  assert(fin && fin.querySelector("[data-ui~='media.bar-track']") && !fin.querySelector("[data-ui~='media.bar-track'][data-state~='open']") && fin.querySelector("[data-ui~='media.bar-fill']").style.width === "100%", "finished anime: full honest bar");
+  assert(op && op.querySelector("[data-ui~='media.bar-track'][data-state~='open']") && op.querySelector("[data-ui~='media.bar-track']").style.getPropertyValue("--p") === "50%", "releasing anime: half-full open bar");
+  assert(fin && fin.querySelector("[data-ui~='media.bar-track']") && !fin.querySelector("[data-ui~='media.bar-track'][data-state~='open']") && fin.querySelector("[data-ui~='media.bar-track']").style.getPropertyValue("--p") === "100%", "finished anime: full honest bar");
   KOS.show("books");
   await waitFor(() => [...main().querySelectorAll("[data-ui~='books.card']")].some(c => /Berserk/.test(c.textContent)), 5000);
   const bk = [...main().querySelectorAll("[data-ui~='books.card']")].find(c => /Berserk/.test(c.textContent));
   assert(bk, "Berserk card");
   const readBar = bk.querySelector("[data-ui~='media.bar-track']");
-  assert(readBar && readBar.matches('[data-state~="open"]') && readBar.querySelector("[data-ui~='media.bar-fill']").style.width === "50%", "releasing manga: half-full open bar");
+  assert(readBar && readBar.matches('[data-state~="open"]') && readBar.querySelector("[data-ui~='media.bar-fill']") && readBar.style.getPropertyValue("--p") === "50%", "releasing manga: half-full open bar");
   assert(readBar.getAttribute("data-ui") === "media.bar media.bar-track" && readBar.getAttribute("data-state") === "open",
     "the books bar is the IDENTICAL shared component: " + readBar.getAttribute("data-ui") + " / " + readBar.getAttribute("data-state"));
   assert(/still releasing/.test(readBar.title), "the bar's title says why");

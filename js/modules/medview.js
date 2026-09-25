@@ -8,9 +8,11 @@
    This file is the single implementation they now share. It is VIEW-layer
    (it renders DOM), so it lives with the modules it serves, not in core.
 
-   Class names are load-bearing: the smoke suites key off .med-card,
-   .med-grid, .med-empty, .med-field, .modal-ov and friends — everything
-   here emits exactly the markup the four views emitted before extraction.
+   Graphite (frame 11b) is built ONCE here and every medium uses it: the
+   spotlight hero, the Status + Lists rail, one controls row above the grid
+   and the overlay card (everything on the cover; status and +1 on hover).
+   The behavioural contract is the data-ui hooks (vault.*), which the smoke
+   suites and the parity harness key off; classes are presentation only.
 
    A fifth media module (Music/Competitions — backlog #5) should build on
    this toolkit + KOS.mediaEditors instead of copying a sibling view.      */
@@ -24,40 +26,34 @@
      mediadb.STATUSES (which is schema order, planned first) */
   var STATUSES = ["inProgress", "planned", "onHold", "completed", "dropped"];
 
+  /* a hook added to a node whose own hooks came from elsewhere (a primitive) */
+  function addHook(node, hook) {
+    node.setAttribute("data-ui", ((node.getAttribute("data-ui") || "") + " " + hook).trim());
+    return node;
+  }
+
   /* ================= availability ================= */
   var NEEDS_IDB = "The Collection Matrix needs IndexedDB, which this browser/context doesn't provide.";
   /* the canonical guard every Matrix view opens with:
      if (KOS.medview.unavailable(main)) return; */
   function unavailable(main) {
     if (KOS.mediadb.available()) return false;
-    main.appendChild(el("p", { class: "fc-empty", text: NEEDS_IDB }));
+    main.appendChild(KOS.ui.emptyState({ mark: "蒐", body: NEEDS_IDB }));
     return true;
   }
 
   /* ================= shared display bits ================= */
-  /* cover image with lazy load + kanji placeholder fallback (offline or
-     broken URL) — the glyph is the module's kanji.
-
-     Category 7 Phase B (audit G-24/U-15/VLT-2): the placeholder used to
-     appear only on `error` and when coverUrl was empty, so with
-     loading="lazy" a 1,100-item grid opened as a field of empty boxes that
-     read as broken rather than loading. The glyph is now painted from the
-     first frame and the image cross-fades over it on load; on error the
-     image simply never arrives and the glyph is already there. */
-  /* Category 7 Phase D, audit VLT-11: the Games vault was "70 identical
-     grey 遊 tiles — monotonous, reads as unfinished". A placeholder that is
-     the same for every title carries no information at all, so it looks
-     like a rendering failure rather than a missing cover. The mark now
-     sits on a two-stop wash derived deterministically from the title
-     (the same hash the book spines use), which gives an unillustrated
-     vault the texture of a shelf and makes one title distinguishable from
-     the next at a glance. It is arithmetic — no network, no canvas, and
-     the same title always lands on the same colour. */
+  /* cover image with lazy load + kanji placeholder. The glyph is painted
+     from the first frame on a wash derived from the title (invariant 61)
+     and the image cross-fades over it on load; on error the image never
+     arrives and the glyph is already there. */
   function cover(e, kanji) {
-    var box = el("div", { class: "med-cover" });
+    var box = el("div", { class: "k-mcover", "data-ui": "vault.cover" });
     box.style.setProperty("--ph-hue", String(titleHue(e.title)));
     function ph(behind) {
-      return el("span", { class: "med-cover-ph" + (behind ? " behind" : ""), "aria-hidden": "true", text: kanji });
+      var n = el("span", { class: "k-mcover-ph", "data-ui": "vault.cover-placeholder", "aria-hidden": "true", text: kanji });
+      if (behind) KOS.ui.state(n, "behind", true);
+      return n;
     }
     if (!e.coverUrl) KOS.ui.state(box, "no-art", true);
     if (e.coverUrl) {
@@ -91,7 +87,7 @@
     var positionedSource = String(entry.coverUrl || "");
     var originalPlaceholder = urlInput.placeholder;
     var masked = false;
-    var note = el("span", { class: "sub image-position-note", text: draftCrop ? "position saved" : "centred by default" });
+    var note = el("span", { class: "k-field-hint", "data-ui": "part.sub", text: draftCrop ? "position saved" : "centred by default" });
 
     function showSource(source) {
       masked = !!opts.maskDataUrl && /^data:image\//i.test(source);
@@ -106,7 +102,7 @@
     }
     showSource(positionedSource);
 
-    var button = el("button", { type: "button", class: "btn subtle", text: "⌖ Position cover…", onclick: function () {
+    var button = el("button", { type: "button", class: "k-btn k-btn--sm", text: "⌖ Position cover…", onclick: function () {
       var candidate = candidateSource();
       var candidateCrop = candidate && candidate === positionedSource ? draftCrop : null;
       KOS.imageCrop.open({
@@ -134,7 +130,7 @@
       });
     } });
     return {
-      node: el("div", { class: "image-position-row" }, [button, note]),
+      node: el("div", { class: "k-cluster" }, [button, note]),
       set: function (source, crop) {
         positionedSource = String(source || "");
         draftCrop = KOS.imageCrop.normalise(crop);
@@ -159,15 +155,10 @@
   }
 
   /* ---- the genre facet, split (audit VLT-8 / G-31 / U-26) ----
-     One select carried 64 options because VNDB content tags are written
-     into `genres` by the sync mapper and sit beside real genres in the same
-     alphabetical list — "Action", "Adventure", "Protagonist with a Tragic
-     Past", "Comedy". The taxonomy is not fixable at the data layer (the
-     tags ARE genres as far as the schema is concerned, and invariant #29
-     forbids inventing new ones), so it is fixed where it is read: real
-     genres first, tags after, rare tags last, each option carrying its own
-     count so the size of a facet is visible before you choose it.
-     Nothing is hidden — a one-title tag is still reachable.              */
+     VNDB content tags arrive in `genres` beside real genres. The taxonomy
+     is fixed where it is read (invariant 62): real genres first, tags
+     after, rare tags last, each option carrying its own count. Nothing is
+     hidden — a one-title tag is still reachable. */
   var CANON_GENRES = ["Action", "Adventure", "Comedy", "Drama", "Ecchi", "Fantasy", "Horror",
     "Mahou Shoujo", "Mecha", "Music", "Mystery", "Psychological", "Romance", "Sci-Fi",
     "Slice of Life", "Sports", "Supernatural", "Thriller"];
@@ -212,58 +203,53 @@
 
   /* the vault search box */
   function searchInput(ariaLabel) {
-    return el("input", { type: "search", class: "todo-in med-search",
-      placeholder: "Search titles…", "aria-label": ariaLabel });
+    return el("input", { type: "search", class: "k-msearch", "data-ui": "ui.quick-add vault.search",
+      placeholder: "⌕ " + (ariaLabel || "Search titles…"), "aria-label": ariaLabel });
   }
 
   /* the vault sort select — labels for score/progress vary per module
      (books: Rating / vn: Routes cleared / games: Playtime) */
   function sortSelect(pref, labels) {
     labels = labels || {};
-    /* .med-sort marks this as the toolbar's own control rather than a
+    /* vault.sort marks this as the toolbar's own control rather than a
        module facet — the facets all live behind Filters ▾ (smoke44 A) */
-    var sel = el("select", { class: "status-sel med-sort", "aria-label": "Sort" }, [
-      ["updated", "Recently updated"], ["title", "Title A–Z"],
-      ["score", labels.score || "Score"], ["progress", labels.progress || "Progress"]
+    var sel = el("select", { class: "k-pill-select", "data-ui": "ui.status-select vault.sort", "aria-label": "Sort" }, [
+      ["updated", "Sort: recently updated"], ["title", "Sort: title A–Z"],
+      ["score", "Sort: " + (labels.score || "score").toLowerCase()], ["progress", "Sort: " + (labels.progress || "progress").toLowerCase()]
     ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
     sel.value = pref || "updated";
     return sel;
   }
 
-  /* the two-way grid ⇄ list layout toggle (books cycles three layouts per
+  /* the two-way grid ⇄ list layout switch (books cycles three layouts per
      tab and keeps its own) */
   function layoutToggle(p, onChange) {
-    var btn = el("button", { class: "btn", text: p.layout === "list" ? "▦ Grid" : "☰ List",
-      title: "Toggle grid / list", onclick: function () {
-        p.layout = p.layout === "list" ? "grid" : "list";
-        KOS.store.save();
-        btn.textContent = p.layout === "list" ? "▦ Grid" : "☰ List";
-        onChange();
-      } });
-    return btn;
+    var seg = el("span", { class: "k-seg k-seg--quiet k-mlayout", role: "group", "aria-label": "Layout" });
+    function btn(id, glyph, label) {
+      return el("button", { type: "button", class: "k-seg-item", "data-layout": id, "aria-label": label, title: label,
+        "aria-pressed": String((p.layout === "list" ? "list" : "grid") === id), text: glyph,
+        onclick: function () {
+          if ((p.layout === "list" ? "list" : "grid") === id) return;
+          p.layout = id;
+          KOS.store.save();
+          seg.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-layout") === id)); });
+          onChange();
+        } });
+    }
+    seg.appendChild(btn("grid", "▦", "Grid"));
+    seg.appendChild(btn("list", "≡", "List"));
+    return seg;
   }
 
   /* ================= the one vault toolbar (Category 7 Phase D) =================
-     audit VLT-3 / U-13. Books put SEVENTEEN controls in three rows before a
-     single cover; Anime eleven, VN eleven, Games nine — with no grouping
-     logic at all, so "＠ Profile" sat beside "+ Add" and "Seasonal" beside
-     "☰ List". Four vaults, four accidental arrangements of the same idea.
+     One arrangement, the same object in all four vaults, right-aligned in
+     one row directly above the grid (frame 11b):
 
-     One arrangement now, and it is the same object in all four:
+       [ count ] ……… [ search ] [ sort ] [ Filters ▾ ] [ ▦ ≡ ] [ Actions ▾ ] [ ⊕ primary ]
 
-       [ search .................. ] [ sort ] [ layout ] [ Filters ▾ ] [ ⋯ ] [ + Add ]
-
-     What stays visible is what you touch on an ordinary visit. The module
-     facets (genre, tag, format, mood, shelf, platform, developer, tier,
-     DNF) move into the Filters group, which carries a badge counting how
-     many are actually applied — so a filtered vault says so even when the
-     panel is shut. Everything else (Stats, Sync, Find new, Seasonal,
-     Profile, Mangaka, Bulk add, reading sessions) is a command, not a
-     filter, and lives in the ⋯ menu behind real headings.
-
-     The rail keeps status and custom lists: those are the two axes EVERY
-     module shares, they carry live counts, and they are the primary way
-     this vault is navigated. This toolbar owns the rest.
+     Module facets live behind Filters ▾ with a badge counting what is
+     applied; commands live behind Actions ▾ under real headings. The rail
+     keeps Status and custom Lists — the two axes every medium shares.
 
      opts: { search, sort, layout, filters: [{label, node, active, clear}],
              actions: [{label, glyph, hint, onSelect} | {heading} | {sep}],
@@ -274,39 +260,39 @@
     opts = opts || {};
     var facets = (opts.filters || []).filter(Boolean);
 
-    var clearBtn = el("button", { type: "button", class: "btn subtle mvt-clear", text: "Clear filters",
+    var clearBtn = el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "vault.toolbar-clear", text: "Clear filters",
       onclick: function () {
         facets.forEach(function (f) { if (f.clear) f.clear(); });
         sync();
         if (opts.onClear) opts.onClear();
       } });
 
-    var panel = el("div", { class: "mvt-filters" }, [
-      el("div", { class: "mvt-filters-grid" }, facets.map(function (f) {
-        return el("label", { class: "med-field mvt-facet" }, [
-          el("span", { class: "k", text: f.label }), f.node
+    var panel = el("div", { class: "k-mfilters" }, [
+      el("div", { class: "k-mfilters-grid" }, facets.map(function (f) {
+        return el("label", { class: "k-field", "data-ui": "ui.field vault.facet" }, [
+          el("span", { class: "k-field-label", "data-ui": "part.label", text: f.label }), f.node
         ]);
       })),
-      el("div", { class: "mvt-filters-foot" }, [clearBtn])
+      el("div", { class: "k-mfilters-foot" }, [clearBtn])
     ]);
 
     var filtersBtn = facets.length
-      ? KOS.ui.menu({ label: "Filters", className: "mvt-filters-btn", align: "start",
+      ? addHook(KOS.ui.menu({ label: "Filters", className: "k-btn--sm k-mtool", align: "start",
           hint: "Narrow this vault by " + facets.map(function (f) { return f.label.toLowerCase(); }).join(", "),
-          badge: "", content: panel, panelClass: "menu-panel-wide" })
+          badge: "", content: panel, panelClass: "k-menu-panel--wide" }), "vault.filters-button")
       : null;
 
     var actionsBtn = (opts.actions || []).filter(Boolean).length
-      ? KOS.ui.menu({ label: opts.actionsLabel || "Actions", className: "mvt-actions-btn",
-          hint: "Everything else this vault can do", items: opts.actions })
+      ? addHook(KOS.ui.menu({ label: opts.actionsLabel || "Actions", className: "k-btn--sm k-mtool",
+          hint: "Everything else this vault can do", items: opts.actions }), "vault.toolbar-actions-btn")
       : null;
 
-    var root = el("div", { class: "med-toolbar mvt" + (opts.className ? " " + opts.className : ""),
+    var root = el("div", { class: "k-mtoolbar" + (opts.className ? " " + opts.className : ""), "data-ui": "vault.toolbar vault.tools",
       role: "group", "aria-label": opts.label || "Vault controls" }, [
       opts.search || null,
       opts.sort || null,
-      opts.layout || null,
       filtersBtn,
+      opts.layout || null,
       actionsBtn,
       opts.primary || null
     ].filter(Boolean));
@@ -328,6 +314,10 @@
     sync();
     return { root: root, sync: sync, filtersBtn: filtersBtn, actionsBtn: actionsBtn };
   }
+  /* the primary action every vault toolbar carries (one per view) */
+  function primaryButton(text, title, onclick) {
+    return el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: text, title: title || null, onclick: onclick });
+  }
 
   /* the value-or-nothing helpers a caller passes as a facet */
   function selFacet(label, sel, onChange) {
@@ -337,30 +327,36 @@
       clear: function () { sel.value = ""; } };
   }
   function toggleFacet(label, get, set, onChange, text) {
-    var box = el("input", { type: "checkbox" });
+    var box = el("input", { type: "checkbox", class: "k-box" });
     box.checked = !!get();
     box.addEventListener("change", function () { set(box.checked); onChange(); });
     return { label: label,
-      node: el("span", { class: "mvt-toggle" }, [box, el("span", { text: text || "" })]),
+      node: el("span", { class: "k-check" }, [box, el("span", { text: text || "" })]),
       active: get,
       clear: function () { box.checked = false; set(false); } };
+  }
+  /* a facet select, in the shared vocabulary */
+  function facetSelect(ariaLabel) {
+    return el("select", { class: "k-input", "data-ui": "ui.status-select", "aria-label": ariaLabel });
   }
 
   /* status pill row: All + the five statuses; extra = [[label, applyFn]]
      (books adds a DNF pill). onPick(statusOrNull) sets the filter and
      refreshes; the row manages its own active state. */
   function statusPills(onPick, extra) {
-    var pills = el("div", { class: "study-tabs med-pills", role: "tablist" });
+    var pills = el("div", { class: "k-seg k-seg--quiet", "data-ui": "ui.tabs", role: "tablist" });
     function pill(label, apply) {
-      var b = el("button", { class: "study-tab", role: "tab", onclick: function () {
-        pills.querySelectorAll("[data-ui~='ui.tab']").forEach(function (x) { KOS.ui.state(x, "active", false); });
+      var b = el("button", { type: "button", class: "k-seg-item", "data-ui": "ui.tab", role: "tab", "aria-selected": "false", onclick: function () {
+        pills.querySelectorAll("[data-ui~='ui.tab']").forEach(function (x) { KOS.ui.state(x, "active", false); x.setAttribute("aria-selected", "false"); });
         KOS.ui.state(b, "active", true);
+        b.setAttribute("aria-selected", "true");
         apply();
       } }, [label]);
       return b;
     }
     var all = pill("All", function () { onPick(null); });
     KOS.ui.state(all, "active", true);
+    all.setAttribute("aria-selected", "true");
     pills.appendChild(all);
     STATUSES.forEach(function (s) {
       pills.appendChild(pill(KOS.media.STATUS_LABEL[s], function () { onPick(s); }));
@@ -369,16 +365,12 @@
     return pills;
   }
 
-  /* the standard vault empty state — message + centred action buttons.
-     Category 7 Phase B: the composition is unchanged (.med-empty and
-     .fc-empty still carry it, and eight call sites still pass the same two
-     arguments), but the text now goes through KOS.ui.emptyState so the
-     vaults share one empty-state shape with the rest of the app rather
-     than each page inventing its own. */
+  /* the standard vault empty state — message + centred action buttons,
+     through the shared KOS.ui.emptyState */
   function emptyState(message, buttons) {
-    return el("div", { class: "med-empty" }, [
-      KOS.ui.emptyState({ body: message, className: "med-empty-inner" }),
-      el("div", { class: "lab-controls", style: "justify-content:center" }, buttons || [])
+    return el("div", { class: "k-mempty", "data-ui": "vault.empty" }, [
+      KOS.ui.emptyState({ mark: "蒐", body: message,
+        action: (buttons || []).length ? el("div", { class: "k-cluster" }, buttons) : null })
     ]);
   }
 
@@ -387,26 +379,23 @@
      renderer behind them: the DOM never holds every card at once — BATCH
      rows at a time as the sentinel scrolls into view, with a render-all-in-
      idle-chunks fallback where IO doesn't exist (old engines / jsdom).
-     makeItem(row, index) builds one card/row. */
-  function resultsArea(main, makeItem) {
-    var countLine = el("p", { class: "sub med-count" });
-    main.appendChild(countLine);
-    var holder = el("div", { class: "med-grid" });
+     makeItem(row, index) builds one card/row. The count line sits at the
+     start of the controls row when the caller hands it over (11b). */
+  function resultsArea(main, makeItem, opts) {
+    opts = opts || {};
+    var countLine = el("p", { class: "k-mcount", "data-ui": "vault.count part.sub", role: "status" });
+    if (opts.countHost) opts.countHost.insertBefore(countLine, opts.countHost.firstChild);
+    else main.appendChild(countLine);
+    var holder = el("div", { class: "k-mgrid", "data-ui": "vault.grid" });
     main.appendChild(holder);
-    var sentinel = el("div", { class: "med-sentinel", "aria-hidden": "true" });
+    var sentinel = el("div", { class: "k-msentinel", "data-ui": "vault.sentinel", "aria-hidden": "true" });
     main.appendChild(sentinel);
 
     var results = [], rendered = 0, io = null, gen = 0;
 
-    /* GENERATION GUARD.
-       This area owns the lazy observer, but callers legitimately paint the
-       holder themselves for empty/error/shelf states. Before the guard, such
-       a caller cleared the holder and returned while the observer was STILL
-       live against the previous result set — so the next scroll appended the
-       old list underneath the new one, in whatever geometry the new layout
-       class implied (that is the Digital-rows-under-the-Physical-shelf bug,
-       oversized covers included). Every entry point now bumps `gen`; a batch
-       from a superseded generation is dropped on the floor. */
+    /* GENERATION GUARD. Every entry point bumps `gen`; a batch from a
+       superseded generation is dropped on the floor, so an observer still
+       live against an old result set can never append it under a new one. */
     function stop() {
       gen++;
       if (io) { io.disconnect(); io = null; }
@@ -429,18 +418,14 @@
       rendered = end;
       if (rendered >= results.length && io) { io.disconnect(); io = null; }
     }
-    /* the scroll container the observer must measure against: #main, not the
-       viewport — the whole app scrolls inside it. */
+    /* the scroll container the observer must measure against */
     function scrollRoot() {
-      var m = document.getElementById("main");
+      var m = document.getElementById("stage") || document.getElementById("main");
       return m && holder.ownerDocument && m.contains(holder) ? m : null;
     }
-    /* IntersectionObserver fires on a TRANSITION. Flick to the bottom and the
-       sentinel lands inside the 600px margin and STAYS there: one batch is
-       appended, no boundary is ever crossed again, and the list looks like it
-       ends (the vault stopped dead at 300 of 692). So after a batch, keep
-       appending while the sentinel is still in range — measured for real, not
-       assumed — until it clears or the results run out. */
+    /* IntersectionObserver fires on a TRANSITION: after a batch, keep
+       appending while the sentinel is still in range — measured for real —
+       until it clears or the results run out. */
     function fillWhileVisible(myGen) {
       var root = scrollRoot();
       var guard = 0;
@@ -448,9 +433,7 @@
         var sRect = sentinel.getBoundingClientRect();
         var rRect = root ? root.getBoundingClientRect()
           : { top: 0, bottom: (window.innerHeight || document.documentElement.clientHeight || 0) };
-        /* jsdom and other layout-less hosts report an all-zero rect for
-           everything; treat that as "cannot measure" and stop rather than
-           rendering the entire vault. */
+        /* layout-less hosts report all-zero rects: cannot measure, stop */
         if (!sRect.height && !sRect.bottom && !rRect.bottom) return;
         if (sRect.top > rRect.bottom + IO_MARGIN) return;   // clear of the margin
         renderBatch(myGen);
@@ -498,6 +481,8 @@
        way back, so a slow query for a lens you already left can't paint */
     function begin() { return stop(); }
     function current(token) { return token === gen; }
+    /* the holder's arrangement: "grid" (cards) or "list" (rows) */
+    function layout(kind) { holder.setAttribute("data-layout", kind === "list" ? "list" : kind || "grid"); }
 
     return {
       countLine: countLine,
@@ -510,6 +495,7 @@
       paintAll: paintAll,
       begin: begin,
       current: current,
+      layout: layout,
       results: function () { return results; }
     };
   }
@@ -545,36 +531,36 @@
   }
 
   /* ================= the editor shell (Phase B) ================= */
-  /* the two labelled-field flavors, matching the pre-extraction markup
-     exactly: field() is the Matrix editors' label.med-field > span.k;
-     calField() is the calendar/tracker forms' label.cal-field > bare span */
-  function field(label, input, cls) {
-    return el("label", { class: "med-field" + (cls ? " " + cls : "") },
-      [el("span", { class: "k", "data-ui": "ui.field-label", text: label }), input]);
+  /* field(): a label whose first span names the control; calField(): the
+     calendar/tracker form flavour of the same thing */
+  /* a third argument (any truthy value — callers still name it) spans the
+     field across both columns of the section grid */
+  function field(label, input, wide) {
+    return el("label", { class: "k-field" + (wide ? " k-medit-wide" : ""), "data-ui": "ui.field" + (wide ? " vault.span-2" : "") },
+      [el("span", { class: "k-field-label", "data-ui": "ui.field-label part.label", text: label }), input]);
   }
 
   /* One information grammar for every media editor. A section owns a real
      subject (identity, progress, dates, taxonomy, lists, source or notes),
-     while its body owns the same two-column field grid. Module editors only
-     choose which controls belong in each subject; they no longer invent
-     local rows or spacing rules. */
+     while its body owns the same two-column field grid. */
   function editorSection(id, title, description, children, opts) {
     opts = opts || {};
     var bodyChildren = (children || []).filter(Boolean);
     var body = opts.raw
-      ? el("div", { class: "med-edit-body med-edit-raw" }, bodyChildren)
-      : el("div", { class: "med-edit-body" }, [
-          el("div", { class: "med-edit-grid" }, bodyChildren)
+      ? el("div", { class: "k-medit-body", "data-ui": "vault.editor-body" }, bodyChildren)
+      : el("div", { class: "k-medit-body", "data-ui": "vault.editor-body" }, [
+          el("div", { class: "k-medit-grid" }, bodyChildren)
         ]);
+    var sid = "med-edit-" + id + "-" + (++editorSectionSeq);
     return el("section", {
-      class: "med-edit-section med-edit-" + id + (opts.className ? " " + opts.className : ""),
+      class: "k-medit-sec" + (opts.className ? " " + opts.className : ""),
       "data-edit-section": id,
-      "aria-labelledby": "med-edit-" + id + "-" + (++editorSectionSeq)
+      "aria-labelledby": sid
     }, [
-      el("div", { class: "med-edit-index" }, [
-        el("h3", { id: "med-edit-" + id + "-" + editorSectionSeq, text: title }),
+      el("div", { class: "k-medit-index" }, [
+        el("h3", { id: sid, class: "k-kicker", text: title }),
         description ? el("p", { text: description }) : null
-      ]),
+      ].filter(Boolean)),
       body
     ]);
   }
@@ -586,9 +572,9 @@
     var source = provider || (entry.syncSource === "anilist" ? "AniList"
       : entry.syncSource === "vndb" ? "VNDB"
       : entry.syncSource === "import" ? "Imported file" : "Local record");
-    return el("div", { class: "med-source-info" + (synced || imported ? " is-linked" : "") }, [
-      el("span", { class: "med-source-mark", "aria-hidden": "true", text: synced ? "⇅" : imported ? "↥" : "⌂" }),
-      el("div", { class: "med-source-copy" }, [
+    var node = el("div", { class: "k-msource", "data-ui": "vault.source" }, [
+      el("span", { class: "k-msource-mark", "aria-hidden": "true", text: synced ? "⇅" : imported ? "↥" : "⌂" }),
+      el("div", {}, [
         el("b", { text: source }),
         el("p", { text: detail || (synced
           ? "Synced list fields may refresh from the source; your local notes and personal organisation stay yours."
@@ -596,36 +582,46 @@
           : "This record is stored locally and changes only when you edit it.") })
       ])
     ]);
+    if (synced || imported) KOS.ui.state(node, "is-linked", true);
+    return node;
   }
   function calField(label, input) {
-    return el("label", { class: "cal-field" }, [el("span", { text: label }), input]);
+    return el("label", { class: "k-field", "data-ui": "cal.field ui.field" }, [el("span", { class: "k-field-label", text: label }), input]);
   }
   function splitList(v) {
     return v.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
   }
 
-  /* overlay + close plumbing shared by every Matrix modal: click outside
-     closes, and — new with the shell — Esc closes too (parity with the
-     calendar/tracker modals). onClose (optional) runs first, for teardown
-     like stopping the barcode scanner's camera. overlay.close is the one
-     close path. */
+  /* the overlay every Matrix modal starts from. openDialog owns Escape,
+     focus and the scroll lock (invariant 49); onClose (optional) runs
+     first, for teardown like stopping the barcode scanner's camera.
+     overlay.close is the one close path. */
   function modalOverlay(onClose) {
-    function close() {
+    var overlay = el("div", { class: "k-dialog-overlay", "data-ui": "ui.dialog-overlay" });
+    overlay.close = function () {
       if (onClose) onClose();
-      document.removeEventListener("keydown", onEsc);
       overlay.remove();
-    }
-    function onEsc(ev) { if (ev.key === "Escape") close(); }
-    var overlay = el("div", { class: "modal-ov", onclick: function (ev) { if (ev.target === overlay) close(); } });
-    document.addEventListener("keydown", onEsc);
-    overlay.close = close;
+    };
+    return overlay;
+  }
+  /* a titled dialog box on that overlay */
+  function dialogBox(overlay, hook, title, sub, body, foot, cls) {
+    overlay.appendChild(el("div", { class: "k-dialog" + (cls ? " " + cls : ""), "data-ui": "ui.dialog" + (hook ? " " + hook : "") }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("div", { class: "k-medit-heading" }, [
+          el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: title }),
+          sub ? el("span", { class: "k-muted", text: sub }) : null
+        ].filter(Boolean)),
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: function () { overlay.close(); } })
+      ]),
+      body,
+      foot || null
+    ].filter(Boolean)));
     return overlay;
   }
 
   /* the editor's working copy: a NORMALISED deep clone (id preserved), or
-     a normalised blank of the module. Normalising here is what aligned the
-     anime editor with books/vn/games (audit A11) — it used to edit a raw
-     clone and rely on the entry already being clean. */
+     a normalised blank of the module */
   function editDraft(entry, module) {
     var e = entry ? KOS.mediadb.normalise(JSON.parse(JSON.stringify(entry)))
                   : KOS.mediadb.normalise({ module: module });
@@ -633,30 +629,30 @@
     return e;
   }
 
-  /* the editor modal scaffold: header (Add to / Edit —, syncSource
-     subtitle, ✕), the med-form body, and the Delete/Cancel/Add|Save
-     footer. opts: { isNew, label, subtitle, className, form: node[],
-     onSave, onDelete (null hides the button), focus }. Returns the
-     overlay (whose .close() the save/delete paths call). */
+  /* the record drawer (frame 11c): header (kicker, title, subtitle, ✕),
+     the section form, and Delete kept apart from Cancel/Save. opts:
+     { isNew, label, subtitle, className, hook, form: node[], onSave, onDelete
+     (null hides the button), focus }. Returns the overlay. */
   function editorModal(opts) {
     var overlay = modalOverlay();
-    overlay.appendChild(el("div", { class: "modal med-modal med-record-modal" + (opts.className ? " " + opts.className : "") }, [
-      el("div", { class: "modal-h" }, [
-        el("div", { class: "med-modal-heading" }, [
-          el("span", { class: "modal-kicker", text: opts.isNew ? "New collection record" : "Collection record" }),
-          el("b", { text: (opts.isNew ? "Add to " : "Edit — ") + opts.label }),
-          el("span", { class: "sub", text: opts.subtitle })
-        ]),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: overlay.close })
+    KOS.ui.state(overlay, "drawer", true);
+    overlay.appendChild(el("div", { class: "k-dialog k-medit" + (opts.className ? " " + opts.className : ""), "data-ui": "ui.dialog vault.dialog vault.editor" + (opts.hook ? " " + opts.hook : "") }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("div", { class: "k-medit-heading" }, [
+          el("span", { class: "k-kicker", text: opts.isNew ? "New collection record" : "Collection record" }),
+          el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: (opts.isNew ? "Add to " : "Edit — ") + opts.label }),
+          opts.subtitle ? el("span", { class: "k-muted", text: opts.subtitle }) : null
+        ].filter(Boolean)),
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: function () { overlay.close(); } })
       ]),
-      el("div", { class: "med-form" }, opts.form),
-      el("div", { class: "lab-controls med-modal-foot" }, [
-        el("div", { class: "med-delete-actions" }, [
-          !opts.isNew && opts.onDelete ? el("button", { class: "btn danger", text: "Delete record", onclick: opts.onDelete }) : null
-        ]),
-        el("div", { class: "med-save-actions" }, [
-          el("button", { class: "btn", text: "Cancel", onclick: overlay.close }),
-          el("button", { class: "btn primary", text: opts.isNew ? "Add to collection" : "Save changes", onclick: opts.onSave })
+      el("div", { class: "k-dialog-body k-medit-form", "data-ui": "ui.form" }, opts.form.filter(Boolean)),
+      el("div", { class: "k-dialog-foot k-medit-foot" }, [
+        el("div", { class: "k-cluster", "data-ui": "vault.delete-actions" }, [
+          !opts.isNew && opts.onDelete ? el("button", { type: "button", class: "k-btn k-btn--danger", "data-intent": "danger", text: "Delete record", onclick: opts.onDelete }) : null
+        ].filter(Boolean)),
+        el("div", { class: "k-cluster", "data-ui": "vault.save-actions" }, [
+          el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { overlay.close(); } }),
+          el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: opts.isNew ? "Add to collection" : "Save changes", onclick: opts.onSave })
         ])
       ])
     ]));
@@ -681,13 +677,10 @@
     });
   }
 
-  /* ================= per-card affordances (Phase C — ex core/media.js,
-     which is domain layer and shouldn't render DOM) ================= */
+  /* ================= per-card affordances ================= */
   /* inline quick-edit (Build 3d): status + score editable straight on a
-     vault card — the low-friction editing that makes automatic push worth
-     having. One implementation, used by all the module views. Status
-     changes log a session ("status", same as the editors); score-only
-     changes just save+push (the editors don't log those either). */
+     vault card. Status changes log a session ("status", same as the
+     editors); score-only changes just save+push. */
   function quickSave(e, rerender) {
     var before = KOS.mediapush.snapshot(e);
     return function saved(action) {
@@ -699,12 +692,11 @@
       });
     };
   }
-  /* the status half on its own — the grid card's hover row holds this
-     beside "+1", with the score moved to the cover's top-left corner
-     (quickScore) so the row no longer overflows and clips the +1 */
+  /* the status half — the grid card's hover row holds this beside "+1",
+     with the score in the cover's top-left corner (quickScore) */
   function quickStatus(e, rerender) {
     var saved = quickSave(e, rerender);
-    var sel = el("select", { class: "status-sel med-qsel", "aria-label": "Status",
+    var sel = el("select", { class: "k-mqsel", "data-ui": "ui.status-select vault.qsel", "aria-label": "Status",
       title: "Change status — " + (e.module === "game"
         ? "saved locally (games have no live sync)"
         : "pushes to " + (e.module === "vn" ? "VNDB" : "AniList") + " when this entry is synced") },
@@ -727,7 +719,9 @@
      the entry is synced). opts.corner marks the grid card's top-left pill */
   function quickScore(e, rerender, opts) {
     var saved = quickSave(e, rerender);
-    var score = el("input", { type: "number", class: "todo-in med-qscore" + (opts && opts.corner ? " med-score-corner" : ""),
+    var corner = opts && opts.corner;
+    var score = el("input", { type: "number", class: corner ? "k-mscore" : "k-input k-mqscore",
+      "data-ui": "ui.quick-add vault.quick-score" + (corner ? " vault.score-corner" : ""),
       min: "0", max: "10", step: "0.5", value: e.score ? String(e.score) : "", placeholder: "★",
       title: "Score out of 10", "aria-label": "Score out of 10" });
     score.addEventListener("click", function (ev) { ev.stopPropagation(); });
@@ -740,15 +734,15 @@
     return score;
   }
   function quickEdit(e, rerender) {
-    return el("span", { class: "med-quick" }, [quickStatus(e, rerender), quickScore(e, rerender)]);
+    return el("span", { class: "k-cluster k-mquick" }, [quickStatus(e, rerender), quickScore(e, rerender)]);
   }
   /* the grid card's hover row: status + "+1" on one line, nothing else —
      onBump null (not in progress) leaves the status alone on the row */
   function quickRow(e, rerender, opts) {
     opts = opts || {};
-    return el("div", { class: "med-meta med-quickrow" }, [
+    return el("div", { class: "k-mquickrow", "data-ui": "vault.quickrow" }, [
       quickStatus(e, rerender),
-      opts.onBump ? el("button", { class: "mini-btn med-plus", text: "+1 " + (opts.unit || ""),
+      opts.onBump ? el("button", { type: "button", class: "k-mplus", "data-ui": "vault.plus", text: "+1 " + (opts.unit || ""),
         title: opts.title || "Log the next one", onclick: function (ev) {
           ev.stopPropagation();
           opts.onBump();
@@ -756,43 +750,95 @@
     ].filter(Boolean));
   }
 
+  /* ================= the overlay card (frame 11b) =================
+     Everything sits on the cover: the score top-left, ♥ top-right, the
+     title, any chips and the progress over a bottom gradient, the bar on
+     the bottom edge. The status select and +1 appear on hover (and on
+     focus-within), nothing below the card.
+
+     The card is NOT a button (Phase F): it holds the favourite, a select
+     and +1. It keeps a pointer shortcut; the TITLE is the real control.
+
+     opts: { hook (extra data-ui), kanji, chips: [node], prog, onBump,
+             unit, bumpTitle, open, onFav, noScore, extra: [node] }     */
+  function card(e, rerender, opts) {
+    opts = opts || {};
+    var node = el("div", { class: "k-mcard", "data-ui": "vault.card" + (opts.hook ? " " + opts.hook : ""),
+      "data-status": e.status,
+      onclick: function () { opts.open && opts.open(); }
+    }, [
+      cover(e, opts.kanji),
+      opts.noScore ? null : quickScore(e, rerender, { corner: true }),
+      favButton(e, opts.onFav),
+      el("div", { class: "k-mcard-body", "data-ui": "vault.card-body" }, [
+        el("button", { type: "button", class: "k-mcard-title", "data-ui": "vault.title", title: e.title, text: e.title,
+          onclick: function (ev) { ev.stopPropagation(); opts.open && opts.open(); } }),
+        el("div", { class: "k-mcard-meta" }, (opts.chips || []).filter(Boolean).concat([
+          opts.prog ? el("span", { class: "k-mcard-prog k-mono", "data-ui": "vault.card-progress", text: opts.prog }) : null,
+          pushChip(e, rerender)
+        ]).concat(opts.extra || []).filter(Boolean)),
+        quickRow(e, rerender, { unit: opts.unit, title: opts.bumpTitle, onBump: opts.onBump })
+      ])
+    ].filter(Boolean));
+    var track = KOS.media.progressBar(e);
+    if (track) node.appendChild(track);
+    if (e.favourite) KOS.ui.state(node, "fav", true);
+    return node;
+  }
+  function favButton(e, onFav) {
+    var b = el("button", { type: "button", class: "k-mfav", title: "Favourite — appears in the Shrine",
+      "aria-label": "Toggle favourite", "aria-pressed": String(!!e.favourite), text: "♥", onclick: function (ev) {
+        ev.stopPropagation();
+        e.favourite = !e.favourite;
+        b.setAttribute("aria-pressed", String(e.favourite));
+        KOS.ui.state(b, "on", e.favourite);
+        if (onFav) onFav(e); else KOS.mediadb.put(e, function () {});
+      } });
+    if (e.favourite) KOS.ui.state(b, "on", true);
+    return b;
+  }
+  /* an overlay chip in the card's own voice (airing, format, tier…) */
+  function chip(text, tone, attrs) {
+    return el("span", Object.assign({ class: "k-mchip", "data-tone": tone || null, text: text }, attrs || {}));
+  }
+
   /* the shared list-view row — a robust flex layout so nullable chips never
-     shift columns (the old grid broke when airing/push chips were absent).
-     opts: { genres|subline, chips:[nodes], prog, onBump, open, extra:[nodes] } */
+     shift columns. opts: { genres|subline, chips:[nodes], prog, onBump,
+     open, extra:[nodes], hook } */
   function listRow(e, mod, rerender, opts) {
     opts = opts || {};
     var thumb = e.coverUrl
-      ? el("span", { class: "med-row-cover" }, [KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy" }, e.coverCrop)])
-      : el("span", { class: "med-row-cover med-cover-ph", "aria-hidden": "true", text: mod.kanji });
-    var main = el("div", { class: "med-row-main" }, [
-      el("button", { type: "button", class: "med-row-title", text: e.title, title: e.title,
+      ? el("span", { class: "k-mrow-cover" }, [KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy" }, e.coverCrop)])
+      : el("span", { class: "k-mrow-cover", "data-ui": "vault.cover-placeholder", "aria-hidden": "true", text: mod.kanji });
+    var main = el("div", { class: "k-mrow-main" }, [
+      el("button", { type: "button", class: "k-mrow-title", "data-ui": "vault.title", text: e.title, title: e.title,
         onclick: function (ev) { ev.stopPropagation(); opts.open(); } }),
-      (opts.genres || opts.subline) ? el("span", { class: "med-row-genres", text: opts.subline || opts.genres }) : null
+      (opts.genres || opts.subline) ? el("span", { class: "k-mrow-sub", text: opts.subline || opts.genres }) : null
     ].filter(Boolean));
-    var side = el("div", { class: "med-row-side" },
+    var side = el("div", { class: "k-mrow-side" },
       (opts.chips || []).filter(Boolean)
         .concat([quickEdit(e, rerender)])
         .concat((opts.extra || []).filter(Boolean))
         .concat([
-          opts.prog ? el("span", { class: "med-prog", text: opts.prog }) : null,
+          opts.prog ? el("span", { class: "k-mono k-mrow-prog", "data-ui": "vault.card-progress", text: opts.prog }) : null,
           pushChip(e, rerender),
-          opts.onBump ? el("button", { class: "mini-btn med-plus", text: "+1", onclick: function (ev) {
+          opts.onBump ? el("button", { type: "button", class: "k-mplus", "data-ui": "vault.plus", text: "+1", onclick: function (ev) {
             ev.stopPropagation(); opts.onBump();
           } }) : null
         ].filter(Boolean)));
-    /* Phase F: same rule as the grid card — the row holds a quick-edit
-       select, a push-retry chip and "+1", so it cannot be a button. The
-       title is. */
-    return el("div", { class: "med-row", onclick: opts.open }, [
-      el("span", { class: "med-row-fav" + (e.favourite ? " on" : ""), text: e.favourite ? "♥" : "" }),
+    /* Phase F: the row holds a quick-edit select, a push-retry chip and
+       "+1", so it cannot be a button. The title is. */
+    var row = el("div", { class: "k-mrow", "data-ui": "vault.row" + (opts.hook ? " " + opts.hook : ""), "data-status": e.status, onclick: opts.open }, [
+      el("span", { class: "k-mrow-fav", "aria-hidden": "true", text: e.favourite ? "♥" : "" }),
       thumb, main, side
     ]);
+    return row;
   }
 
   /* the pending/failed push indicator + manual retry, per card */
   function pushChip(e, rerender) {
     if (e.push && e.push.state === "failed") {
-      return el("button", { class: "med-chip med-push-fail", text: "⚠ sync",
+      return el("button", { type: "button", class: "k-mchip k-mchip--btn", "data-tone": "crimson", "data-ui": "vault.push-fail", text: "⚠ sync",
         title: (e.push.error || "Push failed.") + " — click to retry",
         "aria-label": "Sync failed — retry", onclick: function (ev) {
           ev.stopPropagation();
@@ -802,7 +848,7 @@
         } });
     }
     if (KOS.mediapush.isPending(e.id)) {
-      return el("span", { class: "med-chip med-push-pending", title: "Syncing to " +
+      return el("span", { class: "k-mchip", "data-ui": "vault.push-pending", title: "Syncing to " +
         (e.module === "vn" ? "VNDB" : "AniList") + "…", text: "⇅" });
     }
     return null;
@@ -820,14 +866,11 @@
     });
   }
 
-  /* ================= the vault hero (Build 4.0) =================
-     Sol's hero treatment, per design.md: one user-selectable spotlight PER
-     MODULE, carried by a genuine banner image — AniList's bannerImage where
-     the entry is synced (verified live: a separate schema field from
-     coverImage), a user-uploaded wide image otherwise (VNDB exposes no
-     banner; games/books lookups don't either). Selection + upload live in
-     the media kv store ("hero.<module>"), NOT on the entry — no schema
-     change, no normalise() edit needed.
+  /* ================= the vault hero (Build 4.0 / frame 11b) =================
+     One user-selectable spotlight PER MODULE, carried by a genuine banner
+     image — AniList's bannerImage where synced, a user-uploaded wide image
+     otherwise. Selection + upload live in the media kv store
+     ("hero.<module>"), NOT on the entry (invariant 30).
      Network discipline: the ONLY fetch is the read-only AniList banner
      lookup, and only for syncSource:"anilist" entries missing one. Games
      and VN entries never trigger network from here (invariants #12/#20). */
@@ -836,51 +879,36 @@
   /* the spotlight picker: search-as-you-type over the module's vault */
   function heroPicker(modId, kanji, onPick) {
     var overlay = modalOverlay();
-    var input = el("input", { type: "search", class: "todo-in msch-in", placeholder: "Search your vault…" });
-    var list = el("div", { class: "msch-results" });
+    var input = el("input", { type: "search", class: "k-input", "data-ui": "msearch.input", placeholder: "Search your vault…", "aria-label": "Search your vault" });
+    var list = el("div", { class: "k-mpick" });
     function run() {
       KOS.mediadb.query({ module: modId, search: input.value.trim() || undefined, sort: "updated" }, function (err, rows) {
         if (err) return;
         list.innerHTML = "";
         rows.slice(0, 40).forEach(function (e) {
-          /* Phase F: a leaf row with no controls inside it is a real
-             <button>, not a div wearing role="button" — it had no keyboard
-             activation at all, so the vault search could not be used
-             without a mouse. */
-          list.appendChild(el("button", { type: "button", class: "msch-row",
+          list.appendChild(el("button", { type: "button", class: "k-mpick-row", "data-ui": "msearch.row",
             onclick: function () { overlay.close(); onPick(e); } }, [
-            e.coverUrl ? el("span", { class: "msch-cover" }, [
-              KOS.imageCrop.image(e.coverUrl, { alt: "" }, e.coverCrop)
-            ])
-                       : el("span", { class: "msch-cover med-cover-ph", text: kanji }),
-            el("div", { class: "msch-body" }, [
-              el("div", { class: "msch-title", text: e.title }),
-              el("span", { class: "sub", text: KOS.media.STATUS_LABEL[e.status] })
+            e.coverUrl ? el("span", { class: "k-mrow-cover" }, [KOS.imageCrop.image(e.coverUrl, { alt: "" }, e.coverCrop)])
+                       : el("span", { class: "k-mrow-cover", "aria-hidden": "true", text: kanji }),
+            el("span", { class: "k-mrow-main" }, [
+              el("b", { class: "k-mrow-title", text: e.title }),
+              el("span", { class: "k-mrow-sub", text: KOS.media.STATUS_LABEL[e.status] })
             ])
           ]));
         });
-        if (!rows.length) list.appendChild(el("p", { class: "fc-empty", text: "Nothing in this vault yet." }));
+        if (!rows.length) list.appendChild(el("p", { class: "k-muted", text: "Nothing in this vault yet." }));
       });
     }
     input.addEventListener("input", KOS.ui.debounce(run, 200));
-    overlay.appendChild(el("div", { class: "modal msch-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", { text: "Choose the spotlight" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "\u2715", onclick: overlay.close })
-      ]),
-      input, list
-    ]));
+    dialogBox(overlay, "msearch.dialog", "Choose the spotlight", null, el("div", { class: "k-dialog-body" }, [input, list]));
     KOS.ui.openDialog(overlay);
     input.focus();
     run();
     return overlay;
   }
 
-  /* mount the hero into `holder`. mod = KOS.media.module(modId); rerender
-     re-runs the view's refresh so progress bumps show everywhere. */
-  /* the one human sentence under the spotlight title */
-  /* the entry's own unit, spelt out — a VN counting chapters says
-     "chapters", one on a percentage speaks in percent */
+  /* the one human sentence under the spotlight title — the entry's own
+     unit, spelt out */
   var LONG_UNIT = { ep: "episodes", ch: "chapters", route: "routes", hr: "hours" };
   function heroLine(e, mod) {
     var cur = (e.progress && e.progress.current) || 0;
@@ -914,56 +942,41 @@
   }
 
   /* ---- the hero backdrop (audit VLT-4 / VLT-5 / U-14) ----
-     Three levels of finish existed for one component: Anime got a real
-     full-bleed AniList banner, Books and VN a mostly-empty pale gradient
-     with a small floated cover, Games a kanji placeholder in an empty
-     panel — because only AniList exposes a banner, and the other three
-     modules had no designed answer to its absence. The app looked
-     half-built exactly where the art was missing.
-
-     There is now ONE composition and a three-step fallback for its
-     backdrop, in order of what the entry actually has:
-
+     ONE composition and a three-step fallback for its backdrop:
        1. a banner (uploaded, or AniList's — invariant #30 is untouched);
-       2. the entry's OWN COVER, blown up and blurred behind the scrim —
-          real art, always available, and unmistakably about this title;
-       3. a deterministic two-stop gradient in the module's accent, hue-
-          shifted by the title so a vault of unillustrated games is not
-          seventy identical grey tiles.
-
-     Every step is followed by the same scrim, unconditionally. Hero text
-     never depends on what the artwork happens to be (invariant #56) —
-     bannerIsDark()'s lesson from Home, applied here.
-
-     Nothing here fetches: step 2 uses the cover already in the record and
-     step 3 is arithmetic, so the games and VN vaults keep emitting zero
-     network requests (invariants #12/#20/#30).                          */
-  var HERO_SCRIM = "linear-gradient(100deg, rgba(16,14,10,.92) 0%, rgba(16,14,10,.74) 40%, rgba(16,14,10,.34) 72%, rgba(16,14,10,.16) 100%)";
+       2. the entry's OWN COVER, blown up and blurred behind the scrim;
+       3. a deterministic wash in the module's accent, hue-shifted by title.
+     Every step is followed by the same scrim, unconditionally, so hero
+     text never depends on the artwork. Nothing here fetches. */
   /* a stable hue for a title — the same string always lands on the same
      colour, so a spotlight does not change character when you revisit it */
+  /* the scrim every backdrop path ends with — banner, cover or wash */
+  var HERO_SCRIM = "vault.hero-scrim";
   function titleHue(s) {
     var h = 0, str = String(s || "");
     for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 360;
     return h;
   }
   function heroBackdrop(hero, e, mod, banner, crop) {
-    hero.style.setProperty("--vh-accent", mod.accent || "var(--accent)");
+    hero.style.setProperty("--vh-accent", mod.accent || "var(--crimson)");
     hero.style.setProperty("--vh-hue", String(titleHue(e.title)));
     if (banner) {
       KOS.ui.state(hero, "has-banner", true);
-      KOS.imageCrop.background(hero, banner, crop, { overlay: HERO_SCRIM });
-      return;
-    }
-    KOS.ui.state(hero, "vh-fallback", true);
-    if (e.coverUrl) {
-      KOS.ui.state(hero, "vh-fromcover", true);
-      hero.appendChild(el("span", { class: "vh-art", "aria-hidden": "true" }, [
-        KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)
-      ]));
+      /* the banner goes through the one crop workflow (invariant 26c) */
+      KOS.imageCrop.background(hero, banner, crop, { className: "k-vhero-art" });
     } else {
-      hero.appendChild(el("span", { class: "vh-art vh-art-mark", "aria-hidden": "true", text: mod.kanji }));
+      KOS.ui.state(hero, "vh-fallback", true);
+      if (e.coverUrl) {
+        KOS.ui.state(hero, "vh-fromcover", true);
+        hero.appendChild(el("span", { class: "k-vhero-art", "data-ui": "vault.hero-art", "aria-hidden": "true" }, [
+          KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)
+        ]));
+      } else {
+        hero.appendChild(el("span", { class: "k-vhero-art", "data-ui": "vault.hero-art", "aria-hidden": "true" }));
+      }
     }
-    hero.appendChild(el("span", { class: "vh-scrim", "aria-hidden": "true" }));
+    hero.appendChild(el("span", { class: "k-vhero-scrim", "data-ui": HERO_SCRIM, "aria-hidden": "true" }));
+    hero.appendChild(el("span", { class: "k-vhero-mark", "aria-hidden": "true", text: mod.kanji }));
   }
 
   function heroCard(holder, modId, mod, rerender) {
@@ -975,7 +988,7 @@
         if (!e) return;   // empty vault — no hero
         var remoteBanner = (e.extra && e.extra.bannerImage) || null;
         var banner = pref.banner || remoteBanner;
-        var hero = el("div", { class: "vault-hero", role: "region", "aria-label": "Spotlight" });
+        var hero = el("section", { class: "k-vhero", "data-ui": "vault.hero", role: "region", "aria-label": "Spotlight" });
         heroBackdrop(hero, e, mod, banner, pref.crop);
 
         function pickSpotlight() {
@@ -1024,58 +1037,47 @@
         }
 
         var prog = KOS.media.progressText(e);
-        var body = el("div", { class: "vh-body" }, [
-          el("div", { class: "vh-kicker" }, [
-            el("span", { text: "Spotlight" }),
-            el("span", { class: "vh-mod", text: "/ " + mod.label })
+        var bump = null;
+        if (e.status === "inProgress" && e.module !== "game" && e.module !== "vn") {
+          bump = { label: "▶ +1 " + mod.unit, run: function () { bumpUnit(e, "progress", function () { rerender && rerender(); }); } };
+        } else if (e.module === "vn" && KOS.vn && KOS.vn.quickBump(e)) {
+          var vb = KOS.vn.quickBump(e);
+          bump = { label: "▶ +1 " + vb.unit, run: function () { vb.run(e, function () { rerender && rerender(); }); } };
+        }
+        var menu = addHook(KOS.ui.menu({ label: "⋯", className: "k-btn--quiet k-vhero-more",
+          hint: "Choose what this hero shows, and the art behind it",
+          items: [
+            { label: "Choose a different title…", glyph: "☆", onSelect: pickSpotlight },
+            { label: banner ? "Reposition the banner…" : "Add a banner image…", glyph: "✎",
+              hint: banner ? null : "Without one, the cover art is used", onSelect: editBanner }
+          ] }), "vault.hero-menu");
+        menu.setAttribute("aria-label", "Spotlight options");
+        var body = el("div", { class: "k-vhero-body" }, [
+          el("p", { class: "k-kicker k-vhero-kicker" }, [
+            el("span", { text: "Spotlight " }),
+            el("span", { class: "k-muted", text: "/ " + mod.label })
           ]),
-          el("h2", { class: "vh-title", title: e.title, text: e.title }),
-          el("p", { class: "vh-line", text: heroLine(e, mod) }),
-          el("div", { class: "vh-meta" }, [
-            el("span", { class: "med-chip", style: "--chip:" + (KOS.media.STATUS_COLOR[e.status] || "#888"),
-              text: KOS.media.STATUS_LABEL[e.status] }),
-            prog ? el("span", { class: "vh-chip", text: prog }) : null,
-            e.score ? el("span", { class: "vh-chip", text: "★ " + e.score }) : null
+          el("h2", { class: "k-vhero-title", "data-ui": "vault.hero-title", title: e.title, text: e.title }),
+          el("p", { class: "k-vhero-line", text: heroLine(e, mod) }),
+          el("div", { class: "k-cluster k-vhero-chips" }, [
+            el("span", { class: "k-chip k-status-chip", "data-status": e.status, text: KOS.media.STATUS_LABEL[e.status] }),
+            prog ? el("span", { class: "k-chip", text: prog }) : null,
+            e.score ? el("span", { class: "k-chip", text: "★ " + e.score }) : null
           ].filter(Boolean)),
-          KOS.media.progressBar(e, "vh-track"),
-          /* Two actions and a group. "Spotlight" and "Banner" configure the
-             hero rather than acting on the title, so they sit in the same
-             ⋯ grammar the toolbar uses instead of competing with "Open
-             entry" for attention (audit VLT-3's rule, applied here too). */
-          el("div", { class: "vh-actions" }, [
-            /* the everyday log action. A VN has no unit to bump unless it
-               counts chapters (routes are named, a percentage is set in the
-               editor) — bumpUnit's progress.current would only be
-               re-derived away, rewarding nothing. */
-            e.status === "inProgress" && e.module !== "game" && e.module !== "vn"
-              ? el("button", { class: "btn primary", text: "▶ +1 " + mod.unit, onclick: function () {
-                  bumpUnit(e, "progress", function () { rerender && rerender(); });
-                } })
-            : e.module === "vn" && KOS.vn && KOS.vn.quickBump(e)
-              ? (function (bump) {
-                  return el("button", { class: "btn primary", text: "▶ +1 " + bump.unit, onclick: function () {
-                    bump.run(e, function () { rerender && rerender(); });
-                  } });
-                })(KOS.vn.quickBump(e))
-            : null,
-            el("button", { class: "btn ghost", text: "Open entry", onclick: function () {
+          KOS.media.progressBar(e, "k-vhero-bar"),
+          el("div", { class: "k-cluster k-vhero-actions", "data-ui": "vault.hero-actions" }, [
+            bump ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: bump.label, onclick: bump.run }) : null,
+            el("button", { type: "button", class: "k-btn k-vhero-open", text: "Open entry", onclick: function () {
               KOS.mediaEditor(e, function () { rerender && rerender(); });
             } }),
-            KOS.ui.menu({ label: "Spotlight", className: "btn ghost vh-menu",
-              hint: "Choose what this hero shows, and the art behind it",
-              items: [
-                { label: "Choose a different title…", glyph: "☆", onSelect: pickSpotlight },
-                { label: banner ? "Reposition the banner…" : "Add a banner image…", glyph: "✎",
-                  hint: banner ? null : "Without one, the cover art is used", onSelect: editBanner }
-              ] })
+            menu
           ].filter(Boolean))
         ].filter(Boolean));
 
-        /* the cover plate stands on every hero now, banner or not — it is
-           the module's identity and the thing you recognise a title by */
+        /* the cover plate stands on every hero, banner or not */
         hero.appendChild(e.coverUrl
-          ? el("span", { class: "vh-cover" }, [KOS.imageCrop.image(e.coverUrl, { alt: "" }, e.coverCrop)])
-          : el("span", { class: "vh-ph", "aria-hidden": "true", text: mod.kanji }));
+          ? el("span", { class: "k-vhero-cover", "data-ui": "vault.hero-cover" }, [KOS.imageCrop.image(e.coverUrl, { alt: "" }, e.coverCrop)])
+          : el("span", { class: "k-vhero-cover", "data-ui": "vault.hero-placeholder", "aria-hidden": "true", text: mod.kanji }));
         hero.appendChild(body);
         holder.appendChild(hero);
       }
@@ -1100,19 +1102,14 @@
 
 
   /* ================= per-module statistics ================= */
-  /* One modal per vault: composition, taste and pace — donut, bars,
+  /* One dialog per vault: composition, taste and pace — donut, bars,
      horizontal bars and a trend line, all KOS.charts (invariant #27). */
   function monthKey(iso) { return iso ? iso.slice(0, 7) : null; }
   function statsModal(modId, mod) {
     KOS.mediadb.query({ module: modId }, function (err, rows) {
       if (err) { KOS.ui.toast("Could not read the vault: " + err.message, true); return; }
       var overlay = modalOverlay();
-      var box = el("div", { class: "modal stats-modal" });
-      box.appendChild(el("div", { class: "modal-h" }, [
-        el("b", { text: mod.label + " — the numbers" }),
-        el("span", { class: "sub", text: rows.length + (rows.length === 1 ? " entry" : " entries") }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "\u2715", "aria-label": "Close", onclick: overlay.close })
-      ]));
+      var body = el("div", { class: "k-dialog-body k-mstats" });
 
       /* headline band */
       var inProg = 0, completed = 0, scored = 0, scoreSum = 0, favs = 0, units = 0;
@@ -1124,10 +1121,9 @@
         units += modId === "game" ? (e.playtimeHours || 0) : ((e.progress && e.progress.current) || 0);
       });
       function cell(v, k) {
-        return el("div", { class: "stat-cell" }, [
-          el("b", { text: String(v) }), el("span", { text: k })]);
+        return el("div", { class: "k-mstat" }, [el("dd", { class: "k-mono", text: String(v) }), el("dt", { text: k })]);
       }
-      box.appendChild(el("div", { class: "stat-band" }, [
+      body.appendChild(el("dl", { class: "k-mstat-band" }, [
         cell(rows.length, "in the vault"),
         cell(inProg, modId === "books" ? "reading" : modId === "anime" ? "watching" : "playing"),
         cell(completed, "finished"),
@@ -1136,13 +1132,13 @@
         cell(favs, "in the Shrine")
       ]));
 
-      var grid = el("div", { class: "stats-grid" });
-      box.appendChild(grid);
+      var grid = el("div", { class: "k-mstats-grid" });
+      body.appendChild(grid);
 
       /* 1 — composition donut */
-      var statusData = ["inProgress", "planned", "onHold", "completed", "dropped"].map(function (s) {
+      var statusData = STATUSES.map(function (s) {
         return { label: KOS.media.STATUS_LABEL[s], value: rows.filter(function (e) { return e.status === s; }).length,
-          color: KOS.media.STATUS_COLOR[s] };
+          color: "var(--st-" + s + ")" };
       });
       grid.appendChild(KOS.charts.chartCard("By status", "the shape of the vault",
         KOS.charts.donutWithLegend(statusData, { centre: rows.length, centreSub: "titles" })));
@@ -1151,7 +1147,7 @@
       var scores = [];
       for (var i = 1; i <= 10; i++) {
         scores.push({ label: String(i), value: rows.filter(function (e) { return Math.round(e.score) === i && e.score; }).length,
-          color: i >= 8 ? "#B08A3E" : i >= 5 ? "#7D9B76" : "#B5573F" });
+          color: i >= 8 ? "var(--gold)" : i >= 5 ? "var(--green)" : "var(--red)" });
       }
       if (scored) grid.appendChild(KOS.charts.chartCard("Scores", "everything you have rated, out of 10",
         KOS.charts.barChart(scores)));
@@ -1211,8 +1207,7 @@
       if (modId === "books") {
         var owned = 0;
         rows.forEach(function (e) { owned += (e.physical && e.physical.volumes ? e.physical.volumes.length : 0); });
-        if (owned) box.appendChild(el("p", { class: "sub", style: "margin-top:12px",
-          text: owned + " physical volumes on the shelf across " +
+        if (owned) body.appendChild(el("p", { class: "k-muted", text: owned + " physical volumes on the shelf across " +
             rows.filter(function (e) { return e.physical && e.physical.volumes && e.physical.volumes.length; }).length + " series." }));
       }
       if (modId === "vn") {
@@ -1221,52 +1216,48 @@
           routes += (e.routes || []).filter(function (r) { return r.cleared; }).length;
           quotes += (e.quotes || []).length;
         });
-        if (routes || quotes) box.appendChild(el("p", { class: "sub", style: "margin-top:12px",
-          text: routes + " routes cleared \u00b7 " + quotes + " quotes kept." }));
+        if (routes || quotes) body.appendChild(el("p", { class: "k-muted", text: routes + " routes cleared · " + quotes + " quotes kept." }));
       }
 
-      overlay.appendChild(box);
+      dialogBox(overlay, "vault.stats", mod.label + " — the numbers", rows.length + (rows.length === 1 ? " entry" : " entries"), body, null, "k-mstats-dialog");
       KOS.ui.openDialog(overlay);
     });
   }
 
-  /* ---------------- filter rail (Build 3k) ----------------
-     AniList-style left sidebar: Status + shared Custom Lists (which every
-     module now carries). Bespoke per-module axes (mood, platform, developer…)
-     stay in the toolbar; this rail owns the two axes ALL vaults share.
-     onChange() fires when the selection changes → the caller re-runs its
-     query reading rail.status() / rail.customList(). Counts are tallied from
-     one module query and re-rendered on reload(). */
+  /* ---------------- filter rail (Build 3k / frame 11b) ----------------
+     Status + shared Custom Lists (the two axes every medium shares), each
+     row with a live count. onChange() fires when the selection changes →
+     the caller re-runs its query reading rail.status() / rail.customList(). */
   function filterRail(module, onChange) {
     var sel = { status: null, customList: null };
-    var statusBox = el("div", { class: "fr-group" });
-    var listBox = el("div", { class: "fr-group" });
-    var root = el("aside", { class: "med-filter-rail", "aria-label": "Filters" }, [
-      el("div", { class: "fr-head", text: "Filter" }),
-      statusBox, listBox
-    ]);
+    var statusBox = el("div", { class: "k-mrail-group" });
+    var listBox = el("div", { class: "k-mrail-group" });
+    var root = el("nav", { class: "k-mrail", "data-ui": "vault.filter-rail", "aria-label": "Filters" }, [statusBox, listBox]);
 
     /* audit VLT-7: AniList custom lists whose names are pure decoration
-       ("—— ☆ ——", "▬▬▬") arrive through the sync mapper like any other
-       list, and rendered as near-invisible thin lines in the rail — a row
-       you cannot read is a row you cannot choose. The name is preserved
-       exactly (it is the user's, and it round-trips to AniList), but the
-       row says what it is and how many titles are on it. */
+       ("—— ☆ ——") keep their name exactly (it round-trips to AniList), but
+       the row says what it is and how many titles are on it. */
     function isDecorative(name) {
       return !/[0-9A-Za-zÀ-ɏ぀-ヿ一-鿿]/.test(String(name || ""));
     }
-    function rowBtn(label, active, count, onClick, cls) {
-      var deco = !!cls && cls.indexOf("fr-listrow") !== -1 && isDecorative(label);
-      return el("button", {
-        class: "fr-row" + (active ? " active" : "") + (cls ? " " + cls : "") + (deco ? " fr-row-deco" : ""),
+    function rowBtn(label, active, count, onClick, opts) {
+      opts = opts || {};
+      var deco = !!opts.list && isDecorative(label);
+      var b = el("button", {
+        type: "button", class: "k-mrail-row", "data-status": opts.status || null,
+        "aria-current": active ? "true" : null,
         title: deco ? "An imported list whose name is decoration: " + label : null,
         onclick: onClick
       }, [
-        el("span", { class: "fr-row-lbl" }, deco
-          ? [el("span", { class: "fr-row-deco-mark", text: label }), el("em", { text: "unnamed list" })]
+        opts.status ? el("span", { class: "k-mrail-dot", "aria-hidden": "true" }) : null,
+        el("span", { class: "k-mrail-lbl" }, deco
+          ? [el("span", { class: "k-mono k-muted", text: label }), el("em", { text: " unnamed list" })]
           : [document.createTextNode(label)]),
-        count != null ? el("span", { class: "fr-row-n", text: String(count) }) : null
+        count != null ? el("span", { class: "k-mrail-n k-mono", text: String(count) }) : null
       ].filter(Boolean));
+      if (active) KOS.ui.state(b, "active", true);
+      if (deco) KOS.ui.state(b, "deco", true);
+      return b;
     }
     function pick(what, val) {
       sel[what] = val;
@@ -1279,28 +1270,26 @@
     var counts = { status: {}, list: {}, total: 0 };
     function render() {
       statusBox.innerHTML = "";
-      statusBox.appendChild(el("div", { class: "fr-title", text: "Status" }));
-      statusBox.appendChild(rowBtn("All", sel.status == null, counts.total, function () { pick("status", null); }));
+      statusBox.appendChild(el("h2", { class: "k-kicker k-mrail-h", text: "Status" }));
+      statusBox.appendChild(rowBtn("All", sel.status == null && sel.customList == null, counts.total, function () { pick("status", null); }));
       STATUSES.forEach(function (s) {
-        statusBox.appendChild(rowBtn(KOS.media.STATUS_LABEL[s], sel.status === s, counts.status[s] || 0, function () { pick("status", s); }, "st-" + s));
+        statusBox.appendChild(rowBtn(KOS.media.STATUS_LABEL[s], sel.status === s, counts.status[s] || 0, function () { pick("status", s); }, { status: s }));
       });
 
       listBox.innerHTML = "";
-      var titleRow = el("div", { class: "fr-title fr-title-lists" }, [
+      listBox.appendChild(el("h2", { class: "k-kicker k-mrail-h" }, [
         el("span", { text: "Lists" }),
-        el("button", { class: "fr-manage", title: "New / rename / delete lists", text: "⚙", onclick: function () { manageLists(module, reload); } })
-      ]);
-      listBox.appendChild(titleRow);
+        el("button", { type: "button", class: "k-link k-mrail-manage", title: "New / rename / delete lists", text: "Manage", onclick: function () { manageLists(module, reload); } })
+      ]));
       var names = Object.keys(counts.list);
       if (!names.length) {
-        listBox.appendChild(el("p", { class: "fr-empty", text: "No custom lists yet." }));
-        listBox.appendChild(el("button", { class: "fr-new", text: "＋ New list", onclick: function () { newList(module, reload); } }));
+        listBox.appendChild(el("p", { class: "k-mrail-empty", text: "No custom lists yet." }));
       } else {
         names.sort(function (a, b) { return a.toLowerCase() < b.toLowerCase() ? -1 : 1; }).forEach(function (n) {
-          listBox.appendChild(rowBtn(n, sel.customList === n, counts.list[n], function () { pick("customList", sel.customList === n ? null : n); }, "fr-listrow"));
+          listBox.appendChild(rowBtn(n, sel.customList === n, counts.list[n], function () { pick("customList", sel.customList === n ? null : n); }, { list: true }));
         });
-        listBox.appendChild(el("button", { class: "fr-new", text: "＋ New list", onclick: function () { newList(module, reload); } }));
       }
+      listBox.appendChild(el("button", { type: "button", class: "k-mrail-row k-mrail-new", text: "＋ New list", onclick: function () { newList(module, reload); } }));
     }
 
     function reload() {
@@ -1330,39 +1319,41 @@
 
   function newList(module, done) {
     var overlay = modalOverlay();
-    var nameIn = el("input", { type: "text", class: "todo-in", placeholder: "List name — e.g. “Comfort reads”, “100% club”" });
-    overlay.appendChild(el("div", { class: "modal cl-modal" }, [
-      el("div", { class: "modal-h" }, [el("b", { text: "New custom list" }), el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", onclick: overlay.close })]),
-      el("div", { class: "med-form" }, [el("label", { class: "med-field" }, [el("span", { class: "k", text: "Name" }), nameIn])]),
-      el("div", { class: "lab-controls", style: "margin-top:12px" }, [
-        el("button", { class: "btn primary", text: "Create", onclick: function () {
-          var n = nameIn.value.trim();
-          if (!n) { KOS.ui.toast("Give the list a name first.", true); return; }
-          KOS.media.registerList(module, n, function () { overlay.close(); KOS.ui.toast("List created."); done && done(); });
-        } })
-      ])
-    ]));
+    var nameIn = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", placeholder: "List name — e.g. “Comfort reads”, “100% club”", "aria-label": "List name" });
+    function create() {
+      var n = nameIn.value.trim();
+      if (!n) { KOS.ui.toast("Give the list a name first.", true); return; }
+      KOS.media.registerList(module, n, function () { overlay.close(); KOS.ui.toast("List created."); done && done(); });
+    }
+    nameIn.addEventListener("keydown", function (ev) { if (ev.key === "Enter") create(); });
+    dialogBox(overlay, "cl.dialog", "New custom list", null,
+      el("div", { class: "k-dialog-body", "data-ui": "ui.form" }, [field("Name", nameIn)]),
+      el("div", { class: "k-dialog-foot" }, [
+        el("button", { type: "button", class: "k-btn k-spacer", text: "Cancel", onclick: function () { overlay.close(); } }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Create", onclick: create })
+      ]));
     KOS.ui.openDialog(overlay);
     setTimeout(function () { nameIn.focus(); }, 30);
   }
 
   function manageLists(module, done) {
-    var overlay = modalOverlay();
-    var body = el("div", { class: "cl-manage" });
+    var overlay = modalOverlay(function () { done && done(); });
+    var body = el("div", { class: "k-dialog-body k-mlists" });
     function fill() {
       body.innerHTML = "";
       KOS.media.customLists(module, function (e0, names) {
-        if (!names.length) { body.appendChild(el("p", { class: "sub", text: "No custom lists yet — create one from the filter rail." })); return; }
+        if (!names.length) { body.appendChild(el("p", { class: "k-muted", text: "No custom lists yet — create one from the filter rail." })); return; }
         names.forEach(function (n) {
-          var nameIn = el("input", { type: "text", class: "todo-in cl-name", value: n });
-          body.appendChild(el("div", { class: "cl-row" }, [
+          var nameIn = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", "aria-label": "List name" });
+          nameIn.value = n;
+          body.appendChild(el("div", { class: "k-mlists-row" }, [
             nameIn,
-            el("button", { class: "mini-btn", text: "Rename", onclick: function () {
+            el("button", { type: "button", class: "k-btn k-btn--sm", text: "Rename", onclick: function () {
               var to = nameIn.value.trim();
               if (!to || to === n) return;
               KOS.media.renameList(module, n, to, function () { KOS.ui.toast("Renamed."); fill(); });
             } }),
-            el("button", { class: "mini-btn danger", text: "Delete", onclick: function () {
+            el("button", { type: "button", class: "k-btn k-btn--sm k-btn--danger", "data-intent": "danger", text: "Delete", onclick: function () {
               KOS.ui.confirm({ title: "Delete “" + n + "”?", danger: true, confirm: "Delete",
                 body: "The list is removed from every entry that's on it. The entries themselves stay." }, function () {
                 KOS.media.deleteList(module, n, function () { KOS.ui.toast("List deleted."); fill(); });
@@ -1372,24 +1363,21 @@
         });
       });
     }
-    overlay.appendChild(el("div", { class: "modal cl-modal" }, [
-      el("div", { class: "modal-h" }, [el("b", { text: "Manage custom lists" }), el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", onclick: function () { overlay.close(); done && done(); } })]),
-      body,
-      el("div", { class: "lab-controls", style: "margin-top:12px" }, [
-        el("button", { class: "btn", text: "＋ New list", onclick: function () { newList(module, fill); } }),
-        el("button", { class: "btn primary", text: "Done", onclick: function () { overlay.close(); done && done(); } })
-      ])
-    ]));
+    dialogBox(overlay, "cl.dialog", "Manage custom lists", null, body,
+      el("div", { class: "k-dialog-foot" }, [
+        el("button", { type: "button", class: "k-btn k-spacer", text: "＋ New list", onclick: function () { newList(module, fill); } }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Done", onclick: function () { overlay.close(); } })
+      ]));
     KOS.ui.openDialog(overlay);
     fill();
   }
 
   /* the per-entry custom-list assignment control for editors (all modules).
-     Renders known lists as toggle chips + a free-text add. Mutates
+     Known lists as toggle pills + a free-text add. Mutates
      entry.customLists in place; the editor's normal save persists it. */
   function customListChips(entry) {
     entry.customLists = Array.isArray(entry.customLists) ? entry.customLists : [];
-    var wrap = el("div", { class: "cl-chips" });
+    var wrap = el("div", { class: "k-cluster k-mlist-chips", "data-ui": "cl.chips" });
     function render() {
       wrap.innerHTML = "";
       KOS.media.customLists(entry.module, function (e0, names) {
@@ -1398,13 +1386,13 @@
         entry.customLists.forEach(function (n) { known[n] = true; });
         Object.keys(known).sort().forEach(function (n) {
           var on = entry.customLists.indexOf(n) !== -1;
-          wrap.appendChild(el("button", { type: "button", class: "cl-chip" + (on ? " on" : ""), text: (on ? "✓ " : "") + n, onclick: function () {
+          wrap.appendChild(el("button", { type: "button", class: "k-qz-pill", "data-ui": "cl.chip", "aria-pressed": String(on), text: (on ? "✓ " : "") + n, onclick: function () {
             if (on) entry.customLists = entry.customLists.filter(function (x) { return x !== n; });
             else entry.customLists.push(n);
             render();
           } }));
         });
-        var addIn = el("input", { type: "text", class: "todo-in cl-chip-add", placeholder: "＋ new list…" });
+        var addIn = el("input", { type: "text", class: "k-pill-select", "data-ui": "ui.quick-add", placeholder: "＋ new list…", "aria-label": "Add to a new list" });
         addIn.addEventListener("keydown", function (ev) {
           if (ev.key !== "Enter") return;
           ev.preventDefault();
@@ -1420,6 +1408,27 @@
     return wrap;
   }
 
+  /* ================= the vault page (frame 11b) =================
+     The page head, the spotlight holder, and the rail beside a column
+     whose first row is the count + controls. Every medium mounts this;
+     what differs is the toolbar content and the card builder.
+     Returns { hero, rail slot, column, controls row }. */
+  function vaultPage(main, opts) {
+    main.appendChild(KOS.ui.pageHeader({ kicker: opts.kicker, title: opts.title, sub: opts.sub }));
+    var heroHolder = el("div", { class: "k-vhero-holder" });
+    main.appendChild(heroHolder);
+    var mainCol = el("div", { class: "k-mmain", "data-ui": "vault.main" });
+    var controls = el("div", { class: "k-mcontrols" });
+    mainCol.appendChild(controls);
+    var layout = el("div", { class: "k-mlayout-grid", "data-ui": "vault.layout" }, [mainCol]);
+    main.appendChild(layout);
+    return {
+      heroHolder: heroHolder, mainCol: mainCol, controls: controls, layout: layout,
+      setRail: function (node) { layout.insertBefore(node, mainCol); },
+      setBar: function (bar) { controls.appendChild(bar.root || bar); }
+    };
+  }
+
   KOS.medview = {
     BATCH: BATCH,
     heroCard: heroCard,
@@ -1427,6 +1436,14 @@
     customListChips: customListChips,
     statsModal: statsModal,
     listRow: listRow,
+    card: card,
+    chip: chip,
+    favButton: favButton,
+    vaultPage: vaultPage,
+    primaryButton: primaryButton,
+    facetSelect: facetSelect,
+    dialogBox: dialogBox,
+    addHook: addHook,
     STATUSES: STATUSES,
     NEEDS_IDB: NEEDS_IDB,
     unavailable: unavailable,

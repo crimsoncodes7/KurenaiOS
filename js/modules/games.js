@@ -33,11 +33,18 @@
   var BATCH = 60;
   var STATUSES = ["inProgress", "planned", "onHold", "completed", "dropped"];
 
+  /* read without creating: the prefs attach to the store the first time
+     one actually changes (a render writes nothing, §0.2.3) */
   function prefs() {
-    var m = store.state.media = store.state.media || {};
-    m.game = m.game || { layout: "grid", sort: "updated" };
-    return m.game;
+    var m = store.state.media;
+    return (m && m.game) || { layout: "grid", sort: "updated" };
   }
+  function persist(p) {
+    var m = store.state.media = store.state.media || {};
+    m.game = p;
+    store.save();
+  }
+
 
   /* ================= domain helpers (exposed as KOS.games) ================= */
   function playtimeText(e) {
@@ -233,19 +240,17 @@
   /* ================= little shared bits ================= */
   var mod = function () { return KOS.media.module("game"); };
   function cover(e) { return KOS.medview.cover(e, mod().kanji); }
+  /* the games chips, toned by the stylesheet (tier / platform / priority) */
   function tierChip(e) {
     if (!e.completionTier || e.completionTier === "notStarted") return null;
-    return el("span", { class: "med-chip gm-tier", style: "--chip:" + KOS.media.TIER_COLOR[e.completionTier],
-      title: "Completion tier", text: KOS.media.TIER_LABEL[e.completionTier] });
+    return KOS.medview.chip(KOS.media.TIER_LABEL[e.completionTier], "tier-" + e.completionTier, { "data-ui": "games.tier", title: "Completion tier" });
   }
   function platformChip(e) {
-    return e.platform ? el("span", { class: "med-chip gm-plat",
-      style: "--chip:" + (mod().accent), text: KOS.media.PLATFORM_LABEL[e.platform] || e.platform }) : null;
+    return e.platform ? KOS.medview.chip(KOS.media.PLATFORM_LABEL[e.platform] || e.platform, "platform", { "data-ui": "games.platform" }) : null;
   }
   function priorityChip(e) {
-    return e.backlogPriority ? el("span", { class: "med-chip gm-prio",
-      style: "--chip:" + KOS.media.PRIORITY_COLOR[e.backlogPriority],
-      title: "Backlog priority", text: "▲ " + KOS.media.PRIORITY_LABEL[e.backlogPriority] }) : null;
+    return e.backlogPriority ? KOS.medview.chip("▲ " + KOS.media.PRIORITY_LABEL[e.backlogPriority], "prio-" + e.backlogPriority,
+      { "data-ui": "games.priority", title: "Backlog priority" }) : null;
   }
   function metaLine(e) {
     var bits = [];
@@ -274,16 +279,16 @@
     var field = mv.field, splitList = mv.splitList;
 
     /* --- identity --- */
-    var title = el("input", { type: "text", class: "todo-in", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Title" });
-    var developer = el("input", { type: "text", class: "todo-in", value: e.developer, placeholder: "Developer" });
-    var publisher = el("input", { type: "text", class: "todo-in", value: e.publisher, placeholder: "Publisher" });
+    var title = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Title" });
+    var developer = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", value: e.developer, placeholder: "Developer" });
+    var publisher = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", value: e.publisher, placeholder: "Publisher" });
 
     /* --- list state + games axes --- */
-    var status = el("select", { class: "status-sel" }, STATUSES.map(function (s) {
+    var status = el("select", { class: "k-input", "data-ui": "ui.status-select" }, STATUSES.map(function (s) {
       return el("option", { value: s, text: KOS.media.STATUS_LABEL[s] });
     }));
     status.value = e.status;
-    var tier = el("select", { class: "status-sel", title: "Finer-grained than status: credits-rolled vs 100% vs platinum" },
+    var tier = el("select", { class: "k-input", "data-ui": "ui.status-select", title: "Finer-grained than status: credits-rolled vs 100% vs platinum" },
       KOS.mediadb.TIERS.map(function (t) {
         return el("option", { value: t, text: KOS.media.TIER_LABEL[t] });
       }));
@@ -294,37 +299,37 @@
       if (tier.value === "abandoned" && status.value !== "completed") status.value = "dropped";
       if ((tier.value === "storyComplete" || tier.value === "fullCompletion" || tier.value === "platinum")) status.value = "completed";
     });
-    var platform = el("select", { class: "status-sel" }, KOS.mediadb.PLATFORMS.map(function (p2) {
+    var platform = el("select", { class: "k-input", "data-ui": "ui.status-select" }, KOS.mediadb.PLATFORMS.map(function (p2) {
       return el("option", { value: p2, text: KOS.media.PLATFORM_LABEL[p2] });
     }));
     platform.value = e.platform || "pc";
-    var own = el("select", { class: "status-sel" }, [["steam", "Steam"], ["digital", "Digital (other)"], ["physical", "Physical"], ["unset", "—"]].map(function (o) {
+    var own = el("select", { class: "k-input", "data-ui": "ui.status-select" }, [["steam", "Steam"], ["digital", "Digital (other)"], ["physical", "Physical"], ["unset", "—"]].map(function (o) {
       return el("option", { value: o[0], text: o[1] });
     }));
     own.value = e.ownership;
-    var hours = el("input", { type: "number", class: "todo-in med-num", min: "0", step: "0.5",
+    var hours = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", step: "0.5",
       placeholder: "?", value: e.playtimeHours != null ? String(e.playtimeHours) : "",
       title: "Manual — no API exists to pull playtime from" });
-    var score = el("input", { type: "number", class: "todo-in med-num", min: "0", max: "10", step: "0.5", value: String(e.score || 0) });
-    var prio = el("select", { class: "status-sel", title: "Feeds the backlog analytics below the vault" }, [["", "—"]].concat(
+    var score = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", max: "10", step: "0.5", value: String(e.score || 0) });
+    var prio = el("select", { class: "k-input", "data-ui": "ui.status-select", title: "Feeds the backlog analytics below the vault" }, [["", "—"]].concat(
       KOS.mediadb.PRIORITIES.map(function (p2) { return [p2, KOS.media.PRIORITY_LABEL[p2]]; })
     ).map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
     prio.value = e.backlogPriority || "";
-    var started = el("input", { type: "date", class: "todo-in", value: e.dates.started || "" });
-    var finished = el("input", { type: "date", class: "todo-in", value: e.dates.finished || "" });
-    var fav = el("input", { type: "checkbox" });
+    var started = el("input", { type: "date", class: "k-input", "data-ui": "ui.quick-add", value: e.dates.started || "" });
+    var finished = el("input", { type: "date", class: "k-input", "data-ui": "ui.quick-add", value: e.dates.finished || "" });
+    var fav = el("input", { type: "checkbox", class: "k-box" });
     fav.checked = e.favourite;
 
     /* --- Steam app id: hand-entered, future-proofing + a store link.
        No fetch ever happens against it — Steam blocks browser CORS. --- */
-    var steamId = el("input", { type: "text", class: "todo-in med-num gm-steamid", value: e.externalIds.steamAppId || "",
+    var steamId = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add vault.num games.steamid", value: e.externalIds.steamAppId || "",
       placeholder: "e.g. 1091500", title: "The number from the store page URL — enables the store link; nothing is ever fetched (Steam blocks browsers)" });
-    var steamLinkHolder = el("span", { class: "gm-steamlink" });
+    var steamLinkHolder = el("span", { class: "k-cluster", "data-ui": "games.steam-link" });
     function renderSteamLink() {
       steamLinkHolder.innerHTML = "";
       var id = steamId.value.trim().replace(/\D/g, "");
       if (id) {
-        steamLinkHolder.appendChild(el("a", { class: "mini-btn", target: "_blank", rel: "noopener",
+        steamLinkHolder.appendChild(el("a", { class: "k-link", target: "_blank", rel: "noopener",
           href: "https://store.steampowered.com/app/" + id + "/", text: "View on Steam ↗" }));
       }
     }
@@ -332,11 +337,11 @@
     renderSteamLink();
 
     /* --- taxonomy + cover --- */
-    var genres = el("input", { type: "text", class: "todo-in", value: e.genres.join(", "), placeholder: "RPG, Roguelike… (comma-separated, shared taxonomy)" });
-    var tags = el("input", { type: "text", class: "todo-in", value: e.tags.join(", "), placeholder: "co-op, replay… (comma-separated)" });
-    var coverU = el("input", { type: "url", class: "todo-in", value: e.coverUrl || "", placeholder: "https://… (or choose a local image in Position cover)" });
+    var genres = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", value: e.genres.join(", "), placeholder: "RPG, Roguelike… (comma-separated, shared taxonomy)" });
+    var tags = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", value: e.tags.join(", "), placeholder: "co-op, replay… (comma-separated)" });
+    var coverU = el("input", { type: "url", class: "k-input", "data-ui": "ui.quick-add", value: e.coverUrl || "", placeholder: "https://… (or choose a local image in Position cover)" });
     var coverPosition = mv.coverPositionControl(e, coverU, { allowUpload: true, maskDataUrl: true });
-    var notes = el("textarea", { class: "note-area", rows: 3, placeholder: "Notes…" });
+    var notes = el("textarea", { class: "k-input", "data-ui": "ui.note-area", rows: 3, placeholder: "Notes…" });
     notes.value = e.notes || "";
 
     function save() {
@@ -377,14 +382,14 @@
     }
 
     var overlay = mv.editorModal({
-      isNew: isNew, label: "Games", className: "gm-modal",
+      isNew: isNew, label: "Games", hook: "games.editor",
       subtitle: "manual entry — games have no live sync (Steam blocks browsers); everything here is yours to keep",
       form: [
         mv.editorSection("identity", "Identity & artwork", "The title, studio and cover used throughout the vault.", [
           field("Title", title, "med-span-2"),
           field("Developer", developer),
           field("Publisher", publisher),
-          field("Cover URL", el("div", { class: "image-field" }, [coverU, coverPosition.node]), "med-span-2")
+          field("Cover URL", el("div", { class: "k-stack k-medit-cover" }, [coverU, coverPosition.node]), true)
         ]),
         mv.editorSection("progress", "Progress", "Play state, completion depth and time invested.", [
           field("Status", status),
@@ -396,7 +401,7 @@
         mv.editorSection("ownership", "Platform & ownership", "Where the game lives and whether it belongs in the Shrine.", [
           field("Platform", platform),
           field("Ownership", own),
-          field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
+          field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
         ]),
         mv.editorSection("dates", "Dates", "When play started and finished.", [
           field("Started", started),
@@ -412,7 +417,7 @@
         mv.editorSection("source", "Source & store link", "Games remain local; the optional Steam id creates a direct store link only.", [
           mv.sourceInfo(e, "Local game record", "No browser-side game sync runs from this editor. Steam library import remains a separate, reviewed flow."),
           field("Steam App ID (optional)", steamId),
-          el("label", { class: "med-field" }, [el("span", { class: "k", text: " " }), steamLinkHolder])
+          steamLinkHolder
         ]),
         mv.editorSection("notes", "Notes", "Your private play notes and backlog context.", [
           field("Notes", notes, "med-span-2")
@@ -437,10 +442,10 @@
   function bulkAddModal(onDone) {
     var overlay = KOS.medview.modalOverlay();   // click-outside + Esc close
     var close = overlay.close;
-    var ta = el("textarea", { class: "note-area gm-bulk-in", rows: 12,
+    var ta = el("textarea", { class: "k-input", "data-ui": "ui.note-area games.bulk-in", rows: 12,
       placeholder: "Hades\nOuter Wilds\nDisco Elysium\n…one title per line. Steam's library page (steamcommunity.com/id/you/games) copy-pastes cleanly; so does any spreadsheet column." });
-    var statusLine = el("p", { class: "sub" });
-    var createBtn = el("button", { class: "btn primary", text: "Create drafts", onclick: function () {
+    var statusLine = el("p", { class: "k-muted", "data-ui": "part.sub", role: "status" });
+    var createBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Create drafts", onclick: function () {
       createBtn.disabled = true;
       statusLine.textContent = "Checking the vault for duplicates…";
       bulkAdd(ta.value, function (err, report) {
@@ -460,75 +465,40 @@
         onDone && onDone();
       });
     } });
-    var box = el("div", { class: "modal med-modal gm-bulk-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", { text: "Bulk add — paste a list of titles" }),
-        el("span", { class: "sub", text: "the quick-start path: no game API allows a browser import, but a pasted list is pure local parsing" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
-      ]),
-      el("div", { class: "med-form" }, [
+    KOS.medview.dialogBox(overlay, "vault.dialog games.bulk", "Bulk add — paste a list of titles",
+      "the quick-start path: no game API allows a browser import, but a pasted list is pure local parsing",
+      el("div", { class: "k-dialog-body", "data-ui": "ui.form" }, [
         ta,
-        el("p", { class: "sub", text: "One title per line. Each becomes a Planned draft with just the title — status, platform, playtime and the rest are filled in per game whenever you open it. Blank lines, repeats and titles already in the vault are skipped." })
+        el("p", { class: "k-field-hint", text: "One title per line. Each becomes a Planned draft with just the title — status, platform, playtime and the rest are filled in per game whenever you open it. Blank lines, repeats and titles already in the vault are skipped." })
       ]),
-      el("div", { class: "lab-controls med-modal-foot" }, [
+      el("div", { class: "k-dialog-foot" }, [
         statusLine,
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Cancel", onclick: close }),
+        el("button", { type: "button", class: "k-btn k-spacer", text: "Cancel", onclick: function () { close(); } }),
         createBtn
-      ])
-    ]);
-    overlay.appendChild(box);
+      ]), "k-mwide");
     KOS.ui.openDialog(overlay);
     ta.focus();
   }
   KOS.games.bulkAdd = bulkAddModal;
 
-  /* ================= cards ================= */
+  /* ================= cards (the shared overlay card, frame 11b) ================= */
   function gridCard(e, rerender) {
-    /* Phase F: the card is NOT a button. It contained the favourite
-       toggle, a status <select> and "+1" — an ARIA button may not hold
-       interactive descendants, and a keyboard user who pressed Space on
-       it scrolled the page. The card keeps its pointer shortcut; the
-       TITLE is the real control, so the tab order reads
-       favourite → title → status → +1 and a screen reader announces the
-       entry by name instead of "button". */
-    var card = el("div", { class: "med-card gm-card",
-      onclick: function () { gamesEditor(e, rerender); }
-    }, [
-      cover(e),
-      el("button", { class: "med-fav" + (e.favourite ? " on" : ""), title: "Favourite — appears in the Shrine",
-        "aria-label": "Toggle favourite", text: "♥", onclick: function (ev) {
-          ev.stopPropagation();
-          e.favourite = !e.favourite;
-          KOS.mediadb.put(e, function () {});
-          KOS.ui.state(ev.target, "on", e.favourite);
-        } }),
-      el("div", { class: "med-card-body" }, [
-        el("button", { type: "button", class: "med-title", title: e.title, text: e.title,
-          onclick: function (ev) { ev.stopPropagation(); gamesEditor(e, rerender); } }),
-        e.developer ? el("div", { class: "bk-author", text: e.developer }) : null,
-        el("div", { class: "med-meta" }, [
-          platformChip(e),
-          tierChip(e),
-          priorityChip(e),
-          el("span", { class: "med-prog", text: playtimeText(e) || "no hours logged" })
-        ]),
-        el("div", { class: "med-meta med-quickrow" }, [
-          KOS.medview.quickEdit(e, rerender),
-          e.status === "inProgress" ? el("button", { class: "mini-btn med-plus", text: "+1 hr",
-            title: "Log another hour played", onclick: function (ev) {
-              ev.stopPropagation();
-              bumpHour(e, rerender);
-            } }) : null
-        ])
-      ])
-    ]);
-    return card;
+    return KOS.medview.card(e, rerender, {
+      hook: "games.card", kanji: mod().kanji,
+      chips: [platformChip(e), tierChip(e), priorityChip(e)],
+      prog: playtimeText(e) || "no hours logged",
+      unit: "hr", bumpTitle: "Log another hour played",
+      onBump: e.status === "inProgress" ? function () { bumpHour(e, rerender); } : null,
+      open: function () { gamesEditor(e, rerender); }
+    });
   }
+  /* 11f: the list reads as a table — title with genre and priority, then
+     status, completion, playtime, platform, score, +1h */
   function listRow(e, rerender) {
     return KOS.medview.listRow(e, mod(), rerender, {
-      subline: (KOS.media.PLATFORM_LABEL[e.platform] || "") + (e.genres.length ? " · " + e.genres.slice(0, 2).join(" · ") : ""),
-      chips: [tierChip(e)],
+      hook: "games.card",
+      subline: (e.genres.length ? e.genres.slice(0, 2).join(" · ") : "") + (e.backlogPriority ? (e.genres.length ? " · " : "") + KOS.media.PRIORITY_LABEL[e.backlogPriority] + " priority" : ""),
+      chips: [tierChip(e), platformChip(e)],
       prog: metaLine(e),
       onBump: e.status === "inProgress" ? function () { bumpHour(e, rerender); } : null,
       open: function () { gamesEditor(e, rerender); }
@@ -545,26 +515,25 @@
   function steamModal(onDone) {
     var overlay = KOS.medview.modalOverlay();
     var close = overlay.close;
-    var body = el("div", { class: "gm-steam-body" });
+    var body = el("div", { class: "k-dialog-body k-gm-steam" });
 
     function note(text, bad) {
       body.innerHTML = "";
-      body.appendChild(el("p", { class: "sub", text: text }));
-      if (bad) body.lastChild.style.color = "var(--danger)";
+      body.appendChild(el("p", { class: "k-muted", "data-ui": "part.sub", "data-tone": bad ? "crimson" : null, text: text }));
     }
 
     function renderUnlinked() {
       body.innerHTML = "";
-      body.appendChild(el("p", { class: "sub", text:
+      body.appendChild(el("p", { class: "k-muted", "data-ui": "part.sub", text:
         "Link your Steam account to import your owned library. The sign-in happens on steamcommunity.com and is verified SERVER-side (Steam itself confirms the identity — the fix for the Build 3e dead end); Kurenai never sees your Steam password and never trusts a typed-in ID." }));
-      var linkBtn = el("button", { class: "btn primary", text: "Link Steam account…", onclick: function () {
+      var linkBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Link Steam account…", onclick: function () {
         linkBtn.disabled = true;
         KOS.gameapi.steamBegin(function (err, data) {
           linkBtn.disabled = false;
           if (err || !data || !data.url) { note((err && err.message) || "Could not start the Steam link.", true); return; }
           window.open(data.url, "_blank", "noopener");
           note("Steam sign-in opened in a new tab. Finish it there, then press “Check link” below.");
-          body.appendChild(el("button", { class: "btn gold", text: "Check link", onclick: render }));
+          body.appendChild(el("button", { type: "button", class: "k-btn", text: "Check link", onclick: render }));
         });
       } });
       body.appendChild(linkBtn);
@@ -579,29 +548,29 @@
           byTitle[v.titleLower] = v;
         });
         var boxes = [];
-        body.appendChild(el("p", { class: "sub", text:
+        body.appendChild(el("p", { class: "k-muted", "data-ui": "part.sub", text:
           owned.games.length + " games in the Steam library. NEW titles are pre-selected; titles already in the vault are unticked — selecting one only fills gaps (playtime if empty, the app id) and never overwrites anything you edited by hand. Nothing is written until you confirm." }));
-        var controls = el("div", { class: "lab-controls" }, [
-          el("button", { class: "mini-btn", text: "Select all", onclick: function () { boxes.forEach(function (b) { b.el.checked = true; }); } }),
-          el("button", { class: "mini-btn", text: "Select none", onclick: function () { boxes.forEach(function (b) { b.el.checked = false; }); } })
+        var controls = el("div", { class: "k-cluster" }, [
+          el("button", { type: "button", class: "k-btn k-btn--sm", text: "Select all", onclick: function () { boxes.forEach(function (b) { b.el.checked = true; }); } }),
+          el("button", { type: "button", class: "k-btn k-btn--sm", text: "Select none", onclick: function () { boxes.forEach(function (b) { b.el.checked = false; }); } })
         ]);
         body.appendChild(controls);
-        var list = el("div", { class: "msch-results gm-steam-list" });
+        var list = el("div", { class: "k-mpick" });
         owned.games.forEach(function (g) {
           var inVault = byApp[g.appId] || byTitle[g.title.toLowerCase()] || null;
-          var cb = el("input", { type: "checkbox" });
+          var cb = el("input", { type: "checkbox", class: "k-box" });
           cb.checked = !inVault;
           boxes.push({ el: cb, row: g });
-          list.appendChild(el("label", { class: "gm-steam-row" }, [
+          list.appendChild(el("label", { class: "k-mpick-row" }, [
             cb,
-            el("span", { class: "gm-steam-title", text: g.title }),
-            el("span", { class: "sub", text: (g.playtimeHours ? g.playtimeHours + " h" : "unplayed") +
+            el("span", { class: "k-mrow-title", text: g.title }),
+            el("span", { class: "k-mrow-sub k-spacer", text: (g.playtimeHours ? g.playtimeHours + " h" : "unplayed") +
               (inVault ? " · in vault — gap-fill only" : "") })
           ]));
         });
         body.appendChild(list);
-        var foot = el("div", { class: "lab-controls med-modal-foot" });
-        var goBtn = el("button", { class: "btn primary", text: "Import selected", onclick: function () {
+        var foot = el("div", { class: "k-dialog-foot" });
+        var goBtn = el("button", { type: "button", class: "k-btn k-btn--primary k-spacer", "data-intent": "primary", text: "Import selected", onclick: function () {
           var chosen = boxes.filter(function (b) { return b.el.checked; }).map(function (b) { return b.row; });
           if (!chosen.length) { KOS.ui.toast("Nothing selected."); return; }
           goBtn.disabled = true;
@@ -620,9 +589,9 @@
 
     function renderLinked(st) {
       body.innerHTML = "";
-      body.appendChild(el("p", { class: "sub", text:
+      body.appendChild(el("p", { class: "k-muted", "data-ui": "part.sub", text:
         "Linked to Steam account " + st.steamId + " (verified " + new Date(st.verifiedAt).toLocaleDateString("en-GB") + "). Importing fetches your owned library for review — nothing is added without your selection." }));
-      var impBtn = el("button", { class: "btn primary", text: "Import owned library…", onclick: function () {
+      var impBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Import owned library…", onclick: function () {
         impBtn.disabled = true;
         impBtn.textContent = "Fetching library…";
         KOS.gameapi.steamOwnedGames(function (err, data) {
@@ -634,10 +603,10 @@
           renderReview(data);
         });
       } });
-      var unlinkBtn = el("button", { class: "btn", text: "Unlink", onclick: function () {
+      var unlinkBtn = el("button", { type: "button", class: "k-btn", text: "Unlink", onclick: function () {
         KOS.gameapi.steamUnlink(function () { render(); });
       } });
-      body.appendChild(el("div", { class: "lab-controls" }, [impBtn, unlinkBtn]));
+      body.appendChild(el("div", { class: "k-cluster" }, [impBtn, unlinkBtn]));
     }
 
     function render() {
@@ -653,15 +622,8 @@
       });
     }
 
-    var box = el("div", { class: "modal med-modal gm-steam-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", { text: "Steam — verified link & library import" }),
-        el("span", { class: "sub", text: "identity is confirmed by Steam itself, server-side; the library import always shows a review stage first" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
-      ]),
-      body
-    ]);
-    overlay.appendChild(box);
+    KOS.medview.dialogBox(overlay, "vault.dialog games.steam", "Steam — verified link & library import",
+      "identity is confirmed by Steam itself, server-side; the library import always shows a review stage first", body, null, "k-mwide");
     KOS.ui.openDialog(overlay);
     render();
   }
@@ -671,39 +633,26 @@
     var p = prefs();
     var mv = KOS.medview;
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "Collection · 遊" }),
-        el("h1", { text: "Games" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "The backlog, the hours, and what actually got finished." })
-        ])
-      ])
-    ]));
-
     if (mv.unavailable(main)) return;
 
-    /* Build 4.0: the per-module spotlight hero (medview.heroCard) */
-    var heroHolder = el("div", { class: "vh-holder" });
-    main.appendChild(heroHolder);
+    var page = mv.vaultPage(main, { kicker: "Collection · 遊", title: "Games",
+      sub: "The backlog, the hours, and what actually got finished." });
 
     /* toolbar — the shared pieces come from the medview toolkit */
     var search = mv.searchInput("Search game titles");
-    var platSel = el("select", { class: "status-sel", "aria-label": "Filter by platform" }, [["", "All platforms"]].concat(
-      KOS.mediadb.PLATFORMS.map(function (x) { return [x, KOS.media.PLATFORM_LABEL[x]]; })
-    ).map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
-    var genreSel = el("select", { class: "status-sel", "aria-label": "Filter by genre" });
-    var tierSel = el("select", { class: "status-sel", "aria-label": "Filter by completion tier" }, [["", "All tiers"]].concat(
-      KOS.mediadb.TIERS.map(function (x) { return [x, KOS.media.TIER_LABEL[x]]; })
-    ).map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+    var platSel = mv.facetSelect("Filter by platform");
+    [["", "All platforms"]].concat(KOS.mediadb.PLATFORMS.map(function (x) { return [x, KOS.media.PLATFORM_LABEL[x]]; }))
+      .forEach(function (o) { platSel.appendChild(el("option", { value: o[0], text: o[1] })); });
+    var genreSel = mv.facetSelect("Filter by genre");
+    var tierSel = mv.facetSelect("Filter by completion tier");
+    [["", "All tiers"]].concat(KOS.mediadb.TIERS.map(function (x) { return [x, KOS.media.TIER_LABEL[x]]; }))
+      .forEach(function (o) { tierSel.appendChild(el("option", { value: o[0], text: o[1] })); });
     var sortSel = mv.sortSelect(p.sort, { progress: "Playtime" });
-    var layoutBtn = mv.layoutToggle(p, function () { refresh(); });
+    var layoutBtn = mv.layoutToggle(p, function () { persist(p); refresh(); });
     var rail = mv.filterRail("game", function () { refresh(); });
 
-    var mainCol = el("div", { class: "med-main" });
-    /* the shared toolbar (Category 7 Phase D). Games had nine controls in
-       two rows with Bulk add, Find new, Steam, Stats and Sync all shouting
-       at the same volume; they are commands, and they live in ⋯ now. */
+    /* the shared toolbar (Category 7 Phase D): Bulk add, Find new, Steam,
+       Stats and Sync are commands, and they live in Actions ▾ */
     var bar = mv.toolbar({
       label: "Games vault controls",
       search: search, sort: sortSel, layout: layoutBtn,
@@ -732,17 +681,16 @@
           onSelect: function () { mv.statsModal("game", mod()); } },
         { label: "Sync & Import", glyph: "⇅", onSelect: function () { KOS.show("mediasync"); } }
       ],
-      primary: el("button", { class: "btn primary", text: "+ Add", onclick: function () { gamesEditor(null, refreshAll); } })
+      primary: mv.primaryButton("+ Add", null, function () { gamesEditor(null, refreshAll); })
     });
-    mainCol.appendChild(bar.root);
-    main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
+    page.setBar(bar);
+    page.setRail(rail.root);
 
     function refreshAll() { rail.reload(); refresh(); }
 
-    /* countLine + holder + sentinel + the lazy batch renderer */
-    var area = mv.resultsArea(mainCol, function (e) {
+    var area = mv.resultsArea(page.mainCol, function (e) {
       return p.layout === "list" ? listRow(e, refreshAll) : gridCard(e, refreshAll);
-    });
+    }, { countHost: page.controls });
 
     /* genre facet from game rows only, with counts (audit VLT-8) */
     KOS.mediadb.query({ module: "game" }, function (err, rows) {
@@ -764,7 +712,7 @@
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
         if (!area.current(token)) return;
-        KOS.ui.setClass(area.holder, p.layout === "list" ? "med-list" : "med-grid");
+        area.layout(p.layout);
         if (err) {
           area.clear();
           area.countLine.textContent = "Query failed: " + err.message;
@@ -779,8 +727,8 @@
               ? "Nothing matches this filter."
               : "The Games vault is empty. Paste your library in bulk — one title per line, straight off Steam's library page — or add games one at a time. There's no import API a browser is allowed to use; this is the whole toolkit, honestly stated.",
             [
-              el("button", { class: "btn gold", text: "▤ Bulk add from a pasted list", onclick: function () { bulkAddModal(refreshAll); } }),
-              el("button", { class: "btn", text: "+ Add one game", onclick: function () { gamesEditor(null, refreshAll); } })
+              el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "▤ Bulk add from a pasted list", onclick: function () { bulkAddModal(refreshAll); } }),
+              el("button", { type: "button", class: "k-btn", text: "+ Add one game", onclick: function () { gamesEditor(null, refreshAll); } })
             ]));
           return;
         }
@@ -790,9 +738,9 @@
 
     search.addEventListener("input", KOS.ui.debounce(refresh, 220));
     /* the facet selects are wired by mv.selFacet inside the toolbar */
-    sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
+    sortSel.addEventListener("change", function () { p.sort = sortSel.value; persist(p); refresh(); });
 
-    function mountHero() { mv.heroCard(heroHolder, "game", mod(), function () { refreshAll(); mountHero(); }); }
+    function mountHero() { mv.heroCard(page.heroHolder, "game", mod(), function () { refreshAll(); mountHero(); }); }
     mountHero();
     refresh();
   };

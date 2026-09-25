@@ -268,10 +268,6 @@ overflow-y: auto;
 .k-sidebar { display: grid; gap: var(--sidebar-gap, var(--sp-20)); grid-template-columns: minmax(0, 1fr) var(--sidebar-w, var(--aside-w)); align-items: start; }
 .k-spacer { margin-inline-start: auto; }
 
-/* a compact disclosure (invariant 72): mobile-shell.js adds the trigger,
-   and only the compact tier shows it and hides what it discloses */
-.k-disclosure { display: none; }
-
 /* ---------- the five tiers, widest first ---------- */
 @media (max-width: 1240px) {
 .k-sidebar { grid-template-columns: minmax(0, 1fr); }
@@ -287,7 +283,6 @@ overflow-y: auto;
 }
 
 @media (max-width: 860px) {
-:root[data-shell="ready"] .k-disclosure { display: inline-flex; align-self: flex-start; }
 #tree { position: fixed; inset-block: var(--topbar-h) 0; inset-inline-start: 0; z-index: var(--z-drawer); background: var(--bg); box-shadow: var(--elev-3); }
 #cols[data-tree="open"] #tree-scrim { display: block; position: fixed; inset: 0; z-index: calc(var(--z-drawer) - 1); background: var(--shadow-ink); }
 #stage { padding: var(--sp-16) var(--sp-16) var(--sp-24); }

@@ -526,6 +526,27 @@ the invariants and the hook contract still govern behaviour.
   - `reachable()` restores the toast text it found, so replaying a page cannot silence a later control's repeated toast.
   - Class rows are retired as reachable, because their sub-line now carries the refs and the due list moved.
 
+### Step 5a as delivered — the vault template, Anime, the season, VN, Games (frames 11b, 11c, 11e, 11f, 11j)
+
+- `medview.js` is rebuilt and builds 11b once for every medium: `vaultPage`, the spotlight hero, the Status + Lists rail, one controls row and the shared overlay card.
+  - The controls row holds the count, then search, sort, Filters ▾, ▦/≡, Actions ▾ and the primary.
+  - `KOS.medview.card` puts everything on the cover: the score top-left, ♥ top-right, the title, chips, progress and the bar. The status and +1 row shows on hover.
+  - Every hook (`vault.*`) is explicit now rather than derived from a legacy class.
+- The record editor is a right-hand drawer (11c). Delete stays apart from Cancel/Save.
+- `KOS.media.progressBar` is the shared `k-bar`, with its fill on `--p`. The module accents are the medium tokens.
+- Rebuilt files:
+  - `anime.js` (vault, mirror editor and season).
+  - `vn.js`: routes and chapters as tick rows; the quote log in the reading face with "+ Add to Personal deck".
+  - `games.js`: tier, platform and priority chips toned by the stylesheet.
+- This season (11j):
+  - The seasonal hero lives only here: season title in Mincho on the scenery, ‹ ›, Art ▾ and Today.
+  - The season's titles are horizontal cards that lead with the countdown.
+- The VN and Games vaults read their prefs without creating them.
+- Shell fixes:
+  - The lazy observer watches `#stage`, the element that scrolls.
+  - The compact disclosure triggers (Reminders and vaults) are `k-disclosure`. The rule lives in components so it beats `.k-btn`.
+- Books and Mangaka (11d) are the next step.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

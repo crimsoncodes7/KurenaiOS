@@ -44,19 +44,19 @@
      phone loads the 850px sample and a desktop the full frame. `credit`
      names the artist as tagged there. */
   var SEASON_META = {
-    WINTER: { label: "Winter", kanji: "冬", cls: "s-winter", credit: "niko_p",
+    WINTER: { label: "Winter", kanji: "冬", credit: "niko_p",
       art: "https://safebooru.org/images/1323/c3ac6320262aea767e893d98837f904aac931a67.jpg",
       artSmall: "https://safebooru.org/samples/1323/sample_c3ac6320262aea767e893d98837f904aac931a67.jpg",
       artWidth: 1519, focus: "50% 60%" },
-    SPRING: { label: "Spring", kanji: "春", cls: "s-spring", credit: "kagumanikusu",
+    SPRING: { label: "Spring", kanji: "春", credit: "kagumanikusu",
       art: "https://safebooru.org/images/2416/000c9d43d083a39e792be2a913cee24a023d333a.png",
       artSmall: "https://safebooru.org/samples/2416/sample_000c9d43d083a39e792be2a913cee24a023d333a.jpg",
       artWidth: 1535, focus: "50% 40%" },
-    SUMMER: { label: "Summer", kanji: "夏", cls: "s-summer", credit: "liuying_jp",
+    SUMMER: { label: "Summer", kanji: "夏", credit: "liuying_jp",
       art: "https://safebooru.org/images/3947/927599d841985b79557210bea2e2c4ad99999f3d.jpg",
       artSmall: "https://safebooru.org/samples/3947/sample_927599d841985b79557210bea2e2c4ad99999f3d.jpg",
       artWidth: 1920, focus: "50% 35%" },
-    FALL:   { label: "Fall",   kanji: "秋", cls: "s-fall", credit: "kamo_nasus",
+    FALL:   { label: "Fall",   kanji: "秋", credit: "kamo_nasus",
       art: "https://safebooru.org/images/3140/eb447f39a1d0b6843f08aabcb6a26aaa67fadea1.png",
       artSmall: "https://safebooru.org/samples/3140/sample_eb447f39a1d0b6843f08aabcb6a26aaa67fadea1.jpg",
       artWidth: 1920, focus: "50% 45%" }
@@ -145,14 +145,13 @@
   /* one grammar for progress across the whole app (audit MTX-6/U-30) —
      "36 / 96 ep", never a second local spacing convention */
   function progressText(e) { return KOS.media.progressText(e); }
-  function cover(e, mod) { return KOS.medview.cover(e, mod.kanji); }
   /* the 3f airing badge — only exists when the live cache knows the entry */
   function airingChip(e) {
     var a = airingInfo(e);
     if (!a) return null;
-    return el("span", { class: "med-chip an-airing",
-      title: "Episode " + a.episode + " airs " + new Date(a.airingAt * 1000).toLocaleString(),
-      text: "EP " + a.episode + " · " + fmtCountdown(a.timeUntilAiring) });
+    return KOS.medview.chip("EP " + a.episode + " · " + fmtCountdown(a.timeUntilAiring), "airing", {
+      "data-ui": "anime.airing",
+      title: "Episode " + a.episode + " airs " + new Date(a.airingAt * 1000).toLocaleString() });
   }
 
   /* +1 episode — the everyday logging action (shared bump, mode "progress") */
@@ -161,9 +160,9 @@
   /* ---------------- the record editor (mirror) ----------------
      AniList owns the record: title, artwork, episode count, genres and
      dates are shown, not edited, and there is no Delete — removing a
-     title happens on AniList and the next pull mirrors it. What CAN be
-     changed is list state (status, episodes seen, score — pushed back)
-     and the personal layer AniList has no field for. */
+     title happens on AniList and the next pull mirrors it (invariant 92).
+     What CAN be changed is list state (status, episodes seen, score —
+     pushed back) and the personal layer AniList has no field for. */
   function editorModal(entry, onSaved) {
     var mv = KOS.medview;
     if (!entry || entry.id == null) {
@@ -175,26 +174,30 @@
     var mod = KOS.media.module(e.module);
     var field = mv.field, splitList = mv.splitList;
 
-    var status = el("select", { class: "status-sel" }, STATUSES.map(function (s) {
+    var status = el("select", { class: "k-input", "data-ui": "ui.status-select", "aria-label": "Status" }, STATUSES.map(function (s) {
       return el("option", { value: s, text: KOS.media.STATUS_LABEL[s] });
     }));
     status.value = e.status;
-    var cur = el("input", { type: "number", class: "todo-in med-num", min: "0", max: e.progress.total != null ? String(e.progress.total) : null, value: String(e.progress.current || 0) });
-    var score = el("input", { type: "number", class: "todo-in med-num", min: "0", max: "10", step: "0.5", value: String(e.score || 0) });
-    var tags = el("input", { type: "text", class: "todo-in", value: e.tags.join(", "), placeholder: "comfort, rewatch…" });
+    var cur = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", max: e.progress.total != null ? String(e.progress.total) : null });
+    cur.value = String(e.progress.current || 0);
+    var score = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num", min: "0", max: "10", step: "0.5" });
+    score.value = String(e.score || 0);
+    var tags = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add", placeholder: "comfort, rewatch…" });
+    tags.value = e.tags.join(", ");
     /* the cover URL is AniList's; only its POSITION (and an optional local
        replacement image, display intent per invariant 26c) is yours */
-    var coverU = el("input", { type: "hidden", value: e.coverUrl || "" });
+    var coverU = el("input", { type: "hidden" });
+    coverU.value = e.coverUrl || "";
     var coverPosition = mv.coverPositionControl(e, coverU, { allowUpload: true });
-    var fav = el("input", { type: "checkbox" });
+    var fav = el("input", { type: "checkbox", class: "k-box" });
     fav.checked = e.favourite;
-    var notes = el("textarea", { class: "note-area", rows: 3, placeholder: "Notes…" });
+    var notes = el("textarea", { class: "k-input", "data-ui": "ui.note-area", rows: 3, placeholder: "Notes…" });
     notes.value = e.notes || "";
 
     /* a read-only AniList fact — omitted when AniList has none (invariant 77:
        an empty supporting fact is not printed as a dash) */
     function ro(label, text, cls) {
-      return text ? field(label, el("div", { class: "med-ro", text: String(text) }), cls) : null;
+      return text ? field(label, el("div", { class: "k-mro", "data-ui": "vault.ro", text: String(text) }), cls) : null;
     }
     function save() {
       var oldStatus = e.status;
@@ -216,7 +219,7 @@
 
     var x = e.extra || {};
     var overlay = mv.editorModal({
-      isNew: false, label: mod.label, className: "med-mirror-modal",
+      isNew: false, label: mod.label, hook: "anime.mirror-dialog",
       subtitle: "mirrored from AniList — status, episodes and score push back; everything else is AniList's",
       form: [
         mv.editorSection("identity", "Record", "As AniList has it. Change the title or artwork there and the next pull brings it over.", [
@@ -235,9 +238,9 @@
           field("Score /10", score)
         ]),
         mv.editorSection("personal", "Your layer", "Not on AniList — kept here, on every device.", [
-          field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav])),
+          field("Favourite ♥", el("span", { class: "k-check" }, [fav])),
           field("Tags", tags),
-          field("Cover position", el("div", { class: "image-field" }, [coverPosition.node]), "med-span-2"),
+          field("Cover position", coverPosition.node, "med-span-2"),
           field("Custom lists", mv.customListChips(e), "med-span-2"),
           field("Notes", notes, "med-span-2")
         ]),
@@ -255,48 +258,16 @@
      by module and falls back to this one */
   KOS.mediaEditors.anime = editorModal;
 
-  /* ---------------- cards ---------------- */
+  /* ---------------- cards (the shared overlay card, frame 11b) ---------------- */
   function gridCard(e, mod, rerender) {
-    /* Phase F: the card is NOT a button. It contained the favourite
-       toggle, a status <select> and "+1" — an ARIA button may not hold
-       interactive descendants, and a keyboard user who pressed Space on
-       it scrolled the page. The card keeps its pointer shortcut; the
-       TITLE is the real control, so the tab order reads
-       favourite → title → status → +1 and a screen reader announces the
-       entry by name instead of "button". */
-    /* the score rides the cover's top-left corner (the ♥ has the right);
-       the hover row is status + "+1", one line, never clipped */
-    var card = el("div", { class: "med-card",
-      onclick: function () { editorModal(e, rerender); }
-    }, [
-      cover(e, mod),
-      KOS.medview.quickScore(e, rerender, { corner: true }),
-      el("button", { class: "med-fav" + (e.favourite ? " on" : ""), title: "Favourite — appears in the Shrine",
-        "aria-label": "Toggle favourite", text: "♥", onclick: function (ev) {
-          ev.stopPropagation();
-          e.favourite = !e.favourite;
-          KOS.mediadb.put(e, function () {});
-          KOS.ui.state(ev.target, "on", e.favourite);
-        } }),
-      el("div", { class: "med-card-body" }, [
-        el("button", { type: "button", class: "med-title", title: e.title, text: e.title,
-          onclick: function (ev) { ev.stopPropagation(); editorModal(e, rerender); } }),
-        el("div", { class: "med-meta" }, [
-          airingChip(e),
-          el("span", { class: "med-prog", text: progressText(e) }),
-          KOS.medview.pushChip(e, rerender)
-        ]),
-        KOS.medview.quickRow(e, rerender, {
-          unit: mod.unit, title: "Log the next " + mod.unitName.replace(/s$/, ""),
-          onBump: e.status === "inProgress" ? function () { bumpProgress(e, rerender); } : null
-        })
-      ])
-    ]);
-    /* the shared bar — half full and fading when the series is still
-       releasing (no total yet), the honest fraction otherwise */
-    var track = KOS.media.progressBar(e);
-    if (track) card.appendChild(track);
-    return card;
+    return KOS.medview.card(e, rerender, {
+      kanji: mod.kanji,
+      chips: [airingChip(e)],
+      prog: progressText(e),
+      unit: mod.unit, bumpTitle: "Log the next " + mod.unitName.replace(/s$/, ""),
+      onBump: e.status === "inProgress" ? function () { bumpProgress(e, rerender); } : null,
+      open: function () { editorModal(e, rerender); }
+    });
   }
   function listRow(e, mod, rerender) {
     return KOS.medview.listRow(e, mod, rerender, {
@@ -308,40 +279,26 @@
     });
   }
 
-  /* ---------------- the view ---------------- */
+  /* ---------------- the view (the 11b vault template) ---------------- */
   KOS.views.anime = function (main) {
     KOS.shell.tree("none");
     var mod = KOS.media.module("anime");
     var p = prefs();
     var mv = KOS.medview;
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "Collection · 映" }),
-        el("h1", { text: "Anime" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "Your AniList anime list, mirrored — what you're watching, what's waiting, and what the season is doing." })
-        ])
-      ])
-    ]));
-
     if (mv.unavailable(main)) return;
 
-    /* Build 4.0: the per-module spotlight hero (medview.heroCard) */
-    var heroHolder = el("div", { class: "vh-holder" });
-    main.appendChild(heroHolder);
+    var page = mv.vaultPage(main, { kicker: "Collection · 映", title: "Anime",
+      sub: "Your AniList anime list, mirrored: what you're watching, what's waiting, and what the season is doing." });
 
-    /* toolbar — the shared pieces come from the medview toolkit */
+    /* the toolbar — the shared pieces come from the medview toolkit */
     var search = mv.searchInput("Search anime titles");
-    var genreSel = el("select", { class: "status-sel", "aria-label": "Filter by genre" });
-    var tagSel = el("select", { class: "status-sel", "aria-label": "Filter by tag" });
+    var genreSel = mv.facetSelect("Filter by genre");
+    var tagSel = mv.facetSelect("Filter by tag");
     var sortSel = mv.sortSelect(p.sort);
     var rail = mv.filterRail("anime", function () { refresh(); });
     var layoutBtn = mv.layoutToggle(p, function () { refresh(); });
 
-    var mainCol = el("div", { class: "med-main" });
-    /* the shared toolbar (Category 7 Phase D): search + sort + layout
-       visible, facets behind Filters ▾, commands behind Actions ▾ */
     var bar = mv.toolbar({
       label: "Anime vault controls",
       search: search, sort: sortSel, layout: layoutBtn,
@@ -365,24 +322,21 @@
         { label: "Sync & Import", glyph: "⇅", onSelect: function () { KOS.show("mediasync"); } }
       ],
       /* the one way in is AniList: Find new titles creates THERE first */
-      primary: el("button", { class: "btn primary", text: "⊕ Find new", title: "Search all of AniList — the title is added to your AniList list, then mirrored here",
-        onclick: function () { KOS.mediaSearch.open("anime", refreshAll); } })
+      primary: mv.primaryButton("⊕ Find new", "Search all of AniList — the title is added to your AniList list, then mirrored here",
+        function () { KOS.mediaSearch.open("anime", refreshAll); })
     });
-    mainCol.appendChild(bar.root);
-    main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
+    page.setBar(bar);
+    page.setRail(rail.root);
 
     /* a mutation (add/edit/quick-edit) can change list/status membership, so
        reload the rail counts too; a plain filter/search change does not */
     function refreshAll() { rail.reload(); refresh(); }
 
-    /* countLine + holder + sentinel + the lazy batch renderer */
-    var area = mv.resultsArea(mainCol, function (e) {
+    var area = mv.resultsArea(page.mainCol, function (e) {
       return p.layout === "list" ? listRow(e, mod, refreshAll) : gridCard(e, mod, refreshAll);
-    });
+    }, { countHost: page.controls });
 
-    /* Facet fill from the vault's OWN rows, with counts (audit VLT-8):
-       a facet you cannot size is a facet you cannot use, and `distinct`
-       walks every module's index rather than this one's. */
+    /* Facet fill from the vault's OWN rows, with counts (audit VLT-8) */
     KOS.mediadb.query({ module: "anime" }, function (err, rows) {
       if (err) return;
       mv.fillFacetSel(genreSel, mv.tallyFacet(rows, "genres"), "All genres");
@@ -401,23 +355,23 @@
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
         if (!area.current(token)) return;
-        KOS.ui.setClass(area.holder, p.layout === "list" ? "med-list" : "med-grid");
+        area.layout(p.layout);
         if (err) {
           area.clear();
           area.countLine.textContent = "Query failed: " + err.message;
           return;
         }
-        area.countLine.textContent = rows.length + (rows.length === 1 ? " entry" : " entries") +
-          (rail.status() || rail.customList() || genreSel.value || tagSel.value || search.value ? " (filtered)" : "");
+        var filtered = rail.status() || rail.customList() || genreSel.value || tagSel.value || search.value;
+        area.countLine.textContent = rows.length + (rows.length === 1 ? " title" : " titles") + (filtered ? " (filtered)" : "");
         if (!rows.length) {
           area.clear();
           area.holder.appendChild(mv.emptyState(
-            search.value || rail.status() || rail.customList() || genreSel.value || tagSel.value
+            filtered
               ? "Nothing matches this filter."
               : "The vault is a mirror of your AniList anime list. Connect AniList and the whole list lands in one sync.",
             [
-              el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-              el("button", { class: "btn", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("anime", refreshAll); } })
+              el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
+              el("button", { type: "button", class: "k-btn", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("anime", refreshAll); } })
             ]));
           return;
         }
@@ -430,7 +384,7 @@
     search.addEventListener("input", KOS.ui.debounce(refresh, 220));
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
 
-    function mountHero() { mv.heroCard(heroHolder, "anime", mod, function () { refreshAll(); mountHero(); }); }
+    function mountHero() { mv.heroCard(page.heroHolder, "anime", mod, function () { refreshAll(); mountHero(); }); }
     mountHero();
     refresh();
     /* airing badges (3f): render immediately from the cache, kick a live
@@ -459,7 +413,7 @@
       days.push({ date: d, value: n, hint: d + ": " + n + (n === 1 ? " watch log" : " watch logs") });
     }
     return KOS.charts.chartCard("Watch history", total + " logs in " + weeks + " weeks — episodes, status changes and adds",
-      KOS.charts.heatmap(days, { color: "#B85C50" }));
+      KOS.charts.heatmap(days, { color: "var(--anime)" }));
   }
   KOS.anime.watchHeatmapCard = watchHeatmapCard;
 
@@ -476,36 +430,71 @@
      (SEASON_META.art) or a picture of your own, kept in the media kv
      store as "hero.season.<SEASON>" (invariant 30's home for hero art). */
   var SEASON_ORDER = ["WINTER", "SPRING", "SUMMER", "FALL"];
+  /* Graphite (frame 11j): the seasonal hero lives here only — the season
+     title on its scenery, stepped with ‹ ›; the season's titles below as
+     horizontal cards that lead with the countdown to the next episode. */
+  function seasonCard(e, mod, rerender) {
+    var a = airingInfo(e);
+    var x = e.extra || {};
+    var open = function () { editorModal(e, rerender); };
+    var card = el("div", { class: "k-scard", "data-ui": "vault.card anime.season-card", "data-status": e.status, onclick: open }, [
+      KOS.medview.cover(e, mod.kanji),
+      el("div", { class: "k-scard-body", "data-ui": "vault.card-body" }, [
+        el("button", { type: "button", class: "k-scard-title", "data-ui": "vault.title", title: e.title, text: e.title,
+          onclick: function (ev) { ev.stopPropagation(); open(); } }),
+        x.studio ? el("span", { class: "k-scard-sub", text: x.studio }) : null,
+        a ? el("div", { class: "k-scard-when" }, [
+          el("span", { class: "k-scard-count k-mono", "data-ui": "anime.airing", text: fmtCountdown(a.timeUntilAiring) }),
+          el("span", { class: "k-scard-sub", text: "EP " + a.episode + " · " + new Date(a.airingAt * 1000).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit" }) })
+        ]) : null,
+        el("div", { class: "k-cluster k-scard-meta" }, [
+          el("span", { class: "k-chip k-status-chip", "data-status": e.status, text: KOS.media.STATUS_LABEL[e.status] }),
+          progressText(e) ? el("span", { class: "k-mono k-scard-sub", "data-ui": "vault.card-progress", text: progressText(e) }) : null
+        ].filter(Boolean))
+      ].filter(Boolean))
+    ]);
+    return card;
+  }
+
   KOS.views.seasonal = function (main) {
     KOS.shell.tree("none");
     var mod = KOS.media.module("anime");
     var now = currentSeason();
     var sel = { season: now.season, year: now.year };   // default: today
 
-    var wrap = el("div", { class: "season-view " + SEASON_META[sel.season].cls });
+    var wrap = el("div", { class: "k-season", "data-ui": "anime.season" });
     main.appendChild(wrap);
 
-    var heroTitle = el("h1", {});
-    var heroArt = el("img", { class: "season-art", alt: "", "aria-hidden": "true", decoding: "async", sizes: "100vw" });
-    var heroCredit = el("span", { class: "season-credit" });
-    var heroCount = el("span", { class: "season-hero-count" });
-    var heroNode = el("div", { class: "lab-h season-hero" });
+    var heroTitle = el("h1", { class: "k-season-title" });
+    var heroArt = el("img", { class: "k-season-art", "data-ui": "anime.season-art", alt: "", "aria-hidden": "true", decoding: "async", sizes: "100vw" });
+    var heroCredit = el("span", { class: "k-season-credit", "data-ui": "anime.season-credit" });
+    var heroCount = el("p", { class: "k-season-line" });
+    var heroMark = el("span", { class: "k-season-mark", "aria-hidden": "true" });
+    var heroNode = el("section", { class: "k-season-hero", "data-ui": "anime.season-hero", "aria-label": "Season" });
     /* the art menu: your own picture (upload or URL, positioned with the
        shared cropper — invariant 26c) or back to the shipped scenery */
-    var artMenu = KOS.ui.menu({ label: "Art", className: "btn ghost season-art-btn", hint: "Change this season's picture",
+    var artMenu = KOS.ui.menu({ label: "Art", className: "k-btn--sm k-season-btn", hint: "Change this season's picture",
       items: [
         { label: "Choose a picture…", glyph: "✎", hint: "Upload or paste a URL, then position it", onSelect: function () { editArt(); } },
         { label: "Use the shipped scenery", glyph: "↺", onSelect: function () { setCustomArt(null); } }
       ] });
+    var todayBtn = el("button", { type: "button", class: "k-btn k-btn--sm k-season-btn", text: "◎ Today", title: "Back to the current season", onclick: function () {
+      sel = { season: currentSeason().season, year: currentSeason().year };
+      applySelection();
+    } });
     heroNode.appendChild(heroArt);
-    heroNode.appendChild(el("div", { class: "season-hero-scrim", "aria-hidden": "true" }));
-    heroNode.appendChild(el("div", { class: "season-hero-body" }, [
-      el("span", { class: "dh-kicker season-hero-kicker", text: "Seasonal watching" }),
+    heroNode.appendChild(el("span", { class: "k-season-scrim", "aria-hidden": "true" }));
+    heroNode.appendChild(heroMark);
+    heroNode.appendChild(el("div", { class: "k-season-body" }, [
+      el("div", { class: "k-season-step" }, [
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-season-arrow", text: "‹", "aria-label": "Previous season", onclick: function () { stepSeason(-1); } }),
+        el("span", { class: "k-kicker k-season-kicker", text: "Seasonal watching" }),
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-season-arrow", text: "›", "aria-label": "Next season", onclick: function () { stepSeason(1); } })
+      ]),
       heroTitle,
-      el("p", { class: "sub", text: "Everything you have from the season — what you're watching first, with live countdowns to the next episode." }),
-      heroCount
+      heroCount,
+      el("div", { class: "k-cluster" }, [artMenu, todayBtn, heroCredit])
     ]));
-    heroNode.appendChild(el("div", { class: "season-hero-tools" }, [heroCredit, artMenu]));
     wrap.appendChild(heroNode);
 
     var customArt = {};   // SEASON → { source, crop } | null, read from kv on first use
@@ -538,9 +527,8 @@
       });
     }
     /* paints whichever art the season has: yours from kv (through the
-       shared crop vars), else the shipped scenery — its 850px sample as
-       the hero's background at once, so the full frame (up to 2.5 MB)
-       fades in over a picture, not a void */
+       shared crop vars), else the shipped scenery — its 850px sample
+       first, so the full frame fades in over a picture, not a void */
     function paintArt() {
       var meta = SEASON_META[sel.season];
       if (heroArt.getAttribute("data-season") === sel.season) return;
@@ -548,32 +536,28 @@
       loadCustomArt(sel.season, function (custom) {
         if (custom) {
           heroArt.removeAttribute("srcset");
-          heroArt.style.objectPosition = "";
+          heroArt.style.removeProperty("--art-pos");
           heroArt.src = custom.source;
           KOS.imageCrop.apply(heroArt, custom.crop);
-          heroNode.style.setProperty("--season-art", "url(\"" + custom.source + "\")");
-          heroNode.style.setProperty("--season-art-pos", custom.crop.x + "% " + custom.crop.y + "%");
           heroCredit.textContent = "your picture";
           return;
         }
         KOS.ui.state(heroArt, "crop-media", false);
         heroArt.srcset = meta.artSmall + " 850w, " + meta.art + " " + meta.artWidth + "w";
         heroArt.src = meta.artSmall;
-        heroArt.style.objectPosition = meta.focus || "50% 50%";
-        heroNode.style.setProperty("--season-art", "url(\"" + meta.artSmall + "\")");
-        heroNode.style.setProperty("--season-art-pos", meta.focus || "50% 50%");
+        heroArt.style.setProperty("--art-pos", meta.focus || "50% 50%");
         heroCredit.textContent = meta.credit ? "art · " + meta.credit : "";
       });
     }
 
     if (KOS.medview.unavailable(wrap)) return;
 
-    /* ---- the picker (3j) ---- */
-    var seasonSel = el("select", { class: "status-sel", "aria-label": "Season" },
+    /* ---- the picker (3j): jump to any season and year ---- */
+    var seasonSel = el("select", { class: "k-pill-select", "data-ui": "ui.status-select", "aria-label": "Season" },
       SEASON_ORDER.map(function (s) {
         return el("option", { value: s, text: SEASON_META[s].kanji + " " + SEASON_META[s].label });
       }));
-    var yearIn = el("input", { type: "number", class: "todo-in season-yr", min: "1960", max: String(now.year + 2),
+    var yearIn = el("input", { type: "number", class: "k-pill-select k-season-yr", "data-ui": "ui.quick-add anime.season-yr", min: "1960", max: String(now.year + 2),
       "aria-label": "Year" });
     function stepSeason(dir) {
       var i = SEASON_ORDER.indexOf(sel.season) + dir;
@@ -582,22 +566,17 @@
       sel.season = SEASON_ORDER[i];
       applySelection();
     }
-    var todayBtn = el("button", { class: "btn", text: "◎ Today", title: "Back to the current season", onclick: function () {
-      sel = { season: currentSeason().season, year: currentSeason().year };
-      applySelection();
-    } });
     function applySelection() {
       seasonSel.value = sel.season;
       yearIn.value = String(sel.year);
       var meta = SEASON_META[sel.season];
-      KOS.ui.setClass(wrap, "season-view " + meta.cls);
       wrap.setAttribute("data-season", sel.season);
-      heroTitle.innerHTML = "";
-      heroTitle.appendChild(el("span", { class: "kanji-inline season-kanji", text: meta.kanji }));
-      heroTitle.appendChild(document.createTextNode(" " + meta.label + " " + sel.year));
+      heroTitle.textContent = meta.label + " " + sel.year + " ";
+      heroTitle.appendChild(el("span", { class: "k-season-kanji", lang: "ja", text: meta.kanji }));
+      heroMark.textContent = meta.kanji;
       paintArt();
       var isNow = sel.season === currentSeason().season && sel.year === currentSeason().year;
-      todayBtn.style.display = isNow ? "none" : "";
+      todayBtn.hidden = isNow;
       render();
     }
     seasonSel.addEventListener("change", function () { sel.season = seasonSel.value; applySelection(); });
@@ -607,8 +586,8 @@
       applySelection();
     });
 
-    var refreshedLine = el("p", { class: "sub med-count" });
-    var refreshBtn = el("button", { class: "btn", text: "⟳ Refresh airing", title: "Airing times refresh automatically when this view loads — this forces it", onclick: function () {
+    var refreshedLine = el("span", { class: "k-mcount", "data-ui": "vault.count part.sub" });
+    var refreshBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: "⟳ Refresh airing", title: "Airing times refresh automatically when this view loads — this forces it", onclick: function () {
       refreshBtn.disabled = true;
       refreshBtn.textContent = "⟳ Refreshing…";
       KOS.anime.refreshAiring(true, function (err) {
@@ -618,19 +597,15 @@
         render();
       });
     } });
-    wrap.appendChild(el("div", { class: "lab-controls season-picker" }, [
-      el("button", { class: "btn", text: "‹", "aria-label": "Previous season", onclick: function () { stepSeason(-1); } }),
+    wrap.appendChild(el("div", { class: "k-mcontrols k-season-picker", "data-ui": "anime.season-picker" }, [
       seasonSel, yearIn,
-      el("button", { class: "btn", text: "›", "aria-label": "Next season", onclick: function () { stepSeason(1); } }),
-      todayBtn,
-      el("span", { style: "flex:1" }),
+      el("span", { class: "k-spacer" }),
+      refreshedLine,
       refreshBtn,
-      el("button", { class: "btn", text: "映 Anime vault", onclick: function () { KOS.show("anime"); } }),
-      el("button", { class: "btn", text: "← Collection Matrix", onclick: function () { KOS.show("matrix"); } })
+      el("button", { type: "button", class: "k-btn k-btn--sm", text: "映 Anime vault", onclick: function () { KOS.show("anime"); } })
     ]));
-    wrap.appendChild(refreshedLine);
 
-    var holder = el("div", { class: "med-grid" });
+    var holder = el("div", { class: "k-season-grid", "data-ui": "vault.grid" });
     wrap.appendChild(holder);
 
     function render() {
@@ -642,8 +617,7 @@
           return e.extra && e.extra.season === sel.season && e.extra.seasonYear === sel.year;
         });
         /* airing entries first, soonest episode first; then the rest of
-           what is being watched, then everything else A–Z (past seasons
-           naturally have nothing airing → watching, then A–Z) */
+           what is being watched, then everything else A–Z */
         var known = airingList(seasonal).map(function (x) { return x.entry; });
         var knownIds = {};
         known.forEach(function (e) { knownIds[e.id] = true; });
@@ -653,28 +627,29 @@
         var list = known.concat(watching, rest);
         var nWatching = known.length + watching.length;
         heroCount.textContent = list.length
-          ? list.length + (list.length === 1 ? " title" : " titles") + " from the season" +
+          ? "Everything you have from the season. " + list.length + (list.length === 1 ? " title" : " titles") +
             (nWatching ? " · watching " + nWatching : "") +
             (known.length ? " · " + known.length + " with a next episode scheduled" : "")
-          : "";
+          : "Everything you have from the season, watching first, with live countdowns to the next episode.";
         refreshedLine.textContent = airing.at && known.length
-          ? "Airing data as of " + new Date(airing.at).toLocaleTimeString()
+          ? "Airing data as of " + new Date(airing.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
           : "";
         if (!list.length) {
-          holder.appendChild(KOS.ui.emptyState({
+          var empty = KOS.ui.emptyState({
             compact: true,
-            className: "seasonal-empty",
             mark: "季",
             title: "No " + meta.label + " " + sel.year + " titles in this vault",
             body: "Season data arrives with the AniList sync; whatever you have listed from a season — watching, planned or finished — appears here.",
-            action: el("div", { class: "lab-controls seasonal-empty-actions" }, [
-              el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-              el("button", { class: "btn gold", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("anime", render); } })
+            action: el("div", { class: "k-cluster" }, [
+              el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
+              el("button", { type: "button", class: "k-btn", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("anime", render); } })
             ])
-          }));
+          });
+          KOS.medview.addHook(empty, "anime.season-empty");
+          holder.appendChild(empty);
           return;
         }
-        list.forEach(function (e) { holder.appendChild(gridCard(e, mod, render)); });
+        list.forEach(function (e) { holder.appendChild(seasonCard(e, mod, render)); });
       });
     }
 
