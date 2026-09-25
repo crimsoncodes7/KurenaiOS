@@ -30,17 +30,7 @@
      customs get the VN module accent */
   function labelColor(id) {
     var status = KOS.vndb.LABEL_STATUS[id];
-    return status ? KOS.media.STATUS_COLOR[status] : "#8A63A8";
-  }
-
-  function section(title, sub, children) {
-    return el("section", { class: "ap-sec" }, [
-      el("div", { class: "vn-sec-h" }, [el("b", { text: title }), sub ? el("span", { class: "sub", text: sub }) : null])
-    ].concat(children));
-  }
-  function stat(v, k) {
-    return el("div", { class: "stat-card" }, [
-      el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k })]);
+    return status ? KOS.media.STATUS_COLOR[status] : "var(--vn)";
   }
 
   /* the two profile-level requests + the local vault pass, gathered into
@@ -79,25 +69,18 @@
 
   KOS.views.vndbprofile = function (main) {
     KOS.shell.tree("none");
-
-    main.appendChild(KOS.collectionCrumbs("Sync", "VNDB"));
-    var workspaceTabs = KOS.collectionWorkspaceTabs("sync", "vndbprofile");
-    workspaceTabs.classList.add("profile-workspace-tabs");
-
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "Collection · 貌" }),
-        el("h1", { text: "VNDB Profile" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "The account behind the visual-novel sync — labels, list stats and your length votes." })
-        ])
-      ]),
-      workspaceTabs
-    ]));
+    /* the profile grammar lives with the AniList profile (aniprofile.js) */
+    var P = KOS.profileParts;
+    main.appendChild(KOS.ui.pageHeader({
+      kicker: "Collection · 貌",
+      title: "VNDB Profile",
+      sub: "The account behind the visual-novel sync: labels, list stats and your length votes.",
+      actions: [KOS.collectionWorkspaceTabs("sync", "vndbprofile")]
+    }));
 
     if (KOS.medview.unavailable(main)) return;
 
-    var body = el("div", { class: "ap-body" });
+    var body = el("div", { class: "k-pf", "data-ui": "profile.body" });
     main.appendChild(body);
     var visual = {};
     var visualKey = null;
@@ -113,114 +96,80 @@
     function render(data, fetchedAt) {
       body.innerHTML = "";
       var u = data.user, us = data.userStats, vault = data.vault;
-
-      /* --- header --- */
-      function hstat(v2, k) { return el("div", { class: "ap-hstat" }, [el("b", { text: String(v2) }), el("span", { text: k })]); }
       var bannerPref = visual.banner || {}, avatarPref = visual.avatar || {};
       var bannerSource = bannerPref.source || null, avatarSource = avatarPref.source || null;
-      var head = el("div", { class: "ap-head vp-head" + (bannerSource ? " has-banner" : "") });
-      if (bannerSource) KOS.imageCrop.background(head, bannerSource, bannerPref.crop);
-      head.appendChild(el("div", { class: "ap-head-scrim" }, [
-        avatarSource
-          ? el("span", { class: "ap-avatar ap-avatar-media" }, [KOS.imageCrop.image(avatarSource, { alt: "" }, avatarPref.crop)])
-          : el("span", { class: "ap-avatar vp-avatar", "aria-hidden": "true", text: "選" }),
-        el("div", { class: "ap-id" }, [
-          el("div", { class: "ap-id-top" }, [el("b", { class: "ap-name", text: u.username })]),
-          el("span", { class: "ap-since", text: "vndb.org · " + u.id }),
-          el("a", { class: "ap-sitelink", href: "https://vndb.org/" + u.id, target: "_blank", rel: "noopener", text: "vndb.org ↗" })
-        ]),
-        vault ? el("div", { class: "ap-headstats" }, [
-          hstat(vault.total, "tracked"),
-          hstat(vault.completed, "finished"),
-          hstat(vault.routesCleared, "routes"),
-          hstat(vault.quotes, "quotes")
-        ]) : null
-      ]));
-      body.appendChild(head);
 
-      var refreshBtn = el("button", { class: "btn", text: "⟳ Refresh", onclick: function () { load(true); } });
-      body.appendChild(el("div", { class: "lab-controls ap-actions" }, [
-        refreshBtn,
-        el("span", { class: "ap-fetched", text: "Updated " + new Date(fetchedAt).toLocaleTimeString() }),
-        el("button", { class: "btn", text: "✎ Banner", onclick: function () {
-          KOS.imageCrop.open({
-            title: "Position your VNDB banner",
-            description: "VNDB does not expose profile artwork here, so this upload stays local to Kurenai.",
-            source: bannerSource || "", crop: bannerPref.crop, aspect: 3.2, allowUpload: true,
-            fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 520 * 1024, quality: 0.82 },
-            onRemove: bannerSource ? function () {
-              var next = Object.assign({}, visual); delete next.banner;
-              saveVisual(next, data, fetchedAt);
-            } : null,
-            onSave: function (result) {
-              var next = Object.assign({}, visual);
-              next.banner = { source: result.source, crop: result.crop };
-              saveVisual(next, data, fetchedAt);
-            }
-          });
-        } }),
-        el("button", { class: "btn", text: "✎ Avatar", onclick: function () {
-          KOS.imageCrop.open({
-            title: "Position your VNDB avatar", source: avatarSource || "", crop: avatarPref.crop,
-            aspect: 1, allowUpload: true,
-            fileOptions: { maxWidth: 900, maxHeight: 900, maxBytes: 260 * 1024, quality: 0.84 },
-            onRemove: avatarSource ? function () {
-              var next = Object.assign({}, visual); delete next.avatar;
-              saveVisual(next, data, fetchedAt);
-            } : null,
-            onSave: function (result) {
-              var next = Object.assign({}, visual);
-              next.avatar = { source: result.source, crop: result.crop };
-              saveVisual(next, data, fetchedAt);
-            }
-          });
-        } }),
-        el("button", { class: "btn", text: "Vault", onclick: function () { KOS.show("vn"); } }),
-        el("button", { class: "btn", text: "Sync", onclick: function () { KOS.show("mediasync"); } })
-      ]));
+      body.appendChild(P.hero({
+        hook: "profile.vndb-head",
+        banner: bannerSource, bannerCrop: bannerPref.crop, avatar: avatarSource, avatarCrop: avatarPref.crop, mark: "選",
+        name: u.username, since: "vndb.org · " + u.id,
+        href: "https://vndb.org/" + u.id, hrefText: "vndb.org ↗",
+        figures: vault ? [[vault.total, "tracked"], [vault.completed, "finished"], [vault.routesCleared, "routes"], [vault.quotes, "quotes"]] : null
+      }));
+
+      body.appendChild(P.actions(function () { load(true); }, fetchedAt, function () {
+        KOS.imageCrop.open({
+          title: "Position your VNDB banner",
+          description: "VNDB does not expose profile artwork here, so this upload stays local to Kurenai.",
+          source: bannerSource || "", crop: bannerPref.crop, aspect: 3.2, allowUpload: true,
+          fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 520 * 1024, quality: 0.82 },
+          onRemove: bannerSource ? function () {
+            var next = Object.assign({}, visual); delete next.banner;
+            saveVisual(next, data, fetchedAt);
+          } : null,
+          onSave: function (result) {
+            var next = Object.assign({}, visual);
+            next.banner = { source: result.source, crop: result.crop };
+            saveVisual(next, data, fetchedAt);
+          }
+        });
+      }, function () {
+        KOS.imageCrop.open({
+          title: "Position your VNDB avatar", source: avatarSource || "", crop: avatarPref.crop,
+          aspect: 1, allowUpload: true,
+          fileOptions: { maxWidth: 900, maxHeight: 900, maxBytes: 260 * 1024, quality: 0.84 },
+          onRemove: avatarSource ? function () {
+            var next = Object.assign({}, visual); delete next.avatar;
+            saveVisual(next, data, fetchedAt);
+          } : null,
+          onSave: function (result) {
+            var next = Object.assign({}, visual);
+            next.avatar = { source: result.source, crop: result.crop };
+            saveVisual(next, data, fetchedAt);
+          }
+        });
+      }));
 
       /* --- labels, live from the site --- */
       var visibleLabels = data.labels.filter(function (l) { return l.label && !/^no label$/i.test(l.label); });
       var total = visibleLabels.reduce(function (a, l) { return a + (l.count || 0); }, 0);
-      body.appendChild(section("List labels — live from VNDB", total + " label assignments · customs included",
+      body.appendChild(P.section("List labels — live from VNDB", total + " label assignments · customs included",
         visibleLabels.length ? [
-          el("div", { class: "stat-strip vp-label-stats" }, visibleLabels.map(function (l) {
-            var meta = (l.private ? " · private" : "") + (l.id >= 10 ? " · custom" : "");
-            return el("div", { class: "stat-card", style: "--label-color:" + labelColor(l.id) }, [
-              el("div", { class: "v", text: String(l.count || 0) }),
-              el("div", { class: "k", text: l.label + meta })
-            ]);
+          el("div", { class: "k-stats k-pf-band k-pf-labels", "data-ui": "ui.stat-strip profile.label-stats" }, visibleLabels.map(function (l) {
+            var tile = KOS.ui.statTile({ label: l.label + (l.private ? " · private" : "") + (l.id >= 10 ? " · custom" : ""), value: String(l.count || 0) });
+            tile.style.setProperty("--vh-accent", labelColor(l.id));
+            return tile;
           }))
-        ] : [el("p", { class: "sub", text: "No labels on the account yet." })]));
+        ] : [P.note("No labels on the account yet.")]));
 
       /* --- vault-derived list stats (the synced ulist, locally) --- */
       if (vault) {
         var mean = vault.rated ? (vault.scoreSum / vault.rated).toFixed(1) : "—";
         var hours = Math.round(vault.estMinutes / 60);
-        body.appendChild(section("List statistics", "from the synced vault — same data, no extra requests", [
-          el("div", { class: "stat-strip" }, [
-            stat(vault.total, "VNs tracked"),
-            stat(vault.completed, "Finished"),
-            stat(mean, "Mean vote /10"),
-            stat(vault.routesCleared + "/" + vault.routesTotal, "Routes cleared"),
-            stat(vault.chaptersDone, "Chapters done"),
-            stat(vault.quotes, "Quotes kept"),
-            stat(hours ? "~" + hours : "—", "Est. hours (finished)")
-          ])
-        ]));
+        body.appendChild(P.section("List statistics", "from the synced vault — same data, no extra requests", [P.band([
+          P.stat(vault.total, "VNs tracked"), P.stat(vault.completed, "Finished"), P.stat(mean, "Mean vote /10"),
+          P.stat(vault.routesCleared + "/" + vault.routesTotal, "Routes cleared"), P.stat(vault.chaptersDone, "Chapters done"),
+          P.stat(vault.quotes, "Quotes kept"), P.stat(hours ? "~" + hours : "—", "Est. hours (finished)")
+        ])]));
       }
 
       /* --- length-vote contributions --- */
       if (us) {
-        body.appendChild(section("Play-length contributions", "your crowd-sourced timing data on vndb.org", [
-          el("div", { class: "stat-strip" }, [
-            stat(us.lengthvotes || 0, "Length votes"),
-            stat(us.lengthvotes_sum ? Math.round(us.lengthvotes_sum / 60) + " h" : "0 h", "Hours reported")
-          ])
-        ]));
+        body.appendChild(P.section("Play-length contributions", "your crowd-sourced timing data on vndb.org", [P.band([
+          P.stat(us.lengthvotes || 0, "Length votes"),
+          P.stat(us.lengthvotes_sum ? Math.round(us.lengthvotes_sum / 60) + " h" : "0 h", "Hours reported")
+        ])]));
       }
-
-
     }
 
     function load(force) {
@@ -231,7 +180,7 @@
             mark: "読",
             title: "Connect VNDB to open your profile",
             body: "The profile uses the same account as Sync & Import. Its token stays in this browser on this device.",
-            action: el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
+            action: el("button", { type: "button", class: "k-btn k-btn--primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
           }));
           return;
         }
@@ -243,16 +192,14 @@
             return;
           }
           body.innerHTML = "";
-          body.appendChild(el("p", { class: "sub ap-loading", text: "Loading your profile from VNDB (two small requests)…" }));
+          body.appendChild(P.note("Loading your profile from VNDB (two small requests)…"));
           gather(conn, function (err2, data) {
             if (err2) {
               body.innerHTML = "";
-              body.appendChild(el("p", { class: "fc-empty", text: err2.message }));
-              if (err2.kind === "auth") {
-                body.appendChild(el("div", { class: "lab-controls", style: "justify-content:center" }, [
-                  el("button", { class: "btn primary", text: "⇅ Reconnect on Sync & Import", onclick: function () { KOS.show("mediasync"); } })
-                ]));
-              }
+              body.appendChild(KOS.ui.emptyState({ compact: true, body: err2.message,
+                action: err2.kind === "auth"
+                  ? el("button", { type: "button", class: "k-btn k-btn--primary", text: "⇅ Reconnect on Sync & Import", onclick: function () { KOS.show("mediasync"); } })
+                  : null }));
               return;
             }
             cache = { key: String(conn.user.id), at: Date.now(), data: data };

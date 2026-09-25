@@ -392,8 +392,9 @@ step("Shrine: a favourite game routes to the games editor", async () => {
 step("Sync & Import: Games panel states the manual baseline + server-verified Steam (4c); the browser never calls Steam directly", async () => {
   KOS.show("mediasync");
   const main = document.getElementById("main");
-  await waitFor(() => main.querySelectorAll("[data-ui~='sync.panel']").length >= 8, 4000);
-  if (main.querySelectorAll("[data-ui~='sync.panel']").length !== 8) throw new Error("panel count");   // 8 since 3j (Autonomous sync)
+  await waitFor(() => main.querySelectorAll("[data-ui~='sync.panel']").length >= 7, 4000);
+  /* 7 since the UI rebuild (frame 11i): XML and duplicate repair share one card */
+  if (main.querySelectorAll("[data-ui~='sync.panel']").length !== 7) throw new Error("panel count");
   const txt = main.textContent;
   if (!/Games/.test(txt) || !/Manual baseline/.test(txt)) throw new Error("games panel missing");
   /* the 3e browser conclusion must still be stated, along with the 4c fix:

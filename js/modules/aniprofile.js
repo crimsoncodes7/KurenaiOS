@@ -61,63 +61,97 @@
     return "activity";
   }
 
+  /* the profile grammar shared with vndbprofile.js (Sync, frame 11i
+     language): a titled section, a stat band, a people/cover strip */
   function section(title, sub, children) {
-    return el("section", { class: "ap-sec" }, [
-      el("div", { class: "vn-sec-h" }, [el("b", { text: title }), sub ? el("span", { class: "sub", text: sub }) : null])
+    return el("section", { class: "k-pf-sec", "data-ui": "profile.section" }, [
+      KOS.ui.sectionHeader({ title: title, sub: sub || null })
     ].concat(children));
   }
-  function stat(v, k) {
-    return el("div", { class: "stat-card" }, [
-      el("div", { class: "v", text: String(v) }), el("div", { class: "k", text: k })]);
+  function band(tiles) {
+    return el("div", { class: "k-stats k-pf-band", "data-ui": "ui.stat-strip" }, tiles);
   }
+  function stat(v, k) { return KOS.ui.statTile({ label: k, value: String(v) }); }
   function favStrip(nodes, kind) {
-    var strip = el("div", { class: "ap-favs" });
+    var strip = el("div", { class: "k-pf-favs", "data-ui": "profile.favs" });
     nodes.forEach(function (n) {
       var title = kind === "media" ? ((n.title && KOS.anilist.pickTitle(n.title)) || "?")
         : (n.name && n.name.full) || n.name || "?";
       var img = kind === "media" ? (n.coverImage && n.coverImage.large)
         : kind === "person" ? (n.image && n.image.large) : null;
-      strip.appendChild(el("div", { class: "ap-fav" + (kind === "person" ? " ap-fav-round" : ""), title: title }, [
-        img ? el("img", { src: img, alt: "", loading: "lazy", decoding: "async" })
-            : el("span", { class: "med-cover-ph", "aria-hidden": "true", text: kind === "person" ? "人" : "映" }),
-        el("span", { class: "ap-fav-t", text: title })
+      strip.appendChild(el("div", { class: "k-pf-fav", "data-kind": kind, title: title }, [
+        el("span", { class: "k-pf-fav-art" }, [img
+          ? el("img", { src: img, alt: "", loading: "lazy", decoding: "async" })
+          : el("span", { class: "k-pf-ph", "aria-hidden": "true", text: kind === "person" ? "人" : "映" })]),
+        el("span", { class: "k-pf-fav-t", text: title })
       ]));
     });
     return strip;
   }
   function userRow(users) {
-    var row = el("div", { class: "ap-users" });
-    users.forEach(function (u) {
-      row.appendChild(el("a", { class: "ap-user", href: "https://anilist.co/user/" + u.name,
-        target: "_blank", rel: "noopener", title: u.name }, [
-        u.avatar && u.avatar.medium ? el("img", { src: u.avatar.medium, alt: "" }) : el("span", { class: "med-cover-ph", text: "人" }),
+    return el("div", { class: "k-pf-users", "data-ui": "profile.users" }, users.map(function (u) {
+      return el("a", { class: "k-pf-user", href: "https://anilist.co/user/" + u.name, target: "_blank", rel: "noopener", title: u.name }, [
+        u.avatar && u.avatar.medium ? el("img", { src: u.avatar.medium, alt: "" }) : el("span", { class: "k-pf-ph", "aria-hidden": "true", text: "人" }),
         el("span", { text: u.name })
-      ]));
-    });
-    return row;
+      ]);
+    }));
   }
+  function feedRow(text, when, img) {
+    return el("div", { class: "k-pf-row", "data-ui": "profile.row" }, [
+      img ? el("img", { class: "k-pf-row-img", src: img, alt: "", loading: "lazy" }) : null,
+      el("span", { class: "k-pf-row-t", text: text }),
+      el("span", { class: "k-mono k-muted", text: when })
+    ].filter(Boolean));
+  }
+  function note(text) { return el("p", { class: "k-muted k-pf-note", text: text }); }
+
+  /* the hero both profiles share: banner (a local override or the
+     site's), avatar, identity and a figure band */
+  function profileHero(o) {
+    var head = el("div", { class: "k-pf-hero", "data-ui": o.hook ? "profile.head " + o.hook : "profile.head" });
+    if (o.banner) {
+      KOS.ui.state(head, "has-banner", true);
+      KOS.imageCrop.background(head, o.banner, o.bannerCrop, { className: "k-pf-hero-art" });
+    }
+    head.appendChild(el("span", { class: "k-pf-hero-scrim", "aria-hidden": "true" }));
+    head.appendChild(el("div", { class: "k-pf-hero-in" }, [
+      o.avatar
+        ? el("span", { class: "k-pf-avatar", "data-ui": "profile.avatar" }, [KOS.imageCrop.image(o.avatar, { alt: "" }, o.avatarCrop)])
+        : el("span", { class: "k-pf-avatar", "data-ui": "profile.avatar", lang: "ja", "aria-hidden": "true", text: o.mark }),
+      el("div", { class: "k-pf-id" }, [
+        el("div", { class: "k-pf-id-top" }, [el("h2", { class: "k-pf-name", text: o.name }), o.chip || null].filter(Boolean)),
+        el("span", { class: "k-pf-since", text: o.since }),
+        el("a", { class: "k-pf-link", href: o.href, target: "_blank", rel: "noopener", text: o.hrefText })
+      ]),
+      o.figures && o.figures.length ? el("dl", { class: "k-pf-figs" }, o.figures.map(function (f) {
+        return el("div", { class: "k-mx-fig" }, [el("dt", { text: f[1] }), el("dd", { text: String(f[0]) })]);
+      })) : null
+    ].filter(Boolean)));
+    return head;
+  }
+  /* ⟳ Refresh, when it was fetched, and the two local image overrides */
+  function actionRow(onRefresh, fetchedAt, onBanner, onAvatar) {
+    return el("div", { class: "k-pf-actions", "data-ui": "profile.actions" }, [
+      el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "profile.refresh", text: "⟳ Refresh", onclick: onRefresh }),
+      el("span", { class: "k-muted k-pf-fetched", text: "Updated " + new Date(fetchedAt).toLocaleTimeString() }),
+      el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", text: "✎ Banner", onclick: onBanner }),
+      el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", text: "✎ Avatar", onclick: onAvatar })
+    ]);
+  }
+  KOS.profileParts = { hero: profileHero, actions: actionRow, section: section, band: band, stat: stat, note: note };
 
   KOS.views.aniprofile = function (main) {
     KOS.shell.tree("none");
-
-    main.appendChild(KOS.collectionCrumbs("Sync", "AniList"));
-    var workspaceTabs = KOS.collectionWorkspaceTabs("sync", "aniprofile");
-    workspaceTabs.classList.add("profile-workspace-tabs");
-
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "Collection · 顔" }),
-        el("h1", { text: "AniList Profile" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "The account behind the sync — stats, favourites, follows and activity." })
-        ])
-      ]),
-      workspaceTabs
-    ]));
+    main.appendChild(KOS.ui.pageHeader({
+      kicker: "Collection · 顔",
+      title: "AniList Profile",
+      sub: "The account behind the sync: stats, favourites, follows and activity.",
+      actions: [KOS.collectionWorkspaceTabs("sync", "aniprofile")]
+    }));
 
     if (KOS.medview.unavailable(main)) return;
 
-    var body = el("div", { class: "ap-body" });
+    var body = el("div", { class: "k-pf", "data-ui": "profile.body" });
     main.appendChild(body);
     var visual = {};
     var visualKey = null;
@@ -130,7 +164,7 @@
       });
     }
 
-    /* One fetch, five sub-pages (3j): the tabs re-render slices of the SAME
+    /* One fetch, six sub-pages (3j): the tabs re-render slices of the SAME
        cached bundle — switching tabs never spends a request. */
     function render(data, fetchedAt) {
       body.innerHTML = "";
@@ -138,86 +172,61 @@
       var st = (v.statistics) || {};
       var an = st.anime || {}, mg = st.manga || {};
       var fav = v.favourites || {};
-
-      /* --- header: banner + big avatar + identity + inline stat rail --- */
-      var an0 = st.anime || {}, mg0 = st.manga || {};
-      function hstat(v2, k) { return el("div", { class: "ap-hstat" }, [el("b", { text: String(v2) }), el("span", { text: k })]); }
       var bannerPref = visual.banner || {};
       var avatarPref = visual.avatar || {};
       var bannerSource = bannerPref.source || v.bannerImage || null;
       var avatarSource = avatarPref.source || (v.avatar && v.avatar.large) || null;
-      var head = el("div", { class: "ap-head" + (bannerSource ? " has-banner" : "") });
-      if (bannerSource) KOS.imageCrop.background(head, bannerSource, bannerPref.crop);
-      head.appendChild(el("div", { class: "ap-head-scrim" }, [
-        avatarSource
-          ? el("span", { class: "ap-avatar ap-avatar-media" }, [
-              KOS.imageCrop.image(avatarSource, { alt: "" }, avatarPref.crop)
-            ])
-          : el("span", { class: "ap-avatar med-cover-ph", text: "顔" }),
-        el("div", { class: "ap-id" }, [
-          el("div", { class: "ap-id-top" }, [
-            el("b", { class: "ap-name", text: v.name }),
-            v.unreadNotificationCount
-              ? el("span", { class: "med-chip ap-unread", style: "--chip:#B85C50", text: v.unreadNotificationCount + " unread" })
-              : null
-          ]),
-          el("span", { class: "ap-since", text: "member since " + new Date(v.createdAt * 1000).toLocaleDateString() }),
-          el("a", { class: "ap-sitelink", href: v.siteUrl, target: "_blank", rel: "noopener", text: "anilist.co ↗" })
-        ]),
-        el("div", { class: "ap-headstats" }, [
-          hstat(an0.count || 0, "anime"),
-          hstat(mg0.count || 0, "manga"),
-          hstat(an0.minutesWatched ? Math.round(an0.minutesWatched / 1440) + "d" : "0d", "watched"),
-          hstat(an0.meanScore ? (an0.meanScore / 10).toFixed(1) : "—", "mean")
-        ])
-      ]));
-      body.appendChild(head);
 
-      var refreshBtn = el("button", { class: "btn", text: "⟳ Refresh", onclick: function () { load(true); } });
-      body.appendChild(el("div", { class: "lab-controls ap-actions" }, [
-        refreshBtn,
-        el("span", { class: "ap-fetched", text: "Updated " + new Date(fetchedAt).toLocaleTimeString() }),
-        el("button", { class: "btn", text: "✎ Banner", onclick: function () {
-          KOS.imageCrop.open({
-            title: "Position your AniList banner",
-            description: "Your AniList image remains the default source; Kurenai stores only an optional override and focal position.",
-            source: bannerSource || "", originalSource: v.bannerImage || "", originalLabel: "Use AniList banner",
-            crop: bannerPref.crop, aspect: 3.2, allowUpload: true,
-            fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 520 * 1024, quality: 0.82 },
-            removeLabel: "Reset to AniList banner",
-            onRemove: function () {
-              var next = Object.assign({}, visual); delete next.banner;
-              saveVisual(next, data, fetchedAt);
-            },
-            onSave: function (result) {
-              var next = Object.assign({}, visual);
-              next.banner = { source: v.bannerImage && result.source === v.bannerImage ? null : result.source, crop: result.crop };
-              saveVisual(next, data, fetchedAt);
-            }
-          });
-        } }),
-        el("button", { class: "btn", text: "✎ Avatar", onclick: function () {
-          var remoteAvatar = (v.avatar && v.avatar.large) || "";
-          KOS.imageCrop.open({
-            title: "Position your AniList avatar", source: avatarSource || "",
-            originalSource: remoteAvatar, originalLabel: "Use AniList avatar",
-            crop: avatarPref.crop, aspect: 1, allowUpload: true,
-            fileOptions: { maxWidth: 900, maxHeight: 900, maxBytes: 260 * 1024, quality: 0.84 },
-            removeLabel: "Reset to AniList avatar",
-            onRemove: function () {
-              var next = Object.assign({}, visual); delete next.avatar;
-              saveVisual(next, data, fetchedAt);
-            },
-            onSave: function (result) {
-              var next = Object.assign({}, visual);
-              next.avatar = { source: remoteAvatar && result.source === remoteAvatar ? null : result.source, crop: result.crop };
-              saveVisual(next, data, fetchedAt);
-            }
-          });
-        } }),
-        el("button", { class: "btn", text: "Vault", onclick: function () { KOS.show("anime"); } }),
-        el("button", { class: "btn", text: "Sync", onclick: function () { KOS.show("mediasync"); } })
-      ]));
+      body.appendChild(profileHero({
+        banner: bannerSource, bannerCrop: bannerPref.crop, avatar: avatarSource, avatarCrop: avatarPref.crop, mark: "顔",
+        name: v.name,
+        chip: v.unreadNotificationCount ? el("span", { class: "k-mchip", "data-tone": "crimson", "data-ui": "profile.unread", text: v.unreadNotificationCount + " unread" }) : null,
+        since: "member since " + new Date(v.createdAt * 1000).toLocaleDateString(),
+        href: v.siteUrl, hrefText: "anilist.co ↗",
+        figures: [
+          [an.count || 0, "anime"], [mg.count || 0, "manga"],
+          [an.minutesWatched ? Math.round(an.minutesWatched / 1440) + "d" : "0d", "watched"],
+          [an.meanScore ? (an.meanScore / 10).toFixed(1) : "—", "mean"]
+        ]
+      }));
+
+      body.appendChild(actionRow(function () { load(true); }, fetchedAt, function () {
+        KOS.imageCrop.open({
+          title: "Position your AniList banner",
+          description: "Your AniList image remains the default source; Kurenai stores only an optional override and focal position.",
+          source: bannerSource || "", originalSource: v.bannerImage || "", originalLabel: "Use AniList banner",
+          crop: bannerPref.crop, aspect: 3.2, allowUpload: true,
+          fileOptions: { maxWidth: 1800, maxHeight: 1200, maxBytes: 520 * 1024, quality: 0.82 },
+          removeLabel: "Reset to AniList banner",
+          onRemove: function () {
+            var next = Object.assign({}, visual); delete next.banner;
+            saveVisual(next, data, fetchedAt);
+          },
+          onSave: function (result) {
+            var next = Object.assign({}, visual);
+            next.banner = { source: v.bannerImage && result.source === v.bannerImage ? null : result.source, crop: result.crop };
+            saveVisual(next, data, fetchedAt);
+          }
+        });
+      }, function () {
+        var remoteAvatar = (v.avatar && v.avatar.large) || "";
+        KOS.imageCrop.open({
+          title: "Position your AniList avatar", source: avatarSource || "",
+          originalSource: remoteAvatar, originalLabel: "Use AniList avatar",
+          crop: avatarPref.crop, aspect: 1, allowUpload: true,
+          fileOptions: { maxWidth: 900, maxHeight: 900, maxBytes: 260 * 1024, quality: 0.84 },
+          removeLabel: "Reset to AniList avatar",
+          onRemove: function () {
+            var next = Object.assign({}, visual); delete next.avatar;
+            saveVisual(next, data, fetchedAt);
+          },
+          onSave: function (result) {
+            var next = Object.assign({}, visual);
+            next.avatar = { source: remoteAvatar && result.source === remoteAvatar ? null : result.source, crop: result.crop };
+            saveVisual(next, data, fetchedAt);
+          }
+        });
+      }));
 
       /* --- the sub-page tabs --- */
       var TABS = [
@@ -225,48 +234,34 @@
         ["activity", "Activity"], ["notifications", "Notifications"]
       ];
       if (!TABS.some(function (t) { return t[0] === curTab; })) curTab = "overview";
-      var bar = el("div", { class: "study-tabs ap-tabs", role: "tablist" });
-      var pane = el("div", { class: "ap-pane" });
-      TABS.forEach(function (t) {
-        bar.appendChild(el("button", { class: "study-tab" + (t[0] === curTab ? " active" : ""), role: "tab", "data-tab": t[0],
-          onclick: function () {
-            curTab = t[0];
-            bar.querySelectorAll("[data-ui~='ui.tab']").forEach(function (b) {
-              KOS.ui.state(b, "active", b.dataset.tab === curTab); });
-            renderTab();
-          } }, [t[1]]));
-      });
-      body.appendChild(bar);
+      var tabsHost = el("div", { class: "k-pf-tabs" });
+      var pane = el("div", { class: "k-pf-pane", "data-ui": "profile.pane" });
+      function renderTabs() {
+        tabsHost.innerHTML = "";
+        tabsHost.appendChild(KOS.medview.addHook(KOS.ui.tabs(TABS.map(function (t) {
+          return { label: t[1], active: t[0] === curTab, hook: "ui.tab profile.tab",
+            onSelect: function () { curTab = t[0]; renderTabs(); renderTab(); } };
+        }), { variant: "card", label: "Profile pages" }), "profile.tabs"));
+      }
+      body.appendChild(tabsHost);
       body.appendChild(pane);
 
       function renderOverview() {
-        if (v.about) {
-          pane.appendChild(section("About me", null, [
-            el("div", { class: "ap-about-card" }, [el("p", { class: "ap-about", text: v.about })])
-          ]));
-        }
+        if (v.about) pane.appendChild(section("About me", null, [el("blockquote", { class: "k-pf-about", text: v.about })]));
         var days = an.minutesWatched ? (an.minutesWatched / 1440) : 0;
-        pane.appendChild(section("Anime overview", "as AniList counts it (mean score /100)", [
-          el("div", { class: "stat-strip" }, [
-            stat(an.count || 0, "Anime"),
-            stat(an.episodesWatched || 0, "Episodes"),
-            stat(days ? days.toFixed(1) : "0", "Days watched"),
-            stat(an.meanScore || 0, "Mean score")
-          ])
-        ]));
-        pane.appendChild(section("Manga overview", null, [
-          el("div", { class: "stat-strip" }, [
-            stat(mg.count || 0, "Manga"),
-            stat(mg.chaptersRead || 0, "Chapters"),
-            stat(mg.volumesRead || 0, "Volumes"),
-            stat(mg.meanScore || 0, "Mean score")
-          ])
-        ]));
+        pane.appendChild(section("Anime overview", "as AniList counts it (mean score /100)", [band([
+          stat(an.count || 0, "Anime"), stat(an.episodesWatched || 0, "Episodes"),
+          stat(days ? days.toFixed(1) : "0", "Days watched"), stat(an.meanScore || 0, "Mean score")
+        ])]));
+        pane.appendChild(section("Manga overview", null, [band([
+          stat(mg.count || 0, "Manga"), stat(mg.chaptersRead || 0, "Chapters"),
+          stat(mg.volumesRead || 0, "Volumes"), stat(mg.meanScore || 0, "Mean score")
+        ])]));
       }
 
       function renderAnalytics() {
-        var grid = el("div", { class: "ap-analytics-grid" });
-        var colors = ["#3db4f2", "#6f7890", "#e06a57", "#c77bf2", "#c99b45"];
+        var grid = el("div", { class: "k-mstats-grid", "data-ui": "profile.analytics chart.grid" });
+        var colors = ["var(--anime)", "var(--muted)", "var(--crimson)", "var(--vn)", "var(--books)"];
         function rows(list, key, status) {
           return (list || []).filter(function (r) { return r && r.count; }).map(function (r, i) {
             var local = status ? KOS.anilist.STATUS_MAP[r[key]] : null;
@@ -281,18 +276,16 @@
           var lengths = rows(stats.lengths, "length"), years = rows(stats.releaseYears, "releaseYear");
           if (formats.length) add(label + " formats", "titles by format", KOS.charts.donutWithLegend(formats, { centre: stats.count || 0, centreSub: "titles" }));
           if (statuses.length) add(label + " status", "active and completed titles", KOS.charts.donutWithLegend(statuses, { centre: statuses.reduce(function (n, item) { return n + item.value; }, 0), centreSub: "titles" }));
-          if (lengths.length) add(label + " length", "title count by length", KOS.charts.barChart(lengths, { color: "#3db4f2" }));
-          if (years.length) add(label + " release year", "titles by release year", KOS.charts.lineChart(years, { color: "#3db4f2" }));
+          if (lengths.length) add(label + " length", "title count by length", KOS.charts.barChart(lengths, { color: "var(--anime)" }));
+          if (years.length) add(label + " release year", "titles by release year", KOS.charts.lineChart(years, { color: "var(--anime)" }));
         }
         medium("Anime", an);
         medium("Manga", mg);
         var genres = rows(an.genres, "genre").concat(rows(mg.genres, "genre"));
-        if (genres.length) add("Library genres", "anime and manga favourites", KOS.charts.hbarChart(genres.slice(0, 8), { color: "#3db4f2" }));
+        if (genres.length) add("Library genres", "anime and manga favourites", KOS.charts.hbarChart(genres.slice(0, 8), { color: "var(--anime)" }));
         if (grid.children.length) pane.appendChild(grid);
-        else pane.appendChild(el("div", { class: "ap-state" }, [
-          el("b", { text: "Analytics will appear as your library grows." }),
-          el("span", { class: "sub", text: "AniList has not returned enough distribution data for this account yet." })
-        ]));
+        else pane.appendChild(KOS.ui.emptyState({ compact: true, title: "Analytics will appear as your library grows.",
+          body: "AniList has not returned enough distribution data for this account yet." }));
       }
 
       function renderFavourites() {
@@ -306,45 +299,38 @@
         favSection("Staff", fav.staff && fav.staff.nodes, "person");
         if (fav.studios && fav.studios.nodes && fav.studios.nodes.length) {
           pane.appendChild(section("Favourites — Studios", null, [
-            el("div", { class: "ap-studios" }, fav.studios.nodes.map(function (s2) {
-              return el("span", { class: "med-chip", style: "--chip:#c77bf2", text: s2.name });
+            el("div", { class: "k-pf-chips" }, fav.studios.nodes.map(function (s2) {
+              return el("span", { class: "k-mchip", "data-tone": "studio", text: s2.name });
             }))
           ]));
         }
-        if (!pane.children.length) pane.appendChild(el("p", { class: "sub", text: "No favourites on the account yet." }));
+        if (!pane.children.length) pane.appendChild(note("No favourites on the account yet."));
       }
 
       function renderSocial() {
         var fers = data.followers || {}, fing = data.following || {};
         pane.appendChild(section("Followers & following",
           ((fers.pageInfo && fers.pageInfo.total) || 0) + " followers · " + ((fing.pageInfo && fing.pageInfo.total) || 0) + " following", [
-          (fers.followers && fers.followers.length) ? userRow(fers.followers) : el("p", { class: "sub", text: "No followers yet." }),
-          (fing.following && fing.following.length) ? userRow(fing.following) : el("p", { class: "sub", text: "Not following anyone yet." })
+          (fers.followers && fers.followers.length) ? userRow(fers.followers) : note("No followers yet."),
+          (fing.following && fing.following.length) ? userRow(fing.following) : note("Not following anyone yet.")
         ]));
       }
 
       function renderActivity() {
         var acts = (data.activity && data.activity.activities) || [];
-        pane.appendChild(section("Recent activity", "your latest 20 list updates and posts",
+        pane.appendChild(section("Recent activity", "your latest 20 list updates and posts", [el("div", { class: "k-pf-feed" },
           acts.length ? acts.map(function (a) {
-            return el("div", { class: "ap-row ap-act" }, [
-              a.media && a.media.coverImage && a.media.coverImage.medium
-                ? el("img", { class: "ap-act-img", src: a.media.coverImage.medium, alt: "", loading: "lazy" }) : null,
-              el("span", { class: "ap-row-t", text: activityText(a) }),
-              el("span", { class: "sub", text: a.createdAt ? timeAgo(a.createdAt) : "" })
-            ]);
-          }) : [el("p", { class: "sub", text: "No public activity yet." })]));
+            return feedRow(activityText(a), a.createdAt ? timeAgo(a.createdAt) : "",
+              a.media && a.media.coverImage && a.media.coverImage.medium);
+          }) : [note("No public activity yet.")])]));
       }
 
       function renderNotifications() {
         var notifs = (data.notifications && data.notifications.notifications) || [];
-        pane.appendChild(section("Notifications", "latest 15 — reading them here never marks them read on the site",
+        pane.appendChild(section("Notifications", "latest 15 — reading them here never marks them read on the site", [el("div", { class: "k-pf-feed" },
           notifs.length ? notifs.map(function (n) {
-            return el("div", { class: "ap-row" }, [
-              el("span", { class: "ap-row-t", text: notifText(n) }),
-              el("span", { class: "sub", text: n.createdAt ? timeAgo(n.createdAt) : "" })
-            ]);
-          }) : [el("p", { class: "sub", text: "No notifications." })]));
+            return feedRow(notifText(n), n.createdAt ? timeAgo(n.createdAt) : "");
+          }) : [note("No notifications.")])]));
       }
 
       function renderTab() {
@@ -356,6 +342,7 @@
         else if (curTab === "notifications") renderNotifications();
         else renderOverview();
       }
+      renderTabs();
       renderTab();
     }
 
@@ -367,7 +354,7 @@
             mark: "映",
             title: "Connect AniList to open your profile",
             body: "The profile uses the same account as Sync & Import. Its token stays in this browser on this device.",
-            action: el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
+            action: el("button", { type: "button", class: "k-btn k-btn--primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } })
           }));
           return;
         }
@@ -379,16 +366,14 @@
             return;
           }
           body.innerHTML = "";
-          body.appendChild(el("p", { class: "sub ap-loading", text: "Loading your profile from AniList (one request)…" }));
+          body.appendChild(note("Loading your profile from AniList (one request)…"));
           KOS.anilist.fetchProfileBundle(conn.token, conn.viewer.id, function (err2, data) {
             if (err2) {
               body.innerHTML = "";
-              body.appendChild(el("p", { class: "fc-empty", text: err2.message }));
-              if (err2.kind === "auth") {
-                body.appendChild(el("div", { class: "lab-controls", style: "justify-content:center" }, [
-                  el("button", { class: "btn primary", text: "⇅ Reconnect on Sync & Import", onclick: function () { KOS.show("mediasync"); } })
-                ]));
-              }
+              body.appendChild(KOS.ui.emptyState({ compact: true, body: err2.message,
+                action: err2.kind === "auth"
+                  ? el("button", { type: "button", class: "k-btn k-btn--primary", text: "⇅ Reconnect on Sync & Import", onclick: function () { KOS.show("mediasync"); } })
+                  : null }));
               return;
             }
             cache = { key: String(conn.viewer.id), at: Date.now(), data: data };

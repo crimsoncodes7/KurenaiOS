@@ -398,11 +398,13 @@ step("shrine renders favourites ranked, module-agnostic", async () => {
   if (cards.length !== 1) throw new Error("expected the 1 favourite, saw " + cards.length);
   if (!main.querySelector("[data-ui~='shrine.feature-rank'],[data-ui~='shrine.rank']")) throw new Error("no rank badge");
 });
-step("mediasync renders all eight panels (AniList, VNDB, autosync, XML, maintenance, enrichment, games, write activity)", async () => {
+/* UI rebuild (frame 11i): XML import and duplicate repair share the
+   "Zero-setup fallback" card, so the page has seven cards, not eight */
+step("mediasync renders all seven cards (AniList, VNDB, Games, autosync, fallback, enrichment, recent activity)", async () => {
   KOS.show("mediasync");
   await tick(60);
   const main = document.getElementById("main");
-  if (main.querySelectorAll("[data-ui~='sync.panel']").length !== 8) throw new Error("panel count");   // +1 in 3j: Autonomous sync
+  if (main.querySelectorAll("[data-ui~='sync.panel']").length !== 7) throw new Error("panel count");
   if (!/anilist\.co\/settings\/developer/.test(main.textContent)) throw new Error("setup steps missing");
   if (!/last-write-wins/.test(main.textContent)) throw new Error("write-back limitation not stated");
 });

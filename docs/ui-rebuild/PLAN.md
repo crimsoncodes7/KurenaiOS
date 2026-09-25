@@ -643,6 +643,35 @@ the invariants and the hook contract still govern behaviour.
 - Both pages read their prefs without creating them. The legacy `_tab`
   is still honoured on read and folded in on the first real change.
 
+### Step 5f as delivered — Sync & Import and the provider profiles (frame 11i)
+
+- `mediasync.js` follows 11i:
+  - three provider cards: AniList, VNDB and Games;
+  - Autonomous sync (the shared `k-switch`, now in components) beside a
+    "Zero-setup fallback" card that holds XML import and duplicate
+    repair;
+  - then Enrichment and Recent activity.
+- Frame 11i has no Enrichment panel. It still does real work, so it
+  stays as its own card.
+- The Games card states what is true: manual entry is the baseline,
+  and Steam imports happen in the Games vault behind a server-side
+  review. It is not a Steam connection.
+- The seven per-card "How this works" toggles became one header
+  control. It reveals every card's note beside the controls it
+  explains, so the notes (setup steps, last-write-wins, the Steam
+  server path) are still on the page.
+- The footer links to the vaults are gone, because the Collection
+  sub-nav opens the same pages.
+- `aniprofile.js` and `vndbprofile.js` share one grammar, published as
+  `KOS.profileParts`:
+  - a banner/avatar hero with a figure band;
+  - the Refresh / Banner / Avatar row;
+  - stat bands built with `KOS.ui.statTile`;
+  - feeds as rows.
+- The profiles' Vault and Sync buttons are gone. The workspace tabs and
+  the sub-nav already carry both.
+- Chart and label colours are module/status tokens.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

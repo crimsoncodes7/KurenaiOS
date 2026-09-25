@@ -38,7 +38,10 @@
     "js/modules/matrix.js",
     "js/modules/shrine.js",
     "js/modules/wishlist.js",
-    "js/modules/goals.js"
+    "js/modules/goals.js",
+    "js/modules/mediasync.js",
+    "js/modules/aniprofile.js",
+    "js/modules/vndbprofile.js"
   ],
   "views": {
     "home": {},
@@ -63,6 +66,9 @@
     "matrix": {},
     "shrine": {},
     "wishlist": {},
-    "goals": {}
+    "goals": {},
+    "mediasync": {},
+    "aniprofile": {},
+    "vndbprofile": {}
   }
 }

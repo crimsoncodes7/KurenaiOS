@@ -501,6 +501,31 @@
     "state": "^media\\.goalsTab$"
    },
    "why": "Graphite step 5e (Collection Goals, Planner language): Goals reads its status tab without normalising it into the store on render; a real tab change writes it."
+  },
+  {
+   "surface": "mediasync",
+   "from": "^ⓘHow this works▾$",
+   "retire": true,
+   "why": "Graphite step 5f (Sync & Import, frame 11i): the per-card \"How this works\" toggles became one page-level \"How this works\" in the header, which reveals every card's note beside its controls."
+  },
+  {
+   "surface": "mediasync",
+   "from": "^⇪ Import an XML export…$",
+   "to": "⇪ XML import",
+   "why": "Graphite step 5f (Sync & Import, frame 11i): the fallback card's XML action reads \"XML import\", as in the frame."
+  },
+  {
+   "surface": "mediasync",
+   "from": "^⧉ Find & merge duplicates$",
+   "to": "Scan for duplicates",
+   "why": "Graphite step 5f (Sync & Import, frame 11i): duplicate repair sits in the fallback card as \"Scan for duplicates\"; it still merges what it finds."
+  },
+  {
+   "surface": "mediasync",
+   "from": "^(映 Anime vault|本 Books vault|選 Visual Novels)$",
+   "retire": true,
+   "reachable": true,
+   "why": "Graphite step 5f (Sync & Import, frame 11i): the footer links to the vaults repeated the Collection sub-nav directly above the page, which opens the same vaults."
   }
  ]
 }

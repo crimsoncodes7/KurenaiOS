@@ -161,6 +161,12 @@ button.k-day-row:hover .k-day-title { text-decoration: underline; text-decoratio
 .k-bar > i { position: absolute; inset-block: 0; inset-inline-start: 0; inline-size: var(--p, 0%); border-radius: inherit; background: var(--bar-c, var(--crimson)); }
 .k-bar[data-state~="open"] > i { inline-size: 50%; background: repeating-linear-gradient(90deg, var(--bar-c, var(--crimson)) 0 var(--sp-6), transparent var(--sp-6) var(--sp-10)); }
 .k-bar--6 { --bar-h: var(--bar-6); }
+/* the on/off switch (Focus penalty, Sync autonomous mode) */
+.k-switch { appearance: none; -webkit-appearance: none; position: relative; inline-size: var(--fx-switch-w); block-size: var(--fx-switch-h); flex: 0 0 auto; margin: 0; border-radius: var(--r-pill); background: var(--s2); box-shadow: inset 0 0 0 var(--hairline) var(--line); cursor: pointer; transition: background var(--dur-fast) var(--ease); }
+.k-switch::after { content: ""; position: absolute; inset-block-start: var(--sp-2); inset-inline-start: var(--sp-2); inline-size: calc(var(--fx-switch-h) - 2 * var(--sp-2)); block-size: calc(var(--fx-switch-h) - 2 * var(--sp-2)); border-radius: 50%; background: var(--text); transition: transform var(--dur-fast) var(--ease); }
+.k-switch:checked { background: var(--crimson); box-shadow: none; }
+.k-switch:checked::after { transform: translateX(calc(var(--fx-switch-w) - var(--fx-switch-h))); }
+.k-switch:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 
 /* ---------- stat: a label over a figure ---------- */
 .k-stat-label { font-size: var(--fs-11-5); color: var(--muted); }
