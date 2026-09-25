@@ -230,6 +230,38 @@
    "reachable": true,
    "from": "^⚄ Randomise$",
    "why": "Graphite step 3c (worked examples, frame 8g): Randomise reads \"↻ New numbers\" and carries its own hook (lab.randomise); it must still do exactly what it did."
+  },
+  {
+   "hooks": "ui.tab",
+   "from": "^Due Today$",
+   "to": "Due today",
+   "why": "Graphite step 3e (Review, frames 9a/9b): the switcher reads the design's sentence case."
+  },
+  {
+   "hooks": "ui.tab",
+   "from": "^Card Stats$",
+   "to": "Card stats",
+   "why": "Graphite step 3e (Review, frames 9a/9b): the switcher reads the design's sentence case."
+  },
+  {
+   "surface": "review",
+   "retire": true,
+   "from": ".",
+   "why": "Graphite step 3e (Review, frames 9a/9b): Due today opens on the queue overview; the session is behind Start review, and the due route opens it directly — its controls are still replayed on the due surface."
+  },
+  {
+   "surface": "personaldeck",
+   "from": "^← Due Today$",
+   "to": "← Review",
+   "why": "Graphite step 3e (Review, frames 9a/9b): the way back names the Review page, whose queue it returns to."
+  },
+  {
+   "surface": "personaldeck",
+   "from": "^← Review$",
+   "expect": {
+    "nav": "#/review"
+   },
+   "why": "Graphite step 3e (Review, frame 9a): the way back opens the Review overview (the queue), not straight into a session."
   }
  ]
 }

@@ -438,6 +438,23 @@ the invariants and the hook contract still govern behaviour.
   a type chip, the summary and hover tools, the open block's form, and
   "Add a block" as a filtered grid of every type.
 
+### Step 3e as delivered — Review (frames 9a, 9b)
+
+- `review.js`, `due.js` and `cardstats.js` are rebuilt files. The Review
+  header carries the quiet Due today / Card stats switcher (and, on Card
+  stats, the All / CS / Maths / IT scope beside it).
+- **Due today is an overview first**: the queue as a hero (count, overdue,
+  the subject split with an estimate, Start review · all N and Overdue
+  first), the next seven days, the queue by topic (each row reviewable on
+  its own, sortable), the personal deck, the backlog warning and today so
+  far. A run (`review {tab:"due", run:"all"|"overdue"|"sid:ref"}`) swaps in
+  the session; the `due` route — every "review now" button — opens straight
+  into the whole queue.
+- **Card stats**: one strip of figures, reviews per day (30 days) beside the
+  rating mix as a stacked bar, the due forecast beside the ease
+  distribution, and the per-topic breakdown for every subject in scope.
+  Chart colours are theme tokens; the low-data rule (invariant 76) holds.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

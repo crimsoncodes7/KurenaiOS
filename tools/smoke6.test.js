@@ -290,14 +290,13 @@ step("the Personal Deck view mounts the standard flashcard engine over the bucke
   if (!/Personal Deck/.test(main.textContent)) throw new Error("view header");
 });
 step("Due Today shows the Personal column and the deck launcher", async () => {
-  KOS.show("due");
+  /* Graphite (frame 9a): the personal bucket is a part of the queue's split */
+  KOS.show("review");
   const main = document.getElementById("main");
   await waitFor(() => /Personal/.test(main.textContent), 2000);
-  const cards = [...main.querySelectorAll("[data-ui~='ui.stat']")];
-  const personal = cards.find(c => /Personal/.test(c.textContent));
-  if (!personal) throw new Error("no Personal stat");
-  if (personal.querySelector("[data-ui~='part.value']").textContent !== "1") throw new Error("count: " + personal.querySelector("[data-ui~='part.value']").textContent);
-  if (![...main.querySelectorAll("button")].some(b => /Personal deck/.test(b.textContent))) throw new Error("no deck launcher");
+  const split = main.querySelector("[data-ui~='review.split']");
+  if (!split || !/Personal 1(?!\d)/.test(split.textContent)) throw new Error("no Personal share of the queue: " + (split && split.textContent));
+  if (![...main.querySelectorAll("button")].some(b => /personal deck/i.test(b.textContent))) throw new Error("no deck launcher");
 });
 
 /* ============ 6 · governor boundary ============ */

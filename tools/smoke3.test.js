@@ -158,21 +158,23 @@ console.log("== views render ==");
 step("due view renders with a mixed queue", () => {
   KOS.show("due");
   if (!$("[data-ui~='fc.card']") && !$("[data-ui~='review.due-clear']")) throw new Error("due view empty");
-  if (!$$("[data-ui~='ui.stat']").length) throw new Error("no summary strip");
+  /* Graphite (frame 9a): the overview's queue figure replaces the strip */
+  KOS.show("review");
+  if (!$("[data-ui~='review.queue'] [data-ui~='review.due-count']")) throw new Error("no queue figure");
 });
 step("Study Review and Productivity own the intended navigation", () => {
   KOS.show("review");
   const reviewTabs = $$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").map(b => b.textContent.trim());
-  if (reviewTabs.join("|") !== "Due Today|Card Stats") throw new Error("review tabs: " + reviewTabs.join("|"));
-  if (!$("[data-ui~='ui.page-head'] > [data-ui~='review.tabs']")) throw new Error("Review tabs are not in the header");
+  if (reviewTabs.join("|") !== "Due today|Card stats") throw new Error("review tabs: " + reviewTabs.join("|"));
+  if (!$("[data-ui~='ui.page-head'] [data-ui~='review.tabs']")) throw new Error("Review tabs are not in the header");
   if (!document.querySelector('[data-ui~="shell.rail-item"][data-section="study"]').matches('[data-state~="active"]')) throw new Error("Study rail not active");
 
-  click($$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").find(b => b.textContent.trim() === "Card Stats"));
+  click($$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").find(b => b.textContent.trim() === "Card stats"));
   if (!$$("[data-ui~='chart.chart'] svg").length && !$("[data-ui~='review.stats-empty']")) throw new Error("Review Card Stats pane missing");
-  if (!$$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").find(b => b.textContent.trim() === "Card Stats").matches('[data-state~="active"]')) throw new Error("stats tab inactive");
+  if (!$$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").find(b => b.textContent.trim() === "Card stats").matches('[data-state~="active"]')) throw new Error("stats tab inactive");
 
   KOS.show("due");
-  if (!$$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").find(b => b.textContent.trim() === "Due Today").matches('[data-state~="active"]')) throw new Error("due compatibility route lost its tab");
+  if (!$$("[data-ui~='review.tabs'] [data-ui~='ui.tab']").find(b => b.textContent.trim() === "Due today").matches('[data-state~="active"]')) throw new Error("due compatibility route lost its tab");
   KOS.show("focus");
   if (!document.querySelector('[data-ui~="shell.rail-item"][data-section="productivity"]').matches('[data-state~="active"]')) throw new Error("Productivity rail not active");
   const productivityTabs = $$("#subnav [data-ui~='shell.subnav-item']").map(b => subnavName(b));
@@ -439,7 +441,9 @@ KOS.store.state.srs["maths:2.3:2"] = { ef: 2.7, ivl: 8, reps: 3, due: KOS.srs.ad
 step("dashboard renders stat strip + SVG charts", () => {
   KOS.show("cardstats");
   if ($$("[data-ui~='ui.stat']").length < 6) throw new Error("stat strip thin");
-  if ($$("[data-ui~='chart.chart'] svg").length < 4) throw new Error("charts: " + $$("[data-ui~='chart.chart'] svg").length);
+  /* Graphite (frame 9b): three bar charts; the rating mix is one stacked bar */
+  if ($$("[data-ui~='chart.chart'] svg").length < 3) throw new Error("charts: " + $$("[data-ui~='chart.chart'] svg").length);
+  if (!$("[data-ui~='review.rating-mix']")) throw new Error("no rating mix");
   if (!$$("[data-ui~='chart.chart'] svg rect").length) throw new Error("no bars drawn");
 });
 step("subject scope adds the per-topic breakdown, drill-down to topic", () => {

@@ -19,7 +19,10 @@
     "js/engines/quiz.js",
     "js/modules/attachments.js",
     "js/modules/editor.js",
-    "js/core/content.js"
+    "js/core/content.js",
+    "js/modules/review.js",
+    "js/modules/due.js",
+    "js/modules/cardstats.js"
   ],
   "views": {
     "home": {},

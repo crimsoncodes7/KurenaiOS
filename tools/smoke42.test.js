@@ -414,15 +414,19 @@ step("a stat tile is a .stat-card and suppresses a zero that carries nothing", (
     "suppressZero dropped a tile that carries information");
 });
 
+/* Graphite (frame 9a): the six tiles became one queue figure — how many are
+   due always shows ("0 due" IS the answer), how many are overdue shows
+   when there are any, and the subject split lists only subjects with cards */
 step("Review no longer shows six tiles all reading zero", () => {
-  KOS.show("due");
-  const cards = [...document.getElementById("main").querySelectorAll("[data-ui~='ui.stat-strip'] [data-ui~='ui.stat']")];
-  assert(cards.length >= 2, "the summary strip vanished entirely");
-  const labels = cards.map(c => c.querySelector("[data-ui~='part.label']").textContent);
-  assert(labels.indexOf("Cards due") !== -1 && labels.indexOf("Overdue") !== -1,
-    "the two figures the page is actually about are missing: " + labels.join(", "));
-  const zeros = cards.filter(c => /^(0|None)$/.test(c.querySelector("[data-ui~='part.value']").textContent));
-  assert(zeros.length <= 2,
+  KOS.show("review");
+  const main = document.getElementById("main");
+  assert(main.querySelector("[data-ui~='review.due-count']"), "the queue figure vanished");
+  const late = main.querySelector("[data-ui~='review.overdue-count']");
+  assert(!late || !/^0 /.test(late.textContent), "a zero overdue count is printed");
+  const split = main.querySelector("[data-ui~='review.split']");
+  const cards = split ? [...split.children].filter(s => s.querySelector("b")) : [];
+  const zeros = cards.filter(c => / 0$/.test(c.textContent));
+  assert(zeros.length === 0,
     zeros.length + " zero tiles on an empty account — the per-subject splits should suppress");
 });
 
