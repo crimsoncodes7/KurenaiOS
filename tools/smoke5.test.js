@@ -152,7 +152,8 @@ step("owned% vs read%: real volume counts, and the chapter-derived estimate", as
 });
 step("deterministic spines + half-star text", async () => {
   const c1 = KOS.books.spineColor("Berserk"), c2 = KOS.books.spineColor("Berserk");
-  if (c1 !== c2 || !/^#[0-9a-f]{6}$/i.test(c1)) throw new Error(c1 + " / " + c2);
+  /* Graphite: the palette lives in tokens (--spine-0…9) */
+  if (c1 !== c2 || !/^var\(--spine-\d\)$/.test(c1)) throw new Error(c1 + " / " + c2);
   if (KOS.books.spineColor("Vinland Saga") === undefined) throw new Error("no colour");
   if (KOS.books.starText(9) !== "★★★★½" || KOS.books.starText(10) !== "★★★★★" ||
       KOS.books.starText(1) !== "½" || KOS.books.starText(0) !== "") throw new Error("star text");
@@ -346,7 +347,8 @@ step("books vault renders without obsolete bottom stats; dedicated Stats remains
   const smv = document.querySelector("[data-ui~='vault.stats']").closest("[data-ui~='ui.dialog-overlay']"); if (smv) smv.remove();
 });
 step("shelf layout: one spine per owned volume, deterministic colour, condition mark", async () => {
-  KOS.store.state.media.books.layout = "shelf";
+  /* the view no longer creates its prefs on open (§0.2.3) */
+  KOS.store.state.media.books = Object.assign(KOS.store.state.media.books || {}, { layout: "shelf" });
   KOS.show("books");
   const main = document.getElementById("main");
   await waitFor(() => main.querySelectorAll("[data-ui~='books.spine']").length > 0, 5000);
@@ -355,7 +357,7 @@ step("shelf layout: one spine per owned volume, deterministic colour, condition 
   const c = KOS.books.spineColor("Berserk");
   if (!spines[0].getAttribute("style").includes(c)) throw new Error("spine colour not deterministic in DOM");
   if (!main.querySelector("[data-ui~='books.spine-cond'][data-state~='worn']")) throw new Error("worn vol 3 not marked");
-  KOS.store.state.media.books.layout = "grid";
+  KOS.store.state.media.books = Object.assign(KOS.store.state.media.books || {}, { layout: "grid" });
 });
 step("editor modal: shared sections, stars, compact range tool save end-to-end", async () => {
   const saved = await new Promise((res) => {

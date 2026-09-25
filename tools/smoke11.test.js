@@ -429,11 +429,17 @@ step("an empty lens mounts nothing but its empty state", async () => {
   await waitFor(() => main.querySelectorAll("[data-ui~='books.card']").length > 0, 5000);
 });
 
-step("a pre-3i saved 'shelf' layout migrates to the Physical tab", async () => {
+/* Graphite: the view reads its prefs without writing them (§0.2.3), so a
+   pre-3i "shelf" pref is read as the Physical lens's shelf rather than
+   rewritten on open */
+step("a pre-3i saved 'shelf' layout opens the Physical tab's shelf", async () => {
   KOS.store.state.media.books = { layout: "shelf", sort: "updated" };
   KOS.show("books");
-  const m = KOS.store.state.media.books;
-  if (m.tab !== "physical" || m.physLayout !== "shelf" || m.layout === "shelf") throw new Error(JSON.stringify(m));
+  const main = document.getElementById("main");
+  await waitFor(() => main.querySelector("[data-ui~='books.shelves']") || main.querySelector("[data-ui~='vault.empty']"), 5000);
+  const active = [...main.querySelectorAll("[data-ui~='books.lens']")].find(b => b.getAttribute("aria-selected") === "true");
+  if (!active || !/Physical/.test(active.textContent)) throw new Error("the Physical lens is not the one open");
+  if (!main.querySelector("[data-ui~='books.shelves']") && !main.querySelector("[data-ui~='vault.empty']")) throw new Error("the shelf layout did not open");
 });
 step("owned-vs-read comparison lives in the editor — reachable from either tab", async () => {
   const e = await p(cb => KOS.mediadb.get(idOwned, cb));

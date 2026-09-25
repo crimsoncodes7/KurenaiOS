@@ -547,6 +547,25 @@ the invariants and the hook contract still govern behaviour.
   - The compact disclosure triggers (Reminders and vaults) are `k-disclosure`. The rule lives in components so it beats `.k-btn`.
 - Books and Mangaka (11d) are the next step.
 
+### Step 5b as delivered — Books and Mangaka (frame 11d)
+
+- `books.js` (Books and Mangaka) is a rebuilt file on the 11b template.
+  The Digital / Physical lens rides the page header's action slot, and
+  the layout switch is a ▦ ≡ 📚 segment (the shelf is the Physical lens's
+  default).
+- The physical vault in the drawer follows 11d. A band shows on the shelf
+  / read / owned-unread / shelf value, and every volume up to the series
+  length is a tile (read ✓, owned, or not owned). The selected tile opens
+  its own record (condition, date, price, cover, remove). The range tool
+  folds into a disclosure.
+- Spine colours are tokens (`--spine-0…9`), and `spineColor` returns the
+  token. The bookshelf, the volume tiles and the Mangaka marks all read it.
+- Books reads its prefs without creating them; a pre-3i "shelf" pref is
+  read as the Physical shelf rather than rewritten on open.
+- Mangaka keeps its bounded author cards, sticky letter dividers and
+  letter filter (invariant 55), now in the shared toolbar row.
+- `KOS.ui.tabs` items accept an extra `hook`.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

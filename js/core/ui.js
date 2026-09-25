@@ -493,7 +493,7 @@
      track and every group after a `sep` as loose pills beside it. */
   function tabItem(shape, it) {
     var attrs = { type: "button", class: shape.item + (it.className ? " " + it.className : ""),
-      "data-ui": shape.hook, title: it.hint || null,
+      "data-ui": shape.hook + (it.hook ? " " + it.hook : ""), title: it.hint || null,
       /* the name is the plain label: a kanji mark, a dot, an abbreviation
          or a live count must not become part of it (the count is the
          button's description instead) */

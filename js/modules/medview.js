@@ -1414,7 +1414,7 @@
      what differs is the toolbar content and the card builder.
      Returns { hero, rail slot, column, controls row }. */
   function vaultPage(main, opts) {
-    main.appendChild(KOS.ui.pageHeader({ kicker: opts.kicker, title: opts.title, sub: opts.sub }));
+    main.appendChild(KOS.ui.pageHeader({ kicker: opts.kicker, title: opts.title, sub: opts.sub, actions: opts.actions }));
     var heroHolder = el("div", { class: "k-vhero-holder" });
     main.appendChild(heroHolder);
     var mainCol = el("div", { class: "k-mmain", "data-ui": "vault.main" });

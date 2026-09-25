@@ -33,7 +33,8 @@
     "js/modules/medview.js",
     "js/modules/anime.js",
     "js/modules/vn.js",
-    "js/modules/games.js"
+    "js/modules/games.js",
+    "js/modules/books.js"
   ],
   "views": {
     "home": {},
@@ -52,6 +53,8 @@
     "anime": {},
     "seasonal": {},
     "vn": {},
-    "game": {}
+    "game": {},
+    "books": {},
+    "mangaka": {}
   }
 }

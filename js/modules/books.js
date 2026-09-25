@@ -34,23 +34,27 @@
   var STATUSES = ["inProgress", "planned", "onHold", "completed", "dropped"];
   var CH_PER_VOL = 9;   // volume estimate when AniList doesn't know the count
 
+  /* The view prefs, read without writing (§0.2.3): a working copy the
+     view mutates and persist()s when you actually change something.
+     Build 3i — the Physical/Digital lens split is NAVIGATION ONLY: tab + a
+     separate layout per lens are view prefs. A saved pre-3i "shelf" pref
+     reads as the Physical lens's shelf, spines intact. */
   function prefs() {
+    var m = store.state.media;
+    var b = Object.assign({ layout: "grid", sort: "updated" }, (m && m.books) || {});
+    if (b.layout === "shelf") {
+      b.tab = "physical";
+      b.physLayout = "shelf";
+      b.layout = "grid";
+    }
+    if (b.tab !== "physical" && b.tab !== "digital") b.tab = "digital";
+    if (b.physLayout !== "shelf" && b.physLayout !== "grid" && b.physLayout !== "list") b.physLayout = "shelf";
+    return b;
+  }
+  function persist(p) {
     var m = store.state.media = store.state.media || {};
-    m.books = m.books || { layout: "grid", sort: "updated" };
-    /* Build 3i — the Physical/Digital tab split is NAVIGATION ONLY: one
-       vault, two lenses. tab + a separate layout per lens are view prefs.
-       Migration: the shelf layout now lives on the Physical tab — a saved
-       pre-3i "shelf" pref lands its owner there, spines intact. */
-    if (m.books.layout === "shelf") {
-      m.books.tab = "physical";
-      m.books.physLayout = "shelf";
-      m.books.layout = "grid";
-    }
-    if (m.books.tab !== "physical" && m.books.tab !== "digital") m.books.tab = "digital";
-    if (m.books.physLayout !== "shelf" && m.books.physLayout !== "grid" && m.books.physLayout !== "list") {
-      m.books.physLayout = "shelf";
-    }
-    return m.books;
+    m.books = p;
+    store.save();
   }
 
   /* ================= domain helpers (exposed as KOS.books) ================= */
@@ -84,14 +88,13 @@
   }
 
   /* Deterministic spine colour: same series → same colour every session.
-     A curated dark-jewel palette (not random hues) so the shelf sits inside
-     the crimson/gold theme instead of fighting it. */
-  var SPINES = ["#8a2f3d", "#a83a4a", "#9a7b2f", "#2f6e5a", "#31548f",
-                "#5d3a8a", "#7a4a2f", "#2f4858", "#6e2f5d", "#3d3d70"];
+     A curated dark-jewel palette (the --spine-N tokens, not random hues)
+     so the shelf sits inside the theme instead of fighting it. */
+  var SPINE_COUNT = 10;
   function spineColor(title) {
     var h = 5381;
     String(title).split("").forEach(function (c) { h = ((h << 5) + h + c.charCodeAt(0)) | 0; });
-    return SPINES[Math.abs(h) % SPINES.length];
+    return "var(--spine-" + (Math.abs(h) % SPINE_COUNT) + ")";
   }
 
   /* Half-star rating: stored on the shared 0–10 score (0 = unrated), shown
@@ -105,14 +108,15 @@
   }
   function starWidget(initial, onChange) {
     var val = initial || 0;   // 0–10 half-star units
-    var wrap = el("div", { class: "bk-stars", role: "slider", tabindex: "0",
+    var wrap = el("div", { class: "k-bk-stars", "data-ui": "books.stars", role: "slider", tabindex: "0",
       "aria-label": "Rating out of 5, half-star steps",
       "aria-valuemin": "0", "aria-valuemax": "5" });
-    var out = el("span", { class: "bk-stars-val" });
+    var out = el("span", { class: "k-mono k-muted" });
     function paint() {
       wrap.querySelectorAll("[data-ui~='books.star']").forEach(function (st, i) {
         var lit = val - i * 2;   // 2 half-units per star
-        KOS.ui.setClass(st, "bk-star" + (lit >= 2 ? " full" : lit === 1 ? " half" : ""));
+        KOS.ui.state(st, "full", lit >= 2);
+        KOS.ui.state(st, "half", lit === 1);
       });
       out.textContent = val ? (val / 2).toFixed(1) + " / 5" : "unrated";
       wrap.setAttribute("aria-valuenow", String(val / 2));
@@ -120,7 +124,7 @@
     }
     for (var i = 0; i < 5; i++) {
       (function (idx) {
-        var st = el("span", { class: "bk-star", text: "★" });
+        var st = el("span", { class: "k-bk-star", "data-ui": "books.star", text: "★" });
         st.addEventListener("click", function (ev) {
           var left = ev.offsetX < st.offsetWidth / 2;
           var next = idx * 2 + (left ? 1 : 2);
@@ -218,11 +222,11 @@
   /* ================= little shared bits ================= */
   var mod = function () { return KOS.media.module("books"); };
   function formatChip(e) {
-    return e.format ? el("span", { class: "med-chip bk-fmt", text: KOS.media.FORMAT_LABEL[e.format] || e.format }) : null;
+    return e.format ? KOS.medview.chip(KOS.media.FORMAT_LABEL[e.format] || e.format, "format", { "data-ui": "books.format" }) : null;
   }
   function dnfChip(e) {
     return (e.dnf && e.dnf.isDnf)
-      ? el("span", { class: "med-chip bk-dnf", title: e.dnf.reason || "Did not finish", text: "DNF" })
+      ? KOS.medview.chip("DNF", "crimson", { "data-ui": "books.dnf", title: e.dnf.reason || "Did not finish" })
       : null;
   }
   /* the shared grammar (audit MTX-6/U-30), plus the volume half Books
@@ -235,18 +239,35 @@
     }
     return s;
   }
-  function cover(e) { return KOS.medview.cover(e, mod().kanji); }
 
   /* +1 chapter — the everyday logging action, mirroring anime's +1 ep
      (shared bump, mode "progress") */
   function bumpChapter(e, done) { KOS.medview.bumpUnit(e, "progress", done); }
 
-  /* ================= the editor modal (shared medview shell) ================= */
+  function input(type, attrs, value) {
+    var n = el("input", Object.assign({ type: type, class: "k-input", "data-ui": "ui.quick-add" }, attrs || {}));
+    if (value != null) n.value = value;
+    return n;
+  }
+  function numInput(attrs, value) {
+    var n = el("input", Object.assign({ type: "number", class: "k-input", "data-ui": "ui.quick-add vault.num" }, attrs || {}));
+    if (value != null) n.value = value;
+    return n;
+  }
+  function select(options, value, attrs) {
+    var s = el("select", Object.assign({ class: "k-input", "data-ui": "ui.status-select" }, attrs || {}), options.map(function (o) {
+      return el("option", { value: o[0], text: o[1] });
+    }));
+    if (value != null) s.value = value;
+    return s;
+  }
+
+  /* ================= the editor (shared medview drawer) ================= */
   /* Is this row the digital half's business — i.e. AniList's? Such a row
      is a MIRROR: bibliographic identity, totals and genres are shown, not
      edited, and there is no Delete (remove it on AniList and the next
-     pull mirrors that). Reading state still edits and pushes back; the
-     physical shelf and the personal layer are always yours. */
+     pull mirrors that — invariant 92). Reading state still edits and
+     pushes back; the physical shelf and the personal layer are yours. */
   function mirrored(e) {
     return !!(e && (e.syncSource === "anilist" || (e.externalIds && e.externalIds.anilistId)));
   }
@@ -264,163 +285,203 @@
     if (isNew && !e.physical) e.physical = { owned: true, volumes: [] };
     var pushBefore = KOS.mediapush.snapshot(e);
     var field = mv.field, splitList = mv.splitList;
-    /* a read-only AniList fact — omitted when AniList has none (invariant 77:
-       an empty supporting fact is not printed as a dash) */
-    function ro(label, text, cls) {
-      return text ? field(label, el("div", { class: "med-ro", text: String(text) }), cls) : null;
+    /* a read-only AniList fact — omitted when AniList has none (invariant 77) */
+    function ro(label, text, wide) {
+      return text ? field(label, el("div", { class: "k-mro", "data-ui": "vault.ro", text: String(text) }), wide) : null;
     }
 
     /* --- identity + reading state --- */
-    var title = el("input", { type: "text", class: "todo-in", value: e.title === "Untitled" && isNew ? "" : e.title, placeholder: "Series title" });
-    var author = el("input", { type: "text", class: "todo-in", value: e.author, placeholder: "Author / mangaka (filled by sync when linked)" });
-    var fmt = el("select", { class: "status-sel" }, [["manga", "Manga"], ["lightNovel", "Light Novel"], ["oneShot", "One-shot"]].map(function (o) {
-      return el("option", { value: o[0], text: o[1] });
-    }));
-    fmt.value = e.format || "manga";
-    var status = el("select", { class: "status-sel" }, STATUSES.map(function (s) {
-      return el("option", { value: s, text: KOS.media.STATUS_LABEL[s] });
-    }));
-    status.value = e.status;
-    var chCur = el("input", { type: "number", class: "todo-in med-num", min: "0", value: String(e.progress.current || 0) });
-    var chTot = el("input", { type: "number", class: "todo-in med-num", min: "0", placeholder: "?", value: e.progress.total != null ? String(e.progress.total) : "" });
-    var vlCur = el("input", { type: "number", class: "todo-in med-num", min: "0", placeholder: "—", value: e.progress.volumes != null ? String(e.progress.volumes) : "" });
-    var vlTot = el("input", { type: "number", class: "todo-in med-num", min: "0", placeholder: "?", value: e.progress.totalVolumes != null ? String(e.progress.totalVolumes) : "" });
+    var title = input("text", { placeholder: "Series title" }, e.title === "Untitled" && isNew ? "" : e.title);
+    var author = input("text", { placeholder: "Author / mangaka (filled by sync when linked)" }, e.author);
+    var fmt = select([["manga", "Manga"], ["lightNovel", "Light Novel"], ["oneShot", "One-shot"]], e.format || "manga");
+    var status = select(STATUSES.map(function (s) { return [s, KOS.media.STATUS_LABEL[s]]; }), e.status);
+    var chCur = numInput({ min: "0" }, String(e.progress.current || 0));
+    var chTot = numInput({ min: "0", placeholder: "?" }, e.progress.total != null ? String(e.progress.total) : "");
+    var vlCur = numInput({ min: "0", placeholder: "—" }, e.progress.volumes != null ? String(e.progress.volumes) : "");
+    var vlTot = numInput({ min: "0", placeholder: "?" }, e.progress.totalVolumes != null ? String(e.progress.totalVolumes) : "");
     var stars = starWidget(e.score ? Math.round(e.score) : 0, null);
-    var started = el("input", { type: "date", class: "todo-in", value: e.dates.started || "" });
-    var finished = el("input", { type: "date", class: "todo-in", value: e.dates.finished || "" });
+    var started = input("date", null, e.dates.started || "");
+    var finished = input("date", null, e.dates.finished || "");
 
     /* --- DNF (orthogonal to status; ticking it defaults status → dropped) --- */
-    var dnfBox = el("input", { type: "checkbox" });
+    var dnfBox = el("input", { type: "checkbox", class: "k-box" });
     dnfBox.checked = e.dnf.isDnf;
-    var dnfReason = el("input", { type: "text", class: "todo-in", value: e.dnf.reason, placeholder: "why it lost you (optional)" });
-    dnfReason.style.display = e.dnf.isDnf ? "" : "none";
+    var dnfReason = input("text", { placeholder: "why it lost you (optional)", "aria-label": "Why it lost you" }, e.dnf.reason);
+    var reasonField = field("Reason", dnfReason);
+    reasonField.hidden = !e.dnf.isDnf;
     dnfBox.addEventListener("change", function () {
-      dnfReason.style.display = dnfBox.checked ? "" : "none";
+      reasonField.hidden = !dnfBox.checked;
       if (dnfBox.checked && status.value !== "completed") status.value = "dropped";
     });
 
     /* --- taxonomy --- */
-    var genres = el("input", { type: "text", class: "todo-in", value: e.genres.join(", "), placeholder: "Drama, Fantasy…" });
-    var tags = el("input", { type: "text", class: "todo-in", value: e.tags.join(", "), placeholder: "reread, gift…" });
-    var mood = el("input", { type: "text", class: "todo-in", value: e.mood.join(", "), placeholder: "dark, hopeful, tense… (its own axis, not genre)" });
-    var shelves = el("input", { type: "text", class: "todo-in", value: e.shelves.join(", "), placeholder: "top-shelf, to-lend… (your own shelf names)" });
-    var coverU = el("input", { type: "url", class: "todo-in", value: e.coverUrl || "", placeholder: "https://… (filled by sync/enrichment)" });
+    var genres = input("text", { placeholder: "Drama, Fantasy…" }, e.genres.join(", "));
+    var tags = input("text", { placeholder: "reread, gift…" }, e.tags.join(", "));
+    var mood = input("text", { placeholder: "dark, hopeful, tense… (its own axis, not genre)" }, e.mood.join(", "));
+    var shelves = input("text", { placeholder: "top-shelf, to-lend… (your own shelf names)" }, e.shelves.join(", "));
+    var coverU = input("url", { placeholder: "https://… (filled by sync/enrichment)" }, e.coverUrl || "");
     var coverPosition = mv.coverPositionControl(e, coverU);
-    var fav = el("input", { type: "checkbox" });
+    var fav = el("input", { type: "checkbox", class: "k-box" });
     fav.checked = e.favourite;
-    var notes = el("textarea", { class: "note-area", rows: 3, placeholder: "Notes…" });
+    var notes = el("textarea", { class: "k-input", "data-ui": "ui.note-area", rows: 3, placeholder: "Notes…" });
     notes.value = e.notes || "";
 
-    /* --- the owned% vs read% comparison (3b's payoff, kept front-and-centre
-       through the 3i tab split: the entry detail carries it no matter which
-       tab — Physical or Digital — it was opened from) --- */
+    /* --- the owned% vs read% comparison (3b's payoff): the two halves of
+       one entry, the shelf and the eyes, on the shared bar --- */
     function comparePanel() {
       var o = ownership(e);
-      var wrap = el("div", { class: "bk-compare" });
-      wrap.appendChild(el("div", { class: "bk-compare-h" }, [
-        el("b", { text: "Owned vs read" }),
-        el("span", { class: "sub", text: "the two halves of this one entry — the shelf and the eyes" })
-      ]));
+      var wrap = el("div", { class: "k-bk-compare", "data-ui": "books.compare" }, [
+        el("div", { class: "k-vn-head" }, [
+          el("b", { text: "Owned vs read" }),
+          el("p", { class: "k-field-hint", text: "the two halves of this one entry — the shelf and the eyes" })
+        ])
+      ]);
       if (o.ownedPct == null && o.readPct == null) {
-        wrap.appendChild(el("p", { class: "sub bk-compare-none", text:
+        wrap.appendChild(el("p", { class: "k-muted", text:
           "Nothing to compare yet — add owned volumes below and/or reading progress above, and the bars appear." }));
         return wrap;
       }
-      function row(label, pct, detail, cls) {
-        return el("div", { class: "bk-compare-row" }, [
-          el("span", { class: "bk-compare-k", text: label }),
-          el("div", { class: "bk-compare-track" }, [
-            el("span", { class: "bk-compare-fill " + cls, style: "width:" + (pct || 0) + "%" })
-          ]),
-          el("span", { class: "bk-compare-v", text: detail })
+      function row(label, pct, detail, open, tone) {
+        var bar = el("div", { class: "k-bar k-bar--6", role: "img", "aria-label": label + ": " + detail }, [el("i", { "data-ui": "media.bar-fill" })]);
+        bar.style.setProperty("--p", (pct || 0) + "%");
+        bar.style.setProperty("--bar-c", tone);
+        if (open) KOS.ui.state(bar, "open", true);
+        return el("div", { class: "k-bk-compare-row", "data-ui": "books.compare-row" }, [
+          el("span", { class: "k-muted", text: label }), bar, el("span", { class: "k-mono", text: detail })
         ]);
       }
       wrap.appendChild(row("Owned", o.ownedPct,
         o.ownedPct != null
           ? o.ownedVols + "/" + o.totalVols + " vols" + (o.est ? " (est.)" : "") + " · " + o.ownedPct + "%"
-          : "no volumes recorded", "own"));
+          : "no volumes recorded", false, "var(--books)"));
       wrap.appendChild(row("Read", o.readPct,
         o.readPct == null ? "progress unknown"
           : o.readTitle ? o.readTitle
-          : o.readPct + "%", "read" + (o.readOpen ? " open" : "")));
+          : o.readPct + "%", o.readOpen, "var(--green)"));
       return wrap;
     }
 
-    /* --- physical vault --- */
-    var physWrap = el("div", { class: "bk-phys" });
+    /* --- the physical vault (frame 11d): what is on the shelf in figures,
+       every volume as a tile (read ✓ / owned / not owned), the selected
+       volume's own record, then the quick add and the range tool --- */
+    var physWrap = el("div", { class: "k-bk-phys" });
+    var selectedVol = null;
     function renderPhys() {
       physWrap.innerHTML = "";
       var vols = e.physical ? e.physical.volumes : [];
       var spent = vols.reduce(function (a, v) { return a + (v.price || 0); }, 0);
-      physWrap.appendChild(el("div", { class: "bk-phys-h" }, [
-        el("b", { text: "Physical vault" }),
-        el("span", { class: "sub", text: vols.length
-          ? vols.length + (vols.length === 1 ? " volume owned" : " volumes owned") + (spent ? " · £" + spent.toFixed(2) : "")
-          : "nothing owned yet — this half is optional" })
-      ]));
+      var tv = totalVolumes(e);
+      var readVols = e.progress.volumes || 0;
+      var readOwned = vols.filter(function (v) { return v.number <= readVols; }).length;
+      var ownedUnread = vols.length - readOwned;
 
-      if (vols.length) {
-        var list = el("div", { class: "bk-vol-list" });
-        vols.forEach(function (v) {
-          var cond = el("select", { class: "status-sel bk-vol-cond" }, KOS.mediadb.CONDITIONS.map(function (c) {
-            return el("option", { value: c, text: KOS.media.CONDITION_LABEL[c] });
-          }));
-          cond.value = v.condition;
-          cond.addEventListener("change", function () { v.condition = cond.value; });
-          var date = el("input", { type: "date", class: "todo-in bk-vol-date", value: v.purchaseDate || "" });
-          date.addEventListener("change", function () { v.purchaseDate = date.value || null; });
-          var price = el("input", { type: "number", class: "todo-in bk-vol-price", min: "0", step: "0.01", placeholder: "£", value: v.price != null ? String(v.price) : "" });
-          price.addEventListener("change", function () {
-            var p = parseFloat(price.value);
-            v.price = isNaN(p) ? null : p;
-          });
-          var covBtn = el("button", { class: "mini-btn", text: v.coverUrl ? "⌖ cover" : "＋ cover",
-            title: "Choose and position a custom cover for this volume", onclick: function (ev) {
-              ev.preventDefault();
-              KOS.imageCrop.open({
-                title: "Position volume " + v.number + " cover",
-                description: "Preview the 2:3 physical-shelf frame. Nothing is saved until you save the book entry.",
-                source: v.coverUrl || "", crop: v.coverCrop, aspect: 2 / 3, allowUpload: true,
-                fileOptions: { maxWidth: 900, maxHeight: 1350, maxBytes: 420 * 1024, quality: 0.84 },
-                onSave: function (result) {
-                  v.coverUrl = result.source;
-                  v.coverCrop = result.crop;
-                  renderPhys();
-                  KOS.ui.toast("Volume " + v.number + " cover positioned — save to keep it.");
-                }
-              });
-            } });
-          list.appendChild(el("div", { class: "bk-vol-row" }, [
-            el("span", { class: "bk-vol-n", style: "--spine:" + spineColor(title.value || e.title), text: "Vol " + v.number }),
-            cond, date, price, covBtn,
-            el("button", { class: "mini-btn bk-vol-del", "aria-label": "Remove volume " + v.number, text: "✕", onclick: function (ev) {
+      physWrap.appendChild(el("dl", { class: "k-bk-band" }, [
+        ["On the shelf", vols.length + (tv.n ? " of " + tv.n : "")],
+        ["Read", String(readVols || 0)],
+        ["Owned, unread", String(Math.max(0, ownedUnread)), ownedUnread > 0 ? "amber" : null],
+        ["Shelf value", spent ? "£" + spent.toFixed(2) : "—"]
+      ].map(function (c) {
+        return el("div", { class: "k-bk-fig" }, [el("dt", { text: c[0] }), el("dd", { "data-tone": c[2] || null, text: c[1] })]);
+      })));
+
+      var head = el("div", { class: "k-vn-head" }, [
+        el("b", { text: "Volumes" }),
+        el("p", { class: "k-field-hint", text: vols.length
+          ? vols.length + (vols.length === 1 ? " volume owned" : " volumes owned") + (spent ? " · £" + spent.toFixed(2) : "") + " — owned vs read are tracked separately"
+          : "nothing owned yet — this half is optional" })
+      ]);
+      physWrap.appendChild(head);
+
+      /* the tiles: every owned number, plus the gaps up to the series
+         length, so a missing volume shows as not owned */
+      var maxN = Math.max(tv.n || 0, vols.reduce(function (a, v) { return Math.max(a, v.number); }, 0));
+      if (maxN) {
+        var byN = {};
+        vols.forEach(function (v) { byN[v.number] = v; });
+        if (!selectedVol || vols.indexOf(selectedVol) === -1) selectedVol = vols[vols.length - 1] || null;
+        var grid = el("div", { class: "k-bk-vols", role: "list", "aria-label": "Volumes" });
+        for (var n = 1; n <= Math.min(maxN, 200); n++) {
+          (function (num) {
+            var v = byN[num];
+            var read = num <= readVols;
+            var label = v ? (read ? "Read" : "Owned") : "Not owned";
+            var tile = el("button", { type: "button", class: "k-bk-vol", "data-ui": "books.vol", role: "listitem",
+              "aria-label": "Volume " + num + " — " + label + (v ? "" : " (add it with the range tool)"),
+              "aria-pressed": v && v === selectedVol ? "true" : "false", disabled: v ? null : "",
+              onclick: function (ev) { ev.preventDefault(); if (v) { selectedVol = v; renderPhys(); } } }, [
+              el("span", { class: "k-bk-vol-art", "aria-hidden": "true" }, [
+                v && v.coverUrl ? KOS.imageCrop.image(v.coverUrl, { alt: "", loading: "lazy" }, v.coverCrop) : null,
+                el("span", { class: "k-bk-vol-n k-mono", text: String(num) }),
+                read && v ? el("span", { class: "k-bk-vol-read", text: "✓" }) : null
+              ].filter(Boolean)),
+              el("span", { class: "k-bk-vol-l", text: label })
+            ]);
+            tile.style.setProperty("--spine", spineColor(title.value || e.title));
+            if (!v) KOS.ui.state(tile, "missing", true);
+            grid.appendChild(tile);
+          })(n);
+        }
+        physWrap.appendChild(grid);
+      }
+
+      /* the selected volume's record */
+      if (selectedVol) {
+        var v = selectedVol;
+        var cond = select(KOS.mediadb.CONDITIONS.map(function (c) { return [c, KOS.media.CONDITION_LABEL[c]]; }), v.condition, { "aria-label": "Condition of volume " + v.number });
+        cond.addEventListener("change", function () { v.condition = cond.value; });
+        var date = input("date", { "aria-label": "Purchase date of volume " + v.number }, v.purchaseDate || "");
+        date.addEventListener("change", function () { v.purchaseDate = date.value || null; });
+        var price = input("number", { min: "0", step: "0.01", placeholder: "£", "aria-label": "Price of volume " + v.number }, v.price != null ? String(v.price) : "");
+        price.addEventListener("change", function () {
+          var p = parseFloat(price.value);
+          v.price = isNaN(p) ? null : p;
+        });
+        var covBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: v.coverUrl ? "⌖ Cover" : "＋ Cover",
+          title: "Choose and position a custom cover for this volume", onclick: function (ev) {
+            ev.preventDefault();
+            KOS.imageCrop.open({
+              title: "Position volume " + v.number + " cover",
+              description: "Preview the 2:3 physical-shelf frame. Nothing is saved until you save the book entry.",
+              source: v.coverUrl || "", crop: v.coverCrop, aspect: 2 / 3, allowUpload: true,
+              fileOptions: { maxWidth: 900, maxHeight: 1350, maxBytes: 420 * 1024, quality: 0.84 },
+              onSave: function (result) {
+                v.coverUrl = result.source;
+                v.coverCrop = result.crop;
+                renderPhys();
+                KOS.ui.toast("Volume " + v.number + " cover positioned — save to keep it.");
+              }
+            });
+          } });
+        physWrap.appendChild(el("div", { class: "k-bk-volrec", "data-ui": "books.vol-record" }, [
+          el("span", { class: "k-mono k-bk-volrec-n", text: "Vol " + v.number }),
+          field("Condition", cond), field("Purchase date", date), field("Price", price),
+          el("div", { class: "k-cluster" }, [covBtn,
+            el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Remove volume " + v.number, text: "✕", onclick: function (ev) {
               ev.preventDefault();
               e.physical.volumes = e.physical.volumes.filter(function (x) { return x !== v; });
               if (!e.physical.volumes.length) e.physical = null;
+              selectedVol = null;
               renderPhys();
-            } })
-          ]));
-        });
-        physWrap.appendChild(list);
+            } })])
+        ]));
       }
 
       /* quick add — picking up the newest release one at a time */
-      var quick = el("button", { class: "btn", text: "+ Add next · Vol " + nextVolumeNumber(e), onclick: function (ev) {
+      var quick = el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", text: "+ Add next · Vol " + nextVolumeNumber(e), onclick: function (ev) {
         ev.preventDefault();
         addVolumeRange(e, nextVolumeNumber(e), nextVolumeNumber(e), { purchaseDate: KOS.srs.todayISO() });
+        selectedVol = null;
         renderPhys();
       } });
+      head.appendChild(el("div", { class: "k-cluster k-spacer" }, [quick]));
 
       /* range tool — a 40-volume series is one action, not forty */
-      var rFrom = el("input", { type: "number", class: "todo-in med-num", min: "1", placeholder: "from", value: String(nextVolumeNumber(e)) });
-      var rTo = el("input", { type: "number", class: "todo-in med-num", min: "1", placeholder: "to" });
-      var rCond = el("select", { class: "status-sel" }, KOS.mediadb.CONDITIONS.map(function (c) {
-        return el("option", { value: c, text: KOS.media.CONDITION_LABEL[c] });
-      }));
-      rCond.value = "good";
-      var rDate = el("input", { type: "date", class: "todo-in bk-vol-date" });
-      var rPrice = el("input", { type: "number", class: "todo-in bk-vol-price", min: "0", step: "0.01", placeholder: "£ each" });
-      var rBtn = el("button", { class: "btn primary", text: "Add range", onclick: function (ev) {
+      var rFrom = numInput({ min: "1", placeholder: "from" }, String(nextVolumeNumber(e)));
+      var rTo = numInput({ min: "1", placeholder: "to" });
+      var rCond = select(KOS.mediadb.CONDITIONS.map(function (c) { return [c, KOS.media.CONDITION_LABEL[c]]; }), "good");
+      var rDate = input("date");
+      var rPrice = input("number", { min: "0", step: "0.01", placeholder: "£ each" });
+      var rBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: "Add range", onclick: function (ev) {
         ev.preventDefault();
         var a = parseInt(rFrom.value, 10), b = parseInt(rTo.value, 10);
         if (isNaN(a) || isNaN(b) || b < a) { KOS.ui.toast("Give the range as from ≤ to, e.g. 1 to 15.", true); return; }
@@ -430,26 +491,18 @@
           condition: rCond.value, purchaseDate: rDate.value || null, price: isNaN(p) ? null : p
         });
         KOS.ui.toast(n ? "Added " + n + (n === 1 ? " volume" : " volumes") + " — each is editable above." : "Those volumes are already on the shelf.");
+        selectedVol = null;
         renderPhys();
       } });
-      physWrap.appendChild(el("div", { class: "bk-vol-actions" }, [
-        el("div", { class: "bk-vol-quick" }, [
-          quick,
-          el("span", { class: "sub", text: "Adds today’s next numbered volume with default condition." })
-        ]),
-        el("div", { class: "bk-range-tool" }, [
-          el("div", { class: "bk-range-head" }, [
-            el("b", { text: "Add a volume range" }),
-            el("span", { class: "sub", text: "Use one purchase date, condition and per-volume price for the batch." })
-          ]),
-          el("div", { class: "bk-range-grid" }, [
-            field("From volume", rFrom),
-            field("To volume", rTo),
-            field("Condition", rCond),
-            field("Purchase date", rDate),
-            field("Price each", rPrice),
-            el("div", { class: "bk-range-submit" }, [rBtn])
-          ])
+      physWrap.appendChild(el("details", { class: "k-bk-range" }, [
+        el("summary", { text: "Add a volume range — one purchase date, condition and price for the batch" }),
+        el("div", { class: "k-bk-range-grid", "data-ui": "books.range" }, [
+          field("From volume", rFrom),
+          field("To volume", rTo),
+          field("Condition", rCond),
+          field("Purchase date", rDate),
+          field("Price each", rPrice),
+          el("div", { class: "k-bk-range-go", "data-ui": "books.range-submit" }, [rBtn])
         ])
       ]));
     }
@@ -493,31 +546,31 @@
 
     var x = e.extra || {};
     var overlay = mv.editorModal({
-      isNew: isNew, label: "Books", className: "bk-modal" + (mirror ? " med-mirror-modal" : ""),
+      isNew: isNew, label: "Books", hook: "books.dialog" + (mirror ? " anime.mirror-dialog" : ""),
       subtitle: mirror ? "mirrored from AniList — reading state pushes back; the shelf and your notes are yours"
         : e.syncSource === "import" ? "from XML import" : "physical vault entry",
       form: [
         mirror
           ? mv.editorSection("identity", "Record", "As AniList has it. Change the title or artwork there and the next pull brings it over.", [
-              ro("Title", e.title, "med-span-2"),
-              x.titleRomaji && x.titleRomaji !== e.title ? ro("Romaji", x.titleRomaji, "med-span-2") : null,
+              ro("Title", e.title, true),
+              x.titleRomaji && x.titleRomaji !== e.title ? ro("Romaji", x.titleRomaji, true) : null,
               ro("Author / mangaka", e.author),
               ro("Format", KOS.media.FORMAT_LABEL[e.format] || e.format),
               ro("Chapters", e.progress.total != null ? String(e.progress.total) : null),
               ro("Volumes", e.progress.totalVolumes != null ? String(e.progress.totalVolumes) : null),
-              ro("Genres", e.genres.join(", "), "med-span-2"),
+              ro("Genres", e.genres.join(", "), true),
               ro("Started", e.dates.started),
               ro("Finished", e.dates.finished)
             ])
           : mv.editorSection("identity", "Identity & artwork", "The bibliographic details used across the collection.", [
-              field("Title", title, "med-span-2"),
+              field("Title", title, true),
               field("Author / mangaka", author),
               field("Format", fmt)
             ]),
         mv.editorSection("artwork", "Cover", mirror
           ? "AniList's artwork; only its position (or a local replacement image) is yours."
           : "The series default; individual physical volumes can override it.", [
-          field(mirror ? "Cover position" : "Cover URL", el("div", { class: "image-field" }, [mirror ? null : coverU, coverPosition.node].filter(Boolean)), "med-span-2")
+          field(mirror ? "Cover position" : "Cover URL", el("div", { class: "k-stack k-medit-cover" }, [mirror ? null : coverU, coverPosition.node].filter(Boolean)), true)
         ]),
         mv.editorSection("progress", mirror ? "Reading state" : "Reading progress", mirror
           ? "Yours to change — pushed to AniList when you save."
@@ -528,19 +581,19 @@
           field("Volumes read" + (mirror && e.progress.totalVolumes ? " / " + e.progress.totalVolumes : ""), vlCur),
           mirror ? null : field("Volumes total", vlTot),
           field("Rating", stars),
-          field("DNF — did not finish", el("span", { class: "med-favwrap" }, [dnfBox])),
-          field("Reason", dnfReason, "bk-grow")
+          field("DNF — did not finish", el("span", { class: "k-check" }, [dnfBox])),
+          reasonField
         ]),
         mirror
           ? mv.editorSection("dates", "Favourite", "Shrine placement — not on AniList.", [
-              field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
+              field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
             ])
           : mv.editorSection("dates", "Dates & favourite", "Reading dates and Shrine placement.", [
               field("Started", started),
               field("Finished", finished),
-              field("Favourite ♥", el("span", { class: "med-favwrap" }, [fav]))
+              field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
             ]),
-        mv.editorSection("ownership", "Physical ownership", "Volumes on your shelf are tracked independently from reading progress.", [
+        mv.editorSection("ownership", "Physical vault", "Volumes on your shelf are tracked independently from reading progress.", [
           comparePanel(),
           physWrap
         ], { raw: true }),
@@ -553,14 +606,14 @@
           field("Tags", tags)
         ]),
         mv.editorSection("lists", "Lists", "Your personal collection groupings.", [
-          field("Custom lists", mv.customListChips(e), "med-span-2")
+          field("Custom lists", mv.customListChips(e), true)
         ]),
         mv.editorSection("source", "Source & sync", "Where this record came from and what may refresh.", [
           mv.sourceInfo(e, mirror ? "AniList" : e.syncSource === "import" ? "XML import" : "Local record",
             mirror ? "A 1:1 mirror of your AniList manga list: removed there means removed here on the next pull — unless volumes are on the shelf, which AniList cannot see. Status, chapters, volumes and rating push back within seconds." : null)
         ]),
         mv.editorSection("notes", "Notes", "Your private reading notes and edition context.", [
-          field("Notes", notes, "med-span-2")
+          field("Notes", notes, true)
         ])
       ],
       onSave: save,
@@ -591,39 +644,34 @@
       KOS.ui.toast("A session is already on the clock — finish it first.", true);
       return;
     }
-    var overlay = KOS.medview.modalOverlay();   // click-outside + Esc close
+    var mv = KOS.medview;
+    var overlay = mv.modalOverlay();
     var close = overlay.close;
 
     var last = (store.state.focus && store.state.focus.lastReading) || {};
-    var mins = el("input", { type: "number", class: "cal-in fx-num", min: "5", max: "480",
-      value: String(last.workMin || 30) });
-    var bookSel = el("select", { class: "status-sel bk-rs-book" },
+    var mins = el("input", { type: "number", class: "k-input", "data-ui": "ui.number-input", min: "5", max: "480" });
+    mins.value = String(last.workMin || 30);
+    var bookSel = el("select", { class: "k-input", "data-ui": "ui.status-select" },
       [el("option", { value: "", text: "No specific book — just reading" })]);
     KOS.mediadb.query({ module: "books", status: "inProgress", sort: "updated" }, function (err, rows) {
       if (err) return;
       rows.forEach(function (r) {
-        var o = el("option", { value: String(r.id), text: r.title });
-        bookSel.appendChild(o);
+        bookSel.appendChild(el("option", { value: String(r.id), text: r.title }));
       });
       if (last.bookId != null && rows.some(function (r) { return r.id === last.bookId; })) {
         bookSel.value = String(last.bookId);
       }
     });
 
-    var box = el("div", { class: "modal bk-rs-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", {}, [el("span", { class: "kanji-inline", text: "読書" }), " Reading session"]),
-        el("span", { class: "sub", text: "the Focus Timer's clock, on rest rules: logs to the reading heatmap and rest streak — XP/gold trickle only, HP and the study streak untouched, pause freely" }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
+    mv.dialogBox(overlay, "books.reading", "読書 Reading session",
+      "the Focus Timer's clock, on rest rules: logs to the reading heatmap and rest streak — XP/gold trickle only, HP and the study streak untouched, pause freely",
+      el("div", { class: "k-dialog-body k-fx-pair", "data-ui": "focus.link-row" }, [
+        mv.calField("Minutes", mins),
+        mv.calField("Reading (optional)", bookSel)
       ]),
-      el("div", { class: "fx-link-row" }, [
-        el("label", { class: "cal-field" }, [el("span", { text: "Minutes" }), mins]),
-        el("label", { class: "cal-field bk-rs-grow" }, [el("span", { text: "Reading (optional)" }), bookSel])
-      ]),
-      el("div", { class: "lab-controls med-modal-foot" }, [
-        el("span", { style: "flex:1" }),
-        el("button", { class: "btn", text: "Cancel", onclick: close }),
-        el("button", { class: "btn primary", text: "◉ Start reading", onclick: function () {
+      el("div", { class: "k-dialog-foot" }, [
+        el("button", { type: "button", class: "k-btn k-spacer", text: "Cancel", onclick: function () { close(); } }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "◉ Start reading", onclick: function () {
           var m = Math.max(5, Math.min(480, parseInt(mins.value, 10) || 30));
           var book = null;
           if (bookSel.value) {
@@ -633,54 +681,53 @@
           close();
           KOS.focus.start({ kind: "reading", mode: "custom", workMin: m, breakMin: 0, book: book });
         } })
-      ])
-    ]);
-    overlay.appendChild(box);
+      ]));
     KOS.ui.openDialog(overlay);
     mins.focus();
   }
 
   /* ================= external book lookup (3i) =================
      Title or ISBN in, prefilled add form out — Open Library first, Google
-     Books fallback (see bookapi.js for the live findings). Barcode scanning
-     rides the native BarcodeDetector API where the browser has it; where it
-     doesn't (or the camera is refused), the typed-ISBN path IS the feature,
-     not a consolation. */
+     Books fallback (invariant 21). Barcode scanning rides the native
+     BarcodeDetector API where the browser has it; where it doesn't (or the
+     camera is refused), the typed-ISBN path IS the feature. */
   function openLookup(physicalIntent, onDone) {
     var stream = null, pollTimer = null;
+    var scanWrap;
     function stopScan() {
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
       if (stream) {
         stream.getTracks().forEach(function (t) { t.stop(); });
         stream = null;
       }
-      scanWrap.style.display = "none";
+      if (scanWrap) scanWrap.hidden = true;
     }
-    /* click-outside + Esc close; the camera stops on every close path */
-    var overlay = KOS.medview.modalOverlay(stopScan);
+    /* the camera stops on every close path */
+    var mv = KOS.medview;
+    var overlay = mv.modalOverlay(stopScan);
     var close = overlay.close;
 
-    var titleIn = el("input", { type: "search", class: "todo-in msch-in",
+    var titleIn = el("input", { type: "search", class: "k-input", "data-ui": "ui.quick-add msearch.input",
       placeholder: "Search by title or author…", "aria-label": "Search books by title" });
-    var isbnIn = el("input", { type: "text", class: "todo-in bk-isbn-in", inputmode: "numeric",
+    var isbnIn = el("input", { type: "text", class: "k-input", "data-ui": "ui.quick-add books.isbn-in", inputmode: "numeric",
       placeholder: "…or ISBN (10 or 13, hyphens fine)", "aria-label": "ISBN" });
-    var isbnBtn = el("button", { class: "btn", text: "Look up", onclick: function () { doIsbn(); } });
-    var statusNote = el("p", { class: "sub msch-note" });
-    var results = el("div", { class: "msch-results" });
+    var isbnBtn = el("button", { type: "button", class: "k-btn", text: "Look up", onclick: function () { doIsbn(); } });
+    var statusNote = el("p", { class: "k-muted", "data-ui": "part.sub", role: "status" });
+    var results = el("div", { class: "k-mpick" });
 
     /* capability detection, stated honestly either way */
     var canScan = typeof window.BarcodeDetector !== "undefined" &&
       !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-    var video = el("video", { class: "bk-scan-video", autoplay: "", muted: "", playsinline: "" });
-    var scanWrap = el("div", { class: "bk-scan", style: "display:none" }, [
+    var video = el("video", { class: "k-bk-scan-video", autoplay: "", muted: "", playsinline: "" });
+    scanWrap = el("div", { class: "k-bk-scan", hidden: "" }, [
       video,
-      el("div", { class: "bk-scan-hint" }, [
-        el("span", { text: "Hold the back-cover barcode steady in frame" }),
-        el("button", { class: "mini-btn", text: "✕ Stop", onclick: function () { stopScan(); } })
+      el("div", { class: "k-cluster" }, [
+        el("span", { class: "k-muted", text: "Hold the back-cover barcode steady in frame" }),
+        el("button", { type: "button", class: "k-btn k-btn--sm", text: "✕ Stop", onclick: function () { stopScan(); } })
       ])
     ]);
     var scanBtn = canScan
-      ? el("button", { class: "btn gold", text: "📷 Scan barcode", onclick: function () { startScan(); } })
+      ? el("button", { type: "button", class: "k-btn", text: "📷 Scan barcode", onclick: function () { startScan(); } })
       : null;
 
     function startScan() {
@@ -692,7 +739,7 @@
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (s) {
           stream = s;
           video.srcObject = s;
-          scanWrap.style.display = "";
+          scanWrap.hidden = false;
           statusNote.textContent = "Scanning…";
           pollTimer = setInterval(function () {
             detector.detect(video).then(function (codes) {
@@ -727,10 +774,10 @@
     var SOURCE_LABEL = { openlibrary: "Open Library", googlebooks: "Google Books" };
     function render(list, meta) {
       results.innerHTML = "";
-      if (meta && meta.note) results.appendChild(el("p", { class: "sub", text: meta.note }));
+      if (meta && meta.note) results.appendChild(el("p", { class: "k-muted", text: meta.note }));
       if (!list.length) {
-        results.appendChild(el("p", { class: "fc-empty",
-          text: (titleIn.value.trim() || isbnIn.value.trim()) ? "No matches in either book database." : "" }));
+        var none = (titleIn.value.trim() || isbnIn.value.trim()) ? "No matches in either book database." : "";
+        if (none) results.appendChild(el("p", { class: "k-muted", text: none }));
         return;
       }
       list.forEach(function (r) {
@@ -739,20 +786,17 @@
         if (r.year) metaBits.push(String(r.year));
         if (r.pages) metaBits.push(r.pages + " pp");
         if (r.isbn13) metaBits.push(r.isbn13);
-        var row = el("div", { class: "msch-row" }, [
+        results.appendChild(el("div", { class: "k-mpick-row", "data-ui": "msearch.row" }, [
           r.coverUrl
-            ? el("img", { class: "msch-cover", src: r.coverUrl, alt: "", loading: "lazy" })
-            : el("span", { class: "msch-cover med-cover-ph", "aria-hidden": "true", text: "本" }),
-          el("div", { class: "msch-body" }, [
-            el("div", { class: "msch-title", text: r.title }),
-            el("div", { class: "sub", text: metaBits.join(" · ") }),
-            el("span", { class: "med-chip bk-src-chip", text: SOURCE_LABEL[r.source] || r.source })
+            ? el("span", { class: "k-mrow-cover" }, [el("img", { src: r.coverUrl, alt: "", loading: "lazy" })])
+            : el("span", { class: "k-mrow-cover", "aria-hidden": "true", text: "本" }),
+          el("span", { class: "k-mrow-main" }, [
+            el("b", { class: "k-mrow-title", text: r.title }),
+            el("span", { class: "k-mrow-sub", text: metaBits.join(" · ") }),
+            el("span", { class: "k-chip", "data-ui": "books.src-chip", text: SOURCE_LABEL[r.source] || r.source })
           ]),
-          el("div", { class: "msch-act" }, [
-            el("button", { class: "btn primary msch-add", text: "+ Use", onclick: function () { useResult(r); } })
-          ])
-        ]);
-        results.appendChild(row);
+          el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-ui": "msearch.add", "data-intent": "primary", text: "+ Use", onclick: function () { useResult(r); } })
+        ]));
       });
     }
 
@@ -805,22 +849,17 @@
     titleIn.addEventListener("input", KOS.ui.debounce(runTitle, 220));
     isbnIn.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { ev.preventDefault(); doIsbn(); } });
 
-    var box = el("div", { class: "modal med-modal msch-modal bk-lookup" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", {}, [el("span", { class: "kanji-inline", text: "本" }), " Find book — Open Library / Google Books"]),
-        el("span", { class: "sub", text: "search by title, or type/scan an ISBN — the match prefills the add form" +
-          (physicalIntent ? " with volume 1 already on the shelf" : "") }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
-      ]),
-      titleIn,
-      el("div", { class: "bk-isbn-row" }, [isbnIn, isbnBtn, scanBtn]),
-      canScan ? null : el("p", { class: "sub bk-scan-none", text:
-        "Barcode scanning isn't available in this browser (no BarcodeDetector) — the typed ISBN does the same job." }),
-      scanWrap,
-      statusNote,
-      results
-    ]);
-    overlay.appendChild(box);
+    mv.dialogBox(overlay, "vault.dialog msearch.dialog books.lookup", "本 Find book — Open Library / Google Books",
+      "search by title, or type/scan an ISBN — the match prefills the add form" + (physicalIntent ? " with volume 1 already on the shelf" : ""),
+      el("div", { class: "k-dialog-body k-bk-lookup" }, [
+        titleIn,
+        el("div", { class: "k-cluster k-bk-isbn" }, [isbnIn, isbnBtn, scanBtn].filter(Boolean)),
+        canScan ? null : el("p", { class: "k-field-hint", "data-ui": "part.sub books.scan-none", text:
+          "Barcode scanning isn't available in this browser (no BarcodeDetector) — the typed ISBN does the same job." }),
+        scanWrap,
+        statusNote,
+        results
+      ].filter(Boolean)), null, "k-mwide");
     KOS.ui.openDialog(overlay);
     titleIn.focus();
   }
@@ -828,57 +867,22 @@
   KOS.books.openLookup = openLookup;
   KOS.books.openReadingSession = openReadingSession;
 
-  /* ================= cards ================= */
+  /* ================= cards (the shared overlay card, frame 11b) ================= */
   function gridCard(e, rerender) {
-    /* Phase F: the card is NOT a button. It contained the favourite
-       toggle, a status <select> and "+1" — an ARIA button may not hold
-       interactive descendants, and a keyboard user who pressed Space on
-       it scrolled the page. The card keeps its pointer shortcut; the
-       TITLE is the real control, so the tab order reads
-       favourite → title → status → +1 and a screen reader announces the
-       entry by name instead of "button". */
-    var card = el("div", { class: "med-card bk-card",
-      onclick: function () { booksEditor(e, rerender); }
-    }, [
-      cover(e),
-      /* score in the cover's top-left corner (♥ has the right); the hover
-         row is status + "+1" on one line */
-      KOS.medview.quickScore(e, rerender, { corner: true }),
-      el("button", { class: "med-fav" + (e.favourite ? " on" : ""), title: "Favourite — appears in the Shrine",
-        "aria-label": "Toggle favourite", text: "♥", onclick: function (ev) {
-          ev.stopPropagation();
-          e.favourite = !e.favourite;
-          KOS.mediadb.put(e, function () {});
-          KOS.ui.state(ev.target, "on", e.favourite);
-        } }),
-      el("div", { class: "med-card-body" }, [
-        el("button", { type: "button", class: "med-title", title: e.title, text: e.title,
-          onclick: function (ev) { ev.stopPropagation(); booksEditor(e, rerender); } }),
-        e.author ? el("div", { class: "bk-author", text: e.author }) : null,
-        el("div", { class: "med-meta" }, [
-          formatChip(e),
-          dnfChip(e),
-          el("span", { class: "med-prog", text: progressText(e) }),
-          KOS.medview.pushChip(e, rerender)
-        ]),
-        e.physical && e.physical.volumes.length ? el("div", { class: "bk-owned-line",
-          text: "📚 " + e.physical.volumes.length + " vol" + (e.physical.volumes.length === 1 ? "" : "s") + " owned" }) : null,
-        KOS.medview.quickRow(e, rerender, {
-          unit: "ch", title: "Log the next chapter",
-          onBump: e.status === "inProgress" ? function () { bumpChapter(e, rerender); } : null
-        })
-      ])
-    ]);
-    /* the SAME bar every vault card draws (KOS.media.progressBar): read
-       progress by chapter, or by volume for a series read that way; the
-       owned-vs-read comparison is the editor's, and the owned count is
-       already printed above */
-    var bar = KOS.media.progressBar(e);
-    if (bar) card.appendChild(bar);
-    return card;
+    var owned = e.physical && e.physical.volumes.length;
+    return KOS.medview.card(e, rerender, {
+      hook: "books.card", kanji: mod().kanji,
+      chips: [formatChip(e), dnfChip(e), owned ? KOS.medview.chip("📚 " + owned + " vol" + (owned === 1 ? "" : "s") + " owned", "owned", { "data-ui": "books.owned" }) : null],
+      extra: [e.author ? el("span", { class: "k-mcard-sub", "data-ui": "books.author", text: e.author }) : null],
+      prog: progressText(e),
+      unit: "ch", bumpTitle: "Log the next chapter",
+      onBump: e.status === "inProgress" ? function () { bumpChapter(e, rerender); } : null,
+      open: function () { booksEditor(e, rerender); }
+    });
   }
   function listRow(e, rerender) {
     return KOS.medview.listRow(e, mod(), rerender, {
+      hook: "books.card",
       subline: e.author || e.genres.slice(0, 2).join(" · "),
       prog: progressText(e),
       onBump: e.status === "inProgress" ? function () { bumpChapter(e, rerender); } : null,
@@ -894,36 +898,39 @@
   function shelfFor(e, rerender) {
     var colour = spineColor(e.title);
     var o = ownership(e);
-    var row = el("div", { class: "bk-shelf-series" });
-    row.appendChild(el("div", { class: "bk-shelf-h" }, [
-      el("b", { text: e.title }),
-      el("span", { class: "sub", text: (e.author ? e.author + " · " : "") + o.ownedVols +
-        (o.totalVols ? " of " + o.totalVols + (o.est ? " (est.)" : "") : "") + " volumes" }),
-      el("button", { class: "mini-btn", text: "edit →", onclick: function () { booksEditor(e, rerender); } })
-    ]));
-    var shelf = el("div", { class: "bk-shelf", role: "list" });
+    var row = el("section", { class: "k-bk-series", "data-ui": "books.series", "aria-label": e.title }, [
+      el("div", { class: "k-bk-series-h" }, [
+        el("b", { text: e.title }),
+        el("span", { class: "k-muted", text: (e.author ? e.author + " · " : "") + o.ownedVols +
+          (o.totalVols ? " of " + o.totalVols + (o.est ? " (est.)" : "") : "") + " volumes" }),
+        el("button", { type: "button", class: "k-link k-spacer", text: "edit →", onclick: function () { booksEditor(e, rerender); } })
+      ])
+    ]);
+    var shelf = el("div", { class: "k-bk-shelf", "data-ui": "books.shelf", role: "list" });
     e.physical.volumes.forEach(function (v) {
       var spine;
+      var tip = e.title + " vol " + v.number + " · " + KOS.media.CONDITION_LABEL[v.condition] +
+        (v.purchaseDate ? " · " + v.purchaseDate : "") + (v.price ? " · £" + v.price.toFixed(2) : "");
       if (v.coverUrl) {
-        spine = el("div", { class: "bk-spine bk-spine-img", role: "listitem",
-          title: e.title + " vol " + v.number + " · " + KOS.media.CONDITION_LABEL[v.condition] }, [
+        spine = el("div", { class: "k-bk-spine", "data-ui": "books.spine", role: "listitem", title: tip }, [
           KOS.imageCrop.image(v.coverUrl, { alt: e.title + " volume " + v.number, loading: "lazy" }, v.coverCrop)
         ]);
+        KOS.ui.state(spine, "img", true);
       } else {
-        spine = el("div", { class: "bk-spine", role: "listitem", style: "--spine:" + colour,
-          title: e.title + " vol " + v.number + " · " + KOS.media.CONDITION_LABEL[v.condition] +
-            (v.purchaseDate ? " · " + v.purchaseDate : "") + (v.price ? " · £" + v.price.toFixed(2) : "") }, [
-          el("span", { class: "bk-spine-n", text: String(v.number) }),
-          el("span", { class: "bk-spine-t", text: e.title })
+        spine = el("div", { class: "k-bk-spine", "data-ui": "books.spine", role: "listitem", title: tip }, [
+          el("span", { class: "k-bk-spine-n k-mono", text: String(v.number) }),
+          el("span", { class: "k-bk-spine-t", text: e.title })
         ]);
+        spine.style.setProperty("--spine", colour);
       }
       if (v.condition === "damaged" || v.condition === "worn") {
-        spine.appendChild(el("span", { class: "bk-spine-cond " + v.condition, "aria-hidden": "true" }));
+        var mark = el("span", { class: "k-bk-spine-cond", "data-ui": "books.spine-cond", "aria-hidden": "true" });
+        KOS.ui.state(mark, v.condition, true);
+        spine.appendChild(mark);
       }
       spine.addEventListener("click", function () { booksEditor(e, rerender); });
       shelf.appendChild(spine);
     });
-    shelf.appendChild(el("div", { class: "bk-shelf-board", "aria-hidden": "true" }));
     row.appendChild(shelf);
     return row;
   }
@@ -951,38 +958,21 @@
       days.push({ date: d, value: n, hint: d + ": " + n + (n === 1 ? " reading log" : " reading logs") });
     }
     return KOS.charts.chartCard("Reading heatmap", total + " logs in " + weeks + " weeks — chapters, volumes and status changes",
-      KOS.charts.heatmap(days, { color: "#F2C46D" }));
+      KOS.charts.heatmap(days, { color: "var(--books)" }));
   }
 
-  /* ================= the Books view ================= */
+  /* ================= the Books view (the 11b vault template) ================= */
   KOS.views.books = function (main, arg) {
     KOS.shell.tree("none");
     var p = prefs();
-    if (arg && (arg.tab === "physical" || arg.tab === "digital")) { p.tab = arg.tab; store.save(); }
+    if (arg && (arg.tab === "physical" || arg.tab === "digital")) { p.tab = arg.tab; persist(p); }
     var filt = { status: null, dnf: false };
     var mv = KOS.medview;
 
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "Collection · 本" }),
-        el("h1", { text: "Books" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "What you're reading, mirrored from AniList, and what's on the shelf — one entry, both lives." })
-        ])
-      ])
-    ]));
-
     if (mv.unavailable(main)) return;
 
-    /* Build 4.0: the per-module spotlight hero (medview.heroCard) */
-    var heroHolder = el("div", { class: "vh-holder" });
-    main.appendChild(heroHolder);
-
-    /* ---- the Physical/Digital tab split (3i) — navigation only ----
-       Category 7 Phase B: this was the app's THIRD tab idiom (audit G-23);
-       it now builds through KOS.ui.tabs's "card" variant, which is the same
-       two-line-with-a-kanji shape it always had, shared. The .bk-tabs class
-       stays on the container so the Books-specific rules still apply. */
+    /* ---- the Physical/Digital lens (3i) — navigation only, one vault,
+       two readings; it rides the page header's action slot ---- */
     var LENSES = [
       ["digital", "読", "Digital", "your AniList manga list, mirrored"],
       ["physical", "蔵", "Physical Vault", "owned volumes only — the real shelf"]
@@ -990,64 +980,62 @@
     var tabBar;
     function buildLenses() {
       return KOS.ui.tabs(LENSES.map(function (t) {
-        return { label: t[2], glyph: t[1], hint: t[3], active: p.tab === t[0], className: "bk-tab",
+        return { label: t[2], glyph: t[1], hint: t[3], active: p.tab === t[0], hook: "books.lens",
           onSelect: function () {
             if (p.tab === t[0]) return;
             p.tab = t[0];
-            store.save();
+            persist(p);
             var fresh = buildLenses();
             tabBar.replaceChildren.apply(tabBar, Array.prototype.slice.call(fresh.childNodes));
-            syncToolbar();
+            syncLayout();
             syncPrimary();
             refresh();
           } };
-      }), { variant: "card", label: "Books lens", className: "bk-tabs" });
+      }), { variant: "card", label: "Books lens" });
     }
     tabBar = buildLenses();
-    main.appendChild(tabBar);
+
+    var page = mv.vaultPage(main, { kicker: "Collection · 本", title: "Books",
+      sub: "What you're reading, mirrored from AniList, and what's on the shelf — one entry, both lives.",
+      actions: [tabBar] });
 
     /* toolbar — the shared pieces come from the medview toolkit */
     var search = mv.searchInput("Search book titles");
-    var fmtSel = el("select", { class: "status-sel", "aria-label": "Filter by format" }, [
-      ["", "All formats"], ["manga", "Manga"], ["lightNovel", "Light Novels"], ["oneShot", "One-shots"]
-    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
-    var genreSel = el("select", { class: "status-sel", "aria-label": "Filter by genre" });
-    var moodSel = el("select", { class: "status-sel", "aria-label": "Filter by mood" });
-    var shelfSel = el("select", { class: "status-sel", "aria-label": "Filter by shelf" });
+    var fmtSel = mv.facetSelect("Filter by format");
+    [["", "All formats"], ["manga", "Manga"], ["lightNovel", "Light Novels"], ["oneShot", "One-shots"]]
+      .forEach(function (o) { fmtSel.appendChild(el("option", { value: o[0], text: o[1] })); });
+    var genreSel = mv.facetSelect("Filter by genre");
+    var moodSel = mv.facetSelect("Filter by mood");
+    var shelfSel = mv.facetSelect("Filter by shelf");
     var sortSel = mv.sortSelect(p.sort, { score: "Rating" });
 
-    /* layout is a per-tab pref: the Digital lens reads as grid/list, the
+    /* layout is a per-lens pref: the Digital lens reads as grid/list, the
        Physical lens defaults to the bookshelf (its whole point is volume-
        level detail) with grid/list as alternatives */
-    var LAYOUTS = { grid: "▦ Grid", list: "☰ List", shelf: "📚 Shelf" };
+    var LAYOUTS = { grid: ["▦", "Grid"], list: ["≡", "List"], shelf: ["📚", "Shelf"] };
     function layoutOrder() { return p.tab === "physical" ? ["shelf", "grid", "list"] : ["grid", "list"]; }
     function curLayout() {
       var ord = layoutOrder();
       var cur = p.tab === "physical" ? p.physLayout : p.layout;
       return ord.indexOf(cur) !== -1 ? cur : ord[0];
     }
-    function nextLayout() {
-      var ord = layoutOrder();
-      return ord[(ord.indexOf(curLayout()) + 1) % ord.length];
+    var layoutBtn = el("span", { class: "k-seg k-seg--quiet k-mlayout", role: "group", "aria-label": "Layout" });
+    function syncLayout() {
+      layoutBtn.innerHTML = "";
+      layoutOrder().forEach(function (id) {
+        layoutBtn.appendChild(el("button", { type: "button", class: "k-seg-item", "aria-label": LAYOUTS[id][1], title: LAYOUTS[id][1],
+          "aria-pressed": String(curLayout() === id), text: LAYOUTS[id][0], onclick: function () {
+            if (curLayout() === id) return;
+            if (p.tab === "physical") p.physLayout = id; else p.layout = id;
+            persist(p);
+            syncLayout();
+            refresh();
+          } }));
+      });
     }
-    var layoutBtn = el("button", { class: "btn", title: "Cycle layout", onclick: function () {
-        if (p.tab === "physical") p.physLayout = nextLayout(); else p.layout = nextLayout();
-        store.save();
-        syncToolbar();
-        refresh();
-      } });
-    function syncToolbar() { layoutBtn.textContent = LAYOUTS[nextLayout()]; }
-    syncToolbar();
+    syncLayout();
 
     var rail = mv.filterRail("books", function () { refresh(); });
-    var mainCol = el("div", { class: "med-main" });
-    /* the shared toolbar (Category 7 Phase D). This is the vault the audit
-       measured at SEVENTEEN controls in three rows before a single cover
-       (VLT-3/U-13): the lens cards, then search + five selects + layout,
-       then eight action chips with no grouping at all. Six controls now,
-       one row, and every one of those actions is still one click away —
-       DNF joins the facets because it is a filter, Mangaka / reading
-       sessions / lookups / sync join the ⋯ menu because they are not. */
     var bar = mv.toolbar({
       label: "Books vault controls",
       search: search, sort: sortSel, layout: layoutBtn,
@@ -1083,13 +1071,13 @@
       ],
       /* the primary action follows the lens: the digital half is AniList's
          (Find new creates there first), the physical half is hand-made */
-      primary: el("button", { class: "btn primary", text: "+ Add", onclick: function () {
+      primary: mv.primaryButton("+ Add", null, function () {
         if (p.tab === "physical") booksEditor(null, refreshAll);
         else KOS.mediaSearch.open("books", refreshAll);
-      } })
+      })
     });
-    mainCol.appendChild(bar.root);
-    main.appendChild(el("div", { class: "med-layout" }, [rail.root, mainCol]));
+    page.setBar(bar);
+    page.setRail(rail.root);
 
     function refreshAll() { rail.reload(); refresh(); }
     function syncPrimary() {
@@ -1102,10 +1090,9 @@
 
     /* countLine + holder + sentinel + the lazy batch renderer (makeItem is
        hoisted — the shelf-ranking block below defines it) */
-    var area = mv.resultsArea(mainCol, function (e, i) { return makeItem(e, i); });
+    var area = mv.resultsArea(page.mainCol, function (e, i) { return makeItem(e, i); }, { countHost: page.controls });
 
-    /* dropdown fills from the real index keys (books rows only for
-       mood/shelves — those axes exist only here anyway) */
+    /* dropdown fills from the real index keys */
     KOS.mediadb.distinct("mood", function (err, ms) { if (!err) mv.fillSel(moodSel, ms, "All moods"); });
     KOS.mediadb.distinct("shelves", function (err, ss) { if (!err) mv.fillSel(shelfSel, ss, "All shelves"); });
     KOS.mediadb.query({ module: "books" }, function (err, rows) {
@@ -1126,14 +1113,14 @@
       area.repaint();
     }
     function rankRow(e, idx) {
-      var wrap = el("div", { class: "bk-rank-row", draggable: "true", "data-id": String(e.id) }, [
-        el("span", { class: "bk-rank-n", "aria-hidden": "true", text: String(idx + 1) }),
-        el("span", { class: "bk-rank-grip", title: "Drag to reorder", "aria-hidden": "true", text: "⠿" }),
+      var wrap = el("div", { class: "k-bk-rank", "data-ui": "books.rank-row", draggable: "true", "data-id": String(e.id) }, [
+        el("span", { class: "k-mono k-muted", "aria-hidden": "true", text: String(idx + 1) }),
+        el("span", { class: "k-bk-grip", title: "Drag to reorder", "aria-hidden": "true", text: "⠿" }),
         listRow(e, refresh),
-        el("span", { class: "bk-rank-ctl" }, [
-          el("button", { class: "mini-btn", "aria-label": "Move “" + e.title + "” up", text: "▲",
+        el("span", { class: "k-cluster" }, [
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Move “" + e.title + "” up", text: "▲",
             onclick: function (ev) { ev.stopPropagation(); moveRank(idx, idx - 1); } }),
-          el("button", { class: "mini-btn", "aria-label": "Move “" + e.title + "” down", text: "▼",
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Move “" + e.title + "” down", text: "▼",
             onclick: function (ev) { ev.stopPropagation(); moveRank(idx, idx + 1); } })
         ])
       ]);
@@ -1178,13 +1165,12 @@
         search: search.value.trim() || undefined, sort: sortSel.value
       };
       /* the Physical lens IS a filter on the same vault: owned volumes only.
-         The Digital lens is the AniList mirror: AniList-sourced rows only */
+         The Digital lens is the AniList mirror: AniList-sourced rows only
+         (invariant 91) */
       if (physical) opts.owned = true;
       else opts.source = "anilist";
-      /* claim the render generation BEFORE the query: switching lens mid-flight
-         (or typing in search) must not let the older query paint the newer
-         lens — and it tears down the previous lens's lazy observer at once,
-         so nothing from it can ever be appended again */
+      /* claim the render generation BEFORE the query: switching lens mid-
+         flight must not let the older query paint the newer lens */
       var token = area.begin();
       KOS.mediadb.query(opts, function (err, rows) {
         if (!area.current(token)) return;              // a newer lens/filter won
@@ -1202,9 +1188,11 @@
         sortSel.title = activeShelf ? "A selected shelf keeps its own ranked order" : "";
         function paint(rowsOrdered) {
           /* shelf skin (3j): a purchased Gold Shop cosmetic sets one extra
-             class on the shelf layout — the default look is its absence */
+             state on the shelf layout — the default look is its absence */
           var skin = lay === "shelf" && KOS.governor.shelfSkin && KOS.governor.shelfSkin();
-          KOS.ui.setClass(area.holder, lay === "list" ? "med-list" : lay === "shelf" ? "bk-shelves" + (skin ? " " + skin : "") : "med-grid");
+          area.layout(lay);
+          if (skin) area.holder.setAttribute("data-skin", skin); else area.holder.removeAttribute("data-skin");
+          area.holder.setAttribute("data-ui", lay === "shelf" ? "books.shelves" : "vault.grid");
           var filtered = rail.status() || rail.customList() || filt.dnf || fmtSel.value || genreSel.value || moodSel.value || shelfSel.value || search.value;
           area.countLine.textContent = rowsOrdered.length + " series" +
             (physical ? " with owned volumes" : "") + (filtered ? " (filtered)" : "") +
@@ -1218,11 +1206,11 @@
                   ? "No physical volumes recorded yet — add a book to the shelf (the range tool takes a whole box set in one go), or scan a barcode with ◫ Find book."
                   : "The digital shelf mirrors your AniList manga list. Connect AniList and the whole list lands in one sync.",
               physical ? [
-                el("button", { class: "btn gold", text: "◫ Find book / ISBN", onclick: function () { openLookup(true, refreshAll); } }),
-                el("button", { class: "btn", text: "+ Add to shelf", onclick: function () { booksEditor(null, refreshAll); } })
+                el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "◫ Find book / ISBN", onclick: function () { openLookup(true, refreshAll); } }),
+                el("button", { type: "button", class: "k-btn", text: "+ Add to shelf", onclick: function () { booksEditor(null, refreshAll); } })
               ] : [
-                el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
-                el("button", { class: "btn", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("books", refreshAll); } })
+                el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
+                el("button", { type: "button", class: "k-btn", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("books", refreshAll); } })
               ]));
             return;
           }
@@ -1246,9 +1234,9 @@
 
     /* the facet selects are wired by mv.selFacet inside the toolbar */
     search.addEventListener("input", KOS.ui.debounce(refresh, 220));
-    sortSel.addEventListener("change", function () { p.sort = sortSel.value; store.save(); refresh(); });
+    sortSel.addEventListener("change", function () { p.sort = sortSel.value; persist(p); refresh(); });
 
-    function mountHero() { mv.heroCard(heroHolder, "books", mod(), function () { refreshAll(); mountHero(); }); }
+    function mountHero() { mv.heroCard(page.heroHolder, "books", mod(), function () { refreshAll(); mountHero(); }); }
     mountHero();
     refresh();
   };
@@ -1321,25 +1309,24 @@
     var expanded = {};            // author name -> works fully printed
 
     /* ---- controls, through the shared toolbar ---- */
-    var search = el("input", { type: "search", class: "todo-in med-search",
-      placeholder: "Search authors…", "aria-label": "Search authors" });
-    var sortSel = el("select", { class: "status-sel med-sort", "aria-label": "Sort authors" }, [
-      ["name", "A–Z"], ["works", "Most works"], ["volumes", "Most volumes owned"],
-      ["chapters", "Most chapters read"]
+    var search = mv.searchInput("Search authors");
+    var sortSel = el("select", { class: "k-pill-select", "data-ui": "ui.status-select vault.sort", "aria-label": "Sort authors" }, [
+      ["name", "Sort: A–Z"], ["works", "Sort: most works"], ["volumes", "Sort: most volumes owned"],
+      ["chapters", "Sort: most chapters read"]
     ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
     sortSel.addEventListener("change", function () { sortBy = sortSel.value; paint(); });
 
-    var fmtSel = el("select", { class: "status-sel", "aria-label": "Filter by format" }, [
-      ["", "All formats"], ["manga", "Manga"], ["lightNovel", "Light novels"], ["oneShot", "One-shots"]
-    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
-    var stSel = el("select", { class: "status-sel", "aria-label": "Filter by reading status" },
-      [el("option", { value: "", text: "Any status" })].concat(mv.STATUSES.map(function (s) {
-        return el("option", { value: s, text: KOS.media.STATUS_LABEL[s] });
-      })));
-    var minSel = el("select", { class: "status-sel", "aria-label": "Minimum works by this author" }, [
+    function facet(label, options) {
+      var s = mv.facetSelect(label);
+      options.forEach(function (o) { s.appendChild(el("option", { value: o[0], text: o[1] })); });
+      return s;
+    }
+    var fmtSel = facet("Filter by format", [["", "All formats"], ["manga", "Manga"], ["lightNovel", "Light novels"], ["oneShot", "One-shots"]]);
+    var stSel = facet("Filter by reading status", [["", "Any status"]].concat(mv.STATUSES.map(function (s) { return [s, KOS.media.STATUS_LABEL[s]]; })));
+    var minSel = facet("Minimum works by this author", [
       ["", "Any number of works"], ["2", "2 or more works"], ["3", "3 or more works"],
       ["5", "5 or more works"], ["10", "10 or more works"]
-    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+    ]);
 
     var facets = [
       mv.selFacet("Format", fmtSel, function () { filt.format = fmtSel.value; paint(); }),
@@ -1360,7 +1347,6 @@
 
     var bar = mv.toolbar({
       label: "Mangaka controls",
-      className: "mk-toolbar",
       search: search,
       sort: sortSel,
       filters: facets,
@@ -1375,11 +1361,13 @@
         { label: "Sync & Import", glyph: "⇅", onSelect: function () { KOS.show("mediasync"); } }
       ]
     });
-    main.appendChild(bar.root);
+    mv.addHook(bar.root, "mangaka.toolbar");
+    var controls = el("div", { class: "k-mcontrols" }, [bar.root]);
+    main.appendChild(controls);
 
     /* the jump rail can only mean something in name order, so it hides
        itself under any other ranking rather than lying about position */
-    var jump = el("div", { class: "mk-jump", role: "group", "aria-label": "Jump to letter" });
+    var jump = el("div", { class: "k-mk-jump", role: "group", "aria-label": "Jump to letter" });
     main.appendChild(jump);
 
     /* one lazy row = one author card (or a letter divider before it) */
@@ -1389,13 +1377,13 @@
       var letter = mkLetter(name);
       if (i > 0 && mkLetter(shown[i - 1]) === letter) return card;
       var frag = document.createDocumentFragment();
-      frag.appendChild(el("div", { class: "mk-letter", "aria-hidden": "true" }, [
+      frag.appendChild(el("div", { class: "k-mk-letter", "data-ui": "mangaka.letter", "aria-hidden": "true" }, [
         el("span", { text: letter })
       ]));
       frag.appendChild(card);
       return frag;
-    });
-    KOS.ui.setClass(area.holder, "mk-wall");
+    }, { countHost: controls });
+    area.layout("wall");
 
     /* ---- the works that survive the current filters, for one author ---- */
     function worksOf(name) {
@@ -1412,16 +1400,17 @@
       function open() { booksEditor(e, function () { KOS.show("mangaka", undefined, { _nav: true }); }); }
       /* Phase F: a leaf tile is a real button (Enter AND Space, one
          accessible name, no invented role) */
-      return el("button", { type: "button", class: "mk-work", title: e.title,
+      var ph = el("span", { class: "k-mk-cover", "data-ui": "vault.cover-placeholder", "aria-hidden": "true", text: "本" });
+      ph.style.setProperty("--spine", spineColor(e.title));
+      return el("button", { type: "button", class: "k-mk-work", "data-ui": "mangaka.work", title: e.title,
         "aria-label": e.title, onclick: open }, [
         e.coverUrl
-          ? el("span", { class: "mk-work-cover" }, [KOS.imageCrop.image(e.coverUrl,
+          ? el("span", { class: "k-mk-cover" }, [KOS.imageCrop.image(e.coverUrl,
               { alt: "", loading: "lazy", decoding: "async" }, e.coverCrop)])
-          : el("span", { class: "med-cover-ph mk-ph", "aria-hidden": "true",
-              style: "--spine:" + spineColor(e.title), text: "本" }),
-        el("div", { class: "mk-work-body" }, [
-          el("span", { class: "mk-work-t", text: e.title }),
-          el("span", { class: "sub mk-work-m", text: [
+          : ph,
+        el("span", { class: "k-mk-work-body" }, [
+          el("span", { class: "k-mk-work-t", text: e.title }),
+          el("span", { class: "k-mrow-sub", text: [
             KOS.media.STATUS_LABEL[e.status],
             o.ownedVols ? o.ownedVols + " vols" : null,
             e.score ? "★ " + starText(e.score) : null
@@ -1442,8 +1431,7 @@
       var open = !!expanded[name];
       var visible = open ? works : works.slice(0, MK_SHOWN);
 
-      /* the meta line prints only figures that carry something — a "£0"
-         or "0 ch read" beside a name is noise, not information */
+      /* the meta line prints only figures that carry something (invariant 77) */
       var meta = [
         works.length + (works.length === 1 ? " work" : " works"),
         owned ? owned + (owned === 1 ? " volume owned" : " volumes owned") : null,
@@ -1452,20 +1440,22 @@
         avg ? "★ " + starText(Math.round(avg)) : null
       ].filter(Boolean).join(" · ");
 
-      var wall = el("div", { class: "mk-works" }, visible.map(workTile));
-      var card = el("div", { class: "mk-card", "data-letter": mkLetter(name) }, [
-        el("div", { class: "mk-h" }, [
-          el("span", { class: "mk-mark", "aria-hidden": "true", style: "--spine:" + spineColor(name),
-            text: name === MK_UNATTRIBUTED ? "?" : name.slice(0, 1) }),
-          el("div", { class: "mk-h-txt" }, [
-            el("b", { class: "mk-name", text: name }),
-            el("span", { class: "sub mk-meta", text: meta })
+      var mark = el("span", { class: "k-mk-mark", "aria-hidden": "true",
+        text: name === MK_UNATTRIBUTED ? "?" : name.slice(0, 1) });
+      mark.style.setProperty("--spine", spineColor(name));
+      var wall = el("div", { class: "k-mk-works" }, visible.map(workTile));
+      var card = el("section", { class: "k-card k-mk-card", "data-ui": "mangaka.card", "data-letter": mkLetter(name), "aria-label": name }, [
+        el("div", { class: "k-mk-h" }, [
+          mark,
+          el("div", { class: "k-mk-h-txt", "data-ui": "mangaka.h-txt" }, [
+            el("b", { class: "k-mk-name", "data-ui": "mangaka.name", text: name }),
+            el("span", { class: "k-mrow-sub", "data-ui": "part.sub mangaka.meta", text: meta })
           ])
         ]),
         wall
       ]);
       if (works.length > MK_SHOWN) {
-        var more = el("button", { class: "btn subtle mk-more", type: "button",
+        var more = el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "mangaka.more",
           text: open ? "Show fewer" : "Show all " + works.length + " works",
           "aria-expanded": String(open),
           onclick: function () {
@@ -1481,14 +1471,13 @@
       return card;
     }
 
-    /* The rail FILTERS to a letter rather than scrolling to it. Scrolling
-       would mean mounting every author above the target — on a real
-       library that is the whole 732-card wall again, which is the bug this
-       view exists to have fixed. Filtering keeps the DOM bounded and still
-       reaches any author in one tap. Tapping the active letter clears it. */
+    /* The rail FILTERS to a letter rather than scrolling to it, which keeps
+       the DOM bounded (invariant 8) and still reaches any author in one
+       tap. Tapping the active letter clears it. */
     function jumpTo(letter) {
       activeLetter = activeLetter === letter ? "" : letter;
-      main.scrollTop = 0;
+      var scroller = document.getElementById("stage");
+      if (scroller) scroller.scrollTop = 0;
       paint();
     }
 
@@ -1531,15 +1520,14 @@
         if (!w.length || (minWorks && w.length < minWorks)) return;
         letters[mkLetter(n)] = true;
       });
-      jump.classList.toggle("hidden", !byName);
+      jump.hidden = !byName;
       jump.innerHTML = "";
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("").forEach(function (L) {
-        var key = el("button", { class: "mk-jump-key" + (letters[L] ? "" : " off") +
-            (activeLetter === L ? " active" : ""),
-          type: "button", text: L, "aria-pressed": String(activeLetter === L),
+        var key = el("button", { type: "button", class: "k-mk-key", "data-ui": "mangaka.jump", text: L,
+          "aria-pressed": String(activeLetter === L),
           "aria-label": L === "#" ? "Names outside A to Z" : "Authors starting with " + L,
           onclick: function () { jumpTo(L); } });
-        /* el() would setAttribute("disabled", false) — which still disables */
+        if (activeLetter === L) KOS.ui.state(key, "active", true);
         key.disabled = !letters[L];
         jump.appendChild(key);
       });
@@ -1557,7 +1545,7 @@
           activeFilters()
             ? "No author has a work matching these filters."
             : "No author matches that search.",
-          filtered ? [el("button", { class: "btn", text: "Clear everything", onclick: function () {
+          filtered ? [el("button", { type: "button", class: "k-btn", text: "Clear everything", onclick: function () {
             search.value = "";
             activeLetter = "";
             clearFacets();
@@ -1569,15 +1557,15 @@
     }
 
     KOS.mediadb.query({ module: "books", sort: "title" }, function (err, rows) {
-      if (err) { main.appendChild(el("p", { class: "fc-empty", text: "Could not read the vault: " + err.message })); return; }
+      if (err) { main.appendChild(KOS.ui.emptyState({ mark: "作", body: "Could not read the vault: " + err.message })); return; }
       if (!rows.length) {
         area.clear();
         area.countLine.textContent = "";
-        jump.classList.add("hidden");
-        bar.root.classList.add("hidden");
+        jump.hidden = true;
+        bar.root.hidden = true;
         area.holder.appendChild(mv.emptyState(
           "No books tracked yet — the author pages build themselves from the vault.",
-          [el("button", { class: "btn primary", text: "本 Open the Books vault", onclick: function () { KOS.show("books"); } })]));
+          [el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "本 Open the Books vault", onclick: function () { KOS.show("books"); } })]));
         return;
       }
       totalSeries = rows.length;

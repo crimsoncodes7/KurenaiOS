@@ -396,6 +396,24 @@ color-scheme: dark;
 --airing-bg: oklch(0.35 0.07 155 / 0.85);
 --airing-edge: oklch(0.72 0.13 155 / 0.6);
 --airing-ink: oklch(0.9 0.08 155);
+/* the bookshelf's dark-jewel spines, dealt by title (books.spineColor) */
+--spine-0: oklch(0.44 0.12 12);
+--spine-1: oklch(0.5 0.13 15);
+--spine-2: oklch(0.58 0.1 85);
+--spine-3: oklch(0.47 0.07 170);
+--spine-4: oklch(0.45 0.1 260);
+--spine-5: oklch(0.43 0.12 300);
+--spine-6: oklch(0.47 0.08 50);
+--spine-7: oklch(0.38 0.03 230);
+--spine-8: oklch(0.42 0.1 340);
+--spine-9: oklch(0.38 0.07 280);
+--bk-vol-min: 5.5rem;
+--bk-spine-w: 34px;
+--bk-spine-h: 180px;
+--mk-mark: 40px;
+--mk-work-min: 11rem;
+--mk-cover-w: 44px;
+--mk-cover-h: 62px;
 
 /* ---------- elevation (invariant 79) ----------
    Surfaces are flat; only floating layers (menus, dialogs, the share card)

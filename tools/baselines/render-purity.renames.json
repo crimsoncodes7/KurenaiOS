@@ -390,7 +390,7 @@
    "why": "Graphite step 5a (frame 11b): the Lists heading's manage control reads \"Manage\"."
   },
   {
-   "surface": "anime|vn|game",
+   "surface": "anime|vn|game|books",
    "from": "^☰ List$",
    "to": "List",
    "why": "Graphite step 5a (frame 11b): the layout toggle is a ▦ / ≡ pair; the list half is named \"List\"."
@@ -409,17 +409,17 @@
    "why": "Graphite step 5a (frame 11j): the Overview is the first item of the Collection sub-nav directly above, so the page no longer repeats it."
   },
   {
-   "navTo": "^#/(vn|game)$",
+   "navTo": "^#/(vn|game|books)$",
    "dropEffects": {
-    "state": "^media\\.(vn|game)$"
+    "state": "^media\\.(vn|game|books)$"
    },
    "why": "Graphite step 5a (vault template, frame 11b): the VN and Games vaults read their layout/sort prefs without creating them (§0.2.3); the first real change writes them, so opening a vault no longer writes."
   },
   {
-   "surface": "vn|game",
+   "surface": "vn|game|books",
    "rewriteEffects": {
     "state": [
-     "^media\\.(vn|game)\\.(layout|sort)$",
+     "^media\\.(vn|game|books)\\.(layout|physLayout|sort|tab)$",
      "media.$1"
     ]
    },
