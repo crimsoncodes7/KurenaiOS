@@ -424,6 +424,23 @@
     ]
    },
    "why": "Graphite step 5a (frame 11b): the VN and Games prefs record is created by the first real layout or sort change, so that change writes the record where it used to write one field of a record the render had already made."
+  },
+  {
+   "navTo": "^#/shrine$",
+   "dropEffects": {
+    "state": "^media\\.shrine$"
+   },
+   "why": "Graphite step 5d (Shrine, frame 11g): the Shrine reads its filter/sort/note prefs without creating them (render purity); the first real change writes them, so opening the Shrine no longer writes."
+  },
+  {
+   "surface": "shrine",
+   "rewriteEffects": {
+    "state": [
+     "^media\\.shrine\\.(module|sort|description)$",
+     "media.shrine"
+    ]
+   },
+   "why": "Graphite step 5d (frame 11g): the Shrine prefs record is created by the first real filter, sort or note change, so that change writes the record where it used to write one field of a record the render had already made."
   }
  ]
 }

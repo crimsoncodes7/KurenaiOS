@@ -580,6 +580,36 @@ the invariants and the hook contract still govern behaviour.
 - Analytics keeps the KPI strip and the charts. The Overview stays a
   summary and does not become a second vault (invariant 57).
 
+### Step 5d as delivered — the Shrine and its share card (frames 11g, 11k)
+
+- `shrine.js` is a rebuilt file.
+- The hall (11g), top to bottom:
+  - the rank-one hero: art, 壱 mark, poster and score column;
+  - ranks two and three on a podium beside the Hall ledger;
+  - a poster wall from rank four.
+- Frame 11g shows two facts that the schema does not hold: an
+  "enshrined" date and a rewatch count. The hero shows real fields in
+  those slots:
+  - "In collection since", from `createdAt`;
+  - the status with its progress.
+- The Gold Shop shrine styles are still one `data-skin` on the hall.
+- The share card is v2 (11k):
+  - a 1080 × 1350 portrait with a foil edge, 殿堂入り, the rank
+    numerals and a medallion score;
+  - three styles: Gold, Crimson and Ink;
+  - six Show switches: score, rank, cover, message, date added and
+    progress.
+- The card is painted in the app's own faces. Its palette is the
+  `--card-*` tokens, which are fixed rather than themed because the
+  card is an export.
+- The raster template and its Cormorant and Cinzel fonts are retired
+  from the precache. The files are still in `assets/shrine/`, but
+  nothing references them.
+- Style and Show choices belong to the open dialog and are never
+  stored.
+- The Shrine reads its prefs without creating them. `persist` writes
+  only a real change.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

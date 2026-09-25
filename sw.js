@@ -66,11 +66,7 @@ var EXTRA_PRECACHE = [
   "assets/assistant/voice/interaction/tablet-01.mp3",
   "assets/assistant/voice/interaction/tablet-02.mp3",
   "assets/assistant/voice/interaction/tablet-03.mp3",
-  "assets/assistant/voice/interaction/tablet-04.mp3",
-  "assets/shrine/private-hall-template-v1.png",
-  "assets/shrine/fonts/CormorantGaramond-Variable.ttf",
-  "assets/shrine/fonts/CormorantGaramond-Italic-Variable.ttf",
-  "assets/shrine/fonts/Cinzel-Variable.ttf"
+  "assets/assistant/voice/interaction/tablet-04.mp3"
 ];
 
 self.addEventListener("install", function (e) {

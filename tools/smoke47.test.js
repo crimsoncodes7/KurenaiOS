@@ -185,7 +185,8 @@ console.log("== D · deliberate compact controls ==");
    of the deleted stylesheet; the Shrine is rebuilt in M10. */
 step("Governor and Shrine remaining empty surfaces use the shared primitive", () => {
   assert(/KOS\.ui\.emptyState/.test(read("js/modules/governor-ui.js")), "Governor keeps a bespoke absence panel");
-  assert(/className:\s*"shrine-empty"/.test(read("js/modules/shrine.js")), "Shrine empty Hall bypasses EmptyState");
+  /* UI rebuild (11g): the empty Hall is KOS.ui.emptyState with the shrine.empty hook */
+  assert(/KOS\.ui\.emptyState\(\{[^]*?\}\), "shrine\.empty"\)/.test(read("js/modules/shrine.js")), "Shrine empty Hall bypasses EmptyState");
 });
 
 step("the compact reminder hint keeps the existing search control readable", () => {

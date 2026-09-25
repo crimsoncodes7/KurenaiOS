@@ -34,6 +34,9 @@ let drawImageCalls = [], paintedText = [];
 const gradient = { addColorStop() {} };
 const context = new Proxy({
   createLinearGradient: () => gradient,
+  createRadialGradient: () => gradient,
+  createConicGradient: () => gradient,
+  strokeText: text => paintedText.push(String(text)),
   measureText: text => ({ width: String(text).length * 8 }),
   drawImage: (...args) => drawImageCalls.push(args),
   fillText: text => paintedText.push(String(text))
@@ -207,10 +210,15 @@ step("Shrine renders a featured #1 and a smaller ranked remainder", async () => 
   await waitFor(() => document.querySelector("[data-ui~='shrine.feature']"));
   assert(/Clockwork Route/.test(document.querySelector("[data-ui~='shrine.feature']").textContent), "score-sorted #1 is wrong");
   assert(/Rank 01/.test(document.querySelector("[data-ui~='shrine.feature-rank']").textContent), "featured rank unclear");
-  assert(document.querySelectorAll("[data-ui~='shrine.ranked'] [data-ui~='shrine.rank-card']").length === 2, "ranked remainder wrong");
-  assert(document.querySelector("[data-ui~='shrine.stage'] [data-ui~='shrine.ledger']"), "Hall ledger is not beside rank one");
+  /* UI rebuild (frame 11g): ranks two and three stand on the podium beside
+     the ledger and a poster wall (shrine.ranked) begins at rank four, so
+     three favourites draw no wall. The hero no longer borrows the Budget
+     Planner's hero hooks; it is the Shrine's own composition. */
+  assert(document.querySelectorAll("[data-ui~='shrine.hall'] [data-ui~='shrine.rank-card']").length === 2, "ranked remainder wrong");
+  assert(!document.querySelector("[data-ui~='shrine.ranked']"), "three favourites drew an empty poster wall");
+  assert(document.querySelector("[data-ui~='shrine.stage'] [data-ui~='shrine.ledger']"), "Hall ledger is not beside the podium");
   assert(document.querySelectorAll("[data-ui~='shrine.ledger-lines'] [data-ui~='shrine.ledger-line']").length === 3, "Hall statistics missing");
-  assert(document.querySelector("[data-ui~='shrine.feature'][data-ui~='plan.hero'][data-ui~='plan.hero-feature'] [data-ui~='plan.hero-body']"), "rank one does not share the Budget Planner hero structure");
+  assert(document.querySelector("[data-ui~='shrine.feature'] [data-ui~='shrine.feature-body']"), "rank one lost its body");
   assert(document.querySelectorAll("[data-ui~='shrine.rank-card'] [data-ui~='shrine.row-foot']").length === 2, "ranked cards lack score/action footers");
   assert(document.querySelectorAll("[data-ui~='shrine.filter']").length === 5, "media-type filters missing");
   assert(document.querySelector("[data-ui~='shrine.sort'] select"), "sort control missing");
@@ -226,28 +234,30 @@ step("a single-item filtered wing keeps the featured layout without an empty gri
 });
 
 step("share renderer includes identity fields and applies stored crop metadata", () => {
+  /* UI rebuild (frame 11k): the v2 card is a 1080 × 1350 portrait painted
+     in the app's own faces — foil edge, 殿堂入り, medallion score, three
+     styles — so the raster template and its bundled fonts are retired. */
   paintedText = [];
   drawImageCalls = [];
   const entry = Object.assign({}, anime, { coverCrop: { x: 100, y: 0, zoom: 2 } });
   const image = { naturalWidth: 1000, naturalHeight: 1500 };
-  const template = { naturalWidth: 1536, naturalHeight: 1024 };
   let rendered = null;
-  KOS.shrineRenderCard(entry, image, 3, "A small message with meaning.", canvas => { rendered = canvas; }, template);
-  assert(rendered && rendered.width === 1536 && rendered.height === 1024, "share card geometry wrong");
+  KOS.shrineRenderCard(entry, image, { rank: 3, total: 23, message: "A small message with meaning.", look: "crimson" }, canvas => { rendered = canvas; });
+  assert(rendered && rendered.width === 1080 && rendered.height === 1350, "share card geometry wrong");
   const allText = paintedText.join(" | ");
-  ["KURENAI · PRIVATE HALL", "RANK", "03", "ANIME · PERSONAL ARCHIVE", "Violet Archive",
-    "PERSONAL SCORE / 10", "EPISODES", "A small message with meaning.", "CURATED IN KURENAIOS · PERSONAL COLLECTION"]
+  ["KURENAI · PRIVATE HALL", "RANK 03 · NO. 003 / 023", "03", "Violet Archive", "殿", "SCORE / 10", "A small message with meaning."]
     .forEach(value => assert(allText.includes(value), "share card missing " + value));
-  assert(drawImageCalls.some(args => args.length === 5 && args[0] === template), "ceremonial template was not painted");
   const coverDraw = drawImageCalls.find(args => args.length === 9);
   assert(coverDraw, "cover was not drawn");
   assert(coverDraw[1] > 0 && coverDraw[2] === 0, "stored crop focal point was ignored");
-  [
-    "assets/shrine/private-hall-template-v1.png",
-    "assets/shrine/fonts/CormorantGaramond-Variable.ttf",
-    "assets/shrine/fonts/CormorantGaramond-Italic-Variable.ttf",
-    "assets/shrine/fonts/Cinzel-Variable.ttf"
-  ].forEach(file => assert(fs.existsSync(path.join(ROOT, file)), "bundled share-card asset missing: " + file));
+
+  paintedText = [];
+  drawImageCalls = [];
+  KOS.shrineRenderCard(entry, image, { rank: 3, message: "hidden", show: { score: false, rank: false, cover: false, message: false } }, () => {});
+  const bare = paintedText.join(" | ");
+  assert(!/SCORE \/ 10|RANK 03|hidden/.test(bare), "a switched-off block was still painted: " + bare);
+  assert(!drawImageCalls.length, "the cover was drawn with Cover switched off");
+  assert(bare.includes("Violet Archive"), "the title must always be on the card");
 });
 
 step("share modal starts with a useful default message", async () => {
@@ -255,6 +265,8 @@ step("share modal starts with a useful default message", async () => {
   await waitFor(() => document.querySelector("[data-ui~='shrine.message']"));
   const value = document.querySelector("[data-ui~='shrine.message']").value;
   assert(/Clockwork Route/.test(value) && /Hall of Fame/.test(value), "default share message is not useful");
+  assert(document.querySelectorAll("[data-ui~='shrine.style']").length === 3, "the three card styles are missing");
+  assert(document.querySelectorAll("[data-ui~='shrine.show'][aria-pressed='true']").length === 6, "the Show switches do not start on");
   document.querySelector("[data-ui~='shrine.share-dialog']").closest("[data-ui~='ui.dialog-overlay']").close();
 });
 

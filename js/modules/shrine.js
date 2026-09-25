@@ -1,11 +1,9 @@
 /* Kurenai OS — modules/shrine.js
    祠 The Shrine: a module-agnostic Hall of Fame for favourite Collection
-   entries, with an exportable crop-aware share card. */
+   entries (frame 11g), with an exportable crop-aware share card (11k). */
 (function () {
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
-  var SHARE_TEMPLATE_URL = "assets/shrine/private-hall-template-v1.png";
-  var shareTemplate = null, templateLoading = false, templateWaiters = [];
 
   /* ---------------- export-safe cover resolution ----------------
      The visible vault may already have cached a remote cover without CORS.
@@ -33,22 +31,6 @@
     img.onerror = function () { done(false); };
     img.src = url;
     if (img.complete && img.naturalWidth > 0) done(true);
-  }
-  function loadShareTemplate(cb) {
-    if (shareTemplate) {
-      cb(shareTemplate);
-      return;
-    }
-    templateWaiters.push(cb);
-    if (templateLoading) return;
-    templateLoading = true;
-    loadImage(SHARE_TEMPLATE_URL, false, function (img) {
-      shareTemplate = img;
-      templateLoading = false;
-      var waiters = templateWaiters.slice();
-      templateWaiters.length = 0;
-      waiters.forEach(function (done) { done(img); });
-    });
   }
   function hostOf(url) {
     try { return new URL(url, location.href).hostname; }
@@ -113,6 +95,8 @@
       });
     });
   }
+  /* the card sets its type in the app's own faces (index.html loads them);
+     a canvas paints with whatever is resolved, so wait for them first */
   function whenFontsReady(cb) {
     if (!document.fonts || !document.fonts.ready) {
       cb();
@@ -126,15 +110,60 @@
     }
     var requested = [document.fonts.ready];
     if (document.fonts.load) {
-      requested.push(document.fonts.load("600 72px 'Shrine Display'"));
-      requested.push(document.fonts.load("italic 500 34px 'Shrine Display'"));
-      requested.push(document.fonts.load("600 20px 'Shrine Inscription'"));
+      requested.push(document.fonts.load("800 33px 'Shippori Mincho'"));
+      requested.push(document.fonts.load("600 11px 'JetBrains Mono'"));
+      requested.push(document.fonts.load("italic 400 14px 'Newsreader'"));
     }
     Promise.all(requested).then(go).catch(go);
     setTimeout(go, 1800);
   }
 
-  /* ---------------- share-card renderer ---------------- */
+  /* ---------------- the share card (frame 11k) ----------------
+     A 1080 × 1350 portrait with a foil edge, the 殿堂入り mark and a
+     medallion score, in one of three styles. The palette is tokens
+     (--card-*): the card is an export, so it keeps its own colours
+     whatever the app theme, but it takes them from the one place colour
+     lives. Every block can be switched off from the dialog. */
+  var CARD_W = 1080, CARD_H = 1350, S = 2.5;
+  var STYLES = [
+    { id: "gold", label: "Gold" },
+    { id: "crimson", label: "Crimson" },
+    { id: "ink", label: "Ink" }
+  ];
+  var SHOW = [
+    ["score", "Score"], ["rank", "Rank"], ["cover", "Cover"],
+    ["message", "Message"], ["date", "Date added"], ["progress", "Progress"]
+  ];
+  var MINCHO = "'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', serif";
+  var MONO = "'JetBrains Mono', ui-monospace, Menlo, monospace";
+  var READ = "'Newsreader', Georgia, serif";
+
+  function token(name) {
+    try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+    catch (e) { return ""; }
+  }
+  /* the same colour at an alpha: oklch(L C H) → oklch(L C H / a) */
+  function alpha(colour, a) {
+    if (!colour || colour.indexOf("/") !== -1) return colour;
+    return colour.replace(/\)\s*$/, " / " + a + ")");
+  }
+  function palette(look) {
+    var id = STYLES.some(function (s) { return s.id === look; }) ? look : "gold";
+    return {
+      id: id,
+      accent: token("--card-" + id + "-accent"),
+      bg: token("--card-" + id + "-bg"),
+      foil: [1, 2, 3, 4, 5, 1].map(function (n) { return token("--card-foil-" + n); }),
+      ivory: token("--card-ivory"),
+      meta: token("--card-meta"),
+      quote: token("--card-quote"),
+      faint: token("--card-faint"),
+      shadow: token("--card-shadow")
+    };
+  }
+  function spacing(ctx, em, size) {
+    if ("letterSpacing" in ctx) ctx.letterSpacing = (em * size).toFixed(2) + "px";
+  }
   function roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -143,119 +172,6 @@
     ctx.arcTo(x, y + h, x, y, r);
     ctx.arcTo(x, y, x + w, y, r);
     ctx.closePath();
-  }
-  function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
-    var words = String(text || "").split(/\s+/), line = "", lines = [];
-    words.forEach(function (word) {
-      var test = line ? line + " " + word : word;
-      if (line && ctx.measureText(test).width > maxWidth) {
-        lines.push(line);
-        line = word;
-      } else line = test;
-    });
-    if (line) lines.push(line);
-    var clipped = lines.length > maxLines;
-    lines = lines.slice(0, maxLines);
-    if (clipped && lines.length) lines[lines.length - 1] = lines[lines.length - 1].replace(/[.,;:]?$/, "…");
-    lines.forEach(function (value, index) { ctx.fillText(value, x, y + index * lineHeight); });
-  }
-  function starPath(ctx, cx, cy, outer, inner) {
-    ctx.beginPath();
-    for (var point = 0; point < 10; point++) {
-      var radius = point % 2 ? inner : outer;
-      var angle = -Math.PI / 2 + point * Math.PI / 5;
-      var x = cx + Math.cos(angle) * radius, y = cy + Math.sin(angle) * radius;
-      if (!point) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-  }
-  function drawStars(ctx, x, y, score, accent) {
-    var full = Math.round((Number(score) || 0) / 2);
-    for (var i = 0; i < 5; i++) {
-      starPath(ctx, x + i * 31, y, 12, 5.2);
-      ctx.fillStyle = i < full ? accent : "rgba(255,243,214,.16)";
-      ctx.fill();
-      ctx.strokeStyle = i < full ? "rgba(255,236,184,.8)" : "rgba(255,243,214,.22)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-  }
-  function drawFlower(ctx, x, y, size, colour) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = colour;
-    for (var i = 0; i < 5; i++) {
-      ctx.save();
-      ctx.rotate(i * Math.PI * 2 / 5);
-      ctx.beginPath();
-      ctx.ellipse(0, -size * .42, size * .22, size * .42, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-    ctx.beginPath();
-    ctx.arc(0, 0, size * .16, 0, Math.PI * 2);
-    ctx.fillStyle = "#F8E3AA";
-    ctx.fill();
-    ctx.restore();
-  }
-  function drawCorner(ctx, x, y, sx, sy, accent) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(sx, sy);
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    ctx.moveTo(0, 34);
-    ctx.quadraticCurveTo(2, 4, 34, 0);
-    ctx.moveTo(7, 27);
-    ctx.quadraticCurveTo(15, 13, 29, 7);
-    ctx.stroke();
-    ctx.fillStyle = accent;
-    [[9, 22, 3.2], [17, 13, 2.6], [27, 7, 2]].forEach(function (leaf) {
-      ctx.beginPath();
-      ctx.ellipse(leaf[0], leaf[1], leaf[2], leaf[2] * .55, -.7, 0, Math.PI * 2);
-      ctx.fill();
-    });
-    ctx.restore();
-  }
-  function drawPetal(ctx, x, y, size, rotation, colour) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(rotation);
-    ctx.fillStyle = colour;
-    ctx.beginPath();
-    ctx.moveTo(0, -size);
-    ctx.bezierCurveTo(size * .7, -size * .45, size * .55, size * .55, 0, size);
-    ctx.bezierCurveTo(-size * .5, size * .35, -size * .6, -size * .45, 0, -size);
-    ctx.fill();
-    ctx.restore();
-  }
-  function defaultMessage(entry) {
-    return "“" + entry.title + "” earned its place in my KurenaiOS Hall of Fame.";
-  }
-  function cardMetadata(entry) {
-    var out = [];
-    if (entry.module === "anime") {
-      if (entry.progress && (entry.progress.current || entry.progress.total)) {
-        out.push(["EPISODES", (entry.progress.current || 0) + (entry.progress.total ? " / " + entry.progress.total : " watched")]);
-      }
-    } else if (entry.module === "books") {
-      if (entry.author) out.push(["CREATOR", entry.author]);
-      var read = entry.progress && entry.progress.volumes || 0;
-      var total = entry.progress && entry.progress.totalVolumes || 0;
-      if (read || total) out.push(["VOLUMES", read + (total ? " / " + total : " read")]);
-    } else if (entry.module === "vn") {
-      if (entry.developer) out.push(["STUDIO", entry.developer]);
-      out.push(["ROUTES", String((entry.routes || []).filter(function (route) { return route.cleared; }).length) + " cleared"]);
-    } else if (entry.module === "game") {
-      if (entry.developer) out.push(["STUDIO", entry.developer]);
-      if (entry.playtimeHours) out.push(["PLAYTIME", entry.playtimeHours + " hours"]);
-      else if (entry.platform) out.push(["PLATFORM", KOS.media.PLATFORM_LABEL[entry.platform] || entry.platform]);
-    }
-    if (out.length < 2 && entry.genres && entry.genres[0]) out.push(["GENRE", entry.genres[0]]);
-    if (!out.length) out.push(["STATUS", KOS.media.STATUS_LABEL[entry.status] || "In the collection"]);
-    return out.slice(0, 2);
   }
   function lineSet(ctx, text, maxWidth) {
     var words = String(text || "").trim().split(/\s+/), lines = [], line = "";
@@ -269,359 +185,244 @@
     if (line) lines.push(line);
     return lines;
   }
-  function drawFittedTitle(ctx, text, x, y, maxWidth, maxHeight) {
-    var size = 82, lines = [];
-    while (size >= 46) {
-      ctx.font = "600 " + size + "px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
-      lines = lineSet(ctx, text, maxWidth);
-      if (lines.length <= 3 && lines.length * size * 1.02 <= maxHeight) break;
-      size -= 4;
-    }
-    if (lines.length > 3) {
-      lines = lines.slice(0, 3);
-      lines[2] = lines[2].replace(/[.,;:]?$/, "…");
-    }
-    var lineHeight = size * 1.02;
-    lines.forEach(function (line, index) { ctx.fillText(line, x, y + index * lineHeight); });
-  }
-  function fittedValue(ctx, value, maxWidth, maxSize) {
-    var size = maxSize;
-    while (size > 22) {
-      ctx.font = "600 " + size + "px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
-      if (ctx.measureText(String(value)).width <= maxWidth) break;
+  /* one line, shrunk to fit and then ellipsised */
+  function fitLine(ctx, text, weight, family, size, min, maxWidth) {
+    text = String(text || "");
+    while (size > min) {
+      ctx.font = weight + " " + size + "px " + family;
+      if (ctx.measureText(text).width <= maxWidth) return text;
       size -= 2;
     }
-    return size;
+    ctx.font = weight + " " + min + "px " + family;
+    while (text.length > 1 && ctx.measureText(text + "…").width > maxWidth) text = text.slice(0, -1);
+    return ctx.measureText(text).width <= maxWidth ? text : text + "…";
   }
-  function drawCrop(ctx, entry, coverImage, mod, x, y, width, height) {
-    ctx.save();
-    roundRect(ctx, x, y, width, height, 22);
-    ctx.clip();
-    var sourceW = coverImage ? (coverImage.naturalWidth || coverImage.width || 0) : 0;
-    var sourceH = coverImage ? (coverImage.naturalHeight || coverImage.height || 0) : 0;
-    if (coverImage && sourceW > 0 && sourceH > 0) {
-      var crop = KOS.imageCrop.value(entry.coverCrop);
-      var scale = Math.max(width / sourceW, height / sourceH) * crop.zoom;
-      var sampleW = Math.min(sourceW, width / scale);
-      var sampleH = Math.min(sourceH, height / scale);
-      var sampleX = (sourceW - sampleW) * crop.x / 100;
-      var sampleY = (sourceH - sampleH) * crop.y / 100;
-      ctx.drawImage(coverImage, sampleX, sampleY, sampleW, sampleH, x, y, width, height);
-    } else {
-      var fallback = ctx.createLinearGradient(x, y, x + width, y + height);
-      fallback.addColorStop(0, "#191222");
-      fallback.addColorStop(1, "#30151F");
-      ctx.fillStyle = fallback;
-      ctx.fillRect(x, y, width, height);
-      ctx.fillStyle = "rgba(247,220,161,.16)";
-      ctx.font = "240px 'Shippori Mincho', serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(mod.kanji, x + width / 2, y + height / 2);
-    }
-    ctx.restore();
+  /* a cover into a box, honouring the stored crop (invariant 26c) */
+  function drawCrop(ctx, entry, img, x, y, width, height) {
+    var sourceW = img.naturalWidth || img.width || 0, sourceH = img.naturalHeight || img.height || 0;
+    if (!sourceW || !sourceH) return;
+    var crop = KOS.imageCrop.value(entry.coverCrop);
+    var scale = Math.max(width / sourceW, height / sourceH) * crop.zoom;
+    var sampleW = Math.min(sourceW, width / scale), sampleH = Math.min(sourceH, height / scale);
+    ctx.drawImage(img, (sourceW - sampleW) * crop.x / 100, (sourceH - sampleH) * crop.y / 100,
+      sampleW, sampleH, x, y, width, height);
   }
-  function metadataGlyph(label) {
-    return ({ CREATOR: "✦", STUDIO: "工", EPISODES: "話", VOLUMES: "冊", ROUTES: "路", PLAYTIME: "時", PLATFORM: "遊", GENRE: "類", STATUS: "録" })[label] || "✦";
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  function pad3(n) { return String(n).padStart(3, "0"); }
+  function defaultMessage(entry) {
+    return "“" + entry.title + "” earned its place in my KurenaiOS Hall of Fame.";
   }
-  function renderTemplateCard(entry, coverImage, rank, message, cb, template) {
-    var width = 1536, height = 1024, canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    var ctx = canvas.getContext("2d");
-    var mod = KOS.media.module(entry.module), gold = "#DDAF58", paleGold = "#F4DDA1", ivory = "#FFF6E4";
-    ctx.drawImage(template, 0, 0, width, height);
+  function creatorOf(entry) {
+    return entry.author || entry.developer || (entry.extra && entry.extra.studio) || "";
+  }
+  function addedOn(entry) {
+    if (!entry.createdAt) return null;
+    var d = new Date(entry.createdAt);
+    return isNaN(d) ? null : d;
+  }
+  /* "Anime · Madhouse · 28 / 28 ep · Completed" */
+  function cardMeta(entry, withProgress) {
+    var mod = KOS.media.module(entry.module);
+    return [mod.label, creatorOf(entry),
+      withProgress ? KOS.media.progressText(entry) : "",
+      KOS.media.STATUS_LABEL[entry.status] || ""].filter(Boolean).join(" · ");
+  }
 
-    /* The raster owns the ceremony and the apertures. Entry data is typeset
-       into those apertures so it reads as one designed object, not a stack of
-       dashboard panels composited over artwork. */
-    drawCrop(ctx, entry, coverImage, mod, 128, 173, 463, 694);
-    ctx.strokeStyle = "rgba(255,237,185,.8)";
-    ctx.lineWidth = 2;
-    roundRect(ctx, 128, 173, 463, 694, 22);
-    ctx.stroke();
+  /* opts: { rank, total, message, look, show: {score, rank, cover,
+     message, date, progress} } — a missing show key means shown */
+  function renderCard(entry, coverImage, opts, cb) {
+    opts = opts || {};
+    var show = {};
+    SHOW.forEach(function (s) { show[s[0]] = !opts.show || opts.show[s[0]] !== false; });
+    var pal = palette(opts.look), mod = KOS.media.module(entry.module);
+    var canvas = document.createElement("canvas");
+    canvas.width = CARD_W;
+    canvas.height = CARD_H;
+    var ctx = canvas.getContext("2d");
+    var W = CARD_W, H = CARD_H, edge = 3 * S, inner = { x: edge, y: edge, w: W - edge * 2, h: H - edge * 2 };
+
+    /* the foil edge: Gold is the iridescent sweep, the others one ink */
+    var foil = pal.id === "gold" && ctx.createConicGradient ? ctx.createConicGradient(200 * Math.PI / 180, W / 2, H / 2) : null;
+    if (foil) pal.foil.forEach(function (c, i, all) { foil.addColorStop(i / (all.length - 1), c); });
+    roundRect(ctx, 0, 0, W, H, 22 * S);
+    ctx.fillStyle = foil || pal.accent;
+    ctx.fill();
+
+    ctx.save();
+    roundRect(ctx, inner.x, inner.y, inner.w, inner.h, 20 * S);
+    ctx.clip();
+    ctx.fillStyle = pal.bg;
+    ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
+
+    /* the upper band: the cover, blurred and dimmed, under a glow */
+    var bandH = inner.h * 0.62;
+    if (show.cover && coverImage) {
+      ctx.save();
+      if ("filter" in ctx) ctx.filter = "blur(" + (8 * S) + "px)";
+      ctx.globalAlpha = 0.5;
+      drawCrop(ctx, entry, coverImage, inner.x, inner.y, inner.w, bandH);
+      ctx.restore();
+    }
+    var glow = ctx.createRadialGradient(inner.x + inner.w * 0.7, inner.y + bandH * 0.3, 0,
+      inner.x + inner.w * 0.7, inner.y + bandH * 0.3, 120 * S);
+    if (glow) {
+      glow.addColorStop(0, alpha(pal.accent, 0.22));
+      glow.addColorStop(1, alpha(pal.accent, 0));
+      ctx.fillStyle = glow;
+      ctx.fillRect(inner.x, inner.y, inner.w, bandH);
+    }
+    var fade = ctx.createLinearGradient(0, inner.y, 0, inner.y + bandH);
+    fade.addColorStop(0, pal.bg);
+    fade.addColorStop(0.18, alpha(pal.bg, 0));
+    fade.addColorStop(0.45, alpha(pal.bg, 0));
+    fade.addColorStop(1, pal.bg);
+    ctx.fillStyle = fade;
+    ctx.fillRect(inner.x, inner.y, inner.w, bandH);
 
     ctx.textBaseline = "top";
     ctx.textAlign = "left";
-    ctx.fillStyle = paleGold;
-    ctx.shadowColor = "rgba(226,155,51,.3)";
-    ctx.shadowBlur = 8;
-    ctx.font = "600 23px 'Shrine Inscription', Cinzel, serif";
-    ctx.fillText("✿  KURENAI · PRIVATE HALL", 96, 72);
-    ctx.shadowBlur = 0;
 
-    ctx.fillStyle = gold;
-    ctx.font = "600 20px 'Shrine Inscription', Cinzel, serif";
-    ctx.fillText(mod.label.toUpperCase() + " · PERSONAL ARCHIVE", 668, 151);
-    ctx.fillStyle = ivory;
-    ctx.shadowColor = "rgba(0,0,0,.62)";
-    ctx.shadowBlur = 12;
-    drawFittedTitle(ctx, entry.title, 668, 192, 570, 176);
-    ctx.shadowBlur = 0;
-
-    ctx.textAlign = "center";
-    ctx.fillStyle = gold;
-    ctx.font = "600 18px 'Shrine Inscription', Cinzel, serif";
-    ctx.fillText("RANK", 1353, 120);
-    ctx.fillStyle = ivory;
-    ctx.font = "600 70px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
-    ctx.fillText(String(rank || 1).padStart(2, "0"), 1353, 151);
-
-    var score = Number(entry.score || 0), scoreText = score ? String(score) : "—";
-    ctx.fillStyle = ivory;
-    ctx.shadowColor = "rgba(226,155,51,.48)";
-    ctx.shadowBlur = 18;
-    ctx.font = "600 178px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
-    ctx.fillText(scoreText, 803, 409);
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = gold;
-    ctx.font = "600 15px 'Shrine Inscription', Cinzel, serif";
-    ctx.fillText("PERSONAL SCORE / 10", 803, 580);
-    drawStars(ctx, 741, 628, score, gold);
-
-    var metadata = cardMetadata(entry), metaCenters = [477, 606];
-    ctx.textAlign = "center";
-    metadata.forEach(function (item, index) {
-      var centerY = metaCenters[index];
-      ctx.fillStyle = paleGold;
-      ctx.font = "600 31px 'Shrine Inscription', Cinzel, serif";
-      ctx.fillText(metadataGlyph(item[0]), 1012, centerY - 18);
-      ctx.textAlign = "left";
-      ctx.fillStyle = gold;
-      ctx.font = "600 16px 'Shrine Inscription', Cinzel, serif";
-      ctx.fillText(item[0], 1075, centerY - 35);
-      ctx.fillStyle = ivory;
-      var value = String(item[1]);
-      var valueSize = fittedValue(ctx, value, 292, 35);
-      ctx.font = "600 " + valueSize + "px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
-      ctx.fillText(value, 1075, centerY - 6);
-      ctx.textAlign = "center";
-    });
-
-    ctx.textAlign = "left";
-    ctx.fillStyle = "rgba(221,175,88,.32)";
-    ctx.font = "italic 500 72px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
-    ctx.fillText("“", 684, 714);
-    ctx.fillStyle = "rgba(255,246,228,.94)";
-    ctx.font = "italic 500 34px 'Shrine Display', 'Cormorant Garamond', Georgia, serif";
-    wrapText(ctx, message || defaultMessage(entry), 744, 745, 610, 40, 3);
-
-    ctx.textAlign = "center";
-    ctx.fillStyle = "rgba(244,221,161,.74)";
-    ctx.font = "500 16px 'Shrine Inscription', Cinzel, serif";
-    ctx.fillText("CURATED IN KURENAIOS · PERSONAL COLLECTION", width / 2, 945);
-    cb(canvas);
-  }
-  function renderCard(entry, coverImage, rank, message, cb, template) {
-    if (template) {
-      renderTemplateCard(entry, coverImage, rank, message, cb, template);
-      return;
+    /* the rank numerals, outlined, behind the poster */
+    if (show.rank) {
+      ctx.font = "800 " + (112 * S) + "px " + MINCHO;
+      spacing(ctx, -0.04, 112 * S);
+      ctx.strokeStyle = pal.accent;
+      ctx.lineWidth = 1.5 * S;
+      ctx.strokeText(pad2(opts.rank || 1), 14 * S, 186 * S);
+      spacing(ctx, 0, 0);
     }
-    var width = 900, height = 560, canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    var ctx = canvas.getContext("2d");
-    var mod = KOS.media.module(entry.module), accent = mod.accent || "#B08A3E";
-    var gold = "#D7A949", paleGold = "#F4DDA1", ivory = "#FFF5E2";
-    var bg = ctx.createLinearGradient(0, 0, width, height);
-    bg.addColorStop(0, "#090D19");
-    bg.addColorStop(.52, "#130E1C");
-    bg.addColorStop(1, "#2A101B");
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, width, height);
 
-    /* Ceremonial private-hall card: hand-drawn rails, a rank pennant and
-       blossom work make the export feel earned rather than dashboard-like. */
-    ctx.strokeStyle = paleGold;
-    ctx.lineWidth = 2;
-    roundRect(ctx, 12, 10, width - 24, height - 20, 18);
-    ctx.stroke();
-    ctx.strokeStyle = "rgba(215,169,73,.72)";
-    ctx.lineWidth = 1;
-    roundRect(ctx, 24, 22, width - 48, height - 44, 13);
-    ctx.stroke();
-    ctx.strokeStyle = "rgba(215,169,73,.32)";
-    roundRect(ctx, 29, 27, width - 58, height - 54, 11);
-    ctx.stroke();
-    drawCorner(ctx, 29, 27, 1, 1, paleGold);
-    drawCorner(ctx, width - 29, 27, -1, 1, paleGold);
-    drawCorner(ctx, 29, height - 27, 1, -1, paleGold);
-    drawCorner(ctx, width - 29, height - 27, -1, -1, paleGold);
-
-    ctx.globalAlpha = .08;
-    ctx.strokeStyle = gold;
-    for (var arc = 0; arc < 6; arc++) {
-      ctx.beginPath();
-      ctx.arc(606, 308, 76 + arc * 34, Math.PI * 1.05, Math.PI * 1.93);
+    /* the poster */
+    if (show.cover) {
+      var px = 168 * S, py = 64 * S, pw = 150 * S, ph = 214 * S;
+      ctx.save();
+      ctx.shadowColor = pal.shadow;
+      ctx.shadowBlur = 40 * S;
+      ctx.shadowOffsetY = 18 * S;
+      roundRect(ctx, px, py, pw, ph, 12 * S);
+      ctx.fillStyle = pal.bg;
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      roundRect(ctx, px, py, pw, ph, 12 * S);
+      ctx.clip();
+      if (coverImage) drawCrop(ctx, entry, coverImage, px, py, pw, ph);
+      else {
+        ctx.fillStyle = alpha(pal.accent, 0.12);
+        ctx.fillRect(px, py, pw, ph);
+        ctx.fillStyle = alpha(pal.accent, 0.4);
+        ctx.font = "700 " + (72 * S) + "px " + MINCHO;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(mod.kanji, px + pw / 2, py + ph / 2);
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+      }
+      ctx.restore();
+      roundRect(ctx, px, py, pw, ph, 12 * S);
+      ctx.strokeStyle = pal.accent;
+      ctx.lineWidth = 2 * S;
       ctx.stroke();
     }
-    ctx.globalAlpha = 1;
-    drawPetal(ctx, 776, 214, 9, .8, "rgba(225,112,132,.72)");
-    drawPetal(ctx, 82, 355, 7, -.6, "rgba(225,112,132,.54)");
-    drawPetal(ctx, 822, 462, 10, .45, "rgba(225,112,132,.62)");
 
-    drawFlower(ctx, 54, 52, 11, paleGold);
-    ctx.fillStyle = paleGold;
-    ctx.font = "600 13px 'Fraunces', Georgia, serif";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    ctx.fillText("KURENAI · PRIVATE HALL", 75, 44);
-    ctx.strokeStyle = "rgba(215,169,73,.66)";
-    ctx.beginPath();
-    ctx.moveTo(238, 52);
-    ctx.lineTo(354, 52);
-    ctx.stroke();
-    ctx.fillStyle = paleGold;
-    ctx.fillRect(351, 49, 6, 6);
-
-    var imageX = 58, imageY = 94, imageW = 292, imageH = 408;
-    ctx.fillStyle = "rgba(215,169,73,.32)";
-    roundRect(ctx, imageX + 8, imageY + 8, imageW, imageH, 16);
-    ctx.fill();
-    ctx.save();
-    roundRect(ctx, imageX, imageY, imageW, imageH, 16);
-    ctx.clip();
-    var sourceW = coverImage ? (coverImage.naturalWidth || coverImage.width || 0) : 0;
-    var sourceH = coverImage ? (coverImage.naturalHeight || coverImage.height || 0) : 0;
-    if (coverImage && sourceW > 0 && sourceH > 0) {
-      var crop = KOS.imageCrop.value(entry.coverCrop);
-      var scale = Math.max(imageW / sourceW, imageH / sourceH) * crop.zoom;
-      var sampleW = Math.min(sourceW, imageW / scale);
-      var sampleH = Math.min(sourceH, imageH / scale);
-      var sampleX = (sourceW - sampleW) * crop.x / 100;
-      var sampleY = (sourceH - sampleH) * crop.y / 100;
-      ctx.drawImage(coverImage, sampleX, sampleY, sampleW, sampleH, imageX, imageY, imageW, imageH);
-    } else {
-      ctx.fillStyle = "rgba(255,255,255,.055)";
-      ctx.fillRect(imageX, imageY, imageW, imageH);
-      ctx.fillStyle = "rgba(255,255,255,.13)";
-      ctx.font = "180px 'Shippori Mincho', serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(mod.kanji, imageX + imageW / 2, imageY + imageH / 2);
-    }
-    ctx.restore();
-    ctx.strokeStyle = paleGold;
-    ctx.lineWidth = 2;
-    roundRect(ctx, imageX, imageY, imageW, imageH, 16);
-    ctx.stroke();
-    ctx.strokeStyle = "rgba(255,239,198,.62)";
-    ctx.lineWidth = 1;
-    roundRect(ctx, imageX + 5, imageY + 5, imageW - 10, imageH - 10, 12);
-    ctx.stroke();
-    drawFlower(ctx, imageX + imageW / 2, imageY - 2, 10, paleGold);
-
-    var bodyX = 390, bodyW = width - bodyX - 52;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    ctx.fillStyle = gold;
-    ctx.font = "700 10px 'IBM Plex Mono', monospace";
-    ctx.fillText(mod.label.toUpperCase() + " · PERSONAL ARCHIVE", bodyX, 86);
-    ctx.strokeStyle = "rgba(215,169,73,.56)";
-    ctx.beginPath();
-    ctx.moveTo(bodyX + 202, 92);
-    ctx.lineTo(704, 92);
-    ctx.stroke();
-    ctx.fillStyle = ivory;
-    ctx.font = "600 35px 'Fraunces', Georgia, serif";
-    wrapText(ctx, entry.title, bodyX, 112, 350, 39, 3);
-
-    /* The pennant owns rank; it never shares geometry with title or score. */
-    var pennantX = 775, pennantY = 24, pennantW = 86, pennantH = 166;
-    ctx.fillStyle = "rgba(74,21,32,.94)";
-    ctx.beginPath();
-    ctx.moveTo(pennantX, pennantY);
-    ctx.lineTo(pennantX + pennantW, pennantY);
-    ctx.lineTo(pennantX + pennantW, pennantY + pennantH - 22);
-    ctx.lineTo(pennantX + pennantW / 2, pennantY + pennantH);
-    ctx.lineTo(pennantX, pennantY + pennantH - 22);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = paleGold;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.strokeStyle = "rgba(215,169,73,.56)";
-    ctx.beginPath();
-    ctx.moveTo(pennantX + 6, pennantY + 6);
-    ctx.lineTo(pennantX + pennantW - 6, pennantY + 6);
-    ctx.lineTo(pennantX + pennantW - 6, pennantY + pennantH - 27);
-    ctx.lineTo(pennantX + pennantW / 2, pennantY + pennantH - 8);
-    ctx.lineTo(pennantX + 6, pennantY + pennantH - 27);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.fillStyle = paleGold;
+    /* 殿堂入り, set vertically down the right edge */
+    ctx.fillStyle = pal.accent;
+    ctx.font = "700 " + (15 * S) + "px " + MINCHO;
     ctx.textAlign = "center";
-    ctx.font = "700 10px 'IBM Plex Mono', monospace";
-    ctx.fillText("RANK", pennantX + pennantW / 2, pennantY + 45);
-    ctx.fillStyle = ivory;
-    ctx.font = "600 38px 'Fraunces', Georgia, serif";
-    ctx.fillText(String(rank || 1).padStart(2, "0"), pennantX + pennantW / 2, pennantY + 64);
-    drawFlower(ctx, pennantX + pennantW / 2, pennantY + 128, 7, paleGold);
-
-    var score = Number(entry.score || 0);
-    var scoreX = bodyX, scoreY = 280, scoreW = bodyW, scoreH = 116;
-    ctx.fillStyle = "rgba(10,11,24,.72)";
-    roundRect(ctx, scoreX, scoreY, scoreW, scoreH, 18);
-    ctx.fill();
-    ctx.strokeStyle = "rgba(215,169,73,.72)";
-    ctx.lineWidth = 1;
-    roundRect(ctx, scoreX, scoreY, scoreW, scoreH, 18);
-    ctx.stroke();
+    "殿堂入り".split("").forEach(function (ch, i) {
+      ctx.fillText(ch, W - 16 * S - 7.5 * S, 20 * S + i * 15 * S * 1.35);
+    });
     ctx.textAlign = "left";
-    ctx.fillStyle = ivory;
-    ctx.font = "600 54px 'Fraunces', Georgia, serif";
-    ctx.fillText(score ? String(score) : "—", scoreX + 24, scoreY + 12);
-    ctx.fillStyle = gold;
-    ctx.font = "700 9px 'IBM Plex Mono', monospace";
-    ctx.fillText("PERSONAL SCORE / 10", scoreX + 25, scoreY + 73);
-    drawStars(ctx, scoreX + 28, scoreY + 100, score, gold);
-    ctx.strokeStyle = "rgba(215,169,73,.28)";
-    ctx.beginPath();
-    ctx.moveTo(scoreX + 192, scoreY + 14);
-    ctx.lineTo(scoreX + 192, scoreY + scoreH - 14);
-    ctx.stroke();
 
-    var metadata = cardMetadata(entry), metaX = scoreX + 214, metaW = scoreW - 232;
-    metadata.forEach(function (item, index) {
-      var y = scoreY + 14 + index * 47;
-      if (index) {
-        ctx.strokeStyle = "rgba(215,169,73,.28)";
+    /* the hall line */
+    ctx.font = "600 " + (9.5 * S) + "px " + MONO;
+    spacing(ctx, 0.24, 9.5 * S);
+    ctx.fillText("✿  KURENAI · PRIVATE HALL", 24 * S, 22 * S);
+    spacing(ctx, 0, 0);
+
+    /* the lower block, laid out from the bottom edge up */
+    var left = 24 * S, right = W - 24 * S, rowBottom = H - 22 * S;
+    var medal = show.score ? 78 * S : 0;
+    var rowTop = rowBottom - Math.max(medal, 40 * S);
+    var hairY = rowTop - 14 * S;
+    var metaTop = hairY - 14 * S - 15 * S;
+    var titleTop = metaTop - 6 * S - 35 * S;
+    var rankTop = titleTop - 8 * S - 13 * S;
+
+    if (show.rank) {
+      ctx.fillStyle = pal.accent;
+      ctx.font = "600 " + (11 * S) + "px " + MONO;
+      spacing(ctx, 0.22, 11 * S);
+      var no = opts.total ? " · NO. " + pad3(opts.rank || 1) + " / " + pad3(opts.total) : "";
+      ctx.fillText("◆ RANK " + pad2(opts.rank || 1) + no, left, rankTop);
+      spacing(ctx, 0, 0);
+    }
+    ctx.fillStyle = pal.ivory;
+    ctx.fillText(fitLine(ctx, entry.title, "800", MINCHO, 33 * S, 20 * S, right - left), left, titleTop);
+    ctx.fillStyle = pal.meta;
+    ctx.fillText(fitLine(ctx, cardMeta(entry, show.progress), "400", "'Onest', system-ui, sans-serif", 11.5 * S, 9 * S, right - left), left, metaTop);
+
+    var hair = ctx.createLinearGradient(left, 0, right, 0);
+    hair.addColorStop(0, pal.accent);
+    hair.addColorStop(1, alpha(pal.accent, 0));
+    ctx.fillStyle = hair;
+    ctx.fillRect(left, hairY, right - left, Math.max(1, S * 0.6));
+
+    /* the message and the date, bottom-aligned beside the medallion */
+    var textRight = right - (medal ? medal + 14 * S : 0);
+    var lines = [], lineH = 14 * S * 1.45, dateH = show.date && addedOn(entry) ? 10 * S + 9 * S : 0;
+    if (show.message) {
+      ctx.font = "italic 400 " + (14 * S) + "px " + READ;
+      /* a message is set in quotes unless it already opens with one (the
+         default quotes the title) */
+      var said = String(opts.message || defaultMessage(entry));
+      lines = lineSet(ctx, /^["“]/.test(said) ? said : "“" + said + "”", textRight - left);
+      if (lines.length > 3) {
+        lines = lines.slice(0, 3);
+        lines[2] = lines[2].replace(/[.,;:”]*$/, "…”");
+      }
+    }
+    var y = rowBottom - lines.length * lineH - dateH;
+    ctx.fillStyle = pal.quote;
+    lines.forEach(function (line, i) { ctx.fillText(line, left, y + i * lineH); });
+    if (dateH) {
+      var d = addedOn(entry);
+      ctx.fillStyle = pal.faint;
+      ctx.font = "500 " + (8.5 * S) + "px " + MONO;
+      spacing(ctx, 0.14, 8.5 * S);
+      ctx.fillText("ADDED " + pad2(d.getDate()) + " · " + pad2(d.getMonth() + 1) + " · " + d.getFullYear() + " · KURENAIOS",
+        left, rowBottom - 9 * S);
+      spacing(ctx, 0, 0);
+    }
+
+    /* the medallion: a ring of ticks round the score */
+    if (show.score) {
+      var cx = right - medal / 2, cy = rowBottom - medal / 2, r = medal / 2;
+      ctx.fillStyle = pal.accent;
+      for (var a = 0; a < 360; a += 12) {
         ctx.beginPath();
-        ctx.moveTo(metaX, y - 7);
-        ctx.lineTo(metaX + metaW, y - 7);
-        ctx.stroke();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, r, (a - 90) * Math.PI / 180, (a + 4 - 90) * Math.PI / 180);
+        ctx.closePath();
+        ctx.fill();
       }
       ctx.beginPath();
-      ctx.arc(metaX + 15, y + 16, 13, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(215,169,73,.1)";
+      ctx.arc(cx, cy, r * 0.82, 0, Math.PI * 2);
+      ctx.fillStyle = pal.bg;
       ctx.fill();
-      ctx.strokeStyle = "rgba(215,169,73,.55)";
-      ctx.stroke();
-      ctx.fillStyle = gold;
-      ctx.font = "700 10px 'IBM Plex Mono', monospace";
-      ctx.fillText(item[0], metaX + 38, y + 1);
-      ctx.fillStyle = ivory;
-      ctx.font = "600 14px 'Fraunces', Georgia, serif";
-      ctx.fillText(String(item[1]).slice(0, 26), metaX + 38, y + 18);
-    });
-
-    ctx.fillStyle = "rgba(37,20,35,.82)";
-    roundRect(ctx, bodyX, 414, bodyW, 78, 15);
-    ctx.fill();
-    ctx.strokeStyle = "rgba(215,169,73,.66)";
-    roundRect(ctx, bodyX, 414, bodyW, 78, 15);
-    ctx.stroke();
-    ctx.fillStyle = "rgba(215,169,73,.25)";
-    ctx.font = "italic 42px 'Fraunces', Georgia, serif";
-    ctx.fillText("“", bodyX + 18, 418);
-    ctx.fillStyle = "rgba(255,245,226,.9)";
-    ctx.font = "italic 15px 'Fraunces', Georgia, serif";
-    wrapText(ctx, message || defaultMessage(entry), bodyX + 46, 432, bodyW - 64, 20, 2);
-    ctx.fillStyle = "rgba(244,221,161,.62)";
-    ctx.font = "9px 'IBM Plex Mono', monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("CURATED IN KURENAIOS · PERSONAL COLLECTION", 594, 519);
-    ctx.fillRect(468, 523, 252, 1);
+      var score = Number(entry.score || 0);
+      ctx.textAlign = "center";
+      ctx.fillStyle = pal.accent;
+      ctx.font = "600 " + (28 * S) + "px " + MONO;
+      ctx.fillText(score ? String(score) : "—", cx, cy - 18 * S);
+      ctx.fillStyle = pal.faint;
+      ctx.font = "500 " + (6.5 * S) + "px " + MONO;
+      spacing(ctx, 0.16, 6.5 * S);
+      ctx.fillText("SCORE / 10", cx, cy + 13 * S);
+      spacing(ctx, 0, 0);
+      ctx.textAlign = "left";
+    }
+    ctx.restore();
     cb(canvas);
   }
 
@@ -671,58 +472,103 @@
       navigator.share(data).catch(function () {});
     });
   }
-  function shrineCardModal(entry, rank) {
+  /* the share dialog (frame 11k): the card on the left, its controls on
+     the right. Style, message and the Show switches are this card's
+     choices, not preferences — nothing is written until Save, Copy or
+     Share, and none of those touches the store. */
+  function shrineCardModal(entry, rank, total) {
     var closed = false, release = null, coverImage = null, coverInfo = null;
-    var templateImage = null, templateReady = false;
     var currentCanvas = null, currentDataUrl = null, renderTimer = null;
+    var choice = { look: "gold", show: {} };
+    SHOW.forEach(function (s) { choice.show[s[0]] = true; });
+    var mod = KOS.media.module(entry.module);
     var overlay = KOS.medview.modalOverlay(function () {
       closed = true;
       if (renderTimer) clearTimeout(renderTimer);
       if (release) release();
     });
-    var preview = el("div", { class: "shrine-card-preview", "aria-live": "polite" }, [
-      el("p", { class: "sub", text: "Rendering your card…" })
+    var preview = el("div", { class: "k-shr-preview", "aria-live": "polite" }, [
+      el("p", { class: "k-muted", text: "Rendering your card…" })
     ]);
-    var notice = el("div", { class: "shrine-card-notice" });
-    var message = el("textarea", { class: "form-in shrine-message", maxlength: "140", rows: "2", "aria-label": "Share message" });
+    var notice = el("div", { class: "k-shr-notice", "data-ui": "shrine.card-notice" });
+    var message = el("textarea", { class: "k-input", "data-ui": "shrine.message", maxlength: "140", rows: "2" });
     message.value = defaultMessage(entry);
+    function actionButton(text, cls, onclick) {
+      return el("button", { type: "button", class: "k-btn" + (cls ? " " + cls : ""), text: text, disabled: "true", onclick: onclick });
+    }
     var shareButton = navigator.share
-      ? el("button", { class: "btn primary", text: "⇪ Share", disabled: "true", onclick: function () { shareCard(currentCanvas, entry, message.value); } })
+      ? actionButton("⇪ Share", "", function () { shareCard(currentCanvas, entry, message.value); })
       : null;
-    var saveButton = el("button", { class: "btn", text: "⤓ Save PNG", disabled: "true", onclick: function () { saveCard(currentDataUrl, entry); } });
-    var copyButton = el("button", { class: "btn", text: "⧉ Copy image", disabled: "true", onclick: function () { copyCard(currentCanvas); } });
-    overlay.appendChild(el("div", { class: "modal shrine-card-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("div", {}, [
-          el("b", { text: "Shrine share card" }),
-          el("p", { class: "sub shrine-modal-sub", text: "Rank " + (rank || 1) + " · " + KOS.media.module(entry.module).label })
-        ]),
-        el("button", { class: "mini-btn shrine-modal-close", text: "✕", "aria-label": "Close share card", onclick: overlay.close })
-      ]),
+    var copyButton = actionButton("Copy image", "", function () { copyCard(currentCanvas); });
+    var saveButton = actionButton("⤓ Save PNG", "k-shr-gold", function () { saveCard(currentDataUrl, entry); });
+
+    var styleGroup = el("div", { class: "k-shr-styles", role: "group", "aria-label": "Card style" },
+      STYLES.map(function (s) {
+        return el("button", { type: "button", class: "k-shr-style", "data-ui": "shrine.style", "data-style": s.id,
+          "aria-pressed": String(s.id === choice.look), onclick: function () {
+            choice.look = s.id;
+            styleGroup.querySelectorAll("button").forEach(function (b) {
+              b.setAttribute("aria-pressed", String(b.getAttribute("data-style") === s.id));
+            });
+            paint();
+          } }, [
+          el("span", { class: "k-shr-swatch", "aria-hidden": "true" }, [
+            el("span", { class: "k-shr-swatch-num", text: pad2(rank || 1) })
+          ]),
+          el("span", { class: "k-shr-style-name", text: s.label })
+        ]);
+      }));
+    var showGroup = el("div", { class: "k-shr-shows", role: "group", "aria-label": "Show on the card" },
+      SHOW.map(function (s) {
+        return el("button", { type: "button", class: "k-shr-show", "data-ui": "shrine.show",
+          "aria-pressed": "true", text: s[1], onclick: function (ev) {
+            choice.show[s[0]] = !choice.show[s[0]];
+            ev.currentTarget.setAttribute("aria-pressed", String(choice.show[s[0]]));
+            paint();
+          } });
+      }));
+
+    overlay.appendChild(el("div", { class: "k-dialog k-shr-share", "data-ui": "ui.dialog shrine.share-dialog" }, [
       preview,
-      notice,
-      el("label", { class: "field shrine-message-field" }, [el("span", { text: "Message on card" }), message]),
-      el("div", { class: "shrine-card-actions" }, [shareButton, saveButton, copyButton].filter(Boolean))
+      el("div", { class: "k-shr-controls" }, [
+        el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+          el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Share card" }),
+          el("span", { class: "k-mchip", text: CARD_W + " × " + CARD_H }),
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close share card", onclick: overlay.close })
+        ]),
+        el("p", { class: "k-shr-lede", text: "A foil-edged card for rank " + pad2(rank || 1) + " · " + mod.label +
+          ". Nothing leaves the device until you save, copy or share it." }),
+        el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Style" }), styleGroup]),
+        KOS.medview.field("Message on card", message),
+        el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Show" }), showGroup]),
+        notice,
+        el("div", { class: "k-shr-share-foot", "data-ui": "shrine.card-actions" }, [
+          el("button", { type: "button", class: "k-btn k-btn--quiet", text: "Use a local cover…", onclick: function () {
+            overlay.close();
+            openEntry(entry);
+          } }),
+          el("span", { class: "k-shr-spacer" }),
+          copyButton, shareButton, saveButton
+        ].filter(Boolean))
+      ])
     ]));
     KOS.ui.openDialog(overlay);
 
     function renderNotice(info) {
       notice.innerHTML = "";
-      if (!info || info.source || info.reason === "none") return;
-      var text = info.reason === "cors"
+      if (!info || info.source || info.reason === "none" || !choice.show.cover) return;
+      notice.appendChild(el("p", { class: "k-muted", text: info.reason === "cors"
         ? "The cover can be displayed, but " + info.host + " does not permit its pixels in an exported card. The module mark is used instead."
         : info.reason === "unreachable"
           ? "The cover URL did not load, so the module mark is used instead."
-          : "The cover could not be read, so the module mark is used instead.";
-      notice.appendChild(el("p", { class: "sub", text: text }));
-      notice.appendChild(el("button", { class: "btn subtle", text: "Use a local cover…", onclick: function () {
-        overlay.close();
-        KOS.mediaEditor(entry, function () { KOS.show("shrine", undefined, { _nav: true }); });
-      } }));
+          : "The cover could not be read, so the module mark is used instead." }));
     }
     function paint() {
-      if (closed || !coverInfo || !templateReady) return;
-      renderCard(entry, coverImage, rank || 1, message.value.trim() || defaultMessage(entry), function (canvas) {
+      if (closed || !coverInfo) return;
+      renderCard(entry, coverImage, {
+        rank: rank || 1, total: total, look: choice.look, show: choice.show,
+        message: message.value.trim() || defaultMessage(entry)
+      }, function (canvas) {
         if (closed) return;
         var dataUrl = null;
         try { dataUrl = canvas.toDataURL("image/png"); }
@@ -738,11 +584,11 @@
         currentDataUrl = dataUrl;
         preview.innerHTML = "";
         preview.appendChild(dataUrl
-          ? el("img", { class: "shrine-card-img", src: dataUrl, alt: entry.title + " Hall of Fame share card" })
-          : el("p", { class: "fc-empty", text: "This browser could not render an exportable image." }));
+          ? el("img", { class: "k-shr-card-img", "data-ui": "shrine.card-image", src: dataUrl, alt: entry.title + " Hall of Fame share card" })
+          : el("p", { class: "k-muted", text: "This browser could not render an exportable image." }));
         renderNotice(coverInfo);
         [shareButton, saveButton, copyButton].filter(Boolean).forEach(function (button) { button.disabled = !dataUrl; });
-      }, templateImage);
+      });
     }
     message.addEventListener("input", function () {
       if (renderTimer) clearTimeout(renderTimer);
@@ -750,11 +596,6 @@
     });
     whenFontsReady(function () {
       if (closed) return;
-      loadShareTemplate(function (img) {
-        templateImage = img;
-        templateReady = true;
-        paint();
-      });
       resolveCover(entry, function (img, info) {
         coverImage = img;
         coverInfo = info || { reason: "none" };
@@ -766,29 +607,29 @@
 
   KOS.shrineResolveCover = resolveCover;
   KOS.shrineRenderCard = renderCard;
-  KOS.shrineLoadShareTemplate = loadShareTemplate;
   KOS.shrineCard = shrineCardModal;
 
-  /* ---------------- Hall of Fame view ---------------- */
+  /* ---------------- the Hall of Fame (frame 11g) ---------------- */
+  var RANK_KANJI = ["壱", "弐", "参"];
+  var MODULES = ["anime", "books", "vn", "game"];
+
+  /* the pref is read, never created, on render (render purity); the
+     first real change writes it */
   function prefs() {
+    var p = store.state.media && store.state.media.shrine;
+    return { module: (p && p.module) || "", sort: (p && p.sort) || "score", description: (p && p.description) || "" };
+  }
+  function persist(patch) {
+    var cur = prefs();
+    if (Object.keys(patch).every(function (k) { return cur[k] === patch[k]; })) return;
     store.state.media = store.state.media || {};
-    store.state.media.shrine = store.state.media.shrine || { module: "", sort: "score", description: "" };
-    return store.state.media.shrine;
+    var p = store.state.media.shrine = store.state.media.shrine || { module: "", sort: "score", description: "" };
+    Object.keys(patch).forEach(function (k) { p[k] = patch[k]; });
+    store.save();
   }
-  function shrineMeta(entry) {
-    var bits = [];
-    if (entry.author || entry.developer) bits.push(entry.author || entry.developer);
-    if (entry.module === "anime" && entry.progress && (entry.progress.current || entry.progress.total)) {
-      bits.push((entry.progress.current || 0) + (entry.progress.total ? " / " + entry.progress.total : "") + " episodes");
-    }
-    if (entry.module === "books" && entry.progress && (entry.progress.volumes || entry.progress.totalVolumes)) {
-      bits.push((entry.progress.volumes || 0) + (entry.progress.totalVolumes ? " / " + entry.progress.totalVolumes : "") + " volumes");
-    }
-    if (entry.module === "vn") bits.push((entry.routes || []).filter(function (route) { return route.cleared; }).length + " routes cleared");
-    if (entry.module === "game" && entry.playtimeHours) bits.push(entry.playtimeHours + " hours");
-    if (bits.length < 2 && entry.genres && entry.genres[0]) bits.push(entry.genres[0]);
-    return bits.slice(0, 2);
-  }
+  function redraw() { KOS.show("shrine", undefined, { _nav: true }); }
+  function openEntry(entry) { KOS.mediaEditor(entry, redraw); }
+
   function shrineStats(entries) {
     var scored = entries.filter(function (entry) { return Number(entry.score) > 0; });
     var average = scored.length ? scored.reduce(function (sum, entry) { return sum + Number(entry.score); }, 0) / scored.length : 0;
@@ -797,262 +638,229 @@
     return {
       average: average ? average.toFixed(1) : "—",
       completed: entries.filter(function (entry) { return entry.status === "completed"; }).length,
-      modules: modules,
-      wings: Object.keys(modules).length
+      modules: modules
     };
+  }
+  function scoreText(entry) { return entry.score ? String(entry.score) : "—"; }
+  /* the shared vault cover: lazy image over the title-hue wash (invariant 61) */
+  function coverBox(entry, mod, cls) {
+    return el("span", { class: cls }, [KOS.medview.cover(entry, mod.kanji)]);
+  }
+  function moduleLabel(mod, module) {
+    var n = el("span", { class: "k-shr-module", "data-module": module, text: mod.label });
+    n.style.setProperty("--vh-accent", mod.accent);
+    return n;
+  }
+  function shareButton(entry, rank, total, cls) {
+    return el("button", { type: "button", class: cls || "k-iconbtn k-iconbtn--sm", "data-ui": "shrine.card-button",
+      title: "Create share card", "aria-label": "Create share card for rank " + rank, text: "✦",
+      onclick: function (ev) { ev.stopPropagation(); KOS.shrineCard(entry, rank, total); } });
+  }
+  function titleButton(entry, cls) {
+    return el("button", { type: "button", class: cls, title: entry.title, text: entry.title,
+      onclick: function (ev) { ev.stopPropagation(); openEntry(entry); } });
+  }
+
+  /* rank one: the hero. The article keeps the pointer shortcut; its
+     keyboard path is the Edit button (a card holding buttons is not an
+     ARIA button, invariant 67). */
+  function feature(first, total) {
+    var mod = KOS.media.module(first.module), added = addedOn(first);
+    var progress = KOS.media.progressText(first, { long: true });
+    var hero = el("article", { class: "k-shr-hero", "data-ui": "shrine.feature", onclick: function () { openEntry(first); } }, [
+      el("span", { class: "k-shr-hero-scrim", "aria-hidden": "true" }),
+      el("span", { class: "k-shr-hero-mark", lang: "ja", "aria-hidden": "true", text: RANK_KANJI[0] }),
+      el("div", { class: "k-shr-hero-grid" }, [
+        el("div", { class: "k-shr-hero-body", "data-ui": "shrine.feature-body" }, [
+          el("div", { class: "k-shr-hero-rank" }, [
+            el("span", { class: "k-shr-rank-tag", "data-ui": "shrine.feature-rank", text: "◆ Rank 01" }),
+            el("span", { class: "k-shr-rule", "aria-hidden": "true" }),
+            el("span", { class: "k-shr-hall", text: "Hall of fame" })
+          ]),
+          el("h2", { class: "k-shr-hero-title", text: first.title }),
+          el("p", { class: "k-shr-hero-meta", text: cardMeta(first, false) }),
+          first.notes && String(first.notes).trim()
+            ? el("blockquote", { class: "k-shr-hero-quote", text: "“" + String(first.notes).trim().split(/\n/)[0] + "”" })
+            : null,
+          el("div", { class: "k-shr-hero-actions", "data-ui": "shrine.feature-actions" }, [
+            el("button", { type: "button", class: "k-btn k-shr-gold", "data-ui": "shrine.card-button", text: "Create share card",
+              onclick: function (ev) { ev.stopPropagation(); KOS.shrineCard(first, 1, total); } }),
+            el("button", { type: "button", class: "k-btn k-shr-glass", text: "Edit entry",
+              onclick: function (ev) { ev.stopPropagation(); openEntry(first); } })
+          ])
+        ].filter(Boolean)),
+        el("div", { class: "k-shr-hero-cover" }, [coverBox(first, mod, "k-shr-hero-poster")]),
+        el("dl", { class: "k-shr-hero-facts" }, [
+          el("div", { class: "k-shr-hero-score" }, [
+            el("dt", { text: "Personal score / 10" }),
+            el("dd", { "data-ui": "shrine.score", text: scoreText(first) })
+          ]),
+          added ? el("div", { class: "k-shr-fact" }, [
+            el("dt", { text: "In collection since" }),
+            el("dd", { text: added.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) })
+          ]) : null,
+          el("div", { class: "k-shr-fact" }, [
+            el("dt", { text: KOS.media.STATUS_LABEL[first.status] || "In collection" }),
+            progress ? el("dd", { text: progress }) : null
+          ].filter(Boolean))
+        ].filter(Boolean))
+      ])
+    ]);
+    hero.style.setProperty("--vh-accent", mod.accent);
+    if (first.coverUrl) KOS.imageCrop.background(hero, first.coverUrl, first.coverCrop, { className: "k-shr-hero-art" });
+    return hero;
+  }
+  /* ranks two and three: the podium cards */
+  function podiumCard(entry, rank, total) {
+    var mod = KOS.media.module(entry.module);
+    return el("article", { class: "k-shr-pod", "data-ui": "shrine.rank-card", "data-rank": String(rank),
+      onclick: function () { openEntry(entry); } }, [
+      coverBox(entry, mod, "k-shr-pod-cover"),
+      el("div", { class: "k-shr-pod-body" }, [
+        el("span", { class: "k-shr-pod-rank", "data-ui": "shrine.rank", text: "Rank " + pad2(rank) }),
+        el("h3", { class: "k-shr-pod-title" }, [titleButton(entry, "k-shr-title")]),
+        moduleLabel(mod, entry.module)
+      ]),
+      el("div", { class: "k-shr-pod-foot", "data-ui": "shrine.row-foot" }, [
+        el("span", { class: "k-shr-pod-score", "data-ui": "shrine.row-score", text: scoreText(entry) }),
+        shareButton(entry, rank, total)
+      ])
+    ]);
+  }
+  /* four onward: the poster wall */
+  function tile(entry, rank, total) {
+    var mod = KOS.media.module(entry.module);
+    return el("article", { class: "k-shr-tile", "data-ui": "shrine.rank-card", onclick: function () { openEntry(entry); } }, [
+      el("div", { class: "k-shr-tile-cover" }, [
+        coverBox(entry, mod, "k-shr-tile-img"),
+        el("span", { class: "k-shr-tile-rank", "data-ui": "shrine.rank", text: pad2(rank) }),
+        shareButton(entry, rank, total, "k-iconbtn k-iconbtn--sm k-shr-tile-share")
+      ]),
+      titleButton(entry, "k-shr-tile-title"),
+      el("div", { class: "k-shr-tile-foot", "data-ui": "shrine.row-foot" }, [
+        moduleLabel(mod, entry.module),
+        el("span", { class: "k-shr-tile-score", "data-ui": "shrine.row-score", text: scoreText(entry) })
+      ])
+    ]);
   }
   function hallLedger(entries) {
     var stats = shrineStats(entries);
-    var completion = entries.length ? Math.round(stats.completed / entries.length * 100) : 0;
-    function line(label, detail, value, tone) {
-      return el("div", { class: "wl-ledger-line shrine-ledger-line" + (tone ? " " + tone : "") }, [
-        el("div", { class: "wl-ledger-copy" }, [
-          el("span", { class: "wl-ledger-label", text: label }),
-          el("span", { class: "wl-ledger-detail", text: detail })
-        ]),
-        el("b", { text: value })
+    function line(label, value) {
+      return el("div", { class: "k-shr-ledger-line", "data-ui": "shrine.ledger-line" }, [
+        el("dt", { text: label }), el("dd", { class: "k-mono", text: value })
       ]);
     }
-    var represented = ["anime", "books", "vn", "game"].filter(function (module) { return stats.modules[module]; })
-      .map(function (module) { return KOS.media.module(module).label; });
-    return el("aside", { class: "wl-budget shrine-ledger", "aria-label": "Hall statistics" }, [
-      el("div", { class: "wl-budget-head shrine-ledger-head" }, [
-        el("div", {}, [el("span", { class: "wl-sum-h", text: "Hall ledger" }), el("h2", { class: "wl-budget-title", text: "Collection standing" })]),
-        el("span", { class: "shrine-ledger-seal", "aria-hidden": "true", text: "祠" })
+    var bar = el("div", { class: "k-shr-ledger-bar", role: "img", "aria-label": MODULES.filter(function (m) { return stats.modules[m]; })
+      .map(function (m) { return KOS.media.module(m).label + " " + stats.modules[m]; }).join(", ") });
+    MODULES.forEach(function (m) {
+      if (!stats.modules[m]) return;
+      var seg = el("span", { class: "k-shr-ledger-seg", title: KOS.media.module(m).label + " · " + stats.modules[m] });
+      seg.style.setProperty("--n", String(stats.modules[m]));
+      seg.style.setProperty("--vh-accent", KOS.media.module(m).accent);
+      bar.appendChild(seg);
+    });
+    return el("aside", { class: "k-shr-ledger", "data-ui": "shrine.ledger", "aria-label": "Hall statistics" }, [
+      el("h3", { class: "k-shr-ledger-h", text: "Hall ledger" }),
+      el("dl", { class: "k-shr-ledger-lines", "data-ui": "shrine.ledger-lines" }, [
+        line("Enshrined", String(entries.length)),
+        line("Average score", stats.average),
+        line("Completed", String(stats.completed))
       ]),
-      el("div", { class: "wl-allowance-main shrine-ledger-primary" }, [
-        el("span", { class: "k", text: "Average personal score" }),
-        el("b", { text: stats.average === "—" ? "—" : stats.average + " / 10" }),
-        el("span", { class: "sub", text: entries.length + (entries.length === 1 ? " favourite defines" : " favourites define") + " this Hall of Fame." })
-      ]),
-      el("div", { class: "wl-ledger shrine-ledger-lines" }, [
-        line("Enshrined", "Titles currently carrying favourite status.", String(entries.length)),
-        line("Completed", "Finished works among the current ranks.", String(stats.completed), "is-actual"),
-        line("Media wings", represented.join(" · ") || "No represented media yet.", String(stats.wings))
-      ]),
-      el("div", { class: "wl-meter-block shrine-ledger-meter" }, [
-        el("div", { class: "wl-meter-copy" }, [
-          el("span", { text: "Hall completion" }),
-          el("b", { text: completion + "% complete" })
-        ]),
-        el("div", { class: "wl-meter" }, [el("span", { class: "wl-meter-fill", style: "width:" + completion + "%" })])
-      ])
-    ]);
-  }
-  function cover(entry, mod, className) {
-    return el("div", { class: className }, [
-      entry.coverUrl
-        ? KOS.imageCrop.image(entry.coverUrl, { alt: "", loading: "lazy", decoding: "async" }, entry.coverCrop)
-        : el("span", { class: "med-cover-ph", "aria-hidden": "true", text: mod.kanji })
+      bar
     ]);
   }
   function descriptionEditor(done) {
-    var current = prefs(), overlay = KOS.medview.modalOverlay();
-    var input = el("textarea", { class: "form-in shrine-description-input", rows: "5", maxlength: "500", placeholder: "What earns a place in your Hall of Fame?" });
-    input.value = current.description || "";
-    overlay.appendChild(el("div", { class: "modal shrine-description-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("div", {}, [
-          el("b", { text: "Hall note" }),
-          el("p", { class: "sub shrine-modal-sub", text: "Optional · shown only at the top of your Shrine" })
-        ]),
-        el("button", { class: "mini-btn shrine-modal-close", text: "✕", "aria-label": "Close", onclick: overlay.close })
-      ]),
-      el("label", { class: "field" }, [el("span", { text: "Description" }), input]),
-      el("div", { class: "med-modal-foot" }, [
-        el("button", { class: "btn", text: "Cancel", onclick: overlay.close }),
-        el("button", { class: "btn primary", text: "Save note", onclick: function () {
-          current.description = input.value.trim();
-          store.save();
+    var overlay = KOS.medview.modalOverlay();
+    var input = el("textarea", { class: "k-input", "data-ui": "shrine.description-input", rows: "5", maxlength: "500",
+      placeholder: "What earns a place in your Hall of Fame?" });
+    input.value = prefs().description;
+    KOS.medview.dialogBox(overlay, "shrine.note-dialog", "Hall note", "Optional · shown only at the top of your Shrine",
+      el("div", { class: "k-dialog-body" }, [KOS.medview.field("Description", input, true)]),
+      el("div", { class: "k-dialog-foot" }, [
+        el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { overlay.close(); } }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", text: "Save note", onclick: function () {
+          persist({ description: input.value.trim() });
           overlay.close();
           done();
         } })
-      ])
-    ]));
+      ]));
     KOS.ui.openDialog(overlay);
     input.focus();
-  }
-  function shrineFilter(label, value, current) {
-    return el("button", {
-      class: "shrine-filter" + (value === current ? " active" : ""),
-      role: "tab",
-      "aria-selected": String(value === current),
-      text: label,
-      onclick: function () {
-        prefs().module = value;
-        store.save();
-        KOS.show("shrine", undefined, { _nav: true });
-      }
-    });
-  }
-  function openEntry(entry) {
-    KOS.mediaEditor(entry, function () { KOS.show("shrine", undefined, { _nav: true }); });
   }
 
   KOS.views.shrine = function (main) {
     KOS.shell.tree("none");
     var current = prefs();
-    main.appendChild(el("div", { class: "dash-head shrine-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "祠 · Hall of fame" }),
-        el("h1", { text: "The Shrine" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "The works that stayed with you, ranked by your own score." })
-        ])
-      ]),
-      el("button", { class: "btn subtle shrine-note-btn", text: current.description ? "Edit hall note" : "Add hall note", onclick: function () {
-        descriptionEditor(function () { KOS.show("shrine", undefined, { _nav: true }); });
-      } })
-    ]));
+    var filters = KOS.medview.addHook(KOS.ui.tabs([
+      ["All media", ""], ["Anime", "anime"], ["Books", "books"], ["VN", "vn", "Visual novels"], ["Games", "game"]
+    ].map(function (f) {
+      return { label: f[2] || f[0], short: f[0], hook: "shrine.filter", active: current.module === f[1],
+        onSelect: function () { persist({ module: f[1] }); redraw(); } };
+    }), { variant: "card", label: "Filter Shrine by media type" }), "shrine.filters");
+    var sortSelect = el("select", { class: "k-pill-select", "data-ui": "ui.status-select", "aria-label": "Sort Shrine" }, [
+      ["score", "Sort: personal score"], ["updated", "Sort: recently updated"], ["title", "Sort: title"]
+    ].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+    sortSelect.value = current.sort;
+    sortSelect.onchange = function () { persist({ sort: sortSelect.value }); redraw(); };
+    main.appendChild(KOS.ui.pageHeader({
+      kicker: "祠 · Hall of fame",
+      title: "The Shrine",
+      sub: "The works that stayed with you, ranked by your own score.",
+      actions: [
+        filters,
+        el("label", { class: "k-shr-sort", "data-ui": "shrine.sort" }, [sortSelect]),
+        el("button", { type: "button", class: "k-btn", "data-ui": "shrine.note-button",
+          text: current.description ? "Edit hall note" : "Add hall note",
+          onclick: function () { descriptionEditor(redraw); } })
+      ]
+    }));
     if (KOS.medview.unavailable(main)) return;
-
-    var toolbar = el("div", { class: "shrine-toolbar" }, [
-      el("div", { class: "shrine-filter-tabs", role: "tablist", "aria-label": "Filter Shrine by media type" }, [
-        shrineFilter("All media", "", current.module),
-        shrineFilter("Anime", "anime", current.module),
-        shrineFilter("Books", "books", current.module),
-        shrineFilter("Visual novels", "vn", current.module),
-        shrineFilter("Games", "game", current.module)
-      ]),
-      el("label", { class: "shrine-sort" }, [
-        el("span", { text: "Sort" }),
-        el("select", { class: "form-in", "aria-label": "Sort Shrine" }, [
-          el("option", { value: "score", text: "Personal score" }),
-          el("option", { value: "updated", text: "Recently updated" }),
-          el("option", { value: "title", text: "Title" })
-        ])
-      ])
-    ]);
-    var sortSelect = toolbar.querySelector("select");
-    sortSelect.value = current.sort || "score";
-    sortSelect.onchange = function () {
-      current.sort = sortSelect.value;
-      store.save();
-      KOS.show("shrine", undefined, { _nav: true });
-    };
-    main.appendChild(toolbar);
-    if (current.description) main.appendChild(el("blockquote", { class: "shrine-description", text: current.description }));
+    if (current.description) main.appendChild(el("blockquote", { class: "k-shr-note", "data-ui": "shrine.description", text: current.description }));
 
     KOS.mediadb.query({
       favourite: true,
       module: current.module || undefined,
-      sort: current.sort || "score"
+      sort: current.sort
     }, function (err, favourites) {
       if (err) {
-        main.appendChild(el("p", { class: "fc-empty", text: "Could not read the vault: " + err.message }));
+        main.appendChild(KOS.ui.emptyState({ body: "Could not read the vault: " + err.message }));
         return;
       }
       if (!favourites.length) {
-        main.appendChild(KOS.ui.emptyState({
-          className: "shrine-empty",
+        main.appendChild(KOS.medview.addHook(KOS.ui.emptyState({
+          className: "k-shr-empty",
           mark: "祠",
           title: current.module ? "No favourites in this wing" : "Your Hall of Fame is waiting",
           body: current.module ? "Try another media type, or mark a title as a favourite." : "Mark any Collection title as a favourite and it will be ranked here automatically.",
           action: current.module
-            ? el("button", { class: "btn", text: "Show all media", onclick: function () {
-              current.module = "";
-              store.save();
-              KOS.show("shrine", undefined, { _nav: true });
-            } })
-            : el("button", { class: "btn primary", text: "Open Collection", onclick: function () { KOS.show("matrix"); } })
-        }));
+            ? el("button", { type: "button", class: "k-btn", text: "Show all media", onclick: function () { persist({ module: "" }); redraw(); } })
+            : el("button", { type: "button", class: "k-btn k-btn--primary", text: "Open Collection", onclick: function () { KOS.show("matrix"); } })
+        }), "shrine.empty"));
         return;
       }
 
-      var style = KOS.governor.shrineStyle && KOS.governor.shrineStyle();
-      var hall = el("section", {
-        class: "shrine-hall" + (favourites.length === 1 ? " one" : "") + (style ? " " + style : ""),
-        "data-skin": style || null, "data-single": favourites.length === 1 ? "" : null,
-        "aria-label": "Ranked Hall of Fame"
-      });
-      var first = favourites[0], firstMod = KOS.media.module(first.module);
-      var firstMeta = shrineMeta(first);
-      /* Phase F: the rank-one feature carries its own "Create share card"
-         and "Edit entry" buttons, so it was an ARIA button wrapping two
-         real ones. It keeps the pointer shortcut and drops the role — the
-         keyboard path is the Edit button that was always there. */
-      var feature = el("article", {
-        class: "wl-hero wl-hero-feature shrine-feature" + (first.coverUrl ? " has-banner" : ""),
-        style: "--accent:" + (firstMod.accent || "var(--accent2)"),
-        onclick: function () { openEntry(first); }
-      }, [
-        el("div", { class: "wl-hero-badge shrine-feature-rank", text: "◆ Rank 01 · Hall of Fame" }),
-        !first.coverUrl ? el("span", { class: "wl-hero-ph", text: firstMod.kanji }) : null,
-        el("div", { class: "wl-hero-body shrine-feature-body" }, [
-          el("div", { class: "wl-hero-status", text: "Featured favourite" }),
-          el("div", { class: "wl-hero-tags" }, [
-            el("span", { class: "wl-priority-pill", text: firstMod.kanji + " " + firstMod.label }),
-            el("span", { class: "wl-priority-pill", text: "Personal rank #1" })
-          ]),
-          el("h2", { class: "wl-hero-title", text: first.title }),
-          firstMeta[0] ? el("p", { class: "wl-hero-meta", text: firstMeta[0] }) : null,
-          el("dl", { class: "wl-hero-facts" }, [
-            el("div", {}, [el("dt", { text: "Personal score" }), el("dd", { class: "shrine-score", text: first.score ? String(first.score) + " / 10" : "Not scored" })]),
-            el("div", {}, [el("dt", { text: "Progress" }), el("dd", { text: firstMeta[1] || (KOS.media.STATUS_LABEL[first.status] || "In collection") })])
-          ]),
-          el("div", { class: "wl-hero-actions shrine-feature-actions" }, [
-            el("button", { class: "btn primary", text: "✦ Create share card", onclick: function (ev) {
-              ev.stopPropagation();
-              KOS.shrineCard(first, 1);
-            } }),
-            el("button", { class: "btn", text: "Edit entry", onclick: function (ev) {
-              ev.stopPropagation();
-              openEntry(first);
-            } })
-          ])
-        ].filter(Boolean))
-      ]);
-      if (first.coverUrl) KOS.imageCrop.background(feature, first.coverUrl, first.coverCrop, {
-        overlay: "linear-gradient(100deg, color-mix(in srgb, var(--bg0) 94%, transparent) 0%, color-mix(in srgb, var(--bg0) 74%, transparent) 52%, color-mix(in srgb, var(--bg0) 26%, transparent) 100%)"
-      });
-      hall.appendChild(el("div", { class: "shrine-stage" }, [feature, hallLedger(favourites)]));
+      var total = favourites.length;
+      /* a Gold Shop shrine style (shrine-gilded / -ink / -neon) is one
+         attribute on the hall; the stylesheet does the rest */
+      var skin = KOS.governor.shrineStyle && KOS.governor.shrineStyle();
+      var hall = el("section", { class: "k-shr", "data-ui": "shrine.hall", "data-skin": skin || null,
+        "data-single": total === 1 ? "" : null, "aria-label": "Ranked Hall of Fame" });
+      hall.appendChild(feature(favourites[0], total));
 
-      if (favourites.length > 1) {
-        var ranked = el("div", { class: "shrine-ranked-grid" });
-        favourites.slice(1).forEach(function (entry, offset) {
-          var rank = offset + 2, mod = KOS.media.module(entry.module), meta = shrineMeta(entry);
-          /* Phase F: a ranked card holds its own "Share card" button, so
-             the card is not a button; its title is. */
-          ranked.appendChild(el("article", {
-            class: "shrine-card shrine-rank-card" + (rank <= 3 ? " top" : ""),
-            onclick: function () { openEntry(entry); }
-          }, [
-            el("span", { class: "shrine-rank", text: "#" + rank }),
-            cover(entry, mod, "shrine-rank-cover"),
-            el("div", { class: "shrine-body" }, [
-              el("span", { class: "shrine-overline", text: mod.label }),
-              el("h3", {}, [el("button", { type: "button", class: "shrine-title-btn",
-                title: entry.title, text: entry.title,
-                onclick: function (ev) { ev.stopPropagation(); openEntry(entry); } })]),
-              el("div", { class: "shrine-row-meta" }, [
-                meta[0] ? el("span", { text: meta[0] }) : null,
-                meta[1] ? el("span", { text: meta[1] }) : null
-              ].filter(Boolean)),
-              el("div", { class: "shrine-row-foot" }, [
-                el("span", { class: "shrine-row-score" }, [
-                  el("b", { text: entry.score ? String(entry.score) : "—" }),
-                  el("span", { text: "/ 10" })
-                ]),
-                el("button", {
-                  class: "shrine-card-btn",
-                  title: "Create share card",
-                  "aria-label": "Create share card for rank " + rank,
-                  onclick: function (ev) {
-                    ev.stopPropagation();
-                    KOS.shrineCard(entry, rank);
-                  }
-                }, [el("span", { text: "✦ Share card" })])
-              ])
-            ])
-          ]));
-        });
-        hall.appendChild(ranked);
+      var podium = el("div", { class: "k-shr-podium", "data-ui": "shrine.stage" });
+      favourites.slice(1, 3).forEach(function (entry, i) { podium.appendChild(podiumCard(entry, i + 2, total)); });
+      podium.style.setProperty("--podium-n", String(Math.min(2, total - 1)));
+      podium.appendChild(hallLedger(favourites));
+      hall.appendChild(podium);
+
+      if (total > 3) {
+        var wall = el("div", { class: "k-shr-wall", "data-ui": "shrine.ranked" });
+        favourites.slice(3).forEach(function (entry, i) { wall.appendChild(tile(entry, i + 4, total)); });
+        hall.appendChild(wall);
       }
       main.appendChild(hall);
-      main.appendChild(el("p", {
-        class: "sub shrine-count",
-        text: favourites.length + (favourites.length === 1 ? " enshrined title" : " enshrined titles") + " · ranks follow the selected sort."
-      }));
+      main.appendChild(el("p", { class: "k-shr-count k-muted", "data-ui": "shrine.count",
+        text: total + (total === 1 ? " enshrined title" : " enshrined titles") + " · ranks follow the selected sort." }));
     });
   };
 })();

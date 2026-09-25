@@ -35,7 +35,8 @@
     "js/modules/vn.js",
     "js/modules/games.js",
     "js/modules/books.js",
-    "js/modules/matrix.js"
+    "js/modules/matrix.js",
+    "js/modules/shrine.js"
   ],
   "views": {
     "home": {},
@@ -57,6 +58,7 @@
     "game": {},
     "books": {},
     "mangaka": {},
-    "matrix": {}
+    "matrix": {},
+    "shrine": {}
   }
 }

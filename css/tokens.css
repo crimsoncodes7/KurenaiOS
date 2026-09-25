@@ -421,6 +421,45 @@ color-scheme: dark;
 --mx-stand-h: 8px;
 --mx-door-mark: 64px;
 --mx-wash: oklch(0.26 0.05 18);
+/* the Shrine (frame 11g) */
+--shr-gold: var(--gold);
+--shr-gold-ink: oklch(0.2 0.03 70);
+--shr-scrim: oklch(0.13 0.02 60);
+--shr-silver: oklch(0.8 0.02 265);
+--shr-bronze: oklch(0.78 0.08 60);
+--shr-hero-h: 330px;
+--shr-poster-col: 190px;
+--shr-poster-w: 180px;
+--shr-poster-h: 260px;
+--shr-score-w: 150px;
+--shr-mark: 300px;
+--shr-ledger-w: 300px;
+--shr-pod-cover-w: 78px;
+--shr-pod-cover-h: 112px;
+--shr-preview-col: 444px;
+--shr-swatch-w: 96px;
+--shr-swatch-h: 120px;
+--shr-dialog-w: 1060px;
+--fs-76: 76px;
+/* the share card (frame 11k). An exported image keeps its own palette
+   whatever the app theme, so these are fixed values, not theme tokens;
+   the canvas and the style swatches both read them. */
+--card-foil-1: oklch(0.86 0.11 85);
+--card-foil-2: oklch(0.8 0.1 20);
+--card-foil-3: oklch(0.82 0.08 200);
+--card-foil-4: oklch(0.88 0.1 95);
+--card-foil-5: oklch(0.8 0.12 330);
+--card-gold-accent: oklch(0.84 0.11 85);
+--card-gold-bg: oklch(0.12 0.018 60);
+--card-crimson-accent: oklch(0.72 0.16 22);
+--card-crimson-bg: oklch(0.14 0.03 18);
+--card-ink-accent: oklch(0.92 0.01 265);
+--card-ink-bg: oklch(0.12 0.005 265);
+--card-ivory: oklch(0.97 0.01 80);
+--card-meta: oklch(0.8 0.01 265);
+--card-quote: oklch(0.95 0.01 80);
+--card-faint: oklch(0.62 0.01 265);
+--card-shadow: oklch(0.05 0.01 265 / 0.6);
 
 /* ---------- elevation (invariant 79) ----------
    Surfaces are flat; only floating layers (menus, dialogs, the share card)
