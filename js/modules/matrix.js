@@ -59,19 +59,22 @@
     /* ---- the two panes: the switcher rides the page header's action
        slot, aligned with the title the way Planner and Sync do it ---- */
     var tab = "overview";
-    var tabBar = el("div", { class: "mx-tabbar profile-workspace-tabs" });
+    var tabBar = el("div", { class: "k-cluster" });
     function buildTabs() {
-      return KOS.ui.tabs([
+      var t = KOS.ui.tabs([
         { label: "Overview", active: tab === "overview", onSelect: function () { setTab("overview"); } },
         { label: "Analytics", active: tab === "analytics", onSelect: function () { setTab("analytics"); } }
-      ], { variant: "workspace", label: "Collection views", className: "mx-tabs" });
+      ], { variant: "workspace", label: "Collection views" });
+      KOS.medview.addHook(t, "coll.tabs");
+      return t;
     }
     function setTab(next) {
       if (tab === next) return;
       tab = next;
       tabBar.innerHTML = "";
       tabBar.appendChild(buildTabs());
-      main.scrollTop = 0;
+      var stage = document.getElementById("stage");
+      if (stage) stage.scrollTop = 0;
       render();
     }
     tabBar.appendChild(buildTabs());
@@ -79,13 +82,13 @@
     main.appendChild(KOS.ui.pageHeader({
       kicker: "蒐 · Personal archive",
       title: "The Collection",
-      sub: "The other half of the ledger — what you watch, read and play.",
+      sub: "The other half of the ledger: what you watch, read and play.",
       actions: [tabBar]
     }));
 
     if (KOS.medview.unavailable(main)) return;
 
-    var pane = el("div", { class: "mx-pane" });
+    var pane = el("div", { class: "k-mx" });
     main.appendChild(pane);
 
     /* ONE aggregate pass, reused by both panes — KOS.mediadb.stats walks
@@ -107,132 +110,53 @@
       KOS.mediaEditor(e, function () { KOS.show("matrix", undefined, { _nav: true }); });
     }
 
-    /* ================= overview ================= */
-    /* Three things, in the order the day asks them: what airs next, what
-       is on the go, and the four doors into the vaults. The inventory
-       figures and the status comparison live on Analytics now — a
-       headline strip of 1,940 / 25,195 was decoration on a page whose job
-       is "what next?". */
+    /* ================= overview (frame 11a) ================= */
+    /* The ledger in six figures, then what is on the go, then what airs
+       next beside where each medium stands, then the four doors. */
     function renderOverview() {
-      /* ---- airing schedule (3f) — live countdowns, grouped by day, for
-         the titles being WATCHED. Renders nothing while empty/offline. ---- */
-      var airWrap = el("section", { class: "mx-airing" });
-      pane.appendChild(airWrap);
-      function renderAiring() {
-        KOS.mediadb.query({ module: "anime", status: "inProgress" }, function (err, rows) {
-          if (err || !document.body.contains(airWrap)) return;
-          var list = KOS.anime.airingList(rows).slice(0, 12);
-          airWrap.innerHTML = "";
-          if (!list.length) return;
-          var meta = KOS.anime.SEASON_META[KOS.anime.currentSeason().season];
-          airWrap.appendChild(KOS.ui.sectionHeader({
-            title: "Airing soon",
-            sub: list.length + (list.length === 1 ? " episode" : " episodes") + " scheduled across what you're watching",
-            actions: [el("button", { class: "btn mx-air-season", text: meta.kanji + " Seasonal view",
-              onclick: function () { KOS.show("seasonal"); } })]
-          }));
-          /* bucket by local day, keep AniList's soonest-first order inside */
-          var now = new Date(), days = [], byKey = {};
-          list.forEach(function (x) {
-            var d = dayLabel(x.airing.airingAt, now);
-            if (!byKey[d.key]) { byKey[d.key] = { meta: d, items: [] }; days.push(byKey[d.key]); }
-            byKey[d.key].items.push(x);
-          });
-          var sched = el("div", { class: "mx-sched" });
-          days.forEach(function (day) {
-            var col = el("div", { class: "mx-day" + (day.meta.key === "0" ? " is-today" : "") }, [
-              el("div", { class: "mx-day-h" }, [
-                el("b", { text: day.meta.label }),
-                el("span", { class: "sub", text: day.meta.sub })
-              ])
-            ]);
-            day.items.forEach(function (x) {
-              var e = x.entry, a = x.airing;
-              var seen = e.progress.current || 0;
-              var behind = a.episode - 1 - seen;   // episodes aired but unseen
-              col.appendChild(KOS.a11y.activate(el("div", { class: "mx-ep", role: "button", tabindex: "0",
-                title: e.title + " — episode " + a.episode + " airs " + new Date(a.airingAt * 1000).toLocaleString()
-              }, [
-                el("span", { class: "mx-ep-cover" }, [KOS.medview.cover(e, "映")]),
-                el("span", { class: "mx-ep-body" }, [
-                  el("span", { class: "mx-ep-title", text: e.title }),
-                  el("span", { class: "mx-ep-line" }, [
-                    el("b", { class: "mx-ep-n", text: "EP " + a.episode }),
-                    el("span", { class: "mx-ep-at", text: clock(a.airingAt) }),
-                    behind > 0 ? el("span", { class: "mx-ep-behind", text: behind + " to catch up" }) : null
-                  ].filter(Boolean))
-                ]),
-                el("span", { class: "mx-ep-count" + (a.timeUntilAiring <= 0 ? " is-now" : ""), text: KOS.anime.fmtCountdown(a.timeUntilAiring) })
-              ]), function () { openEntry(e); }));
-            });
-            sched.appendChild(col);
-          });
-          airWrap.appendChild(sched);
-        });
-      }
-      renderAiring();
-      KOS.anime.refreshAiring(false, function (err, byId, fromCache) {
-        if (!err && !fromCache && document.body.contains(airWrap)) renderAiring();
-      });
+      if (!aggErr && agg && agg.total) pane.appendChild(figureBand());
 
       /* ---- on the go — every medium, most recently touched first; each
          card carries the everyday +1 where the medium has a unit ---- */
-      var nowWrap = el("section", { class: "mx-now" });
+      var nowWrap = el("section", { class: "k-mx-now", "aria-label": "Currently consuming" });
       pane.appendChild(nowWrap);
       function renderNow() {
         KOS.mediadb.query({ status: "inProgress", sort: "updated" }, function (err, current) {
           if (err || !document.body.contains(nowWrap)) return;
           nowWrap.innerHTML = "";
-          var perMod = {};
-          current.forEach(function (e) { var id = KOS.media.module(e.module).id; perMod[id] = (perMod[id] || 0) + 1; });
-          nowWrap.appendChild(KOS.ui.sectionHeader({
-            title: "Currently consuming",
-            sub: current.length
-              ? current.length + " in progress" + (current.length > 12 ? " · the 12 most recently touched" : "")
-              : null,
-            actions: KOS.media.MODULES.filter(function (mod) { return perMod[mod.id]; }).map(function (mod) {
-              return el("button", { class: "mx-now-chip", style: "--accent:" + mod.accent,
-                title: "Open the " + mod.label + " vault",
-                onclick: function () { KOS.show(mod.id); } }, [
-                el("span", { class: "kanji-inline", "aria-hidden": "true", text: mod.kanji }),
-                el("span", { text: perMod[mod.id] + " " + mod.label.toLowerCase() })
-              ]);
-            })
-          }));
+          nowWrap.appendChild(el("div", { class: "k-card-head k-mx-head" }, [
+            el("h2", { class: "k-mx-title", text: "Currently consuming" }),
+            current.length ? el("span", { class: "k-card-meta", text: current.length + " in progress · most recent first" }) : null
+          ].filter(Boolean)));
           if (!current.length) {
             nowWrap.appendChild(KOS.ui.emptyState({ compact: true,
               body: "Nothing in progress — sync your AniList, or start something from a vault.",
-              action: el("button", { class: "btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }) }));
+              action: el("button", { type: "button", class: "k-btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }) }));
             return;
           }
-          var grid = el("div", { class: "mx-now-grid" });
+          var grid = el("div", { class: "k-mx-now-grid" });
           current.slice(0, 12).forEach(function (e) {
             var mod = KOS.media.module(e.module);
             var prog = KOS.media.progressText(e);
-            var fill = KOS.media.progressFill(e);
             var bumpMode = mod.id === "anime" || mod.id === "books" ? "progress" : mod.id === "game" ? "hours" : null;
-            var card = el("div", { class: "mx-now-card", style: "--accent:" + mod.accent,
-              onclick: function () { openEntry(e); } }, [
-              el("span", { class: "mx-now-cover" }, [KOS.medview.cover(e, mod.kanji)]),
-              el("span", { class: "mx-now-body" }, [
-                el("span", { class: "mx-now-kind" }, [
-                  el("span", { class: "kanji-inline", "aria-hidden": "true", text: mod.kanji }),
-                  el("span", { text: mod.id === "books" && e.format ? (KOS.media.FORMAT_LABEL[e.format] || mod.label) : mod.label }),
-                  KOS.anime.airingInfo(e) ? el("span", { class: "mx-now-air", text: "EP " + KOS.anime.airingInfo(e).episode + " in " + KOS.anime.fmtCountdown(KOS.anime.airingInfo(e).timeUntilAiring) }) : null
-                ].filter(Boolean)),
-                el("button", { type: "button", class: "mx-now-title", text: e.title, title: e.title,
-                  onclick: function (ev) { ev.stopPropagation(); openEntry(e); } }),
-                el("span", { class: "mx-now-foot" }, [
-                  prog ? el("span", { class: "mx-now-prog", text: prog }) : null,
-                  bumpMode ? el("button", { class: "mini-btn med-plus mx-now-plus", text: "+1 " + mod.unit,
-                    title: "Log the next " + mod.unitName.replace(/s$/, ""), onclick: function (ev) {
-                      ev.stopPropagation();
-                      KOS.medview.bumpUnit(e, bumpMode, function () { renderNow(); });
-                    } }) : null
-                ].filter(Boolean)),
-                fill ? el("span", { class: "mx-now-track" + (fill.open ? " open" : ""), title: fill.title }, [el("span", { style: "width:" + fill.pct + "%" })]) : null
-              ].filter(Boolean))
+            var air = KOS.anime.airingInfo(e);
+            var art = el("span", { class: "k-mx-now-art" }, [
+              KOS.medview.cover(e, mod.kanji),
+              el("span", { class: "k-mchip k-mx-now-kind", text: mod.id === "books" && e.format ? (KOS.media.FORMAT_LABEL[e.format] || mod.label) : mod.label }),
+              bumpMode ? el("button", { type: "button", class: "k-mx-now-plus", "data-ui": "coll.now-plus", text: "+1 " + mod.unit,
+                title: "Log the next " + mod.unitName.replace(/s$/, ""), onclick: function (ev) {
+                  ev.stopPropagation();
+                  KOS.medview.bumpUnit(e, bumpMode, function () { renderNow(); });
+                } }) : null,
+              KOS.media.progressBar(e)
+            ].filter(Boolean));
+            var card = el("div", { class: "k-mx-now-card", "data-ui": "coll.now-card", onclick: function () { openEntry(e); } }, [
+              art,
+              el("button", { type: "button", class: "k-mx-now-title", "data-ui": "coll.now-title", text: e.title, title: e.title,
+                onclick: function (ev) { ev.stopPropagation(); openEntry(e); } }),
+              el("span", { class: "k-mrow-sub", text: [prog, air ? "EP " + air.episode + " in " + KOS.anime.fmtCountdown(air.timeUntilAiring) : null].filter(Boolean).join(" · ") })
             ]);
+            card.style.setProperty("--vh-accent", mod.accent);
             grid.appendChild(card);
           });
           nowWrap.appendChild(grid);
@@ -240,8 +164,114 @@
       }
       renderNow();
 
+      var pair = el("div", { class: "k-mx-pair" });
+      pane.appendChild(pair);
+
+      /* ---- airing schedule (3f) — live countdowns, grouped by day, for
+         the titles being WATCHED. Says so when there is nothing. ---- */
+      var airWrap = el("section", { class: "k-card k-mx-air", "aria-label": "Airing soon" });
+      pair.appendChild(airWrap);
+      function renderAiring() {
+        KOS.mediadb.query({ module: "anime", status: "inProgress" }, function (err, rows) {
+          if (err || !document.body.contains(airWrap)) return;
+          var list = KOS.anime.airingList(rows).slice(0, 12);
+          airWrap.innerHTML = "";
+          airWrap.appendChild(el("div", { class: "k-card-head" }, [
+            el("h2", { class: "k-card-title", text: "Airing soon" }),
+            el("button", { type: "button", class: "k-link", text: "Seasonal view →", onclick: function () { KOS.show("seasonal"); } })
+          ]));
+          if (!list.length) {
+            airWrap.appendChild(el("p", { class: "k-muted k-mx-quiet", text: "Nothing you're watching has an episode scheduled." }));
+            return;
+          }
+          /* bucket by local day, keep AniList's soonest-first order inside */
+          var now = new Date(), days = [], byKey = {};
+          list.forEach(function (x) {
+            var d = dayLabel(x.airing.airingAt, now);
+            if (!byKey[d.key]) { byKey[d.key] = { meta: d, items: [] }; days.push(byKey[d.key]); }
+            byKey[d.key].items.push(x);
+          });
+          days.forEach(function (day) {
+            var group = el("div", { class: "k-mx-day", "data-ui": "coll.airing-day" }, [
+              el("div", { class: "k-kicker k-mx-day-h", "data-ui": "coll.day-h" }, [
+                el("b", { text: day.meta.label }), el("span", { text: " · " + day.meta.sub })
+              ])
+            ]);
+            if (day.meta.key === "0") KOS.ui.state(group, "today", true);
+            day.items.forEach(function (x) {
+              var e = x.entry, a = x.airing;
+              var seen = e.progress.current || 0;
+              var behind = a.episode - 1 - seen;   // episodes aired but unseen
+              group.appendChild(el("button", { type: "button", class: "k-mx-ep", "data-ui": "coll.airing-ep",
+                title: e.title + " — episode " + a.episode + " airs " + new Date(a.airingAt * 1000).toLocaleString(),
+                onclick: function () { openEntry(e); } }, [
+                el("span", { class: "k-mx-ep-cover" }, [KOS.medview.cover(e, "映")]),
+                el("span", { class: "k-mrow-main" }, [
+                  el("span", { class: "k-mrow-title", text: e.title }),
+                  el("span", { class: "k-mrow-sub", text: "EP " + a.episode + " · " + clock(a.airingAt) + (behind > 0 ? " · " + behind + " to catch up" : "") })
+                ]),
+                el("span", { class: "k-mono k-mx-ep-count", text: KOS.anime.fmtCountdown(a.timeUntilAiring) })
+              ]));
+            });
+            airWrap.appendChild(group);
+          });
+        });
+      }
+      renderAiring();
+      KOS.anime.refreshAiring(false, function (err, byId, fromCache) {
+        if (!err && !fromCache && document.body.contains(airWrap)) renderAiring();
+      });
+
       if (aggErr || !agg) return;
+      pair.appendChild(standings());
       pane.appendChild(moduleCards());
+    }
+
+    /* the six figures of 11a — zero-only figures are suppressed (invariant 77) */
+    function figureBand() {
+      var m = modules();
+      var inProgressAll = m.anime.inProgress + m.books.inProgress + m.vn.inProgress + m.game.inProgress;
+      var figs = [
+        ["Titles in the vault", agg.total],
+        ["In progress", inProgressAll],
+        ["Episodes watched", m.anime.episodes],
+        ["Chapters read", m.books.episodes],
+        ["Hours played", Math.round(m.game.episodes || 0)],
+        ["In the Shrine", agg.favourites]
+      ].filter(function (f, i) { return i === 0 || f[1]; });
+      return el("dl", { class: "k-mx-band", "data-ui": "coll.figures" }, figs.map(function (f) {
+        return el("div", { class: "k-mx-fig" }, [el("dt", { text: f[0] }), el("dd", { text: KOS.ui.num(f[1]) })]);
+      }));
+    }
+
+    /* where each medium stands: one stacked bar per medium, on the four
+       statuses the design keys (paused rides with in progress) */
+    function standings() {
+      var m = modules();
+      var KEYS = [["completed", "Completed"], ["inProgress", "In progress"], ["planned", "Planned"], ["dropped", "Dropped"]];
+      var card = el("section", { class: "k-card k-mx-stand", "aria-label": "Where each medium stands" }, [
+        el("div", { class: "k-card-head" }, [
+          el("h2", { class: "k-card-title", text: "Where each medium stands" }),
+          el("span", { class: "k-mx-key" }, KEYS.map(function (k) {
+            return el("span", { "data-status": k[0] }, [el("i", { "aria-hidden": "true" }), k[1]]);
+          }))
+        ])
+      ]);
+      KOS.media.MODULES.forEach(function (mod) {
+        var s = m[mod.id];
+        if (!s || !s.total) return;
+        var vals = { completed: s.completed, inProgress: s.inProgress + s.onHold, planned: s.planned, dropped: s.dropped };
+        var bar = el("span", { class: "k-mx-stack", role: "img", "aria-label": mod.label + ": " + KEYS.map(function (k) { return vals[k[0]] + " " + k[1].toLowerCase(); }).join(", ") },
+          KEYS.filter(function (k) { return vals[k[0]]; }).map(function (k) {
+            var seg = el("span", { "data-status": k[0] });
+            seg.style.setProperty("--n", String(vals[k[0]]));
+            return seg;
+          }));
+        var name = el("span", { class: "k-mx-stand-name" }, [el("i", { "aria-hidden": "true" }), mod.label]);
+        name.style.setProperty("--vh-accent", mod.accent);
+        card.appendChild(el("div", { class: "k-mx-stand-row" }, [name, bar, el("span", { class: "k-mono k-muted", text: KOS.ui.num(s.total) })]));
+      });
+      return card;
     }
 
     /* ================= analytics ================= */
@@ -254,17 +284,14 @@
         pane.appendChild(KOS.ui.emptyState({
           title: "Nothing to analyse yet",
           body: "Charts appear here once the vault has titles in it.",
-          action: el("button", { class: "btn primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }) }));
+          action: el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }) }));
         return;
       }
       var m = modules();
 
-      /* ---- the headline figures (audit MTX-3 / MTX-5 / U-17) ----
-         Only what no module card can say — the cross-media figures — and
-         each is suppressed when it is zero. They moved here from the
-         overview: inventory is analysis, not "what next?". */
+      /* ---- the headline figures (audit MTX-3 / MTX-5 / U-17) ---- */
       var inProgressAll = m.anime.inProgress + m.books.inProgress + m.vn.inProgress + m.game.inProgress;
-      pane.appendChild(el("div", { class: "stat-strip mx-stats" }, [
+      pane.appendChild(el("div", { class: "k-stats", "data-ui": "ui.stat-strip" }, [
         KOS.ui.statTile({ value: agg.total, label: "Titles in the vault" }),
         KOS.ui.statTile({ value: inProgressAll, label: "In progress", sub: "across every medium", suppressZero: true }),
         KOS.ui.statTile({ value: m.anime.episodes, label: "Episodes watched", suppressZero: true }),
@@ -280,8 +307,6 @@
       }).map(function (mod) {
         return { label: mod.label, sub: m[mod.id].total + " titles", data: statusSeries(m[mod.id]) };
       });
-      /* one panel is still the by-status readout a single-medium collection
-         needs; it is only the SCALE claim that needs two */
       if (groups.length) {
         pane.appendChild(KOS.charts.chartCard("Where each medium stands",
           groups.length > 1
@@ -290,11 +315,9 @@
           KOS.charts.smallMultiples(groups)));
       }
 
-      var grid = el("div", { class: "cs-grid" });
+      var grid = el("div", { class: "k-mstats-grid", "data-ui": "chart.grid" });
 
-      /* ONE donut. "The whole vault by status" and "vault by medium" were
-         the same 1,880 titles cut two ways, beside a KPI row that had
-         already said 1,880. This is the cut the module cards do not make. */
+      /* ONE donut: the cut the module cards do not make */
       grid.appendChild(KOS.charts.chartCard("Where the collection lives", "every title, by medium",
         KOS.charts.donutWithLegend(KOS.media.MODULES.map(function (mod) {
           return { label: mod.label, value: (agg.modules[mod.id] || {}).total || 0, color: mod.accent };
@@ -304,17 +327,16 @@
         .sort(function (a, b) { return b.value - a.value; }).slice(0, 10);
       if (topGenres.length) {
         grid.appendChild(KOS.charts.chartCard("Top genres", "one taxonomy across every module",
-          KOS.charts.hbarChart(topGenres, { color: "#8A63A8" })));
+          KOS.charts.hbarChart(topGenres, { color: "var(--vn)" })));
       }
 
-      /* audit MTX-5: this drew a "distribution" from a single rated title.
-         A distribution of one is not a distribution — say what is missing
-         rather than drawing something that looks like a finding. */
+      /* audit MTX-5: a distribution of one is not a distribution — say what
+         is missing rather than drawing something that looks like a finding */
       var rated = agg.scores.reduce(function (a, n) { return a + n; }, 0);
       if (rated >= 5) {
         grid.appendChild(KOS.charts.chartCard("Score distribution", rated + " rated titles, out of 10",
           KOS.charts.barChart(agg.scores.map(function (n, i) {
-            return { label: String(i), value: n, color: i >= 8 ? "#B08A3E" : i >= 5 ? "#7D9B76" : "#B5573F" };
+            return { label: String(i), value: n, color: i >= 8 ? "var(--gold)" : i >= 5 ? "var(--green)" : "var(--red)" };
           }).slice(1))));
       } else {
         grid.appendChild(KOS.charts.chartCard("Score distribution", "not enough ratings yet",
@@ -324,8 +346,7 @@
               : "Nothing is rated yet. Scores appear here once five titles carry one." })));
       }
 
-      /* the rest streak's own record: media logs over 16 weeks — the one
-         chart on this page about behaviour rather than inventory */
+      /* the rest streak's own record: media logs over 16 weeks */
       var byDay = {}, total = 0;
       KOS.sessions.all().forEach(function (s) {
         if (s.type === "media" && s.metrics && s.metrics.module) byDay[s.date] = (byDay[s.date] || 0) + 1;
@@ -338,11 +359,11 @@
       }
       if (total) {
         grid.appendChild(KOS.charts.chartCard("Rest, logged", total + " Collection logs over 16 weeks",
-          KOS.charts.heatmap(days, { color: "#8A63A8" })));
+          KOS.charts.heatmap(days, { color: "var(--vn)" })));
       }
       pane.appendChild(grid);
-      pane.appendChild(el("p", { class: "sub mx-analytics-note",
-        text: "Each vault keeps its own deeper numbers — open one and choose “The numbers” from its ⋯ menu." }));
+      pane.appendChild(el("p", { class: "k-muted",
+        text: "Each vault keeps its own deeper numbers — open one and choose “The numbers” from its Actions menu." }));
     }
 
     /* ================= shared pieces ================= */
@@ -359,18 +380,19 @@
     }
     function statusSeries(m) {
       return ["inProgress", "planned", "onHold", "completed", "dropped"].map(function (st) {
-        return { label: KOS.media.STATUS_LABEL[st], value: m[st] || 0, color: KOS.media.STATUS_COLOR[st] };
+        return { label: KOS.media.STATUS_LABEL[st], value: m[st] || 0, color: "var(--st-" + st + ")" };
       });
     }
+    /* the four doors into the vaults */
     function moduleCards() {
       var m = modules();
-      var cards = el("div", { class: "home-cards med-mods" });
+      var cards = el("div", { class: "k-mx-doors", "data-ui": "coll.modules" });
       KOS.media.MODULES.forEach(function (mod) {
         if (!mod.real) {
-          cards.appendChild(el("div", { class: "subj-card soon-card" }, [
-            el("span", { class: "soon-tag", text: "Coming soon" }),
-            el("h3", {}, [el("span", { class: "kanji-inline", text: mod.kanji }), " " + mod.label]),
-            el("div", { class: "m", text: mod.desc })
+          cards.appendChild(el("div", { class: "k-card k-mx-door", "data-ui": "coll.soon-card" }, [
+            el("span", { class: "k-kicker", text: "Coming soon" }),
+            el("h3", { text: mod.kanji + " " + mod.label }),
+            el("p", { class: "k-muted", text: mod.desc })
           ]));
           return;
         }
@@ -382,22 +404,17 @@
           : mod.id === "game"
           ? s.total + " tracked · " + s.inProgress + " playing · " + Math.round(s.episodes) + " hours logged · " + s.completed + " completed"
           : s.total + " entries · " + s.inProgress + " watching · " + s.completed + " completed";
-        cards.appendChild(el("div", { class: "subj-card med-mod-card", style: "--accent:" + mod.accent,
-          role: "button", tabindex: "0",
-          onclick: function () { KOS.show(mod.id); },
-          onkeydown: function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); KOS.show(mod.id); } }
-        }, [
-          el("span", { class: "med-mod-wm", "aria-hidden": "true", text: mod.kanji }),
-          el("div", { class: "subj-card-top" }, [
-            el("div", {}, [
-              el("h3", {}, [el("span", { class: "kanji-inline", text: mod.kanji }), " " + mod.label]),
-              el("span", { class: "b", text: mod.id === "books" ? "Dual-tracked · live"
-                : mod.id === "vn" ? "VNDB-synced · live"
-                : mod.id === "game" ? "Manual-first · live" : "AniList-synced · live" })
-            ])
-          ]),
-          el("div", { class: "m", text: line })
-        ]));
+        var door = el("button", { type: "button", class: "k-card k-mx-door", "data-ui": "coll.module-card",
+          onclick: function () { KOS.show(mod.id); } }, [
+          el("span", { class: "k-mx-door-mark", lang: "ja", "aria-hidden": "true", text: mod.kanji }),
+          el("span", { class: "k-kicker", text: mod.id === "books" ? "Dual-tracked · live"
+            : mod.id === "vn" ? "VNDB-synced · live"
+            : mod.id === "game" ? "Manual-first · live" : "AniList-synced · live" }),
+          el("span", { class: "k-mx-door-t", text: mod.label }),
+          el("span", { class: "k-mrow-sub", text: line })
+        ]);
+        door.style.setProperty("--vh-accent", mod.accent);
+        cards.appendChild(door);
       });
       return cards;
     }

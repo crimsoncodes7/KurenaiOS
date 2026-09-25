@@ -566,6 +566,20 @@ the invariants and the hook contract still govern behaviour.
   letter filter (invariant 55), now in the shared toolbar row.
 - `KOS.ui.tabs` items accept an extra `hook`.
 
+### Step 5c as delivered — the Collection Overview (frame 11a)
+
+- `matrix.js` is a rebuilt file. The Overview follows 11a from top to bottom:
+  - the figure band;
+  - Currently consuming, with its "+1 ep" shortcut;
+  - Airing soon, grouped by day, with a Seasonal view link;
+  - the standings as stacked status bars;
+  - the four module doors.
+- The figure band is a `dl` hooked `coll.figures`, not a
+  `ui.stat-strip`. Three to five facts ride one band (invariant 50c),
+  and a zero figure is dropped (invariant 77).
+- Analytics keeps the KPI strip and the charts. The Overview stays a
+  summary and does not become a second vault (invariant 57).
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

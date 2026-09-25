@@ -414,6 +414,13 @@ color-scheme: dark;
 --mk-work-min: 11rem;
 --mk-cover-w: 44px;
 --mk-cover-h: 62px;
+--mx-now-min: 9rem;
+--mx-ep-cover-w: 30px;
+--mx-ep-cover-h: 42px;
+--mx-stand-name-w: 110px;
+--mx-stand-h: 8px;
+--mx-door-mark: 64px;
+--mx-wash: oklch(0.26 0.05 18);
 
 /* ---------- elevation (invariant 79) ----------
    Surfaces are flat; only floating layers (menus, dialogs, the share card)
