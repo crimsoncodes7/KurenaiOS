@@ -1665,7 +1665,6 @@
      neighbouring topics beside it; one static study-nav (the tabs, the Edit
      control, and on a paged note the page control); the material; and the
      inspector as the page's single state surface (invariant 52). */
-  var TAB_VISIBLE = 4;                     /* the rest sit behind "+N ▾" */
   KOS.views.ref = function (main, arg) {
     var sid = arg.subject, ref = arg.ref;
     var leaf = BYREF[sid][ref];
@@ -1856,28 +1855,42 @@
         "data-tab": t[0], onclick: function () { selectTab(t[0]); } },
         [t[1], t[3] ? el("span", { class: "k-mono", "data-ui": "ui.tab-count", text: String(t[3]) }) : null].filter(Boolean)));
     });
-    /* the tabs past the fourth fold behind "+N ▾" — the open one always
-       shows, wherever it sits */
+    /* tabs that do not fit fold behind "+N ▾", last first — the open one
+       always shows. With the inspector folded (the Files tab) there is room
+       for them all (frame 8i). A layout-less document folds nothing. */
     var moreSlot = el("span", { class: "k-topic-more" });
     function paintTabs() {
-      var hidden = [];
-      tabBar.querySelectorAll("[data-ui~='ui.tab']").forEach(function (b, i) {
+      var btns = [].slice.call(tabBar.querySelectorAll("[data-ui~='ui.tab']"));
+      btns.forEach(function (b) {
         var on = b.dataset.tab === curTab;
         KOS.ui.state(b, "active", on);
         b.setAttribute("aria-selected", String(on));
         b.setAttribute("tabindex", on ? "0" : "-1");
-        var folded = i >= TAB_VISIBLE && !on;
-        b.hidden = folded;
-        if (folded) hidden.push(b);
+        b.hidden = false;
       });
+      moreSlot.innerHTML = "";
+      var hidden = [];
+      if (tabBar.clientWidth > 0) {
+        for (var i = btns.length - 1; i >= 0 && tabBar.scrollWidth > tabBar.clientWidth; i--) {
+          if (btns[i].dataset.tab === curTab) continue;
+          btns[i].hidden = true;
+          hidden.unshift(btns[i]);
+          if (i === btns.length - 1 && !moreSlot.children.length) moreSlot.appendChild(el("span", { class: "k-btn k-topic-more-probe", text: "+8" }));
+        }
+      }
       moreSlot.innerHTML = "";
       if (hidden.length) {
         moreSlot.appendChild(KOS.ui.menu({ label: "+" + hidden.length, className: "k-btn--quiet k-topic-more-btn", hint: "More study material",
           items: hidden.map(function (b) {
-            return { label: b.firstChild.textContent + (b.querySelector("[data-ui~='ui.tab-count']") ? " · " + b.querySelector("[data-ui~='ui.tab-count']").textContent : ""),
+            var n = b.querySelector("[data-ui~='ui.tab-count']");
+            return { label: b.firstChild.textContent + (n ? " · " + n.textContent : ""),
               onSelect: function () { selectTab(b.dataset.tab); } };
           }) }));
       }
+    }
+    if (typeof window.ResizeObserver === "function") {
+      var lastW = 0;
+      try { new window.ResizeObserver(function () { if (tabBar.clientWidth !== lastW) { lastW = tabBar.clientWidth; paintTabs(); } }).observe(tabBar); } catch (e) { /* no layout */ }
     }
     tabBar.addEventListener("keydown", function (e) {
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
@@ -2165,10 +2178,22 @@
         }
       }
       else if (curTab === "worked") {
-        gens.forEach(function (g) {
-          var box = el("section", { class: "k-card k-topic-lab", "aria-label": g.title }, [el("h2", { class: "k-card-title", text: g.title })]);
-          panel.appendChild(box);
-          KOS.worked.mount(box, g);
+        /* the first generator opens; the rest wait behind their titles and
+           mount on first open (frame 8g) */
+        gens.forEach(function (g, i) {
+          if (!i) {
+            var box = el("section", { class: "k-card k-topic-lab", "aria-label": g.title });
+            panel.appendChild(box);
+            KOS.worked.mount(box, g, { title: true });
+            return;
+          }
+          var more = el("details", { class: "k-card k-topic-lab k-topic-fold" }, [
+            el("summary", {}, [el("span", { class: "k-card-title", text: g.title }), el("span", { class: "k-card-meta", "aria-hidden": "true", text: "expand ▾" })])
+          ]);
+          more.addEventListener("toggle", function () {
+            if (more.open && !more.dataset.mounted) { more.dataset.mounted = "1"; KOS.worked.mount(more, g, { title: false }); }
+          });
+          panel.appendChild(more);
         });
       }
       else if (curTab === "files") {
@@ -2178,12 +2203,7 @@
         sims.forEach(function (sm) {
           /* the enrichment layer gates here; the core tabs never do */
           var acc = KOS.governor.simAccess(sm.id);
-          if (!acc.ok) {
-            var lockCard = el("section", { class: "k-card k-topic-lab" });
-            KOS.governor.lockPanel(lockCard, acc);
-            panel.appendChild(lockCard);
-            return;
-          }
+          if (!acc.ok) { KOS.governor.lockPanel(panel, acc, null, { compact: true, title: sm.title }); return; }
           if (sm.mount) {
             var box = el("section", { class: "k-card k-topic-lab", "aria-label": sm.title }, [
               el("h2", { class: "k-card-title", text: sm.title }),

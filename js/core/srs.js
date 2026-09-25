@@ -53,27 +53,20 @@
   }
   function peek(key) { return store.state.srs[key] || null; }
 
-  /* ---- the SM-2 update. rating: 0..3. Returns the updated meta. ---- */
-  function rate(key, rating) {
-    var m = meta(key);
+  /* ---- the SM-2 step: ease, repetitions and interval after a rating,
+     applied to any meta-shaped object. rate() applies it to the stored
+     record; preview() to a copy, so the rating buttons can say what each
+     choice schedules without writing anything. ---- */
+  function step(m, rating) {
     var q = QUALITY[rating];
-    var today = todayISO();
-
-    m.views++;
-    m.lastRating = rating;
-    m.last = today;
-
     /* EF update applies on every review (classic SM-2 formula), floor 1.3 */
     m.ef = Math.max(1.3, m.ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)));
-
     if (rating === 0) {
       /* lapse: repetition count resets and the long-term interval snaps to a
          short value. Due today — the card stays in the due queue until it is
          re-rated (the session engine also requeues it immediately). */
       m.reps = 0;
       m.ivl = 0;
-      m.lapses++;
-      m.due = today;
     } else {
       m.reps++;
       if (m.reps === 1) m.ivl = 1;
@@ -84,10 +77,27 @@
         if (rating === 3) next = m.ivl * m.ef * 1.3;  // Easy: bonus
         m.ivl = Math.max(m.ivl + 1, Math.round(next));
       }
-      m.due = addDays(today, m.ivl);
     }
+    return m;
+  }
+
+  /* ---- the SM-2 update. rating: 0..3. Returns the updated meta. ---- */
+  function rate(key, rating) {
+    var m = meta(key);
+    var today = todayISO();
+    m.views++;
+    m.lastRating = rating;
+    m.last = today;
+    step(m, rating);
+    if (rating === 0) { m.lapses++; m.due = today; }
+    else m.due = addDays(today, m.ivl);
     store.save();
     return m;
+  }
+  /* the interval in days a rating would schedule — 0 is "again today" */
+  function preview(key, rating) {
+    var cur = peek(key) || { ef: 2.5, ivl: 0, reps: 0 };
+    return step({ ef: cur.ef, ivl: cur.ivl, reps: cur.reps }, rating).ivl;
   }
 
   /* ---- unified card enumeration ---- */
@@ -281,6 +291,7 @@
     meta: meta,
     peek: peek,
     rate: rate,
+    preview: preview,
     cardsFor: cardsFor,
     allCards: allCards,
     dueCards: dueCards,

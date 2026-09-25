@@ -163,12 +163,17 @@ step("the MCQ engine mounts the fork; an exam fork round-trips its parts", () =>
   KOS.edits.set(SID, REF, "quiz", quiz);
   KOS.show("ref", { subject: SID, ref: REF });
   click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "quiz"));
+  /* Graphite (frame 8e): one question at a time — the fork's addition is last */
+  const n = Number(($("[data-ui~='quiz.counter']").textContent.match(/of (\d+)/) || [])[1]);
+  for (let i = 1; i < n; i++) { click($("[data-ui~='quiz.card'] [data-ui~='quiz.option']")); click($("[data-ui~='quiz.next']")); }
   assert(/FORKED QUESTION/.test($("[data-ui~='study.panel']").textContent), "the quiz fork did not mount");
   const exam = [{ q: "single", marks: 2, ms: ["m1", "m2"] },
                 { ctx: "shared stem", parts: [{ q: "(a)", marks: 1, ms: ["x"] }, { q: "(b)", marks: 3, ms: ["y", "z"] }], src: "AQA 2023" }];
   KOS.edits.set(SID, REF, "exam", exam);
   click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "exam"));
-  assert(/shared stem/.test($("[data-ui~='study.panel']").textContent) && $$("[data-ui~='quiz.exam']").length === 2, "the exam fork did not mount as two items");
+  assert(/ of 2$/.test($("[data-ui~='quiz.counter']").textContent), "the exam fork did not mount as two items");
+  click($("[data-ui~='quiz.next']"));
+  assert(/shared stem/.test($("[data-ui~='study.panel']").textContent), "the second item lost its stem");
   assert($("[data-ui~='quiz.multi']"), "the multi-part item is not rendered as one");
 });
 

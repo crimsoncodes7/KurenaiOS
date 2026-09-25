@@ -153,10 +153,18 @@ step("a multi-part item renders its stem, lettered parts, provenance and one sel
   const tab = $$("[data-ui~='topic.nav'] button, [data-ui~='topic.nav'] [data-ui~='part.tab'], [data-ui~='topic.nav'] [role=tab]").find(b => /Exam questions/.test(b.textContent));
   assert(tab, "no Exam questions tab on the topic page");
   click(tab);
-  const items = $$("[data-ui~='quiz.exam-top']").length;
+  /* Graphite (frame 8f): one question at a time, "Question x of N" */
+  const count = () => Number(($("[data-ui~='quiz.counter']").textContent.match(/of (\d+)/) || [])[1]);
+  const items = count();
   assert(items >= 5, "the bank's exam items did not render: " + items);
-  assert($$("[data-ui~='quiz.src']").some(s => /modelled on Edexcel/.test(s.textContent)), "no provenance line");
-  assert($$("[data-ui~='quiz.part-l']").some(l => /^\(a\)/.test(l.textContent.trim())), "parts are not lettered");
+  const seen = { src: false, part: false };
+  for (let i = 0; i < items; i++) {
+    if ($$("[data-ui~='quiz.src']").some(s => /modelled on Edexcel/.test(s.textContent))) seen.src = true;
+    if ($$("[data-ui~='quiz.part-l']").some(l => /^\(a\)/.test(l.textContent.trim()))) seen.part = true;
+    if (i < items - 1) click($("[data-ui~='quiz.next']"));
+  }
+  assert(seen.src, "no provenance line");
+  assert(seen.part, "parts are not lettered");
   const chips = $$("[data-ui~='quiz.chip']");
   assert(chips.length >= 3, "no tariff filter chips");
   const before = KOS.store.state.sessions.length;
@@ -167,11 +175,12 @@ step("a multi-part item renders its stem, lettered parts, provenance and one sel
 });
 
 step("the tariff chips filter the items shown", () => {
-  const all = $$("[data-ui~='quiz.exam-top']").length;
+  const count = () => Number(($("[data-ui~='quiz.counter']").textContent.match(/of (\d+)/) || [])[1]);
+  const all = count();
   const chip = $$("[data-ui~='quiz.chip']").find(c => /6\+/.test(c.textContent));
   assert(chip, "no 6+ marks chip");
   click(chip);
-  const shown = $$("[data-ui~='quiz.exam-top']").length;
+  const shown = count();
   assert(shown >= 1 && shown < all, "the 6+ filter did not narrow the list (" + shown + " of " + all + ")");
 });
 

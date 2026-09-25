@@ -392,6 +392,33 @@ the invariants and the hook contract still govern behaviour.
 - smoke56 `via` lets a reachable retirement look outside the replayed
   regions (the spine's subject switch lives in `#tree`).
 
+### Step 3c as delivered — the tab panels (frames 8d–8i)
+
+- **Flashcards** (`js/engines/flashcards.js`, now a rebuilt file): the mode
+  pills, a row of pips, the card over a second card's edge, the four
+  ratings each naming the interval it schedules (`KOS.srs.preview`, a pure
+  SM-2 step shared with `rate`), one line of the card's history, the keys,
+  and the deck's figures with the session controls. The deck browser and
+  the Personal Deck's card form are rebuilt too.
+- **Quiz and exam questions** (`js/engines/quiz.js`, rebuilt): one question
+  at a time with "Question x of N". An MCQ locks on the first answer, marks
+  the right option, says why and offers the next question (1–9 answer, Enter
+  moves on). An exam question reveals its scheme as a checklist when there
+  is a point per mark, and keeps the mark buttons for a banded scheme; one
+  Log per item, as before.
+- **Worked examples** (`mountGenerator` in `js/labs/worked.js`): the title
+  with "↻ New numbers", your numbers, the working as ruled steps revealed
+  one at a time and the answer in its own box; a topic's second and later
+  generators wait behind their titles. The Worked Examples page itself is
+  the Labs step.
+- **Simulations**: a gated one is one row — what it is, why it is closed,
+  Unlock (`KOS.governor.lockPanel(…, {compact})`); the whole-page lock is
+  the same statement centred.
+- **Files** (`js/modules/attachments.js`, rebuilt): the list with type
+  badges beside one preview card (name and actions, fit/zoom, the preview,
+  the notes beneath). The topic tabs now fold by the width available, so
+  with the inspector folded every tab shows (8i).
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

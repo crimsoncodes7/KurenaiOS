@@ -170,10 +170,14 @@ console.log("== quiz engine ==");
 step("MCQ instant feedback + scoring", () => {
   KOS.show("ref", { subject: "compsci", ref: "4.2.2.1" });
   click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "quiz"));
-  const cards = $$("[data-ui~='quiz.card']");
-  if (cards.length < 4) throw new Error("quiz too small");
-  cards.forEach(c => click(c.querySelectorAll("[data-ui~='quiz.option']")[0])); // answer everything with option A
-  if (!$("[data-ui~='quiz.result']") || $("[data-ui~='quiz.result']").style.display === "none") throw new Error("no result");
+  /* Graphite (frame 8e): one question at a time — answer A, then next */
+  const total = Number(($("[data-ui~='quiz.counter']").textContent.match(/of (\d+)/) || [])[1]);
+  if (!(total >= 4)) throw new Error("quiz too small");
+  for (let i = 0; i < total; i++) {
+    click($("[data-ui~='quiz.card'] [data-ui~='quiz.option']"));
+    if (i < total - 1) click($("[data-ui~='quiz.next']"));
+  }
+  if (!$("[data-ui~='quiz.result']") || $("[data-ui~='quiz.result']").hidden) throw new Error("no result");
   if (!$$("[data-ui~='quiz.why']").length) throw new Error("no explanations");
   const st = KOS.quiz.stats("compsci", "4.2.2.1");
   if (st.attempts < 1) throw new Error("attempt not logged");

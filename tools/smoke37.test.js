@@ -347,13 +347,14 @@ step("every study tab carries its full name", () => {
    levels of tab for one decision. It is one row now, and the row is a
    DECLARED scroller (Phase B invariant #50), which is what lets it stay one
    row at 390px as well as at 1920. */
-/* Graphite (frame 8b): the strip no longer scrolls sideways at all — the
-   first four tabs show, the rest fold behind "+N ▾", and the open tab always
-   shows wherever it sits. Nothing is unreachable and nothing scrolls. */
-step("the topic strip is one row: four tabs, the rest behind +N", () => {
+/* Graphite (frames 8b, 8i): the strip no longer scrolls sideways at all —
+   the tabs that do not fit fold behind "+N ▾" (jsdom has no layout, so
+   nothing folds here), and the open tab always shows wherever it sits.
+   Nothing is unreachable and nothing scrolls. */
+step("the topic strip is one row: what fits, the rest behind +N", () => {
   const tabs = $$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']");
   const folded = tabs.filter(b => b.hidden);
-  assert(tabs.slice(0, 4).every(b => !b.hidden), "one of the first four tabs is folded");
+  assert(!/TAB_VISIBLE/.test(fs.readFileSync(path.join(ROOT, "js/modules/hub.js"), "utf8")), "the fold is a fixed count again");
   assert(folded.every(b => b.getAttribute("aria-selected") !== "true"), "the open tab was folded away");
   const more = $("[data-ui~='topic.nav'] [data-ui~='ui.menu-button']");
   assert(!folded.length || (more && more.textContent.indexOf("+" + folded.length) === 0), "the folded tabs are not offered behind +N");

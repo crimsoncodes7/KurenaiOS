@@ -143,10 +143,10 @@ for (const gid of ["quad", "diff", "trig", "logs", "bin", "float", "suvat"]) {
     const steps = $$("[data-ui~='part.step']");
     if (steps.length < 3) throw new Error("only " + steps.length + " steps");
     // reveal all and check the answer line appears
-    const all = $$("button.gold").find(b => b.textContent === "Reveal all");
+    const all = $$("button").find(b => b.textContent === "Reveal all");
     if (all) click(all);
     const ans = $("[data-ui~='lab.answer-line']");
-    if (!ans || ans.style.display === "none") throw new Error("no answer line");
+    if (!ans || ans.hidden) throw new Error("no answer line");
     if (/NaN|undefined|Infinity/.test(ans.textContent)) throw new Error("bad answer: " + ans.textContent);
     console.log("       " + ans.textContent.slice(0, 76));
   });

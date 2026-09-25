@@ -392,19 +392,23 @@ step("the listener removes itself once its panel is gone", () => {
   assert(!document.contains(dead), "the old card is somehow still in the document");
 });
 
-step("1–9 answer the first quiz question still open", () => {
+/* Graphite (frame 8e): one question at a time. 1–9 answer the question on
+   screen, a second press never answers it again, Enter moves on. */
+step("1–9 answer the question on screen; Enter moves on", () => {
   KOS.show("ref", { subject: SID, ref: REF });
   click($$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']").find(b => b.dataset.tab === "quiz"));
-  const cards = $$("[data-ui~='quiz.card']");
-  assert(cards.length > 1, "expected several quiz questions, got " + cards.length);
-  assert(cards[0].querySelector("[data-ui~='quiz.option'] [data-ui~='quiz.option-key']").textContent === "1",
+  const first = $("[data-ui~='quiz.card']");
+  assert(/^Question 1 of \d+$/.test($("[data-ui~='quiz.counter']").textContent), "no position in the set");
+  assert(first.querySelector("[data-ui~='quiz.option'] [data-ui~='quiz.option-key']").textContent === "1",
     "the options do not carry their number key");
   key("1");
-  assert(cards[0].querySelector("[data-ui~='quiz.why']"), "the first question was not answered");
-  assert(!cards[1].querySelector("[data-ui~='quiz.why']"), "a second question was answered by one keypress");
-  key("1");
-  assert(cards[1].querySelector("[data-ui~='quiz.why']"), "the key did not move on to the next open question");
-  assert(cards[0].querySelectorAll("[data-ui~='quiz.why']").length === 1, "an answered question was answered twice");
+  assert(first.querySelector("[data-ui~='quiz.why']"), "the question was not answered");
+  key("2");
+  assert(first.querySelectorAll("[data-ui~='quiz.why']").length === 1, "an answered question was answered twice");
+  key("Enter");
+  const second = $("[data-ui~='quiz.card']");
+  assert(second !== first && /^Question 2 of/.test($("[data-ui~='quiz.counter']").textContent), "Enter did not move on");
+  assert(!second.querySelector("[data-ui~='quiz.why']"), "the next question arrived already answered");
 });
 
 /* ============ F · targets and labels ============ */

@@ -212,6 +212,24 @@
    "reachable": true,
    "from": ".",
    "why": "Graphite step 3b (topic page, frame 8b): the note foot's page buttons are topic.page alone (the pager-button hook is the header's neighbours)."
+  },
+  {
+   "hooks": "fc.card",
+   "from": "^Flashcard — click to flip$",
+   "to": "Flashcard — press to flip",
+   "why": "Graphite step 3c (flashcards, frame 8d): the card is pressed as often as clicked (Space flips it)."
+  },
+  {
+   "hooks": "fc.r",
+   "from": "^\\d(Again|Hard|Good|Easy)(.+)$",
+   "to": "$1 — $2",
+   "why": "Graphite step 3c (flashcards, frame 8d): a rating button is named by its rating and what it means; the key and the interval it schedules are visual."
+  },
+  {
+   "retire": true,
+   "reachable": true,
+   "from": "^⚄ Randomise$",
+   "why": "Graphite step 3c (worked examples, frame 8g): Randomise reads \"↻ New numbers\" and carries its own hook (lab.randomise); it must still do exactly what it did."
   }
  ]
 }

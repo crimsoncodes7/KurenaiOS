@@ -14,7 +14,10 @@
     "css/views/assistant.css",
     "css/views/archive.css",
     "css/views/labs.css",
-    "css/themes.css"
+    "css/themes.css",
+    "js/engines/flashcards.js",
+    "js/engines/quiz.js",
+    "js/modules/attachments.js"
   ],
   "views": {
     "home": {},

@@ -262,6 +262,14 @@ color-scheme: dark;
 --syn-num: oklch(0.82 0.12 60);
 --syn-str: oklch(0.8 0.12 140);
 --syn-com: oklch(0.55 0.02 265);
+--fc-w: 560px;
+--fc-h: 250px;
+--fc-pip: 20px;
+--fc-rate-w: 92px;
+--track-kind: 0.18em;
+--att-side-w: 240px;
+--att-badge: 34px;
+--att-preview-h: 70vh;
 
 /* ---------- elevation (invariant 79) ----------
    Surfaces are flat; only floating layers (menus, dialogs, the share card)

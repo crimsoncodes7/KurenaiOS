@@ -350,20 +350,39 @@
   /* Wrap the lab views once everything is registered (called from main.js).
      The sims view gates per-sim inside its own tabs on the gold unlock alone;
      the "hp" branch below is kept only so an old access verdict cannot throw. */
-  function lockPanel(main, access, backLabel) {
+  /* a gated lab or simulation (invariant 2: gold gates labs and sims
+     only). Inline in a topic's Simulations tab it is one row — the mark,
+     what it is, why it is closed, and Unlock (frame 8h); as a whole page it
+     is the same statement centred, with a way back. */
+  function lockPanel(main, access, backLabel, opts) {
     var el = KOS.ui.el;
+    opts = opts || {};
     var isHp = access.why === "hp";
-    main.appendChild(el("div", { class: "gov-lock" }, [
-      el("div", { class: "gov-lock-glyph", text: isHp ? "朽" : "錠" }),
-      el("h2", { text: isHp ? "Suspended — HP is " + hpStateInfo().label : "Locked — " + access.item.name }),
-      el("p", { class: "sub", text: isHp
+    var name = isHp ? (opts.title || "Labs") : access.item.name;
+    var why = isHp
+      ? "Suspended while HP is " + hpStateInfo().label + " — core revision never locks"
+      : "Locked by the Governor · " + access.item.price + " gold, a one-time unlock";
+    var go = el("button", { type: "button", class: "k-btn", text: isHp ? "Open Recovery" : "Unlock",
+      onclick: function () { if (isHp) KOS.show("governor"); else KOS.show("governor", "shop"); } });
+    if (opts.compact) {
+      main.appendChild(el("section", { class: "k-card k-lock", "data-ui": "gov.lock", "data-state": "compact", "aria-label": name + " — locked" }, [
+        el("span", { class: "k-lock-mark", "aria-hidden": "true", text: isHp ? "朽" : "◆" }),
+        el("span", { class: "k-lock-txt" }, [el("b", { text: name }), el("span", { text: why })]),
+        go
+      ]));
+      return;
+    }
+    main.appendChild(el("section", { class: "k-card k-lock", "data-ui": "gov.lock", "aria-label": name + " — locked" }, [
+      el("span", { class: "k-lock-mark", lang: "ja", "aria-hidden": "true", text: isHp ? "朽" : "錠" }),
+      el("h1", { class: "k-lock-title", text: (isHp ? "Suspended — " : "Locked — ") + name }),
+      el("p", { class: "k-lock-why", text: isHp
         ? "Labs and simulations reopen at 60 HP. Clear due flashcards, finish a session or tick to-do items to recover. Core revision (notes, flashcards, quizzes, exam Qs) is never locked."
-        : access.item.name + " is a one-time unlock: " + access.item.price + " gold. Earn gold from sessions, streaks, high quiz scores and clearing the review backlog." }),
-      el("div", { class: "lab-controls", style: "justify-content:center;margin-top:14px" }, [
+        : name + " is a one-time unlock: " + access.item.price + " gold. Earn gold from sessions, streaks, high quiz scores and clearing the review backlog." }),
+      el("div", { class: "k-lock-actions", "data-ui": "lab.controls" }, [
+        el("button", { type: "button", class: "k-btn", text: backLabel || "← Home", onclick: function () { KOS.show("home"); } }),
         isHp
-          ? el("button", { class: "btn primary", text: "Open Recovery — Governor panel", onclick: function () { KOS.show("governor"); } })
-          : el("button", { class: "btn gold", text: "Open the Gold Shop", onclick: function () { KOS.show("governor", "shop"); } }),
-        el("button", { class: "btn", text: backLabel || "← Overview", onclick: function () { KOS.show("home"); } })
+          ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Open Recovery", onclick: function () { KOS.show("governor"); } })
+          : el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Open the Gold Shop", onclick: function () { KOS.show("governor", "shop"); } })
       ])
     ]));
   }

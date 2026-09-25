@@ -847,49 +847,62 @@
     }
   }];
 
-  /* ---------- shared mount so notes pages can embed a generator ---------- */
-  function mountGenerator(panel, g) {
-    panel.appendChild(KOS.ui.el("p", { class: "sub", style: "margin-top:0", text: g.blurb }));
+  /* ---------- shared mount so notes pages can embed a generator ----------
+     Graphite (frame 8g): the generator's title with "↻ New numbers", what it
+     does, your numbers, then the working as ruled steps revealed one at a
+     time, and the answer in its own green box. opts.title draws the title
+     row (a topic page's tab); the Worked Examples page draws its own. */
+  function mountGenerator(panel, g, opts) {
+    var el = KOS.ui.el;
+    opts = opts || {};
+    var fields = {};
+    function randomise() {
+      var r = g.random();
+      Object.keys(r).forEach(function (k) { if (fields[k]) fields[k].value = r[k]; });
+      run();
+    }
+    if (opts.title) {
+      panel.appendChild(el("div", { class: "k-wk-head" }, [
+        el("h2", { class: "k-wk-title", text: g.title }),
+        el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "lab.randomise", text: "↻ New numbers", onclick: randomise })
+      ]));
+    }
+    panel.appendChild(el("p", { class: "k-wk-blurb", "data-ui": "part.sub", text: g.blurb }));
     /* the spec line doubles as the way back to the topic page: GENWIRE knows
        which leaf (or leaves) this generator is mounted on */
     var wired = Object.keys(GENWIRE).filter(function (k) { return GENWIRE[k].indexOf(g.id) >= 0; });
-    var specLine = KOS.ui.el("div", { class: "specref", style: "display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px" }, [
-      KOS.ui.el("span", { text: (g.subject === "maths" ? "Edexcel 9MA0 \u00B7 " : "AQA 7517 \u00B7 ") + g.ref })
+    var specLine = el("div", { class: "k-wk-spec" }, [
+      el("span", { class: "k-mono", text: (g.subject === "maths" ? "Edexcel 9MA0 · " : "AQA 7517 · ") + g.ref })
     ]);
-    wired.slice(0, 2).forEach(function (k) {
+    if (!opts.title) wired.slice(0, 2).forEach(function (k) {
       var sid = k.split(":")[0], ref = k.split(":").slice(1).join(":");
       var leaf = KOS.hub && KOS.hub.BYREF[sid] && KOS.hub.BYREF[sid][ref];
       if (!leaf) return;
-      specLine.appendChild(KOS.ui.el("button", { class: "linkish", text: "open " + ref + " " + leaf.title.slice(0, 40) + (leaf.title.length > 40 ? "\u2026" : "") + " \u2192",
+      specLine.appendChild(el("button", { type: "button", class: "k-link", text: "open " + ref + " " + leaf.title.slice(0, 40) + (leaf.title.length > 40 ? "…" : "") + " →",
         onclick: function () { KOS.show("ref", { subject: sid, ref: ref }); } }));
     });
     panel.appendChild(specLine);
 
-    var fields = {};
-    var controls = KOS.ui.el("div", { class: "lab-controls" });
+    var controls = el("div", { class: "k-wk-inputs", "data-ui": "lab.controls" });
     g.inputs.forEach(function (inp) {
       var f;
       if (inp.type === "select") {
-        f = KOS.ui.el("select", {}, inp.opts.map(function (o) { return KOS.ui.el("option", { value: o, text: o }); }));
+        f = el("select", { class: "k-input" }, inp.opts.map(function (o) { return el("option", { value: o, text: o }); }));
         f.value = inp.def;
       } else {
-        f = KOS.ui.el("input", { type: inp.type, value: inp.def });
+        f = el("input", { type: inp.type, class: "k-input", value: inp.def });
         if (inp.step) f.step = inp.step;
-        if (inp.w) f.style.width = inp.w + "px";
+        if (inp.w) f.style.setProperty("--wk-field", inp.w);
       }
       fields[inp.k] = f;
       /* Enter in any field regenerates — no reaching for the button */
       f.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); run(); } });
-      controls.appendChild(KOS.ui.el("label", {}, [inp.label, f]));
+      controls.appendChild(el("label", { class: "k-wk-field" }, [inp.label, f]));
     });
-    controls.appendChild(KOS.ui.el("button", { class: "btn primary", text: "Generate working", onclick: run }));
-    controls.appendChild(KOS.ui.el("button", { class: "btn gold", text: "\u2684 Randomise", onclick: function () {
-      var r = g.random();
-      Object.keys(r).forEach(function (k) { if (fields[k]) fields[k].value = r[k]; });
-      run();
-    }}));
+    controls.appendChild(el("button", { type: "button", class: "k-btn", "data-intent": "primary", text: "Generate working", onclick: run }));
+    if (!opts.title) controls.appendChild(el("button", { type: "button", class: "k-btn", "data-ui": "lab.randomise", text: "↻ New numbers", onclick: randomise }));
     panel.appendChild(controls);
-    var out = KOS.ui.el("div", {});
+    var out = el("div", { class: "k-wk-out" });
     panel.appendChild(out);
 
     function run() {
@@ -908,37 +921,42 @@
       if (err) { KOS.ui.toast(err, true); return; }
       var result;
       try { result = g.solve(vals); }
-      catch (e) { console.error(e); KOS.ui.toast("That input broke the generator \u2014 try different values.", true); return; }
+      catch (e) { console.error(e); KOS.ui.toast("That input broke the generator — try different values.", true); return; }
 
       var revealed = 0;
+      var table = el("ol", { class: "k-wk-steps", "aria-label": "Working" });
       var stepEls = result.steps.map(function (st, i) {
-        var d = KOS.ui.el("div", { class: "step", style: i === 0 ? "" : "display:none" }, [
-          KOS.ui.el("div", { class: "sh", text: "Step " + (i + 1) + " \u2014 " + st.h }),
-          KOS.ui.el("div", { class: "sm", text: st.m }),
-          st.n ? KOS.ui.el("div", { class: "sn", text: st.n }) : null
-        ]);
+        var d = el("li", { class: "k-wk-step", "data-ui": "part.step", hidden: i === 0 ? null : "" }, [
+          el("span", { class: "k-wk-step-n k-mono", text: "Step " + (i + 1) }),
+          el("span", { class: "k-wk-step-h", text: st.h }),
+          el("span", { class: "k-wk-step-m", text: st.m }),
+          st.n ? el("span", { class: "k-wk-step-note", text: st.n }) : null
+        ].filter(Boolean));
         if (i === 0) KOS.ui.state(d, "revealed", true);
+        table.appendChild(d);
         return d;
       });
-      var ansEl = KOS.ui.el("div", { class: "answerline", style: "display:none", text: "\u25B8 " + result.answer });
-      var nextBtn = KOS.ui.el("button", { class: "btn", text: "Reveal next step", onclick: function () { reveal(1); } });
-      var allBtn = KOS.ui.el("button", { class: "btn gold", text: "Reveal all", onclick: function () { reveal(99); } });
+      var ansEl = el("div", { class: "k-wk-answer", "data-ui": "lab.answer-line", hidden: "" }, [
+        el("b", { text: "Answer" }), el("span", { text: result.answer })
+      ]);
+      var nextBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: "Reveal next step", onclick: function () { reveal(1); } });
+      var allBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: "Reveal all", onclick: function () { reveal(99); } });
       function reveal(n) {
         while (n-- > 0 && revealed < stepEls.length - 1) {
           revealed++;
-          stepEls[revealed].style.display = "";
+          stepEls[revealed].hidden = false;
           KOS.ui.state(stepEls[revealed], "revealed", true);
         }
         if (revealed >= stepEls.length - 1) {
-          ansEl.style.display = "";
+          ansEl.hidden = false;
           nextBtn.disabled = true; allBtn.disabled = true;
         }
       }
-      stepEls.forEach(function (d) { out.appendChild(d); });
+      out.appendChild(table);
       out.appendChild(ansEl);
       if (stepEls.length > 1) {
-        out.appendChild(KOS.ui.el("div", { class: "lab-controls", style: "margin-top:14px" }, [nextBtn, allBtn]));
-      } else { ansEl.style.display = ""; }
+        out.appendChild(el("div", { class: "k-wk-reveal", "data-ui": "lab.controls" }, [nextBtn, allBtn]));
+      } else { ansEl.hidden = false; }
     }
     run();
   }
