@@ -674,6 +674,24 @@
 .k-pf-row > .k-mono { flex: 0 0 auto; font-size: var(--fs-12); }
 .k-pf-note { margin: 0; font-size: var(--fs-13); }
 
+/* ================= Find new: the provider search dialog ================= */
+.k-dialog.k-fs-dialog { inline-size: min(var(--pl-dialog-w), 100%); }
+.k-fs { display: flex; flex-direction: column; gap: var(--sp-10); }
+.k-fs-in { max-inline-size: none; inline-size: 100%; }
+.k-fs-results { display: flex; flex-direction: column; }
+.k-fs-row { display: grid; grid-template-columns: var(--pl-thumb-col) minmax(0, 1fr) auto; align-items: center; gap: var(--sp-12); padding-block: var(--sp-10); }
+.k-fs-row + .k-fs-row { border-block-start: var(--hairline) solid var(--line); }
+.k-fs-row[data-state~="msch-added"] { opacity: 0.7; }
+.k-fs-cover { position: relative; display: block; inline-size: var(--pl-thumb-w); block-size: var(--pl-thumb-h); border-radius: var(--r-6); overflow: hidden; isolation: isolate; }
+.k-fs-cover .k-mcover-ph { font-size: var(--fs-16); }
+.k-fs-body { min-inline-size: 0; }
+.k-fs-title { font-size: var(--fs-14); font-weight: var(--weight-semibold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-fs-meta { font-size: var(--fs-12); }
+.k-fs-act { display: flex; flex-direction: column; align-items: flex-end; gap: var(--sp-6); }
+.k-fs-picker { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--sp-4); }
+.k-fs-picker:empty { display: none; }
+.k-fs-picker > .k-btn[data-status] { color: var(--st); }
+
 @media (max-width: 1240px) {
 .k-shr-wall { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .k-mstat-band { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -748,6 +766,9 @@
 }
 
 @media (max-width: 560px) {
+.k-fs-row { grid-template-columns: var(--pl-thumb-col) minmax(0, 1fr); }
+.k-fs-act { grid-column: 1 / -1; align-items: flex-start; }
+.k-fs-picker { justify-content: flex-start; }
 .k-pl-hero-title { font-size: var(--fs-22); }
 .k-pl-allow-figure > b { font-size: var(--fs-30); }
 .k-shr-hero-title { font-size: var(--fs-32); }

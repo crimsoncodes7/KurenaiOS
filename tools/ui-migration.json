@@ -41,7 +41,8 @@
     "js/modules/goals.js",
     "js/modules/mediasync.js",
     "js/modules/aniprofile.js",
-    "js/modules/vndbprofile.js"
+    "js/modules/vndbprofile.js",
+    "js/modules/mediasearch.js"
   ],
   "views": {
     "home": {},

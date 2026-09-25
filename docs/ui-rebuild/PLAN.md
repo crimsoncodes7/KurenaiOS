@@ -672,6 +672,18 @@ the invariants and the hook contract still govern behaviour.
   the sub-nav already carry both.
 - Chart and label colours are module/status tokens.
 
+### Step 5g as delivered — Find new (the provider search dialog)
+
+- `mediasearch.js` is a rebuilt file. The dialog goes through
+  `KOS.medview.dialogBox` and uses the vault's cover wash for results
+  without art.
+- Result rows are one grid: cover, title and meta, and "+ Add". The
+  "+ Add" button unfolds the status picker, coloured by the shared
+  status hue.
+- The vault-versus-database line and the VNDB CORS caveat still head
+  the dialog.
+- This closes Collection (step 5). The Governor (step 6) is next.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

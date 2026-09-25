@@ -177,34 +177,31 @@
     });
   }
 
-  /* ---------------- the modal ---------------- */
+  /* ---------------- the dialog ---------------- */
   function open(module, onAdded) {
     var mod = KOS.media.module(module);
     var serviceName = module === "vn" ? "VNDB" : module === "game" ? "IGDB" : "AniList";
 
     var overlay = KOS.medview.modalOverlay();   // click-outside + Esc close
-    var close = overlay.close;
 
-    var input = el("input", { type: "search", class: "todo-in msch-in",
-      placeholder: "Search all of " + serviceName + "…",
+    var input = el("input", { type: "search", class: "k-msearch k-fs-in", "data-ui": "msearch.input",
+      placeholder: "⌕ Search all of " + serviceName + "…",
       "aria-label": "Search " + serviceName });
-    var statusNote = el("p", { class: "sub msch-note" });
-    var results = el("div", { class: "msch-results" });
+    var statusNote = el("p", { class: "k-sy-status", "data-ui": "msearch.note", "aria-live": "polite" });
+    var results = el("div", { class: "k-fs-results", "data-ui": "msearch.results" });
 
     function render(list) {
       results.innerHTML = "";
       if (!list.length) {
-        results.appendChild(el("p", { class: "fc-empty", text: input.value.trim()
-          ? "No matches on " + serviceName + "." : "" }));
+        if (input.value.trim()) results.appendChild(KOS.ui.emptyState({ compact: true, body: "No matches on " + serviceName + "." }));
         return;
       }
       list.forEach(function (r) {
-        var pickerHolder = el("div", { class: "msch-picker" });
-        var addBtn = el("button", { class: "btn primary msch-add", text: "+ Add", onclick: function () {
+        var pickerHolder = el("div", { class: "k-fs-picker", "data-ui": "msearch.picker", role: "group", "aria-label": "Add as" });
+        var addBtn = el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-ui": "msearch.add", text: "+ Add", onclick: function () {
           if (pickerHolder.childNodes.length) { pickerHolder.innerHTML = ""; return; }
           STATUS_ORDER.forEach(function (s) {
-            pickerHolder.appendChild(el("button", { class: "btn msch-status",
-              style: "--chip:" + KOS.media.STATUS_COLOR[s],
+            var b = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "msearch.status", "data-status": s,
               text: STATUS_WORDS[module][s],
               onclick: function () {
                 pickerHolder.innerHTML = "";
@@ -212,9 +209,10 @@
                   KOS.ui.state(row, "msch-added", true);
                   addBtn.textContent = "✓ In vault";
                   addBtn.disabled = true;
-                  onAdded && onAdded(rec);
+                  if (onAdded) onAdded(rec);
                 });
-              } }));
+              } });
+            pickerHolder.appendChild(b);
           });
         } });
         var metaBits = [];
@@ -223,15 +221,13 @@
         if (r.released) metaBits.push(r.released.slice(0, 4));
         if (r.total) metaBits.push(r.total + " " + mod.unit + (r.total === 1 ? "" : "s"));
         if (r.developer) metaBits.push(r.developer);
-        var row = el("div", { class: "msch-row" }, [
-          r.coverUrl
-            ? el("img", { class: "msch-cover", src: r.coverUrl, alt: "", loading: "lazy" })
-            : el("span", { class: "msch-cover med-cover-ph", "aria-hidden": "true", text: mod.kanji }),
-          el("div", { class: "msch-body" }, [
-            el("div", { class: "msch-title", text: r.title }),
-            el("div", { class: "sub", text: metaBits.join(" · ") })
+        var row = el("div", { class: "k-fs-row", "data-ui": "msearch.row" }, [
+          el("span", { class: "k-fs-cover" }, [KOS.medview.cover({ title: r.title, coverUrl: r.coverUrl || "" }, mod.kanji)]),
+          el("div", { class: "k-fs-body" }, [
+            el("div", { class: "k-fs-title", text: r.title }),
+            el("div", { class: "k-muted k-fs-meta", text: metaBits.join(" · ") })
           ]),
-          el("div", { class: "msch-act" }, [addBtn, pickerHolder])
+          el("div", { class: "k-fs-act" }, [addBtn, pickerHolder])
         ]);
         results.appendChild(row);
       });
@@ -264,20 +260,12 @@
     }
     input.addEventListener("input", KOS.ui.debounce(runSearch, SEARCH_DEBOUNCE));
 
-    var box = el("div", { class: "modal med-modal msch-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("b", {}, [el("span", { class: "kanji-inline", text: mod.kanji }), " Find new — " + serviceName]),
-        el("span", { class: "sub", text: "searches the whole " + serviceName + " database, not your vault — picking a status " +
-          (module === "game"
-            ? "adds the entry locally (IGDB holds no personal list; everything stays hand-editable)"
-            : "creates the entry " + (module === "vn" ? "on VNDB (through the cloud relay when you're signed in — browser writes are currently blocked by VNDB's CORS policy — else it falls back to a local add)" : "on your AniList") + " and mirrors it here") }),
-        el("button", { class: "mini-btn", style: "margin-left:auto", text: "✕", "aria-label": "Close", onclick: close })
-      ]),
-      input,
-      statusNote,
-      results
-    ]);
-    overlay.appendChild(box);
+    KOS.medview.dialogBox(overlay, "msearch.dialog", mod.kanji + " Find new — " + serviceName,
+      "This searches the whole " + serviceName + " database, not your vault. Picking a status " +
+        (module === "game"
+          ? "adds the entry locally (IGDB holds no personal list; everything stays hand-editable)."
+          : "creates the entry " + (module === "vn" ? "on VNDB (through the cloud relay when you're signed in — browser writes are currently blocked by VNDB's CORS policy — else it falls back to a local add)" : "on your AniList") + " and mirrors it here."),
+      el("div", { class: "k-dialog-body k-fs" }, [input, statusNote, results]), null, "k-fs-dialog");
     KOS.ui.openDialog(overlay);
     input.focus();
   }
