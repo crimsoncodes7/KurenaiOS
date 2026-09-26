@@ -269,11 +269,20 @@
       open: function () { editorModal(e, rerender); }
     });
   }
+  /* 11f's table: Progress · Format · Season */
+  var LIST_COLS = ["Progress", "Format", "Season"];
+  var ANIME_FORMAT = { TV: "TV", TV_SHORT: "TV short", MOVIE: "Movie", SPECIAL: "Special", OVA: "OVA", ONA: "ONA", MUSIC: "Music" };
+  function seasonText(x) {
+    if (!x || !x.seasonYear) return null;
+    return (x.season ? x.season.charAt(0) + x.season.slice(1).toLowerCase() + " " : "") + x.seasonYear;
+  }
   function listRow(e, mod, rerender) {
+    var x = e.extra || {};
     return KOS.medview.listRow(e, mod, rerender, {
-      genres: e.genres.slice(0, 3).join(" · "),
+      subline: [x.studio].concat(e.genres.slice(0, 2)).filter(Boolean).join(" · "),
       chips: [airingChip(e)],
-      prog: progressText(e),
+      cols: [progressText(e), x.format ? ANIME_FORMAT[x.format] || x.format : null, seasonText(x)],
+      unit: mod.unit, bumpTitle: "Log the next " + mod.unitName.replace(/s$/, ""),
       onBump: e.status === "inProgress" ? function () { bumpProgress(e, rerender); } : null,
       open: function () { editorModal(e, rerender); }
     });
@@ -355,7 +364,7 @@
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
         if (!area.current(token)) return;
-        area.layout(p.layout);
+        area.layout(p.layout, LIST_COLS);
         if (err) {
           area.clear();
           area.countLine.textContent = "Query failed: " + err.message;

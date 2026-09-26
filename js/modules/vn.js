@@ -561,12 +561,15 @@
       open: function () { vnEditor(e, rerender); }
     });
   }
+  var LIST_COLS = ["Progress", "Played", "Length"];
   function listRow(e, rerender) {
     var bump = quickBump(e);
     return KOS.medview.listRow(e, mod(), rerender, {
       hook: "vn.card",
-      subline: e.developer || e.genres.slice(0, 2).join(" · "),
-      prog: metaLine(e),
+      subline: [e.developer].concat(e.genres.slice(0, e.developer ? 1 : 2)).filter(Boolean).join(" · "),
+      chips: [cwChip(e)],
+      cols: [KOS.media.progressText(e), e.playtimeHours ? e.playtimeHours + " h" : null, lengthText(e.extra)],
+      unit: bump ? bump.unit : "", bumpTitle: bump ? bump.title : "",
       onBump: bump ? function () { bump.run(e, rerender); } : null,
       open: function () { vnEditor(e, rerender); }
     });
@@ -649,7 +652,7 @@
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
         if (!area.current(token)) return;
-        area.layout(p.layout);
+        area.layout(p.layout, LIST_COLS);
         if (err) {
           area.clear();
           area.countLine.textContent = "Query failed: " + err.message;

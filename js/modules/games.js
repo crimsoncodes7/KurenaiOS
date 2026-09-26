@@ -494,12 +494,20 @@
   }
   /* 11f: the list reads as a table — title with genre and priority, then
      status, completion, playtime, platform, score, +1h */
+  var LIST_COLS = ["Completion", "Playtime", "Platform"];
   function listRow(e, rerender) {
+    var prio = e.backlogPriority ? el("span", { class: "k-mrow-prio", "data-tone": "prio-" + e.backlogPriority,
+      text: KOS.media.PRIORITY_LABEL[e.backlogPriority] + " priority" }) : null;
+    var genres = e.genres.slice(0, 2).join(" · ");
     return KOS.medview.listRow(e, mod(), rerender, {
       hook: "games.card",
-      subline: (e.genres.length ? e.genres.slice(0, 2).join(" · ") : "") + (e.backlogPriority ? (e.genres.length ? " · " : "") + KOS.media.PRIORITY_LABEL[e.backlogPriority] + " priority" : ""),
-      chips: [tierChip(e), platformChip(e)],
-      prog: metaLine(e),
+      subline: prio ? el("span", {}, [genres ? genres + " · " : "", prio]) : genres,
+      cols: [
+        e.completionTier && e.completionTier !== "notStarted" ? KOS.media.TIER_LABEL[e.completionTier] : null,
+        playtimeText(e) ? el("span", { class: "k-mono", text: playtimeText(e) }) : null,
+        e.platform ? KOS.media.PLATFORM_LABEL[e.platform] || e.platform : null
+      ],
+      unit: "h", bumpTitle: "Log another hour played",
       onBump: e.status === "inProgress" ? function () { bumpHour(e, rerender); } : null,
       open: function () { gamesEditor(e, rerender); }
     });
@@ -712,7 +720,7 @@
         search: search.value.trim() || undefined, sort: sortSel.value
       }, function (err, rows) {
         if (!area.current(token)) return;
-        area.layout(p.layout);
+        area.layout(p.layout, LIST_COLS);
         if (err) {
           area.clear();
           area.countLine.textContent = "Query failed: " + err.message;

@@ -880,11 +880,17 @@
       open: function () { booksEditor(e, rerender); }
     });
   }
+  /* 11f's table: Progress · Format · Owned */
+  var LIST_COLS = ["Progress", "Format", "Owned"];
   function listRow(e, rerender) {
+    var owned = e.physical && e.physical.volumes.length;
     return KOS.medview.listRow(e, mod(), rerender, {
       hook: "books.card",
-      subline: e.author || e.genres.slice(0, 2).join(" · "),
-      prog: progressText(e),
+      subline: [e.author].concat(e.genres.slice(0, e.author ? 1 : 2)).filter(Boolean).join(" · "),
+      chips: [dnfChip(e)],
+      cols: [progressText(e), e.format ? KOS.media.FORMAT_LABEL[e.format] || e.format : null,
+        owned ? owned + " vol" + (owned === 1 ? "" : "s") : null],
+      unit: "ch", bumpTitle: "Log the next chapter",
       onBump: e.status === "inProgress" ? function () { bumpChapter(e, rerender); } : null,
       open: function () { booksEditor(e, rerender); }
     });
@@ -1190,7 +1196,7 @@
           /* shelf skin (3j): a purchased Gold Shop cosmetic sets one extra
              state on the shelf layout — the default look is its absence */
           var skin = lay === "shelf" && KOS.governor.shelfSkin && KOS.governor.shelfSkin();
-          area.layout(lay);
+          area.layout(lay, reorderMode ? null : LIST_COLS);
           if (skin) area.holder.setAttribute("data-skin", skin); else area.holder.removeAttribute("data-skin");
           area.holder.setAttribute("data-ui", lay === "shelf" ? "books.shelves" : "vault.grid");
           var filtered = rail.status() || rail.customList() || filt.dnf || fmtSel.value || genreSel.value || moodSel.value || shelfSel.value || search.value;

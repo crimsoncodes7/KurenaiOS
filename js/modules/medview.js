@@ -403,10 +403,13 @@
       rendered = 0;
       return gen;
     }
-    /* stop + empty the holder: the one way to leave nothing mounted */
+    /* stop + empty the holder: the one way to leave nothing mounted. In
+       the list layout the table's header row stays first (frame 11f). */
+    var head = null;
     function clear() {
       var g = stop();
       holder.innerHTML = "";
+      if (head && holder.getAttribute("data-layout") === "list") holder.appendChild(head);
       return g;
     }
     function renderBatch(myGen) {
@@ -481,8 +484,15 @@
        way back, so a slow query for a lens you already left can't paint */
     function begin() { return stop(); }
     function current(token) { return token === gen; }
-    /* the holder's arrangement: "grid" (cards) or "list" (rows) */
-    function layout(kind) { holder.setAttribute("data-layout", kind === "list" ? "list" : kind || "grid"); }
+    /* the holder's arrangement: "grid" (cards) or "list" (rows). A list
+       takes the vault's three own column names (frame 11f's table):
+       Title · Status · <three> · Score */
+    function layout(kind, cols) {
+      holder.setAttribute("data-layout", kind === "list" ? "list" : kind || "grid");
+      if (head && head.parentNode) head.parentNode.removeChild(head);
+      head = kind === "list" && cols ? listHead(cols) : null;
+      if (head) holder.insertBefore(head, holder.firstChild);
+    }
 
     return {
       countLine: countLine,
@@ -802,35 +812,58 @@
     return el("span", Object.assign({ class: "k-mchip", "data-tone": tone || null, text: text }, attrs || {}));
   }
 
-  /* the shared list-view row — a robust flex layout so nullable chips never
-     shift columns. opts: { genres|subline, chips:[nodes], prog, onBump,
-     open, extra:[nodes], hook } */
+  /* ================= the list table (frame 11f) =================
+     Every vault's list is one table: cover, title (with its sub-line),
+     status, the vault's three own columns, score, and the everyday +1.
+     Each cell sits in a fixed column, so nothing shifts when a value is
+     missing — an empty cell reads "—". The row holds a select, a score
+     field and "+1", so it cannot be a button; the TITLE is the control.
+
+     opts: { subline|genres, cols: [3 × node|text], onBump, unit, open,
+             hook, chips: [node] (beside the title) } */
+  function listHead(cols) {
+    var cls = ["k-mrow-hcover", "k-mrow-hmain", "k-mrow-status", "k-mrow-c1", "k-mrow-c2", "k-mrow-c3", "k-mrow-score", "k-mrow-act"];
+    return el("div", { class: "k-mrow k-mrow--head", "data-ui": "vault.list-head", "aria-hidden": "true" },
+      ["", "Title", "Status"].concat(cols.slice(0, 3)).concat(["Score", ""]).map(function (t, i) {
+        return el("span", { class: "k-mrow-h " + cls[i], text: t });
+      }));
+  }
+  function cell(v, cls) {
+    var c = "k-mrow-c " + cls;
+    if (v == null || v === "") {
+      var none = el("span", { class: c, text: "—" });
+      KOS.ui.state(none, "empty", true);
+      return none;
+    }
+    return typeof v === "object" ? el("span", { class: c }, [v]) : el("span", { class: c, title: String(v), text: String(v) });
+  }
   function listRow(e, mod, rerender, opts) {
     opts = opts || {};
     var thumb = e.coverUrl
       ? el("span", { class: "k-mrow-cover" }, [KOS.imageCrop.image(e.coverUrl, { alt: "", loading: "lazy" }, e.coverCrop)])
       : el("span", { class: "k-mrow-cover", "data-ui": "vault.cover-placeholder", "aria-hidden": "true", text: mod.kanji });
     var main = el("div", { class: "k-mrow-main" }, [
-      el("button", { type: "button", class: "k-mrow-title", "data-ui": "vault.title", text: e.title, title: e.title,
-        onclick: function (ev) { ev.stopPropagation(); opts.open(); } }),
-      (opts.genres || opts.subline) ? el("span", { class: "k-mrow-sub", text: opts.subline || opts.genres }) : null
+      el("span", { class: "k-mrow-tline" }, [
+        e.favourite ? el("span", { class: "k-mrow-fav", title: "Favourite", "aria-label": "Favourite", text: "♥" }) : null,
+        el("button", { type: "button", class: "k-mrow-title", "data-ui": "vault.title", text: e.title, title: e.title,
+          onclick: function (ev) { ev.stopPropagation(); opts.open(); } }),
+        pushChip(e, rerender)
+      ].concat((opts.chips || []).filter(Boolean)).filter(Boolean)),
+      typeof opts.subline === "object" && opts.subline ? el("span", { class: "k-mrow-sub" }, [opts.subline])
+        : (opts.genres || opts.subline) ? el("span", { class: "k-mrow-sub", text: opts.subline || opts.genres }) : null
     ].filter(Boolean));
-    var side = el("div", { class: "k-mrow-side" },
-      (opts.chips || []).filter(Boolean)
-        .concat([quickEdit(e, rerender)])
-        .concat((opts.extra || []).filter(Boolean))
-        .concat([
-          opts.prog ? el("span", { class: "k-mono k-mrow-prog", "data-ui": "vault.card-progress", text: opts.prog }) : null,
-          pushChip(e, rerender),
-          opts.onBump ? el("button", { type: "button", class: "k-mplus", "data-ui": "vault.plus", text: "+1", onclick: function (ev) {
-            ev.stopPropagation(); opts.onBump();
-          } }) : null
-        ].filter(Boolean)));
-    /* Phase F: the row holds a quick-edit select, a push-retry chip and
-       "+1", so it cannot be a button. The title is. */
+    var cols = (opts.cols || []).slice(0, 3);
+    while (cols.length < 3) cols.push(null);
     var row = el("div", { class: "k-mrow", "data-ui": "vault.row" + (opts.hook ? " " + opts.hook : ""), "data-status": e.status, onclick: opts.open }, [
-      el("span", { class: "k-mrow-fav", "aria-hidden": "true", text: e.favourite ? "♥" : "" }),
-      thumb, main, side
+      thumb, main,
+      el("span", { class: "k-mrow-c k-mrow-status" }, [quickStatus(e, rerender)]),
+      cell(cols[0], "k-mrow-c1"), cell(cols[1], "k-mrow-c2"), cell(cols[2], "k-mrow-c3"),
+      el("span", { class: "k-mrow-c k-mrow-score" }, [quickScore(e, rerender)]),
+      el("span", { class: "k-mrow-c k-mrow-act" }, [
+        opts.onBump ? el("button", { type: "button", class: "k-mplus", "data-ui": "vault.plus", text: "+1" + (opts.unit ? " " + opts.unit : ""),
+          title: opts.bumpTitle || "Log the next one",
+          onclick: function (ev) { ev.stopPropagation(); opts.onBump(); } }) : null
+      ].filter(Boolean))
     ]);
     return row;
   }
@@ -1448,6 +1481,7 @@
     customListChips: customListChips,
     statsModal: statsModal,
     listRow: listRow,
+    listHead: listHead,
     card: card,
     chip: chip,
     favButton: favButton,

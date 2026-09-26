@@ -327,6 +327,34 @@ step("vault page removes bottom statistics/charts and keeps dedicated Stats", as
   if (!document.querySelector("[data-ui~='vault.stats']")) throw new Error("dedicated stats did not open");
   document.querySelector("[data-ui~='vault.stats']").closest("[data-ui~='ui.dialog-overlay']").remove();
 });
+step("the list layout is frame 11f's table: a header and every value in a fixed column", async () => {
+  /* switch through the toolbar's own control, as a person would */
+  KOS.show("game");
+  const main = document.getElementById("main");
+  await waitFor(() => main.querySelector("[data-ui~='vault.toolbar']"), 4000);
+  const listBtn = [...main.querySelectorAll("button")].find(b => b.getAttribute("aria-label") === "List" || b.title === "List");
+  if (!listBtn) throw new Error("no List toggle on the toolbar");
+  if (listBtn.getAttribute("aria-pressed") !== "true") listBtn.click();
+  await waitFor(() => main.querySelector("[data-ui~='vault.grid'][data-layout='list'] [data-ui~='vault.row']"), 4000);
+  const grid = main.querySelector("[data-ui~='vault.grid'][data-layout='list']");
+  const head = grid.firstElementChild;
+  if (!head || !head.matches("[data-ui~='vault.list-head']")) throw new Error("the table has no header row first");
+  const labels = [...head.children].map(c => c.textContent);
+  ["Title", "Status", "Completion", "Playtime", "Platform", "Score"].forEach(l => {
+    if (labels.indexOf(l) === -1) throw new Error("the header lacks " + l + ": " + labels.join("|"));
+  });
+  const rows = [...grid.querySelectorAll("[data-ui~='vault.row']")];
+  rows.forEach(r => {
+    if (r.children.length !== head.children.length) throw new Error("a row has " + r.children.length + " cells, the header " + head.children.length);
+    if (!r.querySelector("button[data-ui~='vault.title']")) throw new Error("a row's title is not its control");
+  });
+  /* a missing value is a dash in its own column, never a shifted neighbour */
+  if (!grid.querySelector(".k-mrow-c[data-state~='empty']")) throw new Error("no empty cell reads as a dash");
+  if (listBtn.getAttribute("aria-pressed") === "true") {
+    const gridBtn = [...main.querySelectorAll("button")].find(b => b.getAttribute("aria-label") === "Grid" || b.title === "Grid");
+    gridBtn && gridBtn.click();
+  }
+});
 step("backlogWeeks: bulk-add counts by its count, tier reaches count as done", async () => {
   const weeks = KOS.games.backlogWeeks(2);
   const thisWeek = weeks[weeks.length - 1];
