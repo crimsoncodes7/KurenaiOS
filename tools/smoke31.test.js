@@ -189,14 +189,14 @@ step("Avatar workshop uses the shared cropper and preserves seal/frame choices",
 });
 
 step("Corner identity stays concise and the full profile anchors status beside the portrait", async () => {
-  KOS.governor.setProfileText({ status: "Deep work until noon", about: "A small profile note." });
+  KOS.governor.setProfileText({ status: "Deep work until noon" });
   KOS.refreshHUD();
   if (!document.querySelector("#hud [data-ui~='gov.hud-profile-name']") || !document.querySelector("#hud [data-ui~='gov.hud-profile-meta']")) throw new Error("compact HUD identity missing");
   if (document.querySelector("#hud .hud-bars") || document.querySelector("#hud .hud-status")) throw new Error("dashboard detail leaked into the compact HUD");
   const pop = KOS.governor.openProfilePopover();
   if (!pop.querySelector("[data-ui~='gov.profile-identity-row'] [data-ui~='gov.profile-status'][data-ui~='gov.speech']")) throw new Error("popover status is not anchored beside the portrait");
   const labels = [...pop.querySelectorAll("[data-ui~='gov.profile-foot'] [data-ui~='gov.profile-action']")].map(b => b.textContent);
-  if (labels.join("|") !== "Edit profile|Open Governor →") throw new Error("compact profile actions wrong: " + labels.join("|"));
+  if (labels.join("|") !== "Edit status|Open Governor →") throw new Error("compact profile actions wrong: " + labels.join("|"));
   KOS.governor.closeProfilePopover();
 });
 

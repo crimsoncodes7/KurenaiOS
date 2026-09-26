@@ -126,38 +126,6 @@
     return BANDS[t.e.band].label + " · " + reasons;
   }
 
-  function dot(bandId, title) {
-    return el("span", { class: "rag-dot rag-" + bandId, title: title || BANDS[bandId].label });
-  }
-
-  /* the "Recommended next" panel (home + subject dashboards) */
-  function panel(sid) {
-    var list = worst(sid, 6);
-    if (!list.length) return null;
-    var wrap = el("div", { class: "rag-panel" });
-    wrap.appendChild(el("div", { class: "dl-h" }, [
-      el("b", { text: "Recommended next — flagged topics" }),
-      el("span", { class: "sub", text: "from your confidence + performance data" })
-    ]));
-    list.forEach(function (t) {
-      var reasons = t.e.auto && t.e.auto.reasons.length ? t.e.auto.reasons.join(" · ")
-        : "your own " + BANDS[t.e.manual].label + " rating";
-      var row = el("button", { class: "rag-item", onclick: function () {
-        KOS.show("ref", { subject: t.sid, ref: t.ref });
-      } }, [
-        dot(t.e.band, (t.e.source === "manual" ? "Your rating: " : "Data says: ") + BANDS[t.e.band].label),
-        t.e.disagree ? dot(t.e.auto.band, "…but the data says " + BANDS[t.e.auto.band].label) : null,
-        el("span", { class: "rag-item-t" }, [
-          el("b", { text: t.ref + " " + t.title }),
-          el("span", { class: "rag-why", text: reasons })
-        ]),
-        el("span", { class: "rag-go", text: "study →" })
-      ]);
-      wrap.appendChild(row);
-    });
-    return wrap;
-  }
-
   /* the per-topic picker for the ref-page control row.
 
      Category 7 Phase C (audit REF-7): this was three unlabelled pale circles
@@ -222,8 +190,6 @@
     effective: effective,
     worst: worst,
     why: why,
-    panel: panel,
-    picker: picker,
-    dot: dot
+    picker: picker
   };
 })();

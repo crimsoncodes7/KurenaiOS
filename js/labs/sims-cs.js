@@ -14,16 +14,16 @@
     var inp = el("input", { type: "range", min: min, max: max, step: step, value: val, "aria-label": label });
     var out = el("b", { text: (show || String)(val) });
     inp.oninput = function () { var v = parseFloat(inp.value); out.textContent = (show || String)(v); onchange(v); };
-    return { node: el("label", { class: "sim-slider" }, [el("span", {}, [label + " ", out]), inp]), input: inp };
+    return { node: el("label", { class: "k-lab-slider" }, [el("span", {}, [label + " ", out]), inp]), input: inp };
   }
-  function readout() { return el("div", { class: "sim-read" }); }
-  function mono(text, extra) { return el("code", { text: text, style: "font-family:var(--mono);" + (extra || "") }); }
+  function readout() { return el("div", { class: "k-lab-read", "data-ui": "lab.readout" }); }
+  function mono(text) { return el("code", { class: "k-mono", text: text }); }
   function pad(s, n, ch) { s = String(s); while (s.length < n) s = (ch || "0") + s; return s; }
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function table(head, rows, cls) {
-    return el("div", { class: "sim-tablewrap", html:
-      '<table class="n-table sim-table ' + (cls || "") + '"><thead><tr>' + head.map(function (h) { return "<th>" + h + "</th>"; }).join("") +
-      "</tr></thead><tbody>" + rows.map(function (r) { var c = r.cls ? ' class="' + r.cls + '"' : ""; return "<tr" + c + ">" + (r.cells || r).map(function (x) { return "<td>" + x + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>" });
+    return el("div", { class: "k-lab-tablewrap", html:
+      '<table class="k-n-table k-lab-table" data-ui="content.table"' + (cls ? ' data-kind="' + cls + '"' : "") + '><thead><tr>' + head.map(function (h) { return "<th>" + h + "</th>"; }).join("") +
+      "</tr></thead><tbody>" + rows.map(function (r) { var c = r.cls ? ' data-state="' + r.cls + '"' : ""; return "<tr" + c + ">" + (r.cells || r).map(function (x) { return "<td>" + x + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>" });
   }
 
   /* =================== TURING MACHINE =================== */
@@ -44,14 +44,14 @@
       };
       var cur = "increment", tape, head, state, steps, halted;
       var sel = el("select", {}, Object.keys(PRESETS).map(function (k) { return el("option", { value: k, text: PRESETS[k].name }); }));
-      var tapeIn = el("input", { type: "text", value: PRESETS.increment.tape, style: "width:140px;font-family:var(--mono)" });
-      var msg = el("span", { class: "sim-msg" });
+      var tapeIn = el("input", { type: "text", value: PRESETS.increment.tape, class: "k-mono", style: "--w: 140px" });
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
       var timer = null;
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["program", sel]), el("label", {}, ["tape", tapeIn]),
-        el("button", { class: "btn primary", text: "Load", onclick: load }),
-        el("button", { class: "btn", text: "Step", onclick: function () { step(); draw(); } }),
-        el("button", { class: "btn gold", text: "▶ Run", onclick: function () { if (timer) { clearInterval(timer); timer = null; return; } timer = setInterval(function () { if (!step()) { clearInterval(timer); timer = null; } draw(); }, 350); } }),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Load", onclick: load }),
+        el("button", { class: "k-btn", text: "Step", onclick: function () { step(); draw(); } }),
+        el("button", { class: "k-btn k-lab-alt", text: "▶ Run", onclick: function () { if (timer) { clearInterval(timer); timer = null; return; } timer = setInterval(function () { if (!step()) { clearInterval(timer); timer = null; } draw(); }, 350); } }),
         msg]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 120);
@@ -98,8 +98,8 @@
         var p = PRESETS[cur], r = rule();
         var out = ""; var ks = Object.keys(tape).map(Number); if (ks.length) { var lo = Math.min.apply(null, ks), hi = Math.max.apply(null, ks); for (var j = lo; j <= hi; j++) out += sym(j); }
         read.innerHTML = "tape: <b>" + esc(out || "(blank)") + "</b> · head at " + head + " reading <b>" + esc(sym(head)) + "</b> · state <b>" + esc(state) + "</b> · steps " + steps +
-          (halted ? " · <b style='color:var(--good)'>HALTED</b>" : r ? " · next: δ(" + state + ", " + esc(sym(head)) + ") = (" + esc(r[2]) + ", " + r[3] + ", " + r[4] + ")" : "") +
-          "<br><span style='color:var(--muted)'>A Turing machine has a finite state set, an infinite tape, and a transition function; □ is the blank symbol. It is a model of computation, not a physical machine — anything computable can be computed by one.</span>";
+          (halted ? " · <b class='k-lab-good'>HALTED</b>" : r ? " · next: δ(" + state + ", " + esc(sym(head)) + ") = (" + esc(r[2]) + ", " + r[3] + ", " + r[4] + ")" : "") +
+          "<br><span class='k-lab-aside'>A Turing machine has a finite state set, an infinite tape, and a transition function; □ is the blank symbol. It is a model of computation, not a physical machine — anything computable can be computed by one.</span>";
         tblWrap.innerHTML = "";
         tblWrap.appendChild(table(["state", "read", "write", "move", "next"], p.rules.map(function (row) { return { cells: row.map(esc), cls: row === r && !halted ? "live" : "" }; }), "tm-table"));
       }
@@ -112,15 +112,15 @@
     id: "bnf-checker", title: "BNF Grammar Checker", subject: "compsci", ref: "4.4.3.1",
     desc: "Write production rules in Backus–Naur Form and test strings against them. Recursion (<integer> ::= <digit> | <digit><integer>) is what gives BNF unbounded strings — and what a regular expression or FSM cannot express when nesting must balance.",
     mount: function (panel) {
-      var gIn = el("textarea", { class: "note-area", style: "min-height:130px;font-family:var(--mono);font-size:12.5px", "aria-label": "BNF grammar" });
+      var gIn = el("textarea", { class: "k-input k-lab-note", "data-ui": "ui.note-area", "data-mono": "", style: "--h: 130px", "aria-label": "BNF grammar" });
       gIn.value = "<sign> ::= + | -\n<digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9\n<integer> ::= <digit> | <digit><integer>\n<number> ::= <integer> | <sign><number> | <integer>.<integer>";
-      var sIn = el("input", { type: "text", value: "-42.7", style: "width:180px;font-family:var(--mono)" });
-      var startIn = el("input", { type: "text", value: "number", style: "width:90px;font-family:var(--mono)" });
-      var msg = el("span", { class: "sim-msg" });
+      var sIn = el("input", { type: "text", value: "-42.7", class: "k-mono", style: "--w: 180px" });
+      var startIn = el("input", { type: "text", value: "number", class: "k-mono", style: "--w: 90px" });
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
       panel.appendChild(gIn);
-      panel.appendChild(el("div", { class: "lab-controls" }, [el("label", {}, ["start symbol <…>", startIn]), el("label", {}, ["test string", sIn]),
-        el("button", { class: "btn primary", text: "Check", onclick: check }),
-        el("button", { class: "btn", text: "Try 3.14, +7, 0-1, 12.", onclick: function () { batch(["3.14", "+7", "0-1", "12.", "007"]); } }), msg]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["start symbol <…>", startIn]), el("label", {}, ["test string", sIn]),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Check", onclick: check }),
+        el("button", { class: "k-btn", text: "Try 3.14, +7, 0-1, 12.", onclick: function () { batch(["3.14", "+7", "0-1", "12.", "007"]); } }), msg]));
       var read = readout(); panel.appendChild(read);
       sIn.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
       function parseGrammar() {
@@ -167,9 +167,9 @@
         var e = ends(rules, start, str, 0, 0, {});
         return { ok: e.indexOf(str.length) >= 0, why: e.length ? "longest valid prefix: " + Math.max.apply(null, e) + " chars" : "no alternative matches from the first character" };
       }
-      function check() { var r = test(sIn.value); msg.textContent = ""; read.innerHTML = "<b>" + esc(sIn.value) + "</b> → " + (r.ok ? "<b style='color:var(--good)'>VALID</b> — derivable from &lt;" + esc(startIn.value) + "&gt;" : "<b style='color:var(--danger)'>INVALID</b> (" + esc(r.why) + ")") + tail(); }
-      function batch(list) { read.innerHTML = list.map(function (s) { var r = test(s); return "<b>" + esc(s) + "</b> → " + (r.ok ? "<span style='color:var(--good)'>valid</span>" : "<span style='color:var(--danger)'>invalid</span>"); }).join("<br>") + tail(); }
-      function tail() { return "<br><span style='color:var(--muted)'>Terminals are literal characters; &lt;non-terminals&gt; expand by their rules. Exam habit: check a string by writing the derivation top-down, one rule per line.</span>"; }
+      function check() { var r = test(sIn.value); msg.textContent = ""; read.innerHTML = "<b>" + esc(sIn.value) + "</b> → " + (r.ok ? "<b class='k-lab-good'>VALID</b> — derivable from &lt;" + esc(startIn.value) + "&gt;" : "<b class='k-lab-bad'>INVALID</b> (" + esc(r.why) + ")") + tail(); }
+      function batch(list) { read.innerHTML = list.map(function (s) { var r = test(s); return "<b>" + esc(s) + "</b> → " + (r.ok ? "<span class='k-lab-good'>valid</span>" : "<span class='k-lab-bad'>invalid</span>"); }).join("<br>") + tail(); }
+      function tail() { return "<br><span class='k-lab-aside'>Terminals are literal characters; &lt;non-terminals&gt; expand by their rules. Exam habit: check a string by writing the derivation top-down, one rule per line.</span>"; }
       check();
     }
   });
@@ -191,7 +191,7 @@
       var n = 20, logScale = true, maxN = 60;
       var sl = slider("n", 1, maxN, 1, n, function (v) { n = v; draw(); });
       var chk = el("input", { type: "checkbox", checked: "checked" }); chk.onchange = function () { logScale = chk.checked; draw(); };
-      panel.appendChild(el("div", { class: "lab-controls" }, [sl.node, el("label", { class: "chk", style: "flex-direction:row;align-items:center;gap:6px" }, [chk, "log scale"])]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [sl.node, el("label", { class: "k-check" }, [chk, "log scale"])]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 320);
       var read = readout(); panel.appendChild(read);
@@ -213,8 +213,8 @@
           ctx.stroke();
         });
         ctx.strokeStyle = COL.text; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(X(n), padT); ctx.lineTo(X(n), padT + H); ctx.stroke(); ctx.setLineDash([]);
-        read.innerHTML = "n = <b>" + n + "</b>: " + FN.map(function (f, i) { var v = f[1](n); return "<span style='color:" + colours[i] + "'>" + f[0] + " ≈ " + (v > 1e15 ? v.toExponential(2) : Math.round(v).toLocaleString()) + "</span>"; }).join(" · ") +
-          "<br><span style='color:var(--muted)'>" + FN.map(function (f) { return f[0] + " " + f[2]; }).join(" · ") + ". Polynomial (and better) = tractable; exponential and factorial = intractable — a heuristic gives a good-enough answer instead.</span>";
+        read.innerHTML = "n = <b>" + n + "</b>: " + FN.map(function (f, i) { var v = f[1](n); return "<span style='--c: " + colours[i] + "' class='k-lab-tint'>" + f[0] + " ≈ " + (v > 1e15 ? v.toExponential(2) : Math.round(v).toLocaleString()) + "</span>"; }).join(" · ") +
+          "<br><span class='k-lab-aside'>" + FN.map(function (f) { return f[0] + " " + f[2]; }).join(" · ") + ". Polynomial (and better) = tractable; exponential and factorial = intractable — a heuristic gives a good-enough answer instead.</span>";
       }
       draw();
     }
@@ -234,10 +234,10 @@
       var mSel = el("select", {}, [el("option", { value: "bfs", text: "breadth-first (queue)" }), el("option", { value: "dfs", text: "depth-first (stack)" })]);
       var sSel = el("select", {}, Object.keys(NODES).map(function (k) { return el("option", { value: k, text: "start at " + k }); }));
       mSel.onchange = function () { mode = mSel.value; reset(); }; sSel.onchange = function () { start = sSel.value; reset(); };
-      panel.appendChild(el("div", { class: "lab-controls" }, [el("label", {}, ["algorithm", mSel]), el("label", {}, ["start", sSel]),
-        el("button", { class: "btn primary", text: "Step", onclick: function () { step(); draw(); } }),
-        el("button", { class: "btn gold", text: "Run to end", onclick: function () { while (step()) {} draw(); } }),
-        el("button", { class: "btn", text: "Reset", onclick: reset })]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["algorithm", mSel]), el("label", {}, ["start", sSel]),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Step", onclick: function () { step(); draw(); } }),
+        el("button", { class: "k-btn k-lab-alt", text: "Run to end", onclick: function () { while (step()) {} draw(); } }),
+        el("button", { class: "k-btn", text: "Reset", onclick: reset })]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 340);
       var read = readout(); panel.appendChild(read);
@@ -274,8 +274,8 @@
         list.forEach(function (k, i) { ctx.fillStyle = A(COL.gold, .3); ctx.strokeStyle = COL.gold; ctx.fillRect(x0, y0 + 22 + i * 26, 60, 22); ctx.strokeRect(x0, y0 + 22 + i * 26, 60, 22); ctx.fillStyle = COL.text; ctx.textBaseline = "middle"; ctx.fillText(k, x0 + 24, y0 + 33 + i * 26); ctx.textBaseline = "top"; });
         if (!list.length) { ctx.fillStyle = COL.faint; ctx.fillText("(empty)", x0, y0 + 24); }
         ctx.fillStyle = COL.text; ctx.fillText("visited: " + order.join(" "), x0, y0 + 22 + Math.max(list.length, 1) * 26 + 10);
-        read.innerHTML = "<b>" + (mode === "bfs" ? "BFS" : "DFS") + " from " + start + "</b> · order so far: <b>" + (order.join(" → ") || "—") + "</b>" + (done ? " · <span style='color:var(--good)'>complete</span>" : "") +
-          "<br><span style='color:var(--muted)'>" + (mode === "bfs" ? "Mark the start visited and enqueue it; repeatedly dequeue, then enqueue each unvisited neighbour (marking it). Visits in layers of increasing distance — the basis of shortest paths in unweighted graphs."
+        read.innerHTML = "<b>" + (mode === "bfs" ? "BFS" : "DFS") + " from " + start + "</b> · order so far: <b>" + (order.join(" → ") || "—") + "</b>" + (done ? " · <span class='k-lab-good'>complete</span>" : "") +
+          "<br><span class='k-lab-aside'>" + (mode === "bfs" ? "Mark the start visited and enqueue it; repeatedly dequeue, then enqueue each unvisited neighbour (marking it). Visits in layers of increasing distance — the basis of shortest paths in unweighted graphs."
             : "Push the start; repeatedly pop, visit, and push unvisited neighbours. Equivalent to the recursive version, whose call stack does the same job. Neighbours are pushed in reverse so A's smallest neighbour is explored first.") + "</span>";
       }
       reset();
@@ -288,27 +288,27 @@
     desc: "Click bits of an 8-bit two's complement mantissa and 4-bit two's complement exponent. The value, the working and the normalisation check update instantly — and a Normalise button shows the shift that fixes an un-normalised pattern.",
     mount: function (panel) {
       var M = [0, 1, 0, 1, 1, 0, 0, 0], E = [0, 0, 1, 1];
-      var row = el("div", { class: "logic-switches", style: "margin:6px 0 12px" });
+      var row = el("div", { class: "k-lab-switches", "data-ui": "lab.logic-switches",  });
       var read = readout();
-      panel.appendChild(el("div", { class: "lab-controls" }, [
-        el("button", { class: "btn primary", text: "Normalise", onclick: normalise }),
-        el("button", { class: "btn", text: "Largest positive", onclick: function () { M = [0, 1, 1, 1, 1, 1, 1, 1]; E = [0, 1, 1, 1]; render(); } }),
-        el("button", { class: "btn", text: "Smallest positive", onclick: function () { M = [0, 1, 0, 0, 0, 0, 0, 0]; E = [1, 0, 0, 0]; render(); } }),
-        el("button", { class: "btn", text: "Most negative", onclick: function () { M = [1, 0, 0, 0, 0, 0, 0, 0]; E = [0, 1, 1, 1]; render(); } }),
-        el("span", { class: "sim-msg", text: "click a bit to flip it" })]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Normalise", onclick: normalise }),
+        el("button", { class: "k-btn", text: "Largest positive", onclick: function () { M = [0, 1, 1, 1, 1, 1, 1, 1]; E = [0, 1, 1, 1]; render(); } }),
+        el("button", { class: "k-btn", text: "Smallest positive", onclick: function () { M = [0, 1, 0, 0, 0, 0, 0, 0]; E = [1, 0, 0, 0]; render(); } }),
+        el("button", { class: "k-btn", text: "Most negative", onclick: function () { M = [1, 0, 0, 0, 0, 0, 0, 0]; E = [0, 1, 1, 1]; render(); } }),
+        el("span", { class: "k-lab-msg", "data-ui": "lab.message", text: "click a bit to flip it" })]));
       panel.appendChild(row); panel.appendChild(read);
       function twos(bits) { var v = 0; bits.forEach(function (b, i) { v += b * Math.pow(2, bits.length - 1 - i) * (i === 0 ? -1 : 1); }); return v; }
       function mant() { var v = 0; M.forEach(function (b, i) { v += b * Math.pow(2, -i) * (i === 0 ? -1 : 1); }); return v; }
       function render() {
         row.innerHTML = "";
         function group(bits, label, tint) {
-          var g = el("div", { style: "display:flex;align-items:center;gap:4px;margin-right:14px" });
-          g.appendChild(el("span", { class: "specref", text: label, style: "margin-right:4px" }));
+          var g = el("div", { class: "k-lab-bitgroup" });
+          g.appendChild(el("span", { class: "k-lab-ref", text: label }));
           bits.forEach(function (b, i) {
-            var btn = el("button", { class: "logic-sw" + (b ? " on" : ""), style: "min-width:34px;padding:6px 4px", onclick: function () { bits[i] = 1 - bits[i]; render(); } },
-              [el("span", { text: i === 0 ? "−" + (label === "mantissa" ? "1" : String(Math.pow(2, bits.length - 1))) : (label === "mantissa" ? "2⁻" + i : String(Math.pow(2, bits.length - 1 - i))), style: "font-size:9px" }), el("b", { text: String(b), style: "font-size:16px" })]);
+            var btn = el("button", { type: "button", class: "k-lab-switch", "data-ui": "lab.logic-switch", "data-size": "bit", "data-state": b ? "on" : null, onclick: function () { bits[i] = 1 - bits[i]; render(); } },
+              [el("span", { text: i === 0 ? "−" + (label === "mantissa" ? "1" : String(Math.pow(2, bits.length - 1))) : (label === "mantissa" ? "2⁻" + i : String(Math.pow(2, bits.length - 1 - i))) }), el("b", { text: String(b) })]);
             g.appendChild(btn);
-            if (label === "mantissa" && i === 0) g.appendChild(el("span", { text: ".", style: "font-size:20px;font-weight:700" }));
+            if (label === "mantissa" && i === 0) g.appendChild(el("span", { class: "k-lab-point", text: "." }));
           });
           row.appendChild(g);
         }
@@ -317,8 +317,8 @@
         var normal = (M[0] === 0 && M[1] === 1) || (M[0] === 1 && M[1] === 0);
         read.innerHTML = "mantissa " + M.join("") + " = <b>" + m + "</b> (sign bit worth −1, then ½, ¼, …) · exponent " + E.join("") + " = <b>" + e + "</b>" +
           "<br>value = mantissa × 2<sup>exponent</sup> = " + m + " × 2<sup>" + e + "</sup> = <b>" + val + "</b>" +
-          "<br>" + (normal ? "<span style='color:var(--good)'>normalised</span> — the first two bits differ (0.1… or 1.0…), so precision is maximised" : "<span style='color:var(--danger)'>not normalised</span> — the first two bits are the same; shift the mantissa and adjust the exponent") +
-          "<br><span style='color:var(--muted)'>Range vs precision: more exponent bits widen the range; more mantissa bits sharpen the precision. Both are fixed by the format, so it is a trade-off.</span>";
+          "<br>" + (normal ? "<span class='k-lab-good'>normalised</span> — the first two bits differ (0.1… or 1.0…), so precision is maximised" : "<span class='k-lab-bad'>not normalised</span> — the first two bits are the same; shift the mantissa and adjust the exponent") +
+          "<br><span class='k-lab-aside'>Range vs precision: more exponent bits widen the range; more mantissa bits sharpen the precision. Both are fixed by the format, so it is a trade-off.</span>";
       }
       function normalise() {
         var m = mant(), e = twos(E);
@@ -338,8 +338,8 @@
     id: "char-codes", title: "ASCII & Unicode — see the codes", subject: "compsci", ref: "4.5.5.2",
     desc: "Type text and read each character's code in denary, hex and binary. ASCII covers 128 characters in 7 bits; anything beyond — accented letters, kana, emoji — needs Unicode, and UTF-8 shows how many bytes that costs.",
     mount: function (panel) {
-      var inp = el("input", { type: "text", value: "Hi! 7 é 漢 😀", style: "width:300px", "aria-label": "text" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [el("label", {}, ["text", inp])]));
+      var inp = el("input", { type: "text", value: "Hi! 7 é 漢 😀", style: "--w: 300px", "aria-label": "text" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["text", inp])]));
       var out = el("div", {}); panel.appendChild(out);
       var read = readout(); panel.appendChild(read);
       function utf8len(cp) { return cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4; }
@@ -352,7 +352,7 @@
         });
         out.innerHTML = ""; out.appendChild(table(["char", "denary", "hex", "binary / code point", "set", "UTF-8 bytes"], rows));
         read.innerHTML = chars.length + " characters · <b>" + total + " bytes in UTF-8</b> · " + chars.length + " bytes if every character were plain ASCII" +
-          "<br><span style='color:var(--muted)'>ASCII: 7 bits, 128 codes; digits '0'–'9' are 48–57 so a digit's value is code − 48; 'A' = 65, 'a' = 97 (differ by 32, one bit). Unicode assigns a unique code point to every character in every writing system; UTF-8 encodes ASCII in one byte and other code points in 2–4.</span>";
+          "<br><span class='k-lab-aside'>ASCII: 7 bits, 128 codes; digits '0'–'9' are 48–57 so a digit's value is code − 48; 'A' = 65, 'a' = 97 (differ by 32, one bit). Unicode assigns a unique code point to every character in every writing system; UTF-8 encodes ASCII in one byte and other code points in 2–4.</span>";
       }
       inp.oninput = render; render();
     }
@@ -366,23 +366,25 @@
       var data = [1, 0, 1, 1, 0, 0, 1], parity = "even", sent, recv;
       var pSel = el("select", {}, [el("option", { value: "even", text: "even parity" }), el("option", { value: "odd", text: "odd parity" })]);
       pSel.onchange = function () { parity = pSel.value; resend(); };
-      var wrap = el("div", { class: "logic-switches", style: "margin:6px 0 12px" });
+      var wrap = el("div", { class: "k-lab-switches", "data-ui": "lab.logic-switches",  });
       var read = readout();
-      panel.appendChild(el("div", { class: "lab-controls" }, [el("label", {}, ["scheme", pSel]),
-        el("button", { class: "btn primary", text: "Resend clean", onclick: resend }),
-        el("span", { class: "sim-msg", text: "click received bits to corrupt them" })]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["scheme", pSel]),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Resend clean", onclick: resend }),
+        el("span", { class: "k-lab-msg", "data-ui": "lab.message", text: "click received bits to corrupt them" })]));
       panel.appendChild(wrap); panel.appendChild(read);
       function pbit(bits) { var ones = bits.reduce(function (a, b) { return a + b; }, 0); return parity === "even" ? ones % 2 : 1 - ones % 2; }
       function resend() { sent = [pbit(data)].concat(data); recv = sent.slice(); render(); }
       function render() {
         wrap.innerHTML = "";
         function group(bits, label, clickable) {
-          var g = el("div", { style: "display:flex;align-items:center;gap:4px;margin-right:18px" });
-          g.appendChild(el("span", { class: "specref", text: label, style: "margin-right:4px" }));
+          var g = el("div", { class: "k-lab-bitgroup" });
+          g.appendChild(el("span", { class: "k-lab-ref", text: label }));
           bits.forEach(function (b, i) {
-            var btn = el("button", { class: "logic-sw" + (b ? " on" : "") + (clickable && b !== sent[i] ? " flipped" : ""), style: "min-width:30px;padding:5px 3px" + (i === 0 ? ";border-style:dashed" : ""),
+            var btn = el("button", { type: "button", class: "k-lab-switch", "data-ui": "lab.logic-switch", "data-size": "bit",
+              "data-state": [b ? "on" : "", clickable && b !== sent[i] ? "flipped" : ""].join(" ").trim() || null,
+              "data-kind": i === 0 ? "parity" : null,
               onclick: clickable ? function () { recv[i] = 1 - recv[i]; render(); } : null },
-              [el("span", { text: i === 0 ? "P" : "d" + i, style: "font-size:9px" }), el("b", { text: String(b), style: "font-size:15px" })]);
+              [el("span", { text: i === 0 ? "P" : "d" + i }), el("b", { text: String(b) })]);
             g.appendChild(btn);
           });
           wrap.appendChild(g);
@@ -395,12 +397,12 @@
         var copies = [sent[1], recv[1], sent[1]], vote = copies.reduce(function (a, b) { return a + b; }, 0) >= 2 ? 1 : 0;
         var byteVal = parseInt(data.join(""), 2), block = [byteVal, 37, 200, 91], sum = block.reduce(function (a, b) { return a + b; }, 0) % 256;
         var isbn = "978014300723", cd = (10 - isbn.split("").reduce(function (a, d, i) { return a + parseInt(d, 10) * (i % 2 ? 3 : 1); }, 0) % 10) % 10;
-        read.innerHTML = "received has " + ones + " ones → " + parity + " parity " + (ok ? "<b style='color:var(--good)'>passes</b>" : "<b style='color:var(--danger)'>FAILS — error detected</b>") +
-          (flipped ? " · actually " + flipped + " bit(s) corrupted" + (ok ? " — <span style='color:var(--danger)'>an even number of flips slips past parity</span>" : "") : " · no corruption") +
+        read.innerHTML = "received has " + ones + " ones → " + parity + " parity " + (ok ? "<b class='k-lab-good'>passes</b>" : "<b class='k-lab-bad'>FAILS — error detected</b>") +
+          (flipped ? " · actually " + flipped + " bit(s) corrupted" + (ok ? " — <span class='k-lab-bad'>an even number of flips slips past parity</span>" : "") : " · no corruption") +
           "<br>majority voting on d1 (three copies " + copies.join("") + ") → <b>" + vote + "</b>" + (vote === sent[1] ? " ✓ corrected/confirmed" : "") +
           " · checksum of block [" + block.join(", ") + "] = (sum mod 256) = <b>" + sum + "</b>, sent with the block and recomputed on arrival" +
           "<br>check digit: ISBN-13 prefix " + isbn + " → weights 1,3,1,3… → <b>" + cd + "</b> (catches a mistyped or transposed digit)" +
-          "<br><span style='color:var(--muted)'>Parity and checksums detect; majority voting and more advanced codes correct. Parity adds one bit per byte; majority voting triples the data.</span>";
+          "<br><span class='k-lab-aside'>Parity and checksums detect; majority voting and more advanced codes correct. Parity adds one bit per byte; majority voting triples the data.</span>";
       }
       resend();
     }
@@ -415,7 +417,7 @@
       var s1 = slider("sample rate (Hz)", 2, 60, 1, rate, function (v) { rate = v; draw(); });
       var s2 = slider("resolution (bits)", 1, 8, 1, bits, function (v) { bits = v; draw(); });
       var s3 = slider("signal frequency (Hz)", 0.5, 6, 0.5, freq, function (v) { freq = v; draw(); }, function (v) { return v.toFixed(1); });
-      panel.appendChild(el("div", { class: "lab-controls" }, [s1.node, s2.node, s3.node]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [s1.node, s2.node, s3.node]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 300);
       var read = readout(); panel.appendChild(read);
@@ -447,9 +449,9 @@
         var size = rate * bits * secs;
         var maxF = freq * 2.7;
         read.innerHTML = "samples per second <b>" + rate + "</b> · <b>" + levels + "</b> quantisation levels · mean quantisation error " + (err / Math.max(1, n)).toFixed(3) +
-          " · Nyquist: highest component " + maxF.toFixed(1) + " Hz needs ≥ " + (2 * maxF).toFixed(0) + " Hz " + (rate >= 2 * maxF ? "<span style='color:var(--good)'>✓</span>" : "<span style='color:var(--danger)'>✗ aliasing — the reconstruction invents a lower frequency</span>") +
+          " · Nyquist: highest component " + maxF.toFixed(1) + " Hz needs ≥ " + (2 * maxF).toFixed(0) + " Hz " + (rate >= 2 * maxF ? "<span class='k-lab-good'>✓</span>" : "<span class='k-lab-bad'>✗ aliasing — the reconstruction invents a lower frequency</span>") +
           "<br>file size = sample rate × resolution × seconds = " + rate + " × " + bits + " × " + secs + " = <b>" + size.toLocaleString() + " bits</b> = " + (size / 8).toLocaleString() + " bytes for " + secs + " s (mono)" +
-          "<br><span style='color:var(--muted)'>Grey: analogue signal. Red staircase: digital reconstruction. Higher rate → follows the shape; more bits → smaller steps. Both raise the file size linearly.</span>";
+          "<br><span class='k-lab-aside'>Grey: analogue signal. Red staircase: digital reconstruction. Higher rate → follows the shape; more bits → smaller steps. Both raise the file size linearly.</span>";
       }
       draw();
     }
@@ -466,30 +468,30 @@
       var PAL = ["#f5f1e8", "#1c1a17", "#b5573f", "#6f9a5e", "#5d6ba8", "#a97f2f", "#c0912f", "#7d9b76", "#d9a8bc", "#42c6d0", "#8b5cff", "#e67f74", "#87aaff", "#4d8d67", "#d16e67", "#726751"];
       var dSel = el("select", {}, [1, 2, 4].map(function (d) { return el("option", { value: d, text: d + " bit" + (d > 1 ? "s" : "") + " per pixel (" + Math.pow(2, d) + " colours)" }); }));
       dSel.onchange = function () { depth = parseInt(dSel.value, 10); var mx = Math.pow(2, depth) - 1; grid = grid.map(function (v) { return Math.min(v, mx); }); colour = Math.min(colour, mx); render(); };
-      var palRow = el("div", { class: "logic-switches", style: "margin:0 0 10px" });
+      var palRow = el("div", { class: "k-lab-switches", "data-ui": "lab.logic-switches",  });
       var res = el("select", {}, [8, 16, 32].map(function (r) { return el("option", { value: r, text: r + "×" + r + " for the size sum" }); }));
-      panel.appendChild(el("div", { class: "lab-controls" }, [el("label", {}, ["colour depth", dSel]), el("label", {}, ["resolution", res]), el("button", { class: "btn", text: "Clear", onclick: function () { grid = grid.map(function () { return 0; }); render(); } })]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["colour depth", dSel]), el("label", {}, ["resolution", res]), el("button", { class: "k-btn", text: "Clear", onclick: function () { grid = grid.map(function () { return 0; }); render(); } })]));
       panel.appendChild(palRow);
-      var gridEl = el("div", { class: "bitmap-grid", style: "grid-template-columns:repeat(" + N + ", 28px)" });
-      panel.appendChild(el("div", { style: "display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start" }, [gridEl, el("div", { style: "flex:1;min-width:220px" }, [readoutHolder()])]));
+      var gridEl = el("div", { class: "k-lab-bitmap-grid", style: "--n: " + N });
+      panel.appendChild(el("div", { class: "k-lab-split" }, [gridEl, el("div", { class: "k-lab-split-side" }, [readoutHolder()])]));
       var read = panel.querySelector("[data-ui~='lab.readout']");
       res.onchange = render;
       function readoutHolder() { return readout(); }
       function render() {
         palRow.innerHTML = "";
         for (var c = 0; c < Math.pow(2, depth); c++) (function (c) {
-          palRow.appendChild(el("button", { class: "bitmap-swatch" + (c === colour ? " on" : ""), style: "background:" + PAL[c], title: "colour " + c + " = " + pad(c.toString(2), depth), onclick: function () { colour = c; render(); } }, [el("span", { text: pad(c.toString(2), depth) })]));
+          palRow.appendChild(el("button", { type: "button", class: "k-lab-bitmap-swatch", "data-state": c === colour ? "on" : null, style: "--c: " + PAL[c], title: "colour " + c + " = " + pad(c.toString(2), depth), onclick: function () { colour = c; render(); } }, [el("span", { text: pad(c.toString(2), depth) })]));
         })(c);
         gridEl.innerHTML = "";
         grid.forEach(function (v, i) {
-          gridEl.appendChild(el("button", { class: "bitmap-px", style: "background:" + PAL[v], "aria-label": "pixel " + i, onclick: function () { grid[i] = grid[i] === colour ? 0 : colour; render(); } }));
+          gridEl.appendChild(el("button", { type: "button", class: "k-lab-bitmap-px", style: "--c: " + PAL[v], "aria-label": "pixel " + i, onclick: function () { grid[i] = grid[i] === colour ? 0 : colour; render(); } }));
         });
         var rows = [];
         for (var r = 0; r < N; r++) rows.push(grid.slice(r * N, r * N + N).map(function (v) { return pad(v.toString(2), depth); }).join(" "));
         var R = parseInt(res.value, 10), bitsTotal = R * R * depth;
-        read.innerHTML = "<div style='font-size:11px;line-height:1.5'>" + rows.join("<br>") + "</div>" +
+        read.innerHTML = "<div class='k-mono k-lab-small'>" + rows.join("<br>") + "</div>" +
           "file size = width × height × colour depth = " + R + " × " + R + " × " + depth + " = <b>" + bitsTotal.toLocaleString() + " bits</b> = " + (bitsTotal / 8).toLocaleString() + " bytes (+ metadata: dimensions, depth, colour palette)" +
-          "<br><span style='color:var(--muted)'>Doubling the resolution quadruples the size; adding a bit of depth doubles the colours but adds only one bit per pixel. A vector image stores shapes as instructions, so it scales without pixelation and its size depends on the number of objects, not the canvas.</span>";
+          "<br><span class='k-lab-aside'>Doubling the resolution quadruples the size; adding a bit of depth doubles the colours but adds only one bit per pixel. A vector image stores shapes as instructions, so it scales without pixelation and its size depends on the number of objects, not the canvas.</span>";
       }
       render();
     }
@@ -500,12 +502,12 @@
     id: "compression-lab", title: "Compression — run-length & dictionary", subject: "compsci", ref: "4.5.6.9",
     desc: "Type text and watch run-length encoding and dictionary coding compress it (or fail to). Both are lossless; the read-out shows the ratio and where each method wins — repeated symbols for RLE, repeated words for dictionaries.",
     mount: function (panel) {
-      var inp = el("textarea", { class: "note-area", style: "min-height:70px;font-family:var(--mono);font-size:12.5px", "aria-label": "text to compress" });
+      var inp = el("textarea", { class: "k-input k-lab-note", "data-ui": "ui.note-area", "data-mono": "", style: "--h: 70px", "aria-label": "text to compress" });
       inp.value = "AAAAAABBBCCCCCCCCDAA the cat sat on the mat and the cat sat";
       panel.appendChild(inp);
-      panel.appendChild(el("div", { class: "lab-controls" }, [el("button", { class: "btn primary", text: "Compress", onclick: run }),
-        el("button", { class: "btn", text: "Image-like row", onclick: function () { inp.value = "WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW"; run(); } }),
-        el("button", { class: "btn", text: "Prose", onclick: function () { inp.value = "to be or not to be that is the question whether tis nobler in the mind to suffer"; run(); } })]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Compress", onclick: run }),
+        el("button", { class: "k-btn", text: "Image-like row", onclick: function () { inp.value = "WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW"; run(); } }),
+        el("button", { class: "k-btn", text: "Prose", onclick: function () { inp.value = "to be or not to be that is the question whether tis nobler in the mind to suffer"; run(); } })]));
       var read = readout(); panel.appendChild(read);
       inp.addEventListener("input", run);
       function rle(s) { var out = [], i = 0; while (i < s.length) { var j = i; while (j < s.length && s[j] === s[i]) j++; out.push((j - i) + s[i]); i = j; } return out; }
@@ -520,10 +522,10 @@
         var d = dict(s), tableBytes = d.table.join("").length + d.table.length, tokenBytes = d.tokens.length, dictBytes = tableBytes + tokenBytes;
         function ratio(b) { return raw ? (100 * b / raw).toFixed(0) + "% of original" : "—"; }
         read.innerHTML = "original: <b>" + raw + " bytes</b> (1 byte per character)" +
-          "<br><b>RLE</b> → " + esc(rleTxt.slice(0, 120)) + (rleTxt.length > 120 ? "…" : "") + " · " + r.length + " (count, symbol) pairs ≈ <b>" + rleBytes + " bytes</b> · " + ratio(rleBytes) + (rleBytes >= raw ? " <span style='color:var(--danger)'>— bigger! RLE needs long runs</span>" : " <span style='color:var(--good)'>✓</span>") +
+          "<br><b>RLE</b> → " + esc(rleTxt.slice(0, 120)) + (rleTxt.length > 120 ? "…" : "") + " · " + r.length + " (count, symbol) pairs ≈ <b>" + rleBytes + " bytes</b> · " + ratio(rleBytes) + (rleBytes >= raw ? " <span class='k-lab-bad'>— bigger! RLE needs long runs</span>" : " <span class='k-lab-good'>✓</span>") +
           "<br><b>dictionary</b> → table [" + d.table.slice(0, 12).map(function (w, i) { return i + ":" + esc(w); }).join(" ") + (d.table.length > 12 ? " …" : "") + "] + tokens " + d.tokens.slice(0, 30).join(",") + (d.tokens.length > 30 ? "…" : "") +
-          " ≈ <b>" + dictBytes + " bytes</b> (" + tableBytes + " table + " + tokenBytes + " tokens) · " + ratio(dictBytes) + (dictBytes >= raw ? " <span style='color:var(--danger)'>— no repeated words to exploit</span>" : " <span style='color:var(--good)'>✓</span>") +
-          "<br><span style='color:var(--muted)'>Both are lossless: the original is rebuilt exactly. Lossy compression (JPEG, MP3) discards detail the eye or ear will not miss and cannot be undone.</span>";
+          " ≈ <b>" + dictBytes + " bytes</b> (" + tableBytes + " table + " + tokenBytes + " tokens) · " + ratio(dictBytes) + (dictBytes >= raw ? " <span class='k-lab-bad'>— no repeated words to exploit</span>" : " <span class='k-lab-good'>✓</span>") +
+          "<br><span class='k-lab-aside'>Both are lossless: the original is rebuilt exactly. Lossy compression (JPEG, MP3) discards detail the eye or ear will not miss and cannot be undone.</span>";
       }
       run();
     }
@@ -538,13 +540,13 @@
       var mSel = el("select", {}, [el("option", { value: "caesar", text: "Caesar shift" }), el("option", { value: "vernam", text: "Vernam (one-time pad, XOR-style)" })]);
       mSel.onchange = function () { mode = mSel.value; run(); };
       var sl = slider("shift", 0, 25, 1, shift, function (v) { shift = v; run(); });
-      var keyIn = el("input", { type: "text", value: key, style: "width:200px;font-family:var(--mono)" });
+      var keyIn = el("input", { type: "text", value: key, class: "k-mono", style: "--w: 200px" });
       keyIn.oninput = function () { key = keyIn.value.toUpperCase().replace(/[^A-Z]/g, ""); run(); };
-      var txt = el("textarea", { class: "note-area", style: "min-height:60px", "aria-label": "plaintext" });
+      var txt = el("textarea", { class: "k-input k-lab-note", "data-ui": "ui.note-area", style: "--h: 60px", "aria-label": "plaintext" });
       txt.value = "the quick brown fox jumps over the lazy dog and the sleepy cat watches";
       panel.appendChild(txt);
-      panel.appendChild(el("div", { class: "lab-controls" }, [el("label", {}, ["cipher", mSel]), sl.node, el("label", {}, ["pad key (A–Z)", keyIn]),
-        el("button", { class: "btn", text: "Random pad", onclick: function () { key = ""; for (var i = 0; i < 80; i++) key += String.fromCharCode(65 + Math.floor(Math.random() * 26)); keyIn.value = key; run(); } })]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["cipher", mSel]), sl.node, el("label", {}, ["pad key (A–Z)", keyIn]),
+        el("button", { class: "k-btn", text: "Random pad", onclick: function () { key = ""; for (var i = 0; i < 80; i++) key += String.fromCharCode(65 + Math.floor(Math.random() * 26)); keyIn.value = key; run(); } })]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 170);
       var read = readout(); panel.appendChild(read);
@@ -577,7 +579,7 @@
           ctx.fillStyle = reuse ? COL.crim : COL.mute; ctx.fillText(mode === "vernam" ? (reuse ? "key shorter than message → pad reused → patterns leak" : "key ≥ message length, random, used once → unbreakable") : "the whole histogram shifts by " + shift + " — E's peak gives the shift away", 10, 118);
         }
         read.innerHTML = "ciphertext: <b>" + esc(cipher) + "</b>" +
-          "<br><span style='color:var(--muted)'>" + (mode === "caesar" ? "Caesar: each letter moves a fixed number of places; 25 possible keys, so brute force or frequency analysis breaks it in seconds." : "Vernam: each letter is combined with the corresponding key letter (here modulo-26 addition; with bits it is XOR). Security depends on the key being truly random, as long as the message, kept secret and never reused.") + "</span>";
+          "<br><span class='k-lab-aside'>" + (mode === "caesar" ? "Caesar: each letter moves a fixed number of places; 25 possible keys, so brute force or frequency analysis breaks it in seconds." : "Vernam: each letter is combined with the corresponding key letter (here modulo-26 addition; with bits it is XOR). Security depends on the key being truly random, as long as the message, kept secret and never reused.") + "</span>";
       }
       run();
     }
@@ -588,12 +590,12 @@
     id: "subnet-lab", title: "IP Addressing & Subnet Masks", subject: "compsci", ref: "4.9.4.4",
     desc: "Enter an IPv4 address and a mask (or /prefix) to split it into network and host parts, bit by bit. A second address tells you whether the two hosts share a subnet — the exact question the AND operation answers in a router.",
     mount: function (panel) {
-      var ipIn = el("input", { type: "text", value: "192.168.10.77", style: "width:150px;font-family:var(--mono)" });
-      var maskIn = el("input", { type: "text", value: "/26", style: "width:150px;font-family:var(--mono)" });
-      var ip2In = el("input", { type: "text", value: "192.168.10.130", style: "width:150px;font-family:var(--mono)" });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [el("label", {}, ["IP address", ipIn]), el("label", {}, ["mask or /prefix", maskIn]), el("label", {}, ["second host", ip2In]),
-        el("button", { class: "btn primary", text: "Work it out", onclick: run }), msg]));
+      var ipIn = el("input", { type: "text", value: "192.168.10.77", class: "k-mono", style: "--w: 150px" });
+      var maskIn = el("input", { type: "text", value: "/26", class: "k-mono", style: "--w: 150px" });
+      var ip2In = el("input", { type: "text", value: "192.168.10.130", class: "k-mono", style: "--w: 150px" });
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["IP address", ipIn]), el("label", {}, ["mask or /prefix", maskIn]), el("label", {}, ["second host", ip2In]),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Work it out", onclick: run }), msg]));
       var out = el("div", {}); panel.appendChild(out);
       var read = readout(); panel.appendChild(read);
       [ipIn, maskIn, ip2In].forEach(function (i) { i.addEventListener("keydown", function (e) { if (e.key === "Enter") run(); }); });
@@ -609,12 +611,12 @@
         var net = ip.map(function (o, i) { return o & mask[i]; }), bc = ip.map(function (o, i) { return o | (~mask[i] & 255); });
         var hostBits = 32 - prefix, hosts = hostBits >= 2 ? Math.pow(2, hostBits) - 2 : hostBits === 1 ? 2 : 1;
         var first = net.slice(), last = bc.slice(); if (hostBits >= 2) { first[3] += 1; last[3] -= 1; }
-        function row(label, o, cls) { var b = bin(o).join(""); return { cells: [label, o.join("."), "<span class='subnet-net'>" + b.slice(0, prefix) + "</span><span class='subnet-host'>" + b.slice(prefix) + "</span>"], cls: cls || "" }; }
+        function row(label, o, cls) { var b = bin(o).join(""); return { cells: [label, o.join("."), "<span class='k-lab-subnet-net'>" + b.slice(0, prefix) + "</span><span class='k-lab-subnet-host'>" + b.slice(prefix) + "</span>"], cls: cls || "" }; }
         out.innerHTML = ""; out.appendChild(table(["", "dotted decimal", "binary (network | host)"], [row("address", ip), row("mask /" + prefix, mask), row("AND → network", net, "live"), row("broadcast", bc)]));
         var same = ip2 ? ip2.every(function (o, i) { return (o & mask[i]) === net[i]; }) : null;
         read.innerHTML = "network ID <b>" + net.join(".") + "/" + prefix + "</b> · host part " + hostBits + " bits → <b>" + hosts.toLocaleString() + " usable hosts</b> (" + first.join(".") + " – " + last.join(".") + ") · broadcast " + bc.join(".") +
-          "<br>second host " + (ip2 ? ip2.join(".") + " AND mask = " + ip2.map(function (o, i) { return o & mask[i]; }).join(".") + " → " + (same ? "<b style='color:var(--good)'>same subnet — deliver directly</b>" : "<b style='color:var(--danger)'>different subnet — send via the gateway/router</b>") : "invalid") +
-          "<br><span style='color:var(--muted)'>The mask's 1s cover the network ID; the router ANDs a destination with the mask and compares. Private ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 — not routable on the public Internet (NAT translates them).</span>";
+          "<br>second host " + (ip2 ? ip2.join(".") + " AND mask = " + ip2.map(function (o, i) { return o & mask[i]; }).join(".") + " → " + (same ? "<b class='k-lab-good'>same subnet — deliver directly</b>" : "<b class='k-lab-bad'>different subnet — send via the gateway/router</b>") : "invalid") +
+          "<br><span class='k-lab-aside'>The mask's 1s cover the network ID; the router ANDs a destination with the mask and compares. Private ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 — not routable on the public Internet (NAT translates them).</span>";
       }
       run();
     }

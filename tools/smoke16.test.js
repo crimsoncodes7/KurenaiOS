@@ -238,7 +238,7 @@ step("modal converts a focal click through cover-fit and zoom source geometry", 
     onSave: result => { saved = result; }, onCancel: () => { cancelled++; }
   });
   const preview = overlay.querySelector("[data-ui~='crop.preview']");
-  if (!/aspect-ratio:\s*3\.2/.test(preview.getAttribute("style") || "")) {
+  if (!/--crop-aspect:\s*3\.2/.test(preview.getAttribute("style") || "")) {
     throw new Error("final aspect ratio not reflected in preview: " + (preview.getAttribute("style") || "<none>"));
   }
   if (!button(overlay, "Save image").disabled) throw new Error("save must wait for a valid preview load");

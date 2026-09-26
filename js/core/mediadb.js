@@ -89,7 +89,8 @@
   "use strict";
   window.KOS = window.KOS || {};
 
-  var DB_NAME = "kurenai-os-media", DB_VER = 8;
+  /* the Empty/Sample review namespaces keep their own database (store.js) */
+  var DB_NAME = "kurenai-os-media" + ((KOS.dataMode && KOS.dataMode.suffix) || ""), DB_VER = 8;
   var ENTRIES = "entries", KV = "kv";
   var db = null;
 

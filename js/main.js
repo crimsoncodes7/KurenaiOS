@@ -146,7 +146,7 @@
      elsewhere (mal-sync) land here by themselves; local edits already
      push automatically via mediapush. First cycle fires 8 s after boot,
      clear of the dedupe pass above. Toggle lives on Sync & Import. */
-  if (KOS.autosync) KOS.autosync.start();
+  if (KOS.autosync && !KOS.dataMode.mode) KOS.autosync.start();
 
   /* ---- cloud sync (Build 4a) ----
      Supabase replication: pushes local changes, pulls remote ones, shows
@@ -160,5 +160,25 @@
      restores the stored last view exactly as this block used to, then
      stamps that route onto the current history entry so the very first
      Back is already inside the app rather than out of it. */
+  /* a review account says so in the header, with the way back */
+  if (KOS.dataMode.mode) {
+    var headEnd = document.querySelector("[data-ui~='shell.header-actions']");
+    if (headEnd) headEnd.insertBefore(KOS.ui.el("button", { type: "button", class: "k-chip k-datamode", "data-ui": "shell.data-mode",
+      "data-tone": "amber", title: "A separate review account — your own data is untouched. Press to go back to it.",
+      text: (KOS.dataMode.mode === "sample" ? "Sample data" : "Empty account") + " · back to mine",
+      onclick: function () { KOS.dataMode.set(""); } }), headEnd.firstChild);
+  }
+
+  /* the Sample review namespace fills itself once (js/core/sample.js)
+     before the first page draws; the Collection lands asynchronously, so
+     the page redraws when it has */
+  if (KOS.sample) KOS.sample.ensure(function (seeded) {
+    if (!seeded) return;
+    setTimeout(function () {
+      KOS.refreshRailCounters();
+      if (KOS.refreshHUD) KOS.refreshHUD();
+      KOS.rerender();
+    }, 0);
+  });
   KOS.router.boot();
 })();

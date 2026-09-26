@@ -9,7 +9,15 @@
   var ACCESS = ["public", "private", "protected"];
   var basingFrom = null; // class id awaiting a base-class click
 
-  function model() { return store.state.oop; }
+  /* The first visit shows a small worked example. It is a DRAFT until the
+     first edit: a view renders without writing (smoke56), so the example
+     reaches the store only when the reader changes something. */
+  var draft = null;
+  function model() { return draft || store.state.oop; }
+  function save() {
+    if (draft) { Object.assign(store.state.oop, draft); draft = null; }
+    store.save();
+  }
   function byId(id) { return model().classes.find(function (c) { return c.id === id; }); }
 
   function newClass(x, y) {
@@ -23,7 +31,6 @@
       methods: [{ acc: "public", type: "void", name: "DoWork", virt: "none" }]
     };
     m.classes.push(c);
-    store.save();
     return c;
   }
 
@@ -95,10 +102,10 @@
   function highlight(code) {
     var esc = KOS.hub.esc(code);
     return esc
-      .replace(/(\/\/[^\n]*)/g, '<span class="cs-cm">$1</span>')
-      .replace(/\b(namespace|public|private|protected|class|abstract|virtual|override|return|new|default)\b/g, '<span class="cs-kw">$1</span>')
-      .replace(/\b(void|int|long|byte|double|float|decimal|bool|string|char)\b/g, '<span class="cs-ty">$1</span>')
-      .replace(/\bclass<\/span> (\w+)/g, 'class</span> <span class="cs-cl">$1</span>');
+      .replace(/(\/\/[^\n]*)/g, '<span class="k-cs-cm">$1</span>')
+      .replace(/\b(namespace|public|private|protected|class|abstract|virtual|override|return|new|default)\b/g, '<span class="k-cs-kw">$1</span>')
+      .replace(/\b(void|int|long|byte|double|float|decimal|bool|string|char)\b/g, '<span class="k-cs-ty">$1</span>')
+      .replace(/\bclass<\/span> (\w+)/g, 'class</span> <span class="k-cs-cl">$1</span>');
   }
 
   /* ---------------- view ---------------- */
@@ -107,26 +114,26 @@
   KOS.views.oop = function (main) {
     KOS.shell.tree("none");
     basingFrom = null;
+    draft = null;
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "C# OOP Architecture Sandbox" }),
-      el("p", { class: "sub", text: "Drop class blocks, drag them around, set access modifiers, mark methods virtual/override, and click \u201CSet base\u201D then a parent card to draw the inheritance arrow. The C# on the right rewrites itself with every change — straight into Avalonia-ready structure. AQA 7517 · 4.1.2.3" })
-    ]));
+    main.appendChild(KOS.ui.pageHeader({ kicker: "Labs · AQA 7517 · 4.1.2.3", title: "C# OOP Sandbox",
+      sub: "Drag class blocks, set modifiers, draw inheritance; the C# rewrites itself." }));
 
-    var bar = el("div", { class: "lab-controls" });
-    bar.appendChild(el("button", { class: "btn primary", text: "+ Add class", onclick: function () {
+    var bar = el("div", { class: "k-lab-controls", "data-ui": "lab.controls" });
+    bar.appendChild(el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "+ Add class", onclick: function () {
       var n = model().classes.length;
       addCard(newClass(30 + (n % 3) * 250, 26 + Math.floor(n / 3) * 210));
+      save();
       refresh();
     }}));
-    bar.appendChild(el("button", { class: "btn", text: "Copy C#", onclick: function () {
+    bar.appendChild(el("button", { class: "k-btn", text: "Copy C#", onclick: function () {
       var code = transpile();
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(code).then(function () { KOS.ui.toast("C# copied to clipboard."); },
           function () { fallbackCopy(code); });
       } else fallbackCopy(code);
       function fallbackCopy(text) {
-        var ta = el("textarea", { style: "position:fixed;opacity:0" });
+        var ta = el("textarea", { class: "sr-only", "aria-hidden": "true", tabindex: "-1" });
         ta.value = text;
         document.body.appendChild(ta);
         ta.select();
@@ -135,25 +142,27 @@
         ta.remove();
       }
     }}));
-    bar.appendChild(el("button", { class: "btn gold", text: "Clear sandbox", onclick: function () {
-      if (!model().classes.length || confirm("Remove every class block?")) {
-        model().classes = []; model().links = []; store.save(); buildStage();
-      }
+    bar.appendChild(el("button", { class: "k-btn k-lab-alt", text: "Clear sandbox", onclick: function () {
+      function clearAll() { model().classes = []; model().links = []; save(); buildStage(); }
+      if (!model().classes.length) { clearAll(); return; }
+      KOS.ui.confirm({ title: "Clear the sandbox?", body: "Every class block and inheritance arrow is removed.",
+        confirm: "Clear sandbox", danger: true }, clearAll);
     }}));
     main.appendChild(bar);
 
-    var wrap = el("div", { id: "oop-stage-wrap" });
-    stage = el("div", { id: "oop-stage" });
+    var wrap = el("div", { id: "oop-stage-wrap", class: "k-oop" });
+    stage = el("div", { id: "oop-stage", class: "k-oop-stage" });
     svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.id = "oop-svg";
+    svg.setAttribute("class", "k-oop-svg");
     var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     defs.innerHTML = '<marker id="tri" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11 z" fill="none" stroke="var(--accent2)" stroke-width="1.6"/></marker>';
     svg.appendChild(defs);
     stage.appendChild(svg);
     wrap.appendChild(stage);
 
-    var codeBox = el("div", { id: "oop-code" });
-    codePre = el("pre", {});
+    var codeBox = el("div", { id: "oop-code", class: "k-oop-code" });
+    codePre = el("pre", { class: "k-mono" });
     codeBox.appendChild(codePre);
     wrap.appendChild(codeBox);
     main.appendChild(wrap);
@@ -165,7 +174,8 @@
       if (!model().classes.length) {
         // seed a tiny inheritance example on first visit
         if (!model().seeded) {
-          model().seeded = true;
+          var base = store.state.oop;
+          draft = { classes: [], links: [], nextId: base.nextId || 1, seeded: true };
           var a = newClass(40, 30); a.name = "GameEntity"; a.abstract = true;
           a.fields = [{ acc: "protected", type: "int", name: "health" },
                       { acc: "private", type: "string", name: "id" }];
@@ -175,7 +185,6 @@
           b.methods = [{ acc: "public", type: "void", name: "TakeDamage", virt: "override" },
                        { acc: "public", type: "string", name: "Confess", virt: "none" }];
           model().links.push({ child: b.id, parent: a.id });
-          store.save();
         }
       }
       model().classes.forEach(addCard);
@@ -183,52 +192,52 @@
     }
 
     function addCard(c) {
-      var card = el("div", { class: "cls-card", style: "left:" + c.x + "px;top:" + c.y + "px" });
+      var card = el("div", { class: "k-lab-cls-card", "data-ui": "lab.oop-class", style: "--x: " + c.x + "px; --y: " + c.y + "px" });
       card.dataset.cid = c.id;
 
       var nameIn = el("input", { value: c.name, "aria-label": "Class name", oninput: function () {
-        c.name = nameIn.value; store.save(); refresh();
+        c.name = nameIn.value; save(); refresh();
       }});
-      var abst = el("span", { class: "abst", "data-ui": "lab.oop-abstract", title: "Toggle abstract",
+      var abst = el("span", { class: "k-lab-abst", "data-ui": "lab.oop-abstract", title: "Toggle abstract",
         text: c.abstract ? "✦ abstract" : "✧ concrete",
-        onclick: function () { c.abstract = !c.abstract; abst.textContent = c.abstract ? "✦ abstract" : "✧ concrete"; store.save(); refresh(); } });
-      var head = el("div", { class: "cls-h" }, [
+        onclick: function () { c.abstract = !c.abstract; abst.textContent = c.abstract ? "✦ abstract" : "✧ concrete"; save(); refresh(); } });
+      var head = el("div", { class: "k-lab-cls-h", "data-ui": "lab.oop-class-head" }, [
         nameIn, abst,
-        el("button", { class: "xbtn", title: "Delete class", text: "✕", onclick: function (e) {
+        el("button", { class: "k-iconbtn k-iconbtn--sm", title: "Delete class", text: "✕", onclick: function (e) {
           e.stopPropagation();
           var m = model();
           m.classes = m.classes.filter(function (k) { return k.id !== c.id; });
           m.links = m.links.filter(function (l) { return l.child !== c.id && l.parent !== c.id; });
-          store.save();
+          save();
           card.remove();
           refresh();
         }})
       ]);
       card.appendChild(head);
 
-      var body = el("div", { class: "cls-body" });
+      var body = el("div", { class: "k-lab-cls-body" });
       card.appendChild(body);
 
       function renderMembers() {
         body.innerHTML = "";
-        body.appendChild(el("div", { class: "mem-h", text: "Fields" }));
+        body.appendChild(el("div", { class: "k-lab-mem-h", text: "Fields" }));
         c.fields.forEach(function (f, i) { body.appendChild(memberRow(f, i, "fields")); });
-        body.appendChild(el("div", { class: "mem-h", text: "Methods" }));
+        body.appendChild(el("div", { class: "k-lab-mem-h", text: "Methods" }));
         c.methods.forEach(function (mt, i) { body.appendChild(memberRow(mt, i, "methods")); });
       }
       function memberRow(mem, idx, kind) {
-        var acc = el("select", { class: "acc", title: "Access modifier" }, ACCESS.map(function (a) {
+        var acc = el("select", { class: "k-lab-acc", title: "Access modifier" }, ACCESS.map(function (a) {
           return el("option", { value: a, text: a === "public" ? "+" : a === "private" ? "−" : "#" });
         }));
         acc.value = mem.acc;
-        acc.onchange = function () { mem.acc = acc.value; store.save(); refresh(); };
+        acc.onchange = function () { mem.acc = acc.value; save(); refresh(); };
         var type = el("input", { value: mem.type, placeholder: "type", title: "Type" });
-        type.oninput = function () { mem.type = type.value; store.save(); refresh(); };
+        type.oninput = function () { mem.type = type.value; save(); refresh(); };
         var nm = el("input", { value: mem.name, placeholder: "name", title: "Name" });
-        nm.oninput = function () { mem.name = nm.value; store.save(); refresh(); };
-        var row = el("div", { class: "member" }, [acc, type, nm,
-          el("button", { class: "xbtn", text: "✕", title: "Remove", onclick: function () {
-            c[kind].splice(idx, 1); store.save(); renderMembers(); refresh();
+        nm.oninput = function () { mem.name = nm.value; save(); refresh(); };
+        var row = el("div", { class: "k-lab-member" }, [acc, type, nm,
+          el("button", { class: "k-iconbtn k-iconbtn--sm", text: "✕", title: "Remove", onclick: function () {
+            c[kind].splice(idx, 1); save(); renderMembers(); refresh();
           }})
         ]);
         if (kind === "methods") {
@@ -238,30 +247,30 @@
       }
       renderMembers();
 
-      var foot = el("div", { class: "cls-foot" });
-      foot.appendChild(el("button", { class: "mini-btn", text: "+ field", onclick: function () {
+      var foot = el("div", { class: "k-lab-cls-foot" });
+      foot.appendChild(el("button", { class: "k-btn k-btn--sm", text: "+ field", onclick: function () {
         c.fields.push({ acc: "private", type: "int", name: "field" + (c.fields.length + 1) });
-        store.save(); renderMembers(); refresh();
+        save(); renderMembers(); refresh();
       }}));
-      foot.appendChild(el("button", { class: "mini-btn", text: "+ method", onclick: function () {
+      foot.appendChild(el("button", { class: "k-btn k-btn--sm", text: "+ method", onclick: function () {
         c.methods.push({ acc: "public", type: "void", name: "Method" + (c.methods.length + 1), virt: "none" });
-        store.save(); renderMembers(); refresh();
+        save(); renderMembers(); refresh();
       }}));
-      foot.appendChild(el("button", { class: "mini-btn", text: "↻ virt", title: "Cycle the LAST method through none → virtual → override → abstract", onclick: function () {
+      foot.appendChild(el("button", { class: "k-btn k-btn--sm", text: "↻ virt", title: "Cycle the LAST method through none → virtual → override → abstract", onclick: function () {
         if (!c.methods.length) return;
         var mt = c.methods[c.methods.length - 1];
         var cyc = ["none", "virtual", "override", "abstract"];
         mt.virt = cyc[(cyc.indexOf(mt.virt) + 1) % cyc.length];
         KOS.ui.toast(mt.name + " is now " + (mt.virt === "none" ? "plain" : mt.virt) + ".");
-        store.save(); refresh();
+        save(); refresh();
       }}));
-      foot.appendChild(el("button", { class: "mini-btn", text: "⇡ set base", title: "Then click the parent class card", onclick: function (e) {
+      foot.appendChild(el("button", { class: "k-btn k-btn--sm", text: "⇡ set base", title: "Then click the parent class card", onclick: function (e) {
         e.stopPropagation();
         var m = model();
         var existing = m.links.find(function (l) { return l.child === c.id; });
         if (existing) {
           m.links = m.links.filter(function (l) { return l.child !== c.id; });
-          store.save(); refresh();
+          save(); refresh();
           KOS.ui.toast("Inheritance removed from " + c.name + ".");
           return;
         }
@@ -285,7 +294,7 @@
           }
           m.links.push({ child: basingFrom, parent: c.id });
           var childName = (byId(basingFrom) || {}).name;
-          store.save();
+          save();
           KOS.ui.toast(childName + " : " + c.name + " — inheritance drawn.");
           endBasing(); refresh();
         }
@@ -303,13 +312,13 @@
         function move(ev) {
           c.x = Math.max(0, Math.min(stage.clientWidth - 232, ev.clientX - startX));
           c.y = Math.max(0, Math.min(stage.clientHeight - 80, ev.clientY - startY));
-          card.style.left = c.x + "px"; card.style.top = c.y + "px";
+          card.style.setProperty("--x", c.x + "px"); card.style.setProperty("--y", c.y + "px");
           drawLinks();
         }
         function up() {
           document.removeEventListener("pointermove", move);
           document.removeEventListener("pointerup", up);
-          store.save();
+          save();
         }
         document.addEventListener("pointermove", move);
         document.addEventListener("pointerup", up);

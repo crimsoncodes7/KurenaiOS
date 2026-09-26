@@ -254,7 +254,7 @@ step("the Simulations view is a categorised, searchable grid with a deep-linkabl
   const hits = $$("[data-ui~='lab.sim-card']");
   assert(hits.length >= 1 && hits.length <= 4 && hits.some(c => /Turing Machine/.test(c.textContent)), "search did not surface the Turing machine (" + hits.length + " cards)");
   KOS.show("sims", "turing-machine");
-  assert($("[data-ui~='lab.sim-head']") && /Turing/.test($("[data-ui~='lab.sim-head'] h2").textContent), "the open state has no header");
+  assert($("[data-ui~='lab.sim-head']") && /Turing/.test($("[data-ui~='lab.sim-head'] h1").textContent), "the open state has no header");
   assert($$("[data-ui~='lab.sim-head'] button").some(b => /All simulations/.test(b.textContent)), "no way back to the grid");
   assert($$("[data-ui~='lab.sim-head'] button").some(b => /Open topic page/.test(b.textContent)), "no link to the topic page");
 });

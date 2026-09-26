@@ -544,8 +544,8 @@
           title: tab === "active" ? "Choose the next finish line" : "Nothing in this view",
           body: tab === "active" ? "No active goals. Create a measurable target or a manual intention."
             : tab === "completed" ? "Completed goals collect here with their final progress intact."
-              : "No goals have failed or expired.",
-          action: tab === "active" ? el("button", { type: "button", class: "k-btn k-btn--sm", text: "Create a goal", onclick: function () { goalEditor(null, rerender); } }) : null
+              : "No goals have failed or expired."
+          /* the command bar's "New goal" is the one create control */
         }), "goal.empty"));
         return;
       }

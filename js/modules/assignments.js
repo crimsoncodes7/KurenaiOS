@@ -112,9 +112,8 @@
       if (!rows.length) {
         listEl.appendChild(KOS.ui.emptyState({ compact: true, mark: "課",
           body: filtered ? "Nothing matches these filters."
-            : "No assignments yet. Add the next thing that's due and it appears on the calendar, in your countdowns and on Home.",
-          action: filtered ? null : el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "＋ New assignment",
-            onclick: function () { editModal(null, function (rec) { if (rec) selectedId = rec.id; refresh(); }); } }) }));
+            : "No assignments yet. Add the next thing that's due and it appears on the calendar, in your countdowns and on Home." }));
+        /* the header's "New assignment" is the one create control */
         selectedId = null;
         paintPanel();
         return;

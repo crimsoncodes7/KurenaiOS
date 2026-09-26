@@ -30,12 +30,11 @@
 .k-gv-top { display: grid; grid-template-columns: minmax(0, 1fr) var(--gv-side-w); gap: var(--sp-20); }
 .k-gv-hero { position: relative; display: flex; min-block-size: var(--gv-hero-h); border-radius: var(--r-26); overflow: hidden; background: var(--gv-hero-bg); }
 .k-gv-hero[data-state~="preset-banner"]::before { content: ""; position: absolute; inset: 0; background: var(--gv-hero-scrim); }
-.k-gv-hero-body { position: relative; flex: 1 1 auto; display: flex; align-items: center; gap: var(--sp-26); padding: var(--sp-28) var(--sp-32); }
+.k-gv-hero-body { text-shadow: var(--hero-text-shadow); position: relative; flex: 1 1 auto; display: flex; align-items: center; gap: var(--sp-26); padding: var(--sp-28) var(--sp-32); }
 .k-gv-hero-txt { flex: 1 1 0; min-inline-size: 0; }
 .k-gv-rank { color: var(--gv-rank-ink); }
 .k-gv-name { margin: var(--sp-6) 0 var(--sp-4); font-size: var(--fs-34); font-weight: var(--weight-semibold); letter-spacing: var(--track-h1); line-height: var(--lh-tight); }
-.k-gv-status-line { font-size: var(--fs-13-5); color: var(--text); }
-.k-gv-about { margin: var(--sp-4) 0 0; max-inline-size: var(--gv-about-w); font: italic var(--fs-15) / 1.45 var(--font-read); color: var(--text-2); white-space: pre-line; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.k-gv-status-line { margin-block-start: var(--sp-4); max-inline-size: var(--gv-about-w); font: italic var(--fs-15) / 1.45 var(--font-read); color: var(--text-2); }
 .k-gv-about-empty { padding: var(--sp-6) var(--sp-12); border-radius: var(--r-pill); box-shadow: inset 0 0 0 var(--hairline) var(--line); font-size: var(--fs-12-5); color: var(--text-2); background: var(--gv-glass); }
 .k-gv-about-empty:hover { color: var(--text); }
 .k-gv-xp { display: flex; align-items: center; gap: var(--sp-12); margin-block-start: var(--sp-16); font-size: var(--fs-12-5); color: var(--text-2); }
@@ -90,12 +89,17 @@ button.k-gv-ring:hover { filter: brightness(1.08); }
 .k-gv-rec-done { font-size: var(--fs-12); color: var(--muted); }
 
 /* cadence and the ledger */
-.k-gv-mid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: var(--sp-20); align-items: start; }
+.k-gv-mid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: var(--sp-20); }
+/* the two cards share one height (frame 12a); the heatmap spans the card
+   and its footer sits on the card's floor */
+.k-gv-cadence { display: flex; flex-direction: column; }
+.k-gv-heat { flex: 1 1 auto; display: flex; flex-direction: column; }
+.k-gv-heat-foot { margin-block-start: auto; padding-block-start: var(--sp-12); }
 .k-gv-cad-seg { margin-inline-start: auto; align-self: center; }
 .k-gv-cad-seg .k-seg { font-size: var(--fs-12-5); }
 .k-gv-heat-chart { margin-block-start: var(--sp-4); }
-.k-gv-heat-chart svg { display: block; max-inline-size: 100%; block-size: auto; }
-.k-gv-heat-foot { --heat-c: var(--crimson); display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-6) var(--sp-18); margin-block-start: var(--sp-12); font-size: var(--fs-12); color: var(--muted); }
+.k-gv-heat-chart svg { display: block; inline-size: 100%; block-size: auto; }
+.k-gv-heat-foot { --heat-c: var(--crimson); display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-6) var(--sp-18); font-size: var(--fs-12); color: var(--muted); }
 .k-gv-heat-foot[data-mode="rest"] { --heat-c: var(--teal); }
 .k-gv-heat-foot b { color: var(--text); font-weight: var(--weight-semibold); }
 .k-gv-heat-scale { margin-inline-start: auto; display: flex; align-items: center; gap: var(--sp-4); }

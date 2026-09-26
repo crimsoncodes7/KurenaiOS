@@ -59,11 +59,11 @@
   });
 
   function dprCanvas(holder, h) {
-    var c = el("canvas", { class: "labcanvas" });
+    var c = el("canvas", { class: "k-lab-canvas" });
     holder.appendChild(c);
     var dpr = window.devicePixelRatio || 1;
     var W = (holder.clientWidth || 880) - 2;
-    c.width = W * dpr; c.height = h * dpr; c.style.height = h + "px";
+    c.width = W * dpr; c.height = h * dpr; c.style.setProperty("--h", h + "px");
     var ctx = c.getContext("2d");
     if (ctx && ctx.scale) ctx.scale(dpr, dpr);
     return { c: c, ctx: ctx, W: W, H: h };
@@ -84,16 +84,16 @@
     id: "logic-lab", title: "Boolean Logic Lab", subject: "compsci", ref: "4.6.2.1",
     desc: "Type any Boolean expression, flip the input switches, and watch the truth table highlight the live row.",
     mount: function (panel) {
-      var exprIn = el("input", { type: "text", value: "A.B + ¬C", style: "width:260px",
+      var exprIn = el("input", { type: "text", value: "A.B + ¬C", style: "--w: 260px",
         "aria-label": "Boolean expression" });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["expression (use . + ¬ xor, or AND OR NOT)", exprIn]),
-        el("button", { class: "btn primary", text: "Build", onclick: build }), msg
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Build", onclick: build }), msg
       ]));
-      var switches = el("div", { class: "logic-switches" });
-      var lamp = el("div", { class: "logic-lamp" });
-      panel.appendChild(el("div", { class: "logic-live" }, [switches, lamp]));
+      var switches = el("div", { class: "k-lab-switches", "data-ui": "lab.logic-switches" });
+      var lamp = el("div", { class: "k-lab-lamp" });
+      panel.appendChild(el("div", { class: "k-lab-live" }, [switches, lamp]));
       var tblWrap = el("div", {});
       panel.appendChild(tblWrap);
 
@@ -168,16 +168,17 @@
       function renderSwitches() {
         switches.innerHTML = "";
         names.forEach(function (n) {
-          var sw = el("button", { class: "logic-sw" + (env[n] ? " on" : ""),
+          var sw = el("button", { type: "button", class: "k-lab-switch", "data-ui": "lab.logic-switch", "data-state": env[n] ? "on" : null,
             onclick: function () { env[n] = !env[n]; KOS.ui.state(sw, "on", env[n]); sw.querySelector("b").textContent = env[n] ? "1" : "0"; renderTable(); } },
             [el("span", { text: n }), el("b", { text: env[n] ? "1" : "0" })]);
           switches.appendChild(sw);
         });
-        if (!names.length) switches.appendChild(el("span", { class: "sim-msg", text: "constant expression" }));
+        if (!names.length) switches.appendChild(el("span", { class: "k-lab-msg", "data-ui": "lab.message", text: "constant expression" }));
       }
       function renderTable() {
         var out = evalNode(ast, env);
-        KOS.ui.setClass(lamp, "logic-lamp " + (out ? "on" : "off"));
+        KOS.ui.state(lamp, "on", !!out);
+        KOS.ui.state(lamp, "off", !out);
         lamp.innerHTML = "<b>Q = " + (out ? "1" : "0") + "</b>";
         var rows = [];
         var n = names.length;
@@ -190,15 +191,15 @@
           rows.push({ cells: cells, q: evalNode(ast, e2) ? 1 : 0,
             live: names.every(function (nm) { return e2[nm] === env[nm]; }) });
         }
-        var html = '<table class="n-table logic-tt"><thead><tr>' +
+        var html = '<table class="k-n-table k-lab-tt" data-ui="content.table lab.truth-table"><thead><tr>' +
           names.map(function (nm) { return "<th>" + nm + "</th>"; }).join("") +
           "<th>Q</th></tr></thead><tbody>" +
           rows.map(function (r) {
-            return '<tr class="' + (r.live ? "live" : "") + '">' +
+            return '<tr' + (r.live ? ' data-state="live"' : '') + '>' +
               r.cells.map(function (c) { return "<td>" + c + "</td>"; }).join("") +
-              '<td class="' + (r.q ? "q1" : "q0") + '">' + r.q + "</td></tr>";
+              '<td data-q="' + r.q + '">' + r.q + "</td></tr>";
           }).join("") + "</tbody></table>";
-        tblWrap.innerHTML = "<h4 class='n-h'>Truth table — live row highlighted</h4>" + html;
+        tblWrap.innerHTML = "<h4 class='k-lab-h'>Truth table — live row highlighted</h4>" + html;
         KOS.ui.hookify(tblWrap);
       }
       build();
@@ -214,13 +215,13 @@
         el("option", { value: "bubble", text: "bubble sort — O(n²)" }),
         el("option", { value: "merge", text: "merge sort — O(n log n)" })
       ]);
-      var speed = el("input", { type: "range", min: 1, max: 10, value: 6, style: "width:120px" });
-      var stats = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var speed = el("input", { type: "range", min: 1, max: 10, value: 6, style: "--w: 120px" });
+      var stats = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["algorithm", alg]),
         el("label", {}, ["speed", speed]),
-        el("button", { class: "btn primary", text: "▶ Sort", onclick: run }),
-        el("button", { class: "btn gold", text: "⚄ New data", onclick: reset }),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "▶ Sort", onclick: run }),
+        el("button", { class: "k-btn k-lab-alt", text: "⚄ New data", onclick: reset }),
         stats
       ]));
       var holder = el("div", {});
@@ -320,21 +321,21 @@
       };
       var sel = el("select", {}, Object.keys(MACHINES).map(function (k) {
         return el("option", { value: k, text: MACHINES[k].name }); }));
-      var input = el("input", { type: "text", value: "110110", style: "width:160px",
+      var input = el("input", { type: "text", value: "110110", style: "--w: 160px",
         placeholder: "string of 0s and 1s" });
-      var verdict = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var verdict = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["machine (acceptor)", sel]),
         el("label", {}, ["input string", input]),
-        el("button", { class: "btn primary", text: "▶ Run", onclick: run }),
-        el("button", { class: "btn", text: "Step", onclick: stepOnce }),
-        el("button", { class: "btn gold", text: "Reset", onclick: reset }),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "▶ Run", onclick: run }),
+        el("button", { class: "k-btn", text: "Step", onclick: stepOnce }),
+        el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: reset }),
         verdict
       ]));
       var holder = el("div", {});
       panel.appendChild(holder);
       var cv = dprCanvas(holder, 280);
-      var tape = el("div", { class: "fsm-tape" });
+      var tape = el("div", { class: "k-lab-fsm-tape" });
       panel.appendChild(tape);
 
       var m, cur, pos, halted;
@@ -361,7 +362,7 @@
         halted = true;
         var ok = m.accept.indexOf(cur) !== -1;
         verdict.textContent = "halted in " + cur + " → " + (ok ? "ACCEPTED ✓" : "REJECTED ✕");
-        verdict.style.color = ok ? COL.jade : COL.crim;
+        verdict.setAttribute("data-tone", ok ? "good" : "bad");
         draw();
       }
       async function run() {
@@ -376,7 +377,7 @@
         var s = input.value.replace(/[^01]/g, "");
         tape.innerHTML = "";
         s.split("").forEach(function (ch, i) {
-          tape.appendChild(el("span", { class: "fsm-cell" + (i === pos ? " cur" : i < pos ? " done" : ""), text: ch }));
+          tape.appendChild(el("span", { class: "k-lab-fsm-cell", "data-state": i === pos ? "current" : i < pos ? "done" : null, text: ch }));
         });
       }
       function draw() {
@@ -454,19 +455,19 @@
       var fsel = el("select", {}, Object.keys(FNS).map(function (k) {
         return el("option", { value: k, text: "f(x) = " + k }); }));
       function slider(min, max, step, val) {
-        return el("input", { type: "range", min: min, max: max, step: step, value: val, style: "width:110px" });
+        return el("input", { type: "range", min: min, max: max, step: step, value: val, style: "--w: 110px" });
       }
       var sa = slider(-3, 3, 0.5, 1), sb = slider(-3, 3, 0.5, 1),
           sc = slider(-5, 5, 0.5, 0), sd = slider(-5, 5, 0.5, 0);
-      var eq = el("div", { class: "fn-eq" });
-      var descr = el("div", { class: "fn-desc" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var eq = el("div", { class: "k-lab-fn-eq", "data-ui": "lab.fn-eq" });
+      var descr = el("div", { class: "k-lab-fn-desc", "data-ui": "lab.fn-desc" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["base", fsel]),
         el("label", {}, ["a (stretch y)", sa]),
         el("label", {}, ["b (stretch x)", sb]),
         el("label", {}, ["c (shift in x)", sc]),
         el("label", {}, ["d (shift in y)", sd]),
-        el("button", { class: "btn gold", text: "Reset", onclick: function () {
+        el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: function () {
           sa.value = 1; sb.value = 1; sc.value = 0; sd.value = 0; draw(); } })
       ]));
       panel.appendChild(eq);
@@ -515,7 +516,7 @@
         eq.innerHTML = "y = " + (a === 1 ? "" : a === -1 ? "−" : n(a) + "·") + "f(" +
           (b === 1 ? "" : b === -1 ? "−" : n(b)) + "x" + (c ? (c > 0 ? " + " : " − ") + n(Math.abs(c)) : "") + ")" +
           (d ? (d > 0 ? " + " : " − ") + n(Math.abs(d)) : "") +
-          '   <span style="color:var(--faint)">where f(x) = ' + fsel.value + "</span>";
+          '   <span class="k-lab-faint">where f(x) = ' + fsel.value + "</span>";
 
         var parts = [];
         if (c) parts.push("translation by vector (" + n(-c / (b || 1)) + ", 0)" + (b !== 1 ? " — note c acts before the x-stretch is undone, so the shift is −c/b" : " (LEFT for +c)"));
@@ -523,7 +524,7 @@
         if (a !== 1) parts.push(a === -1 ? "reflection in the x-axis" : "stretch ×" + n(Math.abs(a)) + " parallel to the y-axis" + (a < 0 ? " plus a reflection in the x-axis" : ""));
         if (d) parts.push("translation by vector (0, " + n(d) + ")");
         descr.innerHTML = "<b>Exam wording:</b> " + (parts.length ? parts.join("; then ") + "." : "no transformation — this IS f(x).") +
-          ' <span style="color:var(--faint)">Inside the bracket → x-direction, acts \u201Cbackwards\u201D. Outside → y-direction, acts as written.</span>';
+          ' <span class="k-lab-faint">Inside the bracket → x-direction, acts \u201Cbackwards\u201D. Outside → y-direction, acts as written.</span>';
       }
       draw();
     }
@@ -534,27 +535,27 @@
     id: "recursion-viz", title: "Recursion Visualiser", subject: "compsci", ref: "4.1.1.16",
     desc: "Watch stack frames pile up until the base case, then values flow back down as the stack unwinds.",
     mount: function (panel) {
-      var nIn = el("input", { type: "number", min: 1, max: 8, value: 4, style: "width:80px" });
+      var nIn = el("input", { type: "number", min: 1, max: 8, value: 4, style: "--w: 80px" });
       var fnSel = el("select", {}, [
         el("option", { value: "fact", text: "factorial(n)" }),
         el("option", { value: "fib", text: "fibonacci(n)" }),
         el("option", { value: "sum", text: "sum(1..n)" })
       ]);
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["function", fnSel]),
         el("label", {}, ["n (1–8)", nIn]),
-        el("button", { class: "btn primary", text: "▶ Run", onclick: run }),
-        el("button", { class: "btn gold", text: "Reset", onclick: reset }),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "▶ Run", onclick: run }),
+        el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: reset }),
         msg
       ]));
-      var stackCol = el("div", { class: "rec-stack" });
-      var info = el("div", { class: "rec-info" }, [
+      var stackCol = el("div", { class: "k-lab-rec-stack" });
+      var info = el("div", { class: "k-lab-rec-info" }, [
         el("p", { text: "Every call pushes a frame holding its argument, its return address and space for the result. Nothing is computed until the base case returns — then the partial results cascade back up." })
       ]);
-      var result = el("div", { class: "rec-result" });
-      panel.appendChild(el("div", { class: "rec-wrap" }, [
-        el("div", {}, [el("div", { class: "rec-h", text: "CALL STACK — top of stack uppermost" }), stackCol, result]),
+      var result = el("div", { class: "k-lab-rec-result" });
+      panel.appendChild(el("div", { class: "k-lab-rec-wrap" }, [
+        el("div", {}, [el("div", { class: "k-lab-rec-h", text: "CALL STACK — top of stack uppermost" }), stackCol, result]),
         info
       ]));
 
@@ -604,10 +605,10 @@
           }
           var e = ev[i++];
           if (e.t === "call") {
-            stackCol.insertBefore(el("div", { class: "rec-frame" + (e.base ? " base" : "") }, [
+            stackCol.insertBefore(el("div", { class: "k-lab-rec-frame", "data-state": e.base ? "base" : null }, [
               el("b", { text: e.label }),
-              el("span", { class: "ra", text: "return to: " + e.caller }),
-              el("span", { class: "pr", text: e.base ? "base case ✓ — no deeper call" : "waiting on recursive call…" })
+              el("span", { class: "k-lab-ra", text: "return to: " + e.caller }),
+              el("span", { class: "k-lab-pr", "data-ui": "lab.register", text: e.base ? "base case ✓ — no deeper call" : "waiting on recursive call…" })
             ]), stackCol.firstChild);
             msg.textContent = "PUSH " + e.label + (e.base ? " — base case hit" : "");
           } else {
@@ -637,10 +638,10 @@
         el("option", { value: "convert", text: "converter" }),
         el("option", { value: "add", text: "8-bit addition" })
       ]);
-      var denIn = el("input", { type: "number", min: 0, max: 255, style: "width:90px" });
-      var hexIn = el("input", { type: "text", maxlength: 2, style: "width:64px", placeholder: "FF" });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var denIn = el("input", { type: "number", min: 0, max: 255, style: "--w: 90px" });
+      var hexIn = el("input", { type: "text", maxlength: 2, style: "--w: 64px", placeholder: "FF" });
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["mode", mode]),
         el("label", {}, ["denary (0–255)", denIn]),
         el("label", {}, ["hex", hexIn]),
@@ -657,15 +658,15 @@
       function binStr(bits) { return bits.join(""); }
 
       function bitRow(bits, onToggle, cls) {
-        var row = el("div", { class: "bit-row " + (cls || "") });
+        var row = el("div", { class: "k-lab-bit-row", "data-kind": cls || null });
         bits.forEach(function (b, i) {
           var btn = el("button", {
-            class: "bit" + (b ? " on" : ""), text: String(b),
+            type: "button", class: "k-lab-bit", "data-ui": "lab.bit", "data-state": b ? "on" : null, text: String(b),
             "aria-label": "bit weight " + WEIGHTS[i],
             onclick: onToggle ? function () {
               bits[i] = 1 - bits[i];
-              btn.classList.add("flip");
-              setTimeout(function () { btn.classList.remove("flip"); }, 240);
+              KOS.ui.state(btn, "flip", true);
+              setTimeout(function () { KOS.ui.state(btn, "flip", false); }, 240);
               onToggle();
             } : undefined
           });
@@ -675,8 +676,8 @@
         return row;
       }
       function weightsRow() {
-        return el("div", { class: "bit-row weights" }, WEIGHTS.map(function (w) {
-          return el("span", { class: "bw", text: String(w) }); }));
+        return el("div", { class: "k-lab-bit-row k-lab-weights" }, WEIGHTS.map(function (w) {
+          return el("span", { class: "k-lab-bw", text: String(w) }); }));
       }
 
       function render() {
@@ -690,7 +691,7 @@
           body.appendChild(bitRow(A, render));
           var signed = v >= 128 ? v - 256 : v;
           var tc = (256 - v) % 256;
-          body.appendChild(el("dl", { class: "n-kv bin-read" }, [
+          body.appendChild(el("dl", { class: "k-n-kv k-lab-bin-read", "data-ui": "content.kv" }, [
             el("dt", { text: "binary" }), el("dd", { text: binStr(A) }),
             el("dt", { text: "denary (unsigned)" }), el("dd", { text: String(v) }),
             el("dt", { text: "denary (two's complement reading)" }), el("dd", { text: String(signed) }),
@@ -700,17 +701,17 @@
           ]));
         } else {
           denIn.value = ""; hexIn.value = "";
-          var carryRow = el("div", { class: "bit-row carry" }, WEIGHTS.map(function () {
-            return el("span", { class: "bw cbit", text: "" }); }));
+          var carryRow = el("div", { class: "k-lab-bit-row k-lab-carry" }, WEIGHTS.map(function () {
+            return el("span", { class: "k-lab-bw k-lab-cbit", "data-ui": "lab.cbit", text: "" }); }));
           var resBits = [0, 0, 0, 0, 0, 0, 0, 0];
           var rRow = bitRow(resBits, null, "result");
-          var out = el("div", { class: "sim-msg", style: "display:block;margin-top:8px" });
-          body.appendChild(el("div", { class: "bin-lbl", text: "carry" })); body.appendChild(carryRow);
-          body.appendChild(el("div", { class: "bin-lbl", text: "A = " + toVal(A) })); body.appendChild(bitRow(A, render));
-          body.appendChild(el("div", { class: "bin-lbl", text: "B = " + toVal(B) })); body.appendChild(bitRow(B, render));
-          body.appendChild(el("div", { class: "bin-lbl", text: "A + B" })); body.appendChild(rRow);
-          body.appendChild(el("div", { class: "lab-controls", style: "margin-top:10px" }, [
-            el("button", { class: "btn primary", text: "▶ Add (watch the carry)", onclick: function () {
+          var out = el("div", { class: "k-lab-msg", "data-ui": "lab.message", "data-block": "" });
+          body.appendChild(el("div", { class: "k-lab-bin-lbl", text: "carry" })); body.appendChild(carryRow);
+          body.appendChild(el("div", { class: "k-lab-bin-lbl", text: "A = " + toVal(A) })); body.appendChild(bitRow(A, render));
+          body.appendChild(el("div", { class: "k-lab-bin-lbl", text: "B = " + toVal(B) })); body.appendChild(bitRow(B, render));
+          body.appendChild(el("div", { class: "k-lab-bin-lbl", text: "A + B" })); body.appendChild(rRow);
+          body.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
+            el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "▶ Add (watch the carry)", onclick: function () {
               clearInterval(addTimer);
               var col = 7, carry = 0;
               rRow.querySelectorAll("[data-ui~='lab.bit']").forEach(function (b) { b.textContent = "0"; KOS.ui.state(b, "on", false); KOS.ui.state(b, "live", false); });
@@ -766,12 +767,12 @@
       };
       var progSel = el("select", {}, Object.keys(PROGS).map(function (k) {
         return el("option", { value: k, text: k }); }));
-      var desc = el("div", { class: "cpu-desc" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var desc = el("div", { class: "k-lab-cpu-desc" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["program", progSel]),
-        el("button", { class: "btn primary", text: "Step", onclick: stepOnce }),
-        el("button", { class: "btn", text: "▶ Run", onclick: runAll }),
-        el("button", { class: "btn gold", text: "Reset", onclick: reset })
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Step", onclick: stepOnce }),
+        el("button", { class: "k-btn", text: "▶ Run", onclick: runAll }),
+        el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: reset })
       ]));
       var holder = el("div", {});
       panel.appendChild(holder);
@@ -946,15 +947,15 @@
         el("option", { value: "cos", text: "cos θ = k → 360° − θ" }),
         el("option", { value: "tan", text: "tan θ = k → θ + 180°" })
       ]);
-      panel.appendChild(el("div", { class: "lab-controls" }, [
-        el("label", { class: "chk", style: "flex-direction:row;align-items:center;gap:6px" }, [castChk, "CAST overlay"]),
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
+        el("label", { class: "k-check" }, [castChk, "CAST overlay"]),
         el("label", {}, ["related angle for…", relSel]),
-        el("span", { class: "sim-msg", text: "drag the point on the circle" })
+        el("span", { class: "k-lab-msg", "data-ui": "lab.message", text: "drag the point on the circle" })
       ]));
       var holder = el("div", {});
       panel.appendChild(holder);
       var cv = dprCanvas(holder, 380);
-      var read = el("div", { class: "trig-read" });
+      var read = el("div", { class: "k-lab-trig-read" });
       panel.appendChild(read);
 
       var theta = Math.PI / 6;
@@ -1010,12 +1011,12 @@
         var t = Math.abs(Math.cos(theta)) < 1e-3 ? "undefined (cos θ = 0)" : fmtN(Math.tan(theta));
         read.innerHTML =
           "<b>θ = " + d.toFixed(1) + "°</b> = " + fmtN(rad) + " rad (" + fmtN(rad / Math.PI) + "π)" +
-          ' &nbsp;·&nbsp; <span style="color:' + COL.crim + '">sin θ = ' + fmtN(Math.sin(theta)) + "</span>" +
-          ' &nbsp;·&nbsp; <span style="color:' + COL.jade + '">cos θ = ' + fmtN(Math.cos(theta)) + "</span>" +
+          ' &nbsp;·&nbsp; <span class="k-lab-crim">sin θ = ' + fmtN(Math.sin(theta)) + "</span>" +
+          ' &nbsp;·&nbsp; <span class="k-lab-good">cos θ = ' + fmtN(Math.cos(theta)) + "</span>" +
           " &nbsp;·&nbsp; tan θ = " + t +
-          '<br><span style="color:var(--paused)">secondary solution (' + relSel.value + "): " +
+          '<br><span class="k-lab-paused">secondary solution (' + relSel.value + "): " +
           secondary().toFixed(1) + "°</span>" +
-          ' <span style="color:var(--faint)">— same ' + relSel.value + " value, the violet point</span>";
+          ' <span class="k-lab-faint">— same ' + relSel.value + " value, the violet point</span>";
       }
       var dragging = false;
       function setFromEvent(e) {
@@ -1026,7 +1027,7 @@
       cv.c.addEventListener("mousedown", function (e) { dragging = true; setFromEvent(e); });
       window.addEventListener("mousemove", function (e) { if (dragging) setFromEvent(e); });
       window.addEventListener("mouseup", function () { dragging = false; });
-      cv.c.style.cursor = "crosshair";
+      cv.c.setAttribute("data-cursor", "crosshair");
       castChk.onchange = draw; relSel.onchange = draw;
       draw();
     }
@@ -1037,22 +1038,22 @@
     id: "integration-area", title: "Definite Integral Area Explorer", subject: "maths", ref: "8.3",
     desc: "Plot a polynomial, drag the two limit lines, and watch the shaded area update — toggle absolute area to see why regions below the axis need splitting.",
     mount: function (panel) {
-      var polyIn = el("input", { type: "text", value: "x^2 - 4", style: "width:170px" });
-      var aIn = el("input", { type: "number", value: -1, step: "0.5", style: "width:80px" });
-      var bIn = el("input", { type: "number", value: 3, step: "0.5", style: "width:80px" });
+      var polyIn = el("input", { type: "text", value: "x^2 - 4", style: "--w: 170px" });
+      var aIn = el("input", { type: "number", value: -1, step: "0.5", style: "--w: 80px" });
+      var bIn = el("input", { type: "number", value: 3, step: "0.5", style: "--w: 80px" });
       var absChk = el("input", { type: "checkbox" });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["f(x) =", polyIn]),
         el("label", {}, ["lower limit a", aIn]),
         el("label", {}, ["upper limit b", bIn]),
-        el("label", { class: "chk", style: "flex-direction:row;align-items:center;gap:6px" }, [absChk, "absolute area (|f|)"]),
+        el("label", { class: "k-check" }, [absChk, "absolute area (|f|)"]),
         msg
       ]));
       var holder = el("div", {});
       panel.appendChild(holder);
       var cv = dprCanvas(holder, 340);
-      var read = el("div", { class: "trig-read" });
+      var read = el("div", { class: "k-lab-trig-read" });
       panel.appendChild(read);
 
       var XR = 6, YR = 10;
@@ -1129,9 +1130,9 @@
         });
         var ar = areas();
         read.innerHTML = "∫ from " + Math.min(A, Bv) + " to " + Math.max(A, Bv) + ":  " +
-          "<b style='color:" + (useAbs ? "var(--ok)" : "var(--text)") + "'>" +
+          (useAbs ? "<b class='k-lab-good'>" : "<b>") +
           (useAbs ? "absolute area = " + ar.abs.toFixed(3) : "signed value = " + ar.signed.toFixed(3)) + "</b>" +
-          " &nbsp;·&nbsp; <span style='color:var(--faint)'>signed " + ar.signed.toFixed(3) +
+          " &nbsp;·&nbsp; <span class='k-lab-faint'>signed " + ar.signed.toFixed(3) +
           " · absolute " + ar.abs.toFixed(3) +
           " — they differ whenever the curve dips below the axis</span>";
       }
@@ -1158,7 +1159,7 @@
         draw();
       });
       window.addEventListener("mouseup", function () { dragging = null; });
-      cv.c.style.cursor = "col-resize";
+      cv.c.setAttribute("data-cursor", "col-resize");
       polyIn.oninput = update; aIn.oninput = update; bIn.oninput = update;
       absChk.onchange = draw;
       update();
@@ -1170,13 +1171,13 @@
     id: "rpn-eval", title: "Reverse Polish (Postfix) Evaluator", subject: "compsci", ref: "4.3.3.1",
     desc: "Step through a postfix expression token by token and watch the stack push operands and collapse two-at-a-time on each operator.",
     mount: function (panel) {
-      var exprIn = el("input", { type: "text", value: "3 4 + 5 2 - *", style: "width:240px", "aria-label": "Postfix expression" });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var exprIn = el("input", { type: "text", value: "3 4 + 5 2 - *", style: "--w: 240px", "aria-label": "Postfix expression" });
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["postfix (space-separated, + − × ÷)", exprIn]),
-        el("button", { class: "btn primary", text: "Load", onclick: load }),
-        el("button", { class: "btn", text: "Step ▸", onclick: step }),
-        el("button", { class: "btn gold", text: "Run all", onclick: runAll }),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Load", onclick: load }),
+        el("button", { class: "k-btn", text: "Step ▸", onclick: step }),
+        el("button", { class: "k-btn k-lab-alt", text: "Run all", onclick: runAll }),
         msg
       ]));
       var holder = el("div", {});
@@ -1259,13 +1260,13 @@
     id: "binary-search", title: "Binary Search Visualiser", subject: "compsci", ref: "4.3.4.2",
     desc: "Watch the search interval halve each step as the low, mid and high pointers close in on the target — O(log n).",
     mount: function (panel) {
-      var targetIn = el("input", { type: "number", value: 42, style: "width:80px" });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
-        el("button", { class: "btn gold", text: "⚄ New sorted array", onclick: reset }),
+      var targetIn = el("input", { type: "number", value: 42, style: "--w: 80px" });
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
+        el("button", { class: "k-btn k-lab-alt", text: "⚄ New sorted array", onclick: reset }),
         el("label", {}, ["target", targetIn]),
-        el("button", { class: "btn primary", text: "Set target", onclick: start }),
-        el("button", { class: "btn", text: "Step ▸", onclick: step }),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Set target", onclick: start }),
+        el("button", { class: "k-btn", text: "Step ▸", onclick: step }),
         msg
       ]));
       var holder = el("div", {}); panel.appendChild(holder);
@@ -1320,12 +1321,12 @@
     id: "binom-dist", title: "Binomial Distribution Explorer", subject: "maths", ref: "S4.1",
     desc: "Slide n and p to reshape X ~ B(n, p); read P(X = k), the cumulative probability, mean and variance straight off the bars.",
     mount: function (panel) {
-      var nIn = el("input", { type: "range", min: 1, max: 30, value: 10, style: "width:150px" });
-      var pIn = el("input", { type: "range", min: 1, max: 99, value: 30, style: "width:150px" });
-      var kIn = el("input", { type: "range", min: 0, max: 30, value: 4, style: "width:150px" });
-      var msg = el("span", { class: "sim-msg" });
-      var lbl = el("div", { class: "sub", style: "margin:8px 0;font-family:var(--mono);font-size:11.5px" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var nIn = el("input", { type: "range", min: 1, max: 30, value: 10, style: "--w: 150px" });
+      var pIn = el("input", { type: "range", min: 1, max: 99, value: 30, style: "--w: 150px" });
+      var kIn = el("input", { type: "range", min: 0, max: 30, value: 4, style: "--w: 150px" });
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      var lbl = el("div", { class: "k-lab-sub", "data-ui": "part.sub", "data-mono": "" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["n", nIn]), el("label", {}, ["p (%)", pIn]), el("label", {}, ["k", kIn]), msg
       ]));
       panel.appendChild(lbl);
@@ -1349,7 +1350,7 @@
         ctx.strokeStyle = COL.line; ctx.beginPath(); ctx.moveTo(34, base); ctx.lineTo(cv.W - 10, base); ctx.stroke();
         var mean = n * p, varr = n * p * (1 - p), cum = 0;
         for (j = 0; j <= k; j++) cum += bars[j];
-        lbl.innerHTML = "X ~ B(" + n + ", " + p.toFixed(2) + ") &nbsp; <b style='color:var(--kurenai)'>P(X = " + k + ") = " + bars[k].toFixed(4) + "</b> &nbsp; P(X ≤ " + k + ") = " + cum.toFixed(4) +
+        lbl.innerHTML = "X ~ B(" + n + ", " + p.toFixed(2) + ") &nbsp; <b class='k-lab-crim'>P(X = " + k + ") = " + bars[k].toFixed(4) + "</b> &nbsp; P(X ≤ " + k + ") = " + cum.toFixed(4) +
           " &nbsp; mean np = " + mean.toFixed(2) + " &nbsp; var np(1−p) = " + varr.toFixed(2);
         msg.textContent = "n=" + n + "  p=" + p.toFixed(2) + "  k=" + k;
       }
@@ -1363,13 +1364,13 @@
     id: "linear-search", title: "Linear Search Visualiser", subject: "compsci", ref: "4.3.4.1",
     desc: "Scan an UNsorted list left-to-right, comparing every element until the target is found or the end is reached — O(n).",
     mount: function (panel) {
-      var targetIn = el("input", { type: "number", value: 7, style: "width:80px" });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
-        el("button", { class: "btn gold", text: "⚄ New array", onclick: reset }),
+      var targetIn = el("input", { type: "number", value: 7, style: "--w: 80px" });
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
+        el("button", { class: "k-btn k-lab-alt", text: "⚄ New array", onclick: reset }),
         el("label", {}, ["target", targetIn]),
-        el("button", { class: "btn primary", text: "Set target", onclick: start }),
-        el("button", { class: "btn", text: "Step ▸", onclick: step }),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Set target", onclick: start }),
+        el("button", { class: "k-btn", text: "Step ▸", onclick: step }),
         msg
       ]));
       var holder = el("div", {}); panel.appendChild(holder);
@@ -1419,13 +1420,13 @@
     desc: "Insert integer keys with h(k) = k mod 11, then watch linear probing step past collisions to the next free slot — O(1) average lookup.",
     mount: function (panel) {
       var SIZE = 11;
-      var keyIn = el("input", { type: "number", value: 24, style: "width:90px" });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var keyIn = el("input", { type: "number", value: 24, style: "--w: 90px" });
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["insert key", keyIn]),
-        el("button", { class: "btn primary", text: "Insert", onclick: insert }),
-        el("button", { class: "btn", text: "Find", onclick: find }),
-        el("button", { class: "btn gold", text: "Reset", onclick: reset }),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Insert", onclick: insert }),
+        el("button", { class: "k-btn", text: "Find", onclick: find }),
+        el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: reset }),
         msg
       ]));
       var holder = el("div", {}); panel.appendChild(holder);
@@ -1498,10 +1499,10 @@
       var adj = NODES.map(function () { return []; });
       EDGES.forEach(function (e) { adj[e[0]].push([e[1], e[2]]); adj[e[1]].push([e[0], e[2]]); });
       var INF = Infinity, dist, prev, visited, current, finished;
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
-        el("button", { class: "btn primary", text: "Step ▸", onclick: step }),
-        el("button", { class: "btn gold", text: "Reset", onclick: reset }),
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Step ▸", onclick: step }),
+        el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: reset }),
         msg
       ]));
       var holder = el("div", {}); panel.appendChild(holder);
@@ -1559,15 +1560,15 @@
     id: "dictionary", title: "Dictionary — key → value store", subject: "compsci", ref: "4.2.7.1",
     desc: "Set, look up and delete key/value pairs. Keys are unique; lookup by key is O(1) on average because a dictionary is backed by a hash table.",
     mount: function (panel) {
-      var keyIn = el("input", { type: "text", placeholder: "key", maxlength: 10, style: "width:110px" });
-      var valIn = el("input", { type: "text", placeholder: "value", maxlength: 12, style: "width:120px" });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var keyIn = el("input", { type: "text", placeholder: "key", maxlength: 10, style: "--w: 110px" });
+      var valIn = el("input", { type: "text", placeholder: "value", maxlength: 12, style: "--w: 120px" });
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["key", keyIn]), el("label", {}, ["value", valIn]),
-        el("button", { class: "btn primary", text: "Set", onclick: set }),
-        el("button", { class: "btn", text: "Get", onclick: get }),
-        el("button", { class: "btn", text: "Delete", onclick: del }),
-        el("button", { class: "btn gold", text: "Reset", onclick: reset }),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Set", onclick: set }),
+        el("button", { class: "k-btn", text: "Get", onclick: get }),
+        el("button", { class: "k-btn", text: "Delete", onclick: del }),
+        el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: reset }),
         msg
       ]));
       var holder = el("div", {}); panel.appendChild(holder);
@@ -1625,14 +1626,14 @@
     id: "cs-vector", title: "Vector Lab — add, scale, dot product", subject: "compsci", ref: "4.2.8.1",
     desc: "Two 2-D vectors as arrows from the origin: see a + b (parallelogram rule), the scalar multiple k·a, the dot product a·b and a convex combination.",
     mount: function (panel) {
-      function inp(v) { return el("input", { type: "number", value: v, step: "any", style: "width:62px" }); }
-      var ax = inp(3), ay = inp(1), bx = inp(1), by = inp(2), kk = inp(2), lam = el("input", { type: "range", min: 0, max: 100, value: 50, style: "width:120px" });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      function inp(v) { return el("input", { type: "number", value: v, step: "any", style: "--w: 62px" }); }
+      var ax = inp(3), ay = inp(1), bx = inp(1), by = inp(2), kk = inp(2), lam = el("input", { type: "range", min: 0, max: 100, value: 50, style: "--w: 120px" });
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["a = (", ax, ay, ")"]), el("label", {}, ["b = (", bx, by, ")"]),
         el("label", {}, ["k", kk]), el("label", {}, ["λ (convex)", lam])
       ]));
-      var lbl = el("div", { class: "sub", style: "margin:8px 0;font-family:var(--mono);font-size:11.5px" });
+      var lbl = el("div", { class: "k-lab-sub", "data-ui": "part.sub", "data-mono": "" });
       panel.appendChild(lbl);
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = dprCanvas(holder, 320);
@@ -1671,7 +1672,7 @@
         var dot = A[0] * B[0] + A[1] * B[1], magA = Math.sqrt(A[0]*A[0]+A[1]*A[1]), magB = Math.sqrt(B[0]*B[0]+B[1]*B[1]);
         var cosT = (magA && magB) ? dot / (magA * magB) : 0;
         lbl.innerHTML = "a + b = (" + sum[0] + ", " + sum[1] + ") &nbsp; " + k + "·a = (" + ka[0] + ", " + ka[1] + ") &nbsp; " +
-          "<b style='color:var(--gold)'>a·b = " + dot.toFixed(2) + "</b> &nbsp; |a| = " + magA.toFixed(2) + " &nbsp; angle = " + (Math.acos(Math.max(-1, Math.min(1, cosT))) * 180 / Math.PI).toFixed(1) + "° &nbsp; convex λ=" + L.toFixed(2) + " → (" + conv[0].toFixed(2) + ", " + conv[1].toFixed(2) + ")";
+          "<b class='k-lab-goldt'>a·b = " + dot.toFixed(2) + "</b> &nbsp; |a| = " + magA.toFixed(2) + " &nbsp; angle = " + (Math.acos(Math.max(-1, Math.min(1, cosT))) * 180 / Math.PI).toFixed(1) + "° &nbsp; convex λ=" + L.toFixed(2) + " → (" + conv[0].toFixed(2) + ", " + conv[1].toFixed(2) + ")";
       }
       draw();
     }
@@ -1691,22 +1692,22 @@
         NOR:  { f: function (a, b) { return (a | b) ? 0 : 1; }, sym: "¬(A + B)", unary: false }
       };
       var sel = el("select", {}, Object.keys(GATES).map(function (g) { return el("option", { value: g, text: g }); }));
-      var aBtn = el("button", { class: "btn", onclick: function () { A ^= 1; draw(); } });
-      var bBtn = el("button", { class: "btn", onclick: function () { B ^= 1; draw(); } });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var aBtn = el("button", { class: "k-btn", onclick: function () { A ^= 1; draw(); } });
+      var bBtn = el("button", { class: "k-btn", onclick: function () { B ^= 1; draw(); } });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["gate", sel]),
         el("span", {}, ["input A "]), aBtn, el("span", {}, ["input B "]), bBtn
       ]));
       sel.onchange = draw;
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = dprCanvas(holder, 250);
-      var tbl = el("div", { style: "margin-top:10px" }); panel.appendChild(tbl);
+      var tbl = el("div", { class: "k-lab-out" }); panel.appendChild(tbl);
       var A = 0, B = 0;
       function lvl(on) { return on ? COL.jade : COL.faint; }
       function draw() {
         var g = GATES[sel.value], out = g.unary ? g.f(A) : g.f(A, B);
         aBtn.textContent = "A = " + A; bBtn.textContent = "B = " + B;
-        bBtn.style.opacity = g.unary ? ".35" : "1"; bBtn.disabled = g.unary;
+        bBtn.disabled = g.unary;
         var ctx = cv.ctx;
         if (ctx && ctx.clearRect) {
           ctx.clearRect(0, 0, cv.W, cv.H);
@@ -1737,10 +1738,10 @@
           var q = g.unary ? g.f(r[0]) : g.f(r[0], r[1]);
           var live = g.unary ? (r[0] === A) : (r[0] === A && r[1] === B);
           var cells = r.map(function (c) { return "<td>" + c + "</td>"; }).join("") + "<td>" + q + "</td>";
-          return "<tr class='" + (live ? "live" : "") + "'>" + cells + "</tr>";
+          return "<tr" + (live ? " data-state='live'" : "") + ">" + cells + "</tr>";
         }).join("");
-        tbl.innerHTML = "<h4 class='n-h' style='margin:0 0 6px'>" + sel.value + " truth table</h4>" +
-          "<table class='n-table logic-tt'><thead><tr>" + head + "</tr></thead><tbody>" + body + "</tbody></table>";
+        tbl.innerHTML = "<h4 class='k-lab-h'>" + sel.value + " truth table</h4>" +
+          "<table class='k-n-table k-lab-tt' data-ui='content.table lab.truth-table'><thead><tr>" + head + "</tr></thead><tbody>" + body + "</tbody></table>";
         KOS.ui.hookify(tbl);
       }
       draw();
@@ -1773,22 +1774,24 @@
     var cat = st.simCat || "all", query = "";
 
     if (!opened) {
-      main.appendChild(el("div", { class: "lab-h" }, [
-        el("h1", { text: "Simulations" }),
-        el("p", { class: "sub", text: withMount.length + " interactive models for the ideas that are easier to see than to read. Each one is also mounted on its spec point\u2019s Simulations tab." })
-      ]));
-      var search = el("input", { type: "search", placeholder: "Search simulations\u2026", "aria-label": "Search simulations" });
-      var pills = el("div", { class: "cat-pills", style: "margin:0" });
+      main.appendChild(KOS.ui.pageHeader({ kicker: "Labs", title: "Simulations",
+        sub: withMount.length + " interactive models; each is also on its spec point\u2019s Simulate tab." }));
+      var search = el("input", { type: "search", class: "k-input k-lab-search", placeholder: "Search simulations\u2026", "aria-label": "Search simulations" });
+      var pills = el("div", { class: "k-lab-cats", role: "group", "aria-label": "Area" });
       SIM_CATS.forEach(function (c) {
-        pills.appendChild(el("button", { class: "cat-pill" + (c[0] === cat ? " active" : ""), onclick: function () {
+        pills.appendChild(el("button", { type: "button", class: "k-lab-cat", "data-ui": "lab.category",
+          "data-state": c[0] === cat ? "active" : null, "aria-pressed": String(c[0] === cat), onclick: function () {
           cat = c[0]; st.simCat = cat; KOS.store.save();
-          pills.querySelectorAll("[data-ui~='lab.category']").forEach(function (b, i) { KOS.ui.state(b, "active", SIM_CATS[i][0] === cat); });
+          pills.querySelectorAll("[data-ui~='lab.category']").forEach(function (b, i) {
+            KOS.ui.state(b, "active", SIM_CATS[i][0] === cat);
+            b.setAttribute("aria-pressed", String(SIM_CATS[i][0] === cat));
+          });
           renderGrid();
         } }, [c[1]]));
       });
-      main.appendChild(el("div", { class: "sim-toolbar" }, [pills, search]));
-      var grid = el("div", { class: "sim-grid" });
-      var empty = el("div", { class: "sim-msg", style: "display:none", text: "Nothing matches \u2014 try a shorter word." });
+      main.appendChild(el("div", { class: "k-lab-toolbar", "data-ui": "lab.toolbar" }, [pills, search]));
+      var grid = el("ul", { class: "k-lab-grid", "data-ui": "lab.sim-grid" });
+      var empty = el("p", { class: "k-lab-msg", "data-ui": "lab.message", hidden: "", text: "Nothing matches \u2014 try a shorter word." });
       main.appendChild(grid); main.appendChild(empty);
       search.oninput = function () { query = search.value.trim().toLowerCase(); renderGrid(); };
       function renderGrid() {
@@ -1798,14 +1801,15 @@
           if (query) return (s.title + " " + s.desc + " " + s.ref + " " + leafTitle(s)).toLowerCase().indexOf(query) >= 0;
           return cat === "all" || simCategory(s) === cat;
         });
-        empty.style.display = shown.length ? "none" : "";
+        empty.hidden = !!shown.length;
         shown.forEach(function (s) {
           var acc = KOS.governor ? KOS.governor.simAccess(s.id) : { ok: true };
-          grid.appendChild(el("button", { class: "sim-card" + (acc.ok ? "" : " locked"), onclick: function () { KOS.show("sims", s.id); } }, [
-            el("b", { text: (acc.ok ? "" : "\u25C8 ") + s.title }),
-            el("span", { text: s.desc.length > 150 ? s.desc.slice(0, 147).replace(/\s+\S*$/, "") + "\u2026" : s.desc }),
-            el("span", { class: "specref", text: specLabel(s) + (leafTitle(s) ? " \u2014 " + leafTitle(s) : "") })
-          ]));
+          grid.appendChild(el("li", {}, [el("button", { type: "button", class: "k-lab-card", "data-ui": "lab.sim-card",
+            "data-state": acc.ok ? null : "locked", "data-subject": s.subject, onclick: function () { KOS.show("sims", s.id); } }, [
+            el("b", { class: "k-lab-card-title", text: (acc.ok ? "" : "\u25C8 ") + s.title }),
+            el("span", { class: "k-lab-card-desc", text: s.desc.length > 150 ? s.desc.slice(0, 147).replace(/\s+\S*$/, "") + "\u2026" : s.desc }),
+            el("span", { class: "k-lab-card-ref k-mono", text: specLabel(s) + (leafTitle(s) ? " \u2014 " + leafTitle(s) : "") })
+          ])]));
         });
       }
       renderGrid();
@@ -1814,34 +1818,31 @@
 
     /* an opened sim */
     var s = opened;
-    var head = el("div", { class: "sim-open-head" }, [
-      el("div", { style: "display:flex;gap:10px;align-items:center;flex-wrap:wrap" }, [
-        el("button", { class: "btn", text: "\u2190 All simulations", onclick: function () { KOS.show("sims"); } }),
-        el("h2", { text: s.title })
+    main.appendChild(el("header", { class: "k-lab-open-head", "data-ui": "lab.sim-head" }, [
+      el("button", { type: "button", class: "k-btn k-btn--sm", text: "\u2190 All simulations", onclick: function () { KOS.show("sims"); } }),
+      el("div", { class: "k-lab-open-txt" }, [
+        el("span", { class: "k-kicker", text: specLabel(s) }),
+        el("h1", { class: "k-lab-open-title", text: s.title })
       ]),
-      el("div", { style: "display:flex;gap:8px;align-items:center;flex-wrap:wrap" }, [
-        el("span", { class: "specref", text: specLabel(s) }),
-        leafTitle(s) ? el("button", { class: "btn", text: "Open topic page \u2192", onclick: function () { KOS.show("ref", { subject: s.subject, ref: s.ref }); } }) : null
-      ])
-    ]);
-    main.appendChild(head);
-    var panel = el("div", { class: "lab-panel lab-wrap" });
+      leafTitle(s) ? el("button", { type: "button", class: "k-btn k-btn--sm", text: "Open topic page \u2192", onclick: function () { KOS.show("ref", { subject: s.subject, ref: s.ref }); } }) : null
+    ].filter(Boolean)));
+    var panel = el("section", { class: "k-lab k-card", "aria-label": s.title });
     main.appendChild(panel);
     var acc = KOS.governor ? KOS.governor.simAccess(s.id) : { ok: true };
     if (!acc.ok) { KOS.governor.lockPanel(panel, acc); }
     else {
-      panel.appendChild(el("p", { class: "sub", style: "margin-top:0", text: s.desc }));
+      panel.appendChild(el("p", { class: "k-lab-sub", "data-ui": "part.sub", text: s.desc }));
       s.mount(panel);
     }
     /* siblings from the same area, so a reader can move sideways without the grid */
     var kin = withMount.filter(function (o) { return o.id !== s.id && simCategory(o) === simCategory(s); });
     if (kin.length) {
-      var row = el("div", { class: "lab-tabs", style: "margin-top:18px" });
+      var row = el("div", { class: "k-lab-tabs", role: "group", "aria-label": "More simulations" });
       kin.forEach(function (o) {
         var a2 = KOS.governor ? KOS.governor.simAccess(o.id) : { ok: true };
-        row.appendChild(el("button", { class: "lab-tab", onclick: function () { KOS.show("sims", o.id); } }, [(a2.ok ? "" : "\u25C8 ") + o.title]));
+        row.appendChild(el("button", { type: "button", class: "k-lab-tab", "data-ui": "lab.tab", onclick: function () { KOS.show("sims", o.id); } }, [(a2.ok ? "" : "\u25C8 ") + o.title]));
       });
-      main.appendChild(el("div", { class: "specref", style: "margin-top:16px", text: "More in " + SIM_CATS.filter(function (c) { return c[0] === simCategory(s); })[0][1] }));
+      main.appendChild(el("h2", { class: "k-lab-more", text: "More in " + SIM_CATS.filter(function (c) { return c[0] === simCategory(s); })[0][1] }));
       main.appendChild(row);
     }
   };

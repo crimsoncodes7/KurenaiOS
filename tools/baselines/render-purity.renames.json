@@ -595,6 +595,51 @@
    "from": "^Export full backup \\(\\.json\\)$",
    "expect": { "ui": ["lastBackupAt"] },
    "why": "Graphite step 8 (Backup & Restore, frame 14a): a completed export notes when it ran on this device (state.ui, per device) so Keep it safe can say when the last backup was."
+    },
+  {
+   "whenDialog": "^Status & about$",
+   "rewriteEffects": { "dialog": ["^Status & about$", "Status"] },
+   "why": "Graphite review (step 9): the profile is the status line alone — the longer About text is retired — so its editor is named Status."
+  },
+  {
+   "surface": "^governor$",
+   "from": "^Edit profile$",
+   "to": "Edit status",
+   "why": "Graphite review (step 9): the one profile field left is the status, and the button says so."
+  },
+  {
+   "surface": "^governor$",
+   "from": "^Edit banner$",
+   "expect": { "dialog": ["Position your profile banner"] },
+   "why": "Graphite step 9 (the image cropper): the cropper is one named dialog; the old overlay and its box both carried the name, so it was counted twice."
+  },
+  {
+   "navTo": "^#/worked$",
+   "dropEffects": { "state": "^worked\\.last$" },
+   "why": "Graphite step 9 (labs): opening Worked Examples is a read — the page used to remember the generator it opened on arrival; only the reader's own choice is remembered now."
+  },
+  {
+   "surface": "^worked$",
+   "hooks": "lab.tab",
+   "from": ".",
+   "expect": { "state": ["worked.last"] },
+   "why": "Graphite step 9 (labs): choosing a generator remembers it — including the one that was open by default, which the page no longer writes on arrival."
+  },
+  {
+   "surface": "^oop$",
+   "from": "^Clear sandbox$",
+   "expect": { "dialog": ["Clear the sandbox?"] },
+   "why": "Graphite step 9 (labs): clearing asks through KOS.ui.confirm (invariant 49 — native confirm is banned) instead of window.confirm."
+    },
+  {
+   "navTo": "^#/oop$",
+   "dropEffects": { "state": "^oop\\." },
+   "why": "Graphite step 9 (labs): the OOP sandbox renders without writing — its first-visit example is a draft that reaches the store on the first edit, not on arrival."
+  },
+  {
+   "surface": "^oop$",
+   "dropEffects": { "state": "^oop\\.(links\\[\\]|nextId|seeded)$" },
+   "why": "Graphite step 9 (labs): the first edit on a fresh sandbox also commits the draft example (its links, id counter and seeded flag), which the page used to write on arrival; the edit's own write to the classes is still the contract."
   }
  ]
 }

@@ -601,7 +601,7 @@
       el("div", { class: "k-kicker", text: todayLine() }),
       greet,
       prof.status ? el("button", { type: "button", class: "k-home-quote", "data-ui": "home.status",
-        title: "Edit your status and about",
+        title: "Edit your status",
         onclick: function () { KOS.governor.editProfileText(function (err, r) { if (!(r && r.cancelled)) KOS.rerender(); }); } },
         ["“" + prof.status + "”"]) : null,
       el("div", { class: "k-home-level" }, [
@@ -2184,7 +2184,7 @@
           var acc = KOS.governor.simAccess(sm.id);
           if (!acc.ok) { KOS.governor.lockPanel(panel, acc, null, { compact: true, title: sm.title }); return; }
           if (sm.mount) {
-            var box = el("section", { class: "k-card k-topic-lab", "aria-label": sm.title }, [
+            var box = el("section", { class: "k-card k-topic-lab k-lab", "aria-label": sm.title }, [
               el("h2", { class: "k-card-title", text: sm.title }),
               el("p", { class: "k-card-meta", text: sm.desc })
             ]);

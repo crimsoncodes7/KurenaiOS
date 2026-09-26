@@ -11,7 +11,9 @@
 
 /* ---------- the hero ---------- */
 .k-home-hero { position: relative; min-block-size: var(--home-hero-h); border-radius: var(--r-26); overflow: hidden; background: var(--home-hero-bg); isolation: isolate; }
-.k-home-hero::before { content: ""; position: absolute; inset: 0; z-index: 0; background: var(--home-hero-scrim); pointer-events: none; }
+/* the uploaded banner carries its own scrim (governor.applyBanner, "hero");
+   a second one here doubled it */
+.k-home-hero-body { text-shadow: var(--hero-text-shadow); }
 .k-home-hero-body { position: relative; z-index: 1; block-size: 100%; min-block-size: var(--home-hero-h); display: flex; align-items: center; gap: var(--sp-24); padding: var(--sp-24) var(--sp-28); }
 .k-home-ring { inline-size: var(--home-avatar-ring); block-size: var(--home-avatar-ring); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--ring, var(--teal)) 0 var(--hp, 100%), var(--home-ring-track) var(--hp, 100%) 100%); }
 .k-home-ring[data-hp="strained"] { --ring: var(--amber); }

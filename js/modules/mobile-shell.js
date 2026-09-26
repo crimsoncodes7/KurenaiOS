@@ -483,7 +483,8 @@
         refreshCalendarComposition();
       }
     });
-    dialogObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    /* openDialog clears <html data-scroll-lock> as the last dialog closes */
+    dialogObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-scroll-lock"] });
   }
 
   listenMedia(phone, syncShell);

@@ -56,10 +56,8 @@
       </button>
     </div>
     <div class="k-topbar-centre">
-      <!-- the router owns history (invariant 64); these matter in an
-           installed app, which has no browser chrome of its own -->
-      <button id="nav-back" class="k-navbtn" type="button" aria-label="Back to previous page" title="Back (Alt+←)" disabled>‹</button>
-      <button id="nav-fwd" class="k-navbtn" type="button" aria-label="Forward to next page" title="Forward (Alt+→)" disabled>›</button>
+      <!-- the router owns history (invariant 64): Back and Forward are the
+           browser's own, plus Alt+←/→ and the OS gestures in an installed app -->
       <div id="searchbox" class="k-search">
         <span class="k-search-glyph" aria-hidden="true">⌕</span>
         <!-- Phase F: a real combobox over every domain the user authored or
@@ -297,6 +295,8 @@
 <!-- Category 7 Phase E: responsive shell presentation only. Canonical
      routing/search listeners stay in ui.js, hub.js and main.js. -->
 <script src="js/modules/notifications.js"></script>
+<!-- the Sample review namespace's one-time account (store.js KOS.dataMode) -->
+<script src="js/core/sample.js"></script>
 <script src="js/modules/mobile-shell.js"></script>
 <script src="js/main.js"></script>
 </body>

@@ -17,10 +17,10 @@
     var inp = el("input", { type: "range", min: min, max: max, step: step, value: val, "aria-label": label });
     var out = el("b", { text: (show || String)(val) });
     inp.oninput = function () { var v = parseFloat(inp.value); out.textContent = (show || String)(v); onchange(v); };
-    return { node: el("label", { class: "sim-slider" }, [el("span", {}, [label + " ", out]), inp]), input: inp,
+    return { node: el("label", { class: "k-lab-slider" }, [el("span", {}, [label + " ", out]), inp]), input: inp,
       set: function (v) { inp.value = v; out.textContent = (show || String)(v); } };
   }
-  function readout() { return el("div", { class: "sim-read" }); }
+  function readout() { return el("div", { class: "k-lab-read", "data-ui": "lab.readout" }); }
   function num(x, dp) { if (!isFinite(x)) return "—"; var r = Math.round(x * 1e9) / 1e9; return Number.isInteger(r) ? String(r) : r.toFixed(dp === undefined ? 3 : dp); }
   function sf(x, s) { if (!isFinite(x)) return "—"; if (x === 0) return "0"; return Number(x.toPrecision(s || 3)).toString(); }
 
@@ -110,13 +110,13 @@
     var m = (hi - lo) * 0.15; return [Math.min(0, lo - m), Math.max(0, hi + m)];
   }
   function fnInput(def, onEnter) {
-    var inp = el("input", { type: "text", value: def, style: "width:220px;font-family:var(--mono)", "aria-label": "function of x" });
+    var inp = el("input", { type: "text", value: def, class: "k-mono", style: "--w: 220px", "aria-label": "function of x" });
     inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); onEnter(); } });
     return inp;
   }
   function table(head, rows) {
-    return el("div", { class: "sim-tablewrap", html:
-      '<table class="n-table sim-table"><thead><tr>' + head.map(function (h) { return "<th>" + h + "</th>"; }).join("") +
+    return el("div", { class: "k-lab-tablewrap", html:
+      '<table class="k-n-table k-lab-table" data-ui="content.table"><thead><tr>' + head.map(function (h) { return "<th>" + h + "</th>"; }).join("") +
       "</tr></thead><tbody>" + rows.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + c + "</td>"; }).join("") + "</tr>"; }).join("") +
       "</tbody></table>" });
   }
@@ -133,14 +133,14 @@
     desc: "Type a function, set the limits and the number of strips, and watch the trapezia hug the curve. The table of ordinates is laid out the way the mark scheme expects, with the error against the true area and whether the estimate is an over- or under-estimate.",
     mount: function (panel) {
       var fIn = fnInput("sqrt(1 + x^3)", redraw);
-      var aIn = el("input", { type: "number", value: 0, step: "0.5", style: "width:70px" });
-      var bIn = el("input", { type: "number", value: 2, step: "0.5", style: "width:70px" });
+      var aIn = el("input", { type: "number", value: 0, step: "0.5", style: "--w: 70px" });
+      var bIn = el("input", { type: "number", value: 2, step: "0.5", style: "--w: 70px" });
       var n = 4;
       var sl = slider("strips n", 1, 20, 1, n, function (v) { n = v; redraw(); });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["f(x)", fIn]), el("label", {}, ["a", aIn]), el("label", {}, ["b", bIn]), sl.node,
-        el("button", { class: "btn primary", text: "Plot", onclick: redraw }), msg
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Plot", onclick: redraw }), msg
       ]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 340);
@@ -180,7 +180,7 @@
         read.innerHTML = "<b>h = (b − a)/n = " + num(h, 4) + "</b><br>" +
           "T = h/2 [y₀ + yₙ + 2(y₁ + … + yₙ₋₁)] = " + num(h / 2, 4) + " × [" + num(ys[0], 4) + " + " + num(ys[n], 4) + " + 2(" + num(inner, 4) + ")] = <b>" + num(T, 4) + "</b><br>" +
           "true value ≈ " + num(S, 4) + " · error " + num(T - S, 4) + " (" + (Math.abs(S) > 1e-9 ? num(100 * (T - S) / S, 2) + "%" : "—") + ")<br>" +
-          "<span style='color:var(--muted)'>" + verdict + ". Doubling n roughly quarters the error.</span>";
+          "<span class='k-lab-aside'>" + verdict + ". Doubling n roughly quarters the error.</span>";
         tbl.innerHTML = "";
         tbl.appendChild(table(["i"].concat(xs.map(function (_, i) { return String(i); })),
           [["x"].concat(xs.map(function (x) { return num(x, 3); })), ["y"].concat(ys.map(function (y) { return num(y, 4); }))]));
@@ -195,13 +195,13 @@
     desc: "Iterate xₙ₊₁ = g(xₙ) from your starting value and watch the path bounce between y = g(x) and y = x. A staircase means g′ is positive at the root, a cobweb means negative; it diverges when |g′(α)| > 1.",
     mount: function (panel) {
       var gIn = fnInput("sqrt(3x + 2)", redraw);
-      var x0In = el("input", { type: "number", value: 0.5, step: "0.1", style: "width:80px" });
+      var x0In = el("input", { type: "number", value: 0.5, step: "0.1", style: "--w: 80px" });
       var steps = 8;
       var sl = slider("iterations", 1, 25, 1, steps, function (v) { steps = v; redraw(); });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["g(x)", gIn]), el("label", {}, ["x₀", x0In]), sl.node,
-        el("button", { class: "btn primary", text: "Iterate", onclick: redraw }), msg
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Iterate", onclick: redraw }), msg
       ]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 360);
@@ -229,10 +229,10 @@
         var last = seq[seq.length - 1];
         var gp = (g(last + 1e-4) - g(last - 1e-4)) / 2e-4;
         var kind = gp >= 0 ? "staircase (g′ > 0)" : "cobweb (g′ < 0)";
-        read.innerHTML = (ok ? "<b>x" + sub(seq.length - 1) + " = " + num(last, 5) + "</b>" : "<b style='color:var(--danger)'>diverged</b>") +
+        read.innerHTML = (ok ? "<b>x" + sub(seq.length - 1) + " = " + num(last, 5) + "</b>" : "<b class='k-lab-bad'>diverged</b>") +
           " · pattern: " + kind + " · |g′(x)| ≈ " + num(Math.abs(gp), 3) +
-          (Math.abs(gp) < 1 ? " <span style='color:var(--good)'>&lt; 1 → converges</span>" : " <span style='color:var(--danger)'>&gt; 1 → diverges from this root</span>") +
-          "<br><span style='color:var(--muted)'>Exam habit: write each xₙ to more figures than the answer needs, then confirm the root with a change of sign in f(x) = g(x) − x.</span>";
+          (Math.abs(gp) < 1 ? " <span class='k-lab-good'>&lt; 1 → converges</span>" : " <span class='k-lab-bad'>&gt; 1 → diverges from this root</span>") +
+          "<br><span class='k-lab-aside'>Exam habit: write each xₙ to more figures than the answer needs, then confirm the root with a change of sign in f(x) = g(x) − x.</span>";
         tbl.innerHTML = "";
         tbl.appendChild(table(["n", "xₙ", "g(xₙ)"], seq.map(function (v, i) { return [String(i), num(v, 5), i < seq.length - 1 ? num(seq[i + 1], 5) : "—"]; })));
       }
@@ -247,13 +247,13 @@
     desc: "Each step slides down the tangent at xₙ to where it crosses the axis. See why a start near a turning point fires the next estimate off into the distance, and how fast it converges when it works.",
     mount: function (panel) {
       var fIn = fnInput("x^3 - 2x - 5", redraw);
-      var x0In = el("input", { type: "number", value: 3, step: "0.1", style: "width:80px" });
+      var x0In = el("input", { type: "number", value: 3, step: "0.1", style: "--w: 80px" });
       var steps = 4;
       var sl = slider("steps", 1, 10, 1, steps, function (v) { steps = v; redraw(); });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
         el("label", {}, ["f(x)", fIn]), el("label", {}, ["x₀", x0In]), sl.node,
-        el("button", { class: "btn primary", text: "Run", onclick: redraw }), msg
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Run", onclick: redraw }), msg
       ]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 360);
@@ -286,8 +286,8 @@
           P.label(seq[i], 0, "x" + i, COL.mute);
         }
         P.dot(seq[seq.length - 1], 0, COL.jade, 5);
-        read.innerHTML = "<b>xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)</b> → " + (blew ? "<span style='color:var(--danger)'>the iteration broke down</span>" : "x" + (seq.length - 1) + " = <b>" + num(seq[seq.length - 1], 6) + "</b>") +
-          "<br><span style='color:var(--muted)'>Quote the formula, show one substitution line, then list the iterates. Fails when f′(x₀) ≈ 0 (near a stationary point) or when the tangent lands in another root's basin.</span>";
+        read.innerHTML = "<b>xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)</b> → " + (blew ? "<span class='k-lab-bad'>the iteration broke down</span>" : "x" + (seq.length - 1) + " = <b>" + num(seq[seq.length - 1], 6) + "</b>") +
+          "<br><span class='k-lab-aside'>Quote the formula, show one substitution line, then list the iterates. Fails when f′(x₀) ≈ 0 (near a stationary point) or when the tangent lands in another root's basin.</span>";
         tbl.innerHTML = ""; tbl.appendChild(table(["n", "xₙ", "f(xₙ)", "f′(xₙ)", "xₙ₊₁"], rows));
       }
       redraw();
@@ -303,9 +303,9 @@
       var x0 = 1.5, h = 1.5;
       var s1 = slider("x", -4, 4, 0.1, x0, function (v) { x0 = v; redraw(); }, function (v) { return num(v, 1); });
       var s2 = slider("h", 0.01, 3, 0.01, h, function (v) { h = v; redraw(); }, function (v) { return num(v, 2); });
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
-        el("label", {}, ["f(x)", fIn]), s1.node, s2.node, el("button", { class: "btn primary", text: "Plot", onclick: redraw }), msg
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
+        el("label", {}, ["f(x)", fIn]), s1.node, s2.node, el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Plot", onclick: redraw }), msg
       ]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 340);
@@ -326,9 +326,9 @@
         /* rise/run triangle */
         P.line(x0, y0, x0 + h, y0, COL.mute, 1, [2, 3]); P.line(x0 + h, y0, x0 + h, y1, COL.mute, 1, [2, 3]);
         P.dot(x0, y0, COL.gold, 6); P.dot(x0 + h, y1, COL.crim, 5);
-        read.innerHTML = "chord gradient = [f(" + num(x0, 2) + " + " + num(h, 2) + ") − f(" + num(x0, 2) + ")] / " + num(h, 2) + " = (" + num(y1, 4) + " − " + num(y0, 4) + ") / " + num(h, 2) + " = <b style='color:var(--danger)'>" + num(chord, 4) + "</b>" +
-          "<br>tangent gradient f′(" + num(x0, 2) + ") = <b style='color:var(--good)'>" + num(tang, 4) + "</b> · gap " + num(Math.abs(chord - tang), 4) +
-          "<br><span style='color:var(--muted)'>First principles: f′(x) = lim<sub>h→0</sub> [f(x + h) − f(x)] / h. For f(x) = x², the bracket expands to (2xh + h²)/h = 2x + h → 2x.</span>";
+        read.innerHTML = "chord gradient = [f(" + num(x0, 2) + " + " + num(h, 2) + ") − f(" + num(x0, 2) + ")] / " + num(h, 2) + " = (" + num(y1, 4) + " − " + num(y0, 4) + ") / " + num(h, 2) + " = <b class='k-lab-bad'>" + num(chord, 4) + "</b>" +
+          "<br>tangent gradient f′(" + num(x0, 2) + ") = <b class='k-lab-good'>" + num(tang, 4) + "</b> · gap " + num(Math.abs(chord - tang), 4) +
+          "<br><span class='k-lab-aside'>First principles: f′(x) = lim<sub>h→0</sub> [f(x + h) − f(x)] / h. For f(x) = x², the bracket expands to (2xh + h²)/h = 2x + h → 2x.</span>";
       }
       redraw();
     }
@@ -342,10 +342,10 @@
       var r = 5, th = 1.2;
       var s1 = slider("r", 1, 10, 0.5, r, function (v) { r = v; redraw(); });
       var s2 = slider("θ (rad)", 0.1, 6.2, 0.05, th, function (v) { th = v; redraw(); }, function (v) { return num(v, 2); });
-      panel.appendChild(el("div", { class: "lab-controls" }, [s1.node, s2.node,
-        el("button", { class: "btn", text: "θ = π/3", onclick: function () { th = Math.PI / 3; s2.set(num(th, 2)); redraw(); } }),
-        el("button", { class: "btn", text: "θ = π/2", onclick: function () { th = Math.PI / 2; s2.set(num(th, 2)); redraw(); } }),
-        el("button", { class: "btn", text: "θ = π", onclick: function () { th = Math.PI; s2.set(num(th, 2)); redraw(); } })
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [s1.node, s2.node,
+        el("button", { class: "k-btn", text: "θ = π/3", onclick: function () { th = Math.PI / 3; s2.set(num(th, 2)); redraw(); } }),
+        el("button", { class: "k-btn", text: "θ = π/2", onclick: function () { th = Math.PI / 2; s2.set(num(th, 2)); redraw(); } }),
+        el("button", { class: "k-btn", text: "θ = π", onclick: function () { th = Math.PI; s2.set(num(th, 2)); redraw(); } })
       ]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 320);
@@ -369,10 +369,10 @@
         ctx.fillStyle = COL.mute; ctx.fillText("r = " + r, cx + R / 2 * Math.cos(th) + 6, cy - R / 2 * Math.sin(th) - 8);
         var arc = r * th, area = 0.5 * r * r * th, seg = 0.5 * r * r * (th - Math.sin(th)), chord = 2 * r * Math.sin(th / 2);
         read.innerHTML = "<b>θ = " + num(th, 3) + " rad = " + num(th * 180 / Math.PI, 1) + "°</b>" +
-          " &nbsp;·&nbsp; <span style='color:var(--good)'>arc = rθ = " + num(arc, 3) + "</span>" +
+          " &nbsp;·&nbsp; <span class='k-lab-good'>arc = rθ = " + num(arc, 3) + "</span>" +
           " &nbsp;·&nbsp; sector = ½r²θ = " + num(area, 3) +
-          "<br><span style='color:var(--danger)'>segment = ½r²(θ − sin θ) = " + num(seg, 3) + "</span> &nbsp;·&nbsp; chord = 2r sin(θ/2) = " + num(chord, 3) +
-          "<br><span style='color:var(--muted)'>Formulas need θ in radians. Perimeter of a sector = 2r + rθ; of a segment = chord + arc.</span>";
+          "<br><span class='k-lab-bad'>segment = ½r²(θ − sin θ) = " + num(seg, 3) + "</span> &nbsp;·&nbsp; chord = 2r sin(θ/2) = " + num(chord, 3) +
+          "<br><span class='k-lab-aside'>Formulas need θ in radians. Perimeter of a sector = 2r + rθ; of a segment = chord + arc.</span>";
       }
       redraw();
     }
@@ -386,12 +386,12 @@
       var type = "geo", a = 8, k = 0.6, n = 12;
       var typeSel = el("select", {}, [el("option", { value: "arith", text: "arithmetic (a, d)" }), el("option", { value: "geo", text: "geometric (a, r)" })]);
       typeSel.value = type; typeSel.onchange = function () { type = typeSel.value; kLab.firstChild.textContent = type === "geo" ? "r " : "d "; redraw(); };
-      var aIn = el("input", { type: "number", value: a, step: "0.5", style: "width:80px" });
-      var kIn = el("input", { type: "number", value: k, step: "0.1", style: "width:80px" });
+      var aIn = el("input", { type: "number", value: a, step: "0.5", style: "--w: 80px" });
+      var kIn = el("input", { type: "number", value: k, step: "0.1", style: "--w: 80px" });
       var kLab = el("label", {}, ["r ", kIn]);
       var sl = slider("n", 2, 30, 1, n, function (v) { n = v; redraw(); });
-      panel.appendChild(el("div", { class: "lab-controls" }, [el("label", {}, ["type", typeSel]), el("label", {}, ["a", aIn]), kLab, sl.node,
-        el("button", { class: "btn primary", text: "Plot", onclick: redraw })]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["type", typeSel]), el("label", {}, ["a", aIn]), kLab, sl.node,
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Plot", onclick: redraw })]));
       aIn.onchange = kIn.onchange = redraw;
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 320);
@@ -413,9 +413,9 @@
         sums.forEach(function (s, i) { P.dot(i + 1, s, COL.gold, 3.5); });
         if (type === "geo" && Math.abs(k) < 1) P.line(0, a / (1 - k), n + 1, a / (1 - k), COL.jade, 1.3, [6, 4]);
         var formula = type === "geo"
-          ? "uₙ = arⁿ⁻¹ · Sₙ = a(1 − rⁿ)/(1 − r)" + (Math.abs(k) < 1 ? " · S∞ = a/(1 − r) = <b>" + num(a / (1 - k), 4) + "</b> (|r| < 1, dashed line)" : " · <span style='color:var(--danger)'>|r| ≥ 1 so S∞ does not exist</span>")
+          ? "uₙ = arⁿ⁻¹ · Sₙ = a(1 − rⁿ)/(1 − r)" + (Math.abs(k) < 1 ? " · S∞ = a/(1 − r) = <b>" + num(a / (1 - k), 4) + "</b> (|r| < 1, dashed line)" : " · <span class='k-lab-bad'>|r| ≥ 1 so S∞ does not exist</span>")
           : "uₙ = a + (n − 1)d · Sₙ = n/2 [2a + (n − 1)d]";
-        read.innerHTML = "<span style='color:var(--accent)'>bars: terms uₙ</span> · <span style='color:var(--accent2)'>line: partial sums Sₙ</span><br>" + formula +
+        read.innerHTML = "<span class='k-lab-acc'>bars: terms uₙ</span> · <span class='k-lab-acc2'>line: partial sums Sₙ</span><br>" + formula +
           "<br>u" + n + " = " + num(terms[n - 1], 4) + " · S" + n + " = <b>" + num(sums[n - 1], 4) + "</b>";
         tbl.innerHTML = ""; tbl.appendChild(table(["n"].concat(terms.map(function (_, i) { return String(i + 1); })).slice(0, 13),
           [["uₙ"].concat(terms.map(function (u) { return sf(u, 4); })).slice(0, 13), ["Sₙ"].concat(sums.map(function (s) { return sf(s, 4); })).slice(0, 13)]));
@@ -434,12 +434,12 @@
         el("option", { value: "lt", text: "P(X < a)" }), el("option", { value: "gt", text: "P(X > a)" }),
         el("option", { value: "between", text: "P(a < X < b)" }), el("option", { value: "inv", text: "inverse: P(X < x) = p" })]);
       modeSel.value = mode; modeSel.onchange = function () { mode = modeSel.value; redraw(); };
-      var muIn = el("input", { type: "number", value: mu, step: "1", style: "width:80px" });
-      var sgIn = el("input", { type: "number", value: sg, step: "0.5", style: "width:80px" });
+      var muIn = el("input", { type: "number", value: mu, step: "1", style: "--w: 80px" });
+      var sgIn = el("input", { type: "number", value: sg, step: "0.5", style: "--w: 80px" });
       var sa = slider("a", 0, 100, 0.5, a, function (v) { a = v; redraw(); });
       var sb = slider("b", 0, 100, 0.5, b, function (v) { b = v; redraw(); });
       var sp = slider("p", 0.001, 0.999, 0.001, p, function (v) { p = v; redraw(); }, function (v) { return num(v, 3); });
-      panel.appendChild(el("div", { class: "lab-controls" }, [el("label", {}, ["μ", muIn]), el("label", {}, ["σ", sgIn]), el("label", {}, ["find", modeSel]), sa.node, sb.node, sp.node]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["μ", muIn]), el("label", {}, ["σ", sgIn]), el("label", {}, ["find", modeSel]), sa.node, sb.node, sp.node]));
       muIn.onchange = sgIn.onchange = function () {
         mu = parseFloat(muIn.value); sg = Math.max(0.1, parseFloat(sgIn.value));
         [sa, sb].forEach(function (s) { s.input.min = mu - 4 * sg; s.input.max = mu + 4 * sg; s.input.step = sg / 20; });
@@ -469,7 +469,7 @@
         [-1, 1].forEach(function (k) { P.line(mu + k * sg, 0, mu + k * sg, pdf(mu + k * sg), COL.grid, 1, [2, 3]); });
         P.label(mu, peak, "μ", COL.mute);
         read.innerHTML = "X ~ N(" + num(mu, 2) + ", " + num(sg, 2) + "²) &nbsp;·&nbsp; " + stmt + " = <b>" + num(prob, 4) + "</b>" +
-          "<br><span style='color:var(--muted)'>Standardise with Z = (X − μ)/σ whenever μ or σ is unknown; write the probability statement — it is the method mark. Points of inflection at μ ± σ (faint lines); about 68% lies between them.</span>";
+          "<br><span class='k-lab-aside'>Standardise with Z = (X − μ)/σ whenever μ or σ is unknown; write the probability statement — it is the method mark. Points of inflection at μ ± σ (faint lines); about 68% lies between them.</span>";
       }
       muIn.onchange();
     }
@@ -488,7 +488,7 @@
       var aSel = el("select", {}, [el("option", { value: "0.1", text: "10%" }), el("option", { value: "0.05", text: "5%" }), el("option", { value: "0.01", text: "1%" })]);
       aSel.value = String(alpha); aSel.onchange = function () { alpha = parseFloat(aSel.value); redraw(); };
       var sx = slider("observed x", 0, n, 1, x, function (v) { x = v; redraw(); });
-      panel.appendChild(el("div", { class: "lab-controls" }, [sn.node, sp.node, el("label", {}, ["alternative", tailSel]), el("label", {}, ["level", aSel]), sx.node]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [sn.node, sp.node, el("label", {}, ["alternative", tailSel]), el("label", {}, ["level", aSel]), sx.node]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 300);
       var read = readout(); panel.appendChild(read);
@@ -517,12 +517,12 @@
         if (tail !== "lower") crTxt.push(highCR <= n ? "X ≥ " + highCR + " (P = " + num(1 - (highCR > 0 ? cdf[highCR - 1] : 0), 4) + ")" : "no upper region");
         var h1 = tail === "upper" ? "p > " + p : tail === "lower" ? "p < " + p : "p ≠ " + p;
         var conclusion = inCR
-          ? "<b style='color:var(--danger)'>reject H₀</b> — there is evidence at the " + (alpha * 100) + "% level that " + h1
-          : "<b style='color:var(--good)'>do not reject H₀</b> — insufficient evidence at the " + (alpha * 100) + "% level that " + h1;
+          ? "<b class='k-lab-bad'>reject H₀</b> — there is evidence at the " + (alpha * 100) + "% level that " + h1
+          : "<b class='k-lab-good'>do not reject H₀</b> — insufficient evidence at the " + (alpha * 100) + "% level that " + h1;
         read.innerHTML = "H₀: p = " + p + " &nbsp; H₁: " + h1 + " &nbsp; X ~ B(" + n + ", " + p + ") under H₀" +
-          "<br><span style='color:var(--danger)'>critical region: " + crTxt.join(" and ") + "</span> · actual significance level " + num(actual, 4) + " (" + num(actual * 100, 2) + "%)" +
+          "<br><span class='k-lab-bad'>critical region: " + crTxt.join(" and ") + "</span> · actual significance level " + num(actual, 4) + " (" + num(actual * 100, 2) + "%)" +
           "<br>observed x = " + x + ": " + (tail === "upper" ? "P(X ≥ " + x + ") = " + num(pHigh, 4) : tail === "lower" ? "P(X ≤ " + x + ") = " + num(pLow, 4) : "p-value (two-tailed) = " + num(pval, 4)) + " → " + conclusion +
-          "<br><span style='color:var(--muted)'>Each tail's probability must be ≤ the tail level (Edexcel convention), not 'closest to'.</span>";
+          "<br><span class='k-lab-aside'>Each tail's probability must be ≤ the tail level (Edexcel convention), not 'closest to'.</span>";
       }
       redraw();
     }
@@ -544,10 +544,10 @@
       mSel.onchange = function () { method = mSel.value; means = []; draw(); };
       var sl = slider("sample size n", 6, 60, 6, nS, function (v) { nS = v; means = []; draw(); });
       var read = readout();
-      panel.appendChild(el("div", { class: "lab-controls" }, [el("label", {}, ["method", mSel]), sl.node,
-        el("button", { class: "btn primary", text: "Take a sample", onclick: take }),
-        el("button", { class: "btn gold", text: "Take 50 samples", onclick: function () { for (var i = 0; i < 50; i++) take(true); draw(); } }),
-        el("button", { class: "btn", text: "Clear", onclick: function () { sample = []; means = []; draw(); } })]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [el("label", {}, ["method", mSel]), sl.node,
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Take a sample", onclick: take }),
+        el("button", { class: "k-btn k-lab-alt", text: "Take 50 samples", onclick: function () { for (var i = 0; i < 50; i++) take(true); draw(); } }),
+        el("button", { class: "k-btn", text: "Clear", onclick: function () { sample = []; means = []; draw(); } })]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 330);
       panel.appendChild(read);
@@ -588,10 +588,10 @@
         var last = means.length ? means[means.length - 1] : null;
         var sd = means.length > 1 ? Math.sqrt(means.reduce(function (a, m) { return a + Math.pow(m - means.reduce(function (s, q) { return s + q; }, 0) / means.length, 2); }, 0) / means.length) : null;
         var note = { random: "every member equally likely — needs a numbered sampling frame.", systematic: "k = 240/n; random start in the first k then every kth — cheap, but a hidden pattern in the list can bias it.", stratified: "Year 12 : Year 13 : Staff = 120 : 90 : 30, sampled in proportion, random within each — reflects the population's structure.", opportunity: "the first n in the list are all Year 12 — quick, but the mean is biased low. Not random." }[method];
-        read.innerHTML = "<span style='color:var(--accent)'>● Year 12</span> <span style='color:var(--good)'>● Year 13</span> <span style='color:var(--accent2)'>● Staff</span> · population mean μ = <b>" + num(popMean, 2) + "</b>" +
+        read.innerHTML = "<span class='k-lab-acc'>● Year 12</span> <span class='k-lab-good'>● Year 13</span> <span class='k-lab-acc2'>● Staff</span> · population mean μ = <b>" + num(popMean, 2) + "</b>" +
           (last !== null ? " · last sample mean x̄ = <b>" + num(last, 2) + "</b> (error " + num(last - popMean, 2) + ")" : "") +
           (sd !== null ? " · sd of the " + means.length + " sample means = " + num(sd, 2) : "") +
-          "<br><span style='color:var(--muted)'>" + method + ": " + note + "</span>";
+          "<br><span class='k-lab-aside'>" + method + ": " + note + "</span>";
       }
       draw();
     }
@@ -604,12 +604,12 @@
     mount: function (panel) {
       var pts = [[1, 2.2], [2, 2.9], [3, 3.1], [4, 4.6], [5, 4.9], [6, 6.2], [7, 6.4], [8, 7.9], [9, 8.1], [10, 9.6]];
       var showRes = el("input", { type: "checkbox" });
-      panel.appendChild(el("div", { class: "lab-controls" }, [
-        el("label", { class: "chk", style: "flex-direction:row;align-items:center;gap:6px" }, [showRes, "show residuals"]),
-        el("button", { class: "btn", text: "Straighten", onclick: function () { pts = pts.map(function (p, i) { return [i + 1, 1.2 + 0.8 * (i + 1)]; }); draw(); } }),
-        el("button", { class: "btn", text: "Scatter randomly", onclick: function () { pts = pts.map(function (p, i) { return [i + 1, 1 + Math.random() * 9]; }); draw(); } }),
-        el("button", { class: "btn", text: "Make it curved", onclick: function () { pts = pts.map(function (p, i) { return [i + 1, 0.1 * Math.pow(i + 1, 2) + 0.5]; }); draw(); } }),
-        el("span", { class: "sim-msg", text: "drag any point" })]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [
+        el("label", { class: "k-check" }, [showRes, "show residuals"]),
+        el("button", { class: "k-btn", text: "Straighten", onclick: function () { pts = pts.map(function (p, i) { return [i + 1, 1.2 + 0.8 * (i + 1)]; }); draw(); } }),
+        el("button", { class: "k-btn", text: "Scatter randomly", onclick: function () { pts = pts.map(function (p, i) { return [i + 1, 1 + Math.random() * 9]; }); draw(); } }),
+        el("button", { class: "k-btn", text: "Make it curved", onclick: function () { pts = pts.map(function (p, i) { return [i + 1, 0.1 * Math.pow(i + 1, 2) + 0.5]; }); draw(); } }),
+        el("span", { class: "k-lab-msg", "data-ui": "lab.message", text: "drag any point" })]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 340);
       var read = readout(); panel.appendChild(read);
@@ -631,14 +631,14 @@
         read.innerHTML = "r = <b>" + num(s.r, 4) + "</b> — " + word + (s.r > 0.05 ? " positive" : s.r < -0.05 ? " negative" : "") + " correlation" +
           " &nbsp;·&nbsp; regression line y = <b>" + num(s.a, 3) + " + " + num(s.b, 3) + "x</b> (passes through (x̄, ȳ) = (" + num(s.xm, 2) + ", " + num(s.ym, 2) + "), the green point)" +
           "<br>S<sub>xx</sub> = " + num(s.Sxx, 3) + " · S<sub>yy</sub> = " + num(s.Syy, 3) + " · S<sub>xy</sub> = " + num(s.Sxy, 3) + " · b = S<sub>xy</sub>/S<sub>xx</sub>, a = ȳ − bx̄" +
-          "<br><span style='color:var(--muted'>Interpret b as 'y changes by b for each unit increase in x'; predicting outside 1 ≤ x ≤ 10 is extrapolation.</span>";
+          "<br><span class='k-lab-aside'>Interpret b as 'y changes by b for each unit increase in x'; predicting outside 1 ≤ x ≤ 10 is extrapolation.</span>";
       }
       var drag = -1;
       function hit(e) { var r = cv.c.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top, best = -1, bd = 14; pts.forEach(function (p, i) { var d = Math.hypot(P.X(p[0]) - mx, P.Y(p[1]) - my); if (d < bd) { bd = d; best = i; } }); return best; }
       cv.c.addEventListener("mousedown", function (e) { drag = hit(e); });
       window.addEventListener("mousemove", function (e) { if (drag < 0) return; var r = cv.c.getBoundingClientRect(); var x = P.invX(e.clientX - r.left), y = 11 - (e.clientY - r.top - 14) / (cv.H - 44) * 11; pts[drag] = [Math.max(0.2, Math.min(10.8, x)), Math.max(0.2, Math.min(10.8, y))]; draw(); });
       window.addEventListener("mouseup", function () { drag = -1; });
-      cv.c.style.cursor = "grab"; showRes.onchange = draw;
+      cv.c.setAttribute("data-cursor", "grab"); showRes.onchange = draw;
       draw();
     }
   });
@@ -652,9 +652,9 @@
       var sU = slider("U (m/s)", 5, 40, 1, U, function (v) { U = v; reset(); });
       var sA = slider("angle (°)", 5, 85, 1, ang, function (v) { ang = v; reset(); });
       var sH = slider("launch height (m)", 0, 40, 1, h0, function (v) { h0 = v; reset(); });
-      panel.appendChild(el("div", { class: "lab-controls" }, [sU.node, sA.node, sH.node,
-        el("button", { class: "btn primary", text: "▶ Fire", onclick: fire }),
-        el("button", { class: "btn", text: "Reset", onclick: reset })]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [sU.node, sA.node, sH.node,
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "▶ Fire", onclick: fire }),
+        el("button", { class: "k-btn", text: "Reset", onclick: reset })]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 330);
       var read = readout(); panel.appendChild(read);
@@ -683,7 +683,7 @@
         read.innerHTML = "u<sub>x</sub> = U cos α = " + num(p.ux, 3) + " · u<sub>y</sub> = U sin α = " + num(p.uy, 3) + " · t = " + num(tc, 2) + " s" +
           "<br>time of flight: " + (h0 ? "−" + h0 : "0") + " = u<sub>y</sub>T − 4.9T² ⇒ <b>T = " + num(p.T, 3) + " s</b> · range = u<sub>x</sub>T = <b>" + num(p.R, 2) + " m</b>" +
           "<br>greatest height: v<sub>y</sub> = 0 ⇒ " + (h0 ? h0 + " + " : "") + "u<sub>y</sub>²/2g = <b>" + num(p.H, 2) + " m</b> at t = " + num(p.tH, 2) + " s · impact speed √(u<sub>x</sub>² + v<sub>y</sub>²) = <b>" + num(Math.hypot(p.ux, p.vy), 2) + " m/s</b>" +
-          "<br><span style='color:var(--muted)'>green: horizontal velocity (constant) · red: vertical velocity (changes by 9.8 each second)</span>";
+          "<br><span class='k-lab-aside'>green: horizontal velocity (constant) · red: vertical velocity (changes by 9.8 each second)</span>";
       }
       function reset() { if (timer) cancelAnimationFrame(timer); timer = null; t = 0; draw(0); }
       function fire() {
@@ -706,10 +706,10 @@
       var s1 = slider("accelerate for (s)", 1, 30, 1, t1, function (v) { t1 = v; draw(); });
       var s2 = slider("constant for (s)", 0, 60, 1, t2, function (v) { t2 = v; draw(); });
       var s3 = slider("decelerate for (s)", 1, 30, 1, t3, function (v) { t3 = v; draw(); });
-      panel.appendChild(el("div", { class: "lab-controls" }, [sV.node, s0.node, s1.node, s2.node, s3.node]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [sV.node, s0.node, s1.node, s2.node, s3.node]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 260);
-      var holder2 = el("div", { style: "margin-top:8px" }); panel.appendChild(holder2);
+      var holder2 = el("div", { class: "k-lab-out" }); panel.appendChild(holder2);
       var cv2 = canvas(holder2, 200);
       var read = readout(); panel.appendChild(read);
       function draw() {
@@ -736,7 +736,7 @@
         }, COL.gold, 2.2);
         read.innerHTML = "acceleration = gradient = (V − u)/t = (" + V + " − " + v0 + ")/" + t1 + " = <b>" + num((V - v0) / t1, 3) + " m/s²</b> · deceleration = " + V + "/" + t3 + " = <b>" + num(V / t3, 3) + " m/s²</b>" +
           "<br>distance = area = ½(" + v0 + " + " + V + ")(" + t1 + ") + " + V + "(" + t2 + ") + ½(" + V + ")(" + t3 + ") = " + num(A1, 1) + " + " + num(A2, 1) + " + " + num(A3, 1) + " = <b>" + num(S, 1) + " m</b> in " + T + " s · average speed " + num(S / T, 2) + " m/s" +
-          "<br><span style='color:var(--muted)'>The s–t curve is a parabola while accelerating (increasing gradient), a straight line while cruising, and flattens while decelerating.</span>";
+          "<br><span class='k-lab-aside'>The s–t curve is a parabola while accelerating (increasing gradient), a straight line while cruising, and flattens while decelerating.</span>";
       }
       draw();
     }
@@ -749,7 +749,7 @@
     mount: function (panel) {
       var a = [4, 2], b = [-1, 3], lam = 1.5;
       var sl = slider("λ", -3, 3, 0.1, lam, function (v) { lam = v; draw(); }, function (v) { return num(v, 1); });
-      panel.appendChild(el("div", { class: "lab-controls" }, [sl.node, el("span", { class: "sim-msg", text: "drag the heads of a (gold) and b (blue)" })]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [sl.node, el("span", { class: "k-lab-msg", "data-ui": "lab.message", text: "drag the heads of a (gold) and b (blue)" })]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 380);
       var read = readout(); panel.appendChild(read);
@@ -775,17 +775,17 @@
         arrow(la, A(COL.gold, .45), "λa");
         arrow(a, COL.gold, "a"); arrow(b, COL.blue, "b"); arrow(sum, COL.jade, "a + b");
         P.line(b[0], b[1], a[0], a[1], COL.crim, 1.6, [6, 4]); P.label((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, "a − b", COL.crim);
-        read.innerHTML = "<span style='color:var(--accent2)'>a = " + col(a) + " · |a| = " + num(Math.hypot(a[0], a[1]), 3) + " · bearing " + bearing(a) + "</span>" +
-          "<br><span style='color:var(--accent)'>b = " + col(b) + " · |b| = " + num(Math.hypot(b[0], b[1]), 3) + "</span>" +
-          "<br><span style='color:var(--good)'>a + b = " + col(sum) + " · |a + b| = " + num(Math.hypot(sum[0], sum[1]), 3) + "</span> ≤ |a| + |b| = " + num(Math.hypot(a[0], a[1]) + Math.hypot(b[0], b[1]), 3) +
-          " &nbsp;·&nbsp; <span style='color:var(--danger)'>a − b = " + col(diff) + "</span> (from the head of b to the head of a) &nbsp;·&nbsp; λa = " + col(la) +
-          "<br><span style='color:var(--muted)'>Bearings are measured clockwise from j (north). Unit vector in the direction of a: a/|a|.</span>";
+        read.innerHTML = "<span class='k-lab-acc2'>a = " + col(a) + " · |a| = " + num(Math.hypot(a[0], a[1]), 3) + " · bearing " + bearing(a) + "</span>" +
+          "<br><span class='k-lab-acc'>b = " + col(b) + " · |b| = " + num(Math.hypot(b[0], b[1]), 3) + "</span>" +
+          "<br><span class='k-lab-good'>a + b = " + col(sum) + " · |a + b| = " + num(Math.hypot(sum[0], sum[1]), 3) + "</span> ≤ |a| + |b| = " + num(Math.hypot(a[0], a[1]) + Math.hypot(b[0], b[1]), 3) +
+          " &nbsp;·&nbsp; <span class='k-lab-bad'>a − b = " + col(diff) + "</span> (from the head of b to the head of a) &nbsp;·&nbsp; λa = " + col(la) +
+          "<br><span class='k-lab-aside'>Bearings are measured clockwise from j (north). Unit vector in the direction of a: a/|a|.</span>";
       }
       var drag = null;
       cv.c.addEventListener("mousedown", function (e) { var r = cv.c.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top; drag = Math.hypot(P.X(a[0]) - mx, P.Y(a[1]) - my) < 16 ? a : Math.hypot(P.X(b[0]) - mx, P.Y(b[1]) - my) < 16 ? b : null; });
       window.addEventListener("mousemove", function (e) { if (!drag) return; var r = cv.c.getBoundingClientRect(); var x = P.invX(e.clientX - r.left), y = 8 - (e.clientY - r.top - 14) / (cv.H - 44) * 16; drag[0] = Math.round(Math.max(-7.5, Math.min(7.5, x)) * 2) / 2; drag[1] = Math.round(Math.max(-7.5, Math.min(7.5, y)) * 2) / 2; draw(); });
       window.addEventListener("mouseup", function () { drag = null; });
-      cv.c.style.cursor = "grab";
+      cv.c.setAttribute("data-cursor", "grab");
       draw();
     }
   });
@@ -800,7 +800,7 @@
       var s2 = slider("μ", 0, 1, 0.01, mu, function (v) { mu = v; draw(); }, function (v) { return num(v, 2); });
       var s3 = slider("mass (kg)", 1, 20, 1, m, function (v) { m = v; draw(); });
       var s4 = slider("force up the slope (N)", 0, 150, 1, Pf, function (v) { Pf = v; draw(); });
-      panel.appendChild(el("div", { class: "lab-controls" }, [s1.node, s2.node, s3.node, s4.node]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [s1.node, s2.node, s3.node, s4.node]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 320);
       var read = readout(); panel.appendChild(read);
@@ -837,7 +837,7 @@
         read.innerHTML = "perpendicular: R = mg cos θ = " + num(W, 1) + " × cos " + th + "° = <b>" + num(R, 2) + " N</b> · μR = <b>" + num(Fmax, 2) + " N</b>" +
           "<br>along the slope: mg sin θ = " + num(down, 2) + " N down" + (Pf ? ", P = " + Pf + " N up" : "") + " ⇒ friction needed for rest = " + num(Math.abs(net), 2) + " N " + (Math.abs(net) <= Fmax ? "≤ μR" : "&gt; μR") +
           "<br><b>" + state + "</b> · friction " + num(Math.abs(F), 2) + " N " + fdir + (acc ? " · a = (P − mg sin θ ∓ μR)/m = <b>" + num(Math.abs(acc), 3) + " m/s²</b>" : "") +
-          "<br><span style='color:var(--muted)'>On the point of sliding with P = 0: μ = tan θ = " + num(Math.tan(t), 3) + ". Friction opposes the motion that would otherwise happen.</span>";
+          "<br><span class='k-lab-aside'>On the point of sliding with P = 0: μ = tan θ = " + num(Math.tan(t), 3) + ". Friction opposes the motion that would otherwise happen.</span>";
       }
       draw();
     }
@@ -855,7 +855,7 @@
       var s4 = slider("support D at (m)", 1, 6, 0.1, sB, function (v) { sB = v; draw(); }, function (v) { return num(v, 1); });
       var s5 = slider("load (kg)", 0, 100, 5, load, function (v) { load = v; draw(); });
       var s6 = slider("load at (m)", 0, 6, 0.1, lx, function (v) { lx = v; draw(); }, function (v) { return num(v, 1); });
-      panel.appendChild(el("div", { class: "lab-controls" }, [s1.node, s2.node, s3.node, s4.node, s5.node, s6.node]));
+      panel.appendChild(el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, [s1.node, s2.node, s3.node, s4.node, s5.node, s6.node]));
       var holder = el("div", {}); panel.appendChild(holder);
       var cv = canvas(holder, 260);
       var read = readout(); panel.appendChild(read);
@@ -883,8 +883,8 @@
         var tilt = RC < -1e-6 ? "tilts about D (R_C would be negative — the beam lifts off C)" : RD < -1e-6 ? "tilts about C (R_D negative)" : Math.min(RC, RD) < 1 ? "on the point of tilting — one reaction is zero" : "in equilibrium";
         read.innerHTML = "M(C): R<sub>D</sub> × " + num(d - c, 1) + " = " + num(W, 1) + " × " + num(cm - c, 1) + " + " + num(Lw, 1) + " × " + num(lx - c, 1) + " ⇒ <b>R<sub>D</sub> = " + num(RD, 1) + " N</b>" +
           "<br>resolve ↑: R<sub>C</sub> + R<sub>D</sub> = " + num(W + Lw, 1) + " ⇒ <b>R<sub>C</sub> = " + num(RC, 1) + " N</b> (check by M(D))" +
-          "<br><b style='color:" + (tilt.indexOf("tilts") === 0 ? "var(--danger)" : "var(--good)") + "'>" + tilt + "</b>" +
-          "<br><span style='color:var(--muted)'>Tipping question: set the far reaction to zero and take moments about the near support to find where the load can reach.</span>";
+          "<br>" + (tilt.indexOf("tilts") === 0 ? "<b class='k-lab-bad'>" : "<b class='k-lab-good'>") + tilt + "</b>" +
+          "<br><span class='k-lab-aside'>Tipping question: set the far reaction to zero and take moments about the near support to find where the load can reach.</span>";
       }
       draw();
     }

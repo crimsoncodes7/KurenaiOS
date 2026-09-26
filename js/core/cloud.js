@@ -30,6 +30,8 @@
   var listeners = [];
 
   function env() {
+    /* the Empty/Sample review namespaces never replicate (store.js) */
+    if (KOS.dataMode && KOS.dataMode.mode) return null;
     var e = window.KOS_ENV;
     if (!e || !e.SUPABASE_URL || !e.SUPABASE_ANON_KEY) return null;
     if (String(e.SUPABASE_URL).indexOf("<") !== -1) return null;   // the template file

@@ -81,7 +81,7 @@
         else if (k === "text") node.textContent = attrs[k];
         else if (k === "html") { node.innerHTML = attrs[k]; html = true; }
         else if (k.slice(0, 2) === "on") node.addEventListener(k.slice(2), attrs[k]);
-        else if (k === "style") node.style.cssText = attrs[k];
+        else if (k === "style") node.setAttribute("style", attrs[k]);
         /* Phase F: `title: opts.hint || null` is the house idiom for an
            optional attribute, and setAttribute stringifies — so every tab
            and menu button without a hint was shipping title="null", which
@@ -208,9 +208,9 @@
       }
     }
     /* the page behind must not scroll under the scrim, and must not lose
-       its scroll position when the dialog closes (that is why this is a
-       class and a counter, not an inline style stashed per dialog) */
-    document.body.classList.add("modal-open");
+       its scroll position when the dialog closes (that is why this is an
+       attribute cleared with the last dialog, not an inline style stashed
+       per dialog) */
     document.documentElement.setAttribute("data-scroll-lock", "");
 
     function onKey(e) {
@@ -245,7 +245,6 @@
       dialogStack.splice(i, 1);
       document.removeEventListener("keydown", onKey, true);
       if (!dialogStack.length) {
-        document.body.classList.remove("modal-open");
         document.documentElement.removeAttribute("data-scroll-lock");
       }
       if (restoreTo && restoreTo.focus && document.contains(restoreTo)) {
@@ -453,12 +452,6 @@
     if (sec === "study") return ["subject", KOS.store.state.ui.subject || "compsci"];
     return [{ home: "home", productivity: "focus", collection: "matrix", governor: "governor",
       assistant: "assistant", system: "data" }[sec] || "home", undefined];
-  };
-  KOS.collectionCrumbs = function (area, page) {
-    return el("div", { class: "crumbs collection-crumbs", "aria-label": "Collection navigation" }, [
-      "Collection", " / ", el("b", { text: area }),
-      page ? [" / ", el("b", { text: page })] : null
-    ].flat().filter(Boolean));
   };
   /* ============================================================
      THE TABS PRIMITIVE  (Category 7 Phase B — audit G-23/U-12)
@@ -745,17 +738,19 @@
     function place(panel) {
       var r = btn.getBoundingClientRect();
       var vw = window.innerWidth, vh = window.innerHeight;
-      panel.style.visibility = "hidden";
-      panel.style.left = "0px"; panel.style.top = "0px";
+      /* measured unseen at the origin, then placed: the position rides
+         custom properties the menu layer reads */
+      KOS.ui.state(panel, "measuring", true);
+      panel.style.setProperty("--menu-x", "0px"); panel.style.setProperty("--menu-y", "0px");
       document.body.appendChild(panel);
       var pw = panel.offsetWidth, ph = panel.offsetHeight;
       var left = opts.align === "start" ? r.left : r.right - pw;
       left = Math.max(8, Math.min(left, vw - pw - 8));
       var top = r.bottom + 6;
       if (top + ph > vh - 8) top = Math.max(8, r.top - ph - 6);
-      panel.style.left = Math.round(left) + "px";
-      panel.style.top = Math.round(top) + "px";
-      panel.style.visibility = "";
+      panel.style.setProperty("--menu-x", Math.round(left) + "px");
+      panel.style.setProperty("--menu-y", Math.round(top) + "px");
+      KOS.ui.state(panel, "measuring", false);
     }
 
     function open() {
@@ -864,9 +859,7 @@
      Thirty-odd views each hid the spine with the same two class writes, and
      the Study views undid them by hand. One helper now owns it, and the
      state is an attribute — #cols[data-tree="none"|"open"|"closed"] — so
-     readers never depend on a presentation class. The legacy classes
-     (#tree.hidden, #cols.no-tree, #cols.tree-closed) are still written
-     alongside until the stylesheet that reads them is retired.
+     readers never depend on a presentation class.
 
        KOS.shell.tree("none")    this view has no spine
        KOS.shell.tree("open")    the spine is shown and expanded
@@ -899,16 +892,8 @@
     if (mode === undefined) return (cols && cols.getAttribute("data-tree")) || "none";
     if (mode !== "none" && mode !== "open" && mode !== "closed") mode = "none";
     var none = mode === "none";
-    if (tree) {
-      tree.classList.toggle("hidden", none);
-      tree.hidden = none;
-    }
-    if (cols) {
-      cols.classList.toggle("no-tree", none);
-      /* a hidden spine keeps its collapsed/expanded look for when it returns */
-      if (!none) cols.classList.toggle("tree-closed", mode === "closed");
-      cols.setAttribute("data-tree", mode);
-    }
+    if (tree) tree.hidden = none;
+    if (cols) cols.setAttribute("data-tree", mode);
     return mode;
   };
 

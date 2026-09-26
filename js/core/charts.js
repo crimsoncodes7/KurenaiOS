@@ -150,12 +150,12 @@
     var max = Math.max(1, groups.reduce(function (a, g) {
       return Math.max(a, g.data.reduce(function (b, d) { return Math.max(b, d.value); }, 0));
     }, 0));
-    var wrap = el("div", { class: "cs-multi" });
-    wrap.appendChild(el("div", { class: "cs-multi-row" }, groups.map(function (g) {
-      return el("div", { class: "cs-multi-panel" }, [
-        el("div", { class: "cs-multi-h" }, [
+    var wrap = el("div", { class: "k-chart-multi", "data-ui": "chart.multi" });
+    wrap.appendChild(el("div", { class: "k-chart-multi-row" }, groups.map(function (g) {
+      return el("figure", { class: "k-chart-multi-panel", "data-ui": "chart.multi-panel" }, [
+        el("figcaption", { class: "k-chart-multi-h", "data-ui": "chart.multi-h" }, [
           el("b", { text: g.label }),
-          g.sub ? el("span", { class: "sub", text: g.sub }) : null
+          g.sub ? el("span", { class: "k-chart-sub", "data-ui": "part.sub", text: g.sub }) : null
         ].filter(Boolean)),
         barChart(g.data.map(function (d) {
           return { label: "", value: d.value, color: d.color, hint: g.label + " — " + d.label + ": " + d.value };
@@ -164,14 +164,10 @@
     })));
     /* one legend for the row — the categories are the same everywhere,
        which is the entire reason these belong in one card */
-    var legend = el("div", { class: "legend cs-multi-legend" });
-    (groups[0] ? groups[0].data : []).forEach(function (d) {
-      var i = el("i", {});
-      i.style.background = d.color || "var(--accent)";
-      legend.appendChild(el("span", {}, [i, d.label]));
-    });
-    wrap.appendChild(legend);
-    if (opts.note) wrap.appendChild(el("p", { class: "sub cs-multi-note", text: opts.note }));
+    wrap.appendChild(legend((groups[0] ? groups[0].data : []).map(function (d) {
+      return { label: d.label, color: d.color };
+    }), "chart.multi-legend"));
+    if (opts.note) wrap.appendChild(el("p", { class: "k-chart-note", "data-ui": "part.sub", text: opts.note }));
     return wrap;
   }
 
@@ -179,43 +175,18 @@
      platforms). data = [{label, value, color?}] */
   function hbarChart(data, opts) {
     opts = opts || {};
-    var W = 560, rowH = 26, padL = 4, padR = 44, labelW = opts.labelW || 150;
-    var H = data.length * rowH + 8;
-    var s = svgEl(W, H);
+    /* HTML rows, not SVG: a scaled-down viewBox shrank the labels below the
+       11px floor in a half-width card. Each row is label · bar · value. */
     var max = Math.max(1, data.reduce(function (a, d) { return Math.max(a, d.value); }, 0));
-    var trackW = W - padL - labelW - padR;
-    /* gridlines behind the bars, so a length reads as a value */
-    ticks(max).forEach(function (v) {
-      if (!v) return;
-      var x = padL + labelW + trackW * v / max;
-      var g = svgNode("line", { x1: x, y1: 2, x2: x, y2: H - 6, "stroke-width": "1", "stroke-dasharray": "2 4" });
-      paint(g, "stroke", GRID);
-      s.appendChild(g);
-    });
-    data.forEach(function (d, i) {
-      var y = i * rowH + 4;
-      var w = Math.max(2, trackW * d.value / max);
-      var g = svgNode("g", {});
-      g.appendChild(svgNode("title", { text: d.label + ": " + d.value }));
-      var label = String(d.label);
-      var fit = Math.floor(labelW / 6.2);
-      var lt = svgNode("text", { x: padL + labelW - 8, y: y + 13, "text-anchor": "end",
-        "font-size": String(FONT), text: label.length > fit ? label.slice(0, fit - 1) + "\u2026" : label });
-      paint(lt, "fill", "var(--text2)");
-      lt.appendChild(svgNode("title", { text: label }));
-      g.appendChild(lt);
-      var track = svgNode("rect", { x: padL + labelW, y: y + 4, width: trackW, height: 11, rx: 5.5 });
-      paint(track, "fill", "var(--well)");
-      g.appendChild(track);
-      var bar = svgNode("rect", { x: padL + labelW, y: y + 4, width: w, height: 11, rx: 5.5 });
-      paint(bar, "fill", d.color || opts.color || DEFAULT_C);
-      g.appendChild(bar);
-      var vt = svgNode("text", { x: padL + labelW + w + 8, y: y + 13, "font-size": String(FONT), "font-weight": "600", text: String(d.value) });
-      paint(vt, "fill", "var(--text2)");
-      g.appendChild(vt);
-      s.appendChild(g);
-    });
-    return s;
+    return el("ul", { class: "k-hbar", "data-ui": "chart.hbar" }, data.map(function (d) {
+      var pct = Math.max(1, Math.round(100 * d.value / max));
+      return el("li", { class: "k-hbar-row", title: d.label + ": " + d.value }, [
+        el("span", { class: "k-hbar-label", text: String(d.label) }),
+        el("span", { class: "k-bar k-hbar-bar", "aria-hidden": "true",
+          style: "--p: " + pct + "%; --bar-c: " + (d.color || opts.color || DEFAULT_C) }, [el("i")]),
+        el("b", { class: "k-hbar-v k-mono", text: KOS.ui.num ? KOS.ui.num(d.value) : String(d.value) })
+      ]);
+    }));
   }
 
   /* donut ring — composition at a glance. data = [{label, value, color}];
@@ -246,7 +217,7 @@
     if (opts.centre != null) {
       var big = svgNode("text", { x: C, y: C + (opts.centreSub ? 0 : 6), "text-anchor": "middle", "font-size": "26", "font-weight": "600", text: String(opts.centre) });
       paint(big, "fill", "var(--text)");
-      big.style.fontFamily = "var(--serif)";
+      big.setAttribute("class", "k-chart-big");
       s.appendChild(big);
       if (opts.centreSub) {
         var sub = svgNode("text", { x: C, y: C + 19, "text-anchor": "middle", "font-size": String(FONT), "letter-spacing": ".7", text: opts.centreSub.toUpperCase() });
@@ -259,16 +230,9 @@
 
   /* the standard donut + legend block */
   function donutWithLegend(data, opts) {
-    var wrap = el("div", { class: "donut-wrap" });
+    var wrap = el("div", { class: "k-chart-donut", "data-ui": "chart.donut-wrap" });
     wrap.appendChild(donutChart(data, opts));
-    var lg = el("div", { class: "legend" });
-    data.forEach(function (d) {
-      if (!d.value) return;
-      var i = el("i", {});
-      i.style.background = d.color || "var(--accent)";
-      lg.appendChild(el("span", {}, [i, d.label + " " + d.value]));
-    });
-    wrap.appendChild(lg);
+    wrap.appendChild(legend(data.filter(function (d) { return d.value; }), null, true));
     return wrap;
   }
 
@@ -323,10 +287,27 @@
   }
 
   function chartCard(title, sub, svg) {
-    return el("div", { class: "cs-chart" }, [
-      el("div", { class: "cs-chart-h" }, [el("b", { text: title }), el("span", { class: "sub", text: sub })]),
-      svg
+    /* an axis chart drawn on a wide viewBox shrinks its labels below the
+       11px floor in a half-width cell, so it takes the whole grid row */
+    var vb = svg && svg.getAttribute && svg.getAttribute("viewBox");
+    var wide = vb && Number(vb.split(" ")[2]) >= 400;
+    return el("section", { class: "k-card k-chart", "data-ui": "chart.chart", "data-span": wide ? "wide" : null }, [
+      el("header", { class: "k-chart-h" }, [
+        el("h3", { class: "k-chart-title", text: title }),
+        sub ? el("span", { class: "k-chart-sub", "data-ui": "part.sub", text: sub }) : null
+      ].filter(Boolean)),
+      el("div", { class: "k-chart-body" }, [svg])
     ]);
+  }
+  /* a key: a swatch per series, the value beside it when there is one */
+  function legend(items, hook, withValue) {
+    return el("ul", { class: "k-legend", "data-ui": hook || "chart.legend" }, items.map(function (d) {
+      return el("li", { class: "k-legend-item" }, [
+        el("i", { class: "k-legend-swatch", "aria-hidden": "true", style: "--c: " + (d.color || DEFAULT_C) }),
+        el("span", { text: d.label }),
+        withValue ? el("b", { class: "k-mono", text: KOS.ui.num ? KOS.ui.num(d.value) : String(d.value) }) : null
+      ].filter(Boolean));
+    }));
   }
 
   /* calendar heatmap (Build 3b — the Books reading heatmap): GitHub-style

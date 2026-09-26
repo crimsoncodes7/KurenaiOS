@@ -624,7 +624,7 @@
      from THIS — never from their own reading of state.governor. Adding a
      field here surfaces it everywhere at once, which is the whole point:
      three surfaces, one identity. */
-  var STATUS_MAX = 90, ABOUT_MAX = 400;
+  var STATUS_MAX = 90;
 
   function profile() {
     var g = G();
@@ -643,103 +643,107 @@
       hpDesc: info.desc,
       gold: g.gold,
       status: String(g.status || "").trim(),
-      about: String(g.about || "").trim(),
       sessions: KOS.sessions ? KOS.sessions.all().length : 0
     };
   }
-  /* the only writer — both editors and any future surface go through it */
+  /* the only writer — every surface goes through it. The profile is the
+     status line alone: the longer "about" text was retired (Graphite
+     review), so a stored one is left where it is and never shown. */
   function setProfileText(patch) {
     var g = G();
     patch = patch || {};
     if (patch.status !== undefined) g.status = String(patch.status || "").replace(/\s+/g, " ").trim().slice(0, STATUS_MAX);
-    if (patch.about !== undefined) g.about = String(patch.about || "").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim().slice(0, ABOUT_MAX);
     store.save();
     if (KOS.refreshHUD) refreshHUD();
     return profile();
   }
-  /* the shared editor. Same modal wherever identity is edited, so the two
-     fields can't grow separate rules per surface. */
+  /* the shared editor — the same dialog wherever the status is edited */
   function editProfileText(done) {
     var el = KOS.ui.el, p = profile();
-    var overlay = el("div", { class: "modal-ov", onclick: function (e) { if (e.target === overlay) close(); } });
-    function close() { document.removeEventListener("keydown", onKey); overlay.remove(); }
-    function onKey(e) { if (e.key === "Escape") close(); }
-    document.addEventListener("keydown", onKey);
-    var statusIn = el("input", { type: "text", maxlength: String(STATUS_MAX), value: p.status,
-      placeholder: "Grinding paper 1 · back in an hour" });
-    var aboutIn = el("textarea", { rows: "5", maxlength: String(ABOUT_MAX),
-      placeholder: "A quote, a couple of lines, whatever you want the seat to say." });
-    aboutIn.value = p.about;
-    var count = el("span", { class: "pe-count", text: p.about.length + " / " + ABOUT_MAX });
-    aboutIn.addEventListener("input", function () { count.textContent = aboutIn.value.length + " / " + ABOUT_MAX; });
-    var box = el("div", { class: "modal profile-editor" }, [
-      el("h3", { text: "Status & about" }),
-      el("p", { class: "sub", text: "Shown on the Governor's Seat, the Home profile band and the topbar profile — one identity, every surface." }),
-      el("label", { class: "pe-field" }, [el("span", { text: "Status" }), statusIn]),
-      el("label", { class: "pe-field" }, [
-        el("span", {}, [el("b", { text: "About" }), count]),
-        aboutIn
+    var statusIn = el("input", { type: "text", class: "k-input", maxlength: String(STATUS_MAX),
+      placeholder: "Grinding paper 1 · back in an hour", "aria-describedby": "k-pe-count" });
+    statusIn.value = p.status;
+    var count = el("span", { class: "k-field-hint k-pe-count", id: "k-pe-count", text: p.status.length + " / " + STATUS_MAX });
+    statusIn.addEventListener("input", function () { count.textContent = statusIn.value.length + " / " + STATUS_MAX; });
+    /* the dialog reports once, however it closed: Save, Cancel, Escape
+       or the scrim */
+    var result = { cancelled: true };
+    function save() {
+      result = setProfileText({ status: statusIn.value });
+      overlay.remove();
+    }
+    statusIn.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); save(); } });
+    var box = el("div", { class: "k-dialog k-pe", "data-ui": "ui.dialog gov.profile-editor" }, [
+      el("div", { class: "k-dialog-head" }, [
+        el("span", { class: "k-dialog-mark", lang: "ja", "aria-hidden": "true", text: "言" }),
+        el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Status" })
       ]),
-      el("div", { class: "modal-foot" }, [
-        el("button", { class: "btn", text: "Cancel", onclick: function () { close(); done && done(null, { cancelled: true }); } }),
-        el("button", { class: "btn primary", text: "Save", onclick: function () {
-          var next = setProfileText({ status: statusIn.value, about: aboutIn.value });
-          close();
-          done && done(null, next);
-        } })
+      el("p", { class: "k-dialog-body", text: "One line, shown on the Governor, the Home hero and your profile card." }),
+      el("label", { class: "k-field" }, [
+        el("span", { class: "k-pe-label" }, [el("span", { class: "k-field-label", text: "Status" }), count]),
+        statusIn
+      ]),
+      el("div", { class: "k-dialog-foot" }, [
+        el("button", { type: "button", class: "k-btn", "data-ui": "gov.profile-clear", text: "Clear",
+          onclick: function () { statusIn.value = ""; count.textContent = "0 / " + STATUS_MAX; statusIn.focus(); } }),
+        el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { overlay.remove(); } }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Save", onclick: save })
       ])
     ]);
-    overlay.appendChild(box);
-    KOS.ui.openDialog(overlay);
-    statusIn.focus();
+    var overlay = el("div", { class: "k-dialog-overlay", onclick: function (e) { if (e.target === overlay) overlay.remove(); } }, [box]);
+    KOS.ui.openDialog(overlay, { initialFocus: statusIn, onClose: function () { done && done(null, result); } });
     return overlay;
   }
 
-  /* the compact profile card — the topbar popover's body. The Governor hero
+  /* the compact profile card — the rail chip's popover. The Governor hero
      keeps its own larger geometry (invariant 26c) but reads the same
      profile() record, so the two can never disagree. */
   function profileCard(opts) {
     var el = KOS.ui.el, p = profile();
     opts = opts || {};
-    var card = el("div", { class: "profile-card hp-" + p.hpState });
-    var band = el("div", { class: "pc-banner" });
-    if (!applyBanner(band, { darkScrim: true })) KOS.ui.state(band, "plain", true);
+    var card = el("div", { class: "k-pc", "data-ui": "gov.profile-card", "data-hp": p.hpState });
+    var band = el("div", { class: "k-pc-band", "data-ui": "gov.profile-band" });
+    if (applyBanner(band, { scrim: "governor" })) KOS.ui.state(band, "has-banner", true);
     card.appendChild(band);
-    var body = el("div", { class: "pc-body" });
-    body.appendChild(el("div", { class: "pc-identity-row" }, [
-      el("div", { class: "pc-avatar" }, [avatarNode(64)]),
-      p.status ? el("div", { class: "pc-status profile-speech", text: p.status }) : null
-    ].filter(Boolean)));
-    body.appendChild(el("div", { class: "pc-name", text: "Level " + p.level }));
-    body.appendChild(el("div", { class: "pc-rank", text: p.rank + " · Behavioural Governor" }));
-    body.appendChild(el("div", { class: "pc-meters" }, [
-      meterRow("HP", p.hp + " / 100", p.hp, "hud-hp", p.hpLabel),
-      meterRow("XP", p.xpInto + " / " + p.xpNeed, p.xpPct, "hud-xp", "Lv " + (p.level + 1) + " next"),
-      meterRow("Gold", "◈ " + p.gold, null, null, null)
+    /* the status belongs to the portrait: one identity block */
+    card.appendChild(el("div", { class: "k-pc-ident", "data-ui": "gov.profile-identity-row" }, [
+      el("div", { class: "k-pc-id" }, [
+        el("span", { class: "k-pc-ring", style: "--hp: " + Math.max(0, Math.min(100, p.hp)) + "%" }, [avatarNode(64)]),
+        el("div", { class: "k-pc-who" }, [
+          el("b", { class: "k-pc-name", text: "Level " + p.level }),
+          el("span", { class: "k-pc-rank", text: p.rank })
+        ])
+      ]),
+      p.status
+        ? el("p", { class: "k-pc-status", "data-ui": "gov.profile-status gov.speech", text: p.status })
+        : el("button", { type: "button", class: "k-pc-status k-pc-status--empty", "data-ui": "gov.profile-status-empty",
+            text: "Set a status…", onclick: edit })
     ]));
-    if (p.about) body.appendChild(el("div", { class: "pc-about" }, [
-      el("div", { class: "pc-about-h", text: "About" }),
-      el("p", { text: p.about })
+    card.appendChild(el("dl", { class: "k-pc-meters" }, [
+      meter("HP", p.hp + " / 100", p.hp, "hp", p.hpLabel),
+      meter("XP", p.xpInto + " / " + p.xpNeed, p.xpPct, "xp", "Level " + (p.level + 1) + " next"),
+      meter("Gold", "◈ " + p.gold, null, "gold", null)
     ]));
-    body.appendChild(el("div", { class: "pc-foot" }, [
-      el("button", { class: "btn pc-action", text: "Edit profile", onclick: function () {
-        editProfileText(function () { opts.onChange && opts.onChange(); });
-      } }),
-      el("button", { class: "btn primary pc-action", text: "Open Governor →", onclick: function () {
-        opts.onNavigate && opts.onNavigate();
-        KOS.show("governor");
-      } })
+    card.appendChild(el("div", { class: "k-pc-foot", "data-ui": "gov.profile-foot" }, [
+      el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "gov.profile-action", text: "Edit status", onclick: edit }),
+      el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-intent": "primary", "data-ui": "gov.profile-action",
+        text: "Open Governor →", onclick: function () {
+          opts.onNavigate && opts.onNavigate();
+          KOS.show("governor");
+        } })
     ]));
-    card.appendChild(body);
     return card;
 
-    function meterRow(label, val, pct, barCls, hint) {
-      return el("div", { class: "pc-meter" }, [
-        el("span", { class: "pc-m-k", text: label }),
-        el("span", { class: "pc-m-v", text: val }),
-        pct == null ? null : el("span", { class: "hud-bar " + barCls },
-          [el("span", { style: "width:" + Math.max(0, Math.min(100, pct)) + "%" })]),
-        hint ? el("span", { class: "pc-m-h", text: hint }) : null
+    function edit() { editProfileText(function () { opts.onChange && opts.onChange(); }); }
+    function meter(label, val, pct, kind, hint) {
+      return el("div", { class: "k-pc-meter", "data-kind": kind }, [
+        el("dt", { class: "k-pc-m-k", text: label }),
+        el("dd", { class: "k-pc-m-v" }, [
+          el("span", { class: "k-mono", text: val }),
+          hint ? el("span", { class: "k-pc-m-h", text: hint }) : null
+        ].filter(Boolean)),
+        pct == null ? null : el("span", { class: "k-bar k-pc-bar", "aria-hidden": "true",
+          style: "--p: " + Math.max(0, Math.min(100, pct)) + "%" }, [el("i")])
       ].filter(Boolean));
     }
   }
@@ -787,9 +791,9 @@
       var vh = window.innerHeight, vw = window.innerWidth;
       var openUp = r.top > vh / 2;
       var top = openUp ? Math.max(8, r.top - ph - 8) : Math.min(vh - ph - 8, r.bottom + 8);
-      popNode.style.top = Math.round(Math.max(8, top)) + "px";
-      if (r.left < vw / 2) popNode.style.left = Math.round(Math.min(r.left, vw - pw - 8)) + "px";
-      else popNode.style.right = Math.max(8, Math.round(vw - r.right)) + "px";
+      popNode.style.setProperty("--pop-top", Math.round(Math.max(8, top)) + "px");
+      if (r.left < vw / 2) popNode.style.setProperty("--pop-left", Math.round(Math.min(r.left, vw - pw - 8)) + "px");
+      else popNode.style.setProperty("--pop-right", Math.max(8, Math.round(vw - r.right)) + "px");
     }
     document.addEventListener("keydown", onPopKey, true);
     document.addEventListener("mousedown", onPopOutside, true);
@@ -884,7 +888,6 @@
     openProfilePopover: openProfilePopover,
     closeProfilePopover: closeProfilePopover,
     STATUS_MAX: STATUS_MAX,
-    ABOUT_MAX: ABOUT_MAX,
     refreshHUD: refreshHUD,
     debugUnlockAll: debugUnlockAll,
     BACKLOG_LIMIT: BACKLOG_LIMIT

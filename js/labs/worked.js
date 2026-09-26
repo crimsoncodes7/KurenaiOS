@@ -29,9 +29,24 @@
     if (!rgb) return hex;
     return "rgba(" + rgb.join(",") + "," + a + ")";
   }
+  /* any CSS colour a token holds (the Graphite tokens are oklch) comes back
+     as rgb(): painted onto a 1px canvas and read back, so alpha() and every
+     canvas agree on one string format */
+  var probe = null;
   function pick(name, fallback) {
     var v = cssVar(name);
-    return /^#|^rgb/.test(v) ? v : fallback;
+    if (!v) return fallback;
+    if (/^#|^rgb/.test(v)) return v;
+    try {
+      if (!probe) { probe = document.createElement("canvas"); probe.width = probe.height = 1; }
+      var x = probe.getContext && probe.getContext("2d", { willReadFrequently: true });
+      if (!x) return fallback;
+      x.clearRect(0, 0, 1, 1);
+      x.fillStyle = "#000"; x.fillStyle = v;
+      x.fillRect(0, 0, 1, 1);
+      var d = x.getImageData(0, 0, 1, 1).data;
+      return "rgb(" + d[0] + "," + d[1] + "," + d[2] + ")";
+    } catch (e) { return fallback; }
   }
   KOS.labPalette = function () {
     /* keyed on the theme attribute as well as observed: a redraw in the same
@@ -39,14 +54,15 @@
     var key = document.documentElement.getAttribute("data-theme") || "";
     if (PAL_CACHE && PAL_KEY === key) return PAL_CACHE;
     PAL_KEY = key;
-    var text = pick("--text", "#332C20"), bg = pick("--panel", "#FDFAF1");
+    /* the stage is --s3 (frame 8h), so "ink" — a node's fill — is the stage */
+    var text = pick("--text", "#EEF0F4"), bg = pick("--s3", "#23252B");
     PAL_CACHE = {
       ink: bg, text: text,
-      mute: pick("--muted", "#726751"), faint: alpha(text, 0.45),
-      line: alpha(text, 0.18), grid: alpha(text, 0.08),
-      crim: pick("--danger", "#B5573F"), gold: pick("--accent2", "#A97F2F"),
-      jade: pick("--good", "#6F9A5E"), blue: pick("--accent", "#5D6BA8"),
-      vio: pick("--warning", "#C0912F"), sage: pick("--accent3", "#7D9B76"),
+      mute: pick("--muted", "#8C909A"), faint: alpha(text, 0.45),
+      line: alpha(text, 0.22), grid: alpha(text, 0.08),
+      crim: pick("--crimson", "#E0636E"), gold: pick("--amber", "#E3B85C"),
+      jade: pick("--green", "#5DBB84"), blue: pick("--cs", "#46BFB4"),
+      vio: pick("--maths", "#8E8CE0"), sage: pick("--teal", "#46BFB4"),
       alpha: alpha
     };
     return PAL_CACHE;
@@ -1013,34 +1029,36 @@
   KOS.views.worked = function (main) {
     KOS.shell.tree("none");
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "Worked Example Engine" }),
-      el("p", { class: "sub", text: "Mark-scheme-shaped walkthroughs with your own numbers. Grouped by paper so Pure, Applied and Computer Science never blur together." })
-    ]));
+    main.appendChild(KOS.ui.pageHeader({ kicker: "Labs", title: "Worked Examples",
+      sub: "Mark-scheme-shaped walkthroughs with your own numbers, grouped by paper." }));
 
     var saved = store.state.worked.last || "quad";
     var savedGen = GENS.find(function (g) { return g.id === saved; }) || GENS[0];
     var curCat = savedGen.cat;
 
-    var catRow = el("div", { class: "cat-pills", style: "margin:0" });
-    var tabs = el("div", { class: "lab-tabs" });
-    var panel = el("div", { class: "lab-panel lab-wrap" });
+    var catRow = el("div", { class: "k-lab-cats", role: "group", "aria-label": "Paper" });
+    var tabs = el("div", { class: "k-lab-tabs", role: "group", "aria-label": "Generators" });
+    var panel = el("section", { class: "k-lab k-card", "aria-label": "Worked example" });
     var query = "";
-    var search = el("input", { type: "search", placeholder: "Search generators\u2026", "aria-label": "Search worked example generators" });
+    var search = el("input", { type: "search", class: "k-input k-lab-search", placeholder: "Search generators\u2026", "aria-label": "Search worked example generators" });
     search.oninput = function () { query = search.value.trim().toLowerCase(); buildTabs(); };
 
     CATS.forEach(function (c) {
       catRow.appendChild(el("button", {
-        class: "cat-pill" + (c[0] === curCat ? " active" : ""),
+        type: "button", class: "k-lab-cat", "data-ui": "lab.category",
+        "data-state": c[0] === curCat ? "active" : null, "aria-pressed": String(c[0] === curCat),
         onclick: function () {
+          remember = c[0] !== curCat;
           curCat = c[0];
           catRow.querySelectorAll("[data-ui~='lab.category']").forEach(function (b, i) {
-            KOS.ui.state(b, "active", CATS[i][0] === curCat); });
+            KOS.ui.state(b, "active", CATS[i][0] === curCat);
+            b.setAttribute("aria-pressed", String(CATS[i][0] === curCat));
+          });
           buildTabs();
         }
       }, [c[1]]));
     });
-    main.appendChild(el("div", { class: "sim-toolbar" }, [catRow, search]));
+    main.appendChild(el("div", { class: "k-lab-toolbar", "data-ui": "lab.toolbar" }, [catRow, search]));
     main.appendChild(tabs);
     main.appendChild(panel);
 
@@ -1051,23 +1069,30 @@
         if (query) return (g.title + " " + g.blurb + " " + g.ref).toLowerCase().indexOf(query) >= 0;
         return g.cat === curCat;
       });
-      if (!gens.length) { tabs.appendChild(el("span", { class: "sim-msg", text: "No generator matches \u2014 try a shorter word." })); panel.innerHTML = ""; return; }
+      if (!gens.length) { tabs.appendChild(el("span", { class: "k-lab-msg", "data-ui": "lab.message", text: "No generator matches \u2014 try a shorter word." })); panel.innerHTML = ""; return; }
       var cur = gens.find(function (g) { return g.id === store.state.worked.last; }) || gens[0];
       gens.forEach(function (g) {
         tabs.appendChild(el("button", {
-          class: "lab-tab" + (g === cur ? " active" : ""),
+          type: "button", class: "k-lab-tab", "data-ui": "lab.tab",
+          "data-state": g === cur ? "active" : null, "aria-pressed": String(g === cur),
           onclick: function () {
-            store.state.worked.last = g.id; store.save();
+            remember = true;
             tabs.querySelectorAll("[data-ui~='lab.tab']").forEach(function (b, i) {
-              KOS.ui.state(b, "active", gens[i] === g); });
+              KOS.ui.state(b, "active", gens[i] === g);
+              b.setAttribute("aria-pressed", String(gens[i] === g));
+            });
             openGen(g);
           }
         }, [g.title]));
       });
       openGen(cur);
     }
+    /* opening is a read: only the reader's own choice (a paper or a
+       generator) remembers what is open */
+    var remember = false;
     function openGen(g) {
-      store.state.worked.last = g.id; store.save();
+      if (remember && store.state.worked.last !== g.id) { store.state.worked.last = g.id; store.save(); }
+      remember = false;
       panel.innerHTML = "";
       mountGenerator(panel, g);
     }

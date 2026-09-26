@@ -14,7 +14,7 @@
   "use strict";
   var el = KOS.ui.el;
 
-  var DB_NAME = "kurenai-os-files", STORE = "files";
+  var DB_NAME = "kurenai-os-files" + ((KOS.dataMode && KOS.dataMode.suffix) || ""), STORE = "files";
   var MAX_BYTES = 25 * 1024 * 1024;   // 25 MB per file — keep the DB sane
   var db = null;
 

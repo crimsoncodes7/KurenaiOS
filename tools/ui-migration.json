@@ -48,7 +48,19 @@
     "js/modules/hub.js",
     "js/modules/cloudui.js",
     "js/modules/notifications.js",
-    "js/modules/help.js"
+    "js/modules/help.js",
+    "js/core/ui.js",
+    "js/core/governor.js",
+    "js/core/charts.js",
+    "js/core/imagecrop.js",
+    "js/modules/rag.js",
+    "js/labs/sims.js",
+    "js/labs/sims-cs.js",
+    "js/labs/sims-maths.js",
+    "js/labs/trace.js",
+    "js/labs/oop.js",
+    "js/labs/sandboxes.js",
+    "js/labs/worked.js"
   ],
   "views": {
     "home": {},
@@ -81,6 +93,10 @@
     "assistant": {},
     "notifications": {},
     "data": {},
-    "help": {}
+    "help": {},
+    "sims": {},
+    "worked": {},
+    "trace": {},
+    "oop": {}
   }
 }

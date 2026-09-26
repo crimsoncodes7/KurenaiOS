@@ -1,12 +1,230 @@
 /* KurenaiOS — css/views/labs.css · @layer views
-   View compositions for Labs chrome: simulations, worked examples, trace and OOP (M12).
+   View compositions for Labs: the Simulations grid and an opened sim, the
+   Worked Examples, Trace Lab and OOP pages, and every simulation's body
+   wherever it mounts (its own page, or a topic's Simulate tab — both hosts
+   carry .k-lab). Graphite frame 8h: a card, mono pill controls, and a
+   stage on --s3 with a 16px radius.
+
    A view file may use tokens and primitives; it may not restyle a
    primitive's internals.
-
-   Empty since the M2 purge; see docs/ui-rebuild/PLAN.md §3.2.
 
    Convention for every layer file: its rules sit inside ONE @layer block,
    and the block's contents are not indented, so line-anchored tooling
    (tools/lib/css.js, the smoke suites) reads them like top-level rules. */
 @layer views {
+
+/* ---------- the lab pages: toolbar, category pills, generator tabs ---------- */
+.k-lab-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-10); }
+.k-lab-cats, .k-lab-tabs { display: flex; flex-wrap: wrap; gap: var(--sp-8); }
+.k-lab-search { inline-size: var(--lab-search-w); margin-inline-start: auto; }
+.k-lab-cat, .k-lab-tab { padding: var(--sp-7) var(--sp-16); border-radius: var(--r-pill); background: var(--s1); box-shadow: none; color: var(--text-2); font-size: var(--fs-13); font-weight: var(--weight-medium); }
+.k-lab-cat:hover, .k-lab-tab:hover { background: var(--s2); color: var(--text); }
+.k-lab-cat[data-state~="active"] { background: var(--s2); color: var(--text); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-lab-tab { padding: var(--sp-6) var(--sp-14); font-size: var(--fs-12-5); }
+.k-lab-tab[data-state~="active"] { background: var(--text); color: var(--bg); }
+.k-lab-more { margin: var(--sp-8) 0 0; font-size: var(--fs-11); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); font-weight: var(--weight-semibold); }
+
+/* the Simulations grid */
+.k-lab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--lab-card-min), 1fr)); gap: var(--sp-12); margin: 0; padding: 0; list-style: none; }
+.k-lab-grid > li { display: flex; }
+.k-lab-card { flex: 1 1 auto; display: flex; flex-direction: column; gap: var(--sp-6); min-block-size: var(--lab-card-h); padding: var(--sp-16) var(--sp-18); border-radius: var(--r-20); background: var(--s1); box-shadow: none; text-align: start; }
+.k-lab-card:hover { background: var(--s2); }
+.k-lab-card[data-subject="compsci"] .k-lab-card-ref { color: var(--cs); }
+.k-lab-card[data-subject="maths"] .k-lab-card-ref { color: var(--maths); }
+.k-lab-card[data-state~="locked"] { opacity: 0.7; }
+.k-lab-card-ref { margin-block-start: auto; font-size: var(--fs-11); color: var(--muted); }
+.k-lab-card-title { font-size: var(--fs-15); font-weight: var(--weight-semibold); line-height: var(--lh-snug); }
+.k-lab-card-desc { font-size: var(--fs-12-5); line-height: 1.45; color: var(--text-2); }
+
+/* an opened simulation */
+.k-lab-open-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-12) var(--sp-16); }
+.k-lab-open-txt { flex: 1 1 0; min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+.k-lab-open-title { margin: 0; font-size: var(--fs-26); letter-spacing: var(--track-head); line-height: var(--lh-tight); }
+
+/* ---------- the lab card and its common parts ---------- */
+.k-lab { display: flex; flex-direction: column; gap: var(--sp-12); min-inline-size: 0; }
+.k-lab-sub { margin: 0; font-size: var(--fs-13); line-height: 1.5; color: var(--text-2); }
+.k-lab-ref { font: var(--fs-11) var(--font-mono); color: var(--muted); }
+.k-lab-h { margin: 0 0 var(--sp-6); font-size: var(--fs-13-5); font-weight: var(--weight-semibold); }
+.k-lab-msg { font-size: var(--fs-12-5); color: var(--muted); }
+.k-lab-msg[data-block] { display: block; }
+.k-lab-msg[data-tone="good"] { color: var(--green); }
+.k-lab-msg[data-tone="bad"] { color: var(--red); }
+.k-lab-out { display: flex; flex-direction: column; gap: var(--sp-8); min-inline-size: 0; }
+.k-lab-small { font-size: var(--fs-11-5); line-height: 1.6; }
+.k-lab-split { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--sp-18); }
+.k-lab-split-side { flex: 1 1 var(--lab-side-min); min-inline-size: 0; }
+
+/* the control row (frame 8h): labelled fields, then mono pill buttons */
+.k-lab-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-10); }
+.k-lab-controls > label:not(.k-check) { display: flex; flex-direction: column; gap: var(--sp-4); font-size: var(--fs-11-5); color: var(--muted); }
+.k-lab-controls .k-btn { padding: var(--sp-5) var(--sp-12); font: var(--weight-medium) var(--fs-12) var(--font-mono); }
+.k-lab-controls .k-lab-msg { align-self: center; }
+.k-lab-controls .k-check { align-self: center; font-size: var(--fs-12-5); }
+/* a lab's own fields: sized by --w, compact, tabular */
+.k-lab input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), .k-lab select { inline-size: var(--w, var(--lab-field-w)); min-block-size: var(--lab-field-h); padding: var(--sp-5) var(--sp-10); border-radius: var(--r-10); background: var(--s3); font-size: var(--fs-13); }
+.k-lab input[type="range"] { inline-size: var(--w, var(--lab-range-w)); accent-color: var(--crimson); }
+.k-lab .k-lab-note, .k-lab textarea { inline-size: 100%; min-block-size: var(--h, var(--lab-note-h)); padding: var(--sp-10) var(--sp-12); border-radius: var(--r-12); background: var(--s3); font-size: var(--fs-13); line-height: 1.5; resize: vertical; }
+.k-lab [data-mono] { font-family: var(--font-mono); font-size: var(--fs-12-5); }
+/* the alternate action (reset, new data): quiet amber, never the primary */
+.k-lab-alt { background: color-mix(in oklch, var(--amber) 16%, var(--s2)); color: var(--amber); box-shadow: none; }
+.k-lab-alt:hover { background: color-mix(in oklch, var(--amber) 26%, var(--s2)); }
+
+/* readouts: the stage-side text a sim writes */
+.k-lab-read, .k-lab-trig-read, .k-lab-cpu-desc, .k-lab-fn-desc, .k-lab-rec-info { padding: var(--sp-12) var(--sp-16); border-radius: var(--r-16); background: var(--s3); font-size: var(--fs-12-5); line-height: 1.75; color: var(--text-2); overflow-wrap: anywhere; }
+.k-lab-read, .k-lab-trig-read, .k-lab-cpu-desc { font-family: var(--font-mono); }
+.k-lab-read b, .k-lab-trig-read b { color: var(--text); }
+.k-lab-cpu-desc { min-block-size: var(--lab-field-h); color: var(--amber); }
+.k-lab-fn-eq { margin: 0; font: var(--fs-16) var(--font-mono); }
+.k-lab-aside { color: var(--muted); }
+.k-lab-faint { color: var(--muted); opacity: 0.8; }
+.k-lab-good { color: var(--green); }
+.k-lab-bad { color: var(--red); }
+.k-lab-acc { color: var(--crimson); }
+.k-lab-acc2 { color: var(--amber); }
+.k-lab-goldt { color: var(--amber); }
+.k-lab-crim { color: var(--crimson); }
+.k-lab-paused { color: var(--maths); }
+.k-lab-tint { color: var(--c); }
+
+/* the stage: a canvas on --s3 (frame 8h) */
+.k-lab-canvas { display: block; inline-size: 100%; block-size: var(--h, var(--lab-stage-h)); border-radius: var(--r-16); background: var(--s3); touch-action: none; }
+.k-lab-canvas[data-cursor="crosshair"] { cursor: crosshair; }
+.k-lab-canvas[data-cursor="col-resize"] { cursor: col-resize; }
+.k-lab-canvas[data-cursor="grab"] { cursor: grab; }
+.k-lab-slider { display: flex; flex-direction: column; gap: var(--sp-4); font-size: var(--fs-12); color: var(--text-2); }
+.k-lab-slider b { font-family: var(--font-mono); color: var(--text); font-weight: var(--weight-semibold); }
+
+/* tables a sim prints */
+.k-lab-tablewrap { overflow-x: auto; }
+.k-lab-table td, .k-lab-table th, .k-lab-tt td, .k-lab-tt th { font-family: var(--font-mono); font-size: var(--fs-12); text-align: center; white-space: nowrap; }
+.k-lab-table tr[data-state~="live"] td, .k-lab-tt tr[data-state~="live"] td { background: color-mix(in oklch, var(--amber) 14%, transparent); color: var(--amber); }
+.k-lab-tt { max-inline-size: var(--lab-tt-w); }
+.k-lab-tt td[data-q="1"] { color: var(--green); font-weight: var(--weight-bold); }
+.k-lab-tt td[data-q="0"] { color: var(--muted); }
+.k-lab-code { white-space: pre-wrap; padding: var(--sp-12); }
+.k-lab-rx-hit { border-radius: var(--r-2); background: color-mix(in oklch, var(--amber) 30%, transparent); color: inherit; }
+.k-lab-subnet-net { color: var(--crimson); font-weight: var(--weight-bold); }
+.k-lab-subnet-host { color: var(--muted); }
+
+/* ---------- switches, bits and tapes ---------- */
+.k-lab-live { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-24); }
+.k-lab-switches { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-10); }
+.k-lab-switch { min-inline-size: var(--lab-switch-w); display: flex; flex-direction: column; align-items: center; gap: var(--sp-4); padding: var(--sp-8) var(--sp-14); border-radius: var(--r-12); background: var(--s2); box-shadow: inset 0 0 0 var(--hairline) var(--line); color: var(--text-2); font: var(--fs-12) var(--font-mono); transition: background var(--dur-fast) var(--ease); }
+.k-lab-switch b { font-size: var(--fs-18); color: var(--muted); }
+.k-lab-switch[data-state~="on"] { background: color-mix(in oklch, var(--green) 12%, var(--s2)); box-shadow: inset 0 0 0 var(--hairline) var(--green); }
+.k-lab-switch[data-state~="on"] b { color: var(--green); }
+.k-lab-switch[data-state~="flipped"] { background: color-mix(in oklch, var(--red) 14%, var(--s2)); box-shadow: inset 0 0 0 var(--hairline) var(--red); }
+.k-lab-switch[data-size="bit"] { min-inline-size: var(--lab-bit-sw-w); padding: var(--sp-5) var(--sp-4); gap: var(--sp-2); }
+.k-lab-switch[data-size="bit"] > span { font-size: var(--fs-11); }
+.k-lab-switch[data-size="bit"] b { font-size: var(--fs-15); }
+.k-lab-switch[data-kind="parity"] { box-shadow: inset 0 0 0 var(--hairline) var(--amber); }
+.k-lab-bitgroup { display: flex; align-items: center; gap: var(--sp-4); margin-inline-end: var(--sp-16); }
+.k-lab-bitgroup > .k-lab-ref { margin-inline-end: var(--sp-4); }
+.k-lab-point { font-size: var(--fs-20); font-weight: var(--weight-bold); }
+.k-lab-lamp { padding: var(--sp-12) var(--sp-24); border-radius: var(--r-16); background: var(--s3); box-shadow: inset 0 0 0 var(--hairline) var(--line); font: var(--fs-16) var(--font-mono); color: var(--muted); }
+.k-lab-lamp[data-state~="on"] { background: color-mix(in oklch, var(--green) 12%, var(--s3)); box-shadow: inset 0 0 0 var(--hairline) var(--green); color: var(--green); }
+
+.k-lab-bit-row { display: flex; gap: var(--sp-6); }
+.k-lab-bw { inline-size: var(--lab-bit); text-align: center; font: var(--fs-11) var(--font-mono); color: var(--muted); }
+.k-lab-cbit { block-size: var(--sp-14); color: var(--amber); font-size: var(--fs-12); font-weight: var(--weight-bold); }
+.k-lab-bit { inline-size: var(--lab-bit); block-size: var(--lab-bit); display: grid; place-items: center; padding: 0; border-radius: var(--r-10); background: var(--s2); box-shadow: inset 0 0 0 var(--hairline) var(--line); font: var(--weight-bold) var(--fs-18) var(--font-mono); color: var(--muted); transition: transform var(--dur) var(--ease); }
+.k-lab-bit[data-state~="on"] { background: color-mix(in oklch, var(--green) 12%, var(--s2)); box-shadow: inset 0 0 0 var(--hairline) var(--green); color: var(--green); }
+.k-lab-bit[data-state~="flip"] { transform: rotateX(180deg); }
+.k-lab-bit[data-state~="live"] { box-shadow: inset 0 0 0 var(--hairline) var(--amber); color: var(--amber); }
+.k-lab-bit:disabled { cursor: default; }
+.k-lab-bit-row[data-kind="result"] .k-lab-bit { background: var(--s3); }
+.k-lab-bin-lbl { margin-block-start: var(--sp-8); font: var(--fs-11) var(--font-mono); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); }
+.k-lab-bin-read dd { font-family: var(--font-mono); }
+
+.k-lab-fsm-tape { display: flex; flex-wrap: wrap; gap: var(--sp-6); }
+.k-lab-fsm-cell { inline-size: var(--lab-cell-w); block-size: var(--lab-cell-h); display: grid; place-items: center; border-radius: var(--r-10); box-shadow: inset 0 0 0 var(--hairline) var(--line); font: var(--fs-16) var(--font-mono); color: var(--text-2); transition: transform var(--dur) var(--ease); }
+.k-lab-fsm-cell[data-state~="current"] { background: color-mix(in oklch, var(--amber) 14%, transparent); box-shadow: inset 0 0 0 var(--hairline) var(--amber); color: var(--amber); transform: translateY(calc(var(--hairline) * -2)); }
+.k-lab-fsm-cell[data-state~="done"] { background: var(--s3); color: var(--muted); }
+
+.k-lab-bitmap-grid { display: grid; grid-template-columns: repeat(var(--n, 8), var(--lab-px)); gap: var(--sp-2); inline-size: max-content; padding: var(--sp-4); border-radius: var(--r-10); background: var(--s3); }
+.k-lab-bitmap-px { inline-size: var(--lab-px); block-size: var(--lab-px); padding: 0; border-radius: var(--r-2); background: var(--c); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-lab-bitmap-px:hover { outline: var(--focus-width) solid var(--crimson); outline-offset: calc(var(--hairline) * -1); }
+.k-lab-bitmap-swatch { inline-size: var(--lab-swatch-w); block-size: var(--lab-swatch-h); padding: 0; border-radius: var(--r-8); background: var(--c); box-shadow: inset 0 0 0 var(--focus-width) var(--line); font: var(--fs-11) var(--font-mono); color: var(--lab-swatch-ink); text-shadow: 0 0 var(--sp-2) var(--shadow-ink); }
+.k-lab-bitmap-swatch[data-state~="on"] { box-shadow: inset 0 0 0 var(--focus-width) var(--crimson), 0 0 0 var(--focus-width) var(--crimson-glow); }
+
+/* recursion: the call stack beside the explanation */
+.k-lab-rec-wrap { display: grid; grid-template-columns: minmax(0, var(--lab-rec-w)) minmax(0, 1fr); gap: var(--sp-18); align-items: start; }
+.k-lab-rec-h { margin-block-end: var(--sp-8); font-size: var(--fs-11); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); font-weight: var(--weight-bold); }
+.k-lab-rec-stack { display: flex; flex-direction: column; gap: var(--sp-6); min-block-size: var(--lab-stage-h); padding: var(--sp-12); border-radius: var(--r-16); background: var(--s3); }
+.k-lab-rec-frame { padding: var(--sp-9) var(--sp-12); border-radius: var(--r-10); background: var(--s2); box-shadow: inset var(--rail-mark) 0 0 var(--maths); font: var(--fs-12) var(--font-mono); }
+.k-lab-rec-frame b { display: block; }
+.k-lab-rec-frame[data-state~="base"] { box-shadow: inset var(--rail-mark) 0 0 var(--green); }
+.k-lab-rec-frame[data-state~="base"] b { color: var(--green); }
+.k-lab-rec-frame[data-state~="returning"] { opacity: 0.35; transition: opacity var(--dur) var(--ease); }
+.k-lab-ra { display: block; font-size: var(--fs-11); color: var(--muted); }
+.k-lab-pr { display: block; margin-block-start: var(--sp-2); font-size: var(--fs-11); color: var(--amber); }
+.k-lab-rec-result { margin-block-start: var(--sp-10); font: var(--fs-12-5) var(--font-mono); color: var(--green); }
+
+/* the Little Man Computer's registers and memory */
+.k-lab-regs { display: flex; flex-wrap: wrap; gap: var(--sp-12); }
+.k-lab-reg { min-inline-size: var(--lab-reg-w); padding: var(--sp-8) var(--sp-12); border-radius: var(--r-12); background: var(--s2); }
+.k-lab-reg-k { font-size: var(--fs-11); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); }
+.k-lab-reg-v { font-size: var(--fs-18); color: var(--c, var(--text)); }
+.k-lab-mem { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: var(--sp-4); max-inline-size: var(--lab-mem-w); }
+.k-lab-mem-cell { padding: var(--sp-6) var(--sp-2); border-radius: var(--r-8); background: var(--s2); text-align: center; font-size: var(--fs-11); color: var(--text); }
+.k-lab-mem-cell[data-state~="empty"] { color: var(--muted); }
+.k-lab-mem-cell[data-state~="current"] { background: color-mix(in oklch, var(--amber) 16%, var(--s2)); box-shadow: inset 0 0 0 var(--hairline) var(--amber); }
+.k-lab-mem-i { font-size: var(--fs-11); color: var(--muted); }
+
+/* ---------- Trace Lab: the canvas beside its code ---------- */
+.k-lab-trace-flex { display: flex; gap: var(--sp-16); align-items: stretch; }
+.k-lab-trace-canvas { flex: 1 1 0; min-inline-size: 0; }
+.k-lab-code-panel { flex: 0 0 var(--lab-code-w); margin: 0; padding: var(--sp-14) 0; overflow-x: auto; align-self: flex-start; border-radius: var(--r-16); background: var(--code-bg); font: var(--fs-11-5) / 1.85 var(--font-mono); color: var(--text); }
+.k-lab-code-line { display: block; padding-inline: var(--sp-14); white-space: pre; box-shadow: inset var(--rail-mark) 0 0 transparent; transition: background var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+.k-lab-code-line[data-state~="hl"] { background: color-mix(in oklch, var(--text) 7%, transparent); box-shadow: inset var(--rail-mark) 0 0 var(--amber); }
+.k-lab-trace-table { inline-size: 100%; border-collapse: collapse; font: var(--fs-12) var(--font-mono); }
+.k-lab-trace-table th { padding: var(--sp-6) var(--sp-10); border-block-end: var(--hairline) solid var(--line); text-align: start; font-size: var(--fs-11); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); font-weight: var(--weight-medium); }
+.k-lab-trace-table td { padding: var(--sp-6) var(--sp-10); border-block-end: var(--hairline) solid var(--line); color: var(--text-2); }
+.k-lab-trace-table tr:last-child td { color: var(--text); }
+
+/* ---------- the OOP sandbox ---------- */
+.k-oop { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: var(--sp-18); align-items: start; }
+.k-oop-stage { position: relative; min-block-size: var(--oop-stage-h); overflow: hidden; border-radius: var(--r-20); background: radial-gradient(circle at var(--hairline) var(--hairline), color-mix(in oklch, var(--text) 10%, transparent) var(--hairline), transparent calc(var(--hairline) * 1.6)) 0 0 / var(--sp-26) var(--sp-26), var(--s1); }
+.k-oop-svg { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; pointer-events: none; }
+.k-oop-code { max-block-size: var(--oop-code-h); overflow: auto; padding: var(--sp-16) var(--sp-18); border-radius: var(--r-20); background: var(--code-bg); }
+.k-oop-code pre { margin: 0; font-size: var(--fs-12-5); line-height: 1.7; white-space: pre; color: var(--text); }
+.k-cs-kw { color: var(--syn-kw); }
+.k-cs-ty { color: var(--syn-fn); }
+.k-cs-cm { color: var(--muted); font-style: italic; }
+.k-cs-cl { color: var(--syn-str); }
+.k-lab-cls-card { position: absolute; inset-inline-start: var(--x, 0); inset-block-start: var(--y, 0); inline-size: var(--oop-card-w); border-radius: var(--r-14); background: var(--s2); box-shadow: var(--elev-2); user-select: none; }
+.k-lab-cls-card[data-state~="basing"] { outline: var(--focus-width) dashed var(--amber); }
+.k-lab-cls-h { display: flex; align-items: center; gap: var(--sp-6); padding: var(--sp-8) var(--sp-10); border-radius: var(--r-14) var(--r-14) 0 0; background: var(--s3); cursor: grab; }
+.k-lab-cls-h:active { cursor: grabbing; }
+.k-lab-cls-h input { flex: 1 1 0; min-inline-size: 0; min-block-size: 0; padding: 0; background: none; font: var(--weight-bold) var(--fs-13) var(--font-mono); }
+.k-lab-abst { font: var(--fs-11) var(--font-mono); color: var(--amber); cursor: pointer; white-space: nowrap; }
+.k-lab-cls-body { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-8); }
+.k-lab-mem-h { margin-block-start: var(--sp-4); font-size: var(--fs-11); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); font-weight: var(--weight-bold); }
+.k-lab-member { display: grid; grid-template-columns: var(--sp-32) var(--oop-type-w) minmax(0, 1fr) auto; gap: var(--sp-4); align-items: center; }
+.k-lab-member select, .k-lab-member input { min-inline-size: 0; min-block-size: var(--sp-26); padding: var(--sp-2) var(--sp-4); border-radius: var(--r-6); background: var(--s3); font: var(--fs-11) var(--font-mono); }
+.k-lab-acc { text-align: center; }
+.k-lab-cls-foot { display: flex; flex-wrap: wrap; gap: var(--sp-4); padding: var(--sp-6) var(--sp-8) var(--sp-8); }
+.k-lab-cls-foot .k-btn { padding: var(--sp-4) var(--sp-8); font: var(--fs-11) var(--font-mono); }
+
+@media (max-width: 1080px) {
+.k-oop { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 860px) {
+.k-lab-trace-flex { flex-direction: column; }
+.k-lab-code-panel { flex-basis: auto; inline-size: 100%; }
+.k-lab-rec-wrap { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 560px) {
+.k-lab-search { inline-size: 100%; margin-inline-start: 0; }
+.k-lab-bit, .k-lab-bw { inline-size: var(--lab-bit-sm); }
+.k-lab-bit { block-size: var(--lab-bit-sm); font-size: var(--fs-15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+.k-lab-bit, .k-lab-fsm-cell, .k-lab-switch, .k-lab-code-line, .k-lab-rec-frame { transition: none; }
+}
+
 }

@@ -853,6 +853,45 @@ the invariants and the hook contract still govern behaviour.
   Overview's analytics. The Dawn theme (M13) and the release (M14)
   wait for review.
 
+### Step 9 as delivered — the last views, review fixes and review aids
+
+- **The labs.** The Simulations grid and an opened sim, Worked Examples,
+  Trace Lab and the OOP sandbox are on the k- vocabulary, as is every
+  simulation body (sims.js, sims-cs.js, sims-maths.js, sandboxes.js).
+  `css/views/labs.css` follows frame 8h: a card, mono pill controls, a stage
+  on --s3. Both hosts of a sim (its page and a topic's Simulate tab) carry
+  `.k-lab`.
+  - Lab canvases resolve their ink from the Graphite tokens:
+    `KOS.labPalette()` reads any CSS colour (oklch included) through a 1px
+    canvas, where it used to accept only hex/rgb and fell back to the Dawn
+    palette.
+  - Worked Examples and the OOP sandbox render without writing: the page
+    remembers a generator only when the reader picks one, and the OOP
+    first-visit example is a draft until the first edit. Clear sandbox asks
+    through `KOS.ui.confirm`.
+- **Shared pieces.** The profile popover and the status editor
+  (governor.js), the image cropper (imagecrop.js), the chart helpers
+  (charts.js — horizontal bars are now HTML rows, a wide axis chart takes a
+  whole grid row) and the last class writes in ui.js (the spine's legacy
+  classes, `modal-open`, the menu's inline position — now `--menu-x/y`).
+  The unused RAG panel and dot are gone. Collection Overview → Analytics
+  uses the rebuilt charts.
+- **Review fixes.** Header: no back/forward arrows (the browser has them),
+  a 34px search pill, the phone-only search trigger hidden on desktop,
+  larger icon glyphs (`--icon-glyph`) and the missing `--fs-18` token.
+  Lighter hero overlays on Home and the Governor (Home no longer doubles
+  the scrim). Study cadence and the Milestone ledger share one height.
+  "About" is retired: the profile is the status line (a stored `about`
+  stays in the state and is never shown). One create button on
+  Assignments and Goals when they are empty. Scroller arrows float over
+  the track, so the first card lines up with the page.
+- **Review aid: three accounts.** `KOS.dataMode` (store.js) points the app
+  at Mine, Empty or Sample — separate localStorage keys and IndexedDB
+  databases. Cloud and provider sync are off outside Mine. Sample fills
+  itself once (js/core/sample.js). The switch is on Governor → Status,
+  and the header names a review account.
+- **Test plan.** docs/ui-rebuild/REVIEW-PLAN.md.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

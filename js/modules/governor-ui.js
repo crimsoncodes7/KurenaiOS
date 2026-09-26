@@ -213,7 +213,7 @@
     function openProfileEditor() {
       KOS.governor.editProfileText(function (err, res) {
         if (res && res.cancelled) return;
-        KOS.ui.toast("Profile updated.");
+        KOS.ui.toast("Status updated.");
         render();
       });
     }
@@ -280,8 +280,7 @@
         el("div", { class: "k-kicker k-gv-rank", text: p.rank + " · Behavioural Governor" }),
         el("h2", { class: "k-gv-name", text: "Level " + p.level }),
         p.status ? el("div", { class: "k-gv-status-line", "data-ui": "gov.id-status", text: p.status }) : null,
-        p.about ? el("p", { class: "k-gv-about", "data-ui": "gov.about", text: p.about }) : null,
-        !p.status && !p.about ? el("button", { type: "button", class: "k-gv-about-empty",
+        !p.status ? el("button", { type: "button", class: "k-gv-about-empty",
           text: "＋ Set a status for your command seat", onclick: openProfileEditor }) : null,
         el("div", { class: "k-gv-xp", "data-ui": "gov.xp" }, [
           bar(p.xpPct, "ink"),
@@ -294,7 +293,7 @@
       var access = el("div", { class: "k-gv-access", "data-ui": "gov.id-access", role: "group", "aria-label": "Governor access state" }, [
         hpCls === "critical" ? null : el("span", { class: "k-chip", "data-tone": hpCls === "healthy" ? "green" : "amber",
           text: hpCls === "healthy" ? "● All systems open" : "● Strained · nothing locks" }),
-        el("button", { type: "button", class: "k-btn k-btn--sm", text: "Edit profile", title: "Edit your status and about", onclick: openProfileEditor }),
+        el("button", { type: "button", class: "k-btn k-btn--sm", text: "Edit status", onclick: openProfileEditor }),
         el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.hp-preview", role: "group", "aria-label": "Preview HP state" }, [
           el("span", { class: "k-gv-preview-k", text: "Preview" }),
           hpPreviewButton("live", "Live"),
@@ -302,6 +301,14 @@
           hpPreviewButton("critical", "Off")
         ]),
         hpPreview !== "live" ? el("small", { class: "k-gv-preview-note", text: "Preview only · actual HP " + p.hp + "/100" }) : null,
+        /* review aid: the whole app on an empty or a sample account, each a
+           separate namespace (store.js KOS.dataMode) — never this data */
+        el("div", { class: "k-seg k-seg--quiet k-gv-preview", "data-ui": "gov.data-mode", role: "group", "aria-label": "Which account the app shows" }, [
+          el("span", { class: "k-gv-preview-k", text: "Data" }),
+          dataModeButton("", "Mine"),
+          dataModeButton("empty", "Empty"),
+          dataModeButton("sample", "Sample")
+        ]),
         el("div", { class: "k-gv-banner-ctl" }, [
           el("button", { type: "button", class: "k-btn k-btn--sm", text: "Edit banner", title: "Upload or reposition your profile banner", onclick: editBanner }),
           hasBanner ? el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "×", "aria-label": "Remove profile banner",
@@ -317,6 +324,22 @@
         txt
       ]));
 
+      function dataModeButton(value, label) {
+        var cur = (KOS.dataMode && KOS.dataMode.mode) || "";
+        return el("button", { type: "button", class: "k-seg-item", "data-ui": "gov.data-mode-btn",
+          "aria-pressed": cur === value ? "true" : "false", text: label,
+          onclick: function () {
+            if (cur === value) return;
+            KOS.ui.confirm({
+              title: value === "sample" ? "Show the sample account?" : value === "empty" ? "Show an empty account?" : "Back to your data?",
+              body: value
+                ? "The app reloads into a separate " + (value === "sample" ? "sample account, filled in everywhere" : "account with nothing added") +
+                  ". Your own data is untouched, and cloud and provider sync stay off until you switch back to Mine."
+                : "The app reloads into your own account, with sync back on.",
+              confirm: value ? "Switch" : "Back to mine"
+            }, function () { KOS.dataMode.set(value); });
+          } });
+      }
       function hpPreviewButton(value, label) {
         return el("button", { type: "button", class: "k-seg-item", "data-ui": "gov.hp-preview-btn",
           "aria-pressed": hpPreview === value ? "true" : "false", text: label,
@@ -727,7 +750,6 @@
         ring(94, p.hp, p.hpState, "span", { "data-ui": "gov.avatar-preview-avatar" }),
         el("div", { class: "k-gv-id-name" }, ["Level " + p.level + " ", el("span", { text: "· " + p.rank })]),
         p.status ? el("div", { class: "k-gv-id-status", "data-ui": "gov.avatar-preview-status", text: p.status }) : null,
-        p.about ? el("p", { class: "k-gv-about", text: p.about }) : null,
         el("div", { class: "k-gv-id-facts" }, [
           fact("Portrait", g.avatar.kind === "custom" && g.avatar.img ? "Custom image" : (KOS.governor.sealById(g.avatar.id) || {}).name || "Ember"),
           fact("Frame", g.avatar.frame ? (KOS.governor.item(g.avatar.frame) || {}).name || "Frame" : "None"),
@@ -770,8 +792,8 @@
         media({ label: "Profile banner", value: g.banner ? (g.banner === "custom" ? "Custom banner" : bannerName(g.banner)) : "None", hook: "gov.avatar-mc",
           action: g.banner === "custom" ? "Reposition →" : hasBanner ? "Upload your own →" : "Add banner →", go: editBanner,
           clear: g.banner ? function () { KOS.governor.setBanner(null); render(); } : null, clearLabel: "Remove profile banner" }),
-        media({ label: "Status & about", value: p.status || p.about || "Not set", hook: "gov.avatar-text",
-          action: p.status || p.about ? "Edit →" : "Write one →", go: openProfileEditor })
+        media({ label: "Status", value: p.status || "Not set", hook: "gov.avatar-text",
+          action: p.status ? "Edit →" : "Write one →", go: openProfileEditor })
       ]));
       function media(o) {
         return el("div", { class: "k-gv-media-item", "data-ui": o.hook }, [

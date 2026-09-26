@@ -224,16 +224,17 @@ step("browser Back and Forward navigate inside KurenaiOS", async () => {
   assert(KOS.store.state.ui.view === "governor", "Forward changed the URL but not the page");
 });
 
-step("the topbar arrows drive the same one stack", async () => {
+step("the in-app Back/Forward (Alt+←/→) drive the same one stack", async () => {
   KOS.show("home"); await tick();
   KOS.show("help"); await tick();
   assert(KOS.canBack(), "Back should be live after two navigations");
   KOS.back(); await tick(80);
-  assert(window.location.hash === "#/home", "the in-app arrow did not move browser history");
-  const b = document.getElementById("nav-back"), f = document.getElementById("nav-fwd");
-  assert(f && !f.disabled, "the Forward arrow should be enabled");
-  /* and they agree with the browser, because there is only one stack */
-  assert(b.disabled === !KOS.canBack(), "the Back arrow disagrees with the stack");
+  assert(window.location.hash === "#/home", "the in-app Back did not move browser history");
+  /* the topbar arrows are gone (the browser has its own); the stack they
+     drove is still the browser's one stack */
+  assert(!document.getElementById("nav-back") && !document.getElementById("nav-fwd"),
+    "the topbar Back/Forward arrows should be gone");
+  assert(KOS.canForward(), "Forward should be live after going back");
 });
 
 step("a cloud-driven redraw creates NO history entry and moves no URL", async () => {

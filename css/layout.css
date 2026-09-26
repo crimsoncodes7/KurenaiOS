@@ -35,7 +35,7 @@ background: var(--bg);
 }
 .k-topbar-brand { inline-size: var(--brand-w); flex: 0 0 auto; display: flex; align-items: center; }
 .k-topbar-centre { flex: 1 1 0; min-inline-size: 0; display: flex; justify-content: center; align-items: center; gap: var(--sp-8); }
-.k-topbar-end { inline-size: var(--brand-w); flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-end; gap: var(--sp-10); }
+.k-topbar-end { min-inline-size: var(--brand-w); flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-end; gap: var(--sp-10); }
 
 #cols { position: relative; flex: 1 1 0; min-block-size: 0; display: flex; }
 
@@ -43,9 +43,6 @@ background: var(--bg);
 .k-brand { display: flex; align-items: center; gap: var(--sp-9); border-radius: var(--r-12); }
 .k-brand-logo { inline-size: var(--brand-logo); block-size: var(--brand-logo); object-fit: contain; }
 .k-brand-name { font-size: var(--fs-17); font-weight: var(--weight-semibold); letter-spacing: -0.01em; }
-.k-navbtn { inline-size: var(--sp-28); block-size: var(--sp-28); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; color: var(--muted); font-size: var(--fs-16); }
-.k-navbtn:hover:not(:disabled) { background: var(--s1); color: var(--text); }
-.k-navbtn:disabled { opacity: 0.35; cursor: default; }
 .k-search {
 position: relative;
 inline-size: var(--search-w);
@@ -53,14 +50,16 @@ max-inline-size: 100%;
 display: flex;
 align-items: center;
 gap: var(--sp-10);
-padding: var(--sp-9) var(--sp-14);
+block-size: var(--search-h);
+padding: 0 var(--sp-14);
 border-radius: var(--r-pill);
 background: var(--s1);
 color: var(--muted);
 font-size: var(--fs-14);
 }
 .k-search:focus-within { box-shadow: inset 0 0 0 var(--hairline) var(--line); }
-.k-search-input { flex: 1 1 0; min-inline-size: 0; border: 0; background: none; color: var(--text); font-size: var(--fs-14); outline: none; }
+.k-search-input { flex: 1 1 0; min-inline-size: 0; min-block-size: 0; padding: 0; border: 0; border-radius: 0; background: none; color: var(--text); font-size: var(--fs-14); outline: none; }
+.k-search-glyph { font-size: var(--fs-17); line-height: 1; }
 .k-search-input::-webkit-search-cancel-button { display: none; }
 .k-search:focus-within { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 .k-search-key { font: var(--fs-11) var(--font-mono); padding: var(--hairline) var(--sp-7); border-radius: var(--r-6); background: var(--s2); color: var(--muted); }
@@ -96,6 +95,12 @@ display: none;
 #assistant-trigger[data-state~="is-busy"] .k-trigger-dot, #assistant-trigger[data-state~="is-confirm"] .k-trigger-dot { opacity: 1; }
 #assistant-trigger[data-state~="is-confirm"] .k-trigger-dot { background: var(--amber); }
 .k-bell-glyph { display: grid; place-items: center; }
+.k-bell-glyph svg { inline-size: var(--icon-glyph); block-size: var(--icon-glyph); }
+/* the phone search sheet's trigger (mobile-shell.js); the desktop tiers
+   have the search pill itself */
+#mobile-search-trigger { display: none; }
+/* a review account (store.js KOS.dataMode) names itself in the header */
+.k-datamode { white-space: nowrap; cursor: pointer; }
 .k-bell-badge { font-size: 0; }
 .k-bell-badge:not([data-state~="is-on"]) { display: none; }
 .k-syncdot { inline-size: var(--sp-8); block-size: var(--sp-8); flex: 0 0 auto; border-radius: 50%; background: var(--muted); box-shadow: 0 0 0 var(--rail-mark) color-mix(in oklch, var(--muted) 18%, transparent); font-size: 0; }
@@ -328,6 +333,7 @@ padding-inline: 0;
 /* invariant 72: canonical search and the three low-frequency destinations
    hide only once mobile-shell.js has mounted their replacements */
 :root[data-shell="ready"] #searchbox { display: none; }
+:root[data-shell="ready"] #mobile-search-trigger { inline-size: var(--icon-btn); block-size: var(--icon-btn); display: grid; place-items: center; border-radius: 50%; background: var(--s1); font-size: var(--fs-18); }
 :root[data-shell="ready"] #rail [data-section="governor"], :root[data-shell="ready"] #rail [data-section="assistant"], :root[data-shell="ready"] #rail [data-section="system"] { display: none; }
 }
 

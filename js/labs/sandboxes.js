@@ -10,8 +10,8 @@
   "use strict";
   var el = KOS.ui.el;
 
-  function controls(children) { return el("div", { class: "lab-controls" }, children); }
-  function mono(node, css) { node.style.cssText = "font-family:var(--mono);" + (css || ""); return node; }
+  function controls(children) { return el("div", { class: "k-lab-controls", "data-ui": "lab.controls" }, children); }
+  function mono(node) { node.classList.add("k-mono"); return node; }
 
   /* ============================ 1. SQL SANDBOX ============================ */
   KOS.sims.register({
@@ -27,18 +27,18 @@
         { ID: 5, Name: "Esme",  Subject: "Maths",   Grade: 95, Age: 16 },
         { ID: 6, Name: "Femi",  Subject: "CompSci", Grade: 58, Age: 17 }
       ];
-      panel.appendChild(el("p", { class: "sub", style: "margin-top:0" },
+      panel.appendChild(el("p", { class: "k-lab-sub", "data-ui": "part.sub" },
         ["Table ", mono(el("b", {}, ["Student(ID, Name, Subject, Grade, Age)"])), " — 6 rows. Try ",
          mono(el("code", {}, ["SELECT Name, Grade FROM Student WHERE Subject = 'CompSci' AND Grade > 60 ORDER BY Grade DESC"]), "font-size:11px")]));
-      var q = el("textarea", { class: "note-area", style: "min-height:64px;font-family:var(--mono);font-size:12.5px" });
+      var q = el("textarea", { class: "k-input k-lab-note", "data-ui": "ui.note-area", "data-mono": "", style: "--h: 64px" });
       q.value = "SELECT Name, Subject, Grade FROM Student WHERE Grade >= 70 ORDER BY Grade DESC";
       panel.appendChild(q);
       panel.appendChild(controls([
-        el("button", { class: "btn primary", text: "Run query", onclick: run }),
-        el("button", { class: "btn gold", text: "Reset", onclick: function () {
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Run query", onclick: run }),
+        el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: function () {
           q.value = "SELECT * FROM Student"; run(); } })
       ]));
-      var out = el("div", { style: "margin-top:12px" });
+      var out = el("div", { class: "k-lab-out" });
       panel.appendChild(out);
 
       function cmp(a, op, b) {
@@ -67,7 +67,7 @@
         out.innerHTML = "";
         var sql = q.value.replace(/;\s*$/, "").trim();
         var m = sql.match(/^SELECT\s+(.+?)\s+FROM\s+(\w+)(?:\s+WHERE\s+(.+?))?(?:\s+ORDER\s+BY\s+(\w+)(\s+ASC|\s+DESC)?)?(?:\s+LIMIT\s+(\d+))?$/i);
-        if (!m) { out.appendChild(el("div", { class: "n-call n-call-warn", text: "Couldn't parse that. Shape: SELECT cols FROM Student [WHERE …] [ORDER BY col [ASC|DESC]] [LIMIT n]" })); return; }
+        if (!m) { out.appendChild(el("div", { class: "k-callout", "data-ui": "content.callout", "data-kind": "warn", text: "Couldn't parse that. Shape: SELECT cols FROM Student [WHERE …] [ORDER BY col [ASC|DESC]] [LIMIT n]" })); return; }
         try {
           var table = m[2];
           if (!/^student$/i.test(table)) throw new Error("only the Student table exists");
@@ -85,10 +85,10 @@
           var body = "<tbody>" + rows.map(function (r) {
             return "<tr>" + cols.map(function (c) { return "<td>" + r[c] + "</td>"; }).join("") + "</tr>";
           }).join("") + "</tbody>";
-          out.appendChild(el("div", { html: "<table class='n-table'>" + head + body + "</table>" }));
-          out.appendChild(el("div", { class: "sub", style: "margin-top:6px", text: rows.length + " row" + (rows.length === 1 ? "" : "s") + " returned" }));
+          out.appendChild(el("div", { html: "<table class='k-n-table' data-ui='content.table'>" + head + body + "</table>" }));
+          out.appendChild(el("div", { class: "k-lab-sub", "data-ui": "part.sub", text: rows.length + " row" + (rows.length === 1 ? "" : "s") + " returned" }));
         } catch (e) {
-          out.appendChild(el("div", { class: "n-call n-call-warn", text: "SQL error: " + e.message }));
+          out.appendChild(el("div", { class: "k-callout", "data-ui": "content.callout", "data-kind": "warn", text: "SQL error: " + e.message }));
         }
       }
       run();
@@ -100,18 +100,18 @@
     id: "regex-sandbox", title: "Regex Sandbox — match & highlight", subject: "compsci", ref: "4.4.2.3",
     desc: "Type a regular expression and a test string; every match is highlighted live. Covers the metacharacters in the spec: . * + ? | [] () and anchors.",
     mount: function (panel) {
-      var pat = mono(el("input", { type: "text", value: "[A-Z][a-z]+", style: "width:240px" }));
+      var pat = mono(el("input", { type: "text", value: "[A-Z][a-z]+", style: "--w: 240px" }));
       var gFlag = el("input", { type: "checkbox" }); gFlag.checked = true;
       var iFlag = el("input", { type: "checkbox" });
       panel.appendChild(controls([
         el("label", {}, ["/", pat, "/"]),
-        el("label", { class: "chk" }, [gFlag, "g (global)"]),
-        el("label", { class: "chk" }, [iFlag, "i (ignore case)"])
+        el("label", { class: "k-check" }, [gFlag, "g (global)"]),
+        el("label", { class: "k-check" }, [iFlag, "i (ignore case)"])
       ]));
-      var text = el("textarea", { class: "note-area", style: "min-height:80px;font-family:var(--mono);font-size:13px" });
+      var text = el("textarea", { class: "k-input k-lab-note", "data-ui": "ui.note-area", "data-mono": "", style: "--h: 80px" });
       text.value = "The Quick brown Fox jumps over 12 lazy Dogs in 2024.";
       panel.appendChild(text);
-      var out = el("div", { style: "margin-top:12px" });
+      var out = el("div", { class: "k-lab-out" });
       panel.appendChild(out);
       [pat, gFlag, iFlag, text].forEach(function (f) { f.addEventListener("input", run); f.addEventListener("change", run); });
 
@@ -121,12 +121,12 @@
         var flags = "" + (gFlag.checked ? "g" : "") + (iFlag.checked ? "i" : "");
         var re;
         try { re = new RegExp(pat.value, flags); }
-        catch (e) { out.appendChild(el("div", { class: "n-call n-call-warn", text: "Invalid regex: " + e.message })); return; }
+        catch (e) { out.appendChild(el("div", { class: "k-callout", "data-ui": "content.callout", "data-kind": "warn", text: "Invalid regex: " + e.message })); return; }
         var src = text.value, html = "", last = 0, matches = [], m, guard = 0;
         var reG = new RegExp(pat.value, flags.indexOf("g") >= 0 ? flags : flags + "g");
         while ((m = reG.exec(src)) !== null && guard++ < 5000) {
           if (m.index >= last) {
-            html += esc(src.slice(last, m.index)) + "<mark class='rx-hit'>" + esc(m[0] || "") + "</mark>";
+            html += esc(src.slice(last, m.index)) + "<mark class='k-lab-rx-hit'>" + esc(m[0] || "") + "</mark>";
             last = m.index + (m[0].length || 0);
             matches.push(m[0]);
           }
@@ -134,8 +134,8 @@
           if (flags.indexOf("g") < 0) break;
         }
         html += esc(src.slice(last));
-        out.appendChild(el("div", { class: "n-code", style: "white-space:pre-wrap;padding:12px", html: html }));
-        out.appendChild(el("div", { class: "sub", style: "margin-top:8px",
+        out.appendChild(el("div", { class: "k-n-code k-lab-code", "data-ui": "content.code", "data-wrap": "", html: html }));
+        out.appendChild(el("div", { class: "k-lab-sub", "data-ui": "part.sub",
           text: matches.length + " match" + (matches.length === 1 ? "" : "es") + (matches.length ? ":  " + matches.slice(0, 12).join("  ·  ") : "") }));
       }
       run();
@@ -151,13 +151,13 @@
       var fields = {};
       var row = controls([]);
       BASES.forEach(function (b) {
-        var f = mono(el("input", { type: "text", value: b[1] === 10 ? "214" : "", style: "width:150px" }));
+        var f = mono(el("input", { type: "text", value: b[1] === 10 ? "214" : "", style: "--w: 150px" }));
         f.addEventListener("input", function () { update(b[1]); });
         fields[b[1]] = f;
         row.appendChild(el("label", {}, [b[0] + " (base " + b[1] + ")", f]));
       });
       panel.appendChild(row);
-      var work = el("div", { style: "margin-top:12px" });
+      var work = el("div", { class: "k-lab-out" });
       panel.appendChild(work);
 
       function clean(s) { return s.replace(/\s+/g, "").toUpperCase(); }
@@ -166,7 +166,7 @@
         if (raw === "") { Object.keys(fields).forEach(function (b) { if (+b !== fromBase) fields[b].value = ""; }); work.innerHTML = ""; return; }
         var n = parseInt(raw, fromBase);
         var valid = raw.split("").every(function (ch) { return parseInt(ch, fromBase) < fromBase && !isNaN(parseInt(ch, fromBase)); });
-        if (!valid || isNaN(n)) { work.innerHTML = "<div class='n-call n-call-warn'>“" + raw + "” isn't a valid base-" + fromBase + " number.</div>"; KOS.ui.hookify(work); return; }
+        if (!valid || isNaN(n)) { work.innerHTML = "<div class='k-callout' data-ui='content.callout' data-kind='warn'>“" + raw + "” isn't a valid base-" + fromBase + " number.</div>"; KOS.ui.hookify(work); return; }
         BASES.forEach(function (b) {
           if (b[1] !== fromBase) fields[b[1]].value = n.toString(b[1]).toUpperCase();
         });
@@ -179,9 +179,9 @@
           var p = bin.length - 1 - i; return bit === "1" ? "2^" + p + "(" + Math.pow(2, p) + ")" : null;
         }).filter(Boolean).join(" + ");
         work.innerHTML =
-          "<div class='n-call n-call-tip'><b>" + n + " (denary) → binary</b> by repeated division by 2, reading remainders bottom-up:<br>" +
-          "<span style='font-family:var(--mono);font-size:11.5px'>" + steps.join("<br>") + "</span><br>→ <b style='font-family:var(--mono)'>" + bin + "</b></div>" +
-          "<div class='sub' style='margin-top:8px;font-family:var(--mono)'>place values: " + (place || "0") + " = " + n + "</div>";
+          "<div class='k-callout' data-ui='content.callout' data-kind='tip'><b>" + n + " (denary) → binary</b> by repeated division by 2, reading remainders bottom-up:<br>" +
+          "<span class='k-mono k-lab-small'>" + steps.join("<br>") + "</span><br>→ <b class='k-mono'>" + bin + "</b></div>" +
+          "<div class='k-lab-sub k-mono' data-ui='part.sub'>place values: " + (place || "0") + " = " + n + "</div>";
       }
       update(10);
     }
@@ -194,23 +194,23 @@
     mount: function (panel) {
       var OPS = { ADD: 1, SUB: 2, STA: 3, LDA: 5, BRA: 6, BRZ: 7, BRP: 8 };
       var DEFAULT = "        INP\n        STA  A\n        INP\n        ADD  A\n        OUT\n        HLT\nA       DAT";
-      var src = el("textarea", { class: "note-area", style: "min-height:150px;font-family:var(--mono);font-size:12.5px" });
+      var src = el("textarea", { class: "k-input k-lab-note", "data-ui": "ui.note-area", "data-mono": "", style: "--h: 150px" });
       src.value = DEFAULT;
-      var inbox = mono(el("input", { type: "text", value: "8, 5", style: "width:120px" }));
-      var msg = el("span", { class: "sim-msg" });
-      panel.appendChild(el("p", { class: "sub", style: "margin-top:0",
+      var inbox = mono(el("input", { type: "text", value: "8, 5", style: "--w: 120px" }));
+      var msg = el("span", { class: "k-lab-msg", "data-ui": "lab.message" });
+      panel.appendChild(el("p", { class: "k-lab-sub", "data-ui": "part.sub",
         text: "Mnemonics: INP OUT LDA STA ADD SUB BRA BRZ BRP HLT DAT. Labels in the first column; INBOX is read left-to-right." }));
       panel.appendChild(src);
       panel.appendChild(controls([
         el("label", {}, ["INBOX", inbox]),
-        el("button", { class: "btn primary", text: "Assemble", onclick: assemble }),
-        el("button", { class: "btn", text: "Step ▸", onclick: step }),
-        el("button", { class: "btn gold", text: "Run", onclick: runAll }),
+        el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Assemble", onclick: assemble }),
+        el("button", { class: "k-btn", text: "Step ▸", onclick: step }),
+        el("button", { class: "k-btn k-lab-alt", text: "Run", onclick: runAll }),
         msg
       ]));
-      var regWrap = el("div", { style: "display:flex;gap:18px;flex-wrap:wrap;margin:12px 0;font-family:var(--mono)" });
+      var regWrap = el("div", { class: "k-lab-regs" });
       panel.appendChild(regWrap);
-      var memWrap = el("div", { style: "margin-top:6px" });
+      var memWrap = el("div", { class: "k-lab-out" });
       panel.appendChild(memWrap);
 
       var mem = [], labels = {}, ACC = 0, PC = 0, IN = [], OUT = [], halted = true, srcLine = [];
@@ -280,36 +280,32 @@
         return nm ? nm + " " + arg : "DAT " + v;
       }
       function chip(label, value, accent) {
-        return el("div", { style: "min-width:84px;padding:8px 12px;border:1px solid var(--glass-edge);border-radius:8px;background:var(--glass-fill)" }, [
-          el("div", { class: "sub", style: "font-size:9.5px;letter-spacing:.1em", text: label }),
-          el("div", { style: "font-size:18px;color:" + (accent || "var(--text)"), text: String(value) })
+        return el("div", { class: "k-lab-reg", style: accent ? "--c: " + accent : null }, [
+          el("div", { class: "k-lab-reg-k", text: label }),
+          el("div", { class: "k-lab-reg-v k-mono", text: String(value) })
         ]);
       }
       function draw() {
         regWrap.innerHTML = "";
-        regWrap.appendChild(chip("ACC", ACC, "var(--gold)"));
+        regWrap.appendChild(chip("ACC", ACC, "var(--amber)"));
         regWrap.appendChild(chip("PC", PC, "var(--c-compsci)"));
         regWrap.appendChild(chip("INBOX", IN.join(" ") || "—"));
-        regWrap.appendChild(chip("OUTBOX", OUT.join(" ") || "—", "var(--kurenai)"));
+        regWrap.appendChild(chip("OUTBOX", OUT.join(" ") || "—", "var(--crimson)"));
         regWrap.appendChild(chip("STATE", halted ? "halted" : "ready"));
         // memory grid
         memWrap.innerHTML = "";
         if (!mem.length) return;
-        var grid = el("div", { style: "display:grid;grid-template-columns:repeat(10,1fr);gap:4px;max-width:680px" });
+        var grid = el("div", { class: "k-lab-mem" });
         mem.forEach(function (v, i) {
           var cur = (i === PC && !halted);
-          var cell = el("div", {
-            style: "padding:6px 2px;text-align:center;border-radius:6px;font-family:var(--mono);font-size:11px;" +
-              "border:1px solid " + (cur ? "var(--gold)" : "var(--line)") + ";" +
-              "background:" + (cur ? "var(--wash-brass)" : "var(--raise)") + ";" +
-              "color:" + (v ? "var(--text)" : "var(--faint)")
-          }, [
-            el("div", { style: "font-size:8.5px;color:var(--faint)", text: String(i) }),
+          var cell = el("div", { class: "k-lab-mem-cell k-mono",
+            "data-state": [cur ? "current" : "", v ? "" : "empty"].join(" ").trim() || null }, [
+            el("div", { class: "k-lab-mem-i", text: String(i) }),
             el("div", { text: ("00" + v).slice(-3) })
           ]);
           grid.appendChild(cell);
         });
-        memWrap.appendChild(el("div", { class: "sub", style: "margin-bottom:4px", text: "memory (mailbox : 3-digit machine code) — current PC highlighted" }));
+        memWrap.appendChild(el("div", { class: "k-lab-sub", "data-ui": "part.sub", text: "memory (mailbox : 3-digit machine code) — current PC highlighted" }));
         memWrap.appendChild(grid);
       }
       assemble();

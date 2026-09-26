@@ -4,7 +4,32 @@
   "use strict";
   window.KOS = window.KOS || {};
 
-  var KEY = "kurenai-os-v1";
+  /* ---- the data namespace (Graphite review aid) ----
+     "Mine" is the real account. "Empty" and "Sample" are two separate
+     namespaces — their own localStorage key and their own IndexedDB
+     databases (mediadb.js and attachments.js read `suffix`) — so looking at
+     the empty or the full app never touches the real data, and cloud sync
+     and provider sync stay off outside "Mine" (cloud.js, main.js). Switching
+     reloads the page; the choice is per device. */
+  var MODE_KEY = "kurenai-os-data-mode";
+  var MODE = "";
+  try { MODE = localStorage.getItem(MODE_KEY) || ""; } catch (e) { MODE = ""; }
+  if (MODE !== "empty" && MODE !== "sample") MODE = "";
+  KOS.dataMode = {
+    mode: MODE,
+    suffix: MODE ? "-" + MODE : "",
+    set: function (next) {
+      next = next === "empty" || next === "sample" ? next : "";
+      if (next === MODE) return;
+      try {
+        if (next) localStorage.setItem(MODE_KEY, next); else localStorage.removeItem(MODE_KEY);
+      } catch (e) { return; }
+      if (KOS.store && KOS.store.flush) KOS.store.flush();
+      window.location.reload();
+    }
+  };
+
+  var KEY = MODE ? "kurenai-os-" + MODE + "-v1" : "kurenai-os-v1";
 
   var DEFAULTS = {
     v: 1,

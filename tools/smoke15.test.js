@@ -361,8 +361,8 @@ step("Part A: the page switcher lives in the header, all four pages reachable", 
   if (!tabs.querySelector("[data-ui~='ui.tab'][data-state~='active']")) throw new Error("no active tab marked");
 });
 
-step("Part B: hero carries a proportionate portrait, access preview and the about block without duplicate telemetry", async () => {
-  KOS.governor.setProfileText({ status: "Grinding paper 1", about: "A quote.\nAnd a second line." });
+step("Part B: hero carries a proportionate portrait, access preview and the status line without duplicate telemetry", async () => {
+  KOS.governor.setProfileText({ status: "Grinding paper 1" });
   KOS.show("governor", undefined, { _nav: true });
   await tick(60);
   const id = document.getElementById("main").querySelector("[data-ui~='gov.bento-id']");
@@ -373,7 +373,8 @@ step("Part B: hero carries a proportionate portrait, access preview and the abou
   if (!id.querySelector("[data-ui~='gov.id-access'] [data-ui~='gov.hp-preview']")) throw new Error("the access-state preview is missing");
   if (id.querySelector(".id-side")) throw new Error("duplicate stat rail leaked back into the hero");
   if (!id.querySelector("[data-ui~='gov.id-status']")) throw new Error("status line missing from the hero");
-  if (!id.querySelector("[data-ui~='gov.about']")) throw new Error("about block missing from the hero");
+  /* the profile is the status line alone (Graphite review retired "about") */
+  if (id.querySelector("[data-ui~='gov.about']")) throw new Error("the retired about block came back");
 });
 
 step("Part B5: every stat tile is the same shape; bounded instruments alone carry bars", async () => {
@@ -431,13 +432,13 @@ step("Part C: System history coalesces sync runs into one line per provider per 
 });
 
 step("Part D: one identity record — Governor, Home and the topbar popover agree", async () => {
-  KOS.governor.setProfileText({ status: "Reading Fate", about: "Only one copy of this text exists." });
+  KOS.governor.setProfileText({ status: "Reading Fate" });
   const p = KOS.governor.profile();
   if (p.status !== "Reading Fate") throw new Error("profile() did not read the written status");
 
   KOS.show("governor", undefined, { _nav: true });
   await tick(60);
-  const govAbout = document.getElementById("main").querySelector("[data-ui~='gov.about']").textContent;
+  const govStatus = document.getElementById("main").querySelector("[data-ui~='gov.id-status']").textContent;
 
   KOS.show("home", undefined, { _nav: true });
   await tick(60);
@@ -446,19 +447,20 @@ step("Part D: one identity record — Governor, Home and the topbar popover agre
     throw new Error("Home profile band does not show the shared status");
 
   const pop = KOS.governor.openProfilePopover();
-  const popAbout = pop.querySelector("[data-ui~='gov.profile-about'] p").textContent;
   const popStatus = pop.querySelector("[data-ui~='gov.profile-status']").textContent;
-  if (popAbout !== govAbout) throw new Error("popover about differs from the Governor hero");
+  if (popStatus !== govStatus) throw new Error("popover status differs from the Governor hero");
   if (popStatus !== p.status) throw new Error("popover status differs from profile()");
   KOS.governor.closeProfilePopover();
   if (document.querySelector("[data-ui~='gov.profile-pop']")) throw new Error("popover did not close");
 });
 
 step("Part D: the writer trims and caps, so no surface has to defend itself", () => {
-  KOS.governor.setProfileText({ status: "  spaced   out  ", about: "x".repeat(900) });
+  KOS.governor.setProfileText({ status: "  spaced   out  " });
   const p = KOS.governor.profile();
   if (p.status !== "spaced out") throw new Error("status not normalised: " + JSON.stringify(p.status));
-  if (p.about.length !== KOS.governor.ABOUT_MAX) throw new Error("about not capped: " + p.about.length);
+  KOS.governor.setProfileText({ status: "x".repeat(900) });
+  if (KOS.governor.profile().status.length !== 90) throw new Error("status not capped");
+  if ("about" in KOS.governor.profile()) throw new Error("the retired about field is still in profile()");
 });
 
 step("streaks() carries the rest streak both surfaces render", () => {

@@ -60,12 +60,12 @@
   var canvas, ctx, W, H;
 
   function setupCanvas(holder, h) {
-    canvas = el("canvas", { class: "labcanvas", "aria-label": "Data structure visualisation" });
+    canvas = el("canvas", { class: "k-lab-canvas", "aria-label": "Data structure visualisation" });
     holder.appendChild(canvas);
     var dpr = window.devicePixelRatio || 1;
     W = holder.clientWidth - 2 || 920; H = h;
     canvas.width = W * dpr; canvas.height = H * dpr;
-    canvas.style.height = H + "px";
+    canvas.style.setProperty("--h", H + "px");
     ctx = canvas.getContext("2d");
     ctx.scale(dpr, dpr);
   }
@@ -101,7 +101,7 @@
   /* trace table */
   var traceBody = null;
   function traceHead(holder, cols) {
-    var tbl = el("table", { class: "trace-table" });
+    var tbl = el("table", { class: "k-lab-trace-table", "data-ui": "lab.trace-table" });
     tbl.appendChild(el("thead", {}, [el("tr", {}, cols.map(function (c) {
       return el("th", { text: c }); }))]));
     traceBody = el("tbody");
@@ -124,10 +124,10 @@
   /* C# code panel beside each canvas: hl(line | [lines]) flashes the
      relevant statement for 500ms when an operation fires. */
   function codePanel(lines) {
-    var pre = el("pre", { class: "code-panel", "aria-hidden": "true" });
+    var pre = el("pre", { class: "k-lab-code-panel", "aria-hidden": "true" });
     var timers = {};
     var spans = lines.map(function (ln) {
-      var s = el("span", { class: "code-line",
+      var s = el("span", { class: "k-lab-code-line",
         html: ln ? KOS.content.highlight(ln, "csharp") : "&nbsp;" });
       pre.appendChild(s);
       return s;
@@ -146,8 +146,8 @@
     return { el: pre, hl: hl };
   }
   function canvasWithCode(panel, lines) {
-    var wrap = el("div", { class: "trace-flex" });
-    var holder = el("div", { class: "trace-canvas" });
+    var wrap = el("div", { class: "k-lab-trace-flex" });
+    var holder = el("div", { class: "k-lab-trace-canvas" });
     var cp = codePanel(lines);
     wrap.appendChild(holder);
     wrap.appendChild(cp.el);
@@ -158,13 +158,13 @@
   /* ====================== STACK ====================== */
   function stackLab(panel) {
     var CAP = 8, items = [], sp = -1; // items: {v, y(animated)}
-    var ctrl = el("div", { class: "lab-controls" });
-    var valIn = el("input", { type: "text", placeholder: "value", maxlength: 4, style: "width:90px" });
+    var ctrl = el("div", { class: "k-lab-controls", "data-ui": "lab.controls" });
+    var valIn = el("input", { type: "text", placeholder: "value", maxlength: 4, style: "--w: 90px" });
     ctrl.appendChild(el("label", {}, ["push value", valIn]));
-    ctrl.appendChild(el("button", { class: "btn primary", text: "Push", onclick: push }));
-    ctrl.appendChild(el("button", { class: "btn", text: "Pop", onclick: pop }));
-    ctrl.appendChild(el("button", { class: "btn", text: "Peek", onclick: peek }));
-    ctrl.appendChild(el("button", { class: "btn gold", text: "Reset", onclick: function () {
+    ctrl.appendChild(el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Push", onclick: push }));
+    ctrl.appendChild(el("button", { class: "k-btn", text: "Pop", onclick: pop }));
+    ctrl.appendChild(el("button", { class: "k-btn", text: "Peek", onclick: peek }));
+    ctrl.appendChild(el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: function () {
       items = []; sp = -1; traceRow(["reset", "—", "-1", render() || "empty"]); draw(); } }));
     panel.appendChild(ctrl);
     var cc = canvasWithCode(panel, [
@@ -238,8 +238,8 @@
   /* ====================== QUEUE ====================== */
   function queueLab(panel) {
     var CAP = 8, slots = new Array(CAP).fill(null), front = 0, rear = -1, size = 0, circular = true;
-    var ctrl = el("div", { class: "lab-controls" });
-    var valIn = el("input", { type: "text", placeholder: "value", maxlength: 4, style: "width:90px" });
+    var ctrl = el("div", { class: "k-lab-controls", "data-ui": "lab.controls" });
+    var valIn = el("input", { type: "text", placeholder: "value", maxlength: 4, style: "--w: 90px" });
     var mode = el("select", {}, [
       el("option", { value: "circular", text: "circular queue" }),
       el("option", { value: "linear", text: "linear queue" })
@@ -247,9 +247,9 @@
     mode.onchange = function () { circular = mode.value === "circular"; reset(); };
     ctrl.appendChild(el("label", {}, ["mode", mode]));
     ctrl.appendChild(el("label", {}, ["enqueue value", valIn]));
-    ctrl.appendChild(el("button", { class: "btn primary", text: "Enqueue", onclick: enq }));
-    ctrl.appendChild(el("button", { class: "btn", text: "Dequeue", onclick: deq }));
-    ctrl.appendChild(el("button", { class: "btn gold", text: "Reset", onclick: reset }));
+    ctrl.appendChild(el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Enqueue", onclick: enq }));
+    ctrl.appendChild(el("button", { class: "k-btn", text: "Dequeue", onclick: deq }));
+    ctrl.appendChild(el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: reset }));
     panel.appendChild(ctrl);
     var cc = canvasWithCode(panel, [
       "// Queue<T> — FIFO",
@@ -350,13 +350,13 @@
   /* ====================== LINKED LIST ====================== */
   function listLab(panel) {
     var nodes = []; // {v, x(anim), y}
-    var ctrl = el("div", { class: "lab-controls" });
-    var valIn = el("input", { type: "text", placeholder: "value", maxlength: 4, style: "width:90px" });
+    var ctrl = el("div", { class: "k-lab-controls", "data-ui": "lab.controls" });
+    var valIn = el("input", { type: "text", placeholder: "value", maxlength: 4, style: "--w: 90px" });
     ctrl.appendChild(el("label", {}, ["value", valIn]));
-    ctrl.appendChild(el("button", { class: "btn primary", text: "Append (tail)", onclick: function () { add(false); } }));
-    ctrl.appendChild(el("button", { class: "btn", text: "Prepend (head)", onclick: function () { add(true); } }));
-    ctrl.appendChild(el("button", { class: "btn", text: "Remove value", onclick: removeVal }));
-    ctrl.appendChild(el("button", { class: "btn gold", text: "Reset", onclick: function () { nodes = []; traceRow(["reset", "—", "list empty"]); draw(); } }));
+    ctrl.appendChild(el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Append (tail)", onclick: function () { add(false); } }));
+    ctrl.appendChild(el("button", { class: "k-btn", text: "Prepend (head)", onclick: function () { add(true); } }));
+    ctrl.appendChild(el("button", { class: "k-btn", text: "Remove value", onclick: removeVal }));
+    ctrl.appendChild(el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: function () { nodes = []; traceRow(["reset", "—", "list empty"]); draw(); } }));
     panel.appendChild(ctrl);
     var cc = canvasWithCode(panel, [
       "// LinkedList<T>",
@@ -450,14 +450,14 @@
   /* ====================== BINARY SEARCH TREE ====================== */
   function treeLab(panel) {
     var root = null, count = 0;
-    var ctrl = el("div", { class: "lab-controls" });
-    var valIn = el("input", { type: "number", placeholder: "number", style: "width:100px" });
+    var ctrl = el("div", { class: "k-lab-controls", "data-ui": "lab.controls" });
+    var valIn = el("input", { type: "number", placeholder: "number", style: "--w: 100px" });
     ctrl.appendChild(el("label", {}, ["insert number", valIn]));
-    ctrl.appendChild(el("button", { class: "btn primary", text: "Insert", onclick: insert }));
-    ctrl.appendChild(el("button", { class: "btn", text: "Pre-order", onclick: function () { traverse("pre"); } }));
-    ctrl.appendChild(el("button", { class: "btn", text: "In-order", onclick: function () { traverse("in"); } }));
-    ctrl.appendChild(el("button", { class: "btn", text: "Post-order", onclick: function () { traverse("post"); } }));
-    ctrl.appendChild(el("button", { class: "btn gold", text: "Reset", onclick: function () { root = null; count = 0; traceRow(["reset", "—", "tree empty"]); draw(); } }));
+    ctrl.appendChild(el("button", { class: "k-btn k-btn--primary", "data-intent": "primary", text: "Insert", onclick: insert }));
+    ctrl.appendChild(el("button", { class: "k-btn", text: "Pre-order", onclick: function () { traverse("pre"); } }));
+    ctrl.appendChild(el("button", { class: "k-btn", text: "In-order", onclick: function () { traverse("in"); } }));
+    ctrl.appendChild(el("button", { class: "k-btn", text: "Post-order", onclick: function () { traverse("post"); } }));
+    ctrl.appendChild(el("button", { class: "k-btn k-lab-alt", text: "Reset", onclick: function () { root = null; count = 0; traceRow(["reset", "—", "tree empty"]); draw(); } }));
     panel.appendChild(ctrl);
     var cc = canvasWithCode(panel, [
       "void Insert(Node n, int v) {",
@@ -589,23 +589,23 @@
     refreshPalette();
     KOS.shell.tree("none");
 
-    main.appendChild(el("div", { class: "lab-h" }, [
-      el("h1", { text: "Data Structure Trace Lab" }),
-      el("p", { class: "sub", text: "Push, pop, enqueue and dequeue with live pointer arithmetic on the canvas. Every operation lands in the trace table underneath — exactly the evidence an AQA trace question wants." })
-    ]));
+    main.appendChild(KOS.ui.pageHeader({ kicker: "Labs · 4.2", title: "Data Structure Trace Lab",
+      sub: "Live pointer arithmetic on the canvas; every operation lands in the trace table." }));
 
-    var tabs = el("div", { class: "lab-tabs" });
-    var panel = el("div", { class: "lab-panel lab-wrap" });
+    var tabs = el("div", { class: "k-lab-tabs" });
+    var panel = el("div", { class: "k-lab" });
     var current = store.state.trace.tab || "stack";
 
     TABS.forEach(function (t) {
       tabs.appendChild(el("button", {
-        class: "lab-tab" + (t[0] === current ? " active" : ""),
+        type: "button", class: "k-lab-tab", "data-ui": "lab.tab", "data-state": t[0] === current ? "active" : null,
+        "aria-pressed": String(t[0] === current),
         onclick: function () {
           current = t[0];
           store.state.trace.tab = current; store.save();
           tabs.querySelectorAll("[data-ui~='lab.tab']").forEach(function (b, i) {
             KOS.ui.state(b, "active", TABS[i][0] === current);
+            b.setAttribute("aria-pressed", String(TABS[i][0] === current));
           });
           open(t);
         }
@@ -617,8 +617,7 @@
     function open(t) {
       currentDraw = null; flashes = []; animItems = [];
       panel.innerHTML = "";
-      panel.appendChild(el("div", { class: "specref", style: "font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-bottom:10px",
-        text: "AQA 7517 · " + t[3] }));
+      panel.appendChild(el("div", { class: "k-lab-ref", text: "AQA 7517 · " + t[3] }));
       t[2](panel);
     }
     open(TABS.find(function (t) { return t[0] === current; }) || TABS[0]);

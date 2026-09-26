@@ -70,7 +70,7 @@
     layer.appendChild(image(String(source), { alt: "", draggable: "false" }, crop));
     if (opts.overlay) {
       var shade = el("span", { class: "k-crop-shade", "data-ui": "crop.shade" });
-      shade.style.background = opts.overlay;
+      shade.style.setProperty("--shade", opts.overlay);
       layer.appendChild(shade);
     }
     host.insertBefore(layer, host.firstChild);
@@ -146,29 +146,29 @@
     var dragBasis = null;
     var activeAtOpen = document.activeElement;
 
-    var overlay = el("div", { class: "modal-ov cropper-ov", role: "dialog", "aria-modal": "true",
+    var overlay = el("div", { class: "k-dialog-overlay", "data-ui": "crop.ov" });
+    var modal = el("div", { class: "k-dialog k-crop", "data-ui": "ui.dialog crop.modal", role: "dialog",
       "aria-label": opts.title || "Position image" });
-    var modal = el("div", { class: "modal cropper-modal" });
-    var preview = el("div", { class: "cropper-preview" + (opts.shape === "circle" ? " is-circle" : "") });
-    preview.style.aspectRatio = String(aspect);
+    var preview = el("div", { class: "k-crop-preview", "data-ui": "crop.preview",
+      "data-shape": opts.shape === "circle" ? "circle" : null, style: "--crop-aspect: " + aspect });
     var previewImg = el("img", { alt: "Crop preview", draggable: "false" });
-    var marker = el("span", { class: "cropper-focus", "aria-hidden": "true" });
-    var empty = el("div", { class: "cropper-empty", text: "Choose an image to begin." });
-    var status = el("p", { class: "cropper-status", role: "status" });
+    var marker = el("span", { class: "k-crop-focus", "data-ui": "crop.focus", "aria-hidden": "true" });
+    var empty = el("div", { class: "k-crop-empty", "data-ui": "crop.empty", text: "Choose an image to begin." });
+    var status = el("p", { class: "k-crop-status", "data-ui": "crop.status", role: "status" });
     preview.appendChild(previewImg);
     preview.appendChild(marker);
     preview.appendChild(empty);
 
     function range(label, key, min, max, step) {
-      var out = el("output", { class: "cropper-value" });
+      var out = el("output", { class: "k-crop-value k-mono" });
       var input = el("input", { type: "range", min: String(min), max: String(max), step: String(step),
         "aria-label": label });
       input.addEventListener("input", function () {
         crop[key] = Number(input.value);
         sync(false);
       });
-      var row = el("label", { class: "cropper-range" }, [
-        el("span", { text: label }), out, input
+      var row = el("label", { class: "k-crop-range", "data-ui": "crop.range" }, [
+        el("span", { class: "k-field-label", text: label }), out, input
       ]);
       row.input = input; row.output = out;
       return row;
@@ -177,7 +177,7 @@
     var xR = range("Horizontal position", "x", 0, 100, 0.1);
     var yR = range("Vertical position", "y", 0, 100, 0.1);
 
-    var saveBtn = el("button", { class: "btn primary", text: opts.saveLabel || "Save image", onclick: save });
+    var saveBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: opts.saveLabel || "Save image", onclick: save });
     var urlInput = null;
     var fileInput = null;
 
@@ -210,8 +210,8 @@
       xR.output.textContent = Math.round(crop.x) + "%";
       yR.output.textContent = Math.round(crop.y) + "%";
       apply(previewImg, crop);
-      marker.style.left = crop.x + "%";
-      marker.style.top = crop.y + "%";
+      marker.style.setProperty("--fx", crop.x + "%");
+      marker.style.setProperty("--fy", crop.y + "%");
       empty.hidden = !!source;
       previewImg.hidden = !source;
       marker.hidden = !source;
@@ -292,9 +292,9 @@
     document.addEventListener("keydown", onKey, true);
     overlay.addEventListener("click", function (e) { if (e.target === overlay) close(false); });
 
-    var sourceControls = el("div", { class: "cropper-source" });
+    var sourceControls = el("div", { class: "k-crop-source", "data-ui": "crop.source" });
     if (opts.allowUpload !== false) {
-      fileInput = el("input", { type: "file", accept: "image/*", class: "cropper-file" });
+      fileInput = el("input", { type: "file", accept: "image/*", class: "sr-only", "data-ui": "crop.file", tabindex: "-1", "aria-hidden": "true" });
       fileInput.addEventListener("change", function () {
         if (!fileInput.files || !fileInput.files[0]) return;
         status.textContent = "Preparing image…";
@@ -313,13 +313,13 @@
           setSource(data, true);
         });
       });
-      var upload = el("button", { class: "btn", text: source ? "Choose another file…" : "Choose image…",
+      var upload = el("button", { type: "button", class: "k-btn", text: source ? "Choose another file…" : "Choose image…",
         onclick: function () { fileInput.click(); } });
       sourceControls.appendChild(fileInput);
       sourceControls.appendChild(upload);
     }
     if (opts.allowUrl) {
-      urlInput = el("input", { type: "url", class: "todo-in cropper-url", value: source,
+      urlInput = el("input", { type: "url", class: "k-input k-crop-url", "data-ui": "crop.url", value: source,
         placeholder: "https://…", "aria-label": "Image URL" });
       urlInput.addEventListener("keydown", function (e) {
         if (e.key !== "Enter") return;
@@ -327,12 +327,12 @@
         setSource(urlInput.value.trim(), true);
       });
       sourceControls.appendChild(urlInput);
-      sourceControls.appendChild(el("button", { class: "btn", text: "Use URL", onclick: function () {
+      sourceControls.appendChild(el("button", { type: "button", class: "k-btn", text: "Use URL", onclick: function () {
         setSource(urlInput.value.trim(), true);
       } }));
     }
     if (opts.originalSource && String(opts.originalSource) !== sourceAtOpen) {
-      sourceControls.appendChild(el("button", { class: "btn subtle", text: opts.originalLabel || "Use original image",
+      sourceControls.appendChild(el("button", { type: "button", class: "k-btn k-btn--quiet", text: opts.originalLabel || "Use original image",
         onclick: function () {
           crop = value(opts.originalCrop);
           setSource(String(opts.originalSource), false);
@@ -340,33 +340,33 @@
         } }));
     }
     if (opts.onRemove && sourceAtOpen) {
-      sourceControls.appendChild(el("button", { class: "btn danger", text: opts.removeLabel || "Remove image",
+      sourceControls.appendChild(el("button", { type: "button", class: "k-btn k-btn--danger k-crop-remove", "data-intent": "danger", text: opts.removeLabel || "Remove image",
         onclick: function () { close(true); opts.onRemove(); } }));
     }
 
-    modal.appendChild(el("div", { class: "modal-h cropper-head" }, [
-      el("div", {}, [
-        el("span", { class: "modal-kicker", text: opts.kicker || "Image position" }),
-        el("h3", { text: opts.title || "Position image" })
+    modal.appendChild(el("div", { class: "k-dialog-head" }, [
+      el("div", { class: "k-crop-titles" }, [
+        el("span", { class: "k-kicker", text: opts.kicker || "Image position" }),
+        el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: opts.title || "Position image" })
       ]),
-      el("button", { class: "icon-btn", text: "✕", title: "Cancel", "aria-label": "Cancel image editing",
+      el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", title: "Cancel", "aria-label": "Cancel image editing",
         onclick: function () { close(false); } })
     ]));
-    if (opts.description) modal.appendChild(el("p", { class: "cropper-intro", text: opts.description }));
+    if (opts.description) modal.appendChild(el("p", { class: "k-dialog-body", text: opts.description }));
     modal.appendChild(sourceControls);
-    modal.appendChild(el("div", { class: "cropper-work" }, [
-      el("div", { class: "cropper-canvas" }, [preview, status]),
-      el("div", { class: "cropper-controls" }, [
+    modal.appendChild(el("div", { class: "k-crop-work" }, [
+      el("div", { class: "k-crop-canvas" }, [preview, status]),
+      el("div", { class: "k-crop-controls" }, [
         zoomR, xR, yR,
-        el("p", { class: "sub", text: "The crosshair is the focal point kept visible when this image adapts to different screen widths." }),
-        el("div", { class: "cropper-small-actions" }, [
-          el("button", { class: "mini-btn", text: "Centre image", onclick: centre }),
-          el("button", { class: "mini-btn", text: "Reset changes", onclick: restore })
+        el("p", { class: "k-field-hint", text: "The crosshair is the focal point kept visible when this image adapts to different screen widths." }),
+        el("div", { class: "k-crop-small", "data-ui": "crop.small-actions" }, [
+          el("button", { type: "button", class: "k-btn k-btn--sm", text: "Centre image", onclick: centre }),
+          el("button", { type: "button", class: "k-btn k-btn--sm", text: "Reset changes", onclick: restore })
         ])
       ])
     ]));
-    modal.appendChild(el("div", { class: "modal-foot cropper-foot" }, [
-      el("button", { class: "btn", text: "Cancel", onclick: function () { close(false); } }),
+    modal.appendChild(el("div", { class: "k-dialog-foot k-crop-foot", "data-ui": "crop.foot" }, [
+      el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { close(false); } }),
       saveBtn
     ]));
     overlay.appendChild(modal);
