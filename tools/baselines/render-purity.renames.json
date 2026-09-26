@@ -539,6 +539,25 @@
    "from": "^How HP and access work$",
    "retire": true,
    "why": "Graphite step 6 (the Seat, frame 12a): the three HP rules (Drains, Restores, Always open) are a strip that is always in view, so there is no disclosure to open."
+  },
+  {
+   "surface": "^shell$",
+   "hooks": "shell.rail-item",
+   "navTo": "^#/assistant",
+   "dropEffects": { "state": "^assistant$" },
+   "why": "Graphite step 7 (the Assistant, frames 13a–13f): opening the page no longer creates the assistant workspace record; it is written by the first real change (pin, project, collapse, voice)."
+  },
+  {
+   "surface": "^assistant$",
+   "rewriteEffects": { "state": ["^assistant\\..+$", "assistant"] },
+   "why": "Graphite step 7 (the Assistant): the page renders without writing, so the first change on it creates the whole assistant record (workspace, or the routing defaults on Settings/Permissions) where it used to write one field of a record the render had already made."
+  },
+  {
+   "surface": "^assistant$",
+   "hooks": "asst.cancel",
+   "from": "^Stop the current request$",
+   "retire": true,
+   "why": "Graphite step 7 (the Assistant, frame 13a): Stop is hidden (not merely invisible) while nothing is running, so an idle page offers no inert control; it appears beside Send for the life of a request and cancels it exactly as before."
   }
  ]
 }

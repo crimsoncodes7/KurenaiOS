@@ -62,6 +62,12 @@
     if (!a.ollamaUsage) a.ollamaUsage = { day: null, count: 0 };
     return a;
   }
+  /* the routing as configured, read WITHOUT creating state.assistant (a
+     page that only displays it must not write — smoke56) */
+  function routingView() {
+    var a = store.state.assistant;
+    return JSON.parse(JSON.stringify((a && a.routing) || DEFAULT_ROUTING));
+  }
   function setRouting(category, provider, model) {
     if (CATEGORIES.indexOf(category) === -1) return false;
     if (!CAPABILITIES[provider]) return false;
@@ -462,6 +468,7 @@
     DEFAULT_ROUTING: DEFAULT_ROUTING,
     capabilities: function (provider) { return CAPABILITIES[provider] || null; },
     config: cfg,
+    routing: routingView,
     setRouting: setRouting,
     setFallback: setFallback,
     setOllamaUrl: setOllamaUrl,

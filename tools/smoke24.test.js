@@ -637,9 +637,10 @@ step("permissions tab: consequential can never be offered auto-run", async () =>
   assert(rows.length >= 60, "all registered tools must be listed, got " + rows.length);
   const conseq = rows.find(r => /collection_delete_entry/.test(r.textContent));
   const opts = [...conseq.querySelectorAll("option")].map(o => o.textContent);
-  assert(opts.some(t => /always asks/.test(t)) && opts.some(t => /blocked/.test(t)),
+  /* Graphite step 7 (frame 13e): the options read in sentence case */
+  assert(opts.some(t => /always asks/i.test(t)) && opts.some(t => /blocked/i.test(t)),
     "consequential options wrong: " + opts.join("|"));
-  assert(!opts.some(t => /runs/.test(t)), "consequential must NEVER offer auto-run");
+  assert(!opts.some(t => /runs/i.test(t)), "consequential must NEVER offer auto-run");
   const rev = rows.find(r => /study_set_topic_status/.test(r.textContent));
   const sel = rev.querySelector("select");
   sel.value = "ask";

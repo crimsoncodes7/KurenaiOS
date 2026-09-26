@@ -491,6 +491,35 @@ color-scheme: dark;
 --gv-entry-w: 330px;
 --gv-row-time: 50px;
 --gv-row-chip: 92px;
+/* ---------- Assistant (frames 13a–13f) ---------- */
+--asst-nav-w: 236px;
+--asst-presence-w: 300px;
+--asst-tile: 26px;
+--asst-tile-bg: linear-gradient(150deg, var(--bloom-hi), var(--bloom-lo));
+--asst-tile-ink: oklch(0.2 0.03 350);
+--asst-mark: 30px;
+--asst-emblem-sm: 28px;
+--asst-send: 40px;
+--asst-mascot-sm-w: 76px;
+--asst-mascot-sm-h: 78px;
+--asst-drawer-w: 440px;
+--asst-drawer-h: 760px;
+--asst-drawer-stage: 360px;
+--asst-confirm-bg: linear-gradient(150deg, oklch(0.27 0.05 80 / 0.45), var(--s1) 60%);
+--asst-go-ink: oklch(0.22 0.04 70);
+--asst-note-bg: oklch(0.14 0.01 265 / 0.82);
+--asst-id-ink: oklch(0.5 0.012 265);
+--asst-scrim: oklch(0.1 0.01 265 / 0.45);
+--asst-route-k-w: 200px;
+--asst-perm-tier-w: 130px;
+--asst-perm-sel-w: 190px;
+--asst-audit-when: 72px;
+--asst-audit-phase: 92px;
+--asst-audit-tier: 128px;
+--asst-audit-out: 88px;
+--asst-filter-w: 200px;
+--asst-caret-w: 2px;
+
 /* avatar frames and bookshelf skins (Gold Shop cosmetics) */
 --frame-gold: var(--gold);
 --frame-crimson: var(--crimson);

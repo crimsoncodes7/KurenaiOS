@@ -747,6 +747,59 @@ the invariants and the hook contract still govern behaviour.
 - **Not in this step.** Books' shelf skins are still unstyled in the
   vault itself (a gap since step 5b). The shop preview shows them.
 
+### Step 7 as delivered — the Assistant (frames 13a–13f)
+
+- `assistant.js` is a rebuilt file (`k-asst-*`, styles in
+  `css/views/assistant.css`). Only presentation changed: the controller,
+  the orchestrator paths, the Markdown allowlist and the mascot lifecycle
+  are untouched.
+- **The page takes the whole stage** (`KOS.shell.bleed`). The second
+  sidebar holds:
+  - New chat, a filter over the listed chats, and the collapse control;
+  - the six pages in two groups, Conversation and Control, with kanji
+    tiles (話 歴 設 憶 許 録); the active tile is bloom pink;
+  - projects, and recent chats with their times;
+  - the routing pinned at the foot, read through the new
+    `KOS.ai.routing()`, which never creates `state.assistant`.
+- **Chat (13a).**
+  - The thread beside Kurenai's panel: status, voice, and the
+    tap/hover hint.
+  - Tool steps, the proposal card and the approval card sit in
+    Kurenai's column.
+  - The proposal shows three items and "+ N more".
+  - The approval card lists its target and simple arguments, with the
+    exact request one disclosure away.
+  - Stop is hidden until a request runs.
+  - The frame's context chip in the composer has no source in the
+    controller (context rides the prompt), so it is not drawn.
+- **Drawer (13b).** A floating card over any page. Empty, Kurenai stands
+  in it at full height above the prompts; once a conversation runs she
+  steps back to a status strip.
+- **Settings (13c).**
+  - Model control is a routing table by task type, with a provider
+    legend and the availability check.
+  - Local connection and Kurenai voice sit side by side; the voice
+    toggle is the shared `k-switch`.
+- **Memory (13d).** A composer to add, then rows to edit or forget.
+- **Permissions (13e).**
+  - Grouped by `aitools.js` area, one group open.
+  - Each group shows its tier counts and how many rows were changed.
+  - A tool filter, and Reset to defaults (which asks first).
+  - A consequential row can be blocked but never loosened.
+- **Activity (13f).**
+  - Read-only, with outcome and area filters.
+  - Rows show time, phase, the action and its target, tier and outcome.
+    The raw id and status stay beside them for diagnosis.
+  - The statuses are the orchestrator's own.
+- **Render purity.** The page no longer writes on render.
+  `workspaceCfg()` reads, and `workspaceCfg(true)` creates or migrates
+  for a change.
+- **Mascot motion contract (smoke39).** It now lives in the Assistant
+  layer, keyed on the mascot's attributes. Reduced motion clears it.
+- **Depth budget.** The thread keeps within four `<div>` levels by being
+  semantic: messages are `<article>`, items and steps are lists, the
+  table is a `<figure>`.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.
