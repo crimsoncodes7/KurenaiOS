@@ -558,6 +558,43 @@
    "from": "^Stop the current request$",
    "retire": true,
    "why": "Graphite step 7 (the Assistant, frame 13a): Stop is hidden (not merely invisible) while nothing is running, so an idle page offers no inert control; it appears beside Send for the life of a request and cancels it exactly as before."
+  },
+  {
+   "surface": "^help$",
+   "hooks": "help.nav-item",
+   "rewriteEffects": { "nav": ["^#help-(.+)$", "#/help/$1"] },
+   "why": "Graphite step 8 (Help & Guide, frame 14c): a section opens as its own article at #/help/<section> through the router, instead of the page rewriting the URL to #help-<section> with history.replaceState behind the router's back (invariant 64)."
+  },
+  {
+   "surface": "^help$",
+   "hooks": "help.row-head",
+   "retire": true,
+   "from": ".",
+   "why": "Graphite step 8 (Help & Guide, frame 14c): an entry is a heading and its paragraph in the section's article, always open; the per-entry expanders (and their hash writes) are gone. Every entry is still listed in the nav and under On this page."
+  },
+  {
+   "surface": "^help$",
+   "retire": true,
+   "from": "^Open .+ →$",
+   "why": "Graphite step 8 (Help & Guide, frame 14c): the guide is read one section at a time, so an entry's related link sits in that section's article; the links of the other sections are one section away, unchanged."
+  },
+  {
+   "surface": "^notifications$",
+   "from": "^Clear the feed$",
+   "to": "Clear the feed…",
+   "why": "Graphite step 8 (Notifications, frame 14b): the action asks before it clears, and says so with an ellipsis."
+  },
+  {
+   "surface": "^data$",
+   "from": "^Reset everything$",
+   "to": "Reset everything…",
+   "why": "Graphite step 8 (Backup & Restore, frame 14a): Reset opens its confirmation (14a2), which asks for the word RESET."
+  },
+  {
+   "surface": "^data$",
+   "from": "^Export full backup \\(\\.json\\)$",
+   "expect": { "ui": ["lastBackupAt"] },
+   "why": "Graphite step 8 (Backup & Restore, frame 14a): a completed export notes when it ran on this device (state.ui, per device) so Keep it safe can say when the last backup was."
   }
  ]
 }

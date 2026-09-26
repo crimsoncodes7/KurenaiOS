@@ -94,30 +94,38 @@
     });
   }
 
-  /* ---------------- the Archive card ---------------- */
+  /* ---------------- the Archive card (Graphite frame 14a) ----------------
+     One card beside "Keep it safe": the account state as a chip, the
+     facts the sync engine actually knows (status, last sync, the last
+     merge with another device), and its three actions. The long account of
+     how merging works lives in Help & Guide → Cloud Sync. */
+  function maskEmail(e) {
+    var at = String(e || "").indexOf("@");
+    return at > 2 ? e.slice(0, 2) + "•••••" + e.slice(at) : e;
+  }
   function panel() {
-    var card = el("section", { class: "data-card cloud-card" });
-    card.appendChild(el("h3", { text: "Account & Cloud Sync" }));
-    var body = el("div", { class: "cloud-body" });
+    var card = el("section", { class: "k-card k-cloud", "data-ui": "archive.cloud-card", "aria-label": "Account & Cloud Sync" });
+    var chip = el("span", { class: "k-chip" });
+    card.appendChild(el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Account & Cloud Sync" }), el("span", { class: "k-cloud-chip" }, [chip])]));
+    var body = el("div", { class: "k-cloud-body" });
     card.appendChild(body);
-
-    function statusLine(s) {
-      var bits = [LABELS[s.state] || s.state];
-      if (s.detail) bits.push(s.detail);
-      if (s.lastSyncAt) bits.push("last synced " + new Date(s.lastSyncAt).toLocaleString("en-GB"));
-      return bits.join(" · ");
+    function setChip(text, tone) { chip.textContent = text; chip.setAttribute("data-tone", tone); }
+    function fact(k, v, tone) {
+      return el("p", { class: "k-card-row" }, [el("span", { class: "k-card-row-k", text: k }), el("span", { class: "k-card-row-v", "data-tone": tone || null, text: v })]);
     }
 
     function render() {
       body.innerHTML = "";
       if (!KOS.cloud || !KOS.cloud.configured()) {
-        body.appendChild(el("p", { class: "sub", text:
-          "Cloud sync isn't configured on this device. Copy js/env.example.js to js/env.local.js, fill in your Supabase project URL and publishable key, then reload. The app works fully without it — sync only adds multi-device continuity." }));
+        setChip("Not set up", "muted");
+        body.appendChild(el("p", { class: "k-cloud-p", text:
+          "Cloud sync isn't configured on this device. Copy js/env.example.js to js/env.local.js, fill in your Supabase project URL and publishable key, then reload. The app works fully without it; sync only adds multi-device continuity." }));
         return;
       }
       if (!KOS.cloud.available()) {
-        body.appendChild(el("p", { class: "sub", text:
-          "The sync library hasn't loaded (js/vendor/supabase.js). Check the file exists and reload — everything local keeps working meanwhile." }));
+        setChip("Unavailable", "amber");
+        body.appendChild(el("p", { class: "k-cloud-p", text:
+          "The sync library hasn't loaded (js/vendor/supabase.js). Check the file exists and reload; everything local keeps working meanwhile." }));
         return;
       }
 
@@ -125,16 +133,17 @@
       var signedIn = !!KOS.cloud.userId();
 
       if (!signedIn) {
-        body.appendChild(el("p", { class: "sub", text:
-          "Sign in to sync your study state, media vault and attachment list across devices. Signing out or staying offline never blocks the app — cloud sync is a replication layer, not a gate." }));
-        var email = el("input", { type: "email", class: "todo-in cloud-in", "aria-label": "Email address", placeholder: "email", autocomplete: "username" });
-        var pw = el("input", { type: "password", class: "todo-in cloud-in", "aria-label": "Password", placeholder: "password (8+ characters)", autocomplete: "current-password" });
+        setChip("Signed out", "muted");
+        body.appendChild(el("p", { class: "k-cloud-p", text:
+          "Sign in to sync your study state, media vault and attachment list across devices. Signed out or offline, nothing is blocked: sync is a replication layer, not a gate." }));
+        var email = el("input", { type: "email", class: "k-input", "aria-label": "Email address", placeholder: "email", autocomplete: "username" });
+        var pw = el("input", { type: "password", class: "k-input", "aria-label": "Password", placeholder: "password (8+ characters)", autocomplete: "current-password" });
         /* Phase F: the form's one message line carries both progress and
            its validation failures. It is a status region so the failure is
            heard, and it is wired to both fields with aria-describedby so a
            screen reader reaching the field finds the reason there too. */
         var msgId = "cloud-msg-" + Date.now();
-        var msg = el("p", { class: "sub cloud-msg", id: msgId, role: "status" });
+        var msg = el("p", { class: "k-cloud-msg", id: msgId, role: "status" });
         email.setAttribute("aria-describedby", msgId);
         pw.setAttribute("aria-describedby", msgId);
         email.required = true;
@@ -164,30 +173,34 @@
             render();
           });
         }
-        var inBtn = el("button", { class: "btn primary", text: "Sign in", onclick: function () { submit(KOS.cloud.signIn, "Sign-in"); } });
-        var upBtn = el("button", { class: "btn", text: "Create account", onclick: function () { submit(KOS.cloud.signUp, "Sign-up"); } });
+        var inBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Sign in", onclick: function () { submit(KOS.cloud.signIn, "Sign-in"); } });
+        var upBtn = el("button", { type: "button", class: "k-btn", text: "Create account", onclick: function () { submit(KOS.cloud.signUp, "Sign-up"); } });
         pw.addEventListener("keydown", function (ev) { if (ev.key === "Enter") submit(KOS.cloud.signIn, "Sign-in"); });
-        body.appendChild(el("div", { class: "cloud-form" }, [email, pw, el("div", { class: "cloud-btns" }, [inBtn, upBtn])]));
+        body.appendChild(el("div", { class: "k-cloud-form" }, [email, pw]));
         body.appendChild(msg);
+        body.appendChild(el("div", { class: "k-cloud-btns" }, [inBtn, upBtn]));
         return;
       }
 
-      body.appendChild(el("p", { class: "sub", text: "Signed in as " + KOS.cloud.userEmail() + " · " + statusLine(s) }));
-
+      setChip(s.state === "error" ? "● Needs attention" : "● Signed in", s.state === "error" ? "red" : "green");
+      body.appendChild(el("p", { class: "k-cloud-p" }, ["Signed in as ", el("b", { text: maskEmail(KOS.cloud.userEmail()), title: KOS.cloud.userEmail() })]));
+      var facts = el("div", { class: "k-cloud-facts" });
+      facts.appendChild(fact("Status", (LABELS[s.state] || s.state) + (s.detail ? " · " + s.detail : ""),
+        s.state === "error" ? "red" : s.state === "pending" || s.state === "syncing" ? "amber" : null));
+      if (s.lastSyncAt) facts.appendChild(fact("Last synced", new Date(s.lastSyncAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })));
       /* the last time this device had to combine its own edits with
          another device's — evidence that nothing was lost, on request */
       var lm = KOS.cloudsync.lastMerge && KOS.cloudsync.lastMerge();
       if (lm && lm.stats && (lm.stats.added || lm.stats.deleted || lm.stats.conflicts)) {
         var st = lm.stats, bits = [];
-        if (st.added) bits.push(st.added + " item" + (st.added === 1 ? "" : "s") + " combined");
+        if (st.added) bits.push(st.added + " combined");
         if (st.deleted) bits.push(st.deleted + " removal" + (st.deleted === 1 ? "" : "s") + " honoured");
         if (st.conflicts) bits.push(st.conflicts + " same-field edit" + (st.conflicts === 1 ? "" : "s") + " settled");
-        body.appendChild(el("p", { class: "sub cloud-merge", text:
-          "Last merge with another device at " + new Date(lm.at).toLocaleTimeString("en-GB") + ": " + bits.join(", ") + "." }));
+        facts.appendChild(fact("Last merge with another device", new Date(lm.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) + " · " + bits.join(", ")));
       }
+      body.appendChild(facts);
 
-      var row = el("div", { class: "cloud-btns" });
-      var syncBtn = el("button", { class: "btn primary", text: "Sync now", onclick: function () {
+      var syncBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: "Sync now", onclick: function () {
         syncBtn.disabled = true;
         KOS.cloudsync.syncNow(function (err) {
           syncBtn.disabled = false;
@@ -195,7 +208,7 @@
           render();
         });
       } });
-      var filesBtn = el("button", { class: "btn jade", text: "Sync files now", onclick: function () {
+      var filesBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: "Sync files now", title: "Attachment files upload only when you ask; their details sync on their own", onclick: function () {
         filesBtn.disabled = true;
         filesBtn.textContent = "Uploading files…";
         KOS.cloudsync.uploadBinaries(function (err, rep) {
@@ -208,19 +221,14 @@
           render();
         });
       } });
-      var outBtn = el("button", { class: "btn", text: "Sign out", onclick: function () {
+      var outBtn = el("button", { type: "button", class: "k-link k-cloud-out", text: "Sign out", onclick: function () {
         KOS.cloud.signOut(function () {
-          KOS.ui.toast("Signed out — everything keeps working locally.");
+          KOS.ui.toast("Signed out. Everything keeps working locally.");
           render();
         });
       } });
-      row.appendChild(syncBtn);
-      row.appendChild(filesBtn);
-      row.appendChild(outBtn);
-      body.appendChild(row);
-
-      body.appendChild(el("p", { class: "sub", text:
-        "How it syncs: study/Governor state, the media vault and attachment DETAILS sync automatically and merge across devices — edits made on two devices combine (records by id, gold and XP by what each earned), a deletion on either device wins, and nothing ever asks you which copy to keep. Attachment FILES upload only via “Sync files now” — large files use bandwidth and storage, so that stays deliberate; files never uploaded remain on this device only. Cloud sync complements backups, it doesn't replace them." }));
+      body.appendChild(el("p", { class: "k-cloud-p k-cloud-note", text: "Edits made on two devices merge, and nothing asks which copy to keep. Attachment files upload only with Sync files now." }));
+      body.appendChild(el("div", { class: "k-cloud-btns" }, [syncBtn, filesBtn, outBtn]));
     }
 
     render();

@@ -48,6 +48,8 @@
     governor: function (a) { return typeof a === "string" && a ? [a] : null; },
     sims: function (a) { return typeof a === "string" && a ? [a] : null; },
     assistant: function (a) { return a && typeof a.tab === "string" && a.tab ? [a.tab] : null; },
+    /* the guide section being read (`#/help/productivity`) */
+    help: function (a) { return typeof a === "string" && a ? [a] : null; },
     /* Pacing has two identities and they are mutually exclusive: a WEEK
        (`#/pacing/2026-12-14` — a link to "the week of the mocks" has to
        survive being sent, bookmarked and reopened) or a whole-term tab
@@ -66,6 +68,7 @@
     governor: function (p) { return p[0] || null; },
     sims: function (p) { return p[0] || null; },
     assistant: function (p) { return p[0] ? { tab: p[0] } : null; },
+    help: function (p) { return p[0] || null; },
     pacing: function (p) {
       if (!p[0]) return null;
       return /^\d{4}-\d{2}-\d{2}$/.test(p[0]) ? { wb: p[0], tab: "week" } : { tab: p[0] };

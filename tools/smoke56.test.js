@@ -302,7 +302,10 @@ async function main() {
   function rewrite(eff, rewrites) {
     if (!eff || !rewrites.length) return eff;
     const out = JSON.parse(JSON.stringify(eff));
-    for (const [k, re, to] of rewrites) if (Array.isArray(out[k])) out[k] = uniq(out[k].map((x) => x.replace(re, to)));
+    for (const [k, re, to] of rewrites) {
+      if (Array.isArray(out[k])) out[k] = uniq(out[k].map((x) => x.replace(re, to)));
+      else if (typeof out[k] === "string") out[k] = out[k].replace(re, to);   /* a single value (nav) renames the same way */
+    }
     return out;
   }
   function contract(c, surfId) {

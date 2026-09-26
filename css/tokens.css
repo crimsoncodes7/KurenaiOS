@@ -520,6 +520,20 @@ color-scheme: dark;
 --asst-filter-w: 200px;
 --asst-caret-w: 2px;
 
+/* ---------- Archive (frames 14a–14c) and the Compare dialog ---------- */
+--bk-side-w: 400px;
+--bk-hero-bg: linear-gradient(130deg, oklch(0.25 0.035 18), var(--s1) 55%);
+--bk-kicker-ink: oklch(0.82 0.06 18);
+--bk-tile: 30px;
+--bk-reset-mark: 44px;
+--nt-side-w: 300px;
+--nt-mark: 32px;
+--nt-pop-w: 380px;
+--help-nav-w: 230px;
+--help-aside-w: 250px;
+--help-read-w: 620px;
+--cmp-w: 1100px;
+
 /* avatar frames and bookshelf skins (Gold Shop cosmetics) */
 --frame-gold: var(--gold);
 --frame-crimson: var(--crimson);

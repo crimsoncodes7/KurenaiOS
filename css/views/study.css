@@ -785,6 +785,34 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-trk-badly .k-field-label { color: var(--red-soft); }
 .k-trk-notes .k-field-label { color: var(--amber); }
 
+/* ---------- Compare topics (the desk's ⇆ Compare; no frame, the Study vocabulary) ---------- */
+.k-cmp { inline-size: min(var(--cmp-w), 100%); gap: var(--sp-16); overflow: hidden; }
+.k-cmp > * { flex-shrink: 0; }
+.k-cmp-intro { display: flex; flex-direction: column; gap: var(--sp-2); }
+.k-cmp-sub { font-size: var(--fs-12-5); color: var(--muted); }
+.k-cmp-picks { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: var(--sp-8); align-items: center; }
+.k-cmp-head { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-12); }
+.k-cmp-topic { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-14) var(--sp-16); border-radius: var(--r-18); background: var(--s1); }
+.k-cmp-topic[data-side="b"] { box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-cmp-code { font: var(--fs-11-5) var(--font-mono); color: var(--subj-c, var(--teal)); }
+.k-cmp-title { font-size: var(--fs-15); font-weight: var(--weight-semibold); }
+.k-cmp-metrics { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-12); margin-block-start: var(--sp-6); font-size: var(--fs-12); color: var(--text-2); }
+.k-cmp > .k-cmp-body { flex: 1 1 auto; flex-shrink: 1; display: flex; flex-direction: column; gap: var(--sp-12); min-block-size: 0; overflow-y: auto; }
+.k-cmp-signals { display: flex; flex-wrap: wrap; gap: var(--sp-6); }
+.k-cmp-row { border-radius: var(--r-18); background: var(--s1); padding: var(--sp-12) var(--sp-16); }
+.k-cmp-row > summary { font-size: var(--fs-13-5); font-weight: var(--weight-semibold); cursor: pointer; }
+.k-cmp-cells { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-16); margin-block-start: var(--sp-10); }
+.k-cmp-cell { display: flex; flex-direction: column; gap: var(--sp-8); min-inline-size: 0; font-size: var(--fs-13); line-height: 1.55; color: var(--text-2); }
+.k-cmp-cell p { margin: 0; }
+.k-cmp-empty { margin: 0; font-size: var(--fs-12-5); color: var(--muted); }
+.k-cmp-term, .k-cmp-q, .k-cmp-progress { display: flex; flex-direction: column; gap: var(--sp-2); padding-block-start: var(--sp-6); border-block-start: var(--hairline) solid var(--line); }
+.k-cmp-term b, .k-cmp-q b, .k-cmp-progress b { color: var(--text); font-weight: var(--weight-semibold); }
+.k-cmp-term[data-shared] b { color: var(--teal); }
+.k-cmp-notes { max-inline-size: none; font-size: var(--fs-13-5); }
+.k-cmp-foot { flex-wrap: wrap; }
+.k-cmp-note { inline-size: min(var(--dialog-w-lg), 100%); }
+.k-cmp-note-in { inline-size: 100%; margin-block-start: var(--sp-8); }
+
 /* ---------- the five tiers, widest first ---------- */
 @media (max-width: 1240px) {
 .k-asg { grid-template-columns: minmax(0, 1fr); }
@@ -806,6 +834,8 @@ button.k-subj-next:hover { background: var(--s2); }
 }
 
 @media (max-width: 860px) {
+.k-cmp-head, .k-cmp-cells { grid-template-columns: minmax(0, 1fr); }
+.k-cmp-picks { grid-template-columns: minmax(0, 1fr); }
 .k-spine-open { display: grid; }
 .k-trk-grid { grid-template-columns: var(--sp-4) minmax(0, 1fr) auto var(--icon-btn-sm); }
 .k-trk-grid > :nth-child(2), .k-trk-grid > :nth-child(5), .k-trk-grid > :nth-child(6), .k-trk-headrow { display: none; }

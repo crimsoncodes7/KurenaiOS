@@ -195,19 +195,21 @@ step("the page lives under Archive: section filters, day groups, Mark all, devic
   await waitFor(() => main().querySelectorAll("[data-ui~='notify.list'] [data-ui~='notify.row']").length === 7, 3000);
   assert(main().querySelector("[data-ui~='ui.page-head'] [data-ui~='ui.page-actions'] button"), "Mark all as read must ride the page header's action slot");
   assert(main().querySelector("[data-ui~='notify.day']") && /Today/.test(main().querySelector("[data-ui~='notify.day']").textContent), "rows are grouped by day");
+  /* Graphite step 8 (frame 14b): Unread joins the section filters */
   const tabs = [...main().querySelectorAll("[data-ui~='notify.tabs'] [data-ui~='ui.tab']")];
-  assert(tabs.length === 4, "expected All / Study / Productivity / Collection");
-  tabs[2].click();
+  const tab = (label) => tabs.find(t => t.querySelector("[data-ui~='part.text']").textContent === label);
+  assert(tabs.length === 5 && ["All", "Unread", "Study", "Productivity", "Collection"].every(tab), "expected All / Unread / Study / Productivity / Collection");
+  tab("Productivity").click();
   await tick(20);
   assert(main().querySelectorAll("[data-ui~='notify.list'] [data-ui~='notify.row']").length === 7, "calendar + reminders are Productivity: " + main().querySelectorAll("[data-ui~='notify.list'] [data-ui~='notify.row']").length);
-  tabs[3].click();
+  tab("Collection").click();
   await tick(20);
   assert(main().querySelector("[data-ui~='notify.list'] [data-ui~='ui.empty']"), "an empty filter must show an empty state");
   [...main().querySelectorAll("[data-ui~='ui.page-head'] [data-ui~='ui.page-actions'] button")].find(b => /Mark all/.test(b.textContent)).click();
   await tick(20);
   assert(N().unread() === 0 && !document.querySelector("[data-ui~='notify.badge']").matches('[data-state~="is-on"]'), "Mark all must clear the badge too");
   /* clicking a row opens what it is about and reads it */
-  tabs[0].click(); await tick(20);
+  tab("All").click(); await tick(20);
   N().push({ id: "b:cal", kind: "calendar", title: "Open me", view: "calendar" });
   await tick(20);
   const row = [...main().querySelectorAll("[data-ui~='notify.list'] [data-ui~='notify.row']")].find(r => /Open me/.test(r.textContent));

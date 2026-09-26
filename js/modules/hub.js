@@ -227,10 +227,7 @@
     var pref = store.state.ui.treeClosed;
     var closed = pref === true || (pref == null && treeIsOverlay());
     /* a view with no spine only remembers the preference; it never shows one */
-    if (KOS.shell.tree() === "none") {
-      document.getElementById("cols").classList.toggle("tree-closed", closed);
-      return;
-    }
+    if (KOS.shell.tree() === "none") return;
     KOS.shell.tree(closed ? "closed" : "open");
   }
   function setTreeClosed(closed) {
@@ -329,8 +326,8 @@
         } }, [
         el("span", { class: "k-spine-ref", "data-ui": "part.ref", text: sec.ref }),
         el("span", { class: "k-spine-title", text: sec.title }),
-        sst.total ? el("span", { class: "k-bar k-spine-bar", "data-ui": "ui.section-bar", "aria-hidden": "true" },
-          [el("i", { "data-ui": "study.bar-fill", style: "width:" + sst.pct + "%" })]) : null,
+        sst.total ? el("span", { class: "k-bar k-spine-bar", "data-ui": "ui.section-bar", "aria-hidden": "true", style: "--p: " + sst.pct + "%" },
+          [el("i", { "data-ui": "study.bar-fill" })]) : null,
         sst.total ? el("span", { class: "k-spine-pc", "data-ui": "part.percent", text: ratioText(sst.done, sst.total) }) : null,
         el("span", { class: "k-spine-arr", "aria-hidden": "true" })
       ].filter(Boolean));
@@ -1048,40 +1045,6 @@
     }
   };
 
-  /* canvas rings read their colours from the live theme tokens */
-  function tokenColor(name, fallback) {
-    var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    return v || fallback;
-  }
-  /* bigRing is retired (Cat 7 Phase C · audit HOME-1/HOME-2). It painted
-     "N% / COVERED" in 22px and 8px canvas text directly onto the profile
-     banner: at 0% it was the front page's largest element telling an active
-     user they had done nothing, and its label was routinely swallowed by the
-     artwork behind it. Coverage now lives on the subject cards, where it is a
-     property of a subject rather than a headline, and every hero figure sits
-     on a real surface instead of on an image. miniRing stays — it is the
-     subject cards' ring, and now the Collection card's. */
-  function miniRing(canvas, pct, color) {
-    var dpr = window.devicePixelRatio || 1, size = 52;
-    canvas.width = size * dpr; canvas.height = size * dpr;
-    canvas.style.width = size + "px"; canvas.style.height = size + "px";
-    var ctx = canvas.getContext("2d");
-    if (!ctx || !ctx.scale) return;
-    ctx.scale(dpr, dpr);
-    var cx = size / 2, cy = size / 2, r = 20;
-    ctx.lineWidth = 4.5; ctx.lineCap = "round";
-    ctx.strokeStyle = tokenColor("--well", "#E7DFCC");
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
-    if (pct > 0) {
-      ctx.strokeStyle = color;
-      ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct / 100); ctx.stroke();
-    }
-    ctx.fillStyle = tokenColor("--text", "#332C20");
-    ctx.font = "600 12px 'IBM Plex Mono', monospace";
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(pct + "%", cx, cy);
-  }
-
   /* labs reachable per subject now the rail entries are gone */
   var PRACTICE = {
     compsci: [
@@ -1113,13 +1076,13 @@
       }));
     }, []);
     if (deepLeaves.length < 2) { KOS.ui.toast("Need at least two deep-content topics to compare.", true); return; }
-    var overlay = el("div", { class: "modal-ov", onclick: function (e) { if (e.target === overlay) close(); } });
-    function close() { overlay.remove(); document.removeEventListener("keydown", onEsc); }
-    function onEsc(e) { if (e.key === "Escape") close(); }
-    document.addEventListener("keydown", onEsc);
+    /* Graphite step 8 tidy-up: no frame draws this dialog, so it speaks the
+       Study vocabulary (frames 8a–8e); KOS.ui.openDialog owns Escape */
+    var overlay = el("div", { class: "k-dialog-overlay", onclick: function (e) { if (e.target === overlay) close(); } });
+    function close() { overlay.remove(); }
 
     function picker(defIdx) {
-      return el("select", { class: "status-sel" }, deepLeaves.map(function (l, i) {
+      return el("select", { class: "k-input k-cmp-pick" }, deepLeaves.map(function (l, i) {
         var o = el("option", { value: l.sid + ":" + l.ref, text: KOS_DATA[l.sid].name + " · " + l.ref + " — " + l.title });
         if (i === defIdx) o.selected = true;
         return o;
@@ -1128,7 +1091,8 @@
     var first = deepLeaves.findIndex(function (l) { return l.sid === sid; });
     var selA = picker(first < 0 ? 0 : first), selB = picker((first < 0 ? 0 : first) + 1);
     if (selB.selectedIndex < 0) selB.selectedIndex = 1;
-    var mode = "overview", head = el("div", { class: "cmp-sticky-head" }), body = el("div", { class: "cmp-body" });
+    selA.setAttribute("aria-label", "Topic A"); selB.setAttribute("aria-label", "Topic B");
+    var mode = "overview", head = el("div", { class: "k-cmp-head" }), body = el("div", { class: "k-cmp-body" });
 
     function topic(value) {
       var cut = value.indexOf(":"), tsid = value.slice(0, cut), ref = value.slice(cut + 1);
@@ -1201,36 +1165,36 @@
     }
     function summaryCard(t, side) {
       var d = info(t);
-      return el("div", { class: "cmp-topic cmp-" + side }, [
-        el("span", { class: "cmp-code", text: d.code }), el("b", { text: d.title }), el("span", { class: "sub", text: d.subject + " · " + d.section }),
-        el("div", { class: "cmp-metrics" }, [
+      return el("div", { class: "k-cmp-topic", "data-side": side }, [
+        el("span", { class: "k-cmp-code", text: (side === "a" ? "A · " : "B · ") + d.code }), el("b", { class: "k-cmp-title", text: d.title }), el("span", { class: "k-cmp-sub", text: d.subject + " · " + d.section }),
+        el("div", { class: "k-cmp-metrics" }, [
           el("span", { text: d.status + " · " + d.pct + "% complete" }), el("span", { text: d.confidence + " confidence" }),
           el("span", { text: d.mastery + " mastery" }), el("span", { text: d.cards + " cards · " + d.questions + " questions" })
         ])
       ]);
     }
     function column(title, items, empty) {
-      return el("div", { class: "cmp-cell" }, [el("span", { class: "cmp-cell-label", text: title })].concat(items && items.length ? items : [el("p", { class: "sub", text: empty || "No matching content." })]));
+      return el("div", { class: "k-cmp-cell" }, [el("span", { class: "k-kicker", text: title })].concat(items && items.length ? items : [el("p", { class: "k-cmp-empty", text: empty || "No matching content." })]));
     }
     function details(title, a, b, render, open) {
-      var attrs = { class: "cmp-row" };
+      var attrs = { class: "k-cmp-row" };
       if (open !== false) attrs.open = true;
       var d = el("details", attrs, [el("summary", { text: title })]);
-      var cells = el("div", { class: "cmp-row-cells" }, [render(a, "Topic A"), render(b, "Topic B")]);
+      var cells = el("div", { class: "k-cmp-cells" }, [render(a, "Topic A"), render(b, "Topic B")]);
       d.appendChild(cells); return d;
     }
     function renderRows(a, b) {
       body.innerHTML = "";
       var common = terms(a.content).map(function (p) { return p[0].toLowerCase(); }).filter(function (x) { return terms(b.content).some(function (p) { return p[0].toLowerCase() === x; }); });
-      body.appendChild(el("div", { class: "cmp-signals" }, [
-        el("span", { class: "cmp-signal", text: common.length ? common.length + " shared key term" + (common.length === 1 ? "" : "s") : "No identical key terms" }),
-        el("span", { class: "cmp-signal", text: a.sid === b.sid ? "Same subject" : "Cross-subject comparison" }),
-        el("span", { class: "cmp-signal", text: Math.abs(info(a).questions - info(b).questions) ? "Uneven question coverage" : "Comparable question coverage" })
+      body.appendChild(el("div", { class: "k-cmp-signals" }, [
+        el("span", { class: "k-chip", "data-tone": common.length ? "teal" : "muted", text: common.length ? common.length + " shared key term" + (common.length === 1 ? "" : "s") : "No identical key terms" }),
+        el("span", { class: "k-chip", "data-tone": "muted", text: a.sid === b.sid ? "Same subject" : "Cross-subject comparison" }),
+        el("span", { class: "k-chip", "data-tone": Math.abs(info(a).questions - info(b).questions) ? "amber" : "muted", text: Math.abs(info(a).questions - info(b).questions) ? "Uneven question coverage" : "Comparable question coverage" })
       ]));
       if (mode === "overview") {
         body.appendChild(details("What each topic is about", a, b, function (t, label) { return column(label, overview(t.content).map(function (x) { return el("p", { text: x }); }), "No overview note."); }));
         body.appendChild(details("Where they overlap or diverge", a, b, function (t, label) {
-          var own = terms(t.content).slice(0, 8).map(function (p) { return el("div", { class: "cmp-term" + (common.indexOf(p[0].toLowerCase()) !== -1 ? " shared" : "") }, [el("b", { text: p[0] }), el("span", { text: p[1] })]); });
+          var own = terms(t.content).slice(0, 8).map(function (p) { return el("div", { class: "k-cmp-term", "data-shared": common.indexOf(p[0].toLowerCase()) !== -1 ? "" : null }, [el("b", { text: p[0] }), el("span", { text: p[1] })]); });
           return column(label, own, "No named terms yet.");
         }));
       } else if (mode === "specification") {
@@ -1242,17 +1206,17 @@
           var title = "Notes · " + (pa ? pa.title : "No matching section") + " / " + (pb ? pb.title : "No matching section");
           body.appendChild(details(title, pa, pb, function (p, label) {
             if (!p) return column(label, [], "This topic has no matching note section.");
-            var art = el("article", { class: "notes-article cmp-notes", html: KOS.content.renderBlocks(p.blocks) });
+            var art = el("article", { class: "k-prose k-notes k-cmp-notes", html: KOS.content.renderBlocks(p.blocks) });
             KOS.content.typeset(art); return column(label + " · " + p.title, [art], "No notes.");
           }, index === 0));
         })(pagesA[page], pagesB[page], page);
       } else if (mode === "terms") {
-        body.appendChild(details("Key terms", a, b, function (t, label) { return column(label, terms(t.content).map(function (p) { return el("div", { class: "cmp-term" + (common.indexOf(p[0].toLowerCase()) !== -1 ? " shared" : "") }, [el("b", { text: p[0] }), el("span", { text: p[1] })]); }), "No key terms."); }));
+        body.appendChild(details("Key terms", a, b, function (t, label) { return column(label, terms(t.content).map(function (p) { return el("div", { class: "k-cmp-term", "data-shared": common.indexOf(p[0].toLowerCase()) !== -1 ? "" : null }, [el("b", { text: p[0] }), el("span", { text: p[1] })]); }), "No key terms."); }));
       } else if (mode === "exam") {
-        body.appendChild(details("Exam focus", a, b, function (t, label) { return column(label, (t.content.exam || []).map(function (q) { return el("div", { class: "cmp-question" }, [el("b", { text: q.marks + " marks" }), el("span", { text: q.q })]); }), "No exam questions available."); }));
-        body.appendChild(details("Common confusions", a, b, function (t, label) { return column(label, callouts(t.content, "miscon").map(function (c) { return el("div", { class: "cmp-question" }, [el("b", { text: c.h || "Misconception" }), el("span", { text: textOf(c.body) })]); }), "No explicit misconception note."); }));
+        body.appendChild(details("Exam focus", a, b, function (t, label) { return column(label, (t.content.exam || []).map(function (q) { return el("div", { class: "k-cmp-q" }, [el("b", { text: q.marks + " marks" }), el("span", { text: q.q })]); }), "No exam questions available."); }));
+        body.appendChild(details("Common confusions", a, b, function (t, label) { return column(label, callouts(t.content, "miscon").map(function (c) { return el("div", { class: "k-cmp-q" }, [el("b", { text: c.h || "Misconception" }), el("span", { text: textOf(c.body) })]); }), "No explicit misconception note."); }));
       } else {
-        body.appendChild(details("Progress and confidence", a, b, function (t, label) { var d = info(t); return column(label, [el("div", { class: "cmp-progress" }, [el("b", { text: d.pct + "% complete" }), el("span", { text: d.status }), el("span", { text: d.confidence + " confidence · " + d.mastery + " mastery" }), el("span", { text: d.cards + " cards · " + d.questions + " questions" })])]); }));
+        body.appendChild(details("Progress and confidence", a, b, function (t, label) { var d = info(t); return column(label, [el("div", { class: "k-cmp-progress" }, [el("b", { text: d.pct + "% complete" }), el("span", { text: d.status }), el("span", { text: d.confidence + " confidence · " + d.mastery + " mastery" }), el("span", { text: d.cards + " cards · " + d.questions + " questions" })])]); }));
       }
     }
     function update(changed) {
@@ -1268,36 +1232,46 @@
       var key = [selA.value, selB.value].sort().join("|");
       var study = store.state.study = store.state.study || {};
       var notes = study.compareNotes = study.compareNotes || {};
-      var noteOverlay = el("div", { class: "modal-ov", onclick: function (e) { if (e.target === noteOverlay) noteOverlay.remove(); } });
-      var ta = el("textarea", { class: "note-area", placeholder: "Capture the distinction, shared rule, or question to revisit…" });
+      var noteOverlay = el("div", { class: "k-dialog-overlay", onclick: function (e) { if (e.target === noteOverlay) noteOverlay.remove(); } });
+      var ta = el("textarea", { class: "k-input k-cmp-note-in", rows: "6", "aria-label": "Comparison note", placeholder: "Capture the distinction, shared rule, or question to revisit…" });
       ta.value = notes[key] || "";
-      noteOverlay.appendChild(el("div", { class: "modal cmp-note-modal" }, [
-        el("div", { class: "modal-h" }, [el("b", { text: "Comparison note" }), el("button", { class: "btn", text: "✕ Close", onclick: function () { noteOverlay.remove(); } })]),
-        el("p", { class: "sub", text: "Saved with this pair of topics and included in the normal backup." }), ta,
-        el("div", { class: "cmp-actions" }, [
-          el("button", { class: "btn", text: "Cancel", onclick: function () { noteOverlay.remove(); } }),
-          el("button", { class: "btn primary", text: "Save note", onclick: function () { notes[key] = ta.value.trim(); store.save(); noteOverlay.remove(); KOS.ui.toast(notes[key] ? "Comparison note saved." : "Comparison note cleared."); } })
+      noteOverlay.appendChild(el("div", { class: "k-dialog k-cmp-note", "data-ui": "ui.dialog" }, [
+        el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [el("b", { class: "k-dialog-title", text: "Comparison note" }),
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: function () { noteOverlay.remove(); } })]),
+        el("div", { class: "k-dialog-body" }, [el("p", { class: "k-cmp-empty", text: "Saved with this pair of topics and included in the normal backup." }), ta]),
+        el("div", { class: "k-dialog-foot" }, [
+          el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { noteOverlay.remove(); } }),
+          el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Save note", onclick: function () { notes[key] = ta.value.trim(); store.save(); noteOverlay.remove(); KOS.ui.toast(notes[key] ? "Comparison note saved." : "Comparison note cleared."); } })
         ])
       ]));
       KOS.ui.openDialog(noteOverlay); ta.focus();
     }
-    var swap = el("button", { class: "btn", text: "⇄ Swap", onclick: function () { var v = selA.value; selA.value = selB.value; selB.value = v; update(); } });
+    var swap = el("button", { type: "button", class: "k-iconbtn", text: "⇄", "aria-label": "Swap topics", title: "Swap topics", onclick: function () { var v = selA.value; selA.value = selB.value; selB.value = v; update(); } });
     var modes = [["overview", "Overview"], ["specification", "Specification"], ["notes", "Notes"], ["terms", "Key terms"], ["exam", "Exam focus"], ["progress", "Progress"]];
-    var modeBar = el("div", { class: "study-tabs cmp-tabs", role: "tablist" }, modes.map(function (m) { return el("button", { class: "study-tab" + (m[0] === mode ? " active" : ""), text: m[1], onclick: function () { mode = m[0]; modeBar.querySelectorAll("button").forEach(function (b) { KOS.ui.state(b, "active", b.textContent === m[1]); }); update(); } }); }));
+    var modeBar = KOS.ui.tabs(modes.map(function (m) {
+      return { label: m[1], active: m[0] === mode, onSelect: function () {
+        mode = m[0];
+        modeBar.querySelectorAll("[role='tab']").forEach(function (b) {
+          var on = b.textContent === m[1];
+          b.setAttribute("aria-selected", String(on)); KOS.ui.state(b, "active", on);
+        });
+        update();
+      } };
+    }), { variant: "workspace", label: "Compare by", className: "k-cmp-tabs" });
 
-    overlay.appendChild(el("div", { class: "modal cmp-modal" }, [
-      el("div", { class: "modal-h" }, [
-        el("div", {}, [el("b", { text: "Compare topics" }), el("span", { class: "sub", text: "Line up the syllabus, evidence and exam focus." })]),
-        el("div", { class: "cmp-selectors" }, [selA, swap, selB]),
-        el("button", { class: "btn", text: "✕ Close", style: "margin-left:auto", onclick: close })
+    overlay.appendChild(el("div", { class: "k-dialog k-cmp", "data-ui": "ui.dialog study.compare-dialog" }, [
+      el("div", { class: "k-dialog-head k-cmp-top", "data-ui": "ui.dialog-head" }, [
+        el("div", { class: "k-cmp-intro" }, [el("b", { class: "k-dialog-title", text: "Compare topics" }), el("span", { class: "k-cmp-sub", text: "Line up the syllabus, evidence and exam focus." })]),
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: close })
       ]),
+      el("div", { class: "k-cmp-picks" }, [selA, swap, selB]),
       head, modeBar, body,
-      el("div", { class: "cmp-actions" }, [
-        el("button", { class: "btn", text: "Open Topic A", onclick: function () { var t = topic(selA.value); close(); KOS.show("ref", { subject: t.sid, ref: t.ref }); } }),
-        el("button", { class: "btn", text: "Open Topic B", onclick: function () { var t = topic(selB.value); close(); KOS.show("ref", { subject: t.sid, ref: t.ref }); } }),
-        el("button", { class: "btn", text: "◉ Focus Topic A", onclick: function () { var t = topic(selA.value); close(); KOS.show("focus", { subject: t.sid, ref: t.ref }); } }),
-        el("button", { class: "btn", text: "◉ Focus Topic B", onclick: function () { var t = topic(selB.value); close(); KOS.show("focus", { subject: t.sid, ref: t.ref }); } }),
-        el("button", { class: "btn", text: "✎ Comparison note", onclick: comparisonNote })
+      el("div", { class: "k-dialog-foot k-cmp-foot" }, [
+        el("button", { type: "button", class: "k-btn", text: "Open Topic A", onclick: function () { var t = topic(selA.value); close(); KOS.show("ref", { subject: t.sid, ref: t.ref }); } }),
+        el("button", { type: "button", class: "k-btn", text: "Open Topic B", onclick: function () { var t = topic(selB.value); close(); KOS.show("ref", { subject: t.sid, ref: t.ref }); } }),
+        el("button", { type: "button", class: "k-btn", text: "◉ Focus Topic A", onclick: function () { var t = topic(selA.value); close(); KOS.show("focus", { subject: t.sid, ref: t.ref }); } }),
+        el("button", { type: "button", class: "k-btn", text: "◉ Focus Topic B", onclick: function () { var t = topic(selB.value); close(); KOS.show("focus", { subject: t.sid, ref: t.ref }); } }),
+        el("button", { type: "button", class: "k-btn", text: "✎ Comparison note", onclick: comparisonNote })
       ])
     ]));
     KOS.ui.openDialog(overlay);
@@ -2334,43 +2308,64 @@
     return p;
   }
 
-  /* ---------- backup view ---------- */
+  /* ---------- Backup & Restore (Graphite step 8, frames 14a, 14a2) ----------
+     "Keep it safe" — the last backup from THIS device and the three
+     export/import actions — beside the Account & Cloud Sync card; what a
+     backup covers, with the counts as they stand; and Reset everything as
+     its own danger strip, which asks for the word RESET. Rendering reads
+     only: the counts come from the stores that own them, the size from
+     the browser's storage estimate. The one write here is the export
+     noting when it ran (ui.lastBackupAt — per device, like all of ui). */
+  function mb(bytes) {
+    return bytes >= 1048576 ? (Math.round(bytes / 104857.6) / 10) + " MB" : Math.max(1, Math.round(bytes / 1024)) + " KB";
+  }
+  function agoWords(ts) {
+    var days = Math.floor((Date.now() - ts) / 864e5);
+    return days <= 0 ? "today" : days === 1 ? "yesterday" : days + " days ago";
+  }
+  function plural(n, one, many) { return KOS.ui.num(n) + " " + (n === 1 ? one : (many || one + "s")); }
+  function arrLen(v) { return Array.isArray(v) ? v.length : v && typeof v === "object" && Array.isArray(v.items) ? v.items.length : 0; }
+
   KOS.views.data = function (main) {
     hideTree();
     var s = store.state;
-    var n = Object.keys(s.progress).length;
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "The archive" }),
-        el("h1", { text: "Backup & Restore" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: n + " spec points with saved progress · since " + new Date(s.created).toLocaleDateString("en-GB") })
-        ])
-      ])
-    ]));
+    main.appendChild(KOS.ui.pageHeader({ kicker: "The archive · 蔵", title: "Backup & Restore",
+      sub: "Everything KurenaiOS knows lives on this device first. Keep a copy, move it, or start again." }));
 
-    var grid = el("div", { class: "data-grid" });
-    main.appendChild(grid);
-
-    /* left — the actions, one per row with its own explanation */
-    var actions = el("section", { class: "data-card" });
-    actions.appendChild(el("h3", { text: "Keep it safe" }));
-    function actionRow(btn, blurb) {
-      return el("div", { class: "data-action" }, [btn, el("p", { class: "sub", text: blurb })]);
+    /* ---- keep it safe ---- */
+    var last = s.ui && s.ui.lastBackupAt;
+    var sizeFact = el("b", { class: "k-bk-fact-v", text: "—" });
+    var cloudFact = el("b", { class: "k-bk-fact-v", text: cloudWord() });
+    function cloudWord() {
+      if (!KOS.cloud || !KOS.cloud.configured || !KOS.cloud.configured()) return "not set up";
+      if (!KOS.cloud.userId || !KOS.cloud.userId()) return "signed out";
+      var st = KOS.cloudsync ? KOS.cloudsync.getStatus() : null;
+      return st ? ({ synced: "on", syncing: "syncing…", pending: "changes pending", offline: "offline", error: "needs attention" }[st.state] || st.state) +
+        (st.lastSyncAt ? " · " + agoWords(st.lastSyncAt).replace("today", clockOf(st.lastSyncAt)) : "") : "on";
     }
-    var exportBtn = el("button", { class: "btn primary", text: "Export full backup (.json)",
+    function clockOf(ts) { return new Date(ts).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }); }
+    /* the fact follows the engine while it is on screen (sync starts after boot) */
+    if (KOS.cloudsync && KOS.cloudsync.onStatus) KOS.cloudsync.onStatus(function () { if (cloudFact.isConnected) cloudFact.textContent = cloudWord(); });
+    if (navigator.storage && navigator.storage.estimate) {
+      navigator.storage.estimate().then(function (e) { if (e && e.usage) sizeFact.textContent = mb(e.usage); else sizeFact.textContent = "unknown"; })
+        .catch(function () { sizeFact.textContent = "unknown"; });
+    } else sizeFact.textContent = "unknown";
+
+    var exportBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Export full backup (.json)",
       onclick: function () {
         exportBtn.disabled = true;
         exportBtn.textContent = "Exporting…";
         store.exportFull(function (err) {
           exportBtn.disabled = false;
           exportBtn.textContent = "Export full backup (.json)";
-          if (err) KOS.ui.toast("Export error: " + err.message, true);
+          if (err) { KOS.ui.toast("Export error: " + err.message, true); return; }
+          store.state.ui.lastBackupAt = Date.now();
+          store.save();
+          lastLine.textContent = "Last backup today";
+          lastSub.textContent = new Date().toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + " · downloaded from this device";
         });
       }});
-    actions.appendChild(actionRow(exportBtn, "One file with everything in it. Large attachments make a large file — that's expected."));
-
-    var file = el("input", { type: "file", accept: ".json,application/json", style: "display:none",
+    var file = el("input", { type: "file", accept: ".json,application/json", hidden: "",
       onchange: function () {
         if (!file.files[0]) return;
         importBtn.disabled = true;
@@ -2389,39 +2384,108 @@
           KOS.show("home");
         });
       }});
-    actions.appendChild(file);
-    var importBtn = el("button", { class: "btn gold", text: "Import backup…",
+    var importBtn = el("button", { type: "button", class: "k-btn", text: "Import backup…", title: "A complete restore, not a merge: the file replaces what's here",
       onclick: function () { file.click(); } });
-    actions.appendChild(actionRow(importBtn, "A complete restore, not a merge — the file replaces what's here."));
-    actions.appendChild(actionRow(
-      el("button", { class: "btn jade", text: "Export revision summary (print / PDF)", onclick: exportSummary }),
-      "A printable table of every spec point, its status and your notes."));
-    actions.appendChild(actionRow(
-      el("button", { class: "btn danger", text: "Reset everything", onclick: function () {
-        KOS.ui.confirm({ title: "Reset everything?", body: "All progress, notes and sandbox work will be wiped. Export a backup first if you're unsure.", danger: true, confirm: "Wipe it all" }, function () {
-          store.reset(); KOS.refreshRailCounters(); KOS.ui.toast("Fresh start."); KOS.show("home");
-        });
-      }}),
-      "Back to a blank desk. Export first if there's any doubt."));
-    grid.appendChild(actions);
+    var lastLine = el("h2", { class: "k-bk-last", text: last ? "Last backup " + agoWords(last) : "No backup from this device yet" });
+    var lastSub = el("p", { class: "k-bk-last-sub", text: last
+      ? new Date(last).toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + " · downloaded from this device"
+      : "One file with everything in it. Large attachments make a large file; that's expected." });
+    var saved = Object.keys(s.progress).length;
+    var hero = el("section", { class: "k-bk-hero", "data-ui": "archive.keep", "aria-label": "Keep it safe" }, [
+      el("span", { class: "k-watermark k-bk-mark", lang: "ja", "aria-hidden": "true", text: "蔵" }),
+      el("div", { class: "k-kicker k-bk-kicker", text: "Keep it safe" }),
+      lastLine, lastSub,
+      el("div", { class: "k-bk-facts" }, [
+        el("div", {}, [el("span", { class: "k-bk-fact-k", text: "Cloud sync" }), cloudFact]),
+        el("div", {}, [el("span", { class: "k-bk-fact-k", text: "Stored on this device" }), sizeFact]),
+        saved ? el("div", {}, [el("span", { class: "k-bk-fact-k", text: "Keeping since" }), el("b", { class: "k-bk-fact-v", text: new Date(s.created).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) })]) : null
+      ].filter(Boolean)),
+      el("div", { class: "k-bk-actions", "data-ui": "archive.data-action" }, [
+        exportBtn, importBtn,
+        el("button", { type: "button", class: "k-btn", text: "Export revision summary (print / PDF)", title: "A printable table of every spec point, its status and your notes", onclick: exportSummary }),
+        file
+      ])
+    ]);
+    var top = el("div", { class: "k-bk-top" }, [hero]);
+    if (KOS.cloudui) top.appendChild(KOS.cloudui.panel());
+    main.appendChild(top);
 
-    /* right — what a backup covers */
-    var covers = el("section", { class: "data-card" });
-    covers.appendChild(el("h3", { text: "What a backup covers" }));
-    covers.appendChild(el("ul", { class: "data-list" }, [
-      el("li", { text: "Study progress, notes and flashcard scheduling" }),
-      el("li", { text: "Governor state — HP, gold, XP, everything you own" }),
-      el("li", { text: "The whole media vault: anime, books, visual novels, games — routes, quotes, physical volumes included" }),
-      el("li", { text: "The purchase planner and budget history" }),
-      el("li", { text: "Document attachments" })
+    /* ---- what a backup covers, counted now ---- */
+    var covers = el("section", { class: "k-card k-bk-covers", "aria-label": "What a backup covers" }, [
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "What a backup covers" }), el("span", { class: "k-card-meta", text: "counts right now" })])
+    ]);
+    function cover(mark, tone, text) {
+      var count = el("span", { class: "k-bk-count" });
+      covers.appendChild(el("div", { class: "k-bk-cover" }, [
+        el("span", { class: "k-bk-tile", "data-tone": tone, lang: "ja", "aria-hidden": "true", text: mark }),
+        el("span", { class: "k-bk-cover-t", text: text }), count
+      ]));
+      return count;
+    }
+    function facts(bits) { return bits.filter(Boolean).join(" · "); }
+    var g = s.governor || {};
+    var owned = KOS.governor ? KOS.governor.catalog().filter(function (c) { return KOS.governor.owns(c.id); }).length : 0;
+    var edited = Object.keys((s.edits && s.edits.topics) || {}).length, cards = Object.keys(s.srs || {}).length;
+    cover("学", "teal", "Study progress, notes, edited topics and flashcard scheduling").textContent = facts([
+      saved ? plural(saved, "topic") + " with progress" : null, cards ? plural(cards, "scheduled card") : null, edited ? plural(edited, "edited topic") : null]);
+    cover("整", "amber", "Calendar, reminders, assignments, habits and the weekly plan").textContent = facts([
+      arrLen(s.calendar && s.calendar.events) ? plural(arrLen(s.calendar.events), "event") : null,
+      arrLen(s.reminders) ? plural(arrLen(s.reminders), "reminder") : null,
+      arrLen(s.assignments) ? plural(arrLen(s.assignments), "assignment") : null]);
+    cover("守", "gold", "Governor state: HP, gold, XP and everything you own").textContent = facts([
+      KOS.governor ? "Level " + KOS.governor.levelInfo(g.xp || 0).level : null, "◆ " + KOS.ui.num(g.gold || 0), owned ? plural(owned, "item") + " owned" : null]);
+    var mediaCount = cover("蒐", "anime", "The whole media vault: anime, books, visual novels and games, with routes, quotes and physical volumes");
+    if (KOS.mediadb && KOS.mediadb.available && KOS.mediadb.available()) KOS.mediadb.count(null, function (err, n) { if (!err && n) mediaCount.textContent = plural(n, "entry", "entries"); });
+    var wl = s.wishlist || {};
+    cover("円", "books", "The purchase planner and budget history").textContent = facts([
+      arrLen(wl.items) ? plural(arrLen(wl.items), "item") : null,
+      wl.budget && arrLen(wl.budget.history) ? plural(arrLen(wl.budget.history), "purchase") + " logged" : null]);
+    var fileCount = cover("⎘", "muted", "Document attachments");
+    if (KOS.attach && KOS.attach.available && KOS.attach.available() && KOS.attach.listMeta) KOS.attach.listMeta(function (err, rows) {
+      if (err || !rows.length) return;
+      fileCount.textContent = plural(rows.length, "file") + " · " + mb(rows.reduce(function (a, r) { return a + (r.size || 0); }, 0));
+    });
+    covers.appendChild(el("p", { class: "k-bk-note", text: "AniList and VNDB tokens and your cloud password are deliberately left out: a backup file can end up in less careful places than your browser. After a restore, reconnect from Sync & Import." }));
+    main.appendChild(covers);
+
+    /* ---- reset: its own strip, and a word to type ---- */
+    main.appendChild(el("section", { class: "k-bk-danger", "aria-label": "Reset everything" }, [
+      el("div", { class: "k-bk-danger-txt" }, [
+        el("b", { text: "Reset everything" }),
+        el("p", { text: "Clears this device back to a fresh install. Export a backup first; cloud data is not deleted, and a signed-in device syncs back down." })
+      ]),
+      el("button", { type: "button", class: "k-btn k-btn--danger", "data-intent": "danger", text: "Reset everything…", onclick: function () { resetDialog(exportBtn); } })
     ]));
-    covers.appendChild(el("p", { class: "sub", text:
-      "AniList and VNDB tokens are deliberately left out — a backup file can end up in less careful places than your browser. After a restore, reconnect both from Sync & Import." }));
-    grid.appendChild(covers);
-
-    /* Account & Cloud Sync (Build 4a) — rendered by cloudui when present */
-    if (KOS.cloudui) grid.appendChild(KOS.cloudui.panel());
   };
+
+  function resetDialog(exportBtn) {
+    var input = el("input", { type: "text", class: "k-input k-bk-type", autocomplete: "off", spellcheck: "false",
+      "aria-label": "Type RESET to confirm", placeholder: "RESET" });
+    var go = el("button", { type: "button", class: "k-btn k-btn--danger", "data-intent": "danger", text: "Reset", disabled: "" });
+    var box = el("div", { class: "k-dialog k-bk-reset", "data-ui": "ui.dialog archive.reset", role: "alertdialog" }, [
+      el("span", { class: "k-bk-reset-mark", lang: "ja", "aria-hidden": "true", text: "消" }),
+      el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Reset everything?" }),
+      el("p", { class: "k-bk-reset-p", text: "This removes study progress, notes, flashcard schedules, the Governor, the media vault, the planner and every attachment from this device. It cannot be undone here." }),
+      el("label", { class: "k-field" }, [el("span", { class: "k-field-label" }, ["Type ", el("b", { class: "k-mono", text: "RESET" }), " to confirm"]), input]),
+      el("div", { class: "k-bk-reset-btns" }, [
+        el("button", { type: "button", class: "k-btn", text: "Export backup first", onclick: function () { overlay.remove(); exportBtn.click(); } }),
+        el("button", { type: "button", class: "k-btn k-bk-cancel", text: "Cancel", onclick: function () { overlay.remove(); } }),
+        go
+      ])
+    ]);
+    var overlay = el("div", { class: "k-dialog-overlay", onclick: function (e) { if (e.target === overlay) overlay.remove(); } }, [box]);
+    input.addEventListener("input", function () { go.disabled = input.value.trim() !== "RESET"; });
+    /* Enter never confirms a danger dialog (invariant 49) */
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") e.preventDefault(); });
+    go.addEventListener("click", function () {
+      if (input.value.trim() !== "RESET") return;
+      overlay.remove();
+      store.reset(); KOS.refreshRailCounters(); KOS.ui.toast("Fresh start."); KOS.show("home");
+    });
+    /* headless harnesses confirm through the same hook KOS.ui.confirm honours */
+    if (window.__kosAutoConfirm === true) { store.reset(); KOS.refreshRailCounters(); KOS.show("home"); return; }
+    KOS.ui.openDialog(overlay, { initialFocus: input });
+  }
 
   /* ---------- printable revision summary ---------- */
   var STATUS_WORD = { none: "Not started", started: "Started", paused: "Paused", done: "Completed" };
@@ -2435,9 +2499,9 @@
       "table{width:100%;border-collapse:collapse;margin:4px 0 12px}" +
       "th,td{border:1px solid #bbb;padding:4px 8px;text-align:left;vertical-align:top;font-size:12px}" +
       "th{background:#f2f2f2;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em}" +
-      ".ref{font-family:monospace;white-space:nowrap}" +
-      ".s-done{color:#0a7a52;font-weight:700}.s-started{color:#9a6d00}.s-paused{color:#7a3fa0}.s-none{color:#888}" +
-      ".note{font-style:italic;color:#444}" +
+      ".k-ref{font-family:monospace;white-space:nowrap}" +
+      "[data-s=done]{color:#0a7a52;font-weight:700}[data-s=started]{color:#9a6d00}[data-s=paused]{color:#7a3fa0}[data-s=none]{color:#888}" +
+      ".k-note{font-style:italic;color:#444}" +
       "@media print{h2{page-break-after:avoid}table{page-break-inside:auto}tr{page-break-inside:avoid}}" +
       "</style></head><body><h1>紅 Kurenai OS — revision summary · " +
       new Date().toLocaleDateString("en-GB") + "</h1>" +
@@ -2454,8 +2518,8 @@
           if (n.content && n.content.length) {
             var p = store.peekProgress(sid, n.ref);
             var status = (p && p.status) || "none";
-            h += "<tr><td class='ref'>" + esc(n.ref) + "</td><td>" + esc(n.title) +
-              "</td><td class='s-" + status + "'>" + STATUS_WORD[status] + "</td><td class='note'>" +
+            h += "<tr><td class='k-ref'>" + esc(n.ref) + "</td><td>" + esc(n.title) +
+              "</td><td data-s='" + status + "'>" + STATUS_WORD[status] + "</td><td class='k-note'>" +
               esc((p && p.note) || "") + "</td></tr>";
           }
           (n.children || []).forEach(walk);

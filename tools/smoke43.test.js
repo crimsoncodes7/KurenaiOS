@@ -110,7 +110,9 @@ step("the bar carries the same quantity as the count printed beside it", () => {
   KOS.show("ref", { subject: SID, ref: REF });
   const head = document.getElementById("tree").querySelector("[data-ui~='ui.section-head']");
   const pc = head.querySelector("[data-ui~='part.percent']").textContent.trim().split(" / ").map(Number);
-  const width = head.querySelector("[data-ui~='ui.section-bar'] [data-ui~='study.bar-fill']").style.width;
+  /* Graphite step 8: the spine bar is the shared k-bar, which carries its
+     fill as --p on the bar (a static inline width is banned by smoke55) */
+  const width = head.querySelector("[data-ui~='ui.section-bar']").style.getPropertyValue("--p").trim();
   const want = pc[1] ? Math.round(100 * pc[0] / pc[1]) : 0;
   assert(width === want + "%", "bar says " + width + ", the count beside it says " + want + "%");
 });

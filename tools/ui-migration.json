@@ -44,7 +44,11 @@
     "js/modules/vndbprofile.js",
     "js/modules/mediasearch.js",
     "js/modules/governor-ui.js",
-    "js/modules/assistant.js"
+    "js/modules/assistant.js",
+    "js/modules/hub.js",
+    "js/modules/cloudui.js",
+    "js/modules/notifications.js",
+    "js/modules/help.js"
   ],
   "views": {
     "home": {},
@@ -74,6 +78,9 @@
     "aniprofile": {},
     "vndbprofile": {},
     "governor": {},
-    "assistant": {}
+    "assistant": {},
+    "notifications": {},
+    "data": {},
+    "help": {}
   }
 }

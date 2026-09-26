@@ -500,7 +500,10 @@ step("early-stopped focus sessions don't keep a streak alive", () => {
 console.log("== help view ==");
 step("help & guide renders every section", () => {
   KOS.show("help");
-  if ($("[data-ui~='help.row']").length < 15) throw new Error("help rows: " + $("[data-ui~='help.row']").length);
+  /* Graphite step 8 (frame 14c): the guide is read a section at a time; the
+     nav lists every entry of every section */
+  if ($$("[data-ui~='help.nav-item']").length < 15) throw new Error("help entries in the nav: " + $$("[data-ui~='help.nav-item']").length);
+  if (!$$("[data-ui~='help.row']").length) throw new Error("the open section shows no entries");
   if (!$("[data-ui~='help.nav-item']")) throw new Error("help nav missing");
 });
 

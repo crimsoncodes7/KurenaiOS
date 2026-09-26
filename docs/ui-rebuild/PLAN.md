@@ -800,6 +800,59 @@ the invariants and the hook contract still govern behaviour.
   semantic: messages are `<article>`, items and steps are lists, the
   table is a `<figure>`.
 
+### Step 8 as delivered — the Archive (frames 14a–14c)
+
+- `hub.js`, `cloudui.js`, `notifications.js` and `help.js` are rebuilt
+  files (styles in `css/views/archive.css`).
+- **Backup & Restore (14a).**
+  - "Keep it safe" shows the last backup from this device. A completed
+    export now notes `ui.lastBackupAt`, which is per device like all of
+    `ui`.
+  - It also shows cloud state, the browser's storage estimate and the
+    three export/import actions.
+  - The Account & Cloud Sync card sits beside it, with the facts the
+    engine knows: status, last sync, last merge.
+  - "What a backup covers" is counted from the owning stores.
+  - Reset is a separate danger strip. Its confirmation (14a2) asks for
+    the word RESET, offers "Export backup first", and never confirms on
+    Enter.
+  - Tokens and the cloud password are still left out, and the page says
+    so.
+- **Notifications (14b, 14b2).**
+  - The feed is grouped by day, with All, Unread and the three section
+    filters.
+  - Beside it: the device-alert switch and what lands here.
+  - The frame's per-type toggles, quiet hours and Governor events are
+    not drawn. notify.js has no such settings, and invariant 95 keeps the
+    Governor out of the ledger. Each alert is set on its own record.
+  - The bell popover shows the five most recent items, a "N new" chip
+    and "View all".
+- **Help & Guide (14c).**
+  - The sections and their entries are on the left.
+  - One section is read as an article: each entry is a heading and a
+    paragraph in the reading face, followed by its related link and
+    previous/next.
+  - On the right: On this page, shortcuts and "Ask Kurenai".
+  - The open section is the route (`#/help/<section>`, new in
+    `router.js`), replacing the `history.replaceState` hash writes that
+    went behind the router (invariant 64).
+  - Search spans every section. The guide's text is unchanged.
+- **Tidy-ups found on the way.**
+  - The subject desk's ⇆ Compare dialog, left on legacy markup by step
+    3, now uses the Study vocabulary, and `openDialog` owns its Escape.
+  - The printable revision summary uses `k-` names.
+  - The spine's section bar carries `--p` like every `k-bar`.
+  - The dead `tokenColor`/`miniRing` helpers and the `tree-closed` class
+    write are gone.
+- **Tests.**
+  - smoke56's `rewriteEffects` now also renames a single-valued effect
+    (a `nav`).
+  - smoke3, smoke43 and smoke53 are updated with notes.
+- **Still to rebuild.** The labs pages and in-tab simulations, the
+  Governor's profile popover and status editor, and Collection
+  Overview's analytics. The Dawn theme (M13) and the release (M14)
+  wait for review.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

@@ -1,5 +1,7 @@
 /* Kurenai OS — modules/help.js
-   The in-app guide: what every tab and feature does, in a paragraph or less. */
+   The in-app guide: what every tab and feature does, in a paragraph or less.
+   Graphite step 8 (frame 14c) is the view at the foot of this file; the
+   guide's text is unchanged. */
 (function () {
   "use strict";
   var el = KOS.ui.el;
@@ -117,123 +119,133 @@
     "Install as an app (PWA)": ["Open Data & Backup", "data"]
   };
   function slug(value) { return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+  /* each section marked like the main rail */
+  var SECTION_MARK = ["灯", "学", "習", "整", "守", "蒐", "蔵"];
+  var NAV_PREVIEW = 3;
 
-  KOS.views.help = function (main) {
+  /* Graphite step 8 (frame 14c): a documentation desk — the sections and
+     their entries on the left, one section read as an article in the
+     middle (every entry a heading and its paragraph), and on the right
+     what is on this page, the shortcuts and a way to ask Kurenai. The
+     open section is the route's argument (#/help/<section>), so a link to
+     a part of the guide survives being sent. */
+  KOS.views.help = function (main, arg) {
     KOS.shell.tree("none");
-    main.appendChild(el("div", { class: "dash-head" }, [
-      el("div", { class: "dh-txt" }, [
-        el("span", { class: "dh-kicker", text: "The manual" }),
-        el("h1", { text: "Help & Guide" }),
-        el("div", { class: "dh-sub" }, [
-          el("span", { class: "board", text: "What everything is and how to use it. Search, or open a topic to read." })
-        ])
-      ])
-    ]));
+    var si = Math.max(0, SECTIONS.findIndex(function (s) { return slug(s[0]) === arg; }));
+    var sec = SECTIONS[si];
+    main.appendChild(KOS.ui.pageHeader({ kicker: "The archive · 導", title: "Help & Guide",
+      sub: "What everything is and how to use it. Search, or open a section to read." }));
 
-    /* Documentation desk: navigation, a deliberately narrow reading column,
-       and a practical context rail on wide screens. */
-    var wrap = el("div", { class: "help-wrap" });
-    main.appendChild(wrap);
-    var nav = el("nav", { class: "help-nav", "aria-label": "Guide sections" });
-    var searchShell = el("div", { class: "help-search-shell" });
-    var content = el("div", { class: "help-content" });
-    var aside = el("aside", { class: "help-aside", "aria-label": "Guide context" });
-    wrap.appendChild(nav);
-    wrap.appendChild(searchShell);
-    wrap.appendChild(content);
-    wrap.appendChild(aside);
+    var nav = el("nav", { class: "k-help-nav", "data-ui": "help.nav", "aria-label": "Guide sections" });
+    var article = el("article", { class: "k-card k-help-article", "data-ui": "help.content", "aria-labelledby": "help-title" });
+    var aside = el("aside", { class: "k-help-aside", "data-ui": "help.aside", "aria-label": "On this page" });
+    main.appendChild(el("div", { class: "k-help", "data-ui": "help.wrap" }, [nav, article, aside]));
 
-    var search = el("input", { type: "search", class: "todo-in help-search", placeholder: "Search pages, study systems and shortcuts…", "aria-label": "Search the manual" });
-    searchShell.appendChild(search);
-    var list = el("div", { class: "help-list" });
-    content.appendChild(list);
-
-    var contextTitle = el("b", { text: "Getting around" });
-    aside.appendChild(el("div", { class: "help-aside-card" }, [
-      el("span", { class: "help-aside-kicker", text: "Guide context" }), contextTitle,
-      el("p", { text: "Choose a section, scan the headings, then open only the detail you need." })
-    ]));
-    aside.appendChild(el("div", { class: "help-aside-card help-aside-shortcuts" }, [
-      el("span", { class: "help-aside-kicker", text: "Useful shortcuts" }),
-      el("div", {}, [el("kbd", { text: "/" }), el("span", { text: "Search the app" })]),
-      el("div", {}, [el("kbd", { text: "Alt+← / →" }), el("span", { text: "Back / forward" })]),
-      el("div", {}, [el("kbd", { text: "Esc" }), el("span", { text: "Close overlays" })])
-    ]));
-
-    function setDeepLink(id) {
-      if (window.history && window.history.replaceState) window.history.replaceState(null, "", "#" + id);
+    /* the search, then every section with its entries */
+    var search = el("input", { type: "search", class: "k-input k-help-search", "data-ui": "help.search",
+      placeholder: "Search the guide…", "aria-label": "Search the guide" });
+    nav.appendChild(search);
+    var navList = el("div", { class: "k-help-nav-list" });
+    nav.appendChild(navList);
+    function go(target, entry) {
+      if (entry && target === si) { reveal(entry, si); return; }
+      KOS.show("help", slug(SECTIONS[target][0]));
+      if (entry) setTimeout(function () { reveal(entry, target); }, 0);
     }
-    function openRow(row, head, id) {
-      KOS.ui.state(row, "open", true); head.setAttribute("aria-expanded", "true"); setDeepLink(id);
+    function reveal(entry, s) {
+      var node = entry && document.getElementById(entryId(s == null ? si : s, entry));
+      if (node && node.scrollIntoView) node.scrollIntoView({ block: "start", behavior: "smooth" });
     }
-
-    SECTIONS.forEach(function (sec, si) {
-      var secId = "help-" + slug(sec[0]);
-      nav.appendChild(el("button", { class: "help-nav-item" + (si === 0 ? " active" : ""), "data-si": String(si), "aria-current": si === 0 ? "true" : "false",
-        onclick: function () {
-          nav.querySelectorAll("[data-ui~='help.nav-item']").forEach(function (b) { KOS.ui.state(b, "active", false); b.setAttribute("aria-current", "false"); });
-          KOS.ui.state(this, "active", true); this.setAttribute("aria-current", "true"); contextTitle.textContent = sec[0]; setDeepLink(secId);
-          var target = document.getElementById(secId);
-          if (target && target.scrollIntoView) target.scrollIntoView({ block: "start", behavior: "smooth" });
-        } }, [sec[0]]));
-    });
-
-    SECTIONS.forEach(function (sec, si) {
-      var secId = "help-" + slug(sec[0]);
-      var block = el("section", { class: "help-block", id: secId, "data-sec": String(si) });
-      block.appendChild(el("h2", { class: "help-block-h", text: sec[0] }));
-      sec[1].forEach(function (item) {
-        var rowId = secId + "-" + slug(item[0]);
-        var body = el("div", { class: "help-row-body", id: rowId + "-detail" }, [el("p", { text: item[1] })]);
-        var row = el("article", { class: "help-row", id: rowId, "data-q": (item[0] + " " + item[1]).toLowerCase() });
-        var head = el("button", { class: "help-row-head", "aria-expanded": "false", onclick: function () {
-          var open = KOS.ui.state(row, "open");
-          head.setAttribute("aria-expanded", String(open));
-          if (open) setDeepLink(rowId);
-        } }, [
-          el("span", { class: "help-row-t", text: item[0] }),
-          el("span", { class: "help-row-arr", "aria-hidden": "true", text: "▾" })
-        ]);
-        head.setAttribute("aria-controls", rowId + "-detail");
-        row.appendChild(head);
-        row.appendChild(body);
-        if (RELATED[item[0]]) body.appendChild(el("div", { class: "help-row-tools" }, [
-          el("button", { class: "help-related", text: RELATED[item[0]][0] + " →", onclick: function () { KOS.show(RELATED[item[0]][1], RELATED[item[0]][2]); } })
-        ]));
-        block.appendChild(row);
+    function entryId(s, name) { return "help-" + slug(SECTIONS[s][0]) + "-" + slug(name); }
+    SECTIONS.forEach(function (s, i) {
+      var open = i === si;
+      var group = el("div", { class: "k-help-group" });
+      group.appendChild(el("button", { type: "button", class: "k-help-group-h", "data-ui": "help.nav-item help.section",
+        "aria-label": s[0], "aria-current": open ? "page" : null, "data-q": s[0].toLowerCase(),
+        onclick: function () { go(i); } }, [
+        el("span", { class: "k-help-mark", lang: "ja", "aria-hidden": "true", text: SECTION_MARK[i] || "·" }), s[0]
+      ]));
+      var entries = s[1], shown = open ? entries : entries.slice(0, NAV_PREVIEW);
+      shown.forEach(function (item) {
+        group.appendChild(el("button", { type: "button", class: "k-help-nav-item", "data-ui": "help.nav-item",
+          "data-si": String(i), "data-q": (item[0] + " " + item[1]).toLowerCase(),
+          onclick: function () { go(i, item[0]); } }, [item[0]]));
       });
-      list.appendChild(block);
+      if (entries.length > shown.length) group.appendChild(el("button", { type: "button", class: "k-help-more",
+        text: "+ " + (entries.length - shown.length) + " more", "aria-label": "Open " + s[0] + " (" + entries.length + " entries)",
+        onclick: function () { go(i); } }));
+      navList.appendChild(group);
     });
 
+    /* the article: this section's entries, each a heading and its text */
+    article.appendChild(el("div", { class: "k-help-crumb", text: "Help & Guide · " + sec[0] }));
+    article.appendChild(el("h2", { id: "help-title", class: "k-help-title", text: sec[0] }));
+    var body = el("div", { class: "k-help-body", "data-ui": "help.block" });
+    article.appendChild(body);
+    sec[1].forEach(function (item) {
+      var rel = RELATED[item[0]];
+      body.appendChild(el("section", { class: "k-help-entry", "data-ui": "help.row", id: entryId(si, item[0]),
+        "data-q": (item[0] + " " + item[1]).toLowerCase() }, [
+        el("h3", { class: "k-help-entry-h", text: item[0] }),
+        el("p", { text: item[1] }),
+        rel ? el("button", { type: "button", class: "k-link k-help-related", text: rel[0] + " →",
+          onclick: function () { KOS.show(rel[1], rel[2]); } }) : null
+      ].filter(Boolean)));
+    });
+    /* search results replace the article body while there is a query */
+    var results = el("div", { class: "k-help-body", "data-ui": "help.results", hidden: "" });
+    article.appendChild(results);
+    var pager = el("div", { class: "k-help-pager" }, [
+      si > 0 ? pageLink(si - 1, "← Previous") : el("span"),
+      si < SECTIONS.length - 1 ? pageLink(si + 1, "Next →") : el("span")
+    ]);
+    article.appendChild(pager);
+    function pageLink(i, dir) {
+      return el("button", { type: "button", class: "k-help-page", "data-dir": dir.charAt(0) === "←" ? "prev" : "next",
+        onclick: function () { go(i); } }, [el("span", { class: "k-help-page-k", text: dir }), el("b", { text: SECTIONS[i][0] })]);
+    }
+
+    /* on this page, the shortcuts, and Kurenai */
+    var onPage = el("section", { class: "k-card k-help-card", "aria-label": "On this page" }, [el("div", { class: "k-kicker", text: "On this page" })]);
+    sec[1].forEach(function (item) {
+      onPage.appendChild(el("button", { type: "button", class: "k-help-toc", text: item[0], onclick: function () { reveal(item[0]); } }));
+    });
+    aside.appendChild(onPage);
+    var keys = el("section", { class: "k-card k-help-card", "aria-label": "Useful shortcuts" }, [el("div", { class: "k-kicker", text: "Useful shortcuts" })]);
+    [["/", "Search the app"], ["Alt ← / →", "Back / forward"], ["Esc", "Close overlays"], ["1–4", "Rate a card"]].forEach(function (k) {
+      keys.appendChild(el("div", { class: "k-card-row" }, [el("kbd", { class: "k-help-kbd", text: k[0] }), el("span", { class: "k-card-row-k", text: k[1] })]));
+    });
+    aside.appendChild(keys);
+    if (KOS.assistant && KOS.assistant.ask) aside.appendChild(el("button", { type: "button", class: "k-help-ask", onclick: function () {
+      KOS.assistant.ask("I'm reading the KurenaiOS guide on “" + sec[0] + "”. Explain how it works in practice, briefly.", "tutor");
+    } }, [
+      el("img", { src: "assets/assistant/logo/whispering-bloom-emblem-production.png", alt: "" }),
+      el("span", {}, ["Still stuck? ", el("b", { text: "Ask Kurenai" }), " about this page."])
+    ]));
+
+    /* search across every section */
     search.addEventListener("input", KOS.ui.debounce(function () {
       var q = search.value.trim().toLowerCase();
-      list.querySelectorAll("[data-ui~='help.row']").forEach(function (r) {
-        var hit = !q || r.dataset.q.indexOf(q) !== -1;
-        r.style.display = hit ? "" : "none";
-        KOS.ui.state(r, "open", !!q && hit);
-        var head = r.querySelector("[data-ui~='help.row-head']");
-        if (head) head.setAttribute("aria-expanded", String(!!q && hit));
+      navList.querySelectorAll("[data-ui~='help.nav-item']").forEach(function (b) { b.hidden = !!q && b.dataset.q.indexOf(q) === -1; });
+      results.innerHTML = "";
+      body.hidden = pager.hidden = !!q;
+      results.hidden = !q;
+      if (!q) return;
+      var hits = [];
+      SECTIONS.forEach(function (s, i) {
+        s[1].forEach(function (item) { if ((item[0] + " " + item[1]).toLowerCase().indexOf(q) !== -1) hits.push([i, item]); });
       });
-      list.querySelectorAll("[data-ui~='help.block']").forEach(function (b) {
-        var any = [].some.call(b.querySelectorAll("[data-ui~='help.row']"), function (r) { return r.style.display !== "none"; });
-        b.style.display = any ? "" : "none";
+      if (!hits.length) { results.appendChild(KOS.ui.emptyState({ compact: true, mark: "導", title: "Nothing matches", body: "Try a page name, a feature, or a word from what it does." })); return; }
+      hits.forEach(function (h) {
+        results.appendChild(el("section", { class: "k-help-entry" }, [
+          el("div", { class: "k-help-crumb", text: SECTIONS[h[0]][0] }),
+          el("h3", { class: "k-help-entry-h" }, [el("button", { type: "button", class: "k-help-hit", text: h[1][0], onclick: function () { go(h[0], h[1][0]); } })]),
+          el("p", { text: h[1][1] })
+        ]));
       });
     }, 150));
-
     search.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && search.value) { search.value = ""; search.dispatchEvent(new Event("input")); search.focus(); }
     });
-
-    if (location.hash && location.hash.indexOf("#help-") === 0) {
-      var linked = document.getElementById(location.hash.slice(1));
-      if (linked) {
-        var linkedRow = linked.matches('[data-ui~="help.row"]') ? linked : null;
-        if (linkedRow) openRow(linkedRow, linkedRow.querySelector("[data-ui~='help.row-head']"), linkedRow.id);
-        setTimeout(function () { linked.scrollIntoView({ block: "start" }); }, 0);
-      }
-    }
-
-    main.appendChild(el("p", { class: "sub", style: "margin-top:20px", text:
-      "Shortcuts: /  search · Alt+← / Alt+→ (or Backspace)  history · Esc  close search/modals." }));
   };
 })();
