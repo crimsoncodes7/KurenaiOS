@@ -488,11 +488,12 @@ source comments and audit notes refer to it.
     because the plan would then open the wrong topic page.
 82. Pacing stores no progress, mastery or confidence. Coverage is READ from
     `state.progress` through the linked leaves, so the plan row and the topic
-    page cannot disagree; the per-row state it owns is a note and, on a
-    PERSONAL row, the tick (`done`/`doneAt`, `KOS.pacing.setDone`) — "I did
-    the week's item", the plan's own bookkeeping, never a claim about
-    mastery. Class rows never take a tick. Pacing is logistics like the
-    Budget Planner: zero Governor traffic, zero sessions.
+    page cannot disagree; the per-row state it owns is a note and the tick
+    (`done`/`doneAt`, `KOS.pacing.setDone`) — "I did the week's item" on a
+    personal row, "I sat that lesson" on a class row (Graphite review B,
+    frame 10f) — the plan's own bookkeeping, never a claim about mastery.
+    Only a personal row carries over. Pacing is logistics like the Budget
+    Planner: zero Governor traffic, zero sessions.
 82a. An unticked personal row whose week has ENDED (before today's plan
     week) CARRIES OVER: `carriedInto(wb)` derives it into every later week
     with `weeksLate`, marked behind, until it is ticked or moved
@@ -519,13 +520,20 @@ source comments and audit notes refer to it.
     deleting a week that still holds rows refuses unless the caller passes
     `cascade`. Deletes ask through `KOS.ui.confirm({danger:true})` and Delete
     never shares a control group with Save.
-85. The braid is the alignment evidence as topology, not a second dataset: one
-    branch per shared spec point, packed into commit-graph depths, with a
-    non-scrolling key column so a lane always says whose it is. The diagram is
-    one `role="img"`; every branch is repeated as a real button beneath it,
-    which is the keyboard and screen-reader route. No shared refs draws no
-    diagram. The legend names every mark, so the tab carries no explanatory
-    header — the long version is a Help & Guide entry.
+85. The braid is the alignment evidence as a picture, not a second dataset
+    (frame 10g, Graphite review B): ONE subject at a time, picked by a
+    page-wide toggle (`state.ui.paceBraidSubject`, per device) that the
+    diagram and the merges table both follow; a class line over my plan's
+    line, a node per week holding rows, and one arc per pair of weeks that
+    share a spec point (dashed when one side got there first, a solid rung
+    for the same week). A non-scrolling key column names the two lines.
+    The diagram is one `role="img"`; beneath it every plan row that met
+    class is a real button in five columns (reference, title, when,
+    verdict, Open), which is the keyboard and screen-reader route. A row
+    names ONE reference — the shared leaf, or the majority parent when it
+    shares several — and its dialog links every leaf. No shared refs draws
+    no diagram. The legend names every mark, so the tab carries no
+    explanatory header — the long version is a Help & Guide entry.
 
 ## Extension notes
 

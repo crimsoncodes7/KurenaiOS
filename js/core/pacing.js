@@ -109,9 +109,11 @@
       refs: (Array.isArray(e.refs) ? e.refs : []).map(str)
         .filter(function (r) { return r && (!indexReady(subject) || leafOf(subject, r)); }),
       note: str(e.note),
-      /* the tick belongs to MY rows only — class does its own work */
-      done: e.source === "personal" && !!e.done,
-      doneAt: e.source === "personal" && e.done && isFinite(e.doneAt) ? e.doneAt : null
+      /* every row takes a tick (Graphite review B, frame 10f): a class row
+         ticked is "I sat that lesson", a personal row "I did the week's
+         item". Only a personal row carries over when left unticked. */
+      done: !!e.done,
+      doneAt: e.done && isFinite(e.doneAt) ? e.doneAt : null
     };
   }
 
@@ -271,10 +273,11 @@
   }
 
   /* the tick. Zero Governor traffic, zero study-record writes: this is
-     "I did the week's item", the plan's own bookkeeping. */
+     "I did the week's item" (or "I sat that lesson" on a class row), the
+     plan's own bookkeeping. */
   function setDone(id, val) {
     var e = entryById(id);
-    if (!e || e.source !== "personal") return null;
+    if (!e) return null;
     e.done = !!val;
     e.doneAt = e.done ? Date.now() : null;
     KOS.store.save();

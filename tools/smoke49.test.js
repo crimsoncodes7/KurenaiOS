@@ -316,7 +316,7 @@ step("the braid does not re-teach itself above the diagram", () => {
   const heads = $$("#main h2").map(h => h.textContent.trim());
   assert(heads.indexOf("The braid") === -1, "the explanatory header is back: " + heads.join(", "));
   assert(heads.indexOf("Every merge, in words") !== -1, "the merges section lost its label");
-  assert($$("#main [data-ui~='pace.legend-k']").length === 4, "the legend that replaced the prose is missing");
+  assert($$("#main [data-ui~='pace.legend-k']").length === 5, "the legend that replaced the prose is missing");
 });
 
 step("Pacing is a Productivity destination whose route carries the week or the tab", () => {
@@ -339,9 +339,9 @@ step("Pacing is a Productivity destination whose route carries the week or the t
 
 step("a deep link opens that week; an unknown week falls back to today's", () => {
   KOS.show("pacing", { wb: "2026-12-14" });
-  assert($("#main [data-ui~='ui.section-header'] h2").textContent.includes("14 Dec"), "the deep link opened the wrong week");
+  assert($("#main [data-ui~='pace.hero']").getAttribute("aria-label").includes("14 Dec"), "the deep link opened the wrong week");
   KOS.show("pacing", { wb: "1999-01-01" });
-  assert($("#main [data-ui~='ui.section-header'] h2").textContent === KOS.pacing.currentWeek().label,
+  assert($("#main [data-ui~='pace.hero']").getAttribute("aria-label") === KOS.pacing.currentWeek().label,
     "an unknown week did not fall back to the current one");
 });
 
@@ -386,7 +386,8 @@ step("plan rows are native buttons, not ARIA cards", () => {
 
 step("the row dialog goes through the one dialog route and links to the topic page", () => {
   KOS.show("pacing", { wb: "2026-11-02" });
-  const row = $$("#main [data-ui~='pace.row']").find(b => /\d\/\d/.test(b.textContent));
+  const linked = KOS.pacing.entries().find(e => e.wb === "2026-11-02" && e.source === "personal" && e.refs.length);
+  const row = linked && $$("#main [data-ui~='pace.row']").find(b => b.textContent.includes(linked.title));
   assert(row, "no row with linked spec points");
   row.click();
   const box = $("[data-ui~='ui.dialog'][data-ui~='pace.dlg']");
@@ -413,23 +414,24 @@ step("a row with no spec point says so rather than linking somewhere near", () =
   $("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] [data-ui~='ui.dialog-head'] button").click();
 });
 
-step("the week summary is a sub-line, and suppresses zero-only supporting facts", () => {
-  /* the facts are the section header's own sub-line now — a row of
-     card-sized boxes carrying one figure each was the wrong weight for
-     three numbers, and the primitive is not used here any more */
+step("the week banner leads with the one figure and suppresses zero-only supporting facts", () => {
+  /* frame 10f: whose week it is in the kicker, "x of y plan rows ticked"
+     as the title, the carry-over rule as the sub-line — a row of
+     card-sized boxes carrying one figure each was the wrong weight */
   assert(!$("#main .pace-stats"), "the stat-card row came back");
 
   KOS.show("pacing", { wb: "2026-10-26" });            /* half term: nothing planned */
-  const quiet = $("#main [data-ui~='pace.week-header'] [data-ui~='part.sub']").textContent;
-  assert(/0 topics planned/.test(quiet), "the primary count vanished at zero: " + quiet);
-  assert(!/spec points? in class/.test(quiet), "a zero supporting fact was printed: " + quiet);
-  assert(!/my plan has reached/.test(quiet), "a zero supporting fact was printed: " + quiet);
-  assert(/Half term/.test(quiet), "half term is no longer named");
+  const hero = () => $("#main [data-ui~='pace.hero']");
+  const quiet = hero().textContent;
+  assert(/Nothing planned/.test($("#main [data-ui~='pace.week-header'] h2").textContent), "an empty week does not say so: " + quiet);
+  assert(!/0 of 0/.test(quiet), "a zero-only fact was printed: " + quiet);
+  assert(!/\b0 behind/.test(quiet), "a zero-only fact was printed: " + quiet);
+  assert(/Half term/.test($("#main [data-ui~='pace.week-header'] [data-ui~='part.sub']").textContent), "half term is no longer named");
 
   KOS.show("pacing", { wb: "2026-11-02" });
-  const full = $("#main [data-ui~='pace.week-header'] [data-ui~='part.sub']").textContent;
-  ["School week 9", "My week 8", "topics planned", "spec points in class", "my plan has reached"]
-    .forEach(f => assert(full.indexOf(f) !== -1, "a busy week dropped “" + f + "”: " + full));
+  assert(/School week 9/.test(hero().querySelector(".k-kicker").textContent), "the kicker lost the school week: " + hero().textContent);
+  assert(/^\d+ of \d+ plan rows ticked$/.test($("#main [data-ui~='pace.week-header'] h2").textContent),
+    "the title is not the week's one figure: " + $("#main [data-ui~='pace.week-header'] h2").textContent);
 });
 
 step("the styles are theme-derived and stay inside the five breakpoints", () => {
@@ -531,12 +533,12 @@ step("a week can be added, moved and deleted, and its rows follow", () => {
 
 step("the editor creates, edits and deletes through the one dialog route", () => {
   KOS.show("pacing", { wb: "2026-11-02" });
+  /* frame 10f: one "+ Add row" on the week's banner, opening on my own
+     CS plan (the dialog picks the subject and the register) */
   const adds = $$("#main [data-ui~='pace.add']");
-  assert(adds.length === 6, "expected an add control in each of the six registers, found " + adds.length);
-  adds.forEach(b => assert(b.getAttribute("aria-label"), "an add control has no accessible name"));
-
-  /* the second control is the CS column's "My plan" register */
-  adds[1].click();
+  assert(adds.length === 1, "expected the one add control on the week banner, found " + adds.length);
+  assert(adds[0].getAttribute("aria-label"), "the add control has no accessible name");
+  adds[0].click();
   const dlg = $("[data-ui~='ui.dialog'][data-ui~='pace.dlg']");
   assert(dlg && dlg.getAttribute("role") === "dialog" && dlg.getAttribute("aria-modal") === "true",
     "the add dialog is not a dialog");
@@ -581,7 +583,7 @@ step("the editor creates, edits and deletes through the one dialog route", () =>
 
 step("the specification picker never renders the whole specification", () => {
   KOS.show("pacing", { wb: "2026-11-02" });
-  $$("#main [data-ui~='pace.add']")[1].click();
+  $("#main [data-ui~='pace.add']").click();
   const dlg = $("[data-ui~='ui.dialog'][data-ui~='pace.dlg']");
   const rows = dlg.querySelectorAll("[data-ui~='pace.pick-row']").length;
   assert(rows > 0 && rows <= 40, "the picker drew " + rows + " rows of a 156-leaf subject");
@@ -612,42 +614,74 @@ step("a branch exists only where the two registers share a linked spec point", (
   });
 });
 
-step("branches pack into commit-graph lanes instead of stacking", () => {
+/* the rows the merges table should hold for one subject: one per plan
+   row per class week it met */
+function mergeRowsOf(sid) {
+  const lane = KOS.pacing.braid().lanes.find(l => l.subject === sid);
+  const keys = new Set();
+  lane.links.forEach(link => link.refs.forEach(r => keys.add(r.entry.id + "|" + link.toWb)));
+  return { lane, n: keys.size };
+}
+
+step("the braid draws one subject: two lines, one arc per shared week pair", () => {
+  KOS.store.state.ui.paceBraidSubject = "compsci";
   KOS.show("pacing", { tab: "braid" });
   const svg = $("#main [data-ui~='pace.braid-svg']");
   assert(svg, "the braid did not render");
-  const model = KOS.pacing.braid();
-  const total = model.lanes.reduce((a, l) => a + l.links.length, 0);
-  /* one path per branch, plus the arrow tip on every non-stub */
-  const stubs = model.lanes.reduce((a, l) => a + l.links.filter(k => k.lead === 0).length, 0);
-  assert(svg.querySelectorAll("path").length === total + (total - stubs),
-    "path count " + svg.querySelectorAll("path").length + " ≠ " + total + " branches + tips");
-  assert(+svg.getAttribute("height") > 200, "the canvas did not grow to fit the packed depths");
+  const { lane } = mergeRowsOf("compsci");
+  assert(svg.querySelectorAll(".k-braid-link").length === lane.links.length,
+    "arcs " + svg.querySelectorAll(".k-braid-link").length + " ≠ week pairs " + lane.links.length);
+  assert(svg.querySelectorAll(".k-braid-line").length === 2, "the diagram is not a class line over my plan");
+  assert(/Computer Science/.test(svg.getAttribute("aria-label")) && !/Mathematics/.test(svg.getAttribute("aria-label")),
+    "the diagram is not the one subject the toggle picked");
+  assert(svg.querySelectorAll(".k-braid-link[data-tone='same']").length === lane.links.filter(k => k.lead === 0).length,
+    "a same-week arc is not drawn as the solid rung");
 });
 
-step("the lane names do not scroll away from their branches", () => {
+step("the subject toggle is page-wide: the diagram and the table follow it", () => {
+  KOS.store.state.ui.paceBraidSubject = "compsci";
+  KOS.show("pacing", { tab: "braid" });
+  const seg = $("#main [data-ui~='ui.page-header'] [data-ui~='pace.subject']");
+  assert(seg, "the subject toggle is not in the page header");
+  const items = [...seg.querySelectorAll("button[data-ui~='pace.subject-item']")];
+  assert(items.length === 3 && items.filter(b => b.getAttribute("aria-pressed") === "true").length === 1, "the toggle is not three buttons with one pressed");
+  items.find(b => b.textContent.trim() === "Maths").click();
+  assert(KOS.store.state.ui.paceBraidSubject === "maths", "the toggle did not remember the subject");
+  assert(/Mathematics/.test($("#main [data-ui~='pace.braid-svg']").getAttribute("aria-label")), "the diagram did not follow the toggle");
+  assert($$("#main [data-ui~='pace.merge']").length === mergeRowsOf("maths").n, "the table did not follow the toggle");
+  KOS.store.state.ui.paceBraidSubject = "compsci";
+  KOS.show("pacing", { tab: "week" });
+  assert(!$("#main [data-ui~='pace.subject']"), "the braid's toggle leaked into the week tab");
+});
+
+step("the line names do not scroll away from their lines", () => {
   KOS.show("pacing", { tab: "braid" });
   const keys = $("#main [data-ui~='pace.braid-keys']");
   assert(keys, "the braid has no fixed key column");
   assert(keys.getAttribute("aria-hidden") === "true", "the decorative key column is exposed twice");
   assert(!$("#main [data-ui~='pace.braid-wrap']").contains(keys), "the key column is inside the scroller it exists to escape");
   const names = [...keys.querySelectorAll("text")].map(t => t.textContent);
-  ["Computer Science", "Mathematics", "IT · Data Analytics", "In class", "My plan"]
-    .forEach(n => assert(names.indexOf(n) !== -1, "the key column does not name " + n));
+  ["Class", "My plan"].forEach(n => assert(names.indexOf(n) !== -1, "the key column does not name " + n));
   assert(keys.getAttribute("height") === $("#main [data-ui~='pace.braid-svg']").getAttribute("height"),
     "the key column and the graph are different heights, so the rows cannot line up");
 });
 
-step("every arc is repeated as a real button, and the diagram is one image", () => {
+step("every merge is a real button, one per plan row, naming one reference", () => {
   KOS.show("pacing", { tab: "braid" });
-  const model = KOS.pacing.braid();
-  const total = model.lanes.reduce((a, l) => a + l.links.length, 0);
-  assert($$("#main [data-ui~='pace.merge']").length === total,
-    "merge buttons " + $$("#main [data-ui~='pace.merge']").length + " ≠ branches " + total);
-  $$("#main [data-ui~='pace.merge']").forEach(b => {
+  const btns = $$("#main [data-ui~='pace.merge']");
+  assert(btns.length === mergeRowsOf("compsci").n, "merge buttons " + btns.length + " ≠ plan rows met " + mergeRowsOf("compsci").n);
+  btns.forEach(b => {
     assert(b.tagName === "BUTTON", "a merge row is not a native button");
     assert(/spec point/.test(b.getAttribute("aria-label") || ""), "a merge row has no real accessible name");
+    assert(!/[,·]/.test(b.querySelector(".k-pace-merge-ref").textContent), "a merge row names more than one reference: " + b.querySelector(".k-pace-merge-ref").textContent);
+    assert(b.children.length === 5, "a merge row is not the design's five columns");
   });
+  /* the leaves the parent stands for are one press away, in the dialog */
+  const many = btns.find(b => /\d+ spec points \(/.test(b.getAttribute("aria-label")));
+  assert(many, "no merge row stands for several spec points");
+  many.click();
+  assert($$("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] [data-ui~='pace.dlg-ref']").length > 1, "the row's dialog does not link its spec points");
+  $("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] [data-ui~='ui.dialog-head'] button").click();
   const svg = $("#main [data-ui~='pace.braid-svg']");
   assert(svg.getAttribute("role") === "img" && svg.getAttribute("aria-label"),
     "the diagram is not a named image");
@@ -656,17 +690,14 @@ step("every arc is repeated as a real button, and the diagram is one image", () 
   assert($("#main [data-ui~='ui.scroller'][data-ui~='pace.braid-wrap'][data-scroller]"), "the braid's horizontal scroll is undeclared");
 });
 
-step("mine and class week numbers are never mixed up", () => {
+step("the merge's weeks are named by date, each side its own", () => {
   KOS.show("pacing", { tab: "braid" });
-  const btn = $$("#main [data-ui~='pace.merge']")[0];
-  const sub = btn.querySelector("[data-ui~='part.sub']").textContent;
-  const m = /mine W(\d+) → class W(\d+)/.exec(sub);
-  assert(m, "the merge row does not name both week numbers: " + sub);
-  const model = KOS.pacing.braid();
-  const first = model.lanes.filter(l => l.links.length)[0]
-    .links.slice().sort((p, q) => (p.toWb < q.toWb ? -1 : 1))[0];
-  assert(+m[1] === KOS.pacing.weekAt(first.fromWb).personalWk, "the mine tag is not the personal week number");
-  assert(+m[2] === KOS.pacing.weekAt(first.toWb).schoolWk, "the class tag is not the school week number");
+  const { lane } = mergeRowsOf("compsci");
+  const link = lane.links.slice().sort((p, q) => (p.toWb < q.toWb ? -1 : p.toWb > q.toWb ? 1 : p.fromWb < q.fromWb ? -1 : 1))[0];
+  const when = $$("#main [data-ui~='pace.merge']")[0].querySelector("[data-ui~='part.sub']").textContent;
+  const mine = KOS.pacing.weekAt(link.fromWb).label, cls = KOS.pacing.weekAt(link.toWb).label;
+  if (link.lead === 0) assert(when === "Both " + cls, "a same-week merge reads " + when);
+  else assert(when.indexOf("My plan " + mine) !== -1 && when.indexOf("Class " + cls) !== -1, "the merge's weeks are wrong: " + when);
 });
 
 step("a plan with no shared spec points draws nothing and says so", () => {
@@ -688,19 +719,22 @@ console.log("== H · my rows are ticked off; the unticked carry over; the plan l
 const realToday = KOS.srs.todayISO;
 KOS.srs.todayISO = () => "2026-11-04";           /* Wednesday of w/c 2 Nov */
 
-step("a personal row carries a tick; class rows never do; the tick is the plan's own bookkeeping", () => {
+step("every row takes a tick; only a personal row carries over; the tick is the plan's own bookkeeping", () => {
   const mine = KOS.pacing.addEntry({ source: "personal", subject: "maths", wb: "2026-11-02", title: "Tick me", refs: [] });
   const cls = KOS.pacing.addEntry({ source: "school", subject: "maths", wb: "2026-11-02", title: "Class does this", kind: "Lessons" });
   assert(mine.done === false && mine.doneAt === null, "a new row must start unticked");
   const s0 = KOS.sessions.all().length, g0 = KOS.store.state.governor.gold;
   const t = KOS.pacing.setDone(mine.id, true);
   assert(t.done === true && typeof t.doneAt === "number", "setDone did not tick");
-  assert(KOS.pacing.setDone(cls.id, true) === null && !KOS.pacing.entryById(cls.id).done, "a class row must not take a tick");
+  /* Graphite review B (frame 10f): a class lesson is ticked too */
+  assert(KOS.pacing.setDone(cls.id, true).done === true, "a class row takes a tick");
   assert(KOS.sessions.all().length === s0 && KOS.store.state.governor.gold === g0, "the tick reached the Governor (invariant 82)");
   assert(!KOS.store.peekProgress("maths", "1.1.1") || true, "n/a");
   const n = KOS.pacing.normalise(Object.assign({}, t));
   assert(n.done === true && n.doneAt === t.doneAt, "normalise dropped the tick");
-  assert(KOS.pacing.normalise({ source: "school", done: true, doneAt: 5 }).done === false, "normalise let a class row keep a tick");
+  assert(KOS.pacing.normalise({ source: "school", done: true, doneAt: 5 }).done === true, "normalise dropped a class row's tick");
+  KOS.pacing.setDone(cls.id, false);
+  assert(!KOS.pacing.carriedInto("2026-11-09", "maths").some(c => c.entry.id === cls.id), "a class row never carries over");
   KOS.pacing.setDone(mine.id, false);
   assert(KOS.pacing.entryById(mine.id).doneAt === null, "unticking must clear doneAt");
   KOS.pacing.removeEntry(mine.id); KOS.pacing.removeEntry(cls.id);
@@ -741,13 +775,13 @@ step("the week page: a tick beside every one of my rows, a carried band marked b
     assert(r.querySelector("[data-ui~='pace.tick'] input[type=checkbox]") && r.querySelector("button[data-ui~='pace.row']"), "a row lacks its tick or its button");
     assert(!r.querySelector("button[data-ui~='pace.row'] input"), "the tick is inside the row button");
   });
-  const band = $$("#main [data-ui~='pace.carried']").find(b => b.textContent.includes("Carry me"));
-  assert(band && /behind/i.test(band.textContent) && /from w\/c 12 Oct/.test(band.textContent), "the carried band is missing or unlabelled");
-  assert(/carried over/.test($("#main [data-ui~='pace.week-header']").textContent), "the week sub-line does not count the carry-over");
-  const carriedRow = $$("#main [data-ui~='pace.carried'] [data-ui~='pace.plan-row']").find(r => r.textContent.includes("Carry me"));
+  const carriedRow = $$("#main [data-ui~='pace.plan-row'][data-ui~='pace.carried']").find(r => r.textContent.includes("Carry me"));
+  const said = carriedRow && carriedRow.querySelector("button[data-ui~='pace.row']").getAttribute("aria-label");
+  assert(carriedRow && /carried/.test(carriedRow.textContent) && /behind/.test(said) && /from w\/c 12 Oct/.test(said), "the carried row is missing or unlabelled: " + said);
+  assert(/\d+ behind/.test($("#main [data-ui~='pace.hero']").textContent), "the banner does not count the carry-over");
   carriedRow.querySelector("[data-ui~='pace.move']").click();
   assert(KOS.pacing.entryById(older.id).wb === "2026-11-02", "→ here did not move the row into the week");
-  assert(!$$("#main [data-ui~='pace.carried'] [data-ui~='pace.plan-row']").some(r => r.textContent.includes("Carry me")), "the moved row is still in the carried band");
+  assert(!$$("#main [data-ui~='pace.plan-row'][data-ui~='pace.carried']").some(r => r.textContent.includes("Carry me")), "the moved row is still marked carried");
   const row = $$("#main [data-ui~='pace.reg-mine'] [data-ui~='pace.plan-row']").find(r => r.textContent.includes("Carry me"));
   const tick = row.querySelector("[data-ui~='pace.tick'] input");
   tick.checked = true; tick.dispatchEvent(new window.Event("change", { bubbles: true }));
@@ -829,11 +863,15 @@ step("a class row lists the week's lessons one per line, from the scheme of work
   assert(ls[2].tone === "assess" && ls[3].tone === "nea" && ls[0].tone === "lesson", "lesson tones wrong: " + ls.map(l => l.tone).join(","));
   assert(KOS.pacing.lessonsOf({ detail: "" }).length === 0 && KOS.pacing.lessonsOf({ detail: "One thing." }).length === 1, "edge cases");
   KOS.show("pacing", { wb: "2026-11-02" });
-  const block = $$("#main [data-ui~='pace.class-block']").find(b => b.querySelector("[data-ui~='pace.lessons']"));
-  assert(block, "no class block carries its lesson list");
-  assert(block.querySelector("button[data-ui~='pace.class']") && !block.querySelector("button[data-ui~='pace.class'] [data-ui~='pace.lessons']"), "the lesson list must sit beside the row button, not inside it");
-  const items = block.querySelectorAll("[data-ui~='pace.lessons'] [data-ui~='pace.lesson']");
-  assert(items.length > 1 && /lessons/.test(block.querySelector("[data-ui~='pace.class'] [data-ui~='part.sub']").textContent), "the row does not count its lessons");
+  /* frame 10f keeps the week's columns to one line per row: the lessons
+     live in the row's dialog, and the row's name counts them */
+  const cls = $$("#main button[data-ui~='pace.class']").find(b => /\d+ lessons/.test(b.getAttribute("aria-label") || ""));
+  assert(cls, "no class row counts its lessons");
+  assert(!$("#main [data-ui~='pace.lessons']"), "the lesson lists came back into the week's columns");
+  cls.click();
+  const items = $$("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] [data-ui~='pace.lessons'] [data-ui~='pace.lesson']");
+  assert(items.length > 1, "the class row's dialog does not list its lessons");
+  $("[data-ui~='ui.dialog'][data-ui~='pace.dlg'] [data-ui~='ui.dialog-head'] button").click();
 });
 
 KOS.srs.todayISO = realToday;

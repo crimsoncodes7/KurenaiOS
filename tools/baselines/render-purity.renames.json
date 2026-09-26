@@ -658,6 +658,35 @@
    "from": "^Open vndb\\.org/u/tokens ↗$",
    "to": "Get a VNDB token ↗",
    "why": "Graphite review A: the token link sits on the token step's label row as \"Get one ↗\"."
+  },
+  {
+   "surface": "pacing.*",
+   "hooks": "pace.row",
+   "from": ", carried over,",
+   "retire": true,
+   "reachable": true,
+   "why": "Graphite review B (Pacing, frame 10f): a carried row is one row marked \"carried\" in My plan, and its name says which week it came from (the separate carried band went)."
+  },
+  {
+   "surface": "pacing.*",
+   "from": "^\\+ Add row$",
+   "retire": true,
+   "reachable": true,
+   "why": "Graphite review B (Pacing, frame 10f): the week's actions moved from the section header to the banner's right-hand side; \"+ Add row\" there is named for the week it adds to."
+  },
+  {
+   "surface": "pacing.*",
+   "hooks": "pace.add",
+   "from": "^Add a (class|plan) row for ",
+   "retire": true,
+   "why": "Graphite review B (Pacing, frame 10f): the six per-register + buttons went; the banner's one \"+ Add row\" opens the same dialog, which picks the subject and the register."
+  },
+  {
+   "surface": "pacing.*",
+   "hooks": "pace.merge",
+   "from": ".",
+   "retire": true,
+   "why": "Graphite review B (Pacing braid, frame 10g): the merges table is one subject at a time and one row per plan row, naming its title and one reference; a row opens the plan row's dialog (which links every spec point), and a week opens from its column in the diagram."
   }
  ]
 }
