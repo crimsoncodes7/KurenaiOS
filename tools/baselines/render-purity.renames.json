@@ -526,6 +526,19 @@
    "retire": true,
    "reachable": true,
    "why": "Graphite step 5f (Sync & Import, frame 11i): the footer links to the vaults repeated the Collection sub-nav directly above the page, which opens the same vaults."
+  },
+  {
+   "surface": "governor",
+   "hooks": "gov.ledger-more",
+   "from": "^Open the full session log →$",
+   "to": "Open full log →",
+   "why": "Graphite step 6 (the Seat, frame 12a): the ledger's link to the Session Log reads \"Open full log →\"; the count of filed system events became its title."
+  },
+  {
+   "surface": "governor",
+   "from": "^How HP and access work$",
+   "retire": true,
+   "why": "Graphite step 6 (the Seat, frame 12a): the three HP rules (Drains, Restores, Always open) are a strip that is always in view, so there is no disclosure to open."
   }
  ]
 }

@@ -190,6 +190,12 @@ font-size: var(--fs-12);
 .k-profile-gold { margin-inline-start: auto; font-family: var(--font-mono); color: var(--amber); }
 .k-avatar { inline-size: var(--avatar, var(--sp-32)); block-size: var(--avatar, var(--sp-32)); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; overflow: hidden; background: var(--s2); }
 .k-avatar > img, .k-avatar > svg { inline-size: 100%; block-size: 100%; object-fit: cover; }
+/* a worn frame (Gold Shop cosmetic): a ring off the portrait's rim */
+.k-avatar[data-frame] { box-shadow: 0 0 0 var(--bar-3) var(--bg), 0 0 0 calc(var(--bar-3) * 2) var(--frame-c, var(--line)); }
+.k-avatar[data-frame="frame-gold"] { --frame-c: var(--frame-gold); }
+.k-avatar[data-frame="frame-crimson"] { --frame-c: var(--frame-crimson); box-shadow: 0 0 0 var(--bar-3) var(--bg), 0 0 0 calc(var(--bar-3) * 2) var(--frame-c), 0 0 var(--sp-14) var(--crimson-glow); }
+.k-avatar[data-frame="frame-jade"] { --frame-c: var(--frame-jade); }
+.k-avatar[data-frame="frame-amethyst"] { --frame-c: var(--frame-amethyst); }
 #cols[data-rail="compact"] .k-profile, #cols[data-tree="open"] .k-profile, #cols[data-tree="closed"] .k-profile { inline-size: auto; padding: 0; background: none; }
 #cols[data-rail="compact"] .k-profile-txt, #cols[data-tree="open"] .k-profile-txt, #cols[data-tree="closed"] .k-profile-txt { display: none; }
 .k-rail-more { display: none; }

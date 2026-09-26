@@ -350,7 +350,7 @@
       paint(t, "fill", LABEL);
       s.appendChild(t);
     });
-    var lastMonth = "";
+    var lastMonth = "", lastLabel = null, lastLabelCol = -9;
     days.forEach(function (d, i) {
       var slot = i + firstDow;
       var col = Math.floor(slot / 7), row = slot % 7;
@@ -358,10 +358,14 @@
       var mon = d.date.slice(0, 7);
       if (row === 0 && mon !== lastMonth) {
         lastMonth = mon;
+        /* a label needs three columns of room: a partial first month
+           would print "MarApr" into its neighbour, so it gives way */
+        if (lastLabel && col - lastLabelCol < 3) s.removeChild(lastLabel);
         var mt = svgNode("text", { x: x, y: padT - 4, "font-size": "11",
           text: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][parseInt(mon.slice(5), 10) - 1] });
         paint(mt, "fill", LABEL);
         s.appendChild(mt);
+        lastLabel = mt; lastLabelCol = col;
       }
       var g = svgNode("g", {});
       g.appendChild(svgNode("title", { text: d.hint || (d.date + ": " + d.value) }));

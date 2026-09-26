@@ -564,6 +564,9 @@
           /* Home's Graphite hero (frame 7a): the design's own scrim token */
           : opts.scrim === "hero"
           ? "var(--home-hero-scrim)"
+          /* the Governor's identity stage and Avatar preview (frames 12a/12c) */
+          : opts.scrim === "governor"
+          ? "var(--gv-hero-scrim)"
           : opts.scrim === "full"
           ? "linear-gradient(100deg, color-mix(in srgb, var(--bg1) 93%, transparent) 0%, color-mix(in srgb, var(--bg1) 74%, transparent) 45%, color-mix(in srgb, var(--bg1) 82%, transparent) 100%)"
           : "linear-gradient(100deg, color-mix(in srgb, var(--bg1) 88%, transparent) 30%, color-mix(in srgb, var(--bg1) 45%, transparent) 70%, transparent)"

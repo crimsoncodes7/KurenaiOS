@@ -461,9 +461,11 @@ step("the Governor chronicle shows the objective, its result and where the notes
   KOS.show("governor", "history");
   const rows = $$("[data-ui~='gov.log-event']");
   assert(rows.length, "no history rows");
-  const focusRow = rows.find(r => /Focus session/.test(r.textContent));
-  assert(focusRow, "focus sessions are missing from the chronicle");
-  const all = rows.map(r => r.textContent).join(" ");
+  /* Graphite step 6 (frame 12d): an entry's record opens in the panel
+     beside the log — read every focus entry's */
+  const focusRows = rows.filter(r => /Focus session/.test(r.textContent));
+  assert(focusRows.length, "focus sessions are missing from the chronicle");
+  const all = focusRows.map(r => { r.click(); return $("[data-ui~='gov.log-details']").textContent; }).join(" ");
   assert(/Objective/.test(all), "the objective is not part of the record shown");
   assert(/Objective result/.test(all), "the objective result is not shown");
   assert(/Notes filed to/.test(all), "where the notes went is not shown");

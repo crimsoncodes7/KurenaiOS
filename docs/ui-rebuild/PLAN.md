@@ -684,6 +684,69 @@ the invariants and the hook contract still govern behaviour.
   the dialog.
 - This closes Collection (step 5). The Governor (step 6) is next.
 
+### Step 6 as delivered — the Governor (frames 12a–12d)
+
+- `governor-ui.js` is a rebuilt file (`k-gv-*`, styles in
+  `css/views/governor.css`). The four pages keep the header switcher.
+- **Status (12a).** The identity stage sits on the user's banner:
+  - the portrait in an HP ring, with the worn seal as a badge;
+  - rank, level, status and about;
+  - the XP bar, which left the instrument stack;
+  - the access row: state chip, Edit profile, the HP preview and the
+    banner controls.
+- **The instruments.** Beside the hero are four: Live HP, Gold, Review
+  queue and Study streak.
+  - Gold stays barless (invariant 78), although 12a draws a bar.
+  - The queue's bar is the queue against the backlog line.
+  - The streak's bar is progress to the next streak bonus. There is no
+    stored "best" streak to print.
+- **Beneath the hero.**
+  - A 26-week cadence with a Study / Rest rhythm switch. Rest counts
+    the Collection's sessions (invariant 3).
+  - The milestone ledger.
+  - The three HP rules, as a strip that is always in view.
+- **Recovery dispatch (12a2).** Below Healthy it replaces the access
+  chip. It shows the recovery checklist from
+  `KOS.governor.recoveryTasks()`, its progress, and the HP goal (30 to
+  leave Critical, 60 to reach Healthy).
+- **Invariant 2 wins over the frames.** 12a2 and 12b say labs and
+  purchases pause at low HP. They do not: the dispatch, the chip and
+  the shop all say nothing locks.
+- **Rewards on rows.** No session stores its reward, so a row prints
+  only what its record determines:
+  - a Focus row prints its `focusAward` (invariant 4a), or "award
+    forfeited";
+  - a Collection row prints "rest";
+  - nothing else is re-derived.
+- **Gold Shop (12b).**
+  - A balance band. Its copy states that HP never locks the shop.
+  - A department rail: All wares, Learning tools and Simulations under
+    "Deep practice", then All cosmetics and the six cosmetic groups.
+    Every rail row filters.
+  - A four-column grid of wares. Each preview is the thing being sold:
+    a lab miniature, a theme's palette, the banner, the topbar seal,
+    the framed portrait, a shelf skin, or a Shrine card edge.
+  - Avatar frames are now drawn app-wide as a ring on `.k-avatar[data-frame]`
+    (`css/layout.css`). They were unstyled after the M2 purge.
+- **Avatar & profile (12c).**
+  - The live identity: banner, ring, facts and the topbar seal preview.
+  - Beside it: the picture / banner / status fields, the seal library,
+    and every frame. A locked frame opens the shop.
+- **Session Log (12d).**
+  - The category switch, with System after a divider, then this
+    week's line.
+  - Day groups of rows: time, kind chip, title and detail, reward.
+  - An entry opens in a panel beside the list, holding its figures,
+    its words (linked topic, objective, result, notes filed to, award)
+    and its reflection.
+  - At the 860 tier the panel opens under its own day instead.
+  - Zero pauses, distractions and sync counts are omitted
+    (invariant 77).
+- **Shared fix.** The heatmap lets a partial first month's label give
+  way to the next, which used to print "MarApr".
+- **Not in this step.** Books' shelf skins are still unstyled in the
+  vault itself (a gap since step 5b). The shop preview shows them.
+
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.
 - **Behaviour regressions hidden inside the DOM rewrite.** `smoke56` compares action dispatch against the pre-rewrite spies recorded in M1, and each view commit carries only that view.

@@ -299,11 +299,14 @@ step("status tab renders the seat: identity, vitals, cadence, ledger", async () 
   const main = document.getElementById("main");
   const bento = main.querySelector("[data-ui~='gov.bento']");
   if (!bento) throw new Error("no .bento grid");
-  for (const cls of [".b-id", ".b-vitals", ".b-heat", ".b-ledger"]) {
-    if (!bento.querySelector(cls)) throw new Error("bento card missing: " + cls);
+  /* Graphite step 6 (frame 12a): the hero, the instrument stack, cadence
+     and the ledger; XP rides the hero's own bar, so four instruments */
+  for (const hook of ["gov.bento-id", "gov.b-vitals", "gov.b-heat", "gov.b-ledger"]) {
+    if (!bento.querySelector("[data-ui~='" + hook + "']")) throw new Error("seat section missing: " + hook);
   }
   if (!/Level \d/.test(bento.querySelector("[data-ui~='gov.bento-id']").textContent)) throw new Error("identity level missing");
-  if (bento.querySelectorAll("[data-ui~='gov.b-vitals'] [data-ui~='gov.vital']").length !== 5) throw new Error("five command instruments expected");
+  if (!bento.querySelector("[data-ui~='gov.bento-id'] [data-ui~='gov.xp']")) throw new Error("the hero carries no XP bar");
+  if (bento.querySelectorAll("[data-ui~='gov.b-vitals'] [data-ui~='gov.vital']").length !== 4) throw new Error("four command instruments expected");
   /* the overview's widgets (directives, countdowns, streak card) must NOT
      live here any more — they belong to Home */
   if (bento.querySelector(".b-edicts") || bento.querySelector(".b-exams") || bento.querySelector(".b-streak"))
@@ -346,7 +349,8 @@ step("Part A: the page switcher lives in the header, all four pages reachable", 
   KOS.show("governor");
   await tick(60);
   const main = document.getElementById("main");
-  const tabs = main.querySelector("[data-ui~='ui.page-head'] > [data-ui~='gov.tabs']");
+  /* Graphite: the switcher rides the shared header's action slot */
+  const tabs = main.querySelector("[data-ui~='ui.page-head'] [data-ui~='gov.tabs']");
   if (!tabs) throw new Error("switcher is not in the page header");
   const labels = [...tabs.querySelectorAll("[data-ui~='ui.tab']")].map(b => b.textContent.trim());
   if (labels.join("|") !== "Status|Gold Shop|Avatar|Session Log")
@@ -364,7 +368,8 @@ step("Part B: hero carries a proportionate portrait, access preview and the abou
   const id = document.getElementById("main").querySelector("[data-ui~='gov.bento-id']");
   const face = id.querySelector("[data-ui~='gov.face'] [data-ui~='gov.avatar']");
   if (!face) throw new Error("hero portrait missing");
-  if (!/112px/.test(face.getAttribute("style") || "")) throw new Error("hero portrait has the wrong scale: " + face.getAttribute("style"));
+  /* frame 12a: a 120px portrait inside the 132px HP ring */
+  if (!/120px/.test(face.getAttribute("style") || "")) throw new Error("hero portrait has the wrong scale: " + face.getAttribute("style"));
   if (!id.querySelector("[data-ui~='gov.id-access'] [data-ui~='gov.hp-preview']")) throw new Error("the access-state preview is missing");
   if (id.querySelector(".id-side")) throw new Error("duplicate stat rail leaked back into the hero");
   if (!id.querySelector("[data-ui~='gov.id-status']")) throw new Error("status line missing from the hero");
@@ -373,20 +378,22 @@ step("Part B: hero carries a proportionate portrait, access preview and the abou
 
 step("Part B5: every stat tile is the same shape; bounded instruments alone carry bars", async () => {
   const main = document.getElementById("main");
+  /* Graphite step 6 (frame 12a): the cadence facts are one line under the
+     heatmap, so the tiles are the four instruments */
   const tiles = [...main.querySelectorAll("[data-ui~='gov.stat']")];
-  if (tiles.length < 8) throw new Error("expected five instruments + three cadence tiles, got " + tiles.length);
+  if (tiles.length !== 4) throw new Error("expected four instruments, got " + tiles.length);
   for (const t of tiles) {
     if (!t.querySelector("[data-ui~='gov.vital-label']")) throw new Error("a tile has no label");
     if (!t.querySelector("[data-ui~='gov.vital-v']")) throw new Error("a tile has no value");
   }
   /* HP/XP/queue/streak are bounded measures. Gold is a balance and Phase G
      removed its semantically false progress bar. */
-  const vitals = [...main.querySelectorAll("[data-ui~='gov.b-vitals'] [data-ui~='gov.vital'] [data-ui~='gov.stat']")];
-  if (vitals.length !== 5) throw new Error("five instruments expected, got " + vitals.length);
+  const vitals = [...main.querySelectorAll("[data-ui~='gov.b-vitals'] [data-ui~='gov.vital'][data-ui~='gov.stat']")];
+  if (vitals.length !== 4) throw new Error("four instruments expected, got " + vitals.length);
   const gold = vitals.find(v => v.getAttribute("data-kind") === "gold");
   if (!gold || !gold.matches('[data-state~="no-meter"]') || gold.querySelector("[data-ui~='gov.vital-bar']"))
     throw new Error("Gold is not the one balance-only instrument");
-  if (vitals.filter(v => v !== gold).some(v => !v.querySelector("[data-ui~='gov.vital-bar'] > span")))
+  if (vitals.filter(v => v !== gold).some(v => !v.querySelector("[data-ui~='gov.vital-bar'] > i")))
     throw new Error("a bounded vital tile has no progress bar");
 });
 

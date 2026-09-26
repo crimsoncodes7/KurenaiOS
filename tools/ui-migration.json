@@ -42,7 +42,8 @@
     "js/modules/mediasync.js",
     "js/modules/aniprofile.js",
     "js/modules/vndbprofile.js",
-    "js/modules/mediasearch.js"
+    "js/modules/mediasearch.js",
+    "js/modules/governor-ui.js"
   ],
   "views": {
     "home": {},
@@ -70,6 +71,7 @@
     "goals": {},
     "mediasync": {},
     "aniprofile": {},
-    "vndbprofile": {}
+    "vndbprofile": {},
+    "governor": {}
   }
 }

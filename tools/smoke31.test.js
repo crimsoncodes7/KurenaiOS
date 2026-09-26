@@ -33,17 +33,20 @@ const tick = ms => new Promise(r => setTimeout(r, ms || 0));
 const steps = [];
 function step(name, fn) { steps.push([name, fn]); }
 
-step("Status uses one identity hero and five non-duplicated instruments", async () => {
+/* Graphite step 6 (frame 12a): XP is the hero's own bar, so the stack is
+   four instruments — Live HP, Gold, Review queue, Study streak */
+step("Status uses one identity hero and four non-duplicated instruments", async () => {
   KOS.show("governor");
   await tick(40);
   const main = document.getElementById("main");
   if (!main.querySelector("[data-ui~='gov.seat'] [data-ui~='gov.id-access']")) throw new Error("useful Governor access panel missing");
   if (main.querySelector("[data-ui~='gov.seat'] .id-side")) throw new Error("telemetry duplicated in hero");
   const vitals = main.querySelectorAll("[data-ui~='gov.instruments'] [data-ui~='gov.vital']");
-  if (vitals.length !== 5) throw new Error(`expected 5 instruments, got ${vitals.length}`);
+  if (vitals.length !== 4) throw new Error(`expected 4 instruments, got ${vitals.length}`);
   const labels = [...vitals].map(v => v.querySelector("[data-ui~='gov.vital-label']").textContent);
-  for (const label of ["HP", "XP", "Gold", "Review queue", "Study streak"])
+  for (const label of ["Live HP", "Gold", "Review queue", "Study streak"])
     if (!labels.includes(label)) throw new Error(`missing instrument ${label}`);
+  if (!main.querySelector("[data-ui~='gov.seat'] [data-ui~='gov.xp']")) throw new Error("XP bar missing from the hero");
 });
 
 step("Each Governor tab owns its page heading and Status can preview both HP sides without mutating HP", async () => {
@@ -62,13 +65,20 @@ step("Each Governor tab owns its page heading and Status can preview both HP sid
   [...document.querySelectorAll('[data-ui~="gov.hp-preview-btn"]')].find(b => b.textContent === "Live").click();
 });
 
-step("Cadence is exactly 13 weeks / 91 days and never claims a year", async () => {
+/* Graphite step 6 (frame 12a): the cadence is 26 weeks, with a Rest rhythm
+   view of the Collection's own ledger beside Study */
+step("Cadence is exactly 26 weeks / 182 days and never claims a year", async () => {
   const main = document.getElementById("main");
   const heat = main.querySelector("[data-ui~='gov.b-heat']");
-  if (!/last 90 days/i.test(heat.textContent)) throw new Error("90-day label missing");
+  if (!/last 26 weeks/i.test(heat.textContent)) throw new Error("26-week label missing");
   if (/last (12 months|year)/i.test(heat.textContent)) throw new Error("year cadence copy survived");
   const cells = heat.querySelectorAll("[data-ui~='chart.heatmap'] svg rect");
-  if (cells.length !== 91) throw new Error(`expected 91 heat cells, got ${cells.length}`);
+  if (cells.length !== 182) throw new Error(`expected 182 heat cells, got ${cells.length}`);
+  const rest = [...heat.querySelectorAll("[role='tab']")].find(b => /Rest rhythm/.test(b.textContent));
+  if (!rest) throw new Error("no Rest rhythm view");
+  rest.click();
+  if (heat.querySelector("[data-ui~='gov.heat-stats']").dataset.mode !== "rest") throw new Error("Rest rhythm did not switch the cadence");
+  if (heat.querySelectorAll("[data-ui~='chart.heatmap'] svg rect").length !== 182) throw new Error("the rest cadence changed its span");
 });
 
 step("Primary ledger keeps milestones and hides low-signal/system traffic", async () => {
@@ -84,19 +94,24 @@ step("Primary ledger keeps milestones and hides low-signal/system traffic", asyn
   if (/sync completed|Progress saved|ended early/i.test(text)) throw new Error("low-signal event leaked into primary ledger");
 });
 
-step("Recovery is one prescriptive dispatch, not a three-row route map", async () => {
+/* Graphite step 6 (frame 12a2): the dispatch is the recovery checklist
+   (KOS.governor.recoveryTasks), with its progress and the HP goal */
+step("Recovery dispatch carries the checklist, its progress and the goal", async () => {
   const g = KOS.store.state.governor;
   g.hp = 40;
   KOS.show("governor", undefined, { _nav: true });
   await tick(40);
   const rec = document.querySelector("[data-ui~='gov.recovery']");
   if (!rec || !rec.querySelector("[data-ui~='gov.rec-go']")) throw new Error("recovery dispatch/action missing");
-  if (rec.querySelectorAll(".gov-rec-item").length) throw new Error("legacy recovery rows survived");
-  if (!/review queue is clear|card.*ready now/i.test(rec.textContent)) throw new Error("state-aware recovery copy missing");
+  if (rec.querySelectorAll("[role='listitem']").length !== KOS.governor.recoveryTasks().length) throw new Error("the checklist is not the recovery tasks");
+  if (!/Nothing locks/.test(rec.textContent)) throw new Error("the dispatch implies a lock (invariant 2)");
+  if (!/HP 40 → 60 to reach Healthy/.test(rec.textContent)) throw new Error("the dispatch does not name the HP goal");
   g.hp = 100; KOS.store.save();
 });
 
-step("Session Log has accessible category filters and expandable details", async () => {
+/* Graphite step 6 (frame 12d): the week's facts are one line beside the
+   switch, and an entry opens in the panel beside the list */
+step("Session Log has accessible category filters and an entry panel", async () => {
   KOS.show("governor", "history", { _nav: true });
   await tick(40);
   const main = document.getElementById("main");
@@ -105,12 +120,17 @@ step("Session Log has accessible category filters and expandable details", async
   for (const id of ["all", "study", "focus", "tasks", "collection", "papers", "system"])
     if (!ids.includes(id)) throw new Error(`missing history filter ${id}`);
   if (tabs.filter(t => t.getAttribute("aria-selected") === "true").length !== 1) throw new Error("history selected state invalid");
-  if (main.querySelectorAll("[data-ui~='gov.history-stats'] [data-ui~='gov.history-stat']").length !== 3) throw new Error("history overview statistics missing");
+  if (!main.querySelectorAll("[data-ui~='gov.history-stats'] [data-ui~='gov.history-stat']").length) throw new Error("this week's facts missing");
   if (!main.querySelector("[data-ui~='gov.day-group'] > [data-ui~='gov.ledger-day'] + [data-ui~='gov.day-events']")) throw new Error("history date groups are not structurally aligned");
-  const rows = main.querySelectorAll("[data-ui~='gov.log'] details[data-ui~='gov.log-event']");
-  if (!rows.length || !rows[0].querySelector("summary[data-ui~='gov.log-summary']")) throw new Error("expandable history rows missing");
-  rows[0].open = true;
-  if (!rows[0].querySelector("[data-ui~='gov.log-details']")) throw new Error("expanded detail body missing");
+  const rows = main.querySelectorAll("[data-ui~='gov.log'] button[data-ui~='gov.log-event']");
+  const panel = main.querySelector("[data-ui~='gov.log-details']");
+  if (!rows.length || !panel) throw new Error("history rows or the entry panel missing");
+  if (!panel.hidden) throw new Error("the entry panel is open before an entry is chosen");
+  rows[0].click();
+  if (panel.hidden || rows[0].getAttribute("aria-expanded") !== "true" || rows[0].getAttribute("aria-controls") !== panel.id) throw new Error("choosing an entry did not open its panel");
+  if (!panel.textContent.includes(rows[0].querySelector("[data-ui~='part.lead']").textContent)) throw new Error("the panel shows a different entry");
+  [...panel.querySelectorAll("button")].find(b => b.getAttribute("aria-label") === "Close entry").click();
+  if (!panel.hidden) throw new Error("the entry panel did not close");
 });
 
 step("System traffic is hidden by default and coalesced in its own filter", async () => {
@@ -127,11 +147,11 @@ step("History paginates in 30-entry increments and keeps date groups", async () 
   KOS.show("governor", "history", { _nav: true });
   await tick(40);
   const main = document.getElementById("main");
-  const before = main.querySelectorAll("[data-ui~='gov.log'] details[data-ui~='gov.log-event']").length;
+  const before = main.querySelectorAll("[data-ui~='gov.log'] [data-ui~='gov.log-event']").length;
   const more = main.querySelector("[data-ui~='gov.log-more']");
   if (before !== 30 || !more) throw new Error(`initial page should be 30 with pager, got ${before}`);
   more.click();
-  const after = main.querySelectorAll("[data-ui~='gov.log'] details[data-ui~='gov.log-event']").length;
+  const after = main.querySelectorAll("[data-ui~='gov.log'] [data-ui~='gov.log-event']").length;
   if (after <= before) throw new Error("Show more did not extend history");
   if (!main.querySelector("[data-ui~='gov.timeline'] [data-ui~='gov.ledger-day'] small")) throw new Error("date group count missing");
 });
