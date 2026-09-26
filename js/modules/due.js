@@ -42,7 +42,7 @@
     var subjects = Object.keys(bySubject).filter(function (s) { return bySubject[s]; });
 
     /* ---- the queue ---- */
-    var hero = el("section", { class: "k-rv-hero", "data-ui": "review.queue", "aria-label": "Cards due" }, [
+    var hero = el("section", { class: "k-rv-hero", "data-ui": "review.queue", "data-state": overdue ? "overdue" : null, "aria-label": "Cards due" }, [
       el("div", { class: "k-rv-hero-main" }, [
         el("div", { class: "k-rv-count" }, [
           el("span", { class: "k-rv-n", "data-ui": "review.due-count", text: KOS.ui.num(due.length) }),

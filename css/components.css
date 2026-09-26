@@ -253,10 +253,15 @@ button.k-day-row:hover .k-day-title { text-decoration: underline; text-decoratio
 .k-hbar-label { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .k-hbar-bar { --bar-h: var(--bar-6); }
 .k-hbar-v { min-inline-size: var(--sp-24); font-size: var(--fs-12); font-weight: var(--weight-medium); text-align: end; }
-.k-chart-donut { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-16) var(--sp-24); }
+.k-chart-donut { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-16) var(--sp-32); flex: 1 1 auto; }
 .k-chart-donut > svg { inline-size: var(--donut-w); flex: 0 0 auto; }
 .k-chart-donut .k-legend { flex: 1 1 var(--chart-multi-min); flex-direction: column; flex-wrap: nowrap; gap: var(--sp-8); font-size: var(--fs-13); }
 .k-chart-donut .k-legend-item b { margin-inline-start: auto; }
+.k-legend--share { gap: var(--sp-12); }
+.k-legend--share .k-legend-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto var(--sp-40); column-gap: var(--sp-8); row-gap: var(--sp-6); align-items: center; }
+.k-legend--share .k-legend-item b { margin: 0; }
+.k-legend-pct { font-size: var(--fs-11-5); color: var(--muted); text-align: end; }
+.k-legend-bar { grid-column: 2 / -1; block-size: var(--bar-4); border-radius: var(--r-pill); background: linear-gradient(90deg, var(--c) var(--p), var(--s2) var(--p)); }
 
 /* ---------- empty state ---------- */
 .k-empty { display: flex; align-items: center; gap: var(--sp-14); padding: var(--sp-18) var(--sp-22); border-radius: var(--r-24); background: var(--s1); color: var(--text-2); font-size: var(--fs-13-5); }

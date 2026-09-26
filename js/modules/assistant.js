@@ -857,7 +857,9 @@
     function autoSize() {
       var max = compact ? 132 : 168;
       ta.style.setProperty("--ta-h", "auto");
-      var next = ta.value ? Math.min(Math.max(24, ta.scrollHeight), max) : 24;
+      /* an empty field is one line tall, padding included — a fixed 24px
+         clipped the line box and sank the placeholder (review A) */
+      var next = Math.min(Math.max(24, ta.scrollHeight), max);
       ta.style.setProperty("--ta-h", next + "px");
       if (ta.scrollHeight > max) ta.setAttribute("data-overflow", ""); else ta.removeAttribute("data-overflow");
     }
@@ -1196,8 +1198,8 @@
   function startsMarkdownBlock(lines, at) {
     var line = lines[at] || "";
     if (!line.trim()) return true;
-    if (/^\s{0,3}(```+|~~~+)/.test(line) || /^\s{0,3}#{1,6}\s+/.test(line) || /^\s{0,3}>/.test(line) ||
-        /^\s{0,3}([-+*]|\d+[.)])\s+/.test(line) || /^\s{0,3}((\*\s*){3,}|(-\s*){3,}|(_\s*){3,})$/.test(line)) return true;
+    if (/^\s*(```+|~~~+)/.test(line) || /^\s{0,3}#{1,6}\s+/.test(line) || /^\s{0,3}>/.test(line) ||
+        LIST_RE.test(line) || /^\s{0,3}((\*\s*){3,}|(-\s*){3,}|(_\s*){3,})$/.test(line)) return true;
     return at + 1 < lines.length && line.indexOf("|") >= 0 && tableDivider(lines[at + 1]);
   }
 
@@ -1264,14 +1266,74 @@
     ]);
   }
 
+  /* a chat reply keeps the line breaks it was written with: a single
+     newline is a break, as in any messaging app (review A: providers wrap
+     short lines deliberately and joining them read as run-on text) */
   function appendParagraph(parent, lines) {
     var p = el("p");
     lines.forEach(function (line, index) {
-      var hardBreak = /\s{2}$/.test(line);
-      appendInline(p, line.replace(/\s+$/, ""));
-      if (index < lines.length - 1) p.appendChild(hardBreak ? el("br") : document.createTextNode(" "));
+      appendInline(p, line.replace(/^\s+|\s+$/g, ""));
+      if (index < lines.length - 1) p.appendChild(el("br"));
     });
     parent.appendChild(p);
+  }
+
+  /* Lists as providers actually write them (review A): nested by
+     indentation, "loose" items separated by blank lines (an ordered list
+     keeps its numbering across them via start), continuation paragraphs
+     and fenced code indented under an item. Each item's body is rendered
+     by the same parser, so anything valid at the top level is valid in
+     an item. */
+  var LIST_RE = /^(\s*)([-+*]|\d+[.)])\s+(.*)$/;
+  function indentOf(line) { return (String(line).match(/^[ \t]*/)[0]).replace(/\t/g, "    ").length; }
+  function parseList(lines, at, parent) {
+    var first = lines[at].match(LIST_RE);
+    var base = indentOf(lines[at]);
+    var ordered = /^\d/.test(first[2]);
+    var list = el(ordered ? "ol" : "ul");
+    if (ordered && parseInt(first[2], 10) !== 1) list.setAttribute("start", String(parseInt(first[2], 10)));
+    while (at < lines.length) {
+      var m = lines[at].match(LIST_RE);
+      if (!m || indentOf(lines[at]) !== base || /^\d/.test(m[2]) !== ordered) break;
+      var contentIndent = lines[at].length - m[3].length;
+      var body = [m[3]];
+      at += 1;
+      while (at < lines.length) {
+        var l = lines[at];
+        if (!l.trim()) {
+          var k = at;
+          while (k < lines.length && !lines[k].trim()) k += 1;
+          if (k >= lines.length) { at = k; break; }
+          var mk = lines[k].match(LIST_RE), ik = indentOf(lines[k]);
+          if (ik > base) { while (at < k) { body.push(""); at += 1; } continue; }
+          if (mk && ik === base && /^\d/.test(mk[2]) === ordered) at = k;
+          break;
+        }
+        if (indentOf(l) > base) { body.push(l); at += 1; continue; }
+        if (startsMarkdownBlock(lines, at)) break;
+        body.push(l); at += 1;          /* a lazy continuation line */
+      }
+      var rest = body.slice(1);
+      var minInd = rest.reduce(function (a, x) { return x.trim() ? Math.min(a, indentOf(x)) : a; }, Infinity);
+      var cut = Math.min(isFinite(minInd) ? minInd : 0, contentIndent);
+      var restText = rest.map(function (x) { return x.slice(Math.min(cut, indentOf(x))); }).join("\n").replace(/^\n+|\n+$/g, "");
+      var li = el("li"), task = body[0].match(/^\[([ xX])\]\s+(.*)$/);
+      if (task) {
+        li.setAttribute("data-task", "");
+        li.appendChild(el("input", { type: "checkbox", disabled: "", "aria-label": task[1].toLowerCase() === "x" ? "Completed" : "Not completed" }));
+        if (task[1].toLowerCase() === "x") li.firstChild.checked = true;
+        appendInline(li, task[2]);
+      } else appendInline(li, body[0]);
+      if (restText.trim()) {
+        /* a lead line then more: the more is rendered as blocks */
+        var more = el("div", { class: "k-asst-li-more" });
+        renderMarkdownInto(more, restText);
+        while (more.firstChild) li.appendChild(more.firstChild);
+      }
+      list.appendChild(li);
+    }
+    parent.appendChild(list);
+    return at;
   }
 
   function renderMarkdownInto(parent, source) {
@@ -1281,15 +1343,17 @@
       var line = lines[at], trimmed = line.trim(), match, end, cells, aligns, row, wrap, table, group;
       if (!trimmed) { at += 1; continue; }
 
-      match = line.match(/^\s{0,3}(```+|~~~+)\s*([^\s]*)\s*$/);
+      /* a fence may be indented (code under a list item); its body loses
+         the fence's own indentation */
+      match = line.match(/^(\s*)(```+|~~~+)\s*([^\s]*)\s*$/);
       if (match) {
-        var fence = match[1], code = [];
+        var fence = match[2], pad = indentOf(match[1]), code = [];
         at += 1;
-        while (at < lines.length && !(new RegExp("^\\s{0,3}" + fence.charAt(0) + "{" + fence.length + ",}\\s*$").test(lines[at]))) {
-          code.push(lines[at]); at += 1;
+        while (at < lines.length && !(new RegExp("^\\s*" + fence.charAt(0) + "{" + fence.length + ",}\\s*$").test(lines[at]))) {
+          code.push(lines[at].slice(Math.min(pad, indentOf(lines[at])))); at += 1;
         }
         if (at < lines.length) at += 1;
-        parent.appendChild(codeBlock(match[2], code.join("\n")));
+        parent.appendChild(codeBlock(match[3], code.join("\n")));
         continue;
       }
 
@@ -1360,24 +1424,7 @@
         var quote = el("blockquote"); renderMarkdownInto(quote, group.join("\n")); parent.appendChild(quote); continue;
       }
 
-      match = line.match(/^\s{0,3}([-+*]|\d+[.)])\s+(.+)$/);
-      if (match) {
-        var ordered = /^\d/.test(match[1]);
-        var list = el(ordered ? "ol" : "ul");
-        while (at < lines.length) {
-          match = lines[at].match(/^\s{0,3}([-+*]|\d+[.)])\s+(.+)$/);
-          if (!match || /^\d/.test(match[1]) !== ordered) break;
-          var itemText = match[2], task = itemText.match(/^\[([ xX])\]\s+(.*)$/), li = el("li");
-          if (task) {
-            li.setAttribute("data-task", "");
-            li.appendChild(el("input", { type: "checkbox", disabled: "", "aria-label": task[1].toLowerCase() === "x" ? "Completed" : "Not completed" }));
-            if (task[1].toLowerCase() === "x") li.firstChild.checked = true;
-            appendInline(li, task[2]);
-          } else appendInline(li, itemText);
-          list.appendChild(li); at += 1;
-        }
-        parent.appendChild(list); continue;
-      }
+      if (LIST_RE.test(line)) { at = parseList(lines, at, parent); continue; }
 
       group = [line]; at += 1;
       while (at < lines.length && !startsMarkdownBlock(lines, at)) { group.push(lines[at]); at += 1; }
@@ -2025,7 +2072,16 @@
 
     /* model control: routing by task type */
     var health = el("div", { class: "k-asst-health", role: "status" });
-    var checkBtn = el("button", { class: "k-btn k-btn--sm", type: "button", text: "Check availability & usage", onclick: function () {
+    /* one button, two states: a second press clears the readout (review A) */
+    var checkBtn = el("button", { class: "k-btn k-btn--sm", type: "button", text: "Check availability & usage", "aria-expanded": "false", onclick: function () {
+      if (checkBtn.getAttribute("aria-expanded") === "true") {
+        health.innerHTML = "";
+        checkBtn.setAttribute("aria-expanded", "false");
+        checkBtn.textContent = "Check availability & usage";
+        return;
+      }
+      checkBtn.setAttribute("aria-expanded", "true");
+      checkBtn.textContent = "Hide availability";
       health.innerHTML = "";
       health.appendChild(el("p", { class: "k-asst-muted", text: "Checking…" }));
       var out = [];
@@ -2140,10 +2196,10 @@
         el("span", { class: "k-asst-muted", text: "Volume" }), volume,
         el("button", { class: "k-btn k-btn--sm", type: "button", text: "▶ Preview", onclick: function () { playStateCue("working", true); } })
       ]),
+      /* the free tier asks for the credit; the rest lives in Help (review A) */
       el("p", { class: "k-asst-muted" }, [
-        document.createTextNode("22 local clips, reaction lines only: it never narrates answers and sends nothing to a voice provider. Generated with "),
-        el("a", { class: "k-link", href: "https://elevenlabs.io", target: "_blank", rel: "noopener noreferrer", text: "ElevenLabs" }),
-        document.createTextNode(" · free-tier non-commercial use.")
+        document.createTextNode("Voice by "),
+        el("a", { class: "k-link", href: "https://elevenlabs.io", target: "_blank", rel: "noopener noreferrer", text: "ElevenLabs" })
       ])
     ]);
     body.appendChild(el("div", { class: "k-asst-pair" }, [local, voice]));

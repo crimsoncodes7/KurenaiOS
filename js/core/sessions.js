@@ -106,6 +106,22 @@
     }
     return n;
   }
+  /* the longest study run the ledger holds — the same day test as
+     streak(), read over every distinct study date once (one pass, sorted) */
+  function bestStreak(sid) {
+    var days = {};
+    store.state.sessions.forEach(function (e) {
+      if ((!sid || e.subject === sid) && e.type !== "media" &&
+        !(e.type === "focus" && e.metrics && e.metrics.complete === false)) days[e.date] = true;
+    });
+    var best = 0, run = 0, prev = null;
+    Object.keys(days).sort().forEach(function (d) {
+      run = prev && KOS.srs.addDays(prev, 1) === d ? run + 1 : 1;
+      if (run > best) best = run;
+      prev = d;
+    });
+    return best;
+  }
   /* `rest` rides along because every consumer (the Home profile band, the
      Governor cadence panel) reads both from this one call — leaving it out
      made both surfaces silently render 0 for the rest streak. */
@@ -115,7 +131,8 @@
       compsci: streak("compsci"),
       maths: streak("maths"),
       it: streak("it"),
-      rest: restStreak()
+      rest: restStreak(),
+      best: bestStreak(null)
     };
   }
 

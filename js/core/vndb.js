@@ -327,7 +327,7 @@
       filters: ["search", "=", String(term)],
       fields: VN_FIELDS + ", released",
       sort: "searchrank",
-      results: 10
+      results: 30
     }, null, function (err, data) {
       if (err) { cb(err, []); return; }
       cb(null, (data && data.results || []).map(function (vn) {

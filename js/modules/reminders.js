@@ -58,6 +58,7 @@
        widened to "all" by the caller so a completed or undated reminder is
        still in the list it is about to be selected in. */
     var selectedId = arg && arg.id != null ? arg.id : null;
+    var alertsOpen = false;       /* the Alerts dropdown survives the redraw a tick causes */
 
     /* No in-page copy of the section nav. Reminders, Habits and Calendar
        are already the Productivity strip directly above this header. */
@@ -180,8 +181,8 @@
     }
 
     /* ---------------- quick add + tools + list ---------------- */
-    var searchIn = el("input", { type: "search", class: "k-pill-select k-rem-search", placeholder: "Search reminders…",
-      "aria-label": "Search reminders" });
+    /* no in-page search (review A): the header's global search already
+       finds and opens any reminder */
     var sortSel = el("select", { class: "k-pill-select", "data-ui": "ui.status-select", "aria-label": "Sort reminders" },
       R().SORTS.map(function (s) { return el("option", { value: s.v, text: "Sort: " + s.label.toLowerCase() }); }));
     var prioSel = el("select", { class: "k-pill-select", "data-ui": "ui.status-select", "aria-label": "Filter by priority" },
@@ -189,12 +190,11 @@
         R().PRIORITIES.slice(1).map(function (x) { return el("option", { value: String(x.v), text: x.label }); })));
     sortSel.value = p.sort || "due";
     prioSel.value = p.priority || "";
-    searchIn.addEventListener("input", KOS.ui.debounce(function () { renderList(); }, 200));
     sortSel.addEventListener("change", function () { p.sort = sortSel.value; KOS.store.save(); renderList(); });
     prioSel.addEventListener("change", function () { p.priority = prioSel.value; KOS.store.save(); renderList(); });
 
     var quickIn = el("input", { type: "text", class: "k-rem-quick-in",
-      placeholder: "Add a reminder…  (⏎ to save)",
+      placeholder: "Add a reminder…",
       /* a placeholder is not a name: it disappears the moment there is
          text in the field, which is exactly when a name is needed */
       "aria-label": "New reminder",
@@ -237,10 +237,10 @@
       fillQuickList();
       mid.appendChild(el("h2", { class: "sr-only", text: heading() }));
       mid.appendChild(el("div", { class: "k-rem-quick" }, [
-        el("button", { type: "button", class: "k-rem-quick-add", "data-ui": "rem.quick-add", "aria-label": "Add the reminder", text: "＋", onclick: quickAdd }),
+        el("button", { type: "button", class: "k-rem-quick-add", "data-ui": "rem.quick-add", "aria-label": "Add the reminder", text: "+", onclick: quickAdd }),
         quickIn, quickList
       ]));
-      mid.appendChild(el("div", { class: "k-cluster k-rem-tools", "data-ui": "rem.tools" }, [sortSel, prioSel, searchIn, countLine]));
+      mid.appendChild(el("div", { class: "k-cluster k-rem-tools", "data-ui": "rem.tools" }, [sortSel, prioSel, countLine]));
       mid.appendChild(listHolder);
       renderList();
     }
@@ -258,14 +258,14 @@
       listHolder.innerHTML = "";
       var rows = R().query({
         section: p.section, listId: p.listId, tag: p.tag,
-        priority: p.priority, search: searchIn.value, sort: p.sort
+        priority: p.priority, search: "", sort: p.sort
       });
-      var filtered = !!(searchIn.value.trim() || p.priority);
+      var filtered = !!p.priority;
       countLine.textContent = filtered ? rows.length + (rows.length === 1 ? " match" : " matches") : "";
 
       if (!rows.length) {
         listHolder.appendChild(KOS.ui.emptyState({ mark: "祝", compact: true,
-          title: filtered ? "Nothing matches this search or filter."
+          title: filtered ? "Nothing matches this filter."
             : p.section === "completed" ? "Nothing completed yet."
             : p.section === "overdue" ? "Nothing overdue — the list is under control."
             : "Nothing here yet. Add a reminder above." }));
@@ -408,20 +408,36 @@
       notesIn.value = item.notes || "";
       notesIn.addEventListener("change", function () { commit({ notes: notesIn.value }); });
 
-      /* alerts — one toggle per offset, only meaningful once a date exists */
-      var alertBox = el("div", { class: "k-cluster" });
-      R().ALERTS.forEach(function (a) {
-        var on = (item.alerts || []).indexOf(a.v) !== -1;
-        var b = el("button", { type: "button", class: "k-qz-pill", "data-ui": "rem.alert", "aria-pressed": String(on), text: a.label,
-          onclick: function () {
-            var next = (item.alerts || []).slice();
-            var i = next.indexOf(a.v);
-            if (i === -1) next.push(a.v); else next.splice(i, 1);
-            commit({ alerts: next });
-          } });
-        b.disabled = !item.due;
-        alertBox.appendChild(b);
+      /* alerts — a dropdown beside Repeat (review A: a row of eight pills).
+         A reminder may carry several offsets, so the menu is a checklist;
+         it only means something once a date exists */
+      var ALERTS = R().ALERTS;
+      function alertSummary() {
+        var on = ALERTS.filter(function (a) { return (item.alerts || []).indexOf(a.v) !== -1; });
+        return !item.due ? "Needs a date" : !on.length ? "None" : on.length === 1 ? on[0].label : on[0].label + " +" + (on.length - 1);
+      }
+      var alertBox = el("details", { class: "k-rem-alerts", "data-ui": "rem.alerts" });
+      var alertSum = el("summary", { class: "k-input k-rem-alerts-sum", text: alertSummary() });
+      alertBox.appendChild(alertSum);
+      if (!item.due) KOS.ui.state(alertBox, "disabled", true);
+      var alertList = el("div", { class: "k-rem-alerts-pop", role: "group", "aria-label": "Alerts" });
+      ALERTS.forEach(function (a) {
+        var cb = el("input", { type: "checkbox", class: "k-box", "data-ui": "rem.alert" });
+        cb.checked = (item.alerts || []).indexOf(a.v) !== -1;
+        cb.disabled = !item.due;
+        cb.addEventListener("change", function () {
+          var next = (item.alerts || []).slice();
+          var i = next.indexOf(a.v);
+          if (cb.checked && i === -1) next.push(a.v);
+          if (!cb.checked && i !== -1) next.splice(i, 1);
+          commit({ alerts: next });
+        });
+        alertList.appendChild(el("label", { class: "k-rem-alerts-opt" }, [cb, el("span", { text: a.label })]));
       });
+      alertBox.appendChild(alertList);
+      if (alertsOpen && item.due) alertBox.open = true;
+      alertBox.addEventListener("toggle", function () { alertsOpen = alertBox.open; });
+      alertSum.addEventListener("click", function (e) { if (!item.due) e.preventDefault(); });
 
       /* sub-tasks */
       var subWrap = el("div", { class: "k-rem-subs" });
@@ -465,13 +481,9 @@
         el("div", { class: "k-rem-fields" }, [
           field("Due date", dateIn), field("Time", timeIn),
           field("List", listSel), field("Priority", prio),
-          field("Repeat", recurSel, true)
+          field("Repeat", recurSel),
+          el("div", { class: "k-field", "data-ui": "ui.field" }, [el("span", { class: "k-field-label", text: "Alerts" }), alertBox])
         ]),
-        el("section", { class: "k-rem-block", "data-ui": "rem.i-block" }, [
-          el("h3", { class: "k-field-label", text: "Alerts" }),
-          item.due ? null : el("p", { class: "k-rem-hint", text: "Give it a date first — an alert needs something to fire against." }),
-          alertBox
-        ].filter(Boolean)),
         field("Tags (comma separated)", tagIn),
         field("Notes", notesIn),
         el("section", { class: "k-rem-block", "data-ui": "rem.i-block" }, [el("h3", { class: "k-field-label", text: "Sub-tasks" }), subWrap]),

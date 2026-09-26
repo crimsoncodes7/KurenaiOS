@@ -121,7 +121,6 @@
   function slug(value) { return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
   /* each section marked like the main rail */
   var SECTION_MARK = ["灯", "学", "習", "整", "守", "蒐", "蔵"];
-  var NAV_PREVIEW = 3;
 
   /* Graphite step 8 (frame 14c): a documentation desk — the sections and
      their entries on the left, one section read as an article in the
@@ -160,20 +159,15 @@
     SECTIONS.forEach(function (s, i) {
       var open = i === si;
       var group = el("div", { class: "k-help-group" });
+      /* the rail lists the sections only; a section's entries are its
+         "On this page" (review A). A search still matches inside them. */
       group.appendChild(el("button", { type: "button", class: "k-help-group-h", "data-ui": "help.nav-item help.section",
-        "aria-label": s[0], "aria-current": open ? "page" : null, "data-q": s[0].toLowerCase(),
+        "aria-label": s[0], "aria-current": open ? "page" : null,
+        "data-q": (s[0] + " " + s[1].map(function (item) { return item[0] + " " + item[1]; }).join(" ")).toLowerCase(),
         onclick: function () { go(i); } }, [
-        el("span", { class: "k-help-mark", lang: "ja", "aria-hidden": "true", text: SECTION_MARK[i] || "·" }), s[0]
+        el("span", { class: "k-help-mark", lang: "ja", "aria-hidden": "true", text: SECTION_MARK[i] || "·" }), s[0],
+        el("span", { class: "k-help-count k-mono", text: String(s[1].length) })
       ]));
-      var entries = s[1], shown = open ? entries : entries.slice(0, NAV_PREVIEW);
-      shown.forEach(function (item) {
-        group.appendChild(el("button", { type: "button", class: "k-help-nav-item", "data-ui": "help.nav-item",
-          "data-si": String(i), "data-q": (item[0] + " " + item[1]).toLowerCase(),
-          onclick: function () { go(i, item[0]); } }, [item[0]]));
-      });
-      if (entries.length > shown.length) group.appendChild(el("button", { type: "button", class: "k-help-more",
-        text: "+ " + (entries.length - shown.length) + " more", "aria-label": "Open " + s[0] + " (" + entries.length + " entries)",
-        onclick: function () { go(i); } }));
       navList.appendChild(group);
     });
 

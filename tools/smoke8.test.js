@@ -370,7 +370,8 @@ step("Matrix home: Games is a live module card with stats, plus its status chart
     throw new Error("games panel missing from the comparison");
   /* and the KPI row carries the cross-media figures, not per-module ones
      the module cards already print (MTX-3) */
-  if (!/In progress/.test(main.querySelector("[data-ui~='ui.stat-strip']").textContent)) throw new Error("the cross-media in-progress figure is missing");
+  /* review A: the Analytics tab opens on the Overview's own figure band */
+  if (!/In progress/.test(main.querySelector("[data-ui~='coll.figures']").textContent)) throw new Error("the cross-media in-progress figure is missing");
 });
 step("Shrine: a favourite game routes to the games editor", async () => {
   const rows = await p(cb => KOS.mediadb.query({ module: "game", search: "hades" }, cb));

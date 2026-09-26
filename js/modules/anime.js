@@ -468,8 +468,6 @@
     var heroTitle = el("h1", { class: "k-season-title" });
     var heroArt = el("img", { class: "k-season-art", "data-ui": "anime.season-art", alt: "", "aria-hidden": "true", decoding: "async", sizes: "100vw" });
     var heroCredit = el("span", { class: "k-season-credit", "data-ui": "anime.season-credit" });
-    var heroCount = el("p", { class: "k-season-line" });
-    var heroMark = el("span", { class: "k-season-mark", "aria-hidden": "true" });
     var heroNode = el("section", { class: "k-season-hero", "data-ui": "anime.season-hero", "aria-label": "Season" });
     /* the art menu: your own picture (upload or URL, positioned with the
        shared cropper — invariant 26c) or back to the shipped scenery */
@@ -484,7 +482,6 @@
     } });
     heroNode.appendChild(heroArt);
     heroNode.appendChild(el("span", { class: "k-season-scrim", "aria-hidden": "true" }));
-    heroNode.appendChild(heroMark);
     heroNode.appendChild(el("div", { class: "k-season-body" }, [
       el("div", { class: "k-season-step" }, [
         el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-season-arrow", text: "‹", "aria-label": "Previous season", onclick: function () { stepSeason(-1); } }),
@@ -492,9 +489,11 @@
         el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-season-arrow", text: "›", "aria-label": "Next season", onclick: function () { stepSeason(1); } })
       ]),
       heroTitle,
-      heroCount,
-      el("div", { class: "k-cluster" }, [artMenu, todayBtn, heroCredit])
+      el("div", { class: "k-cluster" }, [todayBtn])
     ]));
+    /* the picture's own controls sit with the picture, bottom right
+       (review A: no watermark, no count line; the left side is the season) */
+    heroNode.appendChild(el("div", { class: "k-season-tools" }, [heroCredit, artMenu]));
     wrap.appendChild(heroNode);
 
     var customArt = {};   // SEASON → { source, crop } | null, read from kv on first use
@@ -573,7 +572,6 @@
       wrap.setAttribute("data-season", sel.season);
       heroTitle.textContent = meta.label + " " + sel.year + " ";
       heroTitle.appendChild(el("span", { class: "k-season-kanji", lang: "ja", text: meta.kanji }));
-      heroMark.textContent = meta.kanji;
       paintArt();
       var isNow = sel.season === currentSeason().season && sel.year === currentSeason().year;
       todayBtn.hidden = isNow;
@@ -625,12 +623,6 @@
         var watching = seasonal.filter(function (e) { return !knownIds[e.id] && e.status === "inProgress"; }).sort(byTitle);
         var rest = seasonal.filter(function (e) { return !knownIds[e.id] && e.status !== "inProgress"; }).sort(byTitle);
         var list = known.concat(watching, rest);
-        var nWatching = known.length + watching.length;
-        heroCount.textContent = list.length
-          ? "Everything you have from the season. " + list.length + (list.length === 1 ? " title" : " titles") +
-            (nWatching ? " · watching " + nWatching : "") +
-            (known.length ? " · " + known.length + " with a next episode scheduled" : "")
-          : "Everything you have from the season, watching first, with live countdowns to the next episode.";
         refreshedLine.textContent = airing.at && known.length
           ? "Airing data as of " + new Date(airing.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
           : "";

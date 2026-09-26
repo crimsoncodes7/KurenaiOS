@@ -447,13 +447,12 @@ step("a horizontal scroller declares itself and is reachable by keyboard", () =>
       "the fades do not react to scroll position, so they lie at the ends");
 });
 
-step("the deliberate scroller in the app uses it; the Collection strip became a grid", () => {
+step("the deliberate scrollers in the app use the primitive", () => {
   const matrix = fs.readFileSync(path.join(ROOT, "js/modules/matrix.js"), "utf8");
   const hub = fs.readFileSync(path.join(ROOT, "js/modules/hub.js"), "utf8");
-  /* the mirror release replaced the Collection cover strip (audit MTX-1's
-     scroller) with a wrapping grid of on-the-go cards — no sideways
-     scroll to declare any more */
-  assert(!/med-strip/.test(matrix) && /mx-now-grid/.test(matrix), "the Collection overview should lay the on-the-go cards out as a grid, not a strip");
+  /* Graphite review A: "Currently consuming" is one row of the twenty most
+     recent that scrolls sideways — a declared scroller (invariant 50) */
+  assert(!/med-strip/.test(matrix) && /KOS\.ui\.scroller\(grid/.test(matrix), "the Collection on-the-go row must be a declared scroller");
   assert(/KOS\.ui\.scroller\(units/.test(hub), "the subject unit band has no affordance (audit SUBJ-3)");
 });
 

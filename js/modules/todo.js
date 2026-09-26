@@ -227,7 +227,7 @@
         el("span", { class: "k-kicker k-hb-name-h", role: "columnheader", text: "Habit" }),
         el("span", { class: "k-hb-days", role: "columnheader", "aria-label": "Days" }, days.map(function (d) {
           var day = el("span", { class: "k-hb-dayh" }, [
-            el("span", { class: "k-hb-dow", text: dayLabel(d, { weekday: "short" }) }),
+            el("span", { class: "k-hb-dow", title: dayLabel(d, { weekday: "long" }), text: dayLabel(d, { weekday: "short" }).charAt(0) }),
             el("span", { class: "k-mono", text: String(+d.slice(8)) })
           ]);
           if (d === today) KOS.ui.state(day, "today", true);
@@ -282,7 +282,7 @@
         if (again) again.focus();
       }
       card.appendChild(el("div", { class: "k-hb-add" }, [
-        el("button", { type: "button", class: "k-hb-add-go", "data-ui": "habit.add", "aria-label": "Add the habit", text: "＋", onclick: submit }),
+        el("button", { type: "button", class: "k-hb-add-go", "data-ui": "habit.add", "aria-label": "Add the habit", text: "+", onclick: submit }),
         input
       ]));
     }

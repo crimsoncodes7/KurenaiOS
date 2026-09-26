@@ -476,7 +476,8 @@ step("no total is printed twice on the analytics figures", async () => {
   await openAnalytics();
   const agg = await p(cb => KOS.mediadb.stats(cb));
   /* the whole-vault total belongs to exactly one tile */
-  const tiles = [...main().querySelectorAll("[data-ui~='ui.stat-strip'] [data-ui~='ui.stat'] [data-ui~='part.value']")].map(n => n.textContent.replace(/,/g, ""));
+  /* review A: Analytics opens on the Overview's figure band */
+  const tiles = [...main().querySelectorAll("[data-ui~='coll.figures'] dd")].map(n => n.textContent.replace(/,/g, ""));
   assert(tiles.filter(t => t === String(agg.total)).length === 1,
     "the vault total appears " + tiles.filter(t => t === String(agg.total)).length + " times in the KPI row");
   /* and the per-module totals belong to the module cards, not the KPI row */

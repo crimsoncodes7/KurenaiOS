@@ -245,8 +245,12 @@
       }
 
       /* one part: its question, the answer box, and — once revealed — the
-         scheme to mark against. A scheme with a point per mark is a
-         checklist; a banded scheme keeps the mark buttons. */
+         scheme to mark against. EVERY scheme is a checklist (review A: some
+         were checklists and some mark buttons). A scheme with a point per
+         mark scores a tick a mark; any other scheme — "any 3 from 5", or
+         indicative content for a banded answer — derives its award from
+         the ticks and lets the − / + stepper settle the band. */
+      var ticksBy = typeof WeakMap === "function" ? new WeakMap() : null;
       function partBlock(part, label, marks, onMark) {
         var wrap = el("section", { class: "k-qz-part", "data-ui": "quiz.part" });
         wrap.appendChild(el("div", { class: "k-qz-part-q" }, [
@@ -263,43 +267,46 @@
         var ms = el("div", { class: "k-qz-ms", "data-ui": "quiz.ms", hidden: "" });
         wrap.appendChild(ms);
         var points = part.ms || [];
-        var checklist = points.length && points.length === Number(part.marks);
+        var total = Number(part.marks) || 0;
+        var perMark = points.length && points.length === total;
+        var ticks = (ticksBy && ticksBy.get(part)) || points.map(function (p, i) { return perMark && i < (marks || 0); });
+        if (ticksBy) ticksBy.set(part, ticks);
+        var award = marks != null ? marks : null;
+        function fromTicks() {
+          var n = ticks.filter(Boolean).length;
+          if (perMark || points.length > total) return Math.min(total, n);
+          return points.length ? Math.round(total * n / points.length) : 0;
+        }
         function paint() {
           ms.innerHTML = "";
           ms.appendChild(el("h3", { class: "k-kicker", text: "Mark scheme · self-mark" }));
           var self = el("div", { class: "k-qz-self", "data-ui": "quiz.selfmark" });
-          if (checklist) {
-            points.forEach(function (m, i) {
-              var cb = el("input", { type: "checkbox", class: "k-box", onchange: function () {
-                var got = 0;
-                self.querySelectorAll("input[type=checkbox]").forEach(function (x) { if (x.checked) got++; });
-                onMark(got);
-              } });
-              cb.checked = i < (marks || 0);
-              var row = el("label", { class: "k-qz-point" }, [cb, el("span", { class: "k-qz-point-t", html: KOS.content.inline(m) }), el("span", { class: "k-mono k-muted", text: "1" })]);
-              self.appendChild(row);
-            });
-          } else {
-            var list = el("ul", { class: "k-qz-points" }, points.map(function (m) { return el("li", { html: KOS.content.inline(m) }); }));
-            ms.appendChild(list);
-            if (part.marks <= 10) {
-              var grp = el("div", { class: "k-qz-markbtns", role: "group", "aria-label": "Marks awarded out of " + part.marks });
-              for (var m = 0; m <= part.marks; m++) (function (m) {
-                grp.appendChild(el("button", { type: "button", class: "k-qz-markbtn", "data-ui": "quiz.markbtn", text: String(m), "aria-pressed": String(marks === m), onclick: function () {
-                  grp.querySelectorAll("[data-ui~='quiz.markbtn']").forEach(function (b) { b.setAttribute("aria-pressed", String(Number(b.textContent) === m)); });
-                  onMark(m);
-                } }));
-              })(m);
-              self.appendChild(el("span", { class: "k-kicker", text: "Awarded" }));
-              self.appendChild(grp);
-            } else {
-              var markIn = el("input", { type: "number", class: "k-input k-qz-markin", min: 0, max: part.marks, "aria-label": "Marks awarded out of " + part.marks,
-                oninput: function () { onMark(Math.max(0, Math.min(part.marks, parseInt(markIn.value || "0", 10)))); } });
-              if (marks != null) markIn.value = String(marks);
-              self.appendChild(markIn);
-            }
-            self.appendChild(el("span", { class: "k-mono k-muted", text: "/ " + part.marks }));
+          var figure = el("span", { class: "k-qz-award-n", "data-ui": "quiz.award" });
+          function show() { figure.textContent = String(award == null ? fromTicks() : award); }
+          points.forEach(function (m, i) {
+            var cb = el("input", { type: "checkbox", class: "k-box", onchange: function () {
+              ticks[i] = cb.checked;
+              award = fromTicks();
+              show();
+              onMark(award);
+            } });
+            cb.checked = !!ticks[i];
+            self.appendChild(el("label", { class: "k-qz-point" }, [cb, el("span", { class: "k-qz-point-t", html: KOS.content.inline(m) }),
+              perMark ? el("span", { class: "k-mono k-muted", text: "1" }) : null].filter(Boolean)));
+          });
+          function step(d) {
+            award = Math.max(0, Math.min(total, (award == null ? fromTicks() : award) + d));
+            show();
+            onMark(award);
           }
+          self.appendChild(el("div", { class: "k-qz-award", role: "group", "aria-label": "Marks awarded out of " + total }, [
+            el("span", { class: "k-kicker", text: "Awarded" }),
+            perMark ? null : el("button", { type: "button", class: "k-qz-step", "data-ui": "quiz.award-down", "aria-label": "One mark fewer", text: "−", onclick: function () { step(-1); } }),
+            figure,
+            perMark ? null : el("button", { type: "button", class: "k-qz-step", "data-ui": "quiz.award-up", "aria-label": "One mark more", text: "+", onclick: function () { step(1); } }),
+            el("span", { class: "k-mono k-muted", text: "/ " + total })
+          ].filter(Boolean)));
+          show();
           ms.appendChild(self);
           if (part.note) ms.appendChild(el("p", { class: "k-qz-note", html: KOS.content.inline(part.note) }));
           KOS.content.typeset(ms);

@@ -111,13 +111,12 @@
 .k-help-search { font-size: var(--fs-13); }
 .k-help-nav-list { display: flex; flex-direction: column; gap: var(--sp-10); }
 .k-help-group { display: flex; flex-direction: column; gap: var(--hairline); }
-.k-help-group-h { display: flex; align-items: center; gap: var(--sp-8); padding: var(--sp-8) var(--sp-10) var(--sp-4); font-size: var(--fs-11); font-weight: var(--weight-semibold); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); text-align: start; }
-.k-help-group-h:hover, .k-help-group-h[aria-current="page"] { color: var(--text); }
+/* the rail is the sections, one row each (review A) */
+.k-help-group-h { inline-size: 100%; display: flex; align-items: center; gap: var(--sp-10); padding: var(--sp-9) var(--sp-12); border-radius: var(--r-12); background: none; box-shadow: none; font-size: var(--fs-13-5); font-weight: var(--weight-medium); color: var(--text-2); text-align: start; }
+.k-help-group-h:hover { background: var(--s1); color: var(--text); }
+.k-help-group-h[aria-current="page"] { background: var(--s2); color: var(--text); font-weight: var(--weight-semibold); }
+.k-help-count { margin-inline-start: auto; font-size: var(--fs-11-5); color: var(--muted); }
 .k-help-mark { font-family: var(--font-kanji); letter-spacing: normal; }
-.k-help-nav-item { padding: var(--sp-6) var(--sp-10); border-radius: var(--r-10); font-size: var(--fs-13-5); color: var(--text-2); text-align: start; }
-.k-help-nav-item:hover { background: var(--s1); color: var(--text); }
-.k-help-more { padding: var(--sp-4) var(--sp-10); font-size: var(--fs-12); color: var(--muted); text-align: start; }
-.k-help-more:hover { color: var(--text); }
 .k-help-article { padding: var(--sp-26) var(--sp-32); min-inline-size: 0; }
 .k-help-crumb { font-size: var(--fs-12-5); color: var(--muted); }
 .k-help-title { margin: var(--sp-6) 0 var(--sp-14); font-size: var(--fs-26); font-weight: var(--weight-semibold); letter-spacing: var(--track-head); }

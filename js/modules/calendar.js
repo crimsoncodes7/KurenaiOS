@@ -1407,18 +1407,16 @@
       var dt = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i);
       days.push({ dt: dt, iso: isoOf(dt), items: dayItems(isoOf(dt)) });
     }
-    /* the visible hour window fits the week's actual events, never less than
-       a normal working day */
-    var lo = 8 * 60, hi = 18 * 60;
+    /* the grid is the whole day; the body scrolls, and opens on the
+       working day or the week's earliest event, whichever is earlier
+       (review A: 8:00–17:00 was all there was) */
+    var lo = 0, hi = 24 * 60, first = 8 * 60;
     days.forEach(function (d) {
       d.items.events.forEach(function (ev) {
         if (ev.allDay || !ev.time) return;
-        var s = mins(ev.time), e = ev.endTime ? mins(ev.endTime) : s + 60;
-        lo = Math.min(lo, Math.floor(s / 60) * 60);
-        hi = Math.max(hi, Math.ceil(e / 60) * 60);
+        first = Math.min(first, Math.floor(mins(ev.time) / 60) * 60);
       });
     });
-    hi = Math.min(24 * 60, Math.max(hi, lo + 240));
     var hours = [];
     for (var m = lo; m < hi; m += 60) hours.push(m);
 
@@ -1501,6 +1499,12 @@
     });
     wrap.appendChild(grid);
     host.appendChild(wrap);
+    function openAt() {
+      var hourPx = grid.scrollHeight / hours.length || 0;
+      if (hourPx) grid.scrollTop = Math.max(0, (first - lo) / 60 * hourPx - hourPx / 2);
+    }
+    openAt();
+    if (!grid.scrollTop && window.requestAnimationFrame) window.requestAnimationFrame(openAt);
   }
 
   /* column packing: events that overlap in time split the width between them */

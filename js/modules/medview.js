@@ -976,7 +976,6 @@
       }
     }
     hero.appendChild(el("span", { class: "k-vhero-scrim", "data-ui": HERO_SCRIM, "aria-hidden": "true" }));
-    hero.appendChild(el("span", { class: "k-vhero-mark", "aria-hidden": "true", text: mod.kanji }));
   }
 
   function heroCard(holder, modId, mod, rerender) {
@@ -1044,14 +1043,14 @@
           var vb = KOS.vn.quickBump(e);
           bump = { label: "▶ +1 " + vb.unit, run: function () { vb.run(e, function () { rerender && rerender(); }); } };
         }
-        var menu = addHook(KOS.ui.menu({ label: "⋯", className: "k-btn--quiet k-vhero-more",
+        var menu = addHook(KOS.ui.menu({ label: "Spotlight", className: "k-btn--quiet k-vhero-more",
           hint: "Choose what this hero shows, and the art behind it",
           items: [
             { label: "Choose a different title…", glyph: "☆", onSelect: pickSpotlight },
             { label: banner ? "Reposition the banner…" : "Add a banner image…", glyph: "✎",
               hint: banner ? null : "Without one, the cover art is used", onSelect: editBanner }
           ] }), "vault.hero-menu");
-        menu.setAttribute("aria-label", "Spotlight options");
+        menu.setAttribute("aria-label", "Spotlight");
         var body = el("div", { class: "k-vhero-body" }, [
           el("p", { class: "k-kicker k-vhero-kicker" }, [
             el("span", { text: "Spotlight " }),
@@ -1074,11 +1073,12 @@
           ].filter(Boolean))
         ].filter(Boolean));
 
-        /* the cover plate stands on every hero, banner or not */
+        /* the cover plate stands on every hero, banner or not — on the
+           right, leaning a little (review A) */
+        hero.appendChild(body);
         hero.appendChild(e.coverUrl
           ? el("span", { class: "k-vhero-cover", "data-ui": "vault.hero-cover" }, [KOS.imageCrop.image(e.coverUrl, { alt: "" }, e.coverCrop)])
           : el("span", { class: "k-vhero-cover", "data-ui": "vault.hero-placeholder", "aria-hidden": "true", text: mod.kanji }));
-        hero.appendChild(body);
         holder.appendChild(hero);
       }
       if (pref.entryId != null) {
@@ -1277,10 +1277,22 @@
       });
 
       listBox.innerHTML = "";
+      /* the Lists group folds away, per device (review A); a list that is
+         the active filter keeps it open so the filter is never invisible */
+      var ui = KOS.store.state.ui;
+      var folded = !!(ui.hideLists && ui.hideLists[module]) && sel.customList == null;
       listBox.appendChild(el("h2", { class: "k-kicker k-mrail-h" }, [
         el("span", { text: "Lists" }),
-        el("button", { type: "button", class: "k-link k-mrail-manage", title: "New / rename / delete lists", text: "Manage", onclick: function () { manageLists(module, reload); } })
-      ]));
+        folded ? null : el("button", { type: "button", class: "k-link k-mrail-manage", title: "New / rename / delete lists", text: "Manage", onclick: function () { manageLists(module, reload); } }),
+        el("button", { type: "button", class: "k-link k-mrail-fold", "data-ui": "vault.lists-fold", "aria-expanded": String(!folded),
+          text: folded ? "Show" : "Hide", onclick: function () {
+            ui.hideLists = ui.hideLists || {};
+            ui.hideLists[module] = !folded;
+            KOS.store.save();
+            render();
+          } })
+      ].filter(Boolean)));
+      if (folded) return;
       var names = Object.keys(counts.list);
       if (!names.length) {
         listBox.appendChild(el("p", { class: "k-mrail-empty", text: "No custom lists yet." }));
@@ -1289,7 +1301,7 @@
           listBox.appendChild(rowBtn(n, sel.customList === n, counts.list[n], function () { pick("customList", sel.customList === n ? null : n); }, { list: true }));
         });
       }
-      listBox.appendChild(el("button", { type: "button", class: "k-mrail-row k-mrail-new", text: "＋ New list", onclick: function () { newList(module, reload); } }));
+      listBox.appendChild(el("button", { type: "button", class: "k-mrail-row k-mrail-new", text: "+ New list", onclick: function () { newList(module, reload); } }));
     }
 
     function reload() {

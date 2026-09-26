@@ -440,10 +440,11 @@
       { label: "Planner", view: "wishlist", mark: "円" },
       { label: "Sync", view: "mediasync", mark: "同" }
     ],
+    /* Archive opens on Backup, so Backup leads the strip (review A) */
     system: [
-      { label: "Notifications", view: "notifications", mark: "通", count: "pc-notify", tone: "urgent" },
       { label: "Backup & Restore", view: "data", mark: "蔵" },
-      { label: "Help & Guide", view: "help", mark: "導" }
+      { label: "Help & Guide", view: "help", mark: "導" },
+      { label: "Notifications", view: "notifications", mark: "通", count: "pc-notify", tone: "urgent" }
     ]
   };
   KOS.sectionOf = function (viewId) { return SECTION_OF[viewId] || null; };

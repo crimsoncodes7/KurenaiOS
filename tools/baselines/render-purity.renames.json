@@ -380,8 +380,8 @@
   {
    "hooks": "vault.hero-menu",
    "from": "^Spotlight▾$",
-   "to": "Spotlight options",
-   "why": "Graphite step 5a (vault template, frame 11b): the spotlight's configuration menu is the ⋯ beside Open entry, named \"Spotlight options\"."
+   "to": "Spotlight",
+   "why": "Graphite step 5a (vault template, frame 11b): the spotlight's configuration menu sits beside Open entry; review A labelled it \"Spotlight\" (it was a bare ⋯ named \"Spotlight options\")."
   },
   {
    "surface": "anime|books|vn|game",
@@ -640,6 +640,24 @@
    "surface": "^oop$",
    "dropEffects": { "state": "^oop\\.(links\\[\\]|nextId|seeded)$" },
    "why": "Graphite step 9 (labs): the first edit on a fresh sandbox also commits the draft example (its links, id counter and seeded flag), which the page used to write on arrival; the edit's own write to the classes is still the contract."
+  },
+  {
+   "surface": "^(anime|books|vn|game)$",
+   "from": "^＋ New list$",
+   "to": "+ New list",
+   "why": "Graphite review A: a plain + glyph (the full-width ＋ sat off-centre)."
+  },
+  {
+   "surface": "^mediasync$",
+   "from": "^1 · Connect AniList ↗$",
+   "to": "Connect AniList ↗",
+   "why": "Graphite review A: the provider setup is a tray of numbered steps; the button reads \"Connect ↗\" under the \"1 · Client ID\" step and keeps its full accessible name."
+  },
+  {
+   "surface": "^mediasync$",
+   "from": "^Open vndb\\.org/u/tokens ↗$",
+   "to": "Get a VNDB token ↗",
+   "why": "Graphite review A: the token link sits on the token step's label row as \"Get one ↗\"."
   }
  ]
 }

@@ -354,7 +354,7 @@
          review queue against the backlog line, and the streak toward its
          next bonus. XP is the hero's own bar. */
       var cheapest = KOS.governor.catalog()
-        .filter(function (c) { return !KOS.governor.owns(c.id); })
+        .filter(function (c) { return c.kind !== "banner" && !KOS.governor.owns(c.id); })
         .sort(function (a, b) { return a.price - b.price; })[0];
       var limit = KOS.governor.BACKLOG_LIMIT || 30;
       var nextBonus = [3, 7, 14, 30, 60, 100].filter(function (m) { return m > stks.all; })[0];
@@ -499,7 +499,8 @@
       card.appendChild(cardHead("Milestone ledger", null, el("button", { type: "button", class: "k-link", "data-ui": "gov.ledger-more",
         text: "Open full log →", title: routineCount ? routineCount + " system event" + (routineCount === 1 ? "" : "s") + " filed under System" : null,
         onclick: function () { KOS.show("governor", "history"); } })));
-      var recent = meaningful.slice(-5).reverse();
+      /* four rows: the ledger's height matches the cadence card beside it (review A) */
+      var recent = meaningful.slice(-4).reverse();
       if (!recent.length) card.appendChild(KOS.ui.emptyState({ compact: true, mark: "◇",
         title: "Your first milestone is waiting",
         body: "Complete a focus session, review, task, paper, or collection title." }));
@@ -526,7 +527,6 @@
       { id: "tools", domain: "tools", label: "Learning tools", match: function (c) { return c.kind === "lab" && BIG_LABS.indexOf(c.id) !== -1; } },
       { id: "simulations", domain: "simulations", label: "Simulations", match: function (c) { return c.kind === "lab" && BIG_LABS.indexOf(c.id) === -1; } },
       { id: "themes", domain: "cosmetics", label: "OS themes", match: function (c) { return c.kind === "theme"; } },
-      { id: "banners", domain: "cosmetics", label: "Profile banners", match: function (c) { return c.kind === "banner"; } },
       { id: "seals", domain: "cosmetics", label: "Profile seals", match: function (c) { return c.kind === "seal"; } },
       { id: "frames", domain: "cosmetics", label: "Avatar frames", match: function (c) { return c.kind === "frame"; } },
       { id: "shelves", domain: "cosmetics", label: "Bookshelf skins", match: function (c) { return c.kind === "shelfskin"; } },
@@ -535,7 +535,9 @@
     var KIND_LABEL = { tools: "Learning tool", simulations: "Simulation", cosmetics: "Cosmetic" };
 
     function renderShop() {
-      var cat = KOS.governor.catalog();
+      /* profile banners are no longer sold (review A): the banner is your
+         own upload, from Avatar */
+      var cat = KOS.governor.catalog().filter(function (c) { return c.kind !== "banner"; });
       var ownedN = cat.filter(function (c) { return KOS.governor.owns(c.id); }).length;
       var unowned = cat.filter(function (c) { return !KOS.governor.owns(c.id); });
       var affordable = unowned.filter(function (c) { return g.gold >= c.price; });
@@ -646,7 +648,7 @@
       ]));
       card.appendChild(el("div", { class: "k-gv-ware-desc" }, [
         it.desc,
-        it.kind === "lab" ? el("div", { class: "k-gv-ware-note", "data-ui": "shop.access-note", text: "Core revision stays free. This adds a practice surface." }) : null
+        null
       ].filter(Boolean)));
 
       var foot = el("div", { class: "k-gv-ware-foot", "data-ui": "shop.card-foot" });
@@ -745,17 +747,10 @@
       var band = el("div", { class: "k-gv-id-band" }, [el("span", { class: "k-chip k-gv-id-live", text: "Live identity" })]);
       if (KOS.governor.bannerCss()) KOS.governor.applyBanner(band, { scrim: "governor" });
       preview.appendChild(band);
-      var sealIt = g.seal && g.seal !== "kurenai" ? KOS.governor.item(g.seal) : null;
       preview.appendChild(el("div", { class: "k-gv-id-body" }, [
         ring(94, p.hp, p.hpState, "span", { "data-ui": "gov.avatar-preview-avatar" }),
         el("div", { class: "k-gv-id-name" }, ["Level " + p.level + " ", el("span", { text: "· " + p.rank })]),
         p.status ? el("div", { class: "k-gv-id-status", "data-ui": "gov.avatar-preview-status", text: p.status }) : null,
-        el("div", { class: "k-gv-id-facts" }, [
-          fact("Portrait", g.avatar.kind === "custom" && g.avatar.img ? "Custom image" : (KOS.governor.sealById(g.avatar.id) || {}).name || "Ember"),
-          fact("Frame", g.avatar.frame ? (KOS.governor.item(g.avatar.frame) || {}).name || "Frame" : "None"),
-          fact("Seal", sealIt ? sealIt.name : "紅 Kurenai"),
-          fact("Banner", g.banner ? (g.banner === "custom" ? "Custom banner" : bannerName(g.banner)) : "None")
-        ]),
         el("div", { class: "k-kicker k-gv-id-k", text: "Topbar seal preview" }),
         el("div", { class: "k-gv-id-topbar" }, [
           el("span", { class: "k-gv-id-brand", text: "Kurenai" }),
@@ -763,9 +758,6 @@
         ])
       ].filter(Boolean)));
       grid.appendChild(preview);
-      function fact(k, v) {
-        return el("div", { class: "k-card-row" }, [el("span", { class: "k-card-row-k", text: k }), el("span", { class: "k-card-row-v", text: v })]);
-      }
       function bannerName(id) {
         var found = KOS.governor.catalog().find(function (c) { return c.kind === "banner" && c.banner === id; });
         return found ? found.name : "Banner";
@@ -777,7 +769,7 @@
 
       var hasPic = g.avatar.kind === "custom" && !!g.avatar.img, hasBanner = !!KOS.governor.bannerCss();
       ctl.appendChild(el("section", { class: "k-card k-gv-media", "data-ui": "gov.avatar-section", "aria-label": "Profile" }, [
-        media({ label: "Profile picture", value: hasPic ? "Custom image" : "Seal portrait", hook: "gov.avatar-mc",
+        media({ label: "Profile picture", value: hasPic ? "Custom image" : "Default", hook: "gov.avatar-mc",
           action: hasPic ? "Reposition →" : "Add picture →",
           go: function () {
             KOS.governor.editAvatar(function (err, result) {
@@ -806,30 +798,8 @@
         ]);
       }
 
-      /* seal library — the portrait seals, unlocked by level */
-      var sgrid = el("div", { class: "k-gv-seals", "data-ui": "gov.seal-grid" });
-      KOS.governor.seals().forEach(function (s) {
-        var unlocked = KOS.governor.sealUnlocked(s);
-        var on = g.avatar.kind === "seal" && g.avatar.id === s.id;
-        var card = el("button", { type: "button", class: "k-gv-seal", "data-ui": "gov.seal-card", "aria-pressed": on ? "true" : "false",
-          "aria-label": s.name + (unlocked ? "" : " — unlocks at level " + s.minLevel), title: unlocked ? s.name : s.name + " — unlocks at level " + s.minLevel,
-          onclick: function () {
-            if (!unlocked) { KOS.ui.toast("Unlocks at level " + s.minLevel + " — you're level " + p.level + ".", true); return; }
-            g.avatar.kind = "seal"; g.avatar.id = s.id;
-            store.save(); KOS.refreshHUD(); render();
-          } });
-        if (!unlocked) KOS.ui.state(card, "locked", true);
-        var art = el("span", { class: "k-gv-seal-art", "aria-hidden": "true" });
-        art.innerHTML = KOS.governor.sealSvg(s);
-        card.appendChild(art);
-        card.appendChild(el("span", { class: "k-gv-seal-n", text: on ? "Worn" : unlocked ? s.name : "Lv " + s.minLevel }));
-        sgrid.appendChild(card);
-      });
-      ctl.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.avatar-section", "aria-label": "Seal library" }, [
-        cardHead("Seal library", "your portrait when no picture is set · unlocked by level"),
-        sgrid
-      ]));
-
+      /* no seal library (review A): with no picture the portrait is the
+         default design */
       /* frames — every frame, the owned ones wearable, the rest a shop away */
       var fgrid = el("div", { class: "k-gv-frames", "data-ui": "gov.frame-grid" });
       fgrid.appendChild(frameChip(null, "No frame", true));

@@ -67,7 +67,9 @@
       hint: "Notifications", align: "end",
       render: function (panel, close) {
         panel.setAttribute("data-ui", (panel.getAttribute("data-ui") || "") + " notify.panel");
-        var items = KOS.notify.all().slice(0, 5);
+        /* the bell is an inbox: read items leave it (they stay in the
+           full feed under Archive) — review A */
+        var items = KOS.notify.all().filter(function (it) { return !KOS.notify.isRead(it); }).slice(0, 5);
         var unread = KOS.notify.unread();
         panel.appendChild(el("div", { class: "k-nt-pop-head" }, [
           el("b", { text: "Notifications" }),
@@ -76,7 +78,7 @@
             onclick: function () { KOS.notify.markAllRead(); close(); } }) : null
         ].filter(Boolean)));
         if (!items.length) {
-          panel.appendChild(el("p", { class: "k-nt-pop-empty", text: "Nothing yet. Reminders, deadlines, airing episodes and release days land here." }));
+          panel.appendChild(el("p", { class: "k-nt-pop-empty", text: KOS.notify.all().length ? "You're all caught up." : "Nothing yet." }));
         } else {
           var list = el("div", { class: "k-nt-pop-list" });
           items.forEach(function (it) { list.appendChild(row(it, { compact: true, before: close })); });
@@ -200,9 +202,10 @@
       var perm = nat.permission(), on = nat.enabled();
       var what = /iPhone|iPad|Android/i.test(navigator.userAgent) ? "phone" : "computer";
       device.appendChild(el("div", { class: "k-card-title", text: "Device alerts" }));
-      device.appendChild(el("p", { class: "k-nt-card-p", text: perm === "unsupported" ? "This browser cannot show device notifications."
-        : perm === "denied" ? "Notifications are blocked for this site in the browser. Allow them in the site settings to turn device alerts on."
-        : "A system notification on this " + what + " when something new lands here, while Kurenai is open in a tab or installed as an app. There is no push server, so a closed app stays quiet." }));
+      /* one line (review A); invariant 98: the page still says there is no push */
+      device.appendChild(el("p", { class: "k-nt-card-p", text: perm === "unsupported" ? "Not supported in this browser."
+        : perm === "denied" ? "Blocked in this site's browser settings."
+        : "While Kurenai is open. No push server, so a closed app stays quiet." }));
       var sw = el("input", { type: "checkbox", role: "switch", class: "k-switch", "data-ui": "notify.device-toggle",
         "aria-label": "Device alerts on this " + what });
       sw.checked = on;
@@ -221,7 +224,6 @@
       lands.innerHTML = "";
       var items = KOS.notify.all(), K = KOS.notify.KINDS;
       lands.appendChild(el("div", { class: "k-card-title", text: "What lands here" }));
-      lands.appendChild(el("p", { class: "k-nt-card-p", text: "Each alert is set on its own record: the event, the reminder, the assignment, the title you're watching." }));
       Object.keys(K).forEach(function (kind) {
         var n = items.filter(function (it) { return it.kind === kind; }).length;
         lands.appendChild(el("div", { class: "k-card-row" }, [

@@ -309,7 +309,7 @@
       genres, titleEnglish}. */
   function searchMedia(term, module, cb) {
     var q = "query ($search: String, $type: MediaType) {" +
-      " Page(page: 1, perPage: 10) {" +
+      " Page(page: 1, perPage: 30) {" +
       "  media(search: $search, type: $type, sort: SEARCH_MATCH) {" +
       "   id idMal title { romaji english } coverImage { large }" +
       "   format seasonYear startDate { year } episodes chapters volumes genres" +

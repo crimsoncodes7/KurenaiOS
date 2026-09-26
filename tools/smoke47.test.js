@@ -189,8 +189,11 @@ step("Governor and Shrine remaining empty surfaces use the shared primitive", ()
   assert(/KOS\.ui\.emptyState\(\{[^]*?\}\), "shrine\.empty"\)/.test(read("js/modules/shrine.js")), "Shrine empty Hall bypasses EmptyState");
 });
 
-step("the compact reminder hint keeps the existing search control readable", () => {
-  assert(/placeholder:\s*"Search reminders…"/.test(read("js/modules/reminders.js")),
+/* Graphite review A: the in-page reminder search was removed (the header's
+   global search finds reminders); what stays pinned is a quick-add
+   placeholder short enough for the phone field. */
+step("the compact quick-add placeholder stays readable", () => {
+  assert(/placeholder:\s*"Add a reminder…"/.test(read("js/modules/reminders.js")),
     "the phone reminder placeholder is crowded again");
 });
 

@@ -165,12 +165,19 @@
         });
       })();
     }
-    function formRow(label, input, button) {
-      return el("div", { class: "k-sy-formrow" }, [
-        el("label", { class: "k-field", "data-ui": "ui.field" }, [el("span", { class: "k-field-label", text: label }), input]),
-        button
+    /* a provider's setup is one inset tray pinned to the card's foot, so the
+       three trays line up across the row; each step is a label over one
+       field-and-button line, every button the same width (review A) */
+    function formRow(label, input, button, link) {
+      var id = "k-sy-f" + (++formSeq);
+      input.id = id;
+      return el("div", { class: "k-sy-formrow", "data-ui": "ui.field" }, [
+        el("div", { class: "k-sy-step-h" }, [el("label", { class: "k-field-label", for: id, text: label }), link || null].filter(Boolean)),
+        el("div", { class: "k-sy-step-row" }, [input, button])
       ]);
     }
+    var formSeq = 0;
+    function setup(kids) { return el("div", { class: "k-sy-setup", "data-ui": "sync.setup" }, kids.filter(Boolean)); }
 
     /* ================= 1 · AniList (primary) ================= */
     var connBody = el("div", { class: "k-sy-body" });
@@ -239,7 +246,7 @@
         connBody.appendChild(facts([["Account", "Connect AniList to begin"], ["Sync mode", "Mirror · 1:1"], ["Last successful sync", "—"], ["Items imported", "—"]]));
         var idIn = el("input", { type: "text", class: "k-input", "aria-label": "AniList Client ID", placeholder: "A short number", value: conn.clientId || "" });
         idIn.addEventListener("change", function () { KOS.anilist.setClientId(idIn.value, function () {}); });
-        var connectBtn = el("button", { type: "button", class: "k-btn k-btn--primary", text: "1 · Connect AniList ↗", onclick: function () {
+        var connectBtn = el("button", { type: "button", class: "k-btn", text: "Connect ↗", "aria-label": "Connect AniList ↗", onclick: function () {
           var id = idIn.value.trim();
           if (!id) { KOS.ui.toast("Paste your Client ID first — from anilist.co/settings/developer.", true); return; }
           KOS.anilist.setClientId(id, function () {
@@ -248,7 +255,7 @@
           });
         } });
         var tokIn = el("input", { type: "password", class: "k-input", "aria-label": "AniList access token", placeholder: "The token AniList showed you" });
-        var verifyBtn = el("button", { type: "button", class: "k-btn", text: "Save & verify", onclick: function () {
+        var verifyBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Save & verify", onclick: function () {
           var tok = tokIn.value.trim();
           if (!tok) { KOS.ui.toast("Paste the token first.", true); return; }
           verifyBtn.disabled = true;
@@ -263,11 +270,11 @@
             });
           });
         } });
-        connBody.appendChild(formRow("Client ID", idIn, connectBtn));
-        connBody.appendChild(formRow("2 · Access token (shown on AniList's PIN page)", tokIn, verifyBtn));
-        if (conn.token && !conn.viewer) {
-          connBody.appendChild(el("p", { class: "k-muted k-sy-small", text: "A token is stored but unverified — paste it again or hit Save & verify." }));
-        }
+        connBody.appendChild(setup([
+          formRow("1 · Client ID", idIn, connectBtn),
+          formRow("2 · Access token", tokIn, verifyBtn),
+          conn.token && !conn.viewer ? el("p", { class: "k-muted k-sy-small", text: "A stored token is unverified — paste it again." }) : null
+        ]));
       });
     }
     renderConn();
@@ -333,7 +340,7 @@
 
         vndbBody.appendChild(facts([["Account", "Connect VNDB to begin"], ["Import mode", "Update & add"], ["Last successful sync", "—"], ["Items imported", "—"]]));
         var tokIn = el("input", { type: "password", class: "k-input", "aria-label": "VNDB personal token", placeholder: "From vndb.org/u/tokens" });
-        var verifyBtn = el("button", { type: "button", class: "k-btn k-btn--primary", text: "Save & verify", onclick: function () {
+        var verifyBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Save & verify", onclick: function () {
           var tok = tokIn.value.trim();
           if (!tok) { KOS.ui.toast("Paste the token first — generate one at vndb.org/u/tokens.", true); return; }
           verifyBtn.disabled = true;
@@ -348,13 +355,11 @@
             });
           });
         } });
-        vndbBody.appendChild(formRow("Personal token", tokIn, verifyBtn));
-        vndbBody.appendChild(el("div", { class: "k-sy-actions" }, [
-          el("button", { type: "button", class: "k-btn k-btn--quiet", text: "Open vndb.org/u/tokens ↗", onclick: function () { window.open(KOS.vndb.TOKEN_URL, "_blank"); } })
+        vndbBody.appendChild(setup([
+          formRow("Personal token", tokIn, verifyBtn,
+            el("button", { type: "button", class: "k-link k-sy-steplink", text: "Get one ↗", "aria-label": "Get a VNDB token ↗", onclick: function () { window.open(KOS.vndb.TOKEN_URL, "_blank"); } })),
+          conn.token && !conn.user ? el("p", { class: "k-muted k-sy-small", text: "A stored token is unverified — paste it again." }) : null
         ]));
-        if (conn.token && !conn.user) {
-          vndbBody.appendChild(el("p", { class: "k-muted k-sy-small", text: "A token is stored but unverified — paste it again or hit Save & verify." }));
-        }
       });
     }
     renderVndb();
@@ -366,8 +371,8 @@
     }, [
       el("div", { class: "k-sy-body" }, [
         facts([["Baseline", "Manual entry · ▤ Bulk add"], ["Steam library", "Imported in the Games vault"], ["Verification", "Server-side, behind a review"], ["Needs", "Cloud sign-in for Steam"]]),
-        el("div", { class: "k-sy-actions" }, [
-          el("button", { type: "button", class: "k-btn k-btn--primary", text: "遊 Open the Games vault", onclick: function () { KOS.show("game"); } })
+        setup([
+          el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "遊 Open the Games vault", onclick: function () { KOS.show("game"); } })
         ])
       ])
     ]));
@@ -480,7 +485,7 @@
       })(null);
     } });
     middle.appendChild(card({
-      title: "Zero-setup fallback", tag: "Import a MAL or AniList XML export, or merge duplicates.",
+      title: "Zero-setup fallback", tag: "Import a MAL or AniList XML export, or merge duplicates.", className: "k-sy-card--xml",
       note: "AniList → Settings → Apps → Export gives a MAL-format XML file (anime or manga — manga lands in Books). No login or token needed. The ids inside are MAL ids; enrichment below backfills the AniList ids so later syncs match these rows instead of duplicating. Imports carry no covers or genres — enrichment fills those too. Replace mode only sweeps entries that themselves arrived by XML import — synced and hand-made entries are out of its reach. Scan for duplicates merges entries sharing an external id — or sharing a title where one copy is missing its id — into one, keeping the union of everything you added yourself; ambiguous cases (same title, different ids) are left untouched."
     }, [
       el("div", { class: "k-sy-body" }, [

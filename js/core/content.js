@@ -409,9 +409,14 @@
     if (codeEl) {
       text = codeEl.textContent.trim();
     } else {
-      cp.hidden = true;
+      /* every copy button inside the box (a nested block has its own) and
+         every decorative glyph (aria-hidden icons, kanji marks) stays out
+         of the text — review A: copies carried "ⓘ" and "Copy" */
+      var hide = [].slice.call(box.querySelectorAll("[data-ui~='content.copy'], [aria-hidden='true']"))
+        .filter(function (n) { return !n.hidden; });
+      hide.forEach(function (n) { n.hidden = true; });
       text = (box.innerText || box.textContent || "").trim();
-      cp.hidden = false;
+      hide.forEach(function (n) { n.hidden = false; });
     }
     function done() {
       KOS.ui.state(cp, "copied", true);

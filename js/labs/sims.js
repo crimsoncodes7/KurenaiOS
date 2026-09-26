@@ -1834,16 +1834,6 @@
       panel.appendChild(el("p", { class: "k-lab-sub", "data-ui": "part.sub", text: s.desc }));
       s.mount(panel);
     }
-    /* siblings from the same area, so a reader can move sideways without the grid */
-    var kin = withMount.filter(function (o) { return o.id !== s.id && simCategory(o) === simCategory(s); });
-    if (kin.length) {
-      var row = el("div", { class: "k-lab-tabs", role: "group", "aria-label": "More simulations" });
-      kin.forEach(function (o) {
-        var a2 = KOS.governor ? KOS.governor.simAccess(o.id) : { ok: true };
-        row.appendChild(el("button", { type: "button", class: "k-lab-tab", "data-ui": "lab.tab", onclick: function () { KOS.show("sims", o.id); } }, [(a2.ok ? "" : "\u25C8 ") + o.title]));
-      });
-      main.appendChild(el("h2", { class: "k-lab-more", text: "More in " + SIM_CATS.filter(function (c) { return c[0] === simCategory(s); })[0][1] }));
-      main.appendChild(row);
-    }
+    /* no "More in …" pill row (review A): the grid is one Back away */
   };
 })();

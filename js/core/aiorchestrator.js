@@ -452,8 +452,18 @@
        it counts as "acted" for completion, so a proposal-card turn is never
        falsely corrected, but it is NOT a save (no write receipt). */
     var acted = wrote || req.proposalsMade > 0;
-    var claimsSuccess = SUCCESS_RX.test(text);
-    var promises = PROMISE_RX.test(text);
+    /* the check reads prose, not examples: code and quoted material say
+       "added"/"removed" about a stack or a list all the time, and an
+       explanation is not a claim about the user's data. A claim counts only
+       when the user asked for a change or the reply talks about THEIR things
+       (review A: "show me how to code a custom stack" had its answer replaced
+       by a disclaimer because the example pushed and popped). */
+    var prose = String(text || "").replace(/```[\s\S]*?(```|$)/g, " ").replace(/`[^`\n]*`/g, " ")
+      .split("\n").filter(function (l) { return !/^\s*>/.test(l); }).join("\n");
+    var askedWrite = WRITE_ASK_RX.test(req.userGoal || "");
+    var aboutUser = /\byour (?:deck|cards?|flashcards?|notes?|lists?|reminders?|calendar|planner|collection|vault|library|shelf|progress|topics?|profile|goals?|assignments?|habits?|plan|wishlist|queue|account|settings|memory|status)\b/i.test(prose);
+    var claimsSuccess = SUCCESS_RX.test(prose) && (askedWrite || aboutUser);
+    var promises = PROMISE_RX.test(prose) && (askedWrite || aboutUser);
     var problem = null;
     if (claimsSuccess && !acted) problem = "claimed-success-no-write";
     else if (promises && !acted) problem = "promised-no-action";
@@ -562,7 +572,9 @@
      generate 8 flashcards", "let me add them", "going to save these". Narrow
      on purpose: benign completions ("let me summarise", "I'll explain") never
      match, so only genuinely-unfulfilled action promises are flagged. */
-  var PROMISE_RX = /\b(i'?ll|i will|let me|i'?m going to|going to|i can (?:now )?|i'?m about to|next i'?ll)\b[^.!?\n]{0,40}?\b(generate|add|create|save|make|build|write|update|delete|remove|log|mark|set up|put together|proceed to)\b/i;
+  /* a request that asks for a change to the user's data */
+  var WRITE_ASK_RX = /\b(save|add|create|make|generate|build|produce|draft|update|edit|change|delete|remove|log|mark|tick|put|schedule|remind|set|rename|move|buy|purchase|record|file|store|keep|write)\b/i;
+  var PROMISE_RX =/\b(i'?ll|i will|let me|i'?m going to|going to|i can (?:now )?|i'?m about to|next i'?ll)\b[^.!?\n]{0,40}?\b(generate|add|create|save|make|build|write|update|delete|remove|log|mark|set up|put together|proceed to)\b/i;
 
   /* ---------------- tool-call handling ---------------- */
   function callKey(call) { return call.name + "::" + canonical(call.args || {}); }

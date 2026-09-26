@@ -126,7 +126,7 @@
           nowWrap.innerHTML = "";
           nowWrap.appendChild(el("div", { class: "k-card-head k-mx-head" }, [
             el("h2", { class: "k-mx-title", text: "Currently consuming" }),
-            current.length ? el("span", { class: "k-card-meta", text: current.length + " in progress · most recent first" }) : null
+            current.length ? el("span", { class: "k-card-meta", text: current.length + " in progress" + (current.length > 20 ? " · latest 20" : "") }) : null
           ].filter(Boolean)));
           if (!current.length) {
             nowWrap.appendChild(KOS.ui.emptyState({ compact: true,
@@ -134,8 +134,10 @@
               action: el("button", { type: "button", class: "k-btn", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }) }));
             return;
           }
-          var grid = el("div", { class: "k-mx-now-grid" });
-          current.slice(0, 12).forEach(function (e) {
+          /* the twenty most recently touched, one row that scrolls
+             sideways (review A) — a declared scroller (invariant 50) */
+          var grid = el("div", { class: "k-mx-now-row" });
+          current.slice(0, 20).forEach(function (e) {
             var mod = KOS.media.module(e.module);
             var prog = KOS.media.progressText(e);
             var bumpMode = mod.id === "anime" || mod.id === "books" ? "progress" : mod.id === "game" ? "hours" : null;
@@ -159,7 +161,7 @@
             card.style.setProperty("--vh-accent", mod.accent);
             grid.appendChild(card);
           });
-          nowWrap.appendChild(grid);
+          nowWrap.appendChild(KOS.ui.scroller(grid, { label: "Currently consuming" }));
         });
       }
       renderNow();
@@ -228,7 +230,7 @@
     }
 
     /* the six figures of 11a — zero-only figures are suppressed (invariant 77) */
-    function figureBand() {
+    function figureBand(o) {
       var m = modules();
       var inProgressAll = m.anime.inProgress + m.books.inProgress + m.vn.inProgress + m.game.inProgress;
       var figs = [
@@ -236,9 +238,10 @@
         ["In progress", inProgressAll],
         ["Episodes watched", m.anime.episodes],
         ["Chapters read", m.books.episodes],
+        o && o.volumes ? ["Volumes on the shelf", m.books.volumesOwned || 0] : null,
         ["Hours played", Math.round(m.game.episodes || 0)],
         ["In the Shrine", agg.favourites]
-      ].filter(function (f, i) { return i === 0 || f[1]; });
+      ].filter(Boolean).filter(function (f, i) { return i === 0 || f[1]; });
       return el("dl", { class: "k-mx-band", "data-ui": "coll.figures" }, figs.map(function (f) {
         return el("div", { class: "k-mx-fig" }, [el("dt", { text: f[0] }), el("dd", { text: KOS.ui.num(f[1]) })]);
       }));
@@ -289,17 +292,10 @@
       }
       var m = modules();
 
-      /* ---- the headline figures (audit MTX-3 / MTX-5 / U-17) ---- */
-      var inProgressAll = m.anime.inProgress + m.books.inProgress + m.vn.inProgress + m.game.inProgress;
-      pane.appendChild(el("div", { class: "k-stats", "data-ui": "ui.stat-strip" }, [
-        KOS.ui.statTile({ value: agg.total, label: "Titles in the vault" }),
-        KOS.ui.statTile({ value: inProgressAll, label: "In progress", sub: "across every medium", suppressZero: true }),
-        KOS.ui.statTile({ value: m.anime.episodes, label: "Episodes watched", suppressZero: true }),
-        KOS.ui.statTile({ value: m.books.episodes, label: "Chapters read", suppressZero: true }),
-        KOS.ui.statTile({ value: m.books.volumesOwned || 0, label: "Volumes on the shelf", suppressZero: true }),
-        KOS.ui.statTile({ value: Math.round(m.game.episodes || 0), label: "Hours played", suppressZero: true }),
-        KOS.ui.statTile({ value: agg.favourites, label: "In the Shrine", suppressZero: true })
-      ].filter(Boolean)));
+      /* ---- the headline figures: the Overview's own figure band, so the
+         two panes open on the same designed strip (review A: the stat
+         tiles here read as plain text) ---- */
+      pane.appendChild(figureBand({ volumes: true }));
 
       /* ---- ONE comparison, one shared scale, one legend (MTX-2/U-18) ---- */
       var groups = KOS.media.MODULES.filter(function (mod) {
@@ -337,7 +333,7 @@
         grid.appendChild(KOS.charts.chartCard("Score distribution", rated + " rated titles, out of 10",
           KOS.charts.barChart(agg.scores.map(function (n, i) {
             return { label: String(i), value: n, color: i >= 8 ? "var(--gold)" : i >= 5 ? "var(--green)" : "var(--red)" };
-          }).slice(1))));
+          }).slice(1), { width: 460, height: 210 }), { half: true }));
       } else {
         grid.appendChild(KOS.charts.chartCard("Score distribution", "not enough ratings yet",
           KOS.ui.emptyState({ compact: true,
@@ -359,11 +355,9 @@
       }
       if (total) {
         grid.appendChild(KOS.charts.chartCard("Rest, logged", total + " Collection logs over 16 weeks",
-          KOS.charts.heatmap(days, { color: "var(--vn)" })));
+          KOS.charts.heatmap(days, { color: "var(--vn)", cell: 20, gap: 4 }), { half: true }));
       }
       pane.appendChild(grid);
-      pane.appendChild(el("p", { class: "k-muted",
-        text: "Each vault keeps its own deeper numbers — open one and choose “The numbers” from its Actions menu." }));
     }
 
     /* ================= shared pieces ================= */

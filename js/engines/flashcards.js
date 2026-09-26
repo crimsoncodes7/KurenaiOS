@@ -417,8 +417,8 @@
       el("div", { class: "k-seg k-seg--loose", role: "tablist", "aria-label": "Flashcards" }, [studyTab, deckTab]),
       /* a topic page writes cards in the study editor; a deck with no page
          adds them in the deck browser's own form */
-      opts.editing ? null : el("button", { type: "button", class: "k-seg-item k-fc-new", "data-ui": "fc.new", text: "+ New card",
-        onclick: function () { if (opts.onEdit) opts.onEdit(); else { mode = "manage"; render(); } } })
+      opts.editing || !opts.onEdit ? null : el("button", { type: "button", class: "k-seg-item k-fc-new", "data-ui": "fc.new", text: "+ New card",
+        onclick: function () { opts.onEdit(); } })
     ].filter(Boolean));
     var body = el("div", { class: "k-fc-body" });
     holder.appendChild(bar);
@@ -437,7 +437,7 @@
         var holder2 = el("div", { class: "k-fc" });
         body.appendChild(holder2);
         session(holder2, cards, { sid: sid, ref: ref, type: "flashcards",
-          emptyText: "No cards on this topic yet — press Edit to write the first one." });
+          emptyText: opts.onEdit ? "No cards on this topic yet — press Edit to write the first one." : "No cards yet — add the first one under Deck." });
       } else {
         managePanel(body, sid, ref, render, opts);
       }

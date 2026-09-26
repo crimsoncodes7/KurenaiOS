@@ -600,22 +600,36 @@
   }
 
   /* ================= recovery mode ================= */
-  /* The fastest route from Critical back to Strained: three concrete tasks,
-     progress measured from today's session log. */
+  /* The fastest route from Critical back to Strained: three concrete wins
+     (Graphite 7a·crit / 12a2), each measured from what already happened
+     today — the session log, the plan's ticks and completed tasks. The
+     checklist is a read: it pays nothing and gates nothing (invariant 2). */
   function recoveryTasks() {
     var today = KOS.srs.todayISO();
-    var todays = KOS.sessions.forDate(today, null);
-    var reviewed = todays.filter(function (e) { return e.type === "due-review" || e.type === "flashcards"; })
-      .reduce(function (a, e) { return a + (e.metrics.cards || 0); }, 0);
-    var quizzes = todays.filter(function (e) { return e.type === "quiz" || e.type === "exam"; }).length;
-    var todos = todays.filter(function (e) { return e.type === "todo"; }).length;
+    function dayOf(ts) {
+      if (!ts) return null;
+      var d = new Date(ts);
+      return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+    }
+    var focused = KOS.sessions.forDate(today, null).some(function (e) {
+      return e.type === "focus" && !(e.metrics && e.metrics.complete === false) && (e.dur || 0) >= 25 * 60;
+    });
+    var planTicks = ((store.state.pacing && store.state.pacing.entries) || []).filter(function (e) {
+      return e.done && dayOf(e.doneAt) === today;
+    }).length;
+    var cleared = ((store.state.reminders && store.state.reminders.items) || []).some(function (r) {
+      return r.done && r.due && dayOf(r.completedAt) === today && r.due < today;
+    }) || ((store.state.assignments && store.state.assignments.items) || []).some(function (a) {
+      var at = a.completedAt || a.submittedAt;
+      return at && a.due && dayOf(at) === today && a.due < today;
+    });
     return [
-      { label: "Review 5 due flashcards", cur: Math.min(5, reviewed), target: 5,
-        go: function () { KOS.show("due"); } },
-      { label: "Complete a quiz or exam question", cur: Math.min(1, quizzes), target: 1,
-        go: function () { KOS.show("home"); } },
-      { label: "Tick 2 items on today's list", cur: Math.min(2, todos), target: 2,
-        go: function () { KOS.show("home"); } }
+      { label: "25-min focus session", cur: focused ? 1 : 0, target: 1,
+        go: function () { KOS.show("focus"); } },
+      { label: "Tick 2 plan items", cur: Math.min(2, planTicks), target: 2,
+        go: function () { KOS.show("pacing"); } },
+      { label: "Clear an overdue task", cur: cleared ? 1 : 0, target: 1,
+        go: function () { KOS.show("assignments"); } }
     ];
   }
 

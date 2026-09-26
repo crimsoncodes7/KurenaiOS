@@ -669,7 +669,6 @@
     var progress = KOS.media.progressText(first, { long: true });
     var hero = el("article", { class: "k-shr-hero", "data-ui": "shrine.feature", onclick: function () { openEntry(first); } }, [
       el("span", { class: "k-shr-hero-scrim", "aria-hidden": "true" }),
-      el("span", { class: "k-shr-hero-mark", lang: "ja", "aria-hidden": "true", text: RANK_KANJI[0] }),
       el("div", { class: "k-shr-hero-grid" }, [
         el("div", { class: "k-shr-hero-body", "data-ui": "shrine.feature-body" }, [
           el("div", { class: "k-shr-hero-rank" }, [

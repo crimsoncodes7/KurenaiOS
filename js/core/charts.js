@@ -229,10 +229,24 @@
   }
 
   /* the standard donut + legend block */
+  /* the donut with a share legend: each row carries its count, its share
+     and a bar of that share, so the card's width says something (review A:
+     a small legend left most of the card empty) */
   function donutWithLegend(data, opts) {
     var wrap = el("div", { class: "k-chart-donut", "data-ui": "chart.donut-wrap" });
     wrap.appendChild(donutChart(data, opts));
-    wrap.appendChild(legend(data.filter(function (d) { return d.value; }), null, true));
+    var shown = data.filter(function (d) { return d.value; });
+    var total = shown.reduce(function (a, d) { return a + d.value; }, 0) || 1;
+    wrap.appendChild(el("ul", { class: "k-legend k-legend--share", "data-ui": "chart.legend" }, shown.map(function (d) {
+      var pct = Math.round(100 * d.value / total);
+      return el("li", { class: "k-legend-item", style: "--c: " + (d.color || DEFAULT_C) + "; --p: " + pct + "%" }, [
+        el("i", { class: "k-legend-swatch", "aria-hidden": "true" }),
+        el("span", { text: d.label }),
+        el("b", { class: "k-mono", text: KOS.ui.num ? KOS.ui.num(d.value) : String(d.value) }),
+        el("span", { class: "k-mono k-legend-pct", text: pct + "%" }),
+        el("span", { class: "k-legend-bar", "aria-hidden": "true" })
+      ]);
+    })));
     return wrap;
   }
 
@@ -286,11 +300,12 @@
     return s;
   }
 
-  function chartCard(title, sub, svg) {
+  function chartCard(title, sub, svg, opts) {
     /* an axis chart drawn on a wide viewBox shrinks its labels below the
-       11px floor in a half-width cell, so it takes the whole grid row */
+       11px floor in a half-width cell, so it takes the whole grid row —
+       unless the caller drew it for a half cell and says so */
     var vb = svg && svg.getAttribute && svg.getAttribute("viewBox");
-    var wide = vb && Number(vb.split(" ")[2]) >= 400;
+    var wide = opts && opts.half ? false : vb && Number(vb.split(" ")[2]) >= 400;
     return el("section", { class: "k-card k-chart", "data-ui": "chart.chart", "data-span": wide ? "wide" : null }, [
       el("header", { class: "k-chart-h" }, [
         el("h3", { class: "k-chart-title", text: title }),

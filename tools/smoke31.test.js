@@ -169,19 +169,22 @@ step("Gold Shop separates tools, simulations and cosmetics with contextual previ
   if (!main.querySelector("[data-ui~='shop.preview-seal']") || !main.querySelector("[data-ui~='shop.preview-shelf']") || !main.querySelector("[data-ui~='shop.preview-shrine']")) throw new Error("cosmetic context previews missing");
   if (main.querySelector(".sp-theme-shell") || main.querySelector(".sp-banner-card")) throw new Error("meaningless preview overlays survived");
   if (main.querySelector(".shop-pv-glyph")) throw new Error("legacy isolated glyph preview survived");
-  if (!/Core revision stays free/.test(main.querySelector("#shop-sec-tools").textContent)) throw new Error("essential-study access copy missing");
+  /* review A retired the "Core revision stays free" note and the profile-banner department */
+  if (main.querySelector("#shop-sec-banners")) throw new Error("profile banners are no longer sold");
   main.querySelector('[data-ui~="shop.dept"][data-dept="tools"]').click();
   const visible = [...main.querySelectorAll("[data-ui~='shop.section']")].filter(s => !s.hidden);
   if (visible.length !== 1 || visible[0].dataset.domain !== "tools") throw new Error("department filtering failed");
 });
 
-step("Avatar workshop uses the shared cropper and preserves seal/frame choices", async () => {
+step("Avatar workshop uses the shared cropper and keeps the frame choices", async () => {
   KOS.show("governor", "avatar", { _nav: true });
   await tick(40);
   const main = document.getElementById("main");
   if (!main.querySelector("[data-ui~='gov.avatar-studio'] > [data-ui~='gov.identity-stage'] + [data-ui~='gov.avatar-controls']")) throw new Error("avatar preview and controls are not aligned siblings");
   if (main.querySelector(".av-workshop-head")) throw new Error("duplicate Avatar title survived inside the page");
-  if (main.querySelectorAll("[data-ui~='gov.seal-grid'] [data-ui~='gov.seal-card']").length !== KOS.governor.seals().length) throw new Error("seal library incomplete");
+  /* review A: no seal library — with no picture the portrait is the default design */
+  if (main.querySelector("[data-ui~='gov.seal-grid']")) throw new Error("the seal library was retired");
+  if (!main.querySelector("[data-ui~='gov.frame-grid']")) throw new Error("the frame library is missing");
   const add = [...main.querySelectorAll("[data-ui~='gov.avatar-mc'] button")].find(b => /Add|Edit/.test(b.textContent));
   add.click();
   if (!document.querySelector("[data-ui~='crop.modal']")) throw new Error("avatar did not open shared cropper");

@@ -23,6 +23,9 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
     ThreadingHTTPServer.allow_reuse_address = True
+    # the page opens ~100 script and style requests at once; the default
+    # listen backlog of 5 dropped some (ERR_SOCKET_NOT_CONNECTED on boot)
+    ThreadingHTTPServer.request_queue_size = 128
     with ThreadingHTTPServer(("", port), NoCacheHandler) as httpd:
         print("Serving with Cache-Control: no-store on port %d" % port)
         httpd.serve_forever()

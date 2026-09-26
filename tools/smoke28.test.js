@@ -158,6 +158,20 @@ step("a success CLAIM with no write is corrected (one nudge, then deterministic 
   assert(chatLog.length === 2, "the model must get exactly one corrective retry, saw " + chatLog.length + " turns");
 });
 
+/* Graphite review A: an explanation is not a claim. "Show me how to code a
+   custom stack" came back as a disclaimer because the example said an item
+   "is added" and "is removed" — the answer itself was thrown away. */
+step("an explanation that talks about adding and removing is not a false claim", async () => {
+  KOS.ai.tools.clearPendingArtifact();
+  const answer = "A stack is last in, first out. When you push, the item is added to the top; when you pop, it is removed.\n\n```python\nstack.append(x)  # item has been added\n```";
+  chatScript = [say(answer)];
+  const ev = await runCollect({ userText: "Show me how to code a custom stack", category: "complex", conversationKey: "c-explain" });
+  await untilIdle();
+  const finalText = ev.texts[ev.texts.length - 1] || "";
+  assert(chatLog.length === 1, "no corrective retry for an explanation, saw " + chatLog.length + " turns");
+  assert(finalText === answer, "the answer is shown as written, got: " + finalText);
+});
+
 step("a FAILED save tool cannot be described as saved", async () => {
   KOS.ai.tools.clearPendingArtifact();   // nothing pending → study_save_proposed fails
   chatScript = [

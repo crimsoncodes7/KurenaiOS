@@ -153,6 +153,41 @@ step("assistant Markdown, tables and maths render cleanly without widening trust
   assert(malformed.textContent.includes("$$unclosed") && malformed.textContent.includes("After"), "malformed maths must remain readable without swallowing later prose");
 });
 
+/* Graphite review A: providers (Gemini in particular) write nested lists,
+   blank-line-separated ("loose") numbered steps, code indented under an
+   item and deliberate single line breaks. */
+step("provider-style lists nest, keep their numbering and hold indented code", () => {
+  const rich = A.renderMarkdown([
+    "1. **Push**",
+    "",
+    "   Put the item on top.",
+    "",
+    "   ```python",
+    "   stack.append(x)",
+    "   ```",
+    "",
+    "2. **Pop**",
+    "    *   removes the top",
+    "    *   raises when empty",
+    "",
+    "3. Peek",
+    "",
+    "Line one",
+    "Line two"
+  ].join("\n"));
+  doc.body.appendChild(rich);
+  const ols = rich.querySelectorAll(":scope > ol");
+  assert(ols.length === 1, "a loose numbered list stayed one list: " + ols.length);
+  assert(ols[0].children.length === 3, "three steps: " + ols[0].children.length);
+  const code = ols[0].children[0].querySelector("[data-ui~='asst.code'] pre code");
+  assert(code && code.textContent === "stack.append(x)", "indented fence renders inside the item, dedented");
+  const nested = ols[0].children[1].querySelector("ul");
+  assert(nested && nested.children.length === 2, "the nested bullets are a nested list");
+  const p = [...rich.querySelectorAll(":scope > p")].pop();
+  assert(p && p.querySelector("br"), "a single newline is a line break");
+  rich.remove();
+});
+
 step("tool activity leads with human copy and keeps the id secondary", async () => {
   const originalSend = ORCH.send;
   ORCH.send = function (request, callbacks) {

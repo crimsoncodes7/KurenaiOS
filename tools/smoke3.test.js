@@ -199,7 +199,7 @@ step("governor view: all four tabs render", () => {
   click($$("[data-ui~='ui.tab']").find(b => b.dataset.tab === "shop"));
   if (!$$("[data-ui~='shop.card']").length) throw new Error("no shop cards");
   click($$("[data-ui~='ui.tab']").find(b => b.dataset.tab === "avatar"));
-  if ($$("[data-ui~='gov.seal-card']").length !== 5) throw new Error("seal count: " + $$("[data-ui~='gov.seal-card']").length);
+  if (!$$("[data-ui~='gov.frame-grid']").length) throw new Error("no frame library on Avatar");
 });
 /* Build 6.6 rebuilt both views: the month trims to whole weeks (35 or 42
    cells, never a trailing empty row) and the week is a real time grid, not
@@ -500,9 +500,9 @@ step("early-stopped focus sessions don't keep a streak alive", () => {
 console.log("== help view ==");
 step("help & guide renders every section", () => {
   KOS.show("help");
-  /* Graphite step 8 (frame 14c): the guide is read a section at a time; the
-     nav lists every entry of every section */
-  if ($$("[data-ui~='help.nav-item']").length < 15) throw new Error("help entries in the nav: " + $$("[data-ui~='help.nav-item']").length);
+  /* Graphite step 8 (frame 14c): the guide is read a section at a time;
+     review A: the nav lists the sections only — entries are "On this page" */
+  if ($$("[data-ui~='help.section']").length < 6) throw new Error("help sections in the nav: " + $$("[data-ui~='help.section']").length);
   if (!$$("[data-ui~='help.row']").length) throw new Error("the open section shows no entries");
   if (!$("[data-ui~='help.nav-item']")) throw new Error("help nav missing");
 });

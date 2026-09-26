@@ -1315,7 +1315,7 @@
         [["Reading logs as rest", "rest streak · heatmap", "good"],
          ["Pauses and tab-switches", "never charged", "muted"],
          ["HP and the study streak", "untouched", "muted"]].forEach(function (r) { dealList.appendChild(kv(r[0], r[1], r[2])); });
-        dealFoot.textContent = "Refreshing or navigating away costs nothing: the clock is banked and restored paused.";
+        dealFoot.textContent = "Refreshing or navigating away costs nothing.";
         return;
       }
       var mins = plannedMins();
@@ -1329,8 +1329,7 @@
         ["Marking a distraction yourself", "free", "muted", "recorded, never charged"],
         ["Ending before a full cycle", "award forfeited", "warn", "the session is still logged in full"]
       ].forEach(function (r) { dealList.appendChild(kv(r[0], r[1], r[2], r[3])); });
-      dealFoot.textContent = "Refreshing or navigating away costs nothing: the clock is banked and " +
-        "restored paused. Core revision never locks, whatever your HP does.";
+      dealFoot.textContent = "Refreshing or navigating away costs nothing.";
     }
     side.appendChild(el("section", { class: "k-card k-fx-deal" }, [
       el("h2", { class: "k-card-title", text: "The deal" }), dealList, dealFoot
