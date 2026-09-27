@@ -19,8 +19,8 @@ presentation layer redrawn from the Graphite design handoff (a dark,
 desktop-first interface), with every surface reviewed twice and the
 behaviour, data and invariants of the earlier releases unchanged.
 
-- Runtime release commit: `8ea878d` — immutable deployment
-  https://406887be.kurenai-os.pages.dev
+- Runtime release commit: `e2a5931` — immutable deployment
+  https://12e5c6df.kurenai-os.pages.dev
 - Milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker cache: `kos-graphite-3`
 - Verification: all **56 smoke suites**, including the rebuild guards

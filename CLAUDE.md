@@ -13,8 +13,8 @@ chronological diary here.
   [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - Production: https://kurenai-os.pages.dev
 - Release source checkpoint: `3cf4596` (Graphite rebuild, review B third pass)
-- Runtime release: `8ea878d` — immutable deployment
-  https://406887be.kurenai-os.pages.dev (27 September 2026)
+- Runtime release: `e2a5931` — immutable deployment
+  https://12e5c6df.kurenai-os.pages.dev (27 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-graphite-3`
 - Required smoke gate: 56 / 56 suites.
