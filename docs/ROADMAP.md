@@ -32,6 +32,22 @@ The Claude Design prompts for every ◆ and ◇ item are in
 Build first. Everything here except the OOP IDE fits the Graphite frames
 that already exist.
 
+**Status (27 September 2026, branch `feat/tier-c-backend`):** the backend of
+every item is built and gated: data, normalisers and migrations, the
+`KOS.*` APIs, cloud-merge rules and the Assistant tools, with smoke57–62. What
+remains is the views, built on those APIs from the Claude Design handoffs:
+
+| Item | Backend (built) | View still to build |
+|---|---|---|
+| 1.1 | `KOS.spec` tree/search/resolve; `refs` on assignments, events, papers, Focus, sessions | `KOS.ui.topicPicker` and its five placements |
+| 1.2 | F203/F205 removed by the generator; `KOS.itUnits`; `js/data/it-grades.js` (placeholder boundaries except H119 D* = 270); `KOS.hub.it` | the IT units panel on the IT desk |
+| 1.3 | `KOS.edits.setDraft/appendSpec/fileQuickNotes`, filed on leave by `KOS.show` | the inspector's quick-note box |
+| 1.4 | `KOS.edits.move/moveBy`, `setSpecBreak/specColumns` | drag handles, drop shadow, keys; the Spec renderer honouring a stored break |
+| 1.5 | `KOS.media.shrineOrder` (synced state) | "Set order" on a tier |
+| 1.6 | stopwatch and study-until; the per-10-minute rule; the idle watch; `state.ui.focusMini` + `clampMini` | the four-mode setup, the award tick, the draggable mini-player |
+| 1.7 | `KOS.oop` gate, identity, validation, transpile, canvas view | the IDE (frames 19a–19f) |
+| 1.8 | tools for all of the above plus pacing, reminders, assignments, notifications | — |
+
 ### 1.1 One topic picker, used everywhere ◇
 
 - **What:** a dropdown instead of a free-text "related topic" box.
@@ -293,6 +309,7 @@ Claude Design and comes back as a handoff, the way Graphite did.
 | Live2D Kurenai | Cubism licence classification (`LICENSE_REQUEST.md`) and the hand-drawn rig | written licence answer |
 | Assistant voice (TTS) | needs a `tts-speak` Edge Function (JWT + server key), a speaker button behind an off-by-default toggle; Category 6 left the resume note | you want it |
 | Automation engine | never existed; Category 6 refused a placeholder | a concrete use case |
+| Syncing media kv (hero picks, per-season scenery, other view picks) | kv also holds provider credentials, so it needs a whitelist of syncable keys, and an uploaded hero is a data URL too large for the state document (it would ride the attachment path instead). The Shrine's tie order already syncs, in the state document | you schedule it (asked for as a nice-to-have, 27 Sep) |
 | Alternate mascots and logo families (Fallen Crown / Faded Oath), re-polished overlays | art work, not code | art exists (◆ for their presentation) |
 
 ---
