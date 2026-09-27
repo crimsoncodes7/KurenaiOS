@@ -522,6 +522,79 @@ step("every registered tool has exactly one tier and the orchestrator resolves i
   });
 });
 
+/* ============ 8 · roadmap 1.8 ============ */
+console.log("== roadmap 1.8 ==");
+
+step("1.8 · the system prompt carries the feature map and the no-closing-disclaimer rule", async () => {
+  chatScript = [say("ok")];
+  await run({ userText: "hello" });
+  const sys = chatLog[0].request.system;
+  ["pacing_", "assignments_", "notifications_list", "it_units_get", "study_edit_append", "shrine_set_order",
+    "collection_add_quote", "stopwatch"].forEach(k => assert(sys.indexOf(k) !== -1, "the feature map misses " + k));
+  assert(/F203 and F205/.test(sys), "the map says which IT units do not exist");
+  assert(/Never close with a line about having made \(or not made\) changes/.test(sys), "the closing-line rule");
+});
+
+step("1.8 · a tool-free answer never ends with an \u201cI have not made any modifications\u201d line", async () => {
+  const tails = [
+    "I have not made any modifications to your data.",
+    "_Note: I haven't changed anything in your app._",
+    "No changes were made to your data.",
+    "(Nothing was modified.)".replace("(Nothing was modified.)", "Nothing was modified in your planner.")
+  ];
+  for (const tail of tails) {
+    chatScript = [say("A stack is last-in, first-out.\n\n" + tail)];
+    const ev = await run({ userText: "what is a stack?" });
+    assert(ev.done && ev.done.status === "complete", "completes");
+    assert(ev.texts[0] === "A stack is last-in, first-out.", "tail kept: " + JSON.stringify(ev.texts[0]));
+  }
+  /* a sentence that merely mentions changes mid-answer is left alone */
+  chatScript = [say("Nothing was modified by the garbage collector here; the reference stays.")];
+  const kept = await run({ userText: "explain references" });
+  assert(/garbage collector/.test(kept.texts[0]), "a whole answer is never stripped");
+  /* asked for a change and nothing ran: the truth stays (and is flagged) */
+  chatScript = [say("I have not made any modifications to your data."), say("I have not made any modifications to your data.")];
+  const asked = await run({ userText: "delete my reminders" });
+  assert(/not made any modifications/.test(asked.texts.join(" ")), "the statement stays when a change was asked for");
+  assert(ORCH._stripNoChangeTail("Answer.\n\nI didn't save or change anything.") === "Answer.", "direct");
+});
+
+step("1.8 · a curriculum edit pauses for approval, names the topic, and runs only once approved", async () => {
+  const sid = "compsci", ref = "4.1.1.1";
+  KOS.edits.reset(sid, ref);
+  chatScript = [
+    callTools([{ id: "e1", name: "study_edit_append", args: { subject: sid, ref: ref, kind: "notes", blocks: ["An added line."] } }]),
+    say("Added.")
+  ];
+  const ev = await run({ userText: "add a line to my notes on data types" });
+  assert(ev.paused && ev.confirmations.length === 1, "must pause for approval");
+  const card = ev.confirmations[0];
+  assert(card.tool === "study_edit_append" && card.tier === "consequential", "card metadata");
+  assert(/notes of 4\.1\.1\.1/.test(card.target), "the card names the topic: " + card.target);
+  assert(!KOS.edits.has(sid, ref, "notes"), "UNTOUCHED while awaiting approval");
+  await new Promise(r => ORCH.confirm(card.confirmationId, r));
+  await untilDone();
+  assert(KOS.edits.has(sid, ref, "notes"), "approved edit ran");
+  KOS.edits.reset(sid, ref);
+});
+
+step("1.8 · an edit made elsewhere before approval invalidates the proposal", async () => {
+  const sid = "compsci", ref = "4.1.1.1";
+  KOS.edits.reset(sid, ref);
+  chatScript = [
+    callTools([{ id: "e2", name: "study_edit_append", args: { subject: sid, ref: ref, kind: "notes", blocks: ["Late line."] } }]),
+    say("ok")
+  ];
+  const ev = await run({ userText: "add a line to my notes" });
+  const card = ev.confirmations[0];
+  KOS.edits.appendSpec(sid, ref, "edited in the meantime");      // the topic's fork changes
+  const err = await new Promise(r => ORCH.confirm(card.confirmationId, e => r(e)));
+  await untilDone();
+  assert(err && /changed/.test(err.message), "must refuse: " + (err && err.message));
+  assert(!KOS.edits.has(sid, ref, "notes"), "the stale proposal did not run");
+  KOS.edits.reset(sid, ref);
+});
+
 /* ============ run ============ */
 (async () => {
   let failed = 0;

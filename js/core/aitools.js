@@ -544,6 +544,7 @@
       kind: { type: "string", enum: ["exam", "paper"], required: true },
       subject: { type: "string", enum: SUBJECTS },
       ref: { type: "string", maxLen: 40 },
+      refs: { type: "array", maxLen: 20, items: { type: "string", maxLen: 60 }, desc: "topics as \"subject:ref\" — a unit or parent counts for every leaf in it" },
       topic: { type: "string", maxLen: 200 },
       paper: { type: "string", maxLen: 120 },
       marks: { type: "number", min: 0, max: 1000 },
@@ -563,6 +564,8 @@
         cb(fail("marks cannot exceed max.")); return;
       }
       if (args.date && !validDate(args.date)) { cb(fail("date must be a real YYYY-MM-DD date.")); return; }
+      var badRefs = checkRefs(args.refs);
+      if (badRefs) { cb(badRefs); return; }
       var e = KOS.tracker.add(args);
       cb(null, { id: e.id, kind: e.kind, pct: KOS.tracker.pct(e) },
         { label: "remove the logged result", run: function (ucb) { KOS.tracker.remove(e.id); ucb(null); } });
@@ -581,7 +584,7 @@
         return (!args.subject || t.subject === args.subject) && (!args.kind || t.kind === args.kind);
       });
       cb(null, { total: rows.length, results: rows.slice(-60).map(function (t) {
-        return { id: t.id, kind: t.kind, subject: t.subject, ref: t.ref, topic: t.topic,
+        return { id: t.id, kind: t.kind, subject: t.subject, ref: t.ref, refs: KOS.tracker.refsOf(t), topic: t.topic,
           paper: t.paper, marks: t.marks, max: t.max, pct: KOS.tracker.pct(t),
           grade: t.grade, date: t.date, reviewed: t.reviewed };
       }) });
@@ -598,13 +601,16 @@
         marks: { type: "number", min: 0, max: 1000 }, max: { type: "number", min: 0, max: 1000 },
         grade: { type: "string", maxLen: 8 }, date: { type: "string", maxLen: 10 },
         well: { type: "string", maxLen: 2000 }, badly: { type: "string", maxLen: 2000 },
-        notes: { type: "string", maxLen: 2000 }, reviewed: { type: "boolean" }
+        notes: { type: "string", maxLen: 2000 }, reviewed: { type: "boolean" },
+        refs: { type: "array", maxLen: 20, items: { type: "string", maxLen: 60 } }
       } }
     },
     run: function (args, cb) {
       var prev = KOS.store.state.tracker.entries.find(function (t) { return t.id === args.id; });
       if (!prev) { cb(fail("No tracker entry with id " + args.id + ".")); return; }
       if (args.changes.date && !validDate(args.changes.date)) { cb(fail("date must be a real YYYY-MM-DD date.")); return; }
+      var badRefs = checkRefs(args.changes.refs);
+      if (badRefs) { cb(badRefs); return; }
       var snapshot = JSON.parse(JSON.stringify(prev));
       KOS.tracker.update(args.id, args.changes);
       cb(null, { id: args.id, updated: Object.keys(args.changes) },
@@ -987,26 +993,31 @@
       var s = KOS.focus.session();
       if (!s) { cb(null, { state: "idle" }); return; }
       var elig = KOS.focus.eligibility ? KOS.focus.eligibility() : null;
-      cb(null, { state: KOS.focus.state(), kind: KOS.focus.kind(), phase: s.phase,
-        workedSeconds: Math.round(KOS.focus.workSeconds()), subject: s.subject, ref: s.ref,
+      cb(null, { state: KOS.focus.state(), kind: KOS.focus.kind(), phase: s.phase, mode: s.mode,
+        until: s.until || undefined,
+        workedSeconds: Math.round(KOS.focus.workSeconds()), subject: s.subject, ref: s.ref, refs: s.refs || [],
+        blocksEarned: elig && elig.rule === "blocks" ? elig.blocks : undefined,
+        nextAwardInSeconds: elig && elig.rule === "blocks" ? Math.round(elig.nextBlockIn) : undefined,
         objective: s.objective || null, assignmentId: s.assignmentId != null ? s.assignmentId : null,
         pauses: s.pauses, distractions: (s.distractions || []).length,
         notes: (s.notes || []).length,
-        endingNowWouldPay: elig && !elig.forfeited ? { xp: elig.xp, gold: elig.gold, hp: elig.hp } : null,
+        endingNowWouldPay: elig && !elig.forfeited && (elig.rule !== "blocks" || elig.blocks) ? { xp: elig.xp, gold: elig.gold, hp: elig.hp } : null,
         canComplete: KOS.focus.canComplete() });
     }
   });
 
   def("focus_start_session", {
-    desc: "Start a focus (study) or reading session on the one timer. Fails if a session is already running.",
+    desc: "Start a focus (study) or reading session on the one timer. Modes: pomodoro (25/5 cycles), custom (workMin, optional breaks), stopwatch (counts up until stopped) and until (ends at a clock time, until: HH:MM). Custom, stopwatch and until pay for every full 10 minutes. Fails if a session is already running.",
     category: "governor", tier: "reversible", read: false,
     params: {
       kind: { type: "string", enum: ["study", "reading"] },
-      mode: { type: "string", enum: ["pomodoro", "custom"] },
-      workMin: { type: "integer", min: 5, max: 240, required: true },
+      mode: { type: "string", enum: ["pomodoro", "custom", "stopwatch", "until"] },
+      workMin: { type: "integer", min: 5, max: 240, desc: "pomodoro/custom/reading only" },
       breakMin: { type: "integer", min: 0, max: 60 },
+      until: { type: "string", maxLen: 5, desc: "HH:MM, for mode until" },
       subject: { type: "string", enum: SUBJECTS },
       ref: { type: "string", maxLen: 40 },
+      refs: { type: "array", maxLen: 20, items: { type: "string", maxLen: 60 }, desc: "topics in ONE subject, as \"subject:ref\"" },
       /* Build 6.5 — the session's stated purpose. Optional, recorded on the
          session entry, and reported back by the completion review. */
       objective: { type: "string", maxLen: 200 },
@@ -1014,6 +1025,13 @@
     },
     run: function (args, cb) {
       if (KOS.focus.state() !== "idle") { cb(fail("A session is already running — pause, resume or end it instead.")); return; }
+      var fmode = args.kind === "reading" ? "custom" : (args.mode || "pomodoro");
+      if (fmode === "custom" && args.workMin == null) { cb(fail("workMin is required for a custom or reading session.")); return; }
+      if (fmode === "until" && (!args.until || !TIME_RE.test(args.until))) { cb(fail("mode until needs until: HH:MM.")); return; }
+      if (fmode === "until" && !KOS.focus.untilTarget(args.until)) { cb(fail("Pick a time between a minute and 12 hours from now.")); return; }
+      var badRefs = checkRefs(args.refs);
+      if (badRefs) { cb(badRefs); return; }
+      if (args.refs && args.refs.length && KOS.spec.subjectsOf(args.refs).length > 1) { cb(fail("A focus session links ONE subject — pick topics from one.")); return; }
       if (args.subject && args.ref) {
         var bad = requireRef(args.subject, args.ref);
         if (bad) { cb(bad); return; }
@@ -1023,12 +1041,14 @@
           cb(fail("No assignment with id " + args.assignmentId + " — list them first.")); return;
         }
       }
-      KOS.focus.start({ kind: args.kind || "study", mode: args.mode || "pomodoro",
-        workMin: args.workMin, breakMin: args.breakMin != null ? args.breakMin : (args.mode === "custom" ? 0 : 5),
+      KOS.focus.start({ kind: args.kind || "study", mode: fmode,
+        workMin: fmode === "pomodoro" ? (args.workMin || 25) : args.workMin,
+        breakMin: args.breakMin != null ? args.breakMin : (fmode === "pomodoro" ? 5 : 0),
+        until: args.until, refs: args.refs,
         subject: args.subject || "", ref: args.ref || "",
         objective: args.objective || "",
         assignmentId: args.assignmentId != null ? args.assignmentId : null });
-      cb(null, { started: true, kind: args.kind || "study", workMin: args.workMin,
+      cb(null, { started: true, kind: args.kind || "study", mode: fmode, workMin: args.workMin, until: args.until,
         objective: args.objective || null, assignmentId: args.assignmentId != null ? args.assignmentId : null });
     }
   });
@@ -1048,7 +1068,7 @@
   });
 
   def("focus_end_session", {
-    desc: "End the running session. Completing pays the award through the one governor pipeline; ending EARLY logs the session but forfeits the whole award — early:true must be stated deliberately.",
+    desc: "End the running session. Completing pays the award through the one governor pipeline. Ending a Pomodoro EARLY logs it but forfeits the award — early:true must be stated deliberately; a custom, stopwatch or until session keeps every full 10 minutes either way.",
     category: "governor", tier: "reversible", read: false,
     params: { early: { type: "boolean" } },
     run: function (args, cb) {
@@ -1057,7 +1077,15 @@
       /* review:false — the assistant reports the outcome in the conversation
          rather than throwing the stage's completion modal at the user. The
          session is logged and paid identically either way (Build 6.5). */
-      if (args.early) { KOS.focus.endEarly({ confirmed: true, review: false }); cb(null, { ended: true, early: true, awardForfeited: true }); return; }
+      var blocksRule = KOS.governor.focusRule(KOS.focus.session().mode) === "blocks" && KOS.focus.kind() !== "reading";
+      if (args.early) {
+        KOS.focus.endEarly({ confirmed: true, review: false });
+        var kept = blocksRule && KOS.governor.lastAward ? KOS.governor.lastAward() : null;
+        cb(null, blocksRule
+          ? { ended: true, early: true, awardForfeited: false, awarded: kept ? { xp: kept.xp, gold: kept.gold, hp: kept.hp } : null }
+          : { ended: true, early: true, awardForfeited: true });
+        return;
+      }
       if (!KOS.focus.canComplete()) {
         cb(fail("The work interval isn't finished — ending now would forfeit the award. Pass early:true only if the user explicitly wants that."));
         return;
@@ -1220,7 +1248,7 @@
       changes: { type: "object", required: true, props: (function () {
         var p = {
           status: { type: "string", enum: ["planned", "inProgress", "onHold", "completed", "dropped"] },
-          score: { type: "number", min: 0, max: 10 },
+          score: { type: "number", min: 0, max: 10, desc: "0–10 with one decimal (x.x/10); 0 = unrated" },
           favourite: { type: "boolean" },
           notes: { type: "string", maxLen: 5000 },
           genres: { type: "array", maxLen: 10, items: { type: "string", maxLen: 60 } },
@@ -1257,6 +1285,7 @@
         var snapshot = JSON.parse(JSON.stringify(entry));
         var wasCompleted = entry.status === "completed";
         var pushBefore = KOS.mediapush.snapshot(entry);
+        if (ch.score !== undefined) ch.score = Math.round(ch.score * 10) / 10;
         Object.keys(ch).forEach(function (k2) {
           if (k2 === "progressCurrent") { entry.progress.current = ch[k2]; }
           else if (k2 === "progressVolumes") { entry.progress.volumes = ch[k2]; }
@@ -2329,6 +2358,782 @@
     }
   });
 
+  /* ======================================================================
+     ROADMAP 1.8 — tools for everything built after Category 6
+     Pacing, reminders (filtered read), assignments, notifications, the
+     curriculum editor, the IT unit record, the Shrine's tie order, the
+     spec tree, and the Collection's newer fields. Same contract as every
+     tool above: validate, re-check the live target, go through the owning
+     module, return a minimal result. None of them reads credentials, cloud
+     sessions or audit logs (invariant 71).
+     ====================================================================== */
+  var SPEC_KEY = /^(compsci|maths|it):[A-Za-z0-9.]+$/;
+  /* topic links arrive as "sid:ref" keys (unit, parent or leaf); every one
+     must exist — a wrong ref is an error, never silently dropped */
+  function checkRefs(refs) {
+    var bad = (refs || []).filter(function (k) { return !KOS.spec.parse(k); });
+    return bad.length ? fail("Not in the specification: " + bad.join(", ") + " — use study_spec_tree or study_search_spec to find the right refs.") : null;
+  }
+  function refsLabel(refs) { return (refs || []).map(function (k) { return KOS.spec.label(k) || k; }); }
+
+  /* ---------------- the spec tree (1.1) ---------------- */
+  def("study_spec_tree", {
+    desc: "Browse the specification tree: a subject's units, or the children and leaf count of one node (unit → parent → leaf). Returns \"subject:ref\" keys usable wherever a tool takes refs.",
+    category: "study", tier: "read", read: true,
+    params: {
+      subject: { type: "string", enum: SUBJECTS, required: true },
+      ref: { type: "string", maxLen: 40, desc: "a node to open; omit for the units" }
+    },
+    run: function (args, cb) {
+      var nodes;
+      if (args.ref) {
+        var n = KOS.spec.node(args.subject, args.ref);
+        if (!n) { cb(fail("“" + args.ref + "” is not in " + args.subject + ".")); return; }
+        nodes = KOS.spec.children(args.subject, args.ref);
+        cb(null, { node: { key: n.key, ref: n.ref, title: n.title, level: n.level, leafCount: n.leafCount, path: n.path },
+          children: nodes.map(function (c) { return { key: c.key, ref: c.ref, title: c.title, level: c.level, leafCount: c.leafCount }; }) });
+        return;
+      }
+      cb(null, { units: KOS.spec.units(args.subject).map(function (u) {
+        return { key: u.key, ref: u.ref, title: u.title, leafCount: u.leafCount };
+      }) });
+    }
+  });
+
+  /* ---------------- IT units (1.2) ---------------- */
+  def("it_units_get", {
+    desc: "The IT unit record: each unit's status, raw and UMS marks and grade, the qualification aggregate, and the marks still needed for a target grade. Grade boundaries marked provisional are placeholders.",
+    category: "study", tier: "read", read: true,
+    params: {
+      target: { type: "string", enum: ["Distinction*", "Distinction", "Merit", "Pass"] },
+      qualification: { type: "string", enum: ["H119", "H019"] }
+    },
+    run: function (args, cb) {
+      var H = KOS.hub.it;
+      cb(null, { units: H.units(), aggregate: H.aggregate(args.qualification),
+        needed: H.needed(args.target || KOS.itUnits.target(), args.qualification),
+        target: KOS.itUnits.target(), year1: KOS.itUnits.year1() });
+    }
+  });
+
+  def("it_units_set", {
+    desc: "Record an IT unit's result or status: raw mark (exam out of 60, NEA out of 24), UMS (out of 60), status, series, exam date. A mark on a unit still being sat marks it done.",
+    category: "study", tier: "reversible", read: false,
+    params: {
+      unit: { type: "string", enum: ["F200", "F201", "F202", "F204", "F206"], required: true },
+      raw: { type: "integer", min: 0, max: 60 },
+      ums: { type: "integer", min: 0, max: 60 },
+      status: { type: "string", enum: ["done", "sitting", "not-taken"] },
+      series: { type: "string", maxLen: 30 },
+      date: { type: "string", maxLen: 10 },
+      clearResult: { type: "boolean" }
+    },
+    run: function (args, cb) {
+      if (args.date && !validDate(args.date)) { cb(fail("date must be a real YYYY-MM-DD date.")); return; }
+      var before = KOS.itUnits.get(args.unit);
+      var sc = window.KOS_IT_GRADES.units[args.unit];
+      if (args.raw != null && args.raw > sc.rawMax) { cb(fail(args.unit + " is marked out of " + sc.rawMax + " raw.")); return; }
+      var patch = {};
+      ["raw", "ums", "status", "series", "date"].forEach(function (k) { if (args[k] !== undefined) patch[k] = args[k]; });
+      var after = args.clearResult ? KOS.itUnits.clearResult(args.unit) : KOS.itUnits.setUnit(args.unit, patch);
+      if (args.clearResult && Object.keys(patch).length) after = KOS.itUnits.setUnit(args.unit, patch);
+      var row = KOS.hub.it.units().filter(function (r) { return r.code === args.unit; })[0] || null;
+      cb(null, { unit: args.unit, status: after.status, raw: after.raw, ums: row ? row.ums : after.ums,
+        grade: row ? row.grade : null, updated: Object.keys(patch).concat(args.clearResult ? ["cleared"] : []) },
+        { label: "restore " + args.unit, run: function (ucb) {
+          KOS.itUnits.setUnit(args.unit, { status: before.status, raw: before.raw, ums: before.ums,
+            series: before.series, date: before.date });
+          ucb(null);
+        } });
+    }
+  });
+
+  def("it_units_set_target", {
+    desc: "Set the IT grade the desk plans for (what \"marks needed\" is measured against).",
+    category: "study", tier: "reversible", read: false,
+    params: { target: { type: "string", enum: ["Distinction*", "Distinction", "Merit", "Pass"], required: true } },
+    run: function (args, cb) {
+      var was = KOS.itUnits.target();
+      KOS.itUnits.setTarget(args.target);
+      cb(null, { target: args.target, needed: KOS.hub.it.needed(args.target) },
+        { label: "restore the target", run: function (ucb) { KOS.itUnits.setTarget(was); ucb(null); } });
+    }
+  });
+
+  /* ---------------- curriculum edits (1.3, 1.4) ----------------
+     Changing a topic's material is CONSEQUENTIAL: the orchestrator shows
+     the approval card before anything runs. Every write is a fork through
+     KOS.edits (invariant 86); undo puts the previous fork back (or removes
+     the fork the tool created). */
+  var EDIT_KINDS = ["notes", "spec", "flashcards"];
+  function forkSnapshot(sid, ref, kind) {
+    var t = KOS.edits.get(sid, ref);
+    return t && t[kind] != null ? JSON.parse(JSON.stringify(t[kind])) : null;
+  }
+  function forkRestore(sid, ref, kind, snap) {
+    if (snap == null) KOS.edits.reset(sid, ref, kind); else KOS.edits.set(sid, ref, kind, snap);
+  }
+  function requireLeaf(sid, ref) {
+    return KOS.spec.level(sid, ref) === "leaf" ? null
+      : fail("“" + ref + "” is not a topic page in " + sid + " — material lives on leaves (study_spec_tree).");
+  }
+
+  def("study_edit_append", {
+    desc: "Add material to a topic: note blocks (Markdown), guidance blocks on the Spec tab, or flashcards. Forks the topic's material; the shipped curriculum is never written. Needs the user's approval.",
+    category: "study", tier: "consequential", read: false,
+    params: {
+      subject: { type: "string", enum: SUBJECTS, required: true },
+      ref: { type: "string", maxLen: 40, required: true },
+      kind: { type: "string", enum: EDIT_KINDS, required: true },
+      blocks: { type: "array", maxLen: 20, items: { type: "string", minLen: 1, maxLen: 6000 }, desc: "Markdown, one block each (notes / spec)" },
+      cards: { type: "array", maxLen: 30, items: { type: "object", props: {
+        q: { type: "string", required: true, minLen: 1, maxLen: 1000 },
+        a: { type: "string", required: true, minLen: 1, maxLen: 2000 } } }, desc: "flashcards only" }
+    },
+    run: function (args, cb) {
+      var bad = requireLeaf(args.subject, args.ref);
+      if (bad) { cb(bad); return; }
+      var cards = args.kind === "flashcards";
+      if (cards ? !(args.cards && args.cards.length) : !(args.blocks && args.blocks.length)) {
+        cb(fail(cards ? "Give the cards to add." : "Give the blocks to add.")); return;
+      }
+      var snap = forkSnapshot(args.subject, args.ref, args.kind);
+      var mat = KOS.edits.material(args.subject, args.ref, args.kind);
+      if (cards) args.cards.forEach(function (c) { mat.push({ q: c.q, a: c.a }); });
+      else if (args.kind === "spec") args.blocks.forEach(function (md) { mat.info.push({ md: md }); });
+      else args.blocks.forEach(function (md) { mat.push({ md: md }); });
+      KOS.edits.set(args.subject, args.ref, args.kind, mat);
+      cb(null, { subject: args.subject, ref: args.ref, kind: args.kind, added: cards ? args.cards.length : args.blocks.length },
+        { label: "undo the edit", run: function (ucb) { forkRestore(args.subject, args.ref, args.kind, snap); ucb(null); } });
+    }
+  });
+
+  def("study_edit_row", {
+    desc: "Rewrite or delete one row of a topic's material (a note or Spec block by id, or a flashcard by id — a reworded card keeps its review schedule). Needs the user's approval.",
+    category: "study", tier: "consequential", read: false,
+    params: {
+      subject: { type: "string", enum: SUBJECTS, required: true },
+      ref: { type: "string", maxLen: 40, required: true },
+      kind: { type: "string", enum: EDIT_KINDS, required: true },
+      rowId: { type: "string", required: true, maxLen: 60 },
+      md: { type: "string", maxLen: 6000 },
+      q: { type: "string", maxLen: 1000 },
+      a: { type: "string", maxLen: 2000 },
+      remove: { type: "boolean" }
+    },
+    run: function (args, cb) {
+      var bad = requireLeaf(args.subject, args.ref);
+      if (bad) { cb(bad); return; }
+      var snap = forkSnapshot(args.subject, args.ref, args.kind);
+      var mat = KOS.edits.material(args.subject, args.ref, args.kind);
+      var lists = args.kind === "spec" ? [mat.content, mat.info] : [mat];
+      var hit = null, list = null;
+      lists.forEach(function (l) { l.forEach(function (r, i) { if (String(r.id) === args.rowId) { hit = i; list = l; } }); });
+      if (hit === null) { cb(fail("No row “" + args.rowId + "” in that material — read the topic first.")); return; }
+      if (args.remove) list.splice(hit, 1);
+      else if (args.kind === "flashcards") {
+        if (args.q == null && args.a == null) { cb(fail("Give q and/or a.")); return; }
+        if (args.q != null) list[hit].q = args.q;
+        if (args.a != null) list[hit].a = args.a;
+      } else {
+        if (args.md == null) { cb(fail("Give the block's new Markdown (md).")); return; }
+        list[hit] = { id: list[hit].id, md: args.md };
+      }
+      KOS.edits.set(args.subject, args.ref, args.kind, mat);
+      cb(null, { subject: args.subject, ref: args.ref, kind: args.kind, rowId: args.rowId, updated: args.remove ? ["removed"] : ["row"] },
+        { label: "undo the edit", run: function (ucb) { forkRestore(args.subject, args.ref, args.kind, snap); ucb(null); } });
+    }
+  });
+
+  def("study_edit_move", {
+    desc: "Move one row of a topic's material to a new position (Spec blocks may move between the content and guidance lists). Ids and flashcard schedules are kept. Needs the user's approval.",
+    category: "study", tier: "consequential", read: false,
+    params: {
+      subject: { type: "string", enum: SUBJECTS, required: true },
+      ref: { type: "string", maxLen: 40, required: true },
+      kind: { type: "string", enum: EDIT_KINDS, required: true },
+      rowId: { type: "string", required: true, maxLen: 60 },
+      index: { type: "integer", required: true, min: 0, max: 10000 },
+      list: { type: "string", enum: ["content", "info"] }
+    },
+    run: function (args, cb) {
+      var bad = requireLeaf(args.subject, args.ref);
+      if (bad) { cb(bad); return; }
+      var snap = forkSnapshot(args.subject, args.ref, args.kind);
+      var to = args.kind === "spec" ? { list: args.list, index: args.index } : args.index;
+      var at = KOS.edits.move(args.subject, args.ref, args.kind, args.rowId, to);
+      if (!at) { cb(fail("No row “" + args.rowId + "” in that material.")); return; }
+      cb(null, { rowId: args.rowId, list: at.list, index: at.index, updated: ["order"] },
+        { label: "undo the move", run: function (ucb) { forkRestore(args.subject, args.ref, args.kind, snap); ucb(null); } });
+    }
+  });
+
+  def("study_set_spec_break", {
+    desc: "Set where the Spec tab's second column starts (a block id), or clear it (blockId omitted) so the columns balance themselves. Needs the user's approval.",
+    category: "study", tier: "consequential", read: false,
+    params: {
+      subject: { type: "string", enum: SUBJECTS, required: true },
+      ref: { type: "string", maxLen: 40, required: true },
+      blockId: { type: "string", maxLen: 60 }
+    },
+    run: function (args, cb) {
+      var bad = requireLeaf(args.subject, args.ref);
+      if (bad) { cb(bad); return; }
+      var snap = forkSnapshot(args.subject, args.ref, "spec");
+      var r = KOS.edits.setSpecBreak(args.subject, args.ref, args.blockId == null ? null : args.blockId);
+      if (r === false) { cb(fail("No Spec block “" + args.blockId + "” on that topic.")); return; }
+      cb(null, { subject: args.subject, ref: args.ref, columnBreak: r, updated: ["columns"] },
+        { label: "undo", run: function (ucb) { forkRestore(args.subject, args.ref, "spec", snap); ucb(null); } });
+    }
+  });
+
+  def("study_edit_reset", {
+    desc: "Throw away the user's edits to one kind of a topic's material and return to the shipped curriculum. Needs the user's approval.",
+    category: "study", tier: "consequential", read: false,
+    params: {
+      subject: { type: "string", enum: SUBJECTS, required: true },
+      ref: { type: "string", maxLen: 40, required: true },
+      kind: { type: "string", enum: ["notes", "spec", "flashcards", "quiz", "exam"], required: true }
+    },
+    run: function (args, cb) {
+      var snap = forkSnapshot(args.subject, args.ref, args.kind);
+      if (snap == null) { cb(null, { subject: args.subject, ref: args.ref, kind: args.kind, unchanged: true }); return; }
+      KOS.edits.reset(args.subject, args.ref, args.kind);
+      cb(null, { subject: args.subject, ref: args.ref, kind: args.kind, status: "curriculum" },
+        { label: "restore the edits", run: function (ucb) { KOS.edits.set(args.subject, args.ref, args.kind, snap); ucb(null); } });
+    }
+  });
+
+  def("study_quick_note", {
+    desc: "File a dated note onto a topic's Spec tab (the inspector's quick note — append-only, one block). Needs the user's approval.",
+    category: "study", tier: "consequential", read: false,
+    params: {
+      subject: { type: "string", enum: SUBJECTS, required: true },
+      ref: { type: "string", maxLen: 40, required: true },
+      text: { type: "string", required: true, minLen: 1, maxLen: 6000 }
+    },
+    run: function (args, cb) {
+      var bad = requireLeaf(args.subject, args.ref);
+      if (bad) { cb(bad); return; }
+      var snap = forkSnapshot(args.subject, args.ref, "spec");
+      var b = KOS.edits.appendSpec(args.subject, args.ref, args.text, { src: "assistant" });
+      if (!b) { cb(fail("Nothing to file.")); return; }
+      cb(null, { subject: args.subject, ref: args.ref, added: 1, blockId: b.id, date: b.date },
+        { label: "remove the note", run: function (ucb) { forkRestore(args.subject, args.ref, "spec", snap); ucb(null); } });
+    }
+  });
+
+  /* ---------------- pacing ----------------
+     Every write goes through KOS.pacing: zero Governor traffic (invariant
+     82), a row always in a week that exists, carry-over a read. */
+  function paceRow(e) {
+    var lessons = KOS.pacing.lessonsOf(e);
+    var cov = KOS.pacing.coverage(e);
+    return { id: e.id, source: e.source, subject: e.subject, wb: e.wb, wk: e.wk, kind: e.kind, title: e.title,
+      refs: e.refs.slice(), note: e.note || undefined,
+      done: e.source === "personal" ? !!e.done : undefined,
+      lessons: e.source === "school" && lessons.length ? lessons.map(function (l) { return { text: l.text, sat: KOS.pacing.lessonSat(e, l.text) }; }) : undefined,
+      coverage: cov.refs ? { refs: cov.refs, done: cov.done, started: cov.started } : undefined };
+  }
+  function weekOf(wb) {
+    var w = wb ? KOS.pacing.weekAt(wb) : KOS.pacing.currentWeek();
+    return w || null;
+  }
+
+  def("pacing_get_week", {
+    desc: "The integrated weekly plan for one week (default: this week): class and personal rows per subject with coverage, lesson ticks, what has carried over, and the class-vs-plan alignment verdict.",
+    category: "planner", tier: "read", read: true,
+    params: {
+      wb: { type: "string", maxLen: 10, desc: "the week's Monday, YYYY-MM-DD" },
+      subject: { type: "string", enum: SUBJECTS }
+    },
+    run: function (args, cb) {
+      var w = weekOf(args.wb);
+      if (!w) { cb(fail(args.wb ? "No plan week begins " + args.wb + " — list weeks with pacing_list_weeks." : "There is no plan yet.")); return; }
+      var subs = args.subject ? [args.subject] : SUBJECTS;
+      cb(null, { week: { wb: w.wb, label: w.label, current: (KOS.pacing.currentWeek() || {}).wb === w.wb },
+        subjects: subs.map(function (sid) {
+          var a = KOS.pacing.alignment(w.wb, sid);
+          return {
+            subject: sid,
+            class: KOS.pacing.entriesFor(w.wb, sid, "school").map(paceRow),
+            mine: KOS.pacing.entriesFor(w.wb, sid, "personal").map(paceRow),
+            carried: KOS.pacing.carriedInto(w.wb, sid).map(function (c) { return { id: c.entry.id, title: c.entry.title, fromWb: c.fromWb, weeksLate: c.weeksLate }; }),
+            status: KOS.pacing.weekStatus(w.wb, sid),
+            verdict: KOS.pacing.alignmentLine(a),
+            alignment: a.evidence ? { ahead: a.ahead, aligned: a.aligned, behind: a.behind, unplanned: a.unplanned } : null
+          };
+        }) });
+    }
+  });
+
+  def("pacing_list_weeks", {
+    desc: "Every week of the plan (Monday date and label), marking the current one.",
+    category: "planner", tier: "read", read: true, params: {},
+    run: function (args, cb) {
+      var cur = (KOS.pacing.currentWeek() || {}).wb;
+      cb(null, { weeks: KOS.pacing.weeks().map(function (w) { return { wb: w.wb, label: w.label, current: w.wb === cur }; }) });
+    }
+  });
+
+  def("pacing_get_braid", {
+    desc: "The whole-term alignment for one subject: every spec point class and your plan share (which week each reaches it, and by how many weeks you lead or trail), and what class teaches that your plan never schedules.",
+    category: "planner", tier: "read", read: true,
+    params: { subject: { type: "string", enum: SUBJECTS, required: true } },
+    run: function (args, cb) {
+      var lane = KOS.pacing.braid().lanes.filter(function (l) { return l.subject === args.subject; })[0];
+      if (!lane) { cb(null, { subject: args.subject, links: [], unplanned: [] }); return; }
+      cb(null, { subject: args.subject,
+        links: lane.links.slice(0, 120).map(function (l) {
+          return { mineWb: l.fromWb, classWb: l.toWb, lead: l.lead,
+            verdict: l.lead > 0 ? "ahead" : l.lead === 0 ? "aligned" : "behind",
+            refs: l.refs.map(function (r) { return r.ref + " " + r.title; }) };
+        }),
+        unplanned: lane.unplanned.slice(0, 120).map(function (u) { return { classWb: u.wb, ref: u.ref, title: u.title }; }) });
+    }
+  });
+
+  def("pacing_tick_row", {
+    desc: "Tick (or untick) one of MY plan rows as done this week. Class rows are ticked lesson by lesson (pacing_tick_lesson). No reward — the plan is logistics.",
+    category: "planner", tier: "reversible", read: false,
+    params: { id: { type: "string", required: true, maxLen: 20 }, done: { type: "boolean", required: true } },
+    run: function (args, cb) {
+      var e = KOS.pacing.entryById(args.id);
+      if (!e) { cb(fail("No plan row " + args.id + ".")); return; }
+      if (e.source !== "personal") { cb(fail("That is a class row — tick its lessons with pacing_tick_lesson.")); return; }
+      var was = !!e.done;
+      KOS.pacing.setDone(args.id, args.done);
+      cb(null, { id: args.id, done: args.done, status: args.done ? "done" : "open" },
+        { label: "restore the tick", run: function (ucb) { KOS.pacing.setDone(args.id, was); ucb(null); } });
+    }
+  });
+
+  def("pacing_tick_lesson", {
+    desc: "Mark one lesson of a class row as sat (or not). A class row is done once every lesson is sat.",
+    category: "planner", tier: "reversible", read: false,
+    params: {
+      id: { type: "string", required: true, maxLen: 20 },
+      lesson: { type: "string", required: true, maxLen: 300, desc: "the lesson text exactly as pacing_get_week lists it" },
+      sat: { type: "boolean", required: true }
+    },
+    run: function (args, cb) {
+      var e = KOS.pacing.entryById(args.id);
+      if (!e) { cb(fail("No plan row " + args.id + ".")); return; }
+      if (!KOS.pacing.lessonsOf(e).some(function (l) { return l.text === args.lesson; })) {
+        cb(fail("That row has no lesson “" + args.lesson + "” — read the week first.")); return;
+      }
+      var was = KOS.pacing.lessonSat(e, args.lesson);
+      KOS.pacing.setLessonSat(args.id, args.lesson, args.sat);
+      var after = KOS.pacing.entryById(args.id);
+      cb(null, { id: args.id, lesson: args.lesson, sat: args.sat, rowDone: !!after.done },
+        { label: "restore the lesson", run: function (ucb) { KOS.pacing.setLessonSat(args.id, args.lesson, was); ucb(null); } });
+    }
+  });
+
+  def("pacing_move_row", {
+    desc: "Move a plan row to another week — e.g. bring a row that carried over into this week (\"→ here\"). The week number follows the week.",
+    category: "planner", tier: "reversible", read: false,
+    params: {
+      id: { type: "string", required: true, maxLen: 20 },
+      wb: { type: "string", maxLen: 10, desc: "the target week's Monday; omit for this week" }
+    },
+    run: function (args, cb) {
+      var e = KOS.pacing.entryById(args.id);
+      if (!e) { cb(fail("No plan row " + args.id + ".")); return; }
+      var w = weekOf(args.wb);
+      if (!w) { cb(fail("No plan week begins " + args.wb + ".")); return; }
+      var from = e.wb;
+      if (from === w.wb) { cb(null, { id: args.id, wb: w.wb, unchanged: true }); return; }
+      KOS.pacing.updateEntry(args.id, { wb: w.wb });
+      cb(null, { id: args.id, fromWb: from, wb: w.wb, updated: ["week"] },
+        { label: "move it back", run: function (ucb) { KOS.pacing.updateEntry(args.id, { wb: from }); ucb(null); } });
+    }
+  });
+
+  def("pacing_add_row", {
+    desc: "Add a row to the plan: MY plan or class, a subject, a week, a title and (optionally) the spec leaves it covers.",
+    category: "planner", tier: "reversible", read: false,
+    params: {
+      source: { type: "string", enum: ["personal", "school"], required: true },
+      subject: { type: "string", enum: SUBJECTS, required: true },
+      wb: { type: "string", maxLen: 10, desc: "omit for this week" },
+      title: { type: "string", required: true, minLen: 1, maxLen: 200 },
+      detail: { type: "string", maxLen: 1000 },
+      kind: { type: "string", maxLen: 40 },
+      refs: { type: "array", maxLen: 20, items: { type: "string", maxLen: 60, pattern: SPEC_KEY }, desc: "\"subject:ref\" keys; a unit or parent expands to its leaves" }
+    },
+    run: function (args, cb) {
+      var w = weekOf(args.wb);
+      if (!w) { cb(fail("No plan week begins " + args.wb + ".")); return; }
+      var badR = checkRefs(args.refs);
+      if (badR) { cb(badR); return; }
+      /* the plan stores leaves of the row's own subject (invariant 81) */
+      var leaves = KOS.spec.normaliseRefs(args.refs || [], { subject: args.subject, oneSubject: true, leavesOnly: true })
+        .map(function (k) { return k.slice(k.indexOf(":") + 1); });
+      var e = KOS.pacing.addEntry({ source: args.source, subject: args.subject, wb: w.wb, title: args.title,
+        detail: args.detail || "", kind: args.kind || "Lessons", refs: leaves });
+      if (!e) { cb(fail("The plan refused that row.")); return; }
+      cb(null, { id: e.id, wb: e.wb, wk: e.wk, title: e.title, refs: e.refs },
+        { label: "remove the row", run: function (ucb) { KOS.pacing.removeEntry(e.id); ucb(null); } });
+    }
+  });
+
+  /* ---------------- reminders (the filtered read) ----------------
+     Adding and completing are todo_add_task and todo_toggle_task. */
+  def("reminders_list", {
+    desc: "Reminders by smart section (today, scheduled, upcoming, overdue, completed, all open), optionally by list or tag, with their subtasks.",
+    category: "planner", tier: "read", read: true,
+    params: {
+      section: { type: "string", enum: ["all", "today", "scheduled", "upcoming", "overdue", "completed"] },
+      list: { type: "string", maxLen: 40 },
+      tag: { type: "string", maxLen: 30 },
+      search: { type: "string", maxLen: 80 }
+    },
+    run: function (args, cb) {
+      var listId;
+      if (args.list) {
+        var l = KOS.reminders.lists().filter(function (x) { return x.name.toLowerCase() === args.list.toLowerCase(); })[0];
+        if (!l) { cb(fail("No reminder list called “" + args.list + "”.")); return; }
+        listId = l.id;
+      }
+      var rows = KOS.reminders.query({ section: args.section || "all", listId: listId, tag: args.tag, search: args.search, sort: "due" });
+      cb(null, { total: rows.length, reminders: rows.slice(0, 100).map(function (m) {
+        return { id: m.id, title: m.title, done: !!m.done, due: m.due || null, dueTime: m.dueTime || null,
+          priority: m.priority, list: KOS.reminders.listName(m.listId), tags: m.tags || [],
+          overdue: KOS.reminders.isOverdue(m), recur: m.recur || undefined,
+          subs: (m.subs || []).map(function (s) { return { text: s.text, done: !!s.done }; }) };
+      }) });
+    }
+  });
+
+  /* ---------------- assignments ---------------- */
+  function asgOut(a) {
+    return { id: a.id, title: a.title, subject: a.subject, type: a.type, status: a.status, progress: a.progress,
+      priority: a.priority, due: a.due, dueTime: a.dueTime, overdue: KOS.assignments.isOverdue(a),
+      estimateMins: a.estimateMins || 0, actualMins: a.actualMins || 0,
+      refs: KOS.assignments.refsOf(a), topics: refsLabel(KOS.assignments.refsOf(a)),
+      subtasks: (a.subtasks || []).map(function (s) { return { id: s.id, text: s.text, done: !!s.done }; }),
+      showInCountdown: !!a.showInCountdown };
+  }
+  var ASG_FIELDS = {
+    title: { type: "string", minLen: 1, maxLen: 200 },
+    subject: { type: "string", enum: SUBJECTS },
+    type: { type: "string", enum: ["homework", "essay", "coursework", "practical", "revision", "project", "other"] },
+    description: { type: "string", maxLen: 4000 },
+    due: { type: "string", maxLen: 10 },
+    dueTime: { type: "string", maxLen: 5 },
+    priority: { type: "integer", min: 0, max: 3 },
+    progress: { type: "integer", min: 0, max: 100 },
+    estimateMins: { type: "integer", min: 0, max: 100000 },
+    notes: { type: "string", maxLen: 4000 },
+    refs: { type: "array", maxLen: 20, items: { type: "string", maxLen: 60, pattern: SPEC_KEY }, desc: "related topics as \"subject:ref\" (unit, parent or leaf)" },
+    showInCalendar: { type: "boolean" },
+    showInCountdown: { type: "boolean", desc: "a MAJOR deadline — shows in Countdowns" }
+  };
+  function checkAsgPatch(p) {
+    if (p.due && !validDate(p.due)) return fail("due must be a real YYYY-MM-DD date.");
+    if (p.dueTime && !TIME_RE.test(p.dueTime)) return fail("dueTime must be HH:MM.");
+    return checkRefs(p.refs);
+  }
+
+  def("assignments_list", {
+    desc: "Assignments (the canonical records): filter by subject, status, open only, or deadline window.",
+    category: "planner", tier: "read", read: true,
+    params: {
+      subject: { type: "string", enum: SUBJECTS },
+      status: { type: "string", enum: ["notStarted", "inProgress", "blocked", "submitted", "complete"] },
+      openOnly: { type: "boolean" },
+      due: { type: "string", enum: ["overdue", "today", "week", "nodate"] },
+      search: { type: "string", maxLen: 80 }
+    },
+    run: function (args, cb) {
+      var rows = KOS.assignments.query({ subject: args.subject, status: args.status, openOnly: args.openOnly,
+        due: args.due, search: args.search, sort: "due" });
+      cb(null, { total: rows.length, assignments: rows.slice(0, 60).map(asgOut) });
+    }
+  });
+
+  def("assignments_add", {
+    desc: "Add an assignment (optionally with subtasks and related topics). Its deadline appears on the Calendar without becoming an event.",
+    category: "planner", tier: "reversible", read: false,
+    params: (function () {
+      var p = { subtasks: { type: "array", maxLen: 30, items: { type: "string", minLen: 1, maxLen: 300 } } };
+      Object.keys(ASG_FIELDS).forEach(function (k) { p[k] = ASG_FIELDS[k]; });
+      p.title = { type: "string", required: true, minLen: 1, maxLen: 200 };
+      return p;
+    })(),
+    run: function (args, cb) {
+      var bad = checkAsgPatch(args);
+      if (bad) { cb(bad); return; }
+      var patch = {};
+      Object.keys(ASG_FIELDS).forEach(function (k) { if (args[k] !== undefined) patch[k] = args[k]; });
+      var a = KOS.assignments.add(patch);
+      if (!a) { cb(fail("An assignment needs a title.")); return; }
+      (args.subtasks || []).forEach(function (t) { KOS.assignments.subAdd(a.id, t); });
+      cb(null, asgOut(KOS.assignments.get(a.id)),
+        { label: "remove the assignment", run: function (ucb) { KOS.assignments.remove(a.id, function () { ucb(null); }); } });
+    }
+  });
+
+  def("assignments_update", {
+    desc: "Change an assignment's fields or status. Completing pays the normal once-only reward through the session log; reopening never pays again.",
+    category: "planner", tier: "reversible", read: false,
+    params: {
+      id: { type: "integer", required: true, min: 1 },
+      changes: { type: "object", props: ASG_FIELDS },
+      status: { type: "string", enum: ["notStarted", "inProgress", "blocked", "submitted", "complete"] }
+    },
+    run: function (args, cb) {
+      var a = KOS.assignments.get(args.id);
+      if (!a) { cb(fail("No assignment with id " + args.id + ".")); return; }
+      var ch = args.changes || {};
+      if (!Object.keys(ch).length && !args.status) { cb(fail("Nothing to change.")); return; }
+      var bad = checkAsgPatch(ch);
+      if (bad) { cb(bad); return; }
+      var snap = JSON.parse(JSON.stringify(a));
+      if (Object.keys(ch).length) KOS.assignments.update(args.id, ch);
+      if (args.status && args.status !== KOS.assignments.get(args.id).status) KOS.assignments.setStatus(args.id, args.status);
+      var out = asgOut(KOS.assignments.get(args.id));
+      out.updated = Object.keys(ch).concat(args.status ? ["status"] : []);
+      cb(null, out, { label: "restore the assignment", run: function (ucb) {
+        var fields = {};
+        Object.keys(ASG_FIELDS).forEach(function (k) { if (k !== "refs") fields[k] = snap[k]; });
+        fields.refs = KOS.assignments.refsOf(snap);
+        KOS.assignments.update(args.id, fields);
+        /* restoring a status never re-pays: the record is already rewarded */
+        if (KOS.assignments.get(args.id).status !== snap.status) KOS.assignments.setStatus(args.id, snap.status, { silent: true });
+        ucb(null);
+      } });
+    }
+  });
+
+  def("assignments_subtask", {
+    desc: "Add, tick/untick or remove an assignment's subtask. Subtask ticks move the assignment's progress.",
+    category: "planner", tier: "reversible", read: false,
+    params: {
+      id: { type: "integer", required: true, min: 1 },
+      action: { type: "string", enum: ["add", "toggle", "remove"], required: true },
+      text: { type: "string", maxLen: 300 },
+      subtaskId: { type: "integer", min: 1 },
+      done: { type: "boolean" }
+    },
+    run: function (args, cb) {
+      var a = KOS.assignments.get(args.id);
+      if (!a) { cb(fail("No assignment with id " + args.id + ".")); return; }
+      var snap = JSON.parse(JSON.stringify({ subtasks: a.subtasks || [], progress: a.progress, status: a.status }));
+      if (args.action === "add") {
+        if (!args.text || !args.text.trim()) { cb(fail("A subtask needs text.")); return; }
+        KOS.assignments.subAdd(args.id, args.text);
+      } else {
+        var sub = (a.subtasks || []).filter(function (s) { return s.id === args.subtaskId; })[0];
+        if (!sub) { cb(fail("No subtask " + args.subtaskId + " on that assignment.")); return; }
+        if (args.action === "toggle") KOS.assignments.subToggle(args.id, args.subtaskId, args.done != null ? args.done : !sub.done);
+        else KOS.assignments.subRemove(args.id, args.subtaskId);
+      }
+      var out = asgOut(KOS.assignments.get(args.id));
+      out.updated = ["subtasks"];
+      cb(null, out, { label: "restore the subtasks", run: function (ucb) {
+        var cur = KOS.assignments.get(args.id);
+        if (cur) { cur.subtasks = snap.subtasks; cur.progress = snap.progress; cur.status = snap.status; cur.updatedAt = Date.now(); KOS.store.save(); }
+        ucb(null);
+      } });
+    }
+  });
+
+  /* ---------------- notifications ---------------- */
+  def("notifications_list", {
+    desc: "The notification feed (calendar alerts, reminders, assignments, airing episodes, Planner releases, the plan's carry-over, Focus idle warnings), newest first.",
+    category: "planner", tier: "read", read: true,
+    params: { unreadOnly: { type: "boolean" }, limit: { type: "integer", min: 1, max: 50 } },
+    run: function (args, cb) {
+      var rows = KOS.notify.all().filter(function (it) { return !args.unreadOnly || !KOS.notify.isRead(it); });
+      cb(null, { unread: KOS.notify.unread(), items: rows.slice(0, args.limit || 20).map(function (it) {
+        return { id: it.id, kind: it.kind, title: it.title, body: it.body, ts: it.ts, read: KOS.notify.isRead(it) };
+      }) });
+    }
+  });
+
+  def("notifications_mark_read", {
+    desc: "Mark notifications read — by id, or all of them.",
+    category: "planner", tier: "reversible", read: false,
+    params: {
+      ids: { type: "array", maxLen: 200, items: { type: "string", maxLen: 200 } },
+      all: { type: "boolean" }
+    },
+    run: function (args, cb) {
+      if (!args.all && !(args.ids && args.ids.length)) { cb(fail("Give ids, or all:true.")); return; }
+      var before = KOS.notify.unread();
+      if (args.all) KOS.notify.markAllRead(); else KOS.notify.markRead(args.ids);
+      cb(null, { marked: before - KOS.notify.unread(), unread: KOS.notify.unread(), status: "read" });
+    }
+  });
+
+  /* ---------------- the Shrine's tie order (1.5) ---------------- */
+  function favouritesRanked(cb) {
+    KOS.mediadb.query({ favourite: true, sort: "score" }, function (err, rows) {
+      if (err) { cb(err); return; }
+      cb(null, KOS.media.shrineOrder.apply(rows || []));
+    });
+  }
+  def("shrine_get_order", {
+    desc: "The Shrine's tied tiers — every score two or more favourites share — in their current order.",
+    category: "collection", tier: "read", read: true, params: {},
+    run: function (args, cb) {
+      favouritesRanked(function (err, rows) {
+        if (err) { cb(err); return; }
+        cb(null, { tiers: KOS.media.shrineOrder.tiers(rows).map(function (t) {
+          return { score: t.score, entries: t.entries.map(function (e) { return { id: e.id, title: e.title, module: e.module }; }) };
+        }) });
+      });
+    }
+  });
+  def("shrine_set_order", {
+    desc: "Set the order of favourites that share a score (entry ids, best first). Titles of that score left out keep their place after the listed ones.",
+    category: "collection", tier: "reversible", read: false,
+    params: {
+      score: { type: "number", required: true, min: 0.1, max: 10 },
+      entryIds: { type: "array", required: true, minLen: 1, maxLen: 200, items: { type: "integer", min: 1 } }
+    },
+    run: function (args, cb) {
+      favouritesRanked(function (err, rows) {
+        if (err) { cb(err); return; }
+        var key = KOS.media.shrineOrder.scoreKey(args.score);
+        var tier = rows.filter(function (e) { return KOS.media.shrineOrder.scoreKey(e.score) === key; });
+        var missing = args.entryIds.filter(function (id) { return !tier.some(function (e) { return e.id === id; }); });
+        if (missing.length) { cb(fail("Not favourites scored " + key + ": " + missing.join(", ") + ".")); return; }
+        var was = KOS.media.shrineOrder.get(key);
+        var ids = args.entryIds.map(function (id) { return tier.filter(function (e) { return e.id === id; })[0]; });
+        KOS.media.shrineOrder.set(key, ids);
+        cb(null, { score: Number(key), order: ids.map(function (e) { return e.title; }), updated: ["order"] },
+          { label: "restore the order", run: function (ucb) { KOS.media.shrineOrder.set(key, was); ucb(null); } });
+      });
+    }
+  });
+
+  /* ---------------- the Collection's newer fields ---------------- */
+  def("collection_add_quote", {
+    desc: "Log a quote on ANY Collection entry (anime, books, VN or game) — the personal layer, never pushed to a provider.",
+    category: "collection", tier: "reversible", read: false,
+    params: {
+      entryId: { type: "integer", required: true, min: 1 },
+      text: { type: "string", required: true, minLen: 1, maxLen: 2000 },
+      context: { type: "string", maxLen: 300, desc: "who said it, the episode, chapter or page" }
+    },
+    run: function (args, cb) {
+      KOS.mediadb.get(args.entryId, function (err, entry) {
+        if (err || !entry) { cb(fail("No collection entry with id " + args.entryId + ".")); return; }
+        entry.quotes = entry.quotes || [];
+        var stamp = Date.now();
+        entry.quotes.push({ text: args.text, context: args.context || "", loggedAt: stamp });
+        KOS.mediadb.put(entry, function (err2, rec) {
+          if (err2) { cb(err2); return; }
+          cb(null, { id: rec.id, title: rec.title, added: 1, quoteCount: rec.quotes.length },
+            { label: "remove the quote", run: function (ucb) {
+              KOS.mediadb.get(args.entryId, function (e3, cur) {
+                if (!cur) { ucb(null); return; }
+                cur.quotes = (cur.quotes || []).filter(function (q) { return !(q.text === args.text && q.loggedAt === stamp); });
+                KOS.mediadb.put(cur, function () { ucb(null); });
+              });
+            } });
+        });
+      });
+    }
+  });
+
+  def("vn_update_chapters", {
+    desc: "Add, set the status of, or remove a VN's chapters; set how many chapters the work has; choose what counts as its progress (routes, chapters, time or percent).",
+    category: "collection", tier: "reversible", read: false,
+    params: {
+      entryId: { type: "integer", required: true, min: 1 },
+      add: { type: "array", maxLen: 40, items: { type: "string", minLen: 1, maxLen: 120 } },
+      setStatus: { type: "array", maxLen: 40, items: { type: "object", props: {
+        name: { type: "string", required: true, maxLen: 120 },
+        status: { type: "string", required: true, enum: ["planned", "inProgress", "onHold", "completed", "dropped"] } } } },
+      remove: { type: "array", maxLen: 40, items: { type: "string", minLen: 1, maxLen: 120 } },
+      chaptersTotal: { type: "integer", min: 1, max: 999 },
+      progressMode: { type: "string", enum: ["routes", "chapters", "time", "percent"] }
+    },
+    run: function (args, cb) {
+      KOS.mediadb.get(args.entryId, function (err, entry) {
+        if (err || !entry) { cb(fail("No collection entry with id " + args.entryId + ".")); return; }
+        if (entry.module !== "vn") { cb(fail("“" + entry.title + "” isn't a visual novel.")); return; }
+        var snap = JSON.parse(JSON.stringify({ chapters: entry.chapters || [], chaptersTotal: entry.chaptersTotal, progressMode: entry.progressMode }));
+        var pushBefore = KOS.mediapush.snapshot(entry);
+        entry.chapters = entry.chapters || [];
+        (args.add || []).forEach(function (n) {
+          if (!entry.chapters.some(function (c) { return c.name === n; })) entry.chapters.push({ name: n, status: "planned" });
+        });
+        var missing = [];
+        (args.setStatus || []).forEach(function (op) {
+          var c = entry.chapters.filter(function (x) { return x.name === op.name; })[0];
+          if (!c) missing.push(op.name); else c.status = op.status;
+        });
+        if (missing.length) { cb(fail("No chapter named: " + missing.join(", ") + ". Nothing was changed.")); return; }
+        (args.remove || []).forEach(function (n) { entry.chapters = entry.chapters.filter(function (c) { return c.name !== n; }); });
+        if (args.chaptersTotal != null) entry.chaptersTotal = args.chaptersTotal;
+        if (args.progressMode) entry.progressMode = args.progressMode;
+        putAndSync(entry, pushBefore, null, function (err2, rec) {
+          if (err2) { cb(err2); return; }
+          cb(null, { id: rec.id, chapters: rec.chapters.map(function (c) { return { name: c.name, status: c.status }; }),
+            chaptersTotal: rec.chaptersTotal, progress: rec.progress, updated: ["chapters"] },
+            { label: "restore the chapters", run: function (ucb) {
+              KOS.mediadb.get(args.entryId, function (e3, cur) {
+                if (!cur) { ucb(null); return; }
+                cur.chapters = snap.chapters; cur.chaptersTotal = snap.chaptersTotal; cur.progressMode = snap.progressMode;
+                KOS.mediadb.put(cur, function () { ucb(null); });
+              });
+            } });
+        });
+      });
+    }
+  });
+
+  def("books_update_volume", {
+    desc: "Update one owned physical volume's reading record: status, chapters and pages read, its own 0–10 score, start and finish dates.",
+    category: "collection", tier: "reversible", read: false,
+    params: {
+      entryId: { type: "integer", required: true, min: 1 },
+      number: { type: "number", required: true, min: 0, max: 9999 },
+      status: { type: "string", enum: ["planned", "inProgress", "onHold", "completed", "dropped"] },
+      chaptersRead: { type: "integer", min: 0, max: 10000 },
+      chaptersTotal: { type: "integer", min: 0, max: 10000 },
+      pagesRead: { type: "integer", min: 0, max: 100000 },
+      pagesTotal: { type: "integer", min: 0, max: 100000 },
+      score: { type: "number", min: 0, max: 10 },
+      started: { type: "string", maxLen: 10 },
+      finished: { type: "string", maxLen: 10 }
+    },
+    run: function (args, cb) {
+      if ((args.started && !validDate(args.started)) || (args.finished && !validDate(args.finished))) { cb(fail("Dates must be real YYYY-MM-DD dates.")); return; }
+      KOS.mediadb.get(args.entryId, function (err, entry) {
+        if (err || !entry) { cb(fail("No collection entry with id " + args.entryId + ".")); return; }
+        if (entry.module !== "books") { cb(fail("“" + entry.title + "” isn't a book.")); return; }
+        var vols = (entry.physical && entry.physical.volumes) || [];
+        var v = vols.filter(function (x) { return x.number === args.number; })[0];
+        if (!v) { cb(fail("“" + entry.title + "” has no owned volume " + args.number + " — books_add_physical_volume first.")); return; }
+        var snap = JSON.parse(JSON.stringify(v));
+        var changed = [];
+        ["status", "chaptersRead", "chaptersTotal", "pagesRead", "pagesTotal", "started", "finished"].forEach(function (k) {
+          if (args[k] !== undefined) { v[k] = args[k]; changed.push(k); }
+        });
+        if (args.score !== undefined) { v.score = Math.round(args.score * 10) / 10; changed.push("score"); }
+        if (!changed.length) { cb(fail("Nothing to change.")); return; }
+        KOS.mediadb.put(entry, function (err2, rec) {
+          if (err2) { cb(err2); return; }
+          cb(null, { id: rec.id, title: rec.title, volume: args.number, updated: changed },
+            { label: "restore the volume", run: function (ucb) {
+              KOS.mediadb.get(args.entryId, function (e3, cur) {
+                var cv = cur && cur.physical && cur.physical.volumes.filter(function (x) { return x.number === args.number; })[0];
+                if (!cv) { ucb(null); return; }
+                Object.keys(snap).forEach(function (k) { cv[k] = snap[k]; });
+                KOS.mediadb.put(cur, function () { ucb(null); });
+              });
+            } });
+        });
+      });
+    }
+  });
+
   /* ================= local-model tool shortlisting =================
      A small local model (Ollama) has a tiny context window — sending all
      ~80 tool schemas overflows it (verified: 83 tools = 8832 tokens vs a
@@ -2348,7 +3153,9 @@
       "collection_add_entry", "collection_search_external", "collection_add_from_external",
       "media_log_activity", "collection_get_stats"],
     planner: ["todo_list", "todo_add_task", "todo_toggle_task", "calendar_list_events",
-      "calendar_add_event", "wishlist_list", "wishlist_add_item", "goals_list", "goals_add"],
+      "calendar_add_event", "assignments_list", "assignments_add", "pacing_get_week", "reminders_list",
+      "assignments_update", "pacing_tick_row", "notifications_list", "wishlist_list", "wishlist_add_item",
+      "goals_list", "goals_add"],
     governor: ["governor_get_status", "governor_list_shop", "governor_buy_item",
       "focus_get_state", "focus_start_session", "focus_end_session"],
     archive: ["archive_get_backup_info", "attachments_list", "attachments_set_note"],
@@ -2361,7 +3168,7 @@
     if (/^(ref|subject|review|due|cardstats|tracker|personaldeck|worked|trace|oop|sims)$/.test(view)) return "study";
     if (/^(matrix|anime|books|vn|game|seasonal|mangaka|shrine|aniprofile|vndbprofile)$/.test(view)) return "collection";
     if (/^(wishlist|goals)$/.test(view)) return "planner";
-    if (/^(calendar|tasks)$/.test(view)) return "planner";
+    if (/^(calendar|tasks|reminders|assignments|pacing|notifications)$/.test(view)) return "planner";
     if (view === "focus") return "governor";
     if (view === "governor") return "governor";
     if (view === "data") return "archive";

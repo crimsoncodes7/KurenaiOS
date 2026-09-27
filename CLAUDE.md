@@ -550,6 +550,15 @@ source comments and audit notes refer to it.
 71. `KOS.search.run()` is a pure cross-domain disclosure layer. It searches user
     study/organisation/Collection data but never credentials, provider kv/logs,
     sessions or Assistant audits; async results revalidate the active query.
+71a. The Assistant has tools for every domain (`js/core/aitools.js`), and the
+    same privacy line: no tool reads credentials, cloud sessions or audit
+    logs. A change to a topic's material (`study_edit_*`, `study_set_spec_break`,
+    `study_quick_note`) is consequential: it waits for the approval card, which
+    binds to the topic's fork (an edit made elsewhere first invalidates it).
+    The system prompt carries the feature map. A tool-free answer to a
+    question that asked for no change ends where the answer ends: a closing
+    "I have not made any modifications…" line is stripped
+    (`stripNoChangeTail`); when a change WAS asked for, that truth stays.
 
 ### Responsive integration and visual release quality (72–79)
 

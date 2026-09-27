@@ -633,6 +633,175 @@ step("media_log_activity: 0 HP by contract, feeds the rest streak", async () => 
   assert(KOS.sessions.restStreak() >= 1, "media activity must feed the rest streak");
 });
 
+/* ============ 13 · roadmap 1.8 — tools for everything after Category 6 ============ */
+console.log("== roadmap 1.8 tools ==");
+const p8 = fn => new Promise((res, rej) => fn((e, r) => e ? rej(e) : res(r)));
+
+step("1.8 · the new tools are registered with the right tiers", async () => {
+  const want = {
+    study_spec_tree: "read", it_units_get: "read", it_units_set: "reversible", it_units_set_target: "reversible",
+    study_edit_append: "consequential", study_edit_row: "consequential", study_edit_move: "consequential",
+    study_set_spec_break: "consequential", study_edit_reset: "consequential", study_quick_note: "consequential",
+    pacing_get_week: "read", pacing_list_weeks: "read", pacing_get_braid: "read", pacing_tick_row: "reversible",
+    pacing_tick_lesson: "reversible", pacing_move_row: "reversible", pacing_add_row: "reversible",
+    reminders_list: "read", assignments_list: "read", assignments_add: "reversible", assignments_update: "reversible",
+    assignments_subtask: "reversible", notifications_list: "read", notifications_mark_read: "reversible",
+    shrine_get_order: "read", shrine_set_order: "reversible", collection_add_quote: "reversible",
+    vn_update_chapters: "reversible", books_update_volume: "reversible"
+  };
+  Object.keys(want).forEach(n => {
+    const t = T.get(n);
+    assert(t, "missing tool " + n);
+    assert(t.tier === want[n], n + " tier " + t.tier + " (want " + want[n] + ")");
+  });
+  /* invariant 71: nothing new reads credentials, cloud sessions or audits */
+  Object.keys(want).forEach(n => assert(!/token|credential|audit|password/i.test(T.get(n).desc), n + " describes a private read"));
+});
+
+step("1.8 · spec tree and refs: units, children, a unit pick on an exam result", async () => {
+  const u = await ex("study_spec_tree", { subject: "compsci" });
+  assert(!u.err && u.result.units[0].key === "compsci:4.1", "units");
+  const c = await ex("study_spec_tree", { subject: "compsci", ref: "4.1" });
+  assert(!c.err && c.result.node.level === "unit" && c.result.children.length, "children");
+  const bad = await ex("study_log_exam_result", { kind: "paper", refs: ["compsci:9.9"] });
+  assert(bad.err && /Not in the specification/.test(bad.err.message), "an unknown ref is refused");
+  const r = await ex("study_log_exam_result", { kind: "paper", paper: "Unit test", refs: ["compsci:4.1"], marks: 30, max: 40 });
+  assert(!r.err, "log with refs: " + (r.err && r.err.message));
+  const list = await ex("study_list_exam_results", { subject: "compsci" });
+  assert(list.result.results.some(x => x.refs && x.refs[0] === "compsci:4.1"), "refs reported");
+});
+
+step("1.8 · IT units: read the record, set a mark, undo it; no Governor traffic", async () => {
+  const g0 = JSON.stringify(gov()), n0 = sessions().length;
+  const r = await ex("it_units_get", { target: "Distinction*" });
+  assert(!r.err && r.result.aggregate.banked === 105 && r.result.needed.need === 165, "aggregate/needed: " + JSON.stringify(r.result.aggregate));
+  const s1 = await ex("it_units_set", { unit: "F204", raw: 20 });
+  assert(!s1.err && s1.result.ums === 50 && s1.result.status === "done", "set: " + JSON.stringify(s1.result));
+  const over = await ex("it_units_set", { unit: "F204", raw: 25 });
+  assert(over.err, "an NEA raw over 24 is refused");
+  await new Promise(res => s1.undo.run(res));
+  assert(KOS.itUnits.get("F204").raw === null && KOS.itUnits.get("F204").status === "sitting", "undo restored the unit");
+  assert(JSON.stringify(gov()) === g0 && sessions().length === n0, "IT writes made Governor traffic");
+});
+
+step("1.8 · curriculum edits are consequential, fork through KOS.edits, and undo", async () => {
+  const sid = "compsci", ref = "4.1.1.1";
+  KOS.edits.reset(sid, ref);
+  const a = await ex("study_edit_append", { subject: sid, ref: ref, kind: "notes", blocks: ["## Mine\n\nA line."] });
+  assert(!a.err && KOS.edits.has(sid, ref, "notes"), "append forked the notes");
+  const notes = KOS.edits.material(sid, ref, "notes");
+  const last = notes[notes.length - 1];
+  const mv = await ex("study_edit_move", { subject: sid, ref: ref, kind: "notes", rowId: last.id, index: 0 });
+  assert(!mv.err && KOS.edits.material(sid, ref, "notes")[0].id === last.id, "moved to the top");
+  const q = await ex("study_quick_note", { subject: sid, ref: ref, text: "from the assistant" });
+  assert(!q.err && /from the assistant/.test(KOS.edits.material(sid, ref, "spec").info.slice(-1)[0].md), "quick note filed");
+  const unit = await ex("study_quick_note", { subject: sid, ref: "4.1", text: "x" });
+  assert(unit.err, "a unit is not a topic page");
+  await new Promise(res => q.undo.run(res));
+  assert(!KOS.edits.has(sid, ref, "spec"), "undo removed the spec fork the note made");
+  const rs = await ex("study_edit_reset", { subject: sid, ref: ref, kind: "notes" });
+  assert(!rs.err && !KOS.edits.has(sid, ref, "notes"), "reset returned the curriculum");
+});
+
+step("1.8 · pacing: read the week and braid, tick, move \u2192 here, add — zero Governor traffic", async () => {
+  const g0 = JSON.stringify(gov()), n0 = sessions().length;
+  const wk = await ex("pacing_get_week", {});
+  assert(!wk.err && wk.result.week && wk.result.subjects.length === 3, "week: " + (wk.err && wk.err.message));
+  const weeks = (await ex("pacing_list_weeks", {})).result.weeks;
+  assert(weeks.length > 3, "weeks listed");
+  const braid = await ex("pacing_get_braid", { subject: "compsci" });
+  assert(!braid.err && Array.isArray(braid.result.links), "braid");
+  const add = await ex("pacing_add_row", { source: "personal", subject: "compsci", wb: weeks[1].wb, title: "Tool row", refs: ["compsci:4.1.1"] });
+  assert(!add.err && add.result.refs.length > 1 && add.result.refs.every(r => /^4\.1\.1\./.test(r)), "a parent pick expands to its leaves: " + JSON.stringify(add.result));
+  const tickR = await ex("pacing_tick_row", { id: add.result.id, done: true });
+  assert(!tickR.err && KOS.pacing.entryById(add.result.id).done, "ticked");
+  const mv = await ex("pacing_move_row", { id: add.result.id, wb: weeks[2].wb });
+  assert(!mv.err && KOS.pacing.entryById(add.result.id).wb === weeks[2].wb, "moved");
+  const school = KOS.pacing.entries().filter(e => e.source === "school" && KOS.pacing.lessonsOf(e).length)[0];
+  if (school) {
+    const lesson = KOS.pacing.lessonsOf(school)[0].text;
+    const tl = await ex("pacing_tick_lesson", { id: school.id, lesson: lesson, sat: true });
+    assert(!tl.err && KOS.pacing.lessonSat(KOS.pacing.entryById(school.id), lesson), "lesson ticked");
+    await new Promise(res => tl.undo.run(res));
+  }
+  const wrong = await ex("pacing_tick_row", { id: school ? school.id : "nope", done: true });
+  assert(wrong.err, "a class row is not ticked whole");
+  await new Promise(res => add.undo.run(res));
+  assert(!KOS.pacing.entryById(add.result.id), "undo removed the row");
+  assert(JSON.stringify(gov()) === g0 && sessions().length === n0, "pacing made Governor traffic");
+});
+
+step("1.8 · reminders, assignments with subtasks, notifications", async () => {
+  const rem = await ex("todo_add_task", { text: "Tool reminder", date: KOS.srs.todayISO() });
+  const rl = await ex("reminders_list", { section: "today" });
+  assert(!rl.err && rl.result.reminders.some(x => x.id === rem.result.id), "reminders_list today");
+  const a = await ex("assignments_add", { title: "Tool assignment", subject: "compsci", refs: ["compsci:4.1"], subtasks: ["read", "write"] });
+  assert(!a.err && a.result.refs[0] === "compsci:4.1" && a.result.subtasks.length === 2, "add: " + JSON.stringify(a.result || a.err.message));
+  const st = await ex("assignments_subtask", { id: a.result.id, action: "toggle", subtaskId: a.result.subtasks[0].id, done: true });
+  assert(!st.err && st.result.progress === 50, "a subtask tick moves progress: " + (st.result && st.result.progress));
+  const n0 = sessions().length;
+  const up = await ex("assignments_update", { id: a.result.id, status: "complete", changes: { priority: 3 } });
+  assert(!up.err && up.result.status === "complete" && sessions().length === n0 + 1, "completing pays once through the ledger");
+  await new Promise(res => up.undo.run(res));
+  assert(KOS.assignments.get(a.result.id).status !== "complete" && sessions().length === n0 + 1, "undo reopens without paying again");
+  const bad = await ex("assignments_add", { title: "x", refs: ["nope:1"] });
+  assert(bad.err, "an invalid ref is refused");
+  KOS.notify.push({ id: "reminder:tool:1", kind: "reminder", title: "Tool alert", body: "b" });
+  const nl = await ex("notifications_list", { unreadOnly: true });
+  assert(!nl.err && nl.result.items.some(i => i.id === "reminder:tool:1"), "listed");
+  const mr = await ex("notifications_mark_read", { ids: ["reminder:tool:1"] });
+  assert(!mr.err && KOS.notify.isRead({ id: "reminder:tool:1" }), "marked read");
+});
+
+step("1.8 · Collection: a quote on any medium, VN chapters, a volume's record, a one-decimal score", async () => {
+  const quote = await ex("collection_add_quote", { entryId: animeId, text: "Tool quote", context: "ep 3" });
+  assert(!quote.err && quote.result.quoteCount >= 1, "anime quote");
+  const vn = await p8(cb => KOS.mediadb.add({ module: "vn", title: "Tool VN", status: "inProgress" }, cb));
+  const ch = await ex("vn_update_chapters", { entryId: vn.id, add: ["One", "Two"], setStatus: [{ name: "One", status: "completed" }], chaptersTotal: 2, progressMode: "chapters" });
+  assert(!ch.err && ch.result.chapters.length === 2 && ch.result.progress && ch.result.progress.current === 1, "chapters: " + JSON.stringify(ch.result && ch.result.progress));
+  const miss = await ex("vn_update_chapters", { entryId: vn.id, setStatus: [{ name: "Nope", status: "completed" }] });
+  assert(miss.err, "an unknown chapter is refused");
+  const book = await p8(cb => KOS.mediadb.add({ module: "books", title: "Tool Book", status: "inProgress",
+    physical: { owned: true, volumes: [{ number: 1 }] } }, cb));
+  const vol = await ex("books_update_volume", { entryId: book.id, number: 1, status: "completed", score: 8.25, pagesRead: 200 });
+  assert(!vol.err, "volume: " + (vol.err && vol.err.message));
+  const bk = await p8(cb => KOS.mediadb.get(book.id, cb));
+  assert(bk.physical.volumes[0].score === 8.3 && bk.physical.volumes[0].status === "completed", "volume record: " + JSON.stringify(bk.physical.volumes[0]));
+  const sc = await ex("collection_update_entry", { entryId: vn.id, changes: { score: 7.66 } });
+  assert(!sc.err, "score");
+  const vn2 = await p8(cb => KOS.mediadb.get(vn.id, cb));
+  assert(vn2.score === 7.7, "one decimal: " + vn2.score);
+});
+
+step("1.8 · Shrine order: read the tied tiers, set one, undo", async () => {
+  const a = await p8(cb => KOS.mediadb.add({ module: "anime", title: "Tie A", status: "completed", score: 9.5, favourite: true }, cb));
+  const b = await p8(cb => KOS.mediadb.add({ module: "anime", title: "Tie B", status: "completed", score: 9.5, favourite: true }, cb));
+  const g = await ex("shrine_get_order", {});
+  const tier = g.result.tiers.filter(t => t.score === 9.5)[0];
+  assert(tier && tier.entries.length === 2, "the tie is listed");
+  const s = await ex("shrine_set_order", { score: 9.5, entryIds: [b.id, a.id] });
+  assert(!s.err && s.result.order[0] === "Tie B", "set");
+  assert(KOS.media.shrineOrder.get(9.5)[0] === b.syncId, "stored by syncId");
+  const wrong = await ex("shrine_set_order", { score: 9.5, entryIds: [animeId] });
+  assert(wrong.err, "a title outside the tier is refused");
+  await new Promise(res => s.undo.run(res));
+  assert(!KOS.media.shrineOrder.get(9.5).length, "undo restored the order");
+});
+
+step("1.8 · Focus: stopwatch and study-until start through the tool; one subject", async () => {
+  if (KOS.focus.state() !== "idle") KOS.focus.endEarly({ confirmed: true, review: false });
+  const two = await ex("focus_start_session", { mode: "stopwatch", refs: ["compsci:4.1", "maths:1.1"] });
+  assert(two.err && /ONE subject/.test(two.err.message), "two subjects refused");
+  const sw = await ex("focus_start_session", { mode: "stopwatch", refs: ["compsci:4.1"] });
+  assert(!sw.err && KOS.focus.session().mode === "stopwatch", "stopwatch started: " + (sw.err && sw.err.message));
+  const st = await ex("focus_get_state", {});
+  assert(st.result.mode === "stopwatch" && st.result.blocksEarned === 0 && st.result.refs[0] === "compsci:4.1", "state: " + JSON.stringify(st.result));
+  const end = await ex("focus_end_session", { early: true });
+  assert(!end.err && end.result.awardForfeited === false, "a stopwatch is never forfeited");
+  const bad = await ex("focus_start_session", { mode: "until", until: "nope" });
+  assert(bad.err, "until needs HH:MM");
+});
+
 /* ============ run ============ */
 (async () => {
   let failed = 0;
