@@ -240,7 +240,7 @@
       var pos = v.which[0] === "m" ? v.n / 2 : v.which[1] === "1" ? v.n / 4 : 3 * v.n / 4;
       var val = v.L + (pos - v.cf) / v.f * v.w;
       return { steps: [
-        { h: "Locate the position", m: v.which + " → position " + fmt(pos) + " of " + fmt(v.n) + "\ncumulative frequency before the class = " + fmt(v.cf) + ", class frequency = " + fmt(v.f) + " → it lies in this class" },
+        { h: "Locate the position", m: v.which + " → position " + fmt(pos) + " of " + fmt(v.n) + "\nthe cumulative frequency reaches " + fmt(v.cf) + " before the class, and the class frequency is " + fmt(v.f) + " → it lies in this class" },
         { h: "Set up the proportion", m: "(value − " + fmt(v.L) + ")/" + fmt(v.w) + " = (" + fmt(pos) + " − " + fmt(v.cf) + ")/" + fmt(v.f), n: "Assumes values are evenly spread through the class — say so if asked for an assumption." },
         { h: "Solve", m: "value = " + fmt(v.L) + " + " + fmt(pos - v.cf) + "/" + fmt(v.f) + " × " + fmt(v.w) + " = " + fmt(val, 3) }
       ], answer: v.which.split(" ")[0] + " ≈ " + fmt(val, 3) };

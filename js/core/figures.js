@@ -80,6 +80,17 @@
   }
   function num(v, d) { return (typeof v === "number" && isFinite(v)) ? v : d; }
   function fmt(v) { return Math.round(v * 100) / 100; }
+  /* UI rebuild M14: an SVG element's paint rides custom properties that the
+     k-fig rules read (css/views/study.css) — the rebuilt vocabulary allows
+     no static inline style, and a figure's colours and widths are its data.
+     Keys: f fill, fo fill-opacity, s stroke, w stroke-width, d dasharray,
+     lc linecap, lj linejoin; text adds ts size, ti italic, tb bold. */
+  function sty(o, isText) {
+    var rest = "";
+    Object.keys(o).forEach(function (k) { if (k !== "f" && o[k] != null && o[k] !== "") rest += ";--fg-" + k + ":" + o[k]; });
+    var fill = o.f != null ? o.f : (isText ? "var(--text-2)" : "none");
+    return (isText ? ' class="k-fig-t"' : ' class="k-fig"') + ' style="--fg-f:' + fill + rest + '"';
+  }
 
   /* a nice tick step for a range spanning `span` with ~n ticks */
   function niceStep(span, n) {
@@ -127,7 +138,6 @@
 
     var id = "fg" + Math.random().toString(36).slice(2, 8);
     var out = [], defs = [];
-    var font = 'font-family:var(--font-ui);font-size:12.5px;fill:var(--text-2)';
     function text(px, py, t, o) {
       o = o || {};
       var pos = o.pos || "n", dx = 0, dy = 0, anchor = "middle", base = "middle";
@@ -137,21 +147,20 @@
       if (pos.indexOf("e") >= 0) { dx += off; anchor = "start"; }
       if (pos.indexOf("w") >= 0) { dx -= off; anchor = "end"; }
       if (pos === "c") { dx = 0; dy = 0; }
-      var style = font + ";font-size:" + num(o.size, 12.5) + "px" + (o.i ? ";font-style:italic" : "") + (o.b ? ";font-weight:600" : "") +
-        (o.c ? ";fill:" + col(o.c) : "");
-      var halo = o.halo === false ? "" : ';paint-order:stroke;stroke:var(--s1);stroke-width:3px;stroke-linejoin:round';
+      var paint = { ts: num(o.size, 12.5) + "px", ti: o.i ? "italic" : null, tb: o.b ? "600" : null, f: o.c ? col(o.c) : null,
+        s: o.halo === false ? null : "var(--s1)", w: o.halo === false ? null : "3px" };
       return '<text x="' + (px + dx + num(o.dx, 0)).toFixed(1) + '" y="' + (py + dy + num(o.dy, 0)).toFixed(1) + '" text-anchor="' + anchor +
-        '" dominant-baseline="' + base + '" style="' + style + halo + '">' + esc(t) + "</text>";
+        '" dominant-baseline="' + base + '"' + sty(paint, true) + ">" + esc(t) + "</text>";
     }
     function arrowHead(ax, ay, bx, by, c, w) {
       var ang = Math.atan2(by - ay, bx - ax), L = 7 + 2 * (w || 1.6), A = 0.42;
       var p1 = [bx - L * Math.cos(ang - A), by - L * Math.sin(ang - A)], p2 = [bx - L * Math.cos(ang + A), by - L * Math.sin(ang + A)];
       return '<polygon points="' + bx.toFixed(1) + "," + by.toFixed(1) + " " + p1[0].toFixed(1) + "," + p1[1].toFixed(1) + " " + p2[0].toFixed(1) + "," + p2[1].toFixed(1) +
-        '" style="fill:' + c + '"/>';
+        '"' + sty({ f: c }) + "/>";
     }
-    function strokeStyle(it, dflt, dw) {
-      return "stroke:" + col(it.c, dflt) + ";stroke-width:" + num(it.w, dw) + ";fill:none;stroke-linecap:round;stroke-linejoin:round" +
-        (it.dash ? ";stroke-dasharray:" + (it.dash === true ? "5 5" : it.dash) : "");
+    function dashOf(it) { return it.dash ? (it.dash === true ? "5 5" : it.dash) : null; }
+    function strokePaint(it, dflt, dw) {
+      return sty({ s: col(it.c, dflt), w: num(it.w, dw), lc: "round", lj: "round", d: dashOf(it) });
     }
     /* sample a curve into path segments, breaking at asymptotes and NaNs */
     function curvePath(f, a, b, n, isParam) {
@@ -178,23 +187,23 @@
       var ax = Math.min(Math.max(0, x0), x1), ay = Math.min(Math.max(0, y0), y1);
       var axPx = X(ax), ayPx = Y(ay);
       if (axes.grid !== false) {
-        xs.forEach(function (v) { var vv = typeof v === "object" ? v.v : v; if (Math.abs(vv - ax) < 1e-9) return; out.push('<line x1="' + X(vv).toFixed(1) + '" y1="' + pad.t + '" x2="' + X(vv).toFixed(1) + '" y2="' + (pad.t + ph) + '" style="stroke:var(--line);stroke-width:1"/>'); });
-        ys.forEach(function (v) { var vv = typeof v === "object" ? v.v : v; if (Math.abs(vv - ay) < 1e-9) return; out.push('<line x1="' + pad.l + '" y1="' + Y(vv).toFixed(1) + '" x2="' + (pad.l + pw) + '" y2="' + Y(vv).toFixed(1) + '" style="stroke:var(--line);stroke-width:1"/>'); });
+        xs.forEach(function (v) { var vv = typeof v === "object" ? v.v : v; if (Math.abs(vv - ax) < 1e-9) return; out.push('<line x1="' + X(vv).toFixed(1) + '" y1="' + pad.t + '" x2="' + X(vv).toFixed(1) + '" y2="' + (pad.t + ph) + '"' + sty({ s: "var(--line)", w: 1 }) + "/>"); });
+        ys.forEach(function (v) { var vv = typeof v === "object" ? v.v : v; if (Math.abs(vv - ay) < 1e-9) return; out.push('<line x1="' + pad.l + '" y1="' + Y(vv).toFixed(1) + '" x2="' + (pad.l + pw) + '" y2="' + Y(vv).toFixed(1) + '"' + sty({ s: "var(--line)", w: 1 }) + "/>"); });
       }
-      out.push('<line x1="' + pad.l + '" y1="' + ayPx.toFixed(1) + '" x2="' + (pad.l + pw + 8) + '" y2="' + ayPx.toFixed(1) + '" style="stroke:' + axC + ';stroke-width:1.4"/>');
+      out.push('<line x1="' + pad.l + '" y1="' + ayPx.toFixed(1) + '" x2="' + (pad.l + pw + 8) + '" y2="' + ayPx.toFixed(1) + '"' + sty({ s: axC, w: 1.4 }) + "/>");
       out.push(arrowHead(pad.l, ayPx, pad.l + pw + 8, ayPx, axC, 1));
-      out.push('<line x1="' + axPx.toFixed(1) + '" y1="' + (pad.t + ph) + '" x2="' + axPx.toFixed(1) + '" y2="' + (pad.t - 8) + '" style="stroke:' + axC + ';stroke-width:1.4"/>');
+      out.push('<line x1="' + axPx.toFixed(1) + '" y1="' + (pad.t + ph) + '" x2="' + axPx.toFixed(1) + '" y2="' + (pad.t - 8) + '"' + sty({ s: axC, w: 1.4 }) + "/>");
       out.push(arrowHead(axPx, pad.t + ph, axPx, pad.t - 8, axC, 1));
       xs.forEach(function (v) {
         var vv = typeof v === "object" ? v.v : v, lab = typeof v === "object" ? v.label : tickLabel(vv, pi);
         if (Math.abs(vv - ax) < 1e-9 && Math.abs(ay) < 1e-9) return;
-        out.push('<line x1="' + X(vv).toFixed(1) + '" y1="' + (ayPx - 3).toFixed(1) + '" x2="' + X(vv).toFixed(1) + '" y2="' + (ayPx + 3).toFixed(1) + '" style="stroke:' + axC + ';stroke-width:1.2"/>');
+        out.push('<line x1="' + X(vv).toFixed(1) + '" y1="' + (ayPx - 3).toFixed(1) + '" x2="' + X(vv).toFixed(1) + '" y2="' + (ayPx + 3).toFixed(1) + '"' + sty({ s: axC, w: 1.2 }) + "/>");
         out.push(text(X(vv), ayPx + 4, lab, { pos: "s", size: 11, c: "muted", halo: false }));
       });
       ys.forEach(function (v) {
         var vv = typeof v === "object" ? v.v : v, lab = typeof v === "object" ? v.label : tickLabel(vv, false);
         if (Math.abs(vv - ay) < 1e-9) return;
-        out.push('<line x1="' + (axPx - 3).toFixed(1) + '" y1="' + Y(vv).toFixed(1) + '" x2="' + (axPx + 3).toFixed(1) + '" y2="' + Y(vv).toFixed(1) + '" style="stroke:' + axC + ';stroke-width:1.2"/>');
+        out.push('<line x1="' + (axPx - 3).toFixed(1) + '" y1="' + Y(vv).toFixed(1) + '" x2="' + (axPx + 3).toFixed(1) + '" y2="' + Y(vv).toFixed(1) + '"' + sty({ s: axC, w: 1.2 }) + "/>");
         out.push(text(axPx - 5, Y(vv), lab, { pos: "w", size: 11, c: "muted", halo: false, off: 4 }));
       });
       if (Math.abs(ax) < 1e-9 && Math.abs(ay) < 1e-9) out.push(text(axPx - 4, ayPx + 4, "O", { pos: "sw", size: 11, c: "muted", halo: false, off: 3 }));
@@ -217,7 +226,7 @@
         } else { f = compile(it.fn, ["x"]); if (!f) return; }
         var a = isParam ? num(it.t && it.t[0], 0) : num(it.from, graph ? x0 : 0);
         var b = isParam ? num(it.t && it.t[1], 2 * Math.PI) : num(it.to, graph ? x1 : W);
-        s += '<path d="' + curvePath(f, a, b, num(it.n, 240), isParam) + '" style="' + strokeStyle(it, "accent", 2.2) + '"/>';
+        s += '<path d="' + curvePath(f, a, b, num(it.n, 240), isParam) + '"' + strokePaint(it, "accent", 2.2) + "/>";
         clipped.push(s);
         if (it.label) {
           var lx = isParam ? a : num(it.at, a + (b - a) * 0.8), lp;
@@ -232,13 +241,13 @@
         var a2 = num(sh.from, x0), b2 = num(sh.to, x1), n2 = num(it.n, 120), top = [], bot = [];
         for (var i = 0; i <= n2; i++) { var t = a2 + (b2 - a2) * i / n2; top.push([t, f1(t)]); bot.push([t, f2 ? f2(t) : 0]); }
         var d = "M" + top.map(P).join("L") + "L" + bot.reverse().map(P).join("L") + "Z";
-        clipped.push('<path d="' + d + '" style="fill:' + col(it.c, "accent") + ';fill-opacity:' + num(it.alpha, 0.18) + ';stroke:none"/>');
+        clipped.push('<path d="' + d + '"' + sty({ f: col(it.c, "accent"), fo: num(it.alpha, 0.18) }) + "/>");
         return;
       }
       if (it.line || it.vec) {
         var ln = it.line || it.vec, p1 = ln[0], p2 = ln[1], c = col(it.c, it.vec ? "accent2" : "text2"), w = num(it.w, it.vec ? 2.2 : 1.6);
         var ax1 = X(p1[0]), ay1 = Y(p1[1]), bx1 = X(p2[0]), by1 = Y(p2[1]);
-        s += '<line x1="' + ax1.toFixed(1) + '" y1="' + ay1.toFixed(1) + '" x2="' + bx1.toFixed(1) + '" y2="' + by1.toFixed(1) + '" style="' + strokeStyle(it, it.vec ? "accent2" : "text2", w) + '"/>';
+        s += '<line x1="' + ax1.toFixed(1) + '" y1="' + ay1.toFixed(1) + '" x2="' + bx1.toFixed(1) + '" y2="' + by1.toFixed(1) + '"' + strokePaint(it, it.vec ? "accent2" : "text2", w) + "/>";
         if (it.arrow || it.vec) s += arrowHead(ax1, ay1, bx1, by1, c, w);
         if (it.arrow === "both") s += arrowHead(bx1, by1, ax1, ay1, c, w);
         if (it.label) {
@@ -250,14 +259,14 @@
       }
       if (it.poly) {
         var d2 = "M" + it.poly.map(P).join("L") + (it.close === false ? "" : "Z");
-        free.push('<path d="' + d2 + '" style="' + (it.fill ? "fill:" + col(it.fill) + ";fill-opacity:" + num(it.alpha, 0.16) + ";" : "fill:none;") +
-          "stroke:" + col(it.c, "text2") + ";stroke-width:" + num(it.w, 1.8) + ";stroke-linejoin:round" + (it.dash ? ";stroke-dasharray:" + (it.dash === true ? "5 5" : it.dash) : "") + '"/>');
+        free.push('<path d="' + d2 + '"' + sty({ f: it.fill ? col(it.fill) : null, fo: it.fill ? num(it.alpha, 0.16) : null,
+          s: col(it.c, "text2"), w: num(it.w, 1.8), lj: "round", d: dashOf(it) }) + "/>");
         return;
       }
       if (it.circle) {
         var cc = it.circle, rx = cc[2] * SX, ry = cc[2] * SY;
-        free.push('<ellipse cx="' + X(cc[0]).toFixed(1) + '" cy="' + Y(cc[1]).toFixed(1) + '" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) + '" style="' +
-          (it.fill ? "fill:" + col(it.fill) + ";fill-opacity:" + num(it.alpha, 0.14) + ";" : "fill:none;") + "stroke:" + col(it.c, "text2") + ";stroke-width:" + num(it.w, 1.8) + (it.dash ? ";stroke-dasharray:" + (it.dash === true ? "5 5" : it.dash) : "") + '"/>');
+        free.push('<ellipse cx="' + X(cc[0]).toFixed(1) + '" cy="' + Y(cc[1]).toFixed(1) + '" rx="' + rx.toFixed(1) + '" ry="' + ry.toFixed(1) + '"' +
+          sty({ f: it.fill ? col(it.fill) : null, fo: it.fill ? num(it.alpha, 0.14) : null, s: col(it.c, "text2"), w: num(it.w, 1.8), d: dashOf(it) }) + "/>");
         return;
       }
       if (it.arc) {
@@ -266,7 +275,7 @@
         var sxp = acx + r * Math.cos(a1), syp = acy - r * Math.sin(a1), exp = acx + r * Math.cos(a2r), eyp = acy - r * Math.sin(a2r);
         var large = (a2r - a1) > Math.PI ? 1 : 0;
         var dArc = (it.fill ? "M" + acx.toFixed(1) + "," + acy.toFixed(1) + "L" : "M") + sxp.toFixed(1) + "," + syp.toFixed(1) + "A" + r + "," + r + " 0 " + large + " 0 " + exp.toFixed(1) + "," + eyp.toFixed(1) + (it.fill ? "Z" : "");
-        free.push('<path d="' + dArc + '" style="' + (it.fill ? "fill:" + col(it.fill) + ";fill-opacity:" + num(it.alpha, 0.22) + ";" : "fill:none;") + "stroke:" + col(it.c, "accent2") + ";stroke-width:" + num(it.w, 1.5) + '"/>');
+        free.push('<path d="' + dArc + '"' + sty({ f: it.fill ? col(it.fill) : null, fo: it.fill ? num(it.alpha, 0.22) : null, s: col(it.c, "accent2"), w: num(it.w, 1.5) }) + "/>");
         if (it.label) { var am = (a1 + a2r) / 2, lr = r + num(it.loff, 11); free.push(text(acx + lr * Math.cos(am), acy - lr * Math.sin(am), it.label, { pos: "c", c: it.lc || it.c || "accent2", i: true, size: it.size })); }
         return;
       }
@@ -274,12 +283,12 @@
         var ra = it.rangle, c0 = [X(ra[0][0]), Y(ra[0][1])], u = [X(ra[1][0]) - c0[0], Y(ra[1][1]) - c0[1]], v3 = [X(ra[2][0]) - c0[0], Y(ra[2][1]) - c0[1]];
         var ul = Math.hypot(u[0], u[1]) || 1, vl = Math.hypot(v3[0], v3[1]) || 1, sz = num(it.size, 10);
         u = [u[0] / ul * sz, u[1] / ul * sz]; v3 = [v3[0] / vl * sz, v3[1] / vl * sz];
-        free.push('<path d="M' + (c0[0] + u[0]).toFixed(1) + "," + (c0[1] + u[1]).toFixed(1) + "L" + (c0[0] + u[0] + v3[0]).toFixed(1) + "," + (c0[1] + u[1] + v3[1]).toFixed(1) + "L" + (c0[0] + v3[0]).toFixed(1) + "," + (c0[1] + v3[1]).toFixed(1) + '" style="fill:none;stroke:' + col(it.c, "text2") + ';stroke-width:1.3"/>');
+        free.push('<path d="M' + (c0[0] + u[0]).toFixed(1) + "," + (c0[1] + u[1]).toFixed(1) + "L" + (c0[0] + u[0] + v3[0]).toFixed(1) + "," + (c0[1] + u[1] + v3[1]).toFixed(1) + "L" + (c0[0] + v3[0]).toFixed(1) + "," + (c0[1] + v3[1]).toFixed(1) + '"' + sty({ s: col(it.c, "text2"), w: 1.3 }) + "/>");
         return;
       }
       if (it.pt) {
         var pp = it.pt, pr = num(it.r, 3.6), pc = col(it.c, "accent2");
-        s += '<circle cx="' + X(pp[0]).toFixed(1) + '" cy="' + Y(pp[1]).toFixed(1) + '" r="' + pr + '" style="' + (it.open ? "fill:var(--s1);" : "fill:" + pc + ";") + "stroke:" + pc + ';stroke-width:1.8"/>';
+        s += '<circle cx="' + X(pp[0]).toFixed(1) + '" cy="' + Y(pp[1]).toFixed(1) + '" r="' + pr + '"' + sty({ f: it.open ? "var(--s1)" : pc, s: pc, w: 1.8 }) + "/>";
         if (it.label) s += text(X(pp[0]), Y(pp[1]), it.label, { pos: it.pos || "ne", c: it.lc || it.c || "text", i: it.i !== false, b: it.b, size: it.size, dx: it.dx, dy: it.dy });
         free.push(s); return;
       }
@@ -291,7 +300,7 @@
         var isV = it.vline != null, vv2 = isV ? X(it.vline) : Y(it.hline);
         var ln2 = isV ? '<line x1="' + vv2.toFixed(1) + '" y1="' + pad.t + '" x2="' + vv2.toFixed(1) + '" y2="' + (pad.t + ph) + '"'
           : '<line x1="' + pad.l + '" y1="' + vv2.toFixed(1) + '" x2="' + (pad.l + pw) + '" y2="' + vv2.toFixed(1) + '"';
-        free.push(ln2 + ' style="stroke:' + col(it.c, "danger") + ";stroke-width:" + num(it.w, 1.3) + ";stroke-dasharray:" + (it.dash === false ? "none" : "4 4") + '"/>');
+        free.push(ln2 + sty({ s: col(it.c, "danger"), w: num(it.w, 1.3), d: it.dash === false ? null : "4 4" }) + "/>");
         if (it.label) free.push(isV ? text(vv2, pad.t + 4, it.label, { pos: "e", c: it.c || "danger", i: true, size: 11.5 }) : text(pad.l + pw - 4, vv2, it.label, { pos: "n", c: it.c || "danger", i: true, size: 11.5, dx: -10 }));
         return;
       }
@@ -300,7 +309,7 @@
         var dxT = tp2[0] - tp1[0], dyT = tp2[1] - tp1[1], lenT = Math.hypot(dxT, dyT) || 1, nxT = -dyT / lenT * 5, nyT = dxT / lenT * 5;
         for (var k = 0; k < cnt; k++) {
           var tt = 0.5 + (k - (cnt - 1) / 2) * 0.06, cxT = tp1[0] + dxT * tt, cyT = tp1[1] + dyT * tt;
-          free.push('<line x1="' + (cxT - nxT).toFixed(1) + '" y1="' + (cyT - nyT).toFixed(1) + '" x2="' + (cxT + nxT).toFixed(1) + '" y2="' + (cyT + nyT).toFixed(1) + '" style="stroke:' + col(it.c, "text2") + ';stroke-width:1.4"/>');
+          free.push('<line x1="' + (cxT - nxT).toFixed(1) + '" y1="' + (cyT - nyT).toFixed(1) + '" x2="' + (cxT + nxT).toFixed(1) + '" y2="' + (cyT + nyT).toFixed(1) + '"' + sty({ s: col(it.c, "text2"), w: 1.4 }) + "/>");
         }
         return;
       }
@@ -309,7 +318,7 @@
     var body = (defs.length ? "<defs>" + defs.join("") + "</defs>" : "") + out.join("") +
       (clipped.length ? '<g clip-path="url(#' + id + 'c)">' + clipped.join("") + "</g>" : "") + free.join("");
     var alt = spec.alt || spec.cap || "diagram";
-    var svg = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(alt) + '" style="width:100%;max-width:' + W + 'px;height:auto;display:block;margin:0 auto;overflow:visible">' + body + "</svg>";
+    var svg = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(alt) + '" class="k-fig-svg" style="--fg-maxw:' + W + 'px">' + body + "</svg>";
     return '<figure class="k-n-fig">' + svg + (spec.cap ? "<figcaption>" + (window.KOS.content ? KOS.content.inline(spec.cap) : esc(spec.cap)) + "</figcaption>" : "") + "</figure>";
   }
 

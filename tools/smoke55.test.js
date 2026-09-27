@@ -248,7 +248,9 @@ step("the page carries no petal backdrop, and loads only the Graphite families",
   const families = [...fonts[0].matchAll(/family=([^:&]+)/g)].map(m => m[1].replace(/\+/g, " ")).sort();
   assert(JSON.stringify(families) === JSON.stringify(["JetBrains Mono", "Newsreader", "Onest", "Shippori Mincho"]),
     "the page loads " + families.join(", ") + " — the design specifies Onest, JetBrains Mono, Shippori Mincho and Newsreader");
-  assert(!/"bg-flora"/.test(read("js/core/ui-hooks.js")), "the backdrop's hook row outlived the backdrop");
+  /* M14: the legacy-class bridge is retired — nothing derives hooks from a class */
+  assert(!fs.existsSync(path.join(ROOT, "js", "core", "ui-hooks.js")), "the legacy-class bridge js/core/ui-hooks.js is back");
+  assert(!/ui-hooks\.js/.test(read("index.html")), "index.html loads the retired legacy-class bridge");
 });
 
 step("the layer files exist, are linked in cascade order and each wraps one @layer", () => {

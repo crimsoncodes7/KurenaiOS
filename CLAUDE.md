@@ -117,7 +117,7 @@ non-navigation redraw path.
 | Assistant | `assistant-*.js` services and `js/modules/assistant.js` |
 | Shared image placement | `js/core/imagecrop.js` |
 | OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure) |
-| Behavioural hooks (`data-ui`/`data-state`/`data-intent`) for logic and tests | `KOS.ui` helpers in `js/core/ui.js`; legacy-class bridge `js/core/ui-hooks.js` (UI rebuild M1, see `docs/ui-rebuild/`) |
+| Behavioural hooks (`data-ui`/`data-state`/`data-intent`) for logic and tests | written by each view itself; `KOS.ui.state/hasState/hook` in `js/core/ui.js` (the M1 legacy-class bridge `ui-hooks.js` was retired at M14) |
 | Spec-spine presence (`#cols[data-tree]`) | `KOS.shell.tree()` in `js/core/ui.js` |
 | Presentation layer (UI rebuild; one `@layer` per file, order declared in `tokens.css`) | `css/tokens.css`, `base.css`, `layout.css`, `components.css`, `css/views/*.css`, `themes.css`; `tools/lib/css.js` `pending()` gates each layer's design contracts |
 | Rebuild guards | `tools/smoke55.test.js` (legacy vocabulary `tools/ui-legacy-classes.json`, rebuilt files `tools/ui-migration.json`), `tools/smoke56.test.js` (render purity and control parity against `tools/baselines/render-purity.json`) |
@@ -568,7 +568,10 @@ source comments and audit notes refer to it.
 
 72. `mobile-shell.js` moves canonical search, filter and section controls into
     dialogs and restores them. JS-dependent hiding is gated by
-    `.mobile-shell-ready` so the unenhanced fallback stays usable.
+    `:root[data-shell="ready"]`, set only after every enhancement mounted, so
+    the unenhanced fallback stays usable. Its sheets are the shared
+    `k-dialog`, its section strip the shared `k-scroller`, and every node
+    carries its own hook.
 73. Search behaviour remains in the canonical controller. Mobile presentation may
     call only `dismissSearch({preserveQuery:true})` and `onSearchChosen()`; it never
     races result click/Enter or duplicates routing/ranking.

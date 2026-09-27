@@ -29,7 +29,7 @@
     var tabs = KOS.workspaceTabs([
       ["Due today", "review", { tab: "due" }, "due"],
       ["Card stats", "review", { tab: "stats" }, "stats"]
-    ], panel, "Review pages", "review-tabs");
+    ], panel, "Review pages");
     tabs.setAttribute("data-ui", (tabs.getAttribute("data-ui") || "") + " review.tabs");
 
     main.appendChild(KOS.ui.pageHeader({ kicker: copy[0], title: "Review", sub: copy[1], actions: [tabs] }));

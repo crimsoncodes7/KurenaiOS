@@ -300,7 +300,7 @@ step("all four vaults share the same compact status/list disclosure seam", () =>
     "vault disclosure is module-specific");
   assert(/slot\.appendChild\(node\)/.test(shellSrc) && /origin\.insertBefore\(node/.test(shellSrc),
     "compact filters are cloned rather than moved and restored");
-  assert(shellSrc.indexOf('classList.add("mobile-shell-ready")') > shellSrc.indexOf("syncShell();"),
+  assert(shellSrc.indexOf('setAttribute("data-shell", "ready")') > shellSrc.indexOf("syncShell();"),
     "the no-JS fallback is disabled before mobile-shell setup succeeds");
 });
 

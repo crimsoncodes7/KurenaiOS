@@ -99,6 +99,18 @@ display: none;
 /* the phone search sheet's trigger (mobile-shell.js); the desktop tiers
    have the search pill itself */
 #mobile-search-trigger { display: none; }
+/* the compact shell's sheets (mobile-shell.js): the shared dialog, a bottom
+   sheet at the phone tier. Provisional until the phone design (roadmap 3.1)
+   restyles them; it keeps the hooks. */
+.k-msheet { display: flex; flex-direction: column; gap: var(--sp-16); }
+.k-msheet-list { display: flex; flex-direction: column; gap: var(--sp-6); }
+.k-msheet-dest { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--sp-12); min-block-size: var(--hit-coarse); padding: var(--sp-10) var(--sp-12); border-radius: var(--r-12); background: var(--s2); color: var(--text); text-align: start; }
+.k-msheet-dest:hover, .k-msheet-dest[data-state~="current"] { background: var(--s3); }
+.k-msheet-glyph { font-family: var(--font-kanji); font-size: var(--fs-18); color: var(--crimson); }
+.k-msheet-copy { display: flex; flex-direction: column; gap: var(--sp-2); min-inline-size: 0; }
+.k-msheet-copy > span { font-size: var(--fs-12); color: var(--muted); }
+.k-msheet-current { font-size: var(--fs-11); color: var(--muted); }
+.k-msheet-slot { min-inline-size: 0; }
 /* a review account (store.js KOS.dataMode) names itself in the header */
 .k-datamode { white-space: nowrap; cursor: pointer; }
 .k-bell-badge { font-size: 0; }

@@ -4,82 +4,47 @@
   window.KOS = window.KOS || {};
 
   /* ============================================================
-     HOOKS AND STATE  (UI rebuild M1)
+     HOOKS AND STATE  (UI rebuild M1; the bridge retired at M14)
 
      Behaviour and tests find the DOM through data-ui / data-state /
      data-intent, never through a presentation class (docs/ui-rebuild/
-     view-contracts.md §0.1). Legacy markup still carries classes, so these
-     helpers derive the attributes from them through the tables in
-     js/core/ui-hooks.js. Each attribute is a space-separated token list,
-     matched with [data-ui~="name"].
+     view-contracts.md §0.1). Every view writes its hooks itself; the
+     legacy-class table (js/core/ui-hooks.js) that derived them for the
+     pre-rebuild markup is gone. Each attribute is a space-separated token
+     list, matched with [data-ui~="name"].
      ============================================================ */
   function tokens(v) { return v ? String(v).trim().split(/\s+/).filter(Boolean) : []; }
-  function derived(cls) {
-    var hooks = [], states = [], intents = [];
-    var H = KOS.ui.LEGACY_HOOKS || {}, S = KOS.ui.LEGACY_STATE || [], I = KOS.ui.LEGACY_INTENT || [];
-    tokens(cls).forEach(function (c) {
-      if (Object.prototype.hasOwnProperty.call(H, c)) hooks = hooks.concat(H[c]);
-      if (S.indexOf(c) !== -1) states.push(c);
-      if (I.indexOf(c) !== -1) intents.push(c);
-    });
-    return { "data-ui": hooks, "data-state": states, "data-intent": intents };
-  }
-  /* move a node's derived attributes from what oldCls implied to what newCls
-     implies, leaving any token that was set explicitly untouched */
-  function syncHooks(node, oldCls, newCls) {
-    if (!node || node.nodeType !== 1) return node;
-    var was = derived(oldCls), now = derived(newCls);
-    ["data-ui", "data-state", "data-intent"].forEach(function (attr) {
-      var drop = was[attr].filter(function (t) { return now[attr].indexOf(t) === -1; });
-      var have = tokens(node.getAttribute(attr)).filter(function (t) { return drop.indexOf(t) === -1; });
-      now[attr].forEach(function (t) { if (have.indexOf(t) === -1) have.push(t); });
-      if (have.length) node.setAttribute(attr, have.join(" "));
-      else node.removeAttribute(attr);
-    });
+  /* className = … : sets the class (setAttribute: SVG's className is not a
+     string); hooks are the markup's own and are left alone */
+  function setClass(node, cls) {
+    node.setAttribute("class", cls);
     return node;
   }
-  /* className = … for legacy code: sets the class and keeps the hooks true */
-  function setClass(node, cls) {
-    var old = node.getAttribute("class") || "";
-    node.setAttribute("class", cls);   /* setAttribute: SVG's className is not a string */
-    return syncHooks(node, old, cls);
-  }
-  /* classList.toggle(word, on) for a state word: the class (for the legacy
-     stylesheet) and the data-state token move together. Returns the state. */
+  /* a state word: the class (presentation) and the data-state token move
+     together. Returns the state. */
   function state(node, word, on) {
     if (!node) return false;
-    var old = node.getAttribute("class") || "";
     var val = node.classList.toggle(word, on === undefined ? undefined : !!on);
-    syncHooks(node, old, node.getAttribute("class") || "");
-    if (val && (KOS.ui.LEGACY_STATE || []).indexOf(word) === -1) {
-      /* a state word the table does not list still reaches data-state */
-      var have = tokens(node.getAttribute("data-state"));
-      if (have.indexOf(word) === -1) { have.push(word); node.setAttribute("data-state", have.join(" ")); }
-    } else if (!val) {
-      var rest = tokens(node.getAttribute("data-state")).filter(function (t) { return t !== word; });
-      if (rest.length) node.setAttribute("data-state", rest.join(" ")); else node.removeAttribute("data-state");
-    }
+    var have = tokens(node.getAttribute("data-state")).filter(function (t) { return t !== word; });
+    if (val) have.push(word);
+    if (have.length) node.setAttribute("data-state", have.join(" "));
+    else node.removeAttribute("data-state");
     return val;
   }
   function hasState(node, word) { return !!node && tokens(node.getAttribute("data-state")).indexOf(word) !== -1; }
-  /* markup that arrived through innerHTML: derive hooks for the subtree */
-  function hookify(root) {
-    if (!root || !root.querySelectorAll) return root;
-    if (root.nodeType === 1 && root.hasAttribute("class")) syncHooks(root, "", root.getAttribute("class"));
-    root.querySelectorAll("[class]").forEach(function (n) { syncHooks(n, "", n.getAttribute("class")); });
-    return root;
-  }
+  /* markup that arrived through innerHTML carries its own hooks; kept as a
+     seam for callers, it derives nothing now */
+  function hookify(root) { return root; }
   /* the selector for a hook — for code that queries: KOS.ui.hook("vault.card") */
   function hook(name) { return '[data-ui~="' + name + '"]'; }
 
   function el(tag, attrs, children) {
     var node = document.createElement(tag);
-    var cls = null, html = false;
     if (attrs) {
       Object.keys(attrs).forEach(function (k) {
-        if (k === "class") { node.className = attrs[k]; cls = attrs[k]; }
+        if (k === "class") node.className = attrs[k];
         else if (k === "text") node.textContent = attrs[k];
-        else if (k === "html") { node.innerHTML = attrs[k]; html = true; }
+        else if (k === "html") node.innerHTML = attrs[k];
         else if (k.slice(0, 2) === "on") node.addEventListener(k.slice(2), attrs[k]);
         else if (k === "style") node.setAttribute("style", attrs[k]);
         /* Phase F: `title: opts.hint || null` is the house idiom for an
@@ -91,9 +56,6 @@
         else node.setAttribute(k, attrs[k]);
       });
     }
-    /* after the loop, so an explicit data-ui/data-state is extended, not lost */
-    if (cls) syncHooks(node, "", cls);
-    if (html) hookify(node);
     (children || []).forEach(function (c) {
       if (c === null || c === undefined) return;
       node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
@@ -185,9 +147,8 @@
     opts = opts || {};
     var box = overlay.querySelector("[data-ui~='ui.dialog'], [data-ui~='ui.confirm'], [data-dialog-box]") || overlay;
     var restoreTo = document.activeElement;
-    /* UI rebuild bridge: a modal built by a view that is not rebuilt yet
-       still arrives with legacy classes; give it the dialog frame so it is
-       positioned and legible. Rebuilt dialogs already carry these. */
+    /* every dialog gets the shared frame and its hooks, however it was
+       built — idempotent for markup that already carries them */
     overlay.classList.add("k-dialog-overlay");
     if (box !== overlay) box.classList.add("k-dialog");
     /* the hooks every dialog carries, however it was built */
@@ -544,8 +505,10 @@
       planner: [["Budget Planner", "wishlist"], ["Goals", "goals"]],
       sync: [["AniList", "aniprofile"], ["VNDB", "vndbprofile"], ["Sync & Import", "mediasync"]]
     };
-    return KOS.workspaceTabs(groups[area], current,
-      area === "planner" ? "Planner pages" : "Sync pages", "collection-workspace-tabs");
+    var tabs = KOS.workspaceTabs(groups[area], current,
+      area === "planner" ? "Planner pages" : "Sync pages");
+    tabs.setAttribute("data-ui", tabs.getAttribute("data-ui") + " coll.workspace-tabs");
+    return tabs;
   };
 
   /* ============================================================

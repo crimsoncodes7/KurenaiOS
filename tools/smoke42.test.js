@@ -163,12 +163,14 @@ step("the phone tier still re-homes the shell for touch", () => {
 console.log("== the Dialog primitive ==");
 
 function openTestDialog(opts) {
-  const overlay = el("div", { class: "modal-ov" });
-  const box = el("div", { class: "modal" }, [
-    el("div", { class: "modal-h" }, [el("b", { text: (opts && opts.title) || "Test dialog" })]),
-    el("input", { type: "text", class: "first-field" }),
-    el("button", { class: "btn", text: "Cancel" }),
-    el("button", { class: "btn danger", text: "Delete" })
+  /* rebuilt markup writes its own hooks (the M1 legacy-class bridge that
+     derived them from "modal-ov"/"modal" is retired, UI rebuild M14) */
+  const overlay = el("div", { class: "k-dialog-overlay", "data-ui": "ui.dialog-overlay" });
+  const box = el("div", { class: "k-dialog", "data-ui": "ui.dialog" }, [
+    el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [el("b", { text: (opts && opts.title) || "Test dialog" })]),
+    el("input", { type: "text", class: "k-input" }),
+    el("button", { class: "k-btn", text: "Cancel" }),
+    el("button", { class: "k-btn k-btn--danger", "data-intent": "danger", text: "Delete" })
   ]);
   overlay.appendChild(box);
   return KOS.ui.openDialog(overlay, opts);

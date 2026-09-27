@@ -1,7 +1,13 @@
 /* Kurenai OS — Category 7 Phase E: compact/mobile shell presentation.
    Routing, search ranking and the seven canonical rail buttons remain owned
    by ui.js/main.js/hub.js. This module only changes how those same controls
-   are presented when the sanctioned compact tiers are active. */
+   are presented when the sanctioned compact tiers are active.
+
+   UI rebuild M14: the sheets are the shared Graphite dialog (k-dialog-
+   overlay / k-dialog, a bottom sheet at the phone tier) and the section
+   strip is the shared k-scroller; every node carries its own data-ui hook,
+   so nothing here leans on the legacy-class table any more. The phone
+   design (roadmap 3.1) restyles these surfaces; it keeps these hooks. */
 (function () {
   "use strict";
 
@@ -27,8 +33,8 @@
     else if (query.addListener) query.addListener(fn);
   }
 
-  function overlayFor(box, className) {
-    var overlay = el("div", { class: "modal-ov mobile-shell-overlay " + className });
+  function overlayFor(box, sheet) {
+    var overlay = el("div", { class: "k-dialog-overlay", "data-ui": "ui.dialog-overlay", "data-sheet": sheet });
     overlay.appendChild(box);
     overlay.close = function () { overlay.remove(); };
     overlay.addEventListener("click", function (event) {
@@ -54,7 +60,6 @@
     KOS.ui.state(subnavWrap, "at-start", subnav.scrollLeft <= 1 || max <= 1);
     KOS.ui.state(subnavWrap, "at-end", subnav.scrollLeft >= max - 1 || max <= 1);
     KOS.ui.state(subnavWrap, "no-scroll", max <= 1);
-    subnavWrap.classList.toggle("hidden", subnav.hidden);
     subnavWrap.hidden = subnav.hidden;
   }
 
@@ -86,15 +91,16 @@
     if (!compact.matches) { unwrapSubnav(); return; }
     if (!subnavWrap) {
       subnavWrap = el("div", {
-        class: "subnav-scroller",
+        class: "k-scroller k-subnav-scroller",
+        "data-ui": "shell.subnav-scroller",
         "data-scroller": "true"
       });
       subnavPrev = el("button", {
-        type: "button", class: "u-scroller-arrow prev", text: "‹",
+        type: "button", class: "k-scroller-arrow", "data-ui": "ui.scroller-arrow", "data-edge": "start", text: "‹",
         "aria-label": "Earlier section destinations", tabindex: "-1"
       });
       subnavNext = el("button", {
-        type: "button", class: "u-scroller-arrow next", text: "›",
+        type: "button", class: "k-scroller-arrow", "data-ui": "ui.scroller-arrow", "data-edge": "end", text: "›",
         "aria-label": "Later section destinations", tabindex: "-1"
       });
       function page(direction) {
@@ -138,13 +144,14 @@
   var moreButton = el("button", {
     id: "mobile-more",
     type: "button",
-    class: "k-rail-item k-rail-more mobile-more",
+    class: "k-rail-item k-rail-more",
+    "data-ui": "shell.rail-more",
     "aria-label": "More destinations",
     "aria-haspopup": "dialog",
     "aria-expanded": "false"
   }, [
     el("span", { class: "k-rail-tile", lang: "ja", "aria-hidden": "true", text: "余" }),
-    el("span", { class: "k-rail-label lbl", text: "More" })
+    el("span", { class: "k-rail-label", "data-ui": "part.text", text: "More" })
   ]);
   rail.insertBefore(moreButton, rail.querySelector("[data-ui~='shell.rail-foot']"));
 
@@ -160,13 +167,15 @@
   function openMore() {
     if (!phone.matches || activeMoreOverlay) return;
     var first = null;
-    var list = el("div", { class: "mobile-sheet-list" });
+    var list = el("div", { class: "k-msheet-list" });
     hiddenRail.forEach(function (item) {
       if (!item.button) return;
       var current = item.button.matches('[data-state~="active"]');
       var destinationAttrs = {
         type: "button",
-        class: "mobile-sheet-destination" + (current ? " is-current" : ""),
+        class: "k-msheet-dest",
+        "data-ui": "shell.mobile-sheet-destination",
+        "data-state": current ? "current" : null,
         onclick: function () {
           activeMoreOverlay.close();
           item.button.click();
@@ -174,25 +183,25 @@
       };
       if (current) destinationAttrs["aria-current"] = "page";
       var destination = el("button", destinationAttrs, [
-        el("span", { class: "mobile-sheet-glyph", "aria-hidden": "true", text: item.glyph }),
-        el("span", { class: "mobile-sheet-copy" }, [
+        el("span", { class: "k-msheet-glyph", "aria-hidden": "true", text: item.glyph }),
+        el("span", { class: "k-msheet-copy" }, [
           el("b", { text: item.label }),
           el("span", { text: item.hint })
         ]),
-        current ? el("span", { class: "mobile-sheet-current", text: "Current" }) : null
+        current ? el("span", { class: "k-msheet-current", text: "Current" }) : null
       ].filter(Boolean));
       if (!first || current) first = destination;
       list.appendChild(destination);
     });
-    var close = el("button", { type: "button", class: "mini-btn mobile-sheet-close", text: "Close" });
-    var box = el("section", { class: "modal mobile-nav-sheet", "data-dialog-box": "true" }, [
-      el("div", { class: "mobile-sheet-head" }, [
-        el("div", {}, [el("span", { class: "eyebrow", text: "Navigate" }), el("h2", { text: "More destinations" })]),
+    var close = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "shell.sheet-close", text: "Close" });
+    var box = el("section", { class: "k-dialog k-msheet", "data-ui": "ui.dialog shell.mobile-nav-sheet", "data-dialog-box": "true" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("div", {}, [el("span", { class: "k-kicker", text: "Navigate" }), el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "More destinations" })]),
         close
       ]),
       list
     ]);
-    var overlay = overlayFor(box, "mobile-more-overlay");
+    var overlay = overlayFor(box, "more");
     activeMoreOverlay = overlay;
     close.addEventListener("click", function () { overlay.close(); });
     moreButton.setAttribute("aria-expanded", "true");
@@ -209,7 +218,7 @@
 
   var railObserver = new MutationObserver(updateMoreState);
   hiddenRail.forEach(function (item) {
-    if (item.button) railObserver.observe(item.button, { attributes: true, attributeFilter: ["class"] });
+    if (item.button) railObserver.observe(item.button, { attributes: true, attributeFilter: ["class", "data-state"] });
   });
 
   /* ------------------------------------------------------------------
@@ -221,7 +230,8 @@
   var searchTrigger = el("button", {
     id: "mobile-search-trigger",
     type: "button",
-    class: "mobile-search-trigger",
+    class: "k-iconbtn",
+    "data-ui": "shell.search-trigger",
     "aria-label": "Search",
     "aria-haspopup": "dialog",
     "aria-expanded": "false",
@@ -246,21 +256,21 @@
   function openSearch() {
     if (!phone.matches) return false;
     if (activeSearchOverlay) { searchInput.focus(); return true; }
-    var close = el("button", { type: "button", class: "mini-btn mobile-sheet-close", text: "Close" });
-    var slot = el("div", { class: "mobile-search-slot" });
+    var close = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "shell.sheet-close", text: "Close" });
+    var slot = el("div", { class: "k-msheet-slot" });
     slot.appendChild(searchbox);
-    var box = el("section", { class: "modal mobile-search-sheet", "data-dialog-box": "true" }, [
-      el("div", { class: "mobile-sheet-head" }, [
+    var box = el("section", { class: "k-dialog k-msheet", "data-ui": "ui.dialog shell.search-sheet", "data-dialog-box": "true" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
         /* "Find a topic" described the box as it was before Phase F, when
            it searched the specification and nothing else. The sheet is the
            same controller, so it reaches the same eight domains. */
-        el("div", {}, [el("span", { class: "eyebrow", text: "Everything you've studied and collected" }),
-          el("h2", { text: "Search" })]),
+        el("div", {}, [el("span", { class: "k-kicker", text: "Everything you've studied and collected" }),
+          el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Search" })]),
         close
       ]),
       slot
     ]);
-    var overlay = overlayFor(box, "mobile-search-overlay");
+    var overlay = overlayFor(box, "search");
     activeSearchOverlay = overlay;
     close.addEventListener("click", function () { overlay.close(); });
     searchTrigger.setAttribute("aria-expanded", "true");
@@ -339,17 +349,17 @@
     var node = opts.node;
     var origin = node.parentNode;
     var next = node.nextSibling;
-    var close = el("button", { type: "button", class: "mini-btn mobile-sheet-close", text: "Close" });
-    var slot = el("div", { class: "mobile-sheet-slot " + opts.slotClass });
+    var close = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "shell.sheet-close", text: "Close" });
+    var slot = el("div", { class: "k-msheet-slot", "data-slot": opts.slot });
     slot.appendChild(node);
-    var box = el("section", { class: "modal mobile-compact-sheet", "data-dialog-box": "true" }, [
-      el("div", { class: "mobile-sheet-head" }, [
-        el("div", {}, [el("span", { class: "eyebrow", text: opts.eyebrow }), el("h2", { text: opts.title })]),
+    var box = el("section", { class: "k-dialog k-msheet", "data-ui": "ui.dialog shell.compact-sheet", "data-dialog-box": "true" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("div", {}, [el("span", { class: "k-kicker", text: opts.eyebrow }), el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: opts.title })]),
         close
       ]),
       slot
     ]);
-    var overlay = overlayFor(box, "mobile-compact-overlay");
+    var overlay = overlayFor(box, "compact");
     activeCompactSheet = { overlay: overlay, origin: origin };
     close.addEventListener("click", function () { overlay.close(); });
     if (opts.trigger) opts.trigger.setAttribute("aria-expanded", "true");
@@ -377,7 +387,7 @@
       "aria-haspopup": "dialog",
       "aria-expanded": "false",
       onclick: function () {
-        openMovedSheet({ node: side, trigger: trigger, eyebrow: "Reminders", title: "Browse reminders", slotClass: "reminder-sheet-slot" });
+        openMovedSheet({ node: side, trigger: trigger, eyebrow: "Reminders", title: "Browse reminders", slot: "reminders" });
       }
     });
     grid.parentNode.insertBefore(trigger, grid);
@@ -397,7 +407,7 @@
       "aria-haspopup": "dialog",
       "aria-expanded": "false",
       onclick: function () {
-        openMovedSheet({ node: side, trigger: trigger, eyebrow: "Vault filters", title: "Status & custom lists", slotClass: "vault-sheet-slot" });
+        openMovedSheet({ node: side, trigger: trigger, eyebrow: "Vault filters", title: "Status & custom lists", slot: "vault" });
       }
     });
     mainCol.insertBefore(trigger, mainCol.firstChild);
@@ -491,8 +501,8 @@
   listenMedia(compact, syncShell);
   syncShell();
   /* CSS hides canonical compact side rails only after every enhancement
-     above has mounted successfully. A missing/failed module therefore
-     leaves the original filters visible and usable. */
-  document.body.classList.add("mobile-shell-ready");
+     above has mounted successfully (:root[data-shell="ready"]). A
+     missing/failed module therefore leaves the original filters visible
+     and usable. */
   document.documentElement.setAttribute("data-shell", "ready");
 })();
