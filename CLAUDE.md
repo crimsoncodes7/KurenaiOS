@@ -12,7 +12,8 @@ chronological diary here.
   and deployed.
 - Production: https://kurenai-os.pages.dev
 - Release source checkpoint: `3cf4596` (Graphite rebuild, review B third pass)
-- Runtime release: pending the deploy of this commit
+- Runtime release: `28ef508` — immutable deployment
+  https://443199c7.kurenai-os.pages.dev (27 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-graphite-1`
 - Required smoke gate: 56 / 56 suites.
