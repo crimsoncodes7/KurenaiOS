@@ -543,6 +543,90 @@
     return bar;
   }
 
+  var store = KOS.store;
+
+  /* ---------------- the Shrine's order for tied scores (roadmap 1.5) ----------------
+     When several favourites share a score, the user sets their order. It
+     is stored per score in the SYNCED state document,
+     state.media.shrine.order["<score>"] = [syncId, …] (syncId is the
+     cross-device identity, invariant 32), next to the hall note — the
+     Shrine's module/sort filters stay per device. The cloud merge takes an
+     order list whole (it is an ordering, not a set: an element-wise merge
+     could double or lose a title). Ranking by score reads it: listed titles
+     first in the stored order, then any title that joined the tier later,
+     in the incoming order — so a newly tied title joins the end. */
+  function scoreKey(score) {
+    var n = Number(score);
+    if (!isFinite(n) || n <= 0) return null;          // unrated titles have no tier
+    return String(Math.round(Math.min(10, n) * 10) / 10);
+  }
+  function entryKey(e) {
+    return e && e.syncId ? String(e.syncId) : (e && e.id != null ? "id:" + e.id : null);
+  }
+  function orderRoot() {
+    var sh = store.state.media && store.state.media.shrine;
+    return sh && sh.order && typeof sh.order === "object" ? sh.order : null;
+  }
+  function tierOrder(score) {
+    var k = scoreKey(score), o = orderRoot();
+    var list = k && o && Array.isArray(o[k]) ? o[k] : [];
+    return list.filter(function (x, i) { return typeof x === "string" && x && list.indexOf(x) === i; });
+  }
+  /* setTierOrder(score, ids) — ids are syncIds (or entries). An empty list
+     removes the tier's order. Returns the stored list, or null for an
+     unrated score. */
+  function setTierOrder(score, ids) {
+    var k = scoreKey(score);
+    if (!k) return null;
+    var clean = [];
+    (Array.isArray(ids) ? ids : []).forEach(function (x) {
+      var id = x && typeof x === "object" ? entryKey(x) : (x == null ? null : String(x));
+      if (id && clean.indexOf(id) === -1 && clean.length < 500) clean.push(id);
+    });
+    store.state.media = store.state.media || {};
+    var sh = store.state.media.shrine = store.state.media.shrine || { module: "", sort: "score", description: "" };
+    sh.order = sh.order && typeof sh.order === "object" ? sh.order : {};
+    if (clean.length) sh.order[k] = clean; else delete sh.order[k];
+    store.save();
+    return clean;
+  }
+  /* apply the stored orders to entries already ranked by score (best
+     first). Pure: a new array, nothing written. Only runs of EQUAL score
+     move, so the score ranking itself can never change. */
+  function applyTierOrder(entries) {
+    var out = [], i = 0, list = entries || [];
+    while (i < list.length) {
+      var k = scoreKey(list[i] && list[i].score), j = i + 1;
+      while (j < list.length && k && scoreKey(list[j] && list[j].score) === k) j++;
+      var run = list.slice(i, j);
+      if (k && run.length > 1) {
+        var order = tierOrder(k), rank = {};
+        order.forEach(function (id, n) { rank[id] = n; });
+        run = run.map(function (e, n) { return { e: e, n: n, r: rank[entryKey(e)] }; })
+          .sort(function (a, b) {
+            var ra = a.r == null ? Infinity : a.r, rb = b.r == null ? Infinity : b.r;
+            return ra - rb || a.n - b.n;
+          })
+          .map(function (x) { return x.e; });
+      }
+      Array.prototype.push.apply(out, run);
+      i = j;
+    }
+    return out;
+  }
+  /* the tied tiers of a ranked list — every score two or more titles share
+     — for the "Set order" control: [{score, key, entries}] best first */
+  function tiedTiers(entries) {
+    var ranked = applyTierOrder(entries), tiers = [], cur = null;
+    ranked.forEach(function (e) {
+      var k = scoreKey(e && e.score);
+      if (!k) { cur = null; return; }
+      if (!cur || cur.key !== k) { cur = { score: Number(k), key: k, entries: [] }; tiers.push(cur); }
+      cur.entries.push(e);
+    });
+    return tiers.filter(function (t) { return t.entries.length > 1; });
+  }
+
   KOS.media = {
     MODULES: MODULES,
     module: module_,
@@ -571,6 +655,15 @@
     dedupeVault: dedupeVault,
     mergeRows: mergeCluster,
     mirrorOpts: mirrorOpts,
-    protectedCardIds: protectedCardIds
+    protectedCardIds: protectedCardIds,
+    /* 1.5 the Shrine's order for tied scores */
+    shrineOrder: {
+      scoreKey: scoreKey,
+      entryKey: entryKey,
+      get: tierOrder,
+      set: setTierOrder,
+      apply: applyTierOrder,
+      tiers: tiedTiers
+    }
   };
 })();

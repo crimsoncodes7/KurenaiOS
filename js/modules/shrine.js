@@ -840,6 +840,9 @@
         return;
       }
 
+      /* ranked by score, titles that share one follow the user's own order
+         for that tier (roadmap 1.5); a newly tied title joins its end */
+      if (current.sort === "score") favourites = KOS.media.shrineOrder.apply(favourites);
       var total = favourites.length;
       /* a Gold Shop shrine style (shrine-gilded / -ink / -neon) is one
          attribute on the hall; the stylesheet does the rest */

@@ -88,6 +88,17 @@
      spec keys, not record ids, so they need no entry in RECORDS[].refs —
      re-keying a record never rewrites them. */
   var SET_FIELDS = { refs: true };
+  /* ORDERED lists merge whole: a changed list on both sides is one leaf
+     (the enclosing record's rule decides, else local), never element-wise —
+     merging an ordering position by position can double one item and lose
+     another. Paths are prefixes: the Shrine's tie orders, one per score
+     (roadmap 1.5). */
+  var ATOMIC_PREFIX = ["media.shrine.order."];
+  function isAtomic(path) {
+    if (typeof path !== "string") return false;
+    for (var i = 0; i < ATOMIC_PREFIX.length; i++) if (path.indexOf(ATOMIC_PREFIX[i]) === 0) return true;
+    return false;
+  }
   function mergeSet(b, l, r) {
     var bs = Array.isArray(b) ? b : [];
     var gone = {};
@@ -389,7 +400,7 @@
       });
       return out;
     }
-    if (Array.isArray(l) && Array.isArray(r)) {
+    if (Array.isArray(l) && Array.isArray(r) && !isAtomic(path)) {
       if (isRecordArray(l) && isRecordArray(r)) {
         return mergeRecords(Array.isArray(b) ? b : null, l, r, { id: "id" }, ctx);
       }

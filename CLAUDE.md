@@ -17,7 +17,7 @@ chronological diary here.
   https://12e5c6df.kurenai-os.pages.dev (27 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-graphite-3`
-- Required smoke gate: 59 / 59 suites.
+- Required smoke gate: 60 / 60 suites.
 
 ## Run, test and deploy
 
@@ -27,7 +27,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..59}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..60}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -276,7 +276,10 @@ source comments and audit notes refer to it.
     cross-reference to the state means adding it there. Topic links (`refs`,
     invariant 26e) are spec keys, not record ids, so they are not listed
     there; a record field named in `SET_FIELDS` (`refs`) merges as a set
-    against the base instead of as one leaf.
+    against the base instead of as one leaf. An ORDERED list under an
+    `ATOMIC_PREFIX` path (the Shrine's tie orders) merges whole — a conflict
+    is one leaf — because an element-wise merge of an ordering can double
+    one item and drop another.
 33b. `focus.active` is per-device like `state.ui`: a running timer is a live
     process, not data, and must never land on another device.
 34. Empty remote state cannot overwrite meaningful local state. First link is
@@ -368,6 +371,12 @@ source comments and audit notes refer to it.
 56. All four vaults use the shared `medview` shell/editor/filter/action contracts.
 57. Collection Overview summarises the vaults without becoming a second vault or
     duplicating provider controls.
+57a. The Shrine's order for tied scores is per score in the SYNCED state
+    document, `state.media.shrine.order["<score>"] = [syncId, …]`
+    (`KOS.media.shrineOrder`); only the Shrine's module/sort filters are per
+    device. It moves titles only inside a run of EQUAL scores, and only under
+    the score sort: stored titles first in their order, then any title that
+    joined the tier later, at its end. `apply()` is a pure read.
 58. Collection filters and action surfaces move canonical nodes on compact screens;
     they do not clone state or logic.
 59. Image/hero actions remain with the owning editor or toolbar, not every image.

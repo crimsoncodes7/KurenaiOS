@@ -141,10 +141,10 @@ Install test-only dependencies once:
 npm install jsdom fake-indexeddb
 ```
 
-All 59 smoke suites are the release gate:
+All 60 smoke suites are the release gate:
 
 ```sh
-for i in "" {2..59}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..60}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Also run:
