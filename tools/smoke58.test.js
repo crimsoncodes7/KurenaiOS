@@ -22,6 +22,10 @@
          ledger (history) and every other subject are untouched.
      F · NO GOVERNOR TRAFFIC, and two devices' edits to different units
          both survive the merge.
+     G · THE DESK (frames 18a–18c). The IT desk draws the aggregate and the
+         units table from hub.it; a mark being typed is a preview that
+         writes nothing, Save writes the unit through its gate, and a full
+         set reads as a final result with how close it was.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -197,6 +201,41 @@ step("F · two devices editing different units both survive the merge", () => {
   remote.itUnits.target = "Distinction";
   const out = KOS.cloudmerge.merge(base, local, remote).doc.itUnits;
   eq([out.units.F201.raw, out.units.F204.raw, out.target], [48, 20, "Distinction"], "per unit, per field");
+});
+
+/* ============ G · the desk ============ */
+step("G · the desk previews a typed mark, writes only on Save, and never pays", () => {
+  reseed();
+  const doc = app.window.document, $ = s => doc.querySelector(s);
+  KOS.show("subject", "it");
+  assert($("[data-ui~='it.agg']") && $("[data-ui~='it.units']"), "the IT desk's two blocks are missing");
+  assert(!$("#main").textContent.includes("F203") && !$("#main").textContent.includes("F205"), "a unit not taken is printed");
+  assert(/Distinction\*/.test($("[data-ui~='it.need']").textContent), "the need line names the target");
+  const g = KOS.store.state.governor, xp0 = g.xp, gold0 = g.gold, n0 = KOS.sessions.all().length;
+  $("[data-code='F201'] [data-ui~='it.enter']").click();
+  const inp = $("[data-ui~='it.mark-in']");
+  inp.value = "47";
+  inp.dispatchEvent(new app.window.Event("input", { bubbles: true }));
+  assert(/Preview/i.test($("[data-ui~='it.agg']").textContent), "typing does not preview");
+  eq(KOS.itUnits.get("F201").status, "sitting", "a preview wrote the store");
+  eq($("[data-code='F201'] [data-ui~='it.row-grade']").textContent, "Merit", "47 / 60 is a unit Merit (Distinction is 48)");
+  inp.dispatchEvent(new app.window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  eq([KOS.itUnits.get("F201").status, KOS.itUnits.get("F201").raw], ["done", 47], "Save wrote the unit");
+  eq([g.xp, g.gold, KOS.sessions.all().length], [xp0, gold0, n0], "a result made Governor traffic (invariant 26f)");
+});
+
+step("G · with every unit in, the desk reads final and how close it was", () => {
+  reseed();
+  KOS.itUnits.setUnit("F201", { raw: 47 });
+  KOS.itUnits.setUnit("F204", { ums: 52 });
+  KOS.itUnits.setUnit("F206", { ums: 49 });
+  const c = KOS.hub.it.close();
+  const agg = KOS.hub.it.aggregate();
+  eq([agg.complete, agg.banked, agg.grade], [true, 253, "Distinction"], "the final total");
+  eq([c.over, c.next.grade, c.next.gap, c.best.code, c.lowest.code], [13, "Distinction*", 17, "F202", "F201"], "how close");
+  KOS.show("subject", "it");
+  assert(/Final/i.test(app.window.document.querySelector("[data-ui~='it.agg']").textContent), "the aggregate does not say final");
+  assert(app.window.document.querySelector("[data-ui~='it.close']"), "no how-close line on a final result");
 });
 
 function KOS_DATA() { return { it: app.window.KOS_DATA.it, grades: app.window.KOS_IT_GRADES }; }
