@@ -51,7 +51,7 @@
     sessions: [],
     /* study session log — the data backbone streaks/HP/XP/RAG read from:
        {id, ts, date:"YYYY-MM-DD", type:"flashcards|due-review|quiz|exam|todo|focus",
-        subject, ref, dur (seconds|null), metrics:{...}} */
+        subject, ref, refs?:["sid:ref"], dur (seconds|null), metrics:{...}} */
 
     governor: {
       hp: 100, gold: 0, xp: 0,
@@ -94,7 +94,7 @@
           recur:"none|daily|weekly|fortnightly|monthly|yearly",
           recurUntil:null|"YYYY-MM-DD",
           alerts:[minutes before],
-          paper, room, topics:[{subject,ref}],   // exam
+          paper, room, refs:["sid:ref"],         // exam (1.1: was topics pairs)
           durationMins:null|int,                 // exam + study block
           priority:0-3, status, showInCountdown,  // deadline
           assignmentId:null|int,                 // study block → assignment LINK
@@ -119,7 +119,7 @@
       items: []
       /* {id,title,subject,type,description,assigned,due,dueTime,status,
           progress,priority,estimateMins,actualMins,subtasks[{id,text,done}],
-          notes,topics[{subject,ref}],alerts[minutes],alerted{},
+          notes,refs["sid:ref"],alerts[minutes],alerted{},
           showInCalendar,showInCountdown,rewarded,created,updatedAt,
           submittedAt,completedAt} */
     },
@@ -143,7 +143,7 @@
     focus: {
       active: null,                    // running-session snapshot (survives reload → restored paused)
       nextId: 1,
-      lastConfig: { mode: "pomodoro", workMin: 25, breakMin: 5, subject: "", ref: "" },
+      lastConfig: { mode: "pomodoro", workMin: 25, breakMin: 5, subject: "", ref: "", refs: [] },
       penalizeDistractions: true       // tab-switch HP nick, opt-out in Focus Timer setup
     },
 
@@ -184,8 +184,10 @@
       nextId: 1,
       entries: []
       /* exam/paper records (FR-3.4/3.5 share one shape, discriminated by kind):
-         {id, kind:"exam"|"paper", subject, ref|null, topic, paper, marks, max,
-          grade, date:"YYYY-MM-DD", well, badly, notes, reviewed:bool, added} */
+         {id, kind:"exam"|"paper", subject, refs:["sid:ref"], ref|null, topic,
+          paper, marks, max, grade, date:"YYYY-MM-DD", well, badly, notes,
+          reviewed:bool, added, updatedAt} — core/tracker.js is the gate;
+          subject/ref are derived from refs (roadmap 1.1) */
     },
 
     resources: {

@@ -541,9 +541,10 @@ step("cancelling an edit leaves the record untouched", async () => {
 step("switching a type clears the fields that type does not own", () => {
   reset();
   const ex = C().addEvent({ title: "was an exam", date: T(), type: "exam", paper: "Paper 1", room: "Hall",
-    durationMins: 90, topics: [{ subject: "maths", ref: "A1" }] });
+    durationMins: 90, topics: [{ subject: "maths", ref: "1.1" }] });
+  if (ex.refs.join() !== "maths:1.1") throw new Error("the pre-1.1 topic pair was not stored as a link: " + JSON.stringify(ex.refs));
   const now = C().updateEvent(ex.id, { type: "personal", paper: "", room: "", topics: [], durationMins: null });
-  if (now.paper || now.room || now.topics.length || now.durationMins)
+  if (now.paper || now.room || now.refs.length || now.durationMins)
     throw new Error("stale exam data survived the type change");
 });
 

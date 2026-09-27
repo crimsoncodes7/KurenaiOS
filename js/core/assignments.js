@@ -74,6 +74,15 @@
   function nowHM() { var d = new Date(); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
   function isDate(s) { return !!s && /^\d{4}-\d{2}-\d{2}$/.test(s); }
 
+  /* the topic links a record carries, whichever shape it is stored in */
+  function refsOf(rec) {
+    if (!rec) return [];
+    if (Array.isArray(rec.refs)) return KOS.spec.normaliseRefs(rec.refs, { max: 20 });
+    return KOS.spec.normaliseRefs(rec.topics || [], { max: 20 });
+  }
+  /* the pair form older screens draw: [{subject, ref}] */
+  function topicsOf(rec) { return KOS.spec.pairs(refsOf(rec)); }
+
   /* ---------------- the single schema gate ----------------
      Every write goes through normalise(), so a field not listed here cannot
      enter the store and a field added here reaches every record. */
@@ -95,15 +104,12 @@
        assignment sitting at 40% would make every derived surface lie */
     if (status === "complete" || status === "submitted") prog = 100;
 
-    var topics = (patch.topics != null ? patch.topics : b.topics) || [];
-    if (!Array.isArray(topics)) topics = [];
-    topics = topics
-      .map(function (t) { return t && t.subject && t.ref ? { subject: String(t.subject), ref: String(t.ref) } : null; })
-      .filter(Boolean)
-      .filter(function (t, i, a) {
-        return a.findIndex(function (x) { return x.subject === t.subject && x.ref === t.ref; }) === i;
-      })
-      .slice(0, 20);
+    /* roadmap 1.1: topic links are "sid:ref" strings (KOS.spec), a unit or
+       parent pick kept as picked. A pre-1.1 record's `topics` pairs are
+       read through refsOf() and rewritten here on its next write. */
+    var refs = patch.refs != null ? KOS.spec.normaliseRefs(patch.refs, { max: 20 })
+      : patch.topics != null ? KOS.spec.normaliseRefs(patch.topics, { max: 20 })
+      : refsOf(b);
 
     var alerts = (patch.alerts != null ? patch.alerts : b.alerts) || [];
     if (!Array.isArray(alerts)) alerts = [];
@@ -140,7 +146,7 @@
       actualMins: mins(patch.actualMins, b.actualMins || 0),
       subtasks: subs,
       notes: String(patch.notes != null ? patch.notes : b.notes || ""),
-      topics: topics,
+      refs: refs,
       alerts: alerts,
       alerted: b.alerted || {},
       showInCalendar: patch.showInCalendar !== undefined ? !!patch.showInCalendar
@@ -462,7 +468,22 @@
     return fired;
   }
 
+  /* one-time pass (boot): pre-1.1 `topics` pairs become `refs`. Only the
+     link field moves — a migration is not an edit, so updatedAt stays. */
+  function migrate() {
+    var changed = 0;
+    A().items.forEach(function (rec) {
+      if (Array.isArray(rec.refs) && rec.topics === undefined) return;
+      rec.refs = refsOf(rec);
+      delete rec.topics;
+      changed++;
+    });
+    if (changed) store.save();
+    return changed;
+  }
+
   KOS.assignments = {
+    refsOf: refsOf, topicsOf: topicsOf, migrate: migrate,
     all: all, get: get, add: add, update: update, remove: remove,
     setStatus: setStatus, addEffort: addEffort,
     subAdd: subAdd, subToggle: subToggle, subRemove: subRemove, nextSubtask: nextSubtask,

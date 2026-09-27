@@ -67,12 +67,14 @@ step("create stores every field the brief names", () => {
   });
   if (!a) throw new Error("create failed");
   ["id", "title", "subject", "type", "description", "assigned", "due", "dueTime", "status",
-   "progress", "priority", "estimateMins", "actualMins", "subtasks", "notes", "topics",
+   "progress", "priority", "estimateMins", "actualMins", "subtasks", "notes", "refs",
    "alerts", "showInCalendar", "showInCountdown", "created", "updatedAt"].forEach(k => {
     if (!(k in a)) throw new Error("field missing from the record: " + k);
   });
   if (a.alerts.join() !== "0,1440") throw new Error("alerts not normalised: " + a.alerts);
-  if (a.topics.length !== 1) throw new Error("topics lost");
+  /* roadmap 1.1: the pre-1.1 `topics` pair is accepted and stored as the
+     one "sid:ref" link list */
+  if (a.refs.join() !== "compsci:4.1.1.1" || "topics" in a) throw new Error("topic links not normalised: " + JSON.stringify(a.refs));
   if (!A().add({ title: "" })) { /* expected */ } else throw new Error("a blank title was accepted");
 });
 
@@ -377,7 +379,7 @@ step("backup carries every assignment field and restore returns them", async () 
   A().subAdd(a.id, "step one");
   const fp = () => A().all().map(x => [x.title, x.subject, x.type, x.description, x.assigned, x.due,
     x.dueTime, x.status, x.progress, x.priority, x.estimateMins, x.actualMins,
-    (x.subtasks || []).length, x.notes, JSON.stringify(x.topics), (x.alerts || []).join("/"),
+    (x.subtasks || []).length, x.notes, JSON.stringify(x.refs), (x.alerts || []).join("/"),
     x.showInCalendar, x.showInCountdown].join("|")).sort();
   const before = fp();
 

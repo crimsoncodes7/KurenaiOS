@@ -13,58 +13,8 @@
 
   function T() { return store.state.tracker; }
 
-  /* ---------------- data API ---------------- */
-  function add(data) {
-    var t = T();
-    var e = {
-      id: t.nextId++,
-      kind: data.kind === "paper" ? "paper" : "exam",
-      subject: data.subject || null,
-      ref: data.ref || null,
-      topic: data.topic || "",
-      paper: data.paper || "",
-      marks: data.marks != null ? data.marks : null,
-      max: data.max != null ? data.max : null,
-      grade: data.grade || "",
-      date: data.date || KOS.srs.todayISO(),
-      well: data.well || "",
-      badly: data.badly || "",
-      notes: data.notes || "",
-      reviewed: !!data.reviewed,
-      added: Date.now()
-    };
-    t.entries.push(e);
-    store.save();
-    /* study evidence → session log (FR-3.2) */
-    KOS.sessions.log({
-      type: "tracker", subject: e.subject, ref: e.ref,
-      metrics: { kind: e.kind, marks: e.marks, max: e.max,
-        pct: pct(e), grade: e.grade, title: e.topic || e.paper }
-    });
-    return e;
-  }
-  function update(id, patch) {
-    var e = T().entries.find(function (x) { return x.id === id; });
-    if (!e) return null;
-    Object.keys(patch).forEach(function (k) { e[k] = patch[k]; });
-    store.save();
-    return e;
-  }
-  function remove(id) {
-    var t = T();
-    var i = t.entries.findIndex(function (x) { return x.id === id; });
-    if (i !== -1) { t.entries.splice(i, 1); store.save(); }
-  }
-  function pct(e) {
-    return e.marks != null && e.max ? Math.round(100 * e.marks / e.max) : null;
-  }
-  /* topic-linked results for the RAG auto-score */
-  function forRef(sid, ref) {
-    return T().entries.filter(function (e) { return e.subject === sid && e.ref === ref; });
-  }
-  function forSubject(sid) {
-    return T().entries.filter(function (e) { return e.subject === sid; });
-  }
+  /* the record and its one normaliser live in core/tracker.js */
+  var add = KOS.tracker.add, update = KOS.tracker.update, remove = KOS.tracker.remove, pct = KOS.tracker.pct;
 
   var HUE = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" };
   var SHORT = { compsci: "CS", maths: "Maths", it: "IT" };
@@ -353,5 +303,4 @@
     render();
   };
 
-  KOS.tracker = { add: add, update: update, remove: remove, pct: pct, forRef: forRef, forSubject: forSubject };
 })();

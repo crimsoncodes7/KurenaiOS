@@ -17,7 +17,7 @@ chronological diary here.
   https://12e5c6df.kurenai-os.pages.dev (27 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-graphite-3`
-- Required smoke gate: 56 / 56 suites.
+- Required smoke gate: 57 / 57 suites.
 
 ## Run, test and deploy
 
@@ -27,7 +27,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..56}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..57}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -104,6 +104,8 @@ non-navigation redraw path.
 | Hash URL/history | `js/core/router.js` |
 | Cross-domain search | `js/core/search.js`; presentation in `hub.js`/`mobile-shell.js` |
 | Study content and engines | `content.js`, `hub.js`, `js/engines/` |
+| Specification tree queries and stored topic links (`refs`) | `js/core/spec.js` (`KOS.spec`) |
+| Exams & Papers record and its normaliser | `js/core/tracker.js` (`KOS.tracker`); page `js/modules/tracker.js` |
 | User edits to the curriculum and the study editor | `js/core/edits.js`, `js/modules/editor.js` |
 | SM-2, sessions and rewards | `srs.js`, `sessions.js`, `governor.js` |
 | Calendar/reminders/assignments/Focus | matching modules in `js/modules/` |
@@ -140,6 +142,8 @@ source comments and audit notes refer to it.
    still counts as activity for the day-drain check.
 4a. `KOS.governor.focusAward({complete, mins, pauses})` is the one pure definition
    used by previews and payment; the completion screen reports `lastAward()`.
+   A Focus session links ONE subject: its `refs` may name several topics in
+   it, and `ref` is the first leaf they cover.
 4b. A Focus session is logged and paid before its review opens. Review may annotate
    that record and linked work but must never log or pay again.
 4c. Page hide banks the live clock with `KOS.store.flush()`. Reload/navigation is
@@ -217,6 +221,15 @@ source comments and audit notes refer to it.
     `{x,y,zoom}` separately; cancel/reset do not write.
 26d. Study statistics and formatting are derived once in `hub.js`; every surface
     reads the same functions and a bar describes the value printed beside it.
+26e. A stored topic link is a `"sid:ref"` string, and a record's links are ONE
+    field, `refs`, passed through `KOS.spec.normaliseRefs()` by the owner's
+    normaliser (assignments, calendar events, Exams & Papers, Focus sessions
+    and the session ledger). A unit or parent pick is stored as picked and
+    read as its leaves (`KOS.spec.resolve()`); an unknown ref is dropped and
+    an ambiguous bare ref is never guessed. Where an older reader needs one
+    topic, `subject`/`ref` are DERIVED from `refs` (the first leaf) on every
+    write. Pre-1.1 shapes (`topics` pairs, a lone `ref`) are migrated once at
+    boot and stay readable through each owner's `refsOf()`.
 27. Navigate via `KOS.show()`. Assignments, reminders and events each have one
     canonical store; other surfaces derive from them. Use `KOS.workspaceTabs` for
     Review, Planner and Sync.
@@ -246,7 +259,10 @@ source comments and audit notes refer to it.
     records. The merge detects that (same id, absent from base, different
     origin), re-keys the LOCAL record past every id in play and rewrites every
     reference it knows (`RECORDS[].refs`). Adding a record array or a new
-    cross-reference to the state means adding it there.
+    cross-reference to the state means adding it there. Topic links (`refs`,
+    invariant 26e) are spec keys, not record ids, so they are not listed
+    there; a record field named in `SET_FIELDS` (`refs`) merges as a set
+    against the base instead of as one leaf.
 33b. `focus.active` is per-device like `state.ui`: a running timer is a live
     process, not data, and must never land on another device.
 34. Empty remote state cannot overwrite meaningful local state. First link is
@@ -503,7 +519,9 @@ source comments and audit notes refer to it.
     or a cloud pull is never overwritten by the file that shipped. Nothing in
     this domain performs a network request, and Notion is never read again.
 81. `KOS.pacing.normalise()` is the schema gate. A plan row's `refs` are
-    generated specification leaves and are dropped if the leaf does not exist.
+    generated specification leaves (checked against `KOS.spec`) and are
+    dropped if the leaf does not exist; a picker expands a unit or parent pick
+    to its leaves before it reaches the row.
     An EMPTY `refs` array is a deliberate statement that the published
     specification does not name that topic — never back-fill a near-enough leaf,
     because the plan would then open the wrong topic page.

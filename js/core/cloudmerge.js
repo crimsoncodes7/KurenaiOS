@@ -81,6 +81,24 @@
     "governor.xp": { min: 0 }
   };
   var SETS = { "governor.owned": true };
+  /* record FIELDS that are sets wherever they appear: `refs`, the "sid:ref"
+     topic links on assignments, events, papers, sessions and plan rows
+     (roadmap 1.1). A link added on one device and another removed on the
+     other both survive; the whole list is never one side's leaf. These are
+     spec keys, not record ids, so they need no entry in RECORDS[].refs —
+     re-keying a record never rewrites them. */
+  var SET_FIELDS = { refs: true };
+  function mergeSet(b, l, r) {
+    var bs = Array.isArray(b) ? b : [];
+    var gone = {};
+    bs.forEach(function (x) { if (l.indexOf(x) === -1 || r.indexOf(x) === -1) gone[String(x)] = true; });
+    var outSet = [];
+    l.concat(r).forEach(function (x) {
+      if (gone[String(x)] || outSet.indexOf(x) !== -1) return;
+      outSet.push(x);
+    });
+    return outSet;
+  }
   var MIN = { "created": true };
 
   var RECORD_BY_PATH = {};
@@ -340,17 +358,7 @@
         if (rule.max !== undefined) v = Math.min(rule.max, v);
         return v;
       }
-      if (SETS[path] && Array.isArray(l) && Array.isArray(r)) {
-        var bs = Array.isArray(b) ? b : [];
-        var gone = {};
-        bs.forEach(function (x) { if (l.indexOf(x) === -1 || r.indexOf(x) === -1) gone[String(x)] = true; });
-        var outSet = [];
-        l.concat(r).forEach(function (x) {
-          if (gone[String(x)] || outSet.indexOf(x) !== -1) return;
-          outSet.push(x);
-        });
-        return outSet;
-      }
+      if (SETS[path] && Array.isArray(l) && Array.isArray(r)) return mergeSet(b, l, r);
       if (MIN[path] && typeof l === "number" && typeof r === "number") return Math.min(l, r);
       if (COUNTER_PATHS[path] && typeof l === "number" && typeof r === "number") return Math.max(l, r);
       if (RECORD_BY_PATH[path] && Array.isArray(l) && Array.isArray(r)) {
@@ -368,7 +376,14 @@
         var inR = Object.prototype.hasOwnProperty.call(r, k);
         var inB = bb && Object.prototype.hasOwnProperty.call(bb, k);
         var sub = path === null ? null : (path === "" ? k : path + "." + k);
-        if (inL && inR) out[k] = mergeValue(inB ? bb[k] : undefined, l[k], r[k], ctx, sub);
+        if (inL && inR) {
+          /* a field INSIDE a record (path null) that is a set of primitive
+             keys — topic links — merges as a set, not as a leaf */
+          if (path === null && SET_FIELDS[k] && Array.isArray(l[k]) && Array.isArray(r[k])
+              && allPrimitive(l[k]) && allPrimitive(r[k])) {
+            out[k] = deepEqual(l[k], r[k]) ? l[k] : mergeSet(inB ? bb[k] : undefined, l[k], r[k]);
+          } else out[k] = mergeValue(inB ? bb[k] : undefined, l[k], r[k], ctx, sub);
+        }
         else if (inL) { if (!inB) out[k] = l[k]; }          // added locally, or deleted remotely
         else if (!inB) out[k] = r[k];                        // added remotely, or deleted locally
       });

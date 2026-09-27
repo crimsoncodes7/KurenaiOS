@@ -109,6 +109,8 @@
     if (!Array.isArray(s.distractions)) s.distractions = [];
     if (typeof s.restores !== "number") s.restores = 0;
     if (s.assignmentId === undefined) s.assignmentId = null;
+    /* roadmap 1.1: a snapshot from before topic links were a list */
+    if (!Array.isArray(s.refs)) s.refs = s.subject && s.ref ? [s.subject + ":" + s.ref] : [];
     return s;
   }
 
@@ -131,17 +133,32 @@
     });
   }
 
+  /* roadmap 1.1: the topics a session is for. One subject per session
+     (invariant 4a) — links outside it are dropped — and `ref` stays the
+     first leaf they cover, which is what the ledger and the stage read. */
+  function sessionLinks(cfg) {
+    var raw = cfg.refs != null ? cfg.refs : (cfg.ref ? [cfg.ref] : []);
+    var subject = cfg.subject || null;
+    var refs = KOS.spec.normaliseRefs(raw, { subject: subject || undefined, max: 20 });
+    if (!subject && refs.length) subject = KOS.spec.subjectsOf(refs)[0];
+    refs = refs.filter(function (k) { return k.indexOf(subject + ":") === 0; });
+    var first = KOS.spec.firstLeaf(refs);
+    return { subject: subject, refs: refs, ref: first ? first.ref : null };
+  }
+
   function start(cfg) {
     if (S) { KOS.ui.toast("A " + (S.kind === "reading" ? "reading" : "focus") + " session is already running.", true); return; }
     var f = F();
+    var links = sessionLinks(cfg);
     S = f.active = {
       id: "f" + f.nextId++,
       kind: cfg.kind === "reading" ? "reading" : "study",   // 3i: one machine, two contracts
       mode: cfg.mode,                                   // "pomodoro" | "custom"
       workMin: cfg.workMin,
       breakMin: cfg.breakMin,                           // 0 = single interval
-      subject: cfg.subject || null,
-      ref: cfg.ref || null,
+      subject: links.subject,
+      ref: links.ref,
+      refs: links.refs,
       /* Build 6.4 — the assignment this session is being spent on. Stored as
          an id only: the assignment record stays canonical, and a deleted
          assignment simply stops resolving rather than leaving a stale copy. */
@@ -168,7 +185,7 @@
       f.lastReading = { workMin: cfg.workMin, bookId: cfg.book ? cfg.book.id : null };
     } else {
       f.lastConfig = { mode: cfg.mode, workMin: cfg.workMin, breakMin: cfg.breakMin,
-        subject: cfg.subject || "", ref: cfg.ref || "" };
+        subject: links.subject || "", ref: links.ref || "", refs: links.refs };
     }
     store.save();
     enterMode();
@@ -360,7 +377,7 @@
        precondition for the session having happened. */
     var entry = KOS.sessions.log({
       type: "focus",
-      subject: sess.subject, ref: sess.ref,
+      subject: sess.subject, ref: sess.ref, refs: sess.refs,
       dur: dur,
       metrics: {
         complete: complete,

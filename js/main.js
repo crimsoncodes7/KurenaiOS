@@ -83,6 +83,13 @@
      state.pacing. A no-op on every run after the first, so a user's edits
      (and anything a cloud pull brought in) are never overwritten. */
   KOS.pacing.ensureSeeded();
+  /* roadmap 1.1: topic links became one "sid:ref" list (`refs`). Each owner
+     rewrites its pre-1.1 records once, here, before anything renders — a
+     view never writes while it draws. Idempotent; readers stay tolerant of
+     the old shape because a pull or a restore can still carry it. */
+  KOS.assignments.migrate();
+  KOS.tracker.migrate();
+  KOS.calendar.migrateRefs();
   KOS.governor.tick();
   KOS.governor.applyCosmetics();
   KOS.governor.installGates();

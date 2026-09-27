@@ -141,10 +141,12 @@
       "aria-label": "Specification points for this row" });
     var count = el("p", { class: "k-field-hint", "data-ui": "pace.pick-count" });
 
+    /* the data is the shared spec index (KOS.spec, roadmap 1.1): the same
+       leaves the topic picker offers, so a plan row cannot name one it
+       would not */
     function leaves() {
       var sid = subjectOf();
-      if (!sid || !KOS.hub || !KOS.hub.LEAVES || !KOS.hub.LEAVES[sid]) return [];
-      return KOS.hub.LEAVES[sid];
+      return sid ? KOS.spec.leaves(sid) : [];
     }
     function row(leaf, on) {
       var cb = el("input", { type: "checkbox", class: "k-box", onchange: function () {

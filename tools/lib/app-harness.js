@@ -22,6 +22,7 @@
      network    fetch resolves an empty 200 and is recorded.
 
      const app = await boot();       // { window, document, KOS, errors, fetches, settle }
+     boot({ clock, seed, storage })  // storage: localStorage preset {key: string}
      await app.settle();             // run queued timers and IndexedDB work out
      await seedAccount(app);         // tools/lib/seed.js
                                                                            */
@@ -71,6 +72,9 @@ async function boot(opts = {}) {
   }
   window.Date = FixedDate;
   window.Math.random = prng(opts.seed || 20260924);
+  /* opts.storage: localStorage as a returning user left it ({key: string}),
+     written before any script runs — for suites that prove a boot migration */
+  Object.keys(opts.storage || {}).forEach((k) => window.localStorage.setItem(k, opts.storage[k]));
 
   const timers = [];
   let timerSeq = 0;

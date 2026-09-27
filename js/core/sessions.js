@@ -46,6 +46,13 @@
       dur: entry.dur != null ? entry.dur : null,
       metrics: entry.metrics || {}
     };
+    /* roadmap 1.1: the topic links the activity was for ("sid:ref", a unit
+       or parent pick kept as picked). `subject`/`ref` above stay the ONE
+       subject and first leaf every older reader keys on (invariant 4a). */
+    if (entry.refs && KOS.spec) {
+      var refs = KOS.spec.normaliseRefs(entry.refs, { subject: e.subject || undefined });
+      if (refs.length) e.refs = refs;
+    }
     /* activity attribution (Build 2b): anything completed while a focus
        session is live carries that session's id, so the focus entry can
        summarise what was actually done during it (FR-3.2). The focus entry

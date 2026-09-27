@@ -359,12 +359,17 @@
      hub.js owns the flattened leaf index. Pacing only ever READS it, and
      tolerates its absence (core loads before modules, and the smoke suites
      load pieces on their own). */
+  /* the leaf index is KOS.spec (roadmap 1.1), which is core and always
+     loaded; the hub's richer leaf object is preferred when the page layer
+     is there, because the plan's readers draw its path and content */
   function indexReady(subject) {
-    return !!(subject && KOS.hub && KOS.hub.BYREF && KOS.hub.BYREF[subject]);
+    return !!(subject && KOS.spec && KOS.spec.units(subject).length);
   }
   function leafOf(subject, ref) {
     if (!ref || !indexReady(subject)) return null;
-    return KOS.hub.BYREF[subject][ref] || null;
+    if (KOS.spec.level(subject, ref) !== "leaf") return null;
+    return (KOS.hub && KOS.hub.BYREF && KOS.hub.BYREF[subject] && KOS.hub.BYREF[subject][ref])
+      || KOS.spec.node(subject, ref);
   }
   function leavesOf(entry) {
     if (!entry) return [];

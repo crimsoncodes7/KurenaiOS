@@ -239,8 +239,9 @@
         subWrap
       ]));
 
-      if ((a.topics || []).length) {
-        host.appendChild(block("Related topics", el("div", { class: "k-asg-chips" }, a.topics.map(function (t) {
+      var linked = A().topicsOf(a);
+      if (linked.length) {
+        host.appendChild(block("Related topics", el("div", { class: "k-asg-chips" }, linked.map(function (t) {
           return el("button", { type: "button", class: "k-chip", "data-ui": "asg.topic", style: "--chip-c: " + HUE(t.subject),
             text: shortSubj(t.subject) + " " + t.ref, onclick: function () { if (o.onLeave) o.onLeave(); KOS.show("ref", { subject: t.subject, ref: t.ref }); } });
         }))));
@@ -353,7 +354,7 @@
     });
 
     /* related topics — "subject ref", validated against the spec tree */
-    var chosenTopics = (a.topics || []).slice();
+    var chosenTopics = A().topicsOf(a);
     var topicWrap = el("div", { class: "k-asg-chips" });
     var topicIn = input("text", "", { "aria-label": "Link a spec topic", placeholder: "e.g. compsci 4.1.1.1 — Enter to add",
       onkeydown: function (e) { if (e.key === "Enter") { e.preventDefault(); addTopic(); } } });

@@ -150,6 +150,27 @@
     if (c.v !== SCHEMA) migrate(c);
     return c;
   }
+  /* roadmap 1.1: an event's topic links, whichever shape it is stored in —
+     a pull or an old backup can still carry pre-1.1 `topics` pairs */
+  function refsOf(ev) {
+    if (!ev) return [];
+    var list = Array.isArray(ev.refs) ? ev.refs : (Array.isArray(ev.topics) ? ev.topics : []);
+    return KOS.spec.normaliseRefs(list, { subject: ev.subject || undefined, max: 20 });
+  }
+  /* boot pass: `topics` → `refs` on stored events. Only the link field
+     moves (a migration is not an edit, so updatedAt stays); idempotent. */
+  function migrateRefs() {
+    var c = cal(), changed = 0;
+    c.events.forEach(function (ev) {
+      if (!ev || (Array.isArray(ev.refs) && ev.topics === undefined)) return;
+      ev.refs = refsOf(ev);
+      delete ev.topics;
+      changed++;
+    });
+    if (changed) store.save();
+    return changed;
+  }
+
   /* v1 → v2: the global notifyDays threshold becomes per-event alerts, and
      every legacy event gains the fields the new editor writes. Idempotent,
      and cheap enough to run again after a restore from an old backup. */
@@ -215,15 +236,16 @@
       .filter(function (x, i, a) { return a.indexOf(x) === i; })
       .sort(function (x, y) { return x - y; }).slice(0, 4);
 
-    var topics = pick("topics", null) || [];
-    if (!Array.isArray(topics)) topics = [];
-    topics = topics
-      .map(function (t) { return t && t.ref ? { subject: t.subject ? String(t.subject) : null, ref: String(t.ref) } : null; })
-      .filter(Boolean)
-      .filter(function (t, i, a) {
-        return a.findIndex(function (x) { return x.subject === t.subject && x.ref === t.ref; }) === i;
-      })
-      .slice(0, 20);
+    /* roadmap 1.1: related topics are "sid:ref" strings (KOS.spec), the
+       same links assignments and papers carry. A pre-1.1 event's `topics`
+       pairs (or bare refs) are read and rewritten here on its next write. */
+    var refs = patch.refs !== undefined ? patch.refs
+      : patch.topics !== undefined ? patch.topics
+      : (Array.isArray(b.refs) ? b.refs : b.topics);
+    refs = KOS.spec.normaliseRefs(Array.isArray(refs) ? refs : [],
+      { subject: pick("subject", null) || undefined, max: 20 });
+    /* a bare ref under the event's subject still resolves; a ref that is
+       not in the specification is dropped rather than re-pointed */
 
     var dur = pick("durationMins", null);
     dur = dur == null || dur === "" ? null : (Math.max(0, Math.min(1440, Math.round(Number(dur) || 0))) || null);
@@ -262,7 +284,7 @@
       /* exam-only */
       paper: String(pick("paper", "") || "").trim(),
       room: String(pick("room", "") || "").trim(),
-      topics: topics,
+      refs: refs,
       /* exam + study share ONE duration field rather than two that mean the
          same thing on different records */
       durationMins: dur,
@@ -737,9 +759,10 @@
       if (ev.paper) rows.appendChild(detailRow("Paper", ev.paper));
       if (ev.durationMins) rows.appendChild(detailRow("Duration", durationLabel(ev.durationMins)));
       if (ev.room) rows.appendChild(detailRow("Room", ev.room));
-      if (ev.topics.length) {
-        rows.appendChild(detailRow("Related topics", el("span", { class: "k-cluster" }, ev.topics.map(function (t) {
-          return linkBtn(t.ref, function () { overlay.close(); KOS.show("ref", { subject: t.subject || ev.subject, ref: t.ref }); });
+      var linked = KOS.spec.pairs(refsOf(ev));
+      if (linked.length) {
+        rows.appendChild(detailRow("Related topics", el("span", { class: "k-cluster" }, linked.map(function (t) {
+          return linkBtn(t.ref, function () { overlay.close(); KOS.show("ref", { subject: t.subject, ref: t.ref }); });
         }))));
       }
     }
@@ -918,7 +941,7 @@
     var topicsIn = input("text", { placeholder: "Comma-separated refs, e.g. 4.2.3.1, 4.3.1" });
     paper.value = d.paper; room.value = d.room;
     duration.value = d.durationMins == null ? "" : String(d.durationMins);
-    topicsIn.value = d.topics.map(function (t) { return t.ref; }).join(", ");
+    topicsIn.value = KOS.spec.pairs(refsOf(d)).map(function (t) { return t.ref; }).join(", ");
 
     /* ---- conditional: deadline ---- */
     var priority = select(PRIORITIES.map(function (p) { return [String(p.v), p.label]; }));
@@ -1015,7 +1038,7 @@
             field("Related topics", topicsIn, true)
           ]),
           !!(existing && existing.type === "exam" &&
-            (existing.paper || existing.room || existing.durationMins || (existing.topics || []).length))));
+            (existing.paper || existing.room || existing.durationMins || refsOf(existing).length))));
       } else if (t === "deadline") {
         condHost.appendChild(disclosure("Deadline details", "Priority, status, countdown",
           el("div", { class: "k-cal-fgrid" }, [field("Priority", priority), field("Status", status)]),
@@ -1552,6 +1575,8 @@
   }
 
   KOS.calendar = {
+    refsOf: refsOf,
+    migrateRefs: migrateRefs,
     addEvent: addEvent,
     updateEvent: updateEvent,
     deleteEvent: deleteEvent,
