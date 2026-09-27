@@ -139,7 +139,7 @@ npm install jsdom fake-indexeddb
 All 54 smoke suites are the release gate:
 
 ```sh
-for i in "" {2..54}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..56}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Also run:

@@ -8,14 +8,14 @@ chronological diary here.
 
 ## Current baseline
 
-- Category 7 A–G is integrated, deployed and production-verified.
+- Category 7 A–G and the Graphite UI rebuild (review A and B) are integrated
+  and deployed.
 - Production: https://kurenai-os.pages.dev
-- Release source checkpoint: `b467dc6` (VN progress sources, VNDB relay, list mirror, card bars)
-- Runtime release: `79e7c1b` — immutable deployment
-  https://a6725a56.kurenai-os.pages.dev
-- Last milestone tag: `milestone/category-7-ui-ux-overhaul`
-- Service-worker version: `kos-vn-progress-3`
-- Required smoke gate: 54 / 54 suites.
+- Release source checkpoint: `3cf4596` (Graphite rebuild, review B third pass)
+- Runtime release: pending the deploy of this commit
+- Last milestone tag: `milestone/graphite-ui-rebuild`
+- Service-worker version: `kos-graphite-1`
+- Required smoke gate: 56 / 56 suites.
 
 ## Run, test and deploy
 
@@ -25,7 +25,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 -m http.server 8765
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..54}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..56}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,

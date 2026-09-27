@@ -16,18 +16,33 @@ AniList mirror and the notification centre followed on 19 September 2026
 |---|---|
 | Production | https://kurenai-os.pages.dev |
 | Category 7 release checkpoint | `f81f2962dacfa07431355234737c8fbaa4070b7f` |
-| Runtime release commit | `b467dc6` (VN progress sources, VNDB relay, list mirror, card bars), immutable https://a6725a56.kurenai-os.pages.dev |
+| Runtime release commit | `3cf4596` + release commit (the Graphite UI rebuild, review A and B) — deployed 27 September 2026 |
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tag | `milestone/category-7-ui-ux-overhaul` |
-| Service-worker cache | `kos-vn-progress-3` |
-| Smoke gate | 54 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
+| Service-worker cache | `kos-graphite-1` |
+| Smoke gate | 56 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Release date | 9 August 2026 |
 
 Production deployment is separate from Git push and is performed only through
 `tools/deploy_pages.sh`. The immutable Category 7 deployment is
 https://bb17097f.kurenai-os.pages.dev.
 
-## Unreleased on `main`
+## Released 27 September 2026 — the Graphite UI rebuild
+
+The whole presentation layer rebuilt on the Graphite design handoff
+(`docs/ui-rebuild/`): one `@layer` per stylesheet, `k-` classes and
+`data-ui` hooks only, guarded by smoke55 (legacy vocabulary) and smoke56
+(render purity and control parity). Review A and three passes of review B
+followed on every surface — Pacing's per-lesson ticks and commit-graph
+braid, the record editors as 11c drawers (a tab per book volume and per VN
+chapter, quote logs for every medium), the Shrine podium and share card,
+the Collection numbers, Seasonal's in-progress default and more; the
+invariants each change touched (82, 85, 94, 98) are rewritten in
+`CLAUDE.md`. Tier C (topic picker, IT unit marks, drag-and-drop blocks,
+Shrine tie ordering, Focus stopwatch and mini-player, the OOP IDE, newer
+Assistant tools) is next.
+
+## Earlier on `main`
 
 **Collection — VN progress by routes, chapters, hours or a percentage; the
 VNDB write relay; half-full bars for series still releasing.** Deployed
@@ -420,7 +435,7 @@ The numbered suites form one release gate:
 Run all suites with:
 
 ```sh
-for i in "" {2..54}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..56}; do node "tools/smoke${i}.test.js"; done
 ```
 
 ## Remaining work and external gates
