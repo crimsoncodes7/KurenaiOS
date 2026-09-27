@@ -420,7 +420,8 @@ step("VNDB profile: labels/lengthvotes/site stats render; the API's gaps are sta
   const main = document.getElementById("main");
   await waitFor(() => /List labels/.test(main.textContent), 4000);
   if (!/crimson/.test(main.textContent)) throw new Error("identity missing");
-  const labels = main.querySelectorAll("[data-ui~='profile.label-stats'] [data-ui~='ui.stat']");
+  /* review B: each label is a row with a proportional bar */
+  const labels = main.querySelectorAll("[data-ui~='profile.label-stats'] [data-ui~='profile.label']");
   if (labels.length !== 3) throw new Error("expected 3 label statistics, got " + labels.length);
   if (![...labels].some(l => /Waiting/.test(l.textContent) && /custom/.test(l.textContent))) throw new Error("custom label not marked");
   if (!/Length votes/.test(main.textContent)) throw new Error("length-vote stats missing");

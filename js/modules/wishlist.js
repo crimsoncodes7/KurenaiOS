@@ -918,6 +918,10 @@
       }
       var draggable = (tab === "wantToBuy" || tab === "waitingForRelease") && pref.sort === "priority" && !needle;
       var list = el("div", { class: "k-pl-list", "data-ui": "plan.list" });
+      /* the queue as columns (review B, after the reference planner's
+         active-queue table): a header, then one row per item */
+      list.appendChild(el("div", { class: "k-pl-row k-pl-row--head", "data-ui": "plan.head", "aria-hidden": "true" },
+        ["", "Priority", "Item", "Type", "Release", "Price", "Collection", ""].map(function (t) { return el("span", { class: "k-pl-h", text: t }); })));
       rows.forEach(function (it, i) { list.appendChild(itemRow(it, i + 1, draggable)); });
       queue.appendChild(list);
       if (draggable) {
@@ -1052,18 +1056,30 @@
           onclick: function (ev) { ev.stopPropagation(); itemEditor(it, renderPlanner); } })
       ].filter(Boolean));
 
+      /* the release column: the date, then what it means today */
+      var dd = daysUntil(it.releaseDate);
+      var release = el("span", { class: "k-pl-rel" }, it.releaseDate ? [
+        el("span", { class: "k-mono", text: it.releaseDate }),
+        el("small", { "data-state": dd > 0 ? "soon" : null, text: dd > 0 ? "Pre-order · in " + dd + (dd === 1 ? " day" : " days") : dd === 0 ? "Out today" : "Available now" })
+      ] : [el("small", { text: tab === "waitingForRelease" ? "Date needed" : "No date" })]);
+      var tone = rank === 1 ? "high" : rank <= 3 ? "mid" : null;
+      facts = facts.filter(function (f) { return f.getAttribute("data-tone") !== "release"; });
       var row = el("article", { class: "k-pl-row", "data-ui": "plan.row", "data-id": String(it.id),
         draggable: draggable ? "true" : null }, [
         lead,
-        el("span", { class: "k-pl-rank k-mono", text: String(rank) }),
-        el("span", { class: "k-pl-cover" }, [KOS.medview.cover(it, MODULE_KANJI[it.module])]),
-        el("div", { class: "k-pl-main" }, [
-          el("div", { class: "k-pl-title", title: it.title, text: it.title }),
-          el("div", { class: "k-pl-sub" }, [moduleTag(it.module), sub ? el("span", { text: " · " + sub }) : null].filter(Boolean)),
-          facts.length ? el("div", { class: "k-pl-facts" }, facts) : null
-        ].filter(Boolean)),
-        link,
+        el("span", { class: "k-pl-prio k-mono", "data-tone": tone, title: "Priority " + rank + " — drag to reorder", text: "#" + rank }),
+        el("div", { class: "k-pl-item" }, [
+          el("span", { class: "k-pl-cover" }, [KOS.medview.cover(it, MODULE_KANJI[it.module])]),
+          el("div", { class: "k-pl-main" }, [
+            el("div", { class: "k-pl-title", title: it.title, text: it.title }),
+            sub || it.notes ? el("div", { class: "k-pl-sub", text: sub || it.notes }) : null,
+            facts.length ? el("div", { class: "k-pl-facts" }, facts) : null
+          ].filter(Boolean))
+        ]),
+        el("span", { class: "k-pl-type" }, [moduleTag(it.module)]),
+        release,
         el("span", { class: "k-pl-price k-mono", text: it.price ? money(it.price, it.currency) : "—" }),
+        link,
         actions
       ]);
       if (draggable) KOS.ui.state(row, "draggable", true);

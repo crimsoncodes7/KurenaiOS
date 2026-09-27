@@ -294,6 +294,12 @@ step("KOS.show('wishlist') builds the allowance ledger, tabs, queue and history 
   /* UI rebuild (frame 11h): Cancelled is the queue's fourth tab */
   if (main.querySelectorAll("[data-ui~='plan.tabs'] [data-ui~='plan.tab']").length !== 4) throw new Error("expected 4 tabs");
   if (!main.querySelector("[data-ui~='plan.row']")) throw new Error("want-to-buy list empty");
+  /* review B: the queue reads as columns under one header */
+  const head = main.querySelector("[data-ui~='plan.list'] > [data-ui~='plan.head']");
+  if (!head || ![...head.children].map(c => c.textContent).join("|").includes("Priority|Item|Type|Release|Price|Collection")) throw new Error("the queue has no column header");
+  [...main.querySelectorAll("[data-ui~='plan.row']")].forEach(r => {
+    if (r.children.length !== head.children.length) throw new Error("a queue row has " + r.children.length + " cells, the header " + head.children.length);
+  });
   if (!main.querySelector("[data-ui~='plan.history']")) throw new Error("purchase history state missing");
 });
 step("ticking a checkbox updates the live Remaining figure (pure simulation)", async () => {

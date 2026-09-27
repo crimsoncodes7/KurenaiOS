@@ -166,6 +166,9 @@ step("Gold Shop separates tools, simulations and cosmetics with contextual previ
   if (main.querySelectorAll('#shop-sec-tools [data-ui~="shop.card"]').length !== 2) throw new Error("learning tools not separated");
   if (main.querySelectorAll('#shop-sec-simulations [data-ui~="shop.card"]').length !== 6) throw new Error("simulations not separated");
   if (main.querySelectorAll("[data-ui~='shop.lab-scene']").length !== 8) throw new Error("functional mini-scenes missing");
+  /* review B: every lab draws its own scene, not one shared chart */
+  const scenes = new Set([...main.querySelectorAll("[data-ui~='shop.lab-scene']")].map(n => n.getAttribute("data-scene")));
+  if (scenes.size !== 8 || scenes.has("generic")) throw new Error("the labs share a scene: " + [...scenes].join(","));
   if (!main.querySelector("[data-ui~='shop.preview-seal']") || !main.querySelector("[data-ui~='shop.preview-shelf']") || !main.querySelector("[data-ui~='shop.preview-shrine']")) throw new Error("cosmetic context previews missing");
   if (main.querySelector(".sp-theme-shell") || main.querySelector(".sp-banner-card")) throw new Error("meaningless preview overlays survived");
   if (main.querySelector(".shop-pv-glyph")) throw new Error("legacy isolated glyph preview survived");

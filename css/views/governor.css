@@ -204,6 +204,29 @@ button.k-gv-ring:hover { filter: brightness(1.08); }
 .k-gv-pv-bars i:nth-child(5) { block-size: calc(var(--sp-10) * 3.2); }
 .k-gv-pv-mark { font: var(--weight-semibold) var(--fs-12) var(--font-mono); color: var(--text); }
 .k-gv-pv-label { font-size: var(--fs-11); color: var(--muted); }
+/* the labs' own miniatures (review B) */
+.k-gv-sc { display: block; max-inline-size: 100%; block-size: auto; overflow: visible; }
+.k-gv-sc-t { font: var(--weight-semibold) var(--fs-11) var(--font-mono); fill: var(--text-2); text-anchor: middle; }
+.k-gv-sc-box { fill: var(--s2); stroke: color-mix(in oklch, var(--teal) 50%, transparent); stroke-width: 1.2; }
+.k-gv-sc-box[data-hot], .k-gv-sc-node[data-hot] { stroke: var(--crimson); fill: color-mix(in oklch, var(--crimson) 18%, var(--s2)); }
+.k-gv-sc-node { fill: var(--s2); stroke: color-mix(in oklch, var(--teal) 60%, transparent); stroke-width: 1.4; }
+.k-gv-sc-line { fill: none; stroke: var(--muted); stroke-width: 1.3; }
+.k-gv-sc-line[data-dash] { stroke-dasharray: 3 3; }
+.k-gv-sc-axis { fill: none; stroke: var(--line); stroke-width: 1.2; }
+.k-gv-sc-curve { fill: none; stroke: var(--crimson); stroke-width: 2.2; stroke-linecap: round; }
+.k-gv-sc-curve[data-base] { stroke: var(--teal); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.k-gv-sc-ring { fill: none; stroke: color-mix(in oklch, var(--teal) 60%, transparent); stroke-width: 1.5; }
+.k-gv-sc-dot { fill: var(--crimson); }
+.k-gv-sc-area { fill: color-mix(in oklch, var(--teal) 30%, transparent); }
+.k-gv-sc-stack { display: flex; flex-direction: column; gap: var(--sp-4); inline-size: var(--gv-sc-stack-w); }
+.k-gv-sc-frame { padding: var(--sp-2) var(--sp-8); border-radius: var(--r-6); background: var(--s2); font: var(--fs-11) var(--font-mono); color: var(--text-2); }
+.k-gv-sc-frame[data-state~="top"] { background: color-mix(in oklch, var(--crimson) 35%, var(--s2)); color: var(--text); }
+.k-gv-sc-tt { display: grid; gap: var(--sp-2); font: var(--fs-11) var(--font-mono); }
+.k-gv-sc-tr { display: grid; grid-template-columns: repeat(3, var(--sp-24)); gap: var(--sp-2); }
+.k-gv-sc-tr > i { font-style: normal; text-align: center; padding: var(--hairline) 0; border-radius: var(--r-6); background: var(--s2); color: var(--text-2); }
+.k-gv-sc-tr[data-state~="head"] > i { background: none; color: var(--muted); font-weight: var(--weight-bold); }
+.k-gv-sc-tr > i[data-state~="on"] { background: color-mix(in oklch, var(--green) 35%, var(--s2)); color: var(--text); }
+.k-gv-sc-tr > i[data-state~="off"] { background: color-mix(in oklch, var(--crimson) 22%, var(--s2)); }
 
 /* ---------- Avatar & profile (12c) ---------- */
 .k-gv-studio { display: grid; grid-template-columns: var(--gv-id-w) minmax(0, 1fr); gap: var(--sp-20); align-items: start; }

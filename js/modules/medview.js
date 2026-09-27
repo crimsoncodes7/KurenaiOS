@@ -1291,14 +1291,30 @@
       function cell(v, k) {
         return el("div", { class: "k-mstat" }, [el("dd", { class: "k-mono", text: String(v) }), el("dt", { text: k })]);
       }
-      body.appendChild(el("dl", { class: "k-mstat-band" }, [
+      /* review B: the figures are tiles in the vault's colour, and a
+         medium's own counts join them instead of trailing as a sentence */
+      var extras = [];
+      if (modId === "books") {
+        var ownedVols = 0, ownedSeries = 0;
+        rows.forEach(function (e) { var n = e.physical && e.physical.volumes ? e.physical.volumes.length : 0; ownedVols += n; if (n) ownedSeries++; });
+        if (ownedVols) extras.push(cell(ownedVols, "volumes on the shelf"), cell(ownedSeries, "series owned"));
+      }
+      if (modId === "vn") {
+        var rc = 0, qk = 0;
+        rows.forEach(function (e) { rc += (e.routes || []).filter(function (r) { return r.cleared; }).length; qk += (e.quotes || []).length; });
+        if (rc) extras.push(cell(rc, "routes cleared"));
+        if (qk) extras.push(cell(qk, "quotes kept"));
+      }
+      var band = el("dl", { class: "k-mstat-band" }, [
         cell(rows.length, "in the vault"),
         cell(inProg, modId === "books" ? "reading" : modId === "anime" ? "watching" : "playing"),
         cell(completed, "finished"),
         cell(modId === "game" ? Math.round(units) + " hr" : units, modId === "game" ? "logged" : mod.unitName + " logged"),
         cell(scored ? (scoreSum / scored).toFixed(1) : "—", "mean score"),
         cell(favs, "in the Shrine")
-      ]));
+      ].concat(extras));
+      band.style.setProperty("--vh-accent", mod.accent);
+      body.appendChild(band);
 
       var grid = el("div", { class: "k-mstats-grid" });
       body.appendChild(grid);
@@ -1318,7 +1334,7 @@
           color: i >= 8 ? "var(--gold)" : i >= 5 ? "var(--green)" : "var(--red)" });
       }
       if (scored) grid.appendChild(KOS.charts.chartCard("Scores", "everything you have rated, out of 10",
-        KOS.charts.barChart(scores)));
+        KOS.charts.barChart(scores, { width: 320, height: 210 }), { half: true }));
 
       /* 3 — top genres, ranked */
       var gCount = {};
@@ -1371,20 +1387,6 @@
         }).sort(function (a, b) { return b.value - a.value; });
         if (pData.length) grid.appendChild(KOS.charts.chartCard("Platforms", "where the hours went",
           KOS.charts.hbarChart(pData, { color: mod.accent })));
-      }
-      if (modId === "books") {
-        var owned = 0;
-        rows.forEach(function (e) { owned += (e.physical && e.physical.volumes ? e.physical.volumes.length : 0); });
-        if (owned) body.appendChild(el("p", { class: "k-muted", text: owned + " physical volumes on the shelf across " +
-            rows.filter(function (e) { return e.physical && e.physical.volumes && e.physical.volumes.length; }).length + " series." }));
-      }
-      if (modId === "vn") {
-        var routes = 0, quotes = 0;
-        rows.forEach(function (e) {
-          routes += (e.routes || []).filter(function (r) { return r.cleared; }).length;
-          quotes += (e.quotes || []).length;
-        });
-        if (routes || quotes) body.appendChild(el("p", { class: "k-muted", text: routes + " routes cleared · " + quotes + " quotes kept." }));
       }
 
       dialogBox(overlay, "vault.stats", mod.label + " — the numbers", rows.length + (rows.length === 1 ? " entry" : " entries"), body, null, "k-mstats-dialog");

@@ -47,9 +47,10 @@
           KOS.mediadb.query({ module: "vn" }, function (e4, rows) {
             if (e4) { cb(e4); return; }
             var v = { total: rows.length, rated: 0, scoreSum: 0, routesCleared: 0, routesTotal: 0,
-                      chaptersDone: 0, quotes: 0, warnings: 0, estMinutes: 0, completed: 0 };
+                      chaptersDone: 0, quotes: 0, warnings: 0, estMinutes: 0, completed: 0,
+                      spread: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] };
             rows.forEach(function (e) {
-              if (e.score) { v.rated++; v.scoreSum += e.score; }
+              if (e.score) { v.rated++; v.scoreSum += e.score; v.spread[Math.max(0, Math.min(9, Math.ceil(e.score) - 1))]++; }
               (e.routes || []).forEach(function (r) { v.routesTotal++; if (r.cleared) v.routesCleared++; });
               (e.chapters || []).forEach(function (c) { if (c.status === "completed") v.chaptersDone++; });
               v.quotes += (e.quotes || []).length;
@@ -140,32 +141,61 @@
         });
       }));
 
+      /* review B: the page was undesigned — two columns of cards: the
+         labels as proportional bars, the vault's figures as tiles, the
+         score spread, and what you have given back to vndb.org */
+      var cols = el("div", { class: "k-pf-cols", "data-ui": "profile.cols" });
+      body.appendChild(cols);
+
       /* --- labels, live from the site --- */
       var visibleLabels = data.labels.filter(function (l) { return l.label && !/^no label$/i.test(l.label); });
       var total = visibleLabels.reduce(function (a, l) { return a + (l.count || 0); }, 0);
-      body.appendChild(P.section("List labels — live from VNDB", total + " label assignments · customs included",
+      var most = visibleLabels.reduce(function (a, l) { return Math.max(a, l.count || 0); }, 0) || 1;
+      cols.appendChild(P.section("List labels", total + " assignments · live from VNDB",
         visibleLabels.length ? [
-          el("div", { class: "k-stats k-pf-band k-pf-labels", "data-ui": "ui.stat-strip profile.label-stats" }, visibleLabels.map(function (l) {
-            var tile = KOS.ui.statTile({ label: l.label + (l.private ? " · private" : "") + (l.id >= 10 ? " · custom" : ""), value: String(l.count || 0) });
-            tile.style.setProperty("--vh-accent", labelColor(l.id));
-            return tile;
+          el("div", { class: "k-pf-labels", "data-ui": "profile.label-stats" }, visibleLabels.map(function (l) {
+            var row = el("div", { class: "k-pf-label", "data-ui": "profile.label", "data-state": l.count ? null : "empty" }, [
+              el("span", { class: "k-pf-label-dot", "aria-hidden": "true" }),
+              el("span", { class: "k-pf-label-name" }, [l.label,
+                l.id >= 10 ? el("span", { class: "k-pf-tag", text: "custom" }) : null,
+                l.private ? el("span", { class: "k-pf-tag", text: "private" }) : null].filter(Boolean)),
+              el("span", { class: "k-pf-label-bar", "aria-hidden": "true" }, [el("i", { style: "--p: " + Math.round(100 * (l.count || 0) / most) + "%" })]),
+              el("b", { class: "k-mono", text: String(l.count || 0) })
+            ]);
+            row.style.setProperty("--vh-accent", labelColor(l.id));
+            return row;
           }))
         ] : [P.note("No labels on the account yet.")]));
 
+      var side = el("div", { class: "k-pf-stack" });
+      cols.appendChild(side);
       /* --- vault-derived list stats (the synced ulist, locally) --- */
       if (vault) {
         var mean = vault.rated ? (vault.scoreSum / vault.rated).toFixed(1) : "—";
         var hours = Math.round(vault.estMinutes / 60);
-        body.appendChild(P.section("List statistics", "from the synced vault — same data, no extra requests", [P.band([
+        side.appendChild(P.section("List statistics", "from the synced vault", [P.band([
           P.stat(vault.total, "VNs tracked"), P.stat(vault.completed, "Finished"), P.stat(mean, "Mean vote /10"),
           P.stat(vault.routesCleared + "/" + vault.routesTotal, "Routes cleared"), P.stat(vault.chaptersDone, "Chapters done"),
-          P.stat(vault.quotes, "Quotes kept"), P.stat(hours ? "~" + hours : "—", "Est. hours (finished)")
+          P.stat(vault.quotes, "Quotes kept"), P.stat(hours ? "~" + hours : "—", "Est. hours finished")
         ])]));
+        if (vault.rated >= 3) {
+          var peak = Math.max.apply(null, vault.spread) || 1;
+          side.appendChild(P.section("Your votes", vault.rated + " rated titles", [
+            el("div", { class: "k-pf-spread", role: "img", "data-ui": "profile.spread",
+              "aria-label": vault.spread.map(function (n, i) { return (i + 1) + ": " + n; }).join(", ") },
+              vault.spread.map(function (n, i) {
+                return el("span", { class: "k-pf-spread-col" }, [
+                  el("span", { class: "k-pf-spread-bar", "data-state": n ? null : "empty", style: "--p: " + Math.round(100 * n / peak) + "%" }),
+                  el("small", { class: "k-mono", text: String(i + 1) })
+                ]);
+              }))
+          ]));
+        }
       }
 
       /* --- length-vote contributions --- */
       if (us) {
-        body.appendChild(P.section("Play-length contributions", "your crowd-sourced timing data on vndb.org", [P.band([
+        side.appendChild(P.section("Play-length contributions", "your timing data on vndb.org", [P.band([
           P.stat(us.lengthvotes || 0, "Length votes"),
           P.stat(us.lengthvotes_sum ? Math.round(us.lengthvotes_sum / 60) + " h" : "0 h", "Hours reported")
         ])]));

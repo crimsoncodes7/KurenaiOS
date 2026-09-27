@@ -499,6 +499,8 @@ color-scheme: dark;
 --shr-scrim: oklch(0.13 0.02 60);
 --shr-silver: oklch(0.8 0.02 265);
 --shr-bronze: oklch(0.78 0.08 60);
+--shr-pod-h: 176px;
+--shr-pod-medal: 62px;
 --shr-hero-h: 330px;
 /* a hero cover leans a little, the way a card on a table does (review A) */
 --cover-tilt: 3deg;
@@ -507,8 +509,8 @@ color-scheme: dark;
 --shr-poster-h: 260px;
 --shr-score-w: 150px;
 --shr-ledger-w: 300px;
---shr-pod-cover-w: 78px;
---shr-pod-cover-h: 112px;
+--shr-pod-cover-w: 70px;
+--shr-pod-cover-h: 100px;
 --shr-preview-col: 444px;
 --shr-swatch-w: 96px;
 --shr-swatch-h: 120px;
@@ -522,10 +524,14 @@ color-scheme: dark;
 --pl-search-w: 200px;
 --pl-lead-w: 22px;
 --pl-rank-w: 24px;
+--pl-prio-w: 56px;
+--pl-type-w: 96px;
+--pl-rel-w: 132px;
+--pl-act-w: 150px;
 --pl-thumb-col: 40px;
 --pl-thumb-w: 36px;
 --pl-thumb-h: 50px;
---pl-aux-w: 140px;
+--pl-aux-w: 96px;
 --pl-price-w: 80px;
 --pl-dialog-w: 720px;
 /* Sync & Import (frame 11i) and the provider profiles */
@@ -608,6 +614,10 @@ color-scheme: dark;
 --help-read-w: 620px;
 --help-fig-field: 220px;
 --help-fig-ring: 84px;
+--gv-sc-stack-w: 104px;
+--pf-tile-min: 120px;
+--mstat-min: 120px;
+--pf-spread-h: 120px;
 --cmp-w: 1100px;
 
 /* avatar frames and bookshelf skins (Gold Shop cosmetics) */

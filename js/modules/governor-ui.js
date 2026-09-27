@@ -688,6 +688,65 @@
       "fsm-lab": { mark: "⟲", label: "follow a state" }, "fn-transform": { mark: "f(x)", label: "move a graph" },
       "trig-circle": { mark: "◯", label: "turn the circle" }, "integration-area": { mark: "∫", label: "measure area" }
     };
+    /* each lab's own miniature (review B: one bar chart stood in for all
+       of them) — what the learner actually looks at in there */
+    var SVG_OPEN = '<svg viewBox="0 0 120 64" width="120" height="64" class="k-gv-sc">';
+    var LAB_SCENE = {
+      trace: function () {
+        return el("span", { class: "k-gv-sc-stack" }, ["main()", "fact(3)", "fact(2)", "fact(1)"].map(function (t, i, a) {
+          return el("span", { class: "k-gv-sc-frame", "data-state": i === a.length - 1 ? "top" : null, text: t });
+        }));
+      },
+      oop: function () {
+        return el("span", { html: SVG_OPEN
+          + '<rect x="34" y="4" width="52" height="20" rx="4" class="k-gv-sc-box"/><text x="60" y="17" class="k-gv-sc-t">Animal</text>'
+          + '<rect x="6" y="40" width="48" height="20" rx="4" class="k-gv-sc-box" data-hot="1"/><text x="30" y="53" class="k-gv-sc-t">Dog</text>'
+          + '<rect x="66" y="40" width="48" height="20" rx="4" class="k-gv-sc-box"/><text x="90" y="53" class="k-gv-sc-t">Cat</text>'
+          + '<path d="M30,40 L30,32 L90,32 L90,40 M60,32 L60,24" class="k-gv-sc-line"/><path d="M55,28 L60,23 L65,28" class="k-gv-sc-line"/></svg>' });
+      },
+      "logic-lab": function () {
+        var rows = [["A", "B", "Q"], ["0", "0", "0"], ["0", "1", "1"], ["1", "0", "1"], ["1", "1", "0"]];
+        return el("span", { class: "k-gv-sc-tt" }, rows.map(function (r, i) {
+          return el("span", { class: "k-gv-sc-tr", "data-state": i === 0 ? "head" : null }, r.map(function (v, j) {
+            return el("i", { "data-state": j === 2 && i > 0 ? (v === "1" ? "on" : "off") : null, text: v });
+          }));
+        }));
+      },
+      "sort-viz": function () {
+        return el("span", { class: "k-gv-pv-bars" }, [el("i"), el("i"), el("i"), el("i"), el("i")]);
+      },
+      "fsm-lab": function () {
+        return el("span", { html: SVG_OPEN
+          + '<path d="M26,32 L48,32 M72,32 L94,32" class="k-gv-sc-line"/><path d="M43,28 L48,32 L43,36 M89,28 L94,32 L89,36" class="k-gv-sc-line"/>'
+          + '<path d="M60,20 C52,4 68,4 60,20" class="k-gv-sc-line"/>'
+          + '<circle cx="16" cy="32" r="10" class="k-gv-sc-node"/><circle cx="60" cy="32" r="10" class="k-gv-sc-node" data-hot="1"/>'
+          + '<circle cx="104" cy="32" r="10" class="k-gv-sc-node"/><circle cx="104" cy="32" r="7" class="k-gv-sc-node"/>'
+          + '<text x="16" y="35" class="k-gv-sc-t">q0</text><text x="60" y="35" class="k-gv-sc-t">q1</text><text x="104" y="35" class="k-gv-sc-t">q2</text></svg>' });
+      },
+      "fn-transform": function () {
+        return el("span", { html: SVG_OPEN
+          + '<path d="M4,56 L116,56 M14,62 L14,2" class="k-gv-sc-axis"/>'
+          + '<path d="M14,50 Q44,50 64,26 T116,10" class="k-gv-sc-curve" data-base="1"/>'
+          + '<path d="M28,40 Q58,40 78,16 T120,2" class="k-gv-sc-curve"/></svg>' });
+      },
+      "trig-circle": function () {
+        return el("span", { html: SVG_OPEN
+          + '<path d="M22,32 L98,32 M60,2 L60,62" class="k-gv-sc-axis"/>'
+          + '<circle cx="60" cy="32" r="26" class="k-gv-sc-ring"/>'
+          + '<path d="M60,32 L80,15" class="k-gv-sc-curve"/><path d="M80,15 L80,32" class="k-gv-sc-line" data-dash="1"/>'
+          + '<circle cx="80" cy="15" r="3.5" class="k-gv-sc-dot"/></svg>' });
+      },
+      "integration-area": function () {
+        return el("span", { html: SVG_OPEN
+          + '<path d="M36,56 L36,38 Q52,24 68,22 Q80,21 88,26 L88,56 Z" class="k-gv-sc-area"/>'
+          + '<path d="M4,56 L116,56 M10,62 L10,2" class="k-gv-sc-axis"/>'
+          + '<path d="M10,52 Q30,46 44,32 T84,24 T116,34" class="k-gv-sc-curve"/>'
+          + '<text x="36" y="63" class="k-gv-sc-t">a</text><text x="88" y="63" class="k-gv-sc-t">b</text></svg>' });
+      }
+    };
+    function labScene(id) {
+      return (LAB_SCENE[id] || LAB_SCENE["sort-viz"])();
+    }
     /* the preset banner's painted background, as a custom property */
     function bannerImage(id) {
       var css = KOS.governor.bannerPresetCss(id) || "";
@@ -723,9 +782,8 @@
         pv.appendChild(el("span", { class: "k-gv-pv-shrine", "data-ui": "shop.preview-shrine", "data-skin": it.id }, [el("i")]));
       } else {
         var lab = LAB_MARK[it.id] || { mark: "◎", label: "explore" };
-        pv.appendChild(el("span", { class: "k-gv-pv-lab", "data-ui": "shop.lab-scene" }, [
-          el("span", { class: "k-gv-pv-bars" }, [el("i"), el("i"), el("i"), el("i"), el("i")]),
-          el("span", { class: "k-gv-pv-mark", text: lab.mark }),
+        pv.appendChild(el("span", { class: "k-gv-pv-lab", "data-ui": "shop.lab-scene", "data-scene": LAB_SCENE[it.id] ? it.id : "generic" }, [
+          labScene(it.id),
           el("span", { class: "k-gv-pv-label", text: lab.label })
         ]));
       }

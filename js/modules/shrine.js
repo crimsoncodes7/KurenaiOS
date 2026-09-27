@@ -254,173 +254,153 @@
     ctx.fillStyle = pal.bg;
     ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
 
-    /* the upper band: the cover, blurred and dimmed, under a glow */
-    var bandH = inner.h * 0.62;
-    if (show.cover && coverImage) {
-      ctx.save();
-      if ("filter" in ctx) ctx.filter = "blur(" + (8 * S) + "px)";
-      ctx.globalAlpha = 0.5;
-      drawCrop(ctx, entry, coverImage, inner.x, inner.y, inner.w, bandH);
-      ctx.restore();
+    /* FULL ART (review B, "think Pokémon V"): the cover is the whole card,
+       sharp, with a dark band across the top for the name and the score
+       and a translucent text box at the foot. No cover: the palette and
+       the medium's kanji fill the frame. */
+    if (show.cover && coverImage) drawCrop(ctx, entry, coverImage, inner.x, inner.y, inner.w, inner.h);
+    else {
+      var wash = ctx.createLinearGradient(0, inner.y, 0, inner.y + inner.h);
+      wash.addColorStop(0, alpha(pal.accent, 0.18));
+      wash.addColorStop(1, pal.bg);
+      ctx.fillStyle = wash;
+      ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
+      ctx.fillStyle = alpha(pal.accent, 0.16);
+      ctx.font = "700 " + (220 * S) + "px " + MINCHO;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(mod.kanji, W / 2, H * 0.46);
+      ctx.textAlign = "left";
     }
-    var glow = ctx.createRadialGradient(inner.x + inner.w * 0.7, inner.y + bandH * 0.3, 0,
-      inner.x + inner.w * 0.7, inner.y + bandH * 0.3, 120 * S);
-    if (glow) {
-      glow.addColorStop(0, alpha(pal.accent, 0.22));
-      glow.addColorStop(1, alpha(pal.accent, 0));
-      ctx.fillStyle = glow;
-      ctx.fillRect(inner.x, inner.y, inner.w, bandH);
-    }
-    var fade = ctx.createLinearGradient(0, inner.y, 0, inner.y + bandH);
-    fade.addColorStop(0, pal.bg);
-    fade.addColorStop(0.18, alpha(pal.bg, 0));
-    fade.addColorStop(0.45, alpha(pal.bg, 0));
-    fade.addColorStop(1, pal.bg);
-    ctx.fillStyle = fade;
-    ctx.fillRect(inner.x, inner.y, inner.w, bandH);
+    var topFade = ctx.createLinearGradient(0, inner.y, 0, inner.y + 150 * S);
+    topFade.addColorStop(0, alpha(pal.bg, 0.92));
+    topFade.addColorStop(0.62, alpha(pal.bg, 0.55));
+    topFade.addColorStop(1, alpha(pal.bg, 0));
+    ctx.fillStyle = topFade;
+    ctx.fillRect(inner.x, inner.y, inner.w, 150 * S);
+    var footFade = ctx.createLinearGradient(0, H * 0.5, 0, H);
+    footFade.addColorStop(0, alpha(pal.bg, 0));
+    footFade.addColorStop(1, alpha(pal.bg, 0.94));
+    ctx.fillStyle = footFade;
+    ctx.fillRect(inner.x, H * 0.5, inner.w, H * 0.5);
 
     ctx.textBaseline = "top";
     ctx.textAlign = "left";
+    var left = 24 * S, right = W - 24 * S;
 
-    /* the rank numerals, outlined, behind the poster */
-    if (show.rank) {
-      ctx.font = "800 " + (112 * S) + "px " + MINCHO;
-      spacing(ctx, -0.04, 112 * S);
-      ctx.strokeStyle = pal.accent;
-      ctx.lineWidth = 1.5 * S;
-      ctx.strokeText(pad2(opts.rank || 1), 14 * S, 186 * S);
-      spacing(ctx, 0, 0);
-    }
-
-    /* the poster */
-    if (show.cover) {
-      var px = 168 * S, py = 64 * S, pw = 150 * S, ph = 214 * S;
-      ctx.save();
-      ctx.shadowColor = pal.shadow;
-      ctx.shadowBlur = 40 * S;
-      ctx.shadowOffsetY = 18 * S;
-      roundRect(ctx, px, py, pw, ph, 12 * S);
-      ctx.fillStyle = pal.bg;
-      ctx.fill();
-      ctx.restore();
-      ctx.save();
-      roundRect(ctx, px, py, pw, ph, 12 * S);
-      ctx.clip();
-      if (coverImage) drawCrop(ctx, entry, coverImage, px, py, pw, ph);
-      else {
-        ctx.fillStyle = alpha(pal.accent, 0.12);
-        ctx.fillRect(px, py, pw, ph);
-        ctx.fillStyle = alpha(pal.accent, 0.4);
-        ctx.font = "700 " + (72 * S) + "px " + MINCHO;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(mod.kanji, px + pw / 2, py + ph / 2);
-        ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-      }
-      ctx.restore();
-      roundRect(ctx, px, py, pw, ph, 12 * S);
-      ctx.strokeStyle = pal.accent;
-      ctx.lineWidth = 2 * S;
-      ctx.stroke();
-    }
-
-    /* 殿堂入り, set vertically down the right edge */
+    /* the hall line, then the name across the top — the card's "name bar" */
     ctx.fillStyle = pal.accent;
-    ctx.font = "700 " + (15 * S) + "px " + MINCHO;
-    ctx.textAlign = "center";
-    "殿堂入り".split("").forEach(function (ch, i) {
-      ctx.fillText(ch, W - 16 * S - 7.5 * S, 20 * S + i * 15 * S * 1.35);
-    });
-    ctx.textAlign = "left";
-
-    /* the hall line */
     ctx.font = "600 " + (9.5 * S) + "px " + MONO;
     spacing(ctx, 0.24, 9.5 * S);
-    ctx.fillText("✿  KURENAI · PRIVATE HALL", 24 * S, 22 * S);
+    ctx.fillText("✿  KURENAI · PRIVATE HALL", left, 22 * S);
     spacing(ctx, 0, 0);
-
-    /* the lower block, laid out from the bottom edge up */
-    var left = 24 * S, right = W - 24 * S, rowBottom = H - 22 * S;
-    var medal = show.score ? 78 * S : 0;
-    var rowTop = rowBottom - Math.max(medal, 40 * S);
-    var hairY = rowTop - 14 * S;
-    var metaTop = hairY - 14 * S - 15 * S;
-    var titleTop = metaTop - 6 * S - 35 * S;
-    var rankTop = titleTop - 8 * S - 13 * S;
-
+    var medal = show.score ? 70 * S : 0;
+    var nameRight = right - (medal ? medal + 12 * S : 0);
+    var y0 = 44 * S;
     if (show.rank) {
       ctx.fillStyle = pal.accent;
       ctx.font = "600 " + (11 * S) + "px " + MONO;
       spacing(ctx, 0.22, 11 * S);
       var no = opts.total ? " · NO. " + pad3(opts.rank || 1) + " / " + pad3(opts.total) : "";
-      ctx.fillText("◆ RANK " + pad2(opts.rank || 1) + no, left, rankTop);
+      ctx.fillText("◆ RANK " + pad2(opts.rank || 1) + no, left, y0);
       spacing(ctx, 0, 0);
+      y0 += 20 * S;
     }
     ctx.fillStyle = pal.ivory;
-    ctx.fillText(fitLine(ctx, entry.title, "800", MINCHO, 33 * S, 20 * S, right - left), left, titleTop);
-    ctx.fillStyle = pal.meta;
-    ctx.fillText(fitLine(ctx, cardMeta(entry, show.progress), "400", "'Onest', system-ui, sans-serif", 11.5 * S, 9 * S, right - left), left, metaTop);
+    ctx.shadowColor = alpha(pal.bg, 0.8);
+    ctx.shadowBlur = 12 * S;
+    ctx.fillText(fitLine(ctx, entry.title, "800", MINCHO, 34 * S, 20 * S, nameRight - left), left, y0);
+    ctx.shadowBlur = 0;
 
-    var hair = ctx.createLinearGradient(left, 0, right, 0);
-    hair.addColorStop(0, pal.accent);
-    hair.addColorStop(1, alpha(pal.accent, 0));
-    ctx.fillStyle = hair;
-    ctx.fillRect(left, hairY, right - left, Math.max(1, S * 0.6));
+    /* the score medallion where a card prints its HP */
+    if (show.score) {
+      var cx = right - medal / 2, cy = 22 * S + medal / 2, r = medal / 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = alpha(pal.bg, 0.78);
+      ctx.fill();
+      ctx.fillStyle = pal.accent;
+      for (var a = 0; a < 360; a += 12) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, (a - 90) * Math.PI / 180, (a + 4 - 90) * Math.PI / 180);
+        ctx.arc(cx, cy, r * 0.86, (a + 4 - 90) * Math.PI / 180, (a - 90) * Math.PI / 180, true);
+        ctx.closePath();
+        ctx.fill();
+      }
+      var score = Number(entry.score || 0);
+      ctx.textAlign = "center";
+      ctx.fillStyle = pal.accent;
+      ctx.font = "600 " + (25 * S) + "px " + MONO;
+      ctx.fillText(score ? String(score) : "—", cx, cy - 16 * S);
+      ctx.fillStyle = pal.faint;
+      ctx.font = "500 " + (6.5 * S) + "px " + MONO;
+      spacing(ctx, 0.16, 6.5 * S);
+      ctx.fillText("SCORE / 10", cx, cy + 12 * S);
+      spacing(ctx, 0, 0);
+      ctx.textAlign = "left";
+    }
 
-    /* the message and the date, bottom-aligned beside the medallion */
-    var textRight = right - (medal ? medal + 14 * S : 0);
-    var lines = [], lineH = 14 * S * 1.45, dateH = show.date && addedOn(entry) ? 10 * S + 9 * S : 0;
+    /* 殿堂入り, set vertically down the right edge under the medallion */
+    ctx.fillStyle = pal.accent;
+    ctx.font = "700 " + (15 * S) + "px " + MINCHO;
+    ctx.textAlign = "center";
+    "殿堂入り".split("").forEach(function (ch, i) {
+      ctx.fillText(ch, right - 8 * S, 22 * S + medal + 14 * S + i * 15 * S * 1.35);
+    });
+    ctx.textAlign = "left";
+
+    /* the text box at the foot: meta, the message, the date */
+    var lines = [], lineH = 14 * S * 1.45;
+    var boxW = right - left, pad = 14 * S;
     if (show.message) {
       ctx.font = "italic 400 " + (14 * S) + "px " + READ;
-      /* a message is set in quotes unless it already opens with one (the
-         default quotes the title) */
       var said = String(opts.message || defaultMessage(entry));
-      lines = lineSet(ctx, /^["“]/.test(said) ? said : "“" + said + "”", textRight - left);
+      lines = lineSet(ctx, /^["“]/.test(said) ? said : "“" + said + "”", boxW - pad * 2);
       if (lines.length > 3) {
         lines = lines.slice(0, 3);
         lines[2] = lines[2].replace(/[.,;:”]*$/, "…”");
       }
     }
-    var y = rowBottom - lines.length * lineH - dateH;
-    ctx.fillStyle = pal.quote;
-    lines.forEach(function (line, i) { ctx.fillText(line, left, y + i * lineH); });
-    if (dateH) {
-      var d = addedOn(entry);
+    var d = show.date ? addedOn(entry) : null;
+    var boxH = pad + 15 * S + (lines.length ? 10 * S + lines.length * lineH : 0) + (d ? 12 * S + 9 * S : 0) + pad;
+    var boxY = H - 22 * S - boxH;
+    ctx.save();
+    roundRect(ctx, left, boxY, boxW, boxH, 14 * S);
+    ctx.fillStyle = alpha(pal.bg, 0.72);
+    ctx.fill();
+    ctx.strokeStyle = alpha(pal.accent, 0.55);
+    ctx.lineWidth = 1.2 * S;
+    ctx.stroke();
+    ctx.restore();
+    var ty = boxY + pad;
+    ctx.fillStyle = pal.meta;
+    ctx.fillText(fitLine(ctx, cardMeta(entry, show.progress), "500", "'Onest', system-ui, sans-serif", 11.5 * S, 9 * S, boxW - pad * 2), left + pad, ty);
+    ty += 15 * S;
+    if (lines.length) {
+      ty += 10 * S;
+      ctx.font = "italic 400 " + (14 * S) + "px " + READ;
+      ctx.fillStyle = pal.quote;
+      lines.forEach(function (line, i) { ctx.fillText(line, left + pad, ty + i * lineH); });
+      ty += lines.length * lineH;
+    }
+    if (d) {
+      ty += 12 * S;
       ctx.fillStyle = pal.faint;
       ctx.font = "500 " + (8.5 * S) + "px " + MONO;
       spacing(ctx, 0.14, 8.5 * S);
-      ctx.fillText("ADDED " + pad2(d.getDate()) + " · " + pad2(d.getMonth() + 1) + " · " + d.getFullYear() + " · KURENAIOS",
-        left, rowBottom - 9 * S);
+      ctx.fillText("ADDED " + pad2(d.getDate()) + " · " + pad2(d.getMonth() + 1) + " · " + d.getFullYear() + " · KURENAIOS", left + pad, ty);
       spacing(ctx, 0, 0);
     }
-
-    /* the medallion: a ring of ticks round the score */
-    if (show.score) {
-      var cx = right - medal / 2, cy = rowBottom - medal / 2, r = medal / 2;
-      ctx.fillStyle = pal.accent;
-      for (var a = 0; a < 360; a += 12) {
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, r, (a - 90) * Math.PI / 180, (a + 4 - 90) * Math.PI / 180);
-        ctx.closePath();
-        ctx.fill();
-      }
-      ctx.beginPath();
-      ctx.arc(cx, cy, r * 0.82, 0, Math.PI * 2);
-      ctx.fillStyle = pal.bg;
-      ctx.fill();
-      var score = Number(entry.score || 0);
-      ctx.textAlign = "center";
-      ctx.fillStyle = pal.accent;
-      ctx.font = "600 " + (28 * S) + "px " + MONO;
-      ctx.fillText(score ? String(score) : "—", cx, cy - 18 * S);
-      ctx.fillStyle = pal.faint;
-      ctx.font = "500 " + (6.5 * S) + "px " + MONO;
-      spacing(ctx, 0.16, 6.5 * S);
-      ctx.fillText("SCORE / 10", cx, cy + 13 * S);
+    /* the rank numerals, outlined, riding just above the box */
+    if (show.rank) {
+      ctx.font = "800 " + (96 * S) + "px " + MINCHO;
+      spacing(ctx, -0.04, 96 * S);
+      ctx.strokeStyle = pal.accent;
+      ctx.lineWidth = 1.5 * S;
+      ctx.textBaseline = "bottom";
+      ctx.strokeText(pad2(opts.rank || 1), left - 2 * S, boxY - 2 * S);
+      ctx.textBaseline = "top";
       spacing(ctx, 0, 0);
-      ctx.textAlign = "left";
     }
     ctx.restore();
     cb(canvas);
@@ -709,22 +689,33 @@
     if (first.coverUrl) KOS.imageCrop.background(hero, first.coverUrl, first.coverCrop, { className: "k-shr-hero-art" });
     return hero;
   }
-  /* ranks two and three: the podium cards */
+  /* ranks two and three: the podium (review B — they were a plain row).
+     Each is a small hero of its own: the cover as dimmed art behind, the
+     rank as an outlined numeral in its metal (silver, bronze), the poster
+     tilted, the title and its facts, and the score in a medallion. */
   function podiumCard(entry, rank, total) {
     var mod = KOS.media.module(entry.module);
-    return el("article", { class: "k-shr-pod", "data-ui": "shrine.rank-card", "data-rank": String(rank),
+    var card = el("article", { class: "k-shr-pod", "data-ui": "shrine.rank-card", "data-rank": String(rank),
       onclick: function () { openEntry(entry); } }, [
+      el("span", { class: "k-shr-pod-scrim", "aria-hidden": "true" }),
+      el("span", { class: "k-shr-pod-num", "aria-hidden": "true", text: pad2(rank) }),
       coverBox(entry, mod, "k-shr-pod-cover"),
       el("div", { class: "k-shr-pod-body" }, [
-        el("span", { class: "k-shr-pod-rank", "data-ui": "shrine.rank", text: "Rank " + pad2(rank) }),
+        el("span", { class: "k-shr-pod-rank", "data-ui": "shrine.rank", text: "◆ Rank " + pad2(rank) }),
         el("h3", { class: "k-shr-pod-title" }, [titleButton(entry, "k-shr-title")]),
-        moduleLabel(mod, entry.module)
+        el("p", { class: "k-shr-pod-meta" }, [moduleLabel(mod, entry.module), creatorOf(entry) ? " · " + creatorOf(entry) : ""])
       ]),
       el("div", { class: "k-shr-pod-foot", "data-ui": "shrine.row-foot" }, [
-        el("span", { class: "k-shr-pod-score", "data-ui": "shrine.row-score", text: scoreText(entry) }),
+        el("span", { class: "k-shr-pod-medal" }, [
+          el("span", { class: "k-shr-pod-score", "data-ui": "shrine.row-score", text: scoreText(entry) }),
+          el("small", { text: "/ 10" })
+        ]),
         shareButton(entry, rank, total)
       ])
     ]);
+    card.style.setProperty("--vh-accent", mod.accent);
+    if (entry.coverUrl) KOS.imageCrop.background(card, entry.coverUrl, entry.coverCrop, { className: "k-shr-pod-art" });
+    return card;
   }
   /* four onward: the poster wall */
   function tile(entry, rank, total) {
@@ -742,30 +733,39 @@
       ])
     ]);
   }
+  /* the ledger (review B): the hall in two figures, then what it is
+     made of — a bar and a legend with each medium's count and share */
   function hallLedger(entries) {
     var stats = shrineStats(entries);
-    function line(label, value) {
-      return el("div", { class: "k-shr-ledger-line", "data-ui": "shrine.ledger-line" }, [
-        el("dt", { text: label }), el("dd", { class: "k-mono", text: value })
-      ]);
-    }
+    var n = entries.length;
     var bar = el("div", { class: "k-shr-ledger-bar", role: "img", "aria-label": MODULES.filter(function (m) { return stats.modules[m]; })
       .map(function (m) { return KOS.media.module(m).label + " " + stats.modules[m]; }).join(", ") });
+    var legend = el("ul", { class: "k-shr-ledger-legend", "data-ui": "shrine.ledger-lines" });
     MODULES.forEach(function (m) {
       if (!stats.modules[m]) return;
-      var seg = el("span", { class: "k-shr-ledger-seg", title: KOS.media.module(m).label + " · " + stats.modules[m] });
+      var mod = KOS.media.module(m);
+      var seg = el("span", { class: "k-shr-ledger-seg", title: mod.label + " · " + stats.modules[m] });
       seg.style.setProperty("--n", String(stats.modules[m]));
-      seg.style.setProperty("--vh-accent", KOS.media.module(m).accent);
+      seg.style.setProperty("--vh-accent", mod.accent);
       bar.appendChild(seg);
+      var li = el("li", { class: "k-shr-ledger-row", "data-ui": "shrine.ledger-line" }, [
+        el("span", { class: "k-shr-ledger-dot", "aria-hidden": "true" }),
+        el("span", { class: "k-shr-ledger-k", title: mod.label, text: { vn: "VN" }[m] || mod.label }),
+        el("b", { class: "k-mono", text: String(stats.modules[m]) }),
+        el("span", { class: "k-mono k-shr-ledger-pct", text: Math.round(100 * stats.modules[m] / n) + "%" })
+      ]);
+      li.style.setProperty("--vh-accent", mod.accent);
+      legend.appendChild(li);
     });
     return el("aside", { class: "k-shr-ledger", "data-ui": "shrine.ledger", "aria-label": "Hall statistics" }, [
       el("h3", { class: "k-shr-ledger-h", text: "Hall ledger" }),
-      el("dl", { class: "k-shr-ledger-lines", "data-ui": "shrine.ledger-lines" }, [
-        line("Enshrined", String(entries.length)),
-        line("Average score", stats.average),
-        line("Completed", String(stats.completed))
-      ]),
-      bar
+      el("div", { class: "k-shr-ledger-figs" }, [
+        el("div", { class: "k-shr-ledger-fig" }, [el("b", { class: "k-mono", text: String(n) }), el("span", { text: "enshrined" })]),
+        el("div", { class: "k-shr-ledger-fig", "data-tone": "gold" }, [el("b", { class: "k-mono", text: stats.average }), el("span", { text: "average score" })]),
+        stats.completed ? el("div", { class: "k-shr-ledger-fig" }, [el("b", { class: "k-mono", text: String(stats.completed) }), el("span", { text: "completed" })]) : null
+      ].filter(Boolean)),
+      bar,
+      legend
     ]);
   }
   function descriptionEditor(done) {
