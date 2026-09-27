@@ -42,7 +42,7 @@
     { id: "maths", name: "Mathematics", short: "Maths" },
     { id: "it", name: "IT · Data Analytics", short: "IT" }
   ];
-  var HUE = { compsci: "var(--c-compsci)", maths: "var(--c-maths)", it: "var(--c-it)" };
+  var HUE = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" };
   var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var NAME = {};
   SUBJ.forEach(function (s) { NAME[s.id] = s.name; });

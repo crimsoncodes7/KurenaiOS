@@ -6,7 +6,7 @@
   var el = KOS.ui.el, store = KOS.store;
 
   var SUBJECTS = ["compsci", "maths", "it"];
-  var COLORS = { compsci: "var(--c-compsci)", maths: "var(--c-maths)", it: "var(--c-it)" };
+  var COLORS = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" };
   var HEX = { compsci: "#3D8E76", maths: "#4C6DB3", it: "#8A63A8" };
   var STATUS = [
     ["none", "Not started"], ["started", "Started"],

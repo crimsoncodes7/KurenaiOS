@@ -686,7 +686,7 @@
      you keep on the right — with the cycles as a segmented bar beneath. */
   function subjectName(sid) { return KOS_DATA[sid] ? KOS_DATA[sid].name : sid; }
   function shortName(sid) { return ({ compsci: "CS", maths: "Maths", it: "IT" })[sid] || subjectName(sid); }
-  function hue(sid) { return "var(--c-" + sid + ")"; }
+  function hue(sid) { return "var(--" + ({ compsci: "cs", maths: "maths", it: "it" }[sid] || "muted") + ")"; }
   function topicLabel() {
     if (S && S.kind === "reading") return S.book ? S.book.title : "Reading — no book linked";
     if (!S || !S.subject) return "General study";

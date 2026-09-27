@@ -77,7 +77,7 @@
     try {
       var meta = document.querySelector('meta[name="theme-color"]');
       if (!meta) return;
-      var bg = getComputedStyle(document.documentElement).getPropertyValue("--bg0").trim();
+      var bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
       if (bg) meta.setAttribute("content", bg);
     } catch (e) {}
   }

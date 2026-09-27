@@ -288,7 +288,7 @@
       function draw() {
         regWrap.innerHTML = "";
         regWrap.appendChild(chip("ACC", ACC, "var(--amber)"));
-        regWrap.appendChild(chip("PC", PC, "var(--c-compsci)"));
+        regWrap.appendChild(chip("PC", PC, "var(--cs)"));
         regWrap.appendChild(chip("INBOX", IN.join(" ") || "—"));
         regWrap.appendChild(chip("OUTBOX", OUT.join(" ") || "—", "var(--crimson)"));
         regWrap.appendChild(chip("STATE", halted ? "halted" : "ready"));

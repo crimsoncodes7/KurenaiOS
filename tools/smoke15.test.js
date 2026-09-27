@@ -67,10 +67,9 @@ const css = readCss();
 
 /* ============ 1 · the Linear Void colour system ============ */
 console.log("== colour system ==");
-step("canonical tokens exist and the legacy names alias them", async () => {
-  /* design contract, owned by the tokens layer. M3 re-pointed it at the
-     rebuild's semantic names (--bg, --surface-*, --border-*, --text-muted
-     …); the pre-rebuild names survive only as the tokens layer's bridge */
+step("canonical tokens exist and the legacy names are gone", async () => {
+  /* design contract, owned by the tokens layer: the Graphite names. The
+     pre-rebuild names lived on as an alias bridge until M14 retired it */
   if (pending("tokens", "canonical colour tokens and their aliases")) return;
   const tokens = layerCss("tokens");
   const defined = new Set([...tokens.matchAll(/(--[\w-]+)\s*:/g)].map(m => m[1]));
@@ -84,7 +83,7 @@ step("canonical tokens exist and the legacy names alias them", async () => {
   const missing = canonical.filter(t => !defined.has(t));
   if (missing.length) throw new Error("missing canonical token(s) " + missing.join(", "));
   /* every custom property the JavaScript reads, and does not set itself,
-     must resolve — the legacy names through the bridge */
+     must resolve */
   const jsFiles = [];
   (function walk(dir) {
     for (const f of fs.readdirSync(path.join(ROOT, dir))) {
@@ -97,17 +96,19 @@ step("canonical tokens exist and the legacy names alias them", async () => {
   const reads = new Set([...js.matchAll(/var\((--[\w-]+)/g), ...js.matchAll(/(?:pick|tokenColor|cssVar|getPropertyValue)\(\s*["'](--[\w-]+)/g)]
     .map(m => m[1]).filter(n => !n.endsWith("-")));
   const sets = new Set([...js.matchAll(/setProperty\(\s*["'](--[\w-]+)/g), ...js.matchAll(/["';\s{](--[\w-]+)\s*:/g)].map(m => m[1]));
-  ["--c-cs", "--c-maths", "--c-it"].forEach(n => reads.add(n));      /* figures.js builds "var(--c-" + subject */
   const unresolved = [...reads].filter(n => !sets.has(n) && !defined.has(n));
   if (unresolved.length) throw new Error("the JavaScript reads undefined token(s): " + unresolved.join(", "));
-  /* the bridge aliases; it never holds a second literal value */
-  const bridge = tokens.slice(tokens.indexOf("THE BRIDGE"), tokens.indexOf("the five tiers, widest first"));
-  if (!bridge) throw new Error("the legacy bridge block is missing");
-  const literal = [...bridge.matchAll(/(--[\w-]+):\s*(#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\()/g)].map(m => m[1]);
-  if (literal.length) throw new Error("bridge entries hold literal colours instead of aliases: " + literal.join(", "));
-  /* the brand name stays the brand colour even where --accent is retinted to a subject */
-  if (!/--kurenai:\s*var\(--crimson\)/.test(tokens)) throw new Error("--kurenai must alias --crimson");
-  if (!/--faint:\s*var\(--muted\)/.test(tokens)) throw new Error("--faint must alias the muted text role");
+  /* M14: the legacy bridge is retired — no pre-rebuild name is defined, and
+     nothing (JavaScript or stylesheet) reads one */
+  const LEGACY = ["--bg0", "--bg1", "--panel", "--surface-card", "--well", "--raise", "--text2", "--faint", "--line2",
+    "--kurenai", "--accent2", "--accent3", "--good", "--danger", "--warning", "--ok", "--paused", "--glass-fill",
+    "--glass-edge", "--wash-brass", "--c-compsci", "--c-cs", "--c-maths", "--c-it", "--sans", "--serif", "--mono", "--radius"];
+  const stillDefined = LEGACY.filter(t => defined.has(t));
+  if (stillDefined.length) throw new Error("the legacy bridge is back: " + stillDefined.join(", "));
+  const cssAll = fs.readdirSync(path.join(ROOT, "css")).concat(fs.readdirSync(path.join(ROOT, "css", "views")).map(f => "views/" + f))
+    .filter(f => /\.css$/.test(f)).map(f => fs.readFileSync(path.join(ROOT, "css", f), "utf8")).join("\n");
+  const legacyReads = LEGACY.filter(t => new RegExp("var\\(" + t + "(?![\\w-])").test(js + cssAll));
+  if (legacyReads.length) throw new Error("a legacy token name is still read: " + legacyReads.join(", "));
 });
 step("all 23 lab themes have :root[data-theme] blocks matching the catalog", async () => {
   const themes = KOS.governor.catalog().filter(c => c.kind === "theme");

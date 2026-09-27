@@ -31,7 +31,7 @@
     node.style[prop] = value;
     return node;
   }
-  var LABEL = "var(--text2)";
+  var LABEL = "var(--text-2)";
   var AXIS = "var(--line)";
   var DEFAULT_C = "var(--accent)";
 
@@ -118,7 +118,7 @@
       if (d.value && bw > 18) {
         var vt = svgNode("text", { x: x + bw / 2, y: y - 5, "text-anchor": "middle",
           "font-size": String(FONT), "font-weight": "600", text: String(d.value) });
-        paint(vt, "fill", "var(--text2)");
+        paint(vt, "fill", "var(--text-2)");
         g.appendChild(vt);
       }
       if (d.label) {
@@ -126,7 +126,7 @@
         lines.forEach(function (ln, k) {
           var lt = svgNode("text", { x: x + bw / 2, y: H - padB + 14 + k * 12, "text-anchor": "middle",
             "font-size": String(FONT), text: ln });
-          paint(lt, "fill", "var(--text2)");
+          paint(lt, "fill", "var(--text-2)");
           g.appendChild(lt);
         });
       }
@@ -197,7 +197,7 @@
     var s = svgEl(SZ, SZ);
     var total = data.reduce(function (a, d) { return a + d.value; }, 0);
     var track = svgNode("circle", { cx: C, cy: C, r: R, fill: "none", "stroke-width": TH });
-    paint(track, "stroke", "var(--well)");
+    paint(track, "stroke", "var(--s2)");
     s.appendChild(track);
     if (total > 0) {
       var circumference = 2 * Math.PI * R;
@@ -294,7 +294,7 @@
       s.appendChild(dot);
       if (p.label && (points.length <= 12 || i % Math.ceil(points.length / 12) === 0)) {
         var lt = svgNode("text", { x: c[0], y: H - padB + 15, "text-anchor": "middle", "font-size": String(FONT), text: p.label });
-        paint(lt, "fill", "var(--text2)");
+        paint(lt, "fill", "var(--text-2)");
         s.appendChild(lt);
       }
     });
@@ -376,7 +376,7 @@
       g.appendChild(svgNode("title", { text: d.hint || (d.date + ": " + d.value) }));
       var r = svgNode("rect", { x: x, y: y, width: cell, height: cell, rx: 2.5,
         opacity: d.value ? String(0.3 + 0.7 * d.value / max) : "1" });
-      paint(r, "fill", d.value ? (opts.color || DEFAULT_C) : "var(--well)");
+      paint(r, "fill", d.value ? (opts.color || DEFAULT_C) : "var(--s2)");
       g.appendChild(r);
       s.appendChild(g);
     });

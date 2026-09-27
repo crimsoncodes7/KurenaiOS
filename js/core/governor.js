@@ -549,8 +549,9 @@
     /* unknown/retired theme ids (the old kin/shinku/aoi/sumi) render as the
        Linear Void default rather than a half-themed page */
     var known = CATALOG.some(function (c) { return c.kind === "theme" && c.theme === g.theme; });
-    /* the attribute must live on <html>: derived tokens (--panel, --kurenai,
-       …) are computed at :root, so canonical overrides must land there too */
+    /* the attribute must live on <html>: derived tokens (--wash-*,
+       --selection, …) are computed at :root, so canonical overrides must
+       land there too */
     var tid = (g.theme === "kurenai" || !known) ? "" : g.theme;
     document.documentElement.dataset.theme = tid;
     document.body.dataset.theme = tid;   /* legacy hook, harmless */
@@ -588,7 +589,7 @@
     if (!g.banner) return null;
     if (g.banner === "custom" && g.bannerImg) {
       var c = KOS.imageCrop.value(g.bannerCrop);
-      return "background-image:linear-gradient(100deg, color-mix(in srgb, var(--bg1) 88%, transparent) 30%, color-mix(in srgb, var(--bg1) 45%, transparent) 70%, transparent), url(" + JSON.stringify(g.bannerImg) + ");background-size:cover;background-position:" + c.x + "% " + c.y + "%;";
+      return "background-image:linear-gradient(100deg, color-mix(in srgb, var(--s1) 88%, transparent) 30%, color-mix(in srgb, var(--s1) 45%, transparent) 70%, transparent), url(" + JSON.stringify(g.bannerImg) + ");background-size:cover;background-position:" + c.x + "% " + c.y + "%;";
     }
     return BANNER_CSS[g.banner] || null;
   }
@@ -623,8 +624,8 @@
           : opts.scrim === "governor"
           ? "var(--gv-hero-scrim)"
           : opts.scrim === "full"
-          ? "linear-gradient(100deg, color-mix(in srgb, var(--bg1) 93%, transparent) 0%, color-mix(in srgb, var(--bg1) 74%, transparent) 45%, color-mix(in srgb, var(--bg1) 82%, transparent) 100%)"
-          : "linear-gradient(100deg, color-mix(in srgb, var(--bg1) 88%, transparent) 30%, color-mix(in srgb, var(--bg1) 45%, transparent) 70%, transparent)"
+          ? "linear-gradient(100deg, color-mix(in srgb, var(--s1) 93%, transparent) 0%, color-mix(in srgb, var(--s1) 74%, transparent) 45%, color-mix(in srgb, var(--s1) 82%, transparent) 100%)"
+          : "linear-gradient(100deg, color-mix(in srgb, var(--s1) 88%, transparent) 30%, color-mix(in srgb, var(--s1) 45%, transparent) 70%, transparent)"
       });
     } else {
       node.style.cssText += BANNER_CSS[g.banner] || "";

@@ -68,11 +68,14 @@
     return (cache[key] = f);
   }
 
-  var TOKENS = { accent: 1, accent2: 1, accent3: 1, good: 1, danger: 1, muted: 1, text: 1, text2: 1, line: 1, warning: 1 };
+  /* the colour NAMES authored figures use (js/data/content) — a small,
+     stable vocabulary — mapped to the Graphite tokens they paint with */
+  var TOKENS = { accent: "accent", accent2: "amber", accent3: "green", good: "green", danger: "red",
+    warning: "amber", muted: "muted", text: "text", text2: "text-2", line: "line",
+    cs: "cs", maths: "maths", it: "it" };
   function col(c, dflt) {
     if (!c) c = dflt || "accent";
-    if (TOKENS[c]) return "var(--" + c + ")";
-    if (c === "cs" || c === "maths" || c === "it") return "var(--c-" + c + ")";
+    if (TOKENS[c]) return "var(--" + TOKENS[c] + ")";
     return c;
   }
   function num(v, d) { return (typeof v === "number" && isFinite(v)) ? v : d; }
@@ -124,7 +127,7 @@
 
     var id = "fg" + Math.random().toString(36).slice(2, 8);
     var out = [], defs = [];
-    var font = 'font-family:var(--sans);font-size:12.5px;fill:var(--text2)';
+    var font = 'font-family:var(--font-ui);font-size:12.5px;fill:var(--text-2)';
     function text(px, py, t, o) {
       o = o || {};
       var pos = o.pos || "n", dx = 0, dy = 0, anchor = "middle", base = "middle";
@@ -136,7 +139,7 @@
       if (pos === "c") { dx = 0; dy = 0; }
       var style = font + ";font-size:" + num(o.size, 12.5) + "px" + (o.i ? ";font-style:italic" : "") + (o.b ? ";font-weight:600" : "") +
         (o.c ? ";fill:" + col(o.c) : "");
-      var halo = o.halo === false ? "" : ';paint-order:stroke;stroke:var(--surface-card, var(--bg1));stroke-width:3px;stroke-linejoin:round';
+      var halo = o.halo === false ? "" : ';paint-order:stroke;stroke:var(--s1);stroke-width:3px;stroke-linejoin:round';
       return '<text x="' + (px + dx + num(o.dx, 0)).toFixed(1) + '" y="' + (py + dy + num(o.dy, 0)).toFixed(1) + '" text-anchor="' + anchor +
         '" dominant-baseline="' + base + '" style="' + style + halo + '">' + esc(t) + "</text>";
     }
@@ -175,8 +178,8 @@
       var ax = Math.min(Math.max(0, x0), x1), ay = Math.min(Math.max(0, y0), y1);
       var axPx = X(ax), ayPx = Y(ay);
       if (axes.grid !== false) {
-        xs.forEach(function (v) { var vv = typeof v === "object" ? v.v : v; if (Math.abs(vv - ax) < 1e-9) return; out.push('<line x1="' + X(vv).toFixed(1) + '" y1="' + pad.t + '" x2="' + X(vv).toFixed(1) + '" y2="' + (pad.t + ph) + '" style="stroke:var(--line2);stroke-width:1"/>'); });
-        ys.forEach(function (v) { var vv = typeof v === "object" ? v.v : v; if (Math.abs(vv - ay) < 1e-9) return; out.push('<line x1="' + pad.l + '" y1="' + Y(vv).toFixed(1) + '" x2="' + (pad.l + pw) + '" y2="' + Y(vv).toFixed(1) + '" style="stroke:var(--line2);stroke-width:1"/>'); });
+        xs.forEach(function (v) { var vv = typeof v === "object" ? v.v : v; if (Math.abs(vv - ax) < 1e-9) return; out.push('<line x1="' + X(vv).toFixed(1) + '" y1="' + pad.t + '" x2="' + X(vv).toFixed(1) + '" y2="' + (pad.t + ph) + '" style="stroke:var(--line);stroke-width:1"/>'); });
+        ys.forEach(function (v) { var vv = typeof v === "object" ? v.v : v; if (Math.abs(vv - ay) < 1e-9) return; out.push('<line x1="' + pad.l + '" y1="' + Y(vv).toFixed(1) + '" x2="' + (pad.l + pw) + '" y2="' + Y(vv).toFixed(1) + '" style="stroke:var(--line);stroke-width:1"/>'); });
       }
       out.push('<line x1="' + pad.l + '" y1="' + ayPx.toFixed(1) + '" x2="' + (pad.l + pw + 8) + '" y2="' + ayPx.toFixed(1) + '" style="stroke:' + axC + ';stroke-width:1.4"/>');
       out.push(arrowHead(pad.l, ayPx, pad.l + pw + 8, ayPx, axC, 1));
@@ -276,7 +279,7 @@
       }
       if (it.pt) {
         var pp = it.pt, pr = num(it.r, 3.6), pc = col(it.c, "accent2");
-        s += '<circle cx="' + X(pp[0]).toFixed(1) + '" cy="' + Y(pp[1]).toFixed(1) + '" r="' + pr + '" style="' + (it.open ? "fill:var(--surface-card, var(--bg1));" : "fill:" + pc + ";") + "stroke:" + pc + ';stroke-width:1.8"/>';
+        s += '<circle cx="' + X(pp[0]).toFixed(1) + '" cy="' + Y(pp[1]).toFixed(1) + '" r="' + pr + '" style="' + (it.open ? "fill:var(--s1);" : "fill:" + pc + ";") + "stroke:" + pc + ';stroke-width:1.8"/>';
         if (it.label) s += text(X(pp[0]), Y(pp[1]), it.label, { pos: it.pos || "ne", c: it.lc || it.c || "text", i: it.i !== false, b: it.b, size: it.size, dx: it.dx, dy: it.dy });
         free.push(s); return;
       }

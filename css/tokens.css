@@ -702,7 +702,9 @@ color-scheme: dark;
 --bp-small: 560px;
 }
 
-/* ---------- derived tokens and the legacy bridge ----------
+/* ---------- derived tokens ----------
+   (The legacy bridge — the pre-rebuild names aliased for the JavaScript —
+   was retired at M14: every reader now uses the Graphite names.)
    Re-declared on every [data-theme] too, so a scoped theme re-resolves. */
 :root, [data-theme] {
 /* a chip's wash: an accent at ~18% over whatever sits behind it */
@@ -716,38 +718,6 @@ color-scheme: dark;
 --selection: color-mix(in oklch, var(--crimson) 32%, transparent);
 --kanji-watermark: oklch(1 0 0 / 0.05);
 
-/* THE BRIDGE — the pre-rebuild token names the JavaScript still reads
-   (charts, figures, labs, inline styles). Aliases only, never a second
-   value; it shrinks as views are rebuilt and is empty at M14. smoke15
-   fails if the JS reads a name nothing defines. */
---bg0: var(--bg);
---bg1: var(--s1);
---panel: var(--s1);
---surface-card: var(--s1);
---well: var(--s2);
---raise: var(--s2);
---text2: var(--text-2);
---faint: var(--muted);
---line2: var(--line);
---kurenai: var(--crimson);
---accent2: var(--amber);
---accent3: var(--green);
---good: var(--green);
---danger: var(--red);
---warning: var(--amber);
---ok: var(--green);
---paused: var(--amber);
---glass-fill: color-mix(in oklch, var(--s1) 80%, transparent);
---glass-edge: var(--line);
---wash-brass: var(--wash-amber);
---c-compsci: var(--cs);
---c-cs: var(--cs);
---c-maths: var(--maths);
---c-it: var(--it);
---sans: var(--font-ui);
---serif: var(--font-read);
---mono: var(--font-mono);
---radius: var(--r-12);
 }
 
 /* ---------- the five tiers, widest first ---------- */
