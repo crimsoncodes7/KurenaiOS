@@ -381,11 +381,11 @@
       });
     }
 
+    function span2(node) { node.classList.add("k-medit-span2"); return node; }
     var tabs = [
       { label: "Play state", ids: ["progress", "dates"] },
       { label: "Your layer", ids: ["taxonomy", "lists", "notes"] },
-      { label: "Record", ids: ["identity", "ownership"] },
-      { label: "Store link", ids: ["source"] }
+      { label: "Record", ids: ["identity", "ownership"] }
     ];
     var overlay = mv.editorModal({
       isNew: isNew, label: "Games", hook: "games.editor",
@@ -397,45 +397,37 @@
       bump: isNew ? null : { input: hours, label: function () { return "+1 hour played"; } },
       fav: isNew ? null : fav,
       /* a new record starts where a record starts: its title */
-      tabs: isNew ? [tabs[2], tabs[0], tabs[1], tabs[3]] : tabs,
+      tabs: isNew ? [tabs[2], tabs[0], tabs[1]] : tabs,
       form: [
-        mv.editorSection("identity", "Identity & artwork", "The title, studio and cover used throughout the vault.", [
-          field("Title", title, "med-span-2"),
+        /* every tab fills its rows (review B): Record is the title and
+           studio, where it lives, the Steam id beside the cover */
+        mv.editorSection("identity", "Identity & artwork", "", [
+          span2(field("Title", title)),
           field("Developer", developer),
           field("Publisher", publisher),
-          field("Cover URL", el("div", { class: "k-stack k-medit-cover" }, [coverU, coverPosition.node]), true)
-        ]),
-        mv.editorSection("progress", "Progress", "Play state, completion depth and time invested. Saved locally — games have no live sync.", [
-          field("Status", status),
-          field("Completion tier", tier),
-          field("Playtime (hours)", hours),
-          field("Score /10", score),
-          field("Backlog priority", prio)
-        ]),
-        mv.editorSection("ownership", "Platform & ownership", "Where the game lives and whether it belongs in the Shrine.", [
           field("Platform", platform),
           field("Ownership", own),
-          isNew ? field("Favourite ♥", el("span", { class: "k-check" }, [fav])) : null
+          field("Steam App ID", el("div", { class: "k-stack" }, [steamId, steamLinkHolder])),
+          span2(field("Cover URL", el("div", { class: "k-medit-coverrow" }, [coverU, coverPosition.node])))
         ]),
-        mv.editorSection("dates", "Dates", "When play started and finished.", [
+        isNew ? mv.editorSection("ownership", "Shrine", "", [
+          field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
+        ]) : null,
+        mv.editorSection("progress", "Play state", "", [
+          field("Status", status),
+          field("Completion tier", tier),
+          field("Score /10", score),
+          field("Playtime (hours)", hours),
           field("Started", started),
           field("Finished", finished)
         ]),
-        mv.editorSection("taxonomy", "Genres & tags", "Comma-separated labels used by filters and search.", [
-          field("Genres", genres, "med-span-2"),
-          field("Tags", tags, "med-span-2")
-        ]),
-        mv.editorSection("lists", "Lists", "Your personal collection groupings.", [
-          field("Custom lists", mv.customListChips(e), "med-span-2")
-        ]),
-        mv.editorSection("source", "Source & store link", "Games remain local; the optional Steam id creates a direct store link only.", [
-          mv.sourceInfo(e, "Local game record", "No browser-side game sync runs from this editor. Steam library import remains a separate, reviewed flow."),
-          field("Steam App ID (optional)", steamId),
-          steamLinkHolder
-        ]),
-        mv.editorSection("notes", "Notes", "Your private play notes and backlog context.", [
+        mv.editorSection("taxonomy", "Your layer", "", [
+          field("Genres", genres),
+          field("Tags", tags),
+          field("Backlog priority", prio),
+          field("Custom lists", mv.customListChips(e)),
           field("Notes", notes, "med-span-2")
-        ])
+        ], { cols: 2 })
       ],
       onSave: save,
       onDelete: function () {

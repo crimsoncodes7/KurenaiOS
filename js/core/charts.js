@@ -205,8 +205,12 @@
       data.forEach(function (d) {
         if (!d.value) return;
         var frac = d.value / total;
+        /* the 1.5 hairline gap between arcs must never make a tiny share's
+           dash NEGATIVE: an invalid dasharray draws the arc as a whole ring,
+           and the last one painted (Games) turned the donut one colour */
+        var len = frac * circumference, dash = Math.max(Math.min(len, 1), len - 1.5);
         var arc = svgNode("circle", { cx: C, cy: C, r: R, fill: "none", "stroke-width": TH,
-          "stroke-dasharray": (frac * circumference - 1.5) + " " + (circumference - frac * circumference + 1.5),
+          "stroke-dasharray": dash + " " + (circumference - dash),
           "stroke-dashoffset": -offset, "stroke-linecap": "butt" });
         paint(arc, "stroke", d.color || DEFAULT_C);
         arc.appendChild(svgNode("title", { text: d.label + ": " + d.value + " (" + Math.round(100 * frac) + "%)" }));
@@ -339,8 +343,13 @@
     /* intrinsic size, so the grid keeps GitHub-scale cells instead of being
        stretched to whatever the container is wide (which left the card mostly
        empty air). CSS caps it at 100% and scales height with it. */
-    s.setAttribute("width", String(W));
-    s.setAttribute("height", String(H));
+    /* opts.fill: the grid spans its card instead (the Analytics card
+       beside the score chart, review B) */
+    if (opts.fill) s.setAttribute("class", "k-chart-fill");
+    else {
+      s.setAttribute("width", String(W));
+      s.setAttribute("height", String(H));
+    }
     ["Mon", "Wed", "Fri"].forEach(function (lbl, i) {
       var t = svgNode("text", { x: 2, y: padT + (i * 2) * (cell + gap) + cell - 2, "font-size": "11", text: lbl });
       paint(t, "fill", LABEL);

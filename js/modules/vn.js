@@ -291,11 +291,10 @@
     /* 11e: the choice as a radio list, one line per source */
     var modeName = "vn-mode-" + Math.random().toString(36).slice(2, 8);
     var modeSel = el("div", { class: "k-vn-modes", role: "radiogroup", "data-ui": "vn.mode", "aria-label": "What counts as progress" }, [
-      ["", "Automatic", "routes, chapters, hours, then %"],
+      ["", "Automatic", "routes, then chapters, then hours"],
       ["routes", "Routes cleared"],
       ["chapters", "Chapters / parts completed"],
-      ["time", "Hours played vs VNDB's length"],
-      ["percent", "A percentage I set"]
+      ["time", "Hours played vs VNDB's length"]
     ].map(function (o) {
       var r = el("input", { type: "radio", class: "k-vn-mode-in", name: modeName, value: o[0] });
       r.checked = (e.progressMode || "") === o[0];
@@ -342,7 +341,8 @@
       var src = progressSource(e);
       pctField.hidden = !(src === "percent" || modeSel.value === "percent");
       var timing = src === "time" || modeSel.value === "time";
-      hoursField.hidden = !timing;
+      /* hours played is always there to fill in (review B), whatever is
+         counting; VNDB's length note shows only while hours count */
       lengthNoteEl.hidden = !timing;
       lengthNoteEl.textContent = lengthNote(e);
       progressNoteEl.textContent = progressNote(e);
@@ -425,17 +425,20 @@
           : "lines worth keeping — text, optional context, and a route to the flashcard system" })
       ]));
       e.quotes.slice().reverse().forEach(function (q) {
+        /* a quote card (review B): the line in the reading face over a
+           tinted panel with its rule, the context and date beneath, the
+           two actions as pills at the right of that line */
         var row = el("div", { class: "k-vn-quote", "data-ui": "vn.quote" });
         var formHolder = el("div", {});
         row.appendChild(el("blockquote", { class: "k-vn-quote-text", text: "“" + q.text + "”" }));
         row.appendChild(el("div", { class: "k-vn-quote-meta" }, [
-          el("span", { text: (q.context ? q.context + " · " : "") + new Date(q.loggedAt).toLocaleDateString() }),
-          el("button", { type: "button", class: "k-link k-spacer", text: "+ Add to Personal deck", title: "Send to the Personal deck (editable first)", onclick: function (ev) {
+          el("span", { class: "k-vn-quote-ctx", text: (q.context ? q.context + " · " : "") + new Date(q.loggedAt).toLocaleDateString() }),
+          el("button", { type: "button", class: "k-btn k-btn--sm k-vn-quote-act", text: "⇢ flashcard", title: "Send to the Personal deck (editable first)", "aria-label": "Make a flashcard from this quote", onclick: function (ev) {
             ev.preventDefault();
             formHolder.innerHTML = "";
             formHolder.appendChild(quoteToCardForm(e, q, function () { formHolder.innerHTML = ""; }));
           } }),
-          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Delete quote", text: "✕", onclick: function (ev) {
+          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-vn-quote-act", "aria-label": "Delete quote", text: "✕", onclick: function (ev) {
             ev.preventDefault();
             e.quotes = e.quotes.filter(function (x) { return x !== q; });
             renderQuotes();
@@ -527,8 +530,7 @@
       { label: "Routes", ids: ["routes"] },
       { label: "Quote log", ids: ["highlights"] },
       { label: "Your layer", ids: ["taxonomy", "lists", "structure", "notes"] },
-      { label: "Record", ids: ["identity", "ownership"] },
-      { label: "Source & sync", ids: ["source"] }
+      { label: "Record", ids: ["identity", "ownership"] }
     ];
     var bump = isNew ? null : quickBumpIn();
     var overlay = mv.editorModal({
@@ -537,57 +539,50 @@
       entry: e, altTitle: [e.developer, e.genres.slice(0, 2).join(", ")].filter(Boolean).join(" · "),
       chips: [KOS.media.STATUS_LABEL[e.status], { steam: "Steam", physical: "Physical", digital: "Digital" }[e.ownership], e.syncSource === "vndb" ? "VNDB-synced" : null],
       bump: bump, fav: isNew ? null : fav,
-      tabs: isNew ? [tabs[4], tabs[0], tabs[1], tabs[2], tabs[3], tabs[5]] : tabs,
+      tabs: isNew ? [tabs[4], tabs[0], tabs[1], tabs[2], tabs[3]] : tabs,
       form: [
         mv.editorSection("identity", "Identity & artwork", "The title, studio and cover used throughout the vault.", [
           field("Title", title, "med-span-2"),
           field("Developer", developer),
-          field("Cover URL", el("div", { class: "k-stack k-medit-cover" }, [coverU, coverPosition.node]))
+          field("VNDB id", vndbId),
+          field("Ownership", own),
+          /* the cover's URL and its position side by side (review B) */
+          field("Cover URL", el("div", { class: "k-medit-coverrow" }, [coverU, coverPosition.node]), "med-span-2"),
+          lengthText(e.extra) ? el("p", { class: "k-field-hint k-medit-wide", "data-ui": "part.sub vault.span-2", text: "VNDB length estimate · " + lengthText(e.extra) }) : null
         ]),
-        mv.editorSection("progress", "Progress", "Status, and whichever of routes, chapters, hours played or a set percentage counts as this VN's progress.", [
+        /* status, score and hours; the dates directly under them; then what
+           counts, then the bar that measures it (review B) */
+        mv.editorSection("progress", "Progress", "", [
           field("Status", status),
           field("Score /10", score),
           hoursField,
+          field("Started", started),
+          field("Finished", finished),
+          el("div", { class: "k-field k-medit-wide", "data-ui": "vault.span-2" }, [el("span", { class: "k-field-label", text: "What counts as progress" }), modeSel]),
           pctField,
           countBox,
-          lengthNoteEl,
-          el("div", { class: "k-field k-medit-wide", "data-ui": "vault.span-2" }, [el("span", { class: "k-field-label", text: "What counts as progress" }), modeSel])
+          lengthNoteEl
         ]),
         mv.editorSection("routes", "Routes & chapters", "Your own lists — VNDB doesn't know a VN's routes. Either can be what counts.", [
           routesWrap,
           chaptersWrap
         ]),
-        mv.editorSection("ownership", "Ownership", "How you own it and whether it belongs in the Shrine.", [
-          field("Ownership", own),
-          isNew ? field("Favourite ♥", el("span", { class: "k-check" }, [fav])) : null
-        ]),
-        mv.editorSection("dates", "Dates", "When play started and finished.", [
-          field("Started", started),
-          field("Finished", finished)
-        ]),
-        mv.editorSection("structure", "CG gallery", "A counter only; no artwork is stored.", [
-          field("Unlocked", cgUn),
-          field("Total known", cgTot)
-        ]),
-        mv.editorSection("highlights", "Quote log", "Lines worth keeping can become personal flashcards.", [
+        isNew ? mv.editorSection("ownership", "Shrine", "", [
+          field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
+        ]) : null,
+        mv.editorSection("highlights", "Quote log", "", [
           quotesWrap
         ], { raw: true }),
-        mv.editorSection("taxonomy", "Genres & tags", "Shared filters plus your own content warnings.", [
-          field("Genres", genres, "med-span-2"),
-          field("Tags", tags, "med-span-2"),
-          field("Content warnings", warns, "med-span-2")
-        ]),
-        mv.editorSection("lists", "Lists", "Your personal collection groupings.", [
-          field("Custom lists", mv.customListChips(e), "med-span-2")
-        ]),
-        mv.editorSection("source", "Source & sync", "VNDB identity and fields that may refresh.", [
-          mv.sourceInfo(e, e.syncSource === "vndb" ? "VNDB" : "Local record"),
-          field("VNDB id", vndbId),
-          lengthText(e.extra) ? el("p", { class: "k-field-hint k-medit-wide", "data-ui": "part.sub vault.span-2", text: "VNDB length estimate · " + lengthText(e.extra) }) : null
-        ]),
-        mv.editorSection("notes", "Notes", "Your private play notes and route context.", [
+        /* your layer as one set of halves, no half-empty rows (review B) */
+        mv.editorSection("taxonomy", "Your layer", "", [
+          field("Genres", genres),
+          field("Tags", tags),
+          field("Content warnings", warns),
+          field("Custom lists", mv.customListChips(e)),
+          field("CG unlocked", cgUn),
+          field("CG total known", cgTot),
           field("Notes", notes, "med-span-2")
-        ])
+        ], { cols: 2 })
       ],
       onSave: save,
       onDelete: function () {

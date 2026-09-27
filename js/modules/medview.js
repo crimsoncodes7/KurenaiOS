@@ -553,13 +553,17 @@
   /* One information grammar for every media editor. A section owns a real
      subject (identity, progress, dates, taxonomy, lists, source or notes),
      while its body owns the same two-column field grid. */
+  /* `description` is kept in the signature for the callers but no longer
+     printed (review B): the tab already names the section, and a sentence
+     under every one repeated the same "pushed to AniList / kept here"
+     prose on every record. opts.cols 2 lays the fields on halves. */
   function editorSection(id, title, description, children, opts) {
     opts = opts || {};
     var bodyChildren = (children || []).filter(Boolean);
     var body = opts.raw
       ? el("div", { class: "k-medit-body", "data-ui": "vault.editor-body" }, bodyChildren)
       : el("div", { class: "k-medit-body", "data-ui": "vault.editor-body" }, [
-          el("div", { class: "k-medit-grid" }, bodyChildren)
+          el("div", { class: "k-medit-grid" + (opts.cols === 2 ? " k-medit-grid--2" : "") }, bodyChildren)
         ]);
     var sid = "med-edit-" + id + "-" + (++editorSectionSeq);
     return el("section", {
@@ -568,33 +572,13 @@
       "aria-labelledby": sid
     }, [
       el("div", { class: "k-medit-index" }, [
-        el("h3", { id: sid, class: "k-kicker", text: title }),
-        description ? el("p", { text: description }) : null
-      ].filter(Boolean)),
+        el("h3", { id: sid, class: "k-kicker", text: title })
+      ]),
       body
     ]);
   }
   var editorSectionSeq = 0;
 
-  function sourceInfo(entry, provider, detail) {
-    var synced = entry.syncSource === "anilist" || entry.syncSource === "vndb";
-    var imported = entry.syncSource === "import";
-    var source = provider || (entry.syncSource === "anilist" ? "AniList"
-      : entry.syncSource === "vndb" ? "VNDB"
-      : entry.syncSource === "import" ? "Imported file" : "Local record");
-    var node = el("div", { class: "k-msource", "data-ui": "vault.source" }, [
-      el("span", { class: "k-msource-mark", "aria-hidden": "true", text: synced ? "⇅" : imported ? "↥" : "⌂" }),
-      el("div", {}, [
-        el("b", { text: source }),
-        el("p", { text: detail || (synced
-          ? "Synced list fields may refresh from the source; your local notes and personal organisation stay yours."
-          : imported ? "Imported metadata stays local until you deliberately import or sync again."
-          : "This record is stored locally and changes only when you edit it.") })
-      ])
-    ]);
-    if (synced || imported) KOS.ui.state(node, "is-linked", true);
-    return node;
-  }
   function calField(label, input) {
     return el("label", { class: "k-field", "data-ui": "cal.field ui.field" }, [el("span", { class: "k-field-label", text: label }), input]);
   }
@@ -652,8 +636,8 @@
          favourite checkbox — the toggle drives it), tabs: [{ label, ids }] }
      The dialog keeps its accessible name ("Edit — Anime"), the banner
      shows the record's own title. Returns the overlay. */
-  var TAB_OF = { progress: 0, dates: 0, structure: 0, ownership: 1, highlights: 1, personal: 2, taxonomy: 2, lists: 2, notes: 2, identity: 3, artwork: 3, source: 4 };
-  var TAB_NAME = ["State", "Shelf", "Your layer", "Record", "Source & sync"];
+  var TAB_OF = { progress: 0, dates: 0, structure: 0, ownership: 1, highlights: 1, personal: 2, taxonomy: 2, lists: 2, notes: 2, identity: 3, artwork: 3 };
+  var TAB_NAME = ["State", "Shelf", "Your layer", "Record"];
   function syncLine(e) {
     var who = e.syncSource === "anilist" ? "AniList" : e.syncSource === "vndb" ? "VNDB" : null;
     if (!who) return e.syncSource === "import" ? "Imported" : "Local record";
@@ -1686,7 +1670,6 @@
     bumpUnit: bumpUnit,
     field: field,
     editorSection: editorSection,
-    sourceInfo: sourceInfo,
     calField: calField,
     splitList: splitList,
     modalOverlay: modalOverlay,

@@ -892,13 +892,19 @@
     ];
     if ((sess.marks || []).length) facts.push(["Self-marked", String(sess.marks.length)]);
     if (sess.restores) facts.push(["Recovered", sess.restores + (sess.restores === 1 ? " time" : " times")]);
-    body.appendChild(el("dl", { class: "k-fx-rev-facts", "data-ui": "focus.rev-facts" }, facts.map(function (f) {
+    /* the facts and the award share ONE three-column grid (review B): the
+       award fills whatever the last row of facts leaves, so there is no
+       hole beside the last tile and no full-width strip under it */
+    var top = el("div", { class: "k-fx-rev-top" });
+    top.style.setProperty("--award-span", String(3 - (facts.length % 3) || 3));
+    body.appendChild(top);
+    top.appendChild(el("dl", { class: "k-fx-rev-facts", "data-ui": "focus.rev-facts" }, facts.map(function (f) {
       return el("div", { class: "k-fx-stat" }, [el("dt", { text: f[0] }), el("dd", { class: "k-mono", text: f[1] })]);
     })));
 
     /* --- 2. what it paid, from the governor's own record --- */
     var paid = complete && award && (award.xp || award.gold);
-    body.appendChild(el("div", { class: "k-fx-rev-award", "data-ui": "focus.rev-award", "data-state": paid ? null : "muted" }, paid
+    top.appendChild(el("div", { class: "k-fx-rev-award", "data-ui": "focus.rev-award", "data-state": paid ? null : "muted" }, paid
       ? [
           el("b", { text: "+" + award.xp + " XP · +" + award.gold + " gold" + (award.hp ? " · +" + award.hp + " HP" : "") }),
           el("span", { text: (award.notes && award.notes.length) ? award.notes.join(" · ") : "paid in full" }),

@@ -113,7 +113,11 @@
          ticked is "I sat that lesson", a personal row "I did the week's
          item". Only a personal row carries over when left unticked. */
       done: !!e.done,
-      doneAt: e.done && isFinite(e.doneAt) ? e.doneAt : null
+      doneAt: e.done && isFinite(e.doneAt) ? e.doneAt : null,
+      /* a class row's lessons each take their own tick (review B): `sat`
+         names the lessons sat, by their text, and the row counts as done
+         once every lesson in it is sat */
+      sat: (Array.isArray(e.sat) ? e.sat : []).map(str).filter(Boolean)
     };
   }
 
@@ -280,8 +284,29 @@
     if (!e) return null;
     e.done = !!val;
     e.doneAt = e.done ? Date.now() : null;
+    if (e.source === "school") e.sat = e.done ? lessonsOf(e).map(function (l) { return l.text; }) : [];
     KOS.store.save();
     return e;
+  }
+
+  /* one lesson of a class row: "I sat that lesson". A row with one lesson
+     (or none listed) is its own lesson. The row's `done` follows — every
+     lesson sat — so the row-level reads keep working unchanged. */
+  function setLessonSat(id, text, val) {
+    var e = entryById(id);
+    if (!e) return null;
+    var names = lessonsOf(e).map(function (l) { return l.text; });
+    if (!names.length) return setDone(id, val);
+    var sat = (e.sat || []).filter(function (t) { return t !== text && names.indexOf(t) !== -1; });
+    if (val) sat.push(text);
+    e.sat = sat;
+    var all = names.every(function (t) { return sat.indexOf(t) !== -1; });
+    if (all !== !!e.done) { e.done = all; e.doneAt = all ? Date.now() : null; }
+    KOS.store.save();
+    return e;
+  }
+  function lessonSat(e, text) {
+    return !!e && (lessonsOf(e).length ? (e.sat || []).indexOf(text) !== -1 : !!e.done);
   }
 
   /* ---------------- reads ---------------- */
@@ -640,6 +665,8 @@
     leafOf: leafOf,
     leavesOf: leavesOf,
     lessonsOf: lessonsOf,
+    setLessonSat: setLessonSat,
+    lessonSat: lessonSat,
     coverage: coverage,
     alignment: alignment,
     alignmentLine: alignmentLine,

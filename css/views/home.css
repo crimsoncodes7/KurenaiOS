@@ -98,7 +98,6 @@ button.k-check-row:hover .k-check-row-text { color: var(--text); text-decoration
 .k-home-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-20); min-inline-size: 0; }
 .k-home-pair[data-state~="one-up"] { grid-template-columns: minmax(0, 1fr); }
 .k-home-pair > .k-card { padding: var(--sp-20) var(--sp-24); }
-.k-home-quiet { grid-column: 2; align-self: start; }
 
 .k-hours { display: flex; flex-direction: column; padding: var(--sp-22) var(--sp-24); }
 .k-hours-big { display: flex; align-items: baseline; gap: var(--sp-8); margin-block-start: var(--sp-6); }
@@ -191,7 +190,6 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 /* ---------- the tiers, widest first ---------- */
 @media (max-width: 1240px) {
 .k-home-mid { grid-template-columns: minmax(0, 1fr); }
-.k-home-quiet { grid-column: auto; }
 .k-desks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 

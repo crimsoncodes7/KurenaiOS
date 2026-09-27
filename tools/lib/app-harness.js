@@ -101,7 +101,7 @@ async function boot(opts = {}) {
 
   const noop = () => {};
   const ctx = new Proxy({}, {
-    get: (t, k) => (k === "measureText" ? () => ({ width: 10 }) : typeof k === "string" ? noop : undefined),
+    get: (t, k) => (k === "measureText" ? () => ({ width: 10 }) : /Gradient$/.test(String(k)) ? () => ({ addColorStop: noop }) : typeof k === "string" ? noop : undefined),
     set: () => true
   });
   window.HTMLCanvasElement.prototype.getContext = () => ctx;

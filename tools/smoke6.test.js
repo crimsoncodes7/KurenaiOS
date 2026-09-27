@@ -333,9 +333,10 @@ step("VN editor opens with routes, CG counter, quote log and warnings", async ()
   await tick(60);
   const modal = document.querySelector("[data-ui~='vn.editor']");
   if (!modal) throw new Error("editor did not open");
-  if (!modal.querySelector("[data-edit-section='progress']") || !modal.querySelector("[data-edit-section='notes']")) throw new Error("shared editor sections missing");
+  /* review B: notes, genres, lists and the CG counter are one "Your layer" section */
+  if (!modal.querySelector("[data-edit-section='progress']") || !modal.querySelector("[data-edit-section='taxonomy']")) throw new Error("shared editor sections missing");
   if (!modal.querySelector("[data-ui~='vn.route-row']")) throw new Error("routes section");
-  if (!/CG gallery/.test(modal.textContent)) throw new Error("CG section");
+  if (!/CG unlocked/.test(modal.textContent)) throw new Error("CG counter");
   if (!modal.querySelector("[data-ui~='vn.quote']")) throw new Error("quote log");
   /* Graphite (frame 11e): the action reads "+ Add to Personal deck" */
   if (![...modal.querySelectorAll("button")].some(b => /flashcard|Personal deck/.test(b.textContent))) throw new Error("send-to-flashcards action");
@@ -359,10 +360,18 @@ step("the Shrine routes a VN favourite to the VN editor", async () => {
   await waitFor(() => main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']").length > 0, 5000);
   const card = [...main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']")].find(c => /Ever17/.test(c.textContent));
   if (!card) throw new Error("VN favourite not in the Shrine");
+  /* review B: a Shrine card opens its SHARE card; editing is the vault's
+     (or the hero's Edit entry). The dispatch the Shrine used still picks
+     the medium's own editor. */
   card.click();
   await tick(60);
+  const share = document.querySelector("[data-ui~='shrine.share-dialog']");
+  if (!share) throw new Error("a Shrine card click did not open the share card");
+  share.closest("[data-ui~='ui.dialog-overlay'], .k-dialog-overlay").remove();
+  KOS.mediaEditor(e, null);
+  await tick(60);
   const modal = document.querySelector("[data-ui~='vn.editor']");
-  if (!modal) throw new Error("Shrine opened the wrong editor for a VN entry");
+  if (!modal) throw new Error("the editor dispatch picked the wrong editor for a VN entry");
   modal.querySelector("button[aria-label='Close']").click();
 });
 

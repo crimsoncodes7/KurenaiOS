@@ -68,11 +68,20 @@
     return { n: null, est: false };
   }
 
+  /* how many volumes the shelf is measured against: the count you gave
+     for the physical run (review B — "2 of 12" for a series still out in
+     print), else the series' own volume count */
+  function shelfTotal(e) {
+    var own = e.physical && e.physical.seriesTotal;
+    if (own) return { n: own, est: false };
+    return totalVolumes(e);
+  }
+
   /* The dual-tracking payoff in numbers: what fraction is OWNED (physical
      volumes / series volumes) vs what fraction is READ (chapters, falling
      back to volumes-read when chapters are unknown). */
   function ownership(e) {
-    var tv = totalVolumes(e);
+    var tv = shelfTotal(e);
     var ownedVols = e.physical ? e.physical.volumes.length : 0;
     var ownedPct = tv.n ? Math.min(100, Math.round(100 * ownedVols / tv.n)) : null;
     var readPct = null, readOpen = false, readTitle = null;
@@ -307,10 +316,11 @@
     var dnfBox = el("input", { type: "checkbox", class: "k-box" });
     dnfBox.checked = e.dnf.isDnf;
     var dnfReason = input("text", { placeholder: "why it lost you (optional)", "aria-label": "Why it lost you" }, e.dnf.reason);
-    var reasonField = field("Reason", dnfReason);
-    reasonField.hidden = !e.dnf.isDnf;
+    /* one cell: the tick and, once ticked, why (review B: no half-empty row) */
+    dnfReason.hidden = !e.dnf.isDnf;
+    var dnfField = field("Did not finish", el("div", { class: "k-stack k-bk-dnf" }, [el("span", { class: "k-check" }, [dnfBox]), dnfReason]));
     dnfBox.addEventListener("change", function () {
-      reasonField.hidden = !dnfBox.checked;
+      dnfReason.hidden = !dnfBox.checked;
       if (dnfBox.checked && status.value !== "completed") status.value = "dropped";
     });
 
@@ -330,13 +340,10 @@
        one entry, the shelf and the eyes, on the shared bar --- */
     function comparePanel() {
       var o = ownership(e);
-      var wrap = el("div", { class: "k-bk-compare", "data-ui": "books.compare" }, [
-        el("div", { class: "k-vn-head" }, [
-          el("b", { text: "Owned vs read" }),
-          el("p", { class: "k-field-hint", text: "the two halves of this one entry — the shelf and the eyes" })
-        ])
+      var wrap = el("div", { class: "k-bk-compare k-bk-box", "data-ui": "books.compare" }, [
+        el("h4", { class: "k-bk-box-h", text: "Owned vs read" })
       ]);
-      if (o.ownedPct == null && o.readPct == null) {
+      if (!o.ownedVols && o.ownedPct == null && o.readPct == null) {
         wrap.appendChild(el("p", { class: "k-muted", text:
           "Nothing to compare yet — add owned volumes below and/or reading progress above, and the bars appear." }));
         return wrap;
@@ -350,10 +357,13 @@
           el("span", { class: "k-muted", text: label }), bar, el("span", { class: "k-mono", text: detail })
         ]);
       }
-      wrap.appendChild(row("Owned", o.ownedPct,
+      /* owned volumes with no series length are still owned: say how many
+         and draw the open bar, never "no volumes recorded" (review B) */
+      wrap.appendChild(row("Owned", o.ownedPct != null ? o.ownedPct : o.ownedVols ? 50 : 0,
         o.ownedPct != null
           ? o.ownedVols + "/" + o.totalVols + " vols" + (o.est ? " (est.)" : "") + " · " + o.ownedPct + "%"
-          : "no volumes recorded", false, "var(--books)"));
+          : o.ownedVols ? o.ownedVols + (o.ownedVols === 1 ? " vol" : " vols") + " owned — give the series length for a share"
+          : "none on the shelf", o.ownedPct == null && o.ownedVols > 0, "var(--books)"));
       wrap.appendChild(row("Read", o.readPct,
         o.readPct == null ? "progress unknown"
           : o.readTitle ? o.readTitle
@@ -365,36 +375,89 @@
        every volume as a tile (read ✓ / owned / not owned), the selected
        volume's own record, then the quick add and the range tool --- */
     var physWrap = el("div", { class: "k-bk-phys" });
-    var selectedVol = null;
+    var selectedVol = null, rangeOpen = false;
+    /* how many volumes physically exist — the "of 12" in "2 of 12" */
+    var seriesIn = numInput({ min: "1", placeholder: "?", "aria-label": "Volumes in the series", class: "k-input k-bk-of-in" },
+      e.physical && e.physical.seriesTotal ? String(e.physical.seriesTotal) : "");
+    seriesIn.addEventListener("change", function () {
+      var n = parseInt(seriesIn.value, 10);
+      if (!e.physical) e.physical = { owned: true, volumes: [] };
+      e.physical.seriesTotal = n > 0 ? Math.min(n, 999) : null;
+      renderPhys();
+    });
     function renderPhys() {
       physWrap.innerHTML = "";
       var vols = e.physical ? e.physical.volumes : [];
       var spent = vols.reduce(function (a, v) { return a + (v.price || 0); }, 0);
-      var tv = totalVolumes(e);
+      var tv = shelfTotal(e);
       var readVols = e.progress.volumes || 0;
       var readOwned = vols.filter(function (v) { return v.number <= readVols; }).length;
       var ownedUnread = vols.length - readOwned;
 
-      physWrap.appendChild(el("dl", { class: "k-bk-band" }, [
-        ["On the shelf", vols.length + (tv.n ? " of " + tv.n : "")],
+      /* 11d, one box per job (review B): the comparison, the figures, the
+         volumes, the selected volume — each its own card, never run together */
+      physWrap.appendChild(comparePanel());
+      if (!seriesIn.value && tv.n && !tv.est) seriesIn.placeholder = String(tv.n);
+      physWrap.appendChild(el("dl", { class: "k-bk-band k-bk-box" }, [
+        el("div", { class: "k-bk-fig" }, [el("dt", { text: "On the shelf" }),
+          el("dd", { class: "k-bk-of" }, [el("span", { text: String(vols.length) }), el("span", { class: "k-bk-of-w", text: "of" }), seriesIn])])
+      ].concat([
         ["Read", String(readVols || 0)],
         ["Owned, unread", String(Math.max(0, ownedUnread)), ownedUnread > 0 ? "amber" : null],
         ["Shelf value", spent ? "£" + spent.toFixed(2) : "—"]
       ].map(function (c) {
         return el("div", { class: "k-bk-fig" }, [el("dt", { text: c[0] }), el("dd", { "data-tone": c[2] || null, text: c[1] })]);
-      })));
+      }))));
 
-      var head = el("div", { class: "k-vn-head" }, [
-        el("b", { text: "Volumes" }),
-        el("p", { class: "k-field-hint", text: vols.length
-          ? vols.length + (vols.length === 1 ? " volume owned" : " volumes owned") + (spent ? " · £" + spent.toFixed(2) : "") + " — owned vs read are tracked separately"
-          : "nothing owned yet — this half is optional" })
+      /* quick add — picking up the newest release one at a time */
+      var quick = el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-intent": "primary", text: "+ Add next · Vol " + nextVolumeNumber(e), onclick: function (ev) {
+        ev.preventDefault();
+        addVolumeRange(e, nextVolumeNumber(e), nextVolumeNumber(e), { purchaseDate: KOS.srs.todayISO() });
+        selectedVol = null;
+        renderPhys();
+      } });
+      var rangeBtn = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "books.range-toggle", "aria-expanded": String(rangeOpen), text: "Add range",
+        onclick: function (ev) { ev.preventDefault(); rangeOpen = !rangeOpen; renderPhys(); } });
+      var volCard = el("section", { class: "k-bk-box k-bk-volcard", "aria-label": "Volumes" }, [
+        el("div", { class: "k-bk-box-head" }, [
+          el("h4", { class: "k-bk-box-h", text: "Volumes" }),
+          el("span", { class: "k-bk-box-sub", text: "Owned vs read are tracked separately" }),
+          el("div", { class: "k-cluster k-spacer" }, [rangeBtn, quick])
+        ])
       ]);
-      physWrap.appendChild(head);
+      physWrap.appendChild(volCard);
+
+      /* range tool — a 40-volume series is one action, not forty */
+      if (rangeOpen) {
+        var rFrom = numInput({ min: "1", placeholder: "from" }, String(nextVolumeNumber(e)));
+        var rTo = numInput({ min: "1", placeholder: "to" });
+        var rCond = select(KOS.mediadb.CONDITIONS.map(function (c) { return [c, KOS.media.CONDITION_LABEL[c]]; }), "good");
+        var rDate = input("date");
+        var rPrice = input("number", { min: "0", step: "0.01", placeholder: "£ each" });
+        var rBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Add", onclick: function (ev) {
+          ev.preventDefault();
+          var a = parseInt(rFrom.value, 10), b = parseInt(rTo.value, 10);
+          if (isNaN(a) || isNaN(b) || b < a) { KOS.ui.toast("Give the range as from ≤ to, e.g. 1 to 15.", true); return; }
+          if (b - a > 499) { KOS.ui.toast("That's over 500 volumes in one go — check the numbers.", true); return; }
+          var p = parseFloat(rPrice.value);
+          var n = addVolumeRange(e, a, b, {
+            condition: rCond.value, purchaseDate: rDate.value || null, price: isNaN(p) ? null : p
+          });
+          KOS.ui.toast(n ? "Added " + n + (n === 1 ? " volume" : " volumes") + " — each is editable below." : "Those volumes are already on the shelf.");
+          selectedVol = null; rangeOpen = false;
+          renderPhys();
+        } });
+        volCard.appendChild(el("div", { class: "k-bk-range-grid", "data-ui": "books.range" }, [
+          field("From", rFrom), field("To", rTo), field("Condition", rCond),
+          field("Purchase date", rDate), field("Price each", rPrice),
+          el("div", { class: "k-bk-range-go", "data-ui": "books.range-submit" }, [rBtn])
+        ]));
+      }
 
       /* the tiles: every owned number, plus the gaps up to the series
          length, so a missing volume shows as not owned */
       var maxN = Math.max(tv.n || 0, vols.reduce(function (a, v) { return Math.max(a, v.number); }, 0));
+      if (!maxN) volCard.appendChild(el("p", { class: "k-bk-none", text: "Nothing on the shelf yet — add the next volume or a range." }));
       if (maxN) {
         var byN = {};
         vols.forEach(function (v) { byN[v.number] = v; });
@@ -421,10 +484,11 @@
             grid.appendChild(tile);
           })(n);
         }
-        physWrap.appendChild(grid);
+        volCard.appendChild(grid);
       }
 
-      /* the selected volume's record */
+      /* the selected volume's record — one aligned row: the number, four
+         labelled controls of one height, Remove */
       if (selectedVol) {
         var v = selectedVol;
         var cond = select(KOS.mediadb.CONDITIONS.map(function (c) { return [c, KOS.media.CONDITION_LABEL[c]]; }), v.condition, { "aria-label": "Condition of volume " + v.number });
@@ -436,7 +500,7 @@
           var p = parseFloat(price.value);
           v.price = isNaN(p) ? null : p;
         });
-        var covBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: v.coverUrl ? "⌖ Cover" : "＋ Cover",
+        var covBtn = el("button", { type: "button", class: "k-input k-bk-cov", "data-ui": "books.vol-cover", text: v.coverUrl ? "Custom ⌖" : "Series default",
           title: "Choose and position a custom cover for this volume", onclick: function (ev) {
             ev.preventDefault();
             KOS.imageCrop.open({
@@ -452,59 +516,19 @@
               }
             });
           } });
-        physWrap.appendChild(el("div", { class: "k-bk-volrec", "data-ui": "books.vol-record" }, [
+        physWrap.appendChild(el("div", { class: "k-bk-volrec k-bk-box", "data-ui": "books.vol-record" }, [
           el("span", { class: "k-mono k-bk-volrec-n", text: "Vol " + v.number }),
-          field("Condition", cond), field("Purchase date", date), field("Price", price),
-          el("div", { class: "k-cluster" }, [covBtn,
-            el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Remove volume " + v.number, text: "✕", onclick: function (ev) {
-              ev.preventDefault();
-              e.physical.volumes = e.physical.volumes.filter(function (x) { return x !== v; });
-              if (!e.physical.volumes.length) e.physical = null;
-              selectedVol = null;
-              renderPhys();
-            } })])
+          field("Condition", cond), field("Purchase date", date), field("Price", price), field("Cover", covBtn),
+          el("button", { type: "button", class: "k-btn k-btn--sm k-bk-remove", "data-intent": "danger", "aria-label": "Remove volume " + v.number, text: "✕ Remove", onclick: function (ev) {
+            ev.preventDefault();
+            var keep = e.physical.seriesTotal;
+            e.physical.volumes = e.physical.volumes.filter(function (x) { return x !== v; });
+            if (!e.physical.volumes.length && !keep) e.physical = null;
+            selectedVol = null;
+            renderPhys();
+          } })
         ]));
       }
-
-      /* quick add — picking up the newest release one at a time */
-      var quick = el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", text: "+ Add next · Vol " + nextVolumeNumber(e), onclick: function (ev) {
-        ev.preventDefault();
-        addVolumeRange(e, nextVolumeNumber(e), nextVolumeNumber(e), { purchaseDate: KOS.srs.todayISO() });
-        selectedVol = null;
-        renderPhys();
-      } });
-      head.appendChild(el("div", { class: "k-cluster k-spacer" }, [quick]));
-
-      /* range tool — a 40-volume series is one action, not forty */
-      var rFrom = numInput({ min: "1", placeholder: "from" }, String(nextVolumeNumber(e)));
-      var rTo = numInput({ min: "1", placeholder: "to" });
-      var rCond = select(KOS.mediadb.CONDITIONS.map(function (c) { return [c, KOS.media.CONDITION_LABEL[c]]; }), "good");
-      var rDate = input("date");
-      var rPrice = input("number", { min: "0", step: "0.01", placeholder: "£ each" });
-      var rBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: "Add range", onclick: function (ev) {
-        ev.preventDefault();
-        var a = parseInt(rFrom.value, 10), b = parseInt(rTo.value, 10);
-        if (isNaN(a) || isNaN(b) || b < a) { KOS.ui.toast("Give the range as from ≤ to, e.g. 1 to 15.", true); return; }
-        if (b - a > 499) { KOS.ui.toast("That's over 500 volumes in one go — check the numbers.", true); return; }
-        var p = parseFloat(rPrice.value);
-        var n = addVolumeRange(e, a, b, {
-          condition: rCond.value, purchaseDate: rDate.value || null, price: isNaN(p) ? null : p
-        });
-        KOS.ui.toast(n ? "Added " + n + (n === 1 ? " volume" : " volumes") + " — each is editable above." : "Those volumes are already on the shelf.");
-        selectedVol = null;
-        renderPhys();
-      } });
-      physWrap.appendChild(el("details", { class: "k-bk-range" }, [
-        el("summary", { text: "Add a volume range — one purchase date, condition and price for the batch" }),
-        el("div", { class: "k-bk-range-grid", "data-ui": "books.range" }, [
-          field("From volume", rFrom),
-          field("To volume", rTo),
-          field("Condition", rCond),
-          field("Purchase date", rDate),
-          field("Price each", rPrice),
-          el("div", { class: "k-bk-range-go", "data-ui": "books.range-submit" }, [rBtn])
-        ])
-      ]));
     }
     renderPhys();
 
@@ -546,12 +570,12 @@
 
     var x = e.extra || {};
     /* 11c's template, with 11d's shelf as its own tab (review B) */
+    function span2(node) { node.classList.add("k-medit-span2"); return node; }
     var tabs = [
       { label: "Reading state", ids: ["progress", "dates"] },
       { label: "Physical vault", ids: ["ownership"] },
       { label: "Shelves & tags", ids: ["taxonomy", "lists", "notes"] },
-      { label: "Identity", ids: ["identity", "artwork"] },
-      { label: "Source & sync", ids: ["source"] }
+      { label: "Identity", ids: ["identity", "artwork"] }
     ];
     var overlay = mv.editorModal({
       isNew: isNew, label: "Books", hook: "books.dialog" + (mirror ? " anime.mirror-dialog" : ""),
@@ -561,10 +585,11 @@
       chips: [KOS.media.FORMAT_LABEL[e.format] || null, KOS.media.STATUS_LABEL[e.status], e.dnf && e.dnf.isDnf ? "DNF" : null],
       bump: isNew ? null : { input: chCur, unit: "chapter", max: e.progress.total || null },
       fav: isNew ? null : fav,
-      tabs: isNew ? [tabs[3], tabs[0], tabs[1], tabs[2], tabs[4]] : tabs,
+      tabs: isNew ? [tabs[3], tabs[0], tabs[1], tabs[2]] : tabs,
+      /* every tab fills its rows (review B) */
       form: [
         mirror
-          ? mv.editorSection("identity", "Record", "As AniList has it. Change the title or artwork there and the next pull brings it over.", [
+          ? mv.editorSection("identity", "Record", "", [
               ro("Title", e.title, true),
               x.titleRomaji && x.titleRomaji !== e.title ? ro("Romaji", x.titleRomaji, true) : null,
               ro("Author / mangaka", e.author),
@@ -572,62 +597,54 @@
               ro("Chapters", e.progress.total != null ? String(e.progress.total) : null),
               ro("Volumes", e.progress.totalVolumes != null ? String(e.progress.totalVolumes) : null),
               ro("Genres", e.genres.join(", "), true),
-              ro("Started", e.dates.started),
-              ro("Finished", e.dates.finished)
+              field("Cover position", coverPosition.node, true)
             ])
-          : mv.editorSection("identity", "Identity & artwork", "The bibliographic details used across the collection.", [
-              field("Title", title, true),
+          : mv.editorSection("identity", "Identity & artwork", "", [
+              span2(field("Title", title)),
+              field("Format", fmt),
               field("Author / mangaka", author),
-              field("Format", fmt)
-            ]),
-        mv.editorSection("artwork", "Cover", mirror
-          ? "AniList's artwork; only its position (or a local replacement image) is yours."
-          : "The series default; individual physical volumes can override it.", [
-          field(mirror ? "Cover position" : "Cover URL", el("div", { class: "k-stack k-medit-cover" }, [mirror ? null : coverU, coverPosition.node].filter(Boolean)), true)
-        ]),
-        mv.editorSection("progress", mirror ? "Reading state" : "Reading progress", mirror
-          ? "Yours to change — pushed to AniList when you save."
-          : "Reading state is separate from what you physically own.", [
-          field("Status", status),
-          field("Chapters read" + (mirror && e.progress.total ? " / " + e.progress.total : ""), chCur),
-          mirror ? null : field("Chapters total", chTot),
-          field("Volumes read" + (mirror && e.progress.totalVolumes ? " / " + e.progress.totalVolumes : ""), vlCur),
-          mirror ? null : field("Volumes total", vlTot),
-          field("Rating", stars),
-          field("DNF — did not finish", el("span", { class: "k-check" }, [dnfBox])),
-          reasonField
-        ]),
-        mirror
-          ? (isNew ? mv.editorSection("dates", "Favourite", "Shrine placement — not on AniList.", [
-              field("Favourite ♥", el("span", { class: "k-check" }, [fav]))
-            ]) : null)
-          : mv.editorSection("dates", isNew ? "Dates & favourite" : "Dates", isNew ? "Reading dates and Shrine placement." : "When reading started and finished.", [
-              field("Started", started),
-              field("Finished", finished),
+              span2(field("Cover URL", el("div", { class: "k-medit-coverrow" }, [coverU, coverPosition.node]))),
               isNew ? field("Favourite ♥", el("span", { class: "k-check" }, [fav])) : null
             ]),
-        mv.editorSection("ownership", "Physical vault", "Volumes on your shelf are tracked independently from reading progress.", [
-          comparePanel(),
-          physWrap
-        ], { raw: true }),
-        mv.editorSection("taxonomy", mirror ? "Mood, shelves & tags" : "Taxonomy & shelves", mirror
-          ? "Your own axes — AniList has no field for them."
-          : "What it is, how it feels and where you organise it.", [
-          mirror ? null : field("Genres", genres),
-          field("Mood", mood),
-          field("Shelves", shelves),
-          field("Tags", tags)
-        ]),
-        mv.editorSection("lists", "Lists", "Your personal collection groupings.", [
-          field("Custom lists", mv.customListChips(e), true)
-        ]),
-        mv.editorSection("source", "Source & sync", "Where this record came from and what may refresh.", [
-          mv.sourceInfo(e, mirror ? "AniList" : e.syncSource === "import" ? "XML import" : "Local record",
-            mirror ? "A 1:1 mirror of your AniList manga list: removed there means removed here on the next pull — unless volumes are on the shelf, which AniList cannot see. Status, chapters, volumes and rating push back within seconds." : null)
-        ]),
-        mv.editorSection("notes", "Notes", "Your private reading notes and edition context.", [
-          field("Notes", notes, true)
-        ])
+        mirror
+          ? mv.editorSection("progress", "Reading state", "", [
+              field("Status", status),
+              field("Chapters read" + (e.progress.total ? " / " + e.progress.total : ""), chCur),
+              field("Volumes read" + (e.progress.totalVolumes ? " / " + e.progress.totalVolumes : ""), vlCur),
+              field("Rating", stars),
+              dnfField,
+              field("Custom lists", mv.customListChips(e)),
+              ro("Started", e.dates.started),
+              ro("Finished", e.dates.finished),
+              isNew ? field("Favourite ♥", el("span", { class: "k-check" }, [fav])) : null
+            ])
+          : mv.editorSection("progress", "Reading progress", "", [
+              field("Status", status),
+              field("Chapters read", chCur),
+              field("Chapters total", chTot),
+              field("Volumes read", vlCur),
+              field("Volumes total", vlTot),
+              field("Rating", stars),
+              field("Started", started),
+              field("Finished", finished),
+              dnfField
+            ]),
+        mv.editorSection("ownership", "Physical vault", "", [physWrap], { raw: true }),
+        mirror
+          ? mv.editorSection("taxonomy", "Mood, shelves & tags", "", [
+              field("Mood", mood),
+              field("Shelves", shelves),
+              field("Tags", tags),
+              field("Notes", notes, true)
+            ])
+          : mv.editorSection("taxonomy", "Taxonomy & shelves", "", [
+              field("Genres", genres),
+              field("Mood", mood),
+              field("Shelves", shelves),
+              field("Tags", tags),
+              field("Custom lists", mv.customListChips(e), true),
+              field("Notes", notes, true)
+            ], { cols: 2 })
       ],
       onSave: save,
       /* a mirrored row has no Delete: that is AniList's call */

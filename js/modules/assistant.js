@@ -1657,7 +1657,8 @@
       acts = [
         ["Ask Kurenai", function () { ask("I'm looking at topic " + label + ". Give me a quick, exam-focused explanation of it grounded in my notes.", "tutor"); }],
         ["Make flashcards", function () { proposeFromContext("study_propose_flashcards", ctx, 8); }],
-        ["Make a quiz", function () { proposeFromContext("study_propose_quiz", ctx, 6); }]
+        ["Make a quiz", function () { proposeFromContext("study_propose_quiz", ctx, 6); }],
+        ["Test me", function () { ask("I'm looking at topic " + label + ". Set me ONE exam-style question on it with its mark total, wait for my answer, then mark it against a mark scheme and tell me what would have earned the missing marks.", "tutor"); }]
       ];
     } else if (kind === "entry") {
       acts = [

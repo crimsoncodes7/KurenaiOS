@@ -151,7 +151,10 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-spine-strip-l { writing-mode: vertical-rl; font-size: var(--fs-12); color: var(--muted); }
 
 /* ================= the topic page (frame 8b) ================= */
-.k-topic { display: grid; grid-template-columns: minmax(0, 1fr) var(--inspector-w); min-block-size: 100%; }
+/* flex-shrink 0: min-block-size 100% replaces the flex item's automatic
+   minimum, so without it the grid was squeezed to the viewport and the
+   editor overflowed it — which ended every sticky child at one screen */
+.k-topic { display: grid; grid-template-columns: minmax(0, 1fr) var(--inspector-w); min-block-size: 100%; flex-shrink: 0; }
 .k-topic[data-state~="insp-closed"] { grid-template-columns: minmax(0, 1fr) var(--sp-48); }
 .k-topic[data-state~="editing"] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .k-topic-col { min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-16); padding: var(--sp-22) var(--sp-28) var(--sp-40); }
@@ -313,9 +316,9 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-note-step-t { font-size: var(--fs-13-5); color: var(--text); }
 
 /* ================= the inspector ================= */
-.k-insp { min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-10); padding: var(--sp-18) var(--sp-20); border-inline-start: var(--hairline) solid var(--line); }
+.k-insp { min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-18) var(--sp-20); border-inline-start: var(--hairline) solid var(--line); }
 .k-insp-head { display: flex; align-items: center; }
-.k-insp-title { font-size: var(--fs-18); font-weight: var(--weight-semibold); letter-spacing: -0.01em; }
+.k-insp-title { font-size: var(--fs-26); font-weight: var(--weight-semibold); letter-spacing: -0.02em; line-height: 1.1; }
 .k-insp-head .k-iconbtn { margin-inline-start: auto; }
 .k-insp-spine { display: none; }
 /* the whole panel rides with a long page (review A): sticky under the
@@ -332,7 +335,10 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-insp-list span { color: var(--muted); }
 .k-insp-list strong { margin-inline-start: auto; font-weight: var(--weight-regular); }
 .k-insp-list li[data-state~="na"] strong { color: var(--muted); }
-.k-insp-asst button { padding: var(--sp-4) var(--sp-10); background: var(--s1); box-shadow: none; font-size: var(--fs-12-5); color: var(--text-2); }
+/* the four asks as a 2 × 2 grid, so they line up (review B) */
+.k-insp-asst .k-asst-ctx { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-8); }
+.k-insp-asst .k-asst-ctx-mark { display: none; }
+.k-insp-asst button { justify-content: center; min-block-size: var(--hit); padding: var(--sp-6) var(--sp-10); border-radius: var(--r-12); background: var(--s1); box-shadow: none; font-size: var(--fs-13); color: var(--text-2); text-align: center; }
 
 /* the Topic Status component */
 .k-ts { --ts-c: var(--rag-r); display: flex; flex-direction: column; }

@@ -839,61 +839,58 @@
     var counts = KOS.calendar.countdowns ? KOS.calendar.countdowns(null, 4) : [];
     var urgent = (KOS.assignments && KOS.assignments.urgent ? KOS.assignments.urgent() : []).filter(function (a) { return KOS.assignments.isOverdue(a); });
     var hasToday = todayItems.length > 0, hasUp = counts.length > 0 || urgent.length > 0;
-    if (!hasToday && !hasUp) {
-      mid.appendChild(el("div", { class: "k-home-quiet", "data-ui": "home.quiet" }, [
-        KOS.ui.emptyState({ compact: true, mark: "澄", title: "Nothing scheduled",
-          body: "No events today, no countdowns, no assignments due. Add a deadline or start a session.",
-          action: el("button", { type: "button", class: "k-btn", text: "Calendar →", onclick: function () { KOS.show("calendar"); } }) })
-      ]));
-    } else {
-      var pair = el("div", { class: "k-home-pair", "data-ui": "home.today" });
-      if (!(hasToday && hasUp)) KOS.ui.state(pair, "one-up", true);
-      if (hasToday) {
-        var tcard = el("section", { class: "k-card", "data-ui": "home.today-card", "aria-label": "Today" }, [
-          cardHead("Today", null, "Calendar →", function () { KOS.show("calendar"); })
-        ]);
-        todayItems.slice(0, 4).forEach(function (t) {
-          tcard.appendChild(el("button", { type: "button", class: "k-day-row", onclick: t.go }, [
-            el("span", { class: "k-day-bar", style: "--row-c: " + t.hue, "aria-hidden": "true" }),
-            el("span", { class: "k-day-txt" }, [
-              el("span", { class: "k-day-title", text: t.title }),
-              t.sub ? el("span", { class: "k-day-sub", text: t.sub }) : null
-            ].filter(Boolean)),
-            el("span", { class: "k-day-when", "data-state": t.now ? "now" : null, text: t.when })
-          ]));
-        });
-        pair.appendChild(tcard);
-      }
-      if (hasUp) {
-        var ucard = el("section", { class: "k-card", "data-ui": "cal.countdowns", "aria-label": "Upcoming" }, [
-          cardHead("Upcoming", urgent.length ? urgent.length + " overdue" : "nothing overdue", "Tracker →", function () { KOS.show("assignments"); })
-        ]);
-        if (urgent.length) KOS.ui.state(ucard, "overdue", true);
-        urgent.slice(0, 2).forEach(function (a) {
-          var late = -KOS.assignments.daysLeft(a);
-          ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "asg.urgent cal.countdown-item",
-            onclick: function () { openAssignment(a.id); } }, [
-            el("span", { class: "k-days-dot", "data-state": "late", text: String(late) }),
-            el("span", { class: "k-day-txt" }, [
-              el("span", { class: "k-day-title", text: a.title }),
-              el("span", { class: "k-day-sub", text: late + " day" + (late === 1 ? "" : "s") + " overdue" + (a.subject ? " · " + a.subject : "") })
-            ])
-          ]));
-        });
-        counts.slice(0, Math.max(0, 3 - Math.min(2, urgent.length))).forEach(function (c) {
-          ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "cal.countdown-item" + (c.kind === "assignment" ? " asg.urgent" : ""),
-            onclick: function () { KOS.calendar.openCountdown(c, function () { KOS.show("home", undefined, { _nav: true }); }); } }, [
-            el("span", { class: "k-days-dot", "data-state": c.days === 0 ? "now" : null, text: String(c.days) }),
-            el("span", { class: "k-day-txt" }, [
-              el("span", { class: "k-day-title", text: c.title }),
-              el("span", { class: "k-day-sub", text: (c.days === 0 ? "today" : "in " + c.days + " day" + (c.days === 1 ? "" : "s")) + " · " + c.meta })
-            ])
-          ]));
-        });
-        pair.appendChild(ucard);
-      }
-      mid.appendChild(pair);
+    /* the Today card is always there (review B), saying so when the day is
+       empty; Upcoming joins it only with something in it, and the Today
+       card then takes the row */
+    var pair = el("div", { class: "k-home-pair", "data-ui": "home.today" });
+    if (!hasUp) KOS.ui.state(pair, "one-up", true);
+    var tcard = el("section", { class: "k-card", "data-ui": "home.today-card", "aria-label": "Today" }, [
+      cardHead("Today", null, "Calendar →", function () { KOS.show("calendar"); })
+    ]);
+    if (!hasToday) {
+      tcard.appendChild(KOS.ui.emptyState({ compact: true, mark: "澄", title: "Nothing on today",
+        body: hasUp ? "No events or assignments due today." : "No events today, no countdowns, no assignments due. Add a deadline or start a session." }));
     }
+    todayItems.slice(0, 4).forEach(function (t) {
+      tcard.appendChild(el("button", { type: "button", class: "k-day-row", onclick: t.go }, [
+        el("span", { class: "k-day-bar", style: "--row-c: " + t.hue, "aria-hidden": "true" }),
+        el("span", { class: "k-day-txt" }, [
+          el("span", { class: "k-day-title", text: t.title }),
+          t.sub ? el("span", { class: "k-day-sub", text: t.sub }) : null
+        ].filter(Boolean)),
+        el("span", { class: "k-day-when", "data-state": t.now ? "now" : null, text: t.when })
+      ]));
+    });
+    pair.appendChild(tcard);
+    if (hasUp) {
+      var ucard = el("section", { class: "k-card", "data-ui": "cal.countdowns", "aria-label": "Upcoming" }, [
+        cardHead("Upcoming", urgent.length ? urgent.length + " overdue" : "nothing overdue", "Tracker →", function () { KOS.show("assignments"); })
+      ]);
+      if (urgent.length) KOS.ui.state(ucard, "overdue", true);
+      urgent.slice(0, 2).forEach(function (a) {
+        var late = -KOS.assignments.daysLeft(a);
+        ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "asg.urgent cal.countdown-item",
+          onclick: function () { openAssignment(a.id); } }, [
+          el("span", { class: "k-days-dot", "data-state": "late", text: String(late) }),
+          el("span", { class: "k-day-txt" }, [
+            el("span", { class: "k-day-title", text: a.title }),
+            el("span", { class: "k-day-sub", text: late + " day" + (late === 1 ? "" : "s") + " overdue" + (a.subject ? " · " + a.subject : "") })
+          ])
+        ]));
+      });
+      counts.slice(0, Math.max(0, 3 - Math.min(2, urgent.length))).forEach(function (c) {
+        ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "cal.countdown-item" + (c.kind === "assignment" ? " asg.urgent" : ""),
+          onclick: function () { KOS.calendar.openCountdown(c, function () { KOS.show("home", undefined, { _nav: true }); }); } }, [
+          el("span", { class: "k-days-dot", "data-state": c.days === 0 ? "now" : null, text: String(c.days) }),
+          el("span", { class: "k-day-txt" }, [
+            el("span", { class: "k-day-title", text: c.title }),
+            el("span", { class: "k-day-sub", text: (c.days === 0 ? "today" : "in " + c.days + " day" + (c.days === 1 ? "" : "s")) + " · " + c.meta })
+          ])
+        ]));
+      });
+      pair.appendChild(ucard);
+    }
+    mid.appendChild(pair);
 
     /* Study hours — this week, Monday to Sunday */
     var days = weekIsos.map(function (iso) { return { iso: iso, h: hoursOn(iso) }; });

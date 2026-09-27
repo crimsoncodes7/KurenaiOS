@@ -229,7 +229,7 @@ button.k-gv-ring:hover { filter: brightness(1.08); }
 .k-gv-sc-tr > i[data-state~="off"] { background: color-mix(in oklch, var(--crimson) 22%, var(--s2)); }
 
 /* ---------- Avatar & profile (12c) ---------- */
-.k-gv-studio { display: grid; grid-template-columns: var(--gv-id-w) minmax(0, 1fr); gap: var(--sp-20); align-items: start; }
+.k-gv-studio { display: grid; grid-template-columns: var(--gv-id-w) minmax(0, 1fr); gap: var(--sp-20); align-items: stretch; }
 .k-gv-id { display: flex; flex-direction: column; border-radius: var(--r-24); overflow: hidden; background: var(--s1); }
 .k-gv-id-band { position: relative; block-size: var(--gv-id-band-h); background: var(--gv-hero-bg); }
 .k-gv-id-live { position: absolute; inset-block-start: var(--sp-10); inset-inline-start: var(--sp-12); background: var(--gv-glass); color: var(--text); }
@@ -240,11 +240,11 @@ button.k-gv-ring:hover { filter: brightness(1.08); }
 .k-gv-id-status { margin-block-start: var(--sp-4); font-size: var(--fs-13); color: var(--text-2); }
 .k-gv-id-facts { margin-block-start: var(--sp-18); }
 .k-gv-id-facts .k-card-row:first-of-type { border-block-start: var(--hairline) solid var(--line); }
-.k-gv-id-k { margin: var(--sp-18) 0 var(--sp-8); }
-.k-gv-id-topbar { display: flex; align-items: center; gap: var(--sp-10); padding: var(--sp-10) var(--sp-12); border-radius: var(--r-14); background: var(--s3); }
-.k-gv-id-brand { font-size: var(--fs-14); font-weight: var(--weight-semibold); }
-.k-gv-id-topbar .k-gv-pv-glyph { margin-inline-start: auto; }
 .k-gv-controls { display: flex; flex-direction: column; gap: var(--sp-20); min-inline-size: 0; }
+/* the Frames card takes the column's remaining height, so both columns
+   end on one line (review B) */
+.k-gv-controls > .k-gv-lib { flex: 1 1 auto; display: flex; flex-direction: column; }
+.k-gv-controls > .k-gv-lib > .k-gv-frames { margin-block: auto; }
 .k-gv-media { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-16); }
 .k-gv-media-item { min-inline-size: 0; }
 .k-gv-media-k { margin-block-end: var(--sp-6); font-size: var(--fs-12); color: var(--muted); }

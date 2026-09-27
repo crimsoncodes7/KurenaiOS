@@ -229,8 +229,7 @@
       tabs: [
         { label: "List state", ids: ["progress"] },
         { label: "Your layer", ids: ["personal"] },
-        { label: "Record", ids: ["identity"] },
-        { label: "Source & sync", ids: ["source"] }
+        { label: "Record", ids: ["identity"] }
       ],
       form: [
         mv.editorSection("identity", "Record", "As AniList has it. Change the title or artwork there and the next pull brings it over.", [
@@ -245,20 +244,19 @@
           field("Status", status),
           field("Episodes seen" + (e.progress.total ? " / " + e.progress.total : ""), cur),
           field("Score /10", score),
+          /* the dates and the lists share the second row; a missing date
+             is omitted, so the lists move left into its place (review B).
+             Genres are the Record tab's, not repeated here. */
           ro("Started", e.dates.started),
           ro("Finished", e.dates.finished),
-          mv.progressField(cur, e.progress.total),
-          field("Genres", el("div", { class: "k-mro", "data-ui": "vault.ro", text: e.genres.join(", ") || "—" })),
-          field("Custom lists", mv.customListChips(e))
+          field("Custom lists", mv.customListChips(e)),
+          mv.progressField(cur, e.progress.total)
         ]),
-        mv.editorSection("personal", "Your layer", "Not on AniList — kept here, on every device.", [
+        mv.editorSection("personal", "Your layer", "", [
           field("Tags", tags),
-          field("Cover position", coverPosition.node, "med-span-2"),
+          field("Cover position", coverPosition.node),
           field("Notes", notes, "med-span-2")
-        ]),
-        mv.editorSection("source", "Source & sync", "Where this record comes from.", [
-          mv.sourceInfo(e, "AniList", "A 1:1 mirror: removed on AniList means removed here on the next pull. Status, progress and score push back within seconds of a change.")
-        ])
+        ], { cols: 2 })
       ],
       onSave: save,
       onDelete: null,

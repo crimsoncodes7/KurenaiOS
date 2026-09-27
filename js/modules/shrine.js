@@ -239,6 +239,9 @@
     canvas.width = CARD_W;
     canvas.height = CARD_H;
     var ctx = canvas.getContext("2d");
+    /* no 2D context (a locked-down browser, a headless test): hand back the
+       blank canvas and the dialog says it could not render an image */
+    if (!ctx) { cb(canvas); return; }
     var W = CARD_W, H = CARD_H, edge = 3 * S, inner = { x: edge, y: edge, w: W - edge * 2, h: H - edge * 2 };
 
     /* the foil edge: Gold is the iridescent sweep, the others one ink */
@@ -631,14 +634,13 @@
     n.style.setProperty("--vh-accent", mod.accent);
     return n;
   }
-  function shareButton(entry, rank, total, cls) {
-    return el("button", { type: "button", class: cls || "k-iconbtn k-iconbtn--sm", "data-ui": "shrine.card-button",
-      title: "Create share card", "aria-label": "Create share card for rank " + rank, text: "✦",
+  /* clicking a Shrine card opens its SHARE card (review B): editing a
+     record belongs to its vault, and the hero keeps an explicit Edit. The
+     title button is the same action's keyboard route. */
+  function titleButton(entry, cls, rank, total) {
+    return el("button", { type: "button", class: cls, title: "Share card — " + entry.title, text: entry.title,
+      "aria-label": "Open the share card for " + entry.title,
       onclick: function (ev) { ev.stopPropagation(); KOS.shrineCard(entry, rank, total); } });
-  }
-  function titleButton(entry, cls) {
-    return el("button", { type: "button", class: cls, title: entry.title, text: entry.title,
-      onclick: function (ev) { ev.stopPropagation(); openEntry(entry); } });
   }
 
   /* rank one: the hero. The article keeps the pointer shortcut; its
@@ -647,7 +649,7 @@
   function feature(first, total) {
     var mod = KOS.media.module(first.module), added = addedOn(first);
     var progress = KOS.media.progressText(first, { long: true });
-    var hero = el("article", { class: "k-shr-hero", "data-ui": "shrine.feature", onclick: function () { openEntry(first); } }, [
+    var hero = el("article", { class: "k-shr-hero", "data-ui": "shrine.feature", onclick: function () { KOS.shrineCard(first, 1, total); } }, [
       el("span", { class: "k-shr-hero-scrim", "aria-hidden": "true" }),
       el("div", { class: "k-shr-hero-grid" }, [
         el("div", { class: "k-shr-hero-body", "data-ui": "shrine.feature-body" }, [
@@ -695,22 +697,23 @@
      tilted, the title and its facts, and the score in a medallion. */
   function podiumCard(entry, rank, total) {
     var mod = KOS.media.module(entry.module);
+    /* review B, second pass: no outlined numeral (the rank tag says it)
+       and no ✦ button (the card itself opens the share card); everything
+       else larger so the two read as the hero's runners-up */
     var card = el("article", { class: "k-shr-pod", "data-ui": "shrine.rank-card", "data-rank": String(rank),
-      onclick: function () { openEntry(entry); } }, [
+      onclick: function () { KOS.shrineCard(entry, rank, total); } }, [
       el("span", { class: "k-shr-pod-scrim", "aria-hidden": "true" }),
-      el("span", { class: "k-shr-pod-num", "aria-hidden": "true", text: pad2(rank) }),
       coverBox(entry, mod, "k-shr-pod-cover"),
       el("div", { class: "k-shr-pod-body" }, [
         el("span", { class: "k-shr-pod-rank", "data-ui": "shrine.rank", text: "◆ Rank " + pad2(rank) }),
-        el("h3", { class: "k-shr-pod-title" }, [titleButton(entry, "k-shr-title")]),
+        el("h3", { class: "k-shr-pod-title" }, [titleButton(entry, "k-shr-title", rank, total)]),
         el("p", { class: "k-shr-pod-meta" }, [moduleLabel(mod, entry.module), creatorOf(entry) ? " · " + creatorOf(entry) : ""])
       ]),
       el("div", { class: "k-shr-pod-foot", "data-ui": "shrine.row-foot" }, [
         el("span", { class: "k-shr-pod-medal" }, [
           el("span", { class: "k-shr-pod-score", "data-ui": "shrine.row-score", text: scoreText(entry) }),
           el("small", { text: "/ 10" })
-        ]),
-        shareButton(entry, rank, total)
+        ])
       ])
     ]);
     card.style.setProperty("--vh-accent", mod.accent);
@@ -720,13 +723,12 @@
   /* four onward: the poster wall */
   function tile(entry, rank, total) {
     var mod = KOS.media.module(entry.module);
-    return el("article", { class: "k-shr-tile", "data-ui": "shrine.rank-card", onclick: function () { openEntry(entry); } }, [
+    return el("article", { class: "k-shr-tile", "data-ui": "shrine.rank-card", onclick: function () { KOS.shrineCard(entry, rank, total); } }, [
       el("div", { class: "k-shr-tile-cover" }, [
         coverBox(entry, mod, "k-shr-tile-img"),
-        el("span", { class: "k-shr-tile-rank", "data-ui": "shrine.rank", text: pad2(rank) }),
-        shareButton(entry, rank, total, "k-iconbtn k-iconbtn--sm k-shr-tile-share")
+        el("span", { class: "k-shr-tile-rank", "data-ui": "shrine.rank", text: pad2(rank) })
       ]),
-      titleButton(entry, "k-shr-tile-title"),
+      titleButton(entry, "k-shr-tile-title", rank, total),
       el("div", { class: "k-shr-tile-foot", "data-ui": "shrine.row-foot" }, [
         moduleLabel(mod, entry.module),
         el("span", { class: "k-shr-tile-score", "data-ui": "shrine.row-score", text: scoreText(entry) })

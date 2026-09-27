@@ -150,7 +150,7 @@ transition: opacity .16s ease, scale .35s cubic-bezier(.3,.9,.3,1);
 .k-asst-search[aria-pressed="true"] { background: var(--s2); color: var(--text); }
 .k-asst-filter { font-size: var(--fs-13); padding-block: var(--sp-6); }
 .k-asst-nav-label { display: flex; align-items: center; padding: var(--sp-14) var(--sp-10) var(--sp-6); font-size: var(--fs-11); font-weight: var(--weight-semibold); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); }
-.k-asst-add { margin-inline-start: auto; min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); border-radius: 50%; font-size: var(--fs-13); letter-spacing: normal; color: var(--muted); }
+.k-asst-add { margin-inline: auto calc(var(--hit-dense) - var(--sp-10)); min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); border-radius: 50%; font-size: var(--fs-13); letter-spacing: normal; color: var(--muted); }
 .k-asst-add:hover { color: var(--text); background: var(--s1); }
 .k-asst-tabs { display: flex; flex-direction: column; gap: var(--sp-2); }
 .k-asst-tab { display: flex; align-items: center; gap: var(--sp-10); inline-size: 100%; padding: var(--sp-6) var(--sp-10) var(--sp-6) var(--sp-6); border-radius: var(--r-12); font-size: var(--fs-13-5); color: var(--text-2); text-align: start; }
@@ -344,6 +344,10 @@ transition: opacity .16s ease, scale .35s cubic-bezier(.3,.9,.3,1);
 .k-asst-stage { flex: 1 1 0; min-block-size: 0; display: flex; justify-content: center; padding-inline: var(--sp-12); }
 .k-asst-stage .k-asst-mascot { flex: 1 1 0; min-block-size: 0; gap: 0; }
 .k-asst-stage .k-asst-mascot-frame { flex: 1 1 0; min-block-size: 0; aspect-ratio: 2 / 3; max-inline-size: 100%; }
+/* in the side panel she stands in the middle of the space, not on its
+   floor with the top half empty (review B) */
+.k-asst-stage .k-asst-mascot-img { object-position: center; }
+.k-asst-stage .k-asst-mascot-frame::before { inset: 18% 12% 14%; }
 .k-asst-stage .k-asst-status { align-self: stretch; margin: 0 var(--sp-4); padding: var(--sp-12) var(--sp-14) var(--sp-2); border-radius: var(--r-18) var(--r-18) 0 0; background: var(--asst-note-bg); font-size: var(--fs-11); letter-spacing: var(--track-label); text-transform: uppercase; }
 .k-asst-note { margin: 0 var(--sp-16) var(--sp-16); padding: var(--sp-2) var(--sp-14) var(--sp-12); border-radius: 0 0 var(--r-18) var(--r-18); background: var(--asst-note-bg); font-size: var(--fs-12-5); color: var(--text-2); }
 .k-asst-note p { margin: 0; }

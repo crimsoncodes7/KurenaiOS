@@ -523,7 +523,8 @@ step("ISBN → result row (Open Library) → + Use prefills the add form, physic
   if (ed.querySelector("input[placeholder='Series title']").value !== "鬼滅の刃 1") throw new Error("title not prefilled");
   if (!/Koyoharu Gotoge/.test(ed.querySelector("input[placeholder^='Author']").value)) throw new Error("author not prefilled");
   if (!/covers\.openlibrary\.org/.test(ed.querySelector("input[type='url']").value)) throw new Error("cover not prefilled");
-  if (!/1 volume owned/.test(ed.textContent)) throw new Error("physical intent did not shelve volume 1");
+  /* review B: the shelf is 11d's tiles — exactly one owned tile */
+  if (ed.querySelectorAll("[data-ui~='books.vol']:not([data-state~='missing'])").length !== 1) throw new Error("physical intent did not shelve volume 1");
   if ([...ed.querySelectorAll("button")].every(b => b.textContent !== "Add to collection")) throw new Error("prefilled draft not treated as NEW");
   /* save it: the added entry carries the isbn and logs 'added' */
   const g = KOS.store.state.governor;

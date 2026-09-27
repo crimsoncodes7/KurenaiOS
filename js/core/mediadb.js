@@ -36,7 +36,8 @@
        mood:    [],          its own axis, separate from genre
        shelves: [],          user-defined shelf names
        dnf:     { isDnf, reason },   did-not-finish, orthogonal to status
-       physical: null | { owned, volumes: [{ number,
+       physical: null | { owned, seriesTotal (volumes in print, or null),
+                  volumes: [{ number,
                   condition: "mint"|"good"|"worn"|"damaged",
                   purchaseDate, price, coverUrl, coverCrop (per-volume override) }] },
 
@@ -476,7 +477,10 @@
         owned: e.physical.owned !== false,
         volumes: (Array.isArray(e.physical.volumes) ? e.physical.volumes : [])
           .map(normVolume)
-          .sort(function (a, b) { return a.number - b.number; })
+          .sort(function (a, b) { return a.number - b.number; }),
+        /* how many volumes exist in print, as the user gave it — the "of
+           12" in "2 of 12" (review B); display only, never a query axis */
+        seriesTotal: e.physical.seriesTotal > 0 ? Math.min(999, Math.floor(e.physical.seriesTotal)) : null
       } : null,
       /* Build 3c — VN axes (benign defaults elsewhere) */
       developer: String(e.developer || ""),

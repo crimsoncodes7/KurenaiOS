@@ -210,30 +210,34 @@
       for (var i = 0; i < 7; i++) days.push(KOS.srs.addDays(start, i));
       var keptToday = hs.filter(function (h) { return h.days[today]; }).length;
 
-      card.appendChild(el("div", { class: "k-hb-head" }, [
-        el("h2", { class: "k-card-title", text: "Daily habits" }),
-        hs.length ? el("span", { class: "k-chip", "data-tone": "teal", text: keptToday + " of " + hs.length + " today" }) : null,
-        el("span", { class: "k-hb-weeknav" }, [
-          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "habit.week-prev", "aria-label": "Previous week", text: "‹",
-            onclick: function () { weekOffset++; renderHabits(); } }),
-          el("span", { class: "k-hb-week", role: "status", text: "w/c " + dayLabel(start, { day: "numeric", month: "short" }) }),
-          el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "habit.week-next", "aria-label": "Next week", text: "›",
-            disabled: weekOffset === 0 ? "" : null, onclick: function () { weekOffset = Math.max(0, weekOffset - 1); renderHabits(); } })
-        ])
-      ].filter(Boolean)));
-
+      /* ONE header row on the table's own grid (review B): the title and
+         today's count sit over the names, the week's days over their
+         cells with the week arrows either side, the streak over its
+         column — no separate title bar above a column-label bar. */
+      var monthOf = function (d) { return dayLabel(d, { month: "short" }); };
+      var span = monthOf(days[0]) === monthOf(days[6]) ? monthOf(days[0]) : monthOf(days[0]) + " – " + monthOf(days[6]);
       var table = el("div", { class: "k-hb-table", role: "table", "aria-label": "Habits this week" });
       table.appendChild(el("div", { class: "k-hb-row k-hb-cols", role: "row" }, [
-        el("span", { class: "k-kicker k-hb-name-h", role: "columnheader", text: "Habit" }),
+        el("span", { class: "k-hb-title", role: "columnheader" }, [
+          el("h2", { class: "k-card-title", text: "Daily habits" }),
+          hs.length ? el("span", { class: "k-chip", "data-tone": "teal", text: keptToday + " of " + hs.length + " today" }) : null,
+          el("span", { class: "k-hb-weeknav" }, [
+            el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "habit.week-prev", "aria-label": "Previous week", text: "‹",
+              onclick: function () { weekOffset++; renderHabits(); } }),
+            el("span", { class: "k-hb-week", role: "status", "aria-label": "Week commencing " + dayLabel(start, { day: "numeric", month: "long" }), text: span }),
+            el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "habit.week-next", "aria-label": "Next week", text: "›",
+              disabled: weekOffset === 0 ? "" : null, onclick: function () { weekOffset = Math.max(0, weekOffset - 1); renderHabits(); } })
+          ])
+        ].filter(Boolean)),
         el("span", { class: "k-hb-days", role: "columnheader", "aria-label": "Days" }, days.map(function (d) {
           var day = el("span", { class: "k-hb-dayh" }, [
-            el("span", { class: "k-hb-dow", title: dayLabel(d, { weekday: "long" }), text: dayLabel(d, { weekday: "short" }).charAt(0) }),
-            el("span", { class: "k-mono", text: String(+d.slice(8)) })
+            el("span", { class: "k-hb-dow", title: dayLabel(d, { weekday: "long" }), text: dayLabel(d, { weekday: "short" }).slice(0, 3) }),
+            el("span", { class: "k-hb-dnum", text: String(+d.slice(8)) })
           ]);
           if (d === today) KOS.ui.state(day, "today", true);
           return day;
         })),
-        el("span", { class: "k-kicker", role: "columnheader", text: "Streak" }),
+        el("span", { class: "k-kicker k-hb-streak-h", role: "columnheader", text: "Streak" }),
         el("span", { role: "columnheader", "aria-label": "Actions" })
       ]));
 

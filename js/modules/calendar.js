@@ -1499,9 +1499,15 @@
     });
     wrap.appendChild(grid);
     host.appendChild(wrap);
+    /* a week holding today opens centred on NOW (review B); any other
+       week on its earliest event or the working day */
+    var holdsToday = days.some(function (d) { return d.iso === t; });
     function openAt() {
       var hourPx = grid.scrollHeight / hours.length || 0;
-      if (hourPx) grid.scrollTop = Math.max(0, (first - lo) / 60 * hourPx - hourPx / 2);
+      if (!hourPx) return;
+      grid.scrollTop = holdsToday
+        ? Math.max(0, (nowMinutes() - lo) / 60 * hourPx - grid.clientHeight / 2)
+        : Math.max(0, (first - lo) / 60 * hourPx - hourPx / 2);
     }
     openAt();
     if (!grid.scrollTop && window.requestAnimationFrame) window.requestAnimationFrame(openAt);

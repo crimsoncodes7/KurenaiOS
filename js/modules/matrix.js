@@ -355,7 +355,7 @@
       }
       if (total) {
         grid.appendChild(KOS.charts.chartCard("Rest, logged", total + " Collection logs over 16 weeks",
-          KOS.charts.heatmap(days, { color: "var(--vn)", cell: 20, gap: 4 }), { half: true }));
+          KOS.charts.heatmap(days, { color: "var(--vn)", cell: 20, gap: 4, fill: true }), { half: true }));
       }
       pane.appendChild(grid);
     }

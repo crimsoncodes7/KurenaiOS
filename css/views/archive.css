@@ -189,6 +189,7 @@
 .k-hfig-line[data-line="mine"], .k-hfig-node[data-line="mine"] { stroke: var(--teal); }
 .k-hfig-node { fill: var(--bg); stroke-width: 2; }
 .k-hfig-arc { fill: none; stroke-width: 1.5; stroke-dasharray: 4 4; }
+.k-hfig-branch { stroke-dasharray: none; stroke-width: 2; }
 .k-hfig-arc[data-tone="ahead"] { stroke: var(--teal); }
 .k-hfig-arc[data-tone="same"] { stroke: var(--green); stroke-dasharray: none; stroke-width: 2; }
 .k-hfig-arc[data-tone="behind"] { stroke: oklch(var(--cal-l) var(--cal-c) var(--cal-iris)); }

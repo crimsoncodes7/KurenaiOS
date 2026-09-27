@@ -238,38 +238,41 @@ step("hours played count against VNDB's length: crowd-sourced minutes, else the 
 
 /* ============ 2 · the editor and the card ============ */
 console.log("== editor + card ==");
-step("the editor's What-counts radio list and percentage field save; the field hides while something else counts", async () => {
+step("the editor's What-counts radio list saves; hours played is always there; no percentage option", async () => {
   const e = await p(cb => KOS.mediadb.get(idKinetic, cb));
   KOS.vnEditor(e, null);
   const modal = document.querySelector("[data-ui~='vn.editor']");
   assert(modal, "editor did not open");
-  /* 11e: the choice is a radio list, one line per source */
+  /* 11e: the choice is a radio list, one line per source; review B took
+     "A percentage I set" out of it (a stored percentage still counts last
+     under Automatic, invariant 10) */
   const sel = modal.querySelector("[role='radiogroup'][aria-label='What counts as progress']");
   const pick = v => { const r = sel.querySelector("input[type=radio][value='" + v + "']"); r.click(); };
   const pctIn = modal.querySelector("input[aria-label='How far through, as a percentage']");
   assert(sel && pctIn, "controls missing");
-  assert(sel.querySelectorAll("input[type=radio]").length === 5, "five sources to choose from");
+  assert(sel.querySelectorAll("input[type=radio]").length === 4, "four sources to choose from");
+  assert(!sel.querySelector("input[value='percent']"), "the percentage option is back");
   assert(sel.querySelector("input:checked").value === "", "automatic by default");
   assert(pctIn.closest("[data-ui~='ui.field']").hidden === true, "percentage hidden while chapters count");
   assert(/Counting chapters — 2 of 4/.test(modal.querySelector("[data-ui~='vn.progress-note']:not([data-ui~='vn.length-note'])").textContent), "note names the source: " + modal.querySelector("[data-ui~='vn.progress-note']:not([data-ui~='vn.length-note'])").textContent);
   const hoursIn = modal.querySelector("input[aria-label='Hours played']");
-  assert(hoursIn && hoursIn.closest("[data-ui~='ui.field']").hidden === true, "hours hidden while chapters count");
+  assert(hoursIn && hoursIn.closest("[data-ui~='ui.field']").hidden === false, "hours played is hidden while chapters count (review B: always there)");
+  assert(modal.querySelector("[data-ui~='vn.length-note']").hidden === true, "the VNDB length note shows while hours do not count");
+  /* the dates sit in the progress section, under status and score */
+  const prog = modal.querySelector("[data-edit-section='progress']");
+  assert(prog.querySelector("input[type='date']"), "the dates are not in the progress section");
   pick("time");
-  assert(hoursIn.closest("[data-ui~='ui.field']").hidden === false, "hours show once chosen");
+  assert(modal.querySelector("[data-ui~='vn.length-note']").hidden === false, "the length note did not show once hours count");
   assert(/VNDB has no length/.test(modal.querySelector("[data-ui~='vn.length-note']").textContent), "the length note says VNDB has none for this title");
-  pick("percent");
-  assert(pctIn.closest("[data-ui~='ui.field']").hidden === false, "percentage shows once chosen");
-  pctIn.value = "65";
-  pctIn.dispatchEvent(new window.Event("input", { bubbles: true }));
-  assert(/65%/.test(modal.querySelector("[data-ui~='vn.progress-note']:not([data-ui~='vn.length-note'])").textContent), "note follows the field");
+  hoursIn.value = "3";
+  hoursIn.dispatchEvent(new window.Event("input", { bubbles: true }));
   /* chapters live beside routes, on their own tab */
   assert(modal.querySelector("[data-ui~='vault.editor-body'] [data-ui~='vn.chapters']"), "chapters section present");
   [...modal.querySelectorAll("button")].find(b => /^Save/.test(b.textContent.trim())).click();
   await waitFor(() => !document.querySelector("[data-ui~='vn.editor']"), 3000);
   const after = await p(cb => KOS.mediadb.get(idKinetic, cb));
-  assert(after.progressMode === "percent" && after.progressPercent === 65, "saved: " + after.progressMode + "/" + after.progressPercent);
-  assert(after.progress.current === 65 && after.progress.unit === "%", "progress re-derived on save");
-  after.progressMode = null; after.progressPercent = null;
+  assert(after.progressMode === "time" && after.playtimeHours === 3, "saved: " + after.progressMode + "/" + after.playtimeHours);
+  after.progressMode = null; after.playtimeHours = null;
   await p(cb => KOS.mediadb.put(after, cb));
 });
 

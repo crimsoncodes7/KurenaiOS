@@ -368,9 +368,11 @@ step("editor modal: shared sections, stars, compact range tool save end-to-end",
     modal.querySelector("input[placeholder='Series title']").value = "Frieren";
     if (!modal.matches('[data-ui~="vault.editor"]')) { res(null); return; }
     if (!modal.querySelector("[data-edit-section='progress']") || !modal.querySelector("[data-edit-section='ownership']")) { res(null); return; }
+    /* review B: "Add range" opens the range form inside the Volumes card */
+    modal.querySelector("[data-ui~='books.range-toggle']").click();
     const nums = [...modal.querySelectorAll("[data-ui~='books.range'] [data-ui~='vault.num']")];
     nums[0].value = "1"; nums[1].value = "12";
-    [...modal.querySelectorAll("button")].find(b => b.textContent === "Add range").click();
+    modal.querySelector("[data-ui~='books.range-submit'] button").click();
     [...modal.querySelectorAll("button")].find(b => b.textContent === "Add to collection").click();
   });
   if (!saved) throw new Error("editor did not save (modal/stars/inputs missing?)");
@@ -419,7 +421,11 @@ step("shrine routes a Books favourite through the Books editor", async () => {
   await waitFor(() => main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']").length > 0, 5000);
   const card = [...main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']")].find(c => /Berserk/.test(c.textContent));
   if (!card) throw new Error("Books favourite not in the Shrine");
-  card.click();
+  /* review B: a card click opens the share card; the hero's Edit entry is
+     the editing route, and it must still pick the medium's own editor */
+  const edit = [...card.querySelectorAll("button")].find(b => b.textContent === "Edit entry");
+  if (!edit) throw new Error("the rank-one card has no Edit entry");
+  edit.click();
   await tick(60);
   const modal = document.querySelector("[data-ui~='books.dialog']");
   if (!modal) throw new Error("Shrine opened the wrong editor for a Books entry");

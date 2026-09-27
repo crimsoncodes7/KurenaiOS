@@ -494,9 +494,11 @@ source comments and audit notes refer to it.
     `state.progress` through the linked leaves, so the plan row and the topic
     page cannot disagree; the per-row state it owns is a note and the tick
     (`done`/`doneAt`, `KOS.pacing.setDone`) — "I did the week's item" on a
-    personal row, "I sat that lesson" on a class row (Graphite review B,
-    frame 10f) — the plan's own bookkeeping, never a claim about mastery.
-    Only a personal row carries over. Pacing is logistics like the Budget
+    personal row. A class row's lessons (`lessonsOf`, split from its
+    detail) each take their own tick (`sat`, the lesson texts,
+    `KOS.pacing.setLessonSat`) and the row is `done` once every lesson is
+    sat (Graphite review B) — the plan's own bookkeeping, never a claim
+    about mastery. Only a personal row carries over. Pacing is logistics like the Budget
     Planner: zero Governor traffic, zero sessions.
 82a. An unticked personal row whose week has ENDED (before today's plan
     week) CARRIES OVER: `carriedInto(wb)` derives it into every later week
@@ -524,19 +526,21 @@ source comments and audit notes refer to it.
     deleting a week that still holds rows refuses unless the caller passes
     `cascade`. Deletes ask through `KOS.ui.confirm({danger:true})` and Delete
     never shares a control group with Save.
-85. The braid is the alignment evidence as a picture, not a second dataset
-    (frame 10g, Graphite review B): ONE subject at a time, picked by a
-    page-wide toggle (`state.ui.paceBraidSubject`, per device) that the
-    diagram and the merges table both follow; a class line over my plan's
-    line, a node per week holding rows, and one arc per pair of weeks that
-    share a spec point (dashed when one side got there first, a solid rung
-    for the same week). A non-scrolling key column names the two lines.
-    The diagram is one `role="img"`; beneath it every plan row that met
-    class is a real button in five columns (reference, title, when,
-    verdict, Open), which is the keyboard and screen-reader route. A row
-    names ONE reference — the shared leaf, or the majority parent when it
-    shares several — and its dialog links every leaf. No shared refs draws
-    no diagram. The legend names every mark, so the tab carries no
+85. The braid is the alignment evidence as a picture, not a second dataset:
+    a commit graph, ONE subject at a time, picked by a page-wide toggle
+    (`state.ui.paceBraidSubject`, per device) that the diagram and the
+    merges table both follow. The subject's spine is class, my plan a
+    dotted row beneath it, and every shared spec point a branch between
+    the weeks that cover it, packed into depths so crossings stay
+    readable; △ marks what class teaches that my plan never schedules. A
+    non-scrolling key column names the rows. (Review B tried a two-line
+    arc picture; it could not be read at a real term's density and was
+    reverted.) The diagram is one `role="img"`; beneath it every plan row
+    that met class is a real button in five columns (reference, title,
+    when, verdict, Open), which is the keyboard and screen-reader route. A
+    row names ONE reference — the shared leaf, or the majority parent when
+    it shares several — and its dialog links every leaf. No shared refs
+    draws no diagram. The legend names every mark, so the tab carries no
     explanatory header — the long version is a Help & Guide entry.
 
 ## Extension notes

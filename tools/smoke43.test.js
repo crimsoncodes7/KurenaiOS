@@ -655,23 +655,24 @@ step("a running session outranks everything", () => {
   } finally { KOS.focus.state = real; }
 });
 
-step("empty Directives and Countdowns collapse to one line, not two boxes", () => {
+step("an empty day still draws the Today card, alone, with no Upcoming box beside it", () => {
   KOS.store.state.srs = {};
   KOS.store.state.calendar = { v: 2, nextId: 1, seeded: true, events: [], notified: {} };
   KOS.store.state.reminders = { v: 2, nextId: 1, migrated: true, items: [], lists: [], rewardLog: {} };
   KOS.store.state.assignments = { v: 1, nextId: 1, items: [] };
   if (KOS.store.state.pacing) KOS.store.state.pacing.entries = [];
   KOS.show("home");
-  assert(!$("[data-ui~='home.today']"), "the two-column row is still rendered with nothing in it");
-  const quiet = $("[data-ui~='home.quiet']");
-  assert(quiet, "no collapsed row");
-  assert(quiet.querySelector("[data-ui~='ui.empty'][data-state~='compact']"), "the collapsed row is not the compact empty state");
-  assert(quiet.querySelector("[data-ui~='ui.empty-action'] button"), "the collapsed row offers no way to fix it");
+  const row = $("[data-ui~='home.today']");
+  assert(row, "the Today row is gone on an empty day (review B: it is always there)");
+  assert(row.matches('[data-state~="one-up"]'), "the lone Today card does not take the row");
+  const today = row.querySelector("[data-ui~='home.today-card']");
+  assert(today, "no Today card");
+  assert(today.querySelector("[data-ui~='ui.empty'][data-state~='compact']"), "the empty Today card is not the compact empty state");
   assert(!$("[data-ui~='home.path-card']"), "the directives box survived");
-  assert(!$("[data-ui~='cal.countdowns']"), "the countdowns box survived");
+  assert(!$("[data-ui~='cal.countdowns']"), "an empty countdowns box was drawn");
 });
 
-step("one populated panel takes the full width rather than sitting beside a hole", () => {
+step("with only Upcoming populated, the Today card still stands beside it", () => {
   /* 20 days out: far enough to be a countdown but NOT to generate a
      directive (autoItems only raises exams inside five days), so exactly one
      of the two panels has content */
@@ -682,7 +683,8 @@ step("one populated panel takes the full width rather than sitting beside a hole
   KOS.show("home");
   const row = $("[data-ui~='home.today']");
   assert(row, "the row disappeared with content on it");
-  assert(row.matches('[data-state~="one-up"]'), "a single populated panel did not take the full width");
+  assert(!row.matches('[data-state~="one-up"]'), "Upcoming has content but the row is still one-up");
+  assert(row.querySelector("[data-ui~='home.today-card']"), "the empty Today card is not kept beside Upcoming");
   assert($("[data-ui~='cal.countdowns']"), "the countdown panel is missing");
   assert(!$("[data-ui~='home.path-card']"), "an empty directives box is back beside it");
 });

@@ -808,12 +808,9 @@
       preview.appendChild(el("div", { class: "k-gv-id-body" }, [
         ring(94, p.hp, p.hpState, "span", { "data-ui": "gov.avatar-preview-avatar" }),
         el("div", { class: "k-gv-id-name" }, ["Level " + p.level + " ", el("span", { text: "· " + p.rank })]),
-        p.status ? el("div", { class: "k-gv-id-status", "data-ui": "gov.avatar-preview-status", text: p.status }) : null,
-        el("div", { class: "k-kicker k-gv-id-k", text: "Topbar seal preview" }),
-        el("div", { class: "k-gv-id-topbar" }, [
-          el("span", { class: "k-gv-id-brand", text: "Kurenai" }),
-          el("span", { class: "k-gv-pv-glyph", lang: "ja", "aria-hidden": "true", text: sealGlyph() })
-        ])
+        p.status ? el("div", { class: "k-gv-id-status", "data-ui": "gov.avatar-preview-status", text: p.status }) : null
+        /* the topbar seal preview went (review B): the card is the portrait,
+           banner and status, and its foot lines up with the Frames card */
       ].filter(Boolean)));
       grid.appendChild(preview);
       function bannerName(id) {

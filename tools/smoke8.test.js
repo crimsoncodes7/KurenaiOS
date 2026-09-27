@@ -30,7 +30,9 @@ const { document } = window;
 const errors = [];
 window.addEventListener("error", e => errors.push("window error: " + e.message));
 const noop = () => {};
-const ctxStub = new Proxy({}, { get: (t, k) => k === "measureText" ? () => ({ width: 10 }) : (typeof k === "string" ? noop : undefined), set: () => true });
+/* gradients are objects (the Shrine share card paints with them since a
+   card click opens it, review B) */
+const ctxStub = new Proxy({}, { get: (t, k) => k === "measureText" ? () => ({ width: 10 }) : /Gradient$/.test(String(k)) ? () => ({ addColorStop: noop }) : (typeof k === "string" ? noop : undefined), set: () => true });
 window.HTMLCanvasElement.prototype.getContext = () => ctxStub;
 window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true; window.__kosAutoConfirm = true;
@@ -225,7 +227,10 @@ step("editor: fleshing out a draft saves every axis; steam link is a working sto
   KOS.gamesEditor(e, null);
   const modal = document.querySelector("[data-ui~='games.editor']");
   if (!modal) throw new Error("editor did not open");
-  if (!/games have no live sync/.test(modal.textContent)) throw new Error("honesty line missing");
+  /* review B dropped the per-section prose; the action row still says
+     where the record lives */
+  const syncLine = modal.querySelector("[data-ui~='vault.editor-sync']");
+  if (!syncLine || /Synced|Linked/.test(syncLine.textContent)) throw new Error("the sync line claims a sync games do not have");
   modal.querySelector("input[placeholder='Developer']").value = "Supergiant Games";
   modal.querySelector("input[placeholder='Publisher']").value = "Supergiant Games";
   const hours = modal.querySelector("input[title*='no API exists']");
@@ -412,7 +417,14 @@ step("Shrine: a favourite game routes to the games editor", async () => {
   const card = [...main.querySelectorAll("[data-ui~='shrine.feature'],[data-ui~='shrine.rank-card']")].find(c => /Hades/.test(c.textContent));
   if (!card) throw new Error("game not enshrined");
   if (!/Games/.test(card.textContent)) throw new Error("module chip missing");
+  /* review B: a Shrine card opens its SHARE card; the editor dispatch it
+     used before still routes a game to the games editor */
   card.click();
+  await tick(30);
+  const share = document.querySelector("[data-ui~='shrine.share-dialog']");
+  if (!share) throw new Error("a Shrine card click did not open the share card");
+  share.closest("[data-ui~='ui.dialog-overlay'], .k-dialog-overlay").remove();
+  KOS.mediaEditor(e, null);
   await tick(30);
   const modal = document.querySelector("[data-ui~='games.editor']");
   if (!modal) throw new Error("mediaEditor chain did not route to the games editor");
