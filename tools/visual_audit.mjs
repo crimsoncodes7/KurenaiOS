@@ -102,7 +102,9 @@ async function screenshot(path) {
 async function clickText(scope, text) {
   const ok = await evaluate(`(() => {
     const root = document.querySelector(${JSON.stringify(scope)}) || document;
-    const b = [...root.querySelectorAll("button")].find(x => x.textContent.trim().includes(${JSON.stringify(text)}));
+    /* the visible label, or the accessible name of an icon button (✕ = "Close") */
+    const b = [...root.querySelectorAll("button")].find(x => x.textContent.trim().includes(${JSON.stringify(text)}))
+      || [...root.querySelectorAll("button[aria-label]")].find(x => x.getAttribute("aria-label") === ${JSON.stringify(text)});
     if (!b) return false; b.click(); return true;
   })()`);
   assert(ok, `Button not found: ${scope} / ${text}`);
@@ -234,7 +236,7 @@ assert(seeded?.entryId, "Could not seed the live media entry");
    replacement recovery, reset/cancel isolation, and real save. */
 await evaluate(`KOS.show("governor", "avatar")`);
 await waitFor("document.querySelector('[data-ui~=\"gov.avatar-studio\"]')", "Governor avatar page");
-await clickText("[data-ui~='gov.avatar-mc']", "Edit");
+await clickText("[data-ui~='gov.avatar-mc']", "Reposition");
 await waitFor("document.querySelector('[data-ui~=\"crop.ov\"]') && !document.querySelector('[data-ui~=\"crop.foot\"] [data-intent~=\"primary\"]').disabled", "loaded avatar cropper");
 let ratio = await evaluate(`(() => { const r = document.querySelector('[data-ui~="crop.preview"]').getBoundingClientRect(); return r.width / r.height; })()`);
 assert(Math.abs(ratio - 1) < 0.03, `Avatar preview ratio is ${ratio}`);
@@ -260,7 +262,7 @@ await waitFor("!document.querySelector('[data-ui~=\"crop.ov\"]')", "avatar crop 
 let savedAvatar = await evaluate(`KOS.store.state.governor.avatar.crop`);
 assert(savedAvatar.x === 63 && savedAvatar.y === 24 && savedAvatar.zoom === 1.72, "Avatar crop did not persist from the UI");
 
-await clickText("[data-ui~='gov.avatar-mc']", "Edit");
+await clickText("[data-ui~='gov.avatar-mc']", "Reposition");
 await waitFor("document.querySelector('[data-ui~=\"crop.ov\"]') && !document.querySelector('[data-ui~=\"crop.foot\"] [data-intent~=\"primary\"]').disabled", "reopened avatar cropper");
 const uploadRecovery = await evaluate(`(() => {
   const input = document.querySelector('[data-ui~="crop.file"]');
@@ -288,17 +290,18 @@ assert(savedAvatar.x === 63 && savedAvatar.y === 24, "Cancel mutated the saved a
 await auditView("home", undefined, "[data-ui~='home.id'] [data-ui~='crop.bg']");
 let homeVars = await evaluate(`(() => {
   const img = document.querySelector('[data-ui~="home.id"] [data-ui~="crop.bg"] img');
-  return { x: img.style.getPropertyValue('--crop-x'), y: img.style.getPropertyValue('--crop-y'), zoom: img.style.getPropertyValue('--crop-zoom'), h: document.querySelector('[data-ui~="home.id"]').getBoundingClientRect().height };
+  return { x: img.style.getPropertyValue('--crop-x'), y: img.style.getPropertyValue('--crop-y'), zoom: img.style.getPropertyValue('--crop-zoom'), h: document.querySelector('[data-ui~="home.id"]').getBoundingClientRect().height,
+    min: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--home-hero-h')) };
 })()`);
 assert(homeVars.x === "72%" && homeVars.y === "38%" && homeVars.zoom === "1.25", "Home banner did not use saved crop metadata");
-assert(homeVars.h >= 235, `Home hero is below shared desktop height (${homeVars.h})`);
+assert(homeVars.min > 0 && homeVars.h >= homeVars.min, `Home hero is below the --home-hero-h design height (${homeVars.h} < ${homeVars.min})`);
 
 await evaluate(`KOS.show("governor", "status")`);
-/* the dark-banner variant is asserted by the scrim it produces (below),
-   not by the legacy class that used to select it */
+/* the Graphite identity stage lays the design's own scrim token
+   (--gv-hero-scrim) over the banner */
 await waitFor("document.querySelector('[data-ui~=\"gov.bento-id\"] [data-ui~=\"crop.shade\"]')", "Governor status banner");
-const govContrast = await evaluate(`document.querySelector('[data-ui~="gov.bento-id"] [data-ui~="crop.shade"]').style.background`);
-assert(/rgba\(16, 14, 10/.test(govContrast), `Governor did not receive the dark contrast scrim: ${govContrast}`);
+const govContrast = await evaluate(`getComputedStyle(document.querySelector('[data-ui~="gov.bento-id"] [data-ui~="crop.shade"]')).backgroundImage`);
+assert(/gradient/.test(govContrast), `Governor did not receive its --gv-hero-scrim: ${govContrast}`);
 await screenshot("/tmp/kos-governor-banner-1440.png");
 
 /* Governor v5: the redesigned Status, Chronicle, Avatar and Treasury in
@@ -330,18 +333,23 @@ const governorRefine = await evaluate(`(() => {
     saveLabels: document.querySelectorAll('[data-ui~="archive.cloud"]').length
   };
 })()`);
-assert(governorRefine.gap <= 30 && governorRefine.face === 112 && governorRefine.access &&
+/* Graphite frame 12a: the header's 40px rhythm and the 120px face ring */
+assert(governorRefine.gap <= 40 && governorRefine.face === 120 && governorRefine.access &&
   (governorRefine.cap === 'none' || governorRefine.cap === 'normal') &&
   governorRefine.idleAssistantDot === '0' && governorRefine.saveLabels === 0,
   `Governor header/hero/topbar refinement regressed: ${JSON.stringify(governorRefine)}`);
+/* Graphite frame 12a: the heatmap spans the card and its facts are one
+   foot line beneath it, sharing the plot's edges */
 const cadenceComposition = await evaluate(`(() => {
   const plot = document.querySelector('[data-ui~="chart.heatmap"]').getBoundingClientRect();
-  const stats = [...document.querySelectorAll('[data-ui~="gov.heat-stats"] [data-ui~="gov.stat-mini"]')].map(x => x.getBoundingClientRect());
-  return { plotRight: Math.round(plot.right), statsLeft: Math.round(stats[0].left),
-    stacked: stats.every((r, i) => !i || r.top >= stats[i - 1].bottom - 1) };
+  const foot = document.querySelector('[data-ui~="gov.heat-stats"]');
+  const facts = [...foot.children].map(x => x.getBoundingClientRect());
+  return { below: Math.round(foot.getBoundingClientRect().top) >= Math.round(plot.bottom),
+    oneLine: facts.every(r => Math.abs(r.top - facts[0].top) < 4),
+    inside: facts.every(r => r.left >= plot.left - 2 && r.right <= plot.right + 2) };
 })()`);
-assert(cadenceComposition.statsLeft >= cadenceComposition.plotRight && cadenceComposition.stacked,
-  `Cadence is not composed as left heatmap/right stat stack: ${JSON.stringify(cadenceComposition)}`);
+assert(cadenceComposition.below && cadenceComposition.oneLine && cadenceComposition.inside,
+  `Cadence facts are not one foot line under the heatmap: ${JSON.stringify(cadenceComposition)}`);
 await screenshot("/tmp/kos-governor-status-dark-1440.png");
 await evaluate(`document.getElementById("main").scrollTop = 470`);
 await pause(120);
@@ -360,11 +368,14 @@ const historyComposition = await evaluate(`(() => {
   const stats = document.querySelector('[data-ui~="gov.history-stats"]').getBoundingClientRect();
   const filters = document.querySelector('[data-ui~="gov.log-filter"]').getBoundingClientRect();
   const group = document.querySelector('[data-ui~="gov.day-group"]');
-  return { statsDelta: Math.round(Math.abs(root.width - stats.width)),
-    filterDelta: Math.round(Math.abs(root.width - filters.width)),
+  /* Graphite frame 12d: the filters and the week's facts share one row,
+     flush with the log's two edges */
+  return { sameRow: Math.abs((stats.top + stats.bottom) / 2 - (filters.top + filters.bottom) / 2) <= 4,
+    leftDelta: Math.round(Math.abs(filters.left - root.left)),
+    rightDelta: Math.round(Math.abs(root.right - stats.right)),
     grouped: !!group?.querySelector(':scope > [data-ui~="gov.ledger-day"] + [data-ui~="gov.day-events"]') };
 })()`);
-assert(historyComposition.statsDelta <= 2 && historyComposition.filterDelta <= 2 && historyComposition.grouped,
+assert(historyComposition.sameRow && historyComposition.leftDelta <= 2 && historyComposition.rightDelta <= 2 && historyComposition.grouped,
   `Session Log overview and date groups are misaligned: ${JSON.stringify(historyComposition)}`);
 await screenshot("/tmp/kos-governor-history-dark-1440.png");
 await auditView("governor", "avatar", "[data-ui~='gov.avatar-studio']");
@@ -376,7 +387,8 @@ const avatarAlignment = await evaluate(`(() => {
   const controls = document.querySelector('[data-ui~="gov.avatar-controls"]').getBoundingClientRect();
   return { topDelta: Math.round(Math.abs(preview.top - profile.top)),
     heightDelta: Math.round(Math.abs(preview.height - controls.height)),
-    statusBeside: !status || (status.left >= avatar.right - 2 && Math.abs(status.bottom - avatar.bottom) < 20),
+    /* Graphite frame 12c: the status line sits under the name, inside the stage */
+    statusBeside: !status || (status.top >= avatar.bottom - 2 && status.bottom <= preview.bottom),
     duplicateHead: !!document.querySelector('.av-workshop-head') };
 })()`);
 assert(avatarAlignment.topDelta <= 2 && avatarAlignment.heightDelta <= 2 && avatarAlignment.statusBeside && !avatarAlignment.duplicateHead,
@@ -402,9 +414,10 @@ await clickText("[data-ui~='shop.depts']", "All wares");
 await evaluate(`document.getElementById('main').scrollTop = document.getElementById('shop-sec-themes').offsetTop - 90`);
 await pause(120);
 await screenshot("/tmp/kos-governor-themes-dark-1440.png");
-await evaluate(`document.getElementById('main').scrollTop = document.getElementById('shop-sec-banners').offsetTop - 90`);
+/* banners are no longer sold (review A): the banner is the user's own upload */
+await evaluate(`document.getElementById('main').scrollTop = document.getElementById('shop-sec-seals').offsetTop - 90`);
 await pause(120);
-await screenshot("/tmp/kos-governor-banners-dark-1440.png");
+await screenshot("/tmp/kos-governor-seals-dark-1440.png");
 await viewport(390, 844);
 await auditView("governor", "status", "[data-ui~='gov.status']");
 await screenshot("/tmp/kos-governor-status-mobile-390.png");
@@ -503,11 +516,15 @@ assert(vndbSaved.avatar.source === avatar && vndbSaved.avatar.crop.y === 47, "VN
 
 /* Collection hierarchy: archive stays compact; workspaces preserve their routes/history. */
 await auditView("wishlist", undefined, "[data-ui~='coll.workspace-tabs']");
-const collectionNav = await evaluate(`(() => ({
-  labels: [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")].map(b => b.textContent.trim()),
-  active: document.querySelector("#subnav [data-ui~='shell.subnav-item'][data-state~='active']")?.textContent.trim(),
-  planner: [...document.querySelectorAll("[data-ui~='coll.workspace-tabs'] button")].map(b => b.textContent.trim())
-}))()`);
+const collectionNav = await evaluate(`(() => {
+  /* the visible label without the decorative (aria-hidden) kanji mark */
+  const label = b => [...b.childNodes].filter(n => !(n.nodeType === 1 && n.getAttribute("aria-hidden") === "true"))
+    .map(n => n.textContent).join("").trim();
+  const items = [...document.querySelectorAll("#subnav [data-ui~='shell.subnav-item']")];
+  const current = items.find(b => b.getAttribute("aria-current") === "page" || /\\bactive\\b/.test(b.dataset.state || ""));
+  return { labels: items.map(label), active: current && label(current),
+    planner: [...document.querySelectorAll("[data-ui~='coll.workspace-tabs'] button")].map(b => b.textContent.trim()) };
+})()`);
 assert(JSON.stringify(collectionNav.labels) === JSON.stringify(["Overview", "Anime", "Books", "Visual Novels", "Games", "Shrine", "Planner", "Sync"]),
   `Collection primary navigation is overcrowded: ${JSON.stringify(collectionNav.labels)}`);
 assert(collectionNav.active === "Planner" && JSON.stringify(collectionNav.planner) === JSON.stringify(["Budget Planner", "Goals"]),
@@ -536,14 +553,14 @@ await waitFor("document.querySelector('[data-ui~=\"plan.hero-feature\"] [data-ui
 const plannerWide = await evaluate(`(() => {
   const hero = document.querySelector('[data-ui~="plan.hero"]'), cover = hero.querySelector('[data-ui~="crop.bg"] img'), budget = document.querySelector('[data-ui~="plan.budget"]'), row = document.querySelector('[data-ui~="plan.row"]');
   return {
-    heroH: Math.round(hero.getBoundingClientRect().height), heroW: Math.round(hero.getBoundingClientRect().width), budgetW: Math.round(budget.getBoundingClientRect().width),
+    heroH: Math.round(hero.getBoundingClientRect().height), heroMin: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pl-hero-min')), heroW: Math.round(hero.getBoundingClientRect().width), budgetW: Math.round(budget.getBoundingClientRect().width),
     crop: [cover.style.getPropertyValue('--crop-x'), cover.style.getPropertyValue('--crop-y'), cover.style.getPropertyValue('--crop-zoom')],
     visibleBudgetInput: !!document.querySelector('[data-ui~="plan.budget"] .wl-limit'), modalAction: !!document.querySelector('[data-ui~="plan.budget-edit"]'),
     rows: document.querySelectorAll('[data-ui~="plan.row"]').length, charts: document.querySelectorAll('[data-ui~="plan.history"] [data-ui~="chart.chart"]').length,
     rowOverflow: row.scrollWidth > row.clientWidth
   };
 })()`);
-assert(plannerWide.heroH >= 390 && plannerWide.heroW > plannerWide.budgetW &&
+assert(plannerWide.heroMin > 0 && plannerWide.heroH >= plannerWide.heroMin && plannerWide.heroW > plannerWide.budgetW &&
   JSON.stringify(plannerWide.crop) === JSON.stringify(["74%", "33%", "1.42"]) &&
   !plannerWide.visibleBudgetInput && plannerWide.modalAction && plannerWide.rows >= 2 && plannerWide.charts === 2 && !plannerWide.rowOverflow,
   `Budget Planner wide layout or crop/ledger contract failed: ${JSON.stringify(plannerWide)}`);
@@ -554,7 +571,7 @@ const selectionChanged = await evaluate(`(() => {
   return { before, after: document.querySelector('[data-ui~="plan.bn-rem"] b').textContent };
 })()`);
 assert(selectionChanged.before !== selectionChanged.after, `Planner selection did not update remaining allowance: ${JSON.stringify(selectionChanged)}`);
-await clickText("[data-ui~='plan.budget']", "Edit monthly budget");
+await clickText("[data-ui~='plan.budget']", "Edit allowance");
 await waitFor("document.querySelector('[data-ui~=\"plan.budget-dialog\"]')", "Budget Planner budget editor");
 await clickText("[data-ui~='plan.budget-dialog']", "Cancel");
 await waitFor("!document.querySelector('[data-ui~=\"plan.budget-dialog\"]')", "Budget Planner budget editor cancel");
@@ -563,7 +580,7 @@ await evaluate(`(() => { const main = document.getElementById('main'), queue = d
 await pause(160);
 await screenshot("/tmp/kos-planner-queue-1440.png");
 await evaluate(`document.getElementById('main').scrollTo({ top: 0, behavior: 'instant' })`);
-await clickText("[data-ui~='plan.hero']", "Confirm purchase");
+await clickText("[data-ui~='plan.hero']", "Mark purchased");
 await waitFor(`KOS.wishlist.get(${plannerHeroId})?.status === 'purchased' && KOS.wishlist.get(${plannerHeroId})?.linkedEntryId != null`, "Planner purchase and Collection handoff", 7000);
 const plannerPurchase = await evaluate(`new Promise((resolve, reject) => {
   const item = KOS.wishlist.get(${plannerHeroId});
@@ -719,10 +736,12 @@ const shrineComposition = await evaluate(`(() => {
     score: document.querySelector('[data-ui~="shrine.feature"] [data-ui~="shrine.score"]').textContent,
     filters: document.querySelectorAll('[data-ui~="shrine.filter"]').length,
     featureHeight: Math.round(feature.height),
-    plannerGeometry: document.querySelector('[data-ui~="shrine.feature"]').matches('[data-ui~="plan.hero-feature"]') && feature.height >= 390 && feature.height <= 540,
+    /* Graphite: the feature spans the page at --shr-hero-h; ranks 2 and 3
+       and the Hall ledger share the stage row beneath it, the ledger last */
+    heroGeometry: feature.height >= parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--shr-hero-h')) - 1,
     contentLeft: body.left - feature.left < feature.width * .16,
-    ledgerBeside: ledger.left >= feature.right - 1 && Math.abs(ledger.height - feature.height) <= 2,
-    stageContains: stage.width >= feature.width + ledger.width,
+    ledgerBeside: Math.abs(ledger.right - stage.right) <= 2 && Math.abs(ledger.top - stage.top) <= 2,
+    stageContains: stage.top >= feature.bottom && Math.abs(stage.width - feature.width) <= 2,
     ledgerMetrics: document.querySelectorAll('[data-ui~="shrine.ledger-lines"] [data-ui~="shrine.ledger-line"]').length,
     featureWider: feature.width > [...document.querySelectorAll('[data-ui~="shrine.rank-card"]')][0].getBoundingClientRect().width * 2,
     gridBelow: grid.top >= feature.bottom,
@@ -730,8 +749,8 @@ const shrineComposition = await evaluate(`(() => {
   };
 })()`);
 assert(/Rank 01/.test(shrineComposition.rank) && /^10/.test(shrineComposition.score) && shrineComposition.filters === 5 &&
-  shrineComposition.plannerGeometry && shrineComposition.contentLeft && shrineComposition.ledgerBeside && shrineComposition.stageContains &&
-  shrineComposition.ledgerMetrics === 3 && shrineComposition.featureWider && shrineComposition.gridBelow &&
+  shrineComposition.heroGeometry && shrineComposition.contentLeft && shrineComposition.ledgerBeside && shrineComposition.stageContains &&
+  shrineComposition.ledgerMetrics >= 1 && shrineComposition.featureWider && shrineComposition.gridBelow &&
   JSON.stringify(shrineComposition.crop) === JSON.stringify(["81%", "31%", "1.4"]),
   `Shrine Hall of Fame composition/crop failed: ${JSON.stringify(shrineComposition)}`);
 await screenshot("/tmp/kos-shrine-1440.png");
@@ -740,10 +759,13 @@ await evaluate(`(() => {
   main.scrollTo({ top: main.scrollTop + grid.getBoundingClientRect().top - 124, behavior: 'instant' });
 })()`);
 await pause(140);
+/* review B: the card itself opens the share card; its title is the real
+   button (the keyboard route), and every card carries a cover and a score */
 const rankedCards = await evaluate(`(() => [...document.querySelectorAll('[data-ui~="shrine.rank-card"]')].map(card => ({
-  cover: !!card.querySelector('[data-ui~="shrine.rank-cover"]'),
-  score: !!card.querySelector('[data-ui~="shrine.row-score"] b'),
-  action: !!card.querySelector('[data-ui~="shrine.card-button"]'),
+  cover: !!card.querySelector('[data-ui~="vault.cover"]'),
+  /* an unscored favourite reads "—" */
+  score: /^(\\d+(\\.\\d+)?|—)$/.test(card.querySelector('[data-ui~="shrine.row-score"]')?.textContent.trim() || ""),
+  action: !!card.querySelector('button[aria-label^="Open the share card"]'),
   height: Math.round(card.getBoundingClientRect().height)
 })))()`);
 assert(rankedCards.length >= 3 && rankedCards.every(card => card.cover && card.score && card.action && card.height < 360),
@@ -757,7 +779,8 @@ const shareCard = await evaluate(`(() => {
   return { ratio: img.width / img.height, buttons: document.querySelectorAll('[data-ui~="shrine.card-actions"] button').length,
     defaultMessage: document.querySelector('[data-ui~="shrine.message"]').value };
 })()`);
-assert(Math.abs(shareCard.ratio - 1536 / 1024) < .03 && shareCard.buttons >= 2 && /Hall of Fame/.test(shareCard.defaultMessage),
+/* the Graphite share card is a 1080 × 1350 portrait (shrine.js CARD_W/CARD_H) */
+assert(Math.abs(shareCard.ratio - 1080 / 1350) < .03 && shareCard.buttons >= 2 && /Hall of Fame/.test(shareCard.defaultMessage),
   `Shrine share card is incomplete: ${JSON.stringify(shareCard)}`);
 await pause(260);
 await screenshot("/tmp/kos-shrine-share-card-1440.png");
@@ -800,15 +823,17 @@ await evaluate("KOS.show('mediasync')");
 await waitFor("document.querySelector('[data-ui~=\"sync.provider\"]')", "Sync workspace");
 const integrations = await evaluate(`(() => ({
   providers: document.querySelectorAll('[data-ui~="sync.provider"]').length,
-  facts: [...document.querySelectorAll('[data-ui~="sync.provider-facts"]')].map(x => x.textContent),
+  facts: [...document.querySelectorAll('[data-ui~="sync.provider"] [data-ui~="sync.provider-facts"]')].map(x => x.textContent),
   nested: document.querySelectorAll('[data-ui~="sync.provider"] [data-ui~="ui.colcard"]').length
 }))()`);
-assert(integrations.providers === 2 && integrations.facts.every(text => /Status/.test(text) && /Sync mode/.test(text)) && integrations.nested === 0,
+assert(integrations.providers === 2 && integrations.facts.length === 2 &&
+  /* Graphite frame 11c: each provider states its account and its last good sync */
+  integrations.facts.every(text => /Account/.test(text) && /Last successful sync/.test(text)) && integrations.nested === 0,
   `Integration overview composition is incomplete: ${JSON.stringify(integrations)}`);
 await screenshot("/tmp/kos-integrations-1440.png");
 await clickText("[data-ui~='coll.workspace-tabs']", "AniList");
 await waitFor("document.querySelector('[data-ui~=\"profile.head\"]')", "AniList profile from Sync");
-assert(await evaluate("document.querySelector('#subnav [data-ui~=\"shell.subnav-item\"][data-state~=\"active\"]')?.textContent.trim() === 'Sync'"),
+assert(await evaluate("document.querySelector('#subnav [data-ui~=\"shell.subnav-item\"][aria-current=\"page\"]')?.getAttribute('aria-label') === 'Sync'"),
   "AniList profile did not retain Sync as active");
 await evaluate("KOS.back()");
 await waitFor("document.querySelector('[data-ui~=\"coll.workspace-tabs\"] [data-ui~=\"ui.tab\"][data-state~=\"active\"]')?.textContent.includes('Sync & Import')", "back to Sync & Import");
@@ -818,8 +843,8 @@ await waitFor("document.querySelector('[data-ui~=\"profile.head\"]')", "forward 
 /* Study comparison: cross-subject data, aligned modes and pair notes use the
    actual modal rather than treating two reference articles as a layout test. */
 await evaluate("KOS.show('subject', 'compsci')");
-await waitFor("document.querySelector('[data-ui~=\"study.subject-grid\"]')", "Study dashboard for comparison");
-await clickText("#main", "Compare topics");
+await waitFor("document.querySelector('[data-ui~=\"study.compare\"]')", "Study dashboard for comparison");
+await evaluate("document.querySelector('[data-ui~=\"study.compare\"]').click()");
 await waitFor("document.querySelector('[data-ui~=\"study.compare-dialog\"] [data-ui~=\"study.compare-sticky-head\"]')", "Compare Topics workspace");
 let comparison = await evaluate(`(() => ({
   selectors: document.querySelectorAll('[data-ui~="study.compare-selectors"] select').length,
@@ -868,8 +893,8 @@ await clickText("[data-ui~='study.compare-actions']", "Open Topic A");
 await waitFor("document.querySelector('#main [data-ui~=\"topic.head\"]')", "open Topic A");
 assert(await evaluate("document.querySelector('#main [data-ui~=\"topic.head\"] h1')?.textContent.includes('Data types')"), "Open Topic A did not open the selected reference");
 await evaluate("KOS.show('subject', 'compsci')");
-await waitFor("document.querySelector('[data-ui~=\"study.subject-grid\"]')", "return to Study dashboard");
-await clickText("#main", "Compare topics");
+await waitFor("document.querySelector('[data-ui~=\"study.compare\"]')", "return to Study dashboard");
+await evaluate("document.querySelector('[data-ui~=\"study.compare\"]').click()");
 await waitFor("document.querySelector('[data-ui~=\"study.compare-dialog\"]')", "comparison workspace for focus action");
 await clickText("[data-ui~='study.compare-actions']", "Focus Topic A");
 await waitFor("document.querySelector('[data-ui~=\"focus.link-row\"]')", "prefilled focus timer");
@@ -882,14 +907,15 @@ await auditView("matrix", undefined, "[data-ui~='coll.now-card']");
 const stripClip = await evaluate(`(() => {
   const f = document.querySelector('[data-ui~="coll.now-cover"]'), title = document.querySelector('[data-ui~="coll.now-title"]');
   const fr = f.getBoundingClientRect(), tr = title.getBoundingClientRect();
-  return { overflow: getComputedStyle(f).overflow, aspect: fr.width / fr.height, beside: fr.right <= tr.left + 1 };
+  /* Graphite frame 10a: a clipped 2:3 poster with the title beneath it */
+  return { overflow: getComputedStyle(f).overflow, aspect: fr.width / fr.height, below: tr.top >= fr.bottom - 1 };
 })()`);
-assert(stripClip.overflow === "hidden" && Math.abs(stripClip.aspect - 2 / 3) < 0.02 && stripClip.beside,
-  `Matrix on-the-go cover is not independently clipped beside its title: ${JSON.stringify(stripClip)}`);
+assert(stripClip.overflow === "hidden" && Math.abs(stripClip.aspect - 2 / 3) < 0.02 && stripClip.below,
+  `Matrix on-the-go cover is not a clipped poster above its title: ${JSON.stringify(stripClip)}`);
 
 for (const [view, arg, selector] of [
   ["home", undefined, "[data-ui~='home.id']"],
-  ["subject", "compsci", "[data-ui~='study.subject-grid']"],
+  ["subject", "compsci", "[data-ui~='study.units']"],
   ["help", undefined, "[data-ui~='help.wrap']"],
   ["matrix", undefined, "[data-ui~='coll.modules']"],
   ["mediasync", undefined, "[data-ui~='coll.workspace-tabs']"],
@@ -898,9 +924,11 @@ for (const [view, arg, selector] of [
 ]) await auditView(view, arg, selector);
 
 const dataActionButtons = await evaluate(`(() => [...document.querySelectorAll('[data-ui~="archive.data-action"] button')].map(b => ({
-  width: Math.round(b.getBoundingClientRect().width), client: b.clientHeight, scroll: b.scrollHeight,
+  width: Math.round(b.getBoundingClientRect().width), top: Math.round(b.getBoundingClientRect().top), client: b.clientHeight, scroll: b.scrollHeight,
   whiteSpace: getComputedStyle(b).whiteSpace, text: b.textContent.trim() })))()`);
-assert(dataActionButtons.length === 4 && dataActionButtons.every(b => b.width === 280 && b.client === b.scroll && b.whiteSpace === 'nowrap'),
+/* Graphite frame 14a: export, import and the revision summary sit on one
+   row at their natural widths, none wrapping its label */
+assert(dataActionButtons.length === 3 && dataActionButtons.every(b => b.top === dataActionButtons[0].top && b.client === b.scroll && b.whiteSpace === 'nowrap'),
   `Backup actions are inconsistent or wrap their labels: ${JSON.stringify(dataActionButtons)}`);
 await screenshot("/tmp/kos-backup-1440.png");
 
@@ -918,20 +946,23 @@ const helpWide = await evaluate(`(() => {
   const wrap = document.querySelector('[data-ui~="help.wrap"]'), content = document.querySelector('[data-ui~="help.content"]');
   return { columns: getComputedStyle(wrap).gridTemplateColumns.split(' ').length,
     aside: !!document.querySelector('[data-ui~="help.aside"]'), width: Math.round(content.getBoundingClientRect().width),
-    search: Math.round(document.querySelector('[data-ui~="help.search-shell"]').getBoundingClientRect().width) };
+    /* Graphite frame 14c: the search heads the section nav */
+    searchInNav: !!document.querySelector('[data-ui~="help.nav"] [data-ui~="help.search"]') };
 })()`);
-assert(helpWide.columns === 3 && helpWide.aside && helpWide.width <= 760 && Math.abs(helpWide.search - helpWide.width) <= 2,
+assert(helpWide.columns === 3 && helpWide.aside && helpWide.width <= 760 && helpWide.searchInNav,
   `Help documentation layout is not a readable wide-screen workspace: ${JSON.stringify(helpWide)}`);
 await screenshot("/tmp/kos-help-1440.png");
 await evaluate(`(() => { const s = document.querySelector('[data-ui~="help.search"]'); s.value = 'Focus Timer'; s.dispatchEvent(new Event('input', { bubbles: true })); })()`);
-await waitFor("document.querySelectorAll('[data-ui~=\"help.row\"][style*=none]').length > 0 && document.querySelector('[data-ui~=\"help.row\"][data-state~=\"open\"]')", "Help search results");
-await clickText("[data-ui~='help.row'][data-state~='open']", "Open Focus Timer");
-await waitFor("document.querySelector('[data-ui~=\"focus.setup\"]')", "related Help link");
+/* Graphite frame 14c: a query replaces the article with its hits; a hit
+   opens that entry in its section */
+await waitFor("!document.querySelector('[data-ui~=\"help.results\"]').hidden && document.querySelector('[data-ui~=\"help.hit\"]')", "Help search results");
+await clickText("[data-ui~='help.results']", "Focus Timer");
+await waitFor("document.querySelector('[data-ui~=\"help.toc\"][aria-current=\"page\"]')?.textContent.includes('Focus Timer')", "Help entry from a search hit");
 
 await viewport(980, 800);
 for (const [view, arg, selector] of [
   ["home", undefined, "[data-ui~='home.id']"],
-  ["subject", "compsci", "[data-ui~='study.subject-grid']"],
+  ["subject", "compsci", "[data-ui~='study.units']"],
   ["matrix", undefined, "[data-ui~='coll.modules']"],
   ["wishlist", undefined, "[data-ui~='plan.queue']"],
   ["mediasync", undefined, "[data-ui~='sync.provider']"],
@@ -956,8 +987,8 @@ const helpNarrow = await evaluate(`(() => ({ aside: getComputedStyle(document.qu
 assert(helpNarrow.aside === 'none' && helpNarrow.nav !== 'none' && helpNarrow.scroll <= helpNarrow.viewport + 1,
   `Compact Help workspace does not adapt cleanly: ${JSON.stringify(helpNarrow)}`);
 await evaluate("KOS.show('subject', 'compsci')");
-await waitFor("document.querySelector('[data-ui~=\"study.subject-grid\"]')", "narrow Study dashboard");
-await clickText("#main", "Compare topics");
+await waitFor("document.querySelector('[data-ui~=\"study.compare\"]')", "narrow Study dashboard");
+await evaluate("document.querySelector('[data-ui~=\"study.compare\"]').click()");
 await waitFor("document.querySelector('[data-ui~=\"study.compare-dialog\"]')", "narrow Compare Topics workspace");
 const narrowCompare = await evaluate(`(() => {
   const modal = document.querySelector('[data-ui~="study.compare-dialog"]'), body = document.querySelector('[data-ui~="study.compare-body"]');
@@ -965,7 +996,8 @@ const narrowCompare = await evaluate(`(() => {
     cols: getComputedStyle(document.querySelector('[data-ui~="study.compare-row-cells"]')).gridTemplateColumns, bodyOverflow: getComputedStyle(body).overflowY };
 })()`);
 assert(narrowCompare.doc <= narrowCompare.viewport + 1 && narrowCompare.modal <= narrowCompare.modalClient + 1 &&
-  narrowCompare.cols.split(' ').length === 1 && narrowCompare.bodyOverflow === 'auto',
+  /* two columns stay while each is a readable measure (≥ 320px) */
+  narrowCompare.cols.split(' ').every(c => parseFloat(c) >= 320) && narrowCompare.bodyOverflow === 'auto',
   `Narrow comparison workspace overflows or keeps unreadable columns: ${JSON.stringify(narrowCompare)}`);
 await clickText("[data-ui~='study.compare-dialog']", "Close");
 await evaluate(`KOS.show("anime")`);
@@ -1062,7 +1094,7 @@ await evaluate(`KOS.show("assistant", { tab: "chat" })`);
 await waitFor("document.querySelector('#asst-page-panel [data-ui~=\"asst.mascot-img\"]')?.naturalWidth === 1024", "mobile Assistant character");
 await pause(360);
 const assistantPhone = await evaluate(`(() => {
-  const layout = document.querySelector('[data-ui~="asst.chat-layout"]'), presence = document.querySelector('[data-ui~="asst.presence"]');
+  const layout = document.querySelector('[data-ui~="asst.page"][data-tab="chat"]'), presence = document.querySelector('[data-ui~="asst.presence"]');
   KOS.assistant.open();
   const drawer = document.querySelector('[data-ui~="asst.drawer"]'), focused = document.activeElement?.matches('[data-ui~="asst.composer"]');
   const result = { columns: getComputedStyle(layout).gridTemplateColumns.split(' ').length,
@@ -1072,7 +1104,8 @@ const assistantPhone = await evaluate(`(() => {
   return result;
 })()`);
 assert(assistantPhone.columns === 1 && assistantPhone.doc <= assistantPhone.viewport + 1 && assistantPhone.characterHeight <= 100 &&
-  assistantPhone.drawerWidth === assistantPhone.viewport && assistantPhone.focused,
+  /* the phone drawer is a sheet inset 12px from each edge */
+  assistantPhone.drawerWidth === assistantPhone.viewport - 24 && assistantPhone.focused,
   `Assistant phone layout/focus failed: ${JSON.stringify(assistantPhone)}`);
 await screenshot("/tmp/kos-assistant-mobile-390.png");
 
@@ -1128,5 +1161,5 @@ await screenshot("/tmp/kos-home-restored-1440.png");
 assert(browserErrors.length === 0, `Browser errors:\n${browserErrors.join("\n")}`);
 
 console.log("VISUAL AUDIT PASS — live crop workflows, Collection Goals, Shrine/share card, Budget Planner, Compare Topics, Assistant character workspace, its 28 offline assets, persistence, backup/restore and responsive adjacent pages verified");
-console.log("Screenshots: /tmp/kos-assistant-1440.png, /tmp/kos-assistant-collapsed-1440.png, /tmp/kos-assistant-mobile-390.png, /tmp/kos-goals-1440.png, /tmp/kos-goals-single-dark-1440.png, /tmp/kos-goal-editor-1440.png, /tmp/kos-goal-editor-linked-1440.png, /tmp/kos-goals-mobile-390.png, /tmp/kos-goals-cards-mobile-390.png, /tmp/kos-shrine-1440.png, /tmp/kos-shrine-ranked-1440.png, /tmp/kos-shrine-share-card-1440.png, /tmp/kos-shrine-mobile-390.png, /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-themes-dark-1440.png, /tmp/kos-governor-banners-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
+console.log("Screenshots: /tmp/kos-assistant-1440.png, /tmp/kos-assistant-collapsed-1440.png, /tmp/kos-assistant-mobile-390.png, /tmp/kos-goals-1440.png, /tmp/kos-goals-single-dark-1440.png, /tmp/kos-goal-editor-1440.png, /tmp/kos-goal-editor-linked-1440.png, /tmp/kos-goals-mobile-390.png, /tmp/kos-goals-cards-mobile-390.png, /tmp/kos-shrine-1440.png, /tmp/kos-shrine-ranked-1440.png, /tmp/kos-shrine-share-card-1440.png, /tmp/kos-shrine-mobile-390.png, /tmp/kos-cropper-avatar-1440.png, /tmp/kos-cropper-hero-1440.png, /tmp/kos-governor-status-light-1440.png, /tmp/kos-governor-status-dark-1440.png, /tmp/kos-governor-ledger-dark-1440.png, /tmp/kos-governor-recovery-dark-1440.png, /tmp/kos-governor-history-dark-1440.png, /tmp/kos-governor-avatar-dark-1440.png, /tmp/kos-governor-shop-dark-1440.png, /tmp/kos-governor-themes-dark-1440.png, /tmp/kos-governor-seals-dark-1440.png, /tmp/kos-governor-status-mobile-390.png, /tmp/kos-governor-history-mobile-390.png, /tmp/kos-planner-1440.png, /tmp/kos-planner-queue-1440.png, /tmp/kos-planner-980.png, /tmp/kos-compare-topics-1440.png, /tmp/kos-help-1440.png, /tmp/kos-backup-1440.png, /tmp/kos-anime-hero-980.png, /tmp/kos-home-restored-1440.png");
 ws.close();
