@@ -7,7 +7,233 @@
   var el = KOS.ui.el, store = KOS.store;
 
   var ACCESS = ["public", "private", "protected"];
+  var VIRT = ["none", "virtual", "override", "abstract"];
   var basingFrom = null; // class id awaiting a base-class click
+
+  /* ================= THE MODEL (roadmap 1.7) =================
+     Pure functions over the plain model the sandbox stores in state.oop —
+     {classes: [{id, name, abstract, x, y, fields: [{acc, type, name}],
+     methods: [{acc, type, name, virt}]}], links: [{child, parent}], nextId,
+     seeded}. Nothing here reads the store or the DOM, so the IDE view that
+     is coming from the design, the Assistant and the tests share one
+     definition. Render purity (smoke56) is the view's side of the bargain:
+     it draws from a model and writes only on a real edit.
+
+     IDENTITY. A class's `id` is its stable identity — the file tree, the
+     links and the canvas key on it; renaming changes the name and the file
+     name, never the id. Ids come from `nextId` (the cloud merge re-keys a
+     colliding one and rewrites its links, invariant 33a). The file name is
+     DERIVED from the class name (`Name.cs`), so it can never drift from
+     the code it holds.
+
+     VIEW STATE. The canvas's pan and zoom and the Code/Diagram toggle are
+     how THIS DEVICE looks at the model (a phone and a desktop want
+     different ones), so they live in state.ui.oopView, not in the synced
+     model. */
+  var CS_KEYWORDS = ("abstract as base bool break byte case catch char checked class const continue decimal default " +
+    "delegate do double else enum event explicit extern false finally fixed float for foreach goto if implicit in int " +
+    "interface internal is lock long namespace new null object operator out override params private protected public " +
+    "readonly ref return sbyte sealed short sizeof stackalloc static string struct switch this throw true try typeof " +
+    "uint ulong unchecked unsafe ushort using virtual void volatile while").split(" ");
+  var IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
+  var ZOOM_MIN = 0.25, ZOOM_MAX = 3;
+  var CARD = { w: 232, h: 180 };           // a class card's footprint on the canvas
+
+  function str(v, max) { return String(v == null ? "" : v).trim().slice(0, max || 80); }
+  function num(v, d) { v = Number(v); return isFinite(v) ? v : d; }
+  function isIdent(name) { return IDENT.test(name) && CS_KEYWORDS.indexOf(name) === -1; }
+
+  /* the schema gate: a clean copy of any model (a pull, a restore, an
+     Assistant proposal). Members and names are cleaned; a link to a class
+     that does not exist, a self-link and a duplicate link are dropped;
+     nextId is lifted past every id. It never "fixes" a modelling error —
+     a cycle or a second base survives for validate() to report. */
+  function normaliseModel(m) {
+    m = m && typeof m === "object" ? m : {};
+    var seen = {}, classes = [];
+    (Array.isArray(m.classes) ? m.classes : []).forEach(function (c) {
+      if (!c || typeof c !== "object") return;
+      var id = parseInt(c.id, 10);
+      if (!isFinite(id) || id < 1 || seen[id]) return;
+      seen[id] = true;
+      classes.push({
+        id: id,
+        name: str(c.name, 60),
+        abstract: !!c.abstract,
+        x: Math.round(num(c.x, 0)), y: Math.round(num(c.y, 0)),
+        fields: (Array.isArray(c.fields) ? c.fields : []).slice(0, 60).map(function (f) {
+          f = f || {};
+          return { acc: ACCESS.indexOf(f.acc) !== -1 ? f.acc : "private", type: str(f.type, 40), name: str(f.name, 60) };
+        }),
+        methods: (Array.isArray(c.methods) ? c.methods : []).slice(0, 60).map(function (mt) {
+          mt = mt || {};
+          return { acc: ACCESS.indexOf(mt.acc) !== -1 ? mt.acc : "public", type: str(mt.type, 40), name: str(mt.name, 60),
+            virt: VIRT.indexOf(mt.virt) !== -1 ? mt.virt : "none" };
+        })
+      });
+    });
+    var linkSeen = {};
+    var links = (Array.isArray(m.links) ? m.links : []).map(function (l) {
+      return l ? { child: parseInt(l.child, 10), parent: parseInt(l.parent, 10) } : null;
+    }).filter(function (l) {
+      if (!l || !seen[l.child] || !seen[l.parent] || l.child === l.parent) return false;
+      var k = l.child + ">" + l.parent;
+      if (linkSeen[k]) return false;
+      linkSeen[k] = true;
+      return true;
+    });
+    var maxId = classes.reduce(function (a, c) { return Math.max(a, c.id); }, 0);
+    var out = { classes: classes, links: links, nextId: Math.max(maxId + 1, parseInt(m.nextId, 10) || 1) };
+    if (m.seeded) out.seeded = true;
+    return out;
+  }
+
+  /* ---------------- identity ---------------- */
+  function classById(m, id) { return (m.classes || []).find(function (c) { return c.id === id; }) || null; }
+  function identOf(c) { return safeIdent(c && c.name, "Class" + (c && c.id)); }
+  function fileName(c) { return identOf(c) + ".cs"; }
+  /* the file tree: one file per class, in the model's order, with its
+     base and whether it is abstract — [{id, file, name, base, abstract}] */
+  function files(m) {
+    return (m.classes || []).map(function (c) {
+      var link = (m.links || []).find(function (l) { return l.child === c.id; });
+      return { id: c.id, file: fileName(c), name: identOf(c), abstract: !!c.abstract,
+        base: link ? link.parent : null };
+    });
+  }
+  function parentOf(m, id) {
+    var l = (m.links || []).find(function (x) { return x.child === id; });
+    return l ? l.parent : null;
+  }
+  /* the base chain above a class, nearest first; stops at a cycle */
+  function ancestors(m, id) {
+    var out = [], seen = {}, p = parentOf(m, id);
+    seen[id] = true;
+    while (p != null && !seen[p]) { out.push(p); seen[p] = true; p = parentOf(m, p); }
+    return out;
+  }
+
+  /* ---------------- validation ----------------
+     validate(model) → {ok, errors: [{code, classId, member?, message}]}.
+     Every rule is a C# compile rule the generated code would break:
+       invalid-name     a class or member name that is not an identifier
+                        (or is a C# keyword);
+       duplicate-class  two classes with the same name (also two files
+                        with the same name);
+       multiple-bases   a class with more than one base (C# has single
+                        inheritance);
+       cycle            a class that inherits from itself, however far up;
+       duplicate-member two members of one class with the same name;
+       abstract-in-concrete  an abstract method in a class not marked
+                        abstract;
+       private-virtual  a virtual, abstract or override method that is
+                        private;
+       override-without-base an override with no virtual, abstract or
+                        override method of that name above it;
+       unimplemented    a concrete class that leaves an inherited abstract
+                        method without an override. */
+  function validate(model) {
+    var m = normaliseModel(model), errors = [];
+    function err(code, c, message, member) {
+      var e = { code: code, classId: c ? c.id : null, message: message };
+      if (member) e.member = member;
+      errors.push(e);
+    }
+    var byName = {};
+    m.classes.forEach(function (c) {
+      if (!isIdent(c.name)) err("invalid-name", c, "“" + (c.name || "(blank)") + "” is not a valid C# class name.");
+      var k = c.name;
+      if (k) (byName[k] = byName[k] || []).push(c);
+    });
+    Object.keys(byName).forEach(function (k) {
+      if (byName[k].length > 1) byName[k].forEach(function (c) { err("duplicate-class", c, "Two classes are called " + k + "."); });
+    });
+    var parents = {};
+    m.links.forEach(function (l) { (parents[l.child] = parents[l.child] || []).push(l.parent); });
+    Object.keys(parents).forEach(function (cid) {
+      if (parents[cid].length > 1) err("multiple-bases", classById(m, +cid), identOf(classById(m, +cid)) + " has more than one base class — C# allows one.");
+    });
+    m.classes.forEach(function (c) {
+      /* a cycle: walking up from c returns to c */
+      var p = parentOf(m, c.id), hops = 0;
+      while (p != null && hops++ <= m.classes.length) {
+        if (p === c.id) { err("cycle", c, identOf(c) + " inherits from itself through its bases."); break; }
+        p = parentOf(m, p);
+      }
+      var names = {};
+      c.fields.concat(c.methods).forEach(function (mem) {
+        if (!isIdent(mem.name)) err("invalid-name", c, "“" + (mem.name || "(blank)") + "” in " + identOf(c) + " is not a valid member name.", mem.name);
+        else if (names[mem.name]) err("duplicate-member", c, identOf(c) + " has two members called " + mem.name + ".", mem.name);
+        names[mem.name] = true;
+        if (mem.name === identOf(c)) err("invalid-name", c, "A member of " + identOf(c) + " cannot share the class's name.", mem.name);
+      });
+      c.methods.forEach(function (mt) {
+        if (mt.virt === "abstract" && !c.abstract) err("abstract-in-concrete", c, identOf(c) + "." + mt.name + " is abstract, so " + identOf(c) + " must be abstract too.", mt.name);
+        if (mt.virt !== "none" && mt.acc === "private") err("private-virtual", c, identOf(c) + "." + mt.name + " cannot be private and " + mt.virt + ".", mt.name);
+        if (mt.virt === "override") {
+          var found = ancestors(m, c.id).some(function (aid) {
+            var a = classById(m, aid);
+            return a && a.methods.some(function (x) { return x.name === mt.name && x.virt !== "none"; });
+          });
+          if (!found) err("override-without-base", c, identOf(c) + "." + mt.name + " overrides nothing — no base class has a virtual or abstract " + mt.name + ".", mt.name);
+        }
+      });
+      if (!c.abstract) {
+        /* walk down from the root: an abstract method stays owed until a
+           class on the way overrides it */
+        var chain = ancestors(m, c.id).reverse().concat([c.id]), owed = {};
+        chain.forEach(function (cid) {
+          var k = classById(m, cid);
+          if (!k) return;
+          k.methods.forEach(function (x) {
+            /* the class's OWN abstract method is abstract-in-concrete's
+               error, not an unimplemented inheritance */
+            if (x.virt === "abstract" && cid !== c.id) owed[x.name] = identOf(k);
+            else if (x.virt === "override") delete owed[x.name];
+          });
+        });
+        Object.keys(owed).forEach(function (name) {
+          err("unimplemented", c, identOf(c) + " must override " + owed[name] + "." + name + ".", name);
+        });
+      }
+    });
+    return { ok: !errors.length, errors: errors };
+  }
+
+  /* ---------------- canvas view (per device) ---------------- */
+  function clampZoom(z) { return Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, num(z, 1))); }
+  function normaliseView(v) {
+    v = v && typeof v === "object" ? v : {};
+    return { x: Math.round(num(v.x, 0)), y: Math.round(num(v.y, 0)), zoom: Math.round(clampZoom(v.zoom) * 100) / 100,
+      mode: v.mode === "diagram" ? "diagram" : "code", selected: v.selected != null && isFinite(+v.selected) ? +v.selected : null };
+  }
+  /* zoom by `factor` keeping the canvas point under (px, py) — a pointer
+     or the viewport centre — where it is */
+  function zoomAt(view, factor, px, py) {
+    var v = normaliseView(view), z = clampZoom(v.zoom * num(factor, 1));
+    var wx = (num(px, 0) - v.x) / v.zoom, wy = (num(py, 0) - v.y) / v.zoom;
+    return normaliseView({ x: num(px, 0) - wx * z, y: num(py, 0) - wy * z, zoom: z, mode: v.mode, selected: v.selected });
+  }
+  /* the pan and zoom that show every class card inside a vw × vh viewport
+     with a margin; an empty model returns the origin at 100% */
+  function fit(model, vw, vh, margin) {
+    var m = normaliseModel(model), pad = margin == null ? 32 : margin;
+    if (!m.classes.length || !(vw > 0) || !(vh > 0)) return normaliseView({});
+    var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    m.classes.forEach(function (c) {
+      x0 = Math.min(x0, c.x); y0 = Math.min(y0, c.y);
+      x1 = Math.max(x1, c.x + CARD.w); y1 = Math.max(y1, c.y + CARD.h);
+    });
+    var z = clampZoom(Math.min((vw - 2 * pad) / (x1 - x0), (vh - 2 * pad) / (y1 - y0), 1));
+    return normaliseView({ x: (vw - (x1 - x0) * z) / 2 - x0 * z, y: (vh - (y1 - y0) * z) / 2 - y0 * z, zoom: z });
+  }
+  function viewState() { return normaliseView(store.state.ui && store.state.ui.oopView); }
+  function setView(patch) {
+    var next = normaliseView(Object.assign(viewState(), patch || {}));
+    store.state.ui.oopView = next;
+    store.save();
+    return next;
+  }
 
   /* The first visit shows a small worked example. It is a DRAFT until the
      first edit: a view renders without writing (smoke56), so the example
@@ -51,19 +277,21 @@
       default: return "default";
     }
   }
-  function transpile() {
-    var m = model();
+  /* the C# for a model — the whole sandbox, or (onlyId) one class's file */
+  function transpileModel(mIn, onlyId) {
+    var m = mIn;
     var lines = [];
     lines.push("// Generated by Kurenai OS \u2014 C# OOP Sandbox");
     lines.push("namespace KurenaiOS.Sandbox");
     lines.push("{");
-    if (!m.classes.length) {
+    var list = onlyId == null ? m.classes : m.classes.filter(function (c) { return c.id === onlyId; });
+    if (!list.length) {
       lines.push("    // Add a class block to begin.");
     }
-    m.classes.forEach(function (c, ci) {
+    list.forEach(function (c, ci) {
       var name = safeIdent(c.name, "Class" + c.id);
       var base = m.links.find(function (l) { return l.child === c.id; });
-      var baseName = base ? safeIdent((byId(base.parent) || {}).name, "Base") : null;
+      var baseName = base ? safeIdent((classById(m, base.parent) || {}).name, "Base") : null;
       var head = "    public " + (c.abstract ? "abstract " : "") + "class " + name +
                  (baseName ? " : " + baseName : "");
       lines.push(head);
@@ -94,11 +322,12 @@
         if (i < c.methods.length - 1) lines.push("");
       });
       lines.push("    }");
-      if (ci < m.classes.length - 1) lines.push("");
+      if (ci < list.length - 1) lines.push("");
     });
     lines.push("}");
     return lines.join("\n");
   }
+  function transpile() { return transpileModel(model()); }
   function highlight(code) {
     var esc = KOS.hub.esc(code);
     return esc
@@ -352,5 +581,24 @@
       drawLinks();
       codePre.innerHTML = highlight(transpile());
     }
+  };
+
+  KOS.oop = {
+    ACCESS: ACCESS.slice(),
+    VIRT: VIRT.slice(),
+    CARD: { w: CARD.w, h: CARD.h },
+    ZOOM: { min: ZOOM_MIN, max: ZOOM_MAX },
+    normalise: normaliseModel,
+    isIdent: isIdent,
+    fileName: fileName,
+    files: files,
+    ancestors: ancestors,
+    validate: validate,
+    transpile: transpileModel,
+    normaliseView: normaliseView,
+    zoomAt: zoomAt,
+    fit: fit,
+    view: viewState,
+    setView: setView
   };
 })();

@@ -17,7 +17,7 @@ chronological diary here.
   https://12e5c6df.kurenai-os.pages.dev (27 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-graphite-3`
-- Required smoke gate: 61 / 61 suites.
+- Required smoke gate: 62 / 62 suites.
 
 ## Run, test and deploy
 
@@ -27,7 +27,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..61}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..62}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -116,6 +116,7 @@ non-navigation redraw path.
 | Cloud replication | `cloud.js`, `cloudmerge.js`, `cloudsync.js`, `cloudui.js` |
 | Assistant | `assistant-*.js` services and `js/modules/assistant.js` |
 | Shared image placement | `js/core/imagecrop.js` |
+| OOP sandbox model: gate, identity, validation, transpile, canvas view | `js/labs/oop.js` (`KOS.oop`, pure) |
 | Behavioural hooks (`data-ui`/`data-state`/`data-intent`) for logic and tests | `KOS.ui` helpers in `js/core/ui.js`; legacy-class bridge `js/core/ui-hooks.js` (UI rebuild M1, see `docs/ui-rebuild/`) |
 | Spec-spine presence (`#cols[data-tree]`) | `KOS.shell.tree()` in `js/core/ui.js` |
 | Presentation layer (UI rebuild; one `@layer` per file, order declared in `tokens.css`) | `css/tokens.css`, `base.css`, `layout.css`, `components.css`, `css/views/*.css`, `themes.css`; `tools/lib/css.js` `pending()` gates each layer's design contracts |
@@ -666,6 +667,14 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
 - Additional generators register through `KOS.worked.register(gen, refs)` from
   `js/labs/worked-extra.js`; additional sims live in `js/labs/sims-maths.js` and
   `js/labs/sims-cs.js` and use the shared `KOS.sims.canvas` / `KOS.sims.COL`.
+- The OOP sandbox's model is pure `KOS.oop` (`js/labs/oop.js`): `normalise`
+  is its gate (it drops dangling/self/duplicate links but never "fixes" a
+  modelling error), a class's `id` is its identity and its file name is
+  derived from its name (`Name.cs`), and `validate` reports every C# rule the
+  generated code would break (names, duplicates, single inheritance, cycles,
+  abstract/virtual/override). The canvas pan/zoom and the Code/Diagram
+  toggle are per device in `state.ui.oopView`, never in the synced model. The
+  first visit's example stays a draft until the first edit (smoke56).
 - Lab canvases take every colour from `KOS.labPalette()` (theme tokens, oklch
   included, resolved once per `data-theme` through a 1px canvas), never from a
   fixed hex palette — a fixed ink disappears on the other theme.
