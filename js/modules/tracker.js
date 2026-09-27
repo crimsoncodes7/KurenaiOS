@@ -63,22 +63,22 @@
     var badly = area("Areas that didn't go well…", "Didn't go well");
     var notes = area("Mistakes / notes for next time…", "Mistakes / notes");
     var reviewed = el("input", { type: "checkbox", class: "k-box" });
-    var subjSel = el("select", { class: "k-input", onchange: function () { fillRefs(); preview(); } }, [
+    var subjSel = el("select", { class: "k-input", onchange: function () { subjTouched = true; preview(); } }, [
       el("option", { value: "", text: "No subject" }),
       el("option", { value: "compsci", text: SUBJ.compsci }),
       el("option", { value: "maths", text: SUBJ.maths }),
       el("option", { value: "it", text: SUBJ.it })
     ]);
-    var refSel = el("select", { class: "k-input", onchange: preview });
-    function fillRefs() {
-      refSel.innerHTML = "";
-      refSel.appendChild(el("option", { value: "", text: "No specific topic" }));
-      if (!subjSel.value) { refSel.disabled = true; return; }
-      refSel.disabled = false;
-      KOS.hub.LEAVES[subjSel.value].forEach(function (l) {
-        refSel.appendChild(el("option", { value: l.ref, text: l.ref + " · " + l.title }));
-      });
-    }
+    /* frame 17: the spec points are the shared topic picker (multi); the
+       subject follows the first topic while it has not been set by hand */
+    var subjTouched = !!(existing && existing.subject);
+    var refPick = KOS.topicPicker({ label: "Spec points (feed RAG)", multi: true,
+      value: existing ? KOS.tracker.refsOf(existing) : [],
+      onChange: function (refs) {
+        if (!subjTouched && refs.length) subjSel.value = KOS.spec.subjectsOf(refs)[0] || subjSel.value;
+        preview();
+      } });
+    refPick.el.classList.add("k-trk-half");
     if (existing) {
       kind = existing.kind;
       topic.value = existing.topic; paper.value = existing.paper;
@@ -88,11 +88,8 @@
       well.value = existing.well; badly.value = existing.badly; notes.value = existing.notes;
       reviewed.checked = existing.reviewed;
       subjSel.value = existing.subject || "";
-      fillRefs();
-      if (existing.ref) refSel.value = existing.ref;
     } else {
       date.value = KOS.srs.todayISO();
-      fillRefs();
     }
 
     /* the live read-out: the percentage and what it tells the RAG flag */
@@ -105,7 +102,8 @@
       pv.style.setProperty("--c", tone(p));
       pv.firstChild.textContent = p + "%";
       var band = p >= 70 ? "green" : p >= 45 ? "amber" : "red";
-      pv.lastChild.textContent = "Logged results count as study evidence" + (subjSel.value && refSel.value ? " and push " + refSel.value + " towards " + band + "." : ".");
+      var first = KOS.spec.firstLeaf(refPick.value());
+      pv.lastChild.textContent = "Logged results count as study evidence" + (first ? " and push " + first.ref + " towards " + band + "." : ".");
     }
     [marks, max].forEach(function (i) { i.addEventListener("input", preview); });
     preview();
@@ -128,7 +126,7 @@
       ]),
       el("div", { class: "k-dialog-body k-trk-form" }, [
         f("Paper", paper, "k-trk-half"), f("Subject", subjSel, "k-trk-half"),
-        f("Topic", topic, "k-trk-half"), f("Spec point (feeds RAG)", refSel, "k-trk-half"),
+        f("Topic", topic, "k-trk-half"), refPick.el,
         f("Marks awarded", marks), f("Marks available", max), f("Grade", grade), f("Date completed", date),
         pv,
         el("div", { class: "k-trk-reflect" }, [
@@ -146,7 +144,7 @@
           if (!topic.value.trim() && !paper.value.trim()) { KOS.ui.toast("Give it at least a topic or a paper name.", true); return; }
           var data = {
             kind: kind, topic: topic.value.trim(), paper: paper.value.trim(),
-            subject: subjSel.value || null, ref: subjSel.value && refSel.value ? refSel.value : null,
+            subject: subjSel.value || null, refs: refPick.value(),
             marks: marks.value === "" ? null : Math.max(0, parseInt(marks.value, 10)),
             max: max.value === "" ? null : Math.max(1, parseInt(max.value, 10)),
             grade: grade.value.trim(), date: date.value || KOS.srs.todayISO(),

@@ -370,7 +370,8 @@ step("core fields are visible, the rest is disclosed", async () => {
   if (!details.matches('[data-state~="open"]')) throw new Error("a section did not open");
   if (details.querySelector("[data-ui~='cal.disc-h']").getAttribute("aria-expanded") !== "true")
     throw new Error("aria-expanded did not follow");
-  ["Subject", "Topic ref", "Location", "Description"].forEach(k => {
+  /* frame 17: the topic is the shared picker, labelled "Topic" */
+  ["Subject", "Topic", "Location", "Description"].forEach(k => {
     if (!labelled(k)) throw new Error("detail field missing: " + k);
   });
   closeModals();

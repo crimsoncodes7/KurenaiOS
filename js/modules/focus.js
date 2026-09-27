@@ -1998,7 +1998,7 @@
     /* optional subject/topic link — Reading (rest, not study) rides here too */
     var subjSel = el("select", { class: "k-input", "aria-label": "Link to subject", onchange: function () {
       if (reading() && mode !== "custom") setMode("custom");
-      fillRefs(); fillAssignments(); sync();
+      topicPick.refresh(); fillAssignments(); sync();
     } }, [
       el("option", { value: "", text: "General study — no link" }),
       el("option", { value: "compsci", text: "Computer Science" }),
@@ -2006,7 +2006,16 @@
       el("option", { value: "it", text: "IT · Data Analytics" }),
       el("option", { value: "reading", text: "Reading — rest, no penalties" })
     ]);
-    var refSel = el("select", { class: "k-input", "aria-label": "Topic" });
+    /* frame 17: the topic is the shared picker, single-select, locked to
+       the subject (one subject per session, invariant 4a); picking a topic
+       under General study takes its subject */
+    var topicPick = KOS.topicPicker({ label: "Topic (optional)", multi: false, placeholder: "Whole subject",
+      subject: function () { return subjSel.value && subjSel.value !== "reading" ? subjSel.value : null; },
+      value: cfg.refs && cfg.refs.length ? cfg.refs : cfg.subject && cfg.ref ? [cfg.subject + ":" + cfg.ref] : [],
+      onChange: function (refs) {
+        var s0 = refs.length ? KOS.spec.subjectsOf(refs)[0] : null;
+        if (s0 && subjSel.value !== s0) { subjSel.value = s0; fillAssignments(); sync(); }
+      } });
     /* Build 6.4 — the open assignments a session can be spent on. Read from
        the canonical store; the option list narrows with the subject. */
     var asgSel = el("select", { class: "k-input", "aria-label": "Link to an assignment" });
@@ -2023,33 +2032,22 @@
       asgSel.disabled = !rows.length;
       if (keep && rows.some(function (a) { return String(a.id) === keep; })) asgSel.value = keep;
     }
-    function fillRefs() {
-      refSel.innerHTML = "";
-      refSel.appendChild(el("option", { value: "", text: "Whole subject" }));
-      var sid = subjSel.value;
-      if (!sid || reading()) { refSel.disabled = true; return; }
-      refSel.disabled = false;
-      KOS.hub.LEAVES[sid].forEach(function (l) {
-        refSel.appendChild(el("option", { value: l.ref, text: l.ref + " " + l.title }));
-      });
-    }
     subjSel.value = cfg.subject || "";
-    fillRefs();
+    topicPick.refresh();
     fillAssignments();
     /* deep link from an assignment's "Focus on this" — preselect its subject
        and the assignment itself so the session is linked before it starts */
     if (arg && arg.assignmentId != null && KOS.assignments) {
       var linked = KOS.assignments.get(arg.assignmentId);
       if (linked) {
-        if (linked.subject) { subjSel.value = linked.subject; fillRefs(); }
+        if (linked.subject) { subjSel.value = linked.subject; topicPick.refresh(); }
         fillAssignments();
         asgSel.value = String(linked.id);
       }
     }
-    if (cfg.ref) refSel.value = cfg.ref;
     var asgField = field("Assignment (optional)", asgSel, true);
     var linkRow = el("div", { class: "k-fx-pair", "data-ui": "focus.link-row" }, [
-      field("Link to subject", subjSel), field("Topic (optional)", refSel), asgField
+      field("Link to subject", subjSel), topicPick.el, asgField
     ]);
     form.appendChild(linkRow);
 
@@ -2100,7 +2098,7 @@
         nudgeMin: parseInt(nudgeSel.value, 10) || 0,
         limitMin: parseInt(limitSel.value, 10) || 0,
         subject: subjSel.value || null,
-        ref: subjSel.value && refSel.value ? refSel.value : null,
+        refs: subjSel.value ? topicPick.value() : [],
         assignmentId: asgSel.value ? parseInt(asgSel.value, 10) : null,
         objective: objIn.value
       });
@@ -2109,9 +2107,11 @@
       startBtn,
       todayBlock ? el("button", { type: "button", class: "k-btn", "data-ui": "focus.from-plan", text: "From today's plan",
         title: todayBlock.title, onclick: function () {
-          if (todayBlock.subject) { subjSel.value = todayBlock.subject; fillRefs(); }
+          if (todayBlock.subject) { subjSel.value = todayBlock.subject; topicPick.refresh(); }
           fillAssignments();
-          if (todayBlock.ref) refSel.value = todayBlock.ref;
+          var blockRefs = Array.isArray(todayBlock.refs) && todayBlock.refs.length ? todayBlock.refs
+            : todayBlock.subject && todayBlock.ref ? [todayBlock.subject + ":" + todayBlock.ref] : [];
+          if (blockRefs.length) topicPick.set(blockRefs.slice(0, 1));
           if (todayBlock.assignmentId != null) asgSel.value = String(todayBlock.assignmentId);
           if (!objIn.value) objIn.value = todayBlock.title || "";
           sync();
@@ -2277,7 +2277,7 @@
       openFields.hidden = rd || !fixed;
       limitField.hidden = mode !== "stopwatch";
       untilFields.hidden = rd || mode !== "until";
-      refSel.closest(".k-field").hidden = rd;
+      topicPick.el.hidden = rd;
       asgField.hidden = rd;
       objField.hidden = rd;
       penField.hidden = rd;

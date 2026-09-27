@@ -548,7 +548,10 @@ step("the editor creates, edits and deletes through the one dialog route", () =>
     .find(l => l.querySelector("span").textContent === "Title");
   assert(titleField, "the editor has no Title field");
   titleField.querySelector("input").value = "Made by the editor";
-  dlg.querySelectorAll("[data-ui~='pace.pick-row'] input")[0].click();
+  /* frame 17: the shared topic picker — open it and tick the first leaf */
+  dlg.querySelector("[data-ui~='pace.picker'] [data-ui~='tp.add']").click();
+  dlg.querySelector("[data-ui~='pace.picker'] [data-ui~='tp.row']").click();
+  dlg.querySelector("[data-ui~='pace.picker'] [data-ui~='tp.done']").click();
   [...dlg.querySelectorAll("[data-ui~='pace.dlg-actions'] button")].pop().click();
   const made = KOS.pacing.entries().find(e => e.title === "Made by the editor");
   assert(made, "the editor did not save the row");
@@ -586,10 +589,11 @@ step("the specification picker never renders the whole specification", () => {
   KOS.show("pacing", { wb: "2026-11-02" });
   $("#main [data-ui~='pace.add']").click();
   const dlg = $("[data-ui~='ui.dialog'][data-ui~='pace.dlg']");
-  const rows = dlg.querySelectorAll("[data-ui~='pace.pick-row']").length;
-  assert(rows > 0 && rows <= 40, "the picker drew " + rows + " rows of a 156-leaf subject");
-  assert(/showing 40 of \d+ matches/.test(dlg.querySelector("[data-ui~='pace.pick-count']").textContent),
-    "the picker does not say what it left out: " + dlg.querySelector("[data-ui~='pace.pick-count']").textContent);
+  /* frame 17: the shared picker draws rows in batches as its list scrolls */
+  dlg.querySelector("[data-ui~='pace.picker'] [data-ui~='tp.add']").click();
+  const rows = dlg.querySelectorAll("[data-ui~='pace.picker'] [data-ui~='tp.row']").length;
+  assert(rows > 0 && rows <= 60, "the picker drew " + rows + " rows of a 156-leaf subject");
+  assert(KOS.spec.leaves("compsci").length > rows, "the fixture no longer proves a batch");
   dlg.querySelector("[data-ui~='ui.dialog-head'] button").click();
 });
 

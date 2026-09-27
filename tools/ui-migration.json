@@ -63,7 +63,8 @@
     "js/labs/worked.js",
     "js/modules/mobile-shell.js",
     "js/core/figures.js",
-    "js/labs/worked-extra.js"
+    "js/labs/worked-extra.js",
+    "js/core/topicpicker.js"
   ],
   "views": {
     "home": {},

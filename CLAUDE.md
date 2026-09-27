@@ -105,6 +105,7 @@ non-navigation redraw path.
 | Cross-domain search | `js/core/search.js`; presentation in `hub.js`/`mobile-shell.js` |
 | Study content and engines | `content.js`, `hub.js`, `js/engines/` |
 | Specification tree queries and stored topic links (`refs`) | `js/core/spec.js` (`KOS.spec`) |
+| The topic picker (every form that names topics) | `js/core/topicpicker.js` (`KOS.topicPicker`) |
 | Exams & Papers record and its normaliser | `js/core/tracker.js` (`KOS.tracker`); page `js/modules/tracker.js` |
 | IT unit marks and statuses | `js/core/itunits.js` (`KOS.itUnits`); scales and boundaries `js/data/it-grades.js`; grades derived in `hub.js` (`KOS.hub.it`) |
 | User edits to the curriculum, the study editor and the quick note | `js/core/edits.js`, `js/modules/editor.js` |
@@ -275,7 +276,10 @@ source comments and audit notes refer to it.
     an ambiguous bare ref is never guessed. Where an older reader needs one
     topic, `subject`/`ref` are DERIVED from `refs` (the first leaf) on every
     write. Pre-1.1 shapes (`topics` pairs, a lone `ref`) are migrated once at
-    boot and stay readable through each owner's `refsOf()`.
+    boot and stay readable through each owner's `refsOf()`. Every form that
+    names topics uses `KOS.topicPicker` (Assignments, Exams & Papers, Focus,
+    the Calendar event and exam, the Pacing row); it writes nothing and an
+    owner whose contract is leaves only expands on save.
 26f. `state.itUnits` is the one IT unit record (per-unit `status`
     done/sitting/not-taken, `raw`, `ums`, `series`, `year`, `date`), behind
     `KOS.itUnits.normalise*`, seeded once like the plan. `js/data/it-grades.js`

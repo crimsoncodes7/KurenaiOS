@@ -869,7 +869,16 @@
     var end = input("time");
     var type = select(TYPES.map(function (t) { return [t.v, t.label]; }));
     var subj = select([["", "No subject"], ["compsci", "Computer Science"], ["maths", "Mathematics"], ["it", "IT"]]);
-    var ref = input("text", { placeholder: "e.g. 4.2.3.1" });
+    /* frame 17: the event's topic is the shared picker, single-select and
+       held to the subject; picking one under no subject takes its subject */
+    var topicPick = KOS.topicPicker({ label: "Topic", multi: false, placeholder: "No topic",
+      subject: function () { return subj.value || null; },
+      value: d.subject && d.ref ? [d.subject + ":" + d.ref] : [],
+      onChange: function (refs) {
+        var s0 = refs.length ? KOS.spec.subjectsOf(refs)[0] : null;
+        if (s0 && subj.value !== s0) subj.value = s0;
+      } });
+    topicPick.el.setAttribute("data-ui", topicPick.el.getAttribute("data-ui") + " cal.field");
     var location = input("text", { placeholder: "Room, building, or link", maxlength: 120 });
     var description = el("textarea", { class: "k-input", "data-ui": "ui.input", rows: 3, placeholder: "Anything you want to remember about it" });
     var recur = select(RECUR.map(function (r) { return [r.v, r.label]; }));
@@ -886,7 +895,7 @@
     end.value = d.endTime || "";
     type.value = d.type;
     subj.value = d.subject || "";
-    ref.value = d.ref || "";
+    subj.addEventListener("change", function () { topicPick.refresh(); });
     location.value = d.location;
     description.value = d.description;
     recur.value = d.recur;
@@ -938,10 +947,11 @@
     var paper = input("text", { placeholder: "e.g. Paper 1", maxlength: 60 });
     var duration = input("number", { min: 0, max: 1440, step: 5, placeholder: "minutes" });
     var room = input("text", { placeholder: "e.g. Sports hall", maxlength: 60 });
-    var topicsIn = input("text", { placeholder: "Comma-separated refs, e.g. 4.2.3.1, 4.3.1" });
+    var examPick = KOS.topicPicker({ label: "Related topics", multi: true, value: refsOf(d) });
+    examPick.el.classList.add("k-cal-span");
+    examPick.el.setAttribute("data-ui", examPick.el.getAttribute("data-ui") + " cal.field");
     paper.value = d.paper; room.value = d.room;
     duration.value = d.durationMins == null ? "" : String(d.durationMins);
-    topicsIn.value = KOS.spec.pairs(refsOf(d)).map(function (t) { return t.ref; }).join(", ");
 
     /* ---- conditional: deadline ---- */
     var priority = select(PRIORITIES.map(function (p) { return [String(p.v), p.label]; }));
@@ -1009,7 +1019,7 @@
 
     var detailsSec = disclosure("Details", "Subject, topic, location, description",
       el("div", { class: "k-cal-fgrid" }, [
-        field("Subject", subj), field("Topic ref", ref),
+        field("Subject", subj), topicPick.el,
         field("Location", location),
         field("Description", description, true)
       ]),
@@ -1035,7 +1045,7 @@
         condHost.appendChild(disclosure("Exam details", "Paper, duration, room, related topics",
           el("div", { class: "k-cal-fgrid" }, [
             field("Paper", paper), field("Duration (min)", duration), field("Room", room),
-            field("Related topics", topicsIn, true)
+            examPick.el
           ]),
           !!(existing && existing.type === "exam" &&
             (existing.paper || existing.room || existing.durationMins || refsOf(existing).length))));
@@ -1101,7 +1111,7 @@
         title: title.value.trim(), date: date.value, allDay: allDay.checked,
         time: allDay.checked ? null : (start.value || null),
         endTime: allDay.checked ? null : (end.value || null),
-        type: t, subject: subj.value || null, ref: ref.value.trim() || null,
+        type: t, subject: subj.value || null, ref: (KOS.spec.parse(topicPick.value()[0] || "") || {}).ref || null,
         description: description.value, location: location.value.trim(),
         colour: d.colour, recur: recur.value, recurUntil: until.value || null,
         alerts: d.alerts.slice(),
@@ -1113,10 +1123,9 @@
         patch.paper = paper.value.trim();
         patch.room = room.value.trim();
         patch.durationMins = duration.value === "" ? null : Number(duration.value);
-        patch.topics = topicsIn.value.split(",").map(function (s) { return s.trim(); }).filter(Boolean)
-          .map(function (r) { return { subject: subj.value || null, ref: r }; });
+        patch.refs = examPick.value();
       } else {
-        patch.paper = ""; patch.room = ""; patch.topics = [];
+        patch.paper = ""; patch.room = ""; patch.refs = [];
       }
       if (t === "deadline") {
         patch.priority = parseInt(priority.value, 10) || 0;

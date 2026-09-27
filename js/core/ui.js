@@ -176,6 +176,9 @@
 
     function onKey(e) {
       if (dialogStack[dialogStack.length - 1] !== rec) return;   /* topmost only */
+      /* a popover open inside the dialog (the topic picker's panel) owns
+         its own Escape and Tab until it closes */
+      if ((e.key === "Escape" || e.key === "Tab") && e.target && e.target.closest && e.target.closest("[data-keys-local]")) return;
       if (e.key === "Escape" && opts.escape !== false) {
         e.preventDefault();
         /* several modals still carry their own document-level Escape

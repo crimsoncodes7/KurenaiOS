@@ -353,32 +353,18 @@
       alertBox.appendChild(b);
     });
 
-    /* related topics — "subject ref", validated against the spec tree */
-    var chosenTopics = A().topicsOf(a);
-    var topicWrap = el("div", { class: "k-asg-chips" });
-    var topicIn = input("text", "", { "aria-label": "Link a spec topic", placeholder: "e.g. compsci 4.1.1.1 — Enter to add",
-      onkeydown: function (e) { if (e.key === "Enter") { e.preventDefault(); addTopic(); } } });
-    function addTopic() {
-      var raw = topicIn.value.trim().replace(/\s+/g, " ");
-      if (!raw) return;
-      var parts = raw.split(/[ :]+/);
-      var sid = parts[0], ref = parts.slice(1).join(" ");
-      if (!window.KOS_DATA || !KOS_DATA[sid] || !ref) { KOS.ui.toast("Use “subject ref”, e.g. compsci 4.1.1.1.", true); return; }
-      chosenTopics.push({ subject: sid, ref: ref });
-      topicIn.value = "";
-      paintTopics();
-    }
-    function paintTopics() {
-      topicWrap.innerHTML = "";
-      chosenTopics.forEach(function (t, i) {
-        topicWrap.appendChild(el("span", { class: "k-chip", style: "--chip-c: " + HUE(t.subject) }, [
-          shortSubj(t.subject) + " " + t.ref,
-          el("button", { type: "button", class: "k-asg-x", "aria-label": "Remove topic", text: "✕",
-            onclick: function () { chosenTopics.splice(i, 1); paintTopics(); } })
-        ]));
-      });
-    }
-    paintTopics();
+    /* related topics — the shared topic picker (frame 17d). A unit or
+       parent is kept as picked; the subject follows the topics chosen
+       while it has not been set by hand. */
+    var subjTouched = !!a.subject;
+    subj.addEventListener("change", function () { subjTouched = true; });
+    var topics = KOS.topicPicker({ label: "Related topics", multi: true, value: A().refsOf(a),
+      onChange: function (refs) {
+        if (subjTouched || !refs.length) return;
+        var s0 = KOS.spec.subjectsOf(refs)[0];
+        if (s0) subj.value = s0;
+      } });
+    topics.el.classList.add("k-field--wide");
 
     function save() {
       if (!title.value.trim()) { KOS.ui.toast("An assignment needs a title.", true); return; }
@@ -388,7 +374,7 @@
         due: due.value || null, dueTime: dueTime.value || null,
         status: status.value, priority: priority.value, progress: progress.value,
         estimateMins: estimate.value, actualMins: actual.value,
-        notes: notes.value, topics: chosenTopics, alerts: chosenAlerts,
+        notes: notes.value, refs: topics.value(), alerts: chosenAlerts,
         showInCalendar: inCal.checked, showInCountdown: inCd.checked
       };
       var rec;
@@ -420,7 +406,7 @@
         f("Assigned", assigned), f("Due date", due), f("Due time", dueTime),
         f("Status", status), f("Priority", priority), f("Progress %", progress),
         f("Estimated effort (min)", estimate), f("Actual effort (min)", actual),
-        el("div", { class: "k-field k-field--wide" }, [el("span", { class: "k-field-label", text: "Related topics" }), topicWrap, topicIn]),
+        topics.el,
         el("div", { class: "k-field k-field--wide" }, [el("span", { class: "k-field-label", text: "Alerts" }), alertBox]),
         el("div", { class: "k-field k-field--wide" }, [
           el("span", { class: "k-field-label", text: "Where it shows" }),

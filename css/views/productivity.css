@@ -647,12 +647,6 @@
 .k-pace-dlg-refs { display: flex; flex-direction: column; }
 .k-pace-dlg-ref { display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-8) 0; border: 0; border-block-start: var(--hairline) solid var(--line); background: none; font: inherit; color: inherit; text-align: start; cursor: pointer; }
 .k-pace-dlg-ref-t { display: flex; flex-direction: column; flex: 1 1 auto; min-inline-size: 0; font-size: var(--fs-13); }
-.k-pace-pick { display: flex; flex-direction: column; gap: var(--sp-8); }
-.k-pace-pick-list { display: flex; flex-direction: column; max-block-size: var(--menu-max-h); overflow-y: auto; }
-.k-pace-pick-row { display: flex; align-items: center; gap: var(--sp-10); padding: var(--sp-6) var(--sp-4); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-13); cursor: pointer; }
-.k-pace-pick-row[data-state~="is-on"] { background: var(--s2); }
-.k-pace-pick-id { flex: 0 0 auto; min-inline-size: var(--pace-merge-ref-w); font-size: var(--fs-11-5); color: var(--text-2); }
-.k-pace-pick-t { min-inline-size: 0; }
 .k-pace-dlg-danger { display: flex; justify-content: flex-start; margin-block-start: var(--sp-12); padding-block-start: var(--sp-12); border-block-start: var(--hairline) solid var(--line); }
 
 /* the braid (10g): one subject, two lines and the arcs between them */

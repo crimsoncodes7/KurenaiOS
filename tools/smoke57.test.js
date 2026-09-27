@@ -24,6 +24,11 @@
      F · THE MERGE. A `refs` field merges as a set against the base on
          both devices; re-keying a colliding record never touches it.
      G · PACING. The plan's leaf check and its picker read the same index.
+     H · THE PICKER (frames 17a–17d). One field for every owner: a parent
+         takes the place of the leaves under it, a leaf under a chosen
+         parent reads as covered, single-select replaces, the level switch
+         and a subject lock hold, and Escape closes the panel, not the
+         dialog it sits in.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -235,6 +240,88 @@ step("G · Pacing reads the same index for its leaf check and its picker", () =>
     refs: ["4.1.1.1", "4.1", "9.9.9"] });
   eq(e.refs, ["4.1.1.1"], "leaves only: a unit and an unknown ref are dropped (invariant 81)");
   P.removeEntry(e.id);
+});
+
+/* ============ H · the picker ============ */
+function picker(opts) {
+  const doc = app.window.document;
+  const p = KOS.topicPicker(opts);
+  doc.getElementById("main").appendChild(p.el);
+  return p;
+}
+function rowsOf(p) { return [...p.el.querySelectorAll("[data-ui~='tp.row']")]; }
+function searchFor(p, q) {
+  const s = p.el.querySelector("[data-ui~='tp.search']");
+  s.value = q;
+  s.dispatchEvent(new app.window.Event("input", { bubbles: true }));
+}
+function level(p, l) { p.el.querySelector("[data-ui~='tp.levels'] [data-value='" + l + "']").click(); }
+function row(p, key) { return p.el.querySelector("[data-ui~='tp.row'][data-key='" + key + "']"); }
+
+step("H · multi: ticking a parent swaps its leaves for the parent; its leaves read as covered", () => {
+  let seen = null;
+  const p = picker({ multi: true, onChange: r => { seen = r; } });
+  p.open();
+  searchFor(p, "4.2.2.1");
+  row(p, "compsci:4.2.2.1").click();
+  eq(p.value(), ["compsci:4.2.2.1"], "a leaf picked");
+  level(p, "parent");
+  searchFor(p, "4.2.2");
+  eq(row(p, "compsci:4.2.2").querySelector(".k-tp-box").getAttribute("data-state"), "part", "the parent shows a part-filled box");
+  row(p, "compsci:4.2.2").click();
+  eq(p.value(), ["compsci:4.2.2"], "the parent replaced its leaf");
+  eq(seen, ["compsci:4.2.2"], "onChange carried the value");
+  level(p, "leaf");
+  searchFor(p, "4.2.2.1");
+  const covered = row(p, "compsci:4.2.2.1");
+  assert(covered.getAttribute("aria-disabled") === "true", "a leaf under a chosen parent is covered");
+  covered.click();
+  eq(p.value(), ["compsci:4.2.2"], "clicking a covered leaf changes nothing");
+  const chip = p.el.querySelector("[data-ui~='tp.chip'][data-key='compsci:4.2.2']");
+  assert(chip && /parent/.test(chip.textContent), "a parent chip says its level: " + (chip && chip.textContent));
+  p.close();
+  chip.querySelector("[data-ui~='tp.remove']").click();
+  eq(p.value(), [], "× removes the chip");
+  p.el.remove();
+});
+
+step("H · single: choosing replaces and closes; a subject lock drops what is outside it", () => {
+  let subject = "compsci";
+  const p = picker({ multi: false, subject: () => subject, value: ["compsci:4.1.1.1", "compsci:4.2.2.1"] });
+  eq(p.value(), ["compsci:4.1.1.1"], "single keeps one");
+  p.open();
+  assert(!p.el.querySelector("[data-ui~='tp.subjects']"), "a locked picker offers no subject switch");
+  searchFor(p, "4.2.2.1");
+  row(p, "compsci:4.2.2.1").click();
+  eq(p.value(), ["compsci:4.2.2.1"], "choosing again replaces");
+  assert(!p.isOpen(), "a single pick closes the panel");
+  subject = "maths";
+  p.refresh();
+  eq(p.value(), [], "a topic outside the new subject is dropped");
+  p.el.remove();
+});
+
+step("H · Escape and Tab belong to the panel inside a dialog; Enter ticks the active row", () => {
+  const doc = app.window.document;
+  const overlay = KOS.ui.el("div", { class: "k-dialog-overlay" });
+  let closed = 0;
+  overlay.close = () => { closed++; overlay.remove(); };
+  const p = KOS.topicPicker({ multi: true });
+  overlay.appendChild(KOS.ui.el("div", { class: "k-dialog", "data-ui": "ui.dialog" }, [KOS.ui.el("h2", { text: "Test" }), p.el]));
+  KOS.ui.openDialog(overlay);
+  p.open();
+  const s = p.el.querySelector("[data-ui~='tp.search']");
+  s.value = "4.1.1.1";
+  s.dispatchEvent(new app.window.Event("input", { bubbles: true }));
+  s.dispatchEvent(new app.window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  eq(p.value(), ["compsci:4.1.1.1"], "Enter ticked the active row");
+  s.dispatchEvent(new app.window.KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
+  assert(p.el.querySelector("[data-ui~='tp.levels'] [data-value='unit'][aria-pressed='true']"), "Tab stepped the level (leaf → unit)");
+  s.dispatchEvent(new app.window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+  assert(!p.isOpen(), "Escape closed the panel");
+  eq(closed, 0, "Escape did not close the dialog around it");
+  assert(doc.body.contains(overlay), "the dialog is still open");
+  overlay.close();
 });
 
 (async () => {

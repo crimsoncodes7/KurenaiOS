@@ -125,85 +125,6 @@
     none: "no linked spec point" };
 
   /* ============================================================
-     THE SPEC-POINT PICKER
-
-     331 leaves exist. Rendering them all "to make filtering easy" is the
-     documented failure mode, so this shows what is CHOSEN plus what the
-     current search matches, capped — and says out loud how many it did not
-     draw rather than pretending the list is complete.
-     ============================================================ */
-  function refPicker(subjectOf, initial) {
-    var chosen = (initial || []).slice();
-    var CAP = 40;
-
-    var search = input("search", { placeholder: "Search the specification…", "aria-label": "Search specification points" });
-    var list = el("div", { class: "k-pace-pick-list", role: "group",
-      "aria-label": "Specification points for this row" });
-    var count = el("p", { class: "k-field-hint", "data-ui": "pace.pick-count" });
-
-    /* the data is the shared spec index (KOS.spec, roadmap 1.1): the same
-       leaves the topic picker offers, so a plan row cannot name one it
-       would not */
-    function leaves() {
-      var sid = subjectOf();
-      return sid ? KOS.spec.leaves(sid) : [];
-    }
-    function row(leaf, on) {
-      var cb = el("input", { type: "checkbox", class: "k-box", onchange: function () {
-        var i = chosen.indexOf(leaf.ref);
-        if (cb.checked && i === -1) chosen.push(leaf.ref);
-        if (!cb.checked && i !== -1) chosen.splice(i, 1);
-        render();
-      } });
-      cb.checked = !!on;
-      var r = el("label", { class: "k-pace-pick-row", "data-ui": "pace.pick-row" }, [
-        cb,
-        el("span", { class: "k-mono k-pace-pick-id", text: leaf.ref }),
-        el("span", { class: "k-pace-pick-t", text: leaf.title })
-      ]);
-      if (on) KOS.ui.state(r, "is-on", true);
-      return r;
-    }
-    function render() {
-      var all = leaves();
-      var byRef = {};
-      all.forEach(function (l) { byRef[l.ref] = l; });
-      /* a ref chosen under a subject that has since changed is dropped, so
-         the row can never claim a leaf its subject does not have */
-      chosen = chosen.filter(function (r) { return byRef[r]; });
-
-      list.innerHTML = "";
-      chosen.forEach(function (r) { list.appendChild(row(byRef[r], true)); });
-
-      var q = search.value.trim().toLowerCase();
-      var pool = all.filter(function (l) { return chosen.indexOf(l.ref) === -1; });
-      var hits = q
-        ? pool.filter(function (l) {
-          return l.ref.toLowerCase().indexOf(q) !== -1 || l.title.toLowerCase().indexOf(q) !== -1;
-        })
-        : pool;
-      hits.slice(0, CAP).forEach(function (l) { list.appendChild(row(l, false)); });
-
-      if (!all.length) count.textContent = "Choose a subject first.";
-      else if (!hits.length) count.textContent = chosen.length
-        ? "Nothing else matches — " + chosen.length + " chosen."
-        : "Nothing matches “" + search.value.trim() + "”.";
-      else if (hits.length > CAP) count.textContent = chosen.length + " chosen · showing "
-        + CAP + " of " + hits.length + " matches — narrow the search to see the rest.";
-      else count.textContent = chosen.length + " chosen · " + hits.length + " match"
-        + (hits.length === 1 ? "" : "es") + ".";
-    }
-    search.addEventListener("input", KOS.ui.debounce(render, 140));
-    render();
-
-    return {
-      node: el("div", { class: "k-pace-pick", "data-ui": "pace.picker" }, [search, list, count]),
-      refresh: render,
-      value: function () { return chosen.slice(); }
-    };
-  }
-
-  /* ============================================================
      THE ROW EDITOR
      One dialog creates and edits, because they are the same form. It also
      carries the read-only half a plan row is FOR — the linked topic pages
@@ -220,6 +141,9 @@
     sourceSel.value = e.source || defaults.source || "personal";
 
     var subjSel = select(SUBJ.map(function (s) { return [s.id, s.name]; }), function () { picker.refresh(); });
+    /* frame 17: the spec points are the shared topic picker, held to the
+       row's subject. A plan row stores LEAVES (invariant 81): a unit or
+       parent pick is expanded on save, never stored as picked. */
     subjSel.value = e.subject || defaults.subject || "compsci";
 
     var weekSel = select(KOS.pacing.weeks().map(function (w) { return [w.wb, w.label]; }));
@@ -243,7 +167,10 @@
       placeholder: "What you actually want to do with this — a weak spot, a paper to sit, a resource…" });
     note.value = e.note || "";      /* the attribute is ignored; the property is not */
 
-    var picker = refPicker(function () { return subjSel.value; }, e.refs || []);
+    var picker = KOS.topicPicker({ label: "Spec points", multi: true,
+      subject: function () { return subjSel.value; },
+      value: (e.refs || []).map(function (r) { return (e.subject || subjSel.value) + ":" + r; }) });
+    picker.el.setAttribute("data-ui", picker.el.getAttribute("data-ui") + " pace.picker");
 
     /* the tick and the reminder handoff — MY rows only. The tick is the
        plan's own bookkeeping (KOS.pacing.setDone); the reminder is a real
@@ -343,7 +270,8 @@
         paper: sourceSel.value === "school" ? "" : paper.value.trim(),
         detail: detail.value.trim(),
         note: note.value,
-        refs: picker.value(),
+        refs: KOS.spec.normaliseRefs(picker.value(), { leavesOnly: true, subject: subjSel.value, oneSubject: true })
+          .map(function (k) { return k.slice(k.indexOf(":") + 1); }),
         done: doneBox.checked,
         doneAt: doneBox.checked ? (e.done && e.doneAt ? e.doneAt : Date.now()) : null
       };
@@ -371,7 +299,7 @@
       doneField,
       lessonList,
       linked,
-      el("section", { class: "k-pace-dlg-sec" }, [dlgHead(creating ? "Specification points" : "Change the links"), picker.node]),
+      el("section", { class: "k-pace-dlg-sec" }, [dlgHead(creating ? "Specification points" : "Change the links"), picker.el]),
       el("section", { class: "k-pace-dlg-sec" }, [dlgHead("Your note"), note])
     ], [
       remindBtn,

@@ -180,8 +180,14 @@ console.log("== running ==");
 
 step("the form starts a session carrying subject, topic, assignment and objective", () => {
   $("[data-ui~='focus.obj-in']").value = "  Finish the traversal section  ";
-  const refSel = $$("[data-ui~='focus.link-row'] select")[1];
-  refSel.value = "4.2.3.1";
+  /* frame 17: the topic is the shared picker — open it, search, tick */
+  const pick = $("[data-ui~='focus.link-row'] [data-ui~='topic-picker']");
+  click(pick.querySelector("[data-ui~='tp.add']"));
+  const q = pick.querySelector("[data-ui~='tp.search']");
+  q.value = "4.2.3.1";
+  q.dispatchEvent(new window.Event("input", { bubbles: true }));
+  click(pick.querySelector("[data-ui~='tp.row'][data-key='compsci:4.2.3.1']"));
+  assert(!pick.querySelector("[data-ui~='tp.panel']"), "a single-select pick closes the panel");
   click($("[data-ui~='focus.start']"));
   const s = KOS.focus.session();
   assert(s, "no session started");
