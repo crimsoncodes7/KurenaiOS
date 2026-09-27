@@ -176,7 +176,10 @@
       function renderAiring() {
         KOS.mediadb.query({ module: "anime", status: "inProgress" }, function (err, rows) {
           if (err || !document.body.contains(airWrap)) return;
-          var list = KOS.anime.airingList(rows).slice(0, 12);
+          /* the next two episodes only (review B, after release): the card
+             sits beside the standings and ends with them; the Seasonal
+             view holds the full schedule */
+          var list = KOS.anime.airingList(rows).slice(0, 2);
           airWrap.innerHTML = "";
           airWrap.appendChild(el("div", { class: "k-card-head" }, [
             el("h2", { class: "k-card-title", text: "Airing soon" }),

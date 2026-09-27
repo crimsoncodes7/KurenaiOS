@@ -15,7 +15,7 @@ chronological diary here.
 - Runtime release: `28ef508` — immutable deployment
   https://443199c7.kurenai-os.pages.dev (27 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-graphite-1`
+- Service-worker version: `kos-graphite-2`
 - Required smoke gate: 56 / 56 suites.
 
 ## Run, test and deploy
@@ -268,8 +268,11 @@ source comments and audit notes refer to it.
 ### PWA, responsive foundations and shared primitives (37–50)
 
 37. The service worker never caches APIs or non-GET requests. Same-origin statics
-    are stale-while-revalidate; navigation is network-first; shell precache derives
-    from `index.html`.
+    are stale-while-revalidate; a navigation serves the `index.html` cached with
+    that worker's own version (network only when none is cached, and always on
+    local dev hosts), so a page never pairs a new shell with the previous
+    version's scripts; a deploy arrives through the waiting worker. Shell
+    precache derives from `index.html`.
 38. `skipWaiting()` runs only after the user confirms. Bump `sw.js` `VERSION` for
     every asset deployment; the app works without a service worker.
 39. Persistent storage is requested sparingly and never promised. Background Sync

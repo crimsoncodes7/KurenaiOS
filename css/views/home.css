@@ -105,16 +105,21 @@ button.k-check-row:hover .k-check-row-text { color: var(--text); text-decoration
 .k-hours-big .k-hours-u { color: var(--muted); font-size: var(--fs-12-5); }
 .k-hours-big .k-hours-d { margin-inline-start: auto; font-size: var(--fs-12); color: var(--teal); }
 .k-hours-big .k-hours-d[data-state~="down"] { color: var(--muted); }
-.k-hours-chart { position: relative; flex: 1 1 0; min-block-size: var(--home-chart-h); display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--sp-12); align-items: end; margin-block-start: var(--sp-14); }
-.k-hours-goal { position: absolute; inset-inline: 0; inset-block-end: calc(var(--goal-y, 0%) - var(--sp-12)); border-block-start: var(--hairline) dashed var(--line); pointer-events: none; }
-.k-hours-goal span { position: absolute; inset-inline-end: 0; inset-block-start: calc(var(--sp-16) * -1); font: var(--fs-11) var(--font-mono); color: var(--muted); }
-.k-hours-day { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--sp-4); block-size: 100%; }
-.k-hours-v { font: var(--fs-11) var(--font-mono); color: var(--muted); }
-.k-hours-bar { inline-size: 100%; block-size: var(--h, 0%); min-block-size: var(--sp-8); border-radius: var(--r-10) var(--r-10) var(--r-6) var(--r-6); background: var(--s2); }
+.k-hours-chart { flex: 1 1 0; min-block-size: var(--home-chart-h); display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)) auto; column-gap: var(--sp-12); margin-block-start: var(--sp-14); }
+.k-hours-day { display: flex; flex-direction: column; align-items: stretch; gap: var(--sp-6); min-inline-size: 0; }
+/* the track: the value label's room at the top, then the scale */
+.k-hours-track { position: relative; flex: 1 1 auto; margin-block-start: var(--sp-18); }
+.k-hours-bar { position: absolute; inset-inline: 0; inset-block-end: 0; block-size: var(--h, 0%); min-block-size: var(--sp-8); border-radius: var(--r-10) var(--r-10) var(--r-6) var(--r-6); background: var(--s2); }
+.k-hours-v { position: absolute; z-index: 1; inset-inline-start: 50%; inset-block-end: calc(var(--h, 0%) + var(--sp-4)); transform: translateX(-50%); padding-inline: var(--sp-4); border-radius: var(--sp-4); background: var(--s1); font: var(--fs-11) var(--font-mono); color: var(--muted); white-space: nowrap; }
+/* the goal: one dashed segment per track, bridging the column gap so the
+   segments read as one line */
+.k-hours-goal { position: absolute; inset-inline: calc(var(--sp-6) * -1); inset-block-end: var(--goal-y, 0%); border-block-start: var(--hairline) dashed var(--muted); opacity: 0.6; pointer-events: none; }
+.k-hours-goalcol .k-hours-track { min-inline-size: var(--hours-goal-w); }
+.k-hours-goal-l { position: absolute; inset-inline-start: 0; inset-block-end: var(--goal-y, 0%); transform: translateY(50%); font: var(--fs-11) var(--font-mono); color: var(--muted); white-space: nowrap; }
 .k-hours-day[data-state~="today"] .k-hours-bar { background: linear-gradient(var(--crimson), var(--crimson-lo)); }
 .k-hours-day[data-state~="today"] .k-hours-v, .k-hours-day[data-state~="today"] .k-hours-l { color: var(--text); font-weight: var(--weight-semibold); }
 .k-hours-day[data-state~="future"] .k-hours-bar { block-size: var(--sp-12); min-block-size: 0; background: none; border: var(--hairline) dashed var(--line); border-radius: var(--r-8); }
-.k-hours-l { font-size: var(--fs-11-5); color: var(--muted); }
+.k-hours-l { font-size: var(--fs-11-5); color: var(--muted); text-align: center; }
 .k-hours-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--sp-16); margin-block-start: var(--sp-12); padding-block-start: var(--sp-10); border-block-start: var(--hairline) solid var(--line); }
 .k-hours-fact { display: block; align-self: start; padding: 0; background: none; box-shadow: none; text-align: start; border-radius: var(--r-8); font-size: inherit; line-height: inherit; }
 button.k-hours-fact:hover { background: none; }

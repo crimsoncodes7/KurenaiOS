@@ -899,17 +899,31 @@
     for (var lw = 1; lw <= 7; lw++) { var ld = new Date(weekStart); ld.setDate(weekStart.getDate() - lw); lastWeekH += hoursOn(isoOf(ld)); }
     var weekSess = KOS.sessions.all().filter(function (s) { return s.type !== "media" && weekIsos.indexOf(s.date) !== -1; }).length;
     var peak = Math.max(2, days.reduce(function (a, d) { return Math.max(a, d.h); }, 0));
+    /* every bar and the goal line are measured in ONE track per column
+       (a bar is h% of it, the goal 2/peak of it), and the goal's label has
+       its own column at the end, clear of the bars (after release: the
+       label sat on Sunday's bar and the line missed the bars' scale) */
+    var goalPct = Math.round(100 * 2 / peak);
     var chart = el("div", { class: "k-hours-chart", "data-ui": "home.week", role: "img",
-      "aria-label": "Study hours this week: " + days.filter(function (d) { return d.iso <= today; }).map(function (d) { return shortDay(d.iso) + " " + fmtH(d.h) + "h"; }).join(", ") }, [
-      el("div", { class: "k-hours-goal", style: "--goal-y: " + Math.round(100 * 2 / peak) + "%" }, [el("span", { text: "goal 2h" })])
-    ].concat(days.map(function (d, i) {
-      var future = d.iso > today, isToday = d.iso === today;
-      return el("div", { class: "k-hours-day", "data-ui": "home.week-day", title: d.iso, "data-state": future ? "future" : isToday ? "today" : null }, [
-        future || !d.h ? null : el("span", { class: "k-hours-v", text: fmtH(d.h) }),
-        el("div", { class: "k-hours-bar", style: future ? null : "--h: calc(" + Math.round(100 * d.h / peak) + "% - var(--sp-24))" }),
-        el("span", { class: "k-hours-l", text: "MTWTFSS".charAt(i) })
-      ].filter(Boolean));
-    })));
+      "aria-label": "Study hours this week: " + days.filter(function (d) { return d.iso <= today; }).map(function (d) { return shortDay(d.iso) + " " + fmtH(d.h) + "h"; }).join(", ") + ". Goal 2 hours a day." },
+      days.map(function (d, i) {
+        var future = d.iso > today, isToday = d.iso === today;
+        var pct = Math.round(100 * d.h / peak);
+        var track = el("div", { class: "k-hours-track" }, [
+          el("div", { class: "k-hours-bar", style: future ? null : "--h: " + pct + "%" }),
+          future || !d.h ? null : el("span", { class: "k-hours-v", style: "--h: " + pct + "%", text: fmtH(d.h) }),
+          el("span", { class: "k-hours-goal", style: "--goal-y: " + goalPct + "%", "aria-hidden": "true" })
+        ].filter(Boolean));
+        return el("div", { class: "k-hours-day", "data-ui": "home.week-day", title: d.iso, "data-state": future ? "future" : isToday ? "today" : null }, [
+          track,
+          el("span", { class: "k-hours-l", text: "MTWTFSS".charAt(i) })
+        ]);
+      }).concat([
+        el("div", { class: "k-hours-day k-hours-goalcol", "aria-hidden": "true" }, [
+          el("div", { class: "k-hours-track" }, [el("span", { class: "k-hours-goal-l", style: "--goal-y: " + goalPct + "%", text: "goal 2h" })]),
+          el("span", { class: "k-hours-l", text: "\u00a0" })
+        ])
+      ]));
     var bySubj = { compsci: 0, maths: 0, it: 0 };
     KOS.sessions.all().forEach(function (s) { if (s.type !== "media" && weekIsos.indexOf(s.date) !== -1 && bySubj[s.subject] != null) bySubj[s.subject] += (s.dur || 0) / 3600; });
     var learnt = 0;

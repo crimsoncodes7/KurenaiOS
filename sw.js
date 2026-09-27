@@ -7,8 +7,14 @@
      the next load and no stale shell can wedge permanently even without a
      version bump. The precache list is DERIVED from index.html's own script
      and stylesheet tags at install time, so it can never drift from the app.
-   - NAVIGATIONS: network-first (fresh HTML when online) with the cached
-     index.html as the offline fallback.
+   - NAVIGATIONS: the index.html of THIS worker's version, from the same
+     cache as its scripts and styles — a page is always one version. It
+     used to be network-first, which paired a freshly deployed index.html
+     with the previous version's cached scripts for one load (the page came
+     up half-styled until "Reload now"). A new deploy reaches the page by
+     its new worker: installed in the background, applied when the user
+     accepts the update. Network only when nothing is cached yet; local
+     development hosts stay network-first so an edited index.html shows.
    - CDN statics (Google fonts, jsdelivr): stale-while-revalidate in a
      runtime cache.
    - EVERYTHING ELSE — Supabase, AniList, VNDB, Open Library, Google Books,
@@ -23,11 +29,13 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-graphite-1";
+var VERSION = "kos-graphite-2";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 
 var CDN_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com", "cdn.jsdelivr.net"];
+/* local development: navigations stay network-first (see header) */
+var DEV_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(self.location.hostname);
 
 /* Stylesheets are not listed here: every css/*.css layer the page links is
    derived from index.html at install, like the scripts (UI rebuild M2). */
@@ -165,13 +173,17 @@ self.addEventListener("fetch", function (e) {
 
   if (req.mode === "navigate") {
     e.respondWith((async function () {
+      var cache = await caches.open(STATIC_CACHE);
+      if (!DEV_HOST) {
+        var shell = await cache.match("index.html");
+        if (shell) return shell;
+      }
       try {
         var fresh = await fetch(req);
-        var cache = await caches.open(STATIC_CACHE);
-        cache.put("index.html", fresh.clone());
+        if (fresh && fresh.ok) cache.put("index.html", fresh.clone());
         return fresh;
       } catch (err) {
-        var cached = await caches.match("index.html");
+        var cached = await cache.match("index.html");
         if (cached) return cached;
         throw err;
       }

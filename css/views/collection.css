@@ -468,10 +468,13 @@
 .k-mx-day-h > b { font-weight: var(--weight-semibold); }
 .k-mx-day[data-state~="today"] .k-mx-day-h { color: var(--crimson); }
 .k-mx-ep { display: flex; align-items: center; gap: var(--sp-12); inline-size: 100%; padding: var(--sp-9) 0; border: 0; border-block-start: var(--hairline) solid var(--line); background: none; font: inherit; color: inherit; text-align: start; cursor: pointer; }
-.k-mx-ep-cover { position: relative; inline-size: var(--mx-ep-cover-w); block-size: var(--mx-ep-cover-h); flex: 0 0 auto; border-radius: var(--r-8); overflow: hidden; }
+.k-mx-ep > .k-mrow-main { flex: 1 1 auto; min-inline-size: 0; }
+/* the cover's z-index -1 placeholder needs its own stacking context, or
+   the card's background paints over it */
+.k-mx-ep-cover { position: relative; isolation: isolate; inline-size: var(--mx-ep-cover-w); block-size: var(--mx-ep-cover-h); flex: 0 0 auto; border-radius: var(--r-8); overflow: hidden; }
 .k-mx-ep-cover > .k-mcover { position: absolute; inset: 0; }
 .k-mx-ep-cover .k-mcover-ph { font-size: var(--fs-14); }
-.k-mx-ep-count { font-size: var(--fs-12-5); font-weight: var(--weight-semibold); color: var(--anime); white-space: nowrap; }
+.k-mx-ep-count { flex: 0 0 var(--mx-ep-count-w); font-size: var(--fs-12-5); font-weight: var(--weight-semibold); color: var(--anime); white-space: nowrap; text-align: end; }
 .k-mx-key { display: flex; gap: var(--sp-12); margin-inline-start: auto; font-size: var(--fs-11); color: var(--muted); }
 .k-mx-key > span { display: inline-flex; align-items: center; gap: var(--sp-4); }
 .k-mx-key i { inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: var(--r-2); background: var(--st); }
