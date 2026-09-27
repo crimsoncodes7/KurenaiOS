@@ -912,14 +912,16 @@ the invariants and the hook contract still govern behaviour.
   `kos-graphite-1`), fast-forwarded to `main` and deployed; then `8ea878d`
   (`kos-graphite-2`): the service worker serves a version-consistent shell
   (invariant 37), the Home study-hours goal line and Airing soon fixed.
-- **M13 and the rest of M14 are not done.** Only Graphite exists (Dawn and
-  the 23 shop themes still render it), the phone composition is unrestyled,
-  the legacy token bridge in `tokens.css` is still read by the labs and
-  charts, `mobile-shell.js`, `figures.js`, `worked-extra.js` and
-  `ui-hooks.js` are not yet in `tools/ui-migration.json`, the full
-  breakpoint/device matrix and the visual audit have not been re-run against
-  Graphite, and `tools/mobile_audit.mjs` still toggles `.tree-closed`. All of
-  it is ordered in [../ROADMAP.md](../ROADMAP.md).
+- **M14 clean-up (27 September 2026, branch `feat/m14-cleanup`):** the
+  legacy token bridge is deleted and every reader speaks Graphite;
+  `mobile-shell.js`, `figures.js` and `worked-extra.js` are rebuilt and
+  listed in `tools/ui-migration.json`; `ui-hooks.js` is retired (smoke55
+  refuses it); `tools/mobile_audit.mjs` no longer toggles `.tree-closed`;
+  the visual audit passes against Graphite and the breakpoint matrix was
+  re-run (findings and fixes in [../ROADMAP.md](../ROADMAP.md), Phase 2).
+- **M13 is not done.** Only Graphite exists (Dawn and the 23 shop themes
+  still render it) and the phone composition is not yet designed (roadmap
+  3.1, 3.2).
 
 ### Risks and mitigations
 - **Unstyled app between M2 and M14.** This is the branch only, and production never deploys from a push. If you want to use the app day-to-day meanwhile, production keeps the current build.

@@ -23,7 +23,7 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 | Service-worker cache | `kos-graphite-3` |
 | Smoke gate | 62 suites on `feat/tier-c-backend`, 56 at the `e2a5931` release (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Latest release date | 27 September 2026 (Category 7: 9 August 2026) |
-| In progress | `feat/tier-c-backend` — the Phase 1 (Tier C) backend, all eight items, not merged or deployed; its views come from Claude Design ([ROADMAP](docs/ROADMAP.md) Phase 1 status) |
+| In progress | `feat/tier-c-backend` — the Phase 1 (Tier C) backend, all eight items, not merged or deployed; its views come from Claude Design ([ROADMAP](docs/ROADMAP.md) Phase 1 status). `feat/m14-cleanup`, stacked on it — the Phase 2 (M14) clean-up: token bridge and `ui-hooks.js` retired, audits re-run against Graphite, not merged or deployed ([ROADMAP](docs/ROADMAP.md) Phase 2 status) |
 | Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
 Production deployment is separate from Git push and is performed only through

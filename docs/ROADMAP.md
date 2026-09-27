@@ -199,6 +199,38 @@ remains is the views, built on those APIs from the Claude Design handoffs:
 Engineering only. Do it before the design work in Phase 3, so the
 new themes and the phone layout build on a clean base.
 
+**Status (27 September 2026, branch `feat/m14-cleanup`, stacked on
+`feat/tier-c-backend`):** done except the optional sample covers.
+
+- The token bridge is gone: every reader uses the Graphite names, and
+  smoke15 fails if a legacy token is defined or read again.
+- `mobile-shell.js`, `figures.js` and `worked-extra.js` are rebuilt and in
+  `tools/ui-migration.json` (the 77 figures are pixel-identical).
+  `ui-hooks.js` is deleted; the two hooks it still derived (the Collection
+  workspace tabs, Review's tabs) are explicit. smoke55 refuses the file.
+- `tools/mobile_audit.mjs` no longer touches `.tree-closed`.
+- `tools/visual_audit.mjs` passes against Graphite. Its pre-Graphite
+  expectations (hero heights, the Governor's and Shrine's compositions, the
+  share card's shape, the backup buttons, Help's search) now read the design
+  tokens or the frame they came from.
+- Fixed on the way:
+  - Home's transient overflow from the Collection desk's meta line;
+  - the page header squeezing its title beside the actions on a phone;
+  - a four-tab switcher pushing the page sideways at 390px;
+  - the Goals grid's fixed 352px minimum;
+  - Home's level line and week-plan head running off a phone;
+  - the Collection status key and the Mangaka toolbar spilling;
+  - the profile chip overflowing the icon rail between 700 and 1080px;
+  - the empty Assistant drawer clipping its composer on a short phone;
+  - the Budget Planner's "PRIORITYITEM" header collision and the
+    "Visual Novels" chip wrapping;
+  - the Compare dialog's footer gap (the note now stands apart on the left).
+- **Left for the phone design (3.1):** at 360–390px, the tab strips on
+  Exams & Papers and the Budget Planner, and the Governor's four tabs, are
+  bare sideways scrollers, which the responsive audit counts as findings. A
+  wide code block in notes scrolls sideways too, which is normal for code.
+  Whether these wrap or become `KOS.ui.scroller`s is a design call.
+
 - **The legacy token bridge:**
   - `css/tokens.css` still aliases `--bg0`, `--panel`, `--text2`, `--kurenai`,
     `--sans` and the rest for the labs, charts and figures.
@@ -326,7 +358,8 @@ Claude Design and comes back as a handoff, the way Graphite did.
    - 1.8 Assistant tools (last, so the new tools cover 1.1–1.6).
 2. Meanwhile in Claude Design: **3.1 phone**, then **1.7 OOP IDE**, then
    **3.3 lab system**, then **3.2 Dawn and themes**.
-3. Phase 2 clean-up, then the phone views from their handoff.
+3. Phase 2 clean-up (done, bar the sample covers), then the phone views
+   from their handoff.
 4. The OOP IDE and the labs from their handoffs; then Dawn and the themes.
 5. Phase 4 content can run between any two of these. It shares no files
    with the UI work.
