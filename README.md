@@ -23,7 +23,7 @@ behaviour, data and invariants of the earlier releases unchanged.
   https://12e5c6df.kurenai-os.pages.dev
 - Milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker cache: `kos-graphite-3`
-- Verification: all **57 smoke suites**, including the rebuild guards
+- Verification: all **58 smoke suites**, including the rebuild guards
   (smoke55: presentation vocabulary; smoke56: render purity and control
   parity).
 
@@ -64,8 +64,9 @@ fonts.
 
 ### Study
 
-- The complete AQA 7517 Computer Science, Edexcel 9MA0 Mathematics and OCR AAQ IT
-  specification trees: **355 leaf specification points**.
+- The complete AQA 7517 Computer Science and Edexcel 9MA0 Mathematics
+  specification trees, and the OCR AAQ IT units being taken (F200, F201, F202,
+  F204, F206; F203 and F205 are left out): **331 leaf specification points**.
 - Deep structured notes, flashcards, quizzes, exam questions, mark schemes and
   examiner guidance across all of Computer Science and Mathematics plus IT F201.
 - Inline simulations, worked-example generators, trace labs and SQL, regex,
@@ -156,7 +157,7 @@ npm install jsdom fake-indexeddb
 Run the complete smoke gate:
 
 ```sh
-for i in "" {2..57}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..58}; do node "tools/smoke${i}.test.js"; done
 ```
 
 Responsive or shared-component changes also require a dense responsive audit and

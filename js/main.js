@@ -90,6 +90,11 @@
   KOS.assignments.migrate();
   KOS.tracker.migrate();
   KOS.calendar.migrateRefs();
+  /* roadmap 1.2: the IT unit record is seeded once (a no-op afterwards, like
+     the plan), and study state keyed to an IT unit that left the
+     specification (F203, F205) is removed so nothing counts it */
+  KOS.itUnits.ensureSeeded();
+  KOS.itUnits.pruneDropped();
   KOS.governor.tick();
   KOS.governor.applyCosmetics();
   KOS.governor.installGates();

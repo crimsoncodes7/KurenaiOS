@@ -127,7 +127,7 @@
   /* ============================================================
      THE SPEC-POINT PICKER
 
-     355 leaves exist. Rendering them all "to make filtering easy" is the
+     331 leaves exist. Rendering them all "to make filtering easy" is the
      documented failure mode, so this shows what is CHOSEN plus what the
      current search matches, capped — and says out loud how many it did not
      draw rather than pretending the list is complete.

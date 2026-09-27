@@ -21,7 +21,7 @@ presentation layer on 27 September 2026 (`28ef508`, fixes `8ea878d`).**
 | Phase G implementation | `a5cfe92831b88b047c32307ce32b7920c889dc25` |
 | Release tags | `milestone/graphite-ui-rebuild` (latest), `milestone/category-7-ui-ux-overhaul` |
 | Service-worker cache | `kos-graphite-3` |
-| Smoke gate | 57 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
+| Smoke gate | 58 suites (smoke39 needs a working `git`/`node` toolchain on the host) |
 | Latest release date | 27 September 2026 (Category 7: 9 August 2026) |
 | Still to do | [docs/ROADMAP.md](docs/ROADMAP.md) |
 
@@ -456,7 +456,7 @@ The numbered suites form one release gate:
 Run all suites with:
 
 ```sh
-for i in "" {2..57}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..58}; do node "tools/smoke${i}.test.js"; done
 ```
 
 ## Remaining work and external gates

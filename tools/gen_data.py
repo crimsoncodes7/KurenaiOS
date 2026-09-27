@@ -38,6 +38,31 @@ def read_generated(name, var):
     return json.loads(payload[:-1])
 
 
+# IT units the student does not take (roadmap 1.2, decided 27 Sep 2026).
+# They leave the app entirely — spine, search, statistics, content — so the
+# generator leaves them out of it.js rather than every reader filtering
+# them. The extraction still carries them; only the emitted data drops them.
+IT_NOT_TAKEN = ("F203", "F205")
+
+
+def scope_it(obj):
+    """Drop the IT units the student does not take (IT_NOT_TAKEN)."""
+    obj["sections"] = [s for s in obj.get("sections", []) if s.get("ref") not in IT_NOT_TAKEN]
+    return obj
+
+
+def scope_existing():
+    """Apply IT_NOT_TAKEN to the checked-in it.js payload.
+
+    For a repository without the original extraction (/home/claude/extract):
+    it removes whole units and changes nothing else in the payload.
+    """
+    it = read_generated("it", "it")
+    before = len(it.get("sections", []))
+    write("it", "it", scope_it(it))
+    print(f"IT: {before} units -> {len(it['sections'])} (dropped {', '.join(IT_NOT_TAKEN)})")
+
+
 def format_existing():
     """Re-emit the checked-in generated data with stable, editable layout."""
     for name, var in (("compsci", "compsci"), ("maths", "maths"), ("it", "it")):
@@ -47,6 +72,10 @@ def format_existing():
 
 if "--format-existing" in sys.argv:
     format_existing()
+    raise SystemExit(0)
+
+if "--scope-it" in sys.argv:
+    scope_existing()
     raise SystemExit(0)
 
 def clean(s):
@@ -180,9 +209,9 @@ for u in units:
         sec["children"].append(area)
     it_sections.append(sec)
 
-it = {"id": "it", "name": "IT: Data Analytics", "board": "OCR AAQ H019/H119",
+it = scope_it({"id": "it", "name": "IT: Data Analytics", "board": "OCR AAQ H019/H119",
       "labelL": "Teaching content", "labelR": "Breadth & depth / Exemplification",
-      "sections": it_sections}
+      "sections": it_sections})
 
 write("compsci", "compsci", compsci)
 write("maths", "maths", maths)

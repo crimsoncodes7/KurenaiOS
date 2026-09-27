@@ -17,7 +17,7 @@ chronological diary here.
   https://12e5c6df.kurenai-os.pages.dev (27 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-graphite-3`
-- Required smoke gate: 57 / 57 suites.
+- Required smoke gate: 58 / 58 suites.
 
 ## Run, test and deploy
 
@@ -27,7 +27,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..57}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..58}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -106,6 +106,7 @@ non-navigation redraw path.
 | Study content and engines | `content.js`, `hub.js`, `js/engines/` |
 | Specification tree queries and stored topic links (`refs`) | `js/core/spec.js` (`KOS.spec`) |
 | Exams & Papers record and its normaliser | `js/core/tracker.js` (`KOS.tracker`); page `js/modules/tracker.js` |
+| IT unit marks and statuses | `js/core/itunits.js` (`KOS.itUnits`); scales and boundaries `js/data/it-grades.js`; grades derived in `hub.js` (`KOS.hub.it`) |
 | User edits to the curriculum and the study editor | `js/core/edits.js`, `js/modules/editor.js` |
 | SM-2, sessions and rewards | `srs.js`, `sessions.js`, `governor.js` |
 | Calendar/reminders/assignments/Focus | matching modules in `js/modules/` |
@@ -204,6 +205,9 @@ source comments and audit notes refer to it.
 
 24. `js/data/compsci.js`, `maths.js` and `it.js` are generated. Change parsers and
     regenerate; use `--format-existing` only for a payload-preserving format pass.
+    The IT units not taken (F203, F205) are left out by the generator
+    (`IT_NOT_TAKEN` in `tools/gen_data.py`; `--scope-it` applies it to the
+    checked-in payload), so no reader filters them.
 25. Authored content keys target visible leaf refs only. Callout objects need two
     closing braces; validate every edited JS file.
 26. Classes are presentation only and carry the `k-` prefix; logic and tests
@@ -230,6 +234,16 @@ source comments and audit notes refer to it.
     topic, `subject`/`ref` are DERIVED from `refs` (the first leaf) on every
     write. Pre-1.1 shapes (`topics` pairs, a lone `ref`) are migrated once at
     boot and stay readable through each owner's `refsOf()`.
+26f. `state.itUnits` is the one IT unit record (per-unit `status`
+    done/sitting/not-taken, `raw`, `ums`, `series`, `year`, `date`), behind
+    `KOS.itUnits.normalise*`, seeded once like the plan. `js/data/it-grades.js`
+    is the one table of unit scales and grade boundaries (a boundary not yet
+    checked against OCR says `confirmed: false`, and derivations report it as
+    provisional). Unit grades, the aggregate and "marks needed" are derived
+    only in `KOS.hub.it`; a stored UMS wins over the raw-mark conversion; a
+    not-taken unit counts and prints nothing (invariant 77). Study state keyed
+    to a unit that left the specification is pruned at boot; the session
+    ledger is history and is kept. Zero Governor traffic.
 27. Navigate via `KOS.show()`. Assignments, reminders and events each have one
     canonical store; other surfaces derive from them. Use `KOS.workspaceTabs` for
     Review, Planner and Sync.
@@ -641,6 +655,8 @@ AI/chatbot classification in writing.
   for an existing install (the store is already seeded); change `state.pacing`, or
   reset the `seeded` flag deliberately.
 - Authored content: `js/data/content/*.js`; examiner guidance: `js/data/intel.js`.
+- IT grade boundaries: `js/data/it-grades.js` — replace a placeholder boundary
+  and set `confirmed: true`; nothing else needs to move.
 - Shared visual behaviour: tokens in `css/tokens.css`, primitives in
   `css/components.css` and `js/core/ui.js`, before adding a rule to
   `css/views/*.css`. `css/main.css` is gone and must not come back (smoke55,

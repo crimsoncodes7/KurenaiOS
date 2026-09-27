@@ -179,6 +179,100 @@
     })(sec);
     return { done: done, total: total, pct: total ? Math.round(100 * done / total) : 0 };
   }
+  /* ---------- IT units: grades, aggregate, marks needed (roadmap 1.2) ----------
+     Derived here and nowhere else (invariant 26d) from KOS.itUnits (the
+     marks) and js/data/it-grades.js (the scales and boundaries). A unit
+     marked not-taken is absent from every figure (invariant 77). A grade
+     below Pass is null — the page decides how to say so. Boundaries that are
+     still placeholders are reported (`provisional`), never hidden. */
+  function itTable() { return window.KOS_IT_GRADES || { grades: [], units: {}, qualifications: {}, unitBoundaries: [] }; }
+  function itGradeFor(ums, boundaries) {
+    if (ums == null) return null;
+    for (var i = 0; i < boundaries.length; i++) if (ums >= boundaries[i].ums) return boundaries[i].grade;
+    return null;
+  }
+  function itProvisional(boundaries) { return boundaries.some(function (b) { return !b.confirmed; }); }
+  /* a unit's UMS: the stored UMS, else raw on the unit's linear scale
+     (exam 1 : 1, NEA 1 : 2.5), rounded down and flagged as an estimate */
+  function itUms(u) {
+    var sc = itTable().units[u.code];
+    if (!sc) return null;
+    if (u.ums != null) return { ums: u.ums, estimated: false };
+    if (u.raw != null) return { ums: Math.floor(u.raw * sc.umsMax / sc.rawMax), estimated: true };
+    return null;
+  }
+  function itUnitRows() {
+    if (!KOS.itUnits) return [];
+    var T = itTable();
+    return KOS.itUnits.all().filter(function (u) { return u.status !== "not-taken"; }).map(function (u) {
+      var sc = T.units[u.code], node = KOS.spec ? KOS.spec.node("it", u.code) : null, m = itUms(u);
+      return {
+        code: u.code, title: node ? node.title : u.code, kind: sc.kind,
+        status: u.status, year: u.year, series: u.series, date: u.date,
+        raw: u.raw, rawMax: sc.rawMax,
+        ums: m ? m.ums : null, umsMax: sc.umsMax, estimated: !!(m && m.estimated),
+        pct: m ? pctOf(m.ums, sc.umsMax) : null,
+        grade: m ? itGradeFor(m.ums, T.unitBoundaries) : null,
+        provisional: itProvisional(T.unitBoundaries)
+      };
+    });
+  }
+  /* the qualification total over the units counted so far */
+  function itAggregate(qualId) {
+    var T = itTable(), id = qualId || T.current, q = T.qualifications[id];
+    if (!q) return null;
+    var rows = {};
+    itUnitRows().forEach(function (r) { rows[r.code] = r; });
+    var counted = q.units.filter(function (c) { return rows[c]; }).map(function (c) { return rows[c]; });
+    var banked = 0, bankedMax = 0, max = 0, remaining = [], estimated = false;
+    counted.forEach(function (r) {
+      max += r.umsMax;
+      if (r.ums == null) { remaining.push(r.code); return; }
+      banked += r.ums; bankedMax += r.umsMax;
+      if (r.estimated) estimated = true;
+    });
+    return {
+      id: id, name: q.name, units: counted.map(function (r) { return r.code; }),
+      banked: banked, bankedMax: bankedMax, max: max,
+      remaining: remaining, remainingMax: max - bankedMax,
+      complete: !remaining.length && counted.length > 0,
+      /* a final grade needs every unit in; a running one is the share so far */
+      grade: !remaining.length && counted.length ? itGradeFor(banked, q.boundaries) : null,
+      pct: pctOf(banked, bankedMax),
+      estimated: estimated,
+      boundaries: q.boundaries.map(function (b) { return { grade: b.grade, ums: b.ums, confirmed: !!b.confirmed }; }),
+      provisional: itProvisional(q.boundaries)
+    };
+  }
+  /* "marks needed for <target>": the least UMS still to earn across the
+     remaining units, spread evenly, and what that is in raw marks on each
+     paper. `secured` when the banked total already reaches it; not
+     `achievable` when even full marks would fall short. */
+  function itNeeded(target, qualId) {
+    var agg = itAggregate(qualId);
+    if (!agg) return null;
+    var grade = target || (KOS.itUnits ? KOS.itUnits.target() : null);
+    var b = agg.boundaries.filter(function (x) { return x.grade === grade; })[0];
+    if (!b) return null;
+    var need = Math.max(0, b.ums - agg.banked);
+    var n = agg.remaining.length;
+    var perUnit = n ? Math.ceil(need / n) : null;
+    var T = itTable();
+    return {
+      target: grade, threshold: b.ums, confirmed: b.confirmed,
+      banked: agg.banked, need: need,
+      remaining: agg.remaining, remainingMax: agg.remainingMax,
+      secured: agg.banked >= b.ums,
+      achievable: need <= agg.remainingMax,
+      perUnit: perUnit,
+      /* the same share as raw marks on each remaining paper */
+      perPaper: agg.remaining.map(function (c) {
+        var sc = T.units[c];
+        return { code: c, ums: perUnit, raw: perUnit == null ? null : Math.min(sc.rawMax, Math.ceil(perUnit * sc.rawMax / sc.umsMax)), rawMax: sc.rawMax };
+      })
+    };
+  }
+
   function refreshRailCounters() {
     SUBJECTS.forEach(function (sid) {
       var n = document.getElementById("pc-" + sid);
@@ -2920,6 +3014,8 @@
   var debounce = KOS.ui.debounce;
 
   KOS.hub = { LEAVES: LEAVES, BYREF: BYREF, COLORS: COLORS, HEX: HEX, esc: esc, search: searchSpec,
+    /* IT units (roadmap 1.2): the one derivation of every IT grade figure */
+    it: { units: itUnitRows, aggregate: itAggregate, needed: itNeeded, gradeFor: itGradeFor },
     /* the two seams a search PRESENTER needs, and the only two it gets:
        dismissSearch retracts this controller's async and ARIA state,
        onSearchChosen says a result was picked (before the route changes) */

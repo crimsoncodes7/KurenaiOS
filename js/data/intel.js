@@ -1401,14 +1401,5 @@ window.KOS_DATA.intel = {
 "it:F202.2.1": {
   tips: ["NEA planning evidence: success criteria must be measurable, inputs/processes/outputs identified, and design decisions justified against user requirements — 'because the client needs…' phrasing scores."],
   pitfalls: ["Designs that don't trace back to stated requirements — moderators check the thread from requirement to feature."]
-},
-"it:F203.1.1": {
-  tips: ["Relational vocabulary must be exact: table/entity, record/row, field/attribute, primary key (unique identifier), foreign key (primary key of another table used to link), referential integrity.",
-         "Relationships: justify one-to-many in context ('one customer places many orders')."],
-  pitfalls: ["Calling a foreign key 'a key in a foreign table' — it lives in THIS table and references another."]
-},
-"it:F205.2.1": {
-  tips: ["Dashboard planning: match each visualisation type to the data and audience need — trends → line, composition → pie/stacked, comparison → bar, relationship → scatter. Justification of choice is where marks sit."],
-  pitfalls: ["Choosing visuals for decoration: every chart on the plan should answer a stated user question."]
 }
 };
