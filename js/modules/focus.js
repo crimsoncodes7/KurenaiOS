@@ -63,6 +63,13 @@
   var DISTRACT_HP = 2;          // HP per distraction beyond the allowance
   var NOTE_CAP = 60;            // quick notes kept per session
   var NOTE_LEN = 400;           // characters kept per note
+  /* roadmap 1.6 — the idle watch: a running study session nobody has
+     touched for IDLE_WARN is warned about; IDLE_GRACE later, still
+     untouched, it ends itself and credits only the focus that came before
+     the last interaction */
+  var IDLE_WARN = 30 * 60 * 1000;
+  var IDLE_GRACE = 5 * 60 * 1000;
+  var MODES = ["pomodoro", "custom", "stopwatch", "until"];
 
   /* Build 6.5 — set while the page is genuinely going away (refresh, close,
      an external navigation). The unload fires its own visibilitychange, and
@@ -83,18 +90,27 @@
   }
 
   /* ---------------- state machine ---------------- */
-  function phaseTarget() { return (S.phase === "work" ? S.workMin : S.breakMin) * 60; }
+  /* Stopwatch and Study-until have no interval: the work phase is open
+     (a stopwatch ends on Stop, study-until at its clock time) */
+  function openEnded(sess) { var x = sess || S; return !!x && (x.mode === "stopwatch" || x.mode === "until"); }
+  function phaseTarget() {
+    if (S.phase === "work" && openEnded()) return Infinity;
+    return (S.phase === "work" ? S.workMin : S.breakMin) * 60;
+  }
   function phaseElapsed() {
     return S.phaseAccum + (S.state === "running" ? (now() - S.phaseStartTs) / 1000 : 0);
   }
   function workSeconds() {
     if (!S) return 0;
-    var cur = S.phase === "work" ? Math.min(phaseElapsed(), S.workMin * 60) : 0;
+    var cur = S.phase === "work" ? Math.min(phaseElapsed(), openEnded() ? Infinity : S.workMin * 60) : 0;
     return Math.floor(S.workAccum + cur);
   }
   function canComplete() {
     /* a Pomodoro (or custom-with-break) session may end ✓ at any point after
-       the first completed work interval; custom no-break auto-completes */
+       the first completed work interval; custom no-break auto-completes.
+       A stopwatch or a study-until session ends ✓ whenever you stop it —
+       what it pays is the full 10-minute blocks it holds (invariant 4a). */
+    if (!!S && openEnded()) return true;
     return !!S && S.cycles >= 1;
   }
 
@@ -109,6 +125,11 @@
     if (!Array.isArray(s.distractions)) s.distractions = [];
     if (typeof s.restores !== "number") s.restores = 0;
     if (s.assignmentId === undefined) s.assignmentId = null;
+    /* roadmap 1.6: the idle watch's marks */
+    if (typeof s.lastActiveTs !== "number") s.lastActiveTs = s.lastBeat || s.startedAt || now();
+    if (typeof s.activeWork !== "number") s.activeWork = 0;
+    if (typeof s.activeCycles !== "number") s.activeCycles = s.cycles || 0;
+    if (s.idleWarnedAt === undefined) s.idleWarnedAt = null;
     /* roadmap 1.1: a snapshot from before topic links were a list */
     if (!Array.isArray(s.refs)) s.refs = s.subject && s.ref ? [s.subject + ":" + s.ref] : [];
     return s;
@@ -127,9 +148,10 @@
      pays from, asked without mutating anything */
   function eligibility() {
     if (!S || S.kind === "reading") return null;
-    var mins = Math.round(workSeconds() / 60);
+    var secs = workSeconds();
     return KOS.governor.focusAward({
-      complete: canComplete(), mins: mins, pauses: S.pauses
+      complete: canComplete(), mins: Math.round(secs / 60), secs: secs, pauses: S.pauses,
+      rule: KOS.governor.focusRule(S.mode), mode: S.mode
     });
   }
 
@@ -146,14 +168,43 @@
     return { subject: subject, refs: refs, ref: first ? first.ref : null };
   }
 
+  /* "HH:MM" → the next moment the clock reads it, at least a minute away
+     (so 21:30 asked at 22:00 means tomorrow's 21:30 is NOT assumed — it is
+     refused; asked at 23:00 for 01:00 it is the coming night). Pure. */
+  function untilTarget(hhmm, fromTs) {
+    var m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm || "").trim());
+    if (!m || +m[1] > 23 || +m[2] > 59) return null;
+    var from = fromTs != null ? fromTs : now();
+    var d = new Date(from);
+    d.setHours(+m[1], +m[2], 0, 0);
+    var t = d.getTime();
+    if (t - from < 60000) {
+      /* earlier today: only a time after midnight rolls to tomorrow, and
+         never more than 12 hours ahead — "study until" is not a schedule */
+      d.setDate(d.getDate() + 1);
+      t = d.getTime();
+    }
+    return t - from >= 60000 && t - from <= 12 * 3600000 ? t : null;
+  }
+
   function start(cfg) {
     if (S) { KOS.ui.toast("A " + (S.kind === "reading" ? "reading" : "focus") + " session is already running.", true); return; }
     var f = F();
     var links = sessionLinks(cfg);
+    var reading0 = cfg.kind === "reading";
+    var mode = reading0 ? "custom" : (MODES.indexOf(cfg.mode) !== -1 ? cfg.mode : "pomodoro");
+    var untilTs = null;
+    if (mode === "until") {
+      untilTs = untilTarget(cfg.until);
+      if (!untilTs) { KOS.ui.toast("Pick a time between a minute and 12 hours from now.", true); return null; }
+    }
+    if (mode === "stopwatch" || mode === "until") { cfg.workMin = null; cfg.breakMin = 0; }
     S = f.active = {
       id: "f" + f.nextId++,
       kind: cfg.kind === "reading" ? "reading" : "study",   // 3i: one machine, two contracts
-      mode: cfg.mode,                                   // "pomodoro" | "custom"
+      mode: mode,                                       // "pomodoro" | "custom" | "stopwatch" | "until"
+      until: mode === "until" ? String(cfg.until).trim() : null,
+      untilTs: untilTs,                                 // study-until: the clock time it ends at
       workMin: cfg.workMin,
       breakMin: cfg.breakMin,                           // 0 = single interval
       subject: links.subject,
@@ -179,21 +230,33 @@
       cycles: 0,
       pauses: 0,
       distractions: [],
-      startedAt: now()
+      startedAt: now(),
+      /* roadmap 1.6 — the idle watch: the last interaction, and how much
+         focus (and how many cycles) had been done by then */
+      lastActiveTs: now(),
+      activeWork: 0,
+      activeCycles: 0,
+      idleWarnedAt: null
     };
     if (S.kind === "reading") {
       f.lastReading = { workMin: cfg.workMin, bookId: cfg.book ? cfg.book.id : null };
     } else {
-      f.lastConfig = { mode: cfg.mode, workMin: cfg.workMin, breakMin: cfg.breakMin,
+      var keepUntil = mode === "until" ? S.until : (f.lastConfig && f.lastConfig.until) || null;
+      f.lastConfig = { mode: mode, workMin: cfg.workMin, breakMin: cfg.breakMin,
         subject: links.subject || "", ref: links.ref || "", refs: links.refs };
+      /* the last study-until time is remembered, and only once there is one */
+      if (keepUntil) f.lastConfig.until = keepUntil;
     }
     store.save();
     enterMode();
     timer = setInterval(tick, 1000);
     KOS.ui.toast(S.kind === "reading"
       ? "Reading session started — " + cfg.workMin + " min" + (cfg.book ? " with “" + cfg.book.title + "”" : "") + ". 読書."
+      : mode === "stopwatch" ? "Stopwatch started — every full 10 minutes earns. 集中."
+      : mode === "until" ? "Focus until " + S.until + " — every full 10 minutes earns. 集中."
       : "Focus session started — " + cfg.workMin + " min" +
         (cfg.breakMin ? " / " + cfg.breakMin + " min break" : "") + ". 集中.");
+    return S;
   }
 
   function pause() {
@@ -210,6 +273,7 @@
     S.phaseStartTs = now();
     S.lastBeat = now();
     S.state = "running";
+    noteActivity(true);
     store.save();
     render();
   }
@@ -251,8 +315,78 @@
     render();
   }
 
+  /* ---------------- the idle watch (roadmap 1.6) ----------------
+     Any interaction with the app — a pointer, a key, a scroll, the tab
+     coming back into view — restarts a 30-minute clock. A running study
+     session that reaches it untouched is WARNED (a toast, and a "focus"
+     notification that becomes a device alert when the page is not in
+     front, invariant 98). Five minutes after the warning, still untouched,
+     the session ENDS ITSELF and is logged and paid only for the focus done
+     before the last interaction (`creditSecs`): the unattended 30 + 5
+     minutes never count. Reading is rest and is never watched; a paused
+     session accrues nothing and is not watched either. */
+  function idleVerdict(at, lastActive, warnedAt) {
+    if (warnedAt != null && at - warnedAt >= IDLE_GRACE) return "end";
+    if (warnedAt == null && at - lastActive >= IDLE_WARN) return "warn";
+    return "ok";
+  }
+  var lastNoted = 0;
+  function noteActivity(force) {
+    if (!S || S.kind === "reading") return;
+    var t = now();
+    /* a pointer sweep is one interaction — but nothing is throttled while a
+       warning stands: the first sign of life must clear it */
+    if (!force && S.idleWarnedAt == null && t - lastNoted < 5000) return;
+    lastNoted = t;
+    var wasWarned = S.idleWarnedAt != null;
+    S.lastActiveTs = t;
+    S.activeWork = workSeconds();
+    S.activeCycles = S.cycles;
+    S.idleWarnedAt = null;
+    if (wasWarned) { store.save(); KOS.ui.toast("Still here — the focus clock carries on."); }
+  }
+  ["pointerdown", "pointermove", "keydown", "wheel", "touchstart", "scroll"].forEach(function (type) {
+    document.addEventListener(type, function () { noteActivity(false); }, { capture: true, passive: true });
+  });
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") noteActivity(true);
+  });
+  /* one step of the watch; true when it ended the session */
+  function idleCheck() {
+    if (!S || S.kind === "reading" || S.state !== "running") return false;
+    var v = idleVerdict(now(), S.lastActiveTs, S.idleWarnedAt);
+    if (v === "warn") {
+      S.idleWarnedAt = now();
+      store.save();
+      var mins = Math.round(IDLE_WARN / 60000), grace = Math.round(IDLE_GRACE / 60000);
+      KOS.ui.toast("Still studying? Nothing has moved for " + mins + " minutes — the session ends in " + grace + " unless you touch the app.", true);
+      if (KOS.a11y) KOS.a11y.announce("Focus session: no activity for " + mins + " minutes. It ends in " + grace + " minutes.", "assertive");
+      if (KOS.notify) KOS.notify.push({ id: "focus:idle:" + S.id + ":" + S.idleWarnedAt, kind: "focus",
+        title: "Still studying?", body: "No activity for " + mins + " minutes — the session ends in " + grace + " unless you come back." });
+      return false;
+    }
+    if (v === "end") {
+      var sid = S.id, credit = S.activeWork;
+      if (KOS.notify) KOS.notify.push({ id: "focus:ended:" + sid, kind: "focus",
+        title: "Focus session ended", body: "Nothing moved for " + Math.round((IDLE_WARN + IDLE_GRACE) / 60000) +
+          " minutes, so it ended itself. " + fmtLong(credit) + " counted — the time before you stepped away." });
+      finish(true, { creditSecs: credit, creditCycles: S.activeCycles, ended: "idle", review: false });
+      return true;
+    }
+    return false;
+  }
+
   function tick() {
     if (!S || S.state !== "running") return;
+    /* study-until: the clock time is the end, whatever the pauses cost */
+    if (S.mode === "until" && S.untilTs && now() >= S.untilTs) {
+      S.phaseAccum += Math.max(0, (S.untilTs - S.phaseStartTs) / 1000);
+      S.phaseStartTs = now();
+      S.state = "paused";                 // the clock is banked; nothing more accrues
+      finish(true, { ended: "until" });
+      return;
+    }
+    if (idleCheck()) return;
     if (phaseElapsed() >= phaseTarget()) {
       if (S.phase === "work") {
         S.workAccum += S.workMin * 60;
@@ -294,7 +428,9 @@
     KOS.ui.confirm({ title: "End early?", confirm: "End session",
       body: S.kind === "reading"
         ? "The time you read still gets logged — nothing is forfeited, reading is rest."
-        : "It still gets logged — the data point matters — but the XP and gold award is forfeited." },
+        : KOS.governor.focusRule(S.mode) === "blocks"
+          ? "It is logged, and you keep the award for every full 10 minutes already done."
+          : "It still gets logged — the data point matters — but the XP and gold award is forfeited." },
       function () { finish(false, opts); });
   }
   function endComplete(opts) {
@@ -312,6 +448,19 @@
        focus session writes doesn't attribute to itself */
     var sess = S;
     var dur = workSeconds();
+    var cycles = sess.cycles;
+    var endedAs = opts.ended || (complete ? "complete" : "early");
+    /* the idle watch ended it: credit only what came before the last
+       interaction — the untouched 30 + 5 minutes are not focus */
+    if (opts.creditSecs != null) {
+      dur = Math.min(dur, Math.max(0, Math.floor(opts.creditSecs)));
+      if (opts.creditCycles != null) cycles = Math.min(cycles, opts.creditCycles);
+      if (sess.mode === "pomodoro" || (sess.mode === "custom" && sess.breakMin > 0)) complete = cycles >= 1;
+    }
+    var rule = sess.kind === "reading" ? null : KOS.governor.focusRule(sess.mode);
+    /* under the blocks rule the session is complete (streak-worthy) when it
+       holds a full block, however it ended — ending early keeps them */
+    if (rule === "blocks") complete = Math.floor(dur / KOS.governor.FOCUS_BLOCK.secs) >= 1;
     clearInterval(timer); timer = null;
     S = null;
     F().active = null;
@@ -382,8 +531,13 @@
       metrics: {
         complete: complete,
         mode: sess.mode,
+        rule: rule,
+        secs: dur,
+        blocks: rule === "blocks" ? Math.floor(dur / KOS.governor.FOCUS_BLOCK.secs) : undefined,
+        until: sess.until || undefined,
+        ended: endedAs,
         mins: Math.round(dur / 60),
-        cycles: sess.cycles,
+        cycles: cycles,
         pauses: sess.pauses,
         distractions: sess.distractions.length,
         /* deliberately NOT "marks": that key already means exam marks on
@@ -598,6 +752,12 @@
   function eligibilityNode() {
     var e = eligibility();
     if (!e) return null;
+    if (e.rule === "blocks" && !e.blocks) {
+      return el("div", { class: "k-fx-elig", "data-ui": "focus.elig", role: "status" }, [
+        el("b", { text: "Nothing banked yet" }),
+        el("span", { text: "The first award lands at 10 minutes, then one every 10." })
+      ]);
+    }
     if (e.forfeited) {
       return el("div", { class: "k-fx-elig", "data-ui": "focus.elig", "data-state": "warn", role: "status" }, [
         el("b", { text: "Ending now forfeits the award" }),
@@ -720,6 +880,25 @@
     if (v && store.state.ui.view === "focus") KOS.rerender();
   }
 
+  /* the clock, whatever the mode: a countdown to the interval's end, the
+     time so far on a stopwatch (the ring fills towards the next 10-minute
+     award), or the time left until a study-until session's clock time */
+  function clockRead() {
+    var el0 = phaseElapsed();
+    if (S.phase === "work" && S.mode === "stopwatch") {
+      var w = workSeconds(), blk = KOS.governor.FOCUS_BLOCK.secs;
+      return { text: fmt(w), label: "Time so far", pct: Math.round(100 * (w % blk) / blk),
+        at: "next award at " + clockAt(blk - (w % blk)) };
+    }
+    if (S.phase === "work" && S.mode === "until") {
+      var left = Math.max(0, (S.untilTs - now()) / 1000), span = Math.max(1, (S.untilTs - S.startedAt) / 1000);
+      return { text: fmt(left), label: "Time left", pct: Math.min(100, Math.round(100 * (1 - left / span))), at: "ends at " + S.until };
+    }
+    var remain = phaseTarget() - el0;
+    return { text: fmt(remain), label: "Time left", pct: Math.min(100, Math.round(100 * el0 / phaseTarget())), remain: remain,
+      at: S.phase === "break" ? "focus at " + clockAt(remain) : S.breakMin > 0 ? "break at " + clockAt(remain) : "ends at " + clockAt(remain) };
+  }
+
   function render() {
     if (!S || !stageEl) return;
     var paused = S.state === "paused";
@@ -728,7 +907,8 @@
     var phase = paused ? "paused" : onBreak ? "break" : "work";
     var cycleNo = S.cycles + (S.phase === "work" ? 1 : 0);
     var phaseName = paused ? "Paused" : onBreak ? "Break" : reading ? "Reading" : "Focus · cycle " + cycleNo;
-    var modeName = reading ? "Reading" : S.mode === "pomodoro" ? "Pomodoro" : "Custom";
+    var modeName = reading ? "Reading" : S.mode === "pomodoro" ? "Pomodoro"
+      : S.mode === "stopwatch" ? "Stopwatch" : S.mode === "until" ? "Study until" : "Custom";
 
     /* ---- full stage ---- */
     stageEl.innerHTML = "";
@@ -737,13 +917,16 @@
 
     stageEl.appendChild(el("div", { class: "k-fx-top" }, [
       el("img", { class: "k-fx-logo", src: "assets/brand/kurenai-bloom.png", alt: "" }),
-      el("span", { class: "k-fx-top-t", text: (reading ? "Reading session · " : "Focus session · ") + modeName + " " + S.workMin + " / " + (S.breakMin || "–") }),
+      el("span", { class: "k-fx-top-t", text: (reading ? "Reading session · " : "Focus session · ") + modeName +
+        (S.mode === "stopwatch" ? "" : S.mode === "until" ? " " + S.until : " " + S.workMin + " / " + (S.breakMin || "–")) }),
       el("span", { class: "k-spacer" }),
       el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "focus.minimise", text: "⤡ Minimise",
         title: reading ? "Minimise the clock" : "Minimise the timer and study in the app",
         onclick: function () { setMinimised(true); } }),
       el("button", { type: "button", class: "k-btn k-btn--sm k-fx-end", "data-ui": "focus.end-early", text: "End early",
-        title: reading ? "Logs the time read — nothing forfeited" : "Logs the session but forfeits the award", onclick: function () { endEarly(); } })
+        title: reading ? "Logs the time read — nothing forfeited"
+          : KOS.governor.focusRule(S.mode) === "blocks" ? "Logs the session and keeps every full 10 minutes"
+          : "Logs the session but forfeits the award", onclick: function () { endEarly(); } })
     ]));
 
     /* ---- left: what this hour is for ---- */
@@ -770,14 +953,12 @@
     }
 
     /* ---- centre: the ring ---- */
-    var remain = phaseTarget() - phaseElapsed();
+    var cr = clockRead();
     var ring = el("div", { class: "k-fx-ring", "data-ui": "focus.fill" }, [
       el("div", { class: "k-fx-ring-in" }, [
         el("span", { class: "k-kicker", text: phaseName }),
-        el("span", { class: "k-fx-clock", "data-ui": "focus.clock", role: "timer", "aria-label": "Time left", text: fmt(remain) }),
-        el("span", { class: "k-fx-at", text: paused ? "paused — " + fmtLong(workSeconds()) + (reading ? " read" : " focused")
-          : onBreak ? "focus at " + clockAt(remain)
-          : S.breakMin > 0 ? "break at " + clockAt(remain) : "ends at " + clockAt(remain) })
+        el("span", { class: "k-fx-clock", "data-ui": "focus.clock", role: "timer", "aria-label": cr.label, text: cr.text }),
+        el("span", { class: "k-fx-at", text: paused ? "paused — " + fmtLong(workSeconds()) + (reading ? " read" : " focused") : cr.at })
       ])
     ]);
     var ctl = el("div", { class: "k-fx-controls" }, [
@@ -808,7 +989,7 @@
     dockEl.innerHTML = "";
     dockEl.setAttribute("data-phase", phase);
     dockEl.appendChild(el("span", { class: "k-fx-dot", "aria-hidden": "true" }));
-    dockEl.appendChild(el("span", { class: "k-fx-dock-clock k-mono", "data-ui": "focus.dock-clock", text: fmt(remain) }));
+    dockEl.appendChild(el("span", { class: "k-fx-dock-clock k-mono", "data-ui": "focus.dock-clock", text: cr.text }));
     dockEl.appendChild(el("span", { class: "k-fx-dock-phase", text: phaseName }));
     dockEl.appendChild(el("span", { class: "k-fx-dock-topic", text: topicLabel() }));
     var dctl = el("span", { class: "k-fx-dock-ctl" });
@@ -830,8 +1011,7 @@
 
   function updateClock() {
     if (!S) return;
-    var remain = fmt(phaseTarget() - phaseElapsed());
-    var pct = Math.min(100, Math.round(100 * phaseElapsed() / phaseTarget()));
+    var cr = clockRead(), remain = cr.text, pct = cr.pct;
     if (stageEl) {
       var c = stageEl.querySelector("[data-ui~='focus.clock']");
       if (c) c.textContent = remain;
@@ -1342,6 +1522,22 @@
         return;
       }
       var mins = plannedMins();
+      if (KOS.governor.focusRule(mode) === "blocks") {
+        /* Custom (and the stopwatch / study-until modes): every full
+           10 minutes earns, and ending early keeps what was earned */
+        var B = KOS.governor.FOCUS_BLOCK;
+        var full = KOS.governor.focusAward({ rule: "blocks", secs: mins * 60, pauses: 0 });
+        [
+          ["Every full 10 minutes", "+" + B.xp + " XP · +" + B.gold + " gold · +" + B.hp + " HP", "good", "HP up to " + B.hpCap + " a session"],
+          ["The full " + mins + " min", "+" + full.xp + " XP · +" + full.gold + " gold · +" + full.hp + " HP", "good"],
+          ["Each pause after the first", "−15% award", "bad"],
+          ["Each tab-switch after the first", F().penalizeDistractions === false ? "free — off" : "−" + DISTRACT_HP + " HP",
+            F().penalizeDistractions === false ? "muted" : "bad"],
+          ["Ending early", "keeps every full 10 minutes", "muted", "under 10 minutes earns nothing"]
+        ].forEach(function (r) { dealList.appendChild(kv(r[0], r[1], r[2], r[3])); });
+        dealFoot.textContent = "Refreshing or navigating away costs nothing. 30 minutes without touching the app ends the session after a 5-minute warning.";
+        return;
+      }
       var a = KOS.governor.focusAward({ complete: true, mins: mins, pauses: 0 });
       var twoPauses = KOS.governor.focusAward({ complete: true, mins: mins, pauses: 2 });
       [
@@ -1404,6 +1600,55 @@
     brk.addEventListener("input", sync);
   };
 
+  /* ---------------- the mini-player's place (roadmap 1.6) ----------------
+     The minimised player can be dragged and resized (the interaction comes
+     from the design). Where it sits and how big it is are this DEVICE's
+     choice: state.ui.focusMini = {x, y, w, h} in CSS pixels from the
+     viewport's top-left. clampMini() is the one rule for keeping it on
+     screen — inside an 8px margin, no smaller or larger than the limits,
+     and snapped flush to an edge it lands within 16px of. The phone dock
+     (under 700px) is unchanged and never reads this (invariant 75). */
+  var MINI = { margin: 8, snap: 16, minW: 200, minH: 56, maxW: 520, maxH: 360 };
+  function clampMini(rect, vw, vh) {
+    if (!rect || typeof rect !== "object") return null;
+    var n = function (v) { v = Number(v); return isFinite(v) ? Math.round(v) : null; };
+    var x = n(rect.x), y = n(rect.y), w = n(rect.w), h = n(rect.h);
+    if (x === null || y === null || w === null || h === null) return null;
+    vw = Math.max(0, Number(vw) || 0); vh = Math.max(0, Number(vh) || 0);
+    var room = function (v) { return Math.max(0, v - 2 * MINI.margin); };
+    w = Math.max(Math.min(MINI.minW, room(vw)), Math.min(w, MINI.maxW, room(vw)));
+    h = Math.max(Math.min(MINI.minH, room(vh)), Math.min(h, MINI.maxH, room(vh)));
+    var maxX = Math.max(MINI.margin, vw - MINI.margin - w), maxY = Math.max(MINI.margin, vh - MINI.margin - h);
+    x = Math.max(MINI.margin, Math.min(x, maxX));
+    y = Math.max(MINI.margin, Math.min(y, maxY));
+    if (x - MINI.margin <= MINI.snap) x = MINI.margin;
+    else if (maxX - x <= MINI.snap) x = maxX;
+    if (y - MINI.margin <= MINI.snap) y = MINI.margin;
+    else if (maxY - y <= MINI.snap) y = maxY;
+    return { x: x, y: y, w: w, h: h };
+  }
+  /* the stored place, clamped to the viewport it is read in (a window
+     that shrank since never strands the player); null = the default dock */
+  function miniRect(vw, vh) {
+    var r = store.state.ui && store.state.ui.focusMini;
+    if (!r) return null;
+    return clampMini(r, vw != null ? vw : window.innerWidth, vh != null ? vh : window.innerHeight);
+  }
+  function setMiniRect(rect, vw, vh) {
+    var ui = store.state.ui;
+    if (rect == null) {
+      if (ui.focusMini == null) return null;
+      delete ui.focusMini;
+      store.save();
+      return null;
+    }
+    var c = clampMini(rect, vw != null ? vw : window.innerWidth, vh != null ? vh : window.innerHeight);
+    if (!c) return null;
+    ui.focusMini = c;
+    store.save();
+    return c;
+  }
+
   /* ---------------- reload restore ----------------
      A refresh, a crash or a closed tab must never cost a session. The clock
      comes back holding the time it had already banked, and it comes back
@@ -1451,6 +1696,18 @@
     objective: function () { return S ? S.objective || "" : ""; },
     assignment: function () { return linkedAssignment(); },
     eligibility: eligibility,
+    /* roadmap 1.1 / 1.6 — the pure pieces a view or a tool reads */
+    MODES: MODES.slice(),
+    sessionLinks: sessionLinks,
+    untilTarget: untilTarget,
+    idleVerdict: idleVerdict,
+    IDLE: { warn: IDLE_WARN, grace: IDLE_GRACE },
+    noteActivity: function () { noteActivity(true); },
+    idleCheck: idleCheck,
+    clampMini: clampMini,
+    MINI: MINI,
+    miniRect: miniRect,
+    setMiniRect: setMiniRect,
     /* test helper: shift the phase clock backwards so suites can cross
        interval boundaries without waiting on wall time */
     _debugAdvance: function (sec) {

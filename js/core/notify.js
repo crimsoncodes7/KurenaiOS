@@ -45,7 +45,10 @@
     assignment: { label: "Assignments", glyph: "課", section: "study", view: "assignments" },
     airing:     { label: "Airing",     glyph: "映", section: "collection", view: "anime" },
     wishlist:   { label: "Planner",    glyph: "購", section: "collection", view: "wishlist" },
-    pacing:     { label: "Pacing",     glyph: "暦", section: "productivity", view: "pacing" }
+    pacing:     { label: "Pacing",     glyph: "暦", section: "productivity", view: "pacing" },
+    /* roadmap 1.6: a running Focus session nobody has touched for 30 min,
+       and the session it then ended */
+    focus:      { label: "Focus",      glyph: "集", section: "productivity", view: "focus" }
   };
 
   function N() {

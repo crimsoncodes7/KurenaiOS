@@ -175,7 +175,8 @@
   /* what the record itself says it paid — see the header */
   function rewardOf(s) {
     if (s.type === "focus") {
-      var a = KOS.governor.focusAward(s.metrics || {});
+      var a = KOS.governor.focusAward(Object.assign({ secs: s.dur }, s.metrics || {}));
+      if (a.rule === "blocks" && !a.blocks) return { text: "under 10 minutes", tone: "muted" };
       return a.forfeited ? { text: "award forfeited", tone: "red" }
         : { text: "+" + a.xp + " XP · +" + a.gold + " ◆", tone: "gold" };
     }

@@ -103,6 +103,26 @@ step("an incomplete session quotes — and pays — nothing", () => {
   assert(KOS.governor.lastAward().xp === 0, "lastAward should record the forfeit");
 });
 
+step("invariant 4a, roadmap 1.6: Custom, Stopwatch and Study-until pay per full 10 minutes", () => {
+  const A = m => KOS.governor.focusAward(m);
+  ["custom", "stopwatch", "until"].forEach(mode => assert(KOS.governor.focusRule(mode) === "blocks", mode + " rule"));
+  assert(KOS.governor.focusRule("pomodoro") === "pomodoro", "Pomodoro keeps its rule");
+  const r = [[599, 0, 0, 0], [600, 12, 1, 2], [1800, 36, 3, 6], [3600, 72, 6, 6], [7200, 144, 12, 6]];
+  r.forEach(([secs, xp, gold, hp]) => {
+    const a = A({ rule: "blocks", secs: secs, pauses: 0 });
+    assert(a.xp === xp && a.gold === gold && a.hp === hp, secs + "s: " + JSON.stringify(a));
+  });
+  assert(!A({ rule: "blocks", secs: 599 }).complete, "under 10 minutes is not complete");
+  const early = A({ rule: "blocks", secs: 1500, complete: false });
+  assert(!early.forfeited && early.blocks === 2, "ending early keeps the blocks: " + JSON.stringify(early));
+  assert(A({ rule: "blocks", secs: 1800, pauses: 2 }).xp === 31, "the pause economy applies (36 × 0.85)");
+  /* a record logged before 1.6 carries no rule: a Custom entry keeps the
+     rule it was paid under, so the ledger never re-prices history */
+  const legacy = A({ mode: "custom", complete: false, mins: 40, pauses: 0 });
+  assert(legacy.forfeited && legacy.rule === "pomodoro", "an old Custom record re-priced: " + JSON.stringify(legacy));
+  assert(A({ mode: "stopwatch", secs: 1200 }).blocks === 2, "the new modes need no explicit rule");
+});
+
 /* ============ 2 · the setup screen ============ */
 console.log("== setup ==");
 

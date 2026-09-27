@@ -17,7 +17,7 @@ chronological diary here.
   https://12e5c6df.kurenai-os.pages.dev (27 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-graphite-3`
-- Required smoke gate: 60 / 60 suites.
+- Required smoke gate: 61 / 61 suites.
 
 ## Run, test and deploy
 
@@ -27,7 +27,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..60}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..61}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -141,14 +141,36 @@ source comments and audit notes refer to it.
 4. Study streak, rest streak and the HP day-activity test are separate derivations
    of the session ledger. An incomplete Focus entry does not count for a streak but
    still counts as activity for the day-drain check.
-4a. `KOS.governor.focusAward({complete, mins, pauses})` is the one pure definition
-   used by previews and payment; the completion screen reports `lastAward()`.
-   A Focus session links ONE subject: its `refs` may name several topics in
-   it, and `ref` is the first leaf they cover.
+4a. `KOS.governor.focusAward({complete, mins, secs, pauses, rule|mode})` is the
+   one pure definition used by previews and payment; the completion screen
+   reports `lastAward()`. The mode picks the rule (`focusRule`):
+   - Pomodoro — a completed session pays XP 10 + minutes, gold 3 + 2 per full
+     25 minutes, HP 6; ending before the first full cycle forfeits it.
+   - Custom, Stopwatch and Study-until — every FULL 10 minutes of focus is a
+     block paying 12 XP and 1 gold, and 2 HP up to 6 a session
+     (`FOCUS_BLOCK`). Ending early keeps the blocks earned; under 10 minutes
+     pays nothing and is not complete (no streak). 30 min pays 36/3/6,
+     60 min 72/6/6, 120 min 144/12/6.
+   - Both rules: the first pause is free, each further one takes 15% off XP
+     and gold (floor 25%).
+   A focus entry records its `rule`, `secs` and `blocks`; an entry from before
+   the blocks rule carries none and reads as Pomodoro, so history is never
+   re-priced. A Focus session links ONE subject: its `refs` may name several
+   topics in it, and `ref` is the first leaf they cover.
 4b. A Focus session is logged and paid before its review opens. Review may annotate
    that record and linked work but must never log or pay again.
-4c. Page hide banks the live clock with `KOS.store.flush()`. Reload/navigation is
-   not a session, pause or distraction; recovery returns paused.
+4c. Page hide banks the live clock with `KOS.store.flush()` — the count-up
+   stopwatch included. Reload/navigation is not a session, pause or
+   distraction; recovery returns paused. Study-until ends at its clock time
+   (`untilTs`); a pause never moves it.
+4d. The idle watch: any interaction with the app restarts a 30-minute clock.
+   A RUNNING study session untouched for 30 minutes is warned (toast, live
+   region, a `focus` notification); 5 minutes later, still untouched, it
+   ends itself, logged and paid ONLY for the focus done before the last
+   interaction (`activeWork`), `ended: "idle"`. Reading and paused sessions
+   are never watched. The mini-player's place is per device
+   (`state.ui.focusMini`, `KOS.focus.clampMini` keeps it in the viewport);
+   the phone dock does not read it.
 5. One deliberate bulk/sync action produces at most one session. Autonomous
    multi-provider sync batches rewards; XML import does not reward.
 5a. Budget Planner is logistics: zero Governor traffic and zero provider/network
@@ -478,7 +500,8 @@ source comments and audit notes refer to it.
 95. `state.notify` is ONE ledger of things that happened TO THE USER
     (`items`, natural string ids `kind:record:occurrence`, capped at 200
     and 45 days) plus `read` and `airing` keyed maps. Kinds are calendar,
-    reminder, assignment, airing and wishlist only: sync cycles, cloud
+    reminder, assignment, airing, wishlist, pacing (the plan's carry-over
+    notice) and focus (the idle watch, invariant 4d) only: sync cycles, cloud
     state and repairs are housekeeping, never notifications. Nothing in it re-derives a due date:
     the calendar, reminder and assignment tickers keep their own alert
     rules and once-only `notified`/`alerted` maps (invariant 42) and hand

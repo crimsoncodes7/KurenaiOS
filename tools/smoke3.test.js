@@ -330,9 +330,11 @@ step("complete: real dur + activity summary logged, award paid with pause penalt
   if (e.type !== "focus" || e.dur !== 1500) throw new Error("entry: " + e.type + " dur=" + e.dur);
   if (!e.metrics.complete || e.metrics.pauses !== 2 || e.metrics.distractions !== 2) throw new Error(JSON.stringify(e.metrics));
   if (e.metrics.activities.quizzes !== 1 || !/quiz/.test(e.metrics.summary)) throw new Error("summary: " + e.metrics.summary);
-  // 25 min, 1 extra pause: xp 35->30, gold 5->4 after the 15% shave
-  if (g.xp - xp0 !== 30) throw new Error("xp delta: " + (g.xp - xp0));
-  if (g.gold - gold0 !== 4) throw new Error("gold delta: " + (g.gold - gold0));
+  // a Custom session pays per full 10 minutes (roadmap 1.6, invariant 4a):
+  // 25 min = 2 blocks = 24 XP / 2 gold; 1 extra pause shaves 15% -> 20 / 2
+  if (e.metrics.rule !== "blocks" || e.metrics.blocks !== 2) throw new Error("rule: " + e.metrics.rule + " blocks=" + e.metrics.blocks);
+  if (g.xp - xp0 !== 20) throw new Error("xp delta: " + (g.xp - xp0));
+  if (g.gold - gold0 !== 2) throw new Error("gold delta: " + (g.gold - gold0));
   if (!KOS.store.state.todo.autoChecked[today + "|blk" + blk.id]) throw new Error("study block not ticked");
 });
 step("early stop: still logs (incomplete), award forfeited", () => {

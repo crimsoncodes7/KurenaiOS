@@ -97,23 +97,70 @@
      nothing and writes nothing: HP is quoted at face value (the Critical
      half-trickle is applied by restoreHp at payment time, and the preview
      says so rather than pretending to model it). */
+  /* THE ONE DEFINITION of a Focus award (invariant 4a), under one of two
+     rules chosen by the session's mode (focusRule):
+
+     "pomodoro" — Pomodoro, unchanged: a completed session pays
+       XP 10 + minutes, gold 3 + 2 per full 25 minutes, HP 6; ending before
+       the first full cycle forfeits the award.
+     "blocks" — Custom, Stopwatch and Study-until (roadmap 1.6): every FULL
+       10 minutes of focus is one block, and ending early keeps the blocks
+       already earned. A block pays 12 XP and 1 gold, and 2 HP up to 6 HP
+       a session. Under 10 minutes earns nothing and is not complete. Set
+       against Pomodoro's rate: 30 min 36 XP / 3 gold / 6 HP (Pomodoro 25:
+       35 / 5 / 6), 60 min 72 / 6 / 6, 120 min 144 / 12 / 6 — XP tracks
+       Pomodoro, gold stays at or under it, and HP (a wellbeing signal,
+       invariant 2) is capped as Pomodoro's is.
+
+     Both rules take the same pause economy: the first pause is free and
+     each further one takes 15% off XP and gold, to a floor of 25%. A
+     record logged before 1.6 carries no rule and reads as "pomodoro"
+     (Custom used that rule then), so an old entry never re-prices. */
+  var BLOCK_SECS = 600, BLOCK_XP = 12, BLOCK_GOLD = 1, BLOCK_HP = 2, BLOCK_HP_CAP = 6;
+  function focusRule(mode) {
+    return mode === "custom" || mode === "stopwatch" || mode === "until" ? "blocks" : "pomodoro";
+  }
   function focusAward(m) {
     m = m || {};
     var mins = m.mins != null ? m.mins : 0;
     var extraPauses = Math.max(0, (m.pauses || 0) - 1);
     var mult = extraPauses ? Math.max(0.25, 1 - 0.15 * extraPauses) : 1;
+    var rule = m.rule === "blocks" || m.rule === "pomodoro" ? m.rule
+      : (m.mode === "stopwatch" || m.mode === "until" ? "blocks" : "pomodoro");
+    if (rule === "blocks") {
+      var secs = Math.max(0, m.secs != null ? Number(m.secs) || 0 : mins * 60);
+      var blocks = Math.floor(secs / BLOCK_SECS);
+      var next = BLOCK_SECS - (secs % BLOCK_SECS);
+      if (!blocks) {
+        return { rule: rule, blocks: 0, xp: 0, gold: 0, hp: 0, forfeited: false, complete: false,
+          nextBlockIn: next, extraPauses: extraPauses, penaltyPct: 0 };
+      }
+      return {
+        rule: rule, blocks: blocks, complete: true,
+        xp: Math.round(BLOCK_XP * blocks * mult),
+        gold: Math.round(BLOCK_GOLD * blocks * mult),
+        hp: Math.min(BLOCK_HP_CAP, BLOCK_HP * blocks),
+        forfeited: false,
+        nextBlockIn: next,
+        extraPauses: extraPauses,
+        penaltyPct: Math.round((1 - mult) * 100)
+      };
+    }
     if (!m.complete) {
-      return { xp: 0, gold: 0, hp: 0, forfeited: true, extraPauses: extraPauses, penaltyPct: 0 };
+      return { rule: rule, xp: 0, gold: 0, hp: 0, forfeited: true, complete: false, extraPauses: extraPauses, penaltyPct: 0 };
     }
     return {
+      rule: rule,
       xp: Math.round((10 + mins) * mult),
       gold: Math.round((3 + 2 * Math.floor(mins / 25)) * mult),
       hp: 6,
       forfeited: false,
+      complete: true,
       extraPauses: extraPauses,
       penaltyPct: Math.round((1 - mult) * 100)
     };
   }
+  var FOCUS_BLOCK = { secs: BLOCK_SECS, xp: BLOCK_XP, gold: BLOCK_GOLD, hp: BLOCK_HP, hpCap: BLOCK_HP_CAP };
 
   /* what the LAST session actually paid — the completion review reports the
      real figures (streak bonuses included), never a second guess at them */
@@ -164,8 +211,16 @@
       /* Build 2b — the real focus award. Ended-early sessions log but forfeit
          the whole award; extra pauses (first is free) shave XP/gold 15% each;
          distraction HP nicks were already applied live by the timer. */
-      var fa = focusAward({ complete: m.complete,
+      var fa = focusAward({ complete: m.complete, rule: m.rule, mode: m.mode,
+        secs: m.secs != null ? m.secs : e.dur,
         mins: m.mins || Math.round((e.dur || 0) / 60), pauses: m.pauses });
+      if (fa.rule === "blocks" && !fa.blocks) {
+        lastAward = { xp: 0, gold: 0, hp: 0, notes: ["under 10 minutes — nothing earned yet"], levelUp: false };
+        store.save();
+        if (KOS.ui) KOS.ui.toast("Focus session logged — under 10 minutes, so nothing earned yet.");
+        if (KOS.refreshHUD) KOS.refreshHUD();
+        return;
+      }
       if (fa.forfeited) {
         lastAward = { xp: 0, gold: 0, hp: 0, notes: ["ended early — award forfeited"], levelUp: false };
         store.save();
@@ -861,6 +916,8 @@
     onSession: onSession,
     /* Build 6.5: the focus deal, quotable without paying it */
     focusAward: focusAward,
+    focusRule: focusRule,
+    FOCUS_BLOCK: FOCUS_BLOCK,
     lastAward: function () { return lastAward; },
     levelInfo: levelInfo,
     level: level,
