@@ -416,6 +416,14 @@ source comments and audit notes refer to it.
     ignores; `{p}` and `{md}` are renderer block types. Notes/Quiz/Exam tabs are
     always present on a topic — an empty tab is where material is added —
     and a zero count is never printed (invariant 77).
+89a. A reorder is a MOVE inside the fork (`KOS.edits.move(sid, ref, kind, id,
+    to)`, `moveBy(…, ±1)` for the keyboard; Spec blocks may cross between its
+    `content` and `info` lists). The row's id and a flashcard's SM-2 key ride
+    with it (invariants 87, 88); a refused step writes nothing. Spec's
+    optional column break is ONE stored block id, `colBreak` in the Spec fork
+    (`setSpecBreak`, read as `specColumns()`): the second column starts at
+    that block. With no break the columns balance themselves, and a break
+    whose block is gone is dropped.
 
 ### The AniList mirror (90–94)
 

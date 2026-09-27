@@ -172,7 +172,12 @@
   function normaliseKind(sid, ref, kind, value) {
     if (kind === "spec") {
       value = value && typeof value === "object" ? value : {};
-      return { content: (value.content || []).map(stamp), info: (value.info || []).map(stamp) };
+      var out = { content: (value.content || []).map(stamp), info: (value.info || []).map(stamp) };
+      /* roadmap 1.4: an optional stored column break — the id of the block
+         the second column starts at. A break naming a block that is no
+         longer there is dropped, and the columns balance themselves again. */
+      if (value.colBreak != null && findRow(out, "spec", value.colBreak)) out.colBreak = String(value.colBreak);
+      return out;
     }
     if (!Array.isArray(value)) return [];
     if (kind === "flashcards") {
@@ -229,6 +234,102 @@
     if (t.exam != null) e.exam = t.exam;
     if (t.flashcards != null) e.flashcards = t.flashcards.map(function (c) { return [c.q, c.a]; });
     return e;
+  }
+
+  /* ---------------- reordering (roadmap 1.4) ----------------
+     A row moves inside its own fork; nothing about it changes but its
+     place. Row ids stay (invariant 88) and a flashcard keeps its SM-2 key
+     `k` (invariant 87), because set() re-stamps nothing that already has
+     one. Spec rows live in two lists, `content` and `info`; a move may
+     cross between them. */
+  function findRow(mat, kind, id) {
+    var lists = kind === "spec" ? ["content", "info"] : [null];
+    for (var i = 0; i < lists.length; i++) {
+      var arr = lists[i] ? mat[lists[i]] : mat;
+      if (!Array.isArray(arr)) continue;
+      for (var j = 0; j < arr.length; j++) {
+        if (arr[j] && String(arr[j].id) === String(id)) return { list: lists[i], index: j, arr: arr };
+      }
+    }
+    return null;
+  }
+  /* where a row sits: {list, index} (list is null outside Spec), or null */
+  function position(sid, ref, kind, id) {
+    if (KINDS.indexOf(kind) === -1) return null;
+    var at = findRow(material(sid, ref, kind), kind, id);
+    return at ? { list: at.list, index: at.index } : null;
+  }
+  /* move(sid, ref, kind, id, to) — `to` is the target index, or for Spec
+     {list: "content"|"info", index}. The index is where the row lands in
+     the list AFTER it has been taken out, clamped to the list. Forks the
+     material if it is not forked yet. Returns the new position, or null
+     when the row does not exist (nothing is written). */
+  function move(sid, ref, kind, id, to) {
+    if (KINDS.indexOf(kind) === -1) return null;
+    var mat = material(sid, ref, kind);
+    var at = findRow(mat, kind, id);
+    if (!at) return null;
+    var list = at.list, index = to;
+    if (kind === "spec") {
+      to = to && typeof to === "object" ? to : { index: to };
+      list = to.list === "content" || to.list === "info" ? to.list : at.list;
+      index = to.index;
+    }
+    var row = at.arr.splice(at.index, 1)[0];
+    var dest = list ? mat[list] : mat;
+    index = Math.max(0, Math.min(dest.length, parseInt(index, 10) || 0));
+    dest.splice(index, 0, row);
+    set(sid, ref, kind, mat);
+    return { list: list, index: index };
+  }
+  /* one step up (-1) or down (+1) inside the row's own list — the keyboard
+     path. False at either end, and nothing is written. */
+  function moveBy(sid, ref, kind, id, delta) {
+    var at = position(sid, ref, kind, id);
+    if (!at) return false;
+    var mat = material(sid, ref, kind);
+    var arr = at.list ? mat[at.list] : mat;
+    var next = at.index + (delta < 0 ? -1 : 1);
+    if (next < 0 || next >= arr.length) return false;
+    return move(sid, ref, kind, id, at.list ? { list: at.list, index: next } : next);
+  }
+
+  /* ---------------- the Spec column break (roadmap 1.4) ----------------
+     The Spec tab flows its two lists into two balanced columns. A stored
+     break (one block id, in the fork) says where the second column starts
+     instead; null removes it and the columns balance themselves again. */
+  function setSpecBreak(sid, ref, id) {
+    var mat = material(sid, ref, "spec");
+    if (id == null) {
+      if (!has(sid, ref, "spec") || mat.colBreak == null) return null;
+      delete mat.colBreak;
+    } else {
+      if (!findRow(mat, "spec", id)) return false;
+      mat.colBreak = String(id);
+    }
+    set(sid, ref, "spec", mat);
+    return id == null ? null : String(id);
+  }
+  function specBreak(sid, ref) {
+    var t = get(sid, ref);
+    return t && t.spec && t.spec.colBreak != null ? t.spec.colBreak : null;
+  }
+  /* the two columns as data, for the page that draws them: null when no
+     break is stored (the page balances), else each column's share of each
+     list in order — {breakId, left: {content, info}, right: {content, info}} */
+  function specColumns(sid, ref) {
+    var id = specBreak(sid, ref);
+    if (id == null) return null;
+    var mat = material(sid, ref, "spec");
+    var out = { breakId: id, left: { content: [], info: [] }, right: { content: [], info: [] } };
+    var side = "left";
+    ["content", "info"].forEach(function (l) {
+      mat[l].forEach(function (b) {
+        if (String(b.id) === id) side = "right";
+        out[side][l].push(b);
+      });
+    });
+    return out;
   }
 
   /* ---------------- the quick note (roadmap 1.3) ----------------
@@ -322,6 +423,13 @@
     nextId: nextId,
     blocksEditable: blocksEditable,
     linesToBlocks: linesToBlocks,
+    /* 1.4 reordering and the Spec column break */
+    position: position,
+    move: move,
+    moveBy: moveBy,
+    setSpecBreak: setSpecBreak,
+    specBreak: specBreak,
+    specColumns: specColumns,
     /* 1.3 the quick note */
     draft: draft,
     setDraft: setDraft,

@@ -27,6 +27,11 @@
    9.  Two devices' forks of one topic merge by row id — different new
        blocks both survive, the shared shipped rows do not double.
    10. Edits ride the full backup snapshot.
+   11. Roadmap 1.4: a block moves inside its fork (Spec blocks may cross
+       between its two lists), every row keeps its id and a flashcard its
+       SM-2 key; keyboard steps refuse at either end without writing; the
+       optional Spec column break is one stored block id, read back as two
+       columns, kept through moves and dropped with its block.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -336,6 +341,83 @@ step("two forks of one topic merge by row id: both new blocks survive, shipped r
   local2.edits.topics[SID + ":" + REF] = { notes: l2 }; remote2.edits.topics[SID + ":" + REF] = { notes: r2 };
   const out2 = KOS.cloudmerge.merge(base, local2, remote2).doc.edits.topics[SID + ":" + REF].notes;
   assert(out2[0].p === "edited on the laptop" && out2.some(b => b.id === "eNEW"), "an edit and an addition did not both land");
+});
+
+/* ============ 10 · reordering and the Spec column break (roadmap 1.4) ============ */
+console.log("== 10 · reorder and column break ==");
+step("a block moves inside its fork; every row keeps its id", () => {
+  fresh();
+  const before = KOS.edits.material(SID, REF, "notes").map(b => b.id);
+  const pos = KOS.edits.move(SID, REF, "notes", before[2], 0);
+  assert(pos && pos.index === 0 && pos.list === null, "move did not report its landing: " + JSON.stringify(pos));
+  const after = KOS.edits.material(SID, REF, "notes").map(b => b.id);
+  assert(after[0] === before[2] && after.length === before.length, "the block did not land first");
+  assert(after.slice().sort().join() === before.slice().sort().join(), "a row id changed or went missing");
+  assert(KOS.edits.move(SID, REF, "notes", "no-such-row", 1) === null, "an unknown row moved");
+  assert(KOS.edits.move(SID, REF, "notes", before[0], 999).index === before.length - 1, "an index past the end is clamped");
+});
+
+step("keyboard steps: one place up or down, false at either end and nothing written", () => {
+  fresh();
+  const ids = KOS.edits.material(SID, REF, "notes").map(b => b.id);
+  assert(KOS.edits.moveBy(SID, REF, "notes", ids[0], -1) === false, "moved above the top");
+  assert(!KOS.edits.has(SID, REF, "notes"), "a refused step forked the topic");
+  assert(KOS.edits.moveBy(SID, REF, "notes", ids[0], +1).index === 1, "one step down");
+  assert(KOS.edits.position(SID, REF, "notes", ids[0]).index === 1, "position disagrees");
+  const last = ids[ids.length - 1];
+  assert(KOS.edits.moveBy(SID, REF, "notes", last, +1) === false, "moved below the bottom");
+});
+
+step("a reordered flashcard keeps its SM-2 key and its schedule (invariants 87, 88)", () => {
+  fresh();
+  const cards = KOS.edits.material(SID, REF, "flashcards");
+  const moved = cards[cards.length - 1];
+  KOS.store.state.srs[moved.k] = { ef: 2.5, ivl: 6, reps: 2, due: "2026-10-01", last: "2026-09-25" };
+  KOS.edits.move(SID, REF, "flashcards", moved.id, 0);
+  const now = KOS.edits.material(SID, REF, "flashcards");
+  assert(now[0].id === moved.id && now[0].k === moved.k, "the moved card lost its id or key: " + JSON.stringify(now[0]));
+  const keys = now.map(c => c.k).sort().join(), was = cards.map(c => c.k).sort().join();
+  assert(keys === was, "the set of SM-2 keys changed");
+  assert(KOS.srs.peek(moved.k).ivl === 6, "the schedule no longer resolves");
+  delete KOS.store.state.srs[moved.k];
+});
+
+step("a Spec block can cross from the content list to the guidance list", () => {
+  fresh();
+  const spec = KOS.edits.material(SID, REF, "spec");
+  const id = spec.content[0].id;
+  const pos = KOS.edits.move(SID, REF, "spec", id, { list: "info", index: 0 });
+  assert(pos.list === "info" && pos.index === 0, "landing: " + JSON.stringify(pos));
+  const now = KOS.edits.material(SID, REF, "spec");
+  assert(now.info[0].id === id && !now.content.some(b => b.id === id), "the block is not in exactly one list");
+  assert(now.content.length + now.info.length === spec.content.length + spec.info.length, "a block was lost or doubled");
+});
+
+step("the Spec column break: stored as one block id, read as two columns, cleared to auto", () => {
+  fresh();
+  assert(KOS.edits.specColumns(SID, REF) === null, "no break: the page balances");
+  const spec = KOS.edits.material(SID, REF, "spec");
+  const id = spec.content[Math.min(2, spec.content.length - 1)].id;
+  assert(KOS.edits.setSpecBreak(SID, REF, "no-such-block") === false, "a break at a missing block was stored");
+  assert(!KOS.edits.has(SID, REF, "spec"), "a refused break forked the topic");
+  assert(KOS.edits.setSpecBreak(SID, REF, id) === id && KOS.edits.specBreak(SID, REF) === id, "the break was not stored");
+  const cols = KOS.edits.specColumns(SID, REF);
+  const at = spec.content.findIndex(b => b.id === id);
+  assert(cols.left.content.length === at && cols.right.content[0].id === id, "the columns do not split at the break");
+  assert(cols.left.info.length === 0 && cols.right.info.length === spec.info.length, "guidance after the break is in the right column");
+  /* moving blocks keeps the break with its block */
+  KOS.edits.move(SID, REF, "spec", spec.content[0].id, { list: "content", index: 5 });
+  assert(KOS.edits.specBreak(SID, REF) === id, "a move lost the break");
+  /* a quick note is appended after it and does not move it */
+  KOS.edits.appendSpec(SID, REF, "noted");
+  assert(KOS.edits.specBreak(SID, REF) === id, "a quick note moved the break");
+  /* deleting the break's block drops the break */
+  const m = KOS.edits.material(SID, REF, "spec");
+  m.content = m.content.filter(b => b.id !== id);
+  KOS.edits.set(SID, REF, "spec", m);
+  assert(KOS.edits.specBreak(SID, REF) === null, "a break at a deleted block survived");
+  KOS.edits.setSpecBreak(SID, REF, m.content[0].id);
+  assert(KOS.edits.setSpecBreak(SID, REF, null) === null && KOS.edits.specColumns(SID, REF) === null, "clearing did not return to auto");
 });
 
 /* ============ 9 · backup ============ */
