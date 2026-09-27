@@ -72,6 +72,12 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-card-meta[data-state~="late"] { color: var(--crimson); }
 
 /* the course units */
+.k-sa-row { display: none; align-items: center; gap: var(--sp-10); inline-size: 100%; text-align: start; }
+.k-sa-row-txt { flex: 1 1 0; min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+.k-sa-row-t { font-size: var(--fs-15); font-weight: var(--weight-medium); }
+.k-sa-row-sub { font-size: var(--fs-12); color: var(--muted); }
+.k-dialog .k-sa { background: none; padding: 0; }
+.k-dialog .k-sa > .k-card-head .k-card-title { display: none; }
 .k-subj-units .k-sectionhead { margin: 0 var(--sp-4) var(--sp-12); }
 .k-units { display: flex; gap: var(--sp-14); }
 .k-unit { flex: 0 0 auto; inline-size: var(--unit-w); display: flex; flex-direction: column; padding: var(--sp-18) var(--sp-20); border-radius: var(--r-20); background: var(--s1); text-align: start; }
@@ -171,6 +177,17 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-topic-path { margin-block-start: var(--sp-6); font-size: var(--fs-12-5); color: var(--muted); }
 .k-topic-sep { opacity: 0.5; margin-inline: var(--sp-6); }
 .k-topic-steps { display: flex; gap: var(--sp-6); }
+/* the phone header row (15d): above the phone tier only its spine opener
+   takes part (a head item, shown at the compact tier) */
+.k-topic-prow { display: contents; }
+.k-topic-pparent, .k-topic-pchip, .k-topic-pmeta { display: none; }
+.k-topic-pdot { inline-size: var(--sp-8); block-size: var(--sp-8); flex: 0 0 auto; border-radius: 50%; background: var(--muted); }
+.k-topic-pdot[data-band="r"] { background: var(--rag-r); }
+.k-topic-pdot[data-band="a"] { background: var(--rag-a); }
+.k-topic-pdot[data-band="g"] { background: var(--rag-g); }
+.k-insp-sheet-sub { display: block; font: var(--fs-12) var(--font-mono); color: var(--muted); }
+.k-insp-sheet .k-insp { padding: 0; border: 0; }
+.k-insp-sheet .k-insp-head { display: none; }
 .k-topic-steps .k-iconbtn { inline-size: var(--topic-step); block-size: var(--topic-step); }
 
 .k-topic-nav { display: flex; flex-direction: column; gap: var(--sp-14); }
@@ -921,14 +938,46 @@ button.k-subj-next:hover { background: var(--s2); }
 @media (max-width: 700px) {
 .k-rv-hero { flex-direction: column; align-items: stretch; }
 .k-rv-go { inline-size: auto; }
-.k-fc-rate { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* 15e: the four ratings stay one row where the thumb reaches, 60px tall;
+   a phone has no keyboard legend */
+.k-fc-rate { gap: var(--sp-6); }
+.k-fc-rate > * { min-block-size: var(--fc-rate-h); }
+.k-fc-pgroup:has(> .k-fc-keys) { display: none; }
 .k-fc-r { min-inline-size: 0; }
 .k-fc-pgrid { grid-template-columns: minmax(0, 1fr); }
 .k-topic-col { padding: var(--sp-16); }
 .k-topic-title { font-size: var(--fs-26); }
-.k-subj-hero { grid-template-columns: minmax(0, 1fr); justify-items: start; padding: var(--sp-20); }
-.k-subj-name { font-size: var(--fs-26); white-space: normal; }
-.k-subj-side { flex-direction: column; }
+/* 15d: ☰, the parent unit and the status chip; the title over one mono
+   line; the neighbours, the full path and the inspector leave the page
+   (the inspector opens as a sheet from the chip) */
+.k-topic-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+.k-topic-prow { display: flex; min-inline-size: 0; align-items: center; gap: var(--sp-10); margin-block-end: var(--sp-10); }
+.k-topic-pparent { display: block; }
+.k-topic-pchip { display: inline-flex; }
+.k-topic-reader > .k-kicker, .k-topic-dots { display: none; }
+.k-topic-reader { gap: var(--sp-6); }
+.k-topic-reader .k-iconbtn { inline-size: var(--hit-coarse); block-size: var(--hit-coarse); flex: 0 0 auto; }
+.k-topic-reader select { flex: 1 1 0; min-inline-size: 0; }
+.k-insp-sheet .k-insp { inline-size: auto; min-inline-size: 0; }
+.k-topic-prow .k-spine-open { display: grid; flex: 0 0 auto; }
+.k-topic-pparent { flex: 1 1 0; min-inline-size: 0; font-size: var(--fs-13); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-topic-pchip { flex: 0 0 auto; gap: var(--sp-6); min-block-size: var(--hit-coarse); padding-inline: var(--sp-12); font: var(--weight-semibold) var(--fs-13) var(--font-ui); }
+.k-topic-steps, .k-topic-path, .k-topic-ref { display: none; }
+.k-topic-pmeta { display: block; margin-block-start: var(--sp-4); font: var(--fs-12) var(--font-mono); color: var(--muted); }
+.k-topic > .k-insp { display: none; }
+/* 15c: the hero stacks — a small ring beside the desk and board, the
+   papers under it; the name is the title bar's. Continue and Weakest sit
+   side by side; the analytics are a summary row that opens a sheet */
+.k-subj-hero { grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-16) var(--sp-14); padding: var(--sp-18); }
+.k-subj-ring { inline-size: var(--home-ring-sm); block-size: var(--home-ring-sm); }
+.k-subj-ring-in { inline-size: calc(var(--home-ring-sm) - var(--sp-10)); block-size: calc(var(--home-ring-sm) - var(--sp-10)); }
+.k-subj-ring-in b { font-size: var(--fs-17); }
+.k-subj-name { display: none; }
+.k-subj-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-10); }
+.k-subj-next { padding: var(--sp-14); gap: var(--sp-8); }
+.k-subj-next-t, .k-subj-next-why { white-space: normal; }
+.k-subj-row > .k-sa { display: none; }
+.k-sa-row { display: flex; }
 .k-res-del { opacity: 1; }
 }
 

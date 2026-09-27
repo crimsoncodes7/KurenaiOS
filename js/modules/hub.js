@@ -724,7 +724,7 @@
         el("span", { class: "k-bar", role: "img", "aria-label": li.into + " of " + li.need + " XP to level " + (li.level + 1),
           style: "--p: " + Math.round(100 * li.into / li.need) + "%" }, [el("i")]),
         el("span", { class: "k-mono k-muted", text: (li.need - li.into) + " XP to " + (li.level + 1) }),
-        el("span", { class: "k-muted", "aria-hidden": "true", text: "·" }),
+        el("span", { class: "k-muted k-home-dot", "aria-hidden": "true", text: "·" }),
         el("span", { class: "k-home-hp", "data-hp": hpS, text: "HP " + g.hp + " / 100 · " + hpInfo.label })
       ])
     ].filter(Boolean));
@@ -1140,6 +1140,12 @@
       ]));
     });
     desks.appendChild(medCard);
+    /* a declared scroller (invariant 50): four across on a desk, a swipe
+       row of cards on a phone (15b) — declared on the row itself, which
+       keeps Home inside its wrapper-depth budget (smoke55) */
+    desks.setAttribute("data-scroller", "true");
+    desks.setAttribute("role", "group");
+    desks.setAttribute("aria-label", "Continue");
     cont.appendChild(desks);
     main.appendChild(cont);
 
@@ -1461,8 +1467,9 @@
     var today = KOS.srs.todayISO();
 
     KOS.shell.actions([
-      el("button", { type: "button", class: "k-btn", "data-ui": "study.compare", text: "⇆ Compare",
-        onclick: function () { compareModal(sid); } }),
+      /* on a phone it rides the title bar as an icon (15c) */
+      el("button", { type: "button", class: "k-btn", "data-ui": "study.compare", "data-phone-action": "", "aria-label": "Compare topics",
+        onclick: function () { compareModal(sid); } }, [el("span", { "aria-hidden": "true", text: "⇆" }), el("span", { class: "k-btn-label", text: " Compare" })]),
       el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Start focus",
         onclick: function () { KOS.show("focus"); } })
     ]);
@@ -1510,7 +1517,8 @@
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
 
     /* ================= analytics, beside the dates ================= */
-    main.appendChild(el("div", { class: "k-subj-row" }, [subjectAnalytics(sid, s), deadlinesCard(sid, today)]));
+    var analytics = subjectAnalytics(sid, s);
+    main.appendChild(el("div", { class: "k-subj-row" }, [analytics, deadlinesCard(sid, today)]));
 
     /* ================= the course units ================= */
     var lastRef = store.state.ui.lastRef[sid];
@@ -1568,6 +1576,9 @@
         }))
       ]));
     }
+    /* 15c: on a phone the eight analytics tiles are one summary row that
+       opens them in a sheet (the same card, moved in and back) */
+    bottom.appendChild(analyticsRow(analytics));
     var resHolder = el("section", { class: "k-card", "data-ui": "study.resources", "aria-label": "Resources" });
     bottom.appendChild(resHolder);
     renderResources(resHolder, sid);
@@ -1589,6 +1600,41 @@
       el("span", { class: "sr-only", "data-ui": "part.caption", text: o.sub }),
       el("span", { class: "k-bar", "data-ui": "study.analytics-track", "aria-hidden": "true",
         "data-state": bar ? null : "na", style: bar ? "--p: " + Math.max(0, Math.min(100, o.pct)) + "%" + (o.c ? "; --bar-c: " + o.c : "") : null }, [el("i")])
+    ]);
+  }
+
+  function analyticsRow(card) {
+    function tile(k) {
+      var t = [].slice.call(card.querySelectorAll("[data-ui~='study.analytics-tile']")).find(function (n) {
+        return n.querySelector("[data-ui~='part.label']").textContent === k;
+      });
+      return t && !t.matches("[data-state~='empty']") ? t.querySelector("[data-ui~='part.value']").textContent : null;
+    }
+    var facts = [
+      tile("Mastery") ? tile("Mastery") + " mastery" : null,
+      tile("Reviewed") ? tile("Reviewed") + " reviewed" : null,
+      tile("Quiz best") ? "quiz best " + tile("Quiz best") : null
+    ].filter(Boolean);
+    return el("button", { type: "button", class: "k-card k-sa-row", "data-ui": "study.analytics-row", "aria-haspopup": "dialog",
+      onclick: function () {
+        var home = card.parentNode, next = card.nextSibling;
+        var close = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close", text: "✕" });
+        var box = el("section", { class: "k-dialog", "data-ui": "ui.dialog study.analytics-sheet" }, [
+          el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [el("h2", { class: "k-dialog-title", text: "Subject analytics" }), close]),
+          card
+        ]);
+        var ov = el("div", { class: "k-dialog-overlay" }, [box]);
+        ov.addEventListener("click", function (e) { if (e.target === ov) ov.remove(); });
+        close.addEventListener("click", function () { ov.remove(); });
+        KOS.ui.openDialog(ov, { onClose: function () {
+          if (home.isConnected) home.insertBefore(card, next && next.parentNode === home ? next : null);
+        } });
+      } }, [
+      el("span", { class: "k-sa-row-txt" }, [
+        el("span", { class: "k-sa-row-t", text: "Subject analytics" }),
+        facts.length ? el("span", { class: "k-sa-row-sub", text: facts.join(" · ") }) : null
+      ].filter(Boolean)),
+      el("span", { class: "k-muted", "aria-hidden": "true", text: "›" })
     ]);
   }
 
@@ -1877,15 +1923,35 @@
       pathLine.appendChild(el("span", { class: "k-topic-sep", "aria-hidden": "true", text: "·" }));
       pathLine.appendChild(document.createTextNode(note ? note[0] : paperLabel(sid, leaf.section.paper)));
     }
+    /* 15d, the phone header: ☰ (the spine drawer), the parent unit on one
+       line, and the status chip — the topic's RAG dot and mastery — which
+       opens the inspector as a sheet; under the title, one mono line of
+       reference, subject and paper instead of the full path */
+    var band = KOS.rag.effective(sid, ref).band;
+    var statusChip = el("button", { type: "button", class: "k-chip k-topic-pchip", "data-ui": "topic.status-chip", "aria-haspopup": "dialog",
+      "aria-label": "Topic status: " + pctText(leafPercent(sid, ref)) + (band ? ", " + KOS.rag.BANDS[band].label + " confidence" : "") + ". Open the inspector",
+      onclick: function () { openInspectorSheet(); } }, [
+      el("span", { class: "k-topic-pdot", "data-band": band || null, "aria-hidden": "true" }),
+      "◐ " + pctText(leafPercent(sid, ref))
+    ]);
+    var paperNote = leaf.section.paper ? ((PAPER_NOTE[sid] || {})[paperLabel(sid, leaf.section.paper)] || [paperLabel(sid, leaf.section.paper)])[0] : null;
     var head = el("header", { class: "k-topic-head", "data-ui": "topic.head" }, [
+      el("div", { class: "k-topic-prow" }, [
+        treeOpenButton(),
+        el("span", { class: "k-topic-pparent", text: leaf.section.ref + " " + leaf.section.title }),
+        statusChip
+      ]),
       el("div", { class: "k-topic-titles" }, [
         el("div", { class: "k-topic-titlerow" }, [
           el("h1", { class: "k-topic-title", text: leaf.title }),
           el("span", { class: "k-topic-ref", "data-ui": "gov.seal", text: leaf.ref })
         ]),
-        pathLine
+        pathLine,
+        el("p", { class: "k-topic-pmeta", text: [leaf.ref, d.name, paperNote].filter(Boolean).join(" · ") })
       ]),
-      el("div", { class: "k-topic-steps" }, [treeOpenButton(), stepBtn(prevLeaf, "prev"), stepBtn(nextLeaf, "next")])
+      /* the ONE spine opener rides the phone row (a display:contents
+         wrapper above the phone tier), so it is not repeated here */
+      el("div", { class: "k-topic-steps" }, [stepBtn(prevLeaf, "prev"), stepBtn(nextLeaf, "next")])
     ]);
 
     /* the four checks; marking a topic Completed fills them in the store,
@@ -2008,7 +2074,9 @@
       });
       moreSlot.innerHTML = "";
       var hidden = [];
-      if (tabBar.clientWidth > 0) {
+      /* on a phone all eight tabs ride one scroller instead (15d) */
+      var phoneTier = window.matchMedia && window.matchMedia("(max-width: 700px)").matches;
+      if (tabBar.clientWidth > 0 && !phoneTier) {
         for (var i = btns.length - 1; i >= 0 && tabBar.scrollWidth > tabBar.clientWidth; i--) {
           if (btns[i].dataset.tab === curTab || btns[i].hidden) continue;
           btns[i].hidden = true;
@@ -2048,7 +2116,7 @@
       el("span", { "aria-hidden": "true", text: "✎" }), el("span", { "data-ui": "topic.edit", text: "Edit" })]);
     var pagerSlot = el("div", { class: "k-topic-pages" });
     var studyNav = el("div", { class: "k-topic-nav", "data-ui": "topic.nav" }, [
-      el("div", { class: "k-topic-tabrow" }, [tabBar, moreSlot, editBtn]),
+      el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, editBtn]),
       pagerSlot
     ]);
 
@@ -2061,6 +2129,23 @@
       : null;
     var inspector = buildInspector(studyGrid, sid, ref, ctl, asstStrip);
     studyGrid.appendChild(inspector);
+    /* the inspector as a phone sheet: the same aside, moved in and back */
+    function openInspectorSheet() {
+      var home = inspector.parentNode, next = inspector.nextSibling;
+      var close = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close the inspector", text: "✕" });
+      var box = el("section", { class: "k-dialog k-insp-sheet", "data-ui": "ui.dialog topic.inspector-sheet", "aria-label": "Inspector" }, [
+        el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+          el("div", {}, [el("h2", { class: "k-dialog-title", text: "Inspector" }), el("span", { class: "k-insp-sheet-sub", text: leaf.ref + " " + leaf.title })]),
+          close]),
+        inspector
+      ]);
+      var ov = el("div", { class: "k-dialog-overlay" }, [box]);
+      ov.addEventListener("click", function (e) { if (e.target === ov) ov.remove(); });
+      close.addEventListener("click", function () { ov.remove(); });
+      KOS.ui.openDialog(ov, { onClose: function () {
+        if (home.isConnected) home.insertBefore(inspector, next && next.parentNode === home ? next : null);
+      } });
+    }
     var editorHost = el("div", { class: "k-topic-editor", hidden: "" });
     studyGrid.appendChild(editorHost);
     main.appendChild(studyGrid);

@@ -475,9 +475,18 @@
         current: source === "subnav" ? b.getAttribute("aria-current") === "page" : b.getAttribute("aria-selected") === "true" };
     });
   }
+  /* a moved node goes back where its placeholder is — and only if the
+     placeholder survived: a view that re-rendered its slot owns fresh
+     nodes, so a stale one is dropped, never re-inserted beside them */
+  function moveOut(n) {
+    var mark = document.createComment("phone-home");
+    n.parentNode.insertBefore(mark, n);
+    moved.push({ node: n, mark: mark });
+    return n;
+  }
   function restoreMoved() {
     moved.forEach(function (m) {
-      if (m.parent.isConnected) m.parent.insertBefore(m.node, m.next && m.next.parentNode === m.parent ? m.next : null);
+      if (m.mark.isConnected) m.mark.parentNode.replaceChild(m.node, m.mark);
       else m.node.remove();
     });
     moved = [];
@@ -550,9 +559,10 @@
       restoreMoved();
       if (titleBar) titleBar.remove();
       var tools = el("div", { class: "k-ptitle-tools" });
-      Array.prototype.slice.call(main.querySelectorAll("[data-phone-action]")).forEach(function (n) {
-        moved.push({ node: n, parent: n.parentNode, next: n.nextSibling });
-        tools.appendChild(n);
+      var pageActions = document.getElementById("page-actions");
+      Array.prototype.slice.call(main.querySelectorAll("[data-phone-action]"))
+        .concat(pageActions ? Array.prototype.slice.call(pageActions.querySelectorAll("[data-phone-action]")) : []).forEach(function (n) {
+        tools.appendChild(moveOut(n));
       });
       var more = Array.prototype.slice.call(main.querySelectorAll("[data-phone-more]"));
       if (more.length) tools.appendChild(el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "shell.page-tools",

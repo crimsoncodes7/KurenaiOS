@@ -151,7 +151,8 @@ step("the phone tier still re-homes the shell for touch", () => {
   const phone = css.match(/@media \(max-width: 700px\) \{[\s\S]*?\n\}/g) || [];
   if (!pending("layout", "the phone tier's tab bar and #main clearance")) {
     assert(phone.some(b => /#rail \{[\s\S]*position: fixed/.test(b)), "the bottom tab bar is gone");
-    assert(phone.some(b => /padding-block-end|padding-bottom/.test(b) && /safe-area-inset-bottom/.test(b)),
+    /* read #main's own rule: a block-scan once passed on a sheet's padding */
+    assert(/#main \{[^}]*padding-block-end:[^}]*safe-area-inset-bottom/.test(css),
       "#main no longer reserves room for the tab bar");
   }
   if (!pending("components", "the iOS focus-zoom guard (16px phone inputs)"))

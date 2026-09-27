@@ -208,10 +208,25 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 .k-home-hero-body { flex-wrap: wrap; }
 }
 
+/* 15b: one scrolling column. The hero stacks — the ring beside the date,
+   the greeting, the quote and the level line, then the day's list and its
+   Start focus at full width — and Continue becomes a scroller at the foot */
+@media (max-width: 700px) {
+.k-home-hero-body { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--sp-10) var(--sp-14); padding: var(--sp-20); }
+.k-home-hero-txt { display: contents; }
+.k-home-hero-txt > :not(.k-kicker) { grid-column: 1 / -1; }
+.k-home-ring { inline-size: var(--home-ring-sm); block-size: var(--home-ring-sm); }
+.k-home-ring .k-avatar { inline-size: calc(100% - var(--sp-8)); block-size: calc(100% - var(--sp-8)); }
+.k-home-greet { font-size: var(--fs-22); }
+.k-home-dot { display: none; }
+.k-home-goal { display: flex; grid-column: 1 / -1; inline-size: auto; margin-block-start: var(--sp-6); }
+.k-home-goal > .k-btn { align-self: stretch; justify-content: center; min-block-size: var(--hit-coarse); }
+.k-desks { display: flex; grid-template-columns: none; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory; }
+.k-desks > * { flex: 0 0 var(--home-desk-phone-w); scroll-snap-align: start; }
+}
+
 @media (max-width: 560px) {
-.k-desks { grid-template-columns: minmax(0, 1fr); }
 .k-routines { grid-template-columns: minmax(0, 1fr); }
-.k-home-ring { display: none; }
 }
 
 }

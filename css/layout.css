@@ -374,6 +374,10 @@ padding-inline: 0;
 .k-rail-more[data-state~="active"] .k-rail-tile { background: linear-gradient(150deg, var(--crimson-hi), var(--crimson-lo)); color: var(--crimson-ink); box-shadow: var(--tile-lift); }
 .k-rail-tile { inline-size: var(--tab-tile); block-size: var(--tab-tile); font-size: var(--fs-15); }
 .k-rail-label { white-space: nowrap; }
+/* the tree states' compact-rail rules (ID-scoped) must not clip the tab
+   labels on a phone, where the rail is the tab bar */
+#cols[data-rail="compact"] .k-rail-label, #cols[data-tree="open"]:not([data-rail="full"]) .k-rail-label, #cols[data-tree="closed"]:not([data-rail="full"]) .k-rail-label { position: static; inline-size: auto; block-size: auto; clip: auto; overflow: visible; }
+#cols[data-rail="compact"] .k-rail-item, #cols[data-tree="open"]:not([data-rail="full"]) .k-rail-item, #cols[data-tree="closed"]:not([data-rail="full"]) .k-rail-item { padding: var(--sp-6) 0; }
 .k-rail-label { position: static; inline-size: auto; block-size: auto; clip: auto; overflow: visible; }
 .k-rail-foot { display: none; }
 :root[data-shell="ready"] .k-rail-more { display: flex; }
@@ -393,6 +397,7 @@ padding-inline: 0;
 .k-ptitle-switch { flex: 0 0 auto; background: var(--s1); font-size: var(--fs-11); color: var(--text-2); }
 .k-ptitle-tools { display: flex; align-items: center; gap: var(--sp-8); }
 .k-ptitle-tools > .k-btn { inline-size: var(--icon-btn); block-size: var(--icon-btn); padding: 0; justify-content: center; border-radius: 50%; }
+.k-ptitle-tools .k-btn-label { display: none; }
 /* invariant 72: canonical search and the three low-frequency destinations
    hide only once mobile-shell.js has mounted their replacements */
 :root[data-shell="ready"] #searchbox { display: none; }
