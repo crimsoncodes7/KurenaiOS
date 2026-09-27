@@ -260,10 +260,14 @@ source comments and audit notes refer to it.
 26f. `state.itUnits` is the one IT unit record (per-unit `status`
     done/sitting/not-taken, `raw`, `ums`, `series`, `year`, `date`), behind
     `KOS.itUnits.normalise*`, seeded once like the plan. `js/data/it-grades.js`
-    is the one table of unit scales and grade boundaries (a boundary not yet
-    checked against OCR says `confirmed: false`, and derivations report it as
-    provisional). Unit grades, the aggregate and "marks needed" are derived
-    only in `KOS.hub.it`; a stored UMS wins over the raw-mark conversion; a
+    is the one table of unit scales and grade boundaries, taken from the
+    specification (p. 91): a unit is graded D 48 / M 36 / P 24 UMS and has no
+    D*; H019 is 108/96/72/48 and H119 270/240/180/120. A boundary not checked
+    against OCR would say `confirmed: false` and be reported provisional.
+    Unit grades, the aggregate and "marks needed" are derived only in
+    `KOS.hub.it`; a stored UMS (the results slip) wins over the straight-line
+    raw conversion, which is flagged an estimate because OCR converts pro rata
+    between each series' own boundaries; a
     not-taken unit counts and prints nothing (invariant 77). Study state keyed
     to a unit that left the specification is pruned at boot; the session
     ledger is history and is kept. Zero Governor traffic.
@@ -720,8 +724,8 @@ AI/chatbot classification in writing.
   for an existing install (the store is already seeded); change `state.pacing`, or
   reset the `seeded` flag deliberately.
 - Authored content: `js/data/content/*.js`; examiner guidance: `js/data/intel.js`.
-- IT grade boundaries: `js/data/it-grades.js` — replace a placeholder boundary
-  and set `confirmed: true`; nothing else needs to move.
+- IT grade boundaries: `js/data/it-grades.js`, from the specification (p. 91).
+  A change of specification is a change to that table; nothing else moves.
 - Shared visual behaviour: tokens in `css/tokens.css`, primitives in
   `css/components.css` and `js/core/ui.js`, before adding a rule to
   `css/views/*.css`. `css/main.css` is gone and must not come back (smoke55,

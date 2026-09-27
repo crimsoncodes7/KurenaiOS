@@ -196,11 +196,11 @@ The qualification is OCR's A-level-sized IT qualification (units F200–F206), g
 
 The panel:
 - A table of units: unit code and name, year, status (Done / Sitting — with the exam date if known), the raw mark out of its maximum and the UMS out of 60, the grade that mark gets, and a small bar against the unit's boundaries.
-- The grade boundaries (Pass, Merit, Distinction, Distinction*), shown in a way that reads at a glance.
+- The grade boundaries — per unit Pass, Merit, Distinction; for the qualification also Distinction* — shown in a way that reads at a glance.
 - The aggregate: total marks so far out of the maximum for the units counted, the overall grade that total gets, and "to reach Distinction* you need N more marks across F201, F204 and F206 — about X per paper", with a target-grade picker.
 - Entering a mark when a result arrives (an inline edit on the row).
 
-Sample data: F200 51/60 raw (51 UMS), F202 54/60 UMS, Year 1 grade Distinction; the Year 2 units not yet sat — so 105 of 300 banked, and a Distinction* needs 165 more, 55 UMS per unit (55/60 on F201, 22/24 on each NEA). Only the 270 Distinction* line is confirmed; show the other boundaries as provisional.
+Sample data: F200 51/60 raw (51 UMS), F202 54/60 UMS, Year 1 grade Distinction; the Year 2 units not yet sat — so 105 of 300 banked, and a Distinction* needs 165 more, 55 UMS per unit (55/60 on F201, 22/24 on each NEA). Boundaries (UMS): a unit is Distinction 48, Merit 36, Pass 24 — units have no Distinction*; the Extended Certificate is Distinction* 270, Distinction 240, Merit 180, Pass 120. A UMS converted from a raw mark is an estimate until the results slip gives the real one.
 
 Frames:
 18a The panel on the IT desk, Year 2 in progress.

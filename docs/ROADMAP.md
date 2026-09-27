@@ -40,7 +40,7 @@ remains is the views, built on those APIs from the Claude Design handoffs:
 | Item | Backend (built) | View still to build |
 |---|---|---|
 | 1.1 | `KOS.spec` tree/search/resolve; `refs` on assignments, events, papers, Focus, sessions | `KOS.ui.topicPicker` and its five placements |
-| 1.2 | F203/F205 removed by the generator; `KOS.itUnits`; `js/data/it-grades.js` (placeholder boundaries except H119 D* = 270); `KOS.hub.it` | the IT units panel on the IT desk |
+| 1.2 | F203/F205 removed by the generator; `KOS.itUnits`; `js/data/it-grades.js` (boundaries from the specification, p. 91); `KOS.hub.it` | the IT units panel on the IT desk |
 | 1.3 | `KOS.edits.setDraft/appendSpec/fileQuickNotes`, filed on leave by `KOS.show` | the inspector's quick-note box |
 | 1.4 | `KOS.edits.move/moveBy`, `setSpecBreak/specColumns` | drag handles, drop shadow, keys; the Spec renderer honouring a stored break |
 | 1.5 | `KOS.media.shrineOrder` (synced state) | "Set order" on a tier |

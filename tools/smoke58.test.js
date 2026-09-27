@@ -112,8 +112,11 @@ step("D · unit rows: UMS from raw on the unit's scale, grade from the one table
   eq(rows.map(r => r.code), ["F200", "F201", "F202", "F204", "F206"], "table order");
   const f200 = rows[0], f202 = rows[2];
   eq([f200.ums, f200.estimated, f200.grade], [51, true, "Distinction"], "exam raw 1 : 1, flagged estimated");
-  eq([f202.ums, f202.estimated, f202.grade], [54, false, "Distinction*"], "a stored UMS is used as-is");
-  assert(rows.every(r => r.provisional === true), "placeholder unit boundaries are reported");
+  eq([f202.ums, f202.estimated, f202.grade], [54, false, "Distinction"], "a stored UMS is used as-is; a unit has no D*");
+  assert(rows.every(r => r.provisional === false), "the specification's unit boundaries are confirmed");
+  eq(KOS_DATA().grades.unitBoundaries.map(b => b.grade + " " + b.ums), ["Distinction 48", "Merit 36", "Pass 24"], "unit boundaries (spec p. 91)");
+  eq(KOS_DATA().grades.qualifications.H119.boundaries.map(b => b.ums), [270, 240, 180, 120], "H119 boundaries");
+  eq(KOS_DATA().grades.qualifications.H019.boundaries.map(b => b.ums), [108, 96, 72, 48], "H019 boundaries");
   KOS.itUnits.setUnit("F204", { raw: 21 });
   eq(KOS.hub.it.units()[3].ums, 52, "NEA raw × 2.5, rounded down");
   eq(KOS.hub.it.gradeFor(23, KOS_DATA().grades.unitBoundaries), null, "below Pass is null");

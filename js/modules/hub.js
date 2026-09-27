@@ -184,7 +184,7 @@
      marks) and js/data/it-grades.js (the scales and boundaries). A unit
      marked not-taken is absent from every figure (invariant 77). A grade
      below Pass is null — the page decides how to say so. Boundaries that are
-     still placeholders are reported (`provisional`), never hidden. */
+     not checked against OCR would be reported (`provisional`), never hidden. */
   function itTable() { return window.KOS_IT_GRADES || { grades: [], units: {}, qualifications: {}, unitBoundaries: [] }; }
   function itGradeFor(ums, boundaries) {
     if (ums == null) return null;

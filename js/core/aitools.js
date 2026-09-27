@@ -2402,7 +2402,7 @@
 
   /* ---------------- IT units (1.2) ---------------- */
   def("it_units_get", {
-    desc: "The IT unit record: each unit's status, raw and UMS marks and grade, the qualification aggregate, and the marks still needed for a target grade. Grade boundaries marked provisional are placeholders.",
+    desc: "The IT unit record: each unit's status, raw and UMS marks and grade (a unit is graded Distinction/Merit/Pass; Distinction* is a qualification grade only), the qualification aggregate, and the marks still needed for a target grade. A UMS converted from a raw mark is flagged estimated.",
     category: "study", tier: "read", read: true,
     params: {
       target: { type: "string", enum: ["Distinction*", "Distinction", "Merit", "Pass"] },
@@ -2417,7 +2417,7 @@
   });
 
   def("it_units_set", {
-    desc: "Record an IT unit's result or status: raw mark (exam out of 60, NEA out of 24), UMS (out of 60), status, series, exam date. A mark on a unit still being sat marks it done.",
+    desc: "Record an IT unit's result or status: raw mark (exam out of 60; NEA = criteria achieved, out of 24), UMS from the results slip (out of 60 — prefer it when known), status, series, exam date. A mark on a unit still being sat marks it done.",
     category: "study", tier: "reversible", read: false,
     params: {
       unit: { type: "string", enum: ["F200", "F201", "F202", "F204", "F206"], required: true },
