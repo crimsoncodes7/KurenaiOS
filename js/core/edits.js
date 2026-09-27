@@ -231,6 +231,84 @@
     return e;
   }
 
+  /* ---------------- the quick note (roadmap 1.3) ----------------
+     The inspector's open box. What is typed is a DRAFT held per device in
+     state.ui.quickNote["sid:ref"] (state.ui never syncs — invariant 33b),
+     so it stays while the reader is on the topic. Leaving the topic files
+     it: appendSpec() adds ONE dated {md} block with an id to the end of the
+     Spec fork's guidance list and the draft is cleared. Filing is
+     append-only — it never edits or removes a block — and an empty draft
+     writes nothing. */
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function dayLabel(iso) {
+    var p = String(iso).split("-");
+    return (+p[2]) + " " + MONTHS[(+p[1]) - 1] + " " + p[0];
+  }
+  var DRAFT_MAX = 20000;
+  function drafts() {
+    var d = store.state.ui && store.state.ui.quickNote;
+    return d && typeof d === "object" ? d : null;
+  }
+  function draft(sid, ref) {
+    var d = drafts(), v = d ? d[key(sid, ref)] : null;
+    return typeof v === "string" ? v : "";
+  }
+  function setDraft(sid, ref, text) {
+    text = String(text == null ? "" : text).slice(0, DRAFT_MAX);
+    var ui = store.state.ui, k = key(sid, ref);
+    var had = !!(ui.quickNote && ui.quickNote[k]);
+    if (!text.trim()) {
+      if (!had) return "";
+      delete ui.quickNote[k];
+    } else {
+      ui.quickNote = ui.quickNote && typeof ui.quickNote === "object" ? ui.quickNote : {};
+      ui.quickNote[k] = text;
+    }
+    store.save();
+    return text;
+  }
+  /* appendSpec(sid, ref, text) → the new block, or null (empty text, or a
+     topic the specification does not have). The one write path. */
+  function appendSpec(sid, ref, text, opts) {
+    opts = opts || {};
+    var body = String(text == null ? "" : text).trim();
+    if (!body) return null;
+    if (KOS.spec && KOS.spec.level(sid, ref) !== "leaf") return null;
+    var date = opts.date && /^\d{4}-\d{2}-\d{2}$/.test(opts.date) ? opts.date : KOS.srs.todayISO();
+    var mat = material(sid, ref, "spec");
+    var block = { id: nextId(), md: "**Note · " + dayLabel(date) + "**\n\n" + body.slice(0, DRAFT_MAX),
+      date: date, src: opts.src || "quick-note" };
+    mat.info.push(block);
+    set(sid, ref, "spec", mat);
+    return clone(block);
+  }
+  /* file one topic's draft now; the draft is cleared whether or not it
+     held anything */
+  function fileDraft(sid, ref) {
+    var text = draft(sid, ref);
+    if (drafts() && drafts()[key(sid, ref)] != null) {
+      delete store.state.ui.quickNote[key(sid, ref)];
+      if (!text.trim()) store.save();
+    }
+    return text.trim() ? appendSpec(sid, ref, text) : null;
+  }
+  /* file every waiting draft except the topic still open (exceptKey,
+     "sid:ref") — KOS.show calls this on every navigation, so a draft files
+     when its topic is left, and at the first navigation after a reload.
+     Returns how many blocks were written. */
+  function fileQuickNotes(exceptKey) {
+    var d = drafts();
+    if (!d) return 0;
+    var n = 0;
+    Object.keys(d).forEach(function (k) {
+      if (k === exceptKey) return;
+      var i = k.indexOf(":");
+      if (i <= 0) { delete d[k]; return; }
+      if (fileDraft(k.slice(0, i), k.slice(i + 1))) n++;
+    });
+    return n;
+  }
+
   KOS.edits = {
     KINDS: KINDS,
     get: get,
@@ -243,7 +321,13 @@
     effectiveEntry: effectiveEntry,
     nextId: nextId,
     blocksEditable: blocksEditable,
-    linesToBlocks: linesToBlocks
+    linesToBlocks: linesToBlocks,
+    /* 1.3 the quick note */
+    draft: draft,
+    setDraft: setDraft,
+    appendSpec: appendSpec,
+    fileDraft: fileDraft,
+    fileQuickNotes: fileQuickNotes
   };
 
   /* content.get()/has() answer with the effective material from here on */

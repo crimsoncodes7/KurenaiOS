@@ -17,7 +17,7 @@ chronological diary here.
   https://12e5c6df.kurenai-os.pages.dev (27 September 2026)
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-graphite-3`
-- Required smoke gate: 58 / 58 suites.
+- Required smoke gate: 59 / 59 suites.
 
 ## Run, test and deploy
 
@@ -27,7 +27,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 ```sh
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
-for i in "" {2..58}; do node "tools/smoke${i}.test.js"; done
+for i in "" {2..59}; do node "tools/smoke${i}.test.js"; done
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,
@@ -107,7 +107,7 @@ non-navigation redraw path.
 | Specification tree queries and stored topic links (`refs`) | `js/core/spec.js` (`KOS.spec`) |
 | Exams & Papers record and its normaliser | `js/core/tracker.js` (`KOS.tracker`); page `js/modules/tracker.js` |
 | IT unit marks and statuses | `js/core/itunits.js` (`KOS.itUnits`); scales and boundaries `js/data/it-grades.js`; grades derived in `hub.js` (`KOS.hub.it`) |
-| User edits to the curriculum and the study editor | `js/core/edits.js`, `js/modules/editor.js` |
+| User edits to the curriculum, the study editor and the quick note | `js/core/edits.js`, `js/modules/editor.js` |
 | SM-2, sessions and rewards | `srs.js`, `sessions.js`, `governor.js` |
 | Calendar/reminders/assignments/Focus | matching modules in `js/modules/` |
 | Integrated weekly plan and pacing | `js/core/pacing.js`, `js/modules/pacing.js` |
@@ -400,9 +400,16 @@ source comments and audit notes refer to it.
     rows a random string. The cloud merge keys nested record arrays on it, so
     two devices forking the same topic fold the shared rows and keep both
     devices' additions. Ids are never shown or referenced.
-89. The study editor (`KOS.editor.mount`) is the ONLY surface that changes a
-    topic's material; the page beside it is the preview, re-rendered through
-    `openTab({keep, reveal})`. `state.ui.editing` remembers an open editor per
+89. Two surfaces change a topic's material, and only two. The study editor
+    (`KOS.editor.mount`) is the full one; the page beside it is the preview,
+    re-rendered through `openTab({keep, reveal})`. The inspector's quick note
+    is the second, and it is APPEND-ONLY: its draft is per device in
+    `state.ui.quickNote["sid:ref"]`, and leaving the topic (any `KOS.show` that
+    is not that topic, so also the first navigation after a reload) files it
+    through `KOS.edits.appendSpec()` as ONE dated `{md}` block with an id at
+    the end of the Spec fork's `info` list (`src: "quick-note"`, `date`). It
+    never edits, moves or removes a block; an empty draft writes nothing, not
+    even a fork. `state.ui.editing` remembers an open editor per
     device so a redraw reopens it. Content blocks may carry an `id`, which the
     renderer wraps in `.k-blk[data-ui="topic.note-block"][data-bid]`
     (display:contents) and otherwise

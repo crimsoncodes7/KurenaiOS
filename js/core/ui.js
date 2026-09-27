@@ -931,6 +931,12 @@
 
   KOS.show = function (viewId, arg, opts) {
     opts = opts || {};
+    /* roadmap 1.3: a quick-note draft files into its topic's Spec fork when
+       the topic is left — every show except one of that same topic (a
+       redraw keeps the draft where it is) */
+    if (KOS.edits && KOS.edits.fileQuickNotes) {
+      KOS.edits.fileQuickNotes(viewId === "ref" && arg && arg.subject ? arg.subject + ":" + arg.ref : null);
+    }
     /* a fresh navigation (not Back/Forward) records history and abandons any
        forward trail — exactly like a browser address bar */
     if (navCur && !opts._nav) {
