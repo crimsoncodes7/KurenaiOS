@@ -50,6 +50,10 @@ white-space: nowrap;
 transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 .k-seg-item:hover { color: var(--text); background: var(--s2); }
+/* a choice of four or more that must stay whole: the items share equal
+   columns and wrap into rows rather than scrolling one out of sight */
+.k-seg--grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(var(--seg-grid-min), 1fr)); border-radius: var(--r-20); overflow: visible; }
+.k-seg--grid > .k-seg-item { justify-content: center; }
 .k-seg-item[aria-current="page"], .k-seg-item[aria-selected="true"], .k-seg-item[aria-pressed="true"] { background: var(--text); color: var(--bg); font-weight: var(--weight-semibold); }
 .k-seg-mark { font-family: var(--font-kanji); color: var(--muted); }
 .k-seg-item[aria-current="page"] .k-seg-mark, .k-seg-item[aria-selected="true"] .k-seg-mark { color: inherit; }

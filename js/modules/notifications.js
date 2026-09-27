@@ -19,8 +19,8 @@
 
   /* the section a kind belongs to, marked like the main rail */
   var SECTION_MARK = { study: "学", productivity: "整", collection: "蒐" };
-  var KIND_MARK = { wishlist: "円" };
-  var KIND_TONE = { calendar: "amber", reminder: "amber", pacing: "amber", assignment: "teal", airing: "anime", wishlist: "books" };
+  var KIND_MARK = { wishlist: "円", focus: "集" };
+  var KIND_TONE = { calendar: "amber", reminder: "amber", pacing: "amber", assignment: "teal", airing: "anime", wishlist: "books", focus: "amber" };
   var SECTION_LABEL = { study: "Study", productivity: "Productivity", collection: "Collection" };
 
   function clock(ts) {
@@ -118,10 +118,13 @@
   }
 
   /* ---------------- the page (frame 14b) ---------------- */
-  var FILTERS = [["all", "All"], ["unread", "Unread"], ["study", "Study"], ["productivity", "Productivity"], ["collection", "Collection"]];
+  /* frame 16k: the Focus kind has its own chip, between Productivity and
+     Collection */
+  var FILTERS = [["all", "All"], ["unread", "Unread"], ["study", "Study"], ["productivity", "Productivity"], ["focus", "Focus"], ["collection", "Collection"]];
   function matches(filter, it) {
     if (filter === "all") return true;
     if (filter === "unread") return !KOS.notify.isRead(it);
+    if (filter === "focus") return it.kind === "focus";
     return (KOS.notify.KINDS[it.kind] || {}).section === filter;
   }
   KOS.views.notifications = function (main, arg) {
@@ -236,7 +239,7 @@
       ]));
     }
     /* the frame's filters: one switch per kind */
-    var FILTER_LABEL = { calendar: "Calendar", reminder: "Reminders", assignment: "Assignments", airing: "Airing episodes", wishlist: "Release days", pacing: "Weekly plan" };
+    var FILTER_LABEL = { calendar: "Calendar", reminder: "Reminders", assignment: "Assignments", airing: "Airing episodes", wishlist: "Release days", pacing: "Weekly plan", focus: "Focus idle watch" };
     var lands = el("section", { class: "k-card k-nt-card", "aria-label": "Notification filters", "data-ui": "notify.filters" });
     function paintLands() {
       lands.innerHTML = "";

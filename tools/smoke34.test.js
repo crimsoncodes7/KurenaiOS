@@ -129,14 +129,17 @@ console.log("== setup ==");
 let asg = null;
 step("setup renders one calm form: modes, duration, links, one objective", () => {
   KOS.show("focus");
-  /* Graphite (frame 10a): Pomodoro, Custom and Reading share one switcher */
-  assert($$("[data-ui~='focus.mode']").length === 3, "mode cards: " + $$("[data-ui~='focus.mode']").length);
+  /* frame 16a: Pomodoro, Custom, Stopwatch and Study until share one
+     switcher; Reading moved under "Link to subject" */
+  assert($$("[data-ui~='focus.mode']").length === 4, "mode cards: " + $$("[data-ui~='focus.mode']").length);
+  assert([...$("[data-ui~='focus.link-row'] select").options].some(o => o.value === "reading"), "Reading is offered as a link");
   assert($$("[data-ui~='focus.link-row'] [data-ui~='ui.field']").length === 3, "subject/topic/assignment fields expected");
   assert($$("[data-ui~='focus.obj-in']").length === 1, "exactly one objective input");
   assert($$("[data-ui~='focus.start']").length === 1, "one start button");
   /* nothing is invented to fill the column: the side rail is the deal and
      the record, and nothing else */
-  assert($$("[data-ui~='focus.setup-side'] > *").length === 2, "side panels: " + $$("[data-ui~='focus.setup-side'] > *").length);
+  const shown = $$("[data-ui~='focus.setup-side'] > :not([hidden])");
+  assert(shown.length === 2, "side panels: " + shown.length);
 });
 
 step("the deal states the real award for the duration on screen", () => {
@@ -334,9 +337,12 @@ step("the review opens over a record that already exists, and reports the real a
   assert(rev, "the completion review did not open");
   const facts = $("[data-ui~='focus.rev-facts']").textContent;
   assert(/Focused/.test(facts) && /25 min/.test(facts), "duration missing: " + facts);
-  assert(/Pauses/.test(facts) && /Tab switches/.test(facts), "pauses/tab-switches missing: " + facts);
-  assert(/Self-marked/.test(facts), "self-marks missing from the review");
-  assert(/Recovered/.test(facts), "the reload recovery is part of the honest record");
+  /* frame 16f: only the counts that happened are listed (invariant 77) */
+  const counts = $("[data-ui~='focus.rev-counts']").textContent;
+  assert(/2 tab switches/.test(counts), "tab-switches missing: " + counts);
+  assert(/pause/.test(counts) === entry.metrics.pauses > 0, "a zero pause count was printed, or a real one dropped: " + counts);
+  assert(/2 self-marked/.test(counts), "self-marks missing from the review");
+  assert(/recovered after a reload/.test(counts), "the reload recovery is part of the honest record");
   const award = $("[data-ui~='focus.rev-award']").textContent;
   assert(award.indexOf("+" + awarded + " XP") !== -1, "review award " + award + " ≠ paid " + awarded);
 });

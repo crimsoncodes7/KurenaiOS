@@ -196,14 +196,18 @@ step("E · reading and paused sessions are never watched", () => {
 });
 
 /* ============ F · the mini-player ============ */
-step("F · clampMini: inside the viewport, within the limits, snapped to a near edge", () => {
+step("F · clampMini: two sizes, 20px in, always docked (frame 16d)", () => {
   const C = F().clampMini, M = F().MINI;
-  eq(C({ x: -50, y: 10, w: 300, h: 80 }, 1280, 800), { x: 8, y: 8, w: 300, h: 80 }, "pulled in and snapped to the corner");
-  eq(C({ x: 2000, y: 400, w: 300, h: 80 }, 1280, 800), { x: 972, y: 400, w: 300, h: 80 }, "kept on the right edge");
-  eq(C({ x: 960, y: 700, w: 300, h: 80 }, 1280, 800).x, 972, "snapped flush when within 16px");
-  eq(C({ x: 100, y: 100, w: 50, h: 10 }, 1280, 800), { x: 100, y: 100, w: M.minW, h: M.minH }, "minimum size");
-  eq(C({ x: 100, y: 100, w: 9000, h: 9000 }, 1280, 800), { x: 100, y: 100, w: M.maxW, h: M.maxH }, "maximum size");
-  eq(C({ x: 0, y: 0, w: 300, h: 80 }, 150, 800).w, 134, "a viewport narrower than the minimum fits it anyway");
+  eq([M.margin, M.corner, M.compact, M.large], [20, 64, 236, 340], "the design's numbers");
+  eq(C({ x: -50, y: 10, w: 300, h: 80 }, 1280, 800), { x: 20, y: 20, w: 340, h: 80 }, "pulled in, snapped to the corner, the nearer size");
+  eq(C({ x: 2000, y: 2000, w: 200, h: 60 }, 1280, 800), { x: 1024, y: 720, w: 236, h: 60 }, "bottom-right corner, compact");
+  eq(C({ x: 960, y: 700, w: 340, h: 80 }, 1280, 800), { x: 920, y: 700, w: 340, h: 80 }, "within 64px of the corner: docked there");
+  eq(C({ x: 900, y: 300, w: 340, h: 80 }, 1280, 800), { x: 920, y: 300, w: 340, h: 80 }, "nearest the right edge: snapped to it at the drop height");
+  eq(C({ x: 500, y: 690, w: 236, h: 60 }, 1280, 800).y, 720, "nearest the bottom edge");
+  eq(C({ x: 526, y: 690, w: 236, h: 60 }, 1280, 800).x, 522, "within 8px of the middle it centres");
+  eq(C({ x: 100, y: 300, w: 340, h: 80 }, 1280, 800, { left: 212, top: 60 }), { x: 232, y: 300, w: 340, h: 80 }, "never over the rail");
+  eq(C({ x: 100, y: 100, w: 340, h: 10 }, 1280, 800).h, M.minH, "minimum height");
+  eq(C({ x: 0, y: 0, w: 340, h: 80 }, 150, 800).w, 110, "a viewport narrower than the player fits it anyway");
   eq(C({ x: "a", y: 0, w: 1, h: 1 }, 1280, 800), null, "junk is refused");
 });
 
@@ -211,7 +215,7 @@ step("F · the place is per device and re-clamped when read", () => {
   const r = F().setMiniRect({ x: 900, y: 500, w: 320, h: 120 }, 1280, 800);
   eq(KOS.store.state.ui.focusMini, r, "stored in state.ui");
   const smaller = F().miniRect(1000, 600);
-  assert(smaller.x + smaller.w <= 1000 - 8 && smaller.y + smaller.h <= 600 - 8, "a smaller window never strands it: " + JSON.stringify(smaller));
+  assert(smaller.x + smaller.w <= 1000 - 20 && smaller.y + smaller.h <= 600 - 20, "a smaller window never strands it: " + JSON.stringify(smaller));
   eq(KOS.store.state.ui.focusMini, r, "reading writes nothing");
   eq(F().setMiniRect(null), null, "cleared");
   assert(!("focusMini" in KOS.store.state.ui), "back to the default dock");

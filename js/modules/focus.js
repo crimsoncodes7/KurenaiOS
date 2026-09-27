@@ -70,6 +70,8 @@
   var IDLE_WARN = 30 * 60 * 1000;
   var IDLE_GRACE = 5 * 60 * 1000;
   var MODES = ["pomodoro", "custom", "stopwatch", "until"];
+  var NUDGES = [0, 25, 50, 90];              // break nudge, minutes (0 = off)
+  var LIMITS = [0, 60, 120, 180, 240];       // stopwatch self-stop, minutes (0 = none)
 
   /* Build 6.5 — set while the page is genuinely going away (refresh, close,
      an external navigation). The unload fires its own visibilitychange, and
@@ -124,6 +126,9 @@
     if (!Array.isArray(s.marks)) s.marks = [];
     if (!Array.isArray(s.distractions)) s.distractions = [];
     if (typeof s.restores !== "number") s.restores = 0;
+    if (typeof s.nudgeMin !== "number") s.nudgeMin = 0;
+    if (typeof s.nudged !== "number") s.nudged = 0;
+    if (typeof s.limitMin !== "number") s.limitMin = 0;
     if (s.assignmentId === undefined) s.assignmentId = null;
     /* roadmap 1.6: the idle watch's marks */
     if (typeof s.lastActiveTs !== "number") s.lastActiveTs = s.lastBeat || s.startedAt || now();
@@ -199,6 +204,11 @@
       if (!untilTs) { KOS.ui.toast("Pick a time between a minute and 12 hours from now.", true); return null; }
     }
     if (mode === "stopwatch" || mode === "until") { cfg.workMin = null; cfg.breakMin = 0; }
+    /* frame 16a — the open-ended modes' two settings: a break NUDGE (a
+       prompt every so often that never stops the clock) and, for the
+       stopwatch, an optional limit so a forgotten one does not run all night */
+    var nudgeMin = openEnded({ mode: mode }) && NUDGES.indexOf(+cfg.nudgeMin) !== -1 ? +cfg.nudgeMin : 0;
+    var limitMin = mode === "stopwatch" && LIMITS.indexOf(+cfg.limitMin) !== -1 ? +cfg.limitMin : 0;
     S = f.active = {
       id: "f" + f.nextId++,
       kind: cfg.kind === "reading" ? "reading" : "study",   // 3i: one machine, two contracts
@@ -207,6 +217,9 @@
       untilTs: untilTs,                                 // study-until: the clock time it ends at
       workMin: cfg.workMin,
       breakMin: cfg.breakMin,                           // 0 = single interval
+      nudgeMin: nudgeMin,                               // 0 = no break nudge
+      nudged: 0,                                        // nudges already given
+      limitMin: limitMin,                               // stopwatch: 0 = no limit
       subject: links.subject,
       ref: links.ref,
       refs: links.refs,
@@ -242,8 +255,13 @@
       f.lastReading = { workMin: cfg.workMin, bookId: cfg.book ? cfg.book.id : null };
     } else {
       var keepUntil = mode === "until" ? S.until : (f.lastConfig && f.lastConfig.until) || null;
-      f.lastConfig = { mode: mode, workMin: cfg.workMin, breakMin: cfg.breakMin,
+      var prev = f.lastConfig || {};
+      f.lastConfig = { mode: mode, workMin: cfg.workMin != null ? cfg.workMin : prev.workMin, breakMin: cfg.workMin != null ? cfg.breakMin : prev.breakMin,
         subject: links.subject || "", ref: links.ref || "", refs: links.refs };
+      if (openEnded({ mode: mode })) f.lastConfig.nudgeMin = nudgeMin;
+      else if (prev.nudgeMin != null) f.lastConfig.nudgeMin = prev.nudgeMin;
+      if (mode === "stopwatch") f.lastConfig.limitMin = limitMin;
+      else if (prev.limitMin != null) f.lastConfig.limitMin = prev.limitMin;
       /* the last study-until time is remembered, and only once there is one */
       if (keepUntil) f.lastConfig.until = keepUntil;
     }
@@ -338,15 +356,32 @@
        warning stands: the first sign of life must clear it */
     if (!force && S.idleWarnedAt == null && t - lastNoted < 5000) return;
     lastNoted = t;
-    var wasWarned = S.idleWarnedAt != null;
+    var warnId = S.idleWarnedAt != null ? "focus:idle:" + S.id + ":" + S.idleWarnedAt : null;
     S.lastActiveTs = t;
     S.activeWork = workSeconds();
     S.activeCycles = S.cycles;
     S.idleWarnedAt = null;
-    if (wasWarned) { store.save(); KOS.ui.toast("Still here — the focus clock carries on."); }
+    if (warnId) {
+      /* answered: the warning leaves the bell (frame 16k) and the stage
+         carries on as if nothing happened */
+      store.save();
+      if (KOS.notify) KOS.notify.markRead(warnId);
+      KOS.ui.toast("Still here — the focus clock carries on.");
+      render();
+    }
   }
   ["pointerdown", "pointermove", "keydown", "wheel", "touchstart", "scroll"].forEach(function (type) {
-    document.addEventListener(type, function () { noteActivity(false); }, { capture: true, passive: true });
+    document.addEventListener(type, function (e) {
+      /* while the warning stands, only a deliberate act answers it: a
+         sweep of the mouse towards "End now" must not dismiss it, and
+         "End now" itself is not "I'm here" */
+      if (S && S.idleWarnedAt != null) {
+        if (type === "pointermove") return;
+        var t = e.target;
+        if (t && t.closest && t.closest("[data-ui~='focus.idle-end']")) return;
+      }
+      noteActivity(false);
+    }, { capture: true, passive: true });
   });
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible") noteActivity(true);
@@ -360,17 +395,24 @@
       store.save();
       var mins = Math.round(IDLE_WARN / 60000), grace = Math.round(IDLE_GRACE / 60000);
       KOS.ui.toast("Still studying? Nothing has moved for " + mins + " minutes — the session ends in " + grace + " unless you touch the app.", true);
+      render();
       if (KOS.a11y) KOS.a11y.announce("Focus session: no activity for " + mins + " minutes. It ends in " + grace + " minutes.", "assertive");
       if (KOS.notify) KOS.notify.push({ id: "focus:idle:" + S.id + ":" + S.idleWarnedAt, kind: "focus",
-        title: "Still studying?", body: "No activity for " + mins + " minutes — the session ends in " + grace + " unless you come back." });
+        title: "Still studying? Your focus session ends at " + hmOf(S.idleWarnedAt + IDLE_GRACE),
+        body: MODE_LABEL[S.mode] + (S.subject ? " · " + shortName(S.subject) + (S.ref ? " " + S.ref : "") : "") + " · no activity since " + hmOf(S.lastActiveTs) });
       return false;
     }
     if (v === "end") {
       var sid = S.id, credit = S.activeWork;
-      if (KOS.notify) KOS.notify.push({ id: "focus:ended:" + sid, kind: "focus",
-        title: "Focus session ended", body: "Nothing moved for " + Math.round((IDLE_WARN + IDLE_GRACE) / 60000) +
-          " minutes, so it ended itself. " + fmtLong(credit) + " counted — the time before you stepped away." });
-      finish(true, { creditSecs: credit, creditCycles: S.activeCycles, ended: "idle", review: false });
+      if (KOS.notify) {
+        /* the warning above it is settled: marked read as the end lands */
+        if (S.idleWarnedAt != null) KOS.notify.markRead("focus:idle:" + sid + ":" + S.idleWarnedAt);
+        KOS.notify.push({ id: "focus:ended:" + sid, kind: "focus",
+          title: "Focus session ended by the idle watch · paid " + fmtLong(credit),
+          body: MODE_LABEL[S.mode] + " · " + hmOf(S.startedAt) + " → " + hmOf(now()) });
+      }
+      /* the review waits on screen for the return (frame 16j) */
+      finish(true, { creditSecs: credit, creditCycles: S.activeCycles, ended: "idle" });
       return true;
     }
     return false;
@@ -387,6 +429,18 @@
       return;
     }
     if (idleCheck()) return;
+    if (S.phase === "work" && openEnded()) {
+      var w = workSeconds();
+      /* a stopwatch with a limit stops itself there, paid like a Stop */
+      if (S.limitMin && w >= S.limitMin * 60) { finish(true, { ended: "limit" }); return; }
+      /* the break nudge: a chime and one line, never a stop */
+      if (S.nudgeMin && Math.floor(w / (S.nudgeMin * 60)) > (S.nudged || 0)) {
+        S.nudged = Math.floor(w / (S.nudgeMin * 60));
+        chime();
+        KOS.ui.toast(fmtLong(w) + " in — a short break? The clock keeps going until you pause.");
+        store.save();
+      }
+    }
     if (phaseElapsed() >= phaseTarget()) {
       if (S.phase === "work") {
         S.workAccum += S.workMin * 60;
@@ -700,6 +754,26 @@
     var d = new Date(now() + Math.max(0, sec) * 1000);
     return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
   }
+  /* the award ticks (frames 16a, 16c, 16f): n segments of 10 minutes,
+     the first `full` earned, the next one `part`% of the way, labelled
+     0, 10, 20 … under the row when `labels` */
+  function tickRow(n, full, part, labels) {
+    var row = el("div", { class: "k-fx-ticks", "data-ui": "focus.ticks", "aria-hidden": "true" });
+    var bar = el("div", { class: "k-fx-tick-bar" });
+    for (var i = 0; i < n; i++) {
+      var seg = el("span", { class: "k-fx-tick" });
+      if (i < full) KOS.ui.state(seg, "done", true);
+      else if (i === full && part != null) { KOS.ui.state(seg, "live", true); seg.style.setProperty("--pct", Math.round(part) + "%"); }
+      bar.appendChild(seg);
+    }
+    row.appendChild(bar);
+    if (labels) {
+      var lab = el("div", { class: "k-fx-tick-lab k-mono" });
+      for (var j = 0; j <= n; j++) lab.appendChild(el("span", { text: String(j * 10) }));
+      row.appendChild(lab);
+    }
+    return row;
+  }
   function chip(text, c, hook) {
     var n = el("span", { class: "k-chip", "data-ui": hook || null, text: text });
     if (c) n.style.setProperty("--chip-c", c);
@@ -714,7 +788,13 @@
     else if (!S.subject) topic.appendChild(chip("General study"));
     else {
       topic.appendChild(chip(subjectName(S.subject), hue(S.subject)));
-      if (S.ref) topic.appendChild(chip(S.ref + (KOS.hub.BYREF[S.subject] && KOS.hub.BYREF[S.subject][S.ref] ? " " + KOS.hub.BYREF[S.subject][S.ref].title : "")));
+      /* the ref alone: the full title rides the label (frame 16c) */
+      if (S.ref) {
+        var rc = chip(S.ref);
+        var leaf = KOS.hub.BYREF[S.subject] && KOS.hub.BYREF[S.subject][S.ref];
+        if (leaf) rc.title = S.ref + " " + leaf.title;
+        topic.appendChild(rc);
+      }
     }
     box.appendChild(topic);
     var asg = linkedAssignment();
@@ -776,8 +856,8 @@
 
   /* the right column: quick notes, kept with the session */
   function notesNode() {
-    var col = el("div", { class: "k-fx-col k-fx-notes" }, [el("div", { class: "k-kicker", text: "Quick notes" })]);
     var notes = S.notes || [];
+    var col = el("div", { class: "k-fx-col k-fx-notes" }, [el("div", { class: "k-kicker", text: "Quick notes" + (notes.length ? " · " + notes.length : "") })]);
     if (notes.length) {
       var list = el("ul", { class: "k-fx-note-list", "data-ui": "focus.notes", "aria-label": notes.length + " note" + (notes.length === 1 ? "" : "s") + " kept" });
       notes.forEach(function (n, i) {
@@ -796,7 +876,6 @@
         if (addNote(input.value)) { input.value = ""; render(); focusNoteInput(); }
       } });
     col.appendChild(input);
-    col.appendChild(el("p", { class: "k-fx-caption", text: "Kept with this session. File them when it ends." }));
     return col;
   }
   function focusNoteInput() {
@@ -836,25 +915,12 @@
     input.focus();
   }
 
-  /* the same quick note, from the dock */
-  function promptNote() {
-    if (!S) return;
-    var input = el("input", { type: "text", class: "k-input", maxlength: String(NOTE_LEN),
-      placeholder: "Quick note…", "aria-label": "Quick note",
-      onkeydown: function (ev) { if (ev.key === "Enter") save(); } });
-    var overlay = dialogShell("Quick note", [
-      el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Kept with this session — file it when it ends" }), input])
-    ], [
-      el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { overlay.close(); } }),
-      el("button", { type: "button", class: "k-btn k-btn--primary", text: "Keep", onclick: save })
-    ]);
-    function save() {
-      if (addNote(input.value)) { KOS.ui.toast("Note kept with the session."); render(); }
-      overlay.close();
-    }
-    KOS.ui.openDialog(overlay);
-    input.focus();
-  }
+  /* the phone composes the running session differently (frames 15f, 16i):
+     the stage stacks, and minimised it is a two-row dock over the tab bar
+     rather than the floating player */
+  var phoneMQ = window.matchMedia ? window.matchMedia("(max-width: 700px)") : null;
+  function isPhone() { return !!(phoneMQ && phoneMQ.matches); }
+  if (phoneMQ && phoneMQ.addEventListener) phoneMQ.addEventListener("change", function () { if (S) render(); });
 
   function enterMode() {
     /* the hook for "a session owns the screen": stage | minimised */
@@ -868,14 +934,17 @@
   }
   function exitMode() {
     document.documentElement.removeAttribute("data-focus");
+    document.documentElement.removeAttribute("data-fx-drag");
     if (stageEl) { stageEl.remove(); stageEl = null; }
     if (dockEl) { dockEl.remove(); dockEl = null; }
+    if (dragUi) { dragUi.remove(); dragUi = null; }
     document.title = "Kurenai OS — Study Atelier";
   }
   function setMinimised(v) {
     minimised = v;
     if (document.documentElement.hasAttribute("data-focus"))
       document.documentElement.setAttribute("data-focus", v ? "minimised" : "stage");
+    if (v) placeMini();
     /* the setup page under a live session says so instead of offering a second start */
     if (v && store.state.ui.view === "focus") KOS.rerender();
   }
@@ -885,18 +954,93 @@
      award), or the time left until a study-until session's clock time */
   function clockRead() {
     var el0 = phaseElapsed();
+    var blk = KOS.governor.FOCUS_BLOCK.secs, w = workSeconds();
+    var nextIn = blk - (w % blk);
     if (S.phase === "work" && S.mode === "stopwatch") {
-      var w = workSeconds(), blk = KOS.governor.FOCUS_BLOCK.secs;
-      return { text: fmt(w), label: "Time so far", pct: Math.round(100 * (w % blk) / blk),
-        at: "next award at " + clockAt(blk - (w % blk)) };
+      return { text: fmtClock(w), label: "Time so far", pct: Math.round(100 * (w % blk) / blk),
+        at: "next award in " + fmt(nextIn), nextIn: nextIn };
     }
     if (S.phase === "work" && S.mode === "until") {
       var left = Math.max(0, (S.untilTs - now()) / 1000), span = Math.max(1, (S.untilTs - S.startedAt) / 1000);
-      return { text: fmt(left), label: "Time left", pct: Math.min(100, Math.round(100 * (1 - left / span))), at: "ends at " + S.until };
+      return { text: fmtClock(left), label: "Time left", pct: Math.min(100, Math.round(100 * (1 - left / span))),
+        at: "ends at " + S.until + " · next award in " + fmt(nextIn), nextIn: nextIn };
     }
     var remain = phaseTarget() - el0;
     return { text: fmt(remain), label: "Time left", pct: Math.min(100, Math.round(100 * el0 / phaseTarget())), remain: remain,
+      nextIn: paidRule() ? nextIn : null,
       at: S.phase === "break" ? "focus at " + clockAt(remain) : S.breakMin > 0 ? "break at " + clockAt(remain) : "ends at " + clockAt(remain) };
+  }
+
+  /* ---- small reads the three surfaces share ---- */
+  function paidRule() { return !!S && S.kind !== "reading" && KOS.governor.focusRule(S.mode) === "blocks"; }
+  var MODE_LABEL = { pomodoro: "Pomodoro", custom: "Custom", stopwatch: "Stopwatch", until: "Study until" };
+  function modeLabel() { return S.kind === "reading" ? "Reading" : MODE_LABEL[S.mode] || "Focus"; }
+  function hmOf(ts) { var d = new Date(ts); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+  function awardText(e) { return "+" + e.xp + " XP · +" + e.gold + " gold"; }
+  function nextAwardText() {
+    var B = KOS.governor.FOCUS_BLOCK;
+    return "+" + B.xp + " XP · +" + B.gold + " gold";
+  }
+  /* the idle watch's warning is live: a running study session, warned,
+     not yet answered */
+  function idleWarned() { return !!S && S.kind !== "reading" && S.state === "running" && S.idleWarnedAt != null; }
+  function idleLeft() { return Math.max(0, (S.idleWarnedAt + IDLE_GRACE - now()) / 1000); }
+  function idleLine() {
+    return "Ends at " + hmOf(S.idleWarnedAt + IDLE_GRACE) + " · pays up to " + hmOf(S.lastActiveTs);
+  }
+  function idleWarnId() { return S && S.idleWarnedAt != null ? "focus:idle:" + S.id + ":" + S.idleWarnedAt : null; }
+  function imHere() {
+    var id = idleWarnId();
+    noteActivity(true);
+    if (id && KOS.notify) KOS.notify.markRead(id);
+    render();
+  }
+  function idleEndNow() {
+    if (!S) return;
+    var id = idleWarnId();
+    if (id && KOS.notify) KOS.notify.markRead(id);
+    finish(true, { creditSecs: S.activeWork, creditCycles: S.activeCycles, ended: "idle" });
+  }
+  function stopNow() {
+    if (!S) return;
+    /* the time-paid modes: Stop keeps every full 10 minutes, as ending
+       early always did under the blocks rule */
+    finish(true);
+  }
+  function countdownRing(hook) {
+    return el("div", { class: "k-fx-cd", "data-ui": hook, role: "timer", "aria-label": "Time before the session ends itself" }, [
+      el("span", { class: "k-fx-cd-t k-mono", "data-ui": "focus.idle-left", text: fmt(idleLeft()) })
+    ]);
+  }
+
+  /* earned so far, for the modes that pay by time: the total, this hour's
+     six ticks and when the next award lands */
+  var renderedBlocks = -1;
+  function earnedNode(compact) {
+    var e = eligibility() || { xp: 0, gold: 0, blocks: 0 };
+    var w = workSeconds(), blk = KOS.governor.FOCUS_BLOCK.secs;
+    var blocks = Math.floor(w / blk), base = Math.floor(blocks / 6) * 6;
+    renderedBlocks = blocks;
+    var nextAt = (blocks + 1) * blk;
+    var box = el("div", { class: "k-fx-earned", "data-ui": "focus.elig focus.progress", role: "status" });
+    box.appendChild(el("div", { class: "k-fx-earned-head" }, [
+      el("span", { class: "k-kicker", text: "Earned so far" }),
+      el("b", { class: "k-mono", text: blocks ? awardText(e) : "nothing yet" })
+    ]));
+    var ticks = tickRow(6, blocks - base, 100 * (w % blk) / blk, !compact);
+    if (base && !compact) ticks.querySelectorAll(".k-fx-tick-lab > span").forEach(function (s, i) { s.textContent = String((base + i) * 10); });
+    box.appendChild(ticks);
+    box.appendChild(el("span", { class: "k-fx-earned-foot", text: blocks
+      ? blocks + " award" + (blocks === 1 ? "" : "s") + " · the next lands at " + fmtClock(nextAt)
+      : "the first award lands at " + fmtClock(nextAt) }));
+    if (e.extraPauses) box.appendChild(el("span", { class: "k-fx-earned-foot", "data-tone": "warn", text: e.extraPauses + " extra pause" + (e.extraPauses > 1 ? "s" : "") + " · −" + e.penaltyPct + "%" }));
+    return box;
+  }
+  /* a length of focus as the clock shows it: 50:00, 1:10:00 */
+  function fmtClock(sec) {
+    sec = Math.max(0, Math.round(sec));
+    var h = Math.floor(sec / 3600);
+    return h ? h + ":" + fmt(sec - h * 3600) : fmt(sec);
   }
 
   function render() {
@@ -904,69 +1048,89 @@
     var paused = S.state === "paused";
     var onBreak = S.phase === "break";
     var reading = S.kind === "reading";
+    var paid = paidRule();
+    var open = openEnded();
+    var warned = idleWarned();
     var phase = paused ? "paused" : onBreak ? "break" : "work";
     var cycleNo = S.cycles + (S.phase === "work" ? 1 : 0);
-    var phaseName = paused ? "Paused" : onBreak ? "Break" : reading ? "Reading" : "Focus · cycle " + cycleNo;
-    var modeName = reading ? "Reading" : S.mode === "pomodoro" ? "Pomodoro"
-      : S.mode === "stopwatch" ? "Stopwatch" : S.mode === "until" ? "Study until" : "Custom";
+    var phaseName = paused ? "Paused" : onBreak ? "Break" : reading ? "Reading"
+      : S.mode === "stopwatch" ? "Stopwatch · counting up"
+      : S.mode === "until" ? "Study until " + S.until
+      : paid && !(S.breakMin > 0) ? "Focus" : "Focus · cycle " + cycleNo;
 
     /* ---- full stage ---- */
     stageEl.innerHTML = "";
     stageEl.setAttribute("data-phase", phase);
     stageEl.setAttribute("data-kind", reading ? "reading" : "study");
+    stageEl.setAttribute("data-rule", paid ? "blocks" : "cycle");
+    if (warned) stageEl.setAttribute("data-idle", "warn"); else stageEl.removeAttribute("data-idle");
 
+    var cr = clockRead();
+    /* Stop for the open-ended modes; End early only where there is still
+       a cycle to forfeit or an interval to cut short */
+    var endEarlyBtn = open ? null : el("button", { type: "button", class: "k-btn k-btn--sm k-fx-end", "data-ui": "focus.end-early", text: "End early",
+      title: reading ? "Logs the time read — nothing forfeited"
+        : paid ? "Logs the session and keeps every full 10 minutes"
+        : "Logs the session but forfeits the award", onclick: function () { endEarly(); } });
     stageEl.appendChild(el("div", { class: "k-fx-top" }, [
       el("img", { class: "k-fx-logo", src: "assets/brand/kurenai-bloom.png", alt: "" }),
-      el("span", { class: "k-fx-top-t", text: (reading ? "Reading session · " : "Focus session · ") + modeName +
-        (S.mode === "stopwatch" ? "" : S.mode === "until" ? " " + S.until : " " + S.workMin + " / " + (S.breakMin || "–")) }),
+      el("span", { class: "k-fx-top-t", text: (reading ? "Reading session · " : "Focus session · ") + modeLabel() +
+        (S.mode === "pomodoro" || (S.mode === "custom" && !reading) ? " " + S.workMin + " / " + (S.breakMin || "–") : "") }),
       el("span", { class: "k-spacer" }),
-      el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "focus.minimise", text: "⤡ Minimise",
-        title: reading ? "Minimise the clock" : "Minimise the timer and study in the app",
-        onclick: function () { setMinimised(true); } }),
-      el("button", { type: "button", class: "k-btn k-btn--sm k-fx-end", "data-ui": "focus.end-early", text: "End early",
-        title: reading ? "Logs the time read — nothing forfeited"
-          : KOS.governor.focusRule(S.mode) === "blocks" ? "Logs the session and keeps every full 10 minutes"
-          : "Logs the session but forfeits the award", onclick: function () { endEarly(); } })
-    ]));
+      endEarlyBtn,
+      el("button", { type: "button", class: "k-btn k-btn--sm k-fx-min", "data-ui": "focus.minimise",
+        "aria-label": "Minimise the timer", title: reading ? "Minimise the clock" : "Minimise the timer and study in the app",
+        onclick: function () { setMinimised(true); } }, [el("span", { "aria-hidden": "true", text: "⤡" }), el("span", { class: "k-btn-label", text: " Minimise" })])
+    ].filter(Boolean)));
 
     /* ---- left: what this hour is for ---- */
     var left = el("div", { class: "k-fx-col k-fx-left" });
+    var what = el("div", { class: "k-fx-what" });
     if (!reading) {
-      left.appendChild(el("div", { class: "k-kicker", text: "Objective" }));
-      left.appendChild(S.objective
+      what.appendChild(el("div", { class: "k-kicker", text: "Objective" }));
+      what.appendChild(S.objective
         ? el("button", { type: "button", class: "k-fx-objective", "data-ui": "focus.objective", title: "Edit the objective",
             onclick: promptObjective, text: S.objective })
         : el("button", { type: "button", class: "k-fx-objective", "data-ui": "focus.objective", "data-state": "empty",
             text: "＋ Set an objective", onclick: promptObjective }));
     }
-    left.appendChild(contextNode());
-    var stats = [[String(cycleNo || S.cycles), "Cycle"], [String(S.pauses), "Pauses"]];
-    if (!reading) stats.push([String(S.distractions.length), "Tab switches"]);
+    what.appendChild(contextNode());
+    left.appendChild(what);
+    /* counts appear once they happen (frame 16c); the cycle always shows
+       on a Pomodoro */
+    var stats = [];
+    if (!paid && !reading) stats.push([String(cycleNo || S.cycles), "Cycle"]);
+    if (S.pauses || reading) stats.push([String(S.pauses), "Pauses"]);
+    if (!reading && S.distractions.length) stats.push([String(S.distractions.length), "Tab switches"]);
     if ((S.marks || []).length) stats.push([String(S.marks.length), "Marked"]);
-    left.appendChild(el("dl", { class: "k-fx-stats" }, stats.map(function (s) {
-      return el("div", { class: "k-fx-stat" }, [el("dt", { text: s[1] }), el("dd", { class: "k-mono", text: s[0] })]);
-    })));
-    if (!reading) left.appendChild(eligibilityNode());
+    if (stats.length) {
+      left.appendChild(el("dl", { class: "k-fx-stats" }, stats.map(function (s) {
+        return el("div", { class: "k-fx-stat" }, [el("dt", { text: s[1] }), el("dd", { class: "k-mono", text: s[0] })]);
+      })));
+    }
+    if (paid) left.appendChild(earnedNode(false));
+    else if (!reading) left.appendChild(eligibilityNode());
     if (S.subject && S.ref) {
       left.appendChild(el("button", { type: "button", class: "k-link", "data-ui": "focus.open-topic", text: "Open " + S.ref + " and study →",
         onclick: function () { setMinimised(true); KOS.show("ref", { subject: S.subject, ref: S.ref }); } }));
     }
 
     /* ---- centre: the ring ---- */
-    var cr = clockRead();
     var ring = el("div", { class: "k-fx-ring", "data-ui": "focus.fill" }, [
       el("div", { class: "k-fx-ring-in" }, [
         el("span", { class: "k-kicker", text: phaseName }),
-        el("span", { class: "k-fx-clock", "data-ui": "focus.clock", role: "timer", "aria-label": cr.label, text: cr.text }),
-        el("span", { class: "k-fx-at", text: paused ? "paused — " + fmtLong(workSeconds()) + (reading ? " read" : " focused") : cr.at })
+        el("span", { class: "k-fx-clock", "data-ui": "focus.clock", role: "timer", "aria-label": cr.label, text: cr.text, "data-long": cr.text.length > 5 ? "" : null }),
+        el("span", { class: "k-fx-at", "data-ui": "focus.at", text: paused ? "paused — " + fmtLong(workSeconds()) + (reading ? " read" : " focused") : cr.at })
       ])
     ]);
     var ctl = el("div", { class: "k-fx-controls" }, [
       el("button", { type: "button", class: "k-btn k-btn--primary k-fx-big", "data-ui": paused ? "focus.resume" : "focus.pause",
         text: paused ? "▶ Resume" : "⏸ Pause", onclick: paused ? resume : pause }),
-      canComplete() ? el("button", { type: "button", class: "k-btn k-fx-big", "data-ui": "focus.end-complete", text: "✓ End session",
-        title: "Bank the completed cycles — full award", onclick: function () { endComplete(); } }) : null,
-      reading ? null : el("button", { type: "button", class: "k-btn", "data-ui": "focus.mark", text: "Distraction +1",
+      open ? el("button", { type: "button", class: "k-btn k-fx-big", "data-ui": "focus.end-complete focus.stop", text: "■ Stop",
+          title: "End the session — every full 10 minutes is paid", onclick: stopNow })
+        : canComplete() ? el("button", { type: "button", class: "k-btn k-fx-big", "data-ui": "focus.end-complete", text: "✓ End session",
+          title: "Bank the completed cycles — full award", onclick: function () { endComplete(); } }) : null,
+      reading ? null : el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "focus.mark", text: "Distraction +1",
         "aria-label": "Mark a distraction — no HP cost", title: "Record it yourself — no HP cost", onclick: markDistraction })
     ].filter(Boolean));
     var centre = el("div", { class: "k-fx-centre" }, [ring, ctl]);
@@ -980,33 +1144,173 @@
       : notesNode();
 
     stageEl.appendChild(el("div", { class: "k-fx-body" }, [left, centre, right]));
-    if (!reading) stageEl.appendChild(progressNode());
-    if (!reading) stageEl.appendChild(el("p", { class: "k-fx-foot", text: F().penalizeDistractions === false
-      ? "Leaving the tab mid-focus is logged but costs nothing — the HP penalty is off. A refresh costs nothing either way."
-      : "Leaving the tab mid-focus counts as a distraction. Pausing is honest — the first is free. A refresh costs nothing." }));
+    if (!reading && !paid) stageEl.appendChild(progressNode());
+    else if (!reading && S.breakMin > 0) stageEl.appendChild(progressNode());
+    var foot = [];
+    if (paid) {
+      if (S.nudgeMin) foot.push("Break nudge at " + fmtClock((S.nudged + 1) * S.nudgeMin * 60));
+      if (S.limitMin) foot.push("stops itself at " + fmtClock(S.limitMin * 60));
+      foot.push("started " + hmOf(S.startedAt));
+    } else if (!reading) {
+      foot.push(F().penalizeDistractions === false
+        ? "Leaving the tab is logged but costs nothing. A refresh costs nothing either."
+        : "Leaving the tab counts as a distraction; the first is free. A refresh costs nothing.");
+    }
+    if (foot.length) stageEl.appendChild(el("p", { class: "k-fx-foot", text: foot.join(" · ").replace(/^./, function (c) { return c.toUpperCase(); }) }));
 
-    /* ---- docked bar ---- */
-    dockEl.innerHTML = "";
-    dockEl.setAttribute("data-phase", phase);
-    dockEl.appendChild(el("span", { class: "k-fx-dot", "aria-hidden": "true" }));
-    dockEl.appendChild(el("span", { class: "k-fx-dock-clock k-mono", "data-ui": "focus.dock-clock", text: cr.text }));
-    dockEl.appendChild(el("span", { class: "k-fx-dock-phase", text: phaseName }));
-    dockEl.appendChild(el("span", { class: "k-fx-dock-topic", text: topicLabel() }));
-    var dctl = el("span", { class: "k-fx-dock-ctl" });
-    dctl.appendChild(el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: paused ? "▶" : "⏸",
-      "aria-label": paused ? "Resume" : "Pause", onclick: paused ? resume : pause }));
-    /* the note stays reachable while you study minimised — that is exactly
-       when something worth writing down turns up */
-    if (!reading) dctl.appendChild(el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✎",
-      "aria-label": "Add a quick note", title: "Quick note", onclick: promptNote }));
-    if (KOS.srs.dueCount()) dctl.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", text: "Due " + KOS.srs.dueCount(),
-      onclick: function () { KOS.show("due"); } }));
-    dctl.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", text: "⤢ Stage", "aria-label": "Expand the timer",
-      onclick: function () { setMinimised(false); } }));
-    if (canComplete()) dctl.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", text: "✓ End", onclick: function () { endComplete(); } }));
-    dctl.appendChild(el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-fx-end", text: "✕", "aria-label": "End early", onclick: function () { endEarly(); } }));
-    dockEl.appendChild(dctl);
+    /* ---- the idle watch's warning (frame 16g) ---- */
+    if (warned) {
+      stageEl.appendChild(el("div", { class: "k-fx-idle", "data-ui": "focus.idle", role: "alertdialog", "aria-labelledby": "fx-idle-t", "aria-describedby": "fx-idle-d" }, [
+        countdownRing("focus.idle-ring"),
+        el("div", { class: "k-fx-idle-txt" }, [
+          el("h2", { id: "fx-idle-t", class: "k-fx-idle-title", text: "Still studying?" }),
+          el("p", { id: "fx-idle-d", class: "k-fx-idle-line" }, [
+            "No activity since ", el("b", { text: hmOf(S.lastActiveTs) }),
+            ". The session ends at " + hmOf(S.idleWarnedAt + IDLE_GRACE) + " unless you're here, and pays for the time up to " + hmOf(S.lastActiveTs) + "."
+          ]),
+          el("div", { class: "k-fx-idle-act" }, [
+            el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "focus.im-here", text: "I'm here", onclick: imHere }),
+            el("span", { class: "k-muted", text: "or press any key" }),
+            el("span", { class: "k-spacer" }),
+            el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "focus.idle-end", text: "End now", onclick: idleEndNow })
+          ])
+        ])
+      ]));
+    }
+
+    renderDock(cr, phaseName, paused, reading, paid, open, warned);
+    if (minimised) placeMini();
     updateClock();
+  }
+
+  /* ---- minimised: the floating player (frame 16d), or on a phone the
+     two-row dock over the tab bar (frame 15f) ---- */
+  function iconBtn(text, label, hook, onclick, primary) {
+    return el("button", { type: "button", class: "k-iconbtn" + (primary ? " k-fx-mini-primary" : ""), "data-ui": hook, "aria-label": label, title: label, text: text, onclick: onclick });
+  }
+  function miniSize() {
+    var r = store.state.ui && store.state.ui.focusMini;
+    return r && r.w >= (MINI.compact + MINI.large) / 2 ? "large" : "compact";
+  }
+  function renderDock(cr, phaseName, paused, reading, paid, open, warned) {
+    if (!dockEl) return;
+    dockEl.innerHTML = "";
+    var phone = isPhone();
+    var size = phone ? "phone" : miniSize();
+    dockEl.setAttribute("data-phase", paused ? "paused" : S.phase === "break" ? "break" : "work");
+    dockEl.setAttribute("data-size", size);
+    dockEl.setAttribute("data-rule", paid ? "blocks" : "cycle");
+    if (warned) dockEl.setAttribute("data-idle", "warn"); else dockEl.removeAttribute("data-idle");
+    var pauseBtn = iconBtn(paused ? "▶" : "⏸", paused ? "Resume" : "Pause", "focus.dock-pause", paused ? resume : pause, true);
+    var expand = iconBtn("⤢", "Back to the full screen", "focus.expand", function () { setMinimised(false); });
+    var clock = el("span", { class: "k-fx-dock-clock k-mono", "data-ui": "focus.dock-clock", role: "timer", "aria-label": cr.label, text: cr.text });
+    var subj = S.subject ? shortName(S.subject) + (S.ref ? " " + S.ref : "") : reading ? topicLabel() : "General study";
+
+    if (phone) {
+      if (warned) {
+        dockEl.appendChild(el("div", { class: "k-fx-dock-row" }, [
+          countdownRing("focus.idle-ring"),
+          el("div", { class: "k-fx-dock-txt" }, [
+            el("b", { class: "k-fx-dock-title", text: "Still studying?" }),
+            el("span", { class: "k-fx-dock-meta", text: idleLine() })
+          ])
+        ]));
+        dockEl.appendChild(el("div", { class: "k-fx-dock-row" }, [
+          el("button", { type: "button", class: "k-btn k-btn--primary k-fx-dock-here", "data-ui": "focus.im-here", text: "I'm here", onclick: imHere }),
+          el("button", { type: "button", class: "k-btn", "data-ui": "focus.idle-end", text: "End now", onclick: idleEndNow })
+        ]));
+        return;
+      }
+      dockEl.appendChild(el("div", { class: "k-fx-dock-row" }, [
+        el("span", { class: "k-fx-dot", "aria-hidden": "true" }),
+        el("div", { class: "k-fx-dock-txt" }, [
+          el("span", { class: "k-fx-dock-phase", text: phaseName }),
+          el("span", { class: "k-fx-dock-title", text: S.objective || topicLabel() })
+        ]),
+        clock
+      ]));
+      var line = el("div", { class: "k-fx-dock-line", "data-ui": "focus.dock-line", "aria-hidden": "true" });
+      line.style.setProperty("--pct", cr.pct + "%");
+      dockEl.appendChild(line);
+      dockEl.appendChild(el("div", { class: "k-fx-dock-row" }, [
+        el("span", { class: "k-fx-dock-meta", text: subj + " · " + (paused ? "paused" : cr.at) }),
+        pauseBtn,
+        reading ? null : iconBtn("+1", "Mark a distraction — no HP cost", "focus.dock-mark", markDistraction),
+        expand
+      ].filter(Boolean)));
+      return;
+    }
+
+    /* the floating player: the grip moves it, the corner resizes it */
+    var grip = el("button", { type: "button", class: "k-fx-grip", "data-ui": "focus.grip", "aria-label": "Move the timer (arrow keys)", text: "⠿" });
+    wireDrag(grip);
+    var resize = el("button", { type: "button", class: "k-fx-resize", "data-ui": "focus.resize",
+      "aria-label": size === "large" ? "Make the timer smaller" : "Make the timer larger" });
+    wireResize(resize);
+    dockEl.appendChild(resize);
+    if (size === "compact") {
+      if (warned) {
+        dockEl.appendChild(el("div", { class: "k-fx-mini-row" }, [
+          grip, countdownRing("focus.idle-ring"),
+          el("b", { class: "k-fx-mini-title", text: "Still studying?" }),
+          el("button", { type: "button", class: "k-btn k-btn--primary k-btn--sm", "data-ui": "focus.im-here", text: "I'm here", onclick: imHere })
+        ]));
+        return;
+      }
+      var mring = el("span", { class: "k-fx-mini-ring", "data-ui": "focus.mini-ring", "aria-hidden": "true" });
+      dockEl.appendChild(el("div", { class: "k-fx-mini-row" }, [grip, mring, clock, pauseBtn, expand]));
+      return;
+    }
+    /* large */
+    var head = el("div", { class: "k-fx-mini-head" }, [
+      grip,
+      el("span", { class: "k-fx-mini-mode", text: warned ? "Idle watch" : modeLabel() }),
+      el("span", { class: "k-muted", text: (warned ? modeLabel() + " · " : "") + (S.subject ? shortName(S.subject) : reading ? "" : "General") }),
+      el("span", { class: "k-spacer" }),
+      expand,
+      warned ? null : iconBtn("–", "Make the timer smaller", "focus.shrink", function () { setMiniSize("compact"); })
+    ].filter(Boolean));
+    dockEl.appendChild(head);
+    if (warned) {
+      dockEl.appendChild(el("div", { class: "k-fx-mini-row" }, [
+        countdownRing("focus.idle-ring"),
+        el("div", { class: "k-fx-dock-txt" }, [
+          el("b", { class: "k-fx-mini-title", text: "Still studying?" }),
+          el("span", { class: "k-fx-dock-meta", text: idleLine() })
+        ])
+      ]));
+      dockEl.appendChild(el("div", { class: "k-fx-mini-act" }, [
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "focus.im-here", text: "I'm here", onclick: imHere }),
+        el("button", { type: "button", class: "k-btn", "data-ui": "focus.idle-end", text: "End now", onclick: idleEndNow })
+      ]));
+      return;
+    }
+    var e = eligibility();
+    dockEl.appendChild(el("div", { class: "k-fx-mini-time" }, [
+      clock,
+      paid && e && e.blocks ? el("b", { class: "k-fx-mini-earned k-mono", text: awardText(e) }) : null
+    ].filter(Boolean)));
+    dockEl.appendChild(el("span", { class: "k-fx-mini-topic", text: S.ref && KOS.hub.BYREF[S.subject] && KOS.hub.BYREF[S.subject][S.ref]
+      ? S.ref + " " + KOS.hub.BYREF[S.subject][S.ref].title : S.objective || topicLabel() }));
+    if (paid) {
+      var w = workSeconds(), blk = KOS.governor.FOCUS_BLOCK.secs, blocks = Math.floor(w / blk);
+      dockEl.appendChild(tickRow(6, blocks - Math.floor(blocks / 6) * 6, 100 * (w % blk) / blk, false));
+      dockEl.appendChild(el("div", { class: "k-fx-mini-next" }, [
+        el("span", { "data-ui": "focus.mini-next", text: paused ? "paused" : "next award in " + fmt(cr.nextIn) }),
+        el("span", { class: "k-mono", text: nextAwardText() })
+      ]));
+    } else {
+      var bar = el("div", { class: "k-fx-dock-line", "data-ui": "focus.dock-line", "aria-hidden": "true" });
+      bar.style.setProperty("--pct", cr.pct + "%");
+      dockEl.appendChild(bar);
+      dockEl.appendChild(el("div", { class: "k-fx-mini-next" }, [el("span", { "data-ui": "focus.mini-next", text: paused ? "paused" : cr.at })]));
+    }
+    dockEl.appendChild(el("div", { class: "k-fx-mini-act" }, [
+      el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "focus.dock-pause", text: paused ? "▶ Resume" : "⏸ Pause", onclick: paused ? resume : pause }),
+      open || paid ? el("button", { type: "button", class: "k-btn", "data-ui": "focus.dock-stop", text: "■ Stop", onclick: stopNow })
+        : el("button", { type: "button", class: "k-btn", "data-ui": "focus.dock-end", text: canComplete() ? "✓ End" : "End early",
+            onclick: function () { if (canComplete()) endComplete(); else endEarly(); } })
+    ]));
   }
 
   function updateClock() {
@@ -1014,17 +1318,191 @@
     var cr = clockRead(), remain = cr.text, pct = cr.pct;
     if (stageEl) {
       var c = stageEl.querySelector("[data-ui~='focus.clock']");
-      if (c) c.textContent = remain;
+      if (c) { c.textContent = remain; c.toggleAttribute("data-long", remain.length > 5); }
+      var at = stageEl.querySelector("[data-ui~='focus.at']");
+      if (at && S.state === "running") at.textContent = cr.at;
       var f = stageEl.querySelector("[data-ui~='focus.fill']");
       if (f) f.style.setProperty("--pct", pct + "%");
       var live = stageEl.querySelector(".k-fx-seg[data-live]");
       if (live) live.style.setProperty("--pct", pct + "%");
+      /* the earned ticks move on at each award; between them only the
+         live tick grows */
+      var tick = stageEl.querySelector("[data-ui~='focus.elig'] .k-fx-tick[data-state~='live']");
+      var blk = KOS.governor.FOCUS_BLOCK.secs, w = workSeconds();
+      if (tick) tick.style.setProperty("--pct", Math.round(100 * (w % blk) / blk) + "%");
+      if (paidRule() && Math.floor(w / blk) !== renderedBlocks) {
+        /* an award just landed: redraw the earned block alone, so a note
+           being typed keeps its focus */
+        if (minimised) { render(); return; }
+        var old = stageEl.querySelector(".k-fx-earned");
+        if (old) old.replaceWith(earnedNode(false));
+      }
     }
     if (dockEl) {
       var dc = dockEl.querySelector("[data-ui~='focus.dock-clock']");
       if (dc) dc.textContent = remain;
+      var mr = dockEl.querySelector("[data-ui~='focus.mini-ring']");
+      if (mr) mr.style.setProperty("--pct", (paidRule() ? Math.round(100 * (workSeconds() % KOS.governor.FOCUS_BLOCK.secs) / KOS.governor.FOCUS_BLOCK.secs) : pct) + "%");
+      var dl = dockEl.querySelector("[data-ui~='focus.dock-line']");
+      if (dl) dl.style.setProperty("--pct", pct + "%");
+      var mn = dockEl.querySelector("[data-ui~='focus.mini-next']");
+      if (mn && S.state === "running") mn.textContent = cr.nextIn != null && paidRule() ? "next award in " + fmt(cr.nextIn) : cr.at;
+      var mt = dockEl.querySelector(".k-fx-mini-row .k-fx-tick[data-state~='live'], .k-fx-dock > .k-fx-ticks .k-fx-tick[data-state~='live']");
+      if (mt) mt.style.setProperty("--pct", Math.round(100 * (workSeconds() % KOS.governor.FOCUS_BLOCK.secs) / KOS.governor.FOCUS_BLOCK.secs) + "%");
+    }
+    /* the idle countdown, wherever it is showing */
+    if (idleWarned()) {
+      var left = idleLeft(), share = Math.round(100 * left / (IDLE_GRACE / 1000));
+      document.querySelectorAll("[data-ui~='focus.idle-left']").forEach(function (n) { n.textContent = fmt(left); });
+      document.querySelectorAll(".k-fx-cd").forEach(function (n) { n.style.setProperty("--pct", share + "%"); });
     }
     document.title = (S ? remain + " · " : "") + "Kurenai OS — Study Atelier";
+  }
+
+  /* ---------------- the floating player: drag, snap, resize (16d, 16e) ----
+     The grip lifts the player and the page dims; guides show the edge it
+     will land on and a ghost where. Release within MINI.corner of a corner
+     and it docks there; anywhere else it snaps to the nearest edge at the
+     drop position — clampMini() is that one rule, shared with the stored
+     place. The clock keeps running and the buttons stay live throughout. */
+  var dragUi = null;
+  function miniBounds() {
+    var rail = document.getElementById("rail"), top = document.getElementById("topbar");
+    var r = rail && rail.getBoundingClientRect(), t = top && top.getBoundingClientRect();
+    return { left: r && r.width && r.right < window.innerWidth / 2 ? Math.round(r.right) : 0, top: t ? Math.round(t.bottom) : 0 };
+  }
+  function defaultMini(size) {
+    var w = size === "large" ? MINI.large : MINI.compact;
+    var h = dockEl ? Math.round(dockEl.getBoundingClientRect().height) || 60 : 60;
+    return { x: window.innerWidth - MINI.margin - w, y: window.innerHeight - MINI.margin - h, w: w, h: h };
+  }
+  function placeMini() {
+    if (!dockEl || isPhone()) return;
+    var stored = store.state.ui && store.state.ui.focusMini;
+    var h = Math.round(dockEl.getBoundingClientRect().height) || 60;
+    var r = stored ? clampMini(Object.assign({}, stored, { h: h }), window.innerWidth, window.innerHeight, miniBounds())
+      : clampMini(defaultMini("compact"), window.innerWidth, window.innerHeight, miniBounds());
+    if (!r) return;
+    /* hold the docked corner: a player whose contents grew (the idle
+       warning, a wider state) grows away from the edges it sits on */
+    var right = r.x + r.w / 2 >= window.innerWidth / 2, bottom = r.y + r.h / 2 >= window.innerHeight / 2;
+    var b = dockEl.getBoundingClientRect();
+    dockEl.style.setProperty("--mini-x", (right ? r.x + r.w - Math.round(b.width || r.w) : r.x) + "px");
+    dockEl.style.setProperty("--mini-y", (bottom ? r.y + r.h - Math.round(b.height || r.h) : r.y) + "px");
+    dockEl.setAttribute("data-dock", (right ? "right" : "left") + " " + (bottom ? "bottom" : "top"));
+  }
+  window.addEventListener("resize", function () { if (minimised) placeMini(); });
+  function currentRect() {
+    var b = dockEl.getBoundingClientRect();
+    return { x: Math.round(b.left), y: Math.round(b.top), w: Math.round(b.width), h: Math.round(b.height) };
+  }
+  function setMiniSize(size) {
+    if (!dockEl) return;
+    var r = currentRect(), dock = (dockEl.getAttribute("data-dock") || "right bottom").split(" ");
+    var w = size === "large" ? MINI.large : MINI.compact;
+    store.state.ui.focusMini = { x: r.x, y: r.y, w: w, h: r.h };
+    render();                                   // re-lay the contents at the new size
+    var h = Math.round(dockEl.getBoundingClientRect().height) || r.h;
+    /* grow away from the edges it is docked to */
+    var x = dock[0] === "right" ? r.x + r.w - w : r.x;
+    var y = dock[1] === "bottom" ? r.y + r.h - h : r.y;
+    setMiniRect({ x: x, y: y, w: w, h: h }, window.innerWidth, window.innerHeight, miniBounds());
+    placeMini();
+  }
+  function paintGuides(target, bounds) {
+    if (!dragUi) {
+      dragUi = el("div", { class: "k-fx-drag", "aria-hidden": "true" }, [
+        el("span", { class: "k-fx-drag-ghost" }),
+        el("span", { class: "k-fx-drag-guide", "data-edge": "x" }),
+        el("span", { class: "k-fx-drag-guide", "data-edge": "y" })
+      ]);
+      ["lt", "rt", "lb", "rb"].forEach(function (c) { dragUi.appendChild(el("span", { class: "k-fx-drag-corner", "data-corner": c })); });
+      document.body.appendChild(dragUi);
+    }
+    var vw = window.innerWidth, vh = window.innerHeight, m = MINI.margin;
+    var L = bounds.left + m, T = bounds.top + m, R = vw - m, B = vh - m;
+    var g = dragUi.querySelector(".k-fx-drag-ghost");
+    g.style.setProperty("--gx", target.x + "px"); g.style.setProperty("--gy", target.y + "px");
+    g.style.setProperty("--gw", target.w + "px"); g.style.setProperty("--gh", target.h + "px");
+    var gx = dragUi.querySelector("[data-edge='x']"), gy = dragUi.querySelector("[data-edge='y']");
+    var onLeft = target.x <= L + 1, onRight = target.x + target.w >= R - 1, onTop = target.y <= T + 1, onBottom = target.y + target.h >= B - 1;
+    gx.hidden = !(onLeft || onRight);
+    gx.style.setProperty("--at", (onLeft ? L : R) + "px");
+    gy.hidden = !(onTop || onBottom);
+    gy.style.setProperty("--at", (onTop ? T : B) + "px");
+    var pos = { lt: [L, T], rt: [R, T], lb: [L, B], rb: [R, B] };
+    dragUi.querySelectorAll(".k-fx-drag-corner").forEach(function (n) {
+      var p = pos[n.getAttribute("data-corner")];
+      n.style.setProperty("--cx", p[0] + "px"); n.style.setProperty("--cy", p[1] + "px");
+    });
+  }
+  function wireDrag(grip) {
+    var start = null;
+    grip.addEventListener("pointerdown", function (e) {
+      if (!dockEl || e.button !== 0) return;
+      e.preventDefault();
+      grip.setPointerCapture(e.pointerId);
+      var r = currentRect();
+      start = { px: e.clientX, py: e.clientY, r: r, bounds: miniBounds() };
+      document.documentElement.setAttribute("data-fx-drag", "");
+    });
+    grip.addEventListener("pointermove", function (e) {
+      if (!start) return;
+      var x = start.r.x + e.clientX - start.px, y = start.r.y + e.clientY - start.py;
+      dockEl.style.setProperty("--mini-x", x + "px"); dockEl.style.setProperty("--mini-y", y + "px");
+      var t = clampMini({ x: x, y: y, w: start.r.w, h: start.r.h }, window.innerWidth, window.innerHeight, start.bounds);
+      if (t) paintGuides(t, start.bounds);
+    });
+    function drop(e) {
+      if (!start) return;
+      var s = start; start = null;
+      document.documentElement.removeAttribute("data-fx-drag");
+      if (dragUi) { dragUi.remove(); dragUi = null; }
+      var x = s.r.x + e.clientX - s.px, y = s.r.y + e.clientY - s.py;
+      setMiniRect({ x: x, y: y, w: s.r.w, h: s.r.h }, window.innerWidth, window.innerHeight, s.bounds);
+      placeMini();
+    }
+    grip.addEventListener("pointerup", drop);
+    grip.addEventListener("pointercancel", drop);
+    /* the keyboard route: arrows jump to the next corner */
+    grip.addEventListener("keydown", function (e) {
+      var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+      if (!d || !dockEl) return;
+      e.preventDefault();
+      var r = currentRect();
+      var x = d[0] ? (d[0] < 0 ? 0 : window.innerWidth) : r.x, y = d[1] ? (d[1] < 0 ? 0 : window.innerHeight) : r.y;
+      setMiniRect({ x: x, y: y, w: r.w, h: r.h }, window.innerWidth, window.innerHeight, miniBounds());
+      placeMini();
+      grip.focus();
+    });
+  }
+  function wireResize(handle) {
+    var start = null;
+    handle.addEventListener("pointerdown", function (e) {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      handle.setPointerCapture(e.pointerId);
+      start = { px: e.clientX, py: e.clientY };
+    });
+    function up(e) {
+      if (!start) return;
+      var dx = e.clientX - start.px, dy = e.clientY - start.py;
+      start = null;
+      var dock = (dockEl.getAttribute("data-dock") || "right bottom").split(" ");
+      /* outward is away from the docked corner */
+      var out = (dock[0] === "right" ? -dx : dx) + (dock[1] === "bottom" ? -dy : dy);
+      var size = miniSize();
+      if (Math.abs(out) < 6) setMiniSize(size === "large" ? "compact" : "large");      // a click toggles
+      else if (out > 24 && size === "compact") setMiniSize("large");
+      else if (out < -24 && size === "large") setMiniSize("compact");
+    }
+    handle.addEventListener("pointerup", up);
+    handle.addEventListener("pointercancel", function () { start = null; });
+    handle.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      setMiniSize(miniSize() === "large" ? "compact" : "large");
+    });
   }
 
   /* ================= the completion review (Build 6.5) =================
@@ -1068,6 +1546,7 @@
 
   function reviewModal(sess, entry, award, block) {
     var complete = !!(entry.metrics && entry.metrics.complete);
+    var m = entry.metrics || {};
     var asg = linkedAssignment(sess);
     var overlay = el("div", { class: "k-dialog-overlay" });
     var closed = false;
@@ -1079,45 +1558,100 @@
     };
 
     var body = el("div", { class: "k-dialog-body k-fx-review" });
+    var dur = entry.dur || 0, endTs = entry.ts || now();
+    var idle = m.ended === "idle";
+    var paidRule0 = m.rule === "blocks";
+    var blk = KOS.governor.FOCUS_BLOCK.secs;
+    var where = [sess.subject ? subjectName(sess.subject) : "General study"];
+    if (sess.ref && KOS.hub.BYREF[sess.subject] && KOS.hub.BYREF[sess.subject][sess.ref]) where.push(sess.ref + " " + KOS.hub.BYREF[sess.subject][sess.ref].title);
 
-    /* --- 1. what happened --- */
-    var facts = [
-      ["Focused", fmtLong(entry.dur || 0)],
-      ["Cycles", String(sess.cycles || 0)],
-      ["Pauses", String(sess.pauses || 0)],
-      ["Tab switches", String((sess.distractions || []).length)]
-    ];
-    if ((sess.marks || []).length) facts.push(["Self-marked", String(sess.marks.length)]);
-    if (sess.restores) facts.push(["Recovered", sess.restores + (sess.restores === 1 ? " time" : " times")]);
-    /* the facts and the award share ONE three-column grid (review B): the
-       award fills whatever the last row of facts leaves, so there is no
-       hole beside the last tile and no full-width strip under it */
-    var top = el("div", { class: "k-fx-rev-top" });
-    top.style.setProperty("--award-span", String(3 - (facts.length % 3) || 3));
-    body.appendChild(top);
-    top.appendChild(el("dl", { class: "k-fx-rev-facts", "data-ui": "focus.rev-facts" }, facts.map(function (f) {
-      return el("div", { class: "k-fx-stat" }, [el("dt", { text: f[0] }), el("dd", { class: "k-mono", text: f[1] })]);
-    })));
+    /* --- 1. the time it measured (or, ended by the idle watch, the time it
+       paid) leads, with the span it covers (frames 16f, 16j) --- */
+    body.appendChild(el("header", { class: "k-fx-rev-hero", "data-rule": paidRule0 ? "blocks" : "cycle" }, [
+      el("span", { class: "k-kicker", text: (complete ? "Session complete" : "Session ended early") + " · " + (MODE_LABEL[sess.mode] || "Focus") }),
+      el("span", { class: "k-fx-rev-time k-mono", "data-ui": "focus.rev-time", text: fmtClock(dur) }),
+      el("span", { class: "k-fx-rev-span", text: (idle
+        ? "paid, from " + hmOf(sess.startedAt) + " to " + hmOf(sess.lastActiveTs || endTs)
+        : hmOf(sess.startedAt) + " → " + hmOf(endTs)) + " · " + where.join(" · ") })
+    ]));
 
-    /* --- 2. what it paid, from the governor's own record --- */
-    var paid = complete && award && (award.xp || award.gold);
-    top.appendChild(el("div", { class: "k-fx-rev-award", "data-ui": "focus.rev-award", "data-state": paid ? null : "muted" }, paid
-      ? [
-          el("b", { text: "+" + award.xp + " XP · +" + award.gold + " gold" + (award.hp ? " · +" + award.hp + " HP" : "") }),
-          el("span", { text: (award.notes && award.notes.length) ? award.notes.join(" · ") : "paid in full" }),
-          award.levelUp ? el("span", { class: "k-fx-rev-level", text: "Level " + award.level + " reached" }) : null
-        ].filter(Boolean)
-      : [
-          el("b", { text: complete ? "No award was due" : "Award forfeited — ended early" }),
-          el("span", { text: "The session is still in the log, on the topic and in the Governor's chronicle." })
-        ]));
-
-    function revBlock(h, kids) {
-      return el("section", { class: "k-fx-rev-block" }, [el("h3", { class: "k-kicker", text: h })].concat(kids));
+    /* --- 2. one card of results, from the governor's own record --- */
+    var card = el("section", { class: "k-fx-rev-card" });
+    body.appendChild(card);
+    if (idle) {
+      var after = Math.max(0, Math.round((endTs - (sess.lastActiveTs || endTs)) / 60000));
+      card.appendChild(el("p", { class: "k-fx-rev-why", "data-ui": "focus.rev-why" }, [
+        el("span", { class: "k-fx-dot", "aria-hidden": "true" }),
+        el("span", { text: "Ended by the idle watch: no activity after " + hmOf(sess.lastActiveTs) + ". The " + after +
+          " minutes after that aren't paid; everything before them is." })
+      ]));
+      /* the rule, drawn: paid to the last activity, hatched after it */
+      var span = Math.max(1, endTs - sess.startedAt);
+      var at = function (ts) { return Math.max(0, Math.min(100, 100 * (ts - sess.startedAt) / span)).toFixed(1) + "%"; };
+      var tl = el("div", { class: "k-fx-rev-tl", "aria-hidden": "true" });
+      tl.style.setProperty("--paid", at(sess.lastActiveTs));
+      var marks = el("div", { class: "k-fx-rev-tl-lab k-mono" }, [
+        el("span", { text: hmOf(sess.startedAt) + " start" })
+      ]);
+      [[sess.lastActiveTs, "last activity"], [sess.idleWarnedAt, "warned"], [endTs, "ended"]].forEach(function (p) {
+        if (!p[0]) return;
+        var mk = el("span", { class: "k-fx-rev-tl-mark" });
+        mk.style.setProperty("--at", at(p[0]));
+        tl.appendChild(mk);
+        /* the warning sits five minutes before the end: marked, and named
+           only when there is room between them */
+        if (p[1] === "warned" && (endTs - p[0]) / span < 0.2) return;
+        var lab = el("span", { class: "k-fx-rev-tl-at", text: hmOf(p[0]) + " " + p[1] });
+        lab.style.setProperty("--at", at(p[0]));
+        marks.appendChild(lab);
+      });
+      card.appendChild(el("div", { class: "k-fx-rev-tlbox" }, [tl, marks]));
     }
+    var paid = complete && award && (award.xp || award.gold);
+    var blocks = paidRule0 ? Math.floor(dur / blk) : 0;
+    var figs = el("dl", { class: "k-fx-rev-facts", "data-ui": "focus.rev-facts" });
+    function fig(v, k, tone, hook) {
+      return el("div", { class: "k-fx-rev-fig", "data-tone": tone || null, "data-ui": hook || null }, [
+        el("dt", { text: k }), el("dd", { class: "k-mono", text: v })
+      ]);
+    }
+    figs.appendChild(fig(fmtLong(dur), idle ? "Paid focus" : "Focused"));
+    figs.appendChild(paidRule0 ? fig(String(blocks), blocks === 1 ? "Award" : "Awards") : fig(String(sess.cycles || 0), sess.cycles === 1 ? "Cycle" : "Cycles"));
+    var awardBox = el("div", { class: "k-fx-rev-award", "data-ui": "focus.rev-award", "data-state": paid ? null : "muted" });
+    if (paid) {
+      awardBox.appendChild(fig("+" + award.xp + " XP", "Earned", "teal"));
+      awardBox.appendChild(fig("+" + award.gold + " gold", "Gold", "gold"));
+    } else {
+      awardBox.appendChild(el("p", { class: "k-fx-rev-none", text: complete
+        ? (paidRule0 ? "Under 10 minutes — no award was due" : "No award was due")
+        : "Award forfeited — ended before a full cycle" }));
+    }
+    figs.appendChild(awardBox);
+    card.appendChild(figs);
+    if (paidRule0 && dur >= 60) {
+      var n = Math.max(1, Math.ceil(dur / blk));
+      card.appendChild(tickRow(n, blocks, blocks < n ? 100 * (dur % blk) / blk : null, n <= 12));
+    }
+    /* only the counts that happened (frame 16f) */
+    var counts = [];
+    if (sess.pauses) counts.push(sess.pauses + (sess.pauses === 1 ? " pause" : " pauses"));
+    if ((sess.distractions || []).length) counts.push(sess.distractions.length + (sess.distractions.length === 1 ? " tab switch" : " tab switches"));
+    if ((sess.marks || []).length) counts.push(sess.marks.length + " self-marked");
+    if (sess.restores) counts.push("recovered after " + (sess.restores === 1 ? "a reload" : sess.restores + " reloads"));
+    var left = paidRule0 && blocks ? Math.floor((dur % blk) / 60) : 0;
+    if (left) counts.push(left + " min after the last award don't count");
+    if (award && award.notes && award.notes.length && paid) counts.push(award.notes.join(" · "));
+    var foot = el("div", { class: "k-fx-rev-foot", "data-ui": "focus.rev-counts" }, [
+      el("span", { text: counts.join(" · ") }),
+      paid && award.hp ? el("span", { class: "k-fx-rev-hp", text: "HP +" + award.hp }) : null,
+      paid && award.levelUp ? el("span", { class: "k-fx-rev-level", text: "Level " + award.level + " reached" }) : null
+    ].filter(Boolean));
+    if (counts.length || (paid && (award.hp || award.levelUp))) card.appendChild(foot);
 
-    /* --- 3. the objective, and whether it landed --- */
+    /* --- 3. the objective, and whether it landed; then the notes --- */
     var result = null;
+    var obj = el("section", { class: "k-fx-rev-card" });
+    body.appendChild(obj);
     if (sess.objective) {
       var btns = el("div", { class: "k-seg k-seg--quiet", role: "group", "aria-label": "Objective result" });
       OBJ_RESULTS.forEach(function (o) {
@@ -1130,35 +1664,39 @@
         } });
         btns.appendChild(b);
       });
-      body.appendChild(revBlock("Objective", [el("p", { class: "k-fx-rev-obj", text: sess.objective }), btns]));
+      obj.appendChild(el("div", { class: "k-fx-rev-q" }, [
+        el("h3", { class: "k-fx-rev-qt", text: "Did you meet the objective?" }),
+        el("span", { class: "k-fx-rev-obj", text: sess.objective })
+      ]));
+      obj.appendChild(btns);
     }
-
-    /* --- 4. one line of reflection --- */
-    var reflectIn = el("textarea", { class: "k-input", "data-ui": "focus.rev-reflect", rows: "2",
-      maxlength: "400", placeholder: "How did it actually go? (optional)",
+    var reflectIn = el("textarea", { class: "k-input k-fx-rev-reflect", "data-ui": "focus.rev-reflect", rows: "1",
+      maxlength: "400", placeholder: "One line on how it went (optional)",
       "aria-label": "Quick reflection" });
-    body.appendChild(revBlock("Reflection", [reflectIn]));
+    obj.appendChild(reflectIn);
 
-    /* --- 5. the notes you kept, and where they should live --- */
+    /* the notes kept, and where they should live */
     var noteDest = "none";
-    var destOptions = [["none", "Keep them in the session record only"]];
-    if (sess.subject && sess.ref) destOptions.push(["topic", "Add to the " + sess.ref + " topic note"]);
-    if (asg) destOptions.push(["assignment", "Add to “" + asg.title + "”"]);
-    var destSel = el("select", { class: "k-input", "aria-label": "Where to file these notes" },
+    var destOptions = [["none", "Keep in the session record"]];
+    if (sess.subject && sess.ref) destOptions.push(["topic", "File to " + sess.ref + " notes"]);
+    if (asg) destOptions.push(["assignment", "File to “" + asg.title + "”"]);
+    var destSel = el("select", { class: "k-pill-select", "aria-label": "Where to file these notes" },
       destOptions.map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
     destSel.addEventListener("change", function () { noteDest = destSel.value; });
-    var noteKids = [];
-    if ((sess.notes || []).length) {
-      noteKids.push(el("ul", { class: "k-fx-note-list" }, sess.notes.map(function (n) {
-        return el("li", { class: "k-fx-note", text: n.text });
-      })));
-    } else {
-      noteKids.push(el("p", { class: "k-muted", text: "No notes were jotted. A reflection alone can still be filed." }));
+    var notes = sess.notes || [];
+    if (notes.length) {
+      obj.appendChild(el("div", { class: "k-fx-rev-notes", "data-ui": "focus.rev-notes" }, [
+        el("b", { text: notes.length ? notes.length + (notes.length === 1 ? " quick note" : " quick notes") : "No quick notes" }),
+        el("span", { class: "k-fx-rev-note-t", text: notes.map(function (x) { return x.text; }).join(" · ") }),
+        destOptions.length > 1 ? destSel : null
+      ].filter(Boolean)));
     }
-    if (destOptions.length > 1) noteKids.push(destSel);
-    body.appendChild(revBlock("Notes", noteKids));
 
-    /* --- 6. the linked assignment: move it on --- */
+    function revBlock(h, kids) {
+      return el("section", { class: "k-fx-rev-card k-fx-rev-block" }, [el("h3", { class: "k-kicker", text: h })].concat(kids));
+    }
+
+    /* --- 4. the linked assignment: move it on --- */
     var progIn = null, statusSel = null, subBoxes = [], progTouched = false;
     if (asg) {
       var kids = [];
@@ -1195,7 +1733,7 @@
       body.appendChild(revBlock("Assignment", kids));
     }
 
-    /* --- 7. today's study block, folded in rather than stacked on --- */
+    /* --- 5. today's study block, folded in rather than stacked on --- */
     var blockBox = null;
     if (block) {
       blockBox = el("input", { type: "checkbox", class: "k-box", id: "fxblk", checked: "checked" });
@@ -1244,16 +1782,15 @@
       overlay.close();
     }
 
-    overlay.appendChild(el("div", { class: "k-dialog k-fx-review-dialog", "data-ui": "ui.dialog focus.review-modal" }, [
-      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
-        el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: complete ? "Session complete" : "Session ended early" }),
-        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close", text: "✕", onclick: function () { overlay.close(); } })
-      ]),
+    /* the session is already in the log (invariant 4b): Save adds the
+       review to it, Close leaves it as it is */
+    overlay.appendChild(el("div", { class: "k-dialog k-fx-review-dialog", "data-ui": "ui.dialog focus.review-modal",
+      "aria-label": complete ? "Session complete" : "Session ended early" }, [
+      el("h2", { class: "sr-only", "data-ui": "ui.dialog-title", text: complete ? "Session complete" : "Session ended early" }),
       body,
-      el("div", { class: "k-dialog-foot" }, [
-        el("span", { class: "k-muted", text: "Already recorded — this only adds to it." }),
-        el("button", { type: "button", class: "k-btn", text: "Close", onclick: function () { overlay.close(); } }),
-        el("button", { type: "button", class: "k-btn k-btn--primary", text: "Save review", onclick: save })
+      el("div", { class: "k-dialog-foot k-fx-rev-act" }, [
+        el("button", { type: "button", class: "k-btn k-btn--primary k-fx-big", text: "Save review", onclick: save }),
+        el("button", { type: "button", class: "k-btn k-btn--quiet", text: "Close", onclick: function () { overlay.close(); } })
       ])
     ]));
     KOS.ui.openDialog(overlay);
@@ -1305,7 +1842,8 @@
        subject/topic controls without changing the user's saved configuration
        until they deliberately start a session. */
     if (arg && arg.subject) { cfg.subject = arg.subject; cfg.ref = arg.ref || ""; }
-    var mode = cfg.mode || "pomodoro";
+    var mode = MODES.indexOf(cfg.mode) !== -1 ? cfg.mode : "pomodoro";
+    var BLK = KOS.governor.FOCUS_BLOCK;
     var work = el("input", { type: "number", min: 1, max: 240, class: "k-input", "data-ui": "ui.number-input", "aria-label": "Work minutes" });
     var brk = el("input", { type: "number", min: 0, max: 60, class: "k-input", "data-ui": "ui.number-input", "aria-label": "Break minutes" });
     work.value = String(cfg.workMin || 25);
@@ -1315,11 +1853,15 @@
     var side = el("aside", { class: "k-fx-side", "data-ui": "focus.setup-side" });
     main.appendChild(el("div", { class: "k-fx-setup" }, [hero, side]));
 
+    function reading() { return subjSel.value === "reading"; }
+    function timePaid() { return !reading() && KOS.governor.focusRule(mode) === "blocks"; }
+
     /* --- the dial: the duration you are about to commit to --- */
+    var dialKicker = el("span", { class: "k-fx-dial-sub" });
     var dialTime = el("span", { class: "k-fx-dial-time k-mono" });
     var dialSub = el("span", { class: "k-fx-dial-sub" });
     function plannedMins() {
-      if (mode === "pomodoro") return 25;
+      if (mode === "pomodoro" && !reading()) return 25;
       return Math.max(1, Math.min(240, parseInt(work.value || "25", 10)));
     }
     function nudge(d) {
@@ -1328,24 +1870,27 @@
       work.value = String(m);
       sync();
     }
-    var dial = el("div", { class: "k-fx-dial" }, [
-      el("div", { class: "k-fx-ring k-fx-ring--full" }, [el("div", { class: "k-fx-ring-in" }, [dialTime, dialSub])]),
-      el("div", { class: "k-cluster" }, [
-        el("button", { type: "button", class: "k-btn k-btn--sm k-mono", "data-ui": "focus.nudge", "aria-label": "Five minutes shorter", text: "−5", onclick: function () { nudge(-5); } }),
-        el("button", { type: "button", class: "k-btn k-btn--sm k-mono", "data-ui": "focus.nudge", "aria-label": "Five minutes longer", text: "+5", onclick: function () { nudge(5); } })
-      ])
+    var steppers = el("div", { class: "k-cluster" }, [
+      el("button", { type: "button", class: "k-btn k-btn--sm k-mono", "data-ui": "focus.nudge", "aria-label": "Five minutes shorter", text: "−5", onclick: function () { nudge(-5); } }),
+      el("button", { type: "button", class: "k-btn k-btn--sm k-mono", "data-ui": "focus.nudge", "aria-label": "Five minutes longer", text: "+5", onclick: function () { nudge(5); } })
     ]);
+    var dialNote = el("p", { class: "k-fx-caption k-fx-dial-note", text: "Each full turn of the ring is 10 minutes: one award." });
+    var dialRing = el("div", { class: "k-fx-ring k-fx-ring--full", "data-ui": "focus.dial" }, [el("div", { class: "k-fx-ring-in" }, [dialKicker, dialTime, dialSub])]);
+    var dial = el("div", { class: "k-fx-dial" }, [dialRing, steppers, dialNote]);
 
     /* --- the form --- */
     var form = el("div", { class: "k-fx-form" });
-    var modeRow = el("div", { class: "k-seg k-seg--quiet", role: "group", "aria-label": "Session type" });
+    var modeRow = el("div", { class: "k-seg k-seg--quiet k-seg--grid", role: "group", "aria-label": "Session type" });
     var customFields = el("div", { class: "k-fx-pair", "data-ui": "focus.custom" }, [
       el("label", { class: "k-field", "data-ui": "ui.field" }, [el("span", { class: "k-field-label", text: "Work (min)" }), work]),
       el("label", { class: "k-field", "data-ui": "ui.field" }, [el("span", { class: "k-field-label", text: "Break (min, 0 = none)" }), brk])
     ]);
-    [["pomodoro", "Pomodoro 25 / 5"], ["custom", "Custom"], ["reading", "Reading"]].forEach(function (m) {
+    [["pomodoro", "Pomodoro 25 / 5"], ["custom", "Custom"], ["stopwatch", "Stopwatch"], ["until", "Study until"]].forEach(function (m) {
       modeRow.appendChild(el("button", { type: "button", class: "k-seg-item", "data-ui": "focus.mode", "data-mode": m[0],
-        "aria-pressed": String(mode === m[0]), text: m[1], onclick: function () { setMode(m[0]); sync(); } }));
+        "aria-pressed": String(mode === m[0]), text: m[1], onclick: function () {
+          if (reading() && m[0] !== "custom") return;
+          setMode(m[0]); sync();
+        } }));
     });
     function setMode(id) {
       mode = id;
@@ -1358,12 +1903,108 @@
     form.appendChild(modeRow);
     form.appendChild(customFields);
 
-    /* optional subject/topic link */
-    var subjSel = el("select", { class: "k-input", "aria-label": "Link to subject", onchange: function () { fillRefs(); fillAssignments(); } }, [
+    /* frame 16a — the stopwatch's two settings */
+    function pick(label, hook, options, value) {
+      var sel = el("select", { class: "k-input", "data-ui": hook, "aria-label": label },
+        options.map(function (o) { return el("option", { value: String(o[0]), text: o[1] }); }));
+      sel.value = String(value);
+      if (sel.selectedIndex < 0) sel.value = String(options[0][0]);
+      sel.addEventListener("change", sync);
+      return sel;
+    }
+    var nudgeOpts = NUDGES.map(function (n) { return [n, n ? "Every " + n + " min" : "Off"]; });
+    var limitOpts = LIMITS.map(function (n) { return [n, n ? "After " + n / 60 + " h" : "No limit"]; });
+    var nudgeSel = pick("Break nudge", "focus.nudge-sel", nudgeOpts, cfg.nudgeMin != null ? cfg.nudgeMin : 50);
+    var limitSel = pick("Stop on its own", "focus.limit-sel", limitOpts, cfg.limitMin || 0);
+    function field(label, control, wide) {
+      return el("label", { class: "k-field" + (wide ? " k-fx-wide" : ""), "data-ui": "ui.field" }, [el("span", { class: "k-field-label", text: label }), control]);
+    }
+    var nudgeField = field("Break nudge", nudgeSel);
+    var limitField = field("Stop on its own (optional)", limitSel);
+    var openFields = el("div", { class: "k-fx-pair", "data-ui": "focus.open-fields" }, [nudgeField, limitField]);
+
+    /* frame 16b — study until: one clock time, in 5-minute steps */
+    function hm(ts) { var d = new Date(ts); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+    function halfHourAfter(ts) { var d = new Date(ts); d.setSeconds(0, 0); d.setMinutes(d.getMinutes() < 30 ? 30 : 60); return d.getTime(); }
+    var untilH = 0, untilM = 0;
+    (function seedUntil() {
+      var t = cfg.until && untilTarget(cfg.until);
+      if (!t || t - now() < 10 * 60000) t = halfHourAfter(now() + 60 * 60000);
+      var d = new Date(t); untilH = d.getHours(); untilM = Math.floor(d.getMinutes() / 5) * 5;
+    })();
+    function untilText() { return String(untilH).padStart(2, "0") + ":" + String(untilM).padStart(2, "0"); }
+    function untilTs() { return untilTarget(untilText()); }
+    function stepField(which, label) {
+      var out = el("input", { type: "text", inputmode: "numeric", maxlength: "2", class: "k-input k-fx-hm k-mono", "data-ui": "focus.until-" + which, "aria-label": label });
+      function paint() { out.value = String(which === "h" ? untilH : untilM).padStart(2, "0"); }
+      function step(d) {
+        if (which === "h") untilH = (untilH + d + 24) % 24;
+        else untilM = (untilM + d * 5 + 60) % 60;
+        paint(); sync();
+      }
+      out.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowUp") { e.preventDefault(); step(1); }
+        else if (e.key === "ArrowDown") { e.preventDefault(); step(-1); }
+      });
+      out.addEventListener("change", function () {
+        var v = parseInt(out.value, 10);
+        if (isFinite(v)) {
+          if (which === "h") untilH = Math.max(0, Math.min(23, v));
+          else untilM = Math.max(0, Math.min(55, Math.round(v / 5) * 5));
+        }
+        paint(); sync();
+      });
+      paint();
+      stepField.paint = stepField.paint || [];
+      stepField.paint.push(paint);
+      return el("span", { class: "k-fx-hm-col" }, [
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": label + " later", text: "▲", onclick: function () { step(1); } }),
+        out,
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": label + " earlier", text: "▼", onclick: function () { step(-1); } })
+      ]);
+    }
+    function setUntil(ts) {
+      var d = new Date(ts); untilH = d.getHours(); untilM = Math.floor(d.getMinutes() / 5) * 5;
+      stepField.paint.forEach(function (p) { p(); });
+      sync();
+    }
+    var hmPicker = el("span", { class: "k-fx-hm-pick", role: "group", "aria-label": "Study until" }, [
+      stepField("h", "Hour"), el("span", { class: "k-fx-hm-sep", "aria-hidden": "true", text: ":" }), stepField("m", "Minute")
+    ]);
+    var untilChips = el("div", { class: "k-seg k-seg--quiet k-fx-until-chips", role: "group", "aria-label": "Quick times", "data-ui": "focus.until-chips" });
+    var untilSum = el("p", { class: "k-fx-until-sum", "data-ui": "focus.until-sum", role: "status" });
+    var untilFields = el("div", { class: "k-fx-until", "data-ui": "focus.until" }, [
+      el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Study until" }), hmPicker]),
+      el("div", { class: "k-fx-until-side" }, [untilChips, untilSum])
+    ]);
+    function paintUntilChips() {
+      untilChips.innerHTML = "";
+      var first = halfHourAfter(now() + 15 * 60000), picked = untilTs();
+      for (var i = 0; i < 4; i++) {
+        (function (t) {
+          var on = picked && Math.abs(picked - t) < 60000;
+          var b = el("button", { type: "button", class: "k-seg-item k-mono", "data-ui": "focus.until-chip", "aria-pressed": String(!!on), text: hm(t),
+            onclick: function () { setUntil(t); } });
+          KOS.ui.state(b, "active", !!on);
+          untilChips.appendChild(b);
+        })(first + i * 30 * 60000);
+      }
+      untilChips.appendChild(el("button", { type: "button", class: "k-seg-item k-mono", "data-ui": "focus.until-chip", text: "+30 min",
+        onclick: function () { setUntil((untilTs() || now()) + 30 * 60000); } }));
+    }
+    form.appendChild(untilFields);
+    form.appendChild(openFields);
+
+    /* optional subject/topic link — Reading (rest, not study) rides here too */
+    var subjSel = el("select", { class: "k-input", "aria-label": "Link to subject", onchange: function () {
+      if (reading() && mode !== "custom") setMode("custom");
+      fillRefs(); fillAssignments(); sync();
+    } }, [
       el("option", { value: "", text: "General study — no link" }),
       el("option", { value: "compsci", text: "Computer Science" }),
       el("option", { value: "maths", text: "Mathematics" }),
-      el("option", { value: "it", text: "IT · Data Analytics" })
+      el("option", { value: "it", text: "IT · Data Analytics" }),
+      el("option", { value: "reading", text: "Reading — rest, no penalties" })
     ]);
     var refSel = el("select", { class: "k-input", "aria-label": "Topic" });
     /* Build 6.4 — the open assignments a session can be spent on. Read from
@@ -1373,7 +2014,7 @@
       var keep = asgSel.value;
       asgSel.innerHTML = "";
       asgSel.appendChild(el("option", { value: "", text: "No assignment" }));
-      if (!KOS.assignments) { asgSel.disabled = true; return; }
+      if (!KOS.assignments || reading()) { asgSel.disabled = true; return; }
       var rows = KOS.assignments.linkable(subjSel.value || null);
       rows.forEach(function (a) {
         asgSel.appendChild(el("option", { value: String(a.id),
@@ -1386,7 +2027,7 @@
       refSel.innerHTML = "";
       refSel.appendChild(el("option", { value: "", text: "Whole subject" }));
       var sid = subjSel.value;
-      if (!sid) { refSel.disabled = true; return; }
+      if (!sid || reading()) { refSel.disabled = true; return; }
       refSel.disabled = false;
       KOS.hub.LEAVES[sid].forEach(function (l) {
         refSel.appendChild(el("option", { value: l.ref, text: l.ref + " " + l.title }));
@@ -1406,11 +2047,9 @@
       }
     }
     if (cfg.ref) refSel.value = cfg.ref;
-    function field(label, control, wide) {
-      return el("label", { class: "k-field" + (wide ? " k-fx-wide" : ""), "data-ui": "ui.field" }, [el("span", { class: "k-field-label", text: label }), control]);
-    }
+    var asgField = field("Assignment (optional)", asgSel, true);
     var linkRow = el("div", { class: "k-fx-pair", "data-ui": "focus.link-row" }, [
-      field("Link to subject", subjSel), field("Topic (optional)", refSel), field("Assignment (optional)", asgSel, true)
+      field("Link to subject", subjSel), field("Topic (optional)", refSel), asgField
     ]);
     form.appendChild(linkRow);
 
@@ -1432,7 +2071,7 @@
       drawDeal();
     });
     var penField = el("label", { class: "k-fx-check", for: "fxpen" }, [
-      penIn, el("span", { text: "Penalise tab-switches away from the app (−" + DISTRACT_HP + " HP after the first)" })
+      penIn, el("span", { text: "Penalise tab-switches away from the app" })
     ]);
     form.appendChild(penField);
 
@@ -1445,27 +2084,31 @@
         return e.type === "study" && !ticks[today0 + "|blk" + e.id];
       })[0] || null;
     }
+    var startBtn = el("button", { type: "button", class: "k-btn k-btn--primary k-fx-start", "data-ui": "focus.start", text: "▶ Start focus", onclick: function () {
+      var w = Math.max(1, Math.min(240, parseInt(work.value || "25", 10)));
+      var b = Math.max(0, Math.min(60, parseInt(brk.value || "0", 10)));
+      if (reading()) {
+        start({ kind: "reading", mode: "custom", workMin: w, breakMin: 0, book: null });
+        return;
+      }
+      if (mode === "until" && !untilTs()) return;
+      start({
+        mode: mode,
+        workMin: mode === "pomodoro" ? 25 : w,
+        breakMin: mode === "pomodoro" ? 5 : b,
+        until: mode === "until" ? untilText() : undefined,
+        nudgeMin: parseInt(nudgeSel.value, 10) || 0,
+        limitMin: parseInt(limitSel.value, 10) || 0,
+        subject: subjSel.value || null,
+        ref: subjSel.value && refSel.value ? refSel.value : null,
+        assignmentId: asgSel.value ? parseInt(asgSel.value, 10) : null,
+        objective: objIn.value
+      });
+    } });
     form.appendChild(el("div", { class: "k-cluster k-fx-go" }, [
-      el("button", { type: "button", class: "k-btn k-btn--primary k-fx-start", "data-ui": "focus.start", text: "▶ Start focus", onclick: function () {
-        var w = Math.max(1, Math.min(240, parseInt(work.value || "25", 10)));
-        var b = Math.max(0, Math.min(60, parseInt(brk.value || "0", 10)));
-        if (mode === "reading") {
-          start({ kind: "reading", mode: "custom", workMin: w, breakMin: 0, book: null });
-          return;
-        }
-        start({
-          mode: mode,
-          workMin: mode === "pomodoro" ? 25 : w,
-          breakMin: mode === "pomodoro" ? 5 : b,
-          subject: subjSel.value || null,
-          ref: subjSel.value && refSel.value ? refSel.value : null,
-          assignmentId: asgSel.value ? parseInt(asgSel.value, 10) : null,
-          objective: objIn.value
-        });
-      } }),
+      startBtn,
       todayBlock ? el("button", { type: "button", class: "k-btn", "data-ui": "focus.from-plan", text: "From today's plan",
         title: todayBlock.title, onclick: function () {
-          if (mode === "reading") setMode("pomodoro");
           if (todayBlock.subject) { subjSel.value = todayBlock.subject; fillRefs(); }
           fillAssignments();
           if (todayBlock.ref) refSel.value = todayBlock.ref;
@@ -1479,7 +2122,7 @@
     hero.appendChild(dial);
     hero.appendChild(form);
 
-    /* --- right: the record + the deal --- */
+    /* --- right: the record (or the rewards) + the deal --- */
     var focusSessions = KOS.sessions.all().filter(function (s) { return s.type === "focus"; });
     var today = KOS.srs.todayISO();
     var todaySecs = focusSessions.filter(function (s) { return s.date === today; })
@@ -1496,7 +2139,7 @@
       lastText = fmtLong(lastS.dur || 0) + (lastS.subject ? " · " + shortName(lastS.subject) : "") + " · " +
         sessionResult(lastS)[0].toLowerCase();
     }
-    side.appendChild(el("section", { class: "k-card" }, [
+    var recordCard = el("section", { class: "k-card", "data-ui": "focus.record" }, [
       el("h2", { class: "k-card-title", text: "Your record" }),
       el("ul", { class: "k-fx-kvs" }, [
         kv("Focused today", todaySecs ? fmtLong(todaySecs) : "—"),
@@ -1504,7 +2147,23 @@
         lastText ? kv("Last session", lastText) : null,
         kv("Sessions logged", String(focusSessions.length))
       ].filter(Boolean))
-    ]));
+    ]);
+    /* frame 16a — the modes that pay by time show the award instead: one
+       block, the six-tick hour and what an hour earns. The figures are
+       the governor's own (FOCUS_BLOCK), never a copy. */
+    var hour = KOS.governor.focusAward({ rule: "blocks", secs: 3600, pauses: 0 });
+    var rewardMode = el("span", { class: "k-muted" });
+    var rewardsCard = el("section", { class: "k-card k-fx-rewards", "data-ui": "focus.rewards" }, [
+      el("div", { class: "k-card-head" }, [el("h2", { class: "k-card-title", text: "Rewards" }), rewardMode]),
+      el("p", { class: "k-fx-rw-big" }, [
+        el("b", { class: "k-mono", text: "+" + BLK.xp + " XP · +" + BLK.gold + " gold" }),
+        el("span", { class: "k-muted", text: "every full 10 min" })
+      ]),
+      tickRow(6, 0, null, true),
+      el("p", { class: "k-fx-caption", text: "An hour earns six awards: +" + hour.xp + " XP · +" + hour.gold + " gold · +" + hour.hp + " HP. Minutes after the last full ten don't count." })
+    ]);
+    side.appendChild(recordCard);
+    side.appendChild(rewardsCard);
 
     /* the deal, stated plainly — friction only works when it's understood.
        Build 6.5: the top line is QUOTED from governor.focusAward for the
@@ -1512,39 +2171,42 @@
        paid. It re-reads whenever the mode or the custom minutes change. */
     var dealList = el("ul", { class: "k-fx-kvs", "data-ui": "focus.deal-list" });
     var dealFoot = el("p", { class: "k-fx-caption", "data-ui": "focus.deal-foot" });
+    function tabRow() {
+      return ["Each tab-switch after the first", F().penalizeDistractions === false ? "free — off" : "−" + DISTRACT_HP + " HP",
+        F().penalizeDistractions === false ? "muted" : "bad"];
+    }
     function drawDeal() {
       dealList.innerHTML = "";
-      if (mode === "reading") {
+      if (reading()) {
         [["Reading logs as rest", "rest streak · heatmap", "good"],
          ["Pauses and tab-switches", "never charged", "muted"],
          ["HP and the study streak", "untouched", "muted"]].forEach(function (r) { dealList.appendChild(kv(r[0], r[1], r[2])); });
         dealFoot.textContent = "Refreshing or navigating away costs nothing.";
         return;
       }
-      var mins = plannedMins();
-      if (KOS.governor.focusRule(mode) === "blocks") {
-        /* Custom (and the stopwatch / study-until modes): every full
-           10 minutes earns, and ending early keeps what was earned */
-        var B = KOS.governor.FOCUS_BLOCK;
-        var full = KOS.governor.focusAward({ rule: "blocks", secs: mins * 60, pauses: 0 });
-        [
-          ["Every full 10 minutes", "+" + B.xp + " XP · +" + B.gold + " gold · +" + B.hp + " HP", "good", "HP up to " + B.hpCap + " a session"],
-          ["The full " + mins + " min", "+" + full.xp + " XP · +" + full.gold + " gold · +" + full.hp + " HP", "good"],
-          ["Each pause after the first", "−15% award", "bad"],
-          ["Each tab-switch after the first", F().penalizeDistractions === false ? "free — off" : "−" + DISTRACT_HP + " HP",
-            F().penalizeDistractions === false ? "muted" : "bad"],
-          ["Ending early", "keeps every full 10 minutes", "muted", "under 10 minutes earns nothing"]
-        ].forEach(function (r) { dealList.appendChild(kv(r[0], r[1], r[2], r[3])); });
-        dealFoot.textContent = "Refreshing or navigating away costs nothing. 30 minutes without touching the app ends the session after a 5-minute warning.";
+      if (timePaid()) {
+        /* Custom, Stopwatch and Study until: every full 10 minutes earns,
+           and stopping early keeps what was earned */
+        var rows = [["Each full 10 minutes", "+" + BLK.xp + " XP · +" + BLK.gold + " gold · +" + BLK.hp + " HP", "good", "HP up to " + BLK.hpCap + " a session"]];
+        var span = mode === "custom" ? plannedMins() * 60 : mode === "until" && untilTs() ? (untilTs() - now()) / 1000 : 0;
+        if (span) {
+          var full = KOS.governor.focusAward({ rule: "blocks", secs: span, pauses: 0 });
+          rows.push([mode === "until" ? "Until " + untilText() : "The full " + plannedMins() + " min",
+            "+" + full.xp + " XP · +" + full.gold + " gold · +" + full.hp + " HP", "good"]);
+        }
+        rows.push(["Each pause after the first", "−15% award", "bad"], tabRow(),
+          ["Marking a distraction yourself", "free", "muted", "recorded, never charged"]);
+        rows.forEach(function (r) { dealList.appendChild(kv(r[0], r[1], r[2], r[3])); });
+        dealFoot.textContent = "Refreshing or navigating away costs nothing: the clock is banked.";
         return;
       }
+      var mins = plannedMins();
       var a = KOS.governor.focusAward({ complete: true, mins: mins, pauses: 0 });
       var twoPauses = KOS.governor.focusAward({ complete: true, mins: mins, pauses: 2 });
       [
         ["One completed " + mins + "-min cycle", "+" + a.xp + " XP · +" + a.gold + " gold · +" + a.hp + " HP", "good"],
         ["Each pause after the first", "−15% award", "bad", twoPauses.xp + " XP at two pauses"],
-        ["Each tab-switch after the first", F().penalizeDistractions === false ? "free — off" : "−" + DISTRACT_HP + " HP",
-          F().penalizeDistractions === false ? "muted" : "bad"],
+        tabRow(),
         ["Marking a distraction yourself", "free", "muted", "recorded, never charged"],
         ["Ending before a full cycle", "award forfeited", "warn", "the session is still logged in full"]
       ].forEach(function (r) { dealList.appendChild(kv(r[0], r[1], r[2], r[3])); });
@@ -1579,19 +2241,62 @@
     }
 
     /* one sync for everything the mode and the minutes drive */
+    var MODE_NAME = { pomodoro: "Pomodoro", custom: "Custom", stopwatch: "Stopwatch", until: "Study until" };
     function sync() {
-      var reading = mode === "reading";
+      var rd = reading(), paid = timePaid();
       var mins = plannedMins();
       var b = Math.max(0, Math.min(60, parseInt(brk.value || "0", 10)));
-      dialTime.textContent = fmt(mins * 60);
-      dialSub.textContent = reading ? "reading · no penalties"
-        : mode === "pomodoro" ? "auto-cycling · 5 min breaks"
-        : b ? "auto-cycling · " + b + " min breaks" : "one interval";
-      customFields.hidden = mode !== "custom" && !reading;
-      brk.closest(".k-field").hidden = reading;
-      linkRow.hidden = reading;
-      objField.hidden = reading;
-      penField.hidden = reading;
+      modeRow.querySelectorAll("[data-ui~='focus.mode']").forEach(function (x) {
+        var off = rd && x.getAttribute("data-mode") !== "custom";
+        x.disabled = off;
+      });
+      hero.setAttribute("data-rule", paid ? "blocks" : "cycle");
+      hero.setAttribute("data-mode", rd ? "reading" : mode);
+      dialKicker.textContent = "";
+      dialKicker.hidden = true;
+      if (!rd && mode === "stopwatch") {
+        dialTime.textContent = "0:00";
+        dialSub.textContent = "counts up until you stop";
+      } else if (!rd && mode === "until") {
+        var t = untilTs();
+        dialKicker.hidden = false;
+        dialKicker.textContent = "until";
+        dialTime.textContent = untilText();
+        dialSub.textContent = t ? fmtLong((t - now()) / 1000) + " from now" : "pick a later time";
+      } else {
+        dialTime.textContent = fmt(mins * 60);
+        dialSub.textContent = rd ? "reading · no penalties"
+          : mode === "pomodoro" ? "auto-cycling · 5 min breaks"
+          : b ? "auto-cycling · " + b + " min breaks" : "one interval";
+      }
+      var fixed = !rd && (mode === "stopwatch" || mode === "until");
+      steppers.hidden = fixed;
+      dialNote.hidden = !fixed;
+      customFields.hidden = mode !== "custom" && !rd;
+      brk.closest(".k-field").hidden = rd;
+      openFields.hidden = rd || !fixed;
+      limitField.hidden = mode !== "stopwatch";
+      untilFields.hidden = rd || mode !== "until";
+      refSel.closest(".k-field").hidden = rd;
+      asgField.hidden = rd;
+      objField.hidden = rd;
+      penField.hidden = rd;
+      /* study until: the summary, or the one error that stops a start */
+      var err = false;
+      if (!rd && mode === "until") {
+        var ts = untilTs();
+        paintUntilChips();
+        err = !ts;
+        untilSum.setAttribute("data-state", err ? "warn" : "");
+        untilSum.textContent = ts
+          ? hm(now()) + " → " + untilText() + " · " + fmtLong((ts - now()) / 1000) + " · up to " +
+            Math.floor((ts - now()) / 1000 / BLK.secs) + " award" + (Math.floor((ts - now()) / 1000 / BLK.secs) === 1 ? "" : "s")
+          : "That time has passed. Pick a time after " + hm(now()) + ".";
+      }
+      startBtn.disabled = err;
+      recordCard.hidden = paid;
+      rewardsCard.hidden = !paid;
+      rewardMode.textContent = MODE_NAME[mode] || "";
       drawDeal();                     // the quoted award follows the choice
     }
     setMode(mode);
@@ -1600,41 +2305,52 @@
     brk.addEventListener("input", sync);
   };
 
-  /* ---------------- the mini-player's place (roadmap 1.6) ----------------
-     The minimised player can be dragged and resized (the interaction comes
-     from the design). Where it sits and how big it is are this DEVICE's
-     choice: state.ui.focusMini = {x, y, w, h} in CSS pixels from the
-     viewport's top-left. clampMini() is the one rule for keeping it on
-     screen — inside an 8px margin, no smaller or larger than the limits,
-     and snapped flush to an edge it lands within 16px of. The phone dock
-     (under 700px) is unchanged and never reads this (invariant 75). */
-  var MINI = { margin: 8, snap: 16, minW: 200, minH: 56, maxW: 520, maxH: 360 };
-  function clampMini(rect, vw, vh) {
+  /* ---------------- the mini-player's place (roadmap 1.6, frame 16d) -----
+     The minimised player comes in two sizes, compact and large, with
+     nothing in between, and is dragged by its grip. Where it sits and which
+     size it is are this DEVICE's choice: state.ui.focusMini = {x, y, w, h}
+     in CSS pixels from the viewport's top-left. clampMini() is the one
+     rule for where it may be: MINI.margin in from the viewport and from
+     the rail and header (`bounds`), at one of the two widths, and always
+     docked — within MINI.corner of a corner it takes the corner, otherwise
+     it snaps to the nearest edge at the drop position (on the top or bottom
+     edge, within MINI.centre of the middle it centres). The phone dock
+     (700px and under) never reads this (invariant 75). */
+  var MINI = { margin: 20, corner: 64, centre: 8, compact: 236, large: 340, minH: 56, maxH: 360 };
+  function clampMini(rect, vw, vh, bounds) {
     if (!rect || typeof rect !== "object") return null;
     var n = function (v) { v = Number(v); return isFinite(v) ? Math.round(v) : null; };
     var x = n(rect.x), y = n(rect.y), w = n(rect.w), h = n(rect.h);
     if (x === null || y === null || w === null || h === null) return null;
     vw = Math.max(0, Number(vw) || 0); vh = Math.max(0, Number(vh) || 0);
-    var room = function (v) { return Math.max(0, v - 2 * MINI.margin); };
-    w = Math.max(Math.min(MINI.minW, room(vw)), Math.min(w, MINI.maxW, room(vw)));
-    h = Math.max(Math.min(MINI.minH, room(vh)), Math.min(h, MINI.maxH, room(vh)));
-    var maxX = Math.max(MINI.margin, vw - MINI.margin - w), maxY = Math.max(MINI.margin, vh - MINI.margin - h);
-    x = Math.max(MINI.margin, Math.min(x, maxX));
-    y = Math.max(MINI.margin, Math.min(y, maxY));
-    if (x - MINI.margin <= MINI.snap) x = MINI.margin;
-    else if (maxX - x <= MINI.snap) x = maxX;
-    if (y - MINI.margin <= MINI.snap) y = MINI.margin;
-    else if (maxY - y <= MINI.snap) y = maxY;
+    var bl = bounds && Number(bounds.left) > 0 ? Math.round(bounds.left) : 0;
+    var bt = bounds && Number(bounds.top) > 0 ? Math.round(bounds.top) : 0;
+    var roomW = Math.max(0, vw - bl - 2 * MINI.margin), roomH = Math.max(0, vh - bt - 2 * MINI.margin);
+    w = Math.min(w < (MINI.compact + MINI.large) / 2 ? MINI.compact : MINI.large, roomW);
+    h = Math.max(Math.min(MINI.minH, roomH), Math.min(h, MINI.maxH, roomH));
+    var L = bl + MINI.margin, T = bt + MINI.margin;
+    var R = Math.max(L, vw - MINI.margin - w), B = Math.max(T, vh - MINI.margin - h);
+    x = Math.max(L, Math.min(x, R));
+    y = Math.max(T, Math.min(y, B));
+    var dx = Math.min(x - L, R - x), dy = Math.min(y - T, B - y);
+    var nx = x - L <= R - x ? L : R, ny = y - T <= B - y ? T : B;
+    if (dx <= MINI.corner && dy <= MINI.corner) { x = nx; y = ny; }
+    else if (dx <= dy) x = nx;
+    else {
+      y = ny;
+      var mid = Math.round((L + R) / 2);
+      if (Math.abs(x - mid) <= MINI.centre) x = mid;
+    }
     return { x: x, y: y, w: w, h: h };
   }
   /* the stored place, clamped to the viewport it is read in (a window
      that shrank since never strands the player); null = the default dock */
-  function miniRect(vw, vh) {
+  function miniRect(vw, vh, bounds) {
     var r = store.state.ui && store.state.ui.focusMini;
     if (!r) return null;
-    return clampMini(r, vw != null ? vw : window.innerWidth, vh != null ? vh : window.innerHeight);
+    return clampMini(r, vw != null ? vw : window.innerWidth, vh != null ? vh : window.innerHeight, bounds);
   }
-  function setMiniRect(rect, vw, vh) {
+  function setMiniRect(rect, vw, vh, bounds) {
     var ui = store.state.ui;
     if (rect == null) {
       if (ui.focusMini == null) return null;
@@ -1642,7 +2358,7 @@
       store.save();
       return null;
     }
-    var c = clampMini(rect, vw != null ? vw : window.innerWidth, vh != null ? vh : window.innerHeight);
+    var c = clampMini(rect, vw != null ? vw : window.innerWidth, vh != null ? vh : window.innerHeight, bounds);
     if (!c) return null;
     ui.focusMini = c;
     store.save();
@@ -1698,6 +2414,8 @@
     eligibility: eligibility,
     /* roadmap 1.1 / 1.6 — the pure pieces a view or a tool reads */
     MODES: MODES.slice(),
+    NUDGES: NUDGES.slice(),
+    LIMITS: LIMITS.slice(),
     sessionLinks: sessionLinks,
     untilTarget: untilTarget,
     idleVerdict: idleVerdict,

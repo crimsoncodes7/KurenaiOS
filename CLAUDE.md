@@ -154,6 +154,9 @@ source comments and audit notes refer to it.
      60 min 72/6/6, 120 min 144/12/6.
    - Both rules: the first pause is free, each further one takes 15% off XP
      and gold (floor 25%).
+   Stopwatch and Study-until may carry a break NUDGE (`nudgeMin`: a chime and
+   one line, never a stop), and a stopwatch a self-stop LIMIT (`limitMin`,
+   ended and paid exactly like Stop, `ended: "limit"`).
    A focus entry records its `rule`, `secs` and `blocks`; an entry from before
    the blocks rule carries none and reads as Pomodoro, so history is never
    re-priced. A Focus session links ONE subject: its `refs` may name several
@@ -168,10 +171,15 @@ source comments and audit notes refer to it.
    A RUNNING study session untouched for 30 minutes is warned (toast, live
    region, a `focus` notification); 5 minutes later, still untouched, it
    ends itself, logged and paid ONLY for the focus done before the last
-   interaction (`activeWork`), `ended: "idle"`. Reading and paused sessions
-   are never watched. The mini-player's place is per device
-   (`state.ui.focusMini`, `KOS.focus.clampMini` keeps it in the viewport);
-   the phone dock does not read it.
+   interaction (`activeWork`), `ended: "idle"`, and its review waits on
+   screen for the return. While the warning stands a pointer sweep is not
+   an answer (a key, click, scroll or "I'm here" is), and answering marks
+   the warning read in the bell. Reading and paused sessions are never
+   watched. The mini-player's place and size are per device
+   (`state.ui.focusMini`); `KOS.focus.clampMini` is the one rule: two widths
+   (236/340), 20px in from the viewport, rail and header, and always docked
+   (a corner within 64px, else the nearest edge). The phone dock does not
+   read it.
 5. One deliberate bulk/sync action produces at most one session. Autonomous
    multi-provider sync batches rewards; XML import does not reward.
 5a. Budget Planner is logistics: zero Governor traffic and zero provider/network

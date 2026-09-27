@@ -352,8 +352,8 @@ step("early stop: still logs (incomplete), award forfeited", () => {
 });
 step("focus start view renders modes + link selects; reload restore is paused", () => {
   KOS.show("focus");
-  /* Graphite (frame 10a): Pomodoro, Custom and Reading */
-  if ($$("[data-ui~='focus.mode']").length !== 3) throw new Error("mode cards: " + $$("[data-ui~='focus.mode']").length);
+  /* frame 16a: Pomodoro, Custom, Stopwatch and Study until */
+  if ($$("[data-ui~='focus.mode']").length !== 4) throw new Error("mode cards: " + $$("[data-ui~='focus.mode']").length);
   if (!$("[data-ui~='focus.start']")) throw new Error("start button missing");
   // simulate a reload restore: plant a running snapshot and re-eval focus.js
   const f = KOS.store.state.focus;
