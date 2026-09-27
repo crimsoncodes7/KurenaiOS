@@ -58,6 +58,26 @@ step("A · a redraw of the same topic keeps the draft", () => {
   eq(E().get(A.subject, A.ref), null, "nothing filed");
 });
 
+step("A · the inspector's box (frame 23a) drafts as you type and says where it files", () => {
+  fresh();
+  KOS.show("ref", A);
+  const box = app.document.querySelector("[data-ui~='topic.quick-note']");
+  assert(box, "no quick-note box in the inspector");
+  box.value = "top is incremented before the store";
+  box.dispatchEvent(new app.window.Event("input", { bubbles: true }));
+  eq(E().draft(A.subject, A.ref), "top is incremented before the store", "typing is the draft");
+  assert(/Draft/.test(app.document.querySelector("[data-ui~='topic.quick-note-hint']").textContent), "the hint does not say it is a draft");
+  eq(E().get(A.subject, A.ref), null, "typing forked nothing");
+  KOS.show("ref", B);
+  const f = info(A);
+  assert(f && f[f.length - 1].src === "quick-note" && /incremented/.test(f[f.length - 1].md), "leaving did not file the box's draft");
+  KOS.show("ref", A);
+  eq(app.document.querySelector("[data-ui~='topic.quick-note']").value, "", "the box is empty on the next visit");
+  const last = f[f.length - 1];
+  [...app.document.querySelectorAll("[data-ui~='ui.tab']")].find(t => t.dataset.tab === "spec").click();
+  assert(app.document.querySelector("[data-bid='" + last.id + "'][data-state~='fresh']"), "the newest note is not marked until seen");
+});
+
 /* ============ B · filed on leave ============ */
 step("B · leaving the topic files ONE dated block and clears the draft", () => {
   fresh();

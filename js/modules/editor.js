@@ -154,6 +154,25 @@
   function iconBtn(label, glyph, onclick, cls) {
     return el("button", { class: "k-ed-ib", type: "button", "data-intent": cls === "danger" ? "danger" : null, "aria-label": label, title: label, onclick: onclick }, [glyph]);
   }
+  /* frame 23b: the ⠿ handle every block and row carries — drag it, or
+     Space to lift, ↑ ↓ to move, Space to drop (KOS.ui.reorder) */
+  function grip(label) {
+    return el("button", { type: "button", class: "k-grip", "data-reorder": "", "data-ui": "editor.grip", "aria-label": "Move " + label, title: "Drag to move · Space lifts it", text: "⠿" });
+  }
+  /* a row list's drop: the row moves inside its own array (its id, and a
+     card's SM-2 key, ride with it — invariants 87, 88) */
+  function dropIn(getArr, save, redraw) {
+    return function (row, list, index) {
+      var arr = getArr();
+      var id = row.getAttribute("data-rid");
+      var from = -1;
+      for (var i = 0; i < arr.length; i++) if (String(arr[i].id) === id) { from = i; break; }
+      if (from < 0) return;
+      var moved = arr.splice(from, 1)[0];
+      arr.splice(Math.max(0, Math.min(arr.length, index)), 0, moved);
+      save(); redraw();
+    };
+  }
 
   var HELP = [
     ["↵ new line", "line break · a blank line starts a new paragraph"],
@@ -272,13 +291,12 @@
 
     function row(b, i) {
       var isPage = typeOf(b) === "page";
-      var r = el("div", { class: "k-ed-block", "data-ui": "editor.block", "data-kind": isPage ? "page" : typeOf(b), "data-state": b.id === selected ? "sel" : null, role: "listitem", "data-bid": b.id });
+      var r = el("div", { class: "k-ed-block", "data-ui": "editor.block", "data-kind": isPage ? "page" : typeOf(b), "data-state": b.id === selected ? "sel" : null, role: "listitem", "data-bid": b.id, "data-rid": b.id });
       var head = el("button", { class: "k-ed-block-h", "data-ui": "editor.block-h", type: "button", "aria-expanded": String(b.id === selected), onclick: function () {
         selected = b.id === selected ? null : b.id;
         redraw();
         if (selected) onSave({ id: selected, focusOnly: true });
       } }, [
-        el("span", { class: "k-ed-grip", "aria-hidden": "true", text: "⠿" }),
         el("span", { class: "k-ed-type", text: isPage ? "Page" : typeLabel(b) }),
         el("span", { class: "k-ed-sum", text: summary(b) || "(empty)" })
       ]);
@@ -288,7 +306,7 @@
         iconBtn("Duplicate", "⧉", function () { var c = JSON.parse(JSON.stringify(b)); c.id = KOS.edits.nextId(); blocks.splice(i + 1, 0, c); selected = c.id; commitNow(c.id); redraw(); }),
         iconBtn("Remove", "✕", function () { blocks.splice(i, 1); if (selected === b.id) selected = null; commitNow(); redraw(); }, "danger")
       ]);
-      r.appendChild(el("div", { class: "k-ed-block-row" }, [head, tools]));
+      r.appendChild(el("div", { class: "k-ed-block-row" }, [grip((isPage ? "page" : typeLabel(b)).toLowerCase()), head, tools]));
       if (b.id === selected) {
         r.appendChild(blockForm(b, function () { commit(b.id); }, redraw));
         r.appendChild(addMenu(i + 1, "Add block after"));
@@ -353,14 +371,25 @@
       list.innerHTML = "";
       if (!blocks.length) list.appendChild(el("p", { class: "k-ed-empty", text: opts.emptyText || "Nothing here yet — add the first block." }));
       blocks.forEach(function (b, i) { list.appendChild(row(b, i)); });
+      if (opts.afterRedraw) opts.afterRedraw();
       var sel = list.querySelector("[data-ui~='editor.block'][data-state~='sel']");
       if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: "nearest" });
+    }
+    if (!opts.grouped) {
+      KOS.ui.reorder(list, { rows: "[data-rid]", label: function (row) { return row.querySelector(".k-ed-type").textContent; },
+        onDrop: function (row, l, index) {
+          var id = row.getAttribute("data-rid"), from = -1;
+          for (var i = 0; i < blocks.length; i++) if (String(blocks[i].id) === id) { from = i; break; }
+          if (from < 0) return;
+          blocks.splice(index, 0, blocks.splice(from, 1)[0]);
+          commitNow(id); redraw();
+        } });
     }
     wrap.appendChild(pages);
     wrap.appendChild(list);
     wrap.appendChild(addMenu(function () { return blocks.length; }, "Add block at the end"));
     redraw();
-    return { node: wrap, select: function (id) { selected = id; redraw(); }, redraw: redraw };
+    return { node: wrap, list: list, select: function (id) { selected = id; redraw(); }, redraw: redraw };
   }
 
   /* ---------------- row editors: flashcards / quiz / exam ---------------- */
@@ -388,8 +417,9 @@
       if (!cards.length) list.appendChild(el("p", { class: "k-ed-empty", text: "No curriculum cards on this topic yet — add one." }));
       cards.forEach(function (c, i) {
         var m = KOS.srs.peek(c.k);
-        list.appendChild(el("div", { class: "k-ed-row", "data-ui": "editor.row" }, [
+        list.appendChild(el("div", { class: "k-ed-row", "data-ui": "editor.row", "data-rid": c.id }, [
           el("div", { class: "k-ed-row-h" }, [
+            grip("card " + (i + 1)),
             el("b", { text: "Card " + (i + 1) }),
             el("span", { class: "k-ed-meta", text: m && m.views ? m.views + " review" + (m.views === 1 ? "" : "s") + " · due " + (m.due || "—") : "new" }),
             rowTools(cards, i, save, redraw, { removeBody: "The card and its review history leave this deck." })
@@ -425,6 +455,8 @@
       cards.push({ q: "", a: "" }); save(); cards = KOS.edits.material(sid, ref, "flashcards"); redraw();
       var last = list.querySelectorAll("[data-ui~='editor.row']:not([data-kind='custom']) textarea"); if (last.length) last[last.length - 2].focus();
     } }));
+    KOS.ui.reorder(list, { rows: "[data-rid]", label: function (row) { return row.querySelector(".k-ed-row-h b").textContent; },
+      onDrop: dropIn(function () { return cards; }, save, redraw) });
     redraw();
     return wrap;
   }
@@ -462,8 +494,8 @@
         var r = el("div", { class: "k-ed-row", "data-ui": "editor.row" });
         function redrawItem() { var n = el("div"); r.replaceWith(n); n.replaceWith(build()); }
         function build() {
-          r = el("div", { class: "k-ed-row", "data-ui": "editor.row" }, [
-            el("div", { class: "k-ed-row-h" }, [el("b", { text: "Q" + (i + 1) }), rowTools(items, i, save, redraw)]),
+          r = el("div", { class: "k-ed-row", "data-ui": "editor.row", "data-rid": it.id }, [
+            el("div", { class: "k-ed-row-h" }, [grip("question " + (i + 1)), el("b", { text: "Q" + (i + 1) }), rowTools(items, i, save, redraw)]),
             area(it.q, 2, function (v) { it.q = v; commit(); }, "Question"),
             el("div", { class: "k-ed-lbl", text: "Options — tick the correct one" }),
             optionRows(it, redrawItem),
@@ -503,6 +535,8 @@
     wrap.appendChild(el("button", { class: "k-btn k-btn--primary k-ed-add", "data-intent": "primary", type: "button", text: "+ Add question", onclick: function () {
       items.push({ q: "", opts: ["", ""], ans: 0, why: "" }); save(); items = KOS.edits.material(sid, ref, "quiz"); redraw();
     } }));
+    KOS.ui.reorder(list, { rows: "[data-rid]", label: function (row) { return row.querySelector(".k-ed-row-h b").textContent; },
+      onDrop: dropIn(function () { return items; }, save, redraw) });
     redraw();
     return wrap;
   }
@@ -536,8 +570,8 @@
       if (!items.length) list.appendChild(el("p", { class: "k-ed-empty", text: "No exam questions on this topic yet — add one." }));
       items.forEach(function (it, i) {
         var parts = partsOf(it);
-        var r = el("div", { class: "k-ed-row", "data-ui": "editor.row" });
-        r.appendChild(el("div", { class: "k-ed-row-h" }, [el("b", { text: "Question " + (i + 1) }), rowTools(items, i, save, redraw)]));
+        var r = el("div", { class: "k-ed-row", "data-ui": "editor.row", "data-rid": it.id });
+        r.appendChild(el("div", { class: "k-ed-row-h" }, [grip("question " + (i + 1)), el("b", { text: "Question " + (i + 1) }), rowTools(items, i, save, redraw)]));
         r.appendChild(area(it.ctx, 2, function (v) { it.ctx = v; commit(); }, "Shared stem / context (optional for a multi-part question)"));
         var pl = el("div", { class: "k-ed-steps" });
         parts.forEach(function (p, pi) {
@@ -564,6 +598,8 @@
     wrap.appendChild(el("button", { class: "k-btn k-btn--primary k-ed-add", "data-intent": "primary", type: "button", text: "+ Add question", onclick: function () {
       items.push({ q: "", marks: 2, ms: [] }); save(); items = KOS.edits.material(sid, ref, "exam"); redraw();
     } }));
+    KOS.ui.reorder(list, { rows: "[data-rid]", label: function (row) { return row.querySelector(".k-ed-row-h b").textContent; },
+      onDrop: dropIn(function () { return items; }, save, redraw) });
     redraw();
     return wrap;
   }
@@ -618,12 +654,67 @@
       } else if (kind === "spec") {
         var spec = KOS.edits.material(sid, ref, "spec");
         var save = function (hint) { if (!hint.focusOnly) KOS.edits.set(sid, ref, "spec", spec); saved("spec", hint); };
-        body.appendChild(el("h5", { class: "k-ed-sub", text: "Specification content" }));
-        var a = blockList(spec.content, save, { emptyText: "No content — add a block." });
-        body.appendChild(a.node);
-        body.appendChild(el("h5", { class: "k-ed-sub", text: "Guidance / examiner notes" }));
-        var b = blockList(spec.info, save, { emptyText: "No guidance — add a block." });
-        body.appendChild(b.node);
+        /* frame 23c: the Spec tab reads in two columns and the break between
+           them is a row here, in reading order, with its own handle. With no
+           break stored it sits where the lists meet (the automatic layout);
+           dragging it, or a block past it, moves it. */
+        var brk = KOS.edits.specBreak(sid, ref);
+        var group = el("div", { class: "k-ed-spec", "data-ui": "editor.spec" });
+        var a, b;
+        var placeBreak = function () {
+          if (!a || !b) return;
+          var old0 = group.querySelector("[data-rid='__break']");
+          if (old0) old0.remove();
+          var row = el("div", { class: "k-ed-break", "data-rid": "__break", "data-ui": "editor.break", "data-state": brk == null ? "auto" : null }, [
+            grip("column break"),
+            el("span", { class: "k-ed-break-l", text: brk == null ? "Column break · automatic" : "Column break" })
+          ]);
+          var at = brk != null ? [].filter.call(group.querySelectorAll("[data-rid]"), function (n) { return n.getAttribute("data-rid") === String(brk); })[0] : null;
+          if (at) at.parentNode.insertBefore(row, at);
+          else b.list.insertBefore(row, b.list.firstChild);
+        };
+        a = blockList(spec.content, save, { grouped: true, emptyText: "No content — add a block.", afterRedraw: function () { placeBreak(); } });
+        b = blockList(spec.info, save, { grouped: true, emptyText: "No guidance — add a block.", afterRedraw: function () { placeBreak(); } });
+        if (brk != null) {
+          var order = spec.content.concat(spec.info), before = 0;
+          for (var bi = 0; bi < order.length && String(order[bi].id) !== String(brk); bi++) before++;
+          body.appendChild(el("div", { class: "k-ed-breaknote", "data-ui": "editor.break-note" }, [
+            el("span", { text: "Moved by hand · the break now follows block " + before + " of " + order.length }),
+            el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "editor.balance", text: "↺ Balance automatically", onclick: function () {
+              KOS.edits.setSpecBreak(sid, ref, null); saved("spec", {}); render();
+            } })
+          ]));
+        }
+        group.appendChild(el("h5", { class: "k-ed-sub", text: "Specification content" }));
+        group.appendChild(a.node);
+        group.appendChild(el("h5", { class: "k-ed-sub", text: "Guidance / examiner notes" }));
+        group.appendChild(b.node);
+        body.appendChild(group);
+        placeBreak();
+        /* the block after the break row, in reading order; null at the
+           seam of the two lists (the automatic place) or at the very end */
+        var breakFromDom = function () {
+          var rows = [].slice.call(group.querySelectorAll(".k-ed-list > [data-rid]"));
+          var i = rows.findIndex(function (n) { return n.getAttribute("data-rid") === "__break"; });
+          var next = rows[i + 1];
+          var firstInfo = [].filter.call(b.list.children, function (n) { return n.matches("[data-rid]") && n.getAttribute("data-rid") !== "__break"; })[0];
+          return !next || next === firstInfo ? null : next.getAttribute("data-rid");
+        };
+        KOS.ui.reorder(group, { lists: ".k-ed-list", rows: "[data-rid]",
+          label: function (row) { return row.getAttribute("data-rid") === "__break" ? "Column break" : (row.querySelector(".k-ed-type") || {}).textContent || "Block"; },
+          onDrop: function (row, list, index) {
+            var id = row.getAttribute("data-rid");
+            if (id === "__break") {
+              KOS.edits.setSpecBreak(sid, ref, breakFromDom());
+            } else {
+              var blocksBefore = [].filter.call(list.children, function (n) { return n.matches("[data-rid]") && n.getAttribute("data-rid") !== "__break"; }).indexOf(row);
+              var nextBreak = brk != null ? breakFromDom() : undefined;
+              KOS.edits.move(sid, ref, "spec", id, { list: list === a.list ? "content" : "info", index: Math.max(0, blocksBefore) });
+              if (nextBreak !== undefined) KOS.edits.setSpecBreak(sid, ref, nextBreak);
+            }
+            saved("spec", { id: id === "__break" ? null : id });
+            render();
+          } });
         current = { select: function (id) { a.select(id); b.select(id); } };
       } else if (kind === "flashcards") {
         body.appendChild(flashcardEditor(sid, ref, function () { saved("flashcards"); }));

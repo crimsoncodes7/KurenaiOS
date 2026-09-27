@@ -417,6 +417,19 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 }
 
 /* ---------- the phone tier ---------- */
+/* ---------- reorder: the drag pattern (frame 23b) ----------
+   The handle, the lifted copy that follows the pointer, the faded dashed
+   ghost left behind, and the crimson drop line with its dot. */
+.k-grip { flex: 0 0 auto; display: inline-grid; place-items: center; inline-size: var(--sp-20); min-block-size: var(--sp-28); padding: 0; border: 0; border-radius: var(--r-6); background: none; color: var(--muted); font-size: var(--fs-14); line-height: 1; cursor: grab; touch-action: none; }
+.k-grip:hover { color: var(--text); background: var(--s2); }
+.k-grip:focus-visible { outline: var(--focus-width) solid var(--crimson); outline-offset: var(--hairline); }
+:root[data-reordering] { cursor: grabbing; user-select: none; }
+[data-rid][data-state~="ghost"] { opacity: 0.35; outline: var(--ring-1-5) dashed var(--line); outline-offset: calc(-1 * var(--ring-1-5)); border-radius: var(--r-12); }
+[data-rid][data-state~="lifted"] { position: relative; z-index: 1; border-radius: var(--r-12); box-shadow: var(--elev-3), inset 0 0 0 var(--ring-1-5) var(--crimson); }
+.k-reorder-float { position: fixed; z-index: var(--z-menu); inset-inline-start: var(--rx, -999px); inset-block-start: var(--ry, -999px); inline-size: var(--rw); margin: 0; border-radius: var(--r-12); background: var(--s2); box-shadow: var(--elev-4); opacity: 0.96; transform: rotate(-1.2deg) scale(1.02); pointer-events: none; }
+.k-reorder-line { position: fixed; z-index: var(--z-menu); inset-inline-start: var(--lx, -999px); inset-block-start: var(--ly, -999px); inline-size: var(--lw, 0); block-size: var(--ring-1-5); background: var(--crimson); pointer-events: none; transform: translateY(-50%); }
+.k-reorder-line::before { content: ""; position: absolute; inset-inline-start: calc(-1 * var(--sp-4)); inset-block-start: 50%; inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--crimson); transform: translateY(-50%); }
+
 /* ---------- the topic picker (frames 17a–17d) ----------
    A 44px well of chips; the panel opens fixed under it so no scrolling
    dialog clips it. Subject dots use the three subject hues. */

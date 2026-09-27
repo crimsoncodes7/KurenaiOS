@@ -835,6 +835,182 @@
     return btn;
   }
 
+  /* ---------------- reorder: the drag pattern (frame 23b) ----------------
+     One interaction for every list the user ranks by hand — the study
+     editor's blocks and rows, the Spec column break, the Shrine's tie
+     order. Every row carries a handle (a real button, [data-reorder]):
+       pointer   drag the handle: the row lifts and follows the pointer (a
+                 float shadow, a slight tilt, 18px off), its old place stays
+                 as a faded dashed ghost, and a crimson line with a dot marks
+                 where it will land. Nothing else moves until the drop.
+       keyboard  Space lifts, ↑ ↓ move one place, Space drops, Esc puts it
+                 back; each step is announced ("moved to 3 of 6").
+     Rows are the direct children of the containers matching `lists`
+     (default: root) that match `rows`; a row may cross into another list of
+     the same root. The caller owns the data: onDrop(row, list, index) gets
+     the row, the list it lands in and its index there with the row taken
+     out, and redraws; focus returns to the handle of the row with the same
+     data-rid. The pointer path needs a pointer; jsdom-style tests drive the
+     keyboard path. */
+  function reorder(root, opts) {
+    opts = opts || {};
+    var rowsSel = opts.rows || "[data-rid]";
+    function lists() {
+      var l = opts.lists ? [].slice.call(root.querySelectorAll(opts.lists)) : [];
+      return l.length ? l : [root];
+    }
+    function rowsIn(list) {
+      return [].filter.call(list.children, function (c) { return c.matches && c.matches(rowsSel) && !c.hasAttribute("data-reorder-float"); });
+    }
+    function allRows() { var out = []; lists().forEach(function (l) { out = out.concat(rowsIn(l)); }); return out; }
+    function nameOf(row) { return (opts.label && opts.label(row)) || "Item"; }
+    function place(row) {
+      var list = row.parentNode, rs = rowsIn(list);
+      return { list: list, index: rs.indexOf(row), total: allRows().length, at: allRows().indexOf(row) };
+    }
+    function say(text) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(text); }
+    function finish(row, list, index) {
+      var rid = row.getAttribute("data-rid");
+      if (opts.onDrop) opts.onDrop(row, list, index);
+      if (rid == null) return;
+      var same = [].filter.call(root.querySelectorAll("[data-rid]"), function (n) { return n.getAttribute("data-rid") === rid; })[0];
+      var again = same && same.querySelector("[data-reorder]");
+      if (again) again.focus();
+    }
+
+    /* ---- keyboard ---- */
+    var lifted = null;          // {row, home: {list, next}}
+    var moving = false;         // a DOM move blurs the handle; that is not leaving
+    root.addEventListener("keydown", function (e) {
+      var h = e.target.closest && e.target.closest("[data-reorder]");
+      if (!h || !root.contains(h)) return;
+      var row = h.closest(rowsSel);
+      if (!row) return;
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        if (!lifted) {
+          lifted = { row: row, home: { list: row.parentNode, next: row.nextSibling } };
+          KOS.ui.state(row, "lifted", true);
+          /* while a row is lifted, Escape is ours, not a dialog's */
+          root.setAttribute("data-keys-local", "");
+          var p = place(row);
+          say(nameOf(row) + ", lifted. " + (p.at + 1) + " of " + p.total + ". Arrow keys move it, Space drops it, Escape puts it back.");
+        } else {
+          var r = lifted.row; lifted = null;
+          root.removeAttribute("data-keys-local");
+          KOS.ui.state(r, "lifted", false);
+          var q = place(r);
+          say(nameOf(r) + ", dropped at " + (q.at + 1) + " of " + q.total + ".");
+          finish(r, q.list, q.index);
+        }
+      } else if (lifted && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+        e.preventDefault();
+        var all = allRows(), i = all.indexOf(row);
+        var j = e.key === "ArrowUp" ? i - 1 : i + 1;
+        if (j < 0 || j >= all.length) return;
+        var other = all[j];
+        moving = true;
+        if (e.key === "ArrowUp") other.parentNode.insertBefore(row, other);
+        else other.parentNode.insertBefore(row, other.nextSibling);
+        h.focus();
+        moving = false;
+        var p2 = place(row);
+        say(nameOf(row) + ", moved to " + (p2.at + 1) + " of " + p2.total + ".");
+      } else if (lifted && e.key === "Escape") {
+        e.preventDefault(); e.stopPropagation();
+        var home = lifted.home; lifted = null;
+        root.removeAttribute("data-keys-local");
+        home.list.insertBefore(row, home.next && home.next.parentNode === home.list ? home.next : null);
+        KOS.ui.state(row, "lifted", false);
+        h.focus();
+        say(nameOf(row) + ", put back.");
+      }
+    });
+    root.addEventListener("focusout", function (e) {
+      /* leaving a lifted row by Tab drops nothing and puts it back */
+      if (!lifted || moving || lifted.row.contains(e.relatedTarget)) return;
+      var home = lifted.home, row = lifted.row; lifted = null;
+      root.removeAttribute("data-keys-local");
+      home.list.insertBefore(row, home.next && home.next.parentNode === home.list ? home.next : null);
+      KOS.ui.state(row, "lifted", false);
+    });
+
+    /* ---- pointer ---- */
+    root.addEventListener("pointerdown", function (e) {
+      var h = e.target.closest && e.target.closest("[data-reorder]");
+      if (!h || !root.contains(h) || e.button !== 0) return;
+      var row = h.closest(rowsSel);
+      if (!row) return;
+      e.preventDefault();
+      try { h.setPointerCapture(e.pointerId); } catch (err) { /* no capture — the document listeners still see it */ }
+      var box = row.getBoundingClientRect();
+      var float = row.cloneNode(true);
+      float.setAttribute("data-reorder-float", "");
+      float.removeAttribute("data-rid");
+      float.setAttribute("aria-hidden", "true");
+      float.classList.add("k-reorder-float");
+      float.style.setProperty("--rw", Math.round(box.width) + "px");
+      document.body.appendChild(float);
+      var line = el("span", { class: "k-reorder-line", "aria-hidden": "true" });
+      document.body.appendChild(line);
+      KOS.ui.state(row, "ghost", true);
+      document.documentElement.setAttribute("data-reordering", "");
+      var target = null;
+      function move(ev) {
+        float.style.setProperty("--rx", Math.round(ev.clientX + 18) + "px");
+        float.style.setProperty("--ry", Math.round(ev.clientY + 18 - box.height / 2) + "px");
+        /* the gap nearest the pointer, across every list */
+        var best = null;
+        lists().forEach(function (l) {
+          var rs = rowsIn(l).filter(function (r) { return r !== row; });
+          var lb = l.getBoundingClientRect();
+          if (!rs.length) {
+            var d0 = Math.abs(ev.clientY - (lb.top + 8));
+            if (!best || d0 < best.d) best = { d: d0, list: l, index: 0, y: lb.top + 4, x: lb.left, w: lb.width };
+          }
+          rs.forEach(function (r, k) {
+            var b = r.getBoundingClientRect();
+            [[b.top, k], [b.bottom, k + 1]].forEach(function (g) {
+              var d = Math.abs(ev.clientY - g[0]);
+              if (!best || d < best.d) best = { d: d, list: l, index: g[1], y: g[0], x: b.left, w: b.width };
+            });
+          });
+        });
+        target = best;
+        if (best) {
+          line.style.setProperty("--lx", Math.round(best.x) + "px");
+          line.style.setProperty("--ly", Math.round(best.y) + "px");
+          line.style.setProperty("--lw", Math.round(best.w) + "px");
+        }
+      }
+      function up(ev) {
+        document.removeEventListener("pointermove", move);
+        document.removeEventListener("pointerup", up);
+        document.removeEventListener("pointercancel", cancel);
+        float.remove(); line.remove();
+        KOS.ui.state(row, "ghost", false);
+        document.documentElement.removeAttribute("data-reordering");
+        if (!target || ev.type === "pointercancel") return;
+        var p = place(row);
+        /* the index with the row taken out of its own list */
+        var idx = target.index;
+        if (target.list === p.list && p.index < idx) idx--;
+        if (target.list === p.list && idx === p.index) return;
+        var rs = rowsIn(target.list).filter(function (r) { return r !== row; });
+        target.list.insertBefore(row, rs[idx] || null);
+        var q = place(row);
+        say(nameOf(row) + ", moved to " + (q.at + 1) + " of " + q.total + ".");
+        finish(row, q.list, q.index);
+      }
+      function cancel(ev) { target = null; up(ev); }
+      document.addEventListener("pointermove", move);
+      document.addEventListener("pointerup", up);
+      document.addEventListener("pointercancel", cancel);
+      move(e);
+    });
+    return { refresh: function () {} };
+  }
+  KOS.ui.reorder = reorder;
   KOS.ui.pageHeader = pageHeader;
   KOS.ui.sectionHeader = sectionHeader;
   KOS.ui.emptyState = emptyState;

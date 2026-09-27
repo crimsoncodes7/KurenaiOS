@@ -103,6 +103,31 @@ step("C · the Shrine ranks tied favourites by the stored order under the score 
   void b; void d;
 });
 
+step("C · Set order (frame 23d): a tier's titles move with the keyboard and the order is stored", async () => {
+  const mk = (title, score) => p(cb => KOS.mediadb.add({ module: "anime", title: title, status: "completed", score: score, favourite: true }, cb));
+  const x = await mk("Xray", 9), y = await mk("Yankee", 9);
+  KOS.store.state.media.shrine = { module: "", sort: "score", description: "" };
+  KOS.show("shrine");
+  await app.settle();
+  const btn = app.document.querySelector("[data-ui~='shrine.set-order'][data-score='9']");
+  assert(btn, "a tied score has no Set order control");
+  btn.click();
+  const dlg = app.document.querySelector("[data-ui~='shrine.order-dialog']");
+  assert(dlg, "the order dialog did not open");
+  const key = (el, k) => el.dispatchEvent(new app.window.KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true }));
+  const first = dlg.querySelector("[data-reorder]");
+  key(first, " ");
+  key(first, "ArrowDown");
+  key(first, " ");
+  eq(O().get(9), [y.syncId, x.syncId], "the moved title is stored second");
+  key(dlg.querySelector("[data-reorder]"), " ");
+  key(dlg.querySelector("[data-reorder]"), "Escape");
+  assert(app.document.querySelector("[data-ui~='shrine.order-dialog']"), "Escape on a lifted row closed the dialog");
+  eq(O().get(9), [y.syncId, x.syncId], "Escape put the row back and stored nothing");
+  [...dlg.querySelectorAll("button")].find(b => /Reset to date enshrined/.test(b.textContent)).click();
+  eq(O().get(9), [], "reset clears the tier's order");
+});
+
 /* ============ D · the merge ============ */
 step("D · two devices reordering one tier: the list is taken whole, never mixed", () => {
   const doc = list => ({ media: { shrine: { description: "", order: { "10": list } } } });

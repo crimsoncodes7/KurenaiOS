@@ -553,6 +553,14 @@
 .k-shr-pod-medal > small { font: var(--fs-12-5) var(--font-mono); color: var(--muted); }
 .k-shr-pod-score { font: var(--weight-semibold) var(--fs-30) / 1 var(--font-mono); color: var(--shr-gold); }
 /* the ledger (review B): two figures, then the hall by medium */
+/* frame 23d: the tied tiers, and their order dialog */
+.k-shr-ties { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-8); font-size: var(--fs-13); }
+.k-shr-ties b { color: var(--shr-gold); }
+.k-shr-order { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-6); }
+.k-shr-order-row { display: flex; align-items: center; gap: var(--sp-10); padding: var(--sp-6) var(--sp-10) var(--sp-6) var(--sp-4); border-radius: var(--r-12); background: var(--s1); }
+.k-shr-order-cover { flex: 0 0 auto; inline-size: var(--shr-order-cover); aspect-ratio: 2 / 3; border-radius: var(--r-6); overflow: hidden; }
+.k-shr-order-t { display: flex; flex-direction: column; gap: var(--sp-2); min-inline-size: 0; font-size: var(--fs-13-5); }
+.k-shr-order-t > b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: var(--weight-semibold); }
 .k-shr-ledger { display: flex; flex-direction: column; justify-content: space-between; gap: var(--sp-12); padding: var(--sp-16) var(--sp-18); border-radius: var(--r-24); background: var(--s1); box-shadow: inset 0 0 0 var(--hairline) color-mix(in oklch, var(--shr-gold) 22%, transparent); }
 .k-shr-ledger-h { margin: 0; font-size: var(--fs-14); font-weight: var(--weight-semibold); }
 .k-shr-ledger-figs { display: flex; gap: var(--sp-18); }

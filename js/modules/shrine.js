@@ -737,6 +737,61 @@
   }
   /* the ledger (review B): the hall in two figures, then what it is
      made of — a bar and a legend with each medium's count and share */
+  /* frame 23d: rank the titles that share one score. The list is the
+     tier's titles in their current order; dragging (or Space and ↑ ↓)
+     stores the new order through KOS.media.shrineOrder (the synced state,
+     invariant 57a) and the hall follows it when the dialog closes. */
+  function tierOrderDialog(tier) {
+    var entries = tier.entries.slice();
+    var overlay = el("div", { class: "k-dialog-overlay" });
+    var changed = false;
+    overlay.close = function () { overlay.remove(); if (changed) redraw(); };
+    var list = el("ol", { class: "k-shr-order", "data-ui": "shrine.order-list", "aria-label": "Titles scored " + tier.key + ", in rank order" });
+    function paint() {
+      list.innerHTML = "";
+      entries.forEach(function (e) {
+        var mod = KOS.media.module(e.module);
+        var li = el("li", { class: "k-shr-order-row", "data-rid": KOS.media.shrineOrder.entryKey(e) }, [
+          el("button", { type: "button", class: "k-grip", "data-reorder": "", "aria-label": "Move " + e.title, text: "⠿" }),
+          coverBox(e, mod, "k-shr-order-cover"),
+          el("span", { class: "k-shr-order-t" }, [el("b", { text: e.title }), moduleLabel(mod, e.module)])
+        ]);
+        li.style.setProperty("--vh-accent", mod.accent);
+        list.appendChild(li);
+      });
+    }
+    paint();
+    KOS.ui.reorder(list, { rows: "[data-rid]", label: function (row) { return (row.querySelector("b") || {}).textContent || "Title"; },
+      onDrop: function () {
+        var keys = [].map.call(list.querySelectorAll("[data-rid]"), function (n) { return n.getAttribute("data-rid"); });
+        KOS.media.shrineOrder.set(tier.score, keys);
+        entries.sort(function (a, b) { return keys.indexOf(KOS.media.shrineOrder.entryKey(a)) - keys.indexOf(KOS.media.shrineOrder.entryKey(b)); });
+        changed = true;
+        paint();
+      } });
+    var box = el("div", { class: "k-dialog k-shr-order-dialog", "data-ui": "ui.dialog shrine.order-dialog" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("div", {}, [
+          el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Order within " + tier.key }),
+          el("span", { class: "k-muted", text: entries.length + " titles · drag to rank" })
+        ]),
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close", text: "✕", onclick: function () { overlay.close(); } })
+      ]),
+      list,
+      el("div", { class: "k-dialog-foot" }, [
+        el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "shrine.order-reset", text: "Reset to date enshrined", onclick: function () {
+          KOS.media.shrineOrder.set(tier.score, []);
+          changed = true;
+          overlay.close();
+        } }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", text: "Done", onclick: function () { overlay.close(); } })
+      ])
+    ]);
+    overlay.appendChild(box);
+    KOS.ui.openDialog(overlay);
+    var first = list.querySelector("[data-reorder]");
+    if (first) first.focus();
+  }
   function hallLedger(entries) {
     var stats = shrineStats(entries);
     var n = entries.length;
@@ -863,6 +918,17 @@
         hall.appendChild(wall);
       }
       main.appendChild(hall);
+      /* frame 23d: a score two or more titles share is a tier with its own
+         order; each gets "⇅ Set order" (only under the score sort, where
+         the order is what ranks them) */
+      var tiers = current.sort === "score" ? KOS.media.shrineOrder.tiers(favourites) : [];
+      if (tiers.length) {
+        main.appendChild(el("div", { class: "k-shr-ties", "data-ui": "shrine.ties" }, [el("span", { class: "k-muted", text: "Tied scores" })].concat(tiers.map(function (t) {
+          return el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "shrine.set-order", "data-score": t.key,
+            "aria-label": "Set the order of the " + t.entries.length + " titles scored " + t.key,
+            onclick: function () { tierOrderDialog(t); } }, [el("b", { class: "k-mono", text: t.key }), " · " + t.entries.length + " titles · ⇅ Set order"]);
+        }))));
+      }
       main.appendChild(el("p", { class: "k-shr-count k-muted", "data-ui": "shrine.count",
         text: total + (total === 1 ? " enshrined title" : " enshrined titles") + " · ranks follow the selected sort." }));
     });

@@ -2286,14 +2286,20 @@
       panel.innerHTML = "";
       if (curTab === "spec") {
         var specFork = KOS.edits.has(sid, ref, "spec") || editing ? KOS.edits.material(sid, ref, "spec") : null;
+        /* frame 23c: a break moved by hand splits the reading order there;
+           with none the lists keep their own columns */
+        var cols = specFork ? KOS.edits.specColumns(sid, ref) : null;
+        var leftBlocks = cols ? cols.left.content.concat(cols.left.info) : specFork ? specFork.content : null;
+        var rightBlocks = cols ? cols.right.content.concat(cols.right.info) : specFork ? specFork.info : null;
         var specL = el("div", { class: "k-prose k-spec", "data-ui": "topic.spec" + (specFork ? " topic.notes" : ""),
-          html: specFork ? KOS.content.renderBlocks(specFork.content) : renderSpecContent(leaf.content) });
+          html: specFork ? KOS.content.renderBlocks(leftBlocks) : renderSpecContent(leaf.content) });
         var split = el("div", { class: "k-spec-split" }, [card(d.labelL, specL)]);
         var right = el("div", { class: "k-spec-side" });
-        if (specFork ? specFork.info.length : leaf.info.length) {
+        if (specFork ? rightBlocks.length : leaf.info.length) {
           var specR = el("div", { class: "k-prose k-spec", "data-ui": specFork ? "topic.notes" : null,
-            html: specFork ? KOS.content.renderBlocks(specFork.info) : renderSpecInfo(leaf.info) });
+            html: specFork ? KOS.content.renderBlocks(rightBlocks) : renderSpecInfo(leaf.info) });
           right.appendChild(card(d.labelR, specR));
+          markFreshNote(specR, sid, ref);
         }
         renderIntel(right);
         split.appendChild(right);
@@ -2547,6 +2553,25 @@
       li("Cards scheduled", ratioText(t.reviewed, t.cards), !t.cards),
       li("Sessions here", t.sessions + (t.minutes ? " · " + t.minutes + " min" : ""), !t.sessions)
     ]));
+    /* frame 23a: the quick note — always open, no Save. What is typed is
+       a draft for this device (KOS.edits.setDraft); leaving the topic files
+       it as one dated block at the end of the Spec tab (invariant 89) */
+    if (KOS.edits && KOS.spec && KOS.spec.level(sid, ref) === "leaf") {
+      var qn = el("textarea", { class: "k-input k-insp-qn", "data-ui": "topic.quick-note", rows: "3", placeholder: "Quick note…",
+        "aria-label": "Quick note. It files to the Specification tab when you leave this topic." });
+      qn.value = KOS.edits.draft(sid, ref);
+      var qnHint = el("p", { class: "k-insp-qn-hint", "data-ui": "topic.quick-note-hint" });
+      var paintQn = function () {
+        var n = qn.value.trim().length;
+        qnHint.textContent = n ? "Draft · " + n + (n === 1 ? " character" : " characters") + ". Files to Spec when you leave this topic." : "Files to Spec when you leave this topic.";
+        KOS.ui.state(qn, "draft", n > 0);
+      };
+      qn.addEventListener("input", function () { KOS.edits.setDraft(sid, ref, qn.value); paintQn(); });
+      paintQn();
+      body.appendChild(el("section", { class: "k-insp-sec k-insp-qnsec", "aria-label": "Quick note" }, [
+        el("h2", { class: "k-kicker", text: "Quick note" }), qn, qnHint
+      ]));
+    }
     if (asstStrip) {
       body.appendChild(el("section", { class: "k-insp-sec k-insp-asst", "aria-label": "Ask Kurenai" }, [
         el("h2", { class: "k-kicker", text: "Ask Kurenai" }), asstStrip
@@ -3125,6 +3150,29 @@
     /* break a run-on of spec points before strong sentence starters */
     return seg.replace(/\s+(The|When|Know|Understand|How|Use|Be|Students|Why|Link)\b/g, "@@SP@@$1")
       .split("@@SP@@").map(function (p) { return p.trim(); }).filter(Boolean);
+  }
+  /* frame 23a: the newest quick note on a topic gets a faint amber mark the
+     first time it is shown this session, when it is from today or
+     yesterday. A read-only memory — rendering writes nothing. */
+  var freshSeen = {}, freshNow = null;
+  function markFreshNote(host, sid, ref) {
+    var topic = sid + ":" + ref;
+    /* a different topic on screen: what the last one showed is now seen */
+    if (freshNow && freshNow.topic !== topic) {
+      freshNow.keys.forEach(function (k) { freshSeen[k] = true; });
+      freshNow = null;
+    }
+    var t = KOS.edits && KOS.edits.get(sid, ref);
+    var info = t && t.spec && Array.isArray(t.spec.info) ? t.spec.info : [];
+    var last = null;
+    info.forEach(function (b) { if (b && b.src === "quick-note" && b.id != null) last = b; });
+    if (!last || (last.date && last.date < KOS.srs.addDays(KOS.srs.todayISO(), -1))) return;
+    var k = topic + ":" + last.id;
+    if (freshSeen[k]) return;
+    freshNow = freshNow || { topic: topic, keys: [] };
+    if (freshNow.keys.indexOf(k) === -1) freshNow.keys.push(k);
+    var node = [].filter.call(host.querySelectorAll("[data-bid]"), function (n) { return n.getAttribute("data-bid") === String(last.id); })[0];
+    if (node) KOS.ui.state(node, "fresh", true);
   }
   function renderSpecInfo(lines) {
     lines = lines || [];

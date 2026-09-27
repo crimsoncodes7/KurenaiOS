@@ -99,7 +99,7 @@ non-navigation redraw path.
 
 | Contract | Owner |
 |---|---|
-| DOM primitives, dialogs, tabs, scrollers, rendering | `js/core/ui.js` |
+| DOM primitives, dialogs, tabs, scrollers, the reorder (drag) pattern, rendering | `js/core/ui.js` |
 | Live regions and activation helpers | `js/core/a11y.js` |
 | Hash URL/history | `js/core/router.js` |
 | Cross-domain search | `js/core/search.js`; presentation in `hub.js`/`mobile-shell.js` |
@@ -475,7 +475,10 @@ source comments and audit notes refer to it.
     ignores; `{p}` and `{md}` are renderer block types. Notes/Quiz/Exam tabs are
     always present on a topic — an empty tab is where material is added —
     and a zero count is never printed (invariant 77).
-89a. A reorder is a MOVE inside the fork (`KOS.edits.move(sid, ref, kind, id,
+89a. Every hand-ranked list (the editor's blocks and rows, the Spec column
+    break, the Shrine's tie order) uses `KOS.ui.reorder`: a ⠿ handle that
+    drags, or Space lifts, ↑ ↓ move, Space drops, Esc puts back, announced.
+    A reorder is a MOVE inside the fork (`KOS.edits.move(sid, ref, kind, id,
     to)`, `moveBy(…, ±1)` for the keyboard; Spec blocks may cross between its
     `content` and `info` lists). The row's id and a flashcard's SM-2 key ride
     with it (invariants 87, 88); a refused step writes nothing. Spec's

@@ -422,6 +422,44 @@ step("the Spec column break: stored as one block id, read as two columns, cleare
 
 /* ============ 9 · backup ============ */
 console.log("== 9 · backup ==");
+const eqJ = (a, b, m) => assert(JSON.stringify(a) === JSON.stringify(b), m + ": " + JSON.stringify(a) + " vs " + JSON.stringify(b));
+step("the editor's handles move a block with the keyboard (frame 23b), ids riding along", async () => {
+  fresh();
+  KOS.show("ref", { subject: SID, ref: REF });
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "notes"));
+  click($("[data-ui~='topic.edit-bar']"));
+  const key = (el, k) => el.dispatchEvent(new window.KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true }));
+  const ids = () => $$("[data-ui~='editor.block']").map(b => b.getAttribute("data-rid"));
+  const before = ids();
+  const g = $$("[data-ui~='editor.grip']")[0];
+  key(g, " "); key(g, "ArrowDown"); key(g, " ");
+  await tick(20);
+  const after = ids();
+  eqJ(after.slice(0, 2), [before[1], before[0]], "the first block moved down one place");
+  eqJ(KOS.edits.get(SID, REF).notes.map(b => String(b.id)).slice(0, 2), [before[1], before[0]], "the fork holds the new order");
+  click($("[data-ui~='topic.edit-bar']"));
+});
+
+step("the Spec column break is a row: moving it stores the break, Balance clears it (frame 23c)", async () => {
+  fresh();
+  KOS.show("ref", { subject: SID, ref: REF });
+  click($$("[data-ui~='ui.tab']").find(t => t.dataset.tab === "spec"));
+  click($("[data-ui~='topic.edit-bar']"));
+  const brk = $("[data-ui~='editor.break']");
+  assert(brk && brk.matches('[data-state~="auto"]'), "no automatic column break row");
+  const key = (el, k) => el.dispatchEvent(new window.KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true }));
+  const g = brk.querySelector("[data-reorder]");
+  key(g, " "); key(g, "ArrowUp"); key(g, " ");
+  await tick(20);
+  const spec = KOS.edits.material(SID, REF, "spec");
+  const lastContent = spec.content[spec.content.length - 1];
+  eqJ(KOS.edits.specBreak(SID, REF), String(lastContent.id), "the break now starts at the last content block");
+  assert($("[data-ui~='editor.break-note']"), "no 'moved by hand' line");
+  click($("[data-ui~='editor.balance']"));
+  eqJ(KOS.edits.specBreak(SID, REF), null, "Balance automatically cleared it");
+  click($("[data-ui~='topic.edit-bar']"));
+});
+
 step("edits ride the full backup snapshot", async () => {
   fresh();
   KOS.edits.set(SID, REF, "quiz", [{ q: "backed up", opts: ["a", "b"], ans: 0, why: "" }]);
