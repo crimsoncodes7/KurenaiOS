@@ -895,6 +895,8 @@
     var none = mode === "none";
     if (tree) tree.hidden = none;
     if (cols) cols.setAttribute("data-tree", mode);
+    /* the rail has a separate remembered width beside the spine */
+    if (KOS.shell.applyRail) KOS.shell.applyRail();
     return mode;
   };
 

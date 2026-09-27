@@ -66,6 +66,7 @@ const KOS = window.KOS;
 if (KOS.autosync) KOS.autosync.stop();
 
 const $ = s => document.querySelector(s);
+const KOS_DATA_NAME = sid => window.KOS_DATA[sid].name;
 const $$ = s => [...document.querySelectorAll(s)];
 const click = n => n.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
 const key = (k, target) => (target || document).dispatchEvent(
@@ -132,6 +133,44 @@ step("opening a topic reveals it in the spine instead of hiding it", () => {
   assert(sec.matches('[data-state~="here"]'), "the owning section is not marked as the one you are in");
   assert(KOS.store.state.ui.openSections[SID][sec.querySelector("[data-ui~='part.ref']").textContent] === true,
     "the reveal did not go through the stored openSections");
+});
+
+step("on a topic page the subject switch keeps you studying; the overview is one link away", () => {
+  mediaWidth = 1440;
+  KOS.store.state.ui.lastRef = Object.assign({}, KOS.store.state.ui.lastRef, { maths: null });
+  KOS.show("ref", { subject: SID, ref: REF });
+  const other = $$("#tree [data-ui~='study.spine-subject-pick']").find(b => b.getAttribute("aria-pressed") === "false");
+  const otherSid = ["compsci", "maths", "it"].find(s => KOS_DATA_NAME(s) === other.getAttribute("aria-label"));
+  click(other);
+  assert(/^#\/ref\//.test(window.location.hash), "the switch left the topic pages: " + window.location.hash);
+  const opened = window.location.hash;
+  KOS.show("ref", { subject: SID, ref: REF });
+  click($$("#tree [data-ui~='study.spine-subject-pick']").find(b => b.getAttribute("aria-label") === other.getAttribute("aria-label")));
+  assert(window.location.hash === opened, "the switch did not return to the last topic of " + otherSid);
+  const home = $("#tree [data-ui~='study.spine-home']");
+  assert(home, "the spine has no link to the subject page");
+  click(home);
+  assert(/^#\/subject\//.test(window.location.hash), "the overview link did not open the subject page: " + window.location.hash);
+  assert($("#cols").getAttribute("data-tree") === "none", "the subject page kept the spine");
+});
+
+step("a closed spine keeps a strip, like the inspector; the rail opens beside it", () => {
+  mediaWidth = 1440;
+  KOS.show("ref", { subject: SID, ref: REF });
+  KOS.setTreeClosed(true);
+  assert($("#cols").getAttribute("data-tree") === "closed", "the spine did not close");
+  const strip = $("#tree [data-ui~='study.spine-strip']");
+  assert(strip && !$("#tree").hidden, "the closed spine left no strip");
+  click(strip.querySelector("[data-ui~='study.spine-expand']"));
+  assert($("#cols").getAttribute("data-tree") === "open", "the strip did not reopen the spine");
+  /* the rail beside the spine starts as tiles and has its own choice */
+  KOS.store.state.ui.railOpenSpine = false;
+  KOS.shell.applyRail();
+  assert(!$("#cols").hasAttribute("data-rail"), "the rail is not tiles beside the spine by default");
+  click($("#rail-toggle"));
+  assert($("#cols").getAttribute("data-rail") === "full" && KOS.store.state.ui.railOpenSpine === true, "the rail could not be opened on a topic page");
+  click($("#rail-toggle"));
+  assert(!$("#cols").hasAttribute("data-rail"), "the rail did not fold back beside the spine");
 });
 
 step("the spine is a dismissible drawer on the tiers where it is an overlay", () => {
@@ -363,14 +402,24 @@ step("→ reveals, then grades Good; ← hides the answer again", () => {
   assert($("[data-ui~='fc.front']").textContent !== before, "→ on a revealed card did not advance");
 });
 
-step("the keys are printed under the card, not buried in a help page", () => {
+step("the keys are printed beside the card, not buried in a help page", () => {
   openCards();
-  const hint = $("[data-ui~='fc.keys']");
-  assert(hint, "no keyboard legend");
+  /* review B: one panel under the card holds this card, this deck and the
+     keys; the rating buttons carry no number glyphs and the due label is
+     off the card */
+  const panel = $("[data-ui~='fc.panel']");
+  assert(panel, "no info panel under the card");
+  const hint = panel.querySelector("[data-ui~='fc.keys']");
+  assert(hint, "no keyboard legend in the panel");
   assert(/Space/.test(hint.textContent) && /flip/.test(hint.textContent), "the legend does not name the flip key");
-  const rate = $("[data-ui~='fc.r'] [data-ui~='fc.r-key']");
-  assert(rate && rate.textContent === "1", "the grading buttons do not carry their number key");
+  assert(!$("[data-ui~='fc.r'] kbd"), "the grading buttons still print number keys");
   assert($("[data-ui~='fc.r']").getAttribute("aria-keyshortcuts") === "1", "the shortcut is not exposed to assistive tech");
+  assert(panel.querySelector("[data-ui~='fc.due']") && !$("[data-ui~='fc.card'] [data-ui~='fc.due']"), "the due label is still on the card");
+  assert($("[data-ui~='fc.card'] [data-ui~='fc.count']"), "the count lost its container");
+  const card = $("[data-ui~='fc.card']"), back = card.querySelector("[data-ui~='fc.back']");
+  assert(back.getAttribute("aria-hidden") === "true", "the turned-away face is in the reading order");
+  click(card);
+  assert(back.getAttribute("aria-hidden") === "false" && card.querySelector("[data-ui~='fc.front']").getAttribute("aria-hidden") === "true", "the flip did not swap which face is read");
 });
 
 step("the engine never steals a key from a text field", () => {

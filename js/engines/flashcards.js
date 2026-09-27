@@ -111,8 +111,12 @@
 
     var meter = el("div", { class: "k-fc-pips", "data-ui": "fc.meter", "aria-hidden": "true" });
     var front = el("div", { class: "k-fc-face", "data-ui": "fc.front" });
-    var back = el("div", { class: "k-fc-face", "data-ui": "fc.back", "data-side": "back" });
-    var stage = el("button", { type: "button", class: "k-fc-card", "data-ui": "fc.card", "aria-label": "Flashcard — press to flip", onclick: flip }, [front, back]);
+    var back = el("div", { class: "k-fc-face", "data-ui": "fc.back", "data-side": "back", "aria-hidden": "true" });
+    /* review B: the card turns over (a real flip, not a swap), inside its
+       own border, with 札 in the corner */
+    var stage = el("button", { type: "button", class: "k-fc-card", "data-ui": "fc.card", "aria-label": "Flashcard — press to flip", onclick: flip }, [
+      el("span", { class: "k-fc-inner" }, [front, back])
+    ]);
     var deckEdge = el("div", { class: "k-fc-stack" }, [el("span", { class: "k-fc-under", "aria-hidden": "true" }), stage]);
 
     var rateRow = el("div", { class: "k-fc-rate", "data-ui": "fc.rate", role: "group", "aria-label": "Rate your recall" },
@@ -120,25 +124,26 @@
         return el("button", { type: "button", class: "k-fc-r", "data-ui": "fc.r", "data-rate": i, "data-kind": r.cls,
           "aria-keyshortcuts": r.key, "aria-label": r.label + " — " + KOS.srs.RATINGS[i].hint, title: KOS.srs.RATINGS[i].hint,
           onclick: function (e) { e.stopPropagation(); rate(i); } }, [
-          el("span", { class: "k-fc-r-top" }, [
-            el("b", { text: r.label }),
-            el("kbd", { class: "k-kbd", "data-ui": "fc.r-key", "aria-hidden": "true", text: r.key })
-          ]),
+          el("span", { class: "k-fc-r-top" }, [el("b", { text: r.label })]),
           el("span", { class: "k-fc-r-ivl", "data-ui": "fc.r-hint" })
         ]);
       }));
     var history = el("p", { class: "k-fc-history", "data-ui": "fc.history" });
+    var badges = el("div", { class: "k-fc-badges", "data-ui": "fc.badges" });
     var infoWrap = el("div", { class: "k-fc-info", "data-ui": "fc.info", hidden: "" });
 
     /* audit REF-8: the engine had no keyboard support at all. The keys are
-       printed under the card, because a shortcut nobody can see is a
-       shortcut nobody uses. */
+       printed beside the card, because a shortcut nobody can see is a
+       shortcut nobody uses (review B: in the panel, not on every button) */
     var keyHint = el("p", { class: "k-fc-keys", "data-ui": "fc.keys" }, [
-      kbd("Space"), " flip · ", kbd("1"), "–", kbd("4"), " rate · ", kbd("→"), " reveal, then Good"
+      el("span", {}, [kbd("Space"), " flip"]), el("span", {}, [kbd("1"), "–", kbd("4"), " Again → Easy"]), el("span", {}, [kbd("→"), " reveal, then Good"])
     ]);
     var deckLine = el("span", { class: "k-fc-deck" });
+    var lifeStats = el("p", { class: "k-fc-life", "data-ui": "fc.life" });
+    function group(title, kids) {
+      return el("section", { class: "k-fc-pgroup" }, [el("h3", { class: "k-kicker", text: title })].concat(kids));
+    }
     var foot = el("div", { class: "k-fc-foot", "data-ui": "lab.controls fc.foot" }, [
-      deckLine,
       el("button", { type: "button", class: "k-fc-foot-btn", text: "⇄ Shuffle", onclick: function () { shuffleArr(queue); flipped = false; show(); } }),
       el("button", { type: "button", class: "k-fc-foot-btn", text: "↺ Restart", onclick: restart }),
       el("button", { type: "button", class: "k-fc-foot-btn", "aria-expanded": "false", text: "ⓘ Card stats", onclick: function (e) {
@@ -148,9 +153,17 @@
         renderInfo();
       } })
     ]);
-    var lifeStats = el("p", { class: "k-fc-life", "data-ui": "fc.life" });
+    /* everything about the card that is not the card, in one container */
+    var panel = el("div", { class: "k-fc-panel", "data-ui": "fc.panel" }, [
+      el("div", { class: "k-fc-pgrid" }, [
+        group("This card", [badges, history]),
+        group("This deck", [deckLine, lifeStats]),
+        group("Keys", [keyHint])
+      ]),
+      foot, infoWrap
+    ]);
 
-    [meter, deckEdge, rateRow, history, keyHint, foot, infoWrap, lifeStats].forEach(function (n) { holder.appendChild(n); });
+    [meter, deckEdge, rateRow, panel].forEach(function (n) { holder.appendChild(n); });
     bindKeys();
 
     function cur() { return cards[queue[0]]; }
@@ -177,19 +190,22 @@
       if (opts.showTopic) b += '<span class="k-chip" data-ui="fc.topic">' + KOS.hub.esc(c.sid + " · " + c.ref) + "</span>";
       if (c.custom) b += '<span class="k-chip" data-ui="fc.custom" data-tone="bloom">' + (c.ai ? "AI · Custom" : "Custom") + "</span>";
       b += '<span class="k-chip" data-tone="muted" data-ui="fc.due">' + KOS.hub.esc(dueLabel(KOS.srs.peek(c.key))) + "</span>";
-      return '<span class="k-fc-badges">' + b + "</span>";
+      return b;
     }
+    var MARK = '<span class="k-fc-mark" aria-hidden="true">札</span>';
 
     function show() {
       var c = cur();
       flipped = false;
       KOS.ui.state(stage, "flipped", false);
-      front.innerHTML = '<span class="k-fc-kind">Question · ' + queue.length + " left of " + total + "</span>" +
-        '<div class="k-fc-text">' + KOS.content.inline(c.q) + "</div>" + badgeHtml(c) +
+      faces();
+      front.innerHTML = MARK + '<span class="k-fc-kind k-fc-count" data-ui="fc.count">Question · ' + queue.length + " left of " + total + "</span>" +
+        '<div class="k-fc-text">' + KOS.content.inline(c.q) + "</div>" +
         '<span class="k-fc-hint">press to flip</span>';
-      back.innerHTML = '<span class="k-fc-kind">Answer</span>' +
+      back.innerHTML = MARK + '<span class="k-fc-kind k-fc-count">Answer</span>' +
         '<div class="k-fc-text">' + KOS.content.inline(c.a) + "</div>" +
         '<span class="k-fc-q">Q · ' + KOS.content.inline(c.q) + "</span>";
+      badges.innerHTML = badgeHtml(c);
       KOS.content.typeset(stage);
       KOS.ui.state(rateRow, "concealed", true);
       RATE_META.forEach(function (r, i) {
@@ -209,7 +225,13 @@
       if (finished) return;
       flipped = !flipped;
       KOS.ui.state(stage, "flipped", flipped);
+      faces();
       KOS.ui.state(rateRow, "concealed", !flipped);
+    }
+    /* the turned-away face is out of the reading order */
+    function faces() {
+      front.setAttribute("aria-hidden", String(flipped));
+      back.setAttribute("aria-hidden", String(!flipped));
     }
     function rate(r) {
       if (!flipped || finished) return;
@@ -238,7 +260,10 @@
       KOS.ui.state(rateRow, "concealed", true);
       infoWrap.hidden = true;
       var pct = total ? Math.round(100 * (counts.good + counts.easy) / (counts.good + counts.easy + counts.hard + counts.again)) : 0;
-      front.innerHTML = '<span class="k-fc-kind">Session complete</span>' +
+      flipped = false;
+      faces();
+      badges.innerHTML = "";
+      front.innerHTML = MARK + '<span class="k-fc-kind k-fc-count">Session complete</span>' +
         '<div class="k-fc-text">' + total + (total === 1 ? " card" : " cards") + " graduated" +
         (counts.again === 0 ? " — clean sweep ★" : " · " + counts.again + " needed a retest") + "</div>" +
         '<span class="k-fc-hint">every card is rescheduled — check Due Today tomorrow</span>';

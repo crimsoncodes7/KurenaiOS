@@ -201,33 +201,33 @@ font-size: var(--fs-12);
 .k-avatar[data-frame="frame-crimson"] { --frame-c: var(--frame-crimson); box-shadow: 0 0 0 var(--bar-3) var(--bg), 0 0 0 calc(var(--bar-3) * 2) var(--frame-c), 0 0 var(--sp-14) var(--crimson-glow); }
 .k-avatar[data-frame="frame-jade"] { --frame-c: var(--frame-jade); }
 .k-avatar[data-frame="frame-amethyst"] { --frame-c: var(--frame-amethyst); }
-#cols[data-rail="compact"] .k-profile, #cols[data-tree="open"] .k-profile, #cols[data-tree="closed"] .k-profile { inline-size: auto; padding: 0; background: none; }
-#cols[data-rail="compact"] .k-profile-txt, #cols[data-tree="open"] .k-profile-txt, #cols[data-tree="closed"] .k-profile-txt { display: none; }
+#cols[data-rail="compact"] .k-profile, #cols[data-tree="open"]:not([data-rail="full"]) .k-profile, #cols[data-tree="closed"]:not([data-rail="full"]) .k-profile { inline-size: auto; padding: 0; background: none; }
+#cols[data-rail="compact"] .k-profile-txt, #cols[data-tree="open"]:not([data-rail="full"]) .k-profile-txt, #cols[data-tree="closed"]:not([data-rail="full"]) .k-profile-txt { display: none; }
 .k-rail-more { display: none; }
 .k-rail-foot { margin-block-start: auto; padding-block-start: var(--sp-10); border-block-start: var(--hairline) solid var(--line); }
 
 /* the compact rail: tiles only (the user's choice, or beside the spine) */
-#cols[data-rail="compact"] #rail, #cols[data-tree="open"] #rail, #cols[data-tree="closed"] #rail {
+#cols[data-rail="compact"] #rail, #cols[data-tree="open"]:not([data-rail="full"]) #rail, #cols[data-tree="closed"]:not([data-rail="full"]) #rail {
 inline-size: var(--rail-w-compact);
 align-items: center;
 padding-inline: 0;
 gap: var(--sp-6);
 }
-#cols[data-rail="compact"] .k-rail-item, #cols[data-tree="open"] .k-rail-item, #cols[data-tree="closed"] .k-rail-item {
+#cols[data-rail="compact"] .k-rail-item, #cols[data-tree="open"]:not([data-rail="full"]) .k-rail-item, #cols[data-tree="closed"]:not([data-rail="full"]) .k-rail-item {
 padding: var(--sp-4) 0;
 background: none;
 }
-#cols[data-rail="compact"] .k-rail-item::before, #cols[data-tree="open"] .k-rail-item::before, #cols[data-tree="closed"] .k-rail-item::before {
+#cols[data-rail="compact"] .k-rail-item::before, #cols[data-tree="open"]:not([data-rail="full"]) .k-rail-item::before, #cols[data-tree="closed"]:not([data-rail="full"]) .k-rail-item::before {
 inset-inline-start: calc(var(--sp-20) * -1);
 }
-#cols[data-rail="compact"] .k-rail-tile, #cols[data-tree="open"] .k-rail-tile, #cols[data-tree="closed"] .k-rail-tile {
+#cols[data-rail="compact"] .k-rail-tile, #cols[data-tree="open"]:not([data-rail="full"]) .k-rail-tile, #cols[data-tree="closed"]:not([data-rail="full"]) .k-rail-tile {
 inline-size: var(--sp-32);
 block-size: var(--sp-32);
 border-radius: var(--r-10);
 font-size: var(--fs-17);
 }
-#cols[data-rail="compact"] .k-rail-label, #cols[data-tree="open"] .k-rail-label, #cols[data-tree="closed"] .k-rail-label,
-#cols[data-rail="compact"] .k-rail-count, #cols[data-tree="open"] .k-rail-count, #cols[data-tree="closed"] .k-rail-count {
+#cols[data-rail="compact"] .k-rail-label, #cols[data-tree="open"]:not([data-rail="full"]) .k-rail-label, #cols[data-tree="closed"]:not([data-rail="full"]) .k-rail-label,
+#cols[data-rail="compact"] .k-rail-count, #cols[data-tree="open"]:not([data-rail="full"]) .k-rail-count, #cols[data-tree="closed"]:not([data-rail="full"]) .k-rail-count {
 position: absolute;
 inline-size: var(--hairline);
 block-size: var(--hairline);
@@ -235,7 +235,7 @@ overflow: hidden;
 clip: rect(0 0 0 0);
 white-space: nowrap;
 }
-#cols[data-rail="compact"] .k-rail-foot, #cols[data-tree="open"] .k-rail-foot, #cols[data-tree="closed"] .k-rail-foot {
+#cols[data-rail="compact"] .k-rail-foot, #cols[data-tree="open"]:not([data-rail="full"]) .k-rail-foot, #cols[data-tree="closed"]:not([data-rail="full"]) .k-rail-foot {
 border-block-start: 0;
 }
 
@@ -247,7 +247,9 @@ overflow-y: auto;
 padding: var(--sp-18) var(--sp-12);
 border-inline-end: var(--hairline) solid var(--line);
 }
-#cols[data-tree="closed"] #tree { display: none; }
+/* a closed spine keeps a strip, like the inspector (review B): the
+   expand button and the subject written down it; the drawer tiers hide it */
+#cols[data-tree="closed"] #tree { inline-size: var(--sp-48); padding-inline: var(--sp-8); overflow: hidden; }
 #tree-scrim { display: none; }
 
 /* ---------- the stage ---------- */
@@ -294,6 +296,7 @@ overflow-y: auto;
 }
 
 @media (max-width: 860px) {
+#cols[data-tree="closed"] #tree { display: none; }
 #tree { position: fixed; inset-block: var(--topbar-h) 0; inset-inline-start: 0; z-index: var(--z-drawer); background: var(--bg); box-shadow: var(--elev-3); }
 #cols[data-tree="open"] #tree-scrim { display: block; position: fixed; inset: 0; z-index: calc(var(--z-drawer) - 1); background: var(--shadow-ink); }
 #stage { padding: var(--sp-16) var(--sp-16) var(--sp-24); }
@@ -316,7 +319,7 @@ padding: 0 0 env(safe-area-inset-bottom);
 border-inline-end: 0;
 border-block-start: var(--hairline) solid var(--line);
 }
-#cols[data-rail="compact"] #rail, #cols[data-tree="open"] #rail, #cols[data-tree="closed"] #rail {
+#cols[data-rail="compact"] #rail, #cols[data-tree="open"]:not([data-rail="full"]) #rail, #cols[data-tree="closed"]:not([data-rail="full"]) #rail {
 inline-size: auto;
 flex-direction: row;
 padding-inline: 0;

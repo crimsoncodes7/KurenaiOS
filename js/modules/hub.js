@@ -278,11 +278,26 @@
     tree.style.setProperty("--subj-c", SUBJ_HUE[sid]);
     var open = store.state.ui.openSections[sid] = store.state.ui.openSections[sid] || {};
 
+    /* the closed spine's strip (review B): expand, and whose spine it is */
+    tree.appendChild(el("div", { class: "k-spine-strip", "data-ui": "study.spine-strip" }, [
+      el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "study.spine-expand",
+        "aria-label": "Expand the spec spine", title: "Expand the spec spine", text: "›",
+        onclick: function () { setTreeClosed(false); } }),
+      el("span", { class: "k-spine-strip-l", "aria-hidden": "true", text: data.name })
+    ]));
     tree.appendChild(el("div", { class: "k-spine-top" }, [
       el("div", { class: "k-seg k-seg--fill k-spine-subjects", "data-ui": "study.spine-subjects", role: "group", "aria-label": "Subject" }, SUBJECTS.map(function (s) {
         return el("button", { type: "button", class: "k-seg-item", "data-ui": "study.spine-subject-pick",
           "aria-pressed": String(s === sid), "aria-label": KOS_DATA[s].name, text: SUBJ_SHORT[s],
-          onclick: function () { KOS.show("subject", s); } });
+          /* on a topic page the switch keeps you studying (review B): it
+             opens the last topic of that subject; the subject page is the
+             board's own link below */
+          onclick: function () {
+            var last = store.state.ui.lastRef[s];
+            if (activeRef && last && BYREF[s][last]) KOS.show("ref", { subject: s, ref: last });
+            else if (activeRef && LEAVES[s][0]) KOS.show("ref", { subject: s, ref: LEAVES[s][0].ref });
+            else KOS.show("subject", s);
+          } });
       })),
       el("button", { type: "button", class: "k-iconbtn k-spine-collapse", "data-ui": "study.spine-collapse",
         "aria-label": "Collapse the spec spine", title: "Collapse the spec spine", text: "‹",
@@ -297,8 +312,10 @@
         el("span", { text: data.board }),
         el("span", { class: "k-mono", text: ratioText(st.done, st.total) + " completed" })
       ]),
-      el("span", { class: "k-bar", role: "img", "aria-label": st.pct + "% complete", style: "--p: " + st.pct + "%" }, [el("i")])
-    ]));
+      el("span", { class: "k-bar", role: "img", "aria-label": st.pct + "% complete", style: "--p: " + st.pct + "%" }, [el("i")]),
+      activeRef ? el("button", { type: "button", class: "k-link k-spine-home", "data-ui": "study.spine-home",
+        text: data.name + " overview →", onclick: function () { KOS.show("subject", sid); } }) : null
+    ].filter(Boolean)));
 
     /* the section that owns the topic on screen opens itself, so the spine
        can always say where you are */

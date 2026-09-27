@@ -197,13 +197,38 @@
    "why": "Graphite step 3b (topic page, frame 8b): the topic page draws no sub-navigation row; the rail's Study opens the desk, whose row carries them."
   },
   {
-   "surface": "ref:.*",
+   "surface": "ref:\\{\"subject\":\"compsci\".*",
    "hooks": "shell.subnav-item",
    "retire": true,
    "reachable": true,
+   "from": "^Computer Science$",
+   "why": "Graphite step 3b (topic page, frame 8b): the subject pills became the spine; review B: the page's own subject is the spine board's overview link.",
+   "via": "#tree [data-ui~='study.spine-subject']"
+  },
+  {
+   "surface": "ref:\\{\"subject\":\"maths\".*",
+   "hooks": "shell.subnav-item",
+   "retire": true,
+   "reachable": true,
+   "from": "^Mathematics$",
+   "why": "As above: the page's own subject is the spine board's overview link.",
+   "via": "#tree [data-ui~='study.spine-subject']"
+  },
+  {
+   "surface": "ref:\\{\"subject\":\"it\".*",
+   "hooks": "shell.subnav-item",
+   "retire": true,
+   "reachable": true,
+   "from": "^IT · Data Analytics$",
+   "why": "As above: the page's own subject is the spine board's overview link.",
+   "via": "#tree [data-ui~='study.spine-subject']"
+  },
+  {
+   "surface": "ref:.*",
+   "hooks": "shell.subnav-item",
+   "retire": true,
    "from": ".",
-   "why": "Graphite step 3b (topic page, frame 8b): the subject pills became the spine's subject switch, which opens the same desk.",
-   "via": "#tree [data-ui~='study.spine-subjects']"
+   "why": "Graphite review B (topic page): the spine's subject switch now opens the last topic of that subject, so another subject's page is no longer one press from a topic page — the switch, then its overview link."
   },
   {
    "surface": "ref:.*",

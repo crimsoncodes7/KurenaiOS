@@ -62,9 +62,8 @@
         ])
       ]);
       var stage = el("div", { class: "k-qz-stage" });
-      var keys = el("p", { class: "k-qz-keys", "data-ui": "quiz.keys" });
       var result = el("section", { class: "k-card k-qz-result", "data-ui": "quiz.result", hidden: "", "aria-live": "polite" });
-      [head, stage, keys, result].forEach(function (n) { holder.appendChild(n); });
+      [head, stage, result].forEach(function (n) { holder.appendChild(n); });
 
       function paintHead() {
         var done = Object.keys(answered).length;
@@ -81,8 +80,10 @@
           opts
         ]);
         item.opts.forEach(function (opt, oi) {
+          /* review B: the keys ride on the controls (a tooltip here, a mark
+             on Next), not in a legend line under the card */
           var btn = el("button", { type: "button", class: "k-qz-opt", "data-ui": "quiz.option",
-            "aria-keyshortcuts": String(oi + 1), onclick: function () { answer(oi); } }, [
+            "aria-keyshortcuts": String(oi + 1), title: "Press " + (oi + 1), onclick: function () { answer(oi); } }, [
             el("span", { class: "k-qz-key", "data-ui": "quiz.option-key", "aria-hidden": "true", text: String(oi + 1) }),
             el("span", { class: "k-qz-letter", "aria-hidden": "true", text: LETTERS.charAt(oi) }),
             el("span", { class: "k-qz-opt-t", html: KOS.content.inline(opt) })
@@ -90,17 +91,13 @@
           opts.appendChild(btn);
         });
         next = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "quiz.next",
-          hidden: "", text: at < order.length - 1 ? "Next question →" : "See your score →", onclick: advance });
+          hidden: "", "aria-keyshortcuts": "Enter", title: "Enter", onclick: advance }, [
+          el("span", { text: at < order.length - 1 ? "Next question →" : "See your score →" }),
+          el("kbd", { class: "k-kbd k-qz-enter", "aria-hidden": "true", text: "↵" })
+        ]);
         card.appendChild(el("div", { class: "k-qz-foot" }, [next]));
         stage.appendChild(card);
         KOS.content.typeset(card);
-        keys.innerHTML = "";
-        keys.appendChild(el("kbd", { class: "k-kbd", text: "1" }));
-        keys.appendChild(document.createTextNode("–"));
-        keys.appendChild(el("kbd", { class: "k-kbd", text: String(Math.min(9, item.opts.length)) }));
-        keys.appendChild(document.createTextNode(" answer · "));
-        keys.appendChild(el("kbd", { class: "k-kbd", text: "Enter" }));
-        keys.appendChild(document.createTextNode(" next question"));
         paintHead();
       }
       function answer(oi) {

@@ -28,13 +28,24 @@
     }
   });
 
-  /* collapsible rail — persisted in ui.railOpen */
+  /* collapsible rail — persisted in ui.railOpen. Beside the spec spine
+     the rail starts as tiles; there it has its own remembered choice
+     (ui.railOpenSpine), and "full" overrides the spine's compact rule
+     (review B: the rail could not be opened on a topic page at all). */
   var railBtn = document.getElementById("rail-toggle");
+  function besideSpine() {
+    var t = document.getElementById("cols").getAttribute("data-tree");
+    return t === "open" || t === "closed";
+  }
+  function railIsOpen() {
+    return besideSpine() ? KOS.store.state.ui.railOpenSpine === true : KOS.store.state.ui.railOpen !== false;
+  }
   function applyRail() {
-    var open = KOS.store.state.ui.railOpen !== false;
+    var open = railIsOpen();
     /* the collapsed rail is tiles only; layout.css reads the attribute */
     var cols = document.getElementById("cols");
-    if (open) cols.removeAttribute("data-rail"); else cols.setAttribute("data-rail", "compact");
+    if (besideSpine()) { if (open) cols.setAttribute("data-rail", "full"); else cols.removeAttribute("data-rail"); }
+    else if (open) cols.removeAttribute("data-rail"); else cols.setAttribute("data-rail", "compact");
     if (railBtn) {
       railBtn.textContent = open ? "‹" : "›";
       railBtn.setAttribute("aria-label", open ? "Collapse sidebar" : "Expand sidebar");
@@ -42,11 +53,13 @@
   }
   if (railBtn) {
     railBtn.addEventListener("click", function () {
-      KOS.store.state.ui.railOpen = !(KOS.store.state.ui.railOpen !== false);
+      if (besideSpine()) KOS.store.state.ui.railOpenSpine = !railIsOpen();
+      else KOS.store.state.ui.railOpen = !railIsOpen();
       KOS.store.save();
       applyRail();
     });
   }
+  KOS.shell.applyRail = applyRail;
   applyRail();
 
   /* the top bar's clock: time over date, refreshed on the minute */
